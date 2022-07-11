@@ -23,6 +23,7 @@ import android.content.ComponentName;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
+import androidx.car.app.SessionInfo;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 
@@ -40,11 +41,13 @@ class CarAppViewModelFactory implements ViewModelProvider.Factory {
 
     Application mApplication;
     ComponentName mComponentName;
+    SessionInfo mSessionInfo;
 
     private CarAppViewModelFactory(@NonNull ComponentName componentName,
-            @NonNull Application application) {
+            @NonNull Application application, @NonNull SessionInfo sessionInfo) {
         mComponentName = componentName;
         mApplication = application;
+        mSessionInfo = sessionInfo;
     }
 
     /**
@@ -54,10 +57,10 @@ class CarAppViewModelFactory implements ViewModelProvider.Factory {
      */
     @NonNull
     static CarAppViewModelFactory getInstance(Application application,
-            ComponentName componentName) {
+            ComponentName componentName, SessionInfo sessionInfo) {
         CarAppViewModelFactory instance = sInstances.get(componentName);
         if (instance == null) {
-            instance = new CarAppViewModelFactory(componentName, application);
+            instance = new CarAppViewModelFactory(componentName, application, sessionInfo);
             sInstances.put(componentName, instance);
         }
         return instance;
@@ -67,6 +70,6 @@ class CarAppViewModelFactory implements ViewModelProvider.Factory {
     @NonNull
     @Override
     public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
-        return (T) new CarAppViewModel(mApplication, mComponentName);
+        return (T) new CarAppViewModel(mApplication, mComponentName, mSessionInfo);
     }
 }

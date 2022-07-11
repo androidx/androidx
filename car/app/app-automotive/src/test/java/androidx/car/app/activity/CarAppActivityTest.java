@@ -19,6 +19,8 @@ package androidx.car.app.activity;
 import static android.view.KeyEvent.ACTION_UP;
 import static android.view.KeyEvent.KEYCODE_R;
 
+import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
+
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.fail;
@@ -51,6 +53,7 @@ import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
 
 import androidx.car.app.CarAppService;
+import androidx.car.app.SessionInfo;
 import androidx.car.app.activity.renderer.ICarAppActivity;
 import androidx.car.app.activity.renderer.IInsetsListener;
 import androidx.car.app.activity.renderer.IProxyInputConnection;
@@ -64,7 +67,6 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.test.core.app.ActivityScenario;
-import androidx.test.core.app.ApplicationProvider;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -79,19 +81,20 @@ import org.robolectric.shadows.ShadowPackageManager;
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
 public class CarAppActivityTest {
-    private final ComponentName mRendererComponent = new ComponentName(
-            ApplicationProvider.getApplicationContext(), getClass().getName());
+    public static final String INTENT_IDENTIFIER = "CarAppActivityTest";
+    private final ComponentName mRendererComponent = new ComponentName(getApplicationContext(),
+            getClass().getName());
     private final String mFakeCarAppServiceClass = "com.fake.FakeCarAppService";
     private final ComponentName mFakeCarAppServiceComponent = new ComponentName(
-            ApplicationProvider.getApplicationContext(), mFakeCarAppServiceClass);
+            getApplicationContext(), mFakeCarAppServiceClass);
     private final IRendererService mRenderService = mock(IRendererService.class);
-    private final RenderServiceDelegate mRenderServiceDelegate =
-            new RenderServiceDelegate(mRenderService);
+    private final RenderServiceDelegate mRenderServiceDelegate = new RenderServiceDelegate(
+            mRenderService);
 
     @Before
     public void setup() {
         try {
-            Application app = ApplicationProvider.getApplicationContext();
+            Application app = getApplicationContext();
 
             // Register fake {@code CarAppService}
             PackageManager packageManager = app.getPackageManager();
@@ -105,8 +108,7 @@ public class CarAppActivityTest {
             spm.addIntentFilterForService(mRendererComponent,
                     new IntentFilter(CarAppActivity.ACTION_RENDER));
 
-            when(mRenderService.initialize(any(ICarAppActivity.class),
-                    any(ComponentName.class),
+            when(mRenderService.initialize(any(ICarAppActivity.class), any(ComponentName.class),
                     anyInt())).thenReturn(true);
             when(mRenderService.onNewIntent(any(Intent.class), any(ComponentName.class),
                     anyInt())).thenReturn(true);
@@ -122,8 +124,7 @@ public class CarAppActivityTest {
     @Test
     public void testRendererInitialization() {
         runOnActivity((scenario, activity) -> {
-            verify(mRenderService, times(1)).initialize(
-                    mRenderServiceDelegate.getCarAppActivity(),
+            verify(mRenderService, times(1)).initialize(mRenderServiceDelegate.getCarAppActivity(),
                     mFakeCarAppServiceComponent, activity.getDisplayId());
             verify(mRenderService, times(1)).onNewIntent(activity.getIntent(),
                     mFakeCarAppServiceComponent, activity.getDisplayId());
@@ -162,12 +163,10 @@ public class CarAppActivityTest {
             verify(callback, times(1)).onResume();
 
             // Add a test-specific lifecycle callback to activity.
-            ActivityLifecycleCallbacks activityCallback = mock(
-                    ActivityLifecycleCallbacks.class);
+            ActivityLifecycleCallbacks activityCallback = mock(ActivityLifecycleCallbacks.class);
             activity.registerActivityLifecycleCallbacks(activityCallback);
             // Report service connection error.
-            CarAppViewModel viewModel =
-                    new ViewModelProvider(activity).get(CarAppViewModel.class);
+            CarAppViewModel viewModel = new ViewModelProvider(activity).get(CarAppViewModel.class);
             viewModel.onError(ErrorHandler.ErrorType.HOST_ERROR);
 
             assertThat(activity.isFinishing()).isEqualTo(false);
@@ -197,19 +196,17 @@ public class CarAppActivityTest {
         runOnActivity((scenario, activity) -> {
             ServiceConnectionManager serviceConnectionManager =
                     activity.mViewModel.getServiceConnectionManager();
-            ServiceConnection serviceConnection =
-                    spy(serviceConnectionManager.getServiceConnection());
+            ServiceConnection serviceConnection = spy(
+                    serviceConnectionManager.getServiceConnection());
             serviceConnectionManager.setServiceConnection(serviceConnection);
 
             // Destroy activity to force unbind.
             scenario.moveToState(Lifecycle.State.DESTROYED);
 
             // Verify Activity onDestroy even is reported to renderer.
-            verify(mRenderService, times(1)).terminate(
-                    mFakeCarAppServiceComponent);
+            verify(mRenderService, times(1)).terminate(mFakeCarAppServiceComponent);
             // Verify service connection is closed.
-            verify(serviceConnection, times(1)).onServiceDisconnected(
-                    mRendererComponent);
+            verify(serviceConnection, times(1)).onServiceDisconnected(mRendererComponent);
             assertThat(serviceConnectionManager.isBound()).isFalse();
 
         });
@@ -223,8 +220,7 @@ public class CarAppActivityTest {
             IRendererCallback rendererCallback = mock(IRendererCallback.class);
 
             ICarAppActivity carAppActivity = mRenderServiceDelegate.getCarAppActivity();
-            carAppActivity.setSurfacePackage(
-                    Bundleable.create(new LegacySurfacePackage(callback)));
+            carAppActivity.setSurfacePackage(Bundleable.create(new LegacySurfacePackage(callback)));
             carAppActivity.registerRendererCallback(rendererCallback);
 
             // Verify back events on the activity are sent to host.
@@ -243,11 +239,9 @@ public class CarAppActivityTest {
             int x = 50;
             int y = 50;
             int metaState = 0;
-            MotionEvent event = MotionEvent.obtain(downTime, eventTime, action, x, y,
-                    metaState);
+            MotionEvent event = MotionEvent.obtain(downTime, eventTime, action, x, y, metaState);
             activity.mSurfaceView.dispatchTouchEvent(event);
-            ArgumentCaptor<MotionEvent> argument = ArgumentCaptor.forClass(
-                    MotionEvent.class);
+            ArgumentCaptor<MotionEvent> argument = ArgumentCaptor.forClass(MotionEvent.class);
             verify(callback, times(1)).onTouchEvent(argument.capture());
             // Compare string representations as equals in MotionEvent checks for same
             // object.
@@ -306,15 +300,13 @@ public class CarAppActivityTest {
             View activityContainer = activity.mActivityContainerView;
             View localContentContainer = activity.mLocalContentContainerView;
             Insets systemWindowInsets = Insets.of(10, 20, 30, 40);
-            WindowInsets windowInsets = new WindowInsetsCompat.Builder()
-                    .setInsets(WindowInsetsCompat.Type.systemBars(), systemWindowInsets)
-                    .build()
-                    .toWindowInsets();
+            WindowInsets windowInsets = new WindowInsetsCompat.Builder().setInsets(
+                    WindowInsetsCompat.Type.systemBars(),
+                    systemWindowInsets).build().toWindowInsets();
             activityContainer.onApplyWindowInsets(windowInsets);
 
             // Verify that the host is notified and insets are not handled locally
-            verify(insetsListener).onInsetsChanged(
-                    eq(systemWindowInsets.toPlatformInsets()));
+            verify(insetsListener).onInsetsChanged(eq(systemWindowInsets.toPlatformInsets()));
             assertThat(activityContainer.getPaddingBottom()).isEqualTo(0);
             assertThat(activityContainer.getPaddingTop()).isEqualTo(0);
             assertThat(activityContainer.getPaddingLeft()).isEqualTo(0);
@@ -346,6 +338,62 @@ public class CarAppActivityTest {
         });
     }
 
+    @Test
+    public void testLaunchWithIdentifier_passesAlongValues() {
+        ArgumentCaptor<Intent> intentArgumentCaptor = ArgumentCaptor.forClass(Intent.class);
+        Intent newIntent = new Intent(getApplicationContext(), CarAppActivity.class);
+        newIntent.setIdentifier(INTENT_IDENTIFIER);
+        try (ActivityScenario<CarAppActivity> scenario = ActivityScenario.launch(newIntent)) {
+            scenario.onActivity(activity -> {
+                try {
+                    verify(mRenderService, times(1)).initialize(
+                            mRenderServiceDelegate.getCarAppActivity(), mFakeCarAppServiceComponent,
+                            activity.getDisplayId());
+                    verify(mRenderService, times(1)).onNewIntent(intentArgumentCaptor.capture(),
+                            eq(mFakeCarAppServiceComponent), eq(activity.getDisplayId()));
+
+                    Intent intent = intentArgumentCaptor.getValue();
+                    SessionInfo si = new SessionInfo(intent);
+
+                    assertThat(si.getDisplayType()).isEqualTo(SessionInfo.DISPLAY_TYPE_MAIN);
+                    assertThat(intent.getIdentifier()).isEqualTo(si.toString());
+                } catch (Exception e) {
+                    fail(Log.getStackTraceString(e));
+                }
+            });
+
+        }
+
+    }
+
+    @Test
+    public void testLaunchWithoutIdentifier_setsRandomIdValue() {
+        ArgumentCaptor<Intent> intentArgumentCaptor = ArgumentCaptor.forClass(Intent.class);
+        Intent newIntent = new Intent(getApplicationContext(), CarAppActivity.class);
+        try (ActivityScenario<CarAppActivity> scenario = ActivityScenario.launch(newIntent)) {
+            scenario.onActivity(activity -> {
+                try {
+                    verify(mRenderService, times(1)).initialize(
+                            mRenderServiceDelegate.getCarAppActivity(), mFakeCarAppServiceComponent,
+                            activity.getDisplayId());
+                    verify(mRenderService, times(1)).onNewIntent(intentArgumentCaptor.capture(),
+                            eq(mFakeCarAppServiceComponent), eq(activity.getDisplayId()));
+
+                    Intent intent = intentArgumentCaptor.getValue();
+                    SessionInfo si = new SessionInfo(intent);
+
+                    assertThat(si.getDisplayType()).isEqualTo(SessionInfo.DISPLAY_TYPE_MAIN);
+                    assertThat(intent.getIdentifier()).isNotEqualTo(INTENT_IDENTIFIER);
+                    assertThat(intent.getIdentifier()).isEqualTo(si.toString());
+                } catch (Exception e) {
+                    fail(Log.getStackTraceString(e));
+                }
+            });
+
+        }
+
+    }
+
     interface CarActivityAction {
         void accept(ActivityScenario<CarAppActivity> scenario, CarAppActivity activity)
                 throws Exception;
@@ -361,6 +409,7 @@ public class CarAppActivityTest {
                     fail(Log.getStackTraceString(e));
                 }
             });
+
         }
     }
 }

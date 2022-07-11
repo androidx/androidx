@@ -16,6 +16,8 @@
 
 package androidx.car.app.activity;
 
+import static androidx.car.app.SessionInfo.DEFAULT_SESSION_INFO;
+
 import static com.google.common.truth.Truth.assertThat;
 
 import android.app.Application;
@@ -42,10 +44,10 @@ public class CarAppViewModelFactoryTest {
     @Test
     public void getInstance_sameKey_returnsSame() {
         CarAppViewModelFactory factory1 = CarAppViewModelFactory.getInstance(mApplication,
-                TEST_COMPONENT_NAME_1);
+                TEST_COMPONENT_NAME_1, DEFAULT_SESSION_INFO);
 
         CarAppViewModelFactory factory2 = CarAppViewModelFactory.getInstance(mApplication,
-                TEST_COMPONENT_NAME_1);
+                TEST_COMPONENT_NAME_1, DEFAULT_SESSION_INFO);
 
         assertThat(factory1).isEqualTo(factory2);
     }
@@ -53,10 +55,10 @@ public class CarAppViewModelFactoryTest {
     @Test
     public void getInstance_differentKeys_returnsDifferent() {
         CarAppViewModelFactory factory1 = CarAppViewModelFactory.getInstance(mApplication,
-                TEST_COMPONENT_NAME_1);
+                TEST_COMPONENT_NAME_1, DEFAULT_SESSION_INFO);
 
         CarAppViewModelFactory factory2 = CarAppViewModelFactory.getInstance(mApplication,
-                TEST_COMPONENT_NAME_2);
+                TEST_COMPONENT_NAME_2, DEFAULT_SESSION_INFO);
 
         assertThat(factory1).isNotEqualTo(factory2);
     }
@@ -64,7 +66,7 @@ public class CarAppViewModelFactoryTest {
     @Test
     public void create_correctComponentName() {
         CarAppViewModelFactory factory = CarAppViewModelFactory.getInstance(mApplication,
-                TEST_COMPONENT_NAME_1);
+                TEST_COMPONENT_NAME_1, DEFAULT_SESSION_INFO);
 
         CarAppViewModel viewModel = factory.create(CarAppViewModel.class);
 
