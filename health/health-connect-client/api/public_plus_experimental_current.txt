@@ -162,7 +162,7 @@ package androidx.health.connect.client.records {
     property public androidx.health.connect.client.records.metadata.Metadata metadata;
     property public java.time.Instant time;
     property public java.time.ZoneOffset? zoneOffset;
-    field public static final androidx.health.connect.client.aggregate.AggregateMetric<androidx.health.connect.client.units.Power> BASAL_CALORIES_TOTAL;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<androidx.health.connect.client.units.Energy> BASAL_CALORIES_TOTAL;
     field public static final androidx.health.connect.client.records.BasalMetabolicRateRecord.Companion Companion;
   }
 
