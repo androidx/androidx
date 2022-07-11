@@ -55,6 +55,7 @@ import androidx.lifecycle.Lifecycle.State;
 import androidx.test.core.app.ApplicationProvider;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -260,6 +261,7 @@ public class CarContextTest {
         assertThat(name).isNull();
     }
 
+    @Ignore // b/238635208
     @Test
     public void onConfigurationChanged_updatesTheConfiguration() {
         Configuration configuration = new Configuration();

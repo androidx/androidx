@@ -21,6 +21,7 @@ import androidx.health.platform.client.proto.ByteString
 import androidx.health.platform.client.proto.BytesValue
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -36,6 +37,7 @@ class ProtoParcelableTest {
         assertThat(parcelAndRead(protoParcelable).proto).isEqualTo(protoParcelable.proto)
     }
 
+    @Ignore // b/238635208
     @Test
     fun storeInSharedMemory() {
         // Big enough that it will be stored in shared memory.

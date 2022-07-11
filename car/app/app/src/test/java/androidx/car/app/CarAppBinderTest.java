@@ -51,6 +51,7 @@ import androidx.lifecycle.LifecycleRegistry;
 import androidx.test.core.app.ApplicationProvider;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -196,6 +197,7 @@ public class CarAppBinderTest {
     }
 
     @SuppressLint("NewApi")
+    @Ignore // b/238635208
     @Test
     public void onAppCreate_updatesTheConfiguration() {
         Configuration configuration = new Configuration();
@@ -250,6 +252,7 @@ public class CarAppBinderTest {
     }
 
     @SuppressLint("NewApi")
+    @Ignore // b/238635208
     @Test
     public void onConfigurationChanged_updatesTheConfiguration() throws RemoteException {
         mCarAppBinder.onAppCreate(mMockCarHost, null, new Configuration(),
