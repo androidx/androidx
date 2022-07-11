@@ -16,24 +16,15 @@
 
 package androidx.camera.core.processing;
 
-import androidx.annotation.NonNull;
 import androidx.camera.core.SurfaceEffect;
-
-import java.util.concurrent.Executor;
 
 /**
  * An internal {@link SurfaceEffect} that is releasable.
+ *
+ * <p>Note: the implementation of this interface must be thread-safe. e.g. methods can be
+ * safely invoked on any thread.
  */
 public interface SurfaceEffectInternal extends SurfaceEffect {
-
-    /**
-     * Gets the executor on which the interface will be invoked.
-     *
-     * <p>For external implementations, the executor is provided when the {@link SurfaceEffect}
-     * is set. Internal implementations must provide the executor themselves.
-     */
-    @NonNull
-    Executor getExecutor();
 
     /**
      * Releases all the resources allocated by the effect.

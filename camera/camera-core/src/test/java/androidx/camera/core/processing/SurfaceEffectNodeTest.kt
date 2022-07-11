@@ -19,9 +19,7 @@ package androidx.camera.core.processing
 import android.os.Build
 import androidx.camera.core.SurfaceOutput
 import androidx.camera.core.SurfaceRequest
-import androidx.camera.core.impl.utils.executor.CameraXExecutors.directExecutor
 import com.google.common.truth.Truth.assertThat
-import java.util.concurrent.Executor
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -40,21 +38,16 @@ class SurfaceEffectNodeTest {
     fun releaseNode_effectIsReleased() {
         // Arrange: set up releasable effect and the wrapping node.
         var isReleased = false
-        val releasableEffect = object :
-            SurfaceEffectInternal {
+        val releasableEffect = object : SurfaceEffectInternal {
             override fun onInputSurface(request: SurfaceRequest) {}
 
             override fun onOutputSurface(surfaceOutput: SurfaceOutput) {}
-
-            override fun getExecutor(): Executor {
-                return directExecutor()
-            }
 
             override fun release() {
                 isReleased = true
             }
         }
-        val node = SurfaceEffectNode(releasableEffect, directExecutor())
+        val node = SurfaceEffectNode(releasableEffect)
 
         // Act: release the node.
         node.release()

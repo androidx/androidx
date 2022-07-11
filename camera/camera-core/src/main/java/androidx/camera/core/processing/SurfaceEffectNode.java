@@ -26,7 +26,6 @@ import androidx.camera.core.SurfaceEffect;
 import androidx.camera.core.impl.utils.Threads;
 
 import java.util.Collections;
-import java.util.concurrent.Executor;
 
 /**
  * A {@link Node} implementation that wraps around the public {@link SurfaceEffect} interface.
@@ -43,8 +42,7 @@ import java.util.concurrent.Executor;
 @SuppressWarnings("UnusedVariable")
 public class SurfaceEffectNode implements Node<SurfaceEdge, SurfaceEdge> {
 
-    private final SurfaceEffect mSurfaceEffect;
-    private final Executor mExecutor;
+    private final SurfaceEffectInternal mSurfaceEffect;
     // TODO(b/233680187): keep track of the state of the node so that the pipeline can be
     //  recreated without restarting.
 
@@ -57,11 +55,9 @@ public class SurfaceEffectNode implements Node<SurfaceEdge, SurfaceEdge> {
      *  in the output edge and the 4x4 matrix passing to the GL renderer.
      *
      * @param surfaceEffect the interface to wrap around.
-     * @param executor      the executor on which the {@link SurfaceEffect} methods are invoked.
      */
-    public SurfaceEffectNode(@NonNull SurfaceEffect surfaceEffect, @NonNull Executor executor) {
+    public SurfaceEffectNode(@NonNull SurfaceEffectInternal surfaceEffect) {
         mSurfaceEffect = surfaceEffect;
-        mExecutor = executor;
     }
 
     /**
@@ -101,8 +97,6 @@ public class SurfaceEffectNode implements Node<SurfaceEdge, SurfaceEdge> {
     @Override
     public void release() {
         // TODO: Call #close() on the output SurfaceOut#getSurface
-        if (mSurfaceEffect instanceof SurfaceEffectInternal) {
-            ((SurfaceEffectInternal) mSurfaceEffect).release();
-        }
+        mSurfaceEffect.release();
     }
 }
