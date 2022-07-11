@@ -34,8 +34,8 @@ private fun CheckedUncheckedColorProvider.toColorStateList(
     isNightMode: Boolean
 ): ColorStateList {
     return createCheckedColorStateList(
-        checked = resolve(context, isNightMode, isChecked = true),
-        unchecked = resolve(context, isNightMode, isChecked = false)
+        checked = getColor(context, isNightMode, isChecked = true),
+        unchecked = getColor(context, isNightMode, isChecked = false)
     )
 }
 
@@ -59,8 +59,8 @@ private fun createCheckedColorStateList(checked: Color, unchecked: Color): Color
     )
 }
 
-internal fun CheckableColorProvider.resolve(context: Context, isChecked: Boolean) = when (this) {
-    is CheckedUncheckedColorProvider -> resolve(context, context.isNightMode, isChecked)
+internal fun CheckableColorProvider.getColor(context: Context, isChecked: Boolean) = when (this) {
+    is CheckedUncheckedColorProvider -> getColor(context, context.isNightMode, isChecked)
     is ResourceCheckableColorProvider -> {
         // If the user provided res id does not resolve, then resolve using the fallback
         // (which cannot fail).

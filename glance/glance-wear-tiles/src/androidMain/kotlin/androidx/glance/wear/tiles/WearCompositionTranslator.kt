@@ -153,14 +153,14 @@ private fun PaddingInDp.toProto(): ModifiersBuilders.Padding =
 private fun BackgroundModifier.toProto(context: Context): ModifiersBuilders.Background? =
     this.colorProvider?.let { provider ->
         ModifiersBuilders.Background.Builder()
-            .setColor(argb(provider.getColor(context)))
+            .setColor(argb(provider.getColorAsArgb(context)))
             .build()
     }
 
 private fun BorderModifier.toProto(context: Context): ModifiersBuilders.Border =
     ModifiersBuilders.Border.Builder()
         .setWidth(dp(this.width.toDp(context.resources).value))
-        .setColor(argb(this.color.getColor(context)))
+        .setColor(argb(this.color.getColorAsArgb(context)))
         .build()
 
 private fun SemanticsModifier.toProto(): ModifiersBuilders.Semantics? =
@@ -177,7 +177,7 @@ private fun SemanticsCurvedModifier.toProto(): ModifiersBuilders.Semantics? =
             .build()
     }
 
-private fun ColorProvider.getColor(context: Context) = resolve(context).toArgb()
+private fun ColorProvider.getColorAsArgb(context: Context) = getColor(context).toArgb()
 
 // TODO: handle parameters
 private fun StartActivityAction.toProto(context: Context): ActionBuilders.LaunchAction =
@@ -406,7 +406,7 @@ private fun translateTextStyle(
 ): LayoutElementBuilders.FontStyle {
     val fontStyleBuilder = LayoutElementBuilders.FontStyle.Builder()
 
-    style.color?.let { fontStyleBuilder.setColor(argb(it.getColor(context))) }
+    style.color?.let { fontStyleBuilder.setColor(argb(it.getColorAsArgb(context))) }
     // TODO(b/203656358): Can we support Em here too?
     style.fontSize?.let {
         if (!it.isSp) {
@@ -444,7 +444,7 @@ private fun translateTextStyle(
 ): LayoutElementBuilders.FontStyle {
     val fontStyleBuilder = LayoutElementBuilders.FontStyle.Builder()
 
-    style.color?.let { fontStyleBuilder.setColor(argb(it.getColor(context))) }
+    style.color?.let { fontStyleBuilder.setColor(argb(it.getColorAsArgb(context))) }
     style.fontSize?.let { fontStyleBuilder.setSize(sp(it.value)) }
     style.fontStyle?.let { fontStyleBuilder.setItalic(it == FontStyle.Italic) }
     style.fontWeight?.let {
@@ -644,7 +644,7 @@ private fun translateEmittableCurvedLine(
     return LayoutElementBuilders.ArcLine.Builder()
         .setLength(degrees(sweepAngleDegrees))
         .setThickness(dp(thickness.value))
-        .setColor(argb(element.color.getColor(context)))
+        .setColor(argb(element.color.getColorAsArgb(context)))
         .setModifiers(translateCurvedModifiers(context, element.curvedModifier))
         .build()
 }
