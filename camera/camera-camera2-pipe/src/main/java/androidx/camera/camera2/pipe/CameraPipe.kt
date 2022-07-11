@@ -82,7 +82,8 @@ public class CameraPipe(config: Config) {
     public data class Config(
         val appContext: Context,
         val threadConfig: ThreadConfig = ThreadConfig(),
-        val cameraMetadataConfig: CameraMetadataConfig = CameraMetadataConfig()
+        val cameraMetadataConfig: CameraMetadataConfig = CameraMetadataConfig(),
+        val cameraBackendConfig: CameraBackendConfig = CameraBackendConfig()
     )
 
     /**
@@ -117,6 +118,31 @@ public class CameraPipe(config: Config) {
         public val cameraCacheBlocklist: Map<CameraId, Set<CameraCharacteristics.Key<*>>> =
             emptyMap()
     )
+
+    /**
+     * Configure the default and available [CameraBackend] instances that are available.
+     *
+     * @param camera2Backend will override the internal camera2 backend defined by [CameraPipe].
+     *   This may be used to mock and replace all interactions with camera2.
+     * @param defaultBackend defines which camera backend instance should be used by default. If
+     *   this value is specified, it must appear in the list of [cameraBackends]. If no value is
+     *   specified, the [camera2Backend] instance OR the internal camera2 backend will be used as
+     *   the default camera backend.
+     * @param cameraBackends defines a map of unique camera backend factories that may be used via
+     *   [CameraPipe].
+     */
+    class CameraBackendConfig(
+        val camera2Backend: CameraBackend? = null,
+        val defaultBackend: CameraBackendId? = null,
+        val cameraBackends: Map<CameraBackendId, CameraBackendFactory> = emptyMap()
+    ) {
+        init {
+            check(defaultBackend == null || cameraBackends.containsKey(defaultBackend)) {
+                "$defaultBackend does not exist in cameraBackends! Available backends are:" +
+                    " ${cameraBackends.keys}"
+            }
+        }
+    }
 
     override fun toString(): String = "CameraPipe-$debugId"
 

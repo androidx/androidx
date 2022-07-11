@@ -36,5 +36,5 @@ interface GraphListener {
      * Used to indicate that the internal state of the [RequestProcessor] has changed. This is
      * a signal that previously queued requests may now succeed if they previously failed.
      */
-    fun onGraphModified(requestProcessor: RequestProcessor)
+    fun onGraphUpdated(requestProcessor: RequestProcessor)
 }

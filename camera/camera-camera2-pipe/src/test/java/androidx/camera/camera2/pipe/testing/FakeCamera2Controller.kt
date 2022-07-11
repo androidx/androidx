@@ -16,9 +16,9 @@
 
 package androidx.camera.camera2.pipe.testing
 
-import androidx.camera.camera2.pipe.compat.CameraController
+import androidx.camera.camera2.pipe.compat.Camera2Controller
 
-internal class FakeCameraController : CameraController {
+internal class FakeCamera2Controller : Camera2Controller {
     var active = false
     var reconfigured = false
 

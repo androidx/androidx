@@ -22,10 +22,10 @@ import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.Request
-import androidx.camera.camera2.pipe.compat.Camera2CameraController
+import androidx.camera.camera2.pipe.compat.Camera2Camera2Controller
 import androidx.camera.camera2.pipe.compat.Camera2MetadataCache
 import androidx.camera.camera2.pipe.compat.Camera2RequestProcessorFactory
-import androidx.camera.camera2.pipe.compat.CameraController
+import androidx.camera.camera2.pipe.compat.Camera2Controller
 import androidx.camera.camera2.pipe.compat.SessionFactoryModule
 import androidx.camera.camera2.pipe.compat.StandardCamera2RequestProcessorFactory
 import androidx.camera.camera2.pipe.core.Threads
@@ -68,7 +68,9 @@ internal interface CameraGraphComponent {
 }
 
 @Module
-internal class CameraGraphConfigModule(private val config: CameraGraph.Config) {
+internal class CameraGraphConfigModule(
+    private val config: CameraGraph.Config
+) {
     @Provides
     fun provideCameraGraphConfig(): CameraGraph.Config = config
 }
@@ -125,7 +127,7 @@ internal abstract class Camera2CameraGraphModules {
     ): Camera2RequestProcessorFactory
 
     @Binds
-    abstract fun bindGraphState(camera2CameraState: Camera2CameraController): CameraController
+    abstract fun bindGraphState(camera2CameraState: Camera2Camera2Controller): Camera2Controller
 
     companion object {
         @Provides

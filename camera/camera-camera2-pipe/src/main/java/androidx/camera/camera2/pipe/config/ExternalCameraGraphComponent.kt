@@ -22,7 +22,7 @@ import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.RequestProcessor
-import androidx.camera.camera2.pipe.compat.CameraController
+import androidx.camera.camera2.pipe.compat.Camera2Controller
 import androidx.camera.camera2.pipe.graph.GraphListener
 import dagger.Module
 import dagger.Provides
@@ -59,8 +59,8 @@ internal class ExternalCameraGraphConfigModule(
     fun provideCameraMetadata(): CameraMetadata = cameraMetadata
 
     @Provides
-    fun provideGraphController(graphListener: GraphListener): CameraController =
-        object : CameraController {
+    fun provideGraphController(graphListener: GraphListener): Camera2Controller =
+        object : Camera2Controller {
             var started = atomic(false)
             override fun start() {
                 if (started.compareAndSet(expect = false, update = true)) {
