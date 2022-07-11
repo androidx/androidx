@@ -31,9 +31,8 @@ androidXMultiplatform {
     jvm {
         withJava()
     }
-    macosX64()
-    linuxX64()
-    macosArm64()
+    mac()
+    linux()
     sourceSets {
         commonMain {
             dependencies {
@@ -104,12 +103,7 @@ androidXMultiplatform {
 
 androidx {
     name = "Android DataStore Core"
-    type = LibraryType.kmpLibrary {
-        android = Publish.NONE
-        jvm = Publish.SNAPSHOT_AND_RELEASE
-        linux = Publish.SNAPSHOT_AND_RELEASE
-        mac = Publish.SNAPSHOT_AND_RELEASE
-    }
+    type = LibraryType.KMP_LIBRARY
     mavenGroup = LibraryGroups.DATASTORE
     inceptionYear = "2020"
     description = "Android DataStore Core - contains the underlying store used by each serialization method"
