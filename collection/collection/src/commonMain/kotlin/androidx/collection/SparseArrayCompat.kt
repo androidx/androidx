@@ -59,7 +59,7 @@ import kotlin.math.min
  * 0, the sparse array will be initialized with a light-weight representation not requiring any
  * additional array allocations. Default initialCapacity is 10.
  */
-public open class SparseArrayCompat<E> @JvmOverloads public constructor(
+public open expect class SparseArrayCompat<E> @JvmOverloads public constructor(
     initialCapacity: Int = 10
 ) : Cloneable {
     private var garbage = false
