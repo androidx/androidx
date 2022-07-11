@@ -16,6 +16,10 @@
 
 package androidx.car.app.activity;
 
+import static androidx.car.app.SessionInfo.DISPLAY_TYPE_MAIN;
+
+import static java.lang.System.identityHashCode;
+
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
@@ -23,6 +27,7 @@ import android.os.Bundle;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import androidx.car.app.CarAppService;
+import androidx.car.app.SessionInfo;
 
 /**
  * The class representing a car app activity in the main display.
@@ -76,6 +81,15 @@ public final class CarAppActivity extends BaseCarAppActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        bindToViewModel();
+
+        String identifier;
+        if (getIntent().getIdentifier() != null) {
+            identifier = getIntent().getIdentifier();
+        } else {
+            identifier = String.valueOf(identityHashCode(this));
+        }
+
+        bindToViewModel(new SessionInfo(DISPLAY_TYPE_MAIN,
+                identifier));
     }
 }

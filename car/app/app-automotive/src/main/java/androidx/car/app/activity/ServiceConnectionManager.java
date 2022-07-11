@@ -36,6 +36,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.car.app.HandshakeInfo;
+import androidx.car.app.SessionInfo;
 import androidx.car.app.activity.renderer.ICarAppActivity;
 import androidx.car.app.activity.renderer.IRendererService;
 import androidx.car.app.versioning.CarAppApiLevels;
@@ -58,6 +59,7 @@ public class ServiceConnectionManager {
 
     final ServiceConnectionListener mListener;
     private final ComponentName mServiceComponentName;
+    private final SessionInfo mSessionInfo;
     private final Context mContext;
     private final ServiceDispatcher mServiceDispatcher;
     private int mDisplayId;
@@ -79,8 +81,10 @@ public class ServiceConnectionManager {
 
     public ServiceConnectionManager(@NonNull Context context,
             @NonNull ComponentName serviceComponentName,
+            @NonNull SessionInfo sessionInfo,
             @NonNull ServiceConnectionListener listener) {
         mContext = context;
+        mSessionInfo = sessionInfo;
         mListener = listener;
         mServiceComponentName = serviceComponentName;
         mServiceDispatcher = new ServiceDispatcher(listener, this::isBound);
@@ -197,6 +201,7 @@ public class ServiceConnectionManager {
         }
 
         Intent rendererIntent = new Intent(ACTION_RENDER);
+        SessionInfo.setBindData(rendererIntent, mSessionInfo);
         List<ResolveInfo> resolveInfoList =
                 mContext.getPackageManager()
                         .queryIntentServices(rendererIntent, PackageManager.GET_META_DATA);
@@ -284,7 +289,7 @@ public class ServiceConnectionManager {
     private boolean updateIntent() {
         ComponentName serviceComponentName = requireNonNull(mServiceComponentName);
         Intent intent = requireNonNull(mIntent);
-
+        SessionInfo.setBindData(intent, mSessionInfo);
         IRendererService service = mRendererService;
         if (service == null) {
             Log.e(LogTags.TAG, "Service dispatcher is not connected");
