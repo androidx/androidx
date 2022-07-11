@@ -57,12 +57,16 @@ class FilternatorTestWithCustomDefault {
     fun setup() {
         uiDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
 
-        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
+        InstrumentationRegistry.getInstrumentation().runOnMainSync {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
+        }
     }
 
     @After
     fun teardown() {
-        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
+        InstrumentationRegistry.getInstrumentation().runOnMainSync {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
+        }
     }
 
     @Test
