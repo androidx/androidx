@@ -45,13 +45,25 @@ public class LayoutDefaults {
      * The default percentage for the top margin for primary chip in the {@link PrimaryLayout} on
      * square devices.
      */
-    static final float PRIMARY_LAYOUT_MARGIN_TOP_SQUARE_PERCENT = 15.6f / 100;
+    static final float PRIMARY_LAYOUT_MARGIN_TOP_SQUARE_PERCENT = 13.3f / 100;
+
+    /**
+     * The default spacer above primary label in {@link PrimaryLayout} to make space for Tile icon
+     * on round devices.
+     */
+    static final DpProp PRIMARY_LAYOUT_PRIMARY_LABEL_SPACER_HEIGHT_ROUND_DP = dp(0);
+
+    /**
+     * The default spacer above primary label in {@link PrimaryLayout} to make space for Tile icon
+     * on square devices.
+     */
+    static final DpProp PRIMARY_LAYOUT_PRIMARY_LABEL_SPACER_HEIGHT_SQUARE_DP = dp(4);
 
     /**
      * The default percentage for the horizontal margin for primary chip in the {@link
      * PrimaryLayout}.
      */
-    static final float PRIMARY_LAYOUT_MARGIN_HORIZONTAL_ROUND_PERCENT = 5.2f / 100;
+    static final float PRIMARY_LAYOUT_MARGIN_HORIZONTAL_ROUND_PERCENT = 6.3f / 100;
 
     /**
      * The default percentage for the horizontal margin for primary chip in the {@link
@@ -63,7 +75,7 @@ public class LayoutDefaults {
      * The padding for the primary chip in {@link PrimaryLayout} so it doesn't bleed off screen if
      * text is too big.
      */
-    static final float PRIMARY_LAYOUT_CHIP_HORIZONTAL_PADDING_ROUND_DP = 32;
+    static final float PRIMARY_LAYOUT_CHIP_HORIZONTAL_PADDING_ROUND_DP = 30;
 
     /**
      * The padding for the primary chip in {@link PrimaryLayout} so it doesn't bleed off screen if
@@ -113,7 +125,7 @@ public class LayoutDefaults {
     static final DpProp MULTI_BUTTON_1_SIZE = ButtonDefaults.EXTRA_LARGE_SIZE;
 
     /** The default width for vertical spacer between buttons in the {@link MultiButtonLayout}. */
-    static final DpProp MULTI_BUTTON_SPACER_WIDTH = dp(8);
+    static final DpProp MULTI_BUTTON_SPACER_WIDTH = dp(6);
 
     /**
      * The default height for horizontal spacer between buttons in the {@link MultiButtonLayout}.
