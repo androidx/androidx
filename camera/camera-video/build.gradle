@@ -58,6 +58,7 @@ dependencies {
     androidTestImplementation(libs.truth)
     androidTestImplementation(libs.mockitoCore, excludes.bytebuddy) // DexMaker has it's own MockMaker
     androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy) // DexMaker has it's own MockMaker
+    androidTestImplementation(libs.autoValueAnnotations)
     androidTestImplementation(project(":camera:camera-lifecycle"))
     androidTestImplementation(project(":camera:camera-testing"))
     androidTestImplementation(libs.kotlinStdlib)
@@ -67,6 +68,7 @@ dependencies {
     androidTestImplementation libs.mockitoKotlin, {
         exclude group: 'org.mockito' // to keep control on the mockito version
     }
+    androidTestAnnotationProcessor(libs.autoValue)
 }
 
 android {
