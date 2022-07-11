@@ -169,8 +169,8 @@ public class Button implements LayoutElement {
         /**
          * Sets the size for the {@link Button}. Strongly recommended values are {@link
          * ButtonDefaults#DEFAULT_SIZE}, {@link ButtonDefaults#LARGE_SIZE} and {@link
-         * ButtonDefaults#EXTRA_LARGE_SIZE}. If not set, {@link
-         * ButtonDefaults#DEFAULT_SIZE} will be used.
+         * ButtonDefaults#EXTRA_LARGE_SIZE}. If not set, {@link ButtonDefaults#DEFAULT_SIZE} will be
+         * used.
          */
         @NonNull
         public Builder setSize(@NonNull DpProp size) {
@@ -181,8 +181,8 @@ public class Button implements LayoutElement {
         /**
          * Sets the size for the {@link Button}. Strongly recommended values are {@link
          * ButtonDefaults#DEFAULT_SIZE}, {@link ButtonDefaults#LARGE_SIZE} and {@link
-         * ButtonDefaults#EXTRA_LARGE_SIZE}. If not set, {@link
-         * ButtonDefaults#DEFAULT_SIZE} will be used.
+         * ButtonDefaults#EXTRA_LARGE_SIZE}. If not set, {@link ButtonDefaults#DEFAULT_SIZE} will be
+         * used.
          */
         @NonNull
         public Builder setSize(@Dimension(unit = DP) float size) {
@@ -242,12 +242,11 @@ public class Button implements LayoutElement {
 
         /**
          * Sets the content of this Button to be the given text with the default font for the set
-         * size (for the {@link ButtonDefaults#DEFAULT_SIZE}, {@link
-         * ButtonDefaults#LARGE_SIZE} and {@link ButtonDefaults#EXTRA_LARGE_SIZE} is
-         * {@link Typography#TYPOGRAPHY_TITLE2}, {@link Typography#TYPOGRAPHY_TITLE1} and {@link
-         * Typography#TYPOGRAPHY_DISPLAY3} respectively). Any previously added content will be
-         * overridden. Text should contain no more than 3 characters, otherwise it will overflow
-         * from the edges.
+         * size (for the {@link ButtonDefaults#DEFAULT_SIZE}, {@link ButtonDefaults#LARGE_SIZE} and
+         * {@link ButtonDefaults#EXTRA_LARGE_SIZE} is {@link Typography#TYPOGRAPHY_TITLE2}, {@link
+         * Typography#TYPOGRAPHY_TITLE1} and {@link Typography#TYPOGRAPHY_DISPLAY3} respectively).
+         * Any previously added content will be overridden. Text should contain no more than 3
+         * characters, otherwise it will overflow from the edges.
          */
         @NonNull
         public Builder setTextContent(@NonNull String text) {

@@ -35,6 +35,8 @@ import static androidx.wear.tiles.material.layouts.LayoutDefaults.PRIMARY_LAYOUT
 import static androidx.wear.tiles.material.layouts.LayoutDefaults.PRIMARY_LAYOUT_MARGIN_HORIZONTAL_SQUARE_PERCENT;
 import static androidx.wear.tiles.material.layouts.LayoutDefaults.PRIMARY_LAYOUT_MARGIN_TOP_ROUND_PERCENT;
 import static androidx.wear.tiles.material.layouts.LayoutDefaults.PRIMARY_LAYOUT_MARGIN_TOP_SQUARE_PERCENT;
+import static androidx.wear.tiles.material.layouts.LayoutDefaults.PRIMARY_LAYOUT_PRIMARY_LABEL_SPACER_HEIGHT_ROUND_DP;
+import static androidx.wear.tiles.material.layouts.LayoutDefaults.PRIMARY_LAYOUT_PRIMARY_LABEL_SPACER_HEIGHT_SQUARE_DP;
 
 import android.annotation.SuppressLint;
 
@@ -127,6 +129,13 @@ public class PrimaryLayout implements LayoutElement {
      * the content is present or not.
      */
     static final int CONTENT_PRESENT = 0x8;
+
+    /** Position of the primary label in inner column if exists. */
+    static final int PRIMARY_LABEL_POSITION = 1;
+    /** Position of the content in inner column element when primary label is present. */
+    static final int CONTENT_POSITION = 3;
+    /** Position of the content in inner column element when there primary label is not present. */
+    static final int CONTENT_ONLY_POSITION = 0;
 
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -250,6 +259,8 @@ public class PrimaryLayout implements LayoutElement {
                             .setHorizontalAlignment(LayoutElementBuilders.HORIZONTAL_ALIGN_CENTER);
 
             if (mPrimaryLabelText != null) {
+                innerContentBuilder.addContent(
+                        new Spacer.Builder().setHeight(getPrimaryLabelTopSpacerHeight()).build());
                 innerContentBuilder.addContent(mPrimaryLabelText);
                 innerContentBuilder.addContent(
                         new Spacer.Builder().setHeight(mVerticalSpacerHeight).build());
@@ -372,6 +383,14 @@ public class PrimaryLayout implements LayoutElement {
                     ? PRIMARY_LAYOUT_CHIP_HORIZONTAL_PADDING_ROUND_DP
                     : PRIMARY_LAYOUT_CHIP_HORIZONTAL_PADDING_SQUARE_DP;
         }
+
+        /** Returns the spacer height to be placed above primary label to accommodate Tile icon. */
+        @NonNull
+        private DpProp getPrimaryLabelTopSpacerHeight() {
+            return isRoundDevice(mDeviceParameters)
+                    ? PRIMARY_LAYOUT_PRIMARY_LABEL_SPACER_HEIGHT_ROUND_DP
+                    : PRIMARY_LAYOUT_PRIMARY_LABEL_SPACER_HEIGHT_SQUARE_DP;
+        }
     }
 
     /** Get the primary label content from this layout. */
@@ -380,8 +399,7 @@ public class PrimaryLayout implements LayoutElement {
         if (!areElementsPresent(PRIMARY_LABEL_PRESENT)) {
             return null;
         }
-        // By tag we know that primary label exists. It will always be at position 0.
-        return mInnerColumn.get(0);
+        return mInnerColumn.get(PRIMARY_LABEL_POSITION);
     }
 
     /** Get the secondary label content from this layout. */
@@ -400,9 +418,9 @@ public class PrimaryLayout implements LayoutElement {
         if (!areElementsPresent(CONTENT_PRESENT)) {
             return null;
         }
-        // By tag we know that content exists. It will be at position 0 if there is no primary
-        // label, or at position 2 (primary label, spacer - content) otherwise.
-        int contentPosition = areElementsPresent(PRIMARY_LABEL_PRESENT) ? 2 : 0;
+        int contentPosition =
+                areElementsPresent(PRIMARY_LABEL_PRESENT)
+                        ? CONTENT_POSITION : CONTENT_ONLY_POSITION;
         return ((Box) mInnerColumn.get(contentPosition)).getContents().get(0);
     }
 
@@ -421,13 +439,13 @@ public class PrimaryLayout implements LayoutElement {
     @SuppressLint("ResourceType")
     @Dimension(unit = DP)
     public float getVerticalSpacerHeight() {
-        // We don't need special cases for primary or secondary label - if primary label is present,
-        // then the first spacer is at the position 1 and we can get height from it. However, if the
-        // primary label is not present, the spacer will be between content and secondary label (if
-        // there is secondary label) so its position is again 1.
         if (areElementsPresent(PRIMARY_LABEL_PRESENT)
                 || areElementsPresent(SECONDARY_LABEL_PRESENT)) {
-            LayoutElement element = mInnerColumn.get(1);
+            LayoutElement element =
+                    mInnerColumn.get(
+                            (areElementsPresent(PRIMARY_LABEL_PRESENT)
+                                    ? PRIMARY_LABEL_POSITION : CONTENT_ONLY_POSITION) + 1
+                    );
             if (element instanceof Spacer) {
                 SpacerDimension height = ((Spacer) element).getHeight();
                 if (height instanceof DpProp) {
