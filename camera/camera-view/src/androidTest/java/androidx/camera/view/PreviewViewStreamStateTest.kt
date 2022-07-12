@@ -31,6 +31,7 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.Observer
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.rules.ActivityScenarioRule
+import androidx.test.filters.FlakyTest
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
@@ -169,6 +170,7 @@ class PreviewViewStreamStateTest(private val implMode: PreviewView.Implementatio
     }
 
     @Test
+    @FlakyTest(bugId = 238664500)
     fun streamState_STREAMING_TO_IDLE_TO_STREAMING_switchCamera() {
         Assume.assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_FRONT))
 

@@ -27,6 +27,7 @@ import android.content.Context;
 import android.util.DisplayMetrics;
 
 import androidx.annotation.Dimension;
+import androidx.test.filters.FlakyTest;
 import androidx.test.filters.LargeTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.screenshot.AndroidXScreenshotTestRule;
@@ -144,6 +145,7 @@ public class LayoutsGoldenXLTest {
     }
 
     @Test
+    @FlakyTest(bugId = 238613023)
     public void test() {
         runSingleScreenshotTest(mScreenshotRule, mLayoutElement, mExpected);
     }
