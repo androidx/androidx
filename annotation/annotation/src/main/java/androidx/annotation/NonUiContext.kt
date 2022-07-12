@@ -13,34 +13,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package androidx.annotation;
-
-import static java.lang.annotation.ElementType.FIELD;
-import static java.lang.annotation.ElementType.METHOD;
-import static java.lang.annotation.ElementType.PARAMETER;
-import static java.lang.annotation.ElementType.TYPE;
-import static java.lang.annotation.RetentionPolicy.SOURCE;
-
-import java.lang.annotation.Retention;
-import java.lang.annotation.Target;
+package androidx.annotation
 
 /**
- * Denotes a {@link android.content.Context} that <b>can not</b> be used to obtain a
- * {@link android.view.Display} via {@link android.content.Context#getDisplay} nor to obtain an
- * instance of a visual service, such a {@link android.view.WindowManager},
- * {@link android.view.LayoutInflater} or {@link android.app.WallpaperManager} via
- * {@link android.content.Context#getSystemService(String)}.
- * <p>
+ * Denotes a [android.content.Context] that **can not** be used to obtain a
+ * [android.view.Display] via [android.content.Context.getDisplay] nor to obtain an
+ * instance of a visual service, such a [android.view.WindowManager],
+ * [android.view.LayoutInflater] or [android.app.WallpaperManager] via
+ * [android.content.Context.getSystemService].
+ *
+ *
  * This is a marker annotation and has no specific attributes.
  *
- * @see android.content.Context#getDisplay()
- * @see android.content.Context#getSystemService(String)
- * @see android.content.Context#getSystemService(Class)
+ * @see android.content.Context.getDisplay
+ * @see android.content.Context.getSystemService
+ * @see android.content.Context.getSystemService
  * @see UiContext
+ *
  * @see DisplayContext
  */
-@Retention(SOURCE)
-@Target({TYPE, METHOD, PARAMETER, FIELD})
-public @interface NonUiContext {
-}
+@Retention(AnnotationRetention.SOURCE)
+@Target(
+    AnnotationTarget.ANNOTATION_CLASS,
+    AnnotationTarget.CLASS,
+    AnnotationTarget.FUNCTION,
+    AnnotationTarget.PROPERTY_GETTER,
+    AnnotationTarget.PROPERTY_SETTER,
+    AnnotationTarget.VALUE_PARAMETER,
+    AnnotationTarget.FIELD
+)
+public annotation class NonUiContext

@@ -13,43 +13,41 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package androidx.annotation;
-
-import static java.lang.annotation.ElementType.FIELD;
-import static java.lang.annotation.ElementType.METHOD;
-import static java.lang.annotation.ElementType.PARAMETER;
-import static java.lang.annotation.ElementType.TYPE;
-import static java.lang.annotation.RetentionPolicy.SOURCE;
-
-import java.lang.annotation.Retention;
-import java.lang.annotation.Target;
+package androidx.annotation
 
 /**
- * Denotes a {@link android.content.Context} that can be used to create UI, meaning that it can
- * provide a {@link android.view.Display} via {@link android.content.Context#getDisplay} and can
+ * Denotes a [android.content.Context] that can be used to create UI, meaning that it can
+ * provide a [android.view.Display] via [android.content.Context.getDisplay] and can
  * be used to obtain an instance of a UI-related service, such as
- * {@link android.view.WindowManager}, {@link android.view.LayoutInflater} or
- * {@link android.app.WallpaperManager} via
- * {@link android.content.Context#getSystemService(String)}. A {@link android.content.Context}
- * which is marked as {@link UiContext} implies that the
- * {@link android.content.Context} is also a {@link DisplayContext}.
- * <p>
- * This kind of {@link android.content.Context} is usually an {@link android.app.Activity} or an
- * instance created via {@link android.content.Context#createWindowContext(int, Bundle)}. The
- * {@link android.content.res.Configuration} for these types of Context types is correctly
+ * [android.view.WindowManager], [android.view.LayoutInflater] or
+ * [android.app.WallpaperManager] via
+ * [android.content.Context.getSystemService]. A [android.content.Context]
+ * which is marked as [UiContext] implies that the
+ * [android.content.Context] is also a [DisplayContext].
+ *
+ *
+ * This kind of [android.content.Context] is usually an [android.app.Activity] or an
+ * instance created via [android.content.Context.createWindowContext]. The
+ * [android.content.res.Configuration] for these types of Context types is correctly
  * adjusted to the visual bounds of your window so it can be used to get the correct values
  * for {link android.view.WindowMetrics} and other UI related queries.
- * </p>
+ *
  * This is a marker annotation and has no specific attributes.
  *
- * @see android.content.Context#getDisplay()
- * @see android.content.Context#getSystemService(String)
- * @see android.content.Context#getSystemService(Class)
- * @see android.content.Context#createWindowContext(int, Bundle)
+ * @see android.content.Context.getDisplay
+ * @see android.content.Context.getSystemService
+ * @see android.content.Context.getSystemService
+ * @see android.content.Context.createWindowContext
  * @see DisplayContext
  */
-@Retention(SOURCE)
-@Target({TYPE, METHOD, PARAMETER, FIELD})
-public @interface UiContext {
-}
+@Retention(AnnotationRetention.SOURCE)
+@Target(
+    AnnotationTarget.ANNOTATION_CLASS,
+    AnnotationTarget.CLASS,
+    AnnotationTarget.FUNCTION,
+    AnnotationTarget.PROPERTY_GETTER,
+    AnnotationTarget.PROPERTY_SETTER,
+    AnnotationTarget.VALUE_PARAMETER,
+    AnnotationTarget.FIELD
+)
+public annotation class UiContext

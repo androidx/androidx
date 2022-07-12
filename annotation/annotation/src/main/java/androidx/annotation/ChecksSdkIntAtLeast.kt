@@ -13,15 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.annotation;
-
-import static java.lang.annotation.ElementType.FIELD;
-import static java.lang.annotation.ElementType.METHOD;
-import static java.lang.annotation.RetentionPolicy.CLASS;
-
-import java.lang.annotation.Documented;
-import java.lang.annotation.Retention;
-import java.lang.annotation.Target;
+package androidx.annotation
 
 /**
  * Denotes that the annotated method checks if the SDK_INT API level is
@@ -29,65 +21,66 @@ import java.lang.annotation.Target;
  * given lambda in that case (or if it's a field, has the value true).
  *
  * The API level can be specified either as an API level via
- * {@link #api()}, or for preview platforms as a codename (such as "R") via
- * {@link #codename()}}, or it can be passed in to the method; in that
+ * [.api], or for preview platforms as a codename (such as "R") via
+ * [.codename]}, or it can be passed in to the method; in that
  * case, the parameter containing the API level or code name should
- * be specified via {@link #parameter()}, where the first parameter
+ * be specified via [.parameter], where the first parameter
  * is numbered 0.
  *
- * <p>
+ *
+ *
  * Examples:
- * <pre>
- *  // Simple version check
- *  &#64;ChecksSdkIntAtLeast(api = Build.VERSION_CODES.O)
- *  public static boolean isAtLeastO() {
- *      return Build.VERSION.SDK_INT >= 26;
- *  }
+ * ```
+ * // Simple version check
+ * @ChecksSdkIntAtLeast(api = Build.VERSION_CODES.O)
+ * public static boolean isAtLeastO() {
+ *     return Build.VERSION.SDK_INT >= 26;
+ * }
  *
- *  // Required API level is passed in as first argument, and function
- *  // in second parameter is executed if SDK_INT is at least that high:
- *  &#64;ChecksSdkIntAtLeast(parameter = 0, lambda = 1)
- *  inline fun fromApi(value: Int, action: () -> Unit) {
- *      if (Build.VERSION.SDK_INT >= value) {
- *          action()
- *      }
- *  }
+ * // Required API level is passed in as first argument, and function
+ * // in second parameter is executed if SDK_INT is at least that high:
+ * @ChecksSdkIntAtLeast(parameter = 0, lambda = 1)
+ * inline fun fromApi(value: Int, action: () -> Unit) {
+ *     if (Build.VERSION.SDK_INT >= value) {
+ *         action()
+ *     }
+ * }
  *
- *  // Kotlin property:
- *  &#64;get:ChecksSdkIntAtLeast(api = Build.VERSION_CODES.GINGERBREAD)
- *  val isGingerbread: Boolean
- *     get() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD
+ * // Kotlin property:
+ * @get:ChecksSdkIntAtLeast(api = Build.VERSION_CODES.GINGERBREAD)
+ * val isGingerbread: Boolean
+ * get() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD
  *
- *  // Java field:
- *  &#64;ChecksSdkIntAtLeast(api = Build.VERSION_CODES.LOLLIPOP)
- *  public static final boolean SUPPORTS_LETTER_SPACING =
- *         Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP;
- *
- * </pre>
+ * // Java field:
+ * @ChecksSdkIntAtLeast(api = Build.VERSION_CODES.LOLLIPOP)
+ * public static final boolean SUPPORTS_LETTER_SPACING =
+ * Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP;
+ * ```
  */
-@Documented
-@Retention(CLASS)
-@Target({METHOD, FIELD})
-public @interface ChecksSdkIntAtLeast {
+@MustBeDocumented
+@Retention(AnnotationRetention.BINARY)
+@Target(
+    AnnotationTarget.FUNCTION,
+    AnnotationTarget.PROPERTY_GETTER,
+    AnnotationTarget.PROPERTY_SETTER,
+    AnnotationTarget.FIELD
+)
+public annotation class ChecksSdkIntAtLeast(
     /**
      * The API level is at least the given level
      */
-    int api() default -1;
-
+    val api: Int = -1,
     /**
      * The API level is at least the given codename (such as "R")
      */
-    String codename() default "";
-
+    val codename: String = "",
     /**
      * The API level is specified in the given parameter, where the first parameter is number 0
      */
-    int parameter() default -1;
-
+    val parameter: Int = -1,
     /**
      * The parameter number for a lambda that will be executed if the API level is at least
-     * the value supplied via {@link #api()}, {@link #codename()} or
-     * {@link #parameter()}
+     * the value supplied via [api], [codename] or [parameter]
      */
-    int lambda() default -1;
-}
+    val lambda: Int = -1
+)

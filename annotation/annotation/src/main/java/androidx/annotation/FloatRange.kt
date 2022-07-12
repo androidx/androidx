@@ -13,49 +13,44 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.annotation;
-
-import static java.lang.annotation.ElementType.ANNOTATION_TYPE;
-import static java.lang.annotation.ElementType.FIELD;
-import static java.lang.annotation.ElementType.LOCAL_VARIABLE;
-import static java.lang.annotation.ElementType.METHOD;
-import static java.lang.annotation.ElementType.PARAMETER;
-import static java.lang.annotation.RetentionPolicy.CLASS;
-
-import java.lang.annotation.Documented;
-import java.lang.annotation.Retention;
-import java.lang.annotation.Target;
+package androidx.annotation
 
 /**
  * Denotes that the annotated element should be a float or double in the given range
- * <p>
+ *
+ *
  * Example:
- * <pre>
- *  &#64;FloatRange(from=0.0,to=1.0)
- *  public float getAlpha() {
- *      ...
- *  }
- * </pre>
+ * ```
+ * @FloatRange(from=0.0,to=1.0)
+ * public float getAlpha() {
+ *     ...
+ * }
+ * ```
  */
-@Documented
-@Retention(CLASS)
-@Target({METHOD, PARAMETER, FIELD, LOCAL_VARIABLE, ANNOTATION_TYPE})
-public @interface FloatRange {
+@MustBeDocumented
+@Retention(AnnotationRetention.BINARY)
+@Target(
+    AnnotationTarget.FUNCTION,
+    AnnotationTarget.PROPERTY_GETTER,
+    AnnotationTarget.PROPERTY_SETTER,
+    AnnotationTarget.VALUE_PARAMETER,
+    AnnotationTarget.FIELD,
+    AnnotationTarget.LOCAL_VARIABLE,
+    AnnotationTarget.ANNOTATION_CLASS
+)
+public annotation class FloatRange(
     /**
      * Smallest value. Whether it is inclusive or not is determined
-     * by {@link #fromInclusive}
+     * by [.fromInclusive]
      */
-    double from() default Double.NEGATIVE_INFINITY;
-
+    val from: Double = java.lang.Double.NEGATIVE_INFINITY,
     /**
      * Largest value. Whether it is inclusive or not is determined
-     * by {@link #toInclusive}
+     * by [.toInclusive]
      */
-    double to() default Double.POSITIVE_INFINITY;
-
-    /** Whether the from value is included in the range */
-    boolean fromInclusive() default true;
-
-    /** Whether the to value is included in the range */
-    boolean toInclusive() default true;
-}
+    val to: Double = java.lang.Double.POSITIVE_INFINITY,
+    /** Whether the from value is included in the range  */
+    val fromInclusive: Boolean = true,
+    /** Whether the to value is included in the range  */
+    val toInclusive: Boolean = true
+)

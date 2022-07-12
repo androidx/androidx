@@ -13,25 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.annotation;
-
-import static java.lang.annotation.RetentionPolicy.SOURCE;
-
-import java.lang.annotation.Retention;
+package androidx.annotation
 
 /**
- * Typedef for the {@link VisibleForTesting#otherwise} attribute.
+ * Typedef for the [VisibleForTesting.otherwise] attribute.
  *
  * @hide
  */
-@IntDef({VisibleForTesting.PRIVATE,
-        VisibleForTesting.PACKAGE_PRIVATE,
-        VisibleForTesting.PROTECTED,
-        VisibleForTesting.NONE}
-// Important: If updating these constants, also update
-// ../../../../../external-annotations/androidx/annotation/annotations.xml
+@IntDef(
+    VisibleForTesting.PRIVATE,
+    VisibleForTesting.PACKAGE_PRIVATE,
+    VisibleForTesting.PROTECTED,
+    VisibleForTesting.NONE
 )
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-@Retention(SOURCE)
-@interface ProductionVisibility {
-}
+@Retention(AnnotationRetention.SOURCE)
+internal annotation class ProductionVisibility

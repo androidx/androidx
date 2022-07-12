@@ -13,38 +13,41 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.annotation;
+package androidx.annotation
 
-import static java.lang.annotation.ElementType.CONSTRUCTOR;
-import static java.lang.annotation.ElementType.FIELD;
-import static java.lang.annotation.ElementType.METHOD;
-import static java.lang.annotation.ElementType.PACKAGE;
-import static java.lang.annotation.ElementType.TYPE;
-import static java.lang.annotation.RetentionPolicy.CLASS;
-
-import java.lang.annotation.Documented;
-import java.lang.annotation.Retention;
-import java.lang.annotation.Target;
-
+import java.lang.annotation.ElementType.CONSTRUCTOR
+import java.lang.annotation.ElementType.FIELD
+import java.lang.annotation.ElementType.METHOD
+import java.lang.annotation.ElementType.PACKAGE
+import java.lang.annotation.ElementType.TYPE
 /**
  * Denotes that the annotated element should only be called on the given API level or higher.
  *
- * <p>This is similar in purpose to the older {@code @TargetApi} annotation, but more clearly
+ * This is similar in purpose to the older `@TargetApi` annotation, but more clearly
  * expresses that this is a requirement on the caller, rather than being used to "suppress" warnings
- * within the method that exceed the {@code minSdkVersion}.
+ * within the method that exceed the `minSdkVersion`.
  */
-@Documented
-@Retention(CLASS)
-@Target({TYPE, METHOD, CONSTRUCTOR, FIELD, PACKAGE})
-public @interface RequiresApi {
+@MustBeDocumented
+@Retention(AnnotationRetention.BINARY)
+@Target(
+    AnnotationTarget.ANNOTATION_CLASS,
+    AnnotationTarget.CLASS,
+    AnnotationTarget.FUNCTION,
+    AnnotationTarget.PROPERTY_GETTER,
+    AnnotationTarget.PROPERTY_SETTER,
+    AnnotationTarget.CONSTRUCTOR,
+    AnnotationTarget.FIELD,
+    AnnotationTarget.FILE
+)
+// Needed due to Kotlin's lack of PACKAGE annotation target
+// https://youtrack.jetbrains.com/issue/KT-45921
+@Suppress("DEPRECATED_JAVA_ANNOTATION")
+@java.lang.annotation.Target(TYPE, METHOD, CONSTRUCTOR, FIELD, PACKAGE)
+public annotation class RequiresApi(
     /**
-     * The API level to require. Alias for {@link #api} which allows you to leave out the {@code
-     * api=} part.
+     * The API level to require. Alias for [.api] which allows you to leave out the `api=` part.
      */
-    @IntRange(from = 1)
-    int value() default 1;
-
-    /** The API level to require */
-    @IntRange(from = 1)
-    int api() default 1;
-}
+    @IntRange(from = 1) val value: Int = 1,
+    /** The API level to require  */
+    @IntRange(from = 1) val api: Int = 1
+)

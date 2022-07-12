@@ -13,31 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.annotation;
-
-import static java.lang.annotation.ElementType.CONSTRUCTOR;
-import static java.lang.annotation.ElementType.METHOD;
-import static java.lang.annotation.ElementType.PARAMETER;
-import static java.lang.annotation.ElementType.TYPE;
-import static java.lang.annotation.RetentionPolicy.CLASS;
-
-import java.lang.annotation.Documented;
-import java.lang.annotation.Retention;
-import java.lang.annotation.Target;
+package androidx.annotation
 
 /**
  * Denotes that the annotated method should only be called on the binder thread.
  * If the annotated element is a class, then all methods in the class should be called
  * on the binder thread.
- * <p>
+ *
  * Example:
- * <pre>
- *  &#64;BinderThread
- *  public BeamShareData createBeamShareData() { ... }
- * </pre>
+ * ```
+ * @BinderThread
+ * public BeamShareData createBeamShareData() { ... }
+ * ```
  */
-@Documented
-@Retention(CLASS)
-@Target({METHOD, CONSTRUCTOR, TYPE, PARAMETER})
-public @interface BinderThread {
-}
+@MustBeDocumented
+@Retention(AnnotationRetention.BINARY)
+@Target(
+    AnnotationTarget.FUNCTION,
+    AnnotationTarget.PROPERTY_GETTER,
+    AnnotationTarget.PROPERTY_SETTER,
+    AnnotationTarget.CONSTRUCTOR,
+    AnnotationTarget.ANNOTATION_CLASS,
+    AnnotationTarget.CLASS,
+    AnnotationTarget.VALUE_PARAMETER
+)
+public annotation class BinderThread

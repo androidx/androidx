@@ -1,5 +1,19 @@
 // Baseline format: 1.0
+ChangedValue: androidx.annotation.InspectableProperty#enumMapping():
+    Method androidx.annotation.InspectableProperty.enumMapping has changed value from {} to nothing
+ChangedValue: androidx.annotation.InspectableProperty#flagMapping():
+    Method androidx.annotation.InspectableProperty.flagMapping has changed value from {} to nothing
 ChangedValue: androidx.annotation.IntDef#value():
     Method androidx.annotation.IntDef.value has changed value from {} to nothing
 ChangedValue: androidx.annotation.LongDef#value():
     Method androidx.annotation.LongDef.value has changed value from {} to nothing
+ChangedValue: androidx.annotation.RequiresPermission#allOf():
+    Method androidx.annotation.RequiresPermission.allOf has changed value from {} to nothing
+ChangedValue: androidx.annotation.RequiresPermission#anyOf():
+    Method androidx.annotation.RequiresPermission.anyOf has changed value from {} to nothing
+ChangedValue: androidx.annotation.RequiresPermission.Read#value():
+    Method androidx.annotation.RequiresPermission.Read.value has changed value from @androidx.annotation.RequiresPermission to androidx.annotation.RequiresPermission()
+ChangedValue: androidx.annotation.RequiresPermission.Write#value():
+    Method androidx.annotation.RequiresPermission.Write.value has changed value from @androidx.annotation.RequiresPermission to androidx.annotation.RequiresPermission()
+ChangedValue: androidx.annotation.StringDef#value():
+    Method androidx.annotation.StringDef.value has changed value from {} to nothing

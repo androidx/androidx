@@ -13,36 +13,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.annotation;
-
-import static java.lang.annotation.ElementType.CONSTRUCTOR;
-import static java.lang.annotation.ElementType.FIELD;
-import static java.lang.annotation.ElementType.METHOD;
-import static java.lang.annotation.ElementType.TYPE;
-import static java.lang.annotation.RetentionPolicy.SOURCE;
-
-import java.lang.annotation.Retention;
-import java.lang.annotation.Target;
+package androidx.annotation
 
 /**
  * Denotes that the annotated element requires one or more features. This is used to auto-generate
  * documentation, and more importantly: to ensure correct usage in application code, where lint and
  * Android Studio can check that calls marked with this annotation is surrounded by has-feature
- * calls, referenced via the {@link RequiresFeature#enforcement()} attribute.
+ * calls, referenced via the [RequiresFeature.enforcement] attribute.
  */
-@Retention(SOURCE)
-@Target({TYPE, FIELD, METHOD, CONSTRUCTOR})
-public @interface RequiresFeature {
+@Retention(AnnotationRetention.SOURCE)
+@Target(
+    AnnotationTarget.ANNOTATION_CLASS,
+    AnnotationTarget.CLASS,
+    AnnotationTarget.FIELD,
+    AnnotationTarget.FUNCTION,
+    AnnotationTarget.PROPERTY_GETTER,
+    AnnotationTarget.PROPERTY_SETTER,
+    AnnotationTarget.CONSTRUCTOR
+)
+public annotation class RequiresFeature(
     /**
      * The name of the feature that is required.
      */
-    String name();
-
+    val name: String,
     /**
      * Defines the name of the method that should be called to check whether the feature is
      * available, using the same signature format as javadoc.
      * The feature checking method can have multiple parameters, but the feature name parameter must
      * be of type String and must also be the first String-type parameter.
      */
-    String enforcement();
-}
+    val enforcement: String
+)

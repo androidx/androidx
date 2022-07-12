@@ -13,39 +13,37 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package androidx.annotation;
-
-import static java.lang.annotation.ElementType.CONSTRUCTOR;
-import static java.lang.annotation.ElementType.FIELD;
-import static java.lang.annotation.ElementType.METHOD;
-import static java.lang.annotation.ElementType.PARAMETER;
-import static java.lang.annotation.ElementType.TYPE;
-import static java.lang.annotation.RetentionPolicy.SOURCE;
-
-import java.lang.annotation.Retention;
-import java.lang.annotation.Target;
+package androidx.annotation
 
 /**
  * Denotes that the annotated element, while not disallowed or deprecated, is one that
  * programmers are generally discouraged from using.
- * <p>
+ *
  * Example:
- * <pre><code>
- *  &#64;Discouraged(message = "It is much more efficient to retrieve "
- *                           + "resources by identifier than by name.")
- *  public void getValue(String name) {
- *      ...
- *  }
- * </code></pre>
- * </p>
+ * ```
+ * @Discouraged(message = "It is much more efficient to retrieve "
+ *                        + "resources by identifier than by name.")
+ * public void getValue(String name) {
+ *     ...
+ * }
+ * ```
+ *
  */
-@Retention(SOURCE)
-@Target({CONSTRUCTOR, FIELD, METHOD, PARAMETER, TYPE})
-public @interface Discouraged {
+@Retention(AnnotationRetention.SOURCE)
+@Target(
+    AnnotationTarget.CONSTRUCTOR,
+    AnnotationTarget.FIELD,
+    AnnotationTarget.FUNCTION,
+    AnnotationTarget.PROPERTY_GETTER,
+    AnnotationTarget.PROPERTY_SETTER,
+    AnnotationTarget.VALUE_PARAMETER,
+    AnnotationTarget.ANNOTATION_CLASS,
+    AnnotationTarget.CLASS
+)
+public annotation class Discouraged(
     /**
      * Defines the message to display when an element marked with this annotation is used. An
      * alternative should be provided in the message.
      */
-    String message();
-}
+    val message: String
+)

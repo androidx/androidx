@@ -13,32 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.annotation;
-
-import static java.lang.annotation.ElementType.FIELD;
-import static java.lang.annotation.ElementType.LOCAL_VARIABLE;
-import static java.lang.annotation.ElementType.METHOD;
-import static java.lang.annotation.ElementType.PARAMETER;
-import static java.lang.annotation.RetentionPolicy.SOURCE;
-
-import java.lang.annotation.Documented;
-import java.lang.annotation.Retention;
-import java.lang.annotation.Target;
+package androidx.annotation
 
 /**
- * <p>Denotes that the annotated element represents a half-precision floating point
+ *
+ * Denotes that the annotated element represents a half-precision floating point
  * value. Such values are stored in short data types and can be manipulated with
- * the <code>android.util.Half</code> class. If applied to an array of short, every
- * element in the array represents a half-precision float.</p>
+ * the `android.util.Half` class. If applied to an array of short, every
+ * element in the array represents a half-precision float.
  *
- * <p>Example:</p>
- *
- * <pre>
+ * Example:
+ * ```
  * public abstract void setPosition(@HalfFloat short x, @HalfFloat short y, @HalfFloat short z);
- * </pre>
+ * ```
  */
-@Documented
-@Retention(SOURCE)
-@Target({PARAMETER, METHOD, LOCAL_VARIABLE, FIELD})
-public @interface HalfFloat {
-}
+@MustBeDocumented
+@Retention(AnnotationRetention.SOURCE)
+@Target(
+    AnnotationTarget.VALUE_PARAMETER,
+    AnnotationTarget.FUNCTION,
+    AnnotationTarget.PROPERTY_GETTER,
+    AnnotationTarget.PROPERTY_SETTER,
+    AnnotationTarget.LOCAL_VARIABLE,
+    AnnotationTarget.FIELD
+)
+public annotation class HalfFloat
