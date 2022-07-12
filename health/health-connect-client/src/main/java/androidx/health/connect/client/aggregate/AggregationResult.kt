@@ -36,8 +36,8 @@ class AggregationResult
 internal constructor(
     internal val longValues: Map<String, Long>,
     internal val doubleValues: Map<String, Double>,
-    /** List of [DataOrigin]s that contributed to the aggregation result. */
-    public val dataOrigins: List<DataOrigin>
+    /** Set of [DataOrigin]s that contributed to the aggregation result. */
+    public val dataOrigins: Set<DataOrigin>
 ) {
 
     /**

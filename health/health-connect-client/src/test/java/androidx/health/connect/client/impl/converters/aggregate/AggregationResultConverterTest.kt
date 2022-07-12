@@ -46,7 +46,7 @@ class AggregationResultConverterTest {
                 AggregationResult(
                     longValues = mapOf(Pair("longKey", 567L)),
                     doubleValues = mapOf(Pair("doubleKey", 123.4)),
-                    dataOrigins = listOf(DataOrigin("testApp")),
+                    dataOrigins = setOf(DataOrigin("testApp")),
                 )
             )
     }
@@ -73,7 +73,7 @@ class AggregationResultConverterTest {
                         AggregationResult(
                             longValues = mapOf(Pair("longKey", 567L)),
                             doubleValues = mapOf(Pair("doubleKey", 123.4)),
-                            dataOrigins = listOf(DataOrigin("testApp")),
+                            dataOrigins = setOf(DataOrigin("testApp")),
                         ),
                     startTime = Instant.ofEpochMilli(1111),
                     endTime = Instant.ofEpochMilli(9999),
@@ -129,7 +129,7 @@ class AggregationResultConverterTest {
                         AggregationResult(
                             longValues = mapOf(Pair("longKey", 567L)),
                             doubleValues = mapOf(Pair("doubleKey", 123.4)),
-                            dataOrigins = listOf(DataOrigin("testApp")),
+                            dataOrigins = setOf(DataOrigin("testApp")),
                         ),
                     startTime = LocalDateTime.parse("2022-02-11T20:22:02"),
                     endTime = LocalDateTime.parse("2022-02-22T20:22:02"),

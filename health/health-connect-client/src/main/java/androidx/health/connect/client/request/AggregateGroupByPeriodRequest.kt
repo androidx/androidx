@@ -32,11 +32,11 @@ import java.time.Period
  * @param timeRangeFilter The [TimeRangeFilter] to read from.
  * @param timeRangeSlicer The bucket size of each returned aggregate row. [timeRangeFilter] will be
  * sliced into several equal-sized time buckets (except for the last one).
- * @param dataOriginFilter List of [DataOrigin]s to read from, or empty for no filter.
+ * @param dataOriginFilter Set of [DataOrigin]s to read from, or empty for no filter.
  */
 class AggregateGroupByPeriodRequest(
     internal val metrics: Set<AggregateMetric<*>>,
     internal val timeRangeFilter: TimeRangeFilter,
     internal val timeRangeSlicer: Period,
-    internal val dataOriginFilter: List<DataOrigin> = emptyList(),
+    internal val dataOriginFilter: Set<DataOrigin> = emptySet(),
 )
