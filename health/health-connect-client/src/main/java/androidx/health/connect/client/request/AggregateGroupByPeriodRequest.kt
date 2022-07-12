@@ -24,6 +24,10 @@ import java.time.Period
  * Request object to read time bucketed aggregations for given [AggregateMetric]s in Android Health
  * Platform.
  *
+ * [timeRangeSlicer] contains a [Period] of variable length time intervals, such as per day, which
+ * may be anywhere between 23, 24, or 25 hour. Use [AggregateGroupByDurationRequest] if time slice
+ * is of fixed intervals, such as an hour, every ten minutes.
+ *
  * @param metrics Set of [AggregateMetric]s to aggregate, such as `Steps::STEPS_COUNT_TOTAL`.
  * @param timeRangeFilter The [TimeRangeFilter] to read from.
  * @param timeRangeSlicer The bucket size of each returned aggregate row. [timeRangeFilter] will be
