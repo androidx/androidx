@@ -23,6 +23,7 @@ import androidx.work.WorkManager.UpdateResult.APPLIED_FOR_NEXT_RUN
 import androidx.work.WorkRequest
 import androidx.work.impl.model.WorkSpec
 import androidx.work.impl.utils.futures.SettableFuture
+import androidx.work.impl.utils.wrapInConstraintTrackingWorkerIfNeeded
 import com.google.common.util.concurrent.ListenableFuture
 
 private fun updateWorkImpl(
@@ -57,7 +58,8 @@ private fun updateWorkImpl(
             runAttemptCount = oldWorkSpec.runAttemptCount,
             lastEnqueueTime = oldWorkSpec.lastEnqueueTime,
         )
-        workSpecDao.updateWorkSpec(updatedSpec)
+
+        workSpecDao.updateWorkSpec(wrapInConstraintTrackingWorkerIfNeeded(schedulers, updatedSpec))
         workTagDao.deleteByWorkSpecId(workSpecId)
         workTagDao.insertTags(workRequest)
         if (!isEnqueued) {
