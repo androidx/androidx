@@ -25,24 +25,20 @@ import static androidx.work.WorkInfo.State.ENQUEUED;
 import static androidx.work.WorkInfo.State.FAILED;
 import static androidx.work.WorkInfo.State.RUNNING;
 import static androidx.work.WorkInfo.State.SUCCEEDED;
-import static androidx.work.impl.workers.ConstraintTrackingWorkerKt.ARGUMENT_CLASS_NAME;
+import static androidx.work.impl.utils.EnqueueUtilsKt.wrapInConstraintTrackingWorkerIfNeeded;
 
 import android.content.Context;
-import android.os.Build;
 import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
-import androidx.work.Constraints;
-import androidx.work.Data;
 import androidx.work.ExistingWorkPolicy;
 import androidx.work.Logger;
 import androidx.work.Operation;
 import androidx.work.WorkInfo;
 import androidx.work.WorkRequest;
 import androidx.work.impl.OperationImpl;
-import androidx.work.impl.Scheduler;
 import androidx.work.impl.Schedulers;
 import androidx.work.impl.WorkContinuationImpl;
 import androidx.work.impl.WorkDatabase;
@@ -53,7 +49,6 @@ import androidx.work.impl.model.DependencyDao;
 import androidx.work.impl.model.WorkName;
 import androidx.work.impl.model.WorkSpec;
 import androidx.work.impl.model.WorkSpecDao;
-import androidx.work.impl.workers.ConstraintTrackingWorker;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -306,20 +301,17 @@ public class EnqueueRunnable implements Runnable {
                 workSpec.lastEnqueueTime = currentTimeMillis;
             }
 
-            if (Build.VERSION.SDK_INT >= WorkManagerImpl.MIN_JOB_SCHEDULER_API_LEVEL
-                    && Build.VERSION.SDK_INT <= 25) {
-                tryDelegateConstrainedWorkSpec(workSpec);
-            } else if (Build.VERSION.SDK_INT <= WorkManagerImpl.MAX_PRE_JOB_SCHEDULER_API_LEVEL
-                    && usesScheduler(workManagerImpl, Schedulers.GCM_SCHEDULER)) {
-                tryDelegateConstrainedWorkSpec(workSpec);
-            }
-
             // If we have one WorkSpec with an enqueued state, then we need to schedule.
             if (workSpec.state == ENQUEUED) {
                 needsScheduling = true;
             }
 
-            workDatabase.workSpecDao().insertWorkSpec(workSpec);
+            workDatabase.workSpecDao().insertWorkSpec(
+                    wrapInConstraintTrackingWorkerIfNeeded(
+                            workManagerImpl.getSchedulers(),
+                            workSpec
+                    )
+            );
 
             if (hasPrerequisite) {
                 for (String prerequisiteId : prerequisiteIds) {
@@ -334,51 +326,5 @@ public class EnqueueRunnable implements Runnable {
             }
         }
         return needsScheduling;
-    }
-
-    private static void tryDelegateConstrainedWorkSpec(WorkSpec workSpec) {
-        // requiresBatteryNotLow and requiresStorageNotLow require API 26 for JobScheduler.
-        // Delegate to ConstraintTrackingWorker between API 23-25.
-        Constraints constraints = workSpec.constraints;
-        String workerClassName = workSpec.workerClassName;
-        // Check if the Worker is a ConstraintTrackingWorker already. Otherwise we could end up
-        // wrapping a ConstraintTrackingWorker with another and build a taller stack.
-        // This usually happens when a developer accidentally enqueues() a named WorkRequest
-        // with an ExistingWorkPolicy.KEEP and subsequent inserts no-op (while the state of the
-        // Worker is not ENQUEUED or RUNNING i.e. the Worker probably just got done & the app is
-        // holding on to a reference of WorkSpec which got updated). We end up reusing the
-        // WorkSpec, and get a ConstraintTrackingWorker (instead of the original Worker class).
-        boolean isConstraintTrackingWorker =
-                workerClassName.equals(ConstraintTrackingWorker.class.getName());
-        if (!isConstraintTrackingWorker
-                && (constraints.requiresBatteryNotLow() || constraints.requiresStorageNotLow())) {
-            Data.Builder builder = new Data.Builder();
-            // Copy all arguments
-            builder.putAll(workSpec.input)
-                    .putString(ARGUMENT_CLASS_NAME, workerClassName);
-            workSpec.workerClassName = ConstraintTrackingWorker.class.getName();
-            workSpec.input = builder.build();
-        }
-    }
-
-    /**
-     * @param className The fully qualified class name of the {@link Scheduler}
-     * @return {@code true} if the {@link Scheduler} class is being used by WorkManager.
-     */
-    private static boolean usesScheduler(
-            @NonNull WorkManagerImpl workManager,
-            @NonNull String className) {
-
-        try {
-            Class<?> klass = Class.forName(className);
-            for (Scheduler scheduler : workManager.getSchedulers()) {
-                if (klass.isAssignableFrom(scheduler.getClass())) {
-                    return true;
-                }
-            }
-            return false;
-        } catch (ClassNotFoundException ignore) {
-            return false;
-        }
     }
 }
