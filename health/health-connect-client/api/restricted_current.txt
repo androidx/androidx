@@ -45,10 +45,10 @@ package androidx.health.connect.client.aggregate {
   public final class AggregationResult {
     method public operator boolean contains(androidx.health.connect.client.aggregate.AggregateMetric<?> metric);
     method public operator <T> T? get(androidx.health.connect.client.aggregate.AggregateMetric<? extends T> metric);
-    method public java.util.List<androidx.health.connect.client.records.metadata.DataOrigin> getDataOrigins();
+    method public java.util.Set<androidx.health.connect.client.records.metadata.DataOrigin> getDataOrigins();
     method @Deprecated public <T> T? getMetric(androidx.health.connect.client.aggregate.AggregateMetric<? extends T> metric);
     method @Deprecated public boolean hasMetric(androidx.health.connect.client.aggregate.AggregateMetric<?> metric);
-    property public final java.util.List<androidx.health.connect.client.records.metadata.DataOrigin> dataOrigins;
+    property public final java.util.Set<androidx.health.connect.client.records.metadata.DataOrigin> dataOrigins;
   }
 
   public final class AggregationResultGroupedByDuration {
@@ -1353,15 +1353,15 @@ package androidx.health.connect.client.records.metadata {
 package androidx.health.connect.client.request {
 
   public final class AggregateGroupByDurationRequest {
-    ctor public AggregateGroupByDurationRequest(java.util.Set<? extends androidx.health.connect.client.aggregate.AggregateMetric<?>> metrics, androidx.health.connect.client.time.TimeRangeFilter timeRangeFilter, java.time.Duration timeRangeSlicer, optional java.util.List<androidx.health.connect.client.records.metadata.DataOrigin> dataOriginFilter);
+    ctor public AggregateGroupByDurationRequest(java.util.Set<? extends androidx.health.connect.client.aggregate.AggregateMetric<?>> metrics, androidx.health.connect.client.time.TimeRangeFilter timeRangeFilter, java.time.Duration timeRangeSlicer, optional java.util.Set<androidx.health.connect.client.records.metadata.DataOrigin> dataOriginFilter);
   }
 
   public final class AggregateGroupByPeriodRequest {
-    ctor public AggregateGroupByPeriodRequest(java.util.Set<? extends androidx.health.connect.client.aggregate.AggregateMetric<?>> metrics, androidx.health.connect.client.time.TimeRangeFilter timeRangeFilter, java.time.Period timeRangeSlicer, optional java.util.List<androidx.health.connect.client.records.metadata.DataOrigin> dataOriginFilter);
+    ctor public AggregateGroupByPeriodRequest(java.util.Set<? extends androidx.health.connect.client.aggregate.AggregateMetric<?>> metrics, androidx.health.connect.client.time.TimeRangeFilter timeRangeFilter, java.time.Period timeRangeSlicer, optional java.util.Set<androidx.health.connect.client.records.metadata.DataOrigin> dataOriginFilter);
   }
 
   public final class AggregateRequest {
-    ctor public AggregateRequest(java.util.Set<? extends androidx.health.connect.client.aggregate.AggregateMetric<?>> metrics, androidx.health.connect.client.time.TimeRangeFilter timeRangeFilter, optional java.util.List<androidx.health.connect.client.records.metadata.DataOrigin> dataOriginFilter);
+    ctor public AggregateRequest(java.util.Set<? extends androidx.health.connect.client.aggregate.AggregateMetric<?>> metrics, androidx.health.connect.client.time.TimeRangeFilter timeRangeFilter, optional java.util.Set<androidx.health.connect.client.records.metadata.DataOrigin> dataOriginFilter);
   }
 
   public final class ChangesTokenRequest {
@@ -1369,7 +1369,7 @@ package androidx.health.connect.client.request {
   }
 
   public final class ReadRecordsRequest<T extends androidx.health.connect.client.records.Record> {
-    ctor public ReadRecordsRequest(kotlin.reflect.KClass<T> recordType, androidx.health.connect.client.time.TimeRangeFilter timeRangeFilter, optional java.util.List<androidx.health.connect.client.records.metadata.DataOrigin> dataOriginFilter, optional boolean ascendingOrder, optional int pageSize, optional String? pageToken);
+    ctor public ReadRecordsRequest(kotlin.reflect.KClass<T> recordType, androidx.health.connect.client.time.TimeRangeFilter timeRangeFilter, optional java.util.Set<androidx.health.connect.client.records.metadata.DataOrigin> dataOriginFilter, optional boolean ascendingOrder, optional int pageSize, optional String? pageToken);
   }
 
 }

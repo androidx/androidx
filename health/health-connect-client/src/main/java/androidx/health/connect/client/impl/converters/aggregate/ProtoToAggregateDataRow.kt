@@ -57,5 +57,5 @@ fun DataProto.AggregateDataRow.retrieveAggregateDataRow() =
     AggregationResult(
         longValues = longValuesMap,
         doubleValues = doubleValuesMap,
-        dataOrigins = dataOriginsList.map { DataOrigin(it.applicationId) }
+        dataOrigins = dataOriginsList.mapTo(HashSet()) { DataOrigin(it.applicationId) }
     )
