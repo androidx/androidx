@@ -660,6 +660,9 @@ public abstract class AppCompatDelegate {
      *
      * <p>Pass a {@link LocaleListCompat#getEmptyLocaleList()} to reset to the system locale.</p>
      *
+     * <p><b>Note: This API should always be called after Activity.onCreate(), apart from any
+     * exceptions explicitly mentioned in this documentation.</b></p>
+     *
      * <p>On API level 33 and above, this API will handle storage automatically.</p>
      *
      * <p>For API levels below that, the developer has two options:</p>
@@ -683,7 +686,9 @@ public abstract class AppCompatDelegate {
      *     do so they must use this API to initialize locales during app-start up and provide
      *     their stored locales. In this case, API should be called before Activity.onCreate()
      *     in the activity lifecycle, e.g. in attachBaseContext().
-     *     <b>Note: Developers should gate this to API versions < 33.</b></li>
+     *     <b>Note: Developers should gate this to API versions < 33.</b>
+     *     <p><b>This API should be called after Activity.onCreate() for all other cases.</b></p>
+     *     </li>
      * </ul>
      *
      * <p>When the application using this API with API versions < 33 updates to a
@@ -731,6 +736,8 @@ public abstract class AppCompatDelegate {
      *
      * <p>Returns a {@link LocaleListCompat#getEmptyLocaleList()} if no app-specific locales are
      * set.
+     *
+     * <p><b>Note: This API should always be called after Activity.onCreate().</b></p>
      */
     @AnyThread
     @NonNull
