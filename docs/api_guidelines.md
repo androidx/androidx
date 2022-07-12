@@ -108,7 +108,7 @@ If you see an error message `No module named 'toml'` try the following steps.
     `androidx_project_creator/bin/pip3 install toml`
 *   Run the project creator script from your virtual env with
     `androidx_project_creator/bin/python3
-    ./development/project-creator/create_project.py androidx.foo foo-bar`
+    ../../development/project-creator/create_project.py androidx.foo foo-bar`
 *   Delete your virtual env with `rm -rf ./androidx-project_creator`
     *   virtualenv will automatically .gitignore itself, but you may want to to
         remove it anyway.
