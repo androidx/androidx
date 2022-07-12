@@ -66,7 +66,7 @@ abstract class ProtoParcelable<T : MessageLite> : ProtoData<T>(), Parcelable {
          * Constructs and returns a [Creator] based on the provided [parser] accepting a [ByteArray]
          * .
          */
-        inline fun <reified U : ProtoParcelable<*>> newCreator(
+        internal inline fun <reified U : ProtoParcelable<*>> newCreator(
             crossinline parser: (ByteArray) -> U
         ): Creator<U> {
             return object : Creator<U> {
@@ -93,10 +93,10 @@ abstract class ProtoParcelable<T : MessageLite> : ProtoData<T>(), Parcelable {
 }
 
 /** Flag marking that a proto is stored as an in-place `byte[]` array. */
-const val STORE_IN_PLACE = 0
+internal const val STORE_IN_PLACE = 0
 
 /** Flag marking that a proto is stored in [SharedMemory]. */
-const val STORE_SHARED_MEMORY = 1
+internal const val STORE_SHARED_MEMORY = 1
 
 /** Maximum size of a proto stored as an in-place `byte[]` array (16 KiB). */
 private const val MAX_IN_PLACE_SIZE = 16 * 1024

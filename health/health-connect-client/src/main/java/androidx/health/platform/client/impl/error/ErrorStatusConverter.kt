@@ -22,7 +22,7 @@ import androidx.health.platform.client.error.ErrorStatus
 import java.io.IOException
 import java.lang.IllegalArgumentException
 
-val errorCodeExceptionMap =
+internal val errorCodeExceptionMap =
     mapOf(
         ErrorCode.PROVIDER_NOT_INSTALLED to java.lang.UnsupportedOperationException::class,
         ErrorCode.PROVIDER_NOT_ENABLED to java.lang.UnsupportedOperationException::class,
@@ -41,7 +41,7 @@ val errorCodeExceptionMap =
     )
 
 @Suppress("ObsoleteSdkInt") // We want to target lower down to 14 in the future.
-fun ErrorStatus.toException(): Exception {
+internal fun ErrorStatus.toException(): Exception {
     errorCodeExceptionMap[this.errorCode]?.let {
         return when (it) {
             SecurityException::class -> SecurityException(this.errorMessage)
