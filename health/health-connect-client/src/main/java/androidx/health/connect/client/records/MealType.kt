@@ -20,9 +20,13 @@ import androidx.annotation.StringDef
 /** Type of meal. */
 public object MealType {
     const val UNKNOWN = "unknown"
+    /** Use this for the first meal of the day, usually the morning meal. */
     const val BREAKFAST = "breakfast"
+    /** Use this for the noon meal. */
     const val LUNCH = "lunch"
+    /** Use this for last meal of the day, usually the evening meal. */
     const val DINNER = "dinner"
+    /** Any meal outside of the usual three meals per day. */
     const val SNACK = "snack"
 }
 
