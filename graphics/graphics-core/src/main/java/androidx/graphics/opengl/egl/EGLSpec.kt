@@ -57,7 +57,7 @@ interface EGLSpec {
     fun eglQueryString(nameId: Int): String
 
     /**
-     * Create a Pixel Buffer surface with the corresponding [EglConfigAttributes].
+     * Create a Pixel Buffer surface with the corresponding [EGLConfigAttributes].
      * Accepted attributes are defined as part of the OpenGL specification here:
      * https://www.khronos.org/registry/EGL/sdk/docs/man/html/eglCreatePbufferSurface.xhtml
      *
@@ -69,7 +69,7 @@ interface EGLSpec {
      */
     fun eglCreatePBufferSurface(
         config: EGLConfig,
-        configAttributes: EglConfigAttributes?
+        configAttributes: EGLConfigAttributes?
     ): EGLSurface
 
     /**
@@ -85,7 +85,7 @@ interface EGLSpec {
     fun eglCreateWindowSurface(
         config: EGLConfig,
         surface: Surface,
-        configAttributes: EglConfigAttributes?
+        configAttributes: EGLConfigAttributes?
     ): EGLSurface
 
     /**
@@ -140,14 +140,14 @@ interface EGLSpec {
     fun eglInitialize(): EGLVersion
 
     /**
-     * Load a corresponding EGLConfig from the provided [EglConfigAttributes]
+     * Load a corresponding EGLConfig from the provided [EGLConfigAttributes]
      * If the EGLConfig could not be loaded, null is returned
-     * @param configAttributes Desired [EglConfigAttributes] to create an [EGLConfig]
+     * @param configAttributes Desired [EGLConfigAttributes] to create an [EGLConfig]
      *
-     * @return the [EGLConfig] with the provided [EglConfigAttributes] or null if
+     * @return the [EGLConfig] with the provided [EGLConfigAttributes] or null if
      * an [EGLConfig] could not be created with the specified attributes
      */
-    fun loadConfig(configAttributes: EglConfigAttributes): EGLConfig?
+    fun loadConfig(configAttributes: EGLConfigAttributes): EGLConfig?
 
     /**
      * Create an EGLContext with the default display. If createContext fails to create a
@@ -268,7 +268,7 @@ interface EGLSpec {
      * is not supported
      */
     @Suppress("AcronymName")
-    fun eglCreateSyncKHR(type: Int, attributes: EglConfigAttributes?): EGLSyncKHR?
+    fun eglCreateSyncKHR(type: Int, attributes: EGLConfigAttributes?): EGLSyncKHR?
 
     /**
      * Query attributes of the provided sync object. Accepted attributes to query depend
@@ -422,7 +422,7 @@ interface EGLSpec {
 
             override fun eglCreatePBufferSurface(
                 config: EGLConfig,
-                configAttributes: EglConfigAttributes?
+                configAttributes: EGLConfigAttributes?
             ): EGLSurface =
                 EGL14.eglCreatePbufferSurface(
                     getDefaultDisplay(),
@@ -434,7 +434,7 @@ interface EGLSpec {
             override fun eglCreateWindowSurface(
                 config: EGLConfig,
                 surface: Surface,
-                configAttributes: EglConfigAttributes?,
+                configAttributes: EGLConfigAttributes?,
             ): EGLSurface =
                 EGL14.eglCreateWindowSurface(
                     getDefaultDisplay(),
@@ -470,7 +470,7 @@ interface EGLSpec {
                     context
                 )
 
-            override fun loadConfig(configAttributes: EglConfigAttributes): EGLConfig? {
+            override fun loadConfig(configAttributes: EGLConfigAttributes): EGLConfig? {
                 val configs = arrayOfNulls<EGLConfig?>(1)
                 return if (EGL14.eglChooseConfig(
                     getDefaultDisplay(),
@@ -515,7 +515,7 @@ interface EGLSpec {
 
             override fun eglCreateSyncKHR(
                 type: Int,
-                attributes: EglConfigAttributes?
+                attributes: EGLConfigAttributes?
             ): EGLSyncKHR? =
                 EGLExt.eglCreateSyncKHR(getDefaultDisplay(), type, attributes)
 
@@ -548,7 +548,7 @@ interface EGLSpec {
             /**
              * EglConfigAttribute that provides the default attributes for an EGL window surface
              */
-            private val DefaultWindowSurfaceConfig = EglConfigAttributes {}
+            private val DefaultWindowSurfaceConfig = EGLConfigAttributes {}
         }
 
         /**

@@ -232,7 +232,7 @@ class EGLManagerTest {
 
             val pBuffer = eglSpec.eglCreatePBufferSurface(
                 config,
-                EglConfigAttributes {
+                EGLConfigAttributes {
                     EGL14.EGL_WIDTH to 1
                     EGL14.EGL_HEIGHT to 1
                 })
@@ -362,7 +362,7 @@ class EGLManagerTest {
             }
             createContext(config!!)
             val configAttributes = if (singleBuffered) {
-                EglConfigAttributes {
+                EGLConfigAttributes {
                     EGL14.EGL_RENDER_BUFFER to EGL14.EGL_SINGLE_BUFFER
                 }
             } else {

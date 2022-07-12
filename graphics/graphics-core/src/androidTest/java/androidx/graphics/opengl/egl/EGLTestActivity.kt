@@ -46,7 +46,7 @@ class EGLTestActivity : Activity() {
             width: Int,
             height: Int
         ): EGLSurface {
-            val attrs = EglConfigAttributes {
+            val attrs = EGLConfigAttributes {
                 EGL14.EGL_RENDER_BUFFER to EGL14.EGL_SINGLE_BUFFER
             }
             return spec.eglCreateWindowSurface(config, surface, attrs)

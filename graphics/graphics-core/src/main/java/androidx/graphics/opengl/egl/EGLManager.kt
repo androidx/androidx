@@ -61,10 +61,10 @@ class EGLManager(val eglSpec: EGLSpec = EGLSpec.V14) {
 
     /**
      * Attempt to load an [EGLConfig] instance from the given
-     * [EglConfigAttributes]. If the [EGLConfig] could not be loaded
+     * [EGLConfigAttributes]. If the [EGLConfig] could not be loaded
      * this returns null
      */
-    fun loadConfig(configAttributes: EglConfigAttributes): EGLConfig? =
+    fun loadConfig(configAttributes: EGLConfigAttributes): EGLConfig? =
         eglSpec.loadConfig(configAttributes)
 
     /**
@@ -80,7 +80,7 @@ class EGLManager(val eglSpec: EGLSpec = EGLSpec.V14) {
                 if (isExtensionSupported(EGL_KHR_SURFACELESS_CONTEXT)) {
                     EGL14.EGL_NO_SURFACE
                 } else {
-                    val configAttrs = EglConfigAttributes {
+                    val configAttrs = EGLConfigAttributes {
                         EGL14.EGL_WIDTH to 1
                         EGL14.EGL_HEIGHT to 1
                     }
