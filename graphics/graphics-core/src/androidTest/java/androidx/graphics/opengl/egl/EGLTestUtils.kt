@@ -23,15 +23,15 @@ import androidx.opengl.EGLExt
  * from EGLSync objects
  */
 fun deviceSupportsNativeAndroidFence(): Boolean {
-    val eglManager = EglManager().apply { initialize() }
+    val eglManager = EGLManager().apply { initialize() }
     val supportsAndroidFence = eglManager.supportsNativeAndroidFence()
     eglManager.release()
     return supportsAndroidFence
 }
 
 /**
- * Queries the corresponding EGL fence extensions from an initialized [EglManager] instance
+ * Queries the corresponding EGL fence extensions from an initialized [EGLManager] instance
  */
-fun EglManager.supportsNativeAndroidFence(): Boolean =
+fun EGLManager.supportsNativeAndroidFence(): Boolean =
     isExtensionSupported(EGLExt.EGL_KHR_FENCE_SYNC) &&
         isExtensionSupported(EGLExt.EGL_ANDROID_NATIVE_FENCE_SYNC)

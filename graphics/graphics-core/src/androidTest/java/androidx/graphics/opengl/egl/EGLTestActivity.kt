@@ -52,7 +52,7 @@ class EGLTestActivity : Activity() {
             return spec.eglCreateWindowSurface(config, surface, attrs)
         }
 
-        override fun onDrawFrame(eglManager: EglManager) {
+        override fun onDrawFrame(eglManager: EGLManager) {
             val red = mParam.toFloat() / 100f
             GLES20.glClearColor(red, 0.0f, 0.0f, 1.0f)
             GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
@@ -60,7 +60,7 @@ class EGLTestActivity : Activity() {
     }
 
     private val mRenderer2 = object : GLRenderer.RenderCallback {
-        override fun onDrawFrame(eglManager: EglManager) {
+        override fun onDrawFrame(eglManager: EGLManager) {
             val blue = mParam.toFloat() / 100f
             GLES20.glClearColor(0.0f, 0.0f, blue, 1.0f)
             GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)

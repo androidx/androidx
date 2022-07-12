@@ -26,7 +26,7 @@ import android.view.SurfaceView
 import android.view.TextureView
 import androidx.annotation.WorkerThread
 import androidx.graphics.opengl.egl.EglConfigAttributes8888
-import androidx.graphics.opengl.egl.EglManager
+import androidx.graphics.opengl.egl.EGLManager
 import androidx.graphics.opengl.egl.EGLSpec
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.atomic.AtomicInteger
@@ -46,7 +46,7 @@ import java.util.concurrent.atomic.AtomicInteger
 @Suppress("AcronymName")
 class GLRenderer(
     eglSpecFactory: () -> EGLSpec = { EGLSpec.V14 },
-    eglConfigFactory: EglManager.() -> EGLConfig = {
+    eglConfigFactory: EGLManager.() -> EGLConfig = {
         // 8 bit channels should always be supported
         loadConfig(EglConfigAttributes8888)
             ?: throw IllegalStateException("Unable to obtain config for 8 bit EGL " +
@@ -63,7 +63,7 @@ class GLRenderer(
      * Factory method used to create the corresponding EGLConfig used to create the EGLRenderer used
      * by EglManager
      */
-    private val mEglConfigFactory: EglManager.() -> EGLConfig = eglConfigFactory
+    private val mEglConfigFactory: EGLManager.() -> EGLConfig = eglConfigFactory
 
     /**
      * GLThread used to manage EGL dependencies, create EGLSurfaces and draw content
@@ -282,14 +282,14 @@ class GLRenderer(
          * This will be invoked lazily before the first request to [GLRenderer.requestRender]
          */
         @WorkerThread
-        fun onEglContextCreated(eglManager: EglManager)
+        fun onEglContextCreated(eglManager: EGLManager)
 
         /**
          * Callback invoked on the backing thread before EGL dependencies are about to be torn down.
          * This is invoked after [GLRenderer.stop] is processed.
          */
         @WorkerThread
-        fun onEglContextDestroyed(eglManager: EglManager)
+        fun onEglContextDestroyed(eglManager: EGLManager)
     }
 
     /**
@@ -345,7 +345,7 @@ class GLRenderer(
         /**
          * Callback used to issue OpenGL drawing commands into the [EGLSurface]
          * created in [onSurfaceCreated]. This [EGLSurface] is guaranteed to
-         * be current before this callback is invoked and [EglManager.swapAndFlushBuffers]
+         * be current before this callback is invoked and [EGLManager.swapAndFlushBuffers]
          * will be invoked afterwards. If additional scratch [EGLSurface]s are used
          * here it is up to the implementation of this method to ensure that the proper
          * surfaces are made current and the appropriate swap buffers call is made
@@ -355,7 +355,7 @@ class GLRenderer(
          * @param eglManager Handle to EGL dependencies
          */
         @WorkerThread
-        fun onDrawFrame(eglManager: EglManager)
+        fun onDrawFrame(eglManager: EGLManager)
     }
 
     /**

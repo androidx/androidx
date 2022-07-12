@@ -57,7 +57,8 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 @SmallTest
-class EglManagerTest {
+@Suppress("AcronymName")
+class EGLManagerTest {
 
     @Test
     fun testInitializeAndRelease() {
@@ -467,7 +468,7 @@ class EglManagerTest {
      * Helper method to determine if both EGLSync fences are supported
      * along with Android platform specific EGLSync fence types
      */
-    private fun EglManager.supportsNativeAndroidFence(): Boolean =
+    private fun EGLManager.supportsNativeAndroidFence(): Boolean =
         isExtensionSupported(EGL_KHR_FENCE_SYNC) &&
             isExtensionSupported(EGL_ANDROID_NATIVE_FENCE_SYNC)
 
@@ -668,7 +669,7 @@ class EglManagerTest {
 
     // Helper method used in testing to initialize EGL and default
     // EGLConfig to the ARGB8888 configuration
-    private fun EglManager.initializeWithDefaultConfig() {
+    private fun EGLManager.initializeWithDefaultConfig() {
         initialize()
         val config = loadConfig(EglConfigAttributes8888)
         if (config == null) {
@@ -683,9 +684,9 @@ class EglManagerTest {
      */
     private fun testEglManager(
         eglSpec: EGLSpec = EGLSpec.V14,
-        block: EglManager.() -> Unit = {}
+        block: EGLManager.() -> Unit = {}
     ) {
-        with(EglManager(eglSpec)) {
+        with(EGLManager(eglSpec)) {
             assertEquals(EGLVersion.Unknown, eglVersion)
             assertEquals(EGL14.EGL_NO_CONTEXT, eglContext)
             block()

@@ -29,7 +29,8 @@ import androidx.opengl.EGLExt.Companion.EGL_KHR_SURFACELESS_CONTEXT
  * initialization of the corresponding EGL Display as well as EGL Context, among
  * other EGL related facilities.
  */
-class EglManager(val eglSpec: EGLSpec = EGLSpec.V14) {
+@Suppress("AcronymName")
+class EGLManager(val eglSpec: EGLSpec = EGLSpec.V14) {
 
     private var mEglConfig: EGLConfig? = null
 

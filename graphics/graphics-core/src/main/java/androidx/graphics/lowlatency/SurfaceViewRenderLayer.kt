@@ -23,7 +23,7 @@ import android.view.SurfaceHolder
 import android.view.SurfaceView
 import androidx.annotation.RequiresApi
 import androidx.graphics.opengl.GLRenderer
-import androidx.graphics.opengl.egl.EglManager
+import androidx.graphics.opengl.egl.EGLManager
 import androidx.graphics.opengl.egl.EGLSpec
 import androidx.graphics.surface.SurfaceControlCompat
 import java.util.Collections
@@ -65,7 +65,7 @@ internal class SurfaceViewRenderLayer<T>(
                     mLayerCallback?.getRenderBufferPool()?.obtain(egl)
                         ?: throw IllegalArgumentException("No RenderBufferPool available")
 
-                override fun onDraw(eglManager: EglManager) {
+                override fun onDraw(eglManager: EGLManager) {
                     GLES20.glClearColor(0.0f, 0.0f, 0.0f, 0.0f)
                     GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
                     val params = mLayerCallback?.obtainDoubleBufferedLayerParams()
