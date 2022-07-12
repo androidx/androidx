@@ -41,7 +41,7 @@ import android.os.RemoteException;
 import android.util.Log;
 
 import androidx.car.app.HandshakeInfo;
-import androidx.car.app.SessionInfo;
+import androidx.car.app.SessionInfoIntentEncoder;
 import androidx.car.app.activity.renderer.ICarAppActivity;
 import androidx.car.app.activity.renderer.IRendererService;
 import androidx.car.app.serialization.Bundleable;
@@ -147,7 +147,8 @@ public class ServiceConnectionManagerTest {
         assertThat(mServiceConnectionManager.isBound()).isTrue();
         assertThat(intentArgumentCaptor.getValue()).isEqualTo(TEST_INTENT);
         assertThat(intentArgumentCaptor.getValue().getExtras()).isNotNull();
-        assertThat(new SessionInfo(intentArgumentCaptor.getValue())).isEqualTo(
+
+        assertThat(SessionInfoIntentEncoder.decode(intentArgumentCaptor.getValue())).isEqualTo(
                 DEFAULT_SESSION_INFO);
     }
 

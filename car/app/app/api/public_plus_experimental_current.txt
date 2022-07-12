@@ -160,15 +160,17 @@ package androidx.car.app {
 
   @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(5) public class SessionInfo {
     ctor public SessionInfo(int, String);
-    ctor public SessionInfo(android.content.Intent);
     method public int getDisplayType();
     method public String getSessionId();
     method @androidx.car.app.annotations.ExperimentalCarApi public java.util.Set<java.lang.Class<? extends androidx.car.app.model.Template>!>? getSupportedTemplates(int);
-    method public static void setBindData(android.content.Intent, androidx.car.app.SessionInfo);
     field public static final androidx.car.app.SessionInfo DEFAULT_SESSION_INFO;
     field public static final int DISPLAY_TYPE_CLUSTER = 1; // 0x1
     field public static final int DISPLAY_TYPE_MAIN = 0; // 0x0
-    field public static final String EXTRA_SESSION_INFO = "androidx.car.app.extra.SESSION_INFO";
+  }
+
+  public class SessionInfoIntentEncoder {
+    method public static androidx.car.app.SessionInfo decode(android.content.Intent);
+    method public static void encode(androidx.car.app.SessionInfo, android.content.Intent);
   }
 
   public interface SurfaceCallback {
