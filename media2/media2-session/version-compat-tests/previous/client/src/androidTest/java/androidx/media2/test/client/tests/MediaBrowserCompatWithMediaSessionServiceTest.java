@@ -21,6 +21,7 @@ import static androidx.media2.test.common.CommonConstants.MOCK_MEDIA2_SESSION_SE
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assume.assumeTrue;
 
 import android.content.ComponentName;
 import android.support.v4.media.MediaBrowserCompat;
@@ -48,6 +49,8 @@ public class MediaBrowserCompatWithMediaSessionServiceTest extends MediaSessionT
 
     @Before
     public void setUp() throws Exception {
+        // Ignore all tests, see b/236961183
+        assumeTrue(false);
         super.setUp();
         mConnectionCallback = new TestConnectionCallback();
         sHandler.postAndSync(new Runnable() {
