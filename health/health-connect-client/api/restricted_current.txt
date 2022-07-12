@@ -323,26 +323,18 @@ package androidx.health.connect.client.records {
     field public static final String MEDIUM = "medium";
   }
 
-  public final class CyclingPedalingCadence {
-    ctor public CyclingPedalingCadence(java.time.Instant time, @FloatRange(from=0.0, to=10000.0) double revolutionsPerMinute);
-    method public double getRevolutionsPerMinute();
-    method public java.time.Instant getTime();
-    property public final double revolutionsPerMinute;
-    property public final java.time.Instant time;
-  }
-
-  public final class CyclingPedalingCadenceRecord implements androidx.health.connect.client.records.SeriesRecord<androidx.health.connect.client.records.CyclingPedalingCadence> {
-    ctor public CyclingPedalingCadenceRecord(java.time.Instant startTime, java.time.ZoneOffset? startZoneOffset, java.time.Instant endTime, java.time.ZoneOffset? endZoneOffset, java.util.List<androidx.health.connect.client.records.CyclingPedalingCadence> samples, optional androidx.health.connect.client.records.metadata.Metadata metadata);
+  public final class CyclingPedalingCadenceRecord implements androidx.health.connect.client.records.SeriesRecord<androidx.health.connect.client.records.CyclingPedalingCadenceRecord.Sample> {
+    ctor public CyclingPedalingCadenceRecord(java.time.Instant startTime, java.time.ZoneOffset? startZoneOffset, java.time.Instant endTime, java.time.ZoneOffset? endZoneOffset, java.util.List<androidx.health.connect.client.records.CyclingPedalingCadenceRecord.Sample> samples, optional androidx.health.connect.client.records.metadata.Metadata metadata);
     method public java.time.Instant getEndTime();
     method public java.time.ZoneOffset? getEndZoneOffset();
     method public androidx.health.connect.client.records.metadata.Metadata getMetadata();
-    method public java.util.List<androidx.health.connect.client.records.CyclingPedalingCadence> getSamples();
+    method public java.util.List<androidx.health.connect.client.records.CyclingPedalingCadenceRecord.Sample> getSamples();
     method public java.time.Instant getStartTime();
     method public java.time.ZoneOffset? getStartZoneOffset();
     property public java.time.Instant endTime;
     property public java.time.ZoneOffset? endZoneOffset;
     property public androidx.health.connect.client.records.metadata.Metadata metadata;
-    property public java.util.List<androidx.health.connect.client.records.CyclingPedalingCadence> samples;
+    property public java.util.List<androidx.health.connect.client.records.CyclingPedalingCadenceRecord.Sample> samples;
     property public java.time.Instant startTime;
     property public java.time.ZoneOffset? startZoneOffset;
     field public static final androidx.health.connect.client.records.CyclingPedalingCadenceRecord.Companion Companion;
@@ -352,6 +344,14 @@ package androidx.health.connect.client.records {
   }
 
   public static final class CyclingPedalingCadenceRecord.Companion {
+  }
+
+  public static final class CyclingPedalingCadenceRecord.Sample {
+    ctor public CyclingPedalingCadenceRecord.Sample(java.time.Instant time, @FloatRange(from=0.0, to=10000.0) double revolutionsPerMinute);
+    method public double getRevolutionsPerMinute();
+    method public java.time.Instant getTime();
+    property public final double revolutionsPerMinute;
+    property public final java.time.Instant time;
   }
 
   public final class DistanceRecord implements androidx.health.connect.client.records.IntervalRecord {
@@ -620,26 +620,18 @@ package androidx.health.connect.client.records {
   public static final class FloorsClimbedRecord.Companion {
   }
 
-  public final class HeartRate {
-    ctor public HeartRate(java.time.Instant time, @IntRange(from=1L, to=300L) long beatsPerMinute);
-    method public long getBeatsPerMinute();
-    method public java.time.Instant getTime();
-    property public final long beatsPerMinute;
-    property public final java.time.Instant time;
-  }
-
-  public final class HeartRateRecord implements androidx.health.connect.client.records.SeriesRecord<androidx.health.connect.client.records.HeartRate> {
-    ctor public HeartRateRecord(java.time.Instant startTime, java.time.ZoneOffset? startZoneOffset, java.time.Instant endTime, java.time.ZoneOffset? endZoneOffset, java.util.List<androidx.health.connect.client.records.HeartRate> samples, optional androidx.health.connect.client.records.metadata.Metadata metadata);
+  public final class HeartRateRecord implements androidx.health.connect.client.records.SeriesRecord<androidx.health.connect.client.records.HeartRateRecord.Sample> {
+    ctor public HeartRateRecord(java.time.Instant startTime, java.time.ZoneOffset? startZoneOffset, java.time.Instant endTime, java.time.ZoneOffset? endZoneOffset, java.util.List<androidx.health.connect.client.records.HeartRateRecord.Sample> samples, optional androidx.health.connect.client.records.metadata.Metadata metadata);
     method public java.time.Instant getEndTime();
     method public java.time.ZoneOffset? getEndZoneOffset();
     method public androidx.health.connect.client.records.metadata.Metadata getMetadata();
-    method public java.util.List<androidx.health.connect.client.records.HeartRate> getSamples();
+    method public java.util.List<androidx.health.connect.client.records.HeartRateRecord.Sample> getSamples();
     method public java.time.Instant getStartTime();
     method public java.time.ZoneOffset? getStartZoneOffset();
     property public java.time.Instant endTime;
     property public java.time.ZoneOffset? endZoneOffset;
     property public androidx.health.connect.client.records.metadata.Metadata metadata;
-    property public java.util.List<androidx.health.connect.client.records.HeartRate> samples;
+    property public java.util.List<androidx.health.connect.client.records.HeartRateRecord.Sample> samples;
     property public java.time.Instant startTime;
     property public java.time.ZoneOffset? startZoneOffset;
     field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Long> BPM_AVG;
@@ -650,6 +642,14 @@ package androidx.health.connect.client.records {
   }
 
   public static final class HeartRateRecord.Companion {
+  }
+
+  public static final class HeartRateRecord.Sample {
+    ctor public HeartRateRecord.Sample(java.time.Instant time, @IntRange(from=1L, to=300L) long beatsPerMinute);
+    method public long getBeatsPerMinute();
+    method public java.time.Instant getTime();
+    property public final long beatsPerMinute;
+    property public final java.time.Instant time;
   }
 
   public final class HeightRecord implements androidx.health.connect.client.records.InstantaneousRecord {
@@ -1122,26 +1122,18 @@ package androidx.health.connect.client.records {
     property public final java.time.Instant time;
   }
 
-  public final class StepsCadence {
-    ctor public StepsCadence(java.time.Instant time, @FloatRange(from=0.0, to=10000.0) double rate);
-    method public double getRate();
-    method public java.time.Instant getTime();
-    property public final double rate;
-    property public final java.time.Instant time;
-  }
-
-  public final class StepsCadenceRecord implements androidx.health.connect.client.records.SeriesRecord<androidx.health.connect.client.records.StepsCadence> {
-    ctor public StepsCadenceRecord(java.time.Instant startTime, java.time.ZoneOffset? startZoneOffset, java.time.Instant endTime, java.time.ZoneOffset? endZoneOffset, java.util.List<androidx.health.connect.client.records.StepsCadence> samples, optional androidx.health.connect.client.records.metadata.Metadata metadata);
+  public final class StepsCadenceRecord implements androidx.health.connect.client.records.SeriesRecord<androidx.health.connect.client.records.StepsCadenceRecord.Sample> {
+    ctor public StepsCadenceRecord(java.time.Instant startTime, java.time.ZoneOffset? startZoneOffset, java.time.Instant endTime, java.time.ZoneOffset? endZoneOffset, java.util.List<androidx.health.connect.client.records.StepsCadenceRecord.Sample> samples, optional androidx.health.connect.client.records.metadata.Metadata metadata);
     method public java.time.Instant getEndTime();
     method public java.time.ZoneOffset? getEndZoneOffset();
     method public androidx.health.connect.client.records.metadata.Metadata getMetadata();
-    method public java.util.List<androidx.health.connect.client.records.StepsCadence> getSamples();
+    method public java.util.List<androidx.health.connect.client.records.StepsCadenceRecord.Sample> getSamples();
     method public java.time.Instant getStartTime();
     method public java.time.ZoneOffset? getStartZoneOffset();
     property public java.time.Instant endTime;
     property public java.time.ZoneOffset? endZoneOffset;
     property public androidx.health.connect.client.records.metadata.Metadata metadata;
-    property public java.util.List<androidx.health.connect.client.records.StepsCadence> samples;
+    property public java.util.List<androidx.health.connect.client.records.StepsCadenceRecord.Sample> samples;
     property public java.time.Instant startTime;
     property public java.time.ZoneOffset? startZoneOffset;
     field public static final androidx.health.connect.client.records.StepsCadenceRecord.Companion Companion;
@@ -1151,6 +1143,14 @@ package androidx.health.connect.client.records {
   }
 
   public static final class StepsCadenceRecord.Companion {
+  }
+
+  public static final class StepsCadenceRecord.Sample {
+    ctor public StepsCadenceRecord.Sample(java.time.Instant time, @FloatRange(from=0.0, to=10000.0) double rate);
+    method public double getRate();
+    method public java.time.Instant getTime();
+    property public final double rate;
+    property public final java.time.Instant time;
   }
 
   public final class StepsRecord implements androidx.health.connect.client.records.IntervalRecord {
