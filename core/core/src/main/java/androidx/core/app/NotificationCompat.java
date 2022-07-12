@@ -436,6 +436,14 @@ public class NotificationCompat {
     public static final String EXTRA_PICTURE = "android.picture";
 
     /**
+     * {@link #getExtras extras} key: this is an {@link Icon} of an image to be
+     * shown in {@link Notification.BigPictureStyle} expanded notifications, supplied to
+     * {@link BigPictureStyle#bigPicture(Icon)}.
+     */
+    @SuppressLint("ActionValue") // Field & value copied from android.app.Notification
+    public static final String EXTRA_PICTURE_ICON = "android.pictureIcon";
+
+    /**
      * {@link #extras} key: this is a content description of the big picture supplied from
      * {@link BigPictureStyle#bigPicture(Bitmap)}, supplied to
      * {@link BigPictureStyle#setContentDescription(CharSequence)}.
@@ -2740,7 +2748,8 @@ public class NotificationCompat {
             if (extras.containsKey(EXTRA_SELF_DISPLAY_NAME)
                     || extras.containsKey(EXTRA_MESSAGING_STYLE_USER)) {
                 return new MessagingStyle();
-            } else if (extras.containsKey(EXTRA_PICTURE)) {
+            } else if (extras.containsKey(EXTRA_PICTURE)
+                    || extras.containsKey(EXTRA_PICTURE_ICON)) {
                 return new BigPictureStyle();
             } else if (extras.containsKey(EXTRA_BIG_TEXT)) {
                 return new BigTextStyle();
@@ -3022,7 +3031,7 @@ public class NotificationCompat {
      * <br>
      * This class is a "rebuilder": It attaches to a Builder object and modifies its behavior, like so:
      * <pre class="prettyprint">
-     * Notification notification = new Notification.Builder(mContext)
+     * Notification notification = new NotificationCompat.Builder(mContext)
      *     .setContentTitle(&quot;New photo from &quot; + sender.toString())
      *     .setContentText(subject)
      *     .setSmallIcon(R.drawable.new_post)
@@ -3039,7 +3048,7 @@ public class NotificationCompat {
         private static final String TEMPLATE_CLASS_NAME =
                 "androidx.core.app.NotificationCompat$BigPictureStyle";
 
-        private Bitmap mPicture;
+        private IconCompat mPictureIcon;
         private IconCompat mBigLargeIcon;
         private boolean mBigLargeIconSet;
         private CharSequence mPictureContentDescription;
@@ -3085,7 +3094,17 @@ public class NotificationCompat {
          * Provide the bitmap to be used as the payload for the BigPicture notification.
          */
         public @NonNull BigPictureStyle bigPicture(@Nullable Bitmap b) {
-            mPicture = b;
+            mPictureIcon = b == null ? null : IconCompat.createWithBitmap(b);
+            return this;
+        }
+
+        /**
+         * Provide an icon to be used as the payload for the BigPicture notification.
+         * Note that certain features (like animated Icons) may not work on all versions.
+         */
+        @RequiresApi(31)
+        public @NonNull BigPictureStyle bigPicture(@Nullable Icon i) {
+            mPictureIcon = IconCompat.createFromIcon(i);
             return this;
         }
 
@@ -3129,8 +3148,21 @@ public class NotificationCompat {
             if (Build.VERSION.SDK_INT >= 16) {
                 Notification.BigPictureStyle style =
                         new Notification.BigPictureStyle(builder.getBuilder())
-                                .setBigContentTitle(mBigContentTitle)
-                                .bigPicture(mPicture);
+                                .setBigContentTitle(mBigContentTitle);
+                if (mPictureIcon != null) {
+                    // Attempts to set the icon for BigPictureStyle; prefers using data as Icon,
+                    // with a fallback to store the Bitmap if Icon is not supported directly.
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                        Context context = null;
+                        if (builder instanceof NotificationCompatBuilder) {
+                            context = ((NotificationCompatBuilder) builder).getContext();
+                        }
+                        Api31Impl.setBigPicture(style, mPictureIcon.toIcon(context));
+                    } else if (mPictureIcon.getType() == IconCompat.TYPE_BITMAP) {
+                        style = style.bigPicture(mPictureIcon.getBitmap());
+                    }
+                }
+                // Attempts to set the big large icon for BigPictureStyle.
                 if (mBigLargeIconSet) {
                     if (mBigLargeIcon == null) {
                         Api16Impl.setBigLargeIcon(style, null);
@@ -3172,8 +3204,26 @@ public class NotificationCompat {
                 mBigLargeIcon = asIconCompat(extras.getParcelable(EXTRA_LARGE_ICON_BIG));
                 mBigLargeIconSet = true;
             }
-            mPicture = extras.getParcelable(EXTRA_PICTURE);
+            mPictureIcon = getPictureIcon(extras);
             mShowBigPictureWhenCollapsed = extras.getBoolean(EXTRA_SHOW_BIG_PICTURE_WHEN_COLLAPSED);
+        }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY_GROUP_PREFIX)
+        @Nullable
+        public static IconCompat getPictureIcon(@Nullable Bundle extras) {
+            if (extras == null) return null;
+            // When this style adds a picture, we only add one of the keys.  If both were added,
+            // it would most likely be a legacy app trying to override the picture in some way.
+            // Because of that case it's better to give precedence to the legacy field.
+            Parcelable bitmapPicture = extras.getParcelable(EXTRA_PICTURE);
+            if (bitmapPicture != null) {
+                return asIconCompat(bitmapPicture);
+            } else {
+                return asIconCompat(extras.getParcelable(EXTRA_PICTURE_ICON));
+            }
         }
 
         @Nullable
@@ -3200,6 +3250,7 @@ public class NotificationCompat {
             super.clearCompatExtraKeys(extras);
             extras.remove(EXTRA_LARGE_ICON_BIG);
             extras.remove(EXTRA_PICTURE);
+            extras.remove(EXTRA_PICTURE_ICON);
             extras.remove(EXTRA_SHOW_BIG_PICTURE_WHEN_COLLAPSED);
         }
 
@@ -3275,6 +3326,14 @@ public class NotificationCompat {
             static void setContentDescription(Notification.BigPictureStyle style,
                     CharSequence contentDescription) {
                 style.setContentDescription(contentDescription);
+            }
+
+            /**
+             * Calls {@link Notification.BigPictureStyle#bigPicture(Icon)}
+             */
+            @RequiresApi(31)
+            static void setBigPicture(Notification.BigPictureStyle style, Icon icon) {
+                style.bigPicture(icon);
             }
         }
     }

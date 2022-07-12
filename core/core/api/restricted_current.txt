@@ -373,6 +373,7 @@ package androidx.core.app {
     field public static final String EXTRA_PEOPLE_LIST = "android.people.list";
     field public static final String EXTRA_PICTURE = "android.picture";
     field public static final String EXTRA_PICTURE_CONTENT_DESCRIPTION = "android.pictureContentDescription";
+    field public static final String EXTRA_PICTURE_ICON = "android.pictureIcon";
     field public static final String EXTRA_PROGRESS = "android.progress";
     field public static final String EXTRA_PROGRESS_INDETERMINATE = "android.progressIndeterminate";
     field public static final String EXTRA_PROGRESS_MAX = "android.progressMax";
@@ -501,6 +502,8 @@ package androidx.core.app {
     ctor public NotificationCompat.BigPictureStyle(androidx.core.app.NotificationCompat.Builder?);
     method public androidx.core.app.NotificationCompat.BigPictureStyle bigLargeIcon(android.graphics.Bitmap?);
     method public androidx.core.app.NotificationCompat.BigPictureStyle bigPicture(android.graphics.Bitmap?);
+    method @RequiresApi(31) public androidx.core.app.NotificationCompat.BigPictureStyle bigPicture(android.graphics.drawable.Icon?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static androidx.core.graphics.drawable.IconCompat? getPictureIcon(android.os.Bundle?);
     method public androidx.core.app.NotificationCompat.BigPictureStyle setBigContentTitle(CharSequence?);
     method @RequiresApi(31) public androidx.core.app.NotificationCompat.BigPictureStyle setContentDescription(CharSequence?);
     method public androidx.core.app.NotificationCompat.BigPictureStyle setSummaryText(CharSequence?);
