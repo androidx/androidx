@@ -13,36 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package androidx.annotation;
-
-import static java.lang.annotation.ElementType.FIELD;
-import static java.lang.annotation.ElementType.LOCAL_VARIABLE;
-import static java.lang.annotation.ElementType.METHOD;
-import static java.lang.annotation.ElementType.PARAMETER;
-import static java.lang.annotation.RetentionPolicy.SOURCE;
-
-import java.lang.annotation.Documented;
-import java.lang.annotation.Retention;
-import java.lang.annotation.Target;
+package androidx.annotation
 
 /**
- * <p>Denotes that the annotated element represents a packed color
+ * Denotes that the annotated element represents a packed color
  * long. If applied to a long array, every element in the array
  * represents a color long. For more information on how colors
  * are packed in a long, please refer to the documentation of
- * the {@link android.graphics.Color} class.</p>
+ * the [android.graphics.Color] class.
  *
- * <p>Example:</p>
- *
- * <pre>
- *  public void setFillColor(@ColorLong long color);
- * </pre>
+ * Example:
+ * ```
+ * public void setFillColor(@ColorLong long color);
+ * ```
  *
  * @see android.graphics.Color
  */
-@Documented
-@Retention(SOURCE)
-@Target({PARAMETER, METHOD, LOCAL_VARIABLE, FIELD})
-public @interface ColorLong {
-}
+@MustBeDocumented
+@Retention(AnnotationRetention.SOURCE)
+@Target(
+    AnnotationTarget.VALUE_PARAMETER,
+    AnnotationTarget.FUNCTION,
+    AnnotationTarget.PROPERTY_GETTER,
+    AnnotationTarget.PROPERTY_SETTER,
+    AnnotationTarget.LOCAL_VARIABLE,
+    AnnotationTarget.FIELD
+)
+public annotation class ColorLong

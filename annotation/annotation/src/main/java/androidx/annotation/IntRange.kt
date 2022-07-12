@@ -13,37 +13,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.annotation;
-
-import static java.lang.annotation.ElementType.ANNOTATION_TYPE;
-import static java.lang.annotation.ElementType.FIELD;
-import static java.lang.annotation.ElementType.LOCAL_VARIABLE;
-import static java.lang.annotation.ElementType.METHOD;
-import static java.lang.annotation.ElementType.PARAMETER;
-import static java.lang.annotation.RetentionPolicy.CLASS;
-
-import java.lang.annotation.Documented;
-import java.lang.annotation.Retention;
-import java.lang.annotation.Target;
+package androidx.annotation
 
 /**
- * Denotes that the annotated element should be an int or long in the given range
- * <p>
+ * Denotes that the annotated element should be an int or long in the given range.
+ *
  * Example:
- * <pre><code>
- *  &#64;IntRange(from=0,to=255)
- *  public int getAlpha() {
- *      ...
- *  }
- * </code></pre>
+ * ```
+ * @IntRange(from=0,to=255)
+ * public int getAlpha() {
+ *     ...
+ * }
+ * ```
  */
-@Documented
-@Retention(CLASS)
-@Target({METHOD, PARAMETER, FIELD, LOCAL_VARIABLE, ANNOTATION_TYPE})
-public @interface IntRange {
-    /** Smallest value, inclusive */
-    long from() default Long.MIN_VALUE;
-
-    /** Largest value, inclusive */
-    long to() default Long.MAX_VALUE;
-}
+@MustBeDocumented
+@Retention(AnnotationRetention.BINARY)
+@Target(
+    AnnotationTarget.FUNCTION,
+    AnnotationTarget.PROPERTY_GETTER,
+    AnnotationTarget.PROPERTY_SETTER,
+    AnnotationTarget.VALUE_PARAMETER,
+    AnnotationTarget.FIELD,
+    AnnotationTarget.LOCAL_VARIABLE,
+    AnnotationTarget.ANNOTATION_CLASS
+)
+public annotation class IntRange(
+    /** Smallest value, inclusive  */
+    val from: Long = java.lang.Long.MIN_VALUE,
+    /** Largest value, inclusive  */
+    val to: Long = java.lang.Long.MAX_VALUE
+)
