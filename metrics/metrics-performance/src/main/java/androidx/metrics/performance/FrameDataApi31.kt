@@ -45,11 +45,29 @@ class FrameDataApi31(
     frameStartNanos: Long,
     frameDurationUiNanos: Long,
     frameDurationCpuNanos: Long,
-    val frameOverrunNanos: Long,
+    frameOverrunNanos: Long,
     isJank: Boolean,
     states: List<StateInfo>
-
 ) : FrameDataApi24(frameStartNanos, frameDurationUiNanos, frameDurationCpuNanos, isJank, states) {
+
+    var frameOverrunNanos = frameOverrunNanos
+        private set
+
+    override fun copy(): FrameData {
+        return FrameDataApi31(frameStartNanos, frameDurationUiNanos, frameDurationCpuNanos,
+            frameOverrunNanos, isJank, ArrayList(states))
+    }
+
+    internal fun update(
+        frameStartNanos: Long,
+        frameDurationUiNanos: Long,
+        frameDurationCpuNanos: Long,
+        frameOverrunNanos: Long,
+        isJank: Boolean
+    ) {
+        super.update(frameStartNanos, frameDurationUiNanos, frameDurationCpuNanos, isJank)
+        this.frameOverrunNanos = frameOverrunNanos
+    }
 
     override fun equals(other: Any?): Boolean {
         return other is FrameDataApi31 &&

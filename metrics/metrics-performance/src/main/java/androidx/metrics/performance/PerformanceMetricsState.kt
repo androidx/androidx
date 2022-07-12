@@ -61,6 +61,12 @@ class PerformanceMetricsState private constructor() {
     private val statesHolder = mutableListOf<StateData>()
     private val statesToBeCleared = mutableListOf<Int>()
 
+    /**
+     * StateData objects are stored and retrieved from an object pool, to avoid re-allocating
+     * for new state pairs, since it is expected that most states will share names/states
+     */
+    private val stateDataPool = mutableListOf<StateData>()
+
     private fun addFrameState(
         frameStartTime: Long,
         frameEndTime: Long,
@@ -74,7 +80,7 @@ class PerformanceMetricsState private constructor() {
             val item = activeStates[i]
             if (item.timeRemoved > 0 && item.timeRemoved < frameStartTime) {
                 // remove states that have already been marked for removal
-                activeStates.removeAt(i)
+                returnStateDataToPool(activeStates.removeAt(i))
             } else if (item.timeAdded < frameEndTime) {
                 // Only add unique state. There may be several states added in
                 // a given frame (especially during heavy jank periods). Only the
@@ -142,7 +148,8 @@ class PerformanceMetricsState private constructor() {
         removalTime: Long
     ) {
         synchronized(singleFrameStates) {
-            for (item in states) {
+            for (i in 0 until states.size) {
+                val item = states[i]
                 if (item.state.stateName == stateName && item.timeRemoved < 0) {
                     item.timeRemoved = removalTime
                 }
@@ -177,15 +184,14 @@ class PerformanceMetricsState private constructor() {
         synchronized(singleFrameStates) {
             val nowTime = System.nanoTime()
             markStateForRemoval(stateName, states, nowTime)
+            val stateData = getStateData(
+                nowTime, -1,
+                StateInfo.getStateInfo(stateName, state)
+            )
             states.add(
-                StateData(
-                    nowTime, -1,
-                    StateInfo(stateName, state)
-                )
+                stateData
             )
         }
-        // TODO: consider pooled StateInfo objects that we reuse here instead of creating new
-        // ones every time
     }
 
     /**
@@ -209,7 +215,7 @@ class PerformanceMetricsState private constructor() {
             val nowTime = System.nanoTime()
             markStateForRemoval(stateName, singleFrameStates, nowTime)
             singleFrameStates.add(
-                StateData(
+                getStateData(
                     nowTime, -1,
                     StateInfo(stateName, state)
                 )
@@ -219,6 +225,18 @@ class PerformanceMetricsState private constructor() {
 
     private fun markStateForRemoval(stateName: String) {
         markStateForRemoval(stateName, states, System.nanoTime())
+    }
+
+    internal fun removeStateNow(stateName: String) {
+        synchronized(singleFrameStates) {
+            for (i in 0 until states.size) {
+                val item = states[i]
+                if (item.state.stateName == stateName) {
+                    states.remove(item)
+                    returnStateDataToPool(item)
+                }
+            }
+        }
     }
 
     /**
@@ -231,6 +249,31 @@ class PerformanceMetricsState private constructor() {
         var timeRemoved: Long,
         var state: StateInfo
     )
+
+    internal fun getStateData(timeAdded: Long, timeRemoved: Long, state: StateInfo): StateData {
+        synchronized(stateDataPool) {
+            if (stateDataPool.isEmpty()) {
+                // This new item will be added to the pool when it is removed, later
+                return StateData(timeAdded, timeRemoved, state)
+            } else {
+                val stateData = stateDataPool.removeAt(0)
+                stateData.timeAdded = timeAdded
+                stateData.timeRemoved = timeRemoved
+                stateData.state = state
+                return stateData
+            }
+        }
+    }
+
+    /**
+     * Once the StateData is done being used, it can be returned to the pool for later reuse,
+     * which happens in getStateData()
+     */
+    internal fun returnStateDataToPool(stateData: StateData) {
+        synchronized(stateDataPool) {
+            stateDataPool.add(stateData)
+        }
+    }
 
     /**
      * Removes information about a specified state.
@@ -258,17 +301,16 @@ class PerformanceMetricsState private constructor() {
      * states added via [addSingleFrameState] are removed, since they have been used
      * exactly once to retrieve the state for this interval.
      */
-    internal fun getIntervalStates(startTime: Long, endTime: Long): List<StateInfo> {
-        var frameStates: MutableList<StateInfo>
+    internal fun getIntervalStates(
+        startTime: Long,
+        endTime: Long,
+        frameStates: MutableList<StateInfo>
+    ) {
         synchronized(singleFrameStates) {
-            frameStates = ArrayList<StateInfo>(
-                states.size +
-                    singleFrameStates.size
-            )
+            frameStates.clear()
             addFrameState(startTime, endTime, frameStates, states)
             addFrameState(startTime, endTime, frameStates, singleFrameStates)
         }
-        return frameStates
     }
 
     internal fun cleanupSingleFrameStates() {
@@ -277,7 +319,9 @@ class PerformanceMetricsState private constructor() {
             for (i in singleFrameStates.size - 1 downTo 0) {
                 // SFStates are marked with timeRemoved during processing so we know when
                 // they have logged data and can actually be removed
-                if (singleFrameStates[i].timeRemoved != -1L) singleFrameStates.removeAt(i)
+                if (singleFrameStates[i].timeRemoved != -1L) {
+                    returnStateDataToPool(singleFrameStates.removeAt(i))
+                }
             }
         }
     }
