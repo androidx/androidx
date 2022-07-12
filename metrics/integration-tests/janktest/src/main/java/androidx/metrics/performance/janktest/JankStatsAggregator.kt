@@ -43,10 +43,12 @@ class JankStatsAggregator(
 ) {
 
     private val listener = object : JankStats.OnFrameListener {
-        override fun onFrame(frameData: FrameData) {
+        override fun onFrame(volatileFrameData: FrameData) {
             ++numFrames
-            if (frameData.isJank) {
-                jankReport.add(frameData)
+            if (volatileFrameData.isJank) {
+                // Store copy of frameData because it will be reused by JankStats before any report
+                // is issued
+                jankReport.add(volatileFrameData.copy())
                 if (jankReport.size >= REPORT_BUFFER_LIMIT) {
                     issueJankReport("Max buffer size reached")
                 }
@@ -54,7 +56,7 @@ class JankStatsAggregator(
         }
     }
 
-    val jankStats = JankStats.createAndTrack(window, executor, listener)
+    val jankStats = JankStats.createAndTrack(window, listener)
 
     private var jankReport = ArrayList<FrameData>()
 

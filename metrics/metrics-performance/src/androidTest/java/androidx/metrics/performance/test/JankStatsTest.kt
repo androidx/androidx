@@ -35,10 +35,8 @@ import androidx.test.filters.SdkSuppress
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import kotlin.math.max
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.asExecutor
-import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers
+import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotEquals
@@ -89,11 +87,7 @@ class JankStatsTest {
             delayedView = delayedActivity.findViewById(R.id.delayedView)
             latchedListener = LatchedListener()
             latchedListener.latch = CountDownLatch(1)
-            jankStats = JankStats.createAndTrack(
-                delayedActivity.window,
-                Dispatchers.Default.asExecutor(),
-                latchedListener
-            )
+            jankStats = JankStats.createAndTrack(delayedActivity.window, latchedListener)
             metricsState = PerformanceMetricsState.getForHierarchy(delayedView).state!!
         }
     }
@@ -121,13 +115,9 @@ class JankStatsTest {
             jsSecond.isTrackingEnabled = !jsSecond.isTrackingEnabled
             jsThird.isTrackingEnabled = !jsThird.isTrackingEnabled
         }
-        delayedActivityRule.scenario.onActivity { _ ->
-            // To repro, must add/remove on the same thread as the one used to call the listeners.
-            // That thread is determined by the Executor. Here's a dirty hack to force the executor
-            // to run on the same thread as the one iterating through the listeners.
-            val executor = Runnable::run
-            jsSecond = JankStats.createAndTrack(delayedActivity.window, executor, secondListener)
-            jsThird = JankStats.createAndTrack(delayedActivity.window, executor, secondListener)
+        delayedActivityRule.scenario.onActivity {
+            jsSecond = JankStats.createAndTrack(delayedActivity.window, secondListener)
+            jsThird = JankStats.createAndTrack(delayedActivity.window, secondListener)
         }
         runDelayTest(frameDelay = 0, NUM_FRAMES, latchedListener)
     }
@@ -143,8 +133,8 @@ class JankStatsTest {
 
     @Test
     fun testEquality() {
-        val states1 = listOf<StateInfo>(StateInfo("1", "a"))
-        val states2 = listOf<StateInfo>(StateInfo("1", "a"), StateInfo("2", "b"))
+        val states1 = listOf(StateInfo("1", "a"))
+        val states2 = listOf(StateInfo("1", "a"), StateInfo("2", "b"))
         val frameDataBase = FrameData(0, 0, true, states1)
         val frameDataBaseCopy = FrameData(0, 0, true, states1)
         val frameDataBaseA = FrameData(0, 0, true, states2)
@@ -210,30 +200,34 @@ class JankStatsTest {
     @SdkSuppress(minSdkVersion = JELLY_BEAN)
     @Test
     fun testMultipleListeners() {
+        var secondListenerLatch = CountDownLatch(0)
         val frameDelay = 0
 
         frameInit.initFramePipeline()
 
         var numSecondListenerCalls = 0
         val secondListenerStates = mutableListOf<StateInfo>()
-        val secondListener = OnFrameListener {
-            secondListenerStates.addAll(it.states)
+        val secondListener = OnFrameListener { volatileFrameData ->
+            secondListenerStates.addAll(volatileFrameData.states)
             numSecondListenerCalls++
+            if (numSecondListenerCalls >= NUM_FRAMES) {
+                secondListenerLatch.countDown()
+            }
         }
         lateinit var jankStats2: JankStats
         val scenario = delayedActivityRule.scenario
         scenario.onActivity { _ ->
-            jankStats2 = JankStats.createAndTrack(
-                delayedActivity.window, Dispatchers.Default.asExecutor(), secondListener
-            )
+            jankStats2 = JankStats.createAndTrack(delayedActivity.window, secondListener)
         }
         val testState = StateInfo("Testing State", "sampleState")
         metricsState.addSingleFrameState(testState.stateName, testState.state)
 
         // in case earlier frames arrive before our test begins
         secondListenerStates.clear()
+        secondListenerLatch = CountDownLatch(1)
         latchedListener.reset()
         runDelayTest(frameDelay, NUM_FRAMES, latchedListener)
+        secondListenerLatch.await(frameDelay * NUM_FRAMES + 1000L, TimeUnit.MILLISECONDS)
         val jankData: FrameData = latchedListener.jankData[0]
         assertTrue("No calls to second listener", numSecondListenerCalls > 0)
         assertEquals(listOf(testState), jankData.states)
@@ -255,7 +249,7 @@ class JankStatsTest {
         poster = Runnable {
             JankStats.createAndTrack(
                 delayedActivity.window,
-                Dispatchers.Default.asExecutor(), secondListener
+                secondListener
             )
             ++numNewListeners
             if (numNewListeners < 100) {
@@ -547,7 +541,7 @@ class JankStatsTest {
         }
     }
 
-    inner class LatchedListener : OnFrameListener {
+    inner class LatchedListener : JankStats.OnFrameListener {
         var numJankFrames = 0
         var jankData = mutableListOf<FrameData>()
         var latch: CountDownLatch? = null
@@ -560,32 +554,20 @@ class JankStatsTest {
             numFrames = 0
         }
 
-        override fun onFrame(
-            frameData: FrameData
-        ) {
+        override fun onFrame(volatileFrameData: FrameData) {
             if (latch == null) {
                 throw Exception("latch not set in LatchedListener")
             } else {
-                if (frameData.isJank && frameData.frameDurationUiNanos >
+                if (volatileFrameData.isJank && volatileFrameData.frameDurationUiNanos >
                         (MIN_JANK_NS * jankStats.jankHeuristicMultiplier)) {
                     this.numJankFrames++
                 }
-                this.jankData.add(frameData)
+                this.jankData.add(volatileFrameData.copy())
                 numFrames++
                 if (numFrames >= minFrames) {
                     latch!!.countDown()
                 }
             }
         }
-    }
-
-    private fun getFrameEndTime(frameData: FrameData): Long {
-        var duration = frameData.frameStartNanos
-        if (frameData is FrameDataApi24) {
-            duration += frameData.frameDurationCpuNanos
-        } else {
-            duration += frameData.frameDurationUiNanos
-        }
-        return duration
     }
 }

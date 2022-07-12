@@ -47,6 +47,15 @@ internal open class JankStatsApi16Impl(
     // Cache for use during reporting, to supply the FrameData states
     val metricsStateHolder = PerformanceMetricsState.getForHierarchy(view)
 
+    // stateInfo is the backing store for the list of states that are active on any given
+    // frame. It is passed to the JankStats listeners as part of the FrameData structure.
+    // Reusing this mutable version of it enables zero-allocation metrics reporting.
+    val stateInfo = mutableListOf<StateInfo>()
+
+    // frameData is reused every time, populated with the latest frame's data before
+    // sending out to listeners. Reuse enables zero-allocation metrics reporting.
+    private val frameData = FrameData(0, 0, false, stateInfo)
+
     /**
      * Each JankStats instance has its own listener for per-frame metric data.
      * But we use a single listener (using OnPreDraw events prior to API 24) to gather
@@ -78,11 +87,11 @@ internal open class JankStatsApi16Impl(
         uiDuration: Long,
         expectedDuration: Long
     ): FrameData {
-        val frameStates =
-            metricsStateHolder.state?.getIntervalStates(startTime, startTime + uiDuration)
-                ?: emptyList()
+        metricsStateHolder.state?.getIntervalStates(startTime, startTime + uiDuration,
+            stateInfo)
         val isJank = uiDuration > expectedDuration
-        return FrameData(startTime, uiDuration, isJank, frameStates)
+        frameData.update(startTime, uiDuration, isJank)
+        return frameData
     }
 
     private fun View.removeOnPreDrawListenerDelegate(delegate: OnFrameListenerDelegate) {
