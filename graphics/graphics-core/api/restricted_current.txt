@@ -1,7 +1,7 @@
 // Signature format: 4.0
 package androidx.graphics.lowlatency {
 
-  @RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU) public final class GLFrontBufferedRenderer<T> {
+  @RequiresApi(android.os.Build.VERSION_CODES.Q) public final class GLFrontBufferedRenderer<T> {
     ctor public GLFrontBufferedRenderer(android.view.SurfaceView surfaceView, androidx.graphics.lowlatency.GLFrontBufferedRenderer.Callback<T> callback, optional androidx.graphics.opengl.GLRenderer? glRenderer);
     ctor public GLFrontBufferedRenderer(android.view.SurfaceView surfaceView, androidx.graphics.lowlatency.GLFrontBufferedRenderer.Callback<T> callback);
     method public void clear();
