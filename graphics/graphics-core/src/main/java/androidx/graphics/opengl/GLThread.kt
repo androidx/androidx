@@ -29,7 +29,7 @@ import androidx.annotation.WorkerThread
 import androidx.graphics.opengl.GLRenderer.EglContextCallback
 import androidx.graphics.opengl.GLRenderer.RenderCallback
 import androidx.graphics.opengl.egl.EglManager
-import androidx.graphics.opengl.egl.EglSpec
+import androidx.graphics.opengl.egl.EGLSpec
 import java.util.concurrent.atomic.AtomicBoolean
 
 /**
@@ -38,7 +38,7 @@ import java.util.concurrent.atomic.AtomicBoolean
  */
 internal class GLThread(
     name: String = "GLThread",
-    private val mEglSpecFactory: () -> EglSpec,
+    private val mEglSpecFactory: () -> EGLSpec,
     private val mEglConfigFactory: EglManager.() -> EGLConfig,
 ) : HandlerThread(name) {
 

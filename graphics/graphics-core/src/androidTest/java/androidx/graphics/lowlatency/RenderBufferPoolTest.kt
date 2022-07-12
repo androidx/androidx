@@ -19,7 +19,7 @@ package androidx.graphics.lowlatency
 import android.hardware.HardwareBuffer
 import android.os.Build
 import androidx.graphics.opengl.egl.EglManager
-import androidx.graphics.opengl.egl.EglSpec
+import androidx.graphics.opengl.egl.EGLSpec
 import androidx.graphics.opengl.egl.supportsNativeAndroidFence
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
@@ -127,7 +127,7 @@ internal class RenderBufferPoolTest {
         )
 
     private fun withEglSpec(
-        block: (egl: EglSpec) -> Unit = {}
+        block: (egl: EGLSpec) -> Unit = {}
     ) {
         with(EglManager()) {
             initialize()

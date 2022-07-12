@@ -40,7 +40,7 @@ import androidx.graphics.lowlatency.HardwareBufferRenderer
 import androidx.graphics.lowlatency.RenderBuffer
 import androidx.graphics.lowlatency.RenderFence
 import androidx.graphics.opengl.egl.EglManager
-import androidx.graphics.opengl.egl.EglSpec
+import androidx.graphics.opengl.egl.EGLSpec
 import androidx.graphics.opengl.egl.deviceSupportsNativeAndroidFence
 import androidx.graphics.opengl.egl.supportsNativeAndroidFence
 import androidx.lifecycle.Lifecycle.State
@@ -554,7 +554,7 @@ class GLRendererTest {
 
     data class Size(val width: Int, val height: Int)
 
-    fun EglSpec.querySurfaceSize(eglSurface: EGLSurface): Size {
+    fun EGLSpec.querySurfaceSize(eglSurface: EGLSurface): Size {
         val result = IntArray(1)
         eglQuerySurface(
             eglSurface, EGL14.EGL_WIDTH, result, 0)
@@ -812,7 +812,7 @@ class GLRendererTest {
         var renderBuffer: RenderBuffer? = null
 
         val callbacks = object : HardwareBufferRenderer.RenderCallbacks {
-            override fun obtainRenderBuffer(egl: EglSpec): RenderBuffer =
+            override fun obtainRenderBuffer(egl: EGLSpec): RenderBuffer =
                 RenderBuffer(
                     egl,
                     HardwareBuffer.create(

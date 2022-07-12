@@ -73,7 +73,7 @@ class EglManagerTest {
             // support for it. However, all devices should at least support EGL v 1.4
             assertTrue(
                 "Unexpected EGL version, received $eglVersion",
-                eglVersion == EglVersion.V14 || eglVersion == EglVersion.V15
+                eglVersion == EGLVersion.V14 || eglVersion == EGLVersion.V15
             )
             assertNotNull(eglContext)
             assertNotNull(eglConfig)
@@ -155,9 +155,9 @@ class EglManagerTest {
         // EglKhrSurfacelessContext extension in order to verify
         // the fallback support of initializing the current surface
         // to a PBuffer instead of EGL14.EGL_NO_SURFACE
-        val wrappedEglSpec = object : EglSpec by EglSpec.Egl14 {
+        val wrappedEglSpec = object : EGLSpec by EGLSpec.V14 {
             override fun eglQueryString(nameId: Int): String {
-                val queryString = EglSpec.Egl14.eglQueryString(nameId)
+                val queryString = EGLSpec.V14.eglQueryString(nameId)
                 return if (nameId == EGL14.EGL_EXTENSIONS) {
                     // Parse the space separated string of EGL extensions into a set
                     val set = HashSet<String>().apply {
@@ -272,7 +272,7 @@ class EglManagerTest {
         }
     }
 
-    private fun EglSpec.isSingleBufferedSurface(surface: EGLSurface): Boolean {
+    private fun EGLSpec.isSingleBufferedSurface(surface: EGLSurface): Boolean {
         return if (surface == EGL14.EGL_NO_SURFACE) {
             false
         } else {
@@ -682,15 +682,15 @@ class EglManagerTest {
      * made to it and verifies that no exceptions were thrown as part of the test.
      */
     private fun testEglManager(
-        eglSpec: EglSpec = EglSpec.Egl14,
+        eglSpec: EGLSpec = EGLSpec.V14,
         block: EglManager.() -> Unit = {}
     ) {
         with(EglManager(eglSpec)) {
-            assertEquals(EglVersion.Unknown, eglVersion)
+            assertEquals(EGLVersion.Unknown, eglVersion)
             assertEquals(EGL14.EGL_NO_CONTEXT, eglContext)
             block()
             release()
-            assertEquals(EglVersion.Unknown, eglVersion)
+            assertEquals(EGLVersion.Unknown, eglVersion)
             assertEquals(EGL14.EGL_NO_CONTEXT, eglContext)
         }
     }

@@ -45,7 +45,8 @@ import androidx.opengl.EGLSyncKHR
  *
  * EglSpec is not thread safe and is up to the caller of these methods to guarantee thread safety.
  */
-interface EglSpec {
+@Suppress("AcronymName")
+interface EGLSpec {
 
     /**
      * Query for the capabilities associated with the given eglDisplay.
@@ -133,10 +134,10 @@ interface EglSpec {
 
     /**
      * Initialize the EGL implementation and return the major and minor version of the EGL
-     * implementation through [EglVersion]. If initialization fails, this returns
-     * [EglVersion.Unknown]
+     * implementation through [EGLVersion]. If initialization fails, this returns
+     * [EGLVersion.Unknown]
      */
-    fun eglInitialize(): EglVersion
+    fun eglInitialize(): EGLVersion
 
     /**
      * Load a corresponding EGLConfig from the provided [EglConfigAttributes]
@@ -203,7 +204,7 @@ interface EglSpec {
 
     /**
      * Convenience method to obtain the corresponding error string from the
-     * error code obtained from [EglSpec.eglGetError]
+     * error code obtained from [EGLSpec.eglGetError]
      */
     fun getErrorMessage(): String = getStatusString(eglGetError())
 
@@ -384,7 +385,7 @@ interface EglSpec {
     companion object {
 
         @JvmField
-        val Egl14 = object : EglSpec {
+        val V14 = object : EGLSpec {
 
             // Tuples of attribute identifiers along with their corresponding values.
             // EGL_NONE is used as a termination value similar to a null terminated string
@@ -396,7 +397,7 @@ interface EglSpec {
                 EGL14.EGL_NONE
             )
 
-            override fun eglInitialize(): EglVersion {
+            override fun eglInitialize(): EGLVersion {
                 // eglInitialize is destructive so create 2 separate arrays to store the major and
                 // minor version
                 val major = intArrayOf(1)
@@ -404,7 +405,7 @@ interface EglSpec {
                 val initializeResult =
                     EGL14.eglInitialize(getDefaultDisplay(), major, 0, minor, 0)
                 if (initializeResult) {
-                    return EglVersion(major[0], minor[0])
+                    return EGLVersion(major[0], minor[0])
                 } else {
                     throw EglException(EGL14.eglGetError(), "Unable to initialize default display")
                 }
@@ -587,7 +588,7 @@ interface EglSpec {
 class EglException(val error: Int, val msg: String = "") : RuntimeException() {
 
     override val message: String
-        get() = "Error: ${EglSpec.getStatusString(error)}, $msg"
+        get() = "Error: ${EGLSpec.getStatusString(error)}, $msg"
 }
 
 /**
@@ -596,7 +597,8 @@ class EglException(val error: Int, val msg: String = "") : RuntimeException() {
  * @param major Major version of the EGL implementation
  * @param minor Minor version of the EGL implementation
  */
-data class EglVersion(
+@Suppress("AcronymName")
+data class EGLVersion(
     val major: Int,
     val minor: Int
 ) {
@@ -610,18 +612,18 @@ data class EglVersion(
          * Constant that represents version 1.4 of the EGL spec
          */
         @JvmField
-        val V14 = EglVersion(1, 4)
+        val V14 = EGLVersion(1, 4)
 
         /**
          * Constant that represents version 1.5 of the EGL spec
          */
         @JvmField
-        val V15 = EglVersion(1, 5)
+        val V15 = EGLVersion(1, 5)
 
         /**
          * Sentinel EglVersion value returned in error situations
          */
         @JvmField
-        val Unknown = EglVersion(-1, -1)
+        val Unknown = EGLVersion(-1, -1)
     }
 }

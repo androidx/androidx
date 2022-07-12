@@ -24,7 +24,7 @@ import android.view.SurfaceView
 import androidx.annotation.RequiresApi
 import androidx.graphics.opengl.GLRenderer
 import androidx.graphics.opengl.egl.EglManager
-import androidx.graphics.opengl.egl.EglSpec
+import androidx.graphics.opengl.egl.EGLSpec
 import androidx.graphics.surface.SurfaceControlCompat
 import java.util.Collections
 
@@ -61,7 +61,7 @@ internal class SurfaceViewRenderLayer<T>(
         val hardwareBufferRenderer = HardwareBufferRenderer(
             object : HardwareBufferRenderer.RenderCallbacks {
 
-                override fun obtainRenderBuffer(egl: EglSpec): RenderBuffer =
+                override fun obtainRenderBuffer(egl: EGLSpec): RenderBuffer =
                     mLayerCallback?.getRenderBufferPool()?.obtain(egl)
                         ?: throw IllegalArgumentException("No RenderBufferPool available")
 

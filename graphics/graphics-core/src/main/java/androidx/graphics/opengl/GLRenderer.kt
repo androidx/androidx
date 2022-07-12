@@ -27,7 +27,7 @@ import android.view.TextureView
 import androidx.annotation.WorkerThread
 import androidx.graphics.opengl.egl.EglConfigAttributes8888
 import androidx.graphics.opengl.egl.EglManager
-import androidx.graphics.opengl.egl.EglSpec
+import androidx.graphics.opengl.egl.EGLSpec
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.atomic.AtomicInteger
 
@@ -45,7 +45,7 @@ import java.util.concurrent.atomic.AtomicInteger
 // GL is the industry standard for referencing OpenGL vs Gl (lowercase l)
 @Suppress("AcronymName")
 class GLRenderer(
-    eglSpecFactory: () -> EglSpec = { EglSpec.Egl14 },
+    eglSpecFactory: () -> EGLSpec = { EGLSpec.V14 },
     eglConfigFactory: EglManager.() -> EGLConfig = {
         // 8 bit channels should always be supported
         loadConfig(EglConfigAttributes8888)
@@ -57,7 +57,7 @@ class GLRenderer(
     /**
      * Factory method to determine which EglSpec the underlying EglManager implementation uses
      */
-    private val mEglSpecFactory: () -> EglSpec = eglSpecFactory
+    private val mEglSpecFactory: () -> EGLSpec = eglSpecFactory
 
     /**
      * Factory method used to create the corresponding EGLConfig used to create the EGLRenderer used
@@ -325,7 +325,7 @@ class GLRenderer(
          */
         @WorkerThread
         fun onSurfaceCreated(
-            spec: EglSpec,
+            spec: EGLSpec,
             config: EGLConfig,
             surface: Surface,
             width: Int,

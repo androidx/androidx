@@ -25,7 +25,7 @@ import androidx.annotation.RequiresApi
 import androidx.annotation.WorkerThread
 import androidx.graphics.opengl.GLRenderer
 import androidx.graphics.opengl.egl.EglManager
-import androidx.graphics.opengl.egl.EglSpec
+import androidx.graphics.opengl.egl.EGLSpec
 import androidx.graphics.surface.SurfaceControlCompat
 import java.util.Collections
 import java.util.concurrent.ConcurrentLinkedQueue
@@ -397,7 +397,7 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
         object : HardwareBufferRenderer.RenderCallbacks {
 
             @WorkerThread
-            override fun obtainRenderBuffer(egl: EglSpec): RenderBuffer {
+            override fun obtainRenderBuffer(egl: EGLSpec): RenderBuffer {
                 var buffer = mFrontLayerBuffer
                 if (buffer == null) {
                     // Allocate and persist a RenderBuffer instance across frames

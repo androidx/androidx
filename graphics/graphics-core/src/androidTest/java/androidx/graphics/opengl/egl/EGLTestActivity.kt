@@ -33,13 +33,14 @@ import java.util.concurrent.atomic.AtomicInteger
 
 const val TAG: String = "EGLTestActivity"
 
-class EglTestActivity : Activity() {
+@Suppress("AcronymName")
+class EGLTestActivity : Activity() {
 
     private val mGLRenderer = GLRenderer()
     private val mParam = AtomicInteger()
     private val mRenderer1 = object : GLRenderer.RenderCallback {
         override fun onSurfaceCreated(
-            spec: EglSpec,
+            spec: EGLSpec,
             config: EGLConfig,
             surface: Surface,
             width: Int,
