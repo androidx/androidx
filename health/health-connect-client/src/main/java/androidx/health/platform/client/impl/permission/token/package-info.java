@@ -13,25 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.health.platform.client.permission
 
-import android.os.Parcelable
-import androidx.health.platform.client.impl.data.ProtoParcelable
-import androidx.health.platform.client.proto.PermissionProto
+/** @hide */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
+package androidx.health.platform.client.impl.permission.token;
 
-/**
- * Internal parcelable wrapper over proto object.
- *
- * @suppress
- */
-class Permission(override val proto: PermissionProto.Permission) :
-    ProtoParcelable<PermissionProto.Permission>() {
-
-    companion object {
-        @JvmField
-        val CREATOR: Parcelable.Creator<Permission> = newCreator {
-            val proto = PermissionProto.Permission.parseFrom(it)
-            Permission(proto)
-        }
-    }
-}
+import androidx.annotation.RestrictTo;

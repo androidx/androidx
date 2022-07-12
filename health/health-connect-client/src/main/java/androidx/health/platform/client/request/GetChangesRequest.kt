@@ -19,6 +19,7 @@ import android.os.Parcelable
 import androidx.health.platform.client.impl.data.ProtoParcelable
 import androidx.health.platform.client.proto.RequestProto
 
+/** @suppress */
 class GetChangesRequest(override val proto: RequestProto.GetChangesRequest) :
     ProtoParcelable<RequestProto.GetChangesRequest>() {
 
