@@ -23,7 +23,6 @@ import android.view.AttachedSurfaceControl
 import android.view.SurfaceView
 import androidx.annotation.RequiresApi
 import java.util.concurrent.Executor
-import java.util.concurrent.Executors
 
 /**
  * Implementation of [SurfaceControlImpl] that wraps the [SurfaceControlWrapper] API.
@@ -78,11 +77,25 @@ internal class SurfaceControlV29 internal constructor(
      */
     class Transaction : SurfaceControlImpl.Transaction {
         private val transaction = SurfaceControlWrapper.Transaction()
+        private val bufferCallbacks = ArrayList<(() -> Unit)>()
 
         /**
          * See [SurfaceControlWrapper.Transaction.commit]
          */
         override fun commit() {
+            if (bufferCallbacks.size > 0) {
+                val callbackListener = object : SurfaceControlCompat.TransactionCompletedListener {
+                    override fun onTransactionCompleted() {
+                        for (callback in bufferCallbacks) {
+                            callback.invoke()
+                        }
+
+                        bufferCallbacks.clear()
+                    }
+                }
+
+                this.addTransactionCompletedListener(callbackListener)
+            }
             transaction.commit()
         }
 
@@ -137,18 +150,7 @@ internal class SurfaceControlV29 internal constructor(
             releaseCallback: (() -> Unit)?
         ): SurfaceControlImpl.Transaction {
             if (releaseCallback != null) {
-                val listener = object : SurfaceControlCompat.TransactionCompletedListener {
-                    override fun onTransactionCompleted() {
-                        releaseCallback()
-                    }
-                }
-
-                transaction.addTransactionCompletedListener(
-                    Executors.newSingleThreadExecutor(
-                        Executors.defaultThreadFactory()
-                    ),
-                    listener
-                )
+                bufferCallbacks.add { releaseCallback() }
             }
             transaction.setBuffer(surfaceControl.asWrapperSurfaceControl(), buffer)
             return this
@@ -181,10 +183,9 @@ internal class SurfaceControlV29 internal constructor(
          * See [SurfaceControlWrapper.Transaction.addTransactionCompletedListener]
          */
         fun addTransactionCompletedListener(
-            executor: Executor,
             listener: SurfaceControlCompat.TransactionCompletedListener
         ): SurfaceControlImpl.Transaction {
-            transaction.addTransactionCompletedListener(executor, listener)
+            transaction.addTransactionCompletedListener(listener)
             return this
         }
 

@@ -141,7 +141,6 @@ class SurfaceControlCompat internal constructor(
      * An atomic set of changes to a set of [SurfaceControlCompat].
      */
     class Transaction {
-
         private val mImpl = createImpl()
 
         /**

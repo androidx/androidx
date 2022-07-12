@@ -131,7 +131,7 @@ class SurfaceControlWrapperTest {
         try {
             scenario.onActivity {
                 SurfaceControlWrapper.Transaction()
-                    .addTransactionCompletedListener(executor!!, listener)
+                    .addTransactionCompletedListener(listener)
                     .commit()
             }
 
@@ -217,7 +217,7 @@ class SurfaceControlWrapperTest {
             scenario.onActivity {
                 SurfaceControlWrapper.Transaction()
                     .addTransactionCommittedListener(executor!!, listener1)
-                    .addTransactionCompletedListener(executor!!, listener2)
+                    .addTransactionCompletedListener(listener2)
                     .commit()
             }
 
@@ -331,7 +331,7 @@ class SurfaceControlWrapperTest {
                         // should be placed in the queue where this will be executed after the
                         // reparent transaction
                         SurfaceControlWrapper.Transaction()
-                            .addTransactionCompletedListener(executor!!, listener)
+                            .addTransactionCompletedListener(listener)
                             .commit()
                     }
                 }
@@ -387,7 +387,7 @@ class SurfaceControlWrapperTest {
                         assertNotNull(buffer2)
 
                         SurfaceControlWrapper.Transaction()
-                            .addTransactionCompletedListener(executor!!, listener)
+                            .addTransactionCompletedListener(listener)
                             .setBuffer(scCompat, buffer)
                             .setBuffer(scCompat2, buffer2)
                             .reparent(scCompat, scCompat2)
@@ -440,7 +440,7 @@ class SurfaceControlWrapperTest {
                         assertNotNull(buffer)
 
                         SurfaceControlWrapper.Transaction()
-                            .addTransactionCompletedListener(executor!!, listener)
+                            .addTransactionCompletedListener(listener)
                             .setBuffer(scCompat, buffer)
                             .setVisibility(
                                 scCompat,
@@ -487,7 +487,7 @@ class SurfaceControlWrapperTest {
                         assertNotNull(buffer)
 
                         SurfaceControlWrapper.Transaction()
-                            .addTransactionCompletedListener(executor!!, listener)
+                            .addTransactionCompletedListener(listener)
                             .setBuffer(scCompat, buffer)
                             .setVisibility(
                                 scCompat,
@@ -531,7 +531,7 @@ class SurfaceControlWrapperTest {
 
                         // Buffer colorspace is RGBA, so Color.BLUE will be visually Red
                         SurfaceControlWrapper.Transaction()
-                            .addTransactionCompletedListener(executor!!, listener)
+                            .addTransactionCompletedListener(listener)
                             .setLayer(scCompat1, 1)
                             .setBuffer(
                                 scCompat1,
@@ -589,7 +589,7 @@ class SurfaceControlWrapperTest {
 
                         // Buffer colorspace is RGBA, so Color.BLUE will be visually Red
                         SurfaceControlWrapper.Transaction()
-                            .addTransactionCompletedListener(executor!!, listener)
+                            .addTransactionCompletedListener(listener)
                             .setLayer(scCompat1, 1)
                             .setBuffer(
                                 scCompat1,
@@ -647,7 +647,7 @@ class SurfaceControlWrapperTest {
 
                         // Buffer colorspace is RGBA, so Color.BLUE will be visually Red
                         SurfaceControlWrapper.Transaction()
-                            .addTransactionCompletedListener(executor!!, listener)
+                            .addTransactionCompletedListener(listener)
                             .setLayer(scCompat1, 1)
                             .setBuffer(
                                 scCompat1,
@@ -700,7 +700,7 @@ class SurfaceControlWrapperTest {
 
                         // Buffer colorspace is RGBA, so Color.BLUE will be visually Red
                         SurfaceControlWrapper.Transaction()
-                            .addTransactionCompletedListener(executor!!, listener)
+                            .addTransactionCompletedListener(listener)
                             .setDamageRegion(
                                 scCompat,
                                 Region(0, 0, it.DEFAULT_WIDTH, it.DEFAULT_HEIGHT)
@@ -747,7 +747,7 @@ class SurfaceControlWrapperTest {
 
                         // Buffer colorspace is RGBA, so Color.BLUE will be visually Red
                         SurfaceControlWrapper.Transaction()
-                            .addTransactionCompletedListener(executor!!, listener)
+                            .addTransactionCompletedListener(listener)
                             .setDamageRegion(
                                 scCompat,
                                 null
@@ -794,7 +794,7 @@ class SurfaceControlWrapperTest {
 
                         // Buffer colorspace is RGBA, so Color.BLUE will be visually Red
                         SurfaceControlWrapper.Transaction()
-                            .addTransactionCompletedListener(executor!!, listener)
+                            .addTransactionCompletedListener(listener)
                             .setBuffer(
                                 scCompat,
                                 SurfaceControlUtils.getSolidBuffer(
@@ -843,7 +843,7 @@ class SurfaceControlWrapperTest {
                             Color.BLUE
                         )
                         SurfaceControlWrapper.Transaction()
-                            .addTransactionCompletedListener(executor!!, listener)
+                            .addTransactionCompletedListener(listener)
                             .setBuffer(scCompat, buffer)
                             .setOpaque(
                                 scCompat,
@@ -888,7 +888,7 @@ class SurfaceControlWrapperTest {
                             Color.BLUE
                         )
                         SurfaceControlWrapper.Transaction()
-                            .addTransactionCompletedListener(executor!!, listener)
+                            .addTransactionCompletedListener(listener)
                             .setBuffer(scCompat, buffer)
                             .setOpaque(
                                 scCompat,
@@ -934,7 +934,7 @@ class SurfaceControlWrapperTest {
                             Color.BLUE
                         )
                         SurfaceControlWrapper.Transaction()
-                            .addTransactionCompletedListener(executor!!, listener)
+                            .addTransactionCompletedListener(listener)
                             .setBuffer(scCompat, buffer)
                             .setAlpha(scCompat, 0.5f)
                             .commit()
@@ -996,7 +996,7 @@ class SurfaceControlWrapperTest {
                             Color.BLUE
                         )
                         SurfaceControlWrapper.Transaction()
-                            .addTransactionCompletedListener(executor!!, listener)
+                            .addTransactionCompletedListener(listener)
                             .setBuffer(scCompat, buffer)
                             .setAlpha(scCompat, 1.0f)
                             .commit()
