@@ -74,6 +74,8 @@ import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.PopupWindow;
 import android.widget.TextView;
+import android.window.OnBackInvokedCallback;
+import android.window.OnBackInvokedDispatcher;
 
 import androidx.annotation.CallSuper;
 import androidx.annotation.DoNotInline;
@@ -290,6 +292,8 @@ class AppCompatDelegateImpl extends AppCompatDelegate
 
     private AppCompatViewInflater mAppCompatViewInflater;
     private LayoutIncludeDetector mLayoutIncludeDetector;
+    private OnBackInvokedDispatcher mDispatcher;
+    private OnBackInvokedCallback mBackCallback;
 
     AppCompatDelegateImpl(Activity activity, AppCompatCallback callback) {
         this(activity, null, callback, activity);
@@ -334,6 +338,11 @@ class AppCompatDelegateImpl extends AppCompatDelegate
             }
         }
 
+        // If the platform supports back dispatching, pass null to use the default dispatcher.
+        if (Build.VERSION.SDK_INT >= 33) {
+            setOnBackInvokedDispatcher(null);
+        }
+
         if (window != null) {
             attachToWindow(window);
         }
@@ -343,6 +352,38 @@ class AppCompatDelegateImpl extends AppCompatDelegate
         // to ResourceManagerInternal (in appcompat-resources) will handle those internal drawable
         // paths correctly without having to go through AppCompatDrawableManager APIs.
         AppCompatDrawableManager.preload();
+    }
+
+    @Override
+    @RequiresApi(33)
+    public void setOnBackInvokedDispatcher(@Nullable OnBackInvokedDispatcher dispatcher) {
+        super.setOnBackInvokedDispatcher(dispatcher);
+
+        // Clean up the callback on the previous dispatcher, if necessary.
+        if (mDispatcher != null && mBackCallback != null) {
+            Api33Impl.unregisterOnBackInvokedCallback(mDispatcher, mBackCallback);
+            mBackCallback = null;
+        }
+
+        if (dispatcher == null && mHost instanceof Activity) {
+            mDispatcher = Api33Impl.getOnBackInvokedDispatcher((Activity) mHost);
+        } else {
+            mDispatcher = dispatcher;
+        }
+
+        // Register a callback on the new dispatcher, if necessary.
+        updateBackInvokedCallbackState();
+    }
+
+    void updateBackInvokedCallbackState() {
+        if (Build.VERSION.SDK_INT >= 33) {
+            boolean shouldRegister = shouldRegisterBackInvokedCallback();
+            if (shouldRegister && mBackCallback == null) {
+                mBackCallback = Api33Impl.registerOnBackPressedCallback(mDispatcher, this);
+            } else if (!shouldRegister && mBackCallback != null) {
+                Api33Impl.unregisterOnBackInvokedCallback(mDispatcher, mBackCallback);
+            }
+        }
     }
 
     @NonNull
@@ -611,6 +652,8 @@ class AppCompatDelegateImpl extends AppCompatDelegate
             mActionBar = tbab;
             // Set the nested action bar window callback so that it receive menu events
             mAppCompatWindowCallback.setActionBarCallback(tbab.mMenuCallback);
+            // Toolbars managed by AppCompat should handle their own back invocations.
+            toolbar.setBackInvokedCallbackEnabled(true);
         } else {
             // Clear the nested action bar window callback
             mAppCompatWindowCallback.setActionBarCallback(null);
@@ -1252,6 +1295,9 @@ class AppCompatDelegateImpl extends AppCompatDelegate
             mActionMode = startSupportActionModeFromWindow(wrappedCallback);
         }
 
+        // mActionMode changed.
+        updateBackInvokedCallbackState();
+
         return mActionMode;
     }
 
@@ -1406,6 +1452,10 @@ class AppCompatDelegateImpl extends AppCompatDelegate
         if (mActionMode != null && mAppCompatCallback != null) {
             mAppCompatCallback.onSupportActionModeStarted(mActionMode);
         }
+
+        // mActionMode changed.
+        updateBackInvokedCallbackState();
+
         return mActionMode;
     }
 
@@ -1431,7 +1481,46 @@ class AppCompatDelegateImpl extends AppCompatDelegate
         }
     }
 
+    /**
+     * Computes whether the delegate should intercept back invocations.
+     * <p>
+     * This method must be kept in sync with {@link #onBackPressed()}. If any of the properties
+     * observed by this method change, we must call {@link #updateBackInvokedCallbackState()}.
+     */
+    boolean shouldRegisterBackInvokedCallback() {
+        PanelFeatureState st = getPanelState(Window.FEATURE_OPTIONS_PANEL, false);
+        if (st != null && st.isOpen) {
+            return true;
+        }
+
+        if (mActionMode != null) {
+            return true;
+        }
+
+        // Don't check canCollapseActionView() since the support
+        // action bar manages its own back invocation callback.
+        return false;
+    }
+
+    /**
+     * Handles back press, returning {@code true} if the press was handled.
+     * <p>
+     * This method must be kept in sync with {@link #shouldRegisterBackInvokedCallback()}.
+     */
     boolean onBackPressed() {
+        final boolean wasLongPressBackDown = mLongPressBackDown;
+        mLongPressBackDown = false;
+
+        // Certain devices allow opening the options menu via a long press of the back button. We
+        // should only close the open options menu if it wasn't opened via a long press gesture.
+        PanelFeatureState st = getPanelState(Window.FEATURE_OPTIONS_PANEL, false);
+        if (st != null && st.isOpen) {
+            if (!wasLongPressBackDown) {
+                closePanel(st, true);
+            }
+            return true;
+        }
+
         // Back cancels action modes first.
         if (mActionMode != null) {
             mActionMode.finish();
@@ -1514,19 +1603,6 @@ class AppCompatDelegateImpl extends AppCompatDelegate
                 onKeyUpPanel(Window.FEATURE_OPTIONS_PANEL, event);
                 return true;
             case KeyEvent.KEYCODE_BACK:
-                final boolean wasLongPressBackDown = mLongPressBackDown;
-                mLongPressBackDown = false;
-
-                PanelFeatureState st = getPanelState(Window.FEATURE_OPTIONS_PANEL, false);
-                if (st != null && st.isOpen) {
-                    if (!wasLongPressBackDown) {
-                        // Certain devices allow opening the options menu via a long press of the
-                        // back button. We should only close the open options menu if it wasn't
-                        // opened via a long press gesture.
-                        closePanel(st, true);
-                    }
-                    return true;
-                }
                 if (onBackPressed()) {
                     return true;
                 }
@@ -1545,7 +1621,9 @@ class AppCompatDelegateImpl extends AppCompatDelegate
                 return true;
             case KeyEvent.KEYCODE_BACK:
                 // Certain devices allow opening the options menu via a long press of the back
-                // button. We keep a record of whether the last event is from a long press.
+                // button. We keep a record of whether the last event is from a long press. On SDK
+                // 33 and above, back invocation handling may prevent us from receiving this event;
+                // however, devices running SDK 33 are unlikely to support this feature anyway.
                 mLongPressBackDown = (event.getFlags() & KeyEvent.FLAG_LONG_PRESS) != 0;
                 break;
         }
@@ -1772,6 +1850,11 @@ class AppCompatDelegateImpl extends AppCompatDelegate
 
         wm.addView(st.decorView, lp);
         st.isOpen = true;
+
+        // st.isOpen for feature FEATURE_OPTIONS_PANEL changed.
+        if (st.featureId == Window.FEATURE_OPTIONS_PANEL) {
+            updateBackInvokedCallbackState();
+        }
     }
 
     private boolean initializePanelDecor(PanelFeatureState st) {
@@ -2040,6 +2123,11 @@ class AppCompatDelegateImpl extends AppCompatDelegate
 
         if (mPreparedPanel == st) {
             mPreparedPanel = null;
+        }
+
+        // st.isOpen for feature FEATURE_OPTIONS_PANEL changed.
+        if (st.featureId == Window.FEATURE_OPTIONS_PANEL) {
+            updateBackInvokedCallbackState();
         }
     }
 
@@ -2964,6 +3052,9 @@ class AppCompatDelegateImpl extends AppCompatDelegate
             }
             mActionMode = null;
             ViewCompat.requestApplyInsets(mSubDecor);
+
+            // mActionMode changed.
+            updateBackInvokedCallbackState();
         }
     }
 
@@ -3903,6 +3994,35 @@ class AppCompatDelegateImpl extends AppCompatDelegate
                     != (change.colorMode & Configuration.COLOR_MODE_HDR_MASK)) {
                 delta.colorMode |= change.colorMode & Configuration.COLOR_MODE_HDR_MASK;
             }
+        }
+    }
+
+    @RequiresApi(33)
+    static class Api33Impl {
+        private Api33Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static OnBackInvokedCallback registerOnBackPressedCallback(
+                Object dispatcher, AppCompatDelegateImpl delegate) {
+            OnBackInvokedCallback onBackInvokedCallback = delegate::onBackPressed;
+            OnBackInvokedDispatcher typedDispatcher = (OnBackInvokedDispatcher) dispatcher;
+            typedDispatcher.registerOnBackInvokedCallback(
+                    OnBackInvokedDispatcher.PRIORITY_OVERLAY, onBackInvokedCallback);
+            return onBackInvokedCallback;
+        }
+
+        @DoNotInline
+        static void unregisterOnBackInvokedCallback(Object dispatcher, Object callback) {
+            OnBackInvokedCallback onBackInvokedCallback = (OnBackInvokedCallback) callback;
+            OnBackInvokedDispatcher typedDispatcher = (OnBackInvokedDispatcher) dispatcher;
+            typedDispatcher.unregisterOnBackInvokedCallback(onBackInvokedCallback);
+        }
+
+        @DoNotInline
+        static OnBackInvokedDispatcher getOnBackInvokedDispatcher(Activity activity) {
+            return activity.getOnBackInvokedDispatcher();
         }
     }
 }
