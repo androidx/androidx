@@ -88,14 +88,14 @@ class JankStatsTest {
             latchedListener = LatchedListener()
             latchedListener.latch = CountDownLatch(1)
             jankStats = JankStats.createAndTrack(delayedActivity.window, latchedListener)
-            metricsState = PerformanceMetricsState.getForHierarchy(delayedView).state!!
+            metricsState = PerformanceMetricsState.getHolderForHierarchy(delayedView).state!!
         }
     }
 
     @Test
     @UiThreadTest
     fun testGetInstance() {
-        assert(PerformanceMetricsState.getForHierarchy(delayedView).state == metricsState)
+        assert(PerformanceMetricsState.getHolderForHierarchy(delayedView).state == metricsState)
     }
 
     /**
@@ -220,7 +220,7 @@ class JankStatsTest {
             jankStats2 = JankStats.createAndTrack(delayedActivity.window, secondListener)
         }
         val testState = StateInfo("Testing State", "sampleState")
-        metricsState.addSingleFrameState(testState.stateName, testState.state)
+        metricsState.putSingleFrameState(testState.key, testState.value)
 
         // in case earlier frames arrive before our test begins
         secondListenerStates.clear()
@@ -302,9 +302,9 @@ class JankStatsTest {
         val state0 = StateInfo("Testing State 0", "sampleStateA")
         val state1 = StateInfo("Testing State 1", "sampleStateB")
         val state2 = StateInfo("Testing State 2", "sampleStateC")
-        metricsState.addState(state0.stateName, state0.state)
-        metricsState.addState(state1.stateName, state1.state)
-        metricsState.addSingleFrameState(state2.stateName, state2.state)
+        metricsState.putState(state0.key, state0.value)
+        metricsState.putState(state1.key, state1.value)
+        metricsState.putSingleFrameState(state2.key, state2.value)
         runDelayTest(frameDelay, NUM_FRAMES, latchedListener)
         assertEquals(
             "frameDelay 100: There should be $NUM_FRAMES frames with jank data", NUM_FRAMES,
@@ -337,8 +337,8 @@ class JankStatsTest {
 
         // reset and clear states
         latchedListener.reset()
-        metricsState.removeState(state0.stateName)
-        metricsState.removeState(state1.stateName)
+        metricsState.removeState(state0.key)
+        metricsState.removeState(state1.key)
 
         runDelayTest(frameDelay, 1, latchedListener)
         item0 = latchedListener.jankData[0]
@@ -350,8 +350,8 @@ class JankStatsTest {
         latchedListener.reset()
         val state3 = Pair("Testing State 3", "sampleStateD")
         val state4 = Pair("Testing State 4", "sampleStateE")
-        metricsState.addState(state3.first, state3.second)
-        metricsState.addState(state4.first, state4.second)
+        metricsState.putState(state3.first, state3.second)
+        metricsState.putState(state4.first, state4.second)
         runDelayTest(frameDelay, 1, latchedListener)
         item0 = latchedListener.jankData[0]
         assertEquals(2, item0.states.size)
@@ -359,12 +359,12 @@ class JankStatsTest {
 
         // Test removal of state3 and replacement of state4
         metricsState.removeState(state3.first)
-        metricsState.addState(state4.first, "sampleStateF")
+        metricsState.putState(state4.first, "sampleStateF")
         runDelayTest(frameDelay, 1, latchedListener)
         item0 = latchedListener.jankData[0]
         assertEquals(1, item0.states.size)
-        assertEquals(state4.first, item0.states[0].stateName)
-        assertEquals("sampleStateF", item0.states[0].state)
+        assertEquals(state4.first, item0.states[0].key)
+        assertEquals("sampleStateF", item0.states[0].value)
         latchedListener.reset()
     }
 
@@ -426,8 +426,8 @@ class JankStatsTest {
         delayedActivityRule.getScenario().onActivity {
             val state0 = StateInfo("Testing State 0", "sampleStateA")
             val state1 = StateInfo("Testing State 1", "sampleStateB")
-            metricsState.addState(state0.stateName, state0.state)
-            metricsState.addSingleFrameState(state1.stateName, state1.state)
+            metricsState.putState(state0.key, state0.value)
+            metricsState.putSingleFrameState(state1.key, state1.value)
         }
         runDelayTest(0, NUM_FRAMES, latchedListener)
     }
@@ -512,7 +512,7 @@ class JankStatsTest {
                 expectedResult.size, testResultStates.size)
             for (state in testResultStates) {
                 assertEquals("State value not correct",
-                    state.state, expectedResult.get(state.stateName))
+                    state.value, expectedResult.get(state.key))
             }
         }
     }

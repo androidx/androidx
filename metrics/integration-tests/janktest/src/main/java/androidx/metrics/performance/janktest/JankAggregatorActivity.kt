@@ -49,10 +49,10 @@ class JankAggregatorActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val metricsStateHolder = PerformanceMetricsState.getForHierarchy(binding.root)
+        val metricsStateHolder = PerformanceMetricsState.getHolderForHierarchy(binding.root)
         jankStatsAggregator = JankStatsAggregator(window, Dispatchers.Default.asExecutor(),
             jankReportListener)
-        metricsStateHolder.state?.addState("Activity", javaClass.simpleName)
+        metricsStateHolder.state?.putState("Activity", javaClass.simpleName)
 
         setSupportActionBar(binding.toolbar)
 

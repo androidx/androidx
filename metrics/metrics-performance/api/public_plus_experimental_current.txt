@@ -46,15 +46,15 @@ package androidx.metrics.performance {
   }
 
   public final class PerformanceMetricsState {
-    method public void addSingleFrameState(String stateName, String state);
-    method public void addState(String stateName, String state);
-    method @UiThread public static androidx.metrics.performance.PerformanceMetricsState.Holder getForHierarchy(android.view.View view);
-    method public void removeState(String stateName);
+    method @UiThread public static androidx.metrics.performance.PerformanceMetricsState.Holder getHolderForHierarchy(android.view.View view);
+    method public void putSingleFrameState(String key, String value);
+    method public void putState(String key, String value);
+    method public void removeState(String key);
     field public static final androidx.metrics.performance.PerformanceMetricsState.Companion Companion;
   }
 
   public static final class PerformanceMetricsState.Companion {
-    method @UiThread public androidx.metrics.performance.PerformanceMetricsState.Holder getForHierarchy(android.view.View view);
+    method @UiThread public androidx.metrics.performance.PerformanceMetricsState.Holder getHolderForHierarchy(android.view.View view);
   }
 
   public static final class PerformanceMetricsState.Holder {
@@ -63,11 +63,11 @@ package androidx.metrics.performance {
   }
 
   public final class StateInfo {
-    ctor public StateInfo(String stateName, String state);
-    method public String getState();
-    method public String getStateName();
-    property public final String state;
-    property public final String stateName;
+    ctor public StateInfo(String key, String value);
+    method public String getKey();
+    method public String getValue();
+    property public final String key;
+    property public final String value;
   }
 
 }
