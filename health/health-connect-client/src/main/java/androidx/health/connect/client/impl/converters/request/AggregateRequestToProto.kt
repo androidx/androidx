@@ -52,5 +52,5 @@ fun AggregateGroupByPeriodRequest.toProto(): RequestProto.AggregateDataRequest =
         .setSlicePeriod(timeRangeSlicer.toString())
         .build()
 
-private fun List<DataOrigin>.toProtoList() =
+private fun Set<DataOrigin>.toProtoList() =
     this.map { DataProto.DataOrigin.newBuilder().setApplicationId(it.packageName).build() }
