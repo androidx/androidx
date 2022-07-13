@@ -10,3 +10,4 @@ per-file app-testing/api/*=file:/car/app/API_OWNERS
 
 # Feature owners
 per-file app/*=kodlee@google.com
+per-file app-automotive/*=kodlee@google.com
