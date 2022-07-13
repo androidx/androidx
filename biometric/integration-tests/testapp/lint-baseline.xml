@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 7.4.0-alpha08" type="baseline" client="gradle" dependencies="false" name="AGP (7.4.0-alpha08)" variant="all" version="7.4.0-alpha08">
+
+    <issue
+        id="NotificationPermission"
+        message="When targeting Android 13 or higher, posting a permission requires holding the `POST_NOTIFICATIONS` permission (usage from leakcanary.NotificationEventListener)">
+        <location
+            file="$GRADLE_USER_HOME/caches/transforms-3/4366a02f2b10003dc48387e903833c2d/transformed/leakcanary-android-core-2.8.1/jars/classes.jar"/>
+    </issue>
+
+</issues>

@@ -772,8 +772,8 @@ package androidx.core.app {
     method public java.util.List<androidx.core.app.NotificationChannelGroupCompat!> getNotificationChannelGroupsCompat();
     method public java.util.List<android.app.NotificationChannel!> getNotificationChannels();
     method public java.util.List<androidx.core.app.NotificationChannelCompat!> getNotificationChannelsCompat();
-    method public void notify(int, android.app.Notification);
-    method public void notify(String?, int, android.app.Notification);
+    method @RequiresPermission(android.Manifest.permission.POST_NOTIFICATIONS) public void notify(int, android.app.Notification);
+    method @RequiresPermission(android.Manifest.permission.POST_NOTIFICATIONS) public void notify(String?, int, android.app.Notification);
     field public static final String ACTION_BIND_SIDE_CHANNEL = "android.support.BIND_NOTIFICATION_SIDE_CHANNEL";
     field public static final String EXTRA_USE_SIDE_CHANNEL = "android.support.useSideChannel";
     field public static final int IMPORTANCE_DEFAULT = 3; // 0x3
