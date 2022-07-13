@@ -296,11 +296,13 @@ public final class SearchSpec {
      */
     @NonNull
     public Map<String, List<String>> getProjections() {
-        Bundle typePropertyPathsBundle = mBundle.getBundle(PROJECTION_TYPE_PROPERTY_PATHS_FIELD);
+        Bundle typePropertyPathsBundle = Preconditions.checkNotNull(
+                mBundle.getBundle(PROJECTION_TYPE_PROPERTY_PATHS_FIELD));
         Set<String> schemas = typePropertyPathsBundle.keySet();
         Map<String, List<String>> typePropertyPathsMap = new ArrayMap<>(schemas.size());
         for (String schema : schemas) {
-            typePropertyPathsMap.put(schema, typePropertyPathsBundle.getStringArrayList(schema));
+            typePropertyPathsMap.put(schema, Preconditions.checkNotNull(
+                    typePropertyPathsBundle.getStringArrayList(schema)));
         }
         return typePropertyPathsMap;
     }

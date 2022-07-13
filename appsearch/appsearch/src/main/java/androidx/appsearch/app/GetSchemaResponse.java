@@ -108,7 +108,8 @@ public final class GetSchemaResponse {
     @NonNull
     @SuppressWarnings("deprecation")
     public Set<AppSearchSchema> getSchemas() {
-        ArrayList<Bundle> schemaBundles = mBundle.getParcelableArrayList(SCHEMAS_FIELD);
+        ArrayList<Bundle> schemaBundles = Preconditions.checkNotNull(
+                    mBundle.getParcelableArrayList(SCHEMAS_FIELD));
         Set<AppSearchSchema> schemas = new ArraySet<>(schemaBundles.size());
         for (int i = 0; i < schemaBundles.size(); i++) {
             schemas.add(new AppSearchSchema(schemaBundles.get(i)));
@@ -151,12 +152,12 @@ public final class GetSchemaResponse {
     public Map<String, Set<PackageIdentifier>> getSchemaTypesVisibleToPackages() {
         checkGetVisibilitySettingSupported();
         if (mSchemasVisibleToPackages == null) {
-            Bundle schemaVisibleToPackagesBundle =
-                    mBundle.getBundle(SCHEMAS_VISIBLE_TO_PACKAGES_FIELD);
+            Bundle schemaVisibleToPackagesBundle = Preconditions.checkNotNull(
+                        mBundle.getBundle(SCHEMAS_VISIBLE_TO_PACKAGES_FIELD));
             Map<String, Set<PackageIdentifier>> copy = new ArrayMap<>();
             for (String key : schemaVisibleToPackagesBundle.keySet()) {
-                List<Bundle> PackageIdentifierBundles = schemaVisibleToPackagesBundle
-                        .getParcelableArrayList(key);
+                List<Bundle> PackageIdentifierBundles = Preconditions.checkNotNull(
+                            schemaVisibleToPackagesBundle.getParcelableArrayList(key));
                 Set<PackageIdentifier> packageIdentifiers =
                         new ArraySet<>(PackageIdentifierBundles.size());
                 for (int i = 0; i < PackageIdentifierBundles.size(); i++) {
@@ -205,8 +206,8 @@ public final class GetSchemaResponse {
         checkGetVisibilitySettingSupported();
         if (mSchemasVisibleToPermissions == null) {
             Map<String, Set<Set<Integer>>> copy = new ArrayMap<>();
-            Bundle schemaVisibleToPermissionBundle =
-                    mBundle.getBundle(SCHEMAS_VISIBLE_TO_PERMISSION_FIELD);
+            Bundle schemaVisibleToPermissionBundle = Preconditions.checkNotNull(
+                        mBundle.getBundle(SCHEMAS_VISIBLE_TO_PERMISSION_FIELD));
             for (String key : schemaVisibleToPermissionBundle.keySet()) {
                 ArrayList<Bundle> allRequiredPermissionsBundle =
                         schemaVisibleToPermissionBundle.getParcelableArrayList(key);

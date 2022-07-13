@@ -124,10 +124,14 @@ public final class SearchResult {
             mMatchInfos = new ArrayList<>(matchBundles.size());
             for (int i = 0; i < matchBundles.size(); i++) {
                 MatchInfo matchInfo = new MatchInfo(matchBundles.get(i), getGenericDocument());
-                mMatchInfos.add(matchInfo);
+                if (mMatchInfos != null) {
+                    // This additional check is added for NullnessChecker.
+                    mMatchInfos.add(matchInfo);
+                }
             }
         }
-        return mMatchInfos;
+        // This check is added for NullnessChecker, mMatchInfos will always be NonNull.
+        return Preconditions.checkNotNull(mMatchInfos);
     }
 
     /**
@@ -425,9 +429,10 @@ public final class SearchResult {
         @NonNull
         public String getFullText() {
             if (mFullText == null) {
-                Preconditions.checkState(
-                        mDocument != null,
-                        "Document has not been populated; this MatchInfo cannot be used yet");
+                if (mDocument == null) {
+                    throw new IllegalStateException(
+                    "Document has not been populated; this MatchInfo cannot be used yet");
+                }
                 mFullText = getPropertyValues(mDocument, mPropertyPath);
             }
             return mFullText;
@@ -627,8 +632,14 @@ public final class SearchResult {
                 if (mSubmatchRange != null) {
                     // Only populate the submatch fields if it was actually set.
                     bundle.putInt(MatchInfo.SUBMATCH_RANGE_LOWER_FIELD, mSubmatchRange.getStart());
+                }
+
+                if (mSubmatchRange != null) {
+                    // Only populate the submatch fields if it was actually set.
+                    // Moved to separate block for Nullness Checker.
                     bundle.putInt(MatchInfo.SUBMATCH_RANGE_UPPER_FIELD, mSubmatchRange.getEnd());
                 }
+
                 bundle.putInt(MatchInfo.SNIPPET_RANGE_LOWER_FIELD, mSnippetRange.getStart());
                 bundle.putInt(MatchInfo.SNIPPET_RANGE_UPPER_FIELD, mSnippetRange.getEnd());
                 return new MatchInfo(bundle, /*document=*/ null);
