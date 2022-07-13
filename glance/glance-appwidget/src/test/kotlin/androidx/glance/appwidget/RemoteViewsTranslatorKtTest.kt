@@ -739,7 +739,7 @@ class RemoteViewsTranslatorKtTest {
         val frame = assertIs<FrameLayout>(context.applyRemoteViews(rv))
         assertThat(frame.hasOnClickListeners()).isTrue()
         assertThat(frame.isEnabled).isTrue()
-        checkNotNull(frame.findView<TextView> { it.text == "Button" })
+        checkNotNull(frame.findView<TextView> { it.text.toString() == "Button" })
     }
 
     @Test
@@ -755,7 +755,7 @@ class RemoteViewsTranslatorKtTest {
         val frame = assertIs<FrameLayout>(context.applyRemoteViews(rv))
         assertThat(frame.hasOnClickListeners()).isFalse()
         assertThat(frame.isEnabled).isFalse()
-        checkNotNull(frame.findView<TextView> { it.text == "Button" })
+        checkNotNull(frame.findView<TextView> { it.text.toString() == "Button" })
     }
 
     @Test
