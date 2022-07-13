@@ -30,7 +30,7 @@ import androidx.opengl.EGLExt.Companion.EGL_KHR_SURFACELESS_CONTEXT
  * other EGL related facilities.
  */
 @Suppress("AcronymName")
-class EGLManager(val eglSpec: EGLSpec = EGLSpec.V14) {
+class EGLManager(eglSpec: EGLSpec = EGLSpec.V14) {
 
     private var mEglConfig: EGLConfig? = null
 
@@ -41,6 +41,7 @@ class EGLManager(val eglSpec: EGLSpec = EGLSpec.V14) {
     private var mEglContext: EGLContext = EGL14.EGL_NO_CONTEXT
     private var mWideColorGamutSupport = false
     private var mEglVersion = EGLVersion.Unknown
+    private val mEglSpec = eglSpec
     private var mEglExtensions: Set<String>? = null
     private var mIsSingleBuffered: Boolean = false
     private var mQueryResult: IntArray? = null
@@ -71,7 +72,7 @@ class EGLManager(val eglSpec: EGLSpec = EGLSpec.V14) {
      * Creates an [EGLContext] from the given [EGLConfig] returning
      * null if the context could not be created
      *
-     * @throws EglException if the default surface could not be made current after context creation
+     * @throws EGLException if the default surface could not be made current after context creation
      */
     fun createContext(config: EGLConfig): EGLContext {
         val eglContext = eglSpec.eglCreateContext(config)
@@ -87,7 +88,7 @@ class EGLManager(val eglSpec: EGLSpec = EGLSpec.V14) {
                     eglSpec.eglCreatePBufferSurface(config, configAttrs)
                 }
             if (!eglSpec.eglMakeCurrent(eglContext, pbBufferSurface, pbBufferSurface)) {
-                throw EglException(eglSpec.eglGetError(), "Unable to make default surface current")
+                throw EGLException(eglSpec.eglGetError(), "Unable to make default surface current")
             }
             mPBufferSurface = pbBufferSurface
             mEglContext = eglContext
@@ -128,17 +129,26 @@ class EGLManager(val eglSpec: EGLSpec = EGLSpec.V14) {
         }
     }
 
+    val eglSpec: EGLSpec
+        @Suppress("AcronymName")
+        @JvmName("getEGLSpec")
+        get() = mEglSpec
+
     /**
      * Returns the EGL version that is supported. This parameter is configured
      * after [initialize] is invoked.
      */
     val eglVersion: EGLVersion
+        @Suppress("AcronymName")
+        @JvmName("getEGLVersion")
         get() = mEglVersion
 
     /**
      * Returns the current EGLContext. This parameter is configured after [initialize] is invoked
      */
     val eglContext: EGLContext?
+        @Suppress("AcronymName")
+        @JvmName("getEGLContext")
         get() = mEglContext
 
     /**
@@ -146,6 +156,8 @@ class EGLManager(val eglSpec: EGLSpec = EGLSpec.V14) {
      * This is configured after [createContext] is invoked.
      */
     val eglConfig: EGLConfig?
+        @Suppress("AcronymName")
+        @JvmName("getEGLConfig")
         get() = mEglConfig
 
     /**

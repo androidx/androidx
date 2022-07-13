@@ -74,18 +74,18 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
     private val mCallback = callback
 
     /**
-     * [GLRenderer.EglContextCallback]s used to release the corresponding [RenderBufferPool]
+     * [GLRenderer.EGLContextCallback]s used to release the corresponding [RenderBufferPool]
      * if the [GLRenderer] is torn down.
      * This is especially helpful if a [GLRenderer] is being provided and shared across other
      * [GLRenderer.RenderTarget] instances in which case it can be released externally from
      * [GLFrontBufferedRenderer]
      */
-    private val mContextCallbacks = object : GLRenderer.EglContextCallback {
-        override fun onEglContextCreated(eglManager: EGLManager) {
+    private val mContextCallbacks = object : GLRenderer.EGLContextCallback {
+        override fun onEGLContextCreated(eglManager: EGLManager) {
             // no-op
         }
 
-        override fun onEglContextDestroyed(eglManager: EGLManager) {
+        override fun onEGLContextDestroyed(eglManager: EGLManager) {
             mBufferPool?.let { releaseBuffers(it) }
         }
     }
@@ -211,7 +211,7 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
             mIsManagingGLRenderer = false
             glRenderer
         }
-        renderer.registerEglContextCallback(mContextCallbacks)
+        renderer.registerEGLContextCallback(mContextCallbacks)
 
         mDoubleBufferedLayerRenderTarget =
             mParentRenderLayer.createRenderTarget(renderer, mCallback)
@@ -376,7 +376,7 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
         mFrontBufferedRenderTarget = null
         mDoubleBufferedLayerRenderTarget = null
 
-        mGLRenderer.unregisterEglContextCallback(mContextCallbacks)
+        mGLRenderer.unregisterEGLContextCallback(mContextCallbacks)
         if (mIsManagingGLRenderer) {
             // If we are managing the GLRenderer that we created ourselves
             // do not cancel pending operations as we will miss callbacks that we are

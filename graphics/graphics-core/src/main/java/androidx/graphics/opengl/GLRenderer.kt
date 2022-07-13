@@ -55,13 +55,13 @@ class GLRenderer(
 ) {
 
     /**
-     * Factory method to determine which EglSpec the underlying EglManager implementation uses
+     * Factory method to determine which [EGLSpec] the underlying [EGLManager] implementation uses
      */
     private val mEglSpecFactory: () -> EGLSpec = eglSpecFactory
 
     /**
      * Factory method used to create the corresponding EGLConfig used to create the EGLRenderer used
-     * by EglManager
+     * by [EGLManager]
      */
     private val mEglConfigFactory: EGLManager.() -> EGLConfig = eglConfigFactory
 
@@ -79,7 +79,7 @@ class GLRenderer(
      * Collection of callbacks to be invoked when the EGL dependencies are initialized
      * or torn down
      */
-    private val mEglContextCallback = HashSet<EglContextCallback>()
+    private val mEglContextCallback = HashSet<EGLContextCallback>()
 
     /**
      * Removes the corresponding [RenderTarget] from management of the GLThread.
@@ -144,7 +144,7 @@ class GLRenderer(
                 if (!mEglContextCallback.isEmpty()) {
                     // Add a copy of the current collection as new entries to mEglContextCallback
                     // could be mistakenly added multiple times.
-                    this.addEglCallbacks(ArrayList<EglContextCallback>(mEglContextCallback))
+                    this.addEGLCallbacks(ArrayList<EGLContextCallback>(mEglContextCallback))
                 }
             }
         }
@@ -247,25 +247,27 @@ class GLRenderer(
     }
 
     /**
-     * Add an [EglContextCallback] to receive callbacks for construction and
+     * Add an [EGLContextCallback] to receive callbacks for construction and
      * destruction of EGL dependencies.
      *
      * These callbacks are invoked on the backing thread.
      */
-    fun registerEglContextCallback(callback: EglContextCallback) {
+    @Suppress("AcronymName")
+    fun registerEGLContextCallback(callback: EGLContextCallback) {
         mEglContextCallback.add(callback)
-        mGLThread?.addEglCallback(callback)
+        mGLThread?.addEGLCallback(callback)
     }
 
     /**
-     * Remove [EglContextCallback] to no longer receive callbacks for construction and
+     * Remove [EGLContextCallback] to no longer receive callbacks for construction and
      * destruction of EGL dependencies.
      *
      * These callbacks are invoked on the backing thread
      */
-    fun unregisterEglContextCallback(callback: EglContextCallback) {
+    @Suppress("AcronymName")
+    fun unregisterEGLContextCallback(callback: EGLContextCallback) {
         mEglContextCallback.remove(callback)
-        mGLThread?.removeEglCallback(callback)
+        mGLThread?.removeEGLCallback(callback)
     }
 
     /**
@@ -273,7 +275,8 @@ class GLRenderer(
      * These are logical places to setup and tear down any dependencies that are used
      * for drawing content within a frame (ex. compiling shaders)
      */
-    interface EglContextCallback {
+    @Suppress("AcronymName")
+    interface EGLContextCallback {
 
         /**
          * Callback invoked on the backing thread after EGL dependencies are initialized.
@@ -281,15 +284,19 @@ class GLRenderer(
          * [RenderCallback.onSurfaceCreated] is called.
          * This will be invoked lazily before the first request to [GLRenderer.requestRender]
          */
+        // Suppressing CallbackMethodName due to b/238939160
+        @Suppress("AcronymName", "CallbackMethodName")
         @WorkerThread
-        fun onEglContextCreated(eglManager: EGLManager)
+        fun onEGLContextCreated(eglManager: EGLManager)
 
         /**
          * Callback invoked on the backing thread before EGL dependencies are about to be torn down.
          * This is invoked after [GLRenderer.stop] is processed.
          */
+        // Suppressing CallbackMethodName due to b/238939160
+        @Suppress("AcronymName", "CallbackMethodName")
         @WorkerThread
-        fun onEglContextDestroyed(eglManager: EGLManager)
+        fun onEGLContextDestroyed(eglManager: EGLManager)
     }
 
     /**
