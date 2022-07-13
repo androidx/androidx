@@ -33,12 +33,14 @@ import androidx.glance.layout.Spacer
 import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.height
 import androidx.glance.layout.width
+import androidx.glance.template.HeaderBlock
 import androidx.glance.template.LocalTemplateColors
 import androidx.glance.template.TemplateButton
 import androidx.glance.template.TemplateImageButton
 import androidx.glance.template.TemplateImageWithDescription
 import androidx.glance.template.TemplateText
 import androidx.glance.template.TemplateTextButton
+import androidx.glance.template.TextType
 import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
 
@@ -74,13 +76,14 @@ internal fun AppWidgetTemplateHeader(
                 Spacer(modifier = GlanceModifier.width(8.dp))
             }
             val size =
-                textSize(TemplateText.Type.Title, DisplaySize.fromDpSize(LocalSize.current))
+                textSize(TextType.Title, DisplaySize.fromDpSize(LocalSize.current))
             Text(
                 modifier = GlanceModifier.defaultWeight(),
                 text = header.text,
                 style = TextStyle(
                     fontSize = size,
-                    color = LocalTemplateColors.current.onSurface),
+                    color = LocalTemplateColors.current.onSurface
+                ),
                 maxLines = 1
             )
         }
@@ -94,8 +97,23 @@ internal fun AppWidgetTemplateHeader(
 }
 
 /**
+ * Default header template layout implementation for AppWidgets, usually displayed at the top of the
+ * glanceable in default layout implementations by [HeaderBlock].
+ *
+ * @param headerBlock The glanceable header block to display
+ */
+@Composable
+internal fun AppWidgetTemplateHeader(headerBlock: HeaderBlock) {
+    AppWidgetTemplateHeader(
+        headerBlock.icon,
+        headerBlock.text,
+        headerBlock.actionBlock?.actionButtons?.get(0)
+    )
+}
+
+/**
  * Default text section layout for AppWidgets. Displays an ordered list of text fields, styled
- * according to the [TemplateText.Type] of each field.
+ * according to the [TextType] of each field.
  *
  * @param textList the ordered list of text fields to display in the block
  */
@@ -168,37 +186,47 @@ private enum class DisplaySize {
     }
 }
 
-private fun textSize(textClass: TemplateText.Type, displaySize: DisplaySize): TextUnit =
+private fun textSize(textClass: TextType, displaySize: DisplaySize): TextUnit =
     when (textClass) {
         // TODO: Does display scale?
-        TemplateText.Type.Display -> 45.sp
-        TemplateText.Type.Title -> {
+        TextType.Display -> 45.sp
+        TextType.Title -> {
             when (displaySize) {
                 DisplaySize.Small -> 14.sp
                 DisplaySize.Medium -> 16.sp
                 DisplaySize.Large -> 22.sp
             }
         }
-        TemplateText.Type.Body -> {
+        TextType.Headline -> {
+            when (displaySize) {
+                DisplaySize.Small -> 12.sp
+                DisplaySize.Medium -> 14.sp
+                DisplaySize.Large -> 18.sp
+            }
+        }
+        TextType.Body -> {
             when (displaySize) {
                 DisplaySize.Small -> 12.sp
                 DisplaySize.Medium -> 14.sp
                 DisplaySize.Large -> 14.sp
             }
         }
-        TemplateText.Type.Label -> {
+        TextType.Label -> {
             when (displaySize) {
                 DisplaySize.Small -> 11.sp
                 DisplaySize.Medium -> 12.sp
                 DisplaySize.Large -> 14.sp
             }
         }
+        else -> 12.sp
     }
 
-private fun maxLines(textClass: TemplateText.Type): Int =
+private fun maxLines(textClass: TextType): Int =
     when (textClass) {
-        TemplateText.Type.Display -> 1
-        TemplateText.Type.Title -> 3
-        TemplateText.Type.Body -> 3
-        TemplateText.Type.Label -> 1
+        TextType.Display -> 1
+        TextType.Title -> 3
+        TextType.Body -> 3
+        TextType.Label -> 1
+        TextType.Headline -> 1
+        else -> 1
     }
