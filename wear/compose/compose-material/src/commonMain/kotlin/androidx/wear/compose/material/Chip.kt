@@ -760,7 +760,8 @@ public object ChipDefaults {
             backgroundColor = Color.Transparent,
             contentColor = contentColor,
             secondaryContentColor = secondaryContentColor,
-            iconColor = iconColor
+            iconColor = iconColor,
+            disabledBackgroundColor = Color.Transparent
         )
     }
 
