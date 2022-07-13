@@ -69,6 +69,9 @@ public class SplitActivityBase extends AppCompatActivity
 
     private ActivitySplitActivityLayoutBinding mViewBinding;
 
+    /** In the process of updating checkboxes based on split rule. */
+    private boolean mUpdatingConfigs;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -152,11 +155,15 @@ public class SplitActivityBase extends AppCompatActivity
                 mViewBinding.useStickyPlaceholderCheckBox.setChecked(false);
             }
         }
-        updateRulesFromCheckboxes();
+        if (!mUpdatingConfigs) {
+            updateRulesFromCheckboxes();
+        }
     }
 
     /** Updates the checkboxes states after the split rules are changed by other activity. */
     void updateCheckboxesFromCurrentConfig() {
+        mUpdatingConfigs = true;
+
         SplitPairRule splitMainConfig = getRuleFor(SplitActivityA.class, null);
         mViewBinding.splitMainCheckBox.setChecked(splitMainConfig != null);
 
@@ -179,6 +186,8 @@ public class SplitActivityBase extends AppCompatActivity
 
         ActivityRule configE = getRuleFor(SplitActivityE.class);
         mViewBinding.fullscreenECheckBox.setChecked(configE != null && configE.getAlwaysExpand());
+
+        mUpdatingConfigs = false;
     }
 
     /** Gets the split rule for the given activity pair. */
