@@ -46,9 +46,9 @@ class JankLoggingActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val metricsStateHolder = PerformanceMetricsState.getForHierarchy(binding.root)
         jankStats = JankStats.createAndTrack(window, jankFrameListener)
-        metricsStateHolder.state?.addState("Activity", javaClass.simpleName)
+        val metricsStateHolder = PerformanceMetricsState.getHolderForHierarchy(binding.root)
+        metricsStateHolder.state?.putState("Activity", javaClass.simpleName)
 
         setSupportActionBar(binding.toolbar)
 

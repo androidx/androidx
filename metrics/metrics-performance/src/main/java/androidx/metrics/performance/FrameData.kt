@@ -30,7 +30,7 @@ package androidx.metrics.performance
  * later to determine the UI state that was current when jank occurred.
  *
  * @see JankStats.jankHeuristicMultiplier
- * @see PerformanceMetricsState.addState
+ * @see PerformanceMetricsState.putState
  */
 open class FrameData(
     frameStartNanos: Long,
@@ -106,11 +106,11 @@ open class FrameData(
 /**
  * This class contains information about application state.
  *
- * @property stateName An arbitrary name used for this state, used as a key for storing
+ * @property key An arbitrary name used for this state, used as a key for storing
  * the state value.
- * @property state The value of this state.
+ * @property value The value of this state.
  */
-class StateInfo(val stateName: String, val state: String) {
+class StateInfo(val key: String, val value: String) {
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -118,20 +118,20 @@ class StateInfo(val stateName: String, val state: String) {
 
         other as StateInfo
 
-        if (stateName != other.stateName) return false
-        if (state != other.state) return false
+        if (key != other.key) return false
+        if (value != other.value) return false
 
         return true
     }
 
     override fun hashCode(): Int {
-        var result = stateName.hashCode()
-        result = 31 * result + state.hashCode()
+        var result = key.hashCode()
+        result = 31 * result + value.hashCode()
         return result
     }
 
     override fun toString(): String {
-        return "$stateName: $state"
+        return "$key: $value"
     }
 
     /**

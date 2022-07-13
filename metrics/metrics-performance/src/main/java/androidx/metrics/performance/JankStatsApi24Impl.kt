@@ -225,7 +225,7 @@ private class DelegatingFrameMetricsListener(
         }
         if (window != null) {
             // Remove singleFrame states now that we are done processing this frame
-            val holder = PerformanceMetricsState.getForHierarchy(window.decorView)
+            val holder = PerformanceMetricsState.getHolderForHierarchy(window.decorView)
             holder.state?.cleanupSingleFrameStates()
         }
     }

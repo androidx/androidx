@@ -73,7 +73,7 @@ class JankStatsBenchmark {
     fun setup() {
         activityRule.runOnUiThread {
             textview = activityRule.activity.findViewById(R.id.textview)
-            metricsStateHolder = PerformanceMetricsState.getForHierarchy(textview)
+            metricsStateHolder = PerformanceMetricsState.getHolderForHierarchy(textview)
             jankStats = JankStats.createAndTrack(
                 activityRule.activity.window,
                 frameListener
@@ -88,7 +88,7 @@ class JankStatsBenchmark {
         var iteration = 0
         benchmarkRule.measureRepeated {
             iteration++
-            metricsStateHolder.state?.addState("Activity$iteration", "activity")
+            metricsStateHolder.state?.putState("Activity$iteration", "activity")
         }
     }
 
@@ -96,7 +96,7 @@ class JankStatsBenchmark {
     @Test
     fun setStateOverAndOver() {
         benchmarkRule.measureRepeated {
-            metricsStateHolder.state?.addState("Activity", "activity")
+            metricsStateHolder.state?.putState("Activity", "activity")
         }
     }
 
@@ -110,14 +110,14 @@ class JankStatsBenchmark {
             // our testing method here instead to forcibly remove it, which should test the
             // allocation behavior of the object pool used for states.
             jankStatsImpl.removeStateNow(metricsStateHolder.state!!, "Activity")
-            metricsStateHolder.state?.addState("Activity", "activity")
+            metricsStateHolder.state?.putState("Activity", "activity")
         }
     }
 
     @RequiresApi(Build.VERSION_CODES.JELLY_BEAN)
     @Test
     fun getFrameData() {
-        metricsStateHolder.state?.addState("Activity", "activity")
+        metricsStateHolder.state?.putState("Activity", "activity")
         benchmarkRule.measureRepeated {
             jankStatsImpl.getFrameData()
         }
@@ -169,7 +169,7 @@ class JankStatsBenchmark {
     @RequiresApi(Build.VERSION_CODES.JELLY_BEAN)
     @Test
     fun logFrameData() {
-        metricsStateHolder.state?.addState("Activity", "activity")
+        metricsStateHolder.state?.putState("Activity", "activity")
         val frameData = jankStatsImpl.getFrameData()
         if (frameData != null) {
             benchmarkRule.measureRepeated {

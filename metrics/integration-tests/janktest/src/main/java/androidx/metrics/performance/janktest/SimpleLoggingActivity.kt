@@ -34,9 +34,9 @@ class SimpleLoggingActivity : AppCompatActivity() {
         }
 
         findViewById<View>(R.id.button).setOnClickListener {
-            val stateHolder = PerformanceMetricsState.getForHierarchy(it).state!!
-            stateHolder.addSingleFrameState("stateKey1", "stateValue")
-            stateHolder.addState("stateKey2", "${Date()}")
+            val stateHolder = PerformanceMetricsState.getHolderForHierarchy(it).state!!
+            stateHolder.putSingleFrameState("stateKey1", "stateValue")
+            stateHolder.putState("stateKey2", "${Date()}")
         }
     }
 }
