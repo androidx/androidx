@@ -17,6 +17,7 @@
 package androidx.room.compiler.processing.javac
 
 import androidx.room.compiler.processing.InternalXAnnotationValue
+import androidx.room.compiler.processing.XArrayType
 import androidx.room.compiler.processing.XEnumTypeElement
 import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XNullability
@@ -34,15 +35,13 @@ internal class JavacAnnotationValue(
     val env: JavacProcessingEnv,
     private val method: XMethodElement,
     val annotationValue: AnnotationValue,
+    override val valueType: XType = method.returnType,
     private val valueProvider: () -> Any? = {
         UNWRAP_VISITOR.visit(annotationValue, VisitorData(env, method))
     }
 ) : InternalXAnnotationValue() {
     override val name: String
         get() = method.toJavac().simpleName.toString()
-
-    override val valueType: XType
-        get() = method.returnType
 
     override val value: Any? by lazy { valueProvider.invoke() }
 }
@@ -90,6 +89,14 @@ private val UNWRAP_VISITOR = object : AbstractAnnotationValueVisitor8<Any?, Visi
     override fun visitAnnotation(a: AnnotationMirror, data: VisitorData) =
         JavacAnnotation(data.env, a)
 
-    override fun visitArray(vals: MutableList<out AnnotationValue>, data: VisitorData) =
-        vals.map { JavacAnnotationValue(data.env, data.method, it) { it.accept(this, data) } }
+    override fun visitArray(
+        vals: MutableList<out AnnotationValue>,
+        data: VisitorData
+    ): List<JavacAnnotationValue> {
+        // The method's return type has to be an array type since visitArray was called.
+        val valueType = (data.method.returnType as XArrayType).componentType
+        return vals.map {
+            JavacAnnotationValue(data.env, data.method, it, valueType) { it.accept(this, data) }
+        }
+    }
 }

@@ -105,25 +105,35 @@ class XAnnotationValueTest(
                 """.trimIndent()
             ) as Source.KotlinSource
         ) { invocation ->
+            fun checkSingleValue(annotationValue: XAnnotationValue, expectedValue: Boolean) {
+                assertThat(annotationValue.hasBooleanValue()).isTrue()
+                assertThat(annotationValue.asBoolean()).isEqualTo(expectedValue)
+            }
+
+            fun checkListValues(annotationValue: XAnnotationValue, vararg expectedValues: Boolean) {
+                assertThat(annotationValue.hasBooleanListValue()).isTrue()
+                // Check the list of values
+                assertThat(annotationValue.asBooleanList())
+                    .containsExactly(*expectedValues.toTypedArray())
+                    .inOrder()
+                // Check each annotation value in the list
+                annotationValue.asAnnotationValueList().forEachIndexed { i, value ->
+                    checkSingleValue(value, expectedValues[i])
+                }
+            }
+
             val annotation = invocation.processingEnv.requireTypeElement("MyClass")
                 .getAllAnnotations()
                 .single { it.name == "MyAnnotation" }
 
             val booleanParam = annotation.getAnnotationValue("booleanParam")
-            assertThat(booleanParam.hasBooleanValue()).isTrue()
-            assertThat(booleanParam.asBoolean()).isEqualTo(true)
+            checkSingleValue(booleanParam, true)
 
             val booleanArrayParam = annotation.getAnnotationValue("booleanArrayParam")
-            assertThat(booleanArrayParam.hasBooleanListValue()).isTrue()
-            assertThat(booleanArrayParam.asBooleanList())
-                .containsExactly(true, false, true)
-                .inOrder()
+            checkListValues(booleanArrayParam, true, false, true)
 
             val booleanVarArgsParam = annotation.getAnnotationValue("booleanVarArgsParam")
-            assertThat(booleanVarArgsParam.hasBooleanListValue()).isTrue()
-            assertThat(booleanVarArgsParam.asBooleanList())
-                .containsExactly(false, true, false)
-                .inOrder()
+            checkListValues(booleanVarArgsParam, false, true, false)
         }
     }
 
@@ -163,25 +173,35 @@ class XAnnotationValueTest(
                 """.trimIndent()
             ) as Source.KotlinSource
         ) { invocation ->
+            fun checkSingleValue(annotationValue: XAnnotationValue, expectedValue: Int) {
+                assertThat(annotationValue.hasIntValue()).isTrue()
+                assertThat(annotationValue.asInt()).isEqualTo(expectedValue)
+            }
+
+            fun checkListValues(annotationValue: XAnnotationValue, vararg expectedValues: Int) {
+                assertThat(annotationValue.hasIntListValue()).isTrue()
+                // Check the list of values
+                assertThat(annotationValue.asIntList())
+                    .containsExactly(*expectedValues.toTypedArray())
+                    .inOrder()
+                // Check each annotation value in the list
+                annotationValue.asAnnotationValueList().forEachIndexed { i, value ->
+                    checkSingleValue(value, expectedValues[i])
+                }
+            }
+
             val annotation = invocation.processingEnv.requireTypeElement("MyClass")
                 .getAllAnnotations()
                 .single { it.name == "MyAnnotation" }
 
             val intParam = annotation.getAnnotationValue("intParam")
-            assertThat(intParam.hasIntValue()).isTrue()
-            assertThat(intParam.asInt()).isEqualTo(1)
+            checkSingleValue(intParam, 1)
 
             val intArrayParam = annotation.getAnnotationValue("intArrayParam")
-            assertThat(intArrayParam.hasIntListValue()).isTrue()
-            assertThat(intArrayParam.asIntList())
-                .containsExactly(3, 5, 7)
-                .inOrder()
+            checkListValues(intArrayParam, 3, 5, 7)
 
             val intVarArgsParam = annotation.getAnnotationValue("intVarArgsParam")
-            assertThat(intVarArgsParam.hasIntListValue()).isTrue()
-            assertThat(intVarArgsParam.asIntList())
-                .containsExactly(9, 11, 13)
-                .inOrder()
+            checkListValues(intVarArgsParam, 9, 11, 13)
         }
     }
 
@@ -221,25 +241,35 @@ class XAnnotationValueTest(
                 """.trimIndent()
             ) as Source.KotlinSource
         ) { invocation ->
+            fun checkSingleValue(annotationValue: XAnnotationValue, expectedValue: Short) {
+                assertThat(annotationValue.hasShortValue()).isTrue()
+                assertThat(annotationValue.asShort()).isEqualTo(expectedValue)
+            }
+
+            fun checkListValues(annotationValue: XAnnotationValue, vararg expectedValues: Short) {
+                assertThat(annotationValue.hasShortListValue()).isTrue()
+                // Check the list of values
+                assertThat(annotationValue.asShortList())
+                    .containsExactly(*expectedValues.toTypedArray())
+                    .inOrder()
+                // Check each annotation value in the list
+                annotationValue.asAnnotationValueList().forEachIndexed { i, value ->
+                    checkSingleValue(value, expectedValues[i])
+                }
+            }
+
             val annotation = invocation.processingEnv.requireTypeElement("MyClass")
                 .getAllAnnotations()
                 .single { it.name == "MyAnnotation" }
 
             val shortParam = annotation.getAnnotationValue("shortParam")
-            assertThat(shortParam.hasShortValue()).isTrue()
-            assertThat(shortParam.asShort()).isEqualTo(1)
+            checkSingleValue(shortParam, 1)
 
             val shortArrayParam = annotation.getAnnotationValue("shortArrayParam")
-            assertThat(shortArrayParam.hasShortListValue()).isTrue()
-            assertThat(shortArrayParam.asShortList())
-                .containsExactly(3.toShort(), 5.toShort(), 7.toShort())
-                .inOrder()
+            checkListValues(shortArrayParam, 3, 5, 7)
 
             val shortVarArgsParam = annotation.getAnnotationValue("shortVarArgsParam")
-            assertThat(shortVarArgsParam.hasShortListValue()).isTrue()
-            assertThat(shortVarArgsParam.asShortList())
-                .containsExactly(9.toShort(), 11.toShort(), 13.toShort())
-                .inOrder()
+            checkListValues(shortVarArgsParam, 9, 11, 13)
         }
     }
 
@@ -279,25 +309,35 @@ class XAnnotationValueTest(
                 """.trimIndent()
             ) as Source.KotlinSource
         ) { invocation ->
+            fun checkSingleValue(annotationValue: XAnnotationValue, expectedValue: Long) {
+                assertThat(annotationValue.hasLongValue()).isTrue()
+                assertThat(annotationValue.asLong()).isEqualTo(expectedValue)
+            }
+
+            fun checkListValues(annotationValue: XAnnotationValue, vararg expectedValues: Long) {
+                assertThat(annotationValue.hasLongListValue()).isTrue()
+                // Check the list of values
+                assertThat(annotationValue.asLongList())
+                    .containsExactly(*expectedValues.toTypedArray())
+                    .inOrder()
+                // Check each annotation value in the list
+                annotationValue.asAnnotationValueList().forEachIndexed { i, value ->
+                    checkSingleValue(value, expectedValues[i])
+                }
+            }
+
             val annotation = invocation.processingEnv.requireTypeElement("MyClass")
                 .getAllAnnotations()
                 .single { it.name == "MyAnnotation" }
 
             val longParam = annotation.getAnnotationValue("longParam")
-            assertThat(longParam.hasLongValue()).isTrue()
-            assertThat(longParam.asLong()).isEqualTo(1L)
+            checkSingleValue(longParam, 1L)
 
             val longArrayParam = annotation.getAnnotationValue("longArrayParam")
-            assertThat(longArrayParam.hasLongListValue()).isTrue()
-            assertThat(longArrayParam.asLongList())
-                .containsExactly(3L, 5L, 7L)
-                .inOrder()
+            checkListValues(longArrayParam, 3L, 5L, 7L)
 
             val longVarArgsParam = annotation.getAnnotationValue("longVarArgsParam")
-            assertThat(longVarArgsParam.hasLongListValue()).isTrue()
-            assertThat(longVarArgsParam.asLongList())
-                .containsExactly(9L, 11L, 13L)
-                .inOrder()
+            checkListValues(longVarArgsParam, 9L, 11L, 13L)
         }
     }
 
@@ -337,25 +377,35 @@ class XAnnotationValueTest(
                 """.trimIndent()
             ) as Source.KotlinSource
         ) { invocation ->
+            fun checkSingleValue(annotationValue: XAnnotationValue, expectedValue: Float) {
+                assertThat(annotationValue.hasFloatValue()).isTrue()
+                assertThat(annotationValue.asFloat()).isEqualTo(expectedValue)
+            }
+
+            fun checkListValues(annotationValue: XAnnotationValue, vararg expectedValues: Float) {
+                assertThat(annotationValue.hasFloatListValue()).isTrue()
+                // Check the list of values
+                assertThat(annotationValue.asFloatList())
+                    .containsExactly(*expectedValues.toTypedArray())
+                    .inOrder()
+                // Check each annotation value in the list
+                annotationValue.asAnnotationValueList().forEachIndexed { i, value ->
+                    checkSingleValue(value, expectedValues[i])
+                }
+            }
+
             val annotation = invocation.processingEnv.requireTypeElement("MyClass")
                 .getAllAnnotations()
                 .single { it.name == "MyAnnotation" }
 
             val floatParam = annotation.getAnnotationValue("floatParam")
-            assertThat(floatParam.hasFloatValue()).isTrue()
-            assertThat(floatParam.asFloat()).isEqualTo(1.1F)
+            checkSingleValue(floatParam, 1.1F)
 
             val floatArrayParam = annotation.getAnnotationValue("floatArrayParam")
-            assertThat(floatArrayParam.hasFloatListValue()).isTrue()
-            assertThat(floatArrayParam.asFloatList())
-                .containsExactly(3.1F, 5.1F, 7.1F)
-                .inOrder()
+            checkListValues(floatArrayParam, 3.1F, 5.1F, 7.1F)
 
             val floatVarArgsParam = annotation.getAnnotationValue("floatVarArgsParam")
-            assertThat(floatVarArgsParam.hasFloatListValue()).isTrue()
-            assertThat(floatVarArgsParam.asFloatList())
-                .containsExactly(9.1F, 11.1F, 13.1F)
-                .inOrder()
+            checkListValues(floatVarArgsParam, 9.1F, 11.1F, 13.1F)
         }
     }
 
@@ -395,25 +445,35 @@ class XAnnotationValueTest(
                 """.trimIndent()
             ) as Source.KotlinSource
         ) { invocation ->
+            fun checkSingleValue(annotationValue: XAnnotationValue, expectedValue: Double) {
+                assertThat(annotationValue.hasDoubleValue()).isTrue()
+                assertThat(annotationValue.asDouble()).isEqualTo(expectedValue)
+            }
+
+            fun checkListValues(annotationValue: XAnnotationValue, vararg expectedValues: Double) {
+                assertThat(annotationValue.hasDoubleListValue()).isTrue()
+                // Check the list of values
+                assertThat(annotationValue.asDoubleList())
+                    .containsExactly(*expectedValues.toTypedArray())
+                    .inOrder()
+                // Check each annotation value in the list
+                annotationValue.asAnnotationValueList().forEachIndexed { i, value ->
+                    checkSingleValue(value, expectedValues[i])
+                }
+            }
+
             val annotation = invocation.processingEnv.requireTypeElement("MyClass")
                 .getAllAnnotations()
                 .single { it.name == "MyAnnotation" }
 
             val doubleParam = annotation.getAnnotationValue("doubleParam")
-            assertThat(doubleParam.hasDoubleValue()).isTrue()
-            assertThat(doubleParam.asDouble()).isEqualTo(1.1)
+            checkSingleValue(doubleParam, 1.1)
 
             val doubleArrayParam = annotation.getAnnotationValue("doubleArrayParam")
-            assertThat(doubleArrayParam.hasDoubleListValue()).isTrue()
-            assertThat(doubleArrayParam.asDoubleList())
-                .containsExactly(3.1, 5.1, 7.1)
-                .inOrder()
+            checkListValues(doubleArrayParam, 3.1, 5.1, 7.1)
 
             val doubleVarArgsParam = annotation.getAnnotationValue("doubleVarArgsParam")
-            assertThat(doubleVarArgsParam.hasDoubleListValue()).isTrue()
-            assertThat(doubleVarArgsParam.asDoubleList())
-                .containsExactly(9.1, 11.1, 13.1)
-                .inOrder()
+            checkListValues(doubleVarArgsParam, 9.1, 11.1, 13.1)
         }
     }
 
@@ -453,25 +513,35 @@ class XAnnotationValueTest(
                 """.trimIndent()
             ) as Source.KotlinSource
         ) { invocation ->
+            fun checkSingleValue(annotationValue: XAnnotationValue, expectedValue: Byte) {
+                assertThat(annotationValue.hasByteValue()).isTrue()
+                assertThat(annotationValue.asByte()).isEqualTo(expectedValue)
+            }
+
+            fun checkListValues(annotationValue: XAnnotationValue, vararg expectedValues: Byte) {
+                assertThat(annotationValue.hasByteListValue()).isTrue()
+                // Check the list of values
+                assertThat(annotationValue.asByteList())
+                    .containsExactly(*expectedValues.toTypedArray())
+                    .inOrder()
+                // Check each annotation value in the list
+                annotationValue.asAnnotationValueList().forEachIndexed { i, value ->
+                    checkSingleValue(value, expectedValues[i])
+                }
+            }
+
             val annotation = invocation.processingEnv.requireTypeElement("MyClass")
                 .getAllAnnotations()
                 .single { it.name == "MyAnnotation" }
 
             val byteParam = annotation.getAnnotationValue("byteParam")
-            assertThat(byteParam.hasByteValue()).isTrue()
-            assertThat(byteParam.asByte()).isEqualTo(1.toByte())
+            checkSingleValue(byteParam, 1)
 
             val byteArrayParam = annotation.getAnnotationValue("byteArrayParam")
-            assertThat(byteArrayParam.hasByteListValue()).isTrue()
-            assertThat(byteArrayParam.asByteList())
-                .containsExactly(3.toByte(), 5.toByte(), 7.toByte())
-                .inOrder()
+            checkListValues(byteArrayParam, 3, 5, 7)
 
             val byteVarArgsParam = annotation.getAnnotationValue("byteVarArgsParam")
-            assertThat(byteVarArgsParam.hasByteListValue()).isTrue()
-            assertThat(byteVarArgsParam.asByteList())
-                .containsExactly(9.toByte(), 11.toByte(), 13.toByte())
-                .inOrder()
+            checkListValues(byteVarArgsParam, 9, 11, 13)
         }
     }
 
@@ -511,25 +581,35 @@ class XAnnotationValueTest(
                 """.trimIndent()
             ) as Source.KotlinSource
         ) { invocation ->
+            fun checkSingleValue(annotationValue: XAnnotationValue, expectedValue: Char) {
+                assertThat(annotationValue.hasCharValue()).isTrue()
+                assertThat(annotationValue.asChar()).isEqualTo(expectedValue)
+            }
+
+            fun checkListValues(annotationValue: XAnnotationValue, vararg expectedValues: Char) {
+                assertThat(annotationValue.hasCharListValue()).isTrue()
+                // Check the list of values
+                assertThat(annotationValue.asCharList())
+                    .containsExactly(*expectedValues.toTypedArray())
+                    .inOrder()
+                // Check each annotation value in the list
+                annotationValue.asAnnotationValueList().forEachIndexed { i, value ->
+                    checkSingleValue(value, expectedValues[i])
+                }
+            }
+
             val annotation = invocation.processingEnv.requireTypeElement("MyClass")
                 .getAllAnnotations()
                 .single { it.name == "MyAnnotation" }
 
             val charParam = annotation.getAnnotationValue("charParam")
-            assertThat(charParam.hasCharValue()).isTrue()
-            assertThat(charParam.asChar()).isEqualTo('1')
+            checkSingleValue(charParam, '1')
 
             val charArrayParam = annotation.getAnnotationValue("charArrayParam")
-            assertThat(charArrayParam.hasCharListValue()).isTrue()
-            assertThat(charArrayParam.asCharList())
-                .containsExactly('2', '3', '4')
-                .inOrder()
+            checkListValues(charArrayParam, '2', '3', '4')
 
             val charVarArgsParam = annotation.getAnnotationValue("charVarArgsParam")
-            assertThat(charVarArgsParam.hasCharListValue()).isTrue()
-            assertThat(charVarArgsParam.asCharList())
-                .containsExactly('5', '6', '7')
-                .inOrder()
+            checkListValues(charVarArgsParam, '5', '6', '7')
         }
     }
 
@@ -569,25 +649,35 @@ class XAnnotationValueTest(
                 """.trimIndent()
             ) as Source.KotlinSource
         ) { invocation ->
+            fun checkSingleValue(annotationValue: XAnnotationValue, expectedValue: String) {
+                assertThat(annotationValue.hasStringValue()).isTrue()
+                assertThat(annotationValue.asString()).isEqualTo(expectedValue)
+            }
+
+            fun checkListValues(annotationValue: XAnnotationValue, vararg expectedValues: String) {
+                assertThat(annotationValue.hasStringListValue()).isTrue()
+                // Check the list of values
+                assertThat(annotationValue.asStringList())
+                    .containsExactly(*expectedValues)
+                    .inOrder()
+                // Check each annotation value in the list
+                annotationValue.asAnnotationValueList().forEachIndexed { i, value ->
+                    checkSingleValue(value, expectedValues[i])
+                }
+            }
+
             val annotation = invocation.processingEnv.requireTypeElement("MyClass")
                 .getAllAnnotations()
                 .single { it.name == "MyAnnotation" }
 
             val stringParam = annotation.getAnnotationValue("stringParam")
-            assertThat(stringParam.hasStringValue()).isTrue()
-            assertThat(stringParam.asString()).isEqualTo("1")
+            checkSingleValue(stringParam, "1")
 
             val stringArrayParam = annotation.getAnnotationValue("stringArrayParam")
-            assertThat(stringArrayParam.hasStringListValue()).isTrue()
-            assertThat(stringArrayParam.asStringList())
-                .containsExactly("3", "5", "7")
-                .inOrder()
+            checkListValues(stringArrayParam, "3", "5", "7")
 
             val stringVarArgsParam = annotation.getAnnotationValue("stringVarArgsParam")
-            assertThat(stringVarArgsParam.hasStringListValue()).isTrue()
-            assertThat(stringVarArgsParam.asStringList())
-                .containsExactly("9", "11", "13")
-                .inOrder()
+            checkListValues(stringVarArgsParam, "9", "11", "13")
         }
     }
 
@@ -629,25 +719,35 @@ class XAnnotationValueTest(
                 """.trimIndent()
             ) as Source.KotlinSource
         ) { invocation ->
+            fun checkSingleValue(annotationValue: XAnnotationValue, expectedValue: String) {
+                assertThat(annotationValue.hasEnumValue()).isTrue()
+                assertThat(annotationValue.asEnum().name).isEqualTo(expectedValue)
+            }
+
+            fun checkListValues(annotationValue: XAnnotationValue, vararg expectedValues: String) {
+                assertThat(annotationValue.hasEnumListValue()).isTrue()
+                // Check the list of values
+                assertThat(annotationValue.asEnumList().map { it.name })
+                    .containsExactly(*expectedValues)
+                    .inOrder()
+                // Check each annotation value in the list
+                annotationValue.asAnnotationValueList().forEachIndexed { i, value ->
+                    checkSingleValue(value, expectedValues[i])
+                }
+            }
+
             val annotation = invocation.processingEnv.requireTypeElement("MyClass")
                 .getAllAnnotations()
                 .single { it.name == "MyAnnotation" }
 
             val enumParam = annotation.getAnnotationValue("enumParam")
-            assertThat(enumParam.hasEnumValue()).isTrue()
-            assertThat(enumParam.asEnum().name).isEqualTo("V1")
+            checkSingleValue(enumParam, "V1")
 
             val enumArrayParam = annotation.getAnnotationValue("enumArrayParam")
-            assertThat(enumArrayParam.hasEnumListValue()).isTrue()
-            assertThat(enumArrayParam.asEnumList().map { it.name })
-                .containsExactly("V1", "V2", "V3")
-                .inOrder()
+            checkListValues(enumArrayParam, "V1", "V2", "V3")
 
             val enumVarArgsParam = annotation.getAnnotationValue("enumVarArgsParam")
-            assertThat(enumVarArgsParam.hasEnumListValue()).isTrue()
-            assertThat(enumVarArgsParam.asEnumList().map { it.name })
-                .containsExactly("V3", "V2", "V1")
-                .inOrder()
+            checkListValues(enumVarArgsParam, "V3", "V2", "V1")
         }
     }
 
@@ -693,25 +793,35 @@ class XAnnotationValueTest(
                 """.trimIndent()
             ) as Source.KotlinSource
         ) { invocation ->
+            fun checkSingleValue(annotationValue: XAnnotationValue, expectedValue: String) {
+                assertThat(annotationValue.hasTypeValue()).isTrue()
+                assertThat(annotationValue.asType().typeElement?.name).isEqualTo(expectedValue)
+            }
+
+            fun checkListValues(annotationValue: XAnnotationValue, vararg expectedValues: String) {
+                assertThat(annotationValue.hasTypeListValue()).isTrue()
+                // Check the list of values
+                assertThat(annotationValue.asTypeList().map { it.typeElement?.name })
+                    .containsExactly(*expectedValues)
+                    .inOrder()
+                // Check each annotation value in the list
+                annotationValue.asAnnotationValueList().forEachIndexed { i, value ->
+                    checkSingleValue(value, expectedValues[i])
+                }
+            }
+
             val annotation = invocation.processingEnv.requireTypeElement("MyClass")
                 .getAllAnnotations()
                 .single { it.name == "MyAnnotation" }
 
             val typeParam = annotation.getAnnotationValue("typeParam")
-            assertThat(typeParam.hasTypeValue()).isTrue()
-            assertThat(typeParam.asType().typeElement?.name).isEqualTo("C1")
+            checkSingleValue(typeParam, "C1")
 
             val typeArrayParam = annotation.getAnnotationValue("typeArrayParam")
-            assertThat(typeArrayParam.hasTypeListValue()).isTrue()
-            assertThat(typeArrayParam.asTypeList().map { it.typeElement?.name })
-                .containsExactly("C1", "C2", "C3")
-                .inOrder()
+            checkListValues(typeArrayParam, "C1", "C2", "C3")
 
             val typeVarArgsParam = annotation.getAnnotationValue("typeVarArgsParam")
-            assertThat(typeVarArgsParam.hasTypeListValue()).isTrue()
-            assertThat(typeVarArgsParam.asTypeList().map { it.typeElement?.name })
-                .containsExactly("C3", "C2", "C1")
-                .inOrder()
+            checkListValues(typeVarArgsParam, "C3", "C2", "C1")
         }
     }
 
@@ -755,25 +865,36 @@ class XAnnotationValueTest(
                 """.trimIndent()
             ) as Source.KotlinSource
         ) { invocation ->
+            fun checkSingleValue(annotationValue: XAnnotationValue, expectedValue: String) {
+                assertThat(annotationValue.hasAnnotationValue()).isTrue()
+                assertThat(annotationValue.asAnnotation().getAsString("value"))
+                    .isEqualTo(expectedValue)
+            }
+
+            fun checkListValues(annotationValue: XAnnotationValue, vararg expectedValues: String) {
+                assertThat(annotationValue.hasAnnotationListValue()).isTrue()
+                // Check the list of values
+                assertThat(annotationValue.asAnnotationList().map { it.getAsString("value") })
+                    .containsExactly(*expectedValues)
+                    .inOrder()
+                // Check each annotation value in the list
+                annotationValue.asAnnotationValueList().forEachIndexed { i, value ->
+                    checkSingleValue(value, expectedValues[i])
+                }
+            }
+
             val annotation = invocation.processingEnv.requireTypeElement("MyClass")
                 .getAllAnnotations()
                 .single { it.name == "MyAnnotation" }
 
             val annotationParam = annotation.getAnnotationValue("annotationParam")
-            assertThat(annotationParam.hasAnnotationValue()).isTrue()
-            assertThat(annotationParam.asAnnotation().getAsString("value")).isEqualTo("1")
+            checkSingleValue(annotationParam, "1")
 
             val annotationArrayParam = annotation.getAnnotationValue("annotationArrayParam")
-            assertThat(annotationArrayParam.hasAnnotationListValue()).isTrue()
-            assertThat(annotationArrayParam.asAnnotationList().map { it.getAsString("value") })
-                .containsExactly("3", "5", "7")
-                .inOrder()
+            checkListValues(annotationArrayParam, "3", "5", "7")
 
             val annotationVarArgsParam = annotation.getAnnotationValue("annotationVarArgsParam")
-            assertThat(annotationVarArgsParam.hasAnnotationListValue()).isTrue()
-            assertThat(annotationVarArgsParam.asAnnotationList().map { it.getAsString("value") })
-                .containsExactly("9", "11", "13")
-                .inOrder()
+            checkListValues(annotationVarArgsParam, "9", "11", "13")
         }
     }
 
