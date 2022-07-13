@@ -23,7 +23,7 @@ import android.os.Build
 import android.view.Surface
 import android.view.SurfaceControl
 import androidx.annotation.RequiresApi
-import androidx.hardware.SyncFenceCompat
+import androidx.hardware.SyncFence
 import java.util.concurrent.Executor
 
 internal class JniBindings {
@@ -52,14 +52,14 @@ internal class JniBindings {
         )
 
         external fun nExtractFenceFd(
-            syncFence: SyncFenceCompat
+            syncFence: SyncFence
         ): Int
 
         external fun nSetBuffer(
             surfaceTransaction: Long,
             surfaceControl: Long,
             hardwareBuffer: HardwareBuffer,
-            acquireFieldFd: SyncFenceCompat
+            acquireFieldFd: SyncFence
         )
 
         external fun nSetVisibility(
@@ -203,7 +203,7 @@ internal class SurfaceControlWrapper internal constructor(
 
         /**
          * Updates the [HardwareBuffer] displayed for the provided surfaceControl. Takes an
-         * optional [SyncFenceCompat] that is signalled when all pending work for the buffer
+         * optional [SyncFence] that is signalled when all pending work for the buffer
          * is complete and the buffer can be safely read.
          *
          * The frameworks takes ownership of the syncFence passed and is responsible for closing
@@ -224,7 +224,7 @@ internal class SurfaceControlWrapper internal constructor(
         fun setBuffer(
             surfaceControl: SurfaceControlWrapper,
             hardwareBuffer: HardwareBuffer,
-            syncFence: SyncFenceCompat = SyncFenceCompat(-1)
+            syncFence: SyncFence = SyncFence(-1)
         ): Transaction {
             JniBindings.nSetBuffer(
                 mNativeSurfaceTransaction,
