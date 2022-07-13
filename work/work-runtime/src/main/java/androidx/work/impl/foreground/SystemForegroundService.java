@@ -16,6 +16,7 @@
 
 package androidx.work.impl.foreground;
 
+import android.Manifest;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.Service;
@@ -30,6 +31,7 @@ import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.annotation.RequiresPermission;
 import androidx.annotation.RestrictTo;
 import androidx.lifecycle.LifecycleService;
 import androidx.work.Logger;
@@ -133,6 +135,7 @@ public class SystemForegroundService extends LifecycleService implements
         });
     }
 
+    @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
     @Override
     public void notify(final int notificationId, @NonNull final Notification notification) {
         mHandler.post(new Runnable() {
