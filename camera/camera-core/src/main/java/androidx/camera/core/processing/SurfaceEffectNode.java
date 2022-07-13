@@ -16,16 +16,25 @@
 
 package androidx.camera.core.processing;
 
+import static androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor;
 import static androidx.core.util.Preconditions.checkArgument;
+
+import static java.util.Collections.singletonList;
+
+import android.opengl.Matrix;
 
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.SurfaceEffect;
+import androidx.camera.core.SurfaceOutput;
+import androidx.camera.core.SurfaceRequest;
+import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.utils.Threads;
-
-import java.util.Collections;
+import androidx.camera.core.impl.utils.futures.FutureCallback;
+import androidx.camera.core.impl.utils.futures.Futures;
+import androidx.core.util.Preconditions;
 
 /**
  * A {@link Node} implementation that wraps around the public {@link SurfaceEffect} interface.
@@ -42,29 +51,30 @@ import java.util.Collections;
 @SuppressWarnings("UnusedVariable")
 public class SurfaceEffectNode implements Node<SurfaceEdge, SurfaceEdge> {
 
-    private final SurfaceEffectInternal mSurfaceEffect;
-    // TODO(b/233680187): keep track of the state of the node so that the pipeline can be
-    //  recreated without restarting.
-
+    @NonNull
+    final SurfaceEffectInternal mSurfaceEffect;
+    @NonNull
+    final CameraInternal mCameraInternal;
+    // Guarded by main thread.
+    @Nullable
     private SurfaceEdge mOutputEdge;
+    @Nullable
     private SurfaceEdge mInputEdge;
 
     /**
-     * TODO(b/233628734): overload the constructor to pass-in instructions on how the node should
-     *  transform the input. Based on the instructions, we need to calculate the SettableSurface
-     *  in the output edge and the 4x4 matrix passing to the GL renderer.
-     *
      * @param surfaceEffect the interface to wrap around.
      */
-    public SurfaceEffectNode(@NonNull SurfaceEffectInternal surfaceEffect) {
+    public SurfaceEffectNode(@NonNull CameraInternal cameraInternal,
+            @NonNull SurfaceEffectInternal surfaceEffect) {
+        mCameraInternal = cameraInternal;
         mSurfaceEffect = surfaceEffect;
     }
 
     /**
      * {@inheritDoc}
      */
-    @Nullable
     @Override
+    @NonNull
     @MainThread
     public SurfaceEdge transform(@NonNull SurfaceEdge inputEdge) {
         Threads.checkMainThread();
@@ -72,7 +82,6 @@ public class SurfaceEffectNode implements Node<SurfaceEdge, SurfaceEdge> {
                 "Multiple input stream not supported yet.");
         mInputEdge = inputEdge;
         SettableSurface inputSurface = inputEdge.getSurfaces().get(0);
-        // TODO(b/233627260): invoke mSurfaceEffect#onInputSurface with the value of inputSurface.
 
         // No transform output as placeholder. The correct outputSurface needs to be calculated
         // based on inputSurface and outputOption.
@@ -86,9 +95,40 @@ public class SurfaceEffectNode implements Node<SurfaceEdge, SurfaceEdge> {
                 inputSurface.getCropRect(),
                 inputSurface.getRotationDegrees(),
                 inputSurface.getMirroring());
-        // TODO(b/233627260): invoke mSurfaceEffect#onOutput with the value of outputSurface.
-        mOutputEdge = SurfaceEdge.create(Collections.singletonList(outputSurface));
+
+        sendSurfacesToEffectWhenReady(inputSurface, outputSurface);
+
+        mOutputEdge = SurfaceEdge.create(singletonList(outputSurface));
         return mOutputEdge;
+    }
+
+    private void sendSurfacesToEffectWhenReady(SettableSurface input, SettableSurface output) {
+        SurfaceRequest surfaceRequest = input.createSurfaceRequest(mCameraInternal);
+        Futures.addCallback(output.createSurfaceOutputFuture(calculateGlTransform()),
+                new FutureCallback<SurfaceOutput>() {
+                    @Override
+                    public void onSuccess(@Nullable SurfaceOutput surfaceOutput) {
+                        Preconditions.checkNotNull(surfaceOutput);
+                        mSurfaceEffect.onOutputSurface(surfaceOutput);
+                        mSurfaceEffect.onInputSurface(surfaceRequest);
+                    }
+
+                    @Override
+                    public void onFailure(@NonNull Throwable t) {
+                        // Do not send surfaces to effect if the downstream provider (e.g. the app)
+                        // fails to provide a Surface. Instead, notify the consumer that the
+                        // Surface will not be provided.
+                        surfaceRequest.willNotProvideSurface();
+                    }
+                }, mainThreadExecutor());
+
+    }
+
+    float[] calculateGlTransform() {
+        // TODO: generate the GL transform based on cropping and rotation.
+        float[] glTransform = new float[16];
+        Matrix.setIdentityM(glTransform, 0);
+        return glTransform;
     }
 
     /**
@@ -96,7 +136,14 @@ public class SurfaceEffectNode implements Node<SurfaceEdge, SurfaceEdge> {
      */
     @Override
     public void release() {
-        // TODO: Call #close() on the output SurfaceOut#getSurface
         mSurfaceEffect.release();
+        mainThreadExecutor().execute(() -> {
+            if (mOutputEdge != null) {
+                for (SettableSurface surface : mOutputEdge.getSurfaces()) {
+                    // The output DeferrableSurface will later be terminated by the effect.
+                    surface.close();
+                }
+            }
+        });
     }
 }
