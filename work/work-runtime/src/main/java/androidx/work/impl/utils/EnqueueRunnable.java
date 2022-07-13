@@ -69,8 +69,14 @@ public class EnqueueRunnable implements Runnable {
     private final OperationImpl mOperation;
 
     public EnqueueRunnable(@NonNull WorkContinuationImpl workContinuation) {
+        this(workContinuation, new OperationImpl());
+    }
+
+    public EnqueueRunnable(
+            @NonNull WorkContinuationImpl workContinuation,
+            @NonNull OperationImpl result) {
         mWorkContinuation = workContinuation;
-        mOperation = new OperationImpl();
+        mOperation = result;
     }
 
     @Override
@@ -320,7 +326,7 @@ public class EnqueueRunnable implements Runnable {
                 }
             }
 
-            workDatabase.workTagDao().insertTags(work);
+            workDatabase.workTagDao().insertTags(work.getStringId(), work.getTags());
             if (isNamed) {
                 workDatabase.workNameDao().insert(new WorkName(name, work.getStringId()));
             }
