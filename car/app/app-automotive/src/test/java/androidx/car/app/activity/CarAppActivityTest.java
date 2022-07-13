@@ -54,6 +54,7 @@ import android.view.inputmethod.InputConnection;
 
 import androidx.car.app.CarAppService;
 import androidx.car.app.SessionInfo;
+import androidx.car.app.SessionInfoIntentEncoder;
 import androidx.car.app.activity.renderer.ICarAppActivity;
 import androidx.car.app.activity.renderer.IInsetsListener;
 import androidx.car.app.activity.renderer.IProxyInputConnection;
@@ -353,7 +354,7 @@ public class CarAppActivityTest {
                             eq(mFakeCarAppServiceComponent), eq(activity.getDisplayId()));
 
                     Intent intent = intentArgumentCaptor.getValue();
-                    SessionInfo si = new SessionInfo(intent);
+                    SessionInfo si = SessionInfoIntentEncoder.decode(intent);
 
                     assertThat(si.getDisplayType()).isEqualTo(SessionInfo.DISPLAY_TYPE_MAIN);
                     assertThat(intent.getIdentifier()).isEqualTo(si.toString());
@@ -380,7 +381,7 @@ public class CarAppActivityTest {
                             eq(mFakeCarAppServiceComponent), eq(activity.getDisplayId()));
 
                     Intent intent = intentArgumentCaptor.getValue();
-                    SessionInfo si = new SessionInfo(intent);
+                    SessionInfo si = SessionInfoIntentEncoder.decode(intent);
 
                     assertThat(si.getDisplayType()).isEqualTo(SessionInfo.DISPLAY_TYPE_MAIN);
                     assertThat(intent.getIdentifier()).isNotEqualTo(INTENT_IDENTIFIER);
