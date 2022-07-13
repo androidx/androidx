@@ -50,6 +50,7 @@ import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -901,6 +902,7 @@ public class ScalingLazyColumnTest {
         assertThat(state.centerItemScrollOffset).isEqualTo(0)
     }
 
+    @Ignore("Disabled due to b/239054957")
     @Test
     fun scrollToNonExistentItemWorks() {
         lateinit var state: ScalingLazyListState
