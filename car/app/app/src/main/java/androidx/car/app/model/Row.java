@@ -107,6 +107,9 @@ public final class Row implements Item {
     private final List<Action> mActions;
     @Keep
     @Nullable
+    private final CarIcon mDecoration;
+    @Keep
+    @Nullable
     private final Toggle mToggle;
     @Keep
     @Nullable
@@ -165,6 +168,17 @@ public final class Row implements Item {
     @RowImageType
     public int getRowImageType() {
         return mRowImageType;
+    }
+
+    /**
+     * Returns the decoration to display the end of the row, but before any actions or {@code null}
+     * if the row does not contain a decoration
+     *
+     * @see Builder#setDecoration(CarIcon)
+     */
+    @Nullable
+    public CarIcon getDecoration() {
+        return mDecoration;
     }
 
     /**
@@ -292,6 +306,7 @@ public final class Row implements Item {
         mTexts = CollectionUtils.unmodifiableCopy(builder.mTexts);
         mImage = builder.mImage;
         mActions = CollectionUtils.unmodifiableCopy(builder.mActions);
+        mDecoration = builder.mDecoration;
         mToggle = builder.mToggle;
         mOnClickDelegate = builder.mOnClickDelegate;
         mMetadata = builder.mMetadata;
@@ -306,6 +321,7 @@ public final class Row implements Item {
         mTexts = Collections.emptyList();
         mImage = null;
         mActions = Collections.emptyList();
+        mDecoration = null;
         mToggle = null;
         mOnClickDelegate = null;
         mMetadata = EMPTY_METADATA;
@@ -323,6 +339,8 @@ public final class Row implements Item {
         @Nullable
         CarIcon mImage;
         final List<Action> mActions = new ArrayList<>();
+        @Nullable
+        CarIcon mDecoration;
         @Nullable
         Toggle mToggle;
         @Nullable
@@ -518,6 +536,20 @@ public final class Row implements Item {
             mActionsCopy.add(requireNonNull(action));
             ActionsConstraints.ACTIONS_CONSTRAINTS_ROW.validateOrThrow(mActionsCopy);
             mActions.add(action);
+            return this;
+        }
+
+        /**
+         * Sets a decoration the end of the row, but before any actions with the default size
+         * {@link #IMAGE_TYPE_SMALL}.
+         *
+         * @param decoration the {@link CarIcon} to display
+         * @throws NullPointerException if {@code decoration} is {@code null}
+         */
+        @NonNull
+        public Builder setDecoration(@NonNull CarIcon decoration) {
+            CarIconConstraints.UNCONSTRAINED.validateOrThrow(requireNonNull(decoration));
+            mDecoration = decoration;
             return this;
         }
 
