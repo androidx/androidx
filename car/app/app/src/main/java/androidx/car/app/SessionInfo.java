@@ -17,24 +17,15 @@ package androidx.car.app;
 
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
-import android.content.Intent;
-import android.net.Uri;
-import android.os.Build;
-import android.os.Bundle;
-
-import androidx.annotation.DoNotInline;
 import androidx.annotation.IntDef;
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.Template;
 import androidx.car.app.navigation.model.NavigationTemplate;
-import androidx.car.app.serialization.Bundleable;
-import androidx.car.app.serialization.BundlerException;
 import androidx.car.app.versioning.CarAppApiLevel;
 import androidx.car.app.versioning.CarAppApiLevels;
 
@@ -49,9 +40,6 @@ import java.util.Set;
 @CarProtocol
 public class SessionInfo {
     private static final char DIVIDER = '/';
-
-    /** The key for a {@link Bundleable} extra containing the {@link SessionInfo} for a bind. */
-    public static final String EXTRA_SESSION_INFO = "androidx.car.app.extra.SESSION_INFO";
 
     /** The primary infotainment display usually in the center column of the vehicle. */
     public static final int DISPLAY_TYPE_MAIN = 0;
@@ -113,53 +101,6 @@ public class SessionInfo {
         mSessionId = sessionId;
     }
 
-    /**
-     * Creates a new {@link SessionInfo} for a given bind {@code intent}
-     */
-    @SuppressWarnings("deprecation")
-    public SessionInfo(@NonNull Intent intent) {
-        Bundle extras = intent.getExtras();
-        if (extras == null) {
-            throw new IllegalArgumentException(
-                    "Expected the SessionInfo to be encoded in the bind intent extras, but the "
-                            + "extras were null.");
-        }
-
-        Bundleable sessionInfoBundleable = extras.getParcelable(EXTRA_SESSION_INFO);
-        if (sessionInfoBundleable == null) {
-            throw new IllegalArgumentException(
-                    "Expected the SessionInfo to be encoded in the bind intent extras, but they "
-                            + "couldn't be found in the extras.");
-        }
-
-        try {
-            SessionInfo info = (SessionInfo) sessionInfoBundleable.get();
-            this.mSessionId = info.mSessionId;
-            this.mDisplayType = info.mDisplayType;
-        } catch (BundlerException e) {
-            throw new IllegalArgumentException(
-                    "Expected the SessionInfo to be encoded in the bind intent extras, but they "
-                            + "were encoded improperly", e);
-        }
-    }
-
-    /**
-     * Adds the {@link SessionInfo} and associated identifier on the passed {@code intent} to
-     * pass to this service on bind.
-     */
-    public static void setBindData(@NonNull Intent intent, @NonNull SessionInfo sessionInfo) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            Api29.setIdentifier(intent, sessionInfo.toString());
-        } else {
-            intent.setData(new Uri.Builder().path(sessionInfo.toString()).build());
-        }
-        try {
-            intent.putExtra(EXTRA_SESSION_INFO, Bundleable.create(sessionInfo));
-        } catch (BundlerException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     // Required for Bundler
     private SessionInfo() {
         mSessionId = "main";
@@ -211,26 +152,5 @@ public class SessionInfo {
         SessionInfo object = (SessionInfo) obj;
         return this.getSessionId().equals(object.getSessionId())
                 && this.getDisplayType() == object.getDisplayType();
-    }
-
-    /** Android Q method calls wrapped in a {@link RequiresApi} class to appease the compiler. */
-    @RequiresApi(Build.VERSION_CODES.Q)
-    private static class Api29 {
-        // Not instantiable
-        private Api29() {
-        }
-
-        /** Wrapper for {@link Intent#getIdentifier()}. */
-        @DoNotInline
-        @Nullable
-        static String getIdentifier(@NonNull Intent intent) {
-            return intent.getIdentifier();
-        }
-
-        /** Wrapper for {@link Intent#setIdentifier(String)}. */
-        @DoNotInline
-        static void setIdentifier(@NonNull Intent intent, @NonNull String identifier) {
-            intent.setIdentifier(identifier);
-        }
     }
 }

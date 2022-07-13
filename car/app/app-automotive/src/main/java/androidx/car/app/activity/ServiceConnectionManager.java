@@ -37,6 +37,7 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.car.app.HandshakeInfo;
 import androidx.car.app.SessionInfo;
+import androidx.car.app.SessionInfoIntentEncoder;
 import androidx.car.app.activity.renderer.ICarAppActivity;
 import androidx.car.app.activity.renderer.IRendererService;
 import androidx.car.app.versioning.CarAppApiLevels;
@@ -201,7 +202,7 @@ public class ServiceConnectionManager {
         }
 
         Intent rendererIntent = new Intent(ACTION_RENDER);
-        SessionInfo.setBindData(rendererIntent, mSessionInfo);
+        SessionInfoIntentEncoder.encode(mSessionInfo, rendererIntent);
         List<ResolveInfo> resolveInfoList =
                 mContext.getPackageManager()
                         .queryIntentServices(rendererIntent, PackageManager.GET_META_DATA);
@@ -289,7 +290,7 @@ public class ServiceConnectionManager {
     private boolean updateIntent() {
         ComponentName serviceComponentName = requireNonNull(mServiceComponentName);
         Intent intent = requireNonNull(mIntent);
-        SessionInfo.setBindData(intent, mSessionInfo);
+        SessionInfoIntentEncoder.encode(mSessionInfo, intent);
         IRendererService service = mRendererService;
         if (service == null) {
             Log.e(LogTags.TAG, "Service dispatcher is not connected");
