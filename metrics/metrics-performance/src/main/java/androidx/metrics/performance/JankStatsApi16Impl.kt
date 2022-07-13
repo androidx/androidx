@@ -45,7 +45,7 @@ internal open class JankStatsApi16Impl(
     val choreographer: Choreographer = Choreographer.getInstance()
 
     // Cache for use during reporting, to supply the FrameData states
-    val metricsStateHolder = PerformanceMetricsState.getForHierarchy(view)
+    val metricsStateHolder = PerformanceMetricsState.getHolderForHierarchy(view)
 
     // stateInfo is the backing store for the list of states that are active on any given
     // frame. It is passed to the JankStats listeners as part of the FrameData structure.
@@ -161,7 +161,7 @@ internal open class DelegatingOnPreDrawListener(
     val toBeRemoved = mutableListOf<OnFrameListenerDelegate>()
 
     val decorViewRef = WeakReference<View>(decorView)
-    val metricsStateHolder = PerformanceMetricsState.getForHierarchy(decorView)
+    val metricsStateHolder = PerformanceMetricsState.getHolderForHierarchy(decorView)
 
     /**
      * It is possible for the delegates list to be modified concurrently (adding/removing items

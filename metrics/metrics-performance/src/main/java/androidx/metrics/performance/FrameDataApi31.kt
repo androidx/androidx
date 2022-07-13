@@ -39,7 +39,7 @@ package androidx.metrics.performance
  * later to determine the UI state that was current when jank occurred.
  *
  * @see JankStats.jankHeuristicMultiplier
- * @see PerformanceMetricsState.addState
+ * @see PerformanceMetricsState.putState
  */
 class FrameDataApi31(
     frameStartNanos: Long,

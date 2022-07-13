@@ -29,7 +29,7 @@ import androidx.annotation.UiThread
  * present at the time that the frame data was logged.
  *
  * There is only one PerformanceMetricsState available per view hierarchy. That instance can be
- * retrieved from the holder returned by [PerformanceMetricsState.getForHierarchy]. Limiting
+ * retrieved from the holder returned by [PerformanceMetricsState.getHolderForHierarchy]. Limiting
  * PerformanceMetricsState to a single object per hierarchy makes it
  * possible for code outside the core application logic, such as in a library, to store
  * application state that can be useful for the application to know about.
@@ -39,7 +39,7 @@ class PerformanceMetricsState private constructor() {
     /**
      * Data to track UI and user state in this JankStats object.
      *
-     * @see addState
+     * @see putState
      * @see markStateForRemoval
      */
     private var states = mutableListOf<StateData>()
@@ -50,7 +50,7 @@ class PerformanceMetricsState private constructor() {
      * the next frame, at which point it is cleared. Any state data added here is automatically
      * removed; there is no matching "remove" method for [.addSingleFrameState]
      *
-     * @see addSingleFrameState
+     * @see putSingleFrameState
      */
     private var singleFrameStates = mutableListOf<StateData>()
 
@@ -94,7 +94,7 @@ class PerformanceMetricsState private constructor() {
                 }
             }
         }
-        // It's possible to have multiple versions with the same stateName active on a given
+        // It's possible to have multiple versions with the same key active on a given
         // frame. This should result in only using the latest state added, which is what
         // this block ensures.
         if (statesHolder.size > 0) {
@@ -103,7 +103,7 @@ class PerformanceMetricsState private constructor() {
                     val item = statesHolder.get(i)
                     for (j in (i + 1) until statesHolder.size) {
                         val otherItem = statesHolder.get(j)
-                        if (item.state.stateName == otherItem.state.stateName) {
+                        if (item.state.key == otherItem.state.key) {
                             // If state names are the same, remove the one added earlier.
                             // Note that we are only marking them for removal here since we
                             // cannot alter the structure while iterating through it.
@@ -134,23 +134,23 @@ class PerformanceMetricsState private constructor() {
      * from the list later, as they fall out of the current frame start times and stop being
      * a factor in logging.
      *
-     * @param stateName   The name used for this state, should match the name used when
-     * [adding][addState] the state previously.
-     * @param states      The list of states to remove this from (either the regular state
+     * @param key The name used for this state, should match the name used when
+     * [putting][putState] the state previously.
+     * @param states The list of states to remove this from (either the regular state
      * info or the singleFrame info)
      * @param removalTime The timestamp of this request. This will be used to log the time that
      * this state stopped being active, which will be used later to sync
      * states with frame boundaries.
      */
     private fun markStateForRemoval(
-        stateName: String,
+        key: String,
         states: List<StateData>,
         removalTime: Long
     ) {
         synchronized(singleFrameStates) {
             for (i in 0 until states.size) {
                 val item = states[i]
-                if (item.state.stateName == stateName && item.timeRemoved < 0) {
+                if (item.state.key == key && item.timeRemoved < 0) {
                     item.timeRemoved = removalTime
                 }
             }
@@ -163,8 +163,8 @@ class PerformanceMetricsState private constructor() {
      *
      * State information can be about UI elements that are currently active (such as the current
      * [Activity] or layout) or a user interaction like flinging a list.
-     * Adding a state with a stateName which is already added will replace that earlier
-     * `state` value with the new `state` value.
+     * If the PerformanceMetricsState object already contains an entry with the same key,
+     * the old value is replaced by the new one.
      *
      * Some state may be provided automatically by other AndroidX libraries.
      * But applications are encouraged to add user state specific to those applications
@@ -173,65 +173,64 @@ class PerformanceMetricsState private constructor() {
      * For example, an app that wanted to track jank data about a specific transition
      * in a picture-gallery view might provide state like this:
      *
-     * `JankStats.addState("GalleryTransition", "Running")`
+     * `state.putState("GalleryTransition", "Running")`
      *
-     * @param stateName An arbitrary name used for this state, used as a key for storing
+     * @param key An arbitrary name used for this state, used as a key for storing
      * the state value.
-     * @param state The value of this state.
+     * @param value The value of this state.
      * @see removeState
      */
-    fun addState(stateName: String, state: String) {
+    fun putState(key: String, value: String) {
         synchronized(singleFrameStates) {
             val nowTime = System.nanoTime()
-            markStateForRemoval(stateName, states, nowTime)
-            val stateData = getStateData(
-                nowTime, -1,
-                StateInfo.getStateInfo(stateName, state)
-            )
+            markStateForRemoval(key, states, nowTime)
             states.add(
-                stateData
+                StateData(
+                    nowTime, -1,
+                    StateInfo(key, value)
+                )
             )
         }
     }
 
     /**
-     * [addSingleFrameState] is like [addState], except it persists only for the
+     * [putSingleFrameState] is like [putState], except the state persists only for the
      * current frame and will be automatically removed after it is logged for that frame.
      *
      * This method can be used for very short-lived state, or state for which it may be
      * difficult to determine when it should be removed (leading to erroneous data if state
      * is left present long after it actually stopped happening in the app).
      *
-     * @param stateName An arbitrary name used for this state, used as a key for storing
+     * @param key An arbitrary name used for this state, used as a key for storing
      * the state value.
-     * @param state The value of this state.
-     * @see addState
+     * @param value The value of this state.
+     * @see putState
      */
-    fun addSingleFrameState(
-        stateName: String,
-        state: String
+    fun putSingleFrameState(
+        key: String,
+        value: String
     ) {
         synchronized(singleFrameStates) {
             val nowTime = System.nanoTime()
-            markStateForRemoval(stateName, singleFrameStates, nowTime)
+            markStateForRemoval(key, singleFrameStates, nowTime)
             singleFrameStates.add(
                 getStateData(
                     nowTime, -1,
-                    StateInfo(stateName, state)
+                    StateInfo(key, value)
                 )
             )
         }
     }
 
-    private fun markStateForRemoval(stateName: String) {
-        markStateForRemoval(stateName, states, System.nanoTime())
+    private fun markStateForRemoval(key: String) {
+        markStateForRemoval(key, states, System.nanoTime())
     }
 
     internal fun removeStateNow(stateName: String) {
         synchronized(singleFrameStates) {
             for (i in 0 until states.size) {
                 val item = states[i]
-                if (item.state.stateName == stateName) {
+                if (item.state.key == stateName) {
                     states.remove(item)
                     returnStateDataToPool(item)
                 }
@@ -271,7 +270,14 @@ class PerformanceMetricsState private constructor() {
      */
     internal fun returnStateDataToPool(stateData: StateData) {
         synchronized(stateDataPool) {
-            stateDataPool.add(stateData)
+            try {
+                stateDataPool.add(stateData)
+            } catch (e: OutOfMemoryError) {
+                // App must either be creating more unique states than expected or is having
+                // unrelated memory pressure. Clear the pool and start over.
+                stateDataPool.clear()
+                stateDataPool.add(stateData)
+            }
         }
     }
 
@@ -279,26 +285,26 @@ class PerformanceMetricsState private constructor() {
      * Removes information about a specified state.
      *
      * [removeState] is typically called when
-     * the user stops being in that state, either leaving a container previously added to
-     * the state, or stopping some interaction that was added.
+     * the user stops being in that state, such as leaving a container previously put in
+     * the state, or stopping some interaction that was similarly saved.
      *
-     * @param stateName The name used for this state, should match the name used when
-     * [adding][addState] the state previously.
-     * @see addState
+     * @param key The name used for this state, should match the name used when
+     * [putting][putState] the state previously.
+     * @see putState
      */
-    fun removeState(stateName: String) {
-        markStateForRemoval(stateName)
+    fun removeState(key: String) {
+        markStateForRemoval(key)
     }
 
     /**
      * Retrieve the states current in the period defined by `startTime` and `endTime`.
-     * When a state is added via [addState] or [addSingleFrameState], the time at which
+     * When a state is added via [putState] or [putSingleFrameState], the time at which
      * it is added is noted when storing it. This time is used later in calls to
      * [getIntervalStates] to determine whether that state was active during the
      * given window of time.
      *
      * Note that states are also managed implicitly in this function. Specifically,
-     * states added via [addSingleFrameState] are removed, since they have been used
+     * states added via [putSingleFrameState] are removed, since they have been used
      * exactly once to retrieve the state for this interval.
      */
     internal fun getIntervalStates(
@@ -329,12 +335,12 @@ class PerformanceMetricsState private constructor() {
     companion object {
 
         /**
-         * This function gets the single PerformanceMetricsStateHolder object for the view hierarchy
-         * in which `view' exists. If there is no PerformanceMetricsState object yet, this function
+         * This function gets the single PerformanceMetricsState.Holder object for the view
+         * hierarchy in which `view' exists. If there is no such object yet, this function
          * will create and store one.
          *
          * Note that the function will not create a PerformanceMetricsState object if the
-         * MetricsStateHolder's `state` is null; that object is created when a [JankStats]
+         * Holder's `state` is null; that object is created when a [JankStats]
          * object is created. This is done to avoid recording performance state if it is
          * not being tracked.
          *
@@ -345,7 +351,7 @@ class PerformanceMetricsState private constructor() {
          */
         @JvmStatic
         @UiThread
-        fun getForHierarchy(view: View): Holder {
+        fun getHolderForHierarchy(view: View): Holder {
             val rootView = getRootView(view)
             var metricsStateHolder = rootView.getTag(R.id.metricsStateHolder)
             if (metricsStateHolder == null) {
@@ -356,20 +362,20 @@ class PerformanceMetricsState private constructor() {
         }
 
         /**
-         * This function returns the single PerformanceMetricsStateHolder object for the view
-         * hierarchy in which `view' exists. Unlike [getForHierarchy], this function will create
+         * This function returns the single PerformanceMetricsState.Holder object for the view
+         * hierarchy in which `view' exists. Unlike [getHolderForHierarchy], this function will create
          * the underlying [PerformanceMetricsState] object if it does not yet exist, and will
          * set it on the holder object.
          *
          * This function exists mainly for internal use by [JankStats]; most callers should use
-         * [getForHierarchy] instead to simply retrieve the existing state information, not to
+         * [getHolderForHierarchy] instead to simply retrieve the existing state information, not to
          * create it. Creation is reserved for JankStats because there is no sense storing state
          * information if it is not being tracked by JankStats.
          */
         @JvmStatic
         @UiThread
         internal fun create(view: View): Holder {
-            val holder = getForHierarchy(view)
+            val holder = getHolderForHierarchy(view)
             if (holder.state == null) {
                 holder.state = PerformanceMetricsState()
             }
@@ -389,7 +395,7 @@ class PerformanceMetricsState private constructor() {
 
     /**
      * This class holds the current [PerformanceMetricsState] for a given view hierarchy.
-     * Callers should request the holder for a hierarchy via [getForHierarchy], and check
+     * Callers should request the holder for a hierarchy via [getHolderForHierarchy], and check
      * the value of the [state] property to see whether state is being tracked by JankStats
      * for the hierarchy.
      */
@@ -397,7 +403,7 @@ class PerformanceMetricsState private constructor() {
 
         /**
          * The current PerformanceMetricsState for the view hierarchy where this
-         * MetricsStateHolder object was retrieved. A null value indicates that state
+         * Holder object was retrieved. A null value indicates that state
          * is not currently being tracked (or stored).
          */
         var state: PerformanceMetricsState? = null
