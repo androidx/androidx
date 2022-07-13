@@ -137,7 +137,7 @@ internal fun RemoteViews.setText(
             if (Build.VERSION.SDK_INT >= 31) {
                 setTextViewTextColorResource(resId, colorProvider.resId)
             } else {
-                setTextColor(resId, colorProvider.resolve(translationContext.context).toArgb())
+                setTextColor(resId, colorProvider.getColor(translationContext.context).toArgb())
             }
         }
         is DayNightColorProvider -> {
@@ -148,7 +148,7 @@ internal fun RemoteViews.setText(
                     night = colorProvider.night.toArgb()
                 )
             } else {
-                setTextColor(resId, colorProvider.resolve(translationContext.context).toArgb())
+                setTextColor(resId, colorProvider.getColor(translationContext.context).toArgb())
             }
         }
         null -> {}

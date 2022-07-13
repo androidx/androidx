@@ -287,7 +287,7 @@ private fun applyBackgroundModifier(
                     colorProvider.night.toArgb()
                 )
             } else {
-                rv.setViewBackgroundColor(viewId, colorProvider.resolve(context).toArgb())
+                rv.setViewBackgroundColor(viewId, colorProvider.getColor(context).toArgb())
             }
         }
         else -> Log.w(GlanceAppWidgetTag, "Unexpected background color modifier: $colorProvider")
