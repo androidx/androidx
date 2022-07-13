@@ -23,7 +23,7 @@ import android.os.Build
 import android.util.Log
 import android.view.SurfaceView
 import androidx.annotation.RequiresApi
-import androidx.graphics.opengl.egl.EglManager
+import androidx.graphics.opengl.egl.EGLManager
 import androidx.graphics.surface.SurfaceControlCompat
 import androidx.graphics.opengl.egl.deviceSupportsNativeAndroidFence
 import androidx.graphics.surface.SurfaceControlUtils
@@ -61,7 +61,7 @@ class GLFrontBufferedRendererTest {
         }
         val renderLatch = CountDownLatch(1)
         val callbacks = object : GLFrontBufferedRenderer.Callback<Any> {
-            override fun onDrawFrontBufferedLayer(eglManager: EglManager, param: Any) {
+            override fun onDrawFrontBufferedLayer(eglManager: EGLManager, param: Any) {
                 GLES20.glViewport(
                     0,
                     0,
@@ -73,7 +73,7 @@ class GLFrontBufferedRendererTest {
             }
 
             override fun onDrawDoubleBufferedLayer(
-                eglManager: EglManager,
+                eglManager: EGLManager,
                 params: Collection<Any>
             ) {
                 GLES20.glViewport(
@@ -145,7 +145,7 @@ class GLFrontBufferedRendererTest {
 
         val renderLatch = CountDownLatch(1)
         val callbacks = object : GLFrontBufferedRenderer.Callback<Any> {
-            override fun onDrawFrontBufferedLayer(eglManager: EglManager, param: Any) {
+            override fun onDrawFrontBufferedLayer(eglManager: EGLManager, param: Any) {
                 GLES20.glViewport(
                     0,
                     0,
@@ -157,7 +157,7 @@ class GLFrontBufferedRendererTest {
             }
 
             override fun onDrawDoubleBufferedLayer(
-                eglManager: EglManager,
+                eglManager: EGLManager,
                 params: Collection<Any>
             ) {
                 GLES20.glViewport(

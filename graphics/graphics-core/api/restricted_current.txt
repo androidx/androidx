@@ -15,8 +15,8 @@ package androidx.graphics.lowlatency {
 
   public static interface GLFrontBufferedRenderer.Callback<T> {
     method @WorkerThread public default void onDoubleBufferedLayerRenderComplete(androidx.graphics.surface.SurfaceControlCompat frontBufferedLayerSurfaceControl, androidx.graphics.surface.SurfaceControlCompat.Transaction transaction);
-    method @WorkerThread public void onDrawDoubleBufferedLayer(androidx.graphics.opengl.egl.EglManager eglManager, java.util.Collection<? extends T> params);
-    method @WorkerThread public void onDrawFrontBufferedLayer(androidx.graphics.opengl.egl.EglManager eglManager, T? param);
+    method @WorkerThread public void onDrawDoubleBufferedLayer(androidx.graphics.opengl.egl.EGLManager eglManager, java.util.Collection<? extends T> params);
+    method @WorkerThread public void onDrawFrontBufferedLayer(androidx.graphics.opengl.egl.EGLManager eglManager, T? param);
     method @WorkerThread public default void onFrontBufferedLayerRenderComplete(androidx.graphics.surface.SurfaceControlCompat frontBufferedLayerSurfaceControl, androidx.graphics.surface.SurfaceControlCompat.Transaction transaction);
   }
 
@@ -28,7 +28,7 @@ package androidx.graphics.lowlatency {
 package androidx.graphics.opengl {
 
   public final class GLRenderer {
-    ctor public GLRenderer(optional kotlin.jvm.functions.Function0<? extends androidx.graphics.opengl.egl.EglSpec> eglSpecFactory, optional kotlin.jvm.functions.Function1<? super androidx.graphics.opengl.egl.EglManager,? extends android.opengl.EGLConfig> eglConfigFactory);
+    ctor public GLRenderer(optional kotlin.jvm.functions.Function0<? extends androidx.graphics.opengl.egl.EGLSpec> eglSpecFactory, optional kotlin.jvm.functions.Function1<? super androidx.graphics.opengl.egl.EGLManager,? extends android.opengl.EGLConfig> eglConfigFactory);
     method public androidx.graphics.opengl.GLRenderer.RenderTarget attach(android.view.Surface surface, int width, int height, androidx.graphics.opengl.GLRenderer.RenderCallback renderer);
     method public androidx.graphics.opengl.GLRenderer.RenderTarget attach(android.view.SurfaceView surfaceView, androidx.graphics.opengl.GLRenderer.RenderCallback renderer);
     method public androidx.graphics.opengl.GLRenderer.RenderTarget attach(android.view.TextureView textureView, androidx.graphics.opengl.GLRenderer.RenderCallback renderer);
@@ -53,13 +53,13 @@ package androidx.graphics.opengl {
   }
 
   public static interface GLRenderer.EglContextCallback {
-    method @WorkerThread public void onEglContextCreated(androidx.graphics.opengl.egl.EglManager eglManager);
-    method @WorkerThread public void onEglContextDestroyed(androidx.graphics.opengl.egl.EglManager eglManager);
+    method @WorkerThread public void onEglContextCreated(androidx.graphics.opengl.egl.EGLManager eglManager);
+    method @WorkerThread public void onEglContextDestroyed(androidx.graphics.opengl.egl.EGLManager eglManager);
   }
 
   public static interface GLRenderer.RenderCallback {
-    method @WorkerThread public void onDrawFrame(androidx.graphics.opengl.egl.EglManager eglManager);
-    method @WorkerThread public default android.opengl.EGLSurface? onSurfaceCreated(androidx.graphics.opengl.egl.EglSpec spec, android.opengl.EGLConfig config, android.view.Surface surface, int width, int height);
+    method @WorkerThread public void onDrawFrame(androidx.graphics.opengl.egl.EGLManager eglManager);
+    method @WorkerThread public default android.opengl.EGLSurface? onSurfaceCreated(androidx.graphics.opengl.egl.EGLSpec spec, android.opengl.EGLConfig config, android.view.Surface surface, int width, int height);
   }
 
   public static final class GLRenderer.RenderTarget {
@@ -76,19 +76,19 @@ package androidx.graphics.opengl {
 
 package androidx.graphics.opengl.egl {
 
-  public final inline class EglConfigAttributes {
-    ctor public EglConfigAttributes();
+  public final inline class EGLConfigAttributes {
+    ctor public EGLConfigAttributes();
   }
 
-  public static final class EglConfigAttributes.Builder {
-    ctor @kotlin.PublishedApi internal EglConfigAttributes.Builder();
+  public static final class EGLConfigAttributes.Builder {
+    ctor @kotlin.PublishedApi internal EGLConfigAttributes.Builder();
     method @kotlin.PublishedApi internal int[] build();
     method public void include(int[] attributes);
     method public infix void to(int, int that);
   }
 
-  public final class EglConfigAttributesKt {
-    method public static inline int[] EglConfigAttributes(kotlin.jvm.functions.Function1<? super androidx.graphics.opengl.egl.EglConfigAttributes.Builder,kotlin.Unit> block);
+  public final class EGLConfigAttributesKt {
+    method public static inline int[] EGLConfigAttributes(kotlin.jvm.functions.Function1<? super androidx.graphics.opengl.egl.EGLConfigAttributes.Builder,kotlin.Unit> block);
     method public static int[] getEglConfigAttributes1010102();
     method public static int[] getEglConfigAttributes8888();
     method public static int[] getEglConfigAttributesF16();
@@ -100,25 +100,16 @@ package androidx.graphics.opengl.egl {
     field public static final int EglColorComponentTypeFloatExt = 13115; // 0x333b
   }
 
-  public final class EglException extends java.lang.RuntimeException {
-    ctor public EglException(int error, optional String msg);
-    method public int getError();
-    method public String getMsg();
-    property public final int error;
-    property public String message;
-    property public final String msg;
-  }
-
-  public final class EglManager {
-    ctor public EglManager(optional androidx.graphics.opengl.egl.EglSpec eglSpec);
+  public final class EGLManager {
+    ctor public EGLManager(optional androidx.graphics.opengl.egl.EGLSpec eglSpec);
     method public android.opengl.EGLContext createContext(android.opengl.EGLConfig config);
     method public android.opengl.EGLSurface getCurrentDrawSurface();
     method public android.opengl.EGLSurface getCurrentReadSurface();
     method public android.opengl.EGLSurface getDefaultSurface();
     method public android.opengl.EGLConfig? getEglConfig();
     method public android.opengl.EGLContext? getEglContext();
-    method public androidx.graphics.opengl.egl.EglSpec getEglSpec();
-    method public androidx.graphics.opengl.egl.EglVersion getEglVersion();
+    method public androidx.graphics.opengl.egl.EGLSpec getEglSpec();
+    method public androidx.graphics.opengl.egl.EGLVersion getEglVersion();
     method public void initialize();
     method public boolean isExtensionSupported(String extensionName);
     method public android.opengl.EGLConfig? loadConfig(int[] configAttributes);
@@ -131,15 +122,15 @@ package androidx.graphics.opengl.egl {
     property public final android.opengl.EGLSurface defaultSurface;
     property public final android.opengl.EGLConfig? eglConfig;
     property public final android.opengl.EGLContext? eglContext;
-    property public final androidx.graphics.opengl.egl.EglSpec eglSpec;
-    property public final androidx.graphics.opengl.egl.EglVersion eglVersion;
-    field public static final androidx.graphics.opengl.egl.EglManager.Companion Companion;
+    property public final androidx.graphics.opengl.egl.EGLSpec eglSpec;
+    property public final androidx.graphics.opengl.egl.EGLVersion eglVersion;
+    field public static final androidx.graphics.opengl.egl.EGLManager.Companion Companion;
   }
 
-  public static final class EglManager.Companion {
+  public static final class EGLManager.Companion {
   }
 
-  public interface EglSpec {
+  public interface EGLSpec {
     method public int eglClientWaitSyncKHR(androidx.opengl.EGLSyncKHR sync, int flags, long timeoutNanos);
     method public android.opengl.EGLContext eglCreateContext(android.opengl.EGLConfig config);
     method @RequiresApi(android.os.Build.VERSION_CODES.O) public androidx.opengl.EGLImageKHR? eglCreateImageFromHardwareBuffer(android.hardware.HardwareBuffer hardwareBuffer);
@@ -155,7 +146,7 @@ package androidx.graphics.opengl.egl {
     method public android.opengl.EGLSurface eglGetCurrentReadSurface();
     method public int eglGetError();
     method public boolean eglGetSyncAttribKHR(androidx.opengl.EGLSyncKHR sync, int attribute, int[] value, int offset);
-    method public androidx.graphics.opengl.egl.EglVersion eglInitialize();
+    method public androidx.graphics.opengl.egl.EGLVersion eglInitialize();
     method public boolean eglMakeCurrent(android.opengl.EGLContext context, android.opengl.EGLSurface drawSurface, android.opengl.EGLSurface readSurface);
     method public String eglQueryString(int nameId);
     method public boolean eglQuerySurface(android.opengl.EGLSurface surface, int attribute, int[] result, int offset);
@@ -163,30 +154,39 @@ package androidx.graphics.opengl.egl {
     method public default String getErrorMessage();
     method public default static String getStatusString(int error);
     method public android.opengl.EGLConfig? loadConfig(int[] configAttributes);
-    field public static final androidx.graphics.opengl.egl.EglSpec.Companion Companion;
-    field public static final androidx.graphics.opengl.egl.EglSpec Egl14;
+    field public static final androidx.graphics.opengl.egl.EGLSpec.Companion Companion;
+    field public static final androidx.graphics.opengl.egl.EGLSpec V14;
   }
 
-  public static final class EglSpec.Companion {
+  public static final class EGLSpec.Companion {
     method public String getStatusString(int error);
   }
 
-  public final class EglVersion {
-    ctor public EglVersion(int major, int minor);
+  public final class EGLVersion {
+    ctor public EGLVersion(int major, int minor);
     method public int component1();
     method public int component2();
-    method public androidx.graphics.opengl.egl.EglVersion copy(int major, int minor);
+    method public androidx.graphics.opengl.egl.EGLVersion copy(int major, int minor);
     method public int getMajor();
     method public int getMinor();
     property public final int major;
     property public final int minor;
-    field public static final androidx.graphics.opengl.egl.EglVersion.Companion Companion;
-    field public static final androidx.graphics.opengl.egl.EglVersion Unknown;
-    field public static final androidx.graphics.opengl.egl.EglVersion V14;
-    field public static final androidx.graphics.opengl.egl.EglVersion V15;
+    field public static final androidx.graphics.opengl.egl.EGLVersion.Companion Companion;
+    field public static final androidx.graphics.opengl.egl.EGLVersion Unknown;
+    field public static final androidx.graphics.opengl.egl.EGLVersion V14;
+    field public static final androidx.graphics.opengl.egl.EGLVersion V15;
   }
 
-  public static final class EglVersion.Companion {
+  public static final class EGLVersion.Companion {
+  }
+
+  public final class EglException extends java.lang.RuntimeException {
+    ctor public EglException(int error, optional String msg);
+    method public int getError();
+    method public String getMsg();
+    property public final int error;
+    property public String message;
+    property public final String msg;
   }
 
 }

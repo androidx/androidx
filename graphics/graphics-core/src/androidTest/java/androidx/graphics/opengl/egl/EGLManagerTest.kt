@@ -57,7 +57,8 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 @SmallTest
-class EglManagerTest {
+@Suppress("AcronymName")
+class EGLManagerTest {
 
     @Test
     fun testInitializeAndRelease() {
@@ -73,7 +74,7 @@ class EglManagerTest {
             // support for it. However, all devices should at least support EGL v 1.4
             assertTrue(
                 "Unexpected EGL version, received $eglVersion",
-                eglVersion == EglVersion.V14 || eglVersion == EglVersion.V15
+                eglVersion == EGLVersion.V14 || eglVersion == EGLVersion.V15
             )
             assertNotNull(eglContext)
             assertNotNull(eglConfig)
@@ -155,9 +156,9 @@ class EglManagerTest {
         // EglKhrSurfacelessContext extension in order to verify
         // the fallback support of initializing the current surface
         // to a PBuffer instead of EGL14.EGL_NO_SURFACE
-        val wrappedEglSpec = object : EglSpec by EglSpec.Egl14 {
+        val wrappedEglSpec = object : EGLSpec by EGLSpec.V14 {
             override fun eglQueryString(nameId: Int): String {
-                val queryString = EglSpec.Egl14.eglQueryString(nameId)
+                val queryString = EGLSpec.V14.eglQueryString(nameId)
                 return if (nameId == EGL14.EGL_EXTENSIONS) {
                     // Parse the space separated string of EGL extensions into a set
                     val set = HashSet<String>().apply {
@@ -231,7 +232,7 @@ class EglManagerTest {
 
             val pBuffer = eglSpec.eglCreatePBufferSurface(
                 config,
-                EglConfigAttributes {
+                EGLConfigAttributes {
                     EGL14.EGL_WIDTH to 1
                     EGL14.EGL_HEIGHT to 1
                 })
@@ -272,7 +273,7 @@ class EglManagerTest {
         }
     }
 
-    private fun EglSpec.isSingleBufferedSurface(surface: EGLSurface): Boolean {
+    private fun EGLSpec.isSingleBufferedSurface(surface: EGLSurface): Boolean {
         return if (surface == EGL14.EGL_NO_SURFACE) {
             false
         } else {
@@ -361,7 +362,7 @@ class EglManagerTest {
             }
             createContext(config!!)
             val configAttributes = if (singleBuffered) {
-                EglConfigAttributes {
+                EGLConfigAttributes {
                     EGL14.EGL_RENDER_BUFFER to EGL14.EGL_SINGLE_BUFFER
                 }
             } else {
@@ -467,7 +468,7 @@ class EglManagerTest {
      * Helper method to determine if both EGLSync fences are supported
      * along with Android platform specific EGLSync fence types
      */
-    private fun EglManager.supportsNativeAndroidFence(): Boolean =
+    private fun EGLManager.supportsNativeAndroidFence(): Boolean =
         isExtensionSupported(EGL_KHR_FENCE_SYNC) &&
             isExtensionSupported(EGL_ANDROID_NATIVE_FENCE_SYNC)
 
@@ -668,7 +669,7 @@ class EglManagerTest {
 
     // Helper method used in testing to initialize EGL and default
     // EGLConfig to the ARGB8888 configuration
-    private fun EglManager.initializeWithDefaultConfig() {
+    private fun EGLManager.initializeWithDefaultConfig() {
         initialize()
         val config = loadConfig(EglConfigAttributes8888)
         if (config == null) {
@@ -682,15 +683,15 @@ class EglManagerTest {
      * made to it and verifies that no exceptions were thrown as part of the test.
      */
     private fun testEglManager(
-        eglSpec: EglSpec = EglSpec.Egl14,
-        block: EglManager.() -> Unit = {}
+        eglSpec: EGLSpec = EGLSpec.V14,
+        block: EGLManager.() -> Unit = {}
     ) {
-        with(EglManager(eglSpec)) {
-            assertEquals(EglVersion.Unknown, eglVersion)
+        with(EGLManager(eglSpec)) {
+            assertEquals(EGLVersion.Unknown, eglVersion)
             assertEquals(EGL14.EGL_NO_CONTEXT, eglContext)
             block()
             release()
-            assertEquals(EglVersion.Unknown, eglVersion)
+            assertEquals(EGLVersion.Unknown, eglVersion)
             assertEquals(EGL14.EGL_NO_CONTEXT, eglContext)
         }
     }

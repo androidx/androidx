@@ -45,7 +45,8 @@ import androidx.opengl.EGLSyncKHR
  *
  * EglSpec is not thread safe and is up to the caller of these methods to guarantee thread safety.
  */
-interface EglSpec {
+@Suppress("AcronymName")
+interface EGLSpec {
 
     /**
      * Query for the capabilities associated with the given eglDisplay.
@@ -56,7 +57,7 @@ interface EglSpec {
     fun eglQueryString(nameId: Int): String
 
     /**
-     * Create a Pixel Buffer surface with the corresponding [EglConfigAttributes].
+     * Create a Pixel Buffer surface with the corresponding [EGLConfigAttributes].
      * Accepted attributes are defined as part of the OpenGL specification here:
      * https://www.khronos.org/registry/EGL/sdk/docs/man/html/eglCreatePbufferSurface.xhtml
      *
@@ -68,7 +69,7 @@ interface EglSpec {
      */
     fun eglCreatePBufferSurface(
         config: EGLConfig,
-        configAttributes: EglConfigAttributes?
+        configAttributes: EGLConfigAttributes?
     ): EGLSurface
 
     /**
@@ -84,7 +85,7 @@ interface EglSpec {
     fun eglCreateWindowSurface(
         config: EGLConfig,
         surface: Surface,
-        configAttributes: EglConfigAttributes?
+        configAttributes: EGLConfigAttributes?
     ): EGLSurface
 
     /**
@@ -133,20 +134,20 @@ interface EglSpec {
 
     /**
      * Initialize the EGL implementation and return the major and minor version of the EGL
-     * implementation through [EglVersion]. If initialization fails, this returns
-     * [EglVersion.Unknown]
+     * implementation through [EGLVersion]. If initialization fails, this returns
+     * [EGLVersion.Unknown]
      */
-    fun eglInitialize(): EglVersion
+    fun eglInitialize(): EGLVersion
 
     /**
-     * Load a corresponding EGLConfig from the provided [EglConfigAttributes]
+     * Load a corresponding EGLConfig from the provided [EGLConfigAttributes]
      * If the EGLConfig could not be loaded, null is returned
-     * @param configAttributes Desired [EglConfigAttributes] to create an [EGLConfig]
+     * @param configAttributes Desired [EGLConfigAttributes] to create an [EGLConfig]
      *
-     * @return the [EGLConfig] with the provided [EglConfigAttributes] or null if
+     * @return the [EGLConfig] with the provided [EGLConfigAttributes] or null if
      * an [EGLConfig] could not be created with the specified attributes
      */
-    fun loadConfig(configAttributes: EglConfigAttributes): EGLConfig?
+    fun loadConfig(configAttributes: EGLConfigAttributes): EGLConfig?
 
     /**
      * Create an EGLContext with the default display. If createContext fails to create a
@@ -203,7 +204,7 @@ interface EglSpec {
 
     /**
      * Convenience method to obtain the corresponding error string from the
-     * error code obtained from [EglSpec.eglGetError]
+     * error code obtained from [EGLSpec.eglGetError]
      */
     fun getErrorMessage(): String = getStatusString(eglGetError())
 
@@ -267,7 +268,7 @@ interface EglSpec {
      * is not supported
      */
     @Suppress("AcronymName")
-    fun eglCreateSyncKHR(type: Int, attributes: EglConfigAttributes?): EGLSyncKHR?
+    fun eglCreateSyncKHR(type: Int, attributes: EGLConfigAttributes?): EGLSyncKHR?
 
     /**
      * Query attributes of the provided sync object. Accepted attributes to query depend
@@ -384,7 +385,7 @@ interface EglSpec {
     companion object {
 
         @JvmField
-        val Egl14 = object : EglSpec {
+        val V14 = object : EGLSpec {
 
             // Tuples of attribute identifiers along with their corresponding values.
             // EGL_NONE is used as a termination value similar to a null terminated string
@@ -396,7 +397,7 @@ interface EglSpec {
                 EGL14.EGL_NONE
             )
 
-            override fun eglInitialize(): EglVersion {
+            override fun eglInitialize(): EGLVersion {
                 // eglInitialize is destructive so create 2 separate arrays to store the major and
                 // minor version
                 val major = intArrayOf(1)
@@ -404,7 +405,7 @@ interface EglSpec {
                 val initializeResult =
                     EGL14.eglInitialize(getDefaultDisplay(), major, 0, minor, 0)
                 if (initializeResult) {
-                    return EglVersion(major[0], minor[0])
+                    return EGLVersion(major[0], minor[0])
                 } else {
                     throw EglException(EGL14.eglGetError(), "Unable to initialize default display")
                 }
@@ -421,7 +422,7 @@ interface EglSpec {
 
             override fun eglCreatePBufferSurface(
                 config: EGLConfig,
-                configAttributes: EglConfigAttributes?
+                configAttributes: EGLConfigAttributes?
             ): EGLSurface =
                 EGL14.eglCreatePbufferSurface(
                     getDefaultDisplay(),
@@ -433,7 +434,7 @@ interface EglSpec {
             override fun eglCreateWindowSurface(
                 config: EGLConfig,
                 surface: Surface,
-                configAttributes: EglConfigAttributes?,
+                configAttributes: EGLConfigAttributes?,
             ): EGLSurface =
                 EGL14.eglCreateWindowSurface(
                     getDefaultDisplay(),
@@ -469,7 +470,7 @@ interface EglSpec {
                     context
                 )
 
-            override fun loadConfig(configAttributes: EglConfigAttributes): EGLConfig? {
+            override fun loadConfig(configAttributes: EGLConfigAttributes): EGLConfig? {
                 val configs = arrayOfNulls<EGLConfig?>(1)
                 return if (EGL14.eglChooseConfig(
                     getDefaultDisplay(),
@@ -514,7 +515,7 @@ interface EglSpec {
 
             override fun eglCreateSyncKHR(
                 type: Int,
-                attributes: EglConfigAttributes?
+                attributes: EGLConfigAttributes?
             ): EGLSyncKHR? =
                 EGLExt.eglCreateSyncKHR(getDefaultDisplay(), type, attributes)
 
@@ -547,7 +548,7 @@ interface EglSpec {
             /**
              * EglConfigAttribute that provides the default attributes for an EGL window surface
              */
-            private val DefaultWindowSurfaceConfig = EglConfigAttributes {}
+            private val DefaultWindowSurfaceConfig = EGLConfigAttributes {}
         }
 
         /**
@@ -587,7 +588,7 @@ interface EglSpec {
 class EglException(val error: Int, val msg: String = "") : RuntimeException() {
 
     override val message: String
-        get() = "Error: ${EglSpec.getStatusString(error)}, $msg"
+        get() = "Error: ${EGLSpec.getStatusString(error)}, $msg"
 }
 
 /**
@@ -596,7 +597,8 @@ class EglException(val error: Int, val msg: String = "") : RuntimeException() {
  * @param major Major version of the EGL implementation
  * @param minor Minor version of the EGL implementation
  */
-data class EglVersion(
+@Suppress("AcronymName")
+data class EGLVersion(
     val major: Int,
     val minor: Int
 ) {
@@ -610,18 +612,18 @@ data class EglVersion(
          * Constant that represents version 1.4 of the EGL spec
          */
         @JvmField
-        val V14 = EglVersion(1, 4)
+        val V14 = EGLVersion(1, 4)
 
         /**
          * Constant that represents version 1.5 of the EGL spec
          */
         @JvmField
-        val V15 = EglVersion(1, 5)
+        val V15 = EGLVersion(1, 5)
 
         /**
          * Sentinel EglVersion value returned in error situations
          */
         @JvmField
-        val Unknown = EglVersion(-1, -1)
+        val Unknown = EGLVersion(-1, -1)
     }
 }

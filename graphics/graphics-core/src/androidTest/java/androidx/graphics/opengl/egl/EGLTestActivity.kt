@@ -33,25 +33,26 @@ import java.util.concurrent.atomic.AtomicInteger
 
 const val TAG: String = "EGLTestActivity"
 
-class EglTestActivity : Activity() {
+@Suppress("AcronymName")
+class EGLTestActivity : Activity() {
 
     private val mGLRenderer = GLRenderer()
     private val mParam = AtomicInteger()
     private val mRenderer1 = object : GLRenderer.RenderCallback {
         override fun onSurfaceCreated(
-            spec: EglSpec,
+            spec: EGLSpec,
             config: EGLConfig,
             surface: Surface,
             width: Int,
             height: Int
         ): EGLSurface {
-            val attrs = EglConfigAttributes {
+            val attrs = EGLConfigAttributes {
                 EGL14.EGL_RENDER_BUFFER to EGL14.EGL_SINGLE_BUFFER
             }
             return spec.eglCreateWindowSurface(config, surface, attrs)
         }
 
-        override fun onDrawFrame(eglManager: EglManager) {
+        override fun onDrawFrame(eglManager: EGLManager) {
             val red = mParam.toFloat() / 100f
             GLES20.glClearColor(red, 0.0f, 0.0f, 1.0f)
             GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
@@ -59,7 +60,7 @@ class EglTestActivity : Activity() {
     }
 
     private val mRenderer2 = object : GLRenderer.RenderCallback {
-        override fun onDrawFrame(eglManager: EglManager) {
+        override fun onDrawFrame(eglManager: EGLManager) {
             val blue = mParam.toFloat() / 100f
             GLES20.glClearColor(0.0f, 0.0f, blue, 1.0f)
             GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)

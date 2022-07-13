@@ -18,13 +18,15 @@ package androidx.graphics.opengl.egl
 
 import android.opengl.EGL14
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.SmallTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 
+@SmallTest
 @RunWith(AndroidJUnit4::class)
-class EglConfigAttributesTest {
+class EGLConfigAttributesTest {
 
     @Test
     fun testConfig8888() {
@@ -80,7 +82,7 @@ class EglConfigAttributesTest {
     fun testInclude() {
         // Verify that custom config that uses an include initially and overwrites
         // individual values is handled appropriately even if the config is technically invalid
-        val customConfig = EglConfigAttributes {
+        val customConfig = EGLConfigAttributes {
             include(EglConfigAttributes8888)
             EGL14.EGL_RED_SIZE to 27
             EglColorComponentTypeExt to EglColorComponentTypeFloatExt

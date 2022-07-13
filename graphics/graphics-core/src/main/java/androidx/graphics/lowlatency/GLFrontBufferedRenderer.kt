@@ -24,8 +24,8 @@ import android.view.SurfaceView
 import androidx.annotation.RequiresApi
 import androidx.annotation.WorkerThread
 import androidx.graphics.opengl.GLRenderer
-import androidx.graphics.opengl.egl.EglManager
-import androidx.graphics.opengl.egl.EglSpec
+import androidx.graphics.opengl.egl.EGLManager
+import androidx.graphics.opengl.egl.EGLSpec
 import androidx.graphics.surface.SurfaceControlCompat
 import java.util.Collections
 import java.util.concurrent.ConcurrentLinkedQueue
@@ -81,11 +81,11 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
      * [GLFrontBufferedRenderer]
      */
     private val mContextCallbacks = object : GLRenderer.EglContextCallback {
-        override fun onEglContextCreated(eglManager: EglManager) {
+        override fun onEglContextCreated(eglManager: EGLManager) {
             // no-op
         }
 
-        override fun onEglContextDestroyed(eglManager: EglManager) {
+        override fun onEglContextDestroyed(eglManager: EGLManager) {
             mBufferPool?.let { releaseBuffers(it) }
         }
     }
@@ -397,7 +397,7 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
         object : HardwareBufferRenderer.RenderCallbacks {
 
             @WorkerThread
-            override fun obtainRenderBuffer(egl: EglSpec): RenderBuffer {
+            override fun obtainRenderBuffer(egl: EGLSpec): RenderBuffer {
                 var buffer = mFrontLayerBuffer
                 if (buffer == null) {
                     // Allocate and persist a RenderBuffer instance across frames
@@ -408,7 +408,7 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
             }
 
             @WorkerThread
-            override fun onDraw(eglManager: EglManager) {
+            override fun onDraw(eglManager: EGLManager) {
                 try {
                     // Explicitly call remove in order to delineate between scenarios where
                     // no parameters are provided and the consumer explicitly supports nullable
@@ -504,19 +504,19 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
         /**
          * Callback invoked to render content into the front buffered layer with the specified
          * parameters.
-         * @param eglManager [EglManager] useful in configuring EGL objects to be used when issuing
+         * @param eglManager [EGLManager] useful in configuring EGL objects to be used when issuing
          * OpenGL commands to render into the front buffered layer
          * @param param optional parameter provided the corresponding
          * [GLFrontBufferedRenderer.renderFrontBufferedLayer] method that triggered this request to render
          * into the front buffered layer
          */
         @WorkerThread
-        fun onDrawFrontBufferedLayer(eglManager: EglManager, param: T)
+        fun onDrawFrontBufferedLayer(eglManager: EGLManager, param: T)
 
         /**
          * Callback invoked to render content into the doubled buffered layer with the specified
          * parameters.
-         * @param eglManager [EglManager] useful in configuring EGL objects to be used when issuing
+         * @param eglManager [EGLManager] useful in configuring EGL objects to be used when issuing
          * OpenGL commands to render into the double buffered layer
          * @param params optional parameter provided to render the entire scene into the double
          * buffered layer.
@@ -545,7 +545,7 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
          * [4, 5]
          */
         @WorkerThread
-        fun onDrawDoubleBufferedLayer(eglManager: EglManager, params: Collection<T>)
+        fun onDrawDoubleBufferedLayer(eglManager: EGLManager, params: Collection<T>)
 
         /**
          * Optional callback invoked when rendering to the front buffered layer is complete but

@@ -20,7 +20,7 @@ import android.opengl.EGLDisplay
 import android.os.Build
 import androidx.annotation.IntDef
 import androidx.annotation.RequiresApi
-import androidx.graphics.opengl.egl.EglConfigAttributes
+import androidx.graphics.opengl.egl.EGLConfigAttributes
 import androidx.hardware.SyncFenceCompat
 import androidx.opengl.EGLExt.Companion.eglCreateSyncKHR
 
@@ -440,7 +440,7 @@ class EGLExt private constructor() {
         fun eglCreateSyncKHR(
             eglDisplay: EGLDisplay,
             @EGLFenceType type: Int,
-            attributes: EglConfigAttributes?
+            attributes: EGLConfigAttributes?
         ): EGLSyncKHR? {
             val handle = EGLBindings.nCreateSyncKHR(
                 eglDisplay.obtainNativeHandle(), type, attributes?.attrs

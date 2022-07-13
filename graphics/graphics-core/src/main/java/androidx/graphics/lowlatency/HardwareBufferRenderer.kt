@@ -24,8 +24,8 @@ import android.os.Build
 import android.view.Surface
 import androidx.annotation.RequiresApi
 import androidx.graphics.opengl.GLRenderer
-import androidx.graphics.opengl.egl.EglManager
-import androidx.graphics.opengl.egl.EglSpec
+import androidx.graphics.opengl.egl.EGLManager
+import androidx.graphics.opengl.egl.EGLSpec
 import java.util.concurrent.atomic.AtomicBoolean
 
 /**
@@ -40,7 +40,7 @@ internal class HardwareBufferRenderer(
     private val mClear = AtomicBoolean(false)
 
     override fun onSurfaceCreated(
-        spec: EglSpec,
+        spec: EGLSpec,
         config: EGLConfig,
         surface: Surface,
         width: Int,
@@ -51,7 +51,7 @@ internal class HardwareBufferRenderer(
         mClear.set(true)
     }
 
-    override fun onDrawFrame(eglManager: EglManager) {
+    override fun onDrawFrame(eglManager: EGLManager) {
         val egl = eglManager.eglSpec
         val buffer = hardwareBufferRendererCallbacks.obtainRenderBuffer(egl)
         var renderFence: RenderFence? = null
@@ -86,12 +86,12 @@ internal class HardwareBufferRenderer(
          * [RenderBuffer] here and calling [RenderBuffer.close] where appropriate as this will
          * these instances will not be released by [HardwareBufferRenderer]
          */
-        fun obtainRenderBuffer(egl: EglSpec): RenderBuffer
+        fun obtainRenderBuffer(egl: EGLSpec): RenderBuffer
 
         /**
          * Draw contents into the [HardwareBuffer]
          */
-        fun onDraw(eglManager: EglManager)
+        fun onDraw(eglManager: EGLManager)
 
         /**
          * Callback when [onDraw] is complete and the contents of the draw

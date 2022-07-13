@@ -39,8 +39,8 @@ import androidx.annotation.WorkerThread
 import androidx.graphics.lowlatency.HardwareBufferRenderer
 import androidx.graphics.lowlatency.RenderBuffer
 import androidx.graphics.lowlatency.RenderFence
-import androidx.graphics.opengl.egl.EglManager
-import androidx.graphics.opengl.egl.EglSpec
+import androidx.graphics.opengl.egl.EGLManager
+import androidx.graphics.opengl.egl.EGLSpec
 import androidx.graphics.opengl.egl.deviceSupportsNativeAndroidFence
 import androidx.graphics.opengl.egl.supportsNativeAndroidFence
 import androidx.lifecycle.Lifecycle.State
@@ -83,7 +83,7 @@ class GLRendererTest {
                     10,
                     10,
                     object : GLRenderer.RenderCallback {
-                        override fun onDrawFrame(eglManager: EglManager) {
+                        override fun onDrawFrame(eglManager: EGLManager) {
                             // NO-OP
                         }
                     })
@@ -99,7 +99,7 @@ class GLRendererTest {
     fun testRender() {
         val latch = CountDownLatch(1)
         val renderer = object : GLRenderer.RenderCallback {
-            override fun onDrawFrame(eglManager: EglManager) {
+            override fun onDrawFrame(eglManager: EGLManager) {
                 GLES20.glClearColor(1.0f, 0.0f, 1.0f, 1.0f)
                 GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
             }
@@ -133,7 +133,7 @@ class GLRendererTest {
     fun testDetachExecutesPendingRequests() {
         val latch = CountDownLatch(1)
         val renderer = object : GLRenderer.RenderCallback {
-            override fun onDrawFrame(eglManager: EglManager) {
+            override fun onDrawFrame(eglManager: EGLManager) {
                 GLES20.glClearColor(1.0f, 0.0f, 1.0f, 1.0f)
                 GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
             }
@@ -168,7 +168,7 @@ class GLRendererTest {
         val surfaceWidth = 5
         val surfaceHeight = 8
         val renderer = object : GLRenderer.RenderCallback {
-            override fun onDrawFrame(eglManager: EglManager) {
+            override fun onDrawFrame(eglManager: EGLManager) {
                 val size = eglManager.eglSpec.querySurfaceSize(eglManager.currentDrawSurface)
                 assertEquals(surfaceWidth, size.width)
                 assertEquals(surfaceHeight, size.height)
@@ -202,7 +202,7 @@ class GLRendererTest {
         val latch = CountDownLatch(numRenders)
         val renderCount = AtomicInteger(0)
         val renderer = object : GLRenderer.RenderCallback {
-            override fun onDrawFrame(eglManager: EglManager) {
+            override fun onDrawFrame(eglManager: EGLManager) {
                 var red: Float = 0f
                 var green: Float = 0f
                 var blue: Float = 0f
@@ -256,7 +256,7 @@ class GLRendererTest {
     fun testDetachCancelsPendingRequests() {
         val latch = CountDownLatch(1)
         val renderer = object : GLRenderer.RenderCallback {
-            override fun onDrawFrame(eglManager: EglManager) {
+            override fun onDrawFrame(eglManager: EGLManager) {
                 GLES20.glClearColor(1.0f, 0.0f, 1.0f, 1.0f)
                 GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
             }
@@ -283,14 +283,14 @@ class GLRendererTest {
         val latch = CountDownLatch(2)
         val renderer1 = object : GLRenderer.RenderCallback {
 
-            override fun onDrawFrame(eglManager: EglManager) {
+            override fun onDrawFrame(eglManager: EGLManager) {
                 GLES20.glClearColor(1.0f, 0.0f, 0.0f, 1.0f)
                 GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
             }
         }
 
         val renderer2 = object : GLRenderer.RenderCallback {
-            override fun onDrawFrame(eglManager: EglManager) {
+            override fun onDrawFrame(eglManager: EGLManager) {
                 GLES20.glClearColor(0.0f, 0.0f, 1.0f, 1.0f)
                 GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
             }
@@ -504,7 +504,7 @@ class GLRendererTest {
 
             val resizeLatch = CountDownLatch(1)
             val target = glRenderer.attach(textureView, object : GLRenderer.RenderCallback {
-                override fun onDrawFrame(eglManager: EglManager) {
+                override fun onDrawFrame(eglManager: EGLManager) {
                     val size = eglManager.eglSpec.querySurfaceSize(eglManager.currentDrawSurface)
                     assertTrue(size.width > 0)
                     assertTrue(size.height > 0)
@@ -532,7 +532,7 @@ class GLRendererTest {
 
             val resizeLatch = CountDownLatch(1)
             val target = glRenderer.attach(surfaceView, object : GLRenderer.RenderCallback {
-                override fun onDrawFrame(eglManager: EglManager) {
+                override fun onDrawFrame(eglManager: EGLManager) {
                     val size = eglManager.eglSpec.querySurfaceSize(eglManager.currentDrawSurface)
                     assertTrue(size.width > 0)
                     assertTrue(size.height > 0)
@@ -554,7 +554,7 @@ class GLRendererTest {
 
     data class Size(val width: Int, val height: Int)
 
-    fun EglSpec.querySurfaceSize(eglSurface: EGLSurface): Size {
+    fun EGLSpec.querySurfaceSize(eglSurface: EGLSurface): Size {
         val result = IntArray(1)
         eglQuerySurface(
             eglSurface, EGL14.EGL_WIDTH, result, 0)
@@ -607,12 +607,12 @@ class GLRendererTest {
         val destroyCount = AtomicInteger()
         val callback = object : GLRenderer.EglContextCallback {
 
-            override fun onEglContextCreated(eglManager: EglManager) {
+            override fun onEglContextCreated(eglManager: EGLManager) {
                 createCount.incrementAndGet()
                 createdLatch.countDown()
             }
 
-            override fun onEglContextDestroyed(eglManager: EglManager) {
+            override fun onEglContextDestroyed(eglManager: EGLManager) {
                 destroyCount.incrementAndGet()
                 destroyedLatch.countDown()
             }
@@ -645,12 +645,12 @@ class GLRendererTest {
         val destroyCount = AtomicInteger()
         val callback = object : GLRenderer.EglContextCallback {
 
-            override fun onEglContextCreated(eglManager: EglManager) {
+            override fun onEglContextCreated(eglManager: EGLManager) {
                 createCount.incrementAndGet()
                 createdLatch.countDown()
             }
 
-            override fun onEglContextDestroyed(eglManager: EglManager) {
+            override fun onEglContextDestroyed(eglManager: EGLManager) {
                 destroyCount.incrementAndGet()
                 destroyedLatch.countDown()
             }
@@ -686,12 +686,12 @@ class GLRendererTest {
         val destroyCount = AtomicInteger()
         val callback = object : GLRenderer.EglContextCallback {
 
-            override fun onEglContextCreated(eglManager: EglManager) {
+            override fun onEglContextCreated(eglManager: EGLManager) {
                 createCount.incrementAndGet()
                 createdLatch.countDown()
             }
 
-            override fun onEglContextDestroyed(eglManager: EglManager) {
+            override fun onEglContextDestroyed(eglManager: EGLManager) {
                 destroyCount.incrementAndGet()
             }
         }
@@ -736,7 +736,7 @@ class GLRendererTest {
         glRenderer.createRenderTarget(width, height, object : GLRenderer.RenderCallback {
 
             @WorkerThread
-            override fun onDrawFrame(eglManager: EglManager) {
+            override fun onDrawFrame(eglManager: EGLManager) {
                 if (eglManager.supportsNativeAndroidFence()) {
                     supportsNativeFence.set(true)
                     var renderFence: RenderFence? = null
@@ -812,7 +812,7 @@ class GLRendererTest {
         var renderBuffer: RenderBuffer? = null
 
         val callbacks = object : HardwareBufferRenderer.RenderCallbacks {
-            override fun obtainRenderBuffer(egl: EglSpec): RenderBuffer =
+            override fun obtainRenderBuffer(egl: EGLSpec): RenderBuffer =
                 RenderBuffer(
                     egl,
                     HardwareBuffer.create(
@@ -824,7 +824,7 @@ class GLRendererTest {
                     )
                 ).also { renderBuffer = it }
 
-            override fun onDraw(eglManager: EglManager) {
+            override fun onDraw(eglManager: EGLManager) {
                 GLES20.glClearColor(1.0f, 0.0f, 0.0f, 1.0f)
                 GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
                 GLES20.glFlush()
@@ -887,7 +887,7 @@ class GLRendererTest {
         val targetColor: Int
     ) : GLRenderer.RenderCallback {
 
-        override fun onDrawFrame(eglManager: EglManager) {
+        override fun onDrawFrame(eglManager: EGLManager) {
             GLES20.glClearColor(
                 Color.red(targetColor) / 255f,
                 Color.green(targetColor) / 255f,

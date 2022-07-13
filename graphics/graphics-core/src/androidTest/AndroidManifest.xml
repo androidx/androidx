@@ -20,7 +20,7 @@
     <supports-gl-texture android:name="GL_OES_compressed_ETC1_RGB8_texture" />
     <supports-gl-texture android:name="GL_OES_compressed_paletted_texture" />
     <application>
-        <activity android:name="androidx.graphics.opengl.egl.EglTestActivity"
+        <activity android:name="androidx.graphics.opengl.egl.EGLTestActivity"
             android:label="Graphics Core Test"
             android:exported="true">
             <intent-filter>

@@ -17,33 +17,35 @@
 package androidx.graphics.opengl.egl
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.SmallTest
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
 
+@SmallTest
 @RunWith(AndroidJUnit4::class)
-class EglVersionTest {
+class EGLVersionTest {
 
     @Test
     fun testDestructuringComponents() {
-        val (major, minor) = EglVersion(8, 3)
+        val (major, minor) = EGLVersion(8, 3)
         assertEquals(8, major)
         assertEquals(3, minor)
     }
 
     @Test
     fun testEquals() {
-        assertEquals(EglVersion(2, 9), EglVersion(2, 9))
+        assertEquals(EGLVersion(2, 9), EGLVersion(2, 9))
     }
 
     @Test
     fun testToString() {
-        assertEquals("EGL version 5.9", EglVersion(5, 9).toString())
+        assertEquals("EGL version 5.9", EGLVersion(5, 9).toString())
     }
 
     @Test
     fun testHashCode() {
         val hashCode = 31 * 8 + 4
-        assertEquals(hashCode, EglVersion(8, 4).hashCode())
+        assertEquals(hashCode, EGLVersion(8, 4).hashCode())
     }
 }

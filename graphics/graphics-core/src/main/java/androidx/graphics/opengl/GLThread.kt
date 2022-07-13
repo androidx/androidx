@@ -28,8 +28,8 @@ import androidx.annotation.AnyThread
 import androidx.annotation.WorkerThread
 import androidx.graphics.opengl.GLRenderer.EglContextCallback
 import androidx.graphics.opengl.GLRenderer.RenderCallback
-import androidx.graphics.opengl.egl.EglManager
-import androidx.graphics.opengl.egl.EglSpec
+import androidx.graphics.opengl.egl.EGLManager
+import androidx.graphics.opengl.egl.EGLSpec
 import java.util.concurrent.atomic.AtomicBoolean
 
 /**
@@ -38,13 +38,13 @@ import java.util.concurrent.atomic.AtomicBoolean
  */
 internal class GLThread(
     name: String = "GLThread",
-    private val mEglSpecFactory: () -> EglSpec,
-    private val mEglConfigFactory: EglManager.() -> EGLConfig,
+    private val mEglSpecFactory: () -> EGLSpec,
+    private val mEglConfigFactory: EGLManager.() -> EGLConfig,
 ) : HandlerThread(name) {
 
     // Accessed on internal HandlerThread
     private val mIsTearingDown = AtomicBoolean(false)
-    private var mEglManager: EglManager? = null
+    private var mEglManager: EGLManager? = null
     private val mSurfaceSessions = HashMap<Int, SurfaceSession>()
     private var mHandler: Handler? = null
     private val mEglContextCallback = HashSet<EglContextCallback>()
@@ -194,13 +194,13 @@ internal class GLThread(
     }
 
     /**
-     * Lazily creates an [EglManager] instance from the given [mEglSpecFactory]
+     * Lazily creates an [EGLManager] instance from the given [mEglSpecFactory]
      * used to determine the configuration. This result is cached across calls
      * unless [tearDown] has been called.
      */
     @WorkerThread
-    fun obtainEglManager(): EglManager =
-        mEglManager ?: EglManager(mEglSpecFactory.invoke()).also {
+    fun obtainEglManager(): EGLManager =
+        mEglManager ?: EGLManager(mEglSpecFactory.invoke()).also {
             it.initialize()
             val config = mEglConfigFactory.invoke(it)
             it.createContext(config)

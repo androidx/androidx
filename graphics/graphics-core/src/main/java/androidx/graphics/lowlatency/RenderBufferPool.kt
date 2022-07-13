@@ -20,7 +20,7 @@ import android.hardware.HardwareBuffer
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
-import androidx.graphics.opengl.egl.EglSpec
+import androidx.graphics.opengl.egl.EGLSpec
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 
@@ -73,7 +73,7 @@ internal class RenderBufferPool(
      * available within the pool, or creates a new [RenderBuffer] instance if the number of
      * outstanding [RenderBuffer] instances is less than [maxPoolSize]
      */
-    fun obtain(eglSpec: EglSpec): RenderBuffer {
+    fun obtain(eglSpec: EGLSpec): RenderBuffer {
         mLock.withLock {
             while (mPool.isEmpty() && mNumAllocated >= maxPoolSize) {
                 Log.w(

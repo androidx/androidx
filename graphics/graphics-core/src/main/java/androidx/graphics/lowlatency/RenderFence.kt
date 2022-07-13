@@ -18,7 +18,7 @@ package androidx.graphics.lowlatency
 
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.graphics.opengl.egl.EglSpec
+import androidx.graphics.opengl.egl.EGLSpec
 import androidx.hardware.SyncFenceCompat
 import androidx.opengl.EGLExt
 import androidx.opengl.EGLSyncKHR
@@ -29,7 +29,7 @@ import androidx.opengl.EGLSyncKHR
  * Android fence represented by [SyncFenceCompat]
  */
 @RequiresApi(Build.VERSION_CODES.KITKAT)
-internal class RenderFence(private val egl: EglSpec) : AutoCloseable {
+internal class RenderFence(private val egl: EGLSpec) : AutoCloseable {
 
     private val eglSync: EGLSyncKHR =
         egl.eglCreateSyncKHR(EGLExt.EGL_SYNC_NATIVE_FENCE_ANDROID, null)

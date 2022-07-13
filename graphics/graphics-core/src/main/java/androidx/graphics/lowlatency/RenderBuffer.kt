@@ -20,7 +20,7 @@ import android.hardware.HardwareBuffer
 import android.opengl.GLES20
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.graphics.opengl.egl.EglSpec
+import androidx.graphics.opengl.egl.EGLSpec
 import androidx.opengl.EGLExt
 import androidx.opengl.EGLImageKHR
 
@@ -32,7 +32,7 @@ import androidx.opengl.EGLImageKHR
  */
 @RequiresApi(Build.VERSION_CODES.O)
 internal class RenderBuffer(
-    private val egl: EglSpec,
+    private val egl: EGLSpec,
     val hardwareBuffer: HardwareBuffer,
 ) {
 

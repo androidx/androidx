@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+@file:Suppress("AcronymName")
 package androidx.graphics.opengl.egl
 
 import android.opengl.EGL14
@@ -40,7 +41,7 @@ const val EglColorComponentTypeFloatExt = 0x333B
  * EGL Attributes to create an 8 bit EGL config for red, green, blue, and alpha channels as well
  * as an 8 bit stencil size
  */
-val EglConfigAttributes8888 = EglConfigAttributes {
+val EglConfigAttributes8888 = EGLConfigAttributes {
     EGL14.EGL_RENDERABLE_TYPE to EGL14.EGL_OPENGL_ES2_BIT
     EGL14.EGL_RED_SIZE to 8
     EGL14.EGL_GREEN_SIZE to 8
@@ -56,7 +57,7 @@ val EglConfigAttributes8888 = EglConfigAttributes {
  * EGL Attributes to create a 10 bit EGL config for red, green, blue, channels and a
  * 2 bit alpha channels as well as an 8 bit stencil size
  */
-val EglConfigAttributes1010102 = EglConfigAttributes {
+val EglConfigAttributes1010102 = EGLConfigAttributes {
     EGL14.EGL_RENDERABLE_TYPE to EGL14.EGL_OPENGL_ES2_BIT
     EGL14.EGL_RED_SIZE to 10
     EGL14.EGL_GREEN_SIZE to 10
@@ -71,7 +72,7 @@ val EglConfigAttributes1010102 = EglConfigAttributes {
  * EGL Attributes to create a 16 bit floating point EGL config for red, green and blue channels
  * along with a
  */
-val EglConfigAttributesF16 = EglConfigAttributes {
+val EglConfigAttributesF16 = EGLConfigAttributes {
     EGL14.EGL_RENDERABLE_TYPE to EGL14.EGL_OPENGL_ES2_BIT
     EglColorComponentTypeExt to EglColorComponentTypeFloatExt
     EGL14.EGL_RED_SIZE to 16
@@ -84,7 +85,7 @@ val EglConfigAttributesF16 = EglConfigAttributes {
 }
 
 /**
- * Construct an instance of [EglConfigAttributes] that includes a mapping of EGL attributes
+ * Construct an instance of [EGLConfigAttributes] that includes a mapping of EGL attributes
  * to their corresponding value. The full set of attributes can be found here:
  * https://www.khronos.org/registry/EGL/sdk/docs/man/html/eglChooseConfig.xhtml
  *
@@ -92,7 +93,7 @@ val EglConfigAttributesF16 = EglConfigAttributes {
  *
  * For example to create an 8888 configuration, this can be done with the following:
  *
- * EglConfigAttributes {
+ * EGLConfigAttributes {
  *      EGL14.EGL_RENDERABLE_TYPE to EGL14.EGL_OPENGL_ES2_BIT
  *      EGL14.EGL_RED_SIZE to 8
  *      EGL14.EGL_GREEN_SIZE to 8
@@ -106,22 +107,23 @@ val EglConfigAttributesF16 = EglConfigAttributes {
  *
  * @see EglConfigAttributes8888
  */
-inline fun EglConfigAttributes(block: EglConfigAttributes.Builder.() -> Unit): EglConfigAttributes =
-    EglConfigAttributes.Builder().apply { block() }.build()
+inline fun EGLConfigAttributes(block: EGLConfigAttributes.Builder.() -> Unit): EGLConfigAttributes =
+    EGLConfigAttributes.Builder().apply { block() }.build()
 
 // klint does not support value classes yet, see b/197692691
-@Suppress("INLINE_CLASS_DEPRECATED")
-inline class EglConfigAttributes internal constructor(
+// @Suppress("INLINE_CLASS_DEPRECATED")
+@Suppress("AcronymName", "INLINE_CLASS_DEPRECATED")
+inline class EGLConfigAttributes internal constructor(
     @PublishedApi internal val attrs: IntArray
 ) {
 
     /**
-     * Builder used to create an instance of [EglConfigAttributes]
+     * Builder used to create an instance of [EGLConfigAttributes]
      * Allows for a mapping of EGL configuration attributes to their corresponding
-     * values as well as including a previously generated [EglConfigAttributes]
+     * values as well as including a previously generated [EGLConfigAttributes]
      * instance to be used as a template and conditionally update individual mapped values
      */
-    // Suppressing build method as EglConfigAttributes is created using Kotlin DSL syntax
+    // Suppressing build method as EGLConfigAttributes is created using Kotlin DSL syntax
     // via the function constructor defined above
     @SuppressWarnings("MissingBuildMethod")
     class Builder @PublishedApi internal constructor() {
@@ -136,14 +138,14 @@ inline class EglConfigAttributes internal constructor(
         }
 
         /**
-         * Include all the attributes of the given EglConfigAttributes instance.
-         * This is useful for creating a new EglConfigAttributes instance with all the same
+         * Include all the attributes of the given [EGLConfigAttributes] instance.
+         * This is useful for creating a new [EGLConfigAttributes] instance with all the same
          * attributes as another, allowing for modification of attributes after the fact.
-         * For example, the following code snippet can be used to create an EglConfigAttributes
+         * For example, the following code snippet can be used to create an [EGLConfigAttributes]
          * instance that has all the same configuration as [EglConfigAttributes8888] but with a
          * 16 bit stencil buffer size:
          *
-         * EglConfigAttributes {
+         * EGLConfigAttributes {
          *      include(EglConfigAttributes8888)
          *      EGL14.EGL_STENCIL_SIZE to 16
          * }
@@ -153,14 +155,14 @@ inline class EglConfigAttributes internal constructor(
          * configured previously.
          */
         @SuppressWarnings("BuilderSetStyle")
-        fun include(attributes: EglConfigAttributes) {
+        fun include(attributes: EGLConfigAttributes) {
             val attrsArray = attributes.attrs
             for (i in 0 until attrsArray.size - 1 step 2) {
                 attrs[attrsArray[i]] = attrsArray[i + 1]
             }
         }
 
-        @PublishedApi internal fun build(): EglConfigAttributes {
+        @PublishedApi internal fun build(): EGLConfigAttributes {
             val entries = attrs.entries
             val attrArray = IntArray(entries.size * 2 + 1) // Array must end with EGL_NONE
             var index = 0
@@ -170,7 +172,7 @@ inline class EglConfigAttributes internal constructor(
                 index += 2
             }
             attrArray[index] = EGL14.EGL_NONE
-            return EglConfigAttributes(attrArray)
+            return EGLConfigAttributes(attrArray)
         }
     }
 }

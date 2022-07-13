@@ -29,7 +29,8 @@ import androidx.opengl.EGLExt.Companion.EGL_KHR_SURFACELESS_CONTEXT
  * initialization of the corresponding EGL Display as well as EGL Context, among
  * other EGL related facilities.
  */
-class EglManager(val eglSpec: EglSpec = EglSpec.Egl14) {
+@Suppress("AcronymName")
+class EGLManager(val eglSpec: EGLSpec = EGLSpec.V14) {
 
     private var mEglConfig: EGLConfig? = null
 
@@ -39,7 +40,7 @@ class EglManager(val eglSpec: EglSpec = EglSpec.Egl14) {
     private var mPBufferSurface: EGLSurface = EGL14.EGL_NO_SURFACE
     private var mEglContext: EGLContext = EGL14.EGL_NO_CONTEXT
     private var mWideColorGamutSupport = false
-    private var mEglVersion = EglVersion.Unknown
+    private var mEglVersion = EGLVersion.Unknown
     private var mEglExtensions: Set<String>? = null
     private var mIsSingleBuffered: Boolean = false
     private var mQueryResult: IntArray? = null
@@ -60,10 +61,10 @@ class EglManager(val eglSpec: EglSpec = EglSpec.Egl14) {
 
     /**
      * Attempt to load an [EGLConfig] instance from the given
-     * [EglConfigAttributes]. If the [EGLConfig] could not be loaded
+     * [EGLConfigAttributes]. If the [EGLConfig] could not be loaded
      * this returns null
      */
-    fun loadConfig(configAttributes: EglConfigAttributes): EGLConfig? =
+    fun loadConfig(configAttributes: EGLConfigAttributes): EGLConfig? =
         eglSpec.loadConfig(configAttributes)
 
     /**
@@ -79,7 +80,7 @@ class EglManager(val eglSpec: EglSpec = EglSpec.Egl14) {
                 if (isExtensionSupported(EGL_KHR_SURFACELESS_CONTEXT)) {
                     EGL14.EGL_NO_SURFACE
                 } else {
-                    val configAttrs = EglConfigAttributes {
+                    val configAttrs = EGLConfigAttributes {
                         EGL14.EGL_WIDTH to 1
                         EGL14.EGL_HEIGHT to 1
                     }
@@ -119,7 +120,7 @@ class EglManager(val eglSpec: EglSpec = EglSpec.Egl14) {
                     EGL14.EGL_NO_SURFACE,
                     EGL14.EGL_NO_SURFACE
                 )
-                mEglVersion = EglVersion.Unknown
+                mEglVersion = EGLVersion.Unknown
                 mEglContext = EGL14.EGL_NO_CONTEXT
                 mEglConfig = null
                 mEglExtensions = null
@@ -131,7 +132,7 @@ class EglManager(val eglSpec: EglSpec = EglSpec.Egl14) {
      * Returns the EGL version that is supported. This parameter is configured
      * after [initialize] is invoked.
      */
-    val eglVersion: EglVersion
+    val eglVersion: EGLVersion
         get() = mEglVersion
 
     /**
