@@ -521,7 +521,8 @@ class ChipColorTest {
       TestChipColors.Child,
       ChipStatus.Disabled,
       { Color.Transparent },
-      { MaterialTheme.colors.onSurface }
+      { MaterialTheme.colors.onSurface },
+      { Color.Transparent }
     )
 
   @Test
@@ -731,6 +732,7 @@ class ChipColorTest {
     status: ChipStatus,
     backgroundColor: @Composable () -> Color,
     contentColor: @Composable () -> Color,
+    disabledBackgroundColor: (@Composable () -> Color)? = null,
   ) {
     var expectedBackground = Color.Transparent
     var expectedContent = Color.Transparent
@@ -743,8 +745,11 @@ class ChipColorTest {
         expectedContent = contentColor()
       } else {
         expectedBackground =
-          backgroundColor().copy(alpha = ContentAlpha.disabled)
-            .compositeOver(testBackground)
+          if (disabledBackgroundColor != null) {
+            disabledBackgroundColor().compositeOver(testBackground)
+          } else {
+            backgroundColor().copy(alpha = ContentAlpha.disabled).compositeOver(testBackground)
+          }
         expectedContent = contentColor().copy(alpha = ContentAlpha.disabled)
       }
       Box(
