@@ -76,7 +76,7 @@ public class PrefixUtil {
         int delimiterIndex = prefix.indexOf(PACKAGE_DELIMITER);
         if (delimiterIndex == -1) {
             // This should never happen if we construct our prefixes properly
-            Log.wtf(TAG, "Malformed prefix doesn't contain package delimiter: " + prefix);
+            Log.e(TAG, "Malformed prefix doesn't contain package delimiter: " + prefix);
             return "";
         }
         return prefix.substring(0, delimiterIndex);
@@ -96,12 +96,12 @@ public class PrefixUtil {
         int databaseDelimiterIndex = prefix.indexOf(DATABASE_DELIMITER);
         if (packageDelimiterIndex == -1) {
             // This should never happen if we construct our prefixes properly
-            Log.wtf(TAG, "Malformed prefix doesn't contain package delimiter: " + prefix);
+            Log.e(TAG, "Malformed prefix doesn't contain package delimiter: " + prefix);
             return "";
         }
         if (databaseDelimiterIndex == -1) {
             // This should never happen if we construct our prefixes properly
-            Log.wtf(TAG, "Malformed prefix doesn't contain database delimiter: " + prefix);
+            Log.e(TAG, "Malformed prefix doesn't contain database delimiter: " + prefix);
             return "";
         }
         return prefix.substring(packageDelimiterIndex + 1, databaseDelimiterIndex);
