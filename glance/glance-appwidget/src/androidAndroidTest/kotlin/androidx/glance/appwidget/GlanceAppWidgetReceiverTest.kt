@@ -28,21 +28,21 @@ import android.text.style.TextAppearanceSpan
 import android.text.style.UnderlineSpan
 import android.view.View
 import android.widget.CompoundButton
-import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
-import android.widget.TextView
 import android.widget.RadioButton
+import android.widget.TextView
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.booleanPreferencesKey
+import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.glance.Button
+import androidx.glance.ButtonColors
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
 import androidx.glance.Image
@@ -396,13 +396,24 @@ class GlanceAppWidgetReceiverTest {
     @Test
     fun createButton() {
         TestGlanceAppWidget.uiDefinition = {
-            Button("Button", onClick = actionStartActivity<Activity>(), enabled = false)
+            Button(
+                text = "Button",
+                onClick = actionStartActivity<Activity>(),
+                colors = ButtonColors(
+                    backgroundColor = ColorProvider(Color.Transparent),
+                    contentColor = ColorProvider(Color.DarkGray)
+                ),
+                enabled = false
+            )
         }
 
         mHostRule.startHost()
 
         mHostRule.onUnboxedHostView<FrameLayout> { button ->
-            checkNotNull(button.findChild<TextView> { it.text == "Button" })
+            checkNotNull(button.findChild<TextView> { it.text.toString() == "Button" }) {
+                "Couldn't find TextView 'Button'"
+            }
+
             assertThat(button.isEnabled).isFalse()
             assertThat(button.hasOnClickListeners()).isFalse()
         }

@@ -19,18 +19,19 @@ import android.util.Log
 import androidx.compose.ui.unit.dp
 import androidx.glance.AndroidResourceImageProvider
 import androidx.glance.BackgroundModifier
-import androidx.glance.layout.ContentScale
 import androidx.glance.Emittable
 import androidx.glance.EmittableButton
 import androidx.glance.EmittableImage
 import androidx.glance.EmittableWithChildren
-import androidx.glance.ImageProvider
 import androidx.glance.GlanceModifier
+import androidx.glance.ImageProvider
+import androidx.glance.action.ActionModifier
 import androidx.glance.appwidget.lazy.EmittableLazyListItem
+import androidx.glance.background
 import androidx.glance.extractModifier
 import androidx.glance.findModifier
-import androidx.glance.action.ActionModifier
 import androidx.glance.layout.Alignment
+import androidx.glance.layout.ContentScale
 import androidx.glance.layout.EmittableBox
 import androidx.glance.layout.HeightModifier
 import androidx.glance.layout.WidthModifier
@@ -38,8 +39,8 @@ import androidx.glance.layout.fillMaxHeight
 import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.padding
-import androidx.glance.background
 import androidx.glance.text.EmittableText
+import androidx.glance.toEmittableText
 import androidx.glance.unit.Dimension
 
 internal fun normalizeCompositionTree(root: RemoteViewsRoot) {
@@ -228,9 +229,3 @@ private fun MutableList<GlanceModifier?>.collect(): GlanceModifier =
     fold(GlanceModifier) { acc: GlanceModifier, mod: GlanceModifier? ->
         mod?.let { acc.then(mod) } ?: acc
     }
-
-private fun EmittableButton.toEmittableText() = EmittableText().also {
-    it.text = text
-    it.style = style
-    it.maxLines = maxLines
-}
