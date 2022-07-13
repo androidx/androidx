@@ -62,7 +62,7 @@ fun <T : Any> SavedStateHandle.saveable(
     // Hook up saving the state to the SavedStateHandle
     setSavedStateProvider(key) {
         bundleOf("value" to with(saver) {
-            SaverScope { validateValue(value) }.save(value)
+            SaverScope(::validateValue).save(value)
         })
     }
     return value
