@@ -281,7 +281,7 @@ int extract_fence_fd(JNIEnv *env, jobject syncFence) {
     return env->GetIntField(syncFence, fid);
 }
 
-/* Helper method to extract the SyncFenceCompat file descriptor
+/* Helper method to extract the SyncFence file descriptor
  */
 extern "C"
 JNIEXPORT jint JNICALL

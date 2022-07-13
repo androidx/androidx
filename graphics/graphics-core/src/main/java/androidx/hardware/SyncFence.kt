@@ -47,7 +47,7 @@ import java.util.concurrent.TimeUnit
  * such as for display or media encoding.
  */
 @RequiresApi(Build.VERSION_CODES.KITKAT)
-class SyncFenceCompat(private var fd: Int) : AutoCloseable {
+class SyncFence(private var fd: Int) : AutoCloseable {
 
     /**
      * Checks if the SyncFence object is valid.
@@ -57,7 +57,7 @@ class SyncFenceCompat(private var fd: Int) : AutoCloseable {
 
     /**
      * Returns the time that the fence signaled in the [CLOCK_MONOTONIC] time domain.
-     * This returns [SyncFenceCompat.SIGNAL_TIME_INVALID] if the SyncFence is invalid.
+     * This returns [SyncFence.SIGNAL_TIME_INVALID] if the SyncFence is invalid.
      */
     fun getSignalTime(): Long =
         if (isValid()) {
@@ -99,7 +99,7 @@ class SyncFenceCompat(private var fd: Int) : AutoCloseable {
     fun awaitForever(): Boolean = await(-1)
 
     /**
-     * Close the SyncFenceCompat instance. After this method is invoked the fence is invalid. That
+     * Close the SyncFence instance. After this method is invoked the fence is invalid. That
      * is subsequent calls to [isValid] will return `false`
      */
     override fun close() {

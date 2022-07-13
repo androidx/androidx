@@ -24,6 +24,8 @@ import android.view.Surface
 import android.view.SurfaceControl
 import android.view.SurfaceView
 import androidx.annotation.RequiresApi
+import androidx.graphics.lowlatency.SyncFenceCompat
+import androidx.graphics.lowlatency.SyncFenceImpl
 import androidx.graphics.surface.SurfaceControlCompat.TransactionCommittedListener
 import java.util.concurrent.Executor
 
@@ -165,12 +167,15 @@ internal interface SurfaceControlImpl {
          * @param surfaceControl Target [SurfaceControlImpl] to configure the provided buffer.
          * @param buffer [HardwareBuffer] instance to be rendered by the [SurfaceControlImpl]
          * instance.
+         * @param fence Optional [SyncFenceCompat] that serves as the presentation fence. If set,
+         * the [SurfaceControlCompat.Transaction] will not apply until the fence signals.
          * @param releaseCallback Optional callback invoked when the buffer is ready for re-use
          * after being presented to the display.
          */
         fun setBuffer(
             surfaceControl: SurfaceControlImpl,
             buffer: HardwareBuffer,
+            fence: SyncFenceImpl? = null,
             releaseCallback: (() -> Unit)? = null
         ): Transaction
 
