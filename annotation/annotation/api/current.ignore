@@ -1,0 +1,5 @@
+// Baseline format: 1.0
+ChangedValue: androidx.annotation.IntDef#value():
+    Method androidx.annotation.IntDef.value has changed value from {} to nothing
+ChangedValue: androidx.annotation.LongDef#value():
+    Method androidx.annotation.LongDef.value has changed value from {} to nothing
