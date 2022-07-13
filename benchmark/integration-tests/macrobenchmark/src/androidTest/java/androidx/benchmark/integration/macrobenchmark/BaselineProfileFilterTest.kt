@@ -17,15 +17,15 @@
 package androidx.benchmark.integration.macrobenchmark
 
 import android.content.Intent
-import androidx.benchmark.DeviceInfo
-import com.google.common.truth.Truth.assertThat
 import androidx.benchmark.Outputs
+import androidx.benchmark.Shell
 import androidx.benchmark.macro.ExperimentalBaselineProfilesApi
 import androidx.benchmark.macro.junit4.BaselineProfileRule
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
+import com.google.common.truth.Truth.assertThat
 import java.io.File
-import org.junit.Assume
+import org.junit.Assume.assumeTrue
 import org.junit.Rule
 import org.junit.Test
 
@@ -39,7 +39,7 @@ class BaselineProfileFilterTest {
 
     @Test
     fun baselineProfilesFilter() {
-        Assume.assumeTrue(DeviceInfo.isRooted)
+        assumeTrue(Shell.isSessionRooted())
 
         // Collects the baseline profile
         baselineRule.collectBaselineProfile(
