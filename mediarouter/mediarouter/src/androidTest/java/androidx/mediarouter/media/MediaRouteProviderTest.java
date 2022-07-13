@@ -19,6 +19,7 @@ package androidx.mediarouter.media;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import android.content.IntentFilter;
 import android.os.Bundle;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -43,6 +44,8 @@ public class MediaRouteProviderTest {
     private static final String FAKE_MEDIA_ROUTE_NAME_2 = "fakeMediaRouteName2";
     private static final String FAKE_MEDIA_ROUTE_NAME_3 = "fakeMediaRouteName3";
     private static final String FAKE_MEDIA_ROUTE_NAME_4 = "fakeMediaRouteName4";
+    private static final String FAKE_CONTROL_ACTION_1 = "fakeControlAction1";
+    private static final String FAKE_CONTROL_ACTION_2 = "fakeControlAction2";
 
     @Test
     @SmallTest
@@ -139,11 +142,35 @@ public class MediaRouteProviderTest {
         // Test removeGroupMemberId
         routeDescriptor = new MediaRouteDescriptor.Builder(routeDescriptor)
                 .removeGroupMemberId(FAKE_MEDIA_ROUTE_ID_3)
-                .removeGroupMemberId(FAKE_MEDIA_ROUTE_ID_2)
                 .build();
         final List<String> memberIds3 = routeDescriptor.getGroupMemberIds();
-        assertEquals(1, memberIds3.size());
-        assertEquals(FAKE_MEDIA_ROUTE_ID_4, memberIds3.get(0));
+        assertEquals(2, memberIds3.size());
+        assertEquals(FAKE_MEDIA_ROUTE_ID_2, memberIds3.get(0));
+        assertEquals(FAKE_MEDIA_ROUTE_ID_4, memberIds3.get(1));
+
+        // Test clearGroupMemberIds
+        routeDescriptor = new MediaRouteDescriptor.Builder(routeDescriptor)
+                .clearGroupMemberIds()
+                .build();
+        final List<String> memberIds4 = routeDescriptor.getGroupMemberIds();
+        assertTrue(memberIds4.isEmpty());
+
+        // Test addControlFilter
+        routeDescriptor = new MediaRouteDescriptor.Builder(routeDescriptor)
+                .addControlFilter(new IntentFilter(FAKE_CONTROL_ACTION_1))
+                .addControlFilter(new IntentFilter(FAKE_CONTROL_ACTION_2))
+                .build();
+        final List<IntentFilter> controlFilters1 = routeDescriptor.getControlFilters();
+        assertEquals(2, controlFilters1.size());
+        assertEquals(FAKE_CONTROL_ACTION_1, controlFilters1.get(0).getAction(0));
+        assertEquals(FAKE_CONTROL_ACTION_2, controlFilters1.get(1).getAction(0));
+
+        // Test clearControlFilters
+        routeDescriptor = new MediaRouteDescriptor.Builder(routeDescriptor)
+                .clearControlFilters()
+                .build();
+        final List<IntentFilter> controlFilters2 = routeDescriptor.getControlFilters();
+        assertTrue(controlFilters2.isEmpty());
     }
 
     @Test
