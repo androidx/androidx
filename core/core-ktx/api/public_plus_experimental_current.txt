@@ -3,12 +3,12 @@ package androidx.core.animation {
 
   public final class AnimatorKt {
     method public static inline android.animation.Animator.AnimatorListener addListener(android.animation.Animator, optional kotlin.jvm.functions.Function1<? super android.animation.Animator,kotlin.Unit> onEnd, optional kotlin.jvm.functions.Function1<? super android.animation.Animator,kotlin.Unit> onStart, optional kotlin.jvm.functions.Function1<? super android.animation.Animator,kotlin.Unit> onCancel, optional kotlin.jvm.functions.Function1<? super android.animation.Animator,kotlin.Unit> onRepeat);
-    method @RequiresApi(19) public static inline android.animation.Animator.AnimatorPauseListener addPauseListener(android.animation.Animator, optional kotlin.jvm.functions.Function1<? super android.animation.Animator,kotlin.Unit> onResume, optional kotlin.jvm.functions.Function1<? super android.animation.Animator,kotlin.Unit> onPause);
+    method @RequiresApi(19) public static android.animation.Animator.AnimatorPauseListener addPauseListener(android.animation.Animator, optional kotlin.jvm.functions.Function1<? super android.animation.Animator,kotlin.Unit> onResume, optional kotlin.jvm.functions.Function1<? super android.animation.Animator,kotlin.Unit> onPause);
     method public static inline android.animation.Animator.AnimatorListener doOnCancel(android.animation.Animator, kotlin.jvm.functions.Function1<? super android.animation.Animator,kotlin.Unit> action);
     method public static inline android.animation.Animator.AnimatorListener doOnEnd(android.animation.Animator, kotlin.jvm.functions.Function1<? super android.animation.Animator,kotlin.Unit> action);
-    method @RequiresApi(19) public static inline android.animation.Animator.AnimatorPauseListener doOnPause(android.animation.Animator, kotlin.jvm.functions.Function1<? super android.animation.Animator,kotlin.Unit> action);
+    method @RequiresApi(19) public static android.animation.Animator.AnimatorPauseListener doOnPause(android.animation.Animator, kotlin.jvm.functions.Function1<? super android.animation.Animator,kotlin.Unit> action);
     method public static inline android.animation.Animator.AnimatorListener doOnRepeat(android.animation.Animator, kotlin.jvm.functions.Function1<? super android.animation.Animator,kotlin.Unit> action);
-    method @RequiresApi(19) public static inline android.animation.Animator.AnimatorPauseListener doOnResume(android.animation.Animator, kotlin.jvm.functions.Function1<? super android.animation.Animator,kotlin.Unit> action);
+    method @RequiresApi(19) public static android.animation.Animator.AnimatorPauseListener doOnResume(android.animation.Animator, kotlin.jvm.functions.Function1<? super android.animation.Animator,kotlin.Unit> action);
     method public static inline android.animation.Animator.AnimatorListener doOnStart(android.animation.Animator, kotlin.jvm.functions.Function1<? super android.animation.Animator,kotlin.Unit> action);
   }
 
@@ -604,7 +604,7 @@ package androidx.core.view {
     method public static inline boolean isInvisible(android.view.View);
     method public static inline boolean isVisible(android.view.View);
     method public static inline Runnable postDelayed(android.view.View, long delayInMillis, kotlin.jvm.functions.Function0<kotlin.Unit> action);
-    method @RequiresApi(16) public static inline Runnable postOnAnimationDelayed(android.view.View, long delayInMillis, kotlin.jvm.functions.Function0<kotlin.Unit> action);
+    method @RequiresApi(16) public static Runnable postOnAnimationDelayed(android.view.View, long delayInMillis, kotlin.jvm.functions.Function0<kotlin.Unit> action);
     method public static inline void setGone(android.view.View, boolean);
     method public static inline void setInvisible(android.view.View, boolean);
     method public static inline void setPadding(android.view.View, @Px int size);
