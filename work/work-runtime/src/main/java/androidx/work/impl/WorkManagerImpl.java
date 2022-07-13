@@ -20,6 +20,7 @@ import static android.app.PendingIntent.FLAG_MUTABLE;
 import static android.app.PendingIntent.FLAG_UPDATE_CURRENT;
 import static android.text.TextUtils.isEmpty;
 
+import static androidx.work.impl.WorkerUpdater.enqueueUniquelyNamedPeriodic;
 import static androidx.work.impl.foreground.SystemForegroundDispatcher.createCancelWorkIntent;
 
 import android.app.PendingIntent;
@@ -465,7 +466,9 @@ public class WorkManagerImpl extends WorkManager {
             @NonNull String uniqueWorkName,
             @NonNull ExistingPeriodicWorkPolicy existingPeriodicWorkPolicy,
             @NonNull PeriodicWorkRequest periodicWork) {
-
+        if (existingPeriodicWorkPolicy == ExistingPeriodicWorkPolicy.UPDATE) {
+            return enqueueUniquelyNamedPeriodic(this, uniqueWorkName, periodicWork);
+        }
         return createWorkContinuationForUniquePeriodicWork(
                 uniqueWorkName,
                 existingPeriodicWorkPolicy,

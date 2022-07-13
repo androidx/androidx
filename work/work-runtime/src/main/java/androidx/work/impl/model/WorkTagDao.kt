@@ -19,7 +19,6 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import androidx.work.WorkRequest
 
 /**
  * The Data Access Object for [WorkTag]s.
@@ -60,7 +59,7 @@ interface WorkTagDao {
     @Query("SELECT DISTINCT tag FROM worktag WHERE work_spec_id=:id")
     fun getTagsForWorkSpecId(id: String): List<String>
 
-    fun insertTags(request: WorkRequest) {
-        request.tags.forEach { tag -> insert(WorkTag(tag, request.stringId)) }
+    fun insertTags(id: String, tags: Set<String>) {
+        tags.forEach { tag -> insert(WorkTag(tag, id)) }
     }
 }
