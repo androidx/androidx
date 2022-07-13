@@ -17,6 +17,8 @@
 package androidx.graphics.opengl.egl
 
 import android.opengl.EGL14
+import androidx.graphics.opengl.egl.EGLConfigAttributes.Companion.EGL_COLOR_COMPONENT_TYPE_EXT
+import androidx.graphics.opengl.egl.EGLConfigAttributes.Companion.EGL_COLOR_COMPONENT_TYPE_FLOAT_EXT
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import org.junit.Assert.assertEquals
@@ -30,7 +32,7 @@ class EGLConfigAttributesTest {
 
     @Test
     fun testConfig8888() {
-        with(EglConfigAttributes8888.attrs) {
+        with(EGLConfigAttributes.RGBA_8888.attrs) {
             assertTrue(find(EGL14.EGL_RENDERABLE_TYPE, EGL14.EGL_OPENGL_ES2_BIT))
             assertTrue(find(EGL14.EGL_RED_SIZE, 8))
             assertTrue(find(EGL14.EGL_GREEN_SIZE, 8))
@@ -47,7 +49,7 @@ class EGLConfigAttributesTest {
 
     @Test
     fun testConfig1010102() {
-        with(EglConfigAttributes1010102.attrs) {
+        with(EGLConfigAttributes.RGBA_1010102.attrs) {
             assertTrue(find(EGL14.EGL_RENDERABLE_TYPE, EGL14.EGL_OPENGL_ES2_BIT))
             assertTrue(find(EGL14.EGL_RED_SIZE, 10))
             assertTrue(find(EGL14.EGL_GREEN_SIZE, 10))
@@ -63,9 +65,9 @@ class EGLConfigAttributesTest {
 
     @Test
     fun testConfigF16() {
-        with(EglConfigAttributesF16.attrs) {
+        with(EGLConfigAttributes.RGBA_F16.attrs) {
             assertTrue(find(EGL14.EGL_RENDERABLE_TYPE, EGL14.EGL_OPENGL_ES2_BIT))
-            assertTrue(find(EglColorComponentTypeExt, EglColorComponentTypeFloatExt))
+            assertTrue(find(EGL_COLOR_COMPONENT_TYPE_EXT, EGL_COLOR_COMPONENT_TYPE_FLOAT_EXT))
             assertTrue(find(EGL14.EGL_RED_SIZE, 16))
             assertTrue(find(EGL14.EGL_GREEN_SIZE, 16))
             assertTrue(find(EGL14.EGL_BLUE_SIZE, 16))
@@ -83,16 +85,16 @@ class EGLConfigAttributesTest {
         // Verify that custom config that uses an include initially and overwrites
         // individual values is handled appropriately even if the config is technically invalid
         val customConfig = EGLConfigAttributes {
-            include(EglConfigAttributes8888)
+            include(EGLConfigAttributes.RGBA_8888)
             EGL14.EGL_RED_SIZE to 27
-            EglColorComponentTypeExt to EglColorComponentTypeFloatExt
+            EGL_COLOR_COMPONENT_TYPE_EXT to EGL_COLOR_COMPONENT_TYPE_FLOAT_EXT
             EGL14.EGL_STENCIL_SIZE to 32
         }
 
         with(customConfig.attrs) {
             assertTrue(find(EGL14.EGL_RENDERABLE_TYPE, EGL14.EGL_OPENGL_ES2_BIT))
             assertTrue(find(EGL14.EGL_RED_SIZE, 27))
-            assertTrue(find(EglColorComponentTypeExt, EglColorComponentTypeFloatExt))
+            assertTrue(find(EGL_COLOR_COMPONENT_TYPE_EXT, EGL_COLOR_COMPONENT_TYPE_FLOAT_EXT))
             assertTrue(find(EGL14.EGL_STENCIL_SIZE, 32))
             assertEquals(this[size - 1], EGL14.EGL_NONE)
             assertEquals(21, size)
