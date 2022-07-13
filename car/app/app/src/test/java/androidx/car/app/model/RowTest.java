@@ -165,6 +165,49 @@ public class RowTest {
     }
 
     @Test
+    public void addAction() {
+        Row row = new Row.Builder()
+                .setTitle("Title")
+                .addAction(Action.PAN)
+                .addAction(Action.BACK)
+                .build();
+        assertThat(row.getActions()).containsExactly(Action.PAN, Action.BACK);
+    }
+
+    @Test
+    public void addAction_invalidActionType_throws() {
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new Row.Builder().setTitle("Title").addAction(Action.APP_ICON).build());
+    }
+
+    @Test
+    public void addAction_manyActions_throws() {
+        CarIcon carIcon = TestUtils.getTestCarIcon(ApplicationProvider.getApplicationContext(),
+                "ic_test_1");
+        Action customAction = TestUtils.createAction("Title", carIcon);
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new Row.Builder().setTitle("Title")
+                        .addAction(Action.BACK)
+                        .addAction(Action.PAN)
+                        .addAction(customAction)
+                        .build());
+    }
+
+    @Test
+    public void addAction_invalidActionNullIcon_throws() {
+        Action customAction = TestUtils.createAction("Title", null);
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new Row.Builder().setTitle("Title")
+                        .addAction(customAction)
+                        .build());
+    }
+
+    @Test
     public void setMetadata() {
         Metadata metadata =
                 new Metadata.Builder().setPlace(

@@ -120,6 +120,17 @@ public final class ActionsConstraints {
                     .setMaxActions(4)
                     .build();
 
+    /**
+     * Constraints for additional row actions. Only allows custom and back actions.
+     */
+    @NonNull
+    public static final ActionsConstraints ACTIONS_CONSTRAINTS_ROW =
+            new ActionsConstraints.Builder()
+                    .setMaxActions(2)
+                    .addDisallowedActionType(Action.TYPE_APP_ICON)
+                    .setRequireActionIcons(true)
+                    .build();
+
     private final int mMaxActions;
     private final int mMaxPrimaryActions;
     private final int mMaxCustomTitles;
