@@ -25,7 +25,6 @@ fun AndroidXPluginTestContext.writeBuildFiles(vararg projects: AndroidXSelfTestP
 fun AndroidXPluginTestContext.writeBuildFiles(projects: List<AndroidXSelfTestProject>) {
     writeRootSettingsFile(projects.map { it.gradlePath })
     writeRootBuildFile()
-    writeApplyPluginScript()
 
     File(supportRoot, "libraryversions.toml").writeText(
         """|[groups]
@@ -61,17 +60,4 @@ fun AndroidXPluginTestContext.writeRootSettingsFile(projectPaths: List<String>) 
         }
     }
     File(setup.rootDir, "settings.gradle").writeText(settingsString)
-}
-
-fun AndroidXPluginTestContext.writeApplyPluginScript() {
-    setup.rootDir.resolve("buildSrc/apply").also { it.mkdirs() }
-        .resolve("applyAndroidXImplPlugin.gradle").writeText(
-        """|import androidx.build.AndroidXImplPlugin
-           |buildscript {
-           |  ${setup.repositories}
-           |  $buildScriptDependencies
-           |}
-           |apply plugin: AndroidXImplPlugin
-           |""".trimMargin()
-    )
 }
