@@ -193,6 +193,7 @@ package androidx.mediarouter.media {
     method public androidx.mediarouter.media.MediaRouteDescriptor.Builder addControlFilter(android.content.IntentFilter);
     method public androidx.mediarouter.media.MediaRouteDescriptor.Builder addControlFilters(java.util.Collection<android.content.IntentFilter!>);
     method public androidx.mediarouter.media.MediaRouteDescriptor build();
+    method public androidx.mediarouter.media.MediaRouteDescriptor.Builder clearControlFilters();
     method public androidx.mediarouter.media.MediaRouteDescriptor.Builder setCanDisconnect(boolean);
     method @Deprecated public androidx.mediarouter.media.MediaRouteDescriptor.Builder setConnecting(boolean);
     method public androidx.mediarouter.media.MediaRouteDescriptor.Builder setConnectionState(int);
