@@ -18,3 +18,11 @@
 -keepclassmembers class * extends androidx.health.platform.client.proto.GeneratedMessageLite {
   <fields>;
 }
+
+# When constructing ErrorStatus, we use reflection to check the field is
+# declared, so names need to be kept in client apps.
+-keepclassmembers class androidx.health.platform.client.error.ErrorCode { *; }
+
+# Permissions are put into Intents and retrieved via getParcelable, which uses
+# reflection and require name to be kept in client apps.
+-keepnames class androidx.health.platform.client.permission.Permission
