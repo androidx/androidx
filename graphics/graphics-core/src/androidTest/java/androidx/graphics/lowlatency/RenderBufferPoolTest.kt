@@ -40,7 +40,7 @@ internal class RenderBufferPoolTest {
 
     @Test
     fun testHardwareBufferMatchesConfig() {
-        withEglSpec { eglSpec ->
+        withEGLSpec { eglSpec ->
             val width = 2
             val height = 3
             val format = HardwareBuffer.RGB_565
@@ -65,7 +65,7 @@ internal class RenderBufferPoolTest {
 
     @Test
     fun testCloseReleasesRenderBuffer() {
-        withEglSpec { egl ->
+        withEGLSpec { egl ->
             val pool = createPool()
             val renderBuffer = pool.obtain(egl)
             pool.release(renderBuffer)
@@ -76,7 +76,7 @@ internal class RenderBufferPoolTest {
 
     @Test
     fun testAllocationAtMaxPoolSizeBlocks() {
-        withEglSpec { egl ->
+        withEGLSpec { egl ->
             val poolSize = 2
             val latch = CountDownLatch(1)
             thread {
@@ -94,7 +94,7 @@ internal class RenderBufferPoolTest {
 
     @Test
     fun testReleaseAtMaxPoolSizeUnblocks() {
-        withEglSpec { egl ->
+        withEGLSpec { egl ->
             val poolSize = 2
             val latch = CountDownLatch(1)
             val pool = createPool(maxPoolSize = poolSize)
@@ -126,7 +126,7 @@ internal class RenderBufferPoolTest {
             maxPoolSize
         )
 
-    private fun withEglSpec(
+    private fun withEGLSpec(
         block: (egl: EGLSpec) -> Unit = {}
     ) {
         with(EGLManager()) {

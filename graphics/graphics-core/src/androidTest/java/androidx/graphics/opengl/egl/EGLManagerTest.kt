@@ -62,9 +62,9 @@ class EGLManagerTest {
 
     @Test
     fun testInitializeAndRelease() {
-        testEglManager {
+        testEGLManager {
             initialize()
-            val config = loadConfig(EglConfigAttributes8888)?.also {
+            val config = loadConfig(EGLConfigAttributes.RGBA_8888)?.also {
                 createContext(it)
             }
             if (config == null) {
@@ -83,9 +83,9 @@ class EGLManagerTest {
 
     @Test
     fun testMultipleInitializeCallsIgnored() {
-        testEglManager {
+        testEGLManager {
             initialize()
-            loadConfig(EglConfigAttributes8888)?.also {
+            loadConfig(EGLConfigAttributes.RGBA_8888)?.also {
                 createContext(it)
             }
             val currentContext = eglContext
@@ -101,9 +101,9 @@ class EGLManagerTest {
 
     @Test
     fun testMultipleReleaseCallsIgnored() {
-        testEglManager {
+        testEGLManager {
             initialize()
-            loadConfig(EglConfigAttributes8888)?.also {
+            loadConfig(EGLConfigAttributes.RGBA_8888)?.also {
                 createContext(it)
             }
             // Multiple attempts to release should act as no-ops, i.e. we should not crash
@@ -118,14 +118,14 @@ class EGLManagerTest {
 
     @Test
     fun testDefaultSurface() {
-        testEglManager {
+        testEGLManager {
             initialize()
 
             assertEquals(defaultSurface, EGL14.EGL_NO_SURFACE)
             assertEquals(currentDrawSurface, EGL14.EGL_NO_SURFACE)
             assertEquals(currentReadSurface, EGL14.EGL_NO_SURFACE)
 
-            val config = loadConfig(EglConfigAttributes8888)
+            val config = loadConfig(EGLConfigAttributes.RGBA_8888)
 
             if (config == null) {
                 fail("Config 8888 should be supported")
@@ -180,7 +180,7 @@ class EGLManagerTest {
             }
         }
 
-        testEglManager(wrappedEglSpec) {
+        testEGLManager(wrappedEglSpec) {
             initialize()
 
             // Verify that the wrapped EGL spec implementation in fact does not
@@ -191,7 +191,7 @@ class EGLManagerTest {
             assertEquals(currentDrawSurface, EGL14.EGL_NO_SURFACE)
             assertEquals(currentReadSurface, EGL14.EGL_NO_SURFACE)
 
-            val config = loadConfig(EglConfigAttributes8888)
+            val config = loadConfig(EGLConfigAttributes.RGBA_8888)
 
             if (config == null) {
                 fail("Config 8888 should be supported")
@@ -216,14 +216,14 @@ class EGLManagerTest {
 
     @Test
     fun testCreatePBufferSurface() {
-        testEglManager {
+        testEGLManager {
             initialize()
 
             assertEquals(defaultSurface, EGL14.EGL_NO_SURFACE)
             assertEquals(currentDrawSurface, EGL14.EGL_NO_SURFACE)
             assertEquals(currentReadSurface, EGL14.EGL_NO_SURFACE)
 
-            val config = loadConfig(EglConfigAttributes8888)
+            val config = loadConfig(EGLConfigAttributes.RGBA_8888)
 
             if (config == null) {
                 fail("Config 8888 should be supported")
@@ -253,10 +253,10 @@ class EGLManagerTest {
 
     @Test
     fun testCreateWindowSurfaceDefault() {
-        testEglManager {
+        testEGLManager {
             initialize()
 
-            val config = loadConfig(EglConfigAttributes8888)
+            val config = loadConfig(EGLConfigAttributes.RGBA_8888)
             if (config == null) {
                 fail("Config 8888 should be supported")
             }
@@ -300,9 +300,9 @@ class EGLManagerTest {
     private fun verifySurfaceContentsWithWindowConfig(
         singleBuffered: Boolean = false
     ) {
-        testEglManager {
+        testEGLManager {
             initialize()
-            val config = loadConfig(EglConfigAttributes8888)
+            val config = loadConfig(EGLConfigAttributes.RGBA_8888)
             if (config == null) {
                 fail("Config 8888 should be supported")
             }
@@ -354,9 +354,9 @@ class EGLManagerTest {
         singleBuffered: Boolean
     ): Boolean {
         var canRender = false
-        testEglManager {
+        testEGLManager {
             initialize()
-            val config = loadConfig(EglConfigAttributes8888)
+            val config = loadConfig(EGLConfigAttributes.RGBA_8888)
             if (config == null) {
                 fail("Config 8888 should be supported")
             }
@@ -392,8 +392,8 @@ class EGLManagerTest {
     }
 
     @Test
-    fun testEglGetNativeClientBufferANDROIDSupported() {
-        testEglManager {
+    fun testEGLGetNativeClientBufferANDROIDSupported() {
+        testEGLManager {
             initializeWithDefaultConfig()
             val khrImageBaseSupported =
                 isExtensionSupported(EGL_KHR_IMAGE_BASE)
@@ -409,7 +409,7 @@ class EGLManagerTest {
 
     @Test
     fun testEglFenceAPIsSupported() {
-        testEglManager {
+        testEGLManager {
             initializeWithDefaultConfig()
             if (isExtensionSupported(EGL_KHR_IMAGE_BASE)) {
                 assertTrue(EGLBindings.nSupportsEglCreateImageKHR())
@@ -423,7 +423,7 @@ class EGLManagerTest {
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun testEglCreateAndDestroyImageKHR() {
-        testEglManager {
+        testEGLManager {
             initializeWithDefaultConfig()
             if (isExtensionSupported(EGL_KHR_IMAGE_BASE) && isExtensionSupported(
                     EGL_ANDROID_IMAGE_NATIVE_BUFFER)) {
@@ -443,7 +443,7 @@ class EGLManagerTest {
 
     @Test
     fun testGlImageTargetTexture2DOESSupported() {
-        testEglManager {
+        testEGLManager {
             initializeWithDefaultConfig()
             // According to EGL spec *EITHER* EGL_KHR_image_base or EGL_KHR_image
             // indicate that the eglImageTargetTexture2DOES method is supported on this device
@@ -455,7 +455,7 @@ class EGLManagerTest {
 
     @Test
     fun testEglCreateAndDestroySyncKHRSupported() {
-        testEglManager {
+        testEGLManager {
             initializeWithDefaultConfig()
             if (isExtensionSupported(EGL_KHR_FENCE_SYNC)) {
                 assertTrue(EGLBindings.nSupportsEglCreateSyncKHR())
@@ -474,7 +474,7 @@ class EGLManagerTest {
 
     @Test
     fun testEglCreateAndDestroyAndroidFenceSyncKHR() {
-        testEglManager {
+        testEGLManager {
             initializeWithDefaultConfig()
             if (supportsNativeAndroidFence()) {
                 val sync = eglSpec.eglCreateSyncKHR(EGL_SYNC_NATIVE_FENCE_ANDROID, null)
@@ -490,7 +490,7 @@ class EGLManagerTest {
 
     @Test
     fun testEglDupNativeFenceFDANDROIDSupported() {
-        testEglManager {
+        testEGLManager {
             initializeWithDefaultConfig()
             if (supportsNativeAndroidFence()) {
                 assertTrue(EGLBindings.nSupportsDupNativeFenceFDANDROID())
@@ -500,7 +500,7 @@ class EGLManagerTest {
 
     @Test
     fun testEglCreateAndDestroyFenceSyncKHR() {
-        testEglManager {
+        testEGLManager {
             initializeWithDefaultConfig()
             if (isExtensionSupported(EGL_KHR_FENCE_SYNC)) {
                 val sync = eglSpec.eglCreateSyncKHR(EGL_SYNC_FENCE_KHR, null)
@@ -525,7 +525,7 @@ class EGLManagerTest {
 
     @Test
     fun testEglGetSyncAttribKHROutOfBounds() {
-        testEglManager {
+        testEGLManager {
             initializeWithDefaultConfig()
             if (isExtensionSupported(EGL_KHR_FENCE_SYNC)) {
                 val sync = eglSpec.eglCreateSyncKHR(EGL_SYNC_FENCE_KHR, null)
@@ -554,7 +554,7 @@ class EGLManagerTest {
 
     @Test
     fun testEglGetSyncAttribKHRNegativeOffset() {
-        testEglManager {
+        testEGLManager {
             initializeWithDefaultConfig()
             if (isExtensionSupported(EGL_KHR_FENCE_SYNC)) {
                 val sync = eglSpec.eglCreateSyncKHR(EGL_SYNC_FENCE_KHR, null)
@@ -583,7 +583,7 @@ class EGLManagerTest {
 
     @Test
     fun testEglClientWaitSyncKHR() {
-        testEglManager {
+        testEGLManager {
             initializeWithDefaultConfig()
             if (isExtensionSupported(EGL_KHR_FENCE_SYNC)) {
                 val sync = eglSpec.eglCreateSyncKHR(EGL_SYNC_FENCE_KHR, null)
@@ -611,7 +611,7 @@ class EGLManagerTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
     @Test
     fun testEglDupNativeFenceFDANDROID() {
-        testEglManager {
+        testEGLManager {
             initializeWithDefaultConfig()
             if (supportsNativeAndroidFence()) {
                 val sync = eglSpec.eglCreateSyncKHR(EGL_SYNC_NATIVE_FENCE_ANDROID, null)
@@ -637,7 +637,7 @@ class EGLManagerTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
     @Test
     fun testEglDupNativeFenceFDANDROIDawaitForever() {
-        testEglManager {
+        testEGLManager {
             initializeWithDefaultConfig()
             if (supportsNativeAndroidFence()) {
                 val sync = eglSpec.eglCreateSyncKHR(EGL_SYNC_NATIVE_FENCE_ANDROID, null)
@@ -671,7 +671,7 @@ class EGLManagerTest {
     // EGLConfig to the ARGB8888 configuration
     private fun EGLManager.initializeWithDefaultConfig() {
         initialize()
-        val config = loadConfig(EglConfigAttributes8888)
+        val config = loadConfig(EGLConfigAttributes.RGBA_8888)
         if (config == null) {
             fail("Config 8888 should be supported")
         }
@@ -682,7 +682,7 @@ class EGLManagerTest {
      * Helper method to ensure EglManager has the corresponding release calls
      * made to it and verifies that no exceptions were thrown as part of the test.
      */
-    private fun testEglManager(
+    private fun testEGLManager(
         eglSpec: EGLSpec = EGLSpec.V14,
         block: EGLManager.() -> Unit = {}
     ) {

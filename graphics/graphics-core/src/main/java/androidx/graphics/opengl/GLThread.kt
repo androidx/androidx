@@ -26,7 +26,7 @@ import android.util.Log
 import android.view.Surface
 import androidx.annotation.AnyThread
 import androidx.annotation.WorkerThread
-import androidx.graphics.opengl.GLRenderer.EglContextCallback
+import androidx.graphics.opengl.GLRenderer.EGLContextCallback
 import androidx.graphics.opengl.GLRenderer.RenderCallback
 import androidx.graphics.opengl.egl.EGLManager
 import androidx.graphics.opengl.egl.EGLSpec
@@ -47,7 +47,7 @@ internal class GLThread(
     private var mEglManager: EGLManager? = null
     private val mSurfaceSessions = HashMap<Int, SurfaceSession>()
     private var mHandler: Handler? = null
-    private val mEglContextCallback = HashSet<EglContextCallback>()
+    private val mEglContextCallback = HashSet<EGLContextCallback>()
 
     override fun start() {
         super.start()
@@ -98,13 +98,13 @@ internal class GLThread(
     }
 
     @AnyThread
-    fun addEglCallbacks(callbacks: ArrayList<EglContextCallback>) {
+    fun addEGLCallbacks(callbacks: ArrayList<EGLContextCallback>) {
         withHandler {
             post {
                 mEglContextCallback.addAll(callbacks)
                 mEglManager?.let {
                     for (callback in callbacks) {
-                        callback.onEglContextCreated(it)
+                        callback.onEGLContextCreated(it)
                     }
                 }
             }
@@ -112,21 +112,21 @@ internal class GLThread(
     }
 
     @AnyThread
-    fun addEglCallback(callbacks: EglContextCallback) {
+    fun addEGLCallback(callbacks: EGLContextCallback) {
         withHandler {
             post {
                 mEglContextCallback.add(callbacks)
                 // If EGL dependencies are already initialized, immediately invoke
                 // the added callback
                 mEglManager?.let {
-                    callbacks.onEglContextCreated(it)
+                    callbacks.onEGLContextCreated(it)
                 }
             }
         }
     }
 
     @AnyThread
-    fun removeEglCallback(callbacks: EglContextCallback) {
+    fun removeEGLCallback(callbacks: EGLContextCallback) {
         withHandler {
             post {
                 mEglContextCallback.remove(callbacks)
@@ -199,13 +199,13 @@ internal class GLThread(
      * unless [tearDown] has been called.
      */
     @WorkerThread
-    fun obtainEglManager(): EGLManager =
+    fun obtainEGLManager(): EGLManager =
         mEglManager ?: EGLManager(mEglSpecFactory.invoke()).also {
             it.initialize()
             val config = mEglConfigFactory.invoke(it)
             it.createContext(config)
             for (callback in mEglContextCallback) {
-                callback.onEglContextCreated(it)
+                callback.onEGLContextCreated(it)
             }
             mEglManager = it
         }
@@ -214,7 +214,7 @@ internal class GLThread(
     private fun disposeSurfaceSession(session: SurfaceSession) {
         val eglSurface = session.eglSurface
         if (eglSurface != null && eglSurface != EGL14.EGL_NO_SURFACE) {
-            obtainEglManager().eglSpec.eglDestroySurface(eglSurface)
+            obtainEGLManager().eglSpec.eglDestroySurface(eglSurface)
             session.eglSurface = null
         }
     }
@@ -224,11 +224,11 @@ internal class GLThread(
      * creating one if it does not previously exist
      */
     @WorkerThread
-    private fun obtainEglSurfaceForSession(session: SurfaceSession): EGLSurface? {
+    private fun obtainEGLSurfaceForSession(session: SurfaceSession): EGLSurface? {
         return if (session.eglSurface != null) {
             session.eglSurface
         } else {
-            createEglSurfaceForSession(
+            createEGLSurfaceForSession(
                 session.surface,
                 session.width,
                 session.height,
@@ -244,17 +244,17 @@ internal class GLThread(
      * Consumers are expected to teardown the previously existing EGLSurface instance if it exists
      */
     @WorkerThread
-    private fun createEglSurfaceForSession(
+    private fun createEGLSurfaceForSession(
         surface: Surface?,
         width: Int,
         height: Int,
         surfaceRenderer: RenderCallback
     ): EGLSurface? {
-        with(obtainEglManager()) {
+        with(obtainEGLManager()) {
             return if (surface != null) {
                 surfaceRenderer.onSurfaceCreated(
                     eglSpec,
-                    // Successful creation of EglManager ensures non null EGLConfig
+                    // Successful creation of EGLManager ensures non null EGLConfig
                     eglConfig!!,
                     surface,
                     width,
@@ -268,14 +268,14 @@ internal class GLThread(
 
     @WorkerThread
     private fun releaseResourcesInternalAndQuit(callback: Runnable?) {
-        val eglManager = obtainEglManager()
+        val eglManager = obtainEGLManager()
         for (session in mSurfaceSessions) {
             disposeSurfaceSession(session.value)
         }
         callback?.run()
         mSurfaceSessions.clear()
         for (eglCallback in mEglContextCallback) {
-            eglCallback.onEglContextDestroyed(eglManager)
+            eglCallback.onEGLContextDestroyed(eglManager)
         }
         mEglContextCallback.clear()
         eglManager.release()
@@ -287,8 +287,8 @@ internal class GLThread(
     private fun requestRenderInternal(token: Int) {
         log("requesting render for token: $token")
         mSurfaceSessions[token]?.let { surfaceSession ->
-            val eglManager = obtainEglManager()
-            val eglSurface = obtainEglSurfaceForSession(surfaceSession)
+            val eglManager = obtainEGLManager()
+            val eglSurface = obtainEGLSurfaceForSession(surfaceSession)
             if (eglSurface != null) {
                 eglManager.makeCurrent(eglSurface)
             } else {
@@ -324,7 +324,7 @@ internal class GLThread(
                 this.height = height
             }
             disposeSurfaceSession(surfaceSession)
-            obtainEglSurfaceForSession(surfaceSession)
+            obtainEGLSurfaceForSession(surfaceSession)
         }
     }
 

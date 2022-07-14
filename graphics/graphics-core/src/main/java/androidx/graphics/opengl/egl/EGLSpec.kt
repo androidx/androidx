@@ -43,7 +43,7 @@ import androidx.opengl.EGLSyncKHR
  * Interface for accessing various EGL facilities independent of EGL versions.
  * That is each EGL version implements this specification.
  *
- * EglSpec is not thread safe and is up to the caller of these methods to guarantee thread safety.
+ * EGLSpec is not thread safe and is up to the caller of these methods to guarantee thread safety.
  */
 @Suppress("AcronymName")
 interface EGLSpec {
@@ -407,7 +407,7 @@ interface EGLSpec {
                 if (initializeResult) {
                     return EGLVersion(major[0], minor[0])
                 } else {
-                    throw EglException(EGL14.eglGetError(), "Unable to initialize default display")
+                    throw EGLException(EGL14.eglGetError(), "Unable to initialize default display")
                 }
             }
 
@@ -500,7 +500,7 @@ interface EGLSpec {
 
             override fun eglDestroyContext(eglContext: EGLContext) {
                 if (!EGL14.eglDestroyContext(getDefaultDisplay(), eglContext)) {
-                    throw EglException(EGL14.eglGetError(), "Unable to destroy EGLContext")
+                    throw EGLException(EGL14.eglGetError(), "Unable to destroy EGLContext")
                 }
             }
 
@@ -585,7 +585,8 @@ interface EGLSpec {
  * @param error Error code reported via eglGetError
  * @param msg Optional message describing the exception being thrown
  */
-class EglException(val error: Int, val msg: String = "") : RuntimeException() {
+@Suppress("AcronymName")
+class EGLException(val error: Int, val msg: String = "") : RuntimeException() {
 
     override val message: String
         get() = "Error: ${EGLSpec.getStatusString(error)}, $msg"

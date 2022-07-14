@@ -600,26 +600,26 @@ class GLRendererTest {
     }
 
     @Test
-    fun testEglContextCallbackInvoked() {
+    fun testEGLContextCallbackInvoked() {
         val createdLatch = CountDownLatch(1)
         val destroyedLatch = CountDownLatch(1)
         val createCount = AtomicInteger()
         val destroyCount = AtomicInteger()
-        val callback = object : GLRenderer.EglContextCallback {
+        val callback = object : GLRenderer.EGLContextCallback {
 
-            override fun onEglContextCreated(eglManager: EGLManager) {
+            override fun onEGLContextCreated(eglManager: EGLManager) {
                 createCount.incrementAndGet()
                 createdLatch.countDown()
             }
 
-            override fun onEglContextDestroyed(eglManager: EGLManager) {
+            override fun onEGLContextDestroyed(eglManager: EGLManager) {
                 destroyCount.incrementAndGet()
                 destroyedLatch.countDown()
             }
         }
 
         val glRenderer = GLRenderer().apply { start() }
-        glRenderer.registerEglContextCallback(callback)
+        glRenderer.registerEGLContextCallback(callback)
 
         glRenderer.attach(
             Surface(SurfaceTexture(12)),
@@ -638,19 +638,19 @@ class GLRendererTest {
     }
 
     @Test
-    fun testEglContextCallbackInvokedBeforeStart() {
+    fun testEGLContextCallbackInvokedBeforeStart() {
         val createdLatch = CountDownLatch(1)
         val destroyedLatch = CountDownLatch(1)
         val createCount = AtomicInteger()
         val destroyCount = AtomicInteger()
-        val callback = object : GLRenderer.EglContextCallback {
+        val callback = object : GLRenderer.EGLContextCallback {
 
-            override fun onEglContextCreated(eglManager: EGLManager) {
+            override fun onEGLContextCreated(eglManager: EGLManager) {
                 createCount.incrementAndGet()
                 createdLatch.countDown()
             }
 
-            override fun onEglContextDestroyed(eglManager: EGLManager) {
+            override fun onEGLContextDestroyed(eglManager: EGLManager) {
                 destroyCount.incrementAndGet()
                 destroyedLatch.countDown()
             }
@@ -658,8 +658,8 @@ class GLRendererTest {
 
         val glRenderer = GLRenderer()
         // Adding a callback before the glRenderer is started should still
-        // deliver onEglRendererCreated callbacks
-        glRenderer.registerEglContextCallback(callback)
+        // deliver onEGLRendererCreated callbacks
+        glRenderer.registerEGLContextCallback(callback)
         glRenderer.start()
 
         glRenderer.attach(
@@ -679,27 +679,27 @@ class GLRendererTest {
     }
 
     @Test
-    fun testEglContextCallbackRemove() {
+    fun testEGLContextCallbackRemove() {
         val createdLatch = CountDownLatch(1)
         val destroyedLatch = CountDownLatch(1)
         val createCount = AtomicInteger()
         val destroyCount = AtomicInteger()
-        val callback = object : GLRenderer.EglContextCallback {
+        val callback = object : GLRenderer.EGLContextCallback {
 
-            override fun onEglContextCreated(eglManager: EGLManager) {
+            override fun onEGLContextCreated(eglManager: EGLManager) {
                 createCount.incrementAndGet()
                 createdLatch.countDown()
             }
 
-            override fun onEglContextDestroyed(eglManager: EGLManager) {
+            override fun onEGLContextDestroyed(eglManager: EGLManager) {
                 destroyCount.incrementAndGet()
             }
         }
 
         val glRenderer = GLRenderer()
         // Adding a callback before the glRenderer is started should still
-        // deliver onEglRendererCreated callbacks
-        glRenderer.registerEglContextCallback(callback)
+        // deliver onEGLRendererCreated callbacks
+        glRenderer.registerEGLContextCallback(callback)
         glRenderer.start()
 
         glRenderer.attach(
@@ -712,7 +712,7 @@ class GLRendererTest {
         assertTrue(createdLatch.await(3000, TimeUnit.MILLISECONDS))
         assertEquals(1, createCount.get())
 
-        glRenderer.unregisterEglContextCallback(callback)
+        glRenderer.unregisterEGLContextCallback(callback)
 
         glRenderer.stop(false) {
             destroyedLatch.countDown()
