@@ -25,6 +25,9 @@ import android.opengl.EGLSurface;
 import android.util.Log;
 import android.view.Surface;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
+
 import java.util.Objects;
 
 /**
@@ -36,13 +39,15 @@ import java.util.Objects;
  *
  * @hide
  */
+@SuppressWarnings("unused")
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class EglWindowSurface {
     private static final String TAG = "EglWindowSurface";
 
     private EGLDisplay mEGLDisplay = EGL14.EGL_NO_DISPLAY;
     private EGLContext mEGLContext = EGL14.EGL_NO_CONTEXT;
     private EGLSurface mEGLSurface = EGL14.EGL_NO_SURFACE;
-    private EGLConfig[] mConfigs = new EGLConfig[1];
+    private final EGLConfig[] mConfigs = new EGLConfig[1];
 
     private Surface mSurface;
     private int mWidth;
@@ -51,10 +56,8 @@ public class EglWindowSurface {
     /**
      * Creates an EglWindowSurface from a Surface.
      */
-    public EglWindowSurface(Surface surface) {
-        if (surface == null) {
-            throw new NullPointerException();
-        }
+    public EglWindowSurface(@NonNull Surface surface) {
+        Objects.requireNonNull(surface);
         mSurface = surface;
 
         eglSetup();
@@ -188,6 +191,7 @@ public class EglWindowSurface {
     /**
      * Returns the Surface that the MediaCodec receives buffers from.
      */
+    @NonNull
     public Surface getSurface() {
         return mSurface;
     }

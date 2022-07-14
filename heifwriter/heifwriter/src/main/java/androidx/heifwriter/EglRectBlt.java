@@ -19,6 +19,8 @@ package androidx.heifwriter;
 import android.graphics.Bitmap;
 import android.graphics.Rect;
 
+import androidx.annotation.NonNull;
+
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
@@ -36,7 +38,7 @@ public class EglRectBlt {
      * A "full" square, extending from -1 to +1 in both dimensions. When the
      * model/view/projection matrix is identity, this will exactly cover the viewport.
      */
-    private static final float FULL_RECTANGLE_COORDS[] = {
+    private static final float[] FULL_RECTANGLE_COORDS = {
             -1.0f, -1.0f,   // 0 bottom left
              1.0f, -1.0f,   // 1 bottom right
             -1.0f,  1.0f,   // 2 top left
@@ -46,7 +48,7 @@ public class EglRectBlt {
     private static final FloatBuffer FULL_RECTANGLE_BUF =
             createFloatBuffer(FULL_RECTANGLE_COORDS);
 
-    private final float mTexCoords[] = new float[8];
+    private final float[] mTexCoords = new float[8];
     private final FloatBuffer mTexCoordArray = createFloatBuffer(mTexCoords);
     private final int mTexWidth;
     private final int mTexHeight;
@@ -56,7 +58,8 @@ public class EglRectBlt {
     /**
      * Allocates a direct float buffer, and populates it with the float array data.
      */
-    public static FloatBuffer createFloatBuffer(float[] coords) {
+    @NonNull
+    public static FloatBuffer createFloatBuffer(@NonNull float[] coords) {
         // Allocate a direct ByteBuffer, using 4 bytes per float, and copy coords into it.
         ByteBuffer bb = ByteBuffer.allocateDirect(coords.length * SIZEOF_FLOAT);
         bb.order(ByteOrder.nativeOrder());
@@ -72,7 +75,7 @@ public class EglRectBlt {
      * @param program The program to use. EglRectBlitter takes ownership, and will release
      *     the program when no longer needed.
      */
-    public EglRectBlt(Texture2dProgram program, int texWidth, int texHeight) {
+    public EglRectBlt(@NonNull Texture2dProgram program, int texWidth, int texHeight) {
         mProgram = program;
 
         mTexWidth = texWidth;
@@ -106,14 +109,14 @@ public class EglRectBlt {
     /**
      * Load texture from a bitmap.
      */
-    public void loadTexture(int texId, Bitmap bitmap) {
+    public void loadTexture(int texId, @NonNull Bitmap bitmap) {
         mProgram.loadTexture(texId, bitmap);
     }
 
     /**
      * Draws a viewport-filling rect, texturing it with the specified texture object and rect.
      */
-    public void copyRect(int textureId, float[] texMatrix, Rect texRect) {
+    public void copyRect(int textureId, @NonNull float[] texMatrix, @NonNull Rect texRect) {
         setTexRect(texRect);
 
         // Use the identity matrix for MVP so our 2x2 FULL_RECTANGLE covers the viewport.

@@ -24,6 +24,8 @@ import android.opengl.Matrix;
 import android.util.Log;
 
 import androidx.annotation.IntDef;
+import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -36,6 +38,8 @@ import java.nio.FloatBuffer;
  *
  * @hide
  */
+@SuppressWarnings("unused")
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class Texture2dProgram {
     private static final String TAG = "Texture2dProgram";
     private static final boolean DEBUG = false;
@@ -103,15 +107,15 @@ public class Texture2dProgram {
             "    gl_FragColor = texture2D(sTexture, vTextureCoord);\n" +
             "}\n";
 
-    private @ProgramType int mProgramType;
+    private final @ProgramType int mProgramType;
 
     // Handles to the GL program and various components of it.
     private int mProgramHandle;
-    private int muMVPMatrixLoc;
-    private int muTexMatrixLoc;
-    private int maPositionLoc;
-    private int maTextureCoordLoc;
-    private int mTextureTarget;
+    private final int muMVPMatrixLoc;
+    private final int muTexMatrixLoc;
+    private final int maPositionLoc;
+    private final int maTextureCoordLoc;
+    private final int mTextureTarget;
 
     /**
      * Prepares the program in the current EGL context.
@@ -201,7 +205,7 @@ public class Texture2dProgram {
      * @param texId texture id for the texture.
      * @param bitmap bitmap to load.
      */
-    public void loadTexture(int texId, Bitmap bitmap) {
+    public void loadTexture(int texId, @NonNull Bitmap bitmap) {
         // load the bitmap to texture
         GLES20.glBindTexture(mTextureTarget, texId);
         GLUtils.texImage2D(mTextureTarget, 0, bitmap, 0);
@@ -222,9 +226,9 @@ public class Texture2dProgram {
      * @param texBuffer Buffer with vertex texture data.
      * @param texStride Width, in bytes, of the texture data for each vertex.
      */
-    public void draw(float[] mvpMatrix, FloatBuffer vertexBuffer, int firstVertex,
-            int vertexCount, int coordsPerVertex, int vertexStride,
-            float[] texMatrix, FloatBuffer texBuffer, int textureId, int texStride) {
+    public void draw(@NonNull float[] mvpMatrix, @NonNull FloatBuffer vertexBuffer, int firstVertex,
+            int vertexCount, int coordsPerVertex, int vertexStride, @NonNull float[] texMatrix,
+            @NonNull FloatBuffer texBuffer, int textureId, int texStride) {
         checkGlError("draw start");
 
         // Select the program.
@@ -277,7 +281,7 @@ public class Texture2dProgram {
      *
      * @return A handle to the program, or 0 on failure.
      */
-    public static int createProgram(String vertexSource, String fragmentSource) {
+    public static int createProgram(@NonNull String vertexSource, @NonNull String fragmentSource) {
         int vertexShader = loadShader(GLES20.GL_VERTEX_SHADER, vertexSource);
         if (vertexShader == 0) {
             return 0;
@@ -313,7 +317,7 @@ public class Texture2dProgram {
      *
      * @return A handle to the shader, or 0 on failure.
      */
-    public static int loadShader(int shaderType, String source) {
+    public static int loadShader(int shaderType, @NonNull String source) {
         int shader = GLES20.glCreateShader(shaderType);
         checkGlError("glCreateShader type=" + shaderType);
         GLES20.glShaderSource(shader, source);
@@ -335,7 +339,7 @@ public class Texture2dProgram {
      * <p>
      * Throws a RuntimeException if the location is invalid.
      */
-    public static void checkLocation(int location, String label) {
+    public static void checkLocation(int location, @NonNull String label) {
         if (location < 0) {
             throw new RuntimeException("Unable to locate '" + label + "' in program");
         }
@@ -344,7 +348,7 @@ public class Texture2dProgram {
     /**
      * Checks to see if a GLES error has been raised.
      */
-    public static void checkGlError(String op) {
+    public static void checkGlError(@NonNull String op) {
         int error = GLES20.glGetError();
         if (error == GLES20.GL_OUT_OF_MEMORY) {
             Log.i(TAG, op + " GL_OUT_OF_MEMORY");
