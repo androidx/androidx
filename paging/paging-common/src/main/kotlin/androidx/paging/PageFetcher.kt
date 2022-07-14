@@ -111,7 +111,7 @@ internal class PageFetcher<Key : Any, Value : Any>(
                         // Only trigger remote refresh on refresh signals that do not originate from
                         // initialization or PagingSource invalidation.
                         remoteMediatorConnection = remoteMediatorAccessor,
-                        invalidate = this@PageFetcher::refresh,
+                        jumpCallback = this@PageFetcher::refresh,
                         previousPagingState = previousPagingState,
                     ),
                     state = previousPagingState,
