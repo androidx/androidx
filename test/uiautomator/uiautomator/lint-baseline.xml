@@ -300,69 +300,6 @@
 
     <issue
         id="SyntheticAccessor"
-        message="Access to `private` field `mLock` of class `QueryController` requires synthetic accessor"
-        errorLine1="            synchronized (mLock) {"
-        errorLine2="                          ~~~~~">
-        <location
-            file="src/main/java/androidx/test/uiautomator/QueryController.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mLastActivityName` of class `QueryController` requires synthetic accessor"
-        errorLine1="                                mLastActivityName = event.getText().get(0).toString();"
-        errorLine2="                                ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/test/uiautomator/QueryController.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mLastTraversedText` of class `QueryController` requires synthetic accessor"
-        errorLine1="                                mLastTraversedText = event.getText().get(0).toString();"
-        errorLine2="                                ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/test/uiautomator/QueryController.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `DEBUG` of class `QueryController` requires synthetic accessor"
-        errorLine1="                        if (DEBUG)"
-        errorLine2="                            ~~~~~">
-        <location
-            file="src/main/java/androidx/test/uiautomator/QueryController.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `LOG_TAG` of class `QueryController` requires synthetic accessor"
-        errorLine1="                            Log.d(LOG_TAG, &quot;Last text selection reported: &quot; +"
-        errorLine2="                                  ~~~~~~~">
-        <location
-            file="src/main/java/androidx/test/uiautomator/QueryController.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mLastTraversedText` of class `QueryController` requires synthetic accessor"
-        errorLine1="                                    mLastTraversedText);"
-        errorLine2="                                    ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/test/uiautomator/QueryController.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mLock` of class `QueryController` requires synthetic accessor"
-        errorLine1="                mLock.notifyAll();"
-        errorLine2="                ~~~~~">
-        <location
-            file="src/main/java/androidx/test/uiautomator/QueryController.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
         message="Access to `private` member of class `LogcatSink` requires synthetic accessor"
         errorLine1="                    mSinks.add(new LogcatSink());"
         errorLine2="                               ~~~~~~~~~~~~~~~~">
