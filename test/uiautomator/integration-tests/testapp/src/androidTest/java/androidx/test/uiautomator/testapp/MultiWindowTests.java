@@ -22,15 +22,18 @@ import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 
 import static androidx.test.uiautomator.testapp.SplitScreenTestActivity.WINDOW_ID;
 
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import android.content.Intent;
+import android.graphics.Rect;
 import android.os.SystemClock;
 
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.uiautomator.By;
 import androidx.test.uiautomator.BySelector;
+import androidx.test.uiautomator.UiObject2;
 import androidx.test.uiautomator.Until;
 
 import org.junit.Test;
@@ -40,7 +43,7 @@ import org.junit.Test;
 public class MultiWindowTests extends BaseTest {
 
     private static final long TIMEOUT_MS = 10_000;
-    private static final long PIP_DELAY_MS = 5_000;
+    private static final long DELAY_MS = 5_000;
 
     @Test
     @SdkSuppress(minSdkVersion = 21)
@@ -51,15 +54,23 @@ public class MultiWindowTests extends BaseTest {
     @Test
     @SdkSuppress(minSdkVersion = 24)
     public void testPictureInPicture() {
-        launchTestActivity(PictureInPictureTestActivity.class);
-        mDevice.findObject(By.res(TEST_APP, "pip_button")).click();
-        launchTestActivity(PictureInPictureTestActivity.class,
-                new Intent().setFlags(FLAG_ACTIVITY_NEW_TASK | FLAG_ACTIVITY_MULTIPLE_TASK));
-        SystemClock.sleep(PIP_DELAY_MS); // Wait for the PiP window to settle.
-
-        // Both PiP and standard windows are present and searchable.
         BySelector defaultMode = By.res(TEST_APP, "pip_mode").text("Default Mode");
         BySelector pipMode = By.res(TEST_APP, "pip_mode").text("PiP Mode");
+
+        // Create window in PiP mode and verify its location (bounds correctly calculated).
+        launchTestActivity(PictureInPictureTestActivity.class);
+        mDevice.findObject(By.res(TEST_APP, "pip_button")).click();
+        SystemClock.sleep(DELAY_MS); // Wait for the PiP window to settle.
+        int width = mDevice.getDisplayWidth();
+        int height = mDevice.getDisplayHeight();
+        Rect bottomHalf = new Rect(0, height / 2, width, height);
+        UiObject2 pipWindow = mDevice.wait(Until.findObject(pipMode), TIMEOUT_MS);
+        assertTrue(bottomHalf.contains(pipWindow.getVisibleBounds()));
+
+        // Create window in default mode and verify that both windows are present and searchable.
+        launchTestActivity(PictureInPictureTestActivity.class,
+                new Intent().setFlags(FLAG_ACTIVITY_NEW_TASK | FLAG_ACTIVITY_MULTIPLE_TASK));
+        SystemClock.sleep(DELAY_MS); // Wait for the PiP window to settle.
         assertTrue(mDevice.wait(Until.hasObject(pipMode), TIMEOUT_MS));
         assertTrue(mDevice.hasObject(defaultMode));
     }
@@ -72,11 +83,18 @@ public class MultiWindowTests extends BaseTest {
         launchTestActivity(SplitScreenTestActivity.class,
                 new Intent().setFlags(FLAG_ACTIVITY_NEW_TASK | FLAG_ACTIVITY_LAUNCH_ADJACENT
                         | FLAG_ACTIVITY_MULTIPLE_TASK).putExtra(WINDOW_ID, "second"));
+        SystemClock.sleep(DELAY_MS); // Wait for the windows to settle.
 
         // Both split screen windows are present and searchable.
-        BySelector firstWindow = By.res(TEST_APP, "window_id").text("first");
-        BySelector secondWindow = By.res(TEST_APP, "window_id").text("second");
-        assertTrue(mDevice.wait(Until.hasObject(secondWindow), TIMEOUT_MS));
-        assertTrue(mDevice.hasObject(firstWindow));
+        UiObject2 firstWindow = mDevice.findObject(By.res(TEST_APP, "window_id").text("first"));
+        assertNotNull(firstWindow);
+        UiObject2 secondWindow = mDevice.findObject(By.res(TEST_APP, "window_id").text("second"));
+        assertNotNull(secondWindow);
+
+        // Window IDs are centered in each window (bounds correctly calculated).
+        int width = mDevice.getDisplayWidth();
+        int height = mDevice.getDisplayHeight();
+        assertTrue(firstWindow.getVisibleBounds().contains(width / 2, height / 4));
+        assertTrue(secondWindow.getVisibleBounds().contains(width / 2, 3 * height / 4));
     }
 }
