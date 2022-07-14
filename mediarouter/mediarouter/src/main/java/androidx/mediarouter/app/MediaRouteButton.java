@@ -40,8 +40,10 @@ import android.util.SparseArray;
 import android.view.SoundEffectConstants;
 import android.view.View;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.appcompat.widget.TooltipCompat;
 import androidx.core.graphics.drawable.DrawableCompat;
@@ -915,7 +917,12 @@ public class MediaRouteButton extends View {
             if (mButtons.size() == 0) {
                 IntentFilter intentFilter = new IntentFilter();
                 intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
-                mContext.registerReceiver(this, intentFilter);
+                if (Build.VERSION.SDK_INT < 33) {
+                    mContext.registerReceiver(this, intentFilter);
+                } else {
+                    Api33.registerReceiver(mContext, this, intentFilter,
+                            Context.RECEIVER_NOT_EXPORTED);
+                }
             }
             mButtons.add(button);
         }
@@ -940,11 +947,20 @@ public class MediaRouteButton extends View {
                         ConnectivityManager.EXTRA_NO_CONNECTIVITY, false);
                 if (mIsConnected != isConnected) {
                     mIsConnected = isConnected;
-                    for (MediaRouteButton button: mButtons) {
+                    for (MediaRouteButton button : mButtons) {
                         button.refreshVisibility();
                     }
                 }
             }
+        }
+    }
+
+    @RequiresApi(33)
+    private static class Api33 {
+        @DoNotInline
+        static void registerReceiver(@NonNull Context context, @NonNull BroadcastReceiver receiver,
+                @NonNull IntentFilter filter, int flags) {
+            context.registerReceiver(receiver, filter, flags);
         }
     }
 }

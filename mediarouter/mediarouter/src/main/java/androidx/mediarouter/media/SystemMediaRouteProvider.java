@@ -128,6 +128,8 @@ abstract class SystemMediaRouteProvider extends MediaRouteProvider {
             mAudioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
             mVolumeChangeReceiver = new VolumeChangeReceiver();
 
+            // There's no need to specify RECEIVER_EXPORTED or RECEIVER_NOT_EXPORTED here, since
+            // LegacyImpl is not used on versions of Android new enough to allow this.
             context.registerReceiver(mVolumeChangeReceiver,
                     new IntentFilter(VolumeChangeReceiver.VOLUME_CHANGED_ACTION));
             publishRoutes();
