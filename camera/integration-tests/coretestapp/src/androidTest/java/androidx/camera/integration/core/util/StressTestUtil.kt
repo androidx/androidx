@@ -144,6 +144,11 @@ object StressTestUtil {
         }).build()
 
     /**
+     * Large stress test repeat count to run the test
+     */
+    const val LARGE_STRESS_TEST_REPEAT_COUNT = 1
+
+    /**
      * Stress test repeat count to run the test
      */
     const val STRESS_TEST_REPEAT_COUNT = 2
@@ -172,7 +177,7 @@ object StressTestUtil {
     /**
      * Auto-stop duration for video capture related tests.
      */
-    const val VIDEO_CAPTURE_AUTO_STOP_LENGTH_MS = 3000L
+    const val VIDEO_CAPTURE_AUTO_STOP_LENGTH_MS = 1000L
 
     /**
      * Constant to specify that the verification target is [Preview].
