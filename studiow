@@ -43,6 +43,10 @@ function usage() {
   echo " g, glance"
   echo "  Open the project subset for glance projects"
   echo
+  echo
+  echo " native"
+  echo "  Open the project subset for glance projects"
+  echo
   echo " a, all"
   echo "  Open the project subset all"
   echo
@@ -106,6 +110,9 @@ while [ "$1" != "" ]; do
   fi
   if [ "$subsetArg" == "k" -o "$subsetArg" == "kmp" ]; then
       newSubset=kmp
+  fi
+  if [ "$subsetArg" == "native" ]; then
+    newSubset=native
   fi
   if [ "$subsetArg" == "a" -o "$subsetArg" == "all" ]; then
     newSubset=all
