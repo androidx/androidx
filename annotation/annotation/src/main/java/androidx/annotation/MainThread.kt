@@ -13,39 +13,35 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.annotation;
-
-import static java.lang.annotation.ElementType.CONSTRUCTOR;
-import static java.lang.annotation.ElementType.METHOD;
-import static java.lang.annotation.ElementType.PARAMETER;
-import static java.lang.annotation.ElementType.TYPE;
-import static java.lang.annotation.RetentionPolicy.CLASS;
-
-import java.lang.annotation.Documented;
-import java.lang.annotation.Retention;
-import java.lang.annotation.Target;
+package androidx.annotation
 
 /**
  * Denotes that the annotated method should only be called on the main thread.
  * If the annotated element is a class, then all methods in the class should be called
  * on the main thread.
- * <p>
- * Example:
- * <pre><code>
- *  &#64;MainThread
- *  public void deliverResult(D data) { ... }
- * </code></pre>
  *
- * <p class="note"><b>Note:</b> Ordinarily, an app's main thread is also the UI
+ * Example:
+ * ```
+ * @MainThread
+ * public void deliverResult(D data) { ... }
+ * ```
+ *
+ * **Note:** Ordinarily, an app's main thread is also the UI
  * thread. However, under special circumstances, an app's main thread
  * might not be its UI thread; for more information, see
- * <a href="/studio/write/annotations.html#thread-annotations">Thread
- * annotations</a>.
+ * [Thread annotations](/studio/write/annotations.html#thread-annotations).
  *
  * @see androidx.annotation.UiThread
  */
-@Documented
-@Retention(CLASS)
-@Target({METHOD, CONSTRUCTOR, TYPE, PARAMETER})
-public @interface MainThread {
-}
+@MustBeDocumented
+@Retention(AnnotationRetention.BINARY)
+@Target(
+    AnnotationTarget.FUNCTION,
+    AnnotationTarget.PROPERTY_GETTER,
+    AnnotationTarget.PROPERTY_SETTER,
+    AnnotationTarget.CONSTRUCTOR,
+    AnnotationTarget.ANNOTATION_CLASS,
+    AnnotationTarget.CLASS,
+    AnnotationTarget.VALUE_PARAMETER
+)
+public annotation class MainThread
