@@ -61,6 +61,9 @@ abstract class SplitPipActivityBase : AppCompatActivity(), CompoundButton.OnChec
     private var enterPipOnUserLeave = false
     private var autoEnterPip = false
 
+    /** In the process of updating checkboxes based on split rule. */
+    private var updatingConfigs = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         viewBinding = ActivitySplitPipActivityLayoutBinding.inflate(layoutInflater)
@@ -109,11 +112,13 @@ abstract class SplitPipActivityBase : AppCompatActivity(), CompoundButton.OnChec
             if (isChecked) {
                 viewBinding.useStickyPlaceHolderCheckBox.isEnabled = true
             } else {
-                viewBinding.useStickyPlaceHolderCheckBox.isEnabled = true
-                viewBinding.useStickyPlaceHolderCheckBox.isChecked = true
+                viewBinding.useStickyPlaceHolderCheckBox.isEnabled = false
+                viewBinding.useStickyPlaceHolderCheckBox.isChecked = false
             }
         }
-        updateSplitRules()
+        if (!updatingConfigs) {
+            updateSplitRules()
+        }
     }
 
     /** Called on button clicked. */
@@ -166,6 +171,8 @@ abstract class SplitPipActivityBase : AppCompatActivity(), CompoundButton.OnChec
 
     /** Updates the checkboxes states after the split rules are changed by other activity. */
     internal fun updateCheckboxes() {
+        updatingConfigs = true
+
         val curRules = splitController.getSplitRules()
         val splitRule = curRules.firstOrNull { isRuleForSplit(it) }
         val placeholderRule = curRules.firstOrNull { isRuleForPlaceholder(it) }
@@ -195,6 +202,8 @@ abstract class SplitPipActivityBase : AppCompatActivity(), CompoundButton.OnChec
             viewBinding.useStickyPlaceHolderCheckBox.isEnabled = false
             viewBinding.useStickyPlaceHolderCheckBox.isChecked = false
         }
+
+        updatingConfigs = false
     }
 
     /** Whether the given rule is for splitting activity A and others. */
