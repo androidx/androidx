@@ -190,7 +190,8 @@ enum BuildType {
     GLANCE,
     TOOLS,
     KMP,
-    CAMERA
+    CAMERA,
+    NATIVE
 }
 
 private String getRequestedProjectSubsetName() {
@@ -248,6 +249,9 @@ private Set<BuildType> createRequestedFilter() {
             case "CAMERA":
                 filter.add(BuildType.CAMERA)
                 break
+            case "NATIVE":
+                filter.add(BuildType.NATIVE)
+                break
             case "ALL":
                 // Return null so that no filtering is done
                 return null
@@ -262,6 +266,7 @@ private Set<BuildType> createRequestedFilter() {
                         "FLAN    - fragment, lifecycle, activity, and navigation projects\n" +
                         "MEDIA   - media, media2, and mediarouter projects\n" +
                         "WEAR    - Wear OS projects\n" +
+                        "NATIVE  - native projects\n" +
                         "GLANCE  - glance projects")
         }
     }
@@ -824,8 +829,8 @@ includeProject(":startup:integration-tests:test-app", [BuildType.MAIN])
 includeProject(":startup:startup-runtime", [BuildType.MAIN])
 includeProject(":startup:startup-runtime-lint", [BuildType.MAIN])
 includeProject(":swiperefreshlayout:swiperefreshlayout", [BuildType.MAIN])
-includeProject(":test:ext:junit-gtest", [BuildType.MAIN])
-includeProject(":test:integration-tests:junit-gtest-test", [BuildType.MAIN])
+includeProject(":test:ext:junit-gtest", [BuildType.NATIVE])
+includeProject(":test:integration-tests:junit-gtest-test", [BuildType.NATIVE])
 includeProject(":test:screenshot:screenshot")
 includeProject(":test:screenshot:screenshot-proto", "test/screenshot/screenshot/proto")
 includeProject(":test:uiautomator:uiautomator", [BuildType.MAIN])
