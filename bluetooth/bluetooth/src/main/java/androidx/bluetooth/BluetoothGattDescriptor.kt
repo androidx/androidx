@@ -18,66 +18,72 @@ package androidx.bluetooth
 
 import android.os.Build
 import android.os.Bundle
+import android.bluetooth.BluetoothGattDescriptor as FwkBluetoothGattDescriptor
 import androidx.annotation.RequiresApi
 import androidx.bluetooth.utils.Bundleable
 
 import java.util.UUID
-
 /**
  * @hide
  */
 class BluetoothGattDescriptor internal constructor(
-    descriptor: android.bluetooth.BluetoothGattDescriptor
+    fwkDescriptor: FwkBluetoothGattDescriptor
 ) : Bundleable {
     private val impl: GattDescriptorImpl =
         if (Build.VERSION.SDK_INT >= 24) {
-            GattDescriptorImplApi24(descriptor)
+            GattDescriptorImplApi24(fwkDescriptor)
         } else {
-            GattDescriptorImplApi21(descriptor)
+            GattDescriptorImplApi21(fwkDescriptor)
         }
-    internal val fwkDescriptor: android.bluetooth.BluetoothGattDescriptor
+    internal val fwkDescriptor: FwkBluetoothGattDescriptor
         get() = impl.fwkDescriptor
     val permissions: Int
         get() = impl.permissions
     val uuid: UUID
         get() = impl.uuid
-    val characteristic: android.bluetooth.BluetoothGattCharacteristic?
+    var characteristic: BluetoothGattCharacteristic?
         get() = impl.characteristic
+        internal set(value) {
+            impl.characteristic = value
+        }
 
     constructor(uuid: UUID, permissions: Int) : this(
-        android.bluetooth.BluetoothGattDescriptor(
+        FwkBluetoothGattDescriptor(
             uuid,
             permissions
         )
     )
 
     companion object {
-        const val PERMISSION_READ = android.bluetooth.BluetoothGattDescriptor.PERMISSION_READ
+        const val PERMISSION_READ = FwkBluetoothGattDescriptor.PERMISSION_READ
         const val PERMISSION_READ_ENCRYPTED =
-            android.bluetooth.BluetoothGattDescriptor.PERMISSION_READ_ENCRYPTED
+            FwkBluetoothGattDescriptor.PERMISSION_READ_ENCRYPTED
         const val PERMISSION_READ_ENCRYPTED_MITM =
-            android.bluetooth.BluetoothGattDescriptor.PERMISSION_READ_ENCRYPTED_MITM
-        const val PERMISSION_WRITE = android.bluetooth.BluetoothGattDescriptor.PERMISSION_WRITE
+            FwkBluetoothGattDescriptor.PERMISSION_READ_ENCRYPTED_MITM
+        const val PERMISSION_WRITE = FwkBluetoothGattDescriptor.PERMISSION_WRITE
         const val PERMISSION_WRITE_ENCRYPTED =
-            android.bluetooth.BluetoothGattDescriptor.PERMISSION_WRITE_ENCRYPTED
+            FwkBluetoothGattDescriptor.PERMISSION_WRITE_ENCRYPTED
         const val PERMISSION_WRITE_ENCRYPTED_MITM =
-            android.bluetooth.BluetoothGattDescriptor.PERMISSION_WRITE_ENCRYPTED_MITM
+            FwkBluetoothGattDescriptor.PERMISSION_WRITE_ENCRYPTED_MITM
         const val PERMISSION_WRITE_SIGNED =
-            android.bluetooth.BluetoothGattDescriptor.PERMISSION_WRITE_SIGNED
+            FwkBluetoothGattDescriptor.PERMISSION_WRITE_SIGNED
         const val PERMISSION_WRITE_SIGNED_MITM =
-            android.bluetooth.BluetoothGattDescriptor.PERMISSION_WRITE_SIGNED_MITM
+            FwkBluetoothGattDescriptor.PERMISSION_WRITE_SIGNED_MITM
 
         val ENABLE_NOTIFICATION_VALUE = byteArrayOf(0x01, 0x00)
         val ENABLE_INDICATION_VALUE = byteArrayOf(0x02, 0x00)
         val DISABLE_NOTIFICATION_VALUE = byteArrayOf(0x00, 0x00)
 
-        internal fun keyForField(field: Int): String? {
+        internal fun keyForField(field: Int): String {
             return field.toString(Character.MAX_RADIX)
         }
 
         val CREATOR: Bundleable.Creator<BluetoothGattDescriptor> =
-            if (Build.VERSION.SDK_INT >= 24) GattDescriptorImplApi24.CREATOR
-            else GattDescriptorImplApi21.CREATOR
+            if (Build.VERSION.SDK_INT >= 24) {
+                GattDescriptorImplApi24.CREATOR
+            } else {
+                GattDescriptorImplApi21.CREATOR
+            }
     }
 
     override fun toBundle(): Bundle {
@@ -85,15 +91,16 @@ class BluetoothGattDescriptor internal constructor(
     }
 
     private interface GattDescriptorImpl {
-        val fwkDescriptor: android.bluetooth.BluetoothGattDescriptor
+        val fwkDescriptor: FwkBluetoothGattDescriptor
         val permissions: Int
         val uuid: UUID
-        val characteristic: android.bluetooth.BluetoothGattCharacteristic?
+        var characteristic: BluetoothGattCharacteristic?
+
         fun toBundle(): Bundle
     }
 
     private open class GattDescriptorImplApi21(
-        descriptor: android.bluetooth.BluetoothGattDescriptor
+        override val fwkDescriptor: FwkBluetoothGattDescriptor
     ) : GattDescriptorImpl {
         companion object {
 
@@ -103,7 +110,6 @@ class BluetoothGattDescriptor internal constructor(
 
             val CREATOR: Bundleable.Creator<BluetoothGattDescriptor> =
                 object : Bundleable.Creator<BluetoothGattDescriptor> {
-
                     @Suppress("DEPRECATION")
                     override fun fromBundle(bundle: Bundle): BluetoothGattDescriptor {
                         val permissions =
@@ -120,7 +126,7 @@ class BluetoothGattDescriptor internal constructor(
                         }
 
                         val descriptor =
-                            android.bluetooth.BluetoothGattDescriptor(
+                            FwkBluetoothGattDescriptor(
                                 UUID.fromString(uuid),
                                 permissions
                             )
@@ -135,13 +141,11 @@ class BluetoothGattDescriptor internal constructor(
                 }
         }
 
-        override val fwkDescriptor: android.bluetooth.BluetoothGattDescriptor = descriptor
         override val permissions: Int
             get() = fwkDescriptor.permissions
         override val uuid: UUID
             get() = fwkDescriptor.uuid
-        override val characteristic: android.bluetooth.BluetoothGattCharacteristic?
-            get() = fwkDescriptor.characteristic
+        override var characteristic: BluetoothGattCharacteristic? = null
 
         override fun toBundle(): Bundle {
             val bundle = Bundle()
@@ -156,8 +160,8 @@ class BluetoothGattDescriptor internal constructor(
 
     @RequiresApi(Build.VERSION_CODES.N)
     private open class GattDescriptorImplApi24(
-        descriptor: android.bluetooth.BluetoothGattDescriptor
-    ) : GattDescriptorImplApi21(descriptor) {
+        fwkDescriptor: FwkBluetoothGattDescriptor
+    ) : GattDescriptorImplApi21(fwkDescriptor) {
         companion object {
             internal const val FIELD_FWK_DESCRIPTOR = 0
             val CREATOR: Bundleable.Creator<BluetoothGattDescriptor> =
@@ -168,6 +172,7 @@ class BluetoothGattDescriptor internal constructor(
                             bundle.getParcelable<android.bluetooth.BluetoothGattDescriptor>(
                                 keyForField(FIELD_FWK_DESCRIPTOR)
                             ) ?: throw IllegalArgumentException("Bundle doesn't contain descriptor")
+
                         return BluetoothGattDescriptor(fwkDescriptor)
                     }
                 }
