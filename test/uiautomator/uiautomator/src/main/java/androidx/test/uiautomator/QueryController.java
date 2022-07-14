@@ -38,16 +38,16 @@ class QueryController {
     */
     private static final long QUIET_TIME_TO_BE_CONSIDERED_IDLE_STATE = 500;//ms
 
-    private static final String LOG_TAG = QueryController.class.getSimpleName();
+    static final String LOG_TAG = QueryController.class.getSimpleName();
 
-    private static final boolean DEBUG = Log.isLoggable(LOG_TAG, Log.DEBUG);
+    static final boolean DEBUG = Log.isLoggable(LOG_TAG, Log.DEBUG);
     private static final boolean VERBOSE = Log.isLoggable(LOG_TAG, Log.VERBOSE);
 
     private final Instrumentation mInstrumentation;
 
-    private final Object mLock = new Object();
+    final Object mLock = new Object();
 
-    private String mLastActivityName = null;
+    String mLastActivityName = null;
 
     // During a pattern selector search, the recursive pattern search
     // methods will track their counts and indexes here.
@@ -61,7 +61,7 @@ class QueryController {
     private int mLogIndent = 0;
     private int mLogParentIndent = 0;
 
-    private String mLastTraversedText = "";
+    String mLastTraversedText = "";
 
     private OnAccessibilityEventListener mEventListener = new OnAccessibilityEventListener() {
         @Override
