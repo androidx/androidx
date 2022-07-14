@@ -529,7 +529,7 @@ public class UiDevice implements Searchable {
         Tracer.trace();
         Display display = getDefaultDisplay();
         Point p = new Point();
-        display.getSize(p);
+        display.getRealSize(p);
         return p.x;
     }
 
@@ -543,7 +543,7 @@ public class UiDevice implements Searchable {
         Tracer.trace();
         Display display = getDefaultDisplay();
         Point p = new Point();
-        display.getSize(p);
+        display.getRealSize(p);
         return p.y;
     }
 
