@@ -57,6 +57,9 @@ import org.junit.AssumptionViolatedException
  * performance, and will show you performance of your app if you do not enable baseline profiles,
  * useful for judging the performance impact of the baseline profiles included in your application.
  *
+ * * [Ignore] - the state of compilation will be ignored. The intended use-case is for a developer
+ * to customize the compilation state for an app; and then tell Macrobenchmark to leave it unchanged.
+ *
  * On Android M (API 23), only [Full] is supported, as all apps are always fully compiled.
  *
  * To understand more how these modes work, you can see comments for each class, and also see the
@@ -66,30 +69,32 @@ import org.junit.AssumptionViolatedException
  * to compile the target app).
  */
 sealed class CompilationMode {
-    internal fun resetAndCompile(packageName: String, warmupBlock: () -> Unit) {
+    internal fun resetAndCompile(
+        packageName: String,
+        usePackageReset: () -> Boolean = Shell::isSessionRooted,
+        warmupBlock: () -> Unit
+    ) {
         if (Build.VERSION.SDK_INT >= 24) {
             if (Arguments.enableCompilation) {
                 Log.d(TAG, "Resetting $packageName")
-
-                // The compilation profile chooses whether a reset is required or not.
-                // Currently the only compilation profile that does not perform a reset is
+                // The compilation mode chooses whether a reset is required or not.
+                // Currently the only compilation mode that does not perform a reset is
                 // CompilationMode.Ignore.
                 if (shouldReset()) {
-
                     // It's not possible to reset the compilation profile on `user` builds.
                     // The flag `enablePackageReset` can be set to `true` on `userdebug` builds in
                     // order to speed-up the profile reset. When set to false, reset is performed
                     // uninstalling and reinstalling the app.
-                    if (Arguments.enablePackageReset) {
+                    if (usePackageReset()) {
                         // Package reset enabled
-                        Log.w(TAG, "Shader compilation will be cached between runs.")
                         Log.d(TAG, "Re-compiling $packageName")
                         // cmd package compile --reset returns a "Success" or a "Failure" to stdout.
                         // Rather than rely on exit codes which are not always correct, we specifically
                         // look for the work "Success" in stdout to make sure reset actually
                         // happened.
-                        val output = Shell
-                            .executeScriptWithStderr("cmd package compile --reset $packageName")
+                        val output = Shell.executeScriptWithStderr(
+                            "cmd package compile --reset $packageName"
+                        )
                         check(output.stdout.trim() == "Success") {
                             "Unable to recompile $packageName ($output)"
                         }

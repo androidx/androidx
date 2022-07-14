@@ -218,7 +218,11 @@ public class MacrobenchmarkScope(
      */
     public fun killProcess() {
         Log.d(TAG, "Killing process $packageName")
-        device.executeShellCommand("am force-stop $packageName")
+        if (Shell.isSessionRooted()) {
+            device.executeShellCommand("killall $packageName")
+        } else {
+            device.executeShellCommand("am force-stop $packageName")
+        }
     }
 
     /**
