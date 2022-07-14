@@ -13,24 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.annotation;
-
-import static java.lang.annotation.RetentionPolicy.SOURCE;
-
-import java.lang.annotation.Retention;
+package androidx.annotation
 
 /**
- * Typedef for the {@link Dimension#unit} attribute.
+ * Typedef for the [Dimension.unit] attribute.
  *
  * @hide
  */
-@IntDef({Dimension.PX,
-        Dimension.DP,
-        Dimension.SP}
-// Important: If updating these constants, also update
-// ../../../../external-annotations/android/support/annotation/annotations.xml
-)
+@IntDef(Dimension.PX, Dimension.DP, Dimension.SP)
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-@Retention(SOURCE)
-@interface DimensionUnit {
-}
+@Retention(AnnotationRetention.SOURCE)
+internal annotation class DimensionUnit

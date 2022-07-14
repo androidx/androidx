@@ -13,26 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.annotation;
-
-import static java.lang.annotation.ElementType.METHOD;
-import static java.lang.annotation.RetentionPolicy.CLASS;
-
-import java.lang.annotation.Documented;
-import java.lang.annotation.Retention;
-import java.lang.annotation.Target;
+package androidx.annotation
 
 /**
  * Denotes that any overriding methods should invoke this method as well.
- * <p>
+ *
+ *
  * Example:
- * <pre>
- *  &#64;CallSuper
- *  public abstract void onFocusLost();
- * </pre>
+ * ```
+ * @CallSuper
+ * public abstract void onFocusLost();
+ * ```
  */
-@Documented
-@Retention(CLASS)
-@Target({METHOD})
-public @interface CallSuper {
-}
+@MustBeDocumented
+@Retention(AnnotationRetention.BINARY)
+@Target(
+    AnnotationTarget.FUNCTION,
+    AnnotationTarget.PROPERTY_GETTER,
+    AnnotationTarget.PROPERTY_SETTER
+)
+public annotation class CallSuper

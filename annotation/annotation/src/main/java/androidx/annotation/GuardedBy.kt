@@ -13,22 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.annotation
 
-package androidx.annotation;
-
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import kotlin.annotation.AnnotationRetention.BINARY
 
 /**
  * Denotes that the annotated method or field can only be accessed when holding the referenced lock.
- * <p>
+ *
  * Example:
- * <pre>
+ * ```
  * final Object objectLock = new Object();
  *
- * {@literal @}GuardedBy("objectLock")
+ * @GuardedBy("objectLock")
  * volatile Object object;
  *
  * Object getObject() {
@@ -38,10 +34,14 @@ import java.lang.annotation.Target;
  *         }
  *     }
  *     return object;
- * }</pre>
+ * }
+ * ```
  */
-@Target({ElementType.FIELD, ElementType.METHOD})
-@Retention(RetentionPolicy.CLASS)
-public @interface GuardedBy {
-    String value();
-}
+@Target(
+    AnnotationTarget.FIELD,
+    AnnotationTarget.FUNCTION,
+    AnnotationTarget.PROPERTY_GETTER,
+    AnnotationTarget.PROPERTY_SETTER
+)
+@Retention(BINARY)
+public annotation class GuardedBy(val value: String)

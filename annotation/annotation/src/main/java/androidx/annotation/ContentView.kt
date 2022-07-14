@@ -13,34 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package androidx.annotation;
-
-import static java.lang.annotation.ElementType.CONSTRUCTOR;
-import static java.lang.annotation.RetentionPolicy.CLASS;
-
-import java.lang.annotation.Retention;
-import java.lang.annotation.Target;
+package androidx.annotation
 
 /**
- * Annotation that can be attached to a constructor with a single {@link LayoutRes} parameter
+ * Annotation that can be attached to a constructor with a single [LayoutRes] parameter
  * to denote what layout the component intends to inflate and set as its content.
- * <p>
+ *
  * It is strongly recommended that components that support this annotation specifically call
  * it out in their documentation.
- * <pre>
+ * ```
  * public class MainFragment extends Fragment {
  *     public MainFragment() {
  *         // This constructor is annotated with @ContentView
  *         super(R.layout.main);
  *     }
  * }
- * </pre>
+ * ```
  *
- * @see androidx.activity.ComponentActivity#ComponentActivity(int)
- * @see androidx.fragment.app.Fragment#Fragment(int)
+ * @see androidx.activity.ComponentActivity.ComponentActivity
+ * @see androidx.fragment.app.Fragment.Fragment
  */
-@Retention(CLASS)
-@Target({CONSTRUCTOR})
-public @interface ContentView {
-}
+@Retention(AnnotationRetention.BINARY)
+@Target(AnnotationTarget.CONSTRUCTOR)
+public annotation class ContentView

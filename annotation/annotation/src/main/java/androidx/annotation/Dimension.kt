@@ -13,32 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package androidx.annotation;
-
-import static java.lang.annotation.ElementType.ANNOTATION_TYPE;
-import static java.lang.annotation.ElementType.FIELD;
-import static java.lang.annotation.ElementType.LOCAL_VARIABLE;
-import static java.lang.annotation.ElementType.METHOD;
-import static java.lang.annotation.ElementType.PARAMETER;
-import static java.lang.annotation.RetentionPolicy.CLASS;
-
-import java.lang.annotation.Documented;
-import java.lang.annotation.Retention;
-import java.lang.annotation.Target;
+package androidx.annotation
 
 /**
  * Denotes that an integer parameter, field or method return value is expected
  * to represent a dimension.
  */
-@Documented
-@Retention(CLASS)
-@Target({METHOD, PARAMETER, FIELD, LOCAL_VARIABLE, ANNOTATION_TYPE})
-public @interface Dimension {
-    @DimensionUnit
-    int unit() default PX;
-
-    int DP = 0;
-    int PX = 1;
-    int SP = 2;
+@MustBeDocumented
+@Retention(AnnotationRetention.BINARY)
+@Target(
+    AnnotationTarget.FUNCTION,
+    AnnotationTarget.PROPERTY_GETTER,
+    AnnotationTarget.PROPERTY_SETTER,
+    AnnotationTarget.VALUE_PARAMETER,
+    AnnotationTarget.FIELD,
+    AnnotationTarget.LOCAL_VARIABLE,
+    AnnotationTarget.ANNOTATION_CLASS
+)
+public annotation class Dimension(@DimensionUnit val unit: Int = PX) {
+    public companion object {
+        public const val DP: Int = 0
+        public const val PX: Int = 1
+        public const val SP: Int = 2
+    }
 }

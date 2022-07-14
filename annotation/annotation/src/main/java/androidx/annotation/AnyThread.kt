@@ -13,35 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.annotation;
-
-import static java.lang.annotation.ElementType.CONSTRUCTOR;
-import static java.lang.annotation.ElementType.METHOD;
-import static java.lang.annotation.ElementType.PARAMETER;
-import static java.lang.annotation.ElementType.TYPE;
-import static java.lang.annotation.RetentionPolicy.CLASS;
-
-import java.lang.annotation.Documented;
-import java.lang.annotation.Retention;
-import java.lang.annotation.Target;
+package androidx.annotation
 
 /**
  * Denotes that the annotated method can be called from any thread (e.g. it is "thread safe".)
  * If the annotated element is a class, then all methods in the class can be called
  * from any thread.
- * <p>
+ *
  * The main purpose of this method is to indicate that you believe a method can be called
  * from any thread; static tools can then check that nothing you call from within this method
  * or class have more strict threading requirements.
- * <p>
+ *
  * Example:
- * <pre>
- *  &#64;AnyThread
- *  public void deliverResult(D data) { ... }
- * </pre>
+ * ```
+ * @AnyThread
+ * public void deliverResult(D data) { ... }
+ * ```
  */
-@Documented
-@Retention(CLASS)
-@Target({METHOD, CONSTRUCTOR, TYPE, PARAMETER})
-public @interface AnyThread {
-}
+@MustBeDocumented
+@Retention(AnnotationRetention.BINARY)
+@Target(
+    AnnotationTarget.FUNCTION,
+    AnnotationTarget.PROPERTY_GETTER,
+    AnnotationTarget.PROPERTY_SETTER,
+    AnnotationTarget.CONSTRUCTOR,
+    AnnotationTarget.ANNOTATION_CLASS,
+    AnnotationTarget.CLASS,
+    AnnotationTarget.VALUE_PARAMETER
+)
+public annotation class AnyThread

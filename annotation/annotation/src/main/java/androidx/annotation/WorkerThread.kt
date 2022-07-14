@@ -13,31 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.annotation;
-
-import static java.lang.annotation.ElementType.CONSTRUCTOR;
-import static java.lang.annotation.ElementType.METHOD;
-import static java.lang.annotation.ElementType.PARAMETER;
-import static java.lang.annotation.ElementType.TYPE;
-import static java.lang.annotation.RetentionPolicy.CLASS;
-
-import java.lang.annotation.Documented;
-import java.lang.annotation.Retention;
-import java.lang.annotation.Target;
+package androidx.annotation
 
 /**
  * Denotes that the annotated method should only be called on a worker thread.
  * If the annotated element is a class, then all methods in the class should be called
  * on a worker thread.
- * <p>
+ *
  * Example:
- * <pre><code>
- *  &#64;WorkerThread
- *  protected abstract FilterResults performFiltering(CharSequence constraint);
- * </code></pre>
+ * ```
+ * @WorkerThread
+ * protected abstract FilterResults performFiltering(CharSequence constraint);
+ * ```
  */
-@Documented
-@Retention(CLASS)
-@Target({METHOD, CONSTRUCTOR, TYPE, PARAMETER})
-public @interface WorkerThread {
-}
+@MustBeDocumented
+@Retention(AnnotationRetention.BINARY)
+@Target(
+    AnnotationTarget.FUNCTION,
+    AnnotationTarget.PROPERTY_GETTER,
+    AnnotationTarget.PROPERTY_SETTER,
+    AnnotationTarget.CONSTRUCTOR,
+    AnnotationTarget.ANNOTATION_CLASS,
+    AnnotationTarget.CLASS,
+    AnnotationTarget.VALUE_PARAMETER
+)
+public annotation class WorkerThread

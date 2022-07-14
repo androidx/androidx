@@ -13,27 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package androidx.annotation;
-
-
-import static java.lang.annotation.ElementType.METHOD;
-import static java.lang.annotation.ElementType.TYPE;
-import static java.lang.annotation.RetentionPolicy.SOURCE;
-
-import java.lang.annotation.Retention;
-import java.lang.annotation.Target;
+package androidx.annotation
 
 /**
  * Denotes that the annotated method is the getter for a resources-backed property that should be
  * shown in Android Studio's inspection tools.
  *
- * @deprecated Replaced by the {@code androidx.resourceinpsection} package.
  */
-@Target({METHOD})
-@Retention(SOURCE)
-@Deprecated
-public @interface InspectableProperty {
+@Target(
+    AnnotationTarget.FUNCTION,
+    AnnotationTarget.PROPERTY_GETTER,
+    AnnotationTarget.PROPERTY_SETTER
+)
+@Retention(AnnotationRetention.SOURCE)
+@Deprecated("Replaced by the {@code androidx.resourceinpsection} package.")
+public annotation class InspectableProperty(
     /**
      * The name of the property.
      *
@@ -42,18 +36,16 @@ public @interface InspectableProperty {
      *
      * @return The name of the property.
      */
-    String name() default "";
-
+    val name: String = "",
     /**
      * If the property is inflated from XML, the resource ID of its XML attribute.
      *
-     * If left as the default, and {@link #hasAttributeId()} is true, the attribute ID will be
-     * inferred from {@link #name()}.
+     * If left as the default, and [hasAttributeId] is true, the attribute ID will be
+     * inferred from [name].
      *
      * @return The attribute ID of the property or the default null resource ID
      */
-    int attributeId() default 0;
-
+    val attributeId: Int = 0,
     /**
      * If this property has an attribute ID.
      *
@@ -62,93 +54,86 @@ public @interface InspectableProperty {
      *
      * @return Whether to infer an attribute ID if not supplied
      */
-    boolean hasAttributeId() default true;
-
+    val hasAttributeId: Boolean = true,
     /**
      * Specify how to interpret a value type packed into a primitive integer.
      *
-     * @return A {@link ValueType}
+     * @return A [ValueType]
      */
-    ValueType valueType() default ValueType.INFERRED;
-
+    val valueType: ValueType = ValueType.INFERRED,
     /**
      * For enumerations packed into primitive {int} properties, map the values to string names.
      *
-     * Note that {@code #enumMapping()} cannot be used simultaneously with {@link #flagMapping()}.
+     * Note that `#enumMapping()` cannot be used simultaneously with [flagMapping].
      *
-     * @return An array of {@link EnumEntry}, empty if not applicable
+     * @return An array of [EnumEntry], empty if not applicable
      */
-    EnumEntry[] enumMapping() default {};
-
+    val enumMapping: Array<EnumEntry> = [],
     /**
      * For flags packed into primitive {int} properties, model the string names of the flags.
      *
-     * Note that {@code #flagMapping()} cannot be used simultaneously with {@link #enumMapping()}.
+     * Note that `#flagMapping()` cannot be used simultaneously with [enumMapping].
      *
-     * @return An array of {@link FlagEntry}, empty if not applicable
+     * @return An array of [FlagEntry], empty if not applicable
      */
-    FlagEntry[] flagMapping() default {};
-
-
+    val flagMapping: Array<FlagEntry> = []
+) {
     /**
      * One entry in an enumeration packed into a primitive {int}.
      */
-    @Target({TYPE})
-    @Retention(SOURCE)
-    @interface EnumEntry {
+    @Target(AnnotationTarget.ANNOTATION_CLASS, AnnotationTarget.CLASS)
+    @Retention(AnnotationRetention.SOURCE)
+    public annotation class EnumEntry(
         /**
          * The string name of this enumeration value.
          *
          * @return A string name
          */
-        String name();
-
+        val name: String,
         /**
          * The integer value of this enumeration value.
          *
          * @return An integer value
          */
-        int value();
-    }
+        val value: Int
+    )
 
     /**
      * One flag value of many that may be packed into a primitive {int}.
      */
-    @Target({TYPE})
-    @Retention(SOURCE)
-    @interface FlagEntry {
+    @Target(AnnotationTarget.ANNOTATION_CLASS, AnnotationTarget.CLASS)
+    @Retention(AnnotationRetention.SOURCE)
+    public annotation class FlagEntry(
         /**
          * The string name of this flag.
          *
          * @return A string name
          */
-        String name();
-
+        val name: String,
         /**
          * A target value that the property's value must equal after masking.
          *
-         * If a mask is not supplied (i.e., {@link #mask()} is 0), the target will be reused as the
+         * If a mask is not supplied (i.e., [mask] is 0), the target will be reused as the
          * mask. This handles the common case where no flags mutually exclude each other.
          *
          * @return The target value to compare against
          */
-        int target();
-
+        val target: Int,
         /**
          * A mask that the property will be bitwise anded with before comparing to the target.
          *
-         * If set to 0 (the default), the value of {@link #target()} will be used as a mask. Zero
+         * If set to 0 (the default), the value of [target] will be used as a mask. Zero
          * was chosen as the default since bitwise and with zero is always zero.
          *
          * @return A mask, or 0 to use the target as a mask
          */
-        int mask() default 0;
-    }
+        val mask: Int = 0
+    )
 
     /**
      * The type of value packed into a primitive {int}.
      */
-    enum ValueType {
+    public enum class ValueType {
         /**
          * No special handling, property is considered to be a numeric value.
          */
@@ -162,7 +147,7 @@ public @interface InspectableProperty {
         /**
          * Value packs an enumeration.
          *
-         * This is inferred if {@link #enumMapping()} is specified.
+         * This is inferred if [enumMapping] is specified.
          *
          * @see EnumEntry
          */
@@ -171,7 +156,7 @@ public @interface InspectableProperty {
         /**
          * Value packs flags, of which many may be enabled at once.
          *
-         * This is inferred if {@link #flagMapping()} is specified.
+         * This is inferred if [flagMapping] is specified.
          *
          * @see FlagEntry
          */
@@ -180,14 +165,14 @@ public @interface InspectableProperty {
         /**
          * Value packs color information.
          *
-         * This is inferred from {@link ColorInt}, or {@link ColorLong} on the getter method.
+         * This is inferred from [ColorInt], or [ColorLong] on the getter method.
          */
         COLOR,
 
         /**
          * Value packs gravity information.
          *
-         * This type is not inferred and is non-trivial to represent using {@link FlagEntry}.
+         * This type is not inferred and is non-trivial to represent using [FlagEntry].
          */
         GRAVITY,
 
@@ -195,7 +180,7 @@ public @interface InspectableProperty {
          * Value is a resource ID
          *
          * This type is inferred from the presence of a resource ID annotation such as
-         * {@link AnyRes}.
+         * [AnyRes].
          */
         RESOURCE_ID
     }

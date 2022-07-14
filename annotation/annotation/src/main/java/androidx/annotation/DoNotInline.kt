@@ -13,29 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.annotation;
-
-import static java.lang.annotation.ElementType.METHOD;
-import static java.lang.annotation.RetentionPolicy.CLASS;
-
-import java.lang.annotation.Retention;
-import java.lang.annotation.Target;
+package androidx.annotation
 
 /**
  * Denotes that the annotated method should not be inlined when
  * the code is optimized at build time. This is typically used
  * to avoid inlining purposely out-of-line methods that are
  * intended to be in separate classes.
- * <p>
+ *
  * Example:
- * <pre>
- *  &#64;DoNotInline
- *  public void foo() {
- *      ...
- *  }
- * </pre>
+ * ```
+ * @DoNotInline
+ * public void foo() {
+ *     ...
+ * }
+ * ```
  */
-@Retention(CLASS)
-@Target({METHOD})
-public @interface DoNotInline {
-}
+@Retention(AnnotationRetention.BINARY)
+@Target(
+    AnnotationTarget.FUNCTION,
+    AnnotationTarget.PROPERTY_GETTER,
+    AnnotationTarget.PROPERTY_SETTER
+)
+public annotation class DoNotInline
