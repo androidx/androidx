@@ -346,7 +346,7 @@ class InteractionController {
                 AccessibilityEvent.TYPE_VIEW_SELECTED), timeout) != null;
     }
 
-    private boolean touchDown(int x, int y) {
+    boolean touchDown(int x, int y) {
         if (DEBUG) {
             Log.d(LOG_TAG, "touchDown (" + x + ", " + y + ")");
         }
@@ -355,7 +355,7 @@ class InteractionController {
         return injectEventSync(event);
     }
 
-    private boolean touchUp(int x, int y) {
+    boolean touchUp(int x, int y) {
         if (DEBUG) {
             Log.d(LOG_TAG, "touchUp (" + x + ", " + y + ")");
         }
@@ -700,7 +700,7 @@ class InteractionController {
         return pm.isScreenOn();
     }
 
-    private boolean injectEventSync(InputEvent event) {
+    boolean injectEventSync(InputEvent event) {
         return getUiAutomation().injectInputEvent(event, true);
     }
 
