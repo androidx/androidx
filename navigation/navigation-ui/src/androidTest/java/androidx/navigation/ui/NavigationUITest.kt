@@ -17,8 +17,12 @@
 package androidx.navigation.ui
 
 import android.content.Context
+import android.graphics.drawable.Drawable
+import android.os.Bundle
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.res.TypedArrayUtils.getString
+import androidx.navigation.NavController
+import androidx.navigation.NavDestination
 import androidx.navigation.NavGraph
 import androidx.navigation.NavGraphNavigator
 import androidx.navigation.NavHostController
@@ -51,7 +55,7 @@ class NavigationUITest {
 
     @UiThreadTest
     @Test
-    fun navigateWithStringReferenceArgs() {
+    fun navigateWithSingleStringReferenceArg() {
         val context = ApplicationProvider.getApplicationContext<Context>()
         val navController = NavHostController(context)
         navController.navigatorProvider.addNavigator(TestNavigator())
@@ -74,7 +78,155 @@ class NavigationUITest {
             endDestination + "/${R.string.dest_title}"
         )
 
-        val expected = context.resources.getString(R.string.dest_title)
+        val expected = "${context.resources.getString(R.string.dest_title)}"
         assertThat(toolbar.title.toString()).isEqualTo(expected)
+    }
+
+    @UiThreadTest
+    @Test
+    fun navigateWithMultiStringReferenceArgs() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val navController = NavHostController(context)
+        navController.navigatorProvider.addNavigator(TestNavigator())
+
+        val startDestination = "start_destination"
+        val endDestination = "end_destination"
+
+        navController.graph = navController.createGraph(startDestination = startDestination) {
+            test(startDestination)
+            test("$endDestination/{test}") {
+                label = "start/{test}/end/{test}"
+                argument(name = "test") {
+                    type = NavType.ReferenceType
+                }
+            }
+        }
+
+        val toolbar = Toolbar(context).apply { setupWithNavController(navController) }
+        navController.navigate(
+            endDestination + "/${R.string.dest_title}"
+        )
+
+        val argString = context.resources.getString(R.string.dest_title)
+        val expected = "start/$argString/end/$argString"
+        assertThat(toolbar.title.toString()).isEqualTo(expected)
+    }
+
+    @UiThreadTest
+    @Test(expected = IllegalArgumentException::class)
+    fun navigateWithArg_NotFoundInBundleThrows() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val navController = NavHostController(context)
+        navController.navigatorProvider.addNavigator(TestNavigator())
+
+        val startDestination = "start_destination"
+        val endDestination = "end_destination"
+        val labelString = "end/{test}"
+
+        navController.graph = navController.createGraph(startDestination = startDestination) {
+            test(startDestination)
+            test(endDestination) {
+                label = labelString
+            }
+        }
+
+        val toolbar = Toolbar(context).apply { setupWithNavController(navController) }
+
+        // empty bundle
+        val testListener = createToolbarOnDestinationChangedListener(
+            toolbar = toolbar, bundle = Bundle(), context = context, navController = navController
+        )
+
+        // navigate to destination. Since the argument {test} is not present in the bundle,
+        // this should throw an IllegalArgumentException
+        navController.apply {
+            addOnDestinationChangedListener(testListener)
+            navigate(route = endDestination)
+        }
+    }
+
+    @UiThreadTest
+    @Test(expected = IllegalArgumentException::class)
+    fun navigateWithArg_NullBundleThrows() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val navController = NavHostController(context)
+        navController.navigatorProvider.addNavigator(TestNavigator())
+
+        val startDestination = "start_destination"
+        val endDestination = "end_destination"
+        val labelString = "end/{test}"
+
+        navController.graph = navController.createGraph(startDestination = startDestination) {
+            test(startDestination)
+            test("$endDestination/{test}") {
+                label = labelString
+                argument(name = "test") {
+                    type = NavType.ReferenceType
+                }
+            }
+        }
+
+        val toolbar = Toolbar(context).apply { setupWithNavController(navController) }
+
+        // null Bundle
+        val testListener = createToolbarOnDestinationChangedListener(
+            toolbar = toolbar, bundle = null, context = context, navController = navController
+        )
+
+        // navigate to destination, should throw due to template found but null bundle
+        navController.apply {
+            addOnDestinationChangedListener(testListener)
+            navigate(route = endDestination + "/${R.string.dest_title}")
+        }
+    }
+
+    @UiThreadTest
+    @Test
+    fun navigateWithStaticLabel() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val navController = NavHostController(context)
+        navController.navigatorProvider.addNavigator(TestNavigator())
+
+        val startDestination = "start_destination"
+        val endDestination = "end_destination"
+        val labelString = "end/test"
+
+        navController.graph = navController.createGraph(startDestination = startDestination) {
+            test(startDestination)
+            test(endDestination) {
+                label = labelString
+            }
+        }
+
+        val toolbar = Toolbar(context).apply { setupWithNavController(navController) }
+
+        // navigate to destination, static label should be returned directly
+        navController.navigate(route = endDestination)
+        assertThat(toolbar.title.toString()).isEqualTo(labelString)
+    }
+
+    private fun createToolbarOnDestinationChangedListener(
+        toolbar: Toolbar,
+        bundle: Bundle?,
+        context: Context,
+        navController: NavController
+    ): NavController.OnDestinationChangedListener {
+       return object : AbstractAppBarOnDestinationChangedListener(
+            context, AppBarConfiguration.Builder(navController.graph).build()
+        ) {
+            override fun setTitle(title: CharSequence?) {
+                toolbar.title = title
+            }
+
+            override fun onDestinationChanged(
+                controller: NavController,
+                destination: NavDestination,
+                arguments: Bundle?
+            ) {
+                super.onDestinationChanged(controller, destination, bundle)
+            }
+
+            override fun setNavigationIcon(icon: Drawable?, contentDescription: Int) {}
+        }
     }
 }
