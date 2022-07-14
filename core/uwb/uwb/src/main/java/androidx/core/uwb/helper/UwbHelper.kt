@@ -47,7 +47,7 @@ internal fun handleApiException(e: ApiException) {
         UwbStatusCodes.SERVICE_NOT_AVAILABLE ->
             throw UwbServiceNotAvailableException("UWB Service is not available.")
         UwbStatusCodes.UWB_SYSTEM_CALLBACK_FAILURE ->
-            throw UwbSystemCallbackException("UWB system has failed to deliver ")
+            throw UwbSystemCallbackException("UWB backend system resulted in an error.")
         else ->
             throw RuntimeException("Unexpected error. This indicates that the library is not " +
                 "up-to-date with the service backend.")
