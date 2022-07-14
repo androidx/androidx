@@ -19,7 +19,7 @@
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="abc_slice_more_content" msgid="7841223363798860154">"+ <xliff:g id="NUMBER">%1$d</xliff:g>"</string>
     <string name="abc_slice_more" msgid="4299234410808450900">"Más"</string>
-    <string name="abc_slice_show_more" msgid="1112789899890391107">"Ver más"</string>
+    <string name="abc_slice_show_more" msgid="1112789899890391107">"Mostrar más"</string>
     <string name="abc_slice_updated" msgid="7932359091871934205">"Última actualización: <xliff:g id="TIME">%1$s</xliff:g>"</string>
     <plurals name="abc_slice_duration_min" formatted="false" msgid="7664017844210142826">
       <item quantity="other">Hace <xliff:g id="ID_2">%d</xliff:g> min</item>
