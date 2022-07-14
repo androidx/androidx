@@ -299,66 +299,12 @@
     </issue>
 
     <issue
-        id="SyntheticAccessor"
-        message="Access to `private` member of class `LogcatSink` requires synthetic accessor"
-        errorLine1="                    mSinks.add(new LogcatSink());"
-        errorLine2="                               ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/test/uiautomator/Tracer.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` member of class `LogcatSink` requires synthetic accessor"
-        errorLine1="                    mSinks.add(new LogcatSink());"
-        errorLine2="                               ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/test/uiautomator/Tracer.java"/>
-    </issue>
-
-    <issue
         id="LambdaLast"
         message="Functional interface parameters (such as parameter 1, &quot;action&quot;, in androidx.test.uiautomator.UiDevice.performActionAndWait) should be last to improve Kotlin interoperability; see https://kotlinlang.org/docs/reference/java-interop.html#sam-conversions"
         errorLine1="    public &lt;R> R performActionAndWait(Runnable action, EventCondition&lt;R> condition, long timeout) {"
         errorLine2="                                                                                    ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/test/uiautomator/UiDevice.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public static Tracer getInstance() {"
-        errorLine2="                  ~~~~~~">
-        <location
-            file="src/main/java/androidx/test/uiautomator/Tracer.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public void setOutputMode(Mode mode) {"
-        errorLine2="                              ~~~~">
-        <location
-            file="src/main/java/androidx/test/uiautomator/Tracer.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public void setOutputFilename(String filename) {"
-        errorLine2="                                  ~~~~~~">
-        <location
-            file="src/main/java/androidx/test/uiautomator/Tracer.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public static void trace(Object... arguments) {"
-        errorLine2="                             ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/test/uiautomator/Tracer.java"/>
     </issue>
 
     <issue

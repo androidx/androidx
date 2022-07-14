@@ -18,6 +18,8 @@ package androidx.test.uiautomator;
 
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
@@ -32,7 +34,7 @@ import java.util.Locale;
  * Class that creates traces of the calls to the UiAutomator API and outputs the
  * traces either to logcat or a logfile. Each public method in the UiAutomator
  * that needs to be traced should include a call to Tracer.trace in the
- * beginning. Tracing is turned off by defualt and needs to be enabled
+ * beginning. Tracing is turned off by default and needs to be enabled
  * explicitly.
  * @hide
  */
@@ -60,45 +62,43 @@ public class Tracer {
         public void close();
     }
 
-    @SuppressWarnings("ClassCanBeStatic")
-    private class FileSink implements TracerSink {
-        private PrintWriter mOut;
-        private SimpleDateFormat mDateFormat;
+    private static class FileSink implements TracerSink {
+        private final PrintWriter mOut;
+        private final SimpleDateFormat mDateFormat;
 
         public FileSink(File file) throws FileNotFoundException {
             mOut = new PrintWriter(file);
             mDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
         }
 
-        @SuppressWarnings("MissingOverride")
+        @Override
         public void log(String message) {
             mOut.printf("%s %s\n", mDateFormat.format(new Date()), message);
         }
 
-        @SuppressWarnings("MissingOverride")
+        @Override
         public void close() {
             mOut.close();
         }
     }
 
-    @SuppressWarnings("ClassCanBeStatic")
-    private class LogcatSink implements TracerSink {
+    static class LogcatSink implements TracerSink {
 
         private static final String LOGCAT_TAG = "UiAutomatorTrace";
 
-        @SuppressWarnings("MissingOverride")
+        @Override
         public void log(String message) {
             Log.i(LOGCAT_TAG, message);
         }
 
-        @SuppressWarnings("MissingOverride")
+        @Override
         public void close() {
             // nothing is needed
         }
     }
 
     private Mode mCurrentMode = Mode.NONE;
-    private List<TracerSink> mSinks = new ArrayList<TracerSink>();
+    private final List<TracerSink> mSinks = new ArrayList<>();
     private File mOutputFile;
 
     private static Tracer mInstance = null;
@@ -109,6 +109,7 @@ public class Tracer {
      *
      * @return
      */
+    @NonNull
     public static Tracer getInstance() {
         if (mInstance == null) {
             mInstance = new Tracer();
@@ -122,7 +123,7 @@ public class Tracer {
      *
      * @param mode
      */
-    public void setOutputMode(Mode mode) {
+    public void setOutputMode(@NonNull Mode mode) {
         closeSinks();
         mCurrentMode = mode;
         try {
@@ -166,7 +167,7 @@ public class Tracer {
      *
      * @param filename name of the log file.
      */
-    public void setOutputFilename(String filename) {
+    public void setOutputFilename(@NonNull String filename) {
         mOutputFile = new File(filename);
     }
 
@@ -199,10 +200,10 @@ public class Tracer {
 
     /**
      * Public methods in the UiAutomator should call this function to generate a
-     * trace. The trace will include the method thats is being called, it's
+     * trace. The trace will include the method that's is being called, it's
      * arguments and where in the user's code the method is called from. If a
      * public method is called internally from UIAutomator then this will not
-     * output a trace entry. Only calls from outise the UiAutomator package will
+     * output a trace entry. Only calls from outside the UiAutomator package will
      * produce output.
      *
      * Special note about array arguments. You can safely pass arrays of reference types
@@ -213,13 +214,14 @@ public class Tracer {
      *
      * @param arguments arguments of the method being traced.
      */
-    public static void trace(Object... arguments) {
+    public static void trace(@NonNull Object... arguments) {
         Tracer.getInstance().doTrace(arguments);
     }
 
     private static String join(String separator, Object[] strings) {
-        if (strings.length == 0)
+        if (strings.length == 0) {
             return "";
+        }
 
         StringBuilder builder = new StringBuilder(objectToString(strings[0]));
         for (int i = 1; i < strings.length; i++) {
@@ -244,7 +246,7 @@ public class Tracer {
     private static String objectToString(Object obj) {
         if (obj.getClass().isArray()) {
             if (obj instanceof Object[]) {
-                return Arrays.deepToString((Object[])obj);
+                return Arrays.deepToString((Object[]) obj);
             } else {
                 return "[...]";
             }
@@ -255,7 +257,7 @@ public class Tracer {
 
     /**
      * This method outputs which UiAutomator method was called and where in the
-     * user code it was called from. If it can't deside which method is called
+     * user code it was called from. If it can't decide which method is called
      * it will output "(unknown method)". If the method was called from inside
      * the UiAutomator then it returns null.
      *
@@ -263,7 +265,7 @@ public class Tracer {
      *         method was called from inside UiAutomator.
      */
     private static String getCaller() {
-        StackTraceElement stackTrace[] = Thread.currentThread().getStackTrace();
+        StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
         if (stackTrace.length < MIN_STACK_TRACE_LENGTH) {
             return UNKNOWN_METHOD_STRING;
         }
