@@ -51,7 +51,6 @@ import androidx.camera.testing.SurfaceFormatUtil
 import androidx.camera.testing.fakes.FakeActivity
 import androidx.camera.testing.fakes.FakeCamera
 import androidx.camera.testing.fakes.FakeCameraInfoInternal
-import androidx.camera.testing.fakes.FakeLifecycleOwner
 import androidx.camera.view.PreviewView.ImplementationMode
 import androidx.camera.view.internal.compat.quirk.DeviceQuirks
 import androidx.camera.view.internal.compat.quirk.SurfaceViewStretchedQuirk
@@ -869,7 +868,6 @@ class PreviewViewDeviceTest {
 
     @Test
     fun canSetFrameUpdateListener() {
-        val lifecycle = FakeLifecycleOwner()
         lateinit var previewView: PreviewView
         activityScenario!!.onActivity { activity ->
             previewView = PreviewView(context)
@@ -877,9 +875,8 @@ class PreviewViewDeviceTest {
             activity.setContentView(previewView)
             val preview = Preview.Builder().build()
             preview.setSurfaceProvider(previewView.surfaceProvider)
-            cameraProvider!!.bindToLifecycle(lifecycle,
+            cameraProvider!!.bindToLifecycle(activity,
                 CameraSelector.DEFAULT_BACK_CAMERA, preview)
-            lifecycle.startAndResume()
         }
 
         var executedOnExecutor = false
