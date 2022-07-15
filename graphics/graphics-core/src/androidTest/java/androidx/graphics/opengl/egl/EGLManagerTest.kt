@@ -64,7 +64,7 @@ class EGLManagerTest {
     fun testInitializeAndRelease() {
         testEglManager {
             initialize()
-            val config = loadConfig(EGLConfigAttributes.RGBA_8888)?.also {
+            val config = loadConfig(EglConfigAttributes8888)?.also {
                 createContext(it)
             }
             if (config == null) {
@@ -85,7 +85,7 @@ class EGLManagerTest {
     fun testMultipleInitializeCallsIgnored() {
         testEglManager {
             initialize()
-            loadConfig(EGLConfigAttributes.RGBA_8888)?.also {
+            loadConfig(EglConfigAttributes8888)?.also {
                 createContext(it)
             }
             val currentContext = eglContext
@@ -103,7 +103,7 @@ class EGLManagerTest {
     fun testMultipleReleaseCallsIgnored() {
         testEglManager {
             initialize()
-            loadConfig(EGLConfigAttributes.RGBA_8888)?.also {
+            loadConfig(EglConfigAttributes8888)?.also {
                 createContext(it)
             }
             // Multiple attempts to release should act as no-ops, i.e. we should not crash
@@ -125,7 +125,7 @@ class EGLManagerTest {
             assertEquals(currentDrawSurface, EGL14.EGL_NO_SURFACE)
             assertEquals(currentReadSurface, EGL14.EGL_NO_SURFACE)
 
-            val config = loadConfig(EGLConfigAttributes.RGBA_8888)
+            val config = loadConfig(EglConfigAttributes8888)
 
             if (config == null) {
                 fail("Config 8888 should be supported")
@@ -191,7 +191,7 @@ class EGLManagerTest {
             assertEquals(currentDrawSurface, EGL14.EGL_NO_SURFACE)
             assertEquals(currentReadSurface, EGL14.EGL_NO_SURFACE)
 
-            val config = loadConfig(EGLConfigAttributes.RGBA_8888)
+            val config = loadConfig(EglConfigAttributes8888)
 
             if (config == null) {
                 fail("Config 8888 should be supported")
@@ -223,7 +223,7 @@ class EGLManagerTest {
             assertEquals(currentDrawSurface, EGL14.EGL_NO_SURFACE)
             assertEquals(currentReadSurface, EGL14.EGL_NO_SURFACE)
 
-            val config = loadConfig(EGLConfigAttributes.RGBA_8888)
+            val config = loadConfig(EglConfigAttributes8888)
 
             if (config == null) {
                 fail("Config 8888 should be supported")
@@ -256,7 +256,7 @@ class EGLManagerTest {
         testEglManager {
             initialize()
 
-            val config = loadConfig(EGLConfigAttributes.RGBA_8888)
+            val config = loadConfig(EglConfigAttributes8888)
             if (config == null) {
                 fail("Config 8888 should be supported")
             }
@@ -302,7 +302,7 @@ class EGLManagerTest {
     ) {
         testEglManager {
             initialize()
-            val config = loadConfig(EGLConfigAttributes.RGBA_8888)
+            val config = loadConfig(EglConfigAttributes8888)
             if (config == null) {
                 fail("Config 8888 should be supported")
             }
@@ -356,7 +356,7 @@ class EGLManagerTest {
         var canRender = false
         testEglManager {
             initialize()
-            val config = loadConfig(EGLConfigAttributes.RGBA_8888)
+            val config = loadConfig(EglConfigAttributes8888)
             if (config == null) {
                 fail("Config 8888 should be supported")
             }
@@ -671,7 +671,7 @@ class EGLManagerTest {
     // EGLConfig to the ARGB8888 configuration
     private fun EGLManager.initializeWithDefaultConfig() {
         initialize()
-        val config = loadConfig(EGLConfigAttributes.RGBA_8888)
+        val config = loadConfig(EglConfigAttributes8888)
         if (config == null) {
             fail("Config 8888 should be supported")
         }
