@@ -50,7 +50,7 @@ public inline fun <T> SparseArrayCompat<T>.getOrElse(key: Int, defaultValue: () 
 
 /** Return true when the collection contains elements. */
 @Suppress("NOTHING_TO_INLINE")
-public inline fun <T> SparseArrayCompat<T>.isNotEmpty(): Boolean = !isEmpty
+public inline fun <T> SparseArrayCompat<T>.isNotEmpty(): Boolean = !isEmpty()
 
 /** Removes the entry for [key] only if it is mapped to [value]. */
 @Suppress("EXTENSION_SHADOWED_BY_MEMBER") // Binary API compatibility.

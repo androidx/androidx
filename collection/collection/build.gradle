@@ -41,12 +41,12 @@ androidXMultiplatform {
     sourceSets {
         commonMain {
             dependencies {
-                api(libs.kotlinStdlibCommon)
+                api(libs.kotlinStdlib)
             }
         }
         commonTest {
             dependencies {
-                implementation(libs.kotlinTestCommon)
+                implementation(libs.kotlinTest)
                 implementation(libs.kotlinTestAnnotationsCommon)
                 implementation(libs.kotlinCoroutinesCore)
             }
@@ -94,7 +94,6 @@ androidXMultiplatform {
 
         jvmMain {
             dependencies {
-                api(libs.kotlinStdlib)
                 api("androidx.annotation:annotation:1.3.0")
             }
         }
