@@ -18,7 +18,6 @@ package androidx.camera.core
 
 import android.content.Context
 import android.graphics.Rect
-import android.graphics.SurfaceTexture
 import android.os.Build
 import android.os.Looper.getMainLooper
 import android.util.Rational
@@ -30,9 +29,7 @@ import androidx.camera.core.impl.CameraThreadConfig
 import androidx.camera.core.impl.SessionConfig
 import androidx.camera.core.impl.UseCaseConfig
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
-import androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor
 import androidx.camera.core.internal.CameraUseCaseAdapter
-import androidx.camera.core.processing.SurfaceEffectInternal
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CameraXUtil
 import androidx.camera.testing.fakes.FakeAppConfig
@@ -42,8 +39,6 @@ import androidx.camera.testing.fakes.FakeCameraFactory
 import androidx.camera.testing.fakes.FakeUseCase
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
-import java.util.Collections
-import java.util.concurrent.ExecutionException
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -52,6 +47,9 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
+import java.util.Collections
+import java.util.concurrent.ExecutionException
+import kotlin.jvm.Throws
 
 private val TEST_CAMERA_SELECTOR = CameraSelector.DEFAULT_BACK_CAMERA
 
@@ -66,18 +64,9 @@ private val TEST_CAMERA_SELECTOR = CameraSelector.DEFAULT_BACK_CAMERA
 class PreviewTest {
     var cameraUseCaseAdapter: CameraUseCaseAdapter? = null
 
-    private lateinit var appSurface: Surface
-    private lateinit var appSurfaceTexture: SurfaceTexture
-    private lateinit var effectSurface: Surface
-    private lateinit var effectSurfaceTexture: SurfaceTexture
-
     @Before
     @Throws(ExecutionException::class, InterruptedException::class)
     fun setUp() {
-        appSurfaceTexture = SurfaceTexture(0)
-        appSurface = Surface(appSurfaceTexture)
-        effectSurfaceTexture = SurfaceTexture(0)
-        effectSurface = Surface(effectSurfaceTexture)
         val camera = FakeCamera()
 
         val cameraFactoryProvider =
@@ -98,10 +87,6 @@ class PreviewTest {
     @After
     @Throws(ExecutionException::class, InterruptedException::class)
     fun tearDown() {
-        appSurfaceTexture.release()
-        appSurface.release()
-        effectSurfaceTexture.release()
-        effectSurface.release()
         with(cameraUseCaseAdapter) {
             this?.removeUseCases(useCases)
         }
@@ -211,90 +196,6 @@ class PreviewTest {
 
     private fun Rect.getAspectRatio(): Rational {
         return Rational(width(), height())
-    }
-
-    @Test
-    fun bindAndUnbindPreview_surfacesPropagated() {
-        // Arrange.
-        var surfaceOutputReceived: SurfaceOutput? = null
-        var effectSurfaceReadyToRelease = false
-        var isEffectReleased = false
-        val surfaceEffect = object : SurfaceEffectInternal {
-            override fun onInputSurface(request: SurfaceRequest) {
-                request.provideSurface(effectSurface, mainThreadExecutor()) {
-                    effectSurfaceReadyToRelease = true
-                }
-            }
-
-            override fun onOutputSurface(surfaceOutput: SurfaceOutput) {
-                surfaceOutputReceived = surfaceOutput
-            }
-
-            override fun release() {
-                isEffectReleased = true
-            }
-        }
-
-        // Act: bind Preview and provide Surface.
-        val surfaceRequest = bindToLifecycleWithEffectAndGetSurfaceRequest(surfaceEffect)
-        val preview = cameraUseCaseAdapter!!.useCases[0]
-        var appSurfaceReadyToRelease = false
-        surfaceRequest.provideSurface(appSurface, mainThreadExecutor()) {
-            appSurfaceReadyToRelease = true
-        }
-        shadowOf(getMainLooper()).idle()
-
-        // Assert: surfaceOutput received.
-        assertThat(surfaceOutputReceived).isNotNull()
-        var requestedToReleaseOutputSurface = false
-        surfaceOutputReceived!!.getSurface(mainThreadExecutor()) {
-            requestedToReleaseOutputSurface = true
-        }
-        assertThat(isEffectReleased).isFalse()
-        assertThat(requestedToReleaseOutputSurface).isFalse()
-        assertThat(effectSurfaceReadyToRelease).isFalse()
-        assertThat(appSurfaceReadyToRelease).isFalse()
-        // effect surface is provided to camera.
-        assertThat(preview.sessionConfig.surfaces[0].surface.get()).isEqualTo(effectSurface)
-
-        // Act: unbind Preview.
-        cameraUseCaseAdapter!!.removeUseCases(Collections.singletonList(preview))
-        shadowOf(getMainLooper()).idle()
-
-        // Assert: effect and effect surface is released.
-        assertThat(isEffectReleased).isTrue()
-        assertThat(requestedToReleaseOutputSurface).isTrue()
-        assertThat(effectSurfaceReadyToRelease).isTrue()
-        assertThat(appSurfaceReadyToRelease).isFalse()
-
-        // Act: close SurfaceOutput
-        surfaceOutputReceived!!.close()
-        shadowOf(getMainLooper()).idle()
-        assertThat(appSurfaceReadyToRelease).isTrue()
-    }
-
-    @Test
-    fun invokedErrorListener_recreatePipeline() {
-        // Arrange: create pipeline and get a reference of the SessionConfig.
-        val surfaceEffect = object : SurfaceEffectInternal {
-            override fun onInputSurface(request: SurfaceRequest) {}
-
-            override fun onOutputSurface(surfaceOutput: SurfaceOutput) {}
-
-            override fun release() {}
-        }
-        bindToLifecycleWithEffectAndGetSurfaceRequest(surfaceEffect)
-        val preview = cameraUseCaseAdapter!!.useCases[0]
-        val originalSessionConfig = preview.sessionConfig
-
-        // Act: invoke the error listener.
-        preview.sessionConfig.errorListeners[0].onError(
-            preview.sessionConfig, SessionConfig.SessionError.SESSION_ERROR_UNKNOWN
-        )
-        shadowOf(getMainLooper()).idle()
-
-        // Assert: the SessionConfig changed.
-        assertThat(preview.sessionConfig).isNotEqualTo(originalSessionConfig)
     }
 
     @Test
@@ -420,24 +321,15 @@ class PreviewTest {
         assertThat(receivedAfterAttach).isTrue()
     }
 
-    private fun bindToLifecycleWithEffectAndGetSurfaceRequest(
-        surfaceEffect: SurfaceEffectInternal?
-    ): SurfaceRequest {
-        return bindToLifecycleAndGetResult(null, surfaceEffect).first
-    }
-
     private fun bindToLifecycleAndGetSurfaceRequest(): SurfaceRequest {
-        return bindToLifecycleAndGetResult(null, null).first
+        return bindToLifecycleAndGetResult(null).first
     }
 
     private fun bindToLifecycleAndGetTransformationInfo(viewPort: ViewPort?): TransformationInfo {
-        return bindToLifecycleAndGetResult(viewPort, null).second
+        return bindToLifecycleAndGetResult(viewPort).second
     }
 
-    private fun bindToLifecycleAndGetResult(
-        viewPort: ViewPort?,
-        surfaceEffect: SurfaceEffectInternal?
-    ): Pair<SurfaceRequest,
+    private fun bindToLifecycleAndGetResult(viewPort: ViewPort?): Pair<SurfaceRequest,
         TransformationInfo> {
         // Arrange.
         val sessionOptionUnpacker =
@@ -457,8 +349,6 @@ class PreviewTest {
             )
             surfaceRequest = request
         }
-
-        preview.setEffect(surfaceEffect)
 
         // Act.
         cameraUseCaseAdapter = CameraUtil.createCameraUseCaseAdapter(
