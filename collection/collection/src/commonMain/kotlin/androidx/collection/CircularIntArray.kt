@@ -15,6 +15,9 @@
  */
 package androidx.collection
 
+import androidx.collection.CollectionPlatformUtils.createIndexOutOfBoundsException
+import kotlin.jvm.JvmOverloads
+
 /**
  * [CircularIntArray] is a circular integer array data structure that provides O(1) random read,
  * O(1) prepend and O(1) append. The CircularIntArray automatically grows its capacity when number
@@ -36,8 +39,8 @@ public class CircularIntArray @JvmOverloads public constructor(minCapacity: Int 
 
         // If minCapacity isn't a power of 2, round up to the next highest
         // power of 2.
-        val arrayCapacity: Int = if (Integer.bitCount(minCapacity) != 1) {
-            Integer.highestOneBit(minCapacity - 1) shl 1
+        val arrayCapacity: Int = if (minCapacity.countOneBits() != 1) {
+            (minCapacity - 1).takeHighestOneBit() shl 1
         } else {
             minCapacity
         }
@@ -64,7 +67,7 @@ public class CircularIntArray @JvmOverloads public constructor(minCapacity: Int 
     /**
      * Add an integer in front of the [CircularIntArray].
      *
-     * @param element Integer to add.
+     * @param element [Int] to add.
      */
     public fun addFirst(element: Int) {
         head = (head - 1) and capacityBitmask
@@ -77,7 +80,7 @@ public class CircularIntArray @JvmOverloads public constructor(minCapacity: Int 
     /**
      * Add an integer at end of the [CircularIntArray].
      *
-     * @param element Integer to add.
+     * @param element [Int] to add.
      */
     public fun addLast(element: Int) {
         elements[tail] = element
@@ -91,10 +94,10 @@ public class CircularIntArray @JvmOverloads public constructor(minCapacity: Int 
      * Remove first integer from front of the [CircularIntArray] and return it.
      *
      * @return The integer removed.
-     * @throws ArrayIndexOutOfBoundsException if [CircularIntArray] is empty.
+     * @throws IndexOutOfBoundsException if [CircularIntArray] is empty.
      */
     public fun popFirst(): Int {
-        if (head == tail) throw ArrayIndexOutOfBoundsException()
+        if (head == tail) throw createIndexOutOfBoundsException()
         val result = elements[head]
         head = (head + 1) and capacityBitmask
         return result
@@ -104,10 +107,10 @@ public class CircularIntArray @JvmOverloads public constructor(minCapacity: Int 
      * Remove last integer from end of the [CircularIntArray] and return it.
      *
      * @return The integer removed.
-     * @throws ArrayIndexOutOfBoundsException if [CircularIntArray] is empty.
+     * @throws IndexOutOfBoundsException if [CircularIntArray] is empty.
      */
     public fun popLast(): Int {
-        if (head == tail) throw ArrayIndexOutOfBoundsException()
+        if (head == tail) throw createIndexOutOfBoundsException()
         val t = (tail - 1) and capacityBitmask
         val result = elements[t]
         tail = t
@@ -126,14 +129,14 @@ public class CircularIntArray @JvmOverloads public constructor(minCapacity: Int 
      * is less than or equals to 0.
      *
      * @param count Number of integers to remove.
-     * @throws ArrayIndexOutOfBoundsException if numOfElements is larger than [size]
+     * @throws IndexOutOfBoundsException if numOfElements is larger than [size]
      */
     public fun removeFromStart(count: Int) {
         if (count <= 0) {
             return
         }
         if (count > size()) {
-            throw ArrayIndexOutOfBoundsException()
+            throw createIndexOutOfBoundsException()
         }
         head = (head + count) and capacityBitmask
     }
@@ -143,14 +146,14 @@ public class CircularIntArray @JvmOverloads public constructor(minCapacity: Int 
      * is less than or equals to 0.
      *
      * @param count Number of integers to remove.
-     * @throws ArrayIndexOutOfBoundsException if [count] is larger than [size]
+     * @throws IndexOutOfBoundsException if [count] is larger than [size]
      */
     public fun removeFromEnd(count: Int) {
         if (count <= 0) {
             return
         }
         if (count > size()) {
-            throw ArrayIndexOutOfBoundsException()
+            throw createIndexOutOfBoundsException()
         }
         tail = (tail - count) and capacityBitmask
     }
@@ -159,11 +162,11 @@ public class CircularIntArray @JvmOverloads public constructor(minCapacity: Int 
      * Get first integer of the [CircularIntArray].
      *
      * @return The first integer.
-     * @throws [ArrayIndexOutOfBoundsException] if [CircularIntArray] is empty.
+     * @throws [IndexOutOfBoundsException] if [CircularIntArray] is empty.
      */
     public val first: Int
         get() {
-            if (head == tail) throw ArrayIndexOutOfBoundsException()
+            if (head == tail) throw createIndexOutOfBoundsException()
             return elements[head]
         }
 
@@ -171,11 +174,11 @@ public class CircularIntArray @JvmOverloads public constructor(minCapacity: Int 
      * Get last integer of the [CircularIntArray].
      *
      * @return The last integer.
-     * @throws [ArrayIndexOutOfBoundsException] if [CircularIntArray] is empty.
+     * @throws [IndexOutOfBoundsException] if [CircularIntArray] is empty.
      */
     public val last: Int
         get() {
-            if (head == tail) throw ArrayIndexOutOfBoundsException()
+            if (head == tail) throw createIndexOutOfBoundsException()
             return elements[(tail - 1) and capacityBitmask]
         }
 
@@ -184,10 +187,10 @@ public class CircularIntArray @JvmOverloads public constructor(minCapacity: Int 
      *
      * @param index The zero based element index in the [CircularIntArray].
      * @return The nth integer.
-     * @throws [ArrayIndexOutOfBoundsException] if n < 0 or n >= size().
+     * @throws [IndexOutOfBoundsException] if n < 0 or n >= size().
      */
     public operator fun get(index: Int): Int {
-        if (index < 0 || index >= size()) throw ArrayIndexOutOfBoundsException()
+        if (index < 0 || index >= size()) throw createIndexOutOfBoundsException()
         return elements[(head + index) and capacityBitmask]
     }
 
