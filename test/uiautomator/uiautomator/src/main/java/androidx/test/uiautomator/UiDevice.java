@@ -41,6 +41,9 @@ import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 import android.view.accessibility.AccessibilityWindowInfo;
 
+import androidx.annotation.DoNotInline;
+import androidx.annotation.RequiresApi;
+
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -48,7 +51,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -1078,8 +1080,9 @@ public class UiDevice implements Searchable {
      * @since API Level 21
      * @hide
      */
+    @RequiresApi(21)
     public String executeShellCommand(String cmd) throws IOException {
-        ParcelFileDescriptor pfd = getUiAutomation().executeShellCommand(cmd);
+        ParcelFileDescriptor pfd = Api21Impl.executeShellCommand(getUiAutomation(), cmd);
         byte[] buf = new byte[512];
         int bytesRead;
         FileInputStream fis = new ParcelFileDescriptor.AutoCloseInputStream(pfd);
@@ -1097,25 +1100,22 @@ public class UiDevice implements Searchable {
         return windowManager.getDefaultDisplay();
     }
 
-
-    @SuppressWarnings("MixedMutabilityReturnType")
     private List<AccessibilityWindowInfo> getWindows() {
         // Support multi-display searches for API level 30 and up.
-        if (UiDevice.API_LEVEL_ACTUAL >= /* Build.VERSION_CODES.R */ 30) {
-            final List<AccessibilityWindowInfo> windowList =
-                new ArrayList<AccessibilityWindowInfo>();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            final List<AccessibilityWindowInfo> windowList = new ArrayList<>();
             final SparseArray<List<AccessibilityWindowInfo>> allWindows =
-                getUiAutomation().getWindowsOnAllDisplays();
+                    Api30Impl.getWindowsOnAllDisplays(getUiAutomation());
             for (int index = 0; index < allWindows.size(); index++) {
                 windowList.addAll(allWindows.valueAt(index));
             }
             return windowList;
         }
         // Support multi-window searches for API level 21 and up.
-        if (UiDevice.API_LEVEL_ACTUAL >= Build.VERSION_CODES.LOLLIPOP) {
-            return getUiAutomation().getWindows();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            return Api21Impl.getWindows(getUiAutomation());
         }
-        return Collections.<AccessibilityWindowInfo>emptyList();
+        return new ArrayList<>();
     }
 
     /** Returns a list containing the root {@link AccessibilityNodeInfo}s for each active window */
@@ -1131,13 +1131,15 @@ public class UiDevice implements Searchable {
             roots.add(activeRoot);
         }
 
-        for (final AccessibilityWindowInfo window : getWindows()) {
-            final AccessibilityNodeInfo root = window.getRoot();
-            if (root == null) {
-                Log.w(LOG_TAG, "Skipping null root node for window: " + window);
-                continue;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            for (final AccessibilityWindowInfo window : getWindows()) {
+                final AccessibilityNodeInfo root = Api21Impl.getRoot(window);
+                if (root == null) {
+                    Log.w(LOG_TAG, "Skipping null root node for window: " + window);
+                    continue;
+                }
+                roots.add(root);
             }
-            roots.add(root);
         }
         return roots.toArray(new AccessibilityNodeInfo[roots.size()]);
     }
@@ -1148,8 +1150,8 @@ public class UiDevice implements Searchable {
 
     static UiAutomation getUiAutomation(final Instrumentation instrumentation) {
         int flags = Configurator.getInstance().getUiAutomationFlags();
-        if (UiDevice.API_LEVEL_ACTUAL > Build.VERSION_CODES.M) {
-            return instrumentation.getUiAutomation(flags);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            return Api24Impl.getUiAutomation(instrumentation, flags);
         } else {
             // Custom flags not supported prior to N.
             if (flags != Configurator.DEFAULT_UIAUTOMATION_FLAGS) {
@@ -1169,5 +1171,49 @@ public class UiDevice implements Searchable {
 
     InteractionController getInteractionController() {
         return mInteractionController;
+    }
+
+    @RequiresApi(21)
+    static class Api21Impl {
+        private Api21Impl() {
+        }
+
+        @DoNotInline
+        static ParcelFileDescriptor executeShellCommand(UiAutomation uiAutomation, String command) {
+            return uiAutomation.executeShellCommand(command);
+        }
+
+        @DoNotInline
+        static List<AccessibilityWindowInfo> getWindows(UiAutomation uiAutomation) {
+            return uiAutomation.getWindows();
+        }
+
+        @DoNotInline
+        static AccessibilityNodeInfo getRoot(AccessibilityWindowInfo accessibilityWindowInfo) {
+            return accessibilityWindowInfo.getRoot();
+        }
+    }
+
+    @RequiresApi(24)
+    static class Api24Impl {
+        private Api24Impl() {
+        }
+
+        @DoNotInline
+        static UiAutomation getUiAutomation(Instrumentation instrumentation, int flags) {
+            return instrumentation.getUiAutomation(flags);
+        }
+    }
+
+    @RequiresApi(30)
+    static class Api30Impl {
+        private Api30Impl() {
+        }
+
+        @DoNotInline
+        static SparseArray<List<AccessibilityWindowInfo>> getWindowsOnAllDisplays(
+                UiAutomation uiAutomation) {
+            return uiAutomation.getWindowsOnAllDisplays();
+        }
     }
 }
