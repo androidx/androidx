@@ -21,7 +21,6 @@ import android.app.Activity;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
-import androidx.window.extensions.ExperimentalWindowExtensionsApi;
 import androidx.window.extensions.WindowExtensions;
 
 import java.lang.annotation.Retention;
@@ -38,7 +37,6 @@ import java.util.function.Consumer;
  * <p>This interface should be implemented by OEM and deployed to the target devices.
  * @see WindowExtensions#getWindowLayoutComponent()
  */
-@ExperimentalWindowExtensionsApi
 public interface WindowAreaComponent {
 
     /**
