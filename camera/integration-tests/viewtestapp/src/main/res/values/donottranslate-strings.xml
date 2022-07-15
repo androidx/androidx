@@ -36,6 +36,8 @@ limitations under the License.
     <string name="toggle_analyzer_not_set">Analyzer not set</string>
     <string name="toggle_camera_front">Front</string>
     <string name="toggle_camera_back">Back</string>
+    <string name="toggle_effect_on">Effect On</string>
+    <string name="toggle_effect_off">Effect Off</string>
     <string name="btn_remove_or_add">Remove/Add</string>
     <string name="btn_shrink">Shrink</string>
     <string name="btn_switch">Switch</string>

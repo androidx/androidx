@@ -18,9 +18,15 @@ package androidx.camera.core.processing;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
 
-/** A provider that supplies OpenGL shader code. */
-interface ShaderProvider {
+/**
+ * A provider that supplies OpenGL shader code.
+ *
+ * @hide
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public interface ShaderProvider {
 
     /**
      * Creates the fragment shader code with the given variable names.
@@ -34,14 +40,15 @@ interface ShaderProvider {
      *         varying vec2 {$fragCoordsVarName};
      *         void main() {
      *           vec4 sampleColor = texture2D({$samplerVarName}, {$fragCoordsVarName});
-     *           gl_FragColor = vec4(sampleColor.r * 0.493 + sampleColor. g * 0.769 +
-     *              sampleColor.b * 0.289, sampleColor.r * 0.449 + sampleColor.g * 0.686 +
-     *              sampleColor.b * 0.268, sampleColor.r * 0.272 + sampleColor.g * 0.534 +
-     *              sampleColor.b * 0.131, 1.0);
+     *           gl_FragColor = vec4(
+     *               sampleColor.r * 0.5 + sampleColor.g * 0.8 + sampleColor.b * 0.3,
+     *               sampleColor.r * 0.4 + sampleColor.g * 0.7 + sampleColor.b * 0.2,
+     *               sampleColor.r * 0.3 + sampleColor.g * 0.5 + sampleColor.b * 0.1,
+     *               1.0);
      *         }
      * }</pre>
      *
-     * @param samplerVarName the variable name of the samplerExternalOES.
+     * @param samplerVarName    the variable name of the samplerExternalOES.
      * @param fragCoordsVarName the variable name of the fragment coordinates.
      * @return the shader code. Return null to use the default shader.
      */
