@@ -25,7 +25,7 @@ import android.view.SurfaceHolder
 import android.view.SurfaceView
 import android.view.TextureView
 import androidx.annotation.WorkerThread
-import androidx.graphics.opengl.egl.EGLConfigAttributes
+import androidx.graphics.opengl.egl.EglConfigAttributes8888
 import androidx.graphics.opengl.egl.EGLManager
 import androidx.graphics.opengl.egl.EGLSpec
 import java.util.concurrent.CountDownLatch
@@ -48,7 +48,7 @@ class GLRenderer(
     eglSpecFactory: () -> EGLSpec = { EGLSpec.V14 },
     eglConfigFactory: EGLManager.() -> EGLConfig = {
         // 8 bit channels should always be supported
-        loadConfig(EGLConfigAttributes.RGBA_8888)
+        loadConfig(EglConfigAttributes8888)
             ?: throw IllegalStateException("Unable to obtain config for 8 bit EGL " +
                 "configuration")
     }
@@ -317,7 +317,7 @@ class GLRenderer(
          *
          * The default implementation will create a window surface with EGL_WIDTH and EGL_HEIGHT
          * set to [width] and [height] respectively.
-         * Implementations can override this method to provide additional [EGLConfigAttributes]
+         * Implementations can override this method to provide additional EglConfigAttributes
          * for this surface (ex. [EGL14.EGL_SINGLE_BUFFER].
          *
          * Implementations can return null to indicate the default surface should be used.
