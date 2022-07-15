@@ -39,11 +39,7 @@ import static androidx.camera.core.impl.PreviewConfig.OPTION_USE_CASE_EVENT_CALL
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_CAMERA_SELECTOR;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_ZSL_DISABLED;
 
-import static java.util.Collections.singletonList;
-import static java.util.Objects.requireNonNull;
-
 import android.graphics.ImageFormat;
-import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.graphics.SurfaceTexture;
 import android.media.ImageReader;
@@ -88,16 +84,9 @@ import androidx.camera.core.impl.UseCaseConfigFactory;
 import androidx.camera.core.impl.utils.Threads;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.internal.CameraCaptureResultImageInfo;
-import androidx.camera.core.internal.CameraUseCaseAdapter;
 import androidx.camera.core.internal.TargetConfig;
 import androidx.camera.core.internal.ThreadConfig;
-import androidx.camera.core.processing.Node;
-import androidx.camera.core.processing.SettableSurface;
-import androidx.camera.core.processing.SurfaceEdge;
-import androidx.camera.core.processing.SurfaceEffectInternal;
-import androidx.camera.core.processing.SurfaceEffectNode;
 import androidx.core.util.Consumer;
-import androidx.core.util.Preconditions;
 import androidx.lifecycle.LifecycleOwner;
 
 import java.util.List;
@@ -194,12 +183,6 @@ public final class Preview extends UseCase {
     @Nullable
     private Size mSurfaceSize;
 
-    @Nullable
-    private SurfaceEffectInternal mSurfaceEffect;
-
-    @Nullable
-    private SurfaceEffectNode mNode;
-
     /**
      * Creates a new preview use case from the given configuration.
      *
@@ -211,22 +194,17 @@ public final class Preview extends UseCase {
         super(config);
     }
 
-    @MainThread
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     SessionConfig.Builder createPipeline(@NonNull String cameraId, @NonNull PreviewConfig config,
             @NonNull Size resolution) {
-        // Build pipeline with node if effect is set. Eventually we will move all the code to
-        // createPipelineWithNode.
-        if (mSurfaceEffect != null) {
-            return createPipelineWithNode(cameraId, config, resolution);
-        }
-
         Threads.checkMainThread();
         SessionConfig.Builder sessionConfigBuilder = SessionConfig.Builder.createFrom(config);
         final CaptureProcessor captureProcessor = config.getCaptureProcessor(null);
 
         // Close previous session's deferrable surface before creating new one
-        clearPipeline();
+        if (mSessionDeferrableSurface != null) {
+            mSessionDeferrableSurface.close();
+        }
 
         boolean isRGBA8888SurfaceRequired = config.isRgba8888SurfaceRequired(false);
         final SurfaceRequest surfaceRequest = new SurfaceRequest(resolution, getCamera(),
@@ -286,96 +264,6 @@ public final class Preview extends UseCase {
             }
             mSessionDeferrableSurface = surfaceRequest.getDeferrableSurface();
         }
-
-        addCameraSurfaceAndErrorListener(sessionConfigBuilder, cameraId, config, resolution);
-        return sessionConfigBuilder;
-    }
-
-    /**
-     * Creates the post-processing pipeline with the {@link Node} pattern.
-     *
-     * <p> After we migrate everything to {@link Node}, this will become the canonical way to
-     * build pipeline .
-     */
-    @NonNull
-    @MainThread
-    private SessionConfig.Builder createPipelineWithNode(
-            @NonNull String cameraId,
-            @NonNull PreviewConfig config,
-            @NonNull Size resolution) {
-        // Check arguments
-        Threads.checkMainThread();
-        Preconditions.checkNotNull(mSurfaceEffect);
-        CameraInternal camera = getCamera();
-        Preconditions.checkNotNull(camera);
-
-        clearPipeline();
-
-        // Create nodes and edges.
-        mNode = new SurfaceEffectNode(camera, mSurfaceEffect);
-        SettableSurface cameraSurface = new SettableSurface(
-                SurfaceEffect.PREVIEW,
-                resolution,
-                ImageFormat.PRIVATE,
-                new Matrix(),
-                /*hasEmbeddedTransform=*/true,
-                requireNonNull(getCropRect(resolution)),
-                getRelativeRotation(camera),
-                /*mirroring=*/false);
-        SurfaceEdge inputEdge = SurfaceEdge.create(singletonList(cameraSurface));
-        SurfaceEdge outputEdge = mNode.transform(inputEdge);
-        SettableSurface appSurface = outputEdge.getSurfaces().get(0);
-
-        // Send the app Surface to the app.
-        mCurrentSurfaceRequest = appSurface.createSurfaceRequest(camera);
-        if (sendSurfaceRequestIfReady()) {
-            sendTransformationInfoIfReady();
-        } else {
-            mHasUnsentSurfaceRequest = true;
-        }
-
-        // Send the camera Surface to the camera2.
-        mSessionDeferrableSurface = cameraSurface;
-        SessionConfig.Builder sessionConfigBuilder = SessionConfig.Builder.createFrom(config);
-        addCameraSurfaceAndErrorListener(sessionConfigBuilder, cameraId, config, resolution);
-        return sessionConfigBuilder;
-    }
-
-    /**
-     * Sets a {@link SurfaceEffectInternal}.
-     *
-     * <p>Internal API invoked by {@link CameraUseCaseAdapter}. {@link #createPipeline} uses the
-     * value to setup post-processing pipeline.
-     *
-     * @hide
-     */
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    public void setEffect(@Nullable SurfaceEffectInternal surfaceEffect) {
-        mSurfaceEffect = surfaceEffect;
-    }
-
-    /**
-     * Creates previously allocated {@link DeferrableSurface} include those allocated by nodes.
-     */
-    private void clearPipeline() {
-        DeferrableSurface cameraSurface = mSessionDeferrableSurface;
-        if (cameraSurface != null) {
-            cameraSurface.close();
-            mSessionDeferrableSurface = null;
-        }
-        SurfaceEffectNode node = mNode;
-        if (node != null) {
-            node.release();
-            mNode = null;
-        }
-        mCurrentSurfaceRequest = null;
-    }
-
-    private void addCameraSurfaceAndErrorListener(
-            @NonNull SessionConfig.Builder sessionConfigBuilder,
-            @NonNull String cameraId,
-            @NonNull PreviewConfig config,
-            @NonNull Size resolution) {
         sessionConfigBuilder.addSurface(mSessionDeferrableSurface);
         sessionConfigBuilder.addErrorListener((sessionConfig, error) -> {
             // Ensure the attached camera has not changed before resetting.
@@ -390,6 +278,8 @@ public final class Preview extends UseCase {
                 notifyReset();
             }
         });
+
+        return sessionConfigBuilder;
     }
 
     /**
@@ -557,8 +447,8 @@ public final class Preview extends UseCase {
      * {@link ResolutionInfo} for the changes.
      *
      * @return the resolution information if the use case has been bound by the
-     * {@link androidx.camera.lifecycle.ProcessCameraProvider#bindToLifecycle(LifecycleOwner,
-     * CameraSelector, UseCase...)} API, or null if the use case is not bound yet.
+     * {@link androidx.camera.lifecycle.ProcessCameraProvider#bindToLifecycle(LifecycleOwner
+     * , CameraSelector, UseCase...)} API, or null if the use case is not bound yet.
      */
     @Nullable
     @Override
@@ -634,7 +524,11 @@ public final class Preview extends UseCase {
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     public void onDetached() {
-        clearPipeline();
+        if (mSessionDeferrableSurface != null) {
+            mSessionDeferrableSurface.close();
+        }
+
+        mCurrentSurfaceRequest = null;
     }
 
     /**
@@ -1142,7 +1036,6 @@ public final class Preview extends UseCase {
 
         /**
          * Sets if the surface requires RGBA8888 format.
-         *
          * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
