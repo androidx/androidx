@@ -15,11 +15,25 @@
  */
 
 import androidx.build.Publish
+import androidx.build.SupportConfigKt
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("kotlin-android")
+}
+
+android {
+    sourceSets {
+        test.resources {
+            srcDirs += SupportConfigKt
+                    .getPrebuiltsRoot(project).toPath()
+                    .resolve(
+                            "androidx/internal/androidx/tracing/tracing-perfetto-binary/" +
+                                    "${androidx.LibraryVersions.TRACING_PERFETTO}"
+                    ).toFile()
+        }
+    }
 }
 
 dependencies {
@@ -30,6 +44,9 @@ dependencies {
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.truth)
     androidTestImplementation(project(":tracing:tracing-perfetto-binary"))
+    testImplementation(libs.junit)
+    testImplementation(libs.kotlinStdlib)
+    testImplementation(libs.truth)
 }
 
 androidx {
