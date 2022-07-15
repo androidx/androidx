@@ -27,6 +27,7 @@ import static org.mockito.Mockito.when;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -54,7 +55,7 @@ public class ShortcutUtilsTest {
         String url = ShortcutUtils.getIndexableUrl(context, id);
 
         String expectedUri = String.format("intent:#Intent;action=%s;component=%s/androidx.core"
-                + ".google.shortcuts.TrampolineActivity;S.id=%s;end",
+                        + ".google.shortcuts.TrampolineActivity;S.id=%s;end",
                 SHORTCUT_LISTENER_INTENT_FILTER_ACTION, TEST_PACKAGE, id);
         assertThat(url).isEqualTo(expectedUri);
     }
@@ -68,7 +69,13 @@ public class ShortcutUtilsTest {
         String shortcutUrl = ShortcutUtils.getIndexableShortcutUrl(context, intent, null);
 
         String expectedShortcutUrl = "intent://www.google.com#Intent;scheme=http;end";
-        assertThat(shortcutUrl).isEqualTo(expectedShortcutUrl);
+        String expectedShortcutUrlApi21 =
+                "intent://www.google.com#Intent;scheme=http;action=android.intent.action.VIEW;end";
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.LOLLIPOP) {
+            assertThat(shortcutUrl).isEqualTo(expectedShortcutUrlApi21);
+        } else {
+            assertThat(shortcutUrl).isEqualTo(expectedShortcutUrl);
+        }
     }
 
     @Test
@@ -87,8 +94,15 @@ public class ShortcutUtilsTest {
         assertThat(trampolineIntent.getAction()).isEqualTo(SHORTCUT_LISTENER_INTENT_FILTER_ACTION);
         assertThat(trampolineIntent.getStringExtra(SHORTCUT_TAG_KEY)).isNotEmpty();
         String expectedShortcutUrl = "intent://www.google.com#Intent;scheme=http;end";
-        assertThat(trampolineIntent.getStringExtra(SHORTCUT_URL_KEY))
-                .isEqualTo(expectedShortcutUrl);
+        String expectedShortcutUrlApi21 =
+                "intent://www.google.com#Intent;scheme=http;action=android.intent.action.VIEW;end";
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.LOLLIPOP) {
+            assertThat(trampolineIntent.getStringExtra(SHORTCUT_URL_KEY)).isEqualTo(
+                    expectedShortcutUrlApi21);
+        } else {
+            assertThat(trampolineIntent.getStringExtra(SHORTCUT_URL_KEY)).isEqualTo(
+                    expectedShortcutUrl);
+        }
     }
 
     @Test
