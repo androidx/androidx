@@ -20,7 +20,7 @@ import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XType
 import androidx.room.solver.shortcut.binder.UpsertMethodBinder
 
-data class UpsertMethod(
+data class UpsertionMethod(
     val element: XMethodElement,
     val entities: Map<String, ShortcutEntity>,
     val returnType: XType,
