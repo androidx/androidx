@@ -39,12 +39,34 @@ public class EGLConfigAttributesJavaTest {
                 .build();
         int[] attrs = config.toArray();
         assertEquals(7, attrs.length);
-        assertEquals(1, attrs[0]);
-        assertEquals(2, attrs[1]);
-        assertEquals(3, attrs[2]);
-        assertEquals(4, attrs[3]);
-        assertEquals(5, attrs[4]);
-        assertEquals(6, attrs[5]);
+        assertEquals(Integer.valueOf(2), findValueForKey(attrs, 1));
+        assertEquals(Integer.valueOf(4), findValueForKey(attrs, 3));
+        assertEquals(Integer.valueOf(6), findValueForKey(attrs, 5));
         assertEquals(EGL14.EGL_NONE, attrs[6]);
+    }
+
+    /**
+     * Helper method that does a linear search of the key in an integer array and returns
+     * the corresponding value for the key.
+     * This assumes the array is structured in an alternating format of key/value pairs and ends
+     * with the value of EGL_NONE
+     * @param attrs Array of ints representing alternating key value pairs, ending with EGL_NONE
+     * @param key Key to search for the corresponding value of
+     * @return Value of the specified key or null if it was not found
+     */
+    private Integer findValueForKey(int[] attrs, int key) {
+        for (int i = 0; i < attrs.length; i++) {
+            if (attrs[i] == EGL14.EGL_NONE) {
+                break;
+            }
+            if (attrs[i] == key) {
+                if (i < attrs.length - 1) {
+                    return attrs[i + 1];
+                } else {
+                    return null;
+                }
+            }
+        }
+        return null;
     }
 }
