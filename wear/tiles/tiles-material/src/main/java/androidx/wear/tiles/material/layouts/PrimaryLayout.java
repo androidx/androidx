@@ -71,6 +71,10 @@ import java.util.List;
  * padding applied. There is a fixed slot for an optional primary label above or optional secondary
  * label below the main content area.
  *
+ * <p>It is highly recommended that main content has max lines between 2 and 4 (dependant on labels
+ * present), i.e.: * No labels are present: content with max 4 lines, * 1 label is present: content
+ * with max 3 lines, * 2 labels are present: content with max 2 lines.
+ *
  * <p>For additional examples and suggested layouts see <a
  * href="/training/wearables/design/tiles-design-system">Tiles Design System</a>.
  *
@@ -130,12 +134,12 @@ public class PrimaryLayout implements LayoutElement {
      */
     static final int CONTENT_PRESENT = 0x8;
 
-    /** Position of the primary label in inner column if exists. */
+    /** Position of the primary label in its own inner column if exists. */
     static final int PRIMARY_LABEL_POSITION = 1;
-    /** Position of the content in inner column element when primary label is present. */
-    static final int CONTENT_POSITION = 3;
-    /** Position of the content in inner column element when there primary label is not present. */
+    /** Position of the content in its own inner column. */
     static final int CONTENT_ONLY_POSITION = 0;
+    /** Position of the primary chip in main layout column. */
+    static final int PRIMARY_CHIP_POSITION = 1;
 
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -149,14 +153,18 @@ public class PrimaryLayout implements LayoutElement {
 
     // This contains inner columns and primary chip.
     @NonNull private final List<LayoutElement> mAllContent;
-
     // This contains optional labels, spacers and main content.
-    @NonNull private final List<LayoutElement> mInnerColumn;
+    @NonNull private final List<LayoutElement> mPrimaryLabel;
+    // This contains optional labels, spacers and main content.
+    @NonNull private final List<LayoutElement> mContentAndSecondaryLabel;
 
     PrimaryLayout(@NonNull Box layoutElement) {
         this.mImpl = layoutElement;
         this.mAllContent = ((Column) layoutElement.getContents().get(0)).getContents();
-        this.mInnerColumn = ((Column) mAllContent.get(0)).getContents();
+        List<LayoutElement> innerContent = ((Column) mAllContent.get(0)).getContents();
+        this.mPrimaryLabel = ((Column) innerContent.get(0)).getContents();
+        this.mContentAndSecondaryLabel =
+                ((Column) ((Box) innerContent.get(1)).getContents().get(0)).getContents();
     }
 
     /** Builder class for {@link PrimaryLayout}. */
@@ -218,8 +226,8 @@ public class PrimaryLayout implements LayoutElement {
         }
 
         /**
-         * Sets the vertical spacer height which is used as a space between main content and primary
-         * or secondary label if there is any. If not set, {@link
+         * Sets the vertical spacer height which is used as a space between main content and
+         * secondary label if there is any. If not set, {@link
          * LayoutDefaults#DEFAULT_VERTICAL_SPACER_HEIGHT} will be used.
          */
         @NonNull
@@ -252,51 +260,79 @@ public class PrimaryLayout implements LayoutElement {
                                     - bottomPadding
                                     - topPadding);
 
-            Column.Builder innerContentBuilder =
+            // Layout organization: column(column(primary label + spacer + (box(column(content +
+            // secondary label))) + chip)
+
+            // First column that has all other content and chip.
+            Column.Builder layoutBuilder = new Column.Builder();
+
+            // Contains primary label, main content and secondary label. Primary label will be
+            // wrapped, while other content will be expanded so it can be centered in the remaining
+            // space.
+            Column.Builder contentAreaBuilder =
                     new Column.Builder()
                             .setWidth(expand())
                             .setHeight(mainContentHeight)
                             .setHorizontalAlignment(LayoutElementBuilders.HORIZONTAL_ALIGN_CENTER);
 
+            // Contains main content and secondary label with wrapped height so it can be put inside
+            // of the Box to be centered.
+            Column.Builder contentSecondaryLabelBuilder =
+                    new Column.Builder()
+                            .setWidth(expand())
+                            .setHeight(wrap())
+                            .setHorizontalAlignment(LayoutElementBuilders.HORIZONTAL_ALIGN_CENTER);
+
+            // Needs to be in column because of the spacers.
+            Column.Builder primaryLabelBuilder =
+                    new Column.Builder().setWidth(expand()).setHeight(wrap());
+
             if (mPrimaryLabelText != null) {
-                innerContentBuilder.addContent(
+                primaryLabelBuilder.addContent(
                         new Spacer.Builder().setHeight(getPrimaryLabelTopSpacerHeight()).build());
-                innerContentBuilder.addContent(mPrimaryLabelText);
-                innerContentBuilder.addContent(
-                        new Spacer.Builder().setHeight(mVerticalSpacerHeight).build());
+                primaryLabelBuilder.addContent(mPrimaryLabelText);
             }
 
-            innerContentBuilder.addContent(
+            contentAreaBuilder.addContent(primaryLabelBuilder.build());
+
+            contentSecondaryLabelBuilder.addContent(
                     new Box.Builder()
                             .setVerticalAlignment(LayoutElementBuilders.VERTICAL_ALIGN_CENTER)
-                            .setHeight(expand())
                             .setWidth(expand())
+                            .setHeight(wrap())
                             .addContent(mContent)
                             .build());
 
             if (mSecondaryLabelText != null) {
-                innerContentBuilder.addContent(
+                contentSecondaryLabelBuilder.addContent(
                         new Spacer.Builder().setHeight(mVerticalSpacerHeight).build());
-                innerContentBuilder.addContent(mSecondaryLabelText);
+                contentSecondaryLabelBuilder.addContent(mSecondaryLabelText);
             }
 
-            Column.Builder layoutBuilder =
-                    new Column.Builder()
-                            .setModifiers(
-                                    new Modifiers.Builder()
-                                            .setPadding(
-                                                    new Padding.Builder()
-                                                            .setStart(dp(horizontalPadding))
-                                                            .setEnd(dp(horizontalPadding))
-                                                            .setTop(dp(topPadding))
-                                                            .setBottom(dp(bottomPadding))
-                                                            .build())
-                                            .build())
+            contentAreaBuilder.addContent(
+                    new Box.Builder()
+                            .setVerticalAlignment(LayoutElementBuilders.VERTICAL_ALIGN_CENTER)
                             .setWidth(expand())
                             .setHeight(expand())
-                            .setHorizontalAlignment(LayoutElementBuilders.HORIZONTAL_ALIGN_CENTER);
+                            .addContent(contentSecondaryLabelBuilder.build())
+                            .build());
 
-            layoutBuilder.addContent(innerContentBuilder.build());
+            layoutBuilder
+                    .setModifiers(
+                            new Modifiers.Builder()
+                                    .setPadding(
+                                            new Padding.Builder()
+                                                    .setStart(dp(horizontalPadding))
+                                                    .setEnd(dp(horizontalPadding))
+                                                    .setTop(dp(topPadding))
+                                                    .setBottom(dp(bottomPadding))
+                                                    .build())
+                                    .build())
+                    .setWidth(expand())
+                    .setHeight(expand())
+                    .setHorizontalAlignment(LayoutElementBuilders.HORIZONTAL_ALIGN_CENTER);
+
+            layoutBuilder.addContent(contentAreaBuilder.build());
 
             if (mPrimaryChip != null) {
                 layoutBuilder.addContent(
@@ -399,7 +435,7 @@ public class PrimaryLayout implements LayoutElement {
         if (!areElementsPresent(PRIMARY_LABEL_PRESENT)) {
             return null;
         }
-        return mInnerColumn.get(PRIMARY_LABEL_POSITION);
+        return mPrimaryLabel.get(PRIMARY_LABEL_POSITION);
     }
 
     /** Get the secondary label content from this layout. */
@@ -409,7 +445,7 @@ public class PrimaryLayout implements LayoutElement {
             return null;
         }
         // By tag we know that secondary label exists. It will always be at last position.
-        return mInnerColumn.get(mInnerColumn.size() - 1);
+        return mContentAndSecondaryLabel.get(mContentAndSecondaryLabel.size() - 1);
     }
 
     /** Get the inner content from this layout. */
@@ -418,17 +454,14 @@ public class PrimaryLayout implements LayoutElement {
         if (!areElementsPresent(CONTENT_PRESENT)) {
             return null;
         }
-        int contentPosition =
-                areElementsPresent(PRIMARY_LABEL_PRESENT)
-                        ? CONTENT_POSITION : CONTENT_ONLY_POSITION;
-        return ((Box) mInnerColumn.get(contentPosition)).getContents().get(0);
+        return ((Box) mContentAndSecondaryLabel.get(CONTENT_ONLY_POSITION)).getContents().get(0);
     }
 
     /** Get the primary chip content from this layout. */
     @Nullable
     public LayoutElement getPrimaryChipContent() {
         if (areElementsPresent(CHIP_PRESENT)) {
-            return ((Box) mAllContent.get(1)).getContents().get(0);
+            return ((Box) mAllContent.get(PRIMARY_CHIP_POSITION)).getContents().get(0);
         }
         return null;
     }
@@ -439,13 +472,8 @@ public class PrimaryLayout implements LayoutElement {
     @SuppressLint("ResourceType")
     @Dimension(unit = DP)
     public float getVerticalSpacerHeight() {
-        if (areElementsPresent(PRIMARY_LABEL_PRESENT)
-                || areElementsPresent(SECONDARY_LABEL_PRESENT)) {
-            LayoutElement element =
-                    mInnerColumn.get(
-                            (areElementsPresent(PRIMARY_LABEL_PRESENT)
-                                    ? PRIMARY_LABEL_POSITION : CONTENT_ONLY_POSITION) + 1
-                    );
+        if (areElementsPresent(SECONDARY_LABEL_PRESENT)) {
+            LayoutElement element = mContentAndSecondaryLabel.get(CONTENT_ONLY_POSITION + 1);
             if (element instanceof Spacer) {
                 SpacerDimension height = ((Spacer) element).getHeight();
                 if (height instanceof DpProp) {
