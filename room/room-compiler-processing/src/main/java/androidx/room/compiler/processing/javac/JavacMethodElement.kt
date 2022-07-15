@@ -33,13 +33,8 @@ import javax.lang.model.type.TypeVariable
 
 internal class JavacMethodElement(
     env: JavacProcessingEnv,
-    containing: JavacTypeElement,
     element: ExecutableElement
-) : JavacExecutableElement(
-    env,
-    containing,
-    element
-),
+) : JavacExecutableElement(env, element),
     XMethodElement {
     init {
         check(element.kind == ElementKind.METHOD) {
@@ -66,7 +61,6 @@ internal class JavacMethodElement(
             JavacMethodParameter(
                 env = env,
                 enclosingElement = this,
-                containing = containing,
                 element = variable,
                 kotlinMetadataFactory = {
                     val metadataParamIndex = if (isExtensionFunction()) index - 1 else index
@@ -82,19 +76,16 @@ internal class JavacMethodElement(
     }
 
     override val executableType: JavacMethodType by lazy {
-        val asMemberOf = env.typeUtils.asMemberOf(containing.type.typeMirror, element)
         JavacMethodType.create(
             env = env,
             element = this,
-            executableType = MoreTypes.asExecutable(asMemberOf)
+            executableType = MoreTypes.asExecutable(element.asType())
         )
     }
 
     override val returnType: JavacType by lazy {
-        val asMember = env.typeUtils.asMemberOf(containing.type.typeMirror, element)
-        val asExec = MoreTypes.asExecutable(asMember)
-        env.wrap<JavacType>(
-            typeMirror = asExec.returnType,
+        env.wrap(
+            typeMirror = element.returnType,
             kotlinType = if (isSuspendFunction()) {
                 // Don't use Kotlin metadata for suspend functions since we want the Java
                 // perspective. In Java, a suspend function returns Object and contains an extra
@@ -109,7 +100,7 @@ internal class JavacMethodElement(
     }
 
     override fun asMemberOf(other: XType): XMethodType {
-        return if (other !is JavacDeclaredType || containing.type.isSameType(other)) {
+        return if (other !is JavacDeclaredType || enclosingElement.type.isSameType(other)) {
             executableType
         } else {
             val asMemberOf = env.typeUtils.asMemberOf(other.typeMirror, element)
@@ -140,15 +131,6 @@ internal class JavacMethodElement(
         }
         // Use auto-common's overrides, which provides consistency across javac and ejc (Eclipse).
         return MoreElements.overrides(element, other.element, owner.element, env.typeUtils)
-    }
-
-    override fun copyTo(newContainer: XTypeElement): XMethodElement {
-        check(newContainer is JavacTypeElement)
-        return JavacMethodElement(
-            env = env,
-            containing = newContainer,
-            element = element
-        )
     }
 
     override fun hasKotlinDefaultImpl(): Boolean {

@@ -62,7 +62,7 @@ class TypeInheritanceTest {
 
     private fun XTestInvocation.assertFieldType(fieldName: String, expectedTypeName: String) {
         val sub = processingEnv.requireTypeElement("SubClass")
-        val subField = sub.getField(fieldName).type.typeName.toString()
+        val subField = sub.getField(fieldName).asMemberOf(sub.type).typeName.toString()
         assertThat(subField).isEqualTo(expectedTypeName)
 
         val base = processingEnv.requireTypeElement("BaseClass")
@@ -77,19 +77,19 @@ class TypeInheritanceTest {
     ) {
         val sub = processingEnv.requireTypeElement("SubClass")
         val subMethod = sub.getMethodByJvmName(methodName)
-        val subParam = subMethod.getParameter(paramName)
-        assertThat(subParam.type.typeName.toString()).isEqualTo(expectedTypeName)
+        val paramIndex = subMethod.parameters.indexOf(subMethod.getParameter(paramName))
+        val subMethodParam = subMethod.asMemberOf(sub.type).parameterTypes[paramIndex]
+        assertThat(subMethodParam.typeName.toString()).isEqualTo(expectedTypeName)
 
         val base = processingEnv.requireTypeElement("BaseClass")
-        val baseMethod = base.getMethodByJvmName(methodName).asMemberOf(sub.type)
-        val paramIndex = subMethod.parameters.indexOf(subParam)
-        assertThat(baseMethod.parameterTypes[paramIndex].typeName.toString())
-            .isEqualTo(expectedTypeName)
+        val baseMethod = base.getMethodByJvmName(methodName)
+        val baseMethodParam = baseMethod.asMemberOf(sub.type).parameterTypes[paramIndex]
+        assertThat(baseMethodParam.typeName.toString()).isEqualTo(expectedTypeName)
     }
 
     private fun XTestInvocation.assertReturnType(methodName: String, expectedTypeName: String) {
         val sub = processingEnv.requireTypeElement("SubClass")
-        val subMethod = sub.getMethodByJvmName(methodName)
+        val subMethod = sub.getMethodByJvmName(methodName).asMemberOf(sub.type)
         assertThat(subMethod.returnType.typeName.toString()).isEqualTo(expectedTypeName)
 
         val base = processingEnv.requireTypeElement("BaseClass")

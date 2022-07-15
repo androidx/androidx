@@ -41,6 +41,10 @@ internal abstract class KspElement(
         }
     }
 
+    final override val equalityItems: Array<out Any?> by lazy {
+        arrayOf(declaration)
+    }
+
     override fun equals(other: Any?): Boolean {
         return XEquality.equals(this, other)
     }

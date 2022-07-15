@@ -35,7 +35,6 @@ import androidx.room.compiler.processing.ksp.KspFieldElement
 import androidx.room.compiler.processing.ksp.KspHasModifiers
 import androidx.room.compiler.processing.ksp.KspJvmTypeResolutionScope
 import androidx.room.compiler.processing.ksp.KspProcessingEnv
-import androidx.room.compiler.processing.ksp.KspTypeElement
 import androidx.room.compiler.processing.ksp.KspType
 import androidx.room.compiler.processing.ksp.findEnclosingMemberContainer
 import androidx.room.compiler.processing.ksp.overrides
@@ -96,7 +95,7 @@ internal sealed class KspSyntheticPropertyMethodElement(
     final override val executableType: XMethodType by lazy {
         KspSyntheticPropertyMethodType.create(
             element = this,
-            container = field.containing.type
+            container = field.enclosingElement.type
         )
     }
 
@@ -134,15 +133,6 @@ internal sealed class KspSyntheticPropertyMethodElement(
 
     final override fun overrides(other: XMethodElement, owner: XTypeElement): Boolean {
         return env.resolver.overrides(this, other)
-    }
-
-    override fun copyTo(newContainer: XTypeElement): XMethodElement {
-        check(newContainer is KspTypeElement)
-        return create(
-            env = env,
-            field = field.copyTo(newContainer),
-            accessor = accessor
-        )
     }
 
     private class Getter(
@@ -282,9 +272,8 @@ internal sealed class KspSyntheticPropertyMethodElement(
             }
 
             val field = KspFieldElement(
-                env,
-                accessor.receiver,
-                enclosingType
+                env = env,
+                declaration = accessor.receiver,
             )
             return create(
                 env = env,

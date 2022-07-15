@@ -20,26 +20,20 @@ import androidx.room.compiler.processing.XAnnotated
 import androidx.room.compiler.processing.XFieldElement
 import androidx.room.compiler.processing.XHasModifiers
 import androidx.room.compiler.processing.XType
-import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.ksp.KspAnnotated.UseSiteFilter.Companion.NO_USE_SITE_OR_FIELD
 import androidx.room.compiler.processing.ksp.synthetic.KspSyntheticPropertyMethodElement
-import com.google.devtools.ksp.closestClassDeclaration
 import com.google.devtools.ksp.isPrivate
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
+import com.google.devtools.ksp.symbol.KSType
 import com.google.devtools.ksp.symbol.Modifier
 
 internal class KspFieldElement(
     env: KspProcessingEnv,
     override val declaration: KSPropertyDeclaration,
-    val containing: KspMemberContainer
 ) : KspElement(env, declaration),
     XFieldElement,
     XHasModifiers by KspHasModifiers.create(declaration),
     XAnnotated by KspAnnotated.create(env, declaration, NO_USE_SITE_OR_FIELD) {
-
-    override val equalityItems: Array<out Any?> by lazy {
-        arrayOf(declaration, containing)
-    }
 
     override val enclosingElement: KspMemberContainer by lazy {
         declaration.requireEnclosingMemberContainer(env)
@@ -54,29 +48,7 @@ internal class KspFieldElement(
     }
 
     override val type: KspType by lazy {
-        env.wrap(
-            originatingReference = declaration.type,
-            ksType = declaration.typeAsMemberOf(containing.type?.ksType)
-        )
-    }
-
-    /**
-     * The original field from the declaration. For instance, if you have `val x:String` declared
-     * in `BaseClass` and inherited in `SubClass`, if `this` is the instance in `SubClass`,
-     * [declarationField] will be the instance in `BaseClass`. If `this` is the instance in
-     * `BaseClass`, [declarationField] will be `null`.
-     */
-    val declarationField: KspFieldElement? by lazy {
-        val declaredIn = declaration.closestClassDeclaration()
-        if (declaredIn == null || declaredIn == containing.declaration) {
-            null
-        } else {
-            KspFieldElement(
-                env = env,
-                declaration = declaration,
-                containing = env.wrapClassDeclaration(declaredIn)
-            )
-        }
+        asMemberOf(enclosingElement.type?.ksType)
     }
 
     val syntheticAccessors: List<KspSyntheticPropertyMethodElement> by lazy {
@@ -123,38 +95,23 @@ internal class KspFieldElement(
         }
 
     override fun asMemberOf(other: XType): KspType {
-        if (containing.type?.isSameType(other) != false) {
+        if (enclosingElement.type?.isSameType(other) != false) {
             return type
         }
         check(other is KspType)
-        val asMember = declaration.typeAsMemberOf(other.ksType)
-        return env.wrap(
-            originatingReference = declaration.type,
-            ksType = asMember
-        )
+        return asMemberOf(other.ksType)
     }
 
-    override fun copyTo(newContainer: XTypeElement): KspFieldElement {
-        check(newContainer is KspTypeElement) {
-            "Unexpected container (${newContainer::class}), expected KspTypeElement"
-        }
-        return KspFieldElement(
-            env = env,
-            declaration = declaration,
-            containing = newContainer
+    private fun asMemberOf(ksType: KSType?): KspType {
+        return env.wrap(
+            originatingReference = declaration.type,
+            ksType = declaration.typeAsMemberOf(ksType)
         )
     }
 
     companion object {
-        fun create(
-            env: KspProcessingEnv,
-            declaration: KSPropertyDeclaration
-        ): KspFieldElement {
-            return KspFieldElement(
-                env = env,
-                declaration = declaration,
-                containing = declaration.requireEnclosingMemberContainer(env)
-            )
+        fun create(env: KspProcessingEnv, declaration: KSPropertyDeclaration): KspFieldElement {
+            return KspFieldElement(env, declaration)
         }
     }
 }
