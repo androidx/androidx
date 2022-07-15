@@ -40,11 +40,6 @@ Java_androidx_tracing_perfetto_jni_PerfettoNative_nativeTraceEventEnd(
     tracing_perfetto::TraceEventEnd();
 }
 
-JNIEXPORT void JNICALL
-Java_androidx_tracing_perfetto_jni_PerfettoNative_nativeFlushEvents(
-        JNIEnv *env, __unused jclass clazz) {
-    tracing_perfetto::Flush();
-}
 JNIEXPORT jstring JNICALL
 Java_androidx_tracing_perfetto_jni_PerfettoNative_nativeVersion(
         JNIEnv *env, __unused jclass clazz) {

@@ -117,13 +117,6 @@ object Tracing {
         return EnableTracingResponse(RESULT_CODE_SUCCESS)
     }
 
-    // TODO: remove and replace with an observer wired into Perfetto
-    internal fun flushEvents() {
-        if (isEnabled) {
-            PerfettoNative.nativeFlushEvents()
-        }
-    }
-
     /** Writes a trace message to indicate that a given section of code has begun. */
     fun traceEventStart(key: Int, traceInfo: String) {
         if (isEnabled) {
