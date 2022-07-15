@@ -18,9 +18,7 @@ package androidx.collection
 
 import androidx.collection.internal.EMPTY_INTS
 import androidx.collection.internal.EMPTY_OBJECTS
-import androidx.collection.internal.binarySearch
 import androidx.collection.internal.idealIntArraySize
-import kotlin.math.min
 
 /**
  * SparseArrays map integers to Objects. Unlike a normal array of Objects,
@@ -41,8 +39,8 @@ import kotlin.math.min
  * keys: instead of compacting its array immediately, it leaves the removed entry marked
  * as deleted. The entry can then be re-used for the same key, or compacted later in
  * a single garbage collection step of all removed entries. This garbage collection will
- * need to be performed at any time the array needs to be grown or the the map size or
- * entry values are retrieved.
+ * need to be performed at any time the array needs to be grown or the map size or entry values are
+ * retrieved.
  *
  * It is possible to iterate over the items in this container using [keyAt] and [valueAt].
  * Iterating over the keys using [keyAt] with ascending values of the index will return the
@@ -59,13 +57,30 @@ import kotlin.math.min
  * 0, the sparse array will be initialized with a light-weight representation not requiring any
  * additional array allocations. Default initialCapacity is 10.
  */
-public open class SparseArrayCompat<E> @JvmOverloads public constructor(
+public actual open class SparseArrayCompat<E>
+// TODO(b/237405792): Default value for optional argument is required here to workaround Metalava's
+//  lack of support for expect / actual.
+@Suppress("ACTUAL_FUNCTION_WITH_DEFAULT_ARGUMENTS")
+// TODO(b/237405286): @JvmOverloads is redundant in this actual, but is necessary here to workaround
+//  Metalava's lack of support for expect / actual.
+@JvmOverloads public actual constructor(
     initialCapacity: Int = 10
 ) : Cloneable {
-    private var garbage = false
-    private var keys: IntArray
-    private var values: Array<Any?>
-    private var size = 0
+    @JvmSynthetic // Hide from Java callers.
+    @JvmField
+    internal actual var garbage = false
+
+    @JvmSynthetic // Hide from Java callers.
+    @JvmField
+    internal actual var keys: IntArray
+
+    @JvmSynthetic // Hide from Java callers.
+    @JvmField
+    internal actual var values: Array<Any?>
+
+    @JvmSynthetic // Hide from Java callers.
+    @JvmField
+    internal actual var size = 0
 
     init {
         if (initialCapacity == 0) {
@@ -89,28 +104,13 @@ public open class SparseArrayCompat<E> @JvmOverloads public constructor(
     /**
      * Gets the Object mapped from the specified key, or `null` if no such mapping has been made.
      */
-    public open operator fun get(key: Int): E? {
-        return internalGet(key, null)
-    }
+    public actual open operator fun get(key: Int): E? = commonGet(key)
 
     /**
      * Gets the Object mapped from the specified [key], or [defaultValue] if no such mapping
      * has been made.
      */
-    public open fun get(key: Int, defaultValue: E): E {
-        return internalGet(key, defaultValue)
-    }
-
-    @Suppress("NOTHING_TO_INLINE")
-    private inline fun <T : E?> internalGet(key: Int, defaultValue: T): T {
-        val i = binarySearch(keys, size, key)
-        return if (i < 0 || values[i] === DELETED) {
-            defaultValue
-        } else {
-            @Suppress("UNCHECKED_CAST")
-            values[i] as T
-        }
-    }
+    public actual open fun get(key: Int, defaultValue: E): E = commonGet(key, defaultValue)
 
     @Deprecated(
         message = "Alias for remove(int).",
@@ -123,13 +123,7 @@ public open class SparseArrayCompat<E> @JvmOverloads public constructor(
     /**
      * Removes the mapping from the specified key, if there was any.
      */
-    public open fun remove(key: Int) {
-        val i = binarySearch(keys, size, key)
-        if (i >= 0 && values[i] !== DELETED) {
-            values[i] = DELETED
-            garbage = true
-        }
-    }
+    public actual open fun remove(key: Int): Unit = commonRemove(key)
 
     /**
      * Remove an existing key from the array map only if it is currently mapped to [value].
@@ -138,27 +132,12 @@ public open class SparseArrayCompat<E> @JvmOverloads public constructor(
      * @return Returns `true` if the mapping was removed.
      */
     // Note: value is Any? here for source compatibility.
-    public open fun remove(key: Int, value: Any?): Boolean {
-        val index = indexOfKey(key)
-        if (index >= 0) {
-            val mapValue = valueAt(index)
-            if (value == mapValue) {
-                removeAt(index)
-                return true
-            }
-        }
-        return false
-    }
+    public actual open fun remove(key: Int, value: Any?): Boolean = commonRemove(key, value)
 
     /**
      * Removes the mapping at the specified index.
      */
-    public open fun removeAt(index: Int) {
-        if (values[index] !== DELETED) {
-            values[index] = DELETED
-            garbage = true
-        }
-    }
+    public actual open fun removeAt(index: Int): Unit = commonRemoveAt(index)
 
     /**
      * Remove a range of mappings as a batch.
@@ -166,12 +145,8 @@ public open class SparseArrayCompat<E> @JvmOverloads public constructor(
      * @param index Index to begin at
      * @param size Number of mappings to remove
      */
-    public open fun removeAtRange(index: Int, size: Int) {
-        val end = min(size, index + size)
-        for (i in index until end) {
-            removeAt(i)
-        }
-    }
+    public actual open fun removeAtRange(index: Int, size: Int): Unit =
+        commonRemoveAtRange(index, size)
 
     /**
      * Replace the mapping for [key] only if it is already mapped to a value.
@@ -179,16 +154,7 @@ public open class SparseArrayCompat<E> @JvmOverloads public constructor(
      * @param value The value to store for the given key.
      * @return Returns the previous mapped value or `null`.
      */
-    public open fun replace(key: Int, value: E): E? {
-        val index = indexOfKey(key)
-        if (index >= 0) {
-            @Suppress("UNCHECKED_CAST")
-            val oldValue = values[index] as E
-            values[index] = value
-            return oldValue
-        }
-        return null
-    }
+    public actual open fun replace(key: Int, value: E): E? = commonReplace(key, value)
 
     /**
      * Replace the mapping for [key] only if it is already mapped to a value.
@@ -198,94 +164,21 @@ public open class SparseArrayCompat<E> @JvmOverloads public constructor(
      * @param newValue The value to store for the given key.
      * @return Returns `true` if the value was replaced.
      */
-    public open fun replace(key: Int, oldValue: E, newValue: E): Boolean {
-        val index = indexOfKey(key)
-        if (index >= 0) {
-            val mapValue = values[index]
-            if (mapValue == oldValue) {
-                values[index] = newValue
-                return true
-            }
-        }
-        return false
-    }
-
-    private fun gc() {
-        // Log.e("SparseArray", "gc start with " + mSize);
-        val n = size
-        var o = 0
-        val keys = keys
-        val values = values
-        for (i in 0 until n) {
-            val value = values[i]
-            if (value !== DELETED) {
-                if (i != o) {
-                    keys[o] = keys[i]
-                    values[o] = value
-                    values[i] = null
-                }
-                o++
-            }
-        }
-        garbage = false
-        size = o
-
-        // Log.e("SparseArray", "gc end with " + mSize);
-    }
+    public actual open fun replace(key: Int, oldValue: E, newValue: E): Boolean =
+        commonReplace(key, oldValue, newValue)
 
     /**
      * Adds a mapping from the specified key to the specified [value], replacing the previous
      * mapping from the specified [key] if there was one.
      */
-    public open fun put(key: Int, value: E) {
-        var i = binarySearch(keys, size, key)
-        if (i >= 0) {
-            values[i] = value
-        } else {
-            i = i.inv()
-            if (i < size && values[i] === DELETED) {
-                keys[i] = key
-                values[i] = value
-                return
-            }
-            if (garbage && size >= keys.size) {
-                gc()
-
-                // Search again because indices may have changed.
-                i = binarySearch(keys, size, key).inv()
-            }
-            if (size >= keys.size) {
-                val n = idealIntArraySize(size + 1)
-                val nkeys = IntArray(n)
-                val nvalues = arrayOfNulls<Any>(n)
-
-                // Log.e("SparseArray", "grow " + mKeys.length + " to " + n);
-                System.arraycopy(keys, 0, nkeys, 0, keys.size)
-                System.arraycopy(values, 0, nvalues, 0, values.size)
-                keys = nkeys
-                values = nvalues
-            }
-            if (size - i != 0) {
-                // Log.e("SparseArray", "move " + (mSize - i));
-                System.arraycopy(keys, i, keys, i + 1, size - i)
-                System.arraycopy(values, i, values, i + 1, size - i)
-            }
-            keys[i] = key
-            values[i] = value
-            size++
-        }
-    }
+    public actual open fun put(key: Int, value: E): Unit = commonPut(key, value)
 
     /**
      * Copies all of the mappings from the [other] to this map. The effect of this call is
      * equivalent to that of calling [put] on this map once for each mapping from key to value in
      * [other].
      */
-    public open fun putAll(other: SparseArrayCompat<out E>) {
-        for (i in 0 until other.size()) {
-            put(other.keyAt(i), other.valueAt(i))
-        }
-    }
+    public actual open fun putAll(other: SparseArrayCompat<out E>): Unit = commonPutAll(other)
 
     /**
      * Add a new value to the array map only if the key does not already have a value or it is
@@ -295,72 +188,45 @@ public open class SparseArrayCompat<E> @JvmOverloads public constructor(
      * @return Returns the value that was stored for the given key, or `null` if there
      * was no such key.
      */
-    public open fun putIfAbsent(key: Int, value: E): E? {
-        val mapValue = get(key)
-        if (mapValue == null) {
-            put(key, value)
-        }
-        return mapValue
-    }
+    public actual open fun putIfAbsent(key: Int, value: E): E? = commonPutIfAbsent(key, value)
 
     /**
      * Returns the number of key-value mappings that this SparseArray currently stores.
      */
-    public open fun size(): Int {
-        if (garbage) {
-            gc()
-        }
-        return size
-    }
+    public actual open fun size(): Int = commonSize()
 
     /**
      * Return true if [size] is 0.
      * @return true if [size] is 0.
      */
-    // TODO(b/219589118): Isolate this redundant property to JVM via expect/actual.
     @get:JvmName("getIsEmpty")
     public val isEmpty: Boolean
         get() = isEmpty()
 
-    public open fun isEmpty(): Boolean = size() == 0
+    /**
+     * Return true if [size] is 0.
+     * @return true if [size] is 0.
+     */
+    public actual open fun isEmpty(): Boolean = commonIsEmpty()
 
     /**
      * Given an index in the range `0...size()-1`, returns
      * the key from the [index]th key-value mapping that this
      * SparseArray stores.
      */
-    public open fun keyAt(index: Int): Int {
-        if (garbage) {
-            gc()
-        }
-        return keys[index]
-    }
+    public actual open fun keyAt(index: Int): Int = commonKeyAt(index)
 
     /**
      * Given an index in the range `0...size()-1`, returns the value from the [index]th key-value
      * mapping that this SparseArray stores.
      */
-    public open fun valueAt(index: Int): E {
-        if (garbage) {
-            gc()
-        }
-
-        // TODO(b/219834506): Check for OOB and throw instead of potentially casting a null value to
-        //  a non-null type.
-        @Suppress("UNCHECKED_CAST")
-        return values[index] as E
-    }
+    public actual open fun valueAt(index: Int): E = commonValueAt(index)
 
     /**
      * Given an index in the range `0...size()-1`, sets a new value for the [index]th key-value
      * mapping that this SparseArray stores.
      */
-    public open fun setValueAt(index: Int, value: E) {
-        if (garbage) {
-            gc()
-        }
-        values[index] = value
-    }
+    public actual open fun setValueAt(index: Int, value: E): Unit = commonSetValueAt(index, value)
 
     /**
      * Returns the index for which [keyAt] would return the specified [key], or a negative number if
@@ -370,12 +236,7 @@ public open class SparseArrayCompat<E> @JvmOverloads public constructor(
      * @return the index for which [keyAt] would return the specified [key], or a negative number if
      * the specified [key] is not mapped
      */
-    public open fun indexOfKey(key: Int): Int {
-        if (garbage) {
-            gc()
-        }
-        return binarySearch(keys, size, key)
-    }
+    public actual open fun indexOfKey(key: Int): Int = commonIndexOfKey(key)
 
     /**
      * Returns an index for which [valueAt] would return the specified key, or a negative number if
@@ -387,69 +248,24 @@ public open class SparseArrayCompat<E> @JvmOverloads public constructor(
      * Note also that unlike most collections' [indexOf] methods, this method compares values using
      * `===` rather than [equals].
      */
-    public open fun indexOfValue(value: E): Int {
-        if (garbage) {
-            gc()
-        }
-        for (i in 0 until size) {
-            if (values[i] === value) {
-                return i
-            }
-        }
-        return -1
-    }
+    public actual open fun indexOfValue(value: E): Int = commonIndexOfValue(value)
 
     /** Returns true if the specified key is mapped. */
-    public open fun containsKey(key: Int): Boolean {
-        return indexOfKey(key) >= 0
-    }
+    public actual open fun containsKey(key: Int): Boolean = commonContainsKey(key)
 
     /** Returns true if the specified value is mapped from any key. */
-    public open fun containsValue(value: E): Boolean {
-        return indexOfValue(value) >= 0
-    }
+    public actual open fun containsValue(value: E): Boolean = commonContainsValue(value)
 
     /**
      * Removes all key-value mappings from this SparseArray.
      */
-    public open fun clear() {
-        val n = size
-        val values = values
-        for (i in 0 until n) {
-            values[i] = null
-        }
-        size = 0
-        garbage = false
-    }
+    public actual open fun clear(): Unit = commonClear()
 
     /**
      * Puts a key/value pair into the array, optimizing for the case where
      * the key is greater than all existing keys in the array.
      */
-    public open fun append(key: Int, value: E) {
-        if (size != 0 && key <= keys[size - 1]) {
-            put(key, value)
-            return
-        }
-        if (garbage && size >= keys.size) {
-            gc()
-        }
-        val pos = size
-        if (pos >= keys.size) {
-            val n = idealIntArraySize(pos + 1)
-            val nkeys = IntArray(n)
-            val nvalues = arrayOfNulls<Any>(n)
-
-            // Log.e("SparseArray", "grow " + mKeys.length + " to " + n);
-            System.arraycopy(keys, 0, nkeys, 0, keys.size)
-            System.arraycopy(values, 0, nvalues, 0, values.size)
-            keys = nkeys
-            values = nvalues
-        }
-        keys[pos] = key
-        values[pos] = value
-        size = pos + 1
-    }
+    public actual open fun append(key: Int, value: E): Unit = commonAppend(key, value)
 
     /**
      * Returns a string representation of the object.
@@ -457,31 +273,5 @@ public open class SparseArrayCompat<E> @JvmOverloads public constructor(
      * This implementation composes a string by iterating over its mappings. If this map contains
      * itself as a value, the string "(this Map)" will appear in its place.
      */
-    override fun toString(): String {
-        if (size() <= 0) {
-            return "{}"
-        }
-        val buffer = StringBuilder(size * 28)
-        buffer.append('{')
-        for (i in 0 until size) {
-            if (i > 0) {
-                buffer.append(", ")
-            }
-            val key = keyAt(i)
-            buffer.append(key)
-            buffer.append('=')
-            val value: Any? = valueAt(i)
-            if (value !== this) {
-                buffer.append(value)
-            } else {
-                buffer.append("(this Map)")
-            }
-        }
-        buffer.append('}')
-        return buffer.toString()
-    }
-
-    private companion object {
-        private val DELETED = Any()
-    }
+    public actual override fun toString(): String = commonToString()
 }
