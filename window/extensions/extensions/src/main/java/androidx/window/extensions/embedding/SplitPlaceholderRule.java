@@ -24,7 +24,6 @@ import android.view.WindowMetrics;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
-import androidx.window.extensions.ExperimentalWindowExtensionsApi;
 
 import java.util.function.Predicate;
 
@@ -32,7 +31,6 @@ import java.util.function.Predicate;
  * Split configuration rules for split placeholders - activities used to occupy additional
  * available space on the side before the user selects content to show.
  */
-@ExperimentalWindowExtensionsApi
 public class SplitPlaceholderRule extends SplitRule {
     @NonNull
     private final Predicate<Activity> mActivityPredicate;
