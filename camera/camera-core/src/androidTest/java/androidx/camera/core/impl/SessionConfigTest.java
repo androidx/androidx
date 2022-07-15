@@ -26,7 +26,7 @@ import android.hardware.camera2.CameraCaptureSession;
 import android.hardware.camera2.CameraDevice;
 import android.view.Surface;
 
-import androidx.camera.camera2.internal.compat.params.OutputConfigurationCompat;
+import androidx.camera.camera2.impl.Camera2ImplConfig;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.Preview;
 import androidx.camera.core.VideoCapture;
@@ -285,12 +285,13 @@ public class SessionConfigTest {
     }
 
     @Test
-    public void setStreamUseCase() {
+    public void addImplementationOptionForStreamUseCase() {
         SessionConfig.ValidatingBuilder validatingBuilder = new SessionConfig.ValidatingBuilder();
-        assertThat(validatingBuilder.build().getStreamUseCase()
-                == OutputConfigurationCompat.STREAM_USE_CASE_NONE);
-        validatingBuilder.setStreamUseCase(1);
-        assertThat(validatingBuilder.build().getStreamUseCase() == 1);
+        assertThat(!validatingBuilder.build().getImplementationOptions().containsOption(
+                Camera2ImplConfig.STREAM_USE_CASE_OPTION));
+        validatingBuilder.addImplementationOption(Camera2ImplConfig.STREAM_USE_CASE_OPTION, 1L);
+        assertThat(validatingBuilder.build().getImplementationOptions().retrieveOption(
+                Camera2ImplConfig.STREAM_USE_CASE_OPTION) == 1L);
     }
 
     @Test

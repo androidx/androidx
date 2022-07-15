@@ -314,7 +314,12 @@ final class CaptureSession implements CaptureSessionInterface {
                                         outputConfig,
                                         mConfiguredSurfaceMap,
                                         physicalCameraIdForAllStreams);
-                        outputConfiguration.setStreamUseCase(sessionConfig.getStreamUseCase());
+                        if (sessionConfig.getImplementationOptions().containsOption(
+                                Camera2ImplConfig.STREAM_USE_CASE_OPTION)) {
+                            outputConfiguration.setStreamUseCase(
+                                    sessionConfig.getImplementationOptions().retrieveOption(
+                                            Camera2ImplConfig.STREAM_USE_CASE_OPTION));
+                        }
                         outputConfigList.add(outputConfiguration);
                     }
 
