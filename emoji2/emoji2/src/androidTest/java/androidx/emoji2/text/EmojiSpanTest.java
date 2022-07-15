@@ -19,15 +19,20 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Paint.FontMetricsInt;
+import android.text.Spannable;
+import android.text.SpannableString;
 import android.text.TextPaint;
+import android.text.style.BackgroundColorSpan;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
@@ -88,7 +93,8 @@ public class EmojiSpanTest {
         when(metadata.getHeight()).thenReturn((short) 10);
 
         final EmojiSpan span = new TypefaceEmojiSpan(metadata);
-        final int spanWidth = span.getSize(mock(Paint.class), "", 0, 0, null);
+        TextPaint textPaint = new TextPaint();
+        final int spanWidth = span.getSize(textPaint, "", 0, 0, null);
         // prepare parameters for draw() call
         final Canvas canvas = mock(Canvas.class);
         final float x = 10;
@@ -98,7 +104,8 @@ public class EmojiSpanTest {
 
         // verify the case where indicators are disabled
         EmojiCompat.reset(NoFontTestEmojiConfig.emptyConfig().setEmojiSpanIndicatorEnabled(false));
-        span.draw(canvas, "a", 0 /*start*/, 1 /*end*/, x, top, y, bottom, mock(Paint.class));
+        TextPaint paint = new TextPaint();
+        span.draw(canvas, "a", 0 /*start*/, 1 /*end*/, x, top, y, bottom, paint);
 
         verify(canvas, times(0)).drawRect(eq(x), eq((float) top), eq(x + spanWidth),
                 eq((float) bottom), any(Paint.class));
@@ -106,9 +113,66 @@ public class EmojiSpanTest {
         // verify the case where indicators are enabled
         EmojiCompat.reset(NoFontTestEmojiConfig.emptyConfig().setEmojiSpanIndicatorEnabled(true));
         reset(canvas);
-        span.draw(canvas, "a", 0 /*start*/, 1 /*end*/, x, top, y, bottom, mock(Paint.class));
+        span.draw(canvas, "a", 0 /*start*/, 1 /*end*/, x, top, y, bottom, textPaint);
 
         verify(canvas, times(1)).drawRect(eq(x), eq((float) top), eq(x + spanWidth),
                 eq((float) bottom), any(Paint.class));
     }
+    @Test
+    public void testBackgroundColor_doesDrawbackground() {
+        // control the size of the emoji span
+        final EmojiMetadata metadata = mock(EmojiMetadata.class);
+        when(metadata.getWidth()).thenReturn((short) 10);
+        when(metadata.getHeight()).thenReturn((short) 10);
+
+        final EmojiSpan span = new TypefaceEmojiSpan(metadata);
+        TextPaint textPaint = new TextPaint();
+        final int spanWidth = span.getSize(textPaint, "", 0, 0, null);
+        final Spannable spannable = new SpannableString("Hello");
+        spannable.setSpan(new BackgroundColorSpan(Color.parseColor("#FF0000")), 0, 1,
+                Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
+        // prepare parameters for draw() call
+        final Canvas canvas = mock(Canvas.class);
+        final float x = 10;
+        final int top = 15;
+        final int y = 20;
+        final int bottom = 30;
+
+        // verify the case where background draw happens (position 0)
+        EmojiCompat.reset(NoFontTestEmojiConfig.emptyConfig().setEmojiSpanIndicatorEnabled(false));
+        TextPaint paint = new TextPaint();
+        span.draw(canvas, spannable, 0 /*start*/, 1 /*end*/, x, top, y, bottom, paint);
+
+        verify(canvas, times(1)).drawRect(eq(x), eq((float) top), eq(x + spanWidth),
+                eq((float) bottom), any(Paint.class));
+    }
+
+    @Test
+    public void testBackgroundColor_inPositionNextToEmoji_doesNotDrawBackground() {
+        // control the size of the emoji span
+        final EmojiMetadata metadata = mock(EmojiMetadata.class);
+        when(metadata.getWidth()).thenReturn((short) 10);
+        when(metadata.getHeight()).thenReturn((short) 10);
+
+        final EmojiSpan span = new TypefaceEmojiSpan(metadata);
+        TextPaint textPaint = new TextPaint();
+        final int spanWidth = span.getSize(textPaint, "", 0, 0, null);
+        final Spannable spannable = new SpannableString("Hello");
+        spannable.setSpan(new BackgroundColorSpan(Color.parseColor("#FF0000")), 0, 1,
+                Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
+        // prepare parameters for draw() call
+        final Canvas canvas = mock(Canvas.class);
+        final float x = 10;
+        final int top = 15;
+        final int y = 20;
+        final int bottom = 30;
+
+        // verify the case where background draw happens (position 0)
+        EmojiCompat.reset(NoFontTestEmojiConfig.emptyConfig().setEmojiSpanIndicatorEnabled(false));
+        span.draw(canvas, spannable, 1 /*start*/, 2 /*end*/, x, top, y, bottom, textPaint);
+
+        verify(canvas, never()).drawRect(eq(x), eq((float) top), eq(x + spanWidth),
+                eq((float) bottom), any(Paint.class));
+    }
+
 }
