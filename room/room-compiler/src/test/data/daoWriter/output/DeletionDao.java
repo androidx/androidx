@@ -1,25 +1,28 @@
 package foo.bar;
 
 import androidx.room.EntityDeletionOrUpdateAdapter;
+import androidx.room.ParsedQuerySection;
 import androidx.room.RoomDatabase;
 import androidx.room.SharedSQLiteStatement;
-import androidx.room.util.StringUtil;
+import androidx.room.util.QueryUtil;
 import androidx.sqlite.db.SupportSQLiteStatement;
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
+import java.lang.Boolean;
 import java.lang.Class;
 import java.lang.Exception;
 import java.lang.Integer;
 import java.lang.Override;
 import java.lang.String;
-import java.lang.StringBuilder;
 import java.lang.SuppressWarnings;
 import java.lang.Void;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
 import javax.annotation.processing.Generated;
+import kotlin.Pair;
 
 @Generated("androidx.room.RoomProcessor")
 @SuppressWarnings({"unchecked", "deprecation"})
@@ -278,7 +281,11 @@ public final class DeletionDao_Impl implements DeletionDao {
     _stmt.bindLong(_argIndex, uid);
     __db.beginTransaction();
     try {
+      boolean _isLargeQuery = false;
       final int _result = _stmt.executeUpdateDelete();
+      if (_isLargeQuery) {
+        __db.getOpenHelper().getWritableDatabase().execSQL("DROP TABLE IF EXISTS _tempTable");
+      }
       __db.setTransactionSuccessful();
       return _result;
     } finally {
@@ -297,7 +304,11 @@ public final class DeletionDao_Impl implements DeletionDao {
         _stmt.bindLong(_argIndex, uid);
         __db.beginTransaction();
         try {
+          boolean _isLargeQuery = false;
           _stmt.executeUpdateDelete();
+          if (_isLargeQuery) {
+            __db.getOpenHelper().getWritableDatabase().execSQL("DROP TABLE IF EXISTS _tempTable");
+          }
           __db.setTransactionSuccessful();
           return null;
         } finally {
@@ -318,7 +329,11 @@ public final class DeletionDao_Impl implements DeletionDao {
         _stmt.bindLong(_argIndex, uid);
         __db.beginTransaction();
         try {
+          boolean _isLargeQuery = false;
           final java.lang.Integer _result = _stmt.executeUpdateDelete();
+          if (_isLargeQuery) {
+            __db.getOpenHelper().getWritableDatabase().execSQL("DROP TABLE IF EXISTS _tempTable");
+          }
           __db.setTransactionSuccessful();
           return _result;
         } finally {
@@ -339,7 +354,11 @@ public final class DeletionDao_Impl implements DeletionDao {
         _stmt.bindLong(_argIndex, uid);
         __db.beginTransaction();
         try {
+          boolean _isLargeQuery = false;
           final java.lang.Integer _result = _stmt.executeUpdateDelete();
+          if (_isLargeQuery) {
+            __db.getOpenHelper().getWritableDatabase().execSQL("DROP TABLE IF EXISTS _tempTable");
+          }
           __db.setTransactionSuccessful();
           return _result;
         } finally {
@@ -356,7 +375,11 @@ public final class DeletionDao_Impl implements DeletionDao {
     final SupportSQLiteStatement _stmt = __preparedStmtOfDeleteEverything.acquire();
     __db.beginTransaction();
     try {
+      boolean _isLargeQuery = false;
       final int _result = _stmt.executeUpdateDelete();
+      if (_isLargeQuery) {
+        __db.getOpenHelper().getWritableDatabase().execSQL("DROP TABLE IF EXISTS _tempTable");
+      }
       __db.setTransactionSuccessful();
       return _result;
     } finally {
@@ -368,21 +391,20 @@ public final class DeletionDao_Impl implements DeletionDao {
   @Override
   public int deleteByUidList(final int... uid) {
     __db.assertNotSuspendingTransaction();
-    StringBuilder _stringBuilder = StringUtil.newStringBuilder();
-    _stringBuilder.append("DELETE FROM user where uid IN(");
-    final int _inputSize = uid.length;
-    StringUtil.appendPlaceholders(_stringBuilder, _inputSize);
-    _stringBuilder.append(")");
-    final String _sql = _stringBuilder.toString();
-    final SupportSQLiteStatement _stmt = __db.compileStatement(_sql);
-    int _argIndex = 1;
-    for (int _item : uid) {
-      _stmt.bindLong(_argIndex, _item);
-      _argIndex ++;
-    }
+    final List<ParsedQuerySection> _parsedQuerySections = new ArrayList<ParsedQuerySection>();
+    _parsedQuerySections.add(ParsedQuerySection.Companion.text("DELETE FROM user where uid IN("));
+    _parsedQuerySections.add(ParsedQuerySection.Companion.bindVar(":uid", true, uid));
+    _parsedQuerySections.add(ParsedQuerySection.Companion.text(")"));
     __db.beginTransaction();
     try {
+      boolean _isLargeQuery = false;
+      final Pair<SupportSQLiteStatement, Boolean> _resultPair = QueryUtil.prepareStatement(__db, "_tempTable", _parsedQuerySections, false);
+      final SupportSQLiteStatement _stmt = _resultPair.getFirst();
+      _isLargeQuery = _resultPair.getSecond();
       final int _result = _stmt.executeUpdateDelete();
+      if (_isLargeQuery) {
+        __db.getOpenHelper().getWritableDatabase().execSQL("DROP TABLE IF EXISTS _tempTable");
+      }
       __db.setTransactionSuccessful();
       return _result;
     } finally {

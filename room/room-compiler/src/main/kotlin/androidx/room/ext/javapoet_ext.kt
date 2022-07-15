@@ -91,6 +91,8 @@ object RoomTypeNames {
         ClassName.get("$ROOM_PACKAGE.paging", "LimitOffsetDataSource")
     val DB_UTIL: ClassName =
         ClassName.get("$ROOM_PACKAGE.util", "DBUtil")
+    val QUERY_UTIL: ClassName =
+        ClassName.get("$ROOM_PACKAGE.util", "QueryUtil")
     val CURSOR_UTIL: ClassName =
         ClassName.get("$ROOM_PACKAGE.util", "CursorUtil")
     val MIGRATION: ClassName = ClassName.get("$ROOM_PACKAGE.migration", "Migration")
@@ -282,6 +284,19 @@ fun CallableTypeSpecBuilder(
         MethodSpec.methodBuilder("call").apply {
             returns(parameterTypeName)
             addException(Exception::class.typeName)
+            addModifiers(Modifier.PUBLIC)
+            addAnnotation(Override::class.java)
+            callBody()
+        }.build()
+    )
+}
+
+fun RunnableTypeSpecBuilder(
+    callBody: MethodSpec.Builder.() -> Unit
+) = TypeSpec.anonymousClassBuilder("").apply {
+    superclass(Runnable::class.typeName)
+    addMethod(
+        MethodSpec.methodBuilder("run").apply {
             addModifiers(Modifier.PUBLIC)
             addAnnotation(Override::class.java)
             callBody()

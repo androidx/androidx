@@ -30,6 +30,8 @@ class InstantPreparedQueryResultBinder(adapter: PreparedQueryResultAdapter?) :
 
     override fun executeAndReturn(
         prepareQueryStmtBlock: CodeGenScope.() -> String,
+        sectionsVar: String?,
+        tempTableVar: String,
         preparedStmtField: String?,
         dbField: FieldSpec,
         scope: CodeGenScope
@@ -39,6 +41,8 @@ class InstantPreparedQueryResultBinder(adapter: PreparedQueryResultAdapter?) :
         }
         adapter?.executeAndReturn(
             stmtQueryVal = scope.prepareQueryStmtBlock(),
+            sectionsVar = sectionsVar,
+            tempTableVar = tempTableVar,
             preparedStmtField = preparedStmtField,
             dbField = dbField,
             scope = scope

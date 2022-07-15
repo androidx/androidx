@@ -16,10 +16,12 @@
 
 package androidx.room.integration.kotlintestapp.dao
 
+import android.database.Cursor
 import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.RawQuery
 import androidx.room.RoomWarnings
@@ -225,6 +227,9 @@ interface BooksDao {
     @Insert
     suspend fun insertBookSuspend(book: Book)
 
+    @Update(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun updateAuthorSuspend(author: Author)
+
     @Insert
     suspend fun insertBookWithResultSuspend(book: Book): Long
 
@@ -367,8 +372,32 @@ interface BooksDao {
     @Query("SELECT * FROM author WHERE dateOfBirth IN (:dates)")
     fun getAuthorsWithBirthDatesList(dates: List<Date>): List<Author>
 
+    @Query("SELECT * FROM author WHERE authorId IN (:authorIds) OR dateOfBirth IN (:dates)")
+    fun getAuthorsWithIDsOrBirthDatesList(authorIds: List<String>, dates: List<Date>): List<Author>
+
     @Query("SELECT * FROM author WHERE dateOfBirth IN (:dates)")
     fun getAuthorsWithBirthDatesVararg(vararg dates: Date): List<Author>
+
+    @Query("SELECT * FROM author WHERE authorId IN (:authorIds)")
+    fun getAuthorsByIdsFuture(vararg authorIds: String): ListenableFuture<List<Author>>
+
+    @Query("SELECT * FROM author WHERE authorId IN (:authorIds)")
+    fun getAuthorsByIdsCursor(vararg authorIds: String): Cursor
+
+    @Query("DELETE FROM author WHERE authorId IN (:authorIds)")
+    fun deleteAuthorsWithIds(vararg authorIds: String): Int
+
+    @Query("DELETE FROM author WHERE authorId IN (:authorIds) OR dateOfBirth IN (:dates)")
+    fun deleteAuthorsWithIdsOrBirthDates(authorIds: List<String>, dates: List<Date>): Int
+
+    @Query("UPDATE author SET name = :name WHERE authorId IN (:authorIds)")
+    fun updateAuthorName(name: String, vararg authorIds: String): Int
+
+    @Query("SELECT * FROM author WHERE authorId IN (:authorIds)")
+    fun getAuthorsByIdsFlow(vararg authorIds: String): Flow<List<Author>>
+
+    @Query("SELECT * FROM author WHERE authorId IN (:authorIds)")
+    suspend fun getAuthorsByIdsSuspend(vararg authorIds: String): List<Author>
 
     // see: b/123767877, suspend function with inner class as parameter issues.
     @Query("SELECT 0 FROM book WHERE bookId = :param")

@@ -33,6 +33,8 @@ abstract class QueryResultBinder(val adapter: QueryResultAdapter?) {
      */
     abstract fun convertAndReturn(
         roomSQLiteQueryVar: String,
+        sectionsVar: String?,
+        tempTableVar: String,
         canReleaseQuery: Boolean, // false if query is provided by the user
         dbField: FieldSpec,
         inTransaction: Boolean,

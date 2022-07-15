@@ -16,15 +16,17 @@
 
 package androidx.room.solver.query.result
 
+import androidx.room.compiler.processing.XType
 import androidx.room.ext.CallableTypeSpecBuilder
 import androidx.room.ext.L
 import androidx.room.ext.N
+import androidx.room.ext.RoomTypeNames
 import androidx.room.ext.T
 import androidx.room.ext.arrayTypeName
-import androidx.room.compiler.processing.XType
 import androidx.room.solver.CodeGenScope
 import androidx.room.solver.RxType
 import com.squareup.javapoet.FieldSpec
+import javax.lang.model.element.Modifier
 
 /**
  * Binds the result as an RxJava2 Flowable, Publisher and Observable.
@@ -37,6 +39,8 @@ internal class RxQueryResultBinder(
 ) : BaseObservableQueryResultBinder(adapter) {
     override fun convertAndReturn(
         roomSQLiteQueryVar: String,
+        sectionsVar: String?,
+        tempTableVar: String,
         canReleaseQuery: Boolean,
         dbField: FieldSpec,
         inTransaction: Boolean,
@@ -47,11 +51,16 @@ internal class RxQueryResultBinder(
                 builder = this,
                 roomSQLiteQueryVar = roomSQLiteQueryVar,
                 inTransaction = inTransaction,
+                sectionsVar = sectionsVar,
+                tempTableVar = tempTableVar,
                 dbField = dbField,
                 scope = scope,
                 cancellationSignalVar = "null"
             )
         }.apply {
+            if (sectionsVar != null) {
+                addField(RoomTypeNames.ROOM_SQL_QUERY, roomSQLiteQueryVar, Modifier.PRIVATE)
+            }
             if (canReleaseQuery) {
                 addMethod(createFinalizeMethod(roomSQLiteQueryVar))
             }

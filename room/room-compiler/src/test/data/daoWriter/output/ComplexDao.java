@@ -3,26 +3,29 @@ package foo.bar;
 import android.database.Cursor;
 import android.os.CancellationSignal;
 import androidx.lifecycle.LiveData;
+import androidx.room.ParsedQuerySection;
 import androidx.room.RoomDatabase;
 import androidx.room.RoomSQLiteQuery;
 import androidx.room.guava.GuavaRoom;
 import androidx.room.util.CursorUtil;
 import androidx.room.util.DBUtil;
-import androidx.room.util.StringUtil;
+import androidx.room.util.QueryUtil;
 import androidx.sqlite.db.SupportSQLiteQuery;
 import com.google.common.util.concurrent.ListenableFuture;
+import java.lang.Boolean;
 import java.lang.Class;
 import java.lang.Exception;
 import java.lang.Integer;
 import java.lang.Override;
+import java.lang.Runnable;
 import java.lang.String;
-import java.lang.StringBuilder;
 import java.lang.SuppressWarnings;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
 import javax.annotation.processing.Generated;
+import kotlin.Pair;
 
 @Generated("androidx.room.RoomProcessor")
 @SuppressWarnings({"unchecked", "deprecation"})
@@ -48,13 +51,18 @@ public final class ComplexDao_Impl extends ComplexDao {
 
     @Override
     public List<ComplexDao.FullName> fullNames(final int id) {
-        final String _sql = "SELECT name || lastName as fullName, uid as id FROM user where uid = ?";
-        final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 1);
-        int _argIndex = 1;
-        _statement.bindLong(_argIndex, id);
+        final List<ParsedQuerySection> _parsedQuerySections = new ArrayList<ParsedQuerySection>();
+        _parsedQuerySections.add(ParsedQuerySection.Companion.text("SELECT name || lastName as fullName, uid as id FROM user where uid = "));
+        _parsedQuerySections.add(ParsedQuerySection.Companion.bindVar(":id", false, id));
         __db.assertNotSuspendingTransaction();
-        final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
+        RoomSQLiteQuery _statement = null;
+        Cursor _cursor = null;
         try {
+            boolean _isLargeQuery = false;
+            final Pair<RoomSQLiteQuery, Boolean> _resultPair = QueryUtil.prepareQuery(__db, false, "_tempTable", _parsedQuerySections, false);
+            _statement = _resultPair.getFirst();
+            _isLargeQuery = _resultPair.getSecond();
+            _cursor = DBUtil.query(__db, _statement, false, null);
             final int _cursorIndexOfFullName = 0;
             final int _cursorIndexOfId = 1;
             final List<ComplexDao.FullName> _result = new ArrayList<ComplexDao.FullName>(_cursor.getCount());
@@ -69,22 +77,36 @@ public final class ComplexDao_Impl extends ComplexDao {
                 _item.id = _cursor.getInt(_cursorIndexOfId);
                 _result.add(_item);
             }
+            if (_isLargeQuery) {
+                __db.getOpenHelper().getWritableDatabase().execSQL("DROP TABLE IF EXISTS _tempTable");
+                __db.setTransactionSuccessful();
+                __db.endTransaction();
+            }
             return _result;
         } finally {
-            _cursor.close();
-            _statement.release();
+            if (_cursor != null) {
+                _cursor.close();
+            }
+            if (_statement != null) {
+                _statement.release();
+            }
         }
     }
 
     @Override
     public User getById(final int id) {
-        final String _sql = "SELECT * FROM user where uid = ?";
-        final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 1);
-        int _argIndex = 1;
-        _statement.bindLong(_argIndex, id);
+        final List<ParsedQuerySection> _parsedQuerySections = new ArrayList<ParsedQuerySection>();
+        _parsedQuerySections.add(ParsedQuerySection.Companion.text("SELECT * FROM user where uid = "));
+        _parsedQuerySections.add(ParsedQuerySection.Companion.bindVar(":id", false, id));
         __db.assertNotSuspendingTransaction();
-        final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
+        RoomSQLiteQuery _statement = null;
+        Cursor _cursor = null;
         try {
+            boolean _isLargeQuery = false;
+            final Pair<RoomSQLiteQuery, Boolean> _resultPair = QueryUtil.prepareQuery(__db, false, "_tempTable", _parsedQuerySections, false);
+            _statement = _resultPair.getFirst();
+            _isLargeQuery = _resultPair.getSecond();
+            _cursor = DBUtil.query(__db, _statement, false, null);
             final int _cursorIndexOfUid = CursorUtil.getColumnIndexOrThrow(_cursor, "uid");
             final int _cursorIndexOfName = CursorUtil.getColumnIndexOrThrow(_cursor, "name");
             final int _cursorIndexOfLastName = CursorUtil.getColumnIndexOrThrow(_cursor, "lastName");
@@ -109,32 +131,38 @@ public final class ComplexDao_Impl extends ComplexDao {
             } else {
                 _result = null;
             }
+            if (_isLargeQuery) {
+                __db.getOpenHelper().getWritableDatabase().execSQL("DROP TABLE IF EXISTS _tempTable");
+                __db.setTransactionSuccessful();
+                __db.endTransaction();
+            }
             return _result;
         } finally {
-            _cursor.close();
-            _statement.release();
+            if (_cursor != null) {
+                _cursor.close();
+            }
+            if (_statement != null) {
+                _statement.release();
+            }
         }
     }
 
     @Override
     public User findByName(final String name, final String lastName) {
-        final String _sql = "SELECT * FROM user where name LIKE ? AND lastName LIKE ?";
-        final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 2);
-        int _argIndex = 1;
-        if (name == null) {
-            _statement.bindNull(_argIndex);
-        } else {
-            _statement.bindString(_argIndex, name);
-        }
-        _argIndex = 2;
-        if (lastName == null) {
-            _statement.bindNull(_argIndex);
-        } else {
-            _statement.bindString(_argIndex, lastName);
-        }
+        final List<ParsedQuerySection> _parsedQuerySections = new ArrayList<ParsedQuerySection>();
+        _parsedQuerySections.add(ParsedQuerySection.Companion.text("SELECT * FROM user where name LIKE "));
+        _parsedQuerySections.add(ParsedQuerySection.Companion.bindVar(":name", false, name));
+        _parsedQuerySections.add(ParsedQuerySection.Companion.text(" AND lastName LIKE "));
+        _parsedQuerySections.add(ParsedQuerySection.Companion.bindVar(":lastName", false, lastName));
         __db.assertNotSuspendingTransaction();
-        final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
+        RoomSQLiteQuery _statement = null;
+        Cursor _cursor = null;
         try {
+            boolean _isLargeQuery = false;
+            final Pair<RoomSQLiteQuery, Boolean> _resultPair = QueryUtil.prepareQuery(__db, false, "_tempTable", _parsedQuerySections, false);
+            _statement = _resultPair.getFirst();
+            _isLargeQuery = _resultPair.getSecond();
+            _cursor = DBUtil.query(__db, _statement, false, null);
             final int _cursorIndexOfUid = CursorUtil.getColumnIndexOrThrow(_cursor, "uid");
             final int _cursorIndexOfName = CursorUtil.getColumnIndexOrThrow(_cursor, "name");
             final int _cursorIndexOfLastName = CursorUtil.getColumnIndexOrThrow(_cursor, "lastName");
@@ -159,44 +187,50 @@ public final class ComplexDao_Impl extends ComplexDao {
             } else {
                 _result = null;
             }
+            if (_isLargeQuery) {
+                __db.getOpenHelper().getWritableDatabase().execSQL("DROP TABLE IF EXISTS _tempTable");
+                __db.setTransactionSuccessful();
+                __db.endTransaction();
+            }
             return _result;
         } finally {
-            _cursor.close();
-            _statement.release();
+            if (_cursor != null) {
+                _cursor.close();
+            }
+            if (_statement != null) {
+                _statement.release();
+            }
         }
     }
 
     @Override
     public List<User> loadAllByIds(final int... ids) {
-        StringBuilder _stringBuilder = StringUtil.newStringBuilder();
-        _stringBuilder.append("SELECT * FROM user where uid IN (");
-        final int _inputSize = ids.length;
-        StringUtil.appendPlaceholders(_stringBuilder, _inputSize);
-        _stringBuilder.append(")");
-        final String _sql = _stringBuilder.toString();
-        final int _argCount = 0 + _inputSize;
-        final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, _argCount);
-        int _argIndex = 1;
-        for (int _item : ids) {
-            _statement.bindLong(_argIndex, _item);
-            _argIndex ++;
-        }
+        final List<ParsedQuerySection> _parsedQuerySections = new ArrayList<ParsedQuerySection>();
+        _parsedQuerySections.add(ParsedQuerySection.Companion.text("SELECT * FROM user where uid IN ("));
+        _parsedQuerySections.add(ParsedQuerySection.Companion.bindVar(":ids", true, ids));
+        _parsedQuerySections.add(ParsedQuerySection.Companion.text(")"));
         __db.assertNotSuspendingTransaction();
-        final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
+        RoomSQLiteQuery _statement = null;
+        Cursor _cursor = null;
         try {
+            boolean _isLargeQuery = false;
+            final Pair<RoomSQLiteQuery, Boolean> _resultPair = QueryUtil.prepareQuery(__db, false, "_tempTable", _parsedQuerySections, false);
+            _statement = _resultPair.getFirst();
+            _isLargeQuery = _resultPair.getSecond();
+            _cursor = DBUtil.query(__db, _statement, false, null);
             final int _cursorIndexOfUid = CursorUtil.getColumnIndexOrThrow(_cursor, "uid");
             final int _cursorIndexOfName = CursorUtil.getColumnIndexOrThrow(_cursor, "name");
             final int _cursorIndexOfLastName = CursorUtil.getColumnIndexOrThrow(_cursor, "lastName");
             final int _cursorIndexOfAge = CursorUtil.getColumnIndexOrThrow(_cursor, "ageColumn");
             final List<User> _result = new ArrayList<User>(_cursor.getCount());
             while(_cursor.moveToNext()) {
-                final User _item_1;
-                _item_1 = new User();
-                _item_1.uid = _cursor.getInt(_cursorIndexOfUid);
+                final User _item;
+                _item = new User();
+                _item.uid = _cursor.getInt(_cursorIndexOfUid);
                 if (_cursor.isNull(_cursorIndexOfName)) {
-                    _item_1.name = null;
+                    _item.name = null;
                 } else {
-                    _item_1.name = _cursor.getString(_cursorIndexOfName);
+                    _item.name = _cursor.getString(_cursorIndexOfName);
                 }
                 final String _tmpLastName;
                 if (_cursor.isNull(_cursorIndexOfLastName)) {
@@ -204,178 +238,205 @@ public final class ComplexDao_Impl extends ComplexDao {
                 } else {
                     _tmpLastName = _cursor.getString(_cursorIndexOfLastName);
                 }
-                _item_1.setLastName(_tmpLastName);
-                _item_1.age = _cursor.getInt(_cursorIndexOfAge);
-                _result.add(_item_1);
+                _item.setLastName(_tmpLastName);
+                _item.age = _cursor.getInt(_cursorIndexOfAge);
+                _result.add(_item);
+            }
+            if (_isLargeQuery) {
+                __db.getOpenHelper().getWritableDatabase().execSQL("DROP TABLE IF EXISTS _tempTable");
+                __db.setTransactionSuccessful();
+                __db.endTransaction();
             }
             return _result;
         } finally {
-            _cursor.close();
-            _statement.release();
+            if (_cursor != null) {
+                _cursor.close();
+            }
+            if (_statement != null) {
+                _statement.release();
+            }
         }
     }
 
     @Override
     int getAge(final int id) {
-        final String _sql = "SELECT ageColumn FROM user where uid = ?";
-        final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 1);
-        int _argIndex = 1;
-        _statement.bindLong(_argIndex, id);
+        final List<ParsedQuerySection> _parsedQuerySections = new ArrayList<ParsedQuerySection>();
+        _parsedQuerySections.add(ParsedQuerySection.Companion.text("SELECT ageColumn FROM user where uid = "));
+        _parsedQuerySections.add(ParsedQuerySection.Companion.bindVar(":id", false, id));
         __db.assertNotSuspendingTransaction();
-        final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
+        RoomSQLiteQuery _statement = null;
+        Cursor _cursor = null;
         try {
+            boolean _isLargeQuery = false;
+            final Pair<RoomSQLiteQuery, Boolean> _resultPair = QueryUtil.prepareQuery(__db, false, "_tempTable", _parsedQuerySections, false);
+            _statement = _resultPair.getFirst();
+            _isLargeQuery = _resultPair.getSecond();
+            _cursor = DBUtil.query(__db, _statement, false, null);
             final int _result;
             if(_cursor.moveToFirst()) {
                 _result = _cursor.getInt(0);
             } else {
                 _result = 0;
             }
+            if (_isLargeQuery) {
+                __db.getOpenHelper().getWritableDatabase().execSQL("DROP TABLE IF EXISTS _tempTable");
+                __db.setTransactionSuccessful();
+                __db.endTransaction();
+            }
             return _result;
         } finally {
-            _cursor.close();
-            _statement.release();
+            if (_cursor != null) {
+                _cursor.close();
+            }
+            if (_statement != null) {
+                _statement.release();
+            }
         }
     }
 
     @Override
     public int[] getAllAges(final int... ids) {
-        StringBuilder _stringBuilder = StringUtil.newStringBuilder();
-        _stringBuilder.append("SELECT ageColumn FROM user where uid IN(");
-        final int _inputSize = ids.length;
-        StringUtil.appendPlaceholders(_stringBuilder, _inputSize);
-        _stringBuilder.append(")");
-        final String _sql = _stringBuilder.toString();
-        final int _argCount = 0 + _inputSize;
-        final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, _argCount);
-        int _argIndex = 1;
-        for (int _item : ids) {
-            _statement.bindLong(_argIndex, _item);
-            _argIndex ++;
-        }
+        final List<ParsedQuerySection> _parsedQuerySections = new ArrayList<ParsedQuerySection>();
+        _parsedQuerySections.add(ParsedQuerySection.Companion.text("SELECT ageColumn FROM user where uid IN("));
+        _parsedQuerySections.add(ParsedQuerySection.Companion.bindVar(":ids", true, ids));
+        _parsedQuerySections.add(ParsedQuerySection.Companion.text(")"));
         __db.assertNotSuspendingTransaction();
-        final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
+        RoomSQLiteQuery _statement = null;
+        Cursor _cursor = null;
         try {
+            boolean _isLargeQuery = false;
+            final Pair<RoomSQLiteQuery, Boolean> _resultPair = QueryUtil.prepareQuery(__db, false, "_tempTable", _parsedQuerySections, false);
+            _statement = _resultPair.getFirst();
+            _isLargeQuery = _resultPair.getSecond();
+            _cursor = DBUtil.query(__db, _statement, false, null);
             final int[] _result = new int[_cursor.getCount()];
             int _index = 0;
             while(_cursor.moveToNext()) {
-                final int _item_1;
-                _item_1 = _cursor.getInt(0);
-                _result[_index] = _item_1;
+                final int _item;
+                _item = _cursor.getInt(0);
+                _result[_index] = _item;
                 _index ++;
+            }
+            if (_isLargeQuery) {
+                __db.getOpenHelper().getWritableDatabase().execSQL("DROP TABLE IF EXISTS _tempTable");
+                __db.setTransactionSuccessful();
+                __db.endTransaction();
             }
             return _result;
         } finally {
-            _cursor.close();
-            _statement.release();
+            if (_cursor != null) {
+                _cursor.close();
+            }
+            if (_statement != null) {
+                _statement.release();
+            }
         }
     }
 
     @Override
     public List<Integer> getAllAgesAsList(final List<Integer> ids) {
-        StringBuilder _stringBuilder = StringUtil.newStringBuilder();
-        _stringBuilder.append("SELECT ageColumn FROM user where uid IN(");
-        final int _inputSize = ids.size();
-        StringUtil.appendPlaceholders(_stringBuilder, _inputSize);
-        _stringBuilder.append(")");
-        final String _sql = _stringBuilder.toString();
-        final int _argCount = 0 + _inputSize;
-        final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, _argCount);
-        int _argIndex = 1;
-        for (Integer _item : ids) {
-            if (_item == null) {
-                _statement.bindNull(_argIndex);
-            } else {
-                _statement.bindLong(_argIndex, _item);
-            }
-            _argIndex ++;
-        }
+        final List<ParsedQuerySection> _parsedQuerySections = new ArrayList<ParsedQuerySection>();
+        _parsedQuerySections.add(ParsedQuerySection.Companion.text("SELECT ageColumn FROM user where uid IN("));
+        _parsedQuerySections.add(ParsedQuerySection.Companion.bindVar(":ids", true, ids));
+        _parsedQuerySections.add(ParsedQuerySection.Companion.text(")"));
         __db.assertNotSuspendingTransaction();
-        final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
+        RoomSQLiteQuery _statement = null;
+        Cursor _cursor = null;
         try {
+            boolean _isLargeQuery = false;
+            final Pair<RoomSQLiteQuery, Boolean> _resultPair = QueryUtil.prepareQuery(__db, false, "_tempTable", _parsedQuerySections, false);
+            _statement = _resultPair.getFirst();
+            _isLargeQuery = _resultPair.getSecond();
+            _cursor = DBUtil.query(__db, _statement, false, null);
             final List<Integer> _result = new ArrayList<Integer>(_cursor.getCount());
             while(_cursor.moveToNext()) {
-                final Integer _item_1;
+                final Integer _item;
                 if (_cursor.isNull(0)) {
-                    _item_1 = null;
+                    _item = null;
                 } else {
-                    _item_1 = _cursor.getInt(0);
+                    _item = _cursor.getInt(0);
                 }
-                _result.add(_item_1);
+                _result.add(_item);
+            }
+            if (_isLargeQuery) {
+                __db.getOpenHelper().getWritableDatabase().execSQL("DROP TABLE IF EXISTS _tempTable");
+                __db.setTransactionSuccessful();
+                __db.endTransaction();
             }
             return _result;
         } finally {
-            _cursor.close();
-            _statement.release();
+            if (_cursor != null) {
+                _cursor.close();
+            }
+            if (_statement != null) {
+                _statement.release();
+            }
         }
     }
 
     @Override
     public List<Integer> getAllAgesAsList(final List<Integer> ids1, final int[] ids2,
             final int... ids3) {
-        StringBuilder _stringBuilder = StringUtil.newStringBuilder();
-        _stringBuilder.append("SELECT ageColumn FROM user where uid IN(");
-        final int _inputSize = ids1.size();
-        StringUtil.appendPlaceholders(_stringBuilder, _inputSize);
-        _stringBuilder.append(") OR uid IN (");
-        final int _inputSize_1 = ids2.length;
-        StringUtil.appendPlaceholders(_stringBuilder, _inputSize_1);
-        _stringBuilder.append(") OR uid IN (");
-        final int _inputSize_2 = ids3.length;
-        StringUtil.appendPlaceholders(_stringBuilder, _inputSize_2);
-        _stringBuilder.append(")");
-        final String _sql = _stringBuilder.toString();
-        final int _argCount = 0 + _inputSize + _inputSize_1 + _inputSize_2;
-        final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, _argCount);
-        int _argIndex = 1;
-        for (Integer _item : ids1) {
-            if (_item == null) {
-                _statement.bindNull(_argIndex);
-            } else {
-                _statement.bindLong(_argIndex, _item);
-            }
-            _argIndex ++;
-        }
-        _argIndex = 1 + _inputSize;
-        for (int _item_1 : ids2) {
-            _statement.bindLong(_argIndex, _item_1);
-            _argIndex ++;
-        }
-        _argIndex = 1 + _inputSize + _inputSize_1;
-        for (int _item_2 : ids3) {
-            _statement.bindLong(_argIndex, _item_2);
-            _argIndex ++;
-        }
+        final List<ParsedQuerySection> _parsedQuerySections = new ArrayList<ParsedQuerySection>();
+        _parsedQuerySections.add(ParsedQuerySection.Companion.text("SELECT ageColumn FROM user where uid IN("));
+        _parsedQuerySections.add(ParsedQuerySection.Companion.bindVar(":ids1", true, ids1));
+        _parsedQuerySections.add(ParsedQuerySection.Companion.text(") OR uid IN ("));
+        _parsedQuerySections.add(ParsedQuerySection.Companion.bindVar(":ids2", true, ids2));
+        _parsedQuerySections.add(ParsedQuerySection.Companion.text(") OR uid IN ("));
+        _parsedQuerySections.add(ParsedQuerySection.Companion.bindVar(":ids3", true, ids3));
+        _parsedQuerySections.add(ParsedQuerySection.Companion.text(")"));
         __db.assertNotSuspendingTransaction();
-        final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
+        RoomSQLiteQuery _statement = null;
+        Cursor _cursor = null;
         try {
+            boolean _isLargeQuery = false;
+            final Pair<RoomSQLiteQuery, Boolean> _resultPair = QueryUtil.prepareQuery(__db, false, "_tempTable", _parsedQuerySections, false);
+            _statement = _resultPair.getFirst();
+            _isLargeQuery = _resultPair.getSecond();
+            _cursor = DBUtil.query(__db, _statement, false, null);
             final List<Integer> _result = new ArrayList<Integer>(_cursor.getCount());
             while(_cursor.moveToNext()) {
-                final Integer _item_3;
+                final Integer _item;
                 if (_cursor.isNull(0)) {
-                    _item_3 = null;
+                    _item = null;
                 } else {
-                    _item_3 = _cursor.getInt(0);
+                    _item = _cursor.getInt(0);
                 }
-                _result.add(_item_3);
+                _result.add(_item);
+            }
+            if (_isLargeQuery) {
+                __db.getOpenHelper().getWritableDatabase().execSQL("DROP TABLE IF EXISTS _tempTable");
+                __db.setTransactionSuccessful();
+                __db.endTransaction();
             }
             return _result;
         } finally {
-            _cursor.close();
-            _statement.release();
+            if (_cursor != null) {
+                _cursor.close();
+            }
+            if (_statement != null) {
+                _statement.release();
+            }
         }
     }
 
     @Override
     public LiveData<User> getByIdLive(final int id) {
-        final String _sql = "SELECT * FROM user where uid = ?";
-        final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 1);
-        int _argIndex = 1;
-        _statement.bindLong(_argIndex, id);
+        final List<ParsedQuerySection> _parsedQuerySections = new ArrayList<ParsedQuerySection>();
+        _parsedQuerySections.add(ParsedQuerySection.Companion.text("SELECT * FROM user where uid = "));
+        _parsedQuerySections.add(ParsedQuerySection.Companion.bindVar(":id", false, id));
         return __db.getInvalidationTracker().createLiveData(new String[]{"user"}, false, new Callable<User>() {
+            private RoomSQLiteQuery _statement;
+
             @Override
             public User call() throws Exception {
-                final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
+                Cursor _cursor = null;
                 try {
+                    boolean _isLargeQuery = false;
+                    final Pair<RoomSQLiteQuery, Boolean> _resultPair = QueryUtil.prepareQuery(__db, false, "_tempTable", _parsedQuerySections, false);
+                    _statement = _resultPair.getFirst();
+                    _isLargeQuery = _resultPair.getSecond();
+                    _cursor = DBUtil.query(__db, _statement, false, null);
                     final int _cursorIndexOfUid = CursorUtil.getColumnIndexOrThrow(_cursor, "uid");
                     final int _cursorIndexOfName = CursorUtil.getColumnIndexOrThrow(_cursor, "name");
                     final int _cursorIndexOfLastName = CursorUtil.getColumnIndexOrThrow(_cursor, "lastName");
@@ -400,52 +461,59 @@ public final class ComplexDao_Impl extends ComplexDao {
                     } else {
                         _result = null;
                     }
+                    if (_isLargeQuery) {
+                        __db.getOpenHelper().getWritableDatabase().execSQL("DROP TABLE IF EXISTS _tempTable");
+                        __db.setTransactionSuccessful();
+                        __db.endTransaction();
+                    }
                     return _result;
                 } finally {
-                    _cursor.close();
+                    if (_cursor != null) {
+                        _cursor.close();
+                    }
                 }
             }
 
             @Override
             protected void finalize() {
-                _statement.release();
+                if (_statement != null) {
+                    _statement.release();
+                }
             }
         });
     }
 
     @Override
     public LiveData<List<User>> loadUsersByIdsLive(final int... ids) {
-        StringBuilder _stringBuilder = StringUtil.newStringBuilder();
-        _stringBuilder.append("SELECT * FROM user where uid IN (");
-        final int _inputSize = ids.length;
-        StringUtil.appendPlaceholders(_stringBuilder, _inputSize);
-        _stringBuilder.append(")");
-        final String _sql = _stringBuilder.toString();
-        final int _argCount = 0 + _inputSize;
-        final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, _argCount);
-        int _argIndex = 1;
-        for (int _item : ids) {
-            _statement.bindLong(_argIndex, _item);
-            _argIndex ++;
-        }
+        final List<ParsedQuerySection> _parsedQuerySections = new ArrayList<ParsedQuerySection>();
+        _parsedQuerySections.add(ParsedQuerySection.Companion.text("SELECT * FROM user where uid IN ("));
+        _parsedQuerySections.add(ParsedQuerySection.Companion.bindVar(":ids", true, ids));
+        _parsedQuerySections.add(ParsedQuerySection.Companion.text(")"));
         return __db.getInvalidationTracker().createLiveData(new String[]{"user"}, false, new Callable<List<User>>() {
+            private RoomSQLiteQuery _statement;
+
             @Override
             public List<User> call() throws Exception {
-                final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
+                Cursor _cursor = null;
                 try {
+                    boolean _isLargeQuery = false;
+                    final Pair<RoomSQLiteQuery, Boolean> _resultPair = QueryUtil.prepareQuery(__db, false, "_tempTable", _parsedQuerySections, false);
+                    _statement = _resultPair.getFirst();
+                    _isLargeQuery = _resultPair.getSecond();
+                    _cursor = DBUtil.query(__db, _statement, false, null);
                     final int _cursorIndexOfUid = CursorUtil.getColumnIndexOrThrow(_cursor, "uid");
                     final int _cursorIndexOfName = CursorUtil.getColumnIndexOrThrow(_cursor, "name");
                     final int _cursorIndexOfLastName = CursorUtil.getColumnIndexOrThrow(_cursor, "lastName");
                     final int _cursorIndexOfAge = CursorUtil.getColumnIndexOrThrow(_cursor, "ageColumn");
                     final List<User> _result = new ArrayList<User>(_cursor.getCount());
                     while(_cursor.moveToNext()) {
-                        final User _item_1;
-                        _item_1 = new User();
-                        _item_1.uid = _cursor.getInt(_cursorIndexOfUid);
+                        final User _item;
+                        _item = new User();
+                        _item.uid = _cursor.getInt(_cursorIndexOfUid);
                         if (_cursor.isNull(_cursorIndexOfName)) {
-                            _item_1.name = null;
+                            _item.name = null;
                         } else {
-                            _item_1.name = _cursor.getString(_cursorIndexOfName);
+                            _item.name = _cursor.getString(_cursorIndexOfName);
                         }
                         final String _tmpLastName;
                         if (_cursor.isNull(_cursorIndexOfLastName)) {
@@ -453,30 +521,45 @@ public final class ComplexDao_Impl extends ComplexDao {
                         } else {
                             _tmpLastName = _cursor.getString(_cursorIndexOfLastName);
                         }
-                        _item_1.setLastName(_tmpLastName);
-                        _item_1.age = _cursor.getInt(_cursorIndexOfAge);
-                        _result.add(_item_1);
+                        _item.setLastName(_tmpLastName);
+                        _item.age = _cursor.getInt(_cursorIndexOfAge);
+                        _result.add(_item);
+                    }
+                    if (_isLargeQuery) {
+                        __db.getOpenHelper().getWritableDatabase().execSQL("DROP TABLE IF EXISTS _tempTable");
+                        __db.setTransactionSuccessful();
+                        __db.endTransaction();
                     }
                     return _result;
                 } finally {
-                    _cursor.close();
+                    if (_cursor != null) {
+                        _cursor.close();
+                    }
                 }
             }
 
             @Override
             protected void finalize() {
-                _statement.release();
+                if (_statement != null) {
+                    _statement.release();
+                }
             }
         });
     }
 
     @Override
     public List<Child1> getChild1List() {
-        final String _sql = "SELECT * FROM Child1";
-        final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 0);
+        final List<ParsedQuerySection> _parsedQuerySections = new ArrayList<ParsedQuerySection>();
+        _parsedQuerySections.add(ParsedQuerySection.Companion.text("SELECT * FROM Child1"));
         __db.assertNotSuspendingTransaction();
-        final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
+        RoomSQLiteQuery _statement = null;
+        Cursor _cursor = null;
         try {
+            boolean _isLargeQuery = false;
+            final Pair<RoomSQLiteQuery, Boolean> _resultPair = QueryUtil.prepareQuery(__db, false, "_tempTable", _parsedQuerySections, false);
+            _statement = _resultPair.getFirst();
+            _isLargeQuery = _resultPair.getSecond();
+            _cursor = DBUtil.query(__db, _statement, false, null);
             final int _cursorIndexOfId = CursorUtil.getColumnIndexOrThrow(_cursor, "id");
             final int _cursorIndexOfName = CursorUtil.getColumnIndexOrThrow(_cursor, "name");
             final int _cursorIndexOfSerial = CursorUtil.getColumnIndexOrThrow(_cursor, "serial");
@@ -507,20 +590,35 @@ public final class ComplexDao_Impl extends ComplexDao {
                 _item = new Child1(_tmpId,_tmpName,_tmpInfo);
                 _result.add(_item);
             }
+            if (_isLargeQuery) {
+                __db.getOpenHelper().getWritableDatabase().execSQL("DROP TABLE IF EXISTS _tempTable");
+                __db.setTransactionSuccessful();
+                __db.endTransaction();
+            }
             return _result;
         } finally {
-            _cursor.close();
-            _statement.release();
+            if (_cursor != null) {
+                _cursor.close();
+            }
+            if (_statement != null) {
+                _statement.release();
+            }
         }
     }
 
     @Override
     public List<Child2> getChild2List() {
-        final String _sql = "SELECT * FROM Child2";
-        final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 0);
+        final List<ParsedQuerySection> _parsedQuerySections = new ArrayList<ParsedQuerySection>();
+        _parsedQuerySections.add(ParsedQuerySection.Companion.text("SELECT * FROM Child2"));
         __db.assertNotSuspendingTransaction();
-        final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
+        RoomSQLiteQuery _statement = null;
+        Cursor _cursor = null;
         try {
+            boolean _isLargeQuery = false;
+            final Pair<RoomSQLiteQuery, Boolean> _resultPair = QueryUtil.prepareQuery(__db, false, "_tempTable", _parsedQuerySections, false);
+            _statement = _resultPair.getFirst();
+            _isLargeQuery = _resultPair.getSecond();
+            _cursor = DBUtil.query(__db, _statement, false, null);
             final int _cursorIndexOfId = CursorUtil.getColumnIndexOrThrow(_cursor, "id");
             final int _cursorIndexOfName = CursorUtil.getColumnIndexOrThrow(_cursor, "name");
             final int _cursorIndexOfSerial = CursorUtil.getColumnIndexOrThrow(_cursor, "serial");
@@ -551,23 +649,38 @@ public final class ComplexDao_Impl extends ComplexDao {
                 _item = new Child2(_tmpId,_tmpName,_tmpInfo);
                 _result.add(_item);
             }
+            if (_isLargeQuery) {
+                __db.getOpenHelper().getWritableDatabase().execSQL("DROP TABLE IF EXISTS _tempTable");
+                __db.setTransactionSuccessful();
+                __db.endTransaction();
+            }
             return _result;
         } finally {
-            _cursor.close();
-            _statement.release();
+            if (_cursor != null) {
+                _cursor.close();
+            }
+            if (_statement != null) {
+                _statement.release();
+            }
         }
     }
 
     @Override
     public ListenableFuture<List<Child1>> getChild1ListListenableFuture() {
-        final String _sql = "SELECT * FROM Child1";
-        final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 0);
+        final List<ParsedQuerySection> _parsedQuerySections = new ArrayList<ParsedQuerySection>();
+        _parsedQuerySections.add(ParsedQuerySection.Companion.text("SELECT * FROM Child1"));
         final CancellationSignal _cancellationSignal = DBUtil.createCancellationSignal();
+        final SupportSQLiteQuery[] _query = new SupportSQLiteQuery[]{null};
         return GuavaRoom.createListenableFuture(__db, false, new Callable<List<Child1>>() {
             @Override
             public List<Child1> call() throws Exception {
-                final Cursor _cursor = DBUtil.query(__db, _statement, false, _cancellationSignal);
+                Cursor _cursor = null;
                 try {
+                    boolean _isLargeQuery = false;
+                    final Pair<RoomSQLiteQuery, Boolean> _resultPair = QueryUtil.prepareQuery(__db, false, "_tempTable", _parsedQuerySections, false);
+                    _query[0] = _resultPair.getFirst();
+                    _isLargeQuery = _resultPair.getSecond();
+                    _cursor = DBUtil.query(__db, _query[0], false, _cancellationSignal);
                     final int _cursorIndexOfId = CursorUtil.getColumnIndexOrThrow(_cursor, "id");
                     final int _cursorIndexOfName = CursorUtil.getColumnIndexOrThrow(_cursor, "name");
                     final int _cursorIndexOfSerial = CursorUtil.getColumnIndexOrThrow(_cursor, "serial");
@@ -598,21 +711,41 @@ public final class ComplexDao_Impl extends ComplexDao {
                         _item = new Child1(_tmpId,_tmpName,_tmpInfo);
                         _result.add(_item);
                     }
+                    if (_isLargeQuery) {
+                        __db.getOpenHelper().getWritableDatabase().execSQL("DROP TABLE IF EXISTS _tempTable");
+                        __db.setTransactionSuccessful();
+                        __db.endTransaction();
+                    }
                     return _result;
                 } finally {
-                    _cursor.close();
+                    if (_cursor != null) {
+                        _cursor.close();
+                    }
                 }
             }
-        }, _statement, true, _cancellationSignal);
+        }, new Runnable() {
+            @Override
+            public void run() {
+                if ((_query[0] != null) && (_query[0] instanceof RoomSQLiteQuery)) {
+                    ((RoomSQLiteQuery)_query[0]).release();
+                }
+            }
+        }, true, _cancellationSignal);
     }
 
     @Override
     public List<UserSummary> getUserNames() {
-        final String _sql = "SELECT `uid`, `name` FROM (SELECT * FROM User)";
-        final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 0);
+        final List<ParsedQuerySection> _parsedQuerySections = new ArrayList<ParsedQuerySection>();
+        _parsedQuerySections.add(ParsedQuerySection.Companion.text("SELECT `uid`, `name` FROM (SELECT * FROM User)"));
         __db.assertNotSuspendingTransaction();
-        final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
+        RoomSQLiteQuery _statement = null;
+        Cursor _cursor = null;
         try {
+            boolean _isLargeQuery = false;
+            final Pair<RoomSQLiteQuery, Boolean> _resultPair = QueryUtil.prepareQuery(__db, false, "_tempTable", _parsedQuerySections, false);
+            _statement = _resultPair.getFirst();
+            _isLargeQuery = _resultPair.getSecond();
+            _cursor = DBUtil.query(__db, _statement, false, null);
             final int _cursorIndexOfUid = 0;
             final int _cursorIndexOfName = 1;
             final List<UserSummary> _result = new ArrayList<UserSummary>(_cursor.getCount());
@@ -627,10 +760,19 @@ public final class ComplexDao_Impl extends ComplexDao {
                 }
                 _result.add(_item);
             }
+            if (_isLargeQuery) {
+                __db.getOpenHelper().getWritableDatabase().execSQL("DROP TABLE IF EXISTS _tempTable");
+                __db.setTransactionSuccessful();
+                __db.endTransaction();
+            }
             return _result;
         } finally {
-            _cursor.close();
-            _statement.release();
+            if (_cursor != null) {
+                _cursor.close();
+            }
+            if (_statement != null) {
+                _statement.release();
+            }
         }
     }
 
@@ -638,17 +780,26 @@ public final class ComplexDao_Impl extends ComplexDao {
     public User getUserViaRawQuery(final SupportSQLiteQuery rawQuery) {
         final SupportSQLiteQuery _internalQuery = rawQuery;
         __db.assertNotSuspendingTransaction();
-        final Cursor _cursor = DBUtil.query(__db, _internalQuery, false, null);
+        Cursor _cursor = null;
         try {
+            boolean _isLargeQuery = false;
+            _cursor = DBUtil.query(__db, _internalQuery, false, null);
             final User _result;
             if(_cursor.moveToFirst()) {
                 _result = __entityCursorConverter_fooBarUser(_cursor);
             } else {
                 _result = null;
             }
+            if (_isLargeQuery) {
+                __db.getOpenHelper().getWritableDatabase().execSQL("DROP TABLE IF EXISTS _tempTable");
+                __db.setTransactionSuccessful();
+                __db.endTransaction();
+            }
             return _result;
         } finally {
-            _cursor.close();
+            if (_cursor != null) {
+                _cursor.close();
+            }
         }
     }
 

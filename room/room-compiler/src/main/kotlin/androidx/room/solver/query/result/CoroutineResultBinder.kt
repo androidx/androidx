@@ -16,17 +16,21 @@
 
 package androidx.room.solver.query.result
 
+import androidx.room.compiler.processing.XType
 import androidx.room.ext.AndroidTypeNames
 import androidx.room.ext.CallableTypeSpecBuilder
 import androidx.room.ext.L
 import androidx.room.ext.N
 import androidx.room.ext.RoomCoroutinesTypeNames
 import androidx.room.ext.RoomTypeNames
+import androidx.room.ext.S
 import androidx.room.ext.T
-import androidx.room.compiler.processing.XType
 import androidx.room.solver.CodeGenScope
+import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.FieldSpec
 import com.squareup.javapoet.MethodSpec
+import com.squareup.javapoet.ParameterizedTypeName
+import com.squareup.javapoet.TypeName
 
 /**
  * Binds the result of a of a Kotlin coroutine suspend function.
@@ -39,6 +43,8 @@ class CoroutineResultBinder(
 
     override fun convertAndReturn(
         roomSQLiteQueryVar: String,
+        sectionsVar: String?,
+        tempTableVar: String,
         canReleaseQuery: Boolean,
         dbField: FieldSpec,
         inTransaction: Boolean,
@@ -57,6 +63,8 @@ class CoroutineResultBinder(
                 builder = this,
                 roomSQLiteQueryVar = roomSQLiteQueryVar,
                 canReleaseQuery = canReleaseQuery,
+                sectionsVar = sectionsVar,
+                tempTableVar = tempTableVar,
                 dbField = dbField,
                 inTransaction = inTransaction,
                 scope = scope,
@@ -81,6 +89,8 @@ class CoroutineResultBinder(
         builder: MethodSpec.Builder,
         roomSQLiteQueryVar: String,
         canReleaseQuery: Boolean,
+        sectionsVar: String?,
+        tempTableVar: String,
         dbField: FieldSpec,
         inTransaction: Boolean,
         scope: CodeGenScope,
@@ -94,29 +104,71 @@ class CoroutineResultBinder(
         val shouldCopyCursor = adapter?.shouldCopyCursor() == true
         val outVar = scope.getTmpVar("_result")
         val cursorVar = scope.getTmpVar("_cursor")
+        val largeQueryVar = scope.getTmpVar("_isLargeQuery")
         transactionWrapper?.beginTransactionWithControlFlow()
         builder.apply {
-            addStatement(
-                "final $T $L = $T.query($N, $L, $L, $L)",
-                AndroidTypeNames.CURSOR,
-                cursorVar,
-                RoomTypeNames.DB_UTIL,
-                dbField,
-                roomSQLiteQueryVar,
-                if (shouldCopyCursor) "true" else "false",
-                cancellationSignalVar
-            )
+            if (sectionsVar != null) {
+                addStatement("$T $L = null", RoomTypeNames.ROOM_SQL_QUERY, roomSQLiteQueryVar)
+            }
+            addStatement("$T $L = null", AndroidTypeNames.CURSOR, cursorVar)
+
             beginControlFlow("try").apply {
+
+                addStatement("$T $L = false", TypeName.BOOLEAN, largeQueryVar)
+
+                if (sectionsVar != null) {
+                    val pairVar = scope.getTmpVar("_resultPair")
+                    addStatement(
+                        "final $T $L = $T.prepareQuery($N, $L, $S, $L, false)",
+                        ParameterizedTypeName.get(
+                            ClassName.get(Pair::class.java),
+                            RoomTypeNames.ROOM_SQL_QUERY,
+                            TypeName.BOOLEAN.box()
+                        ),
+                        pairVar,
+                        RoomTypeNames.QUERY_UTIL, dbField, inTransaction, tempTableVar, sectionsVar
+                    )
+                    addStatement("$L = $L.getFirst()", roomSQLiteQueryVar, pairVar)
+                    addStatement("$L = $L.getSecond()", largeQueryVar, pairVar)
+                }
+
+                addStatement(
+                    "$L = $T.query($N, $L, $L, $L)",
+                    cursorVar,
+                    RoomTypeNames.DB_UTIL,
+                    dbField,
+                    roomSQLiteQueryVar,
+                    if (shouldCopyCursor) "true" else "false",
+                    cancellationSignalVar
+                )
+
                 val adapterScope = scope.fork()
                 adapter?.convert(outVar, cursorVar, adapterScope)
                 addCode(adapterScope.builder().build())
+
+                beginControlFlow("if ($L)", largeQueryVar).apply {
+                    addStatement(
+                        "$N.getOpenHelper().getWritableDatabase().execSQL($S)",
+                        dbField,
+                        "DROP TABLE IF EXISTS $tempTableVar"
+                    )
+                    if (!inTransaction) {
+                        addStatement("$N.setTransactionSuccessful()", dbField)
+                        addStatement("$N.endTransaction()", dbField)
+                    }
+                }.endControlFlow()
                 transactionWrapper?.commitTransaction()
+
                 addStatement("return $L", outVar)
             }
             nextControlFlow("finally").apply {
-                addStatement("$L.close()", cursorVar)
+                beginControlFlow("if ($L != null)", cursorVar).apply {
+                    addStatement("$L.close()", cursorVar)
+                }.endControlFlow()
                 if (canReleaseQuery) {
-                    addStatement("$L.release()", roomSQLiteQueryVar)
+                    beginControlFlow("if ($L != null)", roomSQLiteQueryVar).apply {
+                        addStatement("$L.release()", roomSQLiteQueryVar)
+                    }.endControlFlow()
                 }
             }
             endControlFlow()

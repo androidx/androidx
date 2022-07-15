@@ -16,6 +16,7 @@
 
 package androidx.room.writer
 
+import androidx.room.ParsedQuerySection
 import androidx.room.compiler.processing.MethodSpecHelper
 import androidx.room.compiler.processing.XElement
 import androidx.room.compiler.processing.XMethodElement
@@ -27,11 +28,13 @@ import androidx.room.ext.CommonTypeNames
 import androidx.room.ext.L
 import androidx.room.ext.N
 import androidx.room.ext.RoomTypeNames
+import androidx.room.ext.S
 import androidx.room.ext.SupportDbTypeNames
 import androidx.room.ext.T
 import androidx.room.ext.W
 import androidx.room.ext.capitalize
 import androidx.room.ext.stripNonJava
+import androidx.room.parser.Section
 import androidx.room.processor.OnConflictProcessor
 import androidx.room.solver.CodeGenScope
 import androidx.room.solver.KotlinDefaultMethodDelegateBinder
@@ -78,6 +81,7 @@ class DaoWriter(
 
     companion object {
         const val GET_LIST_OF_TYPE_CONVERTERS_METHOD = "getRequiredConverters"
+
         // TODO nothing prevents this from conflicting, we should fix.
         val dbField: FieldSpec = FieldSpec
             .builder(RoomTypeNames.ROOM_DB, "__db", PRIVATE, FINAL)
@@ -103,6 +107,7 @@ class DaoWriter(
 
     override fun createTypeSpecBuilder(): TypeSpec.Builder {
         val builder = TypeSpec.classBuilder(dao.implTypeName)
+
         /**
          * For prepared statements that perform insert/update/delete, we check if there are any
          * arguments of variable length (e.g. "IN (:var)"). If not, we should re-use the statement.
@@ -212,6 +217,8 @@ class DaoWriter(
         queryWriter: QueryWriter
     ): MethodSpec {
         val scope = CodeGenScope(this)
+        val sectionsVar = null
+        val tempTableVar = scope.getTmpVar("_tempTable")
         method.preparedQueryResultBinder.executeAndReturn(
             prepareQueryStmtBlock = {
                 val stmtName = getTmpVar("_stmt")
@@ -224,6 +231,8 @@ class DaoWriter(
                 queryWriter.bindArgs(stmtName, emptyList(), this)
                 stmtName
             },
+            sectionsVar = sectionsVar,
+            tempTableVar = tempTableVar,
             preparedStmtField = preparedStmtField.name,
             dbField = dbField,
             scope = scope
@@ -335,6 +344,8 @@ class DaoWriter(
                 // already reported by the processor.
                 method.queryResultBinder.convertAndReturn(
                     roomSQLiteQueryVar = roomSQLiteQueryVar,
+                    sectionsVar = null,
+                    tempTableVar = scope.getTmpVar("_tempTable"),
                     canReleaseQuery = shouldReleaseQuery,
                     dbField = dbField,
                     inTransaction = method.inTransaction,
@@ -467,21 +478,16 @@ class DaoWriter(
 
     private fun createPreparedQueryMethodBody(method: WriteQueryMethod): CodeBlock {
         val scope = CodeGenScope(this)
+        val sectionsVar = scope.getTmpVar("_parsedQuerySections")
+        val tempTableVar = scope.getTmpVar("_tempTable")
         method.preparedQueryResultBinder.executeAndReturn(
             prepareQueryStmtBlock = {
-                val queryWriter = QueryWriter(method)
-                val sqlVar = getTmpVar("_sql")
                 val stmtVar = getTmpVar("_stmt")
-                val listSizeArgs = queryWriter.prepareQuery(sqlVar, this)
-                builder().apply {
-                    addStatement(
-                        "final $T $L = $N.compileStatement($L)",
-                        SupportDbTypeNames.SQLITE_STMT, stmtVar, dbField, sqlVar
-                    )
-                }
-                queryWriter.bindArgs(stmtVar, listSizeArgs, this)
+                createParsedQuerySections(scope, method, sectionsVar)
                 stmtVar
             },
+            sectionsVar = sectionsVar,
+            tempTableVar = tempTableVar,
             preparedStmtField = null,
             dbField = dbField,
             scope = scope
@@ -490,19 +496,76 @@ class DaoWriter(
     }
 
     private fun createQueryMethodBody(method: ReadQueryMethod): CodeBlock {
-        val queryWriter = QueryWriter(method)
         val scope = CodeGenScope(this)
-        val sqlVar = scope.getTmpVar("_sql")
         val roomSQLiteQueryVar = scope.getTmpVar("_statement")
-        queryWriter.prepareReadAndBind(sqlVar, roomSQLiteQueryVar, scope)
+        val sectionsVar = scope.getTmpVar("_parsedQuerySections")
+        createParsedQuerySections(
+            scope,
+            method,
+            sectionsVar
+        )
         method.queryResultBinder.convertAndReturn(
             roomSQLiteQueryVar = roomSQLiteQueryVar,
+            sectionsVar = sectionsVar,
+            tempTableVar = scope.getTmpVar("_tempTable"),
             canReleaseQuery = true,
             dbField = dbField,
             inTransaction = method.inTransaction,
             scope = scope
         )
         return scope.builder().build()
+    }
+
+    private fun createParsedQuerySections(
+        scope: CodeGenScope,
+        method: QueryMethod,
+        sectionsVar: String
+    ) {
+        scope.builder().apply {
+            val query = method.query
+            addStatement(
+                "final $T $L = new $T()",
+                ParameterizedTypeName.get(
+                    ClassName.get(List::class.java),
+                    ClassName.get(ParsedQuerySection::class.java)
+                ),
+                sectionsVar,
+                ParameterizedTypeName.get(
+                    ClassName.get(ArrayList::class.java),
+                    ClassName.get(ParsedQuerySection::class.java)
+                )
+            )
+            query.sections.map { section ->
+                when (section) {
+                    is Section.Text -> {
+                        addStatement(
+                            "$L.add($T.Companion.text($S))",
+                            sectionsVar,
+                            ClassName.get(ParsedQuerySection::class.java),
+                            section.text
+                        )
+                    }
+                    is Section.BindVar -> {
+                        method.sectionToParamMapping.firstOrNull { mapping ->
+                            mapping.first == section
+                        }?.let { pair ->
+                            val converted =
+                                pair.second?.queryParamAdapter?.convert(pair.second?.name!!, scope)
+                                    ?: pair.second?.name
+                            addStatement(
+                                "$L.add($T.Companion.bindVar($S, $L, $L))",
+                                sectionsVar,
+                                ClassName.get(ParsedQuerySection::class.java),
+                                section.text,
+                                section.isMultiple,
+                                converted
+                            )
+                        }
+                    }
+                    else -> {}
+                }
+            }
+        }
     }
 
     private fun createDefaultMethodDelegate(method: KotlinDefaultMethodDelegate): MethodSpec {

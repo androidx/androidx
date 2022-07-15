@@ -20,6 +20,8 @@ import androidx.room.ext.L
 import androidx.room.ext.T
 import androidx.room.solver.CodeGenScope
 import androidx.room.solver.types.StatementValueBinder
+import com.squareup.javapoet.ClassName
+import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
 
 /**
@@ -49,5 +51,32 @@ class ArrayQueryParameterAdapter(val bindAdapter: StatementValueBinder) :
     override fun getArgCount(inputVarName: String, outputVarName: String, scope: CodeGenScope) {
         scope.builder()
             .addStatement("final $T $L = $L.length", TypeName.INT, outputVarName, inputVarName)
+    }
+
+    override fun convert(inputVarName: String, scope: CodeGenScope): String? {
+        val convertedType = bindAdapter.convertedType() ?: return null
+        val convertedVar = scope.getTmpVar("_convertedItems")
+        scope.builder().addStatement(
+            "final $T $L = new $T()",
+            ParameterizedTypeName.get(
+                ClassName.get(List::class.java),
+                convertedType.box()
+            ),
+            convertedVar,
+            ParameterizedTypeName.get(
+                ClassName.get(ArrayList::class.java),
+                convertedType.box()
+            )
+        )
+        val itrVar = scope.getTmpVar("_item")
+        scope.builder().beginControlFlow(
+            "for ($T $L : $L)", bindAdapter.typeMirror().typeName, itrVar,
+            inputVarName
+        ).apply {
+            val converted = bindAdapter.convert(itrVar, scope)
+            scope.builder().addStatement("$L.add($L)", convertedVar, converted)
+        }
+        scope.builder().endControlFlow()
+        return convertedVar
     }
 }

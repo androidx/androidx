@@ -353,7 +353,11 @@ public final class UpdateDao_Impl implements UpdateDao {
     }
     __db.beginTransaction();
     try {
+      boolean _isLargeQuery = false;
       _stmt.executeUpdateDelete();
+      if (_isLargeQuery) {
+        __db.getOpenHelper().getWritableDatabase().execSQL("DROP TABLE IF EXISTS _tempTable");
+      }
       __db.setTransactionSuccessful();
     } finally {
       __db.endTransaction();
@@ -367,7 +371,11 @@ public final class UpdateDao_Impl implements UpdateDao {
     final SupportSQLiteStatement _stmt = __preparedStmtOfAgeUserAll.acquire();
     __db.beginTransaction();
     try {
+      boolean _isLargeQuery = false;
       _stmt.executeUpdateDelete();
+      if (_isLargeQuery) {
+        __db.getOpenHelper().getWritableDatabase().execSQL("DROP TABLE IF EXISTS _tempTable");
+      }
       __db.setTransactionSuccessful();
     } finally {
       __db.endTransaction();
@@ -383,7 +391,11 @@ public final class UpdateDao_Impl implements UpdateDao {
         final SupportSQLiteStatement _stmt = __preparedStmtOfAgeUserAll.acquire();
         __db.beginTransaction();
         try {
+          boolean _isLargeQuery = false;
           _stmt.executeUpdateDelete();
+          if (_isLargeQuery) {
+            __db.getOpenHelper().getWritableDatabase().execSQL("DROP TABLE IF EXISTS _tempTable");
+          }
           __db.setTransactionSuccessful();
           return null;
         } finally {
@@ -402,7 +414,11 @@ public final class UpdateDao_Impl implements UpdateDao {
         final SupportSQLiteStatement _stmt = __preparedStmtOfAgeUserAll.acquire();
         __db.beginTransaction();
         try {
+          boolean _isLargeQuery = false;
           final java.lang.Integer _result = _stmt.executeUpdateDelete();
+          if (_isLargeQuery) {
+            __db.getOpenHelper().getWritableDatabase().execSQL("DROP TABLE IF EXISTS _tempTable");
+          }
           __db.setTransactionSuccessful();
           return _result;
         } finally {
@@ -421,7 +437,11 @@ public final class UpdateDao_Impl implements UpdateDao {
         final SupportSQLiteStatement _stmt = __preparedStmtOfAgeUserAll.acquire();
         __db.beginTransaction();
         try {
+          boolean _isLargeQuery = false;
           final java.lang.Integer _result = _stmt.executeUpdateDelete();
+          if (_isLargeQuery) {
+            __db.getOpenHelper().getWritableDatabase().execSQL("DROP TABLE IF EXISTS _tempTable");
+          }
           __db.setTransactionSuccessful();
           return _result;
         } finally {

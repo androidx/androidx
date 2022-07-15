@@ -24,6 +24,7 @@ import androidx.annotation.NonNull;
 import androidx.room.DatabaseConfiguration;
 import androidx.room.InvalidationTracker;
 import androidx.room.RoomDatabase;
+import androidx.room.RoomSQLiteQuery;
 import androidx.sqlite.db.SupportSQLiteOpenHelper;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
@@ -44,7 +45,7 @@ public class GuavaRoomTest {
 
         CancellationSignal signal = new CancellationSignal();
         ListenableFuture<Integer> future = GuavaRoom.createListenableFuture(
-                new TestDatabase(executor), false, () -> 1, null, false, signal);
+                new TestDatabase(executor), false, () -> 1, (RoomSQLiteQuery) null, false, signal);
 
         future.cancel(true);
 

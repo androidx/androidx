@@ -18,14 +18,14 @@ package androidx.room.solver.query.result
 
 import androidx.room.ext.L
 import androidx.room.ext.PagingTypeNames
+import androidx.room.ext.typeName
 import androidx.room.solver.CodeGenScope
 import com.squareup.javapoet.FieldSpec
 import com.squareup.javapoet.MethodSpec
 import com.squareup.javapoet.ParameterizedTypeName
+import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeSpec
 import javax.lang.model.element.Modifier
-import androidx.room.ext.typeName
-import com.squareup.javapoet.TypeName
 
 class DataSourceFactoryQueryResultBinder(
     val positionalDataSourceQueryResultBinder: PositionalDataSourceQueryResultBinder
@@ -35,6 +35,8 @@ class DataSourceFactoryQueryResultBinder(
 
     override fun convertAndReturn(
         roomSQLiteQueryVar: String,
+        sectionsVar: String?,
+        tempTableVar: String,
         canReleaseQuery: Boolean,
         dbField: FieldSpec,
         inTransaction: Boolean,
@@ -54,6 +56,8 @@ class DataSourceFactoryQueryResultBinder(
                     addMethod(
                         createCreateMethod(
                             roomSQLiteQueryVar = roomSQLiteQueryVar,
+                            sectionsVar = sectionsVar,
+                            tempTableVar = tempTableVar,
                             dbField = dbField,
                             inTransaction = inTransaction,
                             scope = scope
@@ -67,6 +71,8 @@ class DataSourceFactoryQueryResultBinder(
 
     private fun createCreateMethod(
         roomSQLiteQueryVar: String,
+        sectionsVar: String?,
+        tempTableVar: String,
         dbField: FieldSpec,
         inTransaction: Boolean,
         scope: CodeGenScope
@@ -77,6 +83,8 @@ class DataSourceFactoryQueryResultBinder(
         val countedBinderScope = scope.fork()
         positionalDataSourceQueryResultBinder.convertAndReturn(
             roomSQLiteQueryVar = roomSQLiteQueryVar,
+            sectionsVar = sectionsVar,
+            tempTableVar = tempTableVar,
             canReleaseQuery = true,
             dbField = dbField,
             inTransaction = inTransaction,

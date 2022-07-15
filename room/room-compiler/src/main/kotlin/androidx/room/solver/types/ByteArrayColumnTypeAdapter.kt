@@ -63,6 +63,14 @@ class ByteArrayColumnTypeAdapter private constructor(
         }
     }
 
+    override fun convert(inputVarName: String, scope: CodeGenScope): String? {
+        return null
+    }
+
+    override fun convertedType(): TypeName? {
+        return null
+    }
+
     companion object {
         fun create(env: XProcessingEnv): List<ByteArrayColumnTypeAdapter> {
             val arrayType = env.getArrayType(TypeName.BYTE)

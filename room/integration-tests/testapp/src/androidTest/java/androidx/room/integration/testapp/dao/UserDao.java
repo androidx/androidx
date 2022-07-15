@@ -166,6 +166,9 @@ public abstract class UserDao {
     @Query("select * from user where mName LIKE '%' || :name || '%' ORDER BY mId DESC")
     public abstract LiveData<List<User>> liveUsersListByName(String name);
 
+    @Query("select * from user where mId IN(:ids)")
+    public abstract LiveData<List<User>> liveUsersListByByIds(int... ids);
+
     @Query("select * from user where length(mName) = :length")
     public abstract List<User> findByNameLength(int length);
 
@@ -193,8 +196,15 @@ public abstract class UserDao {
     @Query("select * from user where mId = :id")
     public abstract io.reactivex.Observable<User> rx2_observableUserById(int id);
 
+    @Query("select * from user where mId IN (:ids)")
+    public abstract io.reactivex.Observable<List<User>> rx2_observableUsersByIds(int... ids);
+
     @Query("select * from user where mId = :id")
     public abstract io.reactivex.rxjava3.core.Observable<User> rx3_observableUserById(int id);
+
+    @Query("select * from user where mId IN (:ids)")
+    public abstract io.reactivex.rxjava3.core.Observable<List<User>> rx3_observableUsersByIds(
+            int... ids);
 
     @Query("select * from user where mId = :id")
     public abstract io.reactivex.Maybe<User> rx2_maybeUserById(int id);

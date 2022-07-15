@@ -291,6 +291,47 @@ package androidx.room {
     field @Deprecated public static final int ROLLBACK = 2; // 0x2
   }
 
+  public abstract sealed class ParsedQuerySection {
+    method public static final androidx.room.ParsedQuerySection.BindVar bindVar(String text, boolean isMultiple, Object? value);
+    method public abstract String getText();
+    method public static final androidx.room.ParsedQuerySection.Text text(String text);
+    property public abstract String text;
+    field public static final androidx.room.ParsedQuerySection.Companion Companion;
+  }
+
+  public static final class ParsedQuerySection.BindVar extends androidx.room.ParsedQuerySection {
+    ctor public ParsedQuerySection.BindVar(String text, boolean isMultiple, Object? value);
+    method public String component1();
+    method public boolean component2();
+    method public Object? component3();
+    method public androidx.room.ParsedQuerySection.BindVar copy(String text, boolean isMultiple, Object? value);
+    method public java.util.Iterator<?>? getIterator();
+    method public int getParameterCount();
+    method public String getText();
+    method public Object? getValue();
+    method public String? getVarName();
+    method public boolean isMultiple();
+    property public final boolean isMultiple;
+    property public final java.util.Iterator<?>? iterator;
+    property public final int parameterCount;
+    property public String text;
+    property public final Object? value;
+    property public final String? varName;
+  }
+
+  public static final class ParsedQuerySection.Companion {
+    method public androidx.room.ParsedQuerySection.BindVar bindVar(String text, boolean isMultiple, Object? value);
+    method public androidx.room.ParsedQuerySection.Text text(String text);
+  }
+
+  public static final class ParsedQuerySection.Text extends androidx.room.ParsedQuerySection {
+    ctor public ParsedQuerySection.Text(String text);
+    method public String component1();
+    method public androidx.room.ParsedQuerySection.Text copy(String text);
+    method public String getText();
+    property public String text;
+  }
+
   @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.FIELD, kotlin.annotation.AnnotationTarget.FUNCTION}) public @interface PrimaryKey {
     method public abstract boolean autoGenerate() default false;
     property public abstract boolean autoGenerate;

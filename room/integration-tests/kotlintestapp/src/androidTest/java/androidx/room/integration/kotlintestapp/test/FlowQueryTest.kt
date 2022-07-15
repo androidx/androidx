@@ -16,6 +16,7 @@
 
 package androidx.room.integration.kotlintestapp.test
 
+import androidx.room.integration.kotlintestapp.vo.Author
 import androidx.room.integration.kotlintestapp.vo.Book
 import androidx.room.withTransaction
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -317,5 +318,43 @@ class FlowQueryTest : TestDatabaseTest() {
             .isNull()
 
         job.cancelAndJoin()
+    }
+
+    @Test
+    fun largeQueryFlow() = runBlocking {
+        val ids = Array(50000) { i -> "$i" }
+        val authors = ids.map { i -> Author(i, "author $i") }.sortedBy { it.authorId }
+
+        booksDao.addAuthors(*authors.toTypedArray())
+
+        val channel = booksDao.getAuthorsByIdsFlow(*ids).produceIn(this)
+        assertThat(channel.receive()).isEqualTo(authors)
+        assertThat(channel.isEmpty).isTrue()
+
+        channel.cancel()
+    }
+
+    @Test
+    fun largeQueryFlow_update() = runBlocking {
+        val ids = Array(50000) { i -> "$i" }
+        val authors = ids.map { i -> Author(i, "author $i") }.sortedBy { it.authorId }
+
+        booksDao.addAuthors(*authors.toTypedArray())
+
+        val channel = booksDao.getAuthorsByIdsFlow(*ids).produceIn(this)
+
+        assertThat(channel.receive()).isEqualTo(authors)
+
+        val updatedAuthor = authors.first().copy(name = "new name")
+        booksDao.updateAuthorSuspend(updatedAuthor)
+        drain() // drain async invalidate
+        yield()
+
+        val expectedAuthors =
+            authors.mapIndexed { idx, author -> if (idx == 0) updatedAuthor else author }
+        assertThat(channel.receive()).isEqualTo(expectedAuthors)
+        assertThat(channel.isEmpty).isTrue()
+
+        channel.cancel()
     }
 }

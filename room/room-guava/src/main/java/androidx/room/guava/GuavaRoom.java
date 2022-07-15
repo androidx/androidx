@@ -110,6 +110,50 @@ public class GuavaRoom {
                 cancellationSignal);
     }
 
+    /**
+     * Returns a {@link ListenableFuture<T>} created by submitting the input {@code callable} to
+     * {@link RoomDatabase}'s {@link java.util.concurrent.Executor}.
+     */
+    @SuppressLint("LambdaLast")
+    @NonNull
+    public static <T> ListenableFuture<T> createListenableFuture(
+            final @NonNull RoomDatabase roomDatabase,
+            final boolean inTransaction,
+            final @NonNull Callable<T> callable,
+            final @NonNull Runnable releaseRunnable,
+            final boolean releaseQuery,
+            final @Nullable CancellationSignal cancellationSignal) {
+        return createListenableFuture(
+                getExecutor(roomDatabase, inTransaction), callable, releaseRunnable, releaseQuery,
+                cancellationSignal);
+    }
+
+    private static <T> ListenableFuture<T> createListenableFuture(
+            final Executor executor,
+            final Callable<T> callable,
+            final Runnable releaseRunnable,
+            final boolean releaseQuery,
+            final @Nullable CancellationSignal cancellationSignal) {
+
+        final ListenableFuture<T> future = createListenableFuture(executor, callable);
+        if (cancellationSignal != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            future.addListener(new Runnable() {
+                @Override
+                public void run() {
+                    if (future.isCancelled()) {
+                        SupportSQLiteCompat.Api16Impl.cancel(cancellationSignal);
+                    }
+                }
+            }, sDirectExecutor);
+        }
+
+        if (releaseQuery) {
+            future.addListener(releaseRunnable, sDirectExecutor);
+        }
+
+        return future;
+    }
+
     private static <T> ListenableFuture<T> createListenableFuture(
             final Executor executor,
             final Callable<T> callable,

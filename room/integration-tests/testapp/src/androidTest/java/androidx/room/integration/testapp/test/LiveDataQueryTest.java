@@ -64,7 +64,9 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -518,6 +520,23 @@ public class LiveDataQueryTest extends TestDatabaseTest {
         user.setAdmin(true);
         mUserDao.insertOrReplace(user);
         assertThat(observer.get(), is(true));
+    }
+
+    @Test
+    public void largeQueryLiveData() throws ExecutionException, InterruptedException,
+            TimeoutException {
+        int[] ids = new int[50000];
+        for (int i = 0; i < ids.length; i++) {
+            ids[i] = i;
+        }
+        User[] users = TestUtil.createUsersArray(ids);
+        mUserDao.insertAll(users);
+
+        LiveData<List<User>> usersLiveData = mUserDao.liveUsersListByByIds(ids);
+        final TestLifecycleOwner lifecycleOwner = new TestLifecycleOwner();
+        final TestObserver<List<User>> observer = new MyTestObserver<>();
+        TestUtil.observeOnMainThread(usersLiveData, lifecycleOwner, observer);
+        assertThat(observer.get(), equalTo(users));
     }
 
     private void drain() throws TimeoutException, InterruptedException {

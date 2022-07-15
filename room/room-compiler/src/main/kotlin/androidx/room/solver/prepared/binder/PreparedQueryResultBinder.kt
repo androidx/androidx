@@ -34,6 +34,8 @@ abstract class PreparedQueryResultBinder(val adapter: PreparedQueryResultAdapter
      */
     abstract fun executeAndReturn(
         prepareQueryStmtBlock: CodeGenScope.() -> String,
+        sectionsVar: String?,
+        tempTableVar: String,
         preparedStmtField: String?, // null when the query is not shared
         dbField: FieldSpec,
         scope: CodeGenScope

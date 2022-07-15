@@ -20,6 +20,7 @@ import androidx.room.ext.L
 import androidx.room.ext.T
 import androidx.room.compiler.processing.XType
 import androidx.room.solver.CodeGenScope
+import com.squareup.javapoet.TypeName
 
 /**
  * A column adapter that uses a type converter to do the conversion. The type converter may be
@@ -62,5 +63,13 @@ class CompositeAdapter(
             val bindVar = intoStatementConverter.convert(valueVarName, scope)
             columnTypeAdapter.bindToStmt(stmtName, indexVarName, bindVar, scope)
         }
+    }
+
+    override fun convert(inputVarName: String, scope: CodeGenScope): String? {
+        return intoStatementConverter?.convert(inputVarName, scope)
+    }
+
+    override fun convertedType(): TypeName? {
+        return intoStatementConverter?.to?.typeName
     }
 }

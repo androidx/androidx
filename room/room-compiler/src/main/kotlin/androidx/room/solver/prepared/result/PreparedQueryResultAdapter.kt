@@ -16,20 +16,26 @@
 
 package androidx.room.solver.prepared.result
 
-import androidx.room.ext.KotlinTypeNames
-import androidx.room.ext.L
-import androidx.room.ext.N
-import androidx.room.ext.T
-import androidx.room.parser.QueryType
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.isInt
 import androidx.room.compiler.processing.isKotlinUnit
 import androidx.room.compiler.processing.isLong
 import androidx.room.compiler.processing.isVoid
 import androidx.room.compiler.processing.isVoidObject
+import androidx.room.ext.KotlinTypeNames
+import androidx.room.ext.L
+import androidx.room.ext.N
+import androidx.room.ext.RoomTypeNames
+import androidx.room.ext.S
+import androidx.room.ext.SupportDbTypeNames
+import androidx.room.ext.T
+import androidx.room.parser.QueryType
 import androidx.room.solver.CodeGenScope
 import androidx.room.solver.prepared.binder.PreparedQueryResultBinder
+import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.FieldSpec
+import com.squareup.javapoet.ParameterizedTypeName
+import com.squareup.javapoet.TypeName
 
 /**
  * An adapter for [PreparedQueryResultBinder] that executes queries with INSERT, UPDATE or DELETE
@@ -64,6 +70,8 @@ class PreparedQueryResultAdapter(
 
     fun executeAndReturn(
         stmtQueryVal: String,
+        sectionsVar: String?,
+        tempTableVar: String,
         preparedStmtField: String?,
         dbField: FieldSpec,
         scope: CodeGenScope
@@ -74,10 +82,44 @@ class PreparedQueryResultAdapter(
             } else {
                 "executeUpdateDelete"
             }
+            val largeQueryVar = scope.getTmpVar("_isLargeQuery")
+
             addStatement("$N.beginTransaction()", dbField)
             beginControlFlow("try").apply {
+                addStatement("$T $L = false", TypeName.BOOLEAN, largeQueryVar)
+
+                if (sectionsVar != null) {
+                    val pairVar = scope.getTmpVar("_resultPair")
+                    addStatement(
+                        "final $T $L = $T.prepareStatement($N, $S, $L, false)",
+                        ParameterizedTypeName.get(
+                            ClassName.get(Pair::class.java),
+                            SupportDbTypeNames.SQLITE_STMT,
+                            TypeName.BOOLEAN.box()
+                        ),
+                        pairVar,
+                        RoomTypeNames.QUERY_UTIL, dbField, tempTableVar, sectionsVar
+                    )
+                    addStatement(
+                        "final $T $L = $L.getFirst()",
+                        SupportDbTypeNames.SQLITE_STMT,
+                        stmtQueryVal,
+                        pairVar
+                    )
+                    addStatement("$L = $L.getSecond()", largeQueryVar, pairVar)
+                }
+
                 if (returnType.isVoid() || returnType.isVoidObject() || returnType.isKotlinUnit()) {
                     addStatement("$L.$L()", stmtQueryVal, stmtMethod)
+
+                    beginControlFlow("if ($L)", largeQueryVar).apply {
+                        addStatement(
+                            "$N.getOpenHelper().getWritableDatabase().execSQL($S)",
+                            dbField,
+                            "DROP TABLE IF EXISTS $tempTableVar"
+                        )
+                    }.endControlFlow()
+
                     addStatement("$N.setTransactionSuccessful()", dbField)
                     if (returnType.isVoidObject()) {
                         addStatement("return null")
@@ -90,6 +132,15 @@ class PreparedQueryResultAdapter(
                         "final $L $L = $L.$L()",
                         returnType.typeName, resultVar, stmtQueryVal, stmtMethod
                     )
+
+                    beginControlFlow("if ($L)", largeQueryVar).apply {
+                        addStatement(
+                            "$N.getOpenHelper().getWritableDatabase().execSQL($S)",
+                            dbField,
+                            "DROP TABLE IF EXISTS $tempTableVar"
+                        )
+                    }.endControlFlow()
+
                     addStatement("$N.setTransactionSuccessful()", dbField)
                     addStatement("return $L", resultVar)
                 }

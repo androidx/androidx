@@ -44,8 +44,6 @@ import com.squareup.javapoet.CodeBlock
 import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
 import java.nio.ByteBuffer
-import java.util.ArrayList
-import java.util.HashSet
 import java.util.Locale
 
 /**
@@ -224,6 +222,10 @@ data class RelationCollector(
                 "final $T $L = $L.size()",
                 TypeName.INT, outputVarName, inputVarName
             )
+        }
+
+        override fun convert(inputVarName: String, scope: CodeGenScope): String? {
+            return null
         }
     }
 

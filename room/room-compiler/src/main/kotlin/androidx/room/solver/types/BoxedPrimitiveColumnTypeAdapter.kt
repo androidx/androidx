@@ -19,6 +19,7 @@ package androidx.room.solver.types
 import androidx.room.ext.L
 import androidx.room.compiler.processing.XType
 import androidx.room.solver.CodeGenScope
+import com.squareup.javapoet.TypeName
 
 /**
  * Adapters for all boxed primitives that has direct cursor mappings.
@@ -73,5 +74,13 @@ open class BoxedPrimitiveColumnTypeAdapter(
             }
             endControlFlow()
         }
+    }
+
+    override fun convert(inputVarName: String, scope: CodeGenScope): String? {
+        return null
+    }
+
+    override fun convertedType(): TypeName? {
+        return null
     }
 }

@@ -16,15 +16,17 @@
 
 package androidx.room.solver.query.result
 
+import androidx.room.compiler.processing.XType
 import androidx.room.ext.CallableTypeSpecBuilder
 import androidx.room.ext.L
 import androidx.room.ext.N
 import androidx.room.ext.RoomCoroutinesTypeNames
+import androidx.room.ext.RoomTypeNames
 import androidx.room.ext.T
 import androidx.room.ext.arrayTypeName
-import androidx.room.compiler.processing.XType
 import androidx.room.solver.CodeGenScope
 import com.squareup.javapoet.FieldSpec
+import javax.lang.model.element.Modifier
 
 /**
  * Binds the result of a of a Kotlin Coroutine Flow<T>
@@ -37,6 +39,8 @@ class CoroutineFlowResultBinder(
 
     override fun convertAndReturn(
         roomSQLiteQueryVar: String,
+        sectionsVar: String?,
+        tempTableVar: String,
         canReleaseQuery: Boolean,
         dbField: FieldSpec,
         inTransaction: Boolean,
@@ -46,12 +50,17 @@ class CoroutineFlowResultBinder(
             createRunQueryAndReturnStatements(
                 builder = this,
                 roomSQLiteQueryVar = roomSQLiteQueryVar,
+                sectionsVar = sectionsVar,
+                tempTableVar = tempTableVar,
                 dbField = dbField,
                 inTransaction = inTransaction,
                 scope = scope,
                 cancellationSignalVar = "null"
             )
         }.apply {
+            if (sectionsVar != null) {
+                addField(RoomTypeNames.ROOM_SQL_QUERY, roomSQLiteQueryVar, Modifier.PRIVATE)
+            }
             if (canReleaseQuery) {
                 addMethod(createFinalizeMethod(roomSQLiteQueryVar))
             }

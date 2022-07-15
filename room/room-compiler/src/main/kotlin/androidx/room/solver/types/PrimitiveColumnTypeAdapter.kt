@@ -23,6 +23,7 @@ import androidx.room.ext.capitalize
 import androidx.room.parser.SQLTypeAffinity
 import androidx.room.parser.SQLTypeAffinity.REAL
 import androidx.room.solver.CodeGenScope
+import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeName.BYTE
 import com.squareup.javapoet.TypeName.CHAR
 import com.squareup.javapoet.TypeName.DOUBLE
@@ -94,5 +95,13 @@ open class PrimitiveColumnTypeAdapter(
                 "$L = $L$L.$L($L)", outVarName, cast, cursorVarName,
                 cursorGetter, indexVarName
             )
+    }
+
+    override fun convert(inputVarName: String, scope: CodeGenScope): String? {
+        return null
+    }
+
+    override fun convertedType(): TypeName? {
+        return null
     }
 }

@@ -16,14 +16,16 @@
 
 package androidx.room.solver.query.result
 
+import androidx.room.compiler.processing.XType
 import androidx.room.ext.CallableTypeSpecBuilder
 import androidx.room.ext.L
 import androidx.room.ext.N
+import androidx.room.ext.RoomTypeNames
 import androidx.room.ext.T
 import androidx.room.ext.arrayTypeName
-import androidx.room.compiler.processing.XType
 import androidx.room.solver.CodeGenScope
 import com.squareup.javapoet.FieldSpec
+import javax.lang.model.element.Modifier
 
 /**
  * Converts the query into a LiveData and returns it. No query is run until necessary.
@@ -36,6 +38,8 @@ class LiveDataQueryResultBinder(
     @Suppress("JoinDeclarationAndAssignment")
     override fun convertAndReturn(
         roomSQLiteQueryVar: String,
+        sectionsVar: String?,
+        tempTableVar: String,
         canReleaseQuery: Boolean,
         dbField: FieldSpec,
         inTransaction: Boolean,
@@ -46,11 +50,16 @@ class LiveDataQueryResultBinder(
                 builder = this,
                 roomSQLiteQueryVar = roomSQLiteQueryVar,
                 inTransaction = inTransaction,
+                sectionsVar = sectionsVar,
+                tempTableVar = tempTableVar,
                 dbField = dbField,
                 scope = scope,
                 cancellationSignalVar = "null" // LiveData can't be cancelled
             )
         }.apply {
+            if (sectionsVar != null) {
+                addField(RoomTypeNames.ROOM_SQL_QUERY, roomSQLiteQueryVar, Modifier.PRIVATE)
+            }
             if (canReleaseQuery) {
                 addMethod(createFinalizeMethod(roomSQLiteQueryVar))
             }
