@@ -36,8 +36,8 @@ interface UwbManager {
     /**
      * @return a new [UwbClientSessionScope] that tracks the lifecycle of a UWB connection.
      *
-     * @throws [UwbServiceNotAvailableException] if the UWB is turned off.
-     * @throws [UwbHardwareNotAvailableException] if the hardware is not available on the device.
+     * @throws [androidx.core.uwb.exceptions.UwbServiceNotAvailableException] if the UWB is turned off.
+     * @throws [androidx.core.uwb.exceptions.UwbHardwareNotAvailableException] if the hardware is not available on the device.
      */
     suspend fun clientSessionScope(): UwbClientSessionScope
 }
