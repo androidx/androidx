@@ -25,7 +25,6 @@ import android.content.Context;
 import android.util.DisplayMetrics;
 
 import androidx.annotation.Dimension;
-import androidx.test.filters.FlakyTest;
 import androidx.test.filters.LargeTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.screenshot.AndroidXScreenshotTestRule;
@@ -62,7 +61,7 @@ public class LayoutsGoldenTest {
         return (int) ((px - 0.5f) / scale);
     }
 
-    @Parameterized.Parameters(name = "{1}")
+    @Parameterized.Parameters(name = "{0}")
     public static Collection<Object[]> data() {
         Context context = InstrumentationRegistry.getInstrumentation().getContext();
         DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
@@ -96,7 +95,6 @@ public class LayoutsGoldenTest {
     }
 
     @Test
-    @FlakyTest(bugId = 238613023)
     public void test() {
         runSingleScreenshotTest(mScreenshotRule, mLayoutElement, mExpected);
     }
