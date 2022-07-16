@@ -23,7 +23,7 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 
 import android.app.Instrumentation;
@@ -49,19 +49,19 @@ public class UiDeviceTests {
     @Rule
     public TemporaryFolder mTmpDir = new TemporaryFolder();
 
-    private Instrumentation mMockInstrumentation;
+    private Instrumentation mInstrumentation;
     private UiDevice mDevice;
     private int mDefaultFlags;
 
     @Before
     public void setUp() {
-        mMockInstrumentation = mock(Instrumentation.class);
+        mInstrumentation = spy(InstrumentationRegistry.getInstrumentation());
         UiAutomation automation = InstrumentationRegistry.getInstrumentation().getUiAutomation();
-        doReturn(automation).when(mMockInstrumentation).getUiAutomation();
+        doReturn(automation).when(mInstrumentation).getUiAutomation();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            doReturn(automation).when(mMockInstrumentation).getUiAutomation(anyInt());
+            doReturn(automation).when(mInstrumentation).getUiAutomation(anyInt());
         }
-        mDevice = new UiDevice(mMockInstrumentation);
+        mDevice = new UiDevice(mInstrumentation);
         mDefaultFlags = Configurator.getInstance().getUiAutomationFlags();
     }
 
@@ -75,7 +75,7 @@ public class UiDeviceTests {
     public void testGetUiAutomation_withoutFlags() {
         mDevice.getUiAutomation();
         // Verify that the UiAutomation instance was obtained without flags (prior to N).
-        verify(mMockInstrumentation, atLeastOnce()).getUiAutomation();
+        verify(mInstrumentation, atLeastOnce()).getUiAutomation();
     }
 
     @Test
@@ -83,7 +83,7 @@ public class UiDeviceTests {
     public void testGetUiAutomation_withDefaultFlags() {
         mDevice.getUiAutomation();
         // Verify that the UiAutomation instance was obtained with default flags (N+).
-        verify(mMockInstrumentation, atLeastOnce()).getUiAutomation(eq(mDefaultFlags));
+        verify(mInstrumentation, atLeastOnce()).getUiAutomation(eq(mDefaultFlags));
     }
 
     @Test
@@ -93,7 +93,7 @@ public class UiDeviceTests {
         Configurator.getInstance().setUiAutomationFlags(customFlags);
         mDevice.getUiAutomation();
         // Verify that the UiAutomation instance was obtained with custom flags (N+).
-        verify(mMockInstrumentation, atLeastOnce()).getUiAutomation(eq(customFlags));
+        verify(mInstrumentation, atLeastOnce()).getUiAutomation(eq(customFlags));
     }
 
     @Test
@@ -107,8 +107,21 @@ public class UiDeviceTests {
     public void testTakeScreenshot() throws Exception {
         File outFile = mTmpDir.newFile();
         assertTrue(mDevice.takeScreenshot(outFile));
-        // Verify that a valid screenshot was generated.
+        // Verify that a valid screenshot was generated with default scale.
         Bitmap screenshot = BitmapFactory.decodeFile(outFile.getPath());
         assertNotNull(screenshot);
+        assertEquals(mDevice.getDisplayWidth(), screenshot.getWidth());
+        assertEquals(mDevice.getDisplayHeight(), screenshot.getHeight());
+    }
+
+    @Test
+    public void testTakeScreenshot_scaled() throws Exception {
+        File outFile = mTmpDir.newFile();
+        assertTrue(mDevice.takeScreenshot(outFile, 0.5f, 100));
+        // Verify that a valid screenshot was generated with 1/2 scale.
+        Bitmap screenshot = BitmapFactory.decodeFile(outFile.getPath());
+        assertNotNull(screenshot);
+        assertEquals(mDevice.getDisplayWidth() / 2, screenshot.getWidth());
+        assertEquals(mDevice.getDisplayHeight() / 2, screenshot.getHeight());
     }
 }
