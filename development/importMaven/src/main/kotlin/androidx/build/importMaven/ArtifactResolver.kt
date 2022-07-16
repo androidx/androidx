@@ -115,12 +115,19 @@ internal object ArtifactResolver {
         private val logger = logger("ArtifactResolver")
         fun resolveArtifacts(): List<ResolvedArtifactResult> {
             logger.info {
-                """
-                    Starting artifact resolution
-                    Resolving artifacts: ${artifacts.joinToString(" ")}
-                    Local repositories: ${localRepositories.joinToString(" ")}
-                    High priority repositories: ${additionalPriorityRepositories.joinToString(" ")}
-                """.trimIndent()
+                """--------------------------------------------------------------------------------
+Resolving artifacts:
+${artifacts.joinToString(separator = "\n - ", prefix = " - ")}
+Local repositories:
+${localRepositories.joinToString(separator = "\n - ", prefix = " - ")}
+High priority repositories:
+${
+    if (additionalPriorityRepositories.isEmpty())
+        " - None"
+    else
+        additionalPriorityRepositories.joinToString(separator = "\n - ", prefix = " - ")
+}
+--------------------------------------------------------------------------------"""
             }
             return withProxyServer(
                 downloadObserver = downloadObserver
@@ -159,7 +166,7 @@ internal object ArtifactResolver {
                 } while (explicitlyFetchInheritedDependencies && pendingComponentIds.isNotEmpty())
                 allResolvedArtifacts.toList()
             }.also { result ->
-                logger.info {
+                logger.trace {
                     "Resolved files: ${result.size}"
                 }
                 check(result.isNotEmpty()) {
@@ -216,10 +223,9 @@ internal object ArtifactResolver {
                     }
                     logger.warn {
                         """
-                            Failed key verification for public servers, will retry without
-                            verification.
-                            ${verificationException.message}
-                        """.trimIndent()
+Failed key verification for public servers, will retry without verification.
+${verificationException.message?.prependIndent("    ")}
+                        """
                     }
                     resolveArtifacts(copy, disableVerificationOnFailure = false)
                 } else {

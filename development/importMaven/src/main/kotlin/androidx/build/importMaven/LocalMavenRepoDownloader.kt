@@ -35,7 +35,7 @@ class LocalMavenRepoDownloader(
     /**
      * Path to the external repo (e.g. prebuilts/androidx/external)
      */
-    val externalFolder: Path
+    val externalFolder: Path,
 ) : DownloadObserver {
     private val logger = logger("LocalMavenRepoDownloader")
     private val licenseDownloader = LicenseDownloader(enableGithubApi = false)
@@ -127,7 +127,7 @@ class LocalMavenRepoDownloader(
             write(contents)
         }
         logger.info {
-            "Saved $file (${contents.size} bytes)"
+            "Saved ${file.normalized()} (${contents.size} bytes)"
         }
     }
 

@@ -233,8 +233,8 @@ internal abstract class BaseImportMavenCommand(
                 emptyList()
             } else {
                 listOf(
-                    "file:///" + downloader.internalFolder.toString(),
-                    "file:///" + downloader.externalFolder.toString(),
+                    "file:///" + downloader.internalFolder.normalized().toString(),
+                    "file:///" + downloader.externalFolder.normalized().toString(),
                 )
             },
             downloadObserver = downloader
@@ -246,20 +246,21 @@ internal abstract class BaseImportMavenCommand(
         val downloadedFiles = downloader.getDownloadedFiles()
         logger.info {
             """
-                Import artifact action completed.
+                --------------------------------------------------------------------------------
                 Resolved ${resolvedArtifacts.size} artifacts.
-                Downloaded ${downloadedFiles.size} files.
+                Downloaded ${downloadedFiles.size} new files.
+                --------------------------------------------------------------------------------
             """.trimIndent()
         }
         if (downloadedFiles.isEmpty()) {
             logger.warn(
                 """
-                Didn't download any files. It might be either a bug or all files might be available
-                in the local prebuilts.
+                [31mDidn't download any files. It might be either a bug or all files might be
+                available in the local prebuilts.
 
                 If you think it is a bug, please re-run the command with `--verbose` and file
                 a bug with the output.
-                https://issuetracker.google.com/issues/new?component=705292
+                https://issuetracker.google.com/issues/new?component=705292[0m
                 """.trimIndent()
             )
         }
