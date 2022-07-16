@@ -286,4 +286,15 @@ public class AccessibilityNodeInfoCompatTest {
                 accessibilityNodeInfoCompat.getExtraRenderingInfo(),
                 equalTo(accessibilityNodeInfoCompat.unwrap().getExtraRenderingInfo()));
     }
+
+    @SdkSuppress(minSdkVersion = 33)
+    @SmallTest
+    @Test
+    public void testSetGetTextSelectable() {
+        AccessibilityNodeInfoCompat accessibilityNodeInfoCompat = obtainedWrappedNodeCompat();
+        accessibilityNodeInfoCompat.setTextSelectable(false);
+        assertThat(accessibilityNodeInfoCompat.isTextSelectable(), equalTo(false));
+        accessibilityNodeInfoCompat.setTextSelectable(true);
+        assertThat(accessibilityNodeInfoCompat.isTextSelectable(), equalTo(true));
+    }
 }
