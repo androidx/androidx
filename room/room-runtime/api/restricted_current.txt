@@ -56,6 +56,19 @@ package androidx.room {
     method public final java.util.List<java.lang.Long> insertAndReturnIdsList(java.util.Collection<? extends T> entities);
   }
 
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class EntityUpsertionAdapter<T> {
+    ctor public EntityUpsertionAdapter(androidx.room.EntityInsertionAdapter<T> insertionAdapter, androidx.room.EntityDeletionOrUpdateAdapter<T> updateAdapter);
+    method public void upsert(T? entity);
+    method public void upsert(T![] entities);
+    method public void upsert(Iterable<? extends T> entities);
+    method public long upsertAndReturnId(T? entity);
+    method public long[] upsertAndReturnIdArray(T![] entities);
+    method public long[] upsertAndReturnIdArray(java.util.Collection<? extends T> entities);
+    method public Long![] upsertAndReturnIdArrayBox(T![] entities);
+    method public Long![] upsertAndReturnIdArrayBox(java.util.Collection<? extends T> entities);
+    method public java.util.List<java.lang.Long> upsertAndReturnIdList(T![] entities);
+  }
+
   public class InvalidationTracker {
     ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public InvalidationTracker(androidx.room.RoomDatabase database, java.util.Map<java.lang.String,java.lang.String> shadowTablesMap, java.util.Map<java.lang.String,java.util.Set<java.lang.String>> viewTables, java.lang.String... tableNames);
     ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public InvalidationTracker(androidx.room.RoomDatabase database, java.lang.String... tableNames);
