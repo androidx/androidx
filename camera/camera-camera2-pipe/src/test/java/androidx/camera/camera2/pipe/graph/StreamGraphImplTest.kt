@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 The Android Open Source Project
+ * Copyright 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.camera.camera2.pipe.compat
+package androidx.camera.camera2.pipe.graph
 
 import android.graphics.SurfaceTexture
 import android.hardware.camera2.CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL
@@ -39,7 +39,7 @@ import org.robolectric.annotation.internal.DoNotInstrument
 @RunWith(RobolectricCameraPipeTestRunner::class)
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
-internal class Camera2StreamGraphTest {
+internal class StreamGraphImplTest {
     private val fakeMetadata = FakeCameraMetadata(
         mapOf(INFO_SUPPORTED_HARDWARE_LEVEL to INFO_SUPPORTED_HARDWARE_LEVEL_FULL)
     )
@@ -84,7 +84,7 @@ internal class Camera2StreamGraphTest {
 
     @Test
     fun testPrecomputedTestData() {
-        val streamGraph = Camera2StreamGraph(fakeMetadata, graphConfig)
+        val streamGraph = StreamGraphImpl(fakeMetadata, graphConfig)
 
         assertThat(streamGraph.streams).hasSize(5)
         assertThat(streamGraph.streams).hasSize(5)
@@ -106,7 +106,7 @@ internal class Camera2StreamGraphTest {
 
     @Test
     fun testStreamGraphPopulatesCameraId() {
-        val streamGraph = Camera2StreamGraph(fakeMetadata, graphConfig)
+        val streamGraph = StreamGraphImpl(fakeMetadata, graphConfig)
         val stream = streamGraph[streamConfig1]!!
         assertThat(streamConfig1.outputs.single().camera).isNull()
         assertThat(stream.outputs.single().camera).isEqualTo(graphConfig.camera)
@@ -135,7 +135,7 @@ internal class Camera2StreamGraphTest {
             camera = CameraId("TestCamera"),
             streams = listOf(streamConfig),
         )
-        val streamGraph = Camera2StreamGraph(fakeMetadata, config)
+        val streamGraph = StreamGraphImpl(fakeMetadata, config)
 
         assertThat(streamGraph.streams).hasSize(1)
         assertThat(streamGraph.streams).hasSize(1)
@@ -144,7 +144,7 @@ internal class Camera2StreamGraphTest {
 
     @Test
     fun testStreamMapConvertsConfigObjectsToStreamIds() {
-        val streamGraph = Camera2StreamGraph(fakeMetadata, graphConfig)
+        val streamGraph = StreamGraphImpl(fakeMetadata, graphConfig)
 
         assertThat(streamGraph[streamConfig1]).isNotNull()
         assertThat(streamGraph[streamConfig2]).isNotNull()
@@ -165,8 +165,8 @@ internal class Camera2StreamGraphTest {
 
     @Test
     fun testStreamMapIdsAreNotEqualAcrossMultipleStreamMapInstances() {
-        val streamGraphA = Camera2StreamGraph(fakeMetadata, graphConfig)
-        val streamGraphB = Camera2StreamGraph(fakeMetadata, graphConfig)
+        val streamGraphA = StreamGraphImpl(fakeMetadata, graphConfig)
+        val streamGraphB = StreamGraphImpl(fakeMetadata, graphConfig)
 
         val stream1A = streamGraphA[streamConfig1]!!
         val stream1B = streamGraphB[streamConfig1]!!
@@ -177,7 +177,7 @@ internal class Camera2StreamGraphTest {
 
     @Test
     fun testSharedStreamsHaveOneOutputConfig() {
-        val streamGraph = Camera2StreamGraph(fakeMetadata, graphConfig)
+        val streamGraph = StreamGraphImpl(fakeMetadata, graphConfig)
         val stream1 = streamGraph[sharedStreamConfig1]!!
         val stream2 = streamGraph[sharedStreamConfig2]!!
 
@@ -193,7 +193,7 @@ internal class Camera2StreamGraphTest {
 
     @Test
     fun testSharedStreamsHaveDifferentOutputStreams() {
-        val streamGraph = Camera2StreamGraph(fakeMetadata, graphConfig)
+        val streamGraph = StreamGraphImpl(fakeMetadata, graphConfig)
         val stream1 = streamGraph[sharedStreamConfig1]!!
         val stream2 = streamGraph[sharedStreamConfig2]!!
 
@@ -202,7 +202,7 @@ internal class Camera2StreamGraphTest {
 
     @Test
     fun testGroupedStreamsHaveSameGroupNumber() {
-        val streamGraph = Camera2StreamGraph(fakeMetadata, graphConfig)
+        val streamGraph = StreamGraphImpl(fakeMetadata, graphConfig)
         val stream1 = streamGraph[streamConfig1]!!
         val stream2 = streamGraph[streamConfig2]!!
 
@@ -224,7 +224,7 @@ internal class Camera2StreamGraphTest {
 
     @Test
     fun outputSurfacesArePassedToListenerImmediately() {
-        val streamMap = Camera2StreamGraph(fakeMetadata, graphConfig)
+        val streamMap = StreamGraphImpl(fakeMetadata, graphConfig)
         val stream1 = streamMap[streamConfig1]!!
         val stream2 = streamMap[streamConfig2]!!
         val stream3 = streamMap[streamConfig3]!!
@@ -255,7 +255,7 @@ internal class Camera2StreamGraphTest {
 
     @Test
     fun outputSurfacesArePassedToListenerWhenAvailable() {
-        val streamMap = Camera2StreamGraph(fakeMetadata, graphConfig)
+        val streamMap = StreamGraphImpl(fakeMetadata, graphConfig)
         val stream1 = streamMap[streamConfig1]!!
         val stream2 = streamMap[streamConfig2]!!
         val stream3 = streamMap[streamConfig3]!!
@@ -290,7 +290,7 @@ internal class Camera2StreamGraphTest {
 
     @Test
     fun onlyFinalSurfacesAreSentToSession() {
-        val streamMap = Camera2StreamGraph(fakeMetadata, graphConfig)
+        val streamMap = StreamGraphImpl(fakeMetadata, graphConfig)
         val stream1 = streamMap[streamConfig1]!!
         val stream2 = streamMap[streamConfig2]!!
         val stream3 = streamMap[streamConfig3]!!
@@ -325,7 +325,7 @@ internal class Camera2StreamGraphTest {
 
     @Test
     fun settingListenerToNullDoesNotClearSurfaces() {
-        val streamMap = Camera2StreamGraph(fakeMetadata, graphConfig)
+        val streamMap = StreamGraphImpl(fakeMetadata, graphConfig)
         val stream1 = streamMap[streamConfig1]!!
         val stream2 = streamMap[streamConfig2]!!
         val stream3 = streamMap[streamConfig3]!!
@@ -347,7 +347,7 @@ internal class Camera2StreamGraphTest {
 
     @Test
     fun replacingSessionPassesSurfacesToNewSession() {
-        val streamMap = Camera2StreamGraph(fakeMetadata, graphConfig)
+        val streamMap = StreamGraphImpl(fakeMetadata, graphConfig)
         val stream1 = streamMap[streamConfig1]!!
         val stream2 = streamMap[streamConfig2]!!
         val stream3 = streamMap[streamConfig3]!!
@@ -380,7 +380,7 @@ internal class Camera2StreamGraphTest {
         assertThat(listener2.surfaces?.get(stream5.id)).isEqualTo(fakeSurface5)
     }
 
-    class FakeSurfaceListener : Camera2StreamGraph.SurfaceListener {
+    class FakeSurfaceListener : StreamGraphImpl.SurfaceListener {
         var surfaces: Map<StreamId, Surface>? = null
 
         override fun onSurfaceMapUpdated(surfaces: Map<StreamId, Surface>) {

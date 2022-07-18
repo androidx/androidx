@@ -24,8 +24,7 @@ import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.StreamGraph
 import androidx.camera.camera2.pipe.StreamId
-import androidx.camera.camera2.pipe.compat.Camera2StreamGraph
-import androidx.camera.camera2.pipe.compat.CameraController
+import androidx.camera.camera2.pipe.compat.Camera2Controller
 import androidx.camera.camera2.pipe.config.CameraGraphScope
 import androidx.camera.camera2.pipe.core.Debug
 import androidx.camera.camera2.pipe.core.Log
@@ -42,8 +41,8 @@ internal class CameraGraphImpl @Inject constructor(
     graphConfig: CameraGraph.Config,
     metadata: CameraMetadata,
     private val graphProcessor: GraphProcessor,
-    private val streamGraph: Camera2StreamGraph,
-    private val cameraController: CameraController,
+    private val streamGraph: StreamGraphImpl,
+    private val camera2Controller: Camera2Controller,
     private val graphState3A: GraphState3A,
     private val listener3A: Listener3A
 ) : CameraGraph {
@@ -67,14 +66,14 @@ internal class CameraGraphImpl @Inject constructor(
     override fun start() {
         Debug.traceStart { "$this#start" }
         Log.info { "Starting $this" }
-        cameraController.start()
+        camera2Controller.start()
         Debug.traceStop()
     }
 
     override fun stop() {
         Debug.traceStart { "$this#stop" }
         Log.info { "Stopping $this" }
-        cameraController.stop()
+        camera2Controller.stop()
         Debug.traceStop()
     }
 
@@ -108,7 +107,7 @@ internal class CameraGraphImpl @Inject constructor(
         Log.info { "Closing $this" }
         sessionLock.close()
         graphProcessor.close()
-        cameraController.stop()
+        camera2Controller.stop()
         Debug.traceStop()
     }
 
