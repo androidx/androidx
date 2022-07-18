@@ -54,6 +54,15 @@ interface HealthConnectClient {
      * [androidx.health.connect.client.records.metadata.Metadata.uid] generated. Insertion of
      * multiple [records] is executed in a transaction - if one fails, none is inserted.
      *
+     * For example, to insert basic data like step counts:
+     * @sample androidx.health.connect.client.samples.InsertSteps
+     *
+     * To insert more complex data like nutrition for a user who’s eaten a banana:
+     * @sample androidx.health.connect.client.samples.InsertNutrition
+     *
+     * To insert some heart rate data:
+     * @sample androidx.health.connect.client.samples.InsertHeartRateSeries
+     *
      * @param records List of records to insert
      * @return List of unique identifiers in the order of inserted records.
      * @throws RemoteException For any IPC transportation failures.
