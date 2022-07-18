@@ -56,11 +56,7 @@ public class NavBackStackEntry private constructor(
      */
     @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public var destination: NavDestination,
-    /**
-     * The arguments used for this entry
-     * @return The arguments used when this entry was created
-     */
-    public val arguments: Bundle? = null,
+    private val immutableArgs: Bundle? = null,
     private var hostLifecycleState: Lifecycle.State = Lifecycle.State.CREATED,
     private val viewModelStoreProvider: NavViewModelStoreProvider? = null,
     /**
@@ -117,6 +113,21 @@ public class NavBackStackEntry private constructor(
     private val defaultFactory by lazy {
         SavedStateViewModelFactory((context?.applicationContext as? Application), this, arguments)
     }
+
+    /**
+     * The arguments used for this entry. Note that the arguments of
+     * a NavBackStackEntry are immutable and defined when you `navigate()`
+     * to the destination - changes you make to this Bundle will not be
+     * reflected in future calls to this property.
+     *
+     * @return The arguments used when this entry was created
+     */
+    public val arguments: Bundle?
+        get() = if (immutableArgs == null) {
+            null
+        } else {
+            Bundle(immutableArgs)
+        }
 
     /**
      * The [SavedStateHandle] for this entry.
@@ -242,9 +253,9 @@ public class NavBackStackEntry private constructor(
         return id == other.id && destination == other.destination &&
             lifecycle == other.lifecycle && savedStateRegistry == other.savedStateRegistry &&
             (
-                arguments == other.arguments ||
-                    arguments?.keySet()
-                    ?.all { arguments.get(it) == other.arguments?.get(it) } == true
+                immutableArgs == other.immutableArgs ||
+                    immutableArgs?.keySet()
+                    ?.all { immutableArgs.get(it) == other.immutableArgs?.get(it) } == true
                 )
     }
 
@@ -252,8 +263,8 @@ public class NavBackStackEntry private constructor(
     override fun hashCode(): Int {
         var result = id.hashCode()
         result = 31 * result + destination.hashCode()
-        arguments?.keySet()?.forEach {
-            result = 31 * result + arguments.get(it).hashCode()
+        immutableArgs?.keySet()?.forEach {
+            result = 31 * result + immutableArgs.get(it).hashCode()
         }
         result = 31 * result + lifecycle.hashCode()
         result = 31 * result + savedStateRegistry.hashCode()
