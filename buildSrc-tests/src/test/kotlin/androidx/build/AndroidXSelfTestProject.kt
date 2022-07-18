@@ -90,9 +90,7 @@ data class AndroidXSelfTestProject(
                |}
                |
                |androidx {
-               |  type = LibraryType.kmpLibrary {
-               |    jvm = Publish.SNAPSHOT_AND_RELEASE
-               |  }
+               |  type = LibraryType.KMP_LIBRARY
                |  mavenVersion = new Version("1.2.3")
                |  mavenGroup = new LibraryGroup("cubane", null)
                |}

@@ -33,9 +33,8 @@ androidXMultiplatform {
     jvm {
         withJava()
     }
-    macosX64()
-    macosArm64()
-    linuxX64()
+    mac()
+    linux()
     ios()
 
     sourceSets {
@@ -123,13 +122,7 @@ dependencies {
 
 androidx {
     name = "Android Support Library collections"
-    type = LibraryType.kmpLibrary {
-        android = Publish.NONE
-        jvm = Publish.SNAPSHOT_AND_RELEASE
-        linux = Publish.SNAPSHOT_AND_RELEASE
-        mac = Publish.SNAPSHOT_AND_RELEASE
-        ios = Publish.SNAPSHOT_AND_RELEASE
-    }
+    type = LibraryType.KMP_LIBRARY
     mavenGroup = LibraryGroups.COLLECTION
     inceptionYear = "2018"
     description = "Standalone efficient collections."
