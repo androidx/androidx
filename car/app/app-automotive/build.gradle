@@ -41,6 +41,7 @@ dependencies {
 
     testImplementation(libs.junit)
     testImplementation(libs.testCore)
+    testImplementation(libs.testRules)
     testImplementation(libs.testRunner)
     testImplementation(libs.junit)
     testImplementation(libs.mockitoCore)

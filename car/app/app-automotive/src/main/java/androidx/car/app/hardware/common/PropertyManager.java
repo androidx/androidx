@@ -17,12 +17,12 @@
 package androidx.car.app.hardware.common;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
+import static androidx.car.app.hardware.common.PropertyUtils.CAR_ZONE_TO_AREA_ID;
 
 import android.car.hardware.CarPropertyValue;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.util.Log;
-import android.util.Pair;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
@@ -33,6 +33,7 @@ import androidx.concurrent.futures.CallbackToFutureAdapter;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -178,25 +179,55 @@ public class PropertyManager {
      * Submits {@link CarPropertyResponse} for getting property values.
      *
      * @param rawRequests a list of {@link GetPropertyRequest}
-     * @param executor    executes the expensive operation such as fetching property
-     *                    values from cars
+     * @param executor              executes the expensive operation such as fetching property
+     *                              values from cars
      * @return {@link ListenableFuture} contains a list of {@link CarPropertyResponse}
      * @throws SecurityException if the application did not grant permissions for getting
      *                           property
      */
     @NonNull
     public ListenableFuture<List<CarPropertyResponse<?>>> submitGetPropertyRequest(
-            @NonNull List<GetPropertyRequest> rawRequests, @NonNull Executor executor) {
+            @NonNull List<GetPropertyRequest> rawRequests,
+            @NonNull Executor executor) {
         List<Integer> propertyIds = new ArrayList<>();
+        Map<Integer, List<CarZone>> propertyIdsToCarZones = new HashMap<>();
         for (GetPropertyRequest request : rawRequests) {
             propertyIds.add(request.getPropertyId());
+            propertyIdsToCarZones.put(request.getPropertyId(), request.getCarZones());
         }
+
         checkPermissions(propertyIds);
-        List<Pair<Integer, Integer>> requests = parseRawRequest(rawRequests);
+        List<PropertyIdAreaId> propertyIdWithAreaIds =
+                PropertyUtils.getPropertyIdWithAreaIds(propertyIdsToCarZones);
         return CallbackToFutureAdapter.getFuture(completer -> {
             // Getting properties' value is expensive operation.
-            executor.execute(() -> mPropertyRequestProcessor.fetchCarPropertyValues(requests,
+            executor.execute(() -> mPropertyRequestProcessor.fetchCarPropertyValues(
+                    propertyIdWithAreaIds,
                     (values, errors) -> completer.set(createResponses(values, errors))));
+            return "Get property values done";
+        });
+    }
+
+    /**
+     * Returns a list of {@link CarPropertyResponse}s that contain the supported car zones for
+     * the given propertyIds.
+     *
+     * @param propertyIds a list of property Ids.
+     * @param executor              executes the expensive operation such as fetching property
+     *                              values from cars
+     * @return {@link ListenableFuture} contains a list of {@link CarPropertyResponse}
+     * @throws SecurityException if the application did not grant permissions for getting
+     *                           property
+     */
+    @NonNull
+    public ListenableFuture<List<CarPropertyResponse<?>>> fetchSupportedZonesResponse(
+            @NonNull List<Integer> propertyIds, @NonNull Executor executor) {
+        checkPermissions(propertyIds);
+        return CallbackToFutureAdapter.getFuture(completer -> {
+            executor.execute(() -> mPropertyRequestProcessor.fetchSupportedCarZones(
+                    propertyIds,
+                    (propertyIdAreaIds, errors) -> completer.set(
+                            createResponsesForSupportedCarZones(propertyIdAreaIds, errors))));
             return "Get property values done";
         });
     }
@@ -283,7 +314,6 @@ public class PropertyManager {
 
     private static List<CarPropertyResponse<?>> createResponses(
             List<CarPropertyValue<?>> propertyValues, List<CarInternalError> propertyErrors) {
-        // TODO(b/190869722): handle AreaId to VehicleZone map in V1.2
         List<CarPropertyResponse<?>> carResponses = new ArrayList<>();
         for (CarPropertyValue<?> value : propertyValues) {
             carResponses.add(PropertyUtils.convertPropertyValueToPropertyResponse(value));
@@ -295,16 +325,25 @@ public class PropertyManager {
         return carResponses;
     }
 
-    // Maps VehicleZones to AreaIds.
-    private List<Pair<Integer, Integer>> parseRawRequest(List<GetPropertyRequest> requestList) {
-        List<Pair<Integer, Integer>> requestsWithAreaId = new ArrayList<>(requestList.size());
-        for (GetPropertyRequest request : requestList) {
-            if (PropertyUtils.isGlobalProperty(request.getPropertyId())) {
-                // ignore the VehicleZone, set areaId to 0.
-                requestsWithAreaId.add(new Pair<>(request.getPropertyId(), 0));
-            }
+    private static List<CarPropertyResponse<?>> createResponsesForSupportedCarZones(
+            List<PropertyIdAreaId> propertyIdAreaIds,
+            List<CarInternalError> propertyErrors) {
+        List<CarPropertyResponse<?>> carPropertyResponses = new ArrayList<>();
+        for (PropertyIdAreaId propertyIdAreaId : propertyIdAreaIds) {
+            CarPropertyResponse.Builder<Object> carPropertyResponseBuilder =
+                    CarPropertyResponse.builder()
+                            .setPropertyId(propertyIdAreaId.getPropertyId())
+                            .setTimestampMillis(System.currentTimeMillis())
+                            .setCarZones(Collections.singletonList(
+                                    CAR_ZONE_TO_AREA_ID.inverse().get(
+                                            propertyIdAreaId.getAreaId())));
+            carPropertyResponses.add(carPropertyResponseBuilder.build());
         }
-        return requestsWithAreaId;
+        for (CarInternalError error : propertyErrors) {
+            carPropertyResponses.add(CarPropertyResponse.builder().setPropertyId(
+                    error.getPropertyId()).setStatus(error.getErrorCode()).build());
+        }
+        return carPropertyResponses;
     }
 
     private void checkPermissions(List<Integer> propertyIds) {
