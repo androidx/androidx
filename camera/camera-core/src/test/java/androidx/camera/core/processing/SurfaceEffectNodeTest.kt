@@ -59,10 +59,13 @@ class SurfaceEffectNodeTest {
     private var isReleased = false
     private var surfaceOutputCloseRequested = false
     private var surfaceOutputReceived: SurfaceOutput? = null
+    private var surfaceReceivedByEffect: Surface? = null
     private lateinit var appSurface: Surface
     private lateinit var appSurfaceTexture: SurfaceTexture
     private lateinit var effectSurface: Surface
     private lateinit var effectSurfaceTexture: SurfaceTexture
+    private lateinit var node: SurfaceEffectNode
+    private lateinit var inputEdge: SurfaceEdge
 
     @Before
     fun setup() {
@@ -81,7 +84,8 @@ class SurfaceEffectNodeTest {
 
             override fun onOutputSurface(surfaceOutput: SurfaceOutput) {
                 surfaceOutputReceived = surfaceOutput
-                surfaceOutput.getSurface(mainThreadExecutor()) {
+                surfaceReceivedByEffect = surfaceOutput.getSurface(mainThreadExecutor()) {
+                    surfaceOutput.close()
                     surfaceOutputCloseRequested = true
                 }
             }
@@ -90,6 +94,8 @@ class SurfaceEffectNodeTest {
                 isReleased = true
             }
         }
+        node = SurfaceEffectNode(FakeCamera(), surfaceEffect)
+        inputEdge = createInputEdge()
     }
 
     @After
@@ -98,13 +104,14 @@ class SurfaceEffectNodeTest {
         appSurface.release()
         effectSurfaceTexture.release()
         effectSurface.release()
+        node.release()
+        inputEdge.surfaces[0].close()
+        shadowOf(getMainLooper()).idle()
     }
 
     @Test
     fun transformInput_outputHasTheSameProperty() {
         // Arrange.
-        val node = SurfaceEffectNode(FakeCamera(), surfaceEffect)
-        val inputEdge = createInputEdge()
         val inputSurface = inputEdge.surfaces[0]
 
         // Act.
@@ -124,8 +131,6 @@ class SurfaceEffectNodeTest {
     @Test
     fun provideSurfaceToOutput_surfaceIsPropagatedE2E() {
         // Arrange.
-        val node = SurfaceEffectNode(FakeCamera(), surfaceEffect)
-        val inputEdge = createInputEdge()
         val inputSurface = inputEdge.surfaces[0]
         val outputEdge = node.transform(inputEdge)
         val outputSurface = outputEdge.surfaces[0]
@@ -135,7 +140,6 @@ class SurfaceEffectNodeTest {
         shadowOf(getMainLooper()).idle()
 
         // Assert: effect receives app Surface. CameraX receives effect Surface.
-        val surfaceReceivedByEffect = surfaceOutputReceived!!.getSurface(mainThreadExecutor()) {}
         assertThat(surfaceReceivedByEffect).isEqualTo(appSurface)
         assertThat(inputSurface.surface.get()).isEqualTo(effectSurface)
     }
@@ -143,8 +147,7 @@ class SurfaceEffectNodeTest {
     @Test
     fun releaseNode_effectIsReleased() {
         // Arrange.
-        val node = SurfaceEffectNode(FakeCamera(), surfaceEffect)
-        val outputSurface = node.transform(createInputEdge()).surfaces[0]
+        val outputSurface = node.transform(inputEdge).surfaces[0]
         outputSurface.setProvider(Futures.immediateFuture(appSurface))
         shadowOf(getMainLooper()).idle()
 
