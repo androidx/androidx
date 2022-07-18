@@ -20,6 +20,7 @@ import android.os.HandlerThread
 import android.view.FrameMetrics
 import android.view.View
 import android.view.Window
+import android.view.Window.OnFrameMetricsAvailableListener
 import androidx.annotation.RequiresApi
 import kotlin.math.max
 
@@ -52,8 +53,8 @@ internal open class JankStatsApi24Impl(
     // Reuse the same frameData on every frame to avoid allocating per-frame objects
     private val frameData = FrameDataApi24(0, 0, 0, false, stateInfo)
 
-    private val frameMetricsAvailableListenerDelegate: Window.OnFrameMetricsAvailableListener =
-        Window.OnFrameMetricsAvailableListener { _, frameMetrics, _ ->
+    private val frameMetricsAvailableListenerDelegate =
+        OnFrameMetricsAvailableListener { _, frameMetrics, _ ->
             val startTime = max(getFrameStartTime(frameMetrics), prevEnd)
             // ignore historical data gathered before we started listening
             if (startTime >= listenerAddedTime && startTime != prevStart) {
@@ -124,11 +125,7 @@ internal open class JankStatsApi24Impl(
         val delegator = decorView.getTag(R.id.metricsDelegator) as
             DelegatingFrameMetricsListener?
         with(delegator) {
-            this?.remove(delegate)
-            if (this?.delegates?.size == 0) {
-                removeOnFrameMetricsAvailableListener(delegator)
-                decorView.setTag(R.id.metricsDelegator, null)
-            }
+            this?.remove(delegate, this@removeFrameMetricsListenerDelegate)
         }
     }
 
@@ -212,14 +209,16 @@ private class DelegatingFrameMetricsListener(
                 toBeAdded.clear()
             }
             if (toBeRemoved.isNotEmpty()) {
+                val delegatesNonEmpty = delegates.isNotEmpty()
                 for (delegate in toBeRemoved) {
                     delegates.remove(delegate)
                 }
                 toBeRemoved.clear()
-            }
-            if (delegates.size == 0) {
-                window?.removeOnFrameMetricsAvailableListener(this)
-                window?.decorView?.setTag(R.id.metricsDelegator, null)
+                // Only remove delegator if we emptied the list here
+                if (delegatesNonEmpty && delegates.isEmpty()) {
+                    window?.removeOnFrameMetricsAvailableListener(this)
+                    window?.decorView?.setTag(R.id.metricsDelegator, null)
+                }
             }
             iterating = false
         }
@@ -242,14 +241,22 @@ private class DelegatingFrameMetricsListener(
         }
     }
 
-    fun remove(delegate: Window.OnFrameMetricsAvailableListener) {
+    fun remove(delegate: OnFrameMetricsAvailableListener, window: Window) {
         // prevent concurrent modification of delegates list by synchronizing on
         // this delegator object while iterating and modifying
         synchronized(this) {
             if (iterating) {
                 toBeRemoved.add(delegate)
             } else {
+                val delegatesNonEmpty = delegates.isNotEmpty()
                 delegates.remove(delegate)
+                // Only remove delegator if we emptied the list here
+                if (delegatesNonEmpty && delegates.isEmpty()) {
+                    window.removeOnFrameMetricsAvailableListener(this)
+                    window.decorView.setTag(R.id.metricsDelegator, null)
+                } else {
+                    // noop - compiler requires else{} clause here for some strange reason
+                }
             }
         }
     }
