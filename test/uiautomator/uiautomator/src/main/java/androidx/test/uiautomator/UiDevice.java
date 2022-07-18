@@ -1030,6 +1030,9 @@ public class UiDevice implements Searchable {
             return false;
         }
         try (BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(storePath))) {
+            screenshot = Bitmap.createScaledBitmap(screenshot,
+                    Math.round(scale * screenshot.getWidth()),
+                    Math.round(scale * screenshot.getHeight()), false);
             screenshot.compress(Bitmap.CompressFormat.PNG, quality, bos);
             bos.flush();
             return true;
