@@ -202,4 +202,66 @@ class UnsafeRepeatOnLifecycleDetectorTest : LintDetectorTest() {
             .run()
             .expectClean()
     }
+
+    @Test
+    fun `viewLifecycleOwner in with outside of launch`() {
+        lint().files(
+            *REPEAT_ON_LIFECYCLE_STUBS,
+            kotlin(
+                """
+                    package foo
+                    
+                    import androidx.lifecycle.Lifecycle
+                    import androidx.lifecycle.LifecycleOwner
+                    import androidx.lifecycle.repeatOnLifecycle
+                    import kotlinx.coroutines.CoroutineScope
+                    import kotlinx.coroutines.GlobalScope
+                    import androidx.fragment.app.Fragment
+                    
+                    class MyFragment : Fragment() {
+                        fun onCreateView() {
+                            with(viewLifecycleOwner) {
+                                lifecycleScope.launch {
+                                    repeatOnLifecycle(Lifecycle.State.STARTED) {}
+                                }       
+                            }               
+                        }
+                    }
+                """.trimIndent()
+            )
+        )
+            .allowCompilationErrors(false)
+            .run()
+            .expectClean()
+    }
+
+    @Test
+    fun `viewLifecycleOwner scope directly`() {
+        lint().files(
+            *REPEAT_ON_LIFECYCLE_STUBS,
+            kotlin(
+                """
+                    package foo
+                    
+                    import androidx.lifecycle.Lifecycle
+                    import androidx.lifecycle.LifecycleOwner
+                    import androidx.lifecycle.repeatOnLifecycle
+                    import kotlinx.coroutines.CoroutineScope
+                    import kotlinx.coroutines.GlobalScope
+                    import androidx.fragment.app.Fragment
+                    
+                    class MyFragment : Fragment() {
+                        fun onCreateView() {
+                            viewLifecycleOwner.lifecycleScope.launch {
+                                viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {}
+                            }                    
+                        }
+                    }
+                """.trimIndent()
+            )
+        )
+            .allowCompilationErrors(false)
+            .run()
+            .expectClean()
+    }
 }
