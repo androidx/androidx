@@ -18,13 +18,13 @@ package androidx.heifwriter {
   public static final class HeifWriter.Builder {
     ctor public HeifWriter.Builder(String, int, int, int);
     ctor public HeifWriter.Builder(java.io.FileDescriptor, int, int, int);
-    method public androidx.heifwriter.HeifWriter build() throws java.io.IOException;
-    method public androidx.heifwriter.HeifWriter.Builder setGridEnabled(boolean);
-    method public androidx.heifwriter.HeifWriter.Builder setHandler(android.os.Handler?);
-    method public androidx.heifwriter.HeifWriter.Builder setMaxImages(int);
-    method public androidx.heifwriter.HeifWriter.Builder setPrimaryIndex(int);
-    method public androidx.heifwriter.HeifWriter.Builder setQuality(int);
-    method public androidx.heifwriter.HeifWriter.Builder setRotation(int);
+    method public androidx.heifwriter.HeifWriter! build() throws java.io.IOException;
+    method public androidx.heifwriter.HeifWriter.Builder! setGridEnabled(boolean);
+    method public androidx.heifwriter.HeifWriter.Builder! setHandler(android.os.Handler?);
+    method public androidx.heifwriter.HeifWriter.Builder! setMaxImages(int);
+    method public androidx.heifwriter.HeifWriter.Builder! setPrimaryIndex(int);
+    method public androidx.heifwriter.HeifWriter.Builder! setQuality(int);
+    method public androidx.heifwriter.HeifWriter.Builder! setRotation(int);
   }
 
 }

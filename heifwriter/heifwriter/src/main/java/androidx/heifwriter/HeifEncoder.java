@@ -45,7 +45,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -82,6 +81,7 @@ public final class HeifEncoder implements AutoCloseable,
     MediaCodec mEncoder;
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     final Callback mCallback;
+    private final HandlerThread mHandlerThread;
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     final Handler mHandler;
     private final @InputMode int mInputMode;
@@ -121,6 +121,7 @@ public final class HeifEncoder implements AutoCloseable,
     // to encoder surface when tiles are used.
     private SurfaceTexture mInputTexture;
     private Surface mInputSurface;
+    private Surface mEncoderSurface;
     private EglWindowSurface mEncoderEglSurface;
     private EglRectBlt mRectBlt;
     private int mTextureId;
@@ -201,7 +202,7 @@ public final class HeifEncoder implements AutoCloseable,
         useGrid &= (width > GRID_WIDTH || height > GRID_HEIGHT);
 
         boolean useHeicEncoder = false;
-        MediaCodecInfo.CodecCapabilities caps;
+        MediaCodecInfo.CodecCapabilities caps = null;
         try {
             mEncoder = MediaCodec.createEncoderByType(MediaFormat.MIMETYPE_IMAGE_ANDROID_HEIC);
             caps = mEncoder.getCodecInfo().getCapabilitiesForType(
@@ -225,14 +226,13 @@ public final class HeifEncoder implements AutoCloseable,
         mCallback = cb;
 
         Looper looper = (handler != null) ? handler.getLooper() : null;
-        HandlerThread handlerThread;
         if (looper == null) {
-            handlerThread = new HandlerThread("HeifEncoderThread",
+            mHandlerThread = new HandlerThread("HeifEncoderThread",
                     Process.THREAD_PRIORITY_FOREGROUND);
-            handlerThread.start();
-            looper = handlerThread.getLooper();
+            mHandlerThread.start();
+            looper = mHandlerThread.getLooper();
         } else {
-            handlerThread = null;
+            mHandlerThread = null;
         }
         mHandler = new Handler(looper);
         boolean useSurfaceInternally =
@@ -340,12 +340,12 @@ public final class HeifEncoder implements AutoCloseable,
         mEncoder.configure(codecFormat, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE);
 
         if (useSurfaceInternally) {
-            Surface encoderSurface = mEncoder.createInputSurface();
+            mEncoderSurface = mEncoder.createInputSurface();
 
             mEOSTracker = new SurfaceEOSTracker(copyTiles);
 
             if (copyTiles) {
-                mEncoderEglSurface = new EglWindowSurface(encoderSurface);
+                mEncoderEglSurface = new EglWindowSurface(mEncoderSurface);
                 mEncoderEglSurface.makeCurrent();
 
                 mRectBlt = new EglRectBlt(
@@ -368,7 +368,7 @@ public final class HeifEncoder implements AutoCloseable,
                 // making the context current on a different thread will cause error.
                 mEncoderEglSurface.makeUnCurrent();
             } else {
-                mInputSurface = encoderSurface;
+                mInputSurface = mEncoderSurface;
             }
         } else {
             for (int i = 0; i < INPUT_BUFFER_POOL_SIZE; i++) {
@@ -386,7 +386,7 @@ public final class HeifEncoder implements AutoCloseable,
             if (!info.isEncoder()) {
                 continue;
             }
-            MediaCodecInfo.CodecCapabilities caps;
+            MediaCodecInfo.CodecCapabilities caps = null;
             try {
                 caps = info.getCapabilitiesForType(MediaFormat.MIMETYPE_VIDEO_HEVC);
             } catch (IllegalArgumentException e) { // mime is not supported
@@ -490,14 +490,12 @@ public final class HeifEncoder implements AutoCloseable,
      * @param data byte array containing the YUV data. If the format has more than one planes,
      *             they must be concatenated.
      */
-    @SuppressWarnings("unused")
     public void addYuvBuffer(int format, @NonNull byte[] data) {
         if (mInputMode != INPUT_MODE_BUFFER) {
             throw new IllegalStateException(
                     "addYuvBuffer is only allowed in buffer input mode");
         }
-        Objects.requireNonNull(data);
-        if (data.length != mWidth * mHeight * 3 / 2) {
+        if (data == null || data.length != mWidth * mHeight * 3 / 2) {
             throw new IllegalArgumentException("invalid data");
         }
         addYuvBufferInternal(data);
@@ -605,7 +603,12 @@ public final class HeifEncoder implements AutoCloseable,
         synchronized (mFilledBuffers) {
             mFilledBuffers.add(buffer);
         }
-        mHandler.post(this::maybeCopyOneTileYUV);
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                maybeCopyOneTileYUV();
+            }
+        });
     }
 
     /**
@@ -693,8 +696,7 @@ public final class HeifEncoder implements AutoCloseable,
             while (!mInputEOS && mEmptyBuffers.isEmpty()) {
                 try {
                     mEmptyBuffers.wait();
-                } catch (InterruptedException ignored) {
-                }
+                } catch (InterruptedException e) {}
             }
 
             // if already EOS, return null to stop further encoding.
@@ -747,7 +749,7 @@ public final class HeifEncoder implements AutoCloseable,
                 mEncoder.stop();
                 mEncoder.release();
             }
-        } catch (Exception ignored) {
+        } catch (Exception e) {
         } finally {
             mEncoder = null;
         }
@@ -770,7 +772,7 @@ public final class HeifEncoder implements AutoCloseable,
                 if (mRectBlt != null) {
                     mRectBlt.release(false);
                 }
-            } catch (Exception ignored) {
+            } catch (Exception e) {
             } finally {
                 mRectBlt = null;
             }
@@ -782,7 +784,7 @@ public final class HeifEncoder implements AutoCloseable,
                     // we don't release mEncoderSurface here.
                     mEncoderEglSurface.release();
                 }
-            } catch (Exception ignored) {
+            } catch (Exception e) {
             } finally {
                 mEncoderEglSurface = null;
             }
@@ -791,7 +793,7 @@ public final class HeifEncoder implements AutoCloseable,
                 if (mInputTexture != null) {
                     mInputTexture.release();
                 }
-            } catch (Exception ignored) {
+            } catch (Exception e) {
             } finally {
                 mInputTexture = null;
             }
@@ -819,8 +821,6 @@ public final class HeifEncoder implements AutoCloseable,
     private class SurfaceEOSTracker {
         private static final boolean DEBUG_EOS = false;
 
-        private final Object mLock = new Object();
-
         final boolean mCopyTiles;
         long mInputEOSTimeNs = -1;
         long mLastInputTimeNs = -1;
@@ -833,47 +833,39 @@ public final class HeifEncoder implements AutoCloseable,
             mCopyTiles = copyTiles;
         }
 
-        void updateInputEOSTime(long timestampNs) {
-            synchronized (mLock) {
-                if (DEBUG_EOS) Log.d(TAG, "updateInputEOSTime: " + timestampNs);
+        synchronized void updateInputEOSTime(long timestampNs) {
+            if (DEBUG_EOS) Log.d(TAG, "updateInputEOSTime: " + timestampNs);
 
-                if (mCopyTiles) {
-                    if (mInputEOSTimeNs < 0) {
-                        mInputEOSTimeNs = timestampNs;
-                    }
-                } else {
-                    if (mEncoderEOSTimeUs < 0) {
-                        mEncoderEOSTimeUs = timestampNs / 1000;
-                    }
+            if (mCopyTiles) {
+                if (mInputEOSTimeNs < 0) {
+                    mInputEOSTimeNs = timestampNs;
                 }
-                updateEOSLocked();
+            } else {
+                if (mEncoderEOSTimeUs < 0) {
+                    mEncoderEOSTimeUs = timestampNs / 1000;
+                }
             }
+            updateEOSLocked();
         }
 
-        boolean updateLastInputAndEncoderTime(long inputTimeNs, long encoderTimeUs) {
-            synchronized (mLock) {
-                if (DEBUG_EOS) {
-                    Log.d(TAG,
-                            "updateLastInputAndEncoderTime: " + inputTimeNs + ", " + encoderTimeUs);
-                }
+        synchronized boolean updateLastInputAndEncoderTime(long inputTimeNs, long encoderTimeUs) {
+            if (DEBUG_EOS) Log.d(TAG,
+                    "updateLastInputAndEncoderTime: " + inputTimeNs + ", " + encoderTimeUs);
 
-                boolean shouldTakeFrame = mInputEOSTimeNs < 0 || inputTimeNs <= mInputEOSTimeNs;
-                if (shouldTakeFrame) {
-                    mLastEncoderTimeUs = encoderTimeUs;
-                }
-                mLastInputTimeNs = inputTimeNs;
-                updateEOSLocked();
-                return shouldTakeFrame;
+            boolean shouldTakeFrame = mInputEOSTimeNs < 0 || inputTimeNs <= mInputEOSTimeNs;
+            if (shouldTakeFrame) {
+                mLastEncoderTimeUs = encoderTimeUs;
             }
+            mLastInputTimeNs = inputTimeNs;
+            updateEOSLocked();
+            return shouldTakeFrame;
         }
 
-        void updateLastOutputTime(long outputTimeUs) {
-            synchronized (mLock) {
-                if (DEBUG_EOS) Log.d(TAG, "updateLastOutputTime: " + outputTimeUs);
+        synchronized void updateLastOutputTime(long outputTimeUs) {
+            if (DEBUG_EOS) Log.d(TAG, "updateLastOutputTime: " + outputTimeUs);
 
-                mLastOutputTimeUs = outputTimeUs;
-                updateEOSLocked();
-            }
+            mLastOutputTimeUs = outputTimeUs;
+            updateEOSLocked();
         }
 
         private void updateEOSLocked() {
@@ -901,9 +893,11 @@ public final class HeifEncoder implements AutoCloseable,
         private void doSignalEOSLocked() {
             if (DEBUG_EOS) Log.d(TAG, "doSignalEOSLocked");
 
-            mHandler.post(() -> {
-                if (mEncoder != null) {
-                    mEncoder.signalEndOfInputStream();
+            mHandler.post(new Runnable() {
+                @Override public void run() {
+                    if (mEncoder != null) {
+                        mEncoder.signalEndOfInputStream();
+                    }
                 }
             });
 
@@ -914,6 +908,7 @@ public final class HeifEncoder implements AutoCloseable,
     /**
      * MediaCodec callback for HEVC encoding.
      */
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
     class EncoderCallback extends MediaCodec.Callback {
         private boolean mOutputEOS;
 
@@ -1009,10 +1004,14 @@ public final class HeifEncoder implements AutoCloseable,
             mEmptyBuffers.notifyAll();
         }
 
-        mHandler.postAtFrontOfQueue(() -> {
-            try {
-                stopInternal();
-            } catch (Exception ignored) {
+        mHandler.postAtFrontOfQueue(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    stopInternal();
+                } catch (Exception e) {
+                    // We don't want to crash when closing.
+                }
             }
         });
     }
