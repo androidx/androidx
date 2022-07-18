@@ -67,6 +67,9 @@ android {
     buildFeatures {
         aidl = true
     }
+    buildTypes.all {
+        consumerProguardFiles "proguard-rules.pro"
+    }
     testOptions.unitTests.includeAndroidResources = true
     namespace "androidx.health.connect.client"
 }
