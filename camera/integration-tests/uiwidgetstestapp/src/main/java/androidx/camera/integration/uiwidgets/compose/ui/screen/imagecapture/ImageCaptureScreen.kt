@@ -17,6 +17,7 @@
 package androidx.camera.integration.uiwidgets.compose.ui.screen.imagecapture
 
 import android.view.ViewGroup
+import androidx.camera.core.MeteringPoint
 import androidx.camera.core.Preview.SurfaceProvider
 import androidx.camera.integration.uiwidgets.compose.ui.screen.components.CameraControlButton
 import androidx.camera.integration.uiwidgets.compose.ui.screen.components.CameraControlButtonPlaceholder
@@ -76,6 +77,7 @@ fun ImageCaptureScreen(
             state.takePhoto(localContext)
         },
         onSurfaceProviderReady = state::setSurfaceProvider,
+        onTouch = state::startTapToFocus
     )
 }
 
@@ -92,6 +94,7 @@ fun ImageCaptureScreen(
     onFlipCameraIconClicked: () -> Unit,
     onImageCaptureIconClicked: () -> Unit,
     onSurfaceProviderReady: (SurfaceProvider) -> Unit,
+    onTouch: (MeteringPoint) -> Unit
 ) {
     val localContext = LocalContext.current
 
@@ -107,6 +110,14 @@ fun ImageCaptureScreen(
             )
 
             onSurfaceProviderReady(this.surfaceProvider)
+
+            setOnTouchListener { view, motionEvent ->
+                val meteringPointFactory = (view as PreviewView).meteringPointFactory
+                val meteringPoint = meteringPointFactory.createPoint(motionEvent.x, motionEvent.y)
+                onTouch(meteringPoint)
+
+                return@setOnTouchListener true
+            }
         }
     }
 

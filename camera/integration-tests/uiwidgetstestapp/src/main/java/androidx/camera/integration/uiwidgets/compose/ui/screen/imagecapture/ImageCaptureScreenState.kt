@@ -25,8 +25,10 @@ import android.widget.Toast
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraControl.OperationCanceledException
 import androidx.camera.core.CameraSelector
+import androidx.camera.core.FocusMeteringAction
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
+import androidx.camera.core.MeteringPoint
 import androidx.camera.core.Preview
 import androidx.camera.core.Preview.SurfaceProvider
 import androidx.camera.lifecycle.ProcessCameraProvider
@@ -142,6 +144,11 @@ class ImageCaptureScreenState(
             }
         }
         imageCapture.flashMode = flashMode
+    }
+
+    fun startTapToFocus(meteringPoint: MeteringPoint) {
+        val action = FocusMeteringAction.Builder(meteringPoint).build()
+        camera?.cameraControl?.startFocusAndMetering(action)
     }
 
     fun startCamera(context: Context, lifecycleOwner: LifecycleOwner) {
