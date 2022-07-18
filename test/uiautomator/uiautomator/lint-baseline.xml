@@ -74,69 +74,6 @@
     </issue>
 
     <issue
-        id="NewApi"
-        message="Call requires API level 23 (current min is 18): `android.content.Context#getSystemService`"
-        errorLine1="            mDevice.getInstrumentation().getContext().getSystemService(DisplayManager.class);"
-        errorLine2="                                                      ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/test/uiautomator/UiObject2.java"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 21 (current min is 18): `android.view.accessibility.AccessibilityNodeInfo#getWindow`"
-        errorLine1="        final AccessibilityWindowInfo window = getAccessibilityNodeInfo().getWindow();"
-        errorLine2="                                                                          ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/test/uiautomator/UiObject2.java"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 30 (current min is 18): `android.view.accessibility.AccessibilityWindowInfo#getDisplayId`"
-        errorLine1="            return window.getDisplayId();"
-        errorLine2="                          ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/test/uiautomator/UiObject2.java"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 23 (current min is 18): `android.content.Context#getSystemService`"
-        errorLine1="                mDevice.getInstrumentation().getContext().getSystemService(DisplayManager.class);"
-        errorLine2="                                                          ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/test/uiautomator/UiObject2.java"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 21 (current min is 18): `android.view.accessibility.AccessibilityNodeInfo#getWindow`"
-        errorLine1="            if (node.getWindow() != null) {"
-        errorLine2="                     ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/test/uiautomator/UiObject2.java"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 21 (current min is 18): `android.view.accessibility.AccessibilityNodeInfo#getWindow`"
-        errorLine1="                node.getWindow().getBoundsInScreen(window);"
-        errorLine2="                     ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/test/uiautomator/UiObject2.java"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 21 (current min is 18): `android.view.accessibility.AccessibilityWindowInfo#getBoundsInScreen`"
-        errorLine1="                node.getWindow().getBoundsInScreen(window);"
-        errorLine2="                                 ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/test/uiautomator/UiObject2.java"/>
-    </issue>
-
-    <issue
         id="WrongConstant"
         message="Must be one of: 0, UiAutomation.FLAG_DONT_SUPPRESS_ACCESSIBILITY_SERVICES, UiAutomation.FLAG_DONT_USE_ACCESSIBILITY"
         errorLine1="            return instrumentation.getUiAutomation(flags);"
@@ -224,69 +161,6 @@
         errorLine2="                                   ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/test/uiautomator/UiDevice.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 23; however, the containing class androidx.test.uiautomator.UiObject2 is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            mDevice.getInstrumentation().getContext().getSystemService(DisplayManager.class);"
-        errorLine2="                                                      ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/test/uiautomator/UiObject2.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class androidx.test.uiautomator.UiObject2 is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="        final AccessibilityWindowInfo window = getAccessibilityNodeInfo().getWindow();"
-        errorLine2="                                                                          ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/test/uiautomator/UiObject2.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 30; however, the containing class androidx.test.uiautomator.UiObject2 is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            return window.getDisplayId();"
-        errorLine2="                          ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/test/uiautomator/UiObject2.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 23; however, the containing class androidx.test.uiautomator.UiObject2 is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                mDevice.getInstrumentation().getContext().getSystemService(DisplayManager.class);"
-        errorLine2="                                                          ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/test/uiautomator/UiObject2.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class androidx.test.uiautomator.UiObject2 is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            if (node.getWindow() != null) {"
-        errorLine2="                     ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/test/uiautomator/UiObject2.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class androidx.test.uiautomator.UiObject2 is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                node.getWindow().getBoundsInScreen(window);"
-        errorLine2="                     ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/test/uiautomator/UiObject2.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class androidx.test.uiautomator.UiObject2 is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                node.getWindow().getBoundsInScreen(window);"
-        errorLine2="                                 ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/test/uiautomator/UiObject2.java"/>
     </issue>
 
     <issue
