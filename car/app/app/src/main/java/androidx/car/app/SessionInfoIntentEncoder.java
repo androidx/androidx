@@ -69,6 +69,7 @@ public class SessionInfoIntentEncoder {
                     "Expected the SessionInfo to be encoded in the bind intent extras, but the "
                             + "extras were null.");
         }
+        extras.setClassLoader(Bundleable.class.getClassLoader());
         Bundleable sessionInfoBundleable = extras.getParcelable(EXTRA_SESSION_INFO);
         if (sessionInfoBundleable == null) {
             throw new IllegalArgumentException(
