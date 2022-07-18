@@ -16,12 +16,16 @@
 
 package androidx.wear.compose.material.dialog
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.Transition
+import androidx.compose.animation.core.TweenSpec
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.updateTransition
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
@@ -103,7 +107,19 @@ public fun Dialog(
             val scale by animateDialogScale(scaleTransition, scaleTransitionState)
 
             Scaffold(
-                vignette = { Vignette(vignettePosition = VignettePosition.TopAndBottom) },
+                vignette = {
+                    AnimatedVisibility(
+                        visible = scaleTransitionState.targetState == ScaleStage.Display,
+                        enter = fadeIn(animationSpec =
+                            TweenSpec(durationMillis = CASUAL, easing = STANDARD_IN)
+                        ),
+                        exit = fadeOut(animationSpec =
+                            TweenSpec(durationMillis = CASUAL, easing = STANDARD_OUT)
+                        ),
+                    ) {
+                        Vignette(vignettePosition = VignettePosition.TopAndBottom)
+                    }
+                },
                 positionIndicator = { if (scrollState != null) PositionIndicator(scrollState) },
                 modifier = modifier,
             ) {
