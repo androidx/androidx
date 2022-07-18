@@ -96,7 +96,7 @@ internal open class JankStatsApi16Impl(
 
     private fun View.removeOnPreDrawListenerDelegate(delegate: OnFrameListenerDelegate) {
         val delegator = getTag(R.id.metricsDelegator) as DelegatingOnPreDrawListener?
-        delegator?.remove(delegate)
+        delegator?.remove(delegate, viewTreeObserver)
     }
 
     /**
@@ -194,18 +194,25 @@ internal open class DelegatingOnPreDrawListener(
                         for (delegate in delegates) {
                             delegate.onFrame(frameStart, now - frameStart, expectedDuration)
                         }
-                        for (delegate in toBeAdded) {
-                            delegates.add(delegate)
+                        if (toBeAdded.isNotEmpty()) {
+                            for (delegate in toBeAdded) {
+                                delegates.add(delegate)
+                            }
+                            toBeAdded.clear()
                         }
-                        toBeAdded.clear()
-                        for (delegate in toBeRemoved) {
-                            delegates.remove(delegate)
-                        }
-                        toBeRemoved.clear()
-                        if (delegates.size == 0) {
-                            viewTreeObserver.removeOnPreDrawListener(
-                                this@DelegatingOnPreDrawListener)
-                            setTag(R.id.metricsDelegator, null)
+                        if (toBeRemoved.isNotEmpty()) {
+                            val delegatesNonEmpty = delegates.isNotEmpty()
+                            for (delegate in toBeRemoved) {
+                                delegates.remove(delegate)
+                            }
+                            toBeRemoved.clear()
+                            // Only remove delegator if we emptied the list here
+                            if (delegatesNonEmpty && delegates.isEmpty()) {
+                                viewTreeObserver.removeOnPreDrawListener(
+                                    this@DelegatingOnPreDrawListener
+                                )
+                                setTag(R.id.metricsDelegator, null)
+                            }
                         }
                         iterating = false
                     }
@@ -230,14 +237,23 @@ internal open class DelegatingOnPreDrawListener(
         }
     }
 
-    fun remove(delegate: OnFrameListenerDelegate) {
+    fun remove(delegate: OnFrameListenerDelegate, viewTreeObserver: ViewTreeObserver) {
         // prevent concurrent modification of delegates list by synchronizing on
         // this delegator object while iterating and modifying
         synchronized(this) {
             if (iterating) {
                 toBeRemoved.add(delegate)
             } else {
+                val delegatesNonEmpty = delegates.isNotEmpty()
                 delegates.remove(delegate)
+                // Only remove delegator if we emptied the list here
+                if (delegatesNonEmpty && delegates.isEmpty()) {
+                    viewTreeObserver.removeOnPreDrawListener(this)
+                    val decorView = decorViewRef.get()
+                    decorView?.setTag(R.id.metricsDelegator, null)
+                } else {
+                    // noop - compiler requires else{} clause here for some strange reason
+                }
             }
         }
     }
