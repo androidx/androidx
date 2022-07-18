@@ -29,60 +29,6 @@
     </issue>
 
     <issue
-        id="NewApi"
-        message="Call requires API level 21 (current min is 18): `android.app.UiAutomation#executeShellCommand`"
-        errorLine1="        ParcelFileDescriptor pfd = getUiAutomation().executeShellCommand(cmd);"
-        errorLine2="                                                     ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/test/uiautomator/UiDevice.java"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 30 (current min is 18): `android.app.UiAutomation#getWindowsOnAllDisplays`"
-        errorLine1="                getUiAutomation().getWindowsOnAllDisplays();"
-        errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/test/uiautomator/UiDevice.java"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 21 (current min is 18): `android.app.UiAutomation#getWindows`"
-        errorLine1="            return getUiAutomation().getWindows();"
-        errorLine2="                                     ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/test/uiautomator/UiDevice.java"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 21 (current min is 18): `android.view.accessibility.AccessibilityWindowInfo#getRoot`"
-        errorLine1="            final AccessibilityNodeInfo root = window.getRoot();"
-        errorLine2="                                                      ~~~~~~~">
-        <location
-            file="src/main/java/androidx/test/uiautomator/UiDevice.java"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 24 (current min is 18): `android.app.Instrumentation#getUiAutomation`"
-        errorLine1="            return instrumentation.getUiAutomation(flags);"
-        errorLine2="                                   ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/test/uiautomator/UiDevice.java"/>
-    </issue>
-
-    <issue
-        id="WrongConstant"
-        message="Must be one of: 0, UiAutomation.FLAG_DONT_SUPPRESS_ACCESSIBILITY_SERVICES, UiAutomation.FLAG_DONT_USE_ACCESSIBILITY"
-        errorLine1="            return instrumentation.getUiAutomation(flags);"
-        errorLine2="                                                   ~~~~~">
-        <location
-            file="src/main/java/androidx/test/uiautomator/UiDevice.java"/>
-    </issue>
-
-    <issue
         id="BanUncheckedReflection"
         message="Calling `Method.invoke` without an SDK check"
         errorLine1="                    sMotionEvent_setDisplayId.invoke(ev, displayId);"
@@ -116,51 +62,6 @@
         errorLine2="                               ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/test/uiautomator/AccessibilityNodeInfoHelper.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class androidx.test.uiautomator.UiDevice is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="        ParcelFileDescriptor pfd = getUiAutomation().executeShellCommand(cmd);"
-        errorLine2="                                                     ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/test/uiautomator/UiDevice.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 30; however, the containing class androidx.test.uiautomator.UiDevice is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                getUiAutomation().getWindowsOnAllDisplays();"
-        errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/test/uiautomator/UiDevice.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class androidx.test.uiautomator.UiDevice is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            return getUiAutomation().getWindows();"
-        errorLine2="                                     ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/test/uiautomator/UiDevice.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class androidx.test.uiautomator.UiDevice is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            final AccessibilityNodeInfo root = window.getRoot();"
-        errorLine2="                                                      ~~~~~~~">
-        <location
-            file="src/main/java/androidx/test/uiautomator/UiDevice.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 24; however, the containing class androidx.test.uiautomator.UiDevice is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            return instrumentation.getUiAutomation(flags);"
-        errorLine2="                                   ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/test/uiautomator/UiDevice.java"/>
     </issue>
 
     <issue
