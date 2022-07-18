@@ -23,7 +23,6 @@ import android.car.Car;
 import android.car.VehicleAreaType;
 import android.car.VehiclePropertyIds;
 import android.car.hardware.CarPropertyValue;
-import android.util.Pair;
 
 import androidx.test.core.app.ApplicationProvider;
 
@@ -66,13 +65,17 @@ public class PropertyRequestProcessorTest extends MockedCarTestBase {
     @Test
     public void fetchCarPropertyValuesTest() throws Exception {
         TestListener listener = new TestListener();
-        List<Pair<Integer, Integer>> requests = new ArrayList<>();
+        List<PropertyIdAreaId> requests = new ArrayList<>();
 
         //INFO_MODEL is implemented, ENGINE_OIL_TEMP is not implemented.
-        requests.add(new Pair<>(VehiclePropertyIds.INFO_MODEL,
-                VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL));
-        requests.add(new Pair<>(VehiclePropertyIds.ENGINE_OIL_TEMP,
-                VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL));
+        requests.add(PropertyIdAreaId.builder()
+                .setAreaId(VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL)
+                .setPropertyId(VehiclePropertyIds.INFO_MODEL)
+                .build());
+        requests.add(PropertyIdAreaId.builder()
+                .setAreaId(VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL)
+                .setPropertyId(VehiclePropertyIds.ENGINE_OIL_TEMP)
+                .build());
         mRequestProcessor.fetchCarPropertyValues(requests, listener);
         listener.assertOnGetPropertiesCalled();
         List<CarInternalError> internalErrors = listener.getCarInternalErrors();

@@ -289,7 +289,14 @@ public final class ClimateProfileRequest {
     /** A builder of {@link ClimateProfileRequest}. */
     public static final class Builder {
         boolean mAllProfiles = false;
-        List<CarClimateFeature> mFeatures = new ArrayList<>();
+        List<CarClimateFeature> mFeatures;
+
+        /**
+         * Creates an instance of {@link ClimateProfileRequest.Builder}.
+         */
+        public Builder() {
+            mFeatures = new ArrayList<>();
+        }
 
         /**
          * Adds all CarClimateFeatures in the request by enabling all profiles.
@@ -317,7 +324,7 @@ public final class ClimateProfileRequest {
                     throw new IllegalArgumentException("Invalid flag for climate profile request: "
                             + flag);
                 }
-                if (!mFeatures.contains(feature)) {
+                if (mFeatures.contains(feature)) {
                     throw new IllegalArgumentException("Flag already registered in climate "
                             + "profile request: " + flag);
                 }
