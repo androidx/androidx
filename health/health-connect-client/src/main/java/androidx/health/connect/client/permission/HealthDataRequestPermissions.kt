@@ -58,6 +58,7 @@ public class HealthDataRequestPermissions(
         }
     }
 
+    @Suppress("DEPRECATION")
     override fun parseResult(resultCode: Int, intent: Intent?): Set<Permission> {
         return intent
             ?.getParcelableArrayListExtra<ProtoPermission>(KEY_GRANTED_PERMISSIONS_JETPACK)
