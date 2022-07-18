@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 The Android Open Source Project
+ * Copyright 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 
 @file:RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 
-package androidx.camera.camera2.pipe.compat
+package androidx.camera.camera2.pipe.graph
 
 import android.hardware.camera2.CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL
 import android.hardware.camera2.CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_EXTERNAL
@@ -34,11 +34,10 @@ import androidx.camera.camera2.pipe.CameraStream
 import androidx.camera.camera2.pipe.InputStream
 import androidx.camera.camera2.pipe.OutputId
 import androidx.camera.camera2.pipe.OutputStream
-import androidx.camera.camera2.pipe.OutputStream.Config.ExternalOutputConfig
-import androidx.camera.camera2.pipe.OutputStream.Config.LazyOutputConfig
 import androidx.camera.camera2.pipe.StreamFormat
 import androidx.camera.camera2.pipe.StreamGraph
 import androidx.camera.camera2.pipe.StreamId
+import androidx.camera.camera2.pipe.compat.Api24Compat
 import androidx.camera.camera2.pipe.config.CameraGraphScope
 import androidx.camera.camera2.pipe.core.Log
 import javax.inject.Inject
@@ -51,15 +50,10 @@ private val outputIds = atomic(0)
 internal fun nextOutputId(): OutputId = OutputId(outputIds.incrementAndGet())
 
 private val configIds = atomic(0)
-internal fun nextConfigId(): CameraConfigId = CameraConfigId(configIds.incrementAndGet())
+internal fun nextConfigId(): OutputConfigId = OutputConfigId(configIds.incrementAndGet())
 
 private val groupIds = atomic(0)
 internal fun nextGroupId(): Int = groupIds.incrementAndGet()
-
-@JvmInline
-public value class CameraConfigId(val value: Int) {
-    override fun toString(): String = "OutputConfig-$value"
-}
 
 /**
  * This object keeps track of which surfaces have been configured for each stream. In addition,
@@ -67,7 +61,7 @@ public value class CameraConfigId(val value: Int) {
  * reconfigured if the configured surfaces change.
  */
 @CameraGraphScope
-internal class Camera2StreamGraph @Inject constructor(
+internal class StreamGraphImpl @Inject constructor(
     cameraMetadata: CameraMetadata,
     graphConfig: CameraGraph.Config
 ) : StreamGraph {
@@ -79,6 +73,7 @@ internal class Camera2StreamGraph @Inject constructor(
     // TODO: Build InputStream(s)
     override val input: InputStream? = null
     override val streams: List<CameraStream>
+    override val streamIds: Set<StreamId>
     override val outputs: List<OutputStream>
 
     override fun get(config: CameraStream.Config): CameraStream? = _streamMap[config]
@@ -122,11 +117,12 @@ internal class Camera2StreamGraph @Inject constructor(
                     output.camera ?: graphConfig.camera,
                     groupNumber = groupNumbers[streamConfig],
                     deferredOutputType = if (deferredOutputsAllowed) {
-                        (output as? LazyOutputConfig)?.outputType
+                        (output as? OutputStream.Config.LazyOutputConfig)?.outputType
                     } else {
                         null
                     },
-                    externalOutputConfig = (output as? ExternalOutputConfig)?.output
+                    externalOutputConfig =
+                    (output as? OutputStream.Config.ExternalOutputConfig)?.output
                 )
                 outputConfigMap[output] = outputConfig
                 outputConfigListBuilder.add(outputConfig)
@@ -166,6 +162,7 @@ internal class Camera2StreamGraph @Inject constructor(
         //   will treat it differently.
 
         streams = streamListBuilder
+        streamIds = streams.map { it.id }.toSet()
         _streamMap = streamMapBuilder
         outputs = streams.flatMap { it.outputs }
         outputConfigs = outputConfigListBuilder
@@ -201,36 +198,36 @@ internal class Camera2StreamGraph @Inject constructor(
 
     private fun maybeUpdateSurfaces() {
         val surfaceListener = _listener ?: return
+        val surfaces = buildSurfaceMap()
+        if (surfaces.isEmpty()) {
+            return
+        }
+        surfaceListener.onSurfaceMapUpdated(surfaces)
+    }
 
+    private fun buildSurfaceMap(): Map<StreamId, Surface> {
         // Rules:
-        // 1. In order to tell the captureSession that we have surfaces, we should wait until we
-        //    have at least one valid surface.
-        // 2. All streams that are not deferrable, must have a valid surface.
-
+        // 1. There must be at least one non-null, valid surface.
+        // 2. All non-deferrable streams must have a valid surface.
         val surfaces = mutableMapOf<StreamId, Surface>()
         for (outputConfig in outputConfigs) {
             for (stream in outputConfig.streamBuilder) {
                 val surface = surfaceMap[stream.id]
                 if (surface == null) {
                     if (!outputConfig.deferrable) {
-                        return
+                        return emptyMap()
                     }
                 } else {
                     surfaces[stream.id] = surface
                 }
             }
         }
-
-        if (surfaces.isEmpty()) {
-            return
-        }
-
-        surfaceListener.onSurfaceMapUpdated(surfaces)
+        return surfaces
     }
 
     @Suppress("SyntheticAccessor") // StreamId generates a synthetic constructor
     class OutputConfig(
-        val id: CameraConfigId,
+        val id: OutputConfigId,
         val size: Size,
         val format: StreamFormat,
         val camera: CameraId,
@@ -279,7 +276,7 @@ internal class Camera2StreamGraph @Inject constructor(
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             outputs
                 .flatMap { it.outputs }
-                .filterIsInstance<ExternalOutputConfig>()
+                .filterIsInstance<OutputStream.Config.ExternalOutputConfig>()
                 .fold(mutableListOf()) { values, config ->
                     val groupId = Api24Compat.getSurfaceGroupId(config.output)
                     if (!values.contains(groupId)) {
@@ -306,4 +303,13 @@ internal class Camera2StreamGraph @Inject constructor(
                     hardwareLevel != INFO_SUPPORTED_HARDWARE_LEVEL_EXTERNAL
                 )
     }
+
+    override fun toString(): String {
+        return "StreamGraphImpl $_streamMap"
+    }
+}
+
+@JvmInline
+internal value class OutputConfigId(val value: Int) {
+    override fun toString(): String = "OutputConfig-$value"
 }

@@ -21,6 +21,7 @@ import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.config.CameraGraphScope
 import androidx.camera.camera2.pipe.config.ForCameraGraph
 import androidx.camera.camera2.pipe.graph.GraphListener
+import androidx.camera.camera2.pipe.graph.StreamGraphImpl
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -36,15 +37,15 @@ import kotlinx.coroutines.launch
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @CameraGraphScope
-internal class Camera2CameraController @Inject constructor(
+internal class Camera2Camera2Controller @Inject constructor(
     @ForCameraGraph private val scope: CoroutineScope,
     private val config: CameraGraph.Config,
     private val graphListener: GraphListener,
     private val captureSessionFactory: CaptureSessionFactory,
     private val requestProcessorFactory: Camera2RequestProcessorFactory,
     private val virtualCameraManager: VirtualCameraManager,
-    private val streamGraph: Camera2StreamGraph
-) : CameraController {
+    private val streamGraph: StreamGraphImpl
+) : Camera2Controller {
     private var currentCamera: VirtualCamera? = null
     private var currentSession: VirtualSessionState? = null
 

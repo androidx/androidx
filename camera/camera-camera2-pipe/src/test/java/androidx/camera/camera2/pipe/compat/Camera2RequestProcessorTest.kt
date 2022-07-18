@@ -29,6 +29,7 @@ import androidx.camera.camera2.pipe.CameraStream
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.RequestTemplate
 import androidx.camera.camera2.pipe.StreamFormat
+import androidx.camera.camera2.pipe.graph.StreamGraphImpl
 import androidx.camera.camera2.pipe.testing.FakeCameraDeviceWrapper
 import androidx.camera.camera2.pipe.testing.FakeThreads
 import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
@@ -70,7 +71,7 @@ internal class Camera2RequestProcessorTest {
         streams = listOf(stream1Config, stream2Config),
     )
 
-    private val streamGraph = Camera2StreamGraph(
+    private val streamGraph = StreamGraphImpl(
         testCamera.metadata,
         graphConfig
     )
