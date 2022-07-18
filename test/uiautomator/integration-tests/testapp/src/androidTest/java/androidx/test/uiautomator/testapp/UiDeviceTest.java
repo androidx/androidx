@@ -31,15 +31,27 @@ import androidx.test.filters.SdkSuppress;
 import androidx.test.uiautomator.By;
 import androidx.test.uiautomator.UiObject2;
 
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
+import java.io.File;
 import java.util.List;
+
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathFactory;
 
 /** Integration tests for {@link androidx.test.uiautomator.UiDevice}. */
 @LargeTest
 public class UiDeviceTest extends BaseTest {
 
     private static final long DELAY_MS = 5_000;
+
+    @Rule
+    public TemporaryFolder mTmpDir = new TemporaryFolder();
 
     @Test
     public void testClick() {
@@ -77,5 +89,37 @@ public class UiDeviceTest extends BaseTest {
         assertEquals(2, buttons.size());
         assertEquals("I've been clicked!", buttons.get(0).getText());
         assertEquals("I've been clicked!", buttons.get(1).getText());
+    }
+
+    @Test
+    public void testDumpWindowHierarchy() throws Exception {
+        launchTestActivity(MainActivity.class);
+        File outFile = mTmpDir.newFile();
+        mDevice.dumpWindowHierarchy(outFile);
+
+        // Verify that a valid XML file was generated and that node attributes are correct.
+        Document xml = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(outFile);
+        Element element = (Element) XPathFactory.newInstance().newXPath()
+                .compile("//hierarchy//*/node[@resource-id='" + TEST_APP + ":id/button']")
+                .evaluate(xml, XPathConstants.NODE);
+        assertNotNull(element);
+        assertNotNull(Integer.valueOf(element.getAttribute("index")));
+        assertEquals("Accessible button", element.getAttribute("text"));
+        assertEquals(TEST_APP + ":id/button", element.getAttribute("resource-id"));
+        assertEquals("android.widget.Button", element.getAttribute("class"));
+        assertEquals(TEST_APP, element.getAttribute("package"));
+        assertEquals("I'm accessible!", element.getAttribute("content-desc"));
+        assertEquals("false", element.getAttribute("checkable"));
+        assertEquals("false", element.getAttribute("checked"));
+        assertEquals("true", element.getAttribute("clickable"));
+        assertEquals("true", element.getAttribute("enabled"));
+        assertEquals("true", element.getAttribute("focusable"));
+        assertEquals("false", element.getAttribute("focused"));
+        assertEquals("false", element.getAttribute("scrollable"));
+        assertEquals("false", element.getAttribute("long-clickable"));
+        assertEquals("false", element.getAttribute("password"));
+        assertEquals("false", element.getAttribute("selected"));
+        assertEquals("true", element.getAttribute("visible-to-user"));
+        assertNotNull(element.getAttribute("bounds"));
     }
 }

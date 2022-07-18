@@ -16,6 +16,9 @@
 
 package androidx.test.uiautomator;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.atLeastOnce;
@@ -25,6 +28,8 @@ import static org.mockito.Mockito.verify;
 
 import android.app.Instrumentation;
 import android.app.UiAutomation;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Build;
 
 import androidx.test.filters.SdkSuppress;
@@ -32,9 +37,17 @@ import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
+
+import java.io.File;
+import java.io.IOException;
 
 public class UiDeviceTests {
+
+    @Rule
+    public TemporaryFolder mTmpDir = new TemporaryFolder();
 
     private Instrumentation mMockInstrumentation;
     private UiDevice mDevice;
@@ -81,5 +94,21 @@ public class UiDeviceTests {
         mDevice.getUiAutomation();
         // Verify that the UiAutomation instance was obtained with custom flags (N+).
         verify(mMockInstrumentation, atLeastOnce()).getUiAutomation(eq(customFlags));
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
+    public void testExecuteShellCommand() throws IOException {
+        String output = mDevice.executeShellCommand("echo hello world");
+        assertEquals("hello world\n", output);
+    }
+
+    @Test
+    public void testTakeScreenshot() throws Exception {
+        File outFile = mTmpDir.newFile();
+        assertTrue(mDevice.takeScreenshot(outFile));
+        // Verify that a valid screenshot was generated.
+        Bitmap screenshot = BitmapFactory.decodeFile(outFile.getPath());
+        assertNotNull(screenshot);
     }
 }

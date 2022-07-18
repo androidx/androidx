@@ -935,11 +935,8 @@ public class UiDevice implements Searchable {
      * @throws IOException
      */
     public void dumpWindowHierarchy(File dest) throws IOException {
-        OutputStream stream = new BufferedOutputStream(new FileOutputStream(dest));
-        try {
-            dumpWindowHierarchy(new BufferedOutputStream(new FileOutputStream(dest)));
-        } finally {
-            stream.close();
+        try (OutputStream stream = new BufferedOutputStream(new FileOutputStream(dest))) {
+            dumpWindowHierarchy(stream);
         }
     }
 
@@ -1032,27 +1029,16 @@ public class UiDevice implements Searchable {
         if (screenshot == null) {
             return false;
         }
-        BufferedOutputStream bos = null;
-        try {
-            bos = new BufferedOutputStream(new FileOutputStream(storePath));
-            if (bos != null) {
-                screenshot.compress(Bitmap.CompressFormat.PNG, quality, bos);
-                bos.flush();
-            }
+        try (BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(storePath))) {
+            screenshot.compress(Bitmap.CompressFormat.PNG, quality, bos);
+            bos.flush();
+            return true;
         } catch (IOException ioe) {
             Log.e(LOG_TAG, "failed to save screen shot to file", ioe);
             return false;
         } finally {
-            if (bos != null) {
-                try {
-                    bos.close();
-                } catch (IOException ioe) {
-                    // Ignore
-                }
-            }
             screenshot.recycle();
         }
-        return true;
     }
 
     /**
@@ -1082,16 +1068,16 @@ public class UiDevice implements Searchable {
      */
     @RequiresApi(21)
     public String executeShellCommand(String cmd) throws IOException {
-        ParcelFileDescriptor pfd = Api21Impl.executeShellCommand(getUiAutomation(), cmd);
-        byte[] buf = new byte[512];
-        int bytesRead;
-        FileInputStream fis = new ParcelFileDescriptor.AutoCloseInputStream(pfd);
-        StringBuffer stdout = new StringBuffer();
-        while ((bytesRead = fis.read(buf)) != -1) {
-            stdout.append(new String(buf, 0, bytesRead));
+        try (ParcelFileDescriptor pfd = Api21Impl.executeShellCommand(getUiAutomation(), cmd);
+             FileInputStream fis = new ParcelFileDescriptor.AutoCloseInputStream(pfd)) {
+            byte[] buf = new byte[512];
+            int bytesRead;
+            StringBuilder stdout = new StringBuilder();
+            while ((bytesRead = fis.read(buf)) != -1) {
+                stdout.append(new String(buf, 0, bytesRead));
+            }
+            return stdout.toString();
         }
-        fis.close();
-        return stdout.toString();
     }
 
     private Display getDefaultDisplay() {
