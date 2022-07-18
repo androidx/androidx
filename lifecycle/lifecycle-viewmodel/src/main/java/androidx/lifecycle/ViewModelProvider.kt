@@ -275,7 +275,7 @@ constructor(
         @Suppress("DocumentExceptions")
         override fun <T : ViewModel> create(modelClass: Class<T>, extras: CreationExtras): T {
             return if (application != null) {
-                create(modelClass, application)
+                create(modelClass)
             } else {
                 val application = extras[APPLICATION_KEY]
                 if (application != null) {
