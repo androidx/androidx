@@ -19,7 +19,6 @@ package androidx.metrics.performance.janktest
 import android.view.Window
 import androidx.metrics.performance.FrameData
 import androidx.metrics.performance.JankStats
-import java.util.concurrent.Executor
 
 /**
  * This utility class can be used to provide a simple data aggregation mechanism for JankStats.
@@ -30,17 +29,10 @@ import java.util.concurrent.Executor
  * @param window The Window for which stats will be tracked. A JankStatsAggregator
  * instance is specific to each window in an application, since the timing metrics are
  * tracked on a per-window basis internally.
- * @param executor The executor that will be used to call the frameListener.
- * @param onJankReportListener This listener will be called whenever there is a call to
- * [issueJankReport].
  * @throws IllegalStateException This function will throw an exception if `window` has
  * a null DecorView.
 */
-class JankStatsAggregator(
-    window: Window,
-    private val executor: Executor,
-    private val onJankReportListener: OnJankReportListener
-) {
+class JankStatsAggregator(window: Window, private val onJankReportListener: OnJankReportListener) {
 
     private val listener = object : JankStats.OnFrameListener {
         override fun onFrame(volatileFrameData: FrameData) {
@@ -77,9 +69,7 @@ class JankStatsAggregator(
     fun issueJankReport(reason: String = "") {
         val jankReportCopy = jankReport
         val numFramesCopy = numFrames
-        executor.execute(Runnable {
-            onJankReportListener.onJankReport(reason, numFramesCopy, jankReportCopy)
-        })
+        onJankReportListener.onJankReport(reason, numFramesCopy, jankReportCopy)
         jankReport = ArrayList()
         numFrames = 0
     }

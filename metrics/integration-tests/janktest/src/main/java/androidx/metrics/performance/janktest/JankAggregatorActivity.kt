@@ -27,8 +27,6 @@ import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.asExecutor
 
 /**
  * This activity shows how to use JankStatsAggregator, a class in this test directory layered
@@ -50,8 +48,7 @@ class JankAggregatorActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         val metricsStateHolder = PerformanceMetricsState.getHolderForHierarchy(binding.root)
-        jankStatsAggregator = JankStatsAggregator(window, Dispatchers.Default.asExecutor(),
-            jankReportListener)
+        jankStatsAggregator = JankStatsAggregator(window, jankReportListener)
         metricsStateHolder.state?.putState("Activity", javaClass.simpleName)
 
         setSupportActionBar(binding.toolbar)
