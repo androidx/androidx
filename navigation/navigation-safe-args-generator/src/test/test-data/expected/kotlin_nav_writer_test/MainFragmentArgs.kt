@@ -80,7 +80,7 @@ public data class MainFragmentArgs(
 
   public companion object {
     @JvmStatic
-    @Suppress("UNCHECKED_CAST")
+    @Suppress("UNCHECKED_CAST","DEPRECATION")
     public fun fromBundle(bundle: Bundle): MainFragmentArgs {
       bundle.setClassLoader(MainFragmentArgs::class.java.classLoader)
       val __main : String?
