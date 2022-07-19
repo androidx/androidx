@@ -201,6 +201,46 @@ class ComponentActivityMenuTest {
                 .isTrue()
         }
     }
+
+    @Test
+    fun menuAPIsCalledWithoutCallingSuper() {
+        with(ActivityScenario.launch(OptionMenuNoSuperActivity::class.java)) {
+            val menuHost: ComponentActivity = withActivity { this }
+            var itemSelectedId: Int? = null
+            var menuPrepared = false
+            var menuCreated = false
+            var menuItemSelected = false
+
+            menuHost.addMenuProvider(object : MenuProvider {
+                override fun onPrepareMenu(menu: Menu) {
+                    menuPrepared = true
+                    super.onPrepareMenu(menu)
+                }
+                override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                    menuInflater.inflate(R.menu.example_menu, menu)
+                    menuCreated = true
+                }
+
+                override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                    menuItemSelected = true
+                    return when (menuItem.itemId) {
+                        R.id.item1, R.id.item2 -> {
+                            itemSelectedId = menuItem.itemId
+                            return true
+                        }
+                        else -> false
+                    }
+                }
+            })
+
+            openActionBarOverflowOrOptionsMenu(menuHost)
+            onView(withText("Item1")).perform(click())
+            assertThat(itemSelectedId).isEqualTo(R.id.item1)
+            assertThat(menuPrepared).isTrue()
+            assertThat(menuCreated).isTrue()
+            assertThat(menuItemSelected).isTrue()
+        }
+    }
 }
 
 class ContextMenuComponentActivity : ComponentActivity() {
@@ -227,5 +267,20 @@ class ContextMenuComponentActivity : ComponentActivity() {
     override fun onContextMenuClosed(menu: Menu) {
         contextMenuClosedCountDownLatch.countDown()
         super.onContextMenuClosed(menu)
+    }
+}
+
+class OptionMenuNoSuperActivity : ComponentActivity() {
+    override fun onPrepareOptionsMenu(menu: Menu): Boolean {
+        return true
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        // overriding this to not call super
+        return false
     }
 }

@@ -500,25 +500,32 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
     }
 
     @Override
-    public boolean onPrepareOptionsMenu(@NonNull Menu menu) {
-        super.onPrepareOptionsMenu(menu);
-        mMenuHostHelper.onPrepareMenu(menu);
+    public boolean onPreparePanel(int featureId, @Nullable View view, @NonNull Menu menu) {
+        if (featureId == Window.FEATURE_OPTIONS_PANEL) {
+            super.onPreparePanel(featureId, view, menu);
+            mMenuHostHelper.onPrepareMenu(menu);
+        }
         return true;
     }
 
     @Override
-    public boolean onCreateOptionsMenu(@NonNull Menu menu) {
-        super.onCreateOptionsMenu(menu);
-        mMenuHostHelper.onCreateMenu(menu, getMenuInflater());
+    public boolean onCreatePanelMenu(int featureId, @NonNull Menu menu) {
+        if (featureId == Window.FEATURE_OPTIONS_PANEL) {
+            super.onCreatePanelMenu(featureId, menu);
+            mMenuHostHelper.onCreateMenu(menu, getMenuInflater());
+        }
         return true;
     }
 
     @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if (super.onOptionsItemSelected(item)) {
+    public boolean onMenuItemSelected(int featureId, @NonNull MenuItem item) {
+        if (super.onMenuItemSelected(featureId, item)) {
             return true;
         }
-        return mMenuHostHelper.onMenuItemSelected(item);
+        if (featureId == Window.FEATURE_OPTIONS_PANEL) {
+            return mMenuHostHelper.onMenuItemSelected(item);
+        }
+        return false;
     }
 
     @Override
