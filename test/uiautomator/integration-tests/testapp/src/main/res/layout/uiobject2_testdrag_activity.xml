@@ -18,12 +18,18 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".UiObject2TestClickAndWaitConfirmActivity">
+    tools:context=".UiObject2TestDragActivity">
 
-    <TextView
-        android:id="@+id/confirm_text"
+    <Button
+        android:id="@+id/drag_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="confirm" />
+        android:text="drag_button" />
+
+    <TextView
+        android:id="@+id/drag_destination"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:text="no_drag_yet" />
 
 </LinearLayout>
