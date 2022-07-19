@@ -364,7 +364,7 @@ class ByMatcher {
             return new SinglyLinkedList<T>(new Node<T>(data, rest.mHead));
         }
 
-        @SuppressWarnings("MissingOverride")
+        @Override
         public Iterator<T> iterator() {
             return new Iterator<T>() {
                 private Node<T> mNext = mHead;
