@@ -43,6 +43,7 @@ import androidx.glance.template.ListTemplateItem
 import androidx.glance.template.TemplateImageButton
 import androidx.glance.template.TemplateImageWithDescription
 import androidx.glance.template.TemplateText
+import androidx.glance.template.TextType
 import androidx.glance.unit.ColorProvider
 
 /**
@@ -144,12 +145,12 @@ abstract class BaseListDemoWidget : GlanceTemplateAppWidget() {
             }
             content.add(
                 ListTemplateItem(
-                    title = TemplateText("Title Medium", TemplateText.Type.Title),
+                    title = TemplateText("Title Medium", TextType.Title),
                     body = TemplateText(
                         "Lorem ipsum dolor sit amet, consectetur adipiscing elit",
-                        TemplateText.Type.Body
+                        TextType.Body
                     ),
-                    label = TemplateText(label, TemplateText.Type.Label),
+                    label = TemplateText(label, TextType.Label),
                     image = TemplateImageWithDescription(ImageProvider(R.drawable.compose), "$i"),
                     button = TemplateImageButton(
                         itemSelectAction(
@@ -168,7 +169,7 @@ abstract class BaseListDemoWidget : GlanceTemplateAppWidget() {
             ListTemplateData(
                 header = if (showHeader) TemplateText(
                     "List Demo",
-                    TemplateText.Type.Title
+                    TextType.Title
                 ) else null,
                 headerIcon = if (showHeader) TemplateImageWithDescription(
                     ImageProvider(R.drawable.ic_widget),

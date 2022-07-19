@@ -37,6 +37,7 @@ import androidx.glance.layout.width
 import androidx.glance.template.SingleEntityTemplateData
 import androidx.glance.template.TemplateImageWithDescription
 import androidx.glance.template.TemplateText
+import androidx.glance.template.TextType
 import androidx.glance.text.Text
 import androidx.glance.text.TextAlign
 import androidx.glance.text.TextStyle
@@ -117,7 +118,7 @@ private fun TextSection(textList: List<TemplateText>) {
                 item.text,
                 style = TextStyle(
                     color = ColorProvider(Color.White),
-                    fontSize = if (item.type == TemplateText.Type.Title) 24.sp else 16.sp,
+                    fontSize = if (item.type == TextType.Title) 24.sp else 16.sp,
                     textAlign = TextAlign.Center)
             )
         }
@@ -130,9 +131,9 @@ private fun textList(
     body: TemplateText? = null
 ): List<TemplateText> {
     val result = mutableListOf<TemplateText>()
-    title?.let { result.add(TemplateText(it.text, TemplateText.Type.Title)) }
-    subtitle?.let { result.add(TemplateText(it.text, TemplateText.Type.Label)) }
-    body?.let { result.add(TemplateText(it.text, TemplateText.Type.Body)) }
+    title?.let { result.add(TemplateText(it.text, TextType.Title)) }
+    subtitle?.let { result.add(TemplateText(it.text, TextType.Label)) }
+    body?.let { result.add(TemplateText(it.text, TextType.Body)) }
 
     return result
 }

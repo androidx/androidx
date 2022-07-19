@@ -30,13 +30,13 @@ import androidx.glance.appwidget.action.ActionCallback
 import androidx.glance.appwidget.action.actionRunCallback
 import androidx.glance.appwidget.state.updateAppWidgetState
 import androidx.glance.appwidget.template.GlanceTemplateAppWidget
-import androidx.glance.currentState
 import androidx.glance.appwidget.template.SingleEntityTemplate
+import androidx.glance.currentState
 import androidx.glance.template.SingleEntityTemplateData
 import androidx.glance.template.TemplateImageWithDescription
 import androidx.glance.template.TemplateText
 import androidx.glance.template.TemplateTextButton
-import androidx.glance.template.TemplateText.Type
+import androidx.glance.template.TextType
 
 private val PressedKey = booleanPreferencesKey("pressedKey")
 
@@ -70,13 +70,13 @@ class SingleEntityWidgetReceiver : GlanceAppWidgetReceiver() {
 }
 
 private fun createData(title: String) = SingleEntityTemplateData(
-    header = TemplateText("Single Entity demo", Type.Title),
+    header = TemplateText("Single Entity demo", TextType.Title),
     headerIcon = TemplateImageWithDescription(
         ImageProvider(R.drawable.compose),
         "Header icon"
     ),
-    text1 = TemplateText(title, Type.Title),
-    text2 = TemplateText("Subtitle test", Type.Title),
+    text1 = TemplateText(title, TextType.Title),
+    text2 = TemplateText("Subtitle test", TextType.Title),
     button = TemplateTextButton(actionRunCallback<ButtonAction>(), "toggle"),
     image = TemplateImageWithDescription(
         ImageProvider(R.drawable.compose),
