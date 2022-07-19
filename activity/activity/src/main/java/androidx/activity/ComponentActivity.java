@@ -690,7 +690,7 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
      */
     @Override
     @Deprecated
-    public void startActivityForResult(@SuppressLint("UnknownNullness") Intent intent,
+    public void startActivityForResult(@NonNull Intent intent,
             int requestCode) {
         super.startActivityForResult(intent, requestCode);
     }
@@ -709,7 +709,7 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
      */
     @Override
     @Deprecated
-    public void startActivityForResult(@SuppressLint("UnknownNullness") Intent intent,
+    public void startActivityForResult(@NonNull Intent intent,
             int requestCode, @Nullable Bundle options) {
         super.startActivityForResult(intent, requestCode, options);
     }
@@ -729,7 +729,7 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
      */
     @Override
     @Deprecated
-    public void startIntentSenderForResult(@SuppressLint("UnknownNullness") IntentSender intent,
+    public void startIntentSenderForResult(@NonNull IntentSender intent,
             int requestCode, @Nullable Intent fillInIntent, int flagsMask, int flagsValues,
             int extraFlags)
             throws IntentSender.SendIntentException {
@@ -752,7 +752,7 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
      */
     @Override
     @Deprecated
-    public void startIntentSenderForResult(@SuppressLint("UnknownNullness") IntentSender intent,
+    public void startIntentSenderForResult(@NonNull IntentSender intent,
             int requestCode, @Nullable Intent fillInIntent, int flagsMask, int flagsValues,
             int extraFlags, @Nullable Bundle options) throws IntentSender.SendIntentException {
         super.startIntentSenderForResult(intent, requestCode, fillInIntent, flagsMask, flagsValues,
