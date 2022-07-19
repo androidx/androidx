@@ -156,7 +156,11 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
      *
      * @param context Current context, will be used to access resources.
      */
-    public LinearLayoutManager(@NonNull Context context) {
+    public LinearLayoutManager(
+            // Suppressed because fixing it requires a source-incompatible change to a very
+            // commonly used constructor, for no benefit: the context parameter is unused
+            @SuppressLint("UnknownNullness") Context context
+    ) {
         this(context, RecyclerView.DEFAULT_ORIENTATION, false);
     }
 
@@ -166,8 +170,13 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
      *                      #VERTICAL}.
      * @param reverseLayout When set to true, layouts from end to start.
      */
-    public LinearLayoutManager(@NonNull Context context, @RecyclerView.Orientation int orientation,
-            boolean reverseLayout) {
+    public LinearLayoutManager(
+            // Suppressed because fixing it requires a source-incompatible change to a very
+            // commonly used constructor, for no benefit: the context parameter is unused
+            @SuppressLint("UnknownNullness") Context context,
+            @RecyclerView.Orientation int orientation,
+            boolean reverseLayout
+    ) {
         setOrientation(orientation);
         setReverseLayout(reverseLayout);
     }
