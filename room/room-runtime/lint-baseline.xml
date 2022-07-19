@@ -331,7 +331,7 @@
         errorLine1="        Locale.setDefault(Locale.forLanguageTag(&quot;tr-TR&quot;));"
         errorLine2="                                 ~~~~~~~~~~~~~~">
         <location
-            file="src/test/java/androidx/room/InvalidationTrackerTest.java"/>
+            file="src/test/java/androidx/room/InvalidationTrackerTest.kt"/>
     </issue>
 
     <issue
