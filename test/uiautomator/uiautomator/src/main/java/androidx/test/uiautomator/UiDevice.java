@@ -136,7 +136,7 @@ public class UiDevice implements Searchable {
     }
 
     /** Returns whether there is a match for the given {@code selector} criteria. */
-    @SuppressWarnings("MissingOverride")
+    @Override
     public boolean hasObject(BySelector selector) {
         AccessibilityNodeInfo node = ByMatcher.findMatch(this, selector, getWindowRoots());
         if (node != null) {
@@ -150,14 +150,14 @@ public class UiDevice implements Searchable {
      * Returns the first object to match the {@code selector} criteria,
      * or null if no matching objects are found.
      */
-    @SuppressWarnings("MissingOverride")
+    @Override
     public UiObject2 findObject(BySelector selector) {
         AccessibilityNodeInfo node = ByMatcher.findMatch(this, selector, getWindowRoots());
         return node != null ? new UiObject2(this, selector, node) : null;
     }
 
     /** Returns all objects that match the {@code selector} criteria. */
-    @SuppressWarnings("MissingOverride")
+    @Override
     public List<UiObject2> findObjects(BySelector selector) {
         List<UiObject2> ret = new ArrayList<UiObject2>();
         for (AccessibilityNodeInfo node : ByMatcher.findMatches(this, selector, getWindowRoots())) {
@@ -964,7 +964,6 @@ public class UiDevice implements Searchable {
      *         window does not have the specified package name
      * @since API Level 16
      */
-    @SuppressWarnings("UndefinedEquals")
     public boolean waitForWindowUpdate(final String packageName, long timeout) {
         Tracer.trace(packageName, timeout);
         if (packageName != null) {
@@ -981,7 +980,7 @@ public class UiDevice implements Searchable {
             @Override
             public boolean accept(AccessibilityEvent t) {
                 if (t.getEventType() == AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED) {
-                    return packageName == null || packageName.equals(t.getPackageName());
+                    return packageName == null || packageName.contentEquals(t.getPackageName());
                 }
                 return false;
             }
