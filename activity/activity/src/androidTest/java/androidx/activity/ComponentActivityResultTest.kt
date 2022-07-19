@@ -90,12 +90,31 @@ class ComponentActivityResultTest {
     }
 
     @Test
-    fun noActivityAvailableTest() {
+    fun noActivityAvailableLifecycleTest() {
         ActivityScenario.launch(RegisterInInitActivity::class.java).use { scenario ->
             var exceptionThrown = false
             scenario.withActivity {
                 try {
                     launcher.launch(Intent("no action"))
+                } catch (e: ActivityNotFoundException) {
+                    exceptionThrown = true
+                }
+            }
+
+            scenario.withActivity {
+                assertThat(exceptionThrown).isTrue()
+                assertThat(launchCount).isEqualTo(0)
+            }
+        }
+    }
+
+    @Test
+    fun noActivityAvailableNoLifecycleTest() {
+        ActivityScenario.launch(RegisterInInitActivity::class.java).use { scenario ->
+            var exceptionThrown = false
+            scenario.withActivity {
+                try {
+                    launcherNoLifecycle.launch(Intent("no action"))
                 } catch (e: ActivityNotFoundException) {
                     exceptionThrown = true
                 }
@@ -175,10 +194,14 @@ class RegisterBeforeOnCreateActivity : ComponentActivity() {
 
 class RegisterInInitActivity : ComponentActivity() {
     var launcher: ActivityResultLauncher<Intent>
+    val launcherNoLifecycle: ActivityResultLauncher<Intent>
     var launchCount = 0
 
     init {
         launcher = registerForActivityResult(StartActivityForResult()) {
+            launchCount++
+        }
+        launcherNoLifecycle = activityResultRegistry.register("test", StartActivityForResult()) {
             launchCount++
         }
     }
