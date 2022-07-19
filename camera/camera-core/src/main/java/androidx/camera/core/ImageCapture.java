@@ -1915,7 +1915,7 @@ public final class ImageCapture extends UseCase {
          * A rotation of 90 degrees would mean rotating the image 90 degrees clockwise produces an
          * image that will match the display orientation.
          *
-         * <p>See also {@link Builder#setTargetRotation(int)} and
+         * <p>See also {@link ImageCapture.Builder#setTargetRotation(int)} and
          * {@link #setTargetRotation(int)}.
          *
          * <p>Timestamps are in nanoseconds and monotonic and can be compared to timestamps from
