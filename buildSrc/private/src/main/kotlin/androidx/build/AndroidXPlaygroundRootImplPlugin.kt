@@ -16,8 +16,6 @@
 
 package androidx.build
 
-import androidx.build.dependencyTracker.DependencyTracker
-import androidx.build.dependencyTracker.ProjectGraph
 import androidx.build.gradle.isRoot
 import groovy.xml.DOMBuilder
 import org.gradle.api.GradleException
