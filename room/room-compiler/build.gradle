@@ -260,19 +260,23 @@ class CheckArtifactTask extends DefaultTask {
 }
 
 def checkArtifactContentsTask = tasks.register("checkArtifactTask", CheckArtifactTask) {
-    it.artifactInputs.from {
-        ((PublishToMavenRepository) project.tasks
-                .named("publishMavenPublicationToMavenRepository").get()).getPublication()
-                .artifacts.matching {
-            it.classifier == null
-        }.collect {
-            it.file
+    def pomTask = (GenerateMavenPom) project.tasks.named("generatePomFileForMavenPublication").get()
+    it.pomFile = pomTask.destination
+}
+
+afterEvaluate {
+    def publishTaskProvider = project.tasks.named("publishMavenPublicationToMavenRepository")
+    checkArtifactContentsTask.configure {
+        it.artifactInputs.from {
+            publishTaskProvider.map {
+                ((PublishToMavenRepository) it).getPublication().artifacts.matching {
+                    it.classifier == null
+                }.collect {
+                    it.file
+                }
+            }
         }
     }
-    def pomTask = (GenerateMavenPom) project.tasks
-            .named("generatePomFileForMavenPublication").get()
-    it.pomFile = pomTask.destination
-    it.dependsOn("publishMavenPublicationToMavenRepository")
 }
 
 // make sure we validate published artifacts on the build server.
