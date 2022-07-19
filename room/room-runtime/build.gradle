@@ -49,8 +49,10 @@ dependencies {
     testImplementation("androidx.arch.core:core-testing:2.0.1")
     testImplementation(libs.junit)
     testImplementation(libs.mockitoCore)
+    testImplementation(libs.mockitoKotlin4)
     testImplementation("androidx.lifecycle:lifecycle-livedata-core:2.0.0")
     testImplementation(libs.kotlinStdlib)
+    testImplementation(libs.kotlinTest)
     testImplementation(libs.truth)
     testImplementation(libs.testRunner) // Needed for @FlakyTest and @Ignore
 
