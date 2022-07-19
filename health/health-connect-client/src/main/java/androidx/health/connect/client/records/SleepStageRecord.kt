@@ -21,7 +21,11 @@ import androidx.health.connect.client.records.metadata.Metadata
 import java.time.Instant
 import java.time.ZoneOffset
 
-/** Captures the sleep stage the user entered during a sleep session. */
+/**
+ * Captures the sleep stage the user entered during a sleep session.
+ *
+ * @see SleepSessionRecord
+ */
 public class SleepStageRecord(
     /**
      * Type of sleep stage. Required field. Allowed values: [StageType].

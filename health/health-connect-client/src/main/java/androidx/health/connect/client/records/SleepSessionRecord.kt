@@ -28,6 +28,14 @@ import java.time.ZoneOffset
  * The start time of the record represents the start of the sleep stage and always needs to be
  * included. The timestamp represents the end of the sleep stage. Time intervals don't need to be
  * continuous but shouldn't overlap.
+ *
+ * Example code demonstrate how to read sleep session with stages:
+ * @sample androidx.health.connect.client.samples.ReadSleepSessions
+ *
+ * When deleting a session, associated sleep stage records need to be deleted separately:
+ * @sample androidx.health.connect.client.samples.DeleteSleepSession
+ *
+ * @see SleepStageRecord
  */
 public class SleepSessionRecord(
     /** Title of the session. Optional field. */
