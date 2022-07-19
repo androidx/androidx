@@ -37,6 +37,7 @@ import androidx.glance.template.LocalTemplateMode
 import androidx.glance.template.SingleEntityTemplateData
 import androidx.glance.template.TemplateMode
 import androidx.glance.template.TemplateText
+import androidx.glance.template.TextType
 
 // TODO: Define template layouts for other surfaces
 /**
@@ -141,9 +142,9 @@ private fun textList(
     body: TemplateText? = null
 ): List<TemplateText> {
     val result = mutableListOf<TemplateText>()
-    title?.let { result.add(TemplateText(it.text, TemplateText.Type.Title)) }
-    subtitle?.let { result.add(TemplateText(it.text, TemplateText.Type.Label)) }
-    body?.let { result.add(TemplateText(it.text, TemplateText.Type.Body)) }
+    title?.let { result.add(TemplateText(it.text, TextType.Title)) }
+    subtitle?.let { result.add(TemplateText(it.text, TextType.Label)) }
+    body?.let { result.add(TemplateText(it.text, TextType.Body)) }
 
     return result
 }
