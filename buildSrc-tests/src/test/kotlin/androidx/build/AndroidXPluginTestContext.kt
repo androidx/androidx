@@ -55,7 +55,7 @@ fun pluginTest(action: AndroidXPluginTestContext.() -> Unit) {
  * @param setup: Gradle project setup (see [ProjectSetupRule])
  */
 data class AndroidXPluginTestContext(val tmpFolder: TemporaryFolder, val setup: ProjectSetupRule) {
-    private val props = setup.props
+    val props = setup.props
     val buildJars = BuildJars(props.buildSrcOutPath)
 
     val outDir: File by lazy { tmpFolder.newFolder() }
@@ -84,20 +84,8 @@ data class AndroidXPluginTestContext(val tmpFolder: TemporaryFolder, val setup: 
 
     private val prebuiltsPath = supportRoot.resolve("../../prebuilts").path
 
-    private val buildGradleText =
-        """|buildscript {
-           |  // Required by AndroidXRootImplPlugin.configureRootProject
-           |  project.ext.outDir = file("${outDir.path}")
-           |
-           |  // Required by AndroidXExtension constructor
-           |  project.ext.supportRootFolder = file("${supportRoot.path}")
-           |
-           |  // Required by AndroidXImplPlugin.configureTestTask
-           |  project.ext.prebuiltsRoot = file("$prebuiltsPath").absolutePath
-           |
-           |  ${setup.repositories}
-           |
-           |  dependencies {
+    val buildScriptDependencies =
+        """|  dependencies {
            |    ${buildJars.classpathEntries()}
            |
            |    classpath '${props.agpDependency}'
@@ -123,6 +111,21 @@ data class AndroidXPluginTestContext(val tmpFolder: TemporaryFolder, val setup: 
            |    // Otherwise, comments get stripped from poms (b/230396269)
            |    classpath('xerces:xercesImpl:2.12.0')
            |  }
+        """.trimMargin()
+
+    private val buildGradleText =
+        """|buildscript {
+           |  // Required by AndroidXRootImplPlugin.configureRootProject
+           |  project.ext.outDir = file("${outDir.path}")
+           |
+           |  // Required by AndroidXExtension constructor
+           |  project.ext.supportRootFolder = file("${supportRoot.path}")
+           |
+           |  // Required by AndroidXImplPlugin.configureTestTask
+           |  project.ext.prebuiltsRoot = file("$prebuiltsPath").absolutePath
+           |
+           |  ${setup.repositories}
+           |  $buildScriptDependencies
            |}
            |
            |apply plugin: androidx.build.AndroidXRootImplPlugin

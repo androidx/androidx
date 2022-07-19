@@ -31,30 +31,32 @@ data class AndroidXSelfTestProject(
         fun cubaneBuildGradleText(
             pluginsBeforeAndroidX: List<String> = listOf("java-library", "kotlin"),
             version: String? = "1.2.3"
-        ) =
-            """|import androidx.build.LibraryGroup
-               |import androidx.build.Publish
-               |import androidx.build.Version
-               |
-               |plugins {
-               |  // b/233089408: would prefer to use this syntax, but it fails
-               |  // id("AndroidXPlugin")
-               |${pluginsBeforeAndroidX.joinToString("") { "  id(\"$it\")\n" }}
-               |}
-               |
-               |// Workaround for b/233089408
-               |apply plugin: androidx.build.AndroidXImplPlugin
-               |
-               |dependencies {
-               |  api(libs.kotlinStdlib)
-               |}
-               |
-               |androidx {
-               |  publish = Publish.SNAPSHOT_AND_RELEASE
-               |${if (version != null) {"  mavenVersion = new Version(\"$version\")"} else ""}
-               |  mavenGroup = new LibraryGroup("cubane", null)
-               |}
-               |""".trimMargin()
+        ): String {
+            val mavenVersionLine = if (version != null) {
+                "  mavenVersion = new Version(\"$version\")"
+            } else {
+                ""
+            }
+            return """|import androidx.build.LibraryGroup
+                      |import androidx.build.Publish
+                      |import androidx.build.Version
+                      |
+                      |plugins {
+                      |${pluginsBeforeAndroidX.joinToString("") { "  id(\"$it\")\n" }}
+                      |  id("AndroidXPlugin")
+                      |}
+                      |
+                      |dependencies {
+                      |  api(libs.kotlinStdlib)
+                      |}
+                      |
+                      |androidx {
+                      |  publish = Publish.SNAPSHOT_AND_RELEASE
+                      |$mavenVersionLine
+                      |  mavenGroup = new LibraryGroup("cubane", null)
+                      |}
+                      |""".trimMargin()
+        }
 
         /**
          * A simple non-kmp project with no source that will be part of our test androidx suite.
@@ -69,32 +71,38 @@ data class AndroidXSelfTestProject(
                 buildGradleText = cubaneBuildGradleText()
             )
 
-        private fun buildGradleForKmp(withJava: Boolean = true) =
-            """|import androidx.build.LibraryGroup
-               |import androidx.build.LibraryType
-               |import androidx.build.Publish
-               |import androidx.build.Version
-               |
-               |plugins {
-               |  // b/233089408: would prefer to use this syntax, but it fails
-               |  // id("AndroidXPlugin")
-               |}
-               |
-               |// Workaround for b/233089408
-               |apply plugin: androidx.build.AndroidXImplPlugin
-               |
-               |androidXMultiplatform {
-               |  jvm {
-               |    ${if (withJava) "withJava()" else ""}
-               |  }
-               |}
-               |
-               |androidx {
-               |  type = LibraryType.KMP_LIBRARY
-               |  mavenVersion = new Version("1.2.3")
-               |  mavenGroup = new LibraryGroup("cubane", null)
-               |}
-               |""".trimMargin()
+        fun buildGradleForKmp(withJava: Boolean = true, addJvmDependency: Boolean = false): String {
+            val jvmDependency = if (addJvmDependency) {
+                "jvmImplementation(\"androidx.jvmgroup:jvmdep:6.2.9\")"
+            } else {
+                ""
+            }
+            return """|import androidx.build.LibraryGroup
+                      |import androidx.build.LibraryType
+                      |import androidx.build.Publish
+                      |import androidx.build.Version
+                      |
+                      |plugins {
+                      |  id("AndroidXPlugin")
+                      |}
+                      |
+                      |androidXMultiplatform {
+                      |  jvm {
+                      |    ${if (withJava) "withJava()" else ""}
+                      |  }
+                      |}
+                      |
+                      |dependencies {
+                      |  $jvmDependency
+                      |}
+                      |
+                      |androidx {
+                      |  type = LibraryType.KMP_LIBRARY
+                      |  mavenVersion = new Version("1.2.3")
+                      |  mavenGroup = new LibraryGroup("cubane", null)
+                      |}
+                      |""".trimMargin()
+        }
 
         /**
          * A simple KMP project with no actual source that will be part of our test androidx suite.
