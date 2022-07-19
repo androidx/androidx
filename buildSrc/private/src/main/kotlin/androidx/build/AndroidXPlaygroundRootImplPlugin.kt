@@ -63,14 +63,6 @@ class AndroidXPlaygroundRootImplPlugin : Plugin<Project> {
         rootProject.subprojects {
             configureSubProject(it)
         }
-
-        rootProject.tasks.register(
-            "findAffectedModules",
-            FindAffectedModulesTask::class.java
-        ) { task ->
-            task.projectGraph = ProjectGraph(rootProject)
-            task.dependencyTracker = DependencyTracker(rootProject, task.logger)
-        }
     }
 
     private fun configureSubProject(project: Project) {
