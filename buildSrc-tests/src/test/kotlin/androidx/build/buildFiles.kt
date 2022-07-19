@@ -22,38 +22,47 @@ fun AndroidXPluginTestContext.writeBuildFiles(vararg projects: AndroidXSelfTestP
     writeBuildFiles(projects.toList())
 }
 
-fun AndroidXPluginTestContext.writeBuildFiles(projects: List<AndroidXSelfTestProject>) {
+fun AndroidXPluginTestContext.writeBuildFiles(
+    projects: List<AndroidXSelfTestProject>,
+    groupLines: List<String> = listOf()
+) {
     writeRootSettingsFile(projects.map { it.gradlePath })
     writeRootBuildFile()
     writeApplyPluginScript()
 
-    File(supportRoot, "libraryversions.toml").writeText(
-        """|[groups]
-               |[versions]
-               |""".trimMargin()
-    )
+    writeLibraryVersionsFile(supportRoot, groupLines)
 
     // Matches behavior of root properties
     File(supportRoot, "gradle.properties").writeText(
         """|# Do not automatically include stdlib
-               |kotlin.stdlib.default.dependency=false
-               |
-               |# Avoid OOM in subgradle
-               |# (https://github.com/gradle/gradle/issues/10527#issuecomment-887704062)
-               |org.gradle.jvmargs=-Xmx3g -XX:MaxMetaspaceSize=1g
-               |""".trimMargin()
+           |kotlin.stdlib.default.dependency=false
+           |
+           |# Avoid OOM in subgradle
+           |# (https://github.com/gradle/gradle/issues/10527#issuecomment-887704062)
+           |org.gradle.jvmargs=-Xmx3g -XX:MaxMetaspaceSize=1g
+           |""".trimMargin()
     )
 
     projects.forEach { it.writeFiles() }
+}
+
+fun writeLibraryVersionsFile(supportFolder: File, groupLines: List<String>) {
+    File(supportFolder, "libraryversions.toml").writeText(
+        buildString {
+            appendLine("[groups]")
+            groupLines.forEach { appendLine(it) }
+            appendLine("[versions]")
+        }
+    )
 }
 
 fun AndroidXPluginTestContext.writeRootSettingsFile(projectPaths: List<String>) {
     val settingsString = buildString {
         append(
             """|pluginManagement {
-                   |  ${setup.repositories}
-                   |}
-                   |""".trimMargin()
+               |  ${setup.repositories}
+               |}
+               |""".trimMargin()
         )
         appendLine()
         projectPaths.forEach {

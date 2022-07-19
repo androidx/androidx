@@ -55,6 +55,9 @@ fun pluginTest(action: AndroidXPluginTestContext.() -> Unit) {
  * @param setup: Gradle project setup (see [ProjectSetupRule])
  */
 data class AndroidXPluginTestContext(val tmpFolder: TemporaryFolder, val setup: ProjectSetupRule) {
+    // Default empty environment for runGradle (otherwise the host environment leaks through)
+    private val defaultEnv: Map<String, String> = mapOf()
+
     val props = setup.props
     val buildJars = BuildJars(props.buildSrcOutPath)
 
@@ -64,9 +67,9 @@ data class AndroidXPluginTestContext(val tmpFolder: TemporaryFolder, val setup: 
     // Gradle sometimes canonicalizes this path, so we have to or things don't match up.
     val supportRoot: File = setup.rootDir.canonicalFile
 
-    fun runGradle(vararg args: String): BuildResult {
-        // Empty environment so that the host environment does not leak through
-        val env = mapOf<String, String>()
+    fun runGradle(vararg args: String) = runGradleWithEnv(defaultEnv, *args)
+
+    fun runGradleWithEnv(env: Map<String, String>, vararg args: String): BuildResult {
         return GradleRunner.create().withProjectDir(supportRoot)
             .withArguments(
                 "-Dmaven.repo.local=$mavenLocalDir",
