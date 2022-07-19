@@ -160,6 +160,12 @@ interface HealthConnectClient {
      * Reads [AggregateMetric]s according to requested read criteria: [Record]s from
      * [AggregateRequest.dataOriginFilter] and within [AggregateRequest.timeRangeFilter].
      *
+     * Example code to aggregate cumulative data like distance:
+     * @sample androidx.health.connect.client.samples.AggregateDistance
+     *
+     * Example code to retrieve statistical aggregates like maximum or minimum heart rate:
+     * @sample androidx.health.connect.client.samples.AggregateHeartRate
+     *
      * @param request [AggregateRequest] object specifying [AggregateMetric]s to aggregate and other
      * filters.
      *
@@ -181,6 +187,9 @@ interface HealthConnectClient {
      *
      * An [AggregationResultGroupedByDuration] is returned only if there are [Record] to aggregate
      * within start and end time of the row.
+     *
+     * Example code to retrieve cumulative step count for each minute within provided time range:
+     * @sample androidx.health.connect.client.samples.AggregateIntoMinutes
      *
      * @param request [AggregateGroupByDurationRequest] object specifying [AggregateMetric]s to
      * aggregate and other filters.
@@ -206,6 +215,9 @@ interface HealthConnectClient {
      *
      * An [AggregationResultGroupedByPeriod] is returned only if there are [Record] to aggregate
      * within start and end time of the row.
+     *
+     * Example code to retrieve cumulative step count for each month within provided time range:
+     * @sample androidx.health.connect.client.samples.AggregateIntoMonths
      *
      * @param request [AggregateGroupByPeriodRequest] object specifying [AggregateMetric]s to
      * aggregate and other filters.
