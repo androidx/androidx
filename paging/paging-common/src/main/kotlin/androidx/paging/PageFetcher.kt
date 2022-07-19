@@ -26,6 +26,7 @@ import androidx.paging.internal.BUGANIZER_URL
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onStart
 
 internal class PageFetcher<Key : Any, Value : Any>(
@@ -122,6 +123,7 @@ internal class PageFetcher<Key : Any, Value : Any>(
             .simpleMapLatest { generation ->
                 val downstreamFlow = generation.snapshot
                     .injectRemoteEvents(generation.job, remoteMediatorAccessor)
+                    .onEach { log(VERBOSE) { "Sent $it" } }
 
                 PagingData(
                     flow = downstreamFlow,
