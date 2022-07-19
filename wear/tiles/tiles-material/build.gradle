@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import androidx.build.Publish
 import androidx.build.LibraryType
 
 plugins {
@@ -71,6 +72,7 @@ android {
 androidx {
     name = "Android Wear Tiles Material"
     type = LibraryType.PUBLISHED_LIBRARY
+    publish = Publish.SNAPSHOT_AND_RELEASE
     mavenGroup = LibraryGroups.WEAR_TILES
     inceptionYear = "2021"
     description = "Material components library for Android Wear Tiles."
