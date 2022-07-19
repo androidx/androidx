@@ -74,10 +74,6 @@ internal sealed class KspTypeElement(
         declaration.typeParameters.map { KspTypeParameterElement(env, it) }
     }
 
-    override val equalityItems: Array<out Any?> by lazy {
-        arrayOf(declaration)
-    }
-
     override val qualifiedName: String by lazy {
         (declaration.qualifiedName ?: declaration.simpleName).asString()
     }
@@ -164,7 +160,6 @@ internal sealed class KspTypeElement(
                 KspFieldElement(
                     env = env,
                     declaration = it,
-                    containing = this
                 )
             }.let {
                 // only order instance properties with backing fields, we don't care about the order
@@ -185,7 +180,6 @@ internal sealed class KspTypeElement(
                 KspFieldElement(
                     env = env,
                     declaration = it,
-                    containing = this
                 )
             }
         declaredProperties + companionProperties
@@ -256,7 +250,6 @@ internal sealed class KspTypeElement(
         return declaration.primaryConstructor?.let {
             KspConstructorElement(
                 env = env,
-                containing = this,
                 declaration = it
             )
         }
@@ -280,7 +273,6 @@ internal sealed class KspTypeElement(
             }.map {
                 KspMethodElement.create(
                     env = env,
-                    containing = this,
                     declaration = it
                 )
             }.toList()
@@ -297,7 +289,6 @@ internal sealed class KspTypeElement(
         return declaration.getConstructors().map {
             KspConstructorElement(
                 env = env,
-                containing = this,
                 declaration = it
             )
         }.toList()

@@ -102,7 +102,7 @@ class XExecutableTypeTest {
                 assertThat(subjects).isNotEmpty()
                 subjects.forEach {
                     callback(myInterface.getMethodByJvmName(methodName).asMemberOf(it.type))
-                    callback(it.getMethodByJvmName(methodName).executableType)
+                    callback(it.getMethodByJvmName(methodName).asMemberOf(it.type))
                 }
             }
 
@@ -169,7 +169,7 @@ class XExecutableTypeTest {
                 assertThat(subjects).isNotEmpty()
                 subjects.forEach {
                     callback(myInterface.getMethodByJvmName(methodName).asMemberOf(it.type))
-                    callback(it.getMethodByJvmName(methodName).executableType)
+                    callback(it.getMethodByJvmName(methodName).asMemberOf(it.type))
                 }
             }
 
