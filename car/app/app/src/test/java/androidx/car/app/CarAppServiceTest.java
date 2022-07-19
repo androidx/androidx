@@ -16,11 +16,16 @@
 
 package androidx.car.app;
 
+import static androidx.car.app.SessionInfo.DEFAULT_SESSION_INFO;
+import static androidx.car.app.SessionInfo.DISPLAY_TYPE_CLUSTER;
+
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
+import android.os.IBinder;
 
 import androidx.annotation.NonNull;
 import androidx.car.app.model.ItemList;
@@ -40,6 +45,7 @@ import org.mockito.junit.MockitoRule;
 import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.android.controller.ServiceController;
+import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
 
@@ -56,19 +62,8 @@ public final class CarAppServiceTest {
                     .setTitle("Title")
                     .setItemList(new ItemList.Builder().build())
                     .build();
-    private static final Session TEST_SESSION = new Session() {
-        @NonNull
-        @Override
-        public Screen onCreateScreen(@NonNull Intent intent) {
-            return new Screen(getCarContext()) {
-                @NonNull
-                @Override
-                public Template onGetTemplate() {
-                    return TEST_RETURN_TEMPLATE;
-                }
-            };
-        }
-    };
+    private static final SessionInfo TEST_CLUSTER_SESSION_INFO =
+            new SessionInfo(DISPLAY_TYPE_CLUSTER, "test-cluster-session-id");
 
     private final Context mContext = ApplicationProvider.getApplicationContext();
     @Mock
@@ -87,24 +82,77 @@ public final class CarAppServiceTest {
 
     @Test
     public void onUnbind_destroysSession() {
-        CarAppBinder carApp = (CarAppBinder) mCarAppService.onBind(new Intent());
-        carApp.setHandshakeInfo(new HandshakeInfo("foo",
-                CarAppApiLevels.getLatest()));
-        carApp.onAppCreate(mMockCarHost, new Intent(), mContext.getResources().getConfiguration(),
-                mMockOnDoneCallback);
-        carApp.onAppStart(mMockOnDoneCallback);
+        Intent bindIntent = new Intent();
+        SessionInfo clusterSessionInfo = new SessionInfo(DISPLAY_TYPE_CLUSTER, "test-id");
+        SessionInfoIntentEncoder.encode(clusterSessionInfo, bindIntent);
+        CarAppBinder binder = bindAndStart(bindIntent);
 
-        assertThat(carApp.getCurrentSession()).isNotNull();
-        assertThat(mCarAppService.onUnbind(new Intent())).isTrue();
+        assertThat(binder.getCurrentSession()).isNotNull();
+        assertThat(mCarAppService.getSession(clusterSessionInfo)).isNotNull();
+        assertThat(mCarAppService.onUnbind(bindIntent)).isTrue();
 
-        assertThat(carApp.getCurrentSession()).isNull();
+        assertThat(binder.getCurrentSession()).isNull();
+        assertThat(mCarAppService.getSession(clusterSessionInfo)).isNull();
     }
 
+    // Tests old host with new client
     @Test
-    public void onBind() {
-        CarAppBinder result = (CarAppBinder) mCarAppService.onBind(new Intent());
+    @SuppressWarnings("deprecation") // Testing a deprecated method
+    public void onUnbind_destroysDefaultSession_whenNoSessionInfoIncluded() {
+        Intent bindIntent = new Intent();
+        CarAppBinder binder = bindAndStart(bindIntent);
 
-        assertThat(result.getCurrentSessionInfo()).isEqualTo(SessionInfo.DEFAULT_SESSION_INFO);
+        assertThat(binder.getCurrentSession()).isNotNull();
+        assertThat(mCarAppService.getCurrentSession()).isNotNull();
+        assertThat(mCarAppService.onUnbind(bindIntent)).isTrue();
+
+        assertThat(binder.getCurrentSession()).isNull();
+        assertThat(mCarAppService.getCurrentSession()).isNull();
+    }
+
+    // Test encoding/decoding implementations across SDK versions
+    @Test
+    @Config(minSdk = Build.VERSION_CODES.P, maxSdk = Build.VERSION_CODES.Q)
+    public void onBind_returnsSameBinder_forSimilarIntents() {
+        // Create two intent instances with the same data
+        Intent intent1 = new Intent();
+        SessionInfoIntentEncoder.encode(DEFAULT_SESSION_INFO, intent1);
+        Intent intent2 = new Intent();
+        SessionInfoIntentEncoder.encode(DEFAULT_SESSION_INFO, intent2);
+
+        IBinder result1 = mCarAppService.onBind(intent1);
+        IBinder result2 = mCarAppService.onBind(intent2);
+
+        assertThat(result1).isSameInstanceAs(result2);
+    }
+
+    // Test encoding/decoding implementations across SDK versions
+    @Test
+    @Config(minSdk = Build.VERSION_CODES.P, maxSdk = Build.VERSION_CODES.Q)
+    public void onBind_returnsDifferentBinders_forUniqueIntents() {
+        // Create two intent instances with different data
+        SessionInfo sessionInfo1 = new SessionInfo(DISPLAY_TYPE_CLUSTER, "1");
+        Intent intent1 = new Intent();
+        SessionInfoIntentEncoder.encode(sessionInfo1, intent1);
+        SessionInfo sessionInfo2 = new SessionInfo(DISPLAY_TYPE_CLUSTER, "2");
+        Intent intent2 = new Intent();
+        SessionInfoIntentEncoder.encode(sessionInfo2, intent2);
+
+        IBinder result1 = mCarAppService.onBind(intent1);
+        IBinder result2 = mCarAppService.onBind(intent2);
+
+        assertThat(result1).isNotEqualTo(result2);
+    }
+
+    // Test encoding/decoding implementations across SDK versions
+    @Test
+    @Config(minSdk = Build.VERSION_CODES.P, maxSdk = Build.VERSION_CODES.Q)
+    public void onBind_returnsDefaultBinder_whenNoSessionInfoSet() {
+        Intent intent = new Intent();
+
+        CarAppBinder result = (CarAppBinder) mCarAppService.onBind(intent);
+
+        assertThat(result.getCurrentSessionInfo()).isEqualTo(DEFAULT_SESSION_INFO);
     }
 
     @Test
@@ -114,16 +162,77 @@ public final class CarAppServiceTest {
         serviceController.get().setHostInfo(TEST_HOST_INFO);
         CarAppService oldSessionCarAppService = serviceController.create().get();
 
-        Session result = oldSessionCarAppService.onCreateSession(SessionInfo.DEFAULT_SESSION_INFO);
+        Session result = oldSessionCarAppService.onCreateSession(DEFAULT_SESSION_INFO);
 
-        assertThat(result).isEqualTo(TEST_SESSION);
+        assertThat(result).isNotNull();
     }
 
     @Test
     public void onCreateSession_doesNotCallOldMethod() {
-        Session result = mCarAppService.onCreateSession(SessionInfo.DEFAULT_SESSION_INFO);
+        Session result = mCarAppService.onCreateSession(DEFAULT_SESSION_INFO);
 
-        assertThat(result).isEqualTo(TEST_SESSION);
+        assertThat(result).isNotNull();
+    }
+
+    @Test
+    public void getSession() {
+        Intent intent = new Intent();
+        SessionInfoIntentEncoder.encode(TEST_CLUSTER_SESSION_INFO, intent);
+        CarAppBinder binder = bindAndStart(intent);
+
+        Session result = mCarAppService.getSession(TEST_CLUSTER_SESSION_INFO);
+
+        assertThat(result).isNotNull();
+        assertThat(result).isEqualTo(binder.getCurrentSession());
+    }
+
+    @Test
+    @SuppressWarnings("deprecation") // Testing a deprecated method
+    public void getCurrentSession() {
+        // Bind with a cluster session
+        Intent clusterIntent = new Intent();
+        SessionInfoIntentEncoder.encode(TEST_CLUSTER_SESSION_INFO, clusterIntent);
+        CarAppBinder clusterBinder = bindAndStart(clusterIntent);
+        // Bind with a main display session
+        Intent mainScreenIntent = new Intent();
+        SessionInfoIntentEncoder.encode(DEFAULT_SESSION_INFO, mainScreenIntent);
+        CarAppBinder mainScreenBinder = bindAndStart(mainScreenIntent);
+
+        Session result = mCarAppService.getCurrentSession();
+
+        assertThat(result).isNotNull();
+        assertThat(result).isEqualTo(mainScreenBinder.getCurrentSession());
+        assertThat(result).isNotEqualTo(clusterBinder.getCurrentSession());
+    }
+
+    /**
+     * Binds and runs through the binder lifecycle to start the app session passing in the test's
+     * mock objects. Returns the created {@link CarAppBinder}.
+     */
+    private CarAppBinder bindAndStart(Intent intent) {
+        CarAppBinder binder = (CarAppBinder) mCarAppService.onBind(intent);
+        binder.setHandshakeInfo(
+                new HandshakeInfo(TEST_HOST_INFO.getPackageName(), CarAppApiLevels.getLatest()));
+        binder.onAppCreate(mMockCarHost, intent, mContext.getResources().getConfiguration(),
+                mMockOnDoneCallback);
+        binder.onAppStart(mMockOnDoneCallback);
+        return binder;
+    }
+
+    private static Session createSession() {
+        return new Session() {
+            @NonNull
+            @Override
+            public Screen onCreateScreen(@NonNull Intent intent) {
+                return new Screen(getCarContext()) {
+                    @NonNull
+                    @Override
+                    public Template onGetTemplate() {
+                        return TEST_RETURN_TEMPLATE;
+                    }
+                };
+            }
+        };
     }
 
     @Test
@@ -161,7 +270,7 @@ public final class CarAppServiceTest {
         @Override
         @SuppressWarnings("deprecation")
         public Session onCreateSession() {
-            return TEST_SESSION;
+            return createSession();
         }
     }
 
@@ -175,7 +284,7 @@ public final class CarAppServiceTest {
         @NonNull
         @Override
         public Session onCreateSession(@NonNull SessionInfo sessionInfo) {
-            return TEST_SESSION;
+            return createSession();
         }
     }
 }

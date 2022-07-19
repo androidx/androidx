@@ -19,6 +19,8 @@ package androidx.car.app;
 import static androidx.car.app.utils.LogTags.TAG;
 import static androidx.car.app.utils.ThreadUtils.runOnMain;
 
+import static java.util.Objects.requireNonNull;
+
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
@@ -33,6 +35,8 @@ import androidx.car.app.validation.HostValidator;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * The base class for implementing a car app that runs in the car
@@ -125,21 +129,23 @@ public abstract class CarAppService extends Service {
 
     private static final String AUTO_DRIVE = "AUTO_DRIVE";
 
+    @NonNull
+    private final Map<SessionInfo, CarAppBinder> mBinders = new HashMap<>();
+
     @Nullable
     private AppInfo mAppInfo;
 
     @Nullable
     private HostInfo mHostInfo;
 
-    @Nullable
-    private CarAppBinder mBinder;
-
     @Override
     @CallSuper
     public void onDestroy() {
-        if (mBinder != null) {
-            mBinder.destroy();
-            mBinder = null;
+        synchronized (mBinders) {
+            for (CarAppBinder binder : mBinders.values()) {
+                binder.destroy();
+            }
+            mBinders.clear();
         }
     }
 
@@ -155,9 +161,16 @@ public abstract class CarAppService extends Service {
     @CallSuper
     @NonNull
     public final IBinder onBind(@NonNull Intent intent) {
-        CarAppBinder response = new CarAppBinder(this, SessionInfo.DEFAULT_SESSION_INFO);
-        mBinder = response;
-        return response;
+        SessionInfo sessionInfo = SessionInfoIntentEncoder.containsSessionInfo(intent)
+                ? SessionInfoIntentEncoder.decode(intent)
+                : SessionInfo.DEFAULT_SESSION_INFO;
+
+        synchronized (mBinders) {
+            if (!mBinders.containsKey(sessionInfo)) {
+                mBinders.put(sessionInfo, new CarAppBinder(this, sessionInfo));
+            }
+            return requireNonNull(mBinders.get(sessionInfo));
+        }
     }
 
     /**
@@ -170,11 +183,17 @@ public abstract class CarAppService extends Service {
         if (Log.isLoggable(TAG, Log.DEBUG)) {
             Log.d(TAG, "onUnbind intent: " + intent);
         }
+
+        SessionInfo sessionInfo = SessionInfoIntentEncoder.containsSessionInfo(intent)
+                ? SessionInfoIntentEncoder.decode(intent)
+                : SessionInfo.DEFAULT_SESSION_INFO;
         runOnMain(() -> {
-            if (mBinder != null) {
-                mBinder.onDestroyLifecycle();
+            synchronized (mBinders) {
+                CarAppBinder binder = mBinders.remove(sessionInfo);
+                if (binder != null) {
+                    binder.onDestroyLifecycle();
+                }
             }
-            mBinder = null;
         });
 
         if (Log.isLoggable(TAG, Log.DEBUG)) {
@@ -273,12 +292,16 @@ public abstract class CarAppService extends Service {
 
         for (String arg : args) {
             if (AUTO_DRIVE.equals(arg)) {
-                if (Log.isLoggable(TAG, Log.DEBUG)) {
-                    Log.d(TAG, "Executing onAutoDriveEnabled");
-                }
                 runOnMain(() -> {
-                    if (mBinder != null) {
-                        mBinder.onAutoDriveEnabled();
+                    synchronized (mBinders) {
+                        for (CarAppBinder binder : mBinders.values()) {
+                            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                                Log.d(TAG, "Executing onAutoDriveEnabled for "
+                                        + binder.getCurrentSessionInfo());
+                            }
+
+                            binder.onAutoDriveEnabled();
+                        }
                     }
                 });
             }
@@ -300,11 +323,38 @@ public abstract class CarAppService extends Service {
     }
 
     /**
-     * Returns the current {@link Session} for this service.
+     * Returns the current {@link Session} for the main display if one exists, otherwise returns
+     * {@code null}.
+     *
+     * @deprecated use {@link #getSession(SessionInfo)}
      */
     @Nullable
+    @Deprecated
     public final Session getCurrentSession() {
-        return mBinder == null ? null : mBinder.getCurrentSession();
+        synchronized (mBinders) {
+            for (Map.Entry<SessionInfo, CarAppBinder> entry : mBinders.entrySet()) {
+                if (entry.getKey().getDisplayType() == SessionInfo.DISPLAY_TYPE_MAIN) {
+                    return entry.getValue().getCurrentSession();
+                }
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Returns the {@link Session} associated to the given {@link SessionInfo}, or {@code null}
+     * if one doesn't exist.
+     */
+    @Nullable
+    public final Session getSession(@NonNull SessionInfo sessionInfo) {
+        synchronized (mBinders) {
+            CarAppBinder binder = mBinders.get(sessionInfo);
+            if (binder == null) {
+                return null;
+            }
+            return binder.getCurrentSession();
+        }
     }
 
 
@@ -328,7 +378,12 @@ public abstract class CarAppService extends Service {
     }
 
     @VisibleForTesting
-    void setCarAppbinder(@Nullable CarAppBinder carAppbinder) {
-        mBinder = carAppbinder;
+    void setBinder(@NonNull SessionInfo sessionInfo, @Nullable CarAppBinder binder) {
+        if (binder == null) {
+            mBinders.remove(sessionInfo);
+            return;
+        }
+
+        mBinders.put(sessionInfo, binder);
     }
 }
