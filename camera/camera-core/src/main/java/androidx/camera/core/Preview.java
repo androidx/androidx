@@ -355,6 +355,18 @@ public final class Preview extends UseCase {
     }
 
     /**
+     * Gets the {@link SurfaceEffectInternal} for testing.
+     *
+     * @hide
+     */
+    @Nullable
+    @VisibleForTesting
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public SurfaceEffectInternal getEffect() {
+        return mSurfaceEffect;
+    }
+
+    /**
      * Creates previously allocated {@link DeferrableSurface} include those allocated by nodes.
      */
     private void clearPipeline() {
