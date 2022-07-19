@@ -31,12 +31,8 @@ import com.google.devtools.ksp.symbol.Modifier
 
 internal abstract class KspExecutableElement(
     env: KspProcessingEnv,
-    open val containing: KspMemberContainer,
     override val declaration: KSFunctionDeclaration
-) : KspElement(
-    env = env,
-    declaration = declaration
-),
+) : KspElement(env, declaration),
     XExecutableElement,
     XHasModifiers by KspHasModifiers.create(declaration),
     XAnnotated by KspAnnotated.create(
@@ -44,10 +40,6 @@ internal abstract class KspExecutableElement(
         delegate = declaration,
         filter = NO_USE_SITE
     ) {
-
-    override val equalityItems: Array<out Any?> by lazy {
-        arrayOf(containing, declaration)
-    }
 
     override val enclosingElement: KspMemberContainer by lazy {
         declaration.requireEnclosingMemberContainer(env)
@@ -94,22 +86,8 @@ internal abstract class KspExecutableElement(
             }
 
             return when {
-                declaration.isConstructor() -> {
-                    KspConstructorElement(
-                        env = env,
-                        containing = enclosingContainer as? KspTypeElement ?: error(
-                            "The container for $declaration should be a type element"
-                        ),
-                        declaration = declaration
-                    )
-                }
-                else -> {
-                    KspMethodElement.create(
-                        env = env,
-                        containing = enclosingContainer,
-                        declaration = declaration
-                    )
-                }
+                declaration.isConstructor() -> KspConstructorElement(env, declaration)
+                else -> KspMethodElement.create(env, declaration)
             }
         }
     }

@@ -117,11 +117,6 @@ interface XMethodElement : XExecutableElement {
     fun overrides(other: XMethodElement, owner: XTypeElement): Boolean
 
     /**
-     * Creates a new [XMethodElement] where containing element is replaced with [newContainer].
-     */
-    fun copyTo(newContainer: XTypeElement): XMethodElement
-
-    /**
      * If true, this method can be invoked from Java sources. This is especially important for
      * Kotlin functions that receive value class as a parameter as they cannot be called from Java
      * sources.

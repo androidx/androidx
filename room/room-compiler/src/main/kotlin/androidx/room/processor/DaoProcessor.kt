@@ -268,14 +268,24 @@ class DaoProcessor(
             if (it.jvmName != unannotated.jvmName) {
                 return@firstOrNull false
             }
-            if (!it.returnType.boxed().isSameType(unannotated.returnType.boxed())) {
-                return@firstOrNull false
-            }
             if (it.parameters.size != unannotated.parameters.size) {
                 return@firstOrNull false
             }
+
+            // Get unannotated as a member of annotated's enclosing type before comparing
+            // in case unannotated contains type parameters that need to be resolved.
+            val annotatedEnclosingType = it.enclosingElement.type
+            val unannotatedType = if (annotatedEnclosingType == null) {
+                unannotated.executableType
+            } else {
+                unannotated.asMemberOf(annotatedEnclosingType)
+            }
+
+            if (!it.returnType.boxed().isSameType(unannotatedType.returnType.boxed())) {
+                return@firstOrNull false
+            }
             for (i in it.parameters.indices) {
-                if (it.parameters[i].type.boxed() != unannotated.parameters[i].type.boxed()) {
+                if (it.parameters[i].type.boxed() != unannotatedType.parameterTypes[i].boxed()) {
                     return@firstOrNull false
                 }
             }

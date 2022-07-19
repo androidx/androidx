@@ -79,6 +79,10 @@ internal abstract class JavacElement(
         return element.toString()
     }
 
+    final override val equalityItems: Array<out Any?> by lazy {
+        arrayOf(element)
+    }
+
     override fun equals(other: Any?): Boolean {
         return XEquality.equals(this, other)
     }
