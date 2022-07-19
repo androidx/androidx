@@ -374,7 +374,6 @@ final class CarAppBinder extends ICarApp.Stub {
         return mCurrentSession;
     }
 
-    @VisibleForTesting
     @NonNull
     SessionInfo getCurrentSessionInfo() {
         return mCurrentSessionInfo;
