@@ -45,6 +45,7 @@ import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraUnavailableException;
+import androidx.camera.core.EffectBundle;
 import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.FocusMeteringResult;
 import androidx.camera.core.ImageAnalysis;
@@ -304,6 +305,9 @@ public abstract class CameraController {
     @SuppressWarnings("WeakerAccess")
     final MutableLiveData<Integer> mTapToFocusState = new MutableLiveData<>(
             TAP_TO_FOCUS_NOT_STARTED);
+
+    @Nullable
+    private EffectBundle mEffectBundle;
 
     private final Context mAppContext;
 
@@ -1653,6 +1657,35 @@ public abstract class CameraController {
         return mCamera.getCameraControl().enableTorch(torchEnabled);
     }
 
+    // ------------------------
+    // Effects and extensions
+    // ------------------------
+
+    /**
+     * Sets post-processing effects.
+     *
+     * @param effectBundle the effects applied to camera output.
+     * @hide
+     * @see UseCaseGroup.Builder#getEffectBundle()
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public void setEffectBundle(@Nullable EffectBundle effectBundle) {
+        if (mEffectBundle == effectBundle) {
+            // Same effect. No change needed.
+            return;
+        }
+        if (mCameraProvider != null) {
+            // Unbind to make sure the pipelines will be recreated.
+            mCameraProvider.unbindAll();
+        }
+        mEffectBundle = effectBundle;
+        startCameraAndTrackStates();
+    }
+
+    // ------------------------------
+    // Binding to lifecycle
+    // ------------------------------
+
     /**
      * Binds use cases, gets a new {@link Camera} instance and tracks the state of the camera.
      */
@@ -1730,6 +1763,9 @@ public abstract class CameraController {
         }
 
         builder.setViewPort(mViewPort);
+        if (mEffectBundle != null) {
+            builder.setEffectBundle(mEffectBundle);
+        }
         return builder.build();
     }
 

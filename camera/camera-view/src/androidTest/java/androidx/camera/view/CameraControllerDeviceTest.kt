@@ -18,22 +18,33 @@ package androidx.camera.view
 
 import android.content.ContentValues
 import android.provider.MediaStore
+import android.view.View
 import androidx.camera.camera2.Camera2Config
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraSelector.LENS_FACING_BACK
 import androidx.camera.core.CameraSelector.LENS_FACING_FRONT
+import androidx.camera.core.EffectBundle
 import androidx.camera.core.ImageCapture
+import androidx.camera.core.SurfaceEffect
+import androidx.camera.core.SurfaceEffect.PREVIEW
+import androidx.camera.core.SurfaceOutput
+import androidx.camera.core.SurfaceRequest
+import androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CameraUtil.PreTestCameraIdList
+import androidx.camera.testing.CoreAppTestUtil
+import androidx.camera.testing.fakes.FakeActivity
 import androidx.camera.testing.fakes.FakeLifecycleOwner
 import androidx.test.annotation.UiThreadTest
+import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
+import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import org.junit.After
 import org.junit.Assume.assumeTrue
@@ -50,16 +61,24 @@ import org.junit.runner.RunWith
 @SdkSuppress(minSdkVersion = 21)
 class CameraControllerDeviceTest {
 
+    companion object {
+        const val TIMEOUT_SECONDS = 10L
+    }
+
     @get:Rule
     val useCamera = CameraUtil.grantCameraPermissionAndPreTest(
         PreTestCameraIdList(Camera2Config.defaultConfig())
     )
 
-    private val controller = LifecycleCameraController(ApplicationProvider.getApplicationContext())
+    private lateinit var controller: LifecycleCameraController
     private val instrumentation = InstrumentationRegistry.getInstrumentation()
+    private var activityScenario: ActivityScenario<FakeActivity>? = null
 
     @Before
     fun setUp() {
+        CoreAppTestUtil.prepareDeviceUI(instrumentation)
+        activityScenario = ActivityScenario.launch(FakeActivity::class.java)
+        controller = LifecycleCameraController(instrumentation.context)
         controller.initializationFuture.get()
     }
 
@@ -68,6 +87,46 @@ class CameraControllerDeviceTest {
         instrumentation.runOnMainSync {
             controller.shutDownForTests()
         }
+    }
+
+    @Test
+    fun setEffectBundle_effectSetOnUseCase() {
+        // Arrange: setup PreviewView and CameraController
+        var previewView: PreviewView? = null
+        activityScenario!!.onActivity {
+            // Arrange.
+            previewView = PreviewView(instrumentation.context)
+            it.setContentView(previewView)
+            previewView!!.controller = controller
+            controller.bindToLifecycle(FakeLifecycleOwner())
+            controller.initializationFuture.get()
+        }
+        waitUtilPreviewViewIsReady(previewView!!)
+
+        // Act: set an EffectBundle
+        instrumentation.runOnMainSync {
+            val surfaceEffect = object : SurfaceEffect {
+                override fun onInputSurface(request: SurfaceRequest) {}
+
+                override fun onOutputSurface(surfaceOutput: SurfaceOutput) {
+                    surfaceOutput.close()
+                }
+            }
+            controller.setEffectBundle(
+                EffectBundle.Builder(mainThreadExecutor()).addEffect(PREVIEW, surfaceEffect).build()
+            )
+        }
+
+        // Assert: preview has effect
+        assertThat(controller.mPreview.effect).isNotNull()
+
+        // Act: clear the EffectBundle
+        instrumentation.runOnMainSync {
+            controller.setEffectBundle(null)
+        }
+
+        // Assert: preview no longer has the effect.
+        assertThat(controller.mPreview.effect).isNull()
     }
 
     @UiThreadTest
@@ -216,5 +275,28 @@ class CameraControllerDeviceTest {
 
         // Assert.
         assertThat(cameraProvider.isBound(imageCapture)).isTrue()
+    }
+
+    private fun waitUtilPreviewViewIsReady(previewView: PreviewView) {
+        val countDownLatch = CountDownLatch(1)
+        previewView.addOnLayoutChangeListener(object : View.OnLayoutChangeListener {
+            override fun onLayoutChange(
+                v: View,
+                left: Int,
+                top: Int,
+                right: Int,
+                bottom: Int,
+                oldLeft: Int,
+                oldTop: Int,
+                oldRight: Int,
+                oldBottom: Int
+            ) {
+                if (v.width > 0 && v.height > 0) {
+                    countDownLatch.countDown()
+                    previewView.removeOnLayoutChangeListener(this)
+                }
+            }
+        })
+        assertThat(countDownLatch.await(TIMEOUT_SECONDS, TimeUnit.SECONDS)).isTrue()
     }
 }
