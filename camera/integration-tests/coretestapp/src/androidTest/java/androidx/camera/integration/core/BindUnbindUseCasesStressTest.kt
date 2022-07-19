@@ -841,7 +841,7 @@ class BindUnbindUseCasesStressTest(
             assertThat(surfaceTextureLatch.await(timeoutDurationMs, TimeUnit.MILLISECONDS)).isTrue()
         }
 
-        fun awaitAvailableFramesAndAssert(count: Int = 10, timeoutDurationMs: Long = 3000) {
+        fun awaitAvailableFramesAndAssert(count: Int = 10, timeoutDurationMs: Long = 10000) {
             previewFrameCountDownLatch = CountDownLatch(count)
             assertThat(
                 previewFrameCountDownLatch!!.await(
@@ -880,7 +880,7 @@ class BindUnbindUseCasesStressTest(
             analyzerFrameCountDownLatch?.countDown()
         }
 
-        fun awaitAvailableFramesAndAssert(count: Int = 10, timeoutDurationMs: Long = 3000) {
+        fun awaitAvailableFramesAndAssert(count: Int = 10, timeoutDurationMs: Long = 10000) {
             analyzerFrameCountDownLatch = CountDownLatch(count)
             assertThat(
                 analyzerFrameCountDownLatch!!.await(
