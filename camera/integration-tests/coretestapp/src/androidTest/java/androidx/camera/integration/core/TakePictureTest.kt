@@ -18,8 +18,11 @@ package androidx.camera.integration.core
 
 import android.Manifest
 import android.content.Context
+import android.content.Intent
 import androidx.camera.camera2.Camera2Config
+import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.camera.testing.CameraPipeConfigTestRule
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CoreAppTestUtil
 import androidx.test.core.app.ActivityScenario
@@ -27,41 +30,68 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.matcher.ViewMatchers.withId
-import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.GrantPermissionRule
 import java.util.concurrent.TimeUnit
-import org.junit.AfterClass
+import org.junit.After
 import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.junit.runners.Parameterized
 
 @LargeTest
-@RunWith(AndroidJUnit4::class)
-class TakePictureTest {
+@RunWith(Parameterized::class)
+class TakePictureTest(
+    private val implName: String,
+    private val cameraConfig: String
+) {
     @get:Rule
     val useCamera = CameraUtil.grantCameraPermissionAndPreTest(
-        CameraUtil.PreTestCameraIdList(Camera2Config.defaultConfig())
+        CameraUtil.PreTestCameraIdList(
+            if (implName == Camera2Config::class.simpleName) {
+                Camera2Config.defaultConfig()
+            } else {
+                CameraPipeConfig.defaultConfig()
+            }
+        )
     )
 
     @get:Rule
-    val mPermissionRule: GrantPermissionRule =
+    val permissionRule: GrantPermissionRule =
         GrantPermissionRule.grant(
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
             Manifest.permission.RECORD_AUDIO
         )
 
+    @get:Rule
+    val cameraPipeConfigTestRule = CameraPipeConfigTestRule(
+        active = implName == CameraPipeConfig::class.simpleName,
+        forAllTests = true,
+    )
+
+    private val launchIntent = Intent(
+        ApplicationProvider.getApplicationContext(),
+        CameraXActivity::class.java
+    ).apply {
+        putExtra(CameraXActivity.INTENT_EXTRA_CAMERA_IMPLEMENTATION, cameraConfig)
+    }
+
     companion object {
-        @AfterClass
         @JvmStatic
-        fun tearDown() {
-            val context = ApplicationProvider.getApplicationContext<Context>()
-            val cameraProvider = ProcessCameraProvider.getInstance(context)[10, TimeUnit.SECONDS]
-            cameraProvider.shutdown()[10, TimeUnit.SECONDS]
-        }
+        @Parameterized.Parameters(name = "{0}")
+        fun data() = listOf(
+            arrayOf(
+                Camera2Config::class.simpleName,
+                CameraXViewModel.CAMERA2_IMPLEMENTATION_OPTION
+            ),
+            arrayOf(
+                CameraPipeConfig::class.simpleName,
+                CameraXViewModel.CAMERA_PIPE_IMPLEMENTATION_OPTION
+            )
+        )
     }
 
     @Before
@@ -74,10 +104,17 @@ class TakePictureTest {
         CoreAppTestUtil.prepareDeviceUI(InstrumentationRegistry.getInstrumentation())
     }
 
+    @After
+    fun tearDown() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val cameraProvider = ProcessCameraProvider.getInstance(context)[10, TimeUnit.SECONDS]
+        cameraProvider.shutdown()[10, TimeUnit.SECONDS]
+    }
+
     // Take a photo, wait for callback via imageSavedIdlingResource resource.
     @Test
     fun testPictureButton() {
-        with(ActivityScenario.launch(CameraXActivity::class.java)) {
+        with(ActivityScenario.launch<CameraXActivity>(launchIntent)) {
             use { // Ensure ActivityScenario is cleaned up properly.
                 waitForViewfinderIdle()
                 takePictureAndWaitForImageSavedIdle()
@@ -89,7 +126,7 @@ class TakePictureTest {
     // onError path.
     @Test
     fun testTakePictureAndRestartWhileCapturing() { // Launch activity check for view idle.
-        with(ActivityScenario.launch(CameraXActivity::class.java)) {
+        with(ActivityScenario.launch<CameraXActivity>(launchIntent)) {
             use { // Ensure ActivityScenario is cleaned up properly.
                 waitForViewfinderIdle()
                 onView(withId(R.id.Picture)).perform(click())
