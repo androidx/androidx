@@ -36,7 +36,7 @@ import okio.use
 /**
  * OKIO implementation of the Storage interface, providing cross platform IO using the OKIO library.
  */
-class OkioStorage<T>(
+public class OkioStorage<T>(
     private val fileSystem: FileSystem,
     private val serializer: OkioSerializer<T>,
     private val producePath: () -> Path

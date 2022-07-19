@@ -99,9 +99,6 @@ androidXMultiplatform {
 
 androidx {
     name = "Android DataStore Core Okio"
-    // temporarily disabled for parity with state prior to library type refactor b/235209373
-    publish = Publish.NONE
-    runApiTasks = new RunApiTasks.No("Temporarily disabled, but should be re-enabled b/235209373")
     type = LibraryType.KMP_LIBRARY
     mavenGroup = LibraryGroups.DATASTORE
     inceptionYear = "2020"
