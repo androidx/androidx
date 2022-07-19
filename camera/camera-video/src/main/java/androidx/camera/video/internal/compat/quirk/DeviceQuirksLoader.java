@@ -74,6 +74,9 @@ public class DeviceQuirksLoader {
         if (VideoEncoderSuspendDoesNotIncludeSuspendTimeQuirk.load()) {
             quirks.add(new VideoEncoderSuspendDoesNotIncludeSuspendTimeQuirk());
         }
+        if (NegativeLatLongSavesIncorrectlyQuirk.load()) {
+            quirks.add(new NegativeLatLongSavesIncorrectlyQuirk());
+        }
 
         return quirks;
     }

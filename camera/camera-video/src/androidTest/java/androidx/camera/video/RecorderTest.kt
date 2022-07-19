@@ -578,10 +578,12 @@ class RecorderTest {
 
     @Test
     fun setLocation() {
-        // TODO(leohuang): add a test to verify negative latitude and longitude.
-        //  MediaMuxer.setLocation() causes a little loss of precision on negative values.
-        //  See b/232327925.
         runLocationTest(createLocation(25.033267462243586, 121.56454121737946))
+    }
+
+    @Test
+    fun setNegativeLocation() {
+        runLocationTest(createLocation(-27.14394722411734, -109.33053675296067))
     }
 
     @Test
