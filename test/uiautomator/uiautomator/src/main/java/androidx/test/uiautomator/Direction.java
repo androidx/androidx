@@ -19,21 +19,23 @@ package androidx.test.uiautomator;
 import androidx.annotation.NonNull;
 
 /** An enumeration used to specify the primary direction of certain gestures. */
-@SuppressWarnings("ImmutableEnumChecker")
 public enum Direction {
     LEFT, RIGHT, UP, DOWN;
-
-    private Direction mOpposite;
-    static {
-        LEFT.mOpposite = RIGHT;
-        RIGHT.mOpposite = LEFT;
-        UP.mOpposite = DOWN;
-        DOWN.mOpposite = UP;
-    }
 
     /** Returns the reverse of the given direction. */
     @NonNull
     public static Direction reverse(@NonNull Direction direction) {
-        return direction.mOpposite;
+        switch (direction) {
+            case LEFT:
+                return RIGHT;
+            case RIGHT:
+                return LEFT;
+            case UP:
+                return DOWN;
+            case DOWN:
+                return UP;
+            default:
+                throw new AssertionError(direction);
+        }
     }
 }

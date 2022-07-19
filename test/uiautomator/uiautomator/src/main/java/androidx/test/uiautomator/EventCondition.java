@@ -24,8 +24,6 @@ import android.view.accessibility.AccessibilityEvent;
  */
 @SuppressWarnings("TypeNameShadowing")
 public abstract class EventCondition<R> extends Condition<AccessibilityEvent, Boolean> {
-    @SuppressWarnings({"HiddenAbstractMethod", "MissingOverride"})
-    abstract Boolean apply(AccessibilityEvent event);
 
     @SuppressWarnings("HiddenAbstractMethod")
     abstract R getResult();
