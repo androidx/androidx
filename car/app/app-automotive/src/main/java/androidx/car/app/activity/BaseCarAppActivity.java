@@ -28,6 +28,7 @@ import android.content.Intent;
 import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
 import android.graphics.Insets;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -35,10 +36,13 @@ import android.util.Log;
 import android.view.PixelCopy;
 import android.view.View;
 import android.view.WindowInsets;
+import android.view.WindowManager;
 import android.widget.ImageView;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
 import androidx.car.app.SessionInfo;
 import androidx.car.app.activity.renderer.ICarAppActivity;
@@ -56,6 +60,7 @@ import androidx.car.app.automotive.R;
 import androidx.car.app.serialization.Bundleable;
 import androidx.car.app.serialization.BundlerException;
 import androidx.car.app.utils.ThreadUtils;
+import androidx.core.view.DisplayCutoutCompat;
 import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.FragmentActivity;
@@ -129,8 +134,10 @@ public abstract class BaseCarAppActivity extends FragmentActivity {
                             .getInsets(WindowInsetsCompat.Type.systemBars()
                                     | WindowInsetsCompat.Type.ime())
                             .toPlatformInsets();
-
-                    requireNonNull(mViewModel).updateWindowInsets(insets);
+                    DisplayCutoutCompat displayCutout =
+                            WindowInsetsCompat.toWindowInsetsCompat(windowInsets)
+                                    .getDisplayCutout();
+                    requireNonNull(mViewModel).updateWindowInsets(insets, displayCutout);
 
                     // Insets are handled by the host. Only local content need padding.
                     mActivityContainerView.setPadding(0, 0, 0, 0);
@@ -228,6 +235,18 @@ public abstract class BaseCarAppActivity extends FragmentActivity {
                 }
             };
 
+    @RequiresApi(Build.VERSION_CODES.R)
+    private static class Api30Impl {
+        private Api30Impl() {
+        }
+
+        @DoNotInline
+        static WindowInsets getDecorViewInsets(WindowInsets insets) {
+            return new WindowInsets.Builder(insets).setInsets(
+                    WindowInsets.Type.displayCutout(), Insets.NONE).build();
+        }
+    }
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -241,6 +260,19 @@ public abstract class BaseCarAppActivity extends FragmentActivity {
         mSurfaceSnapshotView = requireViewById(R.id.template_view_snapshot);
 
         mActivityContainerView.setOnApplyWindowInsetsListener(mWindowInsetsListener);
+
+        WindowManager.LayoutParams layoutParams = getWindow().getAttributes();
+        layoutParams.layoutInDisplayCutoutMode =
+                WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS;
+
+        // Remove display cut-out insets on DecorView
+        getWindow().getDecorView().setOnApplyWindowInsetsListener((view, insets) -> {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                insets = Api30Impl.getDecorViewInsets(insets);
+            }
+            return view.onApplyWindowInsets(insets);
+        });
+
         // IMPORTANT: The SystemUiVisibility applied here must match the insets provided to the
         // host in OnApplyWindowInsetsListener above. Failing to do so would cause a mismatch
         // between the insets applied to the content on the hosts side vs. the actual visible
