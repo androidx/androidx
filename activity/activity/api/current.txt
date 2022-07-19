@@ -38,10 +38,10 @@ package androidx.activity {
     method public final void removeOnNewIntentListener(androidx.core.util.Consumer<android.content.Intent!>);
     method public final void removeOnPictureInPictureModeChangedListener(androidx.core.util.Consumer<androidx.core.app.PictureInPictureModeChangedInfo!>);
     method public final void removeOnTrimMemoryListener(androidx.core.util.Consumer<java.lang.Integer!>);
-    method @Deprecated public void startActivityForResult(android.content.Intent!, int);
-    method @Deprecated public void startActivityForResult(android.content.Intent!, int, android.os.Bundle?);
-    method @Deprecated public void startIntentSenderForResult(android.content.IntentSender!, int, android.content.Intent?, int, int, int) throws android.content.IntentSender.SendIntentException;
-    method @Deprecated public void startIntentSenderForResult(android.content.IntentSender!, int, android.content.Intent?, int, int, int, android.os.Bundle?) throws android.content.IntentSender.SendIntentException;
+    method @Deprecated public void startActivityForResult(android.content.Intent, int);
+    method @Deprecated public void startActivityForResult(android.content.Intent, int, android.os.Bundle?);
+    method @Deprecated public void startIntentSenderForResult(android.content.IntentSender, int, android.content.Intent?, int, int, int) throws android.content.IntentSender.SendIntentException;
+    method @Deprecated public void startIntentSenderForResult(android.content.IntentSender, int, android.content.Intent?, int, int, int, android.os.Bundle?) throws android.content.IntentSender.SendIntentException;
   }
 
   public class ComponentDialog extends android.app.Dialog implements androidx.lifecycle.LifecycleOwner androidx.activity.OnBackPressedDispatcherOwner {
