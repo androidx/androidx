@@ -17,75 +17,23 @@
 package androidx.fragment.lint
 
 import androidx.fragment.lint.stubs.REPEAT_ON_LIFECYCLE_STUBS
+import com.android.tools.lint.checks.infrastructure.LintDetectorTest
 import com.android.tools.lint.checks.infrastructure.TestFiles
-import com.android.tools.lint.checks.infrastructure.TestLintTask
+import com.android.tools.lint.detector.api.Detector
+import com.android.tools.lint.detector.api.Issue
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.junit.runners.Parameterized
+import org.junit.runners.JUnit4
 
-@RunWith(Parameterized::class)
-class UnsafeRepeatOnLifecycleDetectorTest(private val config: TestConfig) {
+/* ktlint-enable max-line-length */
+/* ktlint-disable max-line-length */
+@RunWith(JUnit4::class)
+class UnsafeRepeatOnLifecycleDetectorTest : LintDetectorTest() {
 
-    data class TestConfig(
-        val fragmentExtensions: String,
-        val apiCall: String,
-        val shouldWarn: Boolean
-    )
+    override fun getDetector(): Detector = UnsafeRepeatOnLifecycleDetector()
 
-    companion object {
-        @JvmStatic
-        @Parameterized.Parameters(name = "{0}")
-        fun spec(): List<TestConfig> =
-            // Adding permutations manually to manually control if something should give a warning
-            listOf(
-                TestConfig(
-                    "Fragment()",
-                    "repeatOnLifecycle(Lifecycle.State.STARTED) { }",
-                    true
-                ),
-                TestConfig(
-                    "Fragment()",
-                    "lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) { }",
-                    true
-                ),
-                TestConfig(
-                    "Fragment()",
-                    "viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) { }",
-                    false
-                ),
-                TestConfig(
-                    "Fragment()",
-                    "getViewLifecycleOwner().repeatOnLifecycle(Lifecycle.State.STARTED) { }",
-                    false
-                ),
-                TestConfig(
-                    "Fragment()",
-                    "viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) { }",
-                    false
-                ),
-                TestConfig(
-                    "Fragment()",
-                    "getViewLifecycleOwner().lifecycle." +
-                        "repeatOnLifecycle(Lifecycle.State.STARTED) { }",
-                    false
-                ),
-                TestConfig(
-                    "BaseFragment(), FragmentListener",
-                    "repeatOnLifecycle(Lifecycle.State.STARTED) { }",
-                    true
-                ),
-                TestConfig(
-                    "FragmentListener, OtherFragmentListener, BaseFragment()",
-                    "repeatOnLifecycle(Lifecycle.State.STARTED) { }",
-                    true
-                ),
-                TestConfig(
-                    "DialogFragment()",
-                    "repeatOnLifecycle(Lifecycle.State.STARTED) { }",
-                    false
-                ),
-            )
-    }
+    override fun getIssues(): MutableList<Issue> =
+        mutableListOf(UnsafeRepeatOnLifecycleDetector.ISSUE)
 
     private val TEMPLATE = """
         package foo
@@ -111,29 +59,147 @@ class UnsafeRepeatOnLifecycleDetectorTest(private val config: TestConfig) {
     """.trimIndent()
 
     @Test
-    fun basicTest() {
-        val testLintResult = TestLintTask.lint()
-            .files(
-                *REPEAT_ON_LIFECYCLE_STUBS,
-                TestFiles.kt(TEMPLATE.format(config.fragmentExtensions, config.apiCall))
+    fun `called directly from fragment`() {
+        lint().files(
+            *REPEAT_ON_LIFECYCLE_STUBS,
+            TestFiles.kt(
+                TEMPLATE.format("Fragment()", "repeatOnLifecycle(Lifecycle.State.STARTED) { }")
             )
-            .issues(UnsafeRepeatOnLifecycleDetector.ISSUE)
+        )
             .allowCompilationErrors(false)
             .run()
-
-        if (config.shouldWarn) {
-            /* ktlint-disable max-line-length */
-            testLintResult.expect(
+            .expect(
                 """
                 src/foo/MyFragment.kt:13: Error: The repeatOnLifecycle API should be used with viewLifecycleOwner [UnsafeRepeatOnLifecycleDetector]
-                            ${config.apiCall}
-                            ${"~".repeat(config.apiCall.length)}
+                            repeatOnLifecycle(Lifecycle.State.STARTED) { }
+                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                 1 errors, 0 warnings
                 """.trimIndent()
             )
-            /* ktlint-enable max-line-length */
-        } else {
-            testLintResult.expectClean()
-        }
+    }
+
+    @Test
+    fun `called with fragment lifecycle`() {
+        lint().files(
+            *REPEAT_ON_LIFECYCLE_STUBS,
+            TestFiles.kt(
+                TEMPLATE.format("Fragment()", "lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) { }")
+            )
+        )
+            .allowCompilationErrors(false)
+            .run()
+            .expect(
+                """
+                src/foo/MyFragment.kt:13: Error: The repeatOnLifecycle API should be used with viewLifecycleOwner [UnsafeRepeatOnLifecycleDetector]
+                            lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) { }
+                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                1 errors, 0 warnings
+                """.trimIndent()
+            )
+    }
+
+    @Test
+    fun `called with fragment viewLifecycleOwner property`() {
+        lint().files(
+            *REPEAT_ON_LIFECYCLE_STUBS,
+            TestFiles.kt(
+                TEMPLATE.format("Fragment()", "viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) { }")
+            )
+        )
+            .allowCompilationErrors(false)
+            .run()
+            .expectClean()
+    }
+
+    @Test
+    fun `called with fragment viewLifecycleOwner function`() {
+        lint().files(
+            *REPEAT_ON_LIFECYCLE_STUBS,
+            TestFiles.kt(
+                TEMPLATE.format("Fragment()", "getViewLifecycleOwner().repeatOnLifecycle(Lifecycle.State.STARTED) { }")
+            )
+        )
+            .allowCompilationErrors(false)
+            .run()
+            .expectClean()
+    }
+
+    @Test
+    fun `called with fragment viewLifecycleOwner property lifecycle`() {
+        lint().files(
+            *REPEAT_ON_LIFECYCLE_STUBS,
+            TestFiles.kt(
+                TEMPLATE.format("Fragment()", "viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) { }")
+            )
+        )
+            .allowCompilationErrors(false)
+            .run()
+            .expectClean()
+    }
+
+    @Test
+    fun `called with fragment viewLifecycleOwner function lifecycle`() {
+        lint().files(
+            *REPEAT_ON_LIFECYCLE_STUBS,
+            TestFiles.kt(
+                TEMPLATE.format("Fragment()", "getViewLifecycleOwner().lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) { }")
+            )
+        )
+            .allowCompilationErrors(false)
+            .run()
+            .expectClean()
+    }
+
+    @Test
+    fun `called with extended fragment listener`() {
+        lint().files(
+            *REPEAT_ON_LIFECYCLE_STUBS,
+            TestFiles.kt(
+                TEMPLATE.format("BaseFragment(), FragmentListener", "repeatOnLifecycle(Lifecycle.State.STARTED) { }")
+            )
+        )
+            .allowCompilationErrors(false)
+            .run()
+            .expect(
+                """
+                src/foo/MyFragment.kt:13: Error: The repeatOnLifecycle API should be used with viewLifecycleOwner [UnsafeRepeatOnLifecycleDetector]
+                            repeatOnLifecycle(Lifecycle.State.STARTED) { }
+                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                1 errors, 0 warnings
+                """.trimIndent()
+            )
+    }
+
+    @Test
+    fun `called with two extended fragment listeners`() {
+        lint().files(
+            *REPEAT_ON_LIFECYCLE_STUBS,
+            TestFiles.kt(
+                TEMPLATE.format("FragmentListener, OtherFragmentListener, BaseFragment()", "repeatOnLifecycle(Lifecycle.State.STARTED) { }")
+            )
+        )
+            .allowCompilationErrors(false)
+            .run()
+            .expect(
+                """
+                src/foo/MyFragment.kt:13: Error: The repeatOnLifecycle API should be used with viewLifecycleOwner [UnsafeRepeatOnLifecycleDetector]
+                            repeatOnLifecycle(Lifecycle.State.STARTED) { }
+                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                1 errors, 0 warnings
+                """.trimIndent()
+            )
+    }
+
+    @Test
+    fun `called with dialog fragment`() {
+        lint().files(
+            *REPEAT_ON_LIFECYCLE_STUBS,
+            TestFiles.kt(
+                TEMPLATE.format("DialogFragment()", "repeatOnLifecycle(Lifecycle.State.STARTED) { }")
+            )
+        )
+            .allowCompilationErrors(false)
+            .run()
+            .expectClean()
     }
 }
