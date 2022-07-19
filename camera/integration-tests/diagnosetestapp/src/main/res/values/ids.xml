@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <!--
   Copyright 2022 The Android Open Source Project
 
@@ -15,9 +16,7 @@
   -->
 
 <resources>
-    <string name="app_name">diagnosetestapp</string>
-    <string name="image_capture">Take Photo</string>
-    <string name="video_capture">Record Video</string>
-    <string name="diagnose">Diagnose</string>
-    <string name="begin_diagnosis">Begin Diagnosis</string>
+    <item name="image_capture" type="id"></item>
+    <item name="video_capture" type="id"></item>
+    <item name="diagnose" type="id"></item>
 </resources>
