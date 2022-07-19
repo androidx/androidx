@@ -24,8 +24,16 @@ import androidx.annotation.OptIn
 import androidx.annotation.RequiresApi
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraXConfig
+import androidx.camera.core.EffectBundle
 import androidx.camera.core.Preview
+import androidx.camera.core.SurfaceEffect
+import androidx.camera.core.SurfaceEffect.PREVIEW
+import androidx.camera.core.SurfaceOutput
+import androidx.camera.core.SurfaceRequest
+import androidx.camera.core.UseCaseGroup
 import androidx.camera.core.impl.CameraFactory
+import androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor
+import androidx.camera.core.processing.SurfaceEffectWithExecutor
 import androidx.camera.testing.fakes.FakeAppConfig
 import androidx.camera.testing.fakes.FakeCamera
 import androidx.camera.testing.fakes.FakeCameraDeviceSurfaceManager
@@ -66,6 +74,36 @@ class ProcessCameraProviderTest {
             } catch (e: IllegalStateException) {
                 // ProcessCameraProvider may not be configured. Ignore.
             }
+        }
+    }
+
+    @Test
+    fun bindUseCaseGroupWithEffect_effectIsSetOnUseCase() {
+        // Arrange.
+        ProcessCameraProvider.configureInstance(FakeAppConfig.create())
+        val surfaceEffect = object : SurfaceEffect {
+            override fun onInputSurface(request: SurfaceRequest) {}
+            override fun onOutputSurface(surfaceOutput: SurfaceOutput) {
+                surfaceOutput.close()
+            }
+        }
+        val effectBundle =
+            EffectBundle.Builder(mainThreadExecutor()).addEffect(PREVIEW, surfaceEffect).build()
+        val preview = Preview.Builder().setSessionOptionUnpacker { _, _ -> }.build()
+        val useCaseGroup = UseCaseGroup.Builder().addUseCase(preview)
+            .setEffectBundle(effectBundle).build()
+
+        runBlocking(MainScope().coroutineContext) {
+            // Act.
+            provider = ProcessCameraProvider.getInstance(context).await()
+            provider.bindToLifecycle(
+                lifecycleOwner0, CameraSelector.DEFAULT_BACK_CAMERA,
+                useCaseGroup
+            )
+
+            // Assert.
+            val useCaseEffect = (preview.effect as SurfaceEffectWithExecutor).surfaceEffect
+            assertThat(useCaseEffect).isEqualTo(surfaceEffect)
         }
     }
 

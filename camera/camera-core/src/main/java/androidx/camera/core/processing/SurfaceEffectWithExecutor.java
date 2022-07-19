@@ -19,6 +19,7 @@ package androidx.camera.core.processing;
 import static androidx.core.util.Preconditions.checkState;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.SurfaceEffect;
 import androidx.camera.core.SurfaceOutput;
 import androidx.camera.core.SurfaceRequest;
@@ -45,6 +46,18 @@ public class SurfaceEffectWithExecutor implements SurfaceEffectInternal {
                 "SurfaceEffectInternal should always be thread safe. Do not wrap.");
         mSurfaceEffect = surfaceEffect;
         mExecutor = executor;
+    }
+
+    @NonNull
+    @VisibleForTesting
+    public SurfaceEffect getSurfaceEffect() {
+        return mSurfaceEffect;
+    }
+
+    @NonNull
+    @VisibleForTesting
+    public Executor getExecutor() {
+        return mExecutor;
     }
 
     @Override

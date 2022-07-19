@@ -27,8 +27,11 @@ import android.view.Surface
 import androidx.camera.core.SurfaceRequest.TransformationInfo
 import androidx.camera.core.impl.CameraFactory
 import androidx.camera.core.impl.CameraThreadConfig
+import androidx.camera.core.impl.OptionsBundle
+import androidx.camera.core.impl.PreviewConfig
 import androidx.camera.core.impl.SessionConfig
 import androidx.camera.core.impl.UseCaseConfig
+import androidx.camera.core.impl.UseCaseConfigFactory
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor
 import androidx.camera.core.internal.CameraUseCaseAdapter
@@ -70,6 +73,9 @@ class PreviewTest {
     private lateinit var appSurfaceTexture: SurfaceTexture
     private lateinit var effectSurface: Surface
     private lateinit var effectSurfaceTexture: SurfaceTexture
+    private lateinit var camera: FakeCamera
+    private lateinit var cameraXConfig: CameraXConfig
+    private lateinit var context: Context
 
     @Before
     @Throws(ExecutionException::class, InterruptedException::class)
@@ -78,7 +84,7 @@ class PreviewTest {
         appSurface = Surface(appSurfaceTexture)
         effectSurfaceTexture = SurfaceTexture(0)
         effectSurface = Surface(effectSurfaceTexture)
-        val camera = FakeCamera()
+        camera = FakeCamera()
 
         val cameraFactoryProvider =
             CameraFactory.Provider { _: Context?, _: CameraThreadConfig?, _: CameraSelector? ->
@@ -88,10 +94,10 @@ class PreviewTest {
                 ) { camera }
                 cameraFactory
             }
-        val cameraXConfig = CameraXConfig.Builder.fromConfig(
+        cameraXConfig = CameraXConfig.Builder.fromConfig(
             FakeAppConfig.create()
         ).setCameraFactoryProvider(cameraFactoryProvider).build()
-        val context = ApplicationProvider.getApplicationContext<Context>()
+        context = ApplicationProvider.getApplicationContext<Context>()
         CameraXUtil.initialize(context, cameraXConfig).get()
     }
 
@@ -235,9 +241,9 @@ class PreviewTest {
             }
         }
 
-        // Act: bind Preview and provide Surface.
-        val surfaceRequest = bindToLifecycleWithEffectAndGetSurfaceRequest(surfaceEffect)
-        val preview = cameraUseCaseAdapter!!.useCases[0]
+        // Act: create pipeline in Preview and provide Surface.
+        val preview = createPreviewPipelineAndAttachEffect(surfaceEffect)
+        val surfaceRequest = preview.mCurrentSurfaceRequest!!
         var appSurfaceReadyToRelease = false
         surfaceRequest.provideSurface(appSurface, mainThreadExecutor()) {
             appSurfaceReadyToRelease = true
@@ -258,7 +264,7 @@ class PreviewTest {
         assertThat(preview.sessionConfig.surfaces[0].surface.get()).isEqualTo(effectSurface)
 
         // Act: unbind Preview.
-        cameraUseCaseAdapter!!.removeUseCases(Collections.singletonList(preview))
+        preview.onDetached()
         shadowOf(getMainLooper()).idle()
 
         // Assert: effect and effect surface is released.
@@ -287,8 +293,7 @@ class PreviewTest {
 
             override fun release() {}
         }
-        bindToLifecycleWithEffectAndGetSurfaceRequest(surfaceEffect)
-        val preview = cameraUseCaseAdapter!!.useCases[0]
+        val preview = createPreviewPipelineAndAttachEffect(surfaceEffect)
         val originalSessionConfig = preview.sessionConfig
 
         // Act: invoke the error listener.
@@ -424,24 +429,15 @@ class PreviewTest {
         assertThat(receivedAfterAttach).isTrue()
     }
 
-    private fun bindToLifecycleWithEffectAndGetSurfaceRequest(
-        surfaceEffect: SurfaceEffectInternal?
-    ): SurfaceRequest {
-        return bindToLifecycleAndGetResult(null, surfaceEffect).first
-    }
-
     private fun bindToLifecycleAndGetSurfaceRequest(): SurfaceRequest {
-        return bindToLifecycleAndGetResult(null, null).first
+        return bindToLifecycleAndGetResult(null).first
     }
 
     private fun bindToLifecycleAndGetTransformationInfo(viewPort: ViewPort?): TransformationInfo {
-        return bindToLifecycleAndGetResult(viewPort, null).second
+        return bindToLifecycleAndGetResult(viewPort).second
     }
 
-    private fun bindToLifecycleAndGetResult(
-        viewPort: ViewPort?,
-        surfaceEffect: SurfaceEffectInternal?
-    ): Pair<SurfaceRequest,
+    private fun bindToLifecycleAndGetResult(viewPort: ViewPort?): Pair<SurfaceRequest,
         TransformationInfo> {
         // Arrange.
         val sessionOptionUnpacker =
@@ -462,8 +458,6 @@ class PreviewTest {
             surfaceRequest = request
         }
 
-        preview.setEffect(surfaceEffect)
-
         // Act.
         cameraUseCaseAdapter = CameraUtil.createCameraUseCaseAdapter(
             ApplicationProvider.getApplicationContext(), TEST_CAMERA_SELECTOR
@@ -472,5 +466,24 @@ class PreviewTest {
         cameraUseCaseAdapter!!.addUseCases(Collections.singleton<UseCase>(preview))
         shadowOf(getMainLooper()).idle()
         return Pair(surfaceRequest!!, transformationInfo!!)
+    }
+
+    private fun createPreviewPipelineAndAttachEffect(
+        surfaceEffect: SurfaceEffectInternal?
+    ): Preview {
+        val preview = Preview.Builder()
+            .setTargetRotation(Surface.ROTATION_0)
+            .build()
+        preview.effect = surfaceEffect
+        val previewConfig = PreviewConfig(
+            cameraXConfig.getUseCaseConfigFactoryProvider(null)!!.newInstance(context).getConfig(
+                UseCaseConfigFactory.CaptureType.PREVIEW,
+                ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY
+            )!! as OptionsBundle
+        )
+        preview.onAttach(camera, null, previewConfig)
+
+        preview.onSuggestedResolutionUpdated(Size(640, 480))
+        return preview
     }
 }
