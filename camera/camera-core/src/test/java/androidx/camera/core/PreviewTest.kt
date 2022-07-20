@@ -42,6 +42,7 @@ import androidx.camera.testing.fakes.FakeAppConfig
 import androidx.camera.testing.fakes.FakeCamera
 import androidx.camera.testing.fakes.FakeCameraDeviceSurfaceManager
 import androidx.camera.testing.fakes.FakeCameraFactory
+import androidx.camera.testing.fakes.FakeSurfaceEffectInternal
 import androidx.camera.testing.fakes.FakeUseCase
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
@@ -71,8 +72,6 @@ class PreviewTest {
 
     private lateinit var appSurface: Surface
     private lateinit var appSurfaceTexture: SurfaceTexture
-    private lateinit var effectSurface: Surface
-    private lateinit var effectSurfaceTexture: SurfaceTexture
     private lateinit var camera: FakeCamera
     private lateinit var cameraXConfig: CameraXConfig
     private lateinit var context: Context
@@ -82,8 +81,6 @@ class PreviewTest {
     fun setUp() {
         appSurfaceTexture = SurfaceTexture(0)
         appSurface = Surface(appSurfaceTexture)
-        effectSurfaceTexture = SurfaceTexture(0)
-        effectSurface = Surface(effectSurfaceTexture)
         camera = FakeCamera()
 
         val cameraFactoryProvider =
@@ -106,8 +103,6 @@ class PreviewTest {
     fun tearDown() {
         appSurfaceTexture.release()
         appSurface.release()
-        effectSurfaceTexture.release()
-        effectSurface.release()
         with(cameraUseCaseAdapter) {
             this?.removeUseCases(useCases)
         }
@@ -222,27 +217,10 @@ class PreviewTest {
     @Test
     fun bindAndUnbindPreview_surfacesPropagated() {
         // Arrange.
-        var surfaceOutputReceived: SurfaceOutput? = null
-        var effectSurfaceReadyToRelease = false
-        var isEffectReleased = false
-        val surfaceEffect = object : SurfaceEffectInternal {
-            override fun onInputSurface(request: SurfaceRequest) {
-                request.provideSurface(effectSurface, mainThreadExecutor()) {
-                    effectSurfaceReadyToRelease = true
-                }
-            }
-
-            override fun onOutputSurface(surfaceOutput: SurfaceOutput) {
-                surfaceOutputReceived = surfaceOutput
-            }
-
-            override fun release() {
-                isEffectReleased = true
-            }
-        }
+        val effect = FakeSurfaceEffectInternal(mainThreadExecutor())
 
         // Act: create pipeline in Preview and provide Surface.
-        val preview = createPreviewPipelineAndAttachEffect(surfaceEffect)
+        val preview = createPreviewPipelineAndAttachEffect(effect)
         val surfaceRequest = preview.mCurrentSurfaceRequest!!
         var appSurfaceReadyToRelease = false
         surfaceRequest.provideSurface(appSurface, mainThreadExecutor()) {
@@ -251,30 +229,26 @@ class PreviewTest {
         shadowOf(getMainLooper()).idle()
 
         // Assert: surfaceOutput received.
-        assertThat(surfaceOutputReceived).isNotNull()
-        var requestedToReleaseOutputSurface = false
-        surfaceOutputReceived!!.getSurface(mainThreadExecutor()) {
-            requestedToReleaseOutputSurface = true
-        }
-        assertThat(isEffectReleased).isFalse()
-        assertThat(requestedToReleaseOutputSurface).isFalse()
-        assertThat(effectSurfaceReadyToRelease).isFalse()
+        assertThat(effect.surfaceOutput).isNotNull()
+        assertThat(effect.isReleased).isFalse()
+        assertThat(effect.isOutputSurfaceRequestedToClose).isFalse()
+        assertThat(effect.isInputSurfaceReleased).isFalse()
         assertThat(appSurfaceReadyToRelease).isFalse()
         // effect surface is provided to camera.
-        assertThat(preview.sessionConfig.surfaces[0].surface.get()).isEqualTo(effectSurface)
+        assertThat(preview.sessionConfig.surfaces[0].surface.get()).isEqualTo(effect.inputSurface)
 
         // Act: unbind Preview.
         preview.onDetached()
         shadowOf(getMainLooper()).idle()
 
         // Assert: effect and effect surface is released.
-        assertThat(isEffectReleased).isTrue()
-        assertThat(requestedToReleaseOutputSurface).isTrue()
-        assertThat(effectSurfaceReadyToRelease).isTrue()
+        assertThat(effect.isReleased).isTrue()
+        assertThat(effect.isOutputSurfaceRequestedToClose).isTrue()
+        assertThat(effect.isInputSurfaceReleased).isTrue()
         assertThat(appSurfaceReadyToRelease).isFalse()
 
         // Act: close SurfaceOutput
-        surfaceOutputReceived!!.close()
+        effect.surfaceOutput!!.close()
         shadowOf(getMainLooper()).idle()
         assertThat(appSurfaceReadyToRelease).isTrue()
     }
@@ -282,18 +256,8 @@ class PreviewTest {
     @Test
     fun invokedErrorListener_recreatePipeline() {
         // Arrange: create pipeline and get a reference of the SessionConfig.
-        val surfaceEffect = object : SurfaceEffectInternal {
-            override fun onInputSurface(request: SurfaceRequest) {}
-
-            override fun onOutputSurface(surfaceOutput: SurfaceOutput) {
-                surfaceOutput.getSurface(mainThreadExecutor()) {
-                    surfaceOutput.close()
-                }
-            }
-
-            override fun release() {}
-        }
-        val preview = createPreviewPipelineAndAttachEffect(surfaceEffect)
+        val effect = FakeSurfaceEffectInternal(mainThreadExecutor())
+        val preview = createPreviewPipelineAndAttachEffect(effect)
         val originalSessionConfig = preview.sessionConfig
 
         // Act: invoke the error listener.
