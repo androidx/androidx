@@ -225,7 +225,7 @@ abstract class SplitPipActivityBase : AppCompatActivity(), CompoundButton.OnChec
             return false
         }
         for (filter in rule.filters) {
-            if (filter.componentName.className == SplitPipActivityB::class.java.name) {
+            if (filter.matchesClassName(SplitPipActivityB::class.java)) {
                 return true
             }
         }

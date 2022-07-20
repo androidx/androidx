@@ -19,7 +19,10 @@ import android.app.Activity
 import android.content.ComponentName
 import android.content.Intent
 import android.util.Log
+import androidx.window.core.ActivityComponentInfo
 import androidx.window.core.ExperimentalWindowApi
+import androidx.window.embedding.MatcherUtils.isActivityOrIntentMatching
+import androidx.window.embedding.MatcherUtils.isIntentMatching
 import androidx.window.embedding.MatcherUtils.sDebugMatchers
 import androidx.window.embedding.MatcherUtils.sMatchersTag
 
@@ -29,7 +32,7 @@ import androidx.window.embedding.MatcherUtils.sMatchersTag
  * name.
  */
 @ExperimentalWindowApi
-class ActivityFilter(
+class ActivityFilter internal constructor(
     /**
      * Component name in the intent for the activity. Must be non-empty. Can contain a single
      * wildcard at the end. Supported formats:
@@ -38,18 +41,36 @@ class ActivityFilter(
      *   - `package/suffix.*`
      *   - `*/*`
      */
-    val componentName: ComponentName,
+    internal val activityComponentInfo: ActivityComponentInfo,
     /**
      * Action used for activity launch intent.
      *
      * To match with intents based only on the [Intent.getAction], use a wildcard (&#42/&#42) with
-     * [componentName].
+     * [activityComponentInfo].
      */
-    val intentAction: String?
+    internal val intentAction: String?
 ) {
+
+    /**
+     * Constructs a new [ActivityFilter] using a [ComponentName] and an [Intent] action.
+     *
+     * @param componentName Component name in the intent for the activity. Must be non-empty. Can
+     * contain a single wildcard at the end. Supported formats:
+     *   - package/class
+     *   - `package/*`
+     *   - `package/suffix.*`
+     *   - `*/*`
+     * @param intentAction Action used for activity launch intent. To match with intents based only
+     * on the [Intent.getAction], use a wildcard (&#42/&#42) with [componentName].
+     */
+    constructor(componentName: ComponentName, intentAction: String?) : this(
+        ActivityComponentInfo(componentName),
+        intentAction
+    )
+
     init {
-        val packageName = componentName.packageName
-        val className = componentName.className
+        val packageName = activityComponentInfo.packageName
+        val className = activityComponentInfo.className
         require(
             packageName.isNotEmpty()
         ) { "Package name must not be empty" }
@@ -71,8 +92,7 @@ class ActivityFilter(
     }
 
     fun matchesIntent(intent: Intent): Boolean {
-        val match =
-            if (!MatcherUtils.isIntentMatching(intent, componentName)) {
+        val match = if (!isIntentMatching(intent, activityComponentInfo)) {
                 false
             } else {
                 intentAction == null || intentAction == intent.action
@@ -89,7 +109,7 @@ class ActivityFilter(
 
     fun matchesActivity(activity: Activity): Boolean {
         val match =
-            MatcherUtils.isActivityOrIntentMatching(activity, componentName) &&
+            isActivityOrIntentMatching(activity, activityComponentInfo) &&
                 (intentAction == null || intentAction == activity.intent?.action)
         if (sDebugMatchers) {
             val matchString = if (match) "MATCH" else "NO MATCH"
@@ -101,23 +121,31 @@ class ActivityFilter(
         return match
     }
 
+    fun <T : Activity> matchesClassName(clazz: Class<T>): Boolean {
+        return activityComponentInfo.className == clazz.name
+    }
+
+    fun <T : Activity> matchesClassNameOrWildCard(clazz: Class<T>?): Boolean {
+        return clazz?.let(::matchesClassName) ?: activityComponentInfo.className.contains("*")
+    }
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is ActivityFilter) return false
 
-        if (componentName != other.componentName) return false
+        if (activityComponentInfo != other.activityComponentInfo) return false
         if (intentAction != other.intentAction) return false
 
         return true
     }
 
     override fun hashCode(): Int {
-        var result = componentName.hashCode()
+        var result = activityComponentInfo.hashCode()
         result = 31 * result + (intentAction?.hashCode() ?: 0)
         return result
     }
 
     override fun toString(): String {
-        return "ActivityFilter(componentName=$componentName, intentAction=$intentAction)"
+        return "ActivityFilter(componentName=$activityComponentInfo, intentAction=$intentAction)"
     }
 }
