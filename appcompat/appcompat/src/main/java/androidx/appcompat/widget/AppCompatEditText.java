@@ -41,6 +41,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
+import androidx.annotation.UiThread;
 import androidx.appcompat.R;
 import androidx.core.view.ContentInfoCompat;
 import androidx.core.view.OnReceiveContentListener;
@@ -53,9 +54,6 @@ import androidx.core.widget.TextViewCompat;
 import androidx.core.widget.TextViewOnReceiveContentListener;
 import androidx.core.widget.TintableCompoundDrawablesView;
 import androidx.resourceinspection.annotation.AppCompatShadowedAttributes;
-
-import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodHandles;
 
 /**
  * A {@link EditText} which supports compatible features on older versions of the platform,
@@ -86,6 +84,8 @@ public class AppCompatEditText extends EditText implements TintableBackgroundVie
     private final TextViewOnReceiveContentListener mDefaultOnReceiveContentListener;
     @NonNull
     private final AppCompatEmojiEditTextHelper mAppCompatEmojiEditTextHelper;
+    @Nullable
+    private SuperCaller mSuperCaller;
 
     public AppCompatEditText(@NonNull Context context) {
         this(context, null);
@@ -305,6 +305,16 @@ public class AppCompatEditText extends EditText implements TintableBackgroundVie
                 super.getCustomSelectionActionModeCallback());
     }
 
+    @UiThread
+    @NonNull
+    @RequiresApi(26)
+    private SuperCaller getSuperCaller() {
+        if (mSuperCaller == null) {
+            mSuperCaller = new SuperCaller();
+        }
+        return mSuperCaller;
+    }
+
     /**
      * Sets the {@link TextClassifier} for this TextView.
      */
@@ -312,7 +322,7 @@ public class AppCompatEditText extends EditText implements TintableBackgroundVie
     @RequiresApi(api = 26)
     public void setTextClassifier(@Nullable TextClassifier textClassifier) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P || mTextClassifierHelper == null) {
-            MethodHandleWrappers.setTextClassifier(this, textClassifier);
+            getSuperCaller().setTextClassifier(textClassifier);
             return;
         }
         mTextClassifierHelper.setTextClassifier(textClassifier);
@@ -330,7 +340,7 @@ public class AppCompatEditText extends EditText implements TintableBackgroundVie
         // The null check is necessary because getTextClassifier is called when we are invoking
         // the super class's constructor.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P || mTextClassifierHelper == null) {
-            return MethodHandleWrappers.getTextClassifier(this);
+            return getSuperCaller().getTextClassifier();
         }
         return mTextClassifierHelper.getTextClassifier();
     }
@@ -501,59 +511,15 @@ public class AppCompatEditText extends EditText implements TintableBackgroundVie
     }
 
     @RequiresApi(api = 26)
-    private static class MethodHandleWrappers {
-        @Nullable
-        private static MethodHandle sMethodGetTextClassifier;
-        @Nullable
-        private static MethodHandle sMethodSetTextClassifier;
+    class SuperCaller {
 
-        static {
-            try {
-                MethodHandles.Lookup lookup = MethodHandles.lookup().in(TextView.class);
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    sMethodGetTextClassifier = lookup
-                            .unreflectSpecial(
-                                    TextView.class.getDeclaredMethod("getTextClassifier"),
-                                    TextView.class);
-                    sMethodSetTextClassifier = lookup
-                            .unreflectSpecial(
-                                    TextView.class.getDeclaredMethod("setTextClassifier",
-                                            TextClassifier.class),
-                                    TextView.class);
-                } else {
-                    sMethodGetTextClassifier = null;
-                    sMethodSetTextClassifier = null;
-                }
-            } catch (IllegalAccessException | NoSuchMethodException e) {
-                sMethodGetTextClassifier = null;
-                sMethodSetTextClassifier = null;
-            }
+        @Nullable
+        public TextClassifier getTextClassifier() {
+            return AppCompatEditText.super.getTextClassifier();
         }
 
-        @Nullable
-        public static TextClassifier getTextClassifier(AppCompatEditText editText) {
-            try {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    assert sMethodGetTextClassifier != null;
-                    return (TextClassifier) sMethodGetTextClassifier.bindTo(editText)
-                            .invokeWithArguments();
-                }
-            } catch (Throwable throwable) {
-                return null;
-            }
-            return null;
-        }
-
-        public static void setTextClassifier(AppCompatEditText editText,
-                TextClassifier textClassifier) {
-            try {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    assert sMethodSetTextClassifier != null;
-                    sMethodSetTextClassifier.bindTo(editText).invokeWithArguments(textClassifier);
-                }
-            } catch (Throwable throwable) {
-                // NOTHING
-            }
+        public void setTextClassifier(TextClassifier textClassifier) {
+            AppCompatEditText.super.setTextClassifier(textClassifier);
         }
     }
 }
