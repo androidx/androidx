@@ -16,6 +16,8 @@
 
 package androidx.camera.integration.view;
 
+import static androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor;
+
 import android.annotation.SuppressLint;
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -40,12 +42,13 @@ import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.CameraSelector;
+import androidx.camera.core.EffectBundle;
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCaptureException;
 import androidx.camera.core.Logger;
+import androidx.camera.core.SurfaceEffect;
 import androidx.camera.core.ZoomState;
-import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.camera.view.CameraController;
@@ -86,6 +89,7 @@ public class CameraControllerFragment extends Fragment {
     private FrameLayout mContainer;
     private Button mFlashMode;
     private ToggleButton mCameraToggle;
+    private ToggleButton mEffectToggle;
     private ExecutorService mExecutorService;
     private ToggleButton mCaptureEnabledToggle;
     private ToggleButton mAnalysisEnabledToggle;
@@ -105,6 +109,9 @@ public class CameraControllerFragment extends Fragment {
     // Wrapped analyzer for tests to receive callbacks.
     @Nullable
     private ImageAnalysis.Analyzer mWrappedAnalyzer;
+
+    @VisibleForTesting
+    ToneMappingSurfaceEffect mSurfaceEffect;
 
     private final ImageAnalysis.Analyzer mAnalyzer = image -> {
         byte[] bytes = new byte[image.getPlanes()[0].getBuffer().remaining()];
@@ -134,7 +141,7 @@ public class CameraControllerFragment extends Fragment {
         mExecutorService = Executors.newSingleThreadExecutor();
         mRotationProvider = new RotationProvider(requireContext());
         boolean canDetectRotation = mRotationProvider.addListener(
-                CameraXExecutors.mainThreadExecutor(), mRotationListener);
+                mainThreadExecutor(), mRotationListener);
         if (!canDetectRotation) {
             Logger.e(TAG, "The device cannot detect rotation with motion sensor.");
         }
@@ -158,6 +165,12 @@ public class CameraControllerFragment extends Fragment {
                 mContainer.removeView(mPreviewView);
             }
         });
+
+        // Set up post-processing effects.
+        mSurfaceEffect = new ToneMappingSurfaceEffect();
+        mEffectToggle = view.findViewById(R.id.effect_toggle);
+        mEffectToggle.setOnCheckedChangeListener((compoundButton, isChecked) -> onEffectsToggled());
+        onEffectsToggled();
 
         // Set up the button to change the PreviewView's size.
         view.findViewById(R.id.shrink).setOnClickListener(v -> {
@@ -341,6 +354,17 @@ public class CameraControllerFragment extends Fragment {
             mExecutorService.shutdown();
         }
         mRotationProvider.removeListener(mRotationListener);
+        mSurfaceEffect.release();
+    }
+
+    private void onEffectsToggled() {
+        if (mEffectToggle.isChecked()) {
+            mCameraController.setEffectBundle(new EffectBundle.Builder(mainThreadExecutor())
+                    .addEffect(SurfaceEffect.PREVIEW, mSurfaceEffect)
+                    .build());
+        } else if (mSurfaceEffect != null) {
+            mCameraController.setEffectBundle(null);
+        }
     }
 
     void checkFailedFuture(ListenableFuture<Void> voidFuture) {
@@ -355,7 +379,7 @@ public class CameraControllerFragment extends Fragment {
             public void onFailure(@NonNull Throwable t) {
                 toast(t.getMessage());
             }
-        }, CameraXExecutors.mainThreadExecutor());
+        }, mainThreadExecutor());
     }
 
     // Synthetic access
