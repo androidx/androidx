@@ -14,10 +14,15 @@
   See the License for the specific language governing permissions and
   limitations under the License.
   -->
-<resources
-    xmlns:window="http://schemas.android.com/apk/res-auto">
-    <ActivityRule>
-        <ActivityFilter
-            window:activityName="SplitActivityList"/>
-    </ActivityRule>
-</resources>
+
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:layout_gravity="center"
+        android:id="@+id/detail_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+</FrameLayout>

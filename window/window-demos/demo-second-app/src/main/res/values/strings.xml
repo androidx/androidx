@@ -14,10 +14,12 @@
   See the License for the specific language governing permissions and
   limitations under the License.
   -->
-<resources
-    xmlns:window="http://schemas.android.com/apk/res-auto">
-    <ActivityRule>
-        <ActivityFilter
-            window:activityName="SplitActivityList"/>
-    </ActivityRule>
+
+<resources>
+    <string name="trusted_embedding_activity">Trusted Embedding Activity</string>
+    <string name="trusted_embedding_activity_detail">Activity allows embedding in trusted mode via a
+        known certificate.</string>
+    <string name="untrusted_embedding_activity">Untrusted Embedding Activity</string>
+    <string name="untrusted_embedding_activity_detail">Activity allows embedding in untrusted mode
+        via opt-in.</string>
 </resources>
