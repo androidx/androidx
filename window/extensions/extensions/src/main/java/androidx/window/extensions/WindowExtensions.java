@@ -59,8 +59,9 @@ public interface WindowExtensions {
      * @return the OEM implementation of {@link ActivityEmbeddingComponent}
      */
     @Nullable
-    @ExperimentalWindowExtensionsApi
-    ActivityEmbeddingComponent getActivityEmbeddingComponent();
+    default ActivityEmbeddingComponent getActivityEmbeddingComponent() {
+        return null;
+    }
 
     /**
      * Returns the OEM implementation of {@link WindowAreaComponent} if it is supported on
@@ -69,6 +70,7 @@ public interface WindowExtensions {
      * @return the OEM implementation of {@link WindowAreaComponent}
      */
     @Nullable
-    @ExperimentalWindowExtensionsApi
-    WindowAreaComponent getWindowAreaComponent();
+    default WindowAreaComponent getWindowAreaComponent() {
+        return null;
+    }
 }

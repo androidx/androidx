@@ -25,14 +25,12 @@ import android.view.WindowMetrics;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
-import androidx.window.extensions.ExperimentalWindowExtensionsApi;
 
 import java.util.function.Predicate;
 
 /**
  * Split configuration rules for activity pairs.
  */
-@ExperimentalWindowExtensionsApi
 public class SplitPairRule extends SplitRule {
     @NonNull
     private final Predicate<Pair<Activity, Activity>> mActivityPairPredicate;
