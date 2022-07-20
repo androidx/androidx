@@ -28,6 +28,8 @@ import android.content.Context;
 import android.content.Intent;
 
 import androidx.camera.camera2.Camera2Config;
+import androidx.camera.camera2.pipe.integration.CameraPipeConfig;
+import androidx.camera.core.CameraXConfig;
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.Preview;
 import androidx.camera.testing.CameraUtil;
@@ -35,7 +37,6 @@ import androidx.camera.testing.CoreAppTestUtil;
 import androidx.camera.testing.CoreAppTestUtil.ForegroundOccupiedError;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.espresso.IdlingRegistry;
-import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
@@ -48,11 +49,16 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 import leakcanary.FailTestOnLeak;
 
 // Tests basic UI operation when using CoreTest app.
-@RunWith(AndroidJUnit4.class)
+@RunWith(Parameterized.class)
 @LargeTest
 public final class BasicUITest {
     private static final String BASIC_SAMPLE_PACKAGE = "androidx.camera.integration.core";
@@ -63,13 +69,24 @@ public final class BasicUITest {
     private final Intent mIntent = mContext.getPackageManager()
             .getLaunchIntentForPackage(BASIC_SAMPLE_PACKAGE);
 
+    @Parameterized.Parameter(0)
+    public CameraXConfig mCameraConfig;
+
+    @Parameterized.Parameters
+    public static Collection<Object[]> getParameters() {
+        List<Object[]> result = new ArrayList<>();
+        result.add(new Object[]{Camera2Config.defaultConfig()});
+        result.add(new Object[]{CameraPipeConfig.INSTANCE.defaultConfig()});
+        return result;
+    }
+
     @Rule
     public ActivityTestRule<CameraXActivity> mActivityRule =
             new ActivityTestRule<>(CameraXActivity.class, true, false);
 
     @Rule
     public TestRule mUseCamera = CameraUtil.grantCameraPermissionAndPreTest(
-            new CameraUtil.PreTestCameraIdList(Camera2Config.defaultConfig())
+            new CameraUtil.PreTestCameraIdList(mCameraConfig)
     );
 
     @Rule
