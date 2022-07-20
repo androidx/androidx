@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 The Android Open Source Project
+ * Copyright 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package androidx.window.demo.infolog
+package androidx.window.demo.common.infolog
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import androidx.window.demo.R
+import androidx.window.demo.common.R
 
 class InfoLogAdapter : RecyclerView.Adapter<InfoLogVH>() {
 

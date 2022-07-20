@@ -127,6 +127,20 @@ public class SplitActivityBase extends AppCompatActivity
                 Toast.makeText(this, R.string.install_samples_2, Toast.LENGTH_LONG).show();
             }
         });
+        mViewBinding.launchUid2UntrustedDisplayFeatures.setOnClickListener((View v) -> {
+            final Intent intent = new Intent();
+            // Use an explicit package and class name to start an Activity from a different
+            // package/UID.
+            intent.setClassName(
+                    "androidx.window.demo2",
+                    "androidx.window.demo.common.DisplayFeaturesActivity"
+            );
+            try {
+                startActivity(intent);
+            } catch (ActivityNotFoundException e) {
+                Toast.makeText(this, R.string.install_samples_2, Toast.LENGTH_LONG).show();
+            }
+        });
 
         // Listen for split configuration checkboxes to update the rules before launching
         // activities.

@@ -965,6 +965,7 @@ includeProject(":window:window-core", [BuildType.MAIN, BuildType.COMPOSE, BuildT
 includeProject(":window:window-rxjava2", [BuildType.MAIN])
 includeProject(":window:window-rxjava3", [BuildType.MAIN])
 includeProject(":window:window-demos:demo", [BuildType.MAIN, BuildType.COMPOSE, BuildType.FLAN, BuildType.CAMERA])
+includeProject(":window:window-demos:demo-common", [BuildType.MAIN, BuildType.COMPOSE, BuildType.FLAN, BuildType.CAMERA])
 includeProject(":window:window-demos:demo-second-app", [BuildType.MAIN, BuildType.COMPOSE, BuildType.FLAN, BuildType.CAMERA])
 includeProject(":window:window-testing", [BuildType.MAIN, BuildType.COMPOSE, BuildType.FLAN, BuildType.CAMERA])
 includeProject(":work:integration-tests:testapp", [BuildType.MAIN])

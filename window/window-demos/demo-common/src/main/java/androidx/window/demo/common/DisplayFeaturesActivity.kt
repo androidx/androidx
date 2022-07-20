@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 The Android Open Source Project
+ * Copyright 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,39 +14,43 @@
  * limitations under the License.
  */
 
-package androidx.window.demo
+package androidx.window.demo.common
 
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.widget.FrameLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.RecyclerView
+import androidx.window.demo.common.databinding.ActivityDisplayFeaturesConfigChangeBinding
+import androidx.window.demo.common.infolog.InfoLogAdapter
+import androidx.window.demo.common.util.PictureInPictureUtil.appendPictureInPictureMenu
+import androidx.window.demo.common.util.PictureInPictureUtil.handlePictureInPictureMenuItem
+import androidx.window.layout.FoldingFeature
 import androidx.window.layout.WindowInfoTracker
 import androidx.window.layout.WindowLayoutInfo
-import androidx.window.demo.infolog.InfoLogAdapter
-import androidx.window.demo.util.PictureInPictureUtil.appendPictureInPictureMenu
-import androidx.window.demo.util.PictureInPictureUtil.handlePictureInPictureMenuItem
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 /** Demo activity that shows all display features and current device state on the screen. */
-class DisplayFeaturesConfigChangeActivity : AppCompatActivity() {
+open class DisplayFeaturesActivity : AppCompatActivity() {
 
     private val infoLogAdapter = InfoLogAdapter()
     private val displayFeatureViews = ArrayList<View>()
+    private lateinit var binding: ActivityDisplayFeaturesConfigChangeBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_display_features_config_change)
+        binding = ActivityDisplayFeaturesConfigChangeBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
         val recyclerView = findViewById<RecyclerView>(R.id.infoLogRecyclerView)
         recyclerView.adapter = infoLogAdapter
 
@@ -57,8 +61,8 @@ class DisplayFeaturesConfigChangeActivity : AppCompatActivity() {
             lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 // Safely collect from windowInfoRepo when the lifecycle is STARTED
                 // and stops collection when the lifecycle is STOPPED
-                WindowInfoTracker.getOrCreate(this@DisplayFeaturesConfigChangeActivity)
-                    .windowLayoutInfo(this@DisplayFeaturesConfigChangeActivity)
+                WindowInfoTracker.getOrCreate(this@DisplayFeaturesActivity)
+                    .windowLayoutInfo(this@DisplayFeaturesActivity)
                     .collect { newLayoutInfo ->
                         // New posture information
                         updateStateLog(newLayoutInfo)
@@ -83,11 +87,16 @@ class DisplayFeaturesConfigChangeActivity : AppCompatActivity() {
     /** Updates the device state and display feature positions. */
     private fun updateCurrentState(windowLayoutInfo: WindowLayoutInfo) {
         // Cleanup previously added feature views
-        val rootLayout = findViewById<FrameLayout>(R.id.featureContainerLayout)
+        val rootLayout = binding.featureContainerLayout
         for (featureView in displayFeatureViews) {
             rootLayout.removeView(featureView)
         }
         displayFeatureViews.clear()
+
+        // Update the UI with the current state
+        val stateStringBuilder = StringBuilder()
+        stateStringBuilder.append(getString(R.string.window_layout))
+            .append(": ")
 
         // Add views that represent display features
         for (displayFeature in windowLayoutInfo.displayFeatures) {
@@ -102,14 +111,42 @@ class DisplayFeaturesConfigChangeActivity : AppCompatActivity() {
             }
 
             val featureView = View(this)
+            val foldFeature = displayFeature as? FoldingFeature
             val color = getColor(R.color.colorFeatureFold)
+
             featureView.foreground = ColorDrawable(color)
+
+            foldFeature?.let { feature ->
+                if (feature.isSeparating) {
+                    stateStringBuilder.append(getString(R.string.screens_are_separated))
+                } else {
+                    stateStringBuilder.append(getString(R.string.screens_are_not_separated))
+                }
+                stateStringBuilder
+                    .append(" - ")
+                    .append(
+                        if (feature.orientation == FoldingFeature.Orientation.HORIZONTAL) {
+                            getString(R.string.screen_is_horizontal)
+                        } else {
+                            getString(R.string.screen_is_vertical)
+                        }
+                    )
+                    .append(" - ")
+                    .append(
+                        if (feature.occlusionType == FoldingFeature.OcclusionType.FULL) {
+                            getString(R.string.occlusion_is_full)
+                        } else {
+                            getString(R.string.occlusion_is_none)
+                        }
+                    )
+            }
 
             rootLayout.addView(featureView, lp)
             featureView.id = View.generateViewId()
 
             displayFeatureViews.add(featureView)
         }
+        binding.currentState.text = stateStringBuilder.toString()
     }
 
     /** Adds the current state to the text log of changes on screen. */
