@@ -31,8 +31,8 @@ class SdkResourceGeneratorTest {
 
         val project = ProjectBuilder.builder().build()
 
-        project.setSupportRootFolder(File("files/support"))
         val extension = project.rootProject.property("ext") as ExtraPropertiesExtension
+        extension.set("supportRootFolder", File("files/support"))
         extension.set("buildSrcOut", project.projectDir.resolve("relative/path"))
 
         SdkResourceGenerator.registerSdkResourceGeneratorTask(project)
