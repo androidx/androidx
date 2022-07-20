@@ -299,6 +299,7 @@ C/C\+\+: Compiling for ARM
 # > Task :glance:glance:reportLibraryMetrics
 Info: Stripped invalid locals information from [0-9]+ methods?\.
 Info: Methods with invalid locals information:
+void androidx\.tv\.foundation\.lazy\.list\.LazyListKt\.LazyList\(androidx\.compose\.ui\.Modifier, androidx\.tv\.foundation\.lazy\.list\.TvLazyListState, androidx\.compose\.foundation\.layout\.PaddingValues, boolean, boolean, boolean, androidx\.tv\.foundation\.PivotOffsets, androidx\.compose\.ui\.Alignment\$Horizontal, androidx\.compose\.foundation\.layout\.Arrangement\$Vertical, androidx\.compose\.ui\.Alignment\$Vertical, androidx\.compose\.foundation\.layout\.Arrangement\$Horizontal, kotlin\.jvm\.functions\.Function[0-9]+, androidx\.compose\.runtime\.Composer, int, int, int\)
 androidx\.compose\.ui\.Modifier androidx\.compose\.animation\.AnimationModifierKt\$animateContentSize\$[0-9]+\.invoke\(androidx\.compose\.ui\.Modifier, androidx\.compose\.runtime\.Composer, int\)
 androidx\.compose\.ui\.Modifier androidx\.compose\.material[0-9]+\.SliderKt\$sliderTapModifier\$[0-9]+\.invoke\(androidx\.compose\.ui\.Modifier, androidx\.compose\.runtime\.Composer, int\)
 androidx\.compose\.ui\.Modifier androidx\.compose\.animation\.demos\.layoutanimation\.AnimatedPlacementDemoKt\$animatePlacement\$[0-9]+\.invoke\(androidx\.compose\.ui\.Modifier, androidx\.compose\.runtime\.Composer, int\)
@@ -321,6 +322,7 @@ void androidx\.compose\.material\.catalog\.library\.ui\.common\.CatalogScaffoldK
 void androidx\.compose\.foundation\.demos\.relocation\.BringIntoViewAndroidInteropDemoKt\.BringIntoViewAndroidInteropDemo\(androidx\.compose\.runtime\.Composer, int\)
 void androidx\.compose\.ui\.demos\.keyinput\.InterceptEnterToSendMessageDemoKt\.InterceptEnterToSendMessageDemo\(androidx\.compose\.runtime\.Composer, int\)
 Information in locals\-table is invalid with respect to the stack map table\. Local refers to non\-present stack map type for register: [0-9]+ with constraint [\-A-Z]*\.
+void androidx\.tv\.foundation\.lazy\.grid\.LazyGridKt\.LazyGrid\(androidx\.compose\.ui\.Modifier, androidx\.tv\.foundation\.lazy\.grid\.TvLazyGridState, kotlin\.jvm\.functions\.Function[0-9]+, androidx\.compose\.foundation\.layout\.PaddingValues, boolean, boolean, boolean, androidx\.compose\.foundation\.layout\.Arrangement\$Vertical, androidx\.compose\.foundation\.layout\.Arrangement\$Horizontal, androidx\.tv\.foundation\.PivotOffsets, kotlin\.jvm\.functions\.Function[0-9]+, androidx\.compose\.runtime\.Composer, int, int, int\)
 androidx\.compose\.ui\.Modifier androidx\.compose\.material\.SliderKt\$sliderTapModifier\$[0-9]+\.invoke\(androidx\.compose\.ui\.Modifier, androidx\.compose\.runtime\.Composer, int\)
 androidx\.compose\.ui\.Modifier androidx\.compose\.foundation\.FocusableKt\$focusable\$[0-9]+\.invoke\(androidx\.compose\.ui\.Modifier, androidx\.compose\.runtime\.Composer, int\)
 androidx\.compose\.ui\.Modifier androidx\.compose\.foundation\.ScrollKt\$scroll\$[0-9]+\.invoke\(androidx\.compose\.ui\.Modifier, androidx\.compose\.runtime\.Composer, int\)
@@ -439,6 +441,8 @@ Warning\: No libraries found for target (macos|ios|ios_simulator)_(arm|x)[0-9]+\
 # > Task :tv:tv-material:processReleaseManifest
 # > Task :tv:tv-foundation:processReleaseManifest
 package="androidx\.tv\..*" found in source AndroidManifest\.xml: \$OUT_DIR/androidx/tv/tv\-[a-z]+/build/intermediates/tmp/ProcessLibraryManifest/[a-z]+/tempAndroidManifest[0-9]+\.xml\.
+void androidx.tv.foundation.lazy.list.LazyListKt.LazyList(androidx.compose.ui.Modifier, androidx.tv.foundation.lazy.list.TvLazyListState, androidx.compose.foundation.layout.PaddingValues, boolean, boolean, boolean, androidx.tv.foundation.PivotOffsets, androidx.compose.ui.Alignment$Horizontal, androidx.compose.foundation.layout.Arrangement$Vertical, androidx.compose.ui.Alignment$Vertical, androidx.compose.foundation.layout.Arrangement$Horizontal, kotlin.jvm.functions.Function1, androidx.compose.runtime.Composer, int, int, int)
+void androidx.tv.foundation.lazy.grid.LazyGridKt.LazyGrid(androidx.compose.ui.Modifier, androidx.tv.foundation.lazy.grid.TvLazyGridState, kotlin.jvm.functions.Function2, androidx.compose.foundation.layout.PaddingValues, boolean, boolean, boolean, androidx.compose.foundation.layout.Arrangement$Vertical, androidx.compose.foundation.layout.Arrangement$Horizontal, androidx.tv.foundation.PivotOffsets, kotlin.jvm.functions.Function1, androidx.compose.runtime.Composer, int, int, int)
 # > Task :room:integration-tests:room-testapp:mergeDexWithExpandProjectionDebugAndroidTest
 WARNING:D[0-9]+: Application does not contain `androidx\.tracing\.Trace` as referenced in main\-dex\-list\.
 # > Task :hilt:hilt-compiler:kaptTestKotlin
@@ -468,3 +472,4 @@ WARNING: Please consider reporting this to the maintainers of androidx\.compose\
 # > Task :buildSrc-tests:test
 WARNING: Illegal reflective access using Lookup on org\.gradle\.internal\.classloader\.ClassLoaderUtils\$AbstractClassLoaderLookuper .* to class java\.lang\.ClassLoader
 WARNING: Please consider reporting this to the maintainers of org\.gradle\.internal\.classloader\.ClassLoaderUtils\$AbstractClassLoaderLookuper
+
