@@ -1,3 +1,5 @@
 // Baseline format: 1.0
-RemovedMethod: androidx.recyclerview.widget.SortedListAdapterCallback#SortedListAdapterCallback(androidx.recyclerview.widget.RecyclerView.Adapter):
-    Removed constructor androidx.recyclerview.widget.SortedListAdapterCallback(androidx.recyclerview.widget.RecyclerView.Adapter)
+InvalidNullConversion: androidx.recyclerview.widget.LinearLayoutManager#LinearLayoutManager(android.content.Context) parameter #0:
+    Attempted to remove @NonNull annotation from parameter arg1 in androidx.recyclerview.widget.LinearLayoutManager(android.content.Context arg1)
+InvalidNullConversion: androidx.recyclerview.widget.LinearLayoutManager#LinearLayoutManager(android.content.Context, int, boolean) parameter #0:
+    Attempted to remove @NonNull annotation from parameter arg1 in androidx.recyclerview.widget.LinearLayoutManager(android.content.Context arg1, int arg2, boolean arg3)
