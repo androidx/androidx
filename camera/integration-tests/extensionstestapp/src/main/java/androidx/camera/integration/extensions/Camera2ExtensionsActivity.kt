@@ -17,6 +17,7 @@
 package androidx.camera.integration.extensions
 
 import android.annotation.SuppressLint
+import android.content.ContentResolver
 import android.content.Context
 import android.content.Intent
 import android.graphics.SurfaceTexture
@@ -30,40 +31,46 @@ import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.params.ExtensionSessionConfiguration
 import android.hardware.camera2.params.OutputConfiguration
 import android.media.ImageReader
+import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
+import android.util.Size
 import android.view.Menu
 import android.view.MenuItem
 import android.view.Surface
 import android.view.TextureView
+import android.view.View
 import android.view.ViewStub
 import android.widget.Button
+import android.widget.FrameLayout
 import android.widget.Toast
 import androidx.annotation.RequiresApi
+import androidx.annotation.VisibleForTesting
 import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.impl.utils.futures.Futures
-import androidx.camera.integration.extensions.utils.Camera2ExtensionsUtil.calculateRelativeImageRotationDegrees
-import androidx.camera.integration.extensions.utils.Camera2ExtensionsUtil.createExtensionCaptureCallback
-import androidx.camera.integration.extensions.utils.Camera2ExtensionsUtil.getDisplayRotationDegrees
 import androidx.camera.integration.extensions.utils.Camera2ExtensionsUtil.getExtensionModeStringFromId
 import androidx.camera.integration.extensions.utils.Camera2ExtensionsUtil.getLensFacingCameraId
 import androidx.camera.integration.extensions.utils.Camera2ExtensionsUtil.pickPreviewResolution
 import androidx.camera.integration.extensions.utils.Camera2ExtensionsUtil.pickStillImageResolution
-import androidx.camera.integration.extensions.utils.Camera2ExtensionsUtil.transformPreview
 import androidx.camera.integration.extensions.utils.FileUtil
+import androidx.camera.integration.extensions.utils.TransformUtil.calculateRelativeImageRotationDegrees
+import androidx.camera.integration.extensions.utils.TransformUtil.surfaceRotationToRotationDegrees
+import androidx.camera.integration.extensions.utils.TransformUtil.transformTextureView
 import androidx.camera.integration.extensions.validation.CameraValidationResultActivity
 import androidx.concurrent.futures.CallbackToFutureAdapter
 import androidx.concurrent.futures.CallbackToFutureAdapter.Completer
 import androidx.core.util.Preconditions
 import androidx.lifecycle.lifecycleScope
+import androidx.test.espresso.idling.CountingIdlingResource
 import com.google.common.util.concurrent.ListenableFuture
 import java.text.Format
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
 import java.util.concurrent.Executors
+import java.util.concurrent.atomic.AtomicLong
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlinx.coroutines.Deferred
@@ -77,6 +84,15 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 
 private const val TAG = "Camera2ExtensionsAct~"
 private const val EXTENSION_MODE_INVALID = -1
+private const val FRAMES_UNTIL_VIEW_IS_READY = 10
+
+// Launch the activity with the specified camera id.
+@VisibleForTesting
+const val INTENT_EXTRA_CAMERA_ID = "camera_id"
+
+// Launch the activity with the specified extension mode.
+@VisibleForTesting
+const val INTENT_EXTRA_EXTENSION_MODE = "extension_mode"
 
 @RequiresApi(31)
 class Camera2ExtensionsActivity : AppCompatActivity() {
@@ -127,6 +143,8 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
     private var currentExtensionIdx = -1
     private val supportedExtensionModes = mutableListOf<Int>()
 
+    private lateinit var containerView: View
+
     private lateinit var textureView: TextureView
 
     private lateinit var previewSurface: Surface
@@ -139,7 +157,7 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
             height: Int
         ) {
             previewSurface = Surface(surfaceTexture)
-            openCameraWithExtensionMode(currentCameraId)
+            setupAndStartPreview(currentCameraId, currentExtensionMode)
         }
 
         override fun onSurfaceTextureSizeChanged(
@@ -154,10 +172,31 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
         }
 
         override fun onSurfaceTextureUpdated(surfaceTexture: SurfaceTexture) {
+            if (captureProcessStartedIdlingResource.isIdleNow &&
+                receivedPreviewFrameCount.getAndIncrement() >= FRAMES_UNTIL_VIEW_IS_READY &&
+                !previewIdlingResource.isIdleNow
+            ) {
+                previewIdlingResource.decrement()
+            }
         }
     }
 
-    private val captureCallbacks = createExtensionCaptureCallback()
+    private val captureCallbacks = object : CameraExtensionSession.ExtensionCaptureCallback() {
+        override fun onCaptureProcessStarted(
+            session: CameraExtensionSession,
+            request: CaptureRequest
+        ) {
+            if (receivedCaptureProcessStartedCount.getAndIncrement() >=
+                FRAMES_UNTIL_VIEW_IS_READY && !captureProcessStartedIdlingResource.isIdleNow
+            ) {
+                captureProcessStartedIdlingResource.decrement()
+            }
+        }
+
+        override fun onCaptureFailed(session: CameraExtensionSession, request: CaptureRequest) {
+            Log.e(TAG, "onCaptureFailed!!")
+        }
+    }
 
     private var restartOnStart = false
 
@@ -166,6 +205,37 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
     private val cameraTaskDispatcher = Executors.newSingleThreadExecutor().asCoroutineDispatcher()
 
     private var imageSaveTerminationFuture: ListenableFuture<Any?> = Futures.immediateFuture(null)
+
+    /**
+     * Used to wait for the capture session is configured.
+     */
+    private val captureSessionConfiguredIdlingResource =
+        CountingIdlingResource("captureSessionConfigured").apply { increment() }
+    /**
+     * Used to wait for the ExtensionCaptureCallback#onCaptureProcessStarted is called which means
+     * an image is captured and extension processing is triggered.
+     */
+    private val captureProcessStartedIdlingResource =
+        CountingIdlingResource("captureProcessStarted").apply { increment() }
+
+    /**
+     * Used to wait for the preview is ready. This will become idle after
+     * captureProcessStartedIdlingResource becomes idle and
+     * [SurfaceTextureListener#onSurfaceTextureUpdated()] is also called. It means that there has
+     * been images captured to trigger the extension processing and the preview's SurfaceTexture is
+     * also updated by [SurfaceTexture#updateTexImage()] calls.
+     */
+    private val previewIdlingResource = CountingIdlingResource("preview").apply { increment() }
+
+    /**
+     * Used to trigger a picture taking action and waits for the image being saved.
+     */
+    private val imageSavedIdlingResource = CountingIdlingResource("imageSaved")
+
+    private val receivedCaptureProcessStartedCount: AtomicLong = AtomicLong(0)
+    private val receivedPreviewFrameCount: AtomicLong = AtomicLong(0)
+
+    private lateinit var sessionImageUriSet: SessionMediaUriSet
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -191,8 +261,15 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
             return
         }
 
-        updateExtensionInfo()
+        sessionImageUriSet = SessionMediaUriSet(contentResolver)
 
+        // Gets params from extra bundle
+        intent.extras?.let { bundle ->
+            currentCameraId = bundle.getString(INTENT_EXTRA_CAMERA_ID, currentCameraId)
+            currentExtensionMode = bundle.getInt(INTENT_EXTRA_EXTENSION_MODE, currentExtensionMode)
+        }
+
+        updateExtensionInfo()
         setupTextureView()
         enableUiControl(false)
         setupUiControl()
@@ -240,7 +317,8 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
     private fun setupTextureView() {
         val viewFinderStub = findViewById<ViewStub>(R.id.viewFinderStub)
         viewFinderStub.layoutResource = R.layout.full_textureview
-        textureView = viewFinderStub.inflate() as TextureView
+        containerView = viewFinderStub.inflate()
+        textureView = containerView.findViewById(R.id.textureView)
         textureView.surfaceTextureListener = surfaceTextureListener
     }
 
@@ -260,7 +338,7 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
             restartPreview = true
             extensionModeToggleButton.text = getExtensionModeStringFromId(currentExtensionMode)
 
-            closeCaptureSession()
+            closeCaptureSessionAsync()
         }
 
         val cameraSwitchButton = findViewById<Button>(R.id.Switch)
@@ -280,12 +358,13 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
             currentCameraId = newCameraId
             restartCamera = true
 
-            closeCamera()
+            closeCameraAsync()
         }
 
         val captureButton = findViewById<Button>(R.id.Picture)
         captureButton.setOnClickListener {
             enableUiControl(false)
+            resetImageSavedIdlingResource()
             takePicture()
         }
     }
@@ -296,7 +375,7 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
         activityStopped = false
         if (restartOnStart) {
             restartOnStart = false
-            openCameraWithExtensionMode(currentCameraId)
+            setupAndStartPreview(currentCameraId, currentExtensionMode)
         }
     }
 
@@ -306,8 +385,8 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
         // Needs to close the camera first. Otherwise, the next activity might be failed to open
         // the camera and configure the capture session.
         runBlocking {
-            closeCaptureSession().await()
-            closeCamera().await()
+            closeCaptureSessionAsync().await()
+            closeCameraAsync().await()
         }
         restartOnStart = true
         activityStopped = true
@@ -323,34 +402,101 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
         Log.d(TAG, "onDestroy()--")
     }
 
-    private fun closeCamera(): Deferred<Unit> = lifecycleScope.async(cameraTaskDispatcher) {
+    private fun closeCameraAsync(): Deferred<Unit> = lifecycleScope.async(cameraTaskDispatcher) {
         Log.d(TAG, "closeCamera()++")
         cameraDevice?.close()
         cameraDevice = null
         Log.d(TAG, "closeCamera()--")
     }
 
-    private fun closeCaptureSession(): Deferred<Unit> = lifecycleScope.async(cameraTaskDispatcher) {
-        Log.d(TAG, "closeCaptureSession()++")
-        try {
-            cameraExtensionSession?.close()
-            cameraExtensionSession = null
-        } catch (e: Exception) {
-            Log.e(TAG, e.toString())
+    private fun closeCaptureSessionAsync(): Deferred<Unit> =
+        lifecycleScope.async(cameraTaskDispatcher) {
+            Log.d(TAG, "closeCaptureSession()++")
+            resetCaptureSessionConfiguredIdlingResource()
+            try {
+                cameraExtensionSession?.close()
+                cameraExtensionSession = null
+            } catch (e: Exception) {
+                Log.e(TAG, e.toString())
+            }
+            Log.d(TAG, "closeCaptureSession()--")
         }
-        Log.d(TAG, "closeCaptureSession()--")
+
+    /**
+     * Sets up the UI layout settings for the specified camera and extension mode. And then,
+     * triggers to open the camera and capture session to start the preview with the extension mode
+     * enabled.
+     */
+    @Suppress("DEPRECATION") /* defaultDisplay */
+    private fun setupAndStartPreview(cameraId: String, extensionMode: Int) {
+        if (!textureView.isAvailable) {
+            Toast.makeText(
+                this, "TextureView is invalid!!",
+                Toast.LENGTH_SHORT
+            ).show()
+            finish()
+            return
+        }
+
+        val previewResolution = pickPreviewResolution(
+            cameraManager,
+            cameraId,
+            resources.displayMetrics,
+            extensionMode
+        )
+
+        if (previewResolution == null) {
+            Toast.makeText(
+                this,
+                "Invalid preview extension sizes!.",
+                Toast.LENGTH_SHORT
+            ).show()
+            finish()
+            return
+        }
+
+        Log.d(TAG, "Set default buffer size to previewResolution: $previewResolution")
+
+        textureView.surfaceTexture?.setDefaultBufferSize(
+            previewResolution.width,
+            previewResolution.height
+        )
+
+        textureView.layoutParams =
+            FrameLayout.LayoutParams(previewResolution.width, previewResolution.height)
+
+        val containerViewSize = Size(containerView.width, containerView.height)
+
+        val lensFacing =
+            cameraManager.getCameraCharacteristics(cameraId)[CameraCharacteristics.LENS_FACING]
+
+        transformTextureView(
+            textureView,
+            containerViewSize,
+            previewResolution,
+            windowManager.defaultDisplay.rotation,
+            cameraSensorRotationDegrees,
+            lensFacing == CameraCharacteristics.LENS_FACING_BACK
+        )
+
+        startPreview(cameraId, extensionMode)
     }
 
-    private fun openCameraWithExtensionMode(cameraId: String) =
+    /**
+     * Opens the camera and capture session to start the preview with the extension mode enabled.
+     */
+    private fun startPreview(cameraId: String, extensionMode: Int) =
         lifecycleScope.launch(cameraTaskDispatcher) {
             Log.d(TAG, "openCameraWithExtensionMode()++ cameraId: $cameraId")
-            cameraDevice = openCamera(cameraManager, cameraId)
-            cameraExtensionSession = openCaptureSession()
+            if (cameraDevice == null || cameraDevice!!.id != cameraId) {
+                cameraDevice = openCamera(cameraManager, cameraId)
+            }
+            cameraExtensionSession = openCaptureSession(extensionMode)
 
             lifecycleScope.launch(Dispatchers.Main) {
                 if (activityStopped) {
-                    closeCaptureSession()
-                    closeCamera()
+                    closeCaptureSessionAsync()
+                    closeCameraAsync()
                 }
             }
             Log.d(TAG, "openCameraWithExtensionMode()--")
@@ -382,7 +528,7 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
                         if (restartCamera) {
                             restartCamera = false
                             updateExtensionInfo()
-                            openCameraWithExtensionMode(currentCameraId)
+                            setupAndStartPreview(currentCameraId, currentExtensionMode)
                         }
                     }
                 }
@@ -407,10 +553,9 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
     /**
      * Opens and returns the extensions session (as the result of the suspend coroutine)
      */
-    private suspend fun openCaptureSession(): CameraExtensionSession =
+    private suspend fun openCaptureSession(extensionMode: Int): CameraExtensionSession =
         suspendCancellableCoroutine { cont ->
             Log.d(TAG, "openCaptureSession")
-            setupPreview()
 
             if (stillImageReader != null) {
                 val imageReaderToClose = stillImageReader!!
@@ -426,7 +571,7 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
             outputConfig.add(OutputConfiguration(stillImageReader!!.surface))
             outputConfig.add(OutputConfiguration(previewSurface))
             val extensionConfiguration = ExtensionSessionConfiguration(
-                currentExtensionMode, outputConfig,
+                extensionMode, outputConfig,
                 cameraTaskDispatcher.asExecutor(), object : CameraExtensionSession.StateCallback() {
                     override fun onClosed(session: CameraExtensionSession) {
                         Log.d(TAG, "CaptureSession - onClosed: $session")
@@ -435,8 +580,11 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
                             if (restartPreview) {
                                 restartPreview = false
 
+                                val newExtensionMode = currentExtensionMode
+
                                 lifecycleScope.launch(cameraTaskDispatcher) {
-                                    cameraExtensionSession = openCaptureSession()
+                                    cameraExtensionSession =
+                                        openCaptureSession(newExtensionMode)
                                 }
                             }
                         }
@@ -453,7 +601,12 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
                                 cameraTaskDispatcher.asExecutor(), captureCallbacks
                             )
                             cont.resume(session)
-                            runOnUiThread { enableUiControl(true) }
+                            runOnUiThread {
+                                enableUiControl(true)
+                                if (!captureSessionConfiguredIdlingResource.isIdleNow) {
+                                    captureSessionConfiguredIdlingResource.decrement()
+                                }
+                            }
                         } catch (e: CameraAccessException) {
                             Log.e(TAG, e.toString())
                             cont.resumeWithException(
@@ -478,46 +631,13 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
             }
         }
 
-    @Suppress("DEPRECATION") /* defaultDisplay */
-    private fun setupPreview() {
-        if (!textureView.isAvailable) {
-            Toast.makeText(
-                this, "TextureView is invalid!!",
-                Toast.LENGTH_SHORT
-            ).show()
-            finish()
-            return
-        }
-
-        val previewResolution = pickPreviewResolution(
-            cameraManager,
-            currentCameraId,
-            resources.displayMetrics,
-            currentExtensionMode
-        )
-
-        if (previewResolution == null) {
-            Toast.makeText(
-                this,
-                "Invalid preview extension sizes!.",
-                Toast.LENGTH_SHORT
-            ).show()
-            finish()
-            return
-        }
-
-        textureView.surfaceTexture?.setDefaultBufferSize(
-            previewResolution.width,
-            previewResolution.height
-        )
-        transformPreview(textureView, previewResolution, windowManager.defaultDisplay.rotation)
-    }
-
     private fun setupImageReader(): ImageReader {
         val (size, format) = pickStillImageResolution(
             extensionCharacteristics,
             currentExtensionMode
         )
+
+        Log.d(TAG, "Setup image reader - size: $size, format: $format")
 
         return ImageReader.newInstance(size.width, size.height, format, 1)
     }
@@ -542,9 +662,15 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
         stillImageReader!!.setOnImageAvailableListener(
             { reader: ImageReader ->
                 lifecycleScope.launch(cameraTaskDispatcher) {
-                    acquireImageAndSave(reader)
+                    acquireImageAndSave(reader)?.let { sessionImageUriSet.add(it) }
+
                     stillImageReader!!.setOnImageAvailableListener(null, null)
                     takePictureCompleter?.set(null)
+
+                    if (!imageSavedIdlingResource.isIdleNow) {
+                        imageSavedIdlingResource.decrement()
+                    }
+
                     lifecycleScope.launch(Dispatchers.Main) {
                         enableUiControl(true)
                     }
@@ -582,7 +708,8 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
     /**
      * Acquires the latest image from the image reader and save it to the Pictures folder
      */
-    private fun acquireImageAndSave(imageReader: ImageReader) {
+    private fun acquireImageAndSave(imageReader: ImageReader): Uri? {
+        var uri: Uri? = null
         try {
             val formatter: Format =
                 SimpleDateFormat("yyyy-MM-dd-HH-mm-ss-SSS", Locale.US)
@@ -592,13 +719,13 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
                 }"
 
             val rotationDegrees = calculateRelativeImageRotationDegrees(
-                (getDisplayRotationDegrees(display!!.rotation)),
+                (surfaceRotationToRotationDegrees(display!!.rotation)),
                 cameraSensorRotationDegrees,
                 currentCameraId == backCameraId
             )
 
             imageReader.acquireLatestImage().let { image ->
-                val uri = FileUtil.saveImage(
+                uri = FileUtil.saveImage(
                     image,
                     fileName,
                     ".jpg",
@@ -622,6 +749,8 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
         } catch (e: Exception) {
             Log.e(TAG, e.toString())
         }
+
+        return uri
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -649,13 +778,75 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
         // Needs to close the camera first. Otherwise, the next activity might be failed to open
         // the camera and configure the capture session.
         runBlocking {
-            closeCaptureSession().await()
-            closeCamera().await()
+            closeCaptureSessionAsync().await()
+            closeCameraAsync().await()
         }
 
         val intent = Intent()
         intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
         intent.setClassName(this, className)
         startActivity(intent)
+    }
+
+    @VisibleForTesting
+    fun getCaptureSessionConfiguredIdlingResource(): CountingIdlingResource =
+        captureSessionConfiguredIdlingResource
+
+    @VisibleForTesting
+    fun getPreviewIdlingResource(): CountingIdlingResource = previewIdlingResource
+
+    @VisibleForTesting
+    fun getImageSavedIdlingResource(): CountingIdlingResource = imageSavedIdlingResource
+
+    private fun resetCaptureSessionConfiguredIdlingResource() {
+        if (captureSessionConfiguredIdlingResource.isIdleNow) {
+            captureSessionConfiguredIdlingResource.increment()
+        }
+    }
+
+    @VisibleForTesting
+    fun resetPreviewIdlingResource() {
+        receivedCaptureProcessStartedCount.set(0)
+        receivedPreviewFrameCount.set(0)
+
+        if (captureProcessStartedIdlingResource.isIdleNow) {
+            captureProcessStartedIdlingResource.increment()
+        }
+
+        if (previewIdlingResource.isIdleNow) {
+            previewIdlingResource.increment()
+        }
+    }
+
+    private fun resetImageSavedIdlingResource() {
+        if (imageSavedIdlingResource.isIdleNow) {
+            imageSavedIdlingResource.increment()
+        }
+    }
+
+    @VisibleForTesting
+    fun deleteSessionImages() {
+        sessionImageUriSet.deleteAllUris()
+    }
+
+    private class SessionMediaUriSet constructor(val contentResolver: ContentResolver) {
+        private val mSessionMediaUris: MutableSet<Uri> = mutableSetOf()
+
+        fun add(uri: Uri) {
+            synchronized(mSessionMediaUris) {
+                mSessionMediaUris.add(uri)
+            }
+        }
+
+        fun deleteAllUris() {
+            synchronized(mSessionMediaUris) {
+                val it =
+                    mSessionMediaUris.iterator()
+                while (it.hasNext()) {
+                    contentResolver.delete(it.next(), null, null)
+                    it.remove()
+                }
+            }
+        }
     }
 }
