@@ -19,7 +19,6 @@ package androidx.camera.integration.diagnose
 import android.content.Context
 import android.os.Build
 import android.util.Log
-import android.widget.Toast
 import java.io.File
 import java.io.FileOutputStream
 import java.util.zip.ZipEntry
@@ -30,8 +29,8 @@ import java.util.zip.ZipOutputStream
  */
 class Diagnosis {
 
-    // TODO: convert to async function
-    fun collectDeviceInfo(context: Context) {
+    // TODO: convert to a suspend function for running different tasks within this function
+    fun collectDeviceInfo(context: Context): File {
         Log.d(TAG, "calling collectDeviceInfo()")
 
         // TODO: verify if external storage is available
@@ -57,12 +56,7 @@ class Diagnosis {
         zout.close()
         fout.close()
 
-        Log.d(TAG, "file at ${tempFile.path}")
-        if (tempFile.exists()) {
-            val msg = "Successfully collected information"
-            Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
-            Log.d(TAG, msg)
-        }
+        return tempFile
     }
 
     private fun createTemp(context: Context, filename: String): File {
