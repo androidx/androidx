@@ -18,7 +18,6 @@ package androidx.camera.integration.uiwidgets.compose.ui.navigation
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CameraAlt
-import androidx.compose.material.icons.filled.PhotoLibrary
 import androidx.compose.material.icons.filled.Videocam
 import androidx.compose.ui.graphics.vector.ImageVector
 
@@ -32,9 +31,6 @@ enum class ComposeCameraScreen(
     ),
     VideoCapture(
         icon = Icons.Filled.Videocam
-    ),
-    Gallery(
-        icon = Icons.Filled.PhotoLibrary
     );
 
     companion object {
@@ -42,7 +38,6 @@ enum class ComposeCameraScreen(
             return when (route?.substringBefore("/")) {
                 ImageCapture.name -> ImageCapture
                 VideoCapture.name -> VideoCapture
-                Gallery.name -> Gallery
                 null -> defaultRoute
                 else -> throw IllegalArgumentException("Route $route is not recognized.")
             }

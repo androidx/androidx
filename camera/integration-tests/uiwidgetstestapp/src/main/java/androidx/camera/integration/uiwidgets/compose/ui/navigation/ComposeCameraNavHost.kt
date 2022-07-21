@@ -16,7 +16,6 @@
 
 package androidx.camera.integration.uiwidgets.compose.ui.navigation
 
-import androidx.camera.integration.uiwidgets.compose.ui.screen.gallery.GalleryScreen
 import androidx.camera.integration.uiwidgets.compose.ui.screen.imagecapture.ImageCaptureScreen
 import androidx.camera.integration.uiwidgets.compose.ui.screen.videocapture.VideoCaptureScreen
 import androidx.compose.runtime.Composable
@@ -41,10 +40,6 @@ fun ComposeCameraNavHost(
 
         composable(ComposeCameraScreen.VideoCapture.name) {
             VideoCaptureScreen()
-        }
-
-        composable(ComposeCameraScreen.Gallery.name) {
-            GalleryScreen()
         }
     }
 }
