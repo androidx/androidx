@@ -1,1 +1,39 @@
 // Signature format: 4.0
+package androidx.javascriptengine {
+
+  public class EvaluationFailedException extends androidx.javascriptengine.JsException {
+    ctor public EvaluationFailedException(String);
+  }
+
+  public class IsolateTerminatedException extends androidx.javascriptengine.JsException {
+    ctor public IsolateTerminatedException();
+  }
+
+  public class JsException extends java.lang.Exception {
+    ctor public JsException(String);
+    ctor public JsException();
+  }
+
+  public class JsIsolate implements java.lang.AutoCloseable {
+    method public void close();
+    method public com.google.common.util.concurrent.ListenableFuture<java.lang.String!> evaluateJavaScriptAsync(String);
+    method @RequiresFeature(name=androidx.javascriptengine.JsSandbox.JS_FEATURE_PROVIDE_CONSUME_ARRAY_BUFFER, enforcement="androidx.javascriptengine.JsSandbox#isFeatureSupported") public boolean provideNamedData(String, byte[]);
+  }
+
+  public class JsSandbox implements java.lang.AutoCloseable {
+    method public void close();
+    method public static com.google.common.util.concurrent.ListenableFuture<androidx.javascriptengine.JsSandbox!> createConnectedInstanceAsync(android.content.Context);
+    method public androidx.javascriptengine.JsIsolate createIsolate();
+    method public boolean isFeatureSupported(String);
+    field public static final String JS_FEATURE_ISOLATE_TERMINATION = "JS_FEATURE_ISOLATE_TERMINATION";
+    field public static final String JS_FEATURE_PROMISE_RETURN = "JS_FEATURE_PROMISE_RETURN";
+    field public static final String JS_FEATURE_PROVIDE_CONSUME_ARRAY_BUFFER = "JS_FEATURE_PROVIDE_CONSUME_ARRAY_BUFFER";
+    field public static final String JS_FEATURE_WASM_COMPILATION = "JS_FEATURE_WASM_COMPILATION";
+  }
+
+  public class SandboxDeadException extends androidx.javascriptengine.JsException {
+    ctor public SandboxDeadException();
+  }
+
+}
+
