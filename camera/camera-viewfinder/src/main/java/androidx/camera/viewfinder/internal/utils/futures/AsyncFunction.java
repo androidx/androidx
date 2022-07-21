@@ -16,6 +16,7 @@
 
 package androidx.camera.viewfinder.internal.utils.futures;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
@@ -48,5 +49,6 @@ public interface AsyncFunction<I, O> {
      * <p>Throwing an exception from this method is equivalent to returning a failing {@code
      * Future}.
      */
+    @NonNull
     ListenableFuture<O> apply(@Nullable I input) throws Exception;
 }

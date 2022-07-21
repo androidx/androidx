@@ -4,15 +4,6 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    ListenableFuture&lt;O> apply(@Nullable I input) throws Exception;"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/viewfinder/internal/utils/futures/AsyncFunction.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    void onFailure(Throwable t);"
         errorLine2="                   ~~~~~~~~~">
         <location
