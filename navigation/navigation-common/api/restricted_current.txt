@@ -200,6 +200,7 @@ package androidx.navigation {
     method public final void addArgument(String argumentName, androidx.navigation.NavArgument argument);
     method public final void addDeepLink(String uriPattern);
     method public final void addDeepLink(androidx.navigation.NavDeepLink navDeepLink);
+    method public final String? fillInLabel(android.content.Context context, android.os.Bundle? bundle);
     method public final androidx.navigation.NavAction? getAction(@IdRes int id);
     method public final java.util.Map<java.lang.String,androidx.navigation.NavArgument> getArguments();
     method public static final kotlin.sequences.Sequence<androidx.navigation.NavDestination> getHierarchy(androidx.navigation.NavDestination);
