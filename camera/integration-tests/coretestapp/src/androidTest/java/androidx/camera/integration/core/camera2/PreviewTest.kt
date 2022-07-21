@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 The Android Open Source Project
+ * Copyright 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,18 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.camera.camera2
+package androidx.camera.integration.core.camera2
 
 import android.content.Context
 import android.graphics.SurfaceTexture
 import android.util.Size
 import android.view.Surface
+import androidx.camera.camera2.Camera2Config
 import androidx.camera.camera2.internal.DisplayInfoManager
+import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.AspectRatio
 import androidx.camera.core.CameraSelector
+import androidx.camera.core.CameraXConfig
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.Preview
-import androidx.camera.core.SurfaceRequest
 import androidx.camera.core.UseCase
 import androidx.camera.core.impl.ImageOutputConfig
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
@@ -37,7 +39,6 @@ import androidx.camera.testing.SurfaceTextureProvider
 import androidx.camera.testing.SurfaceTextureProvider.SurfaceTextureCallback
 import androidx.core.util.Consumer
 import androidx.test.core.app.ApplicationProvider
-import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
@@ -50,24 +51,40 @@ import java.util.concurrent.ThreadFactory
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
 import java.util.concurrent.atomic.AtomicReference
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
 import org.junit.After
 import org.junit.Assume
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.ArgumentMatchers
-import org.mockito.Mockito
-import org.mockito.invocation.InvocationOnMock
+import org.junit.runners.Parameterized
 
 @LargeTest
-@RunWith(AndroidJUnit4::class)
+@RunWith(Parameterized::class)
 @SdkSuppress(minSdkVersion = 21)
-class PreviewTest {
+class PreviewTest(
+    private val implName: String,
+    private val cameraConfig: CameraXConfig
+) {
     @get:Rule
     val cameraRule = CameraUtil.grantCameraPermissionAndPreTest(
-        PreTestCameraIdList(Camera2Config.defaultConfig())
+        PreTestCameraIdList(cameraConfig)
     )
+
+    companion object {
+        private const val ANY_THREAD_NAME = "any-thread-name"
+        private val DEFAULT_RESOLUTION: Size by lazy { Size(640, 480) }
+        @JvmStatic
+        @Parameterized.Parameters(name = "{0}")
+        fun data() = listOf(
+            arrayOf(Camera2Config::class.simpleName, Camera2Config.defaultConfig()),
+            arrayOf(CameraPipeConfig::class.simpleName, CameraPipeConfig.defaultConfig())
+        )
+    }
+
     private val instrumentation = InstrumentationRegistry.getInstrumentation()
     private val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
     private var defaultBuilder: Preview.Builder? = null
@@ -81,8 +98,7 @@ class PreviewTest {
     @Throws(ExecutionException::class, InterruptedException::class)
     fun setUp() {
         context = ApplicationProvider.getApplicationContext()
-        val cameraXConfig = Camera2Config.defaultConfig()
-        CameraXUtil.initialize(context!!, cameraXConfig).get()
+        CameraXUtil.initialize(context!!, cameraConfig).get()
 
         // init CameraX before creating Preview to get preview size with CameraX's context
         defaultBuilder = Preview.Builder.fromConfig(Preview.DEFAULT_CONFIG.config)
@@ -106,38 +122,30 @@ class PreviewTest {
     }
 
     @Test
-    fun surfaceProvider_isUsedAfterSetting() {
-        val surfaceProvider = Mockito.mock(
-            Preview.SurfaceProvider::class.java
-        )
-        Mockito.doAnswer { args: InvocationOnMock ->
-            val surfaceTexture = SurfaceTexture(0)
-            surfaceTexture.setDefaultBufferSize(640, 480)
-            val surface = Surface(surfaceTexture)
-            (args.getArgument<Any>(0) as SurfaceRequest).provideSurface(
-                surface,
-                CameraXExecutors.directExecutor()
-            ) {
-                surfaceTexture.release()
-                surface.release()
-            }
-            null
-        }.`when`(surfaceProvider).onSurfaceRequested(
-            ArgumentMatchers.any(
-                SurfaceRequest::class.java
-            )
-        )
+    fun surfaceProvider_isUsedAfterSetting() = runBlocking {
         val preview = defaultBuilder!!.build()
+        val completableDeferred = CompletableDeferred<Unit>()
 
         // TODO(b/160261462) move off of main thread when setSurfaceProvider does not need to be
         //  done on the main thread
-        instrumentation.runOnMainSync { preview.setSurfaceProvider(surfaceProvider) }
-        camera = CameraUtil.createCameraAndAttachUseCase(context!!, cameraSelector, preview)
-        Mockito.verify(surfaceProvider, Mockito.timeout(3000)).onSurfaceRequested(
-            ArgumentMatchers.any(
-                SurfaceRequest::class.java
+        instrumentation.runOnMainSync { preview.setSurfaceProvider { request ->
+            val surfaceTexture = SurfaceTexture(0)
+            surfaceTexture.setDefaultBufferSize(
+                request.resolution.width,
+                request.resolution.height
             )
-        )
+            surfaceTexture.detachFromGLContext()
+            val surface = Surface(surfaceTexture)
+            request.provideSurface(surface, CameraXExecutors.directExecutor()) {
+                surface.release()
+                surfaceTexture.release()
+            }
+            completableDeferred.complete(Unit)
+        } }
+        camera = CameraUtil.createCameraAndAttachUseCase(context!!, cameraSelector, preview)
+        withTimeout(3_000) {
+            completableDeferred.await()
+        }
     }
 
     @Test
@@ -563,10 +571,5 @@ class PreviewTest {
             totalCheckTime += checkFrequency
         } while (totalCheckTime < timeoutMs)
         return false
-    }
-
-    companion object {
-        private const val ANY_THREAD_NAME = "any-thread-name"
-        private val DEFAULT_RESOLUTION: Size by lazy { Size(640, 480) }
     }
 }
