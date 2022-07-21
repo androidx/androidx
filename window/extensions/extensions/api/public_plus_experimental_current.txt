@@ -1,11 +1,8 @@
 // Signature format: 4.0
 package androidx.window.extensions {
 
-  @RequiresOptIn @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface ExperimentalWindowExtensionsApi {
-  }
-
   public interface WindowExtensions {
-    method @androidx.window.extensions.ExperimentalWindowExtensionsApi public androidx.window.extensions.embedding.ActivityEmbeddingComponent? getActivityEmbeddingComponent();
+    method public default androidx.window.extensions.embedding.ActivityEmbeddingComponent? getActivityEmbeddingComponent();
     method public default int getVendorApiLevel();
     method public androidx.window.extensions.layout.WindowLayoutComponent? getWindowLayoutComponent();
   }
@@ -18,13 +15,13 @@ package androidx.window.extensions {
 
 package androidx.window.extensions.embedding {
 
-  @androidx.window.extensions.ExperimentalWindowExtensionsApi public interface ActivityEmbeddingComponent {
+  public interface ActivityEmbeddingComponent {
     method public boolean isActivityEmbedded(android.app.Activity);
     method public void setEmbeddingRules(java.util.Set<androidx.window.extensions.embedding.EmbeddingRule!>);
     method public void setSplitInfoCallback(java.util.function.Consumer<java.util.List<androidx.window.extensions.embedding.SplitInfo!>!>);
   }
 
-  @androidx.window.extensions.ExperimentalWindowExtensionsApi public class ActivityRule extends androidx.window.extensions.embedding.EmbeddingRule {
+  public class ActivityRule extends androidx.window.extensions.embedding.EmbeddingRule {
     method @RequiresApi(api=android.os.Build.VERSION_CODES.N) public boolean matchesActivity(android.app.Activity);
     method @RequiresApi(api=android.os.Build.VERSION_CODES.N) public boolean matchesIntent(android.content.Intent);
     method public boolean shouldAlwaysExpand();
@@ -36,23 +33,23 @@ package androidx.window.extensions.embedding {
     method public androidx.window.extensions.embedding.ActivityRule.Builder setShouldAlwaysExpand(boolean);
   }
 
-  @androidx.window.extensions.ExperimentalWindowExtensionsApi public class ActivityStack {
+  public class ActivityStack {
     ctor public ActivityStack(java.util.List<android.app.Activity!>, boolean);
     method public java.util.List<android.app.Activity!> getActivities();
     method public boolean isEmpty();
   }
 
-  @androidx.window.extensions.ExperimentalWindowExtensionsApi public abstract class EmbeddingRule {
+  public abstract class EmbeddingRule {
   }
 
-  @androidx.window.extensions.ExperimentalWindowExtensionsApi public class SplitInfo {
+  public class SplitInfo {
     ctor public SplitInfo(androidx.window.extensions.embedding.ActivityStack, androidx.window.extensions.embedding.ActivityStack, float);
     method public androidx.window.extensions.embedding.ActivityStack getPrimaryActivityStack();
     method public androidx.window.extensions.embedding.ActivityStack getSecondaryActivityStack();
     method public float getSplitRatio();
   }
 
-  @androidx.window.extensions.ExperimentalWindowExtensionsApi public class SplitPairRule extends androidx.window.extensions.embedding.SplitRule {
+  public class SplitPairRule extends androidx.window.extensions.embedding.SplitRule {
     method public int getFinishPrimaryWithSecondary();
     method public int getFinishSecondaryWithPrimary();
     method @RequiresApi(api=android.os.Build.VERSION_CODES.N) public boolean matchesActivityIntentPair(android.app.Activity, android.content.Intent);
@@ -72,7 +69,7 @@ package androidx.window.extensions.embedding {
     method public androidx.window.extensions.embedding.SplitPairRule.Builder setSplitRatio(float);
   }
 
-  @androidx.window.extensions.ExperimentalWindowExtensionsApi public class SplitPlaceholderRule extends androidx.window.extensions.embedding.SplitRule {
+  public class SplitPlaceholderRule extends androidx.window.extensions.embedding.SplitRule {
     method public int getFinishPrimaryWithSecondary();
     method public android.content.Intent getPlaceholderIntent();
     method public boolean isSticky();
@@ -89,7 +86,7 @@ package androidx.window.extensions.embedding {
     method public androidx.window.extensions.embedding.SplitPlaceholderRule.Builder setSticky(boolean);
   }
 
-  @androidx.window.extensions.ExperimentalWindowExtensionsApi public abstract class SplitRule extends androidx.window.extensions.embedding.EmbeddingRule {
+  public abstract class SplitRule extends androidx.window.extensions.embedding.EmbeddingRule {
     method @RequiresApi(api=android.os.Build.VERSION_CODES.N) public boolean checkParentMetrics(android.view.WindowMetrics);
     method public int getLayoutDirection();
     method public float getSplitRatio();
