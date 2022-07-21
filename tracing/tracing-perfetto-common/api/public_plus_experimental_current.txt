@@ -9,10 +9,10 @@ package androidx.tracing.perfetto {
   public static final class PerfettoHandshake.EnableTracingResponse {
     method public int getExitCode();
     method public String? getMessage();
-    method public String getRequiredVersion();
+    method public String? getRequiredVersion();
     property public final int exitCode;
     property public final String? message;
-    property public final String requiredVersion;
+    property public final String? requiredVersion;
   }
 
   public static final class PerfettoHandshake.ExternalLibraryProvider {
@@ -22,6 +22,7 @@ package androidx.tracing.perfetto {
   public static final class PerfettoHandshake.ResponseExitCodes {
     field public static final androidx.tracing.perfetto.PerfettoHandshake.ResponseExitCodes INSTANCE;
     field public static final int RESULT_CODE_ALREADY_ENABLED = 2; // 0x2
+    field public static final int RESULT_CODE_CANCELLED = 0; // 0x0
     field public static final int RESULT_CODE_ERROR_BINARY_MISSING = 11; // 0xb
     field public static final int RESULT_CODE_ERROR_BINARY_VERIFICATION_ERROR = 13; // 0xd
     field public static final int RESULT_CODE_ERROR_BINARY_VERSION_MISMATCH = 12; // 0xc

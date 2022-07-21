@@ -33,9 +33,12 @@ import androidx.tracing.perfetto.PerfettoHandshake.ExternalLibraryProvider
 import androidx.tracing.perfetto.PerfettoHandshake.ResponseExitCodes.RESULT_CODE_ALREADY_ENABLED
 import androidx.tracing.perfetto.PerfettoHandshake.ResponseExitCodes.RESULT_CODE_ERROR_BINARY_MISSING
 import androidx.tracing.perfetto.PerfettoHandshake.ResponseExitCodes.RESULT_CODE_SUCCESS
+import androidx.tracing.perfetto.PerfettoHandshake.ResponseExitCodes.RESULT_CODE_CANCELLED
+import androidx.tracing.perfetto.PerfettoHandshake.ResponseExitCodes.RESULT_CODE_ERROR_OTHER
 import com.google.common.truth.Truth.assertThat
 import java.io.File
 import java.io.StringReader
+import java.util.regex.Pattern
 import org.junit.After
 import org.junit.Assume.assumeTrue
 import org.junit.Before
@@ -248,6 +251,70 @@ class PerfettoSdkHandshakeTest(private val testConfig: TestConfig) {
             }
             assertThat(response.exitCode).isEqualTo(expectedExitCode)
             assertThat(response.requiredVersion).matches(versionRx)
+        }
+    }
+
+    @Test
+    fun test_handshake_package_does_not_exist() {
+        assumeTrue(isAbiSupported())
+        assumeTrue(Build.VERSION.SDK_INT >= minSupportedSdk)
+
+        val response = perfettoCapture.enableAndroidxTracingPerfetto(
+            "package.does.not.exist.89e51176_bc28_41f1_ac73_ca717454b517",
+            shouldProvideBinaries(testConfig.sdkDelivery)
+        )
+
+        assertThat(response).ignoringCase()
+            .contains("The broadcast to enable tracing was not received")
+    }
+
+    /**
+     * Unlike [test_handshake_package_does_not_exist], which uses [PerfettoCapture], this test
+     * uses a lower-level component [PerfettoHandshake].
+     */
+    @Test
+    fun test_handshake_framework_package_does_not_exist() {
+        assumeTrue(isAbiSupported())
+        assumeTrue(Build.VERSION.SDK_INT >= minSupportedSdk)
+
+        val handshake = PerfettoHandshake(
+            "package.does.not.exist.89e51176_bc28_41f1_ac73_ca717454b517",
+            parseJsonMap = { emptyMap() },
+            Shell::executeCommand
+        )
+
+        // try
+        handshake.enableTracing(null).also { response ->
+            assertThat(response.exitCode).isEqualTo(RESULT_CODE_CANCELLED)
+            assertThat(response.requiredVersion).isNull()
+        }
+
+        // try again
+        handshake.enableTracing(null).also { response ->
+            assertThat(response.exitCode).isEqualTo(RESULT_CODE_CANCELLED)
+            assertThat(response.requiredVersion).isNull()
+        }
+    }
+
+    @Test
+    fun test_handshake_framework_parsing_error() {
+        assumeTrue(isAbiSupported())
+        assumeTrue(Build.VERSION.SDK_INT >= minSupportedSdk)
+
+        val parsingException = "I don't know how to JSON"
+        val handshake = PerfettoHandshake(
+            targetPackage,
+            parseJsonMap = { throw IllegalArgumentException(parsingException) },
+            Shell::executeCommand
+        )
+
+        handshake.enableTracing(null).also { response ->
+            assertThat(response.exitCode).isEqualTo(RESULT_CODE_ERROR_OTHER)
+            assertThat(response.requiredVersion).isNull()
+            assertThat(response.message).containsMatch(
+                "Exception occurred while trying to parse a response.*Error.*$parsingException"
+                    .toPattern(Pattern.CASE_INSENSITIVE)
+            )
         }
     }
 
