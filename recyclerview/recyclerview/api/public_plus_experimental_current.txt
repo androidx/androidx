@@ -272,8 +272,8 @@ package androidx.recyclerview.widget {
   }
 
   public class LinearLayoutManager extends androidx.recyclerview.widget.RecyclerView.LayoutManager implements androidx.recyclerview.widget.ItemTouchHelper.ViewDropHandler androidx.recyclerview.widget.RecyclerView.SmoothScroller.ScrollVectorProvider {
-    ctor public LinearLayoutManager(android.content.Context);
-    ctor public LinearLayoutManager(android.content.Context, int, boolean);
+    ctor public LinearLayoutManager(android.content.Context!);
+    ctor public LinearLayoutManager(android.content.Context!, int, boolean);
     ctor public LinearLayoutManager(android.content.Context, android.util.AttributeSet?, int, int);
     method protected void calculateExtraLayoutSpace(androidx.recyclerview.widget.RecyclerView.State, int[]);
     method public android.graphics.PointF? computeScrollVectorForPosition(int);
