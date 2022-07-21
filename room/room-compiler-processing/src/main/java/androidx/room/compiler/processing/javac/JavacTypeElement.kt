@@ -88,7 +88,6 @@ internal sealed class JavacTypeElement(
                 JavacFieldElement(
                     env = env,
                     element = it,
-                    containing = this
                 )
             }
     }
@@ -145,7 +144,6 @@ internal sealed class JavacTypeElement(
         ElementFilter.methodsIn(element.enclosedElements).map {
             JavacMethodElement(
                 env = env,
-                containing = this,
                 element = it
             )
         }.filterMethodsByConfig(env)
@@ -159,7 +157,6 @@ internal sealed class JavacTypeElement(
         return ElementFilter.constructorsIn(element.enclosedElements).map {
             JavacConstructorElement(
                 env = env,
-                containing = this,
                 element = it
             )
         }
@@ -178,7 +175,7 @@ internal sealed class JavacTypeElement(
     }
 
     override val type: JavacDeclaredType by lazy {
-        env.wrap<JavacDeclaredType>(
+        env.wrap(
             typeMirror = element.asType(),
             kotlinType = kotlinMetadata?.kmType,
             elementNullability = element.nullability
@@ -223,10 +220,6 @@ internal sealed class JavacTypeElement(
                 elementNullability = element.nullability
             )
         }
-    }
-
-    override val equalityItems: Array<out Any?> by lazy {
-        arrayOf(element)
     }
 
     class DefaultJavacTypeElement(

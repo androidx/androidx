@@ -250,10 +250,10 @@ public class XmlDefinedUserStyleSchemaAndComplicationSlotsTest {
             val slotA = watchFaceImpl.complicationSlotsManager.complicationSlots[10]!!
             assertThat(slotA.boundsType).isEqualTo(ComplicationSlotBoundsType.ROUND_RECT)
             assertThat(slotA.supportedTypes).containsExactly(
-                ComplicationType.SHORT_TEXT,
                 ComplicationType.RANGED_VALUE,
+                ComplicationType.SHORT_TEXT,
                 ComplicationType.SMALL_IMAGE
-            )
+            ).inOrder()
             assertThat(slotA.defaultDataSourcePolicy.primaryDataSource).isNull()
             assertThat(slotA.defaultDataSourcePolicy.primaryDataSourceDefaultType)
                 .isNull()
@@ -279,8 +279,8 @@ public class XmlDefinedUserStyleSchemaAndComplicationSlotsTest {
             val slotB = watchFaceImpl.complicationSlotsManager.complicationSlots[20]!!
             assertThat(slotB.boundsType).isEqualTo(ComplicationSlotBoundsType.BACKGROUND)
             assertThat(slotB.supportedTypes).containsExactly(
-                ComplicationType.SHORT_TEXT, ComplicationType.LONG_TEXT
-            )
+                ComplicationType.LONG_TEXT, ComplicationType.SHORT_TEXT
+            ).inOrder()
             assertThat(slotB.defaultDataSourcePolicy.primaryDataSource).isEqualTo(
                 ComponentName("com.package", "com.app")
             )

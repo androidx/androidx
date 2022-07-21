@@ -16,10 +16,12 @@
 
 package androidx.datastore.core.handlers
 
+import androidx.datastore.TestingSerializerConfig
+import androidx.datastore.core.FileStorage
 import androidx.datastore.core.SingleProcessDataStore
 import androidx.datastore.core.TestingSerializer
-import androidx.kruth.assertThat
 import androidx.kruth.assertThrows
+import androidx.kruth.assertThat
 import java.io.File
 import java.io.IOException
 import java.util.concurrent.TimeUnit
@@ -54,8 +56,9 @@ class ReplaceFileCorruptionHandlerTest {
         preSeedData(testFile, 1)
 
         val store = SingleProcessDataStore<Byte>(
-            { testFile },
-            TestingSerializer(failReadWithCorruptionException = true),
+            FileStorage(
+                TestingSerializer(TestingSerializerConfig(failReadWithCorruptionException = true))
+            ) { testFile },
             corruptionHandler = ReplaceFileCorruptionHandler<Byte> { 10 },
             scope = this
         )
@@ -68,8 +71,9 @@ class ReplaceFileCorruptionHandlerTest {
         preSeedData(testFile, 1)
 
         val store = SingleProcessDataStore<Byte>(
-            { testFile },
-            TestingSerializer(failReadWithCorruptionException = true),
+            FileStorage(
+                TestingSerializer(TestingSerializerConfig(failReadWithCorruptionException = true))
+            ) { testFile },
             corruptionHandler = ReplaceFileCorruptionHandler<Byte> { 10 },
             scope = this
         )
@@ -82,8 +86,9 @@ class ReplaceFileCorruptionHandlerTest {
         preSeedData(testFile, 1)
 
         val store = SingleProcessDataStore<Byte>(
-            { testFile },
-            TestingSerializer(failReadWithCorruptionException = true),
+            FileStorage(
+                TestingSerializer(TestingSerializerConfig(failReadWithCorruptionException = true))
+            ) { testFile },
             corruptionHandler = ReplaceFileCorruptionHandler<Byte> { 10 },
             scope = this
         )
@@ -103,8 +108,14 @@ class ReplaceFileCorruptionHandlerTest {
         preSeedData(testFile, 1)
 
         val store = SingleProcessDataStore<Byte>(
-            { testFile },
-            TestingSerializer(failReadWithCorruptionException = true, failingWrite = true),
+            FileStorage(
+                TestingSerializer(
+                    TestingSerializerConfig(
+                        failReadWithCorruptionException = true,
+                        failingWrite = true
+                    )
+                )
+            ) { testFile },
             corruptionHandler = ReplaceFileCorruptionHandler<Byte> { 10 },
             scope = this
         )
@@ -118,8 +129,9 @@ class ReplaceFileCorruptionHandlerTest {
     private suspend fun preSeedData(file: File, byte: Byte) {
         coroutineScope {
             SingleProcessDataStore(
-                { file },
-                TestingSerializer(),
+                FileStorage(
+                    TestingSerializer()
+                ) { file },
                 scope = this
             ).updateData { byte }
         }

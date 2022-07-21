@@ -21,6 +21,7 @@ package androidx.health.connect.client.units
  *
  * - liters - see [Volume.liters], [Double.liters]
  * - milliliters - see [Volume.milliliters], [Double.milliliters]
+ * - US fluid ounces - see [Volume.fluidOuncesUs], [Double.fluidOuncesUs]
  */
 class Volume private constructor(
     private val value: Double,
@@ -36,6 +37,11 @@ class Volume private constructor(
     @get:JvmName("getMilliliters")
     val inMilliliters: Double
         get() = get(type = Type.MILLILITERS)
+
+    /** Returns the volume in US fluid ounces. */
+    @get:JvmName("getFluidOuncesUs")
+    val inFluidOuncesUs: Double
+        get() = get(type = Type.FLUID_OUNCES_US)
 
     private fun get(type: Type): Double =
         if (this.type == type) value else inLiters / type.litersPerUnit
@@ -78,10 +84,16 @@ class Volume private constructor(
         private val ZEROS = Type.values().associateWith { Volume(value = 0.0, type = it) }
 
         /** Creates [Volume] with the specified value in liters. */
-        @JvmStatic fun liters(value: Double): Volume = Volume(value, Type.LITERS)
+        @JvmStatic
+        fun liters(value: Double): Volume = Volume(value, Type.LITERS)
 
         /** Creates [Volume] with the specified value in milliliters. */
-        @JvmStatic fun milliliters(value: Double): Volume = Volume(value, Type.MILLILITERS)
+        @JvmStatic
+        fun milliliters(value: Double): Volume = Volume(value, Type.MILLILITERS)
+
+        /** Creates [Volume] with the specified value in US fluid ounces. */
+        @JvmStatic
+        fun fluidOuncesUs(value: Double): Volume = Volume(value, Type.FLUID_OUNCES_US)
     }
 
     private enum class Type {
@@ -92,6 +104,10 @@ class Volume private constructor(
         MILLILITERS {
             override val litersPerUnit: Double = 0.001
             override val title: String = "mL"
+        },
+        FLUID_OUNCES_US {
+            override val litersPerUnit: Double = 0.02957353
+            override val title: String = "fl. oz (US)"
         };
 
         abstract val litersPerUnit: Double
@@ -138,3 +154,23 @@ val Float.milliliters: Volume
 @get:JvmSynthetic
 val Int.milliliters: Volume
     get() = toDouble().milliliters
+
+/** Creates [Volume] with the specified value in US fluid ounces. */
+@get:JvmSynthetic
+val Double.fluidOuncesUs: Volume
+    get() = Volume.fluidOuncesUs(value = this)
+
+/** Creates [Volume] with the specified value in US fluid ounces. */
+@get:JvmSynthetic
+val Long.fluidOuncesUs: Volume
+    get() = toDouble().fluidOuncesUs
+
+/** Creates [Volume] with the specified value in US fluid ounces. */
+@get:JvmSynthetic
+val Float.fluidOuncesUs: Volume
+    get() = toDouble().fluidOuncesUs
+
+/** Creates [Volume] with the specified value in US fluid ounces. */
+@get:JvmSynthetic
+val Int.fluidOuncesUs: Volume
+    get() = toDouble().fluidOuncesUs

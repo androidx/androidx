@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+RemovedMethod: androidx.recyclerview.widget.SortedListAdapterCallback#SortedListAdapterCallback(androidx.recyclerview.widget.RecyclerView.Adapter):
+    Removed constructor androidx.recyclerview.widget.SortedListAdapterCallback(androidx.recyclerview.widget.RecyclerView.Adapter)

@@ -21,6 +21,7 @@ import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.impl.Camera2ImplConfig;
 import androidx.camera.camera2.impl.CameraEventCallbacks;
+import androidx.camera.camera2.internal.compat.params.OutputConfigurationCompat;
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
 import androidx.camera.core.impl.Config;
 import androidx.camera.core.impl.MutableOptionsBundle;
@@ -84,6 +85,8 @@ final class Camera2SessionOptionUnpacker implements SessionConfig.OptionUnpacker
                 camera2Config.getCameraEventCallback(CameraEventCallbacks.createEmptyCallback()));
         extendedConfig.insertOption(Camera2ImplConfig.SESSION_PHYSICAL_CAMERA_ID_OPTION,
                 camera2Config.getPhysicalCameraId(null));
+        extendedConfig.insertOption(Camera2ImplConfig.STREAM_USE_CASE_OPTION,
+                camera2Config.getStreamUseCase(OutputConfigurationCompat.STREAM_USE_CASE_NONE));
         builder.addImplementationOptions(extendedConfig);
 
         // Copy extension keys

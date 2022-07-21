@@ -37,6 +37,7 @@ public class BroadcastsObserver(
 ) : BroadcastsReceiver.BroadcastEventObserver {
     private var batteryLow: Boolean? = null
     private var charging: Boolean? = null
+    private var sysUiHasSentWatchUiState: Boolean = false
 
     internal companion object {
         internal const val AMBIENT_ENABLED_PATH = "ambient_enabled"
@@ -98,7 +99,17 @@ public class BroadcastsObserver(
         }
     }
 
+    fun onSysUiHasSentWatchUiState() {
+        sysUiHasSentWatchUiState = true
+    }
+
     override fun onActionScreenOff() {
+        // Before SysUI has connected, we use ActionScreenOn/ActionScreenOff as a trigger to query
+        // AMBIENT_ENABLED_PATH in order to determine if the device os ambient or not.
+        if (sysUiHasSentWatchUiState) {
+            return
+        }
+
         val isAmbient = watchState.isAmbient as MutableStateFlow
 
         // This is a backup signal for when SysUI is unable to deliver the ambient state (e.g. in
@@ -113,6 +124,12 @@ public class BroadcastsObserver(
     }
 
     override fun onActionScreenOn() {
+        // Before SysUI has connected, we use ActionScreenOn/ActionScreenOff as a trigger to query
+        // AMBIENT_ENABLED_PATH in order to determine if the device os ambient or not.
+        if (sysUiHasSentWatchUiState) {
+            return
+        }
+
         val isAmbient = watchState.isAmbient as MutableStateFlow
         isAmbient.value = false
     }

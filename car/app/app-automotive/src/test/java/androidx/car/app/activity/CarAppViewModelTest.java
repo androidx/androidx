@@ -16,6 +16,8 @@
 
 package androidx.car.app.activity;
 
+import static androidx.car.app.SessionInfo.DEFAULT_SESSION_INFO;
+
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.mockito.Mockito.mock;
@@ -39,7 +41,7 @@ import org.robolectric.shadows.ShadowLooper;
 
 /** Tests for {@link CarAppViewModel} */
 @RunWith(RobolectricTestRunner.class)
-@Config(instrumentedPackages = { "androidx.car.app.activity" })
+@Config(instrumentedPackages = {"androidx.car.app.activity"})
 @DoNotInstrument
 public class CarAppViewModelTest {
     private static final ComponentName TEST_COMPONENT_NAME = new ComponentName(
@@ -49,7 +51,7 @@ public class CarAppViewModelTest {
 
     private final Application mApplication = ApplicationProvider.getApplicationContext();
     private CarAppViewModel mCarAppViewModel;
-    private CarAppActivity mCarAppActivity = mock(CarAppActivity.class);
+    private final CarAppActivity mCarAppActivity = mock(CarAppActivity.class);
     private ICarAppActivity mICarAppActivity;
     private ShadowLooper mMainLooper;
     private final ServiceConnectionManager mServiceConnectionManager =
@@ -57,7 +59,8 @@ public class CarAppViewModelTest {
 
     @Before
     public void setUp() {
-        mCarAppViewModel = new CarAppViewModel(mApplication, TEST_COMPONENT_NAME);
+        mCarAppViewModel = new CarAppViewModel(mApplication, TEST_COMPONENT_NAME,
+                DEFAULT_SESSION_INFO);
         mCarAppViewModel.setActivity(mCarAppActivity);
         mICarAppActivity = mock(ICarAppActivity.class);
         mMainLooper = shadowOf(mApplication.getMainLooper());

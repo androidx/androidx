@@ -19,6 +19,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.leanback.R;
 
 /**
@@ -237,6 +239,7 @@ class ControlBarPresenter extends Presenter {
         vh.mControlsContainer.setBackgroundColor(color);
     }
 
+    @NonNull
     @Override
     public Presenter.ViewHolder onCreateViewHolder(ViewGroup parent) {
         View v = LayoutInflater.from(parent.getContext())
@@ -245,7 +248,7 @@ class ControlBarPresenter extends Presenter {
     }
 
     @Override
-    public void onBindViewHolder(Presenter.ViewHolder holder, Object item) {
+    public void onBindViewHolder(@NonNull Presenter.ViewHolder holder, @Nullable Object item) {
         ViewHolder vh = (ViewHolder) holder;
         BoundData data = (BoundData) item;
         if (vh.mAdapter != data.adapter) {
@@ -260,7 +263,7 @@ class ControlBarPresenter extends Presenter {
     }
 
     @Override
-    public void onUnbindViewHolder(Presenter.ViewHolder holder) {
+    public void onUnbindViewHolder(@NonNull Presenter.ViewHolder holder) {
         ViewHolder vh = (ViewHolder) holder;
         if (vh.mAdapter != null) {
             vh.mAdapter.unregisterObserver(vh.mDataObserver);

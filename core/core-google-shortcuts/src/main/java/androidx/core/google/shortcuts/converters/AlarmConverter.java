@@ -27,8 +27,8 @@ import androidx.appsearch.app.GenericDocument;
 import androidx.core.google.shortcuts.utils.ConverterUtils;
 import androidx.core.util.Preconditions;
 
-import com.google.firebase.appindexing.FirebaseAppIndexingInvalidArgumentException;
-import com.google.firebase.appindexing.Indexable;
+import com.google.android.gms.appindex.AppIndexInvalidArgumentException;
+import com.google.android.gms.appindex.Indexable;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -152,7 +152,7 @@ public class AlarmConverter implements AppSearchDocumentConverter {
         if (!alarmInstances.isEmpty()) {
             try {
                 indexableBuilder.put(ALARM_INSTANCES_KEY, alarmInstances.toArray(new Indexable[0]));
-            } catch (FirebaseAppIndexingInvalidArgumentException e) {
+            } catch (AppIndexInvalidArgumentException e) {
                 Log.e(TAG, "Failed to add AlarmInstances to Alarm.", e);
             }
         }

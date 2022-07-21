@@ -21,6 +21,7 @@ import android.content.ComponentName
 import android.graphics.drawable.Icon
 import android.os.Build
 import androidx.annotation.ColorInt
+import androidx.annotation.IntDef
 import androidx.annotation.RestrictTo
 import androidx.wear.tiles.LayoutElementBuilders
 import androidx.wear.tiles.ResourceBuilders
@@ -763,8 +764,8 @@ internal constructor(
     validTimeRange: TimeRange?,
     cachedWireComplicationData: WireComplicationData?,
     dataSource: ComponentName?,
-    drawSegmented: Boolean,
-    @ColorInt colorRamp: ColorRamp?
+    @ValueType valueType: Int,
+    colorRamp: ColorRamp?
 ) : ComplicationData(
     TYPE,
     tapAction = tapAction,
@@ -772,16 +773,58 @@ internal constructor(
     validTimeRange = validTimeRange ?: TimeRange.ALWAYS,
     dataSource = dataSource
 ) {
+
     /**
-     * Optional hints that the ranged value indicator (typically a line or arc) should be drawn
-     * using segments, where one segment = 1 unit. Intended for integral ranged values E.g. number
-     * of cups of water drunk today.
+     * Optional metadata for [value] which explains renderers may use to influence styling of the
+     * ranged value complication.
+     *
+     * @hide
      */
+    @IntDef(
+        value = [
+            ValueType.NONE,
+            ValueType.DISCRETE,
+            ValueType.PROGRESS,
+            ValueType.SCORE
+        ]
+    )
     @ComplicationExperimental
+    public annotation class ValueType {
+        public companion object {
+            /** The default [value] has no special meaning. */
+            public const val NONE: Int = 0
+
+            /**
+             * The default [value] contains integral values, the renderer may chose to style the
+             * complication accordingly. E.g. it may draw them with a segmented line/arc.
+             */
+            public const val DISCRETE: Int = 1
+
+            /**
+             * The default [value] represents progress towards a goal. E.g. 1200 / 2000 calories
+             * burned, or 7500 / 10000 steps.
+             */
+            public const val PROGRESS: Int = 2
+
+            /**
+             * The default [value] represents score such as 75/100 oxygen saturation or 25/100 of a
+             * task complete. The renderer may choose to style the complication accordingly, perhaps
+             * rendering a marker on top of the line/arc.
+             */
+            public const val SCORE: Int = 3
+        }
+    }
+
+    /**
+     * Optional [ValueType] which may be used by the renderer to influence styling of the ranged
+     * value.
+     */
     @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
+    @get:ValueType
     @get:ComplicationExperimental
-    @get:JvmName("isDrawSegmented")
-    val drawSegmented: Boolean = drawSegmented
+    @ComplicationExperimental
+    @ValueType
+    val valueType: Int = valueType
 
     /**
      * Describes an optional simple linear color ramp to be applied when rendering the
@@ -820,7 +863,7 @@ internal constructor(
     @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
     @get:ComplicationExperimental
     @ComplicationExperimental
-    @ColorInt val colorRamp: ColorRamp? = colorRamp
+    val colorRamp: ColorRamp? = colorRamp
 
     /**
      * Builder for [RangedValueComplicationData].
@@ -833,6 +876,7 @@ internal constructor(
      * @param max The maximum value. This must be less than [Float.MAX_VALUE].
      * @param contentDescription Localized description for use by screen readers
      */
+    @OptIn(ComplicationExperimental::class)
     public class Builder(
         private val value: Float,
         private val min: Float,
@@ -846,9 +890,9 @@ internal constructor(
         private var text: ComplicationText? = null
         private var cachedWireComplicationData: WireComplicationData? = null
         private var dataSource: ComponentName? = null
-        private var drawSegmented = false
+        @ValueType private var valueType = ValueType.NONE
         @OptIn(ComplicationExperimental::class)
-        @ColorInt private var colorRamp: ColorRamp? = null
+        private var colorRamp: ColorRamp? = null
 
         init {
             require(max != Float.MAX_VALUE) {
@@ -894,13 +938,12 @@ internal constructor(
         }
 
         /**
-         * Sets the optional hint that the ranged value indicator (typically a line or arc) should
-         * be drawn using segments, where one segment = 1 unit. Intended for integral ranged values
-         * E.g. number of cups of water drunk today.
+         * Sets the [ValueType] that may be used by renderers to influence styling of the ranged
+         * value complication.
          */
         @ComplicationExperimental
-        public fun setDrawSegmented(drawSegmented: Boolean): Builder = apply {
-            this.drawSegmented = drawSegmented
+        public fun setValueType(@ValueType valueType: Int): Builder = apply {
+            this.valueType = valueType
         }
 
         /**
@@ -933,7 +976,7 @@ internal constructor(
                 validTimeRange,
                 cachedWireComplicationData,
                 dataSource,
-                drawSegmented,
+                valueType,
                 colorRamp
             )
     }
@@ -966,7 +1009,7 @@ internal constructor(
         )
         setValidTimeRange(validTimeRange, builder)
         builder.setTapActionLostDueToSerialization(tapActionLostDueToSerialization)
-        builder.setDrawSegmented(drawSegmented)
+        builder.setValueType(valueType)
         colorRamp?.let {
             builder.setRangedMinColor(it.minColor)
             builder.setRangedMaxColor(it.maxColor)
@@ -991,7 +1034,7 @@ internal constructor(
         if (tapAction != other.tapAction) return false
         if (validTimeRange != other.validTimeRange) return false
         if (dataSource != other.dataSource) return false
-        if (drawSegmented != other.drawSegmented) return false
+        if (valueType != other.valueType) return false
         if (colorRamp != other.colorRamp) return false
 
         return true
@@ -1010,7 +1053,7 @@ internal constructor(
         result = 31 * result + (tapAction?.hashCode() ?: 0)
         result = 31 * result + validTimeRange.hashCode()
         result = 31 * result + dataSource.hashCode()
-        result = 31 * result + drawSegmented.hashCode()
+        result = 31 * result + valueType.hashCode()
         result = 31 * result + colorRamp.hashCode()
         return result
     }
@@ -1027,7 +1070,7 @@ internal constructor(
             "contentDescription=$contentDescription), " +
             "tapActionLostDueToSerialization=$tapActionLostDueToSerialization, " +
             "tapAction=$tapAction, validTimeRange=$validTimeRange, dataSource=$dataSource, " +
-            "drawSegmented=$drawSegmented, colorRamp=$colorRamp)"
+            "valueType=$valueType, colorRamp=$colorRamp)"
     }
 
     override fun hasPlaceholderFields() = value == PLACEHOLDER || text?.isPlaceholder() == true ||
@@ -2172,7 +2215,7 @@ internal fun WireComplicationData.toPlaceholderComplicationData(): ComplicationD
             setTitle(shortTitle?.toApiComplicationTextPlaceholderAware())
             setText(shortText?.toApiComplicationTextPlaceholderAware())
             setDataSource(dataSource)
-            setDrawSegmented(drawSegmented)
+            setValueType(valueType)
             rangedMinColor?.let {
                 setColorRamp(RangedValueComplicationData.ColorRamp(it, rangedMaxColor!!))
             }
@@ -2298,7 +2341,7 @@ public fun WireComplicationData.toApiComplicationData(): ComplicationData {
                 setText(shortText?.toApiComplicationText())
                 setCachedWireComplicationData(wireComplicationData)
                 setDataSource(dataSource)
-                setDrawSegmented(drawSegmented)
+                setValueType(valueType)
                 rangedMinColor?.let {
                     setColorRamp(RangedValueComplicationData.ColorRamp(it, rangedMaxColor!!))
                 }

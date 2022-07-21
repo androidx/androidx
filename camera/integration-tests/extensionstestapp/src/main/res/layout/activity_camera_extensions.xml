@@ -81,4 +81,17 @@
         android:text="Switch"
         app:layout_constraintEnd_toStartOf="@+id/Picture"
         app:layout_constraintTop_toTopOf="@+id/Picture" />
+
+    <TextView
+        android:id="@+id/frameInfo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:shadowColor="#000000"
+        android:shadowDx="1"
+        android:shadowDy="1"
+        android:shadowRadius="2"
+        android:text=""
+        android:textColor="#FFFFFF"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

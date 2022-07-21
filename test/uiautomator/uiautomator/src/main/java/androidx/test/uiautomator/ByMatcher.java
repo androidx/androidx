@@ -202,7 +202,7 @@ class ByMatcher {
     }
 
     /** Helper method used to evaluate a {@link Pattern} criteria if it is set. */
-    static private boolean checkCriteria(Pattern criteria, CharSequence value) {
+    static boolean checkCriteria(Pattern criteria, CharSequence value) {
         if (criteria == null) {
             return true;
         }
@@ -210,7 +210,7 @@ class ByMatcher {
     }
 
     /** Helper method used to evaluate a {@link Boolean} criteria if it is set. */
-    static private boolean checkCriteria(Boolean criteria, boolean value) {
+    static boolean checkCriteria(Boolean criteria, boolean value) {
         if (criteria == null) {
             return true;
         }
@@ -348,7 +348,7 @@ class ByMatcher {
      */
     private static class SinglyLinkedList<T> implements Iterable<T> {
 
-        private final Node<T> mHead;
+        final Node<T> mHead;
 
         /** Constructs an empty list. */
         public SinglyLinkedList() {
@@ -364,7 +364,7 @@ class ByMatcher {
             return new SinglyLinkedList<T>(new Node<T>(data, rest.mHead));
         }
 
-        @SuppressWarnings("MissingOverride")
+        @Override
         public Iterator<T> iterator() {
             return new Iterator<T>() {
                 private Node<T> mNext = mHead;

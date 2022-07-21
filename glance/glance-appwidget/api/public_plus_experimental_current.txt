@@ -10,6 +10,9 @@ package androidx.glance.appwidget {
     method public static androidx.glance.GlanceModifier appWidgetBackground(androidx.glance.GlanceModifier);
   }
 
+  public final class AppWidgetModifiersKt {
+  }
+
   public final class ApplyModifiersKt {
   }
 
@@ -68,7 +71,10 @@ package androidx.glance.appwidget {
 
   public final class GlanceAppWidgetManager {
     ctor public GlanceAppWidgetManager(android.content.Context context);
+    method public int getAppWidgetId(androidx.glance.GlanceId glanceId);
     method public suspend Object? getAppWidgetSizes(androidx.glance.GlanceId glanceId, kotlin.coroutines.Continuation<? super java.util.List<? extends androidx.compose.ui.unit.DpSize>>);
+    method public androidx.glance.GlanceId getGlanceIdBy(int appWidgetId);
+    method public androidx.glance.GlanceId? getGlanceIdBy(android.content.Intent configurationIntent);
     method public suspend <T extends androidx.glance.appwidget.GlanceAppWidget> Object? getGlanceIds(Class<T> provider, kotlin.coroutines.Continuation<? super java.util.List<? extends androidx.glance.GlanceId>>);
   }
 
@@ -314,7 +320,7 @@ package androidx.glance.appwidget.template {
     property public androidx.glance.state.GlanceStateDefinition<?>? stateDefinition;
   }
 
-  public final class ListTemplateLayoutsKt {
+  @androidx.glance.GlanceComposable public final class ListTemplateLayoutsKt {
     method @androidx.compose.runtime.Composable public static void ListTemplate(androidx.glance.template.ListTemplateData data);
   }
 

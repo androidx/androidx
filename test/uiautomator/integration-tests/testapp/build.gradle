@@ -20,6 +20,8 @@ plugins {
 }
 
 dependencies {
+    implementation("androidx.annotation:annotation:1.4.0")
+
     androidTestImplementation(project(":test:uiautomator:uiautomator"))
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testExtJunit)

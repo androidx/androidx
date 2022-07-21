@@ -16,82 +16,132 @@
 
 package androidx.build
 
-import java.io.File
+import androidx.build.AndroidXPluginTestContext.Companion.fileList
+import androidx.build.AndroidXSelfTestProject.Companion.cubaneKmpProject
+import androidx.build.AndroidXSelfTestProject.Companion.cubaneProject
 import net.saff.checkmark.Checkmark.Companion.check
-import net.saff.checkmark.Checkmark.Companion.checks
 import org.junit.Assert
 import org.junit.Test
 
 class AndroidXRootPluginTest {
     @Test
     fun rootProjectConfigurationHasAndroidXTasks() = pluginTest {
-        writeRootSettingsFile()
-        writeRootBuildFile()
-        Assert.assertTrue(privateJar.path, privateJar.exists())
+        writeBuildFiles()
+
+        // Check that our classpath jars exist
+        Assert.assertTrue(buildJars.privateJar.path, buildJars.privateJar.exists())
 
         // --stacktrace gives more details on failure.
-        runGradle("tasks", "--stacktrace").output.check {
+        runGradle(
+            "tasks",
+            "--stacktrace",
+            "-P$ALLOW_MISSING_LINT_CHECKS_PROJECT=true"
+        ).output.check {
             it.contains("listAndroidXProperties - Lists AndroidX-specific properties")
         }
     }
 
     @Test
-    fun createZipForSimpleProject() = pluginTest {
-        writeRootSettingsFile(":cubane:cubane")
-        writeRootBuildFile()
+    fun unzipSourcesWithNoProjects() = pluginTest {
+        setupDocsProjects()
 
-        File(supportRoot, "libraryversions.toml").writeText(
-            """|[groups]
-               |[versions]
-               |""".trimMargin()
-        )
-
-        val projectFolder = setup.rootDir.resolve("cubane/cubane")
-
-        checks {
-            projectFolder.mkdirs()
-
-            // TODO(b/233089408): avoid full path for androidx.build.AndroidXImplPlugin
-            File(projectFolder, "build.gradle").writeText(
-                """|import androidx.build.LibraryGroup
-                   |import androidx.build.Publish
-                   |import androidx.build.Version
-                   |
-                   |plugins {
-                   |  // b/233089408: would prefer to use this syntax, but it fails
-                   |  // id("AndroidXPlugin")
-                   |  id("java-library")
-                   |  id("kotlin")
-                   |}
-                   |
-                   |// Workaround for b/233089408
-                   |apply plugin: androidx.build.AndroidXImplPlugin
-                   |
-                   |dependencies {
-                   |  api(libs.kotlinStdlib)
-                   |}
-                   |
-                   |androidx {
-                   |  publish = Publish.SNAPSHOT_AND_RELEASE
-                   |  mavenVersion = new Version("1.2.3")
-                   |  mavenGroup = new LibraryGroup("cubane", null)
-                   |}
-                   |""".trimMargin()
-            )
-
-            val output = runGradle(
-                ":cubane:cubane:createProjectZip",
-                "--stacktrace",
-                "-P$ALLOW_MISSING_LINT_CHECKS_PROJECT=true"
-            ).output
-            checks {
-                output.check { it.contains("BUILD SUCCESSFUL") }
-                outDir.check { it.fileList().contains("dist") }
-                outDir.resolve("dist/per-project-zips").fileList()
-                    .check { it.contains("cubane-cubane-all-0-1.2.3.zip") }
-            }
+        runGradle(":docs-public:unzipSourcesForDackka", "--stacktrace").output.check {
+            it.contains("BUILD SUCCESSFUL")
         }
     }
 
-    private fun File.fileList() = list()!!.toList()
+    @Test
+    fun unzipSourcesWithCubane() = pluginTest {
+        setupDocsProjects(cubaneProject)
+        cubaneProject.publishMavenLocal()
+        runGradle(":docs-public:unzipSourcesForDackka", "--stacktrace").output.check {
+            it.contains("BUILD SUCCESSFUL")
+        }
+    }
+
+    @Test
+    fun unzipSourcesWithCubaneKmp() = pluginTest {
+        setupDocsProjects(cubaneKmpProject)
+
+        runGradle(":cubane:cubanekmp:tasks", "--all", "--stacktrace").output.check {
+            it.contains("publishJvmPublicationToMavenLocal")
+        }
+
+        cubaneKmpProject.publishMavenLocal()
+
+        // Make sure we are using metadata, not pom (unfortunately, if we use pom, and don't check,
+        // this test passes without testing the things we actually want to know)
+        // (See b/230396269)
+        cubaneKmpProject.readPublishedFile("cubanekmp-1.2.3.pom")
+            .check { it.contains("do_not_remove: published-with-gradle-metadata") }
+
+        cubaneKmpProject.readPublishedFile("cubanekmp-1.2.3.module")
+            .check { it.contains("\"org.gradle.docstype\": \"sources\"") }
+
+        runGradle(":docs-public:unzipSourcesForDackka", "--stacktrace").output.check {
+            it.contains("BUILD SUCCESSFUL")
+        }
+    }
+
+    @Test
+    fun testSaveMavenFoldersForDebugging() = pluginTest {
+        setupDocsProjects(cubaneProject)
+        cubaneProject.publishMavenLocal()
+
+        val where = tmpFolder.newFolder()
+        saveMavenFoldersForDebugging(where.path)
+        where.fileList().check { it.contains("cubane") }
+    }
+
+    @Test
+    fun testPublishNoDuplicates() = pluginTest {
+        setupDocsProjects(cubaneKmpProject)
+
+        runGradle(":cubane:cubanekmp:publish", "--stacktrace").output.check {
+            // If we have overlapping publications, it will print an error message like
+            // """
+            // Multiple publications with coordinates
+            // 'androidx.collection:collection:1.3.0-alpha01' are published to repository 'maven'.
+            // The publications 'kotlinMultiplatform' in project ':collection:collection' and
+            // 'sourcesMaven' in project ':collection:collection' will overwrite each other!
+            // """
+            !it.contains("will overwrite each other")
+        }
+    }
+
+    private fun AndroidXPluginTestContext.setupDocsProjects(
+        vararg projects: AndroidXSelfTestProject
+    ) {
+        val sourceDependencies = projects.map { it.sourceCoordinate }
+        val docsPublicBuildGradle =
+            """|plugins {
+               |  id("com.android.library")
+               |}
+               |
+               |// b/233089408: would prefer to use plugins { id } syntax, but work around.
+               |apply plugin: androidx.build.docs.AndroidXDocsImplPlugin
+               |
+               |repositories {
+               |  mavenLocal()
+               |}
+               |
+               |dependencies {
+               |  ${sourceDependencies.joinToString("\n") { "docs(\"$it\")" }}
+               |}
+               |""".trimMargin()
+
+        val docsPublicProject = AndroidXSelfTestProject(
+            groupId = "docs-public",
+            artifactId = null,
+            version = null,
+            buildGradleText = docsPublicBuildGradle
+        )
+        val fakeAnnotations = AndroidXSelfTestProject(
+            groupId = "fakeannotations",
+            artifactId = null,
+            version = null,
+            buildGradleText = ""
+        )
+        writeBuildFiles(projects.toList() + listOf(docsPublicProject, fakeAnnotations))
+    }
 }

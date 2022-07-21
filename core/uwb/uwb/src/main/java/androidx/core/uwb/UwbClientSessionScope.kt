@@ -28,7 +28,8 @@ interface UwbClientSessionScope {
      * @throws [IllegalStateException] if a new flow was consumed again after the UWB
      * ranging is already initiated.
      *
-     * @throws [UwbSystemCallbackException] if the backend UWB system has resulted in an error.
+     * @throws [androidx.core.uwb.exceptions.UwbSystemCallbackException] if the backend UWB system
+     * has resulted in an error.
      *
      * @throws [SecurityException] if ranging does not have the
      * android.permission.UWB_RANGING permission. Apps must

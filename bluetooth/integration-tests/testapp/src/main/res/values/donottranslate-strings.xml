@@ -29,4 +29,7 @@
 
     <string name="scan_start_message">Scan should have started. Results are in Logcat</string>
     <string name="scan_not_yet_implemented">Scan not yet implemented.</string>
+
+    <string name="advertise_using_fwk">Advertise using Framework Bluetooth APIs</string>
+    <string name="advertise_start_message">Advertise started</string>
 </resources>

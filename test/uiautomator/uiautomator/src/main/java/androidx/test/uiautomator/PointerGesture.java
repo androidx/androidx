@@ -57,21 +57,19 @@ class PointerGesture {
     }
 
     /** Adds an action which pauses for the specified amount of {@code time} in milliseconds. */
-    @SuppressWarnings("UnnecessaryParentheses")
     public PointerGesture pause(long time) {
         if (time < 0) {
             throw new IllegalArgumentException("time cannot be negative");
         }
         mActions.addLast(new PointerPauseAction(mActions.peekLast().end, time));
-        mDuration += (mActions.peekLast().duration);
+        mDuration += mActions.peekLast().duration;
         return this;
     }
 
     /** Adds an action that moves the pointer to {@code dest} at {@code speed} pixels per second. */
-    @SuppressWarnings("UnnecessaryParentheses")
     public PointerGesture move(Point dest, int speed) {
         mActions.addLast(new PointerLinearMoveAction(mActions.peekLast().end, dest, speed));
-        mDuration += (mActions.peekLast().duration);
+        mDuration += mActions.peekLast().duration;
         return this;
     }
 

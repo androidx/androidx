@@ -24,6 +24,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material.samples.AlertDialogSample
@@ -267,6 +268,9 @@ val WearMaterialDemos = DemoCategory(
                         ComposableDemo("Access Location") { DialogAccessLocation() },
                         ComposableDemo("Grant Permission") { DialogGrantPermission() },
                         ComposableDemo("Long Chips") { DialogLongChips() },
+                        ComposableDemo("Dialog Background") {
+                            DialogBackground(Color.Green)
+                        },
                         ComposableDemo("Confirmation") { DialogSuccessConfirmation() },
                     )
                 )

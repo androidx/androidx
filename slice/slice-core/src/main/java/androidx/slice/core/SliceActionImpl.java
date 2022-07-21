@@ -54,6 +54,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.graphics.drawable.IconCompat;
+import androidx.core.util.ObjectsCompat;
 import androidx.slice.Slice;
 import androidx.slice.SliceItem;
 
@@ -65,17 +66,29 @@ import androidx.slice.SliceItem;
 @RequiresApi(19)
 public class SliceActionImpl implements SliceAction {
 
+    // Either mAction or mActionItem must be non-null.
+    @Nullable
     private PendingIntent mAction;
+
+    // Either mAction or mActionItem must be non-null.
+    @Nullable
+    private SliceItem mActionItem;
+
     private IconCompat mIcon;
     private int mImageMode = UNKNOWN_IMAGE;
     private CharSequence mTitle;
     private CharSequence mContentDescription;
+
+    @NonNull
     private ActionType mActionType = ActionType.DEFAULT;
+
     private boolean mIsChecked;
     private int mPriority = -1;
     private long mDateTimeMillis = -1;
+
+    @Nullable
     private SliceItem mSliceItem;
-    private SliceItem mActionItem;
+
     private String mActionKey;
     private boolean mIsActivity;
 
@@ -185,7 +198,7 @@ public class SliceActionImpl implements SliceAction {
      */
     @RestrictTo(LIBRARY_GROUP)
     @SuppressLint("InlinedApi")
-    public SliceActionImpl(SliceItem slice) {
+    public SliceActionImpl(@NonNull SliceItem slice) {
         mSliceItem = slice;
         SliceItem actionItem = SliceQuery.find(slice, FORMAT_ACTION);
         if (actionItem == null) {
@@ -250,10 +263,11 @@ public class SliceActionImpl implements SliceAction {
 
     /**
      * @param description the content description for this action.
+     * @return
      */
     @Nullable
     @Override
-    public SliceActionImpl setContentDescription(@NonNull CharSequence description) {
+    public @NonNull SliceAction setContentDescription(@NonNull CharSequence description) {
         mContentDescription = description;
         return this;
     }
@@ -262,6 +276,7 @@ public class SliceActionImpl implements SliceAction {
      * @param isChecked whether the state of this action is checked or not; only used for toggle
      *                  actions.
      */
+    @NonNull
     @Override
     public SliceActionImpl setChecked(boolean isChecked) {
         mIsChecked = isChecked;
@@ -271,6 +286,7 @@ public class SliceActionImpl implements SliceAction {
     /**
      * Sets the priority of this action, with the lowest priority having the highest ranking.
      */
+    @NonNull
     @Override
     public SliceActionImpl setPriority(@IntRange(from = 0) int priority) {
         mPriority = priority;
@@ -290,6 +306,7 @@ public class SliceActionImpl implements SliceAction {
     /**
      * @return the {@link PendingIntent} associated with this action.
      */
+    @SuppressWarnings("ConstantConditions") // Either mAction or mActionItem must be non-null
     @NonNull
     @Override
     public PendingIntent getAction() {
@@ -299,6 +316,7 @@ public class SliceActionImpl implements SliceAction {
     /**
      * @hide
      */
+    @Nullable
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public SliceItem getActionItem() {
         return mActionItem;
@@ -402,6 +420,8 @@ public class SliceActionImpl implements SliceAction {
      */
     @NonNull
     public Slice buildSlice(@NonNull Slice.Builder builder) {
+        ObjectsCompat.requireNonNull(mAction, "Action must be non-null");
+
         return builder.addHints(HINT_SHORTCUT)
                 .addAction(mAction, buildSliceContent(builder).build(), getSubtype())
                 .build();
@@ -418,6 +438,7 @@ public class SliceActionImpl implements SliceAction {
 
     /**
      */
+    @NonNull
     private Slice.Builder buildSliceContent(@NonNull Slice.Builder builder) {
         Slice.Builder sb = new Slice.Builder(builder);
         if (mIcon != null) {

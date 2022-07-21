@@ -38,14 +38,14 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.Channel.Factory.BUFFERED
 import kotlinx.coroutines.channels.ClosedSendChannelException
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.conflate
 import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.flow.drop
-import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 
@@ -61,7 +61,7 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
     private val retryFlow: Flow<Unit>,
     val remoteMediatorConnection: RemoteMediatorConnection<Key, Value>? = null,
     private val previousPagingState: PagingState<Key, Value>? = null,
-    private val invalidate: () -> Unit = {},
+    private val jumpCallback: () -> Unit = {},
 ) {
     init {
         require(config.jumpThreshold == COUNT_UNDEFINED || pagingSource.jumpingSupported) {
@@ -216,16 +216,14 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
     private fun CoroutineScope.startConsumingHints() {
         // Pseudo-tiling via invalidation on jumps.
         if (config.jumpThreshold != COUNT_UNDEFINED) {
-            listOf(
-                APPEND, PREPEND
-            ).forEach { loadType ->
-                launch {
-                    hintHandler.hintFor(
-                        loadType
-                    ).filter { hint ->
+            launch {
+                val jumpHint = merge(hintHandler.hintFor(APPEND), hintHandler.hintFor(PREPEND))
+                    .firstOrNull { hint ->
                         hint.presentedItemsBefore * -1 > config.jumpThreshold ||
                             hint.presentedItemsAfter * -1 > config.jumpThreshold
-                    }.collectLatest { invalidate() }
+                    }
+                if (jumpHint != null) {
+                    jumpCallback()
                 }
             }
         }

@@ -1492,10 +1492,14 @@ may only be removed during an alpha pre-release stage. Removing the experimental
 marker from an API is equivalent to adding the API to the current API surface.
 
 When transitioning an entire feature surface out of experimental, you *should*
-remove the definition for the associated annotation.
+remove the definition for the associated experimental marker annotation.
 
 When making any change to the experimental API surface, you *must* run
 `./gradlew updateApi` prior to uploading your change.
+
+NOTE Experimental marker annotation *are themselves* experimental, meaning that
+it's considered binary compatible to refactor or remove an experimental marker
+annotation.
 
 ### `@RestrictTo` APIs {#restricted-api}
 

@@ -19,6 +19,7 @@ import android.os.Parcelable
 import androidx.health.platform.client.impl.data.ProtoParcelable
 import androidx.health.platform.client.proto.ResponseProto
 
+/** @suppress */
 class ReadDataResponse(override val proto: ResponseProto.ReadDataResponse) :
     ProtoParcelable<ResponseProto.ReadDataResponse>() {
 

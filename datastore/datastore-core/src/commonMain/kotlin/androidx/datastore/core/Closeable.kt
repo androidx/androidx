@@ -35,27 +35,28 @@ interface Closeable {
  */
 @Suppress("NotCloseable", "DocumentExceptions") // No closable in KMP common.
 inline fun <T : Closeable, R> T.use(block: (T) -> R): R {
-    var result: R? = null
     var thrown: Throwable? = null
 
     try {
-        result = block(this)
+        return block(this)
     } catch (t: Throwable) {
         thrown = t
-    }
+    } finally {
+        try {
+            this.close()
+        } catch (t: Throwable) {
+            if (thrown == null) {
+                thrown = t
+            } else {
+                thrown.addSuppressed(t)
+            }
+        }
 
-    try {
-        this.close()
-    } catch (t: Throwable) {
-        if (thrown == null) {
-            thrown = t
-        } else {
-            thrown.addSuppressed(t)
+        if (thrown != null) {
+            throw thrown
         }
     }
-
-    if (thrown != null) {
-        throw thrown
-    }
-    return result!!
+    // We either returned in the try block, or thrown must be not null, so this code is unreachable.
+    error("""Unreachable code. If this occurs, please file a bug here:
+        https://b.corp.google.com/issues/new?component=907884&template=1466542""")
 }

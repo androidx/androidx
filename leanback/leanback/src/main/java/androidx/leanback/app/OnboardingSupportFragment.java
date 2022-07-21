@@ -305,8 +305,8 @@ abstract public class OnboardingSupportFragment extends Fragment {
 
     @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, final ViewGroup container,
-            Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, final @Nullable ViewGroup container,
+            @Nullable Bundle savedInstanceState) {
         resolveTheme();
         LayoutInflater localInflater = getThemeInflater(inflater);
         final ViewGroup view = (ViewGroup) localInflater.inflate(R.layout.lb_onboarding_fragment,
@@ -388,7 +388,7 @@ abstract public class OnboardingSupportFragment extends Fragment {
     }
 
     @Override
-    public void onSaveInstanceState(Bundle outState) {
+    public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putInt(KEY_CURRENT_PAGE_INDEX, mCurrentPageIndex);
         outState.putBoolean(KEY_LOGO_ANIMATION_FINISHED, mLogoAnimationFinished);
@@ -510,6 +510,7 @@ abstract public class OnboardingSupportFragment extends Fragment {
      * Returns the start button text if it's set through
      * {@link #setStartButtonText(CharSequence)}}. If no string was set, null is returned.
      */
+    @Nullable
     public final CharSequence getStartButtonText() {
         return mStartButtonText;
     }
@@ -520,7 +521,7 @@ abstract public class OnboardingSupportFragment extends Fragment {
      *
      * @param text the start button text
      */
-    public void setStartButtonText(CharSequence text) {
+    public void setStartButtonText(@Nullable CharSequence text) {
         mStartButtonText = text;
         mStartButtonTextSet = true;
         if (mStartButton != null) {
@@ -773,6 +774,7 @@ abstract public class OnboardingSupportFragment extends Fragment {
      * Provides the entry animation for description view. This allows users to override the
      * default fade and slide animation. Returning null will disable the animation.
      */
+    @NonNull
     protected Animator onCreateDescriptionAnimator() {
         return AnimatorInflater.loadAnimator(getContext(),
                 R.animator.lb_onboarding_description_enter);
@@ -782,6 +784,7 @@ abstract public class OnboardingSupportFragment extends Fragment {
      * Provides the entry animation for title view. This allows users to override the
      * default fade and slide animation. Returning null will disable the animation.
      */
+    @NonNull
     protected Animator onCreateTitleAnimator() {
         return AnimatorInflater.loadAnimator(getContext(),
                 R.animator.lb_onboarding_title_enter);
@@ -801,7 +804,7 @@ abstract public class OnboardingSupportFragment extends Fragment {
      *
      * @return The page count.
      */
-    abstract protected int getPageCount();
+    protected abstract int getPageCount();
 
     /**
      * Returns the title of the given page.
@@ -810,7 +813,8 @@ abstract public class OnboardingSupportFragment extends Fragment {
      *
      * @return The title of the page.
      */
-    abstract protected CharSequence getPageTitle(int pageIndex);
+    @Nullable
+    protected abstract CharSequence getPageTitle(int pageIndex);
 
     /**
      * Returns the description of the given page.
@@ -819,7 +823,8 @@ abstract public class OnboardingSupportFragment extends Fragment {
      *
      * @return The description of the page.
      */
-    abstract protected CharSequence getPageDescription(int pageIndex);
+    @Nullable
+    protected abstract CharSequence getPageDescription(int pageIndex);
 
     /**
      * Returns the index of the current page.
@@ -842,7 +847,10 @@ abstract public class OnboardingSupportFragment extends Fragment {
      * @return The background view for the onboarding screen, or {@code null}.
      */
     @Nullable
-    abstract protected View onCreateBackgroundView(LayoutInflater inflater, ViewGroup container);
+    protected abstract View onCreateBackgroundView(
+            @NonNull LayoutInflater inflater,
+            @NonNull ViewGroup container
+    );
 
     /**
      * Called to have the inherited class create content view. This is optional and the fragment
@@ -858,7 +866,10 @@ abstract public class OnboardingSupportFragment extends Fragment {
      * @return The content view for the onboarding screen, or {@code null}.
      */
     @Nullable
-    abstract protected View onCreateContentView(LayoutInflater inflater, ViewGroup container);
+    protected abstract View onCreateContentView(
+            @NonNull LayoutInflater inflater,
+            @NonNull ViewGroup container
+    );
 
     /**
      * Called to have the inherited class create foreground view. This is optional and the fragment
@@ -874,7 +885,10 @@ abstract public class OnboardingSupportFragment extends Fragment {
      * @return The foreground view for the onboarding screen, or {@code null}.
      */
     @Nullable
-    abstract protected View onCreateForegroundView(LayoutInflater inflater, ViewGroup container);
+    protected abstract View onCreateForegroundView(
+            @NonNull LayoutInflater inflater,
+            @NonNull ViewGroup container
+    );
 
     /**
      * Called when the onboarding flow finishes.

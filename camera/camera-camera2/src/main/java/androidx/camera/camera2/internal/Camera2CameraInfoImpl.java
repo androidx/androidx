@@ -192,7 +192,7 @@ public final class Camera2CameraInfoImpl implements CameraInfoInternal {
 
     @Override
     public int getSensorRotationDegrees(@RotationValue int relativeRotation) {
-        Integer sensorOrientation = getSensorOrientation();
+        int sensorOrientation = getSensorOrientation();
         int relativeRotationDegrees =
                 CameraOrientationUtil.surfaceRotationToDegrees(relativeRotation);
         // Currently this assumes that a back-facing camera is always opposite to the screen.
@@ -459,7 +459,7 @@ public final class Camera2CameraInfoImpl implements CameraInfoInternal {
      */
     static class RedirectableLiveData<T> extends MediatorLiveData<T> {
         private LiveData<T> mLiveDataSource;
-        private T mInitialValue;
+        private final T mInitialValue;
 
         RedirectableLiveData(T initialValue) {
             mInitialValue = initialValue;

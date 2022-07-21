@@ -22,10 +22,9 @@ import android.os.Build
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
-import java.lang.IllegalStateException
-import java.lang.UnsupportedOperationException
 import org.junit.Assert.assertThrows
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Shadows
@@ -43,6 +42,7 @@ class HealthConnectClientTest {
         context = ApplicationProvider.getApplicationContext()
     }
 
+    @Ignore // b/238635208
     @Test
     fun noBackingImplementation_unavailable() {
         val packageManager = context.packageManager
@@ -54,6 +54,7 @@ class HealthConnectClientTest {
         }
     }
 
+    @Ignore // b/238635208
     @Test
     fun backingImplementation_notEnabled_unavailable() {
         installPackage(context, PROVIDER_PACKAGE_NAME, enabled = false)
@@ -64,6 +65,7 @@ class HealthConnectClientTest {
         }
     }
 
+    @Ignore // b/238635208
     @Test
     fun backingImplementation_enabled_isAvailable() {
         installPackage(context, PROVIDER_PACKAGE_NAME, enabled = true)

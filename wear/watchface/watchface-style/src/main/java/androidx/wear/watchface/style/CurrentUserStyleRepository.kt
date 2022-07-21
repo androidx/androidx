@@ -441,7 +441,12 @@ public class UserStyleSchema constructor(
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     companion object {
         @Throws(IOException::class, XmlPullParserException::class)
-        fun inflate(resources: Resources, parser: XmlResourceParser): UserStyleSchema {
+        fun inflate(
+            resources: Resources,
+            parser: XmlResourceParser,
+            complicationScaleX: Float,
+            complicationScaleY: Float
+        ): UserStyleSchema {
             require(parser.name == "UserStyleSchema") {
                 "Expected a UserStyleSchema node"
             }
@@ -459,7 +464,9 @@ public class UserStyleSchema constructor(
                     "ComplicationSlotsUserStyleSetting" -> userStyleSettings.add(
                         UserStyleSetting.ComplicationSlotsUserStyleSetting.inflate(
                             resources,
-                            parser
+                            parser,
+                            complicationScaleX,
+                            complicationScaleY
                         )
                     )
 

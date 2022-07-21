@@ -29,6 +29,7 @@ import androidx.camera.camera2.pipe.core.TimestampNs
 import androidx.camera.camera2.pipe.core.Timestamps
 import androidx.camera.camera2.pipe.core.Timestamps.formatMs
 import androidx.camera.camera2.pipe.graph.GraphListener
+import androidx.camera.camera2.pipe.graph.StreamGraphImpl
 import java.util.Collections.synchronizedMap
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CoroutineScope
@@ -49,7 +50,7 @@ internal class VirtualSessionState(
     private val captureSessionFactory: CaptureSessionFactory,
     private val requestProcessorFactory: Camera2RequestProcessorFactory,
     private val scope: CoroutineScope
-) : CameraCaptureSessionWrapper.StateCallback, Camera2StreamGraph.SurfaceListener {
+) : CameraCaptureSessionWrapper.StateCallback, StreamGraphImpl.SurfaceListener {
     private val debugId = virtualSessionDebugIds.incrementAndGet()
     private val lock = Any()
 
@@ -308,7 +309,7 @@ internal class VirtualSessionState(
             }
 
             if (tryResubmit && retryAllowed) {
-                graphListener.onGraphModified(captureSession.processor)
+                graphListener.onGraphUpdated(captureSession.processor)
             }
             Debug.traceStop()
         }

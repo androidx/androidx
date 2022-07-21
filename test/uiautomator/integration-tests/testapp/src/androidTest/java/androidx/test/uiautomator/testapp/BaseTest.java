@@ -30,7 +30,6 @@ import androidx.test.uiautomator.By;
 import androidx.test.uiautomator.UiDevice;
 import androidx.test.uiautomator.Until;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.runner.RunWith;
 
@@ -39,25 +38,25 @@ public abstract class BaseTest {
 
     private static final long TIMEOUT_MS = 10_000;
     protected static final String TEST_APP = "androidx.test.uiautomator.testapp";
+    protected static final int DEFAULT_FLAGS =
+            Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK;
 
     protected UiDevice mDevice;
 
     @Before
-    public void setUp() {
+    public void setUp() throws Exception {
         mDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation());
-    }
-
-    @After
-    public void tearDown() {
-        mDevice.pressHome();
-        assertTrue("Test app still visible after teardown",
-                mDevice.wait(Until.gone(By.pkg(TEST_APP)), TIMEOUT_MS));
+        mDevice.wakeUp();
     }
 
     protected void launchTestActivity(@NonNull Class<? extends Activity> activity) {
+        launchTestActivity(activity, new Intent().setFlags(DEFAULT_FLAGS));
+    }
+
+    protected void launchTestActivity(@NonNull Class<? extends Activity> activity,
+            @NonNull Intent intent) {
         Context context = ApplicationProvider.getApplicationContext();
-        context.startActivity(new Intent().setClass(context, activity)
-                .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK));
+        context.startActivity(new Intent(intent).setClass(context, activity));
         assertTrue("Test app not visible after launching activity",
                 mDevice.wait(Until.hasObject(By.pkg(TEST_APP)), TIMEOUT_MS));
     }

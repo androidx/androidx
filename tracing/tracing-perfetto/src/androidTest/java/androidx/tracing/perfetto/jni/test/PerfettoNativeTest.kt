@@ -44,8 +44,6 @@ class PerfettoNativeTest {
         PerfettoNative.nativeTraceEventEnd()
         PerfettoNative.nativeTraceEventEnd()
 
-        PerfettoNative.nativeFlushEvents()
-
         // TODO: verify the content by getting it back from Perfetto
     }
 }

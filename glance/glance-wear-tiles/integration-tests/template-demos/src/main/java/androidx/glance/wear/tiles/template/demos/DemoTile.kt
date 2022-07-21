@@ -18,10 +18,11 @@ package androidx.glance.wear.tiles.template.demos
 
 import androidx.compose.runtime.Composable
 import androidx.glance.ImageProvider
-import androidx.glance.wear.tiles.GlanceTileService
 import androidx.glance.template.SingleEntityTemplateData
 import androidx.glance.template.TemplateImageWithDescription
 import androidx.glance.template.TemplateText
+import androidx.glance.template.TextType
+import androidx.glance.wear.tiles.GlanceTileService
 import androidx.glance.wear.tiles.template.SingleEntityTemplate
 
 /** Simple demo tile, displays [SingleEntityTemplate]  */
@@ -31,14 +32,14 @@ class DemoTile : GlanceTileService() {
     override fun Content() {
         SingleEntityTemplate(
             SingleEntityTemplateData(
-                header = TemplateText("Single Entity Demo", TemplateText.Type.Title),
+                header = TemplateText("Single Entity Demo", TextType.Title),
                 headerIcon = TemplateImageWithDescription(
                     ImageProvider(R.drawable.compose),
                     "image"
                 ),
-                text1 = TemplateText("Title", TemplateText.Type.Title),
-                text2 = TemplateText("Subtitle", TemplateText.Type.Label),
-                text3 = TemplateText("Here's the body", TemplateText.Type.Body),
+                text1 = TemplateText("Title", TextType.Title),
+                text2 = TemplateText("Subtitle", TextType.Label),
+                text3 = TemplateText("Here's the body", TextType.Body),
                 image = TemplateImageWithDescription(ImageProvider(R.drawable.compose), "image"),
             )
         )

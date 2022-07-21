@@ -15,6 +15,7 @@
  */
 package androidx.appsearch.platformstorage;
 
+import android.annotation.SuppressLint;
 import android.app.appsearch.AppSearchManager;
 import android.content.Context;
 import android.os.Build;
@@ -208,6 +209,7 @@ public final class PlatformStorage {
      * @param context The {@link SearchContext} contains all information to create a new
      *                {@link AppSearchSession}
      */
+    @SuppressLint("WrongConstant")
     @NonNull
     public static ListenableFuture<AppSearchSession> createSearchSession(
             @NonNull SearchContext context) {
@@ -224,6 +226,9 @@ public final class PlatformStorage {
                                 new SearchSessionImpl(result.getResultValue(), context.mExecutor,
                                 new FeaturesImpl()));
                     } else {
+                        // Without the SuppressLint annotation on the method, this line causes a
+                        // lint error because getResultCode isn't defined as returning a value from
+                        // AppSearchResult.ResultCode
                         future.setException(
                                 new AppSearchException(
                                         result.getResultCode(), result.getErrorMessage()));
@@ -235,6 +240,7 @@ public final class PlatformStorage {
     /**
      * Opens a new {@link GlobalSearchSession} on this storage.
      */
+    @SuppressLint("WrongConstant")
     @NonNull
     public static ListenableFuture<GlobalSearchSession> createGlobalSearchSession(
             @NonNull GlobalSearchContext context) {
@@ -250,6 +256,9 @@ public final class PlatformStorage {
                                 result.getResultValue(), context.mExecutor,
                                 new FeaturesImpl()));
                     } else {
+                        // Without the SuppressLint annotation on the method, this line causes a
+                        // lint error because getResultCode isn't defined as returning a value from
+                        // AppSearchResult.ResultCode
                         future.setException(
                                 new AppSearchException(
                                         result.getResultCode(), result.getErrorMessage()));

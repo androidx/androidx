@@ -185,7 +185,7 @@ public abstract class SimpleItemAnimator extends RecyclerView.ItemAnimator {
      * @return true if a later call to {@link #runPendingAnimations()} is requested,
      * false otherwise.
      */
-    public abstract boolean animateRemove(RecyclerView.ViewHolder holder);
+    public abstract boolean animateRemove(@NonNull RecyclerView.ViewHolder holder);
 
     /**
      * Called when an item is added to the RecyclerView. Implementors can choose
@@ -210,7 +210,7 @@ public abstract class SimpleItemAnimator extends RecyclerView.ItemAnimator {
      * @return true if a later call to {@link #runPendingAnimations()} is requested,
      * false otherwise.
      */
-    public abstract boolean animateAdd(RecyclerView.ViewHolder holder);
+    public abstract boolean animateAdd(@NonNull RecyclerView.ViewHolder holder);
 
     /**
      * Called when an item is moved in the RecyclerView. Implementors can choose
@@ -230,8 +230,8 @@ public abstract class SimpleItemAnimator extends RecyclerView.ItemAnimator {
      * @return true if a later call to {@link #runPendingAnimations()} is requested,
      * false otherwise.
      */
-    public abstract boolean animateMove(RecyclerView.ViewHolder holder, int fromX, int fromY,
-            int toX, int toY);
+    public abstract boolean animateMove(@NonNull RecyclerView.ViewHolder holder, int fromX,
+            int fromY, int toX, int toY);
 
     /**
      * Called when an item is changed in the RecyclerView, as indicated by a call to
@@ -263,8 +263,9 @@ public abstract class SimpleItemAnimator extends RecyclerView.ItemAnimator {
      * @return true if a later call to {@link #runPendingAnimations()} is requested,
      * false otherwise.
      */
-    public abstract boolean animateChange(RecyclerView.ViewHolder oldHolder,
-            RecyclerView.ViewHolder newHolder, int fromLeft, int fromTop, int toLeft, int toTop);
+    public abstract boolean animateChange(@NonNull RecyclerView.ViewHolder oldHolder,
+            @Nullable RecyclerView.ViewHolder newHolder, int fromLeft, int fromTop, int toLeft,
+            int toTop);
 
     /**
      * Method to be called by subclasses when a remove animation is done.
@@ -273,7 +274,7 @@ public abstract class SimpleItemAnimator extends RecyclerView.ItemAnimator {
      * @see RecyclerView.ItemAnimator#animateDisappearance(RecyclerView.ViewHolder, ItemHolderInfo,
      * ItemHolderInfo)
      */
-    public final void dispatchRemoveFinished(RecyclerView.ViewHolder item) {
+    public final void dispatchRemoveFinished(@NonNull RecyclerView.ViewHolder item) {
         onRemoveFinished(item);
         dispatchAnimationFinished(item);
     }

@@ -28,6 +28,7 @@ import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.FlakyTest
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.testutils.PollingCheck
@@ -123,6 +124,7 @@ class ToolbarMenuHostTest {
     }
 
     @Test
+    @FlakyTest(bugId = 238664379)
     fun providedMenuItemSelected() {
         with(ActivityScenario.launch(ToolbarTestActivity::class.java)) {
             var itemSelectedId: Int? = null

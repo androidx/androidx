@@ -22,8 +22,10 @@ import androidx.room.compiler.processing.XMemberContainer
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.ksp.KspAnnotated.UseSiteFilter.Companion.NO_USE_SITE_OR_METHOD_PARAMETER
 import androidx.room.compiler.processing.ksp.synthetic.KspSyntheticPropertyMethodElement
+import com.google.devtools.ksp.symbol.KSDeclaration
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.KSPropertySetter
+import com.google.devtools.ksp.symbol.KSType
 import com.google.devtools.ksp.symbol.KSValueParameter
 
 internal class KspExecutableParameterElement(
@@ -35,33 +37,23 @@ internal class KspExecutableParameterElement(
     XExecutableParameterElement,
     XAnnotated by KspAnnotated.create(env, parameter, NO_USE_SITE_OR_METHOD_PARAMETER) {
 
-    override val equalityItems: Array<out Any?>
-        get() = arrayOf(enclosingElement, parameter)
-
     override val name: String
         get() = parameter.name?.asString() ?: "_no_param_name"
 
     override val hasDefaultValue: Boolean
         get() = parameter.hasDefault
 
-    private val jvmTypeResolver by lazy {
-        KspJvmTypeResolutionScope.MethodParameter(
+    private fun jvmTypeResolver(container: KSDeclaration?): KspJvmTypeResolutionScope {
+        return KspJvmTypeResolutionScope.MethodParameter(
             kspExecutableElement = enclosingElement,
             parameterIndex = parameterIndex,
-            annotated = parameter.type
+            annotated = parameter.type,
+            container = container
         )
     }
 
     override val type: KspType by lazy {
-        parameter.typeAsMemberOf(
-            functionDeclaration = enclosingElement.declaration,
-            ksType = enclosingElement.containing.type?.ksType
-        ).let {
-            env.wrap(
-                originatingReference = parameter.type,
-                ksType = it
-            ).withJvmTypeResolver(jvmTypeResolver)
-        }
+        asMemberOf(enclosingElement.enclosingElement.type?.ksType)
     }
 
     override val closestMemberContainer: XMemberContainer by lazy {
@@ -72,19 +64,25 @@ internal class KspExecutableParameterElement(
         get() = "$name in ${enclosingElement.fallbackLocationText}"
 
     override fun asMemberOf(other: XType): KspType {
-        if (enclosingElement.containing.type?.isSameType(other) != false) {
+        if (closestMemberContainer.type?.isSameType(other) != false) {
             return type
         }
         check(other is KspType)
-        return parameter.typeAsMemberOf(
-            functionDeclaration = enclosingElement.declaration,
-            ksType = other.ksType
-        ).let {
-            env.wrap(
-                originatingReference = parameter.type,
-                ksType = it
-            ).withJvmTypeResolver(jvmTypeResolver)
-        }
+        return asMemberOf(other.ksType)
+    }
+
+    private fun asMemberOf(ksType: KSType?): KspType {
+        return env.wrap(
+            originatingReference = parameter.type,
+            ksType = parameter.typeAsMemberOf(
+                functionDeclaration = enclosingElement.declaration,
+                ksType = ksType
+            )
+        ).withJvmTypeResolver(
+            jvmTypeResolver(
+                container = ksType?.declaration
+            )
+        )
     }
 
     override fun kindName(): String {

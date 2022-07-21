@@ -1018,7 +1018,9 @@ public sealed class UserStyleSetting private constructor(
                 @SuppressLint("ResourceType")
                 fun inflate(
                     resources: Resources,
-                    parser: XmlResourceParser
+                    parser: XmlResourceParser,
+                    complicationScaleX: Float,
+                    complicationScaleY: Float
                 ): ComplicationSlotOverlay {
                     val complicationSlotId = getIntRefAttribute(
                         resources, parser, "complicationSlotId"
@@ -1046,7 +1048,12 @@ public sealed class UserStyleSetting private constructor(
                         } else {
                             null
                         }
-                    val bounds = ComplicationSlotBounds.inflate(resources, parser)
+                    val bounds = ComplicationSlotBounds.inflate(
+                        resources,
+                        parser,
+                        complicationScaleX,
+                        complicationScaleY
+                    )
 
                     return ComplicationSlotOverlay(
                         complicationSlotId,
@@ -1216,20 +1223,44 @@ public sealed class UserStyleSetting private constructor(
             )
 
         internal companion object {
+            private fun <T> bindScale(
+                function: (
+                    resources: Resources,
+                    parser: XmlResourceParser,
+                    complicationScaleX: Float,
+                    complicationScaleY: Float
+                ) -> T,
+                complicationScaleX: Float,
+                complicationScaleY: Float
+            ): (resources: Resources, parser: XmlResourceParser) -> T {
+                return { resources: Resources, parser: XmlResourceParser ->
+                    function(resources, parser, complicationScaleX, complicationScaleY)
+                }
+            }
+
             @SuppressLint("ResourceType")
             @Suppress("UNCHECKED_CAST")
             fun inflate(
                 resources: Resources,
-                parser: XmlResourceParser
+                parser: XmlResourceParser,
+                complicationScaleX: Float,
+                complicationScaleY: Float
             ): ComplicationSlotsUserStyleSetting {
                 val params = createBaseWithParent(
                     resources,
                     parser,
                     createParent(
-                        resources, parser, "ComplicationSlotsUserStyleSetting", ::inflate
+                        resources,
+                        parser,
+                        "ComplicationSlotsUserStyleSetting",
+                        bindScale(::inflate, complicationScaleX, complicationScaleY)
                     ),
                     inflateDefault = true,
-                    optionInflater = "ComplicationSlotsOption" to ComplicationSlotsOption::inflate
+                    optionInflater = "ComplicationSlotsOption" to bindScale(
+                        ComplicationSlotsOption::inflate,
+                        complicationScaleX,
+                        complicationScaleY
+                    )
                 )
                 return ComplicationSlotsUserStyleSetting(
                     params.id,
@@ -1427,7 +1458,9 @@ public sealed class UserStyleSetting private constructor(
                 @SuppressLint("ResourceType")
                 fun inflate(
                     resources: Resources,
-                    parser: XmlResourceParser
+                    parser: XmlResourceParser,
+                    complicationScaleX: Float,
+                    complicationScaleY: Float
                 ): ComplicationSlotsOption {
                     val id = getStringRefAttribute(resources, parser, "id")
                     require(id != null) { "ComplicationSlotsOption must have an id" }
@@ -1446,7 +1479,12 @@ public sealed class UserStyleSetting private constructor(
                     parser.iterate {
                         when (parser.name) {
                             "ComplicationSlotOverlay" -> complicationSlotOverlays.add(
-                                ComplicationSlotOverlay.inflate(resources, parser)
+                                ComplicationSlotOverlay.inflate(
+                                    resources,
+                                    parser,
+                                    complicationScaleX,
+                                    complicationScaleY
+                                )
                             )
 
                             "OnWatchEditorData" -> {

@@ -45,6 +45,7 @@ import android.view.Choreographer
 import android.view.Surface
 import android.view.SurfaceHolder
 import android.view.WindowInsets
+import android.view.accessibility.AccessibilityManager
 import androidx.annotation.Px
 import androidx.annotation.RequiresApi
 import androidx.test.core.app.ApplicationProvider
@@ -125,6 +126,7 @@ import org.mockito.Mockito.times
 import org.mockito.Mockito.validateMockitoUsage
 import org.mockito.Mockito.verify
 import org.robolectric.annotation.Config
+import org.robolectric.Shadows.shadowOf
 
 private const val INTERACTIVE_UPDATE_RATE_MS = 16L
 private const val LEFT_COMPLICATION_ID = 1000
@@ -577,7 +579,8 @@ public class WatchFaceServiceTest {
         complicationSlots: List<ComplicationSlot>,
         userStyleSchema: UserStyleSchema,
         wallpaperInteractiveWatchFaceInstanceParams: WallpaperInteractiveWatchFaceInstanceParams,
-        complicationCache: MutableMap<String, ByteArray>? = null
+        complicationCache: MutableMap<String, ByteArray>? = null,
+        preAndroidR: Boolean = false
     ) {
         testWatchFaceService = TestWatchFaceService(
             watchFaceType,
@@ -595,7 +598,7 @@ public class WatchFaceServiceTest {
             watchState,
             handler,
             null,
-            false,
+            preAndroidR,
             null,
             choreographer,
             mockSystemTimeMillis = looperTimeMillis,
@@ -937,6 +940,33 @@ public class WatchFaceServiceTest {
     }
 
     @Test
+    public fun computeBounds_does_not_mutate_it() {
+        initEngine(
+            WatchFaceType.ANALOG,
+            listOf(leftComplication),
+            UserStyleSchema(emptyList())
+        )
+
+        val leftComplication = complicationSlotsManager[LEFT_COMPLICATION_ID]!!
+        val oldLeftBounds = RectF(
+            leftComplication.complicationSlotBounds.perComplicationTypeBounds[
+                leftComplication.complicationData.value.type
+            ]
+        )
+
+        leftComplication.computeBounds(
+            ONE_HUNDRED_BY_ONE_HUNDRED_RECT,
+            applyMargins = true
+        )
+
+        assertThat(
+            leftComplication.complicationSlotBounds.perComplicationTypeBounds[
+                leftComplication.complicationData.value.type
+            ]
+        ).isEqualTo(oldLeftBounds)
+    }
+
+    @Test
     public fun singleTaps_inMargins_correctlyDetected() {
         initEngine(
             WatchFaceType.ANALOG,
@@ -980,7 +1010,7 @@ public class WatchFaceServiceTest {
             )
 
         // Tap bottom right corner of right complication's margin.
-        tapAt(rightComplicationExtendedBounds.right, rightComplicationExtendedBounds.bottom)
+        tapAt(rightComplicationExtendedBounds.right - 1, rightComplicationExtendedBounds.bottom - 1)
         assertThat(complicationSlotsManager.lastComplicationTapDownEvents[LEFT_COMPLICATION_ID])
             .isEqualTo(
                 TapEvent(
@@ -992,8 +1022,8 @@ public class WatchFaceServiceTest {
         assertThat(complicationSlotsManager.lastComplicationTapDownEvents[RIGHT_COMPLICATION_ID])
             .isEqualTo(
                 TapEvent(
-                    rightComplicationExtendedBounds.right,
-                    rightComplicationExtendedBounds.bottom,
+                    rightComplicationExtendedBounds.right - 1,
+                    rightComplicationExtendedBounds.bottom - 1,
                     Instant.ofEpochMilli(100)
                 )
             )
@@ -1006,7 +1036,7 @@ public class WatchFaceServiceTest {
     public fun lowestIdComplicationSelectedWhenMarginsOverlap() {
         val complication100 =
             ComplicationSlot.createRoundRectComplicationSlotBuilder(
-            100,
+                100,
                 { watchState, listener ->
                     CanvasComplicationDrawable(complicationDrawableLeft, watchState, listener)
                 },
@@ -3285,7 +3315,7 @@ public class WatchFaceServiceTest {
         assertThat(renderer.lastOnDrawZonedDateTime!!.toInstant().toEpochMilli()).isEqualTo(1000L)
 
         // When going interactive a frame should be rendered immediately.
-        engineWrapper.setWatchUiState(WatchUiState(false, 0))
+        engineWrapper.setWatchUiState(WatchUiState(false, 0), fromSysUi = true)
         assertThat(renderer.lastOnDrawZonedDateTime!!.toInstant().toEpochMilli()).isEqualTo(2000L)
 
         // And we should be producing frames.
@@ -3321,7 +3351,7 @@ public class WatchFaceServiceTest {
         assertThat(renderer.lastOnDrawZonedDateTime!!.toInstant().toEpochMilli()).isEqualTo(992L)
 
         // After going ambient we should render immediately and then stop.
-        engineWrapper.setWatchUiState(WatchUiState(true, 0))
+        engineWrapper.setWatchUiState(WatchUiState(true, 0), fromSysUi = true)
         runPostedTasksFor(5000L)
         assertThat(renderer.lastOnDrawZonedDateTime!!.toInstant().toEpochMilli()).isEqualTo(1000L)
 
@@ -3817,6 +3847,67 @@ public class WatchFaceServiceTest {
         ).isEqualTo("Example")
 
         assertThat(engineWrapper.contentDescriptionLabels[1].tapAction).isEqualTo(pendingIntent)
+    }
+
+    @Test
+    public fun onAccessibilityStateChanged_preAndroidR() {
+        initWallpaperInteractiveWatchFaceInstance(
+            WatchFaceType.ANALOG,
+            listOf(leftComplication, rightComplication),
+            UserStyleSchema(emptyList()),
+            WallpaperInteractiveWatchFaceInstanceParams(
+                "TestID",
+                DeviceConfig(
+                    false,
+                    false,
+                    0,
+                    0
+                ),
+                WatchUiState(false, 0),
+                UserStyle(emptyMap()).toWireFormat(),
+                emptyList()
+            ),
+            preAndroidR = true
+        )
+
+        engineWrapper.systemViewOfContentDescriptionLabelsIsStale = true
+        val shadowAccessibilityManager =
+            shadowOf(context.getSystemService(AccessibilityManager::class.java))
+
+        // Pre-R nothing should happen when the AccessibilityManager is enabled.
+        shadowAccessibilityManager.setEnabled(true)
+        assertThat(engineWrapper.systemViewOfContentDescriptionLabelsIsStale).isTrue()
+    }
+
+    @Test
+    public fun onAccessibilityStateChanged_androidR_or_above() {
+        initWallpaperInteractiveWatchFaceInstance(
+            WatchFaceType.ANALOG,
+            listOf(leftComplication, rightComplication),
+            UserStyleSchema(emptyList()),
+            WallpaperInteractiveWatchFaceInstanceParams(
+                "TestID",
+                DeviceConfig(
+                    false,
+                    false,
+                    0,
+                    0
+                ),
+                WatchUiState(false, 0),
+                UserStyle(emptyMap()).toWireFormat(),
+                emptyList()
+            ),
+            preAndroidR = false
+        )
+
+        engineWrapper.systemViewOfContentDescriptionLabelsIsStale = true
+        val shadowAccessibilityManager =
+            shadowOf(context.getSystemService(AccessibilityManager::class.java))
+
+        // From R enabling the AccessibilityManager should trigger a broadcast and reset
+        // systemViewOfContentDescriptionLabelsIsStale.
+        shadowAccessibilityManager.setEnabled(true)
+        assertThat(engineWrapper.systemViewOfContentDescriptionLabelsIsStale).isFalse()
     }
 
     @Test
@@ -5252,6 +5343,16 @@ public class WatchFaceServiceTest {
 
         watchFaceImpl.broadcastsObserver.onActionScreenOn()
         assertThat(watchState.isAmbient.value).isFalse()
+
+        // After SysUI has sent WatchUiState onActionScreenOff/onActionScreenOn should be ignored.
+        engineWrapper.setWatchUiState(WatchUiState(false, 0), fromSysUi = true)
+
+        watchFaceImpl.broadcastsObserver.onActionScreenOff()
+        assertThat(watchState.isAmbient.value).isFalse()
+
+        engineWrapper.setWatchUiState(WatchUiState(true, 0), fromSysUi = true)
+        watchFaceImpl.broadcastsObserver.onActionScreenOn()
+        assertThat(watchState.isAmbient.value).isTrue()
     }
 
     @Test

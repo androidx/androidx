@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.3.0-alpha07" type="baseline" client="gradle" dependencies="false" name="AGP (7.3.0-alpha07)" variant="all" version="7.3.0-alpha07">
+<issues format="6" by="lint 7.4.0-alpha05" type="baseline" client="cli" dependencies="false" name="AGP (7.4.0-alpha05)" variant="all" version="7.4.0-alpha05">
 
     <issue
         id="NewApi"
@@ -8,51 +8,6 @@
         errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/emoji2/text/EmojiCompat.java"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 19 (current min is 14): `create`"
-        errorLine1="            loaderCallback.onLoaded(MetadataRepo.create(mock(Typeface.class)));"
-        errorLine2="                                                 ~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/emoji2/text/NoFontTestEmojiConfig.java"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Class requires API level 19 (current min is 14): `EmojiSpan`"
-        errorLine1="        final EmojiSpan span = mock(EmojiSpan.class);"
-        errorLine2="                                    ~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/emoji2/text/SpannableBuilderTest.java"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Class requires API level 19 (current min is 14): `EmojiSpan`"
-        errorLine1="        EmojiSpan[] spans = spannable.getSpans(0, spannable.length(), EmojiSpan.class);"
-        errorLine2="                                                                      ~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/emoji2/text/SpannableBuilderTest.java"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Class requires API level 19 (current min is 14): `EmojiSpan`"
-        errorLine1="        final EmojiSpan span = mock(EmojiSpan.class);"
-        errorLine2="                                    ~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/emoji2/text/SpannableBuilderTest.java"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Class requires API level 19 (current min is 14): `EmojiSpan`"
-        errorLine1="        EmojiSpan[] spans = spannable.getSpans(0, spannable.length(), EmojiSpan.class);"
-        errorLine2="                                                                      ~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/emoji2/text/SpannableBuilderTest.java"/>
     </issue>
 
 </issues>

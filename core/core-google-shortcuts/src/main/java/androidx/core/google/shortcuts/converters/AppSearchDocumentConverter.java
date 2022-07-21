@@ -24,7 +24,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.app.GenericDocument;
 
-import com.google.firebase.appindexing.Indexable;
+import com.google.android.gms.appindex.Indexable;
 
 /**
  * Interface for a converter that will convert an AppSearch Document into {@link Indexable}.

@@ -69,7 +69,7 @@ public class WebSettingsCompatForceDarkTest extends
     public void testForceDark_rendersDark() throws Throwable {
         WebkitUtils.checkFeature(WebViewFeature.FORCE_DARK);
         WebkitUtils.checkFeature(WebViewFeature.OFF_SCREEN_PRERASTER);
-        setWebViewSize(64, 64);
+        setWebViewSize();
 
         // Loading about:blank into a force-dark-on webview should result in a dark background
         WebSettingsCompat.setForceDark(
@@ -104,7 +104,7 @@ public class WebSettingsCompatForceDarkTest extends
         WebkitUtils.checkFeature(WebViewFeature.FORCE_DARK);
         WebkitUtils.checkFeature(WebViewFeature.FORCE_DARK_STRATEGY);
         WebkitUtils.checkFeature(WebViewFeature.OFF_SCREEN_PRERASTER);
-        setWebViewSize(64, 64);
+        setWebViewSize();
 
         // Loading empty page with or without dark theme support into a force-dark-on webview with
         // force dark only algorithm should result in a dark background.
@@ -136,7 +136,7 @@ public class WebSettingsCompatForceDarkTest extends
         WebkitUtils.checkFeature(WebViewFeature.FORCE_DARK);
         WebkitUtils.checkFeature(WebViewFeature.FORCE_DARK_STRATEGY);
         WebkitUtils.checkFeature(WebViewFeature.OFF_SCREEN_PRERASTER);
-        setWebViewSize(64, 64);
+        setWebViewSize();
 
         WebSettingsCompat.setForceDark(
                 getSettingsOnUiThread(), WebSettingsCompat.FORCE_DARK_ON);
@@ -169,7 +169,7 @@ public class WebSettingsCompatForceDarkTest extends
         WebkitUtils.checkFeature(WebViewFeature.FORCE_DARK);
         WebkitUtils.checkFeature(WebViewFeature.FORCE_DARK_STRATEGY);
         WebkitUtils.checkFeature(WebViewFeature.OFF_SCREEN_PRERASTER);
-        setWebViewSize(64, 64);
+        setWebViewSize();
 
         getWebViewOnUiThread().loadUrlAndWaitForCompletion("about:blank");
 

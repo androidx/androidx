@@ -100,22 +100,9 @@ class XConvertersTest {
             }
             """.trimIndent()
         )
-        runKaptTest(
+        runProcessorTest(
             sources = listOf(kotlinSrc, javaSrc)
         ) { invocation ->
-            fun TypeMirror.equivalence() = MoreTypes.equivalence().wrap(this)
-
-            val xKotlinClass = invocation.processingEnv.requireTypeElement("KotlinClass.FooImpl")
-            val xJavaClass = invocation.processingEnv.requireTypeElement("JavaClass.FooImpl")
-            val kotlinClass = invocation.getJavacTypeElement("KotlinClass.FooImpl")
-            val javaClass = invocation.getJavacTypeElement("JavaClass.FooImpl")
-
-            // Test toJavac returns an equivalent TypeMirror
-            assertThat(xKotlinClass.type.toJavac().equivalence())
-                .isEqualTo(kotlinClass.asType().equivalence())
-            assertThat(xJavaClass.type.toJavac().equivalence())
-                .isEqualTo(javaClass.asType().equivalence())
-
             // Test toXProcessing returns an equivalent XType
             fun assertEqualTypes(t: XType?, tFromXConverters: XType?) {
                 if (t == tFromXConverters) {
@@ -148,14 +135,48 @@ class XConvertersTest {
                         .contains("XType#nullibility cannot be called from this type")
                 }
             }
-            assertEqualTypes(
-                xKotlinClass.type,
-                kotlinClass.asType().toXProcessing(invocation.processingEnv)
-            )
-            assertEqualTypes(
-                xJavaClass.type,
-                javaClass.asType().toXProcessing(invocation.processingEnv)
-            )
+
+            fun TypeMirror.equivalence() = MoreTypes.equivalence().wrap(this)
+
+            val xKotlinClass = invocation.processingEnv.requireTypeElement("KotlinClass.FooImpl")
+            val xJavaClass = invocation.processingEnv.requireTypeElement("JavaClass.FooImpl")
+
+            if (invocation.isKsp) {
+                val kotlinClass = invocation.getKspTypeElement("KotlinClass.FooImpl")
+                val javaClass = invocation.getKspTypeElement("JavaClass.FooImpl")
+
+                assertThat(xKotlinClass.type.toKS())
+                    .isEqualTo(kotlinClass.asType(emptyList()))
+                assertThat(xJavaClass.type.toKS())
+                    .isEqualTo(javaClass.asType(emptyList()))
+
+                assertEqualTypes(
+                    xKotlinClass.type,
+                    kotlinClass.asType(emptyList()).toXProcessing(invocation.processingEnv)
+                )
+                assertEqualTypes(
+                    xJavaClass.type,
+                    javaClass.asType(emptyList()).toXProcessing(invocation.processingEnv)
+                )
+            } else {
+                val kotlinClass = invocation.getJavacTypeElement("KotlinClass.FooImpl")
+                val javaClass = invocation.getJavacTypeElement("JavaClass.FooImpl")
+
+                // Test toJavac returns an equivalent TypeMirror
+                assertThat(xKotlinClass.type.toJavac().equivalence())
+                    .isEqualTo(kotlinClass.asType().equivalence())
+                assertThat(xJavaClass.type.toJavac().equivalence())
+                    .isEqualTo(javaClass.asType().equivalence())
+
+                assertEqualTypes(
+                    xKotlinClass.type,
+                    kotlinClass.asType().toXProcessing(invocation.processingEnv)
+                )
+                assertEqualTypes(
+                    xJavaClass.type,
+                    javaClass.asType().toXProcessing(invocation.processingEnv)
+                )
+            }
         }
     }
 

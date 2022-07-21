@@ -13,8 +13,7 @@
   See the License for the specific language governing permissions and
   limitations under the License.
   -->
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="androidx.glance.appwidget.template.demos">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <application
         android:allowBackup="false"
@@ -50,10 +49,52 @@
         </receiver>
 
         <receiver
-            android:name="androidx.glance.appwidget.template.demos.ListDemoWidgetReceiver"
+            android:name="androidx.glance.appwidget.template.demos.FullActionListReceiver"
             android:enabled="@bool/glance_appwidget_available"
             android:exported="false"
-            android:label="@string/list_template_widget_name">
+            android:label="@string/list_style_with_header_action">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="android.intent.action.LOCALE_CHANGED" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/default_app_widget_info" />
+        </receiver>
+
+        <receiver
+            android:name="androidx.glance.appwidget.template.demos.FullHeaderListReceiver"
+            android:enabled="@bool/glance_appwidget_available"
+            android:exported="false"
+            android:label="@string/list_style_with_header">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="android.intent.action.LOCALE_CHANGED" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/default_app_widget_info" />
+        </receiver>
+
+        <receiver
+            android:name="androidx.glance.appwidget.template.demos.NoHeaderListReceiver"
+            android:enabled="@bool/glance_appwidget_available"
+            android:exported="false"
+            android:label="@string/list_style_no_header">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="android.intent.action.LOCALE_CHANGED" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/default_app_widget_info" />
+        </receiver>
+
+        <receiver
+            android:name="androidx.glance.appwidget.template.demos.BriefListReceiver"
+            android:enabled="@bool/glance_appwidget_available"
+            android:exported="false"
+            android:label="@string/list_style_brief">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
                 <action android:name="android.intent.action.LOCALE_CHANGED" />

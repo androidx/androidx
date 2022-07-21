@@ -25,7 +25,7 @@ plugins {
 }
 
 dependencies {
-    api("androidx.annotation:annotation:1.1.0")
+    api(project(":annotation:annotation"))
     api("androidx.fragment:fragment:1.2.0")
     api(project(":wear:watchface:watchface-complications-data"))
     api(project(":wear:watchface:watchface-data"))

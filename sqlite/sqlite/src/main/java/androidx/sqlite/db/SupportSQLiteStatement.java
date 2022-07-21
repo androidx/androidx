@@ -16,6 +16,8 @@
 
 package androidx.sqlite.db;
 
+import androidx.annotation.Nullable;
+
 /**
  * An interface to map the behavior of {@link android.database.sqlite.SQLiteStatement}.
  */
@@ -68,5 +70,6 @@ public interface SupportSQLiteStatement extends SupportSQLiteProgram {
      *
      * @throws android.database.sqlite.SQLiteDoneException if the query returns zero rows
      */
+    @Nullable
     String simpleQueryForString();
 }

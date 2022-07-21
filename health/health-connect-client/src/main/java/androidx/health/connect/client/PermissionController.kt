@@ -15,10 +15,21 @@
  */
 package androidx.health.connect.client
 
+import androidx.activity.result.contract.ActivityResultContract
 import androidx.health.connect.client.permission.Permission
 
 /** Interface for operations related to permissions. */
 interface PermissionController {
+
+    /**
+     * Creates an [ActivityResultContract] to request Health permissions.
+     *
+     * @see androidx.activity.ComponentActivity.registerForActivityResult
+     * @sample androidx.health.connect.client.samples.RequestPermission
+     */
+    fun createRequestPermissionActivityContract():
+        ActivityResultContract<Set<Permission>, Set<Permission>>
+
     /**
      * Returns a set of [Permission] granted by the user to the calling app, out of the input
      * [permissions] set.

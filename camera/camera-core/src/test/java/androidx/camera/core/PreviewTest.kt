@@ -18,6 +18,7 @@ package androidx.camera.core
 
 import android.content.Context
 import android.graphics.Rect
+import android.graphics.SurfaceTexture
 import android.os.Build
 import android.os.Looper.getMainLooper
 import android.util.Rational
@@ -26,19 +27,27 @@ import android.view.Surface
 import androidx.camera.core.SurfaceRequest.TransformationInfo
 import androidx.camera.core.impl.CameraFactory
 import androidx.camera.core.impl.CameraThreadConfig
+import androidx.camera.core.impl.OptionsBundle
+import androidx.camera.core.impl.PreviewConfig
 import androidx.camera.core.impl.SessionConfig
 import androidx.camera.core.impl.UseCaseConfig
+import androidx.camera.core.impl.UseCaseConfigFactory
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
+import androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor
 import androidx.camera.core.internal.CameraUseCaseAdapter
+import androidx.camera.core.processing.SurfaceEffectInternal
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CameraXUtil
 import androidx.camera.testing.fakes.FakeAppConfig
 import androidx.camera.testing.fakes.FakeCamera
 import androidx.camera.testing.fakes.FakeCameraDeviceSurfaceManager
 import androidx.camera.testing.fakes.FakeCameraFactory
+import androidx.camera.testing.fakes.FakeSurfaceEffectInternal
 import androidx.camera.testing.fakes.FakeUseCase
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
+import java.util.Collections
+import java.util.concurrent.ExecutionException
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -47,9 +56,6 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
-import java.util.Collections
-import java.util.concurrent.ExecutionException
-import kotlin.jvm.Throws
 
 private val TEST_CAMERA_SELECTOR = CameraSelector.DEFAULT_BACK_CAMERA
 
@@ -64,10 +70,18 @@ private val TEST_CAMERA_SELECTOR = CameraSelector.DEFAULT_BACK_CAMERA
 class PreviewTest {
     var cameraUseCaseAdapter: CameraUseCaseAdapter? = null
 
+    private lateinit var appSurface: Surface
+    private lateinit var appSurfaceTexture: SurfaceTexture
+    private lateinit var camera: FakeCamera
+    private lateinit var cameraXConfig: CameraXConfig
+    private lateinit var context: Context
+
     @Before
     @Throws(ExecutionException::class, InterruptedException::class)
     fun setUp() {
-        val camera = FakeCamera()
+        appSurfaceTexture = SurfaceTexture(0)
+        appSurface = Surface(appSurfaceTexture)
+        camera = FakeCamera()
 
         val cameraFactoryProvider =
             CameraFactory.Provider { _: Context?, _: CameraThreadConfig?, _: CameraSelector? ->
@@ -77,16 +91,18 @@ class PreviewTest {
                 ) { camera }
                 cameraFactory
             }
-        val cameraXConfig = CameraXConfig.Builder.fromConfig(
+        cameraXConfig = CameraXConfig.Builder.fromConfig(
             FakeAppConfig.create()
         ).setCameraFactoryProvider(cameraFactoryProvider).build()
-        val context = ApplicationProvider.getApplicationContext<Context>()
+        context = ApplicationProvider.getApplicationContext<Context>()
         CameraXUtil.initialize(context, cameraXConfig).get()
     }
 
     @After
     @Throws(ExecutionException::class, InterruptedException::class)
     fun tearDown() {
+        appSurfaceTexture.release()
+        appSurface.release()
         with(cameraUseCaseAdapter) {
             this?.removeUseCases(useCases)
         }
@@ -196,6 +212,62 @@ class PreviewTest {
 
     private fun Rect.getAspectRatio(): Rational {
         return Rational(width(), height())
+    }
+
+    @Test
+    fun bindAndUnbindPreview_surfacesPropagated() {
+        // Arrange.
+        val effect = FakeSurfaceEffectInternal(mainThreadExecutor())
+
+        // Act: create pipeline in Preview and provide Surface.
+        val preview = createPreviewPipelineAndAttachEffect(effect)
+        val surfaceRequest = preview.mCurrentSurfaceRequest!!
+        var appSurfaceReadyToRelease = false
+        surfaceRequest.provideSurface(appSurface, mainThreadExecutor()) {
+            appSurfaceReadyToRelease = true
+        }
+        shadowOf(getMainLooper()).idle()
+
+        // Assert: surfaceOutput received.
+        assertThat(effect.surfaceOutput).isNotNull()
+        assertThat(effect.isReleased).isFalse()
+        assertThat(effect.isOutputSurfaceRequestedToClose).isFalse()
+        assertThat(effect.isInputSurfaceReleased).isFalse()
+        assertThat(appSurfaceReadyToRelease).isFalse()
+        // effect surface is provided to camera.
+        assertThat(preview.sessionConfig.surfaces[0].surface.get()).isEqualTo(effect.inputSurface)
+
+        // Act: unbind Preview.
+        preview.onDetached()
+        shadowOf(getMainLooper()).idle()
+
+        // Assert: effect and effect surface is released.
+        assertThat(effect.isReleased).isTrue()
+        assertThat(effect.isOutputSurfaceRequestedToClose).isTrue()
+        assertThat(effect.isInputSurfaceReleased).isTrue()
+        assertThat(appSurfaceReadyToRelease).isFalse()
+
+        // Act: close SurfaceOutput
+        effect.surfaceOutput!!.close()
+        shadowOf(getMainLooper()).idle()
+        assertThat(appSurfaceReadyToRelease).isTrue()
+    }
+
+    @Test
+    fun invokedErrorListener_recreatePipeline() {
+        // Arrange: create pipeline and get a reference of the SessionConfig.
+        val effect = FakeSurfaceEffectInternal(mainThreadExecutor())
+        val preview = createPreviewPipelineAndAttachEffect(effect)
+        val originalSessionConfig = preview.sessionConfig
+
+        // Act: invoke the error listener.
+        preview.sessionConfig.errorListeners[0].onError(
+            preview.sessionConfig, SessionConfig.SessionError.SESSION_ERROR_UNKNOWN
+        )
+        shadowOf(getMainLooper()).idle()
+
+        // Assert: the SessionConfig changed.
+        assertThat(preview.sessionConfig).isNotEqualTo(originalSessionConfig)
     }
 
     @Test
@@ -358,5 +430,24 @@ class PreviewTest {
         cameraUseCaseAdapter!!.addUseCases(Collections.singleton<UseCase>(preview))
         shadowOf(getMainLooper()).idle()
         return Pair(surfaceRequest!!, transformationInfo!!)
+    }
+
+    private fun createPreviewPipelineAndAttachEffect(
+        surfaceEffect: SurfaceEffectInternal?
+    ): Preview {
+        val preview = Preview.Builder()
+            .setTargetRotation(Surface.ROTATION_0)
+            .build()
+        preview.effect = surfaceEffect
+        val previewConfig = PreviewConfig(
+            cameraXConfig.getUseCaseConfigFactoryProvider(null)!!.newInstance(context).getConfig(
+                UseCaseConfigFactory.CaptureType.PREVIEW,
+                ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY
+            )!! as OptionsBundle
+        )
+        preview.onAttach(camera, null, previewConfig)
+
+        preview.onSuggestedResolutionUpdated(Size(640, 480))
+        return preview
     }
 }

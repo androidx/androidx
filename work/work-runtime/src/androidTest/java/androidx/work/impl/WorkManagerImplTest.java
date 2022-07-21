@@ -31,6 +31,7 @@ import static androidx.work.WorkInfo.State.SUCCEEDED;
 import static androidx.work.impl.model.WorkSpec.SCHEDULE_NOT_REQUESTED_YET;
 import static androidx.work.impl.workers.ConstraintTrackingWorkerKt.ARGUMENT_CLASS_NAME;
 
+import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.notNullValue;
@@ -788,6 +789,112 @@ public class WorkManagerImplTest {
         WorkSpecDao workSpecDao = mDatabase.workSpecDao();
         assertThat(workSpecDao.getWorkSpec(originalWork.getStringId()), is(nullValue()));
         assertThat(workSpecDao.getWorkSpec(replacementWork.getStringId()), is(not(nullValue())));
+    }
+
+    @Test
+    @MediumTest
+    public void testEnqueueUniquePeriodicWork_update()
+            throws ExecutionException, InterruptedException {
+        final String uniqueName = "myname";
+        long enqueueTime = System.currentTimeMillis();
+        PeriodicWorkRequest originalWork = new PeriodicWorkRequest.Builder(
+                InfiniteTestWorker.class,
+                15L,
+                TimeUnit.MINUTES)
+                .setLastEnqueueTime(enqueueTime, TimeUnit.MILLISECONDS)
+                .setInitialState(ENQUEUED)
+                .build();
+        insertNamedWorks(uniqueName, originalWork);
+
+        List<String> workSpecIds = mDatabase.workNameDao().getWorkSpecIdsWithName(uniqueName);
+        assertThat(workSpecIds, containsInAnyOrder(originalWork.getStringId()));
+
+        PeriodicWorkRequest replacementWork = new PeriodicWorkRequest.Builder(
+                TestWorker.class,
+                30L,
+                TimeUnit.MINUTES)
+                .build();
+        mWorkManagerImpl.enqueueUniquePeriodicWork(
+                uniqueName,
+                ExistingPeriodicWorkPolicy.UPDATE,
+                replacementWork).getResult().get();
+
+        workSpecIds = mDatabase.workNameDao().getWorkSpecIdsWithName(uniqueName);
+        assertThat(workSpecIds, contains(originalWork.getStringId()));
+
+        WorkSpecDao workSpecDao = mDatabase.workSpecDao();
+        WorkSpec workSpec = workSpecDao.getWorkSpec(originalWork.getStringId());
+        assertThat(workSpec.lastEnqueueTime, is(enqueueTime));
+        assertThat(workSpec.intervalDuration, is(TimeUnit.MINUTES.toMillis(30)));
+    }
+
+    @Test
+    @MediumTest
+    public void testEnqueueUniquePeriodicWork_updateCancelled()
+            throws ExecutionException, InterruptedException {
+        final String uniqueName = "myname";
+        PeriodicWorkRequest originalWork = new PeriodicWorkRequest.Builder(
+                InfiniteTestWorker.class,
+                15L,
+                TimeUnit.MINUTES)
+                .setInitialState(CANCELLED)
+                .build();
+        insertNamedWorks(uniqueName, originalWork);
+
+        List<String> workSpecIds = mDatabase.workNameDao().getWorkSpecIdsWithName(uniqueName);
+        assertThat(workSpecIds, containsInAnyOrder(originalWork.getStringId()));
+
+        PeriodicWorkRequest replacementWork = new PeriodicWorkRequest.Builder(
+                TestWorker.class,
+                30L,
+                TimeUnit.MINUTES)
+                .build();
+        mWorkManagerImpl.enqueueUniquePeriodicWork(
+                uniqueName,
+                ExistingPeriodicWorkPolicy.UPDATE,
+                replacementWork).getResult().get();
+        assertThat(mWorkManagerImpl.getWorkDatabase().workSpecDao()
+                .getWorkSpec(replacementWork.getStringId()).state, is(ENQUEUED));
+    }
+
+    @Test
+    @MediumTest
+    public void testEnqueueUniquePeriodicWork_updateNonExistent()
+            throws ExecutionException, InterruptedException {
+        final String uniqueName = "myname";
+        PeriodicWorkRequest replacementWork = new PeriodicWorkRequest.Builder(
+                TestWorker.class,
+                30L,
+                TimeUnit.MINUTES)
+                .build();
+        mWorkManagerImpl.enqueueUniquePeriodicWork(
+                uniqueName,
+                ExistingPeriodicWorkPolicy.UPDATE,
+                replacementWork).getResult().get();
+        assertThat(mWorkManagerImpl.getWorkDatabase().workSpecDao()
+                .getWorkSpec(replacementWork.getStringId()).state, is(ENQUEUED));
+    }
+
+    @Test
+    @MediumTest
+    public void testEnqueueUniquePeriodicWork_updateOneTimeWork()
+            throws ExecutionException, InterruptedException {
+        final String uniqueName = "myname";
+        OneTimeWorkRequest request = new OneTimeWorkRequest.Builder(TestWorker.class).build();
+        mWorkManagerImpl.enqueueUniqueWork(uniqueName, KEEP, request).getResult().get();
+
+        PeriodicWorkRequest replacementWork = new PeriodicWorkRequest.Builder(
+                TestWorker.class,
+                30L,
+                TimeUnit.MINUTES)
+                .build();
+        try {
+            mWorkManagerImpl.enqueueUniquePeriodicWork(uniqueName,
+                    ExistingPeriodicWorkPolicy.UPDATE, replacementWork).getResult().get();
+            throw new AssertionError("Update should have failed");
+        } catch (ExecutionException e) {
+            assertThat(e.getCause(), instanceOf(UnsupportedOperationException.class));
+        }
     }
 
     @Test

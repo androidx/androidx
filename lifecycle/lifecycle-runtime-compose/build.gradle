@@ -26,7 +26,6 @@ plugins {
 }
 
 dependencies {
-    kotlinPlugin projectOrArtifact(":compose:compiler:compiler")
     api projectOrArtifact(":lifecycle:lifecycle-runtime-ktx")
     api("androidx.annotation:annotation-experimental:1.1.0")
     api("androidx.compose.runtime:runtime:1.0.1")

@@ -25,10 +25,10 @@ internal object PerfettoNative {
     object Metadata {
         const val version = "1.0.0-alpha01"
         val checksums = mapOf(
-            "arm64-v8a" to "d4ca3ebe077dedee07e8875462fbd75e4cfde135975644ab6bf83a2de9135754",
-            "armeabi-v7a" to "4912046f4055c4132efebd39ea429b4ebceeb191178dfa5337739a022167ecfa",
-            "x86" to "10d6f0fe8f7cbe2b4308946df16d33a00dffbca4934509aa6b6fcb86cabde6d0",
-            "x86_64" to "8774ff744b875db95cc8d10a6e8e68a822ca85e2d74b9f356ceddf5e4168c60a"
+            "arm64-v8a" to "3e42560024c7311c55ad09ffbb9228806303c4e42be4bc6fa8f66ea77d48999a",
+            "armeabi-v7a" to "46d84ff8765f87e5673ba1fc93ba84c79f9d01509770b99f5f68210498bdd8dc",
+            "x86" to "18d4aeca911080983bf05fd69bef153ed707aee431d5ccf1f55e7d1ae62904e5",
+            "x86_64" to "f54fb5fdeb75ef414116d6169d1fc1ba12c034056b0b98c58690661090312d10",
         )
     }
 
@@ -39,6 +39,5 @@ internal object PerfettoNative {
     external fun nativeRegisterWithPerfetto()
     external fun nativeTraceEventBegin(key: Int, traceInfo: String)
     external fun nativeTraceEventEnd()
-    external fun nativeFlushEvents()
     external fun nativeVersion(): String
 }

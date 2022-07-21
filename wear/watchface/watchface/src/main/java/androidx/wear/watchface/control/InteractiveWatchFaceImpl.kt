@@ -110,8 +110,7 @@ internal class InteractiveWatchFaceImpl(
             "InteractiveWatchFaceImpl.setWatchUiState"
         ) {
             engine?.let {
-                it.systemHasSentWatchUiState = true
-                it.setWatchUiState(watchUiState)
+                it.setWatchUiState(watchUiState, fromSysUi = true)
             } ?: Log.d(TAG, "setWatchUiState ignored due to null engine id $instanceId")
         }
     }

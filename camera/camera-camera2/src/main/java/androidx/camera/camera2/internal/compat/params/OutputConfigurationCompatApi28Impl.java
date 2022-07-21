@@ -79,6 +79,7 @@ class OutputConfigurationCompatApi28Impl extends OutputConfigurationCompatApi26I
         return null;
     }
 
+    @NonNull
     @Override
     public Object getOutputConfiguration() {
         Preconditions.checkArgument(mObject instanceof OutputConfiguration);

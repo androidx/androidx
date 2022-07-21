@@ -27,13 +27,8 @@ import javax.lang.model.element.ExecutableElement
 
 internal class JavacConstructorElement(
     env: JavacProcessingEnv,
-    containing: JavacTypeElement,
     element: ExecutableElement
-) : JavacExecutableElement(
-    env,
-    containing,
-    element
-),
+) : JavacExecutableElement(env, element),
     XConstructorElement {
     init {
         check(element.kind == ElementKind.CONSTRUCTOR) {
@@ -56,7 +51,6 @@ internal class JavacConstructorElement(
             JavacMethodParameter(
                 env = env,
                 enclosingElement = this,
-                containing = containing,
                 element = variable,
                 kotlinMetadataFactory = { kotlinMetadata?.parameters?.getOrNull(index) },
                 argIndex = index
@@ -65,16 +59,15 @@ internal class JavacConstructorElement(
     }
 
     override val executableType: XConstructorType by lazy {
-        val asMemberOf = env.typeUtils.asMemberOf(containing.type.typeMirror, element)
         JavacConstructorType(
             env = env,
             element = this,
-            executableType = MoreTypes.asExecutable(asMemberOf)
+            executableType = MoreTypes.asExecutable(element.asType())
         )
     }
 
     override fun asMemberOf(other: XType): XConstructorType {
-        return if (other !is JavacDeclaredType || containing.type.isSameType(other)) {
+        return if (other !is JavacDeclaredType || enclosingElement.type.isSameType(other)) {
             executableType
         } else {
             val asMemberOf = env.typeUtils.asMemberOf(other.typeMirror, element)

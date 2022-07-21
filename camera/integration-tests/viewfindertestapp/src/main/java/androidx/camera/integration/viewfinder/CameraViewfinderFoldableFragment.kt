@@ -213,6 +213,23 @@ class CameraViewfinderFoldableFragment : Fragment(), View.OnClickListener,
         imageReaderThread = HandlerThread("ImageThread").apply { start() }
         imageReaderHandler = Handler(imageReaderThread.looper)
 
+        // Request Permission
+        val cameraPermission = activity?.let {
+            ContextCompat.checkSelfPermission(it, Manifest.permission.CAMERA)
+        }
+        if (cameraPermission != PackageManager.PERMISSION_GRANTED) {
+            requestCameraPermission()
+            return
+        }
+
+        val storagePermission = activity?.let {
+            ContextCompat.checkSelfPermission(it, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+        }
+        if (storagePermission != PackageManager.PERMISSION_GRANTED) {
+            requestStoragePermission()
+            return
+        }
+
         sendSurfaceRequest(false)
 
         lifecycleScope.launch {
@@ -255,6 +272,16 @@ class CameraViewfinderFoldableFragment : Fragment(), View.OnClickListener,
     }
 
     @Suppress("DEPRECATION")
+    private fun requestStoragePermission() {
+        if (shouldShowRequestPermissionRationale(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+            ConfirmationDialog().show(childFragmentManager, FRAGMENT_DIALOG)
+        } else {
+            requestPermissions(arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
+                REQUEST_CAMERA_PERMISSION)
+        }
+    }
+
+    @Suppress("DEPRECATION")
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<String>,
@@ -272,14 +299,6 @@ class CameraViewfinderFoldableFragment : Fragment(), View.OnClickListener,
 
     // ------------- Create Capture Session --------------
     private fun sendSurfaceRequest(toggleCamera: Boolean) {
-        val permission = activity?.let {
-            ContextCompat.checkSelfPermission(it, Manifest.permission.CAMERA)
-        }
-        if (permission != PackageManager.PERMISSION_GRANTED) {
-            requestCameraPermission()
-            return
-        }
-
         cameraViewfinder.post {
             if (isAdded && context != null) {
                 setUpCameraOutputs(toggleCamera)
@@ -372,8 +391,12 @@ class CameraViewfinderFoldableFragment : Fragment(), View.OnClickListener,
             // This will keep sending the capture request as frequently as possible until the
             // session is torn down or session.stopRepeating() is called
             session.setRepeatingRequest(captureRequest.build(), null, cameraHandler)
-        } catch (e: UnsupportedOperationException) {
-            Log.d(TAG, "createCaptureSession UnsupportedOperationException")
+        } catch (e: CameraAccessException) {
+            Log.e(TAG, "createCaptureSession CameraAccessException")
+        } catch (e: IllegalArgumentException) {
+            Log.e(TAG, "createCaptureSession IllegalArgumentException")
+        } catch (e: SecurityException) {
+            Log.e(TAG, "createCaptureSession SecurityException")
         }
     }
 
@@ -383,31 +406,37 @@ class CameraViewfinderFoldableFragment : Fragment(), View.OnClickListener,
         cameraId: String,
         handler: Handler? = null
     ): CameraDevice = suspendCancellableCoroutine { cont ->
-        manager.openCamera(cameraId, object : CameraDevice.StateCallback() {
-            override fun onOpened(device: CameraDevice) {
-                cameraOpenCloseLock.release()
-                cont.resume(device)
-            }
-
-            override fun onDisconnected(device: CameraDevice) {
-                Log.w(TAG, "Camera $cameraId has been disconnected")
-                cameraOpenCloseLock.release()
-            }
-
-            override fun onError(device: CameraDevice, error: Int) {
-                val msg = when (error) {
-                    ERROR_CAMERA_DEVICE -> "Fatal (device)"
-                    ERROR_CAMERA_DISABLED -> "Device policy"
-                    ERROR_CAMERA_IN_USE -> "Camera in use"
-                    ERROR_CAMERA_SERVICE -> "Fatal (service)"
-                    ERROR_MAX_CAMERAS_IN_USE -> "Maximum cameras in use"
-                    else -> "Unknown"
+        try {
+            manager.openCamera(cameraId, object : CameraDevice.StateCallback() {
+                override fun onOpened(device: CameraDevice) {
+                    cameraOpenCloseLock.release()
+                    cont.resume(device)
                 }
-                val exc = RuntimeException("Camera $cameraId error: ($error) $msg")
-                Log.e(TAG, exc.message, exc)
-                if (cont.isActive) cont.resumeWithException(exc)
-            }
-        }, handler)
+
+                override fun onDisconnected(device: CameraDevice) {
+                    Log.w(TAG, "Camera $cameraId has been disconnected")
+                    cameraOpenCloseLock.release()
+                }
+
+                override fun onError(device: CameraDevice, error: Int) {
+                    val msg = when (error) {
+                        ERROR_CAMERA_DEVICE -> "Fatal (device)"
+                        ERROR_CAMERA_DISABLED -> "Device policy"
+                        ERROR_CAMERA_IN_USE -> "Camera in use"
+                        ERROR_CAMERA_SERVICE -> "Fatal (service)"
+                        ERROR_MAX_CAMERAS_IN_USE -> "Maximum cameras in use"
+                        else -> "Unknown"
+                    }
+                    Log.e(TAG, "Camera $cameraId error: ($error) $msg")
+                }
+            }, handler)
+        } catch (e: CameraAccessException) {
+            Log.e(TAG, "openCamera CameraAccessException")
+        } catch (e: IllegalArgumentException) {
+            Log.e(TAG, "openCamera IllegalArgumentException")
+        } catch (e: SecurityException) {
+            Log.e(TAG, "openCamera SecurityException")
+        }
     }
 
     private fun closeCamera() {

@@ -33,6 +33,7 @@ import androidx.camera.camera2.pipe.config.Camera2CameraPipeModules
 import androidx.camera.camera2.pipe.config.CameraGraphModules
 import androidx.camera.camera2.pipe.config.CameraGraphScope
 import androidx.camera.camera2.pipe.config.ThreadConfigModule
+import androidx.camera.camera2.pipe.graph.StreamGraphImpl
 import androidx.camera.camera2.pipe.testing.FakeGraphProcessor
 import androidx.camera.camera2.pipe.testing.FakeRequestProcessor
 import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
@@ -133,7 +134,7 @@ internal class CaptureSessionFactoryTest {
 internal interface CameraSessionTestComponent {
     fun graphConfig(): CameraGraph.Config
     fun sessionFactory(): CaptureSessionFactory
-    fun streamMap(): Camera2StreamGraph
+    fun streamMap(): StreamGraphImpl
 }
 
 /**

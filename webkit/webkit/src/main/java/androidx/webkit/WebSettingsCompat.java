@@ -724,6 +724,65 @@ public class WebSettingsCompat {
         }
     }
 
+    /**
+     * Sets whether EnterpriseAuthenticationAppLinkPolicy if set by admin is allowed to have any
+     * effect on WebView.
+     * <p>
+     * EnterpriseAuthenticationAppLinkPolicy in WebView allows admins to specify authentication
+     * urls. When WebView is redirected to authentication url, and an app on the device has
+     * registered as the default handler for the url, that app is launched.
+     * <p>
+     * EnterpriseAuthenticationAppLinkPolicy is enabled by default.
+     *
+     * <p>
+     * This method should only be called if
+     * {@link WebViewFeature#isFeatureSupported(String)}
+     * returns true for {@link WebViewFeature#ENTERPRISE_AUTHENTICATION_APP_LINK_POLICY}.
+     *
+     * @param enabled Whether EnterpriseAuthenticationAppLinkPolicy should be enabled.
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @RequiresFeature(name = WebViewFeature.ENTERPRISE_AUTHENTICATION_APP_LINK_POLICY,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
+    public static void setEnterpriseAuthenticationAppLinkPolicyEnabled(
+            @NonNull WebSettings settings,
+            boolean enabled) {
+        ApiFeature.NoFramework feature =
+                WebViewFeatureInternal.ENTERPRISE_AUTHENTICATION_APP_LINK_POLICY;
+        if (feature.isSupportedByWebView()) {
+            getAdapter(settings).setEnterpriseAuthenticationAppLinkPolicyEnabled(enabled);
+        } else {
+            throw WebViewFeatureInternal.getUnsupportedOperationException();
+        }
+    }
+
+    /**
+     * Gets whether EnterpriseAuthenticationAppLinkPolicy is allowed to have any effect on WebView.
+     *
+     * <p>
+     * This method should only be called if
+     * {@link WebViewFeature#isFeatureSupported(String)}
+     * returns true for {@link WebViewFeature#ENTERPRISE_AUTHENTICATION_APP_LINK_POLICY}.
+     *
+     * @return {@code true} if EnterpriseAuthenticationAppLinkPolicy is enabled and {@code false}
+     * otherwise.
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @RequiresFeature(name = WebViewFeature.ENTERPRISE_AUTHENTICATION_APP_LINK_POLICY,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
+    public static boolean getEnterpriseAuthenticationAppLinkPolicyEnabled(
+            @NonNull WebSettings settings) {
+        ApiFeature.NoFramework feature =
+                WebViewFeatureInternal.ENTERPRISE_AUTHENTICATION_APP_LINK_POLICY;
+        if (feature.isSupportedByWebView()) {
+            return getAdapter(settings).getEnterpriseAuthenticationAppLinkPolicyEnabled();
+        } else {
+            throw WebViewFeatureInternal.getUnsupportedOperationException();
+        }
+    }
+
     private static WebSettingsAdapter getAdapter(WebSettings settings) {
         return WebViewGlueCommunicator.getCompatConverter().convertSettings(settings);
     }

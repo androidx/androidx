@@ -53,7 +53,4 @@ internal class KspTypeParameterElement(
 
     override val closestMemberContainer: XMemberContainer
         get() = enclosingElement.closestMemberContainer
-
-    override val equalityItems: Array<out Any?>
-        get() = arrayOf(declaration)
 }

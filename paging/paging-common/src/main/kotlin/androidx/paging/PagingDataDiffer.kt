@@ -142,6 +142,7 @@ public abstract class PagingDataDiffer<T : Any>(
         collectFromRunner.runInIsolation {
             uiReceiver = pagingData.uiReceiver
             pagingData.flow.collect { event ->
+                log(VERBOSE) { "Collected $event" }
                 withContext(mainContext) {
                     /**
                      * The hint receiver of a new generation is set only after it has been

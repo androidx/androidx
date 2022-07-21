@@ -23,11 +23,11 @@ import android.text.TextPaint
 import androidx.compose.ui.text.android.style.LetterSpacingSpanEm
 import androidx.compose.ui.text.android.style.LetterSpacingSpanPx
 import androidx.compose.ui.text.android.style.LineHeightSpan
-import androidx.compose.ui.text.font.test.R
 import androidx.core.content.res.ResourcesCompat
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
+import androidx.testutils.fonts.R
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before
 import org.junit.Test

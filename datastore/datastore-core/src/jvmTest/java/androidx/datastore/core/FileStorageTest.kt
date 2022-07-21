@@ -16,10 +16,12 @@
 
 package androidx.datastore.core
 
+import androidx.datastore.TestingSerializerConfig
 import androidx.kruth.assertThat
 import androidx.kruth.assertThrows
 import java.io.File
 import java.io.IOException
+import kotlin.random.Random
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlin.test.Test
 import kotlin.test.BeforeTest
@@ -35,6 +37,7 @@ import kotlinx.coroutines.yield
 class FileStorageTest {
 
     private lateinit var testFile: File
+    private lateinit var testingSerializerConfig: TestingSerializerConfig
     private lateinit var testingSerializer: TestingSerializer
     private lateinit var testStorage: Storage<Byte>
     private lateinit var testConnection: StorageConnection<Byte>
@@ -43,11 +46,12 @@ class FileStorageTest {
 
     @BeforeTest
     fun setUp() {
-        testingSerializer = TestingSerializer()
+        testingSerializerConfig = TestingSerializerConfig()
+        testingSerializer = TestingSerializer(testingSerializerConfig)
         testFile = File.createTempFile("test", "test")
         testScope = TestScope(UnconfinedTestDispatcher())
         fileScope = TestScope(UnconfinedTestDispatcher())
-        testStorage = FileStorage({ testFile }, testingSerializer)
+        testStorage = FileStorage(testingSerializer) { testFile }
         testConnection = testStorage.createConnection()
     }
 
@@ -170,7 +174,7 @@ class FileStorageTest {
 
         coroutineScope {
             testConnection.writeData(1)
-            testingSerializer.failingWrite = true
+            testingSerializerConfig.failingWrite = true
             assertThrows<IOException> { testConnection.writeData(1) }
         }
 
@@ -237,7 +241,7 @@ class FileStorageTest {
             }
         }
         val async2 = async {
-            testConnection.readTransaction(StorageConnection.ReadLockType.LOCK) {
+            testConnection.readTransaction {
                 hook1.complete(Unit)
                 assertThat(count.incrementAndGet()).isEqualTo(1)
                 yield()
@@ -259,7 +263,7 @@ class FileStorageTest {
         }
 
         coroutineScope {
-            val connection = FileStorage({ testFile }, testingSerializer).createConnection()
+            val connection = FileStorage(testingSerializer) { testFile }.createConnection()
             assertThat(connection.readData()).isEqualTo(1)
         }
     }
@@ -269,7 +273,7 @@ class FileStorageTest {
         val fileInNonExistentDir =
             File(getTempFolder(), "/this/does/not/exist/foo.tst")
         coroutineScope {
-            FileStorage({ fileInNonExistentDir }, testingSerializer)
+            FileStorage(testingSerializer) { fileInNonExistentDir }
                 .createConnection().use {
                     it.writeData(1)
                     assertThat(it.readData()).isEqualTo(1)
@@ -277,7 +281,7 @@ class FileStorageTest {
         }
 
         coroutineScope {
-            val connection = FileStorage({ fileInNonExistentDir }, testingSerializer)
+            val connection = FileStorage(testingSerializer) { fileInNonExistentDir }
                 .createConnection()
             assertThat(connection.readData()).isEqualTo(1)
         }
@@ -286,10 +290,10 @@ class FileStorageTest {
     @Test
     fun writeToDirFails() = testScope.runTest {
         val directoryFile =
-            File(getTempFolder(), "/this/is/a/directory")
+            File(getTempFolder(), "/this/is/a${Random.nextInt()}}/directory")
         directoryFile.mkdirs()
 
-        val connection = FileStorage({ directoryFile }, testingSerializer)
+        val connection = FileStorage(testingSerializer) { directoryFile }
             .createConnection()
 
         assertThat(directoryFile.isDirectory).isTrue()
@@ -307,7 +311,7 @@ class FileStorageTest {
             testFile
         }
         assertThrows<IOException> {
-            FileStorage(fileProducer, testingSerializer).createConnection()
+            FileStorage(testingSerializer, fileProducer).createConnection()
         }
             .hasMessageThat().isEqualTo("Exception when producing file")
 
@@ -318,11 +322,11 @@ class FileStorageTest {
 
     @Test
     fun writeAfterTransientBadRead() = testScope.runTest {
-        testingSerializer.failingRead = true
+        testingSerializerConfig.failingRead = true
 
         assertThrows<IOException> { testConnection.readData() }
 
-        testingSerializer.failingRead = false
+        testingSerializerConfig.failingRead = false
 
         testConnection.writeData(1)
         assertThat(testConnection.readData()).isEqualTo(1)

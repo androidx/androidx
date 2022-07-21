@@ -48,6 +48,8 @@ import android.view.ViewGroup;
 import android.view.animation.Interpolator;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
 import androidx.leanback.test.R;
 import androidx.leanback.testutils.PollingCheck;
@@ -3782,7 +3784,12 @@ public class GridWidgetTest {
         final ArrayList<Integer> selectedPositions = new ArrayList<Integer>();
         mGridView.setOnChildSelectedListener(new OnChildSelectedListener() {
             @Override
-            public void onChildSelected(ViewGroup parent, View view, int position, long id) {
+            public void onChildSelected(
+                    @NonNull ViewGroup parent,
+                    @Nullable View view,
+                    int position,
+                    long id
+            ) {
                 selectedPositions.add(position);
             }
         });
@@ -3822,7 +3829,12 @@ public class GridWidgetTest {
         final ArrayList<Integer> selectedPositions = new ArrayList<Integer>();
         mGridView.setOnChildSelectedListener(new OnChildSelectedListener() {
             @Override
-            public void onChildSelected(ViewGroup parent, View view, int position, long id) {
+            public void onChildSelected(
+                    @NonNull ViewGroup parent,
+                    @Nullable View view,
+                    int position,
+                    long id
+            ) {
                 selectedPositions.add(position);
             }
         });
@@ -4605,7 +4617,12 @@ public class GridWidgetTest {
         final ArrayList<Integer> selectedLog = new ArrayList<Integer>();
         mGridView.setOnChildSelectedListener(new OnChildSelectedListener() {
             @Override
-            public void onChildSelected(ViewGroup parent, View view, int position, long id) {
+            public void onChildSelected(
+                    @NonNull ViewGroup parent,
+                    @Nullable View view,
+                    int position,
+                    long id
+            ) {
                 selectedLog.add(position);
             }
         });

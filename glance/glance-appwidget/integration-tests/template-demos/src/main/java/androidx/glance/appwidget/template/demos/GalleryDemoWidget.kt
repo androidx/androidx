@@ -17,15 +17,19 @@
 package androidx.glance.appwidget.template.demos
 
 import androidx.compose.runtime.Composable
+import androidx.glance.ImageProvider
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
-import androidx.glance.ImageProvider
 import androidx.glance.appwidget.SizeMode
-import androidx.glance.unit.ColorProvider
 import androidx.glance.appwidget.template.GalleryTemplate
 import androidx.glance.appwidget.template.GlanceTemplateAppWidget
 import androidx.glance.template.GalleryTemplateData
+import androidx.glance.template.HeaderBlock
+import androidx.glance.template.ImageBlock
 import androidx.glance.template.TemplateImageWithDescription
+import androidx.glance.template.TemplateText
+import androidx.glance.template.TextBlock
+import androidx.glance.template.TextType
 
 /**
  * A widget that uses [GalleryTemplate].
@@ -35,17 +39,42 @@ class GalleryTemplateWidget : GlanceTemplateAppWidget() {
 
     @Composable
     override fun TemplateContent() {
+        val galleryContent = mutableListOf<TemplateImageWithDescription>()
+        for (i in 1..8) {
+            galleryContent.add(
+                TemplateImageWithDescription(
+                    ImageProvider(R.drawable.compose),
+                    "gallery image $i"
+                )
+            )
+        }
         GalleryTemplate(
             GalleryTemplateData(
-                header = "Gallery Template example",
-                title = "Gallery Template title",
-                headline = "Gallery Template headline",
-                image = TemplateImageWithDescription(
-                    ImageProvider(R.drawable.compose),
-                    "test image"
+                header = HeaderBlock(
+                    text = TemplateText("Gallery Template example"),
+                    icon = TemplateImageWithDescription(
+                        ImageProvider(R.drawable.compose),
+                        "test logo"
+                    ),
                 ),
-                logo = TemplateImageWithDescription(ImageProvider(R.drawable.compose), "test logo"),
-                backgroundColor = ColorProvider(R.color.default_widget_background)
+                mainTextBlock = TextBlock(
+                    text1 = TemplateText("Gallery Template title", TextType.Title),
+                    text2 = TemplateText("Gallery Template headline", TextType.Headline),
+                    priority = 0,
+                ),
+                mainImageBlock = ImageBlock(
+                    images = listOf(
+                        TemplateImageWithDescription(
+                            ImageProvider(R.drawable.compose),
+                            "test image"
+                        )
+                    ),
+                    priority = 1,
+                ),
+                galleryImageBlock = ImageBlock(
+                    images = galleryContent,
+                    priority = 2,
+                ),
             )
         )
     }

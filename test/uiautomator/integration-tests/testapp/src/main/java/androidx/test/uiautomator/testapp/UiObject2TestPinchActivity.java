@@ -22,22 +22,20 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.ScaleGestureDetector.SimpleOnScaleGestureListener;
-import android.view.View;
 import android.widget.TextView;
 
-public class UiObject2TestPinchActivity extends Activity {
+import androidx.annotation.Nullable;
 
-    private static final String TAG = UiObject2TestPinchActivity.class.getSimpleName();
+public class UiObject2TestPinchActivity extends Activity {
 
     private ScaleGestureDetector mScaleDetector;
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.uiobject2_testpinch_activity);
 
-        //LinearLayout pinchArea = (LinearLayout)findViewById(R.id.pinch_area);
         final TextView scaleFactor = (TextView)findViewById(R.id.scale_factor);
 
         mScaleDetector = new ScaleGestureDetector(this, new SimpleOnScaleGestureListener() {

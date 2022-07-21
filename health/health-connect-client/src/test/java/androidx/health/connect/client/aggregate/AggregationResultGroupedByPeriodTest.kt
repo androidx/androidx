@@ -28,7 +28,7 @@ class AggregationResultGroupedByPeriodTest {
     fun constructor_endTimeNotAfterStartTime_throws() {
         assertThrows(IllegalArgumentException::class.java) {
             AggregationResultGroupedByPeriod(
-                result = AggregationResult(mapOf(), mapOf(), listOf()),
+                result = AggregationResult(mapOf(), mapOf(), setOf()),
                 startTime = LocalDateTime.parse("2022-02-22T20:22:02"),
                 endTime = LocalDateTime.parse("2022-02-11T20:22:02"),
             )
@@ -36,14 +36,14 @@ class AggregationResultGroupedByPeriodTest {
 
         assertThrows(IllegalArgumentException::class.java) {
             AggregationResultGroupedByPeriod(
-                result = AggregationResult(mapOf(), mapOf(), listOf()),
+                result = AggregationResult(mapOf(), mapOf(), setOf()),
                 startTime = LocalDateTime.parse("2022-02-11T20:22:02"),
                 endTime = LocalDateTime.parse("2022-02-11T20:22:02"),
             )
         }
 
         AggregationResultGroupedByPeriod(
-            result = AggregationResult(mapOf(), mapOf(), listOf()),
+            result = AggregationResult(mapOf(), mapOf(), setOf()),
             startTime = LocalDateTime.parse("2022-02-11T20:22:02"),
             endTime = LocalDateTime.parse("2022-02-22T20:22:02"),
         )

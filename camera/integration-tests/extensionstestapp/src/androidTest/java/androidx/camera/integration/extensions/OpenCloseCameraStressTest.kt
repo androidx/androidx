@@ -24,7 +24,7 @@ import androidx.camera.core.CameraState
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.Preview
-import androidx.camera.extensions.ExtensionMode
+import androidx.camera.core.UseCase
 import androidx.camera.extensions.ExtensionsManager
 import androidx.camera.integration.extensions.util.ExtensionsTestUtil
 import androidx.camera.integration.extensions.util.ExtensionsTestUtil.STRESS_TEST_OPERATION_REPEAT_COUNT
@@ -33,6 +33,8 @@ import androidx.camera.integration.extensions.utils.CameraSelectorUtil
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CameraUtil.PreTestCameraIdList
+import androidx.camera.testing.LabTestRule
+import androidx.camera.testing.StressTestRule
 import androidx.camera.testing.SurfaceTextureProvider
 import androidx.camera.testing.fakes.FakeLifecycleOwner
 import androidx.lifecycle.Observer
@@ -49,6 +51,7 @@ import kotlinx.coroutines.withContext
 import org.junit.After
 import org.junit.Assume.assumeTrue
 import org.junit.Before
+import org.junit.ClassRule
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -67,6 +70,9 @@ class OpenCloseCameraStressTest(
     )
 
     @get:Rule
+    val labTest: LabTestRule = LabTestRule()
+
+    @get:Rule
     val repeatRule = RepeatRule()
 
     private val context = ApplicationProvider.getApplicationContext<Context>()
@@ -78,15 +84,11 @@ class OpenCloseCameraStressTest(
     private lateinit var extensionCameraSelector: CameraSelector
     private lateinit var preview: Preview
     private lateinit var imageCapture: ImageCapture
-    private lateinit var imageAnalysis: ImageAnalysis
-    private var isImageAnalysisSupported = false
     private lateinit var lifecycleOwner: FakeLifecycleOwner
 
     @Before
     fun setUp(): Unit = runBlocking {
-        if (extensionMode != ExtensionMode.NONE) {
-            assumeTrue(ExtensionsTestUtil.isTargetDeviceAvailableForExtensions())
-        }
+        assumeTrue(ExtensionsTestUtil.isTargetDeviceAvailableForExtensions())
         cameraProvider = ProcessCameraProvider.getInstance(context)[10000, TimeUnit.MILLISECONDS]
         extensionsManager = ExtensionsManager.getInstanceAsync(
             context,
@@ -112,10 +114,6 @@ class OpenCloseCameraStressTest(
             preview.setSurfaceProvider(SurfaceTextureProvider.createSurfaceTextureProvider())
         }
         imageCapture = ImageCapture.Builder().build()
-        imageAnalysis = ImageAnalysis.Builder().build()
-
-        isImageAnalysisSupported =
-            camera.isUseCasesCombinationSupported(preview, imageCapture, imageAnalysis)
     }
 
     @After
@@ -133,16 +131,40 @@ class OpenCloseCameraStressTest(
     }
 
     companion object {
+        @ClassRule
+        @JvmField val stressTest = StressTestRule()
+
         @JvmStatic
         @get:Parameterized.Parameters(name = "cameraId = {0}, extensionMode = {1}")
         val parameters: Collection<Array<Any>>
-            get() = ExtensionsTestUtil.getAllCameraIdModeCombinations()
+            get() = ExtensionsTestUtil.getAllCameraIdExtensionModeCombinations()
     }
 
+    @LabTestRule.LabTestOnly
     @Test
     @RepeatRule.Repeat(times = STRESS_TEST_REPEAT_COUNT)
-    fun openCloseCameraStressTest(): Unit = runBlocking {
-        for (i in 1..STRESS_TEST_OPERATION_REPEAT_COUNT) {
+    fun openCloseCameraStressTest_withPreviewImageCapture(): Unit = runBlocking {
+        bindUseCase_unbindAll_toCheckCameraState_repeatedly(preview, imageCapture)
+    }
+
+    @LabTestRule.LabTestOnly
+    @Test
+    @RepeatRule.Repeat(times = STRESS_TEST_REPEAT_COUNT)
+    fun openCloseCameraStressTest_withPreviewImageCaptureImageAnalysis(): Unit = runBlocking {
+        val imageAnalysis = ImageAnalysis.Builder().build()
+        assumeTrue(camera.isUseCasesCombinationSupported(preview, imageCapture, imageAnalysis))
+        bindUseCase_unbindAll_toCheckCameraState_repeatedly(preview, imageCapture, imageAnalysis)
+    }
+
+    /**
+     * Repeatedly binds use cases, unbind all to check whether the camera can be opened and closed
+     * successfully by monitoring the camera state events.
+     */
+    private fun bindUseCase_unbindAll_toCheckCameraState_repeatedly(
+        vararg useCases: UseCase,
+        repeatCount: Int = STRESS_TEST_OPERATION_REPEAT_COUNT
+    ): Unit = runBlocking {
+        for (i in 1..repeatCount) {
             val openCameraLatch = CountDownLatch(1)
             val closeCameraLatch = CountDownLatch(1)
             val observer = Observer<CameraState> { state ->
@@ -154,34 +176,29 @@ class OpenCloseCameraStressTest(
             }
 
             withContext(Dispatchers.Main) {
+                // Arrange: sets up CameraState observer
                 camera.cameraInfo.cameraState.observe(lifecycleOwner, observer)
 
-                if (isImageAnalysisSupported) {
-                    cameraProvider.bindToLifecycle(
-                        lifecycleOwner,
-                        extensionCameraSelector,
-                        preview,
-                        imageCapture,
-                        imageAnalysis
-                    )
-                } else {
-                    cameraProvider.bindToLifecycle(
-                        lifecycleOwner,
-                        extensionCameraSelector,
-                        preview,
-                        imageCapture
-                    )
-                }
+                // Act: binds use cases
+                cameraProvider.bindToLifecycle(
+                    lifecycleOwner,
+                    extensionCameraSelector,
+                    *useCases
+                )
             }
 
+            // Assert: checks the CameraState.Type.OPEN can be received
             assertThat(openCameraLatch.await(3000, TimeUnit.MILLISECONDS)).isTrue()
 
+            // Act: unbinds all use cases
             withContext(Dispatchers.Main) {
                 cameraProvider.unbindAll()
             }
 
+            // Assert: checks the CameraState.Type.CLOSED can be received
             assertThat(closeCameraLatch.await(3000, TimeUnit.MILLISECONDS)).isTrue()
 
+            // Clean it up.
             withContext(Dispatchers.Main) {
                 camera.cameraInfo.cameraState.removeObserver(observer)
             }

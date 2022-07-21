@@ -473,6 +473,15 @@ public class WebViewFeatureInternal {
             new ApiFeature.NoFramework(WebViewFeature.REQUESTED_WITH_HEADER_CONTROL,
                     Features.REQUESTED_WITH_HEADER_CONTROL);
 
+
+    /**
+     * This feature covers
+     * {@link androidx.webkit.WebSettingsCompat#setEnterpriseAuthenticationAppLinkPolicyEnabled(WebSettings, boolean)} and
+     * {@link androidx.webkit.WebSettingsCompat#getEnterpriseAuthenticationAppLinkPolicyEnabled(WebSettings)}.
+     */
+    public static final ApiFeature.NoFramework ENTERPRISE_AUTHENTICATION_APP_LINK_POLICY =
+            new ApiFeature.NoFramework(WebViewFeature.ENTERPRISE_AUTHENTICATION_APP_LINK_POLICY,
+                    Features.ENTERPRISE_AUTHENTICATION_APP_LINK_POLICY);
     // --- Add new feature constants above this line ---
 
     private WebViewFeatureInternal() {

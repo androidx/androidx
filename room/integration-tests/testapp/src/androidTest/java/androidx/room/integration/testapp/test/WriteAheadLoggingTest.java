@@ -50,6 +50,7 @@ import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -154,6 +155,7 @@ public class WriteAheadLoggingTest {
         stopObserver(user1, observer);
     }
 
+    @Ignore("b/239575607")
     @Test
     public void parallelWrites() throws InterruptedException, ExecutionException {
         int numberOfThreads = 10;

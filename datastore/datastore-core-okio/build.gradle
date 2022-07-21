@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+
 import androidx.build.KmpPlatformsKt
 import androidx.build.Publish
 import androidx.build.LibraryType
@@ -24,20 +25,16 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinNativeCompile
 
 plugins {
     id("AndroidXPlugin")
-    id("org.jetbrains.kotlin.multiplatform")
 }
 
 def enableNative = KmpPlatformsKt.enableNative(project)
 
-kotlin {
+androidXMultiplatform {
     jvm {
         withJava()
     }
-    if (enableNative) {
-        macosX64()
-        linuxX64()
-        macosArm64()
-    }
+    mac()
+    linux()
     sourceSets {
         commonMain {
             dependencies {
@@ -56,9 +53,12 @@ kotlin {
         }
         commonTest {
             dependencies {
+                api(project(":internal-testutils-kmp"))
                 api(libs.kotlinTestCommon)
                 api(libs.kotlinTestAnnotationsCommon)
                 api(libs.kotlinCoroutinesTest)
+                api(project(":internal-testutils-datastore"))
+                api(project(":internal-testutils-kmp"))
             }
         }
         jvmTest {
@@ -66,8 +66,11 @@ kotlin {
                 implementation(libs.kotlinCoroutinesTest)
                 implementation(libs.kotlinTest)
                 implementation(libs.kotlinTestAnnotationsCommon)
+                api(project(":internal-testutils-datastore"))
+                api(project(":internal-testutils-kmp"))
             }
         }
+
         if (enableNative) {
             nativeMain {
                 dependencies {
@@ -96,15 +99,7 @@ kotlin {
 
 androidx {
     name = "Android DataStore Core Okio"
-    // temporarily disabled for parity with state prior to library type refactor b/235209373
-    publish = Publish.NONE
-    runApiTasks = new RunApiTasks.No("Temporarily disabled, but should be re-enabled b/235209373")
-    type = LibraryType.kmpLibrary {
-        android = Publish.NONE
-        jvm = Publish.SNAPSHOT_AND_RELEASE
-        linux = Publish.SNAPSHOT_AND_RELEASE
-        mac = Publish.SNAPSHOT_AND_RELEASE
-    }
+    type = LibraryType.KMP_LIBRARY
     mavenGroup = LibraryGroups.DATASTORE
     inceptionYear = "2020"
     description = "Android DataStore Core Okio- contains APIs to use datastore-core in multiplatform via okio"

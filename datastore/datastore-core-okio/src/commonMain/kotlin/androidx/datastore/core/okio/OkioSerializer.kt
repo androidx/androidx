@@ -25,19 +25,19 @@ import okio.BufferedSource
  * The type T MUST be immutable. Mutable types will result in broken DataStore functionality.
  *
  */
-interface OkioSerializer<T> {
+public interface OkioSerializer<T> {
 
     /**
      * Value to return if there is no data on disk.
      */
-    val defaultValue: T
+    public val defaultValue: T
 
     /**
      * Unmarshal object from source.
      *
      * @param source the BufferedSource with the data to deserialize
      */
-    suspend fun readFrom(source: BufferedSource): T
+    public suspend fun readFrom(source: BufferedSource): T
 
     /**
      *  Marshal object to a Sink.
@@ -45,5 +45,5 @@ interface OkioSerializer<T> {
      *  @param t the data to write to output
      *  @output the BufferedSink to serialize data to
      */
-    suspend fun writeTo(t: T, sink: BufferedSink)
+    public suspend fun writeTo(t: T, sink: BufferedSink)
 }

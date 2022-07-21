@@ -18,6 +18,7 @@ package androidx.remotecallback;
 
 import static androidx.remotecallback.RemoteCallback.EXTRA_METHOD;
 
+import android.annotation.SuppressLint;
 import android.content.ComponentName;
 import android.content.ContentProvider;
 import android.content.Context;
@@ -27,6 +28,8 @@ import android.content.pm.ProviderInfo;
 import android.os.Bundle;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.collection.SimpleArrayMap;
 
@@ -50,10 +53,12 @@ public class CallbackHandlerRegistry {
     /**
      * @hide
      */
+    @NonNull
     @SuppressWarnings({"TypeParameterUnusedInFormals", "unchecked"})
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-    public <T extends CallbackReceiver> T getAndResetStub(Class<? extends CallbackReceiver> cls,
-            Context context, String authority) {
+    public <T extends CallbackReceiver> T getAndResetStub(
+            @NonNull Class<? extends CallbackReceiver> cls,
+            @NonNull Context context, @Nullable String authority) {
         ensureInitialized(cls);
         ClsHandler stub = findMap(cls);
         initStub(stub.mCallStub, cls, context, authority);
@@ -99,8 +104,8 @@ public class CallbackHandlerRegistry {
      * Trigger a call to a callback using arguments that were generated with
      * {@link RemoteCallback#getArgumentBundle()}.
      */
-    public <T extends CallbackReceiver> void invokeCallback(Context context, T receiver,
-            Intent intent) {
+    public <T extends CallbackReceiver> void invokeCallback(@NonNull Context context, T receiver,
+            @NonNull Intent intent) {
         invokeCallback(context, receiver, intent.getExtras());
     }
 
@@ -108,8 +113,8 @@ public class CallbackHandlerRegistry {
      * Trigger a call to a callback using arguments that were generated with
      * {@link RemoteCallback#getArgumentBundle()}.
      */
-    public <T extends CallbackReceiver> void invokeCallback(Context context, T receiver,
-            Bundle bundle) {
+    public <T extends CallbackReceiver> void invokeCallback(@NonNull Context context, T receiver,
+            @NonNull Bundle bundle) {
         Class<? extends CallbackReceiver> receiverClass = receiver.getClass();
         ensureInitialized(receiverClass);
         ClsHandler map = findMap(receiverClass);
@@ -185,8 +190,8 @@ public class CallbackHandlerRegistry {
      * Note: This should only be called by generated code, there is no reason to reference this
      * otherwise.
      */
-    public static <T extends CallbackReceiver> void registerCallbackHandler(Class<T> cls,
-            String method, CallbackHandler<T> handler) {
+    public static <T extends CallbackReceiver> void registerCallbackHandler(@NonNull Class<T> cls,
+            @NonNull String method, @Nullable CallbackHandler<T> handler) {
         sInstance.registerHandler(cls, method, handler);
     }
 
@@ -195,9 +200,12 @@ public class CallbackHandlerRegistry {
      * Note: This should only be called by generated code, there is no reason to reference this
      * otherwise.
      */
+    @Nullable
     @SuppressWarnings("unchecked")
-    public static RemoteCallback stubToRemoteCallback(CallbackReceiver receiver,
-            Class<? extends CallbackReceiver> cls, Bundle args, String method) {
+    @SuppressLint("LambdaLast")
+    public static RemoteCallback stubToRemoteCallback(@NonNull CallbackReceiver receiver,
+            @NonNull Class<? extends CallbackReceiver> cls, @NonNull Bundle args,
+            @Nullable String method) {
         if (!(receiver instanceof CallbackBase)) {
             throw new IllegalArgumentException(
                     "May only be called on classes that extend a *WithCallbacks base class.");
@@ -232,6 +240,6 @@ public class CallbackHandlerRegistry {
          * Note: This should only be called by generated code, there is no reason to reference this
          * otherwise.
          */
-        void executeCallback(Context context, T receiver, Bundle arguments);
+        void executeCallback(@NonNull Context context, T receiver, @NonNull Bundle arguments);
     }
 }

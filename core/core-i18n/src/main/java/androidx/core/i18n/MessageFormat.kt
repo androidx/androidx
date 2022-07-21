@@ -33,12 +33,12 @@ class MessageFormat {
          */
         @JvmStatic @JvmOverloads
         fun formatNamedArgs(
-            @Suppress("UNUSED_PARAMETER") context: Context,
+            context: Context,
             locale: Locale = Locale.getDefault(),
             msg: String,
             vararg nameValuePairs: Any?
         ): String {
-            return MessageFormat.formatNamedArgs(locale, msg, *nameValuePairs)
+            return MessageFormat.formatNamedArgs(context, locale, msg, *nameValuePairs)
         }
 
         /**

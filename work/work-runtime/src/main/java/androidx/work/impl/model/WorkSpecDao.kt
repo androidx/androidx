@@ -22,6 +22,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
+import androidx.room.Update
 import androidx.work.Data
 import androidx.work.WorkInfo
 import androidx.work.impl.model.WorkTypeConverters.StateIds.COMPLETED_STATES
@@ -381,4 +382,7 @@ interface WorkSpecDao {
 
     @Query("UPDATE workspec SET generation=generation+1 WHERE id=:id")
     fun incrementGeneration(id: String)
+
+    @Update
+    fun updateWorkSpec(workSpec: WorkSpec)
 }

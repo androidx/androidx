@@ -16,25 +16,14 @@
 
 package androidx.test.uiautomator.testapp;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.EditText;
-import android.widget.ProgressBar;
-import android.widget.RadioButton;
-import android.widget.RatingBar;
-import android.widget.SeekBar;
-import android.widget.Switch;
 import android.widget.TextView;
-import android.widget.ToggleButton;
 
 import androidx.test.uiautomator.By;
 import androidx.test.uiautomator.BySelector;
-import androidx.test.uiautomator.UiObject2;
 
 import org.junit.Test;
 
@@ -50,397 +39,318 @@ public class BySelectorTests extends BaseTest {
         BySelector base = By.clazz(".TextView");
 
         // Select various TextView instances
-        assertNotNull(mDevice.findObject(By.copy(base).text("Text View 1")));
-        assertNotNull(mDevice.findObject(By.copy(base).text("Item1")));
-        assertNotNull(mDevice.findObject(By.copy(base).text("Item3")));
+        assertTrue(mDevice.hasObject(By.copy(base).text("Text View 1")));
+        assertTrue(mDevice.hasObject(By.copy(base).text("Item1")));
+        assertTrue(mDevice.hasObject(By.copy(base).text("Item3")));
 
         // Shouldn't be able to select an object that does not match the base
-        assertNull(mDevice.findObject(By.copy(base).text("Accessible button")));
+        assertFalse(mDevice.hasObject(By.copy(base).text("Accessible button")));
     }
 
     @Test
-    public void testClazzButton() {
-        launchTestActivity(BySelectorTestClazzActivity.class);
+    public void testClazz() {
+        launchTestActivity(BySelectorTestActivity.class);
 
-        // Button
-        assertNotNull(mDevice.findObject(By.clazz("android.widget", "Button")));
-        assertNotNull(mDevice.findObject(By.clazz("android.widget.Button")));
-        assertNotNull(mDevice.findObject(By.clazz(".Button")));
-        assertNotNull(mDevice.findObject(By.clazz(Button.class)));
+        // Single string combining package name and class name.
+        assertTrue(mDevice.hasObject(By.res(TEST_APP, "clazz").clazz("android.widget.Button")));
+        assertFalse(mDevice.hasObject(By.res(TEST_APP, "clazz").clazz("android.widget.TextView")));
+
+        // Single string as partial class name, starting with a dot.
+        // The package will be assumed as `android.widget`.
+        assertTrue(mDevice.hasObject(By.res(TEST_APP, "clazz").clazz(".Button")));
+        assertFalse(mDevice.hasObject(By.res(TEST_APP, "clazz").clazz(".TextView")));
+
+        // Two separate strings as package name and class name.
+        assertTrue(mDevice.hasObject(By.res(TEST_APP, "clazz").clazz("android.widget", "Button")));
+        assertFalse(
+                mDevice.hasObject(By.res(TEST_APP, "clazz").clazz("android.widget", "TextView")));
+
+        // Class directly.
+        assertTrue(mDevice.hasObject(By.res(TEST_APP, "clazz").clazz(Button.class)));
+        assertFalse(mDevice.hasObject(By.res(TEST_APP, "clazz").clazz(TextView.class)));
+
+        // Pattern of the class name.
+        assertTrue(
+                mDevice.hasObject(By.res(TEST_APP, "clazz").clazz(Pattern.compile(".*get\\.B.*"))));
+        assertFalse(
+                mDevice.hasObject(By.res(TEST_APP, "clazz").clazz(Pattern.compile(".*TextView"))));
     }
 
     @Test
-    public void testClazzCheckBox() {
-        launchTestActivity(BySelectorTestClazzActivity.class);
+    public void testDesc() {
+        launchTestActivity(BySelectorTestActivity.class);
 
-        // CheckBox
-        assertNotNull(mDevice.findObject(By.clazz("android.widget", "CheckBox")));
-        assertNotNull(mDevice.findObject(By.clazz("android.widget.CheckBox")));
-        assertNotNull(mDevice.findObject(By.clazz(".CheckBox")));
-        assertNotNull(mDevice.findObject(By.clazz(CheckBox.class)));
+        // String as the exact content description.
+        assertTrue(mDevice.hasObject(By.res(TEST_APP, "desc_family").desc("The button desc.")));
+        assertFalse(mDevice.hasObject(By.res(TEST_APP, "desc_family").desc("button")));
+
+        // Pattern of the content description.
+        assertTrue(mDevice.hasObject(
+                By.res(TEST_APP, "desc_family").desc(Pattern.compile(".*button.*"))));
+        assertFalse(mDevice.hasObject(By.res(TEST_APP, "desc_family").desc(Pattern.compile(
+                ".*not_button.*"))));
     }
 
     @Test
-    public void testClazzEditText() {
-        launchTestActivity(BySelectorTestClazzActivity.class);
+    public void testDescContains() {
+        launchTestActivity(BySelectorTestActivity.class);
 
-        // EditText
-        assertNotNull(mDevice.findObject(By.clazz("android.widget", "EditText")));
-        assertNotNull(mDevice.findObject(By.clazz("android.widget.EditText")));
-        assertNotNull(mDevice.findObject(By.clazz(".EditText")));
-        assertNotNull(mDevice.findObject(By.clazz(EditText.class)));
+        assertTrue(mDevice.hasObject(By.res(TEST_APP, "desc_family").descContains("button")));
+        assertFalse(mDevice.hasObject(By.res(TEST_APP, "desc_family").descContains("not_button")));
     }
 
     @Test
-    public void testClazzProgressBar() {
-        launchTestActivity(BySelectorTestClazzActivity.class);
+    public void testDescStartsWith() {
+        launchTestActivity(BySelectorTestActivity.class);
 
-        // ProgressBar
-        assertNotNull(mDevice.findObject(By.clazz("android.widget", "ProgressBar")));
-        assertNotNull(mDevice.findObject(By.clazz("android.widget.ProgressBar")));
-        assertNotNull(mDevice.findObject(By.clazz(".ProgressBar")));
-        assertNotNull(mDevice.findObject(By.clazz(ProgressBar.class)));
+        assertTrue(mDevice.hasObject(By.res(TEST_APP, "desc_family").descStartsWith("The")));
+        assertFalse(mDevice.hasObject(By.res(TEST_APP, "desc_family").descStartsWith("NotThe")));
     }
 
     @Test
-    public void testClazzRadioButton() {
-        launchTestActivity(BySelectorTestClazzActivity.class);
+    public void testDescEndsWith() {
+        launchTestActivity(BySelectorTestActivity.class);
 
-        // RadioButton
-        assertNotNull(mDevice.findObject(By.clazz("android.widget", "RadioButton")));
-        assertNotNull(mDevice.findObject(By.clazz("android.widget.RadioButton")));
-        assertNotNull(mDevice.findObject(By.clazz(".RadioButton")));
-        assertNotNull(mDevice.findObject(By.clazz(RadioButton.class)));
+        assertTrue(mDevice.hasObject(By.res(TEST_APP, "desc_family").descEndsWith("desc.")));
+        assertFalse(mDevice.hasObject(By.res(TEST_APP, "desc_family").descEndsWith("not.")));
     }
 
     @Test
-    public void testClazzRatingBar() {
-        launchTestActivity(BySelectorTestClazzActivity.class);
-
-        // RatingBar
-        assertNotNull(mDevice.findObject(By.clazz("android.widget", "RatingBar")));
-        assertNotNull(mDevice.findObject(By.clazz("android.widget.RatingBar")));
-        assertNotNull(mDevice.findObject(By.clazz(".RatingBar")));
-        assertNotNull(mDevice.findObject(By.clazz(RatingBar.class)));
-    }
-
-    @Test
-    public void testClazzSeekBar() {
-        launchTestActivity(BySelectorTestClazzActivity.class);
-
-        // SeekBar
-        assertNotNull(mDevice.findObject(By.clazz("android.widget", "SeekBar")));
-        assertNotNull(mDevice.findObject(By.clazz("android.widget.SeekBar")));
-        assertNotNull(mDevice.findObject(By.clazz(".SeekBar")));
-        assertNotNull(mDevice.findObject(By.clazz(SeekBar.class)));
-    }
-
-    @Test
-    public void testClazzSwitch() {
-        launchTestActivity(BySelectorTestClazzActivity.class);
-
-        // Switch
-        assertNotNull(mDevice.findObject(By.clazz("android.widget", "Switch")));
-        assertNotNull(mDevice.findObject(By.clazz("android.widget.Switch")));
-        assertNotNull(mDevice.findObject(By.clazz(".Switch")));
-        assertNotNull(mDevice.findObject(By.clazz(Switch.class)));
-    }
-
-    @Test
-    public void testClazzTextView() {
-        launchTestActivity(BySelectorTestClazzActivity.class);
-
-        // TextView
-        assertNotNull(mDevice.findObject(By.clazz("android.widget", "TextView")));
-        assertNotNull(mDevice.findObject(By.clazz("android.widget.TextView")));
-        assertNotNull(mDevice.findObject(By.clazz(".TextView")));
-        assertNotNull(mDevice.findObject(By.clazz(TextView.class)));
-    }
-
-    @Test
-    public void testClazzToggleButton() {
-        launchTestActivity(BySelectorTestClazzActivity.class);
-
-        // ToggleButton
-        assertNotNull(mDevice.findObject(By.clazz("android.widget", "ToggleButton")));
-        assertNotNull(mDevice.findObject(By.clazz("android.widget.ToggleButton")));
-        assertNotNull(mDevice.findObject(By.clazz(".ToggleButton")));
-        assertNotNull(mDevice.findObject(By.clazz(ToggleButton.class)));
-    }
-
-    @Test
-    public void testClazzNotFound() {
-        launchTestActivity(BySelectorTestClazzActivity.class);
-
-        // Non-existent class
-        assertNull(mDevice.findObject(By.clazz("android.widget", "NonExistentClass")));
-        assertNull(mDevice.findObject(By.clazz("android.widget.NonExistentClass")));
-        assertNull(mDevice.findObject(By.clazz(".NonExistentClass")));
-    }
-
-    @Test
-    public void testClazzNull() {
-        // clazz(String)
-        try {
-            mDevice.findObject(By.clazz((String) null));
-            fail();
-        } catch (NullPointerException expected) {
-        }
-
-        // clazz(String, String)
-        try {
-            mDevice.findObject(By.clazz((String) null, "foo"));
-            fail();
-        } catch (NullPointerException expected) {
-        }
-
-        try {
-            mDevice.findObject(By.clazz("foo", (String) null));
-            fail();
-        } catch (NullPointerException expected) {
-        }
-
-        // clazz(Class)
-        try {
-            mDevice.findObject(By.clazz((Class) null));
-            fail();
-        } catch (NullPointerException expected) {
-        }
-
-        // clazz(Pattern)
-        try {
-            mDevice.findObject(By.clazz((Pattern) null));
-            fail();
-        } catch (NullPointerException expected) {
-        }
-    }
-
-    // TODO(b/235841286): Implement these for clazz():
-    // 1. Custom class
-    // 2. Patterns
-    // 3. Runtime Widgets
-
-    @Test
-    public void testDescSetFromResource() {
-        launchTestActivity(BySelectorTestDescActivity.class);
-
-        // Content Description from resource
-        assertNotNull(mDevice.findObject(By.desc("Content Description Set From Layout")));
-    }
-
-    @Test
-    public void testDescSetAtRuntime() {
-        launchTestActivity(BySelectorTestDescActivity.class);
-
-        // Content Description set at runtime
-        assertNotNull(mDevice.findObject(By.desc("Content Description Set At Runtime")));
-    }
-
-    @Test
-    public void testDescNotFound() {
-        launchTestActivity(BySelectorTestDescActivity.class);
-
-        // No element has this content description
-        assertNull(mDevice.findObject(By.desc("No element has this Content Description")));
-    }
-
-    @Test
-    public void testDescNull() {
-        // desc(String)
-        try {
-            mDevice.findObject(By.desc((String) null));
-            fail();
-        } catch (NullPointerException expected) {
-        }
-
-        // desc(Pattern)
-        try {
-            mDevice.findObject(By.desc((Pattern) null));
-            fail();
-        } catch (NullPointerException expected) {
-        }
-    }
-
-    // TODO(b/235841286): Implement these for desc():
-    // 1. Patterns
-    // 2. Runtime Widgets
-
-    @Test
-    public void testPackage() {
+    public void testPkg() {
         launchTestActivity(MainActivity.class);
 
-        // Full match with string argument
-        assertNotNull(mDevice.findObject(By.pkg(TEST_APP)));
+        // String as the complete full app name.
+        assertTrue(mDevice.hasObject(By.pkg(TEST_APP)));
+        assertFalse(mDevice.hasObject(By.pkg(TEST_APP + "_not")));
+
+        // Pattern as the search pattern of the app name.
+        assertTrue(mDevice.hasObject(By.pkg(Pattern.compile(".*testapp.*"))));
+        assertFalse(mDevice.hasObject(By.pkg(Pattern.compile(".*not_testapp.*"))));
     }
 
     @Test
-    public void testPkgNull() {
-        // pkg(String)
-        try {
-            mDevice.findObject(By.pkg((String) null));
-            fail();
-        } catch (NullPointerException expected) {
-        }
+    public void testRes() {
+        launchTestActivity(BySelectorTestActivity.class);
 
-        // pkg(Pattern)
-        try {
-            mDevice.findObject(By.pkg((Pattern) null));
-            fail();
-        } catch (NullPointerException expected) {
-        }
+        // Single string as the resource name.
+        assertTrue(mDevice.hasObject(By.res(TEST_APP + ":id/res")));
+        assertFalse(mDevice.hasObject(By.res(TEST_APP + ":id/not_res")));
+
+        // Two strings as package name and ID name.
+        assertTrue(mDevice.hasObject(By.res(TEST_APP, "res")));
+        assertFalse(mDevice.hasObject(By.res(TEST_APP, "not_res")));
+
+        // Pattern of the resource name.
+        assertTrue(mDevice.hasObject(By.res(Pattern.compile(".*testapp:id/res.*"))));
+        assertFalse(mDevice.hasObject(By.res(Pattern.compile(".*testapp:id/not_res.*"))));
     }
 
     @Test
-    public void testResUniqueId() {
-        launchTestActivity(BySelectorTestResActivity.class);
+    public void testText() {
+        launchTestActivity(BySelectorTestActivity.class);
 
-        // Unique ID
-        assertNotNull(mDevice.findObject(By.res(TEST_APP, "unique_id")));
-        assertNotNull(mDevice.findObject(By.res(TEST_APP + ":id/unique_id")));
+        // Single string as the exact content of the text.
+        assertTrue(mDevice.hasObject(By.res(TEST_APP, "text_family").text("This is the text.")));
+        assertFalse(mDevice.hasObject(By.res(TEST_APP, "text_family").text("the text")));
+
+        // Pattern of the text.
+        assertTrue(mDevice.hasObject(
+                By.res(TEST_APP, "text_family").text(Pattern.compile(".*text.*"))));
+        assertFalse(mDevice.hasObject(
+                By.res(TEST_APP, "text_family").text(Pattern.compile(".*nottext.*"))));
     }
 
     @Test
-    public void testResCommonId() {
-        launchTestActivity(BySelectorTestResActivity.class);
+    public void testTextContains() {
+        launchTestActivity(BySelectorTestActivity.class);
 
-        // Shared ID
-        assertNotNull(mDevice.findObject(By.res(TEST_APP, "shared_id")));
-        assertNotNull(mDevice.findObject(By.res(TEST_APP + ":id/shared_id")));
-        // 1. Make sure we can see all instances
-        // 2. Differentiate between matches by other criteria
+        assertTrue(mDevice.hasObject(By.res(TEST_APP, "text_family").textContains("text")));
+        assertFalse(mDevice.hasObject(By.res(TEST_APP, "text_family").textContains("not-text")));
     }
 
     @Test
-    public void testResNull() {
-        // res(String)
-        try {
-            mDevice.findObject(By.res((String) null));
-            fail();
-        } catch (NullPointerException expected) {
-        }
+    public void testTextStartsWith() {
+        launchTestActivity(BySelectorTestActivity.class);
 
-        // res(String, String)
-        try {
-            mDevice.findObject(By.res((String) null, "foo"));
-            fail();
-        } catch (NullPointerException expected) {
-        }
-
-        try {
-            mDevice.findObject(By.res("foo", (String) null));
-            fail();
-        } catch (NullPointerException expected) {
-        }
-
-        // res(Pattern)
-        try {
-            mDevice.findObject(By.res((Pattern) null));
-            fail();
-        } catch (NullPointerException expected) {
-        }
+        assertTrue(mDevice.hasObject(By.res(TEST_APP, "text_family").textStartsWith("This")));
+        assertFalse(mDevice.hasObject(By.res(TEST_APP, "text_family").textStartsWith("NotThis")));
     }
 
     @Test
-    public void testTextUnique() {
-        launchTestActivity(BySelectorTestTextActivity.class);
+    public void testTextEndsWith() {
+        launchTestActivity(BySelectorTestActivity.class);
 
-        // Unique Text
-        assertNotNull(mDevice.findObject(By.text("Unique Text")));
+        assertTrue(mDevice.hasObject(By.res(TEST_APP, "text_family").textEndsWith("text.")));
+        assertFalse(mDevice.hasObject(By.res(TEST_APP, "text_family").textEndsWith("not.")));
     }
 
     @Test
-    public void testTextCommon() {
-        launchTestActivity(BySelectorTestTextActivity.class);
+    public void testCheckable() {
+        launchTestActivity(BySelectorTestActivity.class);
 
-        // Common Text
-        assertNotNull(mDevice.findObject(By.text("Common Text")));
-        assertEquals(2, mDevice.findObjects(By.text("Common Text")).size());
+        // Find the checkable component.
+        assertTrue(mDevice.hasObject(By.res(TEST_APP, "checkable").checkable(true)));
+        assertFalse(mDevice.hasObject(By.res(TEST_APP, "not_checkable").checkable(true)));
+
+        // Find the uncheckable component.
+        assertTrue(mDevice.hasObject(By.res(TEST_APP, "not_checkable").checkable(false)));
+        assertFalse(mDevice.hasObject(By.res(TEST_APP, "checkable").checkable(false)));
     }
 
     @Test
-    public void testTextNull() {
-        // text(String)
-        try {
-            mDevice.findObject(By.text((String) null));
-            fail();
-        } catch (NullPointerException expected) {
-        }
+    public void testChecked() {
+        launchTestActivity(BySelectorTestActivity.class);
 
-        // text(Pattern)
-        try {
-            mDevice.findObject(By.text((Pattern) null));
-            fail();
-        } catch (NullPointerException expected) {
-        }
+        // Find the checked component.
+        assertTrue(mDevice.hasObject(By.res(TEST_APP, "checked").checked(true)));
+        assertFalse(mDevice.hasObject(By.res(TEST_APP, "not_checked").checked(true)));
+
+        // Find the unchecked component.
+        assertTrue(mDevice.hasObject(By.res(TEST_APP, "not_checked").checked(false)));
+        assertFalse(mDevice.hasObject(By.res(TEST_APP, "checked").checked(false)));
     }
 
     @Test
-    public void testHasUniqueChild() {
-        launchTestActivity(BySelectorTestHasChildActivity.class);
+    public void testClickable() {
+        launchTestActivity(BySelectorTestActivity.class);
 
-        // Find parent with unique child
-        UiObject2 object = mDevice.findObject(By.hasChild(By.res(TEST_APP, "toplevel1_child1")));
-        assertNotNull(object);
+        // Find the clickable component.
+        assertTrue(mDevice.hasObject(By.res(TEST_APP, "clickable").clickable(true)));
+        assertFalse(mDevice.hasObject(By.res(TEST_APP, "not_clickable").clickable(true)));
+
+        // Find the not clickable component.
+        assertTrue(mDevice.hasObject(By.res(TEST_APP, "not_clickable").clickable(false)));
+        assertFalse(mDevice.hasObject(By.res(TEST_APP, "clickable").clickable(false)));
     }
 
     @Test
-    public void testHasCommonChild() {
-        launchTestActivity(BySelectorTestHasChildActivity.class);
+    public void testEnabled() {
+        launchTestActivity(BySelectorTestActivity.class);
 
-        // Find parent(s) with common child
-        assertNotNull(mDevice.findObject(By.pkg(TEST_APP).hasChild(By.clazz(".TextView"))));
-        assertEquals(3,
-                mDevice.findObjects(By.pkg(TEST_APP).hasChild(By.clazz(".TextView"))).size());
+        // Find the enabled component.
+        assertTrue(mDevice.hasObject(By.res(TEST_APP, "enabled").enabled(true)));
+        assertFalse(mDevice.hasObject(By.res(TEST_APP, "not_enabled").enabled(true)));
+
+        // Find the not enabled component.
+        assertTrue(mDevice.hasObject(By.res(TEST_APP, "not_enabled").enabled(false)));
+        assertFalse(mDevice.hasObject(By.res(TEST_APP, "enabled").enabled(false)));
     }
 
     @Test
-    public void testGetChildren() {
-        launchTestActivity(BySelectorTestHasChildActivity.class);
+    public void testFocusable() {
+        launchTestActivity(BySelectorTestActivity.class);
 
-        UiObject2 parent = mDevice.findObject(By.res(TEST_APP, "toplevel2"));
-        assertEquals(2, parent.getChildren().size());
+        // Find the clickable component.
+        assertTrue(mDevice.hasObject(By.res(TEST_APP, "focusable").focusable(true)));
+        assertFalse(mDevice.hasObject(By.res(TEST_APP, "not_focusable").focusable(true)));
+
+        // Find the not clickable component.
+        assertTrue(mDevice.hasObject(By.res(TEST_APP, "not_focusable").focusable(false)));
+        assertFalse(mDevice.hasObject(By.res(TEST_APP, "focusable").focusable(false)));
     }
 
     @Test
-    public void testHasMultipleChildren() {
-        launchTestActivity(BySelectorTestHasChildActivity.class);
+    public void testFocused() {
+        launchTestActivity(BySelectorTestActivity.class);
 
-        // Select parent with multiple hasChild selectors
-        UiObject2 object = mDevice.findObject(By
-                .hasChild(By.res(TEST_APP, "toplevel2_child1"))
-                .hasChild(By.res(TEST_APP, "toplevel2_child2")));
-        assertNotNull(object);
+        // Find the clickable component.
+        assertTrue(mDevice.hasObject(By.res(TEST_APP, "focused").focused(true)));
+        assertFalse(mDevice.hasObject(By.res(TEST_APP, "not_focused").focused(true)));
+
+        // Find the not clickable component.
+        assertTrue(mDevice.hasObject(By.res(TEST_APP, "not_focused").focused(false)));
+        assertFalse(mDevice.hasObject(By.res(TEST_APP, "focused").focused(false)));
     }
 
     @Test
-    public void testHasMultipleChildrenCollision() {
-        launchTestActivity(BySelectorTestHasChildActivity.class);
+    public void testLongClickable() {
+        launchTestActivity(BySelectorTestActivity.class);
 
-        // Select parent with multiple hasChild selectors, but single child that matches both
-        UiObject2 object = mDevice.findObject(By
-                .hasChild(By.res(TEST_APP, "toplevel1_child1"))
-                .hasChild(By.clazz(".TextView")));
-        assertNotNull(object);
+        // Find the long clickable component.
+        assertTrue(mDevice.hasObject(By.res(TEST_APP, "longClickable").longClickable(true)));
+        assertFalse(mDevice.hasObject(By.res(TEST_APP, "not_longClickable").longClickable(true)));
+
+        // Find the not long clickable component.
+        assertTrue(mDevice.hasObject(By.res(TEST_APP, "not_longClickable").longClickable(false)));
+        assertFalse(mDevice.hasObject(By.res(TEST_APP, "longClickable").longClickable(false)));
     }
 
     @Test
-    public void testHasChildThatHasChild() {
-        launchTestActivity(BySelectorTestHasChildActivity.class);
+    public void testScrollable() {
+        launchTestActivity(BySelectorTestActivity.class);
 
-        // Select parent with child that has a child
-        UiObject2 object = mDevice.findObject(
-                By.hasChild(By.hasChild(By.res(TEST_APP, "toplevel3_container1_child1"))));
-        assertNotNull(object);
+        // Find the scrollable component.
+        assertTrue(mDevice.hasObject(By.res(TEST_APP, "scrollable").scrollable(true)));
+        assertFalse(mDevice.hasObject(By.res(TEST_APP, "not_scrollable").scrollable(true)));
+
+        // Find the not scrollable component.
+        assertTrue(mDevice.hasObject(By.res(TEST_APP, "not_scrollable").scrollable(false)));
+        assertFalse(mDevice.hasObject(By.res(TEST_APP, "scrollable").scrollable(false)));
+    }
+
+    @Test
+    public void testSelected() {
+        launchTestActivity(BySelectorTestActivity.class);
+
+        // Find the selected component.
+        assertTrue(mDevice.hasObject(By.res(TEST_APP, "selected").selected(true)));
+        assertFalse(mDevice.hasObject(By.res(TEST_APP, "not_selected").selected(true)));
+
+        // Find the not selected component.
+        assertTrue(mDevice.hasObject(By.res(TEST_APP, "not_selected").selected(false)));
+        assertFalse(mDevice.hasObject(By.res(TEST_APP, "selected").selected(false)));
+    }
+
+    @Test
+    public void testDepth() {
+        launchTestActivity(BySelectorTreeTestActivity.class);
+
+        // Depth of all nodes in the tree.
+        assertTrue(mDevice.hasObject(By.res(TEST_APP, "tree_N1").depth(5)));
+        assertTrue(mDevice.hasObject(By.res(TEST_APP, "tree_N2").depth(6)));
+        assertTrue(mDevice.hasObject(By.res(TEST_APP, "tree_N3").depth(6)));
+        assertTrue(mDevice.hasObject(By.res(TEST_APP, "tree_N4").depth(7)));
+        assertTrue(mDevice.hasObject(By.res(TEST_APP, "tree_N5").depth(7)));
+
+        // Some random checks.
+        assertFalse(mDevice.hasObject(By.res(TEST_APP, "tree_N1").depth(0)));
+        assertFalse(mDevice.hasObject(By.res(TEST_APP, "tree_N1").depth(1)));
+        assertFalse(mDevice.hasObject(By.res(TEST_APP, "tree_N2").depth(1)));
+        assertFalse(mDevice.hasObject(By.res(TEST_APP, "tree_N3").depth(1)));
+        assertFalse(mDevice.hasObject(By.res(TEST_APP, "tree_N4").depth(2)));
+    }
+
+    @Test
+    public void testHasChild() {
+        launchTestActivity(BySelectorTreeTestActivity.class);
+
+        assertTrue(mDevice.hasObject(By.res(TEST_APP, "tree_N3").hasChild(By.res(TEST_APP,
+                "tree_N4"))));
+        assertFalse(mDevice.hasObject(By.res(TEST_APP, "tree_N3").hasChild(By.res(TEST_APP,
+                "tree_N2"))));
+
+        // Child should be directly connected with its parent.
+        assertFalse(mDevice.hasObject(By.res(TEST_APP, "tree_N1").hasChild(By.res(TEST_APP,
+                "tree_N5"))));
     }
 
     @Test
     public void testHasDescendant() {
-        launchTestActivity(BySelectorTestHasChildActivity.class);
+        launchTestActivity(BySelectorTreeTestActivity.class);
 
-        // Select a LinearLayout that has a unique descendant
-        UiObject2 object = mDevice.findObject(By
-                .clazz(".RelativeLayout")
-                .hasDescendant(By.res(TEST_APP, "toplevel3_container1_child1")));
-        assertNotNull(object);
+        // A BySelector as the possible descendant (child is also a descendant).
+        assertTrue(mDevice.hasObject(By.res(TEST_APP, "tree_N1").hasDescendant(By.res(TEST_APP,
+                "tree_N5"))));
+        assertTrue(mDevice.hasObject(By.res(TEST_APP, "tree_N1").hasDescendant(By.res(TEST_APP,
+                "tree_N3"))));
+        assertFalse(mDevice.hasObject(By.res(TEST_APP, "tree_N2").hasDescendant(By.res(TEST_APP,
+                "tree_N5"))));
+
+        // A BySelector as the possible descendant, and an int as the max relative depth of the
+        // search (the parent has a relative depth of 0).
+        assertTrue(mDevice.hasObject(By.res(TEST_APP, "tree_N1").hasDescendant(By.res(TEST_APP,
+                "tree_N5"), 2)));
+        assertFalse(mDevice.hasObject(By.res(TEST_APP, "tree_N1").hasDescendant(By.res(TEST_APP,
+                "tree_N5"), 1)));
     }
 }

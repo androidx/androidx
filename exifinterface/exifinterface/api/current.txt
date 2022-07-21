@@ -33,7 +33,7 @@ package androidx.exifinterface.media {
     method public void saveAttributes() throws java.io.IOException;
     method public void setAltitude(double);
     method public void setAttribute(String, String?);
-    method public void setGpsInfo(android.location.Location!);
+    method public void setGpsInfo(android.location.Location?);
     method public void setLatLong(double, double);
     field public static final short ALTITUDE_ABOVE_SEA_LEVEL = 0; // 0x0
     field public static final short ALTITUDE_BELOW_SEA_LEVEL = 1; // 0x1

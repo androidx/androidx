@@ -45,13 +45,19 @@ internal class KspJvmTypeResolver(
             KSTypeVarianceResolver.WildcardMode.PREFERRED
         }
 
-        // use the jvm type of the declaration so that it also gets its jvm wildcards resolved.
-        val declarationJvmType = (scope.findDeclarationType() as? KspType)?.jvmWildcardTypeOrSelf
-
+        val declarationType = scope.findDeclarationType() as? KspType
         return env.resolveWildcards(
             ksType = delegate.ksType,
             wildcardMode = wildcardMode,
-            declarationType = declarationJvmType?.ksType
+            // See KSTypeVarianceResolver#applyTypeVariance: "If the ksType is from the original
+            // declaration, declarationType should be null".
+            declarationType = if (declarationType == delegate) {
+                null
+            } else {
+                // use the jvm type of the declaration so that it also gets its jvm wildcards
+                // resolved.
+                declarationType?.jvmWildcardTypeOrSelf?.ksType
+            }
         ).let {
             env.wrap(
                 ksType = it,
@@ -108,17 +114,14 @@ internal sealed class KspJvmTypeResolutionScope(
         private val kspExecutableElement: KspExecutableElement,
         private val parameterIndex: Int,
         annotated: KSAnnotated,
-    ) : KspJvmTypeResolutionScope(
-        annotated = annotated,
-        container = kspExecutableElement.containing.declaration
-    ) {
+        container: KSDeclaration?,
+    ) : KspJvmTypeResolutionScope(annotated, container) {
         override fun findDeclarationType(): XType? {
-            val declarationMethodType = if (kspExecutableElement is KspMethodElement) {
-                kspExecutableElement.declarationMethodType
+            return if (kspExecutableElement is KspMethodElement) {
+                kspExecutableElement.executableType.parameterTypes.getOrNull(parameterIndex)
             } else {
                 null
             }
-            return declarationMethodType?.parameterTypes?.getOrNull(parameterIndex)
         }
     }
 
@@ -126,13 +129,12 @@ internal sealed class KspJvmTypeResolutionScope(
         val declaration: KspSyntheticPropertyMethodElement
     ) : KspJvmTypeResolutionScope(
         annotated = declaration.accessor,
-        container = declaration.field.containing.declaration
+        container = declaration.field.enclosingElement.declaration
     ) {
         override fun findDeclarationType(): XType? {
             // We return the declaration from the setter, not the field because the setter parameter
             // will have a different type in jvm (due to jvm wildcard resolution)
-            return declaration.field.declarationField
-                ?.syntheticSetter?.parameters?.firstOrNull()?.type
+            return declaration.field.syntheticSetter?.parameters?.firstOrNull()?.type
         }
     }
 }

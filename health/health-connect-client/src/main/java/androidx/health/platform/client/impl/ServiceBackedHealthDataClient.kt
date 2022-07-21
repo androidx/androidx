@@ -89,27 +89,25 @@ class ServiceBackedHealthDataClient(
         permissions: Set<PermissionProto.Permission>,
     ): ListenableFuture<Set<PermissionProto.Permission>> {
         return executeWithVersionCheck(
-            { service, resultFuture ->
-                service.getGrantedPermissions(
-                    requestContext,
-                    permissions.map { Permission(it) }.toList(),
-                    GetGrantedPermissionsCallback(resultFuture)
-                )
-            },
             IHealthDataService.MIN_API_VERSION
-        )
+        ) { service, resultFuture ->
+            service.getGrantedPermissions(
+                requestContext,
+                permissions.map { Permission(it) }.toList(),
+                GetGrantedPermissionsCallback(resultFuture)
+            )
+        }
     }
 
     override fun revokeAllPermissions(): ListenableFuture<Unit> {
         return executeWithVersionCheck(
-            { service, resultFuture ->
-                service.revokeAllPermissions(
-                    requestContext,
-                    RevokeAllPermissionsCallback(resultFuture)
-                )
-            },
             IHealthDataService.MIN_API_VERSION
-        )
+        ) { service, resultFuture ->
+            service.revokeAllPermissions(
+                requestContext,
+                RevokeAllPermissionsCallback(resultFuture)
+            )
+        }
     }
 
     override fun insertData(
@@ -117,21 +115,19 @@ class ServiceBackedHealthDataClient(
     ): ListenableFuture<List<String>> {
         val request = UpsertDataRequest(dataCollection)
         return executeWithVersionCheck(
-            { service, resultFuture ->
-                service.insertData(requestContext, request, InsertDataCallback(resultFuture))
-            },
             IHealthDataService.MIN_API_VERSION
-        )
+        ) { service, resultFuture ->
+            service.insertData(requestContext, request, InsertDataCallback(resultFuture))
+        }
     }
 
     override fun updateData(dataCollection: List<DataProto.DataPoint>): ListenableFuture<Unit> {
         val request = UpsertDataRequest(dataCollection)
         return executeWithVersionCheck(
-            { service, resultFuture ->
-                service.updateData(requestContext, request, UpdateDataCallback(resultFuture))
-            },
             IHealthDataService.MIN_API_VERSION
-        )
+        ) { service, resultFuture ->
+            service.updateData(requestContext, request, UpdateDataCallback(resultFuture))
+        }
     }
 
     override fun deleteData(
@@ -140,11 +136,10 @@ class ServiceBackedHealthDataClient(
     ): ListenableFuture<Unit> {
         val request = DeleteDataRequest(uidsCollection, clientIdsCollection)
         return executeWithVersionCheck(
-            { service, resultFuture ->
-                service.deleteData(requestContext, request, DeleteDataCallback(resultFuture))
-            },
             IHealthDataService.MIN_API_VERSION
-        )
+        ) { service, resultFuture ->
+            service.deleteData(requestContext, request, DeleteDataCallback(resultFuture))
+        }
     }
 
     override fun deleteDataRange(
@@ -152,15 +147,14 @@ class ServiceBackedHealthDataClient(
     ): ListenableFuture<Unit> {
         val request = DeleteDataRangeRequest(dataCollection)
         return executeWithVersionCheck(
-            { service, resultFuture ->
-                service.deleteDataRange(
-                    requestContext,
-                    request,
-                    DeleteDataRangeCallback(resultFuture)
-                )
-            },
             IHealthDataService.MIN_API_VERSION
-        )
+        ) { service, resultFuture ->
+            service.deleteDataRange(
+                requestContext,
+                request,
+                DeleteDataRangeCallback(resultFuture)
+            )
+        }
     }
 
     override fun readData(
@@ -168,11 +162,10 @@ class ServiceBackedHealthDataClient(
     ): ListenableFuture<DataProto.DataPoint> {
         val request = ReadDataRequest(dataCollection)
         return executeWithVersionCheck(
-            { service, resultFuture ->
-                service.readData(requestContext, request, ReadDataCallback(resultFuture))
-            },
             IHealthDataService.MIN_API_VERSION
-        )
+        ) { service, resultFuture ->
+            service.readData(requestContext, request, ReadDataCallback(resultFuture))
+        }
     }
 
     override fun readDataRange(
@@ -180,55 +173,51 @@ class ServiceBackedHealthDataClient(
     ): ListenableFuture<ResponseProto.ReadDataRangeResponse> {
         val request = ReadDataRangeRequest(dataCollection)
         return executeWithVersionCheck(
-            { service, resultFuture ->
-                service.readDataRange(requestContext, request, ReadDataRangeCallback(resultFuture))
-            },
             IHealthDataService.MIN_API_VERSION
-        )
+        ) { service, resultFuture ->
+            service.readDataRange(requestContext, request, ReadDataRangeCallback(resultFuture))
+        }
     }
 
     override fun aggregate(
         request: RequestProto.AggregateDataRequest
     ): ListenableFuture<ResponseProto.AggregateDataResponse> {
         return executeWithVersionCheck(
-            { service, resultFuture ->
-                service.aggregate(
-                    requestContext,
-                    AggregateDataRequest(request),
-                    AggregateDataCallback(resultFuture)
-                )
-            },
             IHealthDataService.MIN_API_VERSION
-        )
+        ) { service, resultFuture ->
+            service.aggregate(
+                requestContext,
+                AggregateDataRequest(request),
+                AggregateDataCallback(resultFuture)
+            )
+        }
     }
 
     override fun getChangesToken(
         request: RequestProto.GetChangesTokenRequest
     ): ListenableFuture<ResponseProto.GetChangesTokenResponse> {
         return executeWithVersionCheck(
-            { service, resultFuture ->
-                service.getChangesToken(
-                    requestContext,
-                    GetChangesTokenRequest(request),
-                    GetChangesTokenCallback(resultFuture)
-                )
-            },
             IHealthDataService.MIN_API_VERSION
-        )
+        ) { service, resultFuture ->
+            service.getChangesToken(
+                requestContext,
+                GetChangesTokenRequest(request),
+                GetChangesTokenCallback(resultFuture)
+            )
+        }
     }
 
     override fun getChanges(
         request: RequestProto.GetChangesRequest
     ): ListenableFuture<ResponseProto.GetChangesResponse> {
         return executeWithVersionCheck(
-            { service, resultFuture ->
-                service.getChanges(
-                    requestContext,
-                    GetChangesRequest(request),
-                    GetChangesCallback(resultFuture)
-                )
-            },
             IHealthDataService.MIN_API_VERSION
-        )
+        ) { service, resultFuture ->
+            service.getChanges(
+                requestContext,
+                GetChangesRequest(request),
+                GetChangesCallback(resultFuture)
+            )
+        }
     }
 }

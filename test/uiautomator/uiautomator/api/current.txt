@@ -2,77 +2,77 @@
 package androidx.test.uiautomator {
 
   public class By {
-    method public static androidx.test.uiautomator.BySelector! checkable(boolean);
-    method public static androidx.test.uiautomator.BySelector! checked(boolean);
-    method public static androidx.test.uiautomator.BySelector! clazz(String!);
-    method public static androidx.test.uiautomator.BySelector! clazz(String!, String!);
-    method public static androidx.test.uiautomator.BySelector! clazz(Class!);
-    method public static androidx.test.uiautomator.BySelector! clazz(java.util.regex.Pattern!);
-    method public static androidx.test.uiautomator.BySelector! clickable(boolean);
-    method public static androidx.test.uiautomator.BySelector! copy(androidx.test.uiautomator.BySelector!);
-    method public static androidx.test.uiautomator.BySelector! depth(int);
-    method public static androidx.test.uiautomator.BySelector! desc(String!);
-    method public static androidx.test.uiautomator.BySelector! desc(java.util.regex.Pattern!);
-    method public static androidx.test.uiautomator.BySelector! descContains(String!);
-    method public static androidx.test.uiautomator.BySelector! descEndsWith(String!);
-    method public static androidx.test.uiautomator.BySelector! descStartsWith(String!);
-    method public static androidx.test.uiautomator.BySelector! enabled(boolean);
-    method public static androidx.test.uiautomator.BySelector! focusable(boolean);
-    method public static androidx.test.uiautomator.BySelector! focused(boolean);
-    method public static androidx.test.uiautomator.BySelector! hasChild(androidx.test.uiautomator.BySelector!);
-    method public static androidx.test.uiautomator.BySelector! hasDescendant(androidx.test.uiautomator.BySelector!);
-    method public static androidx.test.uiautomator.BySelector! hasDescendant(androidx.test.uiautomator.BySelector!, int);
-    method public static androidx.test.uiautomator.BySelector! longClickable(boolean);
-    method public static androidx.test.uiautomator.BySelector! pkg(String!);
-    method public static androidx.test.uiautomator.BySelector! pkg(java.util.regex.Pattern!);
-    method public static androidx.test.uiautomator.BySelector! res(String!);
-    method public static androidx.test.uiautomator.BySelector! res(String!, String!);
-    method public static androidx.test.uiautomator.BySelector! res(java.util.regex.Pattern!);
-    method public static androidx.test.uiautomator.BySelector! scrollable(boolean);
-    method public static androidx.test.uiautomator.BySelector! selected(boolean);
-    method public static androidx.test.uiautomator.BySelector! text(String!);
-    method public static androidx.test.uiautomator.BySelector! text(java.util.regex.Pattern!);
-    method public static androidx.test.uiautomator.BySelector! textContains(String!);
-    method public static androidx.test.uiautomator.BySelector! textEndsWith(String!);
-    method public static androidx.test.uiautomator.BySelector! textStartsWith(String!);
+    method public static androidx.test.uiautomator.BySelector checkable(boolean);
+    method public static androidx.test.uiautomator.BySelector checked(boolean);
+    method public static androidx.test.uiautomator.BySelector clazz(String);
+    method public static androidx.test.uiautomator.BySelector clazz(String, String);
+    method public static androidx.test.uiautomator.BySelector clazz(Class);
+    method public static androidx.test.uiautomator.BySelector clazz(java.util.regex.Pattern);
+    method public static androidx.test.uiautomator.BySelector clickable(boolean);
+    method public static androidx.test.uiautomator.BySelector copy(androidx.test.uiautomator.BySelector);
+    method public static androidx.test.uiautomator.BySelector depth(int);
+    method public static androidx.test.uiautomator.BySelector desc(String);
+    method public static androidx.test.uiautomator.BySelector desc(java.util.regex.Pattern);
+    method public static androidx.test.uiautomator.BySelector descContains(String);
+    method public static androidx.test.uiautomator.BySelector descEndsWith(String);
+    method public static androidx.test.uiautomator.BySelector descStartsWith(String);
+    method public static androidx.test.uiautomator.BySelector enabled(boolean);
+    method public static androidx.test.uiautomator.BySelector focusable(boolean);
+    method public static androidx.test.uiautomator.BySelector focused(boolean);
+    method public static androidx.test.uiautomator.BySelector hasChild(androidx.test.uiautomator.BySelector);
+    method public static androidx.test.uiautomator.BySelector hasDescendant(androidx.test.uiautomator.BySelector);
+    method public static androidx.test.uiautomator.BySelector hasDescendant(androidx.test.uiautomator.BySelector, int);
+    method public static androidx.test.uiautomator.BySelector longClickable(boolean);
+    method public static androidx.test.uiautomator.BySelector pkg(String);
+    method public static androidx.test.uiautomator.BySelector pkg(java.util.regex.Pattern);
+    method public static androidx.test.uiautomator.BySelector res(String);
+    method public static androidx.test.uiautomator.BySelector res(String, String);
+    method public static androidx.test.uiautomator.BySelector res(java.util.regex.Pattern);
+    method public static androidx.test.uiautomator.BySelector scrollable(boolean);
+    method public static androidx.test.uiautomator.BySelector selected(boolean);
+    method public static androidx.test.uiautomator.BySelector text(String);
+    method public static androidx.test.uiautomator.BySelector text(java.util.regex.Pattern);
+    method public static androidx.test.uiautomator.BySelector textContains(String);
+    method public static androidx.test.uiautomator.BySelector textEndsWith(String);
+    method public static androidx.test.uiautomator.BySelector textStartsWith(String);
   }
 
   public class BySelector {
-    method public androidx.test.uiautomator.BySelector! checkable(boolean);
-    method public androidx.test.uiautomator.BySelector! checked(boolean);
-    method public androidx.test.uiautomator.BySelector! clazz(String!);
-    method public androidx.test.uiautomator.BySelector! clazz(String!, String!);
-    method public androidx.test.uiautomator.BySelector! clazz(Class!);
-    method public androidx.test.uiautomator.BySelector! clazz(java.util.regex.Pattern!);
-    method public androidx.test.uiautomator.BySelector! clickable(boolean);
-    method public androidx.test.uiautomator.BySelector! depth(int);
-    method public androidx.test.uiautomator.BySelector! depth(int, int);
-    method public androidx.test.uiautomator.BySelector! desc(String!);
-    method public androidx.test.uiautomator.BySelector! desc(java.util.regex.Pattern!);
-    method public androidx.test.uiautomator.BySelector! descContains(String!);
-    method public androidx.test.uiautomator.BySelector! descEndsWith(String!);
-    method public androidx.test.uiautomator.BySelector! descStartsWith(String!);
-    method public androidx.test.uiautomator.BySelector! enabled(boolean);
-    method public androidx.test.uiautomator.BySelector! focusable(boolean);
-    method public androidx.test.uiautomator.BySelector! focused(boolean);
-    method public androidx.test.uiautomator.BySelector! hasChild(androidx.test.uiautomator.BySelector!);
-    method public androidx.test.uiautomator.BySelector! hasDescendant(androidx.test.uiautomator.BySelector!);
-    method public androidx.test.uiautomator.BySelector! hasDescendant(androidx.test.uiautomator.BySelector!, int);
-    method public androidx.test.uiautomator.BySelector! longClickable(boolean);
-    method public androidx.test.uiautomator.BySelector! maxDepth(int);
-    method public androidx.test.uiautomator.BySelector! minDepth(int);
-    method public androidx.test.uiautomator.BySelector! pkg(String!);
-    method public androidx.test.uiautomator.BySelector! pkg(java.util.regex.Pattern!);
-    method public androidx.test.uiautomator.BySelector! res(String!);
-    method public androidx.test.uiautomator.BySelector! res(String!, String!);
-    method public androidx.test.uiautomator.BySelector! res(java.util.regex.Pattern!);
-    method public androidx.test.uiautomator.BySelector! scrollable(boolean);
-    method public androidx.test.uiautomator.BySelector! selected(boolean);
-    method public androidx.test.uiautomator.BySelector! text(String!);
-    method public androidx.test.uiautomator.BySelector! text(java.util.regex.Pattern!);
-    method public androidx.test.uiautomator.BySelector! textContains(String!);
-    method public androidx.test.uiautomator.BySelector! textEndsWith(String!);
-    method public androidx.test.uiautomator.BySelector! textStartsWith(String!);
+    method public androidx.test.uiautomator.BySelector checkable(boolean);
+    method public androidx.test.uiautomator.BySelector checked(boolean);
+    method public androidx.test.uiautomator.BySelector clazz(String);
+    method public androidx.test.uiautomator.BySelector clazz(String, String);
+    method public androidx.test.uiautomator.BySelector clazz(Class);
+    method public androidx.test.uiautomator.BySelector clazz(java.util.regex.Pattern);
+    method public androidx.test.uiautomator.BySelector clickable(boolean);
+    method public androidx.test.uiautomator.BySelector depth(int);
+    method public androidx.test.uiautomator.BySelector depth(int, int);
+    method public androidx.test.uiautomator.BySelector desc(String);
+    method public androidx.test.uiautomator.BySelector desc(java.util.regex.Pattern);
+    method public androidx.test.uiautomator.BySelector descContains(String);
+    method public androidx.test.uiautomator.BySelector descEndsWith(String);
+    method public androidx.test.uiautomator.BySelector descStartsWith(String);
+    method public androidx.test.uiautomator.BySelector enabled(boolean);
+    method public androidx.test.uiautomator.BySelector focusable(boolean);
+    method public androidx.test.uiautomator.BySelector focused(boolean);
+    method public androidx.test.uiautomator.BySelector hasChild(androidx.test.uiautomator.BySelector);
+    method public androidx.test.uiautomator.BySelector hasDescendant(androidx.test.uiautomator.BySelector);
+    method public androidx.test.uiautomator.BySelector hasDescendant(androidx.test.uiautomator.BySelector, int);
+    method public androidx.test.uiautomator.BySelector longClickable(boolean);
+    method public androidx.test.uiautomator.BySelector maxDepth(int);
+    method public androidx.test.uiautomator.BySelector minDepth(int);
+    method public androidx.test.uiautomator.BySelector pkg(String);
+    method public androidx.test.uiautomator.BySelector pkg(java.util.regex.Pattern);
+    method public androidx.test.uiautomator.BySelector res(String);
+    method public androidx.test.uiautomator.BySelector res(String, String);
+    method public androidx.test.uiautomator.BySelector res(java.util.regex.Pattern);
+    method public androidx.test.uiautomator.BySelector scrollable(boolean);
+    method public androidx.test.uiautomator.BySelector selected(boolean);
+    method public androidx.test.uiautomator.BySelector text(String);
+    method public androidx.test.uiautomator.BySelector text(java.util.regex.Pattern);
+    method public androidx.test.uiautomator.BySelector textContains(String);
+    method public androidx.test.uiautomator.BySelector textEndsWith(String);
+    method public androidx.test.uiautomator.BySelector textStartsWith(String);
   }
 
   public final class Configurator {
@@ -94,7 +94,7 @@ package androidx.test.uiautomator {
   }
 
   public enum Direction {
-    method public static androidx.test.uiautomator.Direction! reverse(androidx.test.uiautomator.Direction!);
+    method public static androidx.test.uiautomator.Direction reverse(androidx.test.uiautomator.Direction);
     enum_constant public static final androidx.test.uiautomator.Direction DOWN;
     enum_constant public static final androidx.test.uiautomator.Direction LEFT;
     enum_constant public static final androidx.test.uiautomator.Direction RIGHT;
@@ -106,7 +106,7 @@ package androidx.test.uiautomator {
   }
 
   public interface IAutomationSupport {
-    method public void sendStatus(int, android.os.Bundle!);
+    method public void sendStatus(int, android.os.Bundle);
   }
 
   public abstract class SearchCondition<R> {
@@ -132,11 +132,11 @@ package androidx.test.uiautomator {
   }
 
   public class UiCollection extends androidx.test.uiautomator.UiObject {
-    ctor public UiCollection(androidx.test.uiautomator.UiSelector!);
-    method public androidx.test.uiautomator.UiObject! getChildByDescription(androidx.test.uiautomator.UiSelector!, String!) throws androidx.test.uiautomator.UiObjectNotFoundException;
-    method public androidx.test.uiautomator.UiObject! getChildByInstance(androidx.test.uiautomator.UiSelector!, int) throws androidx.test.uiautomator.UiObjectNotFoundException;
-    method public androidx.test.uiautomator.UiObject! getChildByText(androidx.test.uiautomator.UiSelector!, String!) throws androidx.test.uiautomator.UiObjectNotFoundException;
-    method public int getChildCount(androidx.test.uiautomator.UiSelector!);
+    ctor public UiCollection(androidx.test.uiautomator.UiSelector);
+    method public androidx.test.uiautomator.UiObject getChildByDescription(androidx.test.uiautomator.UiSelector, String) throws androidx.test.uiautomator.UiObjectNotFoundException;
+    method public androidx.test.uiautomator.UiObject getChildByInstance(androidx.test.uiautomator.UiSelector, int) throws androidx.test.uiautomator.UiObjectNotFoundException;
+    method public androidx.test.uiautomator.UiObject getChildByText(androidx.test.uiautomator.UiSelector, String) throws androidx.test.uiautomator.UiObjectNotFoundException;
+    method public int getChildCount(androidx.test.uiautomator.UiSelector);
   }
 
   public class UiDevice {
@@ -314,38 +314,38 @@ package androidx.test.uiautomator {
   }
 
   public class UiObjectNotFoundException extends java.lang.Exception {
-    ctor public UiObjectNotFoundException(String!);
-    ctor public UiObjectNotFoundException(String!, Throwable!);
-    ctor public UiObjectNotFoundException(Throwable!);
+    ctor public UiObjectNotFoundException(String);
+    ctor public UiObjectNotFoundException(String, Throwable?);
+    ctor public UiObjectNotFoundException(Throwable?);
   }
 
   public class UiScrollable extends androidx.test.uiautomator.UiCollection {
-    ctor public UiScrollable(androidx.test.uiautomator.UiSelector!);
-    method protected boolean exists(androidx.test.uiautomator.UiSelector!);
+    ctor public UiScrollable(androidx.test.uiautomator.UiSelector);
+    method protected boolean exists(androidx.test.uiautomator.UiSelector);
     method public boolean flingBackward() throws androidx.test.uiautomator.UiObjectNotFoundException;
     method public boolean flingForward() throws androidx.test.uiautomator.UiObjectNotFoundException;
     method public boolean flingToBeginning(int) throws androidx.test.uiautomator.UiObjectNotFoundException;
     method public boolean flingToEnd(int) throws androidx.test.uiautomator.UiObjectNotFoundException;
-    method public androidx.test.uiautomator.UiObject! getChildByDescription(androidx.test.uiautomator.UiSelector!, String!, boolean) throws androidx.test.uiautomator.UiObjectNotFoundException;
-    method public androidx.test.uiautomator.UiObject! getChildByText(androidx.test.uiautomator.UiSelector!, String!, boolean) throws androidx.test.uiautomator.UiObjectNotFoundException;
+    method public androidx.test.uiautomator.UiObject getChildByDescription(androidx.test.uiautomator.UiSelector, String, boolean) throws androidx.test.uiautomator.UiObjectNotFoundException;
+    method public androidx.test.uiautomator.UiObject getChildByText(androidx.test.uiautomator.UiSelector, String, boolean) throws androidx.test.uiautomator.UiObjectNotFoundException;
     method public int getMaxSearchSwipes();
     method public double getSwipeDeadZonePercentage();
     method public boolean scrollBackward() throws androidx.test.uiautomator.UiObjectNotFoundException;
     method public boolean scrollBackward(int) throws androidx.test.uiautomator.UiObjectNotFoundException;
-    method public boolean scrollDescriptionIntoView(String!) throws androidx.test.uiautomator.UiObjectNotFoundException;
+    method public boolean scrollDescriptionIntoView(String) throws androidx.test.uiautomator.UiObjectNotFoundException;
     method public boolean scrollForward() throws androidx.test.uiautomator.UiObjectNotFoundException;
     method public boolean scrollForward(int) throws androidx.test.uiautomator.UiObjectNotFoundException;
-    method public boolean scrollIntoView(androidx.test.uiautomator.UiObject!) throws androidx.test.uiautomator.UiObjectNotFoundException;
-    method public boolean scrollIntoView(androidx.test.uiautomator.UiSelector!) throws androidx.test.uiautomator.UiObjectNotFoundException;
-    method public boolean scrollTextIntoView(String!) throws androidx.test.uiautomator.UiObjectNotFoundException;
+    method public boolean scrollIntoView(androidx.test.uiautomator.UiObject) throws androidx.test.uiautomator.UiObjectNotFoundException;
+    method public boolean scrollIntoView(androidx.test.uiautomator.UiSelector) throws androidx.test.uiautomator.UiObjectNotFoundException;
+    method public boolean scrollTextIntoView(String) throws androidx.test.uiautomator.UiObjectNotFoundException;
     method public boolean scrollToBeginning(int, int) throws androidx.test.uiautomator.UiObjectNotFoundException;
     method public boolean scrollToBeginning(int) throws androidx.test.uiautomator.UiObjectNotFoundException;
     method public boolean scrollToEnd(int, int) throws androidx.test.uiautomator.UiObjectNotFoundException;
     method public boolean scrollToEnd(int) throws androidx.test.uiautomator.UiObjectNotFoundException;
-    method public androidx.test.uiautomator.UiScrollable! setAsHorizontalList();
-    method public androidx.test.uiautomator.UiScrollable! setAsVerticalList();
-    method public androidx.test.uiautomator.UiScrollable! setMaxSearchSwipes(int);
-    method public androidx.test.uiautomator.UiScrollable! setSwipeDeadZonePercentage(double);
+    method public androidx.test.uiautomator.UiScrollable setAsHorizontalList();
+    method public androidx.test.uiautomator.UiScrollable setAsVerticalList();
+    method public androidx.test.uiautomator.UiScrollable setMaxSearchSwipes(int);
+    method public androidx.test.uiautomator.UiScrollable setSwipeDeadZonePercentage(double);
   }
 
   public class UiSelector {

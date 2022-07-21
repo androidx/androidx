@@ -108,7 +108,7 @@
     <string name="pane_limit" msgid="981518409516855230">"Такта чеги"</string>
     <string name="place_list_limit" msgid="6785181191763056582">"Орундар тизмесинин чеги"</string>
     <string name="route_list_limit" msgid="505793441615134116">"Маршрут тизмесинин чеги"</string>
-    <string name="content_limits" msgid="5726880972110281095">"Мазмун чектөөлөрү"</string>
+    <string name="content_limits" msgid="5726880972110281095">"Көрүлүүчү нерселерди чектөө"</string>
     <string name="content_limits_demo_title" msgid="3207211638386727610">"Мазмун чектөөлөрүнүн демосу"</string>
     <string name="finish_app_msg" msgid="8354334557053141891">"Бул аракеттен кийин колдонмо өчүрүлөт, анан кайтып келгениңизде уруксат экраны автоматташтырылат"</string>
     <string name="finish_app_title" msgid="9013328479438745074">"Колдонмону өчүрүү демосу"</string>

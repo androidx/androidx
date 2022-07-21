@@ -21,6 +21,7 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import android.annotation.SuppressLint;
 import android.app.Instrumentation;
@@ -44,8 +45,12 @@ import androidx.core.provider.FontRequest;
 import androidx.core.provider.FontsContractCompat;
 import androidx.core.provider.MockFontProvider;
 import androidx.core.test.R;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 import androidx.test.platform.app.InstrumentationRegistry;
+import androidx.testutils.WeightStyleFont;
+
+import com.google.common.truth.Truth;
 
 import org.junit.After;
 import org.junit.Before;
@@ -528,5 +533,92 @@ public class TypefaceCompatTest {
 
         final Typeface defaultTypeface = TypefaceCompat.create(mContext, null, Typeface.NORMAL);
         assertNotNull(defaultTypeface);
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 18) // API 14-20 backport fails on 17
+    public void testTypeFaceCompatCreateWithExactStyle_upright() {
+        doTypefaceCreate(false);
+    }
+
+    private void doTypefaceCreate(boolean italic) {
+        final Typeface family = ResourcesCompat.getFont(mContext, R.font.weighttestfont);
+        assertNotNull(family);
+
+        final int[] weights = new int[]{100, 400, 900};
+        final float[] widths = new float[weights.length];
+
+        Paint p = new Paint();
+        p.setTextSize(120);
+
+        // Normal font style
+        for (int i = 0, size = weights.length; i < size; i++) {
+            final int weight = weights[i];
+            final Typeface t = TypefaceCompat.create(mContext, family, weight, false);
+            char wideChar = new WeightStyleFont().getWideCharacter(weight, italic);
+            p.setTypeface(t);
+            widths[i] = p.measureText("" + wideChar);
+        }
+
+        float expectedWeight = italic ? 120.0f : 360.0f;
+        Truth.assertThat(widths).usingTolerance(0.1)
+                .containsExactly(expectedWeight, expectedWeight, expectedWeight);
+        // check the test validity by matching a never-matching char
+        Truth.assertThat(p.measureText("" + WeightStyleFont.SkinnyChar)).isNotWithin(0.1f)
+                .of(expectedWeight);
+    }
+
+    @Test
+    @SdkSuppress(maxSdkVersion = 16) // API 14-20 backport fails on 17
+    public void testTypeFaceCompatCreateWithExactStyle_upright_api14_to_16() {
+        doTypefaceCreate(false);
+    }
+
+
+    @Test
+    @SdkSuppress(minSdkVersion = 18) // API 14-20 backport is too flakey for CI
+    public void testTypeFaceCompatCreateWithExactStyle_italic() {
+        doTypefaceCreate(true);
+    }
+
+    @Test
+    @SdkSuppress(maxSdkVersion = 16) // API 14-20 backport is too flakey for CI
+    public void testTypeFaceCompatCreateWithExactStyle_italic_api14_to_16() {
+        doTypefaceCreate(true);
+    }
+
+    @Test
+    public void testTypeFaceCompatCreateWithExactStyle_fallbackFamily() {
+        // Fallback family
+        final Typeface defaultTypeface = TypefaceCompat.create(mContext, null, 400, false);
+        assertNotNull(defaultTypeface);
+    }
+
+    @Test
+    public void testTypeFaceCompatCreateWithExactStyle_preconditions() {
+        // Preconditions
+        try {
+            TypefaceCompat.create(null, null, 400, false);
+            fail("Expected IllegalArgumentException");
+        } catch (IllegalArgumentException expected) {
+            Truth.assertThat(expected).hasMessageThat()
+                    .isEqualTo("Context cannot be null");
+        }
+
+        try {
+            TypefaceCompat.create(mContext, null, -1, false);
+            fail("Expected IllegalArgumentException");
+        } catch (IllegalArgumentException expected) {
+            Truth.assertThat(expected).hasMessageThat()
+                    .isEqualTo("weight is out of range of [1, 1000] (too low)");
+        }
+
+        try {
+            TypefaceCompat.create(mContext, null, 1001, false);
+            fail("Expected IllegalArgumentException");
+        } catch (IllegalArgumentException expected) {
+            Truth.assertThat(expected).hasMessageThat()
+                    .isEqualTo("weight is out of range of [1, 1000] (too high)");
+        }
     }
 }

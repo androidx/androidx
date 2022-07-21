@@ -60,7 +60,8 @@ public final class BokehImageCaptureExtenderImpl implements ImageCaptureExtender
     }
 
     @Override
-    public void init(String cameraId, CameraCharacteristics cameraCharacteristics) {
+    public void init(@NonNull String cameraId,
+            @NonNull CameraCharacteristics cameraCharacteristics) {
     }
 
     @Override
@@ -98,8 +99,9 @@ public final class BokehImageCaptureExtenderImpl implements ImageCaptureExtender
     }
 
     @Override
-    public void onInit(String cameraId, CameraCharacteristics cameraCharacteristics,
-            Context context) {
+    public void onInit(@NonNull String cameraId,
+            @NonNull CameraCharacteristics cameraCharacteristics,
+            @NonNull Context context) {
 
     }
 
@@ -166,7 +168,7 @@ public final class BokehImageCaptureExtenderImpl implements ImageCaptureExtender
         private ImageWriter mImageWriter;
 
         @Override
-        public void onOutputSurface(Surface surface, int imageFormat) {
+        public void onOutputSurface(@NonNull Surface surface, int imageFormat) {
             mImageWriter = ImageWriter.newInstance(surface, 1);
         }
 
@@ -206,7 +208,7 @@ public final class BokehImageCaptureExtenderImpl implements ImageCaptureExtender
         }
 
         @Override
-        public void onResolutionUpdate(Size size) {
+        public void onResolutionUpdate(@NonNull Size size) {
 
         }
 
@@ -216,11 +218,13 @@ public final class BokehImageCaptureExtenderImpl implements ImageCaptureExtender
         }
     }
 
+    @NonNull
     @Override
     public List<CaptureRequest.Key> getAvailableCaptureRequestKeys() {
         return null;
     }
 
+    @NonNull
     @Override
     public List<CaptureResult.Key> getAvailableCaptureResultKeys() {
         return null;

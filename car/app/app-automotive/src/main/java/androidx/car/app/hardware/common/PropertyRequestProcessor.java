@@ -24,10 +24,11 @@ import android.car.hardware.CarPropertyValue;
 import android.car.hardware.property.CarPropertyManager;
 import android.content.Context;
 import android.util.ArraySet;
-import android.util.Pair;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
+
+import com.google.common.collect.ImmutableList;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -56,6 +57,18 @@ final class PropertyRequestProcessor {
          * @param errors            a list of {@link CarInternalError}, empty if there are no errors
          */
         void onGetProperties(List<CarPropertyValue<?>> propertyValues,
+                List<CarInternalError> errors);
+    }
+
+    interface OnGetSupportedCarZonesListener {
+        /**
+         * Called when get all properties' supported car zones have value or errors.
+         *
+         * @param propertyIdAreaIds  a list of {@link PropertyIdAreaId}, empty if there are no
+         *                           errors.
+         * @param errors            a list of {@link CarInternalError}, empty if there are no errors
+         */
+        void onGetSupportedCarZones(List<PropertyIdAreaId> propertyIdAreaIds,
                 List<CarInternalError> errors);
     }
 
@@ -111,36 +124,60 @@ final class PropertyRequestProcessor {
      * Gets {@link CarPropertyValue} and returns results by
      * {@link OnGetPropertiesListener#onGetProperties(List, List)}.
      *
-     * @param requests  a list of {@Code Pair<Integer, Integer>}, {@Code Pair.first} is the
-     *                  property id, {@Code Pair.second} is the area id
+     * @param requests  a list of {@Code PropertyIdAreaId}, consisting of property id and the
+     *                  area id
      * @param listener  the listener that will be invoked with the results of the request
      */
     public void fetchCarPropertyValues(
-            @NonNull List<Pair<Integer, Integer>> requests,
+            @NonNull List<PropertyIdAreaId> requests,
             @NonNull OnGetPropertiesListener listener) {
         List<CarPropertyValue<?>> values = new ArrayList<>();
         List<CarInternalError> errors = new ArrayList<>();
-        for (Pair<Integer, Integer> request : requests) {
+        for (PropertyIdAreaId request : requests) {
             try {
-                CarPropertyConfig<?> propertyConfig = getPropertyConfig(request.first);
+                CarPropertyConfig<?> propertyConfig = getPropertyConfig(request.getPropertyId());
                 if (propertyConfig == null) {
-                    errors.add(CarInternalError.create(request.first, request.second,
+                    errors.add(CarInternalError.create(request.getPropertyId(), request.getAreaId(),
                             CarValue.STATUS_UNIMPLEMENTED));
                 } else {
                     Class<?> clazz = propertyConfig.getPropertyType();
                     CarPropertyValue<?> propertyValue = mCarPropertyManager.getProperty(clazz,
-                            request.first, request.second);
+                            request.getPropertyId(), request.getAreaId());
                     values.add(propertyValue);
                 }
             } catch (IllegalArgumentException e) {
-                errors.add(CarInternalError.create(request.first, request.second,
+                errors.add(CarInternalError.create(request.getPropertyId(), request.getAreaId(),
                         CarValue.STATUS_UNIMPLEMENTED));
             } catch (Exception e) {
-                errors.add(CarInternalError.create(request.first, request.second,
+                errors.add(CarInternalError.create(request.getPropertyId(), request.getAreaId(),
                         CarValue.STATUS_UNAVAILABLE));
             }
         }
         listener.onGetProperties(values, errors);
+    }
+
+    public void fetchSupportedCarZones(List<Integer> propertyIds,
+            @NonNull OnGetSupportedCarZonesListener listener) {
+        ImmutableList.Builder<CarInternalError> errors = new ImmutableList.Builder<>();
+        ImmutableList.Builder<PropertyIdAreaId> propertyIdAreaIds = new ImmutableList.Builder<>();
+        for (Integer propertyId : propertyIds) {
+            try {
+                CarPropertyConfig<?> propertyConfig = getPropertyConfig(propertyId);
+                if (propertyConfig == null) {
+                    errors.add(CarInternalError.create(propertyId, CarValue.STATUS_UNIMPLEMENTED));
+                } else {
+                    for (Integer areaId : propertyConfig.getAreaIds()) {
+                        propertyIdAreaIds.add(PropertyIdAreaId.builder().setPropertyId(propertyId)
+                                .setAreaId(areaId).build());
+                    }
+                }
+            } catch (IllegalArgumentException e) {
+                errors.add(CarInternalError.create(propertyId, CarValue.STATUS_UNIMPLEMENTED));
+            } catch (Exception e) {
+                errors.add(CarInternalError.create(propertyId, CarValue.STATUS_UNAVAILABLE));
+            }
+        }
+        listener.onGetSupportedCarZones(propertyIdAreaIds.build(), errors.build());
     }
 
     /**

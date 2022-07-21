@@ -596,6 +596,67 @@ public abstract class WorkManager {
             @NonNull WorkQuery workQuery);
 
     /**
+     * Updates the work with the new specification.
+     * <p>
+     * It preserves enqueue time, e.g. if a work was enqueued 3 hours ago and had 6 hours long
+     * initial delay, after the update it would be still eligible for run in 3 hours, assuming
+     * that initial delay wasn't updated.
+     * <p>
+     * If the work being updated is currently running the returned ListenableFuture will be
+     * completed with {@link UpdateResult#APPLIED_FOR_NEXT_RUN}. In this case the current run won't
+     * be interrupted and will continue to rely on previous state of the request, e.g. using
+     * old constraints, tags etc. However, on the next run, e.g. retry of one-time Worker or
+     * another iteration of periodic worker, the new worker specification will be used.
+     * <p>
+     * If the one time work that is updated is already finished the returned ListenableFuture
+     * will be completed with {@link UpdateResult#NOT_APPLIED}.
+     * <p>
+     * If update can be applied immediately, e.g. the updated work isn't currently running,
+     * the returned ListenableFuture will be completed with
+     * {@link UpdateResult#APPLIED_IMMEDIATELY}.
+     * <p>
+     * If the work with the given id ({@code request.getId()}) doesn't exist the returned
+     * ListenableFuture will be completed exceptionally with {@link IllegalArgumentException}.
+     * <p>
+     * Worker type can't be changed, {@link OneTimeWorkRequest} can't be updated to
+     * {@link PeriodicWorkRequest} and otherwise, the returned ListenableFuture will be
+     * completed with {@link IllegalArgumentException}.
+     *
+     * @param request the new specification for the work.
+     * @return a {@link ListenableFuture} that will be successfully completed if the update was
+     * successful. The future will be completed with an exception if the work is already running
+     * or finished.
+     */
+    // consistent with already existent method like getWorkInfos() in WorkManager
+    @SuppressWarnings("AsyncSuffixFuture")
+    @NonNull
+    public abstract ListenableFuture<UpdateResult> updateWork(@NonNull WorkRequest request);
+
+    /**
+     * An enumeration of results for {@link WorkManager#updateWork(WorkRequest)} method.
+     */
+    public enum UpdateResult {
+        /**
+         * An update wasn't applied, because {@code Worker} has already finished.
+         */
+        NOT_APPLIED,
+        /**
+         * An update was successfully applied immediately, meaning
+         * the updated work wasn't currently running in the moment of the request.
+         * See {@link UpdateResult#APPLIED_FOR_NEXT_RUN} for the case of running worker.
+         */
+        APPLIED_IMMEDIATELY,
+        /**
+         * An update was successfully applied, but the worker being updated was running.
+         * This run isn't interrupted and will continue to rely on previous state of the
+         * request, e.g. using old constraints, tags etc. However, on the next run, e.g. retry of
+         * one-time Worker or another iteration of periodic worker, the new worker specification.
+         * will be used.
+         */
+        APPLIED_FOR_NEXT_RUN,
+    }
+
+    /**
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

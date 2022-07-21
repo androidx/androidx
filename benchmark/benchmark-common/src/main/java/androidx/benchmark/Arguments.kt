@@ -52,7 +52,6 @@ public object Arguments {
     }
 
     val enableCompilation: Boolean
-    val enablePackageReset: Boolean
 
     // internal properties are microbenchmark only
     internal val outputEnable: Boolean
@@ -131,9 +130,6 @@ public object Arguments {
 
         enableCompilation =
             arguments.getBenchmarkArgument("compilation.enabled")?.toBoolean() ?: true
-
-        enablePackageReset =
-            arguments.getBenchmarkArgument("packageReset.enabled")?.toBoolean() ?: false
 
         _profiler = arguments.getProfiler(outputEnable)
         profilerSampleFrequency =

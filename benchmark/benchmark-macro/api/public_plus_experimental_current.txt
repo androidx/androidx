@@ -31,6 +31,10 @@ package androidx.benchmark.macro {
     ctor public CompilationMode.Full();
   }
 
+  @androidx.benchmark.macro.ExperimentalMacrobenchmarkApi public static final class CompilationMode.Ignore extends androidx.benchmark.macro.CompilationMode {
+    ctor public CompilationMode.Ignore();
+  }
+
   @RequiresApi(24) public static final class CompilationMode.None extends androidx.benchmark.macro.CompilationMode {
     ctor public CompilationMode.None();
   }
@@ -49,6 +53,9 @@ package androidx.benchmark.macro {
   }
 
   @kotlin.RequiresOptIn(message="The Baseline profile generation API is experimental.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.CLASS, kotlin.annotation.AnnotationTarget.FUNCTION}) public @interface ExperimentalBaselineProfilesApi {
+  }
+
+  @kotlin.RequiresOptIn(message="This Macrobenchmark API is experimental.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.CLASS, kotlin.annotation.AnnotationTarget.FUNCTION}) public @interface ExperimentalMacrobenchmarkApi {
   }
 
   @kotlin.RequiresOptIn(message="This Metric API is experimental.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.CLASS, kotlin.annotation.AnnotationTarget.FUNCTION}) public @interface ExperimentalMetricApi {

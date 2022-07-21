@@ -6,13 +6,15 @@
 
 ### What is `androidx`?
 
-The Android Extension (`androidx`) Libraries provide functionality that extends
-the capabilities of the Android platform. These libraries, which ship separately
+Artifacts within the `androidx` package comprise the libraries of
+[Android Jetpack](https://developer.android.com/jetpack).
+
+Libraries in the `androidx` package provide functionality that extends the
+capabilities of the Android platform. These libraries, which ship separately
 from the Android OS, focus on improving the experience of developing apps
 through broad OS- and device-level compatibility, high-level abstractions to
 simplify and unify platform features, and other new features that target
-developer pain points. To find out more about `androidx`, see the public
-documentation on [developer.android.com](http://developer.android.com).
+developer pain points.
 
 ### Why did we move to `androidx`?
 

@@ -48,6 +48,15 @@ abstract class CarInternalError {
         return new AutoValue_CarInternalError(propertyId, areaId, errorCode);
     }
 
+    /**
+     * @param propertyId    one of the values in {@link android.car.VehiclePropertyIds}
+     * @param errorCode     one of the values in {@link CarValue.StatusCode}
+     */
+    @NonNull
+    static CarInternalError create(int propertyId, @CarValue.StatusCode int errorCode) {
+        return new AutoValue_CarInternalError(propertyId, /*areaId=*/0, errorCode);
+    }
+
     /** Returns one of the values in {@link android.car.VehiclePropertyIds}. */
     abstract int getPropertyId();
 

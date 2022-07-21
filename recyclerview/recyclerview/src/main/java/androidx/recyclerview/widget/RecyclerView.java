@@ -8626,7 +8626,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
          * @param message The message for the exception. Can be null.
          * @see #assertInLayoutOrScroll(String)
          */
-        public void assertNotInLayoutOrScroll(String message) {
+        public void assertNotInLayoutOrScroll(@Nullable String message) {
             if (mRecyclerView != null) {
                 mRecyclerView.assertNotInLayoutOrScroll(message);
             }
@@ -8805,8 +8805,8 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
          * @see #isItemPrefetchEnabled()
          * @see #collectInitialPrefetchPositions(int, LayoutPrefetchRegistry)
          */
-        public void collectAdjacentPrefetchPositions(int dx, int dy, State state,
-                LayoutPrefetchRegistry layoutPrefetchRegistry) {
+        public void collectAdjacentPrefetchPositions(int dx, int dy, @NonNull State state,
+                @NonNull LayoutPrefetchRegistry layoutPrefetchRegistry) {
         }
 
         /**
@@ -8834,7 +8834,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
          * @see #collectAdjacentPrefetchPositions(int, int, State, LayoutPrefetchRegistry)
          */
         public void collectInitialPrefetchPositions(int adapterItemCount,
-                LayoutPrefetchRegistry layoutPrefetchRegistry) {
+                @NonNull LayoutPrefetchRegistry layoutPrefetchRegistry) {
         }
 
         void dispatchAttachedToWindow(RecyclerView view) {
@@ -8940,7 +8940,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
          * @see #onAttachedToWindow(RecyclerView)
          */
         @CallSuper
-        public void onDetachedFromWindow(RecyclerView view, Recycler recycler) {
+        public void onDetachedFromWindow(@NonNull RecyclerView view, @NonNull Recycler recycler) {
             onDetachedFromWindow(view);
         }
 
@@ -9004,7 +9004,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
          *                 position
          * @param state    Transient state of RecyclerView
          */
-        public void onLayoutChildren(Recycler recycler, State state) {
+        public void onLayoutChildren(@NonNull Recycler recycler, @NonNull State state) {
             Log.e(TAG, "You must override onLayoutChildren(Recycler recycler, State state) ");
         }
 
@@ -9019,7 +9019,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
          *
          * @param state Transient state of RecyclerView
          */
-        public void onLayoutCompleted(State state) {
+        public void onLayoutCompleted(@NonNull State state) {
         }
 
         /**
@@ -9037,6 +9037,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
          *
          * @return A new LayoutParams for a child view
          */
+        @NonNull
         public abstract LayoutParams generateDefaultLayoutParams();
 
         /**
@@ -9107,7 +9108,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
          * negative and scrolling proceeeded in that direction.
          * <code>Math.abs(result)</code> may be less than dx if a boundary was reached.
          */
-        public int scrollHorizontallyBy(int dx, Recycler recycler, State state) {
+        public int scrollHorizontallyBy(int dx, @NonNull Recycler recycler, @NonNull State state) {
             return 0;
         }
 
@@ -9124,7 +9125,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
          * negative and scrolling proceeeded in that direction.
          * <code>Math.abs(result)</code> may be less than dy if a boundary was reached.
          */
-        public int scrollVerticallyBy(int dy, Recycler recycler, State state) {
+        public int scrollVerticallyBy(int dy, @NonNull Recycler recycler, @NonNull State state) {
             return 0;
         }
 
@@ -9171,8 +9172,11 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
          * @param state        Current State of RecyclerView
          * @param position     Scroll to this adapter position.
          */
-        public void smoothScrollToPosition(RecyclerView recyclerView, State state,
-                int position) {
+        public void smoothScrollToPosition(
+                @NonNull RecyclerView recyclerView,
+                @NonNull State state,
+                int position
+        ) {
             Log.e(TAG, "You must override smoothScrollToPosition to support smooth scrolling");
         }
 
@@ -11005,7 +11009,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
          * @param state The parcelable that was returned by the previous LayoutManager's
          *              {@link #onSaveInstanceState()} method.
          */
-        public void onRestoreInstanceState(Parcelable state) {
+        public void onRestoreInstanceState(@NonNull Parcelable state) {
 
         }
 

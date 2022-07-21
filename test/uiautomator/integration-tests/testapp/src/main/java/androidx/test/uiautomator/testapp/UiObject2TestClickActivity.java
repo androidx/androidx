@@ -18,22 +18,42 @@ package androidx.test.uiautomator.testapp;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
+import android.view.View.OnLongClickListener;
 import android.widget.Button;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 public class UiObject2TestClickActivity extends Activity {
 
-    private static final String TAG = UiObject2TestClickActivity.class.getSimpleName();
-
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.uiobject2_testclick_activity);
+
+        // Set up the long-clickable buttons.
+        Button button4 = (Button) findViewById(R.id.button4);
+        Button button5 = (Button) findViewById(R.id.button5);
+        Button button6 = (Button) findViewById(R.id.button6);
+        Button button7 = (Button) findViewById(R.id.button7);
+
+        button4.setOnLongClickListener(new OnButtonLongClick());
+        button5.setOnLongClickListener(new OnButtonLongClick());
+        button6.setOnLongClickListener(new OnButtonLongClick());
+        button7.setOnLongClickListener(new OnButtonLongClick());
     }
 
-    public void onButtonClick(View v) {
-        ((Button)v).setText("I've been clicked!");
+    public void onButtonClick(@NonNull View v) {
+        ((Button) v).append("_clicked");
+    }
+
+    static class OnButtonLongClick implements OnLongClickListener {
+        @Override
+        public boolean onLongClick(View v) {
+            ((Button) v).append("_long_clicked");
+            return true;
+        }
     }
 }

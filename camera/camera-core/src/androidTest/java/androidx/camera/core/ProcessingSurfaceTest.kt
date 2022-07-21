@@ -217,7 +217,15 @@ class ProcessingSurfaceTest {
             RESOLUTION.width, RESOLUTION.height,
             ImageFormat.YUV_420_888, 2
         )
-        return ImmediateSurface(imageReaderProxy.surface!!)
+
+        val deferrableSurface = ImmediateSurface(imageReaderProxy.surface!!)
+
+        deferrableSurface.terminationFuture.addListener(
+            { imageReaderProxy.close() },
+            CameraXExecutors.directExecutor()
+        )
+
+        return deferrableSurface
     }
 
     companion object {

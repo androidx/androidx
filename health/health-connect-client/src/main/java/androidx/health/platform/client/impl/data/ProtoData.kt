@@ -16,7 +16,7 @@
 package androidx.health.platform.client.impl.data
 
 import androidx.annotation.RestrictTo
-import com.google.protobuf.MessageLite
+import androidx.health.platform.client.proto.MessageLite
 
 /** Base class for data objects backed by protos. */
 @RestrictTo(RestrictTo.Scope.LIBRARY)

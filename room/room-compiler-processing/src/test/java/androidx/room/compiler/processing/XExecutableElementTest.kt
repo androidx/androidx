@@ -733,16 +733,6 @@ class XExecutableElementTest {
     }
 
     @Test
-    fun genericToPrimitiveOverrides_methodElement() {
-        genericToPrimitiveOverrides(asMemberOf = false)
-    }
-
-    @Test
-    fun genericToPrimitiveOverrides_asMemberOf() {
-        genericToPrimitiveOverrides(asMemberOf = true)
-    }
-
-    @Test
     fun defaultMethodParameters() {
         fun buildSource(pkg: String) = Source.kotlin(
             "Foo.kt",
@@ -1047,7 +1037,8 @@ class XExecutableElementTest {
     }
 
     // see b/160258066
-    private fun genericToPrimitiveOverrides(asMemberOf: Boolean) {
+    @Test
+    public fun genericToPrimitiveOverrides() {
         val source = Source.kotlin(
             "Foo.kt",
             """
@@ -1090,21 +1081,14 @@ class XExecutableElementTest {
                         buildString {
                             append(methodElement.jvmName)
                             append("(")
-                            val paramTypes = if (asMemberOf) {
-                                methodElement.asMemberOf(this@methodsSignature.type).parameterTypes
-                            } else {
-                                methodElement.parameters.map { it.type }
-                            }
+                            val enclosingType = this@methodsSignature.type
+                            val paramTypes = methodElement.asMemberOf(enclosingType).parameterTypes
                             val paramsSignature = paramTypes.joinToString(",") {
                                 it.typeName.toString()
                             }
                             append(paramsSignature)
                             append("):")
-                            val returnType = if (asMemberOf) {
-                                methodElement.asMemberOf(this@methodsSignature.type).returnType
-                            } else {
-                                methodElement.returnType
-                            }
+                            val returnType = methodElement.asMemberOf(enclosingType).returnType
                             append(returnType.typeName)
                         }
                     }

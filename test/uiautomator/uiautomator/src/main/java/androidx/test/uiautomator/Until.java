@@ -16,10 +16,7 @@
 
 package androidx.test.uiautomator;
 
-import android.os.SystemClock;
-import android.util.Log;
 import android.view.accessibility.AccessibilityEvent;
-import android.view.accessibility.AccessibilityNodeInfo;
 
 import java.util.List;
 import java.util.regex.Pattern;
@@ -362,6 +359,10 @@ public class Until {
 
             @Override
             Boolean apply(AccessibilityEvent event) {
+                if (event.getEventType() != AccessibilityEvent.TYPE_VIEW_SCROLLED) {
+                    return false; // Ignore non-scrolling events.
+                }
+
                 if (event.getFromIndex() != -1 && event.getToIndex() != -1 &&
                         event.getItemCount() != -1) {
 

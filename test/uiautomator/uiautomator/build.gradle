@@ -23,9 +23,10 @@ plugins {
 
 dependencies {
     implementation(libs.junit)
-    implementation project(path: ':annotation:annotation')
+    implementation("androidx.annotation:annotation:1.4.0")
 
     androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.mockitoCore)
     androidTestImplementation(libs.dexmakerMockito)

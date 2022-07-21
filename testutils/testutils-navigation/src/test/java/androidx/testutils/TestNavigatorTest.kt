@@ -52,8 +52,8 @@ class TestNavigatorTest {
         assertWithMessage("last() returns last destination navigated to")
             .that(current.destination)
             .isEqualTo(destination)
-        assertWithMessage("last() returns arguments Bundle")
+        assertWithMessage("last() returns a non-null arguments Bundle when arguments are set")
             .that(current.arguments)
-            .isEqualTo(args)
+            .isNotNull()
     }
 }

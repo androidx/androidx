@@ -3,6 +3,10 @@ plugins {
     id("AndroidXDocsPlugin")
 }
 
+android {
+    namespace "androidx.docs.tipoftree"
+}
+
 dependencies {
     docs(project(":activity:activity"))
     docs(project(":activity:activity-compose"))
@@ -32,6 +36,7 @@ dependencies {
     docs(project(":biometric:biometric-ktx"))
     samples(project(":biometric:biometric-ktx-samples"))
     docs(project(":bluetooth:bluetooth"))
+    docs(project(":bluetooth:bluetooth-core"))
     docs(project(":bluetooth:bluetooth-testing"))
     docs(project(":browser:browser"))
     docs(project(":camera:camera-camera2"))
@@ -87,7 +92,6 @@ dependencies {
     samples(project(":compose:ui:ui-graphics:ui-graphics-samples"))
     docs(project(":compose:ui:ui-test"))
     samples(project(":compose:ui:ui-test:ui-test-samples"))
-    docs(project(":compose:ui:ui-test-font"))
     docs(project(":compose:ui:ui-test-junit4"))
     docs(project(":compose:ui:ui-text"))
     samples(project(":compose:ui:ui-text:ui-text-samples"))
@@ -154,6 +158,7 @@ dependencies {
     docs(project(":glance:glance-wear-tiles"))
     docs(project(":gridlayout:gridlayout"))
     docs(project(":health:health-connect-client"))
+    samples(project(":health:health-connect-client-samples"))
     docs(project(":health:health-services-client"))
     docs(project(":heifwriter:heifwriter"))
     docs(project(":hilt:hilt-common"))
@@ -163,6 +168,7 @@ dependencies {
     docs(project(":hilt:hilt-navigation-fragment"))
     docs(project(":hilt:hilt-work"))
     docs(project(":interpolator:interpolator"))
+    docs(project(":javascriptengine:javascriptengine"))
     docs(project(":metrics:metrics-performance"))
     docs(project(":leanback:leanback"))
     docs(project(":leanback:leanback-paging"))

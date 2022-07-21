@@ -67,9 +67,11 @@ import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiObjectNotFoundException
 import androidx.test.uiautomator.UiSelector
 import com.google.common.truth.Truth
+import com.google.common.truth.Truth.assertThat
 import com.google.common.util.concurrent.ListenableFuture
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.ExecutionException
+import java.util.concurrent.Executor
 import java.util.concurrent.Semaphore
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
@@ -862,6 +864,34 @@ class PreviewViewDeviceTest {
             }
         }
         Truth.assertThat(wasPreviewRemoved).isFalse()
+    }
+
+    @Test
+    fun canSetFrameUpdateListener() {
+        lateinit var previewView: PreviewView
+        activityScenario!!.onActivity { activity ->
+            previewView = PreviewView(context)
+            previewView.implementationMode = ImplementationMode.COMPATIBLE
+            activity.setContentView(previewView)
+            val preview = Preview.Builder().build()
+            preview.setSurfaceProvider(previewView.surfaceProvider)
+            cameraProvider!!.bindToLifecycle(activity,
+                CameraSelector.DEFAULT_BACK_CAMERA, preview)
+        }
+
+        var executedOnExecutor = false
+        val executor = Executor {
+            it.run()
+            executedOnExecutor = true
+        }
+
+        val frameUpdateCountDownLatch = CountDownLatch(5)
+        previewView.setFrameUpdateListener(executor) {
+            frameUpdateCountDownLatch.countDown()
+        }
+
+        assertThat(frameUpdateCountDownLatch.await(5, TimeUnit.SECONDS)).isTrue()
+        assertThat(executedOnExecutor).isTrue()
     }
 
     private fun setContentView(view: View?) {

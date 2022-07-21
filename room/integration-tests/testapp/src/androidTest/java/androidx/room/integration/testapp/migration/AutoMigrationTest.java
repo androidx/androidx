@@ -19,6 +19,7 @@ package androidx.room.integration.testapp.migration;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteException;
 
 import androidx.annotation.NonNull;
@@ -85,7 +86,7 @@ public class AutoMigrationTest {
                     3,
                     true
             );
-        } catch (IllegalStateException e) {
+        } catch (SQLiteConstraintException e) {
             assertThat(e.getMessage()).isEqualTo("Foreign key violation(s) detected in 'Entity9'."
                     + "\nNumber of different violations discovered: 1"
                     + "\nNumber of rows in violation: 2"

@@ -88,6 +88,7 @@ public class ActionsConstraintsTest {
                         .setMaxCustomTitles(1)
                         .addRequiredActionType(Action.TYPE_CUSTOM)
                         .addDisallowedActionType(Action.TYPE_BACK)
+                        .setOnClickListenerAllowed(true)
                         .build();
 
         CarIcon carIcon = TestUtils.getTestCarIcon(ApplicationProvider.getApplicationContext(),
@@ -139,6 +140,16 @@ public class ActionsConstraintsTest {
                                 .addAction(actionWithTitle)
                                 .build()
                                 .getActions()));
+
+        ActionsConstraints constraintsNoOnClick =
+                new ActionsConstraints.Builder().setOnClickListenerAllowed(false).build();
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> constraintsNoOnClick.validateOrThrow(
+                        new ActionStrip.Builder()
+                                .addAction(actionWithIcon)
+                                .build()
+                                .getActions()));
     }
 
     @Test
@@ -149,6 +160,7 @@ public class ActionsConstraintsTest {
                         .setMaxActions(4)
                         .setMaxCustomTitles(4)
                         .setTitleTextConstraints(CarTextConstraints.TEXT_AND_ICON)
+                        .setOnClickListenerAllowed(true)
                         .build();
 
         CarIcon carIcon = TestUtils.getTestCarIcon(ApplicationProvider.getApplicationContext(),

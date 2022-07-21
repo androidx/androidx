@@ -3,6 +3,7 @@ package androidx.metrics.performance {
 
   public class FrameData {
     ctor public FrameData(long frameStartNanos, long frameDurationUiNanos, boolean isJank, java.util.List<androidx.metrics.performance.StateInfo> states);
+    method public androidx.metrics.performance.FrameData copy();
     method public final long getFrameDurationUiNanos();
     method public final long getFrameStartNanos();
     method public final java.util.List<androidx.metrics.performance.StateInfo> getStates();
@@ -26,7 +27,7 @@ package androidx.metrics.performance {
   }
 
   public final class JankStats {
-    method @UiThread public static androidx.metrics.performance.JankStats createAndTrack(android.view.Window window, java.util.concurrent.Executor executor, androidx.metrics.performance.JankStats.OnFrameListener frameListener);
+    method @UiThread public static androidx.metrics.performance.JankStats createAndTrack(android.view.Window window, androidx.metrics.performance.JankStats.OnFrameListener frameListener);
     method public float getJankHeuristicMultiplier();
     method public boolean isTrackingEnabled();
     method public void setJankHeuristicMultiplier(float);
@@ -37,23 +38,23 @@ package androidx.metrics.performance {
   }
 
   public static final class JankStats.Companion {
-    method @UiThread public androidx.metrics.performance.JankStats createAndTrack(android.view.Window window, java.util.concurrent.Executor executor, androidx.metrics.performance.JankStats.OnFrameListener frameListener);
+    method @UiThread public androidx.metrics.performance.JankStats createAndTrack(android.view.Window window, androidx.metrics.performance.JankStats.OnFrameListener frameListener);
   }
 
   public static fun interface JankStats.OnFrameListener {
-    method public void onFrame(androidx.metrics.performance.FrameData frameData);
+    method public void onFrame(androidx.metrics.performance.FrameData volatileFrameData);
   }
 
   public final class PerformanceMetricsState {
-    method public void addSingleFrameState(String stateName, String state);
-    method public void addState(String stateName, String state);
-    method @UiThread public static androidx.metrics.performance.PerformanceMetricsState.Holder getForHierarchy(android.view.View view);
-    method public void removeState(String stateName);
+    method @UiThread public static androidx.metrics.performance.PerformanceMetricsState.Holder getHolderForHierarchy(android.view.View view);
+    method public void putSingleFrameState(String key, String value);
+    method public void putState(String key, String value);
+    method public void removeState(String key);
     field public static final androidx.metrics.performance.PerformanceMetricsState.Companion Companion;
   }
 
   public static final class PerformanceMetricsState.Companion {
-    method @UiThread public androidx.metrics.performance.PerformanceMetricsState.Holder getForHierarchy(android.view.View view);
+    method @UiThread public androidx.metrics.performance.PerformanceMetricsState.Holder getHolderForHierarchy(android.view.View view);
   }
 
   public static final class PerformanceMetricsState.Holder {
@@ -62,11 +63,11 @@ package androidx.metrics.performance {
   }
 
   public final class StateInfo {
-    ctor public StateInfo(String stateName, String state);
-    method public String getState();
-    method public String getStateName();
-    property public final String state;
-    property public final String stateName;
+    ctor public StateInfo(String key, String value);
+    method public String getKey();
+    method public String getValue();
+    property public final String key;
+    property public final String value;
   }
 
 }

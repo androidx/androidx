@@ -27,6 +27,8 @@ import android.view.View;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.FrameLayout;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.leanback.R;
 import androidx.leanback.app.HeadersFragment;
 import androidx.test.core.app.ApplicationProvider;
@@ -146,7 +148,7 @@ public class PresenterTest {
         Context context = new ContextThemeWrapper(mContext, R.style.Theme_Leanback);
         Presenter detailsPresenter = new AbstractDetailsDescriptionPresenter() {
             @Override
-            protected void onBindDescription(ViewHolder vh, Object item) {
+            protected void onBindDescription(@NonNull ViewHolder vh, @Nullable Object item) {
                 vh.getTitle().setText("The quick brown fox jumped over the lazy dog");
                 vh.getSubtitle().setText("Subtitle");
             }

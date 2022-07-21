@@ -35,7 +35,6 @@ import androidx.annotation.VisibleForTesting;
 import androidx.work.ForegroundInfo;
 import androidx.work.Logger;
 import androidx.work.impl.ExecutionListener;
-import androidx.work.impl.WorkDatabase;
 import androidx.work.impl.WorkManagerImpl;
 import androidx.work.impl.constraints.WorkConstraintsCallback;
 import androidx.work.impl.constraints.WorkConstraintsTracker;
@@ -239,11 +238,10 @@ public class SystemForegroundDispatcher implements WorkConstraintsCallback, Exec
     private void handleStartForeground(@NonNull Intent intent) {
         Logger.get().info(TAG, "Started foreground service " + intent);
         final String workSpecId = intent.getStringExtra(KEY_WORKSPEC_ID);
-        final WorkDatabase database = mWorkManagerImpl.getWorkDatabase();
         mTaskExecutor.executeOnTaskThread(new Runnable() {
             @Override
             public void run() {
-                WorkSpec workSpec = database.workSpecDao().getWorkSpec(workSpecId);
+                WorkSpec workSpec = mWorkManagerImpl.getProcessor().getRunningWorkSpec(workSpecId);
                 // Only track constraints if there are constraints that need to be tracked
                 // (constraints are immutable)
                 if (workSpec != null && workSpec.hasConstraints()) {

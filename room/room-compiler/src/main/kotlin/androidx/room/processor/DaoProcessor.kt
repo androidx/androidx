@@ -18,6 +18,7 @@ package androidx.room.processor
 
 import androidx.room.Delete
 import androidx.room.Insert
+import androidx.room.Upsert
 import androidx.room.Query
 import androidx.room.RawQuery
 import androidx.room.SkipQueryVerification
@@ -57,6 +58,7 @@ class DaoProcessor(
                 queryMethods = emptyList(),
                 rawQueryMethods = emptyList(),
                 insertionMethods = emptyList(),
+                upsertionMethods = emptyList(),
                 deletionMethods = emptyList(),
                 updateMethods = emptyList(),
                 transactionMethods = emptyList(),
@@ -101,6 +103,8 @@ class DaoProcessor(
                     Update::class
                 } else if (method.hasAnnotation(RawQuery::class)) {
                     RawQuery::class
+                } else if (method.hasAnnotation(Upsert::class)) {
+                    Upsert::class
                 } else {
                     Any::class
                 }
@@ -149,6 +153,14 @@ class DaoProcessor(
 
         val updateMethods = methods[Update::class]?.map {
             UpdateMethodProcessor(
+                baseContext = context,
+                containing = declaredType,
+                executableElement = it
+            ).process()
+        } ?: emptyList()
+
+        val upsertionMethods = methods[Upsert::class]?.map {
+            UpsertionMethodProcessor(
                 baseContext = context,
                 containing = declaredType,
                 executableElement = it
@@ -229,6 +241,7 @@ class DaoProcessor(
             insertionMethods = insertionMethods,
             deletionMethods = deletionMethods,
             updateMethods = updateMethods,
+            upsertionMethods = upsertionMethods,
             transactionMethods = transactionMethods.toList(),
             delegatingMethods = delegatingMethods,
             kotlinDefaultMethodDelegates = kotlinDefaultMethodDelegates.toList(),
@@ -255,14 +268,24 @@ class DaoProcessor(
             if (it.jvmName != unannotated.jvmName) {
                 return@firstOrNull false
             }
-            if (!it.returnType.boxed().isSameType(unannotated.returnType.boxed())) {
-                return@firstOrNull false
-            }
             if (it.parameters.size != unannotated.parameters.size) {
                 return@firstOrNull false
             }
+
+            // Get unannotated as a member of annotated's enclosing type before comparing
+            // in case unannotated contains type parameters that need to be resolved.
+            val annotatedEnclosingType = it.enclosingElement.type
+            val unannotatedType = if (annotatedEnclosingType == null) {
+                unannotated.executableType
+            } else {
+                unannotated.asMemberOf(annotatedEnclosingType)
+            }
+
+            if (!it.returnType.boxed().isSameType(unannotatedType.returnType.boxed())) {
+                return@firstOrNull false
+            }
             for (i in it.parameters.indices) {
-                if (it.parameters[i].type.boxed() != unannotated.parameters[i].type.boxed()) {
+                if (it.parameters[i].type.boxed() != unannotatedType.parameterTypes[i].boxed()) {
                     return@firstOrNull false
                 }
             }

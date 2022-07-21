@@ -24,6 +24,7 @@ plugins {
 
 dependencies {
     implementation(libs.kotlinStdlib)
+    implementation 'androidx.annotation:annotation:1.4.0'
 }
 
 androidx {
@@ -36,4 +37,7 @@ androidx {
 
 android {
     namespace "androidx.bluetooth"
+    defaultConfig {
+        minSdkVersion 21
+    }
 }

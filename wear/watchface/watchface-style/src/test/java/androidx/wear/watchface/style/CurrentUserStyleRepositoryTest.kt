@@ -29,6 +29,7 @@ import androidx.wear.watchface.style.UserStyleSetting.Option
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.fail
 import org.junit.Assert.assertThrows
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -900,6 +901,7 @@ class DigestHashTest {
         assertThat(digestHash1).isNotEqualTo(digestHash2)
     }
 
+    @Ignore // b/238635208
     @Test
     public fun digestHashSensitiveToIconChanges() {
         val colorStyleSetting1 = ListUserStyleSetting(

@@ -24,7 +24,7 @@
     <string name="close_action_title" msgid="2661907510124308560">"ବନ୍ଦ କରନ୍ତୁ"</string>
     <string name="grant_access_action_title" msgid="4033140828804350723">"ଆକ୍ସେସ ଦିଅନ୍ତୁ"</string>
     <string name="enable_location_action_title" msgid="8181862247222797044">"ଲୋକେସନକୁ ସକ୍ଷମ କରନ୍ତୁ"</string>
-    <string name="cancel_action_title" msgid="1149738685397349236">"ବାତିଲ୍ କରନ୍ତୁ"</string>
+    <string name="cancel_action_title" msgid="1149738685397349236">"ବାତିଲ କରନ୍ତୁ"</string>
     <string name="stop_action_title" msgid="1187619482795416314">"ବନ୍ଦ କରନ୍ତୁ"</string>
     <string name="more_action_title" msgid="1039516575011403837">"ଅଧିକ"</string>
     <string name="call_action_title" msgid="6218977436905001611">"କଲ କରନ୍ତୁ"</string>
@@ -128,7 +128,7 @@
     <string name="enable_location_permission_on_phone_msg" msgid="5082615523959139121">"ଫୋନର ସ୍କ୍ରିନରେ ଲୋକେସନକୁ ସକ୍ଷମ କରନ୍ତୁ"</string>
     <string name="required_permissions_title" msgid="5351791879153568211">"ଅନୁମତି ଆବଶ୍ୟକ"</string>
     <string name="request_permissions_title" msgid="7456426341142412300">"ଅନୁମତି ଅନୁରୋଧର ଡେମୋ"</string>
-    <string name="cancel_reservation_title" msgid="1374986823057959608">"ରିଜର୍ଭେସନ ସ୍କ୍ରିନକୁ ବାତିଲ୍ କରନ୍ତୁ"</string>
+    <string name="cancel_reservation_title" msgid="1374986823057959608">"ରିଜର୍ଭେସନ ସ୍କ୍ରିନକୁ ବାତିଲ କରନ୍ତୁ"</string>
     <string name="reservation_cancelled_msg" msgid="6334213670275547875">"ରିଜର୍ଭେସନ ବାତିଲ୍ କରାଯାଇଛି"</string>
     <string name="result_demo_title" msgid="3900525190662148290">"ଫଳାଫଳର ଡେମୋ"</string>
     <string name="not_started_for_result_msg" msgid="7498800528148447270">"ଏହି ଆପକୁ ଫଳାଫଳ ପାଇଁ ଆରମ୍ଭ କରାଯାଇନଥିଲା"</string>

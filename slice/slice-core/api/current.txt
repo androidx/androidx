@@ -2,31 +2,31 @@
 package androidx.slice {
 
   @RequiresApi(19) public final class Slice implements androidx.versionedparcelable.VersionedParcelable {
-    method public java.util.List<java.lang.String!>! getHints();
-    method public java.util.List<androidx.slice.SliceItem!>! getItems();
-    method public android.net.Uri! getUri();
+    method public java.util.List<java.lang.String!> getHints();
+    method public java.util.List<androidx.slice.SliceItem!> getItems();
+    method public android.net.Uri getUri();
     field public static final String EXTRA_SELECTION = "android.app.slice.extra.SELECTION";
   }
 
   @RequiresApi(28) public class SliceConvert {
-    method public static android.app.slice.Slice! unwrap(androidx.slice.Slice!);
-    method public static androidx.slice.Slice! wrap(android.app.slice.Slice!, android.content.Context!);
+    method public static android.app.slice.Slice? unwrap(androidx.slice.Slice?);
+    method public static androidx.slice.Slice? wrap(android.app.slice.Slice?, android.content.Context);
   }
 
   @RequiresApi(19) public final class SliceItem implements androidx.versionedparcelable.VersionedParcelable {
     method public static android.text.ParcelableSpan createSensitiveSpan();
     method public void fireAction(android.content.Context?, android.content.Intent?) throws android.app.PendingIntent.CanceledException;
-    method public android.app.PendingIntent! getAction();
-    method public String! getFormat();
+    method public android.app.PendingIntent? getAction();
+    method public String getFormat();
     method public java.util.List<java.lang.String!> getHints();
-    method public androidx.core.graphics.drawable.IconCompat! getIcon();
+    method public androidx.core.graphics.drawable.IconCompat? getIcon();
     method public int getInt();
     method public long getLong();
     method public CharSequence? getRedactedText();
-    method public androidx.slice.Slice! getSlice();
-    method public String! getSubType();
-    method public CharSequence! getText();
-    method public boolean hasHint(String!);
+    method public androidx.slice.Slice? getSlice();
+    method public String? getSubType();
+    method public CharSequence? getText();
+    method public boolean hasHint(String);
     method public void onPostParceling();
     method public void onPreParceling(boolean);
   }
@@ -78,10 +78,10 @@ package androidx.slice.core {
     method public boolean isChecked();
     method public boolean isDefaultToggle();
     method public boolean isToggle();
-    method public androidx.slice.core.SliceAction! setChecked(boolean);
-    method public androidx.slice.core.SliceAction? setContentDescription(CharSequence);
+    method public androidx.slice.core.SliceAction setChecked(boolean);
+    method public androidx.slice.core.SliceAction setContentDescription(CharSequence);
     method public androidx.slice.core.SliceAction setKey(String);
-    method public androidx.slice.core.SliceAction! setPriority(@IntRange(from=0) int);
+    method public androidx.slice.core.SliceAction setPriority(@IntRange(from=0) int);
   }
 
 }

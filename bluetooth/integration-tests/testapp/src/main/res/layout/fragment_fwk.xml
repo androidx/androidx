@@ -34,6 +34,14 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <androidx.appcompat.widget.SwitchCompat
+        android:id="@+id/switch_advertise"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/advertise_using_fwk"
+        app:layout_constraintBottom_toTopOf="@+id/button_scan"
+        app:layout_constraintEnd_toEndOf="parent" />
+
     <Button
         android:id="@+id/button_scan"
         android:layout_width="wrap_content"
