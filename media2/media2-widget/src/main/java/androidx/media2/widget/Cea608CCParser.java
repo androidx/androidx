@@ -280,12 +280,6 @@ class Cea608CCParser {
 
     private static class StyleCode {
         static final int COLOR_WHITE = 0;
-        static final int COLOR_GREEN = 1;
-        static final int COLOR_BLUE = 2;
-        static final int COLOR_CYAN = 3;
-        static final int COLOR_RED = 4;
-        static final int COLOR_YELLOW = 5;
-        static final int COLOR_MAGENTA = 6;
         static final int COLOR_INVALID = 7;
 
         static final int STYLE_ITALICS   = 0x00000001;
