@@ -48,7 +48,7 @@ class PerformanceMetricsState private constructor() {
      * Temporary per-frame to track UI and user state.
      * Unlike the states tracked in `states`, any state in this structure is only valid until
      * the next frame, at which point it is cleared. Any state data added here is automatically
-     * removed; there is no matching "remove" method for [.addSingleFrameState]
+     * removed; there is no matching "remove" method for [.putSingleFrameState]
      *
      * @see putSingleFrameState
      */
@@ -164,7 +164,13 @@ class PerformanceMetricsState private constructor() {
      * State information can be about UI elements that are currently active (such as the current
      * [Activity] or layout) or a user interaction like flinging a list.
      * If the PerformanceMetricsState object already contains an entry with the same key,
-     * the old value is replaced by the new one.
+     * the old value is replaced by the new one. Note that this means apps with several
+     * instances of similar objects (such as multipe `RecyclerView`s) should
+     * therefore use unique keys for these instances to avoid clobbering state values
+     * for other instances and to provide enough information for later analysis which
+     * allows for disambiguation between these objects. For example, using "RVHeaders" and
+     * "RVContent" might be more helpful than just "RecyclerView" for a messaging app using
+     * `RecyclerView` objects for both a headers list and a list of message contents.
      *
      * Some state may be provided automatically by other AndroidX libraries.
      * But applications are encouraged to add user state specific to those applications
