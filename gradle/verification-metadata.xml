@@ -218,6 +218,7 @@
             <trusting group="com.squareup.leakcanary"/>
          </trusted-key>
          <trusted-key id="62c82e50836eb3ee" group="com.github.gundy"/>
+         <trusted-key id="635ee627345f3c1dd422b2e207d3516820bcf6b1" group="com.github.ben-manes.caffeine"/>
          <trusted-key id="6525fd70cc303655" group="org.codehaus.mojo"/>
          <trusted-key id="666a4692ce11b7b3f4eb7b3410066a9707090cf9" group="org.javassist" name="javassist"/>
          <trusted-key id="694621a7227d8d5289699830abe9f3126bb741c1">
@@ -257,6 +258,7 @@
          <trusted-key id="79156e0351af8604de9b186b09a79e1e15a04694" group="org.vafer" name="jdependency"/>
          <trusted-key id="7999befba1039e8b" group="net.bytebuddy"/>
          <trusted-key id="7a8860944fad5f62" group="org.apache.commons"/>
+         <trusted-key id="7c669810892cbd3148fa92995b05ccde140c2876" group="org.eclipse.jgit"/>
          <trusted-key id="7c7d8456294423ba" group="org.objenesis"/>
          <trusted-key id="7cb548acfe3d47e92afa566dc29b11246382a4d7" group="com.charleskorn.kaml"/>
          <trusted-key id="7cd52b5a8295137c88fb5748dddafa7674e54418" group="org.testng" name="testng"/>
@@ -373,6 +375,8 @@
          <trusted-key id="c6f7d1c804c821f49af3bfc13ad93c3c677a106e" group="io.perfmark" name="perfmark-api"/>
          <trusted-key id="c70b844f002f21f6d2b9c87522e44ac0622b91c3" group="com.beust" name="jcommander"/>
          <trusted-key id="c7be5bcc9fec15518cfda882b0f3710fa64900e7">
+            <trusting group="com.google.auto"/>
+            <trusting group="com.google.auto.service"/>
             <trusting group="com.google.auto.value"/>
             <trusting group="com.google.code.gson"/>
          </trusted-key>
@@ -398,6 +402,7 @@
          <trusted-key id="cfae163b64ac9189" group="org.jetbrains.skiko"/>
          <trusted-key id="d041cad2e452550f" group="com.google.protobuf"/>
          <trusted-key id="d196a5e3e70732eeb2e5007f1861c322c56014b2" group="commons-lang"/>
+         <trusted-key id="d477d51812e692011db11e66a6ea2e2bf22e0543" group="io.github.java-diff-utils"/>
          <trusted-key id="d4c89ea4aaf455fd88b22087efe8086f9e93774e" group="junit"/>
          <trusted-key id="d4da5eab3cd7e958" group="com.google.devtools.ksp"/>
          <trusted-key id="d4fb0b7b5e8c18c993a8a386eb9d04a9a679fe18" group="com.uber.nullaway" name="nullaway"/>
@@ -413,6 +418,7 @@
          <trusted-key id="dddafa7674e54418" group="org.testng"/>
          <trusted-key id="e0130a3ed5a2079e" group="org.webjars"/>
          <trusted-key id="e0cb7823cfd00fbf" group="com.jakewharton.android.repackaged"/>
+         <trusted-key id="e0d98c5fd55a8af232290e58dee12b9896f97e34" group="org.pcollections"/>
          <trusted-key id="e16ab52d79fd224f" group="com.google.api.grpc"/>
          <trusted-key id="e62231331bca7e1f292c9b88c1b12a5d99c0729d" group="org.jetbrains"/>
          <trusted-key id="e77417ac194160a3fabd04969a259c7ee636c5ed">
@@ -427,6 +433,7 @@
          <trusted-key id="eb380dc13c39f675" group="com.intellij"/>
          <trusted-key id="eb9d04a9a679fe18" group="com.uber.nullaway"/>
          <trusted-key id="ecdfea3cb4493b94" group="jline"/>
+         <trusted-key id="ee0ca873074092f806f59b65d364abaa39a47320" group="com.google.errorprone"/>
          <trusted-key id="ee9e7dc9d92fc896" group="com.google.errorprone"/>
          <trusted-key id="eef9ecc7d5d90518" group="com.google.dagger"/>
          <trusted-key id="efe8086f9e93774e" group="junit"/>
