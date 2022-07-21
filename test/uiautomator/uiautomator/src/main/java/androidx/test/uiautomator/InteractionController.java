@@ -501,7 +501,7 @@ class InteractionController {
         if (drag)
             SystemClock.sleep(REGULAR_CLICK_LENGTH);
         ret &= touchUp(upX, upY);
-        return(ret);
+        return ret;
     }
 
     /**
@@ -546,7 +546,7 @@ class InteractionController {
             }
         }
         ret &= touchUp(segments[segments.length - 1].x, segments[segments.length -1].y);
-        return(ret);
+        return ret;
     }
 
 

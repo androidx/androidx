@@ -560,7 +560,7 @@ public class UiDevice implements Searchable {
     public boolean click(int x, int y) {
         Tracer.trace(x, y);
         if (x >= getDisplayWidth() || y >= getDisplayHeight()) {
-            return (false);
+            return false;
         }
         return getInteractionController().clickNoSync(x, y);
     }
