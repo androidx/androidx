@@ -23,6 +23,11 @@ plugins {
 }
 
 dependencies {
+    // Atomic Group
+    constraints {
+        implementation(project(":paging:paging-runtime"))
+    }
+
     api("androidx.annotation:annotation:1.3.0")
     api("androidx.arch.core:core-common:2.1.0")
     api(libs.kotlinStdlib)
