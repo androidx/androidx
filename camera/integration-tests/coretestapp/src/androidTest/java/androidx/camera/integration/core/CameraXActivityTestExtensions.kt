@@ -31,8 +31,6 @@ import com.google.common.truth.Truth.assertThat
  */
 internal fun ActivityScenario<CameraXActivity>.waitForViewfinderIdle() {
     val idlingResource = withActivity {
-        // Make sure that the test target use case is not null
-        assertThat(preview).isNotNull()
         resetViewIdlingResource()
         viewIdlingResource
     }
@@ -50,8 +48,6 @@ internal fun ActivityScenario<CameraXActivity>.waitForViewfinderIdle() {
  */
 internal fun ActivityScenario<CameraXActivity>.switchCameraAndWaitForViewfinderIdle() {
     val idlingResource = withActivity {
-        // Make sure that the test target use case is not null
-        assertThat(preview).isNotNull()
         resetViewIdlingResource()
         viewIdlingResource
     }
@@ -68,8 +64,6 @@ internal fun ActivityScenario<CameraXActivity>.switchCameraAndWaitForViewfinderI
  */
 internal fun ActivityScenario<CameraXActivity>.takePictureAndWaitForImageSavedIdle() {
     val idlingResource = withActivity {
-        // Make sure that the test target use case is not null
-        assertThat(imageCapture).isNotNull()
         imageSavedIdlingResource
     }
     try {
@@ -88,8 +82,6 @@ internal fun ActivityScenario<CameraXActivity>.takePictureAndWaitForImageSavedId
  */
 internal fun ActivityScenario<CameraXActivity>.waitForImageAnalysisIdle() {
     val idlingResource = withActivity {
-        // Make sure that the test target use case is not null
-        assertThat(imageAnalysis).isNotNull()
         resetAnalysisIdlingResource()
         analysisIdlingResource
     }
