@@ -22,9 +22,13 @@ import android.os.Build
 import android.provider.MediaStore
 import android.util.Log
 import android.widget.Toast
+import androidx.camera.core.Camera
+import androidx.camera.core.CameraControl.OperationCanceledException
 import androidx.camera.core.CameraSelector
+import androidx.camera.core.FocusMeteringAction
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
+import androidx.camera.core.MeteringPoint
 import androidx.camera.core.Preview
 import androidx.camera.core.Preview.SurfaceProvider
 import androidx.camera.lifecycle.ProcessCameraProvider
@@ -40,22 +44,28 @@ import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.concurrent.futures.await
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
 import java.text.SimpleDateFormat
 import java.util.Locale
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.launch
 
 private const val DEFAULT_LENS_FACING = CameraSelector.LENS_FACING_FRONT
 private const val DEFAULT_FLASH_MODE = ImageCapture.FLASH_MODE_OFF
 
-class ImageCaptureScreenStateHolder(
+class ImageCaptureScreenState(
     initialLensFacing: Int = DEFAULT_LENS_FACING,
     initialFlashMode: Int = DEFAULT_FLASH_MODE
 ) {
     var lensFacing by mutableStateOf(initialLensFacing)
         private set
 
-    var hasFlashMode by mutableStateOf(false)
+    var hasFlashUnit by mutableStateOf(false)
+        private set
+
+    var isCameraReady by mutableStateOf(false)
         private set
 
     var flashMode: Int by mutableStateOf(getValidInitialFlashMode(initialFlashMode))
@@ -65,15 +75,47 @@ class ImageCaptureScreenStateHolder(
         private set
         get() = getFlashModeImageVector()
 
+    var linearZoom by mutableStateOf(0f)
+        private set
+
+    var zoomRatio by mutableStateOf(1f)
+        private set
+
     private val preview = Preview.Builder().build()
     private val imageCapture = ImageCapture
         .Builder()
         .setFlashMode(flashMode)
         .build()
 
+    private var camera: Camera? = null
+
+    private val mainScope = MainScope()
+
     fun setSurfaceProvider(surfaceProvider: SurfaceProvider) {
         Log.d(TAG, "Setting Surface Provider")
         preview.setSurfaceProvider(surfaceProvider)
+    }
+
+    @JvmName("setLinearZoomFunction")
+    fun setLinearZoom(linearZoom: Float) {
+        Log.d(TAG, "Setting Linear Zoom $linearZoom")
+
+        if (camera == null) {
+            Log.d(TAG, "Camera is not ready to set Linear Zoom")
+            return
+        }
+
+        val future = camera!!.cameraControl.setLinearZoom(linearZoom)
+        mainScope.launch {
+            try {
+                future.await()
+            } catch (exc: Exception) {
+                // Log errors not related to CameraControl.OperationCanceledException
+                if (exc !is OperationCanceledException) {
+                    Log.w(TAG, "setLinearZoom: $linearZoom failed. ${exc.message}")
+                }
+            }
+        }
     }
 
     fun toggleLensFacing() {
@@ -104,8 +146,14 @@ class ImageCaptureScreenStateHolder(
         imageCapture.flashMode = flashMode
     }
 
+    fun startTapToFocus(meteringPoint: MeteringPoint) {
+        val action = FocusMeteringAction.Builder(meteringPoint).build()
+        camera?.cameraControl?.startFocusAndMetering(action)
+    }
+
     fun startCamera(context: Context, lifecycleOwner: LifecycleOwner) {
         Log.d(TAG, "Starting Camera")
+
         val cameraProviderFuture = ProcessCameraProvider.getInstance(context)
 
         cameraProviderFuture.addListener({
@@ -115,6 +163,14 @@ class ImageCaptureScreenStateHolder(
                 .Builder()
                 .requireLensFacing(lensFacing)
                 .build()
+
+            // Remove observers from the old camera instance
+            removeZoomStateObservers(lifecycleOwner)
+
+            // Reset internal State of Camera
+            camera = null
+            hasFlashUnit = false
+            isCameraReady = false
 
             try {
                 cameraProvider.unbindAll()
@@ -126,7 +182,10 @@ class ImageCaptureScreenStateHolder(
                 )
 
                 // Setup components that require Camera
-                this.hasFlashMode = camera.cameraInfo.hasFlashUnit()
+                this.camera = camera
+                setupZoomStateObserver(lifecycleOwner)
+                hasFlashUnit = camera.cameraInfo.hasFlashUnit()
+                isCameraReady = true
             } catch (exc: Exception) {
                 Log.e(TAG, "Use Cases binding failed", exc)
             }
@@ -201,6 +260,32 @@ class ImageCaptureScreenStateHolder(
         }
     }
 
+    private fun setupZoomStateObserver(lifecycleOwner: LifecycleOwner) {
+        Log.d(TAG, "Setting up Zoom State Observer")
+
+        if (camera == null) {
+            Log.d(TAG, "Camera is not ready to set up observer")
+            return
+        }
+
+        removeZoomStateObservers(lifecycleOwner)
+        camera!!.cameraInfo.zoomState.observe(lifecycleOwner) { state ->
+            linearZoom = state.linearZoom
+            zoomRatio = state.zoomRatio
+        }
+    }
+
+    private fun removeZoomStateObservers(lifecycleOwner: LifecycleOwner) {
+        Log.d(TAG, "Removing Observers")
+
+        if (camera == null) {
+            Log.d(TAG, "Camera is not present to remove observers")
+            return
+        }
+
+        camera!!.cameraInfo.zoomState.removeObservers(lifecycleOwner)
+    }
+
     companion object {
         private const val TAG = "ImageCaptureScreenState"
         private const val FILENAME_FORMAT = "yyyy-MM-dd-HH-mm-ss-SSS"
@@ -209,12 +294,12 @@ class ImageCaptureScreenStateHolder(
             ImageCapture.FLASH_MODE_OFF,
             ImageCapture.FLASH_MODE_AUTO
         )
-        val saver: Saver<ImageCaptureScreenStateHolder, *> = listSaver(
+        val saver: Saver<ImageCaptureScreenState, *> = listSaver(
             save = {
                 listOf(it.lensFacing, it.flashMode)
             },
             restore = {
-                ImageCaptureScreenStateHolder(
+                ImageCaptureScreenState(
                     initialLensFacing = it[0],
                     initialFlashMode = it[1]
                 )
@@ -224,16 +309,16 @@ class ImageCaptureScreenStateHolder(
 }
 
 @Composable
-fun rememberImageCaptureScreenStateHolder(
+fun rememberImageCaptureScreenState(
     initialLensFacing: Int = DEFAULT_LENS_FACING,
     initialFlashMode: Int = DEFAULT_FLASH_MODE
-): ImageCaptureScreenStateHolder {
+): ImageCaptureScreenState {
     return rememberSaveable(
         initialLensFacing,
         initialFlashMode,
-        saver = ImageCaptureScreenStateHolder.saver
+        saver = ImageCaptureScreenState.saver
     ) {
-        ImageCaptureScreenStateHolder(
+        ImageCaptureScreenState(
             initialLensFacing = initialLensFacing,
             initialFlashMode = initialFlashMode
         )
