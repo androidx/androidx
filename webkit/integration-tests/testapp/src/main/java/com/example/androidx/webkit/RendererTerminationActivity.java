@@ -167,6 +167,7 @@ public class RendererTerminationActivity extends AppCompatActivity {
             }
         }
 
+        @SuppressWarnings("unused") // used from javascript
         @JavascriptInterface
         public void block() throws Exception {
             synchronized (mLock) {

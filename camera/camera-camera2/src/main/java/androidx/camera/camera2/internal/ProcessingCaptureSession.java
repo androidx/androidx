@@ -131,7 +131,7 @@ final class ProcessingCaptureSession implements CaptureSessionInterface {
         mExecutor = executor;
         mScheduledExecutorService = scheduledExecutorService;
         mProcessorState = ProcessorState.UNINITIALIZED;
-        mSessionProcessorCaptureCallback = new SessionProcessorCaptureCallback(mExecutor);
+        mSessionProcessorCaptureCallback = new SessionProcessorCaptureCallback();
 
         mInstanceId = sNextInstanceId++;
         Logger.d(TAG, "New ProcessingCaptureSession (id=" + mInstanceId + ")");
@@ -574,15 +574,8 @@ final class ProcessingCaptureSession implements CaptureSessionInterface {
 
     private static class SessionProcessorCaptureCallback
             implements SessionProcessor.CaptureCallback {
-        private List<CameraCaptureCallback> mCameraCaptureCallbacks = Collections.emptyList();
-        private final Executor mExecutor;
-        SessionProcessorCaptureCallback(@NonNull Executor executor) {
-            mExecutor = executor;
-        }
 
-        public void setCameraCaptureCallbacks(
-                @NonNull List<CameraCaptureCallback> cameraCaptureCallbacks) {
-            mCameraCaptureCallbacks = cameraCaptureCallbacks;
+        SessionProcessorCaptureCallback() {
         }
 
         @Override
@@ -595,22 +588,10 @@ final class ProcessingCaptureSession implements CaptureSessionInterface {
 
         @Override
         public void onCaptureFailed(int captureSequenceId) {
-            mExecutor.execute(() -> {
-                for (CameraCaptureCallback cameraCaptureCallback : mCameraCaptureCallbacks) {
-                    cameraCaptureCallback.onCaptureFailed(new CameraCaptureFailure(
-                            CameraCaptureFailure.Reason.ERROR));
-                }
-            });
         }
 
         @Override
         public void onCaptureSequenceCompleted(int captureSequenceId) {
-            mExecutor.execute(() -> {
-                for (CameraCaptureCallback cameraCaptureCallback : mCameraCaptureCallbacks) {
-                    cameraCaptureCallback.onCaptureCompleted(
-                            CameraCaptureResult.EmptyCameraCaptureResult.create());
-                }
-            });
         }
 
         @Override

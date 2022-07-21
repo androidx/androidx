@@ -22,7 +22,6 @@ import android.os.Bundle;
 
 import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.car.app.serialization.Bundleable;
 import androidx.car.app.serialization.BundlerException;
@@ -100,13 +99,6 @@ public class SessionInfoIntentEncoder {
     private static class Api29 {
         // Not instantiable
         private Api29() {
-        }
-
-        /** Wrapper for {@link Intent#getIdentifier()}. */
-        @DoNotInline
-        @Nullable
-        static String getIdentifier(@NonNull Intent intent) {
-            return intent.getIdentifier();
         }
 
         /** Wrapper for {@link Intent#setIdentifier(String)}. */

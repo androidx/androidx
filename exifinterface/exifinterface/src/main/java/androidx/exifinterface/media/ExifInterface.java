@@ -3167,10 +3167,6 @@ public class ExifInterface {
             return new ExifAttribute(IFD_FORMAT_SLONG, values.length, buffer.array());
         }
 
-        public static ExifAttribute createSLong(int value, ByteOrder byteOrder) {
-            return createSLong(new int[] {value}, byteOrder);
-        }
-
         public static ExifAttribute createByte(String value) {
             // Exception for GPSAltitudeRef tag
             if (value.length() == 1 && value.charAt(0) >= '0' && value.charAt(0) <= '1') {
@@ -3212,10 +3208,6 @@ public class ExifInterface {
             return new ExifAttribute(IFD_FORMAT_SRATIONAL, values.length, buffer.array());
         }
 
-        public static ExifAttribute createSRational(Rational value, ByteOrder byteOrder) {
-            return createSRational(new Rational[] {value}, byteOrder);
-        }
-
         public static ExifAttribute createDouble(double[] values, ByteOrder byteOrder) {
             final ByteBuffer buffer = ByteBuffer.wrap(
                     new byte[IFD_FORMAT_BYTES_PER_FORMAT[IFD_FORMAT_DOUBLE] * values.length]);
@@ -3224,10 +3216,6 @@ public class ExifInterface {
                 buffer.putDouble(value);
             }
             return new ExifAttribute(IFD_FORMAT_DOUBLE, values.length, buffer.array());
-        }
-
-        public static ExifAttribute createDouble(double value, ByteOrder byteOrder) {
-            return createDouble(new double[] {value}, byteOrder);
         }
 
         @NonNull

@@ -506,6 +506,7 @@ final class LifecycleCameraRepository {
          * Monitors which {@link LifecycleOwner} receives an ON_START event and then stop
          * other {@link LifecycleCamera} to keep only one active at a time.
          */
+        @SuppressWarnings("unused") // Called via OnLifecycleEvent
         @OnLifecycleEvent(Lifecycle.Event.ON_START)
         public void onStart(LifecycleOwner lifecycleOwner) {
             mLifecycleCameraRepository.setActive(lifecycleOwner);
@@ -514,6 +515,7 @@ final class LifecycleCameraRepository {
         /**
          * Monitors which {@link LifecycleOwner} receives an ON_STOP event.
          */
+        @SuppressWarnings("unused") // Called via OnLifecycleEvent
         @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
         public void onStop(LifecycleOwner lifecycleOwner) {
             mLifecycleCameraRepository.setInactive(lifecycleOwner);
@@ -524,6 +526,7 @@ final class LifecycleCameraRepository {
          * removes any {@link LifecycleCamera} associated with it from this
          * repository when that lifecycle is destroyed.
          */
+        @SuppressWarnings("unused") // Called via OnLifecycleEvent
         @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
         public void onDestroy(LifecycleOwner lifecycleOwner) {
             mLifecycleCameraRepository.unregisterLifecycle(lifecycleOwner);

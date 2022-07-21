@@ -1757,11 +1757,6 @@ public class MediaSessionCompat {
                 Callback.this.onSetRating(RatingCompat.fromRating(ratingFwk));
                 clearCurrentControllerInfo(sessionImpl);
             }
-
-            public void onSetRating(Rating ratingFwk, Bundle extras) {
-                // This method will not be called.
-            }
-
             @Override
             @SuppressWarnings("deprecation")
             public void onCustomAction(String action, Bundle extras) {
