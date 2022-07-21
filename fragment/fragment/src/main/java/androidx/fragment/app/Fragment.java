@@ -1962,7 +1962,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     @CallSuper
     public void onCreate(@Nullable Bundle savedInstanceState) {
         mCalled = true;
-        restoreChildFragmentState(savedInstanceState);
+        restoreChildFragmentState();
         if (!mChildFragmentManager.isStateAtLeast(Fragment.CREATED)) {
             mChildFragmentManager.dispatchCreate();
         }
@@ -1977,21 +1977,14 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * <p><strong>Postcondition:</strong> if there were child fragments to restore,
      * the child FragmentManager will be instantiated and brought to the {@link #CREATED} state.
      * </p>
-     *
-     * @param savedInstanceState the savedInstanceState potentially containing fragment info
      */
-    @SuppressWarnings("deprecation")
-    void restoreChildFragmentState(@Nullable Bundle savedInstanceState) {
-        if (savedInstanceState != null && mSavedFragmentState != null) {
-            FragmentState fs =
-                    mSavedFragmentState.getParcelable(FragmentManager.FRAGMENT_STATE_TAG);
-            if (fs != null) {
-                Parcelable p = fs.mSavedFragmentState.getParcelable(
-                        FragmentManager.SAVED_STATE_TAG);
-                if (p != null) {
-                    mChildFragmentManager.restoreSaveStateInternal(p);
-                    mChildFragmentManager.dispatchCreate();
-                }
+    void restoreChildFragmentState() {
+        if (mSavedFragmentState != null) {
+            Bundle childFragmentManagerState = mSavedFragmentState.getBundle(
+                    FragmentStateManager.CHILD_FRAGMENT_MANAGER_KEY);
+            if (childFragmentManagerState != null) {
+                mChildFragmentManager.restoreSaveStateInternal(childFragmentManagerState);
+                mChildFragmentManager.dispatchCreate();
             }
         }
     }
@@ -3090,7 +3083,10 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
                 }
             });
         }
-        mSavedStateRegistryController.performRestore(savedInstanceState);
+        Bundle savedStateRegistryState = mSavedFragmentState != null
+                ? mSavedFragmentState.getBundle(FragmentStateManager.REGISTRY_STATE_KEY)
+                : null;
+        mSavedStateRegistryController.performRestore(savedStateRegistryState);
         onCreate(savedInstanceState);
         mIsCreated = true;
         if (!mCalled) {
@@ -3126,17 +3122,15 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         }
     }
 
-    @SuppressWarnings("deprecation")
     void performViewCreated() {
         // since calling super.onViewCreated() is not required, we do not need to set and check the
         // `mCalled` flag
-        Bundle basicState = null;
+        Bundle savedInstanceState = null;
         if (mSavedFragmentState != null) {
-            FragmentState fs = mSavedFragmentState.getParcelable(
-                    FragmentManager.FRAGMENT_STATE_TAG);
-            basicState = fs != null ? fs.mSavedFragmentState : null;
+            savedInstanceState = mSavedFragmentState.getBundle(
+                    FragmentStateManager.SAVED_INSTANCE_STATE_KEY);
         }
-        onViewCreated(mView, basicState);
+        onViewCreated(mView, savedInstanceState);
         mChildFragmentManager.dispatchViewCreated();
     }
 
@@ -3160,13 +3154,12 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
             Log.d(FragmentManager.TAG, "moveto RESTORE_VIEW_STATE: " + this);
         }
         if (mView != null) {
-            Bundle basicBundle = null;
+            Bundle savedInstanceState = null;
             if (mSavedFragmentState != null) {
-                FragmentState fs =
-                        mSavedFragmentState.getParcelable(FragmentManager.FRAGMENT_STATE_TAG);
-                basicBundle = fs != null ? fs.mSavedFragmentState : null;
+                savedInstanceState = mSavedFragmentState.getBundle(
+                        FragmentStateManager.SAVED_INSTANCE_STATE_KEY);
             }
-            restoreViewState(basicBundle);
+            restoreViewState(savedInstanceState);
         }
         mSavedFragmentState = null;
     }
@@ -3308,11 +3301,6 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
 
     void performSaveInstanceState(Bundle outState) {
         onSaveInstanceState(outState);
-        mSavedStateRegistryController.performSave(outState);
-        Parcelable p = mChildFragmentManager.saveAllStateInternal();
-        if (p != null) {
-            outState.putParcelable(FragmentManager.SAVED_STATE_TAG, p);
-        }
     }
 
     @SuppressWarnings("ConstantConditions")

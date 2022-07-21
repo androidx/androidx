@@ -29,6 +29,9 @@ import java.time.ZoneOffset
  *
  * Each record needs a start time and end time. Records don't need to be back-to-back or directly
  * after each other, there can be gaps in between.
+ *
+ * Example code demonstrate how to read exercise session:
+ * @sample androidx.health.connect.client.samples.ReadExerciseSessions
  */
 public class ExerciseSessionRecord(
     /**

@@ -104,8 +104,8 @@ open class RoomSQLiteQuery private constructor(
                 NULL -> program.bindNull(index)
                 LONG -> program.bindLong(index, longBindings[index])
                 DOUBLE -> program.bindDouble(index, doubleBindings[index])
-                STRING -> program.bindString(index, stringBindings[index])
-                BLOB -> program.bindBlob(index, blobBindings[index])
+                STRING -> program.bindString(index, requireNotNull(stringBindings[index]))
+                BLOB -> program.bindBlob(index, requireNotNull(blobBindings[index]))
             }
         }
     }

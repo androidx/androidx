@@ -18,11 +18,13 @@ import androidx.build.LibraryType
 
 plugins {
     id("AndroidXPlugin")
-    id("org.jetbrains.kotlin.multiplatform")
 }
 
-kotlin {
+androidXMultiplatform {
     jvm {}
+    macosX64()
+    linuxX64()
+    macosArm64()
 
     sourceSets {
         commonMain {

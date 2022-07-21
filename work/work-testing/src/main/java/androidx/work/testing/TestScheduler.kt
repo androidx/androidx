@@ -80,16 +80,14 @@ class TestScheduler(private val context: Context) : Scheduler, ExecutionListener
         val tokens = mStartStopTokens.remove(workSpecId)
         tokens.forEach { WorkManagerImpl.getInstance(context).stopWork(it) }
         synchronized(lock) {
-            tokens.forEach { token ->
-                val internalWorkState = pendingWorkStates[token.id.workSpecId]
-                if (internalWorkState != null && !internalWorkState.isPeriodic) {
-                    // Don't remove PeriodicWorkRequests from the list of pending work states.
-                    // This is because we keep track of mPeriodDelayMet for PeriodicWorkRequests.
-                    // `mPeriodDelayMet` is set to `false` when `onExecuted()` is called as a result of a
-                    // successful run or a cancellation. That way subsequent calls to schedule() no-op
-                    // until a developer explicitly calls setPeriodDelayMet().
-                    pendingWorkStates.remove(token.id.workSpecId)
-                }
+            val internalWorkState = pendingWorkStates[workSpecId]
+            if (internalWorkState != null && !internalWorkState.isPeriodic) {
+                // Don't remove PeriodicWorkRequests from the list of pending work states.
+                // This is because we keep track of mPeriodDelayMet for PeriodicWorkRequests.
+                // `mPeriodDelayMet` is set to `false` when `onExecuted()` is called as a result of a
+                // successful run or a cancellation. That way subsequent calls to schedule() no-op
+                // until a developer explicitly calls setPeriodDelayMet().
+                pendingWorkStates.remove(workSpecId)
             }
         }
     }

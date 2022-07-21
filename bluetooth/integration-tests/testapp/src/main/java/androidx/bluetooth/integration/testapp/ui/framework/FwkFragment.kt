@@ -18,11 +18,15 @@ package androidx.bluetooth.integration.testapp.ui.framework
 
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothManager
+import android.bluetooth.le.AdvertiseCallback
+import android.bluetooth.le.AdvertiseData
+import android.bluetooth.le.AdvertiseSettings
 import android.bluetooth.le.ScanCallback
 import android.bluetooth.le.ScanResult
 import android.bluetooth.le.ScanSettings
 import android.content.Context
 import android.os.Bundle
+import android.os.ParcelUuid
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -37,6 +41,7 @@ class FwkFragment : Fragment() {
 
     companion object {
         const val TAG = "FwkFragment"
+        val ServiceUUID: ParcelUuid = ParcelUuid.fromString("0000b81d-0000-1000-8000-00805f9b34fb")
     }
 
     private val scanCallback = object : ScanCallback() {
@@ -50,6 +55,16 @@ class FwkFragment : Fragment() {
 
         override fun onScanFailed(errorCode: Int) {
             Log.d(TAG, "onScanFailed() called with: errorCode = $errorCode")
+        }
+    }
+
+    private val advertiseCallback = object : AdvertiseCallback() {
+        override fun onStartFailure(errorCode: Int) {
+            Log.d(TAG, "onStartFailure() called with: errorCode = $errorCode")
+        }
+
+        override fun onStartSuccess(settingsInEffect: AdvertiseSettings?) {
+            Log.d(TAG, "onStartSuccess() called")
         }
     }
 
@@ -77,6 +92,10 @@ class FwkFragment : Fragment() {
         binding.buttonScan.setOnClickListener {
             scan()
         }
+
+        binding.switchAdvertise.setOnClickListener {
+            if (binding.switchAdvertise.isChecked) startAdvertise()
+        }
     }
 
     override fun onDestroyView() {
@@ -103,6 +122,32 @@ class FwkFragment : Fragment() {
         bleScanner?.startScan(null, scanSettings, scanCallback)
 
         Toast.makeText(context, getString(R.string.scan_start_message), Toast.LENGTH_LONG)
+            .show()
+    }
+
+    // Permissions are handled by MainActivity requestBluetoothPermissions
+    @SuppressLint("MissingPermission")
+    private fun startAdvertise() {
+        val bluetoothManager =
+            context?.getSystemService(Context.BLUETOOTH_SERVICE) as? BluetoothManager
+
+        val bluetoothAdapter = bluetoothManager?.adapter
+
+        val bleAdvertiser = bluetoothAdapter?.bluetoothLeAdvertiser
+
+        val advertiseSettings = AdvertiseSettings.Builder()
+            .setAdvertiseMode(AdvertiseSettings.ADVERTISE_MODE_LOW_LATENCY)
+            .setTimeout(0)
+            .build()
+
+        val advertiseData = AdvertiseData.Builder()
+            .addServiceUuid(ServiceUUID)
+            .setIncludeDeviceName(true)
+            .build()
+
+        bleAdvertiser?.startAdvertising(advertiseSettings, advertiseData, advertiseCallback)
+
+        Toast.makeText(context, getString(R.string.advertise_start_message), Toast.LENGTH_LONG)
             .show()
     }
 }

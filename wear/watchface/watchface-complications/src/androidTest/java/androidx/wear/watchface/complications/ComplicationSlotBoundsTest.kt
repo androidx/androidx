@@ -46,7 +46,7 @@ class ComplicationSlotBoundsTest {
             nodeType = parser.next()
         } while (nodeType != XmlPullParser.END_DOCUMENT && nodeType != XmlPullParser.START_TAG)
 
-        val bounds = ComplicationSlotBounds.inflate(context.resources, parser)!!
+        val bounds = ComplicationSlotBounds.inflate(context.resources, parser, 1.0f, 1.0f)!!
 
         // SHORT_TEXT, LONG_TEXT and RANGED_VALUE should match the input
         assertThat(

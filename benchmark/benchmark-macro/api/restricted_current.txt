@@ -13,6 +13,7 @@ package androidx.benchmark.macro {
   }
 
   public final class BaselineProfilesKt {
+    method @RequiresApi(28) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static void collectBaselineProfile(String uniqueName, String packageName, optional java.util.List<java.lang.String> packageFilters, kotlin.jvm.functions.Function1<? super androidx.benchmark.macro.MacrobenchmarkScope,kotlin.Unit> profileBlock);
     method @RequiresApi(28) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static void collectBaselineProfile(String uniqueName, String packageName, kotlin.jvm.functions.Function1<? super androidx.benchmark.macro.MacrobenchmarkScope,kotlin.Unit> profileBlock);
   }
 

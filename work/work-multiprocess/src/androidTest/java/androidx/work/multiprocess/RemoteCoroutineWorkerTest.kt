@@ -163,7 +163,8 @@ public class RemoteCoroutineWorkerTest {
             mTaskExecutor,
             mForegroundProcessor,
             mDatabase,
-            mDatabase.workSpecDao().getWorkSpec(request.stringId)!!
+            mDatabase.workSpecDao().getWorkSpec(request.stringId)!!,
+            emptyList()
         ).build()
     }
 }

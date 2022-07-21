@@ -18,9 +18,9 @@ package androidx.metrics.performance
 import android.os.Build
 import android.view.View
 import android.view.Window
+import androidx.annotation.RestrictTo
 import androidx.annotation.UiThread
 import java.lang.IllegalStateException
-import java.util.concurrent.Executor
 
 /**
  * This class is used to both accumulate and report information about UI "jank" (runtime
@@ -63,7 +63,6 @@ import java.util.concurrent.Executor
 @Suppress("SingletonConstructor")
 class JankStats private constructor(
     window: Window,
-    private val executor: Executor,
     private val frameListener: OnFrameListener
 ) {
     private val holder: PerformanceMetricsState.Holder
@@ -78,7 +77,8 @@ class JankStats private constructor(
      * based on the runtime OS version. The JankStats API is basically a think wrapper around
      * the implementations in these classes.
      */
-    private val implementation: JankStatsBaseImpl
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    internal val implementation: JankStatsBaseImpl
 
     init {
         val decorView: View? = window.peekDecorView()
@@ -152,10 +152,8 @@ class JankStats private constructor(
     /**
      * Called internally (by Impl classes) with the frame data, which is passed onto the client.
      */
-    internal fun logFrameData(frameData: FrameData) {
-        executor.execute {
-            frameListener.onFrame(frameData)
-        }
+    internal fun logFrameData(volatileFrameData: FrameData) {
+        frameListener.onFrame(volatileFrameData)
     }
 
     companion object {
@@ -168,18 +166,21 @@ class JankStats private constructor(
          */
         @JvmStatic
         @UiThread
-        fun createAndTrack(window: Window, executor: Executor, frameListener: OnFrameListener):
-                JankStats {
-            return JankStats(window, executor, frameListener)
+        @Suppress("ExecutorRegistration")
+        fun createAndTrack(window: Window, frameListener: OnFrameListener): JankStats {
+            return JankStats(window, frameListener)
         }
     }
 
     /**
-     * This listener is called on every frame to supply ongoing jank data to apps.
+     * This interface should be implemented to receive per-frame callbacks with jank data.
      *
-     * [JankStats] requires an implementation of this listener at construction time.
-     * On every frame, the listener is called and receivers can aggregate, store, and upload
-     * the data as appropriate.
+     * Internally, the [FrameData] objected passed to [OnFrameListener.onFrame] is
+     * reused and populated with new data on every frame. This means that listeners
+     * implementing [OnFrameListener] cannot depend on the data received in that
+     * structure over time and should consider the [FrameData] object **obsolete when control
+     * returns from the listener**. Clients wishing to retain data from this call should **copy
+     * the data elsewhere before returning**.
      */
     fun interface OnFrameListener {
 
@@ -187,10 +188,13 @@ class JankStats private constructor(
          * The implementation of this method will be called on every frame when an
          * OnFrameListener is set on this JankStats object.
          *
-         * @param frameData The data for the frame which just occurred.
+         * The FrameData object **will be modified internally after returning from the listener**;
+         * any data that needs to be retained should be copied before returning.
+         *
+         * @param volatileFrameData The data for the most recent frame.
          */
         fun onFrame(
-            frameData: FrameData
+            volatileFrameData: FrameData
         )
     }
 }

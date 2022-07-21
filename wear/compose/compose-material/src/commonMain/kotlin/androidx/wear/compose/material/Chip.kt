@@ -194,6 +194,9 @@ public fun Chip(
  * @param contentPadding The spacing values to apply internally between the container and the
  * content
  */
+@Deprecated("This overload is provided for backwards compatibility with Compose for Wear OS 1.0." +
+    "A newer overload is available with an additional shape parameter.",
+    level = DeprecationLevel.HIDDEN)
 @Composable
 public fun Chip(
     label: @Composable RowScope.() -> Unit,
@@ -205,13 +208,96 @@ public fun Chip(
     enabled: Boolean = true,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     contentPadding: PaddingValues = ChipDefaults.ContentPadding,
-) {
+) = Chip(
+    label,
+    onClick,
+    modifier,
+    secondaryLabel,
+    icon,
+    colors,
+    enabled,
+    interactionSource,
+    contentPadding,
+    MaterialTheme.shapes.small
+    )
+
+/**
+ * Wear Material [Chip] that offers three slots and a specific layout for an icon, label and
+ * secondaryLabel. The icon and secondaryLabel are optional. The items are laid out with the icon,
+ * if provided, at the start of a row, with a column next containing the two label slots.
+ *
+ * The [Chip] is Stadium shaped and has a max height designed to take no more than two lines of text
+ * of [Typography.button] style. If no secondary label is provided then the label
+ * can be two lines of text. The label and secondary label should be consistently aligned.
+ *
+ * If a icon is provided then the labels should be "start" aligned, e.g. left aligned in ltr so that
+ * the text starts next to the icon.
+ *
+ * The [Chip] can have different styles with configurable content colors, background colors
+ * including gradients, these are provided by [ChipColors] implementations.
+ *
+ * The recommended set of [ChipColors] styles can be obtained from [ChipDefaults], e.g.
+ * [ChipDefaults.primaryChipColors] to get a color scheme for a primary [Chip] which by default
+ * will have a solid background of [Colors.primary] and content color of
+ * [Colors.onPrimary].
+ *
+ * Chips can be enabled or disabled. A disabled chip will not respond to click events.
+ *
+ * Example of a [Chip] with icon and a label only with longer text:
+ * @sample androidx.wear.compose.material.samples.ChipWithIconAndLabel
+ *
+ * Example of a [Chip] with icon, label and secondary label:
+ * @sample androidx.wear.compose.material.samples.ChipWithIconAndLabels
+ *
+ * For more information, see the
+ * [Chips](https://developer.android.com/training/wearables/components/chips)
+ * guide.
+ *
+ * @param label A slot for providing the chip's main label. The contents are expected to be text
+ * which is "start" aligned if there is an icon preset and "start" or "center" aligned if not.
+ * @param onClick Will be called when the user clicks the chip
+ * @param modifier Modifier to be applied to the chip
+ * @param secondaryLabel A slot for providing the chip's secondary label. The contents are expected
+ * to be text which is "start" aligned if there is an icon preset and "start" or "center" aligned if
+ * not. label and secondaryLabel contents should be consistently aligned.
+ * @param icon A slot for providing the chip's icon. The contents are expected to be a horizontally
+ * and vertically aligned icon of size [ChipDefaults.IconSize] or [ChipDefaults.LargeIconSize]. In
+ * order to correctly render when the Chip is not enabled the icon must set its alpha value to
+ * [LocalContentAlpha].
+ * @param colors [ChipColors] that will be used to resolve the background and content color for
+ * this chip in different states. See [ChipDefaults.chipColors]. Defaults to
+ * [ChipDefaults.primaryChipColors]
+ * @param enabled Controls the enabled state of the chip. When `false`, this chip will not
+ * be clickable
+ * @param interactionSource The [MutableInteractionSource] representing the stream of
+ * [Interaction]s for this Chip. You can create and pass in your own remembered
+ * [MutableInteractionSource] if you want to observe [Interaction]s and customize the
+ * appearance / behavior of this Chip in different [Interaction]s.
+ * @param contentPadding The spacing values to apply internally between the container and the
+ * content
+ * @param shape Defines the chip's shape. It is strongly recommended to use the default as this
+ * shape is a key characteristic of the Wear Material Theme
+ */
+@Composable
+public fun Chip(
+    label: @Composable RowScope.() -> Unit,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    secondaryLabel: (@Composable RowScope.() -> Unit)? = null,
+    icon: (@Composable BoxScope.() -> Unit)? = null,
+    colors: ChipColors = ChipDefaults.primaryChipColors(),
+    enabled: Boolean = true,
+    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    contentPadding: PaddingValues = ChipDefaults.ContentPadding,
+    shape: Shape = MaterialTheme.shapes.small,
+    ) {
     Chip(
         onClick = onClick,
         colors = colors,
         modifier = modifier,
         enabled = enabled,
         interactionSource = interactionSource,
+        shape = shape,
         contentPadding = contentPadding
     ) {
         Row(
@@ -330,6 +416,9 @@ public fun Chip(
  * @param contentPadding The spacing values to apply internally between the container and the
  * content
  */
+@Deprecated("This overload is provided for backwards compatibility with Compose for Wear OS 1.0." +
+    "A newer overload is available with an additional shape parameter.",
+    level = DeprecationLevel.HIDDEN)
 @Composable
 public fun CompactChip(
     onClick: () -> Unit,
@@ -340,7 +429,101 @@ public fun CompactChip(
     enabled: Boolean = true,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     contentPadding: PaddingValues = ChipDefaults.CompactChipContentPadding,
-) {
+) = CompactChip(
+        onClick,
+        modifier,
+        label,
+        icon,
+        colors,
+        enabled,
+        interactionSource,
+        contentPadding,
+        MaterialTheme.shapes.small
+    )
+
+/**
+ * A compact Wear Material Chip that offers two slots and a specific layout for an icon and label.
+ * Both the icon and label are optional however it is expected that at least one will be provided.
+ *
+ * The [CompactChip] is Stadium shaped and has a max height designed to take no more than one line
+ * of text of [Typography.caption1] style and/or one icon. The default max height is
+ * [ChipDefaults.CompactChipHeight]. This includes a visible chip height of 32.dp and
+ * 8.dp of padding above and below the chip in order to meet accessibility guidelines that
+ * request a minimum of 48.dp height and width of tappable area.
+ *
+ * If a icon is provided then the labels should be "start" aligned, e.g. left aligned in ltr so that
+ * the text starts next to the icon.
+ *
+ * The items are laid out as follows.
+ *
+ * 1. If a label is provided then the chip will be laid out with the optional icon at the start of a
+ * row followed by the label with a default max height of [ChipDefaults.CompactChipHeight].
+ *
+ * 2. If only an icon is provided it will be laid out vertically and horizontally centered with a
+ * default height of [ChipDefaults.CompactChipHeight] and the default width of
+ * [ChipDefaults.IconOnlyCompactChipWidth]
+ *
+ * If neither icon nor label is provided then the chip will displayed like an icon only chip but
+ * with no contents and [ChipColors.background()] color.
+ *
+ * The [CompactChip] can have different styles with configurable content colors, background colors
+ * including gradients, these are provided by [ChipColors] implementations.
+ *
+ * The recommended set of [ChipColors] styles can be obtained from [ChipDefaults], e.g.
+ * [ChipDefaults.primaryChipColors] to get a color scheme for a primary [Chip] which by default
+ * will have a solid background of [Colors.primary] and content color of
+ * [Colors.onPrimary].
+ *
+ * Chips can be enabled or disabled. A disabled chip will not respond to click events.
+ *
+ * Example of a [CompactChip] with icon and single line of label text:
+ * @sample androidx.wear.compose.material.samples.CompactChipWithIconAndLabel
+ *
+ * Example of a [CompactChip] with a label, note that the text is center aligned:
+ * @sample androidx.wear.compose.material.samples.CompactChipWithLabel
+ *
+ * Example of a [CompactChip] with an icon only, note that the recommended icon size is 24x24 when
+ * only an icon is displayed:
+ * @sample androidx.wear.compose.material.samples.CompactChipWithIcon
+ *
+ * For more information, see the
+ * [Chips](https://developer.android.com/training/wearables/components/chips)
+ * guide.
+ *
+ * @param onClick Will be called when the user clicks the chip
+ * @param modifier Modifier to be applied to the chip
+ * @param label A slot for providing the chip's main label. The contents are expected to be text
+ * which is "start" aligned if there is an icon preset and "center" aligned if not.
+ * @param icon A slot for providing the chip's icon. The contents are expected to be a horizontally
+ * and vertically aligned icon of size [ChipDefaults.SmallIconSize] when used with a label or
+ * [ChipDefaults.IconSize] when used as the only content in the CompactChip. In order to correctly
+ * render when the Chip is not enabled the icon must set its alpha value to [LocalContentAlpha].
+ * @param colors [ChipColors] that will be used to resolve the background and content color for
+ * this chip in different states. See [ChipDefaults.chipColors]. Defaults to
+ * [ChipDefaults.primaryChipColors]
+ * @param enabled Controls the enabled state of the chip. When `false`, this chip will not
+ * be clickable
+ * @param interactionSource The [MutableInteractionSource] representing the stream of
+ * [Interaction]s for this Chip. You can create and pass in your own remembered
+ * [MutableInteractionSource] if you want to observe [Interaction]s and customize the
+ * appearance / behavior of this Chip in different [Interaction]s.
+ * @param contentPadding The spacing values to apply internally between the container and the
+ * content
+ * @param shape Defines the chip's shape. It is strongly recommended to use the default as this
+ * shape is a key characteristic of the Wear Material Theme
+ */
+@Composable
+public fun CompactChip(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    label: (@Composable RowScope.() -> Unit)? = null,
+    icon: (@Composable BoxScope.() -> Unit)? = null,
+    colors: ChipColors = ChipDefaults.primaryChipColors(),
+    enabled: Boolean = true,
+    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    contentPadding: PaddingValues = ChipDefaults.CompactChipContentPadding,
+    shape: Shape = MaterialTheme.shapes.small,
+    ) {
     if (label != null) {
         Chip(
             label = {
@@ -357,6 +540,7 @@ public fun CompactChip(
             colors = colors,
             enabled = enabled,
             interactionSource = interactionSource,
+            shape = shape,
             contentPadding = contentPadding
         )
     } else {
@@ -371,6 +555,7 @@ public fun CompactChip(
             colors = colors,
             enabled = enabled,
             interactionSource = interactionSource,
+            shape = shape,
             contentPadding = contentPadding
         ) {
             // Use a box to fill and center align the icon into the single slot of the Chip
@@ -575,7 +760,8 @@ public object ChipDefaults {
             backgroundColor = Color.Transparent,
             contentColor = contentColor,
             secondaryContentColor = secondaryContentColor,
-            iconColor = iconColor
+            iconColor = iconColor,
+            disabledBackgroundColor = Color.Transparent
         )
     }
 

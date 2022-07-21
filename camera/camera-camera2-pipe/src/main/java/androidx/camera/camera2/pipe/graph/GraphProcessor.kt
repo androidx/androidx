@@ -152,7 +152,7 @@ internal class GraphProcessorImpl @Inject constructor(
         }
     }
 
-    override fun onGraphModified(requestProcessor: RequestProcessor) {
+    override fun onGraphUpdated(requestProcessor: RequestProcessor) {
         synchronized(lock) {
             if (closed) {
                 return

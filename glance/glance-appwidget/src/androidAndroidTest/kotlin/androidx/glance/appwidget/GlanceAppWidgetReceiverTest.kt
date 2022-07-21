@@ -28,10 +28,10 @@ import android.text.style.TextAppearanceSpan
 import android.text.style.UnderlineSpan
 import android.view.View
 import android.widget.CompoundButton
-import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
+import android.widget.RadioButton
 import android.widget.TextView
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
@@ -39,9 +39,10 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.booleanPreferencesKey
+import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.glance.Button
+import androidx.glance.ButtonColors
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
 import androidx.glance.Image
@@ -395,13 +396,24 @@ class GlanceAppWidgetReceiverTest {
     @Test
     fun createButton() {
         TestGlanceAppWidget.uiDefinition = {
-            Button("Button", onClick = actionStartActivity<Activity>(), enabled = false)
+            Button(
+                text = "Button",
+                onClick = actionStartActivity<Activity>(),
+                colors = ButtonColors(
+                    backgroundColor = ColorProvider(Color.Transparent),
+                    contentColor = ColorProvider(Color.DarkGray)
+                ),
+                enabled = false
+            )
         }
 
         mHostRule.startHost()
 
-        mHostRule.onUnboxedHostView<Button> { button ->
-            assertThat(button.text).isEqualTo("Button")
+        mHostRule.onUnboxedHostView<FrameLayout> { button ->
+            checkNotNull(button.findChild<TextView> { it.text.toString() == "Button" }) {
+                "Couldn't find TextView 'Button'"
+            }
+
             assertThat(button.isEnabled).isFalse()
             assertThat(button.hasOnClickListeners()).isFalse()
         }
@@ -639,8 +651,10 @@ class GlanceAppWidgetReceiverTest {
         CallbackTest.received.set(emptyList())
         CallbackTest.latch = CountDownLatch(2)
         mHostRule.onHostView { root ->
-            checkNotNull(root.findChild<TextView> { it.text == "text1" }).performClick()
-            checkNotNull(root.findChild<TextView> { it.text == "text2" }).performClick()
+            checkNotNull(root.findChild<TextView> { it.text == "text1" }?.parent as? View)
+                .performClick()
+            checkNotNull(root.findChild<TextView> { it.text == "text2" }?.parent as? View)
+                .performClick()
         }
         assertThat(CallbackTest.latch.await(5, TimeUnit.SECONDS)).isTrue()
         assertThat(CallbackTest.received.get()).containsExactly(1, 2)
@@ -664,7 +678,8 @@ class GlanceAppWidgetReceiverTest {
         CallbackTest.received.set(emptyList())
         CallbackTest.latch = CountDownLatch(1)
         mHostRule.onHostView { root ->
-            checkNotNull(root.findChild<TextView> { it.text == "text1" }).performClick()
+            checkNotNull(root.findChild<TextView> { it.text == "text1" }?.parent as? View)
+                .performClick()
         }
         assertThat(CallbackTest.latch.await(5, TimeUnit.SECONDS)).isTrue()
         assertThat(CallbackTest.received.get()).containsExactly(2)
@@ -787,8 +802,9 @@ class GlanceAppWidgetReceiverTest {
         mHostRule.startHost()
 
         mHostRule.onHostView { root ->
-            val text = checkNotNull(root.findChild<TextView> { it.text == "text1" })
-            assertThat(text.hasOnClickListeners()).isTrue()
+            val view =
+                checkNotNull(root.findChild<TextView> { it.text == "text1" }?.parent as? View)
+            assertThat(view.hasOnClickListeners()).isTrue()
         }
 
         runBlocking {
@@ -799,7 +815,8 @@ class GlanceAppWidgetReceiverTest {
         }
 
         mHostRule.onHostView { root ->
-            val view = checkNotNull(root.findChild<TextView> { it.text == "text1" })
+            val view =
+                checkNotNull(root.findChild<TextView> { it.text == "text1" }?.parent as? View)
             assertThat(view.hasOnClickListeners()).isFalse()
         }
     }
@@ -872,6 +889,59 @@ class GlanceAppWidgetReceiverTest {
         mHostRule.onHostView { root ->
             val checkbox = checkNotNull(root.findChild<CompoundButton> { it.text == "checkbox" })
             assertThat(checkbox.hasOnClickListeners()).isFalse()
+        }
+    }
+
+    @Test
+    fun elementsWithActionsHaveRipples() {
+        TestGlanceAppWidget.uiDefinition = {
+            Text(
+                text = "text1",
+                modifier = GlanceModifier.clickable(actionRunCallback<CallbackTest>()),
+            )
+        }
+
+        mHostRule.startHost()
+
+        mHostRule.onUnboxedHostView<FrameLayout> { box ->
+            assertThat(box.notGoneChildCount).isEqualTo(2)
+            val (boxedText, boxedImage) = box.notGoneChildren.toList()
+            val text = boxedText.getTargetView<TextView>()
+            val image = boxedImage.getTargetView<ImageView>()
+            assertThat(text.background).isNull()
+            assertThat(image.drawable).isNotNull()
+            assertThat(image.isClickable()).isFalse()
+        }
+    }
+
+    @Test
+    fun elementsWithNoActionsDontHaveRipples() {
+        TestGlanceAppWidget.uiDefinition = {
+            Text("text1")
+        }
+
+        mHostRule.startHost()
+
+        mHostRule.onUnboxedHostView<View> { view ->
+            assertIs<TextView>(view)
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = 31)
+    @Test
+    fun compoundButtonsDoNotHaveRipples() {
+        TestGlanceAppWidget.uiDefinition = {
+            RadioButton(
+                checked = true,
+                onClick = actionRunCallback<CallbackTest>(),
+                text = "text1",
+            )
+        }
+
+        mHostRule.startHost()
+
+        mHostRule.onUnboxedHostView<View> { view ->
+            assertIs<RadioButton>(view)
         }
     }
 

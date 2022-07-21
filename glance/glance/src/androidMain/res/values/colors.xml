@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2022 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<resources>
+    <color name="glance_colorPrimary">@color/m3_sys_color_light_primary</color>
+    <color name="glance_colorOnPrimary">@color/m3_sys_color_light_on_primary</color>
+    <color name="glance_colorPrimaryInverse">@color/m3_sys_color_light_inverse_primary</color>
+    <color name="glance_colorPrimaryContainer">@color/m3_sys_color_light_primary_container</color>
+    <color name="glance_colorOnPrimaryContainer">@color/m3_sys_color_light_on_primary_container</color>
+    <color name="glance_colorSecondary">@color/m3_sys_color_light_secondary</color>
+    <color name="glance_colorOnSecondary">@color/m3_sys_color_light_on_secondary</color>
+    <color name="glance_colorSecondaryContainer">@color/m3_sys_color_light_secondary_container</color>
+    <color name="glance_colorOnSecondaryContainer">@color/m3_sys_color_light_on_secondary_container</color>
+    <color name="glance_colorTertiary">@color/m3_sys_color_light_tertiary</color>
+    <color name="glance_colorOnTertiary">@color/m3_sys_color_light_on_tertiary</color>
+    <color name="glance_colorTertiaryContainer">@color/m3_sys_color_light_tertiary_container</color>
+    <color name="glance_colorOnTertiaryContainer">@color/m3_sys_color_light_on_tertiary_container</color>
+    <color name="glance_colorBackground">@color/m3_sys_color_light_background</color>
+    <color name="glance_colorOnBackground">@color/m3_sys_color_light_on_background</color>
+    <color name="glance_colorSurface">@color/m3_sys_color_light_surface</color>
+    <color name="glance_colorOnSurface">@color/m3_sys_color_light_on_surface</color>
+    <color name="glance_colorSurfaceVariant">@color/m3_sys_color_light_surface_variant</color>
+    <color name="glance_colorOnSurfaceVariant">@color/m3_sys_color_light_on_surface_variant</color>
+    <color name="glance_colorSurfaceInverse">@color/m3_sys_color_light_inverse_surface</color>
+    <color name="glance_colorOnSurfaceInverse">@color/m3_sys_color_light_inverse_on_surface</color>
+    <color name="glance_colorOutline">@color/m3_sys_color_light_outline</color>
+    <color name="glance_colorError">@color/m3_sys_color_light_error</color>
+    <color name="glance_colorOnError">@color/m3_sys_color_light_on_error</color>
+    <color name="glance_colorErrorContainer">@color/m3_sys_color_light_error_container</color>
+    <color name="glance_colorOnErrorContainer">@color/m3_sys_color_light_on_error_container</color>
+
+    <!--<color name="textColorPrimary">@color/m3_default_color_primary_text</color>
+    <color name="textColorPrimaryInverse">@color/m3_dark_default_color_primary_text</color>
+    <color name="textColorSecondary">@color/m3_default_color_secondary_text</color>
+    <color name="textColorSecondaryInverse">@color/m3_dark_default_color_secondary_text</color>-->
+</resources>

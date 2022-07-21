@@ -31,6 +31,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.RequiresCarApi;
+import androidx.car.app.model.constraints.ActionsConstraints;
 import androidx.car.app.model.constraints.CarIconConstraints;
 import androidx.car.app.model.constraints.CarTextConstraints;
 import androidx.car.app.utils.CollectionUtils;
@@ -103,6 +104,11 @@ public final class Row implements Item {
     @Nullable
     private final CarIcon mImage;
     @Keep
+    private final List<Action> mActions;
+    @Keep
+    @Nullable
+    private final CarIcon mDecoration;
+    @Keep
     @Nullable
     private final Toggle mToggle;
     @Keep
@@ -148,10 +154,31 @@ public final class Row implements Item {
         return mImage;
     }
 
+    /**
+     * Returns the list of additional actions at the end of the row.
+     *
+     * @see Builder#addAction(Action)
+     */
+    @NonNull
+    public List<Action> getActions() {
+        return mActions;
+    }
+
     /** Returns the type of the image in the row. */
     @RowImageType
     public int getRowImageType() {
         return mRowImageType;
+    }
+
+    /**
+     * Returns the decoration to display the end of the row, but before any actions or {@code null}
+     * if the row does not contain a decoration
+     *
+     * @see Builder#setDecoration(CarIcon)
+     */
+    @Nullable
+    public CarIcon getDecoration() {
+        return mDecoration;
     }
 
     /**
@@ -278,6 +305,8 @@ public final class Row implements Item {
         mTitle = builder.mTitle;
         mTexts = CollectionUtils.unmodifiableCopy(builder.mTexts);
         mImage = builder.mImage;
+        mActions = CollectionUtils.unmodifiableCopy(builder.mActions);
+        mDecoration = builder.mDecoration;
         mToggle = builder.mToggle;
         mOnClickDelegate = builder.mOnClickDelegate;
         mMetadata = builder.mMetadata;
@@ -291,6 +320,8 @@ public final class Row implements Item {
         mTitle = null;
         mTexts = Collections.emptyList();
         mImage = null;
+        mActions = Collections.emptyList();
+        mDecoration = null;
         mToggle = null;
         mOnClickDelegate = null;
         mMetadata = EMPTY_METADATA;
@@ -307,6 +338,9 @@ public final class Row implements Item {
         final List<CarText> mTexts = new ArrayList<>();
         @Nullable
         CarIcon mImage;
+        final List<Action> mActions = new ArrayList<>();
+        @Nullable
+        CarIcon mDecoration;
         @Nullable
         Toggle mToggle;
         @Nullable
@@ -485,6 +519,37 @@ public final class Row implements Item {
             CarIconConstraints.UNCONSTRAINED.validateOrThrow(requireNonNull(image));
             mImage = image;
             mRowImageType = imageType;
+            return this;
+        }
+
+        /**
+         * Adds an additional action to the end of the row.
+         *
+         * @throws NullPointerException     if {@code action} is {@code null}
+         * @throws IllegalArgumentException if {@code action} contains unsupported Action types,
+         *                                  exceeds the maximum number of allowed actions or does
+         *                                  not contain a valid {@link CarIcon}.
+         */
+        @NonNull
+        public Builder addAction(@NonNull Action action) {
+            List<Action> mActionsCopy = new ArrayList<>(mActions);
+            mActionsCopy.add(requireNonNull(action));
+            ActionsConstraints.ACTIONS_CONSTRAINTS_ROW.validateOrThrow(mActionsCopy);
+            mActions.add(action);
+            return this;
+        }
+
+        /**
+         * Sets a decoration the end of the row, but before any actions with the default size
+         * {@link #IMAGE_TYPE_SMALL}.
+         *
+         * @param decoration the {@link CarIcon} to display
+         * @throws NullPointerException if {@code decoration} is {@code null}
+         */
+        @NonNull
+        public Builder setDecoration(@NonNull CarIcon decoration) {
+            CarIconConstraints.UNCONSTRAINED.validateOrThrow(requireNonNull(decoration));
+            mDecoration = decoration;
             return this;
         }
 

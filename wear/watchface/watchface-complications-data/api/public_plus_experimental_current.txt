@@ -247,16 +247,16 @@ package androidx.wear.watchface.complications.data {
     method public androidx.wear.watchface.complications.data.ComplicationText? getText();
     method public androidx.wear.watchface.complications.data.ComplicationText? getTitle();
     method public float getValue();
-    method @androidx.wear.watchface.complications.data.ComplicationExperimental public boolean isDrawSegmented();
+    method @androidx.wear.watchface.complications.data.ComplicationExperimental public int getValueType();
     property @androidx.wear.watchface.complications.data.ComplicationExperimental public final androidx.wear.watchface.complications.data.RangedValueComplicationData.ColorRamp? colorRamp;
     property public final androidx.wear.watchface.complications.data.ComplicationText? contentDescription;
-    property @androidx.wear.watchface.complications.data.ComplicationExperimental public final boolean drawSegmented;
     property public final float max;
     property public final float min;
     property public final androidx.wear.watchface.complications.data.MonochromaticImage? monochromaticImage;
     property public final androidx.wear.watchface.complications.data.ComplicationText? text;
     property public final androidx.wear.watchface.complications.data.ComplicationText? title;
     property public final float value;
+    property @androidx.wear.watchface.complications.data.ComplicationExperimental public final int valueType;
     field public static final float PLACEHOLDER;
     field public static final androidx.wear.watchface.complications.data.ComplicationType TYPE;
   }
@@ -266,12 +266,12 @@ package androidx.wear.watchface.complications.data {
     method public androidx.wear.watchface.complications.data.RangedValueComplicationData build();
     method @androidx.wear.watchface.complications.data.ComplicationExperimental public androidx.wear.watchface.complications.data.RangedValueComplicationData.Builder setColorRamp(androidx.wear.watchface.complications.data.RangedValueComplicationData.ColorRamp? colorRamp);
     method public androidx.wear.watchface.complications.data.RangedValueComplicationData.Builder setDataSource(android.content.ComponentName? dataSource);
-    method @androidx.wear.watchface.complications.data.ComplicationExperimental public androidx.wear.watchface.complications.data.RangedValueComplicationData.Builder setDrawSegmented(boolean drawSegmented);
     method public androidx.wear.watchface.complications.data.RangedValueComplicationData.Builder setMonochromaticImage(androidx.wear.watchface.complications.data.MonochromaticImage? monochromaticImage);
     method public androidx.wear.watchface.complications.data.RangedValueComplicationData.Builder setTapAction(android.app.PendingIntent? tapAction);
     method public androidx.wear.watchface.complications.data.RangedValueComplicationData.Builder setText(androidx.wear.watchface.complications.data.ComplicationText? text);
     method public androidx.wear.watchface.complications.data.RangedValueComplicationData.Builder setTitle(androidx.wear.watchface.complications.data.ComplicationText? title);
     method public androidx.wear.watchface.complications.data.RangedValueComplicationData.Builder setValidTimeRange(androidx.wear.watchface.complications.data.TimeRange? validTimeRange);
+    method @androidx.wear.watchface.complications.data.ComplicationExperimental public androidx.wear.watchface.complications.data.RangedValueComplicationData.Builder setValueType(int valueType);
   }
 
   @androidx.wear.watchface.complications.data.ComplicationExperimental public static final class RangedValueComplicationData.ColorRamp {

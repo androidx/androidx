@@ -37,11 +37,13 @@ import androidx.lifecycle.ViewModelStoreOwner;
 class FragmentStateManager {
     private static final String TAG = FragmentManager.TAG;
 
-    private static final String TARGET_REQUEST_CODE_STATE_TAG = "android:target_req_state";
-    private static final String TARGET_STATE_TAG = "android:target_state";
-    private static final String VIEW_STATE_TAG = "android:view_state";
-    private static final String VIEW_REGISTRY_STATE_TAG = "android:view_registry_state";
-    private static final String USER_VISIBLE_HINT_TAG = "android:user_visible_hint";
+    static final String FRAGMENT_STATE_KEY = "state";
+    static final String SAVED_INSTANCE_STATE_KEY = "savedInstanceState";
+    static final String REGISTRY_STATE_KEY = "registryState";
+    static final String CHILD_FRAGMENT_MANAGER_KEY = "childFragmentManager";
+    static final String VIEW_STATE_KEY = "viewState";
+    static final String VIEW_REGISTRY_STATE_KEY = "viewRegistryState";
+    static final String ARGUMENTS_KEY = "arguments";
 
     private final FragmentLifecycleCallbacksDispatcher mDispatcher;
     private final FragmentStore mFragmentStore;
@@ -85,12 +87,12 @@ class FragmentStateManager {
         mFragmentStore = fragmentStore;
 
         // Instantiate the fragment's library states in FragmentState
-        FragmentState fs = state.getParcelable(FragmentManager.FRAGMENT_STATE_TAG);
+        FragmentState fs = state.getParcelable(FRAGMENT_STATE_KEY);
         mFragment = fs.instantiate(fragmentFactory, classLoader);
         mFragment.mSavedFragmentState = state;
 
         // Instantiate the fragment's arguments
-        Bundle arguments = state.getBundle(FragmentManager.FRAGMENT_ARGUMENTS_TAG);
+        Bundle arguments = state.getBundle(ARGUMENTS_KEY);
         if (arguments != null) {
             arguments.setClassLoader(classLoader);
         }
@@ -127,7 +129,7 @@ class FragmentStateManager {
         mFragment.mTarget = null;
 
         mFragment.mSavedFragmentState = state;
-        mFragment.mArguments = state.getBundle(FragmentManager.FRAGMENT_ARGUMENTS_TAG);
+        mFragment.mArguments = state.getBundle(ARGUMENTS_KEY);
     }
 
     @NonNull
@@ -389,28 +391,25 @@ class FragmentStateManager {
         }
     }
 
-    @SuppressWarnings("deprecation")
     void ensureInflatedView() {
         if (mFragment.mFromLayout && mFragment.mInLayout && !mFragment.mPerformedCreateView) {
             if (FragmentManager.isLoggingEnabled(Log.DEBUG)) {
                 Log.d(TAG, "moveto CREATE_VIEW: " + mFragment);
             }
-            Bundle basicState = null;
+            Bundle savedInstanceState = null;
             if (mFragment.mSavedFragmentState != null) {
-                FragmentState fs =
-                        mFragment.mSavedFragmentState.getParcelable(
-                                FragmentManager.FRAGMENT_STATE_TAG);
-                basicState = fs != null ? fs.mSavedFragmentState : null;
+                savedInstanceState = mFragment.mSavedFragmentState.getBundle(
+                        SAVED_INSTANCE_STATE_KEY);
             }
             mFragment.performCreateView(mFragment.performGetLayoutInflater(
-                    basicState), null, basicState);
+                    savedInstanceState), null, savedInstanceState);
             if (mFragment.mView != null) {
                 mFragment.mView.setSaveFromParentEnabled(false);
                 mFragment.mView.setTag(R.id.fragment_container_view_tag, mFragment);
                 if (mFragment.mHidden) mFragment.mView.setVisibility(View.GONE);
                 mFragment.performViewCreated();
                 mDispatcher.dispatchOnFragmentViewCreated(
-                        mFragment, mFragment.mView, basicState, false);
+                        mFragment, mFragment.mView, savedInstanceState, false);
                 mFragment.mState = Fragment.VIEW_CREATED;
             }
         }
@@ -422,25 +421,31 @@ class FragmentStateManager {
             return;
         }
         mFragment.mSavedFragmentState.setClassLoader(classLoader);
+        Bundle savedInstanceState = mFragment.mSavedFragmentState.getBundle(
+                SAVED_INSTANCE_STATE_KEY);
+        if (savedInstanceState == null) {
+            // When restoring a Fragment, always ensure we have a
+            // non-null Bundle so that developers have a signal for
+            // when the Fragment is being restored
+            mFragment.mSavedFragmentState.putBundle(SAVED_INSTANCE_STATE_KEY,
+                    new Bundle());
+        }
+
+        mFragment.mSavedViewState = mFragment.mSavedFragmentState.getSparseParcelableArray(
+                VIEW_STATE_KEY);
+        mFragment.mSavedViewRegistryState = mFragment.mSavedFragmentState.getBundle(
+                VIEW_REGISTRY_STATE_KEY);
+
         FragmentState fs =
-                mFragment.mSavedFragmentState.getParcelable(FragmentManager.FRAGMENT_STATE_TAG);
+                mFragment.mSavedFragmentState.getParcelable(FRAGMENT_STATE_KEY);
         if (fs != null) {
-            mFragment.mSavedViewState = fs.mSavedFragmentState.getSparseParcelableArray(
-                    VIEW_STATE_TAG);
-            mFragment.mSavedViewRegistryState = fs.mSavedFragmentState.getBundle(
-                    VIEW_REGISTRY_STATE_TAG);
-            mFragment.mTargetWho = fs.mSavedFragmentState.getString(
-                    TARGET_STATE_TAG);
-            if (mFragment.mTargetWho != null) {
-                mFragment.mTargetRequestCode = fs.mSavedFragmentState.getInt(
-                        TARGET_REQUEST_CODE_STATE_TAG, 0);
-            }
+            mFragment.mTargetWho = fs.mTargetWho;
+            mFragment.mTargetRequestCode = fs.mTargetRequestCode;
             if (mFragment.mSavedUserVisibleHint != null) {
                 mFragment.mUserVisibleHint = mFragment.mSavedUserVisibleHint;
                 mFragment.mSavedUserVisibleHint = null;
             } else {
-                mFragment.mUserVisibleHint = fs.mSavedFragmentState.getBoolean(
-                        USER_VISIBLE_HINT_TAG, true);
+                mFragment.mUserVisibleHint = fs.mUserVisibleHint;
             }
         }
         if (!mFragment.mUserVisibleHint) {
@@ -486,29 +491,26 @@ class FragmentStateManager {
         mDispatcher.dispatchOnFragmentAttached(mFragment, false);
     }
 
-    @SuppressWarnings("deprecation")
     void create() {
         if (FragmentManager.isLoggingEnabled(Log.DEBUG)) {
             Log.d(TAG, "moveto CREATED: " + mFragment);
         }
-        Bundle basicState = null;
+        Bundle savedInstanceState = null;
         if (mFragment.mSavedFragmentState != null) {
-            FragmentState fs =
-                    mFragment.mSavedFragmentState.getParcelable(
-                            FragmentManager.FRAGMENT_STATE_TAG);
-            basicState = fs != null ? fs.mSavedFragmentState : null;
+            savedInstanceState = mFragment.mSavedFragmentState.getBundle(SAVED_INSTANCE_STATE_KEY);
         }
         if (!mFragment.mIsCreated) {
-            mDispatcher.dispatchOnFragmentPreCreated(mFragment, basicState, false);
-            mFragment.performCreate(basicState);
-            mDispatcher.dispatchOnFragmentCreated(mFragment, basicState, false);
+            mDispatcher.dispatchOnFragmentPreCreated(mFragment, savedInstanceState, false);
+            mFragment.performCreate(savedInstanceState);
+            mDispatcher.dispatchOnFragmentCreated(mFragment, savedInstanceState, false);
         } else {
-            mFragment.restoreChildFragmentState(basicState);
+            // The retained fragment has already gone through onCreate()
+            // so we move up its state first, then restore any childFragmentManager state
             mFragment.mState = Fragment.CREATED;
+            mFragment.restoreChildFragmentState();
         }
     }
 
-    @SuppressWarnings("deprecation")
     void createView() {
         if (mFragment.mFromLayout) {
             // This case is handled by ensureInflatedView(), so there's nothing
@@ -518,8 +520,11 @@ class FragmentStateManager {
         if (FragmentManager.isLoggingEnabled(Log.DEBUG)) {
             Log.d(TAG, "moveto CREATE_VIEW: " + mFragment);
         }
-        LayoutInflater layoutInflater = mFragment.performGetLayoutInflater(
-                mFragment.mSavedFragmentState);
+        Bundle savedInstanceState = null;
+        if (mFragment.mSavedFragmentState != null) {
+            savedInstanceState = mFragment.mSavedFragmentState.getBundle(SAVED_INSTANCE_STATE_KEY);
+        }
+        LayoutInflater layoutInflater = mFragment.performGetLayoutInflater(savedInstanceState);
         ViewGroup container = null;
         if (mFragment.mContainer != null) {
             container = mFragment.mContainer;
@@ -549,13 +554,7 @@ class FragmentStateManager {
             }
         }
         mFragment.mContainer = container;
-        Bundle basicState = null;
-        if (mFragment.mSavedFragmentState != null) {
-            FragmentState fs =
-                    mFragment.mSavedFragmentState.getParcelable(FragmentManager.FRAGMENT_STATE_TAG);
-            basicState = fs != null ? fs.mSavedFragmentState : null;
-        }
-        mFragment.performCreateView(layoutInflater, container, basicState);
+        mFragment.performCreateView(layoutInflater, container, savedInstanceState);
         if (mFragment.mView != null) {
             mFragment.mView.setSaveFromParentEnabled(false);
             mFragment.mView.setTag(R.id.fragment_container_view_tag, mFragment);
@@ -585,7 +584,7 @@ class FragmentStateManager {
             }
             mFragment.performViewCreated();
             mDispatcher.dispatchOnFragmentViewCreated(
-                    mFragment, mFragment.mView, basicState, false);
+                    mFragment, mFragment.mView, savedInstanceState, false);
             int postOnViewCreatedVisibility = mFragment.mView.getVisibility();
             float postOnViewCreatedAlpha = mFragment.mView.getAlpha();
             mFragment.setPostOnViewCreatedAlpha(postOnViewCreatedAlpha);
@@ -606,20 +605,17 @@ class FragmentStateManager {
         mFragment.mState = Fragment.VIEW_CREATED;
     }
 
-    @SuppressWarnings("deprecation")
     void activityCreated() {
         if (FragmentManager.isLoggingEnabled(Log.DEBUG)) {
             Log.d(TAG, "moveto ACTIVITY_CREATED: " + mFragment);
         }
-        Bundle basicState = null;
+        Bundle savedInstanceState = null;
         if (mFragment.mSavedFragmentState != null) {
-            FragmentState fs =
-                    mFragment.mSavedFragmentState.getParcelable(FragmentManager.FRAGMENT_STATE_TAG);
-            basicState = fs != null ? fs.mSavedFragmentState : null;
+            savedInstanceState = mFragment.mSavedFragmentState.getBundle(SAVED_INSTANCE_STATE_KEY);
         }
-        mFragment.performActivityCreated(basicState);
+        mFragment.performActivityCreated(savedInstanceState);
         mDispatcher.dispatchOnFragmentActivityCreated(
-                mFragment, basicState, false);
+                mFragment, savedInstanceState, false);
     }
 
     void start() {
@@ -682,40 +678,55 @@ class FragmentStateManager {
     }
 
     @NonNull
-    @SuppressWarnings("deprecation")
     Bundle saveState() {
-        FragmentState fs = new FragmentState(mFragment);
-
-        if (mFragment.mState > Fragment.INITIALIZING && fs.mSavedFragmentState == null) {
-            fs.mSavedFragmentState = saveBasicState();
-
-            if (mFragment.mTargetWho != null) {
-                if (fs.mSavedFragmentState == null) {
-                    fs.mSavedFragmentState = new Bundle();
-                }
-                fs.mSavedFragmentState.putString(
-                        TARGET_STATE_TAG,
-                        mFragment.mTargetWho);
-                if (mFragment.mTargetRequestCode != 0) {
-                    fs.mSavedFragmentState.putInt(
-                            TARGET_REQUEST_CODE_STATE_TAG,
-                            mFragment.mTargetRequestCode);
-                }
-            }
-        } else {
+        Bundle stateBundle = new Bundle();
+        if (mFragment.mState == Fragment.INITIALIZING) {
+            // We never even got to ATTACHED, but we could still have some state
+            // set by setInitialSavedState so we'll add that to our initial Bundle
             if (mFragment.mSavedFragmentState != null) {
-                FragmentState savedFragmentState =
-                        mFragment.mSavedFragmentState.getParcelable(
-                                FragmentManager.FRAGMENT_STATE_TAG);
-                if (savedFragmentState != null) {
-                    fs.mSavedFragmentState = savedFragmentState.mSavedFragmentState;
-                }
+                stateBundle.putAll(mFragment.mSavedFragmentState);
             }
         }
 
-        Bundle stateBundle = new Bundle();
-        stateBundle.putParcelable(FragmentManager.FRAGMENT_STATE_TAG, fs);
-        stateBundle.putBundle(FragmentManager.FRAGMENT_ARGUMENTS_TAG, mFragment.mArguments);
+        // Save the library state associated with the Fragment
+        FragmentState fs = new FragmentState(mFragment);
+        stateBundle.putParcelable(FRAGMENT_STATE_KEY, fs);
+
+        // Save the user state associated with the Fragment
+        if (mFragment.mState > Fragment.INITIALIZING) {
+            Bundle savedInstanceState = new Bundle();
+            mFragment.performSaveInstanceState(savedInstanceState);
+            if (!savedInstanceState.isEmpty()) {
+                stateBundle.putBundle(SAVED_INSTANCE_STATE_KEY, savedInstanceState);
+            }
+            mDispatcher.dispatchOnFragmentSaveInstanceState(mFragment, savedInstanceState, false);
+
+            Bundle savedStateRegistryState = new Bundle();
+            mFragment.mSavedStateRegistryController.performSave(savedStateRegistryState);
+            if (!savedStateRegistryState.isEmpty()) {
+                stateBundle.putBundle(REGISTRY_STATE_KEY, savedStateRegistryState);
+            }
+
+            Bundle childFragmentManagerState =
+                    mFragment.mChildFragmentManager.saveAllStateInternal();
+            if (!childFragmentManagerState.isEmpty()) {
+                stateBundle.putBundle(CHILD_FRAGMENT_MANAGER_KEY, childFragmentManagerState);
+            }
+
+            if (mFragment.mView != null) {
+                saveViewState();
+            }
+            if (mFragment.mSavedViewState != null) {
+                stateBundle.putSparseParcelableArray(VIEW_STATE_KEY, mFragment.mSavedViewState);
+            }
+            if (mFragment.mSavedViewRegistryState != null) {
+                stateBundle.putBundle(VIEW_REGISTRY_STATE_KEY, mFragment.mSavedViewRegistryState);
+            }
+        }
+
+        if (mFragment.mArguments != null) {
+            stateBundle.putBundle(ARGUMENTS_KEY, mFragment.mArguments);
+        }
         return stateBundle;
     }
 
@@ -725,42 +736,6 @@ class FragmentStateManager {
             return new Fragment.SavedState(saveState());
         }
         return null;
-    }
-
-    private Bundle saveBasicState() {
-        Bundle result = new Bundle();
-
-        mFragment.performSaveInstanceState(result);
-        mDispatcher.dispatchOnFragmentSaveInstanceState(mFragment, result, false);
-        if (result.isEmpty()) {
-            result = null;
-        }
-
-        if (mFragment.mView != null) {
-            saveViewState();
-        }
-        if (mFragment.mSavedViewState != null) {
-            if (result == null) {
-                result = new Bundle();
-            }
-            result.putSparseParcelableArray(
-                    VIEW_STATE_TAG, mFragment.mSavedViewState);
-        }
-        if (mFragment.mSavedViewRegistryState != null) {
-            if (result == null) {
-                result = new Bundle();
-            }
-            result.putBundle(VIEW_REGISTRY_STATE_TAG, mFragment.mSavedViewRegistryState);
-        }
-        if (!mFragment.mUserVisibleHint) {
-            if (result == null) {
-                result = new Bundle();
-            }
-            // Only add this if it's not the default value
-            result.putBoolean(USER_VISIBLE_HINT_TAG, mFragment.mUserVisibleHint);
-        }
-
-        return result;
     }
 
     void saveViewState() {

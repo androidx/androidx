@@ -30,6 +30,7 @@ import androidx.glance.template.FreeformTemplateData
 import androidx.glance.template.LocalTemplateMode
 import androidx.glance.template.TemplateMode
 import androidx.glance.template.TemplateText
+import androidx.glance.template.TextType
 import androidx.glance.unit.ColorProvider
 
 /**
@@ -100,10 +101,10 @@ private fun textList(
 ): List<TemplateText> {
     val result = mutableListOf<TemplateText>()
     title?.let {
-        result.add(TemplateText(it.text, TemplateText.Type.Title))
+        result.add(TemplateText(it.text, TextType.Title))
     }
     subtitle?.let {
-        result.add(TemplateText(it.text, TemplateText.Type.Label))
+        result.add(TemplateText(it.text, TextType.Label))
     }
 
     return result

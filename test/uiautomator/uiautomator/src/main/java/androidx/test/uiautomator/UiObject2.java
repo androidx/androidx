@@ -16,6 +16,7 @@
 
 package androidx.test.uiautomator;
 
+import android.app.Service;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.hardware.display.DisplayManager;
@@ -29,6 +30,9 @@ import android.view.KeyEvent;
 import android.view.ViewConfiguration;
 import android.view.accessibility.AccessibilityNodeInfo;
 import android.view.accessibility.AccessibilityWindowInfo;
+
+import androidx.annotation.DoNotInline;
+import androidx.annotation.RequiresApi;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -79,7 +83,8 @@ public class UiObject2 implements Searchable {
         mGestures = Gestures.getInstance(device);
         mGestureController = GestureController.getInstance(device);
         final DisplayManager dm =
-            mDevice.getInstrumentation().getContext().getSystemService(DisplayManager.class);
+                (DisplayManager) mDevice.getInstrumentation().getContext().getSystemService(
+                        Service.DISPLAY_SERVICE);
         final Display display = dm.getDisplay(getDisplayId());
         if (display == null) {
             // Display may be private virtual display. Fallback to default display density.
@@ -94,19 +99,15 @@ public class UiObject2 implements Searchable {
 
     /** {@inheritDoc} */
     @Override
-    @SuppressWarnings("EqualsGetClass")
     public boolean equals(Object object) {
         if (this == object) {
             return true;
         }
-        if (object == null) {
-            return false;
-        }
-        if (getClass() != object.getClass()) {
+        if (!(object instanceof UiObject2)) {
             return false;
         }
         try {
-            UiObject2 other = (UiObject2)object;
+            UiObject2 other = (UiObject2) object;
             return getAccessibilityNodeInfo().equals(other.getAccessibilityNodeInfo());
         } catch (StaleObjectException e) {
             return false;
@@ -204,7 +205,7 @@ public class UiObject2 implements Searchable {
      * Searches all elements under this object and returns the first object to match the criteria,
      * or null if no matching objects are found.
      */
-    @SuppressWarnings("MissingOverride")
+    @Override
     public UiObject2 findObject(BySelector selector) {
         AccessibilityNodeInfo node =
                 ByMatcher.findMatch(getDevice(), selector, getAccessibilityNodeInfo());
@@ -212,7 +213,7 @@ public class UiObject2 implements Searchable {
     }
 
     /** Searches all elements under this object and returns all objects that match the criteria. */
-    @SuppressWarnings("MissingOverride")
+    @Override
     public List<UiObject2> findObjects(BySelector selector) {
         List<UiObject2> ret = new ArrayList<UiObject2>();
         for (AccessibilityNodeInfo node :
@@ -228,9 +229,11 @@ public class UiObject2 implements Searchable {
     // Attribute accessors
 
     public int getDisplayId() {
-        final AccessibilityWindowInfo window = getAccessibilityNodeInfo().getWindow();
-        if (window != null && UiDevice.API_LEVEL_ACTUAL >= /* Build.VERSION_CODES.R */ 30) {
-            return window.getDisplayId();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            AccessibilityWindowInfo window = Api21Impl.getWindow(getAccessibilityNodeInfo());
+            if (window != null) {
+                return Api30Impl.getDisplayId(window);
+            }
         }
         return Display.DEFAULT_DISPLAY;
     }
@@ -281,7 +284,8 @@ public class UiObject2 implements Searchable {
             ret.intersect(screen);
         } else {
             final DisplayManager dm =
-                mDevice.getInstrumentation().getContext().getSystemService(DisplayManager.class);
+                    (DisplayManager) mDevice.getInstrumentation().getContext().getSystemService(
+                            Service.DISPLAY_SERVICE);
             final Display display = dm.getDisplay(getDisplayId());
             if (display != null) {
                 final Point size = new Point();
@@ -292,12 +296,13 @@ public class UiObject2 implements Searchable {
         }
 
         // On platforms that give us access to the node's window
-        if (UiDevice.API_LEVEL_ACTUAL >= Build.VERSION_CODES.LOLLIPOP) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             // Trim any portion of the bounds that are outside the window
-            Rect window = new Rect();
-            if (node.getWindow() != null) {
-                node.getWindow().getBoundsInScreen(window);
-                ret.intersect(window);
+            Rect bounds = new Rect();
+            AccessibilityWindowInfo window = Api21Impl.getWindow(node);
+            if (window != null) {
+                Api21Impl.getBoundsInScreen(window, bounds);
+                ret.intersect(bounds);
             }
         }
 
@@ -686,7 +691,6 @@ public class UiObject2 implements Searchable {
      * Set the text content by sending individual key codes.
      * @hide
      */
-    @SuppressWarnings("UndefinedEquals")
     public void legacySetText(String text) {
         AccessibilityNodeInfo node = getAccessibilityNodeInfo();
 
@@ -696,7 +700,7 @@ public class UiObject2 implements Searchable {
         }
 
         CharSequence currentText = node.getText();
-        if (!text.equals(currentText)) {
+        if (!text.contentEquals(currentText)) {
             InteractionController ic = getDevice().getInteractionController();
 
             // Long click left + center
@@ -716,7 +720,6 @@ public class UiObject2 implements Searchable {
     }
 
     /** Sets the text content if this object is an editable field. */
-    @SuppressWarnings("UndefinedEquals")
     public void setText(String text) {
         AccessibilityNodeInfo node = getAccessibilityNodeInfo();
 
@@ -736,7 +739,7 @@ public class UiObject2 implements Searchable {
             }
         } else {
             CharSequence currentText = node.getText();
-            if (!text.equals(currentText)) {
+            if (!text.contentEquals(currentText)) {
                 // Give focus to the object. Expect this to fail if the object already has focus.
                 if (!node.performAction(AccessibilityNodeInfo.ACTION_FOCUS) && !node.isFocused()) {
                     // TODO: Decide if we should throw here
@@ -782,5 +785,33 @@ public class UiObject2 implements Searchable {
 
     UiDevice getDevice() {
         return mDevice;
+    }
+
+    @RequiresApi(21)
+    static class Api21Impl {
+        private Api21Impl() {
+        }
+
+        @DoNotInline
+        static AccessibilityWindowInfo getWindow(AccessibilityNodeInfo accessibilityNodeInfo) {
+            return accessibilityNodeInfo.getWindow();
+        }
+
+        @DoNotInline
+        static void getBoundsInScreen(AccessibilityWindowInfo accessibilityWindowInfo,
+                Rect outBounds) {
+            accessibilityWindowInfo.getBoundsInScreen(outBounds);
+        }
+    }
+
+    @RequiresApi(30)
+    static class Api30Impl {
+        private Api30Impl() {
+        }
+
+        @DoNotInline
+        static int getDisplayId(AccessibilityWindowInfo accessibilityWindowInfo) {
+            return accessibilityWindowInfo.getDisplayId();
+        }
     }
 }

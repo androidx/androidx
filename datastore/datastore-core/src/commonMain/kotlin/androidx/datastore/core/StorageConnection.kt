@@ -25,13 +25,11 @@ interface StorageConnection<T> : Closeable {
     /**
      * Creates a read transaction to allow storage reads.
      *
-     * @param lockType Controls the kind of locking performed within the transaction.
      * @param block The block of code that is performed within this transaction.
      *
      * @throws IOException when there is an unrecoverable exception in reading.
      */
     suspend fun <R> readTransaction(
-        lockType: ReadLockType = ReadLockType.NO_LOCK,
         block: suspend ReadScope<T>.() -> R
     ): R
 
@@ -42,28 +40,6 @@ interface StorageConnection<T> : Closeable {
      * @throws IOException when there is an unrecoverable exception in writing.
      */
     suspend fun writeTransaction(block: suspend WriteScope<T>.() -> Unit)
-
-    /** Specifies the locking type for this read transaction. */
-    enum class ReadLockType {
-        /**
-         * Does not attempt to do a read lock in this transaction. All reads will be whatever
-         * value has been saved and fsync'd to disk at the time of the read.
-         */
-        NO_LOCK,
-
-        /**
-         * Tries to get a read lock during the scope of the transaction. If it is successful,
-         * [ReadScope.lockAcquired] will be true.  A successful lock guarantees no writers are
-         * interleaved during the scope of this transaction, otherwise it behaves like NO_LOCK.
-         */
-        TRY_LOCK,
-
-        /**
-         * A lock is acquired before proceeding with the transaction.  This guarantees no writers
-         * are interleaved during the scope of this transaction.
-         */
-        LOCK
-    }
 }
 
 /**
@@ -75,11 +51,6 @@ interface ReadScope<T> : Closeable {
      * Read the data <T> from the underlying storage.
      */
     suspend fun readData(): T
-
-    /**
-     * True, if a lock was acquired for this transaction.
-     */
-    val lockAcquired: Boolean
 }
 
 /**

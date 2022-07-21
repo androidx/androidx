@@ -33,8 +33,8 @@ import androidx.camera.core.impl.LiveDataObservable
 import androidx.camera.core.impl.Observable
 import androidx.camera.core.impl.utils.futures.Futures
 import com.google.common.util.concurrent.ListenableFuture
-import kotlinx.atomicfu.atomic
 import javax.inject.Inject
+import kotlinx.atomicfu.atomic
 
 internal val cameraAdapterIds = atomic(0)
 
@@ -89,7 +89,7 @@ class CameraInternalAdapter @Inject constructor(
 
     // UseCase state callbacks
     override fun onUseCaseActive(useCase: UseCase) {
-        useCaseManager.enable(useCase)
+        useCaseManager.activate(useCase)
     }
 
     override fun onUseCaseUpdated(useCase: UseCase) {
@@ -101,7 +101,7 @@ class CameraInternalAdapter @Inject constructor(
     }
 
     override fun onUseCaseInactive(useCase: UseCase) {
-        useCaseManager.disable(useCase)
+        useCaseManager.deactivate(useCase)
     }
 
     override fun toString(): String = "CameraInternalAdapter<$cameraId>"

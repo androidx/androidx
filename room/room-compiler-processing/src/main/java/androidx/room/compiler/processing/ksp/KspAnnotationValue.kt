@@ -81,18 +81,20 @@ internal fun KspAnnotation.unwrap(valueType: XType, valueArgument: KSValueArgume
     }
     return unwrap(valueArgument.value).let { result ->
         when {
-            result is List<*> -> {
-                // For lists, wrap each item in a KSPAnnotationValue. This models things similar to
-                // javac, and allows us to report errors on each individual item rather than just
-                // the list itself.
-                result.map { KspAnnotationValue(env, this, valueType, valueArgument) { it } }
-            }
+            // For array values, wrap each item in a KSPAnnotationValue. This models things similar
+            // to javac, and allows us to report errors on each individual item rather than
+            // just the list itself.
             valueType.isArray() -> {
-                // TODO: 5/24/21 KSP does not wrap a single item in a list, even though the
-                // return type should be Class<?>[] (only in sources).
-                // https://github.com/google/ksp/issues/172
-                // https://github.com/google/ksp/issues/214
-                listOf(KspAnnotationValue(env, this, valueType, valueArgument) { result })
+                when (result) {
+                    // TODO: 5/24/21 KSP does not wrap a single item in a list, even though the
+                    // return type should be Class<?>[] (only in sources).
+                    // https://github.com/google/ksp/issues/172
+                    // https://github.com/google/ksp/issues/214
+                    !is List<*> -> listOf(result)
+                    else -> result
+                }.map {
+                    KspAnnotationValue(env, this, valueType.componentType, valueArgument) { it }
+                }
             }
             else -> result
         }

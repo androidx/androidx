@@ -38,6 +38,7 @@ import androidx.room.solver.KotlinDefaultMethodDelegateBinder
 import androidx.room.solver.types.getRequiredTypeConverters
 import androidx.room.vo.Dao
 import androidx.room.vo.InsertionMethod
+import androidx.room.vo.UpsertionMethod
 import androidx.room.vo.KotlinBoxedPrimitiveMethodDelegate
 import androidx.room.vo.KotlinDefaultMethodDelegate
 import androidx.room.vo.QueryMethod
@@ -104,8 +105,9 @@ class DaoWriter(
     override fun createTypeSpecBuilder(): TypeSpec.Builder {
         val builder = TypeSpec.classBuilder(dao.implTypeName)
         /**
-         * For prepared statements that perform insert/update/delete, we check if there are any
-         * arguments of variable length (e.g. "IN (:var)"). If not, we should re-use the statement.
+         * For prepared statements that perform insert/update/delete/upsert,
+         * we check if there are any arguments of variable length (e.g. "IN (:var)").
+         * If not, we should re-use the statement.
          * This requires more work but creates good performance.
          */
         val groupedPreparedQueries = dao.queryMethods
@@ -117,7 +119,7 @@ class DaoWriter(
         val oneOffPreparedQueries = groupedPreparedQueries[true] ?: emptyList()
         val shortcutMethods = createInsertionMethods() +
             createDeletionMethods() + createUpdateMethods() + createTransactionMethods() +
-            createPreparedQueries(preparedQueries)
+            createPreparedQueries(preparedQueries) + createUpsertMethods()
 
         builder.apply {
             addOriginatingElement(dbElement)
@@ -459,6 +461,43 @@ class DaoWriter(
         method.methodBinder.convertAndReturn(
             parameters = method.parameters,
             adapters = adapters,
+            dbField = dbField,
+            scope = scope
+        )
+        return scope.builder().build()
+    }
+
+    /**
+     * Groups all upsertion methods based on the upsert statement they will use then creates all
+     * field specs, EntityIUpsertionAdapterWriter and actual upsert methods.
+     */
+    private fun createUpsertMethods(): List<PreparedStmtQuery> {
+        return dao.upsertionMethods
+            .map { upsertionMethod ->
+                val fields = emptyMap<String, Pair<FieldSpec, TypeSpec>>()
+                val methodImpl = overrideWithoutAnnotations(
+                    upsertionMethod.element,
+                    declaredDao
+                ).apply {
+                    addCode(createUpsertionMethodBody(upsertionMethod, fields))
+                }.build()
+                PreparedStmtQuery(fields, methodImpl)
+            }
+    }
+
+    private fun createUpsertionMethodBody(
+        method: UpsertionMethod,
+        upsertionAdapters: Map<String, Pair<FieldSpec, TypeSpec>>
+    ): CodeBlock {
+        if (upsertionAdapters.isEmpty()) {
+            return CodeBlock.builder().build()
+        }
+
+        val scope = CodeGenScope(this)
+
+        method.methodBinder.convertAndReturn(
+            parameters = method.parameters,
+            upsertionAdapters = upsertionAdapters,
             dbField = dbField,
             scope = scope
         )

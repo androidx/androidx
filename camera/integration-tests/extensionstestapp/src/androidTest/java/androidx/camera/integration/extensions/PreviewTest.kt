@@ -99,8 +99,8 @@ class PreviewTest(private val cameraId: String, private val extensionMode: Int) 
         var previewViewIdlingResource: IdlingResource? = null
 
         activityScenario.onActivity {
-            initializationIdlingResource = it.mInitializationIdlingResource
-            previewViewIdlingResource = it.mPreviewViewIdlingResource
+            initializationIdlingResource = it.initializationIdlingResource
+            previewViewIdlingResource = it.previewViewStreamingStateIdlingResource
         }
 
         // Wait for CameraExtensionsActivity's initialization to be complete

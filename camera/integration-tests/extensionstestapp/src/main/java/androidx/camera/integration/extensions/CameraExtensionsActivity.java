@@ -20,11 +20,14 @@ import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.hardware.camera2.CameraCaptureSession;
+import android.hardware.camera2.CaptureRequest;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.StrictMode;
+import android.os.SystemClock;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.Menu;
@@ -33,12 +36,16 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
 import androidx.annotation.VisibleForTesting;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.camera.camera2.interop.Camera2Interop;
+import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
 import androidx.camera.core.Camera;
 import androidx.camera.core.CameraControl;
 import androidx.camera.core.CameraInfo;
@@ -48,10 +55,12 @@ import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCaptureException;
 import androidx.camera.core.MeteringPoint;
 import androidx.camera.core.Preview;
+import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.extensions.ExtensionMode;
 import androidx.camera.extensions.ExtensionsManager;
 import androidx.camera.integration.extensions.utils.CameraSelectorUtil;
 import androidx.camera.integration.extensions.utils.ExtensionModeUtil;
+import androidx.camera.integration.extensions.utils.FpsRecorder;
 import androidx.camera.integration.extensions.validation.CameraValidationResultActivity;
 import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.view.PreviewView;
@@ -70,7 +79,9 @@ import java.io.File;
 import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
 /** An activity that shows off how extensions can be applied */
 public class CameraExtensionsActivity extends AppCompatActivity
@@ -118,15 +129,17 @@ public class CameraExtensionsActivity extends AppCompatActivity
     private int mCurrentExtensionMode = ExtensionMode.BOKEH;
 
     // Espresso testing variables
-    @VisibleForTesting
-    CountingIdlingResource mInitializationIdlingResource = new CountingIdlingResource(
+    private final CountingIdlingResource mInitializationIdlingResource = new CountingIdlingResource(
             "Initialization");
 
-    @VisibleForTesting
-    CountingIdlingResource mTakePictureIdlingResource = new CountingIdlingResource("TakePicture");
+    private final CountingIdlingResource mTakePictureIdlingResource = new CountingIdlingResource(
+            "TakePicture");
 
-    @VisibleForTesting
-    CountingIdlingResource mPreviewViewIdlingResource = new CountingIdlingResource("PreviewView");
+    private final CountingIdlingResource mPreviewViewStreamingStateIdlingResource =
+            new CountingIdlingResource("PreviewView-Streaming");
+
+    private final CountingIdlingResource mPreviewViewIdleStateIdlingResource =
+            new CountingIdlingResource("PreviewView-Idle");
 
     private PreviewView mPreviewView;
 
@@ -137,6 +150,10 @@ public class CameraExtensionsActivity extends AppCompatActivity
     ExtensionsManager mExtensionsManager;
 
     boolean mDeleteCapturedImage = false;
+
+    // < Sensor timestamp,  current timestamp >
+    Map<Long, Long> mFrameTimestampMap = new HashMap<>();
+    TextView mFrameInfo;
 
     void setupButtons() {
         Button btnToggleMode = findViewById(R.id.PhotoToggle);
@@ -176,20 +193,31 @@ public class CameraExtensionsActivity extends AppCompatActivity
         } while (!bindUseCasesWithCurrentExtensionMode());
     }
 
+    @OptIn(markerClass = ExperimentalCamera2Interop.class)
     boolean bindUseCasesWithCurrentExtensionMode() {
         if (!mExtensionsManager.isExtensionAvailable(mCurrentCameraSelector,
                 mCurrentExtensionMode)) {
             return false;
         }
 
-        mPreviewViewIdlingResource.increment();
+        resetPreviewViewStreamingStateIdlingResource();
+        resetPreviewViewIdleStateIdlingResource();
 
         ImageCapture.Builder imageCaptureBuilder = new ImageCapture.Builder().setTargetName(
                 "ImageCapture");
         mImageCapture = imageCaptureBuilder.build();
 
+        mFrameTimestampMap.clear();
         Preview.Builder previewBuilder = new Preview.Builder().setTargetName("Preview");
 
+        new Camera2Interop.Extender<>(previewBuilder)
+                .setSessionCaptureCallback(new CameraCaptureSession.CaptureCallback() {
+                    @Override
+                    public void onCaptureStarted(@NonNull CameraCaptureSession session,
+                            @NonNull CaptureRequest request, long timestamp, long frameNumber) {
+                        mFrameTimestampMap.put(timestamp, SystemClock.elapsedRealtimeNanos());
+                    }
+                });
         mPreview = previewBuilder.build();
         mPreview.setSurfaceProvider(mPreviewView.getSurfaceProvider());
 
@@ -197,9 +225,30 @@ public class CameraExtensionsActivity extends AppCompatActivity
         mPreviewView.getPreviewStreamState().removeObservers(this);
         mPreviewView.getPreviewStreamState().observe(this, streamState -> {
             if (streamState == PreviewView.StreamState.STREAMING
-                    && !mPreviewViewIdlingResource.isIdleNow()) {
-                mPreviewViewIdlingResource.decrement();
+                    && !mPreviewViewStreamingStateIdlingResource.isIdleNow()) {
+                mPreviewViewStreamingStateIdlingResource.decrement();
+            } else if (streamState == PreviewView.StreamState.IDLE
+                    && !mPreviewViewIdleStateIdlingResource.isIdleNow()) {
+                mPreviewViewIdleStateIdlingResource.decrement();
             }
+        });
+
+        FpsRecorder fpsRecorder = new FpsRecorder(10 /* sample count */);
+        // Calls internal API PreviewView#setFrameUpdateListener to calculate the frame latency.
+        // Remove this if you copy this sample app to your project.
+        mPreviewView.setFrameUpdateListener(CameraXExecutors.directExecutor(), (timestamp) -> {
+            Long frameCapturedTime = mFrameTimestampMap.remove(timestamp);
+            if (frameCapturedTime == null) {
+                Log.e(TAG, "Cannot find frame with timestamp: " + timestamp);
+                return;
+            }
+
+            long latency = (SystemClock.elapsedRealtimeNanos() - frameCapturedTime) / 1000000L;
+            double fps = fpsRecorder.recordTimestamp(SystemClock.elapsedRealtimeNanos());
+            String fpsText = String.format("%1$s",
+                    (Double.isNaN(fps) || Double.isInfinite(fps)) ? "---" :
+                            String.format(Locale.US, "%.0f", fps));
+            mFrameInfo.setText("Latency:" + latency + " ms\n" + "FPS: " + fpsText);
         });
 
         CameraSelector cameraSelector = mExtensionsManager.getExtensionEnabledCameraSelector(
@@ -222,7 +271,7 @@ public class CameraExtensionsActivity extends AppCompatActivity
                 "ExtensionsPictures");
 
         captureButton.setOnClickListener((view) -> {
-            mTakePictureIdlingResource.increment();
+            resetTakePictureIdlingResource();
 
             String fileName = formatter.format(Calendar.getInstance().getTime())
                     + extensionModeString + ".jpg";
@@ -335,6 +384,8 @@ public class CameraExtensionsActivity extends AppCompatActivity
                 new StrictMode.VmPolicy.Builder().detectAll().penaltyLog().build();
         StrictMode.setVmPolicy(policy);
         mPreviewView = findViewById(R.id.previewView);
+        mFrameInfo = findViewById(R.id.frameInfo);
+        mPreviewView.setImplementationMode(PreviewView.ImplementationMode.COMPATIBLE);
         setupPinchToZoomAndTapToFocus(mPreviewView);
         Futures.addCallback(setupPermissions(), new FutureCallback<Boolean>() {
             @Override
@@ -602,5 +653,46 @@ public class CameraExtensionsActivity extends AppCompatActivity
     @ExtensionMode.Mode
     int getCurrentExtensionMode() {
         return mCurrentExtensionMode;
+    }
+
+    @VisibleForTesting
+    CountingIdlingResource getInitializationIdlingResource() {
+        return mInitializationIdlingResource;
+    }
+
+    @VisibleForTesting
+    CountingIdlingResource getPreviewViewStreamingStateIdlingResource() {
+        return mPreviewViewStreamingStateIdlingResource;
+    }
+
+    @VisibleForTesting
+    CountingIdlingResource getPreviewViewIdleStateIdlingResource() {
+        return mPreviewViewIdleStateIdlingResource;
+    }
+
+    @VisibleForTesting
+    CountingIdlingResource getTakePictureIdlingResource() {
+        return mTakePictureIdlingResource;
+    }
+
+    @VisibleForTesting
+    void resetPreviewViewStreamingStateIdlingResource() {
+        if (mPreviewViewStreamingStateIdlingResource.isIdleNow()) {
+            mPreviewViewStreamingStateIdlingResource.increment();
+        }
+    }
+
+    @VisibleForTesting
+    void resetPreviewViewIdleStateIdlingResource() {
+        if (mPreviewViewIdleStateIdlingResource.isIdleNow()) {
+            mPreviewViewIdleStateIdlingResource.increment();
+        }
+    }
+
+    @VisibleForTesting
+    void resetTakePictureIdlingResource() {
+        if (mTakePictureIdlingResource.isIdleNow()) {
+            mTakePictureIdlingResource.increment();
+        }
     }
 }

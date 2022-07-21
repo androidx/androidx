@@ -31,6 +31,11 @@ android {
 }
 
 dependencies {
+    //Atomic Group
+    constraints {
+        implementation(project(":paging:paging-common"))
+    }
+
     api(project(":paging:paging-common"))
     // Ensure that the -ktx dependency graph mirrors the Java dependency graph
     api(project(":paging:paging-common-ktx"))

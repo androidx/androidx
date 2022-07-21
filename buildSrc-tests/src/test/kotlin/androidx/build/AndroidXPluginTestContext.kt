@@ -19,6 +19,8 @@ package androidx.build
 import androidx.build.AndroidXPluginTestContext.Companion.wrap
 import androidx.testutils.gradle.ProjectSetupRule
 import java.io.File
+import net.saff.checkmark.Checkmark.Companion.check
+import net.saff.checkmark.Checkmark.Companion.checks
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.GradleRunner
 import org.junit.rules.TemporaryFolder
@@ -36,7 +38,11 @@ import org.junit.runners.model.Statement
 fun pluginTest(action: AndroidXPluginTestContext.() -> Unit) {
     TemporaryFolder().wrap { tmpFolder ->
         ProjectSetupRule().wrap { setup ->
-            AndroidXPluginTestContext(tmpFolder, setup).action()
+            val context = AndroidXPluginTestContext(tmpFolder, setup)
+            // checks: automatically capture context on failure
+            checks {
+                context.action()
+            }
         }
     }
 }
@@ -48,21 +54,12 @@ fun pluginTest(action: AndroidXPluginTestContext.() -> Unit) {
  *                   cleaned up after the test.
  * @param setup: Gradle project setup (see [ProjectSetupRule])
  */
-data class AndroidXPluginTestContext(
-    private val tmpFolder: TemporaryFolder,
-    val setup: ProjectSetupRule
-) {
-    override fun toString() =
-        mapOf("tmpFolder" to tmpFolder.root, "settings" to settingsWritten).toString()
-
-    private val props = setup.props
-
-    // Might be something like $HOME/src/androidx-main/out/buildSrc
-    private val outBuildSrc = File(props.buildSrcOutPath)
-    val privateJar = outBuildSrc.resolve("private/build/libs/private.jar")
-    private val publicJar = outBuildSrc.resolve("public/build/libs/public.jar")
+data class AndroidXPluginTestContext(val tmpFolder: TemporaryFolder, val setup: ProjectSetupRule) {
+    val props = setup.props
+    val buildJars = BuildJars(props.buildSrcOutPath)
 
     val outDir: File by lazy { tmpFolder.newFolder() }
+    private val mavenLocalDir: File by lazy { tmpFolder.newFolder() }
 
     // Gradle sometimes canonicalizes this path, so we have to or things don't match up.
     val supportRoot: File = setup.rootDir.canonicalFile
@@ -71,51 +68,25 @@ data class AndroidXPluginTestContext(
         // Empty environment so that the host environment does not leak through
         val env = mapOf<String, String>()
         return GradleRunner.create().withProjectDir(supportRoot)
-            .withArguments(*args).withEnvironment(env).build()
+            .withArguments(
+                "-Dmaven.repo.local=$mavenLocalDir",
+                "-P$ALLOW_MISSING_LINT_CHECKS_PROJECT=true",
+                *args
+            )
+            .withEnvironment(env).withEnvironment(env).build()
     }
 
-    private var settingsWritten: String? = null
-
-    fun writeRootSettingsFile(vararg projectPaths: String) {
-        val settingsString = buildString {
-            append(
-                """|pluginManagement {
-                   |  repositories {
-                   |    ${setup.defaultRepoLines}
-                   |  }
-                   |}
-                   |""".trimMargin()
-            )
-            appendLine()
-            projectPaths.forEach {
-                appendLine("include(\"$it\")")
-            }
+    fun AndroidXSelfTestProject.checkConfigurationSucceeds() {
+        runGradle(":$groupId:$artifactId:tasks", "--stacktrace").output.check {
+            it.contains("BUILD SUCCESSFUL")
         }
-        settingsWritten = settingsString
-        File(setup.rootDir, "settings.gradle").writeText(settingsString)
     }
 
     private val prebuiltsPath = supportRoot.resolve("../../prebuilts").path
 
-    private val buildGradleText =
-        """|buildscript {
-           |  // Required by AndroidXRootImplPlugin.configureRootProject
-           |  project.ext.outDir = file("${outDir.path}")
-           |
-           |  // Required by AndroidXExtension constructor
-           |  project.ext.supportRootFolder = file("${supportRoot.path}")
-           |
-           |  // Required by AndroidXImplPlugin.configureTestTask
-           |  project.ext.prebuiltsRoot = file("$prebuiltsPath").absolutePath
-           |
-           |  ${setup.repositories}
-           |
-           |  dependencies {
-           |    // Needed for androidx extension
-           |    classpath(project.files("${privateJar.path}"))
-           |
-           |    // Needed for androidx/build/gradle/ExtensionsKt, among others
-           |    classpath(project.files("${publicJar.path}"))
+    val buildScriptDependencies =
+        """|  dependencies {
+           |    ${buildJars.classpathEntries()}
            |
            |    classpath '${props.agpDependency}'
            |    classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:${props.kotlinVersion}'
@@ -132,7 +103,29 @@ data class AndroidXPluginTestContext(
            |
            |    // Needed for ZipFile
            |    classpath('org.apache.ant:ant:1.10.11')
+           |
+           |    // Needed for docs-public
+           |    classpath('org.jetbrains.dokka:dokka-gradle-plugin:0.9.17-g014')
+           |    classpath('org.jetbrains.dokka:dokka-android-gradle-plugin:0.9.17-g014')
+           |
+           |    // Otherwise, comments get stripped from poms (b/230396269)
+           |    classpath('xerces:xercesImpl:2.12.0')
            |  }
+        """.trimMargin()
+
+    private val buildGradleText =
+        """|buildscript {
+           |  // Required by AndroidXRootImplPlugin.configureRootProject
+           |  project.ext.outDir = file("${outDir.path}")
+           |
+           |  // Required by AndroidXExtension constructor
+           |  project.ext.supportRootFolder = file("${supportRoot.path}")
+           |
+           |  // Required by AndroidXImplPlugin.configureTestTask
+           |  project.ext.prebuiltsRoot = file("$prebuiltsPath").absolutePath
+           |
+           |  ${setup.repositories}
+           |  $buildScriptDependencies
            |}
            |
            |apply plugin: androidx.build.AndroidXRootImplPlugin
@@ -140,6 +133,58 @@ data class AndroidXPluginTestContext(
 
     fun writeRootBuildFile() {
         File(setup.rootDir, "build.gradle").writeText(buildGradleText)
+    }
+
+    private fun makeProjectFolder(path: String): File {
+        val projectFolder = setup.rootDir.resolve(path)
+        projectFolder.mkdirs()
+        return projectFolder
+    }
+
+    /**
+     * Convenience function that can be added to a test when debugging and wanting to browse the
+     * output
+     */
+    fun saveMavenFoldersForDebugging(where: String) {
+        mavenLocalDir.copyRecursively(File(where).also {
+            it.deleteRecursively()
+            it.mkdirs()
+        }, true)
+    }
+
+    fun AndroidXSelfTestProject.writeFiles() {
+        val projectFolder = makeProjectFolder(relativePath)
+        File(projectFolder, "build.gradle").writeText(buildGradleText)
+    }
+
+    fun AndroidXSelfTestProject.publishMavenLocal(vararg prefixArgs: String) {
+        val args = arrayOf(*prefixArgs) + arrayOf(
+            ":$groupId:$artifactId:publishToMavenLocal",
+            "--stacktrace"
+        )
+        runGradle(*args).output.check { it.contains("BUILD SUCCESSFUL") }
+    }
+
+    fun AndroidXSelfTestProject.readPublishedFile(fileName: String) =
+        mavenLocalDir.resolve("$groupId/$artifactId/$version/$fileName").readText()
+
+    var printBuildFileOnFailure: Boolean = false
+
+    override fun toString(): String {
+        return buildMap {
+            put("root files", setup.rootDir.list().orEmpty().toList())
+            if (printBuildFileOnFailure) {
+                setup.rootDir.listFiles().orEmpty().filter { it.isDirectory }
+                    .forEach { maybeGroupDir ->
+                        maybeGroupDir.listFiles().orEmpty().filter { it.isDirectory }.forEach {
+                            val maybeBuildFile = it.resolve("build.gradle")
+                            if (maybeBuildFile.exists()) {
+                                put(it.name + "/build.gradle", maybeBuildFile.readText())
+                            }
+                        }
+                    }
+            }
+        }.toString()
     }
 
     companion object {
@@ -154,5 +199,7 @@ data class AndroidXPluginTestContext(
         fun <T : TestRule> T.wrap(fn: (T) -> Unit) = apply(object : Statement() {
             override fun evaluate() = fn(this@wrap)
         }, Description.EMPTY).evaluate()
+
+        fun File.fileList() = list()!!.toList()
     }
 }

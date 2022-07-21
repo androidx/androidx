@@ -253,7 +253,6 @@ public final class ComplicationData implements Parcelable, Serializable {
 
     // Originally it was planned to support both content and image content descriptions.
     private static final String FIELD_DATA_SOURCE = "FIELD_DATA_SOURCE";
-    private static final String FIELD_DRAW_SEGMENTED = "DRAW_SEGMENTED";
     private static final String FIELD_END_TIME = "END_TIME";
     private static final String FIELD_ICON = "ICON";
     private static final String FIELD_ICON_BURN_IN_PROTECTION = "ICON_BURN_IN_PROTECTION";
@@ -286,6 +285,7 @@ public final class ComplicationData implements Parcelable, Serializable {
     private static final String FIELD_TIMELINE_ENTRIES = "TIMELINE";
     private static final String FIELD_TIMELINE_ENTRY_TYPE = "TIMELINE_ENTRY_TYPE";
     private static final String FIELD_VALUE = "VALUE";
+    private static final String FIELD_VALUE_TYPE = "VALUE_TYPE";
 
     // Originally it was planned to support both content and image content descriptions.
     private static final String FIELD_CONTENT_DESCRIPTION = "IMAGE_CONTENT_DESCRIPTION";
@@ -345,7 +345,7 @@ public final class ComplicationData implements Parcelable, Serializable {
                     FIELD_TAP_ACTION,
                     FIELD_CONTENT_DESCRIPTION,
                     FIELD_DATA_SOURCE,
-                    FIELD_DRAW_SEGMENTED,
+                    FIELD_VALUE_TYPE,
                     FIELD_MAX_COLOR,
                     FIELD_MIN_COLOR
             }, // RANGED_VALUE
@@ -442,7 +442,7 @@ public final class ComplicationData implements Parcelable, Serializable {
 
     @RequiresApi(api = Build.VERSION_CODES.P)
     private static class SerializedForm implements Serializable {
-        private static final int VERSION_NUMBER = 10;
+        private static final int VERSION_NUMBER = 11;
 
         @NonNull
         ComplicationData mComplicationData;
@@ -504,8 +504,8 @@ public final class ComplicationData implements Parcelable, Serializable {
             if (isFieldValidForType(FIELD_MAX_VALUE, type)) {
                 oos.writeFloat(mComplicationData.getRangedMaxValue());
             }
-            if (isFieldValidForType(FIELD_DRAW_SEGMENTED, type)) {
-                oos.writeBoolean(mComplicationData.getDrawSegmented());
+            if (isFieldValidForType(FIELD_VALUE_TYPE, type)) {
+                oos.writeInt(mComplicationData.getValueType());
             }
             if (isFieldValidForType(FIELD_MAX_COLOR, type)) {
                 Integer maxColor = mComplicationData.getRangedMaxColor();
@@ -671,8 +671,11 @@ public final class ComplicationData implements Parcelable, Serializable {
             if (isFieldValidForType(FIELD_MAX_VALUE, type)) {
                 fields.putFloat(FIELD_MAX_VALUE, ois.readFloat());
             }
-            if (isFieldValidForType(FIELD_DRAW_SEGMENTED, type)) {
-                fields.putBoolean(FIELD_DRAW_SEGMENTED, ois.readBoolean());
+            if (isFieldValidForType(FIELD_VALUE_TYPE, type)) {
+                int valueType = ois.readInt();
+                if (valueType != 0) {
+                    fields.putInt(FIELD_VALUE_TYPE, valueType);
+                }
             }
             if (isFieldValidForType(FIELD_MAX_COLOR, type) && ois.readBoolean()) {
                 fields.putInt(FIELD_MAX_COLOR, ois.readInt());
@@ -1030,14 +1033,14 @@ public final class ComplicationData implements Parcelable, Serializable {
     }
 
     /**
-     * Returns whether or not the ranged value complication should be drawn as segments. This is
-     * intended for integral values where one segment = 1 unit.
+     * Returns the value type of a RangedValue complication, which may be used by the renderer to
+     * influence complication styling.
      *
      * <p>Valid only if the type of this complication data is {@link #TYPE_RANGED_VALUE}.
      */
-    public boolean getDrawSegmented() {
-        checkFieldValidForTypeWithoutThrowingException(FIELD_DRAW_SEGMENTED, mType);
-        return mFields.getBoolean(FIELD_DRAW_SEGMENTED);
+    public int getValueType() {
+        checkFieldValidForTypeWithoutThrowingException(FIELD_VALUE_TYPE, mType);
+        return mFields.getInt(FIELD_VALUE_TYPE, 0);
     }
 
     /**
@@ -2031,14 +2034,14 @@ public final class ComplicationData implements Parcelable, Serializable {
         }
 
         /**
-         * Optional. Whether ot not the ranged value indicator should be drawn using segments.
-         * This hint is intended for integral values where one segment = 1 unit.
+         * Sets the type of a RangedValue's value which may be used by a renderer to influence
+         * styling.
          *
          * <p>Returns this Builder to allow chaining.
          */
         @NonNull
-        public Builder setDrawSegmented(boolean drawSegmented) {
-            putOrRemoveField(FIELD_DRAW_SEGMENTED, drawSegmented);
+        public Builder setValueType(int valueType) {
+            putOrRemoveField(FIELD_VALUE_TYPE, valueType);
             return this;
         }
 

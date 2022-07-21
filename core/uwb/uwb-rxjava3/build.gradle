@@ -26,7 +26,7 @@ dependencies {
     api(libs.kotlinStdlib)
     api(libs.rxjava3)
     api(libs.kotlinCoroutinesRx3)
-    api(project(":core:uwb:uwb"))
+    implementation("androidx.core.uwb:uwb:1.0.0-alpha02")
 
     androidTestImplementation(libs.kotlinStdlib)
     androidTestImplementation(libs.testExtJunit)

@@ -29,10 +29,6 @@ internal class JavacEnumEntry(
     override val name: String
         get() = element.simpleName.toString()
 
-    override val equalityItems: Array<out Any?> by lazy {
-        arrayOf(name, enclosingElement)
-    }
-
     override val fallbackLocationText: String
         get() = "$name enum entry in ${enclosingElement.fallbackLocationText}"
 

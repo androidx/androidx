@@ -17,6 +17,7 @@
 package androidx.recyclerview.widget;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 /**
  * ListUpdateCallback that dispatches update events to the given adapter.
@@ -56,7 +57,7 @@ public final class AdapterListUpdateCallback implements ListUpdateCallback {
 
     /** {@inheritDoc} */
     @Override
-    public void onChanged(int position, int count, Object payload) {
+    public void onChanged(int position, int count, @Nullable Object payload) {
         mAdapter.notifyItemRangeChanged(position, count, payload);
     }
 }

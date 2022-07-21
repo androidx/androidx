@@ -17,6 +17,7 @@
 package androidx.leanback.widget;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.DiffUtil;
 
 import java.util.List;
@@ -62,6 +63,7 @@ public abstract class DiffCallback<Value> {
      * @see DiffUtil.Callback#getChangePayload(int, int)
      */
     @SuppressWarnings("WeakerAccess")
+    @Nullable
     public Object getChangePayload(@NonNull Value oldItem, @NonNull Value newItem) {
         return null;
     }

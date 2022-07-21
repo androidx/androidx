@@ -33,18 +33,20 @@ public interface SliceAction {
     /**
      * @param description the content description for this action.
      */
-    @Nullable
+    @NonNull
     SliceAction setContentDescription(@NonNull CharSequence description);
 
     /**
      * @param isChecked whether the state of this action is checked or not; only used for toggle
      *                  actions.
      */
+    @NonNull
     SliceAction setChecked(boolean isChecked);
 
     /**
      * Sets the priority of this action, with the lowest priority having the highest ranking.
      */
+    @NonNull
     SliceAction setPriority(@IntRange(from = 0) int priority);
 
     /**

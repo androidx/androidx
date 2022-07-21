@@ -28,7 +28,6 @@ import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
-import java.util.HashSet
 
 @RunWith(RobolectricCameraPipeTestRunner::class)
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
@@ -44,7 +43,7 @@ class UseCaseManagerTest {
         useCaseManager.attach(listOf(useCase))
 
         // Assert
-        val enabledUseCases = useCaseManager.camera?.activeUseCases
+        val enabledUseCases = useCaseManager.camera?.runningUseCases
         assertThat(enabledUseCases).isEmpty()
     }
 
@@ -56,10 +55,10 @@ class UseCaseManagerTest {
         useCaseManager.attach(listOf(useCase))
 
         // Act
-        useCaseManager.enable(useCase)
+        useCaseManager.activate(useCase)
 
         // Assert
-        val enabledUseCases = useCaseManager.camera?.activeUseCases
+        val enabledUseCases = useCaseManager.camera?.runningUseCases
         assertThat(enabledUseCases).containsExactly(useCase)
     }
 
@@ -72,11 +71,11 @@ class UseCaseManagerTest {
         useCaseManager.attach(listOf(preview, imageCapture))
 
         // Act
-        useCaseManager.enable(preview)
-        useCaseManager.enable(imageCapture)
+        useCaseManager.activate(preview)
+        useCaseManager.activate(imageCapture)
 
         // Assert
-        val enabledUseCases = useCaseManager.camera?.activeUseCases
+        val enabledUseCases = useCaseManager.camera?.runningUseCases
         assertThat(enabledUseCases).containsExactly(preview, imageCapture)
     }
 
@@ -88,10 +87,10 @@ class UseCaseManagerTest {
         useCaseManager.attach(listOf(imageCapture))
 
         // Act
-        useCaseManager.enable(imageCapture)
+        useCaseManager.activate(imageCapture)
 
         // Assert
-        val enabledUseCaseClasses = useCaseManager.camera?.activeUseCases?.map { it::class.java }
+        val enabledUseCaseClasses = useCaseManager.camera?.runningUseCases?.map { it::class.java }
         assertThat(enabledUseCaseClasses).containsExactly(
             ImageCapture::class.java,
             MeteringRepeating::class.java
@@ -104,15 +103,15 @@ class UseCaseManagerTest {
         val useCaseManager = createUseCaseManager()
         val imageCapture = ImageCapture.Builder().build()
         useCaseManager.attach(listOf(imageCapture))
-        useCaseManager.enable(imageCapture)
+        useCaseManager.activate(imageCapture)
 
         // Act
         val preview = Preview.Builder().build()
         useCaseManager.attach(listOf(preview))
-        useCaseManager.enable(preview)
+        useCaseManager.activate(preview)
 
         // Assert
-        val activeUseCases = useCaseManager.camera?.activeUseCases
+        val activeUseCases = useCaseManager.camera?.runningUseCases
         assertThat(activeUseCases).containsExactly(preview, imageCapture)
     }
 
@@ -123,14 +122,14 @@ class UseCaseManagerTest {
         val preview = Preview.Builder().build()
         val imageCapture = ImageCapture.Builder().build()
         useCaseManager.attach(listOf(preview, imageCapture))
-        useCaseManager.enable(preview)
-        useCaseManager.enable(imageCapture)
+        useCaseManager.activate(preview)
+        useCaseManager.activate(imageCapture)
 
         // Act
-        useCaseManager.disable(preview)
+        useCaseManager.deactivate(preview)
 
         // Assert
-        val enabledUseCaseClasses = useCaseManager.camera?.activeUseCases?.map { it::class.java }
+        val enabledUseCaseClasses = useCaseManager.camera?.runningUseCases?.map { it::class.java }
         assertThat(enabledUseCaseClasses).containsExactly(
             ImageCapture::class.java,
             MeteringRepeating::class.java
@@ -143,13 +142,13 @@ class UseCaseManagerTest {
         val useCaseManager = createUseCaseManager()
         val imageCapture = ImageCapture.Builder().build()
         useCaseManager.attach(listOf(imageCapture))
-        useCaseManager.enable(imageCapture)
+        useCaseManager.activate(imageCapture)
 
         // Act
-        useCaseManager.disable(imageCapture)
+        useCaseManager.deactivate(imageCapture)
 
         // Assert
-        val enabledUseCases = useCaseManager.camera?.activeUseCases
+        val enabledUseCases = useCaseManager.camera?.runningUseCases
         assertThat(enabledUseCases).isEmpty()
     }
 

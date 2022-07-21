@@ -26,6 +26,8 @@ import androidx.room.compiler.processing.ksp.KspJvmTypeResolutionScope
 import androidx.room.compiler.processing.ksp.KspMethodElement
 import androidx.room.compiler.processing.ksp.KspProcessingEnv
 import androidx.room.compiler.processing.ksp.KspType
+import com.google.devtools.ksp.symbol.KSDeclaration
+import com.google.devtools.ksp.symbol.KSType
 import com.google.devtools.ksp.symbol.KSTypeReference
 
 internal class KspSyntheticReceiverParameterElement(
@@ -52,16 +54,17 @@ internal class KspSyntheticReceiverParameterElement(
     override val hasDefaultValue: Boolean
         get() = false
 
-    private val jvmTypeResolutionScope by lazy {
-        KspJvmTypeResolutionScope.MethodParameter(
+    private fun jvmTypeResolutionScope(container: KSDeclaration?): KspJvmTypeResolutionScope {
+        return KspJvmTypeResolutionScope.MethodParameter(
             kspExecutableElement = enclosingElement,
             parameterIndex = 0, // Receiver param is the 1st one
-            annotated = enclosingElement.declaration
+            annotated = enclosingElement.declaration,
+            container = container
         )
     }
 
-    override val type: XType by lazy {
-        env.wrap(receiverType).withJvmTypeResolver(jvmTypeResolutionScope)
+    override val type: KspType by lazy {
+        asMemberOf(enclosingElement.enclosingElement.type?.ksType)
     }
 
     override val fallbackLocationText: String
@@ -75,18 +78,29 @@ internal class KspSyntheticReceiverParameterElement(
     }
 
     override fun asMemberOf(other: XType): KspType {
+        if (closestMemberContainer.type?.isSameType(other) != false) {
+            return type
+        }
         check(other is KspType)
+        return asMemberOf(other.ksType)
+    }
+
+    private fun asMemberOf(ksType: KSType?): KspType {
         val asMemberReceiverType = receiverType.resolve().let {
-            if (it.isError) {
+            if (ksType == null || it.isError) {
                 return@let it
             }
-            val asMember = enclosingElement.declaration.asMemberOf(other.ksType)
+            val asMember = enclosingElement.declaration.asMemberOf(ksType)
             checkNotNull(asMember.extensionReceiverType)
         }
         return env.wrap(
             originatingReference = receiverType,
             ksType = asMemberReceiverType,
-        ).withJvmTypeResolver(jvmTypeResolutionScope)
+        ).withJvmTypeResolver(
+            jvmTypeResolutionScope(
+                container = ksType?.declaration
+            )
+        )
     }
 
     override fun kindName(): String {

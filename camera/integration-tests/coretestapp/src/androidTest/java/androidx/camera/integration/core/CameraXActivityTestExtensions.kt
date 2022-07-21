@@ -16,6 +16,7 @@
 
 package androidx.camera.integration.core
 
+import androidx.camera.integration.core.util.StressTestUtil.VIDEO_CAPTURE_AUTO_STOP_LENGTH_MS
 import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.IdlingRegistry
@@ -23,12 +24,16 @@ import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions
 import androidx.test.espresso.matcher.ViewMatchers
 import androidx.testutils.withActivity
+import com.google.common.truth.Truth.assertThat
 
 /**
  * Waits until the viewfinder has received frames and its idling resource has become idle.
  */
 internal fun ActivityScenario<CameraXActivity>.waitForViewfinderIdle() {
-    val idlingResource = withActivity { viewIdlingResource }
+    val idlingResource = withActivity {
+        resetViewIdlingResource()
+        viewIdlingResource
+    }
     try {
         IdlingRegistry.getInstance().register(idlingResource)
         // Check the activity launched and Preview displays frames.
@@ -38,12 +43,29 @@ internal fun ActivityScenario<CameraXActivity>.waitForViewfinderIdle() {
         IdlingRegistry.getInstance().unregister(idlingResource)
     }
 }
+/**
+ * Waits until the viewfinder has received frames and its idling resource has become idle.
+ */
+internal fun ActivityScenario<CameraXActivity>.switchCameraAndWaitForViewfinderIdle() {
+    val idlingResource = withActivity {
+        resetViewIdlingResource()
+        viewIdlingResource
+    }
+    try {
+        IdlingRegistry.getInstance().register(idlingResource)
+        Espresso.onView(ViewMatchers.withId(R.id.direction_toggle)).perform(click())
+    } finally { // Always release the idling resource, in case of timeout exceptions.
+        IdlingRegistry.getInstance().unregister(idlingResource)
+    }
+}
 
 /**
  * Waits until an image has been saved and its idling resource has become idle.
  */
 internal fun ActivityScenario<CameraXActivity>.takePictureAndWaitForImageSavedIdle() {
-    val idlingResource = withActivity { imageSavedIdlingResource }
+    val idlingResource = withActivity {
+        imageSavedIdlingResource
+    }
     try {
         IdlingRegistry.getInstance().register(idlingResource)
         // Perform click to take a picture.
@@ -51,5 +73,44 @@ internal fun ActivityScenario<CameraXActivity>.takePictureAndWaitForImageSavedId
     } finally { // Always release the idling resource, in case of timeout exceptions.
         IdlingRegistry.getInstance().unregister(idlingResource)
         withActivity { deleteSessionImages() }
+    }
+}
+
+/**
+ * Waits until the imageAnalysis has received the required number of images and its idling resource
+ * has become idle.
+ */
+internal fun ActivityScenario<CameraXActivity>.waitForImageAnalysisIdle() {
+    val idlingResource = withActivity {
+        resetAnalysisIdlingResource()
+        analysisIdlingResource
+    }
+    try {
+        IdlingRegistry.getInstance().register(idlingResource)
+        // Check the activity launched and the image analysis info is displayed on the text view.
+        Espresso.onView(ViewMatchers.withId(R.id.textView))
+            .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
+    } finally { // Always release the idling resource, in case of timeout exceptions.
+        IdlingRegistry.getInstance().unregister(idlingResource)
+    }
+}
+
+/**
+ * Waits until a video has been saved and its idling resource has become idle.
+ */
+internal fun ActivityScenario<CameraXActivity>.recordVideoAndWaitForVideoSavedIdle() {
+    val idlingResource = withActivity {
+        // Make sure that the test target use case is not null
+        assertThat(videoCapture).isNotNull()
+        setVideoCaptureAutoStopLength(VIDEO_CAPTURE_AUTO_STOP_LENGTH_MS)
+        videoSavedIdlingResource
+    }
+    try {
+        IdlingRegistry.getInstance().register(idlingResource)
+        // Perform click to record a video.
+        Espresso.onView(ViewMatchers.withId(R.id.Video)).perform(click())
+    } finally { // Always release the idling resource, in case of timeout exceptions.
+        IdlingRegistry.getInstance().unregister(idlingResource)
+        withActivity { deleteSessionVideos() }
     }
 }

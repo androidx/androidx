@@ -13,7 +13,9 @@
   See the License for the specific language governing permissions and
   limitations under the License.
   -->
-<XmlWatchFace xmlns:app="http://schemas.android.com/apk/res-auto">
+<XmlWatchFace xmlns:app="http://schemas.android.com/apk/res-auto"
+    app:complicationScaleX="10.0"
+    app:complicationScaleY="100.0">
     <UserStyleSchema>
         <ListUserStyleSetting
             app:parent="@xml/xml_time_style"
@@ -46,10 +48,10 @@
         app:name="@string/complication_name_one"
         app:screenReaderName="@string/complication_screen_reader_name_one"
         app:boundsType="ROUND_RECT"
-        app:supportedTypes="SHORT_TEXT|RANGED_VALUE|SMALL_IMAGE"
+        app:supportedTypes="RANGED_VALUE|SHORT_TEXT|SMALL_IMAGE"
         app:systemDataSourceFallback="DATA_SOURCE_WATCH_BATTERY"
         app:systemDataSourceFallbackDefaultType="RANGED_VALUE">
-        <ComplicationSlotBounds app:left="0.3" app:top="0.7" app:right="0.7" app:bottom="0.9"/>
+        <ComplicationSlotBounds app:left="3" app:top="70" app:right="7" app:bottom="90"/>
     </ComplicationSlot>
     <ComplicationSlot
         app:slotId="@integer/complication_slot_20"
@@ -61,7 +63,7 @@
         app:primaryDataSourceDefaultType="SHORT_TEXT"
         app:systemDataSourceFallback="DATA_SOURCE_SUNRISE_SUNSET"
         app:systemDataSourceFallbackDefaultType="LONG_TEXT">
-        <ComplicationSlotBounds app:left="0.1" app:top="0.2" app:right="0.3" app:bottom="0.4"/>
+        <ComplicationSlotBounds app:left="1" app:top="20" app:right="3" app:bottom="40"/>
     </ComplicationSlot>
     <ComplicationSlot
         app:slotId="@integer/complication_slot_30"
@@ -70,7 +72,7 @@
         app:supportedTypes="SHORT_TEXT"
         app:systemDataSourceFallback="NO_DATA_SOURCE"
         app:systemDataSourceFallbackDefaultType="NOT_CONFIGURED">
-        <ComplicationSlotBounds app:left="0.1" app:top="0.2" app:right="0.3" app:bottom="0.4"/>
+        <ComplicationSlotBounds app:left="1" app:top="20" app:right="3" app:bottom="40"/>
     </ComplicationSlot>
     <UserStyleFlavors>
         <UserStyleFlavor app:id="@string/flavor_id_0">

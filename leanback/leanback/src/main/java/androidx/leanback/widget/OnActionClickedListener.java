@@ -13,6 +13,8 @@
  */
 package androidx.leanback.widget;
 
+import androidx.annotation.NonNull;
+
 /**
  * Interface for receiving notification when an {@link Action} is clicked.
  */
@@ -21,5 +23,5 @@ public interface OnActionClickedListener {
     /**
      * Callback fired when the host fragment receives an action.
      */
-    void onActionClicked(Action action);
+    void onActionClicked(@NonNull Action action);
 }

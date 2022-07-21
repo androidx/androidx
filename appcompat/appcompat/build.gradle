@@ -8,14 +8,23 @@ plugins {
 }
 
 dependencies {
-    api("androidx.annotation:annotation:1.3.0")
-    api(projectOrArtifact(":core:core"))
+    // Atomic group
+    constraints {
+        implementation(project(":appcompat:appcompat-resources"))
+    }
 
-    implementation("androidx.emoji2:emoji2:1.2.0-alpha04")
-    implementation("androidx.emoji2:emoji2-views-helper:1.2.0-alpha04")
+    api("androidx.annotation:annotation:1.3.0")
+    api("androidx.core:core:1.8.0")
+
+    // Required to make activity 1.5.0-rc01 dependencies resolve.
+    implementation("androidx.core:core-ktx:1.8.0")
+    implementation(libs.kotlinStdlib)
+
+    implementation(projectOrArtifact(":emoji2:emoji2"))
+    implementation(projectOrArtifact(":emoji2:emoji2-views-helper"))
     implementation("androidx.collection:collection:1.0.0")
     api("androidx.cursoradapter:cursoradapter:1.0.0")
-    api(projectOrArtifact(":activity:activity"))
+    api("androidx.activity:activity:1.5.0")
     api("androidx.fragment:fragment:1.3.6")
     api(project(":appcompat:appcompat-resources"))
     api("androidx.drawerlayout:drawerlayout:1.0.0")
@@ -27,7 +36,7 @@ dependencies {
     // Due to experimental annotations used in core.
     compileOnly(libs.kotlinStdlib)
 
-    kapt(projectOrArtifact(":resourceinspection:resourceinspection-processor"))
+    kapt("androidx.resourceinspection:resourceinspection-annotation:1.0.1")
 
     androidTestImplementation(libs.kotlinStdlib)
     androidTestImplementation(libs.testExtJunit)
@@ -40,6 +49,7 @@ dependencies {
     androidTestImplementation(libs.mockitoCore, excludes.bytebuddy) // DexMaker has it's own MockMaker
     androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy) // DexMaker has it's own MockMaker
     androidTestImplementation("androidx.lifecycle:lifecycle-runtime-testing:2.3.1" )
+    androidTestImplementation(project(":internal-testutils-runtime"))
     androidTestImplementation(project(":internal-testutils-appcompat"), {
         exclude group: "androidx.appcompat", module: "appcompat"
         exclude group: "androidx.core", module: "core"
@@ -86,12 +96,12 @@ android {
     useLibrary "android.test.base"
     useLibrary "android.test.mock"
     namespace "androidx.appcompat"
+    testNamespace "androidx.appcompat.test"
 }
 
 androidx {
     name = "Android AppCompat Library"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenVersion = LibraryVersions.APPCOMPAT
     mavenGroup = LibraryGroups.APPCOMPAT
     inceptionYear = "2011"
     description = "The Support Library is a static library that you can add to your Android application in order to use APIs that are either not available for older platform versions or utility APIs that aren\'t a part of the framework APIs. Compatible on devices running API 14 or later."

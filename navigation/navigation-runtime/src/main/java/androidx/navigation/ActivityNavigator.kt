@@ -233,6 +233,10 @@ public open class ActivityNavigator(
          *
          * If a non-null arguments Bundle is present when navigating, any segments in the form
          * `{argName}` will be replaced with a URI encoded string from the arguments.
+         *
+         * When inflated from XML, you can use `${applicationId}` as an argument pattern
+         * to automatically use [Context.getPackageName].
+         *
          * @param dataPattern A URI pattern with segments in the form of `{argName}` that
          * will be replaced with URI encoded versions of the Strings in the
          * arguments Bundle.
@@ -264,13 +268,10 @@ public open class ActivityNavigator(
                 attrs,
                 R.styleable.ActivityNavigator
             ).use { array ->
-                var targetPackage = array.getString(R.styleable.ActivityNavigator_targetPackage)
-                if (targetPackage != null) {
-                    targetPackage = targetPackage.replace(
-                        NavInflater.APPLICATION_ID_PLACEHOLDER,
-                        context.packageName
-                    )
-                }
+                var targetPackage = parseApplicationId(
+                    context,
+                    array.getString(R.styleable.ActivityNavigator_targetPackage)
+                )
                 setTargetPackage(targetPackage)
                 var className = array.getString(R.styleable.ActivityNavigator_android_name)
                 if (className != null) {
@@ -280,12 +281,26 @@ public open class ActivityNavigator(
                     setComponentName(ComponentName(context, className))
                 }
                 setAction(array.getString(R.styleable.ActivityNavigator_action))
-                val data = array.getString(R.styleable.ActivityNavigator_data)
+                val data = parseApplicationId(
+                    context,
+                    array.getString(R.styleable.ActivityNavigator_data)
+                )
                 if (data != null) {
                     setData(Uri.parse(data))
                 }
-                setDataPattern(array.getString(R.styleable.ActivityNavigator_dataPattern))
+                val dataPattern = parseApplicationId(
+                    context,
+                    array.getString(R.styleable.ActivityNavigator_dataPattern)
+                )
+                setDataPattern(dataPattern)
             }
+        }
+
+        private fun parseApplicationId(context: Context, pattern: String?): String? {
+            return pattern?.replace(
+                NavInflater.APPLICATION_ID_PLACEHOLDER,
+                context.packageName
+            )
         }
 
         /**
@@ -369,6 +384,9 @@ public open class ActivityNavigator(
          * To use a dynamic URI that changes based on the arguments passed in when navigating,
          * use [setDataPattern], which will take precedence when arguments are
          * present.
+         *
+         *  When inflated from XML, you can use `${applicationId}` for string interpolation
+         *  to automatically use [Context.getPackageName].
          *
          * @param data A static URI that should always be used.
          * @see Destination.setDataPattern

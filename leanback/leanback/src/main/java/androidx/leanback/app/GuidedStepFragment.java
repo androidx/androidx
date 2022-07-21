@@ -427,7 +427,7 @@ public class GuidedStepFragment extends Fragment implements GuidedActionAdapter.
      * Callback invoked when an action is focused (made to be the current selection) by the user.
      */
     @Override
-    public void onGuidedActionFocused(GuidedAction action) {
+    public void onGuidedActionFocused(@NonNull GuidedAction action) {
     }
 
     /**

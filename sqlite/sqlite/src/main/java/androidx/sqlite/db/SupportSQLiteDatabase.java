@@ -47,7 +47,8 @@ public interface SupportSQLiteDatabase extends Closeable {
      * @param sql The sql query.
      * @return Compiled statement.
      */
-    SupportSQLiteStatement compileStatement(String sql);
+    @NonNull
+    SupportSQLiteStatement compileStatement(@NonNull String sql);
 
     /**
      * Begins a transaction in EXCLUSIVE mode.
@@ -119,7 +120,7 @@ public interface SupportSQLiteDatabase extends Closeable {
      *                            commits, or is rolled back, either explicitly or by a call to
      *                            {@link #yieldIfContendedSafely}.
      */
-    void beginTransactionWithListener(SQLiteTransactionListener transactionListener);
+    void beginTransactionWithListener(@NonNull SQLiteTransactionListener transactionListener);
 
     /**
      * Begins a transaction in IMMEDIATE mode. Transactions can be nested. When
@@ -145,7 +146,8 @@ public interface SupportSQLiteDatabase extends Closeable {
      *                            transaction begins, commits, or is rolled back, either
      *                            explicitly or by a call to {@link #yieldIfContendedSafely}.
      */
-    void beginTransactionWithListenerNonExclusive(SQLiteTransactionListener transactionListener);
+    void beginTransactionWithListenerNonExclusive(
+            @NonNull SQLiteTransactionListener transactionListener);
 
     /**
      * End a transaction. See beginTransaction for notes about how to use this and when transactions
@@ -308,20 +310,22 @@ public interface SupportSQLiteDatabase extends Closeable {
      * {@link Cursor}s are not synchronized, see the documentation for more details.
      * @see #query(SupportSQLiteQuery)
      */
-    Cursor query(String query);
+    @NonNull
+    Cursor query(@NonNull String query);
 
     /**
      * Runs the given query on the database. If you would like to have bind arguments,
      * use {@link #query(SupportSQLiteQuery)}.
      *
-     * @param query The SQL query that includes the query and can bind into a given compiled
-     *              program.
+     * @param query    The SQL query that includes the query and can bind into a given compiled
+     *                 program.
      * @param bindArgs The query arguments to bind.
      * @return A {@link Cursor} object, which is positioned before the first entry. Note that
      * {@link Cursor}s are not synchronized, see the documentation for more details.
      * @see #query(SupportSQLiteQuery)
      */
-    Cursor query(String query, Object[] bindArgs);
+    @NonNull
+    Cursor query(@NonNull String query, @NonNull Object[] bindArgs);
 
     /**
      * Runs the given query on the database.
@@ -334,7 +338,8 @@ public interface SupportSQLiteDatabase extends Closeable {
      * {@link Cursor}s are not synchronized, see the documentation for more details.
      * @see SimpleSQLiteQuery
      */
-    Cursor query(SupportSQLiteQuery query);
+    @NonNull
+    Cursor query(@NonNull SupportSQLiteQuery query);
 
     /**
      * Runs the given query on the database.
@@ -349,8 +354,10 @@ public interface SupportSQLiteDatabase extends Closeable {
      * @return A {@link Cursor} object, which is positioned before the first entry. Note that
      * {@link Cursor}s are not synchronized, see the documentation for more details.
      */
+    @NonNull
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
-    Cursor query(SupportSQLiteQuery query, CancellationSignal cancellationSignal);
+    Cursor query(@NonNull SupportSQLiteQuery query,
+            @Nullable CancellationSignal cancellationSignal);
 
     /**
      * Convenience method for inserting a row into the database.
@@ -366,7 +373,8 @@ public interface SupportSQLiteDatabase extends Closeable {
      * @return the row ID of the newly inserted row, or -1 if an error occurred
      * @throws SQLException If the insert fails
      */
-    long insert(String table, int conflictAlgorithm, ContentValues values) throws SQLException;
+    long insert(@NonNull String table, int conflictAlgorithm, @NonNull ContentValues values)
+            throws SQLException;
 
     /**
      * Convenience method for deleting rows in the database.
@@ -381,7 +389,7 @@ public interface SupportSQLiteDatabase extends Closeable {
      * otherwise. To remove all rows and get a count pass "1" as the
      * whereClause.
      */
-    int delete(String table, String whereClause, Object[] whereArgs);
+    int delete(@NonNull String table, @Nullable String whereClause, @Nullable Object[] whereArgs);
 
     /**
      * Convenience method for updating rows in the database.
@@ -400,8 +408,8 @@ public interface SupportSQLiteDatabase extends Closeable {
      *                    will be bound as Strings.
      * @return the number of rows affected
      */
-    int update(String table, int conflictAlgorithm,
-            ContentValues values, String whereClause, Object[] whereArgs);
+    int update(@NonNull String table, int conflictAlgorithm, @NonNull ContentValues values,
+            @Nullable String whereClause, @Nullable Object[] whereArgs);
 
     /**
      * Execute a single SQL statement that does not return any data.
@@ -417,7 +425,7 @@ public interface SupportSQLiteDatabase extends Closeable {
      * @throws SQLException if the SQL string is invalid
      * @see #query(SupportSQLiteQuery)
      */
-    void execSQL(String sql) throws SQLException;
+    void execSQL(@NonNull String sql) throws SQLException;
 
     /**
      * Execute a single SQL statement that does not return any data.
@@ -435,7 +443,7 @@ public interface SupportSQLiteDatabase extends Closeable {
      * @throws SQLException if the SQL string is invalid
      * @see #query(SupportSQLiteQuery)
      */
-    void execSQL(String sql, Object[] bindArgs) throws SQLException;
+    void execSQL(@NonNull String sql, @NonNull Object[] bindArgs) throws SQLException;
 
     /**
      * Returns true if the database is opened as read only.
@@ -464,6 +472,7 @@ public interface SupportSQLiteDatabase extends Closeable {
      *
      * @return The path to the database file.
      */
+    @Nullable
     String getPath();
 
     /**
@@ -476,7 +485,7 @@ public interface SupportSQLiteDatabase extends Closeable {
      *                      requested.
      *                      In this case the database remains unchanged.
      */
-    void setLocale(Locale locale);
+    void setLocale(@NonNull Locale locale);
 
     /**
      * Sets the maximum size of the prepared-statement cache for this database.
@@ -630,6 +639,8 @@ public interface SupportSQLiteDatabase extends Closeable {
      * @return ArrayList of pairs of (database name, database file path) or null if the database
      * is not open.
      */
+    @SuppressWarnings("NullableCollection") // Consistent with platform API.
+    @Nullable
     List<Pair<String, String>> getAttachedDbs();
 
     /**

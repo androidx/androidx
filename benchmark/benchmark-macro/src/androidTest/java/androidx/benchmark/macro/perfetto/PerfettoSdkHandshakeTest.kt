@@ -17,7 +17,9 @@
 package androidx.benchmark.macro.perfetto
 
 import android.os.Build
+import android.util.JsonReader
 import androidx.annotation.RequiresApi
+import androidx.benchmark.Outputs
 import androidx.benchmark.Shell
 import androidx.benchmark.macro.MacrobenchmarkScope
 import androidx.benchmark.macro.Packages
@@ -25,7 +27,15 @@ import androidx.benchmark.macro.perfetto.PerfettoSdkHandshakeTest.SdkDelivery.MI
 import androidx.benchmark.macro.perfetto.PerfettoSdkHandshakeTest.SdkDelivery.PROVIDED_BY_BENCHMARK
 import androidx.benchmark.perfetto.PerfettoCapture
 import androidx.benchmark.perfetto.PerfettoHelper.Companion.isAbiSupported
+import androidx.test.platform.app.InstrumentationRegistry
+import androidx.tracing.perfetto.PerfettoHandshake
+import androidx.tracing.perfetto.PerfettoHandshake.ExternalLibraryProvider
+import androidx.tracing.perfetto.PerfettoHandshake.ResponseExitCodes.RESULT_CODE_ALREADY_ENABLED
+import androidx.tracing.perfetto.PerfettoHandshake.ResponseExitCodes.RESULT_CODE_ERROR_BINARY_MISSING
+import androidx.tracing.perfetto.PerfettoHandshake.ResponseExitCodes.RESULT_CODE_SUCCESS
 import com.google.common.truth.Truth.assertThat
+import java.io.File
+import java.io.StringReader
 import org.junit.After
 import org.junit.Assume.assumeTrue
 import org.junit.Before
@@ -142,6 +152,103 @@ class PerfettoSdkHandshakeTest(private val testConfig: TestConfig) {
             )
 
         assertThat(response).ignoringCase().contains("SDK version not supported")
+    }
+
+    /**
+     * This tests [androidx.tracing.perfetto.PerfettoHandshake] which is used by both Benchmark
+     * and Studio.
+     *
+     * By contrast, other tests use the [PerfettoCapture.enableAndroidxTracingPerfetto], which
+     * is built on top of [androidx.tracing.perfetto.PerfettoHandshake] and implements
+     * the parts where Studio and Benchmark differ.
+     */
+    @Test
+    fun test_handshake_framework() {
+        assumeTrue(isAbiSupported())
+        assumeTrue(Build.VERSION.SDK_INT >= minSupportedSdk)
+
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+
+        val libraryProvider: ExternalLibraryProvider? = when (testConfig.sdkDelivery) {
+            MISSING -> null
+            PROVIDED_BY_BENCHMARK -> {
+                // find tracing-perfetto-binary AAR in test assets
+                val libraryZipPath: String? = run {
+                    val rx =
+                        Regex(".*/tracing-perfetto-binary-[^/]+\\.aar", RegexOption.IGNORE_CASE)
+                    val queue = ArrayDeque(context.assets.list("")?.asList() ?: emptyList())
+                    while (queue.isNotEmpty()) {
+                        val curr = queue.removeFirst()
+                        val desc = context.assets.list(curr) ?: emptyArray()
+                        when (desc.size) {
+                            0 -> if (curr.matches(rx)) return@run curr
+                            else -> queue.addAll(desc.map { "$curr/$it" })
+                        }
+                    }
+                    null
+                }
+                assertThat(libraryZipPath).isNotNull()
+
+                // place the AAR in a location that can be referenced by a file-system path
+                val tmpLibFile = File.createTempFile(
+                    "tmplib", ".zip",
+                    Outputs.dirUsableByAppAndShell
+                ).also { it.deleteOnExit() }
+                context.assets.open(libraryZipPath!!).use { input ->
+                    tmpLibFile.outputStream().use { output -> input.copyTo(output) }
+                }
+
+                // construct a library provider referencing the AAR
+                ExternalLibraryProvider(
+                    tmpLibFile,
+                    Outputs.dirUsableByAppAndShell
+                ) { tmpFile, dstFile ->
+                    Shell.executeCommand("mkdir -p ${dstFile.parentFile!!.path}").also { response ->
+                        assertThat(response).isEmpty()
+                    }
+                    Shell.executeCommand("mv ${tmpFile.path} ${dstFile.path}").also { response ->
+                        assertThat(response).isEmpty()
+                    }
+                }
+            }
+        }
+
+        // construct a handshake
+
+        val handshake = PerfettoHandshake(
+            targetPackage,
+            parseJsonMap = { jsonString: String ->
+                sequence {
+                    JsonReader(StringReader(jsonString)).use { reader ->
+                        reader.beginObject()
+                        while (reader.hasNext()) yield(reader.nextName() to reader.nextString())
+                        reader.endObject()
+                    }
+                }.toMap()
+            },
+            Shell::executeCommand
+        )
+
+        /** perform a handshake using [androidx.tracing.perfetto.PerfettoHandshake] */
+
+        val versionRx = "\\d+(\\.\\d+){2}(-[\\w-]+)?"
+        handshake.enableTracing(libraryProvider).also { response ->
+            val expectedExitCode = when (testConfig.sdkDelivery) {
+                PROVIDED_BY_BENCHMARK -> RESULT_CODE_SUCCESS
+                MISSING -> RESULT_CODE_ERROR_BINARY_MISSING
+            }
+            assertThat(response.exitCode).isEqualTo(expectedExitCode)
+            assertThat(response.requiredVersion).matches(versionRx)
+        }
+
+        handshake.enableTracing(libraryProvider).also { response ->
+            val expectedExitCode = when (testConfig.sdkDelivery) {
+                PROVIDED_BY_BENCHMARK -> RESULT_CODE_ALREADY_ENABLED
+                MISSING -> RESULT_CODE_ERROR_BINARY_MISSING
+            }
+            assertThat(response.exitCode).isEqualTo(expectedExitCode)
+            assertThat(response.requiredVersion).matches(versionRx)
+        }
     }
 
     private fun enablePackage() {

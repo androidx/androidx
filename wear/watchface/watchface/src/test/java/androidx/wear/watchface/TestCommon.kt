@@ -78,6 +78,12 @@ internal class TestWatchFaceService(
 
     override fun forceIsVisibleForTesting() = forceIsVisible
 
+    /**
+     * [WatchFaceService.EngineWrapper.onDestroy] is called more than once in some tests which is a
+     * problem due to using a CoroutineScope after it's been cancelled leading to exceptions.
+     */
+    override fun cancelCoroutineScopesInOnDestroy() = false
+
     fun reset() {
         clearTappedState()
         complicationSelected = null

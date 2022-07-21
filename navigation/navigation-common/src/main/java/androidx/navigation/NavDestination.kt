@@ -28,6 +28,7 @@ import androidx.collection.forEach
 import androidx.collection.valueIterator
 import androidx.core.content.res.use
 import androidx.navigation.common.R
+import java.util.regex.Pattern
 import kotlin.reflect.KClass
 
 /**
@@ -506,6 +507,50 @@ public open class NavDestination(
             }
         }
         return defaultArgs
+    }
+
+    /**
+     * Parses a dynamic label containing arguments into a String.
+     *
+     * Supports String Resource arguments by parsing `R.string` values of `ReferenceType`
+     * arguments found in `android:label` into their String values.
+     *
+     * Returns `null` if label is null.
+     *
+     * Returns the original label if the label was a static string.
+     *
+     * @param context Context used to resolve a resource's name
+     * @param bundle Bundle containing the arguments used in the label
+     * @return The parsed string or null if the label is null
+     * @throws IllegalArgumentException if an argument provided in the label cannot be found in
+     * the bundle, or if the label contains a string template but the bundle is null
+     */
+    public fun fillInLabel(context: Context, bundle: Bundle?): String? {
+        val label = label ?: return null
+
+        val fillInPattern = Pattern.compile("\\{(.+?)\\}")
+        val matcher = fillInPattern.matcher(label)
+        val builder = StringBuffer()
+
+        while (matcher.find()) {
+            val argName = matcher.group(1)
+            if (bundle != null && bundle.containsKey(argName)) {
+                matcher.appendReplacement(builder, "")
+                val argType = argName?.let { arguments[argName]?.type }
+                if (argType == NavType.ReferenceType) {
+                    val value = context.getString(bundle.getInt(argName))
+                    builder.append(value)
+                } else {
+                    builder.append(bundle.getString(argName))
+                }
+            } else {
+                throw IllegalArgumentException(
+                    "Could not find \"$argName\" in $bundle to fill label \"$label\""
+                )
+            }
+        }
+        matcher.appendTail(builder)
+        return builder.toString()
     }
 
     override fun toString(): String {

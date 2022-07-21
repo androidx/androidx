@@ -33,14 +33,17 @@ import android.view.Surface;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
+import androidx.camera.camera2.impl.Camera2ImplConfig;
 import androidx.camera.camera2.internal.annotation.CameraExecutor;
 import androidx.camera.camera2.internal.compat.ApiCompat;
 import androidx.camera.camera2.internal.compat.CameraAccessExceptionCompat;
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
 import androidx.camera.camera2.internal.compat.CameraManagerCompat;
 import androidx.camera.camera2.internal.compat.quirk.DeviceQuirks;
+import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
 import androidx.camera.core.CameraState;
 import androidx.camera.core.CameraUnavailableException;
 import androidx.camera.core.Logger;
@@ -178,7 +181,7 @@ final class Camera2CameraImpl implements CameraInternal {
     private final Set<String> mNotifyStateAttachedSet = new HashSet<>();
 
     @NonNull
-    private CameraConfig mCameraConfig;
+    private CameraConfig mCameraConfig = CameraConfigs.emptyConfig();
     final Object mLock = new Object();
     // mSessionProcessor will be used to transform capture session if non-null.
     @GuardedBy("mLock")
@@ -556,7 +559,7 @@ final class Camera2CameraImpl implements CameraInternal {
 
             @ExecutedBy("mExecutor")
             @Override
-            public void onFailure(Throwable t) {
+            public void onFailure(@NonNull Throwable t) {
                 // Don't reset the internal release future as we want to keep track of the error
                 // TODO: The camera should be put into an error state at this point
             }
@@ -1113,6 +1116,7 @@ final class Camera2CameraImpl implements CameraInternal {
      * <p>The previously opened session will be safely disposed of before the new session opened.
      */
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    @OptIn(markerClass = ExperimentalCamera2Interop.class)
     @ExecutedBy("mExecutor")
     void openCaptureSession() {
         Preconditions.checkState(mState == InternalState.OPENED);
@@ -1121,6 +1125,14 @@ final class Camera2CameraImpl implements CameraInternal {
         if (!validatingBuilder.isValid()) {
             debugLog("Unable to create capture session due to conflicting configurations");
             return;
+        }
+
+        if (!validatingBuilder.build().getImplementationOptions().containsOption(
+                Camera2ImplConfig.STREAM_USE_CASE_OPTION)) {
+            validatingBuilder.addImplementationOption(Camera2ImplConfig.STREAM_USE_CASE_OPTION,
+                    StreamUseCaseUtil.getStreamUseCaseFromUseCaseConfigs(
+                            mUseCaseAttachState.getAttachedUseCaseConfigs(),
+                            mUseCaseAttachState.getAttachedSessionConfigs()));
         }
 
         CaptureSessionInterface captureSession = mCaptureSession;
@@ -1136,7 +1148,7 @@ final class Camera2CameraImpl implements CameraInternal {
 
             @Override
             @ExecutedBy("mExecutor")
-            public void onFailure(Throwable t) {
+            public void onFailure(@NonNull Throwable t) {
                 if (t instanceof DeferrableSurface.SurfaceClosedException) {
                     SessionConfig sessionConfig =
                             findSessionConfigForSurface(

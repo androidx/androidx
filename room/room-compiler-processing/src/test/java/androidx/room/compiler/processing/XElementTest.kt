@@ -189,21 +189,21 @@ class XElementTest {
         runProcessorTest(
             listOf(genericBase, boundedChild)
         ) {
-            fun validateElement(element: XTypeElement, tTypeName: TypeName, rTypeName: TypeName) {
+            fun validateMethodElement(
+                element: XTypeElement,
+                tTypeName: TypeName,
+                rTypeName: TypeName
+            ) {
                 element.getMethodByJvmName("returnT").let { method ->
                     assertThat(method.parameters).isEmpty()
                     assertThat(method.returnType.typeName).isEqualTo(tTypeName)
                 }
                 element.getMethodByJvmName("receiveT").let { method ->
-                    method.getParameter("param1").let { param ->
-                        assertThat(param.type.typeName).isEqualTo(tTypeName)
-                    }
+                    assertThat(method.getParameter("param1").type.typeName).isEqualTo(tTypeName)
                     assertThat(method.returnType.typeName).isEqualTo(TypeName.INT)
                 }
                 element.getMethodByJvmName("receiveR").let { method ->
-                    method.getParameter("param1").let { param ->
-                        assertThat(param.type.typeName).isEqualTo(rTypeName)
-                    }
+                    assertThat(method.getParameter("param1").type.typeName).isEqualTo(rTypeName)
                     assertThat(method.returnType.typeName).isEqualTo(TypeName.INT)
                 }
                 element.getMethodByJvmName("returnR").let { method ->
@@ -211,12 +211,48 @@ class XElementTest {
                     assertThat(method.returnType.typeName).isEqualTo(rTypeName)
                 }
             }
-            validateElement(
+            fun validateMethodTypeAsMemberOf(
+                element: XTypeElement,
+                tTypeName: TypeName,
+                rTypeName: TypeName
+            ) {
+                element.getMethodByJvmName("returnT").asMemberOf(element.type).let { method ->
+                    assertThat(method.parameterTypes).isEmpty()
+                    assertThat(method.returnType.typeName).isEqualTo(tTypeName)
+                }
+                element.getMethodByJvmName("receiveT").asMemberOf(element.type).let { method ->
+                    assertThat(method.parameterTypes).hasSize(1)
+                    assertThat(method.parameterTypes[0].typeName).isEqualTo(tTypeName)
+                    assertThat(method.returnType.typeName).isEqualTo(TypeName.INT)
+                }
+                element.getMethodByJvmName("receiveR").asMemberOf(element.type).let { method ->
+                    assertThat(method.parameterTypes).hasSize(1)
+                    assertThat(method.parameterTypes[0].typeName).isEqualTo(rTypeName)
+                    assertThat(method.returnType.typeName).isEqualTo(TypeName.INT)
+                }
+                element.getMethodByJvmName("returnR").let { method ->
+                    assertThat(method.parameters).isEmpty()
+                    assertThat(method.returnType.typeName).isEqualTo(rTypeName)
+                }
+            }
+
+            validateMethodElement(
                 element = it.processingEnv.requireTypeElement("foo.bar.Base"),
                 tTypeName = TypeVariableName.get("T"),
                 rTypeName = TypeVariableName.get("R")
             )
-            validateElement(
+            validateMethodElement(
+                element = it.processingEnv.requireTypeElement("foo.bar.Child"),
+                tTypeName = TypeVariableName.get("T"),
+                rTypeName = TypeVariableName.get("R")
+            )
+
+            validateMethodTypeAsMemberOf(
+                element = it.processingEnv.requireTypeElement("foo.bar.Base"),
+                tTypeName = TypeVariableName.get("T"),
+                rTypeName = TypeVariableName.get("R")
+            )
+            validateMethodTypeAsMemberOf(
                 element = it.processingEnv.requireTypeElement("foo.bar.Child"),
                 tTypeName = String::class.className(),
                 rTypeName = TypeVariableName.get("R")

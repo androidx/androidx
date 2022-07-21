@@ -90,31 +90,40 @@ internal class ScalingLazyColumnSnapFlingBehavior(
         // We can also control the inertia of these speeds, i.e. how much it will accelerate/
         // decelerate at the beginning and end.
         val distance = finalTarget - animationState.value
-        val initialSpeed = animationState.velocity
 
-        // Inertia of the initial speed.
-        val initialInertia = 0.5f
+        // If the distance to fling is zero, nothing to do (and must avoid divide-by-zero below).
+        if (distance != 0.0f) {
+            val initialSpeed = animationState.velocity
 
-        // Compute how much time we want to spend on the final snap, depending on the speed
-        val finalSnapDuration = lerp(FINAL_SNAP_DURATION_MIN, FINAL_SNAP_DURATION_MAX,
-            abs(initialSpeed) / SNAP_SPEED_THRESHOLD)
+            // Inertia of the initial speed.
+            val initialInertia = 0.5f
 
-        // Initial control point. Has slope (velocity) adjustedSpeed and magnitude (inertia)
-        // initialInertia
-        val adjustedSpeed = initialSpeed * finalSnapDuration / distance
-        val easingX0 = initialInertia / sqrt(1f + adjustedSpeed * adjustedSpeed)
-        val easingY0 = easingX0 * adjustedSpeed
+            // Compute how much time we want to spend on the final snap, depending on the speed
+            val finalSnapDuration = lerp(
+                FINAL_SNAP_DURATION_MIN, FINAL_SNAP_DURATION_MAX,
+                abs(initialSpeed) / SNAP_SPEED_THRESHOLD
+            )
 
-        // Final control point. Has slope 0, unless that will make us accelerate then decelerate,
-        // in that case we set the slope to 1.
-        val easingX1 = 0.8f
-        val easingY1 = if (easingX0 > easingY0) 0.8f else 1f
+            // Initial control point. Has slope (velocity) adjustedSpeed and magnitude (inertia)
+            // initialInertia
+            val adjustedSpeed = initialSpeed * finalSnapDuration / distance
+            val easingX0 = initialInertia / sqrt(1f + adjustedSpeed * adjustedSpeed)
+            val easingY0 = easingX0 * adjustedSpeed
 
-        animationState.animateTo(finalTarget, tween((finalSnapDuration * 1000).roundToInt(),
-            easing = CubicBezierEasing(easingX0, easingY0, easingX1, easingY1)
-        )) {
-            scrollBy(value - lastValue)
-            lastValue = value
+            // Final control point. Has slope 0, unless that will make us accelerate then decelerate,
+            // in that case we set the slope to 1.
+            val easingX1 = 0.8f
+            val easingY1 = if (easingX0 > easingY0) 0.8f else 1f
+
+            animationState.animateTo(
+                finalTarget, tween(
+                    (finalSnapDuration * 1000).roundToInt(),
+                    easing = CubicBezierEasing(easingX0, easingY0, easingX1, easingY1)
+                )
+            ) {
+                scrollBy(value - lastValue)
+                lastValue = value
+            }
         }
 
         return animationState.velocity

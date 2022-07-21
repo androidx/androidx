@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
  * Copyright (C) 2014 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,60 +14,67 @@
  * limitations under the License.
  -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        tools:context=".UiObject2TestVerticalScrollActivity">
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".UiObject2TestVerticalScrollActivity">
 
-        <TextView android:id="@+id/fling_detected"
+    <ScrollView
+        android:id="@+id/scroll_view"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content">
+
+        <RelativeLayout
+            android:layout_width="fill_parent"
+            android:layout_height="20000px">
+
+            <TextView
+                android:id="@+id/top_text"
+                android:layout_width="wrap_content"
+                android:layout_height="50px"
+                android:layout_alignParentTop="true"
+                android:text="This is the top" />
+
+            <TextView
+                android:id="@+id/from_top_5000"
+                android:layout_width="wrap_content"
+                android:layout_height="50px"
+                android:layout_alignParentTop="true"
+                android:layout_marginTop="5000px"
+                android:text="This is 5000px from the top" />
+
+            <TextView
+                android:id="@+id/from_top_10000"
+                android:layout_width="wrap_content"
+                android:layout_height="50px"
+                android:layout_alignParentTop="true"
+                android:layout_marginTop="10000px"
+                android:text="This is 10000px from the top" />
+
+            <TextView
+                android:id="@+id/from_top_15000"
+                android:layout_width="wrap_content"
+                android:layout_height="50px"
+                android:layout_alignParentTop="true"
+                android:layout_marginTop="15000px"
+                android:text="This is 15000px from the top" />
+
+            <TextView
+                android:id="@+id/bottom_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="false" />
+                android:layout_alignParentBottom="true"
+                android:text="This is the bottom" />
 
-        <ScrollView android:id="@+id/scroll_view"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content">
+        </RelativeLayout>
 
-            <RelativeLayout
-                    android:layout_width="fill_parent"
-                    android:layout_height="20000px">
+    </ScrollView>
 
-                <TextView android:id="@+id/top_text"
-                        android:layout_width="wrap_content"
-                        android:layout_height="50px"
-                        android:layout_alignParentTop="true"
-                        android:text="This is the top" />
-
-                <TextView android:id="@+id/from_top_5000"
-                        android:layout_width="wrap_content"
-                        android:layout_height="50px"
-                        android:layout_alignParentTop="true"
-                        android:layout_marginTop="5000px"
-                        android:text="This is 5000px from the top" />
-
-                <TextView android:id="@+id/from_top_10000"
-                        android:layout_width="wrap_content"
-                        android:layout_height="50px"
-                        android:layout_alignParentTop="true"
-                        android:layout_marginTop="10000px"
-                        android:text="This is 10000px from the top" />
-
-                <TextView android:id="@+id/from_top_15000"
-                        android:layout_width="wrap_content"
-                        android:layout_height="50px"
-                        android:layout_alignParentTop="true"
-                        android:layout_marginTop="15000px"
-                        android:text="This is 15000px from the top" />
-
-                <TextView android:id="@+id/bottom_text"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_alignParentBottom="true"
-                        android:text="This is the bottom" />
-
-            </RelativeLayout>
-
-        </ScrollView>
+    <TextView
+        android:id="@+id/fling_detected"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="false" />
 
 </LinearLayout>

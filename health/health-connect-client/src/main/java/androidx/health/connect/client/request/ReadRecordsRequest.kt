@@ -47,7 +47,7 @@ import kotlin.reflect.KClass
 public class ReadRecordsRequest<T : Record>(
     internal val recordType: KClass<T>,
     internal val timeRangeFilter: TimeRangeFilter,
-    internal val dataOriginFilter: List<DataOrigin> = emptyList(),
+    internal val dataOriginFilter: Set<DataOrigin> = emptySet(),
     internal val ascendingOrder: Boolean = true,
     internal val pageSize: Int = 1000,
     internal val pageToken: String? = null,

@@ -25,6 +25,7 @@ import android.os.IBinder;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 
+import androidx.annotation.NonNull;
 import androidx.leanback.app.PlaybackFragment;
 import androidx.leanback.app.PlaybackFragmentGlueHost;
 import androidx.leanback.media.MediaControllerAdapter;
@@ -84,7 +85,9 @@ public class MusicPlayerFragment extends PlaybackFragment implements
          * @param secondaryActionsAdapter The adapter you need to add the {@link Action}s to.
          */
         @Override
-        protected void onCreateSecondaryActions(ArrayObjectAdapter secondaryActionsAdapter) {
+        protected void onCreateSecondaryActions(
+                @NonNull ArrayObjectAdapter secondaryActionsAdapter
+        ) {
             final long supportedActions = getSupportedActions();
 
             if ((supportedActions & ACTION_REPEAT) != 0 && mRepeatAction == null) {
@@ -135,7 +138,7 @@ public class MusicPlayerFragment extends PlaybackFragment implements
          * @param action Action performed by app user.
          */
         @Override
-        public void onActionClicked(Action action) {
+        public void onActionClicked(@NonNull Action action) {
             // In our customized glue, only shuffle and repeat these two actions will be
             // processed specifically. Other actions will be handled by super method.
             super.onActionClicked(action);

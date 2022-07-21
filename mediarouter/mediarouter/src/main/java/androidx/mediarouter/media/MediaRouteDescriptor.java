@@ -459,9 +459,7 @@ public final class MediaRouteDescriptor {
         @RestrictTo(LIBRARY)
         @NonNull
         public Builder clearGroupMemberIds() {
-            if (mGroupMemberIds == null) {
-                mGroupMemberIds = new ArrayList<>();
-            } else {
+            if (mGroupMemberIds != null) {
                 mGroupMemberIds.clear();
             }
             return this;
@@ -654,7 +652,17 @@ public final class MediaRouteDescriptor {
             return this;
         }
 
-        //TODO: Add a method that can remove ro clear control filters
+        /**
+         * Clears {@link MediaControlIntent media control intent} filters for the route.
+         */
+        @NonNull
+        public Builder clearControlFilters() {
+            if (mControlFilters != null) {
+                mControlFilters.clear();
+            }
+            return this;
+        }
+
         /**
          * Adds a {@link MediaControlIntent media control intent} filter for the route.
          */

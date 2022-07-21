@@ -17,6 +17,7 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 
 import java.util.ArrayList;
@@ -57,7 +58,7 @@ public final class StateMachine {
     public static class Event {
         final String mName;
 
-        public Event(String name) {
+        public Event(@NonNull String name) {
             mName = name;
         }
     }
@@ -68,7 +69,7 @@ public final class StateMachine {
     public static class Condition {
         final String mName;
 
-        public Condition(String name) {
+        public Condition(@NonNull String name) {
             mName = name;
         }
 
@@ -265,7 +266,7 @@ public final class StateMachine {
      * Add a State to StateMachine, ignore if it is already added.
      * @param state The state to add.
      */
-    public void addState(State state) {
+    public void addState(@NonNull State state) {
         if (!mStates.contains(state)) {
             mStates.add(state);
         }
@@ -277,7 +278,11 @@ public final class StateMachine {
      * @param toState The to state.
      * @param event The event that needed to perform the transition.
      */
-    public void addTransition(State fromState, State toState, Event event) {
+    public void addTransition(
+            @NonNull State fromState,
+            @NonNull State toState,
+            @NonNull Event event
+    ) {
         Transition transition = new Transition(fromState, toState, event);
         toState.addIncoming(transition);
         fromState.addOutgoing(transition);
@@ -288,7 +293,11 @@ public final class StateMachine {
      * @param fromState The from state.
      * @param toState The to state.
      */
-    public void addTransition(State fromState, State toState, Condition condition) {
+    public void addTransition(
+            @NonNull State fromState,
+            @NonNull State toState,
+            @NonNull Condition condition
+    ) {
         Transition transition = new Transition(fromState, toState, condition);
         toState.addIncoming(transition);
         fromState.addOutgoing(transition);
@@ -299,7 +308,7 @@ public final class StateMachine {
      * @param fromState The from state to add.
      * @param toState The to state to add.
      */
-    public void addTransition(State fromState, State toState) {
+    public void addTransition(@NonNull State fromState, @NonNull State toState) {
         Transition transition = new Transition(fromState, toState);
         toState.addIncoming(transition);
         fromState.addOutgoing(transition);
@@ -334,7 +343,7 @@ public final class StateMachine {
     /**
      * Find outgoing Transitions of invoked State whose Event matches, mark the Transition invoked.
      */
-    public void fireEvent(Event event) {
+    public void fireEvent(@NonNull Event event) {
         for (int i = 0; i < mFinishedStates.size(); i++) {
             State state = mFinishedStates.get(i);
             if (state.mOutgoings != null) {

@@ -49,6 +49,7 @@ dependencies {
     androidTestImplementation(project(":internal-testutils-runtime"), {
         exclude group: "androidx.core", module: "core"
     })
+    androidTestImplementation(project(":internal-testutils-fonts"))
     androidTestImplementation(project(":internal-testutils-mockito"))
 
     testImplementation(libs.junit)

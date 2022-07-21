@@ -58,6 +58,7 @@ dependencies {
     implementation("androidx.tracing:tracing-ktx:1.0.0")
     implementation(project(":tracing:tracing-perfetto"))
     implementation(project(":tracing:tracing-perfetto-binary"))
+    implementation(project(":tracing:tracing-perfetto-common"))
     implementation(libs.testMonitor)
     implementation(libs.wireRuntime)
 

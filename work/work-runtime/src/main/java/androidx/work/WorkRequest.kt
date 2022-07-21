@@ -74,6 +74,19 @@ abstract class WorkRequest internal constructor(
         internal val tags: MutableSet<String> = mutableSetOf(workerClass.name)
 
         /**
+         * The id of the request.
+         *
+         * It is a useful for the creation of `WorkRequest` for the [WorkManager.updateWork],
+         * that uses `id` for identifying an work that should be updated.
+         */
+        @SuppressWarnings("SetterReturnsThis")
+        fun setId(id: UUID): B {
+            this.id = id
+            workSpec = WorkSpec(id.toString(), workSpec)
+            return thisObject
+        }
+
+        /**
          * Sets the backoff policy and backoff delay for the work.  The default values are
          * [BackoffPolicy.EXPONENTIAL] and
          * {@value WorkRequest#DEFAULT_BACKOFF_DELAY_MILLIS}, respectively.  `backoffDelay`
@@ -260,8 +273,7 @@ abstract class WorkRequest internal constructor(
                 require(workSpec.initialDelay <= 0) { "Expedited jobs cannot be delayed" }
             }
             // Create a new id and WorkSpec so this WorkRequest.Builder can be used multiple times.
-            id = UUID.randomUUID()
-            workSpec = WorkSpec(id.toString(), workSpec)
+            setId(UUID.randomUUID())
             return returnValue
         }
 

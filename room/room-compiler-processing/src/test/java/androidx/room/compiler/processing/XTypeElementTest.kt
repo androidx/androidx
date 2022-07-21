@@ -395,7 +395,7 @@ class XTypeElementTest {
 
             subClass.getField("genericProp").let { field ->
                 // this is tricky because even though it is non-null it, it should still be boxed
-                assertThat(field.type.typeName).isEqualTo(TypeName.INT.box())
+                assertThat(field.asMemberOf(subClass.type).typeName).isEqualTo(TypeName.INT.box())
             }
         }
     }
@@ -1558,6 +1558,239 @@ class XTypeElementTest {
             assertThat(companionObjects.size).isEqualTo(1)
             val companionObj = companionObjects.first()
             assertThat(companionObj.isKotlinObject()).isTrue()
+        }
+    }
+
+    @Test
+    fun inheritedGenericMethod() {
+        runProcessorTest(
+            sources = listOf(
+                Source.kotlin(
+                    "test.ConcreteClass.kt",
+                    """
+                    package test;
+                    class ConcreteClass: AbstractClass<Foo, Bar>() {}
+                    abstract class AbstractClass<T1, T2> {
+                        fun method(t1: T1, t2: T2): T2 {
+                          return t2
+                        }
+                    }
+                    class Foo
+                    class Bar
+                    """.trimIndent()
+                )
+            )
+        ) { invocation ->
+            val concreteClass = invocation.processingEnv.requireTypeElement("test.ConcreteClass")
+            val abstractClass = invocation.processingEnv.requireTypeElement("test.AbstractClass")
+            val concreteClassMethod = concreteClass.getMethodByJvmName("method")
+            val abstractClassMethod = abstractClass.getMethodByJvmName("method")
+            val fooType = invocation.processingEnv.requireType("test.Foo")
+            val barType = invocation.processingEnv.requireType("test.Bar")
+
+            fun checkMethodElement(method: XMethodElement) {
+                checkMethodElement(
+                    method = method,
+                    name = "method",
+                    enclosingElement = abstractClass,
+                    returnType = TypeVariableName.get("T2"),
+                    parameterTypes = arrayOf(TypeVariableName.get("T1"), TypeVariableName.get("T2"))
+                )
+                checkMethodType(
+                    methodType = method.executableType,
+                    returnType = TypeVariableName.get("T2"),
+                    parameterTypes = arrayOf(TypeVariableName.get("T1"), TypeVariableName.get("T2"))
+                )
+                checkMethodType(
+                    methodType = method.asMemberOf(abstractClass.type),
+                    returnType = TypeVariableName.get("T2"),
+                    parameterTypes = arrayOf(TypeVariableName.get("T1"), TypeVariableName.get("T2"))
+                )
+                checkMethodType(
+                    methodType = method.asMemberOf(concreteClass.type),
+                    returnType = barType.typeName,
+                    parameterTypes = arrayOf(fooType.typeName, barType.typeName)
+                )
+            }
+
+            assertThat(concreteClassMethod).isEqualTo(abstractClassMethod)
+            checkMethodElement(concreteClassMethod)
+            checkMethodElement(abstractClassMethod)
+        }
+    }
+
+    @Test
+    fun overriddenGenericMethod() {
+        runProcessorTest(
+            sources = listOf(
+                Source.kotlin(
+                    "test.ConcreteClass.kt",
+                    """
+                    package test;
+                    class ConcreteClass: AbstractClass<Foo, Bar>() {
+                        override fun method(t1: Foo, t2: Bar): Bar {
+                          return t2
+                        }
+                    }
+                    abstract class AbstractClass<T1, T2> {
+                        abstract fun method(t1: T1, t2: T2): T2
+                    }
+                    class Foo
+                    class Bar
+                    """.trimIndent()
+                )
+            )
+        ) { invocation ->
+            val concreteClass = invocation.processingEnv.requireTypeElement("test.ConcreteClass")
+            val abstractClass = invocation.processingEnv.requireTypeElement("test.AbstractClass")
+            val concreteClassMethod = concreteClass.getMethodByJvmName("method")
+            val abstractClassMethod = abstractClass.getMethodByJvmName("method")
+            val fooType = invocation.processingEnv.requireType("test.Foo")
+            val barType = invocation.processingEnv.requireType("test.Bar")
+
+            assertThat(concreteClassMethod).isNotEqualTo(abstractClassMethod)
+            assertThat(concreteClassMethod.overrides(abstractClassMethod, concreteClass)).isTrue()
+
+            // Check the abstract method and method type
+            checkMethodElement(
+                method = abstractClassMethod,
+                name = "method",
+                enclosingElement = abstractClass,
+                returnType = TypeVariableName.get("T2"),
+                parameterTypes = arrayOf(TypeVariableName.get("T1"), TypeVariableName.get("T2"))
+            )
+            checkMethodType(
+                methodType = abstractClassMethod.executableType,
+                returnType = TypeVariableName.get("T2"),
+                parameterTypes = arrayOf(TypeVariableName.get("T1"), TypeVariableName.get("T2"))
+            )
+            checkMethodType(
+                methodType = abstractClassMethod.asMemberOf(abstractClass.type),
+                returnType = TypeVariableName.get("T2"),
+                parameterTypes = arrayOf(TypeVariableName.get("T1"), TypeVariableName.get("T2"))
+            )
+            checkMethodType(
+                methodType = abstractClassMethod.asMemberOf(concreteClass.type),
+                returnType = barType.typeName,
+                parameterTypes = arrayOf(fooType.typeName, barType.typeName)
+            )
+
+            // Check the concrete method and method type
+            checkMethodElement(
+                method = concreteClassMethod,
+                name = "method",
+                enclosingElement = concreteClass,
+                returnType = barType.typeName,
+                parameterTypes = arrayOf(fooType.typeName, barType.typeName)
+            )
+            checkMethodType(
+                methodType = concreteClassMethod.executableType,
+                returnType = barType.typeName,
+                parameterTypes = arrayOf(fooType.typeName, barType.typeName)
+            )
+            checkMethodType(
+                methodType = concreteClassMethod.asMemberOf(concreteClass.type),
+                returnType = barType.typeName,
+                parameterTypes = arrayOf(fooType.typeName, barType.typeName)
+            )
+        }
+    }
+
+    private fun checkMethodElement(
+        method: XMethodElement,
+        name: String,
+        enclosingElement: XTypeElement,
+        returnType: TypeName,
+        parameterTypes: Array<TypeName>
+    ) {
+        assertThat(method.name).isEqualTo(name)
+        assertThat(method.enclosingElement).isEqualTo(enclosingElement)
+        assertThat(method.returnType.typeName).isEqualTo(returnType)
+        assertThat(method.parameters.map { it.type.typeName })
+            .containsExactly(*parameterTypes)
+            .inOrder()
+    }
+    private fun checkMethodType(
+        methodType: XMethodType,
+        returnType: TypeName,
+        parameterTypes: Array<TypeName>
+    ) {
+        assertThat(methodType.returnType.typeName).isEqualTo(returnType)
+        assertThat(methodType.parameterTypes.map { it.typeName })
+            .containsExactly(*parameterTypes)
+            .inOrder()
+    }
+
+    @Test
+    fun overriddenGenericConstructor() {
+        runProcessorTest(
+            sources = listOf(
+                Source.kotlin(
+                    "test.ConcreteClass.kt",
+                    """
+                    package test;
+                    class ConcreteClass(foo: Foo): AbstractClass<Foo>(foo) {}
+                    abstract class AbstractClass<T>(t: T)
+                    class Foo
+                    """.trimIndent()
+                )
+            )
+        ) { invocation ->
+            val concreteClass = invocation.processingEnv.requireTypeElement("test.ConcreteClass")
+            val abstractClass = invocation.processingEnv.requireTypeElement("test.AbstractClass")
+            val fooType = invocation.processingEnv.requireType("test.Foo")
+
+            fun checkConstructorParameters(
+                typeElement: XTypeElement,
+                expectedParameters: Array<TypeName>
+            ) {
+                assertThat(typeElement.getConstructors()).hasSize(1)
+                val constructor = typeElement.getConstructors()[0]
+                assertThat(constructor.parameters.map { it.type.typeName })
+                    .containsExactly(*expectedParameters)
+                    .inOrder()
+            }
+
+            checkConstructorParameters(abstractClass, arrayOf(TypeVariableName.get("T")))
+            checkConstructorParameters(concreteClass, arrayOf(fooType.typeName))
+        }
+    }
+
+    @Test
+    fun inheritedGenericField() {
+        runProcessorTest(
+            sources = listOf(
+                Source.kotlin(
+                    "test.ConcreteClass.kt",
+                    """
+                    package test;
+                    class ConcreteClass: AbstractClass<Foo>()
+                    abstract class AbstractClass<T> {
+                        val field: T = TODO()
+                    }
+                    class Foo
+                    """.trimIndent()
+                )
+            )
+        ) { invocation ->
+            val concreteClass = invocation.processingEnv.requireTypeElement("test.ConcreteClass")
+            val abstractClass = invocation.processingEnv.requireTypeElement("test.AbstractClass")
+            val concreteClassField = concreteClass.getField("field")
+            val abstractClassField = abstractClass.getField("field")
+            val fooType = invocation.processingEnv.requireType("test.Foo")
+
+            fun checkFieldElement(field: XFieldElement) {
+                assertThat(field.name).isEqualTo("field")
+                assertThat(field.type.typeName).isEqualTo(TypeVariableName.get("T"))
+                assertThat(field.asMemberOf(abstractClass.type).typeName)
+                    .isEqualTo(TypeVariableName.get("T"))
+                assertThat(field.asMemberOf(concreteClass.type).typeName)
+                    .isEqualTo(fooType.typeName)
+            }
+
+            assertThat(concreteClassField).isEqualTo(abstractClassField)
+            checkFieldElement(abstractClassField)
+            checkFieldElement(concreteClassField)
         }
     }
 

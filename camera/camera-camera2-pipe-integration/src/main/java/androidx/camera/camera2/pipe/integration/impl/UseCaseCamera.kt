@@ -33,9 +33,9 @@ import androidx.camera.core.impl.Config
 import androidx.camera.core.impl.SessionConfig
 import dagger.Binds
 import dagger.Module
+import javax.inject.Inject
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.Deferred
-import javax.inject.Inject
 
 internal val useCaseCameraIds = atomic(0)
 internal val defaultOptionPriority = Config.OptionPriority.OPTIONAL
@@ -43,7 +43,7 @@ internal const val defaultTemplate = CameraDevice.TEMPLATE_PREVIEW
 
 interface UseCaseCamera {
     // UseCases
-    var activeUseCases: Set<UseCase>
+    var runningUseCases: Set<UseCase>
 
     // RequestControl of the UseCaseCamera
     val requestControl: UseCaseCameraRequestControl
@@ -83,7 +83,7 @@ class UseCaseCameraImpl @Inject constructor(
 ) : UseCaseCamera {
     private val debugId = useCaseCameraIds.incrementAndGet()
 
-    override var activeUseCases = setOf<UseCase>()
+    override var runningUseCases = setOf<UseCase>()
         set(value) {
             field = value
             // Note: This may be called with the same set of values that was previously set. This

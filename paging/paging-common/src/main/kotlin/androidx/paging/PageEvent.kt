@@ -67,6 +67,16 @@ internal sealed class PageEvent<T : Any> {
                 mediatorLoadStates = mediatorLoadStates,
             )
         }
+
+        override fun toString(): String {
+            return appendMediatorStatesIfNotNull(mediatorLoadStates) {
+                """PageEvent.StaticList with ${data.size} items (
+                    |   first item: ${data.firstOrNull()}
+                    |   last item: ${data.lastOrNull()}
+                    |   sourceLoadStates: $sourceLoadStates
+                    """
+            }
+        }
     }
 
     // Intentional to prefer Refresh, Prepend, Append constructors from Companion.
@@ -217,6 +227,21 @@ internal sealed class PageEvent<T : Any> {
                 ),
             )
         }
+
+        override fun toString(): String {
+            val itemCount = pages.fold(0) { total, page -> total + page.data.size }
+            val placeholdersBefore = if (placeholdersBefore != -1) "$placeholdersBefore" else "none"
+            val placeholdersAfter = if (placeholdersAfter != -1) "$placeholdersAfter" else "none"
+            return appendMediatorStatesIfNotNull(mediatorLoadStates) {
+                """PageEvent.Insert for $loadType, with $itemCount items (
+                    |   first item: ${pages.firstOrNull()?.data?.firstOrNull()}
+                    |   last item: ${pages.lastOrNull()?.data?.lastOrNull()}
+                    |   placeholdersBefore: $placeholdersBefore
+                    |   placeholdersAfter: $placeholdersAfter
+                    |   sourceLoadStates: $sourceLoadStates
+                    """
+            }
+        }
     }
 
     // TODO: b/195658070 consider refactoring Drop events to carry full source/mediator states.
@@ -242,6 +267,21 @@ internal sealed class PageEvent<T : Any> {
         }
 
         val pageCount get() = maxPageOffset - minPageOffset + 1
+
+        override fun toString(): String {
+            val direction = when (loadType) {
+                APPEND -> "end"
+                PREPEND -> "front"
+                else -> throw IllegalArgumentException(
+                    "Drop load type must be PREPEND or APPEND"
+                )
+            }
+            return """PageEvent.Drop from the $direction (
+                    |   minPageOffset: $minPageOffset
+                    |   maxPageOffset: $maxPageOffset
+                    |   placeholdersRemaining: $placeholdersRemaining
+                    |)""".trimMargin()
+        }
     }
 
     /**
@@ -253,7 +293,16 @@ internal sealed class PageEvent<T : Any> {
     data class LoadStateUpdate<T : Any>(
         val source: LoadStates,
         val mediator: LoadStates? = null,
-    ) : PageEvent<T>()
+    ) : PageEvent<T>() {
+
+        override fun toString(): String {
+            return appendMediatorStatesIfNotNull(mediator) {
+                """PageEvent.LoadStateUpdate (
+                    |   sourceLoadStates: $source
+                    """
+            }
+        }
+    }
 
     @Suppress("UNCHECKED_CAST")
     open suspend fun <R : Any> map(transform: suspend (T) -> R): PageEvent<R> = this as PageEvent<R>
@@ -264,4 +313,15 @@ internal sealed class PageEvent<T : Any> {
     }
 
     open suspend fun filter(predicate: suspend (T) -> Boolean): PageEvent<T> = this
+
+    protected inline fun appendMediatorStatesIfNotNull(
+        mediatorStates: LoadStates?,
+        log: () -> String
+    ): String {
+        var newLog = log()
+        if (mediatorStates != null) {
+            newLog = newLog.plus("""|   mediatorLoadStates: $mediatorStates${"\n"}""")
+        }
+        return newLog.plus("|)").trimMargin()
+    }
 }

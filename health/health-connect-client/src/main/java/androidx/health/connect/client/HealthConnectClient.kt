@@ -54,6 +54,15 @@ interface HealthConnectClient {
      * [androidx.health.connect.client.records.metadata.Metadata.uid] generated. Insertion of
      * multiple [records] is executed in a transaction - if one fails, none is inserted.
      *
+     * For example, to insert basic data like step counts:
+     * @sample androidx.health.connect.client.samples.InsertSteps
+     *
+     * To insert more complex data like nutrition for a user who’s eaten a banana:
+     * @sample androidx.health.connect.client.samples.InsertNutrition
+     *
+     * To insert some heart rate data:
+     * @sample androidx.health.connect.client.samples.InsertHeartRateSeries
+     *
      * @param records List of records to insert
      * @return List of unique identifiers in the order of inserted records.
      * @throws RemoteException For any IPC transportation failures.
@@ -80,6 +89,9 @@ interface HealthConnectClient {
      * Deletes one or more [Record] by their identifiers. Deletion of multiple [Record] is executed
      * in single transaction - if one fails, none is deleted.
      *
+     * Example usage to delete written steps data by its unique identifier:
+     * @sample androidx.health.connect.client.samples.DeleteByUniqueIdentifier
+     *
      * @param recordType Which type of [Record] to delete, such as `Steps::class`
      * @param uidsList List of uids of [Record] to delete
      * @param clientIdsList List of client IDs of [Record] to delete
@@ -100,6 +112,9 @@ interface HealthConnectClient {
      * Deletes any [Record] of the given [recordType] in the given [timeRangeFilter] (automatically
      * filtered to [Record] belonging to the calling application). Deletion of multiple [Record] is
      * executed in a transaction - if one fails, none is deleted.
+     *
+     * Example usage to delete written steps data in a time range:
+     * @sample androidx.health.connect.client.samples.DeleteByTimeRange
      *
      * @param recordType Which type of [Record] to delete, such as `Steps::class`
      * @param timeRangeFilter The [TimeRangeFilter] to delete from
@@ -126,6 +141,9 @@ interface HealthConnectClient {
 
     /**
      * Retrieves a collection of [Record]s.
+     *
+     * Example code to read basic data like step counts:
+     * @sample androidx.health.connect.client.samples.ReadStepsRange
      *
      * @param T the type of [Record]
      * @param request [ReadRecordsRequest] object specifying time range and other filters
@@ -306,7 +324,10 @@ interface HealthConnectClient {
             }
             val enabledPackage =
                 packageNames.first { isPackageInstalled(context.packageManager, it) }
-            return HealthConnectClientImpl(HealthDataService.getClient(context, enabledPackage))
+            return HealthConnectClientImpl(
+                enabledPackage,
+                HealthDataService.getClient(context, enabledPackage)
+            )
         }
 
         @ChecksSdkIntAtLeast(api = Build.VERSION_CODES.P)

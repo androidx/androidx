@@ -47,7 +47,4 @@ internal class JavacTypeParameterElement(
 
     override val closestMemberContainer: XMemberContainer
         get() = enclosingElement.closestMemberContainer
-
-    override val equalityItems: Array<out Any?>
-        get() = arrayOf(element)
 }

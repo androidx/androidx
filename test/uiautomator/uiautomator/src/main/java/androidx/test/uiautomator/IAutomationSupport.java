@@ -18,6 +18,8 @@ package androidx.test.uiautomator;
 
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
+
 /**
  * Provides auxiliary support for running test cases
  *
@@ -32,6 +34,6 @@ public interface IAutomationSupport {
      * @param status status report, consisting of key value pairs
      * @since API Level 16
      */
-    public void sendStatus(int resultCode, Bundle status);
+    void sendStatus(int resultCode, @NonNull Bundle status);
 
 }

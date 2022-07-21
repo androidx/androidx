@@ -48,6 +48,7 @@ import androidx.core.util.Preconditions;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
@@ -167,7 +168,7 @@ class SynchronizedCaptureSessionBaseImpl extends SynchronizedCaptureSession.Stat
                 }
 
                 @Override
-                public void onFailure(Throwable t) {
+                public void onFailure(@NonNull Throwable t) {
                     SynchronizedCaptureSessionBaseImpl.this.finishClose();
                     mCaptureSessionRepository.onCaptureSessionConfigureFail(
                             SynchronizedCaptureSessionBaseImpl.this);
@@ -287,6 +288,7 @@ class SynchronizedCaptureSessionBaseImpl extends SynchronizedCaptureSession.Stat
         }
     }
 
+    @SuppressWarnings("ConstantConditions") // Implied non-null type use for surfaces.
     @NonNull
     @Override
     public ListenableFuture<List<Surface>> startWithDeferrableSurface(
@@ -479,17 +481,20 @@ class SynchronizedCaptureSessionBaseImpl extends SynchronizedCaptureSession.Stat
 
     @Override
     public void onReady(@NonNull SynchronizedCaptureSession session) {
+        Objects.requireNonNull(mCaptureSessionStateCallback);
         mCaptureSessionStateCallback.onReady(session);
     }
 
     @Override
     public void onActive(@NonNull SynchronizedCaptureSession session) {
+        Objects.requireNonNull(mCaptureSessionStateCallback);
         mCaptureSessionStateCallback.onActive(session);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     public void onCaptureQueueEmpty(@NonNull SynchronizedCaptureSession session) {
+        Objects.requireNonNull(mCaptureSessionStateCallback);
         mCaptureSessionStateCallback.onCaptureQueueEmpty(session);
     }
 
@@ -497,17 +502,20 @@ class SynchronizedCaptureSessionBaseImpl extends SynchronizedCaptureSession.Stat
     @Override
     public void onSurfacePrepared(@NonNull SynchronizedCaptureSession session,
             @NonNull Surface surface) {
+        Objects.requireNonNull(mCaptureSessionStateCallback);
         mCaptureSessionStateCallback.onSurfacePrepared(session, surface);
     }
 
     @Override
     public void onConfigured(@NonNull SynchronizedCaptureSession session) {
+        Objects.requireNonNull(mCaptureSessionStateCallback);
         mCaptureSessionRepository.onCaptureSessionCreated(this);
         mCaptureSessionStateCallback.onConfigured(session);
     }
 
     @Override
     public void onConfigureFailed(@NonNull SynchronizedCaptureSession session) {
+        Objects.requireNonNull(mCaptureSessionStateCallback);
         finishClose();
         mCaptureSessionRepository.onCaptureSessionConfigureFail(this);
         mCaptureSessionStateCallback.onConfigureFailed(session);
@@ -546,6 +554,7 @@ class SynchronizedCaptureSessionBaseImpl extends SynchronizedCaptureSession.Stat
                 // the onClosed callback, we can treat this session is already in closed state.
                 onSessionFinished(session);
 
+                Objects.requireNonNull(mCaptureSessionStateCallback);
                 mCaptureSessionStateCallback.onClosed(session);
             }, CameraXExecutors.directExecutor());
         }
@@ -565,6 +574,7 @@ class SynchronizedCaptureSessionBaseImpl extends SynchronizedCaptureSession.Stat
         }
         if (openFuture != null) {
             openFuture.addListener(() -> {
+                Objects.requireNonNull(mCaptureSessionStateCallback);
                 mCaptureSessionStateCallback.onSessionFinished(session);
             }, CameraXExecutors.directExecutor());
         }

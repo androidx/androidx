@@ -69,6 +69,7 @@ public final class SliceSpec implements VersionedParcelable {
     /**
      * Gets the type of the version.
      */
+    @NonNull
     public String getType() {
         return mType;
     }

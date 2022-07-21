@@ -42,11 +42,11 @@ import androidx.core.google.shortcuts.utils.EntityUriUtils;
 import androidx.core.google.shortcuts.utils.ShortcutUtils;
 import androidx.core.graphics.drawable.IconCompat;
 
+import com.google.android.gms.appindex.Action;
+import com.google.android.gms.appindex.AppIndex;
+import com.google.android.gms.appindex.Indexable;
+import com.google.android.gms.appindex.UserActions;
 import com.google.crypto.tink.KeysetHandle;
-import com.google.firebase.appindexing.Action;
-import com.google.firebase.appindexing.FirebaseAppIndex;
-import com.google.firebase.appindexing.FirebaseUserActions;
-import com.google.firebase.appindexing.Indexable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -59,8 +59,8 @@ import java.util.List;
 @RestrictTo(LIBRARY_GROUP)
 public class ShortcutInfoChangeListenerImpl extends ShortcutInfoChangeListener {
     private final Context mContext;
-    private final FirebaseAppIndex mFirebaseAppIndex;
-    private final FirebaseUserActions mFirebaseUserActions;
+    private final AppIndex mFirebaseAppIndex;
+    private final UserActions mFirebaseUserActions;
     @Nullable private final KeysetHandle mKeysetHandle;
 
     /**
@@ -71,14 +71,14 @@ public class ShortcutInfoChangeListenerImpl extends ShortcutInfoChangeListener {
      */
     @NonNull
     public static ShortcutInfoChangeListenerImpl getInstance(@NonNull Context context) {
-        return new ShortcutInfoChangeListenerImpl(context, FirebaseAppIndex.getInstance(context),
-                FirebaseUserActions.getInstance(context),
+        return new ShortcutInfoChangeListenerImpl(context, AppIndex.getInstance(context),
+                UserActions.getInstance(context),
                 ShortcutUtils.getOrCreateShortcutKeysetHandle(context));
     }
 
     @VisibleForTesting
-    ShortcutInfoChangeListenerImpl(Context context, FirebaseAppIndex firebaseAppIndex,
-            FirebaseUserActions firebaseUserActions, @Nullable KeysetHandle keysetHandle) {
+    ShortcutInfoChangeListenerImpl(Context context, AppIndex firebaseAppIndex,
+            UserActions firebaseUserActions, @Nullable KeysetHandle keysetHandle) {
         mContext = context;
         mFirebaseAppIndex = firebaseAppIndex;
         mFirebaseUserActions = firebaseUserActions;
@@ -206,12 +206,9 @@ public class ShortcutInfoChangeListenerImpl extends ShortcutInfoChangeListener {
 
     @NonNull
     private Action buildAction(@NonNull String url) {
-        // The reported action isn't uploaded to the server.
-        Action.Metadata.Builder metadataBuilder = new Action.Metadata.Builder().setUpload(false);
         return new Action.Builder(Action.Builder.VIEW_ACTION)
                 // Empty label as placeholder.
                 .setObject("", url)
-                .setMetadata(metadataBuilder)
                 .build();
     }
 

@@ -31,16 +31,18 @@ import java.lang.reflect.Method;
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class LooperCompat {
     /** Returns the {@link MessageQueue} for the given {@link Looper}. */
-    public static MessageQueue getQueue(Looper looper) {
+    @NonNull
+    public static MessageQueue getQueue(@NonNull Looper looper) {
         if (Build.VERSION.SDK_INT >= 23) {
             return Api23Impl.getQueue(looper);
         } else {
             Method getQueue;
             try {
                 getQueue = Looper.class.getMethod("getQueue");
+                //noinspection ConstantConditions
                 return (MessageQueue) getQueue.invoke(looper);
 
-            } catch (NoSuchMethodException e) {
+            } catch (NoSuchMethodException | NullPointerException e) {
                 throw new RuntimeException("Unable to retrieve getQueue via reflection.");
             } catch (IllegalAccessException | InvocationTargetException e) {
                 throw new RuntimeException("Unable to invoke getQueue via reflection.");

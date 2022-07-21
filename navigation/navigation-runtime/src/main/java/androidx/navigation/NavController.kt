@@ -104,14 +104,21 @@ public open class NavController(
     private var backStackToRestore: Array<Parcelable>? = null
     private var deepLinkHandled = false
 
+    private val backQueue: ArrayDeque<NavBackStackEntry> = ArrayDeque()
+
+    private val _currentBackStack: MutableStateFlow<List<NavBackStackEntry>> =
+        MutableStateFlow(emptyList())
+
     /**
      * Retrieve the current back stack.
      *
      * @return The current back stack.
      * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public open val backQueue: ArrayDeque<NavBackStackEntry> = ArrayDeque()
+    public val currentBackStack: StateFlow<List<NavBackStackEntry>> =
+        _currentBackStack.asStateFlow()
 
     private val _visibleEntries: MutableStateFlow<List<NavBackStackEntry>> =
         MutableStateFlow(emptyList())
@@ -353,9 +360,13 @@ public open class NavController(
                     viewModel?.clear(entry.id)
                 }
                 updateBackStackLifecycle()
+                // Nothing in backQueue changed, so unlike other places where
+                // we change visibleEntries, we don't need to emit a new
+                // currentBackStack
                 _visibleEntries.tryEmit(populateVisibleEntries())
             } else if (!this@NavControllerNavigatorState.isNavigating) {
                 updateBackStackLifecycle()
+                _currentBackStack.tryEmit(backQueue.toMutableList())
                 _visibleEntries.tryEmit(populateVisibleEntries())
             }
             // else, updateBackStackLifecycle() will be called after any ongoing navigate() call
@@ -907,6 +918,7 @@ public open class NavController(
                 }
                 _currentBackStackEntryFlow.tryEmit(backStackEntry)
             }
+            _currentBackStack.tryEmit(backQueue.toMutableList())
             _visibleEntries.tryEmit(populateVisibleEntries())
         }
         return lastBackStackEntry != null

@@ -15,13 +15,10 @@
  * limitations under the License.
  */
 
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
 plugins {
     id("AndroidXPlugin")
     id("com.android.application")
     id("kotlin-android")
-    id("AndroidXComposePlugin")
 }
 
 android {
@@ -36,6 +33,9 @@ android {
             minifyEnabled true
             shrinkResources true
         }
+    }
+    lintOptions {
+        disable("SyntheticAccessor")
     }
     namespace "androidx.camera.integration.viewfinder"
 }

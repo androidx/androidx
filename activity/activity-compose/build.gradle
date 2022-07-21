@@ -25,7 +25,6 @@ plugins {
 }
 
 dependencies {
-    kotlinPlugin(projectOrArtifact(":compose:compiler:compiler"))
 
     implementation(libs.kotlinStdlib)
     api("androidx.compose.runtime:runtime:1.0.1")
@@ -37,7 +36,7 @@ dependencies {
     // Outside of androidx this is resolved via constraint added to lifecycle-common,
     // but it doesn't work in androidx.
     // See aosp/1804059
-    implementation("androidx.lifecycle:lifecycle-common-java8:2.5.0")
+    implementation("androidx.lifecycle:lifecycle-common-java8:2.5.1")
 
     androidTestImplementation projectOrArtifact(":compose:ui:ui-test-junit4")
     androidTestImplementation projectOrArtifact(":compose:material:material")

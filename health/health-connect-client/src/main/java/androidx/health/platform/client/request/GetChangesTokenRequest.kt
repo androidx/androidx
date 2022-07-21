@@ -13,12 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package androidx.health.platform.client.request
 
 import android.os.Parcelable
 import androidx.health.platform.client.impl.data.ProtoParcelable
 import androidx.health.platform.client.proto.RequestProto
 
+/** @suppress */
 class GetChangesTokenRequest(override val proto: RequestProto.GetChangesTokenRequest) :
     ProtoParcelable<RequestProto.GetChangesTokenRequest>() {
 

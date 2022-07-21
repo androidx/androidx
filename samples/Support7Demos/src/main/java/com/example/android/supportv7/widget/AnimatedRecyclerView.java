@@ -179,7 +179,7 @@ public class AnimatedRecyclerView extends Activity {
             }
 
             @Override
-            public void endAnimation(RecyclerView.ViewHolder item) {
+            public void endAnimation(@NonNull RecyclerView.ViewHolder item) {
                 super.endAnimation(item);
                 for (int i = mPendingChangeAnimations.size() - 1; i >= 0; i--) {
                     ItemChangeAnimator anim = mPendingChangeAnimations.get(i);

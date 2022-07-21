@@ -33,6 +33,7 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assume.assumeTrue;
 
 import android.graphics.Bitmap;
 import android.media.AudioManager;
@@ -133,6 +134,9 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
 
     @Test
     public void connection_toLibraryService() throws InterruptedException {
+        // See b/230354064
+        assumeTrue(Build.VERSION.SDK_INT != 17);
+
         SessionToken token = new SessionToken(mContext, MOCK_MEDIA2_LIBRARY_SERVICE);
         MediaController controller = createController(token);
         assertNotNull(controller);
@@ -180,6 +184,9 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
     @Test
     @LargeTest
     public void connection_withLongPlaylist() throws InterruptedException {
+        // See b/230354064
+        assumeTrue(Build.VERSION.SDK_INT != 17);
+
         final int playlistSize = 5000;
         mRemoteSession2.getMockPlayer().createAndSetFakePlaylist(playlistSize);
 

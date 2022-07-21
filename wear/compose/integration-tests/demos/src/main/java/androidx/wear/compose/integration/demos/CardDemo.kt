@@ -21,9 +21,12 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material.AppCard
 import androidx.wear.compose.material.Card
@@ -64,6 +67,21 @@ fun CardDemo() {
                 Column(modifier = Modifier.fillMaxWidth()) {
                     Text("Some body content")
                     Text("and some more body content")
+                }
+            }
+        }
+        item {
+            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+                AppCard(
+                    onClick = {},
+                    appName = { Text("AppName") },
+                    title = { Text("AppCard RTL") },
+                    time = { Text("now") },
+                ) {
+                    Column(modifier = Modifier.fillMaxWidth()) {
+                        Text("Some body content")
+                        Text("and some more body content")
+                    }
                 }
             }
         }

@@ -702,7 +702,7 @@ public class EncoderImpl implements Encoder {
 
                                     @ExecutedBy("mEncoderExecutor")
                                     @Override
-                                    public void onFailure(Throwable t) {
+                                    public void onFailure(@NonNull Throwable t) {
                                         if (t instanceof MediaCodec.CodecException) {
                                             handleEncodeError(
                                                     (MediaCodec.CodecException) t);
@@ -715,7 +715,7 @@ public class EncoderImpl implements Encoder {
                     }
 
                     @Override
-                    public void onFailure(Throwable t) {
+                    public void onFailure(@NonNull Throwable t) {
                         handleEncodeError(EncodeException.ERROR_UNKNOWN,
                                 "Unable to acquire InputBuffer.", t);
                     }
@@ -1128,7 +1128,7 @@ public class EncoderImpl implements Encoder {
                         }
 
                         @Override
-                        public void onFailure(Throwable t) {
+                        public void onFailure(@NonNull Throwable t) {
                             mEncodedDataSet.remove(encodedData);
                             if (t instanceof MediaCodec.CodecException) {
                                 handleEncodeError(

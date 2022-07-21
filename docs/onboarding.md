@@ -12,10 +12,9 @@ public APIs and an overview of the constraints placed on changes.
 
 ## Workstation setup {#setup}
 
-You will need to install the
-[`repo`](https://source.android.com/setup/develop#repo) tool, which is used for
-Git branch and commit management. If you want to learn more about `repo`, see
-the [Repo Command Reference](https://source.android.com/setup/develop/repo).
+This section will help you install the `repo` tool, which is used for Git branch
+and commit management. If you want to learn more about `repo`, see the
+[Repo Command Reference](https://source.android.com/setup/develop/repo).
 
 ### Linux and MacOS {#setup-linux-mac}
 
@@ -138,7 +137,17 @@ git config --global merge.renameLimit 999999
 git config --global diff.renameLimit 999999
 ```
 
-### To check out older source, use the superproject
+### Set up Git file exclusions {#source-exclude}
+
+Mac users should consider adding `.DS_Store` to a global `.gitignore` file to
+avoid accidentally checking in local metadata files:
+
+```shell
+echo .DS_Store>>~/.gitignore
+git config --global core.excludesFile '~/.gitignore'
+```
+
+### To check out older sources, use the superproject {#source-historical}
 
 The
 [git superproject](https://android.googlesource.com/platform/superproject/+/androidx-main)
@@ -231,6 +240,9 @@ build completes.
 > ```
 > -Dsun.java2d.uiScale.enabled=false
 > ```
+
+> NOTE: We are aware of a bug where running `./studiow` does not result in
+> Android Studio application being launched.
 
 If in the future you encounter unexpected errors in Studio and you want to check
 for the possibility it is due to some incorrect settings or other generated
@@ -667,25 +679,59 @@ the latest API changes.
 #### Missing external dependency
 
 If Gradle cannot resolve a dependency listed in your `build.gradle`, you may
-need to import the corresponding artifact into `prebuilts/androidx/external`.
-Our workflow does not automatically download artifacts from the internet to
+need to import the corresponding artifact into one of the prebuilts
+repositories. These repositories are located under `prebuilts/androidx`. Our
+workflow does not automatically download artifacts from the internet to
 facilitate reproducible builds even if remote artifacts are changed.
 
-You can download a dependency by running:
+We use a script to download dependencies, you can learn more about it
+[here](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:development/importMaven/README.md).
 
-```shell
-cd frameworks/support && ./development/importMaven/import_maven_artifacts.py -n 'someGroupId:someArtifactId:someVersion'
-```
-
-This will create a change within the `prebuilts/androidx/external` directory.
-Make sure to upload this change before or concurrently (ex. in the same Gerrit
-topic) with the dependent library code.
+##### Importing dependencies in `libs.versions.toml`
 
 Libraries typically reference dependencies using constants defined in
-[`libs.versions.toml`](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:gradle/libs.versions.toml),
-so please update this file to include a constant for the version of the library
-that you have checked in. You will reference this constant in your library's
+[`libs.versions.toml`](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:gradle/libs.versions.toml).
+Update this file to include a constant for the version of the library that you
+want to depend on. You will reference this constant in your library's
 `build.gradle` dependencies.
+
+**After** you update the `libs.versions.toml` file with new dependencies, you
+can download them by running:
+
+```shell
+cd frameworks/support &&\
+development/importMaven/importMaven.sh import-toml
+```
+
+This command will resolve everything declared in the `libs.versions.toml` file
+and download missing artifacts into `prebuilts/androidx/external` or
+`prebuilts/androidx/internal`.
+
+Make sure to upload these changes before or concurrently (ex. in the same Gerrit
+topic) with the dependent library code.
+
+##### Downloading a dependency without changing `libs.versions.toml`
+
+You can also download a dependency without changing `libs.versions.toml` file by
+directly invoking:
+
+```shell
+cd frameworks/support &&\
+./development/importMaven/importMaven.sh someGroupId:someArtifactId:someVersion
+```
+
+##### Missing konan dependencies
+
+Kotlin Multiplatform projects need prebuilts to compile native code, which are
+located under `prebuilts/androidx/konan`. **After** you update the kotlin
+version of AndroidX, you should also download necessary prebuilts via:
+
+```shell
+cd frameworks/support &&\
+development/importMaven/importMaven.sh import-konan-binaries --konan-compiler-version <new-kotlin-version>
+```
+
+Please remember to commit changes in the `prebuilts/androidx/konan` repository.
 
 #### Dependency verification
 
@@ -778,14 +824,6 @@ directory to expose your existing artifacts to the `./studiow` instance:
 ln -s /Users/$(whoami)/Library/Android/sdk/system-images \
       ../../prebuilts/fullsdk-darwin/system-images
 ```
-
-### Benchmarking {#testing-benchmarking}
-
-Libraries are encouraged to write and monitor performance benchmarks. See the
-[Benchmarking](benchmarking.md) and [Macrobenchmarking](macrobenchmarking.md)
-pages for more details, and the
-[Benchmarking section of d.android.com](http://d.android.com/benchmark) for more
-info on these tools.
 
 ## Library snapshots {#snapshots}
 

@@ -22,6 +22,8 @@ import static androidx.car.app.hardware.common.CarUnit.LITER;
 import static androidx.car.app.hardware.common.CarUnit.MILLILITER;
 import static androidx.car.app.hardware.common.CarUnit.US_GALLON;
 
+import static java.util.Objects.requireNonNull;
+
 import android.car.Car;
 import android.car.VehicleAreaSeat;
 import android.car.VehicleAreaType;
@@ -319,7 +321,7 @@ public final class PropertyUtils {
     }
 
     /**
-     * Returns a {@link Set<String>} that contains permissions for reading properties.
+     * Returns a {@link Set<String>} that contains permissions for reading or writing to properties.
      *
      * @throws SecurityException if android application cannot access the property
      */
@@ -401,7 +403,7 @@ public final class PropertyUtils {
                 int propertyId = propertyIdWithCarZones.getKey();
                 if (CAR_ZONE_TO_AREA_ID.containsKey(carZone)) {
                     propertyIdWithAreaIds.add(PropertyIdAreaId.builder()
-                            .setAreaId(CAR_ZONE_TO_AREA_ID.get(carZone))
+                            .setAreaId(requireNonNull(CAR_ZONE_TO_AREA_ID.get(carZone)))
                             .setPropertyId(propertyId)
                             .build());
                 } else {

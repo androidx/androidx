@@ -18,4 +18,6 @@
     <string name="app_name">diagnosetestapp</string>
     <string name="image_capture">Take Photo</string>
     <string name="video_capture">Record Video</string>
+    <string name="diagnose">Diagnose</string>
+    <string name="begin_diagnosis">Begin Diagnosis</string>
 </resources>

@@ -19,6 +19,7 @@ package androidx.navigation.dynamicfeatures.fragment.ui
 import androidx.navigation.dynamicfeatures.fragment.R as mainR
 import androidx.navigation.dynamicfeatures.fragment.test.R as testR
 import android.widget.TextView
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.dynamicfeatures.fragment.DynamicNavHostFragment
 import androidx.navigation.dynamicfeatures.fragment.NavigationActivity
@@ -27,6 +28,7 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.testutils.withActivity
+import com.google.android.play.core.splitinstall.SplitInstallSessionState
 import com.google.android.play.core.splitinstall.model.SplitInstallSessionStatus
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.CountDownLatch
@@ -68,11 +70,16 @@ class DefaultProgressFragmentTest {
                 // the test to wait for the failure signal from the splitInstall session. To do that
                 // we observe the livedata of the DefaultProgressFragment's viewModel, and wait for
                 // it to fail before we check for test failure.
-                viewModel.installMonitor!!.status.observe(defaultProgressFragment) {
-                    if (it.status() == SplitInstallSessionStatus.FAILED) {
-                        failureCountdownLatch.countDown()
+                val liveData = viewModel.installMonitor!!.status
+                val observer = object : Observer<SplitInstallSessionState> {
+                    override fun onChanged(state: SplitInstallSessionState) {
+                        if (state.status() == SplitInstallSessionStatus.FAILED) {
+                            liveData.removeObserver(this)
+                            failureCountdownLatch.countDown()
+                        }
                     }
                 }
+                liveData.observe(defaultProgressFragment, observer)
             }
 
             assertThat(failureCountdownLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()

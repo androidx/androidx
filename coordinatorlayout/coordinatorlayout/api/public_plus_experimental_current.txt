@@ -18,13 +18,13 @@ package androidx.coordinatorlayout.widget {
     method public void onDetachedFromWindow();
     method public void onDraw(android.graphics.Canvas!);
     method public void onLayoutChild(android.view.View, int);
-    method public void onMeasureChild(android.view.View!, int, int, int, int);
-    method public void onNestedPreScroll(android.view.View!, int, int, int[]!, int);
-    method public void onNestedScroll(android.view.View!, int, int, int, int, int);
+    method public void onMeasureChild(android.view.View, int, int, int, int);
+    method public void onNestedPreScroll(android.view.View, int, int, int[], int);
+    method public void onNestedScroll(android.view.View, int, int, int, int, int);
     method public void onNestedScroll(android.view.View, int, int, int, int, int, int[]);
-    method public void onNestedScrollAccepted(android.view.View!, android.view.View!, int, int);
-    method public boolean onStartNestedScroll(android.view.View!, android.view.View!, int, int);
-    method public void onStopNestedScroll(android.view.View!, int);
+    method public void onNestedScrollAccepted(android.view.View, android.view.View, int, int);
+    method public boolean onStartNestedScroll(android.view.View, android.view.View, int, int);
+    method public void onStopNestedScroll(android.view.View, int);
     method public void setStatusBarBackground(android.graphics.drawable.Drawable?);
     method public void setStatusBarBackgroundColor(@ColorInt int);
     method public void setStatusBarBackgroundResource(@DrawableRes int);
@@ -36,7 +36,7 @@ package androidx.coordinatorlayout.widget {
 
   public abstract static class CoordinatorLayout.Behavior<V extends android.view.View> {
     ctor public CoordinatorLayout.Behavior();
-    ctor public CoordinatorLayout.Behavior(android.content.Context!, android.util.AttributeSet!);
+    ctor public CoordinatorLayout.Behavior(android.content.Context, android.util.AttributeSet?);
     method public boolean blocksInteractionBelow(androidx.coordinatorlayout.widget.CoordinatorLayout, V);
     method public boolean getInsetDodgeRect(androidx.coordinatorlayout.widget.CoordinatorLayout, V, android.graphics.Rect);
     method @ColorInt public int getScrimColor(androidx.coordinatorlayout.widget.CoordinatorLayout, V);
@@ -77,9 +77,9 @@ package androidx.coordinatorlayout.widget {
 
   public static class CoordinatorLayout.LayoutParams extends android.view.ViewGroup.MarginLayoutParams {
     ctor public CoordinatorLayout.LayoutParams(int, int);
-    ctor public CoordinatorLayout.LayoutParams(androidx.coordinatorlayout.widget.CoordinatorLayout.LayoutParams!);
-    ctor public CoordinatorLayout.LayoutParams(android.view.ViewGroup.MarginLayoutParams!);
-    ctor public CoordinatorLayout.LayoutParams(android.view.ViewGroup.LayoutParams!);
+    ctor public CoordinatorLayout.LayoutParams(androidx.coordinatorlayout.widget.CoordinatorLayout.LayoutParams);
+    ctor public CoordinatorLayout.LayoutParams(android.view.ViewGroup.MarginLayoutParams);
+    ctor public CoordinatorLayout.LayoutParams(android.view.ViewGroup.LayoutParams);
     method @IdRes public int getAnchorId();
     method public androidx.coordinatorlayout.widget.CoordinatorLayout.Behavior? getBehavior();
     method public void setAnchorId(@IdRes int);

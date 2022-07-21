@@ -166,7 +166,7 @@ final class ProcessingSurface extends DeferrableSurface {
                     }
 
                     @Override
-                    public void onFailure(Throwable t) {
+                    public void onFailure(@NonNull Throwable t) {
                         Logger.e(TAG, "Failed to extract Listenable<Surface>.", t);
                     }
                 }, directExecutor());

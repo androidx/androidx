@@ -16,6 +16,7 @@
 package androidx.recyclerview.widget;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 /**
  * Wraps a {@link ListUpdateCallback} callback and batches operations that can be merged.
@@ -106,7 +107,7 @@ public class BatchingListUpdateCallback implements ListUpdateCallback {
     }
 
     @Override
-    public void onChanged(int position, int count, Object payload) {
+    public void onChanged(int position, int count, @Nullable Object payload) {
         if (mLastEventType == TYPE_CHANGE &&
                 !(position > mLastEventPosition + mLastEventCount
                         || position + count < mLastEventPosition || mLastEventPayload != payload)) {

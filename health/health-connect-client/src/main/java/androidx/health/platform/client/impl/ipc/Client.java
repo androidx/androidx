@@ -50,18 +50,18 @@ public abstract class Client<S extends IInterface> {
 
     private static final int UNKNOWN_VERSION = -1;
 
-    private final ConnectionConfiguration mConnectionConfiguration;
-    private final ConnectionManager mConnectionManager;
+    protected final ConnectionConfiguration mConnectionConfiguration;
+    protected final ConnectionManager mConnectionManager;
     private final ServiceGetter<S> mServiceGetter;
     private final RemoteOperation<S, Integer> mRemoteVersionGetter;
 
-    private volatile int mCurrentVersion = UNKNOWN_VERSION;
+    protected volatile int mCurrentVersion = UNKNOWN_VERSION;
 
     public Client(
-            ClientConfiguration clientConfiguration,
-            ConnectionManager connectionManager,
-            ServiceGetter<S> serviceGetter,
-            RemoteOperation<S, Integer> remoteVersionGetter) {
+            @NonNull ClientConfiguration clientConfiguration,
+            @NonNull ConnectionManager connectionManager,
+            @NonNull ServiceGetter<S> serviceGetter,
+            @NonNull RemoteOperation<S, Integer> remoteVersionGetter) {
         QueueOperation versionOperation =
                 new QueueOperation() {
                     @Override
@@ -99,7 +99,8 @@ public abstract class Client<S extends IInterface> {
      *
      * @see #execute(RemoteFutureOperation)
      */
-    protected <R> ListenableFuture<R> execute(RemoteOperation<S, R> operation) {
+    @NonNull
+    protected <R> ListenableFuture<R> execute(@NonNull RemoteOperation<S, R> operation) {
         return execute((service, resultFuture) -> resultFuture.set(operation.execute(service)));
     }
 
@@ -111,7 +112,9 @@ public abstract class Client<S extends IInterface> {
      * @return {@link ListenableFuture} with the result of the operation or an exception if the
      *     execution fails.
      */
-    protected <R> ListenableFuture<R> execute(RemoteFutureOperation<S, R> operation) {
+    @NonNull
+    protected <R> ListenableFuture<R> execute(
+            @NonNull RemoteFutureOperation<S, R> operation) {
         SettableFuture<R> settableFuture = SettableFuture.create();
         mConnectionManager.scheduleForExecution(createQueueOperation(operation, settableFuture));
         return settableFuture;
@@ -126,8 +129,9 @@ public abstract class Client<S extends IInterface> {
      * @return {@link ListenableFuture} with the result of the operation or an exception if the
      *     execution fails or if the remote service version is lower than {@code minApiVersion}
      */
+    @NonNull
     protected <R> ListenableFuture<R> executeWithVersionCheck(
-            RemoteFutureOperation<S, R> operation, int minApiVersion) {
+            int minApiVersion, @NonNull RemoteFutureOperation<S, R> operation) {
         SettableFuture<R> settableFuture = SettableFuture.create();
         ListenableFuture<Integer> versionFuture =
                 getCurrentRemoteVersion(/* forceRefresh= */ false);
@@ -153,7 +157,7 @@ public abstract class Client<S extends IInterface> {
                     }
 
                     @Override
-                    public void onFailure(Throwable throwable) {
+                    public void onFailure(@NonNull Throwable throwable) {
                         settableFuture.setException(throwable);
                     }
                 },
@@ -166,6 +170,7 @@ public abstract class Client<S extends IInterface> {
      *
      * <p>If current version is available from earlier calls, it would return the value from cache.
      */
+    @NonNull
     protected ListenableFuture<Integer> getCurrentRemoteVersion(boolean forceRefresh) {
         if (mCurrentVersion == UNKNOWN_VERSION || forceRefresh) {
             return Futures.transform(
@@ -193,8 +198,11 @@ public abstract class Client<S extends IInterface> {
      * @return {@link ListenableFuture} with the result of the operation or an exception if the
      *     execution fails
      */
+    @NonNull
     protected <R> ListenableFuture<R> registerListener(
-            ListenerKey listenerKey, RemoteOperation<S, R> registerListenerOperation) {
+            @NonNull ListenerKey listenerKey,
+            @NonNull RemoteOperation<S, R> registerListenerOperation
+    ) {
         return registerListener(
                 listenerKey,
                 (service, resultFuture) ->
@@ -214,8 +222,11 @@ public abstract class Client<S extends IInterface> {
      * @return {@link ListenableFuture} with the result of the operation or an exception if the
      *     execution fails
      */
+    @NonNull
     protected <R> ListenableFuture<R> registerListener(
-            ListenerKey listenerKey, RemoteFutureOperation<S, R> registerListenerOperation) {
+            @NonNull ListenerKey listenerKey,
+            @NonNull RemoteFutureOperation<S, R> registerListenerOperation
+    ) {
         SettableFuture<R> settableFuture = SettableFuture.create();
         mConnectionManager.registerListener(
                 listenerKey, createQueueOperation(registerListenerOperation, settableFuture));
@@ -232,8 +243,11 @@ public abstract class Client<S extends IInterface> {
      * @return {@link ListenableFuture} with the result of the operation or an exception if the
      *     execution fails
      */
+    @NonNull
     protected <R> ListenableFuture<R> unregisterListener(
-            ListenerKey listenerKey, RemoteOperation<S, R> unregisterListenerOperation) {
+            @NonNull ListenerKey listenerKey,
+            @NonNull RemoteOperation<S, R> unregisterListenerOperation
+    ) {
         return unregisterListener(
                 listenerKey,
                 (service, resultFuture) ->
@@ -250,15 +264,19 @@ public abstract class Client<S extends IInterface> {
      * @return {@link ListenableFuture} with the result of the operation or an exception if the
      *     execution fails
      */
+    @NonNull
     protected <R> ListenableFuture<R> unregisterListener(
-            ListenerKey listenerKey, RemoteFutureOperation<S, R> unregisterListenerOperation) {
+            @NonNull ListenerKey listenerKey,
+            @NonNull RemoteFutureOperation<S, R> unregisterListenerOperation
+    ) {
         SettableFuture<R> settableFuture = SettableFuture.create();
         mConnectionManager.unregisterListener(
                 listenerKey, createQueueOperation(unregisterListenerOperation, settableFuture));
         return settableFuture;
     }
 
-    protected @NonNull Exception getApiVersionCheckFailureException(
+    @NonNull
+    protected Exception getApiVersionCheckFailureException(
             int currentVersion, int minApiVersion) {
         return new ApiVersionException(currentVersion, minApiVersion);
     }
@@ -271,7 +289,7 @@ public abstract class Client<S extends IInterface> {
         return mConnectionManager;
     }
 
-    private <R> QueueOperation createQueueOperation(
+    <R> QueueOperation createQueueOperation(
             RemoteFutureOperation<S, R> operation, SettableFuture<R> settableFuture) {
         return new BaseQueueOperation(mConnectionConfiguration) {
             @Override
@@ -293,7 +311,7 @@ public abstract class Client<S extends IInterface> {
         };
     }
 
-    private S getService(IBinder binder) {
+    S getService(@NonNull IBinder binder) {
         return mServiceGetter.getService(binder);
     }
 

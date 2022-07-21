@@ -29,7 +29,6 @@ import androidx.health.connect.client.records.BoneMassRecord
 import androidx.health.connect.client.records.CervicalMucusRecord
 import androidx.health.connect.client.records.CervicalMucusRecord.Appearance
 import androidx.health.connect.client.records.CervicalMucusRecord.Sensation
-import androidx.health.connect.client.records.CyclingPedalingCadence
 import androidx.health.connect.client.records.CyclingPedalingCadenceRecord
 import androidx.health.connect.client.records.DistanceRecord
 import androidx.health.connect.client.records.ElevationGainedRecord
@@ -40,7 +39,6 @@ import androidx.health.connect.client.records.ExerciseRepetitionsRecord
 import androidx.health.connect.client.records.ExerciseSessionRecord
 import androidx.health.connect.client.records.ExerciseSessionRecord.ExerciseType
 import androidx.health.connect.client.records.FloorsClimbedRecord
-import androidx.health.connect.client.records.HeartRate
 import androidx.health.connect.client.records.HeartRateRecord
 import androidx.health.connect.client.records.HeartRateVariabilityDifferentialIndexRecord
 import androidx.health.connect.client.records.HeartRateVariabilityRmssdRecord
@@ -69,9 +67,7 @@ import androidx.health.connect.client.records.SexualActivityRecord
 import androidx.health.connect.client.records.SleepSessionRecord
 import androidx.health.connect.client.records.SleepStageRecord
 import androidx.health.connect.client.records.SleepStageRecord.StageType
-import androidx.health.connect.client.records.Speed
 import androidx.health.connect.client.records.SpeedRecord
-import androidx.health.connect.client.records.StepsCadence
 import androidx.health.connect.client.records.StepsCadenceRecord
 import androidx.health.connect.client.records.StepsRecord
 import androidx.health.connect.client.records.SwimmingStrokesRecord
@@ -91,7 +87,9 @@ import androidx.health.connect.client.units.kilocaloriesPerDay
 import androidx.health.connect.client.units.kilograms
 import androidx.health.connect.client.units.liters
 import androidx.health.connect.client.units.meters
+import androidx.health.connect.client.units.metersPerSecond
 import androidx.health.connect.client.units.millimetersOfMercury
+import androidx.health.connect.client.units.percent
 import androidx.health.connect.client.units.watts
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
@@ -198,7 +196,7 @@ class AllRecordsConverterTest {
     fun testBodyFat() {
         val data =
             BodyFatRecord(
-                percentage = 1,
+                percentage = 1.percent,
                 time = START_TIME,
                 zoneOffset = END_ZONE_OFFSET,
                 metadata = TEST_METADATA
@@ -276,11 +274,11 @@ class AllRecordsConverterTest {
                 endZoneOffset = END_ZONE_OFFSET,
                 samples =
                     listOf(
-                        CyclingPedalingCadence(
+                        CyclingPedalingCadenceRecord.Sample(
                             time = START_TIME,
                             revolutionsPerMinute = 1.0,
                         ),
-                        CyclingPedalingCadence(
+                        CyclingPedalingCadenceRecord.Sample(
                             time = START_TIME,
                             revolutionsPerMinute = 2.0,
                         ),
@@ -302,15 +300,15 @@ class AllRecordsConverterTest {
                 endZoneOffset = END_ZONE_OFFSET,
                 samples =
                     listOf(
-                        HeartRate(
+                        HeartRateRecord.Sample(
                             time = START_TIME,
                             beatsPerMinute = 100L,
                         ),
-                        HeartRate(
+                        HeartRateRecord.Sample(
                             time = START_TIME,
                             beatsPerMinute = 110L,
                         ),
-                        HeartRate(
+                        HeartRateRecord.Sample(
                             time = START_TIME,
                             beatsPerMinute = 120L,
                         ),
@@ -522,7 +520,7 @@ class AllRecordsConverterTest {
     fun testOxygenSaturation() {
         val data =
             OxygenSaturationRecord(
-                percentage = 1,
+                percentage = 1.percent,
                 time = START_TIME,
                 zoneOffset = END_ZONE_OFFSET,
                 metadata = TEST_METADATA
@@ -610,13 +608,13 @@ class AllRecordsConverterTest {
                 endZoneOffset = END_ZONE_OFFSET,
                 samples =
                     listOf(
-                        Speed(
+                        SpeedRecord.Sample(
                             time = START_TIME,
-                            metersPerSecond = 1.0,
+                            speed = 1.metersPerSecond,
                         ),
-                        Speed(
+                        SpeedRecord.Sample(
                             time = START_TIME,
-                            metersPerSecond = 2.0,
+                            speed = 2.metersPerSecond,
                         ),
                     ),
                 metadata = TEST_METADATA,
@@ -636,11 +634,11 @@ class AllRecordsConverterTest {
                 endZoneOffset = END_ZONE_OFFSET,
                 samples =
                     listOf(
-                        StepsCadence(
+                        StepsCadenceRecord.Sample(
                             time = START_TIME,
                             rate = 1.0,
                         ),
-                        StepsCadence(
+                        StepsCadenceRecord.Sample(
                             time = START_TIME,
                             rate = 2.0,
                         ),

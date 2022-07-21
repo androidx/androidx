@@ -16,6 +16,7 @@
 
 package androidx.appsearch.platformstorage.converter;
 
+import android.annotation.SuppressLint;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
@@ -74,6 +75,9 @@ public final class SchemaToPlatformConverter {
         return jetpackBuilder.build();
     }
 
+    // Most stringProperty.get calls cause WrongConstant lint errors because the methods are not
+    // defined as returning the same constants as the corresponding setter expects, but they do
+    @SuppressLint("WrongConstant")
     @NonNull
     private static android.app.appsearch.AppSearchSchema.PropertyConfig toPlatformProperty(
             @NonNull AppSearchSchema.PropertyConfig jetpackProperty) {
@@ -121,6 +125,9 @@ public final class SchemaToPlatformConverter {
         }
     }
 
+    // Most stringProperty.get calls cause WrongConstant lint errors because the methods are not
+    // defined as returning the same constants as the corresponding setter expects, but they do
+    @SuppressLint("WrongConstant")
     @NonNull
     private static AppSearchSchema.PropertyConfig toJetpackProperty(
             @NonNull android.app.appsearch.AppSearchSchema.PropertyConfig platformProperty) {

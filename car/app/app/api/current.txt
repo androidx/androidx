@@ -29,12 +29,15 @@ package androidx.car.app {
     ctor public CarAppService();
     method public abstract androidx.car.app.validation.HostValidator createHostValidator();
     method @CallSuper public final void dump(java.io.FileDescriptor, java.io.PrintWriter, String![]?);
-    method public final androidx.car.app.Session? getCurrentSession();
+    method @Deprecated public final androidx.car.app.Session? getCurrentSession();
     method public final androidx.car.app.HostInfo? getHostInfo();
+    method public final androidx.car.app.Session? getSession(androidx.car.app.SessionInfo);
     method @CallSuper public final android.os.IBinder onBind(android.content.Intent);
-    method public abstract androidx.car.app.Session onCreateSession();
+    method @Deprecated public androidx.car.app.Session onCreateSession();
+    method public androidx.car.app.Session onCreateSession(androidx.car.app.SessionInfo);
     method public final boolean onUnbind(android.content.Intent);
     field @Deprecated public static final String CATEGORY_CHARGING_APP = "androidx.car.app.category.CHARGING";
+    field public static final String CATEGORY_FEATURE_CLUSTER = "androidx.car.app.category.FEATURE_CLUSTER";
     field public static final String CATEGORY_NAVIGATION_APP = "androidx.car.app.category.NAVIGATION";
     field @Deprecated public static final String CATEGORY_PARKING_APP = "androidx.car.app.category.PARKING";
     field public static final String CATEGORY_POI_APP = "androidx.car.app.category.POI";
@@ -64,6 +67,7 @@ package androidx.car.app {
     field @androidx.car.app.annotations.RequiresCarApi(3) public static final String HARDWARE_SERVICE = "hardware";
     field public static final String NAVIGATION_SERVICE = "navigation";
     field public static final String SCREEN_SERVICE = "screen";
+    field public static final String SUGGESTION_SERVICE = "suggestion";
   }
 
   public final class CarToast {
@@ -158,8 +162,15 @@ package androidx.car.app {
     ctor public SessionInfo(int, String);
     method public int getDisplayType();
     method public String getSessionId();
+    field public static final androidx.car.app.SessionInfo DEFAULT_SESSION_INFO;
     field public static final int DISPLAY_TYPE_CLUSTER = 1; // 0x1
     field public static final int DISPLAY_TYPE_MAIN = 0; // 0x0
+  }
+
+  public class SessionInfoIntentEncoder {
+    method public static boolean containsSessionInfo(android.content.Intent);
+    method public static androidx.car.app.SessionInfo decode(android.content.Intent);
+    method public static void encode(androidx.car.app.SessionInfo, android.content.Intent);
   }
 
   public interface SurfaceCallback {
@@ -197,7 +208,7 @@ package androidx.car.app.annotations {
 package androidx.car.app.connection {
 
   public final class CarConnection {
-    ctor public CarConnection(android.content.Context);
+    ctor @MainThread public CarConnection(android.content.Context);
     method public androidx.lifecycle.LiveData<java.lang.Integer!> getType();
     field public static final String ACTION_CAR_CONNECTION_UPDATED = "androidx.car.app.connection.action.CAR_CONNECTION_UPDATED";
     field public static final String CAR_CONNECTION_STATE = "CarConnectionState";
@@ -484,6 +495,7 @@ package androidx.car.app.model {
     method public static String typeToString(int);
     field public static final androidx.car.app.model.Action APP_ICON;
     field public static final androidx.car.app.model.Action BACK;
+    field @androidx.car.app.annotations.RequiresCarApi(5) public static final int FLAG_DEFAULT = 4; // 0x4
     field @androidx.car.app.annotations.RequiresCarApi(5) public static final int FLAG_IS_PERSISTENT = 2; // 0x2
     field @androidx.car.app.annotations.RequiresCarApi(4) public static final int FLAG_PRIMARY = 1; // 0x1
     field public static final androidx.car.app.model.Action PAN;
@@ -964,6 +976,8 @@ package androidx.car.app.model {
   }
 
   @androidx.car.app.annotations.CarProtocol public final class Row implements androidx.car.app.model.Item {
+    method public java.util.List<androidx.car.app.model.Action!> getActions();
+    method public androidx.car.app.model.CarIcon? getDecoration();
     method public androidx.car.app.model.CarIcon? getImage();
     method public androidx.car.app.model.Metadata? getMetadata();
     method public androidx.car.app.model.OnClickDelegate? getOnClickDelegate();
@@ -982,10 +996,12 @@ package androidx.car.app.model {
 
   public static final class Row.Builder {
     ctor public Row.Builder();
+    method public androidx.car.app.model.Row.Builder addAction(androidx.car.app.model.Action);
     method public androidx.car.app.model.Row.Builder addText(CharSequence);
     method public androidx.car.app.model.Row.Builder addText(androidx.car.app.model.CarText);
     method public androidx.car.app.model.Row build();
     method public androidx.car.app.model.Row.Builder setBrowsable(boolean);
+    method public androidx.car.app.model.Row.Builder setDecoration(androidx.car.app.model.CarIcon);
     method @androidx.car.app.annotations.RequiresCarApi(5) public androidx.car.app.model.Row.Builder setEnabled(boolean);
     method public androidx.car.app.model.Row.Builder setImage(androidx.car.app.model.CarIcon);
     method public androidx.car.app.model.Row.Builder setImage(androidx.car.app.model.CarIcon, int);
@@ -1562,6 +1578,36 @@ package androidx.car.app.serialization {
   public class BundlerException extends java.lang.Exception {
     ctor public BundlerException(String?, Throwable);
     ctor public BundlerException(String?);
+  }
+
+}
+
+package androidx.car.app.suggestion {
+
+  @androidx.car.app.annotations.RequiresCarApi(5) public class SuggestionManager implements androidx.car.app.managers.Manager {
+    method @MainThread public void updateSuggestions(java.util.List<androidx.car.app.suggestion.model.Suggestion!>);
+  }
+
+}
+
+package androidx.car.app.suggestion.model {
+
+  @androidx.car.app.annotations.CarProtocol public final class Suggestion {
+    method public android.app.PendingIntent? getAction();
+    method public androidx.car.app.model.CarIcon? getIcon();
+    method public String getIdentifier();
+    method public androidx.car.app.model.CarText? getSubtitle();
+    method public androidx.car.app.model.CarText getTitle();
+  }
+
+  public static final class Suggestion.Builder {
+    ctor public Suggestion.Builder();
+    method public androidx.car.app.suggestion.model.Suggestion build();
+    method public androidx.car.app.suggestion.model.Suggestion.Builder setAction(android.app.PendingIntent);
+    method public androidx.car.app.suggestion.model.Suggestion.Builder setIcon(androidx.car.app.model.CarIcon);
+    method public androidx.car.app.suggestion.model.Suggestion.Builder setIdentifier(String);
+    method public androidx.car.app.suggestion.model.Suggestion.Builder setSubtitle(CharSequence);
+    method public androidx.car.app.suggestion.model.Suggestion.Builder setTitle(CharSequence);
   }
 
 }

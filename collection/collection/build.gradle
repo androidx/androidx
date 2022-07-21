@@ -25,30 +25,27 @@ import org.jetbrains.kotlin.konan.target.Family
 
 plugins {
     id("AndroidXPlugin")
-    id("org.jetbrains.kotlin.multiplatform")
 }
 
 def enableNative = KmpPlatformsKt.enableNative(project)
 
-kotlin {
+androidXMultiplatform {
     jvm {
         withJava()
     }
-    if (enableNative) {
-        macosX64()
-        macosArm64()
-        linuxX64()
-    }
+    mac()
+    linux()
+    ios()
 
     sourceSets {
         commonMain {
             dependencies {
-                api(libs.kotlinStdlibCommon)
+                api(libs.kotlinStdlib)
             }
         }
         commonTest {
             dependencies {
-                implementation(libs.kotlinTestCommon)
+                implementation(libs.kotlinTest)
                 implementation(libs.kotlinTestAnnotationsCommon)
                 implementation(libs.kotlinCoroutinesCore)
             }
@@ -69,33 +66,33 @@ kotlin {
             linuxMain {
                 dependsOn(nativeMain)
             }
+        }
 
-            targets.all { target ->
-                if (target.platformType == KotlinPlatformType.native) {
-                    target.compilations["main"].defaultSourceSet {
-                        if (target.konanTarget.family == Family.OSX) {
-                            dependsOn(darwinMain)
-                        } else if (target.konanTarget.family == Family.LINUX) {
-                            dependsOn(linuxMain)
-                        } else {
-                            throw new GradleException("unknown native target ${target}")
-                        }
-                    }
-                    target.compilations["test"].defaultSourceSet {
-                        dependsOn(nativeTest)
+        targets.all { target ->
+            if (target.platformType == KotlinPlatformType.native) {
+                target.compilations["main"].defaultSourceSet {
+                    if (target.konanTarget.family == Family.OSX ||
+                        target.konanTarget.family == Family.IOS) {
+                        dependsOn(darwinMain)
+                    } else if (target.konanTarget.family == Family.LINUX) {
+                        dependsOn(linuxMain)
+                    } else {
+                        throw new GradleException("unknown native target ${target}")
                     }
                 }
+                target.compilations["test"].defaultSourceSet {
+                    dependsOn(nativeTest)
+                }
             }
-            // Workaround for https://youtrack.jetbrains.com/issue/KT-51763
-            // Make sure commonization runs before any compilation task.
-            tasks.withType(KotlinNativeCompile).configureEach {
-                it.dependsOn(tasks.named("commonize"))
-            }
+        }
+        // Workaround for https://youtrack.jetbrains.com/issue/KT-51763
+        // Make sure commonization runs before any compilation task.
+        tasks.withType(KotlinNativeCompile).configureEach {
+            it.dependsOn(tasks.named("commonize"))
         }
 
         jvmMain {
             dependencies {
-                api(libs.kotlinStdlib)
                 api("androidx.annotation:annotation:1.3.0")
             }
         }
@@ -125,12 +122,7 @@ dependencies {
 
 androidx {
     name = "Android Support Library collections"
-    type = LibraryType.kmpLibrary {
-        android = Publish.NONE
-        jvm = Publish.SNAPSHOT_AND_RELEASE
-        linux = Publish.SNAPSHOT_AND_RELEASE
-        mac = Publish.SNAPSHOT_AND_RELEASE
-    }
+    type = LibraryType.KMP_LIBRARY
     mavenGroup = LibraryGroups.COLLECTION
     inceptionYear = "2018"
     description = "Standalone efficient collections."

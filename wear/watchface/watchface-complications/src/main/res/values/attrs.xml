@@ -19,6 +19,9 @@
     Either top, bottom, left, right or center_x, center_y, width, height should be specified.
     The coordinates should be specified either in floating point form (0..1)
     or as a reference to dimension resource.
+    XmlWatchFace.complicationScaleX and complicationScaleY apply a scale to ComplicationSlotBounds,
+    this is useful if you want to define the coordinates in pseudo device pixels
+    (e.g. for a 400x400 screen).
 
     A margin can optionally be specified (marginTop, marginBottom, marginLeft, marginRight) in the
     same floating point coordinate space as the bounds. The margin only affects tap detection.

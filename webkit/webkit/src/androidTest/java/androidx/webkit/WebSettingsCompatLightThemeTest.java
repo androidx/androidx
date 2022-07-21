@@ -61,7 +61,7 @@ public class WebSettingsCompatLightThemeTest extends
     public void testSimplifiedDarkMode_rendersLight() throws Throwable {
         WebkitUtils.checkFeature(WebViewFeature.ALGORITHMIC_DARKENING);
         WebkitUtils.checkFeature(WebViewFeature.OFF_SCREEN_PRERASTER);
-        setWebViewSize(64, 64);
+        setWebViewSize();
         // Loading about:blank which doesn't support dark style result in a light background.
         getWebViewOnUiThread().loadUrlAndWaitForCompletion("about:blank");
         assertTrue("Bitmap colour should be light",
@@ -85,7 +85,7 @@ public class WebSettingsCompatLightThemeTest extends
     public void testSimplifiedDarkMode_pageSupportDarkTheme() {
         WebkitUtils.checkFeature(WebViewFeature.ALGORITHMIC_DARKENING);
         WebkitUtils.checkFeature(WebViewFeature.OFF_SCREEN_PRERASTER);
-        setWebViewSize(64, 64);
+        setWebViewSize();
 
         // Loading about:blank which doesn't support dark style result in a light background.
         getWebViewOnUiThread().loadUrlAndWaitForCompletion("about:blank");

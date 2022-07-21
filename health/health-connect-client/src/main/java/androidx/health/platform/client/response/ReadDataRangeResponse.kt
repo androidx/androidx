@@ -13,12 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package androidx.health.platform.client.response
 
 import android.os.Parcelable
 import androidx.health.platform.client.impl.data.ProtoParcelable
 import androidx.health.platform.client.proto.ResponseProto
 
+/** @suppress */
 class ReadDataRangeResponse(override val proto: ResponseProto.ReadDataRangeResponse) :
     ProtoParcelable<ResponseProto.ReadDataRangeResponse>() {
 

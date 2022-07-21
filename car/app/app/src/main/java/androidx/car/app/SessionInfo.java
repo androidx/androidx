@@ -15,28 +15,42 @@
  */
 package androidx.car.app;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY;
-
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
+import androidx.annotation.Nullable;
 import androidx.car.app.annotations.CarProtocol;
+import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.RequiresCarApi;
+import androidx.car.app.model.Template;
+import androidx.car.app.navigation.model.NavigationTemplate;
+import androidx.car.app.versioning.CarAppApiLevel;
+import androidx.car.app.versioning.CarAppApiLevels;
+
+import com.google.common.collect.ImmutableSet;
 
 import java.lang.annotation.Retention;
+import java.util.Objects;
+import java.util.Set;
 
 /** Information about a {@link Session}, such as the physical display and the session ID. */
 @RequiresCarApi(5)
 @CarProtocol
 public class SessionInfo {
+    private static final char DIVIDER = '/';
+
     /** The primary infotainment display usually in the center column of the vehicle. */
     public static final int DISPLAY_TYPE_MAIN = 0;
 
-    /** The cluster display, usually located behind the steering wheel.  */
+    /** The cluster display, usually located behind the steering wheel. */
     public static final int DISPLAY_TYPE_CLUSTER = 1;
+
+    private static final ImmutableSet<Class<? extends Template>> CLUSTER_SUPPORTED_TEMPLATES_API_5 =
+            ImmutableSet.of(NavigationTemplate.class);
+    private static final ImmutableSet<Class<? extends Template>>
+            CLUSTER_SUPPORTED_TEMPLATES_LESS_THAN_API_5 = ImmutableSet.of();
 
     /**
      * @hide
@@ -49,11 +63,9 @@ public class SessionInfo {
     /**
      * A default {@link SessionInfo} for the main display, used when the host is on a version
      * that doesn't support this new class.
-     *
-     * @hide
      */
-    @RestrictTo(LIBRARY)
-    static final SessionInfo DEFAULT_SESSION_INFO = new SessionInfo(
+    @NonNull
+    public static final SessionInfo DEFAULT_SESSION_INFO = new SessionInfo(
             DISPLAY_TYPE_MAIN, "main");
 
     /** A string identifier unique per physical display. */
@@ -93,5 +105,52 @@ public class SessionInfo {
     private SessionInfo() {
         mSessionId = "main";
         mDisplayType = DISPLAY_TYPE_MAIN;
+    }
+
+    /**
+     * Returns the set of templates that are allowed for this {@link Session}, or {@code null} if
+     * there are no restrictions (ie. all templates are allowed).
+     */
+    @Nullable
+    @SuppressWarnings("NullableCollection") // Set does not contain nulls
+    @ExperimentalCarApi
+    public Set<Class<? extends Template>> getSupportedTemplates(
+            @CarAppApiLevel int carAppApiLevel) {
+        if (mDisplayType == DISPLAY_TYPE_CLUSTER) {
+            if (carAppApiLevel >= CarAppApiLevels.LEVEL_5) {
+                return CLUSTER_SUPPORTED_TEMPLATES_API_5;
+            }
+
+            return CLUSTER_SUPPORTED_TEMPLATES_LESS_THAN_API_5;
+        }
+
+        return null;
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+        return String.valueOf(mDisplayType) + DIVIDER + mSessionId;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(mSessionId, mDisplayType);
+    }
+
+    @Override
+    public boolean equals(@Nullable Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (!(obj instanceof SessionInfo)) {
+            return false;
+        }
+        if (obj == this) {
+            return true;
+        }
+        SessionInfo object = (SessionInfo) obj;
+        return this.getSessionId().equals(object.getSessionId())
+                && this.getDisplayType() == object.getDisplayType();
     }
 }

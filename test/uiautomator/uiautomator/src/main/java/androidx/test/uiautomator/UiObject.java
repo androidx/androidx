@@ -1080,7 +1080,6 @@ public class UiObject {
      *         <code>false</code> otherwise
      * @since API Level 18
      */
-    @SuppressWarnings("NarrowingCompoundAssignment")
     public boolean performTwoPointerGesture(Point startPoint1, Point startPoint2, Point endPoint1,
             Point endPoint2, int steps) {
 
@@ -1119,10 +1118,10 @@ public class UiObject {
             p2.size = 1;
             points2[i] = p2;
 
-            eventX1 += stepX1;
-            eventY1 += stepY1;
-            eventX2 += stepX2;
-            eventY2 += stepY2;
+            eventX1 = (int) (eventX1 + stepX1);
+            eventY1 = (int) (eventY1 + stepY1);
+            eventX2 = (int) (eventX2 + stepX2);
+            eventY2 = (int) (eventY2 + stepY2);
         }
 
         // ending pointers coordinates

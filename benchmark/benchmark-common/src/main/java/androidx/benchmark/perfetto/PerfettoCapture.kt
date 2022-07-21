@@ -17,6 +17,7 @@
 package androidx.benchmark.perfetto
 
 import android.os.Build
+import android.util.JsonReader
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.benchmark.Outputs
@@ -24,16 +25,16 @@ import androidx.benchmark.Shell
 import androidx.benchmark.perfetto.PerfettoHelper.Companion.isAbiSupported
 import androidx.benchmark.userspaceTrace
 import androidx.test.platform.app.InstrumentationRegistry
-import androidx.tracing.perfetto.TracingReceiver.Companion.RESULT_CODE_ALREADY_ENABLED
-import androidx.tracing.perfetto.TracingReceiver.Companion.RESULT_CODE_ERROR_BINARY_MISSING
-import androidx.tracing.perfetto.TracingReceiver.Companion.RESULT_CODE_ERROR_BINARY_VERIFICATION_ERROR
-import androidx.tracing.perfetto.TracingReceiver.Companion.RESULT_CODE_ERROR_BINARY_VERSION_MISMATCH
-import androidx.tracing.perfetto.TracingReceiver.Companion.RESULT_CODE_ERROR_OTHER
-import androidx.tracing.perfetto.TracingReceiver.Companion.RESULT_CODE_SUCCESS
-import java.io.BufferedOutputStream
+import androidx.tracing.perfetto.PerfettoHandshake
+import androidx.tracing.perfetto.PerfettoHandshake.ExternalLibraryProvider
+import androidx.tracing.perfetto.PerfettoHandshake.ResponseExitCodes.RESULT_CODE_ALREADY_ENABLED
+import androidx.tracing.perfetto.PerfettoHandshake.ResponseExitCodes.RESULT_CODE_ERROR_BINARY_MISSING
+import androidx.tracing.perfetto.PerfettoHandshake.ResponseExitCodes.RESULT_CODE_ERROR_BINARY_VERIFICATION_ERROR
+import androidx.tracing.perfetto.PerfettoHandshake.ResponseExitCodes.RESULT_CODE_ERROR_BINARY_VERSION_MISMATCH
+import androidx.tracing.perfetto.PerfettoHandshake.ResponseExitCodes.RESULT_CODE_ERROR_OTHER
+import androidx.tracing.perfetto.PerfettoHandshake.ResponseExitCodes.RESULT_CODE_SUCCESS
 import java.io.File
-import java.io.FileInputStream
-import java.util.zip.ZipInputStream
+import java.io.StringReader
 
 /**
  * Enables capturing a Perfetto trace
@@ -103,16 +104,44 @@ public class PerfettoCapture(
             throw IllegalStateException("Unsupported ABI (${Build.SUPPORTED_ABIS.joinToString()})")
         }
 
-        val handshake = PerfettoHandshake(targetPackage)
-        val response = handshake.requestEnable(null).let {
-            if (it.exitCode == RESULT_CODE_ERROR_BINARY_MISSING && provideBinariesIfMissing)
-                handshake.requestEnable(pushLibrary(targetPackage)) // provide binaries and retry
+        // construct a handshake
+        val handshake = PerfettoHandshake(
+            targetPackage = targetPackage,
+            parseJsonMap = { jsonString: String ->
+                sequence {
+                    JsonReader(StringReader(jsonString)).use { reader ->
+                        reader.beginObject()
+                        while (reader.hasNext()) yield(reader.nextName() to reader.nextString())
+                        reader.endObject()
+                    }
+                }.toMap()
+            },
+            executeShellCommand = Shell::executeCommand
+        )
+
+        // negotiate enabling tracing in the app
+        val response = handshake.enableTracing(null).let {
+            if (it.exitCode == RESULT_CODE_ERROR_BINARY_MISSING && provideBinariesIfMissing) {
+                val baseApk = File(
+                    InstrumentationRegistry.getInstrumentation()
+                        .context.applicationInfo.publicSourceDir!!
+                )
+                val libraryProvider = ExternalLibraryProvider(
+                    baseApk,
+                    Outputs.dirUsableByAppAndShell
+                ) { tmpFile, dstFile ->
+                    executeShellCommand("mkdir -p ${dstFile.parentFile!!.path}", Regex("^$"))
+                    executeShellCommand("mv ${tmpFile.path} ${dstFile.path}", Regex("^$"))
+                }
+                handshake.enableTracing(libraryProvider)
+            } // provide binaries and retry
             else
                 it // no retry
         }
 
+        // process the response
         return when (response.exitCode) {
-            0, null -> "The broadcast to enable tracing was not received. This most likely means " +
+            0 -> "The broadcast to enable tracing was not received. This most likely means " +
                 "that the app does not contain the `androidx.tracing.tracing-perfetto` " +
                 "library as its dependency."
             RESULT_CODE_SUCCESS -> null
@@ -120,60 +149,20 @@ public class PerfettoCapture(
             RESULT_CODE_ERROR_BINARY_MISSING ->
                 "Perfetto SDK binary dependencies missing. " +
                     "Required version: ${response.requiredVersion}. " +
-                    "Error: ${response.errorMessage}."
+                    "Error: ${response.message}."
             RESULT_CODE_ERROR_BINARY_VERSION_MISMATCH ->
                 "Perfetto SDK binary mismatch. " +
                     "Required version: ${response.requiredVersion}. " +
-                    "Error: ${response.errorMessage}."
+                    "Error: ${response.message}."
             RESULT_CODE_ERROR_BINARY_VERIFICATION_ERROR ->
                 "Perfetto SDK binary verification failed. " +
                     "Required version: ${response.requiredVersion}. " +
-                    "Error: ${response.errorMessage}. " +
+                    "Error: ${response.message}. " +
                     "If working with an unreleased snapshot, ensure all modules are built " +
                     "against the same snapshot (e.g. clear caches and rebuild)."
-            RESULT_CODE_ERROR_OTHER -> "Error: ${response.errorMessage}."
+            RESULT_CODE_ERROR_OTHER -> "Error: ${response.message}."
             else -> throw RuntimeException("Unrecognized exit code: ${response.exitCode}.")
         }
-    }
-
-    private fun pushLibrary(targetPackage: String): String {
-        val context = InstrumentationRegistry.getInstrumentation().context
-
-        val libFileName = "libtracing_perfetto.so"
-        val abiDirName = File(context.applicationInfo.nativeLibraryDir).name
-        val baseApk = File(context.applicationInfo.publicSourceDir!!)
-
-        val shellWriteableAppReadableDir = File("/sdcard/Android/media/$targetPackage/files")
-        val dstDir = shellWriteableAppReadableDir.resolve("lib/$abiDirName")
-        val dstFile = dstDir.resolve(libFileName)
-        val tmpFile = Outputs.dirUsableByAppAndShell.resolve(".tmp_$libFileName")
-
-        val rxLibPathInsideZip = Regex(".*lib/[^/]*$abiDirName[^/]*/$libFileName")
-
-        ZipInputStream(FileInputStream(baseApk)).use { stream ->
-            findEntry@ while (true) {
-                val entry = stream.nextEntry ?: break@findEntry
-                if (!entry.name.matches(rxLibPathInsideZip)) continue@findEntry
-
-                // found the right entry, so copying it to destination
-                BufferedOutputStream(tmpFile.outputStream()).use { dstStream ->
-                    val buffer = ByteArray(1024)
-                    writing@ while (true) {
-                        val readCount = stream.read(buffer)
-                        if (readCount <= 0) break@writing
-                        dstStream.write(buffer, 0, readCount)
-                    }
-                }
-                executeShellCommand("mkdir -p ${dstDir.path}", Regex("^$"))
-                executeShellCommand("mv ${tmpFile.path} ${dstFile.path}", Regex("^$"))
-
-                return dstFile.path
-            }
-        }
-
-        throw IllegalStateException(
-            "Unable to locate $libFileName to enable Perfetto SDK. Tried inside ${baseApk.path}."
-        )
     }
 
     private fun executeShellCommand(command: String, expectedResponse: Regex) {

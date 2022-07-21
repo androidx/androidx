@@ -28,7 +28,6 @@ import androidx.health.connect.client.records.BodyTemperatureRecord
 import androidx.health.connect.client.records.BodyWaterMassRecord
 import androidx.health.connect.client.records.BoneMassRecord
 import androidx.health.connect.client.records.CervicalMucusRecord
-import androidx.health.connect.client.records.CyclingPedalingCadence
 import androidx.health.connect.client.records.CyclingPedalingCadenceRecord
 import androidx.health.connect.client.records.DistanceRecord
 import androidx.health.connect.client.records.ElevationGainedRecord
@@ -37,7 +36,6 @@ import androidx.health.connect.client.records.ExerciseLapRecord
 import androidx.health.connect.client.records.ExerciseRepetitionsRecord
 import androidx.health.connect.client.records.ExerciseSessionRecord
 import androidx.health.connect.client.records.FloorsClimbedRecord
-import androidx.health.connect.client.records.HeartRate
 import androidx.health.connect.client.records.HeartRateRecord
 import androidx.health.connect.client.records.HeartRateVariabilityDifferentialIndexRecord
 import androidx.health.connect.client.records.HeartRateVariabilityRmssdRecord
@@ -63,9 +61,7 @@ import androidx.health.connect.client.records.RestingHeartRateRecord
 import androidx.health.connect.client.records.SexualActivityRecord
 import androidx.health.connect.client.records.SleepSessionRecord
 import androidx.health.connect.client.records.SleepStageRecord
-import androidx.health.connect.client.records.Speed
 import androidx.health.connect.client.records.SpeedRecord
-import androidx.health.connect.client.records.StepsCadence
 import androidx.health.connect.client.records.StepsCadenceRecord
 import androidx.health.connect.client.records.StepsRecord
 import androidx.health.connect.client.records.SwimmingStrokesRecord
@@ -81,7 +77,9 @@ import androidx.health.connect.client.units.kilocaloriesPerDay
 import androidx.health.connect.client.units.kilograms
 import androidx.health.connect.client.units.liters
 import androidx.health.connect.client.units.meters
+import androidx.health.connect.client.units.metersPerSecond
 import androidx.health.connect.client.units.millimetersOfMercury
+import androidx.health.connect.client.units.percent
 import androidx.health.connect.client.units.watts
 import androidx.health.platform.client.proto.DataProto
 import java.time.Instant
@@ -127,7 +125,7 @@ fun toRecord(proto: DataProto.DataPoint): Record =
                 )
             "BodyFat" ->
                 BodyFatRecord(
-                    percentage = getDouble("percentage").toInt(),
+                    percentage = getDouble("percentage").percent,
                     time = time,
                     zoneOffset = zoneOffset,
                     metadata = metadata
@@ -170,7 +168,7 @@ fun toRecord(proto: DataProto.DataPoint): Record =
                     endZoneOffset = endZoneOffset,
                     samples =
                         seriesValuesList.map { value ->
-                            CyclingPedalingCadence(
+                            CyclingPedalingCadenceRecord.Sample(
                                 time = Instant.ofEpochMilli(value.instantTimeMillis),
                                 revolutionsPerMinute = value.getDouble("rpm"),
                             )
@@ -185,7 +183,7 @@ fun toRecord(proto: DataProto.DataPoint): Record =
                     endZoneOffset = endZoneOffset,
                     samples =
                         seriesValuesList.map { value ->
-                            HeartRate(
+                            HeartRateRecord.Sample(
                                 time = Instant.ofEpochMilli(value.instantTimeMillis),
                                 beatsPerMinute = value.getLong("bpm"),
                             )
@@ -292,7 +290,7 @@ fun toRecord(proto: DataProto.DataPoint): Record =
                 )
             "OxygenSaturation" ->
                 OxygenSaturationRecord(
-                    percentage = getDouble("percentage").toInt(),
+                    percentage = getDouble("percentage").percent,
                     time = time,
                     zoneOffset = zoneOffset,
                     metadata = metadata
@@ -341,9 +339,9 @@ fun toRecord(proto: DataProto.DataPoint): Record =
                     endZoneOffset = endZoneOffset,
                     samples =
                         seriesValuesList.map { value ->
-                            Speed(
+                            SpeedRecord.Sample(
                                 time = Instant.ofEpochMilli(value.instantTimeMillis),
-                                metersPerSecond = value.getDouble("speed"),
+                                speed = value.getDouble("speed").metersPerSecond,
                             )
                         },
                     metadata = metadata,
@@ -356,7 +354,7 @@ fun toRecord(proto: DataProto.DataPoint): Record =
                     endZoneOffset = endZoneOffset,
                     samples =
                         seriesValuesList.map { value ->
-                            StepsCadence(
+                            StepsCadenceRecord.Sample(
                                 time = Instant.ofEpochMilli(value.instantTimeMillis),
                                 rate = value.getDouble("rate"),
                             )

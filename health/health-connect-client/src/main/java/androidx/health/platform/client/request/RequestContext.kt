@@ -13,13 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package androidx.health.platform.client.request
 
 import android.os.Parcelable
 import androidx.health.platform.client.impl.data.ProtoParcelable
 import androidx.health.platform.client.proto.RequestProto
 
-/** Data object holding context data for IPC calls. */
+/**
+ * Data object holding context data for IPC calls.
+ * @suppress
+ */
 class RequestContext(
     val callingPackage: String,
     val sdkVersion: Int,

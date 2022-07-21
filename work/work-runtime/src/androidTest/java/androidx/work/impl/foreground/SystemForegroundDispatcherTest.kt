@@ -28,9 +28,11 @@ import androidx.test.filters.SdkSuppress
 import androidx.work.Configuration
 import androidx.work.Constraints
 import androidx.work.ForegroundInfo
+import androidx.work.ListenableWorker
 import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkInfo
+import androidx.work.WorkerParameters
 import androidx.work.impl.Processor
 import androidx.work.impl.Scheduler
 import androidx.work.impl.WorkDatabase
@@ -45,9 +47,11 @@ import androidx.work.impl.foreground.SystemForegroundDispatcher.createStartForeg
 import androidx.work.impl.foreground.SystemForegroundDispatcher.createStopForegroundIntent
 import androidx.work.impl.utils.StopWorkRunnable
 import androidx.work.impl.utils.SynchronousExecutor
+import androidx.work.impl.utils.futures.SettableFuture
 import androidx.work.impl.utils.taskexecutor.InstantWorkTaskExecutor
 import androidx.work.impl.utils.taskexecutor.TaskExecutor
 import androidx.work.worker.TestWorker
+import com.google.common.util.concurrent.ListenableFuture
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Before
@@ -127,11 +131,12 @@ class SystemForegroundDispatcherTest {
 
     @Test
     fun testStartForeground_trackConstraints_workSpecHasConstraints() {
-        val request = OneTimeWorkRequest.Builder(TestWorker::class.java)
+        val request = OneTimeWorkRequest.Builder(NeverResolvedWorker::class.java)
             .setConstraints(
                 Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build()
             ).build()
         workDatabase.workSpecDao().insertWorkSpec(request.workSpec)
+        processor.startWork(StartStopToken(WorkGenerationalId(request.stringId, 0)))
         val notificationId = 1
         val notification = mock(Notification::class.java)
         val metadata = ForegroundInfo(notificationId, notification)
@@ -338,11 +343,12 @@ class SystemForegroundDispatcherTest {
 
     @Test
     fun testStartForeground_trackConstraints_constraintsUnMet() {
-        val request = OneTimeWorkRequest.Builder(TestWorker::class.java)
+        val request = OneTimeWorkRequest.Builder(NeverResolvedWorker::class.java)
             .setConstraints(
                 Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build()
             ).build()
         workDatabase.workSpecDao().insertWorkSpec(request.workSpec)
+        processor.startWork(StartStopToken(WorkGenerationalId(request.stringId, 0)))
         val notificationId = 1
         val notification = mock(Notification::class.java)
         val metadata = ForegroundInfo(notificationId, notification)
@@ -358,11 +364,12 @@ class SystemForegroundDispatcherTest {
 
     @Test
     fun testCancelForegroundWork() {
-        val request = OneTimeWorkRequest.Builder(TestWorker::class.java)
+        val request = OneTimeWorkRequest.Builder(NeverResolvedWorker::class.java)
             .setConstraints(
                 Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build()
             ).build()
         workDatabase.workSpecDao().insertWorkSpec(request.workSpec)
+        processor.startWork(StartStopToken(WorkGenerationalId(request.stringId, 0)))
         val notificationId = 1
         val notification = mock(Notification::class.java)
         val metadata = ForegroundInfo(notificationId, notification)
@@ -400,5 +407,34 @@ class SystemForegroundDispatcherTest {
         dispatcher.onStartCommand(stopAndCancelIntent)
         verify(workManager, times(1)).cancelWorkById(eq(UUID.fromString(request.workSpec.id)))
         assertThat(processor.hasWork(), `is`(false))
+    }
+
+    @Test
+    fun testUseRunningWork() {
+        val request = OneTimeWorkRequest.Builder(NeverResolvedWorker::class.java)
+            .setConstraints(Constraints(requiredNetworkType = NetworkType.CONNECTED))
+            .build()
+        workDatabase.workSpecDao().insertWorkSpec(request.workSpec)
+        processor.startWork(StartStopToken(WorkGenerationalId(request.stringId, 0)))
+        val updatedRequest = OneTimeWorkRequest.Builder(NeverResolvedWorker::class.java)
+            .setId(request.id)
+            .build()
+        workDatabase.workSpecDao().updateWorkSpec(updatedRequest.workSpec)
+        val notificationId = 1
+        val notification = mock(Notification::class.java)
+        val metadata = ForegroundInfo(notificationId, notification)
+        val intent = createStartForegroundIntent(context,
+            WorkGenerationalId(request.stringId, 0), metadata)
+        dispatcher.onStartCommand(intent)
+        verify(tracker, times(1)).replace(setOf(request.workSpec))
+    }
+}
+
+class NeverResolvedWorker(
+    context: Context,
+    workerParams: WorkerParameters
+) : ListenableWorker(context, workerParams) {
+    override fun startWork(): ListenableFuture<Result> {
+        return SettableFuture.create()
     }
 }

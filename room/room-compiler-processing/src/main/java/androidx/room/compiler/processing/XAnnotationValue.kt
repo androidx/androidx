@@ -170,6 +170,18 @@ interface XAnnotationValue {
     /** Returns the value as a list of [Byte]. */
     fun asByteList(): List<Byte> = asAnnotationValueList().map { it.asByte() }
 
+    /** Returns true if the value is an [Char] */
+    fun hasCharValue(): Boolean
+
+    /** Returns the value as a [Char]. */
+    fun asChar(): Char = value as Char
+
+    /** Returns true if the value is a list of [Char] */
+    fun hasCharListValue(): Boolean
+
+    /** Returns the value as a list of [Char]. */
+    fun asCharList(): List<Char> = asAnnotationValueList().map { it.asChar() }
+
     /** Returns true if the value is a list. */
     fun hasListValue(): Boolean
 

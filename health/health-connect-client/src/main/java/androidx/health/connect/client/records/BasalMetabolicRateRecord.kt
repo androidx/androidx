@@ -17,6 +17,7 @@ package androidx.health.connect.client.records
 
 import androidx.health.connect.client.aggregate.AggregateMetric
 import androidx.health.connect.client.records.metadata.Metadata
+import androidx.health.connect.client.units.Energy
 import androidx.health.connect.client.units.Power
 import java.time.Instant
 import java.time.ZoneOffset
@@ -66,12 +67,12 @@ public class BasalMetabolicRateRecord(
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        val BASAL_CALORIES_TOTAL: AggregateMetric<Power> =
+        val BASAL_CALORIES_TOTAL: AggregateMetric<Energy> =
             AggregateMetric.doubleMetric(
                 dataTypeName = BASAL_CALORIES_TYPE_NAME,
                 aggregationType = AggregateMetric.AggregationType.TOTAL,
                 fieldName = ENERGY_FIELD_NAME,
-                mapper = Power::kilocaloriesPerDay,
+                mapper = Energy::calories,
             )
     }
 }

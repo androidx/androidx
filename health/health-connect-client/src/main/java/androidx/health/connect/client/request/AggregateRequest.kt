@@ -24,10 +24,10 @@ import androidx.health.connect.client.time.TimeRangeFilter
  *
  * @param metrics Set of [AggregateMetric]s to aggregate, such as `Steps::STEPS_COUNT_TOTAL`.
  * @param timeRangeFilter The [TimeRangeFilter] to read from.
- * @param dataOriginFilter List of [DataOrigin]s to read from, or empty for no filter.
+ * @param dataOriginFilter Set of [DataOrigin]s to read from, or empty for no filter.
  */
 class AggregateRequest(
     internal val metrics: Set<AggregateMetric<*>>,
     internal val timeRangeFilter: TimeRangeFilter,
-    internal val dataOriginFilter: List<DataOrigin> = emptyList(),
+    internal val dataOriginFilter: Set<DataOrigin> = emptySet(),
 )

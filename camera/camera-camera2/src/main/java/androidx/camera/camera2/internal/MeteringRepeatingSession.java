@@ -95,7 +95,7 @@ class MeteringRepeatingSession {
             }
 
             @Override
-            public void onFailure(Throwable t) {
+            public void onFailure(@NonNull Throwable t) {
                 throw new IllegalStateException("Future should never "
                         + "fail. Did it get completed by GC?", t);
             }

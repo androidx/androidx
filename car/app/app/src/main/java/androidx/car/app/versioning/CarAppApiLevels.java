@@ -32,16 +32,26 @@ import java.io.InputStreamReader;
  * hosts.
  *
  * @see androidx.car.app.CarContext#getCarAppApiLevel()
+ * @see
+ * <a href="https://developer.android.com/jetpack/androidx/releases/car-app">Car App Library Release Notes</a>
  */
 public final class CarAppApiLevels {
     /**
      * API level 5.
+     *
+     * <p>Includes features such as voice access, alerters, map-pane template details view,
+     * responsive-turn-cards, tap on map, list within the navigation template for non-places
+     * content, map interactivity (zoom and pan) on POIs and route preview, content refresh on
+     * POIs (with speedbump).
      */
     @CarAppApiLevel
     public static final int LEVEL_5 = 5;
 
     /**
      * API level 4.
+     *
+     * <p>Includes AAOS support and other features such as QR code sign-in, show current location
+     * in place-list-map template, contrast check capability.
      */
     @CarAppApiLevel
     public static final int LEVEL_4 = 4;

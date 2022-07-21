@@ -53,6 +53,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
+import androidx.annotation.RestrictTo;
 import androidx.annotation.UiThread;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.CameraControl;
@@ -147,6 +148,15 @@ public final class PreviewView extends FrameLayout {
     @SuppressWarnings("WeakerAccess")
     CameraController mCameraController;
 
+    // Synthetic access
+    @SuppressWarnings("WeakerAccess")
+    @Nullable
+    OnFrameUpdateListener mOnFrameUpdateListener;
+    // Synthetic access
+    @SuppressWarnings("WeakerAccess")
+    @Nullable
+    Executor mOnFrameUpdateListenerExecutor;
+
     @NonNull
     PreviewViewMeteringPointFactory mPreviewViewMeteringPointFactory =
             new PreviewViewMeteringPointFactory(mPreviewTransform);
@@ -240,6 +250,11 @@ public final class PreviewView extends FrameLayout {
                 streamStateObserver.clear();
                 camera.getCameraState().removeObserver(streamStateObserver);
             });
+
+            if (mOnFrameUpdateListener != null && mOnFrameUpdateListenerExecutor != null) {
+                mImplementation.setFrameUpdateListener(mOnFrameUpdateListenerExecutor,
+                        mOnFrameUpdateListener);
+            }
         }
     };
 
@@ -368,6 +383,12 @@ public final class PreviewView extends FrameLayout {
     public void setImplementationMode(@NonNull final ImplementationMode implementationMode) {
         checkMainThread();
         mImplementationMode = implementationMode;
+
+        if (mImplementationMode == ImplementationMode.PERFORMANCE
+                && mOnFrameUpdateListener != null) {
+            throw new IllegalArgumentException(
+                    "PERFORMANCE mode doesn't support frame update listener");
+        }
     }
 
     /**
@@ -671,6 +692,41 @@ public final class PreviewView extends FrameLayout {
                                 display.getRotation()), display.getRotation());
             }
         }
+    }
+
+    /**
+     * Sets a listener to receive frame update event with sensor timestamp.
+     *
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public void setFrameUpdateListener(@NonNull Executor executor,
+            @NonNull OnFrameUpdateListener listener) {
+        // SurfaceView doesn't support frame update event.
+        if (mImplementationMode == ImplementationMode.PERFORMANCE) {
+            throw new IllegalArgumentException(
+                    "PERFORMANCE mode doesn't support frame update listener");
+        }
+
+        mOnFrameUpdateListener = listener;
+        mOnFrameUpdateListenerExecutor = executor;
+        if (mImplementation != null) {
+            mImplementation.setFrameUpdateListener(executor, listener);
+        }
+    }
+
+    /**
+     * Listener to be notified when the frame is updated.
+     *
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public interface OnFrameUpdateListener {
+        /**
+         * Invoked when frame updates.
+         * @param timestamp sensor timestamp of this frame.
+         */
+        void onFrameUpdate(long timestamp);
     }
 
     /**

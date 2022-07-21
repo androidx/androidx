@@ -72,7 +72,7 @@ public class MaterialGoldenXLTest {
         return (int) ((px - 0.5f) / scale);
     }
 
-    @Parameterized.Parameters(name = "{1}")
+    @Parameterized.Parameters(name = "{0}")
     public static Collection<Object[]> data() {
         Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();
         DisplayMetrics currentDisplayMetrics = new DisplayMetrics();

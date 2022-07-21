@@ -70,6 +70,12 @@ android {
         }
     }
     namespace "androidx.test.ext.junitgtest"
+
+    packagingOptions {
+        jniLibs {
+            excludes += "**/libc++_shared.so"
+        }
+    }
 }
 
 afterEvaluate {

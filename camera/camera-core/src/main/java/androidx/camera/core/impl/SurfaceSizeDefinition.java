@@ -18,6 +18,7 @@ package androidx.camera.core.impl;
 
 import android.util.Size;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 
 import com.google.auto.value.AutoValue;
@@ -48,19 +49,23 @@ public abstract class SurfaceSizeDefinition {
      *                       resolution, as determined by CamcorderProfile.
      * @return new {@link SurfaceSizeDefinition} object
      */
+    @NonNull
     public static SurfaceSizeDefinition create(
-            Size analysisSize,
-            Size previewSize,
-            Size recordSize) {
+            @NonNull Size analysisSize,
+            @NonNull Size previewSize,
+            @NonNull Size recordSize) {
         return new AutoValue_SurfaceSizeDefinition(analysisSize, previewSize, recordSize);
     }
 
     /** Returns the size of an ANALYSIS stream. */
+    @NonNull
     public abstract Size getAnalysisSize();
 
     /** Returns the size of a PREVIEW stream. */
+    @NonNull
     public abstract Size getPreviewSize();
 
     /** Returns the size of a RECORD stream*/
+    @NonNull
     public abstract Size getRecordSize();
 }

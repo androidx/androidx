@@ -5057,9 +5057,11 @@ public class ExifInterface {
      * Sets the GPS-related information. It will set GPS processing method, latitude and longitude
      * values, GPS timestamp, and speed information at the same time.
      *
+     * This method is a No-Op if the location parameter is null.
+     *
      * @param location the {@link Location} object returned by GPS service.
      */
-    public void setGpsInfo(Location location) {
+    public void setGpsInfo(@Nullable Location location) {
         if (location == null) {
             return;
         }

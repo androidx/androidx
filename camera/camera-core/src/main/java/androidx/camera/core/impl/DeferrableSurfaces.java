@@ -101,7 +101,7 @@ public final class DeferrableSurfaces {
                                 }
 
                                 @Override
-                                public void onFailure(Throwable t) {
+                                public void onFailure(@NonNull Throwable t) {
                                     completer.set(
                                             Collections.unmodifiableList(Collections.emptyList()));
                                     scheduledFuture.cancel(true);

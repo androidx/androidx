@@ -2,13 +2,13 @@
 # -----------------------------------------------------------------------------
 # All of the following should be updated in sync.
 # -----------------------------------------------------------------------------
-androidGradlePlugin = "7.4.0-alpha01"
+androidGradlePlugin = "7.4.0-alpha08"
 # NOTE: When updating the lint version we also need to update the `api` version
 # supported by `IssueRegistry`'s.' For e.g. r.android.com/1331903
-androidLint = "30.4.0-alpha01"
+androidLint = "30.4.0-alpha08"
 # Once you have a chosen version of AGP to upgrade to, go to
 # https://developer.android.com/studio/archive and find the matching version of Studio.
-androidStudio = "2022.1.1.1"
+androidStudio = "2022.1.1.8"
 # -----------------------------------------------------------------------------
 
 androidGradlePluginMin = "7.0.4"
@@ -25,16 +25,16 @@ autoService = "1.0-rc6"
 autoValue = "1.6.3"
 cmake = "3.22.1"
 dagger = "2.42"
-dexmaker = "2.25.0"
+dexmaker = "2.28.3"
 espresso = "3.5.0-alpha06"
 guavaJre = "31.1-jre"
 hilt = "2.42"
 incap = "0.2"
-kotlin = "1.7.0"
-kotlinNative = "1.7.0"
+kotlin = "1.7.10"
+kotlinNative = "1.7.10"
 kotlinCompileTesting = "1.4.1"
 kotlinCoroutines = "1.6.1"
-ksp = "1.7.0-1.0.6"
+ksp = "1.7.10-1.0.6"
 ktlint = "0.46.0-20220520.192227-74"
 leakcanary = "2.8.1"
 metalava = "1.0.0-alpha06"
@@ -146,10 +146,11 @@ mlkitBarcode = { module = "com.google.mlkit:barcode-scanning", version = "17.0.2
 mockitoCore = { module = "org.mockito:mockito-core", version.ref = "mockito" }
 mockitoAndroid = { module = "org.mockito:mockito-android", version.ref = "mockito" }
 mockitoKotlin = { module = "com.nhaarman.mockitokotlin2:mockito-kotlin", version = "2.1.0" }
+mockitoKotlin4 = { module = "org.mockito.kotlin:mockito-kotlin", version = "4.0.0" }
 multidex = { module = "androidx.multidex:multidex", version = "2.0.1" }
 nullaway = { module = "com.uber.nullaway:nullaway", version = "0.3.7" }
 okhttpMockwebserver = { module = "com.squareup.okhttp3:mockwebserver", version = "3.14.7" }
-okio = { module = "com.squareup.okio:okio", version = "3.0.0" }
+okio = { module = "com.squareup.okio:okio", version = "3.1.0" }
 playCore = { module = "com.google.android.play:core", version = "1.10.3" }
 playServicesBase = { module = "com.google.android.gms:play-services-base", version = "17.0.0" }
 playServicesBasement = { module = "com.google.android.gms:play-services-basement", version = "17.0.0" }
