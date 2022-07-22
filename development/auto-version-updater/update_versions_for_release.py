@@ -19,10 +19,6 @@ import os
 import argparse
 from datetime import date
 import subprocess
-from shutil import rmtree
-from shutil import copyfile
-from distutils.dir_util import copy_tree
-from distutils.dir_util import DistutilsFileError
 import toml
 
 # Import the JetpadClient from the parent directory
