@@ -19,10 +19,11 @@ package androidx.camera.core.internal
 import android.os.Build
 import androidx.camera.core.EffectBundle
 import androidx.camera.core.Preview
+import androidx.camera.core.SurfaceEffect
 import androidx.camera.core.SurfaceEffect.PREVIEW
-import androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor
+import androidx.camera.core.SurfaceOutput
+import androidx.camera.core.SurfaceRequest
 import androidx.camera.core.processing.SurfaceEffectWithExecutor
-import androidx.camera.testing.fakes.FakeSurfaceEffect
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
@@ -42,20 +43,22 @@ import org.robolectric.annotation.internal.DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 class CameraUseCaseAdapterTest {
 
-    private lateinit var surfaceEffect: FakeSurfaceEffect
+    private lateinit var surfaceEffect: SurfaceEffect
     private lateinit var mEffectBundle: EffectBundle
     private lateinit var executor: ExecutorService
 
     @Before
     fun setUp() {
-        surfaceEffect = FakeSurfaceEffect(mainThreadExecutor())
+        surfaceEffect = object : SurfaceEffect {
+            override fun onInputSurface(request: SurfaceRequest) {}
+            override fun onOutputSurface(surfaceOutput: SurfaceOutput) {}
+        }
         executor = Executors.newSingleThreadExecutor()
         mEffectBundle = EffectBundle.Builder(executor).addEffect(PREVIEW, surfaceEffect).build()
     }
 
     @After
     fun tearDown() {
-        surfaceEffect.cleanUp()
         executor.shutdown()
     }
 
