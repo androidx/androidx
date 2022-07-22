@@ -79,6 +79,7 @@ class SignalGeneratorViewModel : ViewModel() {
 
         withContext(Dispatchers.Default) {
             audioGenerator.initAudioTrack(
+                context = context,
                 frequency = beepFrequency,
                 beepLengthInSec = ACTIVE_LENGTH_SEC,
             )
