@@ -21,13 +21,16 @@ import androidx.glance.ImageProvider
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
 import androidx.glance.appwidget.SizeMode
+import androidx.glance.appwidget.action.actionRunCallback
 import androidx.glance.appwidget.template.GalleryTemplate
 import androidx.glance.appwidget.template.GlanceTemplateAppWidget
+import androidx.glance.template.ActionBlock
 import androidx.glance.template.GalleryTemplateData
 import androidx.glance.template.HeaderBlock
 import androidx.glance.template.ImageBlock
 import androidx.glance.template.TemplateImageWithDescription
 import androidx.glance.template.TemplateText
+import androidx.glance.template.TemplateTextButton
 import androidx.glance.template.TextBlock
 import androidx.glance.template.TextType
 
@@ -58,8 +61,9 @@ class GalleryTemplateWidget : GlanceTemplateAppWidget() {
                     ),
                 ),
                 mainTextBlock = TextBlock(
-                    text1 = TemplateText("Gallery Template title", TextType.Title),
-                    text2 = TemplateText("Gallery Template headline", TextType.Headline),
+                    text1 = TemplateText("Title1", TextType.Title),
+                    text2 = TemplateText("Headline1", TextType.Headline),
+                    text3 = TemplateText("Label1", TextType.Label),
                     priority = 0,
                 ),
                 mainImageBlock = ImageBlock(
@@ -70,6 +74,18 @@ class GalleryTemplateWidget : GlanceTemplateAppWidget() {
                         )
                     ),
                     priority = 1,
+                ),
+                mainActionBlock = ActionBlock(
+                    actionButtons = listOf(
+                        TemplateTextButton(
+                            actionRunCallback<DefaultNoopAction>(),
+                            "Act1"
+                        ),
+                        TemplateTextButton(
+                            actionRunCallback<DefaultNoopAction>(),
+                            "Act2"
+                        ),
+                    ),
                 ),
                 galleryImageBlock = ImageBlock(
                     images = galleryContent,
