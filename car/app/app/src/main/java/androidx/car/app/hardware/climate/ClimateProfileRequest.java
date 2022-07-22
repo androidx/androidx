@@ -22,7 +22,6 @@ import androidx.annotation.RestrictTo;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.RequiresCarApi;
-import androidx.car.app.hardware.common.CarZone;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -81,21 +80,23 @@ public final class ClimateProfileRequest {
 
     /**
      * Adding this feature flag, the application will get the profile information of HVAC power
-     * in the car by {@link CarClimateProfileCallback#onHvacPowerProfileAvailable(List)}.
+     * in the car by
+     * {@link CarClimateProfileCallback#onHvacPowerProfileAvailable(HvacPowerProfile)}.
      */
     @ClimateProfileFeature
     public static final int FEATURE_HVAC_POWER = 1;
 
     /**
      * Adding this feature flag, the application will get the profile information of HVAC AC
-     * in the car by {@link CarClimateProfileCallback#onHvacAcProfileAvailable(List)}.
+     * in the car by {@link CarClimateProfileCallback#onHvacAcProfileAvailable(HvacAcProfile)}.
      */
     @ClimateProfileFeature
     public static final int FEATURE_HVAC_AC = 2;
 
     /**
      * Adding this feature flag, the application will get the profile information of HVAC MAX AC
-     * in the car by {@link CarClimateProfileCallback#onHvacMaxAcModeProfileAvailable(List)}.
+     * in the car by
+     * {@link CarClimateProfileCallback#onHvacMaxAcModeProfileAvailable(HvacMaxAcModeProfile)}.
      */
     @ClimateProfileFeature
     public static final int FEATURE_HVAC_MAX_AC = 3;
@@ -103,7 +104,8 @@ public final class ClimateProfileRequest {
     /**
      * Adding this feature flag, the application will get the profile information of cabin
      * temperature in the car by
-     * {@link CarClimateProfileCallback#onCabinTemperatureProfileAvailable(List, List, List)}.
+     * {@link CarClimateProfileCallback#onCabinTemperatureProfileAvailable(
+     * CabinTemperatureProfile)}.
      */
     @ClimateProfileFeature
     public static final int FEATURE_CABIN_TEMPERATURE = 4;
@@ -111,7 +113,7 @@ public final class ClimateProfileRequest {
     /**
      * Adding this feature flag, the application will get the profile information of climate
      * fan speed level in the car by
-     * {@link CarClimateProfileCallback#onFanSpeedLevelProfileAvailable(List, List)}.
+     * {@link CarClimateProfileCallback#onFanSpeedLevelProfileAvailable(FanSpeedLevelProfile)}.
      */
     @ClimateProfileFeature
     public static final int FEATURE_FAN_SPEED = 5;
@@ -119,7 +121,7 @@ public final class ClimateProfileRequest {
     /**
      * Adding this feature flag, the application will get the profile information of climate fan
      * directions in the car by
-     * {@link CarClimateProfileCallback#onFanDirectionProfileAvailable(List, List)}.
+     * {@link CarClimateProfileCallback#onFanDirectionProfileAvailable(FanDirectionProfile)}.
      */
     @ClimateProfileFeature
     public static final int FEATURE_FAN_DIRECTION = 6;
@@ -127,7 +129,8 @@ public final class ClimateProfileRequest {
     /**
      * Adding this feature flag, the application will get the profile information of seat
      * temperature levels in the car by
-     * {@link CarClimateProfileCallback#onSeatTemperatureLevelProfileAvailable(List, List)}.
+     * {@link CarClimateProfileCallback#onSeatTemperatureLevelProfileAvailable(
+     * SeatTemperatureProfile)}.
      */
     @ClimateProfileFeature
     public static final int FEATURE_SEAT_TEMPERATURE_LEVEL = 7;
@@ -135,7 +138,8 @@ public final class ClimateProfileRequest {
     /**
      * Adding this feature flag, the application will get the profile information of seat
      * ventilation levels in the car by
-     * {@link CarClimateProfileCallback#onSeatVentilationLevelProfileAvailable(List, List)}.
+     * {@link CarClimateProfileCallback#onSeatVentilationLevelProfileAvailable(
+     * SeatVentilationProfile)}.
      */
     @ClimateProfileFeature
     public static final int FEATURE_SEAT_VENTILATION_LEVEL = 8;
@@ -143,7 +147,8 @@ public final class ClimateProfileRequest {
     /**
      * Adding this feature flag, the application will get the profile information of steering
      * wheel heat in the car by
-     * {@link CarClimateProfileCallback#onSteeringWheelHeatProfileAvailable(List)}.
+     * {@link CarClimateProfileCallback#onSteeringWheelHeatProfileAvailable(
+     * SteeringWheelHeatProfile)}.
      */
     @ClimateProfileFeature
     public static final int FEATURE_STEERING_WHEEL_HEAT = 9;
@@ -151,7 +156,8 @@ public final class ClimateProfileRequest {
     /**
      * Adding this feature flag, the application will get the profile information of HVAC
      * recirculation mode in the car by
-     * {@link CarClimateProfileCallback#onHvacRecirculationProfileAvailable(List)}.
+     * {@link CarClimateProfileCallback#onHvacRecirculationProfileAvailable(
+     * HvacRecirculationProfile)}.
      */
     @ClimateProfileFeature
     public static final int FEATURE_HVAC_RECIRCULATION = 10;
@@ -159,28 +165,32 @@ public final class ClimateProfileRequest {
     /**
      * Adding this feature flag, the application will get the profile information of HVAC AUTO
      * recirculation mode in the car by
-     * {@link CarClimateProfileCallback#onHvacAutoRecirculationProfileAvailable(List)}.
+     * {@link CarClimateProfileCallback#onHvacAutoRecirculationProfileAvailable(
+     * HvacAutoRecirculationProfile)}.
      */
     @ClimateProfileFeature
     public static final int FEATURE_HVAC_AUTO_RECIRCULATION = 11;
 
     /**
      * Adding this feature flag, the application will get the profile information of HVAC AUTO mode
-     * in the car by {@link CarClimateProfileCallback#onHvacAutoModeProfileAvailable(List)}.
+     * in the car by {@link CarClimateProfileCallback#onHvacAutoModeProfileAvailable(
+     * HvacAutoModeProfile)}.
      */
     @ClimateProfileFeature
     public static final int FEATURE_HVAC_AUTO_MODE = 12;
 
     /**
      * Adding this feature flag, the application will get the profile information of HVAC DUAL mode
-     * in the car by {@link CarClimateProfileCallback#onHvacDualModeProfileAvailable(List)}.
+     * in the car by {@link CarClimateProfileCallback#onHvacDualModeProfileAvailable(
+     * HvacDualModeProfile)}.
      */
     @ClimateProfileFeature
     public static final int FEATURE_HVAC_DUAL_MODE = 13;
 
     /**
      * Adding this feature flag, the application will get the profile information of defroster
-     * in the car by {@link CarClimateProfileCallback#onDefrosterProfileAvailable(List)}.
+     * in the car by {@link CarClimateProfileCallback#onDefrosterProfileAvailable(
+     * DefrosterProfile)}.
      */
     @ClimateProfileFeature
     public static final int FEATURE_HVAC_DEFROSTER = 14;
@@ -188,7 +198,7 @@ public final class ClimateProfileRequest {
     /**
      * Adding this feature flag, the application will get the profile information of HVAC MAX
      * defroster mode in the car by
-     * {@link CarClimateProfileCallback#onMaxDefrosterProfileAvailable(List)}.
+     * {@link CarClimateProfileCallback#onMaxDefrosterProfileAvailable(MaxDefrosterProfile)}.
      */
     @ClimateProfileFeature
     public static final int FEATURE_HVAC_MAX_DEFROSTER = 15;
@@ -196,7 +206,8 @@ public final class ClimateProfileRequest {
     /**
      * Adding this feature flag, the application will get the profile information of HVAC
      * electric defroster in the car by
-     * {@link CarClimateProfileCallback#onElectricDefrosterProfileAvailable(List)}.
+     * {@link CarClimateProfileCallback#onElectricDefrosterProfileAvailable(
+     * ElectricDefrosterProfile)}.
      */
     @ClimateProfileFeature
     public static final int FEATURE_HVAC_ELECTRIC_DEFROSTER = 16;
@@ -204,7 +215,8 @@ public final class ClimateProfileRequest {
     /**
      * Adding this feature flag, the application will get the profile information of car zone
      * mapping in the car by
-     * {@link CarClimateProfileCallback#onCarZoneMappingInfoProfileAvailable(CarZone, List)}.
+     * {@link CarClimateProfileCallback#onCarZoneMappingInfoProfileAvailable(
+     * CarZoneMappingInfoProfile)}.
      */
     @ClimateProfileFeature
     public static final int FEATURE_CAR_ZONE_MAPPING = 17;

@@ -249,6 +249,22 @@ package androidx.car.app.hardware {
 
 package androidx.car.app.hardware.climate {
 
+  @androidx.car.app.annotations.ExperimentalCarApi public final class CabinTemperatureProfile {
+    method public float getCelsiusSupportedIncrement();
+    method public float getFahrenheitSupportedIncrement();
+    method public java.util.Map<java.util.Set<androidx.car.app.hardware.common.CarZone!>!,android.util.Pair<java.lang.Float!,java.lang.Float!>!> getSupportedCarZoneSetsToCelsiusRange();
+    method public java.util.Map<java.util.Set<androidx.car.app.hardware.common.CarZone!>!,android.util.Pair<java.lang.Float!,java.lang.Float!>!> getSupportedCarZoneSetsToFahrenheitRange();
+    method public boolean hasCelsiusSupportedIncrement();
+    method public boolean hasFahrenheitSupportedIncrement();
+  }
+
+  public static final class CabinTemperatureProfile.Builder {
+    ctor public CabinTemperatureProfile.Builder(java.util.Map<java.util.Set<androidx.car.app.hardware.common.CarZone!>!,android.util.Pair<java.lang.Float!,java.lang.Float!>!>, java.util.Map<java.util.Set<androidx.car.app.hardware.common.CarZone!>!,android.util.Pair<java.lang.Float!,java.lang.Float!>!>);
+    method public androidx.car.app.hardware.climate.CabinTemperatureProfile build();
+    method public androidx.car.app.hardware.climate.CabinTemperatureProfile.Builder setCelsiusSupportedIncrement(float);
+    method public androidx.car.app.hardware.climate.CabinTemperatureProfile.Builder setFahrenheitSupportedIncrement(float);
+  }
+
   @MainThread @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(5) public interface CarClimate {
     method public void fetchClimateProfile(java.util.concurrent.Executor, androidx.car.app.hardware.climate.ClimateProfileRequest, androidx.car.app.hardware.climate.CarClimateProfileCallback);
     method public void registerClimateStateCallback(java.util.concurrent.Executor, androidx.car.app.hardware.climate.RegisterClimateStateRequest, androidx.car.app.hardware.climate.CarClimateStateCallback);
@@ -268,23 +284,23 @@ package androidx.car.app.hardware.climate {
   }
 
   @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(5) public interface CarClimateProfileCallback {
-    method public default void onCabinTemperatureProfileAvailable(boolean, java.util.List<java.lang.Float!>, java.util.List<androidx.car.app.hardware.common.CarZone!>);
-    method public default void onCarZoneMappingInfoProfileAvailable(androidx.car.app.hardware.common.CarZone, java.util.List<androidx.car.app.hardware.common.CarZone!>);
-    method public default void onDefrosterProfileAvailable(java.util.List<androidx.car.app.hardware.common.CarZone!>);
-    method public default void onElectricDefrosterProfileAvailable(java.util.List<androidx.car.app.hardware.common.CarZone!>);
-    method public default void onFanDirectionProfileAvailable(java.util.List<java.lang.Integer!>, java.util.List<androidx.car.app.hardware.common.CarZone!>);
-    method public default void onFanSpeedLevelProfileAvailable(java.util.List<java.lang.Integer!>, java.util.List<androidx.car.app.hardware.common.CarZone!>);
-    method public default void onHvacAcProfileAvailable(java.util.List<androidx.car.app.hardware.common.CarZone!>);
-    method public default void onHvacAutoModeProfileAvailable(java.util.List<androidx.car.app.hardware.common.CarZone!>);
-    method public default void onHvacAutoRecirculationProfileAvailable(java.util.List<androidx.car.app.hardware.common.CarZone!>);
-    method public default void onHvacDualModeProfileAvailable(java.util.List<androidx.car.app.hardware.common.CarZone!>);
-    method public default void onHvacMaxAcModeProfileAvailable(java.util.List<androidx.car.app.hardware.common.CarZone!>);
-    method public default void onHvacPowerProfileAvailable(java.util.List<androidx.car.app.hardware.common.CarZone!>);
-    method public default void onHvacRecirculationProfileAvailable(java.util.List<androidx.car.app.hardware.common.CarZone!>);
-    method public default void onMaxDefrosterProfileAvailable(java.util.List<androidx.car.app.hardware.common.CarZone!>);
-    method public default void onSeatTemperatureLevelProfileAvailable(java.util.List<java.lang.Integer!>, java.util.List<androidx.car.app.hardware.common.CarZone!>);
-    method public default void onSeatVentilationLevelProfileAvailable(java.util.List<java.lang.Integer!>, java.util.List<androidx.car.app.hardware.common.CarZone!>);
-    method public default void onSteeringWheelHeatProfileAvailable(java.util.List<androidx.car.app.hardware.common.CarZone!>);
+    method public default void onCabinTemperatureProfileAvailable(androidx.car.app.hardware.climate.CabinTemperatureProfile);
+    method public default void onCarZoneMappingInfoProfileAvailable(androidx.car.app.hardware.climate.CarZoneMappingInfoProfile);
+    method public default void onDefrosterProfileAvailable(androidx.car.app.hardware.climate.DefrosterProfile);
+    method public default void onElectricDefrosterProfileAvailable(androidx.car.app.hardware.climate.ElectricDefrosterProfile);
+    method public default void onFanDirectionProfileAvailable(androidx.car.app.hardware.climate.FanDirectionProfile);
+    method public default void onFanSpeedLevelProfileAvailable(androidx.car.app.hardware.climate.FanSpeedLevelProfile);
+    method public default void onHvacAcProfileAvailable(androidx.car.app.hardware.climate.HvacAcProfile);
+    method public default void onHvacAutoModeProfileAvailable(androidx.car.app.hardware.climate.HvacAutoModeProfile);
+    method public default void onHvacAutoRecirculationProfileAvailable(androidx.car.app.hardware.climate.HvacAutoRecirculationProfile);
+    method public default void onHvacDualModeProfileAvailable(androidx.car.app.hardware.climate.HvacDualModeProfile);
+    method public default void onHvacMaxAcModeProfileAvailable(androidx.car.app.hardware.climate.HvacMaxAcModeProfile);
+    method public default void onHvacPowerProfileAvailable(androidx.car.app.hardware.climate.HvacPowerProfile);
+    method public default void onHvacRecirculationProfileAvailable(androidx.car.app.hardware.climate.HvacRecirculationProfile);
+    method public default void onMaxDefrosterProfileAvailable(androidx.car.app.hardware.climate.MaxDefrosterProfile);
+    method public default void onSeatTemperatureLevelProfileAvailable(androidx.car.app.hardware.climate.SeatTemperatureProfile);
+    method public default void onSeatVentilationLevelProfileAvailable(androidx.car.app.hardware.climate.SeatVentilationProfile);
+    method public default void onSteeringWheelHeatProfileAvailable(androidx.car.app.hardware.climate.SteeringWheelHeatProfile);
   }
 
   @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(5) public interface CarClimateStateCallback {
@@ -304,6 +320,15 @@ package androidx.car.app.hardware.climate {
     method public default void onSeatTemperatureLevelStateAvailable(androidx.car.app.hardware.common.CarValue<java.lang.Integer!>);
     method public default void onSeatVentilationLevelStateAvailable(androidx.car.app.hardware.common.CarValue<java.lang.Integer!>);
     method public default void onSteeringWheelHeatStateAvailable(androidx.car.app.hardware.common.CarValue<java.lang.Boolean!>);
+  }
+
+  @androidx.car.app.annotations.ExperimentalCarApi public final class CarZoneMappingInfoProfile {
+    method public java.util.List<java.util.Set<androidx.car.app.hardware.common.CarZone!>!> getSupportedCarZoneSets();
+  }
+
+  public static final class CarZoneMappingInfoProfile.Builder {
+    ctor public CarZoneMappingInfoProfile.Builder(java.util.List<java.util.Set<androidx.car.app.hardware.common.CarZone!>!>);
+    method public androidx.car.app.hardware.climate.CarZoneMappingInfoProfile build();
   }
 
   @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(5) public final class ClimateProfileRequest {
@@ -347,6 +372,114 @@ package androidx.car.app.hardware.climate {
     method public androidx.car.app.hardware.climate.ClimateStateRequest<T!> build();
   }
 
+  @androidx.car.app.annotations.ExperimentalCarApi public final class DefrosterProfile {
+    method public java.util.List<java.util.Set<androidx.car.app.hardware.common.CarZone!>!> getSupportedCarZoneSets();
+  }
+
+  public static final class DefrosterProfile.Builder {
+    ctor public DefrosterProfile.Builder(java.util.List<java.util.Set<androidx.car.app.hardware.common.CarZone!>!>);
+    method public androidx.car.app.hardware.climate.DefrosterProfile build();
+  }
+
+  @androidx.car.app.annotations.ExperimentalCarApi public final class ElectricDefrosterProfile {
+    method public java.util.List<java.util.Set<androidx.car.app.hardware.common.CarZone!>!> getSupportedCarZoneSets();
+  }
+
+  public static final class ElectricDefrosterProfile.Builder {
+    ctor public ElectricDefrosterProfile.Builder(java.util.List<java.util.Set<androidx.car.app.hardware.common.CarZone!>!>);
+    method public androidx.car.app.hardware.climate.ElectricDefrosterProfile build();
+  }
+
+  @androidx.car.app.annotations.ExperimentalCarApi public final class FanDirectionProfile {
+    method public java.util.Map<java.util.Set<androidx.car.app.hardware.common.CarZone!>!,java.util.List<java.lang.Integer!>!> getCarZoneSetsToFanDirectionValues();
+  }
+
+  public static final class FanDirectionProfile.Builder {
+    ctor public FanDirectionProfile.Builder(java.util.Map<java.util.Set<androidx.car.app.hardware.common.CarZone!>!,java.util.List<java.lang.Integer!>!>);
+    method public androidx.car.app.hardware.climate.FanDirectionProfile build();
+  }
+
+  @androidx.car.app.annotations.ExperimentalCarApi public final class FanSpeedLevelProfile {
+    method public java.util.Map<java.util.Set<androidx.car.app.hardware.common.CarZone!>!,java.util.List<java.lang.Integer!>!> getCarZoneSetsToFanSpeedLevelValues();
+  }
+
+  public static final class FanSpeedLevelProfile.Builder {
+    ctor public FanSpeedLevelProfile.Builder(java.util.Map<java.util.Set<androidx.car.app.hardware.common.CarZone!>!,java.util.List<java.lang.Integer!>!>);
+    method public androidx.car.app.hardware.climate.FanSpeedLevelProfile build();
+  }
+
+  @androidx.car.app.annotations.ExperimentalCarApi public final class HvacAcProfile {
+    method public java.util.List<java.util.Set<androidx.car.app.hardware.common.CarZone!>!> getSupportedCarZoneSets();
+  }
+
+  public static final class HvacAcProfile.Builder {
+    ctor public HvacAcProfile.Builder(java.util.List<java.util.Set<androidx.car.app.hardware.common.CarZone!>!>);
+    method public androidx.car.app.hardware.climate.HvacAcProfile build();
+  }
+
+  @androidx.car.app.annotations.ExperimentalCarApi public final class HvacAutoModeProfile {
+    method public java.util.List<java.util.Set<androidx.car.app.hardware.common.CarZone!>!> getSupportedCarZoneSets();
+  }
+
+  public static final class HvacAutoModeProfile.Builder {
+    ctor public HvacAutoModeProfile.Builder(java.util.List<java.util.Set<androidx.car.app.hardware.common.CarZone!>!>);
+    method public androidx.car.app.hardware.climate.HvacAutoModeProfile build();
+  }
+
+  @androidx.car.app.annotations.ExperimentalCarApi public final class HvacAutoRecirculationProfile {
+    method public java.util.List<java.util.Set<androidx.car.app.hardware.common.CarZone!>!> getSupportedCarZoneSets();
+  }
+
+  public static final class HvacAutoRecirculationProfile.Builder {
+    ctor public HvacAutoRecirculationProfile.Builder(java.util.List<java.util.Set<androidx.car.app.hardware.common.CarZone!>!>);
+    method public androidx.car.app.hardware.climate.HvacAutoRecirculationProfile build();
+  }
+
+  @androidx.car.app.annotations.ExperimentalCarApi public final class HvacDualModeProfile {
+    method public java.util.List<java.util.Set<androidx.car.app.hardware.common.CarZone!>!> getSupportedCarZoneSets();
+  }
+
+  public static final class HvacDualModeProfile.Builder {
+    ctor public HvacDualModeProfile.Builder(java.util.List<java.util.Set<androidx.car.app.hardware.common.CarZone!>!>);
+    method public androidx.car.app.hardware.climate.HvacDualModeProfile build();
+  }
+
+  @androidx.car.app.annotations.ExperimentalCarApi public final class HvacMaxAcModeProfile {
+    method public java.util.List<java.util.Set<androidx.car.app.hardware.common.CarZone!>!> getSupportedCarZoneSets();
+  }
+
+  public static final class HvacMaxAcModeProfile.Builder {
+    ctor public HvacMaxAcModeProfile.Builder(java.util.List<java.util.Set<androidx.car.app.hardware.common.CarZone!>!>);
+    method public androidx.car.app.hardware.climate.HvacMaxAcModeProfile build();
+  }
+
+  @androidx.car.app.annotations.ExperimentalCarApi public final class HvacPowerProfile {
+    method public java.util.List<java.util.Set<androidx.car.app.hardware.common.CarZone!>!> getSupportedCarZoneSets();
+  }
+
+  public static final class HvacPowerProfile.Builder {
+    ctor public HvacPowerProfile.Builder(java.util.List<java.util.Set<androidx.car.app.hardware.common.CarZone!>!>);
+    method public androidx.car.app.hardware.climate.HvacPowerProfile build();
+  }
+
+  @androidx.car.app.annotations.ExperimentalCarApi public final class HvacRecirculationProfile {
+    method public java.util.List<java.util.Set<androidx.car.app.hardware.common.CarZone!>!> getSupportedCarZones();
+  }
+
+  public static final class HvacRecirculationProfile.Builder {
+    ctor public HvacRecirculationProfile.Builder(java.util.List<java.util.Set<androidx.car.app.hardware.common.CarZone!>!>);
+    method public androidx.car.app.hardware.climate.HvacRecirculationProfile build();
+  }
+
+  @androidx.car.app.annotations.ExperimentalCarApi public final class MaxDefrosterProfile {
+    method public java.util.List<java.util.Set<androidx.car.app.hardware.common.CarZone!>!> getSupportedCarZoneSets();
+  }
+
+  public static final class MaxDefrosterProfile.Builder {
+    ctor public MaxDefrosterProfile.Builder(java.util.List<java.util.Set<androidx.car.app.hardware.common.CarZone!>!>);
+    method public androidx.car.app.hardware.climate.MaxDefrosterProfile build();
+  }
+
   @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(5) public final class RegisterClimateStateRequest {
     method public java.util.List<androidx.car.app.hardware.climate.CarClimateFeature!> getClimateRegisterFeatures();
   }
@@ -355,6 +488,33 @@ package androidx.car.app.hardware.climate {
     ctor public RegisterClimateStateRequest.Builder(boolean);
     method public androidx.car.app.hardware.climate.RegisterClimateStateRequest.Builder addClimateRegisterFeatures(androidx.car.app.hardware.climate.CarClimateFeature!...);
     method public androidx.car.app.hardware.climate.RegisterClimateStateRequest build();
+  }
+
+  @androidx.car.app.annotations.ExperimentalCarApi public final class SeatTemperatureProfile {
+    method public java.util.Map<java.util.Set<androidx.car.app.hardware.common.CarZone!>!,java.util.List<java.lang.Integer!>!> getCarZoneSetsToSeatTemperatureValues();
+  }
+
+  public static final class SeatTemperatureProfile.Builder {
+    ctor public SeatTemperatureProfile.Builder(java.util.Map<java.util.Set<androidx.car.app.hardware.common.CarZone!>!,java.util.List<java.lang.Integer!>!>);
+    method public androidx.car.app.hardware.climate.SeatTemperatureProfile build();
+  }
+
+  @androidx.car.app.annotations.ExperimentalCarApi public final class SeatVentilationProfile {
+    method public java.util.Map<java.util.Set<androidx.car.app.hardware.common.CarZone!>!,java.util.List<java.lang.Integer!>!> getCarZoneSetsToSeatVentilationValues();
+  }
+
+  public static final class SeatVentilationProfile.Builder {
+    ctor public SeatVentilationProfile.Builder(java.util.Map<java.util.Set<androidx.car.app.hardware.common.CarZone!>!,java.util.List<java.lang.Integer!>!>);
+    method public androidx.car.app.hardware.climate.SeatVentilationProfile build();
+  }
+
+  @androidx.car.app.annotations.ExperimentalCarApi public final class SteeringWheelHeatProfile {
+    method public java.util.Map<java.util.Set<androidx.car.app.hardware.common.CarZone!>!,java.util.List<java.lang.Integer!>!> getCarZoneSetsToSteeringWheelHeatValues();
+  }
+
+  public static final class SteeringWheelHeatProfile.Builder {
+    ctor public SteeringWheelHeatProfile.Builder(java.util.Map<java.util.Set<androidx.car.app.hardware.common.CarZone!>!,java.util.List<java.lang.Integer!>!>);
+    method public androidx.car.app.hardware.climate.SteeringWheelHeatProfile build();
   }
 
 }

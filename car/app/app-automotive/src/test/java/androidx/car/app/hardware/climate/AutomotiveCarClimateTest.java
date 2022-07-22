@@ -16,11 +16,9 @@
 
 package androidx.car.app.hardware.climate;
 
-import static android.car.VehiclePropertyIds.HVAC_AC_ON;
 import static android.car.VehiclePropertyIds.HVAC_POWER_ON;
 
 import static androidx.car.app.hardware.climate.AutomotiveCarClimate.DEFAULT_SAMPLE_RATE_HZ;
-import static androidx.car.app.hardware.climate.ClimateProfileRequest.FEATURE_HVAC_AC;
 import static androidx.car.app.hardware.climate.ClimateProfileRequest.FEATURE_HVAC_POWER;
 import static androidx.car.app.hardware.common.CarValue.STATUS_SUCCESS;
 
@@ -29,7 +27,6 @@ import static com.google.common.util.concurrent.MoreExecutors.directExecutor;
 
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -46,8 +43,6 @@ import androidx.car.app.shadows.car.ShadowCar;
 import androidx.test.rule.GrantPermissionRule;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.common.util.concurrent.Futures;
-import com.google.common.util.concurrent.ListenableFuture;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -141,95 +136,4 @@ public class AutomotiveCarClimateTest {
         assertThat(carValue.getStatus()).isEqualTo(STATUS_SUCCESS);
     }
 
-    @Test
-    public void fetchHvacPower_verifyResponse() throws InterruptedException {
-        CarZone frontLeft = new CarZone.Builder().setRow(CarZone.CAR_ZONE_ROW_FIRST)
-                .setColumn(CarZone.CAR_ZONE_COLUMN_LEFT).build();
-        CarZone frontRight = new CarZone.Builder().setRow(CarZone.CAR_ZONE_ROW_FIRST)
-                .setColumn(CarZone.CAR_ZONE_COLUMN_RIGHT).build();
-        List<CarZone> carZones = new ArrayList<>();
-        carZones.add(frontLeft);
-        carZones.add(frontRight);
-        List<Integer> propertyIds = Collections.singletonList(HVAC_POWER_ON);
-        mResponse.add(CarPropertyResponse.builder().setPropertyId(HVAC_POWER_ON).setCarZones(
-                carZones).setValue(true).setStatus(
-                STATUS_SUCCESS).build());
-        ListenableFuture<List<CarPropertyResponse<?>>> listenableCarPropertyResponse =
-                Futures.immediateFuture(mResponse);
-        when(mPropertyManager.fetchSupportedZonesResponse(
-                eq(propertyIds), eq(mExecutor))).thenReturn(
-                        listenableCarPropertyResponse);
-
-        AtomicReference<List<CarZone>> loadedResult = new AtomicReference<>();
-        CarClimateProfileCallback listener = new CarClimateProfileCallback() {
-            @Override
-            public void onHvacPowerProfileAvailable(@NonNull List<CarZone> supportedCarZones) {
-                loadedResult.set(supportedCarZones);
-                mCountDownLatch.countDown();
-            }
-        };
-
-        CarClimateFeature.Builder mCarClimateBuilder = new CarClimateFeature.Builder(
-                FEATURE_HVAC_POWER);
-        mCarClimateBuilder.addCarZones(frontLeft);
-        mCarClimateBuilder.addCarZones(frontRight);
-
-        CarClimateFeature mCarClimateFeature = new CarClimateFeature(mCarClimateBuilder);
-        ClimateProfileRequest.Builder builder =
-                new ClimateProfileRequest.Builder();
-        builder.addClimateProfileFeatures(mCarClimateFeature);
-        mAutomotiveCarClimate.fetchClimateProfile(mExecutor, builder.build(), listener);
-        verify(mPropertyManager, times(1)).fetchSupportedZonesResponse(
-                eq(propertyIds),
-                eq(mExecutor));
-        mCountDownLatch.await();
-
-        assertThat(loadedResult.get()).isEqualTo(carZones);
-    }
-
-    @Test
-    public void fetchHvacAC_verifyResponse() throws InterruptedException {
-        CarZone frontLeft = new CarZone.Builder().setRow(CarZone.CAR_ZONE_ROW_FIRST)
-                .setColumn(CarZone.CAR_ZONE_COLUMN_LEFT).build();
-        CarZone frontRight = new CarZone.Builder().setRow(CarZone.CAR_ZONE_ROW_FIRST)
-                .setColumn(CarZone.CAR_ZONE_COLUMN_RIGHT).build();
-        List<CarZone> carZones = new ArrayList<>();
-        carZones.add(frontLeft);
-        carZones.add(frontRight);
-        List<Integer> propertyIds = Collections.singletonList(HVAC_AC_ON);
-        mResponse.add(CarPropertyResponse.builder().setPropertyId(HVAC_AC_ON).setCarZones(
-                carZones).setValue(true).setStatus(
-                STATUS_SUCCESS).build());
-        ListenableFuture<List<CarPropertyResponse<?>>> listenableCarPropertyResponse =
-                Futures.immediateFuture(mResponse);
-        when(mPropertyManager.fetchSupportedZonesResponse(
-                eq(propertyIds), eq(mExecutor))).thenReturn(
-                listenableCarPropertyResponse);
-
-        AtomicReference<List<CarZone>> loadedResult = new AtomicReference<>();
-        CarClimateProfileCallback listener = new CarClimateProfileCallback() {
-            @Override
-            public void onHvacAcProfileAvailable(@NonNull List<CarZone> supportedCarZones) {
-                loadedResult.set(supportedCarZones);
-                mCountDownLatch.countDown();
-            }
-        };
-
-        CarClimateFeature.Builder mCarClimateBuilder = new CarClimateFeature.Builder(
-                FEATURE_HVAC_AC);
-        mCarClimateBuilder.addCarZones(frontLeft);
-        mCarClimateBuilder.addCarZones(frontRight);
-
-        CarClimateFeature mCarClimateFeature = new CarClimateFeature(mCarClimateBuilder);
-        ClimateProfileRequest.Builder builder =
-                new ClimateProfileRequest.Builder();
-        builder.addClimateProfileFeatures(mCarClimateFeature);
-        mAutomotiveCarClimate.fetchClimateProfile(mExecutor, builder.build(), listener);
-        verify(mPropertyManager, times(1)).fetchSupportedZonesResponse(
-                eq(propertyIds),
-                eq(mExecutor));
-        mCountDownLatch.await();
-
-        assertThat(loadedResult.get()).isEqualTo(carZones);
-    }
 }
