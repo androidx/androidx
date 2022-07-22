@@ -1397,6 +1397,7 @@ public class AccessibilityNodeInfoCompat {
     private static final int BOOLEAN_PROPERTY_IS_SHOWING_HINT = 0x00000004;
     private static final int BOOLEAN_PROPERTY_IS_TEXT_ENTRY_KEY = 0x00000008;
     private static final int BOOLEAN_PROPERTY_HAS_REQUEST_INITIAL_ACCESSIBILITY_FOCUS = 1 << 5;
+    private static final int BOOLEAN_PROPERTY_ACCESSIBILITY_DATA_SENSITIVE = 1 << 6;
     private static final int BOOLEAN_PROPERTY_TEXT_SELECTABLE = 1 << 23;
     private static final int BOOLEAN_PROPERTY_SUPPORTS_GRANULAR_SCROLLING = 1 << 26;
 
@@ -2980,6 +2981,52 @@ public class AccessibilityNodeInfoCompat {
     public void setImportantForAccessibility(boolean important) {
         if (Build.VERSION.SDK_INT >= 24) {
             mInfo.setImportantForAccessibility(important);
+        }
+    }
+
+    /**
+     * Gets if the node's accessibility data is considered sensitive.
+     *
+     * @return True if the node's data is considered sensitive, false otherwise.
+     * @see View#isAccessibilityDataSensitive()
+     */
+    public boolean isAccessibilityDataSensitive() {
+        if (Build.VERSION.SDK_INT >= 34) {
+            return Api34Impl.isAccessibilityDataSensitive(mInfo);
+        } else {
+            return getBooleanProperty(BOOLEAN_PROPERTY_ACCESSIBILITY_DATA_SENSITIVE);
+        }
+    }
+
+    /**
+     * Sets whether this node's accessibility data is considered sensitive.
+     *
+     * <p>
+     * For SDK 34 and higher: when set to true the framework will hide this node from
+     * accessibility services with the
+     * {@link android.accessibilityservice.AccessibilityServiceInfo#isAccessibilityTool}
+     * property set to false.
+     * </p>
+     * <p>
+     * Otherwise, for SDK 19 and higher: the framework cannot hide this node but this property may
+     * be read by accessibility services to provide modified behavior for sensitive nodes.
+     * </p>
+     * <p>
+     *   <strong>Note:</strong> Cannot be called from an
+     *   {@link android.accessibilityservice.AccessibilityService}.
+     *   This class is made immutable before being delivered to an AccessibilityService.
+     * </p>
+     *
+     * @param accessibilityDataSensitive True if the node's accessibility data is considered
+     *                                   sensitive.
+     * @throws IllegalStateException If called from an AccessibilityService.
+     */
+    public void setAccessibilityDataSensitive(boolean accessibilityDataSensitive) {
+        if (Build.VERSION.SDK_INT >= 34) {
+            Api34Impl.setAccessibilityDataSensitive(mInfo, accessibilityDataSensitive);
+        } else {
+            setBooleanProperty(BOOLEAN_PROPERTY_ACCESSIBILITY_DATA_SENSITIVE,
+                    accessibilityDataSensitive);
         }
     }
 
@@ -4629,6 +4676,7 @@ public class AccessibilityNodeInfoCompat {
         builder.append("; importantForAccessibility: ").append(isImportantForAccessibility());
         builder.append("; visible: ").append(isVisibleToUser());
         builder.append("; isTextSelectable: ").append(isTextSelectable());
+        builder.append("; accessibilityDataSensitive: ").append(isAccessibilityDataSensitive());
 
         builder.append("; [");
         if (Build.VERSION.SDK_INT >= 21) {
@@ -4817,6 +4865,24 @@ public class AccessibilityNodeInfoCompat {
         @DoNotInline
         public static void setUniqueId(AccessibilityNodeInfo info, String uniqueId) {
             info.setUniqueId(uniqueId);
+        }
+    }
+
+    @RequiresApi(34)
+    private static class Api34Impl {
+        private Api34Impl() {
+            // This class is non instantiable.
+        }
+
+        @DoNotInline
+        public static boolean isAccessibilityDataSensitive(AccessibilityNodeInfo info) {
+            return info.isAccessibilityDataSensitive();
+        }
+
+        @DoNotInline
+        public static void setAccessibilityDataSensitive(AccessibilityNodeInfo info,
+                boolean accessibilityDataSensitive) {
+            info.setAccessibilityDataSensitive(accessibilityDataSensitive);
         }
     }
 

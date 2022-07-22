@@ -474,6 +474,72 @@ public final class AccessibilityEventCompat {
         }
     }
 
+    /**
+     * Whether the event should only be delivered to an
+     * {@link android.accessibilityservice.AccessibilityService} with the
+     * {@link android.accessibilityservice.AccessibilityServiceInfo#isAccessibilityTool} property
+     * set to true.
+     *
+     * <p>
+     * Initial value matches the {@link android.view.View#isAccessibilityDataSensitive} property
+     * from the event's source node, if present, or false by default.
+     * </p>
+     *
+     * @return True if the event should be delivered only to isAccessibilityTool services, false
+     * otherwise.
+     * @see #setAccessibilityDataSensitive
+     */
+    public static boolean isAccessibilityDataSensitive(@NonNull AccessibilityEvent event) {
+        if (Build.VERSION.SDK_INT >= 34) {
+            return Api34Impl.isAccessibilityDataSensitive(event);
+        } else {
+            // To preserve behavior, assume the event's accessibility data is not sensitive.
+            return false;
+        }
+    }
+
+    /**
+     * Sets whether the event should only be delivered to an
+     * {@link android.accessibilityservice.AccessibilityService} with the
+     * {@link android.accessibilityservice.AccessibilityServiceInfo#isAccessibilityTool} property
+     * set to true.
+     *
+     * <p>
+     * This will be set automatically based on the event's source (if present). If creating and
+     * sending an event directly through {@link android.view.accessibility.AccessibilityManager}
+     * (where an event may have no source) then this method must be called explicitly if you want
+     * non-default behavior.
+     * </p>
+     *
+     * @param event The event to update.
+     * @param accessibilityDataSensitive True if the event should be delivered only to
+     *                                   isAccessibilityTool services, false otherwise.
+     * @throws IllegalStateException If called from an AccessibilityService.
+     */
+    public static void setAccessibilityDataSensitive(@NonNull AccessibilityEvent event,
+            boolean accessibilityDataSensitive) {
+        if (Build.VERSION.SDK_INT >= 34) {
+            Api34Impl.setAccessibilityDataSensitive(event, accessibilityDataSensitive);
+        }
+    }
+
+    @RequiresApi(34)
+    static class Api34Impl {
+        private Api34Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static boolean isAccessibilityDataSensitive(AccessibilityEvent event) {
+            return event.isAccessibilityDataSensitive();
+        }
+
+        @DoNotInline
+        static void setAccessibilityDataSensitive(AccessibilityEvent event,
+                boolean accessibilityDataSensitive) {
+            event.setAccessibilityDataSensitive(accessibilityDataSensitive);
+        }
+    }
     @RequiresApi(19)
     static class Api19Impl {
         private Api19Impl() {
