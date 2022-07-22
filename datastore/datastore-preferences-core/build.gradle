@@ -34,7 +34,7 @@ androidXMultiplatform {
     }
     mac()
     linux()
-
+    ios()
 
     sourceSets {
         commonMain {
