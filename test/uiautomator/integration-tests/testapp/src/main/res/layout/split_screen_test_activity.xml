@@ -25,6 +25,7 @@
         android:id="@+id/window_id"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:minHeight="200px"/>
+        android:minHeight="200px"
+        android:gravity="center"/>
 
 </LinearLayout>
