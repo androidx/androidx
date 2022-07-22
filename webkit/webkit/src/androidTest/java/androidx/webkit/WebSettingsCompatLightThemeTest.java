@@ -40,7 +40,7 @@ public class WebSettingsCompatLightThemeTest extends
     public WebSettingsCompatLightThemeTest() {
         // targetSdkVersion to T, it is min version the algorithmic darkening works.
         // TODO(http://b/214741472): Use VERSION_CODES.TIRAMISU once available.
-        super(WebViewLightThemeTestActivity.class, VERSION_CODES.CUR_DEVELOPMENT);
+        super(WebViewLightThemeTestActivity.class, 33);
     }
 
     /**

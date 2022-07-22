@@ -28,6 +28,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
 import androidx.test.filters.SdkSuppress;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -61,6 +62,7 @@ public class WebSettingsCompatDarkThemeTest extends
      * Test the algorithmic darkening on web content that doesn't support dark style.
      */
     @Test
+    @Ignore("b/235864049")  // Find a way to run with targetSdk T
     public void testSimplifiedDarkMode_rendersDark() throws Throwable {
         WebkitUtils.checkFeature(WebViewFeature.ALGORITHMIC_DARKENING);
         WebkitUtils.checkFeature(WebViewFeature.OFF_SCREEN_PRERASTER);
