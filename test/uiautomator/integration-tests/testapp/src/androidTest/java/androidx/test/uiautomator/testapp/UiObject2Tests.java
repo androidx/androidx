@@ -28,6 +28,7 @@ import android.graphics.Point;
 import android.graphics.Rect;
 import android.view.ViewConfiguration;
 
+import androidx.test.filters.SdkSuppress;
 import androidx.test.uiautomator.By;
 import androidx.test.uiautomator.Direction;
 import androidx.test.uiautomator.UiObject2;
@@ -130,12 +131,68 @@ public class UiObject2Tests extends BaseTest {
     }
 
     @Test
-    public void testClickAndWait() {
+    public void testClickAndWait_conditionAndTimeout() {
         launchTestActivity(UiObject2TestClickAndWaitActivity.class);
 
         // Click the button and wait for a new window
         UiObject2 button = mDevice.findObject(By.res(TEST_APP, "new_window_button"));
         assertTrue(button.clickAndWait(Until.newWindow(), TIMEOUT_MS));
+    }
+
+    @Test
+    public void testClickAndWait_pointAndConditionAndTimeout() {
+        launchTestActivity(UiObject2TestClickAndWaitActivity.class);
+
+        // Click point inside the button.
+        UiObject2 button1 = mDevice.findObject(By.res(TEST_APP, "new_window_button"));
+        assertTrue(button1.clickAndWait(getPointInsideBounds(button1), Until.newWindow(),
+                TIMEOUT_MS));
+
+        // Click point outside the button.
+        UiObject2 button2 = mDevice.findObject(By.res(TEST_APP, "new_window_button"));
+        assertTrue(button2.clickAndWait(getPointOutsideBounds(button2), Until.newWindow(),
+                TIMEOUT_MS));
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 24)
+    public void testDrag_dest() {
+        launchTestActivity(UiObject2TestDragActivity.class);
+
+        UiObject2 dragButton = mDevice.findObject(By.res(TEST_APP, "drag_button"));
+        UiObject2 dragDestination = mDevice.findObject(By.res(TEST_APP, "drag_destination"));
+        Point dest = dragDestination.getVisibleCenter();
+        assertEquals("no_drag_yet", dragDestination.getText());
+        dragButton.drag(dest);
+        dragDestination.wait(Until.textEquals("drag_received"), TIMEOUT_MS);
+        assertEquals("drag_received", dragDestination.getText());
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 24)
+    public void testDrag_destAndSpeed() {
+        launchTestActivity(UiObject2TestDragActivity.class);
+
+        UiObject2 dragButton = mDevice.findObject(By.res(TEST_APP, "drag_button"));
+        UiObject2 dragDestination = mDevice.findObject(By.res(TEST_APP, "drag_destination"));
+        Point dest = dragDestination.getVisibleCenter();
+        assertEquals("no_drag_yet", dragDestination.getText());
+        dragButton.drag(dest, 1000);
+        dragDestination.wait(Until.textEquals("drag_received"), TIMEOUT_MS);
+        assertEquals("drag_received", dragDestination.getText());
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 24)
+    public void testDrag_destAndSpeed_throwsIllegalArgumentException() {
+        launchTestActivity(UiObject2TestDragActivity.class);
+
+        UiObject2 dragButton = mDevice.findObject(By.res(TEST_APP, "drag_button"));
+        UiObject2 dragDestination = mDevice.findObject(By.res(TEST_APP, "drag_destination"));
+        Point dest = dragDestination.getVisibleCenter();
+        assertEquals("no_drag_yet", dragDestination.getText());
+        assertThrows("Speed cannot be negative", IllegalArgumentException.class,
+                () -> dragButton.drag(dest, -1000));
     }
 
     @Test
@@ -432,7 +489,7 @@ public class UiObject2Tests extends BaseTest {
     }
 
     @Test
-    public void testLongClickButton() {
+    public void testLongClick() {
         launchTestActivity(UiObject2TestLongClickActivity.class);
 
         // Find the button and verify its initial state
@@ -619,8 +676,6 @@ public class UiObject2Tests extends BaseTest {
     }
 
     /* TODO(b/235841473): Implement these tests
-    public void testDrag() {}
-
     public void testFling() {}
 
     public void testSwipe() {}
@@ -630,7 +685,7 @@ public class UiObject2Tests extends BaseTest {
     public void testWaitForGone() {}
     */
 
-    /* Helper method for `testClick*()`. Get a point inside the object. */
+    /* Helper method to get a point inside the object. */
     private Point getPointInsideBounds(UiObject2 obj) {
         Rect objBounds = obj.getVisibleBounds();
         int pointX = objBounds.left + objBounds.width() / 3;
@@ -638,7 +693,7 @@ public class UiObject2Tests extends BaseTest {
         return new Point(pointX, pointY);
     }
 
-    /* Helper method for `testClick*()`. Get a point outside the object. */
+    /* Helper method to get a point outside the object. */
     private Point getPointOutsideBounds(UiObject2 obj) {
         Rect objBounds = obj.getVisibleBounds();
         int pointX = objBounds.right + objBounds.width() / 3;
