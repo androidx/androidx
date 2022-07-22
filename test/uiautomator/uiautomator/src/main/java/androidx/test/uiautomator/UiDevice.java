@@ -980,7 +980,8 @@ public class UiDevice implements Searchable {
             @Override
             public boolean accept(AccessibilityEvent t) {
                 if (t.getEventType() == AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED) {
-                    return packageName == null || packageName.contentEquals(t.getPackageName());
+                    return packageName == null || (t.getPackageName() != null
+                            && packageName.contentEquals(t.getPackageName()));
                 }
                 return false;
             }
