@@ -208,7 +208,9 @@
         errorLine1="    public void setColorFilter(ColorFilter cf) {"
         errorLine2="                               ~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableWrapper.java"/>
+            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableWrapper.java"
+            line="87"
+            column="32"/>
     </issue>
 
     <issue
@@ -217,7 +219,9 @@
         errorLine1="    public boolean setState(final int[] stateSet) {"
         errorLine2="                                  ~~~~~">
         <location
-            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableWrapper.java"/>
+            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableWrapper.java"
+            line="97"
+            column="35"/>
     </issue>
 
     <issue
@@ -226,7 +230,9 @@
         errorLine1="    public int[] getState() {"
         errorLine2="           ~~~~~">
         <location
-            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableWrapper.java"/>
+            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableWrapper.java"
+            line="102"
+            column="12"/>
     </issue>
 
     <issue
@@ -235,7 +241,9 @@
         errorLine1="    public Drawable getCurrent() {"
         errorLine2="           ~~~~~~~~">
         <location
-            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableWrapper.java"/>
+            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableWrapper.java"
+            line="112"
+            column="12"/>
     </issue>
 
     <issue
@@ -244,7 +252,9 @@
         errorLine1="    public Region getTransparentRegion() {"
         errorLine2="           ~~~~~~">
         <location
-            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableWrapper.java"/>
+            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableWrapper.java"
+            line="128"
+            column="12"/>
     </issue>
 
     <issue
@@ -253,7 +263,9 @@
         errorLine1="    public boolean getPadding(Rect padding) {"
         errorLine2="                              ~~~~">
         <location
-            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableWrapper.java"/>
+            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableWrapper.java"
+            line="153"
+            column="31"/>
     </issue>
 
     <issue
@@ -262,7 +274,9 @@
         errorLine1="    public void invalidateDrawable(Drawable who) {"
         errorLine2="                                   ~~~~~~~~">
         <location
-            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableWrapper.java"/>
+            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableWrapper.java"
+            line="161"
+            column="36"/>
     </issue>
 
     <issue
@@ -271,7 +285,9 @@
         errorLine1="    public void scheduleDrawable(Drawable who, Runnable what, long when) {"
         errorLine2="                                 ~~~~~~~~">
         <location
-            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableWrapper.java"/>
+            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableWrapper.java"
+            line="169"
+            column="34"/>
     </issue>
 
     <issue
@@ -280,7 +296,9 @@
         errorLine1="    public void scheduleDrawable(Drawable who, Runnable what, long when) {"
         errorLine2="                                               ~~~~~~~~">
         <location
-            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableWrapper.java"/>
+            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableWrapper.java"
+            line="169"
+            column="48"/>
     </issue>
 
     <issue
@@ -289,7 +307,9 @@
         errorLine1="    public void unscheduleDrawable(Drawable who, Runnable what) {"
         errorLine2="                                   ~~~~~~~~">
         <location
-            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableWrapper.java"/>
+            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableWrapper.java"
+            line="177"
+            column="36"/>
     </issue>
 
     <issue
@@ -298,7 +318,9 @@
         errorLine1="    public void unscheduleDrawable(Drawable who, Runnable what) {"
         errorLine2="                                                 ~~~~~~~~">
         <location
-            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableWrapper.java"/>
+            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableWrapper.java"
+            line="177"
+            column="50"/>
     </issue>
 
     <issue
@@ -307,7 +329,9 @@
         errorLine1="    public void setTintList(ColorStateList tint) {"
         errorLine2="                            ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableWrapper.java"/>
+            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableWrapper.java"
+            line="202"
+            column="29"/>
     </issue>
 
     <issue
@@ -316,7 +340,9 @@
         errorLine1="    public void setTintMode(PorterDuff.Mode tintMode) {"
         errorLine2="                            ~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableWrapper.java"/>
+            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableWrapper.java"
+            line="207"
+            column="29"/>
     </issue>
 
     <issue
@@ -325,7 +351,9 @@
         errorLine1="    public Drawable getWrappedDrawable() {"
         errorLine2="           ~~~~~~~~">
         <location
-            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableWrapper.java"/>
+            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableWrapper.java"
+            line="221"
+            column="12"/>
     </issue>
 
     <issue
@@ -334,7 +362,9 @@
         errorLine1="    public void setWrappedDrawable(Drawable drawable) {"
         errorLine2="                                   ~~~~~~~~">
         <location
-            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableWrapper.java"/>
+            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableWrapper.java"
+            line="225"
+            column="36"/>
     </issue>
 
     <issue
@@ -343,7 +373,9 @@
         errorLine1="    public static synchronized ResourceManagerInternal get() {"
         errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/appcompat/widget/ResourceManagerInternal.java"/>
+            file="src/main/java/androidx/appcompat/widget/ResourceManagerInternal.java"
+            line="96"
+            column="32"/>
     </issue>
 
     <issue
@@ -352,7 +384,9 @@
         errorLine1="    public synchronized void setHooks(ResourceManagerHooks hooks) {"
         errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/appcompat/widget/ResourceManagerInternal.java"/>
+            file="src/main/java/androidx/appcompat/widget/ResourceManagerInternal.java"
+            line="131"
+            column="39"/>
     </issue>
 
     <issue
@@ -361,7 +395,9 @@
         errorLine1="    public synchronized Drawable getDrawable(@NonNull Context context, @DrawableRes int resId) {"
         errorLine2="                        ~~~~~~~~">
         <location
-            file="src/main/java/androidx/appcompat/widget/ResourceManagerInternal.java"/>
+            file="src/main/java/androidx/appcompat/widget/ResourceManagerInternal.java"
+            line="135"
+            column="25"/>
     </issue>
 
     <issue
@@ -370,7 +406,9 @@
         errorLine1="    public static synchronized PorterDuffColorFilter getPorterDuffColorFilter("
         errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/appcompat/widget/ResourceManagerInternal.java"/>
+            file="src/main/java/androidx/appcompat/widget/ResourceManagerInternal.java"
+            line="471"
+            column="32"/>
     </issue>
 
     <issue
@@ -379,7 +417,9 @@
         errorLine1="            int color, PorterDuff.Mode mode) {"
         errorLine2="                       ~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/appcompat/widget/ResourceManagerInternal.java"/>
+            file="src/main/java/androidx/appcompat/widget/ResourceManagerInternal.java"
+            line="472"
+            column="24"/>
     </issue>
 
     <issue
@@ -388,7 +428,9 @@
         errorLine1="    public static Context wrap(@NonNull final Context context) {"
         errorLine2="                  ~~~~~~~">
         <location
-            file="src/main/java/androidx/appcompat/widget/TintContextWrapper.java"/>
+            file="src/main/java/androidx/appcompat/widget/TintContextWrapper.java"
+            line="45"
+            column="19"/>
     </issue>
 
     <issue
@@ -397,7 +439,9 @@
         errorLine1="    public Resources.Theme getTheme() {"
         errorLine2="           ~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/appcompat/widget/TintContextWrapper.java"/>
+            file="src/main/java/androidx/appcompat/widget/TintContextWrapper.java"
+            line="107"
+            column="12"/>
     </issue>
 
     <issue
@@ -406,7 +450,9 @@
         errorLine1="    public Resources getResources() {"
         errorLine2="           ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/appcompat/widget/TintContextWrapper.java"/>
+            file="src/main/java/androidx/appcompat/widget/TintContextWrapper.java"
+            line="121"
+            column="12"/>
     </issue>
 
     <issue
@@ -415,7 +461,9 @@
         errorLine1="    public AssetManager getAssets() {"
         errorLine2="           ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/appcompat/widget/TintContextWrapper.java"/>
+            file="src/main/java/androidx/appcompat/widget/TintContextWrapper.java"
+            line="126"
+            column="12"/>
     </issue>
 
     <issue
@@ -424,7 +472,9 @@
         errorLine1="    public ColorStateList mTintList;"
         errorLine2="           ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/appcompat/widget/TintInfo.java"/>
+            file="src/main/java/androidx/appcompat/widget/TintInfo.java"
+            line="29"
+            column="12"/>
     </issue>
 
     <issue
@@ -433,7 +483,9 @@
         errorLine1="    public PorterDuff.Mode mTintMode;"
         errorLine2="           ~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/appcompat/widget/TintInfo.java"/>
+            file="src/main/java/androidx/appcompat/widget/TintInfo.java"
+            line="30"
+            column="12"/>
     </issue>
 
     <issue
@@ -442,7 +494,9 @@
         errorLine1="    public Drawable getDrawable(int id) throws NotFoundException {"
         errorLine2="           ~~~~~~~~">
         <location
-            file="src/main/java/androidx/appcompat/widget/VectorEnabledTintResources.java"/>
+            file="src/main/java/androidx/appcompat/widget/VectorEnabledTintResources.java"
+            line="66"
+            column="12"/>
     </issue>
 
 </issues>

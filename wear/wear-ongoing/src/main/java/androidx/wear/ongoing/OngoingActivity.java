@@ -15,6 +15,7 @@
  */
 package androidx.wear.ongoing;
 
+import android.Manifest;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -28,6 +29,7 @@ import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.annotation.RequiresPermission;
 import androidx.core.app.NotificationCompat;
 import androidx.core.content.LocusIdCompat;
 import androidx.core.util.Preconditions;
@@ -484,6 +486,7 @@ public final class OngoingActivity {
      *                this call returns.
      * @param status  The new status of this Ongoing Activity.
      */
+    @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
     public void update(@NonNull Context context, @NonNull Status status) {
         Preconditions.checkNotNull(mNotificationBuilder);
         mData.setStatus(status.toVersionedParcelable());

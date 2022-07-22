@@ -23,12 +23,14 @@ import static androidx.appsearch.localstorage.util.PrefixUtil.createPrefix;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import androidx.annotation.NonNull;
-import androidx.appsearch.app.PackageIdentifier;
 import androidx.appsearch.app.SearchSpec;
-import androidx.appsearch.exceptions.AppSearchException;
+import androidx.appsearch.localstorage.AppSearchImpl;
+import androidx.appsearch.localstorage.OptimizeStrategy;
+import androidx.appsearch.localstorage.UnlimitedLimitConfig;
 import androidx.appsearch.localstorage.util.PrefixUtil;
+import androidx.appsearch.localstorage.visibilitystore.CallerAccess;
 import androidx.appsearch.localstorage.visibilitystore.VisibilityStore;
+import androidx.appsearch.testutil.AppSearchTestUtils;
 
 import com.google.android.icing.proto.ResultSpecProto;
 import com.google.android.icing.proto.SchemaTypeConfigProto;
@@ -37,13 +39,19 @@ import com.google.android.icing.proto.SearchSpecProto;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 public class SearchSpecToProtoConverterTest {
+    /** An optimize strategy that always triggers optimize. */
+    public static final OptimizeStrategy ALWAYS_OPTIMIZE = optimizeInfo -> true;
+
+    @Rule
+    public final TemporaryFolder mTemporaryFolder = new TemporaryFolder();
 
     @Test
     public void testToSearchSpecProto() throws Exception {
@@ -52,7 +60,9 @@ public class SearchSpecToProtoConverterTest {
         String prefix2 = PrefixUtil.createPrefix("package", "database2");
 
         SchemaTypeConfigProto configProto = SchemaTypeConfigProto.getDefaultInstance();
-        SearchSpecToProtoConverter converter = new SearchSpecToProtoConverter(searchSpec,
+        SearchSpecToProtoConverter converter = new SearchSpecToProtoConverter(
+                /*queryExpression=*/"query",
+                searchSpec,
                 /*prefixes=*/ImmutableSet.of(prefix1, prefix2),
                 /*namespaceMap=*/ImmutableMap.of(
                         prefix1, ImmutableSet.of(
@@ -69,8 +79,7 @@ public class SearchSpecToProtoConverterTest {
                                 prefix2 + "typeA", configProto,
                                 prefix2 + "typeB", configProto)));
         // Convert SearchSpec to proto.
-        SearchSpecProto searchSpecProto = converter.toSearchSpecProto(
-                /*queryExpression=*/"query");
+        SearchSpecProto searchSpecProto = converter.toSearchSpecProto();
 
         assertThat(searchSpecProto.getQuery()).isEqualTo("query");
         assertThat(searchSpecProto.getSchemaTypeFiltersList()).containsExactly(
@@ -87,7 +96,9 @@ public class SearchSpecToProtoConverterTest {
                 .setOrder(ORDER_ASCENDING)
                 .setRankingStrategy(RANKING_STRATEGY_CREATION_TIMESTAMP).build();
 
-        ScoringSpecProto scoringSpecProto = new SearchSpecToProtoConverter(searchSpec,
+        ScoringSpecProto scoringSpecProto = new SearchSpecToProtoConverter(
+                /*queryExpression=*/"query",
+                searchSpec,
                 /*prefixes=*/ImmutableSet.of(),
                 /*namespaceMap=*/ImmutableMap.of(),
                 /*schemaMap=*/ImmutableMap.of()).toScoringSpecProto();
@@ -107,7 +118,9 @@ public class SearchSpecToProtoConverterTest {
                 .setMaxSnippetSize(456)
                 .build();
 
-        SearchSpecToProtoConverter convert = new SearchSpecToProtoConverter(searchSpec,
+        SearchSpecToProtoConverter convert = new SearchSpecToProtoConverter(
+                /*queryExpression=*/"query",
+                searchSpec,
                 /*prefixes=*/ImmutableSet.of(),
                 /*namespaceMap=*/ImmutableMap.of(),
                 /*schemaMap=*/ImmutableMap.of());
@@ -117,7 +130,7 @@ public class SearchSpecToProtoConverterTest {
         assertThat(resultSpecProto.getNumPerPage()).isEqualTo(123);
         assertThat(resultSpecProto.getSnippetSpec().getNumToSnippet()).isEqualTo(234);
         assertThat(resultSpecProto.getSnippetSpec().getNumMatchesPerProperty()).isEqualTo(345);
-        assertThat(resultSpecProto.getSnippetSpec().getMaxWindowBytes()).isEqualTo(456);
+        assertThat(resultSpecProto.getSnippetSpec().getMaxWindowUtf32Length()).isEqualTo(456);
     }
 
     @Test
@@ -129,7 +142,9 @@ public class SearchSpecToProtoConverterTest {
         String prefix1 = PrefixUtil.createPrefix("package1", "database");
         String prefix2 = PrefixUtil.createPrefix("package2", "database");
 
-        SearchSpecToProtoConverter converter = new SearchSpecToProtoConverter(searchSpec,
+        SearchSpecToProtoConverter converter = new SearchSpecToProtoConverter(
+                /*queryExpression=*/"query",
+                searchSpec,
                 /*prefixes=*/ImmutableSet.of(prefix1, prefix2),
                 /*namespaceMap=*/ImmutableMap.of(),
                 /*schemaMap=*/ImmutableMap.of());
@@ -178,7 +193,9 @@ public class SearchSpecToProtoConverterTest {
                 prefix2, ImmutableSet.of(
                         prefix2 + "namespaceA",
                         prefix2 + "namespaceB"));
-        SearchSpecToProtoConverter converter = new SearchSpecToProtoConverter(searchSpec,
+        SearchSpecToProtoConverter converter = new SearchSpecToProtoConverter(
+                /*queryExpression=*/"query",
+                searchSpec,
                 /*prefixes=*/ImmutableSet.of(prefix1, prefix2),
                 namespaceMap,
                 /*schemaMap=*/ImmutableMap.of());
@@ -219,7 +236,9 @@ public class SearchSpecToProtoConverterTest {
                         prefix2 + "namespaceA",
                         prefix2 + "namespaceB"));
 
-        SearchSpecToProtoConverter converter = new SearchSpecToProtoConverter(searchSpec,
+        SearchSpecToProtoConverter converter = new SearchSpecToProtoConverter(
+                /*queryExpression=*/"query",
+                searchSpec,
                 /*prefixes=*/ImmutableSet.of(prefix1, prefix2),
                 namespaceMap, /*schemaMap=*/ImmutableMap.of());
         ResultSpecProto resultSpecProto = converter.toResultSpecProto(namespaceMap);
@@ -243,12 +262,13 @@ public class SearchSpecToProtoConverterTest {
                         "package$database1/namespace2"),
                 prefix2, ImmutableSet.of("package$database2/namespace3",
                         "package$database2/namespace4"));
-        SearchSpecToProtoConverter converter = new SearchSpecToProtoConverter(searchSpec,
+        SearchSpecToProtoConverter converter = new SearchSpecToProtoConverter(
+                /*queryExpression=*/"",
+                searchSpec,
                 /*prefixes=*/ImmutableSet.of(prefix1, prefix2),
                 namespaceMap, /*schemaMap=*/ImmutableMap.of());
 
-        SearchSpecProto searchSpecProto =
-                converter.toSearchSpecProto(/*queryExpression=*/"");
+        SearchSpecProto searchSpecProto = converter.toSearchSpecProto();
 
         assertThat(searchSpecProto.getNamespaceFiltersList()).containsExactly(
                 "package$database1/namespace1", "package$database1/namespace2",
@@ -262,7 +282,9 @@ public class SearchSpecToProtoConverterTest {
         String prefix2 = PrefixUtil.createPrefix("package", "database2");
 
         // Only search for prefix1
-        SearchSpecToProtoConverter converter = new SearchSpecToProtoConverter(searchSpec,
+        SearchSpecToProtoConverter converter = new SearchSpecToProtoConverter(
+                /*queryExpression=*/"",
+                searchSpec,
                 /*prefixes=*/ImmutableSet.of(prefix1),
                 /*namespaceMap=*/ImmutableMap.of(
                         prefix1, ImmutableSet.of("package$database1/namespace1",
@@ -271,8 +293,7 @@ public class SearchSpecToProtoConverterTest {
                             "package$database2/namespace4")),
                 /*schemaMap=*/ImmutableMap.of());
 
-        SearchSpecProto searchSpecProto =
-                converter.toSearchSpecProto(/*queryExpression=*/"");
+        SearchSpecProto searchSpecProto = converter.toSearchSpecProto();
         // Only search prefix1 will return namespace 1 and 2.
         assertThat(searchSpecProto.getNamespaceFiltersList()).containsExactly(
                 "package$database1/namespace1", "package$database1/namespace2");
@@ -285,14 +306,15 @@ public class SearchSpecToProtoConverterTest {
                 .addFilterNamespaces("namespace1", "nonExist").build();
         String prefix1 = PrefixUtil.createPrefix("package", "database1");
 
-        SearchSpecToProtoConverter converter = new SearchSpecToProtoConverter(searchSpec,
+        SearchSpecToProtoConverter converter = new SearchSpecToProtoConverter(
+                /*queryExpression=*/"",
+                searchSpec,
                 /*prefixes=*/ImmutableSet.of(prefix1),
                 /*namespaceMap=*/ImmutableMap.of(
                         prefix1, ImmutableSet.of("package$database1/namespace1",
                                 "package$database1/namespace2")),
                 /*schemaMap=*/ImmutableMap.of());
-        SearchSpecProto searchSpecProto =
-                converter.toSearchSpecProto(/*queryExpression=*/"");
+        SearchSpecProto searchSpecProto = converter.toSearchSpecProto();
         // If the searching namespace filter is not empty, the target namespace filter will be the
         // intersection of the searching namespace filters that users want to search over and
         // those candidates which are stored in AppSearch.
@@ -307,14 +329,15 @@ public class SearchSpecToProtoConverterTest {
                 .addFilterNamespaces("nonExist").build();
         String prefix1 = PrefixUtil.createPrefix("package", "database1");
 
-        SearchSpecToProtoConverter converter = new SearchSpecToProtoConverter(searchSpec,
+        SearchSpecToProtoConverter converter = new SearchSpecToProtoConverter(
+                /*queryExpression=*/"",
+                searchSpec,
                 /*prefixes=*/ImmutableSet.of(prefix1),
                 /*namespaceMap=*/ImmutableMap.of(
                         prefix1, ImmutableSet.of("package$database1/namespace1",
                                 "package$database1/namespace2")),
                 /*schemaMap=*/ImmutableMap.of());
-        SearchSpecProto searchSpecProto =
-                converter.toSearchSpecProto(/*queryExpression=*/"");
+        SearchSpecProto searchSpecProto = converter.toSearchSpecProto();
         // If the searching namespace filter is not empty, the target namespace filter will be the
         // intersection of the searching namespace filters that users want to search over and
         // those candidates which are stored in AppSearch.
@@ -328,7 +351,9 @@ public class SearchSpecToProtoConverterTest {
         String prefix2 = createPrefix("package", "database2");
         SchemaTypeConfigProto schemaTypeConfigProto =
                 SchemaTypeConfigProto.newBuilder().getDefaultInstanceForType();
-        SearchSpecToProtoConverter converter = new SearchSpecToProtoConverter(searchSpec,
+        SearchSpecToProtoConverter converter = new SearchSpecToProtoConverter(
+                /*queryExpression=*/"",
+                searchSpec,
                 /*prefixes=*/ImmutableSet.of(prefix1, prefix2),
                 /*namespaceMap=*/ImmutableMap.of(
                         prefix1, ImmutableSet.of("package$database1/namespace1")),
@@ -339,8 +364,7 @@ public class SearchSpecToProtoConverterTest {
                         prefix2, ImmutableMap.of(
                                 "package$database2/typeC", schemaTypeConfigProto,
                                 "package$database2/typeD", schemaTypeConfigProto)));
-        SearchSpecProto searchSpecProto =
-                converter.toSearchSpecProto(/*queryExpression=*/"");
+        SearchSpecProto searchSpecProto = converter.toSearchSpecProto();
         // Empty searching filter will get all types for target filter
         assertThat(searchSpecProto.getSchemaTypeFiltersList()).containsExactly(
                 "package$database1/typeA", "package$database1/typeB",
@@ -355,7 +379,9 @@ public class SearchSpecToProtoConverterTest {
         SchemaTypeConfigProto schemaTypeConfigProto =
                 SchemaTypeConfigProto.newBuilder().getDefaultInstanceForType();
         // only search in prefix1
-        SearchSpecToProtoConverter converter = new SearchSpecToProtoConverter(searchSpec,
+        SearchSpecToProtoConverter converter = new SearchSpecToProtoConverter(
+                /*queryExpression=*/"",
+                searchSpec,
                 /*prefixes=*/ImmutableSet.of(prefix1),
                 /*namespaceMap=*/ImmutableMap.of(
                         prefix1, ImmutableSet.of("package$database1/namespace1")),
@@ -366,8 +392,7 @@ public class SearchSpecToProtoConverterTest {
                         prefix2, ImmutableMap.of(
                                 "package$database2/typeC", schemaTypeConfigProto,
                                 "package$database2/typeD", schemaTypeConfigProto)));
-        SearchSpecProto searchSpecProto =
-                converter.toSearchSpecProto(/*queryExpression=*/"");
+        SearchSpecProto searchSpecProto = converter.toSearchSpecProto();
         // Only search prefix1 will return typeA and B.
         assertThat(searchSpecProto.getSchemaTypeFiltersList()).containsExactly(
                 "package$database1/typeA", "package$database1/typeB");
@@ -381,7 +406,9 @@ public class SearchSpecToProtoConverterTest {
         String prefix1 = createPrefix("package", "database1");
         SchemaTypeConfigProto schemaTypeConfigProto =
                 SchemaTypeConfigProto.newBuilder().getDefaultInstanceForType();
-        SearchSpecToProtoConverter converter = new SearchSpecToProtoConverter(searchSpec,
+        SearchSpecToProtoConverter converter = new SearchSpecToProtoConverter(
+                /*queryExpression=*/"",
+                searchSpec,
                 /*prefixes=*/ImmutableSet.of(prefix1),
                 /*namespaceMap=*/ImmutableMap.of(
                         prefix1, ImmutableSet.of("package$database1/namespace1")),
@@ -389,8 +416,7 @@ public class SearchSpecToProtoConverterTest {
                         prefix1, ImmutableMap.of(
                                 "package$database1/typeA", schemaTypeConfigProto,
                                 "package$database1/typeB", schemaTypeConfigProto)));
-        SearchSpecProto searchSpecProto =
-                converter.toSearchSpecProto(/*queryExpression=*/"");
+        SearchSpecProto searchSpecProto = converter.toSearchSpecProto();
         // If the searching schema filter is not empty, the target schema filter will be the
         // intersection of the schema filters that users want to search over and those candidates
         // which are stored in AppSearch.
@@ -406,7 +432,9 @@ public class SearchSpecToProtoConverterTest {
         String prefix1 = createPrefix("package", "database1");
         SchemaTypeConfigProto schemaTypeConfigProto =
                 SchemaTypeConfigProto.newBuilder().getDefaultInstanceForType();
-        SearchSpecToProtoConverter converter = new SearchSpecToProtoConverter(searchSpec,
+        SearchSpecToProtoConverter converter = new SearchSpecToProtoConverter(
+                /*queryExpression=*/"",
+                searchSpec,
                 /*prefixes=*/ImmutableSet.of(prefix1),
                 /*namespaceMap=*/ImmutableMap.of(
                         prefix1, ImmutableSet.of("package$database1/namespace1")),
@@ -414,8 +442,7 @@ public class SearchSpecToProtoConverterTest {
                         prefix1, ImmutableMap.of(
                                 "package$database1/typeA", schemaTypeConfigProto,
                                 "package$database1/typeB", schemaTypeConfigProto)));
-        SearchSpecProto searchSpecProto =
-                converter.toSearchSpecProto(/*queryExpression=*/"");
+        SearchSpecProto searchSpecProto = converter.toSearchSpecProto();
 
         // If there is no intersection of the schema filters that user want to search over and
         // those filters which are stored in AppSearch, return empty.
@@ -423,14 +450,21 @@ public class SearchSpecToProtoConverterTest {
     }
 
     @Test
-    public void testRemoveInaccessibleSchemaFilter() {
-        String prefix = PrefixUtil.createPrefix("package", "database");
+    public void testRemoveInaccessibleSchemaFilter() throws Exception {
+        AppSearchImpl appSearchImpl = AppSearchImpl.create(
+                mTemporaryFolder.newFolder(),
+                new UnlimitedLimitConfig(),
+                /*initStatsBuilder=*/null,
+                ALWAYS_OPTIMIZE,
+                /*visibilityChecker=*/null);
+        VisibilityStore visibilityStore = new VisibilityStore(appSearchImpl);
 
-        SearchSpec searchSpec = new SearchSpec.Builder().build();
-
+        final String prefix = PrefixUtil.createPrefix("package", "database");
         SchemaTypeConfigProto schemaTypeConfigProto =
                 SchemaTypeConfigProto.newBuilder().getDefaultInstanceForType();
-        SearchSpecToProtoConverter converter = new SearchSpecToProtoConverter(searchSpec,
+        SearchSpecToProtoConverter converter = new SearchSpecToProtoConverter(
+                /*queryExpression=*/"",
+                new SearchSpec.Builder().build(),
                 /*prefixes=*/ImmutableSet.of(prefix),
                 /*namespaceMap=*/ImmutableMap.of(
                         prefix, ImmutableSet.of("package$database/namespace1")),
@@ -441,30 +475,13 @@ public class SearchSpecToProtoConverterTest {
                                 "package$database/schema3", schemaTypeConfigProto)));
 
         converter.removeInaccessibleSchemaFilter(
-                /*callerPackageName=*/"otherPackageName",
-                new VisibilityStore() {
-                    @Override
-                    public void setVisibility(@NonNull String packageName,
-                            @NonNull String databaseName,
-                            @NonNull Set<String> schemasNotDisplayedBySystem,
-                            @NonNull Map<String, List<PackageIdentifier>> schemasVisibleToPackages)
-                            throws AppSearchException {
+                new CallerAccess(/*callingPackageName=*/"otherPackageName"),
+                visibilityStore,
+                AppSearchTestUtils.createMockVisibilityChecker(
+                        /*visiblePrefixedSchemas=*/ ImmutableSet.of(
+                                prefix + "schema1", prefix + "schema3")));
 
-                    }
-
-                    @Override
-                    public boolean isSchemaSearchableByCaller(@NonNull String packageName,
-                            @NonNull String databaseName, @NonNull String prefixedSchema,
-                            int callerUid, boolean callerHasSystemAccess) {
-                        // filter out schema 2 which is not searchable for user.
-                        return !prefixedSchema.equals(prefix + "schema2");
-                    }
-                },
-                /*callerUid=*/-1,
-                /*callerHasSystemAccess=*/true);
-
-        SearchSpecProto searchSpecProto =
-                converter.toSearchSpecProto(/*queryExpression=*/"");
+        SearchSpecProto searchSpecProto = converter.toSearchSpecProto();
         // schema 2 is filtered out since it is not searchable for user.
         assertThat(searchSpecProto.getSchemaTypeFiltersList()).containsExactly(
                 prefix + "schema1", prefix + "schema3");
@@ -488,45 +505,33 @@ public class SearchSpecToProtoConverterTest {
         );
 
         SearchSpecToProtoConverter emptySchemaConverter =
-                new SearchSpecToProtoConverter(searchSpec, /*prefixes=*/ImmutableSet.of(prefix),
+                new SearchSpecToProtoConverter(
+                        /*queryExpression=*/"",
+                        searchSpec, /*prefixes=*/ImmutableSet.of(prefix),
                         /*namespaceMap=*/namespaceMap,
                         /*schemaMap=*/ImmutableMap.of());
-        assertThat(emptySchemaConverter.isNothingToSearch()).isTrue();
+        assertThat(emptySchemaConverter.hasNothingToSearch()).isTrue();
 
         SearchSpecToProtoConverter emptyNamespaceConverter =
-                new SearchSpecToProtoConverter(searchSpec, /*prefixes=*/ImmutableSet.of(prefix),
+                new SearchSpecToProtoConverter(
+                        /*queryExpression=*/"",
+                        searchSpec, /*prefixes=*/ImmutableSet.of(prefix),
                         /*namespaceMap=*/ImmutableMap.of(),
                         schemaMap);
-        assertThat(emptyNamespaceConverter.isNothingToSearch()).isTrue();
+        assertThat(emptyNamespaceConverter.hasNothingToSearch()).isTrue();
 
         SearchSpecToProtoConverter nonEmptyConverter =
-                new SearchSpecToProtoConverter(searchSpec, /*prefixes=*/ImmutableSet.of(prefix),
+                new SearchSpecToProtoConverter(
+                        /*queryExpression=*/"",
+                        searchSpec, /*prefixes=*/ImmutableSet.of(prefix),
                         namespaceMap, schemaMap);
-        assertThat(nonEmptyConverter.isNothingToSearch()).isFalse();
+        assertThat(nonEmptyConverter.hasNothingToSearch()).isFalse();
 
         // remove all target schema filter, and the query becomes nothing to search.
         nonEmptyConverter.removeInaccessibleSchemaFilter(
-                /*callerPackageName=*/"otherPackageName",
-                new VisibilityStore() {
-                    @Override
-                    public void setVisibility(@NonNull String packageName,
-                            @NonNull String databaseName,
-                            @NonNull Set<String> schemasNotDisplayedBySystem,
-                            @NonNull Map<String, List<PackageIdentifier>> schemasVisibleToPackages)
-                            throws AppSearchException {
-
-                    }
-
-                    @Override
-                    public boolean isSchemaSearchableByCaller(@NonNull String packageName,
-                            @NonNull String databaseName, @NonNull String prefixedSchema,
-                            int callerUid, boolean callerHasSystemAccess) {
-                        // filter out all schema.
-                        return false;
-                    }
-                },
-                /*callerUid=*/-1,
-                /*callerHasSystemAccess=*/true);
-        assertThat(nonEmptyConverter.isNothingToSearch()).isTrue();
+                new CallerAccess(/*callingPackageName=*/"otherPackageName"),
+                /*visibilityStore=*/null,
+                /*visibilityChecker=*/null);
+        assertThat(nonEmptyConverter.hasNothingToSearch()).isTrue();
     }
 }

@@ -23,9 +23,9 @@ import androidx.core.util.Preconditions;
  * A request to report usage of a document owned by another app from a system UI surface.
  *
  * <p>Usage reported in this way is measured separately from usage reported via
- * {@link AppSearchSession#reportUsage}.
+ * {@link AppSearchSession#reportUsageAsync}.
  *
- * <p>See {@link GlobalSearchSession#reportSystemUsage} for a detailed description of usage
+ * <p>See {@link GlobalSearchSession#reportSystemUsageAsync} for a detailed description of usage
  * reporting.
  */
 public final class ReportSystemUsageRequest {

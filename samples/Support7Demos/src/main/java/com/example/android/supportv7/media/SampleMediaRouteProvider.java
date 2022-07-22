@@ -51,6 +51,7 @@ import java.util.Map;
  *
  * @see SampleMediaRouteProviderService
  */
+@SuppressWarnings("deprecation")
 class SampleMediaRouteProvider extends MediaRouteProvider {
     private static final String TAG = "SampleMrp";
 

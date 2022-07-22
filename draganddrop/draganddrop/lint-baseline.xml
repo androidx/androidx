@@ -7,7 +7,8 @@
         errorLine1="    public void testDropHelper_startDrag_hasInactiveHighlight() throws Exception {"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/draganddrop/DropHelperTest.java"/>
+            file="src/androidTest/java/androidx/draganddrop/DropHelperTest.java"
+            column="17"/>
     </issue>
 
     <issue
@@ -16,7 +17,9 @@
         errorLine1="    public void testDropHelper_endDrag_hasNoHighlight() throws Exception {"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/draganddrop/DropHelperTest.java"/>
+            file="src/androidTest/java/androidx/draganddrop/DropHelperTest.java"
+            line="135"
+            column="17"/>
     </issue>
 
     <issue
@@ -25,7 +28,9 @@
         errorLine1="    public void testDropHelper_acceptDragsWithLocalState_default_hasNoHighlight() throws Exception {"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/draganddrop/DropHelperTest.java"/>
+            file="src/androidTest/java/androidx/draganddrop/DropHelperTest.java"
+            line="156"
+            column="17"/>
     </issue>
 
     <issue
@@ -34,7 +39,9 @@
         errorLine1="    public void testDropHelper_acceptDragsWithLocalState_false_hasNoHighlight() throws Exception {"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/draganddrop/DropHelperTest.java"/>
+            file="src/androidTest/java/androidx/draganddrop/DropHelperTest.java"
+            line="173"
+            column="17"/>
     </issue>
 
     <issue
@@ -43,7 +50,9 @@
         errorLine1="    public void testDropHelper_acceptDragsWithLocalState_true_hasHighlight() throws Exception {"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/draganddrop/DropHelperTest.java"/>
+            file="src/androidTest/java/androidx/draganddrop/DropHelperTest.java"
+            line="191"
+            column="17"/>
     </issue>
 
     <issue
@@ -52,7 +61,9 @@
         errorLine1="    public void testDropHelper_wrongMimeTypeImage_hasNoHighlight() throws Exception {"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/draganddrop/DropHelperTest.java"/>
+            file="src/androidTest/java/androidx/draganddrop/DropHelperTest.java"
+            line="210"
+            column="17"/>
     </issue>
 
     <issue
@@ -61,7 +72,9 @@
         errorLine1="    public void testDropHelper_wrongMimeTypeText_hasNoHighlight() throws Exception {"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/draganddrop/DropHelperTest.java"/>
+            file="src/androidTest/java/androidx/draganddrop/DropHelperTest.java"
+            line="226"
+            column="17"/>
     </issue>
 
     <issue
@@ -70,7 +83,9 @@
         errorLine1="    public void testDropHelper_enterAndExit_togglesHighlight() throws Exception {"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/draganddrop/DropHelperTest.java"/>
+            file="src/androidTest/java/androidx/draganddrop/DropHelperTest.java"
+            line="241"
+            column="17"/>
     </issue>
 
     <issue
@@ -79,7 +94,9 @@
         errorLine1="    public void testDropHelper_dragToInnerNestedView_retainsActiveHighlight()"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/draganddrop/DropHelperTest.java"/>
+            file="src/androidTest/java/androidx/draganddrop/DropHelperTest.java"
+            line="275"
+            column="17"/>
     </issue>
 
     <issue
@@ -88,7 +105,9 @@
         errorLine1="    public void testDropHelper_usesColorFromSystemAsDefault() throws Exception {"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/draganddrop/DropHelperTest.java"/>
+            file="src/androidTest/java/androidx/draganddrop/DropHelperTest.java"
+            line="301"
+            column="17"/>
     </issue>
 
     <issue
@@ -97,7 +116,9 @@
         errorLine1="    public void testDropHelper_usesDefaultCornerRadius() throws Exception {"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/draganddrop/DropHelperTest.java"/>
+            file="src/androidTest/java/androidx/draganddrop/DropHelperTest.java"
+            line="325"
+            column="17"/>
     </issue>
 
     <issue
@@ -106,7 +127,9 @@
         errorLine1="    public void testDropHelper_usesCornerRadius() throws Exception {"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/draganddrop/DropHelperTest.java"/>
+            file="src/androidTest/java/androidx/draganddrop/DropHelperTest.java"
+            line="345"
+            column="17"/>
     </issue>
 
     <issue
@@ -115,7 +138,9 @@
         errorLine1="    public void testDropHelper_drop_callsListener() throws Exception {"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/draganddrop/DropHelperTest.java"/>
+            file="src/androidTest/java/androidx/draganddrop/DropHelperTest.java"
+            line="366"
+            column="17"/>
     </issue>
 
     <issue
@@ -124,7 +149,9 @@
         errorLine1="    public void testDropHelper_nonEditText_drop_callsListener() throws Exception {"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/draganddrop/DropHelperTest.java"/>
+            file="src/androidTest/java/androidx/draganddrop/DropHelperTest.java"
+            line="397"
+            column="17"/>
     </issue>
 
 </issues>

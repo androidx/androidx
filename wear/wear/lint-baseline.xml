@@ -235,7 +235,9 @@
         errorLine1="    public void dump(String prefix, FileDescriptor fd, PrintWriter writer, String[] args) {"
         errorLine2="                                                                           ~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/ambient/AmbientModeSupport.java"/>
+            file="src/main/java/androidx/wear/ambient/AmbientModeSupport.java"
+            line="296"
+            column="76"/>
     </issue>
 
     <issue
@@ -244,7 +246,9 @@
         errorLine1="    public void setForeground(Drawable drawable) {"
         errorLine2="                              ~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/BoxInsetLayout.java"/>
+            file="src/main/java/androidx/wear/widget/BoxInsetLayout.java"
+            line="114"
+            column="31"/>
     </issue>
 
     <issue
@@ -253,7 +257,9 @@
         errorLine1="    public LayoutParams generateLayoutParams(AttributeSet attrs) {"
         errorLine2="           ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/BoxInsetLayout.java"/>
+            file="src/main/java/androidx/wear/widget/BoxInsetLayout.java"
+            line="126"
+            column="12"/>
     </issue>
 
     <issue
@@ -262,7 +268,9 @@
         errorLine1="    public LayoutParams generateLayoutParams(AttributeSet attrs) {"
         errorLine2="                                             ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/BoxInsetLayout.java"/>
+            file="src/main/java/androidx/wear/widget/BoxInsetLayout.java"
+            line="126"
+            column="46"/>
     </issue>
 
     <issue
@@ -271,7 +279,9 @@
         errorLine1="    protected boolean checkLayoutParams(ViewGroup.LayoutParams p) {"
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/BoxInsetLayout.java"/>
+            file="src/main/java/androidx/wear/widget/BoxInsetLayout.java"
+            line="291"
+            column="41"/>
     </issue>
 
     <issue
@@ -280,7 +290,9 @@
         errorLine1="    protected ViewGroup.LayoutParams generateLayoutParams(ViewGroup.LayoutParams p) {"
         errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/BoxInsetLayout.java"/>
+            file="src/main/java/androidx/wear/widget/BoxInsetLayout.java"
+            line="296"
+            column="15"/>
     </issue>
 
     <issue
@@ -289,7 +301,9 @@
         errorLine1="    protected ViewGroup.LayoutParams generateLayoutParams(ViewGroup.LayoutParams p) {"
         errorLine2="                                                          ~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/BoxInsetLayout.java"/>
+            file="src/main/java/androidx/wear/widget/BoxInsetLayout.java"
+            line="296"
+            column="59"/>
     </issue>
 
     <issue
@@ -298,7 +312,9 @@
         errorLine1="    public CircledImageView(Context context) {"
         errorLine2="                            ~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/CircledImageView.java"/>
+            file="src/main/java/androidx/wear/widget/CircledImageView.java"
+            line="119"
+            column="29"/>
     </issue>
 
     <issue
@@ -307,7 +323,9 @@
         errorLine1="    public CircledImageView(Context context, AttributeSet attrs) {"
         errorLine2="                            ~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/CircledImageView.java"/>
+            file="src/main/java/androidx/wear/widget/CircledImageView.java"
+            line="123"
+            column="29"/>
     </issue>
 
     <issue
@@ -316,7 +334,9 @@
         errorLine1="    public CircledImageView(Context context, AttributeSet attrs) {"
         errorLine2="                                             ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/CircledImageView.java"/>
+            file="src/main/java/androidx/wear/widget/CircledImageView.java"
+            line="123"
+            column="46"/>
     </issue>
 
     <issue
@@ -325,7 +345,9 @@
         errorLine1="    public CircledImageView(Context context, AttributeSet attrs, int defStyle) {"
         errorLine2="                            ~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/CircledImageView.java"/>
+            file="src/main/java/androidx/wear/widget/CircledImageView.java"
+            line="127"
+            column="29"/>
     </issue>
 
     <issue
@@ -334,7 +356,9 @@
         errorLine1="    public CircledImageView(Context context, AttributeSet attrs, int defStyle) {"
         errorLine2="                                             ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/CircledImageView.java"/>
+            file="src/main/java/androidx/wear/widget/CircledImageView.java"
+            line="127"
+            column="46"/>
     </issue>
 
     <issue
@@ -343,7 +367,9 @@
         errorLine1="    protected void onDraw(Canvas canvas) {"
         errorLine2="                          ~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/CircledImageView.java"/>
+            file="src/main/java/androidx/wear/widget/CircledImageView.java"
+            line="225"
+            column="27"/>
     </issue>
 
     <issue
@@ -352,7 +378,9 @@
         errorLine1="    public ColorStateList getCircleColorStateList() {"
         errorLine2="           ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/CircledImageView.java"/>
+            file="src/main/java/androidx/wear/widget/CircledImageView.java"
+            line="530"
+            column="12"/>
     </issue>
 
     <issue
@@ -361,7 +389,9 @@
         errorLine1="    public void setCircleColorStateList(ColorStateList circleColor) {"
         errorLine2="                                        ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/CircledImageView.java"/>
+            file="src/main/java/androidx/wear/widget/CircledImageView.java"
+            line="535"
+            column="41"/>
     </issue>
 
     <issue
@@ -370,7 +400,9 @@
         errorLine1="    protected void onVisibilityChanged(View changedView, int visibility) {"
         errorLine2="                                       ~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/CircledImageView.java"/>
+            file="src/main/java/androidx/wear/widget/CircledImageView.java"
+            line="566"
+            column="40"/>
     </issue>
 
     <issue
@@ -379,7 +411,9 @@
         errorLine1="    public void setCircleBorderCap(Paint.Cap circleBorderCap) {"
         errorLine2="                                   ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/CircledImageView.java"/>
+            file="src/main/java/androidx/wear/widget/CircledImageView.java"
+            line="625"
+            column="36"/>
     </issue>
 
     <issue
@@ -388,7 +422,9 @@
         errorLine1="    public Drawable getImageDrawable() {"
         errorLine2="           ~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/CircledImageView.java"/>
+            file="src/main/java/androidx/wear/widget/CircledImageView.java"
+            line="665"
+            column="12"/>
     </issue>
 
     <issue
@@ -397,7 +433,9 @@
         errorLine1="    public void setImageDrawable(Drawable drawable) {"
         errorLine2="                                 ~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/CircledImageView.java"/>
+            file="src/main/java/androidx/wear/widget/CircledImageView.java"
+            line="670"
+            column="34"/>
     </issue>
 
     <issue
@@ -406,7 +444,9 @@
         errorLine1="        void onTimerFinished(CircularProgressLayout layout);"
         errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/CircularProgressLayout.java"/>
+            file="src/main/java/androidx/wear/widget/CircularProgressLayout.java"
+            line="95"
+            column="30"/>
     </issue>
 
     <issue
@@ -415,7 +455,9 @@
         errorLine1="    public CircularProgressLayout(Context context) {"
         errorLine2="                                  ~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/CircularProgressLayout.java"/>
+            file="src/main/java/androidx/wear/widget/CircularProgressLayout.java"
+            line="98"
+            column="35"/>
     </issue>
 
     <issue
@@ -424,7 +466,9 @@
         errorLine1="    public CircularProgressLayout(Context context, AttributeSet attrs) {"
         errorLine2="                                  ~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/CircularProgressLayout.java"/>
+            file="src/main/java/androidx/wear/widget/CircularProgressLayout.java"
+            line="102"
+            column="35"/>
     </issue>
 
     <issue
@@ -433,7 +477,9 @@
         errorLine1="    public CircularProgressLayout(Context context, AttributeSet attrs) {"
         errorLine2="                                                   ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/CircularProgressLayout.java"/>
+            file="src/main/java/androidx/wear/widget/CircularProgressLayout.java"
+            line="102"
+            column="52"/>
     </issue>
 
     <issue
@@ -442,7 +488,9 @@
         errorLine1="    public CircularProgressLayout(Context context, AttributeSet attrs, int defStyleAttr) {"
         errorLine2="                                  ~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/CircularProgressLayout.java"/>
+            file="src/main/java/androidx/wear/widget/CircularProgressLayout.java"
+            line="106"
+            column="35"/>
     </issue>
 
     <issue
@@ -451,7 +499,9 @@
         errorLine1="    public CircularProgressLayout(Context context, AttributeSet attrs, int defStyleAttr) {"
         errorLine2="                                                   ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/CircularProgressLayout.java"/>
+            file="src/main/java/androidx/wear/widget/CircularProgressLayout.java"
+            line="106"
+            column="52"/>
     </issue>
 
     <issue
@@ -460,7 +510,9 @@
         errorLine1="    public CircularProgressLayout(Context context, AttributeSet attrs, int defStyleAttr,"
         errorLine2="                                  ~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/CircularProgressLayout.java"/>
+            file="src/main/java/androidx/wear/widget/CircularProgressLayout.java"
+            line="110"
+            column="35"/>
     </issue>
 
     <issue
@@ -469,7 +521,9 @@
         errorLine1="    public CircularProgressLayout(Context context, AttributeSet attrs, int defStyleAttr,"
         errorLine2="                                                   ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/CircularProgressLayout.java"/>
+            file="src/main/java/androidx/wear/widget/CircularProgressLayout.java"
+            line="110"
+            column="52"/>
     </issue>
 
     <issue
@@ -478,7 +532,9 @@
         errorLine1="    public void setColorSchemeColors(int... colors) {"
         errorLine2="                                     ~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/CircularProgressLayout.java"/>
+            file="src/main/java/androidx/wear/widget/CircularProgressLayout.java"
+            line="339"
+            column="38"/>
     </issue>
 
     <issue
@@ -487,7 +543,9 @@
         errorLine1="    public int[] getColorSchemeColors() {"
         errorLine2="           ~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/CircularProgressLayout.java"/>
+            file="src/main/java/androidx/wear/widget/CircularProgressLayout.java"
+            line="348"
+            column="12"/>
     </issue>
 
     <issue
@@ -496,7 +554,9 @@
         errorLine1="    public void onCreate(Bundle savedInstanceState) {"
         errorLine2="                         ~~~~~~">
         <location
-            file="src/main/java/androidx/wear/activity/ConfirmationActivity.java"/>
+            file="src/main/java/androidx/wear/activity/ConfirmationActivity.java"
+            line="102"
+            column="26"/>
     </issue>
 
     <issue
@@ -505,7 +565,9 @@
         errorLine1="    public CurvingLayoutCallback(Context context) {"
         errorLine2="                                 ~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/CurvingLayoutCallback.java"/>
+            file="src/main/java/androidx/wear/widget/CurvingLayoutCallback.java"
+            line="52"
+            column="34"/>
     </issue>
 
     <issue
@@ -514,7 +576,9 @@
         errorLine1="    public void onLayoutFinished(View child, RecyclerView parent) {"
         errorLine2="                                 ~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/CurvingLayoutCallback.java"/>
+            file="src/main/java/androidx/wear/widget/CurvingLayoutCallback.java"
+            line="61"
+            column="34"/>
     </issue>
 
     <issue
@@ -523,7 +587,9 @@
         errorLine1="    public void onLayoutFinished(View child, RecyclerView parent) {"
         errorLine2="                                             ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/CurvingLayoutCallback.java"/>
+            file="src/main/java/androidx/wear/widget/CurvingLayoutCallback.java"
+            line="61"
+            column="46"/>
     </issue>
 
     <issue
@@ -532,7 +598,9 @@
         errorLine1="    public void adjustAnchorOffsetXY(View child, float[] anchorOffsetXY) {"
         errorLine2="                                     ~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/CurvingLayoutCallback.java"/>
+            file="src/main/java/androidx/wear/widget/CurvingLayoutCallback.java"
+            line="115"
+            column="38"/>
     </issue>
 
     <issue
@@ -541,7 +609,9 @@
         errorLine1="    public void adjustAnchorOffsetXY(View child, float[] anchorOffsetXY) {"
         errorLine2="                                                 ~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/CurvingLayoutCallback.java"/>
+            file="src/main/java/androidx/wear/widget/CurvingLayoutCallback.java"
+            line="115"
+            column="50"/>
     </issue>
 
     <issue
@@ -550,7 +620,9 @@
         errorLine1="    public static boolean isStandalone(Context context) {"
         errorLine2="                                       ~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/utils/MetadataConstants.java"/>
+            file="src/main/java/androidx/wear/utils/MetadataConstants.java"
+            line="133"
+            column="40"/>
     </issue>
 
     <issue
@@ -559,7 +631,9 @@
         errorLine1="    public static boolean isNotificationBridgingEnabled(Context context) {"
         errorLine2="                                                        ~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/utils/MetadataConstants.java"/>
+            file="src/main/java/androidx/wear/utils/MetadataConstants.java"
+            line="153"
+            column="57"/>
     </issue>
 
     <issue
@@ -568,7 +642,9 @@
         errorLine1="    public static int getPreviewDrawableResourceId(Context context, boolean circular) {"
         errorLine2="                                                   ~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/utils/MetadataConstants.java"/>
+            file="src/main/java/androidx/wear/utils/MetadataConstants.java"
+            line="176"
+            column="52"/>
     </issue>
 
     <issue
@@ -577,7 +653,9 @@
         errorLine1="        void initialize(WearableNavigationDrawerView drawer,"
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/internal/widget/drawer/MultiPagePresenter.java"/>
+            file="src/main/java/androidx/wear/internal/widget/drawer/MultiPagePresenter.java"
+            line="47"
+            column="25"/>
     </issue>
 
     <issue
@@ -586,7 +664,9 @@
         errorLine1="                WearableNavigationDrawerPresenter presenter);"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/internal/widget/drawer/MultiPagePresenter.java"/>
+            file="src/main/java/androidx/wear/internal/widget/drawer/MultiPagePresenter.java"
+            line="48"
+            column="17"/>
     </issue>
 
     <issue
@@ -595,7 +675,9 @@
         errorLine1="        void setNavigationPagerAdapter(WearableNavigationDrawerAdapter adapter);"
         errorLine2="                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/internal/widget/drawer/MultiPagePresenter.java"/>
+            file="src/main/java/androidx/wear/internal/widget/drawer/MultiPagePresenter.java"
+            line="63"
+            column="40"/>
     </issue>
 
     <issue
@@ -604,7 +686,9 @@
         errorLine1="    public MultiPagePresenter(WearableNavigationDrawerView drawer, Ui ui,"
         errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/internal/widget/drawer/MultiPagePresenter.java"/>
+            file="src/main/java/androidx/wear/internal/widget/drawer/MultiPagePresenter.java"
+            line="71"
+            column="31"/>
     </issue>
 
     <issue
@@ -613,7 +697,9 @@
         errorLine1="    public MultiPagePresenter(WearableNavigationDrawerView drawer, Ui ui,"
         errorLine2="                                                                   ~~">
         <location
-            file="src/main/java/androidx/wear/internal/widget/drawer/MultiPagePresenter.java"/>
+            file="src/main/java/androidx/wear/internal/widget/drawer/MultiPagePresenter.java"
+            line="71"
+            column="68"/>
     </issue>
 
     <issue
@@ -622,7 +708,9 @@
         errorLine1="    public void onNewAdapter(WearableNavigationDrawerAdapter adapter) {"
         errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/internal/widget/drawer/MultiPagePresenter.java"/>
+            file="src/main/java/androidx/wear/internal/widget/drawer/MultiPagePresenter.java"
+            line="92"
+            column="30"/>
     </issue>
 
     <issue
@@ -631,7 +719,9 @@
         errorLine1="            WearableNavigationDrawerView drawer, WearableNavigationDrawerPresenter presenter) {"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/internal/widget/drawer/MultiPageUi.java"/>
+            file="src/main/java/androidx/wear/internal/widget/drawer/MultiPageUi.java"
+            line="55"
+            column="13"/>
     </issue>
 
     <issue
@@ -640,7 +730,9 @@
         errorLine1="            WearableNavigationDrawerView drawer, WearableNavigationDrawerPresenter presenter) {"
         errorLine2="                                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/internal/widget/drawer/MultiPageUi.java"/>
+            file="src/main/java/androidx/wear/internal/widget/drawer/MultiPageUi.java"
+            line="55"
+            column="50"/>
     </issue>
 
     <issue
@@ -649,7 +741,9 @@
         errorLine1="    public void setNavigationPagerAdapter(final WearableNavigationDrawerAdapter adapter) {"
         errorLine2="                                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/internal/widget/drawer/MultiPageUi.java"/>
+            file="src/main/java/androidx/wear/internal/widget/drawer/MultiPageUi.java"
+            line="75"
+            column="49"/>
     </issue>
 
     <issue
@@ -658,7 +752,9 @@
         errorLine1="    public PageIndicatorView(Context context) {"
         errorLine2="                             ~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/drawer/PageIndicatorView.java"/>
+            file="src/main/java/androidx/wear/widget/drawer/PageIndicatorView.java"
+            line="82"
+            column="30"/>
     </issue>
 
     <issue
@@ -667,7 +763,9 @@
         errorLine1="    public PageIndicatorView(Context context, AttributeSet attrs) {"
         errorLine2="                             ~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/drawer/PageIndicatorView.java"/>
+            file="src/main/java/androidx/wear/widget/drawer/PageIndicatorView.java"
+            line="86"
+            column="30"/>
     </issue>
 
     <issue
@@ -676,7 +774,9 @@
         errorLine1="    public PageIndicatorView(Context context, AttributeSet attrs) {"
         errorLine2="                                              ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/drawer/PageIndicatorView.java"/>
+            file="src/main/java/androidx/wear/widget/drawer/PageIndicatorView.java"
+            line="86"
+            column="47"/>
     </issue>
 
     <issue
@@ -685,7 +785,9 @@
         errorLine1="    public PageIndicatorView(Context context, AttributeSet attrs, int defStyleAttr) {"
         errorLine2="                             ~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/drawer/PageIndicatorView.java"/>
+            file="src/main/java/androidx/wear/widget/drawer/PageIndicatorView.java"
+            line="90"
+            column="30"/>
     </issue>
 
     <issue
@@ -694,7 +796,9 @@
         errorLine1="    public PageIndicatorView(Context context, AttributeSet attrs, int defStyleAttr) {"
         errorLine2="                                              ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/drawer/PageIndicatorView.java"/>
+            file="src/main/java/androidx/wear/widget/drawer/PageIndicatorView.java"
+            line="90"
+            column="47"/>
     </issue>
 
     <issue
@@ -703,7 +807,9 @@
         errorLine1="    public void setPager(ViewPager pager) {"
         errorLine2="                         ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/drawer/PageIndicatorView.java"/>
+            file="src/main/java/androidx/wear/widget/drawer/PageIndicatorView.java"
+            line="194"
+            column="26"/>
     </issue>
 
     <issue
@@ -712,7 +818,9 @@
         errorLine1="    public void setDotFadeOutDuration(int duration, TimeUnit unit) {"
         errorLine2="                                                    ~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/drawer/PageIndicatorView.java"/>
+            file="src/main/java/androidx/wear/widget/drawer/PageIndicatorView.java"
+            line="345"
+            column="53"/>
     </issue>
 
     <issue
@@ -721,7 +829,9 @@
         errorLine1="    public void setDotFadeInDuration(int duration, TimeUnit unit) {"
         errorLine2="                                                   ~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/drawer/PageIndicatorView.java"/>
+            file="src/main/java/androidx/wear/widget/drawer/PageIndicatorView.java"
+            line="363"
+            column="52"/>
     </issue>
 
     <issue
@@ -730,7 +840,9 @@
         errorLine1="    public void setPagerAdapter(PagerAdapter adapter) {"
         errorLine2="                                ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/drawer/PageIndicatorView.java"/>
+            file="src/main/java/androidx/wear/widget/drawer/PageIndicatorView.java"
+            line="558"
+            column="33"/>
     </issue>
 
     <issue
@@ -739,7 +851,9 @@
         errorLine1="    protected void onDraw(Canvas canvas) {"
         errorLine2="                          ~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/drawer/PageIndicatorView.java"/>
+            file="src/main/java/androidx/wear/widget/drawer/PageIndicatorView.java"
+            line="593"
+            column="27"/>
     </issue>
 
     <issue
@@ -748,7 +862,9 @@
         errorLine1="    public static int getScreenWidthPx(Context context) {"
         errorLine2="                                       ~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/internal/widget/ResourcesUtil.java"/>
+            file="src/main/java/androidx/wear/internal/widget/ResourcesUtil.java"
+            line="36"
+            column="40"/>
     </issue>
 
     <issue
@@ -757,7 +873,9 @@
         errorLine1="    public static int getScreenHeightPx(Context context) {"
         errorLine2="                                        ~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/internal/widget/ResourcesUtil.java"/>
+            file="src/main/java/androidx/wear/internal/widget/ResourcesUtil.java"
+            line="43"
+            column="41"/>
     </issue>
 
     <issue
@@ -766,7 +884,9 @@
         errorLine1="    public static int getFractionOfScreenPx(Context context, int screenPx, @FractionRes int resId) {"
         errorLine2="                                            ~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/internal/widget/ResourcesUtil.java"/>
+            file="src/main/java/androidx/wear/internal/widget/ResourcesUtil.java"
+            line="51"
+            column="45"/>
     </issue>
 
     <issue
@@ -775,7 +895,9 @@
         errorLine1="    protected void onBoundsChange(Rect bounds) {"
         errorLine2="                                  ~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/RoundedDrawable.java"/>
+            file="src/main/java/androidx/wear/widget/RoundedDrawable.java"
+            line="190"
+            column="35"/>
     </issue>
 
     <issue
@@ -784,7 +906,9 @@
         errorLine1="    public void setColorFilter(ColorFilter cf) {"
         errorLine2="                               ~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/RoundedDrawable.java"/>
+            file="src/main/java/androidx/wear/widget/RoundedDrawable.java"
+            line="248"
+            column="32"/>
     </issue>
 
     <issue
@@ -793,7 +917,9 @@
         errorLine1="    public void onAnimationCancel(Animator animator) {"
         errorLine2="                                  ~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/SimpleAnimatorListener.java"/>
+            file="src/main/java/androidx/wear/widget/SimpleAnimatorListener.java"
+            line="36"
+            column="35"/>
     </issue>
 
     <issue
@@ -802,7 +928,9 @@
         errorLine1="    public void onAnimationEnd(Animator animator) {"
         errorLine2="                               ~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/SimpleAnimatorListener.java"/>
+            file="src/main/java/androidx/wear/widget/SimpleAnimatorListener.java"
+            line="41"
+            column="32"/>
     </issue>
 
     <issue
@@ -811,7 +939,9 @@
         errorLine1="    public void onAnimationRepeat(Animator animator) {}"
         errorLine2="                                  ~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/SimpleAnimatorListener.java"/>
+            file="src/main/java/androidx/wear/widget/SimpleAnimatorListener.java"
+            line="48"
+            column="35"/>
     </issue>
 
     <issue
@@ -820,7 +950,9 @@
         errorLine1="    public void onAnimationStart(Animator animator) {"
         errorLine2="                                 ~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/SimpleAnimatorListener.java"/>
+            file="src/main/java/androidx/wear/widget/SimpleAnimatorListener.java"
+            line="51"
+            column="34"/>
     </issue>
 
     <issue
@@ -829,7 +961,9 @@
         errorLine1="    public void onAnimationComplete(Animator animator) {}"
         errorLine2="                                    ~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/SimpleAnimatorListener.java"/>
+            file="src/main/java/androidx/wear/widget/SimpleAnimatorListener.java"
+            line="58"
+            column="37"/>
     </issue>
 
     <issue
@@ -838,7 +972,9 @@
         errorLine1="        void setPresenter(WearableNavigationDrawerPresenter presenter);"
         errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/internal/widget/drawer/SinglePagePresenter.java"/>
+            file="src/main/java/androidx/wear/internal/widget/drawer/SinglePagePresenter.java"
+            line="53"
+            column="27"/>
     </issue>
 
     <issue
@@ -847,7 +983,9 @@
         errorLine1="        void setIcon(int index, Drawable drawable, CharSequence contentDescription);"
         errorLine2="                                ~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/internal/widget/drawer/SinglePagePresenter.java"/>
+            file="src/main/java/androidx/wear/internal/widget/drawer/SinglePagePresenter.java"
+            line="63"
+            column="33"/>
     </issue>
 
     <issue
@@ -856,7 +994,9 @@
         errorLine1="        void setIcon(int index, Drawable drawable, CharSequence contentDescription);"
         errorLine2="                                                   ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/internal/widget/drawer/SinglePagePresenter.java"/>
+            file="src/main/java/androidx/wear/internal/widget/drawer/SinglePagePresenter.java"
+            line="63"
+            column="52"/>
     </issue>
 
     <issue
@@ -865,7 +1005,9 @@
         errorLine1="        void setText(CharSequence itemText, boolean showToastIfNoTextView);"
         errorLine2="                     ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/internal/widget/drawer/SinglePagePresenter.java"/>
+            file="src/main/java/androidx/wear/internal/widget/drawer/SinglePagePresenter.java"
+            line="70"
+            column="22"/>
     </issue>
 
     <issue
@@ -874,7 +1016,9 @@
         errorLine1="    public SinglePagePresenter(Ui ui, boolean isAccessibilityEnabled) {"
         errorLine2="                               ~~">
         <location
-            file="src/main/java/androidx/wear/internal/widget/drawer/SinglePagePresenter.java"/>
+            file="src/main/java/androidx/wear/internal/widget/drawer/SinglePagePresenter.java"
+            line="93"
+            column="32"/>
     </issue>
 
     <issue
@@ -883,7 +1027,9 @@
         errorLine1="    public void onNewAdapter(WearableNavigationDrawerAdapter adapter) {"
         errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/internal/widget/drawer/SinglePagePresenter.java"/>
+            file="src/main/java/androidx/wear/internal/widget/drawer/SinglePagePresenter.java"
+            line="124"
+            column="30"/>
     </issue>
 
     <issue
@@ -892,7 +1038,9 @@
         errorLine1="    public SinglePageUi(WearableNavigationDrawerView navigationDrawer) {"
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/internal/widget/drawer/SinglePageUi.java"/>
+            file="src/main/java/androidx/wear/internal/widget/drawer/SinglePageUi.java"
+            line="88"
+            column="25"/>
     </issue>
 
     <issue
@@ -901,7 +1049,9 @@
         errorLine1="    public void setPresenter(WearableNavigationDrawerPresenter presenter) {"
         errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/internal/widget/drawer/SinglePageUi.java"/>
+            file="src/main/java/androidx/wear/internal/widget/drawer/SinglePageUi.java"
+            line="96"
+            column="30"/>
     </issue>
 
     <issue
@@ -910,7 +1060,9 @@
         errorLine1="    public void setIcon(int index, Drawable drawable, CharSequence contentDescription) {"
         errorLine2="                                   ~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/internal/widget/drawer/SinglePageUi.java"/>
+            file="src/main/java/androidx/wear/internal/widget/drawer/SinglePageUi.java"
+            line="129"
+            column="36"/>
     </issue>
 
     <issue
@@ -919,7 +1071,9 @@
         errorLine1="    public void setIcon(int index, Drawable drawable, CharSequence contentDescription) {"
         errorLine2="                                                      ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/internal/widget/drawer/SinglePageUi.java"/>
+            file="src/main/java/androidx/wear/internal/widget/drawer/SinglePageUi.java"
+            line="129"
+            column="55"/>
     </issue>
 
     <issue
@@ -928,7 +1082,9 @@
         errorLine1="    public void setText(CharSequence itemText, boolean showToastIfNoTextView) {"
         errorLine2="                        ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/internal/widget/drawer/SinglePageUi.java"/>
+            file="src/main/java/androidx/wear/internal/widget/drawer/SinglePageUi.java"
+            line="135"
+            column="25"/>
     </issue>
 
     <issue
@@ -937,7 +1093,9 @@
         errorLine1="        public void onSwipeStarted(SwipeDismissFrameLayout layout) {"
         errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/SwipeDismissFrameLayout.java"/>
+            file="src/main/java/androidx/wear/widget/SwipeDismissFrameLayout.java"
+            line="54"
+            column="36"/>
     </issue>
 
     <issue
@@ -946,7 +1104,9 @@
         errorLine1="        public void onSwipeCanceled(SwipeDismissFrameLayout layout) {"
         errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/SwipeDismissFrameLayout.java"/>
+            file="src/main/java/androidx/wear/widget/SwipeDismissFrameLayout.java"
+            line="62"
+            column="37"/>
     </issue>
 
     <issue
@@ -955,7 +1115,9 @@
         errorLine1="        public void onDismissed(SwipeDismissFrameLayout layout) {"
         errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/SwipeDismissFrameLayout.java"/>
+            file="src/main/java/androidx/wear/widget/SwipeDismissFrameLayout.java"
+            line="69"
+            column="33"/>
     </issue>
 
     <issue
@@ -964,7 +1126,9 @@
         errorLine1="    public SwipeDismissFrameLayout(Context context) {"
         errorLine2="                                   ~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/SwipeDismissFrameLayout.java"/>
+            file="src/main/java/androidx/wear/widget/SwipeDismissFrameLayout.java"
+            line="81"
+            column="36"/>
     </issue>
 
     <issue
@@ -973,7 +1137,9 @@
         errorLine1="    public SwipeDismissFrameLayout(Context context, AttributeSet attrs) {"
         errorLine2="                                   ~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/SwipeDismissFrameLayout.java"/>
+            file="src/main/java/androidx/wear/widget/SwipeDismissFrameLayout.java"
+            line="99"
+            column="36"/>
     </issue>
 
     <issue
@@ -982,7 +1148,9 @@
         errorLine1="    public SwipeDismissFrameLayout(Context context, AttributeSet attrs) {"
         errorLine2="                                                    ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/SwipeDismissFrameLayout.java"/>
+            file="src/main/java/androidx/wear/widget/SwipeDismissFrameLayout.java"
+            line="99"
+            column="53"/>
     </issue>
 
     <issue
@@ -991,7 +1159,9 @@
         errorLine1="    public SwipeDismissFrameLayout(Context context, AttributeSet attrs, int defStyle) {"
         errorLine2="                                   ~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/SwipeDismissFrameLayout.java"/>
+            file="src/main/java/androidx/wear/widget/SwipeDismissFrameLayout.java"
+            line="114"
+            column="36"/>
     </issue>
 
     <issue
@@ -1000,7 +1170,9 @@
         errorLine1="    public SwipeDismissFrameLayout(Context context, AttributeSet attrs, int defStyle) {"
         errorLine2="                                                    ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/SwipeDismissFrameLayout.java"/>
+            file="src/main/java/androidx/wear/widget/SwipeDismissFrameLayout.java"
+            line="114"
+            column="53"/>
     </issue>
 
     <issue
@@ -1009,7 +1181,9 @@
         errorLine1="    public SwipeDismissFrameLayout(Context context, AttributeSet attrs, int defStyle,"
         errorLine2="                                   ~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/SwipeDismissFrameLayout.java"/>
+            file="src/main/java/androidx/wear/widget/SwipeDismissFrameLayout.java"
+            line="130"
+            column="36"/>
     </issue>
 
     <issue
@@ -1018,7 +1192,9 @@
         errorLine1="    public SwipeDismissFrameLayout(Context context, AttributeSet attrs, int defStyle,"
         errorLine2="                                                    ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/SwipeDismissFrameLayout.java"/>
+            file="src/main/java/androidx/wear/widget/SwipeDismissFrameLayout.java"
+            line="130"
+            column="53"/>
     </issue>
 
     <issue
@@ -1027,7 +1203,9 @@
         errorLine1="    public void addCallback(Callback callback) {"
         errorLine2="                            ~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/SwipeDismissFrameLayout.java"/>
+            file="src/main/java/androidx/wear/widget/SwipeDismissFrameLayout.java"
+            line="136"
+            column="29"/>
     </issue>
 
     <issue
@@ -1036,7 +1214,9 @@
         errorLine1="    public void removeCallback(Callback callback) {"
         errorLine2="                               ~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/SwipeDismissFrameLayout.java"/>
+            file="src/main/java/androidx/wear/widget/SwipeDismissFrameLayout.java"
+            line="145"
+            column="32"/>
     </issue>
 
     <issue
@@ -1045,7 +1225,9 @@
         errorLine1="        public MenuItem setTitle(CharSequence title) {"
         errorLine2="               ~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/drawer/WearableActionDrawerMenu.java"/>
+            file="src/main/java/androidx/wear/widget/drawer/WearableActionDrawerMenu.java"
+            line="252"
+            column="16"/>
     </issue>
 
     <issue
@@ -1054,7 +1236,9 @@
         errorLine1="        public MenuItem setTitle(CharSequence title) {"
         errorLine2="                                 ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/drawer/WearableActionDrawerMenu.java"/>
+            file="src/main/java/androidx/wear/widget/drawer/WearableActionDrawerMenu.java"
+            line="252"
+            column="34"/>
     </issue>
 
     <issue
@@ -1063,7 +1247,9 @@
         errorLine1="        public MenuItem setTitle(int title) {"
         errorLine2="               ~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/drawer/WearableActionDrawerMenu.java"/>
+            file="src/main/java/androidx/wear/widget/drawer/WearableActionDrawerMenu.java"
+            line="261"
+            column="16"/>
     </issue>
 
     <issue
@@ -1072,7 +1258,9 @@
         errorLine1="        public CharSequence getTitle() {"
         errorLine2="               ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/drawer/WearableActionDrawerMenu.java"/>
+            file="src/main/java/androidx/wear/widget/drawer/WearableActionDrawerMenu.java"
+            line="266"
+            column="16"/>
     </issue>
 
     <issue
@@ -1081,7 +1269,9 @@
         errorLine1="        public MenuItem setIcon(Drawable icon) {"
         errorLine2="               ~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/drawer/WearableActionDrawerMenu.java"/>
+            file="src/main/java/androidx/wear/widget/drawer/WearableActionDrawerMenu.java"
+            line="271"
+            column="16"/>
     </issue>
 
     <issue
@@ -1090,7 +1280,9 @@
         errorLine1="        public MenuItem setIcon(Drawable icon) {"
         errorLine2="                                ~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/drawer/WearableActionDrawerMenu.java"/>
+            file="src/main/java/androidx/wear/widget/drawer/WearableActionDrawerMenu.java"
+            line="271"
+            column="33"/>
     </issue>
 
     <issue
@@ -1099,7 +1291,9 @@
         errorLine1="        public MenuItem setIcon(int iconRes) {"
         errorLine2="               ~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/drawer/WearableActionDrawerMenu.java"/>
+            file="src/main/java/androidx/wear/widget/drawer/WearableActionDrawerMenu.java"
+            line="280"
+            column="16"/>
     </issue>
 
     <issue
@@ -1108,7 +1302,9 @@
         errorLine1="        public Drawable getIcon() {"
         errorLine2="               ~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/drawer/WearableActionDrawerMenu.java"/>
+            file="src/main/java/androidx/wear/widget/drawer/WearableActionDrawerMenu.java"
+            line="285"
+            column="16"/>
     </issue>
 
     <issue
@@ -1117,7 +1313,9 @@
         errorLine1="        public MenuItem setOnMenuItemClickListener(OnMenuItemClickListener menuItemClickListener) {"
         errorLine2="               ~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/drawer/WearableActionDrawerMenu.java"/>
+            file="src/main/java/androidx/wear/widget/drawer/WearableActionDrawerMenu.java"
+            line="290"
+            column="16"/>
     </issue>
 
     <issue
@@ -1126,7 +1324,9 @@
         errorLine1="        public MenuItem setOnMenuItemClickListener(OnMenuItemClickListener menuItemClickListener) {"
         errorLine2="                                                   ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/drawer/WearableActionDrawerMenu.java"/>
+            file="src/main/java/androidx/wear/widget/drawer/WearableActionDrawerMenu.java"
+            line="290"
+            column="52"/>
     </issue>
 
     <issue
@@ -1135,7 +1335,9 @@
         errorLine1="        public MenuItem setTitleCondensed(CharSequence title) {"
         errorLine2="               ~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/drawer/WearableActionDrawerMenu.java"/>
+            file="src/main/java/androidx/wear/widget/drawer/WearableActionDrawerMenu.java"
+            line="306"
+            column="16"/>
     </issue>
 
     <issue
@@ -1144,7 +1346,9 @@
         errorLine1="        public MenuItem setTitleCondensed(CharSequence title) {"
         errorLine2="                                          ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/drawer/WearableActionDrawerMenu.java"/>
+            file="src/main/java/androidx/wear/widget/drawer/WearableActionDrawerMenu.java"
+            line="306"
+            column="43"/>
     </issue>
 
     <issue
@@ -1153,7 +1357,9 @@
         errorLine1="        public CharSequence getTitleCondensed() {"
         errorLine2="               ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/drawer/WearableActionDrawerMenu.java"/>
+            file="src/main/java/androidx/wear/widget/drawer/WearableActionDrawerMenu.java"
+            line="311"
+            column="16"/>
     </issue>
 
     <issue
@@ -1162,7 +1368,9 @@
         errorLine1="        public MenuItem setIntent(Intent intent) {"
         errorLine2="               ~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/drawer/WearableActionDrawerMenu.java"/>
+            file="src/main/java/androidx/wear/widget/drawer/WearableActionDrawerMenu.java"
+            line="316"
+            column="16"/>
     </issue>
 
     <issue
@@ -1171,7 +1379,9 @@
         errorLine1="        public MenuItem setIntent(Intent intent) {"
         errorLine2="                                  ~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/drawer/WearableActionDrawerMenu.java"/>
+            file="src/main/java/androidx/wear/widget/drawer/WearableActionDrawerMenu.java"
+            line="316"
+            column="35"/>
     </issue>
 
     <issue
@@ -1180,7 +1390,9 @@
         errorLine1="        public Intent getIntent() {"
         errorLine2="               ~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/drawer/WearableActionDrawerMenu.java"/>
+            file="src/main/java/androidx/wear/widget/drawer/WearableActionDrawerMenu.java"
+            line="321"
+            column="16"/>
     </issue>
 
     <issue
@@ -1189,7 +1401,9 @@
         errorLine1="        public MenuItem setShortcut(char numericChar, char alphaChar) {"
         errorLine2="               ~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/drawer/WearableActionDrawerMenu.java"/>
+            file="src/main/java/androidx/wear/widget/drawer/WearableActionDrawerMenu.java"
+            line="326"
+            column="16"/>
     </issue>
 
     <issue
@@ -1198,7 +1412,9 @@
         errorLine1="        public MenuItem setNumericShortcut(char numericChar) {"
         errorLine2="               ~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/drawer/WearableActionDrawerMenu.java"/>
+            file="src/main/java/androidx/wear/widget/drawer/WearableActionDrawerMenu.java"
+            line="331"
+            column="16"/>
     </issue>
 
     <issue
@@ -1207,7 +1423,9 @@
         errorLine1="        public MenuItem setAlphabeticShortcut(char alphaChar) {"
         errorLine2="               ~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/drawer/WearableActionDrawerMenu.java"/>
+            file="src/main/java/androidx/wear/widget/drawer/WearableActionDrawerMenu.java"
+            line="341"
+            column="16"/>
     </issue>
 
     <issue
@@ -1216,7 +1434,9 @@
         errorLine1="        public MenuItem setCheckable(boolean checkable) {"
         errorLine2="               ~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/drawer/WearableActionDrawerMenu.java"/>
+            file="src/main/java/androidx/wear/widget/drawer/WearableActionDrawerMenu.java"
+            line="351"
+            column="16"/>
     </issue>
 
     <issue
@@ -1225,7 +1445,9 @@
         errorLine1="        public MenuItem setChecked(boolean checked) {"
         errorLine2="               ~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/drawer/WearableActionDrawerMenu.java"/>
+            file="src/main/java/androidx/wear/widget/drawer/WearableActionDrawerMenu.java"
+            line="361"
+            column="16"/>
     </issue>
 
     <issue
@@ -1234,7 +1456,9 @@
         errorLine1="        public MenuItem setVisible(boolean visible) {"
         errorLine2="               ~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/drawer/WearableActionDrawerMenu.java"/>
+            file="src/main/java/androidx/wear/widget/drawer/WearableActionDrawerMenu.java"
+            line="371"
+            column="16"/>
     </issue>
 
     <issue
@@ -1243,7 +1467,9 @@
         errorLine1="        public MenuItem setEnabled(boolean enabled) {"
         errorLine2="               ~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/drawer/WearableActionDrawerMenu.java"/>
+            file="src/main/java/androidx/wear/widget/drawer/WearableActionDrawerMenu.java"
+            line="381"
+            column="16"/>
     </issue>
 
     <issue
@@ -1252,7 +1478,9 @@
         errorLine1="        public SubMenu getSubMenu() {"
         errorLine2="               ~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/drawer/WearableActionDrawerMenu.java"/>
+            file="src/main/java/androidx/wear/widget/drawer/WearableActionDrawerMenu.java"
+            line="396"
+            column="16"/>
     </issue>
 
     <issue
@@ -1261,7 +1489,9 @@
         errorLine1="        public ContextMenu.ContextMenuInfo getMenuInfo() {"
         errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/drawer/WearableActionDrawerMenu.java"/>
+            file="src/main/java/androidx/wear/widget/drawer/WearableActionDrawerMenu.java"
+            line="401"
+            column="16"/>
     </issue>
 
     <issue
@@ -1270,7 +1500,9 @@
         errorLine1="        public MenuItem setShowAsActionFlags(int actionEnum) {"
         errorLine2="               ~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/drawer/WearableActionDrawerMenu.java"/>
+            file="src/main/java/androidx/wear/widget/drawer/WearableActionDrawerMenu.java"
+            line="411"
+            column="16"/>
     </issue>
 
     <issue
@@ -1279,7 +1511,9 @@
         errorLine1="        public MenuItem setActionView(View view) {"
         errorLine2="               ~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/drawer/WearableActionDrawerMenu.java"/>
+            file="src/main/java/androidx/wear/widget/drawer/WearableActionDrawerMenu.java"
+            line="416"
+            column="16"/>
     </issue>
 
     <issue
@@ -1288,7 +1522,9 @@
         errorLine1="        public MenuItem setActionView(View view) {"
         errorLine2="                                      ~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/drawer/WearableActionDrawerMenu.java"/>
+            file="src/main/java/androidx/wear/widget/drawer/WearableActionDrawerMenu.java"
+            line="416"
+            column="39"/>
     </issue>
 
     <issue
@@ -1297,7 +1533,9 @@
         errorLine1="        public MenuItem setActionView(int resId) {"
         errorLine2="               ~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/drawer/WearableActionDrawerMenu.java"/>
+            file="src/main/java/androidx/wear/widget/drawer/WearableActionDrawerMenu.java"
+            line="421"
+            column="16"/>
     </issue>
 
     <issue
@@ -1306,7 +1544,9 @@
         errorLine1="        public View getActionView() {"
         errorLine2="               ~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/drawer/WearableActionDrawerMenu.java"/>
+            file="src/main/java/androidx/wear/widget/drawer/WearableActionDrawerMenu.java"
+            line="426"
+            column="16"/>
     </issue>
 
     <issue
@@ -1315,7 +1555,9 @@
         errorLine1="        public MenuItem setActionProvider(ActionProvider actionProvider) {"
         errorLine2="               ~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/drawer/WearableActionDrawerMenu.java"/>
+            file="src/main/java/androidx/wear/widget/drawer/WearableActionDrawerMenu.java"
+            line="431"
+            column="16"/>
     </issue>
 
     <issue
@@ -1324,7 +1566,9 @@
         errorLine1="        public MenuItem setActionProvider(ActionProvider actionProvider) {"
         errorLine2="                                          ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/drawer/WearableActionDrawerMenu.java"/>
+            file="src/main/java/androidx/wear/widget/drawer/WearableActionDrawerMenu.java"
+            line="431"
+            column="43"/>
     </issue>
 
     <issue
@@ -1333,7 +1577,9 @@
         errorLine1="        public ActionProvider getActionProvider() {"
         errorLine2="               ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/drawer/WearableActionDrawerMenu.java"/>
+            file="src/main/java/androidx/wear/widget/drawer/WearableActionDrawerMenu.java"
+            line="436"
+            column="16"/>
     </issue>
 
     <issue
@@ -1342,7 +1588,9 @@
         errorLine1="        public MenuItem setOnActionExpandListener(OnActionExpandListener listener) {"
         errorLine2="               ~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/drawer/WearableActionDrawerMenu.java"/>
+            file="src/main/java/androidx/wear/widget/drawer/WearableActionDrawerMenu.java"
+            line="456"
+            column="16"/>
     </issue>
 
     <issue
@@ -1351,7 +1599,9 @@
         errorLine1="        public MenuItem setOnActionExpandListener(OnActionExpandListener listener) {"
         errorLine2="                                                  ~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/drawer/WearableActionDrawerMenu.java"/>
+            file="src/main/java/androidx/wear/widget/drawer/WearableActionDrawerMenu.java"
+            line="456"
+            column="51"/>
     </issue>
 
     <issue
@@ -1360,7 +1610,9 @@
         errorLine1="    public WearableActionDrawerView(Context context) {"
         errorLine2="                                    ~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/drawer/WearableActionDrawerView.java"/>
+            file="src/main/java/androidx/wear/widget/drawer/WearableActionDrawerView.java"
+            line="98"
+            column="37"/>
     </issue>
 
     <issue
@@ -1369,7 +1621,9 @@
         errorLine1="    public WearableActionDrawerView(Context context, AttributeSet attrs) {"
         errorLine2="                                    ~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/drawer/WearableActionDrawerView.java"/>
+            file="src/main/java/androidx/wear/widget/drawer/WearableActionDrawerView.java"
+            line="102"
+            column="37"/>
     </issue>
 
     <issue
@@ -1378,7 +1632,9 @@
         errorLine1="    public WearableActionDrawerView(Context context, AttributeSet attrs) {"
         errorLine2="                                                     ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/drawer/WearableActionDrawerView.java"/>
+            file="src/main/java/androidx/wear/widget/drawer/WearableActionDrawerView.java"
+            line="102"
+            column="54"/>
     </issue>
 
     <issue
@@ -1387,7 +1643,9 @@
         errorLine1="    public WearableActionDrawerView(Context context, AttributeSet attrs, int defStyleAttr) {"
         errorLine2="                                    ~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/drawer/WearableActionDrawerView.java"/>
+            file="src/main/java/androidx/wear/widget/drawer/WearableActionDrawerView.java"
+            line="106"
+            column="37"/>
     </issue>
 
     <issue
@@ -1396,7 +1654,9 @@
         errorLine1="    public WearableActionDrawerView(Context context, AttributeSet attrs, int defStyleAttr) {"
         errorLine2="                                                     ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/drawer/WearableActionDrawerView.java"/>
+            file="src/main/java/androidx/wear/widget/drawer/WearableActionDrawerView.java"
+            line="106"
+            column="54"/>
     </issue>
 
     <issue
@@ -1405,7 +1665,9 @@
         errorLine1="            Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {"
         errorLine2="            ~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/drawer/WearableActionDrawerView.java"/>
+            file="src/main/java/androidx/wear/widget/drawer/WearableActionDrawerView.java"
+            line="111"
+            column="13"/>
     </issue>
 
     <issue
@@ -1414,7 +1676,9 @@
         errorLine1="            Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {"
         errorLine2="                             ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/drawer/WearableActionDrawerView.java"/>
+            file="src/main/java/androidx/wear/widget/drawer/WearableActionDrawerView.java"
+            line="111"
+            column="30"/>
     </issue>
 
     <issue
@@ -1423,7 +1687,9 @@
         errorLine1="    public void onPeekContainerClicked(View v) {"
         errorLine2="                                       ~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/drawer/WearableActionDrawerView.java"/>
+            file="src/main/java/androidx/wear/widget/drawer/WearableActionDrawerView.java"
+            line="222"
+            column="40"/>
     </issue>
 
     <issue
@@ -1432,7 +1698,9 @@
         errorLine1="    public void setOnMenuItemClickListener(OnMenuItemClickListener listener) {"
         errorLine2="                                           ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/drawer/WearableActionDrawerView.java"/>
+            file="src/main/java/androidx/wear/widget/drawer/WearableActionDrawerView.java"
+            line="238"
+            column="44"/>
     </issue>
 
     <issue
@@ -1441,7 +1709,9 @@
         errorLine1="    public Menu getMenu() {"
         errorLine2="           ~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/drawer/WearableActionDrawerView.java"/>
+            file="src/main/java/androidx/wear/widget/drawer/WearableActionDrawerView.java"
+            line="320"
+            column="12"/>
     </issue>
 
     <issue
@@ -1450,7 +1720,9 @@
         errorLine1="    public WearableActivityController getWearableController(Activity activity,"
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/ambient/WearableControllerProvider.java"/>
+            file="src/main/java/androidx/wear/ambient/WearableControllerProvider.java"
+            line="46"
+            column="12"/>
     </issue>
 
     <issue
@@ -1459,7 +1731,9 @@
         errorLine1="    public WearableActivityController getWearableController(Activity activity,"
         errorLine2="                                                            ~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/ambient/WearableControllerProvider.java"/>
+            file="src/main/java/androidx/wear/ambient/WearableControllerProvider.java"
+            line="46"
+            column="61"/>
     </issue>
 
     <issue
@@ -1468,7 +1742,9 @@
         errorLine1="            final AmbientDelegate.AmbientCallback callback) {"
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/ambient/WearableControllerProvider.java"/>
+            file="src/main/java/androidx/wear/ambient/WearableControllerProvider.java"
+            line="47"
+            column="19"/>
     </issue>
 
     <issue
@@ -1477,7 +1753,9 @@
         errorLine1="    public WearableDrawerLayout(Context context) {"
         errorLine2="                                ~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/drawer/WearableDrawerLayout.java"/>
+            file="src/main/java/androidx/wear/widget/drawer/WearableDrawerLayout.java"
+            line="221"
+            column="33"/>
     </issue>
 
     <issue
@@ -1486,7 +1764,9 @@
         errorLine1="    public WearableDrawerLayout(Context context, AttributeSet attrs) {"
         errorLine2="                                ~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/drawer/WearableDrawerLayout.java"/>
+            file="src/main/java/androidx/wear/widget/drawer/WearableDrawerLayout.java"
+            line="225"
+            column="33"/>
     </issue>
 
     <issue
@@ -1495,7 +1775,9 @@
         errorLine1="    public WearableDrawerLayout(Context context, AttributeSet attrs) {"
         errorLine2="                                                 ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/drawer/WearableDrawerLayout.java"/>
+            file="src/main/java/androidx/wear/widget/drawer/WearableDrawerLayout.java"
+            line="225"
+            column="50"/>
     </issue>
 
     <issue
@@ -1504,7 +1786,9 @@
         errorLine1="    public WearableDrawerLayout(Context context, AttributeSet attrs, int defStyleAttr) {"
         errorLine2="                                ~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/drawer/WearableDrawerLayout.java"/>
+            file="src/main/java/androidx/wear/widget/drawer/WearableDrawerLayout.java"
+            line="229"
+            column="33"/>
     </issue>
 
     <issue
@@ -1513,7 +1797,9 @@
         errorLine1="    public WearableDrawerLayout(Context context, AttributeSet attrs, int defStyleAttr) {"
         errorLine2="                                                 ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/drawer/WearableDrawerLayout.java"/>
+            file="src/main/java/androidx/wear/widget/drawer/WearableDrawerLayout.java"
+            line="229"
+            column="50"/>
     </issue>
 
     <issue
@@ -1522,7 +1808,9 @@
         errorLine1="            Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {"
         errorLine2="            ~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/drawer/WearableDrawerLayout.java"/>
+            file="src/main/java/androidx/wear/widget/drawer/WearableDrawerLayout.java"
+            line="235"
+            column="13"/>
     </issue>
 
     <issue
@@ -1531,7 +1819,9 @@
         errorLine1="            Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {"
         errorLine2="                             ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/drawer/WearableDrawerLayout.java"/>
+            file="src/main/java/androidx/wear/widget/drawer/WearableDrawerLayout.java"
+            line="235"
+            column="30"/>
     </issue>
 
     <issue
@@ -1540,7 +1830,9 @@
         errorLine1="    public WindowInsets onApplyWindowInsets(WindowInsets insets) {"
         errorLine2="           ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/drawer/WearableDrawerLayout.java"/>
+            file="src/main/java/androidx/wear/widget/drawer/WearableDrawerLayout.java"
+            line="324"
+            column="12"/>
     </issue>
 
     <issue
@@ -1549,7 +1841,9 @@
         errorLine1="    public WindowInsets onApplyWindowInsets(WindowInsets insets) {"
         errorLine2="                                            ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/drawer/WearableDrawerLayout.java"/>
+            file="src/main/java/androidx/wear/widget/drawer/WearableDrawerLayout.java"
+            line="324"
+            column="45"/>
     </issue>
 
     <issue
@@ -1558,7 +1852,9 @@
         errorLine1="    public boolean onInterceptTouchEvent(MotionEvent ev) {"
         errorLine2="                                         ~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/drawer/WearableDrawerLayout.java"/>
+            file="src/main/java/androidx/wear/widget/drawer/WearableDrawerLayout.java"
+            line="498"
+            column="42"/>
     </issue>
 
     <issue
@@ -1567,7 +1863,9 @@
         errorLine1="    public boolean onTouchEvent(MotionEvent ev) {"
         errorLine2="                                ~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/drawer/WearableDrawerLayout.java"/>
+            file="src/main/java/androidx/wear/widget/drawer/WearableDrawerLayout.java"
+            line="517"
+            column="33"/>
     </issue>
 
     <issue
@@ -1576,7 +1874,9 @@
         errorLine1="    public void addView(View child, int index, ViewGroup.LayoutParams params) {"
         errorLine2="                        ~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/drawer/WearableDrawerLayout.java"/>
+            file="src/main/java/androidx/wear/widget/drawer/WearableDrawerLayout.java"
+            line="540"
+            column="25"/>
     </issue>
 
     <issue
@@ -1585,7 +1885,9 @@
         errorLine1="    public void addView(View child, int index, ViewGroup.LayoutParams params) {"
         errorLine2="                                               ~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/drawer/WearableDrawerLayout.java"/>
+            file="src/main/java/androidx/wear/widget/drawer/WearableDrawerLayout.java"
+            line="540"
+            column="48"/>
     </issue>
 
     <issue
@@ -1594,7 +1896,9 @@
         errorLine1="            View v,"
         errorLine2="            ~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/drawer/WearableDrawerLayout.java"/>
+            file="src/main/java/androidx/wear/widget/drawer/WearableDrawerLayout.java"
+            line="574"
+            column="13"/>
     </issue>
 
     <issue
@@ -1603,7 +1907,9 @@
         errorLine1="    public void setDrawerStateCallback(DrawerStateCallback callback) {"
         errorLine2="                                       ~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/drawer/WearableDrawerLayout.java"/>
+            file="src/main/java/androidx/wear/widget/drawer/WearableDrawerLayout.java"
+            line="601"
+            column="40"/>
     </issue>
 
     <issue
@@ -1612,7 +1918,9 @@
         errorLine1="    public void onFlingComplete(View view) {"
         errorLine2="                                ~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/drawer/WearableDrawerLayout.java"/>
+            file="src/main/java/androidx/wear/widget/drawer/WearableDrawerLayout.java"
+            line="639"
+            column="33"/>
     </issue>
 
     <issue
@@ -1621,7 +1929,9 @@
         errorLine1="        public void onDrawerOpened(WearableDrawerLayout layout, WearableDrawerView drawerView) {"
         errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/drawer/WearableDrawerLayout.java"/>
+            file="src/main/java/androidx/wear/widget/drawer/WearableDrawerLayout.java"
+            line="926"
+            column="36"/>
     </issue>
 
     <issue
@@ -1630,7 +1940,9 @@
         errorLine1="        public void onDrawerOpened(WearableDrawerLayout layout, WearableDrawerView drawerView) {"
         errorLine2="                                                                ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/drawer/WearableDrawerLayout.java"/>
+            file="src/main/java/androidx/wear/widget/drawer/WearableDrawerLayout.java"
+            line="926"
+            column="65"/>
     </issue>
 
     <issue
@@ -1639,7 +1951,9 @@
         errorLine1="        public void onDrawerClosed(WearableDrawerLayout layout, WearableDrawerView drawerView) {"
         errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/drawer/WearableDrawerLayout.java"/>
+            file="src/main/java/androidx/wear/widget/drawer/WearableDrawerLayout.java"
+            line="932"
+            column="36"/>
     </issue>
 
     <issue
@@ -1648,7 +1962,9 @@
         errorLine1="        public void onDrawerClosed(WearableDrawerLayout layout, WearableDrawerView drawerView) {"
         errorLine2="                                                                ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/drawer/WearableDrawerLayout.java"/>
+            file="src/main/java/androidx/wear/widget/drawer/WearableDrawerLayout.java"
+            line="932"
+            column="65"/>
     </issue>
 
     <issue
@@ -1657,7 +1973,9 @@
         errorLine1="        public void onDrawerStateChanged(WearableDrawerLayout layout, @DrawerState int newState) {"
         errorLine2="                                         ~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/drawer/WearableDrawerLayout.java"/>
+            file="src/main/java/androidx/wear/widget/drawer/WearableDrawerLayout.java"
+            line="940"
+            column="42"/>
     </issue>
 
     <issue
@@ -1666,7 +1984,9 @@
         errorLine1="    public WearableDrawerView(Context context) {"
         errorLine2="                              ~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/drawer/WearableDrawerView.java"/>
+            file="src/main/java/androidx/wear/widget/drawer/WearableDrawerView.java"
+            line="136"
+            column="31"/>
     </issue>
 
     <issue
@@ -1675,7 +1995,9 @@
         errorLine1="    public WearableDrawerView(Context context, AttributeSet attrs) {"
         errorLine2="                              ~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/drawer/WearableDrawerView.java"/>
+            file="src/main/java/androidx/wear/widget/drawer/WearableDrawerView.java"
+            line="140"
+            column="31"/>
     </issue>
 
     <issue
@@ -1684,7 +2006,9 @@
         errorLine1="    public WearableDrawerView(Context context, AttributeSet attrs) {"
         errorLine2="                                               ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/drawer/WearableDrawerView.java"/>
+            file="src/main/java/androidx/wear/widget/drawer/WearableDrawerView.java"
+            line="140"
+            column="48"/>
     </issue>
 
     <issue
@@ -1693,7 +2017,9 @@
         errorLine1="    public WearableDrawerView(Context context, AttributeSet attrs, int defStyleAttr) {"
         errorLine2="                              ~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/drawer/WearableDrawerView.java"/>
+            file="src/main/java/androidx/wear/widget/drawer/WearableDrawerView.java"
+            line="144"
+            column="31"/>
     </issue>
 
     <issue
@@ -1702,7 +2028,9 @@
         errorLine1="    public WearableDrawerView(Context context, AttributeSet attrs, int defStyleAttr) {"
         errorLine2="                                               ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/drawer/WearableDrawerView.java"/>
+            file="src/main/java/androidx/wear/widget/drawer/WearableDrawerView.java"
+            line="144"
+            column="48"/>
     </issue>
 
     <issue
@@ -1711,7 +2039,9 @@
         errorLine1="            Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {"
         errorLine2="            ~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/drawer/WearableDrawerView.java"/>
+            file="src/main/java/androidx/wear/widget/drawer/WearableDrawerView.java"
+            line="149"
+            column="13"/>
     </issue>
 
     <issue
@@ -1720,7 +2050,9 @@
         errorLine1="            Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {"
         errorLine2="                             ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/drawer/WearableDrawerView.java"/>
+            file="src/main/java/androidx/wear/widget/drawer/WearableDrawerView.java"
+            line="149"
+            column="30"/>
     </issue>
 
     <issue
@@ -1729,7 +2061,9 @@
         errorLine1="    public void onPeekContainerClicked(View v) {"
         errorLine2="                                       ~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/drawer/WearableDrawerView.java"/>
+            file="src/main/java/androidx/wear/widget/drawer/WearableDrawerView.java"
+            line="198"
+            column="40"/>
     </issue>
 
     <issue
@@ -1738,7 +2072,9 @@
         errorLine1="    public void addView(View child, int index, ViewGroup.LayoutParams params) {"
         errorLine2="                        ~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/drawer/WearableDrawerView.java"/>
+            file="src/main/java/androidx/wear/widget/drawer/WearableDrawerView.java"
+            line="228"
+            column="25"/>
     </issue>
 
     <issue
@@ -1747,7 +2083,9 @@
         errorLine1="    public void addView(View child, int index, ViewGroup.LayoutParams params) {"
         errorLine2="                                               ~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/drawer/WearableDrawerView.java"/>
+            file="src/main/java/androidx/wear/widget/drawer/WearableDrawerView.java"
+            line="228"
+            column="48"/>
     </issue>
 
     <issue
@@ -1756,7 +2094,9 @@
         errorLine1="    public void setPeekContent(View content) {"
         errorLine2="                               ~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/drawer/WearableDrawerView.java"/>
+            file="src/main/java/androidx/wear/widget/drawer/WearableDrawerView.java"
+            line="280"
+            column="32"/>
     </issue>
 
     <issue
@@ -1765,7 +2105,9 @@
         errorLine1="    public WearableDrawerController getController() {"
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/drawer/WearableDrawerView.java"/>
+            file="src/main/java/androidx/wear/widget/drawer/WearableDrawerView.java"
+            line="435"
+            column="12"/>
     </issue>
 
     <issue
@@ -1774,7 +2116,9 @@
         errorLine1="        public abstract void onLayoutFinished(View child, RecyclerView parent);"
         errorLine2="                                              ~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/WearableLinearLayoutManager.java"/>
+            file="src/main/java/androidx/wear/widget/WearableLinearLayoutManager.java"
+            line="52"
+            column="47"/>
     </issue>
 
     <issue
@@ -1783,7 +2127,9 @@
         errorLine1="        public abstract void onLayoutFinished(View child, RecyclerView parent);"
         errorLine2="                                                          ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/WearableLinearLayoutManager.java"/>
+            file="src/main/java/androidx/wear/widget/WearableLinearLayoutManager.java"
+            line="52"
+            column="59"/>
     </issue>
 
     <issue
@@ -1792,7 +2138,9 @@
         errorLine1="    public WearableLinearLayoutManager(Context context, LayoutCallback layoutCallback) {"
         errorLine2="                                       ~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/WearableLinearLayoutManager.java"/>
+            file="src/main/java/androidx/wear/widget/WearableLinearLayoutManager.java"
+            line="61"
+            column="40"/>
     </issue>
 
     <issue
@@ -1801,7 +2149,9 @@
         errorLine1="    public WearableLinearLayoutManager(Context context, LayoutCallback layoutCallback) {"
         errorLine2="                                                        ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/WearableLinearLayoutManager.java"/>
+            file="src/main/java/androidx/wear/widget/WearableLinearLayoutManager.java"
+            line="61"
+            column="57"/>
     </issue>
 
     <issue
@@ -1810,7 +2160,9 @@
         errorLine1="    public WearableLinearLayoutManager(Context context) {"
         errorLine2="                                       ~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/WearableLinearLayoutManager.java"/>
+            file="src/main/java/androidx/wear/widget/WearableLinearLayoutManager.java"
+            line="71"
+            column="40"/>
     </issue>
 
     <issue
@@ -1819,7 +2171,9 @@
         errorLine1="            int dy, RecyclerView.Recycler recycler, RecyclerView.State state) {"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/WearableLinearLayoutManager.java"/>
+            file="src/main/java/androidx/wear/widget/WearableLinearLayoutManager.java"
+            line="96"
+            column="21"/>
     </issue>
 
     <issue
@@ -1828,7 +2182,9 @@
         errorLine1="            int dy, RecyclerView.Recycler recycler, RecyclerView.State state) {"
         errorLine2="                                                    ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/WearableLinearLayoutManager.java"/>
+            file="src/main/java/androidx/wear/widget/WearableLinearLayoutManager.java"
+            line="96"
+            column="53"/>
     </issue>
 
     <issue
@@ -1837,7 +2193,9 @@
         errorLine1="    public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {"
         errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/WearableLinearLayoutManager.java"/>
+            file="src/main/java/androidx/wear/widget/WearableLinearLayoutManager.java"
+            line="104"
+            column="34"/>
     </issue>
 
     <issue
@@ -1846,7 +2204,9 @@
         errorLine1="    public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {"
         errorLine2="                                                                 ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/WearableLinearLayoutManager.java"/>
+            file="src/main/java/androidx/wear/widget/WearableLinearLayoutManager.java"
+            line="104"
+            column="66"/>
     </issue>
 
     <issue
@@ -1855,7 +2215,9 @@
         errorLine1="    public abstract void onNewAdapter(WearableNavigationDrawerAdapter adapter);"
         errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/internal/widget/drawer/WearableNavigationDrawerPresenter.java"/>
+            file="src/main/java/androidx/wear/internal/widget/drawer/WearableNavigationDrawerPresenter.java"
+            line="48"
+            column="39"/>
     </issue>
 
     <issue
@@ -1864,7 +2226,9 @@
         errorLine1="    public void onItemSelectedListenerAdded(OnItemSelectedListener listener) {"
         errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/internal/widget/drawer/WearableNavigationDrawerPresenter.java"/>
+            file="src/main/java/androidx/wear/internal/widget/drawer/WearableNavigationDrawerPresenter.java"
+            line="74"
+            column="45"/>
     </issue>
 
     <issue
@@ -1873,7 +2237,9 @@
         errorLine1="    public void onItemSelectedListenerRemoved(OnItemSelectedListener listener) {"
         errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/internal/widget/drawer/WearableNavigationDrawerPresenter.java"/>
+            file="src/main/java/androidx/wear/internal/widget/drawer/WearableNavigationDrawerPresenter.java"
+            line="82"
+            column="47"/>
     </issue>
 
     <issue
@@ -1882,7 +2248,9 @@
         errorLine1="    public WearableNavigationDrawerView(Context context) {"
         errorLine2="                                        ~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/drawer/WearableNavigationDrawerView.java"/>
+            file="src/main/java/androidx/wear/widget/drawer/WearableNavigationDrawerView.java"
+            line="122"
+            column="41"/>
     </issue>
 
     <issue
@@ -1891,7 +2259,9 @@
         errorLine1="    public WearableNavigationDrawerView(Context context, AttributeSet attrs) {"
         errorLine2="                                        ~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/drawer/WearableNavigationDrawerView.java"/>
+            file="src/main/java/androidx/wear/widget/drawer/WearableNavigationDrawerView.java"
+            line="125"
+            column="41"/>
     </issue>
 
     <issue
@@ -1900,7 +2270,9 @@
         errorLine1="    public WearableNavigationDrawerView(Context context, AttributeSet attrs) {"
         errorLine2="                                                         ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/drawer/WearableNavigationDrawerView.java"/>
+            file="src/main/java/androidx/wear/widget/drawer/WearableNavigationDrawerView.java"
+            line="125"
+            column="58"/>
     </issue>
 
     <issue
@@ -1909,7 +2281,9 @@
         errorLine1="    public WearableNavigationDrawerView(Context context, AttributeSet attrs, int defStyleAttr) {"
         errorLine2="                                        ~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/drawer/WearableNavigationDrawerView.java"/>
+            file="src/main/java/androidx/wear/widget/drawer/WearableNavigationDrawerView.java"
+            line="129"
+            column="41"/>
     </issue>
 
     <issue
@@ -1918,7 +2292,9 @@
         errorLine1="    public WearableNavigationDrawerView(Context context, AttributeSet attrs, int defStyleAttr) {"
         errorLine2="                                                         ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/drawer/WearableNavigationDrawerView.java"/>
+            file="src/main/java/androidx/wear/widget/drawer/WearableNavigationDrawerView.java"
+            line="129"
+            column="58"/>
     </issue>
 
     <issue
@@ -1927,7 +2303,9 @@
         errorLine1="    public WearableNavigationDrawerView(Context context, AttributeSet attrs, int defStyleAttr,"
         errorLine2="                                        ~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/drawer/WearableNavigationDrawerView.java"/>
+            file="src/main/java/androidx/wear/widget/drawer/WearableNavigationDrawerView.java"
+            line="133"
+            column="41"/>
     </issue>
 
     <issue
@@ -1936,7 +2314,9 @@
         errorLine1="    public WearableNavigationDrawerView(Context context, AttributeSet attrs, int defStyleAttr,"
         errorLine2="                                                         ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/drawer/WearableNavigationDrawerView.java"/>
+            file="src/main/java/androidx/wear/widget/drawer/WearableNavigationDrawerView.java"
+            line="133"
+            column="58"/>
     </issue>
 
     <issue
@@ -1945,7 +2325,9 @@
         errorLine1="    public void setAdapter(final WearableNavigationDrawerAdapter adapter) {"
         errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/drawer/WearableNavigationDrawerView.java"/>
+            file="src/main/java/androidx/wear/widget/drawer/WearableNavigationDrawerView.java"
+            line="177"
+            column="34"/>
     </issue>
 
     <issue
@@ -1954,7 +2336,9 @@
         errorLine1="    public void addOnItemSelectedListener(OnItemSelectedListener listener) {"
         errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/drawer/WearableNavigationDrawerView.java"/>
+            file="src/main/java/androidx/wear/widget/drawer/WearableNavigationDrawerView.java"
+            line="184"
+            column="43"/>
     </issue>
 
     <issue
@@ -1963,7 +2347,9 @@
         errorLine1="    public void removeOnItemSelectedListener(OnItemSelectedListener listener) {"
         errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/drawer/WearableNavigationDrawerView.java"/>
+            file="src/main/java/androidx/wear/widget/drawer/WearableNavigationDrawerView.java"
+            line="191"
+            column="46"/>
     </issue>
 
     <issue
@@ -1972,7 +2358,9 @@
         errorLine1="    public boolean onInterceptTouchEvent(MotionEvent ev) {"
         errorLine2="                                         ~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/drawer/WearableNavigationDrawerView.java"/>
+            file="src/main/java/androidx/wear/widget/drawer/WearableNavigationDrawerView.java"
+            line="213"
+            column="42"/>
     </issue>
 
     <issue
@@ -1981,7 +2369,9 @@
         errorLine1="        public abstract CharSequence getItemText(int pos);"
         errorLine2="                        ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/drawer/WearableNavigationDrawerView.java"/>
+            file="src/main/java/androidx/wear/widget/drawer/WearableNavigationDrawerView.java"
+            line="258"
+            column="25"/>
     </issue>
 
     <issue
@@ -1990,7 +2380,9 @@
         errorLine1="        public abstract Drawable getItemDrawable(int pos);"
         errorLine2="                        ~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/drawer/WearableNavigationDrawerView.java"/>
+            file="src/main/java/androidx/wear/widget/drawer/WearableNavigationDrawerView.java"
+            line="263"
+            column="25"/>
     </issue>
 
     <issue
@@ -1999,7 +2391,9 @@
         errorLine1="        public void setPresenter(WearableNavigationDrawerPresenter presenter) {"
         errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/drawer/WearableNavigationDrawerView.java"/>
+            file="src/main/java/androidx/wear/widget/drawer/WearableNavigationDrawerView.java"
+            line="289"
+            column="34"/>
     </issue>
 
     <issue
@@ -2008,7 +2402,9 @@
         errorLine1="    public WearableRecyclerView(Context context) {"
         errorLine2="                                ~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/WearableRecyclerView.java"/>
+            file="src/main/java/androidx/wear/widget/WearableRecyclerView.java"
+            line="64"
+            column="33"/>
     </issue>
 
     <issue
@@ -2017,7 +2413,9 @@
         errorLine1="    public WearableRecyclerView(Context context, @Nullable AttributeSet attrs) {"
         errorLine2="                                ~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/WearableRecyclerView.java"/>
+            file="src/main/java/androidx/wear/widget/WearableRecyclerView.java"
+            line="68"
+            column="33"/>
     </issue>
 
     <issue
@@ -2026,7 +2424,9 @@
         errorLine1="    public WearableRecyclerView(Context context, @Nullable AttributeSet attrs, int defStyle) {"
         errorLine2="                                ~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/WearableRecyclerView.java"/>
+            file="src/main/java/androidx/wear/widget/WearableRecyclerView.java"
+            line="72"
+            column="33"/>
     </issue>
 
     <issue
@@ -2035,7 +2435,9 @@
         errorLine1="    public WearableRecyclerView(Context context, @Nullable AttributeSet attrs, int defStyle,"
         errorLine2="                                ~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/WearableRecyclerView.java"/>
+            file="src/main/java/androidx/wear/widget/WearableRecyclerView.java"
+            line="76"
+            column="33"/>
     </issue>
 
     <issue
@@ -2044,7 +2446,9 @@
         errorLine1="    public boolean onTouchEvent(MotionEvent event) {"
         errorLine2="                                ~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/WearableRecyclerView.java"/>
+            file="src/main/java/androidx/wear/widget/WearableRecyclerView.java"
+            line="144"
+            column="33"/>
     </issue>
 
     <issue

@@ -250,7 +250,9 @@
         errorLine1="    public static int loadShader(int shaderType, String source) {"
         errorLine2="                                                 ~~~~~~">
         <location
-            file="src/main/java/androidx/heifwriter/Texture2dProgram.java"/>
+            file="src/main/java/androidx/heifwriter/Texture2dProgram.java"
+            line="316"
+            column="50"/>
     </issue>
 
     <issue
@@ -259,7 +261,9 @@
         errorLine1="    public static void checkLocation(int location, String label) {"
         errorLine2="                                                   ~~~~~~">
         <location
-            file="src/main/java/androidx/heifwriter/Texture2dProgram.java"/>
+            file="src/main/java/androidx/heifwriter/Texture2dProgram.java"
+            line="338"
+            column="52"/>
     </issue>
 
     <issue
@@ -268,7 +272,9 @@
         errorLine1="    public static void checkGlError(String op) {"
         errorLine2="                                    ~~~~~~">
         <location
-            file="src/main/java/androidx/heifwriter/Texture2dProgram.java"/>
+            file="src/main/java/androidx/heifwriter/Texture2dProgram.java"
+            line="347"
+            column="37"/>
     </issue>
 
 </issues>

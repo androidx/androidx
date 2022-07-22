@@ -160,7 +160,8 @@
         errorLine1="    @Px end: Int = marginEnd,"
         errorLine2="                   ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/core/view/ViewGroup.kt"/>
+            file="src/main/java/androidx/core/view/ViewGroup.kt"
+            column="20"/>
     </issue>
 
     <issue
@@ -169,7 +170,9 @@
         errorLine1="    marginStart = start"
         errorLine2="    ~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/core/view/ViewGroup.kt"/>
+            file="src/main/java/androidx/core/view/ViewGroup.kt"
+            line="163"
+            column="5"/>
     </issue>
 
     <issue
@@ -178,7 +181,9 @@
         errorLine1="    marginEnd = end"
         errorLine2="    ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/core/view/ViewGroup.kt"/>
+            file="src/main/java/androidx/core/view/ViewGroup.kt"
+            line="165"
+            column="5"/>
     </issue>
 
 </issues>

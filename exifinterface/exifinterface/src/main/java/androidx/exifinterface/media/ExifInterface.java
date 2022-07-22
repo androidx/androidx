@@ -5970,7 +5970,11 @@ public class ExifInterface {
                 throw new UnsupportedOperationException("Failed to read EXIF from HEIF file. "
                         + "Given stream is either malformed or unsupported.");
             } finally {
-                retriever.release();
+                try {
+                    retriever.release();
+                } catch (IOException e) {
+                    // Nothing we can  do about it.
+                }
             }
         } else {
             throw new UnsupportedOperationException("Reading EXIF from HEIF files "

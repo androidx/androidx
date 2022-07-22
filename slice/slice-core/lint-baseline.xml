@@ -187,7 +187,9 @@
         errorLine1="    /**"
         errorLine2="    ^">
         <location
-            file="src/main/java/androidx/slice/compat/CompatPinnedList.java"/>
+            file="src/main/java/androidx/slice/compat/CompatPinnedList.java"
+            line="160"
+            column="5"/>
     </issue>
 
     <issue
@@ -196,7 +198,9 @@
         errorLine1="            return (int) h.getClass().getDeclaredMethod(&quot;getIdentifier&quot;).invoke(h);"
         errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/SliceManagerWrapper.java"/>
+            file="src/main/java/androidx/slice/SliceManagerWrapper.java"
+            line="93"
+            column="26"/>
     </issue>
 
     <issue
@@ -205,7 +209,9 @@
         errorLine1="        return SliceConvert.wrap(context.getSystemService(SliceManager.class)"
         errorLine2="                                         ~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/Slice.java"/>
+            file="src/main/java/androidx/slice/Slice.java"
+            line="644"
+            column="42"/>
     </issue>
 
     <issue
@@ -214,7 +220,9 @@
         errorLine1="                .bindSlice(uri, unwrap(supportedSpecs)), context);"
         errorLine2="                 ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/Slice.java"/>
+            file="src/main/java/androidx/slice/Slice.java"
+            line="645"
+            column="18"/>
     </issue>
 
     <issue
@@ -223,7 +231,9 @@
         errorLine1="                mProvider.close();"
         errorLine2="                          ~~~~~">
         <location
-            file="src/main/java/androidx/slice/compat/SliceProviderCompat.java"/>
+            file="src/main/java/androidx/slice/compat/SliceProviderCompat.java"
+            line="714"
+            column="27"/>
     </issue>
 
     <issue
@@ -232,7 +242,9 @@
         errorLine1="                @NonNull Slice s, @Nullable String subType) {"
         errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/Slice.java"/>
+            file="src/main/java/androidx/slice/Slice.java"
+            line="403"
+            column="35"/>
     </issue>
 
     <issue
@@ -241,7 +253,9 @@
         errorLine1="            @Slice.SliceHint String[] hints) {"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/SliceItem.java"/>
+            file="src/main/java/androidx/slice/SliceItem.java"
+            line="171"
+            column="13"/>
     </issue>
 
     <issue
@@ -250,7 +264,9 @@
         errorLine1="    public CompatPermissionManager(Context context, String prefsName, int myUid,"
         errorLine2="                                   ~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/compat/CompatPermissionManager.java"/>
+            file="src/main/java/androidx/slice/compat/CompatPermissionManager.java"
+            line="53"
+            column="36"/>
     </issue>
 
     <issue
@@ -259,7 +275,9 @@
         errorLine1="    public CompatPermissionManager(Context context, String prefsName, int myUid,"
         errorLine2="                                                    ~~~~~~">
         <location
-            file="src/main/java/androidx/slice/compat/CompatPermissionManager.java"/>
+            file="src/main/java/androidx/slice/compat/CompatPermissionManager.java"
+            line="53"
+            column="53"/>
     </issue>
 
     <issue
@@ -268,7 +286,9 @@
         errorLine1="            String[] autoGrantPermissions) {"
         errorLine2="            ~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/compat/CompatPermissionManager.java"/>
+            file="src/main/java/androidx/slice/compat/CompatPermissionManager.java"
+            line="54"
+            column="13"/>
     </issue>
 
     <issue
@@ -277,7 +297,9 @@
         errorLine1="    public int checkSlicePermission(Uri uri, int pid, int uid) {"
         errorLine2="                                    ~~~">
         <location
-            file="src/main/java/androidx/slice/compat/CompatPermissionManager.java"/>
+            file="src/main/java/androidx/slice/compat/CompatPermissionManager.java"
+            line="66"
+            column="37"/>
     </issue>
 
     <issue
@@ -286,7 +308,9 @@
         errorLine1="    public void grantSlicePermission(Uri uri, String toPkg) {"
         errorLine2="                                     ~~~">
         <location
-            file="src/main/java/androidx/slice/compat/CompatPermissionManager.java"/>
+            file="src/main/java/androidx/slice/compat/CompatPermissionManager.java"
+            line="93"
+            column="38"/>
     </issue>
 
     <issue
@@ -295,7 +319,9 @@
         errorLine1="    public void grantSlicePermission(Uri uri, String toPkg) {"
         errorLine2="                                              ~~~~~~">
         <location
-            file="src/main/java/androidx/slice/compat/CompatPermissionManager.java"/>
+            file="src/main/java/androidx/slice/compat/CompatPermissionManager.java"
+            line="93"
+            column="47"/>
     </issue>
 
     <issue
@@ -304,7 +330,9 @@
         errorLine1="    public void revokeSlicePermission(Uri uri, String toPkg) {"
         errorLine2="                                      ~~~">
         <location
-            file="src/main/java/androidx/slice/compat/CompatPermissionManager.java"/>
+            file="src/main/java/androidx/slice/compat/CompatPermissionManager.java"
+            line="100"
+            column="39"/>
     </issue>
 
     <issue
@@ -313,7 +341,9 @@
         errorLine1="    public void revokeSlicePermission(Uri uri, String toPkg) {"
         errorLine2="                                               ~~~~~~">
         <location
-            file="src/main/java/androidx/slice/compat/CompatPermissionManager.java"/>
+            file="src/main/java/androidx/slice/compat/CompatPermissionManager.java"
+            line="100"
+            column="48"/>
     </issue>
 
     <issue
@@ -322,7 +352,9 @@
         errorLine1="        public String getKey() {"
         errorLine2="               ~~~~~~">
         <location
-            file="src/main/java/androidx/slice/compat/CompatPermissionManager.java"/>
+            file="src/main/java/androidx/slice/compat/CompatPermissionManager.java"
+            line="141"
+            column="16"/>
     </issue>
 
     <issue
@@ -331,7 +363,9 @@
         errorLine1="        public Set&lt;String> toPersistable() {"
         errorLine2="               ~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/compat/CompatPermissionManager.java"/>
+            file="src/main/java/androidx/slice/compat/CompatPermissionManager.java"
+            line="145"
+            column="16"/>
     </issue>
 
     <issue
@@ -340,7 +374,9 @@
         errorLine1="        public boolean hasAccess(List&lt;String> path) {"
         errorLine2="                                 ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/compat/CompatPermissionManager.java"/>
+            file="src/main/java/androidx/slice/compat/CompatPermissionManager.java"
+            line="153"
+            column="34"/>
     </issue>
 
     <issue
@@ -349,7 +385,9 @@
         errorLine1="    public CompatPinnedList(Context context, String prefsName) {"
         errorLine2="                            ~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/compat/CompatPinnedList.java"/>
+            file="src/main/java/androidx/slice/compat/CompatPinnedList.java"
+            line="59"
+            column="29"/>
     </issue>
 
     <issue
@@ -358,7 +396,9 @@
         errorLine1="    public CompatPinnedList(Context context, String prefsName) {"
         errorLine2="                                             ~~~~~~">
         <location
-            file="src/main/java/androidx/slice/compat/CompatPinnedList.java"/>
+            file="src/main/java/androidx/slice/compat/CompatPinnedList.java"
+            line="59"
+            column="46"/>
     </issue>
 
     <issue
@@ -367,7 +407,9 @@
         errorLine1="    public List&lt;Uri> getPinnedSlices() {"
         errorLine2="           ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/compat/CompatPinnedList.java"/>
+            file="src/main/java/androidx/slice/compat/CompatPinnedList.java"
+            line="80"
+            column="12"/>
     </issue>
 
     <issue
@@ -376,7 +418,9 @@
         errorLine1="    public synchronized ArraySet&lt;SliceSpec> getSpecs(Uri uri) {"
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/compat/CompatPinnedList.java"/>
+            file="src/main/java/androidx/slice/compat/CompatPinnedList.java"
+            line="100"
+            column="25"/>
     </issue>
 
     <issue
@@ -385,7 +429,9 @@
         errorLine1="    public synchronized ArraySet&lt;SliceSpec> getSpecs(Uri uri) {"
         errorLine2="                                                     ~~~">
         <location
-            file="src/main/java/androidx/slice/compat/CompatPinnedList.java"/>
+            file="src/main/java/androidx/slice/compat/CompatPinnedList.java"
+            line="100"
+            column="54"/>
     </issue>
 
     <issue
@@ -394,7 +440,9 @@
         errorLine1="    public synchronized boolean addPin(Uri uri, String pkg, Set&lt;SliceSpec> specs) {"
         errorLine2="                                       ~~~">
         <location
-            file="src/main/java/androidx/slice/compat/CompatPinnedList.java"/>
+            file="src/main/java/androidx/slice/compat/CompatPinnedList.java"
+            line="147"
+            column="40"/>
     </issue>
 
     <issue
@@ -403,7 +451,9 @@
         errorLine1="    public synchronized boolean addPin(Uri uri, String pkg, Set&lt;SliceSpec> specs) {"
         errorLine2="                                                ~~~~~~">
         <location
-            file="src/main/java/androidx/slice/compat/CompatPinnedList.java"/>
+            file="src/main/java/androidx/slice/compat/CompatPinnedList.java"
+            line="147"
+            column="49"/>
     </issue>
 
     <issue
@@ -412,7 +462,9 @@
         errorLine1="    public synchronized boolean addPin(Uri uri, String pkg, Set&lt;SliceSpec> specs) {"
         errorLine2="                                                            ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/compat/CompatPinnedList.java"/>
+            file="src/main/java/androidx/slice/compat/CompatPinnedList.java"
+            line="147"
+            column="61"/>
     </issue>
 
     <issue
@@ -421,7 +473,9 @@
         errorLine1="    public synchronized boolean removePin(Uri uri, String pkg) {"
         errorLine2="                                          ~~~">
         <location
-            file="src/main/java/androidx/slice/compat/CompatPinnedList.java"/>
+            file="src/main/java/androidx/slice/compat/CompatPinnedList.java"
+            line="164"
+            column="43"/>
     </issue>
 
     <issue
@@ -430,7 +484,9 @@
         errorLine1="    public synchronized boolean removePin(Uri uri, String pkg) {"
         errorLine2="                                                   ~~~~~~">
         <location
-            file="src/main/java/androidx/slice/compat/CompatPinnedList.java"/>
+            file="src/main/java/androidx/slice/compat/CompatPinnedList.java"
+            line="164"
+            column="52"/>
     </issue>
 
     <issue
@@ -439,7 +495,9 @@
         errorLine1="    public Slice(Bundle in) {"
         errorLine2="                 ~~~~~~">
         <location
-            file="src/main/java/androidx/slice/Slice.java"/>
+            file="src/main/java/androidx/slice/Slice.java"
+            line="189"
+            column="18"/>
     </issue>
 
     <issue
@@ -448,7 +506,9 @@
         errorLine1="    public Bundle toBundle() {"
         errorLine2="           ~~~~~~">
         <location
-            file="src/main/java/androidx/slice/Slice.java"/>
+            file="src/main/java/androidx/slice/Slice.java"
+            line="208"
+            column="12"/>
     </issue>
 
     <issue
@@ -457,7 +517,9 @@
         errorLine1="    public Uri getUri() {"
         errorLine2="           ~~~">
         <location
-            file="src/main/java/androidx/slice/Slice.java"/>
+            file="src/main/java/androidx/slice/Slice.java"
+            line="236"
+            column="12"/>
     </issue>
 
     <issue
@@ -466,7 +528,9 @@
         errorLine1="    public List&lt;SliceItem> getItems() {"
         errorLine2="           ~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/Slice.java"/>
+            file="src/main/java/androidx/slice/Slice.java"
+            line="243"
+            column="12"/>
     </issue>
 
     <issue
@@ -475,7 +539,9 @@
         errorLine1="    public SliceItem[] getItemArray() {"
         errorLine2="           ~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/Slice.java"/>
+            file="src/main/java/androidx/slice/Slice.java"
+            line="252"
+            column="12"/>
     </issue>
 
     <issue
@@ -484,7 +550,9 @@
         errorLine1="    public @SliceHint List&lt;String> getHints() {"
         errorLine2="                      ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/Slice.java"/>
+            file="src/main/java/androidx/slice/Slice.java"
+            line="259"
+            column="23"/>
     </issue>
 
     <issue
@@ -493,7 +561,9 @@
         errorLine1="    public @SliceHint String[] getHintArray() {"
         errorLine2="                      ~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/Slice.java"/>
+            file="src/main/java/androidx/slice/Slice.java"
+            line="267"
+            column="23"/>
     </issue>
 
     <issue
@@ -502,7 +572,9 @@
         errorLine1="    public boolean hasHint(@SliceHint String hint) {"
         errorLine2="                                      ~~~~~~">
         <location
-            file="src/main/java/androidx/slice/Slice.java"/>
+            file="src/main/java/androidx/slice/Slice.java"
+            line="275"
+            column="39"/>
     </issue>
 
     <issue
@@ -511,7 +583,9 @@
         errorLine1="        public Builder setSpec(SliceSpec spec) {"
         errorLine2="               ~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/Slice.java"/>
+            file="src/main/java/androidx/slice/Slice.java"
+            line="343"
+            column="16"/>
     </issue>
 
     <issue
@@ -520,7 +594,9 @@
         errorLine1="        public Builder setSpec(SliceSpec spec) {"
         errorLine2="                               ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/Slice.java"/>
+            file="src/main/java/androidx/slice/Slice.java"
+            line="343"
+            column="32"/>
     </issue>
 
     <issue
@@ -529,7 +605,9 @@
         errorLine1="        public Builder addHints(@SliceHint String... hints) {"
         errorLine2="               ~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/Slice.java"/>
+            file="src/main/java/androidx/slice/Slice.java"
+            line="351"
+            column="16"/>
     </issue>
 
     <issue
@@ -538,7 +616,9 @@
         errorLine1="        public Builder addHints(@SliceHint String... hints) {"
         errorLine2="                                           ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/Slice.java"/>
+            file="src/main/java/androidx/slice/Slice.java"
+            line="351"
+            column="44"/>
     </issue>
 
     <issue
@@ -547,7 +627,9 @@
         errorLine1="        public Builder addHints(@SliceHint List&lt;String> hints) {"
         errorLine2="               ~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/Slice.java"/>
+            file="src/main/java/androidx/slice/Slice.java"
+            line="359"
+            column="16"/>
     </issue>
 
     <issue
@@ -556,7 +638,9 @@
         errorLine1="        public Builder addHints(@SliceHint List&lt;String> hints) {"
         errorLine2="                                           ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/Slice.java"/>
+            file="src/main/java/androidx/slice/Slice.java"
+            line="359"
+            column="44"/>
     </issue>
 
     <issue
@@ -565,7 +649,9 @@
         errorLine1="        public Builder addSubSlice(@NonNull Slice slice) {"
         errorLine2="               ~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/Slice.java"/>
+            file="src/main/java/androidx/slice/Slice.java"
+            line="366"
+            column="16"/>
     </issue>
 
     <issue
@@ -574,7 +660,9 @@
         errorLine1="        public Builder addSubSlice(@NonNull Slice slice, String subType) {"
         errorLine2="               ~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/Slice.java"/>
+            file="src/main/java/androidx/slice/Slice.java"
+            line="376"
+            column="16"/>
     </issue>
 
     <issue
@@ -583,7 +671,9 @@
         errorLine1="        public Builder addSubSlice(@NonNull Slice slice, String subType) {"
         errorLine2="                                                         ~~~~~~">
         <location
-            file="src/main/java/androidx/slice/Slice.java"/>
+            file="src/main/java/androidx/slice/Slice.java"
+            line="376"
+            column="58"/>
     </issue>
 
     <issue
@@ -592,7 +682,9 @@
         errorLine1="        public Slice.Builder addAction(@NonNull PendingIntent action,"
         errorLine2="               ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/Slice.java"/>
+            file="src/main/java/androidx/slice/Slice.java"
+            line="387"
+            column="16"/>
     </issue>
 
     <issue
@@ -601,7 +693,9 @@
         errorLine1="        public Slice.Builder addAction(@NonNull SliceItem.ActionHandler action,"
         errorLine2="               ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/Slice.java"/>
+            file="src/main/java/androidx/slice/Slice.java"
+            line="402"
+            column="16"/>
     </issue>
 
     <issue
@@ -610,34 +704,9 @@
         errorLine1="        public Builder addText(CharSequence text, @Nullable String subType,"
         errorLine2="               ~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/Slice.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public Builder addText(CharSequence text, @Nullable String subType,"
-        errorLine2="                               ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/Slice.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="                @SliceHint String... hints) {"
-        errorLine2="                           ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/Slice.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public Builder addText(CharSequence text, @Nullable String subType,"
-        errorLine2="               ~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/Slice.java"/>
+            file="src/main/java/androidx/slice/Slice.java"
+            line="415"
+            column="16"/>
     </issue>
 
     <issue
@@ -646,7 +715,42 @@
         errorLine1="        public Builder addText(CharSequence text, @Nullable String subType,"
         errorLine2="                               ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/Slice.java"/>
+            file="src/main/java/androidx/slice/Slice.java"
+            line="415"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="                @SliceHint String... hints) {"
+        errorLine2="                           ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/Slice.java"
+            line="416"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public Builder addText(CharSequence text, @Nullable String subType,"
+        errorLine2="               ~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/Slice.java"
+            line="426"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public Builder addText(CharSequence text, @Nullable String subType,"
+        errorLine2="                               ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/Slice.java"
+            line="426"
+            column="32"/>
     </issue>
 
     <issue
@@ -655,7 +759,9 @@
         errorLine1="                @SliceHint List&lt;String> hints) {"
         errorLine2="                           ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/Slice.java"/>
+            file="src/main/java/androidx/slice/Slice.java"
+            line="427"
+            column="28"/>
     </issue>
 
     <issue
@@ -664,7 +770,9 @@
         errorLine1="        public Builder addIcon(IconCompat icon, @Nullable String subType,"
         errorLine2="               ~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/Slice.java"/>
+            file="src/main/java/androidx/slice/Slice.java"
+            line="436"
+            column="16"/>
     </issue>
 
     <issue
@@ -673,7 +781,9 @@
         errorLine1="        public Builder addIcon(IconCompat icon, @Nullable String subType,"
         errorLine2="                               ~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/Slice.java"/>
+            file="src/main/java/androidx/slice/Slice.java"
+            line="436"
+            column="32"/>
     </issue>
 
     <issue
@@ -682,7 +792,9 @@
         errorLine1="                @SliceHint String... hints) {"
         errorLine2="                           ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/Slice.java"/>
+            file="src/main/java/androidx/slice/Slice.java"
+            line="437"
+            column="28"/>
     </issue>
 
     <issue
@@ -691,7 +803,9 @@
         errorLine1="        public Builder addIcon(IconCompat icon, @Nullable String subType,"
         errorLine2="               ~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/Slice.java"/>
+            file="src/main/java/androidx/slice/Slice.java"
+            line="450"
+            column="16"/>
     </issue>
 
     <issue
@@ -700,7 +814,9 @@
         errorLine1="        public Builder addIcon(IconCompat icon, @Nullable String subType,"
         errorLine2="                               ~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/Slice.java"/>
+            file="src/main/java/androidx/slice/Slice.java"
+            line="450"
+            column="32"/>
     </issue>
 
     <issue
@@ -709,7 +825,9 @@
         errorLine1="                @SliceHint List&lt;String> hints) {"
         errorLine2="                           ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/Slice.java"/>
+            file="src/main/java/androidx/slice/Slice.java"
+            line="451"
+            column="28"/>
     </issue>
 
     <issue
@@ -718,34 +836,9 @@
         errorLine1="        public Slice.Builder addRemoteInput(RemoteInput remoteInput, @Nullable String subType,"
         errorLine2="               ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/Slice.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public Slice.Builder addRemoteInput(RemoteInput remoteInput, @Nullable String subType,"
-        errorLine2="                                            ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/Slice.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="                @SliceHint List&lt;String> hints) {"
-        errorLine2="                           ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/Slice.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public Slice.Builder addRemoteInput(RemoteInput remoteInput, @Nullable String subType,"
-        errorLine2="               ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/Slice.java"/>
+            file="src/main/java/androidx/slice/Slice.java"
+            line="466"
+            column="16"/>
     </issue>
 
     <issue
@@ -754,43 +847,9 @@
         errorLine1="        public Slice.Builder addRemoteInput(RemoteInput remoteInput, @Nullable String subType,"
         errorLine2="                                            ~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/Slice.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="                @SliceHint String... hints) {"
-        errorLine2="                           ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/Slice.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public Builder addInt(int value, @Nullable String subType,"
-        errorLine2="               ~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/Slice.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="                @SliceHint String... hints) {"
-        errorLine2="                           ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/Slice.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public Builder addInt(int value, @Nullable String subType,"
-        errorLine2="               ~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/Slice.java"/>
+            file="src/main/java/androidx/slice/Slice.java"
+            line="466"
+            column="45"/>
     </issue>
 
     <issue
@@ -799,16 +858,31 @@
         errorLine1="                @SliceHint List&lt;String> hints) {"
         errorLine2="                           ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/Slice.java"/>
+            file="src/main/java/androidx/slice/Slice.java"
+            line="467"
+            column="28"/>
     </issue>
 
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public Slice.Builder addLong(long time, @Nullable String subType,"
+        errorLine1="        public Slice.Builder addRemoteInput(RemoteInput remoteInput, @Nullable String subType,"
         errorLine2="               ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/Slice.java"/>
+            file="src/main/java/androidx/slice/Slice.java"
+            line="479"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public Slice.Builder addRemoteInput(RemoteInput remoteInput, @Nullable String subType,"
+        errorLine2="                                            ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/Slice.java"
+            line="479"
+            column="45"/>
     </issue>
 
     <issue
@@ -817,16 +891,42 @@
         errorLine1="                @SliceHint String... hints) {"
         errorLine2="                           ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/Slice.java"/>
+            file="src/main/java/androidx/slice/Slice.java"
+            line="480"
+            column="28"/>
     </issue>
 
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public Slice.Builder addLong(long time, @Nullable String subType,"
-        errorLine2="               ~~~~~~~~~~~~~">
+        errorLine1="        public Builder addInt(int value, @Nullable String subType,"
+        errorLine2="               ~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/Slice.java"/>
+            file="src/main/java/androidx/slice/Slice.java"
+            line="491"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="                @SliceHint String... hints) {"
+        errorLine2="                           ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/Slice.java"
+            line="492"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public Builder addInt(int value, @Nullable String subType,"
+        errorLine2="               ~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/Slice.java"
+            line="503"
+            column="16"/>
     </issue>
 
     <issue
@@ -835,7 +935,53 @@
         errorLine1="                @SliceHint List&lt;String> hints) {"
         errorLine2="                           ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/Slice.java"/>
+            file="src/main/java/androidx/slice/Slice.java"
+            line="504"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public Slice.Builder addLong(long time, @Nullable String subType,"
+        errorLine2="               ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/Slice.java"
+            line="513"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="                @SliceHint String... hints) {"
+        errorLine2="                           ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/Slice.java"
+            line="514"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public Slice.Builder addLong(long time, @Nullable String subType,"
+        errorLine2="               ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/Slice.java"
+            line="524"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="                @SliceHint List&lt;String> hints) {"
+        errorLine2="                           ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/Slice.java"
+            line="525"
+            column="28"/>
     </issue>
 
     <issue
@@ -844,7 +990,9 @@
         errorLine1="        public Slice.Builder addTimestamp(long time, @Nullable String subType,"
         errorLine2="               ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/Slice.java"/>
+            file="src/main/java/androidx/slice/Slice.java"
+            line="547"
+            column="16"/>
     </issue>
 
     <issue
@@ -853,7 +1001,9 @@
         errorLine1="                @SliceHint List&lt;String> hints) {"
         errorLine2="                           ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/Slice.java"/>
+            file="src/main/java/androidx/slice/Slice.java"
+            line="548"
+            column="28"/>
     </issue>
 
     <issue
@@ -862,7 +1012,9 @@
         errorLine1="        public Slice.Builder addItem(SliceItem item) {"
         errorLine2="               ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/Slice.java"/>
+            file="src/main/java/androidx/slice/Slice.java"
+            line="557"
+            column="16"/>
     </issue>
 
     <issue
@@ -871,7 +1023,9 @@
         errorLine1="        public Slice.Builder addItem(SliceItem item) {"
         errorLine2="                                     ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/Slice.java"/>
+            file="src/main/java/androidx/slice/Slice.java"
+            line="557"
+            column="38"/>
     </issue>
 
     <issue
@@ -880,7 +1034,9 @@
         errorLine1="        public Slice build() {"
         errorLine2="               ~~~~~">
         <location
-            file="src/main/java/androidx/slice/Slice.java"/>
+            file="src/main/java/androidx/slice/Slice.java"
+            line="565"
+            column="16"/>
     </issue>
 
     <issue
@@ -889,7 +1045,9 @@
         errorLine1="    public String toString(String indent) {"
         errorLine2="           ~~~~~~">
         <location
-            file="src/main/java/androidx/slice/Slice.java"/>
+            file="src/main/java/androidx/slice/Slice.java"
+            line="583"
+            column="12"/>
     </issue>
 
     <issue
@@ -898,7 +1056,9 @@
         errorLine1="    public String toString(String indent) {"
         errorLine2="                           ~~~~~~">
         <location
-            file="src/main/java/androidx/slice/Slice.java"/>
+            file="src/main/java/androidx/slice/Slice.java"
+            line="583"
+            column="28"/>
     </issue>
 
     <issue
@@ -907,7 +1067,9 @@
         errorLine1="    public static void appendHints(StringBuilder sb, String[] hints) {"
         errorLine2="                                   ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/Slice.java"/>
+            file="src/main/java/androidx/slice/Slice.java"
+            line="608"
+            column="36"/>
     </issue>
 
     <issue
@@ -916,7 +1078,9 @@
         errorLine1="    public static void appendHints(StringBuilder sb, String[] hints) {"
         errorLine2="                                                     ~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/Slice.java"/>
+            file="src/main/java/androidx/slice/Slice.java"
+            line="608"
+            column="54"/>
     </issue>
 
     <issue
@@ -925,7 +1089,9 @@
         errorLine1="    public static Slice bindSlice(Context context, @NonNull Uri uri,"
         errorLine2="                                  ~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/Slice.java"/>
+            file="src/main/java/androidx/slice/Slice.java"
+            line="632"
+            column="35"/>
     </issue>
 
     <issue
@@ -934,7 +1100,9 @@
         errorLine1="            Set&lt;SliceSpec> supportedSpecs) {"
         errorLine2="            ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/Slice.java"/>
+            file="src/main/java/androidx/slice/Slice.java"
+            line="633"
+            column="13"/>
     </issue>
 
     <issue
@@ -943,7 +1111,9 @@
         errorLine1="    SliceAction setChecked(boolean isChecked);"
         errorLine2="    ~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/core/SliceAction.java"/>
+            file="src/main/java/androidx/slice/core/SliceAction.java"
+            line="43"
+            column="5"/>
     </issue>
 
     <issue
@@ -952,7 +1122,9 @@
         errorLine1="    SliceAction setPriority(@IntRange(from = 0) int priority);"
         errorLine2="    ~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/core/SliceAction.java"/>
+            file="src/main/java/androidx/slice/core/SliceAction.java"
+            line="48"
+            column="5"/>
     </issue>
 
     <issue
@@ -961,7 +1133,9 @@
         errorLine1="    public SliceActionImpl(SliceItem slice) {"
         errorLine2="                           ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/core/SliceActionImpl.java"/>
+            file="src/main/java/androidx/slice/core/SliceActionImpl.java"
+            line="188"
+            column="28"/>
     </issue>
 
     <issue
@@ -970,7 +1144,9 @@
         errorLine1="    public SliceActionImpl setChecked(boolean isChecked) {"
         errorLine2="           ~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/core/SliceActionImpl.java"/>
+            file="src/main/java/androidx/slice/core/SliceActionImpl.java"
+            line="266"
+            column="12"/>
     </issue>
 
     <issue
@@ -979,7 +1155,9 @@
         errorLine1="    public SliceActionImpl setPriority(@IntRange(from = 0) int priority) {"
         errorLine2="           ~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/core/SliceActionImpl.java"/>
+            file="src/main/java/androidx/slice/core/SliceActionImpl.java"
+            line="275"
+            column="12"/>
     </issue>
 
     <issue
@@ -988,7 +1166,9 @@
         errorLine1="    public SliceItem getActionItem() {"
         errorLine2="           ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/core/SliceActionImpl.java"/>
+            file="src/main/java/androidx/slice/core/SliceActionImpl.java"
+            line="303"
+            column="12"/>
     </issue>
 
     <issue
@@ -997,7 +1177,9 @@
         errorLine1="    public static android.app.slice.Slice unwrap(androidx.slice.Slice slice) {"
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/SliceConvert.java"/>
+            file="src/main/java/androidx/slice/SliceConvert.java"
+            line="53"
+            column="19"/>
     </issue>
 
     <issue
@@ -1006,7 +1188,9 @@
         errorLine1="    public static android.app.slice.Slice unwrap(androidx.slice.Slice slice) {"
         errorLine2="                                                 ~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/SliceConvert.java"/>
+            file="src/main/java/androidx/slice/SliceConvert.java"
+            line="53"
+            column="50"/>
     </issue>
 
     <issue
@@ -1015,7 +1199,9 @@
         errorLine1="    public static androidx.slice.Slice wrap(android.app.slice.Slice slice, Context context) {"
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/SliceConvert.java"/>
+            file="src/main/java/androidx/slice/SliceConvert.java"
+            line="110"
+            column="19"/>
     </issue>
 
     <issue
@@ -1024,7 +1210,9 @@
         errorLine1="    public static androidx.slice.Slice wrap(android.app.slice.Slice slice, Context context) {"
         errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/SliceConvert.java"/>
+            file="src/main/java/androidx/slice/SliceConvert.java"
+            line="110"
+            column="45"/>
     </issue>
 
     <issue
@@ -1033,7 +1221,9 @@
         errorLine1="    public static androidx.slice.Slice wrap(android.app.slice.Slice slice, Context context) {"
         errorLine2="                                                                           ~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/SliceConvert.java"/>
+            file="src/main/java/androidx/slice/SliceConvert.java"
+            line="110"
+            column="76"/>
     </issue>
 
     <issue
@@ -1042,7 +1232,9 @@
         errorLine1="    public static Set&lt;androidx.slice.SliceSpec> wrap("
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/SliceConvert.java"/>
+            file="src/main/java/androidx/slice/SliceConvert.java"
+            line="166"
+            column="19"/>
     </issue>
 
     <issue
@@ -1051,7 +1243,9 @@
         errorLine1="            Set&lt;android.app.slice.SliceSpec> supportedSpecs) {"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/SliceConvert.java"/>
+            file="src/main/java/androidx/slice/SliceConvert.java"
+            line="167"
+            column="13"/>
     </issue>
 
     <issue
@@ -1060,7 +1254,9 @@
         errorLine1="    protected @Slice.SliceHint String[] mHints = Slice.NO_HINTS;"
         errorLine2="                               ~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/SliceItem.java"/>
+            file="src/main/java/androidx/slice/SliceItem.java"
+            line="115"
+            column="32"/>
     </issue>
 
     <issue
@@ -1069,7 +1265,9 @@
         errorLine1="    public SliceItem(Object obj, @SliceType String format, String subType,"
         errorLine2="                     ~~~~~~">
         <location
-            file="src/main/java/androidx/slice/SliceItem.java"/>
+            file="src/main/java/androidx/slice/SliceItem.java"
+            line="132"
+            column="22"/>
     </issue>
 
     <issue
@@ -1078,7 +1276,9 @@
         errorLine1="    public SliceItem(Object obj, @SliceType String format, String subType,"
         errorLine2="                                            ~~~~~~">
         <location
-            file="src/main/java/androidx/slice/SliceItem.java"/>
+            file="src/main/java/androidx/slice/SliceItem.java"
+            line="132"
+            column="45"/>
     </issue>
 
     <issue
@@ -1087,7 +1287,9 @@
         errorLine1="    public SliceItem(Object obj, @SliceType String format, String subType,"
         errorLine2="                                                           ~~~~~~">
         <location
-            file="src/main/java/androidx/slice/SliceItem.java"/>
+            file="src/main/java/androidx/slice/SliceItem.java"
+            line="132"
+            column="60"/>
     </issue>
 
     <issue
@@ -1096,7 +1298,9 @@
         errorLine1="            @Slice.SliceHint String[] hints) {"
         errorLine2="                             ~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/SliceItem.java"/>
+            file="src/main/java/androidx/slice/SliceItem.java"
+            line="133"
+            column="30"/>
     </issue>
 
     <issue
@@ -1105,7 +1309,9 @@
         errorLine1="    public SliceItem(Object obj, @SliceType String format, String subType,"
         errorLine2="                     ~~~~~~">
         <location
-            file="src/main/java/androidx/slice/SliceItem.java"/>
+            file="src/main/java/androidx/slice/SliceItem.java"
+            line="144"
+            column="22"/>
     </issue>
 
     <issue
@@ -1114,7 +1320,9 @@
         errorLine1="    public SliceItem(Object obj, @SliceType String format, String subType,"
         errorLine2="                                            ~~~~~~">
         <location
-            file="src/main/java/androidx/slice/SliceItem.java"/>
+            file="src/main/java/androidx/slice/SliceItem.java"
+            line="144"
+            column="45"/>
     </issue>
 
     <issue
@@ -1123,7 +1331,9 @@
         errorLine1="    public SliceItem(Object obj, @SliceType String format, String subType,"
         errorLine2="                                                           ~~~~~~">
         <location
-            file="src/main/java/androidx/slice/SliceItem.java"/>
+            file="src/main/java/androidx/slice/SliceItem.java"
+            line="144"
+            column="60"/>
     </issue>
 
     <issue
@@ -1132,7 +1342,9 @@
         errorLine1="            @Slice.SliceHint List&lt;String> hints) {"
         errorLine2="                             ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/SliceItem.java"/>
+            file="src/main/java/androidx/slice/SliceItem.java"
+            line="145"
+            column="30"/>
     </issue>
 
     <issue
@@ -1141,7 +1353,9 @@
         errorLine1="    public SliceItem(PendingIntent intent, Slice slice, String format, String subType,"
         errorLine2="                     ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/SliceItem.java"/>
+            file="src/main/java/androidx/slice/SliceItem.java"
+            line="161"
+            column="22"/>
     </issue>
 
     <issue
@@ -1150,7 +1364,9 @@
         errorLine1="    public SliceItem(PendingIntent intent, Slice slice, String format, String subType,"
         errorLine2="                                           ~~~~~">
         <location
-            file="src/main/java/androidx/slice/SliceItem.java"/>
+            file="src/main/java/androidx/slice/SliceItem.java"
+            line="161"
+            column="44"/>
     </issue>
 
     <issue
@@ -1159,7 +1375,9 @@
         errorLine1="    public SliceItem(PendingIntent intent, Slice slice, String format, String subType,"
         errorLine2="                                                        ~~~~~~">
         <location
-            file="src/main/java/androidx/slice/SliceItem.java"/>
+            file="src/main/java/androidx/slice/SliceItem.java"
+            line="161"
+            column="57"/>
     </issue>
 
     <issue
@@ -1168,7 +1386,9 @@
         errorLine1="    public SliceItem(PendingIntent intent, Slice slice, String format, String subType,"
         errorLine2="                                                                       ~~~~~~">
         <location
-            file="src/main/java/androidx/slice/SliceItem.java"/>
+            file="src/main/java/androidx/slice/SliceItem.java"
+            line="161"
+            column="72"/>
     </issue>
 
     <issue
@@ -1177,7 +1397,9 @@
         errorLine1="            @Slice.SliceHint String[] hints) {"
         errorLine2="                             ~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/SliceItem.java"/>
+            file="src/main/java/androidx/slice/SliceItem.java"
+            line="162"
+            column="30"/>
     </issue>
 
     <issue
@@ -1186,7 +1408,9 @@
         errorLine1="    public SliceItem(ActionHandler action, Slice slice, String format, String subType,"
         errorLine2="                     ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/SliceItem.java"/>
+            file="src/main/java/androidx/slice/SliceItem.java"
+            line="170"
+            column="22"/>
     </issue>
 
     <issue
@@ -1195,7 +1419,9 @@
         errorLine1="    public SliceItem(ActionHandler action, Slice slice, String format, String subType,"
         errorLine2="                                           ~~~~~">
         <location
-            file="src/main/java/androidx/slice/SliceItem.java"/>
+            file="src/main/java/androidx/slice/SliceItem.java"
+            line="170"
+            column="44"/>
     </issue>
 
     <issue
@@ -1204,7 +1430,9 @@
         errorLine1="    public SliceItem(ActionHandler action, Slice slice, String format, String subType,"
         errorLine2="                                                        ~~~~~~">
         <location
-            file="src/main/java/androidx/slice/SliceItem.java"/>
+            file="src/main/java/androidx/slice/SliceItem.java"
+            line="170"
+            column="57"/>
     </issue>
 
     <issue
@@ -1213,7 +1441,9 @@
         errorLine1="    public SliceItem(ActionHandler action, Slice slice, String format, String subType,"
         errorLine2="                                                                       ~~~~~~">
         <location
-            file="src/main/java/androidx/slice/SliceItem.java"/>
+            file="src/main/java/androidx/slice/SliceItem.java"
+            line="170"
+            column="72"/>
     </issue>
 
     <issue
@@ -1222,7 +1452,9 @@
         errorLine1="            @Slice.SliceHint String[] hints) {"
         errorLine2="                             ~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/SliceItem.java"/>
+            file="src/main/java/androidx/slice/SliceItem.java"
+            line="171"
+            column="30"/>
     </issue>
 
     <issue
@@ -1231,7 +1463,9 @@
         errorLine1="    public void addHint(@Slice.SliceHint String hint) {"
         errorLine2="                                         ~~~~~~">
         <location
-            file="src/main/java/androidx/slice/SliceItem.java"/>
+            file="src/main/java/androidx/slice/SliceItem.java"
+            line="196"
+            column="42"/>
     </issue>
 
     <issue
@@ -1240,7 +1474,9 @@
         errorLine1="    public @SliceType String getFormat() {"
         errorLine2="                      ~~~~~~">
         <location
-            file="src/main/java/androidx/slice/SliceItem.java"/>
+            file="src/main/java/androidx/slice/SliceItem.java"
+            line="215"
+            column="23"/>
     </issue>
 
     <issue
@@ -1249,7 +1485,9 @@
         errorLine1="    public String getSubType() {"
         errorLine2="           ~~~~~~">
         <location
-            file="src/main/java/androidx/slice/SliceItem.java"/>
+            file="src/main/java/androidx/slice/SliceItem.java"
+            line="228"
+            column="12"/>
     </issue>
 
     <issue
@@ -1258,7 +1496,9 @@
         errorLine1="    public CharSequence getText() {"
         errorLine2="           ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/SliceItem.java"/>
+            file="src/main/java/androidx/slice/SliceItem.java"
+            line="235"
+            column="12"/>
     </issue>
 
     <issue
@@ -1267,7 +1507,9 @@
         errorLine1="    public CharSequence getSanitizedText() {"
         errorLine2="           ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/SliceItem.java"/>
+            file="src/main/java/androidx/slice/SliceItem.java"
+            line="245"
+            column="12"/>
     </issue>
 
     <issue
@@ -1276,7 +1518,9 @@
         errorLine1="    public IconCompat getIcon() {"
         errorLine2="           ~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/SliceItem.java"/>
+            file="src/main/java/androidx/slice/SliceItem.java"
+            line="264"
+            column="12"/>
     </issue>
 
     <issue
@@ -1285,7 +1529,9 @@
         errorLine1="    public PendingIntent getAction() {"
         errorLine2="           ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/SliceItem.java"/>
+            file="src/main/java/androidx/slice/SliceItem.java"
+            line="273"
+            column="12"/>
     </issue>
 
     <issue
@@ -1294,7 +1540,9 @@
         errorLine1="    public RemoteInput getRemoteInput() {"
         errorLine2="           ~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/SliceItem.java"/>
+            file="src/main/java/androidx/slice/SliceItem.java"
+            line="315"
+            column="12"/>
     </issue>
 
     <issue
@@ -1303,7 +1551,9 @@
         errorLine1="    public Slice getSlice() {"
         errorLine2="           ~~~~~">
         <location
-            file="src/main/java/androidx/slice/SliceItem.java"/>
+            file="src/main/java/androidx/slice/SliceItem.java"
+            line="331"
+            column="12"/>
     </issue>
 
     <issue
@@ -1312,7 +1562,9 @@
         errorLine1="    public boolean hasHint(@Slice.SliceHint String hint) {"
         errorLine2="                                            ~~~~~~">
         <location
-            file="src/main/java/androidx/slice/SliceItem.java"/>
+            file="src/main/java/androidx/slice/SliceItem.java"
+            line="350"
+            column="45"/>
     </issue>
 
     <issue
@@ -1321,7 +1573,9 @@
         errorLine1="    public SliceItem(Bundle in) {"
         errorLine2="                     ~~~~~~">
         <location
-            file="src/main/java/androidx/slice/SliceItem.java"/>
+            file="src/main/java/androidx/slice/SliceItem.java"
+            line="358"
+            column="22"/>
     </issue>
 
     <issue
@@ -1330,7 +1584,9 @@
         errorLine1="    public Bundle toBundle() {"
         errorLine2="           ~~~~~~">
         <location
-            file="src/main/java/androidx/slice/SliceItem.java"/>
+            file="src/main/java/androidx/slice/SliceItem.java"
+            line="370"
+            column="12"/>
     </issue>
 
     <issue
@@ -1339,7 +1595,9 @@
         errorLine1="    public boolean hasHints(@Slice.SliceHint String[] hints) {"
         errorLine2="                                             ~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/SliceItem.java"/>
+            file="src/main/java/androidx/slice/SliceItem.java"
+            line="383"
+            column="46"/>
     </issue>
 
     <issue
@@ -1348,7 +1606,9 @@
         errorLine1="    public boolean hasAnyHints(@Slice.SliceHint String... hints) {"
         errorLine2="                                                ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/SliceItem.java"/>
+            file="src/main/java/androidx/slice/SliceItem.java"
+            line="397"
+            column="49"/>
     </issue>
 
     <issue
@@ -1357,7 +1617,9 @@
         errorLine1="    public static String typeToString(String format) {"
         errorLine2="                  ~~~~~~">
         <location
-            file="src/main/java/androidx/slice/SliceItem.java"/>
+            file="src/main/java/androidx/slice/SliceItem.java"
+            line="466"
+            column="19"/>
     </issue>
 
     <issue
@@ -1366,7 +1628,9 @@
         errorLine1="    public static String typeToString(String format) {"
         errorLine2="                                      ~~~~~~">
         <location
-            file="src/main/java/androidx/slice/SliceItem.java"/>
+            file="src/main/java/androidx/slice/SliceItem.java"
+            line="466"
+            column="39"/>
     </issue>
 
     <issue
@@ -1375,7 +1639,9 @@
         errorLine1="    public String toString(String indent) {"
         errorLine2="           ~~~~~~">
         <location
-            file="src/main/java/androidx/slice/SliceItem.java"/>
+            file="src/main/java/androidx/slice/SliceItem.java"
+            line="500"
+            column="12"/>
     </issue>
 
     <issue
@@ -1384,7 +1650,9 @@
         errorLine1="    public String toString(String indent) {"
         errorLine2="                           ~~~~~~">
         <location
-            file="src/main/java/androidx/slice/SliceItem.java"/>
+            file="src/main/java/androidx/slice/SliceItem.java"
+            line="500"
+            column="28"/>
     </issue>
 
     <issue
@@ -1393,7 +1661,9 @@
         errorLine1="        void onAction(SliceItem item, Context context, Intent intent);"
         errorLine2="                      ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/SliceItem.java"/>
+            file="src/main/java/androidx/slice/SliceItem.java"
+            line="715"
+            column="23"/>
     </issue>
 
     <issue
@@ -1402,7 +1672,9 @@
         errorLine1="        void onAction(SliceItem item, Context context, Intent intent);"
         errorLine2="                                      ~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/SliceItem.java"/>
+            file="src/main/java/androidx/slice/SliceItem.java"
+            line="715"
+            column="39"/>
     </issue>
 
     <issue
@@ -1411,7 +1683,9 @@
         errorLine1="        void onAction(SliceItem item, Context context, Intent intent);"
         errorLine2="                                                       ~~~~~~">
         <location
-            file="src/main/java/androidx/slice/SliceItem.java"/>
+            file="src/main/java/androidx/slice/SliceItem.java"
+            line="715"
+            column="56"/>
     </issue>
 
     <issue
@@ -1420,7 +1694,9 @@
         errorLine1="    public static HolderHandler sHandler;"
         errorLine2="                  ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/SliceItemHolder.java"/>
+            file="src/main/java/androidx/slice/SliceItemHolder.java"
+            line="54"
+            column="19"/>
     </issue>
 
     <issue
@@ -1429,7 +1705,9 @@
         errorLine1="    public VersionedParcelable mVersionedParcelable = null;"
         errorLine2="           ~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/SliceItemHolder.java"/>
+            file="src/main/java/androidx/slice/SliceItemHolder.java"
+            line="58"
+            column="12"/>
     </issue>
 
     <issue
@@ -1438,7 +1716,9 @@
         errorLine1="    public SliceItemHolder(String format, Object mObj, boolean isStream) {"
         errorLine2="                           ~~~~~~">
         <location
-            file="src/main/java/androidx/slice/SliceItemHolder.java"/>
+            file="src/main/java/androidx/slice/SliceItemHolder.java"
+            line="89"
+            column="28"/>
     </issue>
 
     <issue
@@ -1447,7 +1727,9 @@
         errorLine1="    public SliceItemHolder(String format, Object mObj, boolean isStream) {"
         errorLine2="                                          ~~~~~~">
         <location
-            file="src/main/java/androidx/slice/SliceItemHolder.java"/>
+            file="src/main/java/androidx/slice/SliceItemHolder.java"
+            line="89"
+            column="43"/>
     </issue>
 
     <issue
@@ -1456,7 +1738,9 @@
         errorLine1="    public Object getObj(String format) {"
         errorLine2="           ~~~~~~">
         <location
-            file="src/main/java/androidx/slice/SliceItemHolder.java"/>
+            file="src/main/java/androidx/slice/SliceItemHolder.java"
+            line="128"
+            column="12"/>
     </issue>
 
     <issue
@@ -1465,7 +1749,9 @@
         errorLine1="    public Object getObj(String format) {"
         errorLine2="                         ~~~~~~">
         <location
-            file="src/main/java/androidx/slice/SliceItemHolder.java"/>
+            file="src/main/java/androidx/slice/SliceItemHolder.java"
+            line="128"
+            column="26"/>
     </issue>
 
     <issue
@@ -1474,7 +1760,9 @@
         errorLine1="        void handle(SliceItemHolder holder, String format);"
         errorLine2="                    ~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/SliceItemHolder.java"/>
+            file="src/main/java/androidx/slice/SliceItemHolder.java"
+            line="162"
+            column="21"/>
     </issue>
 
     <issue
@@ -1483,7 +1771,9 @@
         errorLine1="        void handle(SliceItemHolder holder, String format);"
         errorLine2="                                            ~~~~~~">
         <location
-            file="src/main/java/androidx/slice/SliceItemHolder.java"/>
+            file="src/main/java/androidx/slice/SliceItemHolder.java"
+            line="162"
+            column="45"/>
     </issue>
 
     <issue
@@ -1492,7 +1782,9 @@
         errorLine1="        public SliceItemHolder get() {"
         errorLine2="               ~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/SliceItemHolder.java"/>
+            file="src/main/java/androidx/slice/SliceItemHolder.java"
+            line="175"
+            column="16"/>
     </issue>
 
     <issue
@@ -1501,7 +1793,9 @@
         errorLine1="        public void release(SliceItemHolder sliceItemHolder) {"
         errorLine2="                            ~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/SliceItemHolder.java"/>
+            file="src/main/java/androidx/slice/SliceItemHolder.java"
+            line="185"
+            column="29"/>
     </issue>
 
     <issue
@@ -1510,7 +1804,9 @@
         errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
         errorLine2="                            ~~~~~~">
         <location
-            file="src/main/java/androidx/slice/compat/SlicePermissionActivity.java"/>
+            file="src/main/java/androidx/slice/compat/SlicePermissionActivity.java"
+            line="60"
+            column="29"/>
     </issue>
 
     <issue
@@ -1519,7 +1815,9 @@
         errorLine1="        public SliceProviderWrapper(androidx.slice.SliceProvider provider,"
         errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/compat/SliceProviderWrapperContainer.java"/>
+            file="src/main/java/androidx/slice/compat/SliceProviderWrapperContainer.java"
+            line="64"
+            column="37"/>
     </issue>
 
     <issue
@@ -1528,7 +1826,9 @@
         errorLine1="                String[] autoGrantPermissions) {"
         errorLine2="                ~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/compat/SliceProviderWrapperContainer.java"/>
+            file="src/main/java/androidx/slice/compat/SliceProviderWrapperContainer.java"
+            line="65"
+            column="17"/>
     </issue>
 
     <issue
@@ -1537,7 +1837,9 @@
         errorLine1="        public PendingIntent onCreatePermissionRequest(Uri sliceUri) {"
         errorLine2="               ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/compat/SliceProviderWrapperContainer.java"/>
+            file="src/main/java/androidx/slice/compat/SliceProviderWrapperContainer.java"
+            line="85"
+            column="16"/>
     </issue>
 
     <issue
@@ -1546,7 +1848,9 @@
         errorLine1="        public Bundle call(String method, String arg, Bundle extras) {"
         errorLine2="               ~~~~~~">
         <location
-            file="src/main/java/androidx/slice/compat/SliceProviderWrapperContainer.java"/>
+            file="src/main/java/androidx/slice/compat/SliceProviderWrapperContainer.java"
+            line="99"
+            column="16"/>
     </issue>
 
     <issue
@@ -1555,7 +1859,9 @@
         errorLine1="        public Bundle call(String method, String arg, Bundle extras) {"
         errorLine2="                           ~~~~~~">
         <location
-            file="src/main/java/androidx/slice/compat/SliceProviderWrapperContainer.java"/>
+            file="src/main/java/androidx/slice/compat/SliceProviderWrapperContainer.java"
+            line="99"
+            column="28"/>
     </issue>
 
     <issue
@@ -1564,7 +1870,9 @@
         errorLine1="        public Bundle call(String method, String arg, Bundle extras) {"
         errorLine2="                                          ~~~~~~">
         <location
-            file="src/main/java/androidx/slice/compat/SliceProviderWrapperContainer.java"/>
+            file="src/main/java/androidx/slice/compat/SliceProviderWrapperContainer.java"
+            line="99"
+            column="43"/>
     </issue>
 
     <issue
@@ -1573,7 +1881,9 @@
         errorLine1="        public Bundle call(String method, String arg, Bundle extras) {"
         errorLine2="                                                      ~~~~~~">
         <location
-            file="src/main/java/androidx/slice/compat/SliceProviderWrapperContainer.java"/>
+            file="src/main/java/androidx/slice/compat/SliceProviderWrapperContainer.java"
+            line="99"
+            column="55"/>
     </issue>
 
     <issue
@@ -1582,7 +1892,9 @@
         errorLine1="        public Collection&lt;Uri> onGetSliceDescendants(Uri uri) {"
         errorLine2="               ~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/compat/SliceProviderWrapperContainer.java"/>
+            file="src/main/java/androidx/slice/compat/SliceProviderWrapperContainer.java"
+            line="165"
+            column="16"/>
     </issue>
 
     <issue
@@ -1591,7 +1903,9 @@
         errorLine1="        public Collection&lt;Uri> onGetSliceDescendants(Uri uri) {"
         errorLine2="                                                     ~~~">
         <location
-            file="src/main/java/androidx/slice/compat/SliceProviderWrapperContainer.java"/>
+            file="src/main/java/androidx/slice/compat/SliceProviderWrapperContainer.java"
+            line="165"
+            column="54"/>
     </issue>
 
     <issue
@@ -1600,7 +1914,9 @@
         errorLine1="    public static boolean hasAnyHints(SliceItem item, String... hints) {"
         errorLine2="                                      ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/core/SliceQuery.java"/>
+            file="src/main/java/androidx/slice/core/SliceQuery.java"
+            line="46"
+            column="39"/>
     </issue>
 
     <issue
@@ -1609,7 +1925,9 @@
         errorLine1="    public static boolean hasAnyHints(SliceItem item, String... hints) {"
         errorLine2="                                                      ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/core/SliceQuery.java"/>
+            file="src/main/java/androidx/slice/core/SliceQuery.java"
+            line="46"
+            column="55"/>
     </issue>
 
     <issue
@@ -1618,7 +1936,9 @@
         errorLine1="    public static boolean hasHints(SliceItem item, String... hints) {"
         errorLine2="                                   ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/core/SliceQuery.java"/>
+            file="src/main/java/androidx/slice/core/SliceQuery.java"
+            line="58"
+            column="36"/>
     </issue>
 
     <issue
@@ -1627,7 +1947,9 @@
         errorLine1="    public static boolean hasHints(SliceItem item, String... hints) {"
         errorLine2="                                                   ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/core/SliceQuery.java"/>
+            file="src/main/java/androidx/slice/core/SliceQuery.java"
+            line="58"
+            column="52"/>
     </issue>
 
     <issue
@@ -1636,7 +1958,9 @@
         errorLine1="    public static boolean hasHints(Slice item, String... hints) {"
         errorLine2="                                   ~~~~~">
         <location
-            file="src/main/java/androidx/slice/core/SliceQuery.java"/>
+            file="src/main/java/androidx/slice/core/SliceQuery.java"
+            line="70"
+            column="36"/>
     </issue>
 
     <issue
@@ -1645,7 +1969,9 @@
         errorLine1="    public static boolean hasHints(Slice item, String... hints) {"
         errorLine2="                                               ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/core/SliceQuery.java"/>
+            file="src/main/java/androidx/slice/core/SliceQuery.java"
+            line="70"
+            column="48"/>
     </issue>
 
     <issue
@@ -1654,7 +1980,9 @@
         errorLine1="    public static SliceItem findNotContaining(SliceItem container, List&lt;SliceItem> list) {"
         errorLine2="                  ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/core/SliceQuery.java"/>
+            file="src/main/java/androidx/slice/core/SliceQuery.java"
+            line="82"
+            column="19"/>
     </issue>
 
     <issue
@@ -1663,7 +1991,9 @@
         errorLine1="    public static SliceItem findNotContaining(SliceItem container, List&lt;SliceItem> list) {"
         errorLine2="                                              ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/core/SliceQuery.java"/>
+            file="src/main/java/androidx/slice/core/SliceQuery.java"
+            line="82"
+            column="47"/>
     </issue>
 
     <issue
@@ -1672,7 +2002,9 @@
         errorLine1="    public static SliceItem findNotContaining(SliceItem container, List&lt;SliceItem> list) {"
         errorLine2="                                                                   ~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/core/SliceQuery.java"/>
+            file="src/main/java/androidx/slice/core/SliceQuery.java"
+            line="82"
+            column="68"/>
     </issue>
 
     <issue
@@ -1681,7 +2013,9 @@
         errorLine1="    public static List&lt;SliceItem> findAll(SliceItem s, String format) {"
         errorLine2="                  ~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/core/SliceQuery.java"/>
+            file="src/main/java/androidx/slice/core/SliceQuery.java"
+            line="107"
+            column="19"/>
     </issue>
 
     <issue
@@ -1690,7 +2024,9 @@
         errorLine1="    public static List&lt;SliceItem> findAll(SliceItem s, String format) {"
         errorLine2="                                          ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/core/SliceQuery.java"/>
+            file="src/main/java/androidx/slice/core/SliceQuery.java"
+            line="107"
+            column="43"/>
     </issue>
 
     <issue
@@ -1699,7 +2035,9 @@
         errorLine1="    public static List&lt;SliceItem> findAll(SliceItem s, String format) {"
         errorLine2="                                                       ~~~~~~">
         <location
-            file="src/main/java/androidx/slice/core/SliceQuery.java"/>
+            file="src/main/java/androidx/slice/core/SliceQuery.java"
+            line="107"
+            column="56"/>
     </issue>
 
     <issue
@@ -1708,7 +2046,9 @@
         errorLine1="    public static List&lt;SliceItem> findAll(Slice s, String format, String hints, String nonHints) {"
         errorLine2="                  ~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/core/SliceQuery.java"/>
+            file="src/main/java/androidx/slice/core/SliceQuery.java"
+            line="113"
+            column="19"/>
     </issue>
 
     <issue
@@ -1717,7 +2057,9 @@
         errorLine1="    public static List&lt;SliceItem> findAll(Slice s, String format, String hints, String nonHints) {"
         errorLine2="                                          ~~~~~">
         <location
-            file="src/main/java/androidx/slice/core/SliceQuery.java"/>
+            file="src/main/java/androidx/slice/core/SliceQuery.java"
+            line="113"
+            column="43"/>
     </issue>
 
     <issue
@@ -1726,7 +2068,9 @@
         errorLine1="    public static List&lt;SliceItem> findAll(Slice s, String format, String hints, String nonHints) {"
         errorLine2="                                                   ~~~~~~">
         <location
-            file="src/main/java/androidx/slice/core/SliceQuery.java"/>
+            file="src/main/java/androidx/slice/core/SliceQuery.java"
+            line="113"
+            column="52"/>
     </issue>
 
     <issue
@@ -1735,7 +2079,9 @@
         errorLine1="    public static List&lt;SliceItem> findAll(Slice s, String format, String hints, String nonHints) {"
         errorLine2="                                                                  ~~~~~~">
         <location
-            file="src/main/java/androidx/slice/core/SliceQuery.java"/>
+            file="src/main/java/androidx/slice/core/SliceQuery.java"
+            line="113"
+            column="67"/>
     </issue>
 
     <issue
@@ -1744,7 +2090,9 @@
         errorLine1="    public static List&lt;SliceItem> findAll(Slice s, String format, String hints, String nonHints) {"
         errorLine2="                                                                                ~~~~~~">
         <location
-            file="src/main/java/androidx/slice/core/SliceQuery.java"/>
+            file="src/main/java/androidx/slice/core/SliceQuery.java"
+            line="113"
+            column="81"/>
     </issue>
 
     <issue
@@ -1753,7 +2101,9 @@
         errorLine1="    public static List&lt;SliceItem> findAll(SliceItem s, String format, String hints,"
         errorLine2="                  ~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/core/SliceQuery.java"/>
+            file="src/main/java/androidx/slice/core/SliceQuery.java"
+            line="119"
+            column="19"/>
     </issue>
 
     <issue
@@ -1762,7 +2112,9 @@
         errorLine1="    public static List&lt;SliceItem> findAll(SliceItem s, String format, String hints,"
         errorLine2="                                          ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/core/SliceQuery.java"/>
+            file="src/main/java/androidx/slice/core/SliceQuery.java"
+            line="119"
+            column="43"/>
     </issue>
 
     <issue
@@ -1771,7 +2123,9 @@
         errorLine1="    public static List&lt;SliceItem> findAll(SliceItem s, String format, String hints,"
         errorLine2="                                                       ~~~~~~">
         <location
-            file="src/main/java/androidx/slice/core/SliceQuery.java"/>
+            file="src/main/java/androidx/slice/core/SliceQuery.java"
+            line="119"
+            column="56"/>
     </issue>
 
     <issue
@@ -1780,7 +2134,9 @@
         errorLine1="    public static List&lt;SliceItem> findAll(SliceItem s, String format, String hints,"
         errorLine2="                                                                      ~~~~~~">
         <location
-            file="src/main/java/androidx/slice/core/SliceQuery.java"/>
+            file="src/main/java/androidx/slice/core/SliceQuery.java"
+            line="119"
+            column="71"/>
     </issue>
 
     <issue
@@ -1789,7 +2145,9 @@
         errorLine1="            String nonHints) {"
         errorLine2="            ~~~~~~">
         <location
-            file="src/main/java/androidx/slice/core/SliceQuery.java"/>
+            file="src/main/java/androidx/slice/core/SliceQuery.java"
+            line="120"
+            column="13"/>
     </issue>
 
     <issue
@@ -1798,7 +2156,9 @@
         errorLine1="    public static List&lt;SliceItem> findAll(Slice s, final String format, final String[] hints,"
         errorLine2="                  ~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/core/SliceQuery.java"/>
+            file="src/main/java/androidx/slice/core/SliceQuery.java"
+            line="126"
+            column="19"/>
     </issue>
 
     <issue
@@ -1807,7 +2167,9 @@
         errorLine1="    public static List&lt;SliceItem> findAll(Slice s, final String format, final String[] hints,"
         errorLine2="                                          ~~~~~">
         <location
-            file="src/main/java/androidx/slice/core/SliceQuery.java"/>
+            file="src/main/java/androidx/slice/core/SliceQuery.java"
+            line="126"
+            column="43"/>
     </issue>
 
     <issue
@@ -1816,7 +2178,9 @@
         errorLine1="    public static List&lt;SliceItem> findAll(Slice s, final String format, final String[] hints,"
         errorLine2="                                                         ~~~~~~">
         <location
-            file="src/main/java/androidx/slice/core/SliceQuery.java"/>
+            file="src/main/java/androidx/slice/core/SliceQuery.java"
+            line="126"
+            column="58"/>
     </issue>
 
     <issue
@@ -1825,7 +2189,9 @@
         errorLine1="    public static List&lt;SliceItem> findAll(Slice s, final String format, final String[] hints,"
         errorLine2="                                                                              ~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/core/SliceQuery.java"/>
+            file="src/main/java/androidx/slice/core/SliceQuery.java"
+            line="126"
+            column="79"/>
     </issue>
 
     <issue
@@ -1834,7 +2200,9 @@
         errorLine1="            final String[] nonHints) {"
         errorLine2="                  ~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/core/SliceQuery.java"/>
+            file="src/main/java/androidx/slice/core/SliceQuery.java"
+            line="127"
+            column="19"/>
     </issue>
 
     <issue
@@ -1843,7 +2211,9 @@
         errorLine1="    public static List&lt;SliceItem> findAll(SliceItem s, final String format, final String[] hints,"
         errorLine2="                  ~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/core/SliceQuery.java"/>
+            file="src/main/java/androidx/slice/core/SliceQuery.java"
+            line="141"
+            column="19"/>
     </issue>
 
     <issue
@@ -1852,7 +2222,9 @@
         errorLine1="    public static List&lt;SliceItem> findAll(SliceItem s, final String format, final String[] hints,"
         errorLine2="                                          ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/core/SliceQuery.java"/>
+            file="src/main/java/androidx/slice/core/SliceQuery.java"
+            line="141"
+            column="43"/>
     </issue>
 
     <issue
@@ -1861,7 +2233,9 @@
         errorLine1="    public static List&lt;SliceItem> findAll(SliceItem s, final String format, final String[] hints,"
         errorLine2="                                                             ~~~~~~">
         <location
-            file="src/main/java/androidx/slice/core/SliceQuery.java"/>
+            file="src/main/java/androidx/slice/core/SliceQuery.java"
+            line="141"
+            column="62"/>
     </issue>
 
     <issue
@@ -1870,7 +2244,9 @@
         errorLine1="    public static List&lt;SliceItem> findAll(SliceItem s, final String format, final String[] hints,"
         errorLine2="                                                                                  ~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/core/SliceQuery.java"/>
+            file="src/main/java/androidx/slice/core/SliceQuery.java"
+            line="141"
+            column="83"/>
     </issue>
 
     <issue
@@ -1879,7 +2255,9 @@
         errorLine1="            final String[] nonHints) {"
         errorLine2="                  ~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/core/SliceQuery.java"/>
+            file="src/main/java/androidx/slice/core/SliceQuery.java"
+            line="142"
+            column="19"/>
     </issue>
 
     <issue
@@ -1888,7 +2266,9 @@
         errorLine1="    public static SliceItem find(Slice s, String format, String hints, String nonHints) {"
         errorLine2="                  ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/core/SliceQuery.java"/>
+            file="src/main/java/androidx/slice/core/SliceQuery.java"
+            line="156"
+            column="19"/>
     </issue>
 
     <issue
@@ -1897,7 +2277,9 @@
         errorLine1="    public static SliceItem find(Slice s, String format, String hints, String nonHints) {"
         errorLine2="                                 ~~~~~">
         <location
-            file="src/main/java/androidx/slice/core/SliceQuery.java"/>
+            file="src/main/java/androidx/slice/core/SliceQuery.java"
+            line="156"
+            column="34"/>
     </issue>
 
     <issue
@@ -1906,7 +2288,9 @@
         errorLine1="    public static SliceItem find(Slice s, String format, String hints, String nonHints) {"
         errorLine2="                                          ~~~~~~">
         <location
-            file="src/main/java/androidx/slice/core/SliceQuery.java"/>
+            file="src/main/java/androidx/slice/core/SliceQuery.java"
+            line="156"
+            column="43"/>
     </issue>
 
     <issue
@@ -1915,7 +2299,9 @@
         errorLine1="    public static SliceItem find(Slice s, String format, String hints, String nonHints) {"
         errorLine2="                                                         ~~~~~~">
         <location
-            file="src/main/java/androidx/slice/core/SliceQuery.java"/>
+            file="src/main/java/androidx/slice/core/SliceQuery.java"
+            line="156"
+            column="58"/>
     </issue>
 
     <issue
@@ -1924,7 +2310,9 @@
         errorLine1="    public static SliceItem find(Slice s, String format, String hints, String nonHints) {"
         errorLine2="                                                                       ~~~~~~">
         <location
-            file="src/main/java/androidx/slice/core/SliceQuery.java"/>
+            file="src/main/java/androidx/slice/core/SliceQuery.java"
+            line="156"
+            column="72"/>
     </issue>
 
     <issue
@@ -1933,7 +2321,9 @@
         errorLine1="    public static SliceItem find(Slice s, String format) {"
         errorLine2="                  ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/core/SliceQuery.java"/>
+            file="src/main/java/androidx/slice/core/SliceQuery.java"
+            line="162"
+            column="19"/>
     </issue>
 
     <issue
@@ -1942,7 +2332,9 @@
         errorLine1="    public static SliceItem find(Slice s, String format) {"
         errorLine2="                                 ~~~~~">
         <location
-            file="src/main/java/androidx/slice/core/SliceQuery.java"/>
+            file="src/main/java/androidx/slice/core/SliceQuery.java"
+            line="162"
+            column="34"/>
     </issue>
 
     <issue
@@ -1951,7 +2343,9 @@
         errorLine1="    public static SliceItem find(Slice s, String format) {"
         errorLine2="                                          ~~~~~~">
         <location
-            file="src/main/java/androidx/slice/core/SliceQuery.java"/>
+            file="src/main/java/androidx/slice/core/SliceQuery.java"
+            line="162"
+            column="43"/>
     </issue>
 
     <issue
@@ -1960,7 +2354,9 @@
         errorLine1="    public static SliceItem find(SliceItem s, String format) {"
         errorLine2="                  ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/core/SliceQuery.java"/>
+            file="src/main/java/androidx/slice/core/SliceQuery.java"
+            line="168"
+            column="19"/>
     </issue>
 
     <issue
@@ -1969,7 +2365,9 @@
         errorLine1="    public static SliceItem find(SliceItem s, String format) {"
         errorLine2="                                 ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/core/SliceQuery.java"/>
+            file="src/main/java/androidx/slice/core/SliceQuery.java"
+            line="168"
+            column="34"/>
     </issue>
 
     <issue
@@ -1978,7 +2376,9 @@
         errorLine1="    public static SliceItem find(SliceItem s, String format) {"
         errorLine2="                                              ~~~~~~">
         <location
-            file="src/main/java/androidx/slice/core/SliceQuery.java"/>
+            file="src/main/java/androidx/slice/core/SliceQuery.java"
+            line="168"
+            column="47"/>
     </issue>
 
     <issue
@@ -1987,7 +2387,9 @@
         errorLine1="    public static SliceItem find(SliceItem s, String format, String hints, String nonHints) {"
         errorLine2="                  ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/core/SliceQuery.java"/>
+            file="src/main/java/androidx/slice/core/SliceQuery.java"
+            line="174"
+            column="19"/>
     </issue>
 
     <issue
@@ -1996,7 +2398,9 @@
         errorLine1="    public static SliceItem find(SliceItem s, String format, String hints, String nonHints) {"
         errorLine2="                                 ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/core/SliceQuery.java"/>
+            file="src/main/java/androidx/slice/core/SliceQuery.java"
+            line="174"
+            column="34"/>
     </issue>
 
     <issue
@@ -2005,7 +2409,9 @@
         errorLine1="    public static SliceItem find(SliceItem s, String format, String hints, String nonHints) {"
         errorLine2="                                              ~~~~~~">
         <location
-            file="src/main/java/androidx/slice/core/SliceQuery.java"/>
+            file="src/main/java/androidx/slice/core/SliceQuery.java"
+            line="174"
+            column="47"/>
     </issue>
 
     <issue
@@ -2014,7 +2420,9 @@
         errorLine1="    public static SliceItem find(SliceItem s, String format, String hints, String nonHints) {"
         errorLine2="                                                             ~~~~~~">
         <location
-            file="src/main/java/androidx/slice/core/SliceQuery.java"/>
+            file="src/main/java/androidx/slice/core/SliceQuery.java"
+            line="174"
+            column="62"/>
     </issue>
 
     <issue
@@ -2023,7 +2431,9 @@
         errorLine1="    public static SliceItem find(SliceItem s, String format, String hints, String nonHints) {"
         errorLine2="                                                                           ~~~~~~">
         <location
-            file="src/main/java/androidx/slice/core/SliceQuery.java"/>
+            file="src/main/java/androidx/slice/core/SliceQuery.java"
+            line="174"
+            column="76"/>
     </issue>
 
     <issue
@@ -2032,7 +2442,9 @@
         errorLine1="    public static SliceItem find(Slice s, final String format, final String[] hints,"
         errorLine2="                  ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/core/SliceQuery.java"/>
+            file="src/main/java/androidx/slice/core/SliceQuery.java"
+            line="180"
+            column="19"/>
     </issue>
 
     <issue
@@ -2041,7 +2453,9 @@
         errorLine1="    public static SliceItem find(Slice s, final String format, final String[] hints,"
         errorLine2="                                 ~~~~~">
         <location
-            file="src/main/java/androidx/slice/core/SliceQuery.java"/>
+            file="src/main/java/androidx/slice/core/SliceQuery.java"
+            line="180"
+            column="34"/>
     </issue>
 
     <issue
@@ -2050,7 +2464,9 @@
         errorLine1="    public static SliceItem find(Slice s, final String format, final String[] hints,"
         errorLine2="                                                ~~~~~~">
         <location
-            file="src/main/java/androidx/slice/core/SliceQuery.java"/>
+            file="src/main/java/androidx/slice/core/SliceQuery.java"
+            line="180"
+            column="49"/>
     </issue>
 
     <issue
@@ -2059,7 +2475,9 @@
         errorLine1="    public static SliceItem find(Slice s, final String format, final String[] hints,"
         errorLine2="                                                                     ~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/core/SliceQuery.java"/>
+            file="src/main/java/androidx/slice/core/SliceQuery.java"
+            line="180"
+            column="70"/>
     </issue>
 
     <issue
@@ -2068,7 +2486,9 @@
         errorLine1="            final String[] nonHints) {"
         errorLine2="                  ~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/core/SliceQuery.java"/>
+            file="src/main/java/androidx/slice/core/SliceQuery.java"
+            line="181"
+            column="19"/>
     </issue>
 
     <issue
@@ -2077,7 +2497,9 @@
         errorLine1="    public static SliceItem findSubtype(Slice s, final String format, final String subtype) {"
         errorLine2="                  ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/core/SliceQuery.java"/>
+            file="src/main/java/androidx/slice/core/SliceQuery.java"
+            line="194"
+            column="19"/>
     </issue>
 
     <issue
@@ -2086,7 +2508,9 @@
         errorLine1="    public static SliceItem findSubtype(Slice s, final String format, final String subtype) {"
         errorLine2="                                        ~~~~~">
         <location
-            file="src/main/java/androidx/slice/core/SliceQuery.java"/>
+            file="src/main/java/androidx/slice/core/SliceQuery.java"
+            line="194"
+            column="41"/>
     </issue>
 
     <issue
@@ -2095,7 +2519,9 @@
         errorLine1="    public static SliceItem findSubtype(Slice s, final String format, final String subtype) {"
         errorLine2="                                                       ~~~~~~">
         <location
-            file="src/main/java/androidx/slice/core/SliceQuery.java"/>
+            file="src/main/java/androidx/slice/core/SliceQuery.java"
+            line="194"
+            column="56"/>
     </issue>
 
     <issue
@@ -2104,7 +2530,9 @@
         errorLine1="    public static SliceItem findSubtype(Slice s, final String format, final String subtype) {"
         errorLine2="                                                                            ~~~~~~">
         <location
-            file="src/main/java/androidx/slice/core/SliceQuery.java"/>
+            file="src/main/java/androidx/slice/core/SliceQuery.java"
+            line="194"
+            column="77"/>
     </issue>
 
     <issue
@@ -2113,7 +2541,9 @@
         errorLine1="    public static SliceItem findSubtype(SliceItem s, final String format, final String subtype) {"
         errorLine2="                  ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/core/SliceQuery.java"/>
+            file="src/main/java/androidx/slice/core/SliceQuery.java"
+            line="206"
+            column="19"/>
     </issue>
 
     <issue
@@ -2122,7 +2552,9 @@
         errorLine1="    public static SliceItem findSubtype(SliceItem s, final String format, final String subtype) {"
         errorLine2="                                        ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/core/SliceQuery.java"/>
+            file="src/main/java/androidx/slice/core/SliceQuery.java"
+            line="206"
+            column="41"/>
     </issue>
 
     <issue
@@ -2131,7 +2563,9 @@
         errorLine1="    public static SliceItem findSubtype(SliceItem s, final String format, final String subtype) {"
         errorLine2="                                                           ~~~~~~">
         <location
-            file="src/main/java/androidx/slice/core/SliceQuery.java"/>
+            file="src/main/java/androidx/slice/core/SliceQuery.java"
+            line="206"
+            column="60"/>
     </issue>
 
     <issue
@@ -2140,7 +2574,9 @@
         errorLine1="    public static SliceItem findSubtype(SliceItem s, final String format, final String subtype) {"
         errorLine2="                                                                                ~~~~~~">
         <location
-            file="src/main/java/androidx/slice/core/SliceQuery.java"/>
+            file="src/main/java/androidx/slice/core/SliceQuery.java"
+            line="206"
+            column="81"/>
     </issue>
 
     <issue
@@ -2149,7 +2585,9 @@
         errorLine1="    public static SliceItem find(SliceItem s, final String format, final String[] hints,"
         errorLine2="                  ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/core/SliceQuery.java"/>
+            file="src/main/java/androidx/slice/core/SliceQuery.java"
+            line="218"
+            column="19"/>
     </issue>
 
     <issue
@@ -2158,7 +2596,9 @@
         errorLine1="    public static SliceItem find(SliceItem s, final String format, final String[] hints,"
         errorLine2="                                 ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/core/SliceQuery.java"/>
+            file="src/main/java/androidx/slice/core/SliceQuery.java"
+            line="218"
+            column="34"/>
     </issue>
 
     <issue
@@ -2167,7 +2607,9 @@
         errorLine1="    public static SliceItem find(SliceItem s, final String format, final String[] hints,"
         errorLine2="                                                    ~~~~~~">
         <location
-            file="src/main/java/androidx/slice/core/SliceQuery.java"/>
+            file="src/main/java/androidx/slice/core/SliceQuery.java"
+            line="218"
+            column="53"/>
     </issue>
 
     <issue
@@ -2176,7 +2618,9 @@
         errorLine1="    public static SliceItem find(SliceItem s, final String format, final String[] hints,"
         errorLine2="                                                                         ~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/core/SliceQuery.java"/>
+            file="src/main/java/androidx/slice/core/SliceQuery.java"
+            line="218"
+            column="74"/>
     </issue>
 
     <issue
@@ -2185,7 +2629,9 @@
         errorLine1="            final String[] nonHints) {"
         errorLine2="                  ~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/core/SliceQuery.java"/>
+            file="src/main/java/androidx/slice/core/SliceQuery.java"
+            line="219"
+            column="19"/>
     </issue>
 
     <issue
@@ -2194,7 +2640,9 @@
         errorLine1="    public static SliceItem findTopLevelItem(Slice s, final String format, final String subtype,"
         errorLine2="                  ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/core/SliceQuery.java"/>
+            file="src/main/java/androidx/slice/core/SliceQuery.java"
+            line="283"
+            column="19"/>
     </issue>
 
     <issue
@@ -2203,7 +2651,9 @@
         errorLine1="    public static SliceItem findTopLevelItem(Slice s, final String format, final String subtype,"
         errorLine2="                                             ~~~~~">
         <location
-            file="src/main/java/androidx/slice/core/SliceQuery.java"/>
+            file="src/main/java/androidx/slice/core/SliceQuery.java"
+            line="283"
+            column="46"/>
     </issue>
 
     <issue
@@ -2212,7 +2662,9 @@
         errorLine1="    public static SliceItem findTopLevelItem(Slice s, final String format, final String subtype,"
         errorLine2="                                                            ~~~~~~">
         <location
-            file="src/main/java/androidx/slice/core/SliceQuery.java"/>
+            file="src/main/java/androidx/slice/core/SliceQuery.java"
+            line="283"
+            column="61"/>
     </issue>
 
     <issue
@@ -2221,7 +2673,9 @@
         errorLine1="    public static SliceItem findTopLevelItem(Slice s, final String format, final String subtype,"
         errorLine2="                                                                                 ~~~~~~">
         <location
-            file="src/main/java/androidx/slice/core/SliceQuery.java"/>
+            file="src/main/java/androidx/slice/core/SliceQuery.java"
+            line="283"
+            column="82"/>
     </issue>
 
     <issue
@@ -2230,7 +2684,9 @@
         errorLine1="            final String[] hints, final String[] nonHints) {"
         errorLine2="                  ~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/core/SliceQuery.java"/>
+            file="src/main/java/androidx/slice/core/SliceQuery.java"
+            line="284"
+            column="19"/>
     </issue>
 
     <issue
@@ -2239,7 +2695,9 @@
         errorLine1="            final String[] hints, final String[] nonHints) {"
         errorLine2="                                        ~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/core/SliceQuery.java"/>
+            file="src/main/java/androidx/slice/core/SliceQuery.java"
+            line="284"
+            column="41"/>
     </issue>
 
     <issue
@@ -2248,7 +2706,9 @@
         errorLine1="    public static SliceItem findItem(Slice s, final Uri uri) {"
         errorLine2="                  ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/core/SliceQuery.java"/>
+            file="src/main/java/androidx/slice/core/SliceQuery.java"
+            line="302"
+            column="19"/>
     </issue>
 
     <issue
@@ -2257,7 +2717,9 @@
         errorLine1="    public static SliceItem findItem(Slice s, final Uri uri) {"
         errorLine2="                                     ~~~~~">
         <location
-            file="src/main/java/androidx/slice/core/SliceQuery.java"/>
+            file="src/main/java/androidx/slice/core/SliceQuery.java"
+            line="302"
+            column="38"/>
     </issue>
 
     <issue
@@ -2266,7 +2728,9 @@
         errorLine1="    public static SliceItem findItem(Slice s, final Uri uri) {"
         errorLine2="                                                    ~~~">
         <location
-            file="src/main/java/androidx/slice/core/SliceQuery.java"/>
+            file="src/main/java/androidx/slice/core/SliceQuery.java"
+            line="302"
+            column="53"/>
     </issue>
 
     <issue
@@ -2275,7 +2739,9 @@
         errorLine1="    public String getType() {"
         errorLine2="           ~~~~~~">
         <location
-            file="src/main/java/androidx/slice/SliceSpec.java"/>
+            file="src/main/java/androidx/slice/SliceSpec.java"
+            line="72"
+            column="12"/>
     </issue>
 
 </issues>

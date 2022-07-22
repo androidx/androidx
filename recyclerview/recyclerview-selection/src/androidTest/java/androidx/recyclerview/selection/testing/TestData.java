@@ -31,8 +31,8 @@ public class TestData {
 
     public static List<Long> createLongData(int num) {
         List<Long> items = new ArrayList<>(num);
-        for (int i = 0; i < num; ++i) {
-            items.add(new Long(i));
+        for (long i = 0; i < num; ++i) {
+            items.add(i);
         }
         return items;
     }

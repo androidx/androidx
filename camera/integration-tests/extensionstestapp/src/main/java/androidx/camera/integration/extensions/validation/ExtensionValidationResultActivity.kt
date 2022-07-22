@@ -48,7 +48,7 @@ class ExtensionValidationResultActivity : AppCompatActivity() {
     private val imageValidationActivityRequestCode =
         ImageValidationActivity::class.java.hashCode() % 1000
 
-    @Suppress("UNCHECKED_CAST")
+    @Suppress("UNCHECKED_CAST", "DEPRECATION")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.full_listview)

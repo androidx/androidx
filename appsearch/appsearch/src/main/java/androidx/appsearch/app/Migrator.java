@@ -51,11 +51,11 @@ public abstract class Migrator {
      * higher version number than the current {@link AppSearchSchema} saved in AppSearch.
      *
      * <p>If this {@link Migrator} is provided to cover a compatible schema change via
-     * {@link AppSearchSession#setSchema}, documents under the old version won't be removed
+     * {@link AppSearchSession#setSchemaAsync}, documents under the old version won't be removed
      * unless you use the same document ID.
      *
      * <p>This method will be invoked on the background worker thread provided via
-     * {@link AppSearchSession#setSchema}.
+     * {@link AppSearchSession#setSchemaAsync}.
      *
      * @param currentVersion The current version of the document's schema.
      * @param finalVersion  The final version that documents need to be migrated to.
@@ -74,7 +74,7 @@ public abstract class Migrator {
      * lower version number than the current {@link AppSearchSchema} saved in AppSearch.
      *
      * <p>If this {@link Migrator} is provided to cover a compatible schema change via
-     * {@link AppSearchSession#setSchema}, documents under the old version won't be removed
+     * {@link AppSearchSession#setSchemaAsync}, documents under the old version won't be removed
      * unless you use the same document ID.
      *
      * <p>This method will be invoked on the background worker thread.

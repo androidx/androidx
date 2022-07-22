@@ -24,6 +24,11 @@ dependencies {
 
 android {
     namespace "androidx.emoji2.viewsintegration"
+
+    // Workaround for b/230466571 where targetSdkVersion gets merged incorrectly.
+    defaultConfig {
+        targetSdk null
+    }
 }
 
 androidx {

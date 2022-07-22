@@ -250,7 +250,8 @@
         errorLine1="        void onLoop(MediaItem mediaItem);"
         errorLine2="                    ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/player/ExoPlayerWrapper.java"/>
+            file="src/main/java/androidx/media2/player/ExoPlayerWrapper.java"
+            column="21"/>
     </issue>
 
     <issue
@@ -259,7 +260,9 @@
         errorLine1="        void onMediaTimeDiscontinuity(MediaItem mediaItem, MediaTimestamp mediaTimestamp);"
         errorLine2="                                      ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/player/ExoPlayerWrapper.java"/>
+            file="src/main/java/androidx/media2/player/ExoPlayerWrapper.java"
+            line="135"
+            column="39"/>
     </issue>
 
     <issue
@@ -268,7 +271,9 @@
         errorLine1="        void onMediaTimeDiscontinuity(MediaItem mediaItem, MediaTimestamp mediaTimestamp);"
         errorLine2="                                                           ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/player/ExoPlayerWrapper.java"/>
+            file="src/main/java/androidx/media2/player/ExoPlayerWrapper.java"
+            line="135"
+            column="60"/>
     </issue>
 
     <issue
@@ -277,7 +282,9 @@
         errorLine1="        void onPlaybackEnded(MediaItem mediaItem);"
         errorLine2="                             ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/player/ExoPlayerWrapper.java"/>
+            file="src/main/java/androidx/media2/player/ExoPlayerWrapper.java"
+            line="138"
+            column="30"/>
     </issue>
 
     <issue
@@ -286,7 +293,9 @@
         errorLine1="        void onError(MediaItem mediaItem, int what);"
         errorLine2="                     ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/player/ExoPlayerWrapper.java"/>
+            file="src/main/java/androidx/media2/player/ExoPlayerWrapper.java"
+            line="141"
+            column="22"/>
     </issue>
 
     <issue
@@ -295,7 +304,9 @@
         errorLine1="    public PersistableBundle getMetrics() {"
         errorLine2="           ~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/player/MediaPlayer.java"/>
+            file="src/main/java/androidx/media2/player/MediaPlayer.java"
+            line="2167"
+            column="12"/>
     </issue>
 
     <issue
@@ -304,7 +315,9 @@
         errorLine1="                MediaPlayer2 mp, MediaItem item, int width, int height) { }"
         errorLine2="                ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/player/MediaPlayer2.java"/>
+            file="src/main/java/androidx/media2/player/MediaPlayer2.java"
+            line="824"
+            column="17"/>
     </issue>
 
     <issue
@@ -313,7 +326,9 @@
         errorLine1="                MediaPlayer2 mp, MediaItem item, int width, int height) { }"
         errorLine2="                                 ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/player/MediaPlayer2.java"/>
+            file="src/main/java/androidx/media2/player/MediaPlayer2.java"
+            line="824"
+            column="34"/>
     </issue>
 
     <issue
@@ -322,7 +337,9 @@
         errorLine1="                MediaPlayer2 mp, MediaItem item, TimedMetaData data) { }"
         errorLine2="                ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/player/MediaPlayer2.java"/>
+            file="src/main/java/androidx/media2/player/MediaPlayer2.java"
+            line="844"
+            column="17"/>
     </issue>
 
     <issue
@@ -331,7 +348,9 @@
         errorLine1="                MediaPlayer2 mp, MediaItem item, TimedMetaData data) { }"
         errorLine2="                                 ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/player/MediaPlayer2.java"/>
+            file="src/main/java/androidx/media2/player/MediaPlayer2.java"
+            line="844"
+            column="34"/>
     </issue>
 
     <issue
@@ -340,7 +359,9 @@
         errorLine1="                MediaPlayer2 mp, MediaItem item, TimedMetaData data) { }"
         errorLine2="                                                 ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/player/MediaPlayer2.java"/>
+            file="src/main/java/androidx/media2/player/MediaPlayer2.java"
+            line="844"
+            column="50"/>
     </issue>
 
     <issue
@@ -349,7 +370,9 @@
         errorLine1="                MediaPlayer2 mp, MediaItem item, @MediaError int what, int extra) { }"
         errorLine2="                ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/player/MediaPlayer2.java"/>
+            file="src/main/java/androidx/media2/player/MediaPlayer2.java"
+            line="856"
+            column="17"/>
     </issue>
 
     <issue
@@ -358,7 +381,9 @@
         errorLine1="                MediaPlayer2 mp, MediaItem item, @MediaError int what, int extra) { }"
         errorLine2="                                 ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/player/MediaPlayer2.java"/>
+            file="src/main/java/androidx/media2/player/MediaPlayer2.java"
+            line="856"
+            column="34"/>
     </issue>
 
     <issue
@@ -367,7 +392,9 @@
         errorLine1="        public void onInfo(MediaPlayer2 mp, MediaItem item, @MediaInfo int what, int extra) { }"
         errorLine2="                           ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/player/MediaPlayer2.java"/>
+            file="src/main/java/androidx/media2/player/MediaPlayer2.java"
+            line="867"
+            column="28"/>
     </issue>
 
     <issue
@@ -376,7 +403,9 @@
         errorLine1="        public void onInfo(MediaPlayer2 mp, MediaItem item, @MediaInfo int what, int extra) { }"
         errorLine2="                                            ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/player/MediaPlayer2.java"/>
+            file="src/main/java/androidx/media2/player/MediaPlayer2.java"
+            line="867"
+            column="45"/>
     </issue>
 
     <issue
@@ -385,7 +414,9 @@
         errorLine1="                MediaPlayer2 mp, MediaItem item, @CallCompleted int what,"
         errorLine2="                ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/player/MediaPlayer2.java"/>
+            file="src/main/java/androidx/media2/player/MediaPlayer2.java"
+            line="878"
+            column="17"/>
     </issue>
 
     <issue
@@ -394,7 +425,9 @@
         errorLine1="                MediaPlayer2 mp, MediaItem item, @CallCompleted int what,"
         errorLine2="                                 ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/player/MediaPlayer2.java"/>
+            file="src/main/java/androidx/media2/player/MediaPlayer2.java"
+            line="878"
+            column="34"/>
     </issue>
 
     <issue
@@ -403,7 +436,9 @@
         errorLine1="                MediaPlayer2 mp, MediaItem item, MediaTimestamp timestamp) { }"
         errorLine2="                ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/player/MediaPlayer2.java"/>
+            file="src/main/java/androidx/media2/player/MediaPlayer2.java"
+            line="902"
+            column="17"/>
     </issue>
 
     <issue
@@ -412,7 +447,9 @@
         errorLine1="                MediaPlayer2 mp, MediaItem item, MediaTimestamp timestamp) { }"
         errorLine2="                                 ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/player/MediaPlayer2.java"/>
+            file="src/main/java/androidx/media2/player/MediaPlayer2.java"
+            line="902"
+            column="34"/>
     </issue>
 
     <issue
@@ -421,7 +458,9 @@
         errorLine1="                MediaPlayer2 mp, MediaItem item, MediaTimestamp timestamp) { }"
         errorLine2="                                                 ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/player/MediaPlayer2.java"/>
+            file="src/main/java/androidx/media2/player/MediaPlayer2.java"
+            line="902"
+            column="50"/>
     </issue>
 
     <issue
@@ -430,7 +469,9 @@
         errorLine1="        public void onCommandLabelReached(MediaPlayer2 mp, @NonNull Object label) { }"
         errorLine2="                                          ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/player/MediaPlayer2.java"/>
+            file="src/main/java/androidx/media2/player/MediaPlayer2.java"
+            line="911"
+            column="43"/>
     </issue>
 
     <issue
@@ -439,7 +480,9 @@
         errorLine1="        void onDrmConfig(MediaPlayer2 mp, MediaItem item);"
         errorLine2="                         ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/player/MediaPlayer2.java"/>
+            file="src/main/java/androidx/media2/player/MediaPlayer2.java"
+            line="1452"
+            column="26"/>
     </issue>
 
     <issue
@@ -448,7 +491,9 @@
         errorLine1="        void onDrmConfig(MediaPlayer2 mp, MediaItem item);"
         errorLine2="                                          ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/player/MediaPlayer2.java"/>
+            file="src/main/java/androidx/media2/player/MediaPlayer2.java"
+            line="1452"
+            column="43"/>
     </issue>
 
     <issue
@@ -457,7 +502,9 @@
         errorLine1="        public void onDrmInfo(MediaPlayer2 mp, MediaItem item, DrmInfo drmInfo) { }"
         errorLine2="                              ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/player/MediaPlayer2.java"/>
+            file="src/main/java/androidx/media2/player/MediaPlayer2.java"
+            line="1479"
+            column="31"/>
     </issue>
 
     <issue
@@ -466,7 +513,9 @@
         errorLine1="        public void onDrmInfo(MediaPlayer2 mp, MediaItem item, DrmInfo drmInfo) { }"
         errorLine2="                                               ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/player/MediaPlayer2.java"/>
+            file="src/main/java/androidx/media2/player/MediaPlayer2.java"
+            line="1479"
+            column="48"/>
     </issue>
 
     <issue
@@ -475,7 +524,9 @@
         errorLine1="        public void onDrmInfo(MediaPlayer2 mp, MediaItem item, DrmInfo drmInfo) { }"
         errorLine2="                                                               ~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/player/MediaPlayer2.java"/>
+            file="src/main/java/androidx/media2/player/MediaPlayer2.java"
+            line="1479"
+            column="64"/>
     </issue>
 
     <issue
@@ -484,7 +535,9 @@
         errorLine1="                MediaPlayer2 mp, MediaItem item, @PrepareDrmStatusCode int status) { }"
         errorLine2="                ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/player/MediaPlayer2.java"/>
+            file="src/main/java/androidx/media2/player/MediaPlayer2.java"
+            line="1490"
+            column="17"/>
     </issue>
 
     <issue
@@ -493,7 +546,9 @@
         errorLine1="                MediaPlayer2 mp, MediaItem item, @PrepareDrmStatusCode int status) { }"
         errorLine2="                                 ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/player/MediaPlayer2.java"/>
+            file="src/main/java/androidx/media2/player/MediaPlayer2.java"
+            line="1490"
+            column="34"/>
     </issue>
 
     <issue
@@ -502,7 +557,9 @@
         errorLine1="        public abstract Map&lt;UUID, byte[]&gt; getPssh();"
         errorLine2="                        ~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/player/MediaPlayer2.java"/>
+            file="src/main/java/androidx/media2/player/MediaPlayer2.java"
+            line="1714"
+            column="25"/>
     </issue>
 
     <issue
@@ -511,7 +568,9 @@
         errorLine1="        public abstract List&lt;UUID> getSupportedSchemes();"
         errorLine2="                        ~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/player/MediaPlayer2.java"/>
+            file="src/main/java/androidx/media2/player/MediaPlayer2.java"
+            line="1721"
+            column="25"/>
     </issue>
 
     <issue
@@ -520,7 +579,9 @@
         errorLine1="    public android.media.PlaybackParams getPlaybackParams() {"
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/player/PlaybackParams.java"/>
+            file="src/main/java/androidx/media2/player/PlaybackParams.java"
+            line="166"
+            column="12"/>
     </issue>
 
     <issue
@@ -529,7 +590,9 @@
         errorLine1="        public Builder(android.media.PlaybackParams playbackParams) {"
         errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/player/PlaybackParams.java"/>
+            file="src/main/java/androidx/media2/player/PlaybackParams.java"
+            line="196"
+            column="24"/>
     </issue>
 
     <issue
@@ -538,7 +601,9 @@
         errorLine1="        void onCcData(byte[] data, long timeUs);"
         errorLine2="                      ~~~~~~">
         <location
-            file="src/main/java/androidx/media2/player/TextRenderer.java"/>
+            file="src/main/java/androidx/media2/player/TextRenderer.java"
+            line="53"
+            column="23"/>
     </issue>
 
     <issue
@@ -547,7 +612,9 @@
         errorLine1="    public TimedMetaData(long timestampUs, byte[] metaData) {"
         errorLine2="                                           ~~~~~~">
         <location
-            file="src/main/java/androidx/media2/player/TimedMetaData.java"/>
+            file="src/main/java/androidx/media2/player/TimedMetaData.java"
+            line="43"
+            column="44"/>
     </issue>
 
     <issue
@@ -556,7 +623,9 @@
         errorLine1="    public byte[] getMetaData() {"
         errorLine2="           ~~~~~~">
         <location
-            file="src/main/java/androidx/media2/player/TimedMetaData.java"/>
+            file="src/main/java/androidx/media2/player/TimedMetaData.java"
+            line="60"
+            column="12"/>
     </issue>
 
 </issues>

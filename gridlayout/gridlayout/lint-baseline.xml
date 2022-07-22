@@ -232,7 +232,9 @@
         errorLine1="    public static Spec spec(int start, Alignment alignment) {"
         errorLine2="                  ~~~~">
         <location
-            file="src/main/java/androidx/gridlayout/widget/GridLayout.java"/>
+            file="src/main/java/androidx/gridlayout/widget/GridLayout.java"
+            line="2557"
+            column="19"/>
     </issue>
 
     <issue
@@ -241,7 +243,9 @@
         errorLine1="    public static Spec spec(int start, Alignment alignment) {"
         errorLine2="                                       ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/gridlayout/widget/GridLayout.java"/>
+            file="src/main/java/androidx/gridlayout/widget/GridLayout.java"
+            line="2557"
+            column="40"/>
     </issue>
 
     <issue
@@ -250,7 +254,9 @@
         errorLine1="    public static Spec spec(int start, int size) {"
         errorLine2="                  ~~~~">
         <location
-            file="src/main/java/androidx/gridlayout/widget/GridLayout.java"/>
+            file="src/main/java/androidx/gridlayout/widget/GridLayout.java"
+            line="2574"
+            column="19"/>
     </issue>
 
     <issue
@@ -259,7 +265,9 @@
         errorLine1="    public static Spec spec(int start) {"
         errorLine2="                  ~~~~">
         <location
-            file="src/main/java/androidx/gridlayout/widget/GridLayout.java"/>
+            file="src/main/java/androidx/gridlayout/widget/GridLayout.java"
+            line="2590"
+            column="19"/>
     </issue>
 
 </issues>

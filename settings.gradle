@@ -92,6 +92,7 @@ gradleEnterprise {
         value("androidx.projects", getRequestedProjectSubsetName() ?: "Unset")
         value("androidx.useMaxDepVersions", providers.gradleProperty("androidx.useMaxDepVersions").isPresent().toString())
 
+        // Publish scan for androidx-main
         publishAlways()
         publishIfAuthenticated()
     }
@@ -658,6 +659,7 @@ includeProject(":health:health-connect-client-proto", [BuildType.MAIN])
 includeProject(":health:health-connect-client-samples", "health/health-connect-client/samples", [BuildType.MAIN])
 includeProject(":health:health-services-client", [BuildType.MAIN])
 includeProject(":heifwriter:heifwriter", [BuildType.MAIN])
+includeProject(":graphics:graphics-core", [BuildType.MAIN])
 includeProject(":hilt:hilt-common", [BuildType.MAIN])
 includeProject(":hilt:hilt-compiler", [BuildType.MAIN])
 includeProject(":hilt:hilt-navigation", [BuildType.MAIN, BuildType.COMPOSE])
@@ -912,7 +914,7 @@ includeProject(":window:window", [BuildType.MAIN, BuildType.COMPOSE, BuildType.F
 includeProject(":window:extensions:extensions", [BuildType.MAIN, BuildType.COMPOSE, BuildType.FLAN, BuildType.CAMERA])
 includeProject(":window:integration-tests:configuration-change-tests", [BuildType.MAIN])
 includeProject(":window:sidecar:sidecar", [BuildType.MAIN, BuildType.COMPOSE, BuildType.FLAN, BuildType.CAMERA])
-includeProject(":window:window-java", [BuildType.MAIN, BuildType.CAMERA])
+includeProject(":window:window-java", [BuildType.MAIN, BuildType.COMPOSE, BuildType.FLAN, BuildType.CAMERA])
 includeProject(":window:window-rxjava2", [BuildType.MAIN])
 includeProject(":window:window-rxjava3", [BuildType.MAIN])
 includeProject(":window:window-samples", [BuildType.MAIN, BuildType.COMPOSE, BuildType.FLAN, BuildType.CAMERA])

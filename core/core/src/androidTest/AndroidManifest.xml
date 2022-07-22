@@ -119,6 +119,10 @@
             android:exported="true"
             android:theme="@android:style/Theme.Light.NoTitleBar" />
 
+        <activity
+            android:name="androidx.core.app.GetSystemLocalesActivity"
+            android:exported="true" />
+
         <activity-alias
             android:name="androidx.core.app.NavUtilsAliasActivity"
             android:targetActivity="androidx.core.app.NavUtilsActivity">
