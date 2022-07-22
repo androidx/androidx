@@ -18,10 +18,13 @@ package androidx.camera.integration.core
 import android.Manifest
 import android.app.Instrumentation
 import android.content.Context
+import android.content.Intent
 import android.os.Build
 import androidx.camera.camera2.Camera2Config
+import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.CameraSelector
 import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.camera.testing.CameraPipeConfigTestRule
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CameraUtil.PreTestCameraIdList
 import androidx.camera.testing.CoreAppTestUtil
@@ -29,10 +32,9 @@ import androidx.lifecycle.Lifecycle.State.CREATED
 import androidx.lifecycle.Lifecycle.State.RESUMED
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
-import androidx.test.espresso.Espresso
+import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions
-import androidx.test.espresso.matcher.ViewMatchers
-import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.GrantPermissionRule
@@ -42,20 +44,23 @@ import androidx.testutils.withActivity
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.runBlocking
 import org.junit.After
-import org.junit.AfterClass
 import org.junit.Assume
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.junit.runners.Parameterized
 
 private const val HOME_TIMEOUT_MS = 3000L
 private const val ROTATE_TIMEOUT_MS = 2000L
 
 // Test application lifecycle when using CameraX.
-@RunWith(AndroidJUnit4::class)
+@RunWith(Parameterized::class)
 @LargeTest
-class ExistingActivityLifecycleTest {
+class ExistingActivityLifecycleTest(
+    private val implName: String,
+    private val cameraConfig: String
+) {
     private val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
 
     @get:Rule
@@ -73,14 +78,17 @@ class ExistingActivityLifecycleTest {
     @get:Rule
     val repeatRule = RepeatRule()
 
-    companion object {
-        @AfterClass
-        @JvmStatic
-        fun shutdownCameraX() {
-            val context = ApplicationProvider.getApplicationContext<Context>()
-            val cameraProvider = ProcessCameraProvider.getInstance(context)[10, TimeUnit.SECONDS]
-            cameraProvider.shutdown()[10, TimeUnit.SECONDS]
-        }
+    @get:Rule
+    val cameraPipeConfigTestRule = CameraPipeConfigTestRule(
+        active = implName == CameraPipeConfig::class.simpleName,
+        forAllTests = true,
+    )
+
+    private val launchIntent = Intent(
+        ApplicationProvider.getApplicationContext(),
+        CameraXActivity::class.java
+    ).apply {
+        putExtra(CameraXActivity.INTENT_EXTRA_CAMERA_IMPLEMENTATION, cameraConfig)
     }
 
     @Before
@@ -108,13 +116,17 @@ class ExistingActivityLifecycleTest {
         device.unfreezeRotation()
         device.pressHome()
         device.waitForIdle(HOME_TIMEOUT_MS)
+
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val cameraProvider = ProcessCameraProvider.getInstance(context)[10, TimeUnit.SECONDS]
+        cameraProvider.shutdown()[10, TimeUnit.SECONDS]
     }
 
     // Check if Preview screen is updated or not, after Destroy-Create lifecycle.
     @Test
     @RepeatRule.Repeat(times = 5)
     fun checkPreviewUpdatedAfterDestroyRecreate() {
-        with(ActivityScenario.launch(CameraXActivity::class.java)) { // Launch activity.
+        with(ActivityScenario.launch<CameraXActivity>(launchIntent)) { // Launch activity.
             use { // Ensure ActivityScenario is cleaned up properly
                 // Wait for viewfinder to receive enough frames for its IdlingResource to idle.
                 waitForViewfinderIdle()
@@ -129,7 +141,7 @@ class ExistingActivityLifecycleTest {
     @Test
     @RepeatRule.Repeat(times = 5)
     fun checkImageCaptureAfterDestroyRecreate() {
-        with(ActivityScenario.launch(CameraXActivity::class.java)) { // Launch activity.
+        with(ActivityScenario.launch<CameraXActivity>(launchIntent)) { // Launch activity.
             use {
                 // Arrange.
                 // Ensure ActivityScenario is cleaned up properly
@@ -150,7 +162,7 @@ class ExistingActivityLifecycleTest {
     @Test
     @RepeatRule.Repeat(times = 5)
     fun checkPreviewUpdatedAfterStopResume() {
-        with(ActivityScenario.launch(CameraXActivity::class.java)) { // Launch activity.
+        with(ActivityScenario.launch<CameraXActivity>(launchIntent)) { // Launch activity.
             use { // Ensure ActivityScenario is cleaned up properly
                 // Wait for viewfinder to receive enough frames for its IdlingResource to idle.
                 waitForViewfinderIdle()
@@ -179,7 +191,7 @@ class ExistingActivityLifecycleTest {
     @Test
     @RepeatRule.Repeat(times = 5)
     fun checkImageCaptureAfterStopResume() {
-        with(ActivityScenario.launch(CameraXActivity::class.java)) { // Launch activity.
+        with(ActivityScenario.launch<CameraXActivity>(launchIntent)) { // Launch activity.
             use {
                 // Arrange.
                 // Ensure ActivityScenario is cleaned up properly
@@ -210,13 +222,13 @@ class ExistingActivityLifecycleTest {
             )
         )
 
-        with(ActivityScenario.launch(CameraXActivity::class.java)) { // Launch activity.
+        with(ActivityScenario.launch<CameraXActivity>(launchIntent)) { // Launch activity.
             use { // Ensure ActivityScenario is cleaned up properly
                 // Wait for viewfinder to receive enough frames for its IdlingResource to idle.
                 waitForViewfinderIdle()
 
                 // Switch camera.
-                Espresso.onView(ViewMatchers.withId(R.id.direction_toggle))
+                onView(withId(R.id.direction_toggle))
                     .perform(ViewActions.click())
 
                 // Check front camera is now idle
@@ -244,7 +256,7 @@ class ExistingActivityLifecycleTest {
             )
         )
 
-        with(ActivityScenario.launch(CameraXActivity::class.java)) { // Launch activity.
+        with(ActivityScenario.launch<CameraXActivity>(launchIntent)) { // Launch activity.
             use {
                 // Arrange.
                 // Ensure ActivityScenario is cleaned up properly
@@ -252,7 +264,7 @@ class ExistingActivityLifecycleTest {
                 waitForViewfinderIdle()
 
                 // Act. Switch camera.
-                Espresso.onView(ViewMatchers.withId(R.id.direction_toggle))
+                onView(withId(R.id.direction_toggle))
                     .perform(ViewActions.click())
 
                 // Assert.
@@ -272,7 +284,7 @@ class ExistingActivityLifecycleTest {
     @Test
     @RepeatRule.Repeat(times = 5)
     fun checkPreviewUpdatedAfterRotateDeviceAndStopResume() {
-        with(ActivityScenario.launch(CameraXActivity::class.java)) { // Launch activity.
+        with(ActivityScenario.launch<CameraXActivity>(launchIntent)) { // Launch activity.
             use { // Ensure ActivityScenario is cleaned up properly
                 // Wait for viewfinder to receive enough frames for its IdlingResource to idle.
                 waitForViewfinderIdle()
@@ -298,7 +310,7 @@ class ExistingActivityLifecycleTest {
     @Test
     @RepeatRule.Repeat(times = 5)
     fun checkImageCaptureAfterRotateDeviceAndStopResume() {
-        with(ActivityScenario.launch(CameraXActivity::class.java)) { // Launch activity.
+        with(ActivityScenario.launch<CameraXActivity>(launchIntent)) { // Launch activity.
             use {
                 // Arrange.
                 // Ensure ActivityScenario is cleaned up properly
@@ -336,5 +348,21 @@ class ExistingActivityLifecycleTest {
             ROTATE_TIMEOUT_MS
         )
         InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+    }
+
+    companion object {
+
+        @JvmStatic
+        @Parameterized.Parameters(name = "{0}")
+        fun data() = listOf(
+            arrayOf(
+                Camera2Config::class.simpleName,
+                CameraXViewModel.CAMERA2_IMPLEMENTATION_OPTION
+            ),
+            arrayOf(
+                CameraPipeConfig::class.simpleName,
+                CameraXViewModel.CAMERA_PIPE_IMPLEMENTATION_OPTION
+            )
+        )
     }
 }
