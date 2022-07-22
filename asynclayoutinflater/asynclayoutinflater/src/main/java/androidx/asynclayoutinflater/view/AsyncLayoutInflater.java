@@ -71,6 +71,15 @@ import java.util.concurrent.Executor;
  */
 public final class AsyncLayoutInflater {
     private static final String TAG = "AsyncLayoutInflater";
+    private static boolean sAppCompatPresent;
+    static {
+        try {
+            Class.forName("androidx.appcompat.app.AppCompatActivity");
+            sAppCompatPresent = true;
+        } catch (ClassNotFoundException ex) {
+            sAppCompatPresent = false;
+        }
+    }
 
     LayoutInflater mInflater;
     LayoutInflater mInflaterDeprecated;
@@ -82,7 +91,7 @@ public final class AsyncLayoutInflater {
         mInflater = new BasicInflater(context);
         mHandler = new Handler(Looper.myLooper(), mHandlerCallback);
         mInflateThread = InflateThread.getInstance();
-        if (context instanceof AppCompatActivity) {
+        if (sAppCompatPresent && context instanceof AppCompatActivity) {
             AppCompatDelegate delegate = AppCompatDelegate.create((Activity) context,
                     (AppCompatCallback) context);
             if (delegate instanceof LayoutInflater.Factory2) {

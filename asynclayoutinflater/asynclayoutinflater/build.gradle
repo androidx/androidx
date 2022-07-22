@@ -8,7 +8,10 @@ plugins {
 dependencies {
     api("androidx.annotation:annotation:1.1.0")
     api("androidx.core:core:1.1.0")
-    implementation("androidx.appcompat:appcompat:1.1.0")
+    constraints {
+        implementation("androidx.appcompat:appcompat:1.1.0") // Optional dependency via compile-only
+    }
+    compileOnly("androidx.appcompat:appcompat:1.1.0")
 
     androidTestImplementation("androidx.appcompat:appcompat:1.1.0")
     androidTestImplementation(libs.testCore)
