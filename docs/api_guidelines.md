@@ -97,6 +97,13 @@ cd development/project-creator && \
 ./create_project.py androidx.foo foo-bar
 ```
 
+If you are creating an unpublished module such as an integration test app with \
+the project creator script, it may not make sense to follow the same naming \
+conventions as published libraries. In this situation it is safe to comment out
+\
+the `artifact_id` validation from the script or rename the module after it has \
+been created.
+
 If you see an error message `No module named 'toml'` try the following steps.
 
 *   Install necessary tools if they are not already installed
