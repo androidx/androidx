@@ -24,6 +24,7 @@
         android:id="@+id/new_window_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:onClick="launchNewWindow" />
+        android:onClick="launchNewWindow"
+        android:text="new_window_button" />
 
 </LinearLayout>
