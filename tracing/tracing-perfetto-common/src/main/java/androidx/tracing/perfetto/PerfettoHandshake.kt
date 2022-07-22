@@ -260,7 +260,15 @@ public class PerfettoHandshake(
 
     public class EnableTracingResponse @RestrictTo(LIBRARY_GROUP) constructor(
         @EnableTracingResultCode public val exitCode: Int,
+
+        /**
+         * This can be `null` iff we cannot communicate with the broadcast receiver of the target
+         * process (e.g. app does not offer Perfetto tracing) or if we cannot parse the response
+         * from the receiver. In either case, tracing is unlikely to work under these circumstances,
+         * and more context on how to proceed can be found in [exitCode] or [message] properties.
+         */
         public val requiredVersion: String?,
+
         public val message: String?
     )
 }
