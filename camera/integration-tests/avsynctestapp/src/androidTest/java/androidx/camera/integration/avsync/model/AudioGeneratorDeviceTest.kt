@@ -16,7 +16,9 @@
 
 package androidx.camera.integration.avsync.model
 
+import android.content.Context
 import android.media.AudioTrack
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
@@ -33,6 +35,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class AudioGeneratorDeviceTest {
 
+    private val context: Context = ApplicationProvider.getApplicationContext()
     private lateinit var audioGenerator: AudioGenerator
 
     @Before
@@ -42,12 +45,12 @@ class AudioGeneratorDeviceTest {
 
     @Test(expected = IllegalArgumentException::class)
     fun initAudioTrack_throwExceptionWhenFrequencyNegative() = runTest {
-        audioGenerator.initAudioTrack(-5300, 11.0)
+        audioGenerator.initAudioTrack(context, -5300, 11.0)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun initAudioTrack_throwExceptionWhenLengthNegative() = runTest {
-        audioGenerator.initAudioTrack(5300, -11.0)
+        audioGenerator.initAudioTrack(context, 5300, -11.0)
     }
 
     @Test
@@ -71,7 +74,7 @@ class AudioGeneratorDeviceTest {
     }
 
     private suspend fun initialAudioTrack(frequency: Int, beepLengthInSec: Double) {
-        val isInitialized = audioGenerator.initAudioTrack(frequency, beepLengthInSec)
+        val isInitialized = audioGenerator.initAudioTrack(context, frequency, beepLengthInSec)
         assertThat(isInitialized).isTrue()
         assertThat(audioGenerator.audioTrack!!.state).isEqualTo(AudioTrack.STATE_INITIALIZED)
         assertThat(audioGenerator.audioTrack!!.playbackHeadPosition).isEqualTo(0)

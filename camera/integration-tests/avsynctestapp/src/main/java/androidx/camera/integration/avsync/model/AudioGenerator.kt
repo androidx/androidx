@@ -16,6 +16,7 @@
 
 package androidx.camera.integration.avsync.model
 
+import android.content.Context
 import android.media.AudioAttributes
 import android.media.AudioFormat
 import android.media.AudioManager
@@ -30,8 +31,8 @@ import kotlin.math.pow
 import kotlin.math.sin
 
 private const val TAG = "AudioGenerator"
+private const val DEFAULT_SAMPLE_RATE: Int = 44100
 private const val SAMPLE_WIDTH: Int = 2
-private const val SAMPLE_RATE: Int = 44100
 private const val MAGNITUDE = 0.5
 private const val ENCODING: Int = AudioFormat.ENCODING_PCM_16BIT
 private const val CHANNEL = AudioFormat.CHANNEL_OUT_MONO
@@ -46,26 +47,33 @@ class AudioGenerator {
     }
 
     fun stop() {
+        Logger.i(TAG, "playState before stopped: ${audioTrack!!.playState}")
+        Logger.i(TAG, "playbackHeadPosition before stopped: ${audioTrack!!.playbackHeadPosition}")
         audioTrack!!.stop()
     }
 
     suspend fun initAudioTrack(
+        context: Context,
         frequency: Int,
         beepLengthInSec: Double,
     ): Boolean {
         checkArgumentNonnegative(frequency, "The input frequency should not be negative.")
         checkArgument(beepLengthInSec >= 0, "The beep length should not be negative.")
 
-        Logger.i(TAG, "initAudioTrack with beep frequency: $frequency")
-
-        val samples = generateSineSamples(frequency, beepLengthInSec, SAMPLE_WIDTH, SAMPLE_RATE)
+        val sampleRate = getOutputSampleRate(context)
+        val samples = generateSineSamples(frequency, beepLengthInSec, SAMPLE_WIDTH, sampleRate)
         val bufferSize = samples.size
+
+        Logger.i(TAG, "initAudioTrack with sample rate: $sampleRate")
+        Logger.i(TAG, "initAudioTrack with beep frequency: $frequency")
+        Logger.i(TAG, "initAudioTrack with buffer size: $bufferSize")
+
         val audioAttributes = AudioAttributes.Builder()
             .setUsage(AudioAttributes.USAGE_MEDIA)
             .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
             .build()
         val audioFormat = AudioFormat.Builder()
-            .setSampleRate(SAMPLE_RATE)
+            .setSampleRate(sampleRate)
             .setEncoding(ENCODING)
             .setChannelMask(CHANNEL)
             .build()
@@ -81,6 +89,13 @@ class AudioGenerator {
         audioTrack!!.write(samples, 0, samples.size)
 
         return true
+    }
+
+    private fun getOutputSampleRate(context: Context): Int {
+        val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+        val sampleRate: String? = audioManager.getProperty(AudioManager.PROPERTY_OUTPUT_SAMPLE_RATE)
+
+        return sampleRate?.toInt() ?: DEFAULT_SAMPLE_RATE
     }
 
     @VisibleForTesting
