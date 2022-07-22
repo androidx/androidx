@@ -567,6 +567,55 @@ class ModemInfoCompat {
     *   See the [sample](#wrapper-sample) for an example of interacting with a
         method that was added in SDK level 23.
 
+### Safe super. invocation {#safe-super-calls}
+
+When to use?
+
+*   When invoking `method.superMethodIntroducedSinceMinSdk()`
+
+Implementation requirements
+
+*   Class must be a *non-static* **inner class** (captures `this` pointer)
+*   Class may not be exposed in public API
+
+This should only be used when calling `super` methods that will not verify (such
+as when overriding a new method to provide back compat).
+
+Super calls is not available in a `static` context in Java. It can however be
+called from an inner class.
+
+#### Sample {#safe-super-calls-sample}
+
+```java
+class AppCompatTextView : TextView {
+
+  @Nullable
+  SuperCaller mSuperCaller = null;
+
+  @Override
+  int getPropertyFromApi99() {
+  if (Build.VERSION.SDK_INT > 99) {
+    getSuperCaller().getPropertyFromApi99)();
+  }
+
+  @NonNull
+  @RequiresApi(99)
+  SuperCaller getSuperCaller() {
+    if (mSuperCaller == null) {
+      mSuperCaller = new SuperCaller();
+    }
+    return mSuperCaller;
+  }
+
+  @RequiresApi(99)
+  class SuperCaller {
+    int getPropertyFromApi99() {
+      return AppCompatTextView.super.getPropertyFromApi99();
+    }
+  }
+}
+```
+
 ### Standalone (ex. [ArraySet](https://developer.android.com/reference/android/support/v4/util/ArraySet.html), [Fragment](https://developer.android.com/reference/android/support/v4/app/Fragment.html)) {#standalone}
 
 When to use?
