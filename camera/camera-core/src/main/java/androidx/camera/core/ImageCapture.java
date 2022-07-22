@@ -271,13 +271,13 @@ public final class ImageCapture extends UseCase {
     static final ExifRotationAvailability EXIF_ROTATION_AVAILABILITY =
             new ExifRotationAvailability();
 
-    private final ImageReaderProxy.OnImageAvailableListener mClosingListener = (imageReader -> {
+    private final ImageReaderProxy.OnImageAvailableListener mClosingListener = imageReader -> {
         try (ImageProxy image = imageReader.acquireLatestImage()) {
             Log.d(TAG, "Discarding ImageProxy which was inadvertently acquired: " + image);
         } catch (IllegalStateException e) {
             Log.e(TAG, "Failed to acquire latest image.", e);
         }
-    });
+    };
 
     @NonNull
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */

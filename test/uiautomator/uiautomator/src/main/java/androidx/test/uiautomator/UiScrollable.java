@@ -275,12 +275,12 @@ public class UiScrollable extends UiCollection {
         // if we happen to be on top of the text we want then return here
         UiSelector childSelector = getSelector().childSelector(selector);
         if (exists(childSelector)) {
-            return (true);
+            return true;
         } else {
             // we will need to reset the search from the beginning to start search
             scrollToBeginning(mMaxSearchSwipes);
             if (exists(childSelector)) {
-                return (true);
+                return true;
             }
             for (int x = 0; x < mMaxSearchSwipes; x++) {
                 boolean scrolled = scrollForward();
