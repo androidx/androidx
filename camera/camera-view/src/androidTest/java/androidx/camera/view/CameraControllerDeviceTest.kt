@@ -25,7 +25,10 @@ import androidx.camera.core.CameraSelector.LENS_FACING_BACK
 import androidx.camera.core.CameraSelector.LENS_FACING_FRONT
 import androidx.camera.core.EffectBundle
 import androidx.camera.core.ImageCapture
+import androidx.camera.core.SurfaceEffect
 import androidx.camera.core.SurfaceEffect.PREVIEW
+import androidx.camera.core.SurfaceOutput
+import androidx.camera.core.SurfaceRequest
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.CameraUtil
@@ -33,7 +36,6 @@ import androidx.camera.testing.CameraUtil.PreTestCameraIdList
 import androidx.camera.testing.CoreAppTestUtil
 import androidx.camera.testing.fakes.FakeActivity
 import androidx.camera.testing.fakes.FakeLifecycleOwner
-import androidx.camera.testing.fakes.FakeSurfaceEffect
 import androidx.test.annotation.UiThreadTest
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
@@ -103,10 +105,15 @@ class CameraControllerDeviceTest {
 
         // Act: set an EffectBundle
         instrumentation.runOnMainSync {
+            val surfaceEffect = object : SurfaceEffect {
+                override fun onInputSurface(request: SurfaceRequest) {}
+
+                override fun onOutputSurface(surfaceOutput: SurfaceOutput) {
+                    surfaceOutput.close()
+                }
+            }
             controller.setEffectBundle(
-                EffectBundle.Builder(mainThreadExecutor())
-                    .addEffect(PREVIEW, FakeSurfaceEffect(mainThreadExecutor()))
-                    .build()
+                EffectBundle.Builder(mainThreadExecutor()).addEffect(PREVIEW, surfaceEffect).build()
             )
         }
 

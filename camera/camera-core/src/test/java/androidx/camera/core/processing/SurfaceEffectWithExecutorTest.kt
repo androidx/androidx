@@ -27,7 +27,6 @@ import androidx.camera.core.SurfaceRequest
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor
 import androidx.camera.testing.fakes.FakeCamera
-import androidx.camera.testing.fakes.FakeSurfaceEffectInternal
 import com.google.common.truth.Truth.assertThat
 import java.lang.Thread.currentThread
 import java.util.concurrent.Executor
@@ -70,10 +69,13 @@ class SurfaceEffectWithExecutorTest {
 
     @Test(expected = IllegalStateException::class)
     fun initWithSurfaceEffectInternal_throwsException() {
-        SurfaceEffectWithExecutor(
-            FakeSurfaceEffectInternal(mainThreadExecutor()),
-            mainThreadExecutor()
-        )
+        SurfaceEffectWithExecutor(object : SurfaceEffectInternal {
+            override fun onInputSurface(request: SurfaceRequest) {}
+
+            override fun onOutputSurface(surfaceOutput: SurfaceOutput) {}
+
+            override fun release() {}
+        }, mainThreadExecutor())
     }
 
     @Test
