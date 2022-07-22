@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -191,6 +192,39 @@ fun ButtonStyles() {
                 colors = ButtonDefaults.iconButtonColors(),
                 modifier = Modifier.size(ButtonDefaults.LargeButtonSize),
                 enabled = enabled
+            ) {
+                DemoIcon(R.drawable.ic_accessibility_24px)
+            }
+        }
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterHorizontally),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+        Button(
+                onClick = {
+                    Toast.makeText(
+                        context,
+                        "Button: Custom Shape", Toast.LENGTH_LONG
+                    ).show()
+                },
+                colors = ButtonDefaults.secondaryButtonColors(),
+                modifier = Modifier,
+                enabled = enabled,
+                shape = CutCornerShape(4.dp)
+            ) {
+                DemoIcon(R.drawable.ic_accessibility_24px)
+            }
+            CompactButton(
+                onClick = {
+                    Toast.makeText(
+                        context,
+                        "Button: Compact Button with Custom Shape", Toast.LENGTH_LONG
+                    ).show()
+                },
+                colors = ButtonDefaults.secondaryButtonColors(),
+                modifier = Modifier,
+                enabled = enabled,
+                shape = CutCornerShape(4.dp)
             ) {
                 DemoIcon(R.drawable.ic_accessibility_24px)
             }

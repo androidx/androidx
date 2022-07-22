@@ -37,6 +37,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -81,6 +82,9 @@ import androidx.compose.ui.unit.dp
  * [MutableInteractionSource] if you want to observe [Interaction]s and customize the
  * appearance / behavior of this Button in different [Interaction]s.
  */
+@Deprecated("This overload is provided for backwards compatibility with Compose for Wear OS 1.0." +
+    "A newer overload is available with an additional shape parameter.",
+    level = DeprecationLevel.HIDDEN)
 @Composable
 public fun Button(
     onClick: () -> Unit,
@@ -88,6 +92,59 @@ public fun Button(
     enabled: Boolean = true,
     colors: ButtonColors = ButtonDefaults.primaryButtonColors(),
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    content: @Composable BoxScope.() -> Unit,
+) = Button(onClick, modifier, enabled, colors, interactionSource, CircleShape, content)
+
+/**
+ * Wear Material [Button] that offers a single slot to take any content (text, icon or image).
+ *
+ * The recommended [Button] sizes can be obtained
+ * from [ButtonDefaults] - see [ButtonDefaults.DefaultButtonSize], [ButtonDefaults.LargeButtonSize],
+ * [ButtonDefaults.SmallButtonSize].
+ * Icon content should be of size [ButtonDefaults.DefaultIconSize],
+ * [ButtonDefaults.LargeIconSize] or [ButtonDefaults.SmallIconSize] respectively.
+ *
+ * The recommended set of [ButtonColors] styles can be obtained from [ButtonDefaults], e.g.
+ * [ButtonDefaults.primaryButtonColors] to get a color scheme for a primary [Button] which by
+ * default will have a solid background of [Colors.primary] and content color of
+ * [Colors.onPrimary].
+ *
+ * [Button]s can be enabled or disabled. A disabled button will not respond to click events.
+ *
+ * Example of a [Button] displaying an icon:
+ * @sample androidx.wear.compose.material.samples.ButtonWithIcon
+ *
+ * Example of a large [Button] displaying an icon:
+ * @sample androidx.wear.compose.material.samples.LargeButtonWithIcon
+ *
+ * Example of a [Button] with text content and size modified to LargeButtonSize:
+ * @sample androidx.wear.compose.material.samples.ButtonWithText
+ *
+ * For more information, see the
+ * [Buttons](https://developer.android.com/training/wearables/components/buttons)
+ * guide.
+ *
+ * @param onClick Will be called when the user clicks the button.
+ * @param modifier Modifier to be applied to the button.
+ * @param enabled Controls the enabled state of the button. When `false`, this button will not
+ * be clickable.
+ * @param colors [ButtonColors] that will be used to resolve the background and content color for
+ * this button in different states. See [ButtonDefaults.buttonColors].
+ * @param interactionSource The [MutableInteractionSource] representing the stream of
+ * [Interaction]s for this Button. You can create and pass in your own remembered
+ * [MutableInteractionSource] if you want to observe [Interaction]s and customize the
+ * appearance / behavior of this Button in different [Interaction]s.
+ * @param shape Defines the button's shape. It is strongly recommended to use the default as this
+ * shape is a key characteristic of the Wear Material Theme.
+ */
+@Composable
+public fun Button(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    colors: ButtonColors = ButtonDefaults.primaryButtonColors(),
+    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    shape: Shape = CircleShape,
     content: @Composable BoxScope.() -> Unit,
 ) {
     Box(
@@ -97,7 +154,7 @@ public fun Button(
                 minWidth = ButtonDefaults.DefaultButtonSize,
                 minHeight = ButtonDefaults.DefaultButtonSize
             )
-            .clip(CircleShape)
+            .clip(shape)
             .clickable(
                 onClick = onClick,
                 enabled = enabled,
@@ -107,7 +164,7 @@ public fun Button(
             )
             .background(
                 color = colors.backgroundColor(enabled = enabled).value,
-                shape = CircleShape
+                shape = shape
             )
     ) {
         val contentColor = colors.contentColor(enabled = enabled).value
@@ -157,6 +214,9 @@ public fun Button(
  * [MutableInteractionSource] if you want to observe [Interaction]s and customize the
  * appearance / behavior of this Button in different [Interaction]s.
  */
+@Deprecated("This overload is provided for backwards compatibility with Compose for Wear OS 1.0." +
+    "A newer overload is available with an additional shape parameter.",
+    level = DeprecationLevel.HIDDEN)
 @Composable
 public fun CompactButton(
     onClick: () -> Unit,
@@ -166,11 +226,69 @@ public fun CompactButton(
     backgroundPadding: Dp = ButtonDefaults.CompactButtonBackgroundPadding,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     content: @Composable BoxScope.() -> Unit,
+) = CompactButton(
+    onClick,
+    modifier,
+    enabled,
+    colors,
+    backgroundPadding,
+    interactionSource,
+    CircleShape,
+    content)
+
+/**
+ * Wear Material [CompactButton] that offers a single slot to take any content
+ * (text, icon or image).
+ *
+ * The [CompactButton] has background size [ButtonDefaults.ExtraSmallButtonSize].
+ * There is an optional transparent padding around
+ * the background, defaulted to [ButtonDefaults.CompactButtonBackgroundPadding],
+ * which increases the clickable area. Icon content should have size [ButtonDefaults.SmallIconSize].
+ *
+ * The recommended set of [ButtonColors] styles can be obtained from [ButtonDefaults], e.g.
+ * [ButtonDefaults.primaryButtonColors] to get a color scheme for a primary [Button] which by
+ * default will have a solid background of [Colors.primary] and content color of
+ * [Colors.onPrimary].
+ *
+ * [CompactButton]s can be enabled or disabled. A disabled button will not respond to click events.
+ *
+ * Example usage:
+ * @sample androidx.wear.compose.material.samples.CompactButtonWithIcon
+ *
+ * For more information, see the
+ * [Buttons](https://developer.android.com/training/wearables/components/buttons)
+ * guide.
+ *
+ * @param onClick Will be called when the user clicks the button.
+ * @param modifier Modifier to be applied to the button.
+ * @param enabled Controls the enabled state of the button. When `false`, this button will not
+ * be clickable.
+ * @param colors [ButtonColors] that will be used to resolve the background and content color for
+ * this button in different states. See [ButtonDefaults.buttonColors].
+ * @param backgroundPadding Increases the transparent clickable area around the background,
+ * defaults to [ButtonDefaults.CompactButtonBackgroundPadding]
+ * @param interactionSource The [MutableInteractionSource] representing the stream of
+ * [Interaction]s for this Button. You can create and pass in your own remembered
+ * [MutableInteractionSource] if you want to observe [Interaction]s and customize the
+ * appearance / behavior of this Button in different [Interaction]s.
+ * @param shape Defines the button's shape. It is strongly recommended to use the default as this
+ * shape is a key characteristic of the Wear Material Theme.
+ */
+@Composable
+public fun CompactButton(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    colors: ButtonColors = ButtonDefaults.primaryButtonColors(),
+    backgroundPadding: Dp = ButtonDefaults.CompactButtonBackgroundPadding,
+    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    shape: Shape = CircleShape,
+    content: @Composable BoxScope.() -> Unit,
 ) {
     Box(
         contentAlignment = Alignment.Center,
         modifier = modifier
-            .clip(CircleShape)
+            .clip(shape)
             .clickable(
                 onClick = onClick,
                 enabled = enabled,
@@ -182,7 +300,7 @@ public fun CompactButton(
             .requiredSize(ButtonDefaults.ExtraSmallButtonSize)
             .background(
                 color = colors.backgroundColor(enabled = enabled).value,
-                shape = CircleShape
+                shape = shape
             )
     ) {
         val contentColor = colors.contentColor(enabled = enabled).value
