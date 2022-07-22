@@ -81,16 +81,22 @@ import androidx.room.solver.query.result.SingleEntityQueryResultAdapter
 import androidx.room.solver.query.result.SingleNamedColumnRowAdapter
 import androidx.room.solver.shortcut.binder.DeleteOrUpdateMethodBinder
 import androidx.room.solver.shortcut.binder.InsertMethodBinder
+import androidx.room.solver.shortcut.binder.UpsertMethodBinder
 import androidx.room.solver.shortcut.binderprovider.DeleteOrUpdateMethodBinderProvider
 import androidx.room.solver.shortcut.binderprovider.GuavaListenableFutureDeleteOrUpdateMethodBinderProvider
 import androidx.room.solver.shortcut.binderprovider.GuavaListenableFutureInsertMethodBinderProvider
+import androidx.room.solver.shortcut.binderprovider.GuavaListenableFutureUpsertMethodBinderProvider
 import androidx.room.solver.shortcut.binderprovider.InsertMethodBinderProvider
+import androidx.room.solver.shortcut.binderprovider.UpsertMethodBinderProvider
 import androidx.room.solver.shortcut.binderprovider.InstantDeleteOrUpdateMethodBinderProvider
 import androidx.room.solver.shortcut.binderprovider.InstantInsertMethodBinderProvider
+import androidx.room.solver.shortcut.binderprovider.InstantUpsertMethodBinderProvider
 import androidx.room.solver.shortcut.binderprovider.RxCallableDeleteOrUpdateMethodBinderProvider
 import androidx.room.solver.shortcut.binderprovider.RxCallableInsertMethodBinderProvider
+import androidx.room.solver.shortcut.binderprovider.RxCallableUpsertMethodBinderProvider
 import androidx.room.solver.shortcut.result.DeleteOrUpdateMethodAdapter
 import androidx.room.solver.shortcut.result.InsertMethodAdapter
+import androidx.room.solver.shortcut.result.UpsertMethodAdapter
 import androidx.room.solver.types.BoxedBooleanToBoxedIntConverter
 import androidx.room.solver.types.BoxedPrimitiveColumnTypeAdapter
 import androidx.room.solver.types.ByteArrayColumnTypeAdapter
@@ -231,6 +237,13 @@ class TypeAdapterStore private constructor(
             addAll(RxCallableDeleteOrUpdateMethodBinderProvider.getAll(context))
             add(GuavaListenableFutureDeleteOrUpdateMethodBinderProvider(context))
             add(InstantDeleteOrUpdateMethodBinderProvider(context))
+        }
+
+    val upsertBinderProviders: List<UpsertMethodBinderProvider> =
+        mutableListOf<UpsertMethodBinderProvider>().apply {
+            addAll(RxCallableUpsertMethodBinderProvider.getAll(context))
+            add(GuavaListenableFutureUpsertMethodBinderProvider(context))
+            add(InstantUpsertMethodBinderProvider(context))
         }
 
     /**
@@ -391,6 +404,15 @@ class TypeAdapterStore private constructor(
         }.provide(typeMirror, params)
     }
 
+    fun findUpsertMethodBinder(
+        typeMirror: XType,
+        params: List<ShortcutQueryParameter>
+    ): UpsertMethodBinder {
+        return upsertBinderProviders.first {
+            it.matches(typeMirror)
+        }.provide(typeMirror, params)
+    }
+
     fun findQueryResultBinder(
         typeMirror: XType,
         query: ParsedQuery,
@@ -430,6 +452,15 @@ class TypeAdapterStore private constructor(
         params: List<ShortcutQueryParameter>
     ): InsertMethodAdapter? {
         return InsertMethodAdapter.create(typeMirror, params)
+    }
+
+    @Suppress("UNUSED_PARAMETER") // param will be used in a future change
+    fun findUpsertAdapter(
+        typeMirror: XType,
+        params: List<ShortcutQueryParameter>
+    ): UpsertMethodAdapter? {
+        // TODO: change for UpsertMethodAdapter when bind has been created
+        return null
     }
 
     fun findQueryResultAdapter(
