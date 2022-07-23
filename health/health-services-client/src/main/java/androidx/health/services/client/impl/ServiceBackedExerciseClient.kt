@@ -17,10 +17,12 @@
 package androidx.health.services.client.impl
 
 import android.content.Context
+import androidx.annotation.GuardedBy
 import androidx.annotation.RestrictTo
 import androidx.core.content.ContextCompat
 import androidx.health.services.client.ExerciseClient
 import androidx.health.services.client.ExerciseUpdateCallback
+import androidx.health.services.client.data.DataType
 import androidx.health.services.client.data.ExerciseCapabilities
 import androidx.health.services.client.data.ExerciseConfig
 import androidx.health.services.client.data.ExerciseGoal
@@ -64,13 +66,24 @@ internal class ServiceBackedExerciseClient(
         { service -> service.apiVersion }
     ) {
 
+    private val requestedDataTypesLock = Any()
+    @GuardedBy("requestedDataTypesLock")
+    private val requestedDataTypes: MutableSet<DataType<*, *>> = mutableSetOf()
     private val packageName = context.packageName
 
     override fun prepareExerciseAsync(configuration: WarmUpConfig): ListenableFuture<Void> =
         execute { service, resultFuture ->
             service.prepareExercise(
                 PrepareExerciseRequest(packageName, configuration),
-                StatusCallback(resultFuture)
+                object : StatusCallback(resultFuture) {
+                    override fun onSuccess() {
+                        synchronized(requestedDataTypesLock) {
+                            requestedDataTypes.clear()
+                            requestedDataTypes.addAll(configuration.dataTypes)
+                        }
+                        super.onSuccess()
+                    }
+                }
             )
         }
 
@@ -78,7 +91,15 @@ internal class ServiceBackedExerciseClient(
         execute { service, resultFuture ->
             service.startExercise(
                 StartExerciseRequest(packageName, configuration),
-                StatusCallback(resultFuture)
+                object : StatusCallback(resultFuture) {
+                    override fun onSuccess() {
+                        synchronized(requestedDataTypesLock) {
+                            requestedDataTypes.clear()
+                            requestedDataTypes.addAll(configuration.dataTypes)
+                        }
+                        super.onSuccess()
+                    }
+                }
             )
         }
 
@@ -122,7 +143,12 @@ internal class ServiceBackedExerciseClient(
         val listenerStub =
             ExerciseUpdateListenerStub.ExerciseUpdateListenerCache.INSTANCE.getOrCreate(
                 callback,
-                executor
+                executor,
+                requestedDataTypesProvider = {
+                    synchronized(requestedDataTypesLock) {
+                        requestedDataTypes
+                    }
+                }
             )
         val future =
             registerListener(listenerStub.listenerKey) { service, result: SettableFuture<Void?> ->
@@ -155,7 +181,9 @@ internal class ServiceBackedExerciseClient(
         }
     }
 
-    override fun addGoalToActiveExerciseAsync(exerciseGoal: ExerciseGoal): ListenableFuture<Void> =
+    override fun addGoalToActiveExerciseAsync(
+        exerciseGoal: ExerciseGoal<*>
+    ): ListenableFuture<Void> =
         execute { service, resultFuture ->
             service.addGoalToActiveExercise(
                 ExerciseGoalRequest(packageName, exerciseGoal),
@@ -164,7 +192,7 @@ internal class ServiceBackedExerciseClient(
         }
 
     override fun removeGoalFromActiveExerciseAsync(
-        exerciseGoal: ExerciseGoal
+        exerciseGoal: ExerciseGoal<*>
     ): ListenableFuture<Void> = execute { service, resultFuture ->
         service.removeGoalFromActiveExercise(
             ExerciseGoalRequest(packageName, exerciseGoal),
@@ -189,8 +217,8 @@ internal class ServiceBackedExerciseClient(
         )
 
     internal companion object {
-        private const val CLIENT = "HealthServicesExerciseClient"
-        private val CLIENT_CONFIGURATION =
+        internal const val CLIENT = "HealthServicesExerciseClient"
+        internal val CLIENT_CONFIGURATION =
             ClientConfiguration(CLIENT, SERVICE_PACKAGE_NAME, EXERCISE_API_BIND_ACTION)
     }
 }

@@ -3,6 +3,14 @@ AutoBoxing: androidx.health.services.client.data.LocationAccuracy#LocationAccura
     Must avoid boxed primitives (`java.lang.Double`)
 AutoBoxing: androidx.health.services.client.data.LocationAccuracy#getVerticalPositionErrorMeters():
     Must avoid boxed primitives (`java.lang.Double`)
+AutoBoxing: androidx.health.services.client.data.LocationData#LocationData(double, double, Double, Double) parameter #2:
+    Must avoid boxed primitives (`java.lang.Double`)
+AutoBoxing: androidx.health.services.client.data.LocationData#LocationData(double, double, Double, Double) parameter #3:
+    Must avoid boxed primitives (`java.lang.Double`)
+AutoBoxing: androidx.health.services.client.data.LocationData#getAltitude():
+    Must avoid boxed primitives (`java.lang.Double`)
+AutoBoxing: androidx.health.services.client.data.LocationData#getBearing():
+    Must avoid boxed primitives (`java.lang.Double`)
 
 
 ExecutorRegistration: androidx.health.services.client.ExerciseClient#clearUpdateCallbackAsync(androidx.health.services.client.ExerciseUpdateCallback):
@@ -19,7 +27,11 @@ InvalidNullabilityOverride: androidx.health.services.client.data.ProtoParcelable
     Invalid nullability on parameter `dest` in method `writeToParcel`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
 
 
-PairedRegistration: androidx.health.services.client.MeasureClient#registerMeasureCallback(androidx.health.services.client.data.DataType, androidx.health.services.client.MeasureCallback):
+PairedRegistration: androidx.health.services.client.MeasureClient#registerMeasureCallback(androidx.health.services.client.data.DeltaDataType<?,?>, androidx.health.services.client.MeasureCallback):
     Found registerMeasureCallback but not unregisterMeasureCallback in androidx.health.services.client.MeasureClient
-PairedRegistration: androidx.health.services.client.MeasureClient#registerMeasureCallback(androidx.health.services.client.data.DataType, java.util.concurrent.Executor, androidx.health.services.client.MeasureCallback):
+PairedRegistration: androidx.health.services.client.MeasureClient#registerMeasureCallback(androidx.health.services.client.data.DeltaDataType<?,?>, java.util.concurrent.Executor, androidx.health.services.client.MeasureCallback):
     Found registerMeasureCallback but not unregisterMeasureCallback in androidx.health.services.client.MeasureClient
+
+
+ParcelCreator: androidx.health.services.client.data.ExerciseGoal:
+    Parcelable requires `void writeToParcel(Parcel, int)`; missing in androidx.health.services.client.data.ExerciseGoal

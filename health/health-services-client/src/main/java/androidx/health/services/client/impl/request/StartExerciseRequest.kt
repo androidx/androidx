@@ -36,7 +36,7 @@ public class StartExerciseRequest(
     override val proto: RequestsProto.StartExerciseRequest by lazy {
         RequestsProto.StartExerciseRequest.newBuilder()
             .setPackageName(packageName)
-            .setConfig(exerciseConfig.proto)
+            .setConfig(exerciseConfig.toProto())
             .build()
     }
 

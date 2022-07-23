@@ -15,7 +15,6 @@
  */
 
 import androidx.build.LibraryType
-import androidx.build.dependencies.DependenciesKt
 
 plugins {
     id("AndroidXPlugin")
@@ -31,6 +30,12 @@ dependencies {
     implementation(libs.guavaAndroid)
     implementation("androidx.core:core-ktx:1.7.0")
     implementation(libs.protobufLite)
+
+    testImplementation(libs.junit)
+    testImplementation(libs.kotlinReflect)
+    testImplementation(libs.robolectric)
+    testImplementation(libs.testCore)
+    testImplementation(libs.truth)
 }
 
 android {
