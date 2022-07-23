@@ -22,7 +22,7 @@ import androidx.annotation.VisibleForTesting
 import androidx.core.content.ContextCompat
 import androidx.health.services.client.MeasureCallback
 import androidx.health.services.client.MeasureClient
-import androidx.health.services.client.data.DataType
+import androidx.health.services.client.data.DeltaDataType
 import androidx.health.services.client.data.MeasureCapabilities
 import androidx.health.services.client.impl.IpcConstants.MEASURE_API_BIND_ACTION
 import androidx.health.services.client.impl.IpcConstants.SERVICE_PACKAGE_NAME
@@ -60,12 +60,12 @@ public class ServiceBackedMeasureClient(
         { service -> service.apiVersion }
     ) {
 
-    override fun registerMeasureCallback(dataType: DataType, callback: MeasureCallback) {
+    override fun registerMeasureCallback(dataType: DeltaDataType<*, *>, callback: MeasureCallback) {
         registerMeasureCallback(dataType, ContextCompat.getMainExecutor(context), callback)
     }
 
     override fun registerMeasureCallback(
-        dataType: DataType,
+        dataType: DeltaDataType<*, *>,
         executor: Executor,
         callback: MeasureCallback
     ) {
@@ -94,7 +94,7 @@ public class ServiceBackedMeasureClient(
     }
 
     override fun unregisterMeasureCallbackAsync(
-        dataType: DataType,
+        dataType: DeltaDataType<*, *>,
         callback: MeasureCallback
     ): ListenableFuture<Void> {
         val callbackStub =
@@ -118,8 +118,8 @@ public class ServiceBackedMeasureClient(
         )
 
     internal companion object {
-        const val CLIENT = "HealthServicesMeasureClient"
-        private val CLIENT_CONFIGURATION =
+        internal const val CLIENT = "HealthServicesMeasureClient"
+        internal val CLIENT_CONFIGURATION =
             ClientConfiguration(CLIENT, SERVICE_PACKAGE_NAME, MEASURE_API_BIND_ACTION)
     }
 }

@@ -23,6 +23,7 @@ import androidx.health.services.client.data.ExerciseConfig
 import androidx.health.services.client.data.ExerciseGoal
 import androidx.health.services.client.data.ExerciseInfo
 import androidx.health.services.client.data.ExerciseState
+import androidx.health.services.client.data.ExerciseEndReason
 import androidx.health.services.client.data.ExerciseType
 import androidx.health.services.client.data.ExerciseUpdate
 import androidx.health.services.client.data.WarmUpConfig
@@ -236,7 +237,7 @@ public interface ExerciseClient {
      * @return a [ListenableFuture] that completes once the exercise goal has been added. This
      * returned [ListenableFuture] fails if the calling app does not own the active exercise.
      */
-    public fun addGoalToActiveExerciseAsync(exerciseGoal: ExerciseGoal): ListenableFuture<Void>
+    public fun addGoalToActiveExerciseAsync(exerciseGoal: ExerciseGoal<*>): ListenableFuture<Void>
 
     /**
      * Removes an exercise goal for an active exercise.
@@ -250,7 +251,9 @@ public interface ExerciseClient {
      * returned [ListenableFuture] fails if the exercise is not active, and will be a no-op if
      * [exerciseGoal] has not been added in the past.
      */
-    public fun removeGoalFromActiveExerciseAsync(exerciseGoal: ExerciseGoal): ListenableFuture<Void>
+    public fun removeGoalFromActiveExerciseAsync(
+        exerciseGoal: ExerciseGoal<*>
+    ): ListenableFuture<Void>
 
     /**
      * Enables or disables auto pause/resume for the current exercise.
