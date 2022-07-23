@@ -26,9 +26,7 @@ import androidx.leanback.widget.ListRow;
 import androidx.leanback.widget.ListRowPresenter;
 import androidx.leanback.widget.RowPresenter;
 import androidx.lifecycle.LifecycleOwner;
-import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.paging.PagingData;
 
 /**
  * PagedRowPresenter
@@ -63,16 +61,9 @@ public class PagedRowPresenter extends ListRowPresenter {
                 pagingData -> adapter.submitData(mLifecycleOwner.getLifecycle(), pagingData));
     }
     private static class LiveDataRowPresenterViewHolder extends ListRowPresenter.ViewHolder {
-        private LiveData<PagingData<PhotoItem>> mLiveData;
         LiveDataRowPresenterViewHolder(View rootView, HorizontalGridView gridView,
                 ListRowPresenter p) {
             super(rootView, gridView, p);
-        }
-        public void setLiveData(LiveData<PagingData<PhotoItem>> liveData) {
-            mLiveData = liveData;
-        }
-        public final LiveData<PagingData<PhotoItem>> getLiveData() {
-            return mLiveData;
         }
     }
 }
