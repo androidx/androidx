@@ -321,11 +321,6 @@ class Cea608CCParser {
         boolean isUnderline() {
             return (mStyle & STYLE_UNDERLINE) != 0;
         }
-
-        int getColor() {
-            return mColor;
-        }
-
         @Override
         public String toString() {
             StringBuilder str = new StringBuilder();

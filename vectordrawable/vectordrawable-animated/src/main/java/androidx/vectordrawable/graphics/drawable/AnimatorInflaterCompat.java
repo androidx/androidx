@@ -163,18 +163,6 @@ public class AnimatorInflaterCompat {
         PathDataEvaluator() {
         }
 
-        /**
-         * Create a PathDataEvaluator that reuses <code>nodeArray</code> for every evaluate() call.
-         * Caution must be taken to ensure that the value returned from
-         * {@link android.animation.ValueAnimator#getAnimatedValue()} is not cached, modified, or
-         * used across threads. The value will be modified on each <code>evaluate()</code> call.
-         *
-         * @param nodeArray The array to modify and return from <code>evaluate</code>.
-         */
-        PathDataEvaluator(PathParser.PathDataNode[] nodeArray) {
-            mNodeArray = nodeArray;
-        }
-
         @Override
         public PathParser.PathDataNode[] evaluate(float fraction,
                 PathParser.PathDataNode[] startPathData,
