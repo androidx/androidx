@@ -23,6 +23,7 @@ import android.graphics.SurfaceTexture
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraMetadata
 import android.os.Build
+import android.util.Range
 import android.util.Size
 import android.view.Surface
 import androidx.annotation.RequiresApi
@@ -167,6 +168,12 @@ class CameraInfoAdapter @Inject constructor(
 
     override fun isFocusMeteringSupported(action: FocusMeteringAction) =
         focusMeteringControl.isFocusMeteringSupported(action)
+
+    override fun getSupportedFpsRanges(): List<Range<Int>> {
+        return cameraProperties
+            .metadata[CameraCharacteristics.CONTROL_AE_AVAILABLE_TARGET_FPS_RANGES]?.toList()
+            ?: listOf()
+    }
 
     override fun isZslSupported(): Boolean {
         Log.warn { "TODO: isZslSupported are not yet supported." }

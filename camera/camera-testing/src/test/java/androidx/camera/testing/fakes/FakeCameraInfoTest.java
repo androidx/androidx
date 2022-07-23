@@ -73,4 +73,10 @@ public final class FakeCameraInfoTest {
                 ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE))
                 .containsExactlyElementsIn(resolutions);
     }
+
+    @Test
+    public void canRetrieveSupportedFpsRanges() {
+        assertThat(mFakeCameraInfo.getSupportedFpsRanges()).isNotEmpty();
+
+    }
 }
