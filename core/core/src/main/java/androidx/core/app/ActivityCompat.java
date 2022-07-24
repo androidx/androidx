@@ -46,6 +46,8 @@ import androidx.core.content.ContextCompat;
 import androidx.core.content.LocusIdCompat;
 import androidx.core.view.DragAndDropPermissionsCompat;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -553,7 +555,9 @@ public class ActivityCompat extends ContextCompat {
      */
     public static boolean shouldShowRequestPermissionRationale(@NonNull Activity activity,
             @NonNull String permission) {
-        if (Build.VERSION.SDK_INT >= 23) {
+        if (Build.VERSION.SDK_INT == 31) {
+            return Api31Impl.shouldShowRequestPermissionRationale(activity, permission);
+        } else if (Build.VERSION.SDK_INT >= 23) {
             return Api23Impl.shouldShowRequestPermissionRationale(activity, permission);
         }
         return false;
@@ -751,6 +755,19 @@ public class ActivityCompat extends ContextCompat {
         @DoNotInline
         static boolean isLaunchedFromBubble(@NonNull final Activity activity)  {
             return activity.isLaunchedFromBubble();
+        }
+
+        @DoNotInline
+        static boolean shouldShowRequestPermissionRationale(Activity activity, String permission) {
+            try {
+                // Fix shouldShowRequestPermissionRationale causing memory leak in Android 12
+                PackageManager packageManager = activity.getApplication().getPackageManager();
+                Method method = PackageManager.class.getMethod("shouldShowRequestPermissionRationale", String.class);
+                return (boolean) method.invoke(packageManager, permission);
+            } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
+                e.printStackTrace();
+                return activity.shouldShowRequestPermissionRationale(permission);
+            }
         }
     }
 
