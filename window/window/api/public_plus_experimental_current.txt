@@ -105,13 +105,13 @@ package androidx.window.embedding {
   }
 
   @androidx.window.core.ExperimentalWindowApi public final class SplitPlaceholderRule extends androidx.window.embedding.SplitRule {
-    ctor @Deprecated public SplitPlaceholderRule(java.util.Set<androidx.window.embedding.ActivityFilter> filters, android.content.Intent placeholderIntent, boolean isSticky, optional int finishPrimaryWithSecondary, optional @IntRange(from=0L) int minWidth, optional @IntRange(from=0L) int minSmallestWidth, optional @FloatRange(from=0.0, to=1.0) float splitRatio, optional int layoutDirection);
+    ctor @Deprecated public SplitPlaceholderRule(java.util.Set<androidx.window.embedding.ActivityFilter> filters, android.content.Intent placeholderIntent, boolean isSticky, optional int finishPrimaryWithPlaceholder, optional @IntRange(from=0L) int minWidth, optional @IntRange(from=0L) int minSmallestWidth, optional @FloatRange(from=0.0, to=1.0) float splitRatio, optional int layoutDirection);
     method public java.util.Set<androidx.window.embedding.ActivityFilter> getFilters();
-    method public int getFinishPrimaryWithSecondary();
+    method public int getFinishPrimaryWithPlaceholder();
     method public android.content.Intent getPlaceholderIntent();
     method public boolean isSticky();
     property public final java.util.Set<androidx.window.embedding.ActivityFilter> filters;
-    property public final int finishPrimaryWithSecondary;
+    property public final int finishPrimaryWithPlaceholder;
     property public final boolean isSticky;
     property public final android.content.Intent placeholderIntent;
   }
@@ -119,7 +119,7 @@ package androidx.window.embedding {
   public static final class SplitPlaceholderRule.Builder {
     ctor public SplitPlaceholderRule.Builder(java.util.Set<androidx.window.embedding.ActivityFilter> filters, android.content.Intent placeholderIntent, @IntRange(from=0L) int minWidth, @IntRange(from=0L) int minSmallestWidth);
     method public androidx.window.embedding.SplitPlaceholderRule build();
-    method public androidx.window.embedding.SplitPlaceholderRule.Builder setFinishPrimaryWithSecondary(int finishPrimaryWithSecondary);
+    method public androidx.window.embedding.SplitPlaceholderRule.Builder setFinishPrimaryWithPlaceholder(int finishPrimaryWithPlaceholder);
     method public androidx.window.embedding.SplitPlaceholderRule.Builder setLayoutDir(int layoutDir);
     method public androidx.window.embedding.SplitPlaceholderRule.Builder setSplitRatio(@FloatRange(from=0.0, to=1.0) float splitRatio);
     method public androidx.window.embedding.SplitPlaceholderRule.Builder setSticky(boolean isSticky);

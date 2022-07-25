@@ -296,7 +296,7 @@ public class SplitActivityBase extends AppCompatActivity
                 0 /* minSmallestWidth */
         )
                 .setSticky(mViewBinding.useStickyPlaceholderCheckBox.isChecked())
-                .setFinishPrimaryWithSecondary(SplitRule.FINISH_ADJACENT)
+                .setFinishPrimaryWithPlaceholder(SplitRule.FINISH_ADJACENT)
                 .setSplitRatio(SPLIT_RATIO)
                 .build();
         if (mViewBinding.usePlaceholderCheckBox.isChecked()) {
