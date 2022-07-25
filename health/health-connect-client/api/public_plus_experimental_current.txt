@@ -79,8 +79,8 @@ package androidx.health.connect.client.changes {
   }
 
   public final class DeletionChange implements androidx.health.connect.client.changes.Change {
-    method public String getDeletedUid();
-    property public final String deletedUid;
+    method public String getUid();
+    property public final String uid;
   }
 
   public final class UpsertionChange implements androidx.health.connect.client.changes.Change {

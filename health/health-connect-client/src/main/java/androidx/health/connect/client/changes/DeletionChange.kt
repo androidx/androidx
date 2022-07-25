@@ -23,6 +23,6 @@ import androidx.health.connect.client.records.metadata.Metadata
  * deletion are returned. Clients holding copies of data should keep a copy of [Metadata.uid] along
  * with its contents, if deletion propagation is desired.
  *
- * @property deletedUid [Metadata.uid] of deleted [Record].
+ * @property uid [Metadata.uid] of deleted [Record].
  */
-class DeletionChange internal constructor(public val deletedUid: String) : Change
+class DeletionChange internal constructor(public val uid: String) : Change
