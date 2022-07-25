@@ -157,7 +157,7 @@ def get_higher_version(version_a, version_b):
     return version_a
 
 
-def should_update_version_in_library_versions_toml(old_version, new_version, group_id):
+def should_update_group_version_in_library_versions_toml(old_version, new_version, group_id):
     """Whether or not this specific group ID and version should be updated.
 
     Returns true if the new_version is greater than the version in line
@@ -174,6 +174,26 @@ def should_update_version_in_library_versions_toml(old_version, new_version, gro
     # If we hit a group ID we should not update, just return.
     group_ids_to_not_update = ["androidx.car", "androidx.compose.compiler"]
     if group_id in group_ids_to_not_update: return False
+    return new_version == get_higher_version(old_version, new_version)
+
+
+def should_update_artifact_version_in_library_versions_toml(old_version, new_version, artifact_id):
+    """Whether or not this specific artifact ID and version should be updated.
+
+    Returns true if the new_version is greater than the version in line
+    and the artifact ID is not the set of artifact_ids_to_not_update.
+
+    Args:
+        old_version: the old version from libraryversions.toml file.
+        new_version: the version to check again.
+        artifact_id: artifact id of the version being considered
+
+    Returns:
+        True if should update version, false otherwise.
+    """
+    # If we hit a artifact ID we should not update, just return.
+    artifact_ids_to_not_update = ["tracing-perfetto", "tracing-perfetto-binary", "tracing-perfetto-common"]
+    if artifact_id in artifact_ids_to_not_update: return False
     return new_version == get_higher_version(old_version, new_version)
 
 
@@ -249,7 +269,7 @@ def update_versions_in_library_versions_toml(group_id, artifact_id, old_version)
     # First check any artifact ids with unique versions.
     if artifact_id_variable_name in library_versions["versions"]:
         old_version = library_versions["versions"][artifact_id_variable_name]
-        if should_update_version_in_library_versions_toml(old_version, new_version, group_id):
+        if should_update_artifact_version_in_library_versions_toml(old_version, new_version, artifact_id):
             library_versions["versions"][artifact_id_variable_name] = new_version
             updated_version = True
 
@@ -257,7 +277,7 @@ def update_versions_in_library_versions_toml(group_id, artifact_id, old_version)
         # Then check any group ids.
         if group_id_variable_name in library_versions["versions"]:
             old_version = library_versions["versions"][group_id_variable_name]
-            if should_update_version_in_library_versions_toml(old_version, new_version, group_id):
+            if should_update_group_version_in_library_versions_toml(old_version, new_version, group_id):
                 library_versions["versions"][group_id_variable_name] = new_version
                 updated_version = True
 
