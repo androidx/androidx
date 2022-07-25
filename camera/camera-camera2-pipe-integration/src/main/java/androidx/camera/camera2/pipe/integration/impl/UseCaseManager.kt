@@ -83,6 +83,13 @@ class UseCaseManager @Inject constructor(
         }
         Log.debug { "Attaching $useCases from $this" }
 
+        // Notify state attached to use cases
+        for (useCase in useCases) {
+            if (!attachedUseCases.contains(useCase)) {
+                useCase.onStateAttached()
+            }
+        }
+
         if (attachedUseCases.addAll(useCases)) {
             refreshAttachedUseCases(attachedUseCases)
         }
@@ -104,6 +111,13 @@ class UseCaseManager @Inject constructor(
         // we remove the use cases from our set directly because the subsequent cleanup actions from
         // detaching the use cases should suffice here.
         activeUseCases.removeAll(useCases)
+
+        // Notify state detached to use cases
+        for (useCase in useCases) {
+            if (attachedUseCases.contains(useCase)) {
+                useCase.onStateDetached()
+            }
+        }
 
         // TODO: We might only want to tear down when the number of attached use cases goes to
         //  zero. If a single UseCase is removed, we could deactivate it?
