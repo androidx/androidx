@@ -18,11 +18,13 @@
 
 package androidx.camera.camera2.pipe.config
 
+import android.view.Surface
 import androidx.annotation.RequiresApi
+import androidx.camera.camera2.pipe.CameraController
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.RequestProcessor
-import androidx.camera.camera2.pipe.compat.Camera2Controller
+import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.graph.GraphListener
 import dagger.Module
 import dagger.Provides
@@ -32,7 +34,7 @@ import kotlinx.atomicfu.atomic
 @CameraGraphScope
 @Subcomponent(
     modules = [
-        CameraGraphModules::class,
+        SharedCameraGraphModules::class,
         ExternalCameraGraphConfigModule::class
     ]
 )
@@ -59,8 +61,8 @@ internal class ExternalCameraGraphConfigModule(
     fun provideCameraMetadata(): CameraMetadata = cameraMetadata
 
     @Provides
-    fun provideGraphController(graphListener: GraphListener): Camera2Controller =
-        object : Camera2Controller {
+    fun provideGraphController(graphListener: GraphListener): CameraController =
+        object : CameraController {
             var started = atomic(false)
             override fun start() {
                 if (started.compareAndSet(expect = false, update = true)) {
@@ -74,9 +76,10 @@ internal class ExternalCameraGraphConfigModule(
                 }
             }
 
-            override fun restart() {
-                stop()
-                start()
+            override fun close() {
+            }
+
+            override fun updateSurfaceMap(surfaceMap: Map<StreamId, Surface>) {
             }
         }
 }
