@@ -19,6 +19,7 @@ package androidx.window.embedding
 import android.content.Intent
 import android.util.LayoutDirection
 import androidx.annotation.FloatRange
+import androidx.annotation.IntDef
 import androidx.annotation.IntRange
 import androidx.core.util.Preconditions.checkArgument
 import androidx.core.util.Preconditions.checkArgumentNonnegative
@@ -48,12 +49,21 @@ class SplitPlaceholderRule : SplitRule {
     val isSticky: Boolean
 
     /**
+     * Defines whether a container should be finished together when the associated placeholder
+     * activity is being finished based on current presentation mode.
+     */
+    @Target(AnnotationTarget.PROPERTY, AnnotationTarget.VALUE_PARAMETER, AnnotationTarget.TYPE)
+    @Retention(AnnotationRetention.SOURCE)
+    @IntDef(FINISH_ALWAYS, FINISH_ADJACENT)
+    internal annotation class SplitPlaceholderFinishBehavior
+
+    /**
      * Determines what happens with the primary container when all activities are finished in the
      * associated placeholder container.
-     * @see SplitRule.SplitFinishBehavior
+     * @see SplitPlaceholderFinishBehavior
      */
-    @SplitFinishBehavior
-    val finishPrimaryWithSecondary: Int
+    @SplitPlaceholderFinishBehavior
+    val finishPrimaryWithPlaceholder: Int
 
     // TODO(b/229656253): Reduce visibility to remove from public API.
     @Deprecated(
@@ -64,7 +74,7 @@ class SplitPlaceholderRule : SplitRule {
         filters: Set<ActivityFilter>,
         placeholderIntent: Intent,
         isSticky: Boolean,
-        @SplitFinishBehavior finishPrimaryWithSecondary: Int = FINISH_ALWAYS,
+        @SplitPlaceholderFinishBehavior finishPrimaryWithPlaceholder: Int = FINISH_ALWAYS,
         @IntRange(from = 0) minWidth: Int = 0,
         @IntRange(from = 0) minSmallestWidth: Int = 0,
         @FloatRange(from = 0.0, to = 1.0) splitRatio: Float = 0.5f,
@@ -73,10 +83,13 @@ class SplitPlaceholderRule : SplitRule {
         checkArgumentNonnegative(minWidth, "minWidth must be non-negative")
         checkArgumentNonnegative(minSmallestWidth, "minSmallestWidth must be non-negative")
         checkArgument(splitRatio in 0.0..1.0, "splitRatio must be in 0.0..1.0 range")
+        checkArgument(finishPrimaryWithPlaceholder != FINISH_NEVER,
+            "FINISH_NEVER is not a valid configuration for SplitPlaceholderRule. " +
+                "Please use FINISH_ALWAYS or FINISH_ADJACENT instead or refer to the current API.")
         this.filters = filters.toSet()
         this.placeholderIntent = placeholderIntent
         this.isSticky = isSticky
-        this.finishPrimaryWithSecondary = finishPrimaryWithSecondary
+        this.finishPrimaryWithPlaceholder = finishPrimaryWithPlaceholder
     }
 
     /**
@@ -94,8 +107,8 @@ class SplitPlaceholderRule : SplitRule {
         @IntRange(from = 0)
         private val minSmallestWidth: Int
     ) {
-        @SplitFinishBehavior
-        private var finishPrimaryWithSecondary: Int = FINISH_ALWAYS
+        @SplitPlaceholderFinishBehavior
+        private var finishPrimaryWithPlaceholder: Int = FINISH_ALWAYS
         private var isSticky: Boolean = false
         @FloatRange(from = 0.0, to = 1.0)
         private var splitRatio: Float = 0.5f
@@ -103,12 +116,14 @@ class SplitPlaceholderRule : SplitRule {
         private var layoutDir: Int = LayoutDirection.LOCALE
 
         /**
-         * @see SplitPlaceholderRule.finishPrimaryWithSecondary
+         * @see SplitPlaceholderRule.finishPrimaryWithPlaceholder
          */
-        fun setFinishPrimaryWithSecondary(
-            @SplitFinishBehavior finishPrimaryWithSecondary: Int
+        fun setFinishPrimaryWithPlaceholder(
+            @SplitPlaceholderFinishBehavior finishPrimaryWithPlaceholder: Int
         ): Builder =
-            apply { this.finishPrimaryWithSecondary = finishPrimaryWithSecondary }
+            apply {
+               this.finishPrimaryWithPlaceholder = finishPrimaryWithPlaceholder
+            }
 
         /**
          * @see SplitPlaceholderRule.isSticky
@@ -131,7 +146,7 @@ class SplitPlaceholderRule : SplitRule {
 
         @Suppress("DEPRECATION")
         fun build() = SplitPlaceholderRule(filters, placeholderIntent, isSticky,
-            finishPrimaryWithSecondary, minWidth, minSmallestWidth, splitRatio, layoutDir)
+            finishPrimaryWithPlaceholder, minWidth, minSmallestWidth, splitRatio, layoutDir)
     }
 
     /**
@@ -147,7 +162,7 @@ class SplitPlaceholderRule : SplitRule {
             newSet.toSet(),
             placeholderIntent,
             isSticky,
-            finishPrimaryWithSecondary,
+            finishPrimaryWithPlaceholder,
             minWidth,
             minSmallestWidth,
             splitRatio,
@@ -162,7 +177,7 @@ class SplitPlaceholderRule : SplitRule {
 
         if (placeholderIntent != other.placeholderIntent) return false
         if (isSticky != other.isSticky) return false
-        if (finishPrimaryWithSecondary != other.finishPrimaryWithSecondary) return false
+        if (finishPrimaryWithPlaceholder != other.finishPrimaryWithPlaceholder) return false
         if (filters != other.filters) return false
 
         return true
@@ -172,7 +187,7 @@ class SplitPlaceholderRule : SplitRule {
         var result = super.hashCode()
         result = 31 * result + placeholderIntent.hashCode()
         result = 31 * result + isSticky.hashCode()
-        result = 31 * result + finishPrimaryWithSecondary.hashCode()
+        result = 31 * result + finishPrimaryWithPlaceholder.hashCode()
         result = 31 * result + filters.hashCode()
         return result
     }

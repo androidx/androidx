@@ -22,9 +22,12 @@ import android.content.Intent;
 import android.os.Build;
 import android.view.WindowMetrics;
 
+import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.function.Predicate;
 
 /**
@@ -39,18 +42,30 @@ public class SplitPlaceholderRule extends SplitRule {
     @NonNull
     private final Intent mPlaceholderIntent;
     private final boolean mIsSticky;
-    @SplitFinishBehavior
-    private final int mFinishPrimaryWithSecondary;
+
+    /**
+     * Determines what happens with the primary container when the placeholder activity is
+     * finished in one of the containers in a split.
+     */
+    @IntDef({
+            FINISH_ALWAYS,
+            FINISH_ADJACENT
+    })
+    @Retention(RetentionPolicy.SOURCE)
+    @interface SplitPlaceholderFinishBehavior{}
+
+    @SplitPlaceholderFinishBehavior
+    private final int mFinishPrimaryWithPlaceholder;
 
     SplitPlaceholderRule(@NonNull Intent placeholderIntent,
             float splitRatio, @LayoutDir int layoutDirection, boolean isSticky,
-            @SplitFinishBehavior int finishPrimaryWithSecondary,
+            @SplitPlaceholderFinishBehavior int finishPrimaryWithPlaceholder,
             @NonNull Predicate<Activity> activityPredicate,
             @NonNull Predicate<Intent> intentPredicate,
             @NonNull Predicate<WindowMetrics> parentWindowMetricsPredicate) {
         super(parentWindowMetricsPredicate, splitRatio, layoutDirection);
         mIsSticky = isSticky;
-        mFinishPrimaryWithSecondary = finishPrimaryWithSecondary;
+        mFinishPrimaryWithPlaceholder = finishPrimaryWithPlaceholder;
         mActivityPredicate = activityPredicate;
         mIntentPredicate = intentPredicate;
         mPlaceholderIntent = placeholderIntent;
@@ -91,12 +106,22 @@ public class SplitPlaceholderRule extends SplitRule {
     }
 
     /**
+     * @deprecated Use {@link #getFinishPrimaryWithPlaceholder()} instead.
+     */
+    @Deprecated
+    @SplitPlaceholderFinishBehavior
+    public int getFinishPrimaryWithSecondary() {
+        return getFinishPrimaryWithPlaceholder();
+    }
+
+    /**
      * Determines what happens with the primary container when all activities are finished in the
      * associated secondary/placeholder container.
+     * TODO(b/238905747): Add api guard for extensions.
      */
-    @SplitFinishBehavior
-    public int getFinishPrimaryWithSecondary() {
-        return mFinishPrimaryWithSecondary;
+    @SplitPlaceholderFinishBehavior
+    public int getFinishPrimaryWithPlaceholder() {
+        return mFinishPrimaryWithPlaceholder;
     }
 
     /**
@@ -115,8 +140,8 @@ public class SplitPlaceholderRule extends SplitRule {
         @LayoutDir
         private int mLayoutDirection;
         private boolean mIsSticky = false;
-        @SplitFinishBehavior
-        private int mFinishPrimaryWithSecondary = FINISH_ALWAYS;
+        @SplitPlaceholderFinishBehavior
+        private int mFinishPrimaryWithPlaceholder = FINISH_ALWAYS;
 
         public Builder(@NonNull Intent placeholderIntent,
                 @NonNull Predicate<Activity> activityPredicate,
@@ -149,10 +174,27 @@ public class SplitPlaceholderRule extends SplitRule {
             return this;
         }
 
-        /** @see SplitPlaceholderRule#getFinishPrimaryWithSecondary() */
+        /**
+         * @deprecated Use SplitPlaceholderRule#setFinishPrimaryWithPlaceholder(int)} instead.
+         */
+        @Deprecated
         @NonNull
-        public Builder setFinishPrimaryWithSecondary(@SplitFinishBehavior int finishBehavior) {
-            mFinishPrimaryWithSecondary = finishBehavior;
+        public Builder setFinishPrimaryWithSecondary(
+                @SplitPlaceholderFinishBehavior int finishBehavior) {
+            if (finishBehavior == FINISH_NEVER) {
+                finishBehavior = FINISH_ALWAYS;
+            }
+            return setFinishPrimaryWithPlaceholder(finishBehavior);
+        }
+
+        /**
+         * @see SplitPlaceholderRule#getFinishPrimaryWithPlaceholder()
+         * TODO(b/238905747): Add api guard for extensions.
+         */
+        @NonNull
+        public Builder setFinishPrimaryWithPlaceholder(
+                @SplitPlaceholderFinishBehavior int finishBehavior) {
+            mFinishPrimaryWithPlaceholder = finishBehavior;
             return this;
         }
 
@@ -160,7 +202,7 @@ public class SplitPlaceholderRule extends SplitRule {
         @NonNull
         public SplitPlaceholderRule build() {
             return new SplitPlaceholderRule(mPlaceholderIntent, mSplitRatio,
-                    mLayoutDirection, mIsSticky, mFinishPrimaryWithSecondary, mActivityPredicate,
+                    mLayoutDirection, mIsSticky, mFinishPrimaryWithPlaceholder, mActivityPredicate,
                     mIntentPredicate, mParentWindowMetricsPredicate);
         }
     }
@@ -174,7 +216,7 @@ public class SplitPlaceholderRule extends SplitRule {
         SplitPlaceholderRule that = (SplitPlaceholderRule) o;
 
         if (mIsSticky != that.mIsSticky) return false;
-        if (mFinishPrimaryWithSecondary != that.mFinishPrimaryWithSecondary) return false;
+        if (mFinishPrimaryWithPlaceholder != that.mFinishPrimaryWithPlaceholder) return false;
         if (!mActivityPredicate.equals(that.mActivityPredicate)) return false;
         if (!mIntentPredicate.equals(that.mIntentPredicate)) return false;
         return mPlaceholderIntent.equals(that.mPlaceholderIntent);
@@ -187,7 +229,7 @@ public class SplitPlaceholderRule extends SplitRule {
         result = 31 * result + mIntentPredicate.hashCode();
         result = 31 * result + mPlaceholderIntent.hashCode();
         result = 31 * result + (mIsSticky ? 1 : 0);
-        result = 31 * result + mFinishPrimaryWithSecondary;
+        result = 31 * result + mFinishPrimaryWithPlaceholder;
         return result;
     }
 
@@ -197,7 +239,7 @@ public class SplitPlaceholderRule extends SplitRule {
         return "SplitPlaceholderRule{"
                 + "mActivityPredicate=" + mActivityPredicate
                 + ", mIsSticky=" + mIsSticky
-                + ", mFinishPrimaryWithPlaceholder=" + mFinishPrimaryWithSecondary
+                + ", mFinishPrimaryWithPlaceholder=" + mFinishPrimaryWithPlaceholder
                 + '}';
     }
 }
