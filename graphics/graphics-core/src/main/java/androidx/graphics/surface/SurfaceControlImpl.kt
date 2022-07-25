@@ -34,7 +34,7 @@ internal interface SurfaceControlImpl {
 
     /**
      * Check whether this instance points to a valid layer with the system-compositor.
-     * For example this may be false if construction failed, or the layer was released [release].
+     * For example this may be false if the layer was released ([release]).
      */
     fun isValid(): Boolean
 
@@ -76,7 +76,8 @@ internal interface SurfaceControlImpl {
         fun build(): SurfaceControlImpl
     }
 
-    interface Transaction {
+    @RequiresApi(Build.VERSION_CODES.KITKAT)
+    interface Transaction : AutoCloseable {
 
         /**
          * Indicates whether the surface must be considered opaque, even if its pixel format is
@@ -230,13 +231,15 @@ internal interface SurfaceControlImpl {
 
         /**
          * Commit the transaction, clearing it's state, and making it usable as a new transaction.
+         * This will not release any resources and [SurfaceControlImpl.Transaction.close] must be
+         * called to release the transaction.
          */
         fun commit()
 
         /**
-         * Release the native transaction object, without applying it.
+         * Release the native transaction object, without committing it.
          */
-        fun close()
+        override fun close()
 
         /**
          * Consume the passed in transaction, and request the View hierarchy to apply it atomically
