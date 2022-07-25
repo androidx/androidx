@@ -78,7 +78,7 @@
         <UserStyleFlavor app:id="@string/flavor_id_0">
             <StyleOption app:id="@string/setting_time_style"
                 app:value="@string/option_time_style_minimal"/>
-            <StyleOption app:id="BooleanId" app:value="true"/>
+            <StyleOption app:id="BooleanId" app:value="false"/>
             <StyleOption app:id="DoubleId" app:value="1.0"/>
             <StyleOption app:id="LongId" app:value="2"/>
             <ComplicationPolicy
