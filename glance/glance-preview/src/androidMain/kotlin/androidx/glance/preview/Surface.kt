@@ -14,15 +14,24 @@
  * limitations under the License.
  */
 
-package androidx.glance.appwidget.preview
+package androidx.glance.preview
 
-import androidx.glance.appwidget.ExperimentalGlanceRemoteViewsApi
+import androidx.annotation.RestrictTo
+import androidx.annotation.StringDef
 
+/**
+ * The list of glance surfaces that have preview available. The list will grow as more glance
+ * surfaces will are added and allow the preview functionality.
+ */
+object Surfaces {
+    const val APP_WIDGET = "AppWidget"
+    const val TILE = "Tile"
+}
+
+/**
+ * The annotation that ensures that the variable value is strictly a recognized glance surface.
+ */
 @Retention(AnnotationRetention.SOURCE)
-@Target(
-    AnnotationTarget.ANNOTATION_CLASS,
-    AnnotationTarget.FUNCTION
-)
-@ExperimentalGlanceRemoteViewsApi
-@Repeatable
-annotation class PreviewGlance
+@StringDef(value = [Surfaces.APP_WIDGET, Surfaces.TILE])
+@RestrictTo(RestrictTo.Scope.LIBRARY)
+annotation class Surface

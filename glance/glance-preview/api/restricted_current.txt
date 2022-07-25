@@ -1,0 +1,11 @@
+// Signature format: 4.0
+package androidx.glance.preview {
+
+  public final class Surfaces {
+    field public static final String APP_WIDGET = "AppWidget";
+    field public static final androidx.glance.preview.Surfaces INSTANCE;
+    field public static final String TILE = "Tile";
+  }
+
+}
+
