@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 The Android Open Source Project
+ * Copyright 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,6 @@
 package androidx.datastore.preferences.core
 
 import androidx.datastore.core.DataStore
-import java.util.Collections
-import java.util.concurrent.atomic.AtomicBoolean
 
 /**
  * Preferences and MutablePreferences are a lot like a generic Map and MutableMap keyed by the
@@ -157,7 +155,7 @@ public class MutablePreferences internal constructor(
     }
 
     override fun asMap(): Map<Key<*>, Any> {
-        return Collections.unmodifiableMap(preferencesMap.entries.associate { entry ->
+        return immutableMap(preferencesMap.entries.associate { entry ->
             when (val value = entry.value) {
                 is ByteArray -> Pair(entry.key, value.copyOf())
                 else -> Pair(entry.key, entry.value)
@@ -195,7 +193,7 @@ public class MutablePreferences internal constructor(
             null -> remove(key)
             // Copy set so changes to input don't change Preferences. Wrap in unmodifiableSet so
             // returned instances can't be changed.
-            is Set<*> -> preferencesMap[key] = Collections.unmodifiableSet(value.toSet())
+            is Set<*> -> preferencesMap[key] = immutableCopyOfSet(value)
             is ByteArray -> preferencesMap[key] = value.copyOf()
             else -> preferencesMap[key] = value
         }

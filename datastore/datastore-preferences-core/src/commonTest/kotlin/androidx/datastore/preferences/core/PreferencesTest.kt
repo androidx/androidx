@@ -16,17 +16,12 @@
 
 package androidx.datastore.preferences.core
 
-import org.junit.Test
-import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
-import java.lang.UnsupportedOperationException
-import kotlin.test.assertEquals
-import kotlin.test.assertFailsWith
-import kotlin.test.assertNotEquals
+import kotlin.test.Test
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
+import kotlin.test.assertEquals
+import kotlin.test.assertNotEquals
 
-@RunWith(JUnit4::class)
 class PreferencesTest {
 
     @Test
@@ -98,7 +93,7 @@ class PreferencesTest {
     fun testLong() {
         val longKey = longPreferencesKey("long_key")
 
-        val bigLong = 1L shr 50; // 2^50 > Int.MAX_VALUE
+        val bigLong = 1L shr 50 // 2^50 > Int.MAX_VALUE
 
         val prefs = preferencesOf(longKey to bigLong)
 
@@ -158,31 +153,6 @@ class PreferencesTest {
     }
 
     @Test
-    fun testModifyingStringSetDoesntModifyInternalState() {
-        val stringSetKey =
-            stringSetPreferencesKey("string_set_key")
-
-        val stringSet = mutableSetOf("1", "2", "3")
-
-        val prefs = preferencesOf(stringSetKey to stringSet)
-
-        stringSet.add("4") // modify the set passed into preferences
-
-        // modify the returned set.
-        val returnedSet: Set<String> = prefs[stringSetKey]!!
-        val mutableReturnedSet: MutableSet<String> = returnedSet as MutableSet<String>
-
-        assertFailsWith<UnsupportedOperationException> {
-            mutableReturnedSet.clear()
-        }
-        assertFailsWith<UnsupportedOperationException> {
-            mutableReturnedSet.add("Original set does not contain this string")
-        }
-
-        assertEquals(setOf("1", "2", "3"), prefs[stringSetKey])
-    }
-
-    @Test
     fun testByteArray() {
         val byteArrayKey = byteArrayPreferencesKey("byte_array_key")
         val byteArray = byteArrayOf(1, 2, 3, 4)
@@ -225,32 +195,6 @@ class PreferencesTest {
     }
 
     @Test
-    @Suppress("UNUSED_VARIABLE")
-    fun testWrongTypeThrowsClassCastException() {
-        val stringKey = stringPreferencesKey("string_key")
-        val intKey =
-            intPreferencesKey("string_key") // long key of the same name as stringKey!
-        val longKey = longPreferencesKey("string_key")
-
-        val prefs = preferencesOf(intKey to 123456)
-
-        assertTrue { prefs.contains(intKey) }
-        assertTrue { prefs.contains(stringKey) } // TODO: I don't think we can prevent this
-
-        // Trying to get a long where there is an Int value throws a ClassCastException.
-        assertFailsWith<ClassCastException> {
-            var unused = prefs[stringKey] // This only throws if it's assigned to a
-            // variable
-        }
-
-        // Trying to get a Long where there is an Int value throws a ClassCastException.
-        assertFailsWith<ClassCastException> {
-            var unused = prefs[longKey] // This only throws if it's assigned to a
-            // variable
-        }
-    }
-
-    @Test
     fun testGetAll() {
         val intKey = intPreferencesKey("int_key")
         val stringSetKey =
@@ -266,30 +210,6 @@ class PreferencesTest {
 
         assertEquals(123, allPreferences[intKey])
         assertEquals(setOf("1", "2", "3"), (allPreferences[stringSetKey]))
-    }
-
-    @Test
-    @Suppress("UNCHECKED_CAST")
-    fun testGetAllCantMutateInternalState() {
-        val intKey = intPreferencesKey("int_key")
-        val stringSetKey =
-            stringSetPreferencesKey("string_set_key")
-
-        val prefs = preferencesOf(
-            intKey to 123,
-            stringSetKey to setOf("1", "2", "3")
-        )
-
-        val mutableAllPreferences = prefs.asMap() as MutableMap
-        assertFailsWith<UnsupportedOperationException> {
-            mutableAllPreferences[intKey] = 99999
-        }
-        assertFailsWith<UnsupportedOperationException> {
-            (mutableAllPreferences[stringSetKey] as MutableSet<String>).clear()
-        }
-
-        assertEquals(123, prefs[intKey])
-        assertEquals(setOf("1", "2", "3"), prefs[stringSetKey])
     }
 
     @Test
