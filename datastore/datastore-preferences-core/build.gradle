@@ -15,17 +15,103 @@
  */
 
 import androidx.build.BundleInsideHelper
+import androidx.build.KmpPlatformsKt
+import androidx.build.LibraryType
 import androidx.build.Publish
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
+import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 
 plugins {
     id("AndroidXPlugin")
-    id("kotlin")
+    alias(libs.plugins.kotlinSerialization)
 }
 
-BundleInsideHelper.forInsideJar(
-    project,
-    /* from = */ "com.google.protobuf",
-    /* to =   */ "androidx.datastore.preferences.protobuf"
+def enableNative = KmpPlatformsKt.enableNative(project)
+
+androidXMultiplatform {
+    jvm {
+        withJava()
+    }
+    mac()
+    linux()
+
+
+    sourceSets {
+        commonMain {
+            dependencies {
+                api(libs.kotlinStdlib)
+                api(libs.okio)
+                api(project(":datastore:datastore-core"))
+                api(project(":datastore:datastore-core-okio"))
+            }
+        }
+        commonTest {
+            dependencies {
+                implementation(libs.kotlinTestCommon)
+                implementation(libs.kotlinTestAnnotationsCommon)
+                implementation(libs.kotlinCoroutinesTest)
+                implementation(project(":datastore:datastore-core"))
+                implementation(project(":internal-testutils-kmp"))
+                implementation(project(":internal-testutils-datastore"))
+            }
+        }
+        jvmMain {
+            dependsOn(commonMain)
+        }
+        jvmTest {
+            dependsOn(commonTest)
+            dependencies {
+                implementation(libs.junit)
+                implementation(libs.kotlinTest)
+                implementation(project(":internal-testutils-datastore"))
+                implementation(project(":internal-testutils-kmp"))
+            }
+        }
+        if (enableNative) {
+            nativeMain {
+                dependsOn(commonMain)
+                dependencies {
+                    //TODO(paulmalolepsy) Moving to libs.version.toml in next commit.
+                    implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:1.3.3")
+                    implementation("org.jetbrains.kotlinx:kotlinx-serialization-protobuf:1.3.3")
+                }
+            }
+
+            nativeTest {
+                dependsOn(commonTest)
+                dependencies {
+                    implementation(libs.kotlinTest)
+                    implementation(project(":internal-testutils-datastore"))
+                    implementation(project(":internal-testutils-kmp"))
+                }
+            }
+        }
+
+        all {
+            languageSettings.optIn("kotlin.RequiresOptIn")
+        }
+        targets.withType(KotlinNativeTarget).configureEach {
+            binaries.all {
+                binaryOptions["memoryModel"] = "experimental"
+            }
+        }
+        targets.forEach {target ->
+            if (target.platformType == KotlinPlatformType.native) {
+                target.compilations["main"].defaultSourceSet {
+                    dependsOn(sourceSets["nativeMain"])
+                }
+                target.compilations["test"].defaultSourceSet {
+                    dependsOn(sourceSets["nativeTest"])
+                }
+            }
+        }
+    }
+}
+
+BundleInsideHelper.forInsideJarKmp(
+        project,
+        /* from = */ "com.google.protobuf",
+        /* to =   */ "androidx.datastore.preferences.protobuf"
 )
 
 dependencies {
@@ -33,17 +119,11 @@ dependencies {
             path: ":datastore:datastore-preferences-proto",
             configuration: "export"
     ))
-    api(libs.kotlinStdlib)
-    api(project(":datastore:datastore-core"))
-
-    testImplementation(libs.junit)
-    testImplementation(libs.kotlinCoroutinesTest)
-    testImplementation(libs.kotlinTest)
 }
 
 androidx {
     name = "Android Preferences DataStore Core"
-    publish = Publish.SNAPSHOT_AND_RELEASE
+    type = LibraryType.KMP_LIBRARY
     mavenGroup = LibraryGroups.DATASTORE
     inceptionYear = "2020"
     description = "Android Preferences DataStore without the Android Dependencies"
