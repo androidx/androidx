@@ -328,7 +328,7 @@ public class XmlDefinedUserStyleSchemaAndComplicationSlotsTest {
             assertThat(style[UserStyleSetting.Id("TimeStyle")]!!.id)
                 .isEqualTo(UserStyleSetting.Option.Id("minimal"))
             assertThat((style[UserStyleSetting.Id("BooleanId")]!! as BooleanOption).value)
-                .isEqualTo(true)
+                .isEqualTo(false)
             assertThat((style[UserStyleSetting.Id("DoubleId")]!! as DoubleRangeOption).value)
                 .isEqualTo(1.0)
             assertThat((style[UserStyleSetting.Id("LongId")]!! as LongRangeOption).value)
