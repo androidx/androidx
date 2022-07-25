@@ -40,7 +40,7 @@ separators `.` or `:`. For example, `androidx.core:core-role` would use project
 name `:core:core-role` and directory `/core/core-role`.
 
 New modules in androidx can be created using the
-[project creator script](#module-creator).
+[project creator script](#module-creation).
 
 NOTE Modules for OEM-implemented shared libraries (also known as extensions or
 sidecars) that ship on-device and are referenced via the `<uses-library>` tag
