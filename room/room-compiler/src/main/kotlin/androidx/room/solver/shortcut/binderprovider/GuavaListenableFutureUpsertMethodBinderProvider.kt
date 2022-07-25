@@ -25,7 +25,7 @@ import androidx.room.ext.T
 import androidx.room.processor.Context
 import androidx.room.processor.ProcessorErrors
 import androidx.room.solver.shortcut.binder.CallableUpsertMethodBinder.Companion.createUpsertBinder
-import androidx.room.solver.shortcut.binder.UpsertMethodBinder
+import androidx.room.solver.shortcut.binder.InsertOrUpsertMethodBinder
 import androidx.room.vo.ShortcutQueryParameter
 
 /**
@@ -33,7 +33,7 @@ import androidx.room.vo.ShortcutQueryParameter
  */
 class GuavaListenableFutureUpsertMethodBinderProvider(
     private val context: Context
-) : UpsertMethodBinderProvider {
+) : InsertOrUpsertMethodBinderProvider {
 
     private val hasGuavaRoom by lazy {
         context.processingEnv.findTypeElement(RoomGuavaTypeNames.GUAVA_ROOM) != null
@@ -46,7 +46,7 @@ class GuavaListenableFutureUpsertMethodBinderProvider(
     override fun provide(
         declared: XType,
         params: List<ShortcutQueryParameter>
-    ): UpsertMethodBinder {
+    ): InsertOrUpsertMethodBinder {
         if (!hasGuavaRoom) {
             context.logger.e(ProcessorErrors.MISSING_ROOM_GUAVA_ARTIFACT)
         }

@@ -22,7 +22,7 @@ import androidx.room.solver.shortcut.binder.DeleteOrUpdateMethodBinder
 /**
  * Base class for shortcut methods in @DAO.
  */
-abstract class ShortcutMethod(
+abstract class DeleteOrUpdateShortcutMethod(
     val element: XMethodElement,
     val entities: Map<String, ShortcutEntity>,
     val parameters: List<ShortcutQueryParameter>,

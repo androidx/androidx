@@ -18,12 +18,12 @@ package androidx.room.vo
 
 import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XType
-import androidx.room.solver.shortcut.binder.UpsertMethodBinder
+import androidx.room.solver.shortcut.binder.InsertOrUpsertMethodBinder
 
-data class UpsertionMethod(
-    val element: XMethodElement,
-    val entities: Map<String, ShortcutEntity>,
-    val returnType: XType,
-    val parameters: List<ShortcutQueryParameter>,
-    val methodBinder: UpsertMethodBinder
-    )
+class UpsertionMethod(
+    element: XMethodElement,
+    entities: Map<String, ShortcutEntity>,
+    returnType: XType,
+    parameters: List<ShortcutQueryParameter>,
+    methodBinder: InsertOrUpsertMethodBinder
+    ) : InsertOrUpsertShortcutMethod(element, entities, returnType, parameters, methodBinder)
