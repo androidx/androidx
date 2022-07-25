@@ -20,15 +20,21 @@ import static androidx.car.app.SessionInfo.DEFAULT_SESSION_INFO;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.robolectric.Shadows.shadowOf;
 
 import android.app.Application;
 import android.content.ComponentName;
 import android.content.Intent;
+import android.os.RemoteException;
 
+import androidx.car.app.HandshakeInfo;
 import androidx.car.app.activity.renderer.ICarAppActivity;
+import androidx.car.app.activity.renderer.IInsetsListener;
 import androidx.test.core.app.ApplicationProvider;
 
 import org.junit.Before;
@@ -56,6 +62,8 @@ public class CarAppViewModelTest {
     private ShadowLooper mMainLooper;
     private final ServiceConnectionManager mServiceConnectionManager =
             mock(ServiceConnectionManager.class);
+    private final IInsetsListener mIInsetsListener = mock(IInsetsListener.class);
+    private final ServiceDispatcher mServiceDispatcher = mock(ServiceDispatcher.class);
 
     @Before
     public void setUp() {
@@ -138,5 +146,31 @@ public class CarAppViewModelTest {
         assertThat(mCarAppViewModel.getState().getValue())
                 .isEqualTo(CarAppViewModel.State.IDLE);
         assertThat(mCarAppViewModel.getError().getValue()).isNull();
+    }
+
+    @Test
+    public void dispatchInsetsUpdates_whenApiLevel5Above_shouldCallWindowsInsetsChanged() throws
+            RemoteException {
+        mCarAppViewModel.setServiceConnectionManager(mServiceConnectionManager);
+        when(mServiceConnectionManager.getHandshakeInfo()).thenReturn(createHandshakeInfo("TestApp",
+                5));
+        when(mServiceConnectionManager.getServiceDispatcher()).thenReturn(mServiceDispatcher);
+        mCarAppViewModel.setInsetsListener(mIInsetsListener);
+        verify(mServiceDispatcher).dispatch(eq("onWindowInsetsChanged"), any());
+    }
+
+    @Test
+    public void dispatchInsetsUpdates_whenApiLevelBelow5_shouldCallInsetsChanges() throws
+            RemoteException {
+        mCarAppViewModel.setServiceConnectionManager(mServiceConnectionManager);
+        when(mServiceConnectionManager.getHandshakeInfo()).thenReturn(
+                createHandshakeInfo("TestApp", 4));
+        when(mServiceConnectionManager.getServiceDispatcher()).thenReturn(mServiceDispatcher);
+        mCarAppViewModel.setInsetsListener(mIInsetsListener);
+        verify(mServiceDispatcher).dispatch(eq("onInsetsChanges"), any());
+    }
+
+    private static HandshakeInfo createHandshakeInfo(String packageName, int hostApiLevel) {
+        return new HandshakeInfo(packageName, hostApiLevel);
     }
 }
