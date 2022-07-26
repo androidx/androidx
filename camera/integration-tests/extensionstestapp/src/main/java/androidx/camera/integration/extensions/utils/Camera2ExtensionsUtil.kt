@@ -17,6 +17,7 @@
 package androidx.camera.integration.extensions.utils
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.graphics.ImageFormat
 import android.graphics.Point
 import android.graphics.SurfaceTexture
@@ -38,18 +39,44 @@ private const val TAG = "Camera2ExtensionsUtil"
 object Camera2ExtensionsUtil {
 
     /**
+     * Camera2 extension modes
+     */
+    @Suppress("DEPRECATION") // EXTENSION_BEAUTY
+    @RequiresApi(31)
+    @JvmStatic
+    val AVAILABLE_CAMERA2_EXTENSION_MODES = arrayOf(
+        CameraExtensionCharacteristics.EXTENSION_AUTOMATIC,
+        CameraExtensionCharacteristics.EXTENSION_BEAUTY,
+        CameraExtensionCharacteristics.EXTENSION_BOKEH,
+        CameraExtensionCharacteristics.EXTENSION_HDR,
+        CameraExtensionCharacteristics.EXTENSION_NIGHT,
+    )
+
+    /**
      * Converts extension mode from integer to string.
      */
     @Suppress("DEPRECATION") // EXTENSION_BEAUTY
+    @RequiresApi(31)
     @JvmStatic
-    fun getExtensionModeStringFromId(extension: Int): String {
-        return when (extension) {
-            CameraExtensionCharacteristics.EXTENSION_HDR -> "HDR"
-            CameraExtensionCharacteristics.EXTENSION_NIGHT -> "NIGHT"
-            CameraExtensionCharacteristics.EXTENSION_BOKEH -> "BOKEH"
-            CameraExtensionCharacteristics.EXTENSION_BEAUTY -> "FACE RETOUCH"
-            else -> "AUTO"
-        }
+    fun getCamera2ExtensionModeStringFromId(extension: Int): String = when (extension) {
+        CameraExtensionCharacteristics.EXTENSION_HDR -> "HDR"
+        CameraExtensionCharacteristics.EXTENSION_NIGHT -> "NIGHT"
+        CameraExtensionCharacteristics.EXTENSION_BOKEH -> "BOKEH"
+        CameraExtensionCharacteristics.EXTENSION_BEAUTY -> "FACE RETOUCH"
+        CameraExtensionCharacteristics.EXTENSION_AUTOMATIC -> "AUTO"
+        else -> throw IllegalArgumentException("Invalid extension mode id!")
+    }
+
+    @Suppress("DEPRECATION") // EXTENSION_BEAUTY
+    @RequiresApi(31)
+    @JvmStatic
+    fun getCamera2ExtensionModeIdFromString(mode: String): Int = when (mode) {
+        "HDR" -> CameraExtensionCharacteristics.EXTENSION_HDR
+        "NIGHT" -> CameraExtensionCharacteristics.EXTENSION_NIGHT
+        "BOKEH" -> CameraExtensionCharacteristics.EXTENSION_BOKEH
+        "FACE RETOUCH" -> CameraExtensionCharacteristics.EXTENSION_BEAUTY
+        "AUTO" -> CameraExtensionCharacteristics.EXTENSION_AUTOMATIC
+        else -> throw IllegalArgumentException("Invalid extension mode string!")
     }
 
     /**
@@ -72,6 +99,19 @@ object Camera2ExtensionsUtil {
         }
 
         throw IllegalArgumentException("Can't find camera of lens facing $lensFacing")
+    }
+
+    @SuppressLint("ClassVerificationFailure")
+    @RequiresApi(31)
+    @JvmStatic
+    fun isCamera2ExtensionModeSupported(
+        context: Context,
+        cameraId: String,
+        extensionMode: Int
+    ): Boolean {
+        val cameraManager = context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
+        val extensionCharacteristics = cameraManager.getCameraExtensionCharacteristics(cameraId)
+        return extensionCharacteristics.supportedExtensions.contains(extensionMode)
     }
 
     /**

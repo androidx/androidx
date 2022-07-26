@@ -21,14 +21,14 @@ import android.content.Context
 import android.content.Intent
 import androidx.camera.camera2.Camera2Config
 import androidx.camera.integration.extensions.Camera2ExtensionsActivity
-import androidx.camera.integration.extensions.INTENT_EXTRA_CAMERA_ID
-import androidx.camera.integration.extensions.INTENT_EXTRA_EXTENSION_MODE
+import androidx.camera.integration.extensions.IntentExtraKey.INTENT_EXTRA_KEY_CAMERA_ID
+import androidx.camera.integration.extensions.IntentExtraKey.INTENT_EXTRA_KEY_EXTENSION_MODE
 import androidx.camera.integration.extensions.util.Camera2ExtensionsTestUtil
-import androidx.camera.integration.extensions.util.Camera2ExtensionsTestUtil.isCamera2ExtensionModeSupported
 import androidx.camera.integration.extensions.util.EXTENSIONS_TEST_APP_PACKAGE
 import androidx.camera.integration.extensions.util.waitForCaptureSessionConfiguredIdle
 import androidx.camera.integration.extensions.util.waitForImageSavedIdle
 import androidx.camera.integration.extensions.util.waitForPreviewIdle
+import androidx.camera.integration.extensions.utils.Camera2ExtensionsUtil.isCamera2ExtensionModeSupported
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CoreAppTestUtil
 import androidx.camera.testing.LabTestRule
@@ -210,8 +210,8 @@ class Camera2ExtensionsActivityTest(
         assumeTrue(isCamera2ExtensionModeSupported(context, cameraId, extensionMode))
         val intent = context.packageManager
             .getLaunchIntentForPackage(EXTENSIONS_TEST_APP_PACKAGE)!!.apply {
-                putExtra(INTENT_EXTRA_CAMERA_ID, cameraId)
-                putExtra(INTENT_EXTRA_EXTENSION_MODE, extensionMode)
+                putExtra(INTENT_EXTRA_KEY_CAMERA_ID, cameraId)
+                putExtra(INTENT_EXTRA_KEY_EXTENSION_MODE, extensionMode)
                 setClassName(context, Camera2ExtensionsActivity::class.java.name)
                 flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             }

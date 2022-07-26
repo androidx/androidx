@@ -27,6 +27,8 @@ import androidx.camera.core.impl.ImageCaptureConfig
 import androidx.camera.extensions.ExtensionsManager
 import androidx.camera.extensions.internal.ExtensionVersion
 import androidx.camera.extensions.internal.Version
+import androidx.camera.integration.extensions.IntentExtraKey.INTENT_EXTRA_KEY_CAMERA_ID
+import androidx.camera.integration.extensions.IntentExtraKey.INTENT_EXTRA_KEY_EXTENSION_MODE
 import androidx.camera.integration.extensions.util.ExtensionsTestUtil
 import androidx.camera.integration.extensions.utils.CameraSelectorUtil
 import androidx.camera.lifecycle.ProcessCameraProvider
@@ -203,8 +205,8 @@ class ImageCaptureExtenderValidationTest(
 
         val intent = ApplicationProvider.getApplicationContext<Context>().packageManager
             .getLaunchIntentForPackage(BASIC_SAMPLE_PACKAGE)?.apply {
-                putExtra(CameraExtensionsActivity.INTENT_EXTRA_CAMERA_ID, cameraId)
-                putExtra(CameraExtensionsActivity.INTENT_EXTRA_EXTENSION_MODE, extensionMode)
+                putExtra(INTENT_EXTRA_KEY_CAMERA_ID, cameraId)
+                putExtra(INTENT_EXTRA_KEY_EXTENSION_MODE, extensionMode)
                 flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             }
 
