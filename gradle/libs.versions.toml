@@ -58,6 +58,7 @@ retrofit = "2.7.2"
 wire = "4.4.1"
 
 [libraries]
+agpTestingPlatformCoreProto =  { module = "com.google.testing.platform:core-proto", version = "0.0.8-alpha08" }
 androidAccessibilityFramework = { module = "com.google.android.apps.common.testing.accessibility.framework:accessibility-test-framework", version = { strictly = "2.1" } }
 androidBuilderModelMin = { module = "com.android.tools.build:builder-model", version.ref = "androidGradlePluginMin" }
 androidGradlePluginz = { module = "com.android.tools.build:gradle", version.ref = "androidGradlePlugin" }
