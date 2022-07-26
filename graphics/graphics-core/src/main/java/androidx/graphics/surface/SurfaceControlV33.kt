@@ -18,11 +18,14 @@ package androidx.graphics.surface
 
 import android.graphics.Region
 import android.hardware.HardwareBuffer
+import android.hardware.SyncFence
 import android.os.Build
 import android.view.AttachedSurfaceControl
 import android.view.SurfaceControl
 import android.view.SurfaceView
 import androidx.annotation.RequiresApi
+import androidx.graphics.lowlatency.SyncFenceImpl
+import androidx.graphics.lowlatency.SyncFenceV33
 import java.util.concurrent.Executor
 
 /**
@@ -109,9 +112,14 @@ internal class SurfaceControlV33 internal constructor(
         override fun setBuffer(
             surfaceControl: SurfaceControlImpl,
             buffer: HardwareBuffer,
+            fence: SyncFenceImpl?,
             releaseCallback: (() -> Unit)?
         ): Transaction {
-            mTransaction.setBuffer(surfaceControl.asFrameworkSurfaceControl(), buffer, null) {
+            mTransaction.setBuffer(
+                surfaceControl.asFrameworkSurfaceControl(),
+                buffer,
+                fence?.asSyncFence()
+            ) {
                 releaseCallback?.invoke()
             }
             return this
@@ -232,6 +240,14 @@ internal class SurfaceControlV33 internal constructor(
                 surfaceControl
             } else {
                 throw IllegalArgumentException("Parent implementation is not for Android T")
+            }
+
+        private fun SyncFenceImpl.asSyncFence(): SyncFence =
+            if (this is SyncFenceV33) {
+                mSyncFence
+            } else {
+                throw
+                IllegalArgumentException("Expected SyncFenceCompat implementation for API level 33")
             }
     }
 }

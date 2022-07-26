@@ -54,7 +54,7 @@ internal class HardwareBufferRenderer(
     override fun onDrawFrame(eglManager: EGLManager) {
         val egl = eglManager.eglSpec
         val buffer = hardwareBufferRendererCallbacks.obtainRenderBuffer(egl)
-        var renderFence: RenderFence? = null
+        var syncFenceCompat: SyncFenceCompat? = null
         try {
             buffer.makeCurrent()
             if (mClear.getAndSet(false)) {
@@ -64,13 +64,14 @@ internal class HardwareBufferRenderer(
                 hardwareBufferRendererCallbacks.onDraw(eglManager)
             }
             GLES20.glFlush()
-            renderFence = RenderFence(egl)
-            renderFence.awaitForever()
+            syncFenceCompat = egl.createNativeSyncFence()
+
+            syncFenceCompat.awaitForever()
             // At this point the HardwareBuffer has the contents of the GL rendering
             // Create a surface Control transaction to dispatch this request
             hardwareBufferRendererCallbacks.onDrawComplete(buffer)
         } finally {
-            renderFence?.close()
+            syncFenceCompat?.close()
         }
     }
 

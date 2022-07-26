@@ -38,7 +38,7 @@ import androidx.annotation.RequiresApi
 import androidx.annotation.WorkerThread
 import androidx.graphics.lowlatency.HardwareBufferRenderer
 import androidx.graphics.lowlatency.RenderBuffer
-import androidx.graphics.lowlatency.RenderFence
+import androidx.graphics.lowlatency.SyncFenceCompat
 import androidx.graphics.opengl.egl.EGLManager
 import androidx.graphics.opengl.egl.EGLSpec
 import androidx.graphics.opengl.egl.deviceSupportsNativeAndroidFence
@@ -557,10 +557,12 @@ class GLRendererTest {
     fun EGLSpec.querySurfaceSize(eglSurface: EGLSurface): Size {
         val result = IntArray(1)
         eglQuerySurface(
-            eglSurface, EGL14.EGL_WIDTH, result, 0)
+            eglSurface, EGL14.EGL_WIDTH, result, 0
+        )
         val width = result[0]
         eglQuerySurface(
-            eglSurface, EGL14.EGL_HEIGHT, result, 0)
+            eglSurface, EGL14.EGL_HEIGHT, result, 0
+        )
         val height = result[0]
         return Size(width, height)
     }
@@ -739,7 +741,7 @@ class GLRendererTest {
             override fun onDrawFrame(eglManager: EGLManager) {
                 if (eglManager.supportsNativeAndroidFence()) {
                     supportsNativeFence.set(true)
-                    var renderFence: RenderFence? = null
+                    var syncFenceCompat: SyncFenceCompat? = null
                     try {
                         val egl = eglManager.eglSpec
                         val buffer = RenderBuffer(
@@ -756,10 +758,10 @@ class GLRendererTest {
                         GLES20.glClearColor(1.0f, 0.0f, 0.0f, 1.0f)
                         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
                         GLES20.glFlush()
-                        renderFence = RenderFence(egl)
-                        renderFence.await(TimeUnit.SECONDS.toNanos(3))
+                        syncFenceCompat = SyncFenceCompat.createNativeSyncFence(egl)
+                        syncFenceCompat.await(TimeUnit.SECONDS.toNanos(3))
                     } finally {
-                        renderFence?.close()
+                        syncFenceCompat?.close()
                     }
                 }
                 renderLatch.countDown()
@@ -909,7 +911,8 @@ class GLRendererTest {
         val copyLatch = CountDownLatch(1)
         val copyThread = HandlerThread("copyThread").apply { start() }
         val copyHandler = Handler(copyThread.looper)
-        PixelCopy.request(surfaceProvider.invoke(),
+        PixelCopy.request(
+            surfaceProvider.invoke(),
             destBitmap,
             { copyResult ->
                 assertEquals(PixelCopy.SUCCESS, copyResult)
