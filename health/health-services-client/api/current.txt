@@ -741,11 +741,9 @@ package androidx.health.services.client.data {
   }
 
   public final class PassiveGoal {
-    ctor public PassiveGoal(androidx.health.services.client.data.DataTypeCondition<? extends java.lang.Number,? extends androidx.health.services.client.data.DeltaDataType<? extends java.lang.Number,?>> dataTypeCondition, int triggerFrequency);
+    ctor public PassiveGoal(androidx.health.services.client.data.DataTypeCondition<? extends java.lang.Number,? extends androidx.health.services.client.data.DeltaDataType<? extends java.lang.Number,?>> dataTypeCondition);
     method public androidx.health.services.client.data.DataTypeCondition<? extends java.lang.Number,? extends androidx.health.services.client.data.DeltaDataType<? extends java.lang.Number,?>> getDataTypeCondition();
-    method public int getTriggerFrequency();
     property public final androidx.health.services.client.data.DataTypeCondition<? extends java.lang.Number,? extends androidx.health.services.client.data.DeltaDataType<? extends java.lang.Number,?>> dataTypeCondition;
-    property public final int triggerFrequency;
   }
 
   public final class PassiveListenerConfig extends androidx.health.services.client.data.ProtoParcelable<androidx.health.services.client.proto.DataProto.PassiveListenerConfig> {
