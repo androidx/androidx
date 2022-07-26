@@ -46,6 +46,7 @@ interface XExecutableElement : XHasModifiers, XParameterizable, XElement {
      * The list of `Throwable`s that are declared in this executable's signature.
      */
     val thrownTypes: List<XType>
+
     /**
      * Returns true if this method receives a vararg parameter.
      */
