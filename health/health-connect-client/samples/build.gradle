@@ -36,7 +36,7 @@ dependencies {
 androidx {
     name = "AndroidX Health Connect Library Samples"
     type = LibraryType.SAMPLES
-    publish = Publish.NONE
+    mavenVersion = LibraryVersions.HEALTH_CONNECT_CLIENT
     mavenGroup = LibraryGroups.HEALTH
     inceptionYear = "2022"
     description = "Contains the sample code for the Androidx Health Connect Library"
