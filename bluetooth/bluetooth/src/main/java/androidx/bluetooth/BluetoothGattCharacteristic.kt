@@ -21,6 +21,7 @@ import android.os.Bundle
 import android.bluetooth.BluetoothGattCharacteristic as FwkBluetoothGattCharacteristic
 import androidx.annotation.RequiresApi
 import androidx.bluetooth.utils.Bundleable
+import androidx.bluetooth.utils.Utils
 
 import java.util.UUID
 /**
@@ -110,6 +111,12 @@ class BluetoothGattCharacteristic internal constructor(
     val descriptors
         get() = impl.descriptors
 
+    var service
+        get() = impl.service
+        internal set(value) {
+            impl.service = value
+        }
+
     constructor (uuid: UUID, properties: Int, permissions: Int) : this(
         FwkBluetoothGattCharacteristic(uuid, properties, permissions)
     )
@@ -135,6 +142,7 @@ class BluetoothGattCharacteristic internal constructor(
         val instanceId: Int
         var writeType: Int
         val descriptors: List<BluetoothGattDescriptor>
+        var service: BluetoothGattService?
 
         fun addDescriptor(descriptor: BluetoothGattDescriptor): Boolean
         fun getDescriptor(uuid: UUID): BluetoothGattDescriptor?
@@ -158,13 +166,11 @@ class BluetoothGattCharacteristic internal constructor(
 
             val CREATOR: Bundleable.Creator<BluetoothGattCharacteristic> =
                 object : Bundleable.Creator<BluetoothGattCharacteristic> {
-                    @Suppress("deprecation")
                     override fun fromBundle(bundle: Bundle): BluetoothGattCharacteristic {
-                        assert(Build.VERSION.SDK_INT < 24)
                         val uuid = bundle.getString(keyForField(FIELD_FWK_CHARACTERISTIC_UUID))
                             ?: throw IllegalArgumentException("Bundle doesn't include uuid")
                         val instanceId =
-                            bundle.getInt(keyForField(FIELD_FWK_CHARACTERISTIC_INSTANCE_ID), -1)
+                            bundle.getInt(keyForField(FIELD_FWK_CHARACTERISTIC_INSTANCE_ID), 0)
                         val properties =
                             bundle.getInt(keyForField(FIELD_FWK_CHARACTERISTIC_PROPERTIES), -1)
                         val permissions =
@@ -182,18 +188,21 @@ class BluetoothGattCharacteristic internal constructor(
                         if (writeType == -1) {
                             throw IllegalArgumentException("Bundle doesn't include writeType")
                         }
-                        if (instanceId == -1) {
-                            throw IllegalArgumentException("Bundle doesn't include instanceId")
-                        }
                         if (keySize == -1) {
                             throw IllegalArgumentException("Bundle doesn't include keySize")
                         }
 
                         val fwkCharacteristic =
-                            FwkBluetoothGattCharacteristic(
+                            FwkBluetoothGattCharacteristic::class.java.getConstructor(
+                                UUID::class.java,
+                                Integer.TYPE,
+                                Integer.TYPE,
+                                Integer.TYPE,
+                            ).newInstance(
                                 UUID.fromString(uuid),
+                                instanceId,
                                 properties,
-                                permissions
+                                permissions,
                             )
                         fwkCharacteristic.writeType = writeType
 
@@ -205,9 +214,11 @@ class BluetoothGattCharacteristic internal constructor(
 
                         val gattCharacteristic = BluetoothGattCharacteristic(fwkCharacteristic)
 
-                        bundle.getParcelableArrayList<Bundle>(
-                            keyForField(FIELD_FWK_CHARACTERISTIC_DESCRIPTORS)
-                        )?.forEach { it ->
+                        Utils.getParcelableArrayListFromBundle(
+                            bundle,
+                            keyForField(FIELD_FWK_CHARACTERISTIC_DESCRIPTORS),
+                            Bundle::class.java
+                        ).forEach {
                             gattCharacteristic.addDescriptor(
                                 BluetoothGattDescriptor.CREATOR.fromBundle(it)
                             )
@@ -216,6 +227,50 @@ class BluetoothGattCharacteristic internal constructor(
                         return gattCharacteristic
                     }
                 }
+        }
+
+        init {
+            fwkCharacteristic.descriptors.forEach {
+                val descriptor = BluetoothGattDescriptor(it)
+                _descriptors.add(descriptor)
+                descriptor.characteristic = characteristic
+            }
+        }
+
+        override val uuid: UUID
+            get() = fwkCharacteristic.uuid
+        override val properties
+            get() = fwkCharacteristic.properties
+        override val permissions
+            get() = fwkCharacteristic.permissions
+        override val instanceId
+            get() = fwkCharacteristic.instanceId
+        override var writeType: Int
+            get() = fwkCharacteristic.writeType
+            set(value) {
+                fwkCharacteristic.writeType = value
+            }
+        private var _descriptors = mutableListOf<BluetoothGattDescriptor>()
+        override val descriptors
+            get() = _descriptors.toList()
+        override var service: BluetoothGattService? = null
+
+        override fun addDescriptor(
+            descriptor: BluetoothGattDescriptor,
+        ): Boolean {
+            return if (fwkCharacteristic.addDescriptor(descriptor.fwkDescriptor)) {
+                _descriptors.add(descriptor)
+                descriptor.characteristic = characteristic
+                true
+            } else {
+                false
+            }
+        }
+
+        override fun getDescriptor(uuid: UUID): BluetoothGattDescriptor? {
+            return _descriptors.firstOrNull {
+                it.uuid == uuid
+            }
         }
 
         override fun toBundle(): Bundle {
@@ -243,56 +298,13 @@ class BluetoothGattCharacteristic internal constructor(
 
             return bundle
         }
-
-        init {
-            fwkCharacteristic.descriptors.forEach {
-                val descriptor = BluetoothGattDescriptor(it)
-                mDescriptors.add(descriptor)
-                descriptor.characteristic = characteristic
-            }
-        }
-
-        override val uuid: UUID
-            get() = fwkCharacteristic.uuid
-        override val properties
-            get() = fwkCharacteristic.properties
-        override val permissions
-            get() = fwkCharacteristic.permissions
-        override val instanceId
-            get() = fwkCharacteristic.instanceId
-        override var writeType: Int
-            get() = fwkCharacteristic.writeType
-            set(value) {
-                fwkCharacteristic.writeType = value
-            }
-        private var mDescriptors = mutableListOf<BluetoothGattDescriptor>()
-        override val descriptors
-            get() = mDescriptors.toList()
-
-        override fun addDescriptor(
-            descriptor: BluetoothGattDescriptor,
-        ): Boolean {
-            return if (fwkCharacteristic.addDescriptor(descriptor.fwkDescriptor)) {
-                mDescriptors.add(descriptor)
-                descriptor.characteristic = characteristic
-                true
-            } else {
-                false
-            }
-        }
-
-        override fun getDescriptor(uuid: UUID): BluetoothGattDescriptor? {
-            return mDescriptors.firstOrNull {
-                it.uuid == uuid
-            }
-        }
     }
 
     @RequiresApi(Build.VERSION_CODES.N)
     private class GattCharacteristicImplApi24(
         fwkCharacteristic: FwkBluetoothGattCharacteristic,
         characteristic: BluetoothGattCharacteristic,
-        ) : GattCharacteristicImplApi21(fwkCharacteristic, characteristic) {
+    ) : GattCharacteristicImplApi21(fwkCharacteristic, characteristic) {
         companion object {
             internal const val FIELD_FWK_CHARACTERISTIC = 0
 
@@ -301,8 +313,10 @@ class BluetoothGattCharacteristic internal constructor(
                     @Suppress("deprecation")
                     override fun fromBundle(bundle: Bundle): BluetoothGattCharacteristic {
                         val fwkCharacteristic =
-                            bundle.getParcelable<FwkBluetoothGattCharacteristic>(
-                                keyForField(FIELD_FWK_CHARACTERISTIC)
+                            Utils.getParcelableFromBundle(
+                                bundle,
+                                keyForField(FIELD_FWK_CHARACTERISTIC),
+                                FwkBluetoothGattCharacteristic::class.java
                             ) ?: throw IllegalArgumentException(
                                 "Bundle doesn't include framework characteristic"
                             )

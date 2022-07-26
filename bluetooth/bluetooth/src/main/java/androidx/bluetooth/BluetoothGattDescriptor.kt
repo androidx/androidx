@@ -21,6 +21,7 @@ import android.os.Bundle
 import android.bluetooth.BluetoothGattDescriptor as FwkBluetoothGattDescriptor
 import androidx.annotation.RequiresApi
 import androidx.bluetooth.utils.Bundleable
+import androidx.bluetooth.utils.Utils
 
 import java.util.UUID
 /**
@@ -110,7 +111,6 @@ class BluetoothGattDescriptor internal constructor(
 
             val CREATOR: Bundleable.Creator<BluetoothGattDescriptor> =
                 object : Bundleable.Creator<BluetoothGattDescriptor> {
-                    @Suppress("DEPRECATION")
                     override fun fromBundle(bundle: Bundle): BluetoothGattDescriptor {
                         val permissions =
                             bundle.getInt(
@@ -121,21 +121,25 @@ class BluetoothGattDescriptor internal constructor(
                             keyForField(FIELD_FWK_DESCRIPTOR_UUID),
                         ) ?: throw IllegalArgumentException("Bundle doesn't include uuid")
 
+                        val instanceId = bundle.getInt(
+                            keyForField(FIELD_FWK_DESCRIPTOR_INSTANCE),
+                            0
+                        )
+
                         if (permissions == -1) {
                             throw IllegalArgumentException("Bundle doesn't include permission")
                         }
 
-                        val descriptor =
-                            FwkBluetoothGattDescriptor(
-                                UUID.fromString(uuid),
-                                permissions
-                            )
-
-                        descriptor.javaClass.getDeclaredField("mInstance").setInt(
-                            descriptor, bundle.getInt(
-                                keyForField(FIELD_FWK_DESCRIPTOR_INSTANCE), 0
-                            )
+                        val descriptor = FwkBluetoothGattDescriptor::class.java.getConstructor(
+                            UUID::class.java,
+                            Integer.TYPE,
+                            Integer.TYPE
+                        ).newInstance(
+                            UUID.fromString(uuid),
+                            instanceId,
+                            permissions
                         )
+
                         return BluetoothGattDescriptor(descriptor)
                     }
                 }
@@ -166,11 +170,12 @@ class BluetoothGattDescriptor internal constructor(
             internal const val FIELD_FWK_DESCRIPTOR = 0
             val CREATOR: Bundleable.Creator<BluetoothGattDescriptor> =
                 object : Bundleable.Creator<BluetoothGattDescriptor> {
-                    @Suppress("DEPRECATION")
                     override fun fromBundle(bundle: Bundle): BluetoothGattDescriptor {
                         val fwkDescriptor =
-                            bundle.getParcelable<android.bluetooth.BluetoothGattDescriptor>(
-                                keyForField(FIELD_FWK_DESCRIPTOR)
+                            Utils.getParcelableFromBundle(
+                                bundle,
+                                keyForField(FIELD_FWK_DESCRIPTOR),
+                                FwkBluetoothGattDescriptor::class.java
                             ) ?: throw IllegalArgumentException("Bundle doesn't contain descriptor")
 
                         return BluetoothGattDescriptor(fwkDescriptor)
