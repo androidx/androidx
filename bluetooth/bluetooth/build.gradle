@@ -24,7 +24,10 @@ plugins {
 
 dependencies {
     implementation(libs.kotlinStdlib)
-    implementation 'androidx.annotation:annotation:1.4.0'
+
+    api(project(":bluetooth:bluetooth-core"))
+
+    implementation "androidx.annotation:annotation:1.4.0"
 }
 
 androidx {
