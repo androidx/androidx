@@ -7,7 +7,9 @@
         errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
         errorLine2="                            ~~~~~~">
         <location
-            file="src/main/java/androidx/ads/identifier/testapp/AdsIdentifierActivity.java"/>
+            file="src/main/java/androidx/ads/identifier/testapp/AdsIdentifierActivity.java"
+            line="51"
+            column="29"/>
     </issue>
 
     <issue
@@ -16,7 +18,9 @@
         errorLine1="    public void getId(View view) {"
         errorLine2="                      ~~~~">
         <location
-            file="src/main/java/androidx/ads/identifier/testapp/AdsIdentifierActivity.java"/>
+            file="src/main/java/androidx/ads/identifier/testapp/AdsIdentifierActivity.java"
+            line="57"
+            column="23"/>
     </issue>
 
     <issue
@@ -25,7 +29,9 @@
         errorLine1="    public void getIdSync(View view) {"
         errorLine2="                          ~~~~">
         <location
-            file="src/main/java/androidx/ads/identifier/testapp/AdsIdentifierActivity.java"/>
+            file="src/main/java/androidx/ads/identifier/testapp/AdsIdentifierActivity.java"
+            line="76"
+            column="27"/>
     </issue>
 
     <issue
@@ -34,7 +40,9 @@
         errorLine1="    public void isProviderAvailable(View view) {"
         errorLine2="                                    ~~~~">
         <location
-            file="src/main/java/androidx/ads/identifier/testapp/AdsIdentifierActivity.java"/>
+            file="src/main/java/androidx/ads/identifier/testapp/AdsIdentifierActivity.java"
+            line="98"
+            column="37"/>
     </issue>
 
     <issue
@@ -43,7 +51,9 @@
         errorLine1="    public void listProvider(View view) {"
         errorLine2="                             ~~~~">
         <location
-            file="src/main/java/androidx/ads/identifier/testapp/AdsIdentifierActivity.java"/>
+            file="src/main/java/androidx/ads/identifier/testapp/AdsIdentifierActivity.java"
+            line="106"
+            column="30"/>
     </issue>
 
 </issues>

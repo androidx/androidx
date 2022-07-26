@@ -34,7 +34,7 @@ import java.util.Set;
  * Encapsulates a request to retrieve documents by namespace and IDs from the
  * {@link AppSearchSession} database.
  *
- * @see AppSearchSession#getByDocumentId
+ * @see AppSearchSession#getByDocumentIdAsync
  */
 public final class GetByDocumentIdRequest {
     /**

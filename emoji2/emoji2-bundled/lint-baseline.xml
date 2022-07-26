@@ -52,7 +52,9 @@
         errorLine1="                            loaderCallback.onLoaded(MetadataRepo.create(mock(Typeface.class)));"
         errorLine2="                                                                 ~~~~~~">
         <location
-            file="src/androidTest/java/androidx/emoji2/bundled/TestConfigBuilder.java"/>
+            file="src/androidTest/java/androidx/emoji2/bundled/TestConfigBuilder.java"
+            line="92"
+            column="66"/>
     </issue>
 
     <issue
@@ -61,7 +63,9 @@
         errorLine1="                            sMetadataRepo = MetadataRepo.create(assetManager, FONT_FILE);"
         errorLine2="                                                         ~~~~~~">
         <location
-            file="src/androidTest/java/androidx/emoji2/bundled/TestConfigBuilder.java"/>
+            file="src/androidTest/java/androidx/emoji2/bundled/TestConfigBuilder.java"
+            line="123"
+            column="58"/>
     </issue>
 
     <issue
@@ -70,7 +74,9 @@
         errorLine1="                    mMetadataRepo = MetadataRepo.create(assetManager, FONT_FILE);"
         errorLine2="                                                 ~~~~~~">
         <location
-            file="src/androidTest/java/androidx/emoji2/bundled/TestConfigBuilder.java"/>
+            file="src/androidTest/java/androidx/emoji2/bundled/TestConfigBuilder.java"
+            line="148"
+            column="50"/>
     </issue>
 
 </issues>

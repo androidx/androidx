@@ -23,6 +23,7 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,10 +34,12 @@ import android.widget.ListView;
 
 import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
+import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.R;
 import androidx.appcompat.graphics.drawable.DrawableWrapper;
 import androidx.core.graphics.drawable.DrawableCompat;
+import androidx.core.os.BuildCompat;
 import androidx.core.view.ViewPropertyAnimatorCompat;
 import androidx.core.widget.ListViewAutoScrollHelper;
 
@@ -61,8 +64,6 @@ class DropDownListView extends ListView {
     private int mSelectionBottomPadding = 0;
 
     private int mMotionPosition;
-
-    private Field mIsChildViewEnabled;
 
     private GateKeeperDrawable mSelector;
 
@@ -126,15 +127,25 @@ class DropDownListView extends ListView {
         super(context, null, R.attr.dropDownListViewStyle);
         mHijackFocus = hijackFocus;
         setCacheColorHint(0); // Transparent, since the background drawable could be anything.
+    }
 
-        try {
-            mIsChildViewEnabled = AbsListView.class.getDeclaredField("mIsChildViewEnabled");
-            mIsChildViewEnabled.setAccessible(true);
-        } catch (NoSuchFieldException e) {
-            e.printStackTrace();
+    @OptIn(markerClass = BuildCompat.PrereleaseSdkCheck.class)
+    private boolean superIsSelectedChildViewEnabled() {
+        if (BuildCompat.isAtLeastT()) {
+            return Api33Impl.isSelectedChildViewEnabled(this);
+        } else {
+            return PreApi33Impl.isSelectedChildViewEnabled(this);
         }
     }
 
+    @OptIn(markerClass = BuildCompat.PrereleaseSdkCheck.class)
+    private void superSetSelectedChildViewEnabled(boolean enabled) {
+        if (BuildCompat.isAtLeastT()) {
+            Api33Impl.setSelectedChildViewEnabled(this, enabled);
+        } else {
+            PreApi33Impl.setSelectedChildViewEnabled(this, enabled);
+        }
+    }
 
     @Override
     public boolean isInTouchMode() {
@@ -624,18 +635,14 @@ class DropDownListView extends ListView {
         selectorRect.right += mSelectionRightPadding;
         selectorRect.bottom += mSelectionBottomPadding;
 
-        try {
-            // AbsListView.mIsChildViewEnabled controls the selector's state so we need to
-            // modify its value
-            final boolean isChildViewEnabled = mIsChildViewEnabled.getBoolean(this);
-            if (sel.isEnabled() != isChildViewEnabled) {
-                mIsChildViewEnabled.set(this, !isChildViewEnabled);
-                if (position != INVALID_POSITION) {
-                    refreshDrawableState();
-                }
+        // AbsListView.mIsChildViewEnabled controls the selector's state so we need to
+        // modify its value
+        final boolean isChildViewEnabled = superIsSelectedChildViewEnabled();
+        if (sel.isEnabled() != isChildViewEnabled) {
+            superSetSelectedChildViewEnabled(!isChildViewEnabled);
+            if (position != INVALID_POSITION) {
+                refreshDrawableState();
             }
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
         }
     }
 
@@ -801,6 +808,68 @@ class DropDownListView extends ListView {
         @DoNotInline
         static void drawableHotspotChanged(View view, float x, float y) {
             view.drawableHotspotChanged(x, y);
+        }
+    }
+
+    // TODO(b/221852137): Use @DeprecatedSinceApi(33).
+    @SuppressWarnings({"JavaReflectionMemberAccess", "CatchAndPrintStackTrace"})
+    static class PreApi33Impl {
+        private static final Field sIsChildViewEnabled;
+
+        static {
+            Field isChildViewEnabled = null;
+
+            try {
+                isChildViewEnabled = AbsListView.class.getDeclaredField("mIsChildViewEnabled");
+                isChildViewEnabled.setAccessible(true);
+            } catch (NoSuchFieldException e) {
+                e.printStackTrace();
+            }
+
+            sIsChildViewEnabled = isChildViewEnabled;
+        }
+
+        private PreApi33Impl() {
+            // This class is not instantiable.
+        }
+
+        static boolean isSelectedChildViewEnabled(AbsListView view) {
+            if (sIsChildViewEnabled != null) {
+                try {
+                    return sIsChildViewEnabled.getBoolean(view);
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            return false;
+        }
+
+        static void setSelectedChildViewEnabled(AbsListView view, boolean enabled) {
+            if (sIsChildViewEnabled != null) {
+                try {
+                    sIsChildViewEnabled.set(view, enabled);
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    static class Api33Impl {
+        private Api33Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static boolean isSelectedChildViewEnabled(AbsListView view) {
+            return view.isSelectedChildViewEnabled();
+        }
+
+        @DoNotInline
+        static void setSelectedChildViewEnabled(AbsListView view, boolean enabled) {
+            view.setSelectedChildViewEnabled(enabled);
         }
     }
 }

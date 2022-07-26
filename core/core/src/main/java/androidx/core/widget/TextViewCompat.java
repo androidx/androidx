@@ -650,6 +650,7 @@ public final class TextViewCompat {
             }
         }
 
+        @SuppressWarnings("deprecation")
         private List<ResolveInfo> getSupportedActivities(final Context context,
                 final PackageManager packageManager) {
             final List<ResolveInfo> supportedActivities = new ArrayList<>();

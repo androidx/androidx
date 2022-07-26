@@ -364,7 +364,7 @@ package androidx.browser.trusted {
     method @BinderThread public android.os.Bundle? onExtraCommand(String, android.os.Bundle, androidx.browser.trusted.TrustedWebActivityCallbackRemote?);
     method @BinderThread public android.os.Bundle onGetSmallIconBitmap();
     method @BinderThread public int onGetSmallIconId();
-    method @BinderThread public boolean onNotifyNotificationWithChannel(String, int, android.app.Notification, String);
+    method @BinderThread @RequiresPermission(android.Manifest.permission.POST_NOTIFICATIONS) public boolean onNotifyNotificationWithChannel(String, int, android.app.Notification, String);
     method @MainThread public final boolean onUnbind(android.content.Intent?);
     field public static final String ACTION_TRUSTED_WEB_ACTIVITY_SERVICE = "android.support.customtabs.trusted.TRUSTED_WEB_ACTIVITY_SERVICE";
     field public static final String KEY_SMALL_ICON_BITMAP = "android.support.customtabs.trusted.SMALL_ICON_BITMAP";

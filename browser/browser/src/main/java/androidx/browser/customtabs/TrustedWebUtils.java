@@ -119,6 +119,7 @@ public class TrustedWebUtils {
      * @return Whether the specified Custom Tabs provider supports the specified splash screen
      *         feature/version.
      */
+    @SuppressWarnings("deprecation")
     public static boolean areSplashScreensSupported(@NonNull Context context,
             @NonNull String packageName, @NonNull String version) {
         Intent serviceIntent = new Intent()

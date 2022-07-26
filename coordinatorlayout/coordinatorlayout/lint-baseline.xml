@@ -160,7 +160,8 @@
         errorLine1="    public boolean onStartNestedScroll(View child, View target, int nestedScrollAxes) {"
         errorLine2="                                                   ~~~~">
         <location
-            file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"/>
+            file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"
+            column="52"/>
     </issue>
 
     <issue
@@ -169,7 +170,9 @@
         errorLine1="    public boolean onStartNestedScroll(View child, View target, int axes, int type) {"
         errorLine2="                                       ~~~~">
         <location
-            file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"/>
+            file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"
+            line="1792"
+            column="40"/>
     </issue>
 
     <issue
@@ -178,7 +181,9 @@
         errorLine1="    public boolean onStartNestedScroll(View child, View target, int axes, int type) {"
         errorLine2="                                                   ~~~~">
         <location
-            file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"/>
+            file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"
+            line="1792"
+            column="52"/>
     </issue>
 
     <issue
@@ -187,7 +192,9 @@
         errorLine1="    public void onNestedScrollAccepted(View child, View target, int axes) {"
         errorLine2="                                       ~~~~">
         <location
-            file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"/>
+            file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"
+            line="1817"
+            column="40"/>
     </issue>
 
     <issue
@@ -196,7 +203,9 @@
         errorLine1="    public void onNestedScrollAccepted(View child, View target, int axes) {"
         errorLine2="                                                   ~~~~">
         <location
-            file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"/>
+            file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"
+            line="1817"
+            column="52"/>
     </issue>
 
     <issue
@@ -205,7 +214,9 @@
         errorLine1="    public void onNestedScrollAccepted(View child, View target, int axes, int type) {"
         errorLine2="                                       ~~~~">
         <location
-            file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"/>
+            file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"
+            line="1823"
+            column="40"/>
     </issue>
 
     <issue
@@ -214,7 +225,9 @@
         errorLine1="    public void onNestedScrollAccepted(View child, View target, int axes, int type) {"
         errorLine2="                                                   ~~~~">
         <location
-            file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"/>
+            file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"
+            line="1823"
+            column="52"/>
     </issue>
 
     <issue
@@ -223,7 +236,9 @@
         errorLine1="    public void onStopNestedScroll(View target) {"
         errorLine2="                                   ~~~~">
         <location
-            file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"/>
+            file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"
+            line="1844"
+            column="36"/>
     </issue>
 
     <issue
@@ -232,7 +247,9 @@
         errorLine1="    public void onStopNestedScroll(View target, int type) {"
         errorLine2="                                   ~~~~">
         <location
-            file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"/>
+            file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"
+            line="1850"
+            column="36"/>
     </issue>
 
     <issue
@@ -241,7 +258,9 @@
         errorLine1="    public void onNestedScroll(View target, int dxConsumed, int dyConsumed,"
         errorLine2="                               ~~~~">
         <location
-            file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"/>
+            file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"
+            line="1872"
+            column="32"/>
     </issue>
 
     <issue
@@ -250,7 +269,9 @@
         errorLine1="    public void onNestedScroll(View target, int dxConsumed, int dyConsumed,"
         errorLine2="                               ~~~~">
         <location
-            file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"/>
+            file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"
+            line="1879"
+            column="32"/>
     </issue>
 
     <issue
@@ -259,7 +280,9 @@
         errorLine1="    public void onNestedPreScroll(View target, int dx, int dy, int[] consumed) {"
         errorLine2="                                  ~~~~">
         <location
-            file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"/>
+            file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"
+            line="1934"
+            column="35"/>
     </issue>
 
     <issue
@@ -268,7 +291,9 @@
         errorLine1="    public void onNestedPreScroll(View target, int dx, int dy, int[] consumed) {"
         errorLine2="                                                               ~~~~~">
         <location
-            file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"/>
+            file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"
+            line="1934"
+            column="64"/>
     </issue>
 
     <issue
@@ -277,7 +302,9 @@
         errorLine1="    public void onNestedPreScroll(View target, int dx, int dy, int[] consumed, int  type) {"
         errorLine2="                                  ~~~~">
         <location
-            file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"/>
+            file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"
+            line="1940"
+            column="35"/>
     </issue>
 
     <issue
@@ -286,7 +313,9 @@
         errorLine1="    public void onNestedPreScroll(View target, int dx, int dy, int[] consumed, int  type) {"
         errorLine2="                                                               ~~~~~">
         <location
-            file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"/>
+            file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"
+            line="1940"
+            column="64"/>
     </issue>
 
     <issue
@@ -295,7 +324,9 @@
         errorLine1="    public boolean onNestedFling(View target, float velocityX, float velocityY, boolean consumed) {"
         errorLine2="                                 ~~~~">
         <location
-            file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"/>
+            file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"
+            line="1983"
+            column="34"/>
     </issue>
 
     <issue
@@ -304,7 +335,9 @@
         errorLine1="    public boolean onNestedPreFling(View target, float velocityX, float velocityY) {"
         errorLine2="                                    ~~~~">
         <location
-            file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"/>
+            file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"
+            line="2013"
+            column="37"/>
     </issue>
 
     <issue
@@ -313,7 +346,9 @@
         errorLine1="        public Behavior(Context context, AttributeSet attrs) {"
         errorLine2="                        ~~~~~~~">
         <location
-            file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"/>
+            file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"
+            line="2124"
+            column="25"/>
     </issue>
 
     <issue
@@ -322,7 +357,9 @@
         errorLine1="        public Behavior(Context context, AttributeSet attrs) {"
         errorLine2="                                         ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"/>
+            file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"
+            line="2124"
+            column="42"/>
     </issue>
 
     <issue
@@ -331,7 +368,9 @@
         errorLine1="        public LayoutParams(LayoutParams p) {"
         errorLine2="                            ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"/>
+            file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"
+            line="2929"
+            column="29"/>
     </issue>
 
     <issue
@@ -340,7 +379,9 @@
         errorLine1="        public LayoutParams(MarginLayoutParams p) {"
         errorLine2="                            ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"/>
+            file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"
+            line="2933"
+            column="29"/>
     </issue>
 
     <issue
@@ -349,7 +390,9 @@
         errorLine1="        public LayoutParams(ViewGroup.LayoutParams p) {"
         errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"/>
+            file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"
+            line="2937"
+            column="29"/>
     </issue>
 
     <issue
@@ -358,7 +401,9 @@
         errorLine1="    protected void onRestoreInstanceState(Parcelable state) {"
         errorLine2="                                          ~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"/>
+            file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"
+            line="3262"
+            column="43"/>
     </issue>
 
     <issue
@@ -367,7 +412,9 @@
         errorLine1="    protected Parcelable onSaveInstanceState() {"
         errorLine2="              ~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"/>
+            file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"
+            line="3290"
+            column="15"/>
     </issue>
 
     <issue
@@ -376,7 +423,9 @@
         errorLine1="    public boolean requestChildRectangleOnScreen(View child, Rect rectangle, boolean immediate) {"
         errorLine2="                                                 ~~~~">
         <location
-            file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"/>
+            file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"
+            line="3314"
+            column="50"/>
     </issue>
 
     <issue
@@ -385,7 +434,9 @@
         errorLine1="    public boolean requestChildRectangleOnScreen(View child, Rect rectangle, boolean immediate) {"
         errorLine2="                                                             ~~~~">
         <location
-            file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"/>
+            file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"
+            line="3314"
+            column="62"/>
     </issue>
 
     <issue
@@ -394,7 +445,9 @@
         errorLine1="    public static void getDescendantRect(ViewGroup parent, View descendant, Rect out) {"
         errorLine2="                                         ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/coordinatorlayout/widget/ViewGroupUtils.java"/>
+            file="src/main/java/androidx/coordinatorlayout/widget/ViewGroupUtils.java"
+            line="76"
+            column="42"/>
     </issue>
 
     <issue
@@ -403,7 +456,9 @@
         errorLine1="    public static void getDescendantRect(ViewGroup parent, View descendant, Rect out) {"
         errorLine2="                                                           ~~~~">
         <location
-            file="src/main/java/androidx/coordinatorlayout/widget/ViewGroupUtils.java"/>
+            file="src/main/java/androidx/coordinatorlayout/widget/ViewGroupUtils.java"
+            line="76"
+            column="60"/>
     </issue>
 
     <issue
@@ -412,7 +467,9 @@
         errorLine1="    public static void getDescendantRect(ViewGroup parent, View descendant, Rect out) {"
         errorLine2="                                                                            ~~~~">
         <location
-            file="src/main/java/androidx/coordinatorlayout/widget/ViewGroupUtils.java"/>
+            file="src/main/java/androidx/coordinatorlayout/widget/ViewGroupUtils.java"
+            line="76"
+            column="77"/>
     </issue>
 
 </issues>

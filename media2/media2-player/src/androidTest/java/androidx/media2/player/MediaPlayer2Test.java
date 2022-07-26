@@ -826,7 +826,11 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
         retriever.setDataSource(file);
         String rotation = retriever.extractMetadata(
                 MediaMetadataRetriever.METADATA_KEY_VIDEO_ROTATION);
-        retriever.release();
+        try {
+            retriever.release();
+        } catch (IOException e) {
+            // Nothing we can  do about it.
+        }
         retriever = null;
         assertNotNull(rotation);
         assertEquals(Integer.parseInt(rotation), angle);

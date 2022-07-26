@@ -250,7 +250,9 @@
         errorLine1="    public ViewGroup.LayoutParams generateLayoutParams(AttributeSet attrs) {"
         errorLine2="                                                       ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/viewpager/widget/ViewPager.java"/>
+            file="src/main/java/androidx/viewpager/widget/ViewPager.java"
+            line="3090"
+            column="56"/>
     </issue>
 
     <issue
@@ -259,7 +261,9 @@
         errorLine1="        public LayoutParams(Context context, AttributeSet attrs) {"
         errorLine2="                            ~~~~~~~">
         <location
-            file="src/main/java/androidx/viewpager/widget/ViewPager.java"/>
+            file="src/main/java/androidx/viewpager/widget/ViewPager.java"
+            line="3205"
+            column="29"/>
     </issue>
 
     <issue
@@ -268,7 +272,9 @@
         errorLine1="        public LayoutParams(Context context, AttributeSet attrs) {"
         errorLine2="                                             ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/viewpager/widget/ViewPager.java"/>
+            file="src/main/java/androidx/viewpager/widget/ViewPager.java"
+            line="3205"
+            column="46"/>
     </issue>
 
 </issues>

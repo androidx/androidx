@@ -259,7 +259,9 @@
         errorLine1="        public Builder setColor(@ColorInt int color) {"
         errorLine2="               ~~~~~~~">
         <location
-            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"/>
+            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"
+            line="836"
+            column="16"/>
     </issue>
 
     <issue
@@ -268,7 +270,9 @@
         errorLine1="        public Builder setGroup(@Nullable String groupTag) {"
         errorLine2="               ~~~~~~~">
         <location
-            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"/>
+            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"
+            line="853"
+            column="16"/>
     </issue>
 
     <issue
@@ -277,7 +281,9 @@
         errorLine1="        public Builder setSortKey(@Nullable String sortKey) {"
         errorLine2="               ~~~~~~~">
         <location
-            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"/>
+            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"
+            line="869"
+            column="16"/>
     </issue>
 
     <issue
@@ -286,7 +292,9 @@
         errorLine1="        public Builder setProgress(int max, int progress) {"
         errorLine2="               ~~~~~~~">
         <location
-            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"/>
+            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"
+            line="881"
+            column="16"/>
     </issue>
 
     <issue
@@ -295,7 +303,9 @@
         errorLine1="        public Builder setAutoDismiss(boolean autoDismiss) {"
         errorLine2="               ~~~~~~~">
         <location
-            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"/>
+            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"
+            line="900"
+            column="16"/>
     </issue>
 
     <issue
@@ -304,7 +314,9 @@
         errorLine1="        public Builder setContentIntentData(@IntentType int intentType, Intent intent,"
         errorLine2="               ~~~~~~~">
         <location
-            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"/>
+            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"
+            line="923"
+            column="16"/>
     </issue>
 
     <issue
@@ -313,7 +325,9 @@
         errorLine1="        public Builder setContentIntentData(@IntentType int intentType, Intent intent,"
         errorLine2="                                                                        ~~~~~~">
         <location
-            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"/>
+            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"
+            line="923"
+            column="73"/>
     </issue>
 
     <issue
@@ -322,7 +336,9 @@
         errorLine1="        public Builder setDismissIntentData(@IntentType int intentType, @Nullable Intent intent,"
         errorLine2="               ~~~~~~~">
         <location
-            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"/>
+            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"
+            line="959"
+            column="16"/>
     </issue>
 
     <issue
@@ -331,7 +347,9 @@
         errorLine1="        public Builder setContentTypes(String[] types) {"
         errorLine2="               ~~~~~~~">
         <location
-            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"/>
+            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"
+            line="988"
+            column="16"/>
     </issue>
 
     <issue
@@ -340,7 +358,9 @@
         errorLine1="        public Builder setContentTypes(String[] types) {"
         errorLine2="                                       ~~~~~~~~">
         <location
-            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"/>
+            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"
+            line="988"
+            column="40"/>
     </issue>
 
     <issue
@@ -349,7 +369,9 @@
         errorLine1="        public Builder setGenres(String[] genres) {"
         errorLine2="               ~~~~~~~">
         <location
-            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"/>
+            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"
+            line="1001"
+            column="16"/>
     </issue>
 
     <issue
@@ -358,7 +380,9 @@
         errorLine1="        public Builder setGenres(String[] genres) {"
         errorLine2="                                 ~~~~~~~~">
         <location
-            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"/>
+            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"
+            line="1001"
+            column="34"/>
     </issue>
 
     <issue
@@ -367,7 +391,9 @@
         errorLine1="        public Builder setPricingInformation(@ContentPricing String priceType,"
         errorLine2="               ~~~~~~~">
         <location
-            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"/>
+            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"
+            line="1016"
+            column="16"/>
     </issue>
 
     <issue
@@ -376,7 +402,9 @@
         errorLine1="        public Builder setPricingInformation(@ContentPricing String priceType,"
         errorLine2="                                                             ~~~~~~">
         <location
-            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"/>
+            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"
+            line="1016"
+            column="62"/>
     </issue>
 
     <issue
@@ -385,7 +413,9 @@
         errorLine1="        public Builder setStatus(@ContentStatus int contentStatus) {"
         errorLine2="               ~~~~~~~">
         <location
-            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"/>
+            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"
+            line="1031"
+            column="16"/>
     </issue>
 
     <issue
@@ -394,7 +424,9 @@
         errorLine1="        public Builder setMaturityRating(@ContentMaturity String maturityRating) {"
         errorLine2="               ~~~~~~~">
         <location
-            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"/>
+            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"
+            line="1043"
+            column="16"/>
     </issue>
 
     <issue
@@ -403,7 +435,9 @@
         errorLine1="        public Builder setMaturityRating(@ContentMaturity String maturityRating) {"
         errorLine2="                                                          ~~~~~~">
         <location
-            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"/>
+            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"
+            line="1043"
+            column="59"/>
     </issue>
 
     <issue
@@ -412,7 +446,9 @@
         errorLine1="        public Builder setRunningTime(long length) {"
         errorLine2="               ~~~~~~~">
         <location
-            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"/>
+            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"
+            line="1053"
+            column="16"/>
     </issue>
 
     <issue
@@ -421,7 +457,9 @@
         errorLine1="        public ContentRecommendation build() {"
         errorLine2="               ~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"/>
+            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"
+            line="1065"
+            column="16"/>
     </issue>
 
     <issue
@@ -430,7 +468,9 @@
         errorLine1="    public Notification getNotificationObject(Context context) {"
         errorLine2="           ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"/>
+            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"
+            line="1081"
+            column="12"/>
     </issue>
 
     <issue
@@ -439,7 +479,9 @@
         errorLine1="    public Notification getNotificationObject(Context context) {"
         errorLine2="                                              ~~~~~~~">
         <location
-            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"/>
+            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"
+            line="1081"
+            column="47"/>
     </issue>
 
     <issue
@@ -448,7 +490,9 @@
         errorLine1="    public RecommendationExtender(Notification notif) {"
         errorLine2="                                  ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recommendation/app/RecommendationExtender.java"/>
+            file="src/main/java/androidx/recommendation/app/RecommendationExtender.java"
+            line="83"
+            column="35"/>
     </issue>
 
     <issue
@@ -457,7 +501,9 @@
         errorLine1="    public RecommendationExtender setContentTypes(String[] types) {"
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recommendation/app/RecommendationExtender.java"/>
+            file="src/main/java/androidx/recommendation/app/RecommendationExtender.java"
+            line="140"
+            column="12"/>
     </issue>
 
     <issue
@@ -466,7 +512,9 @@
         errorLine1="    public RecommendationExtender setContentTypes(String[] types) {"
         errorLine2="                                                  ~~~~~~~~">
         <location
-            file="src/main/java/androidx/recommendation/app/RecommendationExtender.java"/>
+            file="src/main/java/androidx/recommendation/app/RecommendationExtender.java"
+            line="140"
+            column="51"/>
     </issue>
 
     <issue
@@ -475,7 +523,9 @@
         errorLine1="    public String[] getContentTypes() {"
         errorLine2="           ~~~~~~~~">
         <location
-            file="src/main/java/androidx/recommendation/app/RecommendationExtender.java"/>
+            file="src/main/java/androidx/recommendation/app/RecommendationExtender.java"
+            line="154"
+            column="12"/>
     </issue>
 
     <issue
@@ -484,7 +534,9 @@
         errorLine1="    public String getPrimaryContentType() {"
         errorLine2="           ~~~~~~">
         <location
-            file="src/main/java/androidx/recommendation/app/RecommendationExtender.java"/>
+            file="src/main/java/androidx/recommendation/app/RecommendationExtender.java"
+            line="165"
+            column="12"/>
     </issue>
 
     <issue
@@ -493,7 +545,9 @@
         errorLine1="    public RecommendationExtender setGenres(String[] genres) {"
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recommendation/app/RecommendationExtender.java"/>
+            file="src/main/java/androidx/recommendation/app/RecommendationExtender.java"
+            line="181"
+            column="12"/>
     </issue>
 
     <issue
@@ -502,7 +556,9 @@
         errorLine1="    public RecommendationExtender setGenres(String[] genres) {"
         errorLine2="                                            ~~~~~~~~">
         <location
-            file="src/main/java/androidx/recommendation/app/RecommendationExtender.java"/>
+            file="src/main/java/androidx/recommendation/app/RecommendationExtender.java"
+            line="181"
+            column="45"/>
     </issue>
 
     <issue
@@ -511,7 +567,9 @@
         errorLine1="    public String[] getGenres() {"
         errorLine2="           ~~~~~~~~">
         <location
-            file="src/main/java/androidx/recommendation/app/RecommendationExtender.java"/>
+            file="src/main/java/androidx/recommendation/app/RecommendationExtender.java"
+            line="193"
+            column="12"/>
     </issue>
 
     <issue
@@ -520,7 +578,9 @@
         errorLine1="    public RecommendationExtender setPricingInformation("
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recommendation/app/RecommendationExtender.java"/>
+            file="src/main/java/androidx/recommendation/app/RecommendationExtender.java"
+            line="208"
+            column="12"/>
     </issue>
 
     <issue
@@ -529,7 +589,9 @@
         errorLine1="            @ContentRecommendation.ContentPricing String priceType, String priceValue) {"
         errorLine2="                                                  ~~~~~~">
         <location
-            file="src/main/java/androidx/recommendation/app/RecommendationExtender.java"/>
+            file="src/main/java/androidx/recommendation/app/RecommendationExtender.java"
+            line="209"
+            column="51"/>
     </issue>
 
     <issue
@@ -538,7 +600,9 @@
         errorLine1="            @ContentRecommendation.ContentPricing String priceType, String priceValue) {"
         errorLine2="                                                                    ~~~~~~">
         <location
-            file="src/main/java/androidx/recommendation/app/RecommendationExtender.java"/>
+            file="src/main/java/androidx/recommendation/app/RecommendationExtender.java"
+            line="209"
+            column="69"/>
     </issue>
 
     <issue
@@ -547,7 +611,9 @@
         errorLine1="    public String getPricingType() {"
         errorLine2="           ~~~~~~">
         <location
-            file="src/main/java/androidx/recommendation/app/RecommendationExtender.java"/>
+            file="src/main/java/androidx/recommendation/app/RecommendationExtender.java"
+            line="222"
+            column="12"/>
     </issue>
 
     <issue
@@ -556,7 +622,9 @@
         errorLine1="    public String getPricingValue() {"
         errorLine2="           ~~~~~~">
         <location
-            file="src/main/java/androidx/recommendation/app/RecommendationExtender.java"/>
+            file="src/main/java/androidx/recommendation/app/RecommendationExtender.java"
+            line="235"
+            column="12"/>
     </issue>
 
     <issue
@@ -565,7 +633,9 @@
         errorLine1="    public RecommendationExtender setStatus("
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recommendation/app/RecommendationExtender.java"/>
+            file="src/main/java/androidx/recommendation/app/RecommendationExtender.java"
+            line="250"
+            column="12"/>
     </issue>
 
     <issue
@@ -574,7 +644,9 @@
         errorLine1="    public RecommendationExtender setMaturityRating("
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recommendation/app/RecommendationExtender.java"/>
+            file="src/main/java/androidx/recommendation/app/RecommendationExtender.java"
+            line="276"
+            column="12"/>
     </issue>
 
     <issue
@@ -583,7 +655,9 @@
         errorLine1="            @ContentRecommendation.ContentMaturity String maturityRating) {"
         errorLine2="                                                   ~~~~~~">
         <location
-            file="src/main/java/androidx/recommendation/app/RecommendationExtender.java"/>
+            file="src/main/java/androidx/recommendation/app/RecommendationExtender.java"
+            line="277"
+            column="52"/>
     </issue>
 
     <issue
@@ -592,7 +666,9 @@
         errorLine1="    public String getMaturityRating() {"
         errorLine2="           ~~~~~~">
         <location
-            file="src/main/java/androidx/recommendation/app/RecommendationExtender.java"/>
+            file="src/main/java/androidx/recommendation/app/RecommendationExtender.java"
+            line="289"
+            column="12"/>
     </issue>
 
     <issue
@@ -601,7 +677,9 @@
         errorLine1="    public RecommendationExtender setRunningTime(long length) {"
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recommendation/app/RecommendationExtender.java"/>
+            file="src/main/java/androidx/recommendation/app/RecommendationExtender.java"
+            line="298"
+            column="12"/>
     </issue>
 
 </issues>
