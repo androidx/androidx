@@ -29,7 +29,6 @@ android {
         minSdkVersion 21
         versionCode 1
         multiDexEnabled true
-        testInstrumentationRunnerArgument "listener", "leakcanary.FailAnnotatedTestOnLeakRunListener"
 
         externalNativeBuild {
             cmake {
