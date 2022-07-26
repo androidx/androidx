@@ -332,6 +332,10 @@
             android:theme="@style/Theme.CustomInflater"/>
 
         <activity
+            android:name="androidx.appcompat.app.NoDisplayAppCompatActivity"
+            android:theme="@style/Theme.AppCompatNoDisplay"/>
+
+        <activity
             android:name="androidx.appcompat.app.NoThemeAppCompatActivity"
             android:theme="@android:style/Theme.Holo.NoActionBar"/>
 

@@ -338,11 +338,6 @@ class AppCompatDelegateImpl extends AppCompatDelegate
             }
         }
 
-        // If the platform supports back dispatching, pass null to use the default dispatcher.
-        if (Build.VERSION.SDK_INT >= 33) {
-            setOnBackInvokedDispatcher(null);
-        }
-
         if (window != null) {
             attachToWindow(window);
         }
@@ -365,7 +360,8 @@ class AppCompatDelegateImpl extends AppCompatDelegate
             mBackCallback = null;
         }
 
-        if (dispatcher == null && mHost instanceof Activity) {
+        if (dispatcher == null && mHost instanceof Activity
+                && ((Activity) mHost).getWindow() != null) {
             mDispatcher = Api33Impl.getOnBackInvokedDispatcher((Activity) mHost);
         } else {
             mDispatcher = dispatcher;
@@ -885,6 +881,11 @@ class AppCompatDelegateImpl extends AppCompatDelegate
         a.recycle();
 
         mWindow = window;
+
+        // Obtain a default dispatcher, if we still need one.
+        if (Build.VERSION.SDK_INT >= 33 && mDispatcher == null) {
+            setOnBackInvokedDispatcher(null);
+        }
     }
 
     private void ensureSubDecor() {
@@ -1488,6 +1489,10 @@ class AppCompatDelegateImpl extends AppCompatDelegate
      * observed by this method change, we must call {@link #updateBackInvokedCallbackState()}.
      */
     boolean shouldRegisterBackInvokedCallback() {
+        if (mDispatcher == null) {
+            return false;
+        }
+
         PanelFeatureState st = getPanelState(Window.FEATURE_OPTIONS_PANEL, false);
         if (st != null && st.isOpen) {
             return true;
