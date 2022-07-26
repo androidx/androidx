@@ -85,6 +85,7 @@ import org.junit.After
 import org.junit.Assume.assumeFalse
 import org.junit.Assume.assumeTrue
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestName
@@ -394,6 +395,7 @@ class RecorderTest {
     }
 
     @Test
+    @Ignore("b/239752223")
     fun canPauseResume() {
         clearInvocations(videoRecordEventListener)
         invokeSurfaceRequest()
@@ -562,6 +564,7 @@ class RecorderTest {
     }
 
     @Test
+    @Ignore("b/239752223")
     fun setFileSizeLimit() {
         val fileSizeLimit = 500L * 1024L // 500 KB
         runFileSizeLimitTest(fileSizeLimit)
@@ -571,6 +574,7 @@ class RecorderTest {
     // the encoder. This will ensure that the recording will be finalized even if it has no data
     // written to it.
     @Test
+    @Ignore("b/239752223")
     fun setFileSizeLimitLowerThanInitialDataSize() {
         val fileSizeLimit = 1L // 1 byte
         runFileSizeLimitTest(fileSizeLimit)
@@ -1012,6 +1016,7 @@ class RecorderTest {
     }
 
     @Test
+    @Ignore("b/239752223")
     fun canRecordWithoutAudio() {
         clearInvocations(videoRecordEventListener)
         invokeSurfaceRequest()
