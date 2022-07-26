@@ -1,14 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.4.0-alpha05" type="baseline" client="gradle" dependencies="false" name="AGP (7.4.0-alpha05)" variant="all" version="7.4.0-alpha05">
-
-    <issue
-        id="KotlinNullnessAnnotation"
-        message="Do not use `@NonNull` in Kotlin; the nullability is determined by the Kotlin type `CancellationSignal?` ending with `?` which declares it nullable, contradicting the annotation"
-        errorLine1="        @NonNull cancellationSignal: CancellationSignal?"
-        errorLine2="        ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/room/QueryInterceptorDatabase.kt"/>
-    </issue>
+<issues format="6" by="lint 7.4.0-alpha08" type="baseline" client="gradle" dependencies="false" name="AGP (7.4.0-alpha08)" variant="all" version="7.4.0-alpha08">
 
     <issue
         id="NewApi"
@@ -328,7 +319,7 @@
     <issue
         id="NewApi"
         message="Call requires API level 21 (current min is 14): `java.util.Locale#forLanguageTag`"
-        errorLine1="        Locale.setDefault(Locale.forLanguageTag(&quot;tr-TR&quot;));"
+        errorLine1="        Locale.setDefault(Locale.forLanguageTag(&quot;tr-TR&quot;))"
         errorLine2="                                 ~~~~~~~~~~~~~~">
         <location
             file="src/test/java/androidx/room/InvalidationTrackerTest.kt"/>

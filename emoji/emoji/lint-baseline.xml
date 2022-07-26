@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.3.0-alpha07" type="baseline" client="gradle" dependencies="false" name="AGP (7.3.0-alpha07)" variant="all" version="7.3.0-alpha07">
+<issues format="6" by="lint 7.4.0-alpha08" type="baseline" client="gradle" dependencies="false" name="AGP (7.4.0-alpha08)" variant="all" version="7.4.0-alpha08">
 
     <issue
         id="NewApi"
@@ -160,8 +160,7 @@
         errorLine1="                    if (mResId == -1 || mResId == spans[index].getId()) {"
         errorLine2="                                                               ~~~~~">
         <location
-            file="src/androidTest/java/androidx/emoji/util/EmojiMatcher.java"
-            column="64"/>
+            file="src/androidTest/java/androidx/emoji/util/EmojiMatcher.java"/>
     </issue>
 
     <issue
@@ -170,9 +169,7 @@
         errorLine1="        mTextWatcher = new EmojiTextWatcher(editText);"
         errorLine2="                       ~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/emoji/widget/EmojiTextWatcherTest.java"
-            line="54"
-            column="24"/>
+            file="src/androidTest/java/androidx/emoji/widget/EmojiTextWatcherTest.java"/>
     </issue>
 
     <issue
@@ -181,9 +178,7 @@
         errorLine1="        mTextWatcher.onTextChanged(testString, 0, 0, 1);"
         errorLine2="                     ~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/emoji/widget/EmojiTextWatcherTest.java"
-            line="62"
-            column="22"/>
+            file="src/androidTest/java/androidx/emoji/widget/EmojiTextWatcherTest.java"/>
     </issue>
 
     <issue
@@ -192,9 +187,7 @@
         errorLine1="        mTextWatcher.onTextChanged(testString, 0, 0, 1);"
         errorLine2="                     ~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/emoji/widget/EmojiTextWatcherTest.java"
-            line="74"
-            column="22"/>
+            file="src/androidTest/java/androidx/emoji/widget/EmojiTextWatcherTest.java"/>
     </issue>
 
     <issue
@@ -203,9 +196,7 @@
         errorLine1="        mTextWatcher.onTextChanged(testString, 0, 0, 1);"
         errorLine2="                     ~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/emoji/widget/EmojiTextWatcherTest.java"
-            line="86"
-            column="22"/>
+            file="src/androidTest/java/androidx/emoji/widget/EmojiTextWatcherTest.java"/>
     </issue>
 
     <issue
@@ -214,9 +205,7 @@
         errorLine1="        assertEquals(EmojiCompat.REPLACE_STRATEGY_DEFAULT, mTextWatcher.getEmojiReplaceStrategy());"
         errorLine2="                                                                        ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/emoji/widget/EmojiTextWatcherTest.java"
-            line="98"
-            column="73"/>
+            file="src/androidTest/java/androidx/emoji/widget/EmojiTextWatcherTest.java"/>
     </issue>
 
     <issue
@@ -225,9 +214,7 @@
         errorLine1="        mTextWatcher.onTextChanged(testString, 0, 0, 1);"
         errorLine2="                     ~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/emoji/widget/EmojiTextWatcherTest.java"
-            line="100"
-            column="22"/>
+            file="src/androidTest/java/androidx/emoji/widget/EmojiTextWatcherTest.java"/>
     </issue>
 
     <issue
@@ -236,9 +223,7 @@
         errorLine1="        mTextWatcher.setEmojiReplaceStrategy(EmojiCompat.REPLACE_STRATEGY_ALL);"
         errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/emoji/widget/EmojiTextWatcherTest.java"
-            line="105"
-            column="22"/>
+            file="src/androidTest/java/androidx/emoji/widget/EmojiTextWatcherTest.java"/>
     </issue>
 
     <issue
@@ -247,9 +232,7 @@
         errorLine1="        mTextWatcher.onTextChanged(testString, 0, 0, 1);"
         errorLine2="                     ~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/emoji/widget/EmojiTextWatcherTest.java"
-            line="107"
-            column="22"/>
+            file="src/androidTest/java/androidx/emoji/widget/EmojiTextWatcherTest.java"/>
     </issue>
 
     <issue
@@ -258,9 +241,7 @@
         errorLine1="        mTextWatcher.onTextChanged(testString, 0, 0, 1);"
         errorLine2="                     ~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/emoji/widget/EmojiTextWatcherTest.java"
-            line="118"
-            column="22"/>
+            file="src/androidTest/java/androidx/emoji/widget/EmojiTextWatcherTest.java"/>
     </issue>
 
     <issue
@@ -269,9 +250,7 @@
         errorLine1="        mTransformationMethod = new EmojiTransformationMethod(mWrappedTransformationMethod);"
         errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/emoji/widget/EmojiTransformationMethodTest.java"
-            line="84"
-            column="33"/>
+            file="src/androidTest/java/androidx/emoji/widget/EmojiTransformationMethodTest.java"/>
     </issue>
 
     <issue
@@ -280,9 +259,7 @@
         errorLine1="        assertNull(mTransformationMethod.getTransformation(null, mView));"
         errorLine2="                                         ~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/emoji/widget/EmojiTransformationMethodTest.java"
-            line="89"
-            column="42"/>
+            file="src/androidTest/java/androidx/emoji/widget/EmojiTransformationMethodTest.java"/>
     </issue>
 
     <issue
@@ -291,9 +268,7 @@
         errorLine1="        mTransformationMethod.getTransformation(&quot;&quot;, null);"
         errorLine2="                              ~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/emoji/widget/EmojiTransformationMethodTest.java"
-            line="95"
-            column="31"/>
+            file="src/androidTest/java/androidx/emoji/widget/EmojiTransformationMethodTest.java"/>
     </issue>
 
     <issue
@@ -302,9 +277,7 @@
         errorLine1="        mTransformationMethod = new EmojiTransformationMethod(null);"
         errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/emoji/widget/EmojiTransformationMethodTest.java"
-            line="100"
-            column="33"/>
+            file="src/androidTest/java/androidx/emoji/widget/EmojiTransformationMethodTest.java"/>
     </issue>
 
     <issue
@@ -313,9 +286,7 @@
         errorLine1="        final CharSequence result = mTransformationMethod.getTransformation(mTestString, mView);"
         errorLine2="                                                          ~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/emoji/widget/EmojiTransformationMethodTest.java"
-            line="102"
-            column="59"/>
+            file="src/androidTest/java/androidx/emoji/widget/EmojiTransformationMethodTest.java"/>
     </issue>
 
     <issue
@@ -324,9 +295,7 @@
         errorLine1="        final CharSequence result = mTransformationMethod.getTransformation(mTestString, mView);"
         errorLine2="                                                          ~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/emoji/widget/EmojiTransformationMethodTest.java"
-            line="110"
-            column="59"/>
+            file="src/androidTest/java/androidx/emoji/widget/EmojiTransformationMethodTest.java"/>
     </issue>
 
     <issue
@@ -335,9 +304,7 @@
         errorLine1="        final CharSequence result = mTransformationMethod.getTransformation(mTestString, mView);"
         errorLine2="                                                          ~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/emoji/widget/EmojiTransformationMethodTest.java"
-            line="124"
-            column="59"/>
+            file="src/androidTest/java/androidx/emoji/widget/EmojiTransformationMethodTest.java"/>
     </issue>
 
     <issue
@@ -346,9 +313,7 @@
         errorLine1="        final CharSequence result = mTransformationMethod.getTransformation(mTestString, mView);"
         errorLine2="                                                          ~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/emoji/widget/EmojiTransformationMethodTest.java"
-            line="137"
-            column="59"/>
+            file="src/androidTest/java/androidx/emoji/widget/EmojiTransformationMethodTest.java"/>
     </issue>
 
     <issue
@@ -357,9 +322,7 @@
         errorLine1="        final CharSequence result = mTransformationMethod.getTransformation(mTestString, mView);"
         errorLine2="                                                          ~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/emoji/widget/EmojiTransformationMethodTest.java"
-            line="150"
-            column="59"/>
+            file="src/androidTest/java/androidx/emoji/widget/EmojiTransformationMethodTest.java"/>
     </issue>
 
     <issue
@@ -368,9 +331,7 @@
         errorLine1="        final EmojiSpan span = mock(EmojiSpan.class);"
         errorLine2="                                    ~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/emoji/widget/SpannableBuilderTest.java"
-            line="124"
-            column="37"/>
+            file="src/androidTest/java/androidx/emoji/widget/SpannableBuilderTest.java"/>
     </issue>
 
     <issue
@@ -379,9 +340,7 @@
         errorLine1="        EmojiSpan[] spans = spannable.getSpans(0, spannable.length(), EmojiSpan.class);"
         errorLine2="                                                                      ~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/emoji/widget/SpannableBuilderTest.java"
-            line="135"
-            column="71"/>
+            file="src/androidTest/java/androidx/emoji/widget/SpannableBuilderTest.java"/>
     </issue>
 
     <issue
@@ -390,9 +349,7 @@
         errorLine1="        final EmojiSpan span = mock(EmojiSpan.class);"
         errorLine2="                                    ~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/emoji/widget/SpannableBuilderTest.java"
-            line="188"
-            column="37"/>
+            file="src/androidTest/java/androidx/emoji/widget/SpannableBuilderTest.java"/>
     </issue>
 
     <issue
@@ -401,9 +358,7 @@
         errorLine1="        EmojiSpan[] spans = spannable.getSpans(0, spannable.length(), EmojiSpan.class);"
         errorLine2="                                                                      ~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/emoji/widget/SpannableBuilderTest.java"
-            line="200"
-            column="71"/>
+            file="src/androidTest/java/androidx/emoji/widget/SpannableBuilderTest.java"/>
     </issue>
 
     <issue
@@ -412,9 +367,7 @@
         errorLine1="                            loaderCallback.onLoaded(new MetadataRepo());"
         errorLine2="                                                    ~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/emoji/text/TestConfigBuilder.java"
-            line="88"
-            column="53"/>
+            file="src/androidTest/java/androidx/emoji/text/TestConfigBuilder.java"/>
     </issue>
 
     <issue
@@ -423,9 +376,7 @@
         errorLine1="                            sMetadataRepo = MetadataRepo.create(assetManager, FONT_FILE);"
         errorLine2="                                                         ~~~~~~">
         <location
-            file="src/androidTest/java/androidx/emoji/text/TestConfigBuilder.java"
-            line="119"
-            column="58"/>
+            file="src/androidTest/java/androidx/emoji/text/TestConfigBuilder.java"/>
     </issue>
 
     <issue
@@ -434,9 +385,7 @@
         errorLine1="                    mMetadataRepo = MetadataRepo.create(assetManager, FONT_FILE);"
         errorLine2="                                                 ~~~~~~">
         <location
-            file="src/androidTest/java/androidx/emoji/text/TestConfigBuilder.java"
-            line="144"
-            column="50"/>
+            file="src/androidTest/java/androidx/emoji/text/TestConfigBuilder.java"/>
     </issue>
 
     <issue
@@ -445,9 +394,7 @@
         errorLine1="        super(context, attrs, defStyleAttr, defStyleRes);"
         errorLine2="        ~~~~~">
         <location
-            file="src/main/java/androidx/emoji/widget/EmojiButton.java"
-            line="58"
-            column="9"/>
+            file="src/main/java/androidx/emoji/widget/EmojiButton.java"/>
     </issue>
 
     <issue
@@ -456,9 +403,7 @@
         errorLine1="        super(context, attrs, defStyleAttr, defStyleRes);"
         errorLine2="        ~~~~~">
         <location
-            file="src/main/java/androidx/emoji/widget/EmojiEditText.java"
-            line="65"
-            column="9"/>
+            file="src/main/java/androidx/emoji/widget/EmojiEditText.java"/>
     </issue>
 
     <issue
@@ -467,9 +412,7 @@
         errorLine1="        super(context, attrs, defStyleAttr, defStyleRes);"
         errorLine2="        ~~~~~">
         <location
-            file="src/main/java/androidx/emoji/widget/EmojiExtractEditText.java"
-            line="74"
-            column="9"/>
+            file="src/main/java/androidx/emoji/widget/EmojiExtractEditText.java"/>
     </issue>
 
     <issue
@@ -478,9 +421,7 @@
         errorLine1="        super(context, attrs, defStyleAttr, defStyleRes);"
         errorLine2="        ~~~~~">
         <location
-            file="src/main/java/androidx/emoji/widget/EmojiExtractTextLayout.java"
-            line="99"
-            column="9"/>
+            file="src/main/java/androidx/emoji/widget/EmojiExtractTextLayout.java"/>
     </issue>
 
     <issue
@@ -489,9 +430,7 @@
         errorLine1="        super(context, attrs, defStyleAttr, defStyleRes);"
         errorLine2="        ~~~~~">
         <location
-            file="src/main/java/androidx/emoji/widget/EmojiTextView.java"
-            line="58"
-            column="9"/>
+            file="src/main/java/androidx/emoji/widget/EmojiTextView.java"/>
     </issue>
 
     <issue
@@ -500,9 +439,7 @@
         errorLine1="        super(context, attrs, defStyleAttr, defStyleRes);"
         errorLine2="        ~~~~~">
         <location
-            file="src/main/java/androidx/emoji/widget/ExtractButtonCompat.java"
-            line="53"
-            column="9"/>
+            file="src/main/java/androidx/emoji/widget/ExtractButtonCompat.java"/>
     </issue>
 
     <issue
@@ -511,13 +448,9 @@
         errorLine1="    public int getHasGlyph() {"
         errorLine2="               ~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/emoji/text/EmojiMetadata.java"
-            line="184"
-            column="16"/>
+            file="src/main/java/androidx/emoji/text/EmojiMetadata.java"/>
         <location
             file="src/main/java/androidx/emoji/text/EmojiMetadata.java"
-            line="193"
-            column="17"
             message="Setter here"/>
     </issue>
 
@@ -527,9 +460,7 @@
         errorLine1="    public EditTextAttributeHelper(@NonNull View view, AttributeSet attrs, int defStyleAttr,"
         errorLine2="                                                       ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/emoji/widget/EditTextAttributeHelper.java"
-            line="40"
-            column="56"/>
+            file="src/main/java/androidx/emoji/widget/EditTextAttributeHelper.java"/>
     </issue>
 
     <issue
@@ -538,9 +469,7 @@
         errorLine1="    public EmojiButton(Context context) {"
         errorLine2="                       ~~~~~~~">
         <location
-            file="src/main/java/androidx/emoji/widget/EmojiButton.java"
-            line="41"
-            column="24"/>
+            file="src/main/java/androidx/emoji/widget/EmojiButton.java"/>
     </issue>
 
     <issue
@@ -549,9 +478,7 @@
         errorLine1="    public EmojiButton(Context context, AttributeSet attrs) {"
         errorLine2="                       ~~~~~~~">
         <location
-            file="src/main/java/androidx/emoji/widget/EmojiButton.java"
-            line="46"
-            column="24"/>
+            file="src/main/java/androidx/emoji/widget/EmojiButton.java"/>
     </issue>
 
     <issue
@@ -560,9 +487,7 @@
         errorLine1="    public EmojiButton(Context context, AttributeSet attrs) {"
         errorLine2="                                        ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/emoji/widget/EmojiButton.java"
-            line="46"
-            column="41"/>
+            file="src/main/java/androidx/emoji/widget/EmojiButton.java"/>
     </issue>
 
     <issue
@@ -571,9 +496,7 @@
         errorLine1="    public EmojiButton(Context context, AttributeSet attrs, int defStyleAttr) {"
         errorLine2="                       ~~~~~~~">
         <location
-            file="src/main/java/androidx/emoji/widget/EmojiButton.java"
-            line="51"
-            column="24"/>
+            file="src/main/java/androidx/emoji/widget/EmojiButton.java"/>
     </issue>
 
     <issue
@@ -582,9 +505,7 @@
         errorLine1="    public EmojiButton(Context context, AttributeSet attrs, int defStyleAttr) {"
         errorLine2="                                        ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/emoji/widget/EmojiButton.java"
-            line="51"
-            column="41"/>
+            file="src/main/java/androidx/emoji/widget/EmojiButton.java"/>
     </issue>
 
     <issue
@@ -593,9 +514,7 @@
         errorLine1="    public EmojiButton(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {"
         errorLine2="                       ~~~~~~~">
         <location
-            file="src/main/java/androidx/emoji/widget/EmojiButton.java"
-            line="57"
-            column="24"/>
+            file="src/main/java/androidx/emoji/widget/EmojiButton.java"/>
     </issue>
 
     <issue
@@ -604,9 +523,7 @@
         errorLine1="    public EmojiButton(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {"
         errorLine2="                                        ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/emoji/widget/EmojiButton.java"
-            line="57"
-            column="41"/>
+            file="src/main/java/androidx/emoji/widget/EmojiButton.java"/>
     </issue>
 
     <issue
@@ -615,9 +532,7 @@
         errorLine1="    public static EmojiCompat init(@NonNull final Config config) {"
         errorLine2="                  ~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/emoji/text/EmojiCompat.java"
-            line="303"
-            column="19"/>
+            file="src/main/java/androidx/emoji/text/EmojiCompat.java"/>
     </issue>
 
     <issue
@@ -626,9 +541,7 @@
         errorLine1="    public static EmojiCompat reset(@NonNull final Config config) {"
         errorLine2="                  ~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/emoji/text/EmojiCompat.java"
-            line="323"
-            column="19"/>
+            file="src/main/java/androidx/emoji/text/EmojiCompat.java"/>
     </issue>
 
     <issue
@@ -637,9 +550,7 @@
         errorLine1="    public static EmojiCompat reset(final EmojiCompat emojiCompat) {"
         errorLine2="                  ~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/emoji/text/EmojiCompat.java"
-            line="338"
-            column="19"/>
+            file="src/main/java/androidx/emoji/text/EmojiCompat.java"/>
     </issue>
 
     <issue
@@ -648,9 +559,7 @@
         errorLine1="    public static EmojiCompat reset(final EmojiCompat emojiCompat) {"
         errorLine2="                                          ~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/emoji/text/EmojiCompat.java"
-            line="338"
-            column="43"/>
+            file="src/main/java/androidx/emoji/text/EmojiCompat.java"/>
     </issue>
 
     <issue
@@ -659,9 +568,7 @@
         errorLine1="    public static EmojiCompat get() {"
         errorLine2="                  ~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/emoji/text/EmojiCompat.java"
-            line="353"
-            column="19"/>
+            file="src/main/java/androidx/emoji/text/EmojiCompat.java"/>
     </issue>
 
     <issue
@@ -670,9 +577,7 @@
         errorLine1="            final KeyEvent event) {"
         errorLine2="                  ~~~~~~~~">
         <location
-            file="src/main/java/androidx/emoji/text/EmojiCompat.java"
-            line="542"
-            column="19"/>
+            file="src/main/java/androidx/emoji/text/EmojiCompat.java"/>
     </issue>
 
     <issue
@@ -681,9 +586,7 @@
         errorLine1="    public CharSequence process(@NonNull final CharSequence charSequence) {"
         errorLine2="           ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/emoji/text/EmojiCompat.java"
-            line="626"
-            column="12"/>
+            file="src/main/java/androidx/emoji/text/EmojiCompat.java"/>
     </issue>
 
     <issue
@@ -692,9 +595,7 @@
         errorLine1="    public CharSequence process(@NonNull final CharSequence charSequence,"
         errorLine2="           ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/emoji/text/EmojiCompat.java"
-            line="662"
-            column="12"/>
+            file="src/main/java/androidx/emoji/text/EmojiCompat.java"/>
     </issue>
 
     <issue
@@ -703,9 +604,7 @@
         errorLine1="    public CharSequence process(@NonNull final CharSequence charSequence,"
         errorLine2="           ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/emoji/text/EmojiCompat.java"
-            line="697"
-            column="12"/>
+            file="src/main/java/androidx/emoji/text/EmojiCompat.java"/>
     </issue>
 
     <issue
@@ -714,9 +613,7 @@
         errorLine1="    public CharSequence process(@NonNull final CharSequence charSequence,"
         errorLine2="           ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/emoji/text/EmojiCompat.java"
-            line="737"
-            column="12"/>
+            file="src/main/java/androidx/emoji/text/EmojiCompat.java"/>
     </issue>
 
     <issue
@@ -725,9 +622,7 @@
         errorLine1="        public Config registerInitCallback(@NonNull InitCallback initCallback) {"
         errorLine2="               ~~~~~~">
         <location
-            file="src/main/java/androidx/emoji/text/EmojiCompat.java"
-            line="990"
-            column="16"/>
+            file="src/main/java/androidx/emoji/text/EmojiCompat.java"/>
     </issue>
 
     <issue
@@ -736,9 +631,7 @@
         errorLine1="        public Config unregisterInitCallback(@NonNull InitCallback initCallback) {"
         errorLine2="               ~~~~~~">
         <location
-            file="src/main/java/androidx/emoji/text/EmojiCompat.java"
-            line="1008"
-            column="16"/>
+            file="src/main/java/androidx/emoji/text/EmojiCompat.java"/>
     </issue>
 
     <issue
@@ -747,9 +640,7 @@
         errorLine1="        public Config setReplaceAll(final boolean replaceAll) {"
         errorLine2="               ~~~~~~">
         <location
-            file="src/main/java/androidx/emoji/text/EmojiCompat.java"
-            line="1025"
-            column="16"/>
+            file="src/main/java/androidx/emoji/text/EmojiCompat.java"/>
     </issue>
 
     <issue
@@ -758,9 +649,7 @@
         errorLine1="        public Config setUseEmojiAsDefaultStyle(final boolean useEmojiAsDefaultStyle) {"
         errorLine2="               ~~~~~~">
         <location
-            file="src/main/java/androidx/emoji/text/EmojiCompat.java"
-            line="1045"
-            column="16"/>
+            file="src/main/java/androidx/emoji/text/EmojiCompat.java"/>
     </issue>
 
     <issue
@@ -769,9 +658,7 @@
         errorLine1="        public Config setUseEmojiAsDefaultStyle(final boolean useEmojiAsDefaultStyle,"
         errorLine2="               ~~~~~~">
         <location
-            file="src/main/java/androidx/emoji/text/EmojiCompat.java"
-            line="1064"
-            column="16"/>
+            file="src/main/java/androidx/emoji/text/EmojiCompat.java"/>
     </issue>
 
     <issue
@@ -780,9 +667,7 @@
         errorLine1="        public Config setEmojiSpanIndicatorEnabled(boolean emojiSpanIndicatorEnabled) {"
         errorLine2="               ~~~~~~">
         <location
-            file="src/main/java/androidx/emoji/text/EmojiCompat.java"
-            line="1088"
-            column="16"/>
+            file="src/main/java/androidx/emoji/text/EmojiCompat.java"/>
     </issue>
 
     <issue
@@ -791,9 +676,7 @@
         errorLine1="        public Config setEmojiSpanIndicatorColor(@ColorInt int color) {"
         errorLine2="               ~~~~~~">
         <location
-            file="src/main/java/androidx/emoji/text/EmojiCompat.java"
-            line="1099"
-            column="16"/>
+            file="src/main/java/androidx/emoji/text/EmojiCompat.java"/>
     </issue>
 
     <issue
@@ -802,9 +685,7 @@
         errorLine1="        public Config setMetadataLoadStrategy(@LoadStrategy int strategy) {"
         errorLine2="               ~~~~~~">
         <location
-            file="src/main/java/androidx/emoji/text/EmojiCompat.java"
-            line="1140"
-            column="16"/>
+            file="src/main/java/androidx/emoji/text/EmojiCompat.java"/>
     </issue>
 
     <issue
@@ -813,9 +694,7 @@
         errorLine1="        protected final MetadataRepoLoader getMetadataRepoLoader() {"
         errorLine2="                        ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/emoji/text/EmojiCompat.java"
-            line="1161"
-            column="25"/>
+            file="src/main/java/androidx/emoji/text/EmojiCompat.java"/>
     </issue>
 
     <issue
@@ -824,9 +703,7 @@
         errorLine1="    public EmojiEditText(Context context) {"
         errorLine2="                         ~~~~~~~">
         <location
-            file="src/main/java/androidx/emoji/widget/EmojiEditText.java"
-            line="48"
-            column="26"/>
+            file="src/main/java/androidx/emoji/widget/EmojiEditText.java"/>
     </issue>
 
     <issue
@@ -835,9 +712,7 @@
         errorLine1="    public EmojiEditText(Context context, AttributeSet attrs) {"
         errorLine2="                         ~~~~~~~">
         <location
-            file="src/main/java/androidx/emoji/widget/EmojiEditText.java"
-            line="53"
-            column="26"/>
+            file="src/main/java/androidx/emoji/widget/EmojiEditText.java"/>
     </issue>
 
     <issue
@@ -846,9 +721,7 @@
         errorLine1="    public EmojiEditText(Context context, AttributeSet attrs) {"
         errorLine2="                                          ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/emoji/widget/EmojiEditText.java"
-            line="53"
-            column="43"/>
+            file="src/main/java/androidx/emoji/widget/EmojiEditText.java"/>
     </issue>
 
     <issue
@@ -857,9 +730,7 @@
         errorLine1="    public EmojiEditText(Context context, AttributeSet attrs, int defStyleAttr) {"
         errorLine2="                         ~~~~~~~">
         <location
-            file="src/main/java/androidx/emoji/widget/EmojiEditText.java"
-            line="58"
-            column="26"/>
+            file="src/main/java/androidx/emoji/widget/EmojiEditText.java"/>
     </issue>
 
     <issue
@@ -868,9 +739,7 @@
         errorLine1="    public EmojiEditText(Context context, AttributeSet attrs, int defStyleAttr) {"
         errorLine2="                                          ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/emoji/widget/EmojiEditText.java"
-            line="58"
-            column="43"/>
+            file="src/main/java/androidx/emoji/widget/EmojiEditText.java"/>
     </issue>
 
     <issue
@@ -879,9 +748,7 @@
         errorLine1="    public EmojiEditText(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {"
         errorLine2="                         ~~~~~~~">
         <location
-            file="src/main/java/androidx/emoji/widget/EmojiEditText.java"
-            line="64"
-            column="26"/>
+            file="src/main/java/androidx/emoji/widget/EmojiEditText.java"/>
     </issue>
 
     <issue
@@ -890,9 +757,7 @@
         errorLine1="    public EmojiEditText(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {"
         errorLine2="                                          ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/emoji/widget/EmojiEditText.java"
-            line="64"
-            column="43"/>
+            file="src/main/java/androidx/emoji/widget/EmojiEditText.java"/>
     </issue>
 
     <issue
@@ -901,9 +766,7 @@
         errorLine1="    public EmojiExtractEditText(Context context) {"
         errorLine2="                                ~~~~~~~">
         <location
-            file="src/main/java/androidx/emoji/widget/EmojiExtractEditText.java"
-            line="56"
-            column="33"/>
+            file="src/main/java/androidx/emoji/widget/EmojiExtractEditText.java"/>
     </issue>
 
     <issue
@@ -912,9 +775,7 @@
         errorLine1="    public EmojiExtractEditText(Context context, AttributeSet attrs) {"
         errorLine2="                                ~~~~~~~">
         <location
-            file="src/main/java/androidx/emoji/widget/EmojiExtractEditText.java"
-            line="61"
-            column="33"/>
+            file="src/main/java/androidx/emoji/widget/EmojiExtractEditText.java"/>
     </issue>
 
     <issue
@@ -923,9 +784,7 @@
         errorLine1="    public EmojiExtractEditText(Context context, AttributeSet attrs) {"
         errorLine2="                                                 ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/emoji/widget/EmojiExtractEditText.java"
-            line="61"
-            column="50"/>
+            file="src/main/java/androidx/emoji/widget/EmojiExtractEditText.java"/>
     </issue>
 
     <issue
@@ -934,9 +793,7 @@
         errorLine1="    public EmojiExtractEditText(Context context, AttributeSet attrs, int defStyleAttr) {"
         errorLine2="                                ~~~~~~~">
         <location
-            file="src/main/java/androidx/emoji/widget/EmojiExtractEditText.java"
-            line="66"
-            column="33"/>
+            file="src/main/java/androidx/emoji/widget/EmojiExtractEditText.java"/>
     </issue>
 
     <issue
@@ -945,9 +802,7 @@
         errorLine1="    public EmojiExtractEditText(Context context, AttributeSet attrs, int defStyleAttr) {"
         errorLine2="                                                 ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/emoji/widget/EmojiExtractEditText.java"
-            line="66"
-            column="50"/>
+            file="src/main/java/androidx/emoji/widget/EmojiExtractEditText.java"/>
     </issue>
 
     <issue
@@ -956,9 +811,7 @@
         errorLine1="    public EmojiExtractEditText(Context context, AttributeSet attrs, int defStyleAttr,"
         errorLine2="                                ~~~~~~~">
         <location
-            file="src/main/java/androidx/emoji/widget/EmojiExtractEditText.java"
-            line="72"
-            column="33"/>
+            file="src/main/java/androidx/emoji/widget/EmojiExtractEditText.java"/>
     </issue>
 
     <issue
@@ -967,9 +820,7 @@
         errorLine1="    public EmojiExtractEditText(Context context, AttributeSet attrs, int defStyleAttr,"
         errorLine2="                                                 ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/emoji/widget/EmojiExtractEditText.java"
-            line="72"
-            column="50"/>
+            file="src/main/java/androidx/emoji/widget/EmojiExtractEditText.java"/>
     </issue>
 
     <issue
@@ -978,9 +829,7 @@
         errorLine1="    public EmojiExtractTextLayout(Context context) {"
         errorLine2="                                  ~~~~~~~">
         <location
-            file="src/main/java/androidx/emoji/widget/EmojiExtractTextLayout.java"
-            line="79"
-            column="35"/>
+            file="src/main/java/androidx/emoji/widget/EmojiExtractTextLayout.java"/>
     </issue>
 
     <issue
@@ -989,9 +838,7 @@
         errorLine1="    public EmojiExtractTextLayout(Context context,"
         errorLine2="                                  ~~~~~~~">
         <location
-            file="src/main/java/androidx/emoji/widget/EmojiExtractTextLayout.java"
-            line="84"
-            column="35"/>
+            file="src/main/java/androidx/emoji/widget/EmojiExtractTextLayout.java"/>
     </issue>
 
     <issue
@@ -1000,9 +847,7 @@
         errorLine1="    public EmojiExtractTextLayout(Context context,"
         errorLine2="                                  ~~~~~~~">
         <location
-            file="src/main/java/androidx/emoji/widget/EmojiExtractTextLayout.java"
-            line="90"
-            column="35"/>
+            file="src/main/java/androidx/emoji/widget/EmojiExtractTextLayout.java"/>
     </issue>
 
     <issue
@@ -1011,9 +856,7 @@
         errorLine1="    public EmojiExtractTextLayout(Context context, AttributeSet attrs,"
         errorLine2="                                  ~~~~~~~">
         <location
-            file="src/main/java/androidx/emoji/widget/EmojiExtractTextLayout.java"
-            line="97"
-            column="35"/>
+            file="src/main/java/androidx/emoji/widget/EmojiExtractTextLayout.java"/>
     </issue>
 
     <issue
@@ -1022,9 +865,7 @@
         errorLine1="    public EmojiExtractTextLayout(Context context, AttributeSet attrs,"
         errorLine2="                                                   ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/emoji/widget/EmojiExtractTextLayout.java"
-            line="97"
-            column="52"/>
+            file="src/main/java/androidx/emoji/widget/EmojiExtractTextLayout.java"/>
     </issue>
 
     <issue
@@ -1033,9 +874,7 @@
         errorLine1="    public void onUpdateExtractingViews(InputMethodService inputMethodService, EditorInfo ei) {"
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/emoji/widget/EmojiExtractTextLayout.java"
-            line="163"
-            column="41"/>
+            file="src/main/java/androidx/emoji/widget/EmojiExtractTextLayout.java"/>
     </issue>
 
     <issue
@@ -1044,20 +883,7 @@
         errorLine1="    public void onUpdateExtractingViews(InputMethodService inputMethodService, EditorInfo ei) {"
         errorLine2="                                                                               ~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/emoji/widget/EmojiExtractTextLayout.java"
-            line="163"
-            column="80"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public Typeface getTypeface() {"
-        errorLine2="           ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/emoji/text/EmojiMetadata.java"
-            line="120"
-            column="12"/>
+            file="src/main/java/androidx/emoji/widget/EmojiExtractTextLayout.java"/>
     </issue>
 
     <issue
@@ -1066,9 +892,7 @@
         errorLine1="            final int end, final Paint.FontMetricsInt fm) {"
         errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/emoji/text/EmojiSpan.java"
-            line="78"
-            column="34"/>
+            file="src/main/java/androidx/emoji/text/EmojiSpan.java"/>
     </issue>
 
     <issue
@@ -1077,9 +901,7 @@
         errorLine1="    public EmojiTextView(Context context) {"
         errorLine2="                         ~~~~~~~">
         <location
-            file="src/main/java/androidx/emoji/widget/EmojiTextView.java"
-            line="41"
-            column="26"/>
+            file="src/main/java/androidx/emoji/widget/EmojiTextView.java"/>
     </issue>
 
     <issue
@@ -1088,9 +910,7 @@
         errorLine1="    public EmojiTextView(Context context, AttributeSet attrs) {"
         errorLine2="                         ~~~~~~~">
         <location
-            file="src/main/java/androidx/emoji/widget/EmojiTextView.java"
-            line="46"
-            column="26"/>
+            file="src/main/java/androidx/emoji/widget/EmojiTextView.java"/>
     </issue>
 
     <issue
@@ -1099,9 +919,7 @@
         errorLine1="    public EmojiTextView(Context context, AttributeSet attrs) {"
         errorLine2="                                          ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/emoji/widget/EmojiTextView.java"
-            line="46"
-            column="43"/>
+            file="src/main/java/androidx/emoji/widget/EmojiTextView.java"/>
     </issue>
 
     <issue
@@ -1110,9 +928,7 @@
         errorLine1="    public EmojiTextView(Context context, AttributeSet attrs, int defStyleAttr) {"
         errorLine2="                         ~~~~~~~">
         <location
-            file="src/main/java/androidx/emoji/widget/EmojiTextView.java"
-            line="51"
-            column="26"/>
+            file="src/main/java/androidx/emoji/widget/EmojiTextView.java"/>
     </issue>
 
     <issue
@@ -1121,9 +937,7 @@
         errorLine1="    public EmojiTextView(Context context, AttributeSet attrs, int defStyleAttr) {"
         errorLine2="                                          ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/emoji/widget/EmojiTextView.java"
-            line="51"
-            column="43"/>
+            file="src/main/java/androidx/emoji/widget/EmojiTextView.java"/>
     </issue>
 
     <issue
@@ -1132,9 +946,7 @@
         errorLine1="    public EmojiTextView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {"
         errorLine2="                         ~~~~~~~">
         <location
-            file="src/main/java/androidx/emoji/widget/EmojiTextView.java"
-            line="57"
-            column="26"/>
+            file="src/main/java/androidx/emoji/widget/EmojiTextView.java"/>
     </issue>
 
     <issue
@@ -1143,9 +955,7 @@
         errorLine1="    public EmojiTextView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {"
         errorLine2="                                          ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/emoji/widget/EmojiTextView.java"
-            line="57"
-            column="43"/>
+            file="src/main/java/androidx/emoji/widget/EmojiTextView.java"/>
     </issue>
 
     <issue
@@ -1154,9 +964,7 @@
         errorLine1="    public ExtractButtonCompat(Context context) {"
         errorLine2="                               ~~~~~~~">
         <location
-            file="src/main/java/androidx/emoji/widget/ExtractButtonCompat.java"
-            line="38"
-            column="32"/>
+            file="src/main/java/androidx/emoji/widget/ExtractButtonCompat.java"/>
     </issue>
 
     <issue
@@ -1165,9 +973,7 @@
         errorLine1="    public ExtractButtonCompat(Context context, AttributeSet attrs) {"
         errorLine2="                               ~~~~~~~">
         <location
-            file="src/main/java/androidx/emoji/widget/ExtractButtonCompat.java"
-            line="42"
-            column="32"/>
+            file="src/main/java/androidx/emoji/widget/ExtractButtonCompat.java"/>
     </issue>
 
     <issue
@@ -1176,9 +982,7 @@
         errorLine1="    public ExtractButtonCompat(Context context, AttributeSet attrs) {"
         errorLine2="                                                ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/emoji/widget/ExtractButtonCompat.java"
-            line="42"
-            column="49"/>
+            file="src/main/java/androidx/emoji/widget/ExtractButtonCompat.java"/>
     </issue>
 
     <issue
@@ -1187,9 +991,7 @@
         errorLine1="    public ExtractButtonCompat(Context context, AttributeSet attrs, int defStyleAttr) {"
         errorLine2="                               ~~~~~~~">
         <location
-            file="src/main/java/androidx/emoji/widget/ExtractButtonCompat.java"
-            line="46"
-            column="32"/>
+            file="src/main/java/androidx/emoji/widget/ExtractButtonCompat.java"/>
     </issue>
 
     <issue
@@ -1198,9 +1000,7 @@
         errorLine1="    public ExtractButtonCompat(Context context, AttributeSet attrs, int defStyleAttr) {"
         errorLine2="                                                ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/emoji/widget/ExtractButtonCompat.java"
-            line="46"
-            column="49"/>
+            file="src/main/java/androidx/emoji/widget/ExtractButtonCompat.java"/>
     </issue>
 
     <issue
@@ -1209,9 +1009,7 @@
         errorLine1="    public ExtractButtonCompat(Context context, AttributeSet attrs, int defStyleAttr,"
         errorLine2="                               ~~~~~~~">
         <location
-            file="src/main/java/androidx/emoji/widget/ExtractButtonCompat.java"
-            line="51"
-            column="32"/>
+            file="src/main/java/androidx/emoji/widget/ExtractButtonCompat.java"/>
     </issue>
 
     <issue
@@ -1220,9 +1018,7 @@
         errorLine1="    public ExtractButtonCompat(Context context, AttributeSet attrs, int defStyleAttr,"
         errorLine2="                                                ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/emoji/widget/ExtractButtonCompat.java"
-            line="51"
-            column="49"/>
+            file="src/main/java/androidx/emoji/widget/ExtractButtonCompat.java"/>
     </issue>
 
     <issue
@@ -1231,9 +1027,7 @@
         errorLine1="    public FontRequestEmojiCompatConfig setHandler(Handler handler) {"
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/emoji/text/FontRequestEmojiCompatConfig.java"
-            line="143"
-            column="12"/>
+            file="src/main/java/androidx/emoji/text/FontRequestEmojiCompatConfig.java"/>
     </issue>
 
     <issue
@@ -1242,9 +1036,7 @@
         errorLine1="    public FontRequestEmojiCompatConfig setHandler(Handler handler) {"
         errorLine2="                                                   ~~~~~~~">
         <location
-            file="src/main/java/androidx/emoji/text/FontRequestEmojiCompatConfig.java"
-            line="143"
-            column="52"/>
+            file="src/main/java/androidx/emoji/text/FontRequestEmojiCompatConfig.java"/>
     </issue>
 
     <issue
@@ -1253,9 +1045,7 @@
         errorLine1="    public FontRequestEmojiCompatConfig setRetryPolicy(RetryPolicy policy) {"
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/emoji/text/FontRequestEmojiCompatConfig.java"
-            line="156"
-            column="12"/>
+            file="src/main/java/androidx/emoji/text/FontRequestEmojiCompatConfig.java"/>
     </issue>
 
     <issue
@@ -1264,9 +1054,7 @@
         errorLine1="    public FontRequestEmojiCompatConfig setRetryPolicy(RetryPolicy policy) {"
         errorLine2="                                                       ~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/emoji/text/FontRequestEmojiCompatConfig.java"
-            line="156"
-            column="56"/>
+            file="src/main/java/androidx/emoji/text/FontRequestEmojiCompatConfig.java"/>
     </issue>
 
     <issue
@@ -1275,9 +1063,7 @@
         errorLine1="        public FontFamilyResult fetchFonts(@NonNull Context context,"
         errorLine2="               ~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/emoji/text/FontRequestEmojiCompatConfig.java"
-            line="335"
-            column="16"/>
+            file="src/main/java/androidx/emoji/text/FontRequestEmojiCompatConfig.java"/>
     </issue>
 
     <issue
@@ -1286,9 +1072,7 @@
         errorLine1="        public Typeface buildTypeface(@NonNull Context context,"
         errorLine2="               ~~~~~~~~">
         <location
-            file="src/main/java/androidx/emoji/text/FontRequestEmojiCompatConfig.java"
-            line="341"
-            column="16"/>
+            file="src/main/java/androidx/emoji/text/FontRequestEmojiCompatConfig.java"/>
     </issue>
 
     <issue
@@ -1297,9 +1081,7 @@
         errorLine1="    public static MetadataRepo create(@NonNull final Typeface typeface,"
         errorLine2="                  ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/emoji/text/MetadataRepo.java"
-            line="103"
-            column="19"/>
+            file="src/main/java/androidx/emoji/text/MetadataRepo.java"/>
     </issue>
 
     <issue
@@ -1308,9 +1090,7 @@
         errorLine1="    public static MetadataRepo create(@NonNull final Typeface typeface,"
         errorLine2="                  ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/emoji/text/MetadataRepo.java"
-            line="115"
-            column="19"/>
+            file="src/main/java/androidx/emoji/text/MetadataRepo.java"/>
     </issue>
 
     <issue
@@ -1319,9 +1099,7 @@
         errorLine1="    public static MetadataRepo create(@NonNull final AssetManager assetManager,"
         errorLine2="                  ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/emoji/text/MetadataRepo.java"
-            line="127"
-            column="19"/>
+            file="src/main/java/androidx/emoji/text/MetadataRepo.java"/>
     </issue>
 
     <issue
@@ -1330,9 +1108,7 @@
         errorLine1="            final String assetPath) throws IOException {"
         errorLine2="                  ~~~~~~">
         <location
-            file="src/main/java/androidx/emoji/text/MetadataRepo.java"
-            line="128"
-            column="19"/>
+            file="src/main/java/androidx/emoji/text/MetadataRepo.java"/>
     </issue>
 
     <issue
@@ -1341,9 +1117,7 @@
         errorLine1="    public char[] getEmojiCharArray() {"
         errorLine2="           ~~~~~~">
         <location
-            file="src/main/java/androidx/emoji/text/MetadataRepo.java"
-            line="176"
-            column="12"/>
+            file="src/main/java/androidx/emoji/text/MetadataRepo.java"/>
     </issue>
 
     <issue
@@ -1352,9 +1126,7 @@
         errorLine1="    public MetadataList getMetadataList() {"
         errorLine2="           ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/emoji/text/MetadataRepo.java"
-            line="184"
-            column="12"/>
+            file="src/main/java/androidx/emoji/text/MetadataRepo.java"/>
     </issue>
 
     <issue
@@ -1363,9 +1135,7 @@
         errorLine1="    public CharSequence subSequence(int start, int end) {"
         errorLine2="           ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/emoji/widget/SpannableBuilder.java"
-            line="124"
-            column="12"/>
+            file="src/main/java/androidx/emoji/widget/SpannableBuilder.java"/>
     </issue>
 
     <issue
@@ -1374,9 +1144,7 @@
         errorLine1="    public SpannableStringBuilder append(CharSequence text) {"
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/emoji/widget/SpannableBuilder.java"
-            line="336"
-            column="12"/>
+            file="src/main/java/androidx/emoji/widget/SpannableBuilder.java"/>
     </issue>
 
     <issue
@@ -1385,9 +1153,7 @@
         errorLine1="    public SpannableStringBuilder append(CharSequence text) {"
         errorLine2="                                         ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/emoji/widget/SpannableBuilder.java"
-            line="336"
-            column="42"/>
+            file="src/main/java/androidx/emoji/widget/SpannableBuilder.java"/>
     </issue>
 
     <issue
@@ -1396,9 +1162,7 @@
         errorLine1="    public SpannableStringBuilder append(char text) {"
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/emoji/widget/SpannableBuilder.java"
-            line="342"
-            column="12"/>
+            file="src/main/java/androidx/emoji/widget/SpannableBuilder.java"/>
     </issue>
 
     <issue
@@ -1407,9 +1171,7 @@
         errorLine1="    public SpannableStringBuilder append(CharSequence text, int start, int end) {"
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/emoji/widget/SpannableBuilder.java"
-            line="348"
-            column="12"/>
+            file="src/main/java/androidx/emoji/widget/SpannableBuilder.java"/>
     </issue>
 
     <issue
@@ -1418,9 +1180,7 @@
         errorLine1="    public SpannableStringBuilder append(CharSequence text, int start, int end) {"
         errorLine2="                                         ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/emoji/widget/SpannableBuilder.java"
-            line="348"
-            column="42"/>
+            file="src/main/java/androidx/emoji/widget/SpannableBuilder.java"/>
     </issue>
 
     <issue
@@ -1429,9 +1189,7 @@
         errorLine1="    public TypefaceEmojiSpan(final EmojiMetadata metadata) {"
         errorLine2="                                   ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/emoji/text/TypefaceEmojiSpan.java"
-            line="48"
-            column="36"/>
+            file="src/main/java/androidx/emoji/text/TypefaceEmojiSpan.java"/>
     </issue>
 
 </issues>
