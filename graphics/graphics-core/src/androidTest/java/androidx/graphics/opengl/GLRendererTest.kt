@@ -812,6 +812,7 @@ class GLRendererTest {
         val teardownLatch = CountDownLatch(1)
         val glRenderer = GLRenderer().apply { start() }
         var renderBuffer: RenderBuffer? = null
+        var status: Boolean? = false
 
         val callbacks = object : HardwareBufferRenderer.RenderCallbacks {
             override fun obtainRenderBuffer(egl: EGLSpec): RenderBuffer =
@@ -832,7 +833,11 @@ class GLRendererTest {
                 GLES20.glFlush()
             }
 
-            override fun onDrawComplete(renderBuffer: RenderBuffer) {
+            override fun onDrawComplete(
+                renderBuffer: RenderBuffer,
+                syncFenceCompat: SyncFenceCompat?
+            ) {
+                status = syncFenceCompat?.await(3000)
                 renderLatch.countDown()
             }
         }
@@ -846,6 +851,11 @@ class GLRendererTest {
         var hardwareBuffer: HardwareBuffer? = null
         try {
             assertTrue(renderLatch.await(3000, TimeUnit.MILLISECONDS))
+            assert(status != null)
+            status?.let {
+                assertTrue(it)
+            }
+
             hardwareBuffer = renderBuffer?.hardwareBuffer
             if (hardwareBuffer != null) {
                 val colorSpace = ColorSpace.get(ColorSpace.Named.LINEAR_SRGB)

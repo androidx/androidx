@@ -289,8 +289,10 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
             mParentBufferParamQueue.add(param)
             mFrontBufferedRenderTarget?.requestRender()
         } else {
-            Log.w(TAG, "Attempt to render to front buffered layer when " +
-                "GLFrontBufferedRenderer has been released")
+            Log.w(
+                TAG, "Attempt to render to front buffered layer when " +
+                    "GLFrontBufferedRenderer has been released"
+            )
         }
     }
 
@@ -318,8 +320,10 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
             mDoubleBufferedLayerRenderTarget?.requestRender()
             mFrontBufferedLayerRenderer?.clear()
         } else {
-            Log.w(TAG, "Attempt to render to the double buffered layer when " +
-                "GLFrontBufferedRenderer has been released")
+            Log.w(
+                TAG, "Attempt to render to the double buffered layer when " +
+                    "GLFrontBufferedRenderer has been released"
+            )
         }
     }
 
@@ -402,7 +406,7 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
                 if (buffer == null) {
                     // Allocate and persist a RenderBuffer instance across frames
                     buffer = mBufferPool?.obtain(egl).also { mFrontLayerBuffer = it }
-                       ?: throw IllegalArgumentException("Unable to obtain RenderBuffer")
+                        ?: throw IllegalArgumentException("Unable to obtain RenderBuffer")
                 }
                 return buffer
             }
@@ -416,7 +420,10 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
                     // If poll was used instead, we would not be able to determine if the nullable
                     // parameter was because there were no items in the queue or the consumer
                     // explicitly provided null as a placeholder
-                    mCallback.onDrawFrontBufferedLayer(eglManager, mFrontBufferQueueParams.remove())
+                    mCallback.onDrawFrontBufferedLayer(
+                        eglManager,
+                        mFrontBufferQueueParams.remove()
+                    )
                 } catch (_: NoSuchElementException) {
                     // Skip rendering if we have been told to render but we do not have parameters
                     // Because the call to render to the front buffer takes in a parameter we should
@@ -425,18 +432,22 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
             }
 
             @WorkerThread
-            override fun onDrawComplete(renderBuffer: RenderBuffer) {
+            override fun onDrawComplete(
+                renderBuffer: RenderBuffer,
+                syncFenceCompat: SyncFenceCompat?
+            ) {
                 val transaction = SurfaceControlCompat.Transaction()
                     // Make this layer the top most layer
                     .setLayer(frontBufferedLayerSurfaceControl, Integer.MAX_VALUE)
                     .setBuffer(
                         frontBufferedLayerSurfaceControl,
                         renderBuffer.hardwareBuffer,
-                        null
+                        syncFenceCompat
                     )
                     .setVisibility(frontBufferedLayerSurfaceControl, true)
                 mParentRenderLayer.buildReparentTransaction(
-                    frontBufferedLayerSurfaceControl, transaction)
+                    frontBufferedLayerSurfaceControl, transaction
+                )
                 mCallback.onFrontBufferedLayerRenderComplete(
                     frontBufferedLayerSurfaceControl,
                     transaction

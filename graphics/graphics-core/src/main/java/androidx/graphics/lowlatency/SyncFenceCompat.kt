@@ -61,6 +61,19 @@ class SyncFenceCompat : AutoCloseable {
                 syncFenceCompat
             }
         }
+
+        /**
+         * An invalid signal time. Represents either the signal time for a SyncFence that isn't
+         * valid (that is, [isValid] is `false`), or if an error occurred while attempting to
+         * retrieve the signal time.
+         */
+        const val SIGNAL_TIME_INVALID: Long = -1L
+
+        /**
+         * A pending signal time. This is equivalent to the max value of a long, representing an
+         * infinitely far point in the future.
+         */
+        const val SIGNAL_TIME_PENDING: Long = Long.MAX_VALUE
     }
 
     internal constructor(syncFence: SyncFence) {
@@ -92,6 +105,22 @@ class SyncFenceCompat : AutoCloseable {
     override fun close() {
         mImpl.close()
     }
+
+    /**
+     * Returns the time that the fence signaled in the [CLOCK_MONOTONIC] time domain.
+     * This returns [SyncFence.SIGNAL_TIME_INVALID] if the SyncFence is invalid.
+     * If the fence hasn't yet signaled, then [SyncFence.SIGNAL_TIME_PENDING] is returned.
+     */
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun getSignalTime(): Long {
+        return mImpl.getSignalTime()
+    }
+
+    /**
+     * Checks if the SyncFence object is valid.
+     * @return `true` if it is valid, `false` otherwise
+     */
+    fun isValid() = mImpl.isValid()
 }
 
 /**
