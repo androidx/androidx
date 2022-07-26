@@ -167,7 +167,7 @@ public class CarAppViewModelTest {
                 createHandshakeInfo("TestApp", 4));
         when(mServiceConnectionManager.getServiceDispatcher()).thenReturn(mServiceDispatcher);
         mCarAppViewModel.setInsetsListener(mIInsetsListener);
-        verify(mServiceDispatcher).dispatch(eq("onInsetsChanges"), any());
+        verify(mServiceDispatcher).dispatch(eq("onInsetsChanged"), any());
     }
 
     private static HandshakeInfo createHandshakeInfo(String packageName, int hostApiLevel) {

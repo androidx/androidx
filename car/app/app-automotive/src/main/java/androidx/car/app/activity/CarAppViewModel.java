@@ -272,7 +272,7 @@ public class CarAppViewModel extends AndroidViewModel implements
             );
             return;
         }
-        getServiceDispatcher().dispatch("onInsetsChanges",
+        getServiceDispatcher().dispatch("onInsetsChanged",
                 () -> requireNonNull(mIInsetsListener).onInsetsChanged(mInsets));
     }
 
