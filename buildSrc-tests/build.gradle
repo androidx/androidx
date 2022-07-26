@@ -25,10 +25,22 @@ plugins {
     id("kotlin")
 }
 
+apply from: "../buildSrc/kotlin-dsl-dependency.gradle"
+
+def buildSrcJar(jarName) {
+    return project.files(
+            new File(
+                    BuildServerConfigurationKt.getRootOutDirectory(project),
+                    "buildSrc/$jarName/build/libs/${jarName}.jar"
+            )
+    )
+}
+
 dependencies {
     implementation(gradleApi())
-    implementation(project.files(new File(BuildServerConfigurationKt.getRootOutDirectory(project), "buildSrc/private/build/libs/private.jar")))
-    implementation(project.files(new File(BuildServerConfigurationKt.getRootOutDirectory(project), "buildSrc/public/build/libs/public.jar")))
+    implementation(buildSrcJar("private"))
+    implementation(buildSrcJar("public"))
+    implementation(buildSrcJar("jetpad-integration"))
     implementation("com.googlecode.json-simple:json-simple:1.1")
     implementation(libs.gson)
     implementation(libs.dom4j) {
@@ -43,6 +55,9 @@ dependencies {
     testImplementation(project(":internal-testutils-gradle-plugin"))
     testImplementation(gradleTestKit())
     testImplementation(libs.checkmark)
+    testImplementation(libs.kotlinGradlePluginz)
+    testImplementation(libs.toml)
+    testImplementation(findGradleKotlinDsl())
 }
 
 SdkResourceGenerator.generateForHostTest(project)

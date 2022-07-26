@@ -29,7 +29,8 @@ data class AndroidXSelfTestProject(
     companion object {
         fun cubaneBuildGradleText(
             plugins: List<String> = listOf("java-library", "kotlin", "AndroidXPlugin"),
-            version: String? = "1.2.3"
+            version: String? = "1.2.3",
+            moreConfig: String = ""
         ): String {
             val mavenVersionLine = if (version != null) {
                 "  mavenVersion = new Version(\"$version\")"
@@ -47,6 +48,8 @@ data class AndroidXSelfTestProject(
                       |dependencies {
                       |  api(libs.kotlinStdlib)
                       |}
+                      |
+                      |$moreConfig
                       |
                       |androidx {
                       |  publish = Publish.SNAPSHOT_AND_RELEASE
