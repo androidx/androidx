@@ -259,6 +259,58 @@ public abstract class BaseCarAppActivity extends FragmentActivity {
         mLoadingView = requireViewById(R.id.loading_view);
         mSurfaceSnapshotView = requireViewById(R.id.template_view_snapshot);
 
+    }
+
+    /**
+     * Binds the {@link BaseCarAppActivity} and it's view against the view model.
+     */
+    public void bindToViewModel(@NonNull SessionInfo sessionInfo) {
+        ComponentName serviceComponentName = retrieveServiceComponentName();
+        if (serviceComponentName == null) {
+            Log.e(LogTags.TAG, "Unspecified service class name");
+            finish();
+            return;
+        }
+        initializeViewModel(serviceComponentName, sessionInfo);
+
+        mHostUpdateReceiver = new HostUpdateReceiver(requireNonNull(mViewModel));
+        mHostUpdateReceiver.register(this);
+        mActivityLifecycleDelegate = new ActivityLifecycleDelegate(getServiceDispatcher());
+        mSurfaceHolderListener = new SurfaceHolderListener(getServiceDispatcher(),
+                new SurfaceWrapperProvider(mSurfaceView));
+
+        registerActivityLifecycleCallbacks(requireNonNull(mActivityLifecycleDelegate));
+
+        configureSurfaceView();
+        //View Model State Observations requires a non null mSurfaceHolderListener
+        viewModelObserveAndBind();
+        // Inset Changes require view model to be initialized
+        observeInsetChanges();
+    }
+
+    private void initializeViewModel(ComponentName serviceComponentName, SessionInfo sessionInfo) {
+        CarAppViewModelFactory factory = CarAppViewModelFactory.getInstance(getApplication(),
+                serviceComponentName, sessionInfo);
+        mViewModel = new ViewModelProvider(this, factory).get(CarAppViewModel.class);
+        mViewModel.setActivity(this);
+        mViewModel.resetState();
+    }
+
+    private void configureSurfaceView() {
+        // Set the z-order to receive the UI events on the surface.
+        mSurfaceView.setZOrderOnTop(true);
+        mSurfaceView.setServiceDispatcher(getServiceDispatcher());
+        mSurfaceView.setViewModel(requireNonNull(mViewModel));
+        mSurfaceView.getHolder().addCallback(mSurfaceHolderListener);
+    }
+
+    private void viewModelObserveAndBind() {
+        requireNonNull(mViewModel).getError().observe(this, this::onErrorChanged);
+        requireNonNull(mViewModel).getState().observe(this, this::onStateChanged);
+        requireNonNull(mViewModel).bind(getIntent(), mCarActivity, getDisplayId());
+    }
+
+    private void observeInsetChanges() {
         mActivityContainerView.setOnApplyWindowInsetsListener(mWindowInsetsListener);
 
         WindowManager.LayoutParams layoutParams = getWindow().getAttributes();
@@ -279,43 +331,6 @@ public abstract class BaseCarAppActivity extends FragmentActivity {
         // window available on the client side.
         WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
         mActivityContainerView.requestApplyInsets();
-
-    }
-
-    /**
-     * Binds the {@link BaseCarAppActivity} and it's view against the view model.
-     */
-    public void bindToViewModel(@NonNull SessionInfo sessionInfo) {
-        ComponentName serviceComponentName = retrieveServiceComponentName();
-        if (serviceComponentName == null) {
-            Log.e(LogTags.TAG, "Unspecified service class name");
-            finish();
-            return;
-        }
-
-        CarAppViewModelFactory factory = CarAppViewModelFactory.getInstance(getApplication(),
-                serviceComponentName, sessionInfo);
-        mViewModel = new ViewModelProvider(this, factory).get(CarAppViewModel.class);
-        mViewModel.setActivity(this);
-        mViewModel.resetState();
-        mViewModel.getError().observe(this, this::onErrorChanged);
-        mViewModel.getState().observe(this, this::onStateChanged);
-
-        mHostUpdateReceiver = new HostUpdateReceiver(mViewModel);
-        mHostUpdateReceiver.register(this);
-        mActivityLifecycleDelegate = new ActivityLifecycleDelegate(getServiceDispatcher());
-        mSurfaceHolderListener = new SurfaceHolderListener(getServiceDispatcher(),
-                new SurfaceWrapperProvider(mSurfaceView));
-
-        registerActivityLifecycleCallbacks(requireNonNull(mActivityLifecycleDelegate));
-
-        // Set the z-order to receive the UI events on the surface.
-        mSurfaceView.setZOrderOnTop(true);
-        mSurfaceView.setServiceDispatcher(getServiceDispatcher());
-        mSurfaceView.setViewModel(mViewModel);
-        mSurfaceView.getHolder().addCallback(mSurfaceHolderListener);
-
-        mViewModel.bind(getIntent(), mCarActivity, getDisplayId());
     }
 
     /** Takes a snapshot of the surface view and puts it in the surfaceSnapshotView if succeeded. */
