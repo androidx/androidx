@@ -40,7 +40,7 @@ separators `.` or `:`. For example, `androidx.core:core-role` would use project
 name `:core:core-role` and directory `/core/core-role`.
 
 New modules in androidx can be created using the
-[project creator script](#module-creator).
+[project creator script](#module-creation).
 
 NOTE Modules for OEM-implemented shared libraries (also known as extensions or
 sidecars) that ship on-device and are referenced via the `<uses-library>` tag
@@ -97,6 +97,13 @@ cd development/project-creator && \
 ./create_project.py androidx.foo foo-bar
 ```
 
+If you are creating an unpublished module such as an integration test app with \
+the project creator script, it may not make sense to follow the same naming \
+conventions as published libraries. In this situation it is safe to comment out
+\
+the `artifact_id` validation from the script or rename the module after it has \
+been created.
+
 If you see an error message `No module named 'toml'` try the following steps.
 
 *   Install necessary tools if they are not already installed
@@ -108,7 +115,7 @@ If you see an error message `No module named 'toml'` try the following steps.
     `androidx_project_creator/bin/pip3 install toml`
 *   Run the project creator script from your virtual env with
     `androidx_project_creator/bin/python3
-    ./development/project-creator/create_project.py androidx.foo foo-bar`
+    ../../development/project-creator/create_project.py androidx.foo foo-bar`
 *   Delete your virtual env with `rm -rf ./androidx-project_creator`
     *   virtualenv will automatically .gitignore itself, but you may want to to
         remove it anyway.
@@ -566,6 +573,55 @@ class ModemInfoCompat {
     classes targeted to the SDK level at which the operation was added.
     *   See the [sample](#wrapper-sample) for an example of interacting with a
         method that was added in SDK level 23.
+
+### Safe super. invocation {#safe-super-calls}
+
+When to use?
+
+*   When invoking `method.superMethodIntroducedSinceMinSdk()`
+
+Implementation requirements
+
+*   Class must be a *non-static* **inner class** (captures `this` pointer)
+*   Class may not be exposed in public API
+
+This should only be used when calling `super` methods that will not verify (such
+as when overriding a new method to provide back compat).
+
+Super calls is not available in a `static` context in Java. It can however be
+called from an inner class.
+
+#### Sample {#safe-super-calls-sample}
+
+```java
+class AppCompatTextView : TextView {
+
+  @Nullable
+  SuperCaller mSuperCaller = null;
+
+  @Override
+  int getPropertyFromApi99() {
+  if (Build.VERSION.SDK_INT > 99) {
+    getSuperCaller().getPropertyFromApi99)();
+  }
+
+  @NonNull
+  @RequiresApi(99)
+  SuperCaller getSuperCaller() {
+    if (mSuperCaller == null) {
+      mSuperCaller = new SuperCaller();
+    }
+    return mSuperCaller;
+  }
+
+  @RequiresApi(99)
+  class SuperCaller {
+    int getPropertyFromApi99() {
+      return AppCompatTextView.super.getPropertyFromApi99();
+    }
+  }
+}
+```
 
 ### Standalone (ex. [ArraySet](https://developer.android.com/reference/android/support/v4/util/ArraySet.html), [Fragment](https://developer.android.com/reference/android/support/v4/app/Fragment.html)) {#standalone}
 
@@ -2054,6 +2110,37 @@ Compose).
 ## Testing Guidelines
 
 ### [Do not Mock, AndroidX](do_not_mock.md)
+
+### Validating class verification fixes
+
+To verify class verification, the best way is to look for `adb` output during
+install time.
+
+You can generate class verification logs from test APKs. Simply call the
+class/method that should generate a class verification failure in a test.
+
+The test APK will generate class verification logs on install.
+
+```bash
+# Enable ART logging (requires root). Note the 2 pairs of quotes!
+adb root
+adb shell setprop dalvik.vm.dex2oat-flags '"--runtime-arg -verbose:verifier"'
+
+# Restart Android services to pick up the settings
+adb shell stop && adb shell start
+
+# Optional: clear logs which aren't relevant
+adb logcat -c
+
+# Install the app and check for ART logs
+# This line is what triggers log lines, and can be repeated
+adb install -d -r someApk.apk
+
+# it's useful to run this _during_ install in another shell
+adb logcat | grep 'dex2oat'
+...
+... I dex2oat : Soft verification failures in
+```
 
 ## Android Lint Guidelines
 
