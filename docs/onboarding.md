@@ -110,7 +110,7 @@ The following command will check out the public main development branch:
 
 ```shell
 mkdir androidx-main && cd androidx-main
-repo init -u https://android.googlesource.com/platform/manifest \
+repo init -u sso://android/platform/manifest \
     -b androidx-main --partial-clone --clone-filter=blob:limit=10M
 repo sync -c -j8
 ```
