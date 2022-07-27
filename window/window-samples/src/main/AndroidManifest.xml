@@ -192,5 +192,11 @@
             <meta-data  android:name="androidx.window.sample.embedding.ExampleWindowInitializer"
                 android:value="androidx.startup" />
         </provider>
+
+        <!-- The app supports ActivityEmbedding itself, so it doesn't need system override. -->
+        <property
+            android:name="android.window.PROPERTY_ACTIVITY_EMBEDDING_ALLOW_SYSTEM_OVERRIDE"
+            android:value="false" />
+
     </application>
 </manifest>
