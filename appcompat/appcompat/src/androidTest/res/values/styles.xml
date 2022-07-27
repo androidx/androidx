@@ -25,6 +25,15 @@
         <item name="android:windowContentOverlay">@null</item>
     </style>
 
+    <style name="Theme.AppCompatNoDisplay" parent="@style/Theme.AppCompat">
+        <item name="android:windowBackground">@null</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowAnimationStyle">@null</item>
+        <item name="android:windowDisablePreview">true</item>
+        <item name="android:windowNoDisplay">true</item>
+    </style>
+
     <style name="Theme.TextColors" parent="@style/Theme.AppCompat.Light">
         <item name="android:textColorPrimary">#FF0000FF</item>
         <item name="android:textColorSecondary">@color/color_state_list_sand</item>
