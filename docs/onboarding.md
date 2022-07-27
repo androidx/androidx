@@ -860,11 +860,10 @@ can find them on either our public-facing build server:
 
 or on our slightly-more-convenient [androidx.dev](https://androidx.dev) site:
 
-`https://androidx.dev/snapshots/builds/<build-id>/artifacts/repository` for a
-specific build ID
+`https://androidx.dev/snapshots/builds/<build-id>/artifacts` for a specific
+build ID
 
-`https://androidx.dev/snapshots/builds/latest/artifacts/repository` for
-tip-of-tree snapshots
+`https://androidx.dev/snapshots/latest/artifacts` for tip-of-tree snapshots
 
 ### Obtaining a build ID
 
