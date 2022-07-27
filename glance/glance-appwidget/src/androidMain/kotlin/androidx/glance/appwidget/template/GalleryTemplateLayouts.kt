@@ -19,21 +19,20 @@ package androidx.glance.appwidget.template
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
 import androidx.glance.GlanceModifier
-import androidx.glance.Image
 import androidx.glance.background
-import androidx.glance.layout.Alignment
 import androidx.glance.layout.Column
 import androidx.glance.layout.ContentScale
 import androidx.glance.layout.Row
 import androidx.glance.layout.Spacer
+import androidx.glance.layout.fillMaxHeight
 import androidx.glance.layout.fillMaxSize
+import androidx.glance.layout.fillMaxWidth
+import androidx.glance.layout.height
 import androidx.glance.layout.padding
-import androidx.glance.layout.width
 import androidx.glance.template.GalleryTemplateData
 import androidx.glance.template.LocalTemplateColors
 import androidx.glance.template.LocalTemplateMode
 import androidx.glance.template.TemplateMode
-import androidx.glance.text.Text
 
 /**
  * Composable layout for a gallery template app widget. The template is optimized to show images.
@@ -51,75 +50,42 @@ fun GalleryTemplate(data: GalleryTemplateData) {
 
 @Composable
 private fun WidgetLayoutCollapsed(data: GalleryTemplateData) {
-    val modifier = createTopLevelModifier(data, true)
-
-    Column(modifier = modifier) {
-        data.header?.let { AppWidgetTemplateHeader(it) }
+    Column(modifier = createTopLevelModifier(data, true)) {
+        HeaderBlockTemplate(data.header)
         Spacer(modifier = GlanceModifier.defaultWeight())
-        AppWidgetTextSection(
-            listOfNotNull(
-                data.mainTextBlock.text1,
-                data.mainTextBlock.text2,
-                data.mainTextBlock.text3
-            )
-        )
-    }
-}
-
-// TODO: Implement when UX has specs.
-@Composable
-private fun WidgetLayoutVertical(data: GalleryTemplateData) {
-    Column(
-        modifier = GlanceModifier.fillMaxSize().padding(8.dp),
-    ) {
-        Row(
-            modifier = GlanceModifier.fillMaxSize().padding(8.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Column {
-                MainImageBlock(data)
-            }
-            Spacer(GlanceModifier.width(8.dp))
-            Column {
-                Text(data.mainTextBlock.text1.text)
-                data.mainTextBlock.text2?.let { headline ->
-                    Text(headline.text)
-                }
-            }
-            Column(verticalAlignment = Alignment.Top) {
-                MainImageBlock(data)
-            }
-        }
+        TextBlockTemplate(data.mainTextBlock)
     }
 }
 
 @Composable
 private fun WidgetLayoutHorizontal(data: GalleryTemplateData) {
-    Row(
-        modifier = GlanceModifier.fillMaxSize().padding(8.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Column {
-            MainImageBlock(data)
+    Row(modifier = createTopLevelModifier(data)) {
+        Column(
+            modifier = GlanceModifier.defaultWeight().fillMaxHeight()
+        ) {
+            HeaderBlockTemplate(data.header)
+            Spacer(modifier = GlanceModifier.height(16.dp).defaultWeight())
+            TextBlockTemplate(data.mainTextBlock)
+            ActionBlockTemplate(data.mainActionBlock)
         }
-        Spacer(GlanceModifier.width(8.dp))
-        Column {
-            Text(data.mainTextBlock.text1.text)
-            data.mainTextBlock.text2?.let { headline ->
-                Text(headline.text)
-            }
-        }
-        Column(verticalAlignment = Alignment.Top) {
-            MainImageBlock(data)
-        }
+        SingleImageBlockTemplate(
+            data.mainImageBlock,
+            GlanceModifier.fillMaxHeight().defaultWeight()
+        )
     }
 }
 
 @Composable
-private fun MainImageBlock(data: GalleryTemplateData) {
-    if (data.mainImageBlock.images.isNotEmpty()) {
-        val mainImage = data.mainImageBlock.images[0]
-        Image(provider = mainImage.image, contentDescription = mainImage.description)
+private fun WidgetLayoutVertical(data: GalleryTemplateData) {
+    Column(modifier = createTopLevelModifier(data)) {
+        HeaderBlockTemplate(data.header)
+        Spacer(modifier = GlanceModifier.height(16.dp))
+        SingleImageBlockTemplate(data.mainImageBlock, GlanceModifier.fillMaxWidth().defaultWeight())
+        Row(modifier = GlanceModifier.fillMaxWidth()) {
+            TextBlockTemplate(data.mainTextBlock)
+            Spacer(modifier = GlanceModifier.defaultWeight())
+            ActionBlockTemplate(data.mainActionBlock)
+        }
     }
 }
 
