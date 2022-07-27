@@ -14,16 +14,18 @@
  * limitations under the License.
  */
 
-package androidx.bluetooth.utils
+package androidx.bluetooth.core.utils
 
 import android.os.Build
 import android.os.Bundle
 import android.os.Parcelable
+import androidx.annotation.RestrictTo
 
 /**
  * @hide
  */
-class Utils {
+@RestrictTo(RestrictTo.Scope.LIBRARY)
+internal class Utils {
     companion object {
 
         // TODO: Migrate to BundleCompat when available

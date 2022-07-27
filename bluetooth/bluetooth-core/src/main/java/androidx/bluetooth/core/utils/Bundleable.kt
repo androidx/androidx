@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.bluetooth.utils
+package androidx.bluetooth.core.utils
 
 import android.os.Bundle
 
@@ -28,7 +28,7 @@ interface Bundleable {
     /** Interface for the static `CREATOR` field of [Bundleable] classes.  */
     interface Creator<T : Bundleable> {
         /**
-         * Restores a [Bundleable] instance from a [Bundle] produced by [ ][Bundleable.toBundle].
+         * Restores a [Bundleable] instance from a [Bundle] produced by [Bundleable.toBundle].
          *
          *
          * It guarantees the compatibility of [Bundle] representations produced by different
