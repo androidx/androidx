@@ -84,6 +84,7 @@ PERCENTLAYOUT = "1.1.0-alpha01"
 PREFERENCE = "1.3.0-alpha01"
 PRINT = "1.1.0-beta01"
 PRIVACYSANDBOX_TOOLS = "1.0.0-alpha01"
+PRIVACYSANDBOX_ADS = "1.0.0-alpha01"
 PROFILEINSTALLER = "1.3.0-alpha01"
 RECOMMENDATION = "1.1.0-alpha01"
 RECYCLERVIEW = "1.3.0-beta02"
@@ -207,6 +208,7 @@ PERCENTLAYOUT = { group = "androidx.percentlayout", atomicGroupVersion = "versio
 PREFERENCE = { group = "androidx.preference", atomicGroupVersion = "versions.PREFERENCE" }
 PRINT = { group = "androidx.print", atomicGroupVersion = "versions.PRINT" }
 PRIVACYSANDBOX_TOOLS = { group = "androidx.privacysandbox.tools", atomicGroupVersion = "versions.PRIVACYSANDBOX_TOOLS" }
+PRIVACYSANDBOX_ADS = { group = "androidx.privacysandbox.ads", atomicGroupVersion = "versions.PRIVACYSANDBOX_ADS" }
 PROFILEINSTALLER = { group = "androidx.profileinstaller", atomicGroupVersion = "versions.PROFILEINSTALLER" }
 RECOMMENDATION = { group = "androidx.recommendation", atomicGroupVersion = "versions.RECOMMENDATION" }
 RECYCLERVIEW = { group = "androidx.recyclerview" }
