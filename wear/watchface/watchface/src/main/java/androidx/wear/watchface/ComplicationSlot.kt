@@ -252,7 +252,7 @@ public annotation class ComplicationSlotBoundsType {
  * min(boundingRect.width, boundingRect.height).
  */
 @ComplicationExperimental
-public class BoundingArc(var startAngle: Float, var totalAngle: Float, @Px var thickness: Float) {
+public class BoundingArc(val startAngle: Float, val totalAngle: Float, @Px val thickness: Float) {
     /**
      * Detects whether the supplied point falls within the edge complication's arc.
      *
