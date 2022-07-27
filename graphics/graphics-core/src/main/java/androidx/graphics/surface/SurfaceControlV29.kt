@@ -22,6 +22,9 @@ import android.os.Build
 import android.view.AttachedSurfaceControl
 import android.view.SurfaceView
 import androidx.annotation.RequiresApi
+import androidx.graphics.lowlatency.SyncFenceImpl
+import androidx.graphics.lowlatency.SyncFenceV19
+import androidx.hardware.SyncFence
 import java.util.concurrent.Executor
 
 /**
@@ -147,12 +150,25 @@ internal class SurfaceControlV29 internal constructor(
         override fun setBuffer(
             surfaceControl: SurfaceControlImpl,
             buffer: HardwareBuffer,
+            fence: SyncFenceImpl?,
             releaseCallback: (() -> Unit)?
         ): SurfaceControlImpl.Transaction {
             if (releaseCallback != null) {
                 bufferCallbacks.add { releaseCallback() }
             }
-            transaction.setBuffer(surfaceControl.asWrapperSurfaceControl(), buffer)
+
+            // Ensure if we have a null value, we default to the default value for SyncFence
+            // argument to prevent null pointer dereference
+            if (fence == null) {
+                transaction.setBuffer(surfaceControl.asWrapperSurfaceControl(), buffer)
+            } else {
+                transaction.setBuffer(
+                    surfaceControl.asWrapperSurfaceControl(),
+                    buffer,
+                    fence.asSyncFenceCompat()
+                )
+            }
+
             return this
         }
 
@@ -250,6 +266,14 @@ internal class SurfaceControlV29 internal constructor(
                 surfaceControl
             } else {
                 throw IllegalArgumentException("Parent implementation is only for Android T+.")
+            }
+
+        private fun SyncFenceImpl.asSyncFenceCompat(): SyncFence =
+            if (this is SyncFenceV19) {
+                mSyncFence
+            } else {
+                throw IllegalArgumentException("Expected SyncFenceCompat implementation " +
+                    "for API level 19")
             }
     }
 }

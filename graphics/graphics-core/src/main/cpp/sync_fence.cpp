@@ -32,14 +32,14 @@ static constexpr int64_t SIGNAL_TIME_PENDING = INT64_MAX;
 
 extern "C"
 JNIEXPORT void JNICALL
-Java_androidx_hardware_SyncFenceCompat_nClose(JNIEnv *env, jobject thiz, jint fd) {
+Java_androidx_hardware_SyncFence_nClose(JNIEnv *env, jobject thiz, jint fd) {
     close(fd);
 }
 
 extern "C"
 JNIEXPORT jlong JNICALL
-Java_androidx_hardware_SyncFenceCompat_nGetSignalTime(JNIEnv *env, jobject thiz,
-                                                      jint fd) {
+Java_androidx_hardware_SyncFence_nGetSignalTime(JNIEnv *env, jobject thiz,
+                                                jint fd) {
     // Implementation sampled from Fence::getSignalTime in the framework
     if (fd == -1) {
         return SIGNAL_TIME_INVALID;
@@ -106,8 +106,8 @@ static int sync_wait(int fd, int timeout)
 
 extern "C"
 JNIEXPORT jboolean JNICALL
-Java_androidx_hardware_SyncFenceCompat_nWait(JNIEnv *env, jobject thiz, jint fd,
-                                             jint timeout_millis) {
+Java_androidx_hardware_SyncFence_nWait(JNIEnv *env, jobject thiz, jint fd,
+                                       jint timeout_millis) {
     if (fd == -1) {
         return static_cast<jboolean>(true);
     }
