@@ -196,7 +196,8 @@ internal object JvmDescriptorTypeVisitor : AbstractTypeVisitor8<String, Unit>() 
 
     override fun visitNull(t: NullType, u: Unit): String = visitUnknown(t, u)
 
-    override fun visitError(t: ErrorType, u: Unit): String = visitUnknown(t, u)
+    override fun visitError(t: ErrorType, u: Unit): String =
+        throw TypeNotPresentException(t.toString(), null)
 
     override fun visitIntersection(t: IntersectionType, u: Unit) = t.descriptor()
 
