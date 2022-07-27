@@ -11,9 +11,6 @@ package androidx.wear.watchface {
     method public float getThickness();
     method public float getTotalAngle();
     method public boolean hitTest(android.graphics.Rect rect, @Px float x, @Px float y);
-    method public void setStartAngle(float);
-    method public void setThickness(float);
-    method public void setTotalAngle(float);
     property public final float startAngle;
     property public final float thickness;
     property public final float totalAngle;
