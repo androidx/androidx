@@ -28,6 +28,7 @@ import android.graphics.Point;
 import android.graphics.Rect;
 import android.view.ViewConfiguration;
 
+import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.uiautomator.By;
 import androidx.test.uiautomator.Direction;
@@ -559,7 +560,7 @@ public class UiObject2Tests extends BaseTest {
         launchTestActivity(UiObject2TestSwipeActivity.class);
 
         // Avoid touching too close to the edges.
-        UiObject2 scrollView = mDevice.findObject(By.res(TEST_APP, "horizontal_scroll_view"));
+        UiObject2 scrollView = mDevice.findObject(By.res(TEST_APP, "scroll_view"));
         scrollView.setGestureMargin(SCROLL_MARGIN);
 
         // Initially at top left corner.
@@ -655,6 +656,56 @@ public class UiObject2Tests extends BaseTest {
     }
 
     @Test
+    public void testFling_direction() {
+        launchTestActivity(UiObject2TestFlingActivity.class);
+
+        // Avoid touching too close to the edges.
+        UiObject2 flingRegion = mDevice.findObject(By.res(TEST_APP, "fling_region"));
+        flingRegion.setGestureMargin(SCROLL_MARGIN);
+
+        // No fling yet.
+        assertEquals("no_fling", flingRegion.getText());
+
+        while (flingRegion.fling(Direction.LEFT)) {
+            // Continue until left bound.
+        }
+        assertEquals("fling_left", flingRegion.getText());
+    }
+
+    @Test
+    public void testFling_directionAndSpeed() {
+        launchTestActivity(UiObject2TestFlingActivity.class);
+
+        // Avoid touching too close to the edges.
+        UiObject2 flingRegion = mDevice.findObject(By.res(TEST_APP, "fling_region"));
+        flingRegion.setGestureMargin(SCROLL_MARGIN);
+
+        // No fling yet.
+        assertEquals("no_fling", flingRegion.getText());
+
+        while (flingRegion.fling(Direction.UP, 5000)) {
+            // Continue until up bound.
+        }
+        assertEquals("fling_up", flingRegion.getText());
+    }
+
+    @Test
+    public void testFling_throwsIllegalArgumentException() {
+        launchTestActivity(UiObject2TestFlingActivity.class);
+
+        UiObject2 flingRegion = mDevice.findObject(By.res(TEST_APP, "fling_region"));
+
+        int speed =
+                ViewConfiguration.get(
+                        ApplicationProvider.getApplicationContext()).getScaledMinimumFlingVelocity()
+                        / 2;
+
+        assertThrows("Speed is less than the minimum fling velocity",
+                IllegalArgumentException.class,
+                () -> flingRegion.fling(Direction.DOWN, speed));
+    }
+
+    @Test
     public void testSetGestureMargin() {
         launchTestActivity(UiObject2TestPinchActivity.class);
 
@@ -723,8 +774,6 @@ public class UiObject2Tests extends BaseTest {
     }
 
     /* TODO(b/235841473): Implement these tests
-    public void testFling() {}
-
     public void testWaitForExists() {}
 
     public void testWaitForGone() {}
