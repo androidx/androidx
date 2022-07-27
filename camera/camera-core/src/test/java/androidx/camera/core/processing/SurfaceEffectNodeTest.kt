@@ -24,11 +24,10 @@ import android.os.Looper.getMainLooper
 import android.util.Size
 import android.view.Surface
 import androidx.camera.core.SurfaceEffect.PREVIEW
-import androidx.camera.core.SurfaceOutput
-import androidx.camera.core.SurfaceRequest
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor
 import androidx.camera.core.impl.utils.futures.Futures
 import androidx.camera.testing.fakes.FakeCamera
+import androidx.camera.testing.fakes.FakeSurfaceEffectInternal
 import com.google.common.truth.Truth.assertThat
 import org.junit.After
 import org.junit.Before
@@ -55,15 +54,9 @@ class SurfaceEffectNodeTest {
         private val CROP_RECT = Rect(0, 0, 600, 400)
     }
 
-    private lateinit var surfaceEffect: SurfaceEffectInternal
-    private var isReleased = false
-    private var surfaceOutputCloseRequested = false
-    private var surfaceOutputReceived: SurfaceOutput? = null
-    private var surfaceReceivedByEffect: Surface? = null
+    private lateinit var surfaceEffectInternal: FakeSurfaceEffectInternal
     private lateinit var appSurface: Surface
     private lateinit var appSurfaceTexture: SurfaceTexture
-    private lateinit var effectSurface: Surface
-    private lateinit var effectSurfaceTexture: SurfaceTexture
     private lateinit var node: SurfaceEffectNode
     private lateinit var inputEdge: SurfaceEdge
 
@@ -71,30 +64,8 @@ class SurfaceEffectNodeTest {
     fun setup() {
         appSurfaceTexture = SurfaceTexture(0)
         appSurface = Surface(appSurfaceTexture)
-        effectSurfaceTexture = SurfaceTexture(0)
-        effectSurface = Surface(effectSurfaceTexture)
-
-        surfaceEffect = object : SurfaceEffectInternal {
-            override fun onInputSurface(request: SurfaceRequest) {
-                request.provideSurface(effectSurface, mainThreadExecutor()) {
-                    effectSurfaceTexture.release()
-                    effectSurface.release()
-                }
-            }
-
-            override fun onOutputSurface(surfaceOutput: SurfaceOutput) {
-                surfaceOutputReceived = surfaceOutput
-                surfaceReceivedByEffect = surfaceOutput.getSurface(mainThreadExecutor()) {
-                    surfaceOutput.close()
-                    surfaceOutputCloseRequested = true
-                }
-            }
-
-            override fun release() {
-                isReleased = true
-            }
-        }
-        node = SurfaceEffectNode(FakeCamera(), surfaceEffect)
+        surfaceEffectInternal = FakeSurfaceEffectInternal(mainThreadExecutor())
+        node = SurfaceEffectNode(FakeCamera(), surfaceEffectInternal)
         inputEdge = createInputEdge()
     }
 
@@ -102,8 +73,7 @@ class SurfaceEffectNodeTest {
     fun tearDown() {
         appSurfaceTexture.release()
         appSurface.release()
-        effectSurfaceTexture.release()
-        effectSurface.release()
+        surfaceEffectInternal.release()
         node.release()
         inputEdge.surfaces[0].close()
         shadowOf(getMainLooper()).idle()
@@ -140,8 +110,8 @@ class SurfaceEffectNodeTest {
         shadowOf(getMainLooper()).idle()
 
         // Assert: effect receives app Surface. CameraX receives effect Surface.
-        assertThat(surfaceReceivedByEffect).isEqualTo(appSurface)
-        assertThat(inputSurface.surface.get()).isEqualTo(effectSurface)
+        assertThat(surfaceEffectInternal.outputSurface).isEqualTo(appSurface)
+        assertThat(inputSurface.surface.get()).isEqualTo(surfaceEffectInternal.inputSurface)
     }
 
     @Test
@@ -156,8 +126,8 @@ class SurfaceEffectNodeTest {
         shadowOf(getMainLooper()).idle()
 
         // Assert: effect is released and has requested effect to close the SurfaceOutput
-        assertThat(isReleased).isTrue()
-        assertThat(surfaceOutputCloseRequested).isTrue()
+        assertThat(surfaceEffectInternal.isReleased).isTrue()
+        assertThat(surfaceEffectInternal.isOutputSurfaceRequestedToClose).isTrue()
     }
 
     private fun createInputEdge(): SurfaceEdge {

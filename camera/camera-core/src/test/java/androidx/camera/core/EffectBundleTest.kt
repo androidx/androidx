@@ -19,6 +19,7 @@ package androidx.camera.core
 import android.os.Build
 import androidx.camera.core.SurfaceEffect.PREVIEW
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor
+import androidx.camera.testing.fakes.FakeSurfaceEffect
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -41,11 +42,7 @@ class EffectBundleTest {
 
     @Test(expected = IllegalArgumentException::class)
     fun addMoreThanOnePreviewEffect_throwsException() {
-        val surfaceEffect = object : SurfaceEffect {
-            override fun onInputSurface(request: SurfaceRequest) {}
-
-            override fun onOutputSurface(surfaceOutput: SurfaceOutput) {}
-        }
+        val surfaceEffect = FakeSurfaceEffect(mainThreadExecutor())
         EffectBundle.Builder(mainThreadExecutor())
             .addEffect(PREVIEW, surfaceEffect)
             .addEffect(PREVIEW, surfaceEffect)
@@ -54,11 +51,7 @@ class EffectBundleTest {
     @Test
     fun addPreviewEffect_hasPreviewEffect() {
         // Arrange.
-        val surfaceEffect = object : SurfaceEffect {
-            override fun onInputSurface(request: SurfaceRequest) {}
-
-            override fun onOutputSurface(surfaceOutput: SurfaceOutput) {}
-        }
+        val surfaceEffect = FakeSurfaceEffect(mainThreadExecutor())
         // Act.
         val effectBundle = EffectBundle.Builder(mainThreadExecutor())
             .addEffect(PREVIEW, surfaceEffect)
