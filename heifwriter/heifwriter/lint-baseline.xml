@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.4.0-alpha05" type="baseline" client="gradle" dependencies="false" name="AGP (7.4.0-alpha05)" variant="all" version="7.4.0-alpha05">
+<issues format="6" by="lint 7.4.0-alpha08" type="baseline" client="gradle" dependencies="false" name="AGP (7.4.0-alpha08)" variant="all" version="7.4.0-alpha08">
 
     <issue
         id="BanSynchronizedMethods"
@@ -250,9 +250,7 @@
         errorLine1="    public static int loadShader(int shaderType, String source) {"
         errorLine2="                                                 ~~~~~~">
         <location
-            file="src/main/java/androidx/heifwriter/Texture2dProgram.java"
-            line="316"
-            column="50"/>
+            file="src/main/java/androidx/heifwriter/Texture2dProgram.java"/>
     </issue>
 
     <issue
@@ -261,9 +259,7 @@
         errorLine1="    public static void checkLocation(int location, String label) {"
         errorLine2="                                                   ~~~~~~">
         <location
-            file="src/main/java/androidx/heifwriter/Texture2dProgram.java"
-            line="338"
-            column="52"/>
+            file="src/main/java/androidx/heifwriter/Texture2dProgram.java"/>
     </issue>
 
     <issue
@@ -272,9 +268,7 @@
         errorLine1="    public static void checkGlError(String op) {"
         errorLine2="                                    ~~~~~~">
         <location
-            file="src/main/java/androidx/heifwriter/Texture2dProgram.java"
-            line="347"
-            column="37"/>
+            file="src/main/java/androidx/heifwriter/Texture2dProgram.java"/>
     </issue>
 
 </issues>

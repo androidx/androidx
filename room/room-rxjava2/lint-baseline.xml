@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.4.0-alpha05" type="baseline" client="gradle" dependencies="false" name="AGP (7.4.0-alpha05)" variant="all" version="7.4.0-alpha05">
+<issues format="6" by="lint 7.4.0-alpha08" type="baseline" client="gradle" dependencies="false" name="AGP (7.4.0-alpha08)" variant="all" version="7.4.0-alpha08">
 
     <issue
         id="PrivateConstructorForUtilityClass"
@@ -25,9 +25,7 @@
         errorLine1="    public static Flowable&lt;Object> createFlowable(final RoomDatabase database,"
         errorLine2="                  ~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/room/RxRoom.java"
-            line="68"
-            column="19"/>
+            file="src/main/java/androidx/room/RxRoom.java"/>
     </issue>
 
     <issue
@@ -36,9 +34,7 @@
         errorLine1="    public static Flowable&lt;Object> createFlowable(final RoomDatabase database,"
         errorLine2="                                                        ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/room/RxRoom.java"
-            line="68"
-            column="57"/>
+            file="src/main/java/androidx/room/RxRoom.java"/>
     </issue>
 
     <issue
@@ -47,9 +43,7 @@
         errorLine1="            final String... tableNames) {"
         errorLine2="                  ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/room/RxRoom.java"
-            line="69"
-            column="19"/>
+            file="src/main/java/androidx/room/RxRoom.java"/>
     </issue>
 
     <issue
@@ -58,9 +52,7 @@
         errorLine1="    public static &lt;T> Flowable&lt;T> createFlowable(final RoomDatabase database,"
         errorLine2="                      ~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/room/RxRoom.java"
-            line="122"
-            column="23"/>
+            file="src/main/java/androidx/room/RxRoom.java"/>
     </issue>
 
     <issue
@@ -69,9 +61,7 @@
         errorLine1="    public static &lt;T> Flowable&lt;T> createFlowable(final RoomDatabase database,"
         errorLine2="                                                       ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/room/RxRoom.java"
-            line="122"
-            column="56"/>
+            file="src/main/java/androidx/room/RxRoom.java"/>
     </issue>
 
     <issue
@@ -80,9 +70,7 @@
         errorLine1="            final boolean inTransaction, final String[] tableNames, final Callable&lt;T> callable) {"
         errorLine2="                                               ~~~~~~~~">
         <location
-            file="src/main/java/androidx/room/RxRoom.java"
-            line="123"
-            column="48"/>
+            file="src/main/java/androidx/room/RxRoom.java"/>
     </issue>
 
     <issue
@@ -91,9 +79,7 @@
         errorLine1="            final boolean inTransaction, final String[] tableNames, final Callable&lt;T> callable) {"
         errorLine2="                                                                          ~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/room/RxRoom.java"
-            line="123"
-            column="75"/>
+            file="src/main/java/androidx/room/RxRoom.java"/>
     </issue>
 
     <issue
@@ -102,9 +88,7 @@
         errorLine1="    public static Observable&lt;Object> createObservable(final RoomDatabase database,"
         errorLine2="                  ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/room/RxRoom.java"
-            line="153"
-            column="19"/>
+            file="src/main/java/androidx/room/RxRoom.java"/>
     </issue>
 
     <issue
@@ -113,9 +97,7 @@
         errorLine1="    public static Observable&lt;Object> createObservable(final RoomDatabase database,"
         errorLine2="                                                            ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/room/RxRoom.java"
-            line="153"
-            column="61"/>
+            file="src/main/java/androidx/room/RxRoom.java"/>
     </issue>
 
     <issue
@@ -124,9 +106,7 @@
         errorLine1="            final String... tableNames) {"
         errorLine2="                  ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/room/RxRoom.java"
-            line="154"
-            column="19"/>
+            file="src/main/java/androidx/room/RxRoom.java"/>
     </issue>
 
     <issue
@@ -135,9 +115,7 @@
         errorLine1="    public static &lt;T> Observable&lt;T> createObservable(final RoomDatabase database,"
         errorLine2="                      ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/room/RxRoom.java"
-            line="201"
-            column="23"/>
+            file="src/main/java/androidx/room/RxRoom.java"/>
     </issue>
 
     <issue
@@ -146,9 +124,7 @@
         errorLine1="    public static &lt;T> Observable&lt;T> createObservable(final RoomDatabase database,"
         errorLine2="                                                           ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/room/RxRoom.java"
-            line="201"
-            column="60"/>
+            file="src/main/java/androidx/room/RxRoom.java"/>
     </issue>
 
     <issue
@@ -157,9 +133,7 @@
         errorLine1="            final boolean inTransaction, final String[] tableNames, final Callable&lt;T> callable) {"
         errorLine2="                                               ~~~~~~~~">
         <location
-            file="src/main/java/androidx/room/RxRoom.java"
-            line="202"
-            column="48"/>
+            file="src/main/java/androidx/room/RxRoom.java"/>
     </issue>
 
     <issue
@@ -168,9 +142,7 @@
         errorLine1="            final boolean inTransaction, final String[] tableNames, final Callable&lt;T> callable) {"
         errorLine2="                                                                          ~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/room/RxRoom.java"
-            line="202"
-            column="75"/>
+            file="src/main/java/androidx/room/RxRoom.java"/>
     </issue>
 
     <issue
@@ -179,9 +151,7 @@
         errorLine1="    public static &lt;T> Single&lt;T> createSingle(final Callable&lt;T> callable) {"
         errorLine2="                      ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/room/RxRoom.java"
-            line="224"
-            column="23"/>
+            file="src/main/java/androidx/room/RxRoom.java"/>
     </issue>
 
     <issue
@@ -190,9 +160,7 @@
         errorLine1="    public static &lt;T> Single&lt;T> createSingle(final Callable&lt;T> callable) {"
         errorLine2="                                                   ~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/room/RxRoom.java"
-            line="224"
-            column="52"/>
+            file="src/main/java/androidx/room/RxRoom.java"/>
     </issue>
 
 </issues>

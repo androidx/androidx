@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.4.0-alpha05" type="baseline" client="gradle" dependencies="false" name="AGP (7.4.0-alpha05)" variant="all" version="7.4.0-alpha05">
+<issues format="6" by="lint 7.4.0-alpha08" type="baseline" client="gradle" dependencies="false" name="AGP (7.4.0-alpha08)" variant="all" version="7.4.0-alpha08">
 
     <issue
         id="UnknownNullness"
@@ -232,9 +232,7 @@
         errorLine1="    public static Spec spec(int start, Alignment alignment) {"
         errorLine2="                  ~~~~">
         <location
-            file="src/main/java/androidx/gridlayout/widget/GridLayout.java"
-            line="2557"
-            column="19"/>
+            file="src/main/java/androidx/gridlayout/widget/GridLayout.java"/>
     </issue>
 
     <issue
@@ -243,9 +241,7 @@
         errorLine1="    public static Spec spec(int start, Alignment alignment) {"
         errorLine2="                                       ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/gridlayout/widget/GridLayout.java"
-            line="2557"
-            column="40"/>
+            file="src/main/java/androidx/gridlayout/widget/GridLayout.java"/>
     </issue>
 
     <issue
@@ -254,9 +250,7 @@
         errorLine1="    public static Spec spec(int start, int size) {"
         errorLine2="                  ~~~~">
         <location
-            file="src/main/java/androidx/gridlayout/widget/GridLayout.java"
-            line="2574"
-            column="19"/>
+            file="src/main/java/androidx/gridlayout/widget/GridLayout.java"/>
     </issue>
 
     <issue
@@ -265,9 +259,7 @@
         errorLine1="    public static Spec spec(int start) {"
         errorLine2="                  ~~~~">
         <location
-            file="src/main/java/androidx/gridlayout/widget/GridLayout.java"
-            line="2590"
-            column="19"/>
+            file="src/main/java/androidx/gridlayout/widget/GridLayout.java"/>
     </issue>
 
 </issues>
