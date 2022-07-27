@@ -48,7 +48,7 @@ class SurfaceControlCompat internal constructor(
 
     /**
      * Check whether this instance points to a valid layer with the system-compositor.
-     * For example this may be false if construction failed, or the layer was released [release].
+     * For example this may be false if the layer was released ([release]).
      */
     fun isValid(): Boolean = scImpl.isValid()
 
@@ -141,7 +141,7 @@ class SurfaceControlCompat internal constructor(
     /**
      * An atomic set of changes to a set of [SurfaceControlCompat].
      */
-    class Transaction {
+    class Transaction : AutoCloseable {
         private val mImpl = createImpl()
 
         /**
@@ -333,15 +333,17 @@ class SurfaceControlCompat internal constructor(
 
         /**
          * Commit the transaction, clearing it's state, and making it usable as a new transaction.
+         * This will not release any resources and [SurfaceControlCompat.Transaction.close] must be
+         * called to release the transaction.
          */
         fun commit() {
             mImpl.commit()
         }
 
         /**
-         * Release the native transaction object, without applying it.
+         * Release the native transaction object, without committing it.
          */
-        fun close() {
+        override fun close() {
             mImpl.close()
         }
 
