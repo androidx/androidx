@@ -451,7 +451,6 @@ package androidx.health.services.client.data {
     field public static final androidx.health.services.client.data.ExerciseType BASEBALL;
     field public static final androidx.health.services.client.data.ExerciseType BASKETBALL;
     field public static final androidx.health.services.client.data.ExerciseType BENCH_PRESS;
-    field public static final androidx.health.services.client.data.ExerciseType BENCH_SIT_UP;
     field public static final androidx.health.services.client.data.ExerciseType BIKING;
     field public static final androidx.health.services.client.data.ExerciseType BIKING_STATIONARY;
     field public static final androidx.health.services.client.data.ExerciseType BOOT_CAMP;
@@ -464,13 +463,6 @@ package androidx.health.services.client.data {
     field public static final androidx.health.services.client.data.ExerciseType.Companion Companion;
     field public static final androidx.health.services.client.data.ExerciseType DANCING;
     field public static final androidx.health.services.client.data.ExerciseType DEADLIFT;
-    field public static final androidx.health.services.client.data.ExerciseType DUMBBELL_CURL_LEFT_ARM;
-    field public static final androidx.health.services.client.data.ExerciseType DUMBBELL_CURL_RIGHT_ARM;
-    field public static final androidx.health.services.client.data.ExerciseType DUMBBELL_FRONT_RAISE;
-    field public static final androidx.health.services.client.data.ExerciseType DUMBBELL_LATERAL_RAISE;
-    field public static final androidx.health.services.client.data.ExerciseType DUMBBELL_TRICEPS_EXTENSION_LEFT_ARM;
-    field public static final androidx.health.services.client.data.ExerciseType DUMBBELL_TRICEPS_EXTENSION_RIGHT_ARM;
-    field public static final androidx.health.services.client.data.ExerciseType DUMBBELL_TRICEPS_EXTENSION_TWO_ARM;
     field public static final androidx.health.services.client.data.ExerciseType ELLIPTICAL;
     field public static final androidx.health.services.client.data.ExerciseType EXERCISE_CLASS;
     field public static final androidx.health.services.client.data.ExerciseType FENCING;
