@@ -24,9 +24,11 @@ import android.util.Pair;
 import android.view.WindowMetrics;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.window.extensions.WindowExtensions;
 
+import java.util.Objects;
 import java.util.function.Predicate;
 
 /**
@@ -48,8 +50,9 @@ public class SplitPairRule extends SplitRule {
             @SplitFinishBehavior int finishSecondaryWithPrimary, boolean clearTop,
             @NonNull Predicate<Pair<Activity, Activity>> activityPairPredicate,
             @NonNull Predicate<Pair<Activity, Intent>> activityIntentPredicate,
-            @NonNull Predicate<WindowMetrics> parentWindowMetricsPredicate) {
-        super(parentWindowMetricsPredicate, defaultSplitAttributes);
+            @NonNull Predicate<WindowMetrics> parentWindowMetricsPredicate,
+            @Nullable String tag) {
+        super(parentWindowMetricsPredicate, defaultSplitAttributes, tag);
         mActivityPairPredicate = activityPairPredicate;
         mActivityIntentPredicate = activityIntentPredicate;
         mFinishPrimaryWithSecondary = finishPrimaryWithSecondary;
@@ -126,6 +129,8 @@ public class SplitPairRule extends SplitRule {
         private int mFinishPrimaryWithSecondary;
         @SplitFinishBehavior
         private int mFinishSecondaryWithPrimary;
+        @Nullable
+        private String mTag;
 
         public Builder(@NonNull Predicate<Pair<Activity, Activity>> activityPairPredicate,
                 @NonNull Predicate<Pair<Activity, Intent>> activityIntentPredicate,
@@ -210,6 +215,16 @@ public class SplitPairRule extends SplitRule {
             return this;
         }
 
+        /**
+         * @see SplitPairRule#getTag()
+         * @since {@link WindowExtensions#VENDOR_API_LEVEL_2}
+         */
+        @NonNull
+        public Builder setTag(@NonNull String tag) {
+            mTag = Objects.requireNonNull(tag);
+            return this;
+        }
+
         /** Builds a new instance of {@link SplitPairRule}. */
         @NonNull
         public SplitPairRule build() {
@@ -224,7 +239,7 @@ public class SplitPairRule extends SplitRule {
             return new SplitPairRule(mDefaultSplitAttributes,
                     mFinishPrimaryWithSecondary, mFinishSecondaryWithPrimary,
                     mClearTop, mActivityPairPredicate, mActivityIntentPredicate,
-                    mParentWindowMetricsPredicate);
+                    mParentWindowMetricsPredicate, mTag);
         }
     }
 
@@ -256,6 +271,7 @@ public class SplitPairRule extends SplitRule {
     @Override
     public String toString() {
         return "SplitPairRule{"
+                + "mTag=" + getTag()
                 + "mDefaultSplitAttributes=" + getDefaultSplitAttributes()
                 + ", mFinishPrimaryWithSecondary=" + mFinishPrimaryWithSecondary
                 + ", mFinishSecondaryWithPrimary=" + mFinishSecondaryWithPrimary

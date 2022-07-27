@@ -16,10 +16,13 @@
   -->
 <resources
     xmlns:window="http://schemas.android.com/apk/res-auto">
+    <ActivityRule
+        window:tag="test">
+        <ActivityFilter
+            window:activityName="A"/>
+    </ActivityRule>
     <SplitPairRule
-        window:splitRatio="0.3"
-        window:tag="test"
-        window:splitLayoutDirection="topToBottom">
+        window:tag="test">
         <SplitPairFilter
             window:primaryActivityName="A"
             window:secondaryActivityName="B"/>

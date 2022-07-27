@@ -48,6 +48,7 @@ package androidx.window.extensions.embedding {
     ctor public ActivityRule.Builder(java.util.function.Predicate<android.app.Activity!>, java.util.function.Predicate<android.content.Intent!>);
     method public androidx.window.extensions.embedding.ActivityRule build();
     method public androidx.window.extensions.embedding.ActivityRule.Builder setShouldAlwaysExpand(boolean);
+    method public androidx.window.extensions.embedding.ActivityRule.Builder setTag(String);
   }
 
   public class ActivityStack {
@@ -57,6 +58,7 @@ package androidx.window.extensions.embedding {
   }
 
   public abstract class EmbeddingRule {
+    method public String? getTag();
   }
 
   public class SplitAttributes {
@@ -124,6 +126,7 @@ package androidx.window.extensions.embedding {
     method @Deprecated public androidx.window.extensions.embedding.SplitPairRule.Builder setShouldFinishPrimaryWithSecondary(boolean);
     method @Deprecated public androidx.window.extensions.embedding.SplitPairRule.Builder setShouldFinishSecondaryWithPrimary(boolean);
     method @Deprecated public androidx.window.extensions.embedding.SplitPairRule.Builder setSplitRatio(float);
+    method public androidx.window.extensions.embedding.SplitPairRule.Builder setTag(String);
   }
 
   public class SplitPlaceholderRule extends androidx.window.extensions.embedding.SplitRule {
@@ -144,6 +147,7 @@ package androidx.window.extensions.embedding {
     method @Deprecated public androidx.window.extensions.embedding.SplitPlaceholderRule.Builder setLayoutDirection(int);
     method @Deprecated public androidx.window.extensions.embedding.SplitPlaceholderRule.Builder setSplitRatio(float);
     method public androidx.window.extensions.embedding.SplitPlaceholderRule.Builder setSticky(boolean);
+    method public androidx.window.extensions.embedding.SplitPlaceholderRule.Builder setTag(String);
   }
 
   public abstract class SplitRule extends androidx.window.extensions.embedding.EmbeddingRule {

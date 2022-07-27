@@ -45,11 +45,17 @@ class SplitController private constructor() {
      * Returns a copy of the currently applied split configurations.
      */
     fun getSplitRules(): Set<EmbeddingRule> {
-        return embeddingBackend.getSplitRules().toSet()
+        return embeddingBackend.getSplitRules()
     }
 
     /**
-     * Registers a new runtime rule. Will be cleared automatically when the process is stopped.
+     * Registers a new runtime rule, or updates an existing rule if the
+     * [tag][EmbeddingRule.tag] has been registered with [SplitController].
+     * Will be cleared automatically when the process is stopped.
+     *
+     * Note that updating the existing rule will **not** be applied to any existing split activity
+     * container, and will only be used for new split containers created with future activity
+     * launches.
      */
     fun registerRule(rule: EmbeddingRule) {
         embeddingBackend.registerRule(rule)
@@ -152,6 +158,9 @@ class SplitController private constructor() {
          * app-provided XML. The rules will be kept for the lifetime of the application process.
          * <p>It's recommended to set the static rules via an [androidx.startup.Initializer], so
          * that they are applied early in the application startup before any activities appear.
+         *
+         * @throws IllegalArgumentException if any of the rules in the XML is malformed or if
+         * there's a duplicated [tag][EmbeddingRule.tag].
          */
         @JvmStatic
         fun initialize(context: Context, staticRuleResourceId: Int) {

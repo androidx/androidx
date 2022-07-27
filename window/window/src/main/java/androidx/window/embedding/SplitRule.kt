@@ -39,6 +39,7 @@ import kotlin.math.min
  */
 @ExperimentalWindowApi
 open class SplitRule internal constructor(
+    tag: String? = null,
     /**
      * The smallest value of width of the parent window when the split should be used, in pixels.
      * When the window size is smaller than requested here, activities in the secondary container
@@ -60,7 +61,7 @@ open class SplitRule internal constructor(
      * bounds satisfy [minWidth] or [minSmallestWidth] requirements.
      */
     val defaultSplitAttributes: SplitAttributes,
-) : EmbeddingRule() {
+) : EmbeddingRule(tag) {
     // TODO(b/229656253): remove this constructor when the deprecated constructors are removed.
     @SuppressLint("Range") // The range is covered by boundary check.
     internal constructor(
@@ -69,6 +70,7 @@ open class SplitRule internal constructor(
         @FloatRange(from = 0.0, to = 1.0) splitRatio: Float,
         @IntRange(from = 0, to = 3) layoutDirection: Int,
     ) : this(
+        tag = null,
         minWidth,
         minSmallestWidth,
         SplitAttributes.Builder()

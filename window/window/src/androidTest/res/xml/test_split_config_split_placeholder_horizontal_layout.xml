@@ -17,6 +17,7 @@
 <resources
     xmlns:window="http://schemas.android.com/apk/res-auto">
     <SplitPlaceholderRule
+        window:tag="test"
         window:placeholderActivityName="C"
         window:splitRatio="0.3"
         window:splitLayoutDirection="bottomToTop">

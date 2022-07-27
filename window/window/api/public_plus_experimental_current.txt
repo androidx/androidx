@@ -69,6 +69,7 @@ package androidx.window.embedding {
     ctor public ActivityRule.Builder(java.util.Set<androidx.window.embedding.ActivityFilter> filters);
     method public androidx.window.embedding.ActivityRule build();
     method public androidx.window.embedding.ActivityRule.Builder setAlwaysExpand(boolean alwaysExpand);
+    method public androidx.window.embedding.ActivityRule.Builder setTag(String tag);
   }
 
   @androidx.window.core.ExperimentalWindowApi public final class ActivityStack {
@@ -78,6 +79,8 @@ package androidx.window.embedding {
   }
 
   @androidx.window.core.ExperimentalWindowApi public abstract class EmbeddingRule {
+    method public final String? getTag();
+    property public final String? tag;
   }
 
   @androidx.window.core.ExperimentalWindowApi public final class SplitAttributes {
@@ -198,6 +201,7 @@ package androidx.window.embedding {
     method public androidx.window.embedding.SplitPairRule.Builder setDefaultSplitAttributes(androidx.window.embedding.SplitAttributes defaultSplitAttributes);
     method public androidx.window.embedding.SplitPairRule.Builder setFinishPrimaryWithSecondary(int finishPrimaryWithSecondary);
     method public androidx.window.embedding.SplitPairRule.Builder setFinishSecondaryWithPrimary(int finishSecondaryWithPrimary);
+    method public androidx.window.embedding.SplitPairRule.Builder setTag(String? tag);
   }
 
   @androidx.window.core.ExperimentalWindowApi public final class SplitPlaceholderRule extends androidx.window.embedding.SplitRule {
@@ -218,6 +222,7 @@ package androidx.window.embedding {
     method public androidx.window.embedding.SplitPlaceholderRule.Builder setDefaultSplitAttributes(androidx.window.embedding.SplitAttributes defaultSplitAttributes);
     method public androidx.window.embedding.SplitPlaceholderRule.Builder setFinishPrimaryWithPlaceholder(int finishPrimaryWithPlaceholder);
     method public androidx.window.embedding.SplitPlaceholderRule.Builder setSticky(boolean isSticky);
+    method public androidx.window.embedding.SplitPlaceholderRule.Builder setTag(String? tag);
   }
 
   @androidx.window.core.ExperimentalWindowApi public class SplitRule extends androidx.window.embedding.EmbeddingRule {

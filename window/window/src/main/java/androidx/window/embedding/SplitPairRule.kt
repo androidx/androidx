@@ -89,6 +89,7 @@ class SplitPairRule : SplitRule {
 
     // TODO(b/243345984): Update FinishBehavior to enum-like class instead of integer constants
     internal constructor(
+        tag: String? = null,
         filters: Set<SplitPairFilter>,
         @SplitFinishBehavior finishPrimaryWithSecondary: Int = FINISH_NEVER,
         @SplitFinishBehavior finishSecondaryWithPrimary: Int = FINISH_ALWAYS,
@@ -96,7 +97,7 @@ class SplitPairRule : SplitRule {
         @IntRange(from = 0) minWidth: Int,
         @IntRange(from = 0) minSmallestWidth: Int,
         defaultSplitAttributes: SplitAttributes,
-    ) : super(minWidth, minSmallestWidth, defaultSplitAttributes) {
+    ) : super(tag, minWidth, minSmallestWidth, defaultSplitAttributes) {
         checkArgumentNonnegative(minWidth, "minWidth must be non-negative")
         checkArgumentNonnegative(minSmallestWidth, "minSmallestWidth must be non-negative")
         this.filters = filters.toSet()
@@ -116,8 +117,9 @@ class SplitPairRule : SplitRule {
         @IntRange(from = 0)
         private val minWidth: Int,
         @IntRange(from = 0)
-        private val minSmallestWidth: Int
+        private val minSmallestWidth: Int,
     ) {
+        private var tag: String? = null
         @SplitFinishBehavior
         private var finishPrimaryWithSecondary: Int = FINISH_NEVER
         @SplitFinishBehavior
@@ -152,8 +154,20 @@ class SplitPairRule : SplitRule {
         fun setDefaultSplitAttributes(defaultSplitAttributes: SplitAttributes): Builder =
             apply { this.defaultSplitAttributes = defaultSplitAttributes }
 
-        fun build() = SplitPairRule(filters, finishPrimaryWithSecondary, finishSecondaryWithPrimary,
-            clearTop, minWidth, minSmallestWidth, defaultSplitAttributes)
+        /** @see SplitPairRule.tag */
+        fun setTag(tag: String?): Builder =
+            apply { this.tag = tag }
+
+        fun build() = SplitPairRule(
+            tag,
+            filters,
+            finishPrimaryWithSecondary,
+            finishSecondaryWithPrimary,
+            clearTop,
+            minWidth,
+            minSmallestWidth,
+            defaultSplitAttributes
+        )
     }
 
     /**
@@ -165,6 +179,7 @@ class SplitPairRule : SplitRule {
         newSet.addAll(filters)
         newSet.add(filter)
         return SplitPairRule(
+            tag,
             newSet.toSet(),
             finishPrimaryWithSecondary,
             finishSecondaryWithPrimary,
@@ -200,6 +215,8 @@ class SplitPairRule : SplitRule {
     override fun toString(): String =
         "${SplitPairRule::class.java.simpleName}{" +
             "defaultSplitAttributes=$defaultSplitAttributes" +
+            "tag=$tag" +
+            ", defaultSplitAttributes=$defaultSplitAttributes" +
             ", minWidth=$minWidth" +
             ", minSmallestWidth=$minSmallestWidth" +
             ", clearTop=$clearTop" +

@@ -183,6 +183,10 @@ internal class EmbeddingAdapter(
             .setShouldClearTop(rule.clearTop)
             .setFinishPrimaryWithSecondary(rule.finishPrimaryWithSecondary)
             .setFinishSecondaryWithPrimary(rule.finishSecondaryWithPrimary)
+        val tag = rule.tag
+        if (tag != null && vendorApiLevel >= WindowExtensions.VENDOR_API_LEVEL_2) {
+            builder.setTag(tag)
+        }
         return builder.build()
     }
 
@@ -256,6 +260,10 @@ internal class EmbeddingAdapter(
             .setSticky(rule.isSticky)
             .safeSetFinishPrimaryWithPlaceholder(rule.finishPrimaryWithPlaceholder)
             .safeSetDefaultSplitAttributes(rule.defaultSplitAttributes)
+        val tag = rule.tag
+        if (tag != null && vendorApiLevel >= WindowExtensions.VENDOR_API_LEVEL_2) {
+            builder.setTag(tag)
+        }
         return builder.build()
     }
 
@@ -286,7 +294,7 @@ internal class EmbeddingAdapter(
         rule: ActivityRule,
         predicateClass: Class<*>
     ): OEMActivityRule {
-        return ActivityRuleBuilder::class.java.getConstructor(
+        val builder = ActivityRuleBuilder::class.java.getConstructor(
             predicateClass,
             predicateClass
         ).newInstance(
@@ -294,7 +302,11 @@ internal class EmbeddingAdapter(
             translateIntentPredicates(rule.filters)
         )
             .setShouldAlwaysExpand(rule.alwaysExpand)
-            .build()
+        val tag = rule.tag
+        if (tag != null && vendorApiLevel >= WindowExtensions.VENDOR_API_LEVEL_2) {
+            builder.setTag(tag)
+        }
+        return builder.build()
     }
 
     fun translate(rules: Set<EmbeddingRule>): Set<OEMEmbeddingRule> {

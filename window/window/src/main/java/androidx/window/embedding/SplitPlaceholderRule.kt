@@ -94,6 +94,7 @@ class SplitPlaceholderRule : SplitRule {
 
     // TODO(b/243345984): Update FinishBehavior to enum-like class instead of integer constants
     internal constructor(
+        tag: String? = null,
         filters: Set<ActivityFilter>,
         placeholderIntent: Intent,
         isSticky: Boolean,
@@ -101,7 +102,7 @@ class SplitPlaceholderRule : SplitRule {
         @IntRange(from = 0) minWidth: Int = 0,
         @IntRange(from = 0) minSmallestWidth: Int = 0,
         defaultSplitAttributes: SplitAttributes,
-    ) : super(minWidth, minSmallestWidth, defaultSplitAttributes) {
+    ) : super(tag, minWidth, minSmallestWidth, defaultSplitAttributes) {
         checkArgumentNonnegative(minWidth, "minWidth must be non-negative")
         checkArgumentNonnegative(minSmallestWidth, "minSmallestWidth must be non-negative")
         checkArgument(finishPrimaryWithPlaceholder != FINISH_NEVER,
@@ -126,12 +127,13 @@ class SplitPlaceholderRule : SplitRule {
         @IntRange(from = 0)
         private val minWidth: Int,
         @IntRange(from = 0)
-        private val minSmallestWidth: Int
+        private val minSmallestWidth: Int,
     ) {
         @SplitPlaceholderFinishBehavior
         private var finishPrimaryWithPlaceholder: Int = FINISH_ALWAYS
         private var isSticky: Boolean = false
         private var defaultSplitAttributes: SplitAttributes = SplitAttributes.Builder().build()
+        private var tag: String? = null
 
         /**
          * @see SplitPlaceholderRule.finishPrimaryWithPlaceholder
@@ -153,7 +155,12 @@ class SplitPlaceholderRule : SplitRule {
         fun setDefaultSplitAttributes(defaultSplitAttributes: SplitAttributes): Builder =
             apply { this.defaultSplitAttributes = defaultSplitAttributes }
 
+        /** @see SplitPlaceholderRule.tag */
+        fun setTag(tag: String?): Builder =
+            apply { this.tag = tag }
+
         fun build() = SplitPlaceholderRule(
+            tag,
             filters,
             placeholderIntent,
             isSticky,
@@ -172,6 +179,7 @@ class SplitPlaceholderRule : SplitRule {
         newSet.addAll(filters)
         newSet.add(filter)
         return SplitPlaceholderRule(
+            tag,
             newSet.toSet(),
             placeholderIntent,
             isSticky,
@@ -206,7 +214,8 @@ class SplitPlaceholderRule : SplitRule {
 
     override fun toString(): String =
          "SplitPlaceholderRule{" +
-             "defaultSplitAttributes=$defaultSplitAttributes" +
+             "tag=$tag" +
+             ", defaultSplitAttributes=$defaultSplitAttributes" +
              ", minWidth=$minWidth" +
              ", minSmallestWidth=$minSmallestWidth" +
              ", placeholderIntent=$placeholderIntent" +
