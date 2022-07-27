@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.4.0-alpha05" type="baseline" client="gradle" dependencies="false" name="AGP (7.4.0-alpha05)" variant="all" version="7.4.0-alpha05">
+<issues format="6" by="lint 7.4.0-alpha08" type="baseline" client="gradle" dependencies="false" name="AGP (7.4.0-alpha08)" variant="all" version="7.4.0-alpha08">
 
     <issue
         id="BanSynchronizedMethods"
@@ -241,9 +241,7 @@
         errorLine1="    public static void trackInputFocused(ViewGroup parent) {"
         errorLine2="                                         ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/widget/LocationBasedViewTracker.java"
-            line="116"
-            column="42"/>
+            file="src/main/java/androidx/slice/widget/LocationBasedViewTracker.java"/>
     </issue>
 
     <issue
@@ -252,9 +250,7 @@
         errorLine1="    public static void trackA11yFocus(ViewGroup parent) {"
         errorLine2="                                      ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/widget/LocationBasedViewTracker.java"
-            line="128"
-            column="39"/>
+            file="src/main/java/androidx/slice/widget/LocationBasedViewTracker.java"/>
     </issue>
 
     <issue
@@ -263,9 +259,7 @@
         errorLine1="    public MessageView(Context context) {"
         errorLine2="                       ~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/widget/MessageView.java"
-            line="49"
-            column="24"/>
+            file="src/main/java/androidx/slice/widget/MessageView.java"/>
     </issue>
 
     <issue
@@ -274,9 +268,7 @@
         errorLine1="    public void setSliceItem(SliceContent content, boolean isHeader, int index,"
         errorLine2="                             ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/widget/MessageView.java"
-            line="71"
-            column="30"/>
+            file="src/main/java/androidx/slice/widget/MessageView.java"/>
     </issue>
 
     <issue
@@ -285,9 +277,7 @@
         errorLine1="            int rowCount, SliceView.OnSliceActionListener observer) {"
         errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/widget/MessageView.java"
-            line="72"
-            column="27"/>
+            file="src/main/java/androidx/slice/widget/MessageView.java"/>
     </issue>
 
     <issue
@@ -296,9 +286,7 @@
         errorLine1="    public RemoteInputView(Context context, AttributeSet attrs) {"
         errorLine2="                           ~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/widget/RemoteInputView.java"
-            line="88"
-            column="28"/>
+            file="src/main/java/androidx/slice/widget/RemoteInputView.java"/>
     </issue>
 
     <issue
@@ -307,9 +295,7 @@
         errorLine1="    public RemoteInputView(Context context, AttributeSet attrs) {"
         errorLine2="                                            ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/widget/RemoteInputView.java"
-            line="88"
-            column="45"/>
+            file="src/main/java/androidx/slice/widget/RemoteInputView.java"/>
     </issue>
 
     <issue
@@ -318,9 +304,7 @@
         errorLine1="    public static RemoteInputView inflate(Context context, ViewGroup root) {"
         errorLine2="                  ~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/widget/RemoteInputView.java"
-            line="163"
-            column="19"/>
+            file="src/main/java/androidx/slice/widget/RemoteInputView.java"/>
     </issue>
 
     <issue
@@ -329,9 +313,7 @@
         errorLine1="    public static RemoteInputView inflate(Context context, ViewGroup root) {"
         errorLine2="                                          ~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/widget/RemoteInputView.java"
-            line="163"
-            column="43"/>
+            file="src/main/java/androidx/slice/widget/RemoteInputView.java"/>
     </issue>
 
     <issue
@@ -340,9 +322,7 @@
         errorLine1="    public static RemoteInputView inflate(Context context, ViewGroup root) {"
         errorLine2="                                                           ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/widget/RemoteInputView.java"
-            line="163"
-            column="60"/>
+            file="src/main/java/androidx/slice/widget/RemoteInputView.java"/>
     </issue>
 
     <issue
@@ -351,9 +331,7 @@
         errorLine1="    public void setAction(SliceItem action) {"
         errorLine2="                          ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/widget/RemoteInputView.java"
-            line="192"
-            column="27"/>
+            file="src/main/java/androidx/slice/widget/RemoteInputView.java"/>
     </issue>
 
     <issue
@@ -362,9 +340,7 @@
         errorLine1="    public void setRemoteInput(RemoteInput[] remoteInputs, RemoteInput remoteInput) {"
         errorLine2="                               ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/widget/RemoteInputView.java"
-            line="199"
-            column="32"/>
+            file="src/main/java/androidx/slice/widget/RemoteInputView.java"/>
     </issue>
 
     <issue
@@ -373,9 +349,7 @@
         errorLine1="    public void setRemoteInput(RemoteInput[] remoteInputs, RemoteInput remoteInput) {"
         errorLine2="                                                           ~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/widget/RemoteInputView.java"
-            line="199"
-            column="60"/>
+            file="src/main/java/androidx/slice/widget/RemoteInputView.java"/>
     </issue>
 
     <issue
@@ -384,9 +358,7 @@
         errorLine1="        public RemoteEditText(Context context, AttributeSet attrs) {"
         errorLine2="                              ~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/widget/RemoteInputView.java"
-            line="306"
-            column="31"/>
+            file="src/main/java/androidx/slice/widget/RemoteInputView.java"/>
     </issue>
 
     <issue
@@ -395,9 +367,7 @@
         errorLine1="        public RemoteEditText(Context context, AttributeSet attrs) {"
         errorLine2="                                               ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/widget/RemoteInputView.java"
-            line="306"
-            column="48"/>
+            file="src/main/java/androidx/slice/widget/RemoteInputView.java"/>
     </issue>
 
     <issue
@@ -406,9 +376,7 @@
         errorLine1="        protected void onVisibilityChanged(View changedView, int visibility) {"
         errorLine2="                                           ~~~~">
         <location
-            file="src/main/java/androidx/slice/widget/RemoteInputView.java"
-            line="336"
-            column="44"/>
+            file="src/main/java/androidx/slice/widget/RemoteInputView.java"/>
     </issue>
 
     <issue
@@ -417,9 +385,7 @@
         errorLine1="        protected void onFocusChanged(boolean focused, int direction, Rect previouslyFocusedRect) {"
         errorLine2="                                                                      ~~~~">
         <location
-            file="src/main/java/androidx/slice/widget/RemoteInputView.java"
-            line="345"
-            column="71"/>
+            file="src/main/java/androidx/slice/widget/RemoteInputView.java"/>
     </issue>
 
     <issue
@@ -428,9 +394,7 @@
         errorLine1="    public RowContent(SliceItem rowSlice, int position) {"
         errorLine2="                      ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/widget/RowContent.java"
-            line="82"
-            column="23"/>
+            file="src/main/java/androidx/slice/widget/RowContent.java"/>
     </issue>
 
     <issue
@@ -439,9 +403,7 @@
         errorLine1="    public List&lt;SliceItem> getEndItems() {"
         errorLine2="           ~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/widget/RowContent.java"
-            line="337"
-            column="12"/>
+            file="src/main/java/androidx/slice/widget/RowContent.java"/>
     </issue>
 
     <issue
@@ -450,9 +412,7 @@
         errorLine1="    public List&lt;SliceAction> getToggleItems() {"
         errorLine2="           ~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/widget/RowContent.java"
-            line="344"
-            column="12"/>
+            file="src/main/java/androidx/slice/widget/RowContent.java"/>
     </issue>
 
     <issue
@@ -461,9 +421,7 @@
         errorLine1="    public int getHeight(SliceStyle style, SliceViewPolicy policy) {"
         errorLine2="                         ~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/widget/RowContent.java"
-            line="360"
-            column="26"/>
+            file="src/main/java/androidx/slice/widget/RowContent.java"/>
     </issue>
 
     <issue
@@ -472,9 +430,7 @@
         errorLine1="    public int getHeight(SliceStyle style, SliceViewPolicy policy) {"
         errorLine2="                                           ~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/widget/RowContent.java"
-            line="360"
-            column="44"/>
+            file="src/main/java/androidx/slice/widget/RowContent.java"/>
     </issue>
 
     <issue
@@ -483,9 +439,7 @@
         errorLine1="    public RowStyle(Context context, int resId, @NonNull SliceStyle sliceStyle) {"
         errorLine2="                    ~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/widget/RowStyle.java"
-            line="74"
-            column="21"/>
+            file="src/main/java/androidx/slice/widget/RowStyle.java"/>
     </issue>
 
     <issue
@@ -494,9 +448,7 @@
         errorLine1="    protected Set&lt;SliceItem> mLoadingActions = new HashSet&lt;>();"
         errorLine2="              ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/widget/RowView.java"
-            line="165"
-            column="15"/>
+            file="src/main/java/androidx/slice/widget/RowView.java"/>
     </issue>
 
     <issue
@@ -505,9 +457,7 @@
         errorLine1="    public void setStyle(SliceStyle styles, RowStyle rowStyle) {"
         errorLine2="                         ~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/widget/RowView.java"
-            line="243"
-            column="26"/>
+            file="src/main/java/androidx/slice/widget/RowView.java"/>
     </issue>
 
     <issue
@@ -516,9 +466,7 @@
         errorLine1="    public void setStyle(SliceStyle styles, RowStyle rowStyle) {"
         errorLine2="                                            ~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/widget/RowView.java"
-            line="243"
-            column="45"/>
+            file="src/main/java/androidx/slice/widget/RowView.java"/>
     </issue>
 
     <issue
@@ -527,9 +475,7 @@
         errorLine1="    public void setSliceActions(List&lt;SliceAction> actions) {"
         errorLine2="                                ~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/widget/RowView.java"
-            line="409"
-            column="33"/>
+            file="src/main/java/androidx/slice/widget/RowView.java"/>
     </issue>
 
     <issue
@@ -538,9 +484,7 @@
         errorLine1="    public void setLoadingActions(Set&lt;SliceItem> actions) {"
         errorLine2="                                  ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/widget/RowView.java"
-            line="1155"
-            column="35"/>
+            file="src/main/java/androidx/slice/widget/RowView.java"/>
     </issue>
 
     <issue
@@ -549,9 +493,7 @@
         errorLine1="    public ShortcutView(Context context) {"
         errorLine2="                        ~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/widget/ShortcutView.java"
-            line="58"
-            column="25"/>
+            file="src/main/java/androidx/slice/widget/ShortcutView.java"/>
     </issue>
 
     <issue
@@ -560,9 +502,7 @@
         errorLine1="    public void setSliceContent(ListContent sliceContent) {"
         errorLine2="                                ~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/widget/ShortcutView.java"
-            line="66"
-            column="33"/>
+            file="src/main/java/androidx/slice/widget/ShortcutView.java"/>
     </issue>
 
     <issue
@@ -571,9 +511,7 @@
         errorLine1="    public void setLoadingActions(Set&lt;SliceItem> actions) {"
         errorLine2="                                  ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/widget/ShortcutView.java"
-            line="133"
-            column="35"/>
+            file="src/main/java/androidx/slice/widget/ShortcutView.java"/>
     </issue>
 
     <issue
@@ -582,9 +520,7 @@
         errorLine1="    public Set&lt;SliceItem> getLoadingActions() {"
         errorLine2="           ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/widget/ShortcutView.java"
-            line="138"
-            column="12"/>
+            file="src/main/java/androidx/slice/widget/ShortcutView.java"/>
     </issue>
 
     <issue
@@ -593,9 +529,7 @@
         errorLine1="    public SliceActionView(Context context, SliceStyle style, RowStyle rowStyle) {"
         errorLine2="                           ~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/widget/SliceActionView.java"
-            line="86"
-            column="28"/>
+            file="src/main/java/androidx/slice/widget/SliceActionView.java"/>
     </issue>
 
     <issue
@@ -604,9 +538,7 @@
         errorLine1="    public SliceActionView(Context context, SliceStyle style, RowStyle rowStyle) {"
         errorLine2="                                            ~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/widget/SliceActionView.java"
-            line="86"
-            column="45"/>
+            file="src/main/java/androidx/slice/widget/SliceActionView.java"/>
     </issue>
 
     <issue
@@ -615,9 +547,7 @@
         errorLine1="    public SliceActionView(Context context, SliceStyle style, RowStyle rowStyle) {"
         errorLine2="                                                              ~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/widget/SliceActionView.java"
-            line="86"
-            column="63"/>
+            file="src/main/java/androidx/slice/widget/SliceActionView.java"/>
     </issue>
 
     <issue
@@ -626,9 +556,7 @@
         errorLine1="    public void setAction(@NonNull SliceActionImpl action, EventInfo info,"
         errorLine2="                                                           ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/widget/SliceActionView.java"
-            line="102"
-            column="60"/>
+            file="src/main/java/androidx/slice/widget/SliceActionView.java"/>
     </issue>
 
     <issue
@@ -637,9 +565,7 @@
         errorLine1="            SliceView.OnSliceActionListener listener, int color,"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/widget/SliceActionView.java"
-            line="103"
-            column="13"/>
+            file="src/main/java/androidx/slice/widget/SliceActionView.java"/>
     </issue>
 
     <issue
@@ -648,9 +574,7 @@
         errorLine1="            SliceActionLoadingListener loadingListener) {"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/widget/SliceActionView.java"
-            line="104"
-            column="13"/>
+            file="src/main/java/androidx/slice/widget/SliceActionView.java"/>
     </issue>
 
     <issue
@@ -659,9 +583,7 @@
         errorLine1="    public void setParents(SliceView parent, TemplateView templateView) {"
         errorLine2="                           ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/widget/SliceAdapter.java"
-            line="107"
-            column="28"/>
+            file="src/main/java/androidx/slice/widget/SliceAdapter.java"/>
     </issue>
 
     <issue
@@ -670,9 +592,7 @@
         errorLine1="    public void setParents(SliceView parent, TemplateView templateView) {"
         errorLine2="                                             ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/widget/SliceAdapter.java"
-            line="107"
-            column="46"/>
+            file="src/main/java/androidx/slice/widget/SliceAdapter.java"/>
     </issue>
 
     <issue
@@ -681,9 +601,7 @@
         errorLine1="    public void setSliceObserver(SliceView.OnSliceActionListener observer) {"
         errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/widget/SliceAdapter.java"
-            line="129"
-            column="34"/>
+            file="src/main/java/androidx/slice/widget/SliceAdapter.java"/>
     </issue>
 
     <issue
@@ -692,9 +610,7 @@
         errorLine1="    public void setSliceActions(List&lt;SliceAction> actions) {"
         errorLine2="                                ~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/widget/SliceAdapter.java"
-            line="137"
-            column="33"/>
+            file="src/main/java/androidx/slice/widget/SliceAdapter.java"/>
     </issue>
 
     <issue
@@ -703,9 +619,7 @@
         errorLine1="    public void setSliceItems(List&lt;SliceContent> slices, int color, int mode) {"
         errorLine2="                              ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/widget/SliceAdapter.java"
-            line="146"
-            column="31"/>
+            file="src/main/java/androidx/slice/widget/SliceAdapter.java"/>
     </issue>
 
     <issue
@@ -714,9 +628,7 @@
         errorLine1="    public void setStyle(SliceStyle style) {"
         errorLine2="                         ~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/widget/SliceAdapter.java"
-            line="165"
-            column="26"/>
+            file="src/main/java/androidx/slice/widget/SliceAdapter.java"/>
     </issue>
 
     <issue
@@ -725,9 +637,7 @@
         errorLine1="    public void setPolicy(SliceViewPolicy p) {"
         errorLine2="                          ~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/widget/SliceAdapter.java"
-            line="174"
-            column="27"/>
+            file="src/main/java/androidx/slice/widget/SliceAdapter.java"/>
     </issue>
 
     <issue
@@ -736,9 +646,7 @@
         errorLine1="    public void setLoadingActions(Set&lt;SliceItem> actions) {"
         errorLine2="                                  ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/widget/SliceAdapter.java"
-            line="204"
-            column="35"/>
+            file="src/main/java/androidx/slice/widget/SliceAdapter.java"/>
     </issue>
 
     <issue
@@ -747,9 +655,7 @@
         errorLine1="    public Set&lt;SliceItem> getLoadingActions() {"
         errorLine2="           ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/widget/SliceAdapter.java"
-            line="217"
-            column="12"/>
+            file="src/main/java/androidx/slice/widget/SliceAdapter.java"/>
     </issue>
 
     <issue
@@ -758,9 +664,7 @@
         errorLine1="    public void onSliceActionLoading(SliceItem actionItem, int position) {"
         errorLine2="                                     ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/widget/SliceAdapter.java"
-            line="225"
-            column="38"/>
+            file="src/main/java/androidx/slice/widget/SliceAdapter.java"/>
     </issue>
 
     <issue
@@ -769,9 +673,7 @@
         errorLine1="        public SliceViewHolder(View itemView) {"
         errorLine2="                               ~~~~">
         <location
-            file="src/main/java/androidx/slice/widget/SliceAdapter.java"
-            line="363"
-            column="32"/>
+            file="src/main/java/androidx/slice/widget/SliceAdapter.java"/>
     </issue>
 
     <issue
@@ -780,9 +682,7 @@
         errorLine1="    protected SliceView.OnSliceActionListener mObserver;"
         errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/widget/SliceChildView.java"
-            line="45"
-            column="15"/>
+            file="src/main/java/androidx/slice/widget/SliceChildView.java"/>
     </issue>
 
     <issue
@@ -791,9 +691,7 @@
         errorLine1="    protected SliceActionView.SliceActionLoadingListener mLoadingListener;"
         errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/widget/SliceChildView.java"
-            line="81"
-            column="15"/>
+            file="src/main/java/androidx/slice/widget/SliceChildView.java"/>
     </issue>
 
     <issue
@@ -802,9 +700,7 @@
         errorLine1="    protected SliceStyle mSliceStyle;"
         errorLine2="              ~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/widget/SliceChildView.java"
-            line="85"
-            column="15"/>
+            file="src/main/java/androidx/slice/widget/SliceChildView.java"/>
     </issue>
 
     <issue
@@ -813,9 +709,7 @@
         errorLine1="    protected RowStyle mRowStyle;"
         errorLine2="              ~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/widget/SliceChildView.java"
-            line="89"
-            column="15"/>
+            file="src/main/java/androidx/slice/widget/SliceChildView.java"/>
     </issue>
 
     <issue
@@ -824,9 +718,7 @@
         errorLine1="    protected SliceViewPolicy mViewPolicy;"
         errorLine2="              ~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/widget/SliceChildView.java"
-            line="93"
-            column="15"/>
+            file="src/main/java/androidx/slice/widget/SliceChildView.java"/>
     </issue>
 
     <issue
@@ -835,9 +727,7 @@
         errorLine1="    public void setSliceContent(ListContent content) {"
         errorLine2="                                ~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/widget/SliceChildView.java"
-            line="113"
-            column="33"/>
+            file="src/main/java/androidx/slice/widget/SliceChildView.java"/>
     </issue>
 
     <issue
@@ -846,9 +736,7 @@
         errorLine1="    public void setSliceActions(List&lt;SliceAction> actions) {"
         errorLine2="                                ~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/widget/SliceChildView.java"
-            line="142"
-            column="33"/>
+            file="src/main/java/androidx/slice/widget/SliceChildView.java"/>
     </issue>
 
     <issue
@@ -857,9 +745,7 @@
         errorLine1="    public void setSliceActionListener(SliceView.OnSliceActionListener observer) {"
         errorLine2="                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/widget/SliceChildView.java"
-            line="186"
-            column="40"/>
+            file="src/main/java/androidx/slice/widget/SliceChildView.java"/>
     </issue>
 
     <issue
@@ -868,9 +754,7 @@
         errorLine1="    public void setSliceActionLoadingListener(SliceActionView.SliceActionLoadingListener listener) {"
         errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/widget/SliceChildView.java"
-            line="194"
-            column="47"/>
+            file="src/main/java/androidx/slice/widget/SliceChildView.java"/>
     </issue>
 
     <issue
@@ -879,9 +763,7 @@
         errorLine1="    public void setActionLoading(SliceItem item) {"
         errorLine2="                                 ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/widget/SliceChildView.java"
-            line="203"
-            column="34"/>
+            file="src/main/java/androidx/slice/widget/SliceChildView.java"/>
     </issue>
 
     <issue
@@ -890,9 +772,7 @@
         errorLine1="    public void setLoadingActions(Set&lt;SliceItem> loadingActions) {"
         errorLine2="                                  ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/widget/SliceChildView.java"
-            line="211"
-            column="35"/>
+            file="src/main/java/androidx/slice/widget/SliceChildView.java"/>
     </issue>
 
     <issue
@@ -901,9 +781,7 @@
         errorLine1="    public Set&lt;SliceItem> getLoadingActions() {"
         errorLine2="           ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/widget/SliceChildView.java"
-            line="227"
-            column="12"/>
+            file="src/main/java/androidx/slice/widget/SliceChildView.java"/>
     </issue>
 
     <issue
@@ -912,9 +790,7 @@
         errorLine1="    public void setStyle(SliceStyle styles, @NonNull RowStyle rowStyle) {"
         errorLine2="                         ~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/widget/SliceChildView.java"
-            line="236"
-            column="26"/>
+            file="src/main/java/androidx/slice/widget/SliceChildView.java"/>
     </issue>
 
     <issue
@@ -923,9 +799,7 @@
         errorLine1="    protected SliceItem mSliceItem;"
         errorLine2="              ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/widget/SliceContent.java"
-            line="63"
-            column="15"/>
+            file="src/main/java/androidx/slice/widget/SliceContent.java"/>
     </issue>
 
     <issue
@@ -934,9 +808,7 @@
         errorLine1="    protected SliceItem mColorItem;"
         errorLine2="              ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/widget/SliceContent.java"
-            line="67"
-            column="15"/>
+            file="src/main/java/androidx/slice/widget/SliceContent.java"/>
     </issue>
 
     <issue
@@ -945,9 +817,7 @@
         errorLine1="    protected SliceItem mLayoutDirItem;"
         errorLine2="              ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/widget/SliceContent.java"
-            line="71"
-            column="15"/>
+            file="src/main/java/androidx/slice/widget/SliceContent.java"/>
     </issue>
 
     <issue
@@ -956,9 +826,7 @@
         errorLine1="    protected SliceItem mContentDescr;"
         errorLine2="              ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/widget/SliceContent.java"
-            line="75"
-            column="15"/>
+            file="src/main/java/androidx/slice/widget/SliceContent.java"/>
     </issue>
 
     <issue
@@ -967,9 +835,7 @@
         errorLine1="    public int getHeight(SliceStyle style, SliceViewPolicy policy) {"
         errorLine2="                         ~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/widget/SliceContent.java"
-            line="154"
-            column="26"/>
+            file="src/main/java/androidx/slice/widget/SliceContent.java"/>
     </issue>
 
     <issue
@@ -978,9 +844,7 @@
         errorLine1="    public int getHeight(SliceStyle style, SliceViewPolicy policy) {"
         errorLine2="                                           ~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/widget/SliceContent.java"
-            line="154"
-            column="44"/>
+            file="src/main/java/androidx/slice/widget/SliceContent.java"/>
     </issue>
 
     <issue
@@ -989,9 +853,7 @@
         errorLine1="            @NonNull InputStream input, OnErrorListener listener) {"
         errorLine2="                                        ~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/widget/SliceLiveData.java"
-            line="127"
-            column="41"/>
+            file="src/main/java/androidx/slice/widget/SliceLiveData.java"/>
     </issue>
 
     <issue
@@ -1000,9 +862,7 @@
         errorLine1="            @NonNull InputStream input, OnErrorListener listener) {"
         errorLine2="                                        ~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/widget/SliceLiveData.java"
-            line="136"
-            column="41"/>
+            file="src/main/java/androidx/slice/widget/SliceLiveData.java"/>
     </issue>
 
     <issue
@@ -1011,9 +871,7 @@
         errorLine1="            SliceViewManager manager, @NonNull InputStream input, OnErrorListener listener) {"
         errorLine2="            ~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/widget/SliceLiveData.java"
-            line="147"
-            column="13"/>
+            file="src/main/java/androidx/slice/widget/SliceLiveData.java"/>
     </issue>
 
     <issue
@@ -1022,9 +880,7 @@
         errorLine1="            SliceViewManager manager, @NonNull InputStream input, OnErrorListener listener) {"
         errorLine2="                                                                  ~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/widget/SliceLiveData.java"
-            line="147"
-            column="67"/>
+            file="src/main/java/androidx/slice/widget/SliceLiveData.java"/>
     </issue>
 
     <issue
@@ -1033,9 +889,7 @@
         errorLine1="    public List&lt;SliceAction> getToggles() {"
         errorLine2="           ~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/SliceMetadata.java"
-            line="246"
-            column="12"/>
+            file="src/main/java/androidx/slice/SliceMetadata.java"/>
     </issue>
 
     <issue
@@ -1044,9 +898,7 @@
         errorLine1="    public boolean sendToggleAction(SliceAction toggleAction, boolean toggleValue)"
         errorLine2="                                    ~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/SliceMetadata.java"
-            line="276"
-            column="37"/>
+            file="src/main/java/androidx/slice/SliceMetadata.java"/>
     </issue>
 
     <issue
@@ -1055,9 +907,7 @@
         errorLine1="    public ListContent getListContent() {"
         errorLine2="           ~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/SliceMetadata.java"
-            line="523"
-            column="12"/>
+            file="src/main/java/androidx/slice/SliceMetadata.java"/>
     </issue>
 
     <issue
@@ -1066,9 +916,7 @@
         errorLine1="    public SliceStructure(Slice s) {"
         errorLine2="                          ~~~~~">
         <location
-            file="src/main/java/androidx/slice/SliceStructure.java"
-            line="50"
-            column="27"/>
+            file="src/main/java/androidx/slice/SliceStructure.java"/>
     </issue>
 
     <issue
@@ -1077,9 +925,7 @@
         errorLine1="    public SliceStructure(SliceItem s) {"
         errorLine2="                          ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/SliceStructure.java"
-            line="62"
-            column="27"/>
+            file="src/main/java/androidx/slice/SliceStructure.java"/>
     </issue>
 
     <issue
@@ -1088,9 +934,7 @@
         errorLine1="    public SliceStyle(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {"
         errorLine2="                      ~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/widget/SliceStyle.java"
-            line="96"
-            column="23"/>
+            file="src/main/java/androidx/slice/widget/SliceStyle.java"/>
     </issue>
 
     <issue
@@ -1099,9 +943,7 @@
         errorLine1="    public SliceStyle(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {"
         errorLine2="                                       ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/widget/SliceStyle.java"
-            line="96"
-            column="40"/>
+            file="src/main/java/androidx/slice/widget/SliceStyle.java"/>
     </issue>
 
     <issue
@@ -1110,9 +952,7 @@
         errorLine1="    public int getRowHeight(RowContent row, SliceViewPolicy policy) {"
         errorLine2="                            ~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/widget/SliceStyle.java"
-            line="323"
-            column="29"/>
+            file="src/main/java/androidx/slice/widget/SliceStyle.java"/>
     </issue>
 
     <issue
@@ -1121,9 +961,7 @@
         errorLine1="    public int getRowHeight(RowContent row, SliceViewPolicy policy) {"
         errorLine2="                                            ~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/widget/SliceStyle.java"
-            line="323"
-            column="45"/>
+            file="src/main/java/androidx/slice/widget/SliceStyle.java"/>
     </issue>
 
     <issue
@@ -1132,9 +970,7 @@
         errorLine1="    public int getGridHeight(GridContent grid, SliceViewPolicy policy) {"
         errorLine2="                             ~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/widget/SliceStyle.java"
-            line="361"
-            column="30"/>
+            file="src/main/java/androidx/slice/widget/SliceStyle.java"/>
     </issue>
 
     <issue
@@ -1143,9 +979,7 @@
         errorLine1="    public int getGridHeight(GridContent grid, SliceViewPolicy policy) {"
         errorLine2="                                               ~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/widget/SliceStyle.java"
-            line="361"
-            column="48"/>
+            file="src/main/java/androidx/slice/widget/SliceStyle.java"/>
     </issue>
 
     <issue
@@ -1154,9 +988,7 @@
         errorLine1="    public int getListHeight(ListContent list, SliceViewPolicy policy) {"
         errorLine2="                             ~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/widget/SliceStyle.java"
-            line="401"
-            column="30"/>
+            file="src/main/java/androidx/slice/widget/SliceStyle.java"/>
     </issue>
 
     <issue
@@ -1165,9 +997,7 @@
         errorLine1="    public int getListHeight(ListContent list, SliceViewPolicy policy) {"
         errorLine2="                                               ~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/widget/SliceStyle.java"
-            line="401"
-            column="48"/>
+            file="src/main/java/androidx/slice/widget/SliceStyle.java"/>
     </issue>
 
     <issue
@@ -1176,9 +1006,7 @@
         errorLine1="    public int getListItemsHeight(List&lt;SliceContent> listItems, SliceViewPolicy policy) {"
         errorLine2="                                  ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/widget/SliceStyle.java"
-            line="432"
-            column="35"/>
+            file="src/main/java/androidx/slice/widget/SliceStyle.java"/>
     </issue>
 
     <issue
@@ -1187,9 +1015,7 @@
         errorLine1="    public int getListItemsHeight(List&lt;SliceContent> listItems, SliceViewPolicy policy) {"
         errorLine2="                                                                ~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/widget/SliceStyle.java"
-            line="432"
-            column="65"/>
+            file="src/main/java/androidx/slice/widget/SliceStyle.java"/>
     </issue>
 
     <issue
@@ -1198,9 +1024,7 @@
         errorLine1="    public DisplayedListItems getListItemsForNonScrollingList(ListContent list,"
         errorLine2="                                                              ~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/widget/SliceStyle.java"
-            line="459"
-            column="63"/>
+            file="src/main/java/androidx/slice/widget/SliceStyle.java"/>
     </issue>
 
     <issue
@@ -1209,9 +1033,7 @@
         errorLine1="                                                             SliceViewPolicy policy) {"
         errorLine2="                                                             ~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/widget/SliceStyle.java"
-            line="461"
-            column="62"/>
+            file="src/main/java/androidx/slice/widget/SliceStyle.java"/>
     </issue>
 
     <issue
@@ -1220,9 +1042,7 @@
         errorLine1="    public static IconCompat convert(Context context, IconCompat icon, SerializeOptions options) {"
         errorLine2="                  ~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/SliceUtils.java"
-            line="245"
-            column="19"/>
+            file="src/main/java/androidx/slice/SliceUtils.java"/>
     </issue>
 
     <issue
@@ -1231,9 +1051,7 @@
         errorLine1="    public static IconCompat convert(Context context, IconCompat icon, SerializeOptions options) {"
         errorLine2="                                     ~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/SliceUtils.java"
-            line="245"
-            column="38"/>
+            file="src/main/java/androidx/slice/SliceUtils.java"/>
     </issue>
 
     <issue
@@ -1242,9 +1060,7 @@
         errorLine1="    public static IconCompat convert(Context context, IconCompat icon, SerializeOptions options) {"
         errorLine2="                                                      ~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/SliceUtils.java"
-            line="245"
-            column="55"/>
+            file="src/main/java/androidx/slice/SliceUtils.java"/>
     </issue>
 
     <issue
@@ -1253,9 +1069,7 @@
         errorLine1="    public static IconCompat convert(Context context, IconCompat icon, SerializeOptions options) {"
         errorLine2="                                                                       ~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/SliceUtils.java"
-            line="245"
-            column="72"/>
+            file="src/main/java/androidx/slice/SliceUtils.java"/>
     </issue>
 
     <issue
@@ -1264,9 +1078,7 @@
         errorLine1="        public void checkThrow(String format) {"
         errorLine2="                               ~~~~~~">
         <location
-            file="src/main/java/androidx/slice/SliceUtils.java"
-            line="383"
-            column="32"/>
+            file="src/main/java/androidx/slice/SliceUtils.java"/>
     </issue>
 
     <issue
@@ -1275,9 +1087,7 @@
         errorLine1="        public Bitmap.CompressFormat getFormat() {"
         errorLine2="               ~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/SliceUtils.java"
-            line="434"
-            column="16"/>
+            file="src/main/java/androidx/slice/SliceUtils.java"/>
     </issue>
 
     <issue
@@ -1286,9 +1096,7 @@
         errorLine1="        public SerializeOptions setActionMode(@FormatMode int mode) {"
         errorLine2="               ~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/SliceUtils.java"
-            line="453"
-            column="16"/>
+            file="src/main/java/androidx/slice/SliceUtils.java"/>
     </issue>
 
     <issue
@@ -1297,9 +1105,7 @@
         errorLine1="        public SerializeOptions setImageMode(@FormatMode int mode) {"
         errorLine2="               ~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/SliceUtils.java"
-            line="465"
-            column="16"/>
+            file="src/main/java/androidx/slice/SliceUtils.java"/>
     </issue>
 
     <issue
@@ -1308,9 +1114,7 @@
         errorLine1="        public SerializeOptions setMaxImageWidth(int width) {"
         errorLine2="               ~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/SliceUtils.java"
-            line="477"
-            column="16"/>
+            file="src/main/java/androidx/slice/SliceUtils.java"/>
     </issue>
 
     <issue
@@ -1319,9 +1123,7 @@
         errorLine1="        public SerializeOptions setMaxImageHeight(int height) {"
         errorLine2="               ~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/SliceUtils.java"
-            line="489"
-            column="16"/>
+            file="src/main/java/androidx/slice/SliceUtils.java"/>
     </issue>
 
     <issue
@@ -1330,9 +1132,7 @@
         errorLine1="        public SerializeOptions setImageConversionFormat(Bitmap.CompressFormat format,"
         errorLine2="               ~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/SliceUtils.java"
-            line="502"
-            column="16"/>
+            file="src/main/java/androidx/slice/SliceUtils.java"/>
     </issue>
 
     <issue
@@ -1341,9 +1141,7 @@
         errorLine1="        public SerializeOptions setImageConversionFormat(Bitmap.CompressFormat format,"
         errorLine2="                                                         ~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/SliceUtils.java"
-            line="502"
-            column="58"/>
+            file="src/main/java/androidx/slice/SliceUtils.java"/>
     </issue>
 
     <issue
@@ -1352,9 +1150,7 @@
         errorLine1="        void onSliceAction(Uri actionUri, Context context, Intent intent);"
         errorLine2="                           ~~~">
         <location
-            file="src/main/java/androidx/slice/SliceUtils.java"
-            line="523"
-            column="28"/>
+            file="src/main/java/androidx/slice/SliceUtils.java"/>
     </issue>
 
     <issue
@@ -1363,9 +1159,7 @@
         errorLine1="        void onSliceAction(Uri actionUri, Context context, Intent intent);"
         errorLine2="                                          ~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/SliceUtils.java"
-            line="523"
-            column="43"/>
+            file="src/main/java/androidx/slice/SliceUtils.java"/>
     </issue>
 
     <issue
@@ -1374,9 +1168,7 @@
         errorLine1="        void onSliceAction(Uri actionUri, Context context, Intent intent);"
         errorLine2="                                                           ~~~~~~">
         <location
-            file="src/main/java/androidx/slice/SliceUtils.java"
-            line="523"
-            column="60"/>
+            file="src/main/java/androidx/slice/SliceUtils.java"/>
     </issue>
 
     <issue
@@ -1385,9 +1177,7 @@
         errorLine1="        public SliceParseException(String s, Throwable e) {"
         errorLine2="                                   ~~~~~~">
         <location
-            file="src/main/java/androidx/slice/SliceUtils.java"
-            line="535"
-            column="36"/>
+            file="src/main/java/androidx/slice/SliceUtils.java"/>
     </issue>
 
     <issue
@@ -1396,9 +1186,7 @@
         errorLine1="        public SliceParseException(String s, Throwable e) {"
         errorLine2="                                             ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/SliceUtils.java"
-            line="535"
-            column="46"/>
+            file="src/main/java/androidx/slice/SliceUtils.java"/>
     </issue>
 
     <issue
@@ -1407,9 +1195,7 @@
         errorLine1="        public SliceParseException(String s) {"
         errorLine2="                                   ~~~~~~">
         <location
-            file="src/main/java/androidx/slice/SliceUtils.java"
-            line="543"
-            column="36"/>
+            file="src/main/java/androidx/slice/SliceUtils.java"/>
     </issue>
 
     <issue
@@ -1418,9 +1204,7 @@
         errorLine1="    public SliceView(Context context) {"
         errorLine2="                     ~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/widget/SliceView.java"
-            line="188"
-            column="22"/>
+            file="src/main/java/androidx/slice/widget/SliceView.java"/>
     </issue>
 
     <issue
@@ -1429,9 +1213,7 @@
         errorLine1="    public SliceView(Context context, @Nullable AttributeSet attrs) {"
         errorLine2="                     ~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/widget/SliceView.java"
-            line="192"
-            column="22"/>
+            file="src/main/java/androidx/slice/widget/SliceView.java"/>
     </issue>
 
     <issue
@@ -1440,9 +1222,7 @@
         errorLine1="    public SliceView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {"
         errorLine2="                     ~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/widget/SliceView.java"
-            line="196"
-            column="22"/>
+            file="src/main/java/androidx/slice/widget/SliceView.java"/>
     </issue>
 
     <issue
@@ -1451,9 +1231,7 @@
         errorLine1="    public SliceView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {"
         errorLine2="                     ~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/widget/SliceView.java"
-            line="202"
-            column="22"/>
+            file="src/main/java/androidx/slice/widget/SliceView.java"/>
     </issue>
 
     <issue
@@ -1462,9 +1240,7 @@
         errorLine1="    public SliceView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {"
         errorLine2="                                      ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/widget/SliceView.java"
-            line="202"
-            column="39"/>
+            file="src/main/java/androidx/slice/widget/SliceView.java"/>
     </issue>
 
     <issue
@@ -1473,9 +1249,7 @@
         errorLine1="    public void setClickInfo(int[] info) {"
         errorLine2="                             ~~~~~">
         <location
-            file="src/main/java/androidx/slice/widget/SliceView.java"
-            line="269"
-            column="30"/>
+            file="src/main/java/androidx/slice/widget/SliceView.java"/>
     </issue>
 
     <issue
@@ -1484,9 +1258,7 @@
         errorLine1="    public void setOnClickListener(View.OnClickListener listener) {"
         errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/widget/SliceView.java"
-            line="300"
-            column="36"/>
+            file="src/main/java/androidx/slice/widget/SliceView.java"/>
     </issue>
 
     <issue
@@ -1495,9 +1267,7 @@
         errorLine1="    public void setOnLongClickListener(View.OnLongClickListener listener) {"
         errorLine2="                                       ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/widget/SliceView.java"
-            line="305"
-            column="40"/>
+            file="src/main/java/androidx/slice/widget/SliceView.java"/>
     </issue>
 
     <issue
@@ -1506,9 +1276,7 @@
         errorLine1="    public static String modeToString(@SliceMode int mode) {"
         errorLine2="                  ~~~~~~">
         <location
-            file="src/main/java/androidx/slice/widget/SliceView.java"
-            line="859"
-            column="19"/>
+            file="src/main/java/androidx/slice/widget/SliceView.java"/>
     </issue>
 
     <issue
@@ -1517,9 +1285,7 @@
         errorLine1="    protected void onVisibilityChanged(View changedView, int visibility) {"
         errorLine2="                                       ~~~~">
         <location
-            file="src/main/java/androidx/slice/widget/SliceView.java"
-            line="900"
-            column="40"/>
+            file="src/main/java/androidx/slice/widget/SliceView.java"/>
     </issue>
 
     <issue
@@ -1528,9 +1294,7 @@
         errorLine1="    public void setListener(PolicyChangeListener listener) {"
         errorLine2="                            ~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/widget/SliceViewPolicy.java"
-            line="64"
-            column="29"/>
+            file="src/main/java/androidx/slice/widget/SliceViewPolicy.java"/>
     </issue>
 
     <issue
@@ -1539,9 +1303,7 @@
         errorLine1="    public static Drawable getDrawable(@NonNull Context context, @AttrRes int attr) {"
         errorLine2="                  ~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/widget/SliceViewUtil.java"
-            line="135"
-            column="19"/>
+            file="src/main/java/androidx/slice/widget/SliceViewUtil.java"/>
     </issue>
 
     <issue
@@ -1550,9 +1312,7 @@
         errorLine1="    public static IconCompat createIconFromDrawable(Drawable d) {"
         errorLine2="                  ~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/widget/SliceViewUtil.java"
-            line="146"
-            column="19"/>
+            file="src/main/java/androidx/slice/widget/SliceViewUtil.java"/>
     </issue>
 
     <issue
@@ -1561,9 +1321,7 @@
         errorLine1="    public static IconCompat createIconFromDrawable(Drawable d) {"
         errorLine2="                                                    ~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/widget/SliceViewUtil.java"
-            line="146"
-            column="53"/>
+            file="src/main/java/androidx/slice/widget/SliceViewUtil.java"/>
     </issue>
 
     <issue
@@ -1572,9 +1330,7 @@
         errorLine1="            IconCompat icon, boolean isLarge, ViewGroup parent) {"
         errorLine2="            ~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/widget/SliceViewUtil.java"
-            line="161"
-            column="13"/>
+            file="src/main/java/androidx/slice/widget/SliceViewUtil.java"/>
     </issue>
 
     <issue
@@ -1583,9 +1339,7 @@
         errorLine1="            IconCompat icon, boolean isLarge, ViewGroup parent) {"
         errorLine2="                                              ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/widget/SliceViewUtil.java"
-            line="161"
-            column="47"/>
+            file="src/main/java/androidx/slice/widget/SliceViewUtil.java"/>
     </issue>
 
     <issue
@@ -1594,9 +1348,7 @@
         errorLine1="    public static @NonNull Bitmap getCircularBitmap(Bitmap bitmap) {"
         errorLine2="                                                    ~~~~~~">
         <location
-            file="src/main/java/androidx/slice/widget/SliceViewUtil.java"
-            line="185"
-            column="53"/>
+            file="src/main/java/androidx/slice/widget/SliceViewUtil.java"/>
     </issue>
 
     <issue
@@ -1605,9 +1357,7 @@
         errorLine1="    public static CharSequence getTimestampString(Context context, long time) {"
         errorLine2="                  ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/widget/SliceViewUtil.java"
-            line="202"
-            column="19"/>
+            file="src/main/java/androidx/slice/widget/SliceViewUtil.java"/>
     </issue>
 
     <issue
@@ -1616,9 +1366,7 @@
         errorLine1="    public static CharSequence getTimestampString(Context context, long time) {"
         errorLine2="                                                  ~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/widget/SliceViewUtil.java"
-            line="202"
-            column="51"/>
+            file="src/main/java/androidx/slice/widget/SliceViewUtil.java"/>
     </issue>
 
     <issue
@@ -1627,9 +1375,7 @@
         errorLine1="    public static void tintIndeterminateProgressBar(Context context, ProgressBar bar) {"
         errorLine2="                                                    ~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/widget/SliceViewUtil.java"
-            line="229"
-            column="53"/>
+            file="src/main/java/androidx/slice/widget/SliceViewUtil.java"/>
     </issue>
 
     <issue
@@ -1638,9 +1384,7 @@
         errorLine1="    public static void tintIndeterminateProgressBar(Context context, ProgressBar bar) {"
         errorLine2="                                                                     ~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/widget/SliceViewUtil.java"
-            line="229"
-            column="70"/>
+            file="src/main/java/androidx/slice/widget/SliceViewUtil.java"/>
     </issue>
 
     <issue
@@ -1649,9 +1393,7 @@
         errorLine1="    public void onForegroundActivated(MotionEvent event) {"
         errorLine2="                                      ~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/widget/TemplateView.java"
-            line="116"
-            column="39"/>
+            file="src/main/java/androidx/slice/widget/TemplateView.java"/>
     </issue>
 
     <issue
@@ -1660,9 +1402,7 @@
         errorLine1="    public void setPolicy(SliceViewPolicy policy) {"
         errorLine2="                          ~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/widget/TemplateView.java"
-            line="143"
-            column="27"/>
+            file="src/main/java/androidx/slice/widget/TemplateView.java"/>
     </issue>
 
     <issue
@@ -1671,9 +1411,7 @@
         errorLine1="    public void setActionLoading(SliceItem item) {"
         errorLine2="                                 ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/widget/TemplateView.java"
-            line="154"
-            column="34"/>
+            file="src/main/java/androidx/slice/widget/TemplateView.java"/>
     </issue>
 
     <issue
@@ -1682,9 +1420,7 @@
         errorLine1="    public void setLoadingActions(Set&lt;SliceItem> loadingActions) {"
         errorLine2="                                  ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/widget/TemplateView.java"
-            line="163"
-            column="35"/>
+            file="src/main/java/androidx/slice/widget/TemplateView.java"/>
     </issue>
 
     <issue
@@ -1693,9 +1429,7 @@
         errorLine1="    public Set&lt;SliceItem> getLoadingActions() {"
         errorLine2="           ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/widget/TemplateView.java"
-            line="172"
-            column="12"/>
+            file="src/main/java/androidx/slice/widget/TemplateView.java"/>
     </issue>
 
     <issue
@@ -1704,9 +1438,7 @@
         errorLine1="    public void setSliceActionListener(SliceView.OnSliceActionListener observer) {"
         errorLine2="                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/widget/TemplateView.java"
-            line="190"
-            column="40"/>
+            file="src/main/java/androidx/slice/widget/TemplateView.java"/>
     </issue>
 
     <issue
@@ -1715,9 +1447,7 @@
         errorLine1="    public void setSliceActions(List&lt;SliceAction> actions) {"
         errorLine2="                                ~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/widget/TemplateView.java"
-            line="202"
-            column="33"/>
+            file="src/main/java/androidx/slice/widget/TemplateView.java"/>
     </issue>
 
     <issue
@@ -1726,9 +1456,7 @@
         errorLine1="    public void setSliceContent(ListContent sliceContent) {"
         errorLine2="                                ~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/widget/TemplateView.java"
-            line="211"
-            column="33"/>
+            file="src/main/java/androidx/slice/widget/TemplateView.java"/>
     </issue>
 
     <issue
@@ -1737,9 +1465,7 @@
         errorLine1="    public void setStyle(SliceStyle style, @NonNull RowStyle rowStyle) {"
         errorLine2="                         ~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/widget/TemplateView.java"
-            line="222"
-            column="26"/>
+            file="src/main/java/androidx/slice/widget/TemplateView.java"/>
     </issue>
 
 </issues>

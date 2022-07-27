@@ -1,144 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.1.0-beta02" type="baseline" client="gradle" dependencies="false" name="AGP (7.1.0-beta02)" variant="all" version="7.1.0-beta02">
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 23; however, the containing class androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="        return dr.unregisterAnimationCallback(callback.getPlatformCallback());"
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/vectordrawable/graphics/drawable/AnimatedVectorDrawableCompat.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 23; however, the containing class androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="        avd.registerAnimationCallback(callback.getPlatformCallback());"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/vectordrawable/graphics/drawable/AnimatedVectorDrawableCompat.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 23; however, the containing class androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            ((AnimatedVectorDrawable) mDelegateDrawable).clearAnimationCallbacks();"
-        errorLine2="                                                         ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/vectordrawable/graphics/drawable/AnimatedVectorDrawableCompat.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 23; however, the containing class androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            ((AnimatedVectorDrawable) dr).clearAnimationCallbacks();"
-        errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/vectordrawable/graphics/drawable/AnimatedVectorDrawableCompat.java"/>
-    </issue>
+<issues format="6" by="lint 7.4.0-alpha08" type="baseline" client="cli" dependencies="false" name="AGP (7.4.0-alpha08)" variant="all" version="7.4.0-alpha08">
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public void onAnimationStart(Drawable drawable) {};"
-        errorLine2="                                     ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/vectordrawable/graphics/drawable/Animatable2Compat.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public void onAnimationEnd(Drawable drawable) {};"
-        errorLine2="                                   ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/vectordrawable/graphics/drawable/Animatable2Compat.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public Drawable mutate() {"
-        errorLine2="           ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/vectordrawable/graphics/drawable/AnimatedVectorDrawableCompat.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static AnimatedVectorDrawableCompat createFromXmlInner(Context context, Resources r,"
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/vectordrawable/graphics/drawable/AnimatedVectorDrawableCompat.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static AnimatedVectorDrawableCompat createFromXmlInner(Context context, Resources r,"
-        errorLine2="                                                                  ~~~~~~~">
-        <location
-            file="src/main/java/androidx/vectordrawable/graphics/drawable/AnimatedVectorDrawableCompat.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static AnimatedVectorDrawableCompat createFromXmlInner(Context context, Resources r,"
-        errorLine2="                                                                                   ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/vectordrawable/graphics/drawable/AnimatedVectorDrawableCompat.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            XmlPullParser parser, AttributeSet attrs, Theme theme)"
-        errorLine2="            ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/vectordrawable/graphics/drawable/AnimatedVectorDrawableCompat.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            XmlPullParser parser, AttributeSet attrs, Theme theme)"
-        errorLine2="                                  ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/vectordrawable/graphics/drawable/AnimatedVectorDrawableCompat.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            XmlPullParser parser, AttributeSet attrs, Theme theme)"
-        errorLine2="                                                      ~~~~~">
-        <location
-            file="src/main/java/androidx/vectordrawable/graphics/drawable/AnimatedVectorDrawableCompat.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public ConstantState getConstantState() {"
-        errorLine2="           ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/vectordrawable/graphics/drawable/AnimatedVectorDrawableCompat.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void draw(Canvas canvas) {"
-        errorLine2="                     ~~~~~~">
-        <location
-            file="src/main/java/androidx/vectordrawable/graphics/drawable/AnimatedVectorDrawableCompat.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    protected void onBoundsChange(Rect bounds) {"
         errorLine2="                                  ~~~~">
         <location
@@ -147,7 +12,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    protected boolean onStateChange(int[] state) {"
         errorLine2="                                    ~~~~~">
         <location
@@ -156,178 +21,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void setColorFilter(ColorFilter colorFilter) {"
-        errorLine2="                               ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/vectordrawable/graphics/drawable/AnimatedVectorDrawableCompat.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public ColorFilter getColorFilter() {"
-        errorLine2="           ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/vectordrawable/graphics/drawable/AnimatedVectorDrawableCompat.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void setTintList(ColorStateList tint) {"
-        errorLine2="                            ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/vectordrawable/graphics/drawable/AnimatedVectorDrawableCompat.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void setTintMode(PorterDuff.Mode tintMode) {"
-        errorLine2="                            ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/vectordrawable/graphics/drawable/AnimatedVectorDrawableCompat.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void inflate(Resources res, XmlPullParser parser, AttributeSet attrs, Theme theme)"
-        errorLine2="                        ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/vectordrawable/graphics/drawable/AnimatedVectorDrawableCompat.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void inflate(Resources res, XmlPullParser parser, AttributeSet attrs, Theme theme)"
-        errorLine2="                                       ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/vectordrawable/graphics/drawable/AnimatedVectorDrawableCompat.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void inflate(Resources res, XmlPullParser parser, AttributeSet attrs, Theme theme)"
-        errorLine2="                                                             ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/vectordrawable/graphics/drawable/AnimatedVectorDrawableCompat.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void inflate(Resources res, XmlPullParser parser, AttributeSet attrs, Theme theme)"
-        errorLine2="                                                                                 ~~~~~">
-        <location
-            file="src/main/java/androidx/vectordrawable/graphics/drawable/AnimatedVectorDrawableCompat.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void inflate(Resources res, XmlPullParser parser, AttributeSet attrs)"
-        errorLine2="                        ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/vectordrawable/graphics/drawable/AnimatedVectorDrawableCompat.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void inflate(Resources res, XmlPullParser parser, AttributeSet attrs)"
-        errorLine2="                                       ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/vectordrawable/graphics/drawable/AnimatedVectorDrawableCompat.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void inflate(Resources res, XmlPullParser parser, AttributeSet attrs)"
-        errorLine2="                                                             ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/vectordrawable/graphics/drawable/AnimatedVectorDrawableCompat.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void applyTheme(Theme t) {"
-        errorLine2="                           ~~~~~">
-        <location
-            file="src/main/java/androidx/vectordrawable/graphics/drawable/AnimatedVectorDrawableCompat.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static void registerAnimationCallback(Drawable dr,"
-        errorLine2="                                                 ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/vectordrawable/graphics/drawable/AnimatedVectorDrawableCompat.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            Animatable2Compat.AnimationCallback callback) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/vectordrawable/graphics/drawable/AnimatedVectorDrawableCompat.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static boolean unregisterAnimationCallback(Drawable dr,"
-        errorLine2="                                                      ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/vectordrawable/graphics/drawable/AnimatedVectorDrawableCompat.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            Animatable2Compat.AnimationCallback callback) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/vectordrawable/graphics/drawable/AnimatedVectorDrawableCompat.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static void clearAnimationCallbacks(Drawable dr) {"
-        errorLine2="                                               ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/vectordrawable/graphics/drawable/AnimatedVectorDrawableCompat.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static Interpolator loadInterpolator(Context context, int id)"
-        errorLine2="                  ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/vectordrawable/graphics/drawable/AnimationUtilsCompat.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static Interpolator loadInterpolator(Context context, int id)"
-        errorLine2="                                                ~~~~~~~">
-        <location
-            file="src/main/java/androidx/vectordrawable/graphics/drawable/AnimationUtilsCompat.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public static Animator loadAnimator(Context context, @AnimatorRes int id)"
         errorLine2="                  ~~~~~~~~">
         <location
@@ -336,7 +30,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public static Animator loadAnimator(Context context, @AnimatorRes int id)"
         errorLine2="                                        ~~~~~~~">
         <location
@@ -345,7 +39,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public static Animator loadAnimator(Context context, Resources resources, Theme theme,"
         errorLine2="                  ~~~~~~~~">
         <location
@@ -354,7 +48,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public static Animator loadAnimator(Context context, Resources resources, Theme theme,"
         errorLine2="                                        ~~~~~~~">
         <location
@@ -363,7 +57,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public static Animator loadAnimator(Context context, Resources resources, Theme theme,"
         errorLine2="                                                         ~~~~~~~~~">
         <location
@@ -372,7 +66,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public static Animator loadAnimator(Context context, Resources resources, Theme theme,"
         errorLine2="                                                                              ~~~~~">
         <location
@@ -381,7 +75,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public static Animator loadAnimator(Context context, Resources resources, Theme theme,"
         errorLine2="                  ~~~~~~~~">
         <location
@@ -390,7 +84,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public static Animator loadAnimator(Context context, Resources resources, Theme theme,"
         errorLine2="                                        ~~~~~~~">
         <location
@@ -399,7 +93,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public static Animator loadAnimator(Context context, Resources resources, Theme theme,"
         errorLine2="                                                         ~~~~~~~~~">
         <location
@@ -408,7 +102,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public static Animator loadAnimator(Context context, Resources resources, Theme theme,"
         errorLine2="                                                                              ~~~~~">
         <location
@@ -417,43 +111,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static ArgbEvaluator getInstance() {"
-        errorLine2="                  ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/vectordrawable/graphics/drawable/ArgbEvaluator.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public Object evaluate(float fraction, Object startValue, Object endValue) {"
-        errorLine2="           ~~~~~~">
-        <location
-            file="src/main/java/androidx/vectordrawable/graphics/drawable/ArgbEvaluator.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public Object evaluate(float fraction, Object startValue, Object endValue) {"
-        errorLine2="                                           ~~~~~~">
-        <location
-            file="src/main/java/androidx/vectordrawable/graphics/drawable/ArgbEvaluator.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public Object evaluate(float fraction, Object startValue, Object endValue) {"
-        errorLine2="                                                              ~~~~~~">
-        <location
-            file="src/main/java/androidx/vectordrawable/graphics/drawable/ArgbEvaluator.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public PathInterpolatorCompat(Context context, AttributeSet attrs, XmlPullParser parser) {"
         errorLine2="                                  ~~~~~~~">
         <location
@@ -462,7 +120,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public PathInterpolatorCompat(Context context, AttributeSet attrs, XmlPullParser parser) {"
         errorLine2="                                                   ~~~~~~~~~~~~">
         <location
@@ -471,7 +129,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public PathInterpolatorCompat(Context context, AttributeSet attrs, XmlPullParser parser) {"
         errorLine2="                                                                       ~~~~~~~~~~~~~">
         <location
@@ -480,7 +138,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public PathInterpolatorCompat(Resources res, Resources.Theme theme, AttributeSet attrs,"
         errorLine2="                                  ~~~~~~~~~">
         <location
@@ -489,7 +147,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public PathInterpolatorCompat(Resources res, Resources.Theme theme, AttributeSet attrs,"
         errorLine2="                                                 ~~~~~~~~~~~~~~~">
         <location
@@ -498,7 +156,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public PathInterpolatorCompat(Resources res, Resources.Theme theme, AttributeSet attrs,"
         errorLine2="                                                                        ~~~~~~~~~~~~">
         <location
@@ -507,7 +165,7 @@
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="            XmlPullParser parser) {"
         errorLine2="            ~~~~~~~~~~~~~">
         <location
