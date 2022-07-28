@@ -17,7 +17,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <application
-            android:supportsRtl="true">
+            android:supportsRtl="true"
+            android:enableOnBackInvokedCallback="true">
         <activity
                 android:name="androidx.drawerlayout.widget.DrawerCustomThemeActivity"
                 android:theme="@style/CustomDrawerLayoutTheme"/>
