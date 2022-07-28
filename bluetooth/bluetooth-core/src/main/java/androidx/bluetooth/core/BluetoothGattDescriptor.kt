@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package androidx.bluetooth
+package androidx.bluetooth.core
 
 import android.os.Build
 import android.os.Bundle
 import android.bluetooth.BluetoothGattDescriptor as FwkBluetoothGattDescriptor
 import androidx.annotation.RequiresApi
-import androidx.bluetooth.utils.Bundleable
-import androidx.bluetooth.utils.Utils
+import androidx.bluetooth.core.utils.Bundleable
+import androidx.bluetooth.core.utils.Utils
 
 import java.util.UUID
 /**
@@ -56,29 +56,66 @@ class BluetoothGattDescriptor internal constructor(
     )
 
     companion object {
+        /**
+         * Descriptor read permission
+         */
         const val PERMISSION_READ = FwkBluetoothGattDescriptor.PERMISSION_READ
+        /**
+         * Descriptor permission: Allow encrypted read operations
+         */
         const val PERMISSION_READ_ENCRYPTED =
             FwkBluetoothGattDescriptor.PERMISSION_READ_ENCRYPTED
+        /**
+         * Descriptor permission: Allow reading with person-in-the-middle protection
+         */
         const val PERMISSION_READ_ENCRYPTED_MITM =
             FwkBluetoothGattDescriptor.PERMISSION_READ_ENCRYPTED_MITM
+        /**
+         * Descriptor write permission
+         */
         const val PERMISSION_WRITE = FwkBluetoothGattDescriptor.PERMISSION_WRITE
+        /**
+         * Descriptor permission: Allow encrypted writes
+         */
         const val PERMISSION_WRITE_ENCRYPTED =
             FwkBluetoothGattDescriptor.PERMISSION_WRITE_ENCRYPTED
+        /**
+         * Descriptor permission: Allow encrypted writes with person-in-the-middle
+         * protection
+         */
         const val PERMISSION_WRITE_ENCRYPTED_MITM =
             FwkBluetoothGattDescriptor.PERMISSION_WRITE_ENCRYPTED_MITM
+        /**
+         * Descriptor permission: Allow signed write operations
+         */
         const val PERMISSION_WRITE_SIGNED =
             FwkBluetoothGattDescriptor.PERMISSION_WRITE_SIGNED
+        /**
+         * Descriptor permission: Allow signed write operations with person-in-the-middle protection
+         */
         const val PERMISSION_WRITE_SIGNED_MITM =
             FwkBluetoothGattDescriptor.PERMISSION_WRITE_SIGNED_MITM
 
+        /**
+         * Value used to enable notification for a client configuration descriptor
+         */
         val ENABLE_NOTIFICATION_VALUE = byteArrayOf(0x01, 0x00)
+        /**
+         * Value used to enable indication for a client configuration descriptor
+         */
         val ENABLE_INDICATION_VALUE = byteArrayOf(0x02, 0x00)
+        /**
+         * Value used to disable notifications or indicatinos
+         */
         val DISABLE_NOTIFICATION_VALUE = byteArrayOf(0x00, 0x00)
 
         internal fun keyForField(field: Int): String {
             return field.toString(Character.MAX_RADIX)
         }
 
+        /**
+         * A companion object to create [BluetoothGattDescriptor] from bundle
+         */
         val CREATOR: Bundleable.Creator<BluetoothGattDescriptor> =
             if (Build.VERSION.SDK_INT >= 24) {
                 GattDescriptorImplApi24.CREATOR
@@ -87,6 +124,9 @@ class BluetoothGattDescriptor internal constructor(
             }
     }
 
+    /**
+     * Create a [Bundle] from this object
+     */
     override fun toBundle(): Bundle {
         return impl.toBundle()
     }

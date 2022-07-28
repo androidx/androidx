@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package androidx.bluetooth
+package androidx.bluetooth.core
 
 import android.os.Build
 import android.os.Bundle
 import android.bluetooth.BluetoothGattCharacteristic as FwkBluetoothGattCharacteristic
 import androidx.annotation.RequiresApi
-import androidx.bluetooth.utils.Bundleable
-import androidx.bluetooth.utils.Utils
+import androidx.bluetooth.core.utils.Bundleable
+import androidx.bluetooth.core.utils.Utils
 
 import java.util.UUID
 /**
@@ -32,45 +32,128 @@ class BluetoothGattCharacteristic internal constructor(
 ) : Bundleable {
 
     companion object {
+        /**
+         * Characteristic value format type float (32-bit float)
+         */
         const val FORMAT_FLOAT = FwkBluetoothGattCharacteristic.FORMAT_FLOAT
+        /**
+         * Characteristic value format type sfloat (16-bit float)
+         */
         const val FORMAT_SFLOAT = FwkBluetoothGattCharacteristic.FORMAT_SFLOAT
+        /**
+         * Characteristic value format type uint16
+         */
         const val FORMAT_SINT16 = FwkBluetoothGattCharacteristic.FORMAT_SINT16
+        /**
+         * Characteristic value format type sint32
+         */
         const val FORMAT_SINT32 = FwkBluetoothGattCharacteristic.FORMAT_SINT32
+        /**
+         * Characteristic value format type sint8
+         */
         const val FORMAT_SINT8 = FwkBluetoothGattCharacteristic.FORMAT_SINT8
+        /**
+         * Characteristic value format type uint16
+         */
         const val FORMAT_UINT16 = FwkBluetoothGattCharacteristic.FORMAT_UINT16
+        /**
+         * Characteristic value format type uint32
+         */
         const val FORMAT_UINT32 = FwkBluetoothGattCharacteristic.FORMAT_UINT32
+        /**
+         * Characteristic value format type uint8
+         */
         const val FORMAT_UINT8 = FwkBluetoothGattCharacteristic.FORMAT_UINT8
+
+        /**
+         * Characteristic proprty: Characteristic is broadcastable.
+         */
         const val PROPERTY_BROADCAST =
             FwkBluetoothGattCharacteristic.PROPERTY_BROADCAST
+        /**
+         * Characteristic property: Characteristic is readable.
+         */
         const val PROPERTY_READ = FwkBluetoothGattCharacteristic.PROPERTY_READ
+        /**
+         * Characteristic property: Characteristic can be written without response.
+         */
         const val PROPERTY_WRITE_NO_RESPONSE =
             FwkBluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE
+        /**
+         * Characteristic property: Characteristic can be written.
+         */
         const val PROPERTY_WRITE = FwkBluetoothGattCharacteristic.PROPERTY_WRITE
+        /**
+         * Characteristic property: Characteristic supports notification
+         */
         const val PROPERTY_NOTIFY = FwkBluetoothGattCharacteristic.PROPERTY_NOTIFY
+        /**
+         * Characteristic property: Characteristic supports indication
+         */
         const val PROPERTY_INDICATE =
             FwkBluetoothGattCharacteristic.PROPERTY_BROADCAST
+        /**
+         * Characteristic property: Characteristic supports write with signature
+         */
         const val PROPERTY_SIGNED_WRITE =
             FwkBluetoothGattCharacteristic.PROPERTY_SIGNED_WRITE
+        /**
+         * Characteristic property: Characteristic has extended properties
+         */
         const val PROPERTY_EXTENDED_PROPS =
             FwkBluetoothGattCharacteristic.PROPERTY_EXTENDED_PROPS
+        /**
+         * Characteristic read permission
+         */
         const val PERMISSION_READ = FwkBluetoothGattCharacteristic.PERMISSION_READ
+        /**
+         * Characteristic permission: Allow encrypted read operations
+         */
         const val PERMISSION_READ_ENCRYPTED =
             FwkBluetoothGattCharacteristic.PERMISSION_READ_ENCRYPTED
+        /**
+         * Characteristic permission: Allow reading with person-in-the-middle protection
+         */
         const val PERMISSION_READ_ENCRYPTED_MITM =
             FwkBluetoothGattCharacteristic.PERMISSION_READ_ENCRYPTED_MITM
+        /**
+         * Characteristic write permission
+         */
         const val PERMISSION_WRITE = FwkBluetoothGattCharacteristic.PERMISSION_WRITE
+        /**
+         * Characteristic permission: Allow encrypted writes
+         */
         const val PERMISSION_WRITE_ENCRYPTED =
             FwkBluetoothGattCharacteristic.PERMISSION_WRITE_ENCRYPTED
+        /**
+         * Characteristic permission: Allow encrypted writes with person-in-the-middle protection
+         */
         const val PERMISSION_WRITE_ENCRYPTED_MITM =
             FwkBluetoothGattCharacteristic.PERMISSION_WRITE_ENCRYPTED_MITM
+        /**
+         * Characteristic permission: Allow signed write operations
+         */
         const val PERMISSION_WRITE_SIGNED =
             FwkBluetoothGattCharacteristic.PERMISSION_WRITE_SIGNED
+        /**
+         * Characteristic permission: Allow signed write operations with
+         * person-in-the-middle protection
+         */
         const val PERMISSION_WRITE_SIGNED_MITM =
             FwkBluetoothGattCharacteristic.PERMISSION_WRITE_SIGNED_MITM
+        /**
+         * Write characteristic, requesting acknowledgement by the remote device
+         */
         const val WRITE_TYPE_DEFAULT =
             FwkBluetoothGattCharacteristic.WRITE_TYPE_DEFAULT
+        /**
+         * Write characteristic without requiring a response by the remote device
+         */
         const val WRITE_TYPE_NO_RESPONSE =
             FwkBluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE
+        /**
+         * Write characteristic including authentication signature
+         */
         const val WRITE_TYPE_SIGNED =
             FwkBluetoothGattCharacteristic.WRITE_TYPE_SIGNED
 
@@ -78,6 +161,9 @@ class BluetoothGattCharacteristic internal constructor(
             return field.toString(Character.MAX_RADIX)
         }
 
+        /**
+         * A companion object to create [BluetoothGattCharacteristic] from bundle
+         */
         val CREATOR: Bundleable.Creator<BluetoothGattCharacteristic> =
             if (Build.VERSION.SDK_INT >= 24) {
                 GattCharacteristicImplApi24.CREATOR
@@ -86,6 +172,9 @@ class BluetoothGattCharacteristic internal constructor(
             }
     }
 
+    /**
+     * Implementation based on version
+     */
     private val impl: GattCharacteristicImpl =
         if (Build.VERSION.SDK_INT >= 24) {
             GattCharacteristicImplApi24(fwkCharacteristic, this)
@@ -93,42 +182,87 @@ class BluetoothGattCharacteristic internal constructor(
             GattCharacteristicImplApi21(fwkCharacteristic, this)
         }
 
+    /**
+     * Underlying framework's [android.bluetooth.BluetoothGattCharacteristic]
+     */
     internal val fwkCharacteristic
         get() = impl.fwkCharacteristic
+    /**
+     * the UUID of this characteristic.
+     */
     val uuid
         get() = impl.uuid
+    /**
+     * Characteristic properties
+     */
     val properties
         get() = impl.properties
+    /**
+     * Write type for this characteristic.
+     */
     val permissions
         get() = impl.permissions
+    /**
+     * Write type for this characteristic.
+     */
     val instanceId
         get() = impl.instanceId
+
+    /**
+     * Write type for this characteristic.
+     */
     var writeType: Int
         get() = impl.writeType
         set(value) {
             impl.writeType = value
         }
-    val descriptors
+
+    /**
+     * Library's [BluetoothGattDescriptor] list that this characteristic owns
+     */
+    val descriptors: List<BluetoothGattDescriptor>
         get() = impl.descriptors
 
-    var service
+    /**
+    * Library's [BluetoothGattService] that this belongs to
+    */
+    var service: BluetoothGattService?
         get() = impl.service
         internal set(value) {
             impl.service = value
         }
 
+    /**
+     * Create a new BluetoothGattCharacteristic.
+     *
+     * @param uuid The UUID for this characteristic
+     * @param properties Properties of this characteristic
+     * @param permissions Permissions for this characteristic
+     */
     constructor (uuid: UUID, properties: Int, permissions: Int) : this(
         FwkBluetoothGattCharacteristic(uuid, properties, permissions)
     )
 
+    /**
+     * Adds a descriptor to this characteristic.
+     *
+     * @param descriptor Descriptor to be added to this characteristic.
+     * @return true, if the descriptor was added to the characteristic
+     */
     fun addDescriptor(descriptor: BluetoothGattDescriptor): Boolean {
         return impl.addDescriptor(descriptor)
     }
 
+    /**
+     * Get a descriptor by UUID
+     */
     fun getDescriptor(uuid: UUID): BluetoothGattDescriptor? {
         return impl.getDescriptor(uuid)
     }
 
+    /**
+     * Create a [Bundle] from this object
+     */
     override fun toBundle(): Bundle {
         return impl.toBundle()
     }
