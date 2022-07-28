@@ -51,7 +51,7 @@ class PreferenceDataStoreFactoryNativeTest {
 
     @Test
     fun testNewInstance() = runTest {
-        val store = PreferenceDataStoreFactory.create(
+        val store = PreferenceDataStoreFactory.createWithPath(
             scope = dataStoreScope
         ) { testFile }
 
@@ -76,7 +76,7 @@ class PreferenceDataStoreFactoryNativeTest {
 
         val valueToReplace = preferencesOf(booleanKey to true)
 
-        val store = PreferenceDataStoreFactory.create(
+        val store = PreferenceDataStoreFactory.createWithPath(
             corruptionHandler = ReplaceFileCorruptionHandler<Preferences> {
                 valueToReplace
             },
@@ -111,7 +111,7 @@ class PreferenceDataStoreFactoryNativeTest {
             override suspend fun cleanUp() {}
         }
 
-        val store = PreferenceDataStoreFactory.create(
+        val store = PreferenceDataStoreFactory.createWithPath(
             migrations = listOf(migrateTo5, migratePlus1),
             scope = dataStoreScope
         ) { testFile }
@@ -122,7 +122,7 @@ class PreferenceDataStoreFactoryNativeTest {
     @Test
     fun testCantMutateInternalState() = runTest {
         val store =
-            PreferenceDataStoreFactory.create(scope = dataStoreScope) { testFile }
+            PreferenceDataStoreFactory.createWithPath(scope = dataStoreScope) { testFile }
 
         var mutableReference: MutablePreferences? = null
         store.edit {
