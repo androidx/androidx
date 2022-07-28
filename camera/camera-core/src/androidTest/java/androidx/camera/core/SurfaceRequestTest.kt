@@ -16,6 +16,7 @@
 package androidx.camera.core
 
 import android.graphics.Rect
+import android.util.Range
 import android.util.Size
 import android.view.Surface
 import androidx.camera.core.impl.DeferrableSurface
@@ -62,6 +63,21 @@ class SurfaceRequestTest {
         val resolution = Size(640, 480)
         val request = createNewRequest(resolution)
         Truth.assertThat(request.resolution).isEqualTo(resolution)
+    }
+
+    @Test
+    fun canRetrieveExpectedFrameRate() {
+        val resolution = Size(640, 480)
+        val expectedFrameRate = Range<Int>(12, 30)
+        val request = createNewRequest(resolution, expectedFrameRate = expectedFrameRate)
+        Truth.assertThat(request.expectedFrameRate).isEqualTo(expectedFrameRate)
+    }
+
+    @Test
+    fun expectedFrameRateIsNull_whenNotSet() {
+        val resolution = Size(640, 480)
+        val request = createNewRequest(resolution)
+        Truth.assertThat(request.expectedFrameRate).isNull()
     }
 
     @Test
@@ -314,9 +330,10 @@ class SurfaceRequestTest {
 
     private fun createNewRequest(
         size: Size,
+        expectedFrameRate: Range<Int>? = null,
         autoCleanup: Boolean = true
     ): SurfaceRequest {
-        val request = SurfaceRequest(size, FakeCamera(), false)
+        val request = SurfaceRequest(size, FakeCamera(), false, expectedFrameRate)
         if (autoCleanup) {
             surfaceRequests.add(request)
         }
