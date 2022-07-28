@@ -36,8 +36,11 @@ import androidx.wear.watchface.complications.IllegalNodeException
 import androidx.wear.watchface.complications.NAMESPACE_ANDROID
 import androidx.wear.watchface.complications.NAMESPACE_APP
 import androidx.wear.watchface.complications.data.ComplicationType
+import androidx.wear.watchface.complications.getIntRefAttribute
+import androidx.wear.watchface.complications.getStringRefAttribute
 import androidx.wear.watchface.complications.hasValue
 import androidx.wear.watchface.complications.iterate
+import androidx.wear.watchface.complications.moveToStart
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotOverlay
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotsOption
 import androidx.wear.watchface.style.data.BooleanOptionWireFormat
@@ -57,7 +60,6 @@ import androidx.wear.watchface.style.data.OptionWireFormat
 import androidx.wear.watchface.style.data.PerComplicationTypeMargins
 import androidx.wear.watchface.style.data.UserStyleSettingWireFormat
 import java.io.DataOutputStream
-import org.xmlpull.v1.XmlPullParser
 import java.io.InputStream
 import java.nio.ByteBuffer
 import java.security.DigestOutputStream
@@ -2700,52 +2702,5 @@ private fun <T> getAttributeChecked(
     } else {
         defaultValue ?: throw IllegalArgumentException(
             "$name is required for $settingType")
-    }
-}
-
-/** @hide */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-fun getStringRefAttribute(
-    resources: Resources,
-    parser: XmlResourceParser,
-    name: String
-): String? {
-    return if (parser.hasValue(name)) {
-        val resId = parser.getAttributeResourceValue(NAMESPACE_APP, name, 0)
-        if (resId == 0) {
-            parser.getAttributeValue(NAMESPACE_APP, name)
-        } else {
-            resources.getString(resId)
-        }
-    } else null
-}
-
-/** @hide */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-fun getIntRefAttribute(
-    resources: Resources,
-    parser: XmlResourceParser,
-    name: String
-): Int? {
-    return if (parser.hasValue(name)) {
-        val resId = parser.getAttributeResourceValue(NAMESPACE_APP, name, 0)
-        if (resId == 0) {
-            parser.getAttributeValue(NAMESPACE_APP, name).toInt()
-        } else {
-            resources.getInteger(resId)
-        }
-    } else null
-}
-
-/** @hide */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-fun XmlPullParser.moveToStart(expectedNode: String) {
-    var type: Int
-    do {
-        type = next()
-    } while (type != XmlPullParser.END_DOCUMENT && type != XmlPullParser.START_TAG)
-
-    require(name == expectedNode) {
-        "Expected a $expectedNode node but is $name"
     }
 }
