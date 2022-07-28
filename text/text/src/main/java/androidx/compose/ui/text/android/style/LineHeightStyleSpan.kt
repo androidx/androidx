@@ -49,8 +49,8 @@ class LineHeightStyleSpan(
     private val startIndex: Int,
     private val endIndex: Int,
     private val trimFirstLineTop: Boolean,
-    private val trimLastLineBottom: Boolean,
-    @IntRange(from = 0, to = 100) private val topPercentage: Int
+    val trimLastLineBottom: Boolean,
+    @IntRange(from = 0, to = 100) val topPercentage: Int
 ) : android.text.style.LineHeightSpan {
 
     private var firstAscent: Int = 0
@@ -125,6 +125,19 @@ class LineHeightStyleSpan(
         firstAscentDiff = fontMetricsInt.ascent - firstAscent
         lastDescentDiff = lastDescent - fontMetricsInt.descent
     }
+
+    internal fun copy(
+        startIndex: Int,
+        endIndex: Int,
+        trimFirstLineTop: Boolean = this.trimFirstLineTop
+    ) = LineHeightStyleSpan(
+        lineHeight = lineHeight,
+        startIndex = startIndex,
+        endIndex = endIndex,
+        trimFirstLineTop = trimFirstLineTop,
+        trimLastLineBottom = trimLastLineBottom,
+        topPercentage = topPercentage
+    )
 }
 
 internal fun FontMetricsInt.lineHeight(): Int = this.descent - this.ascent
