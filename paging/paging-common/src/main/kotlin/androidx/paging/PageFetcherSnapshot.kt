@@ -41,7 +41,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.conflate
 import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.flow.drop
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
@@ -284,6 +283,9 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
         stateHolder.withLock { state -> state.setLoading(REFRESH) }
 
         val params = loadParams(REFRESH, initialKey)
+
+        log(DEBUG) { "Start REFRESH with loadKey $initialKey on $pagingSource" }
+
         when (val result = pagingSource.load(params)) {
             is Page<Key, Value> -> {
                 // Atomically update load states + pages while still holding the mutex, otherwise
@@ -316,11 +318,15 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
                 // correctly reflected in the insert event. Note that we only send the event if the
                 // insert was successfully applied in the case of cancellation due to page dropping.
                 if (insertApplied) {
+                    log(DEBUG) { loadResultLog(REFRESH, initialKey, result) }
+
                     stateHolder.withLock { state ->
                         with(state) {
                             pageEventCh.send(result.toPageEvent(REFRESH))
                         }
                     }
+                } else {
+                    log(VERBOSE) { loadResultLog(REFRESH, initialKey, null) }
                 }
 
                 // Launch any RemoteMediator boundary calls after applying initial insert.
@@ -340,11 +346,17 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
                     }
                 }
             }
-            is LoadResult.Error -> stateHolder.withLock { state ->
-                val loadState = Error(result.throwable)
-                state.setError(loadType = REFRESH, error = loadState)
+            is LoadResult.Error -> {
+                log(VERBOSE) { loadResultLog(REFRESH, initialKey, result) }
+                stateHolder.withLock { state ->
+                    val loadState = Error(result.throwable)
+                    state.setError(loadType = REFRESH, error = loadState)
+                }
             }
-            is LoadResult.Invalid -> onInvalidLoad()
+            is LoadResult.Invalid -> {
+                log(VERBOSE) { loadResultLog(REFRESH, initialKey, result) }
+                onInvalidLoad()
+            }
         }
     }
 
@@ -407,6 +419,7 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
         var endOfPaginationReached = false
         loop@ while (loadKey != null) {
             val params = loadParams(loadType, loadKey)
+            log(DEBUG) { "Start $loadType with loadKey $loadKey on $pagingSource" }
             val result: LoadResult<Key, Value> = pagingSource.load(params)
             when (result) {
                 is Page<Key, Value> -> {
@@ -434,7 +447,12 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
                     }
 
                     // Break if insert was skipped due to cancellation
-                    if (!insertApplied) break@loop
+                    if (!insertApplied) {
+                        log(VERBOSE) { loadResultLog(loadType, loadKey, null) }
+                        break@loop
+                    }
+
+                    log(DEBUG) { loadResultLog(loadType, loadKey, result) }
 
                     itemsLoaded += result.data.size
 
@@ -447,6 +465,7 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
                     }
                 }
                 is LoadResult.Error -> {
+                    log(VERBOSE) { loadResultLog(loadType, loadKey, result) }
                     stateHolder.withLock { state ->
                         val loadState = Error(result.throwable)
                         state.setError(loadType = loadType, error = loadState)
@@ -458,6 +477,7 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
                     return
                 }
                 is LoadResult.Invalid -> {
+                    log(VERBOSE) { loadResultLog(loadType, loadKey, result) }
                     onInvalidLoad()
                     return
                 }
@@ -515,6 +535,18 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
                     remoteMediatorConnection.requestLoad(APPEND, pagingState)
                 }
             }
+        }
+    }
+
+    private fun loadResultLog(
+        loadType: LoadType,
+        loadKey: Key?,
+        result: LoadResult<Key, Value>?
+    ): String {
+        return if (result == null) {
+            "End $loadType with loadkey $loadKey. Load CANCELLED."
+        } else {
+            "End $loadType with loadKey $loadKey. Returned $result"
         }
     }
 
