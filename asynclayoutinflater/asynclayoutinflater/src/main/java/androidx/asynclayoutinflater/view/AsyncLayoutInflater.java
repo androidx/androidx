@@ -16,8 +16,8 @@
 
 package androidx.asynclayoutinflater.view;
 
-import android.app.Activity;
 import android.content.Context;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -32,8 +32,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.app.AppCompatCallback;
-import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.util.Pools.SynchronizedPool;
 
 import java.util.concurrent.ArrayBlockingQueue;
@@ -71,6 +69,7 @@ import java.util.concurrent.Executor;
  */
 public final class AsyncLayoutInflater {
     private static final String TAG = "AsyncLayoutInflater";
+    private static final boolean IS_POST_LOLLIPOP = Build.VERSION.SDK_INT >= 21;
     private static boolean sAppCompatPresent;
     static {
         try {
@@ -91,12 +90,8 @@ public final class AsyncLayoutInflater {
         mInflater = new BasicInflater(context);
         mHandler = new Handler(Looper.myLooper(), mHandlerCallback);
         mInflateThread = InflateThread.getInstance();
-        if (sAppCompatPresent && context instanceof AppCompatActivity) {
-            AppCompatDelegate delegate = AppCompatDelegate.create((Activity) context,
-                    (AppCompatCallback) context);
-            if (delegate instanceof LayoutInflater.Factory2) {
-                mInflater.setFactory2((LayoutInflater.Factory2) delegate);
-            }
+        if (sAppCompatPresent && context instanceof AppCompatActivity && IS_POST_LOLLIPOP) {
+            mInflater.setFactory2(new AppCompatFactory2());
         }
     }
 

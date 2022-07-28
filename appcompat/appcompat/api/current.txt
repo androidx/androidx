@@ -341,6 +341,7 @@ package androidx.appcompat.app {
     method protected androidx.appcompat.widget.AppCompatSpinner createSpinner(android.content.Context!, android.util.AttributeSet!);
     method protected androidx.appcompat.widget.AppCompatTextView createTextView(android.content.Context!, android.util.AttributeSet!);
     method protected androidx.appcompat.widget.AppCompatToggleButton createToggleButton(android.content.Context!, android.util.AttributeSet!);
+    method public final android.view.View? createView(android.view.View?, String, android.content.Context, android.util.AttributeSet, boolean, boolean, boolean, boolean);
     method protected android.view.View? createView(android.content.Context!, String!, android.util.AttributeSet!);
   }
 
