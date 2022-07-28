@@ -354,7 +354,9 @@ public abstract class PagingSource<Key : Any, Value : Any> {
      * this method should have no effect.
      */
     public fun invalidate() {
-        invalidateCallbackTracker.invalidate()
+        if (invalidateCallbackTracker.invalidate()) {
+            log(DEBUG) { "Invalidated PagingSource $this" }
+        }
     }
 
     /**

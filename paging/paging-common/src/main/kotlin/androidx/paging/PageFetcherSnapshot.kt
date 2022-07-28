@@ -222,6 +222,7 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
                             hint.presentedItemsAfter * -1 > config.jumpThreshold
                     }
                 if (jumpHint != null) {
+                    log(DEBUG) { "Jump triggered on PagingSource $pagingSource by $jumpHint" }
                     jumpCallback()
                 }
             }
