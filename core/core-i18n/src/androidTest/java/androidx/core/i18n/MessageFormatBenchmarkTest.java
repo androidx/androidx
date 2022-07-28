@@ -26,7 +26,9 @@ import androidx.test.platform.app.InstrumentationRegistry;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
 @RunWith(AndroidJUnit4.class)
 public class MessageFormatBenchmarkTest {
@@ -36,6 +38,9 @@ public class MessageFormatBenchmarkTest {
     @Test @MediumTest
     public void testTimePlurals() throws Exception {
         final Locale sr = new Locale("sr");
+        final Map<String, Object> arguments = new HashMap<>();
+        arguments.put("name", "Peter");
+
         for (int i = 0; i < REPEAT_COUNT; ++i) {
             String msg = "{num,plural,offset:1" +
                 "  =1    {only {name}}" +
@@ -44,20 +49,24 @@ public class MessageFormatBenchmarkTest {
                 "  few   {{name} and #-few others}" +
                 "  other {{name} and #... others}" +
                 "}";
-            MessageFormat.formatNamedArgs(appContext, sr, msg, "num", i % 9, "name", "Peter");
+            arguments.put("num", i % 9);
+            MessageFormat.format(appContext, sr, msg, arguments);
         }
     }
 
     @Test @SmallTest
     public void testTimeGenders() throws Exception {
         final String [] genders = { "female", "male", "no_match" };
+        final Map<String, Object> arguments = new HashMap<>();
+
         for (int i = 0; i < REPEAT_COUNT; ++i) {
             String msg = "{gender,select," +
                 "  female {her book}" +
                 "  male   {his book}" +
                 "  other  {their book}" +
                 "}";
-            MessageFormat.formatNamedArgs(appContext, Locale.US, msg, "gender", genders[i % 3]);
+            arguments.put("gender", genders[i % 3]);
+            MessageFormat.format(appContext, Locale.US, msg, arguments);
         }
     }
 }
