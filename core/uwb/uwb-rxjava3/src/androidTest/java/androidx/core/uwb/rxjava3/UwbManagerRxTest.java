@@ -16,33 +16,42 @@
 
 package androidx.core.uwb.rxjava3;
 
+import static androidx.core.uwb.rxjava3.mock.TestUwbManager.DEVICE_ADDRESS;
+
 import static com.google.common.truth.Truth.assertThat;
 
-import android.content.Context;
-
-import androidx.core.uwb.UwbAddress;
-import androidx.core.uwb.UwbClientSessionScope;
+import androidx.core.uwb.UwbControleeSessionScope;
+import androidx.core.uwb.UwbControllerSessionScope;
 import androidx.core.uwb.UwbManager;
 import androidx.core.uwb.rxjava3.mock.TestUwbManager;
-import androidx.test.core.app.ApplicationProvider;
 
 import org.junit.Test;
 
 import io.reactivex.rxjava3.core.Single;
 
 public class UwbManagerRxTest {
-    private final Context context = ApplicationProvider.getApplicationContext();
-    private final UwbManager uwbManager = new TestUwbManager(context);
-    private final UwbAddress uwbAddress = new UwbAddress(new byte[0]);
+    private final UwbManager mUwbManager = new TestUwbManager();
 
     @Test
-    public void testClientSessionScopeSingle_returnsClientSessionScope() {
-        Single<UwbClientSessionScope> clientSessionScopeSingle =
-                UwbManagerRx.clientSessionScopeSingle(uwbManager);
+    public void testControleeSessionScopeSingle_returnsControleeSessionScope() {
+        Single<UwbControleeSessionScope> controleeSessionScopeSingle =
+                UwbManagerRx.controleeSessionScopeSingle(mUwbManager);
 
-        UwbClientSessionScope clientSessionScope = clientSessionScopeSingle.blockingGet();
+        UwbControleeSessionScope controleeSessionScope = controleeSessionScopeSingle.blockingGet();
 
-        assertThat(clientSessionScope).isNotNull();
-        assertThat(clientSessionScope.getLocalAddress()).isEqualTo(uwbAddress);
+        assertThat(controleeSessionScope).isNotNull();
+        assertThat(controleeSessionScope.getLocalAddress().getAddress()).isEqualTo(DEVICE_ADDRESS);
+    }
+
+    @Test
+    public void testControllerSessionScopeSingle_returnsControllerSessionScope() {
+        Single<UwbControllerSessionScope> controllerSessionScopeSingle =
+                UwbManagerRx.controllerSessionScopeSingle(mUwbManager);
+
+        UwbControllerSessionScope controllerSessionScope =
+                controllerSessionScopeSingle.blockingGet();
+
+        assertThat(controllerSessionScope).isNotNull();
+        assertThat(controllerSessionScope.getLocalAddress().getAddress()).isEqualTo(DEVICE_ADDRESS);
     }
 }

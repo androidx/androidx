@@ -6,8 +6,15 @@ package androidx.core.uwb.rxjava3 {
     method public static io.reactivex.rxjava3.core.Observable<androidx.core.uwb.RangingResult> rangingResultsObservable(androidx.core.uwb.UwbClientSessionScope, androidx.core.uwb.RangingParameters parameters);
   }
 
+  public final class UwbControllerSessionScopeRx {
+    method public static io.reactivex.rxjava3.core.Single<kotlin.Unit> addControleeSingle(androidx.core.uwb.UwbControllerSessionScope, androidx.core.uwb.UwbAddress address);
+    method public static io.reactivex.rxjava3.core.Single<kotlin.Unit> removeControleeSingle(androidx.core.uwb.UwbControllerSessionScope, androidx.core.uwb.UwbAddress address);
+  }
+
   public final class UwbManagerRx {
-    method public static io.reactivex.rxjava3.core.Single<androidx.core.uwb.UwbClientSessionScope> clientSessionScopeSingle(androidx.core.uwb.UwbManager);
+    method @Deprecated public static io.reactivex.rxjava3.core.Single<androidx.core.uwb.UwbClientSessionScope> clientSessionScopeSingle(androidx.core.uwb.UwbManager);
+    method public static io.reactivex.rxjava3.core.Single<androidx.core.uwb.UwbControleeSessionScope> controleeSessionScopeSingle(androidx.core.uwb.UwbManager);
+    method public static io.reactivex.rxjava3.core.Single<androidx.core.uwb.UwbControllerSessionScope> controllerSessionScopeSingle(androidx.core.uwb.UwbManager);
   }
 
 }
