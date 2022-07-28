@@ -55,13 +55,15 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import leakcanary.FailTestOnLeak;
+import leakcanary.DetectLeaksAfterTestSuccess;
 
 // Tests basic UI operation when using CoreTest app.
 @RunWith(Parameterized.class)
 @LargeTest
 public final class BasicUITest {
     private static final String BASIC_SAMPLE_PACKAGE = "androidx.camera.integration.core";
+
+    private static final String TAG = "BasicUITest";
 
     private final UiDevice mDevice =
             UiDevice.getInstance(InstrumentationRegistry.getInstrumentation());
@@ -96,6 +98,9 @@ public final class BasicUITest {
     public GrantPermissionRule mAudioPermissionRule =
             GrantPermissionRule.grant(android.Manifest.permission.RECORD_AUDIO);
 
+    @Rule
+    public TestRule mDetectLeaks = new DetectLeaksAfterTestSuccess(TAG);
+
     @Before
     public void setUp() throws ForegroundOccupiedError {
         assumeTrue(CameraUtil.deviceHasCamera());
@@ -116,7 +121,6 @@ public final class BasicUITest {
     }
 
     @Test
-    @FailTestOnLeak
     public void testAnalysisButton() {
         IdlingRegistry.getInstance().register(
                 mActivityRule.getActivity().getAnalysisIdlingResource());
@@ -137,7 +141,6 @@ public final class BasicUITest {
     }
 
     @Test
-    @FailTestOnLeak
     public void testPreviewButton() {
         IdlingRegistry.getInstance().register(mActivityRule.getActivity().getViewIdlingResource());
 
