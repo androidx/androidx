@@ -12,6 +12,18 @@ package androidx.core.i18n.messageformat_icu.simple;
 
 import android.content.Context;
 
+import androidx.annotation.RestrictTo;
+import androidx.core.i18n.DateTimeFormatter;
+import androidx.core.i18n.DateTimeFormatterJdkStyleOptions;
+import androidx.core.i18n.DateTimeFormatterSkeletonOptions;
+import androidx.core.i18n.messageformat_icu.impl.PatternProps;
+import androidx.core.i18n.messageformat_icu.simple.PluralRules.PluralType;
+import androidx.core.i18n.messageformat_icu.text.MessagePattern;
+import androidx.core.i18n.messageformat_icu.text.MessagePattern.ArgType;
+import androidx.core.i18n.messageformat_icu.text.MessagePattern.Part;
+import androidx.core.i18n.messageformat_icu.text.SelectFormat;
+import androidx.core.i18n.messageformat_icu.util.ICUUncheckedIOException;
+
 import java.io.IOException;
 import java.io.InvalidObjectException;
 import java.text.AttributedCharacterIterator;
@@ -36,18 +48,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-
-import androidx.annotation.RestrictTo;
-import androidx.core.i18n.DateTimeFormatter;
-import androidx.core.i18n.DateTimeFormatterJdkStyleOptions;
-import androidx.core.i18n.DateTimeFormatterSkeletonOptions;
-import androidx.core.i18n.messageformat_icu.impl.PatternProps;
-import androidx.core.i18n.messageformat_icu.simple.PluralRules.PluralType;
-import androidx.core.i18n.messageformat_icu.text.MessagePattern;
-import androidx.core.i18n.messageformat_icu.text.MessagePattern.ArgType;
-import androidx.core.i18n.messageformat_icu.text.MessagePattern.Part;
-import androidx.core.i18n.messageformat_icu.text.SelectFormat;
-import androidx.core.i18n.messageformat_icu.util.ICUUncheckedIOException;
 
 /**
  * {icu_annot::icuenhanced java.text.MessageFormat}.{icu_annot::icu _usage_}
@@ -370,23 +370,6 @@ public class MessageFormat extends Format {
 
     // Incremented by 1 for ICU 4.8's new format.
     static final long serialVersionUID = 7136212545847378652L;
-
-    /**
-     * Formats a message pattern string with a variable number of name/value pair arguments.
-     * Creates an ICU MessageFormat for the locale and pattern,
-     * and formats with the arguments.
-     *
-     * @param locale Locale for number formatting and plural selection etc.
-     * @param msg an ICU-MessageFormat-syntax string
-     * @param nameValuePairs (argument name, argument value) pairs
-     */
-    public static final String formatNamedArgs(Context context, Locale locale,
-                                               String msg, Object... nameValuePairs) {
-        StringBuilder result = new StringBuilder(msg.length());
-        new MessageFormat(context, msg, locale).format(0, null, null, null, nameValuePairs,
-                new AppendableWrapper(result), null);
-        return result.toString();
-    }
 
     /**
      * Constructs a MessageFormat for the default <code>FORMAT</code> locale and the

@@ -22,6 +22,8 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 
+import com.google.common.collect.ImmutableMap;
+
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -45,44 +47,53 @@ public class MessageFormatDateTimeTest {
 
     @Test @SmallTest
     public void testSimpleStyles() { // date formatting using JDK styles
-        String expected = "Your card expires on Tuesday, September 27, 2022.";
         String message = "Your card expires on {exp, date, FULL}.";
+        String expected = "Your card expires on Tuesday, September 27, 2022.";
 
         Assert.assertEquals(expected,
-                MessageFormat.formatNamedArgs(mAppContext, message, "exp", mTestDate));
+                MessageFormat.format(mAppContext, message,
+                        ImmutableMap.of("exp", mTestDate)));
         Assert.assertEquals(expected,
-                MessageFormat.formatNamedArgs(mAppContext, message, "exp", mTestMillis));
+                MessageFormat.format(mAppContext, message,
+                        ImmutableMap.of("exp", mTestMillis)));
         Assert.assertEquals(expected,
-                MessageFormat.formatNamedArgs(mAppContext, message, "exp", mTestCalendar));
+                MessageFormat.format(mAppContext, message,
+                        ImmutableMap.of("exp", mTestCalendar)));
     }
 
     @Test @SmallTest
     public void testSimpleSkeleton() { // date formatting using date-time skeletons
-        String expected = "Your card expires on Tue, Sep 27, 2022.";
         String message = "Your card expires on {exp, date, ::yMMMdE}.";
+        String expected = "Your card expires on Tue, Sep 27, 2022.";
 
         Assert.assertEquals(expected,
-                MessageFormat.formatNamedArgs(mAppContext, message, "exp", mTestDate));
+                MessageFormat.format(mAppContext, message,
+                        ImmutableMap.of("exp", mTestDate)));
         Assert.assertEquals(expected,
-                MessageFormat.formatNamedArgs(mAppContext, message, "exp", mTestMillis));
+                MessageFormat.format(mAppContext, message,
+                        ImmutableMap.of("exp", mTestMillis)));
         Assert.assertEquals(expected,
-                MessageFormat.formatNamedArgs(mAppContext, message, "exp", mTestCalendar));
+                MessageFormat.format(mAppContext, message,
+                        ImmutableMap.of("exp", mTestCalendar)));
     }
 
     @Test @SmallTest
     public void testSimplePattern() { // date formatting using date-time patterns. Bad i18n.
-        String expected = "Your card expires on Tuesday, 27 of September, 2022.";
         String message = "Your card expires on {exp, date,EEEE, d 'of' MMMM, y}.";
+        String expected = "Your card expires on Tuesday, 27 of September, 2022.";
 
         Assert.assertEquals(expected,
-                MessageFormat.formatNamedArgs(mAppContext, message, "exp", mTestDate));
+                MessageFormat.format(mAppContext, message,
+                        ImmutableMap.of("exp", mTestDate)));
         Assert.assertEquals(expected,
-                MessageFormat.formatNamedArgs(mAppContext, message, "exp", mTestMillis));
+                MessageFormat.format(mAppContext, message,
+                        ImmutableMap.of("exp", mTestMillis)));
 
         // This does not work, see testAndroidCannotFormatCalendar() below.
         try {
             Assert.assertEquals(expected,
-                    MessageFormat.formatNamedArgs(mAppContext, message, "exp", mTestCalendar));
+                    MessageFormat.format(mAppContext, message,
+                            ImmutableMap.of("exp", mTestCalendar)));
         } catch (IllegalArgumentException e) {
         }
     }

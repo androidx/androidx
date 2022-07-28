@@ -264,17 +264,16 @@ package androidx.core.i18n {
   }
 
   public final class MessageFormat {
-    ctor public MessageFormat();
-    method public static String formatNamedArgs(android.content.Context context, optional java.util.Locale locale, String msg, java.lang.Object?... nameValuePairs);
-    method public static String formatNamedArgs(android.content.Context context, String msg, java.lang.Object?... nameValuePairs);
-    method public static String formatNamedArgs(android.content.Context context, int id, java.lang.Object?... nameValuePairs);
+    method public static String format(android.content.Context context, optional java.util.Locale locale, String msg, java.util.Map<java.lang.String,?> namedArguments);
+    method public static String format(android.content.Context context, String msg, java.util.Map<java.lang.String,?> namedArguments);
+    method public static String format(android.content.Context context, int id, java.util.Map<java.lang.String,?> namedArguments);
     field public static final androidx.core.i18n.MessageFormat.Companion Companion;
   }
 
   public static final class MessageFormat.Companion {
-    method public String formatNamedArgs(android.content.Context context, optional java.util.Locale locale, String msg, java.lang.Object?... nameValuePairs);
-    method public String formatNamedArgs(android.content.Context context, String msg, java.lang.Object?... nameValuePairs);
-    method public String formatNamedArgs(android.content.Context context, int id, java.lang.Object?... nameValuePairs);
+    method public String format(android.content.Context context, optional java.util.Locale locale, String msg, java.util.Map<java.lang.String,?> namedArguments);
+    method public String format(android.content.Context context, String msg, java.util.Map<java.lang.String,?> namedArguments);
+    method public String format(android.content.Context context, int id, java.util.Map<java.lang.String,?> namedArguments);
   }
 
 }
