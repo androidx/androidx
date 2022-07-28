@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.3.0-alpha07" type="baseline" client="gradle" dependencies="false" name="AGP (7.3.0-alpha07)" variant="all" version="7.3.0-alpha07">
+<issues format="6" by="lint 7.4.0-alpha08" type="baseline" client="gradle" dependencies="false" name="AGP (7.4.0-alpha08)" variant="all" version="7.4.0-alpha08">
 
     <issue
         id="BanSynchronizedMethods"
@@ -26,33 +26,6 @@
         errorLine2="        ~~~~~">
         <location
             file="src/main/java/com/example/android/support/text/emoji/ConfigLayout.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `read` of class `EmojiRepo` requires synthetic accessor"
-        errorLine1="                    read(context);"
-        errorLine2="                    ~~~~">
-        <location
-            file="src/main/java/com/example/android/support/text/emoji/EmojiRepo.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` member of class `ViewHolder` requires synthetic accessor"
-        errorLine1="                holder = new ViewHolder();"
-        errorLine2="                         ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/support/text/emoji/ListFragment.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `init` of class `MainFragment` requires synthetic accessor"
-        errorLine1="            init();"
-        errorLine2="            ~~~~">
-        <location
-            file="src/main/java/com/example/android/support/text/emoji/MainFragment.java"/>
     </issue>
 
     <issue

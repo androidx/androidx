@@ -55,8 +55,6 @@
             file="src/main/res/layout/appcompat_night_mode.xml"/>
         <location
             file="src/main/res/layout/appcompat_night_mode.xml"
-            line="23"
-            column="9"
             message="`wrap_content` here may not work well with WebView below"/>
     </issue>
 

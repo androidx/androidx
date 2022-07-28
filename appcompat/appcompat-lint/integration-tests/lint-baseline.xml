@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.3.0-alpha07" type="baseline" client="gradle" dependencies="false" name="AGP (7.3.0-alpha07)" variant="all" version="7.3.0-alpha07">
+<issues format="6" by="lint 7.4.0-alpha08" type="baseline" client="gradle" dependencies="false" name="AGP (7.4.0-alpha08)" variant="all" version="7.4.0-alpha08">
 
     <issue
         id="ClassVerificationFailure"
@@ -52,8 +52,7 @@
         errorLine1="            setActionBar(new Toolbar(this));"
         errorLine2="                         ~~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/appcompat/AppCompatLintDemoExt.java"
-            column="26"/>
+            file="src/main/java/com/example/android/appcompat/AppCompatLintDemoExt.java"/>
     </issue>
 
     <issue
@@ -62,9 +61,7 @@
         errorLine1="            setActionBar(new Toolbar(this));"
         errorLine2="            ~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/appcompat/CoreActivityExt.java"
-            line="34"
-            column="13"/>
+            file="src/main/java/com/example/android/appcompat/CoreActivityExt.java"/>
     </issue>
 
     <issue
@@ -73,9 +70,7 @@
         errorLine1="            setActionBar(new Toolbar(this));"
         errorLine2="                         ~~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/appcompat/CoreActivityExt.java"
-            line="34"
-            column="26"/>
+            file="src/main/java/com/example/android/appcompat/CoreActivityExt.java"/>
     </issue>
 
     <issue
@@ -84,9 +79,7 @@
         errorLine1="    &lt;item app:alpha=&quot;?android:disabledAlpha&quot;"
         errorLine2="          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/res/color/color_state_list_missing_android_alpha.xml"
-            line="19"
-            column="11"/>
+            file="src/main/res/color/color_state_list_missing_android_alpha.xml"/>
     </issue>
 
     <issue
@@ -95,9 +88,7 @@
         errorLine1="        android:tint=&quot;#FF0000&quot; />"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/res/layout/image_view_using_android_tint.xml"
-            line="39"
-            column="9"/>
+            file="src/main/res/layout/image_view_using_android_tint.xml"/>
     </issue>
 
     <issue
@@ -106,31 +97,7 @@
         errorLine1="        android:tint=&quot;#FF0000&quot; />"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/res/layout/image_view_using_android_tint.xml"
-            line="51"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` member of class `ResourceLoader` requires synthetic accessor"
-        errorLine1="        ColorStateList csl2 = new ResourceLoader().getColorStateList("
-        errorLine2="                              ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/appcompat/AppCompatLintDemo.java"
-            line="54"
-            column="31"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `getColorStateList` of class `ResourceLoader` requires synthetic accessor"
-        errorLine1="        ColorStateList csl2 = new ResourceLoader().getColorStateList("
-        errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/appcompat/AppCompatLintDemo.java"
-            line="54"
-            column="31"/>
+            file="src/main/res/layout/image_view_using_android_tint.xml"/>
     </issue>
 
     <issue
@@ -139,9 +106,7 @@
         errorLine1="    public void myButtonClick(View view) {"
         errorLine2="                              ~~~~">
         <location
-            file="src/main/java/com/example/android/appcompat/ActivityWithClick.java"
-            line="39"
-            column="31"/>
+            file="src/main/java/com/example/android/appcompat/ActivityWithClick.java"/>
     </issue>
 
     <issue
@@ -150,9 +115,7 @@
         errorLine1="    public void onCreate(Bundle savedInstanceState) {"
         errorLine2="                         ~~~~~~">
         <location
-            file="src/main/java/com/example/android/appcompat/AppCompatLintDemo.java"
-            line="42"
-            column="26"/>
+            file="src/main/java/com/example/android/appcompat/AppCompatLintDemo.java"/>
     </issue>
 
     <issue
@@ -161,9 +124,7 @@
         errorLine1="    public void onCreate(Bundle savedInstanceState) {"
         errorLine2="                         ~~~~~~">
         <location
-            file="src/main/java/com/example/android/appcompat/AppCompatLintDemoExt.java"
-            line="28"
-            column="26"/>
+            file="src/main/java/com/example/android/appcompat/AppCompatLintDemoExt.java"/>
     </issue>
 
     <issue
@@ -172,9 +133,7 @@
         errorLine1="    public void onCreate(Bundle savedInstanceState) {"
         errorLine2="                         ~~~~~~">
         <location
-            file="src/main/java/com/example/android/appcompat/CoreActivityExt.java"
-            line="29"
-            column="26"/>
+            file="src/main/java/com/example/android/appcompat/CoreActivityExt.java"/>
     </issue>
 
     <issue
@@ -183,9 +142,7 @@
         errorLine1="    public CustomSwitch(Context context) {"
         errorLine2="                        ~~~~~~~">
         <location
-            file="src/main/java/com/example/android/appcompat/CustomSwitch.java"
-            line="28"
-            column="25"/>
+            file="src/main/java/com/example/android/appcompat/CustomSwitch.java"/>
     </issue>
 
     <issue
@@ -194,9 +151,7 @@
         errorLine1="    public CustomSwitch(Context context, AttributeSet attrs) {"
         errorLine2="                        ~~~~~~~">
         <location
-            file="src/main/java/com/example/android/appcompat/CustomSwitch.java"
-            line="32"
-            column="25"/>
+            file="src/main/java/com/example/android/appcompat/CustomSwitch.java"/>
     </issue>
 
     <issue
@@ -205,9 +160,7 @@
         errorLine1="    public CustomSwitch(Context context, AttributeSet attrs) {"
         errorLine2="                                         ~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/appcompat/CustomSwitch.java"
-            line="32"
-            column="42"/>
+            file="src/main/java/com/example/android/appcompat/CustomSwitch.java"/>
     </issue>
 
     <issue
@@ -216,9 +169,7 @@
         errorLine1="    public CustomSwitch(Context context, AttributeSet attrs, int defStyleAttr) {"
         errorLine2="                        ~~~~~~~">
         <location
-            file="src/main/java/com/example/android/appcompat/CustomSwitch.java"
-            line="36"
-            column="25"/>
+            file="src/main/java/com/example/android/appcompat/CustomSwitch.java"/>
     </issue>
 
     <issue
@@ -227,9 +178,7 @@
         errorLine1="    public CustomSwitch(Context context, AttributeSet attrs, int defStyleAttr) {"
         errorLine2="                                         ~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/appcompat/CustomSwitch.java"
-            line="36"
-            column="42"/>
+            file="src/main/java/com/example/android/appcompat/CustomSwitch.java"/>
     </issue>
 
 </issues>
