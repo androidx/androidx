@@ -20,7 +20,9 @@ import android.content.Context
 import android.util.Range
 import android.util.Size
 import androidx.camera.camera2.Camera2Config
+import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.CameraSelector
+import androidx.camera.core.CameraXConfig
 import androidx.camera.core.internal.CameraUseCaseAdapter
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CameraXUtil
@@ -28,10 +30,10 @@ import androidx.camera.video.Quality
 import androidx.camera.video.VideoCapabilities
 import androidx.camera.video.VideoSpec
 import androidx.test.core.app.ApplicationProvider
-import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
+import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import org.junit.After
@@ -39,18 +41,28 @@ import org.junit.Assume
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.util.concurrent.TimeUnit
+import org.junit.runners.Parameterized
 
-@RunWith(AndroidJUnit4::class)
+@RunWith(Parameterized::class)
 @SmallTest
 @SdkSuppress(minSdkVersion = 21)
-class VideoEncoderConfigCamcorderProfileResolverTest {
+class VideoEncoderConfigCamcorderProfileResolverTest(
+    private val implName: String,
+    private val cameraConfig: CameraXConfig
+) {
 
     companion object {
         // TODO(b/177918193): We currently cannot communicate the frame rate to the camera,
         //  so we only support 30fps. For now we want to ensure we only ever get an FPS of 30,
         //  but this check can be removed once we can change frame rate.
         const val FIXED_FRAME_RATE = 30
+
+        @JvmStatic
+        @Parameterized.Parameters(name = "{0}")
+        fun data() = listOf(
+            arrayOf(Camera2Config::class.simpleName, Camera2Config.defaultConfig()),
+            arrayOf(CameraPipeConfig::class.simpleName, CameraPipeConfig.defaultConfig())
+        )
     }
 
     private val context: Context = ApplicationProvider.getApplicationContext()
@@ -66,7 +78,7 @@ class VideoEncoderConfigCamcorderProfileResolverTest {
 
         CameraXUtil.initialize(
             context,
-            Camera2Config.defaultConfig()
+            cameraConfig
         ).get()
 
         val cameraInfo = CameraUtil.createCameraUseCaseAdapter(context, cameraSelector).cameraInfo
