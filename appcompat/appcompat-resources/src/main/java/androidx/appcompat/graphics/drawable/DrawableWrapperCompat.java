@@ -16,8 +16,6 @@
 
 package androidx.appcompat.graphics.drawable;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
-
 import android.content.res.ColorStateList;
 import android.graphics.Canvas;
 import android.graphics.ColorFilter;
@@ -27,7 +25,7 @@ import android.graphics.Region;
 import android.graphics.drawable.Drawable;
 import android.view.View;
 
-import androidx.annotation.RestrictTo;
+import androidx.annotation.Nullable;
 import androidx.core.graphics.drawable.DrawableCompat;
 
 /**
@@ -35,16 +33,18 @@ import androidx.core.graphics.drawable.DrawableCompat;
  * <p>
  * The wrapped {@link Drawable} <em>must</em> be fully released from any {@link View}
  * before wrapping, otherwise internal {@link Callback} may be dropped.
- *
- * @hide
+ * <p>
+ * Adapted from platform class, altered with API level checks as necessary.
  */
-@RestrictTo(LIBRARY_GROUP_PREFIX)
-public class DrawableWrapper extends Drawable implements Drawable.Callback {
+public class DrawableWrapperCompat extends Drawable implements Drawable.Callback {
 
     private Drawable mDrawable;
 
-    public DrawableWrapper(Drawable drawable) {
-        setWrappedDrawable(drawable);
+    /**
+     * Creates a new wrapper around the specified drawable.
+     */
+    public DrawableWrapperCompat(Drawable drawable) {
+        setDrawable(drawable);
     }
 
     @Override
@@ -218,11 +218,20 @@ public class DrawableWrapper extends Drawable implements Drawable.Callback {
         DrawableCompat.setHotspotBounds(mDrawable, left, top, right, bottom);
     }
 
-    public Drawable getWrappedDrawable() {
+    /**
+     * @return the wrapped drawable
+     */
+    @Nullable
+    public Drawable getDrawable() {
         return mDrawable;
     }
 
-    public void setWrappedDrawable(Drawable drawable) {
+    /**
+     * Sets the wrapped drawable.
+     *
+     * @param drawable the wrapped drawable
+     */
+    public void setDrawable(@Nullable Drawable drawable) {
         if (mDrawable != null) {
             mDrawable.setCallback(null);
         }

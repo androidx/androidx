@@ -18,8 +18,6 @@ package androidx.appcompat.graphics.drawable;
 
 import static android.os.Build.VERSION_CODES.LOLLIPOP;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
-
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.content.res.Resources.Theme;
@@ -39,22 +37,17 @@ import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
-import androidx.annotation.RestrictTo;
 import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.core.view.ViewCompat;
 
 /**
  * A helper class that contains several {@link Drawable}s and selects which one to use.
- *
+ * <p>
  * Adapted from platform class, altered with API level checks as necessary.
- *
- * @hide
  */
-@SuppressWarnings("RedundantSuppression") // Incorrect warning, see b/179893144 for details.
-@RestrictTo(LIBRARY_GROUP_PREFIX)
-class DrawableContainer extends Drawable implements Drawable.Callback {
+public class DrawableContainerCompat extends Drawable implements Drawable.Callback {
     private static final boolean DEBUG = false;
-    private static final String TAG = "DrawableContainer";
+    private static final String TAG = "DrawableContainerCompat";
     /**
      * To be proper, we should have a getter for dither (and alpha, etc.)
      * so that proxy classes like this can save/restore their delegates'
@@ -648,7 +641,7 @@ class DrawableContainer extends Drawable implements Drawable.Callback {
      * release.
      */
     abstract static class DrawableContainerState extends ConstantState {
-        final DrawableContainer mOwner;
+        final DrawableContainerCompat mOwner;
         Resources mSourceRes;
         int mDensity;
         int mChangingConfigurations;
@@ -684,7 +677,7 @@ class DrawableContainer extends Drawable implements Drawable.Callback {
         boolean mHasTintList;
         boolean mHasTintMode;
 
-        DrawableContainerState(DrawableContainerState orig, DrawableContainer owner,
+        DrawableContainerState(DrawableContainerState orig, DrawableContainerCompat owner,
                 Resources res) {
             mOwner = owner;
             mSourceRes = res != null ? res : (orig != null ? orig.mSourceRes : null);

@@ -37,7 +37,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.R;
-import androidx.appcompat.graphics.drawable.DrawableWrapper;
+import androidx.appcompat.graphics.drawable.DrawableWrapperCompat;
 import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.core.os.BuildCompat;
 import androidx.core.view.ViewPropertyAnimatorCompat;
@@ -392,7 +392,7 @@ class DropDownListView extends ListView {
         }
     }
 
-    private static class GateKeeperDrawable extends DrawableWrapper {
+    private static class GateKeeperDrawable extends DrawableWrapperCompat {
         private boolean mEnabled;
 
         GateKeeperDrawable(Drawable drawable) {
