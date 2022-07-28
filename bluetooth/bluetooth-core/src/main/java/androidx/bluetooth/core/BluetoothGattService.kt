@@ -14,15 +14,14 @@
  * limitations under the License.
  */
 
-package androidx.bluetooth
+package androidx.bluetooth.core
 
+import android.bluetooth.BluetoothGattService as FwkBluetoothGattService
 import android.os.Build
 import android.os.Bundle
-import android.bluetooth.BluetoothGattService as FwkBluetoothGattService
 import androidx.annotation.RequiresApi
-import androidx.bluetooth.utils.Bundleable
-import androidx.bluetooth.utils.Utils
-
+import androidx.bluetooth.core.utils.Bundleable
+import androidx.bluetooth.core.utils.Utils
 import java.util.UUID
 
 /**
@@ -32,6 +31,18 @@ class BluetoothGattService internal constructor(service: FwkBluetoothGattService
     Bundleable {
 
     companion object {
+        /**
+         * Primary service
+         */
+        val SERVICE_TYPE_PRIMARY = FwkBluetoothGattService.SERVICE_TYPE_PRIMARY
+
+        /**
+         * Secondary service (included by primary services)
+         */
+        val SERVICE_TYPE_SECONDARY = FwkBluetoothGattService.SERVICE_TYPE_SECONDARY
+        /**
+         * A companion object to create [BluetoothGattService] from bundle
+         */
         val CREATOR: Bundleable.Creator<BluetoothGattService> =
             if (Build.VERSION.SDK_INT >= 24) {
                 GattServiceImplApi24.CREATOR
@@ -44,7 +55,15 @@ class BluetoothGattService internal constructor(service: FwkBluetoothGattService
         }
     }
 
-    constructor(uuid: UUID, type: Int) : this(
+    /**
+     * Create a new BluetoothGattService.
+     *
+     * @param uuid The UUID for this service
+     * @param type The type of this service,
+     * {@link BluetoothGattService#SERVICE_TYPE_PRIMARY}
+     * or {@link BluetoothGattService#SERVICE_TYPE_SECONDARY}
+     */
+    constructor(uuid: UUID, type: Int = SERVICE_TYPE_PRIMARY) : this(
         FwkBluetoothGattService(
             uuid,
             type
@@ -58,37 +77,97 @@ class BluetoothGattService internal constructor(service: FwkBluetoothGattService
             GattServiceImplApi21(service, this)
         }
 
+    /**
+     * The underlying framework's [android.bluetooth.BluetoothGattService]
+     */
     internal val fwkService: FwkBluetoothGattService
         get() = impl.fwkService
+
+    /**
+     * Service's instanceId
+     */
     val instanceId: Int
         get() = impl.instanceId
+
+    /**
+     * Service's type (Primary or Secondary)
+     */
     val type: Int
         get() = impl.type
+
+    /**
+     * Service's universal unique identifier
+     */
     val uuid: UUID
         get() = impl.uuid
 
+    /**
+     * List of [BluetoothGattCharacteristic] that this service include
+     */
     val characteristics: List<BluetoothGattCharacteristic>
         get() = impl.characteristics
 
+    /**
+     * List of [BluetoothGattService] that this service include
+     */
     val includedServices: List<BluetoothGattService>
         get() = impl.includedServices
 
+    /**
+     * Add a characteristic to this service
+     *
+     * @param characteristic The [BluetoothGattCharacteristic] to be included
+     */
     fun addCharacteristic(characteristic: BluetoothGattCharacteristic): Boolean {
         return impl.addCharacteristic(characteristic)
     }
 
+    /**
+     * Returns a characteristic with a given UUID out of the list of
+     * characteristics offered by this service.
+     *
+     * <p>This is a convenience function to allow access to a given characteristic
+     * without enumerating over the list returned by {@link #getCharacteristics}
+     * manually.
+     *
+     * <p>If a remote service offers multiple characteristics with the same
+     * UUID, the first instance of a characteristic with the given UUID
+     * is returned.
+     *
+     * @return GATT characteristic object or null if no characteristic with the given UUID was
+     * found.
+     */
     fun getCharacteristic(uuid: UUID): BluetoothGattCharacteristic? {
         return impl.getCharacteristic(uuid)
     }
 
+    /**
+     * Add a included service to this service
+     *
+     * @param service The [BluetoothGattService] to be included
+     */
     fun addService(service: BluetoothGattService): Boolean {
         return impl.addService(service)
     }
 
+    /**
+     * Returns a [BluetoothGattService] with a given UUID out of the list of included
+     * services offered by this service.
+     *
+     * <p>If a remote service offers multiple [BluetoothGattService] with the same
+     * UUID, the first instance of a [BluetoothGattService] with the given UUID
+     * is returned.
+     *
+     * @return GATT [BluetoothGattService] object or null if no service with the given UUID
+     * was found.
+     */
     fun getIncludedService(uuid: UUID): BluetoothGattService? {
         return impl.getIncludedService(uuid)
     }
 
+    /**
+     * Create a [Bundle] from this object.
+     */
     override fun toBundle(): Bundle {
         return impl.toBundle()
     }
@@ -264,8 +343,7 @@ class BluetoothGattService internal constructor(service: FwkBluetoothGattService
                 // Cut all included services & characteristics of included services. Developers
                 // should directly send the included services if need it
                 ArrayList(_includedServices.map {
-                    BluetoothGattService(it.uuid,
-                                         it.type).toBundle()
+                    BluetoothGattService(it.uuid, it.type).toBundle()
                 })
             )
 
