@@ -95,7 +95,12 @@ public class AppCompatViewInflater {
 
     private final Object[] mConstructorArgs = new Object[2];
 
-    final View createView(View parent, final String name, @NonNull Context context,
+    /**
+     * Creates AppCompat version of the views.
+     */
+    @Nullable
+    public final View createView(@Nullable View parent, @NonNull final String name,
+            @NonNull Context context,
             @NonNull AttributeSet attrs, boolean inheritContext,
             boolean readAndroidTheme, boolean readAppTheme, boolean wrapContext) {
         final Context originalContext = context;
