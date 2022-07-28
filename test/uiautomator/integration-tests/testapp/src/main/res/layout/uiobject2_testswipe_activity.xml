@@ -31,6 +31,7 @@
             android:layout_height="wrap_content">
 
             <RelativeLayout
+                android:id="@+id/scroll_view"
                 android:layout_width="5000px"
                 android:layout_height="5000px">
 
