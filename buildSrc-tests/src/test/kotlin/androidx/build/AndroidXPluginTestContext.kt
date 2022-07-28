@@ -19,6 +19,8 @@ package androidx.build
 import androidx.build.AndroidXPluginTestContext.Companion.wrap
 import androidx.testutils.gradle.ProjectSetupRule
 import java.io.File
+import java.lang.AssertionError
+import java.util.zip.ZipInputStream
 import net.saff.checkmark.Checkmark.Companion.check
 import net.saff.checkmark.Checkmark.Companion.checks
 import org.gradle.testkit.runner.BuildResult
@@ -47,6 +49,8 @@ fun pluginTest(action: AndroidXPluginTestContext.() -> Unit) {
     }
 }
 
+typealias GradleRunAction = (GradleRunner) -> BuildResult
+
 /**
  * Context for tests of the AndroidX plugins.  Entry point is [pluginTest], and the values
  *
@@ -64,7 +68,12 @@ data class AndroidXPluginTestContext(val tmpFolder: TemporaryFolder, val setup: 
     // Gradle sometimes canonicalizes this path, so we have to or things don't match up.
     val supportRoot: File = setup.rootDir.canonicalFile
 
-    fun runGradle(vararg args: String): BuildResult {
+    private val defaultBuildAction: GradleRunAction = { it.build() }
+
+    fun runGradle(
+        vararg args: String,
+        buildAction: GradleRunAction = defaultBuildAction
+    ): BuildResult {
         // Empty environment so that the host environment does not leak through
         val env = mapOf<String, String>()
         return GradleRunner.create().withProjectDir(supportRoot)
@@ -73,7 +82,30 @@ data class AndroidXPluginTestContext(val tmpFolder: TemporaryFolder, val setup: 
                 "-P$ALLOW_MISSING_LINT_CHECKS_PROJECT=true",
                 *args
             )
-            .withEnvironment(env).withEnvironment(env).build()
+            .withEnvironment(env).withEnvironment(env).let { buildAction(it) }.also {
+                checkNoClassloaderErrors(it)
+            }
+    }
+
+    private fun checkNoClassloaderErrors(result: BuildResult) {
+        // We're seeing b/237103195 flakily.  When we do, let's grab additional debugging info.
+        val className = "androidx.build.gradle.ExtensionsKt"
+        if (result.output.contains("java.lang.ClassNotFoundException: $className")) {
+            buildString {
+                appendLine("classloader error START")
+                append(result.output)
+                appendLine("classloader error END")
+                appendLine("Contents of public.jar:")
+                buildJars.publicJar.let { jar ->
+                    ZipInputStream(jar.inputStream()).use {
+                        while (true) {
+                            val entry = it.nextEntry ?: return@use
+                            appendLine(entry.name)
+                        }
+                    }
+                }
+            }.let { throw AssertionError(it) }
+        }
     }
 
     fun AndroidXSelfTestProject.checkConfigurationSucceeds() {
