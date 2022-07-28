@@ -26,7 +26,7 @@ import org.junit.Assume.assumeTrue
 import org.junit.Rule
 import org.junit.Test
 
-class WindowPropertyTest {
+class WindowPropertiesTest {
 
     @get:Rule
     val activityRule = ActivityScenarioRule(TestActivity::class.java)
@@ -43,7 +43,7 @@ class WindowPropertyTest {
             assertTrue(
                 getProperty(
                     activity,
-                    WindowProperty.PROPERTY_ACTIVITY_EMBEDDING_ALLOW_SYSTEM_OVERRIDE
+                    WindowProperties.PROPERTY_ACTIVITY_EMBEDDING_ALLOW_SYSTEM_OVERRIDE
                 )
             )
         }
