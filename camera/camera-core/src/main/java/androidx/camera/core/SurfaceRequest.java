@@ -98,8 +98,7 @@ public final class SurfaceRequest {
     private Executor mTransformationInfoExecutor;
 
     /**
-     * Creates a new surface request with the given resolution, the {@link Camera} and the crop
-     * rect.
+     * Creates a new surface request with the given resolution and {@link Camera}.
      *
      * @hide
      */
