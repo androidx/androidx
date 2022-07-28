@@ -30,11 +30,13 @@ import androidx.camera.core.Logger;
 import androidx.camera.core.SurfaceEffect;
 import androidx.camera.core.SurfaceOutput;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
+import androidx.core.util.Consumer;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.atomic.AtomicReference;
 
 
 /**
@@ -59,7 +61,7 @@ final class SurfaceOutputImpl implements SurfaceOutput {
 
     @GuardedBy("mLock")
     @Nullable
-    private OnCloseRequestedListener mOnCloseRequestedListener;
+    private Consumer<Event> mEventListener;
     @GuardedBy("mLock")
     @Nullable
     private Executor mExecutor;
@@ -99,11 +101,11 @@ final class SurfaceOutputImpl implements SurfaceOutput {
     @Override
     @NonNull
     public Surface getSurface(@NonNull Executor executor,
-            @NonNull OnCloseRequestedListener listener) {
+            @NonNull Consumer<Event> listener) {
         boolean hasPendingCloseRequest;
         synchronized (mLock) {
             mExecutor = executor;
-            mOnCloseRequestedListener = listener;
+            mEventListener = listener;
             hasPendingCloseRequest = mHasPendingCloseRequest;
         }
         if (hasPendingCloseRequest) {
@@ -116,22 +118,23 @@ final class SurfaceOutputImpl implements SurfaceOutput {
      * Asks the {@link SurfaceEffect} implementation to stopping writing to the {@link Surface}.
      */
     public void requestClose() {
-        OnCloseRequestedListener onCloseRequestedListener = null;
+        AtomicReference<Consumer<Event>> eventListenerRef = new AtomicReference<>();
         Executor executor = null;
         synchronized (mLock) {
-            if (mExecutor == null || mOnCloseRequestedListener == null) {
+            if (mExecutor == null || mEventListener == null) {
                 // If close is requested but not executed because of missing listener, set a flag so
                 // we can execute it when the listener is et.
                 mHasPendingCloseRequest = true;
             } else if (!mIsClosed) {
-                onCloseRequestedListener = mOnCloseRequestedListener;
+                eventListenerRef.set(mEventListener);
                 executor = mExecutor;
                 mHasPendingCloseRequest = false;
             }
         }
         if (executor != null) {
             try {
-                executor.execute(onCloseRequestedListener::onCloseRequested);
+                executor.execute(() -> eventListenerRef.get().accept(
+                        Event.of(Event.EVENT_REQUEST_CLOSE, SurfaceOutputImpl.this)));
             } catch (RejectedExecutionException e) {
                 // The executor might be invoked after the SurfaceOutputImpl is closed. This
                 // happens if the #close() is called after the synchronized block above but
