@@ -68,4 +68,7 @@ protobuf {
 
 android {
     namespace "com.example.datastoresampleapp"
+    defaultConfig {
+        multiDexEnabled true
+    }
 }

@@ -259,6 +259,7 @@ Found an unresolved type in androidx\.paging\.LivePagedListBuilder\$setCoroutine
 Found an unresolved type in androidx\.paging\.LivePagedListBuilder\$setInitialLoadKey\(androidx\.paging\.LivePagedListBuilder\.Key\) \(LivePagedListBuilder\.kt:[0-9]+\)
 Found an unresolved type in androidx\.paging\.LivePagedListBuilder\$setBoundaryCallback\(androidx\.paging\.PagedList\.BoundaryCallback\(\(androidx\.paging\.LivePagedListBuilder\.Value\)\)\) \(LivePagedListBuilder\.kt:[0-9]+\)
 Found an unresolved type in androidx\.paging\.LivePagedListBuilder\$setFetchExecutor\(java\.util\.concurrent\.Executor\) \(LivePagedListBuilder\.kt:[0-9]+\)
+Found an unresolved type in androidx\.constraintlayout\.compose\.DesignElements\$define\(kotlin\.String, kotlin\.Function[0-9]+\(\(kotlin\.String, \(\(, \)\), kotlin.Unit\)\)\) \(ConstraintLayout.kt:[0-9]+\)
 # > Task :docs-public:dackkaDocs
 ERROR: An attempt to write .*
 WARN: Unable to find what is referred to by
