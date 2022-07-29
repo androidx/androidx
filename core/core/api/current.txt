@@ -1050,6 +1050,48 @@ package androidx.core.content {
     field public static final String EXTRA_TIME = "android.intent.extra.TIME";
   }
 
+  public class IntentSanitizer {
+    method public android.content.Intent sanitize(android.content.Intent, androidx.core.util.Consumer<java.lang.String!>);
+    method public android.content.Intent sanitizeByFiltering(android.content.Intent);
+    method public android.content.Intent sanitizeByThrowing(android.content.Intent);
+  }
+
+  public static final class IntentSanitizer.Builder {
+    ctor public IntentSanitizer.Builder();
+    method public androidx.core.content.IntentSanitizer.Builder allowAction(String);
+    method public androidx.core.content.IntentSanitizer.Builder allowAction(androidx.core.util.Predicate<java.lang.String!>);
+    method public androidx.core.content.IntentSanitizer.Builder allowAnyComponent();
+    method public androidx.core.content.IntentSanitizer.Builder allowCategory(String);
+    method public androidx.core.content.IntentSanitizer.Builder allowCategory(androidx.core.util.Predicate<java.lang.String!>);
+    method public androidx.core.content.IntentSanitizer.Builder allowClipData(androidx.core.util.Predicate<android.content.ClipData!>);
+    method public androidx.core.content.IntentSanitizer.Builder allowClipDataText();
+    method public androidx.core.content.IntentSanitizer.Builder allowClipDataUri(androidx.core.util.Predicate<android.net.Uri!>);
+    method public androidx.core.content.IntentSanitizer.Builder allowClipDataUriWithAuthority(String);
+    method public androidx.core.content.IntentSanitizer.Builder allowComponent(android.content.ComponentName);
+    method public androidx.core.content.IntentSanitizer.Builder allowComponent(androidx.core.util.Predicate<android.content.ComponentName!>);
+    method public androidx.core.content.IntentSanitizer.Builder allowComponentWithPackage(String);
+    method public androidx.core.content.IntentSanitizer.Builder allowData(androidx.core.util.Predicate<android.net.Uri!>);
+    method public androidx.core.content.IntentSanitizer.Builder allowDataWithAuthority(String);
+    method public androidx.core.content.IntentSanitizer.Builder allowExtra(String, Class<?>);
+    method public <T> androidx.core.content.IntentSanitizer.Builder allowExtra(String, Class<T!>, androidx.core.util.Predicate<T!>);
+    method public androidx.core.content.IntentSanitizer.Builder allowExtra(String, androidx.core.util.Predicate<java.lang.Object!>);
+    method public androidx.core.content.IntentSanitizer.Builder allowExtraOutput(String);
+    method public androidx.core.content.IntentSanitizer.Builder allowExtraOutput(androidx.core.util.Predicate<android.net.Uri!>);
+    method public androidx.core.content.IntentSanitizer.Builder allowExtraStream(androidx.core.util.Predicate<android.net.Uri!>);
+    method public androidx.core.content.IntentSanitizer.Builder allowExtraStreamUriWithAuthority(String);
+    method public androidx.core.content.IntentSanitizer.Builder allowFlags(int);
+    method public androidx.core.content.IntentSanitizer.Builder allowHistoryStackFlags();
+    method public androidx.core.content.IntentSanitizer.Builder allowIdentifier();
+    method public androidx.core.content.IntentSanitizer.Builder allowPackage(String);
+    method public androidx.core.content.IntentSanitizer.Builder allowPackage(androidx.core.util.Predicate<java.lang.String!>);
+    method public androidx.core.content.IntentSanitizer.Builder allowReceiverFlags();
+    method public androidx.core.content.IntentSanitizer.Builder allowSelector();
+    method public androidx.core.content.IntentSanitizer.Builder allowSourceBounds();
+    method public androidx.core.content.IntentSanitizer.Builder allowType(String);
+    method public androidx.core.content.IntentSanitizer.Builder allowType(androidx.core.util.Predicate<java.lang.String!>);
+    method public androidx.core.content.IntentSanitizer build();
+  }
+
   public final class LocusIdCompat {
     ctor public LocusIdCompat(String);
     method public String getId();
@@ -1115,6 +1157,10 @@ package androidx.core.content {
     field public static final int DISABLED = 2; // 0x2
     field public static final int ERROR = 0; // 0x0
     field public static final int FEATURE_NOT_AVAILABLE = 1; // 0x1
+  }
+
+  public class UriMatcherCompat {
+    method public static androidx.core.util.Predicate<android.net.Uri!> asPredicate(android.content.UriMatcher);
   }
 
 }
@@ -2109,6 +2155,11 @@ package androidx.core.util {
   }
 
   public interface Predicate<T> {
+    method public default androidx.core.util.Predicate<T!>! and(androidx.core.util.Predicate<? super T>!);
+    method public static <T> androidx.core.util.Predicate<T!>! isEqual(Object!);
+    method public default androidx.core.util.Predicate<T!>! negate();
+    method public static <T> androidx.core.util.Predicate<T!>! not(androidx.core.util.Predicate<? super T>!);
+    method public default androidx.core.util.Predicate<T!>! or(androidx.core.util.Predicate<? super T>!);
     method public boolean test(T!);
   }
 
