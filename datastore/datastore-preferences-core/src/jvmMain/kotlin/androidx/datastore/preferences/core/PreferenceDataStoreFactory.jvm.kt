@@ -28,6 +28,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import java.io.File
 import okio.FileSystem
+import okio.Path
 import okio.Path.Companion.toOkioPath
 
 /**
@@ -35,7 +36,7 @@ import okio.Path.Companion.toOkioPath
  */
 public actual object PreferenceDataStoreFactory {
     /**
-     * Create an instance of SingleProcessDataStore. Never create more than one instance of
+     * Create an instance of [DataStore]. Never create more than one instance of
      * DataStore for a given file; doing so can break all DataStore functionality. You should
      * consider managing your DataStore instance as a singleton.
      *
@@ -49,7 +50,7 @@ public actual object PreferenceDataStoreFactory {
      * @param produceFile Function which returns the file that the new DataStore will act on.
      * The function must return the same path every time. No two instances of PreferenceDataStore
      * should act on the same file at the same time. The file must have the extension
-     * preferences_pb.
+     * preferences_pb. File will be created if it doesn't exist.
      *
      * @return a new DataStore instance with the provided configuration
      */
@@ -77,7 +78,7 @@ public actual object PreferenceDataStoreFactory {
     }
 
     /**
-     * Create an instance of SingleProcessDataStore. Never create more than one instance of
+     * Create an instance of [DataStore]. Never create more than one instance of
      * DataStore for a given file; doing so can break all DataStore functionality. You should
      * consider managing your DataStore instance as a singleton.
      *
@@ -105,5 +106,39 @@ public actual object PreferenceDataStoreFactory {
             migrations = migrations,
             scope = scope
         ))
+    }
+
+    /**
+     * Create an instance of [DataStore] using an okio Path. Never create more than one
+     * instance of DataStore for a given file; doing so can break all DataStore functionality. You
+     * should consider managing your DataStore instance as a singleton.
+     *
+     * @param corruptionHandler The corruptionHandler is invoked if DataStore encounters a
+     * [CorruptionException] when attempting to read data. CorruptionExceptions are thrown by
+     * serializers when data cannot be de-serialized.
+     * @param migrations are run before any access to data can occur. Each producer and migration
+     * may be run more than once whether or not it already succeeded (potentially because another
+     * migration failed or a write to disk failed.)
+     * @param scope The scope in which IO operations and transform functions will execute.
+     * @param produceFile Function which returns the file that the new DataStore will act on.
+     * The function must return the same path every time. No two instances of PreferenceDataStore
+     * should act on the same file at the same time. The file must have the extension
+     * preferences_pb. File will be created if it doesn't exist.
+     *
+     * @return a new DataStore instance with the provided configuration
+     */
+    @JvmOverloads
+    public actual fun createWithPath(
+        corruptionHandler: ReplaceFileCorruptionHandler<Preferences>?,
+        migrations: List<DataMigration<Preferences>>,
+        scope: CoroutineScope,
+        produceFile: () -> Path
+    ): DataStore<Preferences> {
+        return create(
+            corruptionHandler,
+            migrations,
+            scope,
+            produceFile = { produceFile().toFile() }
+        )
     }
 }

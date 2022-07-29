@@ -23,14 +23,12 @@ import androidx.datastore.core.Storage
 import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
 import androidx.datastore.core.okio.OkioStorage
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
 import okio.FileSystem
 import okio.Path
 
 actual object PreferenceDataStoreFactory {
     /**
-     * Create an instance of SingleProcessDataStore. Never create more than one instance of
+     * Create an instance of [DataStore]. Never create more than one instance of
      * DataStore for a given file; doing so can break all DataStore functionality. You should
      * consider managing your DataStore instance as a singleton.
      *
@@ -44,14 +42,14 @@ actual object PreferenceDataStoreFactory {
      * @param produceFile Function which returns the file that the new DataStore will act on.
      * The function must return the same path every time. No two instances of PreferenceDataStore
      * should act on the same file at the same time. The file must have the extension
-     * preferences_pb.
+     * preferences_pb. File will be created if it doesn't exist.
      *
      * @return a new DataStore instance with the provided configuration
      */
-    public fun create(
-        corruptionHandler: ReplaceFileCorruptionHandler<Preferences>? = null,
-        migrations: List<DataMigration<Preferences>> = listOf(),
-        scope: CoroutineScope = CoroutineScope(Dispatchers.Main + SupervisorJob()),
+    public actual fun createWithPath(
+        corruptionHandler: ReplaceFileCorruptionHandler<Preferences>?,
+        migrations: List<DataMigration<Preferences>>,
+        scope: CoroutineScope,
         produceFile: () -> Path
     ): DataStore<Preferences> {
         val delegate = create(
@@ -71,7 +69,7 @@ actual object PreferenceDataStoreFactory {
     }
 
     /**
-     * Create an instance of SingleProcessDataStore. Never create more than one instance of
+     * Create an instance of [DataStore]. Never create more than one instance of
      * DataStore for a given file; doing so can break all DataStore functionality. You should
      * consider managing your DataStore instance as a singleton.
      *
