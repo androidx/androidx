@@ -989,8 +989,8 @@ public class ComplicationSlot
         }
 
         if (forceUpdate || complicationData.value != best) {
-            (complicationData as MutableStateFlow).value = best
             renderer.loadData(best, loadDrawablesAsynchronous)
+            (complicationData as MutableStateFlow).value = best
         }
     }
 

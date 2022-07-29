@@ -5432,6 +5432,46 @@ public class WatchFaceServiceTest {
         assertThat(renderer.lastOnDrawZonedDateTime).isNull()
     }
 
+    @Test
+    public fun setPendingInitialComplications() {
+        initEngine(
+            WatchFaceType.ANALOG,
+            listOf(leftComplication, rightComplication),
+            UserStyleSchema(emptyList())
+        )
+
+        val left1 = IdAndComplicationDataWireFormat(
+            LEFT_COMPLICATION_ID,
+            ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
+                .setShortText(ComplicationText.plainText("Left1"))
+                .build()
+        )
+
+        val left2 = IdAndComplicationDataWireFormat(
+            LEFT_COMPLICATION_ID,
+            ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
+                .setShortText(ComplicationText.plainText("Left2"))
+                .build()
+        )
+
+        val right = IdAndComplicationDataWireFormat(
+            RIGHT_COMPLICATION_ID,
+            ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
+                .setShortText(ComplicationText.plainText("Right"))
+                .build()
+        )
+
+        engineWrapper.setPendingInitialComplications(listOf(left1))
+        assertThat(engineWrapper.pendingInitialComplications).containsExactly(left1)
+
+        // Check merges are working as expected.
+        engineWrapper.setPendingInitialComplications(listOf(right))
+        assertThat(engineWrapper.pendingInitialComplications).containsExactly(left1, right)
+
+        engineWrapper.setPendingInitialComplications(listOf(left2))
+        assertThat(engineWrapper.pendingInitialComplications).containsExactly(left2, right)
+    }
+
     private fun getLeftShortTextComplicationDataText(): CharSequence {
         val complication = complicationSlotsManager[
             LEFT_COMPLICATION_ID
