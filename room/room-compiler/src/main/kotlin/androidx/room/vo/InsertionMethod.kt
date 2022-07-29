@@ -19,13 +19,13 @@ package androidx.room.vo
 import androidx.room.OnConflictStrategy
 import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XType
-import androidx.room.solver.shortcut.binder.InsertMethodBinder
+import androidx.room.solver.shortcut.binder.InsertOrUpsertMethodBinder
 
-data class InsertionMethod(
-    val element: XMethodElement,
+class InsertionMethod(
+    element: XMethodElement,
     @OnConflictStrategy val onConflict: Int,
-    val entities: Map<String, ShortcutEntity>,
-    val returnType: XType,
-    val parameters: List<ShortcutQueryParameter>,
-    val methodBinder: InsertMethodBinder
-)
+    entities: Map<String, ShortcutEntity>,
+    returnType: XType,
+    parameters: List<ShortcutQueryParameter>,
+    methodBinder: InsertOrUpsertMethodBinder
+) : InsertOrUpsertShortcutMethod(element, entities, returnType, parameters, methodBinder)

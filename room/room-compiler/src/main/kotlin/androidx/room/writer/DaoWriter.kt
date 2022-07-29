@@ -45,7 +45,7 @@ import androidx.room.vo.QueryMethod
 import androidx.room.vo.RawQueryMethod
 import androidx.room.vo.ReadQueryMethod
 import androidx.room.vo.ShortcutEntity
-import androidx.room.vo.ShortcutMethod
+import androidx.room.vo.DeleteOrUpdateShortcutMethod
 import androidx.room.vo.TransactionMethod
 import androidx.room.vo.UpdateMethod
 import androidx.room.vo.WriteQueryMethod
@@ -389,9 +389,10 @@ class DaoWriter(
 
         val scope = CodeGenScope(this)
 
-        method.methodBinder.convertAndReturn(
+        // TODO: (b/240491383) remove methodBinder nullability
+        method.methodBinder?.convertAndReturn(
             parameters = method.parameters,
-            insertionAdapters = insertionAdapters,
+            adapters = insertionAdapters,
             dbField = dbField,
             scope = scope
         )
@@ -419,7 +420,7 @@ class DaoWriter(
         }
     }
 
-    private fun <T : ShortcutMethod> createShortcutMethods(
+    private fun <T : DeleteOrUpdateShortcutMethod> createShortcutMethods(
         methods: List<T>,
         methodPrefix: String,
         implCallback: (T, ShortcutEntity) -> TypeSpec
@@ -450,7 +451,7 @@ class DaoWriter(
     }
 
     private fun createDeleteOrUpdateMethodBody(
-        method: ShortcutMethod,
+        method: DeleteOrUpdateShortcutMethod,
         adapters: Map<String, Pair<FieldSpec, TypeSpec>>
     ): CodeBlock {
         if (adapters.isEmpty() || method.methodBinder == null) {
@@ -495,9 +496,9 @@ class DaoWriter(
 
         val scope = CodeGenScope(this)
 
-        method.methodBinder.convertAndReturn(
+        method.methodBinder?.convertAndReturn(
             parameters = method.parameters,
-            upsertionAdapters = upsertionAdapters,
+            adapters = upsertionAdapters,
             dbField = dbField,
             scope = scope
         )

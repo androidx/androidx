@@ -415,7 +415,8 @@ class InsertionMethodProcessorTest {
                 abstract public $type foo(User user);
                 """
             ) { insertion, invocation ->
-                assertThat(insertion.methodBinder.adapter, `is`(nullValue()))
+                // TODO: (b/240491383) remove methodBinder nullability
+                assertThat(insertion.methodBinder?.adapter, `is`(nullValue()))
                 invocation.assertCompilationResult {
                     hasErrorContaining(
                         ProcessorErrors.CANNOT_FIND_INSERT_RESULT_ADAPTER
@@ -440,7 +441,8 @@ class InsertionMethodProcessorTest {
                 abstract public $type foo(User user);
                 """
             ) { insertion, invocation ->
-                assertThat(insertion.methodBinder.adapter, `is`(nullValue()))
+                // TODO: (b/240491383) remove methodBinder nullability
+                assertThat(insertion.methodBinder?.adapter, `is`(nullValue()))
                 invocation.assertCompilationResult {
                     hasErrorContaining(
                         ProcessorErrors.CANNOT_FIND_INSERT_RESULT_ADAPTER
@@ -464,7 +466,8 @@ class InsertionMethodProcessorTest {
                 abstract public $type foo(User... user);
                 """
             ) { insertion, invocation ->
-                assertThat(insertion.methodBinder.adapter, `is`(nullValue()))
+                // TODO: (b/240491383) remove methodBinder nullability
+                assertThat(insertion.methodBinder?.adapter, `is`(nullValue()))
                 invocation.assertCompilationResult {
                     hasErrorContaining(
                         ProcessorErrors.CANNOT_FIND_INSERT_RESULT_ADAPTER
@@ -488,7 +491,8 @@ class InsertionMethodProcessorTest {
                 abstract public $type foo(User user1, User user2);
                 """
             ) { insertion, invocation ->
-                assertThat(insertion.methodBinder.adapter, `is`(nullValue()))
+                // TODO: (b/240491383) remove methodBinder nullability
+                assertThat(insertion.methodBinder?.adapter, `is`(nullValue()))
                 invocation.assertCompilationResult {
                     hasErrorContaining(
                         ProcessorErrors.CANNOT_FIND_INSERT_RESULT_ADAPTER
@@ -563,7 +567,7 @@ class InsertionMethodProcessorTest {
                 abstract public ${pair.first} foo(User$dots user);
                 """
             ) { insertion, _ ->
-                assertThat(insertion.methodBinder.adapter, `is`(notNullValue()))
+                assertThat(insertion.methodBinder?.adapter, `is`(notNullValue()))
             }
         }
     }

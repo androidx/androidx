@@ -18,6 +18,7 @@ package androidx.room.processor
 
 import androidx.room.Delete
 import androidx.room.Insert
+import androidx.room.Upsert
 import androidx.room.Query
 import androidx.room.RawQuery
 import androidx.room.RewriteQueriesToDropUnusedColumns
@@ -42,6 +43,7 @@ object ProcessorErrors {
     val MISSING_INSERT_ANNOTATION = "Insertion methods must be annotated with ${Insert::class.java}"
     val MISSING_DELETE_ANNOTATION = "Deletion methods must be annotated with ${Delete::class.java}"
     val MISSING_UPDATE_ANNOTATION = "Update methods must be annotated with ${Update::class.java}"
+    val MISSING_UPSERT_ANNOTATION = "Upsertion methods must be annotated with ${Upsert::class.java}"
     val MISSING_RAWQUERY_ANNOTATION = "RawQuery methods must be annotated with" +
         " ${RawQuery::class.java}"
     val INVALID_ON_CONFLICT_VALUE = "On conflict value must be one of @OnConflictStrategy values."
@@ -57,6 +59,8 @@ object ProcessorErrors {
         " methods. It must be bound to a type through base Dao class."
     val CANNOT_USE_UNBOUND_GENERICS_IN_INSERTION_METHODS = "Cannot use unbound generics in" +
         " insertion methods. It must be bound to a type through base Dao class."
+    val CANNOT_USE_UNBOUND_GENERICS_IN_UPSERTION_METHODS = "Cannot use unbound generics in" +
+        " upsertion methods. It must be bound to a type through base Dao class."
     val CANNOT_USE_UNBOUND_GENERICS_IN_ENTITY_FIELDS = "Cannot use unbound fields in entities."
     val CANNOT_USE_UNBOUND_GENERICS_IN_DAO_CLASSES = "Cannot use unbound generics in Dao classes." +
         " If you are trying to create a base DAO, create a normal class, extend it with type" +
@@ -143,6 +147,9 @@ object ProcessorErrors {
     val INSERTION_DOES_NOT_HAVE_ANY_PARAMETERS_TO_INSERT = "Method annotated with" +
         " @Insert but does not have any parameters to insert."
 
+    val UPSERTION_DOES_NOT_HAVE_ANY_PARAMETERS_TO_UPSERT = "Method annotated with" +
+        " @Upsert but does not have any parameters to insert or update."
+
     val DELETION_MISSING_PARAMS = "Method annotated with" +
         " @Delete but does not have any parameters to delete."
 
@@ -178,6 +185,8 @@ object ProcessorErrors {
         "is an error. Consider changing the return type or removing the suspend modifier."
 
     val CANNOT_FIND_INSERT_RESULT_ADAPTER = "Not sure how to handle insert method's return type."
+
+    val CANNOT_FIND_UPSERT_RESULT_ADAPTER = "Not sure how to handle upsert method's return type."
 
     val UPDATE_MISSING_PARAMS = "Method annotated with" +
         " @Update but does not have any parameters to update."
@@ -772,6 +781,13 @@ object ProcessorErrors {
         primaryKeyNames: List<String>
     ) = "The partial entity $partialEntityName is missing the primary key fields " +
         "(${primaryKeyNames.joinToString()}) needed to perform an INSERT. If your single " +
+        "primary key is auto generated then the fields are optional."
+
+    fun missingPrimaryKeysInPartialEntityForUpsert(
+        partialEntityName: String,
+        primaryKeyNames: List<String>
+    ) = "The partial entity $partialEntityName is missing the primary key fields " +
+        "(${primaryKeyNames.joinToString()}) needed to perform an UPSERT. If your single " +
         "primary key is auto generated then the fields are optional."
 
     fun missingRequiredColumnsInPartialEntity(

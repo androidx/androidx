@@ -38,8 +38,7 @@ import androidx.room.solver.shortcut.binder.CallableDeleteOrUpdateMethodBinder.C
 import androidx.room.solver.shortcut.binder.CallableInsertMethodBinder.Companion.createInsertBinder
 import androidx.room.solver.shortcut.binder.CallableUpsertMethodBinder.Companion.createUpsertBinder
 import androidx.room.solver.shortcut.binder.DeleteOrUpdateMethodBinder
-import androidx.room.solver.shortcut.binder.InsertMethodBinder
-import androidx.room.solver.shortcut.binder.UpsertMethodBinder
+import androidx.room.solver.shortcut.binder.InsertOrUpsertMethodBinder
 import androidx.room.solver.transaction.binder.CoroutineTransactionMethodBinder
 import androidx.room.solver.transaction.binder.InstantTransactionMethodBinder
 import androidx.room.solver.transaction.binder.TransactionMethodBinder
@@ -89,14 +88,14 @@ abstract class MethodProcessorDelegate(
     abstract fun findInsertMethodBinder(
         returnType: XType,
         params: List<ShortcutQueryParameter>
-    ): InsertMethodBinder
+    ): InsertOrUpsertMethodBinder
 
     abstract fun findDeleteOrUpdateMethodBinder(returnType: XType): DeleteOrUpdateMethodBinder
 
     abstract fun findUpsertMethodBinder(
         returnType: XType,
         params: List<ShortcutQueryParameter>
-    ): UpsertMethodBinder
+    ): InsertOrUpsertMethodBinder
 
     abstract fun findTransactionMethodBinder(
         callType: TransactionMethod.CallType
