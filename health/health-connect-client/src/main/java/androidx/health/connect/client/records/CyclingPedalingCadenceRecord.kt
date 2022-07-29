@@ -68,7 +68,7 @@ public class CyclingPedalingCadenceRecord(
     }
 
     companion object {
-        private const val TYPE = "CyclingPedalingCadence"
+        private const val TYPE = "CyclingPedalingCadenceSeries"
         private const val RPM_FIELD = "rpm"
 
         /**
