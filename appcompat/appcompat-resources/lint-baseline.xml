@@ -124,6 +124,51 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void setColorFilter(ColorFilter colorFilter) {"
+        errorLine2="                               ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableContainerCompat.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void setTintList(ColorStateList tint) {"
+        errorLine2="                            ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableContainerCompat.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected void onBoundsChange(Rect bounds) {"
+        errorLine2="                                  ~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableContainerCompat.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public final ConstantState getConstantState() {"
+        errorLine2="                 ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableContainerCompat.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public Drawable mutate() {"
+        errorLine2="           ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableContainerCompat.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public static PorterDuff.Mode parseTintMode(int value, PorterDuff.Mode defaultMode) {"
         errorLine2="                  ~~~~~~~~~~~~~~~">
         <location
@@ -142,10 +187,10 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public DrawableWrapper(Drawable drawable) {"
-        errorLine2="                           ~~~~~~~~">
+        errorLine1="    public DrawableWrapperCompat(Drawable drawable) {"
+        errorLine2="                                 ~~~~~~~~">
         <location
-            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableWrapper.java"/>
+            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableWrapperCompat.java"/>
     </issue>
 
     <issue
@@ -154,7 +199,7 @@
         errorLine1="    public void draw(Canvas canvas) {"
         errorLine2="                     ~~~~~~">
         <location
-            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableWrapper.java"/>
+            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableWrapperCompat.java"/>
     </issue>
 
     <issue
@@ -163,7 +208,7 @@
         errorLine1="    protected void onBoundsChange(Rect bounds) {"
         errorLine2="                                  ~~~~">
         <location
-            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableWrapper.java"/>
+            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableWrapperCompat.java"/>
     </issue>
 
     <issue
@@ -172,7 +217,7 @@
         errorLine1="    public void setColorFilter(ColorFilter cf) {"
         errorLine2="                               ~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableWrapper.java"/>
+            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableWrapperCompat.java"/>
     </issue>
 
     <issue
@@ -181,7 +226,7 @@
         errorLine1="    public boolean setState(final int[] stateSet) {"
         errorLine2="                                  ~~~~~">
         <location
-            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableWrapper.java"/>
+            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableWrapperCompat.java"/>
     </issue>
 
     <issue
@@ -190,7 +235,7 @@
         errorLine1="    public int[] getState() {"
         errorLine2="           ~~~~~">
         <location
-            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableWrapper.java"/>
+            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableWrapperCompat.java"/>
     </issue>
 
     <issue
@@ -199,7 +244,7 @@
         errorLine1="    public Drawable getCurrent() {"
         errorLine2="           ~~~~~~~~">
         <location
-            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableWrapper.java"/>
+            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableWrapperCompat.java"/>
     </issue>
 
     <issue
@@ -208,7 +253,7 @@
         errorLine1="    public Region getTransparentRegion() {"
         errorLine2="           ~~~~~~">
         <location
-            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableWrapper.java"/>
+            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableWrapperCompat.java"/>
     </issue>
 
     <issue
@@ -217,7 +262,7 @@
         errorLine1="    public boolean getPadding(Rect padding) {"
         errorLine2="                              ~~~~">
         <location
-            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableWrapper.java"/>
+            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableWrapperCompat.java"/>
     </issue>
 
     <issue
@@ -226,7 +271,7 @@
         errorLine1="    public void invalidateDrawable(Drawable who) {"
         errorLine2="                                   ~~~~~~~~">
         <location
-            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableWrapper.java"/>
+            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableWrapperCompat.java"/>
     </issue>
 
     <issue
@@ -235,7 +280,7 @@
         errorLine1="    public void scheduleDrawable(Drawable who, Runnable what, long when) {"
         errorLine2="                                 ~~~~~~~~">
         <location
-            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableWrapper.java"/>
+            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableWrapperCompat.java"/>
     </issue>
 
     <issue
@@ -244,7 +289,7 @@
         errorLine1="    public void scheduleDrawable(Drawable who, Runnable what, long when) {"
         errorLine2="                                               ~~~~~~~~">
         <location
-            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableWrapper.java"/>
+            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableWrapperCompat.java"/>
     </issue>
 
     <issue
@@ -253,7 +298,7 @@
         errorLine1="    public void unscheduleDrawable(Drawable who, Runnable what) {"
         errorLine2="                                   ~~~~~~~~">
         <location
-            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableWrapper.java"/>
+            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableWrapperCompat.java"/>
     </issue>
 
     <issue
@@ -262,7 +307,7 @@
         errorLine1="    public void unscheduleDrawable(Drawable who, Runnable what) {"
         errorLine2="                                                 ~~~~~~~~">
         <location
-            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableWrapper.java"/>
+            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableWrapperCompat.java"/>
     </issue>
 
     <issue
@@ -271,7 +316,7 @@
         errorLine1="    public void setTintList(ColorStateList tint) {"
         errorLine2="                            ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableWrapper.java"/>
+            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableWrapperCompat.java"/>
     </issue>
 
     <issue
@@ -280,25 +325,7 @@
         errorLine1="    public void setTintMode(PorterDuff.Mode tintMode) {"
         errorLine2="                            ~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableWrapper.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public Drawable getWrappedDrawable() {"
-        errorLine2="           ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableWrapper.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public void setWrappedDrawable(Drawable drawable) {"
-        errorLine2="                                   ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableWrapper.java"/>
+            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableWrapperCompat.java"/>
     </issue>
 
     <issue
@@ -344,6 +371,24 @@
         errorLine2="                       ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ResourceManagerInternal.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void addState(int[] stateSet, Drawable drawable) {"
+        errorLine2="                         ~~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/graphics/drawable/StateListDrawableCompat.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void addState(int[] stateSet, Drawable drawable) {"
+        errorLine2="                                         ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/graphics/drawable/StateListDrawableCompat.java"/>
     </issue>
 
     <issue
