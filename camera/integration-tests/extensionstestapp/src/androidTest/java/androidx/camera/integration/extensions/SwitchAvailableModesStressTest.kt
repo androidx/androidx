@@ -21,6 +21,9 @@ import android.content.Context
 import android.content.Intent
 import androidx.camera.camera2.Camera2Config
 import androidx.camera.extensions.ExtensionMode
+import androidx.camera.integration.extensions.IntentExtraKey.INTENT_EXTRA_KEY_CAMERA_ID
+import androidx.camera.integration.extensions.IntentExtraKey.INTENT_EXTRA_KEY_DELETE_CAPTURED_IMAGE
+import androidx.camera.integration.extensions.IntentExtraKey.INTENT_EXTRA_KEY_EXTENSION_MODE
 import androidx.camera.integration.extensions.util.ExtensionsTestUtil
 import androidx.camera.integration.extensions.util.ExtensionsTestUtil.STRESS_TEST_OPERATION_REPEAT_COUNT
 import androidx.camera.testing.CameraUtil
@@ -157,9 +160,9 @@ class SwitchAvailableModesStressTest(private val cameraId: String) {
     private fun launchActivityAndRetrieveIdlingResources() {
         val intent = ApplicationProvider.getApplicationContext<Context>().packageManager
             .getLaunchIntentForPackage(BASIC_SAMPLE_PACKAGE)?.apply {
-                putExtra(CameraExtensionsActivity.INTENT_EXTRA_CAMERA_ID, cameraId)
-                putExtra(CameraExtensionsActivity.INTENT_EXTRA_EXTENSION_MODE, ExtensionMode.NONE)
-                putExtra(CameraExtensionsActivity.INTENT_EXTRA_DELETE_CAPTURED_IMAGE, true)
+                putExtra(INTENT_EXTRA_KEY_CAMERA_ID, cameraId)
+                putExtra(INTENT_EXTRA_KEY_EXTENSION_MODE, ExtensionMode.NONE)
+                putExtra(INTENT_EXTRA_KEY_DELETE_CAPTURED_IMAGE, true)
                 flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             }
 

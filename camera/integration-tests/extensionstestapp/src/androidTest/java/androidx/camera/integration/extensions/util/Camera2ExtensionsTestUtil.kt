@@ -16,10 +16,8 @@
 
 package androidx.camera.integration.extensions.util
 
-import android.content.Context
-import android.hardware.camera2.CameraExtensionCharacteristics
-import android.hardware.camera2.CameraManager
 import androidx.annotation.RequiresApi
+import androidx.camera.integration.extensions.utils.Camera2ExtensionsUtil.AVAILABLE_CAMERA2_EXTENSION_MODES
 import androidx.camera.testing.CameraUtil
 
 @RequiresApi(31)
@@ -32,33 +30,9 @@ object Camera2ExtensionsTestUtil {
     fun getAllCameraIdExtensionModeCombinations(): List<Array<Any>> =
         arrayListOf<Array<Any>>().apply {
             CameraUtil.getBackwardCompatibleCameraIdListOrThrow().forEach { cameraId ->
-                AVAILABLE_EXTENSION_MODES.forEach { mode ->
+                AVAILABLE_CAMERA2_EXTENSION_MODES.forEach { mode ->
                     add(arrayOf(cameraId, mode))
                 }
             }
         }
-
-    @JvmStatic
-    fun isCamera2ExtensionModeSupported(
-        context: Context,
-        cameraId: String,
-        extensionMode: Int
-    ): Boolean {
-        val cameraManager = context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
-        val extensionCharacteristics = cameraManager.getCameraExtensionCharacteristics(cameraId)
-        return extensionCharacteristics.supportedExtensions.contains(extensionMode)
-    }
-
-    /**
-     * Camera2 extension modes
-     */
-    @Suppress("DEPRECATION") // EXTENSION_BEAUTY
-    @JvmStatic
-    val AVAILABLE_EXTENSION_MODES = arrayOf(
-        CameraExtensionCharacteristics.EXTENSION_AUTOMATIC,
-        CameraExtensionCharacteristics.EXTENSION_BEAUTY,
-        CameraExtensionCharacteristics.EXTENSION_BOKEH,
-        CameraExtensionCharacteristics.EXTENSION_HDR,
-        CameraExtensionCharacteristics.EXTENSION_NIGHT,
-    )
 }
