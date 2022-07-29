@@ -191,17 +191,17 @@ public fun ToggleChip(
                 label = label,
                 secondaryLabel = secondaryLabel,
             )
+            Spacer(
+                modifier = Modifier.size(
+                    ToggleChipDefaults.ToggleControlSpacing
+                )
+            )
             Box(
                 modifier = Modifier
                     .align(Alignment.CenterVertically)
-                    .width(36.dp)
+                    .width(24.dp)
                     .wrapContentWidth(align = Alignment.End)
             ) {
-                Spacer(
-                    modifier = Modifier.size(
-                        ToggleChipDefaults.ToggleControlSpacing
-                    )
-                )
                 CompositionLocalProvider(
                     LocalContentColor provides
                         colors.toggleControlColor(
