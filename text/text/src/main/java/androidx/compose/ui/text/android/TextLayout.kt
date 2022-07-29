@@ -17,6 +17,7 @@ package androidx.compose.ui.text.android
 
 import android.graphics.Canvas
 import android.graphics.Path
+import android.graphics.RectF
 import android.text.BoringLayout
 import android.text.Layout
 import android.text.Spanned
@@ -451,6 +452,44 @@ class TextLayout constructor(
                 arrayOffset += 4
             }
         }
+    }
+
+    /**
+     * Returns the bounding box as Rect of the character for given character offset.
+     */
+    fun getBoundingBox(offset: Int): RectF {
+        // Although this function shares its core logic with [fillBoundingBoxes], there is no
+        // need to use a [HorizontalPositionCache]. Hence, [getBoundingBox] runs the same algorithm
+        // without using the cache. Any core logic change here or in [fillBoundingBoxes] should
+        // be reflected on the other.
+        val line = getLineForOffset(offset)
+        val lineTop = getLineTop(line)
+        val lineBottom = getLineBottom(line)
+
+        val isLtrLine = getParagraphDirection(line) == Layout.DIR_LEFT_TO_RIGHT
+        val isRtlChar = layout.isRtlCharAt(offset)
+
+        val left: Float
+        val right: Float
+        when {
+            isLtrLine && !isRtlChar -> {
+                left = getPrimaryHorizontal(offset, upstream = false)
+                right = getPrimaryHorizontal(offset + 1, upstream = true)
+            }
+            isLtrLine && isRtlChar -> {
+                right = getSecondaryHorizontal(offset, upstream = false)
+                left = getSecondaryHorizontal(offset + 1, upstream = true)
+            }
+            isRtlChar -> {
+                right = getPrimaryHorizontal(offset, upstream = false)
+                left = getPrimaryHorizontal(offset + 1, upstream = true)
+            }
+            else -> {
+                left = getSecondaryHorizontal(offset, upstream = false)
+                right = getSecondaryHorizontal(offset + 1, upstream = true)
+            }
+        }
+        return RectF(left, lineTop, right, lineBottom)
     }
 
     fun paint(canvas: Canvas) {
