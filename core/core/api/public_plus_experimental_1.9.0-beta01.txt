@@ -3241,6 +3241,7 @@ package androidx.core.view.accessibility {
     method public boolean isSelected();
     method public boolean isShowingHintText();
     method public boolean isTextEntryKey();
+    method public boolean isTextSelectable();
     method public boolean isVisibleToUser();
     method public static androidx.core.view.accessibility.AccessibilityNodeInfoCompat! obtain(android.view.View!);
     method public static androidx.core.view.accessibility.AccessibilityNodeInfoCompat! obtain(android.view.View!, int);
@@ -3303,6 +3304,7 @@ package androidx.core.view.accessibility {
     method public void setStateDescription(CharSequence?);
     method public void setText(CharSequence!);
     method public void setTextEntryKey(boolean);
+    method public void setTextSelectable(boolean);
     method public void setTextSelection(int, int);
     method public void setTooltipText(CharSequence?);
     method public void setTouchDelegateInfo(androidx.core.view.accessibility.AccessibilityNodeInfoCompat.TouchDelegateInfoCompat);
@@ -3407,6 +3409,7 @@ package androidx.core.view.accessibility {
     field public static final androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat! ACTION_SET_SELECTION;
     field public static final androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat! ACTION_SET_TEXT;
     field public static final androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat! ACTION_SHOW_ON_SCREEN;
+    field public static final androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat ACTION_SHOW_TEXT_SUGGESTIONS;
     field public static final androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat! ACTION_SHOW_TOOLTIP;
   }
 
