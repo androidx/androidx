@@ -270,13 +270,23 @@ class TextLayout constructor(
 
     fun getLineLeft(lineIndex: Int): Float = layout.getLineLeft(lineIndex)
 
+    /**
+     * Return the horizontal leftmost position of the line in pixels.
+     */
     fun getLineRight(lineIndex: Int): Float = layout.getLineRight(lineIndex)
 
+    /**
+     * Return the vertical position of the top of the line in pixels. If the line is equal to the
+     * line count, returns the bottom of the last line.
+     */
     fun getLineTop(line: Int): Float {
         val top = layout.getLineTop(line).toFloat()
         return top + if (line == 0) 0 else topPadding
     }
 
+    /**
+     * Return the vertical position of the bottom of the line in pixels.
+     */
     fun getLineBottom(line: Int): Float {
         return topPadding +
             layout.getLineBottom(line).toFloat() +
@@ -291,6 +301,9 @@ class TextLayout constructor(
      */
     fun getLineAscent(line: Int): Float = layout.getLineAscent(line).toFloat()
 
+    /**
+     * Return the vertical position of the baseline of the line in pixels.
+     */
     fun getLineBaseline(line: Int): Float = topPadding + layout.getLineBaseline(line).toFloat()
 
     /**
@@ -303,10 +316,21 @@ class TextLayout constructor(
 
     fun getLineHeight(lineIndex: Int): Float = getLineBottom(lineIndex) - getLineTop(lineIndex)
 
+    /**
+     * Return the width of the line in pixels.
+     */
     fun getLineWidth(lineIndex: Int): Float = layout.getLineWidth(lineIndex)
 
+    /**
+     * Return the text offset at the beginning of the line. If the line is equal to the line count,
+     * returns the length of the text.
+     */
     fun getLineStart(lineIndex: Int): Int = layout.getLineStart(lineIndex)
 
+    /**
+     * Return the text offset at the end of the line. If the line is equal to the line count,
+     * returns the length of the text.
+     */
     fun getLineEnd(lineIndex: Int): Int =
         if (layout.getEllipsisStart(lineIndex) == 0) { // no ellipsis
             layout.getLineEnd(lineIndex)
@@ -317,6 +341,10 @@ class TextLayout constructor(
             layout.text.length
         }
 
+    /**
+     * Return the text offset after the last visible character on the specified line. For example
+     * whitespaces are not counted as visible characters.
+     */
     fun getLineVisibleEnd(lineIndex: Int): Int =
         if (layout.getEllipsisStart(lineIndex) == 0) { // no ellipsis
             layout.getLineVisibleEnd(lineIndex)
