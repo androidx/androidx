@@ -559,47 +559,34 @@ public class UiObject2Tests extends BaseTest {
     public void testSwipe() {
         launchTestActivity(UiObject2TestSwipeActivity.class);
 
-        // Avoid touching too close to the edges.
-        UiObject2 scrollView = mDevice.findObject(By.res(TEST_APP, "scroll_view"));
-        scrollView.setGestureMargin(SCROLL_MARGIN);
+        UiObject2 swipeRegion = mDevice.findObject(By.res(TEST_APP, "swipe_region"));
+        swipeRegion.setGestureMargin(SCROLL_MARGIN);
 
-        // Initially at top left corner.
-        assertTrue(mDevice.hasObject(By.res(TEST_APP, "top_text")));
-        assertFalse(mDevice.hasObject(By.res(TEST_APP, "right_text")));
+        swipeRegion.swipe(Direction.LEFT, 0.5f);
+        assertEquals("swipe_left", swipeRegion.getText());
 
-        // Swipe left to right bound (5000px) within one swipe.
-        scrollView.swipe(Direction.LEFT, 1.0f);
-        assertFalse(mDevice.hasObject(By.res(TEST_APP, "top_text")));
-        assertTrue(mDevice.hasObject(By.res(TEST_APP, "right_text")));
+        swipeRegion.swipe(Direction.RIGHT, 1.0f);
+        assertEquals("swipe_right", swipeRegion.getText());
 
-        // Swipe right back to left bound (0px) within one swipe.
-        scrollView.swipe(Direction.RIGHT, 1.0f);
-        assertTrue(mDevice.hasObject(By.res(TEST_APP, "top_text")));
-        assertFalse(mDevice.hasObject(By.res(TEST_APP, "right_text")));
+        swipeRegion.swipe(Direction.UP, 0.5f, 1000);
+        assertEquals("swipe_up", swipeRegion.getText());
 
-        // Swipe up to bottom bound (5000px) within one swipe.
-        scrollView.swipe(Direction.UP, 1.0f, 10000);
-        assertFalse(mDevice.hasObject(By.res(TEST_APP, "top_text")));
-        assertTrue(mDevice.hasObject(By.res(TEST_APP, "bottom_text")));
-
-        // Swipe down back to top bound (0px) within one swipe.
-        scrollView.swipe(Direction.DOWN, 1.0f, 10000);
-        assertTrue(mDevice.hasObject(By.res(TEST_APP, "top_text")));
-        assertFalse(mDevice.hasObject(By.res(TEST_APP, "bottom_text")));
+        swipeRegion.swipe(Direction.DOWN, 1.0f, 1000);
+        assertEquals("swipe_down", swipeRegion.getText());
     }
 
     @Test
     public void testSwipe_throwsIllegalArgumentException() {
         launchTestActivity(UiObject2TestSwipeActivity.class);
 
-        UiObject2 scrollView = mDevice.findObject(By.res(TEST_APP, "horizontal_scroll_view"));
+        UiObject2 swipeRegion = mDevice.findObject(By.res(TEST_APP, "swipe_region"));
 
         assertThrows("Percent must be between 0.0f and 1.0f", IllegalArgumentException.class,
-                () -> scrollView.swipe(Direction.UP, 10.0f));
+                () -> swipeRegion.swipe(Direction.UP, 10.0f));
         assertThrows("Percent must be between 0.0f and 1.0f", IllegalArgumentException.class,
-                () -> scrollView.swipe(Direction.UP, -10.0f));
+                () -> swipeRegion.swipe(Direction.UP, -10.0f));
         assertThrows("Speed cannot be negative", IllegalArgumentException.class,
-                () -> scrollView.swipe(Direction.UP, 1.0f, -10));
+                () -> swipeRegion.swipe(Direction.UP, 1.0f, -10));
     }
 
     @Test
