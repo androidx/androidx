@@ -290,8 +290,6 @@ meta\-data\#androidx\.emoji[0-9]+\.text\.EmojiCompatInitializer was tagged at An
 To honour the JVM settings for this build a single\-use Daemon process will be forked.*
 # > Task :work:work-benchmark:processReleaseAndroidTestManifest
 [0-9]+ problems were found storing the configuration cache\.
-# > Task :car:app:app:generateProtocolApi
-\- Task `:car:app:app:generateProtocolApi` of type `GenerateProtocolApiTask`: invocation of 'Task\.project' at execution time is unsupported\.
 # > Tasks configureCMakeRelWithDebInfo or configureCMakeDebug
 C/C\+\+: Building ver\.\: [0-9]+\.[0-9]+\.[0-9]+
 C/C\+\+: Packaging for\: (amd\-[0-9]+|armhf\-[0-9]+|x86\-[0-9]+)
