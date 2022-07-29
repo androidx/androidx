@@ -654,39 +654,43 @@ public class CameraExtensionsActivity extends AppCompatActivity
 
     @VisibleForTesting
     @ExtensionMode.Mode
-    int getCurrentExtensionMode() {
+    public int getCurrentExtensionMode() {
         return mCurrentExtensionMode;
     }
 
     @VisibleForTesting
-    CountingIdlingResource getInitializationIdlingResource() {
+    @NonNull
+    public CountingIdlingResource getInitializationIdlingResource() {
         return mInitializationIdlingResource;
     }
 
     @VisibleForTesting
-    CountingIdlingResource getPreviewViewStreamingStateIdlingResource() {
+    @NonNull
+    public CountingIdlingResource getPreviewViewStreamingStateIdlingResource() {
         return mPreviewViewStreamingStateIdlingResource;
     }
 
     @VisibleForTesting
-    CountingIdlingResource getPreviewViewIdleStateIdlingResource() {
+    @NonNull
+    public CountingIdlingResource getPreviewViewIdleStateIdlingResource() {
         return mPreviewViewIdleStateIdlingResource;
     }
 
     @VisibleForTesting
-    CountingIdlingResource getTakePictureIdlingResource() {
+    @NonNull
+    public CountingIdlingResource getTakePictureIdlingResource() {
         return mTakePictureIdlingResource;
     }
 
     @VisibleForTesting
-    void resetPreviewViewStreamingStateIdlingResource() {
+    public void resetPreviewViewStreamingStateIdlingResource() {
         if (mPreviewViewStreamingStateIdlingResource.isIdleNow()) {
             mPreviewViewStreamingStateIdlingResource.increment();
         }
     }
 
     @VisibleForTesting
-    void resetPreviewViewIdleStateIdlingResource() {
+    public void resetPreviewViewIdleStateIdlingResource() {
         if (mPreviewViewIdleStateIdlingResource.isIdleNow()) {
             mPreviewViewIdleStateIdlingResource.increment();
         }
