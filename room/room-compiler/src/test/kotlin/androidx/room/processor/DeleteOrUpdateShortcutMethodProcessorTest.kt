@@ -32,7 +32,7 @@ import androidx.room.ext.ReactiveStreamsTypeNames
 import androidx.room.ext.RxJava2TypeNames
 import androidx.room.ext.RxJava3TypeNames
 import androidx.room.testing.context
-import androidx.room.vo.ShortcutMethod
+import androidx.room.vo.DeleteOrUpdateShortcutMethod
 import com.squareup.javapoet.ArrayTypeName
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.ParameterizedTypeName
@@ -45,7 +45,7 @@ import kotlin.reflect.KClass
 /**
  * Base test class for shortcut methods.
  */
-abstract class ShortcutMethodProcessorTest<out T : ShortcutMethod>(
+abstract class DeleteOrUpdateShortcutMethodProcessorTest<out T : DeleteOrUpdateShortcutMethod>(
     val annotation: KClass<out Annotation>
 ) {
     companion object {

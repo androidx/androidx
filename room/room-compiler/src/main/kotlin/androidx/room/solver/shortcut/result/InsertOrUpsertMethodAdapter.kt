@@ -14,24 +14,20 @@
  * limitations under the License.
  */
 
-package androidx.room.solver.shortcut.binderprovider
+package androidx.room.solver.shortcut.result
 
-import androidx.room.compiler.processing.XType
-import androidx.room.solver.shortcut.binder.UpsertMethodBinder
+import androidx.room.solver.CodeGenScope
 import androidx.room.vo.ShortcutQueryParameter
+import com.squareup.javapoet.FieldSpec
 
 /**
- * Provider for upsert method binders.
+ * Abstract class for insert and update method adapters.
  */
-interface UpsertMethodBinderProvider {
-
-    /**
-     * Check whether the [XType] can be handled by the [UpsertMethodBinder]
-     */
-    fun matches(declared: XType): Boolean
-
-    /**
-     * Provider of [UpsertMethodBinder], based on the [XType] and the list of parameters
-     */
-    fun provide(declared: XType, params: List<ShortcutQueryParameter>): UpsertMethodBinder
+abstract class InsertOrUpsertMethodAdapter {
+    abstract fun createMethodBody(
+        parameters: List<ShortcutQueryParameter>,
+        adapters: Map<String, Pair<FieldSpec, Any>>,
+        dbField: FieldSpec,
+        scope: CodeGenScope
+    )
 }

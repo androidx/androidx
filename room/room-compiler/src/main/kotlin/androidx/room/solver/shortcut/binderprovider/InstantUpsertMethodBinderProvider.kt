@@ -18,21 +18,22 @@ package androidx.room.solver.shortcut.binderprovider
 
 import androidx.room.compiler.processing.XType
 import androidx.room.processor.Context
-import androidx.room.solver.shortcut.binder.UpsertMethodBinder
+import androidx.room.solver.shortcut.binder.InsertOrUpsertMethodBinder
 import androidx.room.solver.shortcut.binder.InstantUpsertMethodBinder
 import androidx.room.vo.ShortcutQueryParameter
 
 /**
  * Provider for instant (blocking) upsert method binder.
  */
-class InstantUpsertMethodBinderProvider(private val context: Context) : UpsertMethodBinderProvider {
+class InstantUpsertMethodBinderProvider(private val context: Context) :
+    InsertOrUpsertMethodBinderProvider {
 
     override fun matches(declared: XType) = true
 
     override fun provide(
         declared: XType,
         params: List<ShortcutQueryParameter>
-    ): UpsertMethodBinder {
+    ): InsertOrUpsertMethodBinder {
         return InstantUpsertMethodBinder(
             context.typeAdapterStore.findUpsertAdapter(declared, params)
         )

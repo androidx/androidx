@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 The Android Open Source Project
+ * Copyright 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,28 +16,25 @@
 
 package androidx.room.solver.shortcut.binder
 
+import androidx.room.solver.shortcut.result.InsertOrUpsertMethodAdapter
 import androidx.room.solver.CodeGenScope
 import androidx.room.solver.shortcut.result.InsertMethodAdapter
+import androidx.room.solver.shortcut.result.UpsertMethodAdapter
 import androidx.room.vo.ShortcutQueryParameter
 import com.squareup.javapoet.FieldSpec
-import com.squareup.javapoet.TypeSpec
 
 /**
- * Connects the insert method, the database and the [InsertMethodAdapter].
- *
- * The default implementation is [InstantInsertMethodBinder] that executes the insert synchronously.
- * If the insert is deferred, rather than synchronously, alternatives implementations can be
- * implemented using this interface (e.g. RxJava, coroutines etc).
+ * Connects the insert and upsert method, the database and the [InsertMethodAdapter] or [UpsertMethodAdapter].
  */
-abstract class InsertMethodBinder(val adapter: InsertMethodAdapter?) {
+abstract class InsertOrUpsertMethodBinder(val adapter: InsertOrUpsertMethodAdapter?) {
 
     /**
-     * Received the insert method parameters, the insertion adapters and generations the code that
-     * runs the insert and returns the result.
+     * Received an insert or upsert method parameters, their adapters and generations the code that
+     * runs the insert or upsert and returns the result.
      *
      * For example, for the DAO method:
      * ```
-     * @Insert
+     * @Upsert
      * fun addPublishers(vararg publishers: Publisher): List<Long>
      * ```
      * The following code will be generated:
@@ -45,7 +42,7 @@ abstract class InsertMethodBinder(val adapter: InsertMethodAdapter?) {
      * ```
      * __db.beginTransaction();
      * try {
-     *  List<Long> _result = __insertionAdapterOfPublisher.insertAndReturnIdsList(publishers);
+     *  List<Long> _result = __upsertionAdapterOfPublisher.upsertAndReturnIdsList(publishers);
      *  __db.setTransactionSuccessful();
      *  return _result;
      * } finally {
@@ -55,7 +52,7 @@ abstract class InsertMethodBinder(val adapter: InsertMethodAdapter?) {
      */
     abstract fun convertAndReturn(
         parameters: List<ShortcutQueryParameter>,
-        insertionAdapters: Map<String, Pair<FieldSpec, TypeSpec>>,
+        adapters: Map<String, Pair<FieldSpec, Any>>,
         dbField: FieldSpec,
         scope: CodeGenScope
     )

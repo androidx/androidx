@@ -48,7 +48,7 @@ data class Dao(
 
     val typeName: ClassName by lazy { element.className }
 
-    val shortcutMethods: List<ShortcutMethod> by lazy {
+    val deleteOrUpdateShortcutMethods: List<DeleteOrUpdateShortcutMethod> by lazy {
         deletionMethods + updateMethods
     }
 

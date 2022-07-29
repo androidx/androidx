@@ -17,21 +17,21 @@
 package androidx.room.solver.shortcut.binderprovider
 
 import androidx.room.compiler.processing.XType
-import androidx.room.solver.shortcut.binder.InsertMethodBinder
+import androidx.room.solver.shortcut.binder.InsertOrUpsertMethodBinder
 import androidx.room.vo.ShortcutQueryParameter
 
 /**
- * Provider for insert method binders.
+ * Provider for insert and upsert method binders.
  */
-interface InsertMethodBinderProvider {
+interface InsertOrUpsertMethodBinderProvider {
 
     /**
-     * Check whether the [XType] can be handled by the [InsertMethodBinder]
+     * Check whether the [XType] can be handled by the [InsertOrUpsertMethodBinder]
      */
     fun matches(declared: XType): Boolean
 
     /**
-     * Provider of [InsertMethodBinder], based on the [XType] and the list of parameters
+     * Provider of [InsertOrUpsertMethodBinder], based on the [XType] and the list of parameters
      */
-    fun provide(declared: XType, params: List<ShortcutQueryParameter>): InsertMethodBinder
+    fun provide(declared: XType, params: List<ShortcutQueryParameter>): InsertOrUpsertMethodBinder
 }
