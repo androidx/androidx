@@ -39,23 +39,25 @@ public class DefaultExecutionTracker implements ExecutionTracker {
     public void track(SettableFuture<?> future) {
         synchronized (mFuturesInProgress) {
             mFuturesInProgress.add(future);
+            future.addListener(
+                    () -> {
+                        synchronized (mFuturesInProgress) {
+                            mFuturesInProgress.remove(future);
+                        }
+                    },
+                    MoreExecutors.directExecutor());
         }
-        future.addListener(
-                () -> {
-                    synchronized (mFuturesInProgress) {
-                        mFuturesInProgress.remove(future);
-                    }
-                },
-                MoreExecutors.directExecutor());
     }
 
     @Override
     public void cancelPendingFutures(Throwable throwable) {
+        Set<SettableFuture<?>> futuresInProgressCopy;
         synchronized (mFuturesInProgress) {
-            for (SettableFuture<?> future : mFuturesInProgress) {
-                future.setException(throwable);
-            }
+            futuresInProgressCopy = new HashSet<>(mFuturesInProgress);
             mFuturesInProgress.clear();
+        }
+        for (SettableFuture<?> future : futuresInProgressCopy) {
+            future.setException(throwable);
         }
     }
 }
