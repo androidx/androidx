@@ -18,7 +18,7 @@ package androidx.camera.view;
 
 import static androidx.camera.core.impl.ImageOutputConfig.ROTATION_NOT_SPECIFIED;
 import static androidx.camera.core.impl.utils.Threads.checkMainThread;
-import static androidx.camera.view.TransformUtils.getNormalizedToBuffer;
+import static androidx.camera.core.impl.utils.TransformUtils.getNormalizedToBuffer;
 import static androidx.core.content.ContextCompat.getMainExecutor;
 
 import android.annotation.SuppressLint;

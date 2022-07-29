@@ -14,18 +14,16 @@
  * limitations under the License.
  */
 
-package androidx.camera.view;
+package androidx.camera.core.impl.utils;
 
 import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.media.ExifInterface;
 import android.util.Size;
-import android.view.Surface;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
-import androidx.annotation.RestrictTo;
 
 /**
  * Utility class for transform.
@@ -36,11 +34,8 @@ import androidx.annotation.RestrictTo;
  * (clockwise v.s. counter-clockwise).
  *
  * TODO(b/179827713): merge this with {@link androidx.camera.core.internal.utils.ImageUtil}.
- *
- * @hide
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class TransformUtils {
 
     // Normalized space (-1, -1) - (1, 1).
@@ -85,24 +80,6 @@ public class TransformUtils {
     }
 
     /**
-     * Converts {@link Surface} rotation to rotation degrees: 90, 180, 270 or 0.
-     */
-    public static int surfaceRotationToRotationDegrees(int rotationValue) {
-        switch (rotationValue) {
-            case Surface.ROTATION_0:
-                return 0;
-            case Surface.ROTATION_90:
-                return 90;
-            case Surface.ROTATION_180:
-                return 180;
-            case Surface.ROTATION_270:
-                return 270;
-            default:
-                throw new IllegalStateException("Unexpected rotation value " + rotationValue);
-        }
-    }
-
-    /**
      * Returns true if the rotation degrees is 90 or 270.
      */
     public static boolean is90or270(int rotationDegrees) {
@@ -138,7 +115,8 @@ public class TransformUtils {
      *
      * <p> One example of the usage is comparing the viewport-based crop rect from different use
      * cases. The crop rect is rounded because pixels are integers, which may introduce an error
-     * when we check if the aspect ratio matches. For example, when {@link PreviewView}'s
+     * when we check if the aspect ratio matches. For example, when
+     * {@linkplain androidx.camera.view.PreviewView}'s
      * width/height are prime numbers 601x797, the crop rect from other use cases cannot have a
      * matching aspect ratio even if they are based on the same viewport. This method checks the
      * aspect ratio while tolerating a rounding error.
@@ -216,7 +194,7 @@ public class TransformUtils {
      * Gets the transform from a normalized space (-1, -1) - (1, 1) to the given rect.
      */
     @NonNull
-    private static Matrix getNormalizedToBuffer(@NonNull RectF viewPortRect) {
+    public static Matrix getNormalizedToBuffer(@NonNull RectF viewPortRect) {
         Matrix normalizedToBuffer = new Matrix();
         normalizedToBuffer.setRectToRect(NORMALIZED_RECT, viewPortRect, Matrix.ScaleToFit.FILL);
         return normalizedToBuffer;
@@ -280,6 +258,7 @@ public class TransformUtils {
         }
 
         // Map the normalized space back to the bitmap coordinates.
+        @SuppressWarnings("SuspiciousNameCombination")
         RectF restoredRect = isWidthHeightSwapped ? new RectF(0, 0, height, width) : rect;
         Matrix restore = new Matrix();
         restore.setRectToRect(NORMALIZED_RECT, restoredRect, Matrix.ScaleToFit.FILL);
