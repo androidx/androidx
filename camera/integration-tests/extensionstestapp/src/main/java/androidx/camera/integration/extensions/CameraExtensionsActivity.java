@@ -15,6 +15,13 @@
  */
 package androidx.camera.integration.extensions;
 
+import static androidx.camera.integration.extensions.CameraDirection.BACKWARD;
+import static androidx.camera.integration.extensions.CameraDirection.FORWARD;
+import static androidx.camera.integration.extensions.IntentExtraKey.INTENT_EXTRA_KEY_CAMERA_DIRECTION;
+import static androidx.camera.integration.extensions.IntentExtraKey.INTENT_EXTRA_KEY_CAMERA_ID;
+import static androidx.camera.integration.extensions.IntentExtraKey.INTENT_EXTRA_KEY_DELETE_CAPTURED_IMAGE;
+import static androidx.camera.integration.extensions.IntentExtraKey.INTENT_EXTRA_KEY_EXTENSION_MODE;
+
 import android.content.ContentValues;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
@@ -87,30 +94,6 @@ import java.util.Map;
 /** An activity that shows off how extensions can be applied */
 public class CameraExtensionsActivity extends AppCompatActivity
         implements ActivityCompat.OnRequestPermissionsResultCallback {
-
-    /**
-     * The camera with the specified camera id will be opened if the intent used to launch the
-     * activity includes the information.
-     */
-    @VisibleForTesting
-    static final String INTENT_EXTRA_CAMERA_ID = "camera_id";
-    /**
-     * The specified extension mode will be tried to be enabled if the intent used to launch the
-     * activity includes the information.
-     */
-    @VisibleForTesting
-    static final String INTENT_EXTRA_EXTENSION_MODE = "extension_mode";
-    /**
-     * The captured image will be deleted automatically if the intent used to launch the activity
-     * includes the setting as true.
-     */
-    @VisibleForTesting
-    static final String INTENT_EXTRA_DELETE_CAPTURED_IMAGE = "delete_captured_image";
-
-    // Possible values for this intent key: "BACKWARD" or "FORWARD".
-    private static final String INTENT_EXTRA_CAMERA_DIRECTION = "camera_direction";
-    private static final String BACKWARD = "BACKWARD";
-    private static final String FORWARD = "FORWARD";
 
     private static final String TAG = "CameraExtensionActivity";
     private static final int PERMISSIONS_REQUEST_CODE = 42;
@@ -358,13 +341,13 @@ public class CameraExtensionsActivity extends AppCompatActivity
 
         mInitializationIdlingResource.increment();
 
-        String cameraId = getIntent().getStringExtra(INTENT_EXTRA_CAMERA_ID);
+        String cameraId = getIntent().getStringExtra(INTENT_EXTRA_KEY_CAMERA_ID);
         if (cameraId != null) {
             mCurrentCameraSelector = CameraSelectorUtil.createCameraSelectorById(cameraId);
         }
 
         // Get params from adb extra string for the e2e test cases.
-        String cameraDirection = getIntent().getStringExtra(INTENT_EXTRA_CAMERA_DIRECTION);
+        String cameraDirection = getIntent().getStringExtra(INTENT_EXTRA_KEY_CAMERA_DIRECTION);
         if (cameraDirection != null) {
             if (cameraDirection.equals(BACKWARD)) {
                 mCurrentCameraSelector = CameraSelector.DEFAULT_BACK_CAMERA;
@@ -375,10 +358,10 @@ public class CameraExtensionsActivity extends AppCompatActivity
                         "The camera " + cameraDirection + " is unavailable.");
             }
         }
-        mCurrentExtensionMode = getIntent().getIntExtra(INTENT_EXTRA_EXTENSION_MODE,
+        mCurrentExtensionMode = getIntent().getIntExtra(INTENT_EXTRA_KEY_EXTENSION_MODE,
                 mCurrentExtensionMode);
 
-        mDeleteCapturedImage = getIntent().getBooleanExtra(INTENT_EXTRA_DELETE_CAPTURED_IMAGE,
+        mDeleteCapturedImage = getIntent().getBooleanExtra(INTENT_EXTRA_KEY_DELETE_CAPTURED_IMAGE,
                 mDeleteCapturedImage);
 
         StrictMode.VmPolicy policy =

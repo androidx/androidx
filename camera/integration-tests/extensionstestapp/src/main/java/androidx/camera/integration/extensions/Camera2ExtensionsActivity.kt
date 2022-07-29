@@ -27,6 +27,7 @@ import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CameraExtensionCharacteristics
 import android.hardware.camera2.CameraExtensionSession
 import android.hardware.camera2.CameraManager
+import android.hardware.camera2.CameraMetadata
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.params.ExtensionSessionConfiguration
 import android.hardware.camera2.params.OutputConfiguration
@@ -50,8 +51,18 @@ import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
 import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.impl.utils.futures.Futures
-import androidx.camera.integration.extensions.utils.Camera2ExtensionsUtil.getExtensionModeStringFromId
+import androidx.camera.integration.extensions.IntentExtraKey.INTENT_EXTRA_KEY_CAMERA_ID
+import androidx.camera.integration.extensions.IntentExtraKey.INTENT_EXTRA_KEY_ERROR_CODE
+import androidx.camera.integration.extensions.IntentExtraKey.INTENT_EXTRA_KEY_EXTENSION_MODE
+import androidx.camera.integration.extensions.IntentExtraKey.INTENT_EXTRA_KEY_IMAGE_ROTATION_DEGREES
+import androidx.camera.integration.extensions.IntentExtraKey.INTENT_EXTRA_KEY_IMAGE_URI
+import androidx.camera.integration.extensions.IntentExtraKey.INTENT_EXTRA_KEY_REQUEST_CODE
+import androidx.camera.integration.extensions.ValidationErrorCode.ERROR_CODE_EXTENSION_MODE_NOT_SUPPORT
+import androidx.camera.integration.extensions.ValidationErrorCode.ERROR_CODE_NONE
+import androidx.camera.integration.extensions.ValidationErrorCode.ERROR_CODE_SAVE_IMAGE_FAILED
+import androidx.camera.integration.extensions.utils.Camera2ExtensionsUtil.getCamera2ExtensionModeStringFromId
 import androidx.camera.integration.extensions.utils.Camera2ExtensionsUtil.getLensFacingCameraId
+import androidx.camera.integration.extensions.utils.Camera2ExtensionsUtil.isCamera2ExtensionModeSupported
 import androidx.camera.integration.extensions.utils.Camera2ExtensionsUtil.pickPreviewResolution
 import androidx.camera.integration.extensions.utils.Camera2ExtensionsUtil.pickStillImageResolution
 import androidx.camera.integration.extensions.utils.FileUtil
@@ -85,14 +96,6 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 private const val TAG = "Camera2ExtensionsAct~"
 private const val EXTENSION_MODE_INVALID = -1
 private const val FRAMES_UNTIL_VIEW_IS_READY = 10
-
-// Launch the activity with the specified camera id.
-@VisibleForTesting
-const val INTENT_EXTRA_CAMERA_ID = "camera_id"
-
-// Launch the activity with the specified extension mode.
-@VisibleForTesting
-const val INTENT_EXTRA_EXTENSION_MODE = "extension_mode"
 
 @RequiresApi(31)
 class Camera2ExtensionsActivity : AppCompatActivity() {
@@ -237,6 +240,21 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
 
     private lateinit var sessionImageUriSet: SessionMediaUriSet
 
+    /**
+     * Stores the request code passed from the caller activity.
+     */
+    private var requestCode = -1
+
+    /**
+     * This will be true if the activity is called by other activity to request capturing an image.
+     */
+    private var isRequestMode = false
+
+    /**
+     * The result intent that saves the image capture request results.
+     */
+    private lateinit var result: Intent
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Log.d(TAG, "onCreate()")
@@ -265,14 +283,54 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
 
         // Gets params from extra bundle
         intent.extras?.let { bundle ->
-            currentCameraId = bundle.getString(INTENT_EXTRA_CAMERA_ID, currentCameraId)
-            currentExtensionMode = bundle.getInt(INTENT_EXTRA_EXTENSION_MODE, currentExtensionMode)
+            currentCameraId = bundle.getString(INTENT_EXTRA_KEY_CAMERA_ID, currentCameraId)
+            currentExtensionMode =
+                bundle.getInt(INTENT_EXTRA_KEY_EXTENSION_MODE, currentExtensionMode)
+
+            requestCode = bundle.getInt(INTENT_EXTRA_KEY_REQUEST_CODE, -1)
+            isRequestMode = requestCode != -1
+
+            if (isRequestMode) {
+                setupForRequestMode()
+            }
         }
 
         updateExtensionInfo()
         setupTextureView()
         enableUiControl(false)
         setupUiControl()
+    }
+
+    private fun setupForRequestMode() {
+        result = Intent()
+        result.putExtra(INTENT_EXTRA_KEY_EXTENSION_MODE, currentExtensionMode)
+        result.putExtra(INTENT_EXTRA_KEY_ERROR_CODE, ERROR_CODE_NONE)
+        setResult(requestCode, result)
+
+        if (!isCamera2ExtensionModeSupported(this, currentCameraId, currentExtensionMode)) {
+            result.putExtra(INTENT_EXTRA_KEY_ERROR_CODE, ERROR_CODE_EXTENSION_MODE_NOT_SUPPORT)
+            finish()
+            return
+        }
+
+        val lensFacing = cameraManager.getCameraCharacteristics(
+                currentCameraId)[CameraCharacteristics.LENS_FACING]
+
+        supportActionBar?.title = resources.getString(R.string.camera2_extensions_validator)
+        supportActionBar!!.subtitle =
+            "Camera $currentCameraId [${getLensFacingString(lensFacing!!)}][${
+                getCamera2ExtensionModeStringFromId(currentExtensionMode)
+            }]"
+
+        findViewById<Button>(R.id.PhotoToggle).visibility = View.INVISIBLE
+        findViewById<Button>(R.id.Switch).visibility = View.INVISIBLE
+    }
+
+    private fun getLensFacingString(lensFacing: Int) = when (lensFacing) {
+        CameraMetadata.LENS_FACING_BACK -> "BACK"
+        CameraMetadata.LENS_FACING_FRONT -> "FRONT"
+        CameraMetadata.LENS_FACING_EXTERNAL -> "EXTERNAL"
+        else -> throw IllegalArgumentException("Invalid lens facing!!")
     }
 
     private fun isCameraSupportExtensions(cameraId: String): Boolean {
@@ -283,9 +341,8 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
     private fun updateExtensionInfo() {
         Log.d(
             TAG,
-            "updateExtensionInfo() - camera Id: $currentCameraId, ${
-                getExtensionModeStringFromId(currentExtensionMode)
-            }"
+            "updateExtensionInfo() - camera Id: $currentCameraId, current extension mode: " +
+                "$currentExtensionMode"
         )
         extensionCharacteristics = cameraManager.getCameraExtensionCharacteristics(currentCameraId)
         supportedExtensionModes.clear()
@@ -330,13 +387,14 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
 
     private fun setupUiControl() {
         val extensionModeToggleButton = findViewById<Button>(R.id.PhotoToggle)
-        extensionModeToggleButton.text = getExtensionModeStringFromId(currentExtensionMode)
+        extensionModeToggleButton.text = getCamera2ExtensionModeStringFromId(currentExtensionMode)
         extensionModeToggleButton.setOnClickListener {
             enableUiControl(false)
             currentExtensionIdx = (currentExtensionIdx + 1) % supportedExtensionModes.size
             currentExtensionMode = supportedExtensionModes[currentExtensionIdx]
             restartPreview = true
-            extensionModeToggleButton.text = getExtensionModeStringFromId(currentExtensionMode)
+            extensionModeToggleButton.text =
+                getCamera2ExtensionModeStringFromId(currentExtensionMode)
 
             closeCaptureSessionAsync()
         }
@@ -662,7 +720,9 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
         stillImageReader!!.setOnImageAvailableListener(
             { reader: ImageReader ->
                 lifecycleScope.launch(cameraTaskDispatcher) {
-                    acquireImageAndSave(reader)?.let { sessionImageUriSet.add(it) }
+                    val (imageUri, rotationDegrees) = acquireImageAndSave(reader)
+
+                    imageUri?.let { sessionImageUriSet.add(it) }
 
                     stillImageReader!!.setOnImageAvailableListener(null, null)
                     takePictureCompleter?.set(null)
@@ -672,7 +732,29 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
                     }
 
                     lifecycleScope.launch(Dispatchers.Main) {
-                        enableUiControl(true)
+                        if (isRequestMode) {
+                            if (imageUri == null) {
+                                result.putExtra(
+                                    INTENT_EXTRA_KEY_ERROR_CODE,
+                                    ERROR_CODE_SAVE_IMAGE_FAILED
+                                )
+                            } else {
+                                result.putExtra(INTENT_EXTRA_KEY_IMAGE_URI, imageUri)
+                                result.putExtra(
+                                    INTENT_EXTRA_KEY_IMAGE_ROTATION_DEGREES,
+                                    rotationDegrees
+                                )
+                            }
+
+                            // Closes the camera, capture session and finish the activity to return
+                            // to the caller activity if activity is in request mode.
+                            closeCaptureSessionAsync().await()
+                            closeCameraAsync().await()
+
+                            finish()
+                        } else {
+                            enableUiControl(true)
+                        }
                     }
                 }
             }, Handler(Looper.getMainLooper())
@@ -708,31 +790,36 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
     /**
      * Acquires the latest image from the image reader and save it to the Pictures folder
      */
-    private fun acquireImageAndSave(imageReader: ImageReader): Uri? {
+    private fun acquireImageAndSave(imageReader: ImageReader): Pair<Uri?, Int> {
         var uri: Uri? = null
+        var rotationDegrees = 0
         try {
-            val formatter: Format =
-                SimpleDateFormat("yyyy-MM-dd-HH-mm-ss-SSS", Locale.US)
-            val fileName =
-                "[${formatter.format(Calendar.getInstance().time)}][Camera2]${
-                    getExtensionModeStringFromId(currentExtensionMode)
-                }"
+            val (fileName, suffix) = generateFileName(currentCameraId, currentExtensionMode)
+            val lensFacing = cameraManager.getCameraCharacteristics(
+                currentCameraId
+            )[CameraCharacteristics.LENS_FACING]
 
-            val rotationDegrees = calculateRelativeImageRotationDegrees(
+            rotationDegrees = calculateRelativeImageRotationDegrees(
                 (surfaceRotationToRotationDegrees(display!!.rotation)),
                 cameraSensorRotationDegrees,
-                currentCameraId == backCameraId
+                lensFacing == CameraCharacteristics.LENS_FACING_BACK
             )
 
             imageReader.acquireLatestImage().let { image ->
-                uri = FileUtil.saveImage(
-                    image,
-                    fileName,
-                    ".jpg",
-                    "Pictures/ExtensionsPictures",
-                    contentResolver,
-                    rotationDegrees
-                )
+                uri = if (isRequestMode) {
+                    // Saves as temp file if the activity is called by other validation activity to
+                    // capture a image.
+                    FileUtil.saveImageToTempFile(image, fileName, suffix, null, rotationDegrees)
+                } else {
+                    FileUtil.saveImage(
+                        image,
+                        fileName,
+                        suffix,
+                        "Pictures/ExtensionsPictures",
+                        contentResolver,
+                        rotationDegrees
+                    )
+                }
 
                 image.close()
 
@@ -742,20 +829,62 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
                     "Failed to save image."
                 }
 
-                lifecycleScope.launch(Dispatchers.Main) {
-                    Toast.makeText(this@Camera2ExtensionsActivity, msg, Toast.LENGTH_SHORT).show()
+                if (!isRequestMode) {
+                    lifecycleScope.launch(Dispatchers.Main) {
+                        Toast.makeText(this@Camera2ExtensionsActivity, msg, Toast.LENGTH_SHORT)
+                            .show()
+                    }
                 }
             }
         } catch (e: Exception) {
             Log.e(TAG, e.toString())
         }
 
-        return uri
+        return Pair(uri, rotationDegrees)
+    }
+
+    /**
+     * Generate the output file name and suffix depending on whether the image is requested by the
+     * validation activity.
+     */
+    private fun generateFileName(cameraId: String, extensionMode: Int): Pair<String, String> {
+        val fileName: String
+        val suffix: String
+
+        if (isRequestMode) {
+            val lensFacing = cameraManager.getCameraCharacteristics(
+                cameraId
+            )[CameraCharacteristics.LENS_FACING]!!
+            fileName =
+                "[Camera2Extension][Camera-$cameraId][${getLensFacingStringFromInt(lensFacing)}][${
+                    getCamera2ExtensionModeStringFromId(extensionMode)
+                }]"
+            suffix = ""
+        } else {
+            val formatter: Format =
+                SimpleDateFormat("yyyy-MM-dd-HH-mm-ss-SSS", Locale.US)
+            fileName =
+                "[${formatter.format(Calendar.getInstance().time)}][Camera2]${
+                    getCamera2ExtensionModeStringFromId(extensionMode)
+                }"
+            suffix = ".jpg"
+        }
+
+        return Pair(fileName, suffix)
+    }
+
+    private fun getLensFacingStringFromInt(lensFacing: Int): String = when (lensFacing) {
+        CameraMetadata.LENS_FACING_BACK -> "BACK"
+        CameraMetadata.LENS_FACING_FRONT -> "FRONT"
+        CameraMetadata.LENS_FACING_EXTERNAL -> "EXTERNAL"
+        else -> throw IllegalArgumentException("Invalid lens facing!!")
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        val inflater = menuInflater
-        inflater.inflate(R.menu.main_menu_camera2_extensions_activity, menu)
+        if (!isRequestMode) {
+            val inflater = menuInflater
+            inflater.inflate(R.menu.main_menu_camera2_extensions_activity, menu)
+        }
 
         return true
     }
