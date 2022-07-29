@@ -65,7 +65,7 @@ public class SpeedRecord(
     }
 
     companion object {
-        private const val SPEED_TYPE_NAME = "Speed"
+        private const val SPEED_TYPE_NAME = "SpeedSeries"
         private const val SPEED_FIELD_NAME = "speed"
 
         /**

@@ -69,7 +69,7 @@ public class PowerRecord(
     }
 
     companion object {
-        private const val TYPE = "Power"
+        private const val TYPE = "PowerSeries"
         private const val POWER_FIELD = "power"
 
         /**
