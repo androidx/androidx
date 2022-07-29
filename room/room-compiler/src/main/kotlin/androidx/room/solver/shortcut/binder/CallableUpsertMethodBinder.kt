@@ -19,7 +19,7 @@ package androidx.room.solver.shortcut.binder
 import androidx.room.ext.CallableTypeSpecBuilder
 import androidx.room.compiler.processing.XType
 import androidx.room.solver.CodeGenScope
-import androidx.room.solver.shortcut.result.UpsertMethodAdapter
+import androidx.room.solver.shortcut.result.InsertOrUpsertMethodAdapter
 import androidx.room.vo.ShortcutQueryParameter
 import com.squareup.javapoet.CodeBlock
 import com.squareup.javapoet.FieldSpec
@@ -29,19 +29,19 @@ import com.squareup.javapoet.TypeSpec
  * Binder for deferred upsert methods.
  *
  * This binder will create a Callable implementation that delegates to the
- * [UpsertMethodAdapter]. Usage of the Callable impl is then delegate to the [addStmntBlock]
+ * [InsertOrUpsertMethodAdapter]. Usage of the Callable impl is then delegate to the [addStmntBlock]
  * function.
  */
 class CallableUpsertMethodBinder(
     val typeArg: XType,
     val addStmntBlock: CodeBlock.Builder.(callableImpl: TypeSpec, dbField: FieldSpec) -> Unit,
-    adapter: UpsertMethodAdapter?
+    adapter: InsertOrUpsertMethodAdapter?
 ) : InsertOrUpsertMethodBinder(adapter) {
 
     companion object {
         fun createUpsertBinder(
             typeArg: XType,
-            adapter: UpsertMethodAdapter?,
+            adapter: InsertOrUpsertMethodAdapter?,
             addCodeBlock: CodeBlock.Builder.(callableImpl: TypeSpec, dbField: FieldSpec) -> Unit
         ) = CallableUpsertMethodBinder(typeArg, addCodeBlock, adapter)
     }
@@ -54,7 +54,12 @@ class CallableUpsertMethodBinder(
     ) {
         val adapterScope = scope.fork()
         val callableImpl = CallableTypeSpecBuilder(typeArg.typeName) {
-            // TODO add the createMethodBody in UpsertMethodAdapter
+            adapter?.createMethodBody(
+                parameters = parameters,
+                adapters = adapters,
+                dbField = dbField,
+                scope = adapterScope
+            )
             addCode(adapterScope.generate())
         }.build()
 

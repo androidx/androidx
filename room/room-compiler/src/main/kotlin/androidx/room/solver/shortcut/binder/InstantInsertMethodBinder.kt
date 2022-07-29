@@ -18,7 +18,7 @@ package androidx.room.solver.shortcut.binder
 
 import androidx.room.ext.N
 import androidx.room.solver.CodeGenScope
-import androidx.room.solver.shortcut.result.InsertMethodAdapter
+import androidx.room.solver.shortcut.result.InsertOrUpsertMethodAdapter
 import androidx.room.vo.ShortcutQueryParameter
 import androidx.room.writer.DaoWriter
 import com.squareup.javapoet.FieldSpec
@@ -26,7 +26,7 @@ import com.squareup.javapoet.FieldSpec
 /**
  * Binder that knows how to write instant (blocking) insert methods.
  */
-class InstantInsertMethodBinder(adapter: InsertMethodAdapter?) :
+class InstantInsertMethodBinder(adapter: InsertOrUpsertMethodAdapter?) :
     InsertOrUpsertMethodBinder(adapter) {
 
     override fun convertAndReturn(
