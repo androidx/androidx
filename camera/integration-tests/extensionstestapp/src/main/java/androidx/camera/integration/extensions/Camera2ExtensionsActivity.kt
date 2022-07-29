@@ -22,19 +22,24 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.SurfaceTexture
 import android.hardware.camera2.CameraAccessException
+import android.hardware.camera2.CameraCaptureSession
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CameraExtensionCharacteristics
 import android.hardware.camera2.CameraExtensionSession
 import android.hardware.camera2.CameraManager
 import android.hardware.camera2.CameraMetadata
+import android.hardware.camera2.CaptureFailure
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.params.ExtensionSessionConfiguration
 import android.hardware.camera2.params.OutputConfiguration
+import android.hardware.camera2.params.SessionConfiguration
+import android.hardware.camera2.params.SessionConfiguration.SESSION_REGULAR
 import android.media.ImageReader
 import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
+import android.os.HandlerThread
 import android.os.Looper
 import android.util.Log
 import android.util.Size
@@ -46,6 +51,7 @@ import android.view.View
 import android.view.ViewStub
 import android.widget.Button
 import android.widget.FrameLayout
+import android.widget.ImageButton
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
@@ -84,6 +90,7 @@ import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicLong
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
+import kotlinx.coroutines.CancellableContinuation
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asCoroutineDispatcher
@@ -108,9 +115,11 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
     private var cameraDevice: CameraDevice? = null
 
     /**
-     * The current camera extension session.
+     * The current camera capture session. Use Any type to store it because it might be either a
+     * CameraCaptureSession instance if current is in normal mode, or, it might be a
+     * CameraExtensionSession instance if current is in Camera2 extension mode.
      */
-    private var cameraExtensionSession: CameraExtensionSession? = null
+    private var cameraCaptureSession: Any? = null
 
     private var currentCameraId = "0"
 
@@ -201,6 +210,21 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
         }
     }
 
+    private val captureCallbacksNormalMode = object : CameraCaptureSession.CaptureCallback() {
+        override fun onCaptureStarted(
+            session: CameraCaptureSession,
+            request: CaptureRequest,
+            timestamp: Long,
+            frameNumber: Long
+        ) {
+            if (receivedCaptureProcessStartedCount.getAndIncrement() >=
+                FRAMES_UNTIL_VIEW_IS_READY && !captureProcessStartedIdlingResource.isIdleNow
+            ) {
+                captureProcessStartedIdlingResource.decrement()
+            }
+        }
+    }
+
     private var restartOnStart = false
 
     private var activityStopped = false
@@ -254,6 +278,18 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
      * The result intent that saves the image capture request results.
      */
     private lateinit var result: Intent
+
+    private var extensionModeEnabled = true
+
+    /**
+     * A [HandlerThread] used for normal mode camera capture operations
+     */
+    private val normalModeCaptureThread = HandlerThread("CameraThread").apply { start() }
+
+    /**
+     * [Handler] corresponding to [normalModeCaptureThread]
+     */
+    private val normalModeCaptureHandler = Handler(normalModeCaptureThread.looper)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -324,6 +360,68 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
 
         findViewById<Button>(R.id.PhotoToggle).visibility = View.INVISIBLE
         findViewById<Button>(R.id.Switch).visibility = View.INVISIBLE
+
+        setExtensionToggleButtonResource()
+        findViewById<ImageButton>(R.id.ExtensionToggle).apply {
+            visibility = View.VISIBLE
+            setOnClickListener {
+                val cameraId = currentCameraId
+                val extensionMode = currentExtensionMode
+                restartPreview = true
+
+                lifecycleScope.launch(cameraTaskDispatcher) {
+                    extensionModeEnabled = !extensionModeEnabled
+
+                    if (cameraCaptureSession == null) {
+                        setupAndStartPreview(cameraId, extensionMode)
+                    } else {
+                        closeCaptureSessionAsync()
+                    }
+
+                    val extensionEnabled = extensionModeEnabled
+
+                    lifecycleScope.launch(Dispatchers.Main) {
+                        setExtensionToggleButtonResource()
+                        if (extensionEnabled) {
+                            Toast.makeText(
+                                this@Camera2ExtensionsActivity,
+                                "Effect is enabled!",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        } else {
+
+                            Toast.makeText(
+                                this@Camera2ExtensionsActivity,
+                                "Effect is disabled!",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    @Suppress("DEPRECATION") // EXTENSION_BEAUTY
+    private fun setExtensionToggleButtonResource() {
+        val extensionToggleButton: ImageButton = findViewById(R.id.ExtensionToggle)
+
+        if (!extensionModeEnabled) {
+            extensionToggleButton.setImageResource(R.drawable.outline_block)
+            return
+        }
+
+        val resourceId = when (currentExtensionMode) {
+            CameraExtensionCharacteristics.EXTENSION_HDR -> R.drawable.outline_hdr_on
+            CameraExtensionCharacteristics.EXTENSION_BOKEH -> R.drawable.outline_portrait
+            CameraExtensionCharacteristics.EXTENSION_NIGHT -> R.drawable.outline_bedtime
+            CameraExtensionCharacteristics.EXTENSION_BEAUTY ->
+                R.drawable.outline_face_retouching_natural
+            CameraExtensionCharacteristics.EXTENSION_AUTOMATIC -> R.drawable.outline_auto_awesome
+            else -> throw IllegalArgumentException("Invalid extension mode!")
+        }
+
+        extensionToggleButton.setImageResource(resourceId)
     }
 
     private fun getLensFacingString(lensFacing: Int) = when (lensFacing) {
@@ -457,6 +555,7 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
         previewSurface.release()
 
         imageSaveTerminationFuture.addListener({ stillImageReader?.close() }, mainExecutor)
+        normalModeCaptureThread.quitSafely()
         Log.d(TAG, "onDestroy()--")
     }
 
@@ -471,12 +570,21 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
         lifecycleScope.async(cameraTaskDispatcher) {
             Log.d(TAG, "closeCaptureSession()++")
             resetCaptureSessionConfiguredIdlingResource()
-            try {
-                cameraExtensionSession?.close()
-                cameraExtensionSession = null
-            } catch (e: Exception) {
-                Log.e(TAG, e.toString())
+
+            if (cameraCaptureSession != null) {
+                try {
+                    if (cameraCaptureSession is CameraCaptureSession) {
+                        (cameraCaptureSession as CameraCaptureSession).close()
+                    } else {
+                        (cameraCaptureSession as CameraExtensionSession).close()
+                    }
+
+                    cameraCaptureSession = null
+                } catch (e: Exception) {
+                    Log.e(TAG, e.toString())
+                }
             }
+
             Log.d(TAG, "closeCaptureSession()--")
         }
 
@@ -549,7 +657,7 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
             if (cameraDevice == null || cameraDevice!!.id != cameraId) {
                 cameraDevice = openCamera(cameraManager, cameraId)
             }
-            cameraExtensionSession = openCaptureSession(extensionMode)
+            cameraCaptureSession = openCaptureSession(extensionMode)
 
             lifecycleScope.launch(Dispatchers.Main) {
                 if (activityStopped) {
@@ -611,7 +719,7 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
     /**
      * Opens and returns the extensions session (as the result of the suspend coroutine)
      */
-    private suspend fun openCaptureSession(extensionMode: Int): CameraExtensionSession =
+    private suspend fun openCaptureSession(extensionMode: Int): Any =
         suspendCancellableCoroutine { cont ->
             Log.d(TAG, "openCaptureSession")
 
@@ -625,69 +733,156 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
 
             stillImageReader = setupImageReader()
 
-            val outputConfig = ArrayList<OutputConfiguration>()
-            outputConfig.add(OutputConfiguration(stillImageReader!!.surface))
-            outputConfig.add(OutputConfiguration(previewSurface))
-            val extensionConfiguration = ExtensionSessionConfiguration(
-                extensionMode, outputConfig,
-                cameraTaskDispatcher.asExecutor(), object : CameraExtensionSession.StateCallback() {
-                    override fun onClosed(session: CameraExtensionSession) {
-                        Log.d(TAG, "CaptureSession - onClosed: $session")
+            val outputConfigs = arrayListOf<OutputConfiguration>()
+            outputConfigs.add(OutputConfiguration(stillImageReader!!.surface))
+            outputConfigs.add(OutputConfiguration(previewSurface))
 
-                        lifecycleScope.launch(Dispatchers.Main) {
-                            if (restartPreview) {
-                                restartPreview = false
-
-                                val newExtensionMode = currentExtensionMode
-
-                                lifecycleScope.launch(cameraTaskDispatcher) {
-                                    cameraExtensionSession =
-                                        openCaptureSession(newExtensionMode)
-                                }
-                            }
-                        }
-                    }
-
-                    override fun onConfigured(session: CameraExtensionSession) {
-                        Log.d(TAG, "CaptureSession - onConfigured: $session")
-                        try {
-                            val captureBuilder =
-                                session.device.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW)
-                            captureBuilder.addTarget(previewSurface)
-                            session.setRepeatingRequest(
-                                captureBuilder.build(),
-                                cameraTaskDispatcher.asExecutor(), captureCallbacks
-                            )
-                            cont.resume(session)
-                            runOnUiThread {
-                                enableUiControl(true)
-                                if (!captureSessionConfiguredIdlingResource.isIdleNow) {
-                                    captureSessionConfiguredIdlingResource.decrement()
-                                }
-                            }
-                        } catch (e: CameraAccessException) {
-                            Log.e(TAG, e.toString())
-                            cont.resumeWithException(
-                                RuntimeException("Failed to create capture session.")
-                            )
-                        }
-                    }
-
-                    override fun onConfigureFailed(session: CameraExtensionSession) {
-                        Log.e(TAG, "CaptureSession - onConfigureFailed: $session")
-                        cont.resumeWithException(
-                            RuntimeException("Configure failed when creating capture session.")
-                        )
-                    }
-                }
-            )
-            try {
-                cameraDevice!!.createExtensionSession(extensionConfiguration)
-            } catch (e: CameraAccessException) {
-                Log.e(TAG, e.toString())
-                cont.resumeWithException(RuntimeException("Failed to create capture session."))
+            if (extensionModeEnabled) {
+                createCameraExtensionSession(cont, outputConfigs, extensionMode)
+            } else {
+                createCameraCaptureSession(cont, outputConfigs)
             }
         }
+
+    /**
+     * Creates normal mode CameraCaptureSession
+     */
+    private fun createCameraCaptureSession(
+        cont: CancellableContinuation<Any>,
+        outputConfigs: ArrayList<OutputConfiguration>
+    ) {
+
+        val sessionConfiguration = SessionConfiguration(
+            SESSION_REGULAR,
+            outputConfigs,
+            cameraTaskDispatcher.asExecutor(),
+            object : CameraCaptureSession.StateCallback() {
+                override fun onClosed(session: CameraCaptureSession) {
+                    Log.d(TAG, "CaptureSession - onClosed: $session")
+                    lifecycleScope.launch(Dispatchers.Main) {
+                        if (restartPreview) {
+                            restartPreviewWhenCaptureSessionClosed()
+                        }
+                    }
+                }
+
+                override fun onConfigured(session: CameraCaptureSession) {
+                    Log.d(TAG, "CaptureSession - onConfigured: $session")
+                    setRepeatingRequestWhenCaptureSessionConfigured(cont, session.device, session)
+                    runOnUiThread {
+                        enableUiControl(true)
+                        if (!captureSessionConfiguredIdlingResource.isIdleNow) {
+                            captureSessionConfiguredIdlingResource.decrement()
+                        }
+                    }
+                }
+
+                override fun onConfigureFailed(session: CameraCaptureSession) {
+                    Log.e(TAG, "CaptureSession - onConfigureFailed: $session")
+                    cont.resumeWithException(
+                        RuntimeException("Configure failed when creating capture session.")
+                    )
+                }
+            })
+
+        cameraDevice!!.createCaptureSession(sessionConfiguration)
+    }
+
+    /**
+     * Creates extension mode CameraExtensionSession
+     */
+    private fun createCameraExtensionSession(
+        cont: CancellableContinuation<Any>,
+        outputConfigs: ArrayList<OutputConfiguration>,
+        extensionMode: Int
+    ) {
+        val extensionConfiguration = ExtensionSessionConfiguration(
+            extensionMode, outputConfigs,
+            cameraTaskDispatcher.asExecutor(), object : CameraExtensionSession.StateCallback() {
+                override fun onClosed(session: CameraExtensionSession) {
+                    Log.d(TAG, "Extension CaptureSession - onClosed: $session")
+                    lifecycleScope.launch(Dispatchers.Main) {
+                        if (restartPreview) {
+                            restartPreviewWhenCaptureSessionClosed()
+                        }
+                    }
+                }
+
+                override fun onConfigured(session: CameraExtensionSession) {
+                    Log.d(TAG, "Extension CaptureSession - onConfigured: $session")
+                    setRepeatingRequestWhenCaptureSessionConfigured(cont, session.device, session)
+                    runOnUiThread {
+                        enableUiControl(true)
+                        if (!captureSessionConfiguredIdlingResource.isIdleNow) {
+                            captureSessionConfiguredIdlingResource.decrement()
+                        }
+                    }
+                }
+
+                override fun onConfigureFailed(session: CameraExtensionSession) {
+                    Log.e(TAG, "Extension CaptureSession - onConfigureFailed: $session")
+                    cont.resumeWithException(
+                        RuntimeException("Configure failed when creating capture session.")
+                    )
+                }
+            }
+        )
+        try {
+            cameraDevice!!.createExtensionSession(extensionConfiguration)
+        } catch (e: CameraAccessException) {
+            Log.e(TAG, e.toString())
+            cont.resumeWithException(RuntimeException("Failed to create capture session."))
+        }
+    }
+
+    private fun setRepeatingRequestWhenCaptureSessionConfigured(
+        cont: CancellableContinuation<Any>,
+        device: CameraDevice,
+        captureSession: Any
+    ) {
+        require(
+            captureSession is CameraCaptureSession ||
+                captureSession is CameraExtensionSession
+        ) {
+            "The input capture session must be either a CameraCaptureSession or a" +
+                " CameraExtensionSession instance."
+        }
+
+        try {
+            val captureBuilder = device.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW)
+            captureBuilder.addTarget(previewSurface)
+
+            if (captureSession is CameraCaptureSession) {
+                captureSession.setRepeatingRequest(
+                    captureBuilder.build(),
+                    captureCallbacksNormalMode,
+                    normalModeCaptureHandler
+                )
+            } else {
+                (captureSession as CameraExtensionSession).setRepeatingRequest(
+                    captureBuilder.build(),
+                    cameraTaskDispatcher.asExecutor(), captureCallbacks
+                )
+            }
+            cont.resume(captureSession)
+        } catch (e: CameraAccessException) {
+            Log.e(TAG, e.toString())
+            cont.resumeWithException(
+                RuntimeException("Failed to create capture session.")
+            )
+        }
+    }
+
+    private fun restartPreviewWhenCaptureSessionClosed() {
+        restartPreview = false
+
+        val newExtensionMode = currentExtensionMode
+
+        lifecycleScope.launch(cameraTaskDispatcher) {
+            cameraCaptureSession =
+                openCaptureSession(newExtensionMode)
+        }
+    }
 
     private fun setupImageReader(): ImageReader {
         val (size, format) = pickStillImageResolution(
@@ -705,10 +900,10 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
      */
     private fun takePicture() = lifecycleScope.launch(cameraTaskDispatcher) {
         Preconditions.checkState(
-            cameraExtensionSession != null,
+            cameraCaptureSession != null,
             "take picture button is only enabled when session is configured successfully"
         )
-        val session = cameraExtensionSession!!
+        val session = cameraCaptureSession!!
 
         var takePictureCompleter: Completer<Any?>? = null
 
@@ -760,31 +955,54 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
             }, Handler(Looper.getMainLooper())
         )
 
-        val captureBuilder = session.device.createCaptureRequest(
+        val device = if (session is CameraCaptureSession) {
+            session.device
+        } else {
+            (session as CameraExtensionSession).device
+        }
+
+        val captureBuilder = device.createCaptureRequest(
             CameraDevice.TEMPLATE_STILL_CAPTURE
         )
         captureBuilder.addTarget(stillImageReader!!.surface)
 
-        session.capture(
-            captureBuilder.build(),
-            cameraTaskDispatcher.asExecutor(),
-            object : CameraExtensionSession.ExtensionCaptureCallback() {
-                override fun onCaptureFailed(
-                    session: CameraExtensionSession,
-                    request: CaptureRequest
-                ) {
-                    takePictureCompleter?.set(null)
-                    Log.e(TAG, "Failed to take picture.")
-                }
+        if (session is CameraCaptureSession) {
+            session.capture(
+                captureBuilder.build(),
+                object : CameraCaptureSession.CaptureCallback() {
+                    override fun onCaptureFailed(
+                        session: CameraCaptureSession,
+                        request: CaptureRequest,
+                        failure: CaptureFailure
+                    ) {
+                        takePictureCompleter?.set(null)
+                        Log.e(TAG, "Failed to take picture.")
+                    }
+                },
+                normalModeCaptureHandler
+            )
+        } else {
+            (session as CameraExtensionSession).capture(
+                captureBuilder.build(),
+                cameraTaskDispatcher.asExecutor(),
+                object : CameraExtensionSession.ExtensionCaptureCallback() {
+                    override fun onCaptureFailed(
+                        session: CameraExtensionSession,
+                        request: CaptureRequest
+                    ) {
+                        takePictureCompleter?.set(null)
+                        Log.e(TAG, "Failed to take picture.")
+                    }
 
-                override fun onCaptureSequenceCompleted(
-                    session: CameraExtensionSession,
-                    sequenceId: Int
-                ) {
-                    Log.v(TAG, "onCaptureProcessSequenceCompleted: $sequenceId")
+                    override fun onCaptureSequenceCompleted(
+                        session: CameraExtensionSession,
+                        sequenceId: Int
+                    ) {
+                        Log.v(TAG, "onCaptureProcessSequenceCompleted: $sequenceId")
+                    }
                 }
-            }
-        )
+            )
+        }
     }
 
     /**
@@ -858,7 +1076,7 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
             fileName =
                 "[Camera2Extension][Camera-$cameraId][${getLensFacingStringFromInt(lensFacing)}][${
                     getCamera2ExtensionModeStringFromId(extensionMode)
-                }]"
+                }]${if (extensionModeEnabled) "[Enabled]" else "[Disabled]"}"
             suffix = ""
         } else {
             val formatter: Format =
