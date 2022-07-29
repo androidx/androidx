@@ -344,7 +344,8 @@ public class MutablePreferences internal constructor(
  * @param transform block which accepts MutablePreferences that contains all the preferences
  * currently in DataStore. Changes to this MutablePreferences object will be persisted once
  * transform completes.
- * @throws IOException when an exception is encountered when writing data to disk
+ * @throws androidx.datastore.core.IOException when an exception is encountered when writing
+ * data to disk
  * @throws Exception when thrown by the transform block
  */
 
