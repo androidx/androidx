@@ -20,46 +20,11 @@
     android:orientation="vertical"
     tools:context=".UiObject2TestSwipeActivity">
 
-    <HorizontalScrollView
-        android:id="@+id/horizontal_scroll_view"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
-
-        <ScrollView
-            android:id="@+id/vertical_scroll_view"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
-
-            <RelativeLayout
-                android:id="@+id/scroll_view"
-                android:layout_width="5000px"
-                android:layout_height="5000px">
-
-                <TextView
-                    android:id="@+id/top_text"
-                    android:layout_width="wrap_content"
-                    android:layout_height="50px"
-                    android:layout_alignParentTop="true"
-                    android:text="This is the top" />
-
-                <TextView
-                    android:id="@+id/bottom_text"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentBottom="true"
-                    android:text="This is the bottom" />
-
-                <TextView
-                    android:id="@+id/right_text"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentRight="true"
-                    android:text="This is the right" />
-
-            </RelativeLayout>
-
-        </ScrollView>
-
-    </HorizontalScrollView>
+    <TextView
+        android:id="@+id/swipe_region"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:text="no_swipe" />
 
 </LinearLayout>
