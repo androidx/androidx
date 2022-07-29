@@ -35,6 +35,7 @@ import androidx.wear.compose.material.Chip
 import androidx.wear.compose.material.ChipColors
 import androidx.wear.compose.material.ChipDefaults
 import androidx.wear.compose.material.CompactChip
+import androidx.wear.compose.material.OutlinedChip
 import androidx.wear.compose.material.SCREENSHOT_GOLDEN_PATH
 import androidx.wear.compose.material.TEST_TAG
 import androidx.wear.compose.material.TestIcon
@@ -67,6 +68,26 @@ class ChipScreenshotTest {
     @Test
     fun chip_rtl() = verifyScreenshot(layoutDirection = LayoutDirection.Rtl) {
         sampleChip()
+    }
+
+    @Test
+    fun chip_secondary_ltr() = verifyScreenshot(layoutDirection = LayoutDirection.Ltr) {
+        sampleChip(colors = ChipDefaults.secondaryChipColors())
+    }
+
+    @Test
+    fun chip_secondary_rtl() = verifyScreenshot(layoutDirection = LayoutDirection.Rtl) {
+        sampleChip(colors = ChipDefaults.secondaryChipColors())
+    }
+
+    @Test
+    fun chip_outlined_ltr() = verifyScreenshot(layoutDirection = LayoutDirection.Ltr) {
+        sampleOutlinedChip()
+    }
+
+    @Test
+    fun chip_outlined_rtl() = verifyScreenshot(layoutDirection = LayoutDirection.Rtl) {
+        sampleOutlinedChip()
     }
 
     @Test
@@ -111,6 +132,22 @@ class ChipScreenshotTest {
         colors: ChipColors = ChipDefaults.primaryChipColors()
     ) {
         Chip(
+            enabled = enabled,
+            colors = colors,
+            onClick = {},
+            label = { Text("Standard chip") },
+            secondaryLabel = { Text("Secondary text") },
+            icon = { TestIcon() },
+            modifier = Modifier.testTag(TEST_TAG),
+        )
+    }
+
+    @Composable
+    private fun sampleOutlinedChip(
+        enabled: Boolean = true,
+        colors: ChipColors = ChipDefaults.outlinedChipColors()
+    ) {
+        OutlinedChip(
             enabled = enabled,
             colors = colors,
             onClick = {},

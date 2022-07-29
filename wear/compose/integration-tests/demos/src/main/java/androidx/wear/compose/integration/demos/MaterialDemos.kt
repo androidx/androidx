@@ -52,6 +52,10 @@ import androidx.wear.compose.material.samples.InlineSliderSample
 import androidx.wear.compose.material.samples.InlineSliderSegmentedSample
 import androidx.wear.compose.material.samples.InlineSliderWithIntegerSample
 import androidx.wear.compose.material.samples.LargeButtonWithIcon
+import androidx.wear.compose.material.samples.OutlinedButtonWithIcon
+import androidx.wear.compose.material.samples.OutlinedChipWithIconAndLabel
+import androidx.wear.compose.material.samples.OutlinedCompactButtonWithIcon
+import androidx.wear.compose.material.samples.OutlinedCompactChipWithIconAndLabel
 import androidx.wear.compose.material.samples.ScalingLazyColumnEdgeAnchoredAndAnimatedScrollTo
 import androidx.wear.compose.material.samples.SimplePicker
 import androidx.wear.compose.material.samples.SimpleScaffoldWithScrollIndicator
@@ -287,8 +291,14 @@ val WearMaterialDemos = DemoCategory(
                             Centralize { LargeButtonWithIcon() }
                         },
                         ComposableDemo("Button With Text") { Centralize { ButtonWithText() } },
+                        ComposableDemo("Outlined Button With Icon") {
+                            Centralize { OutlinedButtonWithIcon() }
+                        },
                         ComposableDemo("Compact Button With Icon") {
                             Centralize { CompactButtonWithIcon() }
+                        },
+                        ComposableDemo("Outline Compact Button With Icon") {
+                            Centralize { OutlinedCompactButtonWithIcon() }
                         },
                     )
                 ),
@@ -325,6 +335,11 @@ val WearMaterialDemos = DemoCategory(
                                 ChipWithIconAndLabels()
                             }
                         },
+                        ComposableDemo("Outlined Chip With Icon And long Label") {
+                            Centralize(Modifier.padding(horizontal = 10.dp)) {
+                                OutlinedChipWithIconAndLabel()
+                            }
+                        },
                         ComposableDemo("Compact Chip With Icon And Label") {
                             Centralize(Modifier.padding(horizontal = 10.dp)) {
                                 CompactChipWithIconAndLabel()
@@ -338,6 +353,11 @@ val WearMaterialDemos = DemoCategory(
                         ComposableDemo("Compact Chip Icon Only") {
                             Centralize(Modifier.padding(horizontal = 10.dp)) {
                                 CompactChipWithIcon()
+                            }
+                        },
+                        ComposableDemo("Outlined Compact Chip With Icon and Label") {
+                            Centralize(Modifier.padding(horizontal = 10.dp)) {
+                                OutlinedCompactChipWithIconAndLabel()
                             }
                         },
                     )
