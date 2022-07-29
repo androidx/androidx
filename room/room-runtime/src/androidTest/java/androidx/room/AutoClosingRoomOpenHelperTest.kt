@@ -20,6 +20,7 @@ import android.content.Context
 import android.database.Cursor
 import android.database.sqlite.SQLiteException
 import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.sqlite.db.SupportSQLiteOpenHelper
 import androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory
@@ -79,6 +80,7 @@ public class AutoClosingRoomOpenHelperTest {
         )
     }
 
+    @RequiresApi(Build.VERSION_CODES.N)
     @Test
     public fun testQueryFailureDecrementsRefCount() {
         val autoClosingRoomOpenHelper = getAutoClosingRoomOpenHelper()
@@ -91,6 +93,7 @@ public class AutoClosingRoomOpenHelperTest {
         assertThat(autoClosingRoomOpenHelper.autoCloser.refCountForTest).isEqualTo(0)
     }
 
+    @RequiresApi(Build.VERSION_CODES.N)
     @Test
     public fun testCursorKeepsDbAlive() {
         val autoClosingRoomOpenHelper = getAutoClosingRoomOpenHelper()
@@ -103,6 +106,7 @@ public class AutoClosingRoomOpenHelperTest {
         assertThat(autoClosingRoomOpenHelper.autoCloser.refCountForTest).isEqualTo(0)
     }
 
+    @RequiresApi(Build.VERSION_CODES.N)
     @Test
     public fun testTransactionKeepsDbAlive() {
         val autoClosingRoomOpenHelper = getAutoClosingRoomOpenHelper()
@@ -112,6 +116,7 @@ public class AutoClosingRoomOpenHelperTest {
         assertThat(autoClosingRoomOpenHelper.autoCloser.refCountForTest).isEqualTo(0)
     }
 
+    @RequiresApi(Build.VERSION_CODES.N)
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN)
     public fun enableWriteAheadLogging_onOpenHelper() {
@@ -125,6 +130,7 @@ public class AutoClosingRoomOpenHelperTest {
         assertThat(autoClosingRoomOpenHelper.writableDatabase.isWriteAheadLoggingEnabled).isTrue()
     }
 
+    @RequiresApi(Build.VERSION_CODES.N)
     @Test
     public fun testEnableWriteAheadLogging_onSupportSqliteDatabase_throwsUnsupportedOperation() {
         val autoClosingRoomOpenHelper = getAutoClosingRoomOpenHelper()
@@ -138,6 +144,7 @@ public class AutoClosingRoomOpenHelperTest {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.N)
     @FlakyTest(bugId = 190607416)
     @Test
     public fun testOnOpenCalledOnEachOpen() {
@@ -168,6 +175,7 @@ public class AutoClosingRoomOpenHelperTest {
         assertThat(countingCallback.onCreateCalls).isEqualTo(1)
     }
 
+    @RequiresApi(Build.VERSION_CODES.N)
     @Test
     public fun testStatementReturnedByCompileStatement_doesntKeepDatabaseOpen() {
         val autoClosingRoomOpenHelper = getAutoClosingRoomOpenHelper()
@@ -182,6 +190,7 @@ public class AutoClosingRoomOpenHelperTest {
         assertThat(autoClosingRoomOpenHelper.autoCloser.refCountForTest).isEqualTo(0)
     }
 
+    @RequiresApi(Build.VERSION_CODES.N)
     @Test
     public fun testStatementReturnedByCompileStatement_reOpensDatabase() {
         val autoClosingRoomOpenHelper = getAutoClosingRoomOpenHelper()
@@ -203,6 +212,7 @@ public class AutoClosingRoomOpenHelperTest {
         assertThat(autoClosingRoomOpenHelper.autoCloser.refCountForTest).isEqualTo(0)
     }
 
+    @RequiresApi(Build.VERSION_CODES.N)
     @Test
     public fun testStatementReturnedByCompileStatement_worksWithBinds() {
         val autoClosingRoomOpenHelper = getAutoClosingRoomOpenHelper()
