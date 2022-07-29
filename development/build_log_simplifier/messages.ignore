@@ -165,7 +165,7 @@ application@android:debuggable was tagged at .*\.xml:[0-9]+ to replace other dec
 Configuration cache entry reused with [0-9]+ problems\.
 See the profiling report at: file://\$GRADLE_USER_HOME/daemon/.*/reports/profile/profile\-[0-9]+\-[0-9]+\-[0-9]+\-[0-9]+\-[0-9]+\-[0-9]+\.html
 Configuration cache entry reused\.
-Configuration cache entry stored with [0-9]+ problem.*
+Configuration cache entry stored with [0-9]+ problems\.
 [0-9]+ actionable tasks: [0-9]+ executed, [0-9]+ from cache
 Configuration cache entry stored\.
 See the profiling report at\: file\:\/\/\$OUT_DIR\/androidx\/build\/reports\/profile\/profile\-[0-9]+\-[0-9]+\-[0-9]+\-[0-9]+\-[0-9]+\-[0-9]+\.html
@@ -184,7 +184,7 @@ Note: \$SUPPORT/samples/SupportSliceDemos/src/main/java/com/example/androidx/sli
 # > Task :compose:material:material:icons:generator:zipHtmlResultsOfTest
 Html results of .* zipped into.*\.zip
 # b/230127926
-[0-9]+ problem.* found storing the configuration cache.*
+[0-9]+ problems were found storing the configuration cache, [0-9]+ of which seem unique\.
 \- Task `:[:A-Za-z0-9#\-]+` of type `org\.jetbrains\.kotlin\.gradle\.plugin\.mpp\.[A-Za-z0-9]+`: invocation of 'Task\.project' at execution time is unsupported\.
 # https://youtrack.jetbrains.com/issue/KT-52694/
 \- Task `:listTaskOutputs` of type `androidx\.build\.ListTaskOutputsTask`: invocation of 'Task\.project' at execution time is unsupported\.
