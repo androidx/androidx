@@ -15,15 +15,16 @@
  */
 package androidx.health.platform.client.impl.data
 
+import android.os.Build
 import android.os.Parcel
 import android.os.Parcelable
 import androidx.health.platform.client.proto.ByteString
 import androidx.health.platform.client.proto.BytesValue
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
-import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.robolectric.annotation.Config
 
 @RunWith(AndroidJUnit4::class)
 class ProtoParcelableTest {
@@ -37,8 +38,8 @@ class ProtoParcelableTest {
         assertThat(parcelAndRead(protoParcelable).proto).isEqualTo(protoParcelable.proto)
     }
 
-    @Ignore // b/238635208
     @Test
+    @Config(sdk = [Build.VERSION_CODES.P])
     fun storeInSharedMemory() {
         // Big enough that it will be stored in shared memory.
         val protoParcelable =
