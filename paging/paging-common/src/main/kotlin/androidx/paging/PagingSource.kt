@@ -207,7 +207,13 @@ public abstract class PagingSource<Key : Any, Value : Any> {
          */
         public data class Error<Key : Any, Value : Any>(
             val throwable: Throwable
-        ) : LoadResult<Key, Value>()
+        ) : LoadResult<Key, Value>() {
+            override fun toString(): String {
+                return """LoadResult.Error(
+                    |   throwable: $throwable
+                    |) """.trimMargin()
+            }
+        }
 
         /**
          * Invalid result object for [PagingSource.load]
@@ -225,7 +231,11 @@ public abstract class PagingSource<Key : Any, Value : Any> {
          * Returning [Invalid] will trigger Paging to [invalidate] this [PagingSource] and
          * terminate any future attempts to [load] from this [PagingSource]
          */
-        public class Invalid<Key : Any, Value : Any> : LoadResult<Key, Value>()
+        public class Invalid<Key : Any, Value : Any> : LoadResult<Key, Value>() {
+            override fun toString(): String {
+                return "LoadResult.Invalid"
+            }
+        }
 
         /**
          * Success result object for [PagingSource.load].
@@ -282,6 +292,17 @@ public abstract class PagingSource<Key : Any, Value : Any> {
                 require(itemsAfter == COUNT_UNDEFINED || itemsAfter >= 0) {
                     "itemsAfter cannot be negative"
                 }
+            }
+            override fun toString(): String {
+                return """LoadResult.Page(
+                    |   data size: ${data.size}
+                    |   first Item: ${data.firstOrNull()}
+                    |   last Item: ${data.lastOrNull()}
+                    |   nextKey: $nextKey
+                    |   prevKey: $prevKey
+                    |   itemsBefore: $itemsBefore
+                    |   itemsAfter: $itemsAfter
+                    |) """.trimMargin()
             }
 
             public companion object {
