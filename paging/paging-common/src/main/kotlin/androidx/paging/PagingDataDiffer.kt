@@ -265,6 +265,7 @@ public abstract class PagingDataDiffer<T : Any>(
         lastAccessedIndexUnfulfilled = true
         lastAccessedIndex = index
 
+        log(VERBOSE) { "Accessing item index[$index]" }
         hintReceiver?.accessHint(presenter.accessHintForPresenterIndex(index))
         return presenter.get(index)
     }
@@ -298,6 +299,7 @@ public abstract class PagingDataDiffer<T : Any>(
      *  * [RemoteMediator.load] returning [RemoteMediator.MediatorResult.Error]
      */
     public fun retry() {
+        log(DEBUG) { "Retry signal received" }
         uiReceiver?.retry()
     }
 
@@ -318,6 +320,7 @@ public abstract class PagingDataDiffer<T : Any>(
      * @sample androidx.paging.samples.refreshSample
      */
     public fun refresh() {
+        log(DEBUG) { "Refresh signal received" }
         uiReceiver?.refresh()
     }
 
