@@ -13,6 +13,7 @@ add_library(adder
 add_library(apptest
         SHARED
         app_test.cpp
+        gtest_wrapper_test.cpp
         )
 
 target_link_libraries(apptest
