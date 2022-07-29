@@ -30,7 +30,7 @@ object HealthDataService {
     private const val ANDROID_HEALTH_PLATFORM_CLIENT_NAME = "HealthData"
     private const val ANDROID_HEALTH_PLATFORM_PROVIDER_PACKAGE =
         "com.google.android.apps.healthdata"
-    private const val ANDROID_HEALTH_PLATFORM_SERVICE_BIND_ACTION =
+    internal const val ANDROID_HEALTH_PLATFORM_SERVICE_BIND_ACTION =
         "androidx.health.ACTION_BIND_HEALTH_DATA_SERVICE"
 
     /**
