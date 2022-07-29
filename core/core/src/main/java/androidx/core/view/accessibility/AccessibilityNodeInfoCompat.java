@@ -643,6 +643,16 @@ public class AccessibilityNodeInfoCompat {
                         ?  AccessibilityNodeInfo.AccessibilityAction.ACTION_DRAG_CANCEL : null,
                         android.R.id.accessibilityActionDragCancel, null, null, null);
 
+        /**
+         * Action to show suggestions for editable text.
+         */
+        @NonNull
+        public static final AccessibilityActionCompat ACTION_SHOW_TEXT_SUGGESTIONS =
+                new AccessibilityActionCompat(Build.VERSION.SDK_INT >= 33
+                        ?   AccessibilityNodeInfo.AccessibilityAction.ACTION_SHOW_TEXT_SUGGESTIONS
+                        :   null, android.R.id.accessibilityActionShowTextSuggestions, null,
+                        null, null);
+
         final Object mAction;
         private final int mId;
         private final Class<? extends CommandArguments> mViewCommandArgumentClass;
@@ -2681,6 +2691,52 @@ public class AccessibilityNodeInfoCompat {
     }
 
     /**
+     * Gets if the node has selectable text.
+     *
+     * <p>
+     *     Services should use {@link #ACTION_SET_SELECTION} for selection. Editable text nodes must
+     *     also be selectable. But not all UIs will populate this field, so services should consider
+     *     'isTextSelectable | isEditable' to ensure they don't miss nodes with selectable text.
+     *  Compatibility:
+     *  <ul>
+     *      <li>Api &lt; 33: Returns false.</li>
+     *  </ul>
+     * </p>
+     *
+     * @see #isEditable
+     * @return True if the node has selectable text.
+     */
+    public boolean isTextSelectable() {
+        if (Build.VERSION.SDK_INT >= 33) {
+            return Api33Impl.isTextSelectable(mInfo);
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * Sets if the node has selectable text.
+     * <p>
+     *   <strong>Note:</strong> Cannot be called from an
+     *   {@link android.accessibilityservice.AccessibilityService}.
+     *   This class is made immutable before being delivered to an AccessibilityService.
+     *  Compatibility:
+     *  <ul>
+     *      <li>Api &lt; 33: Does not operate.</li>
+     *  </ul>
+     * </p>
+     *
+     * @param selectableText True if the node has selectable text, false otherwise.
+     *
+     * @throws IllegalStateException If called from an AccessibilityService.
+     */
+    public void setTextSelectable(boolean selectableText) {
+        if (Build.VERSION.SDK_INT >= 33) {
+            Api33Impl.setTextSelectable(mInfo, selectableText);
+        }
+    }
+
+    /**
      * Returns whether the node originates from a view considered important for accessibility.
      *
      * @return {@code true} if the node originates from a view considered important for
@@ -4481,6 +4537,16 @@ public class AccessibilityNodeInfoCompat {
         public static AccessibilityNodeInfo.ExtraRenderingInfo getExtraRenderingInfo(
                 AccessibilityNodeInfo info) {
             return info.getExtraRenderingInfo();
+        }
+
+        @DoNotInline
+        public static boolean isTextSelectable(AccessibilityNodeInfo info) {
+            return info.isTextSelectable();
+        }
+
+        @DoNotInline
+        public static void setTextSelectable(AccessibilityNodeInfo info, boolean selectable) {
+            info.setTextSelectable(selectable);
         }
     }
 }
