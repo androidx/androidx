@@ -19,10 +19,8 @@ package androidx.appcompat.graphics.drawable;
 import static android.os.Build.VERSION.SDK_INT;
 import static android.os.Build.VERSION_CODES.LOLLIPOP;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 import static androidx.core.content.res.TypedArrayUtils.obtainAttributes;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.Resources;
 import android.content.res.Resources.Theme;
@@ -34,7 +32,6 @@ import android.util.StateSet;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
-import androidx.annotation.RestrictTo;
 import androidx.appcompat.resources.Compatibility;
 import androidx.appcompat.resources.R;
 import androidx.appcompat.widget.ResourceManagerInternal;
@@ -47,13 +44,12 @@ import java.util.Arrays;
 
 /**
  * Lets you assign a number of graphic images to a single Drawable and swap out the visible item by
- * a string
- * ID value.
- *
- * <p>It can be defined in an XML file with the <code>&lt;selector></code> element.
+ * a string ID value.
+ * <p>
+ * It can be defined in an XML file with the <code>&lt;selector></code> element.
  * Each state Drawable is defined in a nested <code>&lt;item></code> element. For more
- * information, see the guide to <a
- * href="{@docRoot}guide/topics/resources/drawable-resource.html">Drawable Resources</a>.</p>
+ * information, see the guide to
+ * <a href="{@docRoot}guide/topics/resources/drawable-resource.html">Drawable Resources</a>.
  *
  * {@link android.R.attr#visible}
  * {@link android.R.attr#variablePadding}
@@ -71,21 +67,20 @@ import java.util.Arrays;
  * {@link android.R.attr#state_middle}
  * {@link android.R.attr#state_last}
  * {@link android.R.attr#state_pressed}
- *
+ * <p>
  * Adapted from platform class; altered with API level checks as necessary & uses
- * {@link ResourceManagerInternal} for <code>Drawable</code> inflation.
- *
- * @hide
+ * {@code ResourceManagerInternal} for <code>Drawable</code> inflation.
  */
-@RestrictTo(LIBRARY_GROUP_PREFIX)
-@SuppressLint("RestrictedAPI") // Temporary until we have correct restriction scopes for 1.0
-class StateListDrawable extends DrawableContainer {
-    private static final String TAG = "StateListDrawable";
+public class StateListDrawableCompat extends DrawableContainerCompat {
+    private static final String TAG = "StateListDrawableCompat";
     private static final boolean DEBUG = false;
     private StateListState mStateListState;
     private boolean mMutated;
 
-    StateListDrawable() {
+    /**
+     * Creates an empty state list drawable.
+     */
+    public StateListDrawableCompat() {
         this(null, null);
     }
 
@@ -329,7 +324,7 @@ class StateListDrawable extends DrawableContainer {
     static class StateListState extends DrawableContainerState {
         int[][] mStateSets;
 
-        StateListState(StateListState orig, StateListDrawable owner, Resources res) {
+        StateListState(StateListState orig, StateListDrawableCompat owner, Resources res) {
             super(orig, owner, res);
             if (orig != null) {
                 // Perform a shallow copy and rely on mutate() to deep-copy.
@@ -368,13 +363,13 @@ class StateListDrawable extends DrawableContainer {
         @NonNull
         @Override
         public Drawable newDrawable() {
-            return new StateListDrawable(this, null);
+            return new StateListDrawableCompat(this, null);
         }
 
         @NonNull
         @Override
         public Drawable newDrawable(Resources res) {
-            return new StateListDrawable(this, res);
+            return new StateListDrawableCompat(this, res);
         }
 
         @Override
@@ -401,7 +396,7 @@ class StateListDrawable extends DrawableContainer {
         }
     }
 
-    StateListDrawable(StateListState state, Resources res) {
+    StateListDrawableCompat(StateListState state, Resources res) {
         // Every state list drawable has its own constant state.
         final StateListState newState = new StateListState(state, this, res);
         setConstantState(newState);
@@ -412,7 +407,7 @@ class StateListDrawable extends DrawableContainer {
      * This constructor exists so subclasses can avoid calling the default
      * constructor and setting up a StateListDrawable-specific constant state.
      */
-    StateListDrawable(@Nullable StateListState state) {
+    StateListDrawableCompat(@Nullable StateListState state) {
         if (state != null) {
             setConstantState(state);
         }

@@ -1,17 +1,59 @@
 // Baseline format: 1.0
-HiddenSuperclass: androidx.appcompat.graphics.drawable.AnimatedStateListDrawableCompat:
-    Public class androidx.appcompat.graphics.drawable.AnimatedStateListDrawableCompat stripped of unavailable superclass androidx.appcompat.graphics.drawable.StateListDrawable
-
-
-InvalidNullabilityOverride: androidx.appcompat.graphics.drawable.AnimatedStateListDrawableCompat#setTintMode(android.graphics.PorterDuff.Mode) parameter #0:
+InvalidNullabilityOverride: androidx.appcompat.graphics.drawable.DrawableContainerCompat#onStateChange(int[]) parameter #0:
+    Invalid nullability on parameter `state` in method `onStateChange`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullabilityOverride: androidx.appcompat.graphics.drawable.DrawableContainerCompat#setTintMode(android.graphics.PorterDuff.Mode) parameter #0:
     Invalid nullability on parameter `tintMode` in method `setTintMode`. Parameters of overrides cannot be NonNull if super parameter is Nullable.
 
 
 MissingNullability: androidx.appcompat.content.res.AppCompatResources#getColorStateList(android.content.Context, int):
     Missing nullability on method `getColorStateList` return
-MissingNullability: androidx.appcompat.graphics.drawable.AnimatedStateListDrawableCompat#createFromXmlInner(android.content.Context, android.content.res.Resources, org.xmlpull.v1.XmlPullParser, android.util.AttributeSet, android.content.res.Resources.Theme):
-    Missing nullability on method `createFromXmlInner` return
-MissingNullability: androidx.appcompat.graphics.drawable.AnimatedStateListDrawableCompat#mutate():
+MissingNullability: androidx.appcompat.graphics.drawable.DrawableContainerCompat#getConstantState():
+    Missing nullability on method `getConstantState` return
+MissingNullability: androidx.appcompat.graphics.drawable.DrawableContainerCompat#mutate():
     Missing nullability on method `mutate` return
-MissingNullability: androidx.appcompat.graphics.drawable.AnimatedStateListDrawableCompat#onStateChange(int[]) parameter #0:
-    Missing nullability on parameter `stateSet` in method `onStateChange`
+MissingNullability: androidx.appcompat.graphics.drawable.DrawableContainerCompat#onBoundsChange(android.graphics.Rect) parameter #0:
+    Missing nullability on parameter `bounds` in method `onBoundsChange`
+MissingNullability: androidx.appcompat.graphics.drawable.DrawableContainerCompat#setColorFilter(android.graphics.ColorFilter) parameter #0:
+    Missing nullability on parameter `colorFilter` in method `setColorFilter`
+MissingNullability: androidx.appcompat.graphics.drawable.DrawableContainerCompat#setTintList(android.content.res.ColorStateList) parameter #0:
+    Missing nullability on parameter `tint` in method `setTintList`
+MissingNullability: androidx.appcompat.graphics.drawable.DrawableWrapperCompat#DrawableWrapperCompat(android.graphics.drawable.Drawable) parameter #0:
+    Missing nullability on parameter `drawable` in method `DrawableWrapperCompat`
+MissingNullability: androidx.appcompat.graphics.drawable.DrawableWrapperCompat#draw(android.graphics.Canvas) parameter #0:
+    Missing nullability on parameter `canvas` in method `draw`
+MissingNullability: androidx.appcompat.graphics.drawable.DrawableWrapperCompat#getCurrent():
+    Missing nullability on method `getCurrent` return
+MissingNullability: androidx.appcompat.graphics.drawable.DrawableWrapperCompat#getPadding(android.graphics.Rect) parameter #0:
+    Missing nullability on parameter `padding` in method `getPadding`
+MissingNullability: androidx.appcompat.graphics.drawable.DrawableWrapperCompat#getState():
+    Missing nullability on method `getState` return
+MissingNullability: androidx.appcompat.graphics.drawable.DrawableWrapperCompat#getTransparentRegion():
+    Missing nullability on method `getTransparentRegion` return
+MissingNullability: androidx.appcompat.graphics.drawable.DrawableWrapperCompat#getWrappedDrawable():
+    Missing nullability on method `getWrappedDrawable` return
+MissingNullability: androidx.appcompat.graphics.drawable.DrawableWrapperCompat#invalidateDrawable(android.graphics.drawable.Drawable) parameter #0:
+    Missing nullability on parameter `who` in method `invalidateDrawable`
+MissingNullability: androidx.appcompat.graphics.drawable.DrawableWrapperCompat#onBoundsChange(android.graphics.Rect) parameter #0:
+    Missing nullability on parameter `bounds` in method `onBoundsChange`
+MissingNullability: androidx.appcompat.graphics.drawable.DrawableWrapperCompat#scheduleDrawable(android.graphics.drawable.Drawable, Runnable, long) parameter #0:
+    Missing nullability on parameter `who` in method `scheduleDrawable`
+MissingNullability: androidx.appcompat.graphics.drawable.DrawableWrapperCompat#scheduleDrawable(android.graphics.drawable.Drawable, Runnable, long) parameter #1:
+    Missing nullability on parameter `what` in method `scheduleDrawable`
+MissingNullability: androidx.appcompat.graphics.drawable.DrawableWrapperCompat#setColorFilter(android.graphics.ColorFilter) parameter #0:
+    Missing nullability on parameter `cf` in method `setColorFilter`
+MissingNullability: androidx.appcompat.graphics.drawable.DrawableWrapperCompat#setState(int[]) parameter #0:
+    Missing nullability on parameter `stateSet` in method `setState`
+MissingNullability: androidx.appcompat.graphics.drawable.DrawableWrapperCompat#setTintList(android.content.res.ColorStateList) parameter #0:
+    Missing nullability on parameter `tint` in method `setTintList`
+MissingNullability: androidx.appcompat.graphics.drawable.DrawableWrapperCompat#setTintMode(android.graphics.PorterDuff.Mode) parameter #0:
+    Missing nullability on parameter `tintMode` in method `setTintMode`
+MissingNullability: androidx.appcompat.graphics.drawable.DrawableWrapperCompat#setWrappedDrawable(android.graphics.drawable.Drawable) parameter #0:
+    Missing nullability on parameter `drawable` in method `setWrappedDrawable`
+MissingNullability: androidx.appcompat.graphics.drawable.DrawableWrapperCompat#unscheduleDrawable(android.graphics.drawable.Drawable, Runnable) parameter #0:
+    Missing nullability on parameter `who` in method `unscheduleDrawable`
+MissingNullability: androidx.appcompat.graphics.drawable.DrawableWrapperCompat#unscheduleDrawable(android.graphics.drawable.Drawable, Runnable) parameter #1:
+    Missing nullability on parameter `what` in method `unscheduleDrawable`
+MissingNullability: androidx.appcompat.graphics.drawable.StateListDrawableCompat#addState(int[], android.graphics.drawable.Drawable) parameter #0:
+    Missing nullability on parameter `stateSet` in method `addState`
+MissingNullability: androidx.appcompat.graphics.drawable.StateListDrawableCompat#addState(int[], android.graphics.drawable.Drawable) parameter #1:
+    Missing nullability on parameter `drawable` in method `addState`

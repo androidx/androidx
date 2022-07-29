@@ -27,7 +27,7 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 @SmallTest
-class DrawableContainerTest {
+class DrawableContainerCompatTest {
     /**
      * Regression test for b/171913944 where DrawableContainer fails to copy when there are no
      * children in the constant state.
@@ -48,20 +48,20 @@ class DrawableContainerTest {
         assertTrue(container.calledSetTintList)
     }
 
-    internal class MyDrawableContainerState : DrawableContainer.DrawableContainerState {
+    internal class MyDrawableContainerState : DrawableContainerCompat.DrawableContainerState {
         constructor() : super(null, null, null)
-        constructor(orig: DrawableContainer.DrawableContainerState?) : super(orig, null, null)
+        constructor(orig: DrawableContainerCompat.DrawableContainerState?) : super(orig, null, null)
 
         init {
             addChild(ColorDrawable(Color.WHITE))
         }
 
         override fun newDrawable(): Drawable {
-            return DrawableContainer()
+            return DrawableContainerCompat()
         }
     }
 
-    internal class MyDrawableContainer : DrawableContainer() {
+    internal class MyDrawableContainer : DrawableContainerCompat() {
         var calledSetTintList = false
 
         init {

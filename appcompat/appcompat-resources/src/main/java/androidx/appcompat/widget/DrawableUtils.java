@@ -35,7 +35,7 @@ import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
-import androidx.appcompat.graphics.drawable.DrawableWrapper;
+import androidx.appcompat.graphics.drawable.DrawableWrapperCompat;
 import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.core.graphics.drawable.WrappedDrawable;
 
@@ -133,8 +133,8 @@ public class DrawableUtils {
             }
         } else if (drawable instanceof WrappedDrawable) {
             return canSafelyMutateDrawable(((WrappedDrawable) drawable).getWrappedDrawable());
-        } else if (drawable instanceof DrawableWrapper) {
-            return canSafelyMutateDrawable(((DrawableWrapper) drawable).getWrappedDrawable());
+        } else if (drawable instanceof DrawableWrapperCompat) {
+            return canSafelyMutateDrawable(((DrawableWrapperCompat) drawable).getDrawable());
         } else if (drawable instanceof ScaleDrawable) {
             return canSafelyMutateDrawable(((ScaleDrawable) drawable).getDrawable());
         }
