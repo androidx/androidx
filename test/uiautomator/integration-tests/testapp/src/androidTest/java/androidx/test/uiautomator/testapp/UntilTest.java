@@ -31,7 +31,11 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-/** Integration tests for {@link Until}. */
+/**
+ * Integration tests for {@link Until}, and related methods like
+ * {@link UiDevice#wait(SearchCondition, long)} and
+ * {@link UiObject2#wait(UiObject2Condition, long)}.
+ */
 @LargeTest
 public class UntilTest extends BaseTest {
 

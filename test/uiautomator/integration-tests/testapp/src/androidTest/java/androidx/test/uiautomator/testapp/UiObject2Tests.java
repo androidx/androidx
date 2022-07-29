@@ -773,12 +773,6 @@ public class UiObject2Tests extends BaseTest {
         assertEquals("new_text", object.getText());
     }
 
-    /* TODO(b/235841473): Implement these tests
-    public void testWaitForExists() {}
-
-    public void testWaitForGone() {}
-    */
-
     /* Helper method to get a point inside the object. */
     private Point getPointInsideBounds(UiObject2 obj) {
         Rect objBounds = obj.getVisibleBounds();
