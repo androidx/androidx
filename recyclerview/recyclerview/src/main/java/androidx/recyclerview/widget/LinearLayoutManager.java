@@ -30,7 +30,6 @@ import android.view.ViewGroup;
 import android.view.accessibility.AccessibilityEvent;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.core.os.TraceCompat;
 import androidx.core.view.ViewCompat;
@@ -189,12 +188,9 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
      * {@link androidx.recyclerview.R.attr#reverseLayout}
      * {@link androidx.recyclerview.R.attr#stackFromEnd}
      */
-    public LinearLayoutManager(
-            @NonNull Context context,
-            @Nullable AttributeSet attrs,
-            int defStyleAttr,
-            int defStyleRes
-    ) {
+    @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
+    public LinearLayoutManager(Context context, AttributeSet attrs, int defStyleAttr,
+            int defStyleRes) {
         Properties properties = getProperties(context, attrs, defStyleAttr, defStyleRes);
         setOrientation(properties.orientation);
         setReverseLayout(properties.reverseLayout);
@@ -209,8 +205,8 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
     /**
      * {@inheritDoc}
      */
-    @NonNull
     @Override
+    @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
     public RecyclerView.LayoutParams generateDefaultLayoutParams() {
         return new RecyclerView.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -245,10 +241,8 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
     }
 
     @Override
-    public void onDetachedFromWindow(
-            @NonNull RecyclerView view,
-            @NonNull RecyclerView.Recycler recycler
-    ) {
+    @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
+    public void onDetachedFromWindow(RecyclerView view, RecyclerView.Recycler recycler) {
         super.onDetachedFromWindow(view, recycler);
         if (mRecycleChildrenOnDetach) {
             removeAndRecycleAllViews(recycler);
@@ -257,7 +251,8 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
     }
 
     @Override
-    public void onInitializeAccessibilityEvent(@NonNull AccessibilityEvent event) {
+    @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
+    public void onInitializeAccessibilityEvent(AccessibilityEvent event) {
         super.onInitializeAccessibilityEvent(event);
         if (getChildCount() > 0) {
             event.setFromIndex(findFirstVisibleItemPosition());
@@ -265,8 +260,8 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
         }
     }
 
-    @Nullable
     @Override
+    @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
     public Parcelable onSaveInstanceState() {
         if (mPendingSavedState != null) {
             return new SavedState(mPendingSavedState);
@@ -294,7 +289,8 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
     }
 
     @Override
-    public void onRestoreInstanceState(@NonNull Parcelable state) {
+    @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
+    public void onRestoreInstanceState(Parcelable state) {
         if (state instanceof SavedState) {
             mPendingSavedState = (SavedState) state;
             if (mPendingScrollPosition != RecyclerView.NO_POSITION) {
@@ -424,8 +420,8 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
     /**
      * {@inheritDoc}
      */
-    @Nullable
     @Override
+    @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
     public View findViewByPosition(int position) {
         final int childCount = getChildCount();
         if (childCount == 0) {
@@ -520,19 +516,17 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
     }
 
     @Override
-    public void smoothScrollToPosition(
-            @NonNull RecyclerView recyclerView,
-            @NonNull RecyclerView.State state,
-            int position
-    ) {
+    @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
+    public void smoothScrollToPosition(RecyclerView recyclerView, RecyclerView.State state,
+            int position) {
         LinearSmoothScroller linearSmoothScroller =
                 new LinearSmoothScroller(recyclerView.getContext());
         linearSmoothScroller.setTargetPosition(position);
         startSmoothScroll(linearSmoothScroller);
     }
 
-    @Nullable
     @Override
+    @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
     public PointF computeScrollVectorForPosition(int targetPosition) {
         if (getChildCount() == 0) {
             return null;
@@ -550,10 +544,8 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
      * {@inheritDoc}
      */
     @Override
-    public void onLayoutChildren(
-            @NonNull RecyclerView.Recycler recycler,
-            @NonNull RecyclerView.State state
-    ) {
+    @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
+    public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
         // layout algorithm:
         // 1) by checking children and other variables, find an anchor coordinate and an anchor
         //  item position.
@@ -751,7 +743,8 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
     }
 
     @Override
-    public void onLayoutCompleted(@NonNull RecyclerView.State state) {
+    @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
+    public void onLayoutCompleted(RecyclerView.State state) {
         super.onLayoutCompleted(state);
         mPendingSavedState = null; // we don't need this anymore
         mPendingScrollPosition = RecyclerView.NO_POSITION;
@@ -1143,8 +1136,9 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
      * {@inheritDoc}
      */
     @Override
-    public int scrollHorizontallyBy(int dx, @NonNull RecyclerView.Recycler recycler,
-            @NonNull RecyclerView.State state) {
+    @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
+    public int scrollHorizontallyBy(int dx, RecyclerView.Recycler recycler,
+            RecyclerView.State state) {
         if (mOrientation == VERTICAL) {
             return 0;
         }
@@ -1155,8 +1149,9 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
      * {@inheritDoc}
      */
     @Override
-    public int scrollVerticallyBy(int dy, @NonNull RecyclerView.Recycler recycler,
-            @NonNull RecyclerView.State state) {
+    @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
+    public int scrollVerticallyBy(int dy, RecyclerView.Recycler recycler,
+            RecyclerView.State state) {
         if (mOrientation == HORIZONTAL) {
             return 0;
         }
@@ -1164,32 +1159,38 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
     }
 
     @Override
-    public int computeHorizontalScrollOffset(@NonNull RecyclerView.State state) {
+    @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
+    public int computeHorizontalScrollOffset(RecyclerView.State state) {
         return computeScrollOffset(state);
     }
 
     @Override
-    public int computeVerticalScrollOffset(@NonNull RecyclerView.State state) {
+    @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
+    public int computeVerticalScrollOffset(RecyclerView.State state) {
         return computeScrollOffset(state);
     }
 
     @Override
-    public int computeHorizontalScrollExtent(@NonNull RecyclerView.State state) {
+    @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
+    public int computeHorizontalScrollExtent(RecyclerView.State state) {
         return computeScrollExtent(state);
     }
 
     @Override
-    public int computeVerticalScrollExtent(@NonNull RecyclerView.State state) {
+    @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
+    public int computeVerticalScrollExtent(RecyclerView.State state) {
         return computeScrollExtent(state);
     }
 
     @Override
-    public int computeHorizontalScrollRange(@NonNull RecyclerView.State state) {
+    @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
+    public int computeHorizontalScrollRange(RecyclerView.State state) {
         return computeScrollRange(state);
     }
 
     @Override
-    public int computeVerticalScrollRange(@NonNull RecyclerView.State state) {
+    @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
+    public int computeVerticalScrollRange(RecyclerView.State state) {
         return computeScrollRange(state);
     }
 
@@ -1314,8 +1315,9 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
     }
 
     @Override
+    @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
     public void collectInitialPrefetchPositions(int adapterItemCount,
-            @NonNull LayoutPrefetchRegistry layoutPrefetchRegistry) {
+            LayoutPrefetchRegistry layoutPrefetchRegistry) {
         final boolean fromEnd;
         final int anchorPos;
         if (mPendingSavedState != null && mPendingSavedState.hasValidAnchor()) {
@@ -1394,8 +1396,9 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
     }
 
     @Override
-    public void collectAdjacentPrefetchPositions(int dx, int dy, @NonNull RecyclerView.State state,
-            @NonNull LayoutPrefetchRegistry layoutPrefetchRegistry) {
+    @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
+    public void collectAdjacentPrefetchPositions(int dx, int dy, RecyclerView.State state,
+            LayoutPrefetchRegistry layoutPrefetchRegistry) {
         int delta = (mOrientation == HORIZONTAL) ? dx : dy;
         if (getChildCount() == 0 || delta == 0) {
             // can't support this scroll, so don't bother prefetching
@@ -1436,7 +1439,8 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
     }
 
     @Override
-    public void assertNotInLayoutOrScroll(@Nullable String message) {
+    @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
+    public void assertNotInLayoutOrScroll(String message) {
         if (mPendingSavedState == null) {
             super.assertNotInLayoutOrScroll(message);
         }
@@ -2089,10 +2093,10 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
                         acceptableBoundsFlag);
     }
 
-    @Nullable
     @Override
-    public View onFocusSearchFailed(@NonNull View focused, int direction,
-            @NonNull RecyclerView.Recycler recycler, @NonNull RecyclerView.State state) {
+    @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
+    public View onFocusSearchFailed(View focused, int direction,
+            RecyclerView.Recycler recycler, RecyclerView.State state) {
         resolveShouldLayoutReverse();
         if (getChildCount() == 0) {
             return null;
@@ -2457,7 +2461,8 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
             mAnchorLayoutFromEnd = in.readInt() == 1;
         }
 
-        public SavedState(@NonNull SavedState other) {
+        @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
+        public SavedState(SavedState other) {
             mAnchorPosition = other.mAnchorPosition;
             mAnchorOffset = other.mAnchorOffset;
             mAnchorLayoutFromEnd = other.mAnchorLayoutFromEnd;

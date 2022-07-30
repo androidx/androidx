@@ -16,8 +16,7 @@
 
 package androidx.recyclerview.widget;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+import android.annotation.SuppressLint;
 
 /**
  * A {@link SortedList.Callback} implementation that can bind a {@link SortedList} to a
@@ -33,7 +32,10 @@ public abstract class SortedListAdapterCallback<T2> extends SortedList.Callback<
      *
      * @param adapter The Adapter instance which should receive events from the SortedList.
      */
-    public SortedListAdapterCallback(@NonNull RecyclerView.Adapter<?> adapter) {
+    public SortedListAdapterCallback(
+            // b/240775049: Cannot annotate properly
+            @SuppressLint({"UnknownNullness", "MissingNullability"})
+            RecyclerView.Adapter<?> adapter) {
         mAdapter = adapter;
     }
 
@@ -58,7 +60,8 @@ public abstract class SortedListAdapterCallback<T2> extends SortedList.Callback<
     }
 
     @Override
-    public void onChanged(int position, int count, @Nullable Object payload) {
+    @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
+    public void onChanged(int position, int count, Object payload) {
         mAdapter.notifyItemRangeChanged(position, count, payload);
     }
 }
