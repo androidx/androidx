@@ -555,7 +555,9 @@ public class ActivityCompat extends ContextCompat {
      */
     public static boolean shouldShowRequestPermissionRationale(@NonNull Activity activity,
             @NonNull String permission) {
-        if (Build.VERSION.SDK_INT == 31) {
+        if (Build.VERSION.SDK_INT >= 32) {
+            return Api32Impl.shouldShowRequestPermissionRationale(activity, permission);
+        } else if (Build.VERSION.SDK_INT == 31) {
             return Api31Impl.shouldShowRequestPermissionRationale(activity, permission);
         } else if (Build.VERSION.SDK_INT >= 23) {
             return Api23Impl.shouldShowRequestPermissionRationale(activity, permission);
@@ -757,17 +759,47 @@ public class ActivityCompat extends ContextCompat {
             return activity.isLaunchedFromBubble();
         }
 
+        /**
+         * Fix memory leak on Android 12:
+         * <a href="https://github.com/androidx/androidx/pull/435">
+         *     https://github.com/androidx/androidx/pull/435
+         * </a>
+         */
         @DoNotInline
         static boolean shouldShowRequestPermissionRationale(Activity activity, String permission) {
             try {
-                // Fix shouldShowRequestPermissionRationale causing memory leak in Android 12
+                // 1. Background of the problem：Fix shouldShowRequestPermissionRationale causing memory leak in Android 12，
+                //    this problem has been fixed on the Android 12L system, but it is still a historical problem for the Android 12 system
+                // 2. The reason for the problem: The culprit is that the PermissionUsageHelper holds the Context object as a field,
+                //    and calls AppOpsManager.startWatchingStarted in the constructor to start the monitoring,
+                //    so that the PermissionUsageHelper object will be added to the AppOpsManager#mStartedWatchers collection,
+                //    which will lead to active calls in the Activity When finishing, stopWatchingStarted is not used to remove the watch,
+                //    which causes the Activity object to be held in the AppOpsManager#mStartedWatchers collection,
+                //    which indirectly causes the Activity object to not be recycled by the system.
+                // 3. The solution to the problem: The handling of this problem is also very simple and rude, that is,
+                //    to replace the Context parameter passed in the outer layer from the Activity object to the Application object,
+                //    because the Application life cycle is relatively long, but there is only the shouldShowRequestPermissionRationale method in the Activity,
+                //    and What if there is no such method in Application? Looking at the implementation of this method, in fact,
+                //    that method will eventually call the PackageManager.shouldShowRequestPermissionRationale method (hidden API, but not in the blacklist),
+                //    so as long as the PackageManager object can be obtained, and finally use reflection to execute this method , which avoids memory leaks.
                 PackageManager packageManager = activity.getApplication().getPackageManager();
                 Method method = PackageManager.class.getMethod("shouldShowRequestPermissionRationale", String.class);
                 return (boolean) method.invoke(packageManager, permission);
             } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
-                e.printStackTrace();
                 return activity.shouldShowRequestPermissionRationale(permission);
             }
+        }
+    }
+
+    @RequiresApi(32)
+    static class Api32Impl  {
+        private Api32Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static boolean shouldShowRequestPermissionRationale(Activity activity, String permission) {
+            return activity.shouldShowRequestPermissionRationale(permission);
         }
     }
 
