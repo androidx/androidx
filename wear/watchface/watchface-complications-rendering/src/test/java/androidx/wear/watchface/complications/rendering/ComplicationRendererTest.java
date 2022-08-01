@@ -1140,10 +1140,13 @@ public class ComplicationRendererTest {
 
     @Test
     public void placeholderRangedValue() {
+        androidx.wear.watchface.complications.data.ComplicationText placeholderText =
+                androidx.wear.watchface.complications.data.ComplicationText.PLACEHOLDER;
         mComplicationRenderer.setComplicationData(
                 new NoDataComplicationData(
                         new RangedValueComplicationData.Builder(
                                 RangedValueComplicationData.PLACEHOLDER, 0f, 100f, EMPTY_TEXT)
+                                .setTitle(placeholderText)
                                 .build())
                         .asWireComplicationData(),
                 true);
