@@ -34,7 +34,8 @@ import androidx.health.services.client.proto.DataProto
  * also be tracked (i.e. contained in [dataTypes]) in some form. For example, an [ExerciseGoal] for
  * [DataType.STEPS_TOTAL] requires that [dataTypes] contains either or both of
  * [DataType.STEPS_TOTAL] / [DataType.STEPS].
- * @property exerciseParams [Bundle] additional OEM specific params for this exercise
+ * @property exerciseParams [Bundle] bundle for specifying exercise presets, the values of an
+ * on-going exercise which can be used to pre-populate a new exercise.
  */
 @Suppress("ParcelCreator")
 class ExerciseConfig(
@@ -62,6 +63,12 @@ class ExerciseConfig(
         require(!dataTypes.contains(DataType.LOCATION) || isGpsEnabled) {
             "If LOCATION data is being requested, setGpsEnabled(true) must be configured in the " +
                 "ExerciseConfig. "
+        }
+
+        if (exerciseType == ExerciseType.SWIMMING_POOL) {
+          require(exerciseParams.containsKey("swimming_pool_length_m")) {
+              "If exercise type is SWIMMING_POOL, then swimming pool length must also be specified"
+          }
         }
     }
 
