@@ -43,7 +43,6 @@ class EntityUpsertionAdapterWriter private constructor(
         classWriter: ClassWriter,
         dbParam: String
     ): CodeBlock {
-        @Suppress("RemoveSingleExpressionStringTemplate")
         val upsertionAdapter = ParameterizedTypeName.get(
             RoomTypeNames.UPSERTION_ADAPTER, pojo.typeName
         )
