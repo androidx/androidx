@@ -106,7 +106,7 @@ internal interface SurfaceControlImpl {
         fun setOpaque(surfaceControl: SurfaceControlImpl, isOpaque: Boolean): Transaction
 
         /**
-         * Toggle the visibility of a given Layer and it's sub-tree.
+         * Sets the visibility of a given Layer and it's sub-tree.
          * @param surfaceControl Target [SurfaceControlImpl]
          */
         fun setVisibility(surfaceControl: SurfaceControlImpl, visible: Boolean): Transaction
@@ -192,7 +192,8 @@ internal interface SurfaceControlImpl {
 
         /**
          * Request to add a [SurfaceControlCompat.TransactionCommittedListener]. The callback is
-         * invoked when transaction is applied and the updates are ready to be presented.
+         * invoked when transaction is applied and the updates are ready to be presented. Once
+         * applied, any callbacks added before the commit will be cleared from the Transaction.
          * This callback does not mean buffers have been released! It simply means that any new
          * transactions applied will not overwrite the transaction for which we are receiving a
          * callback and instead will be included in the next frame.
