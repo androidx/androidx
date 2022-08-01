@@ -187,17 +187,146 @@ class PlaceholderTest {
     }
 
     @Test
-    fun absent_rangedValue() {
+    fun titleAbsent_rangedValue() {
         val placeholderRangedValue = NoDataComplicationData(
             RangedValueComplicationData.Builder(
                 value = RangedValueComplicationData.PLACEHOLDER,
                 min = 1f,
                 max = 10f,
                 contentDescription
-            ).build()
+            )
+                .setText(ComplicationText.PLACEHOLDER)
+                .build()
         ).toWireFormatRoundTrip().placeholder as RangedValueComplicationData
 
-        assertThat(placeholderRangedValue.text).isNull()
+        assertThat(placeholderRangedValue.text).isEqualTo(ComplicationText.PLACEHOLDER)
+        assertThat(placeholderRangedValue.title).isNull()
+        assertThat(placeholderRangedValue.monochromaticImage).isNull()
+    }
+
+    @OptIn(ComplicationExperimental::class)
+    @Test
+    fun placeholder_goalProgress() {
+        val placeholderGoalProgress = NoDataComplicationData(
+            GoalProgressComplicationData.Builder(
+                value = GoalProgressComplicationData.PLACEHOLDER,
+                targetValue = 10000f,
+                contentDescription
+            )
+                .setText(ComplicationText.PLACEHOLDER)
+                .setTitle(ComplicationText.PLACEHOLDER)
+                .setMonochromaticImage(MonochromaticImage.PLACEHOLDER)
+                .build()
+        ).toWireFormatRoundTrip().placeholder as GoalProgressComplicationData
+
+        assertThat(placeholderGoalProgress.value).isEqualTo(RangedValueComplicationData.PLACEHOLDER)
+        assertThat(placeholderGoalProgress.text).isEqualTo(ComplicationText.PLACEHOLDER)
+        assertThat(placeholderGoalProgress.title).isEqualTo(ComplicationText.PLACEHOLDER)
+        assertThat(placeholderGoalProgress.monochromaticImage)
+            .isEqualTo(MonochromaticImage.PLACEHOLDER)
+        assertThat(placeholderGoalProgress.contentDescription!!.getTextAt(resources, Instant.EPOCH))
+            .isEqualTo("description")
+        assertThat(placeholderGoalProgress.hasPlaceholderFields()).isTrue()
+    }
+
+    @OptIn(ComplicationExperimental::class)
+    @Test
+    fun normal_goalProgress() {
+        val placeholderGoalProgress = NoDataComplicationData(
+            GoalProgressComplicationData.Builder(
+                value = 1200f,
+                targetValue = 10000f,
+                contentDescription
+            )
+                .setText(text)
+                .setTitle(title)
+                .setMonochromaticImage(monochromaticImage)
+                .build()
+        ).toWireFormatRoundTrip().placeholder as GoalProgressComplicationData
+
+        assertThat(placeholderGoalProgress.text!!.getTextAt(resources, Instant.EPOCH)).isEqualTo(
+            text.getTextAt(resources, Instant.EPOCH)
+        )
+        assertThat(placeholderGoalProgress.title!!.getTextAt(resources, Instant.EPOCH)).isEqualTo(
+            title.getTextAt(resources, Instant.EPOCH)
+        )
+        assertThat(placeholderGoalProgress.monochromaticImage).isEqualTo(monochromaticImage)
+        assertThat(placeholderGoalProgress.value).isEqualTo(1200f)
+        assertThat(placeholderGoalProgress.targetValue).isEqualTo(10000f)
+        assertThat(placeholderGoalProgress.hasPlaceholderFields()).isFalse()
+    }
+
+    @OptIn(ComplicationExperimental::class)
+    @Test
+    fun placeholder_discreteRangedValue() {
+        val placeholderRangedValue = NoDataComplicationData(
+            DiscreteRangedValueComplicationData.Builder(
+                value = DiscreteRangedValueComplicationData.PLACEHOLDER,
+                min = 1,
+                max = 10,
+                contentDescription
+            )
+                .setText(ComplicationText.PLACEHOLDER)
+                .setTitle(ComplicationText.PLACEHOLDER)
+                .setMonochromaticImage(MonochromaticImage.PLACEHOLDER)
+                .build()
+        ).toWireFormatRoundTrip().placeholder as DiscreteRangedValueComplicationData
+
+        assertThat(placeholderRangedValue.value)
+            .isEqualTo(DiscreteRangedValueComplicationData.PLACEHOLDER)
+        assertThat(placeholderRangedValue.text).isEqualTo(ComplicationText.PLACEHOLDER)
+        assertThat(placeholderRangedValue.title).isEqualTo(ComplicationText.PLACEHOLDER)
+        assertThat(placeholderRangedValue.monochromaticImage)
+            .isEqualTo(MonochromaticImage.PLACEHOLDER)
+        assertThat(placeholderRangedValue.contentDescription!!.getTextAt(resources, Instant.EPOCH))
+            .isEqualTo("description")
+        assertThat(placeholderRangedValue.hasPlaceholderFields()).isTrue()
+    }
+
+    @OptIn(ComplicationExperimental::class)
+    @Test
+    fun normal_discreteRangedValue() {
+        val placeholderRangedValue = NoDataComplicationData(
+            DiscreteRangedValueComplicationData.Builder(
+                value = 7,
+                min = 1,
+                max = 10,
+                contentDescription
+            )
+                .setText(text)
+                .setTitle(title)
+                .setMonochromaticImage(monochromaticImage)
+                .build()
+        ).toWireFormatRoundTrip().placeholder as DiscreteRangedValueComplicationData
+
+        assertThat(placeholderRangedValue.text!!.getTextAt(resources, Instant.EPOCH)).isEqualTo(
+            text.getTextAt(resources, Instant.EPOCH)
+        )
+        assertThat(placeholderRangedValue.title!!.getTextAt(resources, Instant.EPOCH)).isEqualTo(
+            title.getTextAt(resources, Instant.EPOCH)
+        )
+        assertThat(placeholderRangedValue.monochromaticImage).isEqualTo(monochromaticImage)
+        assertThat(placeholderRangedValue.value).isEqualTo(7)
+        assertThat(placeholderRangedValue.min).isEqualTo(1)
+        assertThat(placeholderRangedValue.max).isEqualTo(10)
+        assertThat(placeholderRangedValue.hasPlaceholderFields()).isFalse()
+    }
+
+    @OptIn(ComplicationExperimental::class)
+    @Test
+    fun titleAbsent_discreteRangedValue() {
+        val placeholderRangedValue = NoDataComplicationData(
+            DiscreteRangedValueComplicationData.Builder(
+                value = DiscreteRangedValueComplicationData.PLACEHOLDER,
+                min = 1,
+                max = 10,
+                contentDescription
+            )
+                .setText(ComplicationText.PLACEHOLDER)
+                .build()
+        ).toWireFormatRoundTrip().placeholder as DiscreteRangedValueComplicationData
+
+        assertThat(placeholderRangedValue.text).isEqualTo(ComplicationText.PLACEHOLDER)
         assertThat(placeholderRangedValue.title).isNull()
         assertThat(placeholderRangedValue.monochromaticImage).isNull()
     }
