@@ -478,6 +478,84 @@ public class AsWireComplicationDataTest {
         )
     }
 
+    @OptIn(ComplicationExperimental::class)
+    @Test
+    public fun weightedElementsComplicationData() {
+        val data = WeightedElementsComplicationData.Builder(
+            listOf(
+                WeightedElementsComplicationData.Element(0.5f, Color.RED),
+                WeightedElementsComplicationData.Element(1f, Color.GREEN),
+                WeightedElementsComplicationData.Element(2f, Color.BLUE),
+            ),
+            contentDescription = "content description".complicationText
+        )
+            .setTitle("calories".complicationText)
+            .setDataSource(dataSourceA)
+            .build()
+        ParcelableSubject.assertThat(data.asWireComplicationData())
+            .hasSameSerializationAs(
+                WireComplicationDataBuilder(WireComplicationData.TYPE_WEIGHTED_ELEMENTS)
+                    .setElementWeights(floatArrayOf(0.5f, 1f, 2f))
+                    .setElementColors(intArrayOf(Color.RED, Color.GREEN, Color.BLUE))
+                    .setShortTitle(WireComplicationText.plainText("calories"))
+                    .setContentDescription(WireComplicationText.plainText("content description"))
+                    .setDataSource(dataSourceA)
+                    .build()
+            )
+        testRoundTripConversions(data)
+        val deserialized = serializeAndDeserialize(data) as WeightedElementsComplicationData
+        assertThat(deserialized.elements).isEqualTo(
+            listOf(
+                WeightedElementsComplicationData.Element(0.5f, Color.RED),
+                WeightedElementsComplicationData.Element(1f, Color.GREEN),
+                WeightedElementsComplicationData.Element(2f, Color.BLUE),
+            )
+        )
+        assertThat(deserialized.contentDescription!!.getTextAt(resources, Instant.EPOCH))
+            .isEqualTo("content description")
+        assertThat(deserialized.title!!.getTextAt(resources, Instant.EPOCH))
+            .isEqualTo("calories")
+
+        val data2 = WeightedElementsComplicationData.Builder(
+            listOf(
+                WeightedElementsComplicationData.Element(0.5f, Color.RED),
+                WeightedElementsComplicationData.Element(1f, Color.GREEN),
+                WeightedElementsComplicationData.Element(2f, Color.BLUE),
+            ),
+            contentDescription = "content description".complicationText
+        )
+            .setTitle("calories".complicationText)
+            .setDataSource(dataSourceA)
+            .build()
+
+        val data3 = WeightedElementsComplicationData.Builder(
+            listOf(
+                WeightedElementsComplicationData.Element(0.5f, Color.RED),
+                WeightedElementsComplicationData.Element(10f, Color.GREEN),
+                WeightedElementsComplicationData.Element(2f, Color.BLUE),
+            ),
+            contentDescription = "content description".complicationText
+        )
+            .setTitle("battery".complicationText)
+            .setDataSource(dataSourceA)
+            .build()
+
+        assertThat(data).isEqualTo(data2)
+        assertThat(data).isNotEqualTo(data3)
+        assertThat(data.hashCode()).isEqualTo(data2.hashCode())
+        assertThat(data.hashCode()).isNotEqualTo(data3.hashCode())
+        assertThat(data.toString()).isEqualTo(
+            "WeightedElementsComplicationData(elements=Element(color=-65536, weight=0.5)," +
+                " Element(color=-16711936, weight=1.0), Element(color=-16776961, weight=2.0), " +
+                "monochromaticImage=null, title=ComplicationText{mSurroundingText=calories, " +
+                "mTimeDependentText=null}, text=null, contentDescription=ComplicationText{" +
+                "mSurroundingText=content description, mTimeDependentText=null}), " +
+                "tapActionLostDueToSerialization=false, tapAction=null, validTimeRange=TimeRange(" +
+                "startDateTimeMillis=-1000000000-01-01T00:00:00Z, endDateTimeMillis=" +
+                "+1000000000-12-31T23:59:59.999999999Z), dataSource=ComponentInfo{com.pkg_a/com.a})"
+        )
+    }
+
     @RequiresApi(Build.VERSION_CODES.P)
     @Test
     public fun monochromaticImageComplicationData() {
@@ -1150,6 +1228,90 @@ public class AsWireComplicationDataTest {
 
     @OptIn(ComplicationExperimental::class)
     @Test
+    public fun noDataComplicationData_weightedElements() {
+        val data = NoDataComplicationData(
+            WeightedElementsComplicationData.Builder(
+                listOf(
+                    WeightedElementsComplicationData.Element(0.5f, Color.RED),
+                    WeightedElementsComplicationData.Element(1f, Color.GREEN),
+                    WeightedElementsComplicationData.Element(2f, Color.BLUE),
+                ),
+                contentDescription = "content description".complicationText
+            )
+                .setTitle("calories".complicationText)
+                .setDataSource(dataSourceA)
+                .build()
+        )
+        ParcelableSubject.assertThat(data.asWireComplicationData())
+            .hasSameSerializationAs(
+                WireComplicationDataBuilder(WireComplicationData.TYPE_NO_DATA)
+                    .setPlaceholder(
+                        WireComplicationDataBuilder(WireComplicationData.TYPE_WEIGHTED_ELEMENTS)
+                            .setElementWeights(floatArrayOf(0.5f, 1f, 2f))
+                            .setElementColors(intArrayOf(Color.RED, Color.GREEN, Color.BLUE))
+                            .setShortTitle(WireComplicationText.plainText("calories"))
+                            .setContentDescription(
+                                WireComplicationText.plainText("content description")
+                            )
+                            .setDataSource(dataSourceA)
+                            .build()
+                    )
+                    .build()
+            )
+        testRoundTripConversions(data)
+        val deserialized = serializeAndDeserialize(data) as NoDataComplicationData
+        assertThat(deserialized.contentDescription!!.getTextAt(resources, Instant.EPOCH))
+            .isEqualTo("content description")
+
+        val data2 = NoDataComplicationData(
+            WeightedElementsComplicationData.Builder(
+                listOf(
+                    WeightedElementsComplicationData.Element(0.5f, Color.RED),
+                    WeightedElementsComplicationData.Element(1f, Color.GREEN),
+                    WeightedElementsComplicationData.Element(2f, Color.BLUE),
+                ),
+                contentDescription = "content description".complicationText
+            )
+                .setTitle("calories".complicationText)
+                .setDataSource(dataSourceA)
+                .build()
+        )
+        val data3 = NoDataComplicationData(
+            WeightedElementsComplicationData.Builder(
+                listOf(
+                    WeightedElementsComplicationData.Element(0.5f, Color.RED),
+                    WeightedElementsComplicationData.Element(1f, Color.GREEN),
+                ),
+                contentDescription = "content description".complicationText
+            )
+                .setTitle("calories".complicationText)
+                .setDataSource(dataSourceA)
+                .build()
+        )
+
+        assertThat(data).isEqualTo(data2)
+        assertThat(data).isNotEqualTo(data3)
+        assertThat(data.hashCode()).isEqualTo(data2.hashCode())
+        assertThat(data.hashCode()).isNotEqualTo(data3.hashCode())
+        assertThat(data.toString()).isEqualTo(
+            "NoDataComplicationData(placeholder=WeightedElementsComplicationData(" +
+                "elements=Element(color=-65536, weight=0.5), Element(color=-16711936, " +
+                "weight=1.0), Element(color=-16776961, weight=2.0), monochromaticImage=null, " +
+                "title=ComplicationText{mSurroundingText=calories, mTimeDependentText=null}, " +
+                "text=null, contentDescription=ComplicationText{mSurroundingText=content " +
+                "description, mTimeDependentText=null}), tapActionLostDueToSerialization=false, " +
+                "tapAction=null, validTimeRange=TimeRange(startDateTimeMillis=" +
+                "-1000000000-01-01T00:00:00Z, " +
+                "endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z), " +
+                "dataSource=ComponentInfo{com.pkg_a/com.a}), " +
+                "tapActionLostDueToSerialization=false, tapAction=null, " +
+                "validTimeRange=TimeRange(startDateTimeMillis=-1000000000-01-01T00:00:00Z, " +
+                "endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z))"
+        )
+    }
+
+    @OptIn(ComplicationExperimental::class)
+    @Test
     public fun noDataComplicationData_rangedValue_with_ColorRange() {
         val data = NoDataComplicationData(
             RangedValueComplicationData.Builder(
@@ -1548,6 +1710,20 @@ public class FromWireComplicationDataTest {
         )
     }
 
+    @OptIn(ComplicationExperimental::class)
+    @Test
+    public fun weightedElementsComplicationData() {
+        assertRoundtrip(
+            WireComplicationDataBuilder(WireComplicationData.TYPE_WEIGHTED_ELEMENTS)
+                .setElementWeights(floatArrayOf(0.5f, 1f, 2f))
+                .setElementColors(intArrayOf(Color.RED, Color.GREEN, Color.BLUE))
+                .setShortTitle(WireComplicationText.plainText("calories"))
+                .setContentDescription(WireComplicationText.plainText("content description"))
+                .build(),
+            ComplicationType.WEIGHTED_ELEMENTS
+        )
+    }
+
     @Test
     public fun monochromaticImageComplicationData() {
         val icon = Icon.createWithContentUri("someuri")
@@ -1770,6 +1946,25 @@ public class FromWireComplicationDataTest {
         )
     }
 
+    @OptIn(ComplicationExperimental::class)
+    @Test
+    public fun noDataComplicationData_weightedElementsComplicationData() {
+        assertRoundtrip(
+            WireComplicationDataBuilder(WireComplicationData.TYPE_NO_DATA)
+                .setPlaceholder(
+                    WireComplicationDataBuilder(WireComplicationData.TYPE_WEIGHTED_ELEMENTS)
+                        .setElementWeights(floatArrayOf(0.5f, 1f, 2f))
+                        .setElementColors(intArrayOf(Color.RED, Color.GREEN, Color.BLUE))
+                        .setShortTitle(WireComplicationText.plainText("calories"))
+                        .setContentDescription(
+                            WireComplicationText.plainText("content description")
+                        )
+                        .build()
+                ).build(),
+            ComplicationType.NO_DATA
+        )
+    }
+
     @Test
     public fun noDataComplicationData_smallImage() {
         val icon = Icon.createWithContentUri("someuri")
@@ -1931,6 +2126,24 @@ public class TapActionTest {
         ).isEqualTo(mPendingIntent)
     }
 
+    @OptIn(ComplicationExperimental::class)
+    @Test
+    public fun weightedElementsComplicationData() {
+        assertThat(
+            WeightedElementsComplicationData.Builder(
+                listOf(
+                    WeightedElementsComplicationData.Element(0.5f, Color.RED),
+                    WeightedElementsComplicationData.Element(1f, Color.GREEN),
+                    WeightedElementsComplicationData.Element(2f, Color.BLUE),
+                ),
+                contentDescription = "content description".complicationText
+            )
+                .setTitle("calories".complicationText)
+                .setTapAction(mPendingIntent)
+                .build().asWireComplicationData().tapAction
+        ).isEqualTo(mPendingIntent)
+    }
+
     @Test
     public fun monochromaticImageComplicationData() {
         val icon = Icon.createWithContentUri("someuri")
@@ -2082,6 +2295,24 @@ public class RoundtripTapActionTest {
                 contentDescription = ComplicationText.EMPTY
             )
                 .setText("battery".complicationText)
+                .setTapAction(mPendingIntent)
+                .build().asWireComplicationData().toApiComplicationData().tapAction
+        ).isEqualTo(mPendingIntent)
+    }
+
+    @OptIn(ComplicationExperimental::class)
+    @Test
+    public fun weightedElementsComplicationData() {
+        assertThat(
+            WeightedElementsComplicationData.Builder(
+                listOf(
+                    WeightedElementsComplicationData.Element(0.5f, Color.RED),
+                    WeightedElementsComplicationData.Element(1f, Color.GREEN),
+                    WeightedElementsComplicationData.Element(2f, Color.BLUE),
+                ),
+                contentDescription = "content description".complicationText
+            )
+                .setTitle("calories".complicationText)
                 .setTapAction(mPendingIntent)
                 .build().asWireComplicationData().toApiComplicationData().tapAction
         ).isEqualTo(mPendingIntent)
@@ -2282,6 +2513,33 @@ public class ValidTimeRangeTest {
                     .setDiscreteRangedMinValue(0)
                     .setDiscreteRangedMaxValue(100)
                     .setShortText(WireComplicationText.plainText("battery"))
+                    .setStartDateTimeMillis(testStartInstant.toEpochMilli())
+                    .setEndDateTimeMillis(testEndDateInstant.toEpochMilli())
+                    .build()
+            )
+    }
+
+    @OptIn(ComplicationExperimental::class)
+    @Test
+    public fun weightedElementsComplicationData() {
+        val data = WeightedElementsComplicationData.Builder(
+            listOf(
+                WeightedElementsComplicationData.Element(0.5f, Color.RED),
+                WeightedElementsComplicationData.Element(1f, Color.GREEN),
+                WeightedElementsComplicationData.Element(2f, Color.BLUE),
+            ),
+            contentDescription = "content description".complicationText
+        )
+            .setTitle("calories".complicationText)
+            .setValidTimeRange(TimeRange.between(testStartInstant, testEndDateInstant))
+            .build()
+        ParcelableSubject.assertThat(data.asWireComplicationData())
+            .hasSameSerializationAs(
+                WireComplicationDataBuilder(WireComplicationData.TYPE_WEIGHTED_ELEMENTS)
+                    .setElementWeights(floatArrayOf(0.5f, 1f, 2f))
+                    .setElementColors(intArrayOf(Color.RED, Color.GREEN, Color.BLUE))
+                    .setShortTitle(WireComplicationText.plainText("calories"))
+                    .setContentDescription(WireComplicationText.plainText("content description"))
                     .setStartDateTimeMillis(testStartInstant.toEpochMilli())
                     .setEndDateTimeMillis(testEndDateInstant.toEpochMilli())
                     .build()
@@ -2533,6 +2791,38 @@ public class ValidTimeRangeTest {
                             .setDiscreteRangedMinValue(0)
                             .setDiscreteRangedMaxValue(100)
                             .setShortText(WireComplicationText.plainText("battery"))
+                            .build()
+                    )
+                    .build()
+            )
+    }
+
+    @OptIn(ComplicationExperimental::class)
+    @Test
+    public fun noDataComplicationData_weightedElements() {
+        val data = NoDataComplicationData(
+            WeightedElementsComplicationData.Builder(
+                listOf(
+                    WeightedElementsComplicationData.Element(0.5f, Color.RED),
+                    WeightedElementsComplicationData.Element(1f, Color.GREEN),
+                    WeightedElementsComplicationData.Element(2f, Color.BLUE),
+                ),
+                contentDescription = "content description".complicationText
+            )
+                .setTitle("calories".complicationText)
+                .build()
+        )
+        ParcelableSubject.assertThat(data.asWireComplicationData())
+            .hasSameSerializationAs(
+                WireComplicationDataBuilder(WireComplicationData.TYPE_NO_DATA)
+                    .setPlaceholder(
+                        WireComplicationDataBuilder(WireComplicationData.TYPE_WEIGHTED_ELEMENTS)
+                            .setElementWeights(floatArrayOf(0.5f, 1f, 2f))
+                            .setElementColors(intArrayOf(Color.RED, Color.GREEN, Color.BLUE))
+                            .setShortTitle(WireComplicationText.plainText("calories"))
+                            .setContentDescription(
+                                WireComplicationText.plainText("content description")
+                            )
                             .build()
                     )
                     .build()
