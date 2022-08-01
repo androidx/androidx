@@ -45,7 +45,7 @@ tasks.findByName('compileJava').dependsOn(":appsearch:appsearch:jarRelease")
 
 androidx {
     name = 'AndroidX AppSearch Compiler'
-    type = LibraryType.COMPILER_PLUGIN
+    type = LibraryType.ANNOTATION_PROCESSOR
     mavenGroup = LibraryGroups.APPSEARCH
     inceptionYear = '2019'
     description = 'Compiler for classes annotated with @androidx.appsearch.annotation.Document'

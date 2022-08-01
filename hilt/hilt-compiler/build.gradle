@@ -56,7 +56,7 @@ tasks.named("compileKotlin").configure {
 
 androidx {
     name = "AndroidX Hilt Extension Compiler"
-    type = LibraryType.COMPILER_PLUGIN
+    type = LibraryType.ANNOTATION_PROCESSOR
     mavenVersion = LibraryVersions.HILT
     mavenGroup = LibraryGroups.HILT
     inceptionYear = "2020"
