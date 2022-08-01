@@ -16,7 +16,6 @@
 
 package androidx.build
 
-import androidx.build.AndroidXPluginTestContext.Companion.wrap
 import androidx.testutils.gradle.ProjectSetupRule
 import java.io.File
 import java.lang.AssertionError
@@ -26,9 +25,6 @@ import net.saff.checkmark.Checkmark.Companion.checks
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.GradleRunner
 import org.junit.rules.TemporaryFolder
-import org.junit.rules.TestRule
-import org.junit.runner.Description
-import org.junit.runners.model.Statement
 
 /**
  * Main entry point for AndroidX plugin tests.
@@ -59,6 +55,9 @@ typealias GradleRunAction = (GradleRunner) -> BuildResult
  * @param setup: Gradle project setup (see [ProjectSetupRule])
  */
 data class AndroidXPluginTestContext(val tmpFolder: TemporaryFolder, val setup: ProjectSetupRule) {
+    // Default empty environment for runGradle (otherwise the host environment leaks through)
+    private val defaultEnv: Map<String, String> = mapOf()
+
     val props = setup.props
     val buildJars = BuildJars(props.buildSrcOutPath)
 
@@ -72,10 +71,9 @@ data class AndroidXPluginTestContext(val tmpFolder: TemporaryFolder, val setup: 
 
     fun runGradle(
         vararg args: String,
+        env: Map<String, String> = defaultEnv,
         buildAction: GradleRunAction = defaultBuildAction
     ): BuildResult {
-        // Empty environment so that the host environment does not leak through
-        val env = mapOf<String, String>()
         return GradleRunner.create().withProjectDir(supportRoot)
             .withArguments(
                 "-Dmaven.repo.local=$mavenLocalDir",
@@ -198,7 +196,7 @@ data class AndroidXPluginTestContext(val tmpFolder: TemporaryFolder, val setup: 
     }
 
     fun AndroidXSelfTestProject.readPublishedFile(fileName: String) =
-        mavenLocalDir.resolve("$groupId/$artifactId/$version/$fileName").readText()
+        mavenLocalDir.resolve("$groupId/$artifactId/$version/$fileName").assertExists().readText()
 
     var printBuildFileOnFailure: Boolean = false
 
@@ -217,21 +215,5 @@ data class AndroidXPluginTestContext(val tmpFolder: TemporaryFolder, val setup: 
                     }
             }
         }.toString()
-    }
-
-    companion object {
-        /**
-         * JUnit 4 [TestRule]s are traditionally added to a test class as public JVM fields
-         * with a @[org.junit.Rule] annotation.  This works decently in Java, but has drawbacks,
-         * such as requiring all methods in a test class to be subject to the same [TestRule]s, and
-         * making it difficult to configure [TestRule]s in different ways between test methods.
-         * With lambdas, objects that have been built as [TestRule] can use this extension function
-         * to allow per-method custom application.
-         */
-        fun <T : TestRule> T.wrap(fn: (T) -> Unit) = apply(object : Statement() {
-            override fun evaluate() = fn(this@wrap)
-        }, Description.EMPTY).evaluate()
-
-        fun File.fileList() = list()!!.toList()
     }
 }

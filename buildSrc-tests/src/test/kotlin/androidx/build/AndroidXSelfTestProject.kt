@@ -27,9 +27,8 @@ data class AndroidXSelfTestProject(
     val sourceCoordinate get() = "$groupId:$artifactId:${version!!}"
 
     companion object {
-        // TODO(b/233089408): avoid full path for androidx.build.AndroidXImplPlugin
         fun cubaneBuildGradleText(
-            pluginsBeforeAndroidX: List<String> = listOf("java-library", "kotlin"),
+            plugins: List<String> = listOf("java-library", "kotlin", "AndroidXPlugin"),
             version: String? = "1.2.3"
         ): String {
             val mavenVersionLine = if (version != null) {
@@ -42,8 +41,7 @@ data class AndroidXSelfTestProject(
                       |import androidx.build.Version
                       |
                       |plugins {
-                      |${pluginsBeforeAndroidX.joinToString("") { "  id(\"$it\")\n" }}
-                      |  id("AndroidXPlugin")
+                      |${plugins.joinToString("") { "  id(\"$it\")\n" }}
                       |}
                       |
                       |dependencies {
