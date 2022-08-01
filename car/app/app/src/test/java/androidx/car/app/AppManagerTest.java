@@ -23,6 +23,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyFloat;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -521,7 +522,7 @@ public final class AppManagerTest {
 
         mAppManager.getIInterface().startLocationUpdates(mMockOnDoneCallback);
 
-        verify(mMockOnDoneCallback).onFailure(any());
+        verify(mMockOnDoneCallback, atLeastOnce()).onFailure(any());
     }
 
     @Test
