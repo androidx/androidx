@@ -1171,6 +1171,7 @@ public class ComplicationSlot
         writer.println("defaultDataSourcePolicy.systemDataSourceFallbackDefaultType=" +
             defaultDataSourcePolicy.systemDataSourceFallbackDefaultType)
         writer.println("timelineComplicationData=$timelineComplicationData")
+        writer.println("timelineEntries=" + timelineEntries?.joinToString())
         writer.println("data=${renderer.getData()}")
         @OptIn(ComplicationExperimental::class)
         writer.println("boundingArc=$boundingArc")
