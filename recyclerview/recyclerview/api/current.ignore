@@ -1,5 +1,131 @@
 // Baseline format: 1.0
+InvalidNullConversion: androidx.recyclerview.widget.AdapterListUpdateCallback#onChanged(int, int, Object) parameter #2:
+    Attempted to remove @Nullable annotation from parameter arg3 in androidx.recyclerview.widget.AdapterListUpdateCallback.onChanged(int arg1, int arg2, Object arg3)
+InvalidNullConversion: androidx.recyclerview.widget.BatchingListUpdateCallback#onChanged(int, int, Object) parameter #2:
+    Attempted to remove @Nullable annotation from parameter arg3 in androidx.recyclerview.widget.BatchingListUpdateCallback.onChanged(int arg1, int arg2, Object arg3)
+InvalidNullConversion: androidx.recyclerview.widget.DefaultItemAnimator#animateAdd(androidx.recyclerview.widget.RecyclerView.ViewHolder) parameter #0:
+    Attempted to remove @NonNull annotation from parameter arg1 in androidx.recyclerview.widget.DefaultItemAnimator.animateAdd(androidx.recyclerview.widget.RecyclerView.ViewHolder arg1)
+InvalidNullConversion: androidx.recyclerview.widget.DefaultItemAnimator#animateChange(androidx.recyclerview.widget.RecyclerView.ViewHolder, androidx.recyclerview.widget.RecyclerView.ViewHolder, int, int, int, int) parameter #0:
+    Attempted to remove @NonNull annotation from parameter arg1 in androidx.recyclerview.widget.DefaultItemAnimator.animateChange(androidx.recyclerview.widget.RecyclerView.ViewHolder arg1, androidx.recyclerview.widget.RecyclerView.ViewHolder arg2, int arg3, int arg4, int arg5, int arg6)
+InvalidNullConversion: androidx.recyclerview.widget.DefaultItemAnimator#animateChange(androidx.recyclerview.widget.RecyclerView.ViewHolder, androidx.recyclerview.widget.RecyclerView.ViewHolder, int, int, int, int) parameter #1:
+    Attempted to remove @Nullable annotation from parameter arg2 in androidx.recyclerview.widget.DefaultItemAnimator.animateChange(androidx.recyclerview.widget.RecyclerView.ViewHolder arg1, androidx.recyclerview.widget.RecyclerView.ViewHolder arg2, int arg3, int arg4, int arg5, int arg6)
+InvalidNullConversion: androidx.recyclerview.widget.DefaultItemAnimator#animateMove(androidx.recyclerview.widget.RecyclerView.ViewHolder, int, int, int, int) parameter #0:
+    Attempted to remove @NonNull annotation from parameter arg1 in androidx.recyclerview.widget.DefaultItemAnimator.animateMove(androidx.recyclerview.widget.RecyclerView.ViewHolder arg1, int arg2, int arg3, int arg4, int arg5)
+InvalidNullConversion: androidx.recyclerview.widget.DefaultItemAnimator#animateRemove(androidx.recyclerview.widget.RecyclerView.ViewHolder) parameter #0:
+    Attempted to remove @NonNull annotation from parameter arg1 in androidx.recyclerview.widget.DefaultItemAnimator.animateRemove(androidx.recyclerview.widget.RecyclerView.ViewHolder arg1)
+InvalidNullConversion: androidx.recyclerview.widget.DefaultItemAnimator#endAnimation(androidx.recyclerview.widget.RecyclerView.ViewHolder) parameter #0:
+    Attempted to remove @NonNull annotation from parameter arg1 in androidx.recyclerview.widget.DefaultItemAnimator.endAnimation(androidx.recyclerview.widget.RecyclerView.ViewHolder arg1)
+InvalidNullConversion: androidx.recyclerview.widget.DividerItemDecoration#DividerItemDecoration(android.content.Context, int) parameter #0:
+    Attempted to remove @NonNull annotation from parameter arg1 in androidx.recyclerview.widget.DividerItemDecoration(android.content.Context arg1, int arg2)
+InvalidNullConversion: androidx.recyclerview.widget.ItemTouchUIUtil#clearView(android.view.View) parameter #0:
+    Attempted to remove @NonNull annotation from parameter arg1 in androidx.recyclerview.widget.ItemTouchUIUtil.clearView(android.view.View arg1)
+InvalidNullConversion: androidx.recyclerview.widget.ItemTouchUIUtil#onDraw(android.graphics.Canvas, androidx.recyclerview.widget.RecyclerView, android.view.View, float, float, int, boolean) parameter #0:
+    Attempted to remove @NonNull annotation from parameter arg1 in androidx.recyclerview.widget.ItemTouchUIUtil.onDraw(android.graphics.Canvas arg1, androidx.recyclerview.widget.RecyclerView arg2, android.view.View arg3, float arg4, float arg5, int arg6, boolean arg7)
+InvalidNullConversion: androidx.recyclerview.widget.ItemTouchUIUtil#onDraw(android.graphics.Canvas, androidx.recyclerview.widget.RecyclerView, android.view.View, float, float, int, boolean) parameter #1:
+    Attempted to remove @NonNull annotation from parameter arg2 in androidx.recyclerview.widget.ItemTouchUIUtil.onDraw(android.graphics.Canvas arg1, androidx.recyclerview.widget.RecyclerView arg2, android.view.View arg3, float arg4, float arg5, int arg6, boolean arg7)
+InvalidNullConversion: androidx.recyclerview.widget.ItemTouchUIUtil#onDraw(android.graphics.Canvas, androidx.recyclerview.widget.RecyclerView, android.view.View, float, float, int, boolean) parameter #2:
+    Attempted to remove @NonNull annotation from parameter arg3 in androidx.recyclerview.widget.ItemTouchUIUtil.onDraw(android.graphics.Canvas arg1, androidx.recyclerview.widget.RecyclerView arg2, android.view.View arg3, float arg4, float arg5, int arg6, boolean arg7)
+InvalidNullConversion: androidx.recyclerview.widget.ItemTouchUIUtil#onDrawOver(android.graphics.Canvas, androidx.recyclerview.widget.RecyclerView, android.view.View, float, float, int, boolean) parameter #0:
+    Attempted to remove @NonNull annotation from parameter arg1 in androidx.recyclerview.widget.ItemTouchUIUtil.onDrawOver(android.graphics.Canvas arg1, androidx.recyclerview.widget.RecyclerView arg2, android.view.View arg3, float arg4, float arg5, int arg6, boolean arg7)
+InvalidNullConversion: androidx.recyclerview.widget.ItemTouchUIUtil#onDrawOver(android.graphics.Canvas, androidx.recyclerview.widget.RecyclerView, android.view.View, float, float, int, boolean) parameter #1:
+    Attempted to remove @NonNull annotation from parameter arg2 in androidx.recyclerview.widget.ItemTouchUIUtil.onDrawOver(android.graphics.Canvas arg1, androidx.recyclerview.widget.RecyclerView arg2, android.view.View arg3, float arg4, float arg5, int arg6, boolean arg7)
+InvalidNullConversion: androidx.recyclerview.widget.ItemTouchUIUtil#onDrawOver(android.graphics.Canvas, androidx.recyclerview.widget.RecyclerView, android.view.View, float, float, int, boolean) parameter #2:
+    Attempted to remove @NonNull annotation from parameter arg3 in androidx.recyclerview.widget.ItemTouchUIUtil.onDrawOver(android.graphics.Canvas arg1, androidx.recyclerview.widget.RecyclerView arg2, android.view.View arg3, float arg4, float arg5, int arg6, boolean arg7)
+InvalidNullConversion: androidx.recyclerview.widget.ItemTouchUIUtil#onSelected(android.view.View) parameter #0:
+    Attempted to remove @NonNull annotation from parameter arg1 in androidx.recyclerview.widget.ItemTouchUIUtil.onSelected(android.view.View arg1)
 InvalidNullConversion: androidx.recyclerview.widget.LinearLayoutManager#LinearLayoutManager(android.content.Context) parameter #0:
     Attempted to remove @NonNull annotation from parameter arg1 in androidx.recyclerview.widget.LinearLayoutManager(android.content.Context arg1)
+InvalidNullConversion: androidx.recyclerview.widget.LinearLayoutManager#LinearLayoutManager(android.content.Context, android.util.AttributeSet, int, int) parameter #0:
+    Attempted to remove @NonNull annotation from parameter arg1 in androidx.recyclerview.widget.LinearLayoutManager(android.content.Context arg1, android.util.AttributeSet arg2, int arg3, int arg4)
+InvalidNullConversion: androidx.recyclerview.widget.LinearLayoutManager#LinearLayoutManager(android.content.Context, android.util.AttributeSet, int, int) parameter #1:
+    Attempted to remove @Nullable annotation from parameter arg2 in androidx.recyclerview.widget.LinearLayoutManager(android.content.Context arg1, android.util.AttributeSet arg2, int arg3, int arg4)
 InvalidNullConversion: androidx.recyclerview.widget.LinearLayoutManager#LinearLayoutManager(android.content.Context, int, boolean) parameter #0:
     Attempted to remove @NonNull annotation from parameter arg1 in androidx.recyclerview.widget.LinearLayoutManager(android.content.Context arg1, int arg2, boolean arg3)
+InvalidNullConversion: androidx.recyclerview.widget.LinearLayoutManager#computeScrollVectorForPosition(int):
+    Attempted to remove @Nullable annotation from method androidx.recyclerview.widget.LinearLayoutManager.computeScrollVectorForPosition(int)
+InvalidNullConversion: androidx.recyclerview.widget.LinearLayoutManager#generateDefaultLayoutParams():
+    Attempted to remove @NonNull annotation from method androidx.recyclerview.widget.LinearLayoutManager.generateDefaultLayoutParams()
+InvalidNullConversion: androidx.recyclerview.widget.LinearSmoothScroller#LinearSmoothScroller(android.content.Context) parameter #0:
+    Attempted to remove @NonNull annotation from parameter arg1 in androidx.recyclerview.widget.LinearSmoothScroller(android.content.Context arg1)
+InvalidNullConversion: androidx.recyclerview.widget.LinearSmoothScroller#calculateDxToMakeVisible(android.view.View, int) parameter #0:
+    Attempted to remove @NonNull annotation from parameter arg1 in androidx.recyclerview.widget.LinearSmoothScroller.calculateDxToMakeVisible(android.view.View arg1, int arg2)
+InvalidNullConversion: androidx.recyclerview.widget.LinearSmoothScroller#calculateDyToMakeVisible(android.view.View, int) parameter #0:
+    Attempted to remove @NonNull annotation from parameter arg1 in androidx.recyclerview.widget.LinearSmoothScroller.calculateDyToMakeVisible(android.view.View arg1, int arg2)
+InvalidNullConversion: androidx.recyclerview.widget.LinearSmoothScroller#calculateSpeedPerPixel(android.util.DisplayMetrics) parameter #0:
+    Attempted to remove @NonNull annotation from parameter arg1 in androidx.recyclerview.widget.LinearSmoothScroller.calculateSpeedPerPixel(android.util.DisplayMetrics arg1)
+InvalidNullConversion: androidx.recyclerview.widget.LinearSmoothScroller#mTargetVector:
+    Attempted to remove @Nullable annotation from field androidx.recyclerview.widget.LinearSmoothScroller.mTargetVector
+InvalidNullConversion: androidx.recyclerview.widget.LinearSmoothScroller#onSeekTargetStep(int, int, androidx.recyclerview.widget.RecyclerView.State, androidx.recyclerview.widget.RecyclerView.SmoothScroller.Action) parameter #2:
+    Attempted to remove @NonNull annotation from parameter arg3 in androidx.recyclerview.widget.LinearSmoothScroller.onSeekTargetStep(int arg1, int arg2, androidx.recyclerview.widget.RecyclerView.State arg3, androidx.recyclerview.widget.RecyclerView.SmoothScroller.Action arg4)
+InvalidNullConversion: androidx.recyclerview.widget.LinearSmoothScroller#onSeekTargetStep(int, int, androidx.recyclerview.widget.RecyclerView.State, androidx.recyclerview.widget.RecyclerView.SmoothScroller.Action) parameter #3:
+    Attempted to remove @NonNull annotation from parameter arg4 in androidx.recyclerview.widget.LinearSmoothScroller.onSeekTargetStep(int arg1, int arg2, androidx.recyclerview.widget.RecyclerView.State arg3, androidx.recyclerview.widget.RecyclerView.SmoothScroller.Action arg4)
+InvalidNullConversion: androidx.recyclerview.widget.LinearSmoothScroller#onTargetFound(android.view.View, androidx.recyclerview.widget.RecyclerView.State, androidx.recyclerview.widget.RecyclerView.SmoothScroller.Action) parameter #0:
+    Attempted to remove @NonNull annotation from parameter arg1 in androidx.recyclerview.widget.LinearSmoothScroller.onTargetFound(android.view.View arg1, androidx.recyclerview.widget.RecyclerView.State arg2, androidx.recyclerview.widget.RecyclerView.SmoothScroller.Action arg3)
+InvalidNullConversion: androidx.recyclerview.widget.LinearSmoothScroller#onTargetFound(android.view.View, androidx.recyclerview.widget.RecyclerView.State, androidx.recyclerview.widget.RecyclerView.SmoothScroller.Action) parameter #1:
+    Attempted to remove @NonNull annotation from parameter arg2 in androidx.recyclerview.widget.LinearSmoothScroller.onTargetFound(android.view.View arg1, androidx.recyclerview.widget.RecyclerView.State arg2, androidx.recyclerview.widget.RecyclerView.SmoothScroller.Action arg3)
+InvalidNullConversion: androidx.recyclerview.widget.LinearSmoothScroller#onTargetFound(android.view.View, androidx.recyclerview.widget.RecyclerView.State, androidx.recyclerview.widget.RecyclerView.SmoothScroller.Action) parameter #2:
+    Attempted to remove @NonNull annotation from parameter arg3 in androidx.recyclerview.widget.LinearSmoothScroller.onTargetFound(android.view.View arg1, androidx.recyclerview.widget.RecyclerView.State arg2, androidx.recyclerview.widget.RecyclerView.SmoothScroller.Action arg3)
+InvalidNullConversion: androidx.recyclerview.widget.LinearSmoothScroller#updateActionForInterimTarget(androidx.recyclerview.widget.RecyclerView.SmoothScroller.Action) parameter #0:
+    Attempted to remove @NonNull annotation from parameter arg1 in androidx.recyclerview.widget.LinearSmoothScroller.updateActionForInterimTarget(androidx.recyclerview.widget.RecyclerView.SmoothScroller.Action arg1)
+InvalidNullConversion: androidx.recyclerview.widget.PagerSnapHelper#findSnapView(androidx.recyclerview.widget.RecyclerView.LayoutManager) parameter #0:
+    Attempted to remove @NonNull annotation from parameter arg1 in androidx.recyclerview.widget.PagerSnapHelper.findSnapView(androidx.recyclerview.widget.RecyclerView.LayoutManager arg1)
+InvalidNullConversion: androidx.recyclerview.widget.PagerSnapHelper#findTargetSnapPosition(androidx.recyclerview.widget.RecyclerView.LayoutManager, int, int) parameter #0:
+    Attempted to remove @NonNull annotation from parameter arg1 in androidx.recyclerview.widget.PagerSnapHelper.findTargetSnapPosition(androidx.recyclerview.widget.RecyclerView.LayoutManager arg1, int arg2, int arg3)
+InvalidNullConversion: androidx.recyclerview.widget.RecyclerView.LayoutManager#assertNotInLayoutOrScroll(String) parameter #0:
+    Attempted to remove @Nullable annotation from parameter arg1 in androidx.recyclerview.widget.RecyclerView.LayoutManager.assertNotInLayoutOrScroll(String arg1)
+InvalidNullConversion: androidx.recyclerview.widget.RecyclerView.LayoutManager#collectAdjacentPrefetchPositions(int, int, androidx.recyclerview.widget.RecyclerView.State, androidx.recyclerview.widget.RecyclerView.LayoutManager.LayoutPrefetchRegistry) parameter #2:
+    Attempted to remove @NonNull annotation from parameter arg3 in androidx.recyclerview.widget.RecyclerView.LayoutManager.collectAdjacentPrefetchPositions(int arg1, int arg2, androidx.recyclerview.widget.RecyclerView.State arg3, androidx.recyclerview.widget.RecyclerView.LayoutManager.LayoutPrefetchRegistry arg4)
+InvalidNullConversion: androidx.recyclerview.widget.RecyclerView.LayoutManager#collectAdjacentPrefetchPositions(int, int, androidx.recyclerview.widget.RecyclerView.State, androidx.recyclerview.widget.RecyclerView.LayoutManager.LayoutPrefetchRegistry) parameter #3:
+    Attempted to remove @NonNull annotation from parameter arg4 in androidx.recyclerview.widget.RecyclerView.LayoutManager.collectAdjacentPrefetchPositions(int arg1, int arg2, androidx.recyclerview.widget.RecyclerView.State arg3, androidx.recyclerview.widget.RecyclerView.LayoutManager.LayoutPrefetchRegistry arg4)
+InvalidNullConversion: androidx.recyclerview.widget.RecyclerView.LayoutManager#collectInitialPrefetchPositions(int, androidx.recyclerview.widget.RecyclerView.LayoutManager.LayoutPrefetchRegistry) parameter #1:
+    Attempted to remove @NonNull annotation from parameter arg2 in androidx.recyclerview.widget.RecyclerView.LayoutManager.collectInitialPrefetchPositions(int arg1, androidx.recyclerview.widget.RecyclerView.LayoutManager.LayoutPrefetchRegistry arg2)
+InvalidNullConversion: androidx.recyclerview.widget.RecyclerView.LayoutManager#generateDefaultLayoutParams():
+    Attempted to remove @NonNull annotation from method androidx.recyclerview.widget.RecyclerView.LayoutManager.generateDefaultLayoutParams()
+InvalidNullConversion: androidx.recyclerview.widget.RecyclerView.LayoutManager#onDetachedFromWindow(androidx.recyclerview.widget.RecyclerView, androidx.recyclerview.widget.RecyclerView.Recycler) parameter #0:
+    Attempted to remove @NonNull annotation from parameter arg1 in androidx.recyclerview.widget.RecyclerView.LayoutManager.onDetachedFromWindow(androidx.recyclerview.widget.RecyclerView arg1, androidx.recyclerview.widget.RecyclerView.Recycler arg2)
+InvalidNullConversion: androidx.recyclerview.widget.RecyclerView.LayoutManager#onDetachedFromWindow(androidx.recyclerview.widget.RecyclerView, androidx.recyclerview.widget.RecyclerView.Recycler) parameter #1:
+    Attempted to remove @NonNull annotation from parameter arg2 in androidx.recyclerview.widget.RecyclerView.LayoutManager.onDetachedFromWindow(androidx.recyclerview.widget.RecyclerView arg1, androidx.recyclerview.widget.RecyclerView.Recycler arg2)
+InvalidNullConversion: androidx.recyclerview.widget.RecyclerView.LayoutManager#onLayoutChildren(androidx.recyclerview.widget.RecyclerView.Recycler, androidx.recyclerview.widget.RecyclerView.State) parameter #0:
+    Attempted to remove @NonNull annotation from parameter arg1 in androidx.recyclerview.widget.RecyclerView.LayoutManager.onLayoutChildren(androidx.recyclerview.widget.RecyclerView.Recycler arg1, androidx.recyclerview.widget.RecyclerView.State arg2)
+InvalidNullConversion: androidx.recyclerview.widget.RecyclerView.LayoutManager#onLayoutChildren(androidx.recyclerview.widget.RecyclerView.Recycler, androidx.recyclerview.widget.RecyclerView.State) parameter #1:
+    Attempted to remove @NonNull annotation from parameter arg2 in androidx.recyclerview.widget.RecyclerView.LayoutManager.onLayoutChildren(androidx.recyclerview.widget.RecyclerView.Recycler arg1, androidx.recyclerview.widget.RecyclerView.State arg2)
+InvalidNullConversion: androidx.recyclerview.widget.RecyclerView.LayoutManager#onLayoutCompleted(androidx.recyclerview.widget.RecyclerView.State) parameter #0:
+    Attempted to remove @NonNull annotation from parameter arg1 in androidx.recyclerview.widget.RecyclerView.LayoutManager.onLayoutCompleted(androidx.recyclerview.widget.RecyclerView.State arg1)
+InvalidNullConversion: androidx.recyclerview.widget.RecyclerView.LayoutManager#onRestoreInstanceState(android.os.Parcelable) parameter #0:
+    Attempted to remove @NonNull annotation from parameter arg1 in androidx.recyclerview.widget.RecyclerView.LayoutManager.onRestoreInstanceState(android.os.Parcelable arg1)
+InvalidNullConversion: androidx.recyclerview.widget.RecyclerView.LayoutManager#scrollHorizontallyBy(int, androidx.recyclerview.widget.RecyclerView.Recycler, androidx.recyclerview.widget.RecyclerView.State) parameter #1:
+    Attempted to remove @NonNull annotation from parameter arg2 in androidx.recyclerview.widget.RecyclerView.LayoutManager.scrollHorizontallyBy(int arg1, androidx.recyclerview.widget.RecyclerView.Recycler arg2, androidx.recyclerview.widget.RecyclerView.State arg3)
+InvalidNullConversion: androidx.recyclerview.widget.RecyclerView.LayoutManager#scrollHorizontallyBy(int, androidx.recyclerview.widget.RecyclerView.Recycler, androidx.recyclerview.widget.RecyclerView.State) parameter #2:
+    Attempted to remove @NonNull annotation from parameter arg3 in androidx.recyclerview.widget.RecyclerView.LayoutManager.scrollHorizontallyBy(int arg1, androidx.recyclerview.widget.RecyclerView.Recycler arg2, androidx.recyclerview.widget.RecyclerView.State arg3)
+InvalidNullConversion: androidx.recyclerview.widget.RecyclerView.LayoutManager#scrollVerticallyBy(int, androidx.recyclerview.widget.RecyclerView.Recycler, androidx.recyclerview.widget.RecyclerView.State) parameter #1:
+    Attempted to remove @NonNull annotation from parameter arg2 in androidx.recyclerview.widget.RecyclerView.LayoutManager.scrollVerticallyBy(int arg1, androidx.recyclerview.widget.RecyclerView.Recycler arg2, androidx.recyclerview.widget.RecyclerView.State arg3)
+InvalidNullConversion: androidx.recyclerview.widget.RecyclerView.LayoutManager#scrollVerticallyBy(int, androidx.recyclerview.widget.RecyclerView.Recycler, androidx.recyclerview.widget.RecyclerView.State) parameter #2:
+    Attempted to remove @NonNull annotation from parameter arg3 in androidx.recyclerview.widget.RecyclerView.LayoutManager.scrollVerticallyBy(int arg1, androidx.recyclerview.widget.RecyclerView.Recycler arg2, androidx.recyclerview.widget.RecyclerView.State arg3)
+InvalidNullConversion: androidx.recyclerview.widget.RecyclerView.LayoutManager#smoothScrollToPosition(androidx.recyclerview.widget.RecyclerView, androidx.recyclerview.widget.RecyclerView.State, int) parameter #0:
+    Attempted to remove @NonNull annotation from parameter arg1 in androidx.recyclerview.widget.RecyclerView.LayoutManager.smoothScrollToPosition(androidx.recyclerview.widget.RecyclerView arg1, androidx.recyclerview.widget.RecyclerView.State arg2, int arg3)
+InvalidNullConversion: androidx.recyclerview.widget.RecyclerView.LayoutManager#smoothScrollToPosition(androidx.recyclerview.widget.RecyclerView, androidx.recyclerview.widget.RecyclerView.State, int) parameter #1:
+    Attempted to remove @NonNull annotation from parameter arg2 in androidx.recyclerview.widget.RecyclerView.LayoutManager.smoothScrollToPosition(androidx.recyclerview.widget.RecyclerView arg1, androidx.recyclerview.widget.RecyclerView.State arg2, int arg3)
+InvalidNullConversion: androidx.recyclerview.widget.SimpleItemAnimator#animateAdd(androidx.recyclerview.widget.RecyclerView.ViewHolder) parameter #0:
+    Attempted to remove @NonNull annotation from parameter arg1 in androidx.recyclerview.widget.SimpleItemAnimator.animateAdd(androidx.recyclerview.widget.RecyclerView.ViewHolder arg1)
+InvalidNullConversion: androidx.recyclerview.widget.SimpleItemAnimator#animateChange(androidx.recyclerview.widget.RecyclerView.ViewHolder, androidx.recyclerview.widget.RecyclerView.ViewHolder, int, int, int, int) parameter #0:
+    Attempted to remove @NonNull annotation from parameter arg1 in androidx.recyclerview.widget.SimpleItemAnimator.animateChange(androidx.recyclerview.widget.RecyclerView.ViewHolder arg1, androidx.recyclerview.widget.RecyclerView.ViewHolder arg2, int arg3, int arg4, int arg5, int arg6)
+InvalidNullConversion: androidx.recyclerview.widget.SimpleItemAnimator#animateChange(androidx.recyclerview.widget.RecyclerView.ViewHolder, androidx.recyclerview.widget.RecyclerView.ViewHolder, int, int, int, int) parameter #1:
+    Attempted to remove @Nullable annotation from parameter arg2 in androidx.recyclerview.widget.SimpleItemAnimator.animateChange(androidx.recyclerview.widget.RecyclerView.ViewHolder arg1, androidx.recyclerview.widget.RecyclerView.ViewHolder arg2, int arg3, int arg4, int arg5, int arg6)
+InvalidNullConversion: androidx.recyclerview.widget.SimpleItemAnimator#animateMove(androidx.recyclerview.widget.RecyclerView.ViewHolder, int, int, int, int) parameter #0:
+    Attempted to remove @NonNull annotation from parameter arg1 in androidx.recyclerview.widget.SimpleItemAnimator.animateMove(androidx.recyclerview.widget.RecyclerView.ViewHolder arg1, int arg2, int arg3, int arg4, int arg5)
+InvalidNullConversion: androidx.recyclerview.widget.SimpleItemAnimator#animateRemove(androidx.recyclerview.widget.RecyclerView.ViewHolder) parameter #0:
+    Attempted to remove @NonNull annotation from parameter arg1 in androidx.recyclerview.widget.SimpleItemAnimator.animateRemove(androidx.recyclerview.widget.RecyclerView.ViewHolder arg1)
+InvalidNullConversion: androidx.recyclerview.widget.SimpleItemAnimator#dispatchRemoveFinished(androidx.recyclerview.widget.RecyclerView.ViewHolder) parameter #0:
+    Attempted to remove @NonNull annotation from parameter arg1 in androidx.recyclerview.widget.SimpleItemAnimator.dispatchRemoveFinished(androidx.recyclerview.widget.RecyclerView.ViewHolder arg1)
+InvalidNullConversion: androidx.recyclerview.widget.SnapHelper#calculateScrollDistance(int, int):
+    Attempted to remove @NonNull annotation from method androidx.recyclerview.widget.SnapHelper.calculateScrollDistance(int,int)
+InvalidNullConversion: androidx.recyclerview.widget.SnapHelper#findSnapView(androidx.recyclerview.widget.RecyclerView.LayoutManager) parameter #0:
+    Attempted to remove @NonNull annotation from parameter arg1 in androidx.recyclerview.widget.SnapHelper.findSnapView(androidx.recyclerview.widget.RecyclerView.LayoutManager arg1)
+InvalidNullConversion: androidx.recyclerview.widget.SnapHelper#findTargetSnapPosition(androidx.recyclerview.widget.RecyclerView.LayoutManager, int, int) parameter #0:
+    Attempted to remove @NonNull annotation from parameter arg1 in androidx.recyclerview.widget.SnapHelper.findTargetSnapPosition(androidx.recyclerview.widget.RecyclerView.LayoutManager arg1, int arg2, int arg3)
+InvalidNullConversion: androidx.recyclerview.widget.SortedList.BatchedCallback#BatchedCallback(androidx.recyclerview.widget.SortedList.Callback<T2>) parameter #0:
+    Attempted to remove @NonNull annotation from parameter arg1 in androidx.recyclerview.widget.SortedList.BatchedCallback(androidx.recyclerview.widget.SortedList.Callback<T2> arg1)
+InvalidNullConversion: androidx.recyclerview.widget.SortedList.Callback#onChanged(int, int, Object) parameter #2:
+    Attempted to remove @Nullable annotation from parameter arg3 in androidx.recyclerview.widget.SortedList.Callback.onChanged(int arg1, int arg2, Object arg3)
+InvalidNullConversion: androidx.recyclerview.widget.SortedListAdapterCallback#SortedListAdapterCallback(androidx.recyclerview.widget.RecyclerView.Adapter<?>) parameter #0:
+    Attempted to remove @NonNull annotation from parameter arg1 in androidx.recyclerview.widget.SortedListAdapterCallback(androidx.recyclerview.widget.RecyclerView.Adapter<?> arg1)
