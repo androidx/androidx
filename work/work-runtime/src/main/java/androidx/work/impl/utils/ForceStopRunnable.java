@@ -38,6 +38,7 @@ import android.database.sqlite.SQLiteCantOpenDatabaseException;
 import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteDatabaseCorruptException;
 import android.database.sqlite.SQLiteDatabaseLockedException;
+import android.database.sqlite.SQLiteDiskIOException;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteTableLockedException;
 import android.os.Build;
@@ -133,6 +134,7 @@ public class ForceStopRunnable implements Runnable {
                     forceStopRunnable();
                     break;
                 } catch (SQLiteCantOpenDatabaseException
+                         | SQLiteDiskIOException
                          | SQLiteDatabaseCorruptException
                          | SQLiteDatabaseLockedException
                          | SQLiteTableLockedException
