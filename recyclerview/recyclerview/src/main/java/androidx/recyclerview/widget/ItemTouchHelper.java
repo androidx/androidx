@@ -1808,7 +1808,7 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
          * moved to.
          */
         @SuppressWarnings("WeakerAccess")
-        @Nullable
+        @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
         public ViewHolder chooseDropTarget(@NonNull ViewHolder selected,
                 @NonNull List<ViewHolder> dropTargets, int curX, int curY) {
             int right = curX + selected.itemView.getWidth();
@@ -2112,7 +2112,8 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
          * boolean)
          */
         public void onChildDrawOver(@NonNull Canvas c, @NonNull RecyclerView recyclerView,
-                @NonNull ViewHolder viewHolder,
+                @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
+                ViewHolder viewHolder,
                 float dX, float dY, int actionState, boolean isCurrentlyActive) {
             ItemTouchUIUtilImpl.INSTANCE.onDrawOver(c, recyclerView, viewHolder.itemView, dX, dY,
                     actionState, isCurrentlyActive);
