@@ -224,7 +224,7 @@ package androidx.recyclerview.widget {
   public abstract static class ItemTouchHelper.Callback {
     ctor public ItemTouchHelper.Callback();
     method public boolean canDropOver(androidx.recyclerview.widget.RecyclerView, androidx.recyclerview.widget.RecyclerView.ViewHolder, androidx.recyclerview.widget.RecyclerView.ViewHolder);
-    method public androidx.recyclerview.widget.RecyclerView.ViewHolder? chooseDropTarget(androidx.recyclerview.widget.RecyclerView.ViewHolder, java.util.List<androidx.recyclerview.widget.RecyclerView.ViewHolder!>, int, int);
+    method public androidx.recyclerview.widget.RecyclerView.ViewHolder! chooseDropTarget(androidx.recyclerview.widget.RecyclerView.ViewHolder, java.util.List<androidx.recyclerview.widget.RecyclerView.ViewHolder!>, int, int);
     method public void clearView(androidx.recyclerview.widget.RecyclerView, androidx.recyclerview.widget.RecyclerView.ViewHolder);
     method public int convertToAbsoluteDirection(int, int);
     method public static int convertToRelativeDirection(int, int);
@@ -242,7 +242,7 @@ package androidx.recyclerview.widget {
     method public static int makeFlag(int, int);
     method public static int makeMovementFlags(int, int);
     method public void onChildDraw(android.graphics.Canvas, androidx.recyclerview.widget.RecyclerView, androidx.recyclerview.widget.RecyclerView.ViewHolder, float, float, int, boolean);
-    method public void onChildDrawOver(android.graphics.Canvas, androidx.recyclerview.widget.RecyclerView, androidx.recyclerview.widget.RecyclerView.ViewHolder, float, float, int, boolean);
+    method public void onChildDrawOver(android.graphics.Canvas, androidx.recyclerview.widget.RecyclerView, androidx.recyclerview.widget.RecyclerView.ViewHolder!, float, float, int, boolean);
     method public abstract boolean onMove(androidx.recyclerview.widget.RecyclerView, androidx.recyclerview.widget.RecyclerView.ViewHolder, androidx.recyclerview.widget.RecyclerView.ViewHolder);
     method public void onMoved(androidx.recyclerview.widget.RecyclerView, androidx.recyclerview.widget.RecyclerView.ViewHolder, int, androidx.recyclerview.widget.RecyclerView.ViewHolder, int, int, int);
     method public void onSelectedChanged(androidx.recyclerview.widget.RecyclerView.ViewHolder?, int);

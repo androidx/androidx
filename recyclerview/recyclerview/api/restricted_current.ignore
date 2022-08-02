@@ -17,6 +17,10 @@ InvalidNullConversion: androidx.recyclerview.widget.DefaultItemAnimator#endAnima
     Attempted to remove @NonNull annotation from parameter arg1 in androidx.recyclerview.widget.DefaultItemAnimator.endAnimation(androidx.recyclerview.widget.RecyclerView.ViewHolder arg1)
 InvalidNullConversion: androidx.recyclerview.widget.DividerItemDecoration#DividerItemDecoration(android.content.Context, int) parameter #0:
     Attempted to remove @NonNull annotation from parameter arg1 in androidx.recyclerview.widget.DividerItemDecoration(android.content.Context arg1, int arg2)
+InvalidNullConversion: androidx.recyclerview.widget.ItemTouchHelper.Callback#chooseDropTarget(androidx.recyclerview.widget.RecyclerView.ViewHolder, java.util.List<androidx.recyclerview.widget.RecyclerView.ViewHolder>, int, int):
+    Attempted to remove @Nullable annotation from method androidx.recyclerview.widget.ItemTouchHelper.Callback.chooseDropTarget(androidx.recyclerview.widget.RecyclerView.ViewHolder,java.util.List<androidx.recyclerview.widget.RecyclerView.ViewHolder>,int,int)
+InvalidNullConversion: androidx.recyclerview.widget.ItemTouchHelper.Callback#onChildDrawOver(android.graphics.Canvas, androidx.recyclerview.widget.RecyclerView, androidx.recyclerview.widget.RecyclerView.ViewHolder, float, float, int, boolean) parameter #2:
+    Attempted to remove @NonNull annotation from parameter arg3 in androidx.recyclerview.widget.ItemTouchHelper.Callback.onChildDrawOver(android.graphics.Canvas arg1, androidx.recyclerview.widget.RecyclerView arg2, androidx.recyclerview.widget.RecyclerView.ViewHolder arg3, float arg4, float arg5, int arg6, boolean arg7)
 InvalidNullConversion: androidx.recyclerview.widget.ItemTouchUIUtil#clearView(android.view.View) parameter #0:
     Attempted to remove @NonNull annotation from parameter arg1 in androidx.recyclerview.widget.ItemTouchUIUtil.clearView(android.view.View arg1)
 InvalidNullConversion: androidx.recyclerview.widget.ItemTouchUIUtil#onDraw(android.graphics.Canvas, androidx.recyclerview.widget.RecyclerView, android.view.View, float, float, int, boolean) parameter #0:
