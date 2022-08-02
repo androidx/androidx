@@ -16,6 +16,8 @@ at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlUriProvider\$DefaultImpls\.link
 at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatGenerator\.linkTo\(JavaLayoutHtmlGenerator\.kt:[0-9]+\)
 at jdk\.internal\.reflect\.GeneratedMethodAccessor[0-9]+\.invoke\(Unknown Source\)
 at com\.google\.inject\.internal\.DelegatingInvocationHandler\.invoke\(DelegatingInvocationHandler\.java:[0-9]+\)
+at jdk\.proxy[0-9]+/jdk\.proxy[0-9]+\.\$Proxy[0-9]+\.linkTo\(Unknown Source\)
+at jdk\.proxy[0-9]+/jdk\.proxy[0-9]+\.\$Proxy[0-9]+\.generate\(Unknown Source\)
 at com\.sun\.proxy\.\$Proxy[0-9]+\.linkTo\(Unknown Source\)
 at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatOutputBuilder\.a\(JavaLayoutHtmlFormatOutputBuilder\.kt:[0-9]+\)
 at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatOutputBuilder\.a\$default\(JavaLayoutHtmlFormatOutputBuilder\.kt:[0-9]+\)
@@ -403,7 +405,7 @@ w: \[ksp\] \$SUPPORT/room/integration\-tests/kotlintestapp/src/androidTest/java/
 # > Task :room:integration-tests:room-testapp-kotlin:kaptWithKaptDebugAndroidTestKotlin
 \$OUT_DIR/androidx/room/integration\-tests/room\-testapp\-kotlin/build/tmp/kapt[0-9]+/stubs/withKaptDebugAndroidTest/androidx/room/androidx/room/integration/kotlintestapp/test/JvmNameInDaoTest\.java:[0-9]+: warning: Using @JvmName annotation on a function or accessor that will be overridden by Room is not supported\. If this is important for your use case, please file a bug at https://issuetracker\.google\.com/issues/new\?component=[0-9]+ with details\.
 public abstract void jvmDelete\(T t\);
-public abstract void jvmInsert\(@org\.jetbrains\.annotations\.NotNull\(\)
+public abstract void jvmInsert\(@org\.jetbrains\.annotations\.NotNull.*
 public abstract java\.util\.List<androidx\.room\.androidx\.room\.integration\.kotlintestapp\.test\.JvmNameInDaoTest\.JvmNameEntity> jvmQuery\(\);
 public abstract androidx\.room\.androidx\.room\.integration\.kotlintestapp\.test\.JvmNameInDaoTest\.JvmNameDao jvmDao\(\);
 \^
@@ -491,6 +493,13 @@ WARNING: Illegal reflective access using Lookup on org\.gradle\.internal\.classl
 WARNING: Please consider reporting this to the maintainers of org\.gradle\.internal\.classloader\.ClassLoaderUtils\$AbstractClassLoaderLookuper
 # AGP warning about API usage we have no control over
 Values of variant API AnnotationProcessorOptions\.arguments are queried and may return non final values, this is unsupported
+# > Task :compose:ui:ui:testDebugUnitTest
+OpenJDK 64\-Bit Server VM warning:
+.*Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+# > Task :concurrent:concurrent-futures:compileTestJava b/242311027
+\$SUPPORT/concurrent/concurrent\-futures/src/test/java/androidx/concurrent/futures/AbstractResolvableFutureTest\.java:[0-9]+: warning: \[removal\] (resume|suspend)\(\) in Thread has been deprecated and marked for removal
+thread\.(resume|suspend)\(\);
+2 warnings
 # AGP warning that will go away soon
 WARNING:Software Components will not be created automatically for Maven publishing from Android Gradle Plugin 8\.0\. To opt\-in to the future behavior, set the Gradle property android\.disableAutomaticComponentCreation=true in the `gradle\.properties` file or use the new publishing DSL\.
 # > Task :help
