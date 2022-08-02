@@ -14,7 +14,7 @@
      limitations under the License.
 -->
 <resources>
-    <style name="TestActivityTheme">
+    <style name="TestActivityTheme" parent="@android:style/Theme">
         <item name="android:windowAnimationStyle">@null</item>
     </style>
     <style name="TextMediumStyle" parent="@android:style/TextAppearance.Medium">
