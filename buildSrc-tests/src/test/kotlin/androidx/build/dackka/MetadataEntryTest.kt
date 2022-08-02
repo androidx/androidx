@@ -22,18 +22,36 @@ import org.junit.Test
 class MetadataEntryTest {
 
     @Test
-    fun toMap() {
+    fun `toMap() with groupId containing a single period`() {
         val entry = MetadataEntry(
-            groupId = "AndroidX Group ID",
-            artifactId = "AndroidX Artifact ID",
-            releaseNotesUrl = "https://d.android.com/jetpack",
+            groupId = "androidx.groupId",
+            artifactId = "artifactId",
             sourceDir = "androidx/"
         )
         val map = entry.toMap()
 
-        assertThat(map["groupId"]).isEqualTo("AndroidX Group ID")
-        assertThat(map["artifactId"]).isEqualTo("AndroidX Artifact ID")
-        assertThat(map["releaseNotesUrl"]).isEqualTo("https://d.android.com/jetpack")
+        /* ktlint-disable max-line-length */
+        assertThat(map["groupId"]).isEqualTo("androidx.groupId")
+        assertThat(map["artifactId"]).isEqualTo("artifactId")
+        assertThat(map["releaseNotesUrl"]).isEqualTo("https://developer.android.com/jetpack/androidx/releases/groupId")
         assertThat(map["sourceDir"]).isEqualTo("androidx/")
+        /* ktlint-enable max-line-length */
+    }
+
+    @Test
+    fun `toMap() with groupId containing multiple periods`() {
+        val entry = MetadataEntry(
+            groupId = "androidx.arch.core",
+            artifactId = "artifactId",
+            sourceDir = "androidx/"
+        )
+        val map = entry.toMap()
+
+        /* ktlint-disable max-line-length */
+        assertThat(map["groupId"]).isEqualTo("androidx.arch.core")
+        assertThat(map["artifactId"]).isEqualTo("artifactId")
+        assertThat(map["releaseNotesUrl"]).isEqualTo("https://developer.android.com/jetpack/androidx/releases/arch-core")
+        assertThat(map["sourceDir"]).isEqualTo("androidx/")
+        /* ktlint-enable max-line-length */
     }
 }
