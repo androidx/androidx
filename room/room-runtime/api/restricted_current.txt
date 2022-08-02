@@ -62,11 +62,11 @@ package androidx.room {
     method public void upsert(T![] entities);
     method public void upsert(Iterable<? extends T> entities);
     method public long upsertAndReturnId(T? entity);
-    method public long[] upsertAndReturnIdArray(T![] entities);
-    method public long[] upsertAndReturnIdArray(java.util.Collection<? extends T> entities);
-    method public Long![] upsertAndReturnIdArrayBox(T![] entities);
-    method public Long![] upsertAndReturnIdArrayBox(java.util.Collection<? extends T> entities);
-    method public java.util.List<java.lang.Long> upsertAndReturnIdList(T![] entities);
+    method public long[] upsertAndReturnIdsArray(T![] entities);
+    method public long[] upsertAndReturnIdsArray(java.util.Collection<? extends T> entities);
+    method public Long![] upsertAndReturnIdsArrayBox(T![] entities);
+    method public Long![] upsertAndReturnIdsArrayBox(java.util.Collection<? extends T> entities);
+    method public java.util.List<java.lang.Long> upsertAndReturnIdsList(T![] entities);
   }
 
   public class InvalidationTracker {
