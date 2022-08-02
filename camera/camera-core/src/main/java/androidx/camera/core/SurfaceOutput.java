@@ -20,11 +20,16 @@ import android.graphics.SurfaceTexture;
 import android.util.Size;
 import android.view.Surface;
 
+import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
+import androidx.core.util.Consumer;
 
+import com.google.auto.value.AutoValue;
 import com.google.common.util.concurrent.ListenableFuture;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.concurrent.Executor;
 
 /**
@@ -43,19 +48,18 @@ public interface SurfaceOutput {
     /**
      * Gets the output {@link Surface} for writing processed frames.
      *
-     * <p> If there are multiple calls to the method, only the {@link OnCloseRequestedListener}
+     * <p> If there are multiple calls to the method, only the {@link Consumer<Event>}
      * from the last call will be triggered.
      *
      * @param executor on which the listener should be invoked.
      * @param listener a listener to notify the implementation about the end-of-life of the
      *                 {@link SurfaceOutput}. The implementation should then invoke
      *                 {@link #close()} to mark the {@link Surface} as no longer in use.
-     * @see OnCloseRequestedListener
      */
     @NonNull
     Surface getSurface(
             @NonNull Executor executor,
-            @NonNull OnCloseRequestedListener listener);
+            @NonNull Consumer<Event> listener);
 
     /**
      * This field indicates that what purpose the {@link Surface} will be used for.
@@ -115,15 +119,57 @@ public interface SurfaceOutput {
     void updateTransformMatrix(@NonNull float[] updated, @NonNull float[] original);
 
     /**
-     * A listener to notify the implementation about the end-of-life of the {@link Surface}.
+     * Events for the {@link Surface} retrieved from
+     * {@link SurfaceOutput#getSurface(Executor, Consumer)}.
      */
-    interface OnCloseRequestedListener {
+    @AutoValue
+    abstract class Event {
 
         /**
-         * After this is invoked, the implementation should finish the current access to the
-         * {@link Surface}, stop writing to the {@link Surface} and mark the
-         * {@link SurfaceOutput} as closed by calling {@link SurfaceOutput#close()}.
+         * Possible event codes.
+         *
+         * @hide
          */
-        void onCloseRequested();
+        @IntDef({EVENT_REQUEST_CLOSE})
+        @Retention(RetentionPolicy.SOURCE)
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public @interface EventCode {
+        }
+
+        /**
+         * The {@link Surface} provider is requesting to release the {@link Surface}.
+         *
+         * <p> Releasing a {@link Surface} while it's still being written into is not safe. The
+         * provider of the {@link Surface} will not release the {@link Surface} without
+         * the CameraX's permission. Once this event is received, the implementation should stop
+         * accessing the {@link Surface} as soon as possible, then mark the {@link SurfaceOutput}
+         * as closed by calling {@link SurfaceOutput#close()}. Once closed, CameraX will notify
+         * the {@link Surface} provider that it's safe to release the {@link Surface}.
+         */
+        public static final int EVENT_REQUEST_CLOSE = 0;
+
+        /**
+         * Returns the event associated with the {@link SurfaceOutput}.
+         */
+        @EventCode
+        public abstract int getEventCode();
+
+        /**
+         * Gets the {@link SurfaceOutput} associated with this event.
+         */
+        @NonNull
+        public abstract SurfaceOutput getSurfaceOutput();
+
+        /**
+         * Creates a {@link Event} for sending to the implementation.
+         *
+         * @hide
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        @NonNull
+        public static SurfaceOutput.Event of(@EventCode int code,
+                @NonNull SurfaceOutput surfaceOutput) {
+            return new AutoValue_SurfaceOutput_Event(code, surfaceOutput);
+        }
     }
 }
