@@ -28,6 +28,8 @@ import androidx.versionedparcelable.ParcelUtils;
 import androidx.versionedparcelable.VersionedParcelable;
 import androidx.versionedparcelable.VersionedParcelize;
 
+import java.util.Objects;
+
 /**
  * Wire format to encode a pair of id to {@link ComplicationData}.
  *
@@ -89,4 +91,17 @@ public final class IdAndComplicationDataWireFormat implements VersionedParcelabl
                     return new IdAndComplicationDataWireFormat[size];
                 }
             };
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        IdAndComplicationDataWireFormat that = (IdAndComplicationDataWireFormat) o;
+        return mId == that.mId && mComplicationData.equals(that.mComplicationData);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(mId, mComplicationData);
+    }
 }
