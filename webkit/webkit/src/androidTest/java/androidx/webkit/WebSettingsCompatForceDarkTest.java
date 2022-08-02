@@ -25,6 +25,7 @@ import android.os.Build.VERSION_CODES;
 
 import androidx.core.graphics.ColorUtils;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.FlakyTest;
 import androidx.test.filters.MediumTest;
 import androidx.test.filters.SdkSuppress;
 
@@ -65,6 +66,7 @@ public class WebSettingsCompatForceDarkTest extends
      * should be reflected in that test as necessary. See http://go/modifying-webview-cts.
      */
     @SuppressWarnings("deprecation")
+    @FlakyTest(bugId = 230480958)
     @Test
     public void testForceDark_rendersDark() throws Throwable {
         WebkitUtils.checkFeature(WebViewFeature.FORCE_DARK);
