@@ -18,6 +18,7 @@ package androidx.camera.integration.uiwidgets.compose.ui.screen.imagecapture
 
 import android.content.ContentValues
 import android.content.Context
+import android.graphics.Rect
 import android.os.Build
 import android.provider.MediaStore
 import android.util.Log
@@ -26,12 +27,17 @@ import androidx.camera.core.Camera
 import androidx.camera.core.CameraControl.OperationCanceledException
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.FocusMeteringAction
+import androidx.camera.core.ImageAnalysis
+import androidx.camera.core.ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.MeteringPoint
 import androidx.camera.core.Preview
 import androidx.camera.core.Preview.SurfaceProvider
 import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.camera.mlkit.vision.MlKitAnalyzer
+import androidx.camera.view.CameraController.COORDINATE_SYSTEM_VIEW_REFERENCED
+import androidx.camera.view.transform.OutputTransform
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.sharp.FlashAuto
 import androidx.compose.material.icons.sharp.FlashOff
@@ -47,14 +53,22 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.concurrent.futures.await
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
+import com.google.mlkit.vision.barcode.BarcodeScannerOptions
+import com.google.mlkit.vision.barcode.BarcodeScanning
+import com.google.mlkit.vision.barcode.common.Barcode
 import java.text.SimpleDateFormat
 import java.util.Locale
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.asExecutor
 import kotlinx.coroutines.launch
 
 private const val DEFAULT_LENS_FACING = CameraSelector.LENS_FACING_FRONT
 private const val DEFAULT_FLASH_MODE = ImageCapture.FLASH_MODE_OFF
 
+// State Holder for ImageCaptureScreen
+// This State Holder supports Preview + ImageCapture + ImageAnalysis Use Cases
+// It provides the states and implementations used in the ImageCaptureScreen
 class ImageCaptureScreenState(
     initialLensFacing: Int = DEFAULT_LENS_FACING,
     initialFlashMode: Int = DEFAULT_FLASH_MODE
@@ -81,11 +95,48 @@ class ImageCaptureScreenState(
     var zoomRatio by mutableStateOf(1f)
         private set
 
+    var qrCodeBoundingBox by mutableStateOf<Rect?>(null)
+        private set
+
+    // Configure QR Code Scanner
+    private val barcodeScanner = BarcodeScanning.getClient(
+        BarcodeScannerOptions.Builder()
+            .setBarcodeFormats(Barcode.FORMAT_QR_CODE)
+            .build()
+    )
+
+    // Uses COORDINATE_SYSTEM_VIEW_REFERENCED to transform bounding box
+    // to PreviewView's coordinates
+    // We need to acquire OutputTransform from PreviewView for this to work
+    private val mlKitAnalyzer = MlKitAnalyzer(
+        listOf(barcodeScanner),
+        COORDINATE_SYSTEM_VIEW_REFERENCED,
+        Dispatchers.Main.asExecutor()
+    ) { result ->
+        val barcodes = result.getValue(barcodeScanner)
+        qrCodeBoundingBox = if (barcodes != null && barcodes.size > 0) {
+            barcodes[0].boundingBox
+        } else {
+            null
+        }
+    }
+
+    // Use Cases
     private val preview = Preview.Builder().build()
     private val imageCapture = ImageCapture
         .Builder()
         .setFlashMode(flashMode)
         .build()
+    private val imageAnalysis = ImageAnalysis
+        .Builder()
+        .setBackpressureStrategy(STRATEGY_KEEP_ONLY_LATEST)
+        .build()
+        .also {
+            it.setAnalyzer(
+                Dispatchers.Main.asExecutor(),
+                mlKitAnalyzer
+            )
+        }
 
     private var camera: Camera? = null
 
@@ -94,6 +145,13 @@ class ImageCaptureScreenState(
     fun setSurfaceProvider(surfaceProvider: SurfaceProvider) {
         Log.d(TAG, "Setting Surface Provider")
         preview.setSurfaceProvider(surfaceProvider)
+    }
+
+    // To update MlKitAnalyzer's OutputTransform when PreviewView is attached to Screen
+    // It uses OutputTransform hence we need to @SuppressWarnings to get past the linter
+    @SuppressWarnings("UnsafeOptInUsageError")
+    fun setOutputTransform(outputTransform: OutputTransform) {
+        mlKitAnalyzer.updateTransform(outputTransform.matrix)
     }
 
     @JvmName("setLinearZoomFunction")
@@ -178,7 +236,8 @@ class ImageCaptureScreenState(
                     lifecycleOwner,
                     cameraSelector,
                     preview,
-                    imageCapture
+                    imageCapture,
+                    imageAnalysis
                 )
 
                 // Setup components that require Camera
@@ -233,6 +292,11 @@ class ImageCaptureScreenState(
                 contentValues
             )
             .build()
+    }
+
+    // Method to release resources when the Screen is removed from the Composition
+    fun releaseResources() {
+        barcodeScanner.close()
     }
 
     private fun getValidInitialFlashMode(flashMode: Int): Int {
