@@ -20,8 +20,8 @@ dependencies {
     implementation("androidx.core:core-ktx:1.8.0")
     implementation(libs.kotlinStdlib)
 
-    implementation(projectOrArtifact(":emoji2:emoji2"))
-    implementation(projectOrArtifact(":emoji2:emoji2-views-helper"))
+    implementation("androidx.emoji2:emoji2:1.2.0-rc01")
+    implementation("androidx.emoji2:emoji2-views-helper:1.2.0-rc01")
     implementation("androidx.collection:collection:1.0.0")
     api("androidx.cursoradapter:cursoradapter:1.0.0")
     api(projectOrArtifact(":activity:activity"))
