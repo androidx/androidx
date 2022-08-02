@@ -16,10 +16,12 @@
 package androidx.compose.ui.text.android
 
 import android.graphics.Canvas
+import android.graphics.Paint.FontMetricsInt
 import android.graphics.Path
 import android.graphics.RectF
 import android.text.BoringLayout
 import android.text.Layout
+import android.text.SpannableString
 import android.text.Spanned
 import android.text.StaticLayout
 import android.text.TextDirectionHeuristic
@@ -154,7 +156,25 @@ class TextLayout constructor(
     @VisibleForTesting
     internal val bottomPadding: Int
 
+    /**
+     * When true the wrapped layout that was created is a BoringLayout.
+     */
     private val isBoringLayout: Boolean
+
+    /**
+     * When the last line of the text is empty, ParagraphStyle's are not applied. This becomes
+     * visible during edit operations when the text field is empty or user inputs an new line
+     * character. This layout contains the text layout that would be applied if the last line
+     * was not empty.
+     */
+    private val lastLineFontMetrics: FontMetricsInt?
+
+    /**
+     * Holds the difference in line height for the lastLineFontMetrics and the wrapped text layout.
+     */
+    private val lastLineExtra: Int
+
+    val lineHeightSpans: Array<LineHeightStyleSpan>
 
     init {
         val end = charSequence.length
@@ -251,9 +271,15 @@ class TextLayout constructor(
             }
 
         val verticalPaddings = getVerticalPaddings()
-        val lineHeightPaddings = getLineHeightPaddings()
+
+        lineHeightSpans = getLineHeightSpans()
+        val lineHeightPaddings = getLineHeightPaddings(lineHeightSpans)
         topPadding = max(verticalPaddings.first, lineHeightPaddings.first)
         bottomPadding = max(verticalPaddings.second, lineHeightPaddings.second)
+
+        val lastLineMetricsPair = getLastLineMetrics(textPaint, frameworkTextDir, lineHeightSpans)
+        lastLineFontMetrics = lastLineMetricsPair.first
+        lastLineExtra = lastLineMetricsPair.second
     }
 
     private val layoutHelper by lazy(LazyThreadSafetyMode.NONE) { LayoutHelper(layout) }
@@ -266,7 +292,7 @@ class TextLayout constructor(
             layout.getLineBottom(lineCount - 1)
         } else {
             layout.height
-        } + topPadding + bottomPadding
+        } + topPadding + bottomPadding + lastLineExtra
 
     fun getLineLeft(lineIndex: Int): Float = layout.getLineLeft(lineIndex)
 
@@ -288,6 +314,10 @@ class TextLayout constructor(
      * Return the vertical position of the bottom of the line in pixels.
      */
     fun getLineBottom(line: Int): Float {
+        if (line == lineCount - 1 && lastLineFontMetrics != null) {
+            return layout.getLineBottom(line - 1).toFloat() + lastLineFontMetrics.bottom
+        }
+
         return topPadding +
             layout.getLineBottom(line).toFloat() +
             if (line == lineCount - 1) bottomPadding else 0
@@ -299,12 +329,24 @@ class TextLayout constructor(
      *
      * @param line the line index starting from 0
      */
-    fun getLineAscent(line: Int): Float = layout.getLineAscent(line).toFloat()
+    fun getLineAscent(line: Int): Float {
+        return if (line == lineCount - 1 && lastLineFontMetrics != null) {
+            lastLineFontMetrics.ascent.toFloat()
+        } else {
+            layout.getLineAscent(line).toFloat()
+        }
+    }
 
     /**
      * Return the vertical position of the baseline of the line in pixels.
      */
-    fun getLineBaseline(line: Int): Float = topPadding + layout.getLineBaseline(line).toFloat()
+    fun getLineBaseline(line: Int): Float {
+        return topPadding + if (line == lineCount - 1 && lastLineFontMetrics != null) {
+            getLineTop(line) - lastLineFontMetrics.ascent
+        } else {
+            layout.getLineBaseline(line).toFloat()
+        }
+    }
 
     /**
      * Returns the descent of the line in the line coordinates. Baseline is considered to be 0,
@@ -312,7 +354,13 @@ class TextLayout constructor(
      *
      * @param line the line index starting from 0
      */
-    fun getLineDescent(line: Int): Float = layout.getLineDescent(line).toFloat()
+    fun getLineDescent(line: Int): Float {
+        return if (line == lineCount - 1 && lastLineFontMetrics != null) {
+            lastLineFontMetrics.descent.toFloat()
+        } else {
+            layout.getLineDescent(line).toFloat()
+        }
+    }
 
     fun getLineHeight(lineIndex: Int): Float = getLineBottom(lineIndex) - getLineTop(lineIndex)
 
@@ -711,10 +759,10 @@ private fun TextLayout.getVerticalPaddings(): Pair<Int, Int> {
         // reuse the existing rect since there is single line
         firstLineTextBounds
     } else {
-        val line = layout.lineCount - 1
+        val line = lineCount - 1
         paint.getCharSequenceBounds(text, layout.getLineStart(line), layout.getLineEnd(line))
     }
-    val descent = layout.getLineDescent(layout.lineCount - 1)
+    val descent = layout.getLineDescent(lineCount - 1)
 
     // when textBounds.bottom is "lower" than descent, we need to add the difference into account
     // since includeFontPadding is false, descent is at the bottom of Layout
@@ -734,10 +782,11 @@ private fun TextLayout.getVerticalPaddings(): Pair<Int, Int> {
 private val EmptyPair = Pair(0, 0)
 
 @OptIn(InternalPlatformTextApi::class)
-private fun TextLayout.getLineHeightPaddings(): Pair<Int, Int> {
+private fun TextLayout.getLineHeightPaddings(
+    lineHeightSpans: Array<LineHeightStyleSpan>
+): Pair<Int, Int> {
     var firstAscentDiff = 0
     var lastDescentDiff = 0
-    val lineHeightSpans = getLineHeightSpans()
 
     for (span in lineHeightSpans) {
         if (span.firstAscentDiff < 0) {
@@ -753,6 +802,60 @@ private fun TextLayout.getLineHeightPaddings(): Pair<Int, Int> {
     } else {
         Pair(firstAscentDiff, lastDescentDiff)
     }
+}
+
+@OptIn(InternalPlatformTextApi::class)
+private fun TextLayout.getLastLineMetrics(
+    textPaint: TextPaint,
+    frameworkTextDir: TextDirectionHeuristic,
+    lineHeightSpans: Array<LineHeightStyleSpan>
+): Pair<FontMetricsInt?, Int> {
+    val lastLine = lineCount - 1
+    // did not check for "\n" since the last line might include zero width characters
+    if (layout.getLineStart(lastLine) == layout.getLineEnd(lastLine) &&
+        lineHeightSpans.isNotEmpty()
+    ) {
+        val emptyText = SpannableString("\u200B")
+        val lineHeightSpan = lineHeightSpans.first()
+        val newLineHeightSpan = lineHeightSpan.copy(
+            startIndex = 0,
+            endIndex = emptyText.length,
+            trimFirstLineTop = if (lastLine != 0 && lineHeightSpan.trimLastLineBottom) {
+                false
+            } else {
+                lineHeightSpan.trimLastLineBottom
+            }
+        )
+
+        emptyText.setSpan(
+            newLineHeightSpan,
+            0,
+            emptyText.length,
+            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+        )
+
+        val tmpLayout = StaticLayoutFactory.create(
+            text = emptyText,
+            start = 0,
+            end = emptyText.length,
+            width = Int.MAX_VALUE,
+            paint = textPaint,
+            textDir = frameworkTextDir,
+            includePadding = includePadding,
+            useFallbackLineSpacing = fallbackLineSpacing
+        )
+
+        val lastLineFontMetrics = FontMetricsInt().apply {
+            ascent = tmpLayout.getLineAscent(0)
+            descent = tmpLayout.getLineDescent(0)
+            top = tmpLayout.getLineTop(0)
+            bottom = tmpLayout.getLineBottom(0)
+        }
+
+        val lastLineExtra = lastLineFontMetrics.bottom - getLineHeight(lastLine).toInt()
+        return Pair(lastLineFontMetrics, lastLineExtra)
+    }
+    return Pair(null, 0)
 }
 
 @OptIn(InternalPlatformTextApi::class)
