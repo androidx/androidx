@@ -177,6 +177,32 @@ class DatabaseProcessorTest {
                 """
         )
 
+        val PUBLISHER = Source.java(
+            "foo.bar.Publisher",
+            """
+                package foo.bar;
+                import androidx.room.*;
+                @Entity
+                public class Publisher {
+                    @PrimaryKey
+                    int publisherId;
+                }
+            """
+        )
+
+        val PUBLISHER_DAO = Source.java(
+            "foo.bar.PublisherDao",
+            """
+                package foo.bar;
+                import androidx.room.*;
+                @Dao
+                public interface PublisherDao {
+                    @Upsert
+                    public void upsert(Publisher publisher);
+                }
+            """
+        )
+
         val AUTOMIGRATION = Source.java(
             "foo.bar.MyAutoMigration",
             """
@@ -790,6 +816,29 @@ class DatabaseProcessorTest {
                         database = "foo.bar.MyDb",
                         dao = "foo.bar.BookDao",
                         entity = "foo.bar.Book"
+                    )
+                )
+            }
+        }
+    }
+
+    @Test
+    fun upsertNotReferencedEntity() {
+        singleDb(
+            """
+                @Database(entities = {User.class}, version = 42)
+                public abstract class MyDb extends RoomDatabase {
+                    abstract PublisherDao publisherDao();
+                }
+            """,
+            USER, USER_DAO, PUBLISHER, PUBLISHER_DAO
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasErrorContaining(
+                    ProcessorErrors.shortcutEntityIsNotInDatabase(
+                        database = "foo.bar.MyDb",
+                        dao = "foo.bar.PublisherDao",
+                        entity = "foo.bar.Publisher"
                     )
                 )
             }
