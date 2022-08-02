@@ -26,6 +26,7 @@ import androidx.paging.PageEvent.Insert
 import androidx.paging.PageEvent.StaticList
 import androidx.paging.PagePresenter.ProcessPageEventCallback
 import androidx.paging.internal.BUGANIZER_URL
+import androidx.paging.internal.appendMediatorStatesIfNotNull
 import java.util.concurrent.CopyOnWriteArrayList
 import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.Dispatchers
@@ -463,6 +464,18 @@ public abstract class PagingDataDiffer<T : Any>(
                 presenter = newPresenter
                 onListPresentableCalled = true
                 hintReceiver = newHintReceiver
+                log(DEBUG) {
+                    appendMediatorStatesIfNotNull(mediatorLoadStates) {
+                        """Presenting data:
+                            |   first item: ${pages.firstOrNull()?.data?.firstOrNull()}
+                            |   last item: ${pages.lastOrNull()?.data?.lastOrNull()}
+                            |   placeholdersBefore: $placeholdersBefore
+                            |   placeholdersAfter: $placeholdersAfter
+                            |   hintReceiver: $newHintReceiver
+                            |   sourceLoadStates: $sourceLoadStates
+                        """
+                    }
+                }
             }
         )
         check(onListPresentableCalled) {

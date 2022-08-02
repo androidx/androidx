@@ -19,6 +19,7 @@ package androidx.paging
 import androidx.paging.LoadType.APPEND
 import androidx.paging.LoadType.PREPEND
 import androidx.paging.LoadType.REFRESH
+import androidx.paging.internal.appendMediatorStatesIfNotNull
 
 /**
  * Events in the stream from paging fetch logic to UI.
@@ -313,15 +314,4 @@ internal sealed class PageEvent<T : Any> {
     }
 
     open suspend fun filter(predicate: suspend (T) -> Boolean): PageEvent<T> = this
-
-    protected inline fun appendMediatorStatesIfNotNull(
-        mediatorStates: LoadStates?,
-        log: () -> String
-    ): String {
-        var newLog = log()
-        if (mediatorStates != null) {
-            newLog = newLog.plus("""|   mediatorLoadStates: $mediatorStates${"\n"}""")
-        }
-        return newLog.plus("|)").trimMargin()
-    }
 }
