@@ -88,7 +88,7 @@ public class FakeSurfaceEffect implements SurfaceEffect {
     public void onOutputSurface(@NonNull SurfaceOutput surfaceOutput) {
         mSurfaceOutput = surfaceOutput;
         mOutputSurface = surfaceOutput.getSurface(mExecutor,
-                () -> {
+                output -> {
                     if (mAutoCloseSurfaceOutput) {
                         surfaceOutput.close();
                     }
