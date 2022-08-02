@@ -88,7 +88,12 @@ data class AndroidXPluginTestContext(val tmpFolder: TemporaryFolder, val setup: 
     private fun checkNoClassloaderErrors(result: BuildResult) {
         // We're seeing b/237103195 flakily.  When we do, let's grab additional debugging info.
         val className = "androidx.build.gradle.ExtensionsKt"
-        if (result.output.contains("java.lang.ClassNotFoundException: $className")) {
+        val classNotFound = "java.lang.ClassNotFoundException: $className"
+
+        val mpe = "groovy.lang.MissingPropertyException"
+        val propertyMissing = "$mpe: Could not get unknown property 'androidx' for root project"
+        val messages = listOf(classNotFound, propertyMissing)
+        if (messages.any { result.output.contains(it) }) {
             buildString {
                 appendLine("classloader error START")
                 append(result.output)
