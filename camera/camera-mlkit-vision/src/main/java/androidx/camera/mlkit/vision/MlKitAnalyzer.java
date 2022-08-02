@@ -40,12 +40,14 @@ import androidx.camera.view.transform.ImageProxyTransformFactory;
 import androidx.camera.view.transform.OutputTransform;
 import androidx.core.util.Consumer;
 
+import com.google.android.gms.tasks.Task;
 import com.google.mlkit.vision.interfaces.Detector;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.Executor;
 
 /**
@@ -207,12 +209,31 @@ public class MlKitAnalyzer implements ImageAnalysis.Analyzer {
         }
         Detector<?> detector = mDetectors.get(detectorIndex);
         int rotationDegrees = imageProxy.getImageInfo().getRotationDegrees();
-        detector.process(image, rotationDegrees, transform).addOnCompleteListener(
+
+        Task<?> mlKitTask;
+        try {
+            mlKitTask = detector.process(image, rotationDegrees, transform);
+        } catch (Exception e) {
+            // If the detector is closed, it will throw a MlKitException.UNAVAILABLE. It's not
+            // public in the "mlkit:vision-interfaces" artifact so we have to catch a generic
+            // Exception here.
+            throwables.put(detector, new RuntimeException("Failed to process the image.", e));
+            // This detector is closed, but the next one might still be open. Send the image to
+            // the next detector.
+            detectRecursively(imageProxy, detectorIndex + 1, transform, values,
+                    throwables);
+            return;
+        }
+        mlKitTask.addOnCompleteListener(
                 mExecutor,
                 task -> {
                     // Record the return value / exception.
-                    values.put(detector, task.getResult());
-                    if (task.getException() != null) {
+                    if (task.isCanceled()) {
+                        throwables.put(detector,
+                                new CancellationException("The task is canceled."));
+                    } else if (task.isSuccessful()) {
+                        values.put(detector, task.getResult());
+                    } else {
                         throwables.put(detector, task.getException());
                     }
                     // Go to the next detector.
@@ -337,7 +358,8 @@ public class MlKitAnalyzer implements ImageAnalysis.Analyzer {
         }
 
         private void checkDetectorExists(@NonNull Detector<?> detector) {
-            checkArgument(mValues.containsKey(detector), "The detector does not exist");
+            checkArgument(mValues.containsKey(detector) || mThrowables.containsKey(detector),
+                    "The detector does not exist");
         }
     }
 }

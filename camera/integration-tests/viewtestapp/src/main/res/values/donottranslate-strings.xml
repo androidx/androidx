@@ -43,6 +43,7 @@ limitations under the License.
     <string name="btn_switch">Switch</string>
     <string name="btn_confirm">Confirm</string>
     <string name="btn_cancel">Cancel</string>
+    <string name="btn_restart">Restart</string>
     <string name="preview_view">Preview View</string>
     <string name="camera_controller">Camera Controller</string>
     <string name="transform">Transform</string>
