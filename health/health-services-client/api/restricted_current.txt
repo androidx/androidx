@@ -292,12 +292,13 @@ package androidx.health.services.client.data {
   }
 
   public final class ExerciseConfig {
-    ctor public ExerciseConfig(androidx.health.services.client.data.ExerciseType exerciseType, java.util.Set<? extends androidx.health.services.client.data.DataType<?,?>> dataTypes, boolean isAutoPauseAndResumeEnabled, boolean isGpsEnabled, optional java.util.List<? extends androidx.health.services.client.data.ExerciseGoal<?>> exerciseGoals, optional android.os.Bundle exerciseParams);
+    ctor public ExerciseConfig(androidx.health.services.client.data.ExerciseType exerciseType, java.util.Set<? extends androidx.health.services.client.data.DataType<?,?>> dataTypes, boolean isAutoPauseAndResumeEnabled, boolean isGpsEnabled, optional java.util.List<? extends androidx.health.services.client.data.ExerciseGoal<?>> exerciseGoals, optional android.os.Bundle exerciseParams, optional @FloatRange(from=0.0) float swimmingPoolLengthMeters);
     method public static androidx.health.services.client.data.ExerciseConfig.Builder builder(androidx.health.services.client.data.ExerciseType exerciseType);
     method public java.util.Set<androidx.health.services.client.data.DataType<?,?>> getDataTypes();
     method public java.util.List<androidx.health.services.client.data.ExerciseGoal<?>> getExerciseGoals();
     method public android.os.Bundle getExerciseParams();
     method public androidx.health.services.client.data.ExerciseType getExerciseType();
+    method public float getSwimmingPoolLengthMeters();
     method public boolean isAutoPauseAndResumeEnabled();
     method public boolean isGpsEnabled();
     property public final java.util.Set<androidx.health.services.client.data.DataType<?,?>> dataTypes;
@@ -306,7 +307,9 @@ package androidx.health.services.client.data {
     property public final androidx.health.services.client.data.ExerciseType exerciseType;
     property public final boolean isAutoPauseAndResumeEnabled;
     property public final boolean isGpsEnabled;
+    property public final float swimmingPoolLengthMeters;
     field public static final androidx.health.services.client.data.ExerciseConfig.Companion Companion;
+    field public static final float SWIMMING_POOL_LENGTH_UNSPECIFIED = 0.0f;
   }
 
   public static final class ExerciseConfig.Builder {
@@ -317,6 +320,7 @@ package androidx.health.services.client.data {
     method public androidx.health.services.client.data.ExerciseConfig.Builder setExerciseParams(android.os.Bundle exerciseParams);
     method public androidx.health.services.client.data.ExerciseConfig.Builder setIsAutoPauseAndResumeEnabled(boolean isAutoPauseAndResumeEnabled);
     method public androidx.health.services.client.data.ExerciseConfig.Builder setIsGpsEnabled(boolean isGpsEnabled);
+    method public androidx.health.services.client.data.ExerciseConfig.Builder setSwimmingPoolLength(float swimmingPoolLength);
   }
 
   public static final class ExerciseConfig.Companion {
