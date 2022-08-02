@@ -53,6 +53,8 @@ dependencies {
         exclude(group:"net.java.dev.msv", module:"xsdlib")
     }
     cacheableApi(libs.androidGradlePluginz)
+    // AGP has removes dependency on json-simple in http://b/239967984, so add explicitly
+    cacheableImplementation(libs.jsonSimple)
     cacheableImplementation(libs.dexMemberList)
     cacheableApi(libs.kotlinGradlePluginz)
     cacheableImplementation(gradleApi())
@@ -68,7 +70,6 @@ dependencies {
     cacheableApi(libs.javapoet)
     // room kotlintestapp uses the ksp plugin but it does not publish a plugin marker yet
     cacheableApi(libs.kspGradlePluginz)
-    cacheableApi(libs.japicmpPluginz)
     // dependencies whose resolutions we don't need to cache
     compileOnly(findGradleKotlinDsl()) // Only one file in this configuration, no need to cache it
     implementation(project(":jetpad-integration")) // Doesn't have a .pom, so not slow to load

@@ -24,12 +24,12 @@ import android.content.Intent;
 import android.os.DeadObjectException;
 import android.os.IBinder;
 import android.os.RemoteException;
-import android.util.Log;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.annotation.VisibleForTesting;
+import androidx.health.platform.client.impl.logger.Logger;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -62,7 +62,7 @@ public class ServiceConnection implements android.content.ServiceConnection {
         /**
          * Called when the connection to the server was lost.
          *
-         * @param connection Represents this connection to a service.
+         * @param connection       Represents this connection to a service.
          * @param reconnectDelayMs Delay before the caller should try to reconnect this connection.
          */
         void onDisconnected(ServiceConnection connection, long reconnectDelayMs);
@@ -83,7 +83,9 @@ public class ServiceConnection implements android.content.ServiceConnection {
     private final Map<ListenerKey, QueueOperation> mRegisteredListeners = new HashMap<>();
     private final Callback mCallback;
 
-    @VisibleForTesting @Nullable IBinder mBinder;
+    @VisibleForTesting
+    @Nullable
+    IBinder mBinder;
     private volatile boolean mIsServiceBound;
     /** Denotes how many times connection to the service failed and we retried. */
     private int mServiceConnectionRetry;
@@ -121,7 +123,7 @@ public class ServiceConnection implements android.content.ServiceConnection {
                             this,
                             Context.BIND_AUTO_CREATE | Context.BIND_ADJUST_WITH_ACTIVITY);
         } catch (SecurityException exception) {
-            Log.w(
+            Logger.warning(
                     TAG,
                     "Failed to bind connection '"
                             + mConnectionConfiguration.getKey()
@@ -134,7 +136,7 @@ public class ServiceConnection implements android.content.ServiceConnection {
 
         if (!mIsServiceBound) {
             // Service not found or we don't have permission to call it.
-            Log.e(
+            Logger.error(
                     TAG,
                     "Connection to service is not available for package '"
                             + mConnectionConfiguration.getPackageName()
@@ -154,14 +156,14 @@ public class ServiceConnection implements android.content.ServiceConnection {
     private synchronized void handleRetriableDisconnection(Throwable throwable) {
         if (isConnected()) {
             // Connection is already re-established. So just return.
-            Log.w(TAG, "Connection is already re-established. No need to reconnect again");
+            Logger.warning(TAG, "Connection is already re-established. No need to reconnect again");
             return;
         }
 
         clearConnection(throwable);
 
         if (mServiceConnectionRetry < MAX_RETRIES) {
-            Log.w(
+            Logger.warning(
                     TAG,
                     "WCS SDK Client '"
                             + mConnectionConfiguration.getClientName()
@@ -170,7 +172,8 @@ public class ServiceConnection implements android.content.ServiceConnection {
                     throwable);
             mCallback.onDisconnected(this, getRetryDelayMs(mServiceConnectionRetry));
         } else {
-            Log.e(TAG, "Connection disconnected and maximum number of retries reached.", throwable);
+            Logger.error(TAG, "Connection disconnected and maximum number of retries reached.",
+                    throwable);
         }
     }
 
@@ -186,7 +189,7 @@ public class ServiceConnection implements android.content.ServiceConnection {
                 mContext.unbindService(this);
                 mIsServiceBound = false;
             } catch (IllegalArgumentException e) {
-                Log.e(TAG, "Failed to unbind the service. Ignoring and continuing", e);
+                Logger.error(TAG, "Failed to unbind the service. Ignoring and continuing", e);
             }
         }
 
@@ -220,14 +223,14 @@ public class ServiceConnection implements android.content.ServiceConnection {
 
     void maybeReconnect() {
         if (mRegisteredListeners.isEmpty()) {
-            Log.d(
+            Logger.debug(
                     TAG,
                     "No listeners registered, service "
                             + mConnectionConfiguration.getClientName()
                             + " is not automatically reconnected.");
         } else {
             mServiceConnectionRetry++;
-            Log.d(
+            Logger.debug(
                     TAG,
                     "Listeners for service "
                             + mConnectionConfiguration.getClientName()
@@ -251,7 +254,7 @@ public class ServiceConnection implements android.content.ServiceConnection {
 
     void reRegisterAllListeners() {
         for (Map.Entry<ListenerKey, QueueOperation> entry : mRegisteredListeners.entrySet()) {
-            Log.d(TAG, "Re-registering listener: " + entry.getKey());
+            Logger.debug(TAG, "Re-registering listener: " + entry.getKey());
             execute(entry.getValue());
         }
     }
@@ -285,9 +288,9 @@ public class ServiceConnection implements android.content.ServiceConnection {
 
     @Override
     public void onServiceConnected(ComponentName componentName, IBinder binder) {
-        Log.d(TAG, "onServiceConnected(), componentName = " + componentName);
+        Logger.debug(TAG, "onServiceConnected(), componentName = " + componentName);
         if (binder == null) {
-            Log.e(TAG, "Service connected but binder is null.");
+            Logger.error(TAG, "Service connected but binder is null.");
             return;
         }
         mServiceConnectionRetry = 0;
@@ -300,7 +303,7 @@ public class ServiceConnection implements android.content.ServiceConnection {
         try {
             binder.linkToDeath(
                     () -> {
-                        Log.w(
+                        Logger.warning(
                                 TAG,
                                 "Binder died for client:"
                                         + mConnectionConfiguration.getClientName());
@@ -308,7 +311,7 @@ public class ServiceConnection implements android.content.ServiceConnection {
                     },
                     /* flags= */ 0);
         } catch (RemoteException exception) {
-            Log.w(
+            Logger.warning(
                     TAG,
                     "Cannot link to death, binder already died. Cleaning operations.",
                     exception);
@@ -318,19 +321,20 @@ public class ServiceConnection implements android.content.ServiceConnection {
 
     @Override
     public void onServiceDisconnected(ComponentName componentName) {
-        Log.d(TAG, "onServiceDisconnected(), componentName = " + componentName);
+        Logger.debug(TAG, "onServiceDisconnected(), componentName = " + componentName);
         // Service disconnected but binding still exists so it should reconnect automatically.
     }
 
     @Override
     public void onBindingDied(ComponentName name) {
-        Log.e(TAG, "Binding died for client '" + mConnectionConfiguration.getClientName() + "'.");
+        Logger.error(TAG,
+                "Binding died for client '" + mConnectionConfiguration.getClientName() + "'.");
         handleRetriableDisconnection(new RemoteException("Binding died"));
     }
 
     @Override
     public void onNullBinding(ComponentName name) {
-        Log.e(
+        Logger.error(
                 TAG,
                 "Cannot bind client '"
                         + mConnectionConfiguration.getClientName()

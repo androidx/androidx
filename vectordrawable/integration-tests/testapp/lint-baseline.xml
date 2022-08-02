@@ -142,7 +142,9 @@
         errorLine1="                m-.001, 0"
         errorLine2="            ~~~~">
         <location
-            file="src/main/res/drawable/vector_drawable04.xml"/>
+            file="src/main/res/drawable/vector_drawable04.xml"
+            line="27"
+            column="13"/>
     </issue>
 
     <issue
@@ -151,7 +153,9 @@
         errorLine1="                m-.001, 0"
         errorLine2="                       ^">
         <location
-            file="src/main/res/drawable/vector_drawable04.xml"/>
+            file="src/main/res/drawable/vector_drawable04.xml"
+            line="27"
+            column="24"/>
     </issue>
 
     <issue
@@ -160,7 +164,9 @@
         errorLine1="                a .001,.001 0 1,0 .002,0"
         errorLine2="                                     ^">
         <location
-            file="src/main/res/drawable/vector_drawable04.xml"/>
+            file="src/main/res/drawable/vector_drawable04.xml"
+            line="28"
+            column="38"/>
     </issue>
 
     <issue
@@ -169,7 +175,9 @@
         errorLine1="                a .001,.001 0 1,0 .002,0"
         errorLine2="                      ~~~~">
         <location
-            file="src/main/res/drawable/vector_drawable04.xml"/>
+            file="src/main/res/drawable/vector_drawable04.xml"
+            line="28"
+            column="23"/>
     </issue>
 
     <issue
@@ -178,7 +186,9 @@
         errorLine1="                a .001,.001 0 1,0 .002,0"
         errorLine2="                           ~~~~">
         <location
-            file="src/main/res/drawable/vector_drawable04.xml"/>
+            file="src/main/res/drawable/vector_drawable04.xml"
+            line="28"
+            column="28"/>
     </issue>
 
     <issue
@@ -187,7 +197,9 @@
         errorLine1="            android:pathData=&quot;l0.0.0.5.0.0.5-0.5.0.0-.5z&quot;"
         errorLine2="                                                    ~~~">
         <location
-            file="src/main/res/drawable/vector_drawable29.xml"/>
+            file="src/main/res/drawable/vector_drawable29.xml"
+            line="25"
+            column="53"/>
     </issue>
 
     <issue
@@ -196,7 +208,9 @@
         errorLine1="            android:pathData=&quot;l0.0.0.5.0.0.5-0.5.0.0-.5z&quot;"
         errorLine2="                                  ~~">
         <location
-            file="src/main/res/drawable/vector_drawable29.xml"/>
+            file="src/main/res/drawable/vector_drawable29.xml"
+            line="25"
+            column="35"/>
     </issue>
 
     <issue
@@ -205,7 +219,9 @@
         errorLine1="            android:pathData=&quot;l0.0.0.5.0.0.5-0.5.0.0-.5z&quot;"
         errorLine2="                                      ~~">
         <location
-            file="src/main/res/drawable/vector_drawable29.xml"/>
+            file="src/main/res/drawable/vector_drawable29.xml"
+            line="25"
+            column="39"/>
     </issue>
 
     <issue
@@ -214,7 +230,9 @@
         errorLine1="            android:pathData=&quot;l0.0.0.5.0.0.5-0.5.0.0-.5z&quot;"
         errorLine2="                                        ~~">
         <location
-            file="src/main/res/drawable/vector_drawable29.xml"/>
+            file="src/main/res/drawable/vector_drawable29.xml"
+            line="25"
+            column="41"/>
     </issue>
 
     <issue
@@ -223,7 +241,9 @@
         errorLine1="            android:pathData=&quot;l0.0.0.5.0.0.5-0.5.0.0-.5z&quot;"
         errorLine2="                                                ~~">
         <location
-            file="src/main/res/drawable/vector_drawable29.xml"/>
+            file="src/main/res/drawable/vector_drawable29.xml"
+            line="25"
+            column="49"/>
     </issue>
 
     <issue
@@ -232,7 +252,9 @@
         errorLine1="            android:pathData=&quot;l0.0.0.5.0.0.5-0.5.0.0-.5z&quot;"
         errorLine2="                                                  ~~">
         <location
-            file="src/main/res/drawable/vector_drawable29.xml"/>
+            file="src/main/res/drawable/vector_drawable29.xml"
+            line="25"
+            column="51"/>
     </issue>
 
     <issue
@@ -241,7 +263,9 @@
         errorLine1="            android:pathData=&quot;l0.0.0.5.0.0.5-0.5.0.0-.5z&quot;"
         errorLine2="                                    ~~">
         <location
-            file="src/main/res/drawable/vector_drawable29.xml"/>
+            file="src/main/res/drawable/vector_drawable29.xml"
+            line="25"
+            column="37"/>
     </issue>
 
     <issue
@@ -250,7 +274,9 @@
         errorLine1="            android:pathData=&quot;l0.0.0.5.0.0.5-0.5.0.0-.5z&quot;"
         errorLine2="                                          ~~">
         <location
-            file="src/main/res/drawable/vector_drawable29.xml"/>
+            file="src/main/res/drawable/vector_drawable29.xml"
+            line="25"
+            column="43"/>
     </issue>
 
     <issue
@@ -259,7 +285,9 @@
         errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
         errorLine2="                            ~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/vectordrawable/app/AVDCListenerDemo.java"/>
+            file="src/main/java/com/example/android/support/vectordrawable/app/AVDCListenerDemo.java"
+            line="39"
+            column="29"/>
     </issue>
 
     <issue
@@ -268,7 +296,9 @@
         errorLine1="    protected int[] mIcons = {"
         errorLine2="              ~~~~~">
         <location
-            file="src/main/java/com/example/android/support/vectordrawable/app/SimpleAnimatedVectorDrawable.java"/>
+            file="src/main/java/com/example/android/support/vectordrawable/app/SimpleAnimatedVectorDrawable.java"
+            line="38"
+            column="15"/>
     </issue>
 
     <issue
@@ -277,7 +307,9 @@
         errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
         errorLine2="                            ~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/vectordrawable/app/SimpleAnimatedVectorDrawable.java"/>
+            file="src/main/java/com/example/android/support/vectordrawable/app/SimpleAnimatedVectorDrawable.java"
+            line="51"
+            column="29"/>
     </issue>
 
     <issue
@@ -286,7 +318,9 @@
         errorLine1="    protected int[] mIcons = {"
         errorLine2="              ~~~~~">
         <location
-            file="src/main/java/com/example/android/support/vectordrawable/app/SimpleStaticVectorDrawable.java"/>
+            file="src/main/java/com/example/android/support/vectordrawable/app/SimpleStaticVectorDrawable.java"
+            line="39"
+            column="15"/>
     </issue>
 
     <issue
@@ -295,7 +329,9 @@
         errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
         errorLine2="                            ~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/vectordrawable/app/SimpleStaticVectorDrawable.java"/>
+            file="src/main/java/com/example/android/support/vectordrawable/app/SimpleStaticVectorDrawable.java"
+            line="85"
+            column="29"/>
     </issue>
 
     <issue
@@ -304,7 +340,9 @@
         errorLine1="    public void onCreate(Bundle savedInstanceState) {"
         errorLine2="                         ~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/vectordrawable/app/SupportVectorDrawableDemos.java"/>
+            file="src/main/java/com/example/android/support/vectordrawable/app/SupportVectorDrawableDemos.java"
+            line="42"
+            column="26"/>
     </issue>
 
     <issue
@@ -313,7 +351,9 @@
         errorLine1="    protected List&lt;Map&lt;String, Object>> getData(String prefix) {"
         errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/vectordrawable/app/SupportVectorDrawableDemos.java"/>
+            file="src/main/java/com/example/android/support/vectordrawable/app/SupportVectorDrawableDemos.java"
+            line="59"
+            column="15"/>
     </issue>
 
     <issue
@@ -322,7 +362,9 @@
         errorLine1="    protected List&lt;Map&lt;String, Object>> getData(String prefix) {"
         errorLine2="                                                ~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/vectordrawable/app/SupportVectorDrawableDemos.java"/>
+            file="src/main/java/com/example/android/support/vectordrawable/app/SupportVectorDrawableDemos.java"
+            line="59"
+            column="49"/>
     </issue>
 
     <issue
@@ -331,7 +373,9 @@
         errorLine1="    protected Intent activityIntent(String pkg, String componentName) {"
         errorLine2="              ~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/vectordrawable/app/SupportVectorDrawableDemos.java"/>
+            file="src/main/java/com/example/android/support/vectordrawable/app/SupportVectorDrawableDemos.java"
+            line="128"
+            column="15"/>
     </issue>
 
     <issue
@@ -340,7 +384,9 @@
         errorLine1="    protected Intent activityIntent(String pkg, String componentName) {"
         errorLine2="                                    ~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/vectordrawable/app/SupportVectorDrawableDemos.java"/>
+            file="src/main/java/com/example/android/support/vectordrawable/app/SupportVectorDrawableDemos.java"
+            line="128"
+            column="37"/>
     </issue>
 
     <issue
@@ -349,7 +395,9 @@
         errorLine1="    protected Intent activityIntent(String pkg, String componentName) {"
         errorLine2="                                                ~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/vectordrawable/app/SupportVectorDrawableDemos.java"/>
+            file="src/main/java/com/example/android/support/vectordrawable/app/SupportVectorDrawableDemos.java"
+            line="128"
+            column="49"/>
     </issue>
 
     <issue
@@ -358,7 +406,9 @@
         errorLine1="    protected Intent browseIntent(String path) {"
         errorLine2="              ~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/vectordrawable/app/SupportVectorDrawableDemos.java"/>
+            file="src/main/java/com/example/android/support/vectordrawable/app/SupportVectorDrawableDemos.java"
+            line="134"
+            column="15"/>
     </issue>
 
     <issue
@@ -367,7 +417,9 @@
         errorLine1="    protected Intent browseIntent(String path) {"
         errorLine2="                                  ~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/vectordrawable/app/SupportVectorDrawableDemos.java"/>
+            file="src/main/java/com/example/android/support/vectordrawable/app/SupportVectorDrawableDemos.java"
+            line="134"
+            column="35"/>
     </issue>
 
     <issue
@@ -376,7 +428,9 @@
         errorLine1="    protected void addItem(List&lt;Map&lt;String, Object>> data, String name, Intent intent) {"
         errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/vectordrawable/app/SupportVectorDrawableDemos.java"/>
+            file="src/main/java/com/example/android/support/vectordrawable/app/SupportVectorDrawableDemos.java"
+            line="141"
+            column="28"/>
     </issue>
 
     <issue
@@ -385,7 +439,9 @@
         errorLine1="    protected void addItem(List&lt;Map&lt;String, Object>> data, String name, Intent intent) {"
         errorLine2="                                                           ~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/vectordrawable/app/SupportVectorDrawableDemos.java"/>
+            file="src/main/java/com/example/android/support/vectordrawable/app/SupportVectorDrawableDemos.java"
+            line="141"
+            column="60"/>
     </issue>
 
     <issue
@@ -394,7 +450,9 @@
         errorLine1="    protected void addItem(List&lt;Map&lt;String, Object>> data, String name, Intent intent) {"
         errorLine2="                                                                        ~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/vectordrawable/app/SupportVectorDrawableDemos.java"/>
+            file="src/main/java/com/example/android/support/vectordrawable/app/SupportVectorDrawableDemos.java"
+            line="141"
+            column="73"/>
     </issue>
 
 </issues>

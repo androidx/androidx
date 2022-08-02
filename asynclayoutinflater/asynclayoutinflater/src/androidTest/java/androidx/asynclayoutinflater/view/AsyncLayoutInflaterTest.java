@@ -15,6 +15,7 @@
  */
 package androidx.asynclayoutinflater.view;
 
+import android.os.Build;
 import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,6 +24,7 @@ import androidx.asynclayoutinflater.test.R;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
+import androidx.test.filters.SdkSuppress;
 
 import com.google.common.util.concurrent.SettableFuture;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
@@ -75,6 +77,7 @@ public class AsyncLayoutInflaterTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
     public void correctAsyncInflaterView_forButton() throws Exception {
         SettableFuture<View> asyncInflatedViewFuture = SettableFuture.create();
         mAsyncLayoutInflater.inflateWithOriginalFactory(R.layout.test_button, null,

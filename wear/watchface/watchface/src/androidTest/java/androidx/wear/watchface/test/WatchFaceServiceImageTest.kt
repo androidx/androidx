@@ -37,7 +37,6 @@ import android.view.SurfaceHolder
 import androidx.annotation.RequiresApi
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.FlakyTest
 import androidx.test.filters.MediumTest
 import androidx.test.screenshot.AndroidXScreenshotTestRule
 import androidx.test.screenshot.assertAgainstGolden
@@ -94,6 +93,9 @@ import java.time.Instant
 import java.time.ZoneId
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.android.asCoroutineDispatcher
+import kotlinx.coroutines.launch
 
 private const val BITMAP_WIDTH = 400
 private const val BITMAP_HEIGHT = 400
@@ -546,12 +548,24 @@ public class WatchFaceServiceImageTest {
 
     @SuppressLint("NewApi")
     @Test
-    @FlakyTest(bugId = 227456150)
     public fun testPlaceholderComplications() {
         val latch = CountDownLatch(1)
         handler.post(this::initCanvasWatchFace)
         assertThat(initLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS)).isTrue()
 
+        // Latch that countsDown when the complication below has been delivered.
+        val complicationReceivedLatch = CountDownLatch(1)
+        CoroutineScope(handler.asCoroutineDispatcher()).launch {
+            engineWrapper.deferredWatchFaceImpl.await().complicationSlotsManager[
+                EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID
+            ]!!.complicationData.collect {
+                if (it is NoDataComplicationData && it.placeholder != null) {
+                    complicationReceivedLatch.countDown()
+                }
+            }
+        }
+
+        // This is a oneway call.
         interactiveWatchFaceInstance.updateComplicationData(
             listOf(
                 IdAndComplicationDataWireFormat(
@@ -582,6 +596,8 @@ public class WatchFaceServiceImageTest {
                 )
             )
         )
+
+        assertThat(complicationReceivedLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS)).isTrue()
 
         var bitmap: Bitmap? = null
         pretendBinderHandler.post {

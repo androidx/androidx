@@ -46,11 +46,6 @@ internal val cameraPipeIds = atomic(0)
  * the [CameraGraph] interface.
  */
 public class CameraPipe(config: Config) {
-
-    @Deprecated("threadConfig should be specified on config.")
-    @Suppress("UNUSED_PARAMETER")
-    public constructor(config: Config, threadConfig: ThreadConfig) : this(config)
-
     private val debugId = cameraPipeIds.incrementAndGet()
     private val component: CameraPipeComponent = DaggerCameraPipeComponent.builder()
         .cameraPipeConfigModule(CameraPipeConfigModule(config))

@@ -4,11 +4,28 @@ package androidx.window.extensions {
   public interface WindowExtensions {
     method public default androidx.window.extensions.embedding.ActivityEmbeddingComponent? getActivityEmbeddingComponent();
     method public default int getVendorApiLevel();
+    method public default androidx.window.extensions.area.WindowAreaComponent? getWindowAreaComponent();
     method public androidx.window.extensions.layout.WindowLayoutComponent? getWindowLayoutComponent();
   }
 
   public class WindowExtensionsProvider {
     method public static androidx.window.extensions.WindowExtensions getWindowExtensions();
+  }
+
+}
+
+package androidx.window.extensions.area {
+
+  public interface WindowAreaComponent {
+    method public void addRearDisplayStatusListener(java.util.function.Consumer<java.lang.Integer!>);
+    method public void endRearDisplaySession();
+    method public void removeRearDisplayStatusListener(java.util.function.Consumer<java.lang.Integer!>);
+    method public void startRearDisplaySession(android.app.Activity, java.util.function.Consumer<java.lang.Integer!>);
+    field public static final int SESSION_STATE_ACTIVE = 1; // 0x1
+    field public static final int SESSION_STATE_INACTIVE = 0; // 0x0
+    field public static final int STATUS_AVAILABLE = 2; // 0x2
+    field public static final int STATUS_UNAVAILABLE = 1; // 0x1
+    field public static final int STATUS_UNSUPPORTED = 0; // 0x0
   }
 
 }
@@ -70,7 +87,8 @@ package androidx.window.extensions.embedding {
   }
 
   public class SplitPlaceholderRule extends androidx.window.extensions.embedding.SplitRule {
-    method public int getFinishPrimaryWithSecondary();
+    method public int getFinishPrimaryWithPlaceholder();
+    method @Deprecated public int getFinishPrimaryWithSecondary();
     method public android.content.Intent getPlaceholderIntent();
     method public boolean isSticky();
     method @RequiresApi(api=android.os.Build.VERSION_CODES.N) public boolean matchesActivity(android.app.Activity);
@@ -80,7 +98,8 @@ package androidx.window.extensions.embedding {
   public static final class SplitPlaceholderRule.Builder {
     ctor public SplitPlaceholderRule.Builder(android.content.Intent, java.util.function.Predicate<android.app.Activity!>, java.util.function.Predicate<android.content.Intent!>, java.util.function.Predicate<android.view.WindowMetrics!>);
     method public androidx.window.extensions.embedding.SplitPlaceholderRule build();
-    method public androidx.window.extensions.embedding.SplitPlaceholderRule.Builder setFinishPrimaryWithSecondary(int);
+    method public androidx.window.extensions.embedding.SplitPlaceholderRule.Builder setFinishPrimaryWithPlaceholder(int);
+    method @Deprecated public androidx.window.extensions.embedding.SplitPlaceholderRule.Builder setFinishPrimaryWithSecondary(int);
     method public androidx.window.extensions.embedding.SplitPlaceholderRule.Builder setLayoutDirection(int);
     method public androidx.window.extensions.embedding.SplitPlaceholderRule.Builder setSplitRatio(float);
     method public androidx.window.extensions.embedding.SplitPlaceholderRule.Builder setSticky(boolean);

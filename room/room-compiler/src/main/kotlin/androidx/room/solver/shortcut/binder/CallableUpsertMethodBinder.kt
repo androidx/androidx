@@ -36,7 +36,7 @@ class CallableUpsertMethodBinder(
     val typeArg: XType,
     val addStmntBlock: CodeBlock.Builder.(callableImpl: TypeSpec, dbField: FieldSpec) -> Unit,
     adapter: UpsertMethodAdapter?
-) : UpsertMethodBinder(adapter) {
+) : InsertOrUpsertMethodBinder(adapter) {
 
     companion object {
         fun createUpsertBinder(
@@ -48,7 +48,7 @@ class CallableUpsertMethodBinder(
 
     override fun convertAndReturn(
         parameters: List<ShortcutQueryParameter>,
-        upsertionAdapters: Map<String, Pair<FieldSpec, TypeSpec>>,
+        adapters: Map<String, Pair<FieldSpec, Any>>,
         dbField: FieldSpec,
         scope: CodeGenScope
     ) {

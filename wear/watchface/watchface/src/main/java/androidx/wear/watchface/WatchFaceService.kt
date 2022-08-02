@@ -1194,7 +1194,8 @@ public abstract class WatchFaceService : WallpaperService() {
         private var asyncWatchFaceConstructionPending = false
 
         // Stores the initial ComplicationSlots which could get updated before they're applied.
-        private var pendingInitialComplications: List<IdAndComplicationDataWireFormat>? = null
+        internal var pendingInitialComplications: List<IdAndComplicationDataWireFormat>? = null
+            private set
 
         private var initialUserStyle: UserStyleWireFormat? = null
         private lateinit var interactiveInstanceId: String
@@ -1449,9 +1450,29 @@ public abstract class WatchFaceService : WallpaperService() {
                 }
                 watchFaceImpl.complicationSlotsManager.onComplicationsUpdated()
             } else {
-                // If the watchface hasn't been created yet, update pendingInitialComplications so
-                // it can be applied later.
+                setPendingInitialComplications(complicationDataWireFormats)
+            }
+        }
+
+        @UiThread
+        internal fun setPendingInitialComplications(
+            complicationDataWireFormats: List<IdAndComplicationDataWireFormat>
+        ) {
+            // If the watchface hasn't been created yet, update pendingInitialComplications so
+            // it can be applied later.
+            if (pendingInitialComplications == null) {
                 pendingInitialComplications = complicationDataWireFormats
+            } else {
+                // We need to merge the updates.
+                val complicationUpdateMap = pendingInitialComplications!!.associate {
+                    Pair(it.id, it.complicationData)
+                }.toMutableMap()
+                for (data in complicationDataWireFormats) {
+                    complicationUpdateMap[data.id] = data.complicationData
+                }
+                pendingInitialComplications = complicationUpdateMap.map {
+                    IdAndComplicationDataWireFormat(it.key, it.value)
+                }
             }
         }
 
@@ -2021,16 +2042,6 @@ public abstract class WatchFaceService : WallpaperService() {
             initStyleAndComplicationsDone: CompletableDeferred<Unit>,
             watchState: WatchState
         ) {
-            pendingInitialComplications?.let {
-                for (idAndData in it) {
-                    complicationSlotsManager.onComplicationDataUpdate(
-                        idAndData.id,
-                        idAndData.complicationData.toApiComplicationData(),
-                        Instant.EPOCH // The value here doesn't matter, will be corrected when drawn
-                    )
-                }
-            }
-
             val broadcastsObserver = BroadcastsObserver(
                 watchState,
                 this,
@@ -2088,6 +2099,15 @@ public abstract class WatchFaceService : WallpaperService() {
                     pendingUserStyle = null
                 }
                 deferredWatchFaceImpl.complete(watchFaceImpl)
+
+                // Apply any pendingInitialComplications, this must be done after
+                // deferredWatchFaceImpl has completed or there's a window in which complication
+                // updates get lost.
+                pendingInitialComplications?.let {
+                    setComplicationDataList(it)
+                }
+                pendingInitialComplications = null
+
                 asyncWatchFaceConstructionPending = false
                 watchFaceImpl.initComplete = true
 
@@ -2491,6 +2511,9 @@ public abstract class WatchFaceService : WallpaperService() {
 
             writer.println("frameCallbackPending=$frameCallbackPending")
             writer.println("destroyed=$destroyed")
+            writer.println(
+                "pendingInitialComplications=" + pendingInitialComplications?.joinToString()
+            )
 
             if (!destroyed) {
                 getWatchFaceImplOrNull()?.dump(writer)

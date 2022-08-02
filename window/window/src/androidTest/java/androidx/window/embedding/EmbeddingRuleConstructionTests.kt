@@ -172,7 +172,7 @@ class EmbeddingRuleConstructionTests {
         val rules = SplitController.getInstance().getSplitRules()
         assertEquals(1, rules.size)
         val rule: SplitPlaceholderRule = rules.first() as SplitPlaceholderRule
-        assertEquals(FINISH_ALWAYS, rule.finishPrimaryWithSecondary)
+        assertEquals(FINISH_ALWAYS, rule.finishPrimaryWithPlaceholder)
         assertEquals(false, rule.isSticky)
         assertEquals(0.5f, rule.splitRatio)
         assertEquals(LayoutDirection.LOCALE, rule.layoutDirection)
@@ -194,7 +194,7 @@ class EmbeddingRuleConstructionTests {
             456
         )
             .build()
-        assertEquals(FINISH_ALWAYS, rule.finishPrimaryWithSecondary)
+        assertEquals(FINISH_ALWAYS, rule.finishPrimaryWithPlaceholder)
         assertEquals(false, rule.isSticky)
         assertEquals(0.5f, rule.splitRatio)
         assertEquals(LayoutDirection.LOCALE, rule.layoutDirection)
@@ -220,12 +220,12 @@ class EmbeddingRuleConstructionTests {
             123,
             456
         )
-            .setFinishPrimaryWithSecondary(FINISH_ADJACENT)
+            .setFinishPrimaryWithPlaceholder(FINISH_ADJACENT)
             .setSticky(true)
             .setSplitRatio(0.3f)
             .setLayoutDir(LayoutDirection.LTR)
             .build()
-        assertEquals(FINISH_ADJACENT, rule.finishPrimaryWithSecondary)
+        assertEquals(FINISH_ADJACENT, rule.finishPrimaryWithPlaceholder)
         assertEquals(true, rule.isSticky)
         assertEquals(0.3f, rule.splitRatio)
         assertEquals(LayoutDirection.LTR, rule.layoutDirection)
@@ -256,6 +256,16 @@ class EmbeddingRuleConstructionTests {
                 minWidth = 123,
                 minSmallestWidth = -1
             ).build()
+        }
+        assertThrows(IllegalArgumentException::class.java) {
+            SplitPlaceholderRule.Builder(
+                HashSet(),
+                Intent(),
+                minWidth = 123,
+                minSmallestWidth = 456
+            )
+                .setFinishPrimaryWithPlaceholder(FINISH_NEVER)
+                .build()
         }
         assertThrows(IllegalArgumentException::class.java) {
             SplitPlaceholderRule.Builder(

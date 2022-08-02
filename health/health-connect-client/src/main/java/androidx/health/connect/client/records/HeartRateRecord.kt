@@ -62,7 +62,7 @@ public class HeartRateRecord(
     }
 
     companion object {
-        private const val HEART_RATE_TYPE_NAME = "HeartRate"
+        private const val HEART_RATE_TYPE_NAME = "HeartRateSeries"
         private const val BPM_FIELD_NAME = "bpm"
 
         /** Metric identifier to retrieve the average heart rate from [AggregationResult]. */

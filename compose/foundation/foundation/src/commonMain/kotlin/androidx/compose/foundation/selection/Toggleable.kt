@@ -27,12 +27,19 @@ import androidx.compose.foundation.hoverable
 import androidx.compose.foundation.indication
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
+import androidx.compose.foundation.isClick
 import androidx.compose.foundation.isComposeRootInScrollableContainer
+import androidx.compose.foundation.isPress
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.modifier.ModifierLocalConsumer
 import androidx.compose.ui.modifier.ModifierLocalReadScope
@@ -45,6 +52,9 @@ import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.toggleableState
 import androidx.compose.ui.state.ToggleableState
+import androidx.compose.ui.unit.center
+import androidx.compose.ui.unit.toOffset
+import kotlinx.coroutines.launch
 
 /**
  * Configure component to make it toggleable via input and accessibility events
@@ -245,6 +255,7 @@ private fun Modifier.toggleableImpl(
     onClick: () -> Unit
 ): Modifier = composed {
     val pressedInteraction = remember { mutableStateOf<PressInteraction.Press?>(null) }
+    val currentKeyPressInteractions = remember { mutableMapOf<Key, PressInteraction.Press>() }
     // TODO(pavlis): Handle multiple states for Semantics
     val semantics = Modifier.semantics(mergeDescendants = true) {
         if (role != null) {
@@ -259,14 +270,22 @@ private fun Modifier.toggleableImpl(
     }
     val onClickState = rememberUpdatedState(onClick)
     if (enabled) {
-        PressedInteractionSourceDisposableEffect(interactionSource, pressedInteraction)
+        PressedInteractionSourceDisposableEffect(
+            interactionSource,
+            pressedInteraction,
+            currentKeyPressInteractions
+        )
     }
     val isRootInScrollableContainer = isComposeRootInScrollableContainer()
     val isToggleableInScrollableContainer = remember { mutableStateOf(true) }
     val delayPressInteraction = rememberUpdatedState {
         isToggleableInScrollableContainer.value || isRootInScrollableContainer()
     }
+    val keyClickOffset = remember { mutableStateOf(Offset.Zero) }
+    val indicationScope = rememberCoroutineScope()
+
     val gestures = Modifier.pointerInput(interactionSource, enabled) {
+        keyClickOffset.value = size.center.toOffset()
         detectTapAndPress(
             onPress = { offset ->
                 if (enabled) {
@@ -281,6 +300,34 @@ private fun Modifier.toggleableImpl(
             onTap = { if (enabled) onClickState.value.invoke() }
         )
     }
+
+    fun Modifier.detectPressAndClickFromKey() = onKeyEvent { keyEvent ->
+        when {
+            enabled && keyEvent.isPress -> {
+                // If the key already exists in the map, keyEvent is a repeat event.
+                // We ignore it as we only want to emit an interaction for the initial key press.
+                if (!currentKeyPressInteractions.containsKey(keyEvent.key)) {
+                    val press = PressInteraction.Press(keyClickOffset.value)
+                    currentKeyPressInteractions[keyEvent.key] = press
+                    indicationScope.launch { interactionSource.emit(press) }
+                    true
+                } else {
+                    false
+                }
+            }
+            enabled && keyEvent.isClick -> {
+                currentKeyPressInteractions.remove(keyEvent.key)?.let {
+                    indicationScope.launch {
+                        interactionSource.emit(PressInteraction.Release(it))
+                    }
+                }
+                onClick()
+                true
+            }
+            else -> false
+        }
+    }
+
     this
         .then(
             remember {
@@ -295,6 +342,7 @@ private fun Modifier.toggleableImpl(
             }
         )
         .then(semantics)
+        .detectPressAndClickFromKey()
         .indication(interactionSource, indication)
         .hoverable(enabled = enabled, interactionSource = interactionSource)
         .focusableInNonTouchMode(enabled = enabled, interactionSource = interactionSource)

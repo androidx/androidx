@@ -64,6 +64,7 @@ dependencies {
     testImplementation(compileOnly(project(":window:extensions:extensions")))
 
     androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.kotlinTestJunit)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.testRules)

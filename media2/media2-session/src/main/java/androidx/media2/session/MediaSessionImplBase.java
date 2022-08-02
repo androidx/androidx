@@ -1672,6 +1672,7 @@ class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     final class MediaButtonReceiver extends BroadcastReceiver {
+        @SuppressWarnings("deprecation")
         @Override
         public void onReceive(Context context, Intent intent) {
             if (!Intent.ACTION_MEDIA_BUTTON.equals(intent.getAction())) {

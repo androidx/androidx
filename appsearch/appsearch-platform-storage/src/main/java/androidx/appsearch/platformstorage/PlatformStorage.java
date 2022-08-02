@@ -211,7 +211,7 @@ public final class PlatformStorage {
      */
     @SuppressLint("WrongConstant")
     @NonNull
-    public static ListenableFuture<AppSearchSession> createSearchSession(
+    public static ListenableFuture<AppSearchSession> createSearchSessionAsync(
             @NonNull SearchContext context) {
         Preconditions.checkNotNull(context);
         AppSearchManager appSearchManager =
@@ -224,7 +224,7 @@ public final class PlatformStorage {
                     if (result.isSuccess()) {
                         future.set(
                                 new SearchSessionImpl(result.getResultValue(), context.mExecutor,
-                                new FeaturesImpl()));
+                                        new FeaturesImpl()));
                     } else {
                         // Without the SuppressLint annotation on the method, this line causes a
                         // lint error because getResultCode isn't defined as returning a value from
@@ -238,11 +238,24 @@ public final class PlatformStorage {
     }
 
     /**
+     * @deprecated use {@link #createSearchSessionAsync}.
+     *
+     * @param context The {@link SearchContext} contains all information to create a new
+     *                {@link AppSearchSession}
+     */
+    @NonNull
+    @Deprecated
+    public static ListenableFuture<AppSearchSession> createSearchSession(
+            @NonNull SearchContext context) {
+        return createSearchSessionAsync(context);
+    }
+
+    /**
      * Opens a new {@link GlobalSearchSession} on this storage.
      */
     @SuppressLint("WrongConstant")
     @NonNull
-    public static ListenableFuture<GlobalSearchSession> createGlobalSearchSession(
+    public static ListenableFuture<GlobalSearchSession> createGlobalSearchSessionAsync(
             @NonNull GlobalSearchContext context) {
         Preconditions.checkNotNull(context);
         AppSearchManager appSearchManager =
@@ -265,5 +278,15 @@ public final class PlatformStorage {
                     }
                 });
         return future;
+    }
+
+    /**
+     * @deprecated use {@link #createGlobalSearchSessionAsync}.
+     */
+    @Deprecated
+    @NonNull
+    public static ListenableFuture<GlobalSearchSession> createGlobalSearchSession(
+            @NonNull GlobalSearchContext context) {
+        return createGlobalSearchSessionAsync(context);
     }
 }

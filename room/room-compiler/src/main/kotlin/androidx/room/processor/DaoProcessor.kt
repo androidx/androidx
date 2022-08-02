@@ -45,7 +45,7 @@ class DaoProcessor(
     companion object {
         val PROCESSED_ANNOTATIONS = listOf(
             Insert::class, Delete::class, Query::class,
-            Update::class, RawQuery::class
+            Update::class, Upsert::class, RawQuery::class
         )
     }
 

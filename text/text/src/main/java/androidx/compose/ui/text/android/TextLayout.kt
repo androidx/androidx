@@ -17,9 +17,11 @@ package androidx.compose.ui.text.android
 
 import android.graphics.Canvas
 import android.graphics.Path
-import android.os.Build
+import android.graphics.RectF
+import android.text.BoringLayout
 import android.text.Layout
 import android.text.Spanned
+import android.text.StaticLayout
 import android.text.TextDirectionHeuristic
 import android.text.TextDirectionHeuristics
 import android.text.TextPaint
@@ -70,7 +72,11 @@ import kotlin.math.min
  * @param lineSpacingMultiplier the multiplier to be applied to each line of the text.
  * @param lineSpacingExtra the extra height to be added to each line of the text.
  * @param includePadding defines whether the extra space to be applied beyond font ascent and
- * descent,
+ * descent
+ * @param fallbackLineSpacing Sets Android TextView#setFallbackLineSpacing. This value should
+ * be set to true in most cases and it is the default on platform; otherwise tall scripts such
+ * as Burmese or Tibetan result in clippings on top and bottom sometimes making the text
+ * not-readable.
  * @param maxLines the maximum number of lines to be laid out.
  * @param breakStrategy the strategy to be used for line breaking
  * @param hyphenationFrequency set the frequency to control the amount of automatic hyphenation
@@ -83,7 +89,9 @@ import kotlin.math.min
  * element in the array is applied to the corresponding line. For lines past the last element in
  * array, the last element repeats.
  * @param layoutIntrinsics previously calculated [LayoutIntrinsics] for this text
+ *
  * @see StaticLayoutFactory
+ * @see BoringLayoutFactory
  *
  * @suppress
  */
@@ -176,6 +184,7 @@ class TextLayout constructor(
                 metrics = boringMetrics,
                 alignment = frameworkAlignment,
                 includePadding = includePadding,
+                useFallbackLineSpacing = fallbackLineSpacing,
                 ellipsize = ellipsize,
                 ellipsizedWidth = widthInt
             )
@@ -261,13 +270,23 @@ class TextLayout constructor(
 
     fun getLineLeft(lineIndex: Int): Float = layout.getLineLeft(lineIndex)
 
+    /**
+     * Return the horizontal leftmost position of the line in pixels.
+     */
     fun getLineRight(lineIndex: Int): Float = layout.getLineRight(lineIndex)
 
+    /**
+     * Return the vertical position of the top of the line in pixels. If the line is equal to the
+     * line count, returns the bottom of the last line.
+     */
     fun getLineTop(line: Int): Float {
         val top = layout.getLineTop(line).toFloat()
         return top + if (line == 0) 0 else topPadding
     }
 
+    /**
+     * Return the vertical position of the bottom of the line in pixels.
+     */
     fun getLineBottom(line: Int): Float {
         return topPadding +
             layout.getLineBottom(line).toFloat() +
@@ -282,6 +301,9 @@ class TextLayout constructor(
      */
     fun getLineAscent(line: Int): Float = layout.getLineAscent(line).toFloat()
 
+    /**
+     * Return the vertical position of the baseline of the line in pixels.
+     */
     fun getLineBaseline(line: Int): Float = topPadding + layout.getLineBaseline(line).toFloat()
 
     /**
@@ -294,10 +316,21 @@ class TextLayout constructor(
 
     fun getLineHeight(lineIndex: Int): Float = getLineBottom(lineIndex) - getLineTop(lineIndex)
 
+    /**
+     * Return the width of the line in pixels.
+     */
     fun getLineWidth(lineIndex: Int): Float = layout.getLineWidth(lineIndex)
 
+    /**
+     * Return the text offset at the beginning of the line. If the line is equal to the line count,
+     * returns the length of the text.
+     */
     fun getLineStart(lineIndex: Int): Int = layout.getLineStart(lineIndex)
 
+    /**
+     * Return the text offset at the end of the line. If the line is equal to the line count,
+     * returns the length of the text.
+     */
     fun getLineEnd(lineIndex: Int): Int =
         if (layout.getEllipsisStart(lineIndex) == 0) { // no ellipsis
             layout.getLineEnd(lineIndex)
@@ -308,6 +341,10 @@ class TextLayout constructor(
             layout.text.length
         }
 
+    /**
+     * Return the text offset after the last visible character on the specified line. For example
+     * whitespaces are not counted as visible characters.
+     */
     fun getLineVisibleEnd(lineIndex: Int): Int =
         if (layout.getEllipsisStart(lineIndex) == 0) { // no ellipsis
             layout.getLineVisibleEnd(lineIndex)
@@ -445,6 +482,44 @@ class TextLayout constructor(
         }
     }
 
+    /**
+     * Returns the bounding box as Rect of the character for given character offset.
+     */
+    fun getBoundingBox(offset: Int): RectF {
+        // Although this function shares its core logic with [fillBoundingBoxes], there is no
+        // need to use a [HorizontalPositionCache]. Hence, [getBoundingBox] runs the same algorithm
+        // without using the cache. Any core logic change here or in [fillBoundingBoxes] should
+        // be reflected on the other.
+        val line = getLineForOffset(offset)
+        val lineTop = getLineTop(line)
+        val lineBottom = getLineBottom(line)
+
+        val isLtrLine = getParagraphDirection(line) == Layout.DIR_LEFT_TO_RIGHT
+        val isRtlChar = layout.isRtlCharAt(offset)
+
+        val left: Float
+        val right: Float
+        when {
+            isLtrLine && !isRtlChar -> {
+                left = getPrimaryHorizontal(offset, upstream = false)
+                right = getPrimaryHorizontal(offset + 1, upstream = true)
+            }
+            isLtrLine && isRtlChar -> {
+                right = getSecondaryHorizontal(offset, upstream = false)
+                left = getSecondaryHorizontal(offset + 1, upstream = true)
+            }
+            isRtlChar -> {
+                right = getPrimaryHorizontal(offset, upstream = false)
+                left = getPrimaryHorizontal(offset + 1, upstream = true)
+            }
+            else -> {
+                left = getSecondaryHorizontal(offset, upstream = false)
+                right = getSecondaryHorizontal(offset + 1, upstream = true)
+            }
+        }
+        return RectF(left, lineTop, right, lineBottom)
+    }
+
     fun paint(canvas: Canvas) {
         if (topPadding != 0) {
             canvas.translate(0f, topPadding.toFloat())
@@ -458,7 +533,14 @@ class TextLayout constructor(
     }
 
     internal fun isFallbackLinespacingApplied(): Boolean {
-        return fallbackLineSpacing && !isBoringLayout && Build.VERSION.SDK_INT >= 28
+        return if (isBoringLayout) {
+            BoringLayoutFactory.isFallbackLineSpacingEnabled(layout as BoringLayout)
+        } else {
+            StaticLayoutFactory.isFallbackLineSpacingEnabled(
+                layout as StaticLayout,
+                fallbackLineSpacing
+            )
+        }
     }
 }
 

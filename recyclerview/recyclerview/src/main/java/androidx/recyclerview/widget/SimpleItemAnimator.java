@@ -16,6 +16,7 @@
 
 package androidx.recyclerview.widget;
 
+import android.annotation.SuppressLint;
 import android.util.Log;
 import android.view.View;
 
@@ -27,10 +28,10 @@ import androidx.annotation.Nullable;
  * move, change, add or remove animations. This class also replicates the original ItemAnimator
  * API.
  * <p>
- * It uses {@link RecyclerView.ItemAnimator.ItemHolderInfo} to track the bounds information of the Views. If you would like
- * to
- * extend this class, you can override {@link #obtainHolderInfo()} method to provide your own info
- * class that extends {@link RecyclerView.ItemAnimator.ItemHolderInfo}.
+ * It uses {@link RecyclerView.ItemAnimator.ItemHolderInfo} to track the bounds information of
+ * the Views. If you would like to extend this class, you can override {@link #obtainHolderInfo()}
+ * method to provide your own info class that extends
+ * {@link RecyclerView.ItemAnimator.ItemHolderInfo}.
  */
 public abstract class SimpleItemAnimator extends RecyclerView.ItemAnimator {
 
@@ -185,7 +186,8 @@ public abstract class SimpleItemAnimator extends RecyclerView.ItemAnimator {
      * @return true if a later call to {@link #runPendingAnimations()} is requested,
      * false otherwise.
      */
-    public abstract boolean animateRemove(@NonNull RecyclerView.ViewHolder holder);
+    @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
+    public abstract boolean animateRemove(RecyclerView.ViewHolder holder);
 
     /**
      * Called when an item is added to the RecyclerView. Implementors can choose
@@ -210,7 +212,8 @@ public abstract class SimpleItemAnimator extends RecyclerView.ItemAnimator {
      * @return true if a later call to {@link #runPendingAnimations()} is requested,
      * false otherwise.
      */
-    public abstract boolean animateAdd(@NonNull RecyclerView.ViewHolder holder);
+    @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
+    public abstract boolean animateAdd(RecyclerView.ViewHolder holder);
 
     /**
      * Called when an item is moved in the RecyclerView. Implementors can choose
@@ -230,8 +233,9 @@ public abstract class SimpleItemAnimator extends RecyclerView.ItemAnimator {
      * @return true if a later call to {@link #runPendingAnimations()} is requested,
      * false otherwise.
      */
-    public abstract boolean animateMove(@NonNull RecyclerView.ViewHolder holder, int fromX,
-            int fromY, int toX, int toY);
+    @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
+    public abstract boolean animateMove(RecyclerView.ViewHolder holder, int fromX, int fromY,
+            int toX, int toY);
 
     /**
      * Called when an item is changed in the RecyclerView, as indicated by a call to
@@ -239,10 +243,12 @@ public abstract class SimpleItemAnimator extends RecyclerView.ItemAnimator {
      * {@link RecyclerView.Adapter#notifyItemRangeChanged(int, int)}.
      * <p>
      * Implementers can choose whether and how to animate changes, but must always call
-     * {@link #dispatchChangeFinished(RecyclerView.ViewHolder, boolean)} for each non-null distinct ViewHolder,
+     * {@link #dispatchChangeFinished(RecyclerView.ViewHolder, boolean)} for each non-null
+     * distinct ViewHolder,
      * either immediately (if no animation will occur) or after the animation actually finishes.
      * If the {@code oldHolder} is the same ViewHolder as the {@code newHolder}, you must call
-     * {@link #dispatchChangeFinished(RecyclerView.ViewHolder, boolean)} once and only once. In that case, the
+     * {@link #dispatchChangeFinished(RecyclerView.ViewHolder, boolean)} once and only once. In
+     * that case, the
      * second parameter of {@code dispatchChangeFinished} is ignored.
      * <p>
      * The return value indicates whether an animation has been set up and whether the
@@ -263,9 +269,9 @@ public abstract class SimpleItemAnimator extends RecyclerView.ItemAnimator {
      * @return true if a later call to {@link #runPendingAnimations()} is requested,
      * false otherwise.
      */
-    public abstract boolean animateChange(@NonNull RecyclerView.ViewHolder oldHolder,
-            @Nullable RecyclerView.ViewHolder newHolder, int fromLeft, int fromTop, int toLeft,
-            int toTop);
+    @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
+    public abstract boolean animateChange(RecyclerView.ViewHolder oldHolder,
+            RecyclerView.ViewHolder newHolder, int fromLeft, int fromTop, int toLeft, int toTop);
 
     /**
      * Method to be called by subclasses when a remove animation is done.
@@ -274,7 +280,8 @@ public abstract class SimpleItemAnimator extends RecyclerView.ItemAnimator {
      * @see RecyclerView.ItemAnimator#animateDisappearance(RecyclerView.ViewHolder, ItemHolderInfo,
      * ItemHolderInfo)
      */
-    public final void dispatchRemoveFinished(@NonNull RecyclerView.ViewHolder item) {
+    @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
+    public final void dispatchRemoveFinished(RecyclerView.ViewHolder item) {
         onRemoveFinished(item);
         dispatchAnimationFinished(item);
     }
@@ -286,9 +293,9 @@ public abstract class SimpleItemAnimator extends RecyclerView.ItemAnimator {
      * @see RecyclerView.ItemAnimator#animateDisappearance(RecyclerView.ViewHolder, ItemHolderInfo,
      * ItemHolderInfo)
      * @see RecyclerView.ItemAnimator#animatePersistence(RecyclerView.ViewHolder, ItemHolderInfo, ItemHolderInfo)
-     *
      * @see RecyclerView.ItemAnimator#animateAppearance(RecyclerView.ViewHolder, ItemHolderInfo, ItemHolderInfo)
      */
+    @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
     public final void dispatchMoveFinished(RecyclerView.ViewHolder item) {
         onMoveFinished(item);
         dispatchAnimationFinished(item);
@@ -299,6 +306,7 @@ public abstract class SimpleItemAnimator extends RecyclerView.ItemAnimator {
      *
      * @param item The item which has been added
      */
+    @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
     public final void dispatchAddFinished(RecyclerView.ViewHolder item) {
         onAddFinished(item);
         dispatchAnimationFinished(item);
@@ -314,6 +322,7 @@ public abstract class SimpleItemAnimator extends RecyclerView.ItemAnimator {
      *                it is the new item that replaced the old item.
      * @see #animateChange(RecyclerView.ViewHolder, RecyclerView.ViewHolder, int, int, int, int)
      */
+    @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
     public final void dispatchChangeFinished(RecyclerView.ViewHolder item, boolean oldItem) {
         onChangeFinished(item, oldItem);
         dispatchAnimationFinished(item);
@@ -324,6 +333,7 @@ public abstract class SimpleItemAnimator extends RecyclerView.ItemAnimator {
      *
      * @param item The item being removed
      */
+    @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
     public final void dispatchRemoveStarting(RecyclerView.ViewHolder item) {
         onRemoveStarting(item);
     }
@@ -333,6 +343,7 @@ public abstract class SimpleItemAnimator extends RecyclerView.ItemAnimator {
      *
      * @param item The item being moved
      */
+    @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
     public final void dispatchMoveStarting(RecyclerView.ViewHolder item) {
         onMoveStarting(item);
     }
@@ -342,6 +353,7 @@ public abstract class SimpleItemAnimator extends RecyclerView.ItemAnimator {
      *
      * @param item The item being added
      */
+    @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
     public final void dispatchAddStarting(RecyclerView.ViewHolder item) {
         onAddStarting(item);
     }
@@ -355,6 +367,7 @@ public abstract class SimpleItemAnimator extends RecyclerView.ItemAnimator {
      * @param oldItem true if this is the old item that was changed, false if
      *                it is the new item that replaced the old item.
      */
+    @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
     public final void dispatchChangeStarting(RecyclerView.ViewHolder item, boolean oldItem) {
         onChangeStarting(item, oldItem);
     }
@@ -367,6 +380,7 @@ public abstract class SimpleItemAnimator extends RecyclerView.ItemAnimator {
      *
      * @param item The ViewHolder being animated.
      */
+    @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
     @SuppressWarnings("UnusedParameters")
     public void onRemoveStarting(RecyclerView.ViewHolder item) {
     }
@@ -379,6 +393,7 @@ public abstract class SimpleItemAnimator extends RecyclerView.ItemAnimator {
      *
      * @param item The ViewHolder being animated.
      */
+    @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
     public void onRemoveFinished(RecyclerView.ViewHolder item) {
     }
 
@@ -391,6 +406,7 @@ public abstract class SimpleItemAnimator extends RecyclerView.ItemAnimator {
      * @param item The ViewHolder being animated.
      */
     @SuppressWarnings("UnusedParameters")
+    @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
     public void onAddStarting(RecyclerView.ViewHolder item) {
     }
 
@@ -402,6 +418,7 @@ public abstract class SimpleItemAnimator extends RecyclerView.ItemAnimator {
      *
      * @param item The ViewHolder being animated.
      */
+    @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
     public void onAddFinished(RecyclerView.ViewHolder item) {
     }
 
@@ -414,6 +431,7 @@ public abstract class SimpleItemAnimator extends RecyclerView.ItemAnimator {
      * @param item The ViewHolder being animated.
      */
     @SuppressWarnings("UnusedParameters")
+    @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
     public void onMoveStarting(RecyclerView.ViewHolder item) {
     }
 
@@ -425,6 +443,7 @@ public abstract class SimpleItemAnimator extends RecyclerView.ItemAnimator {
      *
      * @param item The ViewHolder being animated.
      */
+    @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
     public void onMoveFinished(RecyclerView.ViewHolder item) {
     }
 
@@ -438,6 +457,7 @@ public abstract class SimpleItemAnimator extends RecyclerView.ItemAnimator {
      * @param oldItem true if this is the old item that was changed, false if
      *                it is the new item that replaced the old item.
      */
+    @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
     @SuppressWarnings("UnusedParameters")
     public void onChangeStarting(RecyclerView.ViewHolder item, boolean oldItem) {
     }
@@ -452,6 +472,7 @@ public abstract class SimpleItemAnimator extends RecyclerView.ItemAnimator {
      * @param oldItem true if this is the old item that was changed, false if
      *                it is the new item that replaced the old item.
      */
+    @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
     public void onChangeFinished(RecyclerView.ViewHolder item, boolean oldItem) {
     }
 }

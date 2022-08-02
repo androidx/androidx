@@ -33,7 +33,10 @@ import androidx.lifecycle.Lifecycle.State.RESUMED
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.IdlingRegistry.getInstance
 import androidx.test.espresso.action.ViewActions
+import androidx.test.espresso.assertion.ViewAssertions.matches
+import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
@@ -348,6 +351,46 @@ class ExistingActivityLifecycleTest(
             ROTATE_TIMEOUT_MS
         )
         InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+    }
+
+    @Test
+    fun checkPreviewUpdatedWithNewInstance() {
+        ActivityScenario.launch<CameraXActivity>(launchIntent).use { firstActivity ->
+            // Arrange. Check the 1st activity Preview.
+            firstActivity.waitForViewfinderIdle()
+
+            // Act. Make the 1st Activity stopped and create new Activity.
+            device.pressHome()
+            device.waitForIdle(HOME_TIMEOUT_MS)
+            val secondActivity = CoreAppTestUtil.launchActivity(
+                InstrumentationRegistry.getInstrumentation(),
+                CameraXActivity::class.java,
+                Intent(
+                    ApplicationProvider.getApplicationContext(),
+                    CameraXActivity::class.java
+                ).apply {
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    putExtra(CameraXActivity.INTENT_EXTRA_CAMERA_IMPLEMENTATION, cameraConfig)
+                }
+            )!!
+
+            // Assert. Verify the preview of the New activity start successfully.
+            try {
+                secondActivity.resetViewIdlingResource()
+                secondActivity.viewIdlingResource.also { idlingResource ->
+                    try {
+                        getInstance().register(idlingResource)
+                        // Check the activity launched and Preview displays frames.
+                        onView(withId(R.id.viewFinder)).check(matches(isDisplayed()))
+                    } finally {
+                        // Always release the idling resource, in case of timeout exceptions.
+                        getInstance().unregister(idlingResource)
+                    }
+                }
+            } finally {
+                secondActivity.finish()
+            }
+        }
     }
 
     companion object {

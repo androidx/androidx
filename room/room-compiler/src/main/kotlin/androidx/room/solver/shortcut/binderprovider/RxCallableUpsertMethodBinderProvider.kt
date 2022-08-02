@@ -23,7 +23,7 @@ import androidx.room.ext.T
 import androidx.room.processor.Context
 import androidx.room.solver.RxType
 import androidx.room.solver.shortcut.binder.CallableUpsertMethodBinder
-import androidx.room.solver.shortcut.binder.UpsertMethodBinder
+import androidx.room.solver.shortcut.binder.InsertOrUpsertMethodBinder
 import androidx.room.vo.ShortcutQueryParameter
 
 /**
@@ -32,7 +32,7 @@ import androidx.room.vo.ShortcutQueryParameter
 open class RxCallableUpsertMethodBinderProvider internal constructor(
     val context: Context,
     private val rxType: RxType
-) : UpsertMethodBinderProvider {
+) : InsertOrUpsertMethodBinderProvider {
 
     /**
      * [Single] and [Maybe] are generics but [Completable] is not so each implementation of this
@@ -50,7 +50,7 @@ open class RxCallableUpsertMethodBinderProvider internal constructor(
     override fun provide(
         declared: XType,
         params: List<ShortcutQueryParameter>
-    ): UpsertMethodBinder {
+    ): InsertOrUpsertMethodBinder {
         val typeArg = extractTypeArg(declared)
         val adapter = context.typeAdapterStore.findUpsertAdapter(typeArg, params)
         return CallableUpsertMethodBinder.createUpsertBinder(typeArg, adapter) { callableImpl, _ ->

@@ -158,8 +158,8 @@ public final class ComplicationData implements Parcelable, Serializable {
      * type, and the value within the range is expected to always be displayed.
      *
      * <p>The <i>icon</i> (and <i>burnInProtectionIcon</i>), <i>short title</i>, and <i>short
-     * text</i> fields are optional for this type. The watch face may choose which of these fields
-     * to display, if any.
+     * text</i> fields are optional for this type, but at least one must be defined. The watch face
+     * may choose which of these fields to display, if any.
      */
     public static final int TYPE_RANGED_VALUE = 5;
 
@@ -227,6 +227,34 @@ public final class ComplicationData implements Parcelable, Serializable {
     /** Type that specifies a list of complication values. E.g. to support linear 3. */
     public static final int TYPE_LIST = 12;
 
+    /**
+     * Type used for complications which indicate progress towards a goal. The value may be
+     * accompanied by an icon and/or short text and title.
+     *
+     * <p>The <i>value</i>, and <i>target value</i> fields are required for this type, and the
+     * value is expected to always be displayed. The value must be >= 0 and may be > target value.
+     * E.g. 15000 out of a target of 10000 steps.
+     *
+     * <p>The <i>icon</i> (and <i>burnInProtectionIcon</i>), <i>short title</i>, and <i>short
+     * text</i> fields are optional for this type, but at least one must be defined. The watch face
+     * may choose which of these fields to display, if any.
+     */
+    public static final int TYPE_GOAL_PROGRESS = 13;
+
+    /**
+     * Type used for complications including a discrete integer value within a range, such as a
+     * 3/6 daily cups of water drunk. The value may be accompanied by an icon and/or short text
+     * and title.
+     *
+     * <p>The <i>value</i>, <i>min value</i>, and <i>max value</i> fields are required for this
+     * type, and the value within the range is expected to always be displayed.
+     *
+     * <p>The <i>icon</i> (and <i>burnInProtectionIcon</i>), <i>short title</i>, and <i>short
+     * text</i> fields are optional for this type, but at least one must be defined. The watch face
+     * may choose which of these fields to display, if any.
+     */
+    public static final int TYPE_DISCRETE_RANGED_VALUE = 14;
+
     /** @hide */
     @IntDef({IMAGE_STYLE_PHOTO, IMAGE_STYLE_ICON})
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -257,6 +285,9 @@ public final class ComplicationData implements Parcelable, Serializable {
     private static final String FIELD_ICON = "ICON";
     private static final String FIELD_ICON_BURN_IN_PROTECTION = "ICON_BURN_IN_PROTECTION";
     private static final String FIELD_IMAGE_STYLE = "IMAGE_STYLE";
+    private static final String FIELD_INT_MAX_VALUE = "INT_MAX_VALUE";
+    private static final String FIELD_INT_MIN_VALUE = "INT_MIN_VALUE";
+    private static final String FIELD_INT_VALUE = "INT_VALUE";
     private static final String FIELD_LARGE_IMAGE = "LARGE_IMAGE";
     private static final String FIELD_LIST_ENTRIES = "LIST_ENTRIES";
     private static final String FIELD_LIST_ENTRY_TYPE = "LIST_ENTRY_TYPE";
@@ -278,6 +309,7 @@ public final class ComplicationData implements Parcelable, Serializable {
     private static final String FIELD_SHORT_TITLE = "SHORT_TITLE";
     private static final String FIELD_SHORT_TEXT = "SHORT_TEXT";
     private static final String FIELD_START_TIME = "START_TIME";
+    private static final String FIELD_TARGET_VALUE = "TARGET_VALUE";
     private static final String FIELD_TAP_ACTION = "TAP_ACTION";
     private static final String FIELD_TAP_ACTION_LOST = "FIELD_TAP_ACTION_LOST";
     private static final String FIELD_TIMELINE_START_TIME = "TIMELINE_START_TIME";
@@ -285,7 +317,6 @@ public final class ComplicationData implements Parcelable, Serializable {
     private static final String FIELD_TIMELINE_ENTRIES = "TIMELINE";
     private static final String FIELD_TIMELINE_ENTRY_TYPE = "TIMELINE_ENTRY_TYPE";
     private static final String FIELD_VALUE = "VALUE";
-    private static final String FIELD_VALUE_TYPE = "VALUE_TYPE";
 
     // Originally it was planned to support both content and image content descriptions.
     private static final String FIELD_CONTENT_DESCRIPTION = "IMAGE_CONTENT_DESCRIPTION";
@@ -309,7 +340,9 @@ public final class ComplicationData implements Parcelable, Serializable {
                     FIELD_PROTO_LAYOUT_INTERACTIVE,
                     FIELD_PROTO_LAYOUT_RESOURCES
             },
-            {FIELD_LIST_ENTRIES} // TYPE_LIST
+            {FIELD_LIST_ENTRIES}, // TYPE_LIST
+            {FIELD_VALUE, FIELD_TARGET_VALUE}, // GOAL_PROGRESS
+            {FIELD_INT_VALUE, FIELD_INT_MIN_VALUE, FIELD_INT_MAX_VALUE}, // DISCRETE_RANGED_VALUE
     };
 
     // Used for validation. OPTIONAL_FIELDS[i] is an array containing all the fields which are
@@ -345,7 +378,6 @@ public final class ComplicationData implements Parcelable, Serializable {
                     FIELD_TAP_ACTION,
                     FIELD_CONTENT_DESCRIPTION,
                     FIELD_DATA_SOURCE,
-                    FIELD_VALUE_TYPE,
                     FIELD_MAX_COLOR,
                     FIELD_MIN_COLOR
             }, // RANGED_VALUE
@@ -392,15 +424,35 @@ public final class ComplicationData implements Parcelable, Serializable {
                     FIELD_VALUE,
                     FIELD_DATA_SOURCE
             },
-            { // TYPE_PROTO_LAYOUT
+            {
                     FIELD_TAP_ACTION, FIELD_CONTENT_DESCRIPTION, FIELD_DATA_SOURCE
-            },
-            { // TYPE_LIST
+            }, // TYPE_PROTO_LAYOUT
+            {
                     FIELD_TAP_ACTION,
                     FIELD_LIST_STYLE_HINT,
                     FIELD_CONTENT_DESCRIPTION,
                     FIELD_DATA_SOURCE
-            }
+            }, // TYPE_LIST
+            {
+                    FIELD_SHORT_TEXT,
+                    FIELD_SHORT_TITLE,
+                    FIELD_ICON,
+                    FIELD_ICON_BURN_IN_PROTECTION,
+                    FIELD_TAP_ACTION,
+                    FIELD_CONTENT_DESCRIPTION,
+                    FIELD_DATA_SOURCE,
+                    FIELD_MAX_COLOR,
+                    FIELD_MIN_COLOR
+            }, // TYPE_GOAL_PROGRESS
+            {
+                    FIELD_SHORT_TEXT,
+                    FIELD_SHORT_TITLE,
+                    FIELD_ICON,
+                    FIELD_ICON_BURN_IN_PROTECTION,
+                    FIELD_TAP_ACTION,
+                    FIELD_CONTENT_DESCRIPTION,
+                    FIELD_DATA_SOURCE,
+            } // DISCRETE_RANGED_VALUE
     };
 
     @NonNull
@@ -442,7 +494,7 @@ public final class ComplicationData implements Parcelable, Serializable {
 
     @RequiresApi(api = Build.VERSION_CODES.P)
     private static class SerializedForm implements Serializable {
-        private static final int VERSION_NUMBER = 11;
+        private static final int VERSION_NUMBER = 12;
 
         @NonNull
         ComplicationData mComplicationData;
@@ -504,8 +556,17 @@ public final class ComplicationData implements Parcelable, Serializable {
             if (isFieldValidForType(FIELD_MAX_VALUE, type)) {
                 oos.writeFloat(mComplicationData.getRangedMaxValue());
             }
-            if (isFieldValidForType(FIELD_VALUE_TYPE, type)) {
-                oos.writeInt(mComplicationData.getValueType());
+            if (isFieldValidForType(FIELD_TARGET_VALUE, type)) {
+                oos.writeFloat(mComplicationData.getTargetValue());
+            }
+            if (isFieldValidForType(FIELD_INT_VALUE, type)) {
+                oos.writeInt(mComplicationData.getDiscreteRangedValue());
+            }
+            if (isFieldValidForType(FIELD_INT_MIN_VALUE, type)) {
+                oos.writeInt(mComplicationData.getDiscreteRangedMinValue());
+            }
+            if (isFieldValidForType(FIELD_INT_MAX_VALUE, type)) {
+                oos.writeInt(mComplicationData.getDiscreteRangedMaxValue());
             }
             if (isFieldValidForType(FIELD_MAX_COLOR, type)) {
                 Integer maxColor = mComplicationData.getRangedMaxColor();
@@ -671,11 +732,17 @@ public final class ComplicationData implements Parcelable, Serializable {
             if (isFieldValidForType(FIELD_MAX_VALUE, type)) {
                 fields.putFloat(FIELD_MAX_VALUE, ois.readFloat());
             }
-            if (isFieldValidForType(FIELD_VALUE_TYPE, type)) {
-                int valueType = ois.readInt();
-                if (valueType != 0) {
-                    fields.putInt(FIELD_VALUE_TYPE, valueType);
-                }
+            if (isFieldValidForType(FIELD_TARGET_VALUE, type)) {
+                fields.putFloat(FIELD_TARGET_VALUE, ois.readFloat());
+            }
+            if (isFieldValidForType(FIELD_INT_VALUE, type)) {
+                fields.putInt(FIELD_INT_VALUE, ois.readInt());
+            }
+            if (isFieldValidForType(FIELD_INT_MIN_VALUE, type)) {
+                fields.putInt(FIELD_INT_MIN_VALUE, ois.readInt());
+            }
+            if (isFieldValidForType(FIELD_INT_MAX_VALUE, type)) {
+                fields.putInt(FIELD_INT_MAX_VALUE, ois.readInt());
             }
             if (isFieldValidForType(FIELD_MAX_COLOR, type) && ois.readBoolean()) {
                 fields.putInt(FIELD_MAX_COLOR, ois.readInt());
@@ -1033,20 +1100,102 @@ public final class ComplicationData implements Parcelable, Serializable {
     }
 
     /**
-     * Returns the value type of a RangedValue complication, which may be used by the renderer to
-     * influence complication styling.
-     *
-     * <p>Valid only if the type of this complication data is {@link #TYPE_RANGED_VALUE}.
+     * Returns true if the ComplicationData contains a ranged max value. I.e. if
+     * {@link #getTargetValue} can succeed.
      */
-    public int getValueType() {
-        checkFieldValidForTypeWithoutThrowingException(FIELD_VALUE_TYPE, mType);
-        return mFields.getInt(FIELD_VALUE_TYPE, 0);
+    public boolean hasTargetValue() {
+        try {
+            return isFieldValidForType(FIELD_TARGET_VALUE, mType);
+        } catch (BadParcelableException e) {
+            return false;
+        }
+    }
+
+    /**
+     * Returns the <i>value</i> field for this complication.
+     *
+     * <p>Valid only if the type of this complication data is {@link #TYPE_GOAL_PROGRESS}.
+     * Otherwise returns zero.
+     */
+    public float getTargetValue() {
+        checkFieldValidForTypeWithoutThrowingException(FIELD_TARGET_VALUE, mType);
+        return mFields.getFloat(FIELD_TARGET_VALUE);
+    }
+
+    /**
+     * Returns true if the ComplicationData contains a discrete integer ranged max value. I.e. if
+     * {@link #getDiscreteRangedValue} can succeed.
+     */
+    public boolean hasDiscreteRangedValue() {
+        try {
+            return isFieldValidForType(FIELD_INT_VALUE, mType);
+        } catch (BadParcelableException e) {
+            return false;
+        }
+    }
+
+    /**
+     * Returns the <i>discrete integer value</i> field for this complication.
+     *
+     * <p>Valid only if the type of this complication data is {@link #TYPE_DISCRETE_RANGED_VALUE}.
+     * Otherwise returns zero.
+     */
+    public int getDiscreteRangedValue() {
+        checkFieldValidForTypeWithoutThrowingException(FIELD_INT_VALUE, mType);
+        return mFields.getInt(FIELD_INT_VALUE);
+    }
+
+    /**
+     * Returns true if the ComplicationData contains a discrete integer ranged max value. I.e. if
+     * {@link #getDiscreteRangedMinValue} can succeed.
+     */
+    public boolean hasDiscreteRangedMinValue() {
+        try {
+            return isFieldValidForType(FIELD_INT_MIN_VALUE, mType);
+        } catch (BadParcelableException e) {
+            return false;
+        }
+    }
+
+    /**
+     * Returns the <i>discrete integer min value</i> field for this complication.
+     *
+     * <p>Valid only if the type of this complication data is {@link #TYPE_DISCRETE_RANGED_VALUE}.
+     * Otherwise returns zero.
+     */
+    public int getDiscreteRangedMinValue() {
+        checkFieldValidForTypeWithoutThrowingException(FIELD_INT_MIN_VALUE, mType);
+        return mFields.getInt(FIELD_INT_MIN_VALUE);
+    }
+
+    /**
+     * Returns true if the ComplicationData contains a discrete integer ranged max value. I.e. if
+     * {@link #getDiscreteRangedMaxValue} can succeed.
+     */
+    public boolean hasDiscreteRangedMaxValue() {
+        try {
+            return isFieldValidForType(FIELD_INT_MAX_VALUE, mType);
+        } catch (BadParcelableException e) {
+            return false;
+        }
+    }
+
+    /**
+     * Returns the <i>discrete integer max value</i> field for this complication.
+     *
+     * <p>Valid only if the type of this complication data is {@link #TYPE_DISCRETE_RANGED_VALUE}.
+     * Otherwise returns zero.
+     */
+    public int getDiscreteRangedMaxValue() {
+        checkFieldValidForTypeWithoutThrowingException(FIELD_INT_MAX_VALUE, mType);
+        return mFields.getInt(FIELD_INT_MAX_VALUE);
     }
 
     /**
      * Returns the color the minimum ranged value should be rendered with.
      *
-     * <p>Valid only if the type of this complication data is {@link #TYPE_RANGED_VALUE}.
+     * <p>Valid only if the type of this complication data is {@link #TYPE_RANGED_VALUE} or
+     * {@link #TYPE_GOAL_PROGRESS}.
      */
     @ColorInt
     @Nullable
@@ -1061,7 +1210,8 @@ public final class ComplicationData implements Parcelable, Serializable {
     /**
      * Returns the color the maximum ranged value should be rendered with.
      *
-     * <p>Valid only if the type of this complication data is {@link #TYPE_RANGED_VALUE}.
+     * <p>Valid only if the type of this complication data is {@link #TYPE_RANGED_VALUE} or
+     * {@link #TYPE_GOAL_PROGRESS}.
      */
     @ColorInt
     @Nullable
@@ -1671,9 +1821,13 @@ public final class ComplicationData implements Parcelable, Serializable {
 
         /**
          * Sets the <i>value</i> field. This is required for the {@link #TYPE_RANGED_VALUE} type,
-         * and is not valid for any other type. A {@link #TYPE_RANGED_VALUE} complication
-         * visually presents a single value, which is usually a percentage. E.g. you
-         * have completed 70% of today's target of 10000 steps.
+         * and the {@link #TYPE_GOAL_PROGRESS} type. For {@link #TYPE_RANGED_VALUE} value must be
+         * in the range [min .. max] for {@link #TYPE_GOAL_PROGRESS} value must be >= 0 and may be
+         * greater than target value.
+         *
+         * <p>Both the {@link #TYPE_RANGED_VALUE} complication and the {@link #TYPE_GOAL_PROGRESS}
+         * complication visually present a single value, which is usually a percentage. E.g. you
+         * have completed 70% of today's  target of 10000 steps.
          *
          * <p>Returns this Builder to allow chaining.
          *
@@ -1714,6 +1868,73 @@ public final class ComplicationData implements Parcelable, Serializable {
         @NonNull
         public Builder setRangedMaxValue(float maxValue) {
             putFloatField(FIELD_MAX_VALUE, maxValue);
+            return this;
+        }
+
+        /**
+         * Sets the <i>discrete integer value</i> field. This is required for the
+         * {@link #TYPE_DISCRETE_RANGED_VALUE} type, and is not valid for any other type. A
+         * {@link #TYPE_DISCRETE_RANGED_VALUE} complication
+         * visually presents a single value. E.g. you have drunk 3 out of today's target of 6 cups
+         * of water.
+         *
+         * <p>Returns this Builder to allow chaining.
+         *
+         * @throws IllegalStateException if this field is not valid for the complication type
+         */
+        @NonNull
+        public Builder setDiscreteRangedValue(int value) {
+            putIntField(FIELD_INT_VALUE, value);
+            return this;
+        }
+
+        /**
+         * Sets the <i>min discrete integer value</i> field. This is required for the
+         * {@link #TYPE_DISCRETE_RANGED_VALUE} type, and is not valid for any other type. A
+         * {@link #TYPE_DISCRETE_RANGED_VALUE} complication visually presents a single value,
+         * which is usually a percentage. E.g. you have completed 70% of today's target of 10000
+         * steps.
+         *
+         * <p>Returns this Builder to allow chaining.
+         *
+         * @throws IllegalStateException if this field is not valid for the complication type
+         */
+        @NonNull
+        public Builder setDiscreteRangedMinValue(int minValue) {
+            putIntField(FIELD_INT_MIN_VALUE, minValue);
+            return this;
+        }
+
+        /**
+         * Sets the <i>max discrete integer value</i> field. This is required for the
+         * {@link #TYPE_DISCRETE_RANGED_VALUE} type, and is not valid for any other type. A
+         * {@link #TYPE_DISCRETE_RANGED_VALUE} complication visually presents a single value,
+         * which is usually a percentage. E.g. you have completed 70% of today's target of 10000
+         * steps.
+         *
+         * <p>Returns this Builder to allow chaining.
+         *
+         * @throws IllegalStateException if this field is not valid for the complication type
+         */
+        @NonNull
+        public Builder setDiscreteRangedMaxValue(int maxValue) {
+            putIntField(FIELD_INT_MAX_VALUE, maxValue);
+            return this;
+        }
+
+        /**
+         * Sets the <i>targetValue</i> field. This is required for the {@link #TYPE_GOAL_PROGRESS}
+         * type, and is not valid for any other type. A {@link #TYPE_GOAL_PROGRESS} complication
+         * visually presents a single value, which is usually a percentage. E.g. you
+         * have completed 70% of today's target of 10000 steps.
+         *
+         * <p>Returns this Builder to allow chaining.
+         *
+         * @throws IllegalStateException if this field is not valid for the complication type
+         */
+        @NonNull
+        public Builder setTargetValue(float targetValue) {
+            putFloatField(FIELD_TARGET_VALUE, targetValue);
             return this;
         }
 
@@ -2030,18 +2251,6 @@ public final class ComplicationData implements Parcelable, Serializable {
         @NonNull
         public Builder setLayoutResources(@NonNull byte[] resources) {
             putByteArrayField(FIELD_PROTO_LAYOUT_RESOURCES, resources);
-            return this;
-        }
-
-        /**
-         * Sets the type of a RangedValue's value which may be used by a renderer to influence
-         * styling.
-         *
-         * <p>Returns this Builder to allow chaining.
-         */
-        @NonNull
-        public Builder setValueType(int valueType) {
-            putOrRemoveField(FIELD_VALUE_TYPE, valueType);
             return this;
         }
 

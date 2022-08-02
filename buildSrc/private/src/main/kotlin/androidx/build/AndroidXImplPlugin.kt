@@ -25,6 +25,8 @@ import androidx.build.SupportConfig.COMPILE_SDK_VERSION
 import androidx.build.SupportConfig.DEFAULT_MIN_SDK_VERSION
 import androidx.build.SupportConfig.INSTRUMENTATION_RUNNER
 import androidx.build.SupportConfig.TARGET_SDK_VERSION
+import androidx.build.buildInfo.CreateAggregateLibraryBuildInfoFileTask
+import androidx.build.buildInfo.CreateLibraryBuildInfoFileTask
 import androidx.build.checkapi.JavaApiTaskConfig
 import androidx.build.checkapi.KmpApiTaskConfig
 import androidx.build.checkapi.LibraryApiTaskConfig
@@ -53,12 +55,19 @@ import com.android.build.gradle.TestPlugin
 import com.android.build.gradle.TestedExtension
 import com.android.build.gradle.internal.tasks.AnalyticsRecordingTask
 import com.android.build.gradle.internal.tasks.ListingFileRedirectTask
+import java.io.File
+import java.time.Duration
+import java.util.Locale
+import java.util.concurrent.ConcurrentHashMap
+import javax.inject.Inject
 import org.gradle.api.GradleException
-import org.gradle.api.JavaVersion.VERSION_1_8
 import org.gradle.api.JavaVersion.VERSION_11
+import org.gradle.api.JavaVersion.VERSION_1_8
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
+import org.gradle.api.artifacts.repositories.IvyArtifactRepository
+import org.gradle.api.component.SoftwareComponentFactory
 import org.gradle.api.file.DuplicatesStrategy
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.plugins.JavaPluginExtension
@@ -71,25 +80,18 @@ import org.gradle.api.tasks.javadoc.Javadoc
 import org.gradle.api.tasks.testing.Test
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.gradle.api.tasks.testing.logging.TestLogEvent
+import org.gradle.kotlin.dsl.KotlinClosure1
 import org.gradle.kotlin.dsl.create
 import org.gradle.kotlin.dsl.extra
 import org.gradle.kotlin.dsl.findByType
 import org.gradle.kotlin.dsl.getByType
+import org.gradle.kotlin.dsl.register
 import org.jetbrains.kotlin.gradle.dsl.KotlinAndroidProjectExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinBasePluginWrapper
 import org.jetbrains.kotlin.gradle.plugin.KotlinMultiplatformPluginWrapper
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-import java.io.File
-import java.time.Duration
-import java.util.Locale
-import java.util.concurrent.ConcurrentHashMap
-import javax.inject.Inject
-import org.gradle.api.component.SoftwareComponentFactory
-import org.gradle.api.artifacts.repositories.IvyArtifactRepository
-import org.gradle.kotlin.dsl.KotlinClosure1
-import org.gradle.kotlin.dsl.register
 import org.jetbrains.kotlin.gradle.targets.native.KotlinNativeHostTestRun
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.jetbrains.kotlin.gradle.tasks.KotlinNativeCompile
 import org.jetbrains.kotlin.gradle.testing.KotlinTaskTestRun
 
@@ -273,7 +275,9 @@ class AndroidXImplPlugin @Inject constructor(val componentFactory: SoftwareCompo
     ) {
         project.afterEvaluate {
             project.tasks.withType(KotlinCompile::class.java).configureEach { task ->
-                if (extension.type.compilationTarget == CompilationTarget.HOST) {
+                if (extension.type.compilationTarget == CompilationTarget.HOST &&
+                    extension.type != LibraryType.ANNOTATION_PROCESSOR_UTILS
+                ) {
                     task.kotlinOptions.jvmTarget = "11"
                 } else {
                     task.kotlinOptions.jvmTarget = "1.8"
@@ -456,7 +460,9 @@ class AndroidXImplPlugin @Inject constructor(val componentFactory: SoftwareCompo
         // Force Java 1.8 source- and target-compatibility for all Java libraries.
         val javaExtension = project.extensions.getByType<JavaPluginExtension>()
         project.afterEvaluate {
-            if (extension.type.compilationTarget == CompilationTarget.HOST) {
+            if (extension.type.compilationTarget == CompilationTarget.HOST &&
+                extension.type != LibraryType.ANNOTATION_PROCESSOR_UTILS
+            ) {
                 javaExtension.apply {
                     sourceCompatibility = VERSION_11
                     targetCompatibility = VERSION_11
@@ -867,7 +873,6 @@ class AndroidXImplPlugin @Inject constructor(val componentFactory: SoftwareCompo
         const val CREATE_LIBRARY_BUILD_INFO_FILES_TASK = "createLibraryBuildInfoFiles"
         const val CREATE_AGGREGATE_BUILD_INFO_FILES_TASK = "createAggregateBuildInfoFiles"
         const val GENERATE_TEST_CONFIGURATION_TASK = "GenerateTestConfiguration"
-        const val REPORT_LIBRARY_METRICS_TASK = "reportLibraryMetrics"
         const val ZIP_TEST_CONFIGS_WITH_APKS_TASK = "zipTestConfigsWithApks"
         const val ZIP_CONSTRAINED_TEST_CONFIGS_WITH_APKS_TASK = "zipConstrainedTestConfigsWithApks"
 

@@ -26,10 +26,7 @@ import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraXConfig
 import androidx.camera.core.EffectBundle
 import androidx.camera.core.Preview
-import androidx.camera.core.SurfaceEffect
 import androidx.camera.core.SurfaceEffect.PREVIEW
-import androidx.camera.core.SurfaceOutput
-import androidx.camera.core.SurfaceRequest
 import androidx.camera.core.UseCaseGroup
 import androidx.camera.core.impl.CameraFactory
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor
@@ -40,6 +37,7 @@ import androidx.camera.testing.fakes.FakeCameraDeviceSurfaceManager
 import androidx.camera.testing.fakes.FakeCameraFactory
 import androidx.camera.testing.fakes.FakeCameraInfoInternal
 import androidx.camera.testing.fakes.FakeLifecycleOwner
+import androidx.camera.testing.fakes.FakeSurfaceEffect
 import androidx.camera.testing.fakes.FakeUseCaseConfigFactory
 import androidx.concurrent.futures.await
 import androidx.test.core.app.ApplicationProvider
@@ -81,12 +79,7 @@ class ProcessCameraProviderTest {
     fun bindUseCaseGroupWithEffect_effectIsSetOnUseCase() {
         // Arrange.
         ProcessCameraProvider.configureInstance(FakeAppConfig.create())
-        val surfaceEffect = object : SurfaceEffect {
-            override fun onInputSurface(request: SurfaceRequest) {}
-            override fun onOutputSurface(surfaceOutput: SurfaceOutput) {
-                surfaceOutput.close()
-            }
-        }
+        val surfaceEffect = FakeSurfaceEffect(mainThreadExecutor())
         val effectBundle =
             EffectBundle.Builder(mainThreadExecutor()).addEffect(PREVIEW, surfaceEffect).build()
         val preview = Preview.Builder().setSessionOptionUnpacker { _, _ -> }.build()

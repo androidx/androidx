@@ -21,6 +21,11 @@ import androidx.room.compiler.processing.util.XTestInvocation
 import androidx.room.compiler.processing.util.compileFiles
 import androidx.room.compiler.processing.util.runProcessorTest
 import com.google.common.truth.Truth.assertThat
+import com.squareup.javapoet.ArrayTypeName
+import com.squareup.javapoet.ClassName
+import com.squareup.javapoet.ParameterizedTypeName
+import com.squareup.javapoet.TypeName
+import com.squareup.javapoet.WildcardTypeName
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
@@ -106,11 +111,14 @@ class XAnnotationValueTest(
             ) as Source.KotlinSource
         ) { invocation ->
             fun checkSingleValue(annotationValue: XAnnotationValue, expectedValue: Boolean) {
+                assertThat(annotationValue.valueType.typeName).isEqualTo(TypeName.BOOLEAN)
                 assertThat(annotationValue.hasBooleanValue()).isTrue()
                 assertThat(annotationValue.asBoolean()).isEqualTo(expectedValue)
             }
 
             fun checkListValues(annotationValue: XAnnotationValue, vararg expectedValues: Boolean) {
+                assertThat(annotationValue.valueType.typeName)
+                    .isEqualTo(ArrayTypeName.of(TypeName.BOOLEAN))
                 assertThat(annotationValue.hasBooleanListValue()).isTrue()
                 // Check the list of values
                 assertThat(annotationValue.asBooleanList())
@@ -174,11 +182,14 @@ class XAnnotationValueTest(
             ) as Source.KotlinSource
         ) { invocation ->
             fun checkSingleValue(annotationValue: XAnnotationValue, expectedValue: Int) {
+                assertThat(annotationValue.valueType.typeName).isEqualTo(TypeName.INT)
                 assertThat(annotationValue.hasIntValue()).isTrue()
                 assertThat(annotationValue.asInt()).isEqualTo(expectedValue)
             }
 
             fun checkListValues(annotationValue: XAnnotationValue, vararg expectedValues: Int) {
+                assertThat(annotationValue.valueType.typeName)
+                    .isEqualTo(ArrayTypeName.of(TypeName.INT))
                 assertThat(annotationValue.hasIntListValue()).isTrue()
                 // Check the list of values
                 assertThat(annotationValue.asIntList())
@@ -242,11 +253,14 @@ class XAnnotationValueTest(
             ) as Source.KotlinSource
         ) { invocation ->
             fun checkSingleValue(annotationValue: XAnnotationValue, expectedValue: Short) {
+                assertThat(annotationValue.valueType.typeName).isEqualTo(TypeName.SHORT)
                 assertThat(annotationValue.hasShortValue()).isTrue()
                 assertThat(annotationValue.asShort()).isEqualTo(expectedValue)
             }
 
             fun checkListValues(annotationValue: XAnnotationValue, vararg expectedValues: Short) {
+                assertThat(annotationValue.valueType.typeName)
+                    .isEqualTo(ArrayTypeName.of(TypeName.SHORT))
                 assertThat(annotationValue.hasShortListValue()).isTrue()
                 // Check the list of values
                 assertThat(annotationValue.asShortList())
@@ -310,11 +324,14 @@ class XAnnotationValueTest(
             ) as Source.KotlinSource
         ) { invocation ->
             fun checkSingleValue(annotationValue: XAnnotationValue, expectedValue: Long) {
+                assertThat(annotationValue.valueType.typeName).isEqualTo(TypeName.LONG)
                 assertThat(annotationValue.hasLongValue()).isTrue()
                 assertThat(annotationValue.asLong()).isEqualTo(expectedValue)
             }
 
             fun checkListValues(annotationValue: XAnnotationValue, vararg expectedValues: Long) {
+                assertThat(annotationValue.valueType.typeName)
+                    .isEqualTo(ArrayTypeName.of(TypeName.LONG))
                 assertThat(annotationValue.hasLongListValue()).isTrue()
                 // Check the list of values
                 assertThat(annotationValue.asLongList())
@@ -378,11 +395,14 @@ class XAnnotationValueTest(
             ) as Source.KotlinSource
         ) { invocation ->
             fun checkSingleValue(annotationValue: XAnnotationValue, expectedValue: Float) {
+                assertThat(annotationValue.valueType.typeName).isEqualTo(TypeName.FLOAT)
                 assertThat(annotationValue.hasFloatValue()).isTrue()
                 assertThat(annotationValue.asFloat()).isEqualTo(expectedValue)
             }
 
             fun checkListValues(annotationValue: XAnnotationValue, vararg expectedValues: Float) {
+                assertThat(annotationValue.valueType.typeName)
+                    .isEqualTo(ArrayTypeName.of(TypeName.FLOAT))
                 assertThat(annotationValue.hasFloatListValue()).isTrue()
                 // Check the list of values
                 assertThat(annotationValue.asFloatList())
@@ -446,11 +466,14 @@ class XAnnotationValueTest(
             ) as Source.KotlinSource
         ) { invocation ->
             fun checkSingleValue(annotationValue: XAnnotationValue, expectedValue: Double) {
+                assertThat(annotationValue.valueType.typeName).isEqualTo(TypeName.DOUBLE)
                 assertThat(annotationValue.hasDoubleValue()).isTrue()
                 assertThat(annotationValue.asDouble()).isEqualTo(expectedValue)
             }
 
             fun checkListValues(annotationValue: XAnnotationValue, vararg expectedValues: Double) {
+                assertThat(annotationValue.valueType.typeName)
+                    .isEqualTo(ArrayTypeName.of(TypeName.DOUBLE))
                 assertThat(annotationValue.hasDoubleListValue()).isTrue()
                 // Check the list of values
                 assertThat(annotationValue.asDoubleList())
@@ -514,11 +537,14 @@ class XAnnotationValueTest(
             ) as Source.KotlinSource
         ) { invocation ->
             fun checkSingleValue(annotationValue: XAnnotationValue, expectedValue: Byte) {
+                assertThat(annotationValue.valueType.typeName).isEqualTo(TypeName.BYTE)
                 assertThat(annotationValue.hasByteValue()).isTrue()
                 assertThat(annotationValue.asByte()).isEqualTo(expectedValue)
             }
 
             fun checkListValues(annotationValue: XAnnotationValue, vararg expectedValues: Byte) {
+                assertThat(annotationValue.valueType.typeName)
+                    .isEqualTo(ArrayTypeName.of(TypeName.BYTE))
                 assertThat(annotationValue.hasByteListValue()).isTrue()
                 // Check the list of values
                 assertThat(annotationValue.asByteList())
@@ -582,11 +608,14 @@ class XAnnotationValueTest(
             ) as Source.KotlinSource
         ) { invocation ->
             fun checkSingleValue(annotationValue: XAnnotationValue, expectedValue: Char) {
+                assertThat(annotationValue.valueType.typeName).isEqualTo(TypeName.CHAR)
                 assertThat(annotationValue.hasCharValue()).isTrue()
                 assertThat(annotationValue.asChar()).isEqualTo(expectedValue)
             }
 
             fun checkListValues(annotationValue: XAnnotationValue, vararg expectedValues: Char) {
+                assertThat(annotationValue.valueType.typeName)
+                    .isEqualTo(ArrayTypeName.of(TypeName.CHAR))
                 assertThat(annotationValue.hasCharListValue()).isTrue()
                 // Check the list of values
                 assertThat(annotationValue.asCharList())
@@ -649,12 +678,17 @@ class XAnnotationValueTest(
                 """.trimIndent()
             ) as Source.KotlinSource
         ) { invocation ->
+            val stringTypeName = TypeName.get(String::class.java)
+
             fun checkSingleValue(annotationValue: XAnnotationValue, expectedValue: String) {
+                assertThat(annotationValue.valueType.typeName).isEqualTo(stringTypeName)
                 assertThat(annotationValue.hasStringValue()).isTrue()
                 assertThat(annotationValue.asString()).isEqualTo(expectedValue)
             }
 
             fun checkListValues(annotationValue: XAnnotationValue, vararg expectedValues: String) {
+                assertThat(annotationValue.valueType.typeName)
+                    .isEqualTo(ArrayTypeName.of(stringTypeName))
                 assertThat(annotationValue.hasStringListValue()).isTrue()
                 // Check the list of values
                 assertThat(annotationValue.asStringList())
@@ -719,12 +753,17 @@ class XAnnotationValueTest(
                 """.trimIndent()
             ) as Source.KotlinSource
         ) { invocation ->
+            val myEnumTypeName = ClassName.get("", "MyEnum")
+
             fun checkSingleValue(annotationValue: XAnnotationValue, expectedValue: String) {
+                assertThat(annotationValue.valueType.typeName).isEqualTo(myEnumTypeName)
                 assertThat(annotationValue.hasEnumValue()).isTrue()
                 assertThat(annotationValue.asEnum().name).isEqualTo(expectedValue)
             }
 
             fun checkListValues(annotationValue: XAnnotationValue, vararg expectedValues: String) {
+                assertThat(annotationValue.valueType.typeName)
+                    .isEqualTo(ArrayTypeName.of(myEnumTypeName))
                 assertThat(annotationValue.hasEnumListValue()).isTrue()
                 // Check the list of values
                 assertThat(annotationValue.asEnumList().map { it.name })
@@ -793,12 +832,34 @@ class XAnnotationValueTest(
                 """.trimIndent()
             ) as Source.KotlinSource
         ) { invocation ->
+            val classTypeName = ParameterizedTypeName.get(
+                ClassName.get(Class::class.java),
+                WildcardTypeName.subtypeOf(TypeName.OBJECT)
+            )
+            val kClassTypeName = ParameterizedTypeName.get(
+                ClassName.get(kotlin.reflect.KClass::class.java),
+                WildcardTypeName.subtypeOf(TypeName.OBJECT)
+            )
             fun checkSingleValue(annotationValue: XAnnotationValue, expectedValue: String) {
+                // TODO(bcorso): Consider making the value types match in this case.
+                if (!invocation.isKsp || (sourceKind == SourceKind.JAVA && !isPreCompiled)) {
+                    assertThat(annotationValue.valueType.typeName).isEqualTo(classTypeName)
+                } else {
+                    assertThat(annotationValue.valueType.typeName).isEqualTo(kClassTypeName)
+                }
                 assertThat(annotationValue.hasTypeValue()).isTrue()
                 assertThat(annotationValue.asType().typeElement?.name).isEqualTo(expectedValue)
             }
 
             fun checkListValues(annotationValue: XAnnotationValue, vararg expectedValues: String) {
+                // TODO(bcorso): Consider making the value types match in this case.
+                if (!invocation.isKsp || (sourceKind == SourceKind.JAVA && !isPreCompiled)) {
+                    assertThat(annotationValue.valueType.typeName)
+                        .isEqualTo(ArrayTypeName.of(classTypeName))
+                } else {
+                    assertThat(annotationValue.valueType.typeName)
+                        .isEqualTo(ArrayTypeName.of(kClassTypeName))
+                }
                 assertThat(annotationValue.hasTypeListValue()).isTrue()
                 // Check the list of values
                 assertThat(annotationValue.asTypeList().map { it.typeElement?.name })
@@ -865,13 +926,18 @@ class XAnnotationValueTest(
                 """.trimIndent()
             ) as Source.KotlinSource
         ) { invocation ->
+            val aTypeName = ClassName.get("", "A")
+
             fun checkSingleValue(annotationValue: XAnnotationValue, expectedValue: String) {
+                assertThat(annotationValue.valueType.typeName).isEqualTo(aTypeName)
                 assertThat(annotationValue.hasAnnotationValue()).isTrue()
                 assertThat(annotationValue.asAnnotation().getAsString("value"))
                     .isEqualTo(expectedValue)
             }
 
             fun checkListValues(annotationValue: XAnnotationValue, vararg expectedValues: String) {
+                assertThat(annotationValue.valueType.typeName)
+                    .isEqualTo(ArrayTypeName.of(aTypeName))
                 assertThat(annotationValue.hasAnnotationListValue()).isTrue()
                 // Check the list of values
                 assertThat(annotationValue.asAnnotationList().map { it.getAsString("value") })

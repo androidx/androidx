@@ -16,14 +16,14 @@
 
 package androidx.room.compiler.processing.ksp
 
-import androidx.room.compiler.processing.XConstructorType
+import androidx.room.compiler.processing.XExecutableType
 import androidx.room.compiler.processing.XType
 
 internal abstract class KspExecutableType(
     val env: KspProcessingEnv,
     open val origin: KspExecutableElement,
     val containing: KspType?
-) : XConstructorType {
+) : XExecutableType {
     override val parameterTypes: List<XType> by lazy {
         if (containing == null) {
             origin.parameters.map {
@@ -34,5 +34,13 @@ internal abstract class KspExecutableType(
                 it.asMemberOf(containing)
             }
         }
+    }
+
+    override val thrownTypes: List<XType>
+        // The thrown types are the same as on the origin since those can't change
+        get() = origin.thrownTypes
+
+    override fun isSameType(other: XExecutableType): Boolean {
+        return env.isSameType(this, other)
     }
 }

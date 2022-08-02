@@ -17,8 +17,10 @@
 package androidx.core.view.accessibility;
 
 import static android.os.Build.VERSION.SDK_INT;
+import static android.view.Display.DEFAULT_DISPLAY;
 
 import android.graphics.Rect;
+import android.graphics.Region;
 import android.view.accessibility.AccessibilityNodeInfo;
 import android.view.accessibility.AccessibilityWindowInfo;
 
@@ -136,6 +138,19 @@ public class AccessibilityWindowInfoCompat {
     }
 
     /**
+     * Check if the window is in picture-in-picture mode.
+     *
+     * @return {@code true} if the window is in picture-in-picture mode, {@code false} otherwise.
+     */
+    public boolean isInPictureInPictureMode() {
+        if (SDK_INT >= 33) {
+            return Api33Impl.isInPictureInPictureMode((AccessibilityWindowInfo) mInfo);
+        } else {
+            return false;
+        }
+    }
+
+    /**
      * Gets the parent window if such.
      *
      * @return The parent window.
@@ -163,7 +178,33 @@ public class AccessibilityWindowInfoCompat {
     }
 
     /**
+     * Gets the touchable region of this window in the screen.
+     * <p>
+     * Compatibility:
+     * <ul>
+     *     <li>API &lt; 33: Gets the bounds of this window in the screen. </li>
+     *     <li>API &lt; 21: Does not operate. </li>
+     * </ul>
+     *
+     * @param outRegion The out window region.
+     */
+    public void getRegionInScreen(@NonNull Region outRegion) {
+        if (SDK_INT >= 33) {
+            Api33Impl.getRegionInScreen((AccessibilityWindowInfo) mInfo, outRegion);
+        } else if (SDK_INT >= 21) {
+            Rect outBounds = new Rect();
+            Api21Impl.getBoundsInScreen((AccessibilityWindowInfo) mInfo, outBounds);
+            outRegion.set(outBounds);
+        }
+    }
+
+    /**
      * Gets the bounds of this window in the screen.
+     * <p>
+     * Compatibility:
+     * <ul>
+     *   <li>API &lt; 21: Does not operate. </li>
+     * </ul>
      *
      * @param outBounds The out window bounds.
      */
@@ -239,6 +280,25 @@ public class AccessibilityWindowInfoCompat {
             return wrapNonNullInstance(Api21Impl.getChild((AccessibilityWindowInfo) mInfo, index));
         } else {
             return null;
+        }
+    }
+
+    /**
+     * Returns the ID of the display this window is on, for use with
+     * {@link android.hardware.display.DisplayManager#getDisplay(int)}.
+     * <p>
+     * Compatibility:
+     * <ul>
+     *   <li>Api &lt; 33: Will return {@link android.view.Display.DEFAULT_DISPLAY}.</li>
+     * </ul>
+     *
+     * @return the logical display id.
+     */
+    public int getDisplayId() {
+        if (SDK_INT >= 33) {
+            return Api33Impl.getDisplayId((AccessibilityWindowInfo) mInfo);
+        } else {
+            return DEFAULT_DISPLAY;
         }
     }
 
@@ -319,6 +379,18 @@ public class AccessibilityWindowInfoCompat {
     public void recycle() {
         if (SDK_INT >= 21) {
             Api21Impl.recycle((AccessibilityWindowInfo) mInfo);
+        }
+    }
+
+    /**
+     * @return The unwrapped {@link android.view.accessibility.AccessibilityWindowInfo}.
+     */
+    @Nullable
+    public AccessibilityWindowInfo unwrap() {
+        if (SDK_INT >= 21) {
+            return (AccessibilityWindowInfo) mInfo;
+        } else {
+            return null;
         }
     }
 
@@ -474,6 +546,28 @@ public class AccessibilityWindowInfoCompat {
         @DoNotInline
         static CharSequence getTitle(AccessibilityWindowInfo info) {
             return info.getTitle();
+        }
+    }
+
+    @RequiresApi(33)
+    private static class Api33Impl {
+        private Api33Impl() {
+            // This class is non instantiable.
+        }
+
+        @DoNotInline
+        static int getDisplayId(AccessibilityWindowInfo info) {
+            return info.getDisplayId();
+        }
+
+        @DoNotInline
+        static void getRegionInScreen(AccessibilityWindowInfo info, Region outRegion) {
+            info.getRegionInScreen(outRegion);
+        }
+
+        @DoNotInline
+        static boolean isInPictureInPictureMode(AccessibilityWindowInfo info) {
+            return info.isInPictureInPictureMode();
         }
     }
 }

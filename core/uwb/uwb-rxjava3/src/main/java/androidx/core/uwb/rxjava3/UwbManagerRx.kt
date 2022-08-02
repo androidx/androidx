@@ -19,6 +19,8 @@
 package androidx.core.uwb.rxjava3
 
 import androidx.core.uwb.UwbClientSessionScope
+import androidx.core.uwb.UwbControleeSessionScope
+import androidx.core.uwb.UwbControllerSessionScope
 import androidx.core.uwb.UwbManager
 import io.reactivex.rxjava3.core.Single
 import kotlinx.coroutines.rx3.rxSingle
@@ -27,6 +29,24 @@ import kotlinx.coroutines.rx3.rxSingle
  * Returns a [Single] of [UwbClientSessionScope].
  * @see UwbManager.clientSessionScope
  */
-public fun UwbManager.clientSessionScopeSingle(): Single<UwbClientSessionScope> {
+@Suppress("DEPRECATION")
+@Deprecated("Renamed to controleeSessionScopeSingle")
+fun UwbManager.clientSessionScopeSingle(): Single<UwbClientSessionScope> {
     return rxSingle { clientSessionScope() }
+}
+
+/**
+ * Returns a [Single] of [UwbControleeSessionScope].
+ * @see UwbManager.controleeSessionScope
+ */
+fun UwbManager.controleeSessionScopeSingle(): Single<UwbControleeSessionScope> {
+    return rxSingle { controleeSessionScope() }
+}
+
+/**
+ * Returns a [Single] of [UwbControllerSessionScope].
+ * @see UwbManager.controllerSessionScope
+ */
+fun UwbManager.controllerSessionScopeSingle(): Single<UwbControllerSessionScope> {
+    return rxSingle { controllerSessionScope() }
 }

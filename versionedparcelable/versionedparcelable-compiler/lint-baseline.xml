@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.4.0-alpha05" type="baseline" client="gradle" dependencies="false" name="AGP (7.4.0-alpha05)" variant="all" version="7.4.0-alpha05">
+<issues format="6" by="lint 7.4.0-alpha08" type="baseline" client="gradle" dependencies="false" name="AGP (7.4.0-alpha08)" variant="all" version="7.4.0-alpha08">
 
     <issue
         id="BanSynchronizedMethods"
@@ -7,9 +7,7 @@
         errorLine1="    @Override"
         errorLine2="    ^">
         <location
-            file="src/main/java/androidx/versionedparcelable/compiler/VersionedParcelProcessor.java"
-            line="85"
-            column="5"/>
+            file="src/main/java/androidx/versionedparcelable/compiler/VersionedParcelProcessor.java"/>
     </issue>
 
 </issues>

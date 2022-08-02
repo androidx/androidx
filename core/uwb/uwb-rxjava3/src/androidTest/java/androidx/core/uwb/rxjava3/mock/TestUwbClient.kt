@@ -52,6 +52,10 @@ public class TestUwbClient(
         TODO("Not yet implemented")
     }
 
+    override fun addControlee(p0: UwbAddress): Task<Void> {
+        TODO("Not yet implemented")
+    }
+
     override fun getComplexChannel(): Task<UwbComplexChannel> {
         return Tasks.forResult(complexChannel)
     }
@@ -66,6 +70,10 @@ public class TestUwbClient(
 
     override fun isAvailable(): Task<Boolean> {
         return Tasks.forResult(isAvailable)
+    }
+
+    override fun removeControlee(p0: UwbAddress): Task<Void> {
+        TODO("Not yet implemented")
     }
 
     override fun startRanging(

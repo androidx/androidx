@@ -21,9 +21,9 @@ plugins {
 }
 androidXMultiplatform {
     jvm {}
-    macosX64()
-    linuxX64()
-    macosArm64()
+    mac()
+    linux()
+    ios()
 
     sourceSets {
         commonMain {

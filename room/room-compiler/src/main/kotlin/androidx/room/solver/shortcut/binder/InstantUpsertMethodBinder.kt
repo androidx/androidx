@@ -22,16 +22,16 @@ import androidx.room.solver.shortcut.result.UpsertMethodAdapter
 import androidx.room.vo.ShortcutQueryParameter
 import androidx.room.writer.DaoWriter
 import com.squareup.javapoet.FieldSpec
-import com.squareup.javapoet.TypeSpec
 
 /**
  * Binder that knows how to write instant (blocking) upsert methods.
  */
-class InstantUpsertMethodBinder(adapter: UpsertMethodAdapter?) : UpsertMethodBinder(adapter) {
+class InstantUpsertMethodBinder(adapter: UpsertMethodAdapter?) :
+    InsertOrUpsertMethodBinder(adapter) {
 
     override fun convertAndReturn(
         parameters: List<ShortcutQueryParameter>,
-        upsertionAdapters: Map<String, Pair<FieldSpec, TypeSpec>>,
+        adapters: Map<String, Pair<FieldSpec, Any>>,
         dbField: FieldSpec,
         scope: CodeGenScope
     ) {

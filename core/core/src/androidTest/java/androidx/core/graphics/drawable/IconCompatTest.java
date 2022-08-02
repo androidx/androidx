@@ -57,6 +57,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Arrays;
 
+@SuppressWarnings("deprecation")
 @RunWith(AndroidJUnit4.class)
 @SmallTest
 public class IconCompatTest {

@@ -316,6 +316,7 @@ public class ComplicationHelperActivityTest {
 }
 
 /** The watch face component name encoded in the intent. */
+@Suppress("DEPRECATION")
 private val Intent.watchFaceComponentName
     get() = getParcelableExtra<ComponentName>(
         ComplicationDataSourceChooserIntent.EXTRA_WATCH_FACE_COMPONENT_NAME

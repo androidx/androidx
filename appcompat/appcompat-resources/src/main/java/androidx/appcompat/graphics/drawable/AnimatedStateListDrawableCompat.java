@@ -88,7 +88,7 @@ import java.io.IOException;
  * {@link android.R.attr#state_last}
  * {@link android.R.attr#state_pressed}
  */
-public class AnimatedStateListDrawableCompat extends StateListDrawable
+public class AnimatedStateListDrawableCompat extends StateListDrawableCompat
         implements TintAwareDrawable {
     private static final String LOGTAG = AnimatedStateListDrawableCompat.class.getSimpleName();
     private static final String ELEMENT_TRANSITION = "transition";

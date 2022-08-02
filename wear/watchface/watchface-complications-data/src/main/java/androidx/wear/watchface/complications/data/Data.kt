@@ -150,6 +150,7 @@ public class NoDataComplicationData internal constructor(
         null
     )
 
+    @OptIn(ComplicationExperimental::class)
     val contentDescription: ComplicationText? =
         when (placeholder) {
             is ShortTextComplicationData -> placeholder.contentDescription
@@ -158,6 +159,8 @@ public class NoDataComplicationData internal constructor(
             is MonochromaticImageComplicationData -> placeholder.contentDescription
             is SmallImageComplicationData -> placeholder.contentDescription
             is PhotoImageComplicationData -> placeholder.contentDescription
+            is GoalProgressComplicationData -> placeholder.contentDescription
+            is DiscreteRangedValueComplicationData -> placeholder.contentDescription
             else -> null
         }
 
@@ -714,6 +717,40 @@ public class LongTextComplicationData internal constructor(
 }
 
 /**
+ * Describes an optional simple linear color ramp. For [RangedValueComplicationData]
+ * [RangedValueComplicationData.min] is rendered with [minColor] and
+ * [RangedValueComplicationData.max] with [maxColor]. For [GoalProgressComplicationData] 0 is
+ * rendered with [minColor] and [GoalProgressComplicationData.targetValue] is renderd with [maxColor].Y
+ *
+ * This is a rendering hint that would override the normal watch face colors when there's a
+ * particular semantic meaning. E.g. red to blue for a ranged value representing temperature.
+ */
+@ComplicationExperimental
+public class ColorRamp(@ColorInt val minColor: Int, @ColorInt val maxColor: Int) {
+    override fun toString(): String {
+        return "ColorRamp(minColor=$minColor, maxColor=$maxColor)"
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as ColorRamp
+
+        if (minColor != other.minColor) return false
+        if (maxColor != other.maxColor) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = minColor
+        result = 31 * result + maxColor
+        return result
+    }
+}
+
+/**
  * Type used for complications including a numerical value within a range, such as a percentage.
  * The value may be accompanied by an icon and/or short text and title.
  *
@@ -764,7 +801,6 @@ internal constructor(
     validTimeRange: TimeRange?,
     cachedWireComplicationData: WireComplicationData?,
     dataSource: ComponentName?,
-    @ValueType valueType: Int,
     colorRamp: ColorRamp?
 ) : ComplicationData(
     TYPE,
@@ -815,50 +851,6 @@ internal constructor(
         }
     }
 
-    /**
-     * Optional [ValueType] which may be used by the renderer to influence styling of the ranged
-     * value.
-     */
-    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-    @get:ValueType
-    @get:ComplicationExperimental
-    @ComplicationExperimental
-    @ValueType
-    val valueType: Int = valueType
-
-    /**
-     * Describes an optional simple linear color ramp to be applied when rendering the
-     * [RangedValueComplicationData] where [min] is rendered with [minColor] and [max] with
-     * [maxColor].
-     *
-     * This is a rendering hint that would override the normal watch face colors when there's a
-     * particular semantic meaning. E.g. red to blue for a ranged value representing temperature.
-     */
-    @ComplicationExperimental
-    public class ColorRamp(@ColorInt val minColor: Int, @ColorInt val maxColor: Int) {
-        override fun toString(): String {
-            return "ColorRamp(minColor=$minColor, maxColor=$maxColor)"
-        }
-
-        override fun equals(other: Any?): Boolean {
-            if (this === other) return true
-            if (javaClass != other?.javaClass) return false
-
-            other as ColorRamp
-
-            if (minColor != other.minColor) return false
-            if (maxColor != other.maxColor) return false
-
-            return true
-        }
-
-        override fun hashCode(): Int {
-            var result = minColor
-            result = 31 * result + maxColor
-            return result
-        }
-    }
-
     /** Optional hint to render the value with the specified [ColorRamp]. */
     @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
     @get:ComplicationExperimental
@@ -868,7 +860,8 @@ internal constructor(
     /**
      * Builder for [RangedValueComplicationData].
      *
-     * You must at a minimum set the [value], [min], [max] and [contentDescription] fields.
+     * You must at a minimum set the [value], [min], [max] and [contentDescription] fields and at
+     * least one of [monochromaticImage], [text] or [title].
      *
      * @param value The value of the ranged complication which should be in the range
      * [[min]] .. [[max]]
@@ -890,7 +883,6 @@ internal constructor(
         private var text: ComplicationText? = null
         private var cachedWireComplicationData: WireComplicationData? = null
         private var dataSource: ComponentName? = null
-        @ValueType private var valueType = ValueType.NONE
         @OptIn(ComplicationExperimental::class)
         private var colorRamp: ColorRamp? = null
 
@@ -938,15 +930,6 @@ internal constructor(
         }
 
         /**
-         * Sets the [ValueType] that may be used by renderers to influence styling of the ranged
-         * value complication.
-         */
-        @ComplicationExperimental
-        public fun setValueType(@ValueType valueType: Int): Builder = apply {
-            this.valueType = valueType
-        }
-
-        /**
          * Sets an optional hint which suggests the renderer draws the complication using a
          * [ColorRamp].
          */
@@ -963,8 +946,11 @@ internal constructor(
 
         /** Builds the [RangedValueComplicationData]. */
         @OptIn(ComplicationExperimental::class)
-        public fun build(): RangedValueComplicationData =
-            RangedValueComplicationData(
+        public fun build(): RangedValueComplicationData {
+            require(monochromaticImage != null || text != null || title != null) {
+                "At least one of monochromaticImage, text or title must be set"
+            }
+            return RangedValueComplicationData(
                 value,
                 min,
                 max,
@@ -976,9 +962,9 @@ internal constructor(
                 validTimeRange,
                 cachedWireComplicationData,
                 dataSource,
-                valueType,
                 colorRamp
             )
+        }
     }
 
     /** @hide */
@@ -1009,7 +995,6 @@ internal constructor(
         )
         setValidTimeRange(validTimeRange, builder)
         builder.setTapActionLostDueToSerialization(tapActionLostDueToSerialization)
-        builder.setValueType(valueType)
         colorRamp?.let {
             builder.setRangedMinColor(it.minColor)
             builder.setRangedMaxColor(it.maxColor)
@@ -1034,7 +1019,6 @@ internal constructor(
         if (tapAction != other.tapAction) return false
         if (validTimeRange != other.validTimeRange) return false
         if (dataSource != other.dataSource) return false
-        if (valueType != other.valueType) return false
         if (colorRamp != other.colorRamp) return false
 
         return true
@@ -1053,7 +1037,6 @@ internal constructor(
         result = 31 * result + (tapAction?.hashCode() ?: 0)
         result = 31 * result + validTimeRange.hashCode()
         result = 31 * result + dataSource.hashCode()
-        result = 31 * result + valueType.hashCode()
         result = 31 * result + colorRamp.hashCode()
         return result
     }
@@ -1070,7 +1053,7 @@ internal constructor(
             "contentDescription=$contentDescription), " +
             "tapActionLostDueToSerialization=$tapActionLostDueToSerialization, " +
             "tapAction=$tapAction, validTimeRange=$validTimeRange, dataSource=$dataSource, " +
-            "valueType=$valueType, colorRamp=$colorRamp)"
+            "colorRamp=$colorRamp)"
     }
 
     override fun hasPlaceholderFields() = value == PLACEHOLDER || text?.isPlaceholder() == true ||
@@ -1102,6 +1085,571 @@ internal constructor(
          */
         @JvmField
         public val PLACEHOLDER = Float.MAX_VALUE
+    }
+}
+
+/**
+ * Type used for complications which show progress towards a goal, E.g. you've done 2400 out of your
+ * daily target of 10000 steps. Unlike [RangedValueComplicationData] [value] is allowed to be larger
+ * than [targetValue] (e.g. you've done 12000 steps) and renderers may chose to acknowledge this in
+ * a special way. The value may be accompanied by an icon and/or short text and title.
+ *
+ * The [value], and [targetValue] fields are required for this type and the progress is expected to
+ * always be displayed.
+ *
+ * The icon, title, and text fields are optional and the watch face may choose which of these
+ * fields to display, if any.
+ *
+ * @property value The [Float] value of this complication which is >= 0f, this value may be larger
+ * than [targetValue]. If it's equal to [PLACEHOLDER] the renderer must treat it as a placeholder
+ * rather than rendering normally, its suggested to be drawn as a grey arc with a percentage value
+ * selected by the renderer.
+ * @property targetValue The target [Float] value for this complication.
+ * @property monochromaticImage A simple [MonochromaticImage] image that can be tinted by the watch
+ * face. If the monochromaticImage is equal to [MonochromaticImage.PLACEHOLDER] the renderer must
+ * treat it as a placeholder rather than rendering normally, its suggested it should be rendered as
+ * a light grey box.
+ * @property text The body [ComplicationText] of the complication. The length of the text, including
+ * any time-dependent values at any valid time, is expected to not exceed seven characters. When
+ * using this text, the watch face should be able to display any string of up to seven characters
+ * (reducing the text size appropriately if the string is very wide). Although not expected, it is
+ * possible that strings of more than seven characters might be seen, in which case they may be
+ * truncated. If the text is equal to [ComplicationText.PLACEHOLDER] the renderer must treat it as a
+ * placeholder rather than rendering normally, its suggested it should be rendered as a light grey
+ * box.
+ * @property title The optional title [ComplicationText]. The length of the text, including
+ * any time-dependent values at any valid time, is expected to not exceed seven characters. When
+ * using this text, the watch face should be able to display any string of up to seven characters
+ * (reducing the text size appropriately if the string is very wide). Although not expected, it is
+ * possible that strings of more than seven characters might be seen, in which case they may be
+ * truncated. If the text is equal to [ComplicationText.PLACEHOLDER] the renderer must treat it as a
+ * placeholder rather than rendering normally, its suggested it should be rendered as a light grey
+ * box.
+ * @property contentDescription The content description field for accessibility.
+ */
+@ComplicationExperimental
+public class GoalProgressComplicationData
+internal constructor(
+    public val value: Float,
+    public val targetValue: Float,
+    public val monochromaticImage: MonochromaticImage?,
+    public val title: ComplicationText?,
+    public val text: ComplicationText?,
+    public val contentDescription: ComplicationText?,
+    tapAction: PendingIntent?,
+    validTimeRange: TimeRange?,
+    cachedWireComplicationData: WireComplicationData?,
+    dataSource: ComponentName?,
+    colorRamp: ColorRamp?
+) : ComplicationData(
+    TYPE,
+    tapAction = tapAction,
+    cachedWireComplicationData = cachedWireComplicationData,
+    validTimeRange = validTimeRange ?: TimeRange.ALWAYS,
+    dataSource = dataSource
+) {
+    /** Optional hint to render the value with the specified [ColorRamp]. */
+    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
+    @get:ComplicationExperimental
+    @ComplicationExperimental
+    val colorRamp: ColorRamp? = colorRamp
+
+    /**
+     * Builder for [GoalProgressComplicationData].
+     *
+     * You must at a minimum set the [value], [targetValue] and [contentDescription] fields and at
+     * least one of [monochromaticImage], [text] or [title].
+     *
+     * @param value The value of the ranged complication which should be >= 0.
+     * @param targetValue The target value. This must be less than [Float.MAX_VALUE].
+     * @param contentDescription Localized description for use by screen readers
+     */
+    @OptIn(ComplicationExperimental::class)
+    public class Builder(
+        private val value: Float,
+        private val targetValue: Float,
+        private var contentDescription: ComplicationText
+    ) {
+        private var tapAction: PendingIntent? = null
+        private var validTimeRange: TimeRange? = null
+        private var monochromaticImage: MonochromaticImage? = null
+        private var title: ComplicationText? = null
+        private var text: ComplicationText? = null
+        private var cachedWireComplicationData: WireComplicationData? = null
+        private var dataSource: ComponentName? = null
+        @OptIn(ComplicationExperimental::class)
+        private var colorRamp: ColorRamp? = null
+
+        init {
+            require(targetValue != Float.MAX_VALUE) {
+                "Float.MAX_VALUE is reserved and can't be used for target"
+            }
+        }
+
+        /** Sets optional pending intent to be invoked when the complication is tapped. */
+        public fun setTapAction(tapAction: PendingIntent?): Builder = apply {
+            this.tapAction = tapAction
+        }
+
+        /** Sets optional time range during which the complication has to be shown. */
+        @Suppress("MissingGetterMatchingBuilder") // b/174052810
+        public fun setValidTimeRange(validTimeRange: TimeRange?): Builder = apply {
+            this.validTimeRange = validTimeRange
+        }
+
+        /** Sets optional icon associated with the complication data. */
+        public fun setMonochromaticImage(monochromaticImage: MonochromaticImage?): Builder = apply {
+            this.monochromaticImage = monochromaticImage
+        }
+
+        /** Sets optional title associated with the complication data. */
+        public fun setTitle(title: ComplicationText?): Builder = apply {
+            this.title = title
+        }
+
+        /** Sets optional title associated with the complication data. */
+        public fun setText(text: ComplicationText?): Builder = apply {
+            this.text = text
+        }
+
+        /**
+         * Sets the [ComponentName] of the ComplicationDataSourceService that provided this
+         * ComplicationData, if any.
+         *
+         * Note a ComplicationDataSourceService does not need to call this because the system will
+         * set this value on its behalf.
+         */
+        public fun setDataSource(dataSource: ComponentName?): Builder = apply {
+            this.dataSource = dataSource
+        }
+
+        /**
+         * Sets an optional hint which suggests the renderer draws the complication using a
+         * [ColorRamp].
+         */
+        @ComplicationExperimental
+        public fun setColorRamp(colorRamp: ColorRamp?): Builder = apply {
+            this.colorRamp = colorRamp
+        }
+
+        internal fun setCachedWireComplicationData(
+            cachedWireComplicationData: WireComplicationData?
+        ): Builder = apply {
+            this.cachedWireComplicationData = cachedWireComplicationData
+        }
+
+        /** Builds the [GoalProgressComplicationData]. */
+        @OptIn(ComplicationExperimental::class)
+        public fun build(): GoalProgressComplicationData {
+            require(monochromaticImage != null || text != null || title != null) {
+                "At least one of monochromaticImage, text or title must be set"
+            }
+            return GoalProgressComplicationData(
+                value,
+                targetValue,
+                monochromaticImage,
+                title,
+                text,
+                contentDescription,
+                tapAction,
+                validTimeRange,
+                cachedWireComplicationData,
+                dataSource,
+                colorRamp
+            )
+        }
+    }
+
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public override fun asWireComplicationData(): WireComplicationData {
+        cachedWireComplicationData?.let {
+            return it
+        }
+        return createWireComplicationDataBuilder().apply {
+            fillWireComplicationDataBuilder(this)
+        }.build().also { cachedWireComplicationData = it }
+    }
+
+    @OptIn(ComplicationExperimental::class)
+    override fun fillWireComplicationDataBuilder(builder: WireComplicationDataBuilder) {
+        builder.setRangedValue(value)
+        builder.setTargetValue(targetValue)
+        monochromaticImage?.addToWireComplicationData(builder)
+        builder.setShortText(text?.toWireComplicationText())
+        builder.setShortTitle(title?.toWireComplicationText())
+        builder.setTapAction(tapAction)
+        builder.setContentDescription(
+            when (contentDescription) {
+                ComplicationText.EMPTY -> null
+                else -> contentDescription?.toWireComplicationText()
+            }
+        )
+        setValidTimeRange(validTimeRange, builder)
+        builder.setTapActionLostDueToSerialization(tapActionLostDueToSerialization)
+        colorRamp?.let {
+            builder.setRangedMinColor(it.minColor)
+            builder.setRangedMaxColor(it.maxColor)
+        }
+    }
+
+    @OptIn(ComplicationExperimental::class)
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as GoalProgressComplicationData
+
+        if (value != other.value) return false
+        if (targetValue != other.targetValue) return false
+        if (monochromaticImage != other.monochromaticImage) return false
+        if (title != other.title) return false
+        if (text != other.text) return false
+        if (contentDescription != other.contentDescription) return false
+        if (tapActionLostDueToSerialization != other.tapActionLostDueToSerialization) return false
+        if (tapAction != other.tapAction) return false
+        if (validTimeRange != other.validTimeRange) return false
+        if (dataSource != other.dataSource) return false
+        if (colorRamp != other.colorRamp) return false
+
+        return true
+    }
+
+    @OptIn(ComplicationExperimental::class)
+    override fun hashCode(): Int {
+        var result = value.hashCode()
+        result = 31 * result + targetValue.hashCode()
+        result = 31 * result + (monochromaticImage?.hashCode() ?: 0)
+        result = 31 * result + (title?.hashCode() ?: 0)
+        result = 31 * result + (text?.hashCode() ?: 0)
+        result = 31 * result + (contentDescription?.hashCode() ?: 0)
+        result = 31 * result + tapActionLostDueToSerialization.hashCode()
+        result = 31 * result + (tapAction?.hashCode() ?: 0)
+        result = 31 * result + validTimeRange.hashCode()
+        result = 31 * result + dataSource.hashCode()
+        result = 31 * result + colorRamp.hashCode()
+        return result
+    }
+
+    @OptIn(ComplicationExperimental::class)
+    override fun toString(): String {
+        val valueString = if (WireComplicationData.shouldRedact()) {
+            "REDACTED"
+        } else {
+            value.toString()
+        }
+        return "GoalProgressComplicationData(value=$valueString, targetValue=$targetValue, " +
+            "monochromaticImage=$monochromaticImage, title=$title, text=$text, " +
+            "contentDescription=$contentDescription), " +
+            "tapActionLostDueToSerialization=$tapActionLostDueToSerialization, " +
+            "tapAction=$tapAction, validTimeRange=$validTimeRange, dataSource=$dataSource, " +
+            "colorRamp=$colorRamp)"
+    }
+
+    override fun hasPlaceholderFields() = value == PLACEHOLDER || text?.isPlaceholder() == true ||
+        title?.isPlaceholder() == true || monochromaticImage?.isPlaceholder() == true
+
+    override fun getNextChangeInstant(afterInstant: Instant): Instant {
+        val titleChangeInstant = title?.getNextChangeTime(afterInstant) ?: Instant.MAX
+        val textChangeInstant = text?.getNextChangeTime(afterInstant) ?: Instant.MAX
+        return if (textChangeInstant.isBefore(titleChangeInstant)) {
+            textChangeInstant
+        } else {
+            titleChangeInstant
+        }
+    }
+
+    /** @hide */
+    public companion object {
+        /** The [ComplicationType] corresponding to objects of this type. */
+        @OptIn(ComplicationExperimental::class)
+        @JvmField
+        public val TYPE: ComplicationType = ComplicationType.GOAL_PROGRESS
+
+        /**
+         * Used to signal the range should be rendered as a placeholder. It's suggested that a
+         * placeholder ranged value be drawn as a grey arc with a percentage value selected by the
+         * renderer.
+         *
+         * Note a placeholder may only be used in the context of
+         * [NoDataComplicationData.placeholder].
+         */
+        @JvmField
+        public val PLACEHOLDER = Float.MAX_VALUE
+    }
+}
+
+/**
+ * Type used for complications including a discrete integer value within a range. E.g. 3 out of 6
+ * daily cups of water drunk. The value may be accompanied by an icon and/or short text and title.
+ *
+ * The [value], [min], and [max] fields are required for this type and the value within the
+ * range is expected to always be displayed.
+ *
+ * The icon, title, and text fields are optional and the watch face may choose which of these
+ * fields to display, if any.
+ *
+ * Unlike [RangedValueComplicationData], DiscreteRangedValueComplicationData doesn't specify a color
+ * ramp, this is because the ranged value is expected to be rendered using solid colored segments
+ * with watch face selected colors.
+ *
+ * @property value The [Int] value of this complication which is >= [min] and <= [max] or equal to
+ * [PLACEHOLDER]. If it's equal to [PLACEHOLDER] the renderer must treat it as a placeholder rather
+ * than rendering normally, its suggested to be drawn as a grey arc with a percentage value selected
+ * by the renderer.
+ * @property min The minimum [Int] value for this complication.
+ * @property max The maximum [Int] value for this complication.
+ * @property monochromaticImage A simple [MonochromaticImage] image that can be tinted by the watch
+ * face. If the monochromaticImage is equal to [MonochromaticImage.PLACEHOLDER] the renderer must
+ * treat it as a placeholder rather than rendering normally, its suggested it should be rendered as
+ * a light grey box.
+ * @property text The body [ComplicationText] of the complication. The length of the text, including
+ * any time-dependent values at any valid time, is expected to not exceed seven characters. When
+ * using this text, the watch face should be able to display any string of up to seven characters
+ * (reducing the text size appropriately if the string is very wide). Although not expected, it is
+ * possible that strings of more than seven characters might be seen, in which case they may be
+ * truncated. If the text is equal to [ComplicationText.PLACEHOLDER] the renderer must treat it as a
+ * placeholder rather than rendering normally, its suggested it should be rendered as a light grey
+ * box.
+ * @property title The optional title [ComplicationText]. The length of the text, including
+ * any time-dependent values at any valid time, is expected to not exceed seven characters. When
+ * using this text, the watch face should be able to display any string of up to seven characters
+ * (reducing the text size appropriately if the string is very wide). Although not expected, it is
+ * possible that strings of more than seven characters might be seen, in which case they may be
+ * truncated. If the text is equal to [ComplicationText.PLACEHOLDER] the renderer must treat it as a
+ * placeholder rather than rendering normally, its suggested it should be rendered as a light grey
+ * box.
+ * @property contentDescription The content description field for accessibility.
+ */
+@ComplicationExperimental
+public class DiscreteRangedValueComplicationData
+internal constructor(
+    public val value: Int,
+    public val min: Int,
+    public val max: Int,
+    public val monochromaticImage: MonochromaticImage?,
+    public val title: ComplicationText?,
+    public val text: ComplicationText?,
+    public val contentDescription: ComplicationText?,
+    tapAction: PendingIntent?,
+    validTimeRange: TimeRange?,
+    cachedWireComplicationData: WireComplicationData?,
+    dataSource: ComponentName?,
+) : ComplicationData(
+    TYPE,
+    tapAction = tapAction,
+    cachedWireComplicationData = cachedWireComplicationData,
+    validTimeRange = validTimeRange ?: TimeRange.ALWAYS,
+    dataSource = dataSource
+) {
+    /**
+     * Builder for [DiscreteRangedValueComplicationData].
+     *
+     * You must at a minimum set the [value], [min], [max] and [contentDescription] fields and at
+     * least one of [monochromaticImage], [text] or [title].
+     *
+     * @param value The value of the ranged complication which should be in the range
+     * [[min]] .. [[max]]
+     * @param min The minimum value
+     * @param max The maximum value. This must be less than [Float.MAX_VALUE].
+     * @param contentDescription Localized description for use by screen readers
+     */
+    @OptIn(ComplicationExperimental::class)
+    public class Builder(
+        private val value: Int,
+        private val min: Int,
+        private val max: Int,
+        private var contentDescription: ComplicationText
+    ) {
+        private var tapAction: PendingIntent? = null
+        private var validTimeRange: TimeRange? = null
+        private var monochromaticImage: MonochromaticImage? = null
+        private var title: ComplicationText? = null
+        private var text: ComplicationText? = null
+        private var cachedWireComplicationData: WireComplicationData? = null
+        private var dataSource: ComponentName? = null
+
+        init {
+            require(max != Int.MAX_VALUE) {
+                "Int.MAX_VALUE is reserved and can't be used for max"
+            }
+        }
+
+        /** Sets optional pending intent to be invoked when the complication is tapped. */
+        public fun setTapAction(tapAction: PendingIntent?): Builder = apply {
+            this.tapAction = tapAction
+        }
+
+        /** Sets optional time range during which the complication has to be shown. */
+        @Suppress("MissingGetterMatchingBuilder") // b/174052810
+        public fun setValidTimeRange(validTimeRange: TimeRange?): Builder = apply {
+            this.validTimeRange = validTimeRange
+        }
+
+        /** Sets optional icon associated with the complication data. */
+        public fun setMonochromaticImage(monochromaticImage: MonochromaticImage?): Builder = apply {
+            this.monochromaticImage = monochromaticImage
+        }
+
+        /** Sets optional title associated with the complication data. */
+        public fun setTitle(title: ComplicationText?): Builder = apply {
+            this.title = title
+        }
+
+        /** Sets optional title associated with the complication data. */
+        public fun setText(text: ComplicationText?): Builder = apply {
+            this.text = text
+        }
+
+        /**
+         * Sets the [ComponentName] of the ComplicationDataSourceService that provided this
+         * ComplicationData, if any.
+         *
+         * Note a ComplicationDataSourceService does not need to call this because the system will
+         * set this value on its behalf.
+         */
+        public fun setDataSource(dataSource: ComponentName?): Builder = apply {
+            this.dataSource = dataSource
+        }
+
+        internal fun setCachedWireComplicationData(
+            cachedWireComplicationData: WireComplicationData?
+        ): Builder = apply {
+            this.cachedWireComplicationData = cachedWireComplicationData
+        }
+
+        /** Builds the [DiscreteRangedValueComplicationData]. */
+        @OptIn(ComplicationExperimental::class)
+        public fun build(): DiscreteRangedValueComplicationData {
+            require(monochromaticImage != null || text != null || title != null) {
+                "At least one of monochromaticImage, text or title must be set"
+            }
+            return DiscreteRangedValueComplicationData(
+                value,
+                min,
+                max,
+                monochromaticImage,
+                title,
+                text,
+                contentDescription,
+                tapAction,
+                validTimeRange,
+                cachedWireComplicationData,
+                dataSource
+            )
+        }
+    }
+
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public override fun asWireComplicationData(): WireComplicationData {
+        cachedWireComplicationData?.let {
+            return it
+        }
+        return createWireComplicationDataBuilder().apply {
+            fillWireComplicationDataBuilder(this)
+        }.build().also { cachedWireComplicationData = it }
+    }
+
+    override fun fillWireComplicationDataBuilder(builder: WireComplicationDataBuilder) {
+        builder.setDiscreteRangedValue(value)
+        builder.setDiscreteRangedMinValue(min)
+        builder.setDiscreteRangedMaxValue(max)
+        monochromaticImage?.addToWireComplicationData(builder)
+        builder.setShortText(text?.toWireComplicationText())
+        builder.setShortTitle(title?.toWireComplicationText())
+        builder.setTapAction(tapAction)
+        builder.setContentDescription(
+            when (contentDescription) {
+                ComplicationText.EMPTY -> null
+                else -> contentDescription?.toWireComplicationText()
+            }
+        )
+        setValidTimeRange(validTimeRange, builder)
+        builder.setTapActionLostDueToSerialization(tapActionLostDueToSerialization)
+    }
+
+    @OptIn(ComplicationExperimental::class)
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as DiscreteRangedValueComplicationData
+
+        if (value != other.value) return false
+        if (min != other.min) return false
+        if (max != other.max) return false
+        if (monochromaticImage != other.monochromaticImage) return false
+        if (title != other.title) return false
+        if (text != other.text) return false
+        if (contentDescription != other.contentDescription) return false
+        if (tapActionLostDueToSerialization != other.tapActionLostDueToSerialization) return false
+        if (tapAction != other.tapAction) return false
+        if (validTimeRange != other.validTimeRange) return false
+        if (dataSource != other.dataSource) return false
+
+        return true
+    }
+
+    @OptIn(ComplicationExperimental::class)
+    override fun hashCode(): Int {
+        var result = value.hashCode()
+        result = 31 * result + min.hashCode()
+        result = 31 * result + max.hashCode()
+        result = 31 * result + (monochromaticImage?.hashCode() ?: 0)
+        result = 31 * result + (title?.hashCode() ?: 0)
+        result = 31 * result + (text?.hashCode() ?: 0)
+        result = 31 * result + (contentDescription?.hashCode() ?: 0)
+        result = 31 * result + tapActionLostDueToSerialization.hashCode()
+        result = 31 * result + (tapAction?.hashCode() ?: 0)
+        result = 31 * result + validTimeRange.hashCode()
+        result = 31 * result + dataSource.hashCode()
+        return result
+    }
+
+    override fun toString(): String {
+        val valueString = if (WireComplicationData.shouldRedact()) {
+            "REDACTED"
+        } else {
+            value.toString()
+        }
+        return "DiscreteRangedValueComplicationData(value=$valueString, min=$min, max=$max, " +
+            "monochromaticImage=$monochromaticImage, title=$title, text=$text, " +
+            "contentDescription=$contentDescription), " +
+            "tapActionLostDueToSerialization=$tapActionLostDueToSerialization, " +
+            "tapAction=$tapAction, validTimeRange=$validTimeRange, dataSource=$dataSource)"
+    }
+
+    override fun hasPlaceholderFields() = value == PLACEHOLDER || text?.isPlaceholder() == true ||
+        title?.isPlaceholder() == true || monochromaticImage?.isPlaceholder() == true
+
+    override fun getNextChangeInstant(afterInstant: Instant): Instant {
+        val titleChangeInstant = title?.getNextChangeTime(afterInstant) ?: Instant.MAX
+        val textChangeInstant = text?.getNextChangeTime(afterInstant) ?: Instant.MAX
+        return if (textChangeInstant.isBefore(titleChangeInstant)) {
+            textChangeInstant
+        } else {
+            titleChangeInstant
+        }
+    }
+
+    /** @hide */
+    public companion object {
+        /** The [ComplicationType] corresponding to objects of this type. */
+        @OptIn(ComplicationExperimental::class)
+        @JvmField
+        public val TYPE: ComplicationType = ComplicationType.DISCRETE_RANGED_VALUE
+
+        /**
+         * Used to signal the range should be rendered as a placeholder. It's suggested that a
+         * placeholder ranged value be drawn as a grey arc with a percentage value selected by the
+         * renderer.
+         *
+         * Note a placeholder may only be used in the context of
+         * [NoDataComplicationData.placeholder].
+         */
+        @JvmField
+        public val PLACEHOLDER = Int.MAX_VALUE
     }
 }
 
@@ -2215,9 +2763,8 @@ internal fun WireComplicationData.toPlaceholderComplicationData(): ComplicationD
             setTitle(shortTitle?.toApiComplicationTextPlaceholderAware())
             setText(shortText?.toApiComplicationTextPlaceholderAware())
             setDataSource(dataSource)
-            setValueType(valueType)
             rangedMinColor?.let {
-                setColorRamp(RangedValueComplicationData.ColorRamp(it, rangedMaxColor!!))
+                setColorRamp(ColorRamp(it, rangedMaxColor!!))
             }
         }.build()
 
@@ -2278,6 +2825,39 @@ internal fun WireComplicationData.toPlaceholderComplicationData(): ComplicationD
                 setDataSource(dataSource)
             }
             .build()
+
+    GoalProgressComplicationData.TYPE.toWireComplicationType() ->
+        GoalProgressComplicationData.Builder(
+            value = rangedValue,
+            targetValue = targetValue,
+            contentDescription?.toApiComplicationText() ?: ComplicationText.EMPTY
+        ).apply {
+            setTapAction(tapAction)
+            setValidTimeRange(parseTimeRange())
+            setMonochromaticImage(parseIconPlaceholderAware())
+            setTitle(shortTitle?.toApiComplicationTextPlaceholderAware())
+            setText(shortText?.toApiComplicationTextPlaceholderAware())
+            setDataSource(dataSource)
+            rangedMinColor?.let {
+                setColorRamp(ColorRamp(it, rangedMaxColor!!))
+            }
+        }.build()
+
+    DiscreteRangedValueComplicationData.TYPE.toWireComplicationType() ->
+        DiscreteRangedValueComplicationData.Builder(
+            value = discreteRangedValue,
+            min = discreteRangedMinValue,
+            max = discreteRangedMaxValue,
+            contentDescription?.toApiComplicationText() ?: ComplicationText.EMPTY
+        ).apply {
+            setTapAction(tapAction)
+            setValidTimeRange(parseTimeRange())
+            setMonochromaticImage(parseIconPlaceholderAware())
+            setTitle(shortTitle?.toApiComplicationTextPlaceholderAware())
+            setText(shortText?.toApiComplicationTextPlaceholderAware())
+            setDataSource(dataSource)
+        }.build()
+
     else -> null
 }
 
@@ -2341,9 +2921,8 @@ public fun WireComplicationData.toApiComplicationData(): ComplicationData {
                 setText(shortText?.toApiComplicationText())
                 setCachedWireComplicationData(wireComplicationData)
                 setDataSource(dataSource)
-                setValueType(valueType)
                 rangedMinColor?.let {
-                    setColorRamp(RangedValueComplicationData.ColorRamp(it, rangedMaxColor!!))
+                    setColorRamp(ColorRamp(it, rangedMaxColor!!))
                 }
             }.build()
 
@@ -2411,6 +2990,42 @@ public fun WireComplicationData.toApiComplicationData(): ComplicationData {
 
         NoPermissionComplicationData.TYPE.toWireComplicationType() ->
             NoPermissionComplicationData.Builder().apply {
+                setMonochromaticImage(parseIcon())
+                setTitle(shortTitle?.toApiComplicationText())
+                setText(shortText?.toApiComplicationText())
+                setCachedWireComplicationData(wireComplicationData)
+                setDataSource(dataSource)
+            }.build()
+
+        GoalProgressComplicationData.TYPE.toWireComplicationType() ->
+            GoalProgressComplicationData.Builder(
+                value = rangedValue,
+                targetValue = targetValue,
+                contentDescription = contentDescription?.toApiComplicationText()
+                    ?: ComplicationText.EMPTY
+            ).apply {
+                setTapAction(tapAction)
+                setValidTimeRange(parseTimeRange())
+                setMonochromaticImage(parseIcon())
+                setTitle(shortTitle?.toApiComplicationText())
+                setText(shortText?.toApiComplicationText())
+                setCachedWireComplicationData(wireComplicationData)
+                setDataSource(dataSource)
+                rangedMinColor?.let {
+                    setColorRamp(ColorRamp(it, rangedMaxColor!!))
+                }
+            }.build()
+
+        DiscreteRangedValueComplicationData.TYPE.toWireComplicationType() ->
+            DiscreteRangedValueComplicationData.Builder(
+                value = discreteRangedValue,
+                min = discreteRangedMinValue,
+                max = discreteRangedMaxValue,
+                contentDescription = contentDescription?.toApiComplicationText()
+                    ?: ComplicationText.EMPTY
+            ).apply {
+                setTapAction(tapAction)
+                setValidTimeRange(parseTimeRange())
                 setMonochromaticImage(parseIcon())
                 setTitle(shortTitle?.toApiComplicationText())
                 setText(shortText?.toApiComplicationText())

@@ -136,6 +136,7 @@ public final class ActionsConstraints {
                     .setMaxActions(2)
                     .addDisallowedActionType(Action.TYPE_APP_ICON)
                     .setRequireActionIcons(true)
+                    .setOnClickListenerAllowed(true)
                     .build();
 
     private final int mMaxActions;

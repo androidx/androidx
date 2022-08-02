@@ -16,4 +16,16 @@
 
 package androidx.room.solver.shortcut.result
 
-class UpsertMethodAdapter
+import androidx.room.solver.CodeGenScope
+import androidx.room.vo.ShortcutQueryParameter
+import com.squareup.javapoet.FieldSpec
+
+class UpsertMethodAdapter : InsertOrUpsertMethodAdapter() {
+    override fun createMethodBody(
+        parameters: List<ShortcutQueryParameter>,
+        adapters: Map<String, Pair<FieldSpec, Any>>,
+        dbField: FieldSpec,
+        scope: CodeGenScope
+    ) {
+    }
+}

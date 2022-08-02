@@ -29,7 +29,6 @@ android {
         minSdkVersion 21
         versionCode 1
         multiDexEnabled true
-        testInstrumentationRunnerArgument "listener", "leakcanary.FailAnnotatedTestOnLeakRunListener"
 
         externalNativeBuild {
             cmake {
@@ -66,6 +65,7 @@ dependencies {
     implementation(project(":camera:camera-camera2-pipe-integration"))
     implementation(project(":camera:camera-core"))
     implementation(project(":camera:camera-lifecycle"))
+    implementation(project(":camera:camera-mlkit-vision"))
     implementation(project(":camera:camera-video"))
     // Needed because AGP enforces same version between main and androidTest classpaths
     implementation(project(":concurrent:concurrent-futures"))

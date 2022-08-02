@@ -46,7 +46,7 @@ dependencies {
     implementation "androidx.browser:browser:1.3.0"
     implementation("androidx.startup:startup-runtime:1.1.0")
 
-    implementation(project(":window:window"))
+    implementation(project(":window:window-java"))
     debugImplementation(libs.leakcanary)
 
     androidTestImplementation(libs.testCore)

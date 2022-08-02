@@ -37,8 +37,8 @@ interface PermissionController {
      * @param permissions set of permissions interested to check if granted or not
      * @return set of granted permissions.
      *
-     * @throws RemoteException For any IPC transportation failures.
-     * @throws IOException For any disk I/O issues.
+     * @throws android.os.RemoteException For any IPC transportation failures.
+     * @throws java.io.IOException For any disk I/O issues.
      * @throws IllegalStateException If service is not available.
      */
     suspend fun getGrantedPermissions(permissions: Set<Permission>): Set<Permission>
@@ -46,8 +46,8 @@ interface PermissionController {
     /**
      * Revokes all previously granted [Permission] by the user to the calling app.
      *
-     * @throws RemoteException For any IPC transportation failures.
-     * @throws IOException For any disk I/O issues.
+     * @throws android.os.RemoteException For any IPC transportation failures.
+     * @throws java.io.IOException For any disk I/O issues.
      * @throws IllegalStateException If service is not available.
      */
     suspend fun revokeAllPermissions()
