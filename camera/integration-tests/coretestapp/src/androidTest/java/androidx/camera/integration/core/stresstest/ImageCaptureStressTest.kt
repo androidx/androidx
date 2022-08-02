@@ -78,10 +78,6 @@ class ImageCaptureStressTest(val cameraId: String) {
     @get:Rule
     val repeatRule = RepeatRule()
 
-    private val context = ApplicationProvider.getApplicationContext<Context>()
-
-    private lateinit var cameraProvider: ProcessCameraProvider
-
     companion object {
         @ClassRule
         @JvmField
@@ -97,6 +93,7 @@ class ImageCaptureStressTest(val cameraId: String) {
     fun setup(): Unit = runBlocking {
         Assume.assumeTrue(CameraUtil.deviceHasCamera())
         CoreAppTestUtil.assumeCompatibleDevice()
+        CoreAppTestUtil.assumeNotUntestableFrontCamera(cameraId)
         // Clear the device UI and check if there is no dialog or lock screen on the top of the
         // window before start the test.
         CoreAppTestUtil.prepareDeviceUI(InstrumentationRegistry.getInstrumentation())
@@ -105,24 +102,21 @@ class ImageCaptureStressTest(val cameraId: String) {
         // mDevice.unfreezeRotation() in the tearDown() method. Any simulated rotations will be
         // explicitly initiated from within the test.
         device.setOrientationNatural()
-
-        cameraProvider = ProcessCameraProvider.getInstance(context)[10000, TimeUnit.MILLISECONDS]
     }
 
     @After
     fun tearDown(): Unit = runBlocking {
-        if (::cameraProvider.isInitialized) {
-            withContext(Dispatchers.Main) {
-                cameraProvider.unbindAll()
-                cameraProvider.shutdown()[10000, TimeUnit.MILLISECONDS]
-            }
-        }
-
         // Unfreeze rotation so the device can choose the orientation via its own policy. Be nice
         // to other tests :)
         device.unfreezeRotation()
         device.pressHome()
         device.waitForIdle(StressTestUtil.HOME_TIMEOUT_MS)
+
+        withContext(Dispatchers.Main) {
+            val context = ApplicationProvider.getApplicationContext<Context>()
+            val cameraProvider = ProcessCameraProvider.getInstance(context)[10, TimeUnit.SECONDS]
+            cameraProvider.shutdown()[10, TimeUnit.SECONDS]
+        }
     }
 
     @LabTestRule.LabTestOnly
