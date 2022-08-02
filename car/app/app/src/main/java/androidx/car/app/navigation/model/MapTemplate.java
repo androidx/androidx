@@ -18,8 +18,8 @@ package androidx.car.app.navigation.model;
 
 import static androidx.car.app.model.constraints.ActionsConstraints.ACTIONS_CONSTRAINTS_BODY_WITH_PRIMARY_ACTION;
 import static androidx.car.app.model.constraints.ActionsConstraints.ACTIONS_CONSTRAINTS_NAVIGATION;
+import static androidx.car.app.model.constraints.RowListConstraints.MAP_ROW_LIST_CONSTRAINTS_ALLOW_SELECTABLE;
 import static androidx.car.app.model.constraints.RowListConstraints.ROW_LIST_CONSTRAINTS_PANE;
-import static androidx.car.app.model.constraints.RowListConstraints.ROW_LIST_CONSTRAINTS_SIMPLE;
 
 import static java.util.Objects.requireNonNull;
 
@@ -278,7 +278,7 @@ public final class MapTemplate implements Template {
         @NonNull
         public Builder setItemList(@NonNull ItemList itemList) {
             List<Item> items = requireNonNull(itemList).getItems();
-            ROW_LIST_CONSTRAINTS_SIMPLE.validateOrThrow(itemList);
+            MAP_ROW_LIST_CONSTRAINTS_ALLOW_SELECTABLE.validateOrThrow(itemList);
             ModelUtils.validateAllRowsHaveOnlySmallImages(items);
             ModelUtils.validateNoRowsHaveBothMarkersAndImages(items);
             mItemList = itemList;
