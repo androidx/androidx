@@ -16,6 +16,7 @@
 
 package androidx.camera.integration.uiwidgets.compose.ui.screen.imagecapture
 
+import android.graphics.Rect
 import android.view.ViewGroup
 import androidx.camera.core.MeteringPoint
 import androidx.camera.core.Preview.SurfaceProvider
@@ -23,6 +24,8 @@ import androidx.camera.integration.uiwidgets.compose.ui.screen.components.Camera
 import androidx.camera.integration.uiwidgets.compose.ui.screen.components.CameraControlButtonPlaceholder
 import androidx.camera.integration.uiwidgets.compose.ui.screen.components.CameraControlRow
 import androidx.camera.view.PreviewView
+import androidx.camera.view.transform.OutputTransform
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -39,18 +42,27 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.sharp.FlipCameraAndroid
 import androidx.compose.material.icons.sharp.Lens
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 
+// ImageCaptureScreen with QR-Code Overlay (Supports Preview + ImageCapture + ImageAnalysis)
+// Screen provides ImageCapture functionality and draws a bounding box around a detected QR Code
+// This is to ensure that the combination of use cases can be well supported in Compose
+// It uses OutputTransform hence we need to @SuppressWarnings to get past the linter
+@SuppressWarnings("UnsafeOptInUsageError")
 @Composable
 fun ImageCaptureScreen(
     modifier: Modifier = Modifier,
@@ -61,6 +73,13 @@ fun ImageCaptureScreen(
 
     LaunchedEffect(key1 = state.lensFacing) {
         state.startCamera(context = localContext, lifecycleOwner = lifecycleOwner)
+    }
+
+    // Release resources when the Composable is removed from the Composition
+    DisposableEffect(Unit) {
+        onDispose {
+            state.releaseResources()
+        }
     }
 
     ImageCaptureScreen(
@@ -77,10 +96,16 @@ fun ImageCaptureScreen(
             state.takePhoto(localContext)
         },
         onSurfaceProviderReady = state::setSurfaceProvider,
+        onOutputTransformReady = state::setOutputTransform,
         onTouch = state::startTapToFocus
-    )
+    ) {
+        // Uses overlay to draw detected QRCode in the image stream
+        QRCodeOverlay(qrCodeBoundingBox = state.qrCodeBoundingBox)
+    }
 }
 
+// It uses OutputTransform hence we need to @SuppressWarnings to get past the linter
+@SuppressWarnings("UnsafeOptInUsageError")
 @Composable
 fun ImageCaptureScreen(
     modifier: Modifier,
@@ -94,7 +119,9 @@ fun ImageCaptureScreen(
     onFlipCameraIconClicked: () -> Unit,
     onImageCaptureIconClicked: () -> Unit,
     onSurfaceProviderReady: (SurfaceProvider) -> Unit,
-    onTouch: (MeteringPoint) -> Unit
+    onOutputTransformReady: (OutputTransform) -> Unit,
+    onTouch: (MeteringPoint) -> Unit,
+    content: @Composable () -> Unit = {} // overlay to display something above PreviewView
 ) {
     val localContext = LocalContext.current
 
@@ -109,6 +136,9 @@ fun ImageCaptureScreen(
                 ViewGroup.LayoutParams.MATCH_PARENT
             )
 
+            // Uses TextureView. Required by MLKitAnalyzer to acquire the correct OutputTransform
+            implementationMode = PreviewView.ImplementationMode.COMPATIBLE
+
             onSurfaceProviderReady(this.surfaceProvider)
 
             setOnTouchListener { view, motionEvent ->
@@ -121,10 +151,20 @@ fun ImageCaptureScreen(
         }
     }
 
+    // Provides OutputTransform when PreviewView is attached on the screen
+    LaunchedEffect(key1 = previewView.outputTransform) {
+        if (previewView.outputTransform != null) {
+            onOutputTransformReady(previewView.outputTransform!!)
+        }
+    }
+
     Box(modifier = modifier.fillMaxSize()) {
         AndroidView(
             factory = { previewView }
         )
+
+        // Overlay over PreviewView in ImageCaptureScreen
+        content()
 
         Column(
             modifier = Modifier.align(Alignment.BottomCenter),
@@ -182,6 +222,30 @@ fun ImageCaptureScreen(
                     CameraControlButtonPlaceholder()
                 }
             }
+        }
+    }
+}
+
+@Composable
+fun QRCodeOverlay(qrCodeBoundingBox: Rect?) {
+
+    // Draw Bounding Box around QR Code if detected
+    Canvas(modifier = Modifier.fillMaxSize()) {
+        if (qrCodeBoundingBox != null) {
+            drawRect(
+                color = Color.Red,
+                topLeft = Offset(
+                    qrCodeBoundingBox.left.toFloat(),
+                    qrCodeBoundingBox.top.toFloat()
+                ),
+                size = Size(
+                    qrCodeBoundingBox.width().toFloat(),
+                    qrCodeBoundingBox.height().toFloat()
+                ),
+                style = Stroke(
+                    width = 5.0f
+                )
+            )
         }
     }
 }
