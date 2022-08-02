@@ -27,6 +27,7 @@ import android.media.ImageReader
 import android.opengl.EGL14
 import android.opengl.EGLSurface
 import android.opengl.GLES20
+import android.opengl.Matrix
 import android.os.Build
 import android.os.Handler
 import android.os.HandlerThread
@@ -37,6 +38,7 @@ import android.view.TextureView
 import androidx.annotation.RequiresApi
 import androidx.annotation.WorkerThread
 import androidx.graphics.lowlatency.HardwareBufferRenderer
+import androidx.graphics.lowlatency.LineRenderer
 import androidx.graphics.lowlatency.RenderBuffer
 import androidx.graphics.lowlatency.SyncFenceCompat
 import androidx.graphics.opengl.egl.EGLManager
@@ -63,7 +65,6 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 @SmallTest
 class GLRendererTest {
-
     @Test
     fun testStartAfterStop() {
         with(GLRenderer()) {
@@ -872,6 +873,114 @@ class GLRendererTest {
             }
         } finally {
             hardwareBuffer?.close()
+            glRenderer.stop(true) {
+                teardownLatch.countDown()
+            }
+            assertTrue(teardownLatch.await(3000, TimeUnit.MILLISECONDS))
+        }
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
+    fun testHardwareBufferRendererWithSyncFence() {
+        if (!deviceSupportsNativeAndroidFence()) {
+            // If the Android device does not support the corresponding
+            // EGL Extensions to obtain native Android fence objects from EGLSync
+            // instances then skip this test as we cannot guarantee consistency
+            // for front buffered rendering
+            return
+        }
+
+        val width = 10
+        val height = 10
+        val renderLatch = CountDownLatch(1)
+        val teardownLatch = CountDownLatch(1)
+
+        val glRenderer = GLRenderer().apply { start() }
+        var startTime = Long.MAX_VALUE
+        var signalTime = 0L
+
+        val renderer =
+            object : HardwareBufferRenderer.RenderCallbacks, GLRenderer.EGLContextCallback {
+                private val mMVPMatrix = FloatArray(16)
+                private val mLines = FloatArray(4)
+                private val mLineRenderer = LineRenderer()
+                var mRenderBuffer: RenderBuffer? = null
+
+                @WorkerThread
+                override fun onEGLContextCreated(eglManager: EGLManager) {
+                    mLineRenderer.initialize()
+                }
+
+                @WorkerThread
+                override fun onEGLContextDestroyed(eglManager: EGLManager) {
+                    mLineRenderer.release()
+                }
+
+                @WorkerThread
+                override fun obtainRenderBuffer(egl: EGLSpec): RenderBuffer {
+                    return if (mRenderBuffer != null) {
+                        mRenderBuffer!!
+                    } else {
+                        RenderBuffer(
+                            egl,
+                            HardwareBuffer.create(
+                                width,
+                                height,
+                                HardwareBuffer.RGBA_8888,
+                                1,
+                                HardwareBuffer.USAGE_GPU_SAMPLED_IMAGE
+                            )
+                        ).also { mRenderBuffer = it }
+                    }
+                }
+
+                @WorkerThread
+                override fun onDraw(eglManager: EGLManager) {
+                    startTime = System.nanoTime()
+                    GLES20.glViewport(0, 0, width, height)
+                    assertEquals(GLES20.GL_NO_ERROR, GLES20.glGetError())
+                    Matrix.orthoM(mMVPMatrix, 0, 0f, width.toFloat(), 0f, height.toFloat(), -1f, 1f)
+                    mLines[0] = 0f
+                    mLines[1] = 0f
+                    mLines[2] = 5f
+                    mLines[3] = 5f
+                    mLineRenderer.drawLines(mMVPMatrix, mLines)
+                    assertEquals(GLES20.GL_NO_ERROR, GLES20.glGetError())
+                }
+
+                @WorkerThread
+                override fun onDrawComplete(
+                    renderBuffer: RenderBuffer,
+                    syncFenceCompat: SyncFenceCompat?
+                ) {
+                    assertNotNull(syncFenceCompat)
+                    assertTrue(syncFenceCompat!!.isValid())
+
+                    assertEquals(GLES20.GL_NO_ERROR, GLES20.glGetError())
+
+                    assertTrue(syncFenceCompat.await(3000))
+                    signalTime = syncFenceCompat.getSignalTime()
+
+                    renderLatch.countDown()
+                    assertTrue(syncFenceCompat.getSignalTime() < System.nanoTime())
+                    assertTrue(syncFenceCompat.getSignalTime() > startTime)
+                }
+            }
+
+        glRenderer.registerEGLContextCallback(renderer)
+        val hwBufferRenderer = HardwareBufferRenderer(renderer)
+        val renderTarget =
+            glRenderer.createRenderTarget(width, height, hwBufferRenderer)
+
+        renderTarget.requestRender()
+        assertEquals(GLES20.GL_NO_ERROR, GLES20.glGetError())
+
+        try {
+            assertTrue(renderLatch.await(3000, TimeUnit.MILLISECONDS))
+            assertTrue(startTime < signalTime)
+            assertTrue(signalTime < System.nanoTime())
+        } finally {
             glRenderer.stop(true) {
                 teardownLatch.countDown()
             }

@@ -18,6 +18,7 @@ package androidx.graphics.lowlatency
 
 import android.opengl.EGL14
 import android.opengl.EGL15
+import android.opengl.GLES20
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.graphics.opengl.egl.EGLSpec
@@ -55,6 +56,7 @@ class SyncFenceCompat : AutoCloseable {
                 val eglSync: EGLSyncKHR =
                     egl.eglCreateSyncKHR(EGLExt.EGL_SYNC_NATIVE_FENCE_ANDROID, null)
                         ?: throw IllegalArgumentException("Unable to create sync object")
+                GLES20.glFlush()
                 val syncFenceCompat = SyncFenceCompat(egl.eglDupNativeFenceFDANDROID(eglSync))
                 egl.eglDestroySyncKHR(eglSync)
 
@@ -161,7 +163,7 @@ internal class SyncFenceCompatVerificationHelper private constructor() {
                 longArrayOf(),
                 0
             )
-
+            GLES20.glFlush()
             val syncFenceCompat = SyncFenceCompat(
                 android.opengl.EGLExt.eglDupNativeFenceFDANDROID(
                     display,

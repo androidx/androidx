@@ -35,7 +35,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 @RequiresApi(Build.VERSION_CODES.O)
 internal class HardwareBufferRenderer(
     private val hardwareBufferRendererCallbacks: RenderCallbacks,
-    private val syncStrategy: SyncStrategy = SyncStrategy.Always
+    private val syncStrategy: SyncStrategy = SyncStrategy.ALWAYS
 ) : GLRenderer.RenderCallback {
 
     private val mClear = AtomicBoolean(false)
@@ -64,7 +64,7 @@ internal class HardwareBufferRenderer(
             } else {
                 hardwareBufferRendererCallbacks.onDraw(eglManager)
             }
-            GLES20.glFlush()
+
             syncFenceCompat = syncStrategy.createSyncFence(egl)
 
             // At this point the HardwareBuffer has the contents of the GL rendering
@@ -104,10 +104,10 @@ internal class HardwareBufferRenderer(
 
 /**
  * A strategy class for deciding how to utilize [SyncFenceCompat] within
- * [HardwareBufferRenderer.RenderCallbacks]. SyncStrategy provides several default strategies for
+ * [HardwareBufferRenderer.RenderCallbacks]. SyncStrategy provides default strategies for
  * usage:
  *
- * [SyncStrategy.Always] will always create a [SyncFenceCompat] to pass into the render
+ * [SyncStrategy.ALWAYS] will always create a [SyncFenceCompat] to pass into the render
  * callbacks for [HardwareBufferRenderer]
  */
 internal interface SyncStrategy {
@@ -123,10 +123,46 @@ internal interface SyncStrategy {
          * [SyncStrategy] that will always create a [SyncFenceCompat] object
          */
         @JvmField
-        val Always = object : SyncStrategy {
+        val ALWAYS = object : SyncStrategy {
             override fun createSyncFence(eglSpec: EGLSpec): SyncFenceCompat? {
                 return eglSpec.createNativeSyncFence()
             }
+        }
+    }
+}
+
+/**
+ * [SyncStrategy] implementation that optimizes for front buffered rendering use cases.
+ * More specifically this attempts to avoid unnecessary synchronization overhead
+ * wherever possible.
+ *
+ * This will always provide a fence if the corresponding layer transitions from
+ * an invisible to a visible state. If the layer is already visible and front
+ * buffer usage flags are support on the device, then no fence is provided. If this
+ * flag is not supported, then a fence is created and "peeked" to ensure contents
+ * are flushed to the single buffer.
+ */
+internal class FrontBufferSyncStrategy(
+    private val supportsFrontBufferUsage: Boolean
+) : SyncStrategy {
+    private var mFrontBufferVisible: Boolean = false
+
+    fun isVisible(): Boolean = mFrontBufferVisible
+
+    fun setVisible(visibility: Boolean) {
+        mFrontBufferVisible = visibility
+    }
+
+    @RequiresApi(Build.VERSION_CODES.Q)
+    override fun createSyncFence(eglSpec: EGLSpec): SyncFenceCompat? {
+        return if (!isVisible()) {
+            eglSpec.createNativeSyncFence()
+        } else if (supportsFrontBufferUsage) {
+            return null
+        } else {
+            val fence = eglSpec.createNativeSyncFence()
+            fence.close()
+            return null
         }
     }
 }
