@@ -41,6 +41,20 @@ class AndroidXPluginTestContextTest {
         }
     }
 
+    @Test
+    fun betterDebuggingForPropertyIssues() = pluginTest {
+        thrown {
+            runGradle("") {
+                val mpe = "groovy.lang.MissingPropertyException"
+                val output = "$mpe: Could not get unknown property 'androidx' for root project"
+                buildResult(output)
+            }
+        }!!.check {
+            // Since we're faking this error, we expect that the class is actually there in the jar
+            it.message!!.contains("androidx/build/gradle/ExtensionsKt.class")
+        }
+    }
+
     private fun buildResult(output: String) = DefaultBuildResult(output, listOf())
 
     private fun thrown(action: () -> Unit): Throwable? {
