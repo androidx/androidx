@@ -21,9 +21,6 @@ import android.graphics.Point;
 import android.graphics.Rect;
 import android.view.ViewConfiguration;
 
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * The {@link Gestures} class provides factory methods for constructing common
  * {@link PointerGesture}s.
@@ -49,10 +46,8 @@ class Gestures {
     /** Returns the {@link Gestures} instance for the given {@link Context}. */
     public static Gestures getInstance(UiDevice device) {
         if (sInstance == null) {
-            Context context = device.getInstrumentation().getContext();
-            sInstance = new Gestures(ViewConfiguration.get(context));
+            sInstance = new Gestures(ViewConfiguration.get(device.getUiContext()));
         }
-
         return sInstance;
     }
 
