@@ -255,6 +255,19 @@ public final class ComplicationData implements Parcelable, Serializable {
      */
     public static final int TYPE_DISCRETE_RANGED_VALUE = 14;
 
+    /**
+     * Type used for complications to display a series of weighted values e.g. in a pie chart. The
+     * weighted values may be accompanied by an icon and/or short text and title.
+     *
+     * <p>The <i>element weights</i> and <i>element colors</i> fields are required for this type,
+     * and the value within the range is expected to always be displayed.
+     *
+     * <p>The <i>icon</i> (and <i>burnInProtectionIcon</i>), <i>short title</i>, and <i>short
+     * text</i> fields are optional for this type, but at least one must be defined. The watch face
+     * may choose which of these fields to display, if any.
+     */
+    public static final int TYPE_WEIGHTED_ELEMENTS = 15;
+
     /** @hide */
     @IntDef({IMAGE_STYLE_PHOTO, IMAGE_STYLE_ICON})
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -282,6 +295,8 @@ public final class ComplicationData implements Parcelable, Serializable {
     private static final String FIELD_COLOR_RAMP = "COLOR_RAMP";
     private static final String FIELD_COLOR_RAMP_INTERPOLATED = "COLOR_RAMP_INTERPOLATED";
     private static final String FIELD_DATA_SOURCE = "FIELD_DATA_SOURCE";
+    private static final String FIELD_ELEMENT_COLORS = "ELEMENT_COLORS";
+    private static final String FIELD_ELEMENT_WEIGHTS = "ELEMENT_WEIGHTS";
     private static final String FIELD_END_TIME = "END_TIME";
     private static final String FIELD_ICON = "ICON";
     private static final String FIELD_ICON_BURN_IN_PROTECTION = "ICON_BURN_IN_PROTECTION";
@@ -342,6 +357,7 @@ public final class ComplicationData implements Parcelable, Serializable {
             {FIELD_LIST_ENTRIES}, // TYPE_LIST
             {FIELD_VALUE, FIELD_TARGET_VALUE}, // GOAL_PROGRESS
             {FIELD_INT_VALUE, FIELD_INT_MIN_VALUE, FIELD_INT_MAX_VALUE}, // DISCRETE_RANGED_VALUE
+            {FIELD_ELEMENT_WEIGHTS, FIELD_ELEMENT_COLORS} // TYPE_WEIGHTED_ELEMENTS
     };
 
     // Used for validation. OPTIONAL_FIELDS[i] is an array containing all the fields which are
@@ -451,7 +467,16 @@ public final class ComplicationData implements Parcelable, Serializable {
                     FIELD_TAP_ACTION,
                     FIELD_CONTENT_DESCRIPTION,
                     FIELD_DATA_SOURCE,
-            } // DISCRETE_RANGED_VALUE
+            }, // DISCRETE_RANGED_VALUE
+            {
+                    FIELD_SHORT_TEXT,
+                    FIELD_SHORT_TITLE,
+                    FIELD_ICON,
+                    FIELD_ICON_BURN_IN_PROTECTION,
+                    FIELD_TAP_ACTION,
+                    FIELD_CONTENT_DESCRIPTION,
+                    FIELD_DATA_SOURCE,
+            }  // TYPE_WEIGHTED_ELEMENTS
     };
 
     @NonNull
@@ -493,7 +518,7 @@ public final class ComplicationData implements Parcelable, Serializable {
 
     @RequiresApi(api = Build.VERSION_CODES.P)
     private static class SerializedForm implements Serializable {
-        private static final int VERSION_NUMBER = 13;
+        private static final int VERSION_NUMBER = 14;
 
         @NonNull
         ComplicationData mComplicationData;
@@ -584,6 +609,30 @@ public final class ComplicationData implements Parcelable, Serializable {
                 if (isColorRampSmoothShaded != null) {
                     oos.writeBoolean(true);
                     oos.writeBoolean(isColorRampSmoothShaded);
+                } else {
+                    oos.writeBoolean(false);
+                }
+            }
+            if (isFieldValidForType(FIELD_ELEMENT_WEIGHTS, type)) {
+                float[] weights = mComplicationData.getElementWeights();
+                if (weights != null) {
+                    oos.writeBoolean(true);
+                    oos.writeInt(weights.length);
+                    for (float weight : weights) {
+                        oos.writeFloat(weight);
+                    }
+                } else {
+                    oos.writeBoolean(false);
+                }
+            }
+            if (isFieldValidForType(FIELD_ELEMENT_COLORS, type)) {
+                int[] colors = mComplicationData.getElementColors();
+                if (colors != null) {
+                    oos.writeBoolean(true);
+                    oos.writeInt(colors.length);
+                    for (int color : colors) {
+                        oos.writeInt(color);
+                    }
                 } else {
                     oos.writeBoolean(false);
                 }
@@ -756,6 +805,22 @@ public final class ComplicationData implements Parcelable, Serializable {
             }
             if (isFieldValidForType(FIELD_COLOR_RAMP_INTERPOLATED, type) && ois.readBoolean()) {
                 fields.putBoolean(FIELD_COLOR_RAMP_INTERPOLATED, ois.readBoolean());
+            }
+            if (isFieldValidForType(FIELD_ELEMENT_WEIGHTS, type) && ois.readBoolean()) {
+                int numWeights = ois.readInt();
+                float[] weights = new float[numWeights];
+                for (int i = 0; i < numWeights; ++i) {
+                    weights[i] = ois.readFloat();
+                }
+                fields.putFloatArray(FIELD_ELEMENT_WEIGHTS, weights);
+            }
+            if (isFieldValidForType(FIELD_ELEMENT_COLORS, type) && ois.readBoolean()) {
+                int numColors = ois.readInt();
+                int[] colors = new int[numColors];
+                for (int i = 0; i < numColors; ++i) {
+                    colors[i] = ois.readInt();
+                }
+                fields.putIntArray(FIELD_ELEMENT_COLORS, colors);
             }
             if (isFieldValidForType(FIELD_START_TIME, type)) {
                 fields.putLong(FIELD_START_TIME, ois.readLong());
@@ -1609,6 +1674,30 @@ public final class ComplicationData implements Parcelable, Serializable {
     }
 
     /**
+     * Returns the element weights for this complication.
+     *
+     * <p>Valid only if the type of this complication data is {@link #TYPE_WEIGHTED_ELEMENTS}.
+     * Otherwise returns null.
+     */
+    @Nullable
+    public float[] getElementWeights() {
+        checkFieldValidForTypeWithoutThrowingException(FIELD_ELEMENT_WEIGHTS, mType);
+        return mFields.getFloatArray(FIELD_ELEMENT_WEIGHTS);
+    }
+
+    /**
+     * Returns the element colors for this complication.
+     *
+     * <p>Valid only if the type of this complication data is {@link #TYPE_WEIGHTED_ELEMENTS}.
+     * Otherwise returns null.
+     */
+    @Nullable
+    public int[] getElementColors() {
+        checkFieldValidForTypeWithoutThrowingException(FIELD_ELEMENT_COLORS, mType);
+        return mFields.getIntArray(FIELD_ELEMENT_COLORS);
+    }
+
+    /**
      * Returns the placeholder ComplicationData if there is one or `null`.
      */
     @Nullable
@@ -2311,6 +2400,28 @@ public final class ComplicationData implements Parcelable, Serializable {
         }
 
         /**
+         * Sets the element weights for this complication.
+         *
+         * <p>Returns this Builder to allow chaining.
+         */
+        @NonNull
+        public Builder setElementWeights(@Nullable float[] elementWeights) {
+            putOrRemoveField(FIELD_ELEMENT_WEIGHTS, elementWeights);
+            return this;
+        }
+
+        /**
+         * Sets the element colors for this complication.
+         *
+         * <p>Returns this Builder to allow chaining.
+         */
+        @NonNull
+        public Builder setElementColors(@Nullable int[] elementColors) {
+            putOrRemoveField(FIELD_ELEMENT_COLORS, elementColors);
+            return this;
+        }
+
+        /**
          * Constructs and returns {@link ComplicationData} with the provided fields. All required
          * fields must be populated before this method is called.
          *
@@ -2380,6 +2491,8 @@ public final class ComplicationData implements Parcelable, Serializable {
                 mFields.putParcelable(field, (Parcelable) obj);
             } else if (obj instanceof int[]) {
                 mFields.putIntArray(field, (int[]) obj);
+            } else if (obj instanceof float[]) {
+                mFields.putFloatArray(field, (float[]) obj);
             } else {
                 throw new IllegalArgumentException("Unexpected object type: " + obj.getClass());
             }

@@ -58,6 +58,7 @@ package androidx.wear.watchface.complications.data {
     enum_constant public static final androidx.wear.watchface.complications.data.ComplicationType RANGED_VALUE;
     enum_constant public static final androidx.wear.watchface.complications.data.ComplicationType SHORT_TEXT;
     enum_constant public static final androidx.wear.watchface.complications.data.ComplicationType SMALL_IMAGE;
+    enum_constant @androidx.wear.watchface.complications.data.ComplicationExperimental public static final androidx.wear.watchface.complications.data.ComplicationType WEIGHTED_ELEMENTS;
   }
 
   public final class CountDownTimeReference {
@@ -477,6 +478,40 @@ package androidx.wear.watchface.complications.data {
   }
 
   public final class TypeKt {
+  }
+
+  @androidx.wear.watchface.complications.data.ComplicationExperimental public final class WeightedElementsComplicationData extends androidx.wear.watchface.complications.data.ComplicationData {
+    method public androidx.wear.watchface.complications.data.ComplicationText? getContentDescription();
+    method public java.util.List<androidx.wear.watchface.complications.data.WeightedElementsComplicationData.Element> getElements();
+    method public androidx.wear.watchface.complications.data.MonochromaticImage? getMonochromaticImage();
+    method public androidx.wear.watchface.complications.data.ComplicationText? getText();
+    method public androidx.wear.watchface.complications.data.ComplicationText? getTitle();
+    property public final androidx.wear.watchface.complications.data.ComplicationText? contentDescription;
+    property public final java.util.List<androidx.wear.watchface.complications.data.WeightedElementsComplicationData.Element> elements;
+    property public final androidx.wear.watchface.complications.data.MonochromaticImage? monochromaticImage;
+    property public final androidx.wear.watchface.complications.data.ComplicationText? text;
+    property public final androidx.wear.watchface.complications.data.ComplicationText? title;
+    field public static final java.util.List<androidx.wear.watchface.complications.data.WeightedElementsComplicationData.Element> PLACEHOLDER;
+    field public static final androidx.wear.watchface.complications.data.ComplicationType TYPE;
+  }
+
+  public static final class WeightedElementsComplicationData.Builder {
+    ctor public WeightedElementsComplicationData.Builder(java.util.List<androidx.wear.watchface.complications.data.WeightedElementsComplicationData.Element> elements, androidx.wear.watchface.complications.data.ComplicationText contentDescription);
+    method public androidx.wear.watchface.complications.data.WeightedElementsComplicationData build();
+    method public androidx.wear.watchface.complications.data.WeightedElementsComplicationData.Builder setDataSource(android.content.ComponentName? dataSource);
+    method public androidx.wear.watchface.complications.data.WeightedElementsComplicationData.Builder setMonochromaticImage(androidx.wear.watchface.complications.data.MonochromaticImage? monochromaticImage);
+    method public androidx.wear.watchface.complications.data.WeightedElementsComplicationData.Builder setTapAction(android.app.PendingIntent? tapAction);
+    method public androidx.wear.watchface.complications.data.WeightedElementsComplicationData.Builder setText(androidx.wear.watchface.complications.data.ComplicationText? text);
+    method public androidx.wear.watchface.complications.data.WeightedElementsComplicationData.Builder setTitle(androidx.wear.watchface.complications.data.ComplicationText? title);
+    method public androidx.wear.watchface.complications.data.WeightedElementsComplicationData.Builder setValidTimeRange(androidx.wear.watchface.complications.data.TimeRange? validTimeRange);
+  }
+
+  public static final class WeightedElementsComplicationData.Element {
+    ctor public WeightedElementsComplicationData.Element(@FloatRange(from=0.0, fromInclusive=false) float weight, @ColorInt int color);
+    method public int getColor();
+    method public float getWeight();
+    property public final int color;
+    property public final float weight;
   }
 
 }

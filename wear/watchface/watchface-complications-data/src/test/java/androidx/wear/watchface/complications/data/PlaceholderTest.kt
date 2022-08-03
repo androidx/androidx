@@ -18,6 +18,7 @@ package androidx.wear.watchface.complications.data
 
 import android.content.ComponentName
 import android.content.Context
+import android.graphics.Color
 import android.graphics.drawable.Icon
 import android.support.wearable.complications.ComplicationData
 import android.support.wearable.complications.ComplicationData.IMAGE_STYLE_ICON
@@ -310,6 +311,64 @@ class PlaceholderTest {
         assertThat(placeholderRangedValue.min).isEqualTo(1)
         assertThat(placeholderRangedValue.max).isEqualTo(10)
         assertThat(placeholderRangedValue.hasPlaceholderFields()).isFalse()
+    }
+
+    @OptIn(ComplicationExperimental::class)
+    @Test
+    fun placeholder_weightedElements() {
+        val placeholderWeightedElements = NoDataComplicationData(
+            WeightedElementsComplicationData.Builder(
+                elements = WeightedElementsComplicationData.PLACEHOLDER,
+                contentDescription
+            )
+                .setText(ComplicationText.PLACEHOLDER)
+                .setTitle(ComplicationText.PLACEHOLDER)
+                .setMonochromaticImage(MonochromaticImage.PLACEHOLDER)
+                .build()
+        ).toWireFormatRoundTrip().placeholder as WeightedElementsComplicationData
+
+        assertThat(placeholderWeightedElements.elements)
+            .isEqualTo(WeightedElementsComplicationData.PLACEHOLDER)
+        assertThat(placeholderWeightedElements.text).isEqualTo(ComplicationText.PLACEHOLDER)
+        assertThat(placeholderWeightedElements.title).isEqualTo(ComplicationText.PLACEHOLDER)
+        assertThat(placeholderWeightedElements.monochromaticImage)
+            .isEqualTo(MonochromaticImage.PLACEHOLDER)
+        assertThat(placeholderWeightedElements.contentDescription!!
+            .getTextAt(resources, Instant.EPOCH)).isEqualTo("description")
+        assertThat(placeholderWeightedElements.hasPlaceholderFields()).isTrue()
+    }
+
+    @OptIn(ComplicationExperimental::class)
+    @Test
+    fun normal_weightedElements() {
+        val weightedElements = NoDataComplicationData(
+            WeightedElementsComplicationData.Builder(
+                elements = listOf(
+                    WeightedElementsComplicationData.Element(0.5f, Color.RED),
+                    WeightedElementsComplicationData.Element(1f, Color.GREEN),
+                    WeightedElementsComplicationData.Element(2f, Color.BLUE),
+                ),
+                contentDescription
+            )
+                .setText(text)
+                .setTitle(title)
+                .setMonochromaticImage(monochromaticImage)
+                .build()
+        ).toWireFormatRoundTrip().placeholder as WeightedElementsComplicationData
+
+        assertThat(weightedElements.elements).isEqualTo(
+            listOf(
+                WeightedElementsComplicationData.Element(0.5f, Color.RED),
+                WeightedElementsComplicationData.Element(1f, Color.GREEN),
+                WeightedElementsComplicationData.Element(2f, Color.BLUE),
+            )
+        )
+        assertThat(weightedElements.text).isEqualTo(text)
+        assertThat(weightedElements.title).isEqualTo(title)
+        assertThat(weightedElements.monochromaticImage).isEqualTo(monochromaticImage)
+        assertThat(weightedElements.contentDescription!!.getTextAt(resources, Instant.EPOCH))
+            .isEqualTo("description")
+        assertThat(weightedElements.hasPlaceholderFields()).isFalse()
     }
 
     @OptIn(ComplicationExperimental::class)

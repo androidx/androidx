@@ -21,6 +21,7 @@ import android.content.ComponentName
 import android.graphics.drawable.Icon
 import android.os.Build
 import androidx.annotation.ColorInt
+import androidx.annotation.FloatRange
 import androidx.annotation.IntDef
 import androidx.annotation.RestrictTo
 import androidx.wear.tiles.LayoutElementBuilders
@@ -161,6 +162,7 @@ public class NoDataComplicationData internal constructor(
             is PhotoImageComplicationData -> placeholder.contentDescription
             is GoalProgressComplicationData -> placeholder.contentDescription
             is DiscreteRangedValueComplicationData -> placeholder.contentDescription
+            is WeightedElementsComplicationData -> placeholder.contentDescription
             else -> null
         }
 
@@ -786,15 +788,15 @@ public class ColorRamp(
  * face. If the monochromaticImage is equal to [MonochromaticImage.PLACEHOLDER] the renderer must
  * treat it as a placeholder rather than rendering normally, its suggested it should be rendered as
  * a light grey box.
- * @property text The body [ComplicationText] of the complication. The length of the text, including
+ * @property title The optional title [ComplicationText]. The length of the title, including
  * any time-dependent values at any valid time, is expected to not exceed seven characters. When
  * using this text, the watch face should be able to display any string of up to seven characters
  * (reducing the text size appropriately if the string is very wide). Although not expected, it is
  * possible that strings of more than seven characters might be seen, in which case they may be
- * truncated. If the text is equal to [ComplicationText.PLACEHOLDER] the renderer must treat it as a
- * placeholder rather than rendering normally, its suggested it should be rendered as a light grey
+ * truncated. If the title is equal to [ComplicationText.PLACEHOLDER] the renderer must treat it as
+ * a placeholder rather than rendering normally, its suggested it should be rendered as a light grey
  * box.
- * @property title The optional title [ComplicationText]. The length of the text, including
+ * @property text The body [ComplicationText] of the complication. The length of the text, including
  * any time-dependent values at any valid time, is expected to not exceed seven characters. When
  * using this text, the watch face should be able to display any string of up to seven characters
  * (reducing the text size appropriately if the string is very wide). Although not expected, it is
@@ -929,7 +931,7 @@ internal constructor(
             this.title = title
         }
 
-        /** Sets optional title associated with the complication data. */
+        /** Sets optional text associated with the complication data. */
         public fun setText(text: ComplicationText?): Builder = apply {
             this.text = text
         }
@@ -1125,15 +1127,15 @@ internal constructor(
  * face. If the monochromaticImage is equal to [MonochromaticImage.PLACEHOLDER] the renderer must
  * treat it as a placeholder rather than rendering normally, its suggested it should be rendered as
  * a light grey box.
- * @property text The body [ComplicationText] of the complication. The length of the text, including
+ * @property title The optional title [ComplicationText]. The length of the title, including
  * any time-dependent values at any valid time, is expected to not exceed seven characters. When
  * using this text, the watch face should be able to display any string of up to seven characters
  * (reducing the text size appropriately if the string is very wide). Although not expected, it is
  * possible that strings of more than seven characters might be seen, in which case they may be
- * truncated. If the text is equal to [ComplicationText.PLACEHOLDER] the renderer must treat it as a
- * placeholder rather than rendering normally, its suggested it should be rendered as a light grey
+ * truncated. If the title is equal to [ComplicationText.PLACEHOLDER] the renderer must treat it as
+ * a placeholder rather than rendering normally, its suggested it should be rendered as a light grey
  * box.
- * @property title The optional title [ComplicationText]. The length of the text, including
+ * @property text The body [ComplicationText] of the complication. The length of the text, including
  * any time-dependent values at any valid time, is expected to not exceed seven characters. When
  * using this text, the watch face should be able to display any string of up to seven characters
  * (reducing the text size appropriately if the string is very wide). Although not expected, it is
@@ -1223,7 +1225,7 @@ internal constructor(
             this.title = title
         }
 
-        /** Sets optional title associated with the complication data. */
+        /** Sets optional text associated with the complication data. */
         public fun setText(text: ComplicationText?): Builder = apply {
             this.text = text
         }
@@ -1396,6 +1398,291 @@ internal constructor(
 }
 
 /**
+ * Type used for complications which want to display the breakdown of something (e.g. nutrition
+ * data) perhaps as a pie chart, or as a stacked bar chart etc. The breakdown may be accompanied by
+ * an icon and/or short text and title.
+ *
+ * The [elements] field is required for this type and is expected to always be displayed.
+ *
+ * The icon, title, and text fields are optional but at least one of them must be set. The watch
+ * face may choose which of these fields to display, if any.
+ *
+ * @property elements The breakdown of the subject into various [Element]s. E.g. the proportion of
+ * calories consumed which were carbohydrates, fats etc... If this is equal to [PLACEHOLDER] then
+ * the renderer must display this in a visiually distinct way to suggest to the user that it's
+ * placeholder data.  E.g. each rendered is rendered in light grey.
+ * @property monochromaticImage A simple [MonochromaticImage] image that can be tinted by the watch
+ * face. If the monochromaticImage is equal to [MonochromaticImage.PLACEHOLDER] the renderer must
+ * treat it as a placeholder rather than rendering normally, its suggested it should be rendered as
+ * a light grey box.
+ * @property title The optional title [ComplicationText]. The length of the title, including
+ * any time-dependent values at any valid time, is expected to not exceed seven characters. When
+ * using this text, the watch face should be able to display any string of up to seven characters
+ * (reducing the text size appropriately if the string is very wide). Although not expected, it is
+ * possible that strings of more than seven characters might be seen, in which case they may be
+ * truncated. If the title is equal to [ComplicationText.PLACEHOLDER] the renderer must treat it as
+ * a placeholder rather than rendering normally, its suggested it should be rendered as a light grey
+ * box.
+ * @property text The body [ComplicationText] of the complication. The length of the text, including
+ * any time-dependent values at any valid time, is expected to not exceed seven characters. When
+ * using this text, the watch face should be able to display any string of up to seven characters
+ * (reducing the text size appropriately if the string is very wide). Although not expected, it is
+ * possible that strings of more than seven characters might be seen, in which case they may be
+ * truncated. If the text is equal to [ComplicationText.PLACEHOLDER] the renderer must treat it as a
+ * placeholder rather than rendering normally, its suggested it should be rendered as a light grey
+ * box.
+ * @property contentDescription The content description field for accessibility.
+ */
+@ComplicationExperimental
+public class WeightedElementsComplicationData
+internal constructor(
+    public val elements: List<Element>,
+    public val monochromaticImage: MonochromaticImage?,
+    public val title: ComplicationText?,
+    public val text: ComplicationText?,
+    public val contentDescription: ComplicationText?,
+    tapAction: PendingIntent?,
+    validTimeRange: TimeRange?,
+    cachedWireComplicationData: WireComplicationData?,
+    dataSource: ComponentName?
+) : ComplicationData(
+    TYPE,
+    tapAction = tapAction,
+    cachedWireComplicationData = cachedWireComplicationData,
+    validTimeRange = validTimeRange ?: TimeRange.ALWAYS,
+    dataSource = dataSource
+) {
+    /**
+     * Describes a single value within a [WeightedElementsComplicationData].
+     *
+     * @property weight The weight of the Element which must be > zero. The size of the element when
+     * rendered should be proportional to its weight. Weights are not required to sum to any
+     * particular value.
+     * @property color The color of the Element. In conjunction with the other fields this color
+     * needs to be meaningful to the user. Tapping on the complication should launch an experience
+     * where the data is presented in more detail. Care must be taken to ensure the colors used are
+     * consistent.
+     */
+    class Element(
+        @FloatRange(from = 0.0, fromInclusive = false) val weight: Float,
+        @ColorInt val color: Int
+    ) {
+        init {
+            require(weight > 0) { "The weight must be > 0" }
+        }
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (javaClass != other?.javaClass) return false
+
+            other as Element
+
+            if (color != other.color) return false
+            if (weight != other.weight) return false
+
+            return true
+        }
+
+        override fun hashCode(): Int {
+            var result = color
+            result = 31 * result + weight.hashCode()
+            return result
+        }
+
+        override fun toString(): String {
+            return "Element(color=$color, weight=$weight)"
+        }
+    }
+
+    /**
+     * Builder for [WeightedElementsComplicationData].
+     *
+     * You must at a minimum set the [elements] field and at least one of [monochromaticImage],
+     * [text] or [title].
+     *
+     * @param elements The breakdown of the subject into various [Element]s. E.g. the proportion of
+     * calories consumed which were carbohydrates, fats etc... The [tapAction] must take the user to
+     * an experience where the color key becomes obvious.
+     * @param contentDescription Localized description for use by screen readers
+     */
+    @OptIn(ComplicationExperimental::class)
+    public class Builder(
+        private val elements: List<Element>,
+        private var contentDescription: ComplicationText
+    ) {
+        private var tapAction: PendingIntent? = null
+        private var validTimeRange: TimeRange? = null
+        private var monochromaticImage: MonochromaticImage? = null
+        private var title: ComplicationText? = null
+        private var text: ComplicationText? = null
+        private var cachedWireComplicationData: WireComplicationData? = null
+        private var dataSource: ComponentName? = null
+
+        /** Sets optional pending intent to be invoked when the complication is tapped. */
+        public fun setTapAction(tapAction: PendingIntent?): Builder = apply {
+            this.tapAction = tapAction
+        }
+
+        /** Sets optional time range during which the complication has to be shown. */
+        @Suppress("MissingGetterMatchingBuilder") // b/174052810
+        public fun setValidTimeRange(validTimeRange: TimeRange?): Builder = apply {
+            this.validTimeRange = validTimeRange
+        }
+
+        /** Sets optional icon associated with the complication data. */
+        public fun setMonochromaticImage(monochromaticImage: MonochromaticImage?): Builder = apply {
+            this.monochromaticImage = monochromaticImage
+        }
+
+        /** Sets optional title associated with the complication data. */
+        public fun setTitle(title: ComplicationText?): Builder = apply {
+            this.title = title
+        }
+
+        /** Sets optional text associated with the complication data. */
+        public fun setText(text: ComplicationText?): Builder = apply {
+            this.text = text
+        }
+
+        /**
+         * Sets the [ComponentName] of the ComplicationDataSourceService that provided this
+         * ComplicationData, if any.
+         *
+         * Note a ComplicationDataSourceService does not need to call this because the system will
+         * set this value on its behalf.
+         */
+        public fun setDataSource(dataSource: ComponentName?): Builder = apply {
+            this.dataSource = dataSource
+        }
+
+        internal fun setCachedWireComplicationData(
+            cachedWireComplicationData: WireComplicationData?
+        ): Builder = apply {
+            this.cachedWireComplicationData = cachedWireComplicationData
+        }
+
+        /** Builds the [GoalProgressComplicationData]. */
+        @OptIn(ComplicationExperimental::class)
+        public fun build(): WeightedElementsComplicationData {
+            require(monochromaticImage != null || text != null || title != null) {
+                "At least one of monochromaticImage, text or title must be set"
+            }
+            return WeightedElementsComplicationData(
+                elements,
+                monochromaticImage,
+                title,
+                text,
+                contentDescription,
+                tapAction,
+                validTimeRange,
+                cachedWireComplicationData,
+                dataSource
+            )
+        }
+    }
+
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public override fun asWireComplicationData(): WireComplicationData {
+        cachedWireComplicationData?.let {
+            return it
+        }
+        return createWireComplicationDataBuilder().apply {
+            fillWireComplicationDataBuilder(this)
+        }.build().also { cachedWireComplicationData = it }
+    }
+
+    @OptIn(ComplicationExperimental::class)
+    override fun fillWireComplicationDataBuilder(builder: WireComplicationDataBuilder) {
+        builder.setElementWeights(elements.map { it.weight }.toFloatArray())
+        builder.setElementColors(elements.map { it.color }.toIntArray())
+        monochromaticImage?.addToWireComplicationData(builder)
+        builder.setShortText(text?.toWireComplicationText())
+        builder.setShortTitle(title?.toWireComplicationText())
+        builder.setTapAction(tapAction)
+        builder.setContentDescription(
+            when (contentDescription) {
+                ComplicationText.EMPTY -> null
+                else -> contentDescription?.toWireComplicationText()
+            }
+        )
+        setValidTimeRange(validTimeRange, builder)
+        builder.setTapActionLostDueToSerialization(tapActionLostDueToSerialization)
+    }
+
+    override fun getNextChangeInstant(afterInstant: Instant): Instant {
+        val titleChangeInstant = title?.getNextChangeTime(afterInstant) ?: Instant.MAX
+        val textChangeInstant = text?.getNextChangeTime(afterInstant) ?: Instant.MAX
+        return if (textChangeInstant.isBefore(titleChangeInstant)) {
+            textChangeInstant
+        } else {
+            titleChangeInstant
+        }
+    }
+
+    @OptIn(ComplicationExperimental::class)
+    override fun toString(): String {
+        val elementsString = if (WireComplicationData.shouldRedact()) {
+            "REDACTED"
+        } else {
+            elements.joinToString()
+        }
+        return "WeightedElementsComplicationData(elements=$elementsString, " +
+            "monochromaticImage=$monochromaticImage, title=$title, text=$text, " +
+            "contentDescription=$contentDescription), " +
+            "tapActionLostDueToSerialization=$tapActionLostDueToSerialization, " +
+            "tapAction=$tapAction, validTimeRange=$validTimeRange, dataSource=$dataSource)"
+    }
+
+    override fun hasPlaceholderFields() = elements == PLACEHOLDER ||
+        text?.isPlaceholder() == true || title?.isPlaceholder() == true ||
+        monochromaticImage?.isPlaceholder() == true
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as WeightedElementsComplicationData
+
+        if (elements != other.elements) return false
+        if (monochromaticImage != other.monochromaticImage) return false
+        if (title != other.title) return false
+        if (text != other.text) return false
+        if (contentDescription != other.contentDescription) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = elements.hashCode()
+        result = 31 * result + (monochromaticImage?.hashCode() ?: 0)
+        result = 31 * result + (title?.hashCode() ?: 0)
+        result = 31 * result + (text?.hashCode() ?: 0)
+        result = 31 * result + (contentDescription?.hashCode() ?: 0)
+        return result
+    }
+
+    /** @hide */
+    public companion object {
+        /** The [ComplicationType] corresponding to objects of this type. */
+        @OptIn(ComplicationExperimental::class)
+        @JvmField
+        public val TYPE: ComplicationType = ComplicationType.WEIGHTED_ELEMENTS
+
+        /**
+         * Used to signal the range should be rendered as a placeholder. It's suggested that a
+         * placeholder ranged value be drawn as a grey arc with a percentage value selected by the
+         * renderer.
+         *
+         * Note a placeholder may only be used in the context of
+         * [NoDataComplicationData.placeholder].
+         */
+        @JvmField
+        public val PLACEHOLDER = emptyList<Element>()
+    }
+}
+
+/**
  * Type used for complications including a discrete integer value within a range. E.g. 3 out of 6
  * daily cups of water drunk. The value may be accompanied by an icon and/or short text and title.
  *
@@ -1419,15 +1706,15 @@ internal constructor(
  * face. If the monochromaticImage is equal to [MonochromaticImage.PLACEHOLDER] the renderer must
  * treat it as a placeholder rather than rendering normally, its suggested it should be rendered as
  * a light grey box.
- * @property text The body [ComplicationText] of the complication. The length of the text, including
+ * @property title The optional title [ComplicationText]. The length of the title, including
  * any time-dependent values at any valid time, is expected to not exceed seven characters. When
  * using this text, the watch face should be able to display any string of up to seven characters
  * (reducing the text size appropriately if the string is very wide). Although not expected, it is
  * possible that strings of more than seven characters might be seen, in which case they may be
- * truncated. If the text is equal to [ComplicationText.PLACEHOLDER] the renderer must treat it as a
- * placeholder rather than rendering normally, its suggested it should be rendered as a light grey
+ * truncated. If the title is equal to [ComplicationText.PLACEHOLDER] the renderer must treat it as
+ * a placeholder rather than rendering normally, its suggested it should be rendered as a light grey
  * box.
- * @property title The optional title [ComplicationText]. The length of the text, including
+ * @property text The body [ComplicationText] of the complication. The length of the text, including
  * any time-dependent values at any valid time, is expected to not exceed seven characters. When
  * using this text, the watch face should be able to display any string of up to seven characters
  * (reducing the text size appropriately if the string is very wide). Although not expected, it is
@@ -1512,7 +1799,7 @@ internal constructor(
             this.title = title
         }
 
-        /** Sets optional title associated with the complication data. */
+        /** Sets optional text associated with the complication data. */
         public fun setText(text: ComplicationText?): Builder = apply {
             this.text = text
         }
@@ -2874,6 +3161,30 @@ internal fun WireComplicationData.toPlaceholderComplicationData(): ComplicationD
             setDataSource(dataSource)
         }.build()
 
+    WeightedElementsComplicationData.TYPE.toWireComplicationType() ->
+        WeightedElementsComplicationData.Builder(
+            elements = if (elementWeights!!.isEmpty()) {
+                WeightedElementsComplicationData.PLACEHOLDER
+            } else {
+                val elementWeights = this.elementWeights!!
+                val elementColors = this.elementColors!!
+                require(elementWeights.size == elementColors.size) {
+                    "elementWeights and elementColors must have the same size"
+                }
+                elementWeights.mapIndexed { index, weight ->
+                    WeightedElementsComplicationData.Element(weight, elementColors[index])
+                }.toList()
+            },
+            contentDescription?.toApiComplicationText() ?: ComplicationText.EMPTY
+        ).apply {
+            setTapAction(tapAction)
+            setValidTimeRange(parseTimeRange())
+            setMonochromaticImage(parseIconPlaceholderAware())
+            setTitle(shortTitle?.toApiComplicationTextPlaceholderAware())
+            setText(shortText?.toApiComplicationTextPlaceholderAware())
+            setDataSource(dataSource)
+        }.build()
+
     else -> null
 }
 
@@ -3048,6 +3359,28 @@ public fun WireComplicationData.toApiComplicationData(): ComplicationData {
                 setCachedWireComplicationData(wireComplicationData)
                 setDataSource(dataSource)
             }.build()
+
+        WeightedElementsComplicationData.TYPE.toWireComplicationType() -> {
+            val elementWeights = this.elementWeights!!
+            val elementColors = this.elementColors!!
+            require(elementWeights.size == elementColors.size) {
+                "elementWeights and elementColors must have the same size"
+            }
+            WeightedElementsComplicationData.Builder(
+                elements = elementWeights.mapIndexed { index, weight ->
+                    WeightedElementsComplicationData.Element(weight, elementColors[index])
+                }.toList(),
+                contentDescription?.toApiComplicationText() ?: ComplicationText.EMPTY
+            ).apply {
+                setTapAction(tapAction)
+                setValidTimeRange(parseTimeRange())
+                setMonochromaticImage(parseIcon())
+                setTitle(shortTitle?.toApiComplicationText())
+                setText(shortText?.toApiComplicationText())
+                setCachedWireComplicationData(wireComplicationData)
+                setDataSource(dataSource)
+            }.build()
+        }
 
         else -> NoDataComplicationData()
     }
