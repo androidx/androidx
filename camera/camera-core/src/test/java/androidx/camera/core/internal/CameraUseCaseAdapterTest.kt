@@ -20,6 +20,7 @@ import android.graphics.Matrix
 import android.graphics.Rect
 import android.os.Build
 import android.util.Rational
+import android.util.Size
 import android.view.Surface
 import androidx.camera.core.EffectBundle
 import androidx.camera.core.ImageCapture
@@ -58,6 +59,8 @@ import org.mockito.Mockito.verify
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.internal.DoNotInstrument
 
+private const val CAMERA_ID = "0"
+
 /**
  * Unit tests for [CameraUseCaseAdapter].
  */
@@ -78,7 +81,7 @@ class CameraUseCaseAdapterTest {
     @Before
     fun setUp() {
         fakeCameraDeviceSurfaceManager = FakeCameraDeviceSurfaceManager()
-        fakeCamera = FakeCamera()
+        fakeCamera = FakeCamera(CAMERA_ID)
         useCaseConfigFactory = FakeUseCaseConfigFactory()
         fakeCameraSet.add(fakeCamera)
         surfaceEffect = FakeSurfaceEffect(mainThreadExecutor())
@@ -310,16 +313,35 @@ class CameraUseCaseAdapterTest {
         val aspectRatio = Rational(1, 1)
 
         // Arrange: set up adapter with aspect ratio 1.
+        // The sensor size is 4032x3024 defined in FakeCameraDeviceSurfaceManager
+        fakeCameraDeviceSurfaceManager.setSuggestedResolution(
+            CAMERA_ID,
+            FakeUseCaseConfig::class.java,
+            Size(4032, 3022)
+        )
+        /*         Sensor to Buffer                 Crop on Buffer
+         *        0               4032
+         *      0 |-----------------|            0    505  3527  4032
+         *      1 |-----------------|          0 |-----------------|
+         *        |   Crop Inside   |            |     |Crop|      |
+         *   3023 |-----------------|       3022 |-----------------|
+         *   3024 |-----------------|
+         */
         val cameraUseCaseAdapter = CameraUseCaseAdapter(
             fakeCameraSet,
             fakeCameraDeviceSurfaceManager,
             useCaseConfigFactory
         )
         cameraUseCaseAdapter.setViewPort(ViewPort.Builder(aspectRatio, Surface.ROTATION_0).build())
-        val fakeUseCase = spy(FakeUseCase())
+        val fakeUseCase = FakeUseCase()
         cameraUseCaseAdapter.addUseCases(listOf(fakeUseCase))
-        verify(fakeUseCase).setViewPortCropRect(Rect(504, 0, 3528, 3024))
-        verify(fakeUseCase).setSensorToBufferTransformMatrix(Matrix())
+        assertThat(fakeUseCase.viewPortCropRect).isEqualTo(Rect(505, 0, 3527, 3022))
+        assertThat(fakeUseCase.sensorToBufferTransformMatrix).isEqualTo(Matrix().apply {
+            // From 4032x3024 to 4032x3022 with Crop Inside, no scale and Y shift 1.
+            setValues(floatArrayOf(/*scaleX=*/1f, 0f, /*translateX=*/0f,
+                                   0f, /*scaleY=*/1f, /*translateY=*/-1f,
+                                   0f, 0f, 1f))
+        })
     }
 
     @Test
