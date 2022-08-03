@@ -27,11 +27,35 @@ import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.DoNotInline;
+import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+
 /** Helper for accessing features in {@link PendingIntent}. */
 public final class PendingIntentCompat {
+
+    /** @hide */
+    @IntDef(
+            flag = true,
+            value = {
+                PendingIntent.FLAG_ONE_SHOT,
+                PendingIntent.FLAG_NO_CREATE,
+                PendingIntent.FLAG_CANCEL_CURRENT,
+                PendingIntent.FLAG_UPDATE_CURRENT,
+                Intent.FILL_IN_ACTION,
+                Intent.FILL_IN_DATA,
+                Intent.FILL_IN_CATEGORIES,
+                Intent.FILL_IN_COMPONENT,
+                Intent.FILL_IN_PACKAGE,
+                Intent.FILL_IN_SOURCE_BOUNDS,
+                Intent.FILL_IN_SELECTOR,
+                Intent.FILL_IN_CLIP_DATA
+            })
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface Flags {}
 
     /**
      * Retrieves a {@link PendingIntent} with mandatory mutability flag set on supported platform
@@ -43,7 +67,7 @@ public final class PendingIntentCompat {
             @NonNull Context context,
             int requestCode,
             @NonNull @SuppressLint("ArrayReturn") Intent[] intents,
-            int flags,
+            @Flags int flags,
             @NonNull Bundle options,
             boolean isMutable) {
         if (Build.VERSION.SDK_INT >= 16) {
@@ -64,7 +88,7 @@ public final class PendingIntentCompat {
             @NonNull Context context,
             int requestCode,
             @NonNull @SuppressLint("ArrayReturn") Intent[] intents,
-            int flags,
+            @Flags int flags,
             boolean isMutable) {
         return PendingIntent.getActivities(
                 context, requestCode, intents, addMutabilityFlags(isMutable, flags));
@@ -80,7 +104,7 @@ public final class PendingIntentCompat {
             @NonNull Context context,
             int requestCode,
             @NonNull Intent intent,
-            int flags,
+            @Flags int flags,
             boolean isMutable) {
         return PendingIntent.getActivity(
                 context, requestCode, intent, addMutabilityFlags(isMutable, flags));
@@ -96,7 +120,7 @@ public final class PendingIntentCompat {
             @NonNull Context context,
             int requestCode,
             @NonNull Intent intent,
-            int flags,
+            @Flags int flags,
             @NonNull Bundle options,
             boolean isMutable) {
         if (Build.VERSION.SDK_INT >= 16) {
@@ -117,7 +141,7 @@ public final class PendingIntentCompat {
             @NonNull Context context,
             int requestCode,
             @NonNull Intent intent,
-            int flags,
+            @Flags int flags,
             boolean isMutable) {
         return PendingIntent.getBroadcast(
                 context, requestCode, intent, addMutabilityFlags(isMutable, flags));
@@ -134,7 +158,7 @@ public final class PendingIntentCompat {
             @NonNull Context context,
             int requestCode,
             @NonNull Intent intent,
-            int flags,
+            @Flags int flags,
             boolean isMutable) {
         return Api26Impl.getForegroundService(
                 context, requestCode, intent, addMutabilityFlags(isMutable, flags));
@@ -150,7 +174,7 @@ public final class PendingIntentCompat {
             @NonNull Context context,
             int requestCode,
             @NonNull Intent intent,
-            int flags,
+            @Flags int flags,
             boolean isMutable) {
         return PendingIntent.getService(
                 context, requestCode, intent, addMutabilityFlags(isMutable, flags));
@@ -181,7 +205,7 @@ public final class PendingIntentCompat {
                 @NonNull Context context,
                 int requestCode,
                 @NonNull @SuppressLint("ArrayReturn") Intent[] intents,
-                int flags,
+                @Flags int flags,
                 @NonNull Bundle options) {
             return PendingIntent.getActivities(context, requestCode, intents, flags, options);
         }
@@ -191,7 +215,7 @@ public final class PendingIntentCompat {
                 @NonNull Context context,
                 int requestCode,
                 @NonNull Intent intent,
-                int flags,
+                @Flags int flags,
                 @NonNull Bundle options) {
             return PendingIntent.getActivity(context, requestCode, intent, flags, options);
         }
