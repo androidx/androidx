@@ -19,14 +19,15 @@ package androidx.javascriptengine;
 import androidx.annotation.NonNull;
 
 /**
- * Super class for all exceptions resolved by {@link JsIsolate#evaluateJavaScriptAsync(String)}.
+ * Super class for all exceptions resolved by
+ * {@link JavaScriptIsolate#evaluateJavaScriptAsync(String)}.
  */
-public class JsException extends Exception {
-    public JsException(@NonNull String error) {
+public class JavaScriptException extends Exception {
+    public JavaScriptException(@NonNull String error) {
         super(error);
     }
 
-    public JsException() {
+    public JavaScriptException() {
         super();
     }
 }

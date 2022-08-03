@@ -19,7 +19,7 @@ package androidx.javascriptengine;
 import androidx.annotation.NonNull;
 
 /** Wrapper for the exception thrown by the JS evaluation engine. */
-public class EvaluationFailedException extends JsException {
+public final class EvaluationFailedException extends JavaScriptException {
     public EvaluationFailedException(@NonNull String error) {
         super(error);
     }
