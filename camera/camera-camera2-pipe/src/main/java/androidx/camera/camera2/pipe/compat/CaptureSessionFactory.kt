@@ -26,7 +26,7 @@ import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.compat.OutputConfigurationWrapper.Companion.SURFACE_GROUP_ID_NONE
-import androidx.camera.camera2.pipe.config.CameraGraphScope
+import androidx.camera.camera2.pipe.config.Camera2ControllerScope
 import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.core.Threads
 import androidx.camera.camera2.pipe.graph.StreamGraphImpl
@@ -51,9 +51,9 @@ internal interface CaptureSessionFactory {
 }
 
 @Module
-internal object SessionFactoryModule {
+internal object Camera2CaptureSessionsModule {
     @SuppressLint("ObsoleteSdkInt")
-    @CameraGraphScope
+    @Camera2ControllerScope
     @Provides
     fun provideSessionFactory(
         androidLProvider: Provider<AndroidLSessionFactory>,

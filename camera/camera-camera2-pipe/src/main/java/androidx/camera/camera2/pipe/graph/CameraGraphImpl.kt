@@ -14,17 +14,15 @@
  * limitations under the License.
  */
 
-@file:RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-
 package androidx.camera.camera2.pipe.graph
 
 import android.view.Surface
 import androidx.annotation.RequiresApi
+import androidx.camera.camera2.pipe.CameraController
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.StreamGraph
 import androidx.camera.camera2.pipe.StreamId
-import androidx.camera.camera2.pipe.compat.Camera2Controller
 import androidx.camera.camera2.pipe.config.CameraGraphScope
 import androidx.camera.camera2.pipe.core.Debug
 import androidx.camera.camera2.pipe.core.Log
@@ -36,13 +34,15 @@ import kotlinx.atomicfu.atomic
 
 internal val cameraGraphIds = atomic(0)
 
+@RequiresApi(21)
 @CameraGraphScope
 internal class CameraGraphImpl @Inject constructor(
     graphConfig: CameraGraph.Config,
     metadata: CameraMetadata,
     private val graphProcessor: GraphProcessor,
     private val streamGraph: StreamGraphImpl,
-    private val camera2Controller: Camera2Controller,
+    private val surfaceGraph: SurfaceGraph,
+    private val cameraController: CameraController,
     private val graphState3A: GraphState3A,
     private val listener3A: Listener3A
 ) : CameraGraph {
@@ -66,14 +66,14 @@ internal class CameraGraphImpl @Inject constructor(
     override fun start() {
         Debug.traceStart { "$this#start" }
         Log.info { "Starting $this" }
-        camera2Controller.start()
+        cameraController.start()
         Debug.traceStop()
     }
 
     override fun stop() {
         Debug.traceStart { "$this#stop" }
         Log.info { "Stopping $this" }
-        camera2Controller.stop()
+        cameraController.stop()
         Debug.traceStop()
     }
 
@@ -98,7 +98,7 @@ internal class CameraGraphImpl @Inject constructor(
         check(surface == null || surface.isValid) {
             "Failed to set $surface to $stream: The surface was not valid."
         }
-        streamGraph[stream] = surface
+        surfaceGraph[stream] = surface
         Debug.traceStop()
     }
 
@@ -107,7 +107,7 @@ internal class CameraGraphImpl @Inject constructor(
         Log.info { "Closing $this" }
         sessionLock.close()
         graphProcessor.close()
-        camera2Controller.stop()
+        cameraController.close()
         Debug.traceStop()
     }
 

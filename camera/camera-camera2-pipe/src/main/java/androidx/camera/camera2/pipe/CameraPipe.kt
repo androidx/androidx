@@ -117,17 +117,17 @@ public class CameraPipe(config: Config) {
     /**
      * Configure the default and available [CameraBackend] instances that are available.
      *
-     * @param camera2Backend will override the internal camera2 backend defined by [CameraPipe].
+     * @param internalBackend will override the default camera backend defined by [CameraPipe].
      *   This may be used to mock and replace all interactions with camera2.
      * @param defaultBackend defines which camera backend instance should be used by default. If
      *   this value is specified, it must appear in the list of [cameraBackends]. If no value is
-     *   specified, the [camera2Backend] instance OR the internal camera2 backend will be used as
-     *   the default camera backend.
-     * @param cameraBackends defines a map of unique camera backend factories that may be used via
-     *   [CameraPipe].
+     *   specified, the [internalBackend] instance will be used. If [internalBackend] is null, the
+     *   default backend will use the pre-defined [CameraPipe] internal backend.
+     * @param cameraBackends defines a map of unique [CameraBackendFactory] that may be used to
+     *   create, query, and operate cameras via [CameraPipe].
      */
     class CameraBackendConfig(
-        val camera2Backend: CameraBackend? = null,
+        val internalBackend: CameraBackend? = null,
         val defaultBackend: CameraBackendId? = null,
         val cameraBackends: Map<CameraBackendId, CameraBackendFactory> = emptyMap()
     ) {

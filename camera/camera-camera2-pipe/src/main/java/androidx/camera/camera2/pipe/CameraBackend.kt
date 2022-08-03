@@ -18,6 +18,9 @@ package androidx.camera.camera2.pipe
 import androidx.camera.camera2.pipe.graph.GraphListener
 import kotlinx.coroutines.Deferred
 
+/**
+ * This is used to uniquely identify a specific backend implementation.
+ */
 @JvmInline
 value class CameraBackendId(public val value: String)
 
@@ -94,7 +97,7 @@ interface CameraBackend {
  * returned instances is managed by [CameraPipe] unless the application asks [CameraPipe] to close
  * and release previously created [CameraBackend]s.
  */
-interface CameraBackendFactory {
+fun interface CameraBackendFactory {
     /**
      * Create a new [CameraBackend] instance based on the provided [CameraContext].
      */
