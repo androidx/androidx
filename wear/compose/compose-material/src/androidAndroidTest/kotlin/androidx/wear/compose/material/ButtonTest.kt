@@ -612,6 +612,14 @@ public class ButtonColorTest {
         )
 
     @Test
+    public fun gives_enabled_button_outlined_colors() =
+        verifyOutlinedButtonColors(
+            Status.Enabled,
+            { ButtonDefaults.outlinedButtonColors() },
+            { Color.Transparent },
+            { MaterialTheme.colors.primary },
+        )
+    @Test
     public fun gives_enabled_compact_button_icon_colors() =
         verifyCompactButtonColors(
             Status.Enabled,
@@ -629,6 +637,14 @@ public class ButtonColorTest {
             { MaterialTheme.colors.onSurface },
         )
 
+    @Test
+    public fun gives_disabled_button_outlined_colors() =
+        verifyOutlinedButtonColors(
+            Status.Disabled,
+            { ButtonDefaults.outlinedButtonColors() },
+            { Color.Transparent },
+            { MaterialTheme.colors.primary },
+        )
     @Test
     public fun gives_disabled_compact_button_icon_colors() =
         verifyCompactButtonColors(
@@ -807,6 +823,30 @@ public class ButtonColorTest {
         ) {
             var actualColor = Color.Transparent
             Button(
+                onClick = {},
+                colors = buttonColors(),
+                enabled = status.enabled(),
+                modifier = Modifier.testTag(TEST_TAG)
+            ) {
+                actualColor = LocalContentColor.current
+            }
+            return@verifyColors actualColor
+        }
+    }
+
+    public fun verifyOutlinedButtonColors(
+        status: Status,
+        buttonColors: @Composable () -> ButtonColors,
+        backgroundColor: @Composable () -> Color,
+        contentColor: @Composable () -> Color,
+    ) {
+        verifyColors(
+            status,
+            backgroundColor,
+            contentColor,
+        ) {
+            var actualColor = Color.Transparent
+            OutlinedButton(
                 onClick = {},
                 colors = buttonColors(),
                 enabled = status.enabled(),
