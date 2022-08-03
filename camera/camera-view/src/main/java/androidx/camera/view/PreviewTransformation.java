@@ -21,14 +21,14 @@ import static android.graphics.Paint.DITHER_FLAG;
 import static android.graphics.Paint.FILTER_BITMAP_FLAG;
 
 import static androidx.camera.core.impl.ImageOutputConfig.ROTATION_NOT_SPECIFIED;
+import static androidx.camera.core.impl.utils.CameraOrientationUtil.surfaceRotationToDegrees;
+import static androidx.camera.core.impl.utils.TransformUtils.getRectToRect;
+import static androidx.camera.core.impl.utils.TransformUtils.is90or270;
+import static androidx.camera.core.impl.utils.TransformUtils.isAspectRatioMatchingWithRoundingError;
 import static androidx.camera.view.PreviewView.ScaleType.FILL_CENTER;
 import static androidx.camera.view.PreviewView.ScaleType.FIT_CENTER;
 import static androidx.camera.view.PreviewView.ScaleType.FIT_END;
 import static androidx.camera.view.PreviewView.ScaleType.FIT_START;
-import static androidx.camera.view.TransformUtils.getRectToRect;
-import static androidx.camera.view.TransformUtils.is90or270;
-import static androidx.camera.view.TransformUtils.isAspectRatioMatchingWithRoundingError;
-import static androidx.camera.view.TransformUtils.surfaceRotationToRotationDegrees;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -154,7 +154,7 @@ final class PreviewTransformation {
     Matrix getTextureViewCorrectionMatrix() {
         Preconditions.checkState(isTransformationInfoReady());
         RectF surfaceRect = new RectF(0, 0, mResolution.getWidth(), mResolution.getHeight());
-        int rotationDegrees = -surfaceRotationToRotationDegrees(mTargetRotation);
+        int rotationDegrees = -surfaceRotationToDegrees(mTargetRotation);
         return getRectToRect(surfaceRect, surfaceRect, rotationDegrees);
     }
 
