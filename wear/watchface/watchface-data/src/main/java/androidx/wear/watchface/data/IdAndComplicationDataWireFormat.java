@@ -104,4 +104,11 @@ public final class IdAndComplicationDataWireFormat implements VersionedParcelabl
     public int hashCode() {
         return Objects.hash(mId, mComplicationData);
     }
+
+    @NonNull
+    @Override
+    public String toString() {
+        return "IdAndComplicationDataWireFormat{"
+                + "mId=" + mId + ", mComplicationData=" + mComplicationData + '}';
+    }
 }
