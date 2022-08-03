@@ -2,11 +2,11 @@
 package androidx.wear.watchface.complications.data {
 
   @androidx.wear.watchface.complications.data.ComplicationExperimental public final class ColorRamp {
-    ctor public ColorRamp(@ColorInt int minColor, @ColorInt int maxColor);
-    method public int getMaxColor();
-    method public int getMinColor();
-    property public final int maxColor;
-    property public final int minColor;
+    ctor public ColorRamp(@ColorInt int[] colors, boolean interpolated);
+    method public int[] getColors();
+    method public boolean getInterpolated();
+    property public final int[] colors;
+    property public final boolean interpolated;
   }
 
   public abstract sealed class ComplicationData {

@@ -717,18 +717,34 @@ public class LongTextComplicationData internal constructor(
 }
 
 /**
- * Describes an optional simple linear color ramp. For [RangedValueComplicationData]
- * [RangedValueComplicationData.min] is rendered with [minColor] and
- * [RangedValueComplicationData.max] with [maxColor]. For [GoalProgressComplicationData] 0 is
- * rendered with [minColor] and [GoalProgressComplicationData.targetValue] is renderd with [maxColor].Y
+ * Describes an optional color ramp for the progress bar associated with
+ * [RangedValueComplicationData] or [GoalProgressComplicationData]. This is a rendering hint that
+ * overrides the normal watch face colors when there's a particular semantic meaning. E.g. red to
+ * blue for a ranged value representing temperature.
  *
- * This is a rendering hint that would override the normal watch face colors when there's a
- * particular semantic meaning. E.g. red to blue for a ranged value representing temperature.
+ * @property colors The colors to render the progress bar with. For [RangedValueComplicationData]
+ * the first color corresponds to [RangedValueComplicationData.min] and the last color to
+ * [RangedValueComplicationData.max]. For [GoalProgressComplicationData] the first color corresponds
+ * to zero and the last color to [GoalProgressComplicationData.targetValue]. A maximum of 7 colors
+ * may be specified. When rendered the colors must be evenly spread along the progress bar.
+ * @property interpolated If `true` then the colors should be smoothly interpolated when rendering
+ * the progress bar. If `false` the colors should be rendered as equal sized regions of solid color,
+ * resulting in a noticeable step between each color.
  */
 @ComplicationExperimental
-public class ColorRamp(@ColorInt val minColor: Int, @ColorInt val maxColor: Int) {
+public class ColorRamp(
+    @ColorInt val colors: IntArray,
+    @get:JvmName("isInterpolated")
+    val interpolated: Boolean
+) {
+    init {
+        require(colors.size <= 7) {
+            "colors can have no more than seven entries"
+        }
+    }
+
     override fun toString(): String {
-        return "ColorRamp(minColor=$minColor, maxColor=$maxColor)"
+        return "ColorRamp(colors=[${colors.joinToString()}], interpolated=$interpolated)"
     }
 
     override fun equals(other: Any?): Boolean {
@@ -737,15 +753,15 @@ public class ColorRamp(@ColorInt val minColor: Int, @ColorInt val maxColor: Int)
 
         other as ColorRamp
 
-        if (minColor != other.minColor) return false
-        if (maxColor != other.maxColor) return false
+        if (!colors.contentEquals(other.colors)) return false
+        if (interpolated != other.interpolated) return false
 
         return true
     }
 
     override fun hashCode(): Int {
-        var result = minColor
-        result = 31 * result + maxColor
+        var result = colors.contentHashCode()
+        result = 31 * result + interpolated.hashCode()
         return result
     }
 }
@@ -996,8 +1012,8 @@ internal constructor(
         setValidTimeRange(validTimeRange, builder)
         builder.setTapActionLostDueToSerialization(tapActionLostDueToSerialization)
         colorRamp?.let {
-            builder.setRangedMinColor(it.minColor)
-            builder.setRangedMaxColor(it.maxColor)
+            builder.setColorRamp(it.colors)
+            builder.setColorRampIsSmoothShaded(it.interpolated)
         }
     }
 
@@ -1288,8 +1304,8 @@ internal constructor(
         setValidTimeRange(validTimeRange, builder)
         builder.setTapActionLostDueToSerialization(tapActionLostDueToSerialization)
         colorRamp?.let {
-            builder.setRangedMinColor(it.minColor)
-            builder.setRangedMaxColor(it.maxColor)
+            builder.setColorRamp(it.colors)
+            builder.setColorRampIsSmoothShaded(it.interpolated)
         }
     }
 
@@ -2763,8 +2779,8 @@ internal fun WireComplicationData.toPlaceholderComplicationData(): ComplicationD
             setTitle(shortTitle?.toApiComplicationTextPlaceholderAware())
             setText(shortText?.toApiComplicationTextPlaceholderAware())
             setDataSource(dataSource)
-            rangedMinColor?.let {
-                setColorRamp(ColorRamp(it, rangedMaxColor!!))
+            colorRamp?.let {
+                setColorRamp(ColorRamp(it, isColorRampInterpolated!!))
             }
         }.build()
 
@@ -2838,8 +2854,8 @@ internal fun WireComplicationData.toPlaceholderComplicationData(): ComplicationD
             setTitle(shortTitle?.toApiComplicationTextPlaceholderAware())
             setText(shortText?.toApiComplicationTextPlaceholderAware())
             setDataSource(dataSource)
-            rangedMinColor?.let {
-                setColorRamp(ColorRamp(it, rangedMaxColor!!))
+            colorRamp?.let {
+                setColorRamp(ColorRamp(it, isColorRampInterpolated!!))
             }
         }.build()
 
@@ -2921,8 +2937,8 @@ public fun WireComplicationData.toApiComplicationData(): ComplicationData {
                 setText(shortText?.toApiComplicationText())
                 setCachedWireComplicationData(wireComplicationData)
                 setDataSource(dataSource)
-                rangedMinColor?.let {
-                    setColorRamp(ColorRamp(it, rangedMaxColor!!))
+                colorRamp?.let {
+                    setColorRamp(ColorRamp(it, isColorRampInterpolated!!))
                 }
             }.build()
 
@@ -3011,8 +3027,8 @@ public fun WireComplicationData.toApiComplicationData(): ComplicationData {
                 setText(shortText?.toApiComplicationText())
                 setCachedWireComplicationData(wireComplicationData)
                 setDataSource(dataSource)
-                rangedMinColor?.let {
-                    setColorRamp(ColorRamp(it, rangedMaxColor!!))
+                colorRamp?.let {
+                    setColorRamp(ColorRamp(it, isColorRampInterpolated!!))
                 }
             }.build()
 
