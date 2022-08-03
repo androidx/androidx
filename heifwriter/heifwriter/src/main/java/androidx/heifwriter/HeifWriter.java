@@ -288,7 +288,8 @@ public final class HeifWriter extends WriterBase {
         int primaryIndex,
         @InputMode int inputMode,
         @Nullable Handler handler) throws IOException {
-        super(rotation, inputMode, maxImages, primaryIndex, gridEnabled, quality, handler);
+        super(rotation, inputMode, maxImages, primaryIndex, gridEnabled, quality,
+            handler, /* highBitDepthEnabled */ false);
 
         if (DEBUG) {
             Log.d(TAG, "width: " + width
