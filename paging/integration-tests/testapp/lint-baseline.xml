@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.3.0-alpha08" type="baseline" client="gradle" dependencies="false" name="AGP (7.3.0-alpha08)" variant="all" version="7.3.0-alpha08">
+<issues format="6" by="lint 7.4.0-alpha08" type="baseline" client="gradle" dependencies="false" name="AGP (7.4.0-alpha08)" variant="all" version="7.4.0-alpha08">
 
     <issue
         id="MissingInflatedId"
@@ -17,15 +17,6 @@
         errorLine2="                                                ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/paging/integration/testapp/room/RoomPagedListRxActivity.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` constructor of class `LastNameAscCustomerDataSource` requires synthetic accessor"
-        errorLine1="                return new LastNameAscCustomerDataSource(db);"
-        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/paging/integration/testapp/room/LastNameAscCustomerDataSource.java"/>
     </issue>
 
     <issue
