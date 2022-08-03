@@ -43,6 +43,8 @@ public enum class ComplicationType(private val wireType: Int) {
     GOAL_PROGRESS(WireComplicationData.TYPE_GOAL_PROGRESS),
     @ComplicationExperimental
     DISCRETE_RANGED_VALUE(WireComplicationData.TYPE_DISCRETE_RANGED_VALUE),
+    @ComplicationExperimental
+    WEIGHTED_ELEMENTS(WireComplicationData.TYPE_WEIGHTED_ELEMENTS),
 
     @ComplicationExperimental
     LIST(WireComplicationData.TYPE_LIST);
