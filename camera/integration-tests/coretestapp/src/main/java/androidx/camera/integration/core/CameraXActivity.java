@@ -16,6 +16,11 @@
 
 package androidx.camera.integration.core;
 
+import static androidx.camera.core.ImageCapture.ERROR_CAMERA_CLOSED;
+import static androidx.camera.core.ImageCapture.ERROR_CAPTURE_FAILED;
+import static androidx.camera.core.ImageCapture.ERROR_FILE_IO;
+import static androidx.camera.core.ImageCapture.ERROR_INVALID_CAMERA;
+import static androidx.camera.core.ImageCapture.ERROR_UNKNOWN;
 import static androidx.camera.core.ImageCapture.FLASH_MODE_AUTO;
 import static androidx.camera.core.ImageCapture.FLASH_MODE_OFF;
 import static androidx.camera.core.ImageCapture.FLASH_MODE_ON;
@@ -314,6 +319,13 @@ public class CameraXActivity extends AppCompatActivity {
             new CountingIdlingResource("imagesaved");
     private final CountingIdlingResource mVideoSavedIdlingResource =
             new CountingIdlingResource("videosaved");
+
+    /**
+     * Saves the error message of the last take picture action if any error occurs. This will be
+     * null which means no error occurs.
+     */
+    @Nullable
+    private String mLastTakePictureErrorMessage = null;
 
     /**
      * Retrieve idling resource that waits for image received by analyzer).
@@ -702,6 +714,7 @@ public class CameraXActivity extends AppCompatActivity {
                     @Override
                     public void onClick(View view) {
                         mImageSavedIdlingResource.increment();
+                        mLastTakePictureErrorMessage = null;
 
                         mStartCaptureTime = SystemClock.elapsedRealtime();
                         createDefaultPictureFolderIfNotExist();
@@ -743,10 +756,45 @@ public class CameraXActivity extends AppCompatActivity {
                                     @Override
                                     public void onError(@NonNull ImageCaptureException exception) {
                                         Log.e(TAG, "Failed to save image.", exception.getCause());
+
+                                        mLastTakePictureErrorMessage =
+                                                getImageCaptureErrorMessage(exception);
+                                        if (!mImageSavedIdlingResource.isIdleNow()) {
+                                            mImageSavedIdlingResource.decrement();
+                                        }
                                     }
                                 });
                     }
                 });
+    }
+
+    private String getImageCaptureErrorMessage(@NonNull ImageCaptureException exception) {
+        String errorCodeString;
+        int errorCode = exception.getImageCaptureError();
+
+        switch (errorCode) {
+            case ERROR_UNKNOWN:
+                errorCodeString = "ImageCaptureErrorCode: ERROR_UNKNOWN";
+                break;
+            case ERROR_FILE_IO:
+                errorCodeString = "ImageCaptureErrorCode: ERROR_FILE_IO";
+                break;
+            case ERROR_CAPTURE_FAILED:
+                errorCodeString = "ImageCaptureErrorCode: ERROR_CAPTURE_FAILED";
+                break;
+            case ERROR_CAMERA_CLOSED:
+                errorCodeString = "ImageCaptureErrorCode: ERROR_CAMERA_CLOSED";
+                break;
+            case ERROR_INVALID_CAMERA:
+                errorCodeString = "ImageCaptureErrorCode: ERROR_INVALID_CAMERA";
+                break;
+            default:
+                errorCodeString = "ImageCaptureErrorCode: " + errorCode;
+                break;
+        }
+
+        return errorCodeString + ", Message: " + exception.getMessage() + ", Cause: "
+                + exception.getCause();
     }
 
     @SuppressWarnings("ObjectToString")
@@ -1679,6 +1727,16 @@ public class CameraXActivity extends AppCompatActivity {
 
     ImageCapture getImageCapture() {
         return findUseCase(ImageCapture.class);
+    }
+
+    /**
+     * Returns the error message of the last take picture action if any error occurs. Returns
+     * null if no error occurs.
+     */
+    @VisibleForTesting
+    @Nullable
+    String getLastTakePictureErrorMessage() {
+        return mLastTakePictureErrorMessage;
     }
 
     @SuppressWarnings("unchecked")

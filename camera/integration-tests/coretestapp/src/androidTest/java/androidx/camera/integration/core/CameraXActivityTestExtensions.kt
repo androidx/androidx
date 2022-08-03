@@ -72,7 +72,16 @@ internal fun ActivityScenario<CameraXActivity>.takePictureAndWaitForImageSavedId
         Espresso.onView(ViewMatchers.withId(R.id.Picture)).perform(click())
     } finally { // Always release the idling resource, in case of timeout exceptions.
         IdlingRegistry.getInstance().unregister(idlingResource)
-        withActivity { deleteSessionImages() }
+        withActivity {
+            // Idling resource will also become idle when an error occurs. Checks the last error
+            // message and throw an Exception to make the test failed if the error message is not
+            // null.
+            if (lastTakePictureErrorMessage != null) {
+                throw Exception(lastTakePictureErrorMessage)
+            } else {
+                deleteSessionImages()
+            }
+        }
     }
 }
 
