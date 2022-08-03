@@ -53,13 +53,16 @@ internal class KspAnnotation(
                 .filter { it.isAbstract() }
                 .associate { it.name to it.returnType }
         }
+        // KSAnnotated.arguments isn't guaranteed to have the same ordering as declared in the
+        // annotation declaration, so we order it manually using a map from name to index.
+        val indexByName = typesByName.keys.mapIndexed { index, name -> name to index }.toMap()
         ksAnnotated.arguments.map {
             val valueName = it.name?.asString()
                 ?: error("Value argument $it does not have a name.")
             val valueType = typesByName[valueName]
                 ?: error("Value type not found for $valueName.")
             KspAnnotationValue(env, this, valueType, it)
-        }
+        }.sortedBy { indexByName[it.name] }
     }
 
     override fun <T : Annotation> asAnnotationBox(annotationClass: Class<T>): XAnnotationBox<T> {
