@@ -42,8 +42,12 @@ interface IJsSandboxService {
      */
     const String WASM_FROM_ARRAY_BUFFER = "WASM_FROM_ARRAY_BUFFER";
 
+    const String ISOLATE_MAX_HEAP_SIZE_LIMIT = "ISOLATE_MAX_HEAP_SIZE_LIMIT";
+
     /**
      * @return A list of feature names supported by this implementation.
      */
     List<String> getSupportedFeatures() = 1;
+
+    IJsSandboxIsolate createIsolateWithMaxHeapSizeBytes(long maxHeapSize) = 2;
 }

@@ -30,6 +30,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 
 import org.chromium.android_webview.js_sandbox.common.IJsSandboxIsolate;
 import org.chromium.android_webview.js_sandbox.common.IJsSandboxIsolateCallback;
+import org.intellij.lang.annotations.Language;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -43,22 +44,23 @@ import java.util.concurrent.atomic.AtomicInteger;
 import javax.annotation.concurrent.GuardedBy;
 
 /**
- * Environment within a {@link JsSandbox} where Javascript is executed.
+ * Environment within a {@link JavaScriptSandbox} where Javascript is executed.
  *
- * A single {@link JsSandbox} process can contain any number of {@link JsIsolate} instances where JS
- * can be evaluated independently and in parallel.
+ * A single {@link JavaScriptSandbox} process can contain any number of {@link JavaScriptIsolate}
+ * instances where JS can be evaluated independently and in parallel.
  * <p>
  * Each isolate has its own state and JS global object,
  * and cannot interact with any other isolate through JS APIs. There is only a <em>moderate</em>
- * security boundary between isolates in a single {@link JsSandbox}. If the code in one {@link
- * JsIsolate} is able to compromise the security of the JS engine then it may be able to observe or
- * manipulate other isolates, since they run in the same process. For strong isolation multiple
- * {@link JsSandbox} processes should be used, but it is not supported at the moment.
+ * security boundary between isolates in a single {@link JavaScriptSandbox}. If the code in one
+ * {@link JavaScriptIsolate} is able to compromise the security of the JS engine then it may be
+ * able to observe or manipulate other isolates, since they run in the same process. For strong
+ * isolation multiple {@link JavaScriptSandbox} processes should be used, but it is not supported
+ * at the moment. Please find the feature request <a href="https://crbug.com/1349860">here</a>.
  * <p>
  * Each isolate object must only be used from one thread.
  */
-public class JsIsolate implements AutoCloseable {
-    private static final String TAG = "JsIsolate";
+public final class JavaScriptIsolate implements AutoCloseable {
+    private static final String TAG = "JavaScriptIsolate";
     private final Object mSetLock = new Object();
     @Nullable
     private IJsSandboxIsolate mJsIsolateStub;
@@ -69,10 +71,11 @@ public class JsIsolate implements AutoCloseable {
 
                 @Override
                 public Thread newThread(Runnable r) {
-                    return new Thread(r, "JsIsolate Thread #" + mCount.getAndIncrement());
+                    return new Thread(
+                            r, "JavaScriptIsolate Thread #" + mCount.getAndIncrement());
                 }
             });
-    private final JsSandbox mJsSandbox;
+    private final JavaScriptSandbox mJsSandbox;
 
     @Nullable
     @GuardedBy("mSetLock")
@@ -100,7 +103,7 @@ public class JsIsolate implements AutoCloseable {
         }
     }
 
-    JsIsolate(IJsSandboxIsolate jsIsolateStub, JsSandbox sandbox) {
+    JavaScriptIsolate(IJsSandboxIsolate jsIsolateStub, JavaScriptSandbox sandbox) {
         mJsSandbox = sandbox;
         mJsIsolateStub = jsIsolateStub;
         mGuard.open("close");
@@ -115,10 +118,10 @@ public class JsIsolate implements AutoCloseable {
      *   <li><strong>If the JS expression returns a JS String</strong>, then the Java Future
      * resolves to Java String.</li>
      *   <li><strong>If the JS expression returns a JS Promise</strong>,
-     * and if {@link JsSandbox#isFeatureSupported(String)} for
-     * {@link JsSandbox#JS_FEATURE_PROMISE_RETURN} returns {@code true}, Java Future resolves to
-     * Java String once the promise resolves. If it returns {@code false}, then the Future
-     * resolves to an empty string.</li>
+     * and if {@link JavaScriptSandbox#isFeatureSupported(String)} for
+     * {@link JavaScriptSandbox#JS_FEATURE_PROMISE_RETURN} returns {@code true}, Java Future
+     * resolves to Java String once the promise resolves. If it returns {@code false}, then the
+     * Future resolves to an empty string.</li>
      *   <li><strong>If the JS expression returns another data type</strong>, then Java Future
      * resolves to empty Java String.</li>
      * </ul>
@@ -134,14 +137,16 @@ public class JsIsolate implements AutoCloseable {
      * transaction limit. Refer {@link android.os.TransactionTooLargeException} for more details.
      *
      * @param code JavaScript code that is evaluated, it should return a JavaScript String or a
-     *         Promise of a String in case {@link JsSandbox#JS_FEATURE_PROMISE_RETURN} is supported
+     *         Promise of a String in case {@link JavaScriptSandbox#JS_FEATURE_PROMISE_RETURN} is
+     *             supported
      *
      * @return Future that evaluates to the result String of the evaluation or exceptions({@link
      *         IsolateTerminatedException}, {@link SandboxDeadException}) if there is an error
      */
     @SuppressWarnings("NullAway")
     @NonNull
-    public ListenableFuture<String> evaluateJavaScriptAsync(@NonNull String code) {
+    public ListenableFuture<String> evaluateJavaScriptAsync(
+            @NonNull @Language("javascript") String code) {
         if (mJsIsolateStub == null) {
             throw new IllegalStateException(
                     "Calling evaluateJavascript() after closing the Isolate");
@@ -173,13 +178,13 @@ public class JsIsolate implements AutoCloseable {
     }
 
     /**
-     * Closes the {@link JsIsolate} object and renders it unusable.
+     * Closes the {@link JavaScriptIsolate} object and renders it unusable.
      *
      * Once closed, no more method calls should be made. Pending evaluations resolve with
      * {@link IsolateTerminatedException} immediately.
      * <p>
-     * If {@link JsSandbox#isFeatureSupported(String)} is {@code true} for {@link
-     * JsSandbox#JS_FEATURE_ISOLATE_TERMINATION}, then any pending evaluation is immediately
+     * If {@link JavaScriptSandbox#isFeatureSupported(String)} is {@code true} for {@link
+     * JavaScriptSandbox#JS_FEATURE_ISOLATE_TERMINATION}, then any pending evaluation is immediately
      * terminated and memory is freed. If it is {@code false}, the isolate will not get cleaned
      * up until the pending evaluations have run to completion and will consume resources until
      * then.
@@ -212,13 +217,13 @@ public class JsIsolate implements AutoCloseable {
      * was used when calling this method. This is a one-time transfer and the calls should be
      * paired.
      * <p>
-     * A single name can only be used once in a particular {@link JsIsolate}.
+     * A single name can only be used once in a particular {@link JavaScriptIsolate}.
      * Clients can generate unique names for each call if they
      * need to use this method multiple times. The same name should be included into the JS code.
      * <p>
      * This API can be used to pass a WASM module into the JS
-     * environment for compilation if {@link JsSandbox#isFeatureSupported(String)} returns {@code
-     * true} for {@link JsSandbox#JS_FEATURE_WASM_COMPILATION}.
+     * environment for compilation if {@link JavaScriptSandbox#isFeatureSupported(String)} returns
+     * {@code true} for {@link JavaScriptSandbox#JS_FEATURE_WASM_COMPILATION}.
      * <br>
      * In Java,
      * <pre>
@@ -237,18 +242,19 @@ public class JsIsolate implements AutoCloseable {
      * #evaluateJavaScriptAsync(String)} and {@link #provideNamedData(String, byte[])} methods.
      * <p>
      * This method should only be called if
-     * {@link JsSandbox#isFeatureSupported(String)}
-     * returns true for {@link JsSandbox#JS_FEATURE_PROVIDE_CONSUME_ARRAY_BUFFER}.
+     * {@link JavaScriptSandbox#isFeatureSupported(String)}
+     * returns true for {@link JavaScriptSandbox#JS_FEATURE_PROVIDE_CONSUME_ARRAY_BUFFER}.
      *
      * @param name Identifier for the data that is passed, the same identifier should be used in the
      *         JavaScript environment to refer to the data
      * @param inputBytes Bytes to be passed into the JavaScript environment
      *
-     * @return {@code true} on success, {@code false} otherwise
+     * @return {@code true} on success, {@code false} if the name has already been used before,
+ *              in which case the client should use an unused name
      */
-    @RequiresFeature(name = JsSandbox.JS_FEATURE_PROVIDE_CONSUME_ARRAY_BUFFER,
+    @RequiresFeature(name = JavaScriptSandbox.JS_FEATURE_PROVIDE_CONSUME_ARRAY_BUFFER,
             enforcement =
-                    "androidx.javascriptengine.JsSandbox#isFeatureSupported")
+                    "androidx.javascriptengine.JavaScriptSandbox#isFeatureSupported")
     public boolean provideNamedData(@NonNull String name, @NonNull byte[] inputBytes) {
         if (mJsIsolateStub == null) {
             throw new IllegalStateException("Calling provideNamedData() after closing the Isolate");
