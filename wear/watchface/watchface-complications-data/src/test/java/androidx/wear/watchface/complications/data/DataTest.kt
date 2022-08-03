@@ -289,7 +289,7 @@ public class AsWireComplicationDataTest {
         )
             .setTitle("steps".complicationText)
             .setDataSource(dataSourceA)
-            .setColorRamp(ColorRamp(Color.BLUE, Color.RED))
+            .setColorRamp(ColorRamp(intArrayOf(Color.RED, Color.GREEN, Color.BLUE), true))
             .build()
         ParcelableSubject.assertThat(data.asWireComplicationData())
             .hasSameSerializationAs(
@@ -299,8 +299,8 @@ public class AsWireComplicationDataTest {
                     .setShortTitle(WireComplicationText.plainText("steps"))
                     .setContentDescription(WireComplicationText.plainText("content description"))
                     .setDataSource(dataSourceA)
-                    .setRangedMinColor(Color.BLUE)
-                    .setRangedMaxColor(Color.RED)
+                    .setColorRamp(intArrayOf(Color.RED, Color.GREEN, Color.BLUE))
+                    .setColorRampIsSmoothShaded(true)
                     .build()
             )
         testRoundTripConversions(data)
@@ -318,16 +318,16 @@ public class AsWireComplicationDataTest {
         )
             .setTitle("steps".complicationText)
             .setDataSource(dataSourceA)
-            .setColorRamp(ColorRamp(Color.BLUE, Color.RED))
+            .setColorRamp(ColorRamp(intArrayOf(Color.RED, Color.GREEN, Color.BLUE), true))
             .build()
 
         val data3 = GoalProgressComplicationData.Builder(
-            value = 1201f, targetValue = 10000f,
+            value = 1200f, targetValue = 10000f,
             contentDescription = "content description".complicationText
         )
             .setTitle("steps".complicationText)
             .setDataSource(dataSourceB)
-            .setColorRamp(ColorRamp(Color.BLUE, Color.RED))
+            .setColorRamp(ColorRamp(intArrayOf(Color.RED, Color.GREEN, Color.BLUE), false))
             .build()
 
         assertThat(data).isEqualTo(data2)
@@ -342,8 +342,8 @@ public class AsWireComplicationDataTest {
                 "tapActionLostDueToSerialization=false, tapAction=null, validTimeRange=" +
                 "TimeRange(startDateTimeMillis=-1000000000-01-01T00:00:00Z, endDateTimeMillis=" +
                 "+1000000000-12-31T23:59:59.999999999Z), dataSource=" +
-                "ComponentInfo{com.pkg_a/com.a}, colorRamp=ColorRamp(" +
-                "minColor=-16776961, maxColor=-65536))"
+                "ComponentInfo{com.pkg_a/com.a}, colorRamp=ColorRamp(colors=[-65536, -16711936, " +
+                "-16776961], interpolated=true))"
         )
     }
 
@@ -418,7 +418,7 @@ public class AsWireComplicationDataTest {
         )
             .setTitle("battery".complicationText)
             .setDataSource(dataSourceA)
-            .setColorRamp(ColorRamp(Color.BLUE, Color.RED))
+            .setColorRamp(ColorRamp(intArrayOf(Color.RED, Color.GREEN, Color.BLUE), true))
             .build()
         ParcelableSubject.assertThat(data.asWireComplicationData())
             .hasSameSerializationAs(
@@ -429,8 +429,8 @@ public class AsWireComplicationDataTest {
                     .setShortTitle(WireComplicationText.plainText("battery"))
                     .setContentDescription(WireComplicationText.plainText("content description"))
                     .setDataSource(dataSourceA)
-                    .setRangedMinColor(Color.BLUE)
-                    .setRangedMaxColor(Color.RED)
+                    .setColorRamp(intArrayOf(Color.RED, Color.GREEN, Color.BLUE))
+                    .setColorRampIsSmoothShaded(true)
                     .build()
             )
         testRoundTripConversions(data)
@@ -449,16 +449,16 @@ public class AsWireComplicationDataTest {
         )
             .setTitle("battery".complicationText)
             .setDataSource(dataSourceA)
-            .setColorRamp(ColorRamp(Color.BLUE, Color.RED))
+            .setColorRamp(ColorRamp(intArrayOf(Color.RED, Color.GREEN, Color.BLUE), true))
             .build()
 
         val data3 = RangedValueComplicationData.Builder(
             value = 95f, min = 0f, max = 100f,
             contentDescription = "content description2".complicationText
         )
-            .setTitle("battery2".complicationText)
+            .setTitle("battery".complicationText)
             .setDataSource(dataSourceB)
-            .setColorRamp(ColorRamp(Color.BLUE, Color.RED))
+            .setColorRamp(ColorRamp(intArrayOf(Color.RED, Color.GREEN, Color.YELLOW), true))
             .build()
 
         assertThat(data).isEqualTo(data2)
@@ -473,8 +473,8 @@ public class AsWireComplicationDataTest {
                 "tapActionLostDueToSerialization=false, tapAction=null, validTimeRange=" +
                 "TimeRange(startDateTimeMillis=-1000000000-01-01T00:00:00Z, endDateTimeMillis=" +
                 "+1000000000-12-31T23:59:59.999999999Z), dataSource=" +
-                "ComponentInfo{com.pkg_a/com.a}, colorRamp=ColorRamp(" +
-                "minColor=-16776961, maxColor=-65536))"
+                "ComponentInfo{com.pkg_a/com.a}, colorRamp=ColorRamp(colors=[-65536, -16711936, " +
+                "-16776961], interpolated=true))"
         )
     }
 
@@ -1002,7 +1002,7 @@ public class AsWireComplicationDataTest {
             )
                 .setText(ComplicationText.PLACEHOLDER)
                 .setDataSource(dataSourceA)
-                .setColorRamp(ColorRamp(Color.BLUE, Color.RED))
+                .setColorRamp(ColorRamp(intArrayOf(Color.RED, Color.GREEN, Color.BLUE), false))
                 .build()
         )
         ParcelableSubject.assertThat(data.asWireComplicationData())
@@ -1017,8 +1017,8 @@ public class AsWireComplicationDataTest {
                                 WireComplicationText.plainText("content description")
                             )
                             .setDataSource(dataSourceA)
-                            .setRangedMinColor(Color.BLUE)
-                            .setRangedMaxColor(Color.RED)
+                            .setColorRamp(intArrayOf(Color.RED, Color.GREEN, Color.BLUE))
+                            .setColorRampIsSmoothShaded(false)
                             .build()
                     )
                     .build()
@@ -1036,7 +1036,7 @@ public class AsWireComplicationDataTest {
             )
                 .setText(ComplicationText.PLACEHOLDER)
                 .setDataSource(dataSourceA)
-                .setColorRamp(ColorRamp(Color.BLUE, Color.RED))
+                .setColorRamp(ColorRamp(intArrayOf(Color.RED, Color.GREEN, Color.BLUE), false))
                 .build()
         )
         val data3 = NoDataComplicationData(
@@ -1063,8 +1063,8 @@ public class AsWireComplicationDataTest {
                 "startDateTimeMillis=-1000000000-01-01T00:00:00Z, " +
                 "endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z), " +
                 "dataSource=ComponentInfo{com.pkg_a/com.a}, " +
-                "colorRamp=ColorRamp(minColor=-16776961, maxColor=-65536)), " +
-                "tapActionLostDueToSerialization=false, tapAction=null, validTimeRange=" +
+                "colorRamp=ColorRamp(colors=[-65536, -16711936, -16776961], interpolated=false))," +
+                " tapActionLostDueToSerialization=false, tapAction=null, validTimeRange=" +
                 "TimeRange(startDateTimeMillis=-1000000000-01-01T00:00:00Z, " +
                 "endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z))"
         )
@@ -1160,7 +1160,7 @@ public class AsWireComplicationDataTest {
             )
                 .setText(ComplicationText.PLACEHOLDER)
                 .setDataSource(dataSourceA)
-                .setColorRamp(ColorRamp(Color.BLUE, Color.RED))
+                .setColorRamp(ColorRamp(intArrayOf(Color.RED, Color.GREEN, Color.BLUE), true))
                 .build()
         )
         ParcelableSubject.assertThat(data.asWireComplicationData())
@@ -1176,8 +1176,8 @@ public class AsWireComplicationDataTest {
                                 WireComplicationText.plainText("content description")
                             )
                             .setDataSource(dataSourceA)
-                            .setRangedMinColor(Color.BLUE)
-                            .setRangedMaxColor(Color.RED)
+                            .setColorRamp(intArrayOf(Color.RED, Color.GREEN, Color.BLUE))
+                            .setColorRampIsSmoothShaded(true)
                             .build()
                     )
                     .build()
@@ -1196,7 +1196,7 @@ public class AsWireComplicationDataTest {
             )
                 .setText(ComplicationText.PLACEHOLDER)
                 .setDataSource(dataSourceA)
-                .setColorRamp(ColorRamp(Color.BLUE, Color.RED))
+                .setColorRamp(ColorRamp(intArrayOf(Color.RED, Color.GREEN, Color.BLUE), true))
                 .build()
         )
         val data3 = NoDataComplicationData(
@@ -1223,7 +1223,7 @@ public class AsWireComplicationDataTest {
                 "null, validTimeRange=TimeRange(startDateTimeMillis=-1000000000-01-01T00:00:00Z, " +
                 "endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z), " +
                 "dataSource=ComponentInfo{com.pkg_a/com.a}, " +
-                "colorRamp=ColorRamp(minColor=-16776961, maxColor=-65536)), " +
+                "colorRamp=ColorRamp(colors=[-65536, -16711936, -16776961], interpolated=true)), " +
                 "tapActionLostDueToSerialization=false, tapAction=null, " +
                 "validTimeRange=TimeRange(startDateTimeMillis=-1000000000-01-01T00:00:00Z, " +
                 "endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z))"
@@ -1526,8 +1526,8 @@ public class FromWireComplicationDataTest {
                 .setTargetValue(10000f)
                 .setShortTitle(WireComplicationText.plainText("steps"))
                 .setContentDescription(WireComplicationText.plainText("content description"))
-                .setRangedMinColor(Color.BLUE)
-                .setRangedMaxColor(Color.RED)
+                .setColorRamp(intArrayOf(Color.RED, Color.GREEN, Color.BLUE))
+                .setColorRampIsSmoothShaded(false)
                 .build(),
             ComplicationType.GOAL_PROGRESS
         )
@@ -1737,8 +1737,8 @@ public class FromWireComplicationDataTest {
                         .setContentDescription(
                             WireComplicationText.plainText("content description")
                         )
-                        .setRangedMinColor(Color.BLUE)
-                        .setRangedMaxColor(Color.RED)
+                        .setColorRamp(intArrayOf(Color.RED, Color.GREEN, Color.BLUE))
+                        .setColorRampIsSmoothShaded(true)
                         .setIcon(icon)
                         .build()
                 )
@@ -1912,7 +1912,7 @@ public class TapActionTest {
             )
                 .setTitle("steps".complicationText)
                 .setTapAction(mPendingIntent)
-                .setColorRamp(ColorRamp(Color.BLUE, Color.RED))
+                .setColorRamp(ColorRamp(intArrayOf(Color.RED, Color.GREEN, Color.BLUE), true))
                 .build().asWireComplicationData().tapAction
         ).isEqualTo(mPendingIntent)
     }
@@ -2068,7 +2068,7 @@ public class RoundtripTapActionTest {
             )
                 .setTitle("steps".complicationText)
                 .setTapAction(mPendingIntent)
-                .setColorRamp(ColorRamp(Color.BLUE, Color.RED))
+                .setColorRamp(ColorRamp(intArrayOf(Color.RED, Color.GREEN, Color.BLUE), false))
                 .build().asWireComplicationData().toApiComplicationData().tapAction
         ).isEqualTo(mPendingIntent)
     }
@@ -2248,7 +2248,7 @@ public class ValidTimeRangeTest {
         )
             .setTitle("steps".complicationText)
             .setValidTimeRange(TimeRange.between(testStartInstant, testEndDateInstant))
-            .setColorRamp(ColorRamp(Color.BLUE, Color.RED))
+            .setColorRamp(ColorRamp(intArrayOf(Color.YELLOW, Color.MAGENTA), true))
             .build()
         ParcelableSubject.assertThat(data.asWireComplicationData())
             .hasSameSerializationAs(
@@ -2257,8 +2257,8 @@ public class ValidTimeRangeTest {
                     .setTargetValue(10000f)
                     .setShortTitle(WireComplicationText.plainText("steps"))
                     .setContentDescription(WireComplicationText.plainText("content description"))
-                    .setRangedMinColor(Color.BLUE)
-                    .setRangedMaxColor(Color.RED)
+                    .setColorRamp(intArrayOf(Color.YELLOW, Color.MAGENTA))
+                    .setColorRampIsSmoothShaded(true)
                     .setStartDateTimeMillis(testStartInstant.toEpochMilli())
                     .setEndDateTimeMillis(testEndDateInstant.toEpochMilli())
                     .build()
@@ -2489,7 +2489,7 @@ public class ValidTimeRangeTest {
                 contentDescription = "content description".complicationText
             )
                 .setTitle("steps".complicationText)
-                .setColorRamp(ColorRamp(Color.BLUE, Color.RED))
+                .setColorRamp(ColorRamp(intArrayOf(Color.RED, Color.GREEN, Color.BLUE), false))
                 .build()
         )
         ParcelableSubject.assertThat(data.asWireComplicationData())
@@ -2503,8 +2503,8 @@ public class ValidTimeRangeTest {
                             .setContentDescription(
                                 WireComplicationText.plainText("content description")
                             )
-                            .setRangedMinColor(Color.BLUE)
-                            .setRangedMaxColor(Color.RED)
+                            .setColorRamp(intArrayOf(Color.RED, Color.GREEN, Color.BLUE))
+                            .setColorRampIsSmoothShaded(false)
                             .build()
                     )
                     .build()
@@ -2769,7 +2769,7 @@ public class RedactionTest {
             contentDescription = "content description".complicationText
         )
             .setTitle("steps".complicationText)
-            .setColorRamp(ColorRamp(Color.BLUE, Color.RED))
+            .setColorRamp(ColorRamp(intArrayOf(Color.RED, Color.GREEN, Color.BLUE), true))
             .build()
 
         assertThat(data.toString()).isEqualTo(
@@ -2779,7 +2779,7 @@ public class RedactionTest {
                 "mSurroundingText=REDACTED, mTimeDependentText=null}), " +
                 "tapActionLostDueToSerialization=false, tapAction=null, " +
                 "validTimeRange=TimeRange(REDACTED), dataSource=null, " +
-                "colorRamp=ColorRamp(minColor=-16776961, maxColor=-65536))"
+                "colorRamp=ColorRamp(colors=[-65536, -16711936, -16776961], interpolated=true))"
         )
         assertThat(data.asWireComplicationData().toString()).isEqualTo(
             "ComplicationData{mType=13, mFields=REDACTED}"

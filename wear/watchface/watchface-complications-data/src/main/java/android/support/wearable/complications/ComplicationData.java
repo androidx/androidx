@@ -279,7 +279,8 @@ public final class ComplicationData implements Parcelable, Serializable {
      */
     public static final int IMAGE_STYLE_ICON = 2;
 
-    // Originally it was planned to support both content and image content descriptions.
+    private static final String FIELD_COLOR_RAMP = "COLOR_RAMP";
+    private static final String FIELD_COLOR_RAMP_INTERPOLATED = "COLOR_RAMP_INTERPOLATED";
     private static final String FIELD_DATA_SOURCE = "FIELD_DATA_SOURCE";
     private static final String FIELD_END_TIME = "END_TIME";
     private static final String FIELD_ICON = "ICON";
@@ -294,8 +295,6 @@ public final class ComplicationData implements Parcelable, Serializable {
     private static final String FIELD_LIST_STYLE_HINT = "LIST_STYLE_HINT";
     private static final String FIELD_LONG_TITLE = "LONG_TITLE";
     private static final String FIELD_LONG_TEXT = "LONG_TEXT";
-    private static final String FIELD_MAX_COLOR = "MAX_COLOR";
-    private static final String FIELD_MIN_COLOR = "MIN_COLOR";
     private static final String FIELD_MAX_VALUE = "MAX_VALUE";
     private static final String FIELD_MIN_VALUE = "MIN_VALUE";
     private static final String FIELD_PLACEHOLDER_FIELDS = "PLACEHOLDER_FIELDS";
@@ -378,8 +377,8 @@ public final class ComplicationData implements Parcelable, Serializable {
                     FIELD_TAP_ACTION,
                     FIELD_CONTENT_DESCRIPTION,
                     FIELD_DATA_SOURCE,
-                    FIELD_MAX_COLOR,
-                    FIELD_MIN_COLOR
+                    FIELD_COLOR_RAMP,
+                    FIELD_COLOR_RAMP_INTERPOLATED
             }, // RANGED_VALUE
             {
                     FIELD_TAP_ACTION,
@@ -441,8 +440,8 @@ public final class ComplicationData implements Parcelable, Serializable {
                     FIELD_TAP_ACTION,
                     FIELD_CONTENT_DESCRIPTION,
                     FIELD_DATA_SOURCE,
-                    FIELD_MAX_COLOR,
-                    FIELD_MIN_COLOR
+                    FIELD_COLOR_RAMP,
+                    FIELD_COLOR_RAMP_INTERPOLATED
             }, // TYPE_GOAL_PROGRESS
             {
                     FIELD_SHORT_TEXT,
@@ -494,7 +493,7 @@ public final class ComplicationData implements Parcelable, Serializable {
 
     @RequiresApi(api = Build.VERSION_CODES.P)
     private static class SerializedForm implements Serializable {
-        private static final int VERSION_NUMBER = 12;
+        private static final int VERSION_NUMBER = 13;
 
         @NonNull
         ComplicationData mComplicationData;
@@ -568,20 +567,23 @@ public final class ComplicationData implements Parcelable, Serializable {
             if (isFieldValidForType(FIELD_INT_MAX_VALUE, type)) {
                 oos.writeInt(mComplicationData.getDiscreteRangedMaxValue());
             }
-            if (isFieldValidForType(FIELD_MAX_COLOR, type)) {
-                Integer maxColor = mComplicationData.getRangedMaxColor();
-                if (maxColor != null) {
+            if (isFieldValidForType(FIELD_COLOR_RAMP, type)) {
+                int[] colors = mComplicationData.getColorRamp();
+                if (colors != null) {
                     oos.writeBoolean(true);
-                    oos.writeInt(maxColor);
+                    oos.writeInt(colors.length);
+                    for (int color : colors) {
+                        oos.writeInt(color);
+                    }
                 } else {
                     oos.writeBoolean(false);
                 }
             }
-            if (isFieldValidForType(FIELD_MIN_COLOR, type)) {
-                Integer minColor = mComplicationData.getRangedMinColor();
-                if (minColor != null) {
+            if (isFieldValidForType(FIELD_COLOR_RAMP_INTERPOLATED, type)) {
+                Boolean isColorRampSmoothShaded = mComplicationData.isColorRampInterpolated();
+                if (isColorRampSmoothShaded != null) {
                     oos.writeBoolean(true);
-                    oos.writeInt(minColor);
+                    oos.writeBoolean(isColorRampSmoothShaded);
                 } else {
                     oos.writeBoolean(false);
                 }
@@ -744,11 +746,16 @@ public final class ComplicationData implements Parcelable, Serializable {
             if (isFieldValidForType(FIELD_INT_MAX_VALUE, type)) {
                 fields.putInt(FIELD_INT_MAX_VALUE, ois.readInt());
             }
-            if (isFieldValidForType(FIELD_MAX_COLOR, type) && ois.readBoolean()) {
-                fields.putInt(FIELD_MAX_COLOR, ois.readInt());
+            if (isFieldValidForType(FIELD_COLOR_RAMP, type) && ois.readBoolean()) {
+                int numColors = ois.readInt();
+                int[] colors = new int[numColors];
+                for (int i = 0; i < numColors; ++i) {
+                    colors[i] = ois.readInt();
+                }
+                fields.putIntArray(FIELD_COLOR_RAMP, colors);
             }
-            if (isFieldValidForType(FIELD_MIN_COLOR, type) && ois.readBoolean()) {
-                fields.putInt(FIELD_MIN_COLOR, ois.readInt());
+            if (isFieldValidForType(FIELD_COLOR_RAMP_INTERPOLATED, type) && ois.readBoolean()) {
+                fields.putBoolean(FIELD_COLOR_RAMP_INTERPOLATED, ois.readBoolean());
             }
             if (isFieldValidForType(FIELD_START_TIME, type)) {
                 fields.putLong(FIELD_START_TIME, ois.readLong());
@@ -1192,33 +1199,35 @@ public final class ComplicationData implements Parcelable, Serializable {
     }
 
     /**
-     * Returns the color the minimum ranged value should be rendered with.
+     * Returns the colors for the progress bar.
      *
      * <p>Valid only if the type of this complication data is {@link #TYPE_RANGED_VALUE} or
      * {@link #TYPE_GOAL_PROGRESS}.
      */
     @ColorInt
     @Nullable
-    public Integer getRangedMinColor() {
-        checkFieldValidForTypeWithoutThrowingException(FIELD_MIN_COLOR, mType);
-        if (mFields.containsKey(FIELD_MIN_COLOR)) {
-            return mFields.getInt(FIELD_MIN_COLOR);
+    public int[] getColorRamp() {
+        checkFieldValidForTypeWithoutThrowingException(FIELD_COLOR_RAMP, mType);
+        if (mFields.containsKey(FIELD_COLOR_RAMP)) {
+            return mFields.getIntArray(FIELD_COLOR_RAMP);
         }
         return null;
     }
 
     /**
-     * Returns the color the maximum ranged value should be rendered with.
+     * Returns either a boolean where: true means the color ramp colors should be smoothly
+     * interpolatded; false means the color ramp should be rendered in equal sized blocks of
+     * solid color; null means this value wasn't set, i.e. the complication is not of type
+     * {@link #TYPE_RANGED_VALUE} or {@link #TYPE_GOAL_PROGRESS}.
      *
      * <p>Valid only if the type of this complication data is {@link #TYPE_RANGED_VALUE} or
      * {@link #TYPE_GOAL_PROGRESS}.
      */
-    @ColorInt
     @Nullable
-    public Integer getRangedMaxColor() {
-        checkFieldValidForTypeWithoutThrowingException(FIELD_MAX_COLOR, mType);
-        if (mFields.containsKey(FIELD_MAX_COLOR)) {
-            return mFields.getInt(FIELD_MAX_COLOR);
+    public Boolean isColorRampInterpolated() {
+        checkFieldValidForTypeWithoutThrowingException(FIELD_COLOR_RAMP_INTERPOLATED, mType);
+        if (mFields.containsKey(FIELD_COLOR_RAMP_INTERPOLATED)) {
+            return mFields.getBoolean(FIELD_COLOR_RAMP_INTERPOLATED);
         }
         return null;
     }
@@ -2255,24 +2264,25 @@ public final class ComplicationData implements Parcelable, Serializable {
         }
 
         /**
-         * Optional. Sets the color that the minimum ranged value should be rendered with.
+         * Optional. Sets the color the color ramp should be drawn with.
          *
          * <p>Returns this Builder to allow chaining.
          */
         @NonNull
-        public Builder setRangedMinColor(@Nullable Integer minColor) {
-            putOrRemoveField(FIELD_MIN_COLOR, minColor);
+        public Builder setColorRamp(@Nullable int[] colorRamp) {
+            putOrRemoveField(FIELD_COLOR_RAMP, colorRamp);
             return this;
         }
 
         /**
-         * Optional. Sets the color that the maximum ranged value should be rendered with.
+         * Optional. Sets whether or not the color ramp should be smootly shaded or drawn with
+         * steps.
          *
          * <p>Returns this Builder to allow chaining.
          */
         @NonNull
-        public Builder setRangedMaxColor(@Nullable Integer minColor) {
-            putOrRemoveField(FIELD_MAX_COLOR, minColor);
+        public Builder setColorRampIsSmoothShaded(@Nullable Boolean isSmoothShaded) {
+            putOrRemoveField(FIELD_COLOR_RAMP_INTERPOLATED, isSmoothShaded);
             return this;
         }
 
@@ -2368,6 +2378,8 @@ public final class ComplicationData implements Parcelable, Serializable {
                 mFields.putString(field, (String) obj);
             } else if (obj instanceof Parcelable) {
                 mFields.putParcelable(field, (Parcelable) obj);
+            } else if (obj instanceof int[]) {
+                mFields.putIntArray(field, (int[]) obj);
             } else {
                 throw new IllegalArgumentException("Unexpected object type: " + obj.getClass());
             }
