@@ -21,7 +21,7 @@ import android.content.Intent
 import android.os.IBinder
 import android.os.RemoteException
 import android.util.Log
-import androidx.room.Room.Companion.LOG_TAG
+import androidx.room.Room.LOG_TAG
 
 /**
  * A [Service] for remote invalidation among multiple [InvalidationTracker] instances.
