@@ -16,18 +16,19 @@
 
 package androidx.camera.camera2.pipe.compat
 
+import android.view.Surface
 import androidx.annotation.RequiresApi
+import androidx.camera.camera2.pipe.CameraController
 import androidx.camera.camera2.pipe.CameraGraph
-import androidx.camera.camera2.pipe.config.CameraGraphScope
-import androidx.camera.camera2.pipe.config.ForCameraGraph
+import androidx.camera.camera2.pipe.StreamId
+import androidx.camera.camera2.pipe.config.Camera2ControllerScope
 import androidx.camera.camera2.pipe.graph.GraphListener
-import androidx.camera.camera2.pipe.graph.StreamGraphImpl
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 /**
- * This represents the core state loop for a Camera Graph instance.
+ * This represents the core state loop for a CameraGraph instance.
  *
  * A camera graph will receive start / stop signals from the application. When started, it will do
  * everything possible to bring up and maintain an active camera instance with the given
@@ -36,18 +37,18 @@ import kotlinx.coroutines.launch
  * TODO: Reorganize these constructor parameters.
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-@CameraGraphScope
-internal class Camera2Camera2Controller @Inject constructor(
-    @ForCameraGraph private val scope: CoroutineScope,
+@Camera2ControllerScope
+internal class Camera2CameraController @Inject constructor(
+    private val scope: CoroutineScope,
     private val config: CameraGraph.Config,
     private val graphListener: GraphListener,
     private val captureSessionFactory: CaptureSessionFactory,
     private val requestProcessorFactory: Camera2RequestProcessorFactory,
-    private val virtualCameraManager: VirtualCameraManager,
-    private val streamGraph: StreamGraphImpl
-) : Camera2Controller {
+    private val virtualCameraManager: VirtualCameraManager
+) : CameraController {
     private var currentCamera: VirtualCamera? = null
     private var currentSession: VirtualSessionState? = null
+    private var surfaceMap: Map<StreamId, Surface>? = null
 
     override fun start() {
         val camera = virtualCameraManager.open(
@@ -59,14 +60,20 @@ internal class Camera2Camera2Controller @Inject constructor(
             check(currentSession == null)
 
             currentCamera = camera
-            currentSession = VirtualSessionState(
+            val session = VirtualSessionState(
                 graphListener,
                 captureSessionFactory,
                 requestProcessorFactory,
                 scope
             )
+            currentSession = session
+
+            val surfaces: Map<StreamId, Surface>? = surfaceMap
+            if (surfaces != null) {
+                session.onSurfaceMapUpdated(surfaces)
+            }
         }
-        scope.launch { configure() }
+        scope.launch { bindSessionToCamera() }
     }
 
     override fun stop() {
@@ -86,30 +93,20 @@ internal class Camera2Camera2Controller @Inject constructor(
         }
     }
 
-    override fun restart() {
-        val oldSession: VirtualSessionState?
-        val newSession: VirtualSessionState?
+    override fun close() {
+        // TODO: Consider changing the behavior so that start / stop are not invokable after calling
+        //   close.
+        stop()
+    }
 
+    override fun updateSurfaceMap(surfaceMap: Map<StreamId, Surface>) {
         synchronized(this) {
-            check(currentCamera != null) { "Cannot invoke reconfigure while stopped." }
-
-            oldSession = currentSession
-            newSession = VirtualSessionState(
-                graphListener,
-                captureSessionFactory,
-                requestProcessorFactory,
-                scope
-            )
-            currentSession = newSession
-        }
-
-        scope.launch {
-            oldSession?.disconnect()
-            configure()
+            this.surfaceMap = surfaceMap
+            currentSession?.onSurfaceMapUpdated(surfaceMap)
         }
     }
 
-    private suspend fun configure() {
+    private suspend fun bindSessionToCamera() {
         val camera: VirtualCamera?
         val session: VirtualSessionState?
 
@@ -119,7 +116,6 @@ internal class Camera2Camera2Controller @Inject constructor(
         }
 
         if (camera != null && session != null) {
-            streamGraph.listener = session
             camera.state.collect {
                 if (it is CameraStateOpen) {
                     session.cameraDevice = it.cameraDevice
