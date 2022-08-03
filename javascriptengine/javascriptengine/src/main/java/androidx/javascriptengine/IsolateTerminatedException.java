@@ -17,9 +17,10 @@
 package androidx.javascriptengine;
 
 /**
- * Exception thrown when evaluation is terminated due the {@link JsIsolate} being terminated.
+ * Exception thrown when evaluation is terminated due to {@link JavaScriptIsolate} being
+ * closed. This can occur when the {@link JavaScriptIsolate#close()} is called.
  */
-public class IsolateTerminatedException extends JsException {
+public final class IsolateTerminatedException extends JavaScriptException {
     public IsolateTerminatedException() {
         super();
     }
