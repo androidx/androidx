@@ -16,7 +16,7 @@
 package androidx.compose.ui.text.android.style
 
 import android.graphics.Paint.FontMetricsInt
-import androidx.annotation.IntRange
+import androidx.annotation.FloatRange
 import androidx.compose.ui.text.android.InternalPlatformTextApi
 import kotlin.math.abs
 import kotlin.math.ceil
@@ -37,7 +37,7 @@ import kotlin.math.ceil
  * as a result of the line height is not added.  Single line text is both the first and last line.
  * @param lineHeight The specified line height in pixel units, which is the space between the
  * baseline of adjacent lines.
- * @param topPercentage The percentage on how to distribute the line height for a given line.
+ * @param topRatio The percentage on how to distribute the line height for a given line.
  * 0 means all space as a result of line height is applied to the bottom. Similarly, 100 means
  * all space as a result of line height is applied to the top.
  *
@@ -50,7 +50,7 @@ class LineHeightStyleSpan(
     private val endIndex: Int,
     private val trimFirstLineTop: Boolean,
     val trimLastLineBottom: Boolean,
-    @IntRange(from = 0, to = 100) val topPercentage: Int
+    @FloatRange(from = 0.0, to = 1.0) private val topRatio: Float
 ) : android.text.style.LineHeightSpan {
 
     private var firstAscent: Int = 0
@@ -67,8 +67,8 @@ class LineHeightStyleSpan(
         private set
 
     init {
-        check(topPercentage in 0..100 || topPercentage == -1) {
-            "topRatio should be in [0..100] range or -1"
+        check(topRatio in 0f..1f || topRatio == -1f) {
+            "topRatio should be in [0..1] range or -1"
         }
     }
 
@@ -103,18 +103,18 @@ class LineHeightStyleSpan(
         // calculate the difference between the current line lineHeight and the requested lineHeight
         val diff = ceiledLineHeight - currentHeight
 
-        val ascentRatio = if (topPercentage == -1) {
-            (abs(fontMetricsInt.ascent.toFloat()) / fontMetricsInt.lineHeight() * 100f).toInt()
+        val ascentRatio = if (topRatio == -1f) {
+            abs(fontMetricsInt.ascent.toFloat()) / fontMetricsInt.lineHeight()
         } else {
-            topPercentage
+            topRatio
         }
 
         val descentDiff = if (diff <= 0) {
-            // diff * topPercentage is the amount that should go to below the baseline
-            ceil(diff * ascentRatio / 100f).toInt()
+            // diff * topRatio is the amount that should go to below the baseline
+            ceil(diff * ascentRatio).toInt()
         } else {
-            // diff * (100 - topPercentage) is the amount that should go to below the baseline
-            ceil(diff * (100 - ascentRatio) / 100f).toInt()
+            // diff * (1f - topRatio) is the amount that should go to below the baseline
+            ceil(diff * (1f - ascentRatio)).toInt()
         }
 
         descent = fontMetricsInt.descent + descentDiff
@@ -136,7 +136,7 @@ class LineHeightStyleSpan(
         endIndex = endIndex,
         trimFirstLineTop = trimFirstLineTop,
         trimLastLineBottom = trimLastLineBottom,
-        topPercentage = topPercentage
+        topRatio = topRatio
     )
 }
 
