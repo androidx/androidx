@@ -41,7 +41,7 @@
                 <action android:name="android.intent.action.MAIN" />
             </intent-filter>
         </activity>
-        <activity android:name=".BySelectorTreeTestActivity"
+        <activity android:name=".ParentChildTestActivity"
             android:exported="true"
             android:theme="@android:style/Theme.Holo.NoActionBar">
             <intent-filter>

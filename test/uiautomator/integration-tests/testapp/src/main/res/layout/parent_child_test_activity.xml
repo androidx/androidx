@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?><!--
- * Copyright (C) 2014 The Android Open Source Project
+ * Copyright (C) 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,10 +18,10 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".BySelectorTestActivity">
+    tools:context=".ParentChildTestActivity">
 
     <!--
-        Set a tree structure for `testDepth()`, `testHasChild()` and `testHasDescendant() `.
+        Set a tree structure to mock parent-child relationships.
 
                   N1        <- Absolute layout depth is 5.
                  /  \
