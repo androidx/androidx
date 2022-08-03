@@ -18,13 +18,11 @@ package androidx.room.solver.shortcut.binder
 
 import androidx.room.solver.shortcut.result.InsertOrUpsertMethodAdapter
 import androidx.room.solver.CodeGenScope
-import androidx.room.solver.shortcut.result.InsertMethodAdapter
-import androidx.room.solver.shortcut.result.UpsertMethodAdapter
 import androidx.room.vo.ShortcutQueryParameter
 import com.squareup.javapoet.FieldSpec
 
 /**
- * Connects the insert and upsert method, the database and the [InsertMethodAdapter] or [UpsertMethodAdapter].
+ * Connects the insert and upsert method, the database and the [InsertOrUpsertMethodAdapter].
  */
 abstract class InsertOrUpsertMethodBinder(val adapter: InsertOrUpsertMethodAdapter?) {
 
