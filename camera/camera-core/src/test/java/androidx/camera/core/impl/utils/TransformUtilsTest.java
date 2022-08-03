@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 The Android Open Source Project
+ * Copyright 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,17 +14,19 @@
  * limitations under the License.
  */
 
-package androidx.camera.view;
+package androidx.camera.core.impl.utils;
 
-import static androidx.camera.view.TransformUtils.getExifTransform;
-import static androidx.camera.view.TransformUtils.rectToVertices;
+import static androidx.camera.core.impl.utils.TransformUtils.getExifTransform;
+import static androidx.camera.core.impl.utils.TransformUtils.rectToVertices;
 
 import static com.google.common.truth.Truth.assertThat;
 
 import android.graphics.Matrix;
+import android.graphics.Rect;
 import android.graphics.RectF;
 import android.media.ExifInterface;
 import android.os.Build;
+import android.util.Size;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -42,6 +44,21 @@ public class TransformUtilsTest {
 
     private static final int WIDTH = 400;
     private static final int HEIGHT = 300;
+
+    @Test
+    public void viewPortMatchAllowRoundingError() {
+        // Arrange: create two 1:1 crop rect. Due to rounding error, one is 11:9 and another is
+        // 9:11.
+        Rect cropRect1 = new Rect();
+        new RectF(0.4999f, 0.5f, 10.5f, 10.4999f).round(cropRect1);
+        Rect cropRect2 = new Rect();
+        new RectF(0.5f, 0.4999f, 10.4999f, 10.5f).round(cropRect2);
+
+        // Assert: they are within rounding error.
+        assertThat(TransformUtils.isAspectRatioMatchingWithRoundingError(
+                new Size(cropRect1.width(), cropRect1.height()), false,
+                new Size(cropRect2.width(), cropRect2.height()), false)).isTrue();
+    }
 
     @Test
     public void exifOrientation_flipHorizontal() {
