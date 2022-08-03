@@ -388,14 +388,12 @@ class DaoWriter(
         method: InsertionMethod,
         insertionAdapters: Map<String, Pair<FieldSpec, TypeSpec>>
     ): CodeBlock {
-        if (insertionAdapters.isEmpty()) {
+        if (insertionAdapters.isEmpty() || method.methodBinder == null) {
             return CodeBlock.builder().build()
         }
-
         val scope = CodeGenScope(this)
 
-        // TODO b/240491383 Remove nullability from methodBinders for convertAndReturn
-        method.methodBinder?.convertAndReturn(
+        method.methodBinder.convertAndReturn(
             parameters = method.parameters,
             adapters = insertionAdapters,
             dbField = dbField,
@@ -501,14 +499,12 @@ class DaoWriter(
         method: UpsertionMethod,
         upsertionAdapters: Map<String, Pair<FieldSpec, CodeBlock>>
     ): CodeBlock {
-        if (upsertionAdapters.isEmpty()) {
+        if (upsertionAdapters.isEmpty() || method.methodBinder == null) {
             return CodeBlock.builder().build()
         }
-
         val scope = CodeGenScope(this)
 
-        // TODO b/240491383 Remove nullability from methodBinders for convertAndReturn
-        method.methodBinder?.convertAndReturn(
+        method.methodBinder.convertAndReturn(
             parameters = method.parameters,
             adapters = upsertionAdapters,
             dbField = dbField,
