@@ -80,8 +80,6 @@ public class EffectBundle {
         /**
          * Adds a {@link CameraEffect} with its targets.
          *
-         * TODO: finish Javadoc once {@link ImageEffect} is supported.
-         *
          * @param targets      on which the effect will be applied. CameraX only supports
          *                     {@link SurfaceEffect#PREVIEW} for now.
          * @param cameraEffect the effect implementation.

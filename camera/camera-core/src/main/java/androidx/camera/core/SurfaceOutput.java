@@ -26,18 +26,16 @@ import androidx.annotation.RestrictTo;
 import androidx.core.util.Consumer;
 
 import com.google.auto.value.AutoValue;
-import com.google.common.util.concurrent.ListenableFuture;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.concurrent.Executor;
 
 /**
- * A completable, single-use {@link Surface} for outputting processed camera frames.
+ * A {@link Surface} for drawing processed camera frames.
  *
- * <p>Contains a {@link ListenableFuture<Surface>} and its characteristics along with methods
- * for notifying the end of life of the {@link Surface} and marking the {@link Surface} as no
- * longer in use.
+ * <p>Contains a {@link Surface} and its characteristics along with methods to manage the
+ * lifecycle of the {@link Surface}.
  *
  * @hide
  * @see SurfaceEffect#onOutputSurface(SurfaceOutput)
@@ -46,7 +44,7 @@ import java.util.concurrent.Executor;
 public interface SurfaceOutput {
 
     /**
-     * Gets the output {@link Surface} for writing processed frames.
+     * Gets the {@link Surface} for drawing processed frames.
      *
      * <p> If there are multiple calls to the method, only the {@link Consumer<Event>}
      * from the last call will be triggered.
@@ -87,10 +85,10 @@ public interface SurfaceOutput {
     int getFormat();
 
     /**
-     * Call this method to mark the {@link Surface} provided via {@link #getSurface} as no longer in
-     * use.
+     * Call this method to mark the {@link Surface} as no longer in use.
      *
-     * <p>After this is called, the implementation should stop writing to the {@link Surface}.
+     * <p>After this is called, the implementation should stop writing to the {@link Surface}
+     * provided via {@link #getSurface}
      */
     void close();
 
@@ -102,12 +100,13 @@ public interface SurfaceOutput {
      * {@link SurfaceTexture#getTransformMatrix}. The result is matrix of the same format, which
      * is a transform matrix maps 2D homogeneous texture coordinates of the form (s, t, 0, 1)
      * with s and t in the inclusive range [0, 1] to the texture coordinate that should be used
-     * to sample that location from the texture. The result should be used in the same way as
-     * the original matrix. Please see the Javadoc of {@link SurfaceTexture#getTransformMatrix}.
+     * to sample that location from the texture. The matrix is stored in column-major order so that
+     * it may be passed directly to OpenGL ES via the {@code glLoadMatrixf} or {@code
+     * glUniformMatrix4fv} functions.
      *
      * <p>The additional transformation is calculated based on the target rotation, target
-     * resolution and the {@link ViewPort} configured by the app. The value could also include
-     * workaround for device specific quirks.
+     * resolution and the {@link ViewPort} associated with the target {@link UseCase}. The value
+     * could also include workarounds for device specific quirks.
      *
      * @param updated  the array into which the 4x4 matrix will be stored. The array must
      *                 have exactly 16 elements.
@@ -119,7 +118,7 @@ public interface SurfaceOutput {
     void updateTransformMatrix(@NonNull float[] updated, @NonNull float[] original);
 
     /**
-     * Events for the {@link Surface} retrieved from
+     * Events of the {@link Surface} retrieved from
      * {@link SurfaceOutput#getSurface(Executor, Consumer)}.
      */
     @AutoValue
@@ -139,12 +138,13 @@ public interface SurfaceOutput {
         /**
          * The {@link Surface} provider is requesting to release the {@link Surface}.
          *
-         * <p> Releasing a {@link Surface} while it's still being written into is not safe. The
-         * provider of the {@link Surface} will not release the {@link Surface} without
-         * the CameraX's permission. Once this event is received, the implementation should stop
-         * accessing the {@link Surface} as soon as possible, then mark the {@link SurfaceOutput}
-         * as closed by calling {@link SurfaceOutput#close()}. Once closed, CameraX will notify
-         * the {@link Surface} provider that it's safe to release the {@link Surface}.
+         * <p> Releasing a {@link Surface} while it's still being written into is not safe on
+         * some devices. This is why the provider of the {@link Surface} will not release the
+         * {@link Surface} without the CameraX's permission. Once this event is received, the
+         * implementation should stop accessing the {@link Surface} as soon as possible, then
+         * mark the {@link SurfaceOutput} as closed by calling {@link SurfaceOutput#close()}.
+         * Once closed, CameraX will notify the {@link Surface} provider that it's safe to
+         * release the {@link Surface}.
          */
         public static final int EVENT_REQUEST_CLOSE = 0;
 
