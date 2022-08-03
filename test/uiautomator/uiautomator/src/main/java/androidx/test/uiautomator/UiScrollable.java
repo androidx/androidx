@@ -16,14 +16,11 @@
 
 package androidx.test.uiautomator;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY;
-
 import android.graphics.Rect;
 import android.util.Log;
 import android.view.accessibility.AccessibilityNodeInfo;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
 
 /**
  * UiScrollable is a {@link UiCollection} and provides support for searching
@@ -306,7 +303,6 @@ public class UiScrollable extends UiCollection {
      * @throws UiObjectNotFoundException
      * @hide
      */
-    @RestrictTo(LIBRARY)
     public boolean ensureFullyVisible(@NonNull UiObject childObject)
             throws UiObjectNotFoundException {
         Rect actual = childObject.getBounds();
