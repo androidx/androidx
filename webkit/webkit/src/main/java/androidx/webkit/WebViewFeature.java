@@ -498,9 +498,7 @@ public class WebViewFeature {
      * {@link WebSettingsCompat#setEnterpriseAuthenticationAppLinkPolicyEnabled(WebSettings, boolean)}and
      * {@link WebSettingsCompat#getEnterpriseAuthenticationAppLinkPolicyEnabled(WebSettings)}.
      *
-     * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final String ENTERPRISE_AUTHENTICATION_APP_LINK_POLICY =
             "ENTERPRISE_AUTHENTICATION_APP_LINK_POLICY";
 
