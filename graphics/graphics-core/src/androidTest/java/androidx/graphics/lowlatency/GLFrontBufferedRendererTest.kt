@@ -24,8 +24,8 @@ import android.util.Log
 import android.view.SurfaceView
 import androidx.annotation.RequiresApi
 import androidx.graphics.opengl.egl.EGLManager
-import androidx.graphics.surface.SurfaceControlCompat
 import androidx.graphics.opengl.egl.deviceSupportsNativeAndroidFence
+import androidx.graphics.surface.SurfaceControlCompat
 import androidx.graphics.surface.SurfaceControlUtils
 import androidx.lifecycle.Lifecycle
 import androidx.test.core.app.ActivityScenario
@@ -209,8 +209,30 @@ class GLFrontBufferedRendererTest {
             }
 
             SurfaceControlUtils.validateOutput { bitmap ->
-                Color.BLUE ==
-                    bitmap.getPixel(coords[0] + width / 2, coords[1] + height / 2)
+                (Math.abs(
+                    Color.red(Color.BLUE) - Color.red(
+                        bitmap.getPixel(
+                            coords[0] + width / 2,
+                            coords[1] + height / 2
+                        )
+                    )
+                ) < 2) &&
+                    (Math.abs(
+                        Color.green(Color.BLUE) - Color.green(
+                            bitmap.getPixel(
+                                coords[0] + width / 2,
+                                coords[1] + height / 2
+                            )
+                        )
+                    ) < 2) &&
+                    (Math.abs(
+                        Color.blue(Color.BLUE) - Color.blue(
+                            bitmap.getPixel(
+                                coords[0] + width / 2,
+                                coords[1] + height / 2
+                            )
+                        )
+                    ) < 2)
             }
         } finally {
             renderer.blockingRelease()
@@ -233,8 +255,10 @@ class GLFrontBufferedRendererTest {
     fun testUsageFlagContainsComposerOverlay() {
         val usageFlags = GLFrontBufferedRenderer.obtainHardwareBufferUsageFlags()
         if (UsageFlagsVerificationHelper.isSupported(HardwareBuffer.USAGE_COMPOSER_OVERLAY)) {
-            assertNotEquals(0,
-                usageFlags and HardwareBuffer.USAGE_COMPOSER_OVERLAY)
+            assertNotEquals(
+                0,
+                usageFlags and HardwareBuffer.USAGE_COMPOSER_OVERLAY
+            )
         } else {
             assertEquals(0, usageFlags and HardwareBuffer.USAGE_COMPOSER_OVERLAY)
         }
@@ -243,10 +267,14 @@ class GLFrontBufferedRendererTest {
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     fun testBaseFlags() {
-        assertNotEquals(0, GLFrontBufferedRenderer.BaseFlags and
-            HardwareBuffer.USAGE_GPU_SAMPLED_IMAGE)
-        assertNotEquals(0, GLFrontBufferedRenderer.BaseFlags and
-            HardwareBuffer.USAGE_GPU_COLOR_OUTPUT)
+        assertNotEquals(
+            0, GLFrontBufferedRenderer.BaseFlags and
+                HardwareBuffer.USAGE_GPU_SAMPLED_IMAGE
+        )
+        assertNotEquals(
+            0, GLFrontBufferedRenderer.BaseFlags and
+                HardwareBuffer.USAGE_GPU_COLOR_OUTPUT
+        )
     }
 
     @RequiresApi(Build.VERSION_CODES.Q)
