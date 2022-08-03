@@ -67,13 +67,14 @@ internal val Element.internalName: String
             when (nestingKind) {
                 NestingKind.TOP_LEVEL ->
                     qualifiedName.toString().replace('.', '/')
-                NestingKind.MEMBER ->
+                NestingKind.MEMBER, NestingKind.LOCAL ->
                     enclosingElement.internalName + "$" + simpleName
-                NestingKind.LOCAL, NestingKind.ANONYMOUS ->
+                NestingKind.ANONYMOUS ->
                     error("Unsupported nesting $nestingKind")
                 else ->
                     error("Unsupported, nestingKind == null")
             }
+        is ExecutableElement -> enclosingElement.internalName
         is QualifiedNameable -> qualifiedName.toString().replace('.', '/')
         else -> simpleName.toString()
     }
