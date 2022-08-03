@@ -91,6 +91,14 @@ open class PlaygroundExtension @Inject constructor(
             it.mavenCentral()
             it.gradlePluginPortal().content {
                 it.includeModule(
+                    "org.jetbrains.kotlinx",
+                    "kotlinx-benchmark-plugin"
+                )
+                it.includeModule(
+                    "org.jetbrains.kotlinx.benchmark",
+                    "org.jetbrains.kotlinx.benchmark.gradle.plugin"
+                )
+                it.includeModule(
                     "org.jetbrains.kotlin.plugin.serialization",
                     "org.jetbrains.kotlin.plugin.serialization.gradle.plugin"
                 )
