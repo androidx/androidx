@@ -40,6 +40,8 @@ import androidx.wear.compose.material.ButtonDefaults
 import androidx.wear.compose.material.CompactButton
 import androidx.wear.compose.material.ListHeader
 import androidx.wear.compose.material.MaterialTheme
+import androidx.wear.compose.material.OutlinedButton
+import androidx.wear.compose.material.OutlinedCompactButton
 import androidx.wear.compose.material.Text
 import androidx.wear.compose.material.ToggleButton
 import androidx.wear.compose.material.rememberScalingLazyListState
@@ -112,140 +114,198 @@ fun ButtonStyles() {
     var enabled by remember { mutableStateOf(true) }
     val context = LocalContext.current
 
-    Column(
+    ScalingLazyColumnWithRSB(
         modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterVertically),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterHorizontally),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Button(
-                onClick = {
-                    Toast.makeText(
-                        context,
-                        "Button: Override primary colors", Toast.LENGTH_LONG
-                    ).show()
-                },
-                colors = ButtonDefaults.primaryButtonColors(
-                    backgroundColor = AlternatePrimaryColor1,
-                ),
-                enabled = enabled,
-            ) {
-                DemoIcon(R.drawable.ic_accessibility_24px)
-            }
-            Button(
-                onClick = {
-                    Toast.makeText(
-                        context,
-                        "Button: Primary colors", Toast.LENGTH_LONG
-                    ).show()
-                },
-                colors = ButtonDefaults.primaryButtonColors(),
-                enabled = enabled,
-            ) {
-                DemoIcon(R.drawable.ic_accessibility_24px)
+        item {
+            ListHeader {
+                Text(
+                    text = "Styles (Click for details)",
+                )
             }
         }
-        Text(
-            text = "Styles (Click for details)",
-            style = MaterialTheme.typography.body2,
-            color = Color.White
-        )
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterHorizontally),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Button(
-                onClick = {
-                    Toast.makeText(
-                        context,
-                        "Button: Secondary, $enabled", Toast.LENGTH_LONG
-                    ).show()
-                },
-                colors = ButtonDefaults.secondaryButtonColors(),
-                enabled = enabled,
+        item {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterHorizontally),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                DemoIcon(R.drawable.ic_accessibility_24px)
-            }
-            Button(
-                onClick = {
-                    Toast.makeText(
-                        context,
-                        "Button: Small, icon only, $enabled", Toast.LENGTH_LONG
-                    ).show()
-                },
-                colors = ButtonDefaults.iconButtonColors(),
-                modifier = Modifier.size(ButtonDefaults.SmallButtonSize),
-                enabled = enabled
-            ) {
-                DemoIcon(R.drawable.ic_accessibility_24px)
-            }
-            Button(
-                onClick = {
-                    Toast.makeText(
-                        context,
-                        "Button: Large, icon only, $enabled", Toast.LENGTH_LONG
-                    ).show()
-                },
-                colors = ButtonDefaults.iconButtonColors(),
-                modifier = Modifier.size(ButtonDefaults.LargeButtonSize),
-                enabled = enabled
-            ) {
-                DemoIcon(R.drawable.ic_accessibility_24px)
+                Button(
+                    onClick = {
+                        Toast.makeText(
+                            context,
+                            "Button: Secondary, $enabled", Toast.LENGTH_LONG
+                        ).show()
+                    },
+                    colors = ButtonDefaults.secondaryButtonColors(),
+                    enabled = enabled,
+                ) {
+                    DemoIcon(R.drawable.ic_accessibility_24px)
+                }
+                Button(
+                    onClick = {
+                        Toast.makeText(
+                            context,
+                            "Button: Primary colors", Toast.LENGTH_LONG
+                        ).show()
+                    },
+                    colors = ButtonDefaults.primaryButtonColors(),
+                    enabled = enabled,
+                ) {
+                    DemoIcon(R.drawable.ic_accessibility_24px)
+                }
             }
         }
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterHorizontally),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-        Button(
-                onClick = {
-                    Toast.makeText(
-                        context,
-                        "Button: Custom Shape", Toast.LENGTH_LONG
-                    ).show()
-                },
-                colors = ButtonDefaults.secondaryButtonColors(),
-                modifier = Modifier,
-                enabled = enabled,
-                shape = CutCornerShape(4.dp)
+        item {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterHorizontally),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                DemoIcon(R.drawable.ic_accessibility_24px)
-            }
-            CompactButton(
-                onClick = {
-                    Toast.makeText(
-                        context,
-                        "Button: Compact Button with Custom Shape", Toast.LENGTH_LONG
-                    ).show()
-                },
-                colors = ButtonDefaults.secondaryButtonColors(),
-                modifier = Modifier,
-                enabled = enabled,
-                shape = CutCornerShape(4.dp)
-            ) {
-                DemoIcon(R.drawable.ic_accessibility_24px)
+                Button(
+                    onClick = {
+                        Toast.makeText(
+                            context,
+                            "Button: Small, icon only, $enabled", Toast.LENGTH_LONG
+                        ).show()
+                    },
+                    colors = ButtonDefaults.iconButtonColors(),
+                    modifier = Modifier.size(ButtonDefaults.SmallButtonSize),
+                    enabled = enabled
+                ) {
+                    DemoIcon(R.drawable.ic_accessibility_24px)
+                }
+                Button(
+                    onClick = {
+                        Toast.makeText(
+                            context,
+                            "Button: Large, icon only, $enabled", Toast.LENGTH_LONG
+                        ).show()
+                    },
+                    colors = ButtonDefaults.iconButtonColors(),
+                    modifier = Modifier.size(ButtonDefaults.LargeButtonSize),
+                    enabled = enabled
+                ) {
+                    DemoIcon(R.drawable.ic_accessibility_24px)
+                }
             }
         }
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterHorizontally),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = "Buttons Enabled",
-                style = MaterialTheme.typography.caption2,
-                color = Color.White
-            )
-            ToggleButton(
-                checked = enabled,
-                onCheckedChange = {
-                    enabled = it
-                },
-                modifier = Modifier.size(ButtonDefaults.SmallButtonSize),
+        item {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterHorizontally),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                DemoIcon(R.drawable.ic_check_24px)
+                OutlinedButton(
+                    onClick = {
+                        Toast.makeText(
+                            context,
+                            "Button: Outlined, $enabled", Toast.LENGTH_LONG
+                        ).show()
+                    },
+                    enabled = enabled,
+                ) {
+                    DemoIcon(R.drawable.ic_accessibility_24px)
+                }
+                OutlinedCompactButton(
+                    onClick = {
+                        Toast.makeText(
+                            context,
+                            "Button: Outlined Compact, $enabled", Toast.LENGTH_LONG
+                        ).show()
+                    },
+                    enabled = enabled,
+                ) {
+                    DemoIcon(R.drawable.ic_accessibility_24px)
+                }
+            }
+        }
+        item {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterHorizontally),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Button(
+                    onClick = {
+                        Toast.makeText(
+                            context,
+                            "Button: Custom Shape", Toast.LENGTH_LONG
+                        ).show()
+                    },
+                    colors = ButtonDefaults.secondaryButtonColors(),
+                    modifier = Modifier,
+                    enabled = enabled,
+                    shape = CutCornerShape(4.dp)
+                ) {
+                    DemoIcon(R.drawable.ic_accessibility_24px)
+                }
+                CompactButton(
+                    onClick = {
+                        Toast.makeText(
+                            context,
+                            "Button: Compact Button with Custom Shape", Toast.LENGTH_LONG
+                        ).show()
+                    },
+                    colors = ButtonDefaults.secondaryButtonColors(),
+                    modifier = Modifier,
+                    enabled = enabled,
+                    shape = CutCornerShape(4.dp)
+                ) {
+                    DemoIcon(R.drawable.ic_accessibility_24px)
+                }
+            }
+        }
+        item {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterHorizontally),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                OutlinedCompactButton(
+                    onClick = {
+                        Toast.makeText(
+                            context,
+                            "Button: Outlined Compact Button with Custom Shape", Toast.LENGTH_LONG
+                        ).show()
+                    },
+                    modifier = Modifier,
+                    enabled = enabled,
+                    shape = CutCornerShape(4.dp)
+                ) {
+                    DemoIcon(R.drawable.ic_accessibility_24px)
+                }
+                Button(
+                    onClick = {
+                        Toast.makeText(
+                            context,
+                            "Button: Override primary colors", Toast.LENGTH_LONG
+                        ).show()
+                    },
+                    colors = ButtonDefaults.primaryButtonColors(
+                        backgroundColor = AlternatePrimaryColor1,
+                    ),
+                    enabled = enabled,
+                ) {
+                    DemoIcon(R.drawable.ic_accessibility_24px)
+                }
+            }
+        }
+        item {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterHorizontally),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Buttons Enabled",
+                    style = MaterialTheme.typography.caption2,
+                    color = Color.White
+                )
+                ToggleButton(
+                    checked = enabled,
+                    onCheckedChange = {
+                        enabled = it
+                    },
+                    modifier = Modifier.size(ButtonDefaults.SmallButtonSize),
+                ) {
+                    DemoIcon(R.drawable.ic_check_24px)
+                }
             }
         }
     }

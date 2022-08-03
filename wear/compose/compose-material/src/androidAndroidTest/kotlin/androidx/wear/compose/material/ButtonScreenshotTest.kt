@@ -66,6 +66,28 @@ class ButtonScreenshotTest {
         }
 
     @Test
+    fun button_outlined_ltr() =
+        verifyScreenshot(LayoutDirection.Ltr) {
+            OutlinedButton(
+                onClick = {},
+                modifier = Modifier.testTag(TEST_TAG),
+            ) {
+                Text("abc")
+            }
+        }
+
+    @Test
+    fun button_outlined_rtl() =
+        verifyScreenshot(LayoutDirection.Rtl) {
+            OutlinedButton(
+                onClick = {},
+                modifier = Modifier.testTag(TEST_TAG),
+            ) {
+                Text("abc")
+            }
+        }
+
+    @Test
     fun button_disabled() =
         verifyScreenshot {
             Button(onClick = {}, enabled = false, modifier = Modifier.testTag(TEST_TAG)) {

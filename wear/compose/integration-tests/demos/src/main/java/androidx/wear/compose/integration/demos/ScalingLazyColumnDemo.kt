@@ -85,13 +85,16 @@ fun ScalingLazyColumnDetail() {
             }
             Chip(
                 onClick = {},
-                colors = ChipDefaults.secondaryChipColors()) {
-                Text(
-                    modifier = Modifier.fillMaxWidth(),
-                    textAlign = TextAlign.Center,
-                    text = description,
-                    style = MaterialTheme.typography.caption3)
-            }
+                colors = ChipDefaults.secondaryChipColors(),
+                label = {
+                    Text(
+                        modifier = Modifier.fillMaxWidth(),
+                        textAlign = TextAlign.Center,
+                        text = description,
+                        style = MaterialTheme.typography.caption3
+                    )
+                }
+            )
         }
     }
 }
@@ -110,6 +113,7 @@ fun ScalingLazyColumnMixedTypes() {
         }
         item {
             DemoIconChip(
+                style = ChipStyle.Secondary,
                 label = "App Title",
                 secondaryLabel = "Defaults",
                 colors = ChipDefaults.secondaryChipColors(),
@@ -138,6 +142,7 @@ fun ScalingLazyColumnMixedTypes() {
         }
         item {
             DemoIconChip(
+                style = ChipStyle.Secondary,
                 label = "App Title",
                 secondaryLabel = "Defaults",
                 colors = ChipDefaults.secondaryChipColors(),
