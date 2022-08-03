@@ -32,8 +32,8 @@ object WindowProperties {
      * be used if the app wants to provide their own ActivityEmbedding split rules, or if the
      * app wants to opt-out of system overrides for any other reason.
      * <p>Default is `false`.
-     * <p>The system enforcement will be added in Android 14, but some devices may start following
-     * the requirement before that. The best practice for apps is to always explicitly set this
+     * <p>The system enforcement is added in Android 14, but some devices may start following the
+     * requirement before that. The best practice for apps is to always explicitly set this
      * property in AndroidManifest instead of relying on the default value.
      * <p>Example usage:
      * <pre>
