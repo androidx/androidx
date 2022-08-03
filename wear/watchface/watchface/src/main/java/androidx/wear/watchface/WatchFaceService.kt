@@ -359,7 +359,7 @@ public abstract class WatchFaceService : WallpaperService() {
                         }
                     }
                 } catch (e: Exception) {
-                    Log.e(HeadlessWatchFaceImpl.TAG, "Operation failed", e)
+                    Log.e(TAG, "Operation failed", e)
                     throw e
                 }
             }

@@ -21,6 +21,7 @@ import android.app.PendingIntent.CanceledException
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.util.Log
 import androidx.annotation.Px
 import androidx.annotation.RestrictTo
 import androidx.annotation.UiThread
@@ -60,6 +61,10 @@ public class ComplicationSlotsManager(
     complicationSlotCollection: Collection<ComplicationSlot>,
     private val currentUserStyleRepository: CurrentUserStyleRepository
 ) {
+    internal companion object {
+        internal const val TAG = "ComplicationSlotsManager"
+    }
+
     /**
      * Interface used to report user taps on the [ComplicationSlot]. See [addTapListener] and
      * [removeTapListener].
@@ -283,7 +288,15 @@ public class ComplicationSlotsManager(
         data: ComplicationData,
         instant: Instant
     ) {
-        val complication = complicationSlots[complicationSlotId] ?: return
+        val complication = complicationSlots[complicationSlotId]
+        if (complication == null) {
+            Log.e(
+                TAG,
+                "onComplicationDataUpdate failed due to invalid complicationSlotId=" +
+                    "$complicationSlotId with data=$data"
+            )
+            return
+        }
         complication.dataDirty = complication.dataDirty ||
             (complication.renderer.getData() != data)
         complication.setComplicationData(data, true, instant)
@@ -298,7 +311,15 @@ public class ComplicationSlotsManager(
         data: ComplicationData,
         instant: Instant
     ) {
-        val complication = complicationSlots[complicationSlotId] ?: return
+        val complication = complicationSlots[complicationSlotId]
+        if (complication == null) {
+            Log.e(
+                TAG,
+                "setComplicationDataUpdateSync failed due to invalid complicationSlotId=" +
+                    "$complicationSlotId with data=$data"
+            )
+            return
+        }
         complication.setComplicationData(data, false, instant)
     }
 
