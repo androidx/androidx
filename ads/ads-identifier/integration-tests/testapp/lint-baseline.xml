@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.3.0-alpha07" type="baseline" client="gradle" dependencies="false" name="AGP (7.3.0-alpha07)" variant="all" version="7.3.0-alpha07">
+<issues format="6" by="lint 7.4.0-alpha08" type="baseline" client="gradle" dependencies="false" name="AGP (7.4.0-alpha08)" variant="all" version="7.4.0-alpha08">
 
     <issue
         id="UnknownNullness"
@@ -7,9 +7,7 @@
         errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
         errorLine2="                            ~~~~~~">
         <location
-            file="src/main/java/androidx/ads/identifier/testapp/AdsIdentifierActivity.java"
-            line="51"
-            column="29"/>
+            file="src/main/java/androidx/ads/identifier/testapp/AdsIdentifierActivity.java"/>
     </issue>
 
     <issue
@@ -18,9 +16,7 @@
         errorLine1="    public void getId(View view) {"
         errorLine2="                      ~~~~">
         <location
-            file="src/main/java/androidx/ads/identifier/testapp/AdsIdentifierActivity.java"
-            line="57"
-            column="23"/>
+            file="src/main/java/androidx/ads/identifier/testapp/AdsIdentifierActivity.java"/>
     </issue>
 
     <issue
@@ -29,9 +25,7 @@
         errorLine1="    public void getIdSync(View view) {"
         errorLine2="                          ~~~~">
         <location
-            file="src/main/java/androidx/ads/identifier/testapp/AdsIdentifierActivity.java"
-            line="76"
-            column="27"/>
+            file="src/main/java/androidx/ads/identifier/testapp/AdsIdentifierActivity.java"/>
     </issue>
 
     <issue
@@ -40,9 +34,7 @@
         errorLine1="    public void isProviderAvailable(View view) {"
         errorLine2="                                    ~~~~">
         <location
-            file="src/main/java/androidx/ads/identifier/testapp/AdsIdentifierActivity.java"
-            line="98"
-            column="37"/>
+            file="src/main/java/androidx/ads/identifier/testapp/AdsIdentifierActivity.java"/>
     </issue>
 
     <issue
@@ -51,9 +43,7 @@
         errorLine1="    public void listProvider(View view) {"
         errorLine2="                             ~~~~">
         <location
-            file="src/main/java/androidx/ads/identifier/testapp/AdsIdentifierActivity.java"
-            line="106"
-            column="30"/>
+            file="src/main/java/androidx/ads/identifier/testapp/AdsIdentifierActivity.java"/>
     </issue>
 
 </issues>
