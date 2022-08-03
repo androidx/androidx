@@ -136,6 +136,10 @@ class TextLayout constructor(
     @VisibleForTesting
     val layout: Layout
 
+    /**
+     * Resolved line count. If maxLines smaller than the real number of lines in the text, this
+     * property will return the minimum between the two
+     */
     val lineCount: Int
 
     /**
