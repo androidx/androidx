@@ -49,6 +49,8 @@ import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.sin
 import java.time.Instant
+import java.time.LocalDateTime
+import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.util.Objects
 
@@ -1180,7 +1182,8 @@ public class ComplicationSlot
         complicationHistory?.let {
             writer.increaseIndent()
             for (entry in it) {
-                writer.println("${entry.complicationData} @ ${entry.time}")
+                val localDateTime = LocalDateTime.ofInstant(entry.time, ZoneId.systemDefault())
+                writer.println("${entry.complicationData} @ $localDateTime")
             }
             writer.decreaseIndent()
         }
