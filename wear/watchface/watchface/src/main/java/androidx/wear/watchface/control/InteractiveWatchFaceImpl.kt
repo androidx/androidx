@@ -149,6 +149,10 @@ internal class InteractiveWatchFaceImpl(
     ): Unit = uiThreadCoroutineScope.runBlockingWithTracing(
         "InteractiveWatchFaceImpl.updateComplicationData"
     ) {
+        if ("user" != Build.TYPE) {
+            Log.d(TAG, "updateComplicationData " + complicationDatumWireFormats.joinToString())
+        }
+
         engine?.setComplicationDataList(complicationDatumWireFormats)
             ?: Log.d(TAG, "updateComplicationData ignored due to null engine id $instanceId")
     }
