@@ -59,7 +59,7 @@ fun collectBaselineProfile(
     )
 
     // always kill the process at beginning of a collection.
-    scope.killProcess()
+    scope.killProcess(useKillAll = Shell.isSessionRooted())
     try {
         userspaceTrace("compile $packageName") {
             compilationMode.resetAndCompile(
@@ -114,7 +114,7 @@ fun collectBaselineProfile(
             Log.d(TAG, "Total Run Time Ns: $totalRunTime")
         }
     } finally {
-        scope.killProcess()
+        scope.killProcess(useKillAll = Shell.isSessionRooted())
     }
 }
 
