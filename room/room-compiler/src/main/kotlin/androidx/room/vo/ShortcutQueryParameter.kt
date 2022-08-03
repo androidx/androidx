@@ -20,7 +20,7 @@ import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XVariableElement
 
 /**
- * Parameters used in DAO methods that are annotated with Insert, Delete, Update. and Upsert
+ * Parameters used in DAO methods that are annotated with Insert, Delete, Update, and Upsert.
  */
 data class ShortcutQueryParameter(
     val element: XVariableElement,

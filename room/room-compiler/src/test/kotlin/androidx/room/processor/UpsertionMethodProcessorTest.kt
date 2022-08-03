@@ -20,6 +20,7 @@ import androidx.room.Upsert
 import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XType
 import androidx.room.processor.ProcessorErrors.UPSERTION_DOES_NOT_HAVE_ANY_PARAMETERS_TO_UPSERT
+import androidx.room.processor.ProcessorErrors.CANNOT_FIND_UPSERT_RESULT_ADAPTER
 import androidx.room.vo.UpsertionMethod
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -37,6 +38,8 @@ class UpsertionMethodProcessorTest :
             primaryKeyName
         )
     }
+
+    override fun noAdapter(): String = CANNOT_FIND_UPSERT_RESULT_ADAPTER
 
     override fun process(
         baseContext: Context,

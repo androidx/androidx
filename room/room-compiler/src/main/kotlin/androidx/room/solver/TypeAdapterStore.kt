@@ -93,8 +93,7 @@ import androidx.room.solver.shortcut.binderprovider.RxCallableDeleteOrUpdateMeth
 import androidx.room.solver.shortcut.binderprovider.RxCallableInsertMethodBinderProvider
 import androidx.room.solver.shortcut.binderprovider.RxCallableUpsertMethodBinderProvider
 import androidx.room.solver.shortcut.result.DeleteOrUpdateMethodAdapter
-import androidx.room.solver.shortcut.result.InsertMethodAdapter
-import androidx.room.solver.shortcut.result.UpsertMethodAdapter
+import androidx.room.solver.shortcut.result.InsertOrUpsertMethodAdapter
 import androidx.room.solver.types.BoxedBooleanToBoxedIntConverter
 import androidx.room.solver.types.BoxedPrimitiveColumnTypeAdapter
 import androidx.room.solver.types.ByteArrayColumnTypeAdapter
@@ -448,17 +447,15 @@ class TypeAdapterStore private constructor(
     fun findInsertAdapter(
         typeMirror: XType,
         params: List<ShortcutQueryParameter>
-    ): InsertMethodAdapter? {
-        return InsertMethodAdapter.create(typeMirror, params)
+    ): InsertOrUpsertMethodAdapter? {
+        return InsertOrUpsertMethodAdapter.createInsert(typeMirror, params)
     }
 
-    @Suppress("UNUSED_PARAMETER") // param will be used in a future change
     fun findUpsertAdapter(
         typeMirror: XType,
         params: List<ShortcutQueryParameter>
-    ): UpsertMethodAdapter? {
-        // TODO: change for UpsertMethodAdapter when bind has been created
-        return null
+    ): InsertOrUpsertMethodAdapter? {
+        return InsertOrUpsertMethodAdapter.createUpsert(typeMirror, params)
     }
 
     fun findQueryResultAdapter(
