@@ -19,6 +19,7 @@ import android.content.Context
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
+import androidx.room.Room.LOG_TAG
 import androidx.room.util.readVersion
 import androidx.room.util.copy
 import androidx.sqlite.db.SupportSQLiteDatabase
@@ -119,7 +120,7 @@ internal class SQLiteCopyOpenHelper(
             val currentVersion = try {
                 readVersion(databaseFile)
             } catch (e: IOException) {
-                Log.w(Room.LOG_TAG, "Unable to read database version.", e)
+                Log.w(LOG_TAG, "Unable to read database version.", e)
                 return
             }
             if (currentVersion == databaseVersion) {
@@ -136,11 +137,11 @@ internal class SQLiteCopyOpenHelper(
                 } catch (e: IOException) {
                     // We are more forgiving copying a database on a destructive migration since
                     // there is already a database file that can be opened.
-                    Log.w(Room.LOG_TAG, "Unable to copy database file.", e)
+                    Log.w(LOG_TAG, "Unable to copy database file.", e)
                 }
             } else {
                 Log.w(
-                    Room.LOG_TAG, "Failed to delete database file ($name) for " +
+                    LOG_TAG, "Failed to delete database file ($name) for " +
                         "a copy destructive migration."
                 )
             }

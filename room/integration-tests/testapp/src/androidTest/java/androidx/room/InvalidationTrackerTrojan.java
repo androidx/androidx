@@ -20,8 +20,9 @@ package androidx.room;
  * Trojan class to be able to assert internal state.
  */
 public class InvalidationTrackerTrojan {
+    @SuppressWarnings("KotlinInternalInJava") // For testing
     public static int countObservers(InvalidationTracker tracker) {
-        return tracker.observerMap.size();
+        return tracker.getObserverMap$room_runtime_debug().size();
     }
 
     private InvalidationTrackerTrojan() {

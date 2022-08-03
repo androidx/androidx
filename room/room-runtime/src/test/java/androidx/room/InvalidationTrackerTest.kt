@@ -152,11 +152,11 @@ class InvalidationTrackerTest {
     fun addRemoveObserver() {
         val observer: InvalidationTracker.Observer = LatchObserver(1, "a")
         mTracker.addObserver(observer)
-        assertThat(mTracker.getObserverMap().size()).isEqualTo(1)
+        assertThat(mTracker.observerMap.size()).isEqualTo(1)
         mTracker.removeObserver(LatchObserver(1, "a"))
-        assertThat(mTracker.getObserverMap().size()).isEqualTo(1)
+        assertThat(mTracker.observerMap.size()).isEqualTo(1)
         mTracker.removeObserver(observer)
-        assertThat(mTracker.getObserverMap().size()).isEqualTo(0)
+        assertThat(mTracker.observerMap.size()).isEqualTo(0)
     }
 
     private fun drainTasks() {
