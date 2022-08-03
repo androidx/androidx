@@ -158,7 +158,7 @@ import java.util.List;
 public class Toolbar extends ViewGroup implements MenuHost {
     private static final String TAG = "Toolbar";
 
-    private ActionMenuView mMenuView;
+    ActionMenuView mMenuView;
     private TextView mTitleTextView;
     private TextView mSubtitleTextView;
     private ImageButton mNavButtonView;
@@ -232,7 +232,7 @@ public class Toolbar extends ViewGroup implements MenuHost {
     private ActionMenuPresenter mOuterActionMenuPresenter;
     private ExpandedActionViewMenuPresenter mExpandedMenuPresenter;
     private MenuPresenter.Callback mActionMenuPresenterCallback;
-    private MenuBuilder.Callback mMenuBuilderCallback;
+    MenuBuilder.Callback mMenuBuilderCallback;
 
     private boolean mCollapsible;
 
@@ -1253,7 +1253,34 @@ public class Toolbar extends ViewGroup implements MenuHost {
             mMenuView = new ActionMenuView(getContext());
             mMenuView.setPopupTheme(mPopupTheme);
             mMenuView.setOnMenuItemClickListener(mMenuViewItemClickListener);
-            mMenuView.setMenuCallbacks(mActionMenuPresenterCallback, mMenuBuilderCallback);
+            mMenuView.setMenuCallbacks(mActionMenuPresenterCallback,
+                    // Have Toolbar insert a Callback to ensure onPrepareMenu is called properly
+                    new MenuBuilder.Callback() {
+                    // The mMenuView item does not call into the mMenuBuilderCallback when
+                    // menuItems are selected, so this should not get called, but we implement it
+                    // anyway
+                    @Override
+                    public boolean onMenuItemSelected(@NonNull MenuBuilder menu,
+                            @NonNull MenuItem item) {
+                        // Check if there is a mMenuBuilderCallback and if so, forward the call.
+                        return mMenuBuilderCallback != null
+                                && mMenuBuilderCallback.onMenuItemSelected(menu, item);
+                    }
+
+                    @Override
+                    public void onMenuModeChange(@NonNull MenuBuilder menu) {
+                        // If the menu is not showing, we are about to show it, so we need to
+                        // make the prepare call.
+                        if (!mMenuView.isOverflowMenuShowing()) {
+                            mMenuHostHelper.onPrepareMenu(menu);
+                        }
+                        // If there is a mMenuBuilderCallback, forward the onMenuModeChanged call.
+                        if (mMenuBuilderCallback != null) {
+                            mMenuBuilderCallback.onMenuModeChange(menu);
+                        }
+                    }
+                }
+            );
             final LayoutParams lp = generateDefaultLayoutParams();
             lp.gravity = GravityCompat.END | (mButtonGravity & Gravity.VERTICAL_GRAVITY_MASK);
             mMenuView.setLayoutParams(lp);
@@ -2445,8 +2472,6 @@ public class Toolbar extends ViewGroup implements MenuHost {
         ArrayList<MenuItem> newMenuItemList = getCurrentMenuItems();
         newMenuItemList.removeAll(oldMenuItemList);
         mProvidedMenuItems = newMenuItemList;
-
-        mMenuHostHelper.onPrepareMenu(menu);
     }
 
     @Override

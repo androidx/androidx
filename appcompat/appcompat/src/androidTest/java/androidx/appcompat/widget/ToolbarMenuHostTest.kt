@@ -96,7 +96,7 @@ class ToolbarMenuHostTest {
     @Test
     fun providedOnPrepareMenu() {
         with(ActivityScenario.launch(ToolbarTestActivity::class.java)) {
-            var menuPrepared: Boolean
+            var menuPrepared = false
             val toolbar: Toolbar = withActivity {
                 findViewById(androidx.appcompat.test.R.id.toolbar)
             }
@@ -117,8 +117,11 @@ class ToolbarMenuHostTest {
                 })
             }
 
-            menuPrepared = false
-            withActivity { toolbar.invalidateMenu() }
+            assertThat(menuPrepared).isFalse()
+
+            toolbar.showOverflowMenu()
+            PollingCheck.waitFor { toolbar.isOverflowMenuShowing }
+
             assertThat(menuPrepared).isTrue()
         }
     }
