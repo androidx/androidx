@@ -21,7 +21,7 @@ import androidx.annotation.RestrictTo
 /**
  * Type of access to health data: read or write.
  *
- * @see Permission.create
+ * @see HealthPermission.create
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public object AccessTypes {

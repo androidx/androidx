@@ -18,7 +18,7 @@ package androidx.health.platform.client.impl.converters.permission
 import androidx.health.connect.client.impl.converters.permission.toJetpackPermission
 import androidx.health.connect.client.impl.converters.permission.toProtoPermission
 import androidx.health.connect.client.permission.AccessTypes
-import androidx.health.connect.client.permission.Permission
+import androidx.health.connect.client.permission.HealthPermission
 import androidx.health.connect.client.records.StepsRecord
 import androidx.health.platform.client.proto.DataProto
 import androidx.health.platform.client.proto.PermissionProto
@@ -31,7 +31,8 @@ import org.junit.runner.RunWith
 class PermissionConverterTest {
     @Test
     fun jetpackToProtoPermission() {
-        val protoPermission = Permission(StepsRecord::class, AccessTypes.WRITE).toProtoPermission()
+        val protoPermission =
+            HealthPermission(StepsRecord::class, AccessTypes.WRITE).toProtoPermission()
 
         assertThat(protoPermission)
             .isEqualTo(
@@ -45,7 +46,7 @@ class PermissionConverterTest {
     @Test
     fun jetpackToProtoPermissions() {
         val protoPermissions =
-            setOf(Permission(StepsRecord::class, AccessTypes.READ))
+            setOf(HealthPermission(StepsRecord::class, AccessTypes.READ))
                 .asSequence()
                 .map { it.toProtoPermission() }
                 .toSet()
@@ -70,7 +71,8 @@ class PermissionConverterTest {
                 .build()
                 .toJetpackPermission()
 
-        assertThat(jetpackPermission).isEqualTo(Permission(StepsRecord::class, AccessTypes.WRITE))
+        assertThat(jetpackPermission)
+            .isEqualTo(HealthPermission(StepsRecord::class, AccessTypes.WRITE))
     }
 
     @Test
@@ -87,6 +89,6 @@ class PermissionConverterTest {
                 .toSet()
 
         assertThat(jetpackPermissions)
-            .isEqualTo(setOf(Permission(StepsRecord::class, AccessTypes.READ)))
+            .isEqualTo(setOf(HealthPermission(StepsRecord::class, AccessTypes.READ)))
     }
 }

@@ -23,7 +23,7 @@ import kotlin.reflect.KClass
  *
  * @see androidx.health.connect.client.PermissionController
  */
-public class Permission
+public class HealthPermission
 internal constructor(
     /** type of [Record] the permission gives access for. */
     internal val recordType: KClass<out Record>,
@@ -32,31 +32,31 @@ internal constructor(
 ) {
     companion object {
         /**
-         * Creates [Permission] to read provided [recordType], such as `Steps::class`.
+         * Creates [HealthPermission] to read provided [recordType], such as `Steps::class`.
          *
          * @return Permission object to use with
          * [androidx.health.connect.client.PermissionController].
          */
         @JvmStatic
-        public fun createReadPermission(recordType: KClass<out Record>): Permission {
-            return Permission(recordType, AccessTypes.READ)
+        public fun createReadPermission(recordType: KClass<out Record>): HealthPermission {
+            return HealthPermission(recordType, AccessTypes.READ)
         }
 
         /**
-         * Creates [Permission] to write provided [recordType], such as `Steps::class`.
+         * Creates [HealthPermission] to write provided [recordType], such as `Steps::class`.
          *
          * @return Permission object to use with
          * [androidx.health.connect.client.PermissionController].
          */
         @JvmStatic
-        public fun createWritePermission(recordType: KClass<out Record>): Permission {
-            return Permission(recordType, AccessTypes.WRITE)
+        public fun createWritePermission(recordType: KClass<out Record>): HealthPermission {
+            return HealthPermission(recordType, AccessTypes.WRITE)
         }
     }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (other !is Permission) return false
+        if (other !is HealthPermission) return false
 
         if (recordType != other.recordType) return false
         if (accessType != other.accessType) return false

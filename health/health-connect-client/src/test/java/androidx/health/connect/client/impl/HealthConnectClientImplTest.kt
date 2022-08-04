@@ -27,7 +27,7 @@ import androidx.health.connect.client.aggregate.AggregationResultGroupedByDurati
 import androidx.health.connect.client.aggregate.AggregationResultGroupedByPeriod
 import androidx.health.connect.client.changes.DeletionChange
 import androidx.health.connect.client.changes.UpsertionChange
-import androidx.health.connect.client.permission.Permission.Companion.createReadPermission
+import androidx.health.connect.client.permission.HealthPermission.Companion.createReadPermission
 import androidx.health.connect.client.records.ActiveCaloriesBurnedRecord
 import androidx.health.connect.client.records.NutritionRecord
 import androidx.health.connect.client.records.StepsRecord
