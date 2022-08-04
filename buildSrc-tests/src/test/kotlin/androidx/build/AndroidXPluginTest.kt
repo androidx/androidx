@@ -21,8 +21,10 @@ import androidx.build.AndroidXSelfTestProject.Companion.cubaneKmpNoJavaProject
 import androidx.build.AndroidXSelfTestProject.Companion.cubaneProject
 import net.saff.checkmark.Checkmark
 import net.saff.checkmark.Checkmark.Companion.check
+import org.junit.Ignore
 import org.junit.Test
 
+@Ignore("b/240981832")
 class AndroidXPluginTest {
     @Test
     fun createZipForSimpleProject() = pluginTest {

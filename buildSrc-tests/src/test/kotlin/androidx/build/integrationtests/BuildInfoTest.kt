@@ -22,8 +22,10 @@ import androidx.build.assertExists
 import androidx.build.pluginTest
 import androidx.build.writeBuildFiles
 import net.saff.checkmark.Checkmark.Companion.check
+import org.junit.Ignore
 import org.junit.Test
 
+@Ignore("b/240981832")
 class BuildInfoTest {
     @Test
     fun kmpBuildInfoTasks() = pluginTest {
