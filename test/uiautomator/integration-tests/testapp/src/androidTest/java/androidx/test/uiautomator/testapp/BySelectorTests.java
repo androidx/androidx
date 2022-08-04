@@ -303,7 +303,7 @@ public class BySelectorTests extends BaseTest {
 
     @Test
     public void testDepth() {
-        launchTestActivity(BySelectorTreeTestActivity.class);
+        launchTestActivity(ParentChildTestActivity.class);
 
         // Depth of all nodes in the tree.
         assertTrue(mDevice.hasObject(By.res(TEST_APP, "tree_N1").depth(5)));
@@ -322,7 +322,7 @@ public class BySelectorTests extends BaseTest {
 
     @Test
     public void testHasChild() {
-        launchTestActivity(BySelectorTreeTestActivity.class);
+        launchTestActivity(ParentChildTestActivity.class);
 
         assertTrue(mDevice.hasObject(By.res(TEST_APP, "tree_N3").hasChild(By.res(TEST_APP,
                 "tree_N4"))));
@@ -336,7 +336,7 @@ public class BySelectorTests extends BaseTest {
 
     @Test
     public void testHasDescendant() {
-        launchTestActivity(BySelectorTreeTestActivity.class);
+        launchTestActivity(ParentChildTestActivity.class);
 
         // A BySelector as the possible descendant (child is also a descendant).
         assertTrue(mDevice.hasObject(By.res(TEST_APP, "tree_N1").hasDescendant(By.res(TEST_APP,
