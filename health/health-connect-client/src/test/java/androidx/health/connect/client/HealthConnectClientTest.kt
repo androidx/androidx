@@ -15,19 +15,22 @@
  */
 package androidx.health.connect.client
 
+import android.content.ComponentName
 import android.content.Context
+import android.content.IntentFilter
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageInfo
 import android.os.Build
+import androidx.health.platform.client.HealthDataService
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.assertThrows
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Shadows
+import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 
 private const val PROVIDER_PACKAGE_NAME = "com.example.fake.provider"
@@ -42,8 +45,8 @@ class HealthConnectClientTest {
         context = ApplicationProvider.getApplicationContext()
     }
 
-    @Ignore // b/238635208
     @Test
+    @Config(sdk = [Build.VERSION_CODES.P])
     fun noBackingImplementation_unavailable() {
         val packageManager = context.packageManager
         Shadows.shadowOf(packageManager).removePackage(PROVIDER_PACKAGE_NAME)
@@ -54,8 +57,8 @@ class HealthConnectClientTest {
         }
     }
 
-    @Ignore // b/238635208
     @Test
+    @Config(sdk = [Build.VERSION_CODES.P])
     fun backingImplementation_notEnabled_unavailable() {
         installPackage(context, PROVIDER_PACKAGE_NAME, enabled = false)
         assertThat(HealthConnectClient.isAvailable(context, listOf(PROVIDER_PACKAGE_NAME)))
@@ -65,10 +68,22 @@ class HealthConnectClientTest {
         }
     }
 
-    @Ignore // b/238635208
     @Test
+    @Config(sdk = [Build.VERSION_CODES.P])
+    fun backingImplementation_enabledNoService_unavailable() {
+        installPackage(context, PROVIDER_PACKAGE_NAME, enabled = true)
+        assertThat(HealthConnectClient.isAvailable(context, listOf(PROVIDER_PACKAGE_NAME)))
+            .isFalse()
+        assertThrows(IllegalStateException::class.java) {
+            HealthConnectClient.getOrCreate(context, listOf(PROVIDER_PACKAGE_NAME))
+        }
+    }
+
+    @Test
+    @Config(sdk = [Build.VERSION_CODES.P])
     fun backingImplementation_enabled_isAvailable() {
         installPackage(context, PROVIDER_PACKAGE_NAME, enabled = true)
+        installService(context, PROVIDER_PACKAGE_NAME)
         assertThat(HealthConnectClient.isAvailable(context, listOf(PROVIDER_PACKAGE_NAME))).isTrue()
         HealthConnectClient.getOrCreate(context, listOf(PROVIDER_PACKAGE_NAME))
     }
@@ -90,5 +105,19 @@ class HealthConnectClientTest {
         packageInfo.applicationInfo.enabled = enabled
         val packageManager = context.packageManager
         Shadows.shadowOf(packageManager).installPackage(packageInfo)
+    }
+
+    private fun installService(context: Context, packageName: String) {
+        val packageManager = context.packageManager
+        val serviceIntentFilter =
+            IntentFilter(HealthDataService.ANDROID_HEALTH_PLATFORM_SERVICE_BIND_ACTION)
+        val serviceComponentName =
+            ComponentName(
+                packageName,
+                HealthDataService.ANDROID_HEALTH_PLATFORM_SERVICE_BIND_ACTION
+            )
+        shadowOf(packageManager).addServiceIfNotPresent(serviceComponentName)
+        shadowOf(packageManager)
+            .addIntentFilterForService(serviceComponentName, serviceIntentFilter)
     }
 }

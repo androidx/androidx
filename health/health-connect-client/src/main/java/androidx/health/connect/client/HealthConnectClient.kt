@@ -16,6 +16,7 @@
 package androidx.health.connect.client
 
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.RemoteException
@@ -349,12 +350,25 @@ interface HealthConnectClient {
             packageManager: PackageManager,
             packageName: String,
         ): Boolean {
-            return try {
-                @Suppress("Deprecation") // getApplicationInfo deprecated in T
-                return packageManager.getApplicationInfo(packageName, /* flags= */ 0).enabled
-            } catch (e: PackageManager.NameNotFoundException) {
-                false
-            }
+            val isPackageInstalledAndEnabled =
+                try {
+                    @Suppress("Deprecation") // getApplicationInfo deprecated in T
+                    packageManager.getApplicationInfo(packageName, /* flags= */ 0).enabled
+                } catch (e: PackageManager.NameNotFoundException) {
+                    false
+                }
+            return isPackageInstalledAndEnabled && hasBindableService(packageManager, packageName)
+        }
+
+        internal fun hasBindableService(
+            packageManager: PackageManager,
+            packageName: String
+        ): Boolean {
+            val bindIntent = Intent()
+            bindIntent.setPackage(packageName)
+            bindIntent.setAction(HealthDataService.ANDROID_HEALTH_PLATFORM_SERVICE_BIND_ACTION)
+            @Suppress("Deprecation") // deprecated in T
+            return packageManager.queryIntentServices(bindIntent, 0).isNotEmpty()
         }
 
         /**
