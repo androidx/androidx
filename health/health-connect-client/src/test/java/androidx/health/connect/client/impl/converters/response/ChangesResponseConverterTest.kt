@@ -97,7 +97,7 @@ class ChangesResponseConverterTest {
 
         val changesResponse = toChangesResponse(proto)
         assertThat(changesResponse.changes).hasSize(1)
-        assertThat((changesResponse.changes[0] as? DeletionChange)?.deletedUid)
+        assertThat((changesResponse.changes[0] as? DeletionChange)?.uid)
             .isEqualTo("deleteUid")
     }
 
