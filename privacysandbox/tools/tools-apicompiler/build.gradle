@@ -23,6 +23,7 @@ plugins {
 
 dependencies {
     api(libs.kotlinStdlib)
+    implementation(libs.kspApi)
 }
 
 androidx {
