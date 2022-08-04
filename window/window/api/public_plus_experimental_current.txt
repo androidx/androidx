@@ -248,6 +248,7 @@ package androidx.window.layout {
 
   public final class WindowMetrics {
     method public android.graphics.Rect getBounds();
+    method @RequiresApi(android.os.Build.VERSION_CODES.R) @androidx.window.core.ExperimentalWindowApi public androidx.core.view.WindowInsetsCompat getWindowInsets();
     property public final android.graphics.Rect bounds;
   }
 
