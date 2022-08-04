@@ -582,20 +582,11 @@ abstract class DeleteOrUpdateShortcutMethodProcessorTest<out T : DeleteOrUpdateS
                 """,
         ) { _, invocation ->
             invocation.assertCompilationResult {
-                if (invocation.isKsp) {
-                    hasErrorContaining(
-                        ProcessorErrors.noColumnsInPartialEntity(
-                            "java.lang.Long"
-                        )
+                hasErrorContaining(
+                    ProcessorErrors.shortcutMethodArgumentMustBeAClass(
+                        TypeName.LONG
                     )
-                } else {
-                    // javac has a different error for primitives.
-                    hasErrorContaining(
-                        ProcessorErrors.shortcutMethodArgumentMustBeAClass(
-                            TypeName.LONG
-                        )
-                    )
-                }
+                )
             }
         }
     }
