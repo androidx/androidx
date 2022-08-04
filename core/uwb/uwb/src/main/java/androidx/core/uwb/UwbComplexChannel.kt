@@ -22,4 +22,10 @@ package androidx.core.uwb
  * @property channel the current channel for the device.
  * @property preambleIndex the current preamble index for the device.
  */
-class UwbComplexChannel(val channel: Int, val preambleIndex: Int)
+class UwbComplexChannel(val channel: Int, val preambleIndex: Int) {
+
+    /** Returns the string format of [UwbComplexChannel]. */
+    override fun toString(): String {
+        return "UwbComplexChannel(channel=$channel, preambleIndex=$preambleIndex)"
+    }
+}
