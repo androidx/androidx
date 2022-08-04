@@ -81,6 +81,7 @@ package androidx.wear.watchface.complications.data {
     method public int getMax();
     method public int getMin();
     method public androidx.wear.watchface.complications.data.MonochromaticImage? getMonochromaticImage();
+    method public androidx.wear.watchface.complications.data.SmallImage? getSmallImage();
     method public androidx.wear.watchface.complications.data.ComplicationText? getText();
     method public androidx.wear.watchface.complications.data.ComplicationText? getTitle();
     method public int getValue();
@@ -88,6 +89,7 @@ package androidx.wear.watchface.complications.data {
     property public final int max;
     property public final int min;
     property public final androidx.wear.watchface.complications.data.MonochromaticImage? monochromaticImage;
+    property public final androidx.wear.watchface.complications.data.SmallImage? smallImage;
     property public final androidx.wear.watchface.complications.data.ComplicationText? text;
     property public final androidx.wear.watchface.complications.data.ComplicationText? title;
     property public final int value;
@@ -100,6 +102,7 @@ package androidx.wear.watchface.complications.data {
     method public androidx.wear.watchface.complications.data.DiscreteRangedValueComplicationData build();
     method public androidx.wear.watchface.complications.data.DiscreteRangedValueComplicationData.Builder setDataSource(android.content.ComponentName? dataSource);
     method public androidx.wear.watchface.complications.data.DiscreteRangedValueComplicationData.Builder setMonochromaticImage(androidx.wear.watchface.complications.data.MonochromaticImage? monochromaticImage);
+    method public androidx.wear.watchface.complications.data.DiscreteRangedValueComplicationData.Builder setSmallImage(androidx.wear.watchface.complications.data.SmallImage? smallImage);
     method public androidx.wear.watchface.complications.data.DiscreteRangedValueComplicationData.Builder setTapAction(android.app.PendingIntent? tapAction);
     method public androidx.wear.watchface.complications.data.DiscreteRangedValueComplicationData.Builder setText(androidx.wear.watchface.complications.data.ComplicationText? text);
     method public androidx.wear.watchface.complications.data.DiscreteRangedValueComplicationData.Builder setTitle(androidx.wear.watchface.complications.data.ComplicationText? title);
@@ -115,6 +118,7 @@ package androidx.wear.watchface.complications.data {
     method @androidx.wear.watchface.complications.data.ComplicationExperimental public androidx.wear.watchface.complications.data.ColorRamp? getColorRamp();
     method public androidx.wear.watchface.complications.data.ComplicationText? getContentDescription();
     method public androidx.wear.watchface.complications.data.MonochromaticImage? getMonochromaticImage();
+    method public androidx.wear.watchface.complications.data.SmallImage? getSmallImage();
     method public float getTargetValue();
     method public androidx.wear.watchface.complications.data.ComplicationText? getText();
     method public androidx.wear.watchface.complications.data.ComplicationText? getTitle();
@@ -122,6 +126,7 @@ package androidx.wear.watchface.complications.data {
     property @androidx.wear.watchface.complications.data.ComplicationExperimental public final androidx.wear.watchface.complications.data.ColorRamp? colorRamp;
     property public final androidx.wear.watchface.complications.data.ComplicationText? contentDescription;
     property public final androidx.wear.watchface.complications.data.MonochromaticImage? monochromaticImage;
+    property public final androidx.wear.watchface.complications.data.SmallImage? smallImage;
     property public final float targetValue;
     property public final androidx.wear.watchface.complications.data.ComplicationText? text;
     property public final androidx.wear.watchface.complications.data.ComplicationText? title;
@@ -136,6 +141,7 @@ package androidx.wear.watchface.complications.data {
     method @androidx.wear.watchface.complications.data.ComplicationExperimental public androidx.wear.watchface.complications.data.GoalProgressComplicationData.Builder setColorRamp(androidx.wear.watchface.complications.data.ColorRamp? colorRamp);
     method public androidx.wear.watchface.complications.data.GoalProgressComplicationData.Builder setDataSource(android.content.ComponentName? dataSource);
     method public androidx.wear.watchface.complications.data.GoalProgressComplicationData.Builder setMonochromaticImage(androidx.wear.watchface.complications.data.MonochromaticImage? monochromaticImage);
+    method public androidx.wear.watchface.complications.data.GoalProgressComplicationData.Builder setSmallImage(androidx.wear.watchface.complications.data.SmallImage? smallImage);
     method public androidx.wear.watchface.complications.data.GoalProgressComplicationData.Builder setTapAction(android.app.PendingIntent? tapAction);
     method public androidx.wear.watchface.complications.data.GoalProgressComplicationData.Builder setText(androidx.wear.watchface.complications.data.ComplicationText? text);
     method public androidx.wear.watchface.complications.data.GoalProgressComplicationData.Builder setTitle(androidx.wear.watchface.complications.data.ComplicationText? title);
@@ -238,9 +244,11 @@ package androidx.wear.watchface.complications.data {
 
   public final class NoPermissionComplicationData extends androidx.wear.watchface.complications.data.ComplicationData {
     method public androidx.wear.watchface.complications.data.MonochromaticImage? getMonochromaticImage();
+    method public androidx.wear.watchface.complications.data.SmallImage? getSmallImage();
     method public androidx.wear.watchface.complications.data.ComplicationText? getText();
     method public androidx.wear.watchface.complications.data.ComplicationText? getTitle();
     property public final androidx.wear.watchface.complications.data.MonochromaticImage? monochromaticImage;
+    property public final androidx.wear.watchface.complications.data.SmallImage? smallImage;
     property public final androidx.wear.watchface.complications.data.ComplicationText? text;
     property public final androidx.wear.watchface.complications.data.ComplicationText? title;
     field public static final androidx.wear.watchface.complications.data.ComplicationType TYPE;
@@ -251,6 +259,7 @@ package androidx.wear.watchface.complications.data {
     method public androidx.wear.watchface.complications.data.NoPermissionComplicationData build();
     method public androidx.wear.watchface.complications.data.NoPermissionComplicationData.Builder setDataSource(android.content.ComponentName? dataSource);
     method public androidx.wear.watchface.complications.data.NoPermissionComplicationData.Builder setMonochromaticImage(androidx.wear.watchface.complications.data.MonochromaticImage? monochromaticImage);
+    method public androidx.wear.watchface.complications.data.NoPermissionComplicationData.Builder setSmallImage(androidx.wear.watchface.complications.data.SmallImage? smallImage);
     method public androidx.wear.watchface.complications.data.NoPermissionComplicationData.Builder setText(androidx.wear.watchface.complications.data.ComplicationText? text);
     method public androidx.wear.watchface.complications.data.NoPermissionComplicationData.Builder setTitle(androidx.wear.watchface.complications.data.ComplicationText? title);
   }
@@ -316,6 +325,7 @@ package androidx.wear.watchface.complications.data {
     method public float getMax();
     method public float getMin();
     method public androidx.wear.watchface.complications.data.MonochromaticImage? getMonochromaticImage();
+    method public androidx.wear.watchface.complications.data.SmallImage? getSmallImage();
     method public androidx.wear.watchface.complications.data.ComplicationText? getText();
     method public androidx.wear.watchface.complications.data.ComplicationText? getTitle();
     method public float getValue();
@@ -324,6 +334,7 @@ package androidx.wear.watchface.complications.data {
     property public final float max;
     property public final float min;
     property public final androidx.wear.watchface.complications.data.MonochromaticImage? monochromaticImage;
+    property public final androidx.wear.watchface.complications.data.SmallImage? smallImage;
     property public final androidx.wear.watchface.complications.data.ComplicationText? text;
     property public final androidx.wear.watchface.complications.data.ComplicationText? title;
     property public final float value;
@@ -337,6 +348,7 @@ package androidx.wear.watchface.complications.data {
     method @androidx.wear.watchface.complications.data.ComplicationExperimental public androidx.wear.watchface.complications.data.RangedValueComplicationData.Builder setColorRamp(androidx.wear.watchface.complications.data.ColorRamp? colorRamp);
     method public androidx.wear.watchface.complications.data.RangedValueComplicationData.Builder setDataSource(android.content.ComponentName? dataSource);
     method public androidx.wear.watchface.complications.data.RangedValueComplicationData.Builder setMonochromaticImage(androidx.wear.watchface.complications.data.MonochromaticImage? monochromaticImage);
+    method public androidx.wear.watchface.complications.data.RangedValueComplicationData.Builder setSmallImage(androidx.wear.watchface.complications.data.SmallImage? smallImage);
     method public androidx.wear.watchface.complications.data.RangedValueComplicationData.Builder setTapAction(android.app.PendingIntent? tapAction);
     method public androidx.wear.watchface.complications.data.RangedValueComplicationData.Builder setText(androidx.wear.watchface.complications.data.ComplicationText? text);
     method public androidx.wear.watchface.complications.data.RangedValueComplicationData.Builder setTitle(androidx.wear.watchface.complications.data.ComplicationText? title);
@@ -346,10 +358,12 @@ package androidx.wear.watchface.complications.data {
   public final class ShortTextComplicationData extends androidx.wear.watchface.complications.data.ComplicationData {
     method public androidx.wear.watchface.complications.data.ComplicationText? getContentDescription();
     method public androidx.wear.watchface.complications.data.MonochromaticImage? getMonochromaticImage();
+    method public androidx.wear.watchface.complications.data.SmallImage? getSmallImage();
     method public androidx.wear.watchface.complications.data.ComplicationText getText();
     method public androidx.wear.watchface.complications.data.ComplicationText? getTitle();
     property public final androidx.wear.watchface.complications.data.ComplicationText? contentDescription;
     property public final androidx.wear.watchface.complications.data.MonochromaticImage? monochromaticImage;
+    property public final androidx.wear.watchface.complications.data.SmallImage? smallImage;
     property public final androidx.wear.watchface.complications.data.ComplicationText text;
     property public final androidx.wear.watchface.complications.data.ComplicationText? title;
     field public static final int MAX_TEXT_LENGTH;
@@ -361,6 +375,7 @@ package androidx.wear.watchface.complications.data {
     method public androidx.wear.watchface.complications.data.ShortTextComplicationData build();
     method public androidx.wear.watchface.complications.data.ShortTextComplicationData.Builder setDataSource(android.content.ComponentName? dataSource);
     method public androidx.wear.watchface.complications.data.ShortTextComplicationData.Builder setMonochromaticImage(androidx.wear.watchface.complications.data.MonochromaticImage? monochromaticImage);
+    method public androidx.wear.watchface.complications.data.ShortTextComplicationData.Builder setSmallImage(androidx.wear.watchface.complications.data.SmallImage? smallImage);
     method public androidx.wear.watchface.complications.data.ShortTextComplicationData.Builder setTapAction(android.app.PendingIntent? tapAction);
     method public androidx.wear.watchface.complications.data.ShortTextComplicationData.Builder setTitle(androidx.wear.watchface.complications.data.ComplicationText? title);
     method public androidx.wear.watchface.complications.data.ShortTextComplicationData.Builder setValidTimeRange(androidx.wear.watchface.complications.data.TimeRange? validTimeRange);
@@ -484,11 +499,13 @@ package androidx.wear.watchface.complications.data {
     method public androidx.wear.watchface.complications.data.ComplicationText? getContentDescription();
     method public java.util.List<androidx.wear.watchface.complications.data.WeightedElementsComplicationData.Element> getElements();
     method public androidx.wear.watchface.complications.data.MonochromaticImage? getMonochromaticImage();
+    method public androidx.wear.watchface.complications.data.SmallImage? getSmallImage();
     method public androidx.wear.watchface.complications.data.ComplicationText? getText();
     method public androidx.wear.watchface.complications.data.ComplicationText? getTitle();
     property public final androidx.wear.watchface.complications.data.ComplicationText? contentDescription;
     property public final java.util.List<androidx.wear.watchface.complications.data.WeightedElementsComplicationData.Element> elements;
     property public final androidx.wear.watchface.complications.data.MonochromaticImage? monochromaticImage;
+    property public final androidx.wear.watchface.complications.data.SmallImage? smallImage;
     property public final androidx.wear.watchface.complications.data.ComplicationText? text;
     property public final androidx.wear.watchface.complications.data.ComplicationText? title;
     field public static final java.util.List<androidx.wear.watchface.complications.data.WeightedElementsComplicationData.Element> PLACEHOLDER;
@@ -500,6 +517,7 @@ package androidx.wear.watchface.complications.data {
     method public androidx.wear.watchface.complications.data.WeightedElementsComplicationData build();
     method public androidx.wear.watchface.complications.data.WeightedElementsComplicationData.Builder setDataSource(android.content.ComponentName? dataSource);
     method public androidx.wear.watchface.complications.data.WeightedElementsComplicationData.Builder setMonochromaticImage(androidx.wear.watchface.complications.data.MonochromaticImage? monochromaticImage);
+    method public androidx.wear.watchface.complications.data.WeightedElementsComplicationData.Builder setSmallImage(androidx.wear.watchface.complications.data.SmallImage? smallImage);
     method public androidx.wear.watchface.complications.data.WeightedElementsComplicationData.Builder setTapAction(android.app.PendingIntent? tapAction);
     method public androidx.wear.watchface.complications.data.WeightedElementsComplicationData.Builder setText(androidx.wear.watchface.complications.data.ComplicationText? text);
     method public androidx.wear.watchface.complications.data.WeightedElementsComplicationData.Builder setTitle(androidx.wear.watchface.complications.data.ComplicationText? title);

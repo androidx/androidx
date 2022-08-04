@@ -598,6 +598,9 @@ public abstract class WatchFaceService : WallpaperService() {
         }
     }
 
+    /** Used for testing calls to invalidate. */
+    internal open fun onInvalidate() {}
+
     /**
      * Returns the lazily constructed background thread [Handler]. During initialization
      * [createUserStyleSchema], [createComplicationSlotsManager] and [createWatchFace] are posted on
@@ -2179,6 +2182,7 @@ public abstract class WatchFaceService : WallpaperService() {
                     override fun onInvalidate() {
                         // This could be called on any thread.
                         uiThreadHandler.runOnHandlerWithTracing("onInvalidate") {
+                            this@WatchFaceService.onInvalidate()
                             if (initFinished) {
                                 getWatchFaceImplOrNull()?.invalidateIfNotAnimating()
                             }
