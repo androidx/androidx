@@ -28,7 +28,6 @@ import android.os.Bundle;
 import android.os.Parcelable;
 import android.os.strictmode.UnsafeIntentLaunchViolation;
 import android.provider.MediaStore;
-import android.util.Log;
 
 import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
@@ -91,7 +90,7 @@ public class IntentSanitizer {
      */
     @NonNull
     public Intent sanitizeByFiltering(@NonNull Intent in) {
-        return sanitize(in, msg -> Log.v(TAG, msg));
+        return sanitize(in, msg -> {});
     }
 
     /**
