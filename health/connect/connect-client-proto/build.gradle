@@ -86,7 +86,7 @@ artifacts.add(jarjarConf.name, preferencesProtoJarJarTask.flatMap { it.archiveFi
 androidx {
     name = "AndroidX Health Connect Client Proto"
     publish = Publish.NONE
-    mavenGroup = LibraryGroups.HEALTH
+    mavenGroup = LibraryGroups.HEALTH_CONNECT
     inceptionYear = "2022"
     description = "Proto files for health-connect-client"
 }
