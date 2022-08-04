@@ -21,6 +21,9 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
+import android.graphics.Rect;
+
+import androidx.test.filters.SdkSuppress;
 import androidx.test.uiautomator.UiObject;
 import androidx.test.uiautomator.UiObjectNotFoundException;
 import androidx.test.uiautomator.UiSelector;
@@ -28,6 +31,7 @@ import androidx.test.uiautomator.UiSelector;
 import org.junit.Test;
 
 public class UiObjectTest extends BaseTest {
+    private static final int TIMEOUT_MS = 10_000;
 
     @Test
     public void testGetChild() throws Exception {
@@ -74,19 +78,93 @@ public class UiObjectTest extends BaseTest {
                 noNode::getChildCount);
     }
 
+    @Test
+    @SdkSuppress(minSdkVersion = 24)
+    public void testDragTo_destObjAndSteps() throws Exception {
+        launchTestActivity(DragTestActivity.class);
+
+        UiObject dragButton = mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id"
+                + "/drag_button"));
+        UiObject dragDestination = mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id"
+                + "/drag_destination"));
+        UiObject expectedDragDest = mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id"
+                + "/drag_destination").text("drag_received"));
+
+        assertEquals("no_drag_yet", dragDestination.getText());
+        // Returning true from `dragTo` means that the drag action is performed successfully, not
+        // necessarily the target is dragged to the desired destination.
+        // The same applies to all the following tests.
+        assertTrue(dragButton.dragTo(dragDestination, 40));
+        assertTrue(expectedDragDest.waitForExists(TIMEOUT_MS));
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 24)
+    public void testDragTo_destXAndDestYAndSteps() throws Exception {
+        launchTestActivity(DragTestActivity.class);
+
+        UiObject dragButton = mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id"
+                + "/drag_button"));
+        UiObject dragDestination = mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id"
+                + "/drag_destination"));
+        UiObject expectedDragDest = mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id"
+                + "/drag_destination").text("drag_received"));
+        Rect destBounds = dragDestination.getVisibleBounds();
+
+        assertEquals("no_drag_yet", dragDestination.getText());
+        assertTrue(dragButton.dragTo(destBounds.centerX(), destBounds.centerY(), 40));
+        assertTrue(expectedDragDest.waitForExists(TIMEOUT_MS));
+    }
+
+    @Test
+    public void testSwipeUp() throws Exception {
+        launchTestActivity(SwipeTestActivity.class);
+
+        UiObject swipeRegion = mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id"
+                + "/swipe_region"));
+
+        assertEquals("no_swipe", swipeRegion.getText());
+        assertTrue(swipeRegion.swipeUp(100));
+        assertEquals("swipe_up", swipeRegion.getText());
+    }
+
+    @Test
+    public void testSwipeDown() throws Exception {
+        launchTestActivity(SwipeTestActivity.class);
+
+        UiObject swipeRegion = mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id"
+                + "/swipe_region"));
+
+        assertEquals("no_swipe", swipeRegion.getText());
+        assertTrue(swipeRegion.swipeDown(100));
+        assertEquals("swipe_down", swipeRegion.getText());
+    }
+
+    @Test
+    public void testSwipeLeft() throws Exception {
+        launchTestActivity(SwipeTestActivity.class);
+
+        UiObject swipeRegion = mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id"
+                + "/swipe_region"));
+
+        assertEquals("no_swipe", swipeRegion.getText());
+        assertTrue(swipeRegion.swipeLeft(100));
+        assertEquals("swipe_left", swipeRegion.getText());
+    }
+
+    @Test
+    public void testSwipeRight() throws Exception {
+        launchTestActivity(SwipeTestActivity.class);
+
+        UiObject swipeRegion = mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id"
+                + "/swipe_region"));
+
+        assertEquals("no_swipe", swipeRegion.getText());
+        assertTrue(swipeRegion.swipeRight(100));
+        assertEquals("swipe_right", swipeRegion.getText());
+    }
+
     /* TODO(b/241158642): Implement these tests, and the tests for exceptions of each tested method.
-
-    public void testDragTo_destObjAndSteps() {}
-
-    public void testDragTo_destXAndDestYAndSteps() {}
-
-    public void testSwipeUp() {}
-
-    public void testSwipeDown() {}
-
-    public void testSwipeLeft() {}
-
-    public void testSwipeRight() {}
 
     public void testClick() {}
 

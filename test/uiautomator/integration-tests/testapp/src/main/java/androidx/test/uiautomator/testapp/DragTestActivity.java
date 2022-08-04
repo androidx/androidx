@@ -29,16 +29,16 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
 @RequiresApi(24)
-public class UiObject2TestDragActivity extends Activity {
+public class DragTestActivity extends Activity {
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.uiobject2_testdrag_activity);
+        setContentView(R.layout.drag_test_activity);
 
-        Button dragButton = (Button) findViewById(R.id.drag_button);
-        TextView dragDestination = (TextView) findViewById(R.id.drag_destination);
+        Button dragButton = findViewById(R.id.drag_button);
+        TextView dragDestination = findViewById(R.id.drag_destination);
 
         dragButton.setOnLongClickListener(v -> {
             v.startDragAndDrop(ClipData.newPlainText(null, null),
