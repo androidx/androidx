@@ -16,7 +16,7 @@
 package androidx.health.connect.client
 
 import androidx.activity.result.contract.ActivityResultContract
-import androidx.health.connect.client.permission.Permission
+import androidx.health.connect.client.permission.HealthPermission
 
 /** Interface for operations related to permissions. */
 interface PermissionController {
@@ -28,10 +28,10 @@ interface PermissionController {
      * @sample androidx.health.connect.client.samples.RequestPermission
      */
     fun createRequestPermissionActivityContract():
-        ActivityResultContract<Set<Permission>, Set<Permission>>
+        ActivityResultContract<Set<HealthPermission>, Set<HealthPermission>>
 
     /**
-     * Returns a set of [Permission] granted by the user to the calling app, out of the input
+     * Returns a set of [HealthPermission] granted by the user to the calling app, out of the input
      * [permissions] set.
      *
      * @param permissions set of permissions interested to check if granted or not
@@ -41,10 +41,10 @@ interface PermissionController {
      * @throws java.io.IOException For any disk I/O issues.
      * @throws IllegalStateException If service is not available.
      */
-    suspend fun getGrantedPermissions(permissions: Set<Permission>): Set<Permission>
+    suspend fun getGrantedPermissions(permissions: Set<HealthPermission>): Set<HealthPermission>
 
     /**
-     * Revokes all previously granted [Permission] by the user to the calling app.
+     * Revokes all previously granted [HealthPermission] by the user to the calling app.
      *
      * @throws android.os.RemoteException For any IPC transportation failures.
      * @throws java.io.IOException For any disk I/O issues.

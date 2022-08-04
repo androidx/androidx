@@ -30,8 +30,8 @@ package androidx.health.connect.client {
   }
 
   public interface PermissionController {
-    method public androidx.activity.result.contract.ActivityResultContract<java.util.Set<androidx.health.connect.client.permission.Permission>,java.util.Set<androidx.health.connect.client.permission.Permission>> createRequestPermissionActivityContract();
-    method public suspend Object? getGrantedPermissions(java.util.Set<androidx.health.connect.client.permission.Permission> permissions, kotlin.coroutines.Continuation<? super java.util.Set<? extends androidx.health.connect.client.permission.Permission>>);
+    method public androidx.activity.result.contract.ActivityResultContract<java.util.Set<androidx.health.connect.client.permission.HealthPermission>,java.util.Set<androidx.health.connect.client.permission.HealthPermission>> createRequestPermissionActivityContract();
+    method public suspend Object? getGrantedPermissions(java.util.Set<androidx.health.connect.client.permission.HealthPermission> permissions, kotlin.coroutines.Continuation<? super java.util.Set<? extends androidx.health.connect.client.permission.HealthPermission>>);
     method public suspend Object? revokeAllPermissions(kotlin.coroutines.Continuation<? super kotlin.Unit>);
   }
 
@@ -92,25 +92,18 @@ package androidx.health.connect.client.changes {
 
 package androidx.health.connect.client.permission {
 
-  @Deprecated public final class HealthDataRequestPermissions extends androidx.activity.result.contract.ActivityResultContract<java.util.Set<? extends androidx.health.connect.client.permission.Permission>,java.util.Set<? extends androidx.health.connect.client.permission.Permission>> {
-    ctor @Deprecated public HealthDataRequestPermissions(optional String providerPackageName);
-    method @Deprecated public android.content.Intent createIntent(android.content.Context context, java.util.Set<androidx.health.connect.client.permission.Permission> input);
-    method @Deprecated public androidx.activity.result.contract.ActivityResultContract.SynchronousResult<java.util.Set<androidx.health.connect.client.permission.Permission>>? getSynchronousResult(android.content.Context context, java.util.Set<androidx.health.connect.client.permission.Permission> input);
-    method @Deprecated public java.util.Set<androidx.health.connect.client.permission.Permission> parseResult(int resultCode, android.content.Intent? intent);
-  }
-
   public final class HealthDataRequestPermissionsKt {
   }
 
-  public final class Permission {
-    method public static androidx.health.connect.client.permission.Permission createReadPermission(kotlin.reflect.KClass<? extends androidx.health.connect.client.records.Record> recordType);
-    method public static androidx.health.connect.client.permission.Permission createWritePermission(kotlin.reflect.KClass<? extends androidx.health.connect.client.records.Record> recordType);
-    field public static final androidx.health.connect.client.permission.Permission.Companion Companion;
+  public final class HealthPermission {
+    method public static androidx.health.connect.client.permission.HealthPermission createReadPermission(kotlin.reflect.KClass<? extends androidx.health.connect.client.records.Record> recordType);
+    method public static androidx.health.connect.client.permission.HealthPermission createWritePermission(kotlin.reflect.KClass<? extends androidx.health.connect.client.records.Record> recordType);
+    field public static final androidx.health.connect.client.permission.HealthPermission.Companion Companion;
   }
 
-  public static final class Permission.Companion {
-    method public androidx.health.connect.client.permission.Permission createReadPermission(kotlin.reflect.KClass<? extends androidx.health.connect.client.records.Record> recordType);
-    method public androidx.health.connect.client.permission.Permission createWritePermission(kotlin.reflect.KClass<? extends androidx.health.connect.client.records.Record> recordType);
+  public static final class HealthPermission.Companion {
+    method public androidx.health.connect.client.permission.HealthPermission createReadPermission(kotlin.reflect.KClass<? extends androidx.health.connect.client.records.Record> recordType);
+    method public androidx.health.connect.client.permission.HealthPermission createWritePermission(kotlin.reflect.KClass<? extends androidx.health.connect.client.records.Record> recordType);
   }
 
 }

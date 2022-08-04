@@ -22,18 +22,18 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
-class PermissionTest {
+class HealthPermissionTest {
 
     @Test
     fun createReadPermission() {
-        val permission = Permission.createReadPermission(StepsRecord::class)
+        val permission = HealthPermission.createReadPermission(StepsRecord::class)
         assertThat(permission.accessType).isEqualTo(AccessTypes.READ)
         assertThat(permission.recordType).isEqualTo(StepsRecord::class)
     }
 
     @Test
     fun createWritePermission() {
-        val permission = Permission.createWritePermission(StepsRecord::class)
+        val permission = HealthPermission.createWritePermission(StepsRecord::class)
         assertThat(permission.accessType).isEqualTo(AccessTypes.WRITE)
         assertThat(permission.recordType).isEqualTo(StepsRecord::class)
     }

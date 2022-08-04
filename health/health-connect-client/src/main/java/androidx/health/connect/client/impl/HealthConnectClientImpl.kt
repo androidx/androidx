@@ -37,7 +37,7 @@ import androidx.health.connect.client.impl.converters.request.toReadDataRangeReq
 import androidx.health.connect.client.impl.converters.request.toReadDataRequestProto
 import androidx.health.connect.client.impl.converters.response.toChangesResponse
 import androidx.health.connect.client.impl.converters.response.toReadRecordsResponse
-import androidx.health.connect.client.permission.Permission
+import androidx.health.connect.client.permission.HealthPermission
 import androidx.health.connect.client.permission.createHealthDataRequestPermissions
 import androidx.health.connect.client.records.Record
 import androidx.health.connect.client.request.AggregateGroupByDurationRequest
@@ -70,16 +70,17 @@ internal constructor(
 ) : HealthConnectClient, PermissionController {
 
     override fun createRequestPermissionActivityContract():
-        ActivityResultContract<Set<Permission>, Set<Permission>> =
+        ActivityResultContract<Set<HealthPermission>, Set<HealthPermission>> =
         createHealthDataRequestPermissions(providerPackageName = providerPackageName)
 
-    override suspend fun getGrantedPermissions(permissions: Set<Permission>): Set<Permission> {
-        val grantedPermissions =
-            delegate
-                .getGrantedPermissions(permissions.map { it.toProtoPermission() }.toSet())
-                .await()
-                .map { it.toJetpackPermission() }
-                .toSet()
+    override suspend fun getGrantedPermissions(
+        permissions: Set<HealthPermission>
+    ): Set<HealthPermission> {
+        val grantedPermissions = delegate
+            .getGrantedPermissions(permissions.map { it.toProtoPermission() }.toSet())
+            .await()
+            .map { it.toJetpackPermission() }
+            .toSet()
         Logger.debug(
             HEALTH_CONNECT_CLIENT_TAG,
             "Granted ${grantedPermissions.size} out of ${permissions.size} permissions."

@@ -21,7 +21,7 @@ package androidx.health.connect.client.samples
 import androidx.activity.result.ActivityResultCaller
 import androidx.annotation.Sampled
 import androidx.health.connect.client.PermissionController
-import androidx.health.connect.client.permission.Permission
+import androidx.health.connect.client.permission.HealthPermission
 import androidx.health.connect.client.records.StepsRecord
 
 @Sampled
@@ -30,11 +30,15 @@ fun RequestPermission(activity: ActivityResultCaller, permissionController: Perm
         activity.registerForActivityResult(
             permissionController.createRequestPermissionActivityContract()
         ) { grantedPermissions ->
-            if (grantedPermissions.contains(Permission.createReadPermission(StepsRecord::class))) {
+            if (
+                grantedPermissions.contains(
+                    HealthPermission.createReadPermission(StepsRecord::class)
+                )
+            ) {
                 // Read or process steps related health records.
             } else {
                 // user denied permission
             }
         }
-    requestPermission.launch(setOf(Permission.createReadPermission(StepsRecord::class)))
+    requestPermission.launch(setOf(HealthPermission.createReadPermission(StepsRecord::class)))
 }
