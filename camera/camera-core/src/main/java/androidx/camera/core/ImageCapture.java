@@ -351,8 +351,6 @@ public final class ImageCapture extends UseCase {
     @SuppressWarnings("WeakerAccess")
     final Executor mSequentialIoExecutor;
 
-    private Matrix mSensorToBufferTransformMatrix = new Matrix();
-
     /**
      * Creates a new image capture use case from the given configuration.
      *
@@ -955,17 +953,6 @@ public final class ImageCapture extends UseCase {
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
-    @Override
-    public void setSensorToBufferTransformMatrix(@NonNull Matrix sensorToBufferTransformMatrix) {
-        mSensorToBufferTransformMatrix = sensorToBufferTransformMatrix;
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * @hide
-     */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
     @Override
     protected ResolutionInfo getResolutionInfoInternal() {
@@ -1182,7 +1169,7 @@ public final class ImageCapture extends UseCase {
                 getJpegQualityForImageCaptureRequest(attachedCamera, saveImage),
                 mCropAspectRatio,
                 getViewPortCropRect(),
-                mSensorToBufferTransformMatrix,
+                getSensorToBufferTransformMatrix(),
                 callbackExecutor,
                 callback));
     }
