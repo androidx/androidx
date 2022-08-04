@@ -36,6 +36,7 @@ import androidx.camera.core.impl.Identifier
 import androidx.camera.core.impl.ImageFormatConstants
 import androidx.camera.core.impl.MutableOptionsBundle
 import androidx.camera.core.impl.OptionsBundle
+import androidx.camera.core.impl.StreamSpec
 import androidx.camera.core.impl.UseCaseConfigFactory
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor
 import androidx.camera.core.internal.CameraUseCaseAdapter.CameraException
@@ -474,10 +475,10 @@ class CameraUseCaseAdapterTest {
 
         // Arrange: set up adapter with aspect ratio 1.
         // The sensor size is 4032x3024 defined in FakeCameraDeviceSurfaceManager
-        fakeCameraDeviceSurfaceManager.setSuggestedResolution(
+        fakeCameraDeviceSurfaceManager.setSuggestedStreamSpec(
             CAMERA_ID,
             FakeUseCaseConfig::class.java,
-            Size(4032, 3022)
+            StreamSpec.builder(Size(4032, 3022)).build()
         )
         /*         Sensor to Buffer                 Crop on Buffer
          *        0               4032

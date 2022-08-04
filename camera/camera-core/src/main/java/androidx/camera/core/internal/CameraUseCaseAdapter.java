@@ -53,6 +53,7 @@ import androidx.camera.core.impl.CameraDeviceSurfaceManager;
 import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.Config;
+import androidx.camera.core.impl.StreamSpec;
 import androidx.camera.core.impl.SurfaceConfig;
 import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.UseCaseConfigFactory;
@@ -83,7 +84,7 @@ import java.util.Set;
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class CameraUseCaseAdapter implements Camera {
     @NonNull
-    private CameraInternal mCameraInternal;
+    private final CameraInternal mCameraInternal;
     private final LinkedHashSet<CameraInternal> mCameraInternals;
     private final CameraDeviceSurfaceManager mCameraDeviceSurfaceManager;
     private final UseCaseConfigFactory mUseCaseConfigFactory;
@@ -212,7 +213,6 @@ public final class CameraUseCaseAdapter implements Camera {
             } catch (IllegalArgumentException e) {
                 throw new CameraException(e.getMessage());
             }
-
         }
     }
 
@@ -267,9 +267,10 @@ public final class CameraUseCaseAdapter implements Camera {
             // fails the supported stream combination rules.
             Map<UseCase, ConfigPair> configs = getConfigs(cameraUseCasesToAttach,
                     mCameraConfig.getUseCaseConfigFactory(), mUseCaseConfigFactory);
-            Map<UseCase, Size> suggestedResolutionsMap;
+
+            Map<UseCase, StreamSpec> suggestedStreamSpecMap;
             try {
-                suggestedResolutionsMap = calculateSuggestedResolutions(
+                suggestedStreamSpecMap = calculateSuggestedStreamSpecs(
                         mCameraInternal.getCameraInfoInternal(), cameraUseCasesToAttach,
                         cameraUseCasesToKeep, configs);
                 // TODO(b/265704882): enable stream sharing for LEVEL_3 and high preview
@@ -287,7 +288,7 @@ public final class CameraUseCaseAdapter implements Camera {
             }
 
             // Update properties.
-            updateViewPort(suggestedResolutionsMap, cameraUseCases);
+            updateViewPort(suggestedStreamSpecMap, cameraUseCases);
             updateEffects(mEffects, appUseCases);
 
             // Detach unused UseCases.
@@ -301,8 +302,8 @@ public final class CameraUseCaseAdapter implements Camera {
                 ConfigPair configPair = requireNonNull(configs.get(useCase));
                 useCase.bindToCamera(mCameraInternal, configPair.mExtendedConfig,
                         configPair.mCameraConfig);
-                useCase.updateSuggestedResolution(
-                        Preconditions.checkNotNull(suggestedResolutionsMap.get(useCase)));
+                useCase.updateSuggestedStreamSpec(
+                        Preconditions.checkNotNull(suggestedStreamSpecMap.get(useCase)));
             }
             if (mAttached) {
                 mCameraInternal.attachUseCases(cameraUseCasesToAttach);
@@ -485,14 +486,14 @@ public final class CameraUseCaseAdapter implements Camera {
         }
     }
 
-    private Map<UseCase, Size> calculateSuggestedResolutions(
+    private Map<UseCase, StreamSpec> calculateSuggestedStreamSpecs(
             @NonNull CameraInfoInternal cameraInfoInternal,
             @NonNull Collection<UseCase> newUseCases,
             @NonNull Collection<UseCase> currentUseCases,
             @NonNull Map<UseCase, ConfigPair> configPairMap) {
         List<AttachedSurfaceInfo> existingSurfaces = new ArrayList<>();
         String cameraId = cameraInfoInternal.getCameraId();
-        Map<UseCase, Size> suggestedResolutions = new HashMap<>();
+        Map<UseCase, StreamSpec> suggestedStreamSpecs = new HashMap<>();
 
         // Get resolution for current use cases.
         for (UseCase useCase : currentUseCases) {
@@ -503,7 +504,7 @@ public final class CameraUseCaseAdapter implements Camera {
             existingSurfaces.add(AttachedSurfaceInfo.create(surfaceConfig,
                     useCase.getImageFormat(), useCase.getAttachedSurfaceResolution(),
                     useCase.getCurrentConfig().getTargetFramerate(null)));
-            suggestedResolutions.put(useCase, useCase.getAttachedSurfaceResolution());
+            suggestedStreamSpecs.put(useCase, useCase.getAttachedStreamSpec());
         }
 
         // Calculate resolution for new use cases.
@@ -518,17 +519,17 @@ public final class CameraUseCaseAdapter implements Camera {
                 configToUseCaseMap.put(combinedUseCaseConfig, useCase);
             }
 
-            // Get suggested resolutions and update the use case session configuration
-            Map<UseCaseConfig<?>, Size> useCaseConfigSizeMap = mCameraDeviceSurfaceManager
-                    .getSuggestedResolutions(cameraId, existingSurfaces,
+            // Get suggested stream specifications and update the use case session configuration
+            Map<UseCaseConfig<?>, StreamSpec> useCaseConfigStreamSpecMap =
+                    mCameraDeviceSurfaceManager.getSuggestedStreamSpecs(cameraId, existingSurfaces,
                             new ArrayList<>(configToUseCaseMap.keySet()));
 
             for (Map.Entry<UseCaseConfig<?>, UseCase> entry : configToUseCaseMap.entrySet()) {
-                suggestedResolutions.put(entry.getValue(),
-                        useCaseConfigSizeMap.get(entry.getKey()));
+                suggestedStreamSpecs.put(entry.getValue(),
+                        useCaseConfigStreamSpecMap.get(entry.getKey()));
             }
         }
-        return suggestedResolutions;
+        return suggestedStreamSpecs;
     }
 
     @VisibleForTesting
@@ -558,7 +559,7 @@ public final class CameraUseCaseAdapter implements Camera {
         }
     }
 
-    private void updateViewPort(@NonNull Map<UseCase, Size> suggestedResolutionsMap,
+    private void updateViewPort(@NonNull Map<UseCase, StreamSpec> suggestedStreamSpecMap,
             @NonNull Collection<UseCase> useCases) {
         synchronized (mLock) {
             if (mViewPort != null) {
@@ -582,14 +583,15 @@ public final class CameraUseCaseAdapter implements Camera {
                                 mViewPort.getRotation()),
                         mViewPort.getScaleType(),
                         mViewPort.getLayoutDirection(),
-                        suggestedResolutionsMap);
+                        suggestedStreamSpecMap);
                 for (UseCase useCase : useCases) {
                     useCase.setViewPortCropRect(
                             Preconditions.checkNotNull(cropRectMap.get(useCase)));
                     useCase.setSensorToBufferTransformMatrix(
                             calculateSensorToBufferTransformMatrix(
                                     mCameraInternal.getCameraControlInternal().getSensorRect(),
-                                    suggestedResolutionsMap.get(useCase)));
+                                    Preconditions.checkNotNull(
+                                            suggestedStreamSpecMap.get(useCase)).getResolution()));
                 }
             }
         }
@@ -739,7 +741,7 @@ public final class CameraUseCaseAdapter implements Camera {
             try {
                 Map<UseCase, ConfigPair> configs = getConfigs(Arrays.asList(useCases),
                         mCameraConfig.getUseCaseConfigFactory(), mUseCaseConfigFactory);
-                calculateSuggestedResolutions(mCameraInternal.getCameraInfoInternal(),
+                calculateSuggestedStreamSpecs(mCameraInternal.getCameraInfoInternal(),
                         Arrays.asList(useCases), emptyList(), configs);
             } catch (IllegalArgumentException e) {
                 return false;

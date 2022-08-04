@@ -41,6 +41,7 @@ import androidx.camera.core.impl.DeferrableSurface;
 import androidx.camera.core.impl.ImageOutputConfig;
 import androidx.camera.core.impl.MutableOptionsBundle;
 import androidx.camera.core.impl.SessionConfig;
+import androidx.camera.core.impl.StreamSpec;
 import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.UseCaseConfigFactory;
 import androidx.camera.core.internal.TargetConfig;
@@ -107,9 +108,9 @@ public abstract class UseCase {
     ////////////////////////////////////////////////////////////////////////////////////////////
 
     /**
-     * The resolution assigned to the {@link UseCase} based on the attached camera.
+     * The {@link StreamSpec} assigned to the {@link UseCase} based on the attached camera.
      */
-    private Size mAttachedResolution;
+    private StreamSpec mAttachedStreamSpec;
 
     /**
      * The camera implementation provided Config. Its options has lowest priority and will be
@@ -536,17 +537,29 @@ public abstract class UseCase {
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
     public Size getAttachedSurfaceResolution() {
-        return mAttachedResolution;
+        return mAttachedStreamSpec != null ? mAttachedStreamSpec.getResolution() : null;
     }
 
     /**
-     * Offers suggested resolution for the UseCase.
+     * Retrieves the currently attached stream specification.
+     *
+     * @return the currently attached stream specification.
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Nullable
+    public StreamSpec getAttachedStreamSpec() {
+        return mAttachedStreamSpec;
+    }
+
+    /**
+     * Offers suggested stream specification for the UseCase.
      *
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
-    public void updateSuggestedResolution(@NonNull Size suggestedResolution) {
-        mAttachedResolution = onSuggestedResolutionUpdated(suggestedResolution);
+    public void updateSuggestedStreamSpec(@NonNull StreamSpec suggestedStreamSpec) {
+        mAttachedStreamSpec = onSuggestedStreamSpecUpdated(suggestedStreamSpec);
     }
 
     /**
@@ -554,18 +567,18 @@ public abstract class UseCase {
      * CameraSelector, UseCase...)}.
      *
      * <p>Override to create necessary objects like {@link ImageReader} depending
-     * on the resolution.
+     * on the stream specification.
      *
-     * @param suggestedResolution The suggested resolution that depends on camera device
+     * @param suggestedStreamSpec The suggested stream specification that depends on camera device
      *                            capability and what and how many use cases will be bound.
-     * @return The resolution that finally used to create the SessionConfig to
+     * @return The stream specification that finally used to create the SessionConfig to
      * attach to the camera device.
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
-    protected Size onSuggestedResolutionUpdated(@NonNull Size suggestedResolution) {
-        return suggestedResolution;
+    protected StreamSpec onSuggestedStreamSpecUpdated(@NonNull StreamSpec suggestedStreamSpec) {
+        return suggestedStreamSpec;
     }
 
     /**
@@ -633,7 +646,7 @@ public abstract class UseCase {
      * make the use case work correctly.
      *
      * <p>After this function is invoked, CameraX will also provide the selected resolution
-     * information to subclasses via {@link #onSuggestedResolutionUpdated}. Subclasses should
+     * information to subclasses via {@link #onSuggestedStreamSpecUpdated}. Subclasses should
      * override it to set up the pipeline according to the selected resolution, so that UseCase
      * becomes ready to receive data from the camera.
      *
@@ -677,7 +690,7 @@ public abstract class UseCase {
             mCamera = null;
         }
 
-        mAttachedResolution = null;
+        mAttachedStreamSpec = null;
         mViewPortCropRect = null;
 
         // Resets the mUseCaseConfig to the initial status when the use case was created to make

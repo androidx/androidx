@@ -39,6 +39,7 @@ import androidx.camera.core.impl.ImageFormatConstants
 import androidx.camera.core.impl.ImageOutputConfig
 import androidx.camera.core.impl.MutableStateObservable
 import androidx.camera.core.impl.Observable
+import androidx.camera.core.impl.StreamSpec
 import androidx.camera.core.impl.Timebase
 import androidx.camera.core.impl.utils.CompareSizesByArea
 import androidx.camera.core.impl.utils.TransformUtils.rectToSize
@@ -300,7 +301,7 @@ class VideoCaptureTest {
             Surface.ROTATION_270
         ).forEach { targetRotation ->
             // Arrange.
-            setSuggestedResolution(quality)
+            setSuggestedStreamSpec(quality)
             var surfaceRequest: SurfaceRequest? = null
             val videoOutput = createVideoOutput(
                 mediaSpec = MediaSpec.builder().configureVideo {
@@ -404,7 +405,7 @@ class VideoCaptureTest {
 
         // Camera 0 support 2160P(UHD) and 720P(HD)
         arrayOf(UHD, HD, HIGHEST, LOWEST).forEach { quality ->
-            setSuggestedResolution(quality)
+            setSuggestedStreamSpec(quality)
 
             val videoOutput = createVideoOutput(
                 mediaSpec = MediaSpec.builder().configureVideo {
@@ -439,7 +440,7 @@ class VideoCaptureTest {
             )
         )
         createCameraUseCaseAdapter()
-        setSuggestedResolution(RESOLUTION_480P)
+        setSuggestedStreamSpec(StreamSpec.builder(RESOLUTION_480P).build())
 
         val videoOutput = createVideoOutput(
             mediaSpec = MediaSpec.builder().configureVideo {
@@ -552,7 +553,7 @@ class VideoCaptureTest {
         // Arrange.
         setupCamera()
         createCameraUseCaseAdapter()
-        setSuggestedResolution(Size(639, 479))
+        setSuggestedStreamSpec(StreamSpec.builder(Size(639, 479)).build())
 
         val videoOutput = createVideoOutput()
         val videoCapture = createVideoCapture(
@@ -884,7 +885,7 @@ class VideoCaptureTest {
         // Arrange.
         setupCamera()
         createCameraUseCaseAdapter()
-        setSuggestedResolution(quality)
+        setSuggestedStreamSpec(quality)
         var surfaceRequest: SurfaceRequest? = null
         val videoOutput = createVideoOutput(
             mediaSpec = MediaSpec.builder().configureVideo {
@@ -1009,15 +1010,15 @@ class VideoCaptureTest {
 
     private fun createFakeSurfaceProcessor() = FakeSurfaceProcessorInternal(mainThreadExecutor())
 
-    private fun setSuggestedResolution(quality: Quality) {
-        setSuggestedResolution(CAMERA_0_QUALITY_SIZE[quality]!!)
+    private fun setSuggestedStreamSpec(quality: Quality) {
+        setSuggestedStreamSpec(StreamSpec.builder(CAMERA_0_QUALITY_SIZE[quality]!!).build())
     }
 
-    private fun setSuggestedResolution(resolution: Size) {
-        surfaceManager.setSuggestedResolution(
+    private fun setSuggestedStreamSpec(streamSpec: StreamSpec) {
+        surfaceManager.setSuggestedStreamSpec(
             CAMERA_ID_0,
             VideoCaptureConfig::class.java,
-            resolution
+            streamSpec
         )
     }
 
