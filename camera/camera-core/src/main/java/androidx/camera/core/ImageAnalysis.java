@@ -506,6 +506,7 @@ public final class ImageAnalysis extends UseCase {
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     public void setSensorToBufferTransformMatrix(@NonNull Matrix matrix) {
+        super.setSensorToBufferTransformMatrix(matrix);
         mImageAnalysisAbstractAnalyzer.setSensorToBufferTransformMatrix(matrix);
     }
 
