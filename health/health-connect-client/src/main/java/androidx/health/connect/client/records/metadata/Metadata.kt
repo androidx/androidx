@@ -33,10 +33,26 @@ public class Metadata(
     /** Automatically populated to when data was last modified (or originally created). */
     public val lastModifiedTime: Instant = Instant.EPOCH,
 
-    /** Optional client supplied unique data identifier associated with the data. */
+    /**
+     * Optional client supplied unique data identifier associated with the data.
+     *
+     * There is guaranteed a single entry for any type of data with same client provided identifier
+     * for a given client. Any new insertions with the same client provided identifier will either
+     * replace or be ignored depending on associated [clientVersion].
+     *
+     * @see clientVersion
+     */
     public val clientId: String? = null,
 
-    /** Optional client supplied version associated with the data. */
+    /**
+     * Optional client supplied version associated with the data.
+     *
+     * This determines conflict resolution outcome when there are multiple insertions of the same
+     * [clientId]. Data with the highest [clientVersion] takes precedence. [clientVersion] starts
+     * with 0.
+     *
+     * @see clientId
+     */
     public val clientVersion: Long = 0,
 
     /** Optional client supplied device information associated with the data. */

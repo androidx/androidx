@@ -64,6 +64,12 @@ interface HealthConnectClient {
      * To insert some heart rate data:
      * @sample androidx.health.connect.client.samples.InsertHeartRateSeries
      *
+     * [androidx.health.connect.client.records.metadata.Metadata.clientId] can be used to
+     * deduplicate data with a client provided unique identifier. When a subsequent [insertRecords]
+     * is called with the same [androidx.health.connect.client.records.metadata.Metadata.clientId],
+     * whichever [Record] with the higher [androidx.health.connect.client.records.metadata.Metadata.clientVersion]
+     * takes precedence.
+     *
      * @param records List of records to insert
      * @return List of unique identifiers in the order of inserted records.
      * @throws RemoteException For any IPC transportation failures.
