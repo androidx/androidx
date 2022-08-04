@@ -145,10 +145,10 @@ public class EntityUpsertionAdapterTest{
     public void testUpsertReturnIds() {
         Pet[] testPets = TestUtil.createPetsForUser(0, 1, 10);
         Pet[] testPets2 = TestUtil.createPetsForUser(0, 5, 9);
-        long[] result = mUpsertionAdapter.upsertAndReturnIdArray(testPets);
+        long[] result = mUpsertionAdapter.upsertAndReturnIdsArray(testPets);
         long[] check = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
         assertThat(result[3]).isEqualTo(check[3]);
-        long[] testResult = mUpsertionAdapter.upsertAndReturnIdArray(testPets2);
+        long[] testResult = mUpsertionAdapter.upsertAndReturnIdsArray(testPets2);
         assertThat(testResult[8]).isEqualTo(13);
         assertThat(testResult[2]).isEqualTo(-1);
     }

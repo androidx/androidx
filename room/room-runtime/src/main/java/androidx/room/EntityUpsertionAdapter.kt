@@ -99,7 +99,7 @@ class EntityUpsertionAdapter<T>(
      * @param entities Entities to upsert
      * @return The SQLite row ids, for entities that are not inserted the row id returned will be -1
      */
-    fun upsertAndReturnIdArray(entities: Array<T>): LongArray {
+    fun upsertAndReturnIdsArray(entities: Array<T>): LongArray {
         return LongArray(entities.size) { index ->
             try {
                 insertionAdapter.insertAndReturnId(entities[index])
@@ -110,20 +110,20 @@ class EntityUpsertionAdapter<T>(
         }
     }
 
-    fun upsertAndReturnIdArray(entities: Collection<T>): LongArray {
+    fun upsertAndReturnIdsArray(entities: Collection<T>): LongArray {
         val iterator = entities.iterator()
         return LongArray(entities.size) {
             val entity = iterator.next()
             try {
-                    insertionAdapter.insertAndReturnId(entity)
-                } catch (ex: SQLiteConstraintException) {
-                    updateAdapter.handle(entity)
-                    -1
-                }
+                insertionAdapter.insertAndReturnId(entity)
+            } catch (ex: SQLiteConstraintException) {
+                updateAdapter.handle(entity)
+                -1
             }
+        }
     }
 
-    fun upsertAndReturnIdList(entities: Array<T>): List<Long> {
+    fun upsertAndReturnIdsList(entities: Array<T>): List<Long> {
         return buildList<Long> {
             entities.forEach { entity ->
                 try {
@@ -136,7 +136,7 @@ class EntityUpsertionAdapter<T>(
         }
     }
 
-    fun upsertAndReturnIdArrayBox(entities: Array<T>): Array<Long?> {
+    fun upsertAndReturnIdsArrayBox(entities: Array<T>): Array<Long?> {
         return Array<Long?>(entities.size) { index ->
             try {
                 insertionAdapter.insertAndReturnId(entities[index])
@@ -147,7 +147,7 @@ class EntityUpsertionAdapter<T>(
         }
     }
 
-    fun upsertAndReturnIdArrayBox(entities: Collection<T>): Array<Long?> {
+    fun upsertAndReturnIdsArrayBox(entities: Collection<T>): Array<Long?> {
         val iterator = entities.iterator()
         return Array<Long?>(entities.size) {
             val entity = iterator.next()
