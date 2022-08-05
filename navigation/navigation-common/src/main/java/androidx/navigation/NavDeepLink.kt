@@ -250,6 +250,16 @@ public class NavDeepLink internal constructor(
         return bundle
     }
 
+    internal fun calculateMatchingPathSegments(requestedLink: Uri?): Int {
+        if (requestedLink == null || uriPattern == null) return 0
+
+        val requestedPathSegments = requestedLink.pathSegments
+        val uriPathSegments = Uri.parse(uriPattern).pathSegments
+
+        val matches = requestedPathSegments.intersect(uriPathSegments)
+        return matches.size
+    }
+
     private fun parseArgument(
         bundle: Bundle,
         name: String,
