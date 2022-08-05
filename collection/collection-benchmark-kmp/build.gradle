@@ -16,6 +16,8 @@
 
 import androidx.build.KmpPlatformsKt
 import androidx.build.Publish
+import org.jetbrains.kotlin.konan.target.HostManager
+import org.jetbrains.kotlin.konan.target.KonanTarget
 
 plugins {
     id("AndroidXPlugin")
@@ -49,8 +51,18 @@ benchmark {
     }
 
     targets {
-        if (KmpPlatformsKt.enableLinux(project)) {
+        if (KmpPlatformsKt.enableLinux(project) && HostManager.hostIsLinux) {
             register("linuxX64")
+        }
+
+        if (KmpPlatformsKt.enableMac(project)) {
+            if (HostManager.host == KonanTarget.MACOS_X64) {
+                register("macosX64")
+            }
+
+            if (HostManager.host == KonanTarget.MACOS_ARM64) {
+                register("macosArm64")
+            }
         }
     }
 }
