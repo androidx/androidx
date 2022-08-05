@@ -19,6 +19,8 @@ import androidx.build.LibraryType
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
+    id("com.google.protobuf")
+    id("java-test-fixtures")
     id("org.jetbrains.kotlin.android")
 }
 
@@ -30,12 +32,30 @@ dependencies {
 
     androidTestImplementation(libs.junit)
     androidTestImplementation(libs.kotlinCoroutinesTest)
+    androidTestImplementation(libs.protobufLite)
     androidTestImplementation(libs.truth)
     androidTestImplementation(project(":internal-testutils-truth"))
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(project(":datastore:datastore-core"))
-    androidTestImplementation(project(":datastore:datastore-proto"))
+}
+
+protobuf {
+    protoc {
+        artifact = libs.protobufCompiler.get()
+    }
+    // Generates the java proto-lite code for the protos in this project. See
+    // https://github.com/google/protobuf-gradle-plugin#customizing-protobuf-compilation
+    // for more information.
+    generateProtoTasks {
+        all().each { task ->
+            task.builtins {
+                java {
+                    option "lite"
+                }
+            }
+        }
+    }
 }
 
 android {
