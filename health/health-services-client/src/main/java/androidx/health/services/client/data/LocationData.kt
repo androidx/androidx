@@ -16,19 +16,43 @@
 
 package androidx.health.services.client.data
 
+import androidx.annotation.FloatRange
 import androidx.health.services.client.proto.DataProto
 
 /** Data representing one location point with direction. */
 public class LocationData(
-    /** Latitude of location. */
-    public val latitude: Double,
-    /** Longitude of location. */
-    public val longitude: Double,
-    /** Altitude of location in meters or `null` if not available. */
-    public val altitude: Double? = null,
-    /** Bearing in degrees or `null` if not available. */
-    public val bearing: Double? = null,
+    /** Latitude of location. Range from -90.0 to = 90.0.
+     *
+     *  @throws IllegalArgumentException if [latitude] is out of range.
+     */
+    @FloatRange(from = -90.0, to = 90.0) public val latitude: Double,
+    /** Longitude of location. Range from -180.0 to = 180.0.
+     *
+     *  @throws IllegalArgumentException if [longitude] is out of range.
+     */
+    @FloatRange(from = -180.0, to = 180.0) public val longitude: Double,
+    /** Altitude of location in meters or [ALTITUDE_UNAVAILABLE] if not available. */
+    @FloatRange public val altitude: Double = ALTITUDE_UNAVAILABLE,
+    /** Bearing in degrees within the range of [0.0 (inclusive), 360.0(exclusive)] or
+     * [BEARING_UNAVAILABLE] if not available.
+     *
+     * @throws IllegalArgumentException if [bearing] is out of range.
+     */
+    @FloatRange(from = -1.0, to = 360.0, toInclusive = false) public val bearing: Double =
+        BEARING_UNAVAILABLE,
 ) {
+    init {
+        if (latitude !in -90.0..90.0) {
+            throw IllegalArgumentException("latitude value $latitude is out of range")
+        }
+        if (longitude !in -180.0..180.0) {
+            throw IllegalArgumentException("longitude value $longitude is out of range")
+        }
+        if (bearing < -1.0 || bearing >= 360.0) {
+            throw IllegalArgumentException("bearing value $bearing is out of range")
+        }
+    }
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is LocationData) return false
@@ -61,8 +85,8 @@ public class LocationData(
         val doubleArrayBuilder = DataProto.Value.DoubleArray.newBuilder().apply {
             addDoubleArray(latitude)
             addDoubleArray(longitude)
-            addDoubleArray(altitude ?: Double.MAX_VALUE)
-            addDoubleArray(bearing ?: Double.MAX_VALUE)
+            addDoubleArray(altitude)
+            addDoubleArray(bearing)
         }
 
         proto.setDoubleArrayVal(doubleArrayBuilder)
@@ -84,16 +108,22 @@ public class LocationData(
         /**
          * When using [DataType.LOCATION], the value is represented as [DoubleArray]. The [Double]
          * value at this index represents the altitude. This value will default to
-         * [Double.MAX_VALUE] if it is not available.
+         * [ALTITUDE_UNAVAILABLE] if it is not available.
          */
         private const val ALTITUDE_INDEX: Int = 2
 
         /**
          * When using [DataType.LOCATION], the value is represented as [DoubleArray]. The [Double]
-         * value at this index represents the bearing. This value will default to [Double.MAX_VALUE]
-         * if it is not available.
+         * value at this index represents the bearing. The value will be within the range of
+         * 0.0 to 360.0 and default to [BEARING_UNAVAILABLE] if it is not available.
          */
         private const val BEARING_INDEX: Int = 3
+
+        /** When using [DataType.LOCATION], the default value if altitude value is not available. */
+        public const val ALTITUDE_UNAVAILABLE: Double = Double.MAX_VALUE
+
+        /** When using [DataType.LOCATION], the default value if bearing value is not available. */
+        public const val BEARING_UNAVAILABLE: Double = -1.0
 
         internal fun fromDataProtoValue(proto: DataProto.Value): LocationData {
             require(proto.hasDoubleArrayVal())
@@ -101,23 +131,16 @@ public class LocationData(
             val latitude = proto.doubleArrayVal.getDoubleArray(LATITUDE_INDEX)
             val longitude = proto.doubleArrayVal.getDoubleArray(LONGITUDE_INDEX)
 
-            // Altitude and bearing are optional. There are two indications we need to look for to
-            // determine their absence and set them to null: the array being too short, or they are
-            // set to Double.MAX_VALUE.
-            var altitude: Double? = null
-            if (proto.doubleArrayVal.doubleArrayCount > ALTITUDE_INDEX) {
-                altitude = proto.doubleArrayVal.getDoubleArray(ALTITUDE_INDEX)
-                if (altitude == Double.MAX_VALUE) {
-                    altitude = null
-                }
+            val altitude = if (proto.doubleArrayVal.doubleArrayCount > ALTITUDE_INDEX) {
+                proto.doubleArrayVal.getDoubleArray(ALTITUDE_INDEX)
+            } else {
+                ALTITUDE_UNAVAILABLE
             }
 
-            var bearing: Double? = proto.doubleArrayVal.getDoubleArray(BEARING_INDEX)
-            if (proto.doubleArrayVal.doubleArrayCount > BEARING_INDEX) {
-                bearing = proto.doubleArrayVal.getDoubleArray(BEARING_INDEX)
-                if (bearing == Double.MAX_VALUE) {
-                    bearing = null
-                }
+            var bearing = if (proto.doubleArrayVal.doubleArrayCount > BEARING_INDEX) {
+                proto.doubleArrayVal.getDoubleArray(BEARING_INDEX)
+            } else {
+                BEARING_UNAVAILABLE
             }
 
             return LocationData(
