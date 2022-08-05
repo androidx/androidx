@@ -33,11 +33,11 @@ package androidx.car.app {
     method public final androidx.car.app.HostInfo? getHostInfo();
     method public final androidx.car.app.Session? getSession(androidx.car.app.SessionInfo);
     method @CallSuper public final android.os.IBinder onBind(android.content.Intent);
-    method @Deprecated public androidx.car.app.Session onCreateSession();
-    method public androidx.car.app.Session onCreateSession(androidx.car.app.SessionInfo);
+    method public androidx.car.app.Session onCreateSession();
+    method @androidx.car.app.annotations.RequiresCarApi(6) public androidx.car.app.Session onCreateSession(androidx.car.app.SessionInfo);
     method public final boolean onUnbind(android.content.Intent);
     field @Deprecated public static final String CATEGORY_CHARGING_APP = "androidx.car.app.category.CHARGING";
-    field public static final String CATEGORY_FEATURE_CLUSTER = "androidx.car.app.category.FEATURE_CLUSTER";
+    field @androidx.car.app.annotations.RequiresCarApi(6) public static final String CATEGORY_FEATURE_CLUSTER = "androidx.car.app.category.FEATURE_CLUSTER";
     field public static final String CATEGORY_NAVIGATION_APP = "androidx.car.app.category.NAVIGATION";
     field @Deprecated public static final String CATEGORY_PARKING_APP = "androidx.car.app.category.PARKING";
     field public static final String CATEGORY_POI_APP = "androidx.car.app.category.POI";
@@ -159,7 +159,7 @@ package androidx.car.app {
     method public void onNewIntent(android.content.Intent);
   }
 
-  @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(5) public class SessionInfo {
+  @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(6) public class SessionInfo {
     ctor public SessionInfo(int, String);
     method public int getDisplayType();
     method public String getSessionId();
