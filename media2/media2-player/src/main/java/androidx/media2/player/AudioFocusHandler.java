@@ -24,9 +24,13 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.media.AudioManager;
 import android.media.AudioManager.OnAudioFocusChangeListener;
+import android.os.Build;
 import android.util.Log;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.GuardedBy;
+import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.media.AudioAttributesCompat;
 
 /**
@@ -246,7 +250,12 @@ import androidx.media.AudioAttributesCompat;
             }
             // Registering the receiver multiple-times may not be allowed for newer platform.
             // Register only when it's not registered.
-            mContext.registerReceiver(mBecomingNoisyReceiver, mIntentFilter);
+            if (Build.VERSION.SDK_INT < 33) {
+                mContext.registerReceiver(mBecomingNoisyReceiver, mIntentFilter);
+            } else {
+                Api33.registerReceiver(mContext, mBecomingNoisyReceiver, mIntentFilter,
+                        Context.RECEIVER_NOT_EXPORTED);
+            }
             mBecomingNoisyReceiverRegistered = true;
         }
 
@@ -450,6 +459,15 @@ import androidx.media.AudioAttributesCompat;
                         break;
                 }
             }
-        };
+        }
+    }
+
+    @RequiresApi(33)
+    private static class Api33 {
+        @DoNotInline
+        static void registerReceiver(@NonNull Context context, @NonNull BroadcastReceiver receiver,
+                @NonNull IntentFilter filter, int flags) {
+            context.registerReceiver(receiver, filter, flags);
+        }
     }
 }
