@@ -203,6 +203,7 @@ class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
             mBroadcastReceiver = new MediaButtonReceiver();
             IntentFilter filter = new IntentFilter(Intent.ACTION_MEDIA_BUTTON);
             filter.addDataScheme(mSessionUri.getScheme());
+            // TODO(b/197817693): Explicitly indicate whether the receiver should be exported.
             context.registerReceiver(mBroadcastReceiver, filter);
         } else {
             // Has MediaSessionService to revive playback after it's dead.
