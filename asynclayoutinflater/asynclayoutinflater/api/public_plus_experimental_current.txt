@@ -1,16 +1,9 @@
 // Signature format: 4.0
 package androidx.asynclayoutinflater.view {
 
-  public class AppCompatFactory2 implements android.view.LayoutInflater.Factory2 {
-    ctor public AppCompatFactory2();
-    method public android.view.View? onCreateView(android.view.View?, String, android.content.Context, android.util.AttributeSet);
-    method public android.view.View? onCreateView(String, android.content.Context, android.util.AttributeSet);
-  }
-
   public final class AsyncLayoutInflater {
     ctor public AsyncLayoutInflater(android.content.Context);
-    method @Deprecated @UiThread public void inflate(@LayoutRes int, android.view.ViewGroup?, androidx.asynclayoutinflater.view.AsyncLayoutInflater.OnInflateFinishedListener);
-    method @UiThread public void inflateWithOriginalFactory(@LayoutRes int, android.view.ViewGroup?, java.util.concurrent.Executor?, androidx.asynclayoutinflater.view.AsyncLayoutInflater.OnInflateFinishedListener);
+    method @UiThread public void inflate(@LayoutRes int, android.view.ViewGroup?, androidx.asynclayoutinflater.view.AsyncLayoutInflater.OnInflateFinishedListener);
   }
 
   public static interface AsyncLayoutInflater.OnInflateFinishedListener {
