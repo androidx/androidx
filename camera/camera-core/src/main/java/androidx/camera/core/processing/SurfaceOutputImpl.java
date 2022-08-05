@@ -16,6 +16,7 @@
 
 package androidx.camera.core.processing;
 
+import android.graphics.Rect;
 import android.opengl.Matrix;
 import android.util.Size;
 import android.view.Surface;
@@ -34,6 +35,7 @@ import androidx.core.util.Consumer;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
+import java.util.Arrays;
 import java.util.concurrent.Executor;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.atomic.AtomicReference;
@@ -55,10 +57,22 @@ final class SurfaceOutputImpl implements SurfaceOutput {
     private final int mFormat;
     @NonNull
     private final Size mSize;
+    private final boolean mApplyGlTransform;
+    @SuppressWarnings("unused")
+    private final Size mInputSize;
+    @SuppressWarnings("unused")
+    private final Rect mInputCropRect;
+    @SuppressWarnings("unused")
+    private final int mRotationDegrees;
+    @SuppressWarnings("unused")
+    private final boolean mMirroring;
 
+    @GuardedBy("mLock")
     @NonNull
-    private final float[] mAdditionalTransform;
-
+    private final float[] mAdditionalTransform = new float[16];
+    @GuardedBy("mLock")
+    @NonNull
+    private final float[] mInputTransform = new float[16];
     @GuardedBy("mLock")
     @Nullable
     private Consumer<Event> mEventListener;
@@ -80,14 +94,24 @@ final class SurfaceOutputImpl implements SurfaceOutput {
             int targets,
             int format,
             @NonNull Size size,
-            @NonNull float[] additionalTransform) {
+            // TODO(b/241910577): remove this flag when PreviewView handles cropped stream.
+            boolean applyGlTransform,
+            @NonNull Size inputSize,
+            @NonNull Rect inputCropRect,
+            int rotationDegree,
+            boolean mirroring) {
         mSurface = surface;
         mTargets = targets;
         mFormat = format;
         mSize = size;
-        mAdditionalTransform = new float[16];
-        System.arraycopy(additionalTransform, 0, mAdditionalTransform, 0,
-                additionalTransform.length);
+        mApplyGlTransform = applyGlTransform;
+        mInputSize = inputSize;
+        mInputCropRect = new Rect(inputCropRect);
+        mRotationDegrees = rotationDegree;
+        mMirroring = mirroring;
+        Matrix.setIdentityM(mAdditionalTransform, 0);
+        Matrix.setIdentityM(mInputTransform, 0);
+
         mCloseFuture = CallbackToFutureAdapter.getFuture(
                 completer -> {
                     mCloseFutureCompleter = completer;
@@ -210,7 +234,23 @@ final class SurfaceOutputImpl implements SurfaceOutput {
      */
     @AnyThread
     @Override
-    public void updateTransformMatrix(@NonNull float[] updated, @NonNull float[] original) {
-        Matrix.multiplyMM(updated, 0, mAdditionalTransform, 0, original, 0);
+    public void updateTransformMatrix(@NonNull float[] output, @NonNull float[] input) {
+        if (mApplyGlTransform) {
+            synchronized (mLock) {
+                if (!Arrays.equals(mInputTransform, input)) {
+                    System.arraycopy(input, 0, mInputTransform, 0, 16);
+                    updateAdditionalTransformation();
+                }
+                Matrix.multiplyMM(output, 0, input, 0, mAdditionalTransform, 0);
+            }
+        } else {
+            System.arraycopy(input, 0, output, 0, 16);
+        }
+    }
+
+    @GuardedBy("mLock")
+    private void updateAdditionalTransformation() {
+        // TODO: Calculate Gl transform based on input
+        Matrix.setIdentityM(mAdditionalTransform, 0);
     }
 }

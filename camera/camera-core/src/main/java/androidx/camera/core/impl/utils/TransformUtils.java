@@ -52,6 +52,23 @@ public class TransformUtils {
         return new Size(rect.width(), rect.height());
     }
 
+
+    /**
+     * Transforms size to a {@link Rect} with zero left and top.
+     */
+    @NonNull
+    public static Rect sizeToRect(@NonNull Size size) {
+        return sizeToRect(size, 0, 0);
+    }
+
+    /**
+     * Transforms a size to a {@link Rect} with given left and top.
+     */
+    @NonNull
+    public static Rect sizeToRect(@NonNull Size size, int left, int top) {
+        return new Rect(left, top, left + size.getWidth(), top + size.getHeight());
+    }
+
     /**
      * Converts an array of vertices to a {@link RectF}.
      */

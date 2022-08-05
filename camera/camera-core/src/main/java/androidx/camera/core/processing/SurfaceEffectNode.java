@@ -21,8 +21,6 @@ import static androidx.core.util.Preconditions.checkArgument;
 
 import static java.util.Collections.singletonList;
 
-import android.opengl.Matrix;
-
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -102,9 +100,12 @@ public class SurfaceEffectNode implements Node<SurfaceEdge, SurfaceEdge> {
         return mOutputEdge;
     }
 
-    private void sendSurfacesToEffectWhenReady(SettableSurface input, SettableSurface output) {
+    private void sendSurfacesToEffectWhenReady(@NonNull SettableSurface input,
+            @NonNull SettableSurface output) {
         SurfaceRequest surfaceRequest = input.createSurfaceRequest(mCameraInternal);
-        Futures.addCallback(output.createSurfaceOutputFuture(calculateGlTransform()),
+        Futures.addCallback(output.createSurfaceOutputFuture(/*applyGlTransform=*/false,
+                        input.getSize(), input.getCropRect(), input.getRotationDegrees(),
+                        input.getMirroring()),
                 new FutureCallback<SurfaceOutput>() {
                     @Override
                     public void onSuccess(@Nullable SurfaceOutput surfaceOutput) {
@@ -122,13 +123,6 @@ public class SurfaceEffectNode implements Node<SurfaceEdge, SurfaceEdge> {
                     }
                 }, mainThreadExecutor());
 
-    }
-
-    float[] calculateGlTransform() {
-        // TODO: generate the GL transform based on cropping and rotation.
-        float[] glTransform = new float[16];
-        Matrix.setIdentityM(glTransform, 0);
-        return glTransform;
     }
 
     /**
