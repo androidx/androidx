@@ -22,7 +22,7 @@ import com.google.devtools.ksp.processing.SymbolProcessorEnvironment
 import com.google.devtools.ksp.processing.SymbolProcessorProvider
 import com.google.devtools.ksp.symbol.KSAnnotated
 
-class PrivacySandboxKspCompiler() : SymbolProcessor {
+class PrivacySandboxKspCompiler : SymbolProcessor {
     override fun process(resolver: Resolver): List<KSAnnotated> {
         return emptyList()
     }
