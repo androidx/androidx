@@ -63,7 +63,13 @@ fun collectBaselineProfile(
     try {
         userspaceTrace("compile $packageName") {
             compilationMode.resetAndCompile(
-                packageName = packageName
+                packageName = packageName,
+                killProcessBlock = {
+                    // When generating baseline profiles we want to default to using
+                    // killProcess if the session is rooted. This is so we can collect
+                    // baseline profiles for System Apps.
+                    scope.killProcess(useKillAll = Shell.isSessionRooted())
+                }
             ) {
                 profileBlock(scope)
             }
