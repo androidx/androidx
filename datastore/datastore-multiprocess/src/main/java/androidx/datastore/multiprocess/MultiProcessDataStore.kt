@@ -16,6 +16,7 @@
 
 package androidx.datastore.multiprocess
 
+import android.os.FileObserver
 import androidx.annotation.GuardedBy
 import androidx.datastore.core.CorruptionException
 import androidx.datastore.core.DataStore
@@ -26,6 +27,7 @@ import java.io.FileInputStream
 import java.io.FileNotFoundException
 import java.io.FileOutputStream
 import java.io.IOException
+import java.util.concurrent.Semaphore
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.coroutineContext
 import kotlinx.coroutines.completeWith
@@ -47,8 +49,6 @@ import kotlinx.coroutines.withContext
 /**
  * Multi process implementation of DataStore. It is multi-process safe.
  */
-// TODO(zhiyuanwang): copied straight from {@link androidx.datastore.core.SingleProcessDataStore},
-// replace with the real multi process implementation
 internal class MultiProcessDataStore<T>(
     private val produceFile: () -> File,
     private val serializer: Serializer<T>,
@@ -63,7 +63,6 @@ internal class MultiProcessDataStore<T>(
     private val corruptionHandler: CorruptionHandler<T> = NoOpCorruptionHandler<T>(),
     private val scope: CoroutineScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 ) : DataStore<T> {
-
     override val data: Flow<T> = flow {
         /**
          * If downstream flow is UnInitialized, no data has been read yet, we need to trigger a new
@@ -73,7 +72,9 @@ internal class MultiProcessDataStore<T>(
          * data. We need to trigger a new read then start emitting values once we have seen a new
          * value (or exception).
          *
-         * If downstream flow has Data, we should just start emitting from downstream flow.
+         * If downstream flow has Data, we should start emitting from downstream flow as long as its
+         * version is not stale compared to the version read from the shared counter when we enter
+         * the flow.
          *
          * If Downstream flow is Final, the scope has been cancelled so the data store is no
          * longer usable. We should just propagate this exception.
@@ -82,20 +83,25 @@ internal class MultiProcessDataStore<T>(
          * Final. ReadException can transition to another ReadException, Data or Final.
          * Data can transition to another Data or Final. Final will not change.
          */
-
+        // TODO(b/241290444): avoid coroutine switching by loading native lib during initialization
+        val latestVersionAtRead = withContext(scope.coroutineContext) { sharedCounter.getValue() }
         val currentDownStreamFlowState = downstreamFlow.value
 
-        if (currentDownStreamFlowState !is Data) {
-            // We need to send a read request because we don't have data yet.
-            actor.offer(Message.Read(currentDownStreamFlowState))
+        if ((currentDownStreamFlowState !is Data) ||
+            (currentDownStreamFlowState.version < latestVersionAtRead)
+        ) {
+            // We need to send a read request because we don't have data yet / cached data is stale.
+            readActor.offer(Message.Read(currentDownStreamFlowState))
         }
 
         emitAll(
             downstreamFlow.dropWhile {
-                if (currentDownStreamFlowState is Data<T> ||
-                    currentDownStreamFlowState is Final<T>
-                ) {
-                    // We don't need to drop any Data or Final values.
+                if (currentDownStreamFlowState is Data<T>) {
+                    // we need to drop until initTasks are completed and set to null, and data
+                    // version >= the current version when entering flow
+                    (it !is Data) || (it.version < latestVersionAtRead)
+                } else if (currentDownStreamFlowState is Final<T>) {
+                    // We don't need to drop Final values.
                     false
                 } else {
                     // we need to drop the last seen state since it was either an exception or
@@ -109,9 +115,7 @@ internal class MultiProcessDataStore<T>(
                     is Final<T> -> throw it.finalException
                     is Data<T> -> it.value
                     is UnInitialized -> error(
-                        "This is a bug in DataStore. Please file a bug at: " +
-                            "https://issuetracker.google.com/issues/new?" +
-                            "component=907884&template=1466542"
+                        BUG_MESSAGE
                     )
                 }
             }
@@ -119,33 +123,48 @@ internal class MultiProcessDataStore<T>(
     }
 
     override suspend fun updateData(transform: suspend (t: T) -> T): T {
-        /**
-         * The states here are the same as the states for reads. Additionally we send an ack that
-         * the actor *must* respond to (even if it is cancelled).
-         */
         val ack = CompletableDeferred<T>()
         val currentDownStreamFlowState = downstreamFlow.value
 
         val updateMsg =
             Message.Update(transform, ack, currentDownStreamFlowState, coroutineContext)
 
-        actor.offer(updateMsg)
+        writeActor.offer(updateMsg)
 
         return ack.await()
     }
 
     private val SCRATCH_SUFFIX = ".tmp"
+    private val LOCK_SUFFIX = ".lock"
+    private val VERSION_SUFFIX = ".version"
+    private val BUG_MESSAGE = "This is a bug in DataStore. Please file a bug at: " +
+        "https://issuetracker.google.com/issues/new?component=907884&template=1466542"
+    private val INVALID_VERSION = -1
+    private var initTasks: List<suspend (api: InitializerApi<T>) -> Unit>? =
+        initTasksList.toList()
+    private val sharedCounter: SharedCounter by lazy {
+        SharedCounter.loadLib()
+        // TODO(b/241471375): remove the enableMlock option here
+        SharedCounter.create(/* enableMlock = */ false) {
+            val versionFile = fileWithSuffix(VERSION_SUFFIX)
+            versionFile.createIfNotExists()
+            versionFile
+        }
+    }
+    private val threadLockSemaphore = Semaphore(1)
 
-    private val file: File by lazy {
+    // file is protected rather than private to avoid requiring synthetic accessor for its usage in
+    // the definition of FileObserver
+    protected val file: File by lazy {
         val file = produceFile()
 
         file.absolutePath.let {
             synchronized(activeFilesLock) {
                 check(!activeFiles.contains(it)) {
-                    "There are multiple DataStores active for the same file: $file. You should " +
-                        "either maintain your DataStore as a singleton or confirm that there is " +
-                        "no two DataStore's active on the same file (by confirming that the scope" +
-                        " is cancelled)."
+                    "There are multiple DataStores in the same process active for the same file: " +
+                        "$file. You should either maintain your DataStore as a singleton or " +
+                        "confirm that there is no two DataStore's active on the same file in the " +
+                        "same process(by confirming that the scope is cancelled)."
                 }
                 activeFiles.add(it)
             }
@@ -154,37 +173,29 @@ internal class MultiProcessDataStore<T>(
         file
     }
 
+    private val lockFile: File by lazy {
+        val lockFile = fileWithSuffix(LOCK_SUFFIX)
+        lockFile.createIfNotExists()
+        lockFile
+    }
+
+    private val fileObserver: FileObserver by lazy {
+        @Suppress("DEPRECATION")
+        object : FileObserver(file.canonicalFile.parent!!, FileObserver.MOVED_TO) {
+            // It will be triggered by same-process-write as well. Shared memory version check will
+            // prevent it from reading again. parameter `path` is relative to the observed directory
+            override fun onEvent(event: Int, path: String?) {
+                if ((downstreamFlow.value !is Final) && (path!! == file.name)) {
+                    readActor.offer(Message.Read(downstreamFlow.value))
+                }
+            }
+        }
+    }
+
     @Suppress("UNCHECKED_CAST")
     private val downstreamFlow = MutableStateFlow(UnInitialized as State<T>)
 
-    private var initTasks: List<suspend (api: InitializerApi<T>) -> Unit>? =
-        initTasksList.toList()
-
-    /** The actions for the actor. */
-    private sealed class Message<T> {
-        abstract val lastState: State<T>?
-
-        /**
-         * Represents a read operation. If the data is already cached, this is a no-op. If data
-         * has not been cached, it triggers a new read to the specified dataChannel.
-         */
-        class Read<T>(
-            override val lastState: State<T>?
-        ) : Message<T>()
-
-        /** Represents an update operation. */
-        class Update<T>(
-            val transform: suspend (t: T) -> T,
-            /**
-             * Used to signal (un)successful completion of the update to the caller.
-             */
-            val ack: CompletableDeferred<T>,
-            override val lastState: State<T>?,
-            val callerContext: CoroutineContext
-        ) : Message<T>()
-    }
-
-    private val actor = SimpleActor<Message<T>>(
+    private val writeActor = SimpleActor<Message.Update<T>>(
         scope = scope,
         onComplete = {
             it?.let {
@@ -198,32 +209,31 @@ internal class MultiProcessDataStore<T>(
             }
         },
         onUndeliveredElement = { msg, ex ->
-            if (msg is Message.Update) {
-                // TODO(rohitsat): should we instead use scope.ensureActive() to get the original
-                //  cancellation cause? Should we instead have something like
-                //  UndeliveredElementException?
-                msg.ack.completeExceptionally(
-                    ex ?: CancellationException(
-                        "DataStore scope was cancelled before updateData could complete"
-                    )
+            msg.ack.completeExceptionally(
+                ex ?: CancellationException(
+                    "DataStore scope was cancelled before updateData could complete"
                 )
-            }
+            )
         }
     ) { msg ->
-        when (msg) {
-            is Message.Read -> {
-                handleRead(msg)
-            }
-            is Message.Update -> {
-                handleUpdate(msg)
-            }
-        }
+        handleUpdate(msg)
+    }
+
+    private val readActor = SimpleActor<Message.Read<T>>(
+        scope = scope,
+        onComplete = {
+            // no more reads so stop listening to file changes
+            fileObserver.stopWatching()
+        },
+        onUndeliveredElement = { _, _ -> }
+    ) { msg ->
+        handleRead(msg)
     }
 
     private suspend fun handleRead(read: Message.Read<T>) {
         when (val currentState = downstreamFlow.value) {
             is Data -> {
-                // We already have data so just return...
+                readData()
             }
             is ReadException -> {
                 if (currentState === read.lastState) {
@@ -241,15 +251,13 @@ internal class MultiProcessDataStore<T>(
     }
 
     private suspend fun handleUpdate(update: Message.Update<T>) {
-        // All branches of this *must* complete ack either successfully or exceptionally.
-        // We must *not* throw an exception, just propagate it to the ack.
         update.ack.completeWith(
             runCatching {
-
+                var result: T
                 when (val currentState = downstreamFlow.value) {
                     is Data -> {
                         // We are already initialized, we just need to perform the update
-                        transformAndWrite(update.transform, update.callerContext)
+                        result = transformAndWrite(update.transform, update.callerContext)
                     }
                     is ReadException, is UnInitialized -> {
                         if (currentState === update.lastState) {
@@ -257,7 +265,7 @@ internal class MultiProcessDataStore<T>(
                             readAndInitOrPropagateAndThrowFailure()
 
                             // We've successfully read, now we need to perform the update
-                            transformAndWrite(update.transform, update.callerContext)
+                            result = transformAndWrite(update.transform, update.callerContext)
                         } else {
                             // Someone else beat us to read but also failed. We just need to
                             // signal the writer that is waiting on ack.
@@ -269,6 +277,7 @@ internal class MultiProcessDataStore<T>(
 
                     is Final -> throw currentState.finalException // won't happen
                 }
+                result
             }
         )
     }
@@ -290,55 +299,94 @@ internal class MultiProcessDataStore<T>(
         }
     }
 
+    // It handles the read when data needs to be initialized.
     private suspend fun readAndInit() {
-        // This should only be called if we don't already have cached data.
-        check(downstreamFlow.value == UnInitialized || downstreamFlow.value is ReadException)
+        initTaskLock.withLock() {
+            // This should only be called if we don't already have cached data.
+            if (downstreamFlow.value != UnInitialized && downstreamFlow.value !is ReadException) {
+                // downstreamFlow.value is Data or Final, no need to readAndInit. As there are two
+                // actors, we return here instead of throwing exception to properly handle the race
+                // condition where one actor call `readAndInit()` after the other has completed
+                // successfully.
+                return
+            }
 
-        val updateLock = Mutex()
-        var initData = readDataOrHandleCorruption()
+            var initData: Data<T>
+            if ((initTasks == null) || initTasks!!.isEmpty()) {
+                initData = readDataOrHandleCorruption(hasWriteFileLock = false)
+            } else {
+                initData = getWriteFileLock {
+                    val updateLock = Mutex()
+                    var initializationComplete: Boolean = false
+                    var currentData = readDataOrHandleCorruption(hasWriteFileLock = true).value
 
-        var initializationComplete: Boolean = false
+                    val api = object : InitializerApi<T> {
+                        override suspend fun updateData(transform: suspend (t: T) -> T): T {
+                            return updateLock.withLock() {
+                                check(!initializationComplete) {
+                                    "InitializerApi.updateData should not be called after " +
+                                        "initialization is complete."
+                                }
 
-        // TODO(b/151635324): Consider using Context Element to throw an error on re-entrance.
-        val api = object : InitializerApi<T> {
-            override suspend fun updateData(transform: suspend (t: T) -> T): T {
-                return updateLock.withLock() {
-                    if (initializationComplete) {
-                        throw IllegalStateException(
-                            "InitializerApi.updateData should not be " +
-                                "called after initialization is complete."
-                        )
+                                val newData = transform(currentData)
+                                if (newData != currentData) {
+                                    writeData(newData, updateCache = false)
+                                    currentData = newData
+                                }
+
+                                currentData
+                            }
+                        }
                     }
 
-                    val newData = transform(initData)
-                    if (newData != initData) {
-                        writeData(newData)
-                        initData = newData
+                    initTasks?.forEach { it(api) }
+                    // Init tasks have run successfully, we don't need them anymore.
+                    initTasks = null
+                    updateLock.withLock {
+                        initializationComplete = true
                     }
 
-                    initData
+                    // only to make compiler happy
+                    currentData
                 }
             }
+            downstreamFlow.value = initData
+            fileObserver.startWatching()
         }
-
-        initTasks?.forEach { it(api) }
-        initTasks = null // Init tasks have run successfully, we don't need them anymore.
-        updateLock.withLock {
-            initializationComplete = true
-        }
-
-        downstreamFlow.value = Data(initData, initData.hashCode(), /* unused */ version = 0)
     }
 
-    private suspend fun readDataOrHandleCorruption(): T {
+    // Only be called from `readAndInit`. State is UnInitialized or ReadException.
+    private suspend fun readDataOrHandleCorruption(hasWriteFileLock: Boolean): Data<T> {
         try {
-            return readData()
+            if (hasWriteFileLock) {
+                val data = readDataFromFileOrDefault()
+                return Data(data, data.hashCode(), version = sharedCounter.getValue())
+            } else {
+                return tryGetReadFileLock {
+                    val data = readDataFromFileOrDefault()
+                    val version = if (it) sharedCounter.getValue() else INVALID_VERSION
+                    Data(
+                        data,
+                        data.hashCode(),
+                        version
+                    )
+                }
+            }
         } catch (ex: CorruptionException) {
-
             val newData: T = corruptionHandler.handleCorruption(ex)
+            var version: Int = INVALID_VERSION // should be overridden if write successfully
 
             try {
-                writeData(newData)
+                // TODO(b/241286493): acquire the write lock and confirm the data is still corrupted
+                // before overwriting to avoid race condition
+                if (hasWriteFileLock) {
+                    version = writeData(newData)
+                } else {
+                    getWriteFileLock {
+                        version = writeData(newData)
+                        newData
+                    }
+                }
             } catch (writeEx: IOException) {
                 // If we fail to write the handled data, add the new exception as a suppressed
                 // exception.
@@ -347,14 +395,39 @@ internal class MultiProcessDataStore<T>(
             }
 
             // If we reach this point, we've successfully replaced the data on disk with newData.
-            return newData
+            return Data(newData, newData.hashCode(), version)
         }
     }
 
+    // It handles the read when the current state is Data
     private suspend fun readData(): T {
+        // Check if the cached version matches with shared memory counter
+        val currentState = downstreamFlow.value
+        val version = sharedCounter.getValue()
+        val cachedVersion = if (currentState is Data) currentState.version else INVALID_VERSION
+
+        // Return cached value if cached version is latest
+        if (currentState is Data && version == cachedVersion) {
+            return currentState.value
+        }
+        val data = tryGetReadFileLock {
+            val result = readDataFromFileOrDefault()
+            Data(
+                result,
+                result.hashCode(),
+                if (it) sharedCounter.getValue() else INVALID_VERSION
+            )
+        }
+        downstreamFlow.value = data
+        return data.value
+    }
+
+    // Caller is responsible for (try to) getting file lock. It reads from the file directly without
+    // checking shared counter version and returns serializer default value if file is not found.
+    private suspend fun readDataFromFileOrDefault(): T {
         try {
-            FileInputStream(file).use { stream ->
-                return serializer.readFrom(stream)
+            return FileInputStream(file).use { stream ->
+                serializer.readFrom(stream)
             }
         } catch (ex: FileNotFoundException) {
             if (file.exists()) {
@@ -364,36 +437,25 @@ internal class MultiProcessDataStore<T>(
         }
     }
 
-    // downstreamFlow.value must be successfully set to data before calling this
     private suspend fun transformAndWrite(
         transform: suspend (t: T) -> T,
         callerContext: CoroutineContext
-    ): T {
-        // value is not null or an exception because we must have the value set by now so this cast
-        // is safe.
-        val curDataAndHash = downstreamFlow.value as Data<T>
-        curDataAndHash.checkHashCode()
-
-        val curData = curDataAndHash.value
+    ): T = getWriteFileLock {
+        val curData = readDataFromFileOrDefault()
+        val curDataAndHash = Data(curData, curData.hashCode(), /* unused */ version = 0)
         val newData = withContext(callerContext) { transform(curData) }
 
         // Check that curData has not changed...
         curDataAndHash.checkHashCode()
 
-        return if (curData == newData) {
-            curData
-        } else {
+        if (curData != newData) {
             writeData(newData)
-            downstreamFlow.value = Data(newData, newData.hashCode(), /* unused */ version = 0)
-            newData
         }
-    }
+        newData
+    }.value
 
-    /**
-     * Internal only to prevent creation of synthetic accessor function. Do not call this from
-     * outside this class.
-     */
-    internal suspend fun writeData(newData: T) {
+    // Write data to disk and return the corresponding version if succeed.
+    internal suspend fun writeData(newData: T, updateCache: Boolean = true): Int {
         file.createParentDirectories()
 
         val scratchFile = File(file.absolutePath + SCRATCH_SUFFIX)
@@ -402,8 +464,10 @@ internal class MultiProcessDataStore<T>(
                 serializer.writeTo(newData, UncloseableOutputStream(stream))
                 stream.fd.sync()
                 // TODO(b/151635324): fsync the directory, otherwise a badly timed crash could
-                //  result in reverting to a previous state.
+                // result in reverting to a previous state.
             }
+
+            val newVersion = sharedCounter.incrementAndGetValue()
 
             if (!scratchFile.renameTo(file)) {
                 throw IOException(
@@ -413,11 +477,28 @@ internal class MultiProcessDataStore<T>(
                         "datastore for this file."
                 )
             }
+
+            if (updateCache) {
+                downstreamFlow.value = Data(newData, newData.hashCode(), newVersion)
+            }
+
+            return newVersion
         } catch (ex: IOException) {
             if (scratchFile.exists()) {
                 scratchFile.delete() // Swallow failure to delete
             }
             throw ex
+        }
+    }
+
+    private fun fileWithSuffix(suffix: String): File {
+        return File(file.absolutePath + suffix)
+    }
+
+    private fun File.createIfNotExists() {
+        createParentDirectories()
+        if (!exists()) {
+            createNewFile()
         }
     }
 
@@ -428,6 +509,36 @@ internal class MultiProcessDataStore<T>(
             it.mkdirs()
             if (!it.isDirectory) {
                 throw IOException("Unable to create parent directories of $this")
+            }
+        }
+    }
+
+    private suspend fun getWriteFileLock(block: suspend () -> T): Data<T> {
+        // TODO(b/239970979): use kotlinx.coroutines.sync.Mutex instead of adhoc ThreadLock with
+        // semaphore to make the best use of coroutine
+        ThreadLock.acquire(threadLockSemaphore).use {
+            FileOutputStream(lockFile).use { lockFileStream ->
+                lockFileStream.getChannel().lock(0L, Long.MAX_VALUE, /* shared= */ false)
+                    .use { _ ->
+                        val data = block()
+                        return Data(data, data.hashCode(), sharedCounter.getValue())
+                    }
+            }
+        }
+    }
+
+    private suspend fun tryGetReadFileLock(
+        block: suspend (Boolean) -> Data<T>
+    ): Data<T> {
+        ThreadLock.tryAcquire(threadLockSemaphore).use {
+            if (it.acquired() == false) {
+                return block(false)
+            }
+            FileInputStream(lockFile).use { lockFileStream ->
+                lockFileStream.getChannel().tryLock(0L, Long.MAX_VALUE, /* shared= */ true)
+                    .use { lock ->
+                        return block(lock != null)
+                    }
             }
         }
     }
@@ -443,5 +554,7 @@ internal class MultiProcessDataStore<T>(
         internal val activeFiles = mutableSetOf<String>()
 
         internal val activeFilesLock = Any()
+
+        internal val initTaskLock = Mutex()
     }
 }

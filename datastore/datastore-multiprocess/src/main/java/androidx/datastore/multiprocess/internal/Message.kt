@@ -28,8 +28,7 @@ internal sealed class Message<T> {
      * has not been cached, it triggers a new read to the specified dataChannel.
      */
     class Read<T>(
-        override val lastState: State<T>?,
-        val isBlocking: Boolean = false
+        override val lastState: State<T>?
     ) : Message<T>()
 
     /** Represents an update operation. */
