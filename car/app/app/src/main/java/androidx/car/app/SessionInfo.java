@@ -36,7 +36,7 @@ import java.util.Objects;
 import java.util.Set;
 
 /** Information about a {@link Session}, such as the physical display and the session ID. */
-@RequiresCarApi(5)
+@RequiresCarApi(6)
 @CarProtocol
 public class SessionInfo {
     private static final char DIVIDER = '/';
