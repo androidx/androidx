@@ -17,6 +17,7 @@
 package androidx.work.impl.foreground;
 
 import android.Manifest;
+import android.app.ForegroundServiceStartNotAllowedException;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.Service;
@@ -125,7 +126,10 @@ public class SystemForegroundService extends LifecycleService implements
         mHandler.post(new Runnable() {
             @Override
             public void run() {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    Api31Impl.startForeground(SystemForegroundService.this, notificationId,
+                            notification, notificationType);
+                } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                     Api29Impl.startForeground(SystemForegroundService.this, notificationId,
                             notification, notificationType);
                 } else {
@@ -174,6 +178,26 @@ public class SystemForegroundService extends LifecycleService implements
         static void startForeground(Service service, int id, Notification notification,
                 int foregroundServiceType) {
             service.startForeground(id, notification, foregroundServiceType);
+        }
+    }
+
+    @RequiresApi(31)
+    static class Api31Impl {
+        private Api31Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static void startForeground(Service service, int id, Notification notification,
+                int foregroundServiceType) {
+            try {
+                service.startForeground(id, notification, foregroundServiceType);
+            } catch (ForegroundServiceStartNotAllowedException exception) {
+                // This should ideally never happen. But there a chance that this method
+                // is called, and the app is no longer in a state where it's possible to start a
+                // foreground service. WorkManager will eventually call stop() to clean up.
+                Logger.get().warning(TAG, "Unable to start foreground service", exception);
+            }
         }
     }
 }
