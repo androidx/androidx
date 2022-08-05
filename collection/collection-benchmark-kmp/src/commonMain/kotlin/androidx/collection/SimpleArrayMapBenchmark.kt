@@ -23,38 +23,22 @@ import kotlinx.benchmark.Scope
 import kotlinx.benchmark.State
 
 @State(Scope.Benchmark)
-open class CircularArrayBenchmark {
-    private val source = Array(10_000) { "value $it" }
+open class SimpleArrayMapBenchmark {
+    private val source = List(10_000) { "key $it" to "value $it" }.toMap()
 
     @Benchmark
-    open fun addFromHeadAndPopFromTail() {
-        val array = CircularArray<String>(8)
-        for (element in source) {
-            array.addFirst(element)
+    open fun addAllThenRemoveIndividually() {
+        val map = SimpleArrayMap<String, String>(source.size)
+        for (entry in source) {
+            map.put(entry.key, entry.value)
         }
 
-        assertEquals(source.count(), array.size())
+        assertEquals(source.size, map.size())
 
-        for (i in source.indices) {
-            array.popLast()
+        for (key in source.keys) {
+            map.remove(key)
         }
 
-        assertTrue(array.isEmpty())
-    }
-
-    @Benchmark
-    open fun addFromTailAndPopFromHead() {
-        val array = CircularArray<String>(8)
-        for (element in source) {
-            array.addLast(element)
-        }
-
-        assertEquals(source.count(), array.size())
-
-        repeat(source.size) {
-            array.popFirst()
-        }
-
-        assertTrue(array.isEmpty())
+        assertTrue(map.isEmpty())
     }
 }
