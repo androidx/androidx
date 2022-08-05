@@ -170,7 +170,6 @@ internal class InteractiveWatchFaceImpl(
         ) {
             if (instanceId != newInstanceId) {
                 engine?.updateInstance(newInstanceId)
-                InteractiveInstanceManager.renameInstance(instanceId, newInstanceId)
                 instanceId = newInstanceId
             }
             engine?.setUserStyle(userStyle)

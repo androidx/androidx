@@ -1198,7 +1198,7 @@ public abstract class WatchFaceService : WallpaperService() {
             private set
 
         private var initialUserStyle: UserStyleWireFormat? = null
-        private lateinit var interactiveInstanceId: String
+        internal lateinit var interactiveInstanceId: String
 
         private var createdBy = "?"
 
@@ -1487,6 +1487,8 @@ public abstract class WatchFaceService : WallpaperService() {
                 this.setComplicationDataList(it)
             }
 
+            InteractiveInstanceManager.renameInstance(interactiveInstanceId, newInstanceId)
+            interactiveInstanceId = newInstanceId
             mutableWatchState.watchFaceInstanceId.value = sanitizeWatchFaceId(newInstanceId)
         }
 
