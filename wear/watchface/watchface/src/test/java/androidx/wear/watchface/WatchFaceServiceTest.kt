@@ -5472,6 +5472,46 @@ public class WatchFaceServiceTest {
         assertThat(engineWrapper.pendingInitialComplications).containsExactly(left2, right)
     }
 
+    @Test
+    public fun updateInstance() {
+        initWallpaperInteractiveWatchFaceInstance(
+            WatchFaceType.ANALOG,
+            listOf(leftComplication, rightComplication),
+            UserStyleSchema(emptyList()),
+            WallpaperInteractiveWatchFaceInstanceParams(
+                INTERACTIVE_INSTANCE_ID,
+                DeviceConfig(
+                    false,
+                    false,
+                    0,
+                    0
+                ),
+                WatchUiState(false, 0),
+                UserStyle(emptyMap()).toWireFormat(),
+                null
+            )
+        )
+        assertThat(engineWrapper.interactiveInstanceId).isEqualTo(INTERACTIVE_INSTANCE_ID)
+        assertThat(InteractiveInstanceManager.getAndRetainInstance(INTERACTIVE_INSTANCE_ID))
+            .isNotNull()
+
+        // Decrement the refcount we just incremented.
+        InteractiveInstanceManager.releaseInstance(INTERACTIVE_INSTANCE_ID)
+
+        val NEW_ID = SYSTEM_SUPPORTS_CONSISTENT_IDS_PREFIX + "New"
+        runBlocking {
+            engineWrapper.updateInstance(NEW_ID)
+        }
+
+        assertThat(engineWrapper.interactiveInstanceId).isEqualTo(NEW_ID)
+        assertThat(InteractiveInstanceManager.getAndRetainInstance(INTERACTIVE_INSTANCE_ID))
+            .isNull()
+        assertThat(InteractiveInstanceManager.getAndRetainInstance(NEW_ID)).isNotNull()
+
+        // Decrement the refcount we just incremented.
+        InteractiveInstanceManager.releaseInstance(NEW_ID)
+    }
+
     private fun getLeftShortTextComplicationDataText(): CharSequence {
         val complication = complicationSlotsManager[
             LEFT_COMPLICATION_ID
