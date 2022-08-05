@@ -211,6 +211,52 @@ class NavDestinationAndroidTest {
     }
 
     @Test
+    fun matchDeepLinkBestMatchNullableQueryParam() {
+        val destination = NoOpNavigator().createDestination()
+
+        destination.addArgument("tab", stringArgument())
+        destination.addDeepLink("www.example.com/users/anonymous?tab={tab}")
+
+        // optional query param, meaning the match/requested URI does not have to contain both args
+        destination.addArgument("tab2", nullableStringArgument())
+        destination.addDeepLink("www.example.com/users/anonymous?tab={tab}&tab2={tab2}")
+
+        val match = destination.matchDeepLink(
+            Uri.parse("https://www.example.com/users/anonymous?tab=favorite")
+        )
+
+        assertWithMessage("Deep link should match")
+            .that(match)
+            .isNotNull()
+        assertWithMessage("Deep link should pick the exact match with query")
+            .that(match?.matchingArgs?.size())
+            .isEqualTo(1)
+        assertWithMessage("Deep link should extract tab argument correctly")
+            .that(match?.matchingArgs?.getString("tab"))
+            .isEqualTo("favorite")
+    }
+
+    @Test
+    fun matchDeepLinkBestMatchRequiredQueryParam() {
+        val destination = NoOpNavigator().createDestination()
+
+        destination.addArgument("tab", stringArgument())
+        destination.addDeepLink("www.example.com/users/anonymous?tab={tab}")
+
+        destination.addArgument("tab2", stringArgument())
+        destination.addDeepLink("www.example.com/users/anonymous?tab={tab}&tab2={tab2}")
+
+        // both query params are required, this URI with only one arg should not match at all
+        val match = destination.matchDeepLink(
+            Uri.parse("https://www.example.com/users/anonymous?tab=favorite")
+        )
+
+        assertWithMessage("Deep link should not match")
+            .that(match)
+            .isNull()
+    }
+
+    @Test
     fun matchDotStar() {
         val destination = NoOpNavigator().createDestination()
 
