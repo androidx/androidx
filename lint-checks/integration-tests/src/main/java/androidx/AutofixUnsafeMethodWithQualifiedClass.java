@@ -16,22 +16,25 @@
 
 package androidx;
 
-import android.view.SearchEvent;
-import android.view.Window;
+import android.print.PrintAttributes;
 
 import androidx.annotation.RequiresApi;
 
 /**
- * Test class containing unsafe method reference that uses a value defined with a qualified class.
+ * Test class containing unsafe method reference that uses qualified class names.
  */
 @SuppressWarnings("unused")
 public class AutofixUnsafeMethodWithQualifiedClass {
     /**
-     * This method uses Window.Callback (not Callback), so the fix should also use Window.Callback.
+     * This method call:
+     * - has a receiver of type PrintAttributes.Builder
+     * - takes param of type PrintAttributes.MediaSize
+     * - has return type PrintAttributes.Builder
+     * In the generated fix, all three types should appear as qualified class names.
      */
-    @RequiresApi(23)
-    public boolean unsafeReferenceOnQualifiedClass(Window.Callback callback,
-            SearchEvent searchEvent) {
-        return callback.onSearchRequested(searchEvent);
+    @RequiresApi(19)
+    public void unsafeReferenceWithQualifiedClasses(PrintAttributes.Builder builder,
+            PrintAttributes.MediaSize mediaSize) {
+        builder.setMediaSize(mediaSize);
     }
 }
