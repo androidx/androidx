@@ -409,6 +409,15 @@ Java_androidx_camera_core_processing_OpenGlRenderer_initContext(
         fragmentShaderSrc = env->GetStringUTFChars(jcustomFragmentShader, nullptr);
         __android_log_print(ANDROID_LOG_DEBUG, LOG_TAG, "Custom fragment shader = %s",
                             fragmentShaderSrc);
+        // A simple check to workaround custom shader doesn't contain required variable.
+        // See b/241193761.
+        if (!strstr(fragmentShaderSrc, VAR_NAMES[0].c_str())) {
+            ThrowException(env, "java/lang/IllegalArgumentException", std::string(
+                    "Missing required variable '" + VAR_NAMES[0] +
+                    "' in the custom fragment shader").c_str());
+            env->ReleaseStringUTFChars(jcustomFragmentShader, fragmentShaderSrc);
+            return 0;
+        }
     } else {
         fragmentShaderSrc = FRAGMENT_SHADER_SRC.c_str();
     }
