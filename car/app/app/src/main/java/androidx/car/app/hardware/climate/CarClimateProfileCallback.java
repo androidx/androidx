@@ -20,9 +20,6 @@ import androidx.annotation.NonNull;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.RequiresCarApi;
-import androidx.car.app.hardware.common.CarZone;
-
-import java.util.List;
 
 /**
  * A callback for the car climate profiles returned from the car hardware, for example, Fan speed,
@@ -40,10 +37,10 @@ public interface CarClimateProfileCallback {
      * power independently in multiple zones. Returns an empty list if the car can not support the
      * feature.
      *
-     * @param supportedCarZones a list of CarZones which are controlled together by the
-     *                          car climate system
+     * @param hvacPowerProfile an object of {@code HvacPowerProfile} class containing
+     *                         information about the feature's supported zones
      */
-    default void onHvacPowerProfileAvailable(@NonNull List<CarZone> supportedCarZones) {
+    default void onHvacPowerProfileAvailable(@NonNull HvacPowerProfile hvacPowerProfile) {
     }
 
     /**
@@ -54,10 +51,10 @@ public interface CarClimateProfileCallback {
      * AC mode independently in multiple zones. Returns an empty list if the car can not support the
      * feature.
      *
-     * @param supportedCarZones a list of CarZones which are controlled together by the
-     *                          car climate system
+     * @param hvacAcProfile an object of {@code HvacAcProfile} class containing information
+     *                      about the feature's supported zones
      */
-    default void onHvacAcProfileAvailable(@NonNull List<CarZone> supportedCarZones) {
+    default void onHvacAcProfileAvailable(@NonNull HvacAcProfile hvacAcProfile) {
     }
 
     /**
@@ -68,115 +65,96 @@ public interface CarClimateProfileCallback {
      * MAX AC mode independently in multiple zones. Returns an empty list if the car can not
      * support the feature.
      *
-     * @param supportedCarZones a list of CarZones which are controlled together by the
-     *                          car climate system
+     * @param hvacMaxAcModeProfile an object of {@code HvacMaxAcModeProfile} class containing
+     *                             information about the feature's supported zones
      */
-    default void onHvacMaxAcModeProfileAvailable(@NonNull List<CarZone> supportedCarZones) {
+    default void onHvacMaxAcModeProfileAvailable(
+            @NonNull HvacMaxAcModeProfile hvacMaxAcModeProfile) {
     }
 
     /**
      * Notifies that the profile information for
      * {@link ClimateProfileRequest#FEATURE_CABIN_TEMPERATURE} is available.
      *
-     * <p>Applications will get multiple callbacks if the car climate system can set different
-     * temperatures independently for different groups of zones. Returns empty lists if the car can
-     * not support the feature. The temperature units can be Celsius or Fahrenheit.
-     *
-     * @param isTemperatureUnitInMetricSystem    a boolean value to determine unit type for
-     *                                           temperatures where value false represents
-     *                                           Fahrenheit and true represents Celsius(metric
-     *                                           system)
-     * @param supportedTemperatures              all supported temperatures in Celsius or Fahrenheit
-     *                                           or both for the car zones
-     * @param supportedCarZones                  a list of CarZones which are controlled
-     *                                           together by the car climate system
+     * <p>Applications will get a single callback containing a list of different temperatures in
+     * Celsius and Fahrenheit for different groups of zones. Returns empty lists if the car can
+     * not support the feature.
+     *s
+     * @param cabinTemperatureProfile   an object of {@code CabinTemperatureProfile} class
+     *                                  containing information about the feature's supported values
      */
     default void onCabinTemperatureProfileAvailable(
-            boolean isTemperatureUnitInMetricSystem,
-            @NonNull List<Float> supportedTemperatures,
-            @NonNull List<CarZone> supportedCarZones) {
+            @NonNull CabinTemperatureProfile cabinTemperatureProfile) {
     }
 
     /**
      * Notifies that the profile information for
      * {@link ClimateProfileRequest#FEATURE_FAN_SPEED} is available.
      *
-     * <p>Applications will get multiple callbacks if the car climate system can set different
-     * fan speed levels for different groups of zones. Returns empty lists if the car can not
-     * support the feature.
+     * <p>Applications will get a single callback containing a list of different fan speed levels
+     * for different groups of zones. Returns empty lists if the car cannot support the feature.
      *
-     * @param supportedFanSpeedLevels   a list of {@code Integer}s indicates supported fan speed
-     *                                  levels in the car
-     * @param supportedCarZones         a list of CarZones which are controlled together
-     *                                  by the car climate system
+     * @param fanSpeedLevelProfile   an object of {@code FanSpeedLevelProfile} class
+     *                               containing information about the feature's supported values
      */
-    default void onFanSpeedLevelProfileAvailable(@NonNull List<Integer> supportedFanSpeedLevels,
-            @NonNull List<CarZone> supportedCarZones) {
+    default void onFanSpeedLevelProfileAvailable(
+            @NonNull FanSpeedLevelProfile fanSpeedLevelProfile) {
     }
 
     /**
      * Notifies that the profile information for
      * {@link ClimateProfileRequest#FEATURE_FAN_DIRECTION} is available.
      *
-     * <p>Applications will get multiple callbacks if the car climate system can set different
-     * fan directions for different groups of zones. Returns empty lists if the car can not
-     * support the feature.
+     * <p>Applications will get a single callback containing a list of different fan directions
+     * for different groups of zones. Returns empty lists if the car cannot support the feature.
      *
-     * @param supportedFanDirections    a list of {@code Integer}s indicates supported fan
-     *                                  directions in the car
-     * @param supportedCarZones         a list of CarZones which are controlled together
-     *                                  by the car climate system
+     * @param fanDirectionProfile    an object of {@code FanDirectionProfile} class containing
+     *                               information about the feature's supported values
      */
-    default void onFanDirectionProfileAvailable(@NonNull List<Integer> supportedFanDirections,
-            @NonNull List<CarZone> supportedCarZones) {
+    default void onFanDirectionProfileAvailable(@NonNull FanDirectionProfile fanDirectionProfile) {
     }
 
     /**
      * Notifies that the profile information for
      * {@link ClimateProfileRequest#FEATURE_SEAT_TEMPERATURE_LEVEL} is available.
      *
-     * <p>Applications will get multiple callbacks if the car climate system can set different
-     * seat temperature levels for different groups of zones. Returns empty lists if the car can
-     * not support the feature.
+     * <p>Applications will get a single callback containing a list of different seat temperature
+     * levels for different groups of zones. Returns empty lists if the car cannot support the
+     * feature.
      * <p>The return list can have negative and positive values. Negative values indicate
      * cooling level. Positive values indicates heating level.
      *
-     * @param supportedSeatTemperatureLevels    a list of {@code Integer}s indicates supported
-     *                                          seat teamperature levels in the car
-     * @param supportedCarZones                 a list of CarZones which are controlled
-     *                                          together by the car climate system
+     * @param seatTemperatureProfile    an object of {@code SeatTemperatureProfile} class
+     *                                  containing information about the feature's supported values
      */
     default void onSeatTemperatureLevelProfileAvailable(
-            @NonNull List<Integer> supportedSeatTemperatureLevels,
-            @NonNull List<CarZone> supportedCarZones) {
+            @NonNull SeatTemperatureProfile seatTemperatureProfile) {
     }
 
     /**
      * Notifies that the profile information for
      * {@link ClimateProfileRequest#FEATURE_SEAT_VENTILATION_LEVEL} is available.
      *
-     * <p>Applications will get multiple callbacks if the car climate system can set different
-     * seat ventilation levels for different groups of zones. Returns empty lists if the car can
-     * not support the feature.
+     * <p>Applications will get a single callback containing a list of different seat ventilation
+     * levels for different groups of zones. Returns empty lists if the car cannot support the
+     * feature.
      *
-     * @param supportedSeatVentilationLevels    a list of {@code Integer}s indicates supported
-     *                                          seat ventilation levels in the car
-     * @param supportedCarZones                 a list of CarZones which are controlled
-     *                                          together by the car climate system
+     * @param seatVentilationProfile   an object of {@code SeatVentilationProfile} class
+     *                                 containing information about the feature's supported values
      */
     default void onSeatVentilationLevelProfileAvailable(
-            @NonNull List<Integer> supportedSeatVentilationLevels,
-            @NonNull List<CarZone> supportedCarZones) {
+            @NonNull SeatVentilationProfile seatVentilationProfile) {
     }
 
     /**
      * Notifies that the profile information for
      * {@link ClimateProfileRequest#FEATURE_STEERING_WHEEL_HEAT} is available.
      *
-     * @param supportedCarZones should only contains CarZone#CAR_ZONE_GLOBAL or an empty
-     *                         list if the feature is not supported in the car
+     * @param steeringWheelHeatProfile an object of {@code SteeringWheelHeatProfile} class
+     *                                 containing information about the feature's supported values
      */
-    default void onSteeringWheelHeatProfileAvailable(@NonNull List<CarZone> supportedCarZones) {
+    default void onSteeringWheelHeatProfileAvailable(
+            @NonNull SteeringWheelHeatProfile steeringWheelHeatProfile) {
     }
 
     /**
@@ -187,10 +165,11 @@ public interface CarClimateProfileCallback {
      * recirculation independently in multiple zones. Returns an empty list if the car can not
      * support the feature.
      *
-     * @param supportedCarZones a list of CarZones which are controlled together by the
-     *                          car climate system
+     * @param hvacRecirculationProfile an object of {@code HvacRecirculationProfile} class
+     *                                 containing information about the feature's supported zones
      */
-    default void onHvacRecirculationProfileAvailable(@NonNull List<CarZone> supportedCarZones) {
+    default void onHvacRecirculationProfileAvailable(
+            @NonNull HvacRecirculationProfile hvacRecirculationProfile) {
     }
 
     /**
@@ -202,11 +181,12 @@ public interface CarClimateProfileCallback {
      * AUTO recirculation independently in multiple zones. Returns an empty list if the car can not
      * support the feature.
      *
-     * @param supportedCarZones a list of CarZones which are controlled together by the
-     *                          car climate system
+     * @param hvacAutoRecirculationProfile an object of {@code HvacAutoRecirculationProfile}
+     *                                    class containing information about the feature's
+     *                                     supported zones
      */
     default void onHvacAutoRecirculationProfileAvailable(
-            @NonNull List<CarZone> supportedCarZones) {
+            @NonNull HvacAutoRecirculationProfile hvacAutoRecirculationProfile) {
     }
 
     /**
@@ -217,10 +197,10 @@ public interface CarClimateProfileCallback {
      * AUTO mode independently in multiple zones. Returns an empty list if the car can not
      * support the feature.
      *
-     * @param supportedCarZones a list of CarZones which are controlled together by the
-     *                          car climate system
+     * @param hvacAutoModeProfile an object of {@code HvacAutoModeProfile} class containing
+     *                            information about the feature's supported zones
      */
-    default void onHvacAutoModeProfileAvailable(@NonNull List<CarZone> supportedCarZones) {
+    default void onHvacAutoModeProfileAvailable(@NonNull HvacAutoModeProfile hvacAutoModeProfile) {
     }
 
     /**
@@ -231,10 +211,10 @@ public interface CarClimateProfileCallback {
      * DUAL mode independently in multiple zones. Returns an empty list if the car can not
      * support the feature.
      *
-     * @param supportedCarZones a list of CarZones which are controlled together by the
-     *                          car climate system
+     * @param hvacDualModeProfile an object of {@code HvacDualModeProfile} class containing
+     *                            information about the feature's supported zones
      */
-    default void onHvacDualModeProfileAvailable(@NonNull List<CarZone> supportedCarZones) {
+    default void onHvacDualModeProfileAvailable(@NonNull HvacDualModeProfile hvacDualModeProfile) {
     }
 
     /**
@@ -247,10 +227,10 @@ public interface CarClimateProfileCallback {
      * <p>A CarZone with CarZone#CAR_ZONE_ROW_FIRST indicates the front window.
      * The rear window's zone will have row value as CarZone#CAR_ZONE_ROW_EXCLUDE_FIRST.
      *
-     * @param supportedCarZones a list of CarZones which are controlled together by the
-     *                          car climate system
+     * @param defrosterProfile an object of {@code DefrosterProfile} class containing information
+     *                        about the feature's supported zones
      */
-    default void onDefrosterProfileAvailable(@NonNull List<CarZone> supportedCarZones) {
+    default void onDefrosterProfileAvailable(@NonNull DefrosterProfile defrosterProfile) {
     }
 
     /**
@@ -263,10 +243,10 @@ public interface CarClimateProfileCallback {
      * <p>A CarZone with CarZone#CAR_ZONE_ROW_FIRST indicates the front window.
      * The rear window's zone will have row value as CarZone#CAR_ZONE_ROW_EXCLUDE_FIRST.
      *
-     * @param supportedCarZones a list of CarZones which are controlled together by the
-     *                          car climate system
+     * @param maxDefrosterProfile an object of {@code MaxDefrosterProfile} class containing
+     *                            information about the feature's supported zones
      */
-    default void onMaxDefrosterProfileAvailable(@NonNull List<CarZone> supportedCarZones) {
+    default void onMaxDefrosterProfileAvailable(@NonNull MaxDefrosterProfile maxDefrosterProfile) {
     }
 
     /**
@@ -279,10 +259,11 @@ public interface CarClimateProfileCallback {
      * <p>A CarZone with CarZone#CAR_ZONE_ROW_FIRST indicates the front window.
      * The rear window's zone will have row value as CarZone#CAR_ZONE_ROW_EXCLUDE_FIRST.
      *
-     * @param supportedCarZones a list of CarZones which are controlled together by the
-     *                          car climate system
+     * @param electricDefrosterProfile an object of {@code ElectricDefrosterProfile} class
+     *                                 containing information about the feature's supported zones
      */
-    default void onElectricDefrosterProfileAvailable(@NonNull List<CarZone> supportedCarZones) {
+    default void onElectricDefrosterProfileAvailable(
+            @NonNull ElectricDefrosterProfile electricDefrosterProfile) {
     }
 
     /**
@@ -293,11 +274,10 @@ public interface CarClimateProfileCallback {
      * CarZone seatsGroupedZone} and a {@code List<CarZone>} which contains all individual seats in
      * this{@code seatsGroupedZone}.
      *
-     * @param seatGroupedZone   a group of multiple seats represented together as a CarZone.
-     * @param supportedCarZones a list of CarZones which indicates individual seats in
-     *                          the {@code seatsGroupedZone}
+     * @param carZoneMappingInfoProfile   an object of {@code CarZoneMappingInfoProfile} class
+     *                                    containing information about the feature's supported zones
      */
-    default void onCarZoneMappingInfoProfileAvailable(@NonNull CarZone seatGroupedZone,
-            @NonNull List<CarZone> supportedCarZones) {
+    default void onCarZoneMappingInfoProfileAvailable(
+            @NonNull CarZoneMappingInfoProfile carZoneMappingInfoProfile) {
     }
 }
