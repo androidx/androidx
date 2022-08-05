@@ -28,6 +28,7 @@ class TestUtil {
 
         val PUBLISHER = Publisher("ph1", "publisher 1")
         val PUBLISHER2 = Publisher("ph2", "publisher 2")
+        val PUBLISHER3 = Publisher("ph3", "publisher 3")
 
         val AUTHOR_1 = Author("a1", "author 1")
         val AUTHOR_2 = Author("a2", "author 2")
