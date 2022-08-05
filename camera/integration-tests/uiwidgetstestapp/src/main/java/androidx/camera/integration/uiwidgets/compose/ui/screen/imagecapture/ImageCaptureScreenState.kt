@@ -295,11 +295,10 @@ class ImageCaptureScreenState(
     }
 
     // Method to release resources when the Screen is removed from the Composition
-    // Currently will not release the resources because of potential bug in MLKitAnalyzer
-    // See b/241047378
+    // We will release the ImageAnalyzer from ImageAnalysis use case and close the analyzer
     fun releaseResources() {
-//        imageAnalysis.clearAnalyzer()
-//        barcodeScanner.close()
+        imageAnalysis.clearAnalyzer()
+        barcodeScanner.close()
     }
 
     private fun getValidInitialFlashMode(flashMode: Int): Int {
