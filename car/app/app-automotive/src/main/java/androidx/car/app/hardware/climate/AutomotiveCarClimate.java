@@ -70,9 +70,12 @@ import com.google.common.collect.ImmutableBiMap;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 
@@ -89,7 +92,7 @@ public class AutomotiveCarClimate implements CarClimate {
     static final float DEFAULT_SAMPLE_RATE_HZ = 5f;
     static ImmutableBiMap<Integer, Integer> sFeatureToPropertyId =
             new ImmutableBiMap.Builder<Integer,
-            Integer>()
+                    Integer>()
                     .put(FEATURE_HVAC_POWER, HVAC_POWER_ON)
                     .put(FEATURE_HVAC_AC, HVAC_AC_ON)
                     .put(FEATURE_HVAC_MAX_AC, HVAC_MAX_AC_ON)
@@ -105,7 +108,7 @@ public class AutomotiveCarClimate implements CarClimate {
                     .put(FEATURE_HVAC_DUAL_MODE, HVAC_DUAL_ON)
                     .put(FEATURE_HVAC_DEFROSTER, HVAC_DEFROSTER)
                     .put(FEATURE_HVAC_MAX_DEFROSTER, HVAC_MAX_DEFROST_ON)
-            .buildOrThrow();
+                    .buildOrThrow();
 
     private final Map<CarClimateStateCallback, OnCarPropertyResponseListener> mListenerMap =
             new HashMap<>();
@@ -292,7 +295,7 @@ public class AutomotiveCarClimate implements CarClimate {
                 }
 
                 List<CarZone> carZones = featuresWithResponseCarZones.getOrDefault(feature,
-                            new ArrayList<>());
+                        new ArrayList<>());
                 carZones.addAll(carPropertyResponse.getCarZones());
                 featuresWithResponseCarZones.put(feature, carZones);
             }
@@ -300,14 +303,14 @@ public class AutomotiveCarClimate implements CarClimate {
             // Populate callback with all the car zones per feature.
             for (Map.Entry<Integer, List<CarZone>> entry :
                     featuresWithResponseCarZones.entrySet()) {
+                // TODO(b/237548439): Remove tempCarZoneSet once the pipeline is ready for the real
+                // values.
+                Set<CarZone> tempCarZoneSet = new HashSet<>(entry.getValue());
                 switch (entry.getKey()) {
                     case FEATURE_HVAC_POWER:
                         onCarClimateProfileCallback.onHvacPowerProfileAvailable(
-                                entry.getValue());
-                        break;
-                    case FEATURE_HVAC_AC:
-                        onCarClimateProfileCallback.onHvacAcProfileAvailable(
-                                entry.getValue());
+                                new HvacPowerProfile.Builder(
+                                        Collections.singletonList(tempCarZoneSet)).build());
                         break;
                     default:
                         Log.e(LogTags.TAG_CAR_HARDWARE,
