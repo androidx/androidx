@@ -72,6 +72,7 @@ sealed class CompilationMode {
     internal fun resetAndCompile(
         packageName: String,
         usePackageReset: () -> Boolean = Shell::isSessionRooted,
+        killProcessBlock: () -> Unit,
         warmupBlock: () -> Unit
     ) {
         if (Build.VERSION.SDK_INT >= 24) {
@@ -105,8 +106,8 @@ sealed class CompilationMode {
                     }
                 }
                 // Write skip file to stop profile installer from interfering with the benchmark
-                writeProfileInstallerSkipFile(packageName)
-                compileImpl(packageName, warmupBlock)
+                writeProfileInstallerSkipFile(packageName, killProcessBlock = killProcessBlock)
+                compileImpl(packageName, killProcessBlock, warmupBlock)
             } else {
                 Log.d(TAG, "Compilation is disabled, skipping compilation of $packageName")
             }
@@ -157,7 +158,7 @@ sealed class CompilationMode {
      * Writes a skip file via a [ProfileInstallReceiver] broadcast, so profile installation
      * does not interfere with benchmarks.
      */
-    private fun writeProfileInstallerSkipFile(packageName: String) {
+    private fun writeProfileInstallerSkipFile(packageName: String, killProcessBlock: () -> Unit) {
         val result = profileInstallerSkipFileOperation(packageName, "WRITE_SKIP_FILE")
         if (result != null) {
             Log.w(
@@ -169,7 +170,7 @@ sealed class CompilationMode {
             )
         }
         Log.d(TAG, "Killing process $packageName")
-        Shell.executeCommand("am force-stop $packageName")
+        killProcessBlock()
     }
 
     /**
@@ -228,7 +229,11 @@ sealed class CompilationMode {
     }
 
     @RequiresApi(24)
-    internal abstract fun compileImpl(packageName: String, warmupBlock: () -> Unit)
+    internal abstract fun compileImpl(
+        packageName: String,
+        killProcessBlock: () -> Unit,
+        warmupBlock: () -> Unit
+    )
 
     @RequiresApi(24)
     internal abstract fun shouldReset(): Boolean
@@ -245,7 +250,11 @@ sealed class CompilationMode {
     class None : CompilationMode() {
         override fun toString(): String = "None"
 
-        override fun compileImpl(packageName: String, warmupBlock: () -> Unit) {
+        override fun compileImpl(
+            packageName: String,
+            killProcessBlock: () -> Unit,
+            warmupBlock: () -> Unit
+        ) {
             // nothing to do!
         }
 
@@ -262,7 +271,11 @@ sealed class CompilationMode {
     class Ignore : CompilationMode() {
         override fun toString(): String = "Ignore"
 
-        override fun compileImpl(packageName: String, warmupBlock: () -> Unit) {
+        override fun compileImpl(
+            packageName: String,
+            killProcessBlock: () -> Unit,
+            warmupBlock: () -> Unit
+        ) {
             // Do nothing.
         }
 
@@ -381,14 +394,18 @@ sealed class CompilationMode {
             }
         }
 
-        override fun compileImpl(packageName: String, warmupBlock: () -> Unit) {
+        override fun compileImpl(
+            packageName: String,
+            killProcessBlock: () -> Unit,
+            warmupBlock: () -> Unit
+        ) {
             if (baselineProfileMode != BaselineProfileMode.Disable) {
                 // Ignores the presence of a skip file.
                 val installErrorString = broadcastBaselineProfileInstall(packageName)
                 if (installErrorString == null) {
                     // baseline profile install success, kill process before compiling
                     Log.d(TAG, "Killing process $packageName")
-                    Shell.executeCommand("am force-stop $packageName")
+                    killProcessBlock()
                     cmdPackageCompile(packageName, "speed-profile")
                 } else {
                     if (baselineProfileMode == BaselineProfileMode.Require) {
@@ -430,7 +447,11 @@ sealed class CompilationMode {
     class Full : CompilationMode() {
         override fun toString(): String = "Full"
 
-        override fun compileImpl(packageName: String, warmupBlock: () -> Unit) {
+        override fun compileImpl(
+            packageName: String,
+            killProcessBlock: () -> Unit,
+            warmupBlock: () -> Unit
+        ) {
             if (Build.VERSION.SDK_INT >= 24) {
                 cmdPackageCompile(packageName, "speed")
             }
@@ -454,7 +475,11 @@ sealed class CompilationMode {
     object Interpreted : CompilationMode() {
         override fun toString(): String = "Interpreted"
 
-        override fun compileImpl(packageName: String, warmupBlock: () -> Unit) {
+        override fun compileImpl(
+            packageName: String,
+            killProcessBlock: () -> Unit,
+            warmupBlock: () -> Unit
+        ) {
             // Nothing to do - handled externally
         }
 
