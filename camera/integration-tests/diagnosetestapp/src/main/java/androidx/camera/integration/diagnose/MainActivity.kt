@@ -144,12 +144,19 @@ class MainActivity : AppCompatActivity() {
         diagnoseBtn.setOnClickListener {
             lifecycleScope.launch {
                 try {
-                    val tempFile = withContext(diagnosisDispatcher) {
+                    val reportFile = withContext(diagnosisDispatcher) {
+                        // TODO: create functionality for adding diagnosis task and setting is aggregated
+                        val taskList = mutableListOf<DiagnosisTask>()
+                        val isAggregated = true
                         Log.i(TAG, "dispatcher: ${Thread.currentThread().name}")
-                        diagnosis.collectDeviceInfo(baseContext)
+                        diagnosis.diagnose(baseContext, taskList, cameraController, isAggregated)
                     }
-                    Log.d(TAG, "file at ${tempFile.path}")
-                    val msg = "Successfully collected device info"
+                    val msg: String = if (reportFile != null) {
+                        Log.d(TAG, "file at ${reportFile.path}")
+                        "Successfully collected device info"
+                    } else {
+                        "Diagnosis failed: No file"
+                    }
                     Toast.makeText(baseContext, msg, Toast.LENGTH_SHORT).show()
                 } catch (e: IOException) {
                     val msg = "Failed to collect information"
