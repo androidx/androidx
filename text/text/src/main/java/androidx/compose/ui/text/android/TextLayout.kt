@@ -56,6 +56,8 @@ import androidx.compose.ui.text.android.LayoutCompat.TextDirection
 import androidx.compose.ui.text.android.LayoutCompat.TextLayoutAlignment
 import androidx.compose.ui.text.android.style.BaselineShiftSpan
 import androidx.compose.ui.text.android.style.LineHeightStyleSpan
+import androidx.compose.ui.text.android.style.getEllipsizedLeftPadding
+import androidx.compose.ui.text.android.style.getEllipsizedRightPadding
 import kotlin.math.abs
 import kotlin.math.ceil
 import kotlin.math.max
@@ -159,6 +161,24 @@ class TextLayout constructor(
      */
     @VisibleForTesting
     internal val bottomPadding: Int
+
+    /**
+     * When letter spacing, align and ellipsize applied to text, the ellipsized line is indented
+     * wrong. For example for an LTR text, the last line is indented in a way where the beginning
+     * of the line is less than 0 and the text is cut at the beginning.
+     *
+     * This attribute is used to fix the line left pixel positions accordingly.
+     */
+    private val leftPadding: Float
+
+    /**
+     * When letter spacing, align and ellipsize applied to text, the ellipsized line is indented
+     * wrong. For example for an RTL text, the last line is indented in a way where the beginning
+     * of the line is more than layout width and the text is cut at the beginning.
+     *
+     * This attribute is used to fix the line right pixel positions accordingly.
+     */
+    private val rightPadding: Float
 
     /**
      * When true the wrapped layout that was created is a BoringLayout.
@@ -284,6 +304,9 @@ class TextLayout constructor(
         val lastLineMetricsPair = getLastLineMetrics(textPaint, frameworkTextDir, lineHeightSpans)
         lastLineFontMetrics = lastLineMetricsPair.first
         lastLineExtra = lastLineMetricsPair.second
+
+        leftPadding = layout.getEllipsizedLeftPadding(lineCount - 1)
+        rightPadding = layout.getEllipsizedRightPadding(lineCount - 1)
     }
 
     private val layoutHelper by lazy(LazyThreadSafetyMode.NONE) { LayoutHelper(layout) }
@@ -298,12 +321,22 @@ class TextLayout constructor(
             layout.height
         } + topPadding + bottomPadding + lastLineExtra
 
-    fun getLineLeft(lineIndex: Int): Float = layout.getLineLeft(lineIndex)
+    private fun getHorizontalPadding(line: Int): Float {
+        return if (line == lineCount - 1) {
+            leftPadding + rightPadding
+        } else {
+            0f
+        }
+    }
+
+    fun getLineLeft(lineIndex: Int): Float = layout.getLineLeft(lineIndex) +
+        if (lineIndex == lineCount - 1) leftPadding else 0f
 
     /**
      * Return the horizontal leftmost position of the line in pixels.
      */
-    fun getLineRight(lineIndex: Int): Float = layout.getLineRight(lineIndex)
+    fun getLineRight(lineIndex: Int): Float = layout.getLineRight(lineIndex) +
+        if (lineIndex == lineCount - 1) rightPadding else 0f
 
     /**
      * Return the vertical position of the top of the line in pixels. If the line is equal to the
@@ -404,7 +437,7 @@ class TextLayout constructor(
             layout.getLineStart(lineIndex) + layout.getEllipsisStart(lineIndex)
         }
 
-    fun isLineEllipsized(lineIndex: Int) = layout.getEllipsisStart(lineIndex) != 0
+    fun isLineEllipsized(lineIndex: Int) = layout.isLineEllipsized(lineIndex)
 
     fun getLineEllipsisOffset(lineIndex: Int): Int = layout.getEllipsisStart(lineIndex)
 
@@ -412,15 +445,85 @@ class TextLayout constructor(
 
     fun getLineForVertical(vertical: Int): Int = layout.getLineForVertical(topPadding + vertical)
 
-    fun getOffsetForHorizontal(line: Int, horizontal: Float): Int =
-        layout.getOffsetForHorizontal(line, horizontal)
+    fun getOffsetForHorizontal(line: Int, horizontal: Float): Int {
+        return layout.getOffsetForHorizontal(line, horizontal + -1 * getHorizontalPadding(line))
+    }
 
-    fun getPrimaryHorizontal(offset: Int, upstream: Boolean = false): Float =
-        layoutHelper.getHorizontalPosition(offset, usePrimaryDirection = true, upstream = upstream)
+    /**
+     * Returns horizontal position for an offset from the drawing origin of a new character would
+     * be inserted at that offset.
+     *
+     * *primary* means that the inserting character's direction will be resolved to the
+     * *same* direction to the paragraph direction. For example, the insertion position for an LTR
+     * character in an LTR paragraph or RTL character in an RTL paragraph.
+     *
+     * The location that is being queried can also be different based on line breaks. Consider the
+     * following example:
+     *
+     * <pre>
+     *    aa
+     *    bb
+     * <pre/>
+     *
+     *
+     * In the example above, if offset is the end of the first line then it is required to know if
+     * the position to be returned is the end of the first line ("aa") or the beginning of the next
+     * line ("bb").
+     *
+     * When the end of line is needed [upstream] should be set to true; when the beginning of next
+     * line is needed [upstream] should be set to false (therefore it is downstream).
+     *
+     * @param offset offset the character index
+     * @param upstream to return the end of the line for offsets that are at the end
+     * of a line. false returns the beginning of the next line
+     *
+     * @return the horizontal position of an offset from the drawing origin
+     */
+    fun getPrimaryHorizontal(offset: Int, upstream: Boolean = false): Float {
+        return layoutHelper.getHorizontalPosition(
+            offset,
+            usePrimaryDirection = true,
+            upstream = upstream
+        ) + getHorizontalPadding(getLineForOffset(offset))
+    }
 
-    fun getSecondaryHorizontal(offset: Int, upstream: Boolean = false): Float =
-        layoutHelper.getHorizontalPosition(offset, usePrimaryDirection = false, upstream = upstream)
-
+    /**
+     * Returns horizontal position for an offset from the drawing origin of a new character would
+     * be inserted at that offset.
+     *
+     * *secondary* means that the inserting character's direction will be resolved to the
+     * *opposite* direction to the paragraph direction. For example, the insertion position for an
+     * RTL character in an LTR paragraph or LTR character in an RTL paragraph.
+     *
+     * The location that is being queried can also be different based on line breaks. Consider the
+     * following example:
+     *
+     * <pre>
+     *    aa
+     *    bb
+     * <pre/>
+     *
+     *
+     * In the example above, if offset is the end of the first line then it is required to know if
+     * the position to be returned is the end of the first line ("aa") or the beginning of the next
+     * line ("bb").
+     *
+     * When the end of line is needed [upstream] should be set to true; when the beginning of next
+     * line is needed [upstream] should be set to false (therefore it is downstream).
+     *
+     * @param offset offset the character index
+     * @param upstream true to return the end of the line for offsets that are at the end
+     * of a line. false returns the beginning of the next line.
+     *
+     * @return the horizontal position of an offset from the drawing origin
+     */
+    fun getSecondaryHorizontal(offset: Int, upstream: Boolean = false): Float {
+        return layoutHelper.getHorizontalPosition(
+            offset,
+            usePrimaryDirection = false,
+            upstream = upstream
+        ) + getHorizontalPadding(getLineForOffset(offset))
+    }
     fun getLineForOffset(offset: Int): Int = layout.getLineForOffset(offset)
 
     fun isRtlCharAt(offset: Int): Boolean = layout.isRtlCharAt(offset)
@@ -871,3 +974,5 @@ private fun TextLayout.getLineHeightSpans(): Array<LineHeightStyleSpan> {
     if (lineHeightStyleSpans.isEmpty()) return emptyArray()
     return lineHeightStyleSpans
 }
+
+internal fun Layout.isLineEllipsized(lineIndex: Int) = this.getEllipsisStart(lineIndex) != 0
