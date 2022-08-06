@@ -24,7 +24,7 @@ import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 
-public class UiObject2TestSwipeActivity extends Activity {
+public class SwipeTestActivity extends Activity {
 
     private GestureDetector mGestureDetector;
 
@@ -32,7 +32,7 @@ public class UiObject2TestSwipeActivity extends Activity {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.uiobject2_testswipe_activity);
+        setContentView(R.layout.swipe_test_activity);
 
         TextView swipeRegion = findViewById(R.id.swipe_region);
 
