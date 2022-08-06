@@ -158,7 +158,7 @@ public class UiObject2Tests extends BaseTest {
     @Test
     @SdkSuppress(minSdkVersion = 24)
     public void testDrag_dest() {
-        launchTestActivity(UiObject2TestDragActivity.class);
+        launchTestActivity(DragTestActivity.class);
 
         UiObject2 dragButton = mDevice.findObject(By.res(TEST_APP, "drag_button"));
         UiObject2 dragDestination = mDevice.findObject(By.res(TEST_APP, "drag_destination"));
@@ -172,7 +172,7 @@ public class UiObject2Tests extends BaseTest {
     @Test
     @SdkSuppress(minSdkVersion = 24)
     public void testDrag_destAndSpeed() {
-        launchTestActivity(UiObject2TestDragActivity.class);
+        launchTestActivity(DragTestActivity.class);
 
         UiObject2 dragButton = mDevice.findObject(By.res(TEST_APP, "drag_button"));
         UiObject2 dragDestination = mDevice.findObject(By.res(TEST_APP, "drag_destination"));
@@ -186,7 +186,7 @@ public class UiObject2Tests extends BaseTest {
     @Test
     @SdkSuppress(minSdkVersion = 24)
     public void testDrag_destAndSpeed_throwsIllegalArgumentException() {
-        launchTestActivity(UiObject2TestDragActivity.class);
+        launchTestActivity(DragTestActivity.class);
 
         UiObject2 dragButton = mDevice.findObject(By.res(TEST_APP, "drag_button"));
         UiObject2 dragDestination = mDevice.findObject(By.res(TEST_APP, "drag_destination"));
@@ -557,7 +557,7 @@ public class UiObject2Tests extends BaseTest {
 
     @Test
     public void testSwipe() {
-        launchTestActivity(UiObject2TestSwipeActivity.class);
+        launchTestActivity(SwipeTestActivity.class);
 
         UiObject2 swipeRegion = mDevice.findObject(By.res(TEST_APP, "swipe_region"));
         swipeRegion.setGestureMargin(SCROLL_MARGIN);
@@ -577,7 +577,7 @@ public class UiObject2Tests extends BaseTest {
 
     @Test
     public void testSwipe_throwsIllegalArgumentException() {
-        launchTestActivity(UiObject2TestSwipeActivity.class);
+        launchTestActivity(SwipeTestActivity.class);
 
         UiObject2 swipeRegion = mDevice.findObject(By.res(TEST_APP, "swipe_region"));
 
