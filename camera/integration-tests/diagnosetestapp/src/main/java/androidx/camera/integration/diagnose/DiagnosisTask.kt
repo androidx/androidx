@@ -16,6 +16,7 @@
 
 package androidx.camera.integration.diagnose
 
+import android.content.Context
 import androidx.camera.view.LifecycleCameraController
 
 /**
@@ -34,6 +35,7 @@ abstract class DiagnosisTask(private val name: String) {
      */
     abstract suspend fun runDiagnosisTask(
         cameraController: LifecycleCameraController,
-        dataStore: DataStore
+        dataStore: DataStore,
+        context: Context
     )
 }

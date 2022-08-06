@@ -42,7 +42,7 @@ class Diagnosis {
         val dataStore = DataStore(context, zipFileName)
 
         tasks.forEach { task ->
-            task.runDiagnosisTask(cameraController, dataStore)
+            task.runDiagnosisTask(cameraController, dataStore, context)
             if (!isAggregated) {
                 dataStore.flushTextToTextFile("${task.getTaskName()}")
             }
