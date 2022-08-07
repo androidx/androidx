@@ -16,6 +16,7 @@
 
 package androidx.camera.integration.uiwidgets.compose.ui.screen.videocapture
 
+import android.util.Log
 import android.view.ViewGroup
 import androidx.camera.core.MeteringPoint
 import androidx.camera.core.Preview.SurfaceProvider
@@ -39,6 +40,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.sharp.FlipCameraAndroid
 import androidx.compose.material.icons.sharp.Lens
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -48,11 +50,15 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.lifecycle.Observer
+
+private const val TAG = "VideoCaptureScreen"
 
 @Composable
 fun VideoCaptureScreen(
     modifier: Modifier = Modifier,
-    state: VideoCaptureScreenState = rememberVideoCaptureScreenState()
+    state: VideoCaptureScreenState = rememberVideoCaptureScreenState(),
+    onStreamStateChange: (PreviewView.StreamState) -> Unit = {}
 ) {
     val lifecycleOwner = LocalLifecycleOwner.current
     val localContext = LocalContext.current
@@ -74,7 +80,8 @@ fun VideoCaptureScreen(
             state.captureVideo(localContext)
         },
         onSurfaceProviderReady = state::setSurfaceProvider,
-        onTouch = state::startTapToFocus
+        onTouch = state::startTapToFocus,
+        onStreamStateChange = onStreamStateChange
     )
 }
 
@@ -90,9 +97,17 @@ fun VideoCaptureScreen(
     onFlipCameraIconClicked: () -> Unit,
     onVideoCaptureIconClicked: () -> Unit,
     onSurfaceProviderReady: (SurfaceProvider) -> Unit,
-    onTouch: (MeteringPoint) -> Unit
+    onTouch: (MeteringPoint) -> Unit,
+    onStreamStateChange: (PreviewView.StreamState) -> Unit = {}
 ) {
+    val lifecycleOwner = LocalLifecycleOwner.current
     val localContext = LocalContext.current
+
+    val streamStateObserver = remember {
+        Observer<PreviewView.StreamState> { state ->
+            onStreamStateChange(state)
+        }
+    }
 
     val previewView = remember {
         PreviewView(localContext).apply {
@@ -110,6 +125,21 @@ fun VideoCaptureScreen(
 
                 return@setOnTouchListener true
             }
+        }
+    }
+
+    // Attach StreamState Observer when the screen first renders
+    DisposableEffect(key1 = Unit) {
+        Log.d(TAG, "[DisposableEffect] Detaching StreamState Observers from PreviewView")
+        previewView.previewStreamState.removeObservers(lifecycleOwner)
+
+        Log.d(TAG, "[DisposableEffect] Attaching StreamState Observer to PreviewView")
+        previewView.previewStreamState.observe(lifecycleOwner, streamStateObserver)
+
+        // Detach observer when the screen is removed from the Composition
+        onDispose {
+            Log.d(TAG, "[onDispose] Detaching current StreamState Observer from PreviewView")
+            previewView.previewStreamState.removeObservers(lifecycleOwner)
         }
     }
 
