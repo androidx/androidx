@@ -80,6 +80,20 @@ class EmittableImage : Emittable {
     var provider: ImageProvider? = null
     var contentDescription: String? = null
     var contentScale: ContentScale = ContentScale.Fit
+
+    override fun copy(): Emittable = EmittableImage().also {
+        it.modifier = modifier
+        it.provider = provider
+        it.contentDescription = contentDescription
+        it.contentScale = contentScale
+    }
+
+    override fun toString(): String = "EmittableImage(" +
+        "modifier=$modifier, " +
+        "provider=$provider, " +
+        "contentDescription=$contentDescription, " +
+        "contentScale=$contentScale" +
+        ")"
 }
 
 /**

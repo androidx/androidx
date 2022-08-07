@@ -161,6 +161,15 @@ internal class EmittableSwitch : Emittable {
     var colors: SwitchColors = SwitchDefaults.colors
     var maxLines: Int = Int.MAX_VALUE
 
+    override fun copy(): Emittable = EmittableSwitch().also {
+        it.modifier = modifier
+        it.checked = checked
+        it.text = text
+        it.style = style
+        it.colors = colors
+        it.maxLines = maxLines
+    }
+
     override fun toString(): String = "EmittableSwitch(" +
         "$text, " +
         "modifier=$modifier, " +

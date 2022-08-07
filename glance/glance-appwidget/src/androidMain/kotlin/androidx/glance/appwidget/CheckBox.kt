@@ -144,6 +144,15 @@ internal class EmittableCheckBox : Emittable {
     var colors: CheckBoxColors = CheckBoxColors()
     var maxLines: Int = Int.MAX_VALUE
 
+    override fun copy(): Emittable = EmittableCheckBox().also {
+        it.modifier = modifier
+        it.checked = checked
+        it.text = text
+        it.style = style
+        it.colors = colors
+        it.maxLines = maxLines
+    }
+
     override fun toString(): String = "EmittableCheckBox(" +
         "modifier=$modifier, " +
         "checked=$checked, " +
