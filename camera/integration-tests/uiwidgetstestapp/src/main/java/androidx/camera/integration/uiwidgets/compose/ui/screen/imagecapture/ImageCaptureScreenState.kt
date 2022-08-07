@@ -295,7 +295,9 @@ class ImageCaptureScreenState(
     }
 
     // Method to release resources when the Screen is removed from the Composition
+    // We will release the ImageAnalyzer from ImageAnalysis use case and close the analyzer
     fun releaseResources() {
+        imageAnalysis.clearAnalyzer()
         barcodeScanner.close()
     }
 

@@ -18,16 +18,20 @@ package androidx.camera.integration.uiwidgets.compose.ui.navigation
 
 import androidx.camera.integration.uiwidgets.compose.ui.screen.imagecapture.ImageCaptureScreen
 import androidx.camera.integration.uiwidgets.compose.ui.screen.videocapture.VideoCaptureScreen
+import androidx.camera.view.PreviewView
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 
+// Provides the ComposeCameraScreen needed for onStreamStateChange
+// The Screen-level Composable will provide the StreamState changes
 @Composable
 fun ComposeCameraNavHost(
     navController: NavHostController,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onStreamStateChange: (ComposeCameraScreen, PreviewView.StreamState) -> Unit = { _, _ -> }
 ) {
     NavHost(
         navController = navController,
@@ -35,11 +39,25 @@ fun ComposeCameraNavHost(
         modifier = modifier
     ) {
         composable(ComposeCameraScreen.ImageCapture.name) {
-            ImageCaptureScreen()
+            ImageCaptureScreen(
+                onStreamStateChange = { state ->
+                    onStreamStateChange(
+                        ComposeCameraScreen.ImageCapture,
+                        state
+                    )
+                }
+            )
         }
 
         composable(ComposeCameraScreen.VideoCapture.name) {
-            VideoCaptureScreen()
+            VideoCaptureScreen(
+                onStreamStateChange = { state ->
+                    onStreamStateChange(
+                        ComposeCameraScreen.VideoCapture,
+                        state
+                    )
+                }
+            )
         }
     }
 }

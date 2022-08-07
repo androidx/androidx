@@ -17,6 +17,7 @@
 package androidx.camera.integration.uiwidgets.compose.ui.screen.imagecapture
 
 import android.graphics.Rect
+import android.util.Log
 import android.view.ViewGroup
 import androidx.camera.core.MeteringPoint
 import androidx.camera.core.Preview.SurfaceProvider
@@ -57,6 +58,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.lifecycle.Observer
+
+private const val TAG = "ImageCaptureScreen"
 
 // ImageCaptureScreen with QR-Code Overlay (Supports Preview + ImageCapture + ImageAnalysis)
 // Screen provides ImageCapture functionality and draws a bounding box around a detected QR Code
@@ -66,20 +70,14 @@ import androidx.compose.ui.viewinterop.AndroidView
 @Composable
 fun ImageCaptureScreen(
     modifier: Modifier = Modifier,
-    state: ImageCaptureScreenState = rememberImageCaptureScreenState()
+    state: ImageCaptureScreenState = rememberImageCaptureScreenState(),
+    onStreamStateChange: (PreviewView.StreamState) -> Unit = {}
 ) {
     val lifecycleOwner = LocalLifecycleOwner.current
     val localContext = LocalContext.current
 
     LaunchedEffect(key1 = state.lensFacing) {
         state.startCamera(context = localContext, lifecycleOwner = lifecycleOwner)
-    }
-
-    // Release resources when the Composable is removed from the Composition
-    DisposableEffect(Unit) {
-        onDispose {
-            state.releaseResources()
-        }
     }
 
     ImageCaptureScreen(
@@ -97,7 +95,9 @@ fun ImageCaptureScreen(
         },
         onSurfaceProviderReady = state::setSurfaceProvider,
         onOutputTransformReady = state::setOutputTransform,
-        onTouch = state::startTapToFocus
+        onTouch = state::startTapToFocus,
+        onStreamStateChange = onStreamStateChange,
+        onDispose = state::releaseResources
     ) {
         // Uses overlay to draw detected QRCode in the image stream
         QRCodeOverlay(qrCodeBoundingBox = state.qrCodeBoundingBox)
@@ -121,9 +121,18 @@ fun ImageCaptureScreen(
     onSurfaceProviderReady: (SurfaceProvider) -> Unit,
     onOutputTransformReady: (OutputTransform) -> Unit,
     onTouch: (MeteringPoint) -> Unit,
+    onStreamStateChange: (PreviewView.StreamState) -> Unit = {},
+    onDispose: () -> Unit = {},
     content: @Composable () -> Unit = {} // overlay to display something above PreviewView
 ) {
+    val lifecycleOwner = LocalLifecycleOwner.current
     val localContext = LocalContext.current
+
+    val streamStateObserver = remember {
+        Observer<PreviewView.StreamState> { state ->
+            onStreamStateChange(state)
+        }
+    }
 
     // Saving an instance of PreviewView outside of AndroidView
     // This allows us to access properties of PreviewView (e.g. ViewPort and OutputTransform)
@@ -148,6 +157,24 @@ fun ImageCaptureScreen(
 
                 return@setOnTouchListener true
             }
+        }
+    }
+
+    // Attach StreamState Observer when the screen first renders
+    DisposableEffect(key1 = Unit) {
+        Log.d(TAG, "[DisposableEffect] Detaching StreamState Observers from PreviewView")
+        previewView.previewStreamState.removeObservers(lifecycleOwner)
+
+        Log.d(TAG, "[DisposableEffect] Attaching StreamState Observer to PreviewView")
+        previewView.previewStreamState.observe(lifecycleOwner, streamStateObserver)
+
+        // Detach observer when the screen is removed from the Composition
+        onDispose {
+            Log.d(TAG, "[onDispose] Detaching current StreamState Observer from PreviewView")
+            previewView.previewStreamState.removeObservers(lifecycleOwner)
+
+            // Clean up resources when PreviewView is removed from the composition
+            onDispose()
         }
     }
 

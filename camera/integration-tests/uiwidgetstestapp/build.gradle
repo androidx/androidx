@@ -111,4 +111,10 @@ dependencies {
     debugImplementation("androidx.fragment:fragment-testing:1.2.5")
     // Testing resource dependency for manifest
     debugImplementation(project(":camera:camera-testing"))
+
+    // Testing for Compose
+    // Test rules and transitive dependencies:
+    androidTestImplementation("androidx.compose.ui:ui-test-junit4:1.1.1")
+    // Needed for createComposeRule, but not createAndroidComposeRule:
+    debugImplementation("androidx.compose.ui:ui-test-manifest:1.1.1")
 }
