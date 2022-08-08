@@ -729,8 +729,8 @@ public class UiObject2 implements Searchable {
         }
         Log.v(TAG, String.format("setText(text=\"%s\")", text));
 
-        if (UiDevice.API_LEVEL_ACTUAL > Build.VERSION_CODES.KITKAT) {
-            // do this for API Level above 19 (exclusive)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            // ACTION_SET_TEXT is added in API 21.
             Bundle args = new Bundle();
             args.putCharSequence(AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE, text);
             if (!node.performAction(AccessibilityNodeInfo.ACTION_SET_TEXT, args)) {
