@@ -251,7 +251,7 @@ public class PropertyPath implements Iterable<PropertyPath.PathSegment> {
          * @param propertyName the name of the property
          * @param propertyIndex the index into the property
          * @return A new PathSegment
-         * @throws an {@link IllegalArgumentException} if the property name or index is invalid.
+         * @throws IllegalArgumentException if the property name or index is invalid.
          */
         @NonNull
         public static PathSegment create(@NonNull String propertyName, int propertyIndex) {
