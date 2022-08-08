@@ -21,7 +21,6 @@ import java.io.File
 import java.lang.AssertionError
 import java.util.zip.ZipInputStream
 import net.saff.checkmark.Checkmark.Companion.check
-import net.saff.checkmark.Checkmark.Companion.checks
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.UnexpectedBuildFailure
@@ -37,11 +36,7 @@ import org.junit.rules.TemporaryFolder
 fun pluginTest(action: AndroidXPluginTestContext.() -> Unit) {
     TemporaryFolder().wrap { tmpFolder ->
         ProjectSetupRule().wrap { setup ->
-            val context = AndroidXPluginTestContext(tmpFolder, setup)
-            // checks: automatically capture context on failure
-            checks {
-                context.action()
-            }
+            AndroidXPluginTestContext(tmpFolder, setup).action()
         }
     }
 }
