@@ -13,62 +13,54 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package androidx.sqlite.db;
-
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
-import org.mockito.Mockito;
-
-@RunWith(JUnit4.class)
-public class SimpleSQLiteQueryTestTest {
-
+package androidx.sqlite.db
+import org.hamcrest.CoreMatchers.`is`
+import org.hamcrest.MatcherAssert.assertThat
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
+import org.mockito.Mockito
+import org.mockito.Mockito.verify
+import org.mockito.Mockito.verifyNoMoreInteractions
+@RunWith(JUnit4::class)
+class SimpleSQLiteQueryTest {
     @Test
-    public void getSql() {
-        SimpleSQLiteQuery query = new SimpleSQLiteQuery("foo");
-        assertThat(query.getSql(), is("foo"));
+    fun sql() {
+        val query = SimpleSQLiteQuery("foo", emptyArray())
+        assertThat(query.sql, `is`("foo"))
     }
-
     @Test
-    public void bindTo_noArgs() {
-        SimpleSQLiteQuery query = new SimpleSQLiteQuery("foo");
-        SupportSQLiteProgram program = Mockito.mock(SupportSQLiteProgram.class);
-        query.bindTo(program);
-        verifyNoMoreInteractions(program);
+    fun bindTo_noArgs() {
+        val query = SimpleSQLiteQuery("foo", emptyArray())
+        val program: SupportSQLiteProgram = Mockito.mock(SupportSQLiteProgram::class.java)
+        query.bindTo(program)
+        verifyNoMoreInteractions(program)
     }
-
     @Test
-    public void bindTo_withArgs() {
-        byte[] bytes = new byte[3];
-        SimpleSQLiteQuery query = new SimpleSQLiteQuery("foo",
-                new Object[]{"bar", 2, true, .5f, null, bytes});
-        SupportSQLiteProgram program = Mockito.mock(SupportSQLiteProgram.class);
-        query.bindTo(program);
-        verify(program).bindString(1, "bar");
-        verify(program).bindLong(2, 2);
-        verify(program).bindLong(3, 1);
-        verify(program).bindDouble(4, .5f);
-        verify(program).bindNull(5);
-        verify(program).bindBlob(6, bytes);
-        verifyNoMoreInteractions(program);
+    fun bindTo_withArgs() {
+        val bytes = ByteArray(3)
+        val query = SimpleSQLiteQuery("foo", arrayOf("bar", 2, true, 0.5f, null, bytes))
+        val program: SupportSQLiteProgram = Mockito.mock(SupportSQLiteProgram::class.java)
+        query.bindTo(program)
+        verify(program).bindString(1, "bar")
+        verify(program).bindLong(2, 2)
+        verify(program).bindLong(3, 1)
+        verify(program).bindDouble(
+            4,
+            (0.5f).toDouble()
+        )
+        verify(program).bindNull(5)
+        verify(program).bindBlob(6, bytes)
+        verifyNoMoreInteractions(program)
     }
-
     @Test
-    public void getArgCount_withArgs() {
-        SimpleSQLiteQuery query = new SimpleSQLiteQuery("foo",
-                new Object[]{"bar", 2, true});
-        assertThat(query.getArgCount(), is(3));
+    fun argCount_withArgs() {
+        val query = SimpleSQLiteQuery("foo", arrayOf("bar", 2, true))
+        assertThat(query.argCount, `is`(3))
     }
-
     @Test
-    public void getArgCount_noArgs() {
-        SimpleSQLiteQuery query = new SimpleSQLiteQuery("foo");
-        assertThat(query.getArgCount(), is(0));
+    fun argCount_noArgs() {
+        val query = SimpleSQLiteQuery("foo", emptyArray())
+        assertThat(query.argCount, `is`(0))
     }
 }

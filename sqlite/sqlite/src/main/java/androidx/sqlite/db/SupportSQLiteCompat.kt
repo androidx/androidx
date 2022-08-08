@@ -13,36 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.sqlite.db
 
-package androidx.sqlite.db;
-
-import android.app.ActivityManager;
-import android.content.ContentResolver;
-import android.content.Context;
-import android.database.ContentObserver;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
-import android.net.Uri;
-import android.os.Bundle;
-import android.os.CancellationSignal;
-import android.os.OperationCanceledException;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
-import androidx.annotation.RestrictTo;
-
-import java.io.File;
-import java.util.List;
+import android.app.ActivityManager
+import android.content.ContentResolver
+import android.content.Context
+import android.database.Cursor
+import android.database.sqlite.SQLiteDatabase
+import android.database.sqlite.SQLiteDatabase.CursorFactory
+import android.database.sqlite.SQLiteOpenHelper
+import android.net.Uri
+import android.os.Bundle
+import android.os.CancellationSignal
+import androidx.annotation.RequiresApi
+import androidx.annotation.RestrictTo
+import java.io.File
 
 /**
- * Helper for accessing features in {@link SupportSQLiteOpenHelper}.
+ * Helper for accessing features in [SupportSQLiteOpenHelper].
  *
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public final class SupportSQLiteCompat {
-    private SupportSQLiteCompat() { }
+class SupportSQLiteCompat private constructor() {
     /**
      * Class for accessing functions that require SDK version 16 and higher.
      *
@@ -50,8 +43,7 @@ public final class SupportSQLiteCompat {
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @RequiresApi(16)
-    public static final class Api16Impl {
-
+    object Api16Impl {
         /**
          * Cancels the operation and signals the cancellation listener. If the operation has not yet
          * started, then it will be canceled as soon as it does.
@@ -59,8 +51,9 @@ public final class SupportSQLiteCompat {
          * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        public static void cancel(@NonNull CancellationSignal cancellationSignal) {
-            cancellationSignal.cancel();
+        @JvmStatic
+        fun cancel(cancellationSignal: CancellationSignal) {
+            cancellationSignal.cancel()
         }
 
         /**
@@ -71,9 +64,9 @@ public final class SupportSQLiteCompat {
          * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        @NonNull
-        public static CancellationSignal createCancellationSignal() {
-            return new CancellationSignal();
+        @JvmStatic
+        fun createCancellationSignal(): CancellationSignal {
+            return CancellationSignal()
         }
 
         /**
@@ -86,9 +79,9 @@ public final class SupportSQLiteCompat {
          * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        @SuppressWarnings("StreamFiles")
-        public static boolean deleteDatabase(@NonNull File file) {
-            return SQLiteDatabase.deleteDatabase(file);
+        @JvmStatic
+        fun deleteDatabase(file: File): Boolean {
+            return SQLiteDatabase.deleteDatabase(file)
         }
 
         /**
@@ -96,26 +89,32 @@ public final class SupportSQLiteCompat {
          *
          * @param sql the SQL query. The SQL string must not be ; terminated
          * @param selectionArgs You may include ?s in where clause in the query,
-         *     which will be replaced by the values from selectionArgs. The
-         *     values will be bound as Strings.
+         * which will be replaced by the values from selectionArgs. The
+         * values will be bound as Strings.
          * @param editTable the name of the first table, which is editable
          * @param cancellationSignal A signal to cancel the operation in progress, or null if none.
-         * If the operation is canceled, then {@link OperationCanceledException} will be thrown
+         * If the operation is canceled, then [OperationCanceledException] will be thrown
          * when the query is executed.
          * @param cursorFactory the cursor factory to use, or null for the default factory
-         * @return A {@link Cursor} object, which is positioned before the first entry. Note that
-         * {@link Cursor}s are not synchronized, see the documentation for more details.
+         * @return A [Cursor] object, which is positioned before the first entry. Note that
+         * [Cursor]s are not synchronized, see the documentation for more details.
          *
          * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        @NonNull
-        public static Cursor rawQueryWithFactory(@NonNull SQLiteDatabase sQLiteDatabase,
-                @NonNull String sql, @NonNull String[] selectionArgs,
-                @NonNull String editTable, @NonNull CancellationSignal cancellationSignal,
-                @NonNull SQLiteDatabase.CursorFactory cursorFactory) {
-            return sQLiteDatabase.rawQueryWithFactory(cursorFactory, sql, selectionArgs, editTable,
-                    cancellationSignal);
+        @JvmStatic
+        fun rawQueryWithFactory(
+            sQLiteDatabase: SQLiteDatabase,
+            sql: String,
+            selectionArgs: Array<String?>,
+            editTable: String?,
+            cancellationSignal: CancellationSignal,
+            cursorFactory: CursorFactory
+        ): Cursor {
+            return sQLiteDatabase.rawQueryWithFactory(
+                cursorFactory, sql, selectionArgs, editTable,
+                cancellationSignal
+            )
         }
 
         /**
@@ -123,62 +122,66 @@ public final class SupportSQLiteCompat {
          *
          * @param enable True to enable foreign key constraints, false to disable them.
          *
-         * @throws IllegalStateException if the are transactions is in progress
+         * @throws [IllegalStateException] if the are transactions is in progress
          * when this method is called.
          *
          * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        public static void setForeignKeyConstraintsEnabled(@NonNull SQLiteDatabase sQLiteDatabase,
-                boolean enable) {
-            sQLiteDatabase.setForeignKeyConstraintsEnabled(enable);
+        @JvmStatic
+        fun setForeignKeyConstraintsEnabled(
+            sQLiteDatabase: SQLiteDatabase,
+            enable: Boolean
+        ) {
+            sQLiteDatabase.setForeignKeyConstraintsEnabled(enable)
         }
 
         /**
          * This method disables the features enabled by
-         * {@link SQLiteDatabase#enableWriteAheadLogging()}.
+         * [SQLiteDatabase.enableWriteAheadLogging].
          *
-         * @throws IllegalStateException if there are transactions in progress at the
+         * @throws - if there are transactions in progress at the
          * time this method is called.  WAL mode can only be changed when there are no
          * transactions in progress.
          *
-         * @see SQLiteDatabase#enableWriteAheadLogging
-         *
          * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        public static void disableWriteAheadLogging(@NonNull SQLiteDatabase sQLiteDatabase) {
-            sQLiteDatabase.disableWriteAheadLogging();
+        @JvmStatic
+        fun disableWriteAheadLogging(sQLiteDatabase: SQLiteDatabase) {
+            sQLiteDatabase.disableWriteAheadLogging()
         }
 
         /**
-         * Returns true if write-ahead logging has been enabled for this database.
+         * Returns true if [SQLiteDatabase.enableWriteAheadLogging] logging has been enabled for
+         * this database.
+         *
+         * For details, see [SQLiteDatabase.ENABLE_WRITE_AHEAD_LOGGING].
          *
          * @return True if write-ahead logging has been enabled for this database.
          *
-         * @see SQLiteDatabase#enableWriteAheadLogging
-         * @see SQLiteDatabase#ENABLE_WRITE_AHEAD_LOGGING
-         *
          * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        public static boolean isWriteAheadLoggingEnabled(@NonNull SQLiteDatabase sQLiteDatabase) {
-            return sQLiteDatabase.isWriteAheadLoggingEnabled();
+        @JvmStatic
+        fun isWriteAheadLoggingEnabled(sQLiteDatabase: SQLiteDatabase): Boolean {
+            return sQLiteDatabase.isWriteAheadLoggingEnabled
         }
 
         /**
-         * Sets {@link SQLiteDatabase#ENABLE_WRITE_AHEAD_LOGGING} flag if {@code enabled} is {@code
-         * true}, unsets otherwise.
+         * Sets [SQLiteDatabase.ENABLE_WRITE_AHEAD_LOGGING] flag if `enabled` is `true`, unsets
+         * otherwise.
          *
          * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        public static void setWriteAheadLoggingEnabled(@NonNull SQLiteOpenHelper sQLiteOpenHelper,
-                boolean enabled) {
-            sQLiteOpenHelper.setWriteAheadLoggingEnabled(enabled);
+        @JvmStatic
+        fun setWriteAheadLoggingEnabled(
+            sQLiteOpenHelper: SQLiteOpenHelper,
+            enabled: Boolean
+        ) {
+            sQLiteOpenHelper.setWriteAheadLoggingEnabled(enabled)
         }
-
-        private Api16Impl() {}
     }
 
     /**
@@ -188,24 +191,22 @@ public final class SupportSQLiteCompat {
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @RequiresApi(19)
-    public static final class Api19Impl {
+    object Api19Impl {
         /**
          * Return the URI at which notifications of changes in this Cursor's data
          * will be delivered.
          *
-         * @return Returns a URI that can be used with
-         * {@link ContentResolver#registerContentObserver(android.net.Uri, boolean, ContentObserver)
-         * ContentResolver.registerContentObserver} to find out about changes to this Cursor's
-         * data. May be null if no notification URI has been set.
+         * @return Returns a URI that can be used with [ContentResolver.registerContentObserver] to
+         * find out about changes to this Cursor's data. May be null if no notification URI has been
+         * set.
          *
          * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        @NonNull
-        public static Uri getNotificationUri(@NonNull Cursor cursor) {
-            return cursor.getNotificationUri();
+        @JvmStatic
+        fun getNotificationUri(cursor: Cursor): Uri {
+            return cursor.notificationUri
         }
-
 
         /**
          * Returns true if this is a low-RAM device.  Exactly whether a device is low-RAM
@@ -216,11 +217,10 @@ public final class SupportSQLiteCompat {
          * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        public static boolean isLowRamDevice(@NonNull ActivityManager activityManager) {
-            return activityManager.isLowRamDevice();
+        @JvmStatic
+        fun isLowRamDevice(activityManager: ActivityManager): Boolean {
+            return activityManager.isLowRamDevice
         }
-
-        private Api19Impl() {}
     }
 
     /**
@@ -230,23 +230,20 @@ public final class SupportSQLiteCompat {
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @RequiresApi(21)
-    public static final class Api21Impl {
-
+    object Api21Impl {
         /**
          * Returns the absolute path to the directory on the filesystem.
          *
-         * @return The path of the directory holding application files that will not
-         *         be automatically backed up to remote storage.
+         * @return The path of the directory holding application files that will not be
+         * automatically backed up to remote storage.
          *
          * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        @NonNull
-        public static File getNoBackupFilesDir(@NonNull Context context) {
-            return context.getNoBackupFilesDir();
+        @JvmStatic
+        fun getNoBackupFilesDir(context: Context): File {
+            return context.noBackupFilesDir
         }
-
-        private Api21Impl() {}
     }
 
     /**
@@ -256,21 +253,19 @@ public final class SupportSQLiteCompat {
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @RequiresApi(23)
-    public static final class Api23Impl {
-
+    object Api23Impl {
         /**
-         * Sets a {@link Bundle} that will be returned by {@link Cursor#getExtras()}.
+         * Sets a [Bundle] that will be returned by [Cursor.getExtras].
          *
-         * @param extras {@link Bundle} to set, or null to set an empty bundle.
+         * @param extras [Bundle] to set, or null to set an empty bundle.
          *
          * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        public static void setExtras(@NonNull Cursor cursor, @NonNull Bundle extras) {
-            cursor.setExtras(extras);
+        @JvmStatic
+        fun setExtras(cursor: Cursor, extras: Bundle) {
+            cursor.extras = extras
         }
-
-        private Api23Impl() {}
     }
 
     /**
@@ -280,10 +275,9 @@ public final class SupportSQLiteCompat {
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @RequiresApi(29)
-    public static final class Api29Impl {
-
+    object Api29Impl {
         /**
-         * Similar to {@link Cursor#setNotificationUri(ContentResolver, Uri)}, except this version
+         * Similar to [Cursor.setNotificationUri], except this version
          * allows to watch multiple content URIs for changes.
          *
          * @param cr The content resolver from the caller's context. The listener attached to
@@ -293,29 +287,29 @@ public final class SupportSQLiteCompat {
          * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        public static void setNotificationUris(@NonNull Cursor cursor, @NonNull ContentResolver cr,
-                @NonNull List<Uri> uris) {
-            cursor.setNotificationUris(cr, uris);
+        @JvmStatic
+        fun setNotificationUris(
+            cursor: Cursor,
+            cr: ContentResolver,
+            uris: List<Uri?>
+        ) {
+            cursor.setNotificationUris(cr, uris)
         }
 
         /**
          * Return the URIs at which notifications of changes in this Cursor's data
-         * will be delivered, as previously set by {@link #setNotificationUris}.
+         * will be delivered, as previously set by [setNotificationUris].
          *
-         * @return Returns URIs that can be used with
-         * {@link ContentResolver#registerContentObserver(android.net.Uri, boolean, ContentObserver)
-         * ContentResolver.registerContentObserver} to find out about changes to this Cursor's
-         * data. May be null if no notification URI has been set.
+         * @return Returns URIs that can be used with [ContentResolver.registerContentObserver]
+         * to find out about changes to this Cursor's data. May be null if no notification URI has
+         * been set.
          *
          * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        @NonNull
-        public static List<Uri> getNotificationUris(@NonNull Cursor cursor) {
-            return cursor.getNotificationUris();
+        @JvmStatic
+        fun getNotificationUris(cursor: Cursor): List<Uri> {
+            return cursor.notificationUris!!
         }
-
-        private Api29Impl() {}
     }
-
 }
