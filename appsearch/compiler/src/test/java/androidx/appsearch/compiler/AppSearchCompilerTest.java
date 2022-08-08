@@ -317,7 +317,7 @@ public class AppSearchCompilerTest {
     public void testSuperClassPojoAncestor() throws Exception {
         // Try multiple levels of inheritance, nested, with properties, overriding properties
         Compilation compilation = compile(
-                        "class Ancestor {\n"
+                "class Ancestor {\n"
                         + "}\n"
                         + "@Document\n"
                         + "class Parent extends Ancestor {\n"
@@ -1274,6 +1274,39 @@ public class AppSearchCompilerTest {
                         + "  public void setNamespace(String namespace){\n"
                         + "    mNamespace = namespace;"
                         + "  }\n"
+                        + "}\n");
+
+        assertThat(compilation).succeededWithoutWarnings();
+        checkEqualsGolden("Gift.java");
+    }
+
+    @Test
+    public void testNestedDocumentsIndexing() throws Exception {
+        Compilation compilation = compile(
+                "import java.util.*;\n"
+                        + "@Document\n"
+                        + "public class Gift {\n"
+                        + "  @Document.Id String id;\n"
+                        + "  @Document.Namespace String namespace;\n"
+                        + "  @Document.DocumentProperty(indexNestedProperties = true) "
+                        + "Collection<GiftContent> giftContentsCollection;\n"
+                        + "  @Document.DocumentProperty(indexNestedProperties = true) GiftContent[]"
+                        + " giftContentsArray;\n"
+                        + "  @Document.DocumentProperty(indexNestedProperties = true) GiftContent "
+                        + "giftContent;\n"
+                        + "  @Document.DocumentProperty() Collection<GiftContent> "
+                        + "giftContentsCollectionNotIndexed;\n"
+                        + "  @Document.DocumentProperty GiftContent[] "
+                        + "giftContentsArrayNotIndexed;\n"
+                        + "  @Document.DocumentProperty GiftContent giftContentNotIndexed;\n"
+                        + "}\n"
+                        + "\n"
+                        + "@Document\n"
+                        + "class GiftContent {\n"
+                        + "  @Document.Id String id;\n"
+                        + "  @Document.Namespace String namespace;\n"
+                        + "  @Document.StringProperty String[] contentsArray;\n"
+                        + "  @Document.StringProperty String contents;\n"
                         + "}\n");
 
         assertThat(compilation).succeededWithoutWarnings();
