@@ -29,7 +29,6 @@ import android.graphics.Rect;
 import android.view.ViewConfiguration;
 
 import androidx.test.core.app.ApplicationProvider;
-import androidx.test.filters.FlakyTest;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.uiautomator.By;
 import androidx.test.uiautomator.Direction;
@@ -555,7 +554,6 @@ public class UiObject2Tests extends BaseTest {
                 + "but got [%f]", scaleValueAfterPinch), scaleValueAfterPinch > 1f);
     }
 
-    @FlakyTest(bugId = 241577073)
     @Test
     public void testSwipe() {
         launchTestActivity(SwipeTestActivity.class);
@@ -563,17 +561,17 @@ public class UiObject2Tests extends BaseTest {
         UiObject2 swipeRegion = mDevice.findObject(By.res(TEST_APP, "swipe_region"));
         swipeRegion.setGestureMargin(SCROLL_MARGIN);
 
-        swipeRegion.swipe(Direction.LEFT, 0.5f);
-        assertEquals("swipe_left", swipeRegion.getText());
+        swipeRegion.swipe(Direction.LEFT, 0.9f);
+        assertTrue(swipeRegion.wait(Until.textEquals("swipe_left"), TIMEOUT_MS));
 
         swipeRegion.swipe(Direction.RIGHT, 1.0f);
-        assertEquals("swipe_right", swipeRegion.getText());
+        assertTrue(swipeRegion.wait(Until.textEquals("swipe_right"), TIMEOUT_MS));
 
-        swipeRegion.swipe(Direction.UP, 0.5f, 1000);
-        assertEquals("swipe_up", swipeRegion.getText());
+        swipeRegion.swipe(Direction.UP, 0.9f, 1000);
+        assertTrue(swipeRegion.wait(Until.textEquals("swipe_up"), TIMEOUT_MS));
 
         swipeRegion.swipe(Direction.DOWN, 1.0f, 1000);
-        assertEquals("swipe_down", swipeRegion.getText());
+        assertTrue(swipeRegion.wait(Until.textEquals("swipe_down"), TIMEOUT_MS));
     }
 
     @Test
@@ -657,7 +655,7 @@ public class UiObject2Tests extends BaseTest {
         while (flingRegion.fling(Direction.LEFT)) {
             // Continue until left bound.
         }
-        assertEquals("fling_left", flingRegion.getText());
+        assertTrue(flingRegion.wait(Until.textEquals("fling_left"), TIMEOUT_MS));
     }
 
     @Test
@@ -674,7 +672,7 @@ public class UiObject2Tests extends BaseTest {
         while (flingRegion.fling(Direction.UP, 5000)) {
             // Continue until up bound.
         }
-        assertEquals("fling_up", flingRegion.getText());
+        assertTrue(flingRegion.wait(Until.textEquals("fling_up"), TIMEOUT_MS));
     }
 
     @Test
