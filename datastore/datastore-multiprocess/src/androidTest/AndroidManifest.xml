@@ -43,6 +43,11 @@
             android:exported="false"
             android:process=":InterleavedUpdateDataWithReadService" />
         <service
+            android:name="androidx.datastore.multiprocess.MultiProcessDataStoreMultiProcessTest$FailedUpdateDataService"
+            android:enabled="true"
+            android:exported="false"
+            android:process=":FailedUpdateDataService" />
+        <service
             android:name="androidx.datastore.multiprocess.MultiProcessDataStoreMultiProcessTest$CancelledUpdateDataService"
             android:enabled="true"
             android:exported="false"
