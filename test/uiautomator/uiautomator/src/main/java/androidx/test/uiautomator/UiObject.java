@@ -661,8 +661,8 @@ public class UiObject {
             text = "";
         }
         Tracer.trace(text);
-        if (UiDevice.API_LEVEL_ACTUAL > Build.VERSION_CODES.KITKAT) {
-            // do this for API Level above 19 (exclusive)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            // ACTION_SET_TEXT is added in API 21.
             AccessibilityNodeInfo node = findAccessibilityNodeInfo(
                     mConfig.getWaitForSelectorTimeout());
             if (node == null) {
@@ -698,7 +698,7 @@ public class UiObject {
         CharSequence text = node.getText();
         // do nothing if already empty
         if (text != null && text.length() > 0) {
-            if (UiDevice.API_LEVEL_ACTUAL > Build.VERSION_CODES.KITKAT) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 setText("");
             } else {
                 Bundle selectionArgs = new Bundle();

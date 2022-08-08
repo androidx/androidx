@@ -89,17 +89,6 @@ public class UiDevice implements Searchable {
     // Get wait functionality from a mixin
     private WaitMixin<UiDevice> mWaitMixin = new WaitMixin<UiDevice>(this);
 
-
-    /**
-     * A forward-looking API Level for development platform builds
-     *
-     * This will be the actual API level on a released platform build, and will be last released
-     * API Level + 1 on development platform build
-     * @hide
-     */
-    static final int API_LEVEL_ACTUAL = Build.VERSION.SDK_INT
-            + ("REL".equals(Build.VERSION.CODENAME) ? 0 : 1);
-
     /**
      * @deprecated Should use {@link UiDevice#UiDevice(Instrumentation)} instead.
      */
@@ -113,7 +102,7 @@ public class UiDevice implements Searchable {
         mInteractionController = new InteractionController(instrumentation);
 
         // Enable multi-window support for API level 21 and up
-        if (UiDevice.API_LEVEL_ACTUAL >= Build.VERSION_CODES.LOLLIPOP) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             // Subscribe to window information
             AccessibilityServiceInfo info = getUiAutomation().getServiceInfo();
             info.flags |= AccessibilityServiceInfo.FLAG_RETRIEVE_INTERACTIVE_WINDOWS;
