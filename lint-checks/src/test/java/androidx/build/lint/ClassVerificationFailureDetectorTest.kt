@@ -301,7 +301,7 @@ Fix for src/androidx/AutofixUnsafeGenericMethodReferenceJava.java line 34: Extra
 +     }
 +
 +     @annotation.DoNotInline
-+     static <T> T getSystemService(Context context, Class<T> serviceClass) {
++     static <T> T getSystemService(Context context, java.lang.Class<T> serviceClass) {
 +         return context.getSystemService(serviceClass);
 +     }
 +
@@ -377,7 +377,7 @@ Fix for src/androidx/sample/appcompat/widget/ActionBarBackgroundDrawable.java li
 +     }
 +
 +     @DoNotInline
-+     static void getOutline(Drawable drawable, Outline outline) {
++     static void getOutline(drawable.Drawable drawable, Outline outline) {
 +         drawable.getOutline(outline);
 +     }
 +
@@ -395,7 +395,7 @@ Fix for src/androidx/sample/appcompat/widget/ActionBarBackgroundDrawable.java li
 +     }
 +
 +     @DoNotInline
-+     static void getOutline(Drawable drawable, Outline outline) {
++     static void getOutline(drawable.Drawable drawable, Outline outline) {
 +         drawable.getOutline(outline);
 +     }
 +
@@ -408,7 +408,7 @@ Fix for src/androidx/sample/appcompat/widget/ActionBarBackgroundDrawable.java li
     }
 
     @Test
-    fun `Auto-fix includes fully qualified class name (issue 205035683)`() {
+    fun `Auto-fix includes fully qualified class name (issue 205035683, 236721202)`() {
         val input = arrayOf(
             javaSample("androidx.AutofixUnsafeMethodWithQualifiedClass"),
             RequiresApi
@@ -416,30 +416,30 @@ Fix for src/androidx/sample/appcompat/widget/ActionBarBackgroundDrawable.java li
 
         /* ktlint-disable max-line-length */
         val expected = """
-src/androidx/AutofixUnsafeMethodWithQualifiedClass.java:35: Error: This call references a method added in API level 23; however, the containing class androidx.AutofixUnsafeMethodWithQualifiedClass is reachable from earlier API levels and will fail run-time class verification. [ClassVerificationFailure]
-        return callback.onSearchRequested(searchEvent);
-                        ~~~~~~~~~~~~~~~~~
+src/androidx/AutofixUnsafeMethodWithQualifiedClass.java:38: Error: This call references a method added in API level 19; however, the containing class androidx.AutofixUnsafeMethodWithQualifiedClass is reachable from earlier API levels and will fail run-time class verification. [ClassVerificationFailure]
+        builder.setMediaSize(mediaSize);
+                ~~~~~~~~~~~~
 1 errors, 0 warnings
         """
 
         val expectedFixDiffs = """
-Fix for src/androidx/AutofixUnsafeMethodWithQualifiedClass.java line 35: Extract to static inner class:
-@@ -35 +35
--         return callback.onSearchRequested(searchEvent);
-+         return Api23Impl.onSearchRequested(callback, searchEvent);
-@@ -37 +37
-+ @RequiresApi(23)
-+ static class Api23Impl {
-+     private Api23Impl() {
+Fix for src/androidx/AutofixUnsafeMethodWithQualifiedClass.java line 38: Extract to static inner class:
+@@ -38 +38
+-         builder.setMediaSize(mediaSize);
++         Api19Impl.setMediaSize(builder, mediaSize);
+@@ -40 +40
++ @RequiresApi(19)
++ static class Api19Impl {
++     private Api19Impl() {
 +         // This class is not instantiable.
 +     }
 +
 +     @DoNotInline
-+     static boolean onSearchRequested(Window.Callback callback, SearchEvent p) {
-+         return callback.onSearchRequested(p);
++     static PrintAttributes.Builder setMediaSize(PrintAttributes.Builder builder, PrintAttributes.MediaSize mediaSize) {
++         return builder.setMediaSize(mediaSize);
 +     }
 +
-@@ -38 +49
+@@ -41 +52
 + }
         """
         /* ktlint-enable max-line-length */
