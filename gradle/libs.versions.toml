@@ -73,7 +73,7 @@ apacheCommonsCodec = { module = "commons-codec:commons-codec", version = "1.15" 
 apacheCommonIo = { module = "commons-io:commons-io", version = "2.4" }
 assertj = { module = "org.assertj:assertj-core", version = "3.11.1" }
 checkerframework = { module = "org.checkerframework:checker-qual", version = "2.5.3" }
-checkmark = { module = "net.saff.checkmark:checkmark", version = "0.1.2" }
+checkmark = { module = "net.saff.checkmark:checkmark", version = "0.1.6" }
 constraintLayout = { module = "androidx.constraintlayout:constraintlayout", version = "2.0.1"}
 dackka = { module = "com.google.devsite:dackka", version = "0.0.19" }
 dagger = { module = "com.google.dagger:dagger", version.ref = "dagger" }
