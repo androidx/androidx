@@ -17,6 +17,7 @@
 package androidx.build
 
 import net.saff.checkmark.Checkmark.Companion.check
+import org.gradle.testkit.runner.UnexpectedBuildFailure
 import org.gradle.testkit.runner.internal.DefaultBuildResult
 import org.junit.Test
 
@@ -32,8 +33,24 @@ class AndroidXPluginTestContextTest {
     fun betterDebuggingForClasspathIssues() = pluginTest {
         thrown {
             runGradle("") {
-                val className = "androidx.build.gradle.ExtensionsKt"
-                buildResult("java.lang.ClassNotFoundException: $className")
+                extensionNotFoundResult()
+            }
+        }!!.check {
+            // Since we're faking this error, we expect that the class is actually there in the jar
+            it.message!!.contains("androidx/build/gradle/ExtensionsKt.class")
+        }
+    }
+
+    private fun extensionNotFoundResult(): DefaultBuildResult {
+        val className = "androidx.build.gradle.ExtensionsKt"
+        return buildResult("java.lang.ClassNotFoundException: $className")
+    }
+
+    @Test
+    fun betterDebuggingForClasspathIssuesWhenThrowing() = pluginTest {
+        thrown {
+            runGradle("") {
+                throw UnexpectedBuildFailure("failure", extensionNotFoundResult())
             }
         }!!.check {
             // Since we're faking this error, we expect that the class is actually there in the jar
