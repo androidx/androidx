@@ -16,6 +16,7 @@
 
 package androidx.camera.integration.diagnose
 
+import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Color.BLUE
 
@@ -24,7 +25,8 @@ import androidx.camera.view.LifecycleCameraController
 class FakeTextAndImageSavingTask : DiagnosisTask("FakeTextAndImageSavingTask") {
     override suspend fun runDiagnosisTask(
         cameraController: LifecycleCameraController,
-        dataStore: DataStore
+        dataStore: DataStore,
+        context: Context
     ) {
         dataStore.appendText("This is fake task 2.")
         // append bitmap with each pixel set to blue

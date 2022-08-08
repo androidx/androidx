@@ -16,6 +16,7 @@
 
 package androidx.camera.integration.diagnose
 
+import android.content.Context
 import androidx.camera.view.LifecycleCameraController
 
 class FakeTextSavingTask : DiagnosisTask("FakeTextSavingTask") {
@@ -23,7 +24,8 @@ class FakeTextSavingTask : DiagnosisTask("FakeTextSavingTask") {
     @Override
     override suspend fun runDiagnosisTask(
         cameraController: LifecycleCameraController,
-        dataStore: DataStore
+        dataStore: DataStore,
+        context: Context
     ) {
         dataStore.appendText("This is a fake test 1.")
         dataStore.appendText("Line 2.")
