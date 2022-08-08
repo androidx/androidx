@@ -59,7 +59,7 @@ class ExerciseLapSummary(
         )
     )
 
-    internal val proto: DataProto.ExerciseLapSummary by lazy {
+    internal val proto: DataProto.ExerciseLapSummary =
         DataProto.ExerciseLapSummary.newBuilder()
             .setLapCount(lapCount)
             .setStartTimeEpochMs(startTime.toEpochMilli())
@@ -86,7 +86,6 @@ class ExerciseLapSummary(
                     .sortedBy { it.dataType.name } // Required to ensure equals() works
             )
             .build()
-    }
 
     override fun toString(): String =
         "ExerciseLapSummary(" +

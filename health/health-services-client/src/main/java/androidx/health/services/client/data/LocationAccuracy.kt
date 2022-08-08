@@ -66,13 +66,15 @@ public class LocationAccuracy(
     )
 
     /** @hide */
-    override val proto: DataProto.DataPointAccuracy by lazy {
+    override val proto: DataProto.DataPointAccuracy = getDataPointAccuracyProto()
+
+    private fun getDataPointAccuracyProto(): DataProto.DataPointAccuracy {
         val locationAccuracyProtoBuilder =
             LocationAccuracyProto.newBuilder()
                 .setHorizontalPositionError(horizontalPositionErrorMeters)
                 .setVerticalPositionError(verticalPositionErrorMeters)
 
-        DataProto.DataPointAccuracy.newBuilder()
+        return DataProto.DataPointAccuracy.newBuilder()
             .setLocationAccuracy(locationAccuracyProtoBuilder)
             .build()
     }

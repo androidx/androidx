@@ -39,11 +39,10 @@ public class MeasureCapabilities(
     ) : this(proto.supportedDataTypesList.map { DataType.deltaFromProto(it) }.toSet())
 
     /** @hide */
-    override val proto: DataProto.MeasureCapabilities by lazy {
+    override val proto: DataProto.MeasureCapabilities =
         DataProto.MeasureCapabilities.newBuilder()
             .addAllSupportedDataTypes(supportedDataTypesMeasure.map { it.proto })
             .build()
-    }
 
     override fun toString(): String =
         "MeasureCapabilities(supportedDataTypesMeasure=$supportedDataTypesMeasure)"

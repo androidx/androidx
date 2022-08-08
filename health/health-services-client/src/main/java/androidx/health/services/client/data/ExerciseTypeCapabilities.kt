@@ -66,7 +66,7 @@ public class ExerciseTypeCapabilities(
     )
 
     /** @hide */
-    override val proto: DataProto.ExerciseTypeCapabilities by lazy {
+    override val proto: DataProto.ExerciseTypeCapabilities =
         DataProto.ExerciseTypeCapabilities.newBuilder()
             .addAllSupportedDataTypes(supportedDataTypes.map { it.proto })
             .addAllSupportedGoals(
@@ -91,7 +91,6 @@ public class ExerciseTypeCapabilities(
             )
             .setIsAutoPauseAndResumeSupported(supportsAutoPauseAndResume)
             .build()
-    }
 
     override fun toString(): String =
         "ExerciseTypeCapabilities(" +

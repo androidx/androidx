@@ -137,10 +137,9 @@ abstract class DataType<T : Any, D : DataPoint<T>>(
             " class=${valueClass.simpleName}," +
             " isAggregate=$isAggregate" + ")"
 
-    internal val proto: DataProto.DataType by lazy {
+    internal val proto: DataProto.DataType =
         DataProto.DataType.newBuilder().setName(name).setTimeType(timeType.toProto())
             .setFormat(classToValueFormat()).build()
-    }
 
     internal fun toProtoFromValue(
         value: T,

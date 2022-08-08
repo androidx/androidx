@@ -155,7 +155,9 @@ public class ExerciseUpdate(
     }
 
     /** @hide */
-    override val proto: DataProto.ExerciseUpdate by lazy {
+    override val proto: DataProto.ExerciseUpdate = getExerciseUpdateProto()
+
+    private fun getExerciseUpdateProto(): DataProto.ExerciseUpdate {
         val builder =
             DataProto.ExerciseUpdate.newBuilder()
                 .setState(exerciseStateInfo.state.toProto())
@@ -207,7 +209,7 @@ public class ExerciseUpdate(
             builder.setActiveDurationCheckpoint(activeDurationCheckpoint.toProto())
         }
 
-        builder.build()
+        return builder.build()
     }
 
     /**

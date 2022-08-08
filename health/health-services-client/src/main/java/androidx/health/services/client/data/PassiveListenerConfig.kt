@@ -114,14 +114,13 @@ public class PassiveListenerConfig(
     }
 
     /** @hide */
-    override val proto: DataProto.PassiveListenerConfig by lazy {
+    override val proto: DataProto.PassiveListenerConfig =
         DataProto.PassiveListenerConfig.newBuilder()
             .addAllDataTypes(dataTypes.map { it.proto })
             .setIncludeUserActivityState(shouldRequestUserActivityState)
             .addAllPassiveGoals(dailyGoals.map { it.proto })
             .addAllHealthEventTypes(healthEventTypes.map { it.toProto() })
             .build()
-    }
 
     public companion object {
         @JvmStatic
