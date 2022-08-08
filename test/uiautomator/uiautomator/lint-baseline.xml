@@ -2,66 +2,12 @@
 <issues format="6" by="lint 7.4.0-alpha08" type="baseline" client="gradle" dependencies="false" name="AGP (7.4.0-alpha08)" variant="all" version="7.4.0-alpha08">
 
     <issue
-        id="NewApi"
-        message="Call requires API level 21 (current min is 18): `android.view.accessibility.AccessibilityNodeInfo#getWindow`"
-        errorLine1="            if (node.getWindow() != null) {"
-        errorLine2="                     ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/test/uiautomator/AccessibilityNodeInfoHelper.java"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 21 (current min is 18): `android.view.accessibility.AccessibilityNodeInfo#getWindow`"
-        errorLine1="              node.getWindow().getBoundsInScreen(window);"
-        errorLine2="                   ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/test/uiautomator/AccessibilityNodeInfoHelper.java"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 21 (current min is 18): `android.view.accessibility.AccessibilityWindowInfo#getBoundsInScreen`"
-        errorLine1="              node.getWindow().getBoundsInScreen(window);"
-        errorLine2="                               ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/test/uiautomator/AccessibilityNodeInfoHelper.java"/>
-    </issue>
-
-    <issue
         id="BanUncheckedReflection"
         message="Calling `Method.invoke` without an SDK check"
         errorLine1="                    sMotionEvent_setDisplayId.invoke(ev, displayId);"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/test/uiautomator/GestureController.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class androidx.test.uiautomator.AccessibilityNodeInfoHelper is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            if (node.getWindow() != null) {"
-        errorLine2="                     ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/test/uiautomator/AccessibilityNodeInfoHelper.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class androidx.test.uiautomator.AccessibilityNodeInfoHelper is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="              node.getWindow().getBoundsInScreen(window);"
-        errorLine2="                   ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/test/uiautomator/AccessibilityNodeInfoHelper.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class androidx.test.uiautomator.AccessibilityNodeInfoHelper is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="              node.getWindow().getBoundsInScreen(window);"
-        errorLine2="                               ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/test/uiautomator/AccessibilityNodeInfoHelper.java"/>
     </issue>
 
     <issue
