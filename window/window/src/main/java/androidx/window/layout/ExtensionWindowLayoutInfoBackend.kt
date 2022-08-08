@@ -26,12 +26,17 @@ import java.util.concurrent.Executor
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 import androidx.window.extensions.layout.WindowLayoutInfo as OEMWindowLayoutInfo
+import android.content.Context
+import androidx.annotation.UiContext
+import androidx.window.embedding.EmbeddingCompat
 
 /**
  * A wrapper around [WindowLayoutComponent] that ensures
- * [WindowLayoutComponent.addWindowLayoutInfoListener] is called at most once per activity while
- * there are active listeners.
+ * [WindowLayoutComponent.addWindowLayoutInfoListener] is called at most once per context while
+ * there are active listeners. Context has to be an [Activity] or a [UiContext] created with
+ * [Context#createWindowContext] but not InputMethodService.
  */
+// TODO(b/237342281) Support InputMethodService to receive WindowLayoutInfo updates.
 internal class ExtensionWindowLayoutInfoBackend(
     private val component: WindowLayoutComponent,
     private val consumerAdapter: ConsumerAdapter
@@ -39,62 +44,98 @@ internal class ExtensionWindowLayoutInfoBackend(
 
     private val extensionWindowBackendLock = ReentrantLock()
     @GuardedBy("lock")
-    private val activityToListeners = mutableMapOf<Activity, MulticastConsumer>()
+    private val contextToListeners = mutableMapOf<Context, MulticastConsumer>()
+
     @GuardedBy("lock")
-    private val listenerToActivity = mutableMapOf<Consumer<WindowLayoutInfo>, Activity>()
+    private val listenerToContext = mutableMapOf<Consumer<WindowLayoutInfo>, Context>()
+
     @GuardedBy("lock")
     private val consumerToToken = mutableMapOf<MulticastConsumer, ConsumerAdapter.Subscription>()
 
     /**
      * Registers a listener to consume new values of [WindowLayoutInfo]. If there was a listener
-     * registered for a given [Activity] then the new listener will receive a replay of the last
+     * registered for a given [Context] then the new listener will receive a replay of the last
      * known value.
-     * @param activity the host of a [android.view.Window]
+     * @param context the host of a [android.view.Window] or an area on the screen. Has to be an
+     * [Activity] or a [UiContext] created with [Context#createWindowContext] but not
+     * InputMethodService.
      * @param executor an executor from the parent interface
      * @param callback the listener that will receive new values
      */
+    @OptIn(androidx.window.core.ExperimentalWindowApi::class)
     override fun registerLayoutChangeCallback(
-        activity: Activity,
+        @UiContext context: Context,
         executor: Executor,
         callback: Consumer<WindowLayoutInfo>
     ) {
         extensionWindowBackendLock.withLock {
-            activityToListeners[activity]?.let { listener ->
+            contextToListeners[context]?.let { listener ->
                 listener.addListener(callback)
-                listenerToActivity[callback] = activity
+                listenerToContext[callback] = context
             } ?: run {
-                val consumer = MulticastConsumer(activity)
-                activityToListeners[activity] = consumer
-                listenerToActivity[callback] = activity
+                val consumer = MulticastConsumer(context)
+                contextToListeners[context] = consumer
+                listenerToContext[callback] = context
                 consumer.addListener(callback)
-                val disposableToken = consumerAdapter.createSubscription(
-                    component,
-                    OEMWindowLayoutInfo::class,
-                    "addWindowLayoutInfoListener",
-                    "removeWindowLayoutInfoListener",
-                    activity
-                ) { value ->
-                    consumer.accept(value)
+                val consumeWindowLayoutInfo: (OEMWindowLayoutInfo) -> Unit = {
+                        value -> consumer.accept(value)
                 }
+                // The registrations above maintain 1-many mapping of Context-Listeners across
+                // different subscription implementations.
+                val disposableToken =
+                    when (EmbeddingCompat.getExtensionApiLevel() ?: 0) {
+                        // TODO(b/246640575) Use Extension Level constants here instead of raw ints.
+                        2 ->
+                            consumerAdapter.createSubscription(
+                                component,
+                                OEMWindowLayoutInfo::class,
+                                "addWindowLayoutInfoListener",
+                                "removeWindowLayoutInfoListener",
+                                context,
+                                consumeWindowLayoutInfo
+                            )
+                        1 ->
+                            if (context is Activity) {
+                                consumerAdapter.createSubscription(
+                                    component,
+                                    OEMWindowLayoutInfo::class,
+                                    "addWindowLayoutInfoListener",
+                                    "removeWindowLayoutInfoListener",
+                                    context,
+                                    consumeWindowLayoutInfo
+                                )
+                            } else {
+                                // Prior to WM Extensions v2 addWindowLayoutInfoListener only
+                                // supports Activities. Return empty WindowLayoutInfo if the
+                                // provided Context is not an Activity.
+                                consumer.accept(OEMWindowLayoutInfo(emptyList()))
+                                return@registerLayoutChangeCallback
+                            }
+                        else -> {
+                            consumer.accept(OEMWindowLayoutInfo(emptyList()))
+                            return@registerLayoutChangeCallback
+                        }
+                    }
                 consumerToToken[consumer] = disposableToken
             }
         }
     }
 
     /**
-     * Unregisters a listener, if this is the last listener for an [Activity] then the listener is
+     * Unregisters a listener, if this is the last listener for a [UiContext] then the listener is
      * removed from the [WindowLayoutComponent]. Calling with the same listener multiple times in a
-     * row does not have an effect. @param callback a listener that may have been registered
+     * row does not have an effect.
+     * @param callback a listener that may have been registered
      */
     override fun unregisterLayoutChangeCallback(callback: Consumer<WindowLayoutInfo>) {
         extensionWindowBackendLock.withLock {
-            val activity = listenerToActivity[callback] ?: return
-            val multicastListener = activityToListeners[activity] ?: return
+            val context = listenerToContext[callback] ?: return
+            val multicastListener = contextToListeners[context] ?: return
             multicastListener.removeListener(callback)
             if (multicastListener.isEmpty()) {
                 consumerToToken.remove(multicastListener)?.dispose()
-                listenerToActivity.remove(callback)
-                activityToListeners.remove(activity)
+                listenerToContext.remove(callback)
+                contextToListeners.remove(context)
             }
         }
     }
@@ -105,7 +146,7 @@ internal class ExtensionWindowLayoutInfoBackend(
      * value whenever a new consumer registers.
      */
     private class MulticastConsumer(
-        private val activity: Activity
+        private val context: Context
     ) : Consumer<OEMWindowLayoutInfo> {
         private val multicastConsumerLock = ReentrantLock()
         @GuardedBy("lock")
@@ -115,7 +156,7 @@ internal class ExtensionWindowLayoutInfoBackend(
 
         override fun accept(value: OEMWindowLayoutInfo) {
             multicastConsumerLock.withLock {
-                lastKnownValue = translate(activity, value)
+                lastKnownValue = translate(context, value)
                 registeredListeners.forEach { consumer -> consumer.accept(lastKnownValue) }
             }
         }

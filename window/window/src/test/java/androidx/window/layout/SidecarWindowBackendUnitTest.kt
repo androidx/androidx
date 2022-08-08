@@ -17,6 +17,7 @@ package androidx.window.layout
 
 import android.app.Activity
 import android.content.Context
+import android.os.Build
 import androidx.core.util.Consumer
 import androidx.window.layout.ExtensionInterfaceCompat.ExtensionCallbackInterface
 import com.nhaarman.mockitokotlin2.any
@@ -27,6 +28,7 @@ import com.nhaarman.mockitokotlin2.verify
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
+import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Test
 
@@ -69,6 +71,19 @@ public class SidecarWindowBackendUnitTest {
         verify(backend.windowExtension!!).onWindowLayoutChangeListenerRemoved(
             eq(activity)
         )
+    }
+
+    @Test
+    public fun testRegisterLayoutChangeCallback_withContext() {
+        assumeTrue(Build.VERSION.SDK_INT >= Build.VERSION_CODES.R)
+        val backend = SidecarWindowBackend.getInstance(context)
+        backend.windowExtension = mock()
+
+        // Check registering the layout change callback
+        val consumer = mock<Consumer<WindowLayoutInfo>>()
+        val context = mock<Context>()
+        backend.registerLayoutChangeCallback(context, { obj: Runnable -> obj.run() }, consumer)
+        verify(consumer).accept(any())
     }
 
     @Test

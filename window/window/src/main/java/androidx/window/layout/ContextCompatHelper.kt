@@ -17,27 +17,32 @@
 package androidx.window.layout
 
 import android.app.Activity
+import android.content.Context
 import android.graphics.Rect
 import android.os.Build
+import android.view.WindowManager
 import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
+import androidx.annotation.UiContext
 import androidx.core.view.WindowInsetsCompat
 
 @RequiresApi(Build.VERSION_CODES.N)
-internal object ActivityCompatHelperApi24 {
+internal object ContextCompatHelperApi24 {
     fun isInMultiWindowMode(activity: Activity): Boolean {
         return activity.isInMultiWindowMode
     }
 }
 
 @RequiresApi(Build.VERSION_CODES.R)
-internal object ActivityCompatHelperApi30 {
-    fun currentWindowBounds(activity: Activity): Rect {
-        return activity.windowManager.currentWindowMetrics.bounds
+internal object ContextCompatHelperApi30 {
+    fun currentWindowBounds(@UiContext context: Context): Rect {
+        val wm = context.getSystemService(WindowManager::class.java)
+        return wm.currentWindowMetrics.bounds
     }
 
-    fun maximumWindowBounds(activity: Activity): Rect {
-        return activity.windowManager.maximumWindowMetrics.bounds
+    fun maximumWindowBounds(@UiContext context: Context): Rect {
+        val wm = context.getSystemService(WindowManager::class.java)
+        return wm.maximumWindowMetrics.bounds
     }
 
     /**

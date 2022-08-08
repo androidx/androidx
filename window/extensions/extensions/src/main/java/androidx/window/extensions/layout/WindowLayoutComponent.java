@@ -17,8 +17,10 @@
 package androidx.window.extensions.layout;
 
 import android.app.Activity;
+import android.content.Context;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.UiContext;
 import androidx.window.extensions.WindowExtensions;
 
 import java.util.function.Consumer;
@@ -46,6 +48,31 @@ public interface WindowLayoutComponent {
      */
     void addWindowLayoutInfoListener(@NonNull Activity activity,
             @NonNull Consumer<WindowLayoutInfo> consumer);
+
+    /**
+     * Adds a listener interested in receiving updates to {@link WindowLayoutInfo}.
+     * Use {@link WindowLayoutComponent#removeWindowLayoutInfoListener} to remove listener.
+     *
+     * A {@link Context} or a Consumer instance can only be registered once.
+     * Registering the same {@link Context} or Consumer more than once will result in
+     * IllegalArgumentException.
+     *
+     * @param context a {@link UiContext} that corresponds to a window or an area on the
+     *                      screen - an {@link Activity} or a {@link Context} created with
+     *                      {@link Context#createWindowContext(Display, int , Bundle)}, but not
+     *                      {@link android.inputmethodservice.InputMethodService}.
+     * @param consumer interested in receiving updates to {@link WindowLayoutInfo}
+     * @since {@link WindowExtensions#VENDOR_API_LEVEL_2}
+     */
+    // TODO(b/238905747): Add api guard for extensions.
+    // TODO(b/237342281): Extend to WindowProvider to support InputMethodService usage.
+    @SuppressWarnings("PairedRegistration")
+    // The paired method for unregistering is also removeWindowLayoutInfoListener.
+    default void addWindowLayoutInfoListener(@NonNull @UiContext Context context,
+            @NonNull Consumer<WindowLayoutInfo> consumer) {
+        throw new UnsupportedOperationException("This method must not be called unless there is a"
+                + " corresponding override implementation on the device.");
+    }
 
     /**
      * Removes a listener no longer interested in receiving updates.

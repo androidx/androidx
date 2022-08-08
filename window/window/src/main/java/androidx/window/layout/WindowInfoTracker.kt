@@ -21,6 +21,7 @@ import android.content.Context
 import android.util.Log
 import androidx.annotation.RestrictTo
 import androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP
+import androidx.annotation.UiContext
 import androidx.window.core.ConsumerAdapter
 import kotlinx.coroutines.flow.Flow
 
@@ -29,6 +30,32 @@ import kotlinx.coroutines.flow.Flow
  * @see WindowInfoTracker.getOrCreate to get an instance.
  */
 public interface WindowInfoTracker {
+
+    /**
+     * A [Flow] of [WindowLayoutInfo] that contains all the available features. A [WindowLayoutInfo]
+     * contains a [List] of [DisplayFeature] that intersect the associated [android.view.Window].
+     *
+     * This method exports the same content as
+     * [WindowLayoutInfo.windowLayoutInfo(activity: Activity)], but also supports non-Activity
+     * windows to receive [WindowLayoutInfo] updates.
+     *
+     * A derived class may throw NotImplementedError if this method is not overridden.
+     * Obtaining a [WindowInfoTracker] through [WindowInfoTracker.getOrCreate] guarantees having a
+     * default implementation for this method.
+     *
+     * @param context a [UiContext] or an [Activity] that listens to configuration changes.
+     * @see WindowLayoutInfo
+     * @see DisplayFeature
+     *
+     * @throws NotImplementedError when [Context] is not an [Activity] and this method has no
+     * supporting implementation.
+     */
+    public fun windowLayoutInfo(@UiContext context: Context): Flow<WindowLayoutInfo> {
+        val windowLayoutInfoFlow: Flow<WindowLayoutInfo>? = windowLayoutInfo((context as Activity))
+        return windowLayoutInfoFlow
+            ?: throw NotImplementedError(
+                message = "Must override windowLayoutInfo(context) and provide an implementation.")
+    }
 
     /**
      * A [Flow] of [WindowLayoutInfo] that contains all the available features. A [WindowLayoutInfo]
