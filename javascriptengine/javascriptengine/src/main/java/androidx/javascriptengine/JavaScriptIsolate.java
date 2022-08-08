@@ -30,7 +30,6 @@ import com.google.common.util.concurrent.ListenableFuture;
 
 import org.chromium.android_webview.js_sandbox.common.IJsSandboxIsolate;
 import org.chromium.android_webview.js_sandbox.common.IJsSandboxIsolateCallback;
-import org.intellij.lang.annotations.Language;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -146,7 +145,7 @@ public final class JavaScriptIsolate implements AutoCloseable {
     @SuppressWarnings("NullAway")
     @NonNull
     public ListenableFuture<String> evaluateJavaScriptAsync(
-            @NonNull @Language("javascript") String code) {
+            @NonNull String code) {
         if (mJsIsolateStub == null) {
             throw new IllegalStateException(
                     "Calling evaluateJavascript() after closing the Isolate");
