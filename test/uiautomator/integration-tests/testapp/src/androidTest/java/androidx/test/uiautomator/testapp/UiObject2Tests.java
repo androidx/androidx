@@ -29,6 +29,7 @@ import android.graphics.Rect;
 import android.view.ViewConfiguration;
 
 import androidx.test.core.app.ApplicationProvider;
+import androidx.test.filters.FlakyTest;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.uiautomator.By;
 import androidx.test.uiautomator.Direction;
@@ -555,6 +556,7 @@ public class UiObject2Tests extends BaseTest {
                 + "but got [%f]", scaleValueAfterPinch), scaleValueAfterPinch > 1f);
     }
 
+    @FlakyTest(bugId = 241577073)
     @Test
     public void testSwipe() {
         launchTestActivity(SwipeTestActivity.class);
