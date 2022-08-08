@@ -145,8 +145,10 @@ class MainActivity : AppCompatActivity() {
             lifecycleScope.launch {
                 try {
                     val reportFile = withContext(diagnosisDispatcher) {
-                        // TODO: create functionality for adding diagnosis task and setting is aggregated
+                        // creating tasks to diagnose
                         val taskList = mutableListOf<DiagnosisTask>()
+                        taskList.add(CollectDeviceInfoTask())
+                        taskList.add(ImageCaptureTask())
                         val isAggregated = true
                         Log.i(TAG, "dispatcher: ${Thread.currentThread().name}")
                         diagnosis.diagnose(baseContext, taskList, cameraController, isAggregated)
