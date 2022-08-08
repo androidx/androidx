@@ -538,7 +538,6 @@ public class StyleParcelableTest {
         assertThat(longRangeUserStyleSettingDefaultMax.defaultValue).isEqualTo(10)
     }
 
-    @Ignore // b/241592187
     @Test
     public fun parcelAndUnparcelComplicationsUserStyleSetting() {
         val leftComplicationID = 101
