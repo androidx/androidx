@@ -87,6 +87,7 @@ public class UiObjectTest extends BaseTest {
                 + "/drag_button"));
         UiObject dragDestination = mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id"
                 + "/drag_destination"));
+
         UiObject expectedDragDest = mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id"
                 + "/drag_destination").text("drag_received"));
 
@@ -107,6 +108,7 @@ public class UiObjectTest extends BaseTest {
                 + "/drag_button"));
         UiObject dragDestination = mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id"
                 + "/drag_destination"));
+
         UiObject expectedDragDest = mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id"
                 + "/drag_destination").text("drag_received"));
         Rect destBounds = dragDestination.getVisibleBounds();
@@ -122,10 +124,17 @@ public class UiObjectTest extends BaseTest {
 
         UiObject swipeRegion = mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id"
                 + "/swipe_region"));
+        UiObject verySmallRegion = mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id"
+                + "/very_small_region"));
 
+        UiObject expectedSwipeRegion = mDevice.findObject(
+                new UiSelector().resourceId(TEST_APP + ":id"
+                        + "/swipe_region").text("swipe_up"));
+
+        assertFalse(verySmallRegion.swipeUp(100));
         assertEquals("no_swipe", swipeRegion.getText());
         assertTrue(swipeRegion.swipeUp(100));
-        assertEquals("swipe_up", swipeRegion.getText());
+        assertTrue(expectedSwipeRegion.waitForExists(TIMEOUT_MS));
     }
 
     @Test
@@ -134,10 +143,17 @@ public class UiObjectTest extends BaseTest {
 
         UiObject swipeRegion = mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id"
                 + "/swipe_region"));
+        UiObject verySmallRegion = mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id"
+                + "/very_small_region"));
 
+        UiObject expectedSwipeRegion = mDevice.findObject(
+                new UiSelector().resourceId(TEST_APP + ":id"
+                        + "/swipe_region").text("swipe_down"));
+
+        assertFalse(verySmallRegion.swipeDown(100));
         assertEquals("no_swipe", swipeRegion.getText());
         assertTrue(swipeRegion.swipeDown(100));
-        assertEquals("swipe_down", swipeRegion.getText());
+        assertTrue(expectedSwipeRegion.waitForExists(TIMEOUT_MS));
     }
 
     @Test
@@ -146,10 +162,17 @@ public class UiObjectTest extends BaseTest {
 
         UiObject swipeRegion = mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id"
                 + "/swipe_region"));
+        UiObject verySmallRegion = mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id"
+                + "/very_small_region"));
 
+        UiObject expectedSwipeRegion = mDevice.findObject(
+                new UiSelector().resourceId(TEST_APP + ":id"
+                        + "/swipe_region").text("swipe_left"));
+
+        assertFalse(verySmallRegion.swipeLeft(100));
         assertEquals("no_swipe", swipeRegion.getText());
         assertTrue(swipeRegion.swipeLeft(100));
-        assertEquals("swipe_left", swipeRegion.getText());
+        assertTrue(expectedSwipeRegion.waitForExists(TIMEOUT_MS));
     }
 
     @Test
@@ -158,19 +181,75 @@ public class UiObjectTest extends BaseTest {
 
         UiObject swipeRegion = mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id"
                 + "/swipe_region"));
+        UiObject verySmallRegion = mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id"
+                + "/very_small_region"));
 
+        UiObject expectedSwipeRegion = mDevice.findObject(
+                new UiSelector().resourceId(TEST_APP + ":id"
+                        + "/swipe_region").text("swipe_right"));
+
+        assertFalse(verySmallRegion.swipeRight(100));
         assertEquals("no_swipe", swipeRegion.getText());
         assertTrue(swipeRegion.swipeRight(100));
-        assertEquals("swipe_right", swipeRegion.getText());
+        assertTrue(expectedSwipeRegion.waitForExists(TIMEOUT_MS));
+    }
+
+    @Test
+    public void testClick() throws Exception {
+        launchTestActivity(ClickTestActivity.class);
+
+        UiObject button1 = mDevice.findObject(
+                new UiSelector().resourceId(TEST_APP + ":id/button1"));
+
+        UiObject expectedButton1 = mDevice.findObject(
+                new UiSelector().resourceId(TEST_APP + ":id/button1").text("text1_clicked"));
+
+        assertEquals("text1", button1.getText());
+        assertTrue(button1.click());
+        assertTrue(expectedButton1.waitForExists(TIMEOUT_MS));
+    }
+
+    @Test
+    public void testClick_throwsUiObjectNotFoundException() {
+        launchTestActivity(ClickTestActivity.class);
+
+        UiObject noNode = mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id/no_node"));
+
+        assertThrows(noNode.getSelector().toString(), UiObjectNotFoundException.class,
+                noNode::click);
+    }
+
+    @Test
+    public void testClickAndWaitForNewWindow() throws Exception {
+        launchTestActivity(ClickAndWaitTestActivity.class);
+
+        UiObject newWindowsButton = mDevice.findObject(
+                new UiSelector().resourceId(TEST_APP + ":id/new_window_button"));
+
+        assertTrue(newWindowsButton.clickAndWaitForNewWindow());
+    }
+
+    @Test
+    public void testClickAndWaitForNewWindow_timeout() throws Exception {
+        launchTestActivity(ClickAndWaitTestActivity.class);
+
+        UiObject newWindowsButton = mDevice.findObject(
+                new UiSelector().resourceId(TEST_APP + ":id/new_window_button"));
+
+        assertTrue(newWindowsButton.clickAndWaitForNewWindow(4_000));
+    }
+
+    @Test
+    public void testClickAndWaitForNewWindow_throwsUiObjectNotFoundException() {
+        launchTestActivity(ClickAndWaitTestActivity.class);
+
+        UiObject noNode = mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id/no_node"));
+
+        assertThrows(noNode.getSelector().toString(), UiObjectNotFoundException.class,
+                noNode::clickAndWaitForNewWindow);
     }
 
     /* TODO(b/241158642): Implement these tests, and the tests for exceptions of each tested method.
-
-    public void testClick() {}
-
-    public void testClickAndWaitForNewWindow() {}
-
-    public void testClickAndWaitForNewWindow_timeout() {}
 
     public void testClickTopLeft() {}
 
