@@ -449,6 +449,7 @@ package androidx.work {
   }
 
   public final class WorkerParameters {
+    method @IntRange(from=0) public int getGeneration();
     method public java.util.UUID getId();
     method public androidx.work.Data getInputData();
     method @RequiresApi(28) public android.net.Network? getNetwork();
