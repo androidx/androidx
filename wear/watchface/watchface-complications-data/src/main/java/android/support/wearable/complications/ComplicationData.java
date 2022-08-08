@@ -370,6 +370,9 @@ public final class ComplicationData implements Parcelable, Serializable {
                     FIELD_SHORT_TITLE,
                     FIELD_ICON,
                     FIELD_ICON_BURN_IN_PROTECTION,
+                    FIELD_SMALL_IMAGE,
+                    FIELD_SMALL_IMAGE_BURN_IN_PROTECTION,
+                    FIELD_IMAGE_STYLE,
                     FIELD_TAP_ACTION,
                     FIELD_CONTENT_DESCRIPTION,
                     FIELD_DATA_SOURCE
@@ -390,6 +393,9 @@ public final class ComplicationData implements Parcelable, Serializable {
                     FIELD_SHORT_TITLE,
                     FIELD_ICON,
                     FIELD_ICON_BURN_IN_PROTECTION,
+                    FIELD_SMALL_IMAGE,
+                    FIELD_SMALL_IMAGE_BURN_IN_PROTECTION,
+                    FIELD_IMAGE_STYLE,
                     FIELD_TAP_ACTION,
                     FIELD_CONTENT_DESCRIPTION,
                     FIELD_DATA_SOURCE,
@@ -416,6 +422,9 @@ public final class ComplicationData implements Parcelable, Serializable {
                     FIELD_SHORT_TITLE,
                     FIELD_ICON,
                     FIELD_ICON_BURN_IN_PROTECTION,
+                    FIELD_SMALL_IMAGE,
+                    FIELD_SMALL_IMAGE_BURN_IN_PROTECTION,
+                    FIELD_IMAGE_STYLE,
                     FIELD_CONTENT_DESCRIPTION,
                     FIELD_DATA_SOURCE
             }, // TYPE_NO_PERMISSION
@@ -453,6 +462,9 @@ public final class ComplicationData implements Parcelable, Serializable {
                     FIELD_SHORT_TITLE,
                     FIELD_ICON,
                     FIELD_ICON_BURN_IN_PROTECTION,
+                    FIELD_SMALL_IMAGE,
+                    FIELD_SMALL_IMAGE_BURN_IN_PROTECTION,
+                    FIELD_IMAGE_STYLE,
                     FIELD_TAP_ACTION,
                     FIELD_CONTENT_DESCRIPTION,
                     FIELD_DATA_SOURCE,
@@ -464,6 +476,9 @@ public final class ComplicationData implements Parcelable, Serializable {
                     FIELD_SHORT_TITLE,
                     FIELD_ICON,
                     FIELD_ICON_BURN_IN_PROTECTION,
+                    FIELD_SMALL_IMAGE,
+                    FIELD_SMALL_IMAGE_BURN_IN_PROTECTION,
+                    FIELD_IMAGE_STYLE,
                     FIELD_TAP_ACTION,
                     FIELD_CONTENT_DESCRIPTION,
                     FIELD_DATA_SOURCE,
@@ -473,6 +488,9 @@ public final class ComplicationData implements Parcelable, Serializable {
                     FIELD_SHORT_TITLE,
                     FIELD_ICON,
                     FIELD_ICON_BURN_IN_PROTECTION,
+                    FIELD_SMALL_IMAGE,
+                    FIELD_SMALL_IMAGE_BURN_IN_PROTECTION,
+                    FIELD_IMAGE_STYLE,
                     FIELD_TAP_ACTION,
                     FIELD_CONTENT_DESCRIPTION,
                     FIELD_DATA_SOURCE,
@@ -518,7 +536,7 @@ public final class ComplicationData implements Parcelable, Serializable {
 
     @RequiresApi(api = Build.VERSION_CODES.P)
     private static class SerializedForm implements Serializable {
-        private static final int VERSION_NUMBER = 14;
+        private static final int VERSION_NUMBER = 15;
 
         @NonNull
         ComplicationData mComplicationData;
