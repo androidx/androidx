@@ -29,6 +29,7 @@ import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.localstorage.AppSearchImpl;
 import androidx.appsearch.localstorage.util.PrefixUtil;
 import androidx.collection.ArrayMap;
+import androidx.core.util.Preconditions;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -203,15 +204,19 @@ public class VisibilityStoreMigrationHelperFromV0 {
                     .getPropertyDocumentArray(DEPRECATED_VISIBLE_TO_PACKAGES_PROPERTY);
             if (deprecatedPackageDocuments != null) {
                 for (GenericDocument deprecatedPackageDocument : deprecatedPackageDocuments) {
-                    String prefixedSchemaType = deprecatedPackageDocument
-                            .getPropertyString(DEPRECATED_ACCESSIBLE_SCHEMA_PROPERTY);
-                    VisibilityDocumentV1.Builder visibilityBuilder = getOrCreateBuilder(
-                            documentBuilderMap, prefixedSchemaType);
-                    visibilityBuilder.addVisibleToPackage(new PackageIdentifier(
+                    String prefixedSchemaType = Preconditions.checkNotNull(
                             deprecatedPackageDocument.getPropertyString(
-                                    DEPRECATED_PACKAGE_NAME_PROPERTY),
+                            DEPRECATED_ACCESSIBLE_SCHEMA_PROPERTY));
+                    VisibilityDocumentV1.Builder visibilityBuilder =
+                            getOrCreateBuilder(documentBuilderMap, prefixedSchemaType);
+                    String packageName = Preconditions.checkNotNull(
+                            deprecatedPackageDocument.getPropertyString(
+                                DEPRECATED_PACKAGE_NAME_PROPERTY));
+                    byte[] sha256Cert = Preconditions.checkNotNull(
                             deprecatedPackageDocument.getPropertyBytes(
-                                    DEPRECATED_SHA_256_CERT_PROPERTY)));
+                                DEPRECATED_SHA_256_CERT_PROPERTY));
+                    visibilityBuilder.addVisibleToPackage(
+                            new PackageIdentifier(packageName, sha256Cert));
                 }
             }
         }
