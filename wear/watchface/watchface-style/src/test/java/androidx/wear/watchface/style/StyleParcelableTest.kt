@@ -38,8 +38,6 @@ import androidx.wear.watchface.style.data.UserStyleWireFormat
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
-import org.junit.Assume.assumeTrue
-import org.junit.Before
 import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -80,11 +78,6 @@ public class StyleParcelableTest {
         icon4,
         watchFaceEditorData = WatchFaceEditorData(wfIcon4)
     )
-
-    @Before
-    public fun setUp() {
-        assumeTrue("These tests require API 28", Build.VERSION.SDK_INT >= 28)
-    }
 
     @Test
     public fun parcelAndUnparcelStyleSettingAndOption() {
