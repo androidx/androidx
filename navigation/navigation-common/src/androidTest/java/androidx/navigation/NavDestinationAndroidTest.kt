@@ -211,6 +211,80 @@ class NavDestinationAndroidTest {
     }
 
     @Test
+    fun matchDeepLinkBestMatchExactPathSegments() {
+        val destination = NoOpNavigator().createDestination()
+
+        destination.addArgument("user", stringArgument("testUser"))
+        destination.addArgument("name", stringArgument("testName"))
+
+        destination.addDeepLink("www.test.com/{user}/{name}")
+        destination.addDeepLink("www.test.com/testUser/{name}")
+
+        val match = destination.matchDeepLink(
+            Uri.parse("https://www.test.com/testUser/testName")
+        )
+
+        assertWithMessage("Deep link should match")
+            .that(match)
+            .isNotNull()
+        assertWithMessage("Deep link should match with most exact path segments")
+            .that(match?.matchingArgs?.size())
+            .isEqualTo(1)
+        assertWithMessage("Deep link should extract name argument correctly")
+            .that(match?.matchingArgs?.getString("name"))
+            .isEqualTo("testName")
+    }
+
+    @Test
+    fun matchDeepLinkBestMatchExactPathSegmentsWithQueryParams() {
+        val destination = NoOpNavigator().createDestination()
+
+        destination.addArgument("user", stringArgument("testUser"))
+        destination.addArgument("name", stringArgument("testName"))
+        destination.addArgument("param", stringArgument("testArg"))
+
+        destination.addDeepLink("www.test.com/{user}/{name}?param={arg}")
+        destination.addDeepLink("www.test.com/testUser/{name}?param={arg}")
+
+        val match = destination.matchDeepLink(
+            Uri.parse("https://www.test.com/testUser/testName?param=testArg")
+        )
+
+        assertWithMessage("Deep link should match")
+            .that(match)
+            .isNotNull()
+        assertWithMessage("Deep link should match with most exact path segments")
+            .that(match?.matchingArgs?.size())
+            .isEqualTo(2)
+    }
+
+    @Test
+    fun matchDeepLinkBestMatchNonconsecutiveExactPathSegments() {
+        val destination = NoOpNavigator().createDestination()
+
+        destination.addArgument("two", stringArgument("two"))
+        destination.addArgument("three", stringArgument("three"))
+        destination.addArgument("four", stringArgument("four"))
+
+        destination.addDeepLink("www.test.com/one/two/{three}/{four}")
+        destination.addDeepLink("www.test.com/one/{two}/three/four")
+
+        val match = destination.matchDeepLink(
+            Uri.parse("https://www.test.com/one/two/three/four")
+        )
+
+        assertWithMessage("Deep link should match")
+            .that(match)
+            .isNotNull()
+        assertWithMessage("Deep link should match with most exact path segments")
+            .that(match?.matchingArgs?.size())
+            .isEqualTo(1)
+        assertWithMessage("Deep link should extract 'two' argument correctly")
+            .that(match?.matchingArgs?.getString("two"))
+            .isEqualTo("two")
+    }
+
+    @Test
     fun matchDeepLinkBestMatchNullableQueryParam() {
         val destination = NoOpNavigator().createDestination()
 
