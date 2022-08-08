@@ -704,7 +704,7 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
             }
 
             val typedParams = method.parameters.map { param ->
-                "${(param.type as? PsiType)?.presentableText} ${param.name}"
+                "${(param.type as? PsiType)?.canonicalText} ${param.name}"
             }
             val typedParamsStr = (listOfNotNull(hostParam) + typedParams).joinToString(", ")
 
@@ -724,7 +724,7 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
                 receiverStr = "new "
             } else {
                 wrapperMethodName = methodName
-                returnTypeStr = method.returnType?.presentableText ?: "void"
+                returnTypeStr = method.returnType?.canonicalText ?: "void"
                 returnStmtStr = if ("void" == returnTypeStr) "" else "return "
                 receiverStr = if (isStatic) "$hostType." else "$hostVar."
             }
