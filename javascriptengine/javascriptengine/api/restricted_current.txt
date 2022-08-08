@@ -23,7 +23,7 @@ package androidx.javascriptengine {
 
   public final class JavaScriptIsolate implements java.lang.AutoCloseable {
     method public void close();
-    method public com.google.common.util.concurrent.ListenableFuture<java.lang.String!> evaluateJavaScriptAsync(@org.intellij.lang.annotations.Language("javascript") String);
+    method public com.google.common.util.concurrent.ListenableFuture<java.lang.String!> evaluateJavaScriptAsync(String);
     method @RequiresFeature(name=androidx.javascriptengine.JavaScriptSandbox.JS_FEATURE_PROVIDE_CONSUME_ARRAY_BUFFER, enforcement="androidx.javascriptengine.JavaScriptSandbox#isFeatureSupported") public boolean provideNamedData(String, byte[]);
   }
 
