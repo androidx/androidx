@@ -85,6 +85,9 @@ public enum class ComplicationType(private val wireType: Int) {
                 PHOTO_IMAGE.wireType -> PHOTO_IMAGE
                 NO_PERMISSION.wireType -> NO_PERMISSION
                 PROTO_LAYOUT.wireType -> PROTO_LAYOUT
+                GOAL_PROGRESS.wireType -> GOAL_PROGRESS
+                DISCRETE_RANGED_VALUE.wireType -> DISCRETE_RANGED_VALUE
+                WEIGHTED_ELEMENTS.wireType -> WEIGHTED_ELEMENTS
                 LIST.wireType -> LIST
                 else -> EMPTY
             }
