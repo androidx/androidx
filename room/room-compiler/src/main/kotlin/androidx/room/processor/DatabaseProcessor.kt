@@ -376,7 +376,7 @@ class DatabaseProcessor(baseContext: Context, val element: XTypeElement) {
                     check(method.element, daoMethod.dao, it.value.entityTypeName)
                 }
             }
-            daoMethod.dao.insertionMethods.forEach { method ->
+            daoMethod.dao.insertOrUpsertShortcutMethods.forEach { method ->
                 method.entities.forEach {
                     check(method.element, daoMethod.dao, it.value.entityTypeName)
                 }
