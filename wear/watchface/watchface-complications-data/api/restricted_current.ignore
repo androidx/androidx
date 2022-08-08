@@ -1,21 +1,3 @@
 // Baseline format: 1.0
-RemovedMethod: androidx.wear.watchface.complications.data.EmptyComplicationData#asWireComplicationData():
-    Removed method androidx.wear.watchface.complications.data.EmptyComplicationData.asWireComplicationData()
-RemovedMethod: androidx.wear.watchface.complications.data.LongTextComplicationData#asWireComplicationData():
-    Removed method androidx.wear.watchface.complications.data.LongTextComplicationData.asWireComplicationData()
-RemovedMethod: androidx.wear.watchface.complications.data.MonochromaticImageComplicationData#asWireComplicationData():
-    Removed method androidx.wear.watchface.complications.data.MonochromaticImageComplicationData.asWireComplicationData()
-RemovedMethod: androidx.wear.watchface.complications.data.NoDataComplicationData#asWireComplicationData():
-    Removed method androidx.wear.watchface.complications.data.NoDataComplicationData.asWireComplicationData()
-RemovedMethod: androidx.wear.watchface.complications.data.NoPermissionComplicationData#asWireComplicationData():
-    Removed method androidx.wear.watchface.complications.data.NoPermissionComplicationData.asWireComplicationData()
-RemovedMethod: androidx.wear.watchface.complications.data.NotConfiguredComplicationData#asWireComplicationData():
-    Removed method androidx.wear.watchface.complications.data.NotConfiguredComplicationData.asWireComplicationData()
-RemovedMethod: androidx.wear.watchface.complications.data.PhotoImageComplicationData#asWireComplicationData():
-    Removed method androidx.wear.watchface.complications.data.PhotoImageComplicationData.asWireComplicationData()
-RemovedMethod: androidx.wear.watchface.complications.data.RangedValueComplicationData#asWireComplicationData():
-    Removed method androidx.wear.watchface.complications.data.RangedValueComplicationData.asWireComplicationData()
-RemovedMethod: androidx.wear.watchface.complications.data.ShortTextComplicationData#asWireComplicationData():
-    Removed method androidx.wear.watchface.complications.data.ShortTextComplicationData.asWireComplicationData()
-RemovedMethod: androidx.wear.watchface.complications.data.SmallImageComplicationData#asWireComplicationData():
-    Removed method androidx.wear.watchface.complications.data.SmallImageComplicationData.asWireComplicationData()
+RemovedClass: androidx.wear.watchface.complications.data.DefaultComplicationDataSourcePolicyWireFormat:
+    Removed class androidx.wear.watchface.complications.data.DefaultComplicationDataSourcePolicyWireFormat

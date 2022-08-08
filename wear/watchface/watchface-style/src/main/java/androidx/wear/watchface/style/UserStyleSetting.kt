@@ -64,6 +64,7 @@ import java.io.InputStream
 import java.nio.ByteBuffer
 import java.security.DigestOutputStream
 import java.security.InvalidParameterException
+import org.xmlpull.v1.XmlPullParser
 
 /** Wrapper around either a [CharSequence] or a string resource. */
 internal sealed class DisplayText {
@@ -454,11 +455,11 @@ public sealed class UserStyleSetting private constructor(
     )
 
     /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public abstract fun toWireFormat(): UserStyleSettingWireFormat
 
     /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun getWireFormatOptionsList(): List<OptionWireFormat> =
         options.map { it.toWireFormat() }
 
@@ -589,7 +590,7 @@ public sealed class UserStyleSetting private constructor(
 
         public companion object {
             /** @hide */
-            @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+            @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
             public fun createFromWireFormat(
                 wireFormat: OptionWireFormat
             ): Option =
@@ -621,7 +622,7 @@ public sealed class UserStyleSetting private constructor(
 
         /** @hide */
         @Suppress("HiddenAbstractMethod")
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public abstract fun toWireFormat(): OptionWireFormat
 
         override fun equals(other: Any?): Boolean {
@@ -775,7 +776,7 @@ public sealed class UserStyleSetting private constructor(
         internal constructor(wireFormat: BooleanUserStyleSettingWireFormat) : super(wireFormat)
 
         /** @hide */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         override fun toWireFormat(): BooleanUserStyleSettingWireFormat =
             BooleanUserStyleSettingWireFormat(
                 id.value,
@@ -834,7 +835,7 @@ public sealed class UserStyleSetting private constructor(
             emptyList()
         ) {
             /** @hide */
-            @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+            @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
             override fun toWireFormat(): BooleanOptionWireFormat =
                 BooleanOptionWireFormat(id.value)
 
@@ -1208,7 +1209,7 @@ public sealed class UserStyleSetting private constructor(
         }
 
         /** @hide */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         override fun toWireFormat(): ComplicationsUserStyleSettingWireFormat =
             ComplicationsUserStyleSettingWireFormat(
                 id.value,
@@ -1428,7 +1429,7 @@ public sealed class UserStyleSetting private constructor(
             }
 
             /** @hide */
-            @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+            @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
             override fun toWireFormat():
                 ComplicationsOptionWireFormat =
                 ComplicationsOptionWireFormat(
@@ -1702,7 +1703,7 @@ public sealed class UserStyleSetting private constructor(
         internal constructor(wireFormat: DoubleRangeUserStyleSettingWireFormat) : super(wireFormat)
 
         /** @hide */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         override fun toWireFormat(): DoubleRangeUserStyleSettingWireFormat =
             DoubleRangeUserStyleSettingWireFormat(
                 id.value,
@@ -1743,7 +1744,7 @@ public sealed class UserStyleSetting private constructor(
                 DoubleRangeUserStyleSetting::class.java
 
             /** @hide */
-            @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+            @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
             override fun toWireFormat(): DoubleRangeOptionWireFormat =
                 DoubleRangeOptionWireFormat(id.value)
 
@@ -1914,7 +1915,7 @@ public sealed class UserStyleSetting private constructor(
         }
 
         /** @hide */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         override fun toWireFormat(): ListUserStyleSettingWireFormat =
             ListUserStyleSettingWireFormat(
                 id.value,
@@ -2132,7 +2133,7 @@ public sealed class UserStyleSetting private constructor(
             }
 
             /** @hide */
-            @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+            @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
             override fun toWireFormat(): ListOptionWireFormat =
                 ListOptionWireFormat(
                     id.value,
@@ -2398,7 +2399,7 @@ public sealed class UserStyleSetting private constructor(
         internal constructor(wireFormat: LongRangeUserStyleSettingWireFormat) : super(wireFormat)
 
         /** @hide */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         override fun toWireFormat(): LongRangeUserStyleSettingWireFormat =
             LongRangeUserStyleSettingWireFormat(
                 id.value,
@@ -2441,7 +2442,7 @@ public sealed class UserStyleSetting private constructor(
                 LongRangeUserStyleSetting::class.java
 
             /** @hide */
-            @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+            @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
             override fun toWireFormat(): LongRangeOptionWireFormat =
                 LongRangeOptionWireFormat(id.value)
 
@@ -2521,7 +2522,7 @@ public sealed class UserStyleSetting private constructor(
         internal constructor(wireFormat: CustomValueUserStyleSettingWireFormat) : super(wireFormat)
 
         /** @hide */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         override fun toWireFormat(): CustomValueUserStyleSettingWireFormat =
             CustomValueUserStyleSettingWireFormat(
                 id.value,
@@ -2559,7 +2560,7 @@ public sealed class UserStyleSetting private constructor(
                 CustomValueUserStyleSetting::class.java
 
             /** @hide */
-            @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+            @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
             override fun toWireFormat(): CustomValueOptionWireFormat =
                 CustomValueOptionWireFormat(id.value)
 
@@ -2702,5 +2703,52 @@ private fun <T> getAttributeChecked(
     } else {
         defaultValue ?: throw IllegalArgumentException(
             "$name is required for $settingType")
+    }
+}
+
+/** @hide */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+fun getStringRefAttribute(
+    resources: Resources,
+    parser: XmlResourceParser,
+    name: String
+): String? {
+    return if (parser.hasValue(name)) {
+        val resId = parser.getAttributeResourceValue(NAMESPACE_APP, name, 0)
+        if (resId == 0) {
+            parser.getAttributeValue(NAMESPACE_APP, name)
+        } else {
+            resources.getString(resId)
+        }
+    } else null
+}
+
+/** @hide */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+fun getIntRefAttribute(
+    resources: Resources,
+    parser: XmlResourceParser,
+    name: String
+): Int? {
+    return if (parser.hasValue(name)) {
+        val resId = parser.getAttributeResourceValue(NAMESPACE_APP, name, 0)
+        if (resId == 0) {
+            parser.getAttributeValue(NAMESPACE_APP, name).toInt()
+        } else {
+            resources.getInteger(resId)
+        }
+    } else null
+}
+
+/** @hide */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+fun XmlPullParser.moveToStart(expectedNode: String) {
+    var type: Int
+    do {
+        type = next()
+    } while (type != XmlPullParser.END_DOCUMENT && type != XmlPullParser.START_TAG)
+
+    require(name == expectedNode) {
+        "Expected a $expectedNode node but is $name"
     }
 }

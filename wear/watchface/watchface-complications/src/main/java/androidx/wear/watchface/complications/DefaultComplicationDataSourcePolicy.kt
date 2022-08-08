@@ -255,7 +255,7 @@ public class DefaultComplicationDataSourcePolicy {
     }
 
     /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public constructor(wireFormat: DefaultComplicationDataSourcePolicyWireFormat) : this(
         wireFormat.mDefaultDataSourcesToTry,
         wireFormat.mFallbackSystemDataSource,
@@ -266,7 +266,7 @@ public class DefaultComplicationDataSourcePolicy {
     }
 
     /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun toWireFormat(): DefaultComplicationDataSourcePolicyWireFormat {
         val systemDataSourceFallbackDefaultType = systemDataSourceFallbackDefaultType
             .toWireComplicationType()
