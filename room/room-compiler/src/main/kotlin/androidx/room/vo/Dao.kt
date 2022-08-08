@@ -52,6 +52,10 @@ data class Dao(
         deletionMethods + updateMethods
     }
 
+    val insertOrUpsertShortcutMethods: List<InsertOrUpsertShortcutMethod> by lazy {
+        insertionMethods + upsertionMethods
+    }
+
     private val implClassName by lazy {
         if (suffix == null) {
             suffix = ""
