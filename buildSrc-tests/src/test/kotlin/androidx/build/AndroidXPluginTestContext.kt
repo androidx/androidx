@@ -24,6 +24,7 @@ import net.saff.checkmark.Checkmark.Companion.check
 import net.saff.checkmark.Checkmark.Companion.checks
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.GradleRunner
+import org.gradle.testkit.runner.UnexpectedBuildFailure
 import org.junit.rules.TemporaryFolder
 
 /**
@@ -74,15 +75,20 @@ data class AndroidXPluginTestContext(val tmpFolder: TemporaryFolder, val setup: 
         env: Map<String, String> = defaultEnv,
         buildAction: GradleRunAction = defaultBuildAction
     ): BuildResult {
-        return GradleRunner.create().withProjectDir(supportRoot)
-            .withArguments(
-                "-Dmaven.repo.local=$mavenLocalDir",
-                "-P$ALLOW_MISSING_LINT_CHECKS_PROJECT=true",
-                *args
-            )
-            .withEnvironment(env).withEnvironment(env).let { buildAction(it) }.also {
-                checkNoClassloaderErrors(it)
-            }
+        try {
+            return GradleRunner.create().withProjectDir(supportRoot)
+                .withArguments(
+                    "-Dmaven.repo.local=$mavenLocalDir",
+                    "-P$ALLOW_MISSING_LINT_CHECKS_PROJECT=true",
+                    *args
+                )
+                .withEnvironment(env).withEnvironment(env).let { buildAction(it) }.also {
+                    checkNoClassloaderErrors(it)
+                }
+        } catch (e: UnexpectedBuildFailure) {
+            checkNoClassloaderErrors(e.buildResult)
+            throw e
+        }
     }
 
     private fun checkNoClassloaderErrors(result: BuildResult) {
