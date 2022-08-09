@@ -1489,16 +1489,19 @@ package androidx.health.connect.client.units {
     method public double getMicrograms();
     method public double getMilligrams();
     method public double getOunces();
+    method public double getPounds();
     method public static androidx.health.connect.client.units.Mass grams(double value);
     method public static androidx.health.connect.client.units.Mass kilograms(double value);
     method public static androidx.health.connect.client.units.Mass micrograms(double value);
     method public static androidx.health.connect.client.units.Mass milligrams(double value);
     method public static androidx.health.connect.client.units.Mass ounces(double value);
+    method public static androidx.health.connect.client.units.Mass pounds(double value);
     property public final double inGrams;
     property public final double inKilograms;
     property public final double inMicrograms;
     property public final double inMilligrams;
     property public final double inOunces;
+    property public final double inPounds;
     field public static final androidx.health.connect.client.units.Mass.Companion Companion;
   }
 
@@ -1508,6 +1511,7 @@ package androidx.health.connect.client.units {
     method public androidx.health.connect.client.units.Mass micrograms(double value);
     method public androidx.health.connect.client.units.Mass milligrams(double value);
     method public androidx.health.connect.client.units.Mass ounces(double value);
+    method public androidx.health.connect.client.units.Mass pounds(double value);
   }
 
   public final class MassKt {
