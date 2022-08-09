@@ -70,6 +70,7 @@ import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.TemporaryFolder
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
@@ -94,6 +95,10 @@ class VideoRecordingTest(
     val cameraRule = CameraUtil.grantCameraPermissionAndPreTest(
         CameraUtil.PreTestCameraIdList(cameraConfig)
     )
+
+    @get:Rule
+    val temporaryFolder =
+        TemporaryFolder(ApplicationProvider.getApplicationContext<Context>().cacheDir)
 
     @get:Rule
     val permissionRule: GrantPermissionRule =
@@ -442,6 +447,13 @@ class VideoRecordingTest(
 
         instrumentation.runOnMainSync {
             cameraProvider.bindToLifecycle(lifecycleOwner, cameraSelector, preview, videoCapture)
+        }
+        val videoCaptureMonitor = RecorderTest.VideoCaptureMonitor()
+        videoCapture.startVideoRecording(temporaryFolder.newFile(), videoCaptureMonitor).use {
+            // Ensure the Recorder is initialized before start test.
+            videoCaptureMonitor.waitForVideoCaptureStatus()
+        }
+        instrumentation.runOnMainSync {
             lifecycleOwner.pauseAndStop()
         }
 
@@ -746,6 +758,8 @@ class VideoRecordingTest(
         val file2 = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
 
         performRecording(videoCapture1, file1, true)
+        verifyRecordingResult(file1, true)
+        file1.delete()
 
         instrumentation.runOnMainSync {
             cameraProvider.unbindAll()
@@ -753,11 +767,7 @@ class VideoRecordingTest(
         }
 
         performRecording(videoCapture2, file2, true)
-
-        verifyRecordingResult(file1, true)
         verifyRecordingResult(file2, true)
-
-        file1.delete()
         file2.delete()
     }
 
@@ -1058,6 +1068,16 @@ class VideoRecordingTest(
             CallTimesAtLeast(5)
         )
     }
+
+    private fun VideoCapture<Recorder>.startVideoRecording(
+        file: File,
+        eventListener: Consumer<VideoRecordEvent>
+    ): Recording =
+        output.prepareRecording(
+            context, FileOutputOptions.Builder(file).build()
+        ).start(
+            CameraXExecutors.directExecutor(), eventListener
+        )
 }
 
 private fun MediaMetadataRetriever.useAndRelease(block: (MediaMetadataRetriever) -> Unit) {
