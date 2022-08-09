@@ -74,8 +74,7 @@ public class UiObjectTest extends BaseTest {
 
         UiObject noNode = mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id/no_node"));
 
-        assertThrows(noNode.getSelector().toString(), UiObjectNotFoundException.class,
-                noNode::getChildCount);
+        assertThrows(UiObjectNotFoundException.class, noNode::getChildCount);
     }
 
     @Test
@@ -297,26 +296,13 @@ public class UiObjectTest extends BaseTest {
 
         UiObject noNode = mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id/no_node"));
 
-        assertThrows(noNode.getSelector().toString(), UiObjectNotFoundException.class,
-                noNode::click);
-
-        assertThrows(noNode.getSelector().toString(), UiObjectNotFoundException.class,
-                noNode::clickAndWaitForNewWindow);
-
-        assertThrows(noNode.getSelector().toString(), UiObjectNotFoundException.class,
-                noNode::clickTopLeft);
-
-        assertThrows(noNode.getSelector().toString(), UiObjectNotFoundException.class,
-                noNode::longClickBottomRight);
-
-        assertThrows(noNode.getSelector().toString(), UiObjectNotFoundException.class,
-                noNode::clickBottomRight);
-
-        assertThrows(noNode.getSelector().toString(), UiObjectNotFoundException.class,
-                noNode::longClick);
-
-        assertThrows(noNode.getSelector().toString(), UiObjectNotFoundException.class,
-                noNode::longClickTopLeft);
+        assertThrows(UiObjectNotFoundException.class, noNode::click);
+        assertThrows(UiObjectNotFoundException.class, noNode::clickAndWaitForNewWindow);
+        assertThrows(UiObjectNotFoundException.class, noNode::clickTopLeft);
+        assertThrows(UiObjectNotFoundException.class, noNode::longClickBottomRight);
+        assertThrows(UiObjectNotFoundException.class, noNode::clickBottomRight);
+        assertThrows(UiObjectNotFoundException.class, noNode::longClick);
+        assertThrows(UiObjectNotFoundException.class, noNode::longClickTopLeft);
     }
 
     @Test
@@ -396,18 +382,12 @@ public class UiObjectTest extends BaseTest {
 
         UiObject noNode = mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id/no_node"));
 
-        assertThrows(noNode.getSelector().toString(), UiObjectNotFoundException.class,
-                noNode::getText);
-        assertThrows(noNode.getSelector().toString(), UiObjectNotFoundException.class,
-                noNode::getClassName);
-        assertThrows(noNode.getSelector().toString(), UiObjectNotFoundException.class,
-                noNode::getContentDescription);
-        assertThrows(noNode.getSelector().toString(), UiObjectNotFoundException.class,
-                () -> noNode.legacySetText("new_text"));
-        assertThrows(noNode.getSelector().toString(), UiObjectNotFoundException.class,
-                () -> noNode.setText("new_text"));
-        assertThrows(noNode.getSelector().toString(), UiObjectNotFoundException.class,
-                noNode::clearTextField);
+        assertThrows(UiObjectNotFoundException.class, noNode::getText);
+        assertThrows(UiObjectNotFoundException.class, noNode::getClassName);
+        assertThrows(UiObjectNotFoundException.class, noNode::getContentDescription);
+        assertThrows(UiObjectNotFoundException.class, () -> noNode.legacySetText("new_text"));
+        assertThrows(UiObjectNotFoundException.class, () -> noNode.setText("new_text"));
+        assertThrows(UiObjectNotFoundException.class, noNode::clearTextField);
     }
 
     /* TODO(b/241158642): Implement these tests, and the tests for exceptions of each tested method.
