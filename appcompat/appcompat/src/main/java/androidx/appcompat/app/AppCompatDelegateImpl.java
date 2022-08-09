@@ -725,10 +725,6 @@ class AppCompatDelegateImpl extends AppCompatDelegate
         // handled by the application.
         applyApplicationSpecificConfig(false,
                 /* isLocalesApplicationRequired */ false);
-
-        // We may have just changed the resource configuration. Make sure that everyone after us
-        // sees the same configuration by modifying the parameter's internal state.
-        newConfig.updateFrom(mContext.getResources().getConfiguration());
     }
 
     @Override
