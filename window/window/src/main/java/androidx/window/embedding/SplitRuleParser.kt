@@ -21,6 +21,8 @@ import android.content.Context
 import android.content.Intent
 import android.content.res.Resources
 import android.content.res.XmlResourceParser
+import androidx.annotation.FloatRange
+import androidx.annotation.IntRange
 import androidx.window.R
 import androidx.window.core.ExperimentalWindowApi
 import androidx.window.embedding.SplitAttributes.LayoutDirection.Companion.LOCALE
@@ -166,6 +168,25 @@ internal class SplitRuleParser {
             )
         }
 
+    // TODO(b/207494880): Support DefaultAttributes in XML format
+    private fun buildSplitAttributesFromValue(
+        @FloatRange(from = 0.0, to = 1.0, toInclusive = false)
+        splitTypeValue: Float,
+        @IntRange(from = 0, to = 4)
+        layoutDirValue: Int,
+    ): SplitAttributes =
+        SplitAttributes.Builder()
+            // TODO(b/207494880): Support SplitByHinge in XML format
+            .setSplitType(
+                if (splitTypeValue == 0.0f) {
+                    SplitAttributes.SplitType.expandContainers()
+                } else {
+                    SplitAttributes.SplitType.ratio(splitTypeValue)
+                }
+            ).setLayoutDirection(
+                SplitAttributes.LayoutDirection.getLayoutDirectionFromValue(layoutDirValue)
+            ).build()
+
     private fun parseSplitPlaceholderRule(
         context: Context,
         parser: XmlResourceParser
@@ -270,7 +291,9 @@ internal class SplitRuleParser {
         ).apply {
             alwaysExpand = getBoolean(R.styleable.ActivityRule_alwaysExpand, false)
         }
-        return ActivityRule.Builder(emptySet()).setAlwaysExpand(alwaysExpand).build()
+        return ActivityRule.Builder(emptySet())
+            .setAlwaysExpand(alwaysExpand)
+            .build()
     }
 
     private fun parseActivityFilter(

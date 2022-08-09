@@ -23,8 +23,10 @@ import android.content.res.Resources
 import android.graphics.Rect
 import androidx.test.core.app.ApplicationProvider
 import androidx.window.core.ExperimentalWindowApi
+import androidx.window.embedding.SplitAttributes.LayoutDirection.Companion.BOTTOM_TO_TOP
 import androidx.window.embedding.SplitAttributes.LayoutDirection.Companion.LEFT_TO_RIGHT
 import androidx.window.embedding.SplitAttributes.LayoutDirection.Companion.LOCALE
+import androidx.window.embedding.SplitAttributes.LayoutDirection.Companion.TOP_TO_BOTTOM
 import androidx.window.embedding.SplitRule.Companion.FINISH_ADJACENT
 import androidx.window.embedding.SplitRule.Companion.FINISH_ALWAYS
 import androidx.window.embedding.SplitRule.Companion.FINISH_NEVER
@@ -69,6 +71,27 @@ class EmbeddingRuleConstructionTests {
         val expectedSplitLayout = SplitAttributes.Builder()
             .setSplitType(SplitAttributes.SplitType.ratio(0.5f))
             .setLayoutDirection(LOCALE)
+            .build()
+        assertEquals(FINISH_NEVER, rule.finishPrimaryWithSecondary)
+        assertEquals(FINISH_ALWAYS, rule.finishSecondaryWithPrimary)
+        assertEquals(false, rule.clearTop)
+        assertEquals(expectedSplitLayout, rule.defaultSplitAttributes)
+        assertTrue(rule.checkParentBounds(validBounds))
+        assertFalse(rule.checkParentBounds(invalidBounds))
+    }
+
+    /** Verifies that horizontal layout are set correctly when reading [SplitPairRule] from XML. */
+    @Test
+    fun testHorizontalLayout_SplitPairRule_Xml() {
+        SplitController.initialize(ApplicationProvider.getApplicationContext(),
+            R.xml.test_split_config_split_pair_rule_horizontal_layout)
+
+        val rules = SplitController.getInstance().getSplitRules()
+        assertEquals(1, rules.size)
+        val rule: SplitPairRule = rules.first() as SplitPairRule
+        val expectedSplitLayout = SplitAttributes.Builder()
+            .setSplitType(SplitAttributes.SplitType.ratio(0.3f))
+            .setLayoutDirection(TOP_TO_BOTTOM)
             .build()
         assertEquals(FINISH_NEVER, rule.finishPrimaryWithSecondary)
         assertEquals(FINISH_ALWAYS, rule.finishSecondaryWithPrimary)
@@ -177,6 +200,29 @@ class EmbeddingRuleConstructionTests {
         val expectedSplitLayout = SplitAttributes.Builder()
             .setSplitType(SplitAttributes.SplitType.ratio(0.5f))
             .setLayoutDirection(LOCALE)
+            .build()
+        assertEquals(FINISH_ALWAYS, rule.finishPrimaryWithPlaceholder)
+        assertEquals(false, rule.isSticky)
+        assertEquals(expectedSplitLayout, rule.defaultSplitAttributes)
+        assertTrue(rule.checkParentBounds(validBounds))
+        assertFalse(rule.checkParentBounds(invalidBounds))
+    }
+
+    /**
+     * Verifies that horizontal layout are set correctly when reading [SplitPlaceholderRule]
+     * from XML.
+     */
+    @Test
+    fun testHorizontalLayout_SplitPlaceholderRule_Xml() {
+        SplitController.initialize(ApplicationProvider.getApplicationContext(),
+            R.xml.test_split_config_split_placeholder_horizontal_layout)
+
+        val rules = SplitController.getInstance().getSplitRules()
+        assertEquals(1, rules.size)
+        val rule: SplitPlaceholderRule = rules.first() as SplitPlaceholderRule
+        val expectedSplitLayout = SplitAttributes.Builder()
+            .setSplitType(SplitAttributes.SplitType.ratio(0.3f))
+            .setLayoutDirection(BOTTOM_TO_TOP)
             .build()
         assertEquals(FINISH_ALWAYS, rule.finishPrimaryWithPlaceholder)
         assertEquals(false, rule.isSticky)
