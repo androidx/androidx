@@ -48,6 +48,13 @@
                 <action android:name="android.intent.action.MAIN" />
             </intent-filter>
         </activity>
+        <activity android:name=".ClickOnPositionTestActivity"
+            android:exported="true"
+            android:theme="@android:style/Theme.Holo.NoActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+            </intent-filter>
+        </activity>
         <activity android:name=".ClickTestActivity"
             android:exported="true"
             android:theme="@android:style/Theme.Holo.NoActionBar">

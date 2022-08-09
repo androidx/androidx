@@ -210,16 +210,6 @@ public class UiObjectTest extends BaseTest {
     }
 
     @Test
-    public void testClick_throwsUiObjectNotFoundException() {
-        launchTestActivity(ClickTestActivity.class);
-
-        UiObject noNode = mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id/no_node"));
-
-        assertThrows(noNode.getSelector().toString(), UiObjectNotFoundException.class,
-                noNode::click);
-    }
-
-    @Test
     public void testClickAndWaitForNewWindow() throws Exception {
         launchTestActivity(ClickAndWaitTestActivity.class);
 
@@ -240,26 +230,94 @@ public class UiObjectTest extends BaseTest {
     }
 
     @Test
-    public void testClickAndWaitForNewWindow_throwsUiObjectNotFoundException() {
-        launchTestActivity(ClickAndWaitTestActivity.class);
+    public void testClickTopLeft() throws Exception {
+        launchTestActivity(ClickOnPositionTestActivity.class);
+
+        UiObject clickRegion = mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id"
+                + "/click_region"));
+
+        assertEquals("click_region", clickRegion.getText());
+        assertTrue(clickRegion.clickTopLeft());
+        assertEquals("top_left_clicked", clickRegion.getText());
+    }
+
+    @Test
+    public void testLongClickBottomRight() throws Exception {
+        launchTestActivity(ClickOnPositionTestActivity.class);
+
+        UiObject clickRegion = mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id"
+                + "/click_region"));
+
+        assertEquals("click_region", clickRegion.getText());
+        assertTrue(clickRegion.longClickBottomRight());
+        assertEquals("bottom_right_long_clicked", clickRegion.getText());
+    }
+
+    @Test
+    public void testClickBottomRight() throws Exception {
+        launchTestActivity(ClickOnPositionTestActivity.class);
+
+        UiObject clickRegion = mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id"
+                + "/click_region"));
+
+        assertEquals("click_region", clickRegion.getText());
+        assertTrue(clickRegion.clickBottomRight());
+        assertEquals("bottom_right_clicked", clickRegion.getText());
+    }
+
+    @Test
+    public void testLongClick() throws Exception {
+        launchTestActivity(ClickOnPositionTestActivity.class);
+
+        UiObject clickRegion = mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id"
+                + "/click_region"));
+
+        assertEquals("click_region", clickRegion.getText());
+        assertTrue(clickRegion.longClick());
+        assertTrue(clickRegion.getText().contains("long"));
+    }
+
+    @Test
+    public void testLongClickTopLeft() throws Exception {
+        launchTestActivity(ClickOnPositionTestActivity.class);
+
+        UiObject clickRegion = mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id"
+                + "/click_region"));
+
+        assertEquals("click_region", clickRegion.getText());
+        assertTrue(clickRegion.longClickTopLeft());
+        assertEquals("top_left_long_clicked", clickRegion.getText());
+    }
+
+    @Test
+    public void testClickFamily_throwsUiObjectNotFoundException() {
+        launchTestActivity(ClickTestActivity.class);
 
         UiObject noNode = mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id/no_node"));
 
         assertThrows(noNode.getSelector().toString(), UiObjectNotFoundException.class,
+                noNode::click);
+
+        assertThrows(noNode.getSelector().toString(), UiObjectNotFoundException.class,
                 noNode::clickAndWaitForNewWindow);
+
+        assertThrows(noNode.getSelector().toString(), UiObjectNotFoundException.class,
+                noNode::clickTopLeft);
+
+        assertThrows(noNode.getSelector().toString(), UiObjectNotFoundException.class,
+                noNode::longClickBottomRight);
+
+        assertThrows(noNode.getSelector().toString(), UiObjectNotFoundException.class,
+                noNode::clickBottomRight);
+
+        assertThrows(noNode.getSelector().toString(), UiObjectNotFoundException.class,
+                noNode::longClick);
+
+        assertThrows(noNode.getSelector().toString(), UiObjectNotFoundException.class,
+                noNode::longClickTopLeft);
     }
 
     /* TODO(b/241158642): Implement these tests, and the tests for exceptions of each tested method.
-
-    public void testClickTopLeft() {}
-
-    public void testLongClickBottomRight() {}
-
-    public void testClickBottomRight() {}
-
-    public void testLongClick() {}
-
-    public void testLongClickTopLeft() {}
 
     public void testGetText() {}
 
