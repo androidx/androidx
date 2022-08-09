@@ -30,9 +30,6 @@ import okio.IOException
 
 /**
  * Proto based serializer for Preferences.
- *
- * TODO(b/156533452): this is a temporary implementation to allow for development. This will be
- * replaced before launching.
  */
 internal object PreferencesSerializer : OkioSerializer<Preferences> {
     val fileExtension = "preferences_pb"
