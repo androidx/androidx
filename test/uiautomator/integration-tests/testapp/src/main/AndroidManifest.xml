@@ -41,6 +41,13 @@
                 <action android:name="android.intent.action.MAIN" />
             </intent-filter>
         </activity>
+        <activity android:name=".ClearTextTestActivity"
+            android:exported="true"
+            android:theme="@android:style/Theme.Holo.NoActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+            </intent-filter>
+        </activity>
         <activity android:name=".ClickAndWaitTestActivity"
             android:exported="true"
             android:theme="@android:style/Theme.Holo.NoActionBar">
@@ -108,13 +115,6 @@
                 <action android:name="android.intent.action.MAIN" />
             </intent-filter>
         </activity>
-        <activity android:name=".UiObject2TestClearTextActivity"
-            android:exported="true"
-            android:theme="@android:style/Theme.Holo.NoActionBar">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-            </intent-filter>
-        </activity>
         <activity android:name=".UiObject2TestFlingActivity"
             android:exported="true"
             android:theme="@android:style/Theme.Holo.NoActionBar">
@@ -151,13 +151,6 @@
             </intent-filter>
         </activity>
         <activity android:name=".UiObject2TestLongClickActivity"
-            android:exported="true"
-            android:theme="@android:style/Theme.Holo.NoActionBar">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-            </intent-filter>
-        </activity>
-        <activity android:name=".UiObject2TestGetClassNameActivity"
             android:exported="true"
             android:theme="@android:style/Theme.Holo.NoActionBar">
             <intent-filter>

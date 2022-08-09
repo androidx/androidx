@@ -131,6 +131,8 @@ public class UiObjectTest extends BaseTest {
                 new UiSelector().resourceId(TEST_APP + ":id"
                         + "/swipe_region").text("swipe_up"));
 
+        // Note that the `swipeRegion` will always show the swipe direction, even if the swipe
+        // action does not happen inside `swipeRegion`.
         assertFalse(verySmallRegion.swipeUp(100));
         assertEquals("no_swipe", swipeRegion.getText());
         assertTrue(swipeRegion.swipeUp(100));
@@ -317,19 +319,98 @@ public class UiObjectTest extends BaseTest {
                 noNode::longClickTopLeft);
     }
 
+    @Test
+    public void testGetText() throws Exception {
+        launchTestActivity(MainActivity.class);
+
+        UiObject sampleTextObject = mDevice.findObject(new UiSelector().text("Sample text"));
+        UiObject nullTextObject = mDevice.findObject(
+                new UiSelector().resourceId(TEST_APP + ":id/nested_elements"));
+
+        assertEquals("Sample text", sampleTextObject.getText());
+        assertEquals("", nullTextObject.getText());
+    }
+
+    @Test
+    public void testGetClassName() throws Exception {
+        launchTestActivity(MainActivity.class);
+
+        UiObject button = mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id/button"));
+        UiObject textView = mDevice.findObject(
+                new UiSelector().resourceId(TEST_APP + ":id/example_id"));
+
+        assertEquals("android.widget.Button", button.getClassName());
+        assertEquals("android.widget.TextView", textView.getClassName());
+    }
+
+    @Test
+    public void testGetContentDescription() throws Exception {
+        launchTestActivity(MainActivity.class);
+
+        UiObject button = mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id/button"));
+        UiObject textView = mDevice.findObject(new UiSelector().text("Text View 1"));
+
+        assertEquals("I'm accessible!", button.getContentDescription());
+        assertEquals("", textView.getContentDescription());
+    }
+
+    @Test
+    public void testLegacySetText() throws Exception {
+        launchTestActivity(ClearTextTestActivity.class);
+
+        UiObject editText = mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id"
+                + "/edit_text"));
+
+        assertEquals("sample_text", editText.getText());
+        editText.legacySetText("new_text");
+        assertEquals("new_text", editText.getText());
+    }
+
+    @Test
+    public void testSetText() throws Exception {
+        launchTestActivity(ClearTextTestActivity.class);
+
+        UiObject editText = mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id"
+                + "/edit_text"));
+
+        assertEquals("sample_text", editText.getText());
+        editText.setText("new_text");
+        assertEquals("new_text", editText.getText());
+    }
+
+    @Test
+    public void testClearTextField() throws Exception {
+        launchTestActivity(ClearTextTestActivity.class);
+
+        UiObject editText = mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id"
+                + "/edit_text"));
+
+        assertEquals("sample_text", editText.getText());
+        editText.clearTextField();
+        assertEquals("", editText.getText());
+    }
+
+    @Test
+    public void testTextFamily_throwsUiObjectNotFoundException() {
+        launchTestActivity(ClearTextTestActivity.class);
+
+        UiObject noNode = mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id/no_node"));
+
+        assertThrows(noNode.getSelector().toString(), UiObjectNotFoundException.class,
+                noNode::getText);
+        assertThrows(noNode.getSelector().toString(), UiObjectNotFoundException.class,
+                noNode::getClassName);
+        assertThrows(noNode.getSelector().toString(), UiObjectNotFoundException.class,
+                noNode::getContentDescription);
+        assertThrows(noNode.getSelector().toString(), UiObjectNotFoundException.class,
+                () -> noNode.legacySetText("new_text"));
+        assertThrows(noNode.getSelector().toString(), UiObjectNotFoundException.class,
+                () -> noNode.setText("new_text"));
+        assertThrows(noNode.getSelector().toString(), UiObjectNotFoundException.class,
+                noNode::clearTextField);
+    }
+
     /* TODO(b/241158642): Implement these tests, and the tests for exceptions of each tested method.
-
-    public void testGetText() {}
-
-    public void testGetClassName() {}
-
-    public void testGetContentDescription() {}
-
-    public void testLegacySetText() {}
-
-    public void testSetText() {}
-
-    public void testClearTextField() {}
 
     public void testIsChecked() {}
 

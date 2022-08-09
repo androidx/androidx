@@ -19,7 +19,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".UiObject2TestClearTextActivity">
+    tools:context=".ClearTextTestActivity">
 
     <EditText
         android:id="@+id/edit_text"
