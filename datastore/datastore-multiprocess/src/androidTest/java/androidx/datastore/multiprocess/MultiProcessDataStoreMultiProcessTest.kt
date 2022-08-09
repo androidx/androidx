@@ -342,7 +342,7 @@ class MultiProcessDataStoreMultiProcessTest {
         val dataStore: MultiProcessDataStore<FooProto> =
             createDataStore(testData, dataStoreScope)
         val connection: BlockingServiceConnection =
-            setUpService(mainContext, CancelledUpdateDataService::class.java, testData)
+            setUpService(mainContext, FailedUpdateDataService::class.java, testData)
 
         val blockWrite = CompletableDeferred<Unit>()
         val waitForWrite = CompletableDeferred<Unit>()
@@ -372,7 +372,7 @@ class MultiProcessDataStoreMultiProcessTest {
         assertThat(dataStore.data.first()).isEqualTo(FOO_WITH_TEXT)
     }
 
-    class CancelledUpdateDataService(
+    class FailedUpdateDataService(
         private val scope: TestScope = TestScope(UnconfinedTestDispatcher() + Job())
     ) : DirectTestService() {
         override fun beforeTest(testData: Bundle) {
@@ -419,6 +419,23 @@ class MultiProcessDataStoreMultiProcessTest {
 
         // able to read the new value written from the other process
         assertThat(dataStore.data.first()).isEqualTo(FOO_WITH_TEXT)
+    }
+
+    // A duplicate from CancelledUpdateDataService to make sure Android framework would create a
+    // new process for this test. Otherwise the test would hang infinitely because the tests bind
+    // to an existing service created by the previous test.
+    class CancelledUpdateDataService(
+        private val scope: TestScope = TestScope(UnconfinedTestDispatcher() + Job())
+    ) : DirectTestService() {
+        override fun beforeTest(testData: Bundle) {
+            store = createDataStore(testData, scope)
+        }
+
+        override fun runTest() = runBlocking<Unit> {
+            store.updateData {
+                it.let { WRITE_TEXT(it) }
+            }
+        }
     }
 
     @Test
