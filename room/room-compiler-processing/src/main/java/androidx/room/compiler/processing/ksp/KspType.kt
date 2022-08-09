@@ -19,6 +19,7 @@ package androidx.room.compiler.processing.ksp
 import androidx.room.compiler.processing.XEquality
 import androidx.room.compiler.processing.XNullability
 import androidx.room.compiler.processing.XType
+import androidx.room.compiler.processing.isArray
 import androidx.room.compiler.processing.tryBox
 import androidx.room.compiler.processing.tryUnbox
 import com.google.devtools.ksp.symbol.KSClassDeclaration
@@ -84,9 +85,18 @@ internal abstract class KspType(
     }
 
     override val typeElement by lazy {
-        // for primitive types, we could technically return null from here as they are not backed
-        // by a type element in javac but in Kotlin we have types for them, hence returning them
-        // is better.
+        // Array types don't have an associated type element (only the componentType does), so
+        // return null.
+        if (isArray()) {
+            return@lazy null
+        }
+
+        // If the typeName is primitive, return null for consistency since primitives normally imply
+        // that there isn't an associated type element.
+        if (typeName.isPrimitive) {
+            return@lazy null
+        }
+
         val declaration = ksType.declaration as? KSClassDeclaration
         declaration?.let {
             env.wrapClassDeclaration(it)
