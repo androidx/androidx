@@ -600,7 +600,8 @@ public final class AppSearchImpl implements Closeable {
             }
 
             boolean contentsChanged = true;
-            if (existBefore && existAfter && contentBefore.equals(contentAfter)) {
+            if (contentBefore != null
+                    && contentBefore.equals(contentAfter)) {
                 contentsChanged = false;
             }
 
@@ -993,7 +994,7 @@ public final class AppSearchImpl implements Closeable {
         } finally {
             mReadWriteLock.writeLock().unlock();
 
-            if (logger != null) {
+            if (pStatsBuilder != null && logger != null) {
                 long totalEndTimeMillis = SystemClock.elapsedRealtime();
                 pStatsBuilder.setTotalLatencyMillis(
                         (int) (totalEndTimeMillis - totalStartTimeMillis));
@@ -1112,7 +1113,8 @@ public final class AppSearchImpl implements Closeable {
             DocumentProto.Builder documentBuilder = documentProto.toBuilder();
             removePrefixesFromDocument(documentBuilder);
             String prefix = createPrefix(packageName, databaseName);
-            Map<String, SchemaTypeConfigProto> schemaTypeMap = mSchemaMapLocked.get(prefix);
+            Map<String, SchemaTypeConfigProto> schemaTypeMap =
+                    Preconditions.checkNotNull(mSchemaMapLocked.get(prefix));
             return GenericDocumentToProtoConverter.toGenericDocument(documentBuilder.build(),
                     prefix, schemaTypeMap);
         } finally {
@@ -1153,7 +1155,8 @@ public final class AppSearchImpl implements Closeable {
             // The schema type map cannot be null at this point. It could only be null if no
             // schema had ever been set for that prefix. Given we have retrieved a document from
             // the index, we know a schema had to have been set.
-            Map<String, SchemaTypeConfigProto> schemaTypeMap = mSchemaMapLocked.get(prefix);
+            Map<String, SchemaTypeConfigProto> schemaTypeMap =
+                    Preconditions.checkNotNull(mSchemaMapLocked.get(prefix));
             return GenericDocumentToProtoConverter.toGenericDocument(documentBuilder.build(),
                     prefix, schemaTypeMap);
         } finally {
@@ -1250,7 +1253,7 @@ public final class AppSearchImpl implements Closeable {
             if (!filterPackageNames.isEmpty() && !filterPackageNames.contains(packageName)) {
                 // Client wanted to query over some packages that weren't its own. This isn't
                 // allowed through local query so we can return early with no results.
-                if (logger != null) {
+                if (sStatsBuilder != null && logger != null) {
                     sStatsBuilder.setStatusCode(AppSearchResult.RESULT_SECURITY_ERROR);
                 }
                 return new SearchResultPage(Bundle.EMPTY);
@@ -1274,7 +1277,7 @@ public final class AppSearchImpl implements Closeable {
             return searchResultPage;
         } finally {
             mReadWriteLock.readLock().unlock();
-            if (logger != null) {
+            if (sStatsBuilder != null && logger != null) {
                 sStatsBuilder.setTotalLatencyMillis(
                         (int) (SystemClock.elapsedRealtime() - totalLatencyStartMillis));
                 logger.logStats(sStatsBuilder.build());
@@ -1353,7 +1356,7 @@ public final class AppSearchImpl implements Closeable {
         } finally {
             mReadWriteLock.readLock().unlock();
 
-            if (logger != null) {
+            if (sStatsBuilder != null && logger != null) {
                 sStatsBuilder.setTotalLatencyMillis(
                         (int) (SystemClock.elapsedRealtime() - totalLatencyStartMillis));
                 logger.logStats(sStatsBuilder.build());
@@ -1560,7 +1563,9 @@ public final class AppSearchImpl implements Closeable {
                 // Since the new token is 0, this is the last page. We should remove the old token
                 // from our cache since it no longer refers to this query.
                 synchronized (mNextPageTokensLocked) {
-                    mNextPageTokensLocked.get(packageName).remove(nextPageToken);
+                    Set<Long> nextPageTokensForPackage =
+                            Preconditions.checkNotNull(mNextPageTokensLocked.get(packageName));
+                    nextPageTokensForPackage.remove(nextPageToken);
                 }
             }
             long rewriteSearchResultLatencyStartMillis = SystemClock.elapsedRealtime();
@@ -2196,8 +2201,11 @@ public final class AppSearchImpl implements Closeable {
                     for (String databaseName : databaseNames) {
                         String removedPrefix = createPrefix(packageName, databaseName);
                         Map<String, SchemaTypeConfigProto> removedSchemas =
-                                mSchemaMapLocked.remove(removedPrefix);
-                        mVisibilityStoreLocked.removeVisibility(removedSchemas.keySet());
+                                Preconditions.checkNotNull(mSchemaMapLocked.remove(removedPrefix));
+                        if (mVisibilityStoreLocked != null) {
+                            mVisibilityStoreLocked.removeVisibility(removedSchemas.keySet());
+                        }
+
                         mNamespaceMapLocked.remove(removedPrefix);
                     }
                 }
