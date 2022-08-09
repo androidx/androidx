@@ -27,6 +27,10 @@ dependencies {
     implementation("androidx.annotation:annotation:1.1.0")
     implementation("androidx.annotation:annotation-experimental:1.1.0")
 
+    testImplementation(libs.testExtJunit)
+    testImplementation(libs.testRunner)
+    testImplementation(libs.testRules)
+
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.testRules)

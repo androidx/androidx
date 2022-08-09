@@ -16,7 +16,10 @@
 
 package androidx.window.extensions;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
 import androidx.window.extensions.area.WindowAreaComponent;
 import androidx.window.extensions.embedding.ActivityEmbeddingComponent;
 import androidx.window.extensions.layout.WindowLayoutComponent;
@@ -30,6 +33,22 @@ import androidx.window.extensions.layout.WindowLayoutComponent;
  * {@link WindowExtensions#getVendorApiLevel()}.
  */
 public interface WindowExtensions {
+    // TODO(b/240912390): refer to the real API in later CLs.
+    /**
+     * A vendor API level constant. It helps to unify the format of documenting {@code @since}
+     * block.
+     * <p>
+     * The added APIs for Vendor API level 2 are:
+     * <ul>
+     *     <li>{@link androidx.window.extensions.embedding.SplitAttributes} APIs</li>
+     *     <li>{@code androidx.window.extensions.embedding.SplitAttributesCalculator} APIs</li>
+     * </ul>
+     * </p>
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    int VENDOR_API_LEVEL_2 = 2;
+
     /**
      * Returns the API level of the vendor library on the device. If the returned version is not
      * supported by the WindowManager library, then some functions may not be available or replaced
