@@ -49,7 +49,7 @@ public class UiObject2Tests extends BaseTest {
 
     @Test
     public void testClear() {
-        launchTestActivity(UiObject2TestClearTextActivity.class);
+        launchTestActivity(ClearTextTestActivity.class);
 
         UiObject2 object = mDevice.findObject(By.res(TEST_APP, "edit_text"));
         // Verify the text field has text before clear()
@@ -273,12 +273,12 @@ public class UiObject2Tests extends BaseTest {
 
     @Test
     public void testGetClassName() {
-        launchTestActivity(UiObject2TestGetClassNameActivity.class);
+        launchTestActivity(MainActivity.class);
 
         UiObject2 button = mDevice.findObject(By.res(TEST_APP, "button"));
         assertEquals("android.widget.Button", button.getClassName());
 
-        UiObject2 textView = mDevice.findObject(By.res(TEST_APP, "text_view"));
+        UiObject2 textView = mDevice.findObject(By.res(TEST_APP, "example_id"));
         assertEquals("android.widget.TextView", textView.getClassName());
     }
 
@@ -319,11 +319,11 @@ public class UiObject2Tests extends BaseTest {
     public void testGetText() {
         launchTestActivity(MainActivity.class);
 
-        UiObject2 object = mDevice.findObject(By.text("Sample text"));
-        assertEquals("Sample text", object.getText());
+        UiObject2 sampleTextObject = mDevice.findObject(By.text("Sample text"));
+        assertEquals("Sample text", sampleTextObject.getText());
 
-        UiObject2 nestedObject = mDevice.findObject(By.res(TEST_APP, "nested_elements"));
-        assertNull(nestedObject.getText());
+        UiObject2 nullTextObject = mDevice.findObject(By.res(TEST_APP, "nested_elements"));
+        assertNull(nullTextObject.getText());
     }
 
     @Test
@@ -752,7 +752,7 @@ public class UiObject2Tests extends BaseTest {
 
     @Test
     public void testSetText() {
-        launchTestActivity(UiObject2TestClearTextActivity.class);
+        launchTestActivity(ClearTextTestActivity.class);
 
         UiObject2 object = mDevice.findObject(By.res(TEST_APP, "edit_text"));
         // Verify the text field has "sample_text" before setText()
