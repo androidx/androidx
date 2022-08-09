@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 The Android Open Source Project
+ * Copyright (C) 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,20 +26,20 @@ import android.widget.Button;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-public class UiObject2TestClickAndWaitActivity extends Activity {
+public class ClickAndWaitTestActivity extends Activity {
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.uiobject2_testclickandwait_activity);
+        setContentView(R.layout.click_and_wait_test_activity);
     }
 
     public void launchNewWindow(@NonNull View v) {
         ((Button) v).append("_clicked");
         new Handler().postDelayed(() -> {
             Intent intent = new Intent(getApplicationContext(),
-                    UiObject2TestClickAndWaitActivity.class);
+                    ClickAndWaitTestActivity.class);
             startActivity(intent);
         }, 2_000);
     }

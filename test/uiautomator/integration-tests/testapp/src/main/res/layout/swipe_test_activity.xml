@@ -21,6 +21,12 @@
     tools:context=".SwipeTestActivity">
 
     <TextView
+        android:id="@+id/very_small_region"
+        android:layout_width="1dp"
+        android:layout_height="1dp"
+        android:text="very_small_region" />
+
+    <TextView
         android:id="@+id/swipe_region"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

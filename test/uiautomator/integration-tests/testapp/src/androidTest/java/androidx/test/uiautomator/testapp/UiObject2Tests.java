@@ -61,7 +61,7 @@ public class UiObject2Tests extends BaseTest {
 
     @Test
     public void testClick() {
-        launchTestActivity(UiObject2TestClickActivity.class);
+        launchTestActivity(ClickTestActivity.class);
 
         // Short click with no parameter (`click()`).
         UiObject2 button1 = mDevice.findObject(By.res(TEST_APP, "button1"));
@@ -73,7 +73,7 @@ public class UiObject2Tests extends BaseTest {
 
     @Test
     public void testClick_point() {
-        launchTestActivity(UiObject2TestClickActivity.class);
+        launchTestActivity(ClickTestActivity.class);
 
         // Short click with a point position as a parameter (`click(Point point)`).
 
@@ -94,7 +94,7 @@ public class UiObject2Tests extends BaseTest {
 
     @Test
     public void testClick_duration() {
-        launchTestActivity(UiObject2TestClickActivity.class);
+        launchTestActivity(ClickTestActivity.class);
 
         // Short click with a time duration as a parameter (`click(long duration)`).
         UiObject2 button4 = mDevice.findObject(By.res(TEST_APP, "button4"));
@@ -113,7 +113,7 @@ public class UiObject2Tests extends BaseTest {
 
     @Test
     public void testClick_pointAndDuration() {
-        launchTestActivity(UiObject2TestClickActivity.class);
+        launchTestActivity(ClickTestActivity.class);
 
         // Short click with two parameters (`click(Point point, long duration)`).
         UiObject2 button6 = mDevice.findObject(By.res(TEST_APP, "button6"));
@@ -134,7 +134,7 @@ public class UiObject2Tests extends BaseTest {
 
     @Test
     public void testClickAndWait_conditionAndTimeout() {
-        launchTestActivity(UiObject2TestClickAndWaitActivity.class);
+        launchTestActivity(ClickAndWaitTestActivity.class);
 
         // Click the button and wait for a new window
         UiObject2 button = mDevice.findObject(By.res(TEST_APP, "new_window_button"));
@@ -143,7 +143,7 @@ public class UiObject2Tests extends BaseTest {
 
     @Test
     public void testClickAndWait_pointAndConditionAndTimeout() {
-        launchTestActivity(UiObject2TestClickAndWaitActivity.class);
+        launchTestActivity(ClickAndWaitTestActivity.class);
 
         // Click point inside the button.
         UiObject2 button1 = mDevice.findObject(By.res(TEST_APP, "new_window_button"));
@@ -392,7 +392,7 @@ public class UiObject2Tests extends BaseTest {
 
     @Test
     public void testIsCheckable() {
-        launchTestActivity(UiObject2TestClickActivity.class);
+        launchTestActivity(ClickTestActivity.class);
 
         // CheckBox objects are checkable by default.
         UiObject2 checkBox = mDevice.findObject(By.res(TEST_APP, "check_box"));
@@ -404,7 +404,7 @@ public class UiObject2Tests extends BaseTest {
 
     @Test
     public void testIsChecked() {
-        launchTestActivity(UiObject2TestClickActivity.class);
+        launchTestActivity(ClickTestActivity.class);
 
         UiObject2 checkBox = mDevice.findObject(By.res(TEST_APP, "check_box"));
         assertFalse(checkBox.isChecked());
