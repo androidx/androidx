@@ -18,6 +18,7 @@ package androidx.room.compiler.processing
 
 import androidx.room.compiler.processing.ksp.ERROR_TYPE_NAME
 import androidx.room.compiler.processing.util.Source
+import androidx.room.compiler.processing.util.XTestInvocation
 import androidx.room.compiler.processing.util.className
 import androidx.room.compiler.processing.util.getDeclaredMethodByJvmName
 import androidx.room.compiler.processing.util.getField
@@ -828,6 +829,76 @@ class XTypeTest {
                 assertThat(superInterface.typeArguments).isEmpty()
             }
         }
+    }
+
+    @Test
+    fun arrayTypes() {
+        // Used to test both java and kotlin sources.
+        fun XTestInvocation.checkArrayTypesTest() {
+            val fooElement = processingEnv.requireTypeElement("foo.bar.Foo")
+            val barElement = processingEnv.requireTypeElement("foo.bar.Bar")
+            val barType = fooElement.getField("bar").type
+            val barArrayType = fooElement.getField("barArray").type
+
+            assertThat(barType.typeElement).isEqualTo(barElement)
+            assertThat(barType.isArray()).isFalse()
+            assertThat(barArrayType.typeElement).isNull()
+            assertThat(barArrayType.isArray()).isTrue()
+        }
+
+        runProcessorTest(listOf(Source.java(
+            "foo.bar.Foo",
+            """
+            package foo.bar;
+            class Foo {
+              Bar bar;
+              Bar[] barArray;
+            }
+            class Bar {}
+            """.trimIndent()
+        ))) { it.checkArrayTypesTest() }
+
+        runProcessorTest(listOf(Source.kotlin(
+            "foo.bar.Foo.kt",
+            """
+            package foo.bar;
+            class Foo {
+              val bar: Bar = TODO()
+              val barArray: Array<Bar> = TODO()
+            }
+            class Bar
+            """.trimIndent()
+        ))) { it.checkArrayTypesTest() }
+    }
+
+    @Test
+    fun primitiveTypes() {
+        fun XTestInvocation.checkPrimitiveType() {
+            val fooElement = processingEnv.requireTypeElement("foo.bar.Foo")
+            val primitiveType = fooElement.getField("i").type
+            assertThat(primitiveType.typeName).isEqualTo(TypeName.INT)
+            assertThat(primitiveType.typeElement).isNull()
+        }
+
+        runProcessorTest(listOf(Source.java(
+            "foo.bar.Foo",
+            """
+            package foo.bar;
+            class Foo {
+              int i;
+            }
+            """.trimIndent()
+        ))) { it.checkPrimitiveType() }
+
+        runProcessorTest(listOf(Source.kotlin(
+            "foo.bar.Foo.kt",
+            """
+            package foo.bar
+            class Foo {
+              val i: Int = TODO()
+            }
+            """.trimIndent()
+        ))) { it.checkPrimitiveType() }
     }
 
     /**

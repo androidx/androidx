@@ -1204,19 +1204,9 @@ class DatabaseProcessorTest {
                 baseContext = invocation.context,
                 element = element
             ).process()
-            assertThat(result.daoMethods).hasSize(
-                // for KSP, it will still show as a method, just bad return type
-                if (invocation.isKsp) 1 else 0
-            )
+            assertThat(result.daoMethods).hasSize(0)
             invocation.assertCompilationResult {
-                hasErrorContaining(
-                    if (invocation.isKsp) {
-                        // no primitives in KSP hence we'll get another error
-                        ProcessorErrors.DAO_MUST_BE_ANNOTATED_WITH_DAO
-                    } else {
-                        ProcessorErrors.DATABASE_INVALID_DAO_METHOD_RETURN_TYPE
-                    }
-                )
+                hasErrorContaining(ProcessorErrors.DATABASE_INVALID_DAO_METHOD_RETURN_TYPE)
             }
         }
     }
