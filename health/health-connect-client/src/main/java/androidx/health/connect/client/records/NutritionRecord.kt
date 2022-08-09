@@ -275,7 +275,7 @@ public class NutritionRecord(
          */
         @JvmField
         val ENERGY_TOTAL: AggregateMetric<Energy> =
-            doubleMetric(TYPE_NAME, AggregationType.TOTAL, "calories", Energy::calories)
+            doubleMetric(TYPE_NAME, AggregationType.TOTAL, "calories", Energy::kilocalories)
 
         /**
          * Metric identifier to retrieve the total energy from fat from
@@ -283,7 +283,7 @@ public class NutritionRecord(
          */
         @JvmField
         val ENERGY_FROM_FAT_TOTAL: AggregateMetric<Energy> =
-            doubleMetric(TYPE_NAME, AggregationType.TOTAL, "caloriesFromFat", Energy::calories)
+            doubleMetric(TYPE_NAME, AggregationType.TOTAL, "caloriesFromFat", Energy::kilocalories)
 
         /**
          * Metric identifier to retrieve the total chloride from

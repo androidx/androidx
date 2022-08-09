@@ -84,7 +84,7 @@ public class ActiveCaloriesBurnedRecord(
                 dataTypeName = TYPE_NAME,
                 aggregationType = AggregateMetric.AggregationType.TOTAL,
                 fieldName = ENERGY_FIELD_NAME,
-                mapper = Energy::calories,
+                mapper = Energy::kilocalories,
             )
     }
 }

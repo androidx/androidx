@@ -72,7 +72,7 @@ public class BasalMetabolicRateRecord(
                 dataTypeName = BASAL_CALORIES_TYPE_NAME,
                 aggregationType = AggregateMetric.AggregationType.TOTAL,
                 fieldName = ENERGY_FIELD_NAME,
-                mapper = Energy::calories,
+                mapper = Energy::kilocalories,
             )
     }
 }
