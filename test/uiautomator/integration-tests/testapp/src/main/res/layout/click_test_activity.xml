@@ -18,9 +18,9 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".UiObject2TestClickActivity">
+    tools:context=".ClickTestActivity">
 
-    <!-- For `testClick()`. -->
+    <!-- For `testClick()` in both `UiObjectTest` and `UiObject2Test`. -->
     <Button
         android:id="@+id/button1"
         android:layout_width="wrap_content"
