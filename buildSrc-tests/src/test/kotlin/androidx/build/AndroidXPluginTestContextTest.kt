@@ -19,6 +19,7 @@ package androidx.build
 import net.saff.checkmark.Checkmark.Companion.check
 import org.gradle.testkit.runner.UnexpectedBuildFailure
 import org.gradle.testkit.runner.internal.DefaultBuildResult
+import org.junit.AssumptionViolatedException
 import org.junit.Test
 
 class AndroidXPluginTestContextTest {
@@ -38,6 +39,9 @@ class AndroidXPluginTestContextTest {
         }!!.check {
             // Since we're faking this error, we expect that the class is actually there in the jar
             it.message!!.contains("androidx/build/gradle/ExtensionsKt.class")
+        }.check {
+            // AssumptionViolatedException, so test will be marked skipped, not failing.
+            it is AssumptionViolatedException
         }
     }
 
