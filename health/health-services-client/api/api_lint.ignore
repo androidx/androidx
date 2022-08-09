@@ -23,8 +23,6 @@ InvalidNullabilityOverride: androidx.health.services.client.PassiveListenerServi
     Invalid nullability on parameter `intent` in method `onBind`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
 InvalidNullabilityOverride: androidx.health.services.client.VersionApiService#onBind(android.content.Intent):
     Invalid nullability on method `onBind` return. Overrides of unannotated super method cannot be Nullable.
-InvalidNullabilityOverride: androidx.health.services.client.data.ProtoParcelable#writeToParcel(android.os.Parcel, int) parameter #0:
-    Invalid nullability on parameter `dest` in method `writeToParcel`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
 
 
 PairedRegistration: androidx.health.services.client.MeasureClient#registerMeasureCallback(androidx.health.services.client.data.DeltaDataType<?,?>, androidx.health.services.client.MeasureCallback):
