@@ -95,7 +95,7 @@ class VisibilityDocumentV1 extends GenericDocument {
      */
     @NonNull
     String[] getPackageNames() {
-        return getPropertyStringArray(PACKAGE_NAME_PROPERTY);
+        return Preconditions.checkNotNull(getPropertyStringArray(PACKAGE_NAME_PROPERTY));
     }
 
     /**
@@ -105,7 +105,7 @@ class VisibilityDocumentV1 extends GenericDocument {
      */
     @NonNull
     byte[][] getSha256Certs() {
-        return getPropertyBytesArray(SHA_256_CERT_PROPERTY);
+        return Preconditions.checkNotNull(getPropertyBytesArray(SHA_256_CERT_PROPERTY));
     }
 
     /**
