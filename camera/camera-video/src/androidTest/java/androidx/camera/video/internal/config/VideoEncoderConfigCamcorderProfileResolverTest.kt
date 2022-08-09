@@ -71,6 +71,7 @@ class VideoEncoderConfigCamcorderProfileResolverTest {
 
         val cameraInfo = CameraUtil.createCameraUseCaseAdapter(context, cameraSelector).cameraInfo
         videoCapabilities = VideoCapabilities.from(cameraInfo)
+        Assume.assumeTrue(videoCapabilities.supportedQualities.isNotEmpty())
     }
 
     @After
