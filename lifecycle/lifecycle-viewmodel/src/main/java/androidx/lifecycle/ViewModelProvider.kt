@@ -34,7 +34,7 @@ import java.lang.reflect.InvocationTargetException
 import kotlin.UnsupportedOperationException
 
 /**
- * An utility class that provides `ViewModels` for a scope.
+ * A utility class that provides `ViewModels` for a scope.
  *
  * Default `ViewModelProvider` for an `Activity` or a `Fragment` can be obtained
  * by passing it to the constructor: `ViewModelProvider(myFragment)`
