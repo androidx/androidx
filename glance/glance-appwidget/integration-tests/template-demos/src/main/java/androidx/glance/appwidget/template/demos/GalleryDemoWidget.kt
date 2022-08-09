@@ -43,7 +43,7 @@ class GalleryTemplateWidget : GlanceTemplateAppWidget() {
     @Composable
     override fun TemplateContent() {
         val galleryContent = mutableListOf<TemplateImageWithDescription>()
-        for (i in 1..8) {
+        for (i in 1..30) {
             galleryContent.add(
                 TemplateImageWithDescription(
                     ImageProvider(R.drawable.compose),

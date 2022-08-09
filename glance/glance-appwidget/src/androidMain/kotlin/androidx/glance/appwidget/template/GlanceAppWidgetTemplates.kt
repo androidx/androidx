@@ -185,7 +185,6 @@ internal fun SingleImageBlockTemplate(
     modifier: GlanceModifier = GlanceModifier
 ) {
     if (imageBlock.images.isNotEmpty()) {
-        Spacer(modifier = GlanceModifier.width(16.dp))
         val mainImage = imageBlock.images[0]
         Image(
             provider = mainImage.image,
