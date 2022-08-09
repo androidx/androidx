@@ -570,10 +570,10 @@ class ScalingLazyListState constructor(
         if (lazyListState.layoutInfo.visibleItemsInfo.first().size > 0) return true
 
         // Work out the index we want to find - if there are less items in the list than would be
-        // needed to make initialItemIndex be visible then use the last visible item. The -3 is to
+        // needed to make initialItemIndex be visible then use the last visible item. The -2 is to
         // allow for the spacers, i.e. an underlying list of size 3 has 2 spacers in index 0 and 2
-        // and one real item in index 1.
-        val itemIndexToFind = (autoCentering.value!!.itemIndex + 1).coerceAtMost(totalItemCount - 3)
+        // and one real item in underlying lazy column index 1.
+        val itemIndexToFind = (autoCentering.value!!.itemIndex + 1).coerceAtMost(totalItemCount - 2)
 
         // Find the initialCenterItem, if it is null that means it is not in view - therefore
         // we have more than enough content before it to make sure it can be scrolled to the center
