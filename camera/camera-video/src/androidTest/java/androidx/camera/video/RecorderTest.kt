@@ -45,6 +45,7 @@ import androidx.camera.core.impl.Observable
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.core.internal.CameraUseCaseAdapter
 import androidx.camera.testing.AudioUtil
+import androidx.camera.testing.CameraPipeConfigTestRule
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CameraXUtil
 import androidx.camera.testing.GarbageCollectionUtil
@@ -114,6 +115,12 @@ class RecorderTest(
     private val implName: String,
     private val cameraConfig: CameraXConfig,
 ) {
+
+    @get:Rule
+    val cameraPipeConfigTestRule = CameraPipeConfigTestRule(
+        active = implName == CameraPipeConfig::class.simpleName,
+        forAllTests = true,
+    )
 
     @get:Rule
     val cameraRule = CameraUtil.grantCameraPermissionAndPreTest(

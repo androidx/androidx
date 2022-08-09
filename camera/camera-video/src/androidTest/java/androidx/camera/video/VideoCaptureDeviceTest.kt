@@ -21,19 +21,21 @@ import android.graphics.SurfaceTexture
 import android.os.Build
 import android.view.Surface
 import androidx.camera.camera2.Camera2Config
+import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraSelector
+import androidx.camera.core.CameraXConfig
 import androidx.camera.core.SurfaceRequest
 import androidx.camera.core.impl.MutableStateObservable
 import androidx.camera.core.impl.Observable
 import androidx.camera.core.internal.CameraUseCaseAdapter
+import androidx.camera.testing.CameraPipeConfigTestRule
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CameraXUtil
 import androidx.camera.testing.GLUtil
 import androidx.camera.video.VideoOutput.SourceState
 import androidx.concurrent.futures.await
 import androidx.test.core.app.ApplicationProvider
-import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.testutils.fail
@@ -74,16 +76,35 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.junit.runners.Parameterized
 
 @LargeTest
-@RunWith(AndroidJUnit4::class)
+@RunWith(Parameterized::class)
 @SdkSuppress(minSdkVersion = 21)
-class VideoCaptureDeviceTest {
+class VideoCaptureDeviceTest(
+    private val implName: String,
+    private val cameraConfig: CameraXConfig
+) {
+
+    // TODO(b/241296464): remove this rule after fixed
+    @get:Rule
+    val cameraPipeConfigTestRule = CameraPipeConfigTestRule(
+        active = implName == CameraPipeConfig::class.simpleName,
+    )
 
     @get:Rule
     val cameraRule = CameraUtil.grantCameraPermissionAndPreTest(
-        CameraUtil.PreTestCameraIdList(Camera2Config.defaultConfig())
+        CameraUtil.PreTestCameraIdList(cameraConfig)
     )
+
+    companion object {
+        @JvmStatic
+        @Parameterized.Parameters(name = "{0}")
+        fun data() = listOf(
+            arrayOf(Camera2Config::class.simpleName, Camera2Config.defaultConfig()),
+            arrayOf(CameraPipeConfig::class.simpleName, CameraPipeConfig.defaultConfig())
+        )
+    }
 
     private val context: Context = ApplicationProvider.getApplicationContext()
     private val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
@@ -95,7 +116,7 @@ class VideoCaptureDeviceTest {
     fun setUp() {
         CameraXUtil.initialize(
             context,
-            Camera2Config.defaultConfig()
+            cameraConfig
         ).get()
 
         cameraUseCaseAdapter = CameraUtil.createCameraUseCaseAdapter(context, cameraSelector)
@@ -182,6 +203,7 @@ class VideoCaptureDeviceTest {
         } ?: fail("Timed out waiting for 5 frame updates. Waited $timeout.")
     }
 
+    @CameraPipeConfigTestRule.CameraPipeExperimental
     @Test
     fun addUseCases_setSupportedQuality_getCorrectResolution() = runBlocking {
         assumeTrue(QualitySelector.getSupportedQualities(cameraInfo).isNotEmpty())
