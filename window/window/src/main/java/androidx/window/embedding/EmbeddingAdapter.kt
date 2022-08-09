@@ -80,8 +80,49 @@ internal class EmbeddingAdapter(
             secondaryActivityStack.activities,
             isSecondaryStackEmpty
         )
-        return SplitInfo(primaryFragment, secondaryFragment, splitInfo.splitRatio)
+
+        val splitAttributes = if (vendorApiLevel >= WindowExtensions.VENDOR_API_LEVEL_2) {
+            translate(splitInfo.splitAttributes)
+        } else {
+            VendorApiLevel1Impl.getSplitAttributesCompat(splitInfo)
+        }
+        return SplitInfo(primaryFragment, secondaryFragment, splitAttributes)
     }
+
+    private fun translate(splitAttributes: OEMSplitAttributes): SplitAttributes =
+        SplitAttributes.Builder()
+            .setSplitType(translate(splitAttributes.splitType))
+            .setLayoutDirection(
+                when (val layoutDirection = splitAttributes.layoutDirection) {
+                    OEMSplitAttributes.LayoutDirection.LEFT_TO_RIGHT -> LEFT_TO_RIGHT
+                    OEMSplitAttributes.LayoutDirection.RIGHT_TO_LEFT -> RIGHT_TO_LEFT
+                    OEMSplitAttributes.LayoutDirection.LOCALE -> LOCALE
+                    OEMSplitAttributes.LayoutDirection.TOP_TO_BOTTOM -> TOP_TO_BOTTOM
+                    OEMSplitAttributes.LayoutDirection.BOTTOM_TO_TOP -> BOTTOM_TO_TOP
+                    else -> throw IllegalArgumentException("Unknown layout direction: " +
+                        "$layoutDirection")
+                }
+            ).build()
+
+    private fun translate(splitType: OEMSplitType): SplitType =
+        when (splitType) {
+            is OEMSplitType.RatioSplitType -> translate(splitType)
+            is OEMSplitType.ExpandContainersSplitType -> SplitType.expandContainers()
+            is OEMSplitType.HingeSplitType -> translate(splitType)
+            else -> throw IllegalArgumentException("Unsupported split type: $splitType")
+        }
+
+    private fun translate(hinge: OEMSplitType.HingeSplitType): SplitType.HingeSplitType =
+        SplitType.splitByHinge(
+            when (val splitType = hinge.fallbackSplitType) {
+                is OEMSplitType.ExpandContainersSplitType -> SplitType.expandContainers()
+                is OEMSplitType.RatioSplitType -> translate(splitType)
+                else -> throw IllegalArgumentException("Unsupported split type: $splitType")
+            }
+        )
+
+    private fun translate(splitRatio: OEMSplitType.RatioSplitType): SplitType.RatioSplitType =
+        SplitType.ratio(splitRatio.ratio)
 
     @SuppressLint("ClassVerificationFailure", "NewApi")
     private fun translateActivityPairPredicates(splitPairFilters: Set<SplitPairFilter>): Any {
@@ -330,5 +371,14 @@ internal class EmbeddingAdapter(
         private fun isSplitAttributesSupported(attrs: SplitAttributes) =
             attrs.splitType is SplitType.RatioSplitType &&
                 attrs.layoutDirection in arrayOf(LEFT_TO_RIGHT, RIGHT_TO_LEFT, LOCALE)
+
+        /**
+         * Obtains [SplitAttributes] from [OEMSplitInfo] with [WindowExtensions.VENDOR_API_LEVEL_1]
+         */
+        fun getSplitAttributesCompat(splitInfo: OEMSplitInfo): SplitAttributes =
+            SplitAttributes.Builder()
+                .setSplitType(SplitType.buildSplitTypeFromValue(splitInfo.splitRatio))
+                .setLayoutDirection(LOCALE)
+                .build()
     }
 }

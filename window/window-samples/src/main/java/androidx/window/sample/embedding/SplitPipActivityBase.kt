@@ -289,7 +289,10 @@ abstract class SplitPipActivityBase : AppCompatActivity(), CompoundButton.OnChec
         override fun accept(newSplitInfos: List<SplitInfo>) {
             var isInSplit = false
             for (info in newSplitInfos) {
-                if (info.contains(this@SplitPipActivityBase) && info.splitRatio > 0) {
+                if (info.contains(this@SplitPipActivityBase) &&
+                    info.splitAttributes.splitType !is
+                        SplitAttributes.SplitType.ExpandContainersSplitType
+                ) {
                     isInSplit = true
                     break
                 }

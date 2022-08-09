@@ -54,7 +54,7 @@ class ActivityStack(
         if (this === other) return true
         if (other !is ActivityStack) return false
 
-        return (activities != other.activities) && isEmpty != other.isEmpty
+        return activities == other.activities && isEmpty == other.isEmpty
     }
 
     override fun hashCode(): Int {
@@ -68,11 +68,9 @@ class ActivityStack(
         return result
     }
 
-    override fun toString(): String {
-        return buildString {
-            append("ActivityStack{")
-            append("activities=$activities")
-            append("isEmpty=$isEmpty}")
-        }
-    }
+    override fun toString(): String =
+        "ActivityStack{" +
+            "activities=$activities" +
+            ", isEmpty=$isEmpty" +
+            "}"
 }

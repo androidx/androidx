@@ -24,7 +24,12 @@ import androidx.window.core.ExperimentalWindowApi
 class SplitInfo internal constructor(
     val primaryActivityStack: ActivityStack,
     val secondaryActivityStack: ActivityStack,
-    val splitRatio: Float
+    /**
+     * The [SplitAttributes] of this [SplitInfo].
+     *
+     * @see SplitAttributes.shouldExpandSecondaryContainer
+     */
+    val splitAttributes: SplitAttributes
 ) {
     operator fun contains(activity: Activity): Boolean {
         return primaryActivityStack.contains(activity) ||
@@ -37,7 +42,7 @@ class SplitInfo internal constructor(
 
         if (primaryActivityStack != other.primaryActivityStack) return false
         if (secondaryActivityStack != other.secondaryActivityStack) return false
-        if (splitRatio != other.splitRatio) return false
+        if (splitAttributes != other.splitAttributes) return false
 
         return true
     }
@@ -45,7 +50,7 @@ class SplitInfo internal constructor(
     override fun hashCode(): Int {
         var result = primaryActivityStack.hashCode()
         result = 31 * result + secondaryActivityStack.hashCode()
-        result = 31 * result + splitRatio.hashCode()
+        result = 31 * result + splitAttributes.hashCode()
         return result
     }
 
@@ -54,7 +59,7 @@ class SplitInfo internal constructor(
             append("SplitInfo:{")
             append("primaryActivityStack=$primaryActivityStack,")
             append("secondaryActivityStack=$secondaryActivityStack,")
-            append("splitRatio=$splitRatio}")
+            append("splitAttributes=$splitAttributes}")
         }
     }
 }

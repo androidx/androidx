@@ -98,10 +98,11 @@ package androidx.window.extensions.embedding {
   }
 
   public class SplitInfo {
-    ctor public SplitInfo(androidx.window.extensions.embedding.ActivityStack, androidx.window.extensions.embedding.ActivityStack, float);
+    ctor public SplitInfo(androidx.window.extensions.embedding.ActivityStack, androidx.window.extensions.embedding.ActivityStack, androidx.window.extensions.embedding.SplitAttributes);
     method public androidx.window.extensions.embedding.ActivityStack getPrimaryActivityStack();
     method public androidx.window.extensions.embedding.ActivityStack getSecondaryActivityStack();
-    method public float getSplitRatio();
+    method public androidx.window.extensions.embedding.SplitAttributes getSplitAttributes();
+    method @Deprecated public float getSplitRatio();
   }
 
   public class SplitPairRule extends androidx.window.extensions.embedding.SplitRule {

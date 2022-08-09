@@ -161,10 +161,10 @@ package androidx.window.embedding {
     method public operator boolean contains(android.app.Activity activity);
     method public androidx.window.embedding.ActivityStack getPrimaryActivityStack();
     method public androidx.window.embedding.ActivityStack getSecondaryActivityStack();
-    method public float getSplitRatio();
+    method public androidx.window.embedding.SplitAttributes getSplitAttributes();
     property public final androidx.window.embedding.ActivityStack primaryActivityStack;
     property public final androidx.window.embedding.ActivityStack secondaryActivityStack;
-    property public final float splitRatio;
+    property public final androidx.window.embedding.SplitAttributes splitAttributes;
   }
 
   @androidx.window.core.ExperimentalWindowApi public final class SplitPairFilter {
