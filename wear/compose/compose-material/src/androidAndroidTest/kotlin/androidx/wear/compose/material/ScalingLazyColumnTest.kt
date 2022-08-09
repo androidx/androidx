@@ -83,7 +83,38 @@ public class ScalingLazyColumnTest {
     }
 
     @Test
-    fun initializationCorrectWithAutoCenteringAndNormalItemPadding() {
+    fun initializationCorrectWithAutoCenteringAndNormalItemPaddingForZeroItemList() {
+        initializationCorrectWithAutoCenteringAndNormalItemPaddingForNItemList(0)
+    }
+
+    @Test
+    fun initializationCorrectWithAutoCenteringAndNormalItemPaddingForOneItemList() {
+        initializationCorrectWithAutoCenteringAndNormalItemPaddingForNItemList(1)
+    }
+
+    @Test
+    fun initializationCorrectWithAutoCenteringAndNormalItemPaddingForTwoItemList() {
+        initializationCorrectWithAutoCenteringAndNormalItemPaddingForNItemList(2)
+    }
+
+    @Test
+    fun initializationCorrectWithAutoCenteringAndNormalItemPaddingForThreeItemList() {
+        initializationCorrectWithAutoCenteringAndNormalItemPaddingForNItemList(3)
+    }
+
+    @Test
+    fun initializationCorrectWithAutoCenteringAndNormalItemPaddingForFourItemList() {
+        initializationCorrectWithAutoCenteringAndNormalItemPaddingForNItemList(4)
+    }
+
+    @Test
+    fun initializationCorrectWithAutoCenteringAndNormalItemPaddingForFiveItemList() {
+        initializationCorrectWithAutoCenteringAndNormalItemPaddingForNItemList(5)
+    }
+
+    private fun initializationCorrectWithAutoCenteringAndNormalItemPaddingForNItemList(
+        itemCount: Int
+    ) {
         lateinit var state: ScalingLazyListState
         val listSize = itemSizeDp * 3.5f
         rule.setContent {
@@ -92,7 +123,7 @@ public class ScalingLazyColumnTest {
                     state = rememberScalingLazyListState().also { state = it },
                     modifier = Modifier.testTag(TEST_TAG).requiredSize(listSize),
                 ) {
-                    items(5) {
+                    items(itemCount) {
                         Box(Modifier.requiredSize(itemSizeDp))
                     }
                 }
