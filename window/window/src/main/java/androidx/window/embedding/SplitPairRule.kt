@@ -76,11 +76,29 @@ class SplitPairRule : SplitRule {
         @IntRange(from = 0) minWidth: Int,
         @IntRange(from = 0) minSmallestWidth: Int,
         @FloatRange(from = 0.0, to = 1.0) splitRatio: Float = 0.5f,
-        @LayoutDir layoutDir: Int = LayoutDirection.LOCALE
+        layoutDir: Int = LayoutDirection.LOCALE
     ) : super(minWidth, minSmallestWidth, splitRatio, layoutDir) {
         checkArgumentNonnegative(minWidth, "minWidth must be non-negative")
         checkArgumentNonnegative(minSmallestWidth, "minSmallestWidth must be non-negative")
         checkArgument(splitRatio in 0.0..1.0, "splitRatio must be in 0.0..1.0 range")
+        this.filters = filters.toSet()
+        this.clearTop = clearTop
+        this.finishPrimaryWithSecondary = finishPrimaryWithSecondary
+        this.finishSecondaryWithPrimary = finishSecondaryWithPrimary
+    }
+
+    // TODO(b/243345984): Update FinishBehavior to enum-like class instead of integer constants
+    internal constructor(
+        filters: Set<SplitPairFilter>,
+        @SplitFinishBehavior finishPrimaryWithSecondary: Int = FINISH_NEVER,
+        @SplitFinishBehavior finishSecondaryWithPrimary: Int = FINISH_ALWAYS,
+        clearTop: Boolean = false,
+        @IntRange(from = 0) minWidth: Int,
+        @IntRange(from = 0) minSmallestWidth: Int,
+        defaultSplitAttributes: SplitAttributes,
+    ) : super(minWidth, minSmallestWidth, defaultSplitAttributes) {
+        checkArgumentNonnegative(minWidth, "minWidth must be non-negative")
+        checkArgumentNonnegative(minSmallestWidth, "minSmallestWidth must be non-negative")
         this.filters = filters.toSet()
         this.clearTop = clearTop
         this.finishPrimaryWithSecondary = finishPrimaryWithSecondary
@@ -105,10 +123,7 @@ class SplitPairRule : SplitRule {
         @SplitFinishBehavior
         private var finishSecondaryWithPrimary: Int = FINISH_ALWAYS
         private var clearTop: Boolean = false
-        @FloatRange(from = 0.0, to = 1.0)
-        private var splitRatio: Float = 0.5f
-        @LayoutDir
-        private var layoutDir: Int = LayoutDirection.LOCALE
+        private var defaultSplitAttributes: SplitAttributes = SplitAttributes.Builder().build()
 
         /**
          * @see SplitPairRule.finishPrimaryWithSecondary
@@ -133,22 +148,12 @@ class SplitPairRule : SplitRule {
         fun setClearTop(clearTop: Boolean): Builder =
             apply { this.clearTop = clearTop }
 
-        /**
-         * @see SplitPairRule.splitRatio
-         */
-        fun setSplitRatio(@FloatRange(from = 0.0, to = 1.0) splitRatio: Float): Builder =
-            apply { this.splitRatio = splitRatio }
+        /** @see SplitPairRule.defaultSplitAttributes */
+        fun setDefaultSplitAttributes(defaultSplitAttributes: SplitAttributes): Builder =
+            apply { this.defaultSplitAttributes = defaultSplitAttributes }
 
-        /**
-         * @see SplitPairRule.layoutDirection
-         */
-        @SuppressWarnings("MissingGetterMatchingBuilder")
-        fun setLayoutDir(@LayoutDir layoutDir: Int): Builder =
-            apply { this.layoutDir = layoutDir }
-
-        @Suppress("DEPRECATION")
         fun build() = SplitPairRule(filters, finishPrimaryWithSecondary, finishSecondaryWithPrimary,
-            clearTop, minWidth, minSmallestWidth, splitRatio, layoutDir)
+            clearTop, minWidth, minSmallestWidth, defaultSplitAttributes)
     }
 
     /**
@@ -159,7 +164,6 @@ class SplitPairRule : SplitRule {
         val newSet = mutableSetOf<SplitPairFilter>()
         newSet.addAll(filters)
         newSet.add(filter)
-        @Suppress("DEPRECATION")
         return SplitPairRule(
             newSet.toSet(),
             finishPrimaryWithSecondary,
@@ -167,8 +171,7 @@ class SplitPairRule : SplitRule {
             clearTop,
             minWidth,
             minSmallestWidth,
-            splitRatio,
-            layoutDirection
+            defaultSplitAttributes,
         )
     }
 
@@ -193,4 +196,15 @@ class SplitPairRule : SplitRule {
         result = 31 * result + clearTop.hashCode()
         return result
     }
+
+    override fun toString(): String =
+        "${SplitPairRule::class.java.simpleName}{" +
+            "defaultSplitAttributes=$defaultSplitAttributes" +
+            ", minWidth=$minWidth" +
+            ", minSmallestWidth=$minSmallestWidth" +
+            ", clearTop=$clearTop" +
+            ", finishPrimaryWithSecondary=$finishPrimaryWithSecondary" +
+            ", finishSecondaryWithPrimary=$finishSecondaryWithPrimary" +
+            ", filters=$filters" +
+            "}"
 }

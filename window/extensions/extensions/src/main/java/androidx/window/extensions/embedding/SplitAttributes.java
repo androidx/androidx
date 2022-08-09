@@ -38,9 +38,9 @@ import java.lang.annotation.RetentionPolicy;
  * </ul>
  * Attributes can be configured in the following ways:
  * <ul>
- *   <li>Set the default {@code SplitAttributes} via `SplitPairRule.Builder
- *     .setDefaultSplitAttributes` and `SplitPlaceholderRule.Builder.setDefaultSplitAttributes`
- *     </li>
+ *   <li> Set the default {@code SplitAttributes} via
+ *     {@link SplitPairRule.Builder#setDefaultSplitAttributes(SplitAttributes)} and
+ *     {@link SplitPlaceholderRule.Builder#setDefaultSplitAttributes(SplitAttributes)} </li>
  *   <li>Used in `SplitAttributesCalculator.computeSplitAttributesForState` to customize the
  *     {@code SplitAttributes} for a given device and window state. </li>
  * </ul>
@@ -52,7 +52,6 @@ import java.lang.annotation.RetentionPolicy;
  * @since {@link androidx.window.extensions.WindowExtensions#VENDOR_API_LEVEL_2}
  */
 public class SplitAttributes {
-
     /**
      * Defines how the Task should be split between the primary and the secondary containers.
      *

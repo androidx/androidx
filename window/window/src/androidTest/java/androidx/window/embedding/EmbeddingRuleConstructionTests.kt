@@ -21,9 +21,10 @@ import android.content.ComponentName
 import android.content.Intent
 import android.content.res.Resources
 import android.graphics.Rect
-import android.util.LayoutDirection
 import androidx.test.core.app.ApplicationProvider
 import androidx.window.core.ExperimentalWindowApi
+import androidx.window.embedding.SplitAttributes.LayoutDirection.Companion.LEFT_TO_RIGHT
+import androidx.window.embedding.SplitAttributes.LayoutDirection.Companion.LOCALE
 import androidx.window.embedding.SplitRule.Companion.FINISH_ADJACENT
 import androidx.window.embedding.SplitRule.Companion.FINISH_ALWAYS
 import androidx.window.embedding.SplitRule.Companion.FINISH_NEVER
@@ -32,6 +33,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
+import org.junit.Before
 import org.junit.Test
 
 /**
@@ -42,6 +44,17 @@ import org.junit.Test
  */
 @OptIn(ExperimentalWindowApi::class)
 class EmbeddingRuleConstructionTests {
+    lateinit var application: Application
+    lateinit var validBounds: Rect
+    lateinit var invalidBounds: Rect
+
+    @Before
+    fun setUp() {
+        application = ApplicationProvider.getApplicationContext()
+        validBounds = minValidWindowBounds(application.resources)
+        invalidBounds = almostValidWindowBounds(application.resources)
+    }
+
     /**
      * Verifies that default params are set correctly when reading {@link SplitPairRule} from XML.
      */
@@ -53,14 +66,16 @@ class EmbeddingRuleConstructionTests {
         val rules = SplitController.getInstance().getSplitRules()
         assertEquals(1, rules.size)
         val rule: SplitPairRule = rules.first() as SplitPairRule
+        val expectedSplitLayout = SplitAttributes.Builder()
+            .setSplitType(SplitAttributes.SplitType.ratio(0.5f))
+            .setLayoutDirection(LOCALE)
+            .build()
         assertEquals(FINISH_NEVER, rule.finishPrimaryWithSecondary)
         assertEquals(FINISH_ALWAYS, rule.finishSecondaryWithPrimary)
         assertEquals(false, rule.clearTop)
-        assertEquals(0.5f, rule.splitRatio)
-        assertEquals(LayoutDirection.LOCALE, rule.layoutDirection)
-        val application = ApplicationProvider.getApplicationContext<Application>()
-        assertTrue(rule.checkParentBounds(minValidWindowBounds(application.resources)))
-        assertFalse(rule.checkParentBounds(almostValidWindowBounds(application.resources)))
+        assertEquals(expectedSplitLayout, rule.defaultSplitAttributes)
+        assertTrue(rule.checkParentBounds(validBounds))
+        assertFalse(rule.checkParentBounds(invalidBounds))
     }
 
     /**
@@ -76,13 +91,16 @@ class EmbeddingRuleConstructionTests {
             bounds.width(),
             bounds.width()
         ).build()
+        val expectedSplitLayout = SplitAttributes.Builder()
+            .setSplitType(SplitAttributes.SplitType.ratio(0.5f))
+            .setLayoutDirection(LOCALE)
+            .build()
         assertEquals(FINISH_NEVER, rule.finishPrimaryWithSecondary)
         assertEquals(FINISH_ALWAYS, rule.finishSecondaryWithPrimary)
         assertEquals(false, rule.clearTop)
-        assertEquals(0.5f, rule.splitRatio)
-        assertEquals(LayoutDirection.LOCALE, rule.layoutDirection)
-        assertTrue(rule.checkParentBounds(minValidWindowBounds(application.resources)))
-        assertFalse(rule.checkParentBounds(almostValidWindowBounds(application.resources)))
+        assertEquals(expectedSplitLayout, rule.defaultSplitAttributes)
+        assertTrue(rule.checkParentBounds(validBounds))
+        assertFalse(rule.checkParentBounds(invalidBounds))
     }
 
     /**
@@ -92,6 +110,10 @@ class EmbeddingRuleConstructionTests {
     @Test
     fun test_SplitPairRule_Builder() {
         val filters = HashSet<SplitPairFilter>()
+        val expectedSplitLayout = SplitAttributes.Builder()
+            .setSplitType(SplitAttributes.SplitType.ratio(0.3f))
+            .setLayoutDirection(LEFT_TO_RIGHT)
+            .build()
         filters.add(
             SplitPairFilter(
                 ComponentName("a", "b"),
@@ -107,14 +129,12 @@ class EmbeddingRuleConstructionTests {
             .setFinishPrimaryWithSecondary(FINISH_ADJACENT)
             .setFinishSecondaryWithPrimary(FINISH_ADJACENT)
             .setClearTop(true)
-            .setSplitRatio(0.3f)
-            .setLayoutDir(LayoutDirection.LTR)
+            .setDefaultSplitAttributes(expectedSplitLayout)
             .build()
         assertEquals(FINISH_ADJACENT, rule.finishPrimaryWithSecondary)
         assertEquals(FINISH_ADJACENT, rule.finishSecondaryWithPrimary)
         assertEquals(true, rule.clearTop)
-        assertEquals(0.3f, rule.splitRatio)
-        assertEquals(LayoutDirection.LTR, rule.layoutDirection)
+        assertEquals(expectedSplitLayout, rule.defaultSplitAttributes)
         assertEquals(filters, rule.filters)
         assertEquals(123, rule.minWidth)
         assertEquals(456, rule.minSmallestWidth)
@@ -140,24 +160,6 @@ class EmbeddingRuleConstructionTests {
                 minSmallestWidth = -1
             ).build()
         }
-        assertThrows(IllegalArgumentException::class.java) {
-            SplitPairRule.Builder(
-                HashSet(),
-                minWidth = 123,
-                minSmallestWidth = 456
-            )
-                .setSplitRatio(-1.0f)
-                .build()
-        }
-        assertThrows(IllegalArgumentException::class.java) {
-            SplitPairRule.Builder(
-                HashSet(),
-                minWidth = 123,
-                minSmallestWidth = 456
-            )
-                .setSplitRatio(1.1f)
-                .build()
-        }
     }
 
     /**
@@ -172,13 +174,15 @@ class EmbeddingRuleConstructionTests {
         val rules = SplitController.getInstance().getSplitRules()
         assertEquals(1, rules.size)
         val rule: SplitPlaceholderRule = rules.first() as SplitPlaceholderRule
+        val expectedSplitLayout = SplitAttributes.Builder()
+            .setSplitType(SplitAttributes.SplitType.ratio(0.5f))
+            .setLayoutDirection(LOCALE)
+            .build()
         assertEquals(FINISH_ALWAYS, rule.finishPrimaryWithPlaceholder)
         assertEquals(false, rule.isSticky)
-        assertEquals(0.5f, rule.splitRatio)
-        assertEquals(LayoutDirection.LOCALE, rule.layoutDirection)
-        val application = ApplicationProvider.getApplicationContext<Application>()
-        assertTrue(rule.checkParentBounds(minValidWindowBounds(application.resources)))
-        assertFalse(rule.checkParentBounds(almostValidWindowBounds(application.resources)))
+        assertEquals(expectedSplitLayout, rule.defaultSplitAttributes)
+        assertTrue(rule.checkParentBounds(validBounds))
+        assertFalse(rule.checkParentBounds(invalidBounds))
     }
 
     /**
@@ -196,8 +200,13 @@ class EmbeddingRuleConstructionTests {
             .build()
         assertEquals(FINISH_ALWAYS, rule.finishPrimaryWithPlaceholder)
         assertEquals(false, rule.isSticky)
-        assertEquals(0.5f, rule.splitRatio)
-        assertEquals(LayoutDirection.LOCALE, rule.layoutDirection)
+        val expectedSplitLayout = SplitAttributes.Builder()
+            .setSplitType(SplitAttributes.SplitType.ratio(0.5f))
+            .setLayoutDirection(LOCALE)
+            .build()
+        assertEquals(expectedSplitLayout, rule.defaultSplitAttributes)
+        assertEquals(123, rule.minWidth)
+        assertEquals(456, rule.minSmallestWidth)
     }
 
     /**
@@ -214,6 +223,10 @@ class EmbeddingRuleConstructionTests {
             )
         )
         val intent = Intent("ACTION")
+        val expectedSplitLayout = SplitAttributes.Builder()
+            .setSplitType(SplitAttributes.SplitType.ratio(0.3f))
+            .setLayoutDirection(LEFT_TO_RIGHT)
+            .build()
         val rule = SplitPlaceholderRule.Builder(
             filters,
             intent,
@@ -222,13 +235,11 @@ class EmbeddingRuleConstructionTests {
         )
             .setFinishPrimaryWithPlaceholder(FINISH_ADJACENT)
             .setSticky(true)
-            .setSplitRatio(0.3f)
-            .setLayoutDir(LayoutDirection.LTR)
+            .setDefaultSplitAttributes(expectedSplitLayout)
             .build()
         assertEquals(FINISH_ADJACENT, rule.finishPrimaryWithPlaceholder)
         assertEquals(true, rule.isSticky)
-        assertEquals(0.3f, rule.splitRatio)
-        assertEquals(LayoutDirection.LTR, rule.layoutDirection)
+        assertEquals(expectedSplitLayout, rule.defaultSplitAttributes)
         assertEquals(filters, rule.filters)
         assertEquals(intent, rule.placeholderIntent)
         assertEquals(123, rule.minWidth)
@@ -265,26 +276,6 @@ class EmbeddingRuleConstructionTests {
                 minSmallestWidth = 456
             )
                 .setFinishPrimaryWithPlaceholder(FINISH_NEVER)
-                .build()
-        }
-        assertThrows(IllegalArgumentException::class.java) {
-            SplitPlaceholderRule.Builder(
-                HashSet(),
-                Intent(),
-                minWidth = 123,
-                minSmallestWidth = 456
-            )
-                .setSplitRatio(-1.0f)
-                .build()
-        }
-        assertThrows(IllegalArgumentException::class.java) {
-            SplitPlaceholderRule.Builder(
-                HashSet(),
-                Intent(),
-                minWidth = 123,
-                minSmallestWidth = 456
-            )
-                .setSplitRatio(1.1f)
                 .build()
         }
     }

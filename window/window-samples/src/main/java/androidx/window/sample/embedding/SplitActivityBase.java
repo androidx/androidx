@@ -37,6 +37,7 @@ import androidx.window.core.ExperimentalWindowApi;
 import androidx.window.embedding.ActivityFilter;
 import androidx.window.embedding.ActivityRule;
 import androidx.window.embedding.EmbeddingRule;
+import androidx.window.embedding.SplitAttributes;
 import androidx.window.embedding.SplitController;
 import androidx.window.embedding.SplitInfo;
 import androidx.window.embedding.SplitPairFilter;
@@ -264,7 +265,9 @@ public class SplitActivityBase extends AppCompatActivity
     private void updateRulesFromCheckboxes() {
         int minSplitWidth = minSplitWidth();
         mSplitController.clearRegisteredRules();
-
+        final SplitAttributes defaultSplitAttributes = new SplitAttributes.Builder()
+                .setSplitType(SplitAttributes.SplitType.ratio(SPLIT_RATIO))
+                .build();
         Set<SplitPairFilter> pairFilters = new HashSet<>();
         pairFilters.add(new SplitPairFilter(componentName(SplitActivityA.class),
                 componentName("*"), null));
@@ -276,7 +279,7 @@ public class SplitActivityBase extends AppCompatActivity
                 .setFinishPrimaryWithSecondary(SplitRule.FINISH_NEVER)
                 .setFinishSecondaryWithPrimary(SplitRule.FINISH_NEVER)
                 .setClearTop(true)
-                .setSplitRatio(SPLIT_RATIO)
+                .setDefaultSplitAttributes(defaultSplitAttributes)
                 .build();
         if (mViewBinding.splitMainCheckBox.isChecked()) {
             mSplitController.registerRule(rule);
@@ -295,7 +298,7 @@ public class SplitActivityBase extends AppCompatActivity
         )
                 .setSticky(mViewBinding.useStickyPlaceholderCheckBox.isChecked())
                 .setFinishPrimaryWithPlaceholder(SplitRule.FINISH_ADJACENT)
-                .setSplitRatio(SPLIT_RATIO)
+                .setDefaultSplitAttributes(defaultSplitAttributes)
                 .build();
         if (mViewBinding.usePlaceholderCheckBox.isChecked()) {
             mSplitController.registerRule(placeholderRule);
@@ -318,7 +321,7 @@ public class SplitActivityBase extends AppCompatActivity
                                 ? SplitRule.FINISH_ALWAYS : SplitRule.FINISH_NEVER
                 )
                 .setClearTop(true)
-                .setSplitRatio(SPLIT_RATIO)
+                .setDefaultSplitAttributes(defaultSplitAttributes)
                 .build();
         if (mViewBinding.splitBCCheckBox.isChecked()) {
             mSplitController.registerRule(rule);
@@ -335,7 +338,7 @@ public class SplitActivityBase extends AppCompatActivity
                 .setFinishPrimaryWithSecondary(SplitRule.FINISH_NEVER)
                 .setFinishSecondaryWithPrimary(SplitRule.FINISH_NEVER)
                 .setClearTop(true)
-                .setSplitRatio(SPLIT_RATIO)
+                .setDefaultSplitAttributes(defaultSplitAttributes)
                 .build();
         if (mViewBinding.splitWithFCheckBox.isChecked()) {
             mSplitController.registerRule(rule);

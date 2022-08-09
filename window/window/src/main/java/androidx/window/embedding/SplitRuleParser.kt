@@ -21,13 +21,11 @@ import android.content.Context
 import android.content.Intent
 import android.content.res.Resources
 import android.content.res.XmlResourceParser
-import android.util.LayoutDirection
-
 import androidx.window.R
 import androidx.window.core.ExperimentalWindowApi
+import androidx.window.embedding.SplitAttributes.LayoutDirection.Companion.LOCALE
 import androidx.window.embedding.SplitRule.Companion.FINISH_ALWAYS
 import androidx.window.embedding.SplitRule.Companion.FINISH_NEVER
-
 import org.xmlpull.v1.XmlPullParser
 
 /**
@@ -124,115 +122,109 @@ internal class SplitRuleParser {
     private fun parseSplitPairRule(
         context: Context,
         parser: XmlResourceParser
-    ): SplitPairRule {
-        val ratio: Float
-        val minWidth: Int
-        val minSmallestWidth: Int
-        val layoutDir: Int
-        val finishPrimaryWithSecondary: Int
-        val finishSecondaryWithPrimary: Int
-        val clearTop: Boolean
+    ): SplitPairRule =
         context.theme.obtainStyledAttributes(
             parser,
             R.styleable.SplitPairRule,
             0,
             0
-        ).apply {
-            ratio = getFloat(R.styleable.SplitPairRule_splitRatio, 0.5f)
-            minWidth = getDimension(
+        ).let { typedArray ->
+            val ratio = typedArray.getFloat(R.styleable.SplitPairRule_splitRatio, 0.5f)
+            val minWidth = typedArray.getDimension(
                 R.styleable.SplitPairRule_splitMinWidth,
                 defaultMinWidth(context.resources)
             ).toInt()
-            minSmallestWidth = getDimension(
+            val minSmallestWidth = typedArray.getDimension(
                 R.styleable.SplitPairRule_splitMinSmallestWidth,
                 defaultMinWidth(context.resources)
             ).toInt()
-            layoutDir = getInt(
+            val layoutDir = typedArray.getInt(
                 R.styleable.SplitPairRule_splitLayoutDirection,
-                LayoutDirection.LOCALE
+                LOCALE.value
             )
-            finishPrimaryWithSecondary =
-                getInt(R.styleable.SplitPairRule_finishPrimaryWithSecondary, FINISH_NEVER)
-            finishSecondaryWithPrimary =
-                getInt(R.styleable.SplitPairRule_finishSecondaryWithPrimary, FINISH_ALWAYS)
-            clearTop =
-                getBoolean(R.styleable.SplitPairRule_clearTop, false)
+            val finishPrimaryWithSecondary = typedArray.getInt(
+                R.styleable.SplitPairRule_finishPrimaryWithSecondary,
+                FINISH_NEVER
+            )
+            val finishSecondaryWithPrimary = typedArray.getInt(
+                R.styleable.SplitPairRule_finishSecondaryWithPrimary,
+                FINISH_ALWAYS
+            )
+            val clearTop = typedArray.getBoolean(R.styleable.SplitPairRule_clearTop, false)
+            typedArray.recycle()
+
+            val defaultAttrs = SplitAttributes.buildSplitAttributesFromValue(ratio, layoutDir)
+
+            SplitPairRule(
+                emptySet(),
+                finishPrimaryWithSecondary,
+                finishSecondaryWithPrimary,
+                clearTop,
+                minWidth,
+                minSmallestWidth,
+                defaultAttrs,
+            )
         }
-        @Suppress("DEPRECATION")
-        return SplitPairRule(
-            emptySet(),
-            finishPrimaryWithSecondary,
-            finishSecondaryWithPrimary,
-            clearTop,
-            minWidth,
-            minSmallestWidth,
-            ratio,
-            layoutDir
-        )
-    }
 
     private fun parseSplitPlaceholderRule(
         context: Context,
         parser: XmlResourceParser
-    ): SplitPlaceholderRule {
-        val placeholderActivityIntentName: String?
-        val stickyPlaceholder: Boolean
-        val finishPrimaryWithPlaceholder: Int
-        val ratio: Float
-        val minWidth: Int
-        val minSmallestWidth: Int
-        val layoutDir: Int
+    ): SplitPlaceholderRule =
         context.theme.obtainStyledAttributes(
             parser,
             R.styleable.SplitPlaceholderRule,
             0,
             0
-        ).apply {
-            placeholderActivityIntentName = getString(
+        ).let { typedArray ->
+            val placeholderActivityIntentName = typedArray.getString(
                 R.styleable.SplitPlaceholderRule_placeholderActivityName
             )
-            stickyPlaceholder = getBoolean(R.styleable.SplitPlaceholderRule_stickyPlaceholder,
-                false)
-            finishPrimaryWithPlaceholder =
-                getInt(R.styleable.SplitPlaceholderRule_finishPrimaryWithPlaceholder, FINISH_ALWAYS)
-            ratio = getFloat(R.styleable.SplitPlaceholderRule_splitRatio, 0.5f)
-            minWidth = getDimension(
-                R.styleable.SplitPlaceholderRule_splitMinWidth,
-                defaultMinWidth(context.resources)
-            ).toInt()
-            minSmallestWidth = getDimension(
-                R.styleable.SplitPlaceholderRule_splitMinSmallestWidth,
-                defaultMinWidth(context.resources)
-            ).toInt()
-            layoutDir = getInt(
-                R.styleable.SplitPlaceholderRule_splitLayoutDirection,
-                LayoutDirection.LOCALE
+            val stickyPlaceholder = typedArray.getBoolean(
+                R.styleable.SplitPlaceholderRule_stickyPlaceholder,
+                false
             )
-        }
-        if (finishPrimaryWithPlaceholder == FINISH_NEVER) {
+            val finishPrimaryWithPlaceholder = typedArray.getInt(
+                R.styleable.SplitPlaceholderRule_finishPrimaryWithPlaceholder,
+                FINISH_ALWAYS
+            )
+            if (finishPrimaryWithPlaceholder == FINISH_NEVER) {
                 throw IllegalArgumentException(
                     "FINISH_NEVER is not a valid configuration for Placeholder activities. " +
                         "Please use FINISH_ALWAYS or FINISH_ADJACENT instead or refer to the " +
                         "current API")
-        }
-        val packageName = context.applicationContext.packageName
-        val placeholderActivityClassName = buildClassName(
-            packageName,
-            placeholderActivityIntentName
-        )
+            }
+            val ratio = typedArray.getFloat(R.styleable.SplitPlaceholderRule_splitRatio, 0.5f)
+            val minWidth = typedArray.getDimension(
+                R.styleable.SplitPlaceholderRule_splitMinWidth,
+                defaultMinWidth(context.resources)
+            ).toInt()
+            val minSmallestWidth = typedArray.getDimension(
+                R.styleable.SplitPlaceholderRule_splitMinSmallestWidth,
+                defaultMinWidth(context.resources)
+            ).toInt()
+            val layoutDir = typedArray.getInt(
+                R.styleable.SplitPlaceholderRule_splitLayoutDirection,
+                LOCALE.value
+            )
+            typedArray.recycle()
 
-        @Suppress("DEPRECATION")
-        return SplitPlaceholderRule(
-            emptySet(),
-            Intent().setComponent(placeholderActivityClassName),
-            stickyPlaceholder,
-            finishPrimaryWithPlaceholder,
-            minWidth,
-            minSmallestWidth,
-            ratio,
-            layoutDir
-        )
-    }
+            val defaultAttrs = SplitAttributes.buildSplitAttributesFromValue(ratio, layoutDir)
+            val packageName = context.applicationContext.packageName
+            val placeholderActivityClassName = buildClassName(
+                packageName,
+                placeholderActivityIntentName
+            )
+
+            SplitPlaceholderRule(
+                emptySet(),
+                Intent().setComponent(placeholderActivityClassName),
+                stickyPlaceholder,
+                finishPrimaryWithPlaceholder,
+                minWidth,
+                minSmallestWidth,
+                defaultAttrs,
+            )
+        }
 
     private fun parseSplitPairFilter(
         context: Context,

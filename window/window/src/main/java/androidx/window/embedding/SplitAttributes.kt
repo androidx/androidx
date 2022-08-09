@@ -16,14 +16,14 @@
 
 package androidx.window.embedding
 
+import android.annotation.SuppressLint
 import androidx.annotation.FloatRange
+import androidx.annotation.IntRange
 import androidx.window.core.ExperimentalWindowApi
 import androidx.window.core.SpecificationComputer
 import androidx.window.core.SpecificationComputer.Companion.startSpecification
 import androidx.window.embedding.SplitAttributes.LayoutDirection
-import androidx.window.embedding.SplitAttributes.LayoutDirection.Companion.LEFT_TO_RIGHT
 import androidx.window.embedding.SplitAttributes.LayoutDirection.Companion.LOCALE
-import androidx.window.embedding.SplitAttributes.LayoutDirection.Companion.RIGHT_TO_LEFT
 import androidx.window.embedding.SplitAttributes.SplitType
 import androidx.window.embedding.SplitAttributes.SplitType.Companion.splitEqually
 
@@ -35,8 +35,8 @@ import androidx.window.embedding.SplitAttributes.SplitType.Companion.splitEquall
  * - Whether the task bounds are split vertically horizontally
  * - The position of the primary and the secondary activity containers
  * Attributes can be configured in the following ways:
- * - Set the default `SplitAttributes` via `SplitPairRule.Builder.setDefaultSplitAttributes` and
- * `SplitPlaceholderRule.Builder.setDefaultSplitAttributes`
+ * - Set the default `SplitAttributes` via [SplitPairRule.Builder.setDefaultSplitAttributes] and
+ * [SplitPlaceholderRule.Builder.setDefaultSplitAttributes]
  * - Set `splitRatio` and `splitLayoutDirection` attributes in `<SplitPairRule>` or
  * `<SplitPlaceholderRule>` tag in XML file. They will be parsed as [SplitType] and
  * [layoutDirection]. Note that [SplitType.HingeSplitType] is not supported to be defined in XML
@@ -128,13 +128,15 @@ class SplitAttributes internal constructor(
                 return RatioSplitType(checkedRatio)
             }
 
+            private val EXPAND_CONTAINERS = ExpandContainersSplitType()
+
             /**
              * Indicate that both primary and secondary activity containers are expanded to fill the
              * task parent container, and the secondary container occludes the primary one. It is
              * useful to make the apps occupy the full task bounds in some device states.
              */
             @JvmStatic
-            fun expandContainers(): ExpandContainersSplitType = ExpandContainersSplitType()
+            fun expandContainers(): ExpandContainersSplitType = EXPAND_CONTAINERS
 
             /**
              * Indicate that the primary and secondary container share an equal split. It is also
@@ -174,11 +176,27 @@ class SplitAttributes internal constructor(
                 }.compute()!!
                 return HingeSplitType(checkedType)
             }
+
+            /** Returns [SplitType] with the given `value`. */
+            @SuppressLint("Range") // value = 0.0 is covered.
+            @JvmStatic
+            internal fun buildSplitTypeFromValue(
+                @FloatRange(from = 0.0, to = 1.0, toInclusive = false) value: Float
+            ) = if (value == EXPAND_CONTAINERS.value) {
+                    expandContainers()
+                } else {
+                    ratio(value)
+                }
         }
     }
 
     /** Defines split layout directions. */
-    class LayoutDirection private constructor(private val description: String) {
+    class LayoutDirection private constructor(
+        /** The description of this `SplitLayoutDirection` */
+        private val description: String,
+        /** The enum value defined in `splitLayoutDirection` attributes in `attrs.xml` */
+        internal val value: Int,
+    ) {
         override fun toString(): String = description
 
         companion object {
@@ -189,7 +207,7 @@ class SplitAttributes internal constructor(
              * or [RIGHT_TO_LEFT].
              */
             @JvmField
-            val LOCALE = LayoutDirection("LOCALE")
+            val LOCALE = LayoutDirection("LOCALE", 0)
             // TODO(b/241043844): Add the illustration below in DAC.
             // -------------------------
             // |           |           |
@@ -202,7 +220,7 @@ class SplitAttributes internal constructor(
              * and the secondary container on the right portion.
              */
             @JvmField
-            val LEFT_TO_RIGHT = LayoutDirection("LEFT_TO_RIGHT")
+            val LEFT_TO_RIGHT = LayoutDirection("LEFT_TO_RIGHT", 1)
             // TODO(b/241043844): Add the illustration below in DAC.
             //            -------------------------
             //            |           |           |
@@ -215,7 +233,7 @@ class SplitAttributes internal constructor(
              * portion, and the secondary container on the left portion.
              */
             @JvmField
-            val RIGHT_TO_LEFT = LayoutDirection("RIGHT_TO_LEFT")
+            val RIGHT_TO_LEFT = LayoutDirection("RIGHT_TO_LEFT", 2)
             // TODO(b/241043844): Add the illustration below in DAC.
             //            -------------
             //            |           |
@@ -235,7 +253,7 @@ class SplitAttributes internal constructor(
              * fallback to [LOCALE].
              */
             @JvmField
-            val TOP_TO_BOTTOM = LayoutDirection("TOP_TO_BOTTOM")
+            val TOP_TO_BOTTOM = LayoutDirection("TOP_TO_BOTTOM", 3)
             // TODO(b/241043844): Add the illustration below in DAC.
             //            -------------
             //            |           |
@@ -255,12 +273,37 @@ class SplitAttributes internal constructor(
              * fallback to [LOCALE].
              */
             @JvmField
-            val BOTTOM_TO_TOP = LayoutDirection("BOTTOM_TO_TOP")
+            val BOTTOM_TO_TOP = LayoutDirection("BOTTOM_TO_TOP", 4)
+
+            /** Returns [LayoutDirection] with the given `value`. */
+            @JvmStatic
+            internal fun getLayoutDirectionFromValue(
+                @IntRange(from = 0, to = 4) value: Int
+            ) = when (value) {
+                LEFT_TO_RIGHT.value -> LEFT_TO_RIGHT
+                RIGHT_TO_LEFT.value -> RIGHT_TO_LEFT
+                LOCALE.value -> LOCALE
+                // TODO(b/240912390): add horizontal layout static definitions
+                TOP_TO_BOTTOM.value -> TOP_TO_BOTTOM
+                BOTTOM_TO_TOP.value -> BOTTOM_TO_TOP
+                else -> throw IllegalArgumentException("Undefined value:$value")
+            }
         }
     }
 
     companion object {
         private val TAG = SplitAttributes::class.java.simpleName
+
+        @JvmStatic
+        internal fun buildSplitAttributesFromValue(
+            @FloatRange(from = 0.0, to = 1.0, toInclusive = false)
+            splitTypeValue: Float,
+            @IntRange(from = 0, to = 4)
+            layoutDirectionValue: Int,
+        ): SplitAttributes = SplitAttributes(
+            SplitType.buildSplitTypeFromValue(splitTypeValue),
+            LayoutDirection.getLayoutDirectionFromValue(layoutDirectionValue),
+        )
     }
 
     override fun hashCode(): Int = splitType.hashCode() * 31 + layoutDirection.hashCode()

@@ -16,6 +16,7 @@
 
 package androidx.window.embedding
 
+import android.annotation.SuppressLint
 import android.graphics.Rect
 import android.os.Build
 import android.util.LayoutDirection
@@ -54,25 +55,39 @@ open class SplitRule internal constructor(
      */
     @IntRange(from = 0)
     val minSmallestWidth: Int,
-
     /**
-     * Defines what part of the width should be given to the primary activity. Defaults to an
-     * equal width split.
+     * The default [SplitAttributes] to apply on the activity containers pair when the host task
+     * bounds satisfy [minWidth] or [minSmallestWidth] requirements.
      */
-    @FloatRange(from = 0.0, to = 1.0)
-    val splitRatio: Float = 0.5f,
-
-    /**
-     * The layout direction for the split.
-     */
-    @LayoutDir
-    val layoutDirection: Int = LayoutDirection.LOCALE
+    val defaultSplitAttributes: SplitAttributes,
 ) : EmbeddingRule() {
-
-    @IntDef(LayoutDirection.LTR, LayoutDirection.RTL, LayoutDirection.LOCALE)
-    @Retention(AnnotationRetention.SOURCE)
-    // Not called LayoutDirection to avoid conflict with android.util.LayoutDirection
-    internal annotation class LayoutDir
+    // TODO(b/229656253): remove this constructor when the deprecated constructors are removed.
+    @SuppressLint("Range") // The range is covered by boundary check.
+    internal constructor(
+        minWidth: Int,
+        minSmallestWidth: Int,
+        @FloatRange(from = 0.0, to = 1.0) splitRatio: Float,
+        @IntRange(from = 0, to = 3) layoutDirection: Int,
+    ) : this(
+        minWidth,
+        minSmallestWidth,
+        SplitAttributes.Builder()
+            .setSplitType(
+                if (splitRatio == 0.0f || splitRatio == 1.0f) {
+                    SplitAttributes.SplitType.expandContainers()
+                } else {
+                    SplitAttributes.SplitType.ratio(splitRatio)
+                }
+            ).setLayoutDirection(
+                when (layoutDirection) {
+                    LayoutDirection.LTR -> SplitAttributes.LayoutDirection.LEFT_TO_RIGHT
+                    LayoutDirection.RTL -> SplitAttributes.LayoutDirection.RIGHT_TO_LEFT
+                    LayoutDirection.LOCALE -> SplitAttributes.LayoutDirection.LOCALE
+                    else -> throw IllegalArgumentException(
+                        "Unsupported layout direction constant: $layoutDirection"
+                    )
+                }
+            ).build())
 
     /**
      * Determines what happens with the associated container when all activities are finished in
@@ -150,19 +165,18 @@ open class SplitRule internal constructor(
         if (this === other) return true
         if (other !is SplitRule) return false
 
+        if (!super.equals(other)) return false
         if (minWidth != other.minWidth) return false
         if (minSmallestWidth != other.minSmallestWidth) return false
-        if (splitRatio != other.splitRatio) return false
-        if (layoutDirection != other.layoutDirection) return false
-
+        if (defaultSplitAttributes != other.defaultSplitAttributes) return false
         return true
     }
 
     override fun hashCode(): Int {
-        var result = minWidth
+        var result = super.hashCode()
+        result = 31 * result + minWidth
         result = 31 * result + minSmallestWidth
-        result = 31 * result + splitRatio.hashCode()
-        result = 31 * result + layoutDirection
+        result = 31 * result + defaultSplitAttributes.hashCode()
         return result
     }
 }

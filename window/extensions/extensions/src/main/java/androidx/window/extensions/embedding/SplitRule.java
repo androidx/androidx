@@ -18,15 +18,17 @@ package androidx.window.extensions.embedding;
 
 import android.annotation.SuppressLint;
 import android.os.Build;
-import android.util.LayoutDirection;
 import android.view.WindowMetrics;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+import androidx.window.extensions.WindowExtensions;
+import androidx.window.extensions.embedding.SplitAttributes.SplitType;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.Objects;
 import java.util.function.Predicate;
 
 /**
@@ -39,18 +41,10 @@ import java.util.function.Predicate;
 public abstract class SplitRule extends EmbeddingRule {
     @NonNull
     private final Predicate<WindowMetrics> mParentWindowMetricsPredicate;
-    private final float mSplitRatio;
-    @LayoutDir
-    private final int mLayoutDirection;
 
-    @IntDef({
-            LayoutDirection.LTR,
-            LayoutDirection.RTL,
-            LayoutDirection.LOCALE
-    })
-    @Retention(RetentionPolicy.SOURCE)
-    // Not called LayoutDirection to avoid conflict with android.util.LayoutDirection
-    @interface LayoutDir {}
+    @NonNull
+    private final SplitAttributes mDefaultSplitAttributes;
+
     /**
      * Never finish the associated container.
      * @see SplitFinishBehavior
@@ -90,29 +84,55 @@ public abstract class SplitRule extends EmbeddingRule {
     @Retention(RetentionPolicy.SOURCE)
     @interface SplitFinishBehavior {}
 
-    SplitRule(@NonNull Predicate<WindowMetrics> parentWindowMetricsPredicate, float splitRatio,
-            @LayoutDir int layoutDirection) {
+    SplitRule(@NonNull Predicate<WindowMetrics> parentWindowMetricsPredicate,
+            @NonNull SplitAttributes defaultSplitAttributes) {
         mParentWindowMetricsPredicate = parentWindowMetricsPredicate;
-        mSplitRatio = splitRatio;
-        mLayoutDirection = layoutDirection;
+        mDefaultSplitAttributes = defaultSplitAttributes;
     }
 
-    /**
-     * Verifies if the provided parent bounds allow to show the split containers side by side.
-     */
     @SuppressLint("ClassVerificationFailure") // Only called by Extensions implementation on device.
     @RequiresApi(api = Build.VERSION_CODES.N)
     public boolean checkParentMetrics(@NonNull WindowMetrics parentMetrics) {
         return mParentWindowMetricsPredicate.test(parentMetrics);
     }
 
+    /**
+     * @deprecated Use {@link #getDefaultSplitAttributes()} instead starting with
+     * {@link WindowExtensions#VENDOR_API_LEVEL_2}. Only used if
+     * {@link #getDefaultSplitAttributes()} can't be called on
+     * {@link WindowExtensions#VENDOR_API_LEVEL_1}.
+     */
+    @Deprecated
     public float getSplitRatio() {
-        return mSplitRatio;
+        final SplitType splitType = mDefaultSplitAttributes.getSplitType();
+        if (splitType instanceof SplitType.RatioSplitType) {
+            return ((SplitType.RatioSplitType) splitType).getRatio();
+        } else { // Fallback to use 0.0 because the WM Jetpack may not support HingeSplitType.
+            return 0.0f;
+        }
     }
 
-    @LayoutDir
+    /**
+     * @deprecated Use {@link #getDefaultSplitAttributes()} instead starting with
+     * {@link WindowExtensions#VENDOR_API_LEVEL_2}. Only used if
+     * {@link #getDefaultSplitAttributes()} can't be called on
+     * {@link WindowExtensions#VENDOR_API_LEVEL_1}.
+     */
+    @Deprecated
+    @SplitAttributes.LayoutDir
     public int getLayoutDirection() {
-        return mLayoutDirection;
+        return mDefaultSplitAttributes.getLayoutDirection();
+    }
+
+    /**
+     * Returns the default {@link SplitAttributes} which is applied if
+     * {@link #checkParentMetrics(WindowMetrics)} is {@code true}.
+     *
+     * @since {@link WindowExtensions#VENDOR_API_LEVEL_2}
+     */
+    @NonNull
+    public SplitAttributes getDefaultSplitAttributes() {
+        return mDefaultSplitAttributes;
     }
 
     @Override
@@ -120,25 +140,21 @@ public abstract class SplitRule extends EmbeddingRule {
         if (this == o) return true;
         if (!(o instanceof SplitRule)) return false;
         SplitRule that = (SplitRule) o;
-        return Float.compare(that.mSplitRatio, mSplitRatio) == 0
-                && mParentWindowMetricsPredicate.equals(that.mParentWindowMetricsPredicate)
-                && mLayoutDirection == that.mLayoutDirection;
+        return mDefaultSplitAttributes.equals(that.mDefaultSplitAttributes)
+                && mParentWindowMetricsPredicate.equals(that.mParentWindowMetricsPredicate);
     }
 
     @Override
     public int hashCode() {
-        int result = (int) (mSplitRatio * 17);
-        result = 31 * result + mParentWindowMetricsPredicate.hashCode();
-        result = 31 * result + mLayoutDirection;
-        return result;
+        return mParentWindowMetricsPredicate.hashCode() + 31 * Objects.hashCode(
+                mDefaultSplitAttributes);
     }
 
     @NonNull
     @Override
     public String toString() {
         return "SplitRule{"
-                + "mSplitRatio=" + mSplitRatio
-                + ", mLayoutDirection=" + mLayoutDirection
+                + "mDefaultSplitAttributes=" + mDefaultSplitAttributes
                 + '}';
     }
 }
