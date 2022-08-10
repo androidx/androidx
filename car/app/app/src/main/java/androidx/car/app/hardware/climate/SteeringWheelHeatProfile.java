@@ -16,33 +16,35 @@
 
 package androidx.car.app.hardware.climate;
 
+import android.util.Pair;
+
 import androidx.annotation.NonNull;
 import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.hardware.common.CarZone;
 
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 /**
  * Container class for information about the {@link
- * ClimateProfileRequest#FEATURE_STEERING_WHEEL_HEAT} feature such as feature Id and supported
+ * ClimateProfileRequest#FEATURE_STEERING_WHEEL_HEAT} feature such as supported min/max range
  * values for the feature.
  */
 @ExperimentalCarApi
 public final class SteeringWheelHeatProfile {
 
     @NonNull
-    private final Map<Set<CarZone>, List<Integer>> mCarZoneSetsToSteeringWheelHeatValues;
+    private final Map<Set<CarZone>, Pair<Integer, Integer>> mCarZoneSetsToSteeringWheelHeatValues;
 
     /**
-     * Returns a list of supported values for the feature mapped to the set of car zones.
+     * Returns a list of supported min/max range values for the feature mapped to the set of car
+     * zones.
      *
      * <p>The values that can be regulated together for a set of car zones are combined together.
      */
     @NonNull
-    public Map<Set<CarZone>, List<Integer>> getCarZoneSetsToSteeringWheelHeatValues() {
+    public Map<Set<CarZone>, Pair<Integer, Integer>> getCarZoneSetsToSteeringWheelHeatValues() {
         return mCarZoneSetsToSteeringWheelHeatValues;
     }
 
@@ -53,16 +55,26 @@ public final class SteeringWheelHeatProfile {
 
     /** A builder for SteeringWheelHeatProfile. */
     public static final class Builder {
-        Map<Set<CarZone>, List<Integer>> mCarZoneSetsToSteeringWheelHeatValues;
+        Map<Set<CarZone>, Pair<Integer, Integer>> mCarZoneSetsToSteeringWheelHeatValues;
 
         /**
          * Creates an instance of builder.
          *
-         * @param carZoneSetsToSteeringWheelHeatValues   map of possible values for the property
-         *                                               corresponding to the set of car zones.
+         * @param carZoneSetsToSteeringWheelHeatValues   map of min/max range values for the
+         *                                               property corresponding to the set of car
+         *                                               zones.
+         *                                               Min/max values indicate heating or
+         *                                               cooling for the steering wheel. The
+         *                                               values are not in any specific units,
+         *                                               they represent steering wheel heat setting
+         *                                               modes instead.
+         *                                               0 indicates temperature control is off.
+         *                                               Negative value indicates cooling.
+         *                                               Positive value indicates heating.
          */
         public Builder(
-                @NonNull Map<Set<CarZone>, List<Integer>> carZoneSetsToSteeringWheelHeatValues) {
+                @NonNull Map<Set<CarZone>, Pair<Integer, Integer>>
+                        carZoneSetsToSteeringWheelHeatValues) {
             mCarZoneSetsToSteeringWheelHeatValues = Collections.unmodifiableMap(
                     carZoneSetsToSteeringWheelHeatValues);
         }

@@ -25,8 +25,7 @@ import java.util.Set;
 
 /**
  * Container class for information about the {@link
- * ClimateProfileRequest#FEATURE_CAR_ZONE_MAPPING} feature such as feature Id and supported
- * values for the feature.
+ * ClimateProfileRequest#FEATURE_CAR_ZONE_MAPPING} feature such as supported values for the feature.
  */
 @ExperimentalCarApi
 public final class CarZoneMappingInfoProfile {
