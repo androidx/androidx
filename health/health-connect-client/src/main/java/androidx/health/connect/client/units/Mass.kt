@@ -24,6 +24,7 @@ package androidx.health.connect.client.units
  * - milligrams - see [Mass.milligrams], [Double.milligrams]
  * - micrograms - see [Mass.micrograms], [Double.micrograms]
  * - ounces - see [Mass.ounces], [Double.ounces]
+ * - pounds - see [Mass.pounds], [Double.pounds]
  */
 class Mass private constructor(
     private val value: Double,
@@ -54,6 +55,11 @@ class Mass private constructor(
     @get:JvmName("getOunces")
     val inOunces: Double
         get() = get(type = Type.OUNCES)
+
+    /** Returns the mass in pounds. */
+    @get:JvmName("getPounds")
+    val inPounds: Double
+        get() = get(type = Type.POUNDS)
 
     private fun get(type: Type): Double =
         if (this.type == type) value else inGrams / type.gramsPerUnit
@@ -109,6 +115,9 @@ class Mass private constructor(
 
         /** Creates [Mass] with the specified value in ounces. */
         @JvmStatic fun ounces(value: Double): Mass = Mass(value, Type.OUNCES)
+
+        /** Creates [Mass] with the specified value in pounds. */
+        @JvmStatic fun pounds(value: Double): Mass = Mass(value, Type.POUNDS)
     }
 
     private enum class Type {
@@ -126,6 +135,9 @@ class Mass private constructor(
         },
         OUNCES {
             override val gramsPerUnit: Double = 28.34952
+        },
+        POUNDS {
+            override val gramsPerUnit: Double = 453.59237
         };
 
         abstract val gramsPerUnit: Double
@@ -231,3 +243,23 @@ val Long.ounces: Mass
 @get:JvmSynthetic
 val Int.ounces: Mass
     get() = toDouble().ounces
+
+/** Creates [Mass] with the specified value in pounds. */
+@get:JvmSynthetic
+val Double.pounds: Mass
+    get() = Mass.pounds(value = this)
+
+/** Creates [Mass] with the specified value in pounds. */
+@get:JvmSynthetic
+val Float.pounds: Mass
+    get() = toDouble().pounds
+
+/** Creates [Mass] with the specified value in pounds. */
+@get:JvmSynthetic
+val Long.pounds: Mass
+    get() = toDouble().pounds
+
+/** Creates [Mass] with the specified value in pounds. */
+@get:JvmSynthetic
+val Int.pounds: Mass
+    get() = toDouble().pounds
