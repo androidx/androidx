@@ -135,13 +135,13 @@ class AndroidXRootPluginTest {
             groupId = "docs-public",
             artifactId = null,
             version = null,
-            buildGradleText = docsPublicBuildGradle
+            buildGradleTextTemplate = docsPublicBuildGradle
         )
         val fakeAnnotations = AndroidXSelfTestProject(
             groupId = "fakeannotations",
             artifactId = null,
             version = null,
-            buildGradleText = ""
+            buildGradleTextTemplate = ""
         )
         writeBuildFiles(projects.toList() + listOf(docsPublicProject, fakeAnnotations))
     }
