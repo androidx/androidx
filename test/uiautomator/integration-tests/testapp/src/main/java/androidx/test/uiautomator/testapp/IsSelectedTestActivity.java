@@ -23,16 +23,16 @@ import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 
-public class UiObject2TestIsFocusedActivity extends Activity {
+public class IsSelectedTestActivity extends Activity {
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.uiobject2_testisfocused_activity);
+        setContentView(R.layout.is_selected_test_activity);
 
-        Button focusedButton = (Button) findViewById(R.id.button);
-        TextView focusedTarget = (TextView) findViewById(R.id.focusable_text_view);
-        focusedButton.setOnClickListener(v -> focusedTarget.requestFocus());
+        Button selectedButton = (Button) findViewById(R.id.selected_button);
+        TextView selectedTarget = (TextView) findViewById(R.id.selected_target);
+        selectedButton.setOnClickListener(v -> selectedTarget.setSelected(true));
     }
 }

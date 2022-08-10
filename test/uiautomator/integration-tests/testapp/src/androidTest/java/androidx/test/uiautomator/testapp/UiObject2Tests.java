@@ -426,7 +426,7 @@ public class UiObject2Tests extends BaseTest {
 
     @Test
     public void testIsEnabled() {
-        launchTestActivity(UiObject2TestIsEnabledActivity.class);
+        launchTestActivity(IsEnabledTestActivity.class);
 
         UiObject2 disabledObject = mDevice.findObject(By.res(TEST_APP, "disabled_text_view"));
         assertFalse(disabledObject.isEnabled());
@@ -436,7 +436,7 @@ public class UiObject2Tests extends BaseTest {
 
     @Test
     public void testIsFocusable() {
-        launchTestActivity(UiObject2TestIsFocusedActivity.class);
+        launchTestActivity(IsFocusedTestActivity.class);
 
         UiObject2 nonFocusableTextView = mDevice.findObject(By.res(TEST_APP,
                 "non_focusable_text_view"));
@@ -447,7 +447,7 @@ public class UiObject2Tests extends BaseTest {
 
     @Test
     public void testIsFocused() {
-        launchTestActivity(UiObject2TestIsFocusedActivity.class);
+        launchTestActivity(IsFocusedTestActivity.class);
 
         UiObject2 textView = mDevice.findObject(By.res(TEST_APP, "focusable_text_view"));
         assertFalse(textView.isFocused());
@@ -470,7 +470,7 @@ public class UiObject2Tests extends BaseTest {
 
     @Test
     public void testIsScrollable() {
-        launchTestActivity(UiObject2TestVerticalScrollActivity.class);
+        launchTestActivity(VerticalScrollTestActivity.class);
 
         // ScrollView objects are scrollable by default.
         UiObject2 scrollView = mDevice.findObject(By.res(TEST_APP, "scroll_view"));
@@ -482,7 +482,7 @@ public class UiObject2Tests extends BaseTest {
 
     @Test
     public void testIsSelected() {
-        launchTestActivity(UiObject2TestIsSelectedActivity.class);
+        launchTestActivity(IsSelectedTestActivity.class);
 
         UiObject2 button = mDevice.findObject(By.res(TEST_APP, "selected_button"));
         button.click();
@@ -492,7 +492,7 @@ public class UiObject2Tests extends BaseTest {
 
     @Test
     public void testLongClick() {
-        launchTestActivity(UiObject2TestLongClickActivity.class);
+        launchTestActivity(LongClickTestActivity.class);
 
         // Find the button and verify its initial state
         UiObject2 button = mDevice.findObject(By.res(TEST_APP, "button"));
@@ -500,8 +500,7 @@ public class UiObject2Tests extends BaseTest {
 
         // Click on the button and verify that the text has changed
         button.longClick();
-        button.wait(Until.textEquals("I've been long clicked!"), TIMEOUT_MS);
-        assertEquals("I've been long clicked!", button.getText());
+        assertTrue(button.wait(Until.textEquals("I've been long clicked!"), TIMEOUT_MS));
     }
 
     @Test
@@ -608,7 +607,7 @@ public class UiObject2Tests extends BaseTest {
 
     @Test
     public void testScroll() {
-        launchTestActivity(UiObject2TestVerticalScrollActivity.class);
+        launchTestActivity(VerticalScrollTestActivity.class);
         assertTrue(mDevice.hasObject(By.res(TEST_APP, "top_text"))); // Initially at top.
 
         // Scroll down to bottom (20000px) in increments of 5000px.
@@ -632,7 +631,7 @@ public class UiObject2Tests extends BaseTest {
 
     @Test
     public void testScroll_untilEnd() {
-        launchTestActivity(UiObject2TestVerticalScrollActivity.class);
+        launchTestActivity(VerticalScrollTestActivity.class);
         assertTrue(mDevice.hasObject(By.res(TEST_APP, "top_text"))); // Initially at top.
 
         // Scroll until end (scroll method returns false).

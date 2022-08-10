@@ -18,7 +18,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".UiObject2TestVerticalScrollActivity">
+    tools:context=".VerticalScrollTestActivity">
 
     <ScrollView
         android:id="@+id/scroll_view"
