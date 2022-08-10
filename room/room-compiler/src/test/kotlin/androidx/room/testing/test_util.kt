@@ -324,7 +324,8 @@ fun loadJavaCode(fileName: String, qName: String): Source {
 
 fun loadTestSource(fileName: String, qName: String): Source {
     val contents = File("src/test/test-data/$fileName")
-    return Source.load(contents, qName, fileName)
+    val relativePath = qName.replace('.', File.separatorChar) + "." + contents.extension
+    return Source.load(contents, qName, relativePath)
 }
 
 fun createVerifierFromEntitiesAndViews(invocation: XTestInvocation): DatabaseVerifier {
