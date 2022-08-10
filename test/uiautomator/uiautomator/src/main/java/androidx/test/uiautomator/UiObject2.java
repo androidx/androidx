@@ -668,7 +668,7 @@ public class UiObject2 implements Searchable {
      * @return Whether the object can still scroll in the given direction.
      */
     public boolean fling(final Direction direction, final int speed) {
-        ViewConfiguration vc = ViewConfiguration.get(getDevice().getInstrumentation().getContext());
+        ViewConfiguration vc = ViewConfiguration.get(getDevice().getUiContext());
         if (speed < vc.getScaledMinimumFlingVelocity()) {
             throw new IllegalArgumentException("Speed is less than the minimum fling velocity");
         }
