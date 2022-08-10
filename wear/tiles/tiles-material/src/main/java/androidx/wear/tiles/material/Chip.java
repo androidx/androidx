@@ -99,6 +99,9 @@ import java.util.Map;
  * <pre>{@code
  * Chip myChip = Chip.fromLayoutElement(box.getContents().get(0));
  * }</pre>
+ *
+ * @see  androidx.wear.tiles.material.layouts.PrimaryLayout.Builder#setContent if this Chip is used
+ * inside of {@link androidx.wear.tiles.material.layouts.PrimaryLayout}.
  */
 public class Chip implements LayoutElement {
     /**

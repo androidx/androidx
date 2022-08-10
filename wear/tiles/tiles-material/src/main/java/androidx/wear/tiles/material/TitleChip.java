@@ -68,6 +68,9 @@ import androidx.wear.tiles.proto.LayoutElementProto;
  * <pre>{@code
  * TitleChip myChip = TitleChip.fromLayoutElement(box.getContents().get(0));
  * }</pre>
+ *
+ * @see  androidx.wear.tiles.material.layouts.PrimaryLayout.Builder#setContent if this TitleChip is
+ * used inside of {@link androidx.wear.tiles.material.layouts.PrimaryLayout}.
  */
 public class TitleChip implements LayoutElement {
     /** Tool tag for Metadata in Modifiers, so we know that Box is actually a TitleChip. */
