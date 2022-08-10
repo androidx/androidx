@@ -63,6 +63,7 @@ private fun updateWorkImpl(
             state = oldWorkSpec.state,
             runAttemptCount = oldWorkSpec.runAttemptCount,
             lastEnqueueTime = oldWorkSpec.lastEnqueueTime,
+            generation = oldWorkSpec.generation + 1,
         )
 
         workSpecDao.updateWorkSpec(wrapInConstraintTrackingWorkerIfNeeded(schedulers, updatedSpec))
