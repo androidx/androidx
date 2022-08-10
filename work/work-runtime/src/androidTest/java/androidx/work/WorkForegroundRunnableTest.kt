@@ -173,6 +173,7 @@ public class WorkForegroundRunnableTest : DatabaseTest() {
         listOf<String>(),
         WorkerParameters.RuntimeExtras(),
         1,
+        0,
         executor,
         taskExecutor,
         configuration.mWorkerFactory,

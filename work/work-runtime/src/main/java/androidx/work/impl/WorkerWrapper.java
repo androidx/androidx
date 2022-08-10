@@ -230,6 +230,7 @@ public class WorkerWrapper implements Runnable {
                 mTags,
                 mRuntimeExtras,
                 mWorkSpec.runAttemptCount,
+                mWorkSpec.getGeneration(),
                 mConfiguration.getExecutor(),
                 mWorkTaskExecutor,
                 mConfiguration.getWorkerFactory(),
