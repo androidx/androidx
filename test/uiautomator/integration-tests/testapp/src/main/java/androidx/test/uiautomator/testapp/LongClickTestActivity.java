@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Android Open Source Project
+ * Copyright (C) 2014 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,21 +18,25 @@ package androidx.test.uiautomator.testapp;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Button;
-import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-public class UiObject2TestIsSelectedActivity extends Activity {
+public class LongClickTestActivity extends Activity {
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.uiobject2_testisselected_activity);
+        setContentView(R.layout.long_click_test_activity);
 
-        Button selectedButton = (Button) findViewById(R.id.selected_button);
-        TextView selectedTarget = (TextView) findViewById(R.id.selected_target);
-        selectedButton.setOnClickListener(v -> selectedTarget.setSelected(true));
+        Button button = (Button) findViewById(R.id.button);
+        button.setOnClickListener(this::onButtonLongClick);
+    }
+
+    public void onButtonLongClick(@NonNull View v) {
+        ((Button) v).setText("I've been long clicked!");
     }
 }

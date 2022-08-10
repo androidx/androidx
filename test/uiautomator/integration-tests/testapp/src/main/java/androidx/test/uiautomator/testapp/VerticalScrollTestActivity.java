@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Android Open Source Project
+ * Copyright (C) 2014 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,15 +18,32 @@ package androidx.test.uiautomator.testapp;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.view.GestureDetector;
+import android.view.GestureDetector.SimpleOnGestureListener;
+import android.view.MotionEvent;
 
 import androidx.annotation.Nullable;
 
-public class UiObject2TestIsEnabledActivity extends Activity {
+public class VerticalScrollTestActivity extends Activity {
+
+    private GestureDetector mGestureDetector;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.uiobject2_testisenabled_activity);
+        setContentView(R.layout.vertical_scroll_test_activity);
+
+        mGestureDetector = new GestureDetector(this, new SimpleOnGestureListener() {
+            @Override
+            public boolean onDown(MotionEvent event) {
+                return true;
+            }
+        });
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        return mGestureDetector.onTouchEvent(event);
     }
 }

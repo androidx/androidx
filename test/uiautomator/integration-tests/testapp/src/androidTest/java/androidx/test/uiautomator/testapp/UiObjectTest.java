@@ -390,25 +390,139 @@ public class UiObjectTest extends BaseTest {
         assertThrows(UiObjectNotFoundException.class, noNode::clearTextField);
     }
 
+    @Test
+    public void testIsChecked() throws Exception {
+        launchTestActivity(ClickTestActivity.class);
+
+        UiObject checkBox = mDevice.findObject(
+                new UiSelector().resourceId(TEST_APP + ":id/check_box"));
+
+        assertFalse(checkBox.isChecked());
+        checkBox.click();
+        assertTrue(checkBox.isChecked());
+    }
+
+    @Test
+    public void testIsSelected() throws Exception {
+        launchTestActivity(IsSelectedTestActivity.class);
+
+        UiObject selectedButton = mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id"
+                + "/selected_button"));
+        UiObject selectedTarget = mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id"
+                + "/selected_target"));
+
+        selectedButton.click();
+        assertTrue(selectedTarget.isSelected());
+    }
+
+    @Test
+    public void testIsCheckable() throws Exception {
+        launchTestActivity(ClickTestActivity.class);
+
+        UiObject checkBox = mDevice.findObject(
+                new UiSelector().resourceId(TEST_APP + ":id/check_box"));
+        UiObject button1 = mDevice.findObject(
+                new UiSelector().resourceId(TEST_APP + ":id/button1"));
+
+        assertTrue(checkBox.isCheckable());
+        assertFalse(button1.isCheckable());
+    }
+
+    @Test
+    public void testIsEnabled() throws Exception {
+        launchTestActivity(IsEnabledTestActivity.class);
+
+        UiObject disabledObject = mDevice.findObject(
+                new UiSelector().resourceId(TEST_APP + ":id/disabled_text_view"));
+        UiObject enabledObject = mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id"
+                + "/enabled_text_view"));
+
+        assertFalse(disabledObject.isEnabled());
+        assertTrue(enabledObject.isEnabled());
+    }
+
+    @Test
+    public void testIsClickable() throws Exception {
+        launchTestActivity(MainActivity.class);
+
+        UiObject textView = mDevice.findObject(new UiSelector().text("Sample text"));
+        UiObject button = mDevice.findObject(new UiSelector().text("Accessible button"));
+
+        assertFalse(textView.isClickable());
+        assertTrue(button.isClickable());
+    }
+
+    @Test
+    public void testIsFocused() throws Exception {
+        launchTestActivity(IsFocusedTestActivity.class);
+
+        UiObject textView = mDevice.findObject(
+                new UiSelector().resourceId(TEST_APP + ":id/focusable_text_view"));
+        UiObject button = mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id/button"));
+
+        assertFalse(textView.isFocused());
+        button.click();
+        assertTrue(textView.isFocused());
+    }
+
+    @Test
+    public void testIsFocusable() throws Exception {
+        launchTestActivity(IsFocusedTestActivity.class);
+
+        UiObject nonFocusableTextView =
+                mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id"
+                        + "/non_focusable_text_view"));
+        UiObject focusableTextView = mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id"
+                + "/focusable_text_view"));
+
+        assertFalse(nonFocusableTextView.isFocusable());
+        assertTrue(focusableTextView.isFocusable());
+    }
+
+    @Test
+    public void testIsScrollable() throws Exception {
+        launchTestActivity(VerticalScrollTestActivity.class);
+
+        UiObject scrollView = mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id"
+                + "/scroll_view"));
+        UiObject textView = mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id"
+                + "/top_text"));
+
+        assertTrue(scrollView.isScrollable());
+        assertFalse(textView.isScrollable());
+    }
+
+    @Test
+    public void testIsLongClickable() throws Exception {
+        launchTestActivity(LongClickTestActivity.class);
+
+        UiObject button = mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id/button"));
+        UiObject expectedButton = mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id"
+                + "/button").text("I've been long clicked!"));
+
+        assertEquals("Long Click Me!", button.getText());
+        button.longClick();
+        assertTrue(expectedButton.waitForExists(TIMEOUT_MS));
+    }
+
+    @Test
+    public void testAttributeCheckingMethods_throwsUiObjectNotFoundException() {
+        launchTestActivity(ClickTestActivity.class);
+
+        UiObject noNode = mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id/no_node"));
+
+        assertThrows(UiObjectNotFoundException.class, noNode::isChecked);
+        assertThrows(UiObjectNotFoundException.class, noNode::isSelected);
+        assertThrows(UiObjectNotFoundException.class, noNode::isCheckable);
+        assertThrows(UiObjectNotFoundException.class, noNode::isEnabled);
+        assertThrows(UiObjectNotFoundException.class, noNode::isClickable);
+        assertThrows(UiObjectNotFoundException.class, noNode::isFocused);
+        assertThrows(UiObjectNotFoundException.class, noNode::isFocusable);
+        assertThrows(UiObjectNotFoundException.class, noNode::isScrollable);
+        assertThrows(UiObjectNotFoundException.class, noNode::isLongClickable);
+    }
+
     /* TODO(b/241158642): Implement these tests, and the tests for exceptions of each tested method.
-
-    public void testIsChecked() {}
-
-    public void testIsSelected() {}
-
-    public void testIsCheckable() {}
-
-    public void testIsEnabled() {}
-
-    public void testIsClickable() {}
-
-    public void testIsFocused() {}
-
-    public void testIsFocusable() {}
-
-    public void testIsScrollable() {}
-
-    public void testIsLongClickable() {}
 
     public void testGetPackageName() {}
 

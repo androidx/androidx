@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 The Android Open Source Project
+ * Copyright 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,32 +18,21 @@ package androidx.test.uiautomator.testapp;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.view.GestureDetector;
-import android.view.GestureDetector.SimpleOnGestureListener;
-import android.view.MotionEvent;
+import android.widget.Button;
+import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 
-public class UiObject2TestVerticalScrollActivity extends Activity {
-
-    private GestureDetector mGestureDetector;
+public class IsFocusedTestActivity extends Activity {
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.uiobject2_testverticalscroll_activity);
+        setContentView(R.layout.is_focused_test_activity);
 
-        mGestureDetector = new GestureDetector(this, new SimpleOnGestureListener() {
-            @Override
-            public boolean onDown(MotionEvent event) {
-                return true;
-            }
-        });
-    }
-
-    @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        return mGestureDetector.onTouchEvent(event);
+        Button focusedButton = (Button) findViewById(R.id.button);
+        TextView focusedTarget = (TextView) findViewById(R.id.focusable_text_view);
+        focusedButton.setOnClickListener(v -> focusedTarget.requestFocus());
     }
 }
