@@ -13,338 +13,325 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.sqlite.db.framework
 
-package androidx.sqlite.db.framework;
-
-import static android.text.TextUtils.isEmpty;
-
-import android.content.ContentValues;
-import android.database.Cursor;
-import android.database.SQLException;
-import android.database.sqlite.SQLiteCursor;
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteTransactionListener;
-import android.os.Build;
-import android.os.CancellationSignal;
-import android.util.Pair;
-
-import androidx.annotation.DoNotInline;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
-import androidx.sqlite.db.SimpleSQLiteQuery;
-import androidx.sqlite.db.SupportSQLiteCompat;
-import androidx.sqlite.db.SupportSQLiteDatabase;
-import androidx.sqlite.db.SupportSQLiteQuery;
-import androidx.sqlite.db.SupportSQLiteStatement;
-
-import java.io.IOException;
-import java.util.List;
-import java.util.Locale;
+import android.content.ContentValues
+import android.database.Cursor
+import android.database.SQLException
+import android.database.sqlite.SQLiteCursor
+import android.database.sqlite.SQLiteCursorDriver
+import android.database.sqlite.SQLiteDatabase
+import android.database.sqlite.SQLiteQuery
+import android.database.sqlite.SQLiteTransactionListener
+import android.os.Build
+import android.os.CancellationSignal
+import android.text.TextUtils
+import android.util.Pair
+import androidx.annotation.DoNotInline
+import androidx.annotation.RequiresApi
+import androidx.sqlite.db.SimpleSQLiteQuery
+import androidx.sqlite.db.SupportSQLiteCompat
+import androidx.sqlite.db.SupportSQLiteDatabase
+import androidx.sqlite.db.SupportSQLiteQuery
+import androidx.sqlite.db.SupportSQLiteStatement
+import java.io.IOException
+import java.util.Locale
 
 /**
- * Delegates all calls to an implementation of {@link SQLiteDatabase}.
+ * Delegates all calls to an implementation of [SQLiteDatabase].
+ *
+ * @constructor Creates a wrapper around [SQLiteDatabase].
+ *
+ * @param delegate The delegate to receive all calls.
  */
-@SuppressWarnings("unused")
-class FrameworkSQLiteDatabase implements SupportSQLiteDatabase {
-    private static final String[] CONFLICT_VALUES = new String[]
-            {"", " OR ROLLBACK ", " OR ABORT ", " OR FAIL ", " OR IGNORE ", " OR REPLACE "};
-    private static final String[] EMPTY_STRING_ARRAY = new String[0];
-
-    private final SQLiteDatabase mDelegate;
-
-    /**
-     * Creates a wrapper around {@link SQLiteDatabase}.
-     *
-     * @param delegate The delegate to receive all calls.
-     */
-    FrameworkSQLiteDatabase(SQLiteDatabase delegate) {
-        mDelegate = delegate;
+internal class FrameworkSQLiteDatabase(
+    private val delegate: SQLiteDatabase
+) : SupportSQLiteDatabase {
+    override fun compileStatement(sql: String): SupportSQLiteStatement {
+        return FrameworkSQLiteStatement(delegate.compileStatement(sql))
     }
 
-    @NonNull
-    @Override
-    public SupportSQLiteStatement compileStatement(@NonNull String sql) {
-        return new FrameworkSQLiteStatement(mDelegate.compileStatement(sql));
+    override fun beginTransaction() {
+        delegate.beginTransaction()
     }
 
-    @Override
-    public void beginTransaction() {
-        mDelegate.beginTransaction();
+    override fun beginTransactionNonExclusive() {
+        delegate.beginTransactionNonExclusive()
     }
 
-    @Override
-    public void beginTransactionNonExclusive() {
-        mDelegate.beginTransactionNonExclusive();
+    override fun beginTransactionWithListener(
+        transactionListener: SQLiteTransactionListener
+    ) {
+        delegate.beginTransactionWithListener(transactionListener)
     }
 
-    @Override
-    public void beginTransactionWithListener(
-            @NonNull SQLiteTransactionListener transactionListener) {
-        mDelegate.beginTransactionWithListener(transactionListener);
+    override fun beginTransactionWithListenerNonExclusive(
+        transactionListener: SQLiteTransactionListener
+    ) {
+        delegate.beginTransactionWithListenerNonExclusive(transactionListener)
     }
 
-    @Override
-    public void beginTransactionWithListenerNonExclusive(
-            @NonNull SQLiteTransactionListener transactionListener) {
-        mDelegate.beginTransactionWithListenerNonExclusive(transactionListener);
+    override fun endTransaction() {
+        delegate.endTransaction()
     }
 
-    @Override
-    public void endTransaction() {
-        mDelegate.endTransaction();
+    override fun setTransactionSuccessful() {
+        delegate.setTransactionSuccessful()
     }
 
-    @Override
-    public void setTransactionSuccessful() {
-        mDelegate.setTransactionSuccessful();
+    override fun inTransaction(): Boolean {
+        return delegate.inTransaction()
     }
 
-    @Override
-    public boolean inTransaction() {
-        return mDelegate.inTransaction();
+    override fun isDbLockedByCurrentThread(): Boolean {
+        return delegate.isDbLockedByCurrentThread
     }
 
-    @Override
-    public boolean isDbLockedByCurrentThread() {
-        return mDelegate.isDbLockedByCurrentThread();
+    override fun yieldIfContendedSafely(): Boolean {
+        return delegate.yieldIfContendedSafely()
     }
 
-    @Override
-    public boolean yieldIfContendedSafely() {
-        return mDelegate.yieldIfContendedSafely();
+    override fun yieldIfContendedSafely(sleepAfterYieldDelay: Long): Boolean {
+        return delegate.yieldIfContendedSafely(sleepAfterYieldDelay)
     }
 
-    @Override
-    public boolean yieldIfContendedSafely(long sleepAfterYieldDelay) {
-        return mDelegate.yieldIfContendedSafely(sleepAfterYieldDelay);
+    override fun isExecPerConnectionSQLSupported(): Boolean {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.R
     }
 
-    @Override
-    public boolean isExecPerConnectionSQLSupported() {
-        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.R;
-    }
-
-    @Override
-    public void execPerConnectionSQL(@NonNull String sql, @Nullable Object[] bindArgs) {
+    override fun execPerConnectionSQL(sql: String, bindArgs: Array<Any>?) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            Api30Impl.execPerConnectionSQL(mDelegate, sql, bindArgs);
+            Api30Impl.execPerConnectionSQL(delegate, sql, bindArgs)
         } else {
-            throw new UnsupportedOperationException("execPerConnectionSQL is not supported on a "
-                    + "SDK version lower than 30, current version is: " + Build.VERSION.SDK_INT);
+            throw UnsupportedOperationException(
+                "execPerConnectionSQL is not supported on a " +
+                    "SDK version lower than 30, current version is: " + Build.VERSION.SDK_INT
+            )
         }
     }
 
-    @Override
-    public int getVersion() {
-        return mDelegate.getVersion();
+    override fun getVersion(): Int {
+        return delegate.version
     }
 
-    @Override
-    public void setVersion(int version) {
-        mDelegate.setVersion(version);
+    override fun setVersion(version: Int) {
+        delegate.version = version
     }
 
-    @Override
-    public long getMaximumSize() {
-        return mDelegate.getMaximumSize();
+    override fun getMaximumSize(): Long {
+        return delegate.maximumSize
     }
 
-    @Override
-    public long setMaximumSize(long numBytes) {
-        return mDelegate.setMaximumSize(numBytes);
+    override fun setMaximumSize(numBytes: Long): Long {
+        return delegate.setMaximumSize(numBytes)
     }
 
-    @Override
-    public long getPageSize() {
-        return mDelegate.getPageSize();
+    override fun getPageSize(): Long {
+        return delegate.pageSize
     }
 
-    @Override
-    public void setPageSize(long numBytes) {
-        mDelegate.setPageSize(numBytes);
+    override fun setPageSize(numBytes: Long) {
+        delegate.pageSize = numBytes
     }
 
-    @Override
-    public @NonNull Cursor query(@NonNull String query) {
-        return query(new SimpleSQLiteQuery(query));
+    override fun query(query: String): Cursor {
+        return query(SimpleSQLiteQuery(query))
     }
 
-    @Override
-    public @NonNull Cursor query(@NonNull String query, @NonNull Object[] bindArgs) {
-        return query(new SimpleSQLiteQuery(query, bindArgs));
+    override fun query(query: String, bindArgs: Array<Any?>): Cursor {
+        return query(SimpleSQLiteQuery(query, bindArgs))
     }
 
-    @Override
-    public @NonNull Cursor query(@NonNull final SupportSQLiteQuery supportQuery) {
-        return mDelegate.rawQueryWithFactory((db, masterQuery, editTable, query) -> {
-            supportQuery.bindTo(new FrameworkSQLiteProgram(query));
-            return new SQLiteCursor(masterQuery, editTable, query);
-        }, supportQuery.getSql(), EMPTY_STRING_ARRAY, null);
+    override fun query(supportQuery: SupportSQLiteQuery): Cursor {
+        val cursorFactory = {
+                _: SQLiteDatabase?,
+                masterQuery: SQLiteCursorDriver?,
+                editTable: String?,
+                query: SQLiteQuery? ->
+            supportQuery.bindTo(
+                FrameworkSQLiteProgram(
+                    query!!
+                )
+            )
+            SQLiteCursor(masterQuery, editTable, query)
+        }
+
+        return delegate.rawQueryWithFactory(
+            cursorFactory, supportQuery.sql, EMPTY_STRING_ARRAY, null)
     }
 
-    @Override
     @RequiresApi(16)
-    public @NonNull Cursor query(@NonNull final SupportSQLiteQuery supportQuery,
-            CancellationSignal cancellationSignal) {
-        return SupportSQLiteCompat.Api16Impl.rawQueryWithFactory(mDelegate, supportQuery.getSql(),
-                EMPTY_STRING_ARRAY, null, cancellationSignal,
-                (db, masterQuery, editTable, query) -> {
-                    supportQuery.bindTo(new FrameworkSQLiteProgram(query));
-                    return new SQLiteCursor(masterQuery, editTable, query);
-                });
-    }
-
-    @Override
-    public long insert(@NonNull String table, int conflictAlgorithm, @NonNull ContentValues values)
-            throws SQLException {
-        return mDelegate.insertWithOnConflict(table, null, values,
-                conflictAlgorithm);
-    }
-
-    @Override
-    public int delete(@NonNull String table, String whereClause, Object[] whereArgs) {
-        String query = "DELETE FROM " + table
-                + (isEmpty(whereClause) ? "" : " WHERE " + whereClause);
-        SupportSQLiteStatement statement = compileStatement(query);
-        SimpleSQLiteQuery.bind(statement, whereArgs);
-        return statement.executeUpdateDelete();
-    }
-
-
-    @Override
-    public int update(@NonNull String table, int conflictAlgorithm, ContentValues values,
-            String whereClause, Object[] whereArgs) {
-        // taken from SQLiteDatabase class.
-        if (values == null || values.size() == 0) {
-            throw new IllegalArgumentException("Empty values");
+    override fun query(
+        supportQuery: SupportSQLiteQuery,
+        cancellationSignal: CancellationSignal?
+    ): Cursor {
+        return SupportSQLiteCompat.Api16Impl.rawQueryWithFactory(delegate, supportQuery.sql,
+            EMPTY_STRING_ARRAY, null, cancellationSignal!!
+        ) { _: SQLiteDatabase?,
+            masterQuery: SQLiteCursorDriver?,
+            editTable: String?,
+            query: SQLiteQuery? ->
+            supportQuery.bindTo(
+                FrameworkSQLiteProgram(
+                    query!!
+                )
+            )
+            SQLiteCursor(masterQuery, editTable, query)
         }
-        StringBuilder sql = new StringBuilder(120);
-        sql.append("UPDATE ");
-        sql.append(CONFLICT_VALUES[conflictAlgorithm]);
-        sql.append(table);
-        sql.append(" SET ");
+    }
+
+    @Throws(SQLException::class)
+    override fun insert(table: String, conflictAlgorithm: Int, values: ContentValues): Long {
+        return delegate.insertWithOnConflict(table, null, values, conflictAlgorithm)
+    }
+
+    override fun delete(table: String, whereClause: String?, whereArgs: Array<Any?>?): Int {
+        val query = ("DELETE FROM $table ${whereClause?.isEmpty() == true} else WHERE $whereClause")
+        val statement = compileStatement(query)
+        SimpleSQLiteQuery.bind(statement, whereArgs)
+        return statement.executeUpdateDelete()
+    }
+
+    override fun update(
+        table: String,
+        conflictAlgorithm: Int,
+        values: ContentValues,
+        whereClause: String?,
+        whereArgs: Array<Any>?
+    ): Int {
+        // taken from SQLiteDatabase class.
+        require(values.size() != 0) { "Empty values" }
 
         // move all bind args to one array
-        int setValuesSize = values.size();
-        int bindArgsSize = (whereArgs == null) ? setValuesSize : (setValuesSize + whereArgs.length);
-        Object[] bindArgs = new Object[bindArgsSize];
-        int i = 0;
-        for (String colName : values.keySet()) {
-            sql.append((i > 0) ? "," : "");
-            sql.append(colName);
-            bindArgs[i++] = values.get(colName);
-            sql.append("=?");
-        }
-        if (whereArgs != null) {
-            for (i = setValuesSize; i < bindArgsSize; i++) {
-                bindArgs[i] = whereArgs[i - setValuesSize];
+        val setValuesSize = values.size()
+        val bindArgsSize =
+            if (whereArgs == null) setValuesSize else setValuesSize + whereArgs.size
+        val bindArgs = arrayOfNulls<Any>(bindArgsSize)
+        val sql = buildString {
+            append("UPDATE ")
+            append(CONFLICT_VALUES[conflictAlgorithm])
+            append(table)
+            append(" SET ")
+
+            var i = 0
+            for (colName in values.keySet()) {
+                append(if (i > 0) "," else "")
+                append(colName)
+                bindArgs[i++] = values[colName]
+                append("=?")
+            }
+            if (whereArgs != null) {
+                i = setValuesSize
+                while (i < bindArgsSize) {
+                    bindArgs[i] = whereArgs[i - setValuesSize]
+                    i++
+                }
+            }
+            if (!TextUtils.isEmpty(whereClause)) {
+                append(" WHERE ")
+                append(whereClause)
             }
         }
-        if (!isEmpty(whereClause)) {
-            sql.append(" WHERE ");
-            sql.append(whereClause);
-        }
-        SupportSQLiteStatement stmt = compileStatement(sql.toString());
-        SimpleSQLiteQuery.bind(stmt, bindArgs);
-        return stmt.executeUpdateDelete();
+        val stmt = compileStatement(sql)
+        SimpleSQLiteQuery.bind(stmt, bindArgs)
+        return stmt.executeUpdateDelete()
     }
 
-    @Override
-    public void execSQL(@NonNull String sql) throws SQLException {
-        mDelegate.execSQL(sql);
+    @Throws(SQLException::class)
+    override fun execSQL(sql: String) {
+        delegate.execSQL(sql)
     }
 
-    @Override
-    public void execSQL(@NonNull String sql, Object[] bindArgs) throws SQLException {
-        mDelegate.execSQL(sql, bindArgs);
+    @Throws(SQLException::class)
+    override fun execSQL(sql: String, bindArgs: Array<Any>) {
+        delegate.execSQL(sql, bindArgs)
     }
 
-    @Override
-    public boolean isReadOnly() {
-        return mDelegate.isReadOnly();
+    override fun isReadOnly(): Boolean {
+        return delegate.isReadOnly
     }
 
-    @Override
-    public boolean isOpen() {
-        return mDelegate.isOpen();
+    override fun isOpen(): Boolean {
+        return delegate.isOpen
     }
 
-    @Override
-    public boolean needUpgrade(int newVersion) {
-        return mDelegate.needUpgrade(newVersion);
+    override fun needUpgrade(newVersion: Int): Boolean {
+        return delegate.needUpgrade(newVersion)
     }
 
-    @Override
-    public String getPath() {
-        return mDelegate.getPath();
+    override fun getPath(): String? {
+        return delegate.path
     }
 
-    @Override
-    public void setLocale(@NonNull Locale locale) {
-        mDelegate.setLocale(locale);
+    override fun setLocale(locale: Locale) {
+        delegate.setLocale(locale)
     }
 
-    @Override
-    public void setMaxSqlCacheSize(int cacheSize) {
-        mDelegate.setMaxSqlCacheSize(cacheSize);
+    override fun setMaxSqlCacheSize(cacheSize: Int) {
+        delegate.setMaxSqlCacheSize(cacheSize)
     }
 
-    @Override
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
-    public void setForeignKeyConstraintsEnabled(boolean enable) {
-        SupportSQLiteCompat.Api16Impl.setForeignKeyConstraintsEnabled(mDelegate, enable);
+    override fun setForeignKeyConstraintsEnabled(enable: Boolean) {
+        SupportSQLiteCompat.Api16Impl.setForeignKeyConstraintsEnabled(delegate, enable)
     }
 
-    @Override
-    public boolean enableWriteAheadLogging() {
-        return mDelegate.enableWriteAheadLogging();
+    override fun enableWriteAheadLogging(): Boolean {
+        return delegate.enableWriteAheadLogging()
     }
 
-    @Override
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
-    public void disableWriteAheadLogging() {
-        SupportSQLiteCompat.Api16Impl.disableWriteAheadLogging(mDelegate);
+    override fun disableWriteAheadLogging() {
+        SupportSQLiteCompat.Api16Impl.disableWriteAheadLogging(delegate)
     }
 
-    @Override
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
-    public boolean isWriteAheadLoggingEnabled() {
-        return SupportSQLiteCompat.Api16Impl.isWriteAheadLoggingEnabled(mDelegate);
+    override fun isWriteAheadLoggingEnabled(): Boolean {
+        return SupportSQLiteCompat.Api16Impl.isWriteAheadLoggingEnabled(delegate)
     }
 
-    @Override
-    public List<Pair<String, String>> getAttachedDbs() {
-        return mDelegate.getAttachedDbs();
+    override fun getAttachedDbs(): List<Pair<String, String>>? {
+        return delegate.attachedDbs
     }
 
-    @Override
-    public boolean isDatabaseIntegrityOk() {
-        return mDelegate.isDatabaseIntegrityOk();
+    override fun isDatabaseIntegrityOk(): Boolean {
+        return delegate.isDatabaseIntegrityOk
     }
 
-    @Override
-    public void close() throws IOException {
-        mDelegate.close();
+    @Throws(IOException::class)
+    override fun close() {
+        delegate.close()
     }
 
     /**
      * Checks if this object delegates to the same given database reference.
      */
-    boolean isDelegate(SQLiteDatabase sqLiteDatabase) {
-        return mDelegate == sqLiteDatabase;
+    fun isDelegate(sqLiteDatabase: SQLiteDatabase): Boolean {
+        return delegate == sqLiteDatabase
     }
 
     @RequiresApi(30)
-    static class Api30Impl {
-        private Api30Impl() {
-            // This class is not instantiable.
-        }
-
+    internal object Api30Impl {
         @DoNotInline
-        static void execPerConnectionSQL(SQLiteDatabase sQLiteDatabase, String sql,
-                Object[] bindArgs) {
-            sQLiteDatabase.execPerConnectionSQL(sql, bindArgs);
+        fun execPerConnectionSQL(
+            sQLiteDatabase: SQLiteDatabase,
+            sql: String,
+            bindArgs: Array<Any>?
+        ) {
+            sQLiteDatabase.execPerConnectionSQL(sql, bindArgs)
         }
+    }
+
+    companion object {
+        private val CONFLICT_VALUES =
+            arrayOf(
+                "",
+                " OR ROLLBACK ",
+                " OR ABORT ",
+                " OR FAIL ",
+                " OR IGNORE ",
+                " OR REPLACE "
+            )
+        private val EMPTY_STRING_ARRAY = arrayOfNulls<String>(0)
     }
 }

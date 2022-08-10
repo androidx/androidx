@@ -13,51 +13,40 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.sqlite.db.framework
 
-package androidx.sqlite.db.framework;
-
-import android.database.sqlite.SQLiteStatement;
-
-import androidx.sqlite.db.SupportSQLiteStatement;
+import android.database.sqlite.SQLiteStatement
+import androidx.sqlite.db.SupportSQLiteStatement
 
 /**
- * Delegates all calls to a {@link SQLiteStatement}.
+ * Delegates all calls to a [SQLiteStatement].
+ *
+ * @constructor Creates a wrapper around a framework [SQLiteStatement].
+ *
+ * @param delegate The SQLiteStatement to delegate calls to.
  */
-class FrameworkSQLiteStatement extends FrameworkSQLiteProgram implements SupportSQLiteStatement {
-    private final SQLiteStatement mDelegate;
-
-    /**
-     * Creates a wrapper around a framework {@link SQLiteStatement}.
-     *
-     * @param delegate The SQLiteStatement to delegate calls to.
-     */
-    FrameworkSQLiteStatement(SQLiteStatement delegate) {
-        super(delegate);
-        mDelegate = delegate;
+internal class FrameworkSQLiteStatement(
+    private val delegate: SQLiteStatement
+) : FrameworkSQLiteProgram(
+    delegate
+), SupportSQLiteStatement {
+    override fun execute() {
+        delegate.execute()
     }
 
-    @Override
-    public void execute() {
-        mDelegate.execute();
+    override fun executeUpdateDelete(): Int {
+        return delegate.executeUpdateDelete()
     }
 
-    @Override
-    public int executeUpdateDelete() {
-        return mDelegate.executeUpdateDelete();
+    override fun executeInsert(): Long {
+        return delegate.executeInsert()
     }
 
-    @Override
-    public long executeInsert() {
-        return mDelegate.executeInsert();
+    override fun simpleQueryForLong(): Long {
+        return delegate.simpleQueryForLong()
     }
 
-    @Override
-    public long simpleQueryForLong() {
-        return mDelegate.simpleQueryForLong();
-    }
-
-    @Override
-    public String simpleQueryForString() {
-        return mDelegate.simpleQueryForString();
+    override fun simpleQueryForString(): String? {
+        return delegate.simpleQueryForString()
     }
 }

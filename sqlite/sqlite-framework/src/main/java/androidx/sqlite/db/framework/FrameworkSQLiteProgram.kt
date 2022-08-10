@@ -13,56 +13,42 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.sqlite.db.framework
 
-package androidx.sqlite.db.framework;
-
-import android.database.sqlite.SQLiteProgram;
-
-import androidx.annotation.NonNull;
-import androidx.sqlite.db.SupportSQLiteProgram;
+import android.database.sqlite.SQLiteProgram
+import androidx.sqlite.db.SupportSQLiteProgram
 
 /**
- * An wrapper around {@link SQLiteProgram} to implement {@link SupportSQLiteProgram} API.
+ * An wrapper around [SQLiteProgram] to implement [SupportSQLiteProgram] API.
  */
-class FrameworkSQLiteProgram implements SupportSQLiteProgram {
-    private final SQLiteProgram mDelegate;
-
-    FrameworkSQLiteProgram(SQLiteProgram delegate) {
-        mDelegate = delegate;
+internal open class FrameworkSQLiteProgram(
+    private val delegate: SQLiteProgram
+) : SupportSQLiteProgram {
+    override fun bindNull(index: Int) {
+        delegate.bindNull(index)
     }
 
-    @Override
-    public void bindNull(int index) {
-        mDelegate.bindNull(index);
+    override fun bindLong(index: Int, value: Long) {
+        delegate.bindLong(index, value)
     }
 
-    @Override
-    public void bindLong(int index, long value) {
-        mDelegate.bindLong(index, value);
+    override fun bindDouble(index: Int, value: Double) {
+        delegate.bindDouble(index, value)
     }
 
-    @Override
-    public void bindDouble(int index, double value) {
-        mDelegate.bindDouble(index, value);
+    override fun bindString(index: Int, value: String) {
+        delegate.bindString(index, value)
     }
 
-    @Override
-    public void bindString(int index, @NonNull String value) {
-        mDelegate.bindString(index, value);
+    override fun bindBlob(index: Int, value: ByteArray) {
+        delegate.bindBlob(index, value)
     }
 
-    @Override
-    public void bindBlob(int index, @NonNull byte[] value) {
-        mDelegate.bindBlob(index, value);
+    override fun clearBindings() {
+        delegate.clearBindings()
     }
 
-    @Override
-    public void clearBindings() {
-        mDelegate.clearBindings();
-    }
-
-    @Override
-    public void close() {
-        mDelegate.close();
+    override fun close() {
+        delegate.close()
     }
 }

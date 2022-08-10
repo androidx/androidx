@@ -13,27 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.sqlite.db.framework
 
-package androidx.sqlite.db.framework;
-
-import androidx.annotation.NonNull;
-import androidx.sqlite.db.SupportSQLiteOpenHelper;
+import androidx.sqlite.db.SupportSQLiteOpenHelper
 
 /**
- * Implements {@link SupportSQLiteOpenHelper.Factory} using the SQLite implementation in the
+ * Implements [SupportSQLiteOpenHelper.Factory] using the SQLite implementation in the
  * framework.
  */
-@SuppressWarnings("unused")
-public final class FrameworkSQLiteOpenHelperFactory implements SupportSQLiteOpenHelper.Factory {
-    @NonNull
-    @Override
-    public SupportSQLiteOpenHelper create(
-            @NonNull SupportSQLiteOpenHelper.Configuration configuration) {
-        return new FrameworkSQLiteOpenHelper(
-                configuration.context,
-                configuration.name,
-                configuration.callback,
-                configuration.useNoBackupDirectory,
-                configuration.allowDataLossOnRecovery);
+class FrameworkSQLiteOpenHelperFactory : SupportSQLiteOpenHelper.Factory {
+    override fun create(
+        configuration: SupportSQLiteOpenHelper.Configuration
+    ): SupportSQLiteOpenHelper {
+        return FrameworkSQLiteOpenHelper(
+            configuration.context,
+            configuration.name,
+            configuration.callback,
+            configuration.useNoBackupDirectory,
+            configuration.allowDataLossOnRecovery
+        )
     }
 }
