@@ -80,7 +80,7 @@ public class TotalCaloriesBurnedRecord(
                 dataTypeName = "TotalCaloriesBurned",
                 aggregationType = AggregateMetric.AggregationType.TOTAL,
                 fieldName = "energy",
-                mapper = Energy::calories,
+                mapper = Energy::kilocalories,
             )
     }
 }
