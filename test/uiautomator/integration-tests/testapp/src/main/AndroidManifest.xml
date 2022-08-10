@@ -90,6 +90,13 @@
                 <action android:name="android.intent.action.MAIN" />
             </intent-filter>
         </activity>
+        <activity android:name=".IsLongClickableTestActivity"
+            android:exported="true"
+            android:theme="@android:style/Theme.Holo.NoActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+            </intent-filter>
+        </activity>
         <activity android:name=".IsSelectedTestActivity"
             android:exported="true"
             android:theme="@android:style/Theme.Holo.NoActionBar">
@@ -150,13 +157,6 @@
                 <action android:name="android.intent.action.MAIN" />
             </intent-filter>
         </activity>
-        <activity android:name=".UiObject2TestIsLongClickableActivity"
-            android:exported="true"
-            android:theme="@android:style/Theme.Holo.NoActionBar">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-            </intent-filter>
-        </activity>
         <activity android:name=".UiObject2TestPinchActivity"
             android:exported="true"
             android:theme="@android:style/Theme.Holo.NoActionBar">
@@ -172,6 +172,13 @@
             </intent-filter>
         </activity>
         <activity android:name=".VerticalScrollTestActivity"
+            android:exported="true"
+            android:theme="@android:style/Theme.Holo.NoActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".VisibleBoundsTestActivity"
             android:exported="true"
             android:theme="@android:style/Theme.Holo.NoActionBar">
             <intent-filter>

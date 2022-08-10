@@ -21,12 +21,12 @@ import android.os.Bundle;
 
 import androidx.annotation.Nullable;
 
-public class UiObject2TestIsLongClickableActivity extends Activity {
+public class IsLongClickableTestActivity extends Activity {
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.uiobject2_testislongclickable_activity);
+        setContentView(R.layout.is_long_clickable_test_activity);
     }
 }
