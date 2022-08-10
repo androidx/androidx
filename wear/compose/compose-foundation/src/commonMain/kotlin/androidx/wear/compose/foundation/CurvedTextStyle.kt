@@ -103,7 +103,7 @@ class CurvedTextStyle(
         }
     }
 
-    override operator fun equals(other: Any?): Boolean {
+    override fun equals(other: Any?): Boolean {
         if (this === other) return true
 
         return other is CurvedTextStyle &&
