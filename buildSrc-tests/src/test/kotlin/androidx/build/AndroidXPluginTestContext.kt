@@ -18,12 +18,12 @@ package androidx.build
 
 import androidx.testutils.gradle.ProjectSetupRule
 import java.io.File
-import java.lang.AssertionError
 import java.util.zip.ZipInputStream
 import net.saff.checkmark.Checkmark.Companion.check
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.UnexpectedBuildFailure
+import org.junit.AssumptionViolatedException
 import org.junit.rules.TemporaryFolder
 
 /**
@@ -78,16 +78,18 @@ data class AndroidXPluginTestContext(val tmpFolder: TemporaryFolder, val setup: 
                     *args
                 )
                 .withEnvironment(env).withEnvironment(env).let { buildAction(it) }.also {
-                    checkNoClassloaderErrors(it)
+                    assumeNoClassloaderErrors(it)
                 }
         } catch (e: UnexpectedBuildFailure) {
-            checkNoClassloaderErrors(e.buildResult)
+            assumeNoClassloaderErrors(e.buildResult)
             throw e
         }
     }
 
-    private fun checkNoClassloaderErrors(result: BuildResult) {
-        // We're seeing b/237103195 flakily.  When we do, let's grab additional debugging info.
+    private fun assumeNoClassloaderErrors(result: BuildResult) {
+        // We're seeing b/237103195 flakily.  When we do, let's grab additional debugging info, and
+        // then throw an AssumptionViolatedException, because this is a bug in our test-running
+        // infrastructure, not a bug in the underlying plugins.
         val className = "androidx.build.gradle.ExtensionsKt"
         val classNotFound = "java.lang.ClassNotFoundException: $className"
 
@@ -108,7 +110,13 @@ data class AndroidXPluginTestContext(val tmpFolder: TemporaryFolder, val setup: 
                         }
                     }
                 }
-            }.let { throw AssertionError(it) }
+            }.let {
+                // Log to stderr, which we can find in the test output XML in host-test-reports,
+                // so we can manually debug an instance.
+                val ave = AssumptionViolatedException(it)
+                ave.printStackTrace()
+                throw ave
+            }
         }
     }
 
