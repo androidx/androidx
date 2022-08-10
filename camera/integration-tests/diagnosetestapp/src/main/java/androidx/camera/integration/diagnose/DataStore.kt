@@ -18,7 +18,9 @@ package androidx.camera.integration.diagnose
 
 import android.content.Context
 import android.graphics.Bitmap
+import androidx.annotation.WorkerThread
 import java.io.File
+import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
@@ -53,9 +55,25 @@ class DataStore(context: Context, zipFileName: String) {
         logger.appendLine(text)
     }
 
+    fun appendTitle(taskName: String) {
+        appendText("Task name: $taskName")
+    }
+
     /**
-     * Flush text in logger to text file and clear logger
+     * Copy and flush file as an image file to a ZipEntry
      */
+    @WorkerThread
+    fun flushTempFileToImageFile(file: File, filename: String) {
+        val inputStream = FileInputStream(file)
+        zout.putNextEntry(ZipEntry("$filename.jpeg"))
+        inputStream.copyTo(zout)
+        zout.closeEntry()
+    }
+
+    /**
+     * Flush text in logger as a text file to a ZipEntry and clear logger
+     */
+    @WorkerThread
     fun flushTextToTextFile(filename: String) {
         if (logger.isEmpty()) {
             return
@@ -68,8 +86,9 @@ class DataStore(context: Context, zipFileName: String) {
     }
 
     /**
-     * Flush image as JPEG to a Zip Entry
+     * Flush bitmap as JPEG to a ZipEntry
      */
+    @WorkerThread
     fun flushBitmapToFile(imageName: String, bitmap: Bitmap) {
         zout.putNextEntry(ZipEntry(("$imageName.jpeg")))
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, zout)
