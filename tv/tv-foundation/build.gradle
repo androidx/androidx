@@ -116,7 +116,7 @@ List<CopiedClass> copiedClasses = new ArrayList<>();
 copiedClasses.add(
         new CopiedClass(
                 "../../compose/foundation/foundation/src/commonMain/kotlin/androidx/compose/foundation/gestures/Scrollable.kt",
-                "src/commonMain/kotlin/androidx/tv/foundation/MarioScrollable.kt",
+                "src/commonMain/kotlin/androidx/tv/foundation/ScrollableWithPivot.kt",
                 "afaf0f2be6b57df076db42d9218f83d9"
         )
 )
