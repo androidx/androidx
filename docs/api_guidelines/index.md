@@ -14,19 +14,19 @@ also follow
 [explicit API mode](https://kotlinlang.org/docs/reference/whatsnew14.html#explicit-api-mode-for-library-authors)
 for Kotlin libraries.
 
-<!--#include file="/project_path/includes/modules.md"-->
+<!--#include file="/company/teams/androidx/api_guidelines/modules.md"-->
 
-<!--#include file="/project_path/includes/platform_compat.md"-->
+<!--#include file="/company/teams/androidx/api_guidelines/platform_compat.md"-->
 
-<!--#include file="/project_path/includes/compat.md"-->
+<!--#include file="/company/teams/androidx/api_guidelines/compat.md"-->
 
-<!--#include file="/project_path/includes/deprecation.md"-->
+<!--#include file="/company/teams/androidx/api_guidelines/deprecation.md"-->
 
-<!--#include file="/project_path/includes/resources.md"-->
+<!--#include file="/company/teams/androidx/api_guidelines/resources.md"-->
 
-<!--#include file="/project_path/includes/dependencies.md"-->
+<!--#include file="/company/teams/androidx/api_guidelines/dependencies.md"-->
 
-<!--#include file="/project_path/includes/misc.md"-->
+<!--#include file="/company/teams/androidx/api_guidelines/misc.md"-->
 
 ## Testing Guidelines
 
@@ -63,8 +63,8 @@ adb logcat | grep 'dex2oat'
 ... I dex2oat : Soft verification failures in
 ```
 
-<!--#include file="/project_path/includes/checks.md"-->
+<!--#include file="/company/teams/androidx/api_guidelines/checks.md"-->
 
-<!--#include file="/project_path/includes/behavior_changes.md"-->
+<!--#include file="/company/teams/androidx/api_guidelines/behavior_changes.md"-->
 
-<!--#include file="/project_path/includes/samples.md"-->
+<!--#include file="/company/teams/androidx/api_guidelines/samples.md"-->
