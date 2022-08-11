@@ -40,7 +40,6 @@ import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -150,7 +149,6 @@ public class LocationManagerCompatTest {
     }
 
     @SdkSuppress(minSdkVersion = 24)
-    @Ignore("b/241572276")
     @Test
     public void testRegisterGnssMeasurementsCallback_handler() {
         // can't do much to test this except check it doesn't crash
