@@ -56,7 +56,6 @@ import androidx.core.util.Consumer
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
-import java.util.concurrent.TimeUnit
 import org.junit.After
 import org.junit.Assert.assertThrows
 import org.junit.Test
@@ -68,6 +67,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
+import java.util.concurrent.TimeUnit
 
 private val ANY_SIZE = Size(640, 480)
 private const val CAMERA_ID_0 = "0"
@@ -328,40 +328,6 @@ class VideoCaptureTest {
 
         // Act.
         cameraUseCaseAdapter.removeUseCases(listOf(videoCapture))
-
-        // Assert.
-        assertThat(surfaceResult!!.resultCode).isEqualTo(
-            SurfaceRequest.Result.RESULT_SURFACE_USED_SUCCESSFULLY
-        )
-    }
-
-    @Test
-    fun detachUseCases_receiveResultOfSurfaceRequest() {
-        // Arrange.
-        setupCamera()
-        cameraUseCaseAdapter =
-            CameraUtil.createCameraUseCaseAdapter(context, CameraSelector.DEFAULT_BACK_CAMERA)
-
-        var surfaceResult: SurfaceRequest.Result? = null
-        val videoOutput = createVideoOutput { surfaceRequest ->
-            surfaceRequest.provideSurface(
-                mock(Surface::class.java),
-                CameraXExecutors.directExecutor()
-            ) { surfaceResult = it }
-        }
-        val videoCapture = VideoCapture.Builder(videoOutput)
-            .setSessionOptionUnpacker { _, _ -> }
-            .build()
-
-        // Act.
-        cameraUseCaseAdapter.addUseCases(listOf(videoCapture))
-
-        // Assert.
-        // Surface is in use, should not receive any result.
-        assertThat(surfaceResult).isNull()
-
-        // Act.
-        cameraUseCaseAdapter.detachUseCases()
 
         // Assert.
         assertThat(surfaceResult!!.resultCode).isEqualTo(
