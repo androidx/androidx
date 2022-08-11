@@ -16,12 +16,19 @@
 
 package androidx.camera.core.processing;
 
+import static androidx.camera.core.impl.utils.TransformUtils.getRectToRect;
+import static androidx.camera.core.impl.utils.TransformUtils.is90or270;
+import static androidx.camera.core.impl.utils.TransformUtils.rectToSize;
+import static androidx.camera.core.impl.utils.TransformUtils.sizeToRect;
+import static androidx.camera.core.impl.utils.TransformUtils.sizeToRectF;
 import static androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor;
 import static androidx.core.util.Preconditions.checkArgument;
 
 import static java.util.Collections.singletonList;
 
-import android.opengl.Matrix;
+import android.graphics.Rect;
+import android.graphics.RectF;
+import android.util.Size;
 
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
@@ -51,6 +58,7 @@ import androidx.core.util.Preconditions;
 @SuppressWarnings("UnusedVariable")
 public class SurfaceEffectNode implements Node<SurfaceEdge, SurfaceEdge> {
 
+    private final boolean mApplyGlTransform;
     @NonNull
     final SurfaceEffectInternal mSurfaceEffect;
     @NonNull
@@ -62,11 +70,17 @@ public class SurfaceEffectNode implements Node<SurfaceEdge, SurfaceEdge> {
     private SurfaceEdge mInputEdge;
 
     /**
+     * Constructs the surface effect node
+     *
+     * @param cameraInternal the associated camera instance.
+     * @param applyGlTransform whether to apply the GL transform.
      * @param surfaceEffect the interface to wrap around.
      */
     public SurfaceEffectNode(@NonNull CameraInternal cameraInternal,
+            boolean applyGlTransform,
             @NonNull SurfaceEffectInternal surfaceEffect) {
         mCameraInternal = cameraInternal;
+        mApplyGlTransform = applyGlTransform;
         mSurfaceEffect = surfaceEffect;
     }
 
@@ -82,29 +96,65 @@ public class SurfaceEffectNode implements Node<SurfaceEdge, SurfaceEdge> {
                 "Multiple input stream not supported yet.");
         mInputEdge = inputEdge;
         SettableSurface inputSurface = inputEdge.getSurfaces().get(0);
-
-        // No transform output as placeholder. The correct outputSurface needs to be calculated
-        // based on inputSurface and outputOption.
-        SettableSurface outputSurface = new SettableSurface(
-                inputSurface.getTargets(),
-                inputSurface.getSize(),
-                inputSurface.getFormat(),
-                inputSurface.getSensorToBufferTransform(),
-                // The Surface transform cannot be carried over during buffer copy.
-                /*hasEmbeddedTransform=*/false,
-                inputSurface.getCropRect(),
-                inputSurface.getRotationDegrees(),
-                inputSurface.getMirroring());
-
+        SettableSurface outputSurface = createOutputSurface(inputSurface);
         sendSurfacesToEffectWhenReady(inputSurface, outputSurface);
-
         mOutputEdge = SurfaceEdge.create(singletonList(outputSurface));
         return mOutputEdge;
     }
 
-    private void sendSurfacesToEffectWhenReady(SettableSurface input, SettableSurface output) {
+    @NonNull
+    private SettableSurface createOutputSurface(@NonNull SettableSurface inputSurface) {
+        SettableSurface outputSurface;
+        if (mApplyGlTransform) {
+            Size resolution = inputSurface.getSize();
+            Rect cropRect = inputSurface.getCropRect();
+            int rotationDegrees = inputSurface.getRotationDegrees();
+            boolean mirroring = inputSurface.getMirroring();
+
+            // Calculate rotated resolution and cropRect
+            Size rotatedCroppedSize = is90or270(rotationDegrees)
+                    ? new Size(/*width=*/cropRect.height(), /*height=*/cropRect.width())
+                    : rectToSize(cropRect);
+
+            // Calculate sensorToBufferTransform
+            android.graphics.Matrix sensorToBufferTransform =
+                    new android.graphics.Matrix(inputSurface.getSensorToBufferTransform());
+            android.graphics.Matrix imageTransform = getRectToRect(sizeToRectF(resolution),
+                    new RectF(cropRect), rotationDegrees, mirroring);
+            sensorToBufferTransform.postConcat(imageTransform);
+
+            outputSurface = new SettableSurface(
+                    inputSurface.getTargets(),
+                    rotatedCroppedSize,
+                    inputSurface.getFormat(),
+                    sensorToBufferTransform,
+                    // The Surface transform cannot be carried over during buffer copy.
+                    /*hasEmbeddedTransform=*/false,
+                    sizeToRect(rotatedCroppedSize),
+                    /* rotationDegrees=*/0,
+                    /* mirroring=*/false);
+        } else {
+            // No transform output as placeholder.
+            outputSurface = new SettableSurface(
+                    inputSurface.getTargets(),
+                    inputSurface.getSize(),
+                    inputSurface.getFormat(),
+                    inputSurface.getSensorToBufferTransform(),
+                    // The Surface transform cannot be carried over during buffer copy.
+                    /*hasEmbeddedTransform=*/false,
+                    inputSurface.getCropRect(),
+                    inputSurface.getRotationDegrees(),
+                    inputSurface.getMirroring());
+        }
+        return outputSurface;
+    }
+
+    private void sendSurfacesToEffectWhenReady(@NonNull SettableSurface input,
+            @NonNull SettableSurface output) {
         SurfaceRequest surfaceRequest = input.createSurfaceRequest(mCameraInternal);
-        Futures.addCallback(output.createSurfaceOutputFuture(calculateGlTransform()),
+        Futures.addCallback(output.createSurfaceOutputFuture(mApplyGlTransform,
+                        input.getSize(), input.getCropRect(), input.getRotationDegrees(),
+                        input.getMirroring()),
                 new FutureCallback<SurfaceOutput>() {
                     @Override
                     public void onSuccess(@Nullable SurfaceOutput surfaceOutput) {
@@ -122,13 +172,6 @@ public class SurfaceEffectNode implements Node<SurfaceEdge, SurfaceEdge> {
                     }
                 }, mainThreadExecutor());
 
-    }
-
-    float[] calculateGlTransform() {
-        // TODO: generate the GL transform based on cropping and rotation.
-        float[] glTransform = new float[16];
-        Matrix.setIdentityM(glTransform, 0);
-        return glTransform;
     }
 
     /**

@@ -16,6 +16,7 @@
 
 package androidx.camera.core.processing
 
+import android.graphics.Rect
 import android.hardware.camera2.CameraDevice.TEMPLATE_PREVIEW
 import android.media.ImageReader
 import android.os.Handler
@@ -65,7 +66,6 @@ class DefaultSurfaceEffectTest {
     companion object {
         private const val WIDTH = 640
         private const val HEIGHT = 480
-        private val IDENTITY_MATRIX = createGlIdentityMatrix()
         private const val CUSTOM_SHADER_FORMAT = """
         #extension GL_OES_EGL_image_external : require
         precision mediump float;
@@ -79,9 +79,6 @@ class DefaultSurfaceEffectTest {
              sampleColor.b * 0.131, 1.0);
         }
         """
-
-        private fun createGlIdentityMatrix() =
-            FloatArray(16).apply { android.opengl.Matrix.setIdentityM(this, 0) }
 
         @JvmStatic
         lateinit var testCameraRule: CameraUtil.PreTestCamera
@@ -361,7 +358,11 @@ class DefaultSurfaceEffectTest {
             SurfaceEffect.PREVIEW,
             ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE,
             Size(WIDTH, HEIGHT),
-            IDENTITY_MATRIX
+            /*applyGlTransform=*/false,
+            Size(WIDTH, HEIGHT),
+            Rect(0, 0, WIDTH, HEIGHT),
+            /*rotationDegrees=*/0,
+            /*mirroring=*/false
         )
 
     private fun getCustomFragmentShader(samplerVarName: String, fragCoordsVarName: String) =
