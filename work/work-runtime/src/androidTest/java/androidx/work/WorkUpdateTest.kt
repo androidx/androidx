@@ -473,7 +473,7 @@ class WorkUpdateTest {
 
     @Test
     @MediumTest
-    fun updateWorkerParameterGeneration() {
+    fun updateWorkerGeneration() {
         val oneTimeWorkRequest = OneTimeWorkRequest.Builder(WorkerWithParam::class.java)
             .setInitialDelay(10, TimeUnit.DAYS)
             .build()
@@ -486,6 +486,8 @@ class WorkUpdateTest {
         assertThat(workManager.updateWork(updatedWorkRequest).get()).isEqualTo(APPLIED_IMMEDIATELY)
         val worker = workerFactory.awaitWorker(oneTimeWorkRequest.id) as WorkerWithParam
         assertThat(worker.generation).isEqualTo(1)
+        val workInfo = workManager.getWorkInfoById(oneTimeWorkRequest.id).get()
+        assertThat(workInfo.generation).isEqualTo(1)
     }
 
     @After
