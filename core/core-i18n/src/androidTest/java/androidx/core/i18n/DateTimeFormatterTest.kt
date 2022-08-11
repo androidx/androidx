@@ -25,8 +25,10 @@ import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
-import kotlin.test.assertFailsWith
+import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Before
+import org.junit.BeforeClass
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.util.Calendar
@@ -34,6 +36,7 @@ import java.util.Date
 import java.util.GregorianCalendar
 import java.util.Locale
 import java.util.TimeZone
+import kotlin.test.assertFailsWith
 import androidx.core.i18n.DateTimeFormatterSkeletonOptions as SkeletonOptions
 
 /** Must execute on an Android device. */
@@ -48,6 +51,13 @@ class DateTimeFormatterTest {
         private const val AVAILABLE_ICU4J = Build.VERSION_CODES.N
         private const val AVAILABLE_HC_U_EXT = Build.VERSION_CODES.S
         private const val AVAILABLE_PERIOD_B = Build.VERSION_CODES.Q
+
+        private var sSavedTimeZone: TimeZone? = null
+
+        @BeforeClass
+        fun beforeClass() {
+            sSavedTimeZone = TimeZone.getDefault()
+        }
     }
 
     /** Starting with Android N ICU4J is public API. */
@@ -60,17 +70,30 @@ class DateTimeFormatterTest {
     private val logTag = this::class.qualifiedName
     private val appContext = InstrumentationRegistry.getInstrumentation().targetContext
 
-    private val testCalendar = GregorianCalendar(
-        2021, Calendar.SEPTEMBER, 19, // Date
-        21, 42, 12 // Time
-    )
+    private val defaultTimeZone = TimeZone.getTimeZone("America/Los_Angeles")
+    private val testCalendar = GregorianCalendar(defaultTimeZone)
 
     init {
-        testCalendar.timeInMillis = testCalendar.timeInMillis + 345
+        // Sept 19, 2021, 21:42:12.345
+        testCalendar.timeInMillis = 1632112932345L
     }
 
     private val testDate = testCalendar.time
     private val testMillis = testCalendar.timeInMillis
+
+    @Before
+    fun beforeTest() {
+        // Some of the test check that the functionality honors the default timezone.
+        // So we make sure it is set to something we control.
+        TimeZone.setDefault(defaultTimeZone)
+    }
+
+    @After
+    fun afterTest() {
+        if (sSavedTimeZone != null) {
+            TimeZone.setDefault(sSavedTimeZone)
+        }
+    }
 
     @Test @SmallTest
     fun test() {
@@ -405,6 +428,39 @@ class DateTimeFormatterTest {
             if (isIcuAvailable) "9:42 PM GMT-6" else "8:42 PM PDT",
             DateTimeFormatter(appContext, options, locale).format(coloradoTime)
         )
+    }
+
+    @Test @SmallTest
+    // Making sure the APIs honor the default timezone
+    fun testDefaultTimeZone() {
+        val options = SkeletonOptions.Builder()
+            .setHour(SkeletonOptions.Hour.NUMERIC)
+            .setMinute(SkeletonOptions.Minute.NUMERIC)
+            .setTimezone(SkeletonOptions.Timezone.LONG)
+            .build()
+        val locale = Locale.US
+
+        // Honor the current default timezone
+        val expPDT = "9:42 PM Pacific Daylight Time"
+        // Test Calendar, Date, and milliseconds
+        assertEquals(expPDT, DateTimeFormatter(appContext, options, locale).format(testCalendar))
+        assertEquals(expPDT, DateTimeFormatter(appContext, options, locale).format(testDate))
+        assertEquals(expPDT, DateTimeFormatter(appContext, options, locale).format(testMillis))
+
+        // Change the default timezone.
+        TimeZone.setDefault(TimeZone.getTimeZone("America/Denver"))
+        val expMDT = "10:42 PM Mountain Daylight Time"
+        // The calendar object already has a time zone of its own, captured at creation time.
+        // So not matching the default changed after is the expected behavior.
+        // BUT!
+        // Below N there is no ICU, so we fallback to `java.text.DateFormat`.
+        // Which can't format a Calendar, only Date and Number (millisecond, epoch time)
+        // So the time zone info is lost below N. It is the best we can do.
+        val expCal = if (isIcuAvailable) expPDT else expMDT
+        assertEquals(expCal, DateTimeFormatter(appContext, options, locale).format(testCalendar))
+        assertEquals(expMDT, DateTimeFormatter(appContext, options, locale).format(testDate))
+        assertEquals(expMDT, DateTimeFormatter(appContext, options, locale).format(testMillis))
+        // The default timezone is restored in @Before, no need to change it back
     }
 
     @Test @SmallTest
