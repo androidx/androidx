@@ -18,7 +18,7 @@
 // -Dorg.gradle.debug=true
 // -Dkotlin.compiler.execution.strategy="in-process"
 
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import com.google.devtools.ksp.gradle.KspTask
 
 plugins {
     id("AndroidXPlugin")
@@ -45,7 +45,8 @@ android {
 
     sourceSets {
         androidTestWithKapt.assets.srcDirs += files("$projectDir/schemas".toString())
-        androidTestWithKsp.assets.srcDirs += files("$projectDir/schemas-ksp".toString())
+        androidTestWithKspGenJava.assets.srcDirs += files("$projectDir/schemas-ksp".toString())
+        androidTestWithKspGenKotlin.assets.srcDirs += files("$projectDir/schemas-ksp".toString())
     }
 
     flavorDimensions "processorConfiguration"
@@ -60,7 +61,10 @@ android {
                 }
             }
         }
-        withKsp {
+        withKspGenJava {
+            dimension "processorConfiguration"
+        }
+        withKspGenKotlin {
             dimension "processorConfiguration"
         }
     }
@@ -79,7 +83,10 @@ dependencies {
     implementation(libs.multidex)
     // depend on the shadowed version so that it tests with the shipped artifact
     // this is a temporary attribute until KSP and AndroidX plugin supports variants.
-    kspAndroidTestWithKsp(
+    kspAndroidTestWithKspGenJava(
+            project(path: ":room:room-compiler", configuration: "shadowAndImplementation")
+    )
+    kspAndroidTestWithKspGenKotlin(
             project(path: ":room:room-compiler", configuration: "shadowAndImplementation")
     )
     kaptAndroidTestWithKapt(
@@ -118,7 +125,13 @@ dependencies {
     testImplementation(libs.mockitoCore)
 }
 
-// KSP does not support argument per flavor so we set it to global instead.
+// KSP does not support argument per flavor so we set schema location globally, for other per
+// flavor options we use flavor named tasks. See https://github.com/google/ksp/issues/861.
 ksp {
     arg("room.schemaLocation","$projectDir/schemas-ksp".toString())
+}
+tasks.withType(KspTask).configureEach { kspTask ->
+    if (kspTask.name.contains("GenKotlin")) {
+        kspTask.apOptions.put("room.generateKotlin", "true")
+    }
 }

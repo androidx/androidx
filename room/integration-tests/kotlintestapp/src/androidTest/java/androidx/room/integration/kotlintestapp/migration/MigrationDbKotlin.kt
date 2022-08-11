@@ -18,6 +18,7 @@ package androidx.room.integration.kotlintestapp.migration
 
 import android.content.ContentValues
 import android.database.sqlite.SQLiteDatabase
+import androidx.room.AutoMigration
 import androidx.room.Dao
 import androidx.room.Database
 import androidx.room.Entity
@@ -33,10 +34,14 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 
 @Database(
     version = MigrationDbKotlin.LATEST_VERSION,
-    entities = arrayOf(
-        MigrationDbKotlin.Entity1::class, MigrationDbKotlin.Entity2::class,
+    entities = [
+        MigrationDbKotlin.Entity1::class,
+        MigrationDbKotlin.Entity2::class,
         MigrationDbKotlin.Entity4::class
-    )
+    ],
+    autoMigrations = [
+        AutoMigration(7, 8)
+    ]
 )
 abstract class MigrationDbKotlin : RoomDatabase() {
 
@@ -61,7 +66,8 @@ abstract class MigrationDbKotlin : RoomDatabase() {
     data class Entity3(
         @PrimaryKey var id: Int = 0,
         @get:Ignore var removedInV5: String?,
-        var name: String?
+        var name: String?,
+        var addedInV8: Int = 1
     ) { // added in version 4, removed at 6
         companion object {
             val TABLE_NAME = "Entity3"
@@ -142,6 +148,6 @@ abstract class MigrationDbKotlin : RoomDatabase() {
     }
 
     companion object {
-        const val LATEST_VERSION = 7
+        const val LATEST_VERSION = 8
     }
 }
