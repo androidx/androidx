@@ -103,7 +103,7 @@ dependencies {
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.testUiautomator)
-    androidTestImplementation(libs.espressoCore)
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.3.0")
     androidTestImplementation(project(":camera:camera-testing"))
     androidTestImplementation(project(":internal-testutils-runtime"))
     androidTestImplementation(libs.truth)

@@ -51,7 +51,6 @@ dependencies {
 
     androidTestImplementation(libs.multidex)
     androidTestImplementation(libs.mockitoCore)
-    androidTestImplementation(libs.espressoCore)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)
@@ -63,6 +62,7 @@ dependencies {
     androidTestImplementation(project(":camera:camera-testing"))
     androidTestImplementation(libs.mockitoCore, excludes.bytebuddy) // DexMaker has it's own MockMaker
     androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy) // DexMaker has it's own MockMaker
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.3.0")
 }
 android {
     defaultConfig {
