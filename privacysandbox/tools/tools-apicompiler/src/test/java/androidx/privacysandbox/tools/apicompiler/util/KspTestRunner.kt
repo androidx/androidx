@@ -18,15 +18,20 @@ package androidx.privacysandbox.tools.apicompiler.util
 
 import androidx.privacysandbox.tools.apicompiler.model.ParsedApi
 import androidx.privacysandbox.tools.apicompiler.parser.ApiParser
+import androidx.room.compiler.processing.util.DiagnosticMessage
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.compiler.TestCompilationArguments
+import androidx.room.compiler.processing.util.compiler.TestCompilationResult
 import androidx.room.compiler.processing.util.compiler.compile
+import com.google.common.truth.Truth.assertThat
+import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.processing.SymbolProcessor
 import com.google.devtools.ksp.processing.SymbolProcessorEnvironment
 import com.google.devtools.ksp.processing.SymbolProcessorProvider
 import com.google.devtools.ksp.symbol.KSAnnotated
 import java.nio.file.Files
+import javax.tools.Diagnostic
 
 /**
  * Helper to run KSP processing functionality in tests.
@@ -44,18 +49,40 @@ fun parseSource(source: Source): ParsedApi {
     return provider.processor.capture!!
 }
 
-private class CapturingSymbolProcessor : SymbolProcessor {
+fun checkSourceFails(source: Source): CompilationResultSubject {
+    val provider = CapturingSymbolProcessor.Provider()
+    val result = compile(
+        Files.createTempDirectory("test").toFile(),
+        TestCompilationArguments(
+            sources = listOf(source),
+            symbolProcessorProviders = listOf(provider)
+        )
+    )
+    assertThat(result.success).isFalse()
+    return CompilationResultSubject(result)
+}
+
+class CompilationResultSubject(private val result: TestCompilationResult) {
+    fun containsError(error: String) {
+        assertThat(result.diagnostics[Diagnostic.Kind.ERROR]?.map(DiagnosticMessage::msg))
+            .contains(error)
+    }
+}
+
+private class CapturingSymbolProcessor(private val logger: KSPLogger) : SymbolProcessor {
     var capture: ParsedApi? = null
 
     override fun process(resolver: Resolver): List<KSAnnotated> {
-        capture = ApiParser(resolver).parseApi()
+        capture = ApiParser(resolver, logger).parseApi()
         return emptyList()
     }
 
     class Provider : SymbolProcessorProvider {
-        val processor: CapturingSymbolProcessor = CapturingSymbolProcessor()
+        lateinit var processor: CapturingSymbolProcessor
 
         override fun create(environment: SymbolProcessorEnvironment): SymbolProcessor {
+            assert(!::processor.isInitialized)
+            processor = CapturingSymbolProcessor(environment.logger)
             return processor
         }
     }

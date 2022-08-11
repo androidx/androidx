@@ -16,7 +16,6 @@
 
 package androidx.privacysandbox.tools.apicompiler.model
 
-/** Result of parsing a full developer-defined API for an SDK. */
-data class ParsedApi(
-    val services: Set<AnnotatedInterface>,
+data class Type(
+  val name: String,
 )

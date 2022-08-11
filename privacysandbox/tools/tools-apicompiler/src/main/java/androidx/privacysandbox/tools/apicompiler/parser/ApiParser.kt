@@ -19,9 +19,18 @@ package androidx.privacysandbox.tools.apicompiler.parser
 import androidx.privacysandbox.tools.PrivacySandboxService
 import androidx.privacysandbox.tools.apicompiler.model.ParsedApi
 import androidx.privacysandbox.tools.apicompiler.model.AnnotatedInterface
+import androidx.privacysandbox.tools.apicompiler.model.Method
+import androidx.privacysandbox.tools.apicompiler.model.Parameter
+import androidx.privacysandbox.tools.apicompiler.model.Type
+import com.google.devtools.ksp.getDeclaredFunctions
+import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.processing.Resolver
+import com.google.devtools.ksp.symbol.ClassKind
 import com.google.devtools.ksp.symbol.KSClassDeclaration
+import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.KSName
+import com.google.devtools.ksp.symbol.KSType
+import com.google.devtools.ksp.symbol.KSValueParameter
 
 /** Convenience extension to get the full qualifier + name from a [KSName]. */
 internal fun KSName.getFullName(): String {
@@ -30,23 +39,59 @@ internal fun KSName.getFullName(): String {
 }
 
 /** Top-level entry point to parse a complete user-defined sandbox SDK API into a [ParsedApi]. */
-class ApiParser(private val resolver: Resolver) {
+class ApiParser(private val resolver: Resolver, private val logger: KSPLogger) {
 
     fun parseApi(): ParsedApi {
-        return ParsedApi(services = getAllServices())
+        return ParsedApi(services = parseAllServices())
     }
 
-    private fun getAllServices() =
-        resolver
+    private fun parseAllServices(): Set<AnnotatedInterface> {
+        val symbolsWithServiceAnnotation = resolver
             .getSymbolsWithAnnotation(PrivacySandboxService::class.qualifiedName!!)
-            .filterIsInstance<KSClassDeclaration>()
+        val interfacesWithServiceAnnotation = symbolsWithServiceAnnotation
+            .filterIsInstance<KSClassDeclaration>().filter { it.classKind == ClassKind.INTERFACE }
+        if (symbolsWithServiceAnnotation.count() != interfacesWithServiceAnnotation.count()) {
+            logger.error("Only interfaces can be annotated with @PrivacySandboxService.")
+            return setOf()
+        }
+        return interfacesWithServiceAnnotation
             .map(this::parseInterface)
             .toSet()
+    }
 
     private fun parseInterface(classDeclaration: KSClassDeclaration): AnnotatedInterface {
         return AnnotatedInterface(
-            className = classDeclaration.simpleName.getShortName(),
-            packageName = classDeclaration.packageName.getFullName()
+            name = classDeclaration.simpleName.getShortName(),
+            packageName = classDeclaration.packageName.getFullName(),
+            methods = getAllMethods(classDeclaration),
+        )
+    }
+
+    private fun getAllMethods(classDeclaration: KSClassDeclaration) =
+        classDeclaration.getDeclaredFunctions().map(::parseMethod).toList()
+
+    private fun parseMethod(method: KSFunctionDeclaration): Method {
+        return Method(
+            name = method.simpleName.getFullName(),
+            parameters = getAllParameters(method),
+            // TODO: returnType "Can be null if an error occurred during resolution".
+            returnType = parseType(method.returnType!!.resolve()),
+        )
+    }
+
+    private fun getAllParameters(method: KSFunctionDeclaration) =
+        method.parameters.map(::parseParameter).toList()
+
+    private fun parseParameter(parameter: KSValueParameter): Parameter {
+        return Parameter(
+            name = parameter.name!!.getFullName(),
+            type = parseType(parameter.type.resolve()),
+        )
+    }
+
+    private fun parseType(type: KSType): Type {
+        return Type(
+            name = type.declaration.simpleName.getFullName(),
         )
     }
 }

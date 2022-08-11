@@ -17,7 +17,11 @@
 package androidx.privacysandbox.tools.apicompiler.parser
 
 import androidx.privacysandbox.tools.apicompiler.model.AnnotatedInterface
+import androidx.privacysandbox.tools.apicompiler.model.Method
+import androidx.privacysandbox.tools.apicompiler.model.Parameter
 import androidx.privacysandbox.tools.apicompiler.model.ParsedApi
+import androidx.privacysandbox.tools.apicompiler.model.Type
+import androidx.privacysandbox.tools.apicompiler.util.checkSourceFails
 import androidx.privacysandbox.tools.apicompiler.util.parseSource
 import androidx.room.compiler.processing.util.Source
 import com.google.common.truth.Truth.assertThat
@@ -29,7 +33,7 @@ import org.junit.runners.JUnit4
 class ApiParserTest {
 
     @Test
-    fun parseInterface() {
+    fun parseServiceInterface_ok() {
         val source =
             Source.kotlin(
                 "com/mysdk/MySdk.kt",
@@ -37,18 +41,61 @@ class ApiParserTest {
                     package com.mysdk
                     import androidx.privacysandbox.tools.PrivacySandboxService
                     @PrivacySandboxService
-                    interface MySdk
+                    interface MySdk {
+                        fun doStuff(x: Int, y: Int): String
+                    }
                 """
             )
         assertThat(parseSource(source)).isEqualTo(
             ParsedApi(
-                services = setOf(
+                services = mutableSetOf(
                     AnnotatedInterface(
-                        className = "MySdk",
-                        packageName = "com.mysdk"
+                        name = "MySdk",
+                        packageName = "com.mysdk",
+                        methods = listOf(
+                            Method(
+                                name = "doStuff",
+                                parameters = listOf(
+                                    Parameter(
+                                        name = "x",
+                                        type = Type(
+                                            name = "Int",
+                                        )
+                                    ),
+                                    Parameter(
+                                        name = "y",
+                                        type = Type(
+                                            name = "Int",
+                                        )
+                                    )
+                                ),
+                                returnType = Type(
+                                    name = "String",
+                                )
+                            )
+                        )
                     )
                 )
             )
         )
+    }
+
+    @Test
+    fun serviceAnnotatedClass_fails() {
+        val source =
+            Source.kotlin(
+                "com/mysdk/MySdk.kt",
+                """
+                    package com.mysdk
+                    import androidx.privacysandbox.tools.PrivacySandboxService
+                    @PrivacySandboxService
+                    abstract class MySdk {  // Fails because it's a class, not an interface.
+                        abstract fun doStuff(x: Int, y: Int): String
+                    }
+                """
+            )
+
+        checkSourceFails(source)
+            .containsError("Only interfaces can be annotated with @PrivacySandboxService.")
     }
 }
