@@ -41,5 +41,11 @@ dependencies {
 }
 
 // Define a task dependency so the app is installed before we run macro benchmarks.
-tasks.getByPath(":wear:compose:integration-tests:macrobenchmark:connectedCheck")
- .dependsOn(tasks.getByPath(":wear:compose:integration-tests:macrobenchmark-target:installRelease"))
+afterEvaluate {
+    tasks.getByPath(":wear:compose:integration-tests:macrobenchmark:connectedDebugAndroidTest")
+            .dependsOn(
+                    tasks.getByPath(
+                            ":wear:compose:integration-tests:macrobenchmark-target:installRelease"
+                    )
+            )
+}
