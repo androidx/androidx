@@ -57,7 +57,7 @@ class AndroidXPluginTest {
     @Test
     fun androidLibraryAndKotlinAndroid() = pluginTest {
         val project = cubaneProject.copy(
-            buildGradleText = cubaneBuildGradleText(
+            buildGradleTextTemplate = cubaneBuildGradleText(
                 listOf("com.android.library", "kotlin-android", "AndroidXPlugin")
             )
         )
@@ -68,7 +68,7 @@ class AndroidXPluginTest {
     @Test
     fun kotlinAndroidAndAndroidLibrary() = pluginTest {
         val project = cubaneProject.copy(
-            buildGradleText = cubaneBuildGradleText(
+            buildGradleTextTemplate = cubaneBuildGradleText(
                 plugins = listOf("kotlin-android", "com.android.library", "AndroidXPlugin")
             )
         )
@@ -79,7 +79,7 @@ class AndroidXPluginTest {
     @Test
     fun androidSampleApplicationWithoutVersion() = pluginTest {
         val project = cubaneProject.copy(
-            buildGradleText = cubaneBuildGradleText(
+            buildGradleTextTemplate = cubaneBuildGradleText(
                 plugins = listOf(
                     "com.android.application",
                     "org.jetbrains.kotlin.android",
