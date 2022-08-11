@@ -208,21 +208,10 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
      *
      * @hide
      */
-    @SuppressWarnings("unchecked")
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     public void onStateAttached() {
         super.onStateAttached();
-        Preconditions.checkNotNull(getAttachedSurfaceResolution(), "The suggested resolution "
-                + "should be already updated and shouldn't be null.");
-        Preconditions.checkState(mSurfaceRequest == null, "The surface request should be null "
-                + "when VideoCapture is attached.");
-        mSessionConfigBuilder = createPipeline(getCameraId(),
-                (VideoCaptureConfig<T>) getCurrentConfig(), getAttachedSurfaceResolution());
-        applyStreamInfoToSessionConfigBuilder(mSessionConfigBuilder, mStreamInfo);
-        updateSessionConfig(mSessionConfigBuilder.build());
-        // VideoCapture has to be active to apply SessionConfig's template type.
-        notifyActive();
         getOutput().getStreamInfo().addObserver(CameraXExecutors.mainThreadExecutor(),
                 mStreamInfoObserver);
         setSourceState(VideoOutput.SourceState.ACTIVE_NON_STREAMING);
@@ -239,6 +228,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
     @NonNull
     protected Size onSuggestedResolutionUpdated(@NonNull Size suggestedResolution) {
         Logger.d(TAG, "suggestedResolution = " + suggestedResolution);
+        String cameraId = getCameraId();
         VideoCaptureConfig<T> config = (VideoCaptureConfig<T>) getCurrentConfig();
 
         // SuggestedResolution gives the upper bound of allowed resolution size.
@@ -269,6 +259,14 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
             }
         }
 
+        mStreamInfo = fetchObservableValue(getOutput().getStreamInfo(),
+                StreamInfo.STREAM_INFO_ANY_INACTIVE);
+        mSessionConfigBuilder = createPipeline(cameraId, config, finalSelectedResolution);
+        applyStreamInfoToSessionConfigBuilder(mSessionConfigBuilder, mStreamInfo);
+        updateSessionConfig(mSessionConfigBuilder.build());
+        // VideoCapture has to be active to apply SessionConfig's template type.
+        notifyActive();
+
         return finalSelectedResolution;
     }
 
@@ -292,6 +290,17 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
+    public void onDetached() {
+        clearPipeline();
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Override
     public void onStateDetached() {
         Preconditions.checkState(Threads.isMainThread(), "VideoCapture can only be detached on "
                 + "the main thread.");
@@ -303,9 +312,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
                         + "cancelled.");
             }
         }
-        // Clear the pipeline to close the surface, which releases the codec so that it's
-        // available for other applications.
-        clearPipeline();
     }
 
     @NonNull
