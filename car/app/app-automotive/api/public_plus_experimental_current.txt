@@ -47,3 +47,50 @@ package androidx.car.app.hardware {
 
 }
 
+package androidx.car.app.hardware.common {
+
+  public final class CarZoneAreaIdConstants {
+    field public static final int AREA_ID_GLOBAL = 0; // 0x0
+  }
+
+  public static final class CarZoneAreaIdConstants.VehicleAreaSeat {
+    field public static final int COL_ALL = 1911; // 0x777
+    field public static final int COL_CENTER = 546; // 0x222
+    field public static final int COL_LEFT = 273; // 0x111
+    field public static final int COL_RIGHT = 1092; // 0x444
+    field public static final int ROW_1_CENTER = 2; // 0x2
+    field public static final int ROW_1_LEFT = 1; // 0x1
+    field public static final int ROW_1_RIGHT = 4; // 0x4
+    field public static final int ROW_2_CENTER = 32; // 0x20
+    field public static final int ROW_2_LEFT = 16; // 0x10
+    field public static final int ROW_2_RIGHT = 64; // 0x40
+    field public static final int ROW_3_CENTER = 512; // 0x200
+    field public static final int ROW_3_LEFT = 256; // 0x100
+    field public static final int ROW_3_RIGHT = 1024; // 0x400
+    field public static final int ROW_ALL = 1911; // 0x777
+    field public static final int ROW_FIRST = 7; // 0x7
+    field public static final int ROW_SECOND = 112; // 0x70
+    field public static final int ROW_THIRD = 1792; // 0x700
+  }
+
+  public interface CarZoneAreaIdConverter {
+    method public com.google.common.collect.ImmutableSet<androidx.car.app.hardware.common.CarZone!> convertAreaIdToCarZones(int);
+  }
+
+  public final class CarZoneUtils {
+    method public static com.google.common.collect.ImmutableSet<androidx.car.app.hardware.common.CarZone!> convertAreaIdToCarZones(int, int);
+    method public static androidx.car.app.hardware.common.CarZoneAreaIdConverter getZoneAreaIdConverter(int);
+  }
+
+  public class GlobalCarZoneAreaIdConverter implements androidx.car.app.hardware.common.CarZoneAreaIdConverter {
+    ctor public GlobalCarZoneAreaIdConverter();
+    method public com.google.common.collect.ImmutableSet<androidx.car.app.hardware.common.CarZone!> convertAreaIdToCarZones(int);
+  }
+
+  public class SeatCarZoneAreaIdConverter implements androidx.car.app.hardware.common.CarZoneAreaIdConverter {
+    ctor public SeatCarZoneAreaIdConverter();
+    method public com.google.common.collect.ImmutableSet<androidx.car.app.hardware.common.CarZone!> convertAreaIdToCarZones(int);
+  }
+
+}
+
