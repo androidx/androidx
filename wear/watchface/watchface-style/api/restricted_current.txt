@@ -286,9 +286,6 @@ package androidx.wear.watchface.style {
   }
 
   public final class UserStyleSettingKt {
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static Integer? getIntRefAttribute(android.content.res.Resources resources, android.content.res.XmlResourceParser parser, String name);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static String? getStringRefAttribute(android.content.res.Resources resources, android.content.res.XmlResourceParser parser, String name);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static void moveToStart(org.xmlpull.v1.XmlPullParser, String expectedNode);
   }
 
   public enum WatchFaceLayer {

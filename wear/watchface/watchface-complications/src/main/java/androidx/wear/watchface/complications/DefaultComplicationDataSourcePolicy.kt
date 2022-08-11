@@ -17,6 +17,7 @@
 package androidx.wear.watchface.complications
 
 import android.content.ComponentName
+import android.content.res.Resources
 import android.content.res.XmlResourceParser
 import androidx.annotation.RestrictTo
 import androidx.wear.watchface.complications.SystemDataSources.DataSourceId
@@ -321,11 +322,12 @@ public class DefaultComplicationDataSourcePolicy {
         internal const val NO_DEFAULT_PROVIDER = SystemDataSources.NO_DATA_SOURCE
 
         fun inflate(
+            resources: Resources,
             parser: XmlResourceParser,
             nodeName: String,
         ): DefaultComplicationDataSourcePolicy {
             val primaryDataSource =
-                parser.getAttributeValue(NAMESPACE_APP, "primaryDataSource")?.let {
+                getStringRefAttribute(resources, parser, "primaryDataSource")?.let {
                     ComponentName.unflattenFromString(it)
                 }
             val primaryDataSourceDefaultType =
@@ -341,7 +343,7 @@ public class DefaultComplicationDataSourcePolicy {
                     null
                 }
             val secondaryDataSource =
-                parser.getAttributeValue(NAMESPACE_APP, "secondaryDataSource")?.let {
+                getStringRefAttribute(resources, parser, "secondaryDataSource")?.let {
                     ComponentName.unflattenFromString(it)
                 }
 

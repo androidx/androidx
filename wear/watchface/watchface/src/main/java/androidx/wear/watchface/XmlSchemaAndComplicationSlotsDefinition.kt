@@ -26,13 +26,13 @@ import androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy
 import androidx.wear.watchface.complications.NAMESPACE_APP
 import androidx.wear.watchface.complications.data.ComplicationExperimental
 import androidx.wear.watchface.complications.data.ComplicationType
+import androidx.wear.watchface.complications.getIntRefAttribute
+import androidx.wear.watchface.complications.getStringRefAttribute
 import androidx.wear.watchface.complications.hasValue
+import androidx.wear.watchface.complications.moveToStart
 import androidx.wear.watchface.style.CurrentUserStyleRepository
 import androidx.wear.watchface.style.UserStyleFlavors
 import androidx.wear.watchface.style.UserStyleSchema
-import androidx.wear.watchface.style.getIntRefAttribute
-import androidx.wear.watchface.style.getStringRefAttribute
-import androidx.wear.watchface.style.moveToStart
 import org.xmlpull.v1.XmlPullParser
 import kotlin.jvm.Throws
 
@@ -184,8 +184,8 @@ public class XmlSchemaAndComplicationSlotsDefinition(
                     )
                 }
 
-                val defaultComplicationDataSourcePolicy =
-                    DefaultComplicationDataSourcePolicy.inflate(parser, "ComplicationSlot")
+                val defaultComplicationDataSourcePolicy = DefaultComplicationDataSourcePolicy
+                    .inflate(resources, parser, "ComplicationSlot")
 
                 val initiallyEnabled = parser.getAttributeBooleanValue(
                     NAMESPACE_APP,
