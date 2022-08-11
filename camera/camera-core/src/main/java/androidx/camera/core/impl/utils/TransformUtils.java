@@ -24,6 +24,7 @@ import android.util.Size;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+import androidx.core.util.Preconditions;
 
 /**
  * Utility class for transform.
@@ -50,6 +51,72 @@ public class TransformUtils {
     @NonNull
     public static Size rectToSize(@NonNull Rect rect) {
         return new Size(rect.width(), rect.height());
+    }
+
+
+    /**
+     * Transforms size to a {@link Rect} with zero left and top.
+     */
+    @NonNull
+    public static Rect sizeToRect(@NonNull Size size) {
+        return sizeToRect(size, 0, 0);
+    }
+
+    /**
+     * Transforms a size to a {@link Rect} with given left and top.
+     */
+    @NonNull
+    public static Rect sizeToRect(@NonNull Size size, int left, int top) {
+        return new Rect(left, top, left + size.getWidth(), top + size.getHeight());
+    }
+
+    /**
+     * Transforms size to a {@link RectF} with zero left and top.
+     */
+    @NonNull
+    public static RectF sizeToRectF(@NonNull Size size) {
+        return sizeToRectF(size, 0, 0);
+    }
+
+    /**
+     * Transforms a size to a {@link RectF} with given left and top.
+     */
+    @NonNull
+    public static RectF sizeToRectF(@NonNull Size size, int left, int top) {
+        return new RectF(left, top, left + size.getWidth(), top + size.getHeight());
+    }
+
+    /**
+     * Reverses width and height for a {@link Size}.
+     *
+     * @param size the size to reverse
+     * @return reversed size
+     */
+    @NonNull
+    public static Size reverseSize(@NonNull Size size) {
+        return new Size(size.getHeight(), size.getWidth());
+    }
+
+    /**
+     * Rotates a {@link Size} according to the rotation degrees.
+     *
+     * @param size the size to rotate
+     * @param rotationDegrees the rotation degrees
+     * @return rotated size
+     * @throws IllegalArgumentException if the rotation degrees is not a multiple of 90
+     */
+    @NonNull
+    public static Size rotateSize(@NonNull Size size, int rotationDegrees) {
+        Preconditions.checkArgument(rotationDegrees % 90 == 0,
+                "Invalid rotation degrees: " + rotationDegrees);
+        return is90or270(within360(rotationDegrees)) ? reverseSize(size) : size;
+    }
+
+    /**
+     * Converts the degrees to within 360 degrees [0 - 359].
+     */
+    public static int within360(int degrees) {
+        return (degrees % 360 + 360) % 360;
     }
 
     /**
@@ -156,7 +223,7 @@ public class TransformUtils {
     }
 
     /**
-     * Gets the transform from one {@link Rect} to another with rotation degrees.
+     * Gets the transform from one {@link RectF} to another with rotation degrees.
      *
      * <p> Following is how the source is mapped to the target with a 90° rotation. The rect
      * <a, b, c, d> is mapped to <a', b', c', d'>.
@@ -172,11 +239,34 @@ public class TransformUtils {
     @NonNull
     public static Matrix getRectToRect(
             @NonNull RectF source, @NonNull RectF target, int rotationDegrees) {
+        return getRectToRect(source, target, rotationDegrees, /*mirroring=*/false);
+    }
+
+    /**
+     * Gets the transform from one {@link RectF} to another with rotation degrees and mirroring.
+     *
+     * <p> Following is how the source is mapped to the target with a 90° rotation and a mirroring.
+     * The rect <a, b, c, d> is mapped to <a', b', c', d'>.
+     *
+     * <pre>
+     *  a----------b                           a'-----------d'
+     *  |  source  |    -90° + mirroring ->    |            |
+     *  d----------c                           |   target   |
+     *                                         |            |
+     *                                         b'-----------c'
+     * </pre>
+     */
+    @NonNull
+    public static Matrix getRectToRect(
+            @NonNull RectF source, @NonNull RectF target, int rotationDegrees, boolean mirroring) {
         // Map source to normalized space.
         Matrix matrix = new Matrix();
         matrix.setRectToRect(source, NORMALIZED_RECT, Matrix.ScaleToFit.FILL);
         // Add rotation.
         matrix.postRotate(rotationDegrees);
+        if (mirroring) {
+            matrix.postScale(-1, 1);
+        }
         // Restore the normalized space to target's coordinates.
         matrix.postConcat(getNormalizedToBuffer(target));
         return matrix;
