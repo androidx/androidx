@@ -16,12 +16,9 @@
 
 
 import androidx.build.KmpPlatformsKt
-import androidx.build.Publish
 import androidx.build.LibraryType
-import androidx.build.RunApiTasks
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
-import org.jetbrains.kotlin.gradle.tasks.KotlinNativeCompile
 
 plugins {
     id("AndroidXPlugin")
@@ -38,6 +35,10 @@ androidXMultiplatform {
     ios()
 
     sourceSets {
+        all {
+            languageSettings.optIn("kotlin.RequiresOptIn")
+        }
+
         commonMain {
             dependencies {
                 api(project(":datastore:datastore-core"))
@@ -80,21 +81,19 @@ androidXMultiplatform {
                 }
             }
         }
-        all {
-            languageSettings.optIn("kotlin.RequiresOptIn")
-        }
-    }
 
-    targets.forEach {target ->
-        if (target.platformType == KotlinPlatformType.native) {
-            target.compilations["main"].defaultSourceSet {
-                dependsOn(sourceSets["nativeMain"])
+        targets.withType(KotlinNativeTarget).configureEach {
+            binaries.all {
+                binaryOptions["memoryModel"] = "experimental"
             }
         }
-    }
-    targets.withType(KotlinNativeTarget).configureEach {
-        binaries.all {
-            binaryOptions["memoryModel"] = "experimental"
+
+        targets.all { target ->
+            if (target.platformType == KotlinPlatformType.native) {
+                target.compilations["main"].defaultSourceSet {
+                    dependsOn(nativeMain)
+                }
+            }
         }
     }
 }
@@ -105,11 +104,4 @@ androidx {
     mavenGroup = LibraryGroups.DATASTORE
     inceptionYear = "2020"
     description = "Android DataStore Core Okio- contains APIs to use datastore-core in multiplatform via okio"
-}
-
-// Allow usage of Kotlin's @OptIn.
-tasks.withType(KotlinNativeCompile).configureEach {
-    kotlinOptions {
-        freeCompilerArgs += ["-opt-in=kotlin.RequiresOptIn"]
-    }
 }
