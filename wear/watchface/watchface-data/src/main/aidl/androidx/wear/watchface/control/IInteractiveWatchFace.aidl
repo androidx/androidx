@@ -34,12 +34,12 @@ import androidx.wear.watchface.style.data.UserStyleWireFormat;
 interface IInteractiveWatchFace {
     // IMPORTANT NOTE: All methods must be given an explicit transaction id that must never change
     // in the future to remain binary backwards compatible.
-    // Next Id: 20
+    // Next Id: 21
 
     /**
      * API version number. This should be incremented every time a new method is added.
      */
-    const int API_VERSION = 4;
+    const int API_VERSION = 5;
 
     /** Indicates a "down" touch event on the watch face. */
     const int TAP_TYPE_DOWN = 0;
@@ -195,4 +195,7 @@ interface IInteractiveWatchFace {
      * @since API version 4.
      */
     WatchFaceOverlayStyleWireFormat getWatchFaceOverlayStyle() = 19;
+
+    /** Unused. */
+    void unused20() = 20;
 }

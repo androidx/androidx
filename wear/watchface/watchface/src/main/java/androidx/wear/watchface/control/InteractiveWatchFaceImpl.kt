@@ -71,6 +71,8 @@ internal class InteractiveWatchFaceImpl(
 
     override fun unused18() {}
 
+    override fun unused20() {}
+
     override fun getWatchFaceOverlayStyle(): WatchFaceOverlayStyleWireFormat? =
         WatchFaceService.awaitDeferredWatchFaceAndComplicationManagerThenRunOnBinderThread(
             engine,
