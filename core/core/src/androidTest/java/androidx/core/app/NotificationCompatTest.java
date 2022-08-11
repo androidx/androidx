@@ -305,6 +305,20 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
         }
     }
 
+    @SdkSuppress(minSdkVersion = 24)
+    @Test
+    public void testSetChronometerCountDown() {
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(mContext, "channelId");
+        builder.setUsesChronometer(true);
+
+        assertTrue(builder.mUseChronometer);
+
+        builder.setChronometerCountDown(true);
+        Notification n = builder.build();
+
+        assertEquals(Boolean.TRUE, n.extras.get(NotificationCompat.EXTRA_CHRONOMETER_COUNT_DOWN));
+    }
+
     @Test
     public void testOnlyAlertOnce() {
         NotificationCompat.Builder builder = new NotificationCompat.Builder(mContext);
