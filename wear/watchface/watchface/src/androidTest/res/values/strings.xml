@@ -27,4 +27,6 @@
     <string name="option_time_style_minimal" translatable="false">minimal</string>
     <string name="option_time_style_seconds" translatable="false">seconds</string>
     <string name="supported_type_three" translatable="false">SHORT_TEXT|RANGED_VALUE|SMALL_IMAGE</string>
+    <string name="primary_data_source" translatable="false">com.package/com.app.example1</string>
+    <string name="secondary_data_source" translatable="false">com.package/com.app.example2</string>
 </resources>

@@ -1,0 +1,7 @@
+// Baseline format: 1.0
+RemovedMethod: androidx.wear.watchface.style.UserStyleSettingKt#getIntRefAttribute(android.content.res.Resources, android.content.res.XmlResourceParser, String):
+    Removed method androidx.wear.watchface.style.UserStyleSettingKt.getIntRefAttribute(android.content.res.Resources,android.content.res.XmlResourceParser,String)
+RemovedMethod: androidx.wear.watchface.style.UserStyleSettingKt#getStringRefAttribute(android.content.res.Resources, android.content.res.XmlResourceParser, String):
+    Removed method androidx.wear.watchface.style.UserStyleSettingKt.getStringRefAttribute(android.content.res.Resources,android.content.res.XmlResourceParser,String)
+RemovedMethod: androidx.wear.watchface.style.UserStyleSettingKt#moveToStart(org.xmlpull.v1.XmlPullParser, String):
+    Removed method androidx.wear.watchface.style.UserStyleSettingKt.moveToStart(org.xmlpull.v1.XmlPullParser,String)

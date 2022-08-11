@@ -373,6 +373,10 @@ public class XmlDefinedUserStyleSchemaAndComplicationSlotsTest {
                 ComplicationType.RANGED_VALUE,
                 ComplicationType.SMALL_IMAGE
             ).inOrder()
+            assertThat(slotD.defaultDataSourcePolicy.primaryDataSource).isEqualTo(
+                ComponentName("com.package", "com.app.example1"))
+            assertThat(slotD.defaultDataSourcePolicy.secondaryDataSource).isEqualTo(
+                ComponentName("com.package", "com.app.example2"))
         }
     }
 }

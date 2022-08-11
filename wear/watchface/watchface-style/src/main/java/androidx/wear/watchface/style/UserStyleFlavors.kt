@@ -21,6 +21,8 @@ import android.content.res.XmlResourceParser
 import androidx.annotation.RestrictTo
 import androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy
 import androidx.wear.watchface.complications.IllegalNodeException
+import androidx.wear.watchface.complications.getIntRefAttribute
+import androidx.wear.watchface.complications.getStringRefAttribute
 import androidx.wear.watchface.complications.hasValue
 import androidx.wear.watchface.complications.iterate
 import androidx.wear.watchface.style.data.UserStyleFlavorWireFormat
@@ -156,6 +158,7 @@ public class UserStyleFlavor(
                         }
 
                         val policy = DefaultComplicationDataSourcePolicy.inflate(
+                            resources,
                             parser,
                             "ComplicationPolicy")
 

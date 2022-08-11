@@ -79,6 +79,10 @@
         app:name="@string/complication_name_three"
         app:boundsType="ROUND_RECT"
         app:supportedTypes="@string/supported_type_three"
+        app:primaryDataSource="@string/primary_data_source"
+        app:primaryDataSourceDefaultType="SHORT_TEXT"
+        app:secondaryDataSource="@string/secondary_data_source"
+        app:secondaryDataSourceDefaultType="SMALL_IMAGE"
         app:systemDataSourceFallback="DATA_SOURCE_WATCH_BATTERY"
         app:systemDataSourceFallbackDefaultType="RANGED_VALUE">
         <ComplicationSlotBounds app:left="3" app:top="70" app:right="7" app:bottom="90"/>
