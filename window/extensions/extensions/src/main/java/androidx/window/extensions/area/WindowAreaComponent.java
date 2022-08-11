@@ -23,8 +23,10 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.window.extensions.WindowExtensions;
 
+import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.function.Consumer;
 
 /**
@@ -63,6 +65,7 @@ public interface WindowAreaComponent {
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Retention(RetentionPolicy.SOURCE)
+    @Target({ElementType.TYPE_PARAMETER, ElementType.TYPE_USE})
     @IntDef({
             STATUS_UNSUPPORTED,
             STATUS_UNAVAILABLE,
@@ -88,6 +91,7 @@ public interface WindowAreaComponent {
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Retention(RetentionPolicy.SOURCE)
+    @Target({ElementType.TYPE_PARAMETER, ElementType.TYPE_USE})
     @IntDef({
             SESSION_STATE_ACTIVE,
             SESSION_STATE_INACTIVE
