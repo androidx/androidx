@@ -8,6 +8,38 @@ package androidx.window {
 
 }
 
+package androidx.window.area {
+
+  @androidx.window.core.ExperimentalWindowApi public interface WindowAreaController {
+    method public default static androidx.window.area.WindowAreaController getOrCreate();
+    field public static final androidx.window.area.WindowAreaController.Companion Companion;
+  }
+
+  public static final class WindowAreaController.Companion {
+    method public androidx.window.area.WindowAreaController getOrCreate();
+  }
+
+  @androidx.window.core.ExperimentalWindowApi public interface WindowAreaSession {
+    method public void close();
+  }
+
+  @androidx.window.core.ExperimentalWindowApi public interface WindowAreaSessionCallback {
+    method public void onSessionEnded();
+    method public void onSessionStarted(androidx.window.area.WindowAreaSession session);
+  }
+
+  @androidx.window.core.ExperimentalWindowApi public final class WindowAreaStatus {
+    field public static final androidx.window.area.WindowAreaStatus AVAILABLE;
+    field public static final androidx.window.area.WindowAreaStatus.Companion Companion;
+    field public static final androidx.window.area.WindowAreaStatus UNAVAILABLE;
+    field public static final androidx.window.area.WindowAreaStatus UNSUPPORTED;
+  }
+
+  public static final class WindowAreaStatus.Companion {
+  }
+
+}
+
 package androidx.window.core {
 
   @kotlin.RequiresOptIn(level=kotlin.RequiresOptIn.Level.WARNING) @kotlin.annotation.MustBeDocumented @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalWindowApi {
