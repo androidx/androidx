@@ -20,10 +20,8 @@ import android.graphics.Color
 import android.graphics.ColorSpace
 import android.graphics.Region
 import android.opengl.EGL14
-import android.opengl.GLES20
 import android.os.Build
 import android.os.SystemClock
-import android.util.Log
 import android.view.SurfaceHolder
 import androidx.graphics.lowlatency.SyncFenceCompat
 import androidx.graphics.opengl.egl.EGLConfigAttributes
@@ -37,8 +35,6 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
-import java.nio.ByteBuffer
-import java.nio.ByteOrder
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executor
 import java.util.concurrent.Executors
@@ -391,6 +387,114 @@ class SurfaceControlCompatTest {
     }
 
     @Test
+    fun testTransactionSetBuffer_nullFence() {
+        val scenario = ActivityScenario.launch(SurfaceControlWrapperTestActivity::class.java)
+            .moveToState(
+                Lifecycle.State.CREATED
+            ).onActivity {
+                val callback = object : SurfaceHolderCallback() {
+                    override fun surfaceCreated(sh: SurfaceHolder) {
+                        val scCompat = SurfaceControlCompat
+                            .Builder()
+                            .setParent(it.getSurfaceView())
+                            .setName("SurfaceControlCompatTest")
+                            .build()
+
+                        // Buffer colorspace is RGBA, so Color.BLUE will be visually Red
+                        val buffer =
+                            SurfaceControlUtils.getSolidBuffer(
+                                SurfaceControlWrapperTestActivity.DEFAULT_WIDTH,
+                                SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT,
+                                Color.BLUE
+                            )
+                        assertNotNull(buffer)
+
+                        SurfaceControlCompat.Transaction()
+                            .setBuffer(scCompat, buffer, null)
+                            .setVisibility(
+                                scCompat,
+                                true
+                            ).commit()
+                    }
+                }
+
+                it.addSurface(it.mSurfaceView, callback)
+            }
+
+        scenario.moveToState(Lifecycle.State.RESUMED).onActivity {
+            SurfaceControlUtils.validateOutput { bitmap ->
+                val coord = intArrayOf(0, 0)
+                it.mSurfaceView.getLocationOnScreen(coord)
+                Color.RED == bitmap.getPixel(coord[0], coord[1])
+            }
+        }
+    }
+
+    @Test
+    fun testTransactionSetBuffer_simpleFence() {
+        var eglManager: EGLManager? = null
+        val scenario = ActivityScenario.launch(SurfaceControlWrapperTestActivity::class.java)
+            .moveToState(
+                Lifecycle.State.CREATED
+            ).onActivity {
+                val manager = EGLManager().apply {
+                    initialize()
+                    val config = loadConfig(EGLConfigAttributes.RGBA_8888)
+                    if (config == null) {
+                        fail("Config 8888 should be supported")
+                    }
+                    createContext(config!!)
+                }
+                eglManager = manager
+
+                val callback = object : SurfaceHolderCallback() {
+                    override fun surfaceCreated(sh: SurfaceHolder) {
+                        val scCompat = SurfaceControlCompat
+                            .Builder()
+                            .setParent(it.getSurfaceView())
+                            .setName("SurfaceControlCompatTest")
+                            .build()
+
+                        // Buffer colorspace is RGBA, so Color.BLUE will be visually Red
+                        val buffer =
+                            SurfaceControlUtils.getSolidBuffer(
+                                SurfaceControlWrapperTestActivity.DEFAULT_WIDTH,
+                                SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT,
+                                Color.BLUE
+                            )
+                        assertNotNull(buffer)
+
+                        val fence = if (manager.supportsNativeAndroidFence()) {
+                            SyncFenceCompat.createNativeSyncFence(manager.eglSpec)
+                        } else {
+                            null
+                        }
+                        SurfaceControlCompat.Transaction()
+                            .setBuffer(scCompat, buffer, fence)
+                            .setVisibility(
+                                scCompat,
+                                true
+                            ).commit()
+                    }
+                }
+
+                it.addSurface(it.mSurfaceView, callback)
+            }
+
+        scenario.moveToState(Lifecycle.State.RESUMED).onActivity {
+            try {
+                SurfaceControlUtils.validateOutput { bitmap ->
+                    val coord = intArrayOf(0, 0)
+                    it.mSurfaceView.getLocationOnScreen(coord)
+                    Color.RED == bitmap.getPixel(coord[0], coord[1])
+                }
+            } finally {
+                eglManager?.release()
+            }
+        }
+    }
+
+    @Test
     fun testTransactionSetBuffer_nullCallback() {
         val scenario = ActivityScenario.launch(SurfaceControlWrapperTestActivity::class.java)
             .moveToState(
@@ -561,80 +665,6 @@ class SurfaceControlCompatTest {
                 val coord = intArrayOf(0, 0)
                 it.mSurfaceView.getLocationOnScreen(coord)
                 Color.RED == bitmap.getPixel(coord[0], coord[1])
-            }
-        }
-    }
-
-    @Test
-    fun testTransactionSetBuffer_withSyncFence() {
-        val releaseLatch = CountDownLatch(1)
-        val egl = createAndSetupEGLManager(EGLSpec.V14)
-        if (egl.supportsNativeAndroidFence()) {
-            runShaderGlCommands()
-
-            val syncFenceCompat = SyncFenceCompat.createNativeSyncFence(egl.eglSpec)
-            val scenario = ActivityScenario.launch(SurfaceControlWrapperTestActivity::class.java)
-                .moveToState(
-                    Lifecycle.State.CREATED
-                ).onActivity { it ->
-                    val callback = object : SurfaceHolderCallback() {
-                        override fun surfaceCreated(sh: SurfaceHolder) {
-                            val scCompat = SurfaceControlCompat
-                                .Builder()
-                                .setParent(it.getSurfaceView())
-                                .setName("SurfaceControlCompatTest")
-                                .build()
-
-                            val buffer =
-                                SurfaceControlUtils.getSolidBuffer(
-                                    SurfaceControlWrapperTestActivity.DEFAULT_WIDTH,
-                                    SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT,
-                                    Color.GREEN
-                                )
-                            assertNotNull(buffer)
-
-                            // Buffer colorspace is RGBA, so Color.BLUE will be visually Red
-                            val buffer2 =
-                                SurfaceControlUtils.getSolidBuffer(
-                                    SurfaceControlWrapperTestActivity.DEFAULT_WIDTH,
-                                    SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT,
-                                    Color.BLUE
-                                )
-                            assertNotNull(buffer2)
-
-                            SurfaceControlCompat.Transaction()
-                                .setBuffer(
-                                    scCompat,
-                                    buffer,
-                                    syncFenceCompat,
-                                ) {
-                                    releaseLatch.countDown()
-                                }
-                                .setVisibility(scCompat, true)
-                                .commit()
-                            SurfaceControlCompat.Transaction()
-                                .setBuffer(scCompat, buffer2)
-                                .setVisibility(scCompat, true)
-                                .commit()
-                        }
-                    }
-
-                    it.addSurface(it.mSurfaceView, callback)
-                }
-
-            scenario.moveToState(Lifecycle.State.RESUMED).onActivity {
-                assertTrue(releaseLatch.await(3000, TimeUnit.MILLISECONDS))
-                assertTrue(
-                    syncFenceCompat.getSignalTime() !=
-                        SyncFenceCompat.SIGNAL_TIME_PENDING
-                )
-                SurfaceControlUtils.validateOutput { bitmap ->
-                    val coord = intArrayOf(0, 0)
-                    it.mSurfaceView.getLocationOnScreen(coord)
-                    Color.RED == bitmap.getPixel(coord[0], coord[1])
-                }
-
-                releaseEGLManager(egl)
             }
         }
     }
@@ -1243,59 +1273,6 @@ class SurfaceControlCompatTest {
         bgA: Float,
         a: Float
     ) = if (a == 0f) 0f else ((fgC * fgA) + ((bgC * bgA) * (1f - fgA))) / a
-
-    // helper method to extract out gl commands to singular method
-    fun runShaderGlCommands() {
-        val vertexShaderCode = "attribute vec4 vPosition;" +
-            "void main() {" +
-            "    gl_Position = vPosition;" +
-            "}"
-        val fragmentShaderCode = "precision mediump float;" +
-            "void main() {" +
-            "   for(int i = 0; i<10000000000000; i++) {" +
-            "       gl_FragColor = vec4(1.0, 0.0+(i/1000), 0.0, 1.0);" +
-            "   }" +
-            "}"
-
-        val fragmentShader = loadShader(GLES20.GL_FRAGMENT_SHADER, fragmentShaderCode)
-        val vertexShader = loadShader(GLES20.GL_VERTEX_SHADER, vertexShaderCode)
-
-        val program = GLES20.glCreateProgram()
-        assertTrue(program != 0)
-
-        GLES20.glAttachShader(program, fragmentShader)
-        GLES20.glAttachShader(program, vertexShader)
-        GLES20.glLinkProgram(program)
-        GLES20.glViewport(
-            0,
-            0,
-            SurfaceControlWrapperTestActivity.DEFAULT_WIDTH,
-            SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT
-        )
-
-        GLES20.glUseProgram(program)
-        val vPosition = GLES20.glGetAttribLocation(program, "vPosition")
-        // bytes per vertex * # of coords per vertex * # of vertices
-        val buffer = ByteBuffer.allocateDirect(4 * 3 * 2)
-        buffer.order(ByteOrder.nativeOrder())
-
-        val triangleVertices =
-            buffer.asFloatBuffer().put(floatArrayOf(0.0f, 0.0f,
-                                                    1.0f, 1.0f,
-                                                    1.0f, 0.0f))
-        GLES20.glVertexAttribPointer(vPosition, 2, GLES20.GL_FLOAT, false, 0, triangleVertices)
-        GLES20.glEnableVertexAttribArray(vPosition)
-        GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, 3)
-    }
-
-    fun loadShader(shaderType: Int, shaderSource: String): Int {
-        val shader = GLES20.glCreateShader(shaderType)
-        assertTrue(shader != 0)
-        Log.v("PixelTest", "S: " + shader)
-        GLES20.glShaderSource(shader, shaderSource)
-        GLES20.glCompileShader(shader) // shader is ready here
-        return shader
-    }
 
     // Helper method to create and initialize an EGLManager
     fun createAndSetupEGLManager(eglSpec: EGLSpec = EGLSpec.V14): EGLManager {

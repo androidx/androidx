@@ -75,7 +75,6 @@ class SyncFenceCompatTest {
             if (supportsNativeAndroidFence()) {
                 val syncFenceCompat = SyncFenceCompat.createNativeSyncFence(this.eglSpec)
                 assert(syncFenceCompat.isValid())
-                GLES20.glFlush()
                 assertTrue(syncFenceCompat.awaitForever())
 
                 syncFenceCompat.close()
@@ -93,8 +92,6 @@ class SyncFenceCompatTest {
                 val syncFenceCompat = SyncFenceCompat.createNativeSyncFence(this.eglSpec)
                 assertTrue(syncFenceCompat.isValid())
                 assertTrue(syncFenceCompat.getSignalTime() != SyncFence.SIGNAL_TIME_INVALID)
-
-                GLES20.glFlush()
                 assertTrue(syncFenceCompat.awaitForever())
 
                 assertTrue(syncFenceCompat.getSignalTime() > start)
