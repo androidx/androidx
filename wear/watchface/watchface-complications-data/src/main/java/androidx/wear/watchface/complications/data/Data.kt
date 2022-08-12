@@ -2079,9 +2079,9 @@ internal constructor(
  * The image is expected to always be displayed.
  *
  * @property monochromaticImage A simple [MonochromaticImage] image that can be tinted by the watch
- * face. If the monochromaticImage is equal to [MonochromaticImage.PLACEHOLDER] the renderer must
- * treat it as a placeholder rather than rendering normally, its suggested it should be rendered as
- * a light grey box.
+ * face (typically with SRC_IN). If the monochromaticImage is equal to
+ * [MonochromaticImage.PLACEHOLDER] the renderer must treat it as a placeholder rather than
+ * rendering normally, it's suggested it should be rendered as a light grey box.
  * @property contentDescription The content description field for accessibility and is used to
  * describe what data the icon represents. If the icon is purely stylistic, and does not convey any
  * information to the user, then provide an empty content description. If no content description is

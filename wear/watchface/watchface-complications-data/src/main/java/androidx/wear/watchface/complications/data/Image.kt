@@ -29,6 +29,10 @@ internal fun createPlaceholderIcon(): Icon =
 /**
  * A simple, monochromatic image that can be tinted by the watch face.
  *
+ * A monochromatic image doesn't have to be black and white, it can have a single color associated
+ * with the provider / brand with the expectation that the watch face may recolor it (typically
+ * using a SRC_IN filter).
+ *
  * An ambient alternative is provided that may be shown instead of the regular image while the
  * watch is not active.
  *
