@@ -16,6 +16,8 @@
 
 package androidx.car.app.hardware.common;
 
+import static android.car.VehiclePropertyIds.HVAC_POWER_ON;
+
 import static com.google.common.truth.Truth.assertThat;
 
 import android.app.Application;
@@ -25,6 +27,8 @@ import android.car.VehiclePropertyIds;
 import android.car.hardware.CarPropertyValue;
 
 import androidx.test.core.app.ApplicationProvider;
+
+import com.google.common.collect.ImmutableList;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -36,7 +40,9 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 import org.robolectric.shadows.ShadowApplication;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -88,6 +94,32 @@ public class PropertyRequestProcessorTest extends MockedCarTestBase {
                 VehiclePropertyIds.ENGINE_OIL_TEMP);
     }
 
+    /**
+     * Tests for
+     * {@link PropertyRequestProcessor#fetchCarPropertyProfiles(
+     * List, OnGetCarPropertyProfilesListener)}.
+     */
+    @Test
+    public void fetchCarPropertyProfilesTest() throws Exception {
+        TestPropertyProfileListener listener = new TestPropertyProfileListener();
+        List<Integer> propertyIds = new ArrayList<>();
+        ImmutableList<Set<CarZone>> carZones =
+                ImmutableList.<Set<CarZone>>builder().add(Collections.singleton(
+                        new CarZone.Builder().setRow(CarZone.CAR_ZONE_ROW_FIRST)
+                                .setColumn(CarZone.CAR_ZONE_COLUMN_LEFT).build())).build();
+
+        propertyIds.add(HVAC_POWER_ON);
+        mRequestProcessor.fetchCarPropertyProfiles(propertyIds, listener);
+        listener.assertOnGetCarPropertyProfilesCalled();
+        List<CarPropertyProfile<?>> carPropertyProfiles = listener.getCarPropertyProfiles();
+
+        assertThat(carPropertyProfiles.size()).isEqualTo(1);
+        assertThat(carPropertyProfiles.get(0).getPropertyId()).isEqualTo(HVAC_POWER_ON);
+        assertThat(carPropertyProfiles.get(0).getCarZones()).isEqualTo(carZones);
+        assertThat(carPropertyProfiles.get(0).getCarZoneSetsToMinMaxRange())
+                .isEqualTo(CAR_ZONE_SET_TO_MIN_MAX_RANGE);
+    }
+
     private static class TestListener implements PropertyRequestProcessor.OnGetPropertiesListener {
         private final CountDownLatch mCountDownLatch = new CountDownLatch(1);
         private List<CarPropertyValue<?>> mCarPropertyValues = new ArrayList<>();
@@ -113,6 +145,28 @@ public class PropertyRequestProcessorTest extends MockedCarTestBase {
 
         public List<CarInternalError> getCarInternalErrors() {
             return mCarInternalErrors;
+        }
+    }
+
+    private static class TestPropertyProfileListener implements
+            PropertyRequestProcessor.OnGetCarPropertyProfilesListener {
+        private final CountDownLatch mCountDownLatch = new CountDownLatch(1);
+        private List<CarPropertyProfile<?>> mCarPropertyProfiles = new ArrayList<>();
+        @Override
+        public void onGetCarPropertyProfiles(List<CarPropertyProfile<?>> propertyProfiles) {
+            mCarPropertyProfiles = propertyProfiles;
+            mCountDownLatch.countDown();
+        }
+
+        public void assertOnGetCarPropertyProfilesCalled() throws InterruptedException {
+            if (!mCountDownLatch.await(WAIT_CALLBACK_MS, TimeUnit.MILLISECONDS)) {
+                throw new IllegalStateException("Callback is not called in ms: "
+                        + WAIT_CALLBACK_MS);
+            }
+        }
+
+        public List<CarPropertyProfile<?>> getCarPropertyProfiles() {
+            return mCarPropertyProfiles;
         }
     }
 

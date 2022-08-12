@@ -16,54 +16,62 @@
 
 package androidx.car.app.hardware.climate;
 
+import android.util.Pair;
+
 import androidx.annotation.NonNull;
 import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.hardware.common.CarZone;
 
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 /**
  * Container class for information about the {@link
- * ClimateProfileRequest#FEATURE_FAN_SPEED} feature such as feature Id and supported
- * values for the feature.
+ * ClimateProfileRequest#FEATURE_FAN_SPEED} feature such as supported min/max range values for
+ * the feature.
  */
 @ExperimentalCarApi
 public final class FanSpeedLevelProfile {
 
     @NonNull
-    private final Map<Set<CarZone>, List<Integer>> mCarZoneSetsToFanSpeedLevelValues;
+    private final Map<Set<CarZone>, Pair<Integer, Integer>> mCarZoneSetsToFanSpeedLevelRanges;
 
     /**
-     * Returns a list of supported values for the feature mapped to the set of car zones.
+     * Returns a pair of supported min/max range values for the feature mapped to the set of car
+     * zones.
      *
      * <p>The values that can be regulated together for a set of car zones are combined together.
      */
     @NonNull
-    public Map<Set<CarZone>, List<Integer>> getCarZoneSetsToFanSpeedLevelValues() {
-        return mCarZoneSetsToFanSpeedLevelValues;
+    public Map<Set<CarZone>, Pair<Integer, Integer>> getCarZoneSetsToFanSpeedLevelRanges() {
+        return mCarZoneSetsToFanSpeedLevelRanges;
     }
 
     FanSpeedLevelProfile(FanSpeedLevelProfile.Builder builder) {
-        mCarZoneSetsToFanSpeedLevelValues = Collections.unmodifiableMap(
-                builder.mCarZoneSetsToFanSpeedLevelValues);
+        mCarZoneSetsToFanSpeedLevelRanges = Collections.unmodifiableMap(
+                builder.mCarZoneSetsToFanSpeedLevelRanges);
     }
 
     /** A builder for FanSpeedLevelProfile. */
     public static final class Builder {
-        Map<Set<CarZone>, List<Integer>> mCarZoneSetsToFanSpeedLevelValues;
+        Map<Set<CarZone>, Pair<Integer, Integer>> mCarZoneSetsToFanSpeedLevelRanges;
 
         /**
          * Creates an instance of builder.
          *
-         * @param carZoneSetsToFanSpeedLevelValues   map of possible values for the property
-         *                                           corresponding to the set of car zones.
+         * @param carZoneSetsToFanSpeedLevelRanges   map of min/max range values in meters per
+         *                                           second for the property corresponding to the
+         *                                           set of car zones. The min/max values are
+         *                                           not in a specific unit but represent fan
+         *                                           speed level settings. They can take
+         *                                           values in the range [1,7] but always greater
+         *                                           than 0.
          */
-        public Builder(@NonNull Map<Set<CarZone>, List<Integer>> carZoneSetsToFanSpeedLevelValues) {
-            mCarZoneSetsToFanSpeedLevelValues = Collections.unmodifiableMap(
-                    carZoneSetsToFanSpeedLevelValues);
+        public Builder(@NonNull Map<Set<CarZone>, Pair<Integer, Integer>>
+                carZoneSetsToFanSpeedLevelRanges) {
+            mCarZoneSetsToFanSpeedLevelRanges = Collections.unmodifiableMap(
+                    carZoneSetsToFanSpeedLevelRanges);
         }
 
         /** Create a FanSpeedLevelProfile. */
