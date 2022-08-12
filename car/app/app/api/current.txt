@@ -162,6 +162,7 @@ package androidx.car.app {
     ctor public SessionInfo(int, String);
     method public int getDisplayType();
     method public String getSessionId();
+    method public java.util.Set<java.lang.Class<? extends androidx.car.app.model.Template>!>? getSupportedTemplates(int);
     field public static final androidx.car.app.SessionInfo DEFAULT_SESSION_INFO;
     field public static final int DISPLAY_TYPE_CLUSTER = 1; // 0x1
     field public static final int DISPLAY_TYPE_MAIN = 0; // 0x0
@@ -1638,6 +1639,7 @@ package androidx.car.app.versioning {
     field public static final int LEVEL_3 = 3; // 0x3
     field public static final int LEVEL_4 = 4; // 0x4
     field public static final int LEVEL_5 = 5; // 0x5
+    field public static final int LEVEL_6 = 6; // 0x6
   }
 
 }
