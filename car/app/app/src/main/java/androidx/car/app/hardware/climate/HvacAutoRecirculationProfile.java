@@ -25,8 +25,8 @@ import java.util.Set;
 
 /**
  * Container class for information about the {@link
- * ClimateProfileRequest#FEATURE_HVAC_AUTO_RECIRCULATION} feature such as feature Id and supported
- * values for the feature.
+ * ClimateProfileRequest#FEATURE_HVAC_AUTO_RECIRCULATION} feature such as supported values for
+ * the feature.
  */
 @ExperimentalCarApi
 public final class HvacAutoRecirculationProfile{

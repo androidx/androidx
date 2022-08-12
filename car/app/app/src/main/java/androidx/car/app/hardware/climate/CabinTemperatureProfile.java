@@ -20,50 +20,39 @@ import android.util.Pair;
 
 import androidx.annotation.NonNull;
 import androidx.car.app.annotations.ExperimentalCarApi;
-import androidx.car.app.hardware.common.CarZone;
-
-import java.util.Collections;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * Container class for information about the {@link
- * ClimateProfileRequest#FEATURE_CABIN_TEMPERATURE} feature such as feature Id and supported
- * values for the feature.
+ * ClimateProfileRequest#FEATURE_CABIN_TEMPERATURE} feature such as supported min/max values and
+ * increments for the feature.
  */
 @ExperimentalCarApi
 public final class CabinTemperatureProfile {
 
     @NonNull
-    private final Map<Set<CarZone>, Pair<Float, Float>> mSupportedCarZoneSetsToCelsiusRange;
+    private final Pair<Float, Float> mSupportedMinMaxCelsiusRange;
 
     @NonNull
-    private final Map<Set<CarZone>, Pair<Float, Float>> mSupportedCarZoneSetsToFahrenheitRange;
+    private final Pair<Float, Float> mSupportedMinMaxFahrenheitRange;
 
     private final float mCelsiusSupportedIncrement;
 
     private final float mFahrenheitSupportedIncrement;
 
     /**
-     * Returns a min/max range for the values of the property in Celsius, mapped to the set of car
-     * zones.
-     *
-     * <p>The values that can be regulated together for a set of car zones are combined together.
+     * Returns a pair of min and max range for the values of the property in Celsius.
      */
     @NonNull
-    public Map<Set<CarZone>, Pair<Float, Float>> getSupportedCarZoneSetsToCelsiusRange() {
-        return mSupportedCarZoneSetsToCelsiusRange;
+    public Pair<Float, Float> getSupportedMinMaxCelsiusRange() {
+        return mSupportedMinMaxCelsiusRange;
     }
 
     /**
-     * Returns a min/max range for the values of the property in Fahrenheit, mapped to the set of
-     * car zones.
-     *
-     * <p>The values that can be regulated together for a set of car zones are combined together.
+     * Returns a pair of min and max range for the values of the property in Fahrenheit.
      */
     @NonNull
-    public Map<Set<CarZone>, Pair<Float, Float>> getSupportedCarZoneSetsToFahrenheitRange() {
-        return mSupportedCarZoneSetsToFahrenheitRange;
+    public Pair<Float, Float> getSupportedMinMaxFahrenheitRange() {
+        return mSupportedMinMaxFahrenheitRange;
     }
 
     /** Reports whether the increment value in Celsius is available or not. */
@@ -107,67 +96,37 @@ public final class CabinTemperatureProfile {
     }
 
     CabinTemperatureProfile(Builder builder) {
-        mSupportedCarZoneSetsToCelsiusRange = Collections.unmodifiableMap(
-                builder.mSupportedCarZoneSetsToCelsiusRange);
-        mSupportedCarZoneSetsToFahrenheitRange = Collections.unmodifiableMap(
-                builder.mSupportedCarZoneSetsToFahrenheitRange);
+        mSupportedMinMaxCelsiusRange = builder.mSupportedMinMaxCelsiusRange;
+        mSupportedMinMaxFahrenheitRange = builder.mSupportedMinMaxFahrenheitRange;
         mCelsiusSupportedIncrement = builder.mCelsiusSupportedIncrement;
         mFahrenheitSupportedIncrement = builder.mFahrenheitSupportedIncrement;
     }
 
     /** A builder for CabinTemperatureProfile. */
     public static final class Builder {
-        final Map<Set<CarZone>, Pair<Float, Float>> mSupportedCarZoneSetsToCelsiusRange;
-        final Map<Set<CarZone>, Pair<Float, Float>> mSupportedCarZoneSetsToFahrenheitRange;
+        final Pair<Float, Float> mSupportedMinMaxCelsiusRange;
+        final Pair<Float, Float> mSupportedMinMaxFahrenheitRange;
         float mCelsiusSupportedIncrement;
         float mFahrenheitSupportedIncrement;
 
         /**
          * Creates an instance of builder.
          *
-         * @param supportedCarZoneSetsToCelsiusRange   map of possible Celsius value range to the
-         *                                             set of car zones.
-         * @param supportedCarZoneSetsToFahrenheitRange   map of possible Fahrenheit value range to
-         *                                                the set of car zones.
+         * @param supportedMinMaxCelsiusRange   a pair of min and max range values in Celsius
+         * @param supportedMinMaxFahrenheitRange   a pair of min and max range values in
+         *                                                Fahrenheit
+         * @param celsiusSupportedIncrement   increment number for the temperature values in
+         *                                    Celsius
+         * @param fahrenheitSupportedIncrement   increment number for the temperature values in
+         *                                       Fahrenheit
          */
-        public Builder(@NonNull Map<Set<CarZone>, Pair<Float, Float>>
-                supportedCarZoneSetsToCelsiusRange,
-                @NonNull Map<Set<CarZone>, Pair<Float, Float>>
-                        supportedCarZoneSetsToFahrenheitRange) {
-            mSupportedCarZoneSetsToCelsiusRange = Collections.unmodifiableMap(
-                    supportedCarZoneSetsToCelsiusRange);
-            mSupportedCarZoneSetsToFahrenheitRange = Collections.unmodifiableMap(
-                    supportedCarZoneSetsToFahrenheitRange);
-            mCelsiusSupportedIncrement = -1.0f;
-            mFahrenheitSupportedIncrement = -1.0f;
-        }
-
-        /**
-         * Set the increment for supported Celsius values range.
-         *
-         * <p>If increment is not set for the feature, the Builder will create the feature
-         * with aan empty increment.
-         *
-         * @param celsiusSupportedIncrement Increment value for the Celsius value range
-         */
-        @NonNull
-        public Builder setCelsiusSupportedIncrement(float celsiusSupportedIncrement) {
+        public Builder(@NonNull Pair<Float, Float> supportedMinMaxCelsiusRange,
+                @NonNull Pair<Float, Float> supportedMinMaxFahrenheitRange,
+                float celsiusSupportedIncrement, float fahrenheitSupportedIncrement) {
+            mSupportedMinMaxCelsiusRange = supportedMinMaxCelsiusRange;
+            mSupportedMinMaxFahrenheitRange = supportedMinMaxFahrenheitRange;
             mCelsiusSupportedIncrement = celsiusSupportedIncrement;
-            return this;
-        }
-
-        /**
-         * Set the increment for supported Fahrenheit values range.
-         *
-         * <p>If increment is not set for the feature, the Builder will create the feature
-         * with aan empty increment.
-         *
-         * @param fahrenheitSupportedIncrement Increment value for the Fahrenheit value range
-         */
-        @NonNull
-        public Builder setFahrenheitSupportedIncrement(float fahrenheitSupportedIncrement) {
             mFahrenheitSupportedIncrement = fahrenheitSupportedIncrement;
-            return this;
         }
 
         /** Create a CabinTemperatureProfile. */

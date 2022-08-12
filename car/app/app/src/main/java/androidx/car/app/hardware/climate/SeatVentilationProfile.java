@@ -16,33 +16,35 @@
 
 package androidx.car.app.hardware.climate;
 
+import android.util.Pair;
+
 import androidx.annotation.NonNull;
 import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.hardware.common.CarZone;
 
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 /**
  * Container class for information about the {@link
- * ClimateProfileRequest#FEATURE_SEAT_VENTILATION_LEVEL} feature such as feature Id and supported
+ * ClimateProfileRequest#FEATURE_SEAT_VENTILATION_LEVEL} feature such as supported min/max range
  * values for the feature.
  */
 @ExperimentalCarApi
 public final class SeatVentilationProfile {
 
     @NonNull
-    private final Map<Set<CarZone>, List<Integer>> mCarZoneSetsToSeatVentilationValues;
+    private final Map<Set<CarZone>, Pair<Integer, Integer>> mCarZoneSetsToSeatVentilationValues;
 
     /**
-     * Returns a list of supported values for the feature mapped to the set of car zones.
+     * Returns a list of supported min/max range values for the feature mapped to the set of car
+     * zones.
      *
      * <p>The values that can be regulated together for a set of car zones are combined together.
      */
     @NonNull
-    public Map<Set<CarZone>, List<Integer>> getCarZoneSetsToSeatVentilationValues() {
+    public Map<Set<CarZone>, Pair<Integer, Integer>> getCarZoneSetsToSeatVentilationValues() {
         return mCarZoneSetsToSeatVentilationValues;
     }
 
@@ -53,16 +55,23 @@ public final class SeatVentilationProfile {
 
     /** A builder for SeatVentilationProfile. */
     public static final class Builder {
-        Map<Set<CarZone>, List<Integer>> mCarZoneSetsToSeatVentilationValues;
+        Map<Set<CarZone>, Pair<Integer, Integer>> mCarZoneSetsToSeatVentilationValues;
 
         /**
          * Creates an instance of builder.
          *
-         * @param carZoneSetsToSeatVentilationValues   map of possible values for the property
+         * @param carZoneSetsToSeatVentilationValues   map of min/max range values for the property
          *                                             corresponding to the set of car zones.
+         *                                             Min/max values represent seat ventilation
+         *                                             levels that are not defined in a specific
+         *                                             unit but instead as settings for the levels.
+         *                                             The min value is always 0 and
+         *                                             indicates off.
+         *                                             Positive values indicates ventilation level.
          */
         public Builder(
-                @NonNull Map<Set<CarZone>, List<Integer>> carZoneSetsToSeatVentilationValues) {
+                @NonNull Map<Set<CarZone>, Pair<Integer, Integer>>
+                        carZoneSetsToSeatVentilationValues) {
             mCarZoneSetsToSeatVentilationValues = Collections.unmodifiableMap(
                     carZoneSetsToSeatVentilationValues);
         }

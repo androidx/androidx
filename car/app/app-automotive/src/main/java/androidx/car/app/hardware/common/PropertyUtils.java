@@ -45,6 +45,7 @@ import com.google.common.collect.ImmutableBiMap;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -417,6 +418,24 @@ public final class PropertyUtils {
                     + "their corresponding car zones.");
         }
         return propertyIdWithAreaIds;
+    }
+
+    /** Returns a map of min/max values in Integer corresponding to a set of car zones.
+     *
+     * <p> The method is a utility to convert Pair<?, ?> to Pair<Integer, Integer>.
+     */
+    @NonNull
+    public static Map<Set<CarZone>, Pair<Integer, Integer>> getMinMaxProfileIntegerMap(
+            @NonNull Map<Set<CarZone>, ? extends Pair<?, ?>> minMaxRange) {
+        Map<Set<CarZone>, Pair<Integer, Integer>>
+                carZoneSetsToIntegerValues = new HashMap<>();
+        for (Map.Entry<Set<CarZone>, ? extends Pair<?, ?>> entry : requireNonNull(minMaxRange
+                        .entrySet())) {
+            carZoneSetsToIntegerValues.put(entry.getKey(),
+                    new Pair<>((Integer) entry.getValue().first,
+                            (Integer) entry.getValue().second));
+        }
+        return carZoneSetsToIntegerValues;
     }
 
     private PropertyUtils() {
