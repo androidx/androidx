@@ -327,41 +327,31 @@ public class UiObject2Tests extends BaseTest {
 
     @Test
     public void testGetVisibleBounds() {
-        launchTestActivity(MainActivity.class);
+        launchTestActivity(VisibleBoundsTestActivity.class);
 
-        UiObject2 object = mDevice.findObject(By.pkg(TEST_APP));
-        Rect bounds = object.getVisibleBounds();
-        int top = bounds.top;
-        int bottom = bounds.bottom;
-        int left = bounds.left;
-        int right = bounds.right;
-        int boundsHeight = bounds.height();
-        int boundsWidth = bounds.width();
-        int displayHeight = mDevice.getDisplayHeight();
-        int displayWidth = mDevice.getDisplayWidth();
-        // Test the lower bounds
-        assertTrue(0 <= top);
-        assertTrue(0 <= left);
-        assertTrue(top < bottom);
-        assertTrue(left < right);
-        // Test the upper bounds
-        assertTrue(boundsHeight < displayHeight);
-        assertTrue(boundsWidth < displayWidth);
+        UiObject2 partlyInvisibleRegion = mDevice.findObject(
+                By.res(TEST_APP, "partly_invisible_region"));
+        UiObject2 regionInsideScrollable = mDevice.findObject(
+                By.res(TEST_APP, "region_inside_scrollable"));
+
+        partlyInvisibleRegion.click();
+        regionInsideScrollable.click();
+        assertEquals(partlyInvisibleRegion.getText(),
+                partlyInvisibleRegion.getVisibleBounds().toString());
+        assertEquals(regionInsideScrollable.getText(),
+                regionInsideScrollable.getVisibleBounds().toString());
     }
 
     @Test
     public void testGetVisibleCenter() {
-        launchTestActivity(MainActivity.class);
+        launchTestActivity(VisibleBoundsTestActivity.class);
 
-        UiObject2 object = mDevice.findObject(By.pkg(TEST_APP));
-        Rect bounds = object.getVisibleBounds();
-        Point center = object.getVisibleCenter();
-        int top = bounds.top;
-        int bottom = bounds.bottom;
-        int left = bounds.left;
-        int right = bounds.right;
-        assertEquals((left + right) / 2, center.x);
-        assertEquals((top + bottom) / 2, center.y);
+        UiObject2 partlyInvisibleRegion = mDevice.findObject(
+                By.res(TEST_APP, "partly_invisible_region"));
+
+        partlyInvisibleRegion.click((long) (ViewConfiguration.getLongPressTimeout() * 1.5));
+        assertEquals(partlyInvisibleRegion.getText(),
+                partlyInvisibleRegion.getVisibleCenter().toString());
     }
 
     @Test
@@ -457,7 +447,7 @@ public class UiObject2Tests extends BaseTest {
 
     @Test
     public void testIsLongClickable() {
-        launchTestActivity(UiObject2TestIsLongClickableActivity.class);
+        launchTestActivity(IsLongClickableTestActivity.class);
 
         UiObject2 longClickableButton = mDevice.findObject(By.res(TEST_APP,
                 "long_clickable_button"));
