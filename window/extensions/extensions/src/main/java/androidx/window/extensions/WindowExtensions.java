@@ -17,7 +17,6 @@
 package androidx.window.extensions;
 
 import androidx.annotation.Nullable;
-import androidx.window.extensions.area.WindowAreaComponent;
 import androidx.window.extensions.embedding.ActivityEmbeddingComponent;
 import androidx.window.extensions.layout.WindowLayoutComponent;
 
@@ -60,17 +59,6 @@ public interface WindowExtensions {
      */
     @Nullable
     default ActivityEmbeddingComponent getActivityEmbeddingComponent() {
-        return null;
-    }
-
-    /**
-     * Returns the OEM implementation of {@link WindowAreaComponent} if it is supported on
-     * the device, {@code null} otherwise. The implementation must match the API level reported in
-     * {@link WindowExtensions}.
-     * @return the OEM implementation of {@link WindowAreaComponent}
-     */
-    @Nullable
-    default WindowAreaComponent getWindowAreaComponent() {
         return null;
     }
 }
