@@ -1,15 +1,4 @@
 // Signature format: 4.0
-package androidx.window.java.area {
-
-  @androidx.window.core.ExperimentalWindowApi public final class WindowAreaControllerJavaAdapter implements androidx.window.area.WindowAreaController {
-    ctor public WindowAreaControllerJavaAdapter(androidx.window.area.WindowAreaController controller);
-    method public void addRearDisplayStatusListener(java.util.concurrent.Executor executor, androidx.core.util.Consumer<androidx.window.area.WindowAreaStatus> consumer);
-    method public void removeRearDisplayStatusListener(androidx.core.util.Consumer<androidx.window.area.WindowAreaStatus> consumer);
-    method public void startRearDisplayModeSession(android.app.Activity activity, java.util.concurrent.Executor executor, androidx.window.area.WindowAreaSessionCallback windowAreaSessionCallback);
-  }
-
-}
-
 package androidx.window.java.layout {
 
   public final class WindowInfoTrackerCallbackAdapter implements androidx.window.layout.WindowInfoTracker {
