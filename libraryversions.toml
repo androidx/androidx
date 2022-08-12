@@ -54,7 +54,7 @@ GLANCE = "1.0.0-alpha04"
 GLANCE_TEMPLATE = "1.0.0-alpha01"
 GRAPHICS = "1.0.0-alpha01"
 GRIDLAYOUT = "1.1.0-alpha01"
-HEALTH_CONNECT_CLIENT = "1.0.0-alpha04"
+HEALTH_CONNECT = "1.0.0-alpha04"
 HEALTH_SERVICES_CLIENT = "1.0.0-beta01"
 HEIFWRITER = "1.1.0-alpha02"
 HILT = "1.1.0-alpha01"
@@ -186,6 +186,7 @@ GLANCE_TEMPLATE = { group = "androidx.template", atomicGroupVersion = "versions.
 GRAPHICS = { group = "androidx.graphics", atomicGroupVersion = "versions.GRAPHICS" }
 GRIDLAYOUT = { group = "androidx.gridlayout", atomicGroupVersion = "versions.GRIDLAYOUT" }
 HEALTH = { group = "androidx.health" }
+HEALTH_CONNECT = { group = "androidx.health.connect", atomicGroupVersion = "versions.HEALTH_CONNECT" }
 HEIFWRITER = { group = "androidx.heifwriter", atomicGroupVersion = "versions.HEIFWRITER" }
 HILT = { group = "androidx.hilt" }
 INSPECTION = { group = "androidx.inspection", atomicGroupVersion = "versions.INSPECTION" }
