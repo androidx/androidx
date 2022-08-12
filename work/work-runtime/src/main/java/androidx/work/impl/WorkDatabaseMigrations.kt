@@ -28,6 +28,8 @@ import androidx.work.impl.WorkDatabaseVersions.VERSION_10
 import androidx.work.impl.WorkDatabaseVersions.VERSION_11
 import androidx.work.impl.WorkDatabaseVersions.VERSION_12
 import androidx.work.impl.WorkDatabaseVersions.VERSION_13
+import androidx.work.impl.WorkDatabaseVersions.VERSION_15
+import androidx.work.impl.WorkDatabaseVersions.VERSION_16
 import androidx.work.impl.WorkDatabaseVersions.VERSION_2
 import androidx.work.impl.WorkDatabaseVersions.VERSION_3
 import androidx.work.impl.WorkDatabaseVersions.VERSION_4
@@ -66,6 +68,9 @@ internal object WorkDatabaseVersions {
 
     // renaming period_start_time to last_enqueue_time and adding period_count
     const val VERSION_15 = 15
+
+    // adding generation column to WorkSpec and SystemIdInfo tables
+    const val VERSION_16 = 16
 }
 
 private const val CREATE_SYSTEM_ID_INFO =
@@ -215,6 +220,7 @@ class AutoMigration_14_15 : AutoMigrationSpec {
         )
     }
 }
+
 /**
  * A [WorkDatabase] migration that reschedules all eligible Workers.
  */
@@ -249,5 +255,39 @@ internal class WorkMigration9To10(private val context: Context) : Migration(VERS
         database.execSQL(PreferenceUtils.CREATE_PREFERENCE)
         PreferenceUtils.migrateLegacyPreferences(context, database)
         migrateLegacyIdGenerator(context, database)
+    }
+}
+
+object Migration_15_16 : Migration(VERSION_15, VERSION_16) {
+    override fun migrate(database: SupportSQLiteDatabase) {
+        // b/239543214: unclear how data got corrupted,
+        // but foreign key check on SystemIdInfo fails,
+        // meaning SystemIdInfo has work_spec_id that doesn't exist in WorkSpec table.
+        database.execSQL(
+            "DELETE FROM SystemIdInfo WHERE work_spec_id IN " +
+                "(SELECT work_spec_id FROM SystemIdInfo " +
+                "LEFT JOIN WorkSpec ON work_spec_id = id WHERE WorkSpec.id IS NULL)"
+        )
+
+        database.execSQL(
+            "ALTER TABLE `WorkSpec` ADD COLUMN `generation` " +
+                "INTEGER NOT NULL DEFAULT 0"
+        )
+        database.execSQL(
+            """CREATE TABLE IF NOT EXISTS `_new_SystemIdInfo` (
+            `work_spec_id` TEXT NOT NULL, 
+            `generation` INTEGER NOT NULL DEFAULT 0, 
+            `system_id` INTEGER NOT NULL, 
+            PRIMARY KEY(`work_spec_id`, `generation`), 
+            FOREIGN KEY(`work_spec_id`) REFERENCES `WorkSpec`(`id`) 
+                ON UPDATE CASCADE ON DELETE CASCADE )
+               """.trimIndent()
+        )
+        database.execSQL(
+            "INSERT INTO `_new_SystemIdInfo` (`work_spec_id`,`system_id`) " +
+                "SELECT `work_spec_id`,`system_id` FROM `SystemIdInfo`"
+        )
+        database.execSQL("DROP TABLE `SystemIdInfo`")
+        database.execSQL("ALTER TABLE `_new_SystemIdInfo` RENAME TO `SystemIdInfo`")
     }
 }
