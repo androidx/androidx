@@ -52,6 +52,7 @@ public object Arguments {
     }
 
     val enableCompilation: Boolean
+    val killProcessDelayMillis: Long
 
     // internal properties are microbenchmark only
     internal val outputEnable: Boolean
@@ -148,5 +149,8 @@ public object Arguments {
             )
         }
         additionalTestOutputDir = arguments.getString("additionalTestOutputDir")
+
+        killProcessDelayMillis =
+            arguments.getBenchmarkArgument("killProcessDelayMillis")?.toLong() ?: 0L
     }
 }
