@@ -36,7 +36,7 @@ dependencies {
     api("androidx.activity:activity:1.2.0")
     api("androidx.annotation:annotation:1.2.0")
     bundleInside(project(
-            path: ":health:health-connect-client-proto",
+            path: ":health:connect:connect-client-proto",
             configuration: "export"
     ))
     implementation(libs.guavaListenableFuture)
@@ -57,7 +57,7 @@ dependencies {
     testImplementation(libs.espressoCore)
     testImplementation(libs.espressoIntents)
 
-    samples(project(":health:health-connect-client-samples"))
+    samples(project(":health:connect:connect-client-samples"))
 }
 
 android {
@@ -77,8 +77,7 @@ android {
 androidx {
     name = "AndroidX Health Connect Client Library"
     type = LibraryType.PUBLISHED_LIBRARY
-    mavenVersion = LibraryVersions.HEALTH_CONNECT_CLIENT
-    mavenGroup = LibraryGroups.HEALTH
+    mavenGroup = LibraryGroups.HEALTH_CONNECT
     inceptionYear = "2022"
     description = "read or write user's health and fitness records."
 }

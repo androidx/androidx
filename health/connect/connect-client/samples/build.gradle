@@ -28,7 +28,7 @@ dependencies {
     implementation(libs.kotlinStdlib)
 
     compileOnly projectOrArtifact(":annotation:annotation-sampled")
-    implementation project(":health:health-connect-client")
+    implementation project(":health:connect:connect-client")
     implementation project(":appcompat:appcompat")
     implementation project(":activity:activity")
 }
@@ -36,8 +36,7 @@ dependencies {
 androidx {
     name = "AndroidX Health Connect Library Samples"
     type = LibraryType.SAMPLES
-    mavenVersion = LibraryVersions.HEALTH_CONNECT_CLIENT
-    mavenGroup = LibraryGroups.HEALTH
+    mavenGroup = LibraryGroups.HEALTH_CONNECT
     inceptionYear = "2022"
     description = "Contains the sample code for the Androidx Health Connect Library"
 }
