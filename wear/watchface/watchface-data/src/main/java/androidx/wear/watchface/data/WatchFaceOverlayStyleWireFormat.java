@@ -34,7 +34,7 @@ import androidx.versionedparcelable.VersionedParcelize;
  *
  * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @VersionedParcelize
 @SuppressLint("BanParcelableUsage")
 public class WatchFaceOverlayStyleWireFormat implements VersionedParcelable, Parcelable  {

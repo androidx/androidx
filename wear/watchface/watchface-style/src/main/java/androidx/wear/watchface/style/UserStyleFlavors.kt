@@ -56,7 +56,7 @@ public class UserStyleFlavor(
 
     /** @hide */
     @Suppress("ShowingMemberInHiddenClass")
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     constructor(wireFormat: UserStyleFlavorWireFormat) : this(
         wireFormat.mId,
         UserStyleData(wireFormat.mStyle),
@@ -66,7 +66,7 @@ public class UserStyleFlavor(
 
     /** @hide */
     @Suppress("ShowingMemberInHiddenClass")
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     fun toWireFormat() =
         UserStyleFlavorWireFormat(
             id,
@@ -190,7 +190,7 @@ public class UserStyleFlavors(public val flavors: List<UserStyleFlavor>) {
 
     /** @hide */
     @Suppress("ShowingMemberInHiddenClass")
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     constructor(wireFormat: UserStyleFlavorsWireFormat) : this(
         wireFormat.mFlavors.map { UserStyleFlavor(it) }
     ) {
@@ -198,7 +198,7 @@ public class UserStyleFlavors(public val flavors: List<UserStyleFlavor>) {
 
     /** @hide */
     @Suppress("ShowingMemberInHiddenClass")
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     fun toWireFormat() =
         UserStyleFlavorsWireFormat(flavors.map { it.toWireFormat() })
 

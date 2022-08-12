@@ -127,7 +127,7 @@ public class UserStyle private constructor(
     )
 
     /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun toWireFormat(): UserStyleWireFormat = UserStyleWireFormat(toMap())
 
     /** Returns the style as a [UserStyleData]. */
@@ -370,7 +370,7 @@ public class UserStyleData(
     public val userStyleMap: Map<String, ByteArray>
 ) {
     /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public constructor(
         userStyle: UserStyleWireFormat
     ) : this(userStyle.mUserStyle)
@@ -386,7 +386,7 @@ public class UserStyleData(
     ) + "}"
 
     /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun toWireFormat(): UserStyleWireFormat = UserStyleWireFormat(userStyleMap)
 
     override fun equals(other: Any?): Boolean {
@@ -535,7 +535,7 @@ public class UserStyleSchema constructor(
     }
 
     /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public constructor(wireFormat: UserStyleSchemaWireFormat) : this(
         wireFormat.mSchema.map { UserStyleSetting.createFromWireFormat(it) }
     ) {
@@ -566,7 +566,7 @@ public class UserStyleSchema constructor(
     }
 
     /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun toWireFormat(): UserStyleSchemaWireFormat =
         UserStyleSchemaWireFormat(
             userStyleSettings.map { userStyleSetting ->
@@ -591,7 +591,7 @@ public class UserStyleSchema constructor(
         )
 
     /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun getDefaultUserStyle() = UserStyle(
         HashMap<UserStyleSetting, UserStyleSetting.Option>().apply {
             for (setting in userStyleSettings) {
