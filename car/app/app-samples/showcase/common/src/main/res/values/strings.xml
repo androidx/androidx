@@ -276,6 +276,7 @@
   <string name="clicked_row_prefix">Clicked row</string>
   <string name="first_line_text">First line of text</string>
   <string name="second_line_text">Second line of text</string>
+  <string name="long_line_text">This subtext can fully display in unrestricted mode (ex. parking mode, restricted low speed mode). But this will truncate to only two lines while in restricted mode (ex. driving mode). For testing purposes, this subtext is super super super super super long</string>
   <string name="title_prefix">Title</string>
   <string name="list_template_demo_title">List Template Demo</string>
 
