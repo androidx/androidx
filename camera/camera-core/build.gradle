@@ -39,6 +39,7 @@ dependencies {
 
     annotationProcessor(libs.autoValue)
 
+    testImplementation(libs.kotlinCoroutinesAndroid)
     testImplementation(libs.kotlinStdlib)
     testImplementation(libs.testCore)
     testImplementation(libs.testRunner)

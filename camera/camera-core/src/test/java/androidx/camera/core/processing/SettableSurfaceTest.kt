@@ -38,6 +38,8 @@ import androidx.camera.core.impl.utils.futures.Futures
 import androidx.camera.testing.fakes.FakeCamera
 import androidx.concurrent.futures.CallbackToFutureAdapter
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -78,6 +80,11 @@ class SettableSurfaceTest {
         settableSurface.close()
         fakeSurfaceTexture.release()
         fakeSurface.release()
+    }
+
+    @Test
+    fun closeSettableSurfaceOnIoDispatchers_noCrash(): Unit = runBlocking(Dispatchers.IO) {
+        settableSurface.close()
     }
 
     @Test
