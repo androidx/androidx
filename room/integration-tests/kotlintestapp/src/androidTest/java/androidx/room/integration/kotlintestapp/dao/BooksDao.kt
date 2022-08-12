@@ -459,4 +459,22 @@ interface BooksDao {
 
     @Upsert
     fun upsertPublishers(vararg publishers: Publisher)
+
+    @Upsert
+    fun upsertTwoPublishers(publisherOne: Publisher, publisherTwo: Publisher)
+
+    @Upsert
+    fun upsertMultiple(publisher: Publisher, publishers: List<Publisher>)
+
+    @Upsert
+    fun upsertPublisherSingle(publisher: Publisher): Single<Long>
+
+    @Upsert
+    fun upsertBookSingle(book: Book): Single<Long>
+
+    @Upsert
+    fun upsertBookMaybe(book: Book): Maybe<Long>
+
+    @Upsert
+    fun upsertBookCompletable(book: Book): Completable
 }
