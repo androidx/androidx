@@ -219,8 +219,8 @@ class GoldenVerifierTest {
     @Test
     fun `asserts on missing golden`() {
         val message = "Expected golden image for test \"asserts on missing golden\" does not " +
-            "exist. Run :updateGolden to create it and update all golden images for this test " +
-            "module."
+            "exist. Run :updateGolden -Pandroidx.ignoreTestFailures=true to create it and update " +
+            "all golden images for this test module."
 
         assertFailsWithMessage(message) {
             goldenVerifier().assertMatchesGolden(snapshot(), loadTestImage("circle"))
