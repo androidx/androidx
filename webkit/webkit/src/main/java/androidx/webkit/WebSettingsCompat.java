@@ -734,15 +734,16 @@ public class WebSettingsCompat {
      * <p>
      * EnterpriseAuthenticationAppLinkPolicy is enabled by default.
      *
+     * <p> See <a href="https://source.chromium.org/chromium/chromium/src/+/main:components/policy/resources/policy_templates.json;l=32321?q=EnterpriseAuthenticationAppLinkPolicy%20file:policy_templates.json">
+     * this</a> for more information on EnterpriseAuthenticationAppLinkPolicy.
+     *
      * <p>
      * This method should only be called if
      * {@link WebViewFeature#isFeatureSupported(String)}
      * returns true for {@link WebViewFeature#ENTERPRISE_AUTHENTICATION_APP_LINK_POLICY}.
      *
      * @param enabled Whether EnterpriseAuthenticationAppLinkPolicy should be enabled.
-     * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
     @RequiresFeature(name = WebViewFeature.ENTERPRISE_AUTHENTICATION_APP_LINK_POLICY,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static void setEnterpriseAuthenticationAppLinkPolicyEnabled(
@@ -760,6 +761,9 @@ public class WebSettingsCompat {
     /**
      * Gets whether EnterpriseAuthenticationAppLinkPolicy is allowed to have any effect on WebView.
      *
+     * <p> See <a href="https://source.chromium.org/chromium/chromium/src/+/main:components/policy/resources/policy_templates.json;l=32321?q=EnterpriseAuthenticationAppLinkPolicy%20file:policy_templates.json">
+     * this</a> for more information on EnterpriseAuthenticationAppLinkPolicy.
+     *
      * <p>
      * This method should only be called if
      * {@link WebViewFeature#isFeatureSupported(String)}
@@ -767,9 +771,7 @@ public class WebSettingsCompat {
      *
      * @return {@code true} if EnterpriseAuthenticationAppLinkPolicy is enabled and {@code false}
      * otherwise.
-     * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
     @RequiresFeature(name = WebViewFeature.ENTERPRISE_AUTHENTICATION_APP_LINK_POLICY,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static boolean getEnterpriseAuthenticationAppLinkPolicyEnabled(
