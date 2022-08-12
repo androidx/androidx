@@ -388,6 +388,7 @@ public class UiObjectTest extends BaseTest {
         assertThrows(UiObjectNotFoundException.class, () -> noNode.legacySetText("new_text"));
         assertThrows(UiObjectNotFoundException.class, () -> noNode.setText("new_text"));
         assertThrows(UiObjectNotFoundException.class, noNode::clearTextField);
+        assertThrows(UiObjectNotFoundException.class, noNode::getPackageName);
     }
 
     @Test
@@ -522,13 +523,48 @@ public class UiObjectTest extends BaseTest {
         assertThrows(UiObjectNotFoundException.class, noNode::isLongClickable);
     }
 
+    @Test
+    public void testGetPackageName() throws Exception {
+        launchTestActivity(MainActivity.class);
+
+        UiObject sampleTextObject = mDevice.findObject(new UiSelector().text("Sample text"));
+
+        assertEquals(TEST_APP, sampleTextObject.getPackageName());
+    }
+
+    @Test
+    public void testGetVisibleBounds() throws Exception {
+        launchTestActivity(VisibleBoundsTestActivity.class);
+
+        UiObject partlyInvisibleRegion =
+                mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id"
+                        + "/partly_invisible_region"));
+        UiObject regionInsideScrollable =
+                mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id"
+                        + "/region_inside_scrollable"));
+
+        partlyInvisibleRegion.click();
+        regionInsideScrollable.click();
+        assertEquals(partlyInvisibleRegion.getText(),
+                partlyInvisibleRegion.getVisibleBounds().toString());
+        assertEquals(regionInsideScrollable.getText(),
+                regionInsideScrollable.getVisibleBounds().toString());
+    }
+
+    @Test
+    public void testGetBounds() throws Exception {
+        launchTestActivity(VisibleBoundsTestActivity.class);
+
+        UiObject partlyInvisibleRegion =
+                mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id"
+                        + "/partly_invisible_region"));
+
+        partlyInvisibleRegion.click();
+        assertEquals(partlyInvisibleRegion.getText(),
+                partlyInvisibleRegion.getBounds().toString());
+    }
+
     /* TODO(b/241158642): Implement these tests, and the tests for exceptions of each tested method.
-
-    public void testGetPackageName() {}
-
-    public void testGetVisibleBounds() {}
-
-    public void testGetBounds() {}
 
     public void testWaitForExists() {}
 
