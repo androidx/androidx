@@ -38,6 +38,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.Date;
+import java.util.List;
 
 @RunWith(AndroidJUnit4.class)
 @SmallTest
@@ -151,6 +152,20 @@ public class EntityUpsertionAdapterTest{
         long[] testResult = mUpsertionAdapter.upsertAndReturnIdsArray(testPets2);
         assertThat(testResult[8]).isEqualTo(13);
         assertThat(testResult[2]).isEqualTo(-1);
+    }
+
+    @Test
+    public void testUpsertReturnList() {
+        Pet[] testPets = TestUtil.createPetsForUser(0, 1, 10);
+        List<Long> result = mUpsertionAdapter.upsertAndReturnIdsList(testPets);
+        assertThat(result.get(3)).isEqualTo(4);
+    }
+
+    @Test
+    public void testInsertReturnBox() {
+        Pet[] testPets = TestUtil.createPetsForUser(0, 1, 10);
+        Long[] result = mInsertionAdapter.insertAndReturnIdsArrayBox(testPets);
+        assertThat(result[3]).isEqualTo(4);
     }
 
     @Test

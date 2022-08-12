@@ -124,7 +124,7 @@ class EntityUpsertionAdapter<T>(
     }
 
     fun upsertAndReturnIdsList(entities: Array<T>): List<Long> {
-        return buildList<Long> {
+        return buildList {
             entities.forEach { entity ->
                 try {
                     add(insertionAdapter.insertAndReturnId(entity))
@@ -136,8 +136,21 @@ class EntityUpsertionAdapter<T>(
         }
     }
 
-    fun upsertAndReturnIdsArrayBox(entities: Array<T>): Array<Long?> {
-        return Array<Long?>(entities.size) { index ->
+    fun upsertAndReturnIdsList(entities: Collection<T>): List<Long> {
+        return buildList {
+            entities.forEach { entity ->
+                try {
+                    add(insertionAdapter.insertAndReturnId(entity))
+                } catch (ex: SQLiteConstraintException) {
+                    updateAdapter.handle(entity)
+                    add(-1)
+                }
+            }
+        }
+    }
+
+    fun upsertAndReturnIdsArrayBox(entities: Array<T>): Array<Long> {
+        return Array(entities.size) { index ->
             try {
                 insertionAdapter.insertAndReturnId(entities[index])
             } catch (ex: SQLiteConstraintException) {
@@ -147,9 +160,9 @@ class EntityUpsertionAdapter<T>(
         }
     }
 
-    fun upsertAndReturnIdsArrayBox(entities: Collection<T>): Array<Long?> {
+    fun upsertAndReturnIdsArrayBox(entities: Collection<T>): Array<Long> {
         val iterator = entities.iterator()
-        return Array<Long?>(entities.size) {
+        return Array(entities.size) {
             val entity = iterator.next()
             try {
                 insertionAdapter.insertAndReturnId(entity)
