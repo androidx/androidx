@@ -493,3 +493,6 @@ For more detail on using Gradle, see https://docs\.gradle\.org/[0-9]+\.[0-9]+/us
 For troubleshooting, visit https://help\.gradle\.org
 # > Task :graphics:graphics-path:compileDebugKotlin
 w\: \$SUPPORT\/graphics\/graphics\-path\/src\/main\/java\/androidx\/graphics\/path\/Paths\.kt\: \([0-9]+\, [0-9]+\)\: Extension is shadowed by a member\: public open fun iterator\(\)\: PathIterator
+# > Task :core:core-splashscreen:core-splashscreen-samples:lintReportDebug
+Warning: Lint will treat :annotation:annotation as an external dependency and not analyze it\.
+\* Recommended Action: Apply the 'com\.android\.lint' plugin to java library project :annotation:annotation\. to enable lint to analyze those sources\.
