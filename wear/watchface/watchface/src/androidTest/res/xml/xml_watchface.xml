@@ -74,11 +74,20 @@
         app:systemDataSourceFallbackDefaultType="NOT_CONFIGURED">
         <ComplicationSlotBounds app:left="1" app:top="20" app:right="3" app:bottom="40"/>
     </ComplicationSlot>
+    <ComplicationSlot
+        app:slotId="@integer/complication_slot_40"
+        app:name="@string/complication_name_three"
+        app:boundsType="ROUND_RECT"
+        app:supportedTypes="@string/supported_type_three"
+        app:systemDataSourceFallback="DATA_SOURCE_WATCH_BATTERY"
+        app:systemDataSourceFallbackDefaultType="RANGED_VALUE">
+        <ComplicationSlotBounds app:left="3" app:top="70" app:right="7" app:bottom="90"/>
+    </ComplicationSlot>
     <UserStyleFlavors>
         <UserStyleFlavor app:id="@string/flavor_id_0">
             <StyleOption app:id="@string/setting_time_style"
                 app:value="@string/option_time_style_minimal"/>
-            <StyleOption app:id="BooleanId" app:value="true"/>
+            <StyleOption app:id="BooleanId" app:value="false"/>
             <StyleOption app:id="DoubleId" app:value="1.0"/>
             <StyleOption app:id="LongId" app:value="2"/>
             <ComplicationPolicy

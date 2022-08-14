@@ -30,7 +30,7 @@ class BuildJars(private val outBuildSrcPath: String) {
     private fun findJar(name: String) = outBuildSrc.resolve("$name/build/libs/$name.jar")
     val privateJar = findJar("private")
     val pluginsJar = findJar("plugins")
-    private val publicJar = findJar("public")
+    val publicJar = findJar("public")
     private val jetpadIntegrationJar = findJar("jetpad-integration")
 
     fun classpathEntries(): String {
@@ -38,6 +38,7 @@ class BuildJars(private val outBuildSrcPath: String) {
         //              first test.  Hopefully, b/239066130 will allow us to drop these checks
 
         waitForFileToExist(privateJar)
+        waitForFileToExist(pluginsJar)
         waitForFileToExist(publicJar)
         waitForFileToExist(jetpadIntegrationJar)
 

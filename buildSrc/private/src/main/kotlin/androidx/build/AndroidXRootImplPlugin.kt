@@ -18,6 +18,7 @@ package androidx.build
 
 import androidx.build.AndroidXImplPlugin.Companion.ZIP_CONSTRAINED_TEST_CONFIGS_WITH_APKS_TASK
 import androidx.build.AndroidXImplPlugin.Companion.ZIP_TEST_CONFIGS_WITH_APKS_TASK
+import androidx.build.buildInfo.CreateAggregateLibraryBuildInfoFileTask
 import androidx.build.dependencyTracker.AffectedModuleDetector
 import androidx.build.gradle.isRoot
 import androidx.build.license.CheckExternalDependencyLicensesTask
@@ -101,15 +102,6 @@ abstract class AndroidXRootImplPlugin : Plugin<Project> {
 
         val createArchiveTask = Release.getGlobalFullZipTask(this)
         buildOnServerTask.dependsOn(createArchiveTask)
-
-        buildOnServerTask.dependsOn(
-            tasks.register(
-                "saveSystemStats",
-                SaveSystemStatsTask::class.java
-            ) { task ->
-                task.outputFile.set(File(project.getDistributionDirectory(), "system_stats.txt"))
-            }
-        )
 
         extra.set("projects", ConcurrentHashMap<String, String>())
         subprojects { project ->

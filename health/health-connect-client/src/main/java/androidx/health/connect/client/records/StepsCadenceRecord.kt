@@ -66,7 +66,7 @@ class StepsCadenceRecord(
     }
 
     companion object {
-        private const val TYPE = "StepsCadence"
+        private const val TYPE = "StepsCadenceSeries"
         private const val RATE_FIELD = "rate"
 
         /**

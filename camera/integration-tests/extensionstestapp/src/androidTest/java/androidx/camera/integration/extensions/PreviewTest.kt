@@ -20,6 +20,8 @@ import android.Manifest
 import android.content.Context
 import android.content.Intent
 import androidx.camera.camera2.Camera2Config
+import androidx.camera.integration.extensions.IntentExtraKey.INTENT_EXTRA_KEY_CAMERA_ID
+import androidx.camera.integration.extensions.IntentExtraKey.INTENT_EXTRA_KEY_EXTENSION_MODE
 import androidx.camera.integration.extensions.util.ExtensionsTestUtil
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CameraUtil.PreTestCameraIdList
@@ -89,8 +91,8 @@ class PreviewTest(private val cameraId: String, private val extensionMode: Int) 
     fun previewWithExtensionModeCanEnterStreamingState() {
         val intent = ApplicationProvider.getApplicationContext<Context>().packageManager
             .getLaunchIntentForPackage(BASIC_SAMPLE_PACKAGE)?.apply {
-                putExtra(CameraExtensionsActivity.INTENT_EXTRA_CAMERA_ID, cameraId)
-                putExtra(CameraExtensionsActivity.INTENT_EXTRA_EXTENSION_MODE, extensionMode)
+                putExtra(INTENT_EXTRA_KEY_CAMERA_ID, cameraId)
+                putExtra(INTENT_EXTRA_KEY_EXTENSION_MODE, extensionMode)
                 flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             }
 

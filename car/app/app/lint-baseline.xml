@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.4.0-alpha05" type="baseline" client="cli" dependencies="false" name="AGP (7.4.0-alpha05)" variant="all" version="7.4.0-alpha05">
+<issues format="6" by="lint 7.4.0-alpha08" type="baseline" client="gradle" dependencies="false" name="AGP (7.4.0-alpha08)" variant="all" version="7.4.0-alpha08">
 
     <issue
         id="NewApi"
@@ -22,7 +22,7 @@
     <issue
         id="NewApi"
         message="Call requires API level 24 (current min is 23): `android.content.res.Configuration#getLocales`"
-        errorLine1="        assertThat(mCarContext.getResources().getConfiguration().getLocales().get(0))"
+        errorLine1="        assertThat(mCarContext.getResources().getConfiguration().getLocales().get(0)).isEqualTo("
         errorLine2="                                                                 ~~~~~~~~~~">
         <location
             file="src/test/java/androidx/car/app/CarContextTest.java"/>
@@ -31,7 +31,7 @@
     <issue
         id="NewApi"
         message="Call requires API level 24 (current min is 23): `android.os.LocaleList#get`"
-        errorLine1="        assertThat(mCarContext.getResources().getConfiguration().getLocales().get(0))"
+        errorLine1="        assertThat(mCarContext.getResources().getConfiguration().getLocales().get(0)).isEqualTo("
         errorLine2="                                                                              ~~~">
         <location
             file="src/test/java/androidx/car/app/CarContextTest.java"/>

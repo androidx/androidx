@@ -63,7 +63,8 @@
         <activity
             android:exported="false"
             android:name=".compose.ComposeCameraActivity"
-            android:label="Compose"/>
+            android:label="Compose"
+            android:screenOrientation="portrait"/>
     </application>
 
     <uses-feature android:name="android.hardware.camera.any" />

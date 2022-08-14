@@ -19,9 +19,11 @@ import android.content.Context
 import android.content.Intent
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.health.connect.client.HealthConnectClient.Companion.DEFAULT_PROVIDER_PACKAGE_NAME
+import androidx.health.connect.client.HealthConnectClient.Companion.HEALTH_CONNECT_CLIENT_TAG
 import androidx.health.connect.client.impl.converters.permission.toJetpackPermission
 import androidx.health.connect.client.impl.converters.permission.toProtoPermission
 import androidx.health.platform.client.permission.Permission as ProtoPermission
+import androidx.health.platform.client.impl.logger.Logger
 import androidx.health.platform.client.service.HealthDataServiceConstants.ACTION_REQUEST_PERMISSIONS
 import androidx.health.platform.client.service.HealthDataServiceConstants.KEY_GRANTED_PERMISSIONS_JETPACK
 import androidx.health.platform.client.service.HealthDataServiceConstants.KEY_REQUESTED_PERMISSIONS_JETPACK
@@ -50,6 +52,7 @@ public class HealthDataRequestPermissions(
                 .asSequence()
                 .map { ProtoPermission(it.toProtoPermission()) }
                 .toCollection(ArrayList())
+        Logger.debug(HEALTH_CONNECT_CLIENT_TAG, "Requesting ${input.size} permissions.")
         return Intent(ACTION_REQUEST_PERMISSIONS).apply {
             putParcelableArrayListExtra(KEY_REQUESTED_PERMISSIONS_JETPACK, protoPermissionList)
             if (providerPackageName.isNotEmpty()) {
@@ -60,12 +63,15 @@ public class HealthDataRequestPermissions(
 
     @Suppress("DEPRECATION")
     override fun parseResult(resultCode: Int, intent: Intent?): Set<Permission> {
-        return intent
-            ?.getParcelableArrayListExtra<ProtoPermission>(KEY_GRANTED_PERMISSIONS_JETPACK)
-            ?.asSequence()
-            ?.map { it.proto.toJetpackPermission() }
-            ?.toSet()
-            ?: emptySet()
+        val grantedPermissions =
+            intent
+                ?.getParcelableArrayListExtra<ProtoPermission>(KEY_GRANTED_PERMISSIONS_JETPACK)
+                ?.asSequence()
+                ?.map { it.proto.toJetpackPermission() }
+                ?.toSet()
+                ?: emptySet()
+        Logger.debug(HEALTH_CONNECT_CLIENT_TAG, "Granted ${grantedPermissions.size} permissions.")
+        return grantedPermissions
     }
 
     override fun getSynchronousResult(

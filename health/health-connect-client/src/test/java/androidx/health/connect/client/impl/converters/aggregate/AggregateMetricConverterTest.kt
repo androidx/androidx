@@ -15,9 +15,13 @@
  */
 package androidx.health.connect.client.impl.converters.aggregate
 
+import androidx.health.connect.client.records.CyclingPedalingCadenceRecord
 import androidx.health.connect.client.records.DistanceRecord
 import androidx.health.connect.client.records.ExerciseSessionRecord
 import androidx.health.connect.client.records.HeartRateRecord
+import androidx.health.connect.client.records.PowerRecord
+import androidx.health.connect.client.records.SpeedRecord
+import androidx.health.connect.client.records.StepsCadenceRecord
 import androidx.health.connect.client.records.StepsRecord
 import androidx.health.platform.client.proto.RequestProto
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -56,8 +60,40 @@ class AggregateMetricConverterTest {
         assertThat(HeartRateRecord.MEASUREMENTS_COUNT.toProto())
             .isEqualTo(
                 RequestProto.AggregateMetricSpec.newBuilder()
-                    .setDataTypeName("HeartRate")
+                    .setDataTypeName("HeartRateSeries")
                     .setAggregationType("count")
+                    .build()
+            )
+        assertThat(SpeedRecord.SPEED_AVG.toProto())
+            .isEqualTo(
+                RequestProto.AggregateMetricSpec.newBuilder()
+                    .setDataTypeName("SpeedSeries")
+                    .setAggregationType("avg")
+                    .setFieldName("speed")
+                    .build()
+            )
+        assertThat(CyclingPedalingCadenceRecord.RPM_MAX.toProto())
+            .isEqualTo(
+                RequestProto.AggregateMetricSpec.newBuilder()
+                    .setDataTypeName("CyclingPedalingCadenceSeries")
+                    .setAggregationType("max")
+                    .setFieldName("rpm")
+                    .build()
+            )
+        assertThat(StepsCadenceRecord.RATE_MIN.toProto())
+            .isEqualTo(
+                RequestProto.AggregateMetricSpec.newBuilder()
+                    .setDataTypeName("StepsCadenceSeries")
+                    .setAggregationType("min")
+                    .setFieldName("rate")
+                    .build()
+            )
+        assertThat(PowerRecord.POWER_AVG.toProto())
+            .isEqualTo(
+                RequestProto.AggregateMetricSpec.newBuilder()
+                    .setDataTypeName("PowerSeries")
+                    .setAggregationType("avg")
+                    .setFieldName("power")
                     .build()
             )
     }

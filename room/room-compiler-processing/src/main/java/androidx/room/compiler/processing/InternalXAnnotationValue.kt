@@ -57,8 +57,6 @@ internal abstract class InternalXAnnotationValue : XAnnotationValue {
         Kind.of(valueType)
     }
 
-    protected abstract val valueType: XType
-
     final override fun hasListValue() = valueType.isArray()
 
     /** Returns true if the value is an [XType] */

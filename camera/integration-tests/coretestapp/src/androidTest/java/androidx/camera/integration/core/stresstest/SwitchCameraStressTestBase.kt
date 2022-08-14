@@ -102,6 +102,7 @@ abstract class SwitchCameraStressTestBase(
     fun setup(): Unit = runBlocking {
         Assume.assumeTrue(CameraUtil.deviceHasCamera())
         CoreAppTestUtil.assumeCompatibleDevice()
+        CoreAppTestUtil.assumeCanTestFrontCamera()
         // Clear the device UI and check if there is no dialog or lock screen on the top of the
         // window before start the test.
         CoreAppTestUtil.prepareDeviceUI(InstrumentationRegistry.getInstrumentation())
@@ -124,7 +125,6 @@ abstract class SwitchCameraStressTestBase(
     fun tearDown(): Unit = runBlocking {
         if (::cameraProvider.isInitialized) {
             withContext(Dispatchers.Main) {
-                cameraProvider.unbindAll()
                 cameraProvider.shutdown()[10000, TimeUnit.MILLISECONDS]
             }
         }

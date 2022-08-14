@@ -31,6 +31,7 @@ import androidx.wear.watchface.style.CurrentUserStyleRepository
 import androidx.wear.watchface.style.UserStyleFlavors
 import androidx.wear.watchface.style.UserStyleSchema
 import androidx.wear.watchface.style.getIntRefAttribute
+import androidx.wear.watchface.style.getStringRefAttribute
 import androidx.wear.watchface.style.moveToStart
 import org.xmlpull.v1.XmlPullParser
 import kotlin.jvm.Throws
@@ -173,7 +174,10 @@ public class XmlSchemaAndComplicationSlotsDefinition(
                     "A ComplicationSlot must have a supportedTypes attribute"
                 }
                 val supportedTypes =
-                    parser.getAttributeValue(NAMESPACE_APP, "supportedTypes").split('|')
+                    getStringRefAttribute(resources, parser, "supportedTypes")
+                        ?.split('|') ?: throw IllegalArgumentException(
+                        "Unable to extract the supported type(s) for ComplicationSlot $slotId"
+                    )
                 val supportedTypesList = supportedTypes.map {
                     typesMap[it] ?: throw IllegalArgumentException(
                         "Unrecognised type $it for ComplicationSlot $slotId"

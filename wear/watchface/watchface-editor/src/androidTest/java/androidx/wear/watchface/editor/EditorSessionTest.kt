@@ -1117,6 +1117,7 @@ public class EditorSessionTest {
         }
     }
 
+    @Suppress("DEPRECATION")
     @Test
     public fun launchComplicationDataSourceChooser() {
         ComplicationDataSourceChooserContract.useTestComplicationHelperActivity = true

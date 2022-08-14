@@ -137,6 +137,7 @@ public final class ConnectivityManagerCompat {
      * potentially-stale value from
      * {@link ConnectivityManager#EXTRA_NETWORK_INFO}. May be {@code null}.
      */
+    @SuppressWarnings("deprecation")
     @SuppressLint("ReferencesDeprecated")
     @Nullable
     @RequiresPermission(Manifest.permission.ACCESS_NETWORK_STATE)

@@ -23,7 +23,7 @@ import androidx.core.util.Preconditions;
 
 /**
  * A class for holding detailed stats to log for each individual document put by a
- * {@link androidx.appsearch.app.AppSearchSession#put} call.
+ * {@link androidx.appsearch.app.AppSearchSession#putAsync} call.
  *
  * @hide
  */

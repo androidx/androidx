@@ -36,7 +36,7 @@ class CallableInsertMethodBinder(
     val typeArg: XType,
     val addStmntBlock: CodeBlock.Builder.(callableImpl: TypeSpec, dbField: FieldSpec) -> Unit,
     adapter: InsertMethodAdapter?
-) : InsertMethodBinder(adapter) {
+) : InsertOrUpsertMethodBinder(adapter) {
 
     companion object {
         fun createInsertBinder(
@@ -48,15 +48,15 @@ class CallableInsertMethodBinder(
 
     override fun convertAndReturn(
         parameters: List<ShortcutQueryParameter>,
-        insertionAdapters: Map<String, Pair<FieldSpec, TypeSpec>>,
+        adapters: Map<String, Pair<FieldSpec, Any>>,
         dbField: FieldSpec,
         scope: CodeGenScope
     ) {
         val adapterScope = scope.fork()
         val callableImpl = CallableTypeSpecBuilder(typeArg.typeName) {
-            adapter?.createInsertionMethodBody(
+            adapter?.createMethodBody(
                 parameters = parameters,
-                insertionAdapters = insertionAdapters,
+                adapters = adapters,
                 dbField = dbField,
                 scope = adapterScope
             )

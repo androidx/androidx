@@ -142,6 +142,280 @@ class XExecutableTypeTest {
     }
 
     @Test
+    fun isSameMethodTypeTest() {
+        val src = Source.kotlin(
+            "MyInterface.kt",
+            """
+            interface MyInterface {
+              fun method(foo: Foo): Bar
+              fun methodWithDifferentName(foo: Foo): Bar
+              @kotlin.jvm.Throws(RuntimeException::class)
+              fun methodWithDifferentThrows(foo: Foo): Bar
+              fun methodWithDifferentReturn(foo: Foo): Unit
+              fun methodWithDifferentParameters(): Bar
+              fun methodWithDefault(foo: Foo): Bar = TODO()
+            }
+            class MyClass {
+              fun classMethod(foo: Foo): Bar = TODO()
+              companion object {
+                fun companionMethod(foo: Foo): Bar = TODO()
+              }
+            }
+            object MyObject {
+              fun objectMethod(foo: Foo): Bar = TODO()
+              @JvmStatic fun staticMethod(foo: Foo): Bar = TODO()
+            }
+            class Foo
+            class Bar
+            """.trimIndent()
+        )
+        runProcessorTest(
+            sources = listOf(src)
+        ) { invocation ->
+            val myInterface = invocation.processingEnv.requireTypeElement("MyInterface")
+            val method = myInterface.getMethodByJvmName("method")
+            val methodWithDifferentName =
+                myInterface.getMethodByJvmName("methodWithDifferentName")
+            val methodWithDifferentThrows =
+                myInterface.getMethodByJvmName("methodWithDifferentThrows")
+            val methodWithDifferentReturn =
+                myInterface.getMethodByJvmName("methodWithDifferentReturn")
+            val methodWithDifferentParameters =
+                myInterface.getMethodByJvmName("methodWithDifferentParameters")
+            val methodWithDefault = myInterface.getMethodByJvmName("methodWithDefault")
+            val myObject = invocation.processingEnv.requireTypeElement("MyObject")
+            val objectMethod = myObject.getMethodByJvmName("objectMethod")
+            val staticMethod = myObject.getMethodByJvmName("staticMethod")
+            val myClass = invocation.processingEnv.requireTypeElement("MyClass")
+            val classMethod = myClass.getMethodByJvmName("classMethod")
+            val companionObject = myClass.getEnclosedElements()
+                .mapNotNull { it as? XTypeElement }
+                .filter { it.isCompanionObject() }
+                .single()
+            val companionMethod = companionObject.getMethodByJvmName("companionMethod")
+
+            assertIsSameType(method, methodWithDifferentName)
+            assertIsSameType(method, methodWithDifferentThrows)
+            assertIsSameType(method, methodWithDefault)
+            assertIsSameType(method, objectMethod)
+            assertIsSameType(method, staticMethod)
+            assertIsSameType(method, objectMethod)
+            assertIsSameType(method, classMethod)
+            assertIsSameType(method, companionMethod)
+
+            // Assert that different return type or parameters result in different method types.
+            assertIsNotSameType(method, methodWithDifferentReturn)
+            assertIsNotSameType(method, methodWithDifferentParameters)
+        }
+    }
+
+    @Test
+    fun isSameGenericMethodTypeTest() {
+        val src = Source.kotlin(
+            "MyInterface.kt",
+            """
+            interface FooBar : MyInterface<Foo, Bar>
+            interface BarFoo : MyInterface<Bar, Foo>
+            interface MyInterface<T1, T2> {
+              fun methodFooBar(foo: Foo): Bar
+              fun methodBarFoo(bar: Bar): Foo
+              fun method(t1: T1): T2
+            }
+            class Foo
+            class Bar
+            """.trimIndent()
+        )
+        runProcessorTest(
+            sources = listOf(src)
+        ) { invocation ->
+            val myInterface = invocation.processingEnv.requireTypeElement("MyInterface")
+            val fooBar = invocation.processingEnv.requireTypeElement("FooBar")
+            val barFoo = invocation.processingEnv.requireTypeElement("BarFoo")
+            val myInterfaceMethod = myInterface.getMethodByJvmName("method")
+            val myInterfaceMethodFooBar = myInterface.getMethodByJvmName("methodFooBar")
+            val myInterfaceMethodBarFoo = myInterface.getMethodByJvmName("methodBarFoo")
+
+            assertIsNotSameType(myInterfaceMethodFooBar, myInterfaceMethod)
+            assertIsSameType(
+                myInterfaceMethodFooBar.executableType,
+                myInterfaceMethod.asMemberOf(fooBar.type)
+            )
+            assertIsNotSameType(myInterfaceMethodBarFoo, myInterfaceMethod)
+            assertIsSameType(
+                myInterfaceMethodBarFoo.executableType,
+                myInterfaceMethod.asMemberOf(barFoo.type)
+            )
+        }
+    }
+
+    @Test
+    fun isSameConstructorTypeTest() {
+        val src = Source.kotlin(
+            "MyInterface.kt",
+            """
+            abstract class ClassFoo constructor(foo: Foo)
+            abstract class ClassBar constructor(bar: Bar)
+            abstract class OtherClassFoo constructor(foo: Foo)
+            abstract class SubClassBar constructor(bar: Bar) : ClassBar(bar)
+            class Foo
+            class Bar
+            """.trimIndent()
+        )
+        runProcessorTest(
+            sources = listOf(src)
+        ) { invocation ->
+            val classFoo = invocation.processingEnv.requireTypeElement("ClassFoo")
+            val classBar = invocation.processingEnv.requireTypeElement("ClassBar")
+            val otherClassFoo = invocation.processingEnv.requireTypeElement("OtherClassFoo")
+            val subClassBar = invocation.processingEnv.requireTypeElement("SubClassBar")
+
+            assertThat(classFoo.getConstructors()).hasSize(1)
+            assertThat(classBar.getConstructors()).hasSize(1)
+            assertThat(otherClassFoo.getConstructors()).hasSize(1)
+            assertThat(subClassBar.getConstructors()).hasSize(1)
+            assertIsSameType(
+                classFoo.getConstructors().single(),
+                otherClassFoo.getConstructors().single()
+            )
+            assertIsSameType(
+                classBar.getConstructors().single(),
+                subClassBar.getConstructors().single()
+            )
+            assertIsNotSameType(
+                classFoo.getConstructors().single(),
+                classBar.getConstructors().single()
+            )
+        }
+    }
+
+    @Test
+    fun isSameConstructorTypeAndMethodTypeTest() {
+        val src = Source.kotlin(
+            "ClassFoo.kt",
+            """
+            abstract class ClassFoo constructor(foo: Foo) {
+              abstract fun method(otherFoo: Foo)
+            }
+            class Foo
+            """.trimIndent()
+        )
+        runProcessorTest(
+            sources = listOf(src)
+        ) { invocation ->
+            val classFoo = invocation.processingEnv.requireTypeElement("ClassFoo")
+
+            assertThat(classFoo.getConstructors()).hasSize(1)
+            // Interestingly, isSameType doesn't care if the type is a constructor or method as long
+            // as the parameter types and return type are the same (Note: constructors have return
+            // types of "void" in Javac).
+            assertIsSameType(
+                classFoo.getConstructors().single(),
+                classFoo.getMethodByJvmName("method")
+            )
+        }
+    }
+
+    @Test
+    fun isSameGenericConstructorTypeTest() {
+        val src = Source.kotlin(
+            "MyInterface.kt",
+            """
+            abstract class GenericClass<T> constructor(t: T)
+            abstract class GenericClassFoo constructor(foo: Foo) : GenericClass<Foo>(foo)
+            abstract class ClassFoo constructor(foo: Foo)
+            class Foo
+            """.trimIndent()
+        )
+        runProcessorTest(
+            sources = listOf(src)
+        ) { invocation ->
+            val genericClass = invocation.processingEnv.requireTypeElement("GenericClass")
+            val genericClassFoo = invocation.processingEnv.requireTypeElement("GenericClassFoo")
+            val classFoo = invocation.processingEnv.requireTypeElement("ClassFoo")
+
+            assertThat(genericClass.getConstructors()).hasSize(1)
+            assertThat(genericClassFoo.getConstructors()).hasSize(1)
+            assertThat(classFoo.getConstructors()).hasSize(1)
+            assertIsNotSameType(
+                genericClass.getConstructors().single(),
+                genericClassFoo.getConstructors().single()
+            )
+            assertIsNotSameType(
+                genericClass.getConstructors().single(),
+                classFoo.getConstructors().single()
+            )
+            assertIsSameType(
+                genericClassFoo.getConstructors().single(),
+                classFoo.getConstructors().single()
+            )
+        }
+    }
+
+    @Test
+    fun isSamePropertyMethodTypeTest() {
+        val src = Source.kotlin(
+            "MyInterface.kt",
+            """
+            class MyClass {
+                var fooField: Foo = TODO()
+                var fooFieldWithDifferentName: Foo = TODO()
+                val fooFieldWithVal: Foo = TODO()
+                var barField: Bar = TODO()
+
+                fun fooMethodGetter(): Foo = TODO()
+                fun fooMethodSetter(foo: Foo) {}
+            }
+            class Foo
+            class Bar
+            """.trimIndent()
+        )
+        runProcessorTest(
+            sources = listOf(src)
+        ) { invocation ->
+            val myClass = invocation.processingEnv.requireTypeElement("MyClass")
+            val fooFieldGetter = myClass.getMethodByJvmName("getFooField")
+            val fooFieldSetter = myClass.getMethodByJvmName("setFooField")
+            val fooFieldWithDifferentNameGetter =
+                myClass.getMethodByJvmName("getFooFieldWithDifferentName")
+            val fooFieldWithDifferentNameSetter =
+                myClass.getMethodByJvmName("setFooFieldWithDifferentName")
+            val fooFieldWithValGetter = myClass.getMethodByJvmName("getFooFieldWithVal")
+            val barFieldGetter = myClass.getMethodByJvmName("getBarField")
+            val barFieldSetter = myClass.getMethodByJvmName("setBarField")
+            val fooMethodGetter = myClass.getMethodByJvmName("fooMethodGetter")
+            val fooMethodSetter = myClass.getMethodByJvmName("fooMethodSetter")
+
+            assertIsSameType(fooFieldGetter, fooFieldWithDifferentNameGetter)
+            assertIsSameType(fooFieldGetter, fooFieldWithValGetter)
+            assertIsSameType(fooMethodGetter, fooFieldGetter)
+            assertIsSameType(fooFieldSetter, fooFieldWithDifferentNameSetter)
+            assertIsSameType(fooFieldSetter, fooMethodSetter)
+            assertIsNotSameType(fooFieldGetter, barFieldGetter)
+            assertIsNotSameType(fooFieldSetter, barFieldSetter)
+        }
+    }
+
+    private fun assertIsSameType(element1: XExecutableElement, element2: XExecutableElement) {
+        assertIsSameType(element1.executableType, element2.executableType)
+    }
+
+    private fun assertIsSameType(type1: XExecutableType, type2: XExecutableType) {
+        // Assert both directions to ensure isSameType is symmetric
+        assertThat(type1.isSameType(type2)).isTrue()
+        assertThat(type2.isSameType(type1)).isTrue()
+    }
+
+    private fun assertIsNotSameType(element1: XExecutableElement, element2: XExecutableElement) {
+        assertIsNotSameType(element1.executableType, element2.executableType)
+    }
+
+    private fun assertIsNotSameType(type1: XExecutableType, type2: XExecutableType) {
+        // Assert both directions to ensure isSameType is symmetric
+        assertThat(type1.isSameType(type2)).isFalse()
+        assertThat(type2.isSameType(type1)).isFalse()
+    }
+
+    @Test
     fun kotlinPropertyInheritance() {
         val src = Source.kotlin(
             "Foo.kt",

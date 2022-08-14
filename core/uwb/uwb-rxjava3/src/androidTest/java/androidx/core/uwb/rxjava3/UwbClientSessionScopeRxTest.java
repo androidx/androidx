@@ -18,16 +18,13 @@ package androidx.core.uwb.rxjava3;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import android.content.Context;
-
 import androidx.core.uwb.RangingParameters;
 import androidx.core.uwb.RangingResult;
 import androidx.core.uwb.RangingResult.RangingResultPosition;
-import androidx.core.uwb.UwbClientSessionScope;
+import androidx.core.uwb.UwbControleeSessionScope;
 import androidx.core.uwb.UwbDevice;
 import androidx.core.uwb.UwbManager;
 import androidx.core.uwb.rxjava3.mock.TestUwbManager;
-import androidx.test.core.app.ApplicationProvider;
 
 import com.google.common.collect.ImmutableList;
 
@@ -38,26 +35,26 @@ import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Single;
 
 public class UwbClientSessionScopeRxTest {
-    private final Context context = ApplicationProvider.getApplicationContext();
-    private final UwbManager uwbManager = new TestUwbManager(context);
-    private final UwbDevice uwbDevice = UwbDevice.createForAddress(new byte[0]);
+    private static final UwbDevice UWB_DEVICE = UwbDevice.createForAddress(new byte[0]);
+
+    private final UwbManager mUwbManager = new TestUwbManager();
     private final RangingParameters rangingParameters = new RangingParameters(
             RangingParameters.UWB_CONFIG_ID_1,
             0,
             /*sessionKeyInfo=*/ null,
             /*complexChannel=*/ null,
-            ImmutableList.of(uwbDevice),
+            ImmutableList.of(UWB_DEVICE),
             RangingParameters.RANGING_UPDATE_RATE_AUTOMATIC
     );
 
     @Test
     public void testRangingResultObservable_returnsRangingResultObservable() {
-        Single<UwbClientSessionScope> clientSessionScopeSingle =
-                UwbManagerRx.clientSessionScopeSingle(uwbManager);
-        UwbClientSessionScope clientSessionScope = clientSessionScopeSingle.blockingGet();
+        Single<UwbControleeSessionScope> controleeSessionScopeSingle =
+                UwbManagerRx.controleeSessionScopeSingle(mUwbManager);
+        UwbControleeSessionScope controleeSessionScope = controleeSessionScopeSingle.blockingGet();
 
         Observable<RangingResult> rangingResultObservable =
-                UwbClientSessionScopeRx.rangingResultsObservable(clientSessionScope,
+                UwbClientSessionScopeRx.rangingResultsObservable(controleeSessionScope,
                         rangingParameters);
         RangingResult rangingResult = rangingResultObservable.blockingFirst();
 
@@ -69,12 +66,12 @@ public class UwbClientSessionScopeRxTest {
 
     @Test
     public void testRangingResultFlowable_returnsRangingResultFlowable() {
-        Single<UwbClientSessionScope> clientSessionScopeSingle =
-                UwbManagerRx.clientSessionScopeSingle(uwbManager);
-        UwbClientSessionScope clientSessionScope = clientSessionScopeSingle.blockingGet();
+        Single<UwbControleeSessionScope> controleeSessionScopeSingle =
+                UwbManagerRx.controleeSessionScopeSingle(mUwbManager);
+        UwbControleeSessionScope controleeSessionScope = controleeSessionScopeSingle.blockingGet();
 
         Flowable<RangingResult> rangingResultFlowable =
-                UwbClientSessionScopeRx.rangingResultsFlowable(clientSessionScope,
+                UwbClientSessionScopeRx.rangingResultsFlowable(controleeSessionScope,
                         rangingParameters);
         RangingResult rangingResult = rangingResultFlowable.blockingFirst();
 

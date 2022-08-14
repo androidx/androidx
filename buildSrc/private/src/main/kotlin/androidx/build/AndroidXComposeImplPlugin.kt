@@ -161,6 +161,8 @@ class AndroidXComposeImplPlugin : Plugin<Project> {
                     error.add("MutableCollectionMutableState")
                     error.add("UnnecessaryComposedModifier")
                     error.add("FrequentlyChangedStateReadInComposition")
+                    error.add("ReturnFromAwaitPointerEventScope")
+                    error.add("UseOfNonLambdaOffsetOverload")
 
                     // Paths we want to enable ListIterator checks for - for higher level
                     // libraries it won't have a noticeable performance impact, and we don't want

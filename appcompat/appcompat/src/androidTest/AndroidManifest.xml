@@ -26,6 +26,15 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat">
 
+        <service
+            android:name="androidx.appcompat.app.AppLocalesMetadataHolderService"
+            android:enabled="false"
+            android:exported="false">
+            <meta-data
+                android:name="autoStoreLocales"
+                android:value="false" />
+        </service>
+
         <activity
             android:name="androidx.appcompat.app.AppCompatActivity"/>
 
@@ -323,6 +332,10 @@
             android:theme="@style/Theme.CustomInflater"/>
 
         <activity
+            android:name="androidx.appcompat.app.NoDisplayAppCompatActivity"
+            android:theme="@style/Theme.AppCompatNoDisplay"/>
+
+        <activity
             android:name="androidx.appcompat.app.NoThemeAppCompatActivity"
             android:theme="@android:style/Theme.Holo.NoActionBar"/>
 
@@ -339,6 +352,40 @@
 
         <activity
             android:name="androidx.appcompat.widget.TooltipCompatTestActivity" />
+        <activity android:name="androidx.appcompat.app.LocalesUpdateActivity"/>
+
+        <activity
+            android:name="androidx.appcompat.app.LocalesConfigChangesActivity"
+            android:configChanges="locale|layoutDirection"/>
+
+        <activity
+            android:name="androidx.appcompat.app.LocalesCustomApplyOverrideConfigurationActivity" />
+
+        <activity android:name="androidx.appcompat.app.LocalesDialogFragment"/>
+
+        <activity android:name="androidx.appcompat.app.LocalesCustomAttachBaseContextActivity"/>
+
+        <activity
+            android:name="androidx.appcompat.app.LocalesRotateDoesNotRecreateActivity"
+            android:configChanges="orientation|screenSize"/>
+
+        <activity android:name="androidx.appcompat.app.LocalesActivityA"/>
+
+        <activity android:name="androidx.appcompat.app.LocalesActivityB"/>
+
+        <activity
+            android:name="androidx.appcompat.app.LocalesConfigChangesActivityA"
+            android:configChanges="locale|layoutDirection"/>
+
+        <activity
+            android:name="androidx.appcompat.app.LocalesConfigChangesActivityB"
+            android:configChanges="locale|layoutDirection"/>
+
+        <activity
+            android:name="androidx.appcompat.app.LocalesConfigChangesActivityWithoutLayoutDirection"
+            android:configChanges="locale"/>
+
+        <activity android:name="androidx.appcompat.app.LocalesLateOnCreateActivity"/>
 
     </application>
 

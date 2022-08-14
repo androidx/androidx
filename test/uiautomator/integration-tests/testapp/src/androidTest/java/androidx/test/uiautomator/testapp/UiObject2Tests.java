@@ -28,6 +28,7 @@ import android.graphics.Point;
 import android.graphics.Rect;
 import android.view.ViewConfiguration;
 
+import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.uiautomator.By;
 import androidx.test.uiautomator.Direction;
@@ -555,6 +556,40 @@ public class UiObject2Tests extends BaseTest {
     }
 
     @Test
+    public void testSwipe() {
+        launchTestActivity(UiObject2TestSwipeActivity.class);
+
+        UiObject2 swipeRegion = mDevice.findObject(By.res(TEST_APP, "swipe_region"));
+        swipeRegion.setGestureMargin(SCROLL_MARGIN);
+
+        swipeRegion.swipe(Direction.LEFT, 0.5f);
+        assertEquals("swipe_left", swipeRegion.getText());
+
+        swipeRegion.swipe(Direction.RIGHT, 1.0f);
+        assertEquals("swipe_right", swipeRegion.getText());
+
+        swipeRegion.swipe(Direction.UP, 0.5f, 1000);
+        assertEquals("swipe_up", swipeRegion.getText());
+
+        swipeRegion.swipe(Direction.DOWN, 1.0f, 1000);
+        assertEquals("swipe_down", swipeRegion.getText());
+    }
+
+    @Test
+    public void testSwipe_throwsIllegalArgumentException() {
+        launchTestActivity(UiObject2TestSwipeActivity.class);
+
+        UiObject2 swipeRegion = mDevice.findObject(By.res(TEST_APP, "swipe_region"));
+
+        assertThrows("Percent must be between 0.0f and 1.0f", IllegalArgumentException.class,
+                () -> swipeRegion.swipe(Direction.UP, 10.0f));
+        assertThrows("Percent must be between 0.0f and 1.0f", IllegalArgumentException.class,
+                () -> swipeRegion.swipe(Direction.UP, -10.0f));
+        assertThrows("Speed cannot be negative", IllegalArgumentException.class,
+                () -> swipeRegion.swipe(Direction.UP, 1.0f, -10));
+    }
+
+    @Test
     public void testRecycle() {
         launchTestActivity(MainActivity.class);
 
@@ -605,6 +640,56 @@ public class UiObject2Tests extends BaseTest {
             // Continue until bottom.
         }
         assertTrue(mDevice.hasObject(By.res(TEST_APP, "bottom_text")));
+    }
+
+    @Test
+    public void testFling_direction() {
+        launchTestActivity(UiObject2TestFlingActivity.class);
+
+        // Avoid touching too close to the edges.
+        UiObject2 flingRegion = mDevice.findObject(By.res(TEST_APP, "fling_region"));
+        flingRegion.setGestureMargin(SCROLL_MARGIN);
+
+        // No fling yet.
+        assertEquals("no_fling", flingRegion.getText());
+
+        while (flingRegion.fling(Direction.LEFT)) {
+            // Continue until left bound.
+        }
+        assertEquals("fling_left", flingRegion.getText());
+    }
+
+    @Test
+    public void testFling_directionAndSpeed() {
+        launchTestActivity(UiObject2TestFlingActivity.class);
+
+        // Avoid touching too close to the edges.
+        UiObject2 flingRegion = mDevice.findObject(By.res(TEST_APP, "fling_region"));
+        flingRegion.setGestureMargin(SCROLL_MARGIN);
+
+        // No fling yet.
+        assertEquals("no_fling", flingRegion.getText());
+
+        while (flingRegion.fling(Direction.UP, 5000)) {
+            // Continue until up bound.
+        }
+        assertEquals("fling_up", flingRegion.getText());
+    }
+
+    @Test
+    public void testFling_throwsIllegalArgumentException() {
+        launchTestActivity(UiObject2TestFlingActivity.class);
+
+        UiObject2 flingRegion = mDevice.findObject(By.res(TEST_APP, "fling_region"));
+
+        int speed =
+                ViewConfiguration.get(
+                        ApplicationProvider.getApplicationContext()).getScaledMinimumFlingVelocity()
+                        / 2;
+
+        assertThrows("Speed is less than the minimum fling velocity",
+                IllegalArgumentException.class,
+                () -> flingRegion.fling(Direction.DOWN, speed));
     }
 
     @Test
@@ -674,16 +759,6 @@ public class UiObject2Tests extends BaseTest {
         // Verify the text field has "new_text" after setText()
         assertEquals("new_text", object.getText());
     }
-
-    /* TODO(b/235841473): Implement these tests
-    public void testFling() {}
-
-    public void testSwipe() {}
-
-    public void testWaitForExists() {}
-
-    public void testWaitForGone() {}
-    */
 
     /* Helper method to get a point inside the object. */
     private Point getPointInsideBounds(UiObject2 obj) {

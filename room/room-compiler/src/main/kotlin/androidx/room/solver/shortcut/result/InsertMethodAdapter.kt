@@ -33,12 +33,12 @@ import com.squareup.javapoet.ArrayTypeName
 import com.squareup.javapoet.FieldSpec
 import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
-import com.squareup.javapoet.TypeSpec
 
 /**
  * Class that knows how to generate an insert method body.
  */
-class InsertMethodAdapter private constructor(private val insertionType: InsertionType) {
+class InsertMethodAdapter private constructor(private val insertionType: InsertionType) :
+    InsertOrUpsertMethodAdapter() {
     companion object {
         fun create(
             returnType: XType,
@@ -117,9 +117,9 @@ class InsertMethodAdapter private constructor(private val insertionType: Inserti
         }
     }
 
-    fun createInsertionMethodBody(
+    override fun createMethodBody(
         parameters: List<ShortcutQueryParameter>,
-        insertionAdapters: Map<String, Pair<FieldSpec, TypeSpec>>,
+        adapters: Map<String, Pair<FieldSpec, Any>>,
         dbField: FieldSpec,
         scope: CodeGenScope
     ) {
@@ -138,7 +138,7 @@ class InsertMethodAdapter private constructor(private val insertionType: Inserti
 
             beginControlFlow("try").apply {
                 parameters.forEach { param ->
-                    val insertionAdapter = insertionAdapters[param.name]?.first
+                    val insertionAdapter = adapters[param.name]?.first
                     if (needsResultVar) {
                         // if it has more than 1 parameter, we would've already printed the error
                         // so we don't care about re-declaring the variable here

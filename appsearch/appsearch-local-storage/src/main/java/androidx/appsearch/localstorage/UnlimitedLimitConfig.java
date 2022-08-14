@@ -35,4 +35,9 @@ public class UnlimitedLimitConfig implements LimitConfig {
     public int getMaxDocumentCount() {
         return Integer.MAX_VALUE;
     }
+
+    @Override
+    public int getMaxSuggestionCount() {
+        return Integer.MAX_VALUE;
+    }
 }

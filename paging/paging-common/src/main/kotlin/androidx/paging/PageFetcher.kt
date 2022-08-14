@@ -97,7 +97,9 @@ internal class PageFetcher<Key : Any, Value : Any>(
 
                 val initialKey: Key? = when (previousPagingState) {
                     null -> initialKey
-                    else -> pagingSource.getRefreshKey(previousPagingState)
+                    else -> pagingSource.getRefreshKey(previousPagingState).also {
+                        log(DEBUG) { "Refresh key $it returned from PagingSource $pagingSource" }
+                    }
                 }
 
                 previousGeneration?.snapshot?.close()
@@ -222,6 +224,7 @@ internal class PageFetcher<Key : Any, Value : Any>(
         pagingSource.registerInvalidatedCallback(::invalidate)
         previousPagingSource?.unregisterInvalidatedCallback(::invalidate)
         previousPagingSource?.invalidate() // Note: Invalidate is idempotent.
+        log(DEBUG) { "Generated new PagingSource $pagingSource" }
 
         return pagingSource
     }

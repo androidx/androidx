@@ -128,6 +128,8 @@ class FwkFragment : Fragment() {
     // Permissions are handled by MainActivity requestBluetoothPermissions
     @SuppressLint("MissingPermission")
     private fun startAdvertise() {
+        Log.d(TAG, "startAdvertise() called")
+
         val bluetoothManager =
             context?.getSystemService(Context.BLUETOOTH_SERVICE) as? BluetoothManager
 

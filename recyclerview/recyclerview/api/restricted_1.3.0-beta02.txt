@@ -3,7 +3,7 @@ package androidx.recyclerview.widget {
 
   public final class AdapterListUpdateCallback implements androidx.recyclerview.widget.ListUpdateCallback {
     ctor public AdapterListUpdateCallback(androidx.recyclerview.widget.RecyclerView.Adapter);
-    method public void onChanged(int, int, Object?);
+    method public void onChanged(int, int, Object!);
     method public void onInserted(int, int);
     method public void onMoved(int, int);
     method public void onRemoved(int, int);
@@ -64,7 +64,7 @@ package androidx.recyclerview.widget {
   public class BatchingListUpdateCallback implements androidx.recyclerview.widget.ListUpdateCallback {
     ctor public BatchingListUpdateCallback(androidx.recyclerview.widget.ListUpdateCallback);
     method public void dispatchLastEvent();
-    method public void onChanged(int, int, Object?);
+    method public void onChanged(int, int, Object!);
     method public void onInserted(int, int);
     method public void onMoved(int, int);
     method public void onRemoved(int, int);
@@ -110,11 +110,11 @@ package androidx.recyclerview.widget {
 
   public class DefaultItemAnimator extends androidx.recyclerview.widget.SimpleItemAnimator {
     ctor public DefaultItemAnimator();
-    method public boolean animateAdd(androidx.recyclerview.widget.RecyclerView.ViewHolder);
-    method public boolean animateChange(androidx.recyclerview.widget.RecyclerView.ViewHolder, androidx.recyclerview.widget.RecyclerView.ViewHolder?, int, int, int, int);
-    method public boolean animateMove(androidx.recyclerview.widget.RecyclerView.ViewHolder, int, int, int, int);
-    method public boolean animateRemove(androidx.recyclerview.widget.RecyclerView.ViewHolder);
-    method public void endAnimation(androidx.recyclerview.widget.RecyclerView.ViewHolder);
+    method public boolean animateAdd(androidx.recyclerview.widget.RecyclerView.ViewHolder!);
+    method public boolean animateChange(androidx.recyclerview.widget.RecyclerView.ViewHolder!, androidx.recyclerview.widget.RecyclerView.ViewHolder!, int, int, int, int);
+    method public boolean animateMove(androidx.recyclerview.widget.RecyclerView.ViewHolder!, int, int, int, int);
+    method public boolean animateRemove(androidx.recyclerview.widget.RecyclerView.ViewHolder!);
+    method public void endAnimation(androidx.recyclerview.widget.RecyclerView.ViewHolder!);
     method public void endAnimations();
     method public boolean isRunning();
     method public void runPendingAnimations();
@@ -150,7 +150,7 @@ package androidx.recyclerview.widget {
   }
 
   public class DividerItemDecoration extends androidx.recyclerview.widget.RecyclerView.ItemDecoration {
-    ctor public DividerItemDecoration(android.content.Context, int);
+    ctor public DividerItemDecoration(android.content.Context!, int);
     method public android.graphics.drawable.Drawable? getDrawable();
     method public void setDrawable(android.graphics.drawable.Drawable);
     method public void setOrientation(int);
@@ -265,23 +265,23 @@ package androidx.recyclerview.widget {
   }
 
   public interface ItemTouchUIUtil {
-    method public void clearView(android.view.View);
-    method public void onDraw(android.graphics.Canvas, androidx.recyclerview.widget.RecyclerView, android.view.View, float, float, int, boolean);
-    method public void onDrawOver(android.graphics.Canvas, androidx.recyclerview.widget.RecyclerView, android.view.View, float, float, int, boolean);
-    method public void onSelected(android.view.View);
+    method public void clearView(android.view.View!);
+    method public void onDraw(android.graphics.Canvas!, androidx.recyclerview.widget.RecyclerView!, android.view.View!, float, float, int, boolean);
+    method public void onDrawOver(android.graphics.Canvas!, androidx.recyclerview.widget.RecyclerView!, android.view.View!, float, float, int, boolean);
+    method public void onSelected(android.view.View!);
   }
 
   public class LinearLayoutManager extends androidx.recyclerview.widget.RecyclerView.LayoutManager implements androidx.recyclerview.widget.ItemTouchHelper.ViewDropHandler androidx.recyclerview.widget.RecyclerView.SmoothScroller.ScrollVectorProvider {
     ctor public LinearLayoutManager(android.content.Context!);
     ctor public LinearLayoutManager(android.content.Context!, @androidx.recyclerview.widget.RecyclerView.Orientation int, boolean);
-    ctor public LinearLayoutManager(android.content.Context, android.util.AttributeSet?, int, int);
+    ctor public LinearLayoutManager(android.content.Context!, android.util.AttributeSet!, int, int);
     method protected void calculateExtraLayoutSpace(androidx.recyclerview.widget.RecyclerView.State, int[]);
-    method public android.graphics.PointF? computeScrollVectorForPosition(int);
+    method public android.graphics.PointF! computeScrollVectorForPosition(int);
     method public int findFirstCompletelyVisibleItemPosition();
     method public int findFirstVisibleItemPosition();
     method public int findLastCompletelyVisibleItemPosition();
     method public int findLastVisibleItemPosition();
-    method public androidx.recyclerview.widget.RecyclerView.LayoutParams generateDefaultLayoutParams();
+    method public androidx.recyclerview.widget.RecyclerView.LayoutParams! generateDefaultLayoutParams();
     method @Deprecated protected int getExtraLayoutSpace(androidx.recyclerview.widget.RecyclerView.State!);
     method public int getInitialPrefetchItemCount();
     method @androidx.recyclerview.widget.RecyclerView.Orientation public int getOrientation();
@@ -312,20 +312,20 @@ package androidx.recyclerview.widget {
   }
 
   public class LinearSmoothScroller extends androidx.recyclerview.widget.RecyclerView.SmoothScroller {
-    ctor public LinearSmoothScroller(android.content.Context);
+    ctor public LinearSmoothScroller(android.content.Context!);
     method public int calculateDtToFit(int, int, int, int, int);
-    method public int calculateDxToMakeVisible(android.view.View, int);
-    method public int calculateDyToMakeVisible(android.view.View, int);
-    method protected float calculateSpeedPerPixel(android.util.DisplayMetrics);
+    method public int calculateDxToMakeVisible(android.view.View!, int);
+    method public int calculateDyToMakeVisible(android.view.View!, int);
+    method protected float calculateSpeedPerPixel(android.util.DisplayMetrics!);
     method protected int calculateTimeForDeceleration(int);
     method protected int calculateTimeForScrolling(int);
     method protected int getHorizontalSnapPreference();
     method protected int getVerticalSnapPreference();
-    method protected void onSeekTargetStep(int, int, androidx.recyclerview.widget.RecyclerView.State, androidx.recyclerview.widget.RecyclerView.SmoothScroller.Action);
+    method protected void onSeekTargetStep(int, int, androidx.recyclerview.widget.RecyclerView.State!, androidx.recyclerview.widget.RecyclerView.SmoothScroller.Action!);
     method protected void onStart();
     method protected void onStop();
-    method protected void onTargetFound(android.view.View, androidx.recyclerview.widget.RecyclerView.State, androidx.recyclerview.widget.RecyclerView.SmoothScroller.Action);
-    method protected void updateActionForInterimTarget(androidx.recyclerview.widget.RecyclerView.SmoothScroller.Action);
+    method protected void onTargetFound(android.view.View!, androidx.recyclerview.widget.RecyclerView.State!, androidx.recyclerview.widget.RecyclerView.SmoothScroller.Action!);
+    method protected void updateActionForInterimTarget(androidx.recyclerview.widget.RecyclerView.SmoothScroller.Action!);
     field public static final int SNAP_TO_ANY = 0; // 0x0
     field public static final int SNAP_TO_END = 1; // 0x1
     field public static final int SNAP_TO_START = -1; // 0xffffffff
@@ -333,7 +333,7 @@ package androidx.recyclerview.widget {
     field protected int mInterimTargetDx;
     field protected int mInterimTargetDy;
     field protected final android.view.animation.LinearInterpolator! mLinearInterpolator;
-    field protected android.graphics.PointF? mTargetVector;
+    field protected android.graphics.PointF! mTargetVector;
   }
 
   public class LinearSnapHelper extends androidx.recyclerview.widget.SnapHelper {
@@ -391,8 +391,8 @@ package androidx.recyclerview.widget {
   public class PagerSnapHelper extends androidx.recyclerview.widget.SnapHelper {
     ctor public PagerSnapHelper();
     method public int[]? calculateDistanceToFinalSnap(androidx.recyclerview.widget.RecyclerView.LayoutManager, android.view.View);
-    method public android.view.View? findSnapView(androidx.recyclerview.widget.RecyclerView.LayoutManager);
-    method public int findTargetSnapPosition(androidx.recyclerview.widget.RecyclerView.LayoutManager, int, int);
+    method public android.view.View? findSnapView(androidx.recyclerview.widget.RecyclerView.LayoutManager!);
+    method public int findTargetSnapPosition(androidx.recyclerview.widget.RecyclerView.LayoutManager!, int, int);
   }
 
   public class RecyclerView extends android.view.ViewGroup implements androidx.core.view.NestedScrollingChild2 androidx.core.view.NestedScrollingChild3 androidx.core.view.ScrollingView {
@@ -646,7 +646,7 @@ package androidx.recyclerview.widget {
     method public void addView(android.view.View!);
     method public void addView(android.view.View!, int);
     method public void assertInLayoutOrScroll(String!);
-    method public void assertNotInLayoutOrScroll(String?);
+    method public void assertNotInLayoutOrScroll(String!);
     method public void attachView(android.view.View, int, androidx.recyclerview.widget.RecyclerView.LayoutParams!);
     method public void attachView(android.view.View, int);
     method public void attachView(android.view.View);
@@ -655,8 +655,8 @@ package androidx.recyclerview.widget {
     method public boolean canScrollVertically();
     method public boolean checkLayoutParams(androidx.recyclerview.widget.RecyclerView.LayoutParams!);
     method public static int chooseSize(int, int, int);
-    method public void collectAdjacentPrefetchPositions(int, int, androidx.recyclerview.widget.RecyclerView.State, androidx.recyclerview.widget.RecyclerView.LayoutManager.LayoutPrefetchRegistry);
-    method public void collectInitialPrefetchPositions(int, androidx.recyclerview.widget.RecyclerView.LayoutManager.LayoutPrefetchRegistry);
+    method public void collectAdjacentPrefetchPositions(int, int, androidx.recyclerview.widget.RecyclerView.State!, androidx.recyclerview.widget.RecyclerView.LayoutManager.LayoutPrefetchRegistry!);
+    method public void collectInitialPrefetchPositions(int, androidx.recyclerview.widget.RecyclerView.LayoutManager.LayoutPrefetchRegistry!);
     method public int computeHorizontalScrollExtent(androidx.recyclerview.widget.RecyclerView.State);
     method public int computeHorizontalScrollOffset(androidx.recyclerview.widget.RecyclerView.State);
     method public int computeHorizontalScrollRange(androidx.recyclerview.widget.RecyclerView.State);
@@ -671,7 +671,7 @@ package androidx.recyclerview.widget {
     method public void endAnimation(android.view.View!);
     method public android.view.View? findContainingItemView(android.view.View);
     method public android.view.View? findViewByPosition(int);
-    method public abstract androidx.recyclerview.widget.RecyclerView.LayoutParams generateDefaultLayoutParams();
+    method public abstract androidx.recyclerview.widget.RecyclerView.LayoutParams! generateDefaultLayoutParams();
     method public androidx.recyclerview.widget.RecyclerView.LayoutParams! generateLayoutParams(android.view.ViewGroup.LayoutParams!);
     method public androidx.recyclerview.widget.RecyclerView.LayoutParams! generateLayoutParams(android.content.Context!, android.util.AttributeSet!);
     method public int getBaseline();
@@ -734,7 +734,7 @@ package androidx.recyclerview.widget {
     method public boolean onAddFocusables(androidx.recyclerview.widget.RecyclerView, java.util.ArrayList<android.view.View!>, int, int);
     method @CallSuper public void onAttachedToWindow(androidx.recyclerview.widget.RecyclerView!);
     method @Deprecated public void onDetachedFromWindow(androidx.recyclerview.widget.RecyclerView!);
-    method @CallSuper public void onDetachedFromWindow(androidx.recyclerview.widget.RecyclerView, androidx.recyclerview.widget.RecyclerView.Recycler);
+    method @CallSuper public void onDetachedFromWindow(androidx.recyclerview.widget.RecyclerView!, androidx.recyclerview.widget.RecyclerView.Recycler!);
     method public android.view.View? onFocusSearchFailed(android.view.View, int, androidx.recyclerview.widget.RecyclerView.Recycler, androidx.recyclerview.widget.RecyclerView.State);
     method public void onInitializeAccessibilityEvent(android.view.accessibility.AccessibilityEvent);
     method public void onInitializeAccessibilityEvent(androidx.recyclerview.widget.RecyclerView.Recycler, androidx.recyclerview.widget.RecyclerView.State, android.view.accessibility.AccessibilityEvent);
@@ -747,12 +747,12 @@ package androidx.recyclerview.widget {
     method public void onItemsRemoved(androidx.recyclerview.widget.RecyclerView, int, int);
     method public void onItemsUpdated(androidx.recyclerview.widget.RecyclerView, int, int);
     method public void onItemsUpdated(androidx.recyclerview.widget.RecyclerView, int, int, Object?);
-    method public void onLayoutChildren(androidx.recyclerview.widget.RecyclerView.Recycler, androidx.recyclerview.widget.RecyclerView.State);
-    method public void onLayoutCompleted(androidx.recyclerview.widget.RecyclerView.State);
+    method public void onLayoutChildren(androidx.recyclerview.widget.RecyclerView.Recycler!, androidx.recyclerview.widget.RecyclerView.State!);
+    method public void onLayoutCompleted(androidx.recyclerview.widget.RecyclerView.State!);
     method public void onMeasure(androidx.recyclerview.widget.RecyclerView.Recycler, androidx.recyclerview.widget.RecyclerView.State, int, int);
     method @Deprecated public boolean onRequestChildFocus(androidx.recyclerview.widget.RecyclerView, android.view.View, android.view.View?);
     method public boolean onRequestChildFocus(androidx.recyclerview.widget.RecyclerView, androidx.recyclerview.widget.RecyclerView.State, android.view.View, android.view.View?);
-    method public void onRestoreInstanceState(android.os.Parcelable);
+    method public void onRestoreInstanceState(android.os.Parcelable!);
     method public android.os.Parcelable? onSaveInstanceState();
     method public void onScrollStateChanged(int);
     method public boolean performAccessibilityAction(androidx.recyclerview.widget.RecyclerView.Recycler, androidx.recyclerview.widget.RecyclerView.State, int, android.os.Bundle?);
@@ -770,15 +770,15 @@ package androidx.recyclerview.widget {
     method public boolean requestChildRectangleOnScreen(androidx.recyclerview.widget.RecyclerView, android.view.View, android.graphics.Rect, boolean, boolean);
     method public void requestLayout();
     method public void requestSimpleAnimationsInNextLayout();
-    method public int scrollHorizontallyBy(int, androidx.recyclerview.widget.RecyclerView.Recycler, androidx.recyclerview.widget.RecyclerView.State);
+    method public int scrollHorizontallyBy(int, androidx.recyclerview.widget.RecyclerView.Recycler!, androidx.recyclerview.widget.RecyclerView.State!);
     method public void scrollToPosition(int);
-    method public int scrollVerticallyBy(int, androidx.recyclerview.widget.RecyclerView.Recycler, androidx.recyclerview.widget.RecyclerView.State);
+    method public int scrollVerticallyBy(int, androidx.recyclerview.widget.RecyclerView.Recycler!, androidx.recyclerview.widget.RecyclerView.State!);
     method @Deprecated public void setAutoMeasureEnabled(boolean);
     method public final void setItemPrefetchEnabled(boolean);
     method public void setMeasuredDimension(android.graphics.Rect!, int, int);
     method public void setMeasuredDimension(int, int);
     method public void setMeasurementCacheEnabled(boolean);
-    method public void smoothScrollToPosition(androidx.recyclerview.widget.RecyclerView, androidx.recyclerview.widget.RecyclerView.State, int);
+    method public void smoothScrollToPosition(androidx.recyclerview.widget.RecyclerView!, androidx.recyclerview.widget.RecyclerView.State!, int);
     method public void startSmoothScroll(androidx.recyclerview.widget.RecyclerView.SmoothScroller!);
     method public void stopIgnoringView(android.view.View);
     method public boolean supportsPredictiveItemAnimations();
@@ -960,21 +960,21 @@ package androidx.recyclerview.widget {
 
   public abstract class SimpleItemAnimator extends androidx.recyclerview.widget.RecyclerView.ItemAnimator {
     ctor public SimpleItemAnimator();
-    method public abstract boolean animateAdd(androidx.recyclerview.widget.RecyclerView.ViewHolder);
+    method public abstract boolean animateAdd(androidx.recyclerview.widget.RecyclerView.ViewHolder!);
     method public boolean animateAppearance(androidx.recyclerview.widget.RecyclerView.ViewHolder, androidx.recyclerview.widget.RecyclerView.ItemAnimator.ItemHolderInfo?, androidx.recyclerview.widget.RecyclerView.ItemAnimator.ItemHolderInfo);
     method public boolean animateChange(androidx.recyclerview.widget.RecyclerView.ViewHolder, androidx.recyclerview.widget.RecyclerView.ViewHolder, androidx.recyclerview.widget.RecyclerView.ItemAnimator.ItemHolderInfo, androidx.recyclerview.widget.RecyclerView.ItemAnimator.ItemHolderInfo);
-    method public abstract boolean animateChange(androidx.recyclerview.widget.RecyclerView.ViewHolder, androidx.recyclerview.widget.RecyclerView.ViewHolder?, int, int, int, int);
+    method public abstract boolean animateChange(androidx.recyclerview.widget.RecyclerView.ViewHolder!, androidx.recyclerview.widget.RecyclerView.ViewHolder!, int, int, int, int);
     method public boolean animateDisappearance(androidx.recyclerview.widget.RecyclerView.ViewHolder, androidx.recyclerview.widget.RecyclerView.ItemAnimator.ItemHolderInfo, androidx.recyclerview.widget.RecyclerView.ItemAnimator.ItemHolderInfo?);
-    method public abstract boolean animateMove(androidx.recyclerview.widget.RecyclerView.ViewHolder, int, int, int, int);
+    method public abstract boolean animateMove(androidx.recyclerview.widget.RecyclerView.ViewHolder!, int, int, int, int);
     method public boolean animatePersistence(androidx.recyclerview.widget.RecyclerView.ViewHolder, androidx.recyclerview.widget.RecyclerView.ItemAnimator.ItemHolderInfo, androidx.recyclerview.widget.RecyclerView.ItemAnimator.ItemHolderInfo);
-    method public abstract boolean animateRemove(androidx.recyclerview.widget.RecyclerView.ViewHolder);
+    method public abstract boolean animateRemove(androidx.recyclerview.widget.RecyclerView.ViewHolder!);
     method public final void dispatchAddFinished(androidx.recyclerview.widget.RecyclerView.ViewHolder!);
     method public final void dispatchAddStarting(androidx.recyclerview.widget.RecyclerView.ViewHolder!);
     method public final void dispatchChangeFinished(androidx.recyclerview.widget.RecyclerView.ViewHolder!, boolean);
     method public final void dispatchChangeStarting(androidx.recyclerview.widget.RecyclerView.ViewHolder!, boolean);
     method public final void dispatchMoveFinished(androidx.recyclerview.widget.RecyclerView.ViewHolder!);
     method public final void dispatchMoveStarting(androidx.recyclerview.widget.RecyclerView.ViewHolder!);
-    method public final void dispatchRemoveFinished(androidx.recyclerview.widget.RecyclerView.ViewHolder);
+    method public final void dispatchRemoveFinished(androidx.recyclerview.widget.RecyclerView.ViewHolder!);
     method public final void dispatchRemoveStarting(androidx.recyclerview.widget.RecyclerView.ViewHolder!);
     method public boolean getSupportsChangeAnimations();
     method public void onAddFinished(androidx.recyclerview.widget.RecyclerView.ViewHolder!);
@@ -992,11 +992,11 @@ package androidx.recyclerview.widget {
     ctor public SnapHelper();
     method public void attachToRecyclerView(androidx.recyclerview.widget.RecyclerView?) throws java.lang.IllegalStateException;
     method public abstract int[]? calculateDistanceToFinalSnap(androidx.recyclerview.widget.RecyclerView.LayoutManager, android.view.View);
-    method public int[] calculateScrollDistance(int, int);
+    method public int[]! calculateScrollDistance(int, int);
     method protected androidx.recyclerview.widget.RecyclerView.SmoothScroller? createScroller(androidx.recyclerview.widget.RecyclerView.LayoutManager);
     method @Deprecated protected androidx.recyclerview.widget.LinearSmoothScroller? createSnapScroller(androidx.recyclerview.widget.RecyclerView.LayoutManager);
-    method public abstract android.view.View? findSnapView(androidx.recyclerview.widget.RecyclerView.LayoutManager);
-    method public abstract int findTargetSnapPosition(androidx.recyclerview.widget.RecyclerView.LayoutManager, int, int);
+    method public abstract android.view.View? findSnapView(androidx.recyclerview.widget.RecyclerView.LayoutManager!);
+    method public abstract int findTargetSnapPosition(androidx.recyclerview.widget.RecyclerView.LayoutManager!, int, int);
     method public boolean onFling(int, int);
   }
 
@@ -1024,7 +1024,7 @@ package androidx.recyclerview.widget {
   }
 
   public static class SortedList.BatchedCallback<T2> extends androidx.recyclerview.widget.SortedList.Callback<T2> {
-    ctor public SortedList.BatchedCallback(androidx.recyclerview.widget.SortedList.Callback<T2!>);
+    ctor public SortedList.BatchedCallback(androidx.recyclerview.widget.SortedList.Callback<T2!>!);
     method public boolean areContentsTheSame(T2!, T2!);
     method public boolean areItemsTheSame(T2!, T2!);
     method public int compare(T2!, T2!);
@@ -1042,11 +1042,11 @@ package androidx.recyclerview.widget {
     method public abstract int compare(T2!, T2!);
     method public Object? getChangePayload(T2!, T2!);
     method public abstract void onChanged(int, int);
-    method public void onChanged(int, int, Object?);
+    method public void onChanged(int, int, Object!);
   }
 
   public abstract class SortedListAdapterCallback<T2> extends androidx.recyclerview.widget.SortedList.Callback<T2> {
-    ctor public SortedListAdapterCallback(androidx.recyclerview.widget.RecyclerView.Adapter<?>);
+    ctor public SortedListAdapterCallback(androidx.recyclerview.widget.RecyclerView.Adapter<?>!);
     method public void onChanged(int, int);
     method public void onInserted(int, int);
     method public void onMoved(int, int);

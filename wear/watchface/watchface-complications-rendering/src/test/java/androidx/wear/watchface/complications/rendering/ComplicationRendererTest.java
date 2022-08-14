@@ -64,7 +64,6 @@ import androidx.wear.watchface.complications.rendering.ComplicationRenderer.Pain
 import com.google.common.truth.Truth;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -1102,7 +1101,6 @@ public class ComplicationRendererTest {
         assertThat(output).isEqualTo(Color.WHITE);
     }
 
-    @Ignore // b/238635208
     @Test
     public void placeholderIcon() {
         mComplicationRenderer.setComplicationData(
@@ -1114,7 +1112,6 @@ public class ComplicationRendererTest {
         assertThat(mComplicationRenderer.mIsPlaceholderIcon).isTrue();
     }
 
-    @Ignore // b/238635208
     @Test
     public void placeholderSmallImage() {
         mComplicationRenderer.setComplicationData(
@@ -1126,7 +1123,6 @@ public class ComplicationRendererTest {
         assertThat(mComplicationRenderer.mIsPlaceholderSmallImage).isTrue();
     }
 
-    @Ignore // b/238635208
     @Test
     public void placeholderPhotoImage() {
         mComplicationRenderer.setComplicationData(
@@ -1140,10 +1136,13 @@ public class ComplicationRendererTest {
 
     @Test
     public void placeholderRangedValue() {
+        androidx.wear.watchface.complications.data.ComplicationText placeholderText =
+                androidx.wear.watchface.complications.data.ComplicationText.PLACEHOLDER;
         mComplicationRenderer.setComplicationData(
                 new NoDataComplicationData(
                         new RangedValueComplicationData.Builder(
                                 RangedValueComplicationData.PLACEHOLDER, 0f, 100f, EMPTY_TEXT)
+                                .setTitle(placeholderText)
                                 .build())
                         .asWireComplicationData(),
                 true);
@@ -1193,6 +1192,39 @@ public class ComplicationRendererTest {
                         .asWireComplicationData(),
                 true);
         assertThat(mComplicationRenderer.mIsPlaceholderText).isTrue();
+    }
+
+    @Test
+    public void placeholderIcon_notLoadedAsync() {
+        mComplicationRenderer.setComplicationData(
+                new NoDataComplicationData(
+                        new MonochromaticImageComplicationData.Builder(
+                                MonochromaticImage.PLACEHOLDER, EMPTY_TEXT).build())
+                        .asWireComplicationData(),
+                true);
+        assertThat(mComplicationRenderer.loadDrawableIconAndImagesAsync()).isFalse();
+    }
+
+    @Test
+    public void placeholderSmallImage_notLoadedAsync() {
+        mComplicationRenderer.setComplicationData(
+                new NoDataComplicationData(
+                        new SmallImageComplicationData.Builder(
+                                SmallImage.PLACEHOLDER, EMPTY_TEXT).build())
+                        .asWireComplicationData(),
+                true);
+        assertThat(mComplicationRenderer.loadDrawableIconAndImagesAsync()).isFalse();
+    }
+
+    @Test
+    public void placeholderPhotoImage_notLoadedAsync() {
+        mComplicationRenderer.setComplicationData(
+                new NoDataComplicationData(
+                        new PhotoImageComplicationData.Builder(
+                                PhotoImageComplicationData.PLACEHOLDER, EMPTY_TEXT).build())
+                        .asWireComplicationData(),
+                true);
+        assertThat(mComplicationRenderer.loadDrawableIconAndImagesAsync()).isFalse();
     }
 
     private Drawable loadIconFromMock(Icon icon) {

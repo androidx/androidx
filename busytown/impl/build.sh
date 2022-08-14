@@ -89,7 +89,7 @@ if ! areNativeLibsNewEnoughForKonan; then
 fi
 
 # run the build
-if run ./gradlew --ci saveSystemStats "$@"; then
+if run ./gradlew --ci "$@"; then
   echo build passed
 else
   if [ "$DIAGNOSE" == "true" ]; then
@@ -99,7 +99,7 @@ else
     # We probably won't have enough time to fully diagnose the problem given this timeout, but
     # we might be able to determine whether this problem is reproducible enough for a developer to
     # more easily investigate further
-    ./development/diagnose-build-failure/diagnose-build-failure.sh --timeout 600 "--ci saveSystemStats $*"
+    ./development/diagnose-build-failure/diagnose-build-failure.sh --timeout 600 "--ci $*"
   fi
   if grep "/prefab" "$DIST_DIR/logs/gradle.log" >/dev/null 2>/dev/null; then
     # error looks like it might have involved prefab, copy the prefab dir to DIST where we can find it

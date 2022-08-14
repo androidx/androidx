@@ -49,6 +49,16 @@
             android:exported="false"
             android:configChanges="orientation|screenSize|screenLayout|screenSize"
             android:label="@string/window_metrics"/>
+        <activity android:name=".RearDisplayActivityConfigChanges"
+            android:exported="true"
+            android:configChanges=
+                "orientation|screenLayout|screenSize|layoutDirection|smallestScreenSize"
+            android:label="@string/rear_display">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
         <activity
             android:name=".embedding.SplitActivityA"
             android:exported="true"
@@ -182,5 +192,11 @@
             <meta-data  android:name="androidx.window.sample.embedding.ExampleWindowInitializer"
                 android:value="androidx.startup" />
         </provider>
+
+        <!-- The app supports ActivityEmbedding itself, so it doesn't need system override. -->
+        <property
+            android:name="android.window.PROPERTY_ACTIVITY_EMBEDDING_ALLOW_SYSTEM_OVERRIDE"
+            android:value="false" />
+
     </application>
 </manifest>

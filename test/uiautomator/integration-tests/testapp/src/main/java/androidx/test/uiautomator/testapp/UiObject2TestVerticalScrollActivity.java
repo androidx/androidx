@@ -18,11 +18,9 @@ package androidx.test.uiautomator.testapp;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.GestureDetector;
 import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.MotionEvent;
-import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 
@@ -36,18 +34,9 @@ public class UiObject2TestVerticalScrollActivity extends Activity {
 
         setContentView(R.layout.uiobject2_testverticalscroll_activity);
 
-        final TextView flingDetected = (TextView)findViewById(R.id.fling_detected);
-
         mGestureDetector = new GestureDetector(this, new SimpleOnGestureListener() {
             @Override
             public boolean onDown(MotionEvent event) {
-                return true;
-            }
-
-            @Override
-            public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-                Log.d("FOO", "Fling detected!");
-                flingDetected.setText("true");
                 return true;
             }
         });

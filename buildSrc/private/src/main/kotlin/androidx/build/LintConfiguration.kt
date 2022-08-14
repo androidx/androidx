@@ -177,7 +177,9 @@ fun Project.configureLint(lint: Lint, extension: AndroidXExtension, isLibrary: B
         if (task.name.startsWith("updateLintBaseline")) {
             task.doLast {
                 task.outputs.files.find { it.name == "lint-baseline.xml" }?.let { file ->
-                    file.writeText(removeLineAndColumnAttributes(file.readText()))
+                    if (file.exists()) {
+                        file.writeText(removeLineAndColumnAttributes(file.readText()))
+                    }
                 }
             }
         }
@@ -216,15 +218,15 @@ fun Project.configureLint(lint: Lint, extension: AndroidXExtension, isLibrary: B
             fatal.add("VisibleForTests")
         }
 
+        // Reenable after b/238892319 is resolved
+        disable.add("NotificationPermission")
+
         // Broken in 7.4.0-alpha04 due to b/236262744
         disable.add("CustomPermissionTypo")
         disable.add("KnownPermissionError")
         disable.add("PermissionNamingConvention")
         disable.add("ReservedSystemPermission")
         disable.add("SystemPermissionTypo")
-
-        // Reenable after b/235251897 is resolved
-        disable.add("IllegalExperimentalApiUsage")
 
         // Disable dependency checks that suggest to change them. We want libraries to be
         // intentional with their dependency version bumps.

@@ -32,21 +32,33 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.extensions.ExtensionsManager
 import androidx.camera.integration.extensions.CameraExtensionsActivity
+import androidx.camera.integration.extensions.IntentExtraKey.INTENT_EXTRA_KEY_CAMERA_ID
+import androidx.camera.integration.extensions.IntentExtraKey.INTENT_EXTRA_KEY_LENS_FACING
+import androidx.camera.integration.extensions.IntentExtraKey.INTENT_EXTRA_KEY_REQUEST_CODE
+import androidx.camera.integration.extensions.IntentExtraKey.INTENT_EXTRA_KEY_RESULT_MAP
+import androidx.camera.integration.extensions.IntentExtraKey.INTENT_EXTRA_KEY_TEST_TYPE
 import androidx.camera.integration.extensions.R
-import androidx.camera.integration.extensions.validation.TestResults.Companion.TEST_RESULT_NOT_SUPPORTED
+import androidx.camera.integration.extensions.TestResultType.TEST_RESULT_NOT_SUPPORTED
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.concurrent.futures.await
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 
+/**
+ * Activity to list all supported CameraX/Camera2 Extensions and camera ids combination items.
+ *
+ * Clicking a list item will launch the CameraValidationResultActivity to list the supported
+ * extension modes of the selected item.
+ */
 class CameraValidationResultActivity : AppCompatActivity() {
     private lateinit var cameraProvider: ProcessCameraProvider
     private lateinit var extensionsManager: ExtensionsManager
     private lateinit var adapter: BaseAdapter
     private lateinit var testResults: TestResults
     private lateinit var cameraLensFacingMap: LinkedHashMap<String, Int>
-    private lateinit var cameraExtensionResultMap: LinkedHashMap<String, LinkedHashMap<Int, Int>>
+    private lateinit var cameraExtensionResultMap: LinkedHashMap<Pair<String, String>,
+        LinkedHashMap<Int, Int>>
     private val extensionValidationActivityRequestCode =
         ExtensionValidationResultActivity::class.java.hashCode() % 1000
 
@@ -54,7 +66,7 @@ class CameraValidationResultActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.full_listview)
 
-        supportActionBar?.title = "${resources.getString(R.string.extensions_validator)}"
+        supportActionBar?.title = resources.getString(R.string.extensions_validator)
         initialize()
     }
 
@@ -89,8 +101,8 @@ class CameraValidationResultActivity : AppCompatActivity() {
             listView.adapter = adapter
             listView.onItemClickListener =
                 AdapterView.OnItemClickListener { _, _, position, _ ->
-                    val cameraId = cameraExtensionResultMap.keys.elementAt(position)
-                    if (!isAnyExtensionModeSupported(cameraId)) {
+                    val (testType, cameraId) = cameraExtensionResultMap.keys.elementAt(position)
+                    if (!isAnyExtensionModeSupported(testType, cameraId)) {
                         Toast.makeText(
                             this@CameraValidationResultActivity,
                             "No extension mode is supported by the camera!",
@@ -104,12 +116,16 @@ class CameraValidationResultActivity : AppCompatActivity() {
                         ExtensionValidationResultActivity::class.java
                     )
                     intent.putExtra(
+                        INTENT_EXTRA_KEY_TEST_TYPE,
+                        testType
+                    )
+                    intent.putExtra(
                         INTENT_EXTRA_KEY_CAMERA_ID,
                         cameraId
                     )
                     intent.putExtra(
                         INTENT_EXTRA_KEY_LENS_FACING,
-                        cameraLensFacingMap[cameraExtensionResultMap.keys.elementAt(position)]
+                        cameraLensFacingMap[cameraId]
                     )
                     intent.putExtra(
                         INTENT_EXTRA_KEY_RESULT_MAP,
@@ -138,8 +154,8 @@ class CameraValidationResultActivity : AppCompatActivity() {
         textView.visibility = View.VISIBLE
     }
 
-    private fun isAnyExtensionModeSupported(cameraId: String): Boolean {
-        cameraExtensionResultMap[cameraId]?.forEach {
+    private fun isAnyExtensionModeSupported(testType: String, cameraId: String): Boolean {
+        cameraExtensionResultMap[Pair(testType, cameraId)]?.forEach {
             if (it.value != TEST_RESULT_NOT_SUPPORTED) {
                 return true
             }
@@ -155,8 +171,9 @@ class CameraValidationResultActivity : AppCompatActivity() {
             return
         }
 
-        val cameraId = data?.getStringExtra(INTENT_EXTRA_KEY_CAMERA_ID)!!
-        val extensionTestResultMap = cameraExtensionResultMap[cameraId]
+        val testType = data?.getStringExtra(INTENT_EXTRA_KEY_TEST_TYPE)!!
+        val cameraId = data.getStringExtra(INTENT_EXTRA_KEY_CAMERA_ID)!!
+        val extensionTestResultMap = cameraExtensionResultMap[Pair(testType, cameraId)]
 
         @Suppress("UNCHECKED_CAST")
         val map = data.getSerializableExtra(INTENT_EXTRA_KEY_RESULT_MAP) as HashMap<Int, Int>
@@ -213,17 +230,5 @@ class CameraValidationResultActivity : AppCompatActivity() {
             CameraMetadata.LENS_FACING_EXTERNAL -> "EXTERNAL"
             else -> throw IllegalArgumentException("Invalid lens facing!!")
         }
-
-        const val INVALID_LENS_FACING = -1
-
-        const val INTENT_EXTRA_KEY_CAMERA_ID = "CameraId"
-        const val INTENT_EXTRA_KEY_LENS_FACING = "LensFacing"
-        const val INTENT_EXTRA_KEY_EXTENSION_MODE = "ExtensionMode"
-        const val INTENT_EXTRA_KEY_RESULT_MAP = "ResultMap"
-        const val INTENT_EXTRA_KEY_TEST_RESULT = "TestResult"
-        const val INTENT_EXTRA_KEY_IMAGE_URI = "ImageUri"
-        const val INTENT_EXTRA_KEY_IMAGE_ROTATION_DEGREES = "ImageRotationDegrees"
-        const val INTENT_EXTRA_KEY_REQUEST_CODE = "RequestCode"
-        const val INTENT_EXTRA_KEY_ERROR_CODE = "ErrorCode"
     }
 }

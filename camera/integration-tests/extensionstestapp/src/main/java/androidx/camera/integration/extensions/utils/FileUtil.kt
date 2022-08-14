@@ -25,7 +25,6 @@ import android.os.Build
 import android.provider.MediaStore
 import android.util.Log
 import androidx.camera.core.impl.utils.Exif
-import androidx.core.net.toFile
 import androidx.core.net.toUri
 import java.io.File
 import java.io.FileInputStream
@@ -63,12 +62,8 @@ object FileUtil {
 
         // Saves the image to the temp file
         val tempFileUri =
-            saveImageToTempFile(image, fileNamePrefix, fileNameSuffix) ?: return null
-
-        // Updates Exif rotation tag info
-        val exif = Exif.createFromFile(tempFileUri.toFile())
-        exif.rotate(rotationDegrees)
-        exif.save()
+            saveImageToTempFile(image, fileNamePrefix, fileNameSuffix, null, rotationDegrees)
+                ?: return null
 
         val contentValues = ContentValues().apply {
             put(MediaStore.MediaColumns.DISPLAY_NAME, fileName)
@@ -93,7 +88,8 @@ object FileUtil {
         image: Image,
         prefix: String,
         suffix: String,
-        cacheDir: File? = null
+        cacheDir: File? = null,
+        rotationDegrees: Int = 0
     ): Uri? {
         val tempFile = File.createTempFile(
             prefix,
@@ -117,6 +113,11 @@ object FileUtil {
         val outputStream = FileOutputStream(tempFile)
         outputStream.write(byteArray)
         outputStream.close()
+
+        // Updates Exif rotation tag info
+        val exif = Exif.createFromFile(tempFile)
+        exif.rotate(rotationDegrees)
+        exif.save()
 
         return tempFile.toUri()
     }

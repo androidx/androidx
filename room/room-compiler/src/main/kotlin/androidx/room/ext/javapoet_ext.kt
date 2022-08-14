@@ -59,6 +59,8 @@ object RoomTypeNames {
     val ROOM_DB_CONFIG: ClassName = ClassName.get(ROOM_PACKAGE, "DatabaseConfiguration")
     val INSERTION_ADAPTER: ClassName =
         ClassName.get(ROOM_PACKAGE, "EntityInsertionAdapter")
+    val UPSERTION_ADAPTER: ClassName =
+        ClassName.get(ROOM_PACKAGE, "EntityUpsertionAdapter")
     val DELETE_OR_UPDATE_ADAPTER: ClassName =
         ClassName.get(ROOM_PACKAGE, "EntityDeletionOrUpdateAdapter")
     val SHARED_SQLITE_STMT: ClassName =

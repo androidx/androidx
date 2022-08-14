@@ -17,6 +17,7 @@ package androidx.health.connect.client.impl
 
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.health.connect.client.HealthConnectClient
+import androidx.health.connect.client.HealthConnectClient.Companion.HEALTH_CONNECT_CLIENT_TAG
 import androidx.health.connect.client.PermissionController
 import androidx.health.connect.client.aggregate.AggregationResult
 import androidx.health.connect.client.aggregate.AggregationResultGroupedByDuration
@@ -50,6 +51,7 @@ import androidx.health.connect.client.response.ReadRecordResponse
 import androidx.health.connect.client.response.ReadRecordsResponse
 import androidx.health.connect.client.time.TimeRangeFilter
 import androidx.health.platform.client.HealthDataAsyncClient
+import androidx.health.platform.client.impl.logger.Logger
 import androidx.health.platform.client.proto.DataProto
 import androidx.health.platform.client.proto.RequestProto
 import kotlin.reflect.KClass
@@ -72,15 +74,22 @@ internal constructor(
         createHealthDataRequestPermissions(providerPackageName = providerPackageName)
 
     override suspend fun getGrantedPermissions(permissions: Set<Permission>): Set<Permission> {
-        return delegate
-            .getGrantedPermissions(permissions.map { it.toProtoPermission() }.toSet())
-            .await()
-            .map { it.toJetpackPermission() }
-            .toSet()
+        val grantedPermissions =
+            delegate
+                .getGrantedPermissions(permissions.map { it.toProtoPermission() }.toSet())
+                .await()
+                .map { it.toJetpackPermission() }
+                .toSet()
+        Logger.debug(
+            HEALTH_CONNECT_CLIENT_TAG,
+            "Granted ${grantedPermissions.size} out of ${permissions.size} permissions."
+        )
+        return grantedPermissions
     }
 
     override suspend fun revokeAllPermissions() {
-        return delegate.revokeAllPermissions().await()
+        delegate.revokeAllPermissions().await()
+        Logger.debug(HEALTH_CONNECT_CLIENT_TAG, "Revoked all permissions.")
     }
 
     override val permissionController: PermissionController
@@ -88,11 +97,13 @@ internal constructor(
 
     override suspend fun insertRecords(records: List<Record>): InsertRecordsResponse {
         val uidList = delegate.insertData(records.map { it.toProto() }).await()
+        Logger.debug(HEALTH_CONNECT_CLIENT_TAG, "${records.size} records inserted.")
         return InsertRecordsResponse(recordUidsList = uidList)
     }
 
     override suspend fun updateRecords(records: List<Record>) {
         delegate.updateData(records.map { it.toProto() }).await()
+        Logger.debug(HEALTH_CONNECT_CLIENT_TAG, "${records.size} records updated.")
     }
 
     override suspend fun deleteRecords(
@@ -106,6 +117,10 @@ internal constructor(
                 toDataTypeIdPairProtoList(recordType, clientIdsList)
             )
             .await()
+        Logger.debug(
+            HEALTH_CONNECT_CLIENT_TAG,
+            "${uidsList.size + clientIdsList.size} records deleted."
+        )
     }
 
     override suspend fun deleteRecords(
@@ -113,6 +128,7 @@ internal constructor(
         timeRangeFilter: TimeRangeFilter,
     ) {
         delegate.deleteDataRange(toDeleteDataRangeRequestProto(recordType, timeRangeFilter)).await()
+        Logger.debug(HEALTH_CONNECT_CLIENT_TAG, "Records deletion successful.")
     }
 
     @Suppress("UNCHECKED_CAST") // Safe to cast as the type should match
@@ -121,7 +137,9 @@ internal constructor(
         uid: String,
     ): ReadRecordResponse<T> {
         val proto = delegate.readData(toReadDataRequestProto(recordType, uid)).await()
-        return ReadRecordResponse(toRecord(proto) as T)
+        val response = ReadRecordResponse(toRecord(proto) as T)
+        Logger.debug(HEALTH_CONNECT_CLIENT_TAG, "Reading record of $uid successful.")
+        return response
     }
 
     override suspend fun getChangesToken(request: ChangesTokenRequest): String {
@@ -144,7 +162,9 @@ internal constructor(
                         .build()
                 )
                 .await()
-        return proto.changesToken
+        val changeToken = proto.changesToken
+        Logger.debug(HEALTH_CONNECT_CLIENT_TAG, "Retrieved change token $changeToken.")
+        return changeToken
     }
 
     override suspend fun getChanges(changesToken: String): ChangesResponse {
@@ -156,6 +176,11 @@ internal constructor(
                         .build()
                 )
                 .await()
+        val nextToken = proto.nextChangesToken
+        Logger.debug(
+            HEALTH_CONNECT_CLIENT_TAG,
+            "Retrieved changes successful with $changesToken, next token $nextToken."
+        )
         return toChangesResponse(proto)
     }
 
@@ -163,25 +188,40 @@ internal constructor(
         request: ReadRecordsRequest<T>,
     ): ReadRecordsResponse<T> {
         val proto = delegate.readDataRange(toReadDataRangeRequestProto(request)).await()
-        return toReadRecordsResponse(proto)
+        val response = toReadRecordsResponse<T>(proto)
+        Logger.debug(HEALTH_CONNECT_CLIENT_TAG, "Retrieve records successful.")
+        return response
     }
 
     override suspend fun aggregate(request: AggregateRequest): AggregationResult {
         val responseProto = delegate.aggregate(request.toProto()).await()
-        return responseProto.rowsList.first().retrieveAggregateDataRow()
+        val result = responseProto.rowsList.first().retrieveAggregateDataRow()
+        val numberOfMetrics = result.longValues.size + result.doubleValues.size
+        Logger.debug(HEALTH_CONNECT_CLIENT_TAG, "Retrieved $numberOfMetrics metrics.")
+        return result
     }
 
     override suspend fun aggregateGroupByDuration(
         request: AggregateGroupByDurationRequest,
     ): List<AggregationResultGroupedByDuration> {
         val responseProto = delegate.aggregate(request.toProto()).await()
-        return responseProto.rowsList.map { it.toAggregateDataRowGroupByDuration() }.toList()
+        val result = responseProto.rowsList.map { it.toAggregateDataRowGroupByDuration() }.toList()
+        Logger.debug(
+            HEALTH_CONNECT_CLIENT_TAG,
+            "Retrieved ${result.size} duration aggregation buckets."
+        )
+        return result
     }
 
     override suspend fun aggregateGroupByPeriod(
         request: AggregateGroupByPeriodRequest
     ): List<AggregationResultGroupedByPeriod> {
         val responseProto = delegate.aggregate(request.toProto()).await()
-        return responseProto.rowsList.map { it.toAggregateDataRowGroupByPeriod() }.toList()
+        val result = responseProto.rowsList.map { it.toAggregateDataRowGroupByPeriod() }.toList()
+        Logger.debug(
+            HEALTH_CONNECT_CLIENT_TAG,
+            "Retrieved ${result.size} period aggregation buckets."
+        )
+        return result
     }
 }

@@ -45,7 +45,7 @@ import androidx.room.vo.QueryMethod
 import androidx.room.vo.RawQueryMethod
 import androidx.room.vo.ReadQueryMethod
 import androidx.room.vo.ShortcutEntity
-import androidx.room.vo.ShortcutMethod
+import androidx.room.vo.DeleteOrUpdateShortcutMethod
 import androidx.room.vo.TransactionMethod
 import androidx.room.vo.UpdateMethod
 import androidx.room.vo.WriteQueryMethod
@@ -117,9 +117,14 @@ class DaoWriter(
         val preparedQueries = groupedPreparedQueries[false] ?: emptyList()
         // queries that must be rebuilt every single time
         val oneOffPreparedQueries = groupedPreparedQueries[true] ?: emptyList()
-        val shortcutMethods = createInsertionMethods() +
-            createDeletionMethods() + createUpdateMethods() + createTransactionMethods() +
-            createPreparedQueries(preparedQueries) + createUpsertMethods()
+        val shortcutMethods = buildList {
+            addAll(createInsertionMethods())
+            addAll(createDeletionMethods())
+            addAll(createUpdateMethods())
+            addAll(createTransactionMethods())
+            addAll(createPreparedQueries(preparedQueries))
+            addAll(createUpsertMethods())
+        }
 
         builder.apply {
             addOriginatingElement(dbElement)
@@ -389,9 +394,10 @@ class DaoWriter(
 
         val scope = CodeGenScope(this)
 
-        method.methodBinder.convertAndReturn(
+        // TODO b/240491383 Remove nullability from methodBinders for convertAndReturn
+        method.methodBinder?.convertAndReturn(
             parameters = method.parameters,
-            insertionAdapters = insertionAdapters,
+            adapters = insertionAdapters,
             dbField = dbField,
             scope = scope
         )
@@ -419,7 +425,7 @@ class DaoWriter(
         }
     }
 
-    private fun <T : ShortcutMethod> createShortcutMethods(
+    private fun <T : DeleteOrUpdateShortcutMethod> createShortcutMethods(
         methods: List<T>,
         methodPrefix: String,
         implCallback: (T, ShortcutEntity) -> TypeSpec
@@ -450,7 +456,7 @@ class DaoWriter(
     }
 
     private fun createDeleteOrUpdateMethodBody(
-        method: ShortcutMethod,
+        method: DeleteOrUpdateShortcutMethod,
         adapters: Map<String, Pair<FieldSpec, TypeSpec>>
     ): CodeBlock {
         if (adapters.isEmpty() || method.methodBinder == null) {
@@ -474,7 +480,13 @@ class DaoWriter(
     private fun createUpsertMethods(): List<PreparedStmtQuery> {
         return dao.upsertionMethods
             .map { upsertionMethod ->
-                val fields = emptyMap<String, Pair<FieldSpec, TypeSpec>>()
+                val entities = upsertionMethod.entities
+                val fields = entities.mapValues {
+                    val spec = getOrCreateField(UpsertionAdapterField(it.value))
+                    val impl = EntityUpsertionAdapterWriter.create(it.value)
+                        .createConcrete(it.value, this@DaoWriter, dbField.name)
+                    spec to impl
+                }
                 val methodImpl = overrideWithoutAnnotations(
                     upsertionMethod.element,
                     declaredDao
@@ -487,7 +499,7 @@ class DaoWriter(
 
     private fun createUpsertionMethodBody(
         method: UpsertionMethod,
-        upsertionAdapters: Map<String, Pair<FieldSpec, TypeSpec>>
+        upsertionAdapters: Map<String, Pair<FieldSpec, CodeBlock>>
     ): CodeBlock {
         if (upsertionAdapters.isEmpty()) {
             return CodeBlock.builder().build()
@@ -495,9 +507,10 @@ class DaoWriter(
 
         val scope = CodeGenScope(this)
 
-        method.methodBinder.convertAndReturn(
+        // TODO b/240491383 Remove nullability from methodBinders for convertAndReturn
+        method.methodBinder?.convertAndReturn(
             parameters = method.parameters,
-            upsertionAdapters = upsertionAdapters,
+            adapters = upsertionAdapters,
             dbField = dbField,
             scope = scope
         )
@@ -594,7 +607,7 @@ class DaoWriter(
      * @param methodImpl The body of the query method implementation.
      */
     data class PreparedStmtQuery(
-        val fields: Map<String, Pair<FieldSpec, TypeSpec>>,
+        val fields: Map<String, Pair<FieldSpec, Any>>,
         val methodImpl: MethodSpec
     ) {
         companion object {
@@ -639,6 +652,23 @@ class DaoWriter(
         override fun getUniqueKey(): String {
             return "${shortcutEntity.pojo.typeName}-${shortcutEntity.entityTypeName}" +
                 "$methodPrefix$onConflictText"
+        }
+    }
+
+    class UpsertionAdapterField(
+        val shortcutEntity: ShortcutEntity
+    ) : SharedFieldSpec(
+        baseName = "upsertionAdapterOf${shortcutEntityFieldNamePart(shortcutEntity)}",
+        type = ParameterizedTypeName.get(
+            RoomTypeNames.UPSERTION_ADAPTER, shortcutEntity.pojo.typeName
+        )
+    ) {
+        override fun getUniqueKey(): String {
+            return "${shortcutEntity.pojo.typeName}-${shortcutEntity.entityTypeName}"
+        }
+
+        override fun prepare(writer: ClassWriter, builder: FieldSpec.Builder) {
+            builder.addModifiers(PRIVATE, FINAL)
         }
     }
 

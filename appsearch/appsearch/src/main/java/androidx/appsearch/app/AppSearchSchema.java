@@ -44,7 +44,7 @@ import java.util.Set;
  *
  * <p>The schema consists of type information, properties, and config (like tokenization type).
  *
- * @see AppSearchSession#setSchema
+ * @see AppSearchSession#setSchemaAsync
  */
 public final class AppSearchSchema {
     private static final String SCHEMA_TYPE_FIELD = "schemaType";
@@ -127,7 +127,7 @@ public final class AppSearchSchema {
     public List<PropertyConfig> getProperties() {
         ArrayList<Bundle> propertyBundles =
                 mBundle.getParcelableArrayList(AppSearchSchema.PROPERTIES_FIELD);
-        if (propertyBundles.isEmpty()) {
+        if (propertyBundles == null || propertyBundles.isEmpty()) {
             return Collections.emptyList();
         }
         List<PropertyConfig> ret = new ArrayList<>(propertyBundles.size());

@@ -273,11 +273,11 @@ class OpenCloseCaptureSessionStressTest(
         }
 
         fun awaitSessionEnabledAndAssert() {
-            assertThat(sessionEnabledLatch.await(3000, TimeUnit.MILLISECONDS)).isTrue()
+            assertThat(sessionEnabledLatch.await(15000, TimeUnit.MILLISECONDS)).isTrue()
         }
 
         fun awaitSessionDisabledAndAssert() {
-            assertThat(sessionDisabledLatch.await(3000, TimeUnit.MILLISECONDS)).isTrue()
+            assertThat(sessionDisabledLatch.await(15000, TimeUnit.MILLISECONDS)).isTrue()
         }
     }
 }
