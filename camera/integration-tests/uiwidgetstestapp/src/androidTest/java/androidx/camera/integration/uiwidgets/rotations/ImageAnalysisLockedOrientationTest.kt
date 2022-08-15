@@ -16,7 +16,6 @@
 
 package androidx.camera.integration.uiwidgets.rotations
 
-import androidx.camera.core.CameraSelector
 import androidx.test.core.app.ActivityScenario
 import androidx.test.filters.LargeTest
 import org.junit.After
@@ -29,21 +28,24 @@ import org.junit.runners.Parameterized
 @LargeTest
 class ImageAnalysisLockedOrientationTest(
     private val lensFacing: Int,
-    private val rotationDegrees: Int
-) : ImageAnalysisBaseTest<LockedOrientationActivity>() {
+    private val rotationDegrees: Int,
+    private val cameraXConfig: String
+) : ImageAnalysisBaseTest<LockedOrientationActivity>(cameraXConfig) {
 
     companion object {
         @JvmStatic
-        @Parameterized.Parameters(name = "lensFacing={0}, rotationDegrees={1}")
+        private val rotationDegrees = arrayOf(0, 90, 180, 270)
+
+        @JvmStatic
+        @Parameterized.Parameters(name = "lensFacing={0}, rotationDegrees={1}, cameraXConfig={2}")
         fun data() = mutableListOf<Array<Any?>>().apply {
-            add(arrayOf(CameraSelector.LENS_FACING_BACK, 0))
-            add(arrayOf(CameraSelector.LENS_FACING_BACK, 90))
-            add(arrayOf(CameraSelector.LENS_FACING_BACK, 180))
-            add(arrayOf(CameraSelector.LENS_FACING_BACK, 270))
-            add(arrayOf(CameraSelector.LENS_FACING_FRONT, 0))
-            add(arrayOf(CameraSelector.LENS_FACING_FRONT, 90))
-            add(arrayOf(CameraSelector.LENS_FACING_FRONT, 180))
-            add(arrayOf(CameraSelector.LENS_FACING_FRONT, 270))
+            lensFacingList.forEach { lens ->
+                rotationDegrees.forEach { rotation ->
+                    cameraXConfigList.forEach { cameraXConfig ->
+                        add(arrayOf(lens, rotation, cameraXConfig))
+                    }
+                }
+            }
         }
     }
 
@@ -59,7 +61,7 @@ class ImageAnalysisLockedOrientationTest(
 
     @Test
     fun verifyRotation() {
-        verifyRotation<LockedOrientationActivity>(lensFacing) {
+        verifyRotation<LockedOrientationActivity>(lensFacing, cameraXConfig) {
             rotate(rotationDegrees)
         }
     }
