@@ -39,7 +39,8 @@ android {
         )
         androidTest.assets.srcDirs += new File(
                 SupportConfigKt.getPrebuiltsRoot(project),
-                "androidx/internal/androidx/tracing/tracing-perfetto-binary"
+                "androidx/internal/androidx/tracing/tracing-perfetto-binary/" +
+                        "${androidx.LibraryVersions.TRACING_PERFETTO}"
         )
     }
 
