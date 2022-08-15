@@ -74,19 +74,11 @@ private fun WidgetLayoutCollapsed(data: GalleryTemplateData) {
 
 @Composable
 private fun WidgetLayoutHorizontal(data: GalleryTemplateData) {
-    Row(modifier = createTopLevelModifier(data)) {
-        Column(
-            modifier = GlanceModifier.defaultWeight().fillMaxHeight()
-        ) {
-            HeaderBlockTemplate(data.header)
-            Spacer(modifier = GlanceModifier.height(16.dp).defaultWeight())
-            TextBlockTemplate(data.mainTextBlock)
-            ActionBlockTemplate(data.mainActionBlock)
-        }
-        SingleImageBlockTemplate(
-            data.mainImageBlock,
-            GlanceModifier.fillMaxHeight().defaultWeight()
-        )
+    Row(
+        modifier = createTopLevelModifier(data),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        MainEntity(data, GlanceModifier.defaultWeight().fillMaxHeight())
     }
 }
 
@@ -120,17 +112,7 @@ private fun WidgetLayoutVertical(data: GalleryTemplateData) {
             modifier = createCardModifier(),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Column(
-                modifier = GlanceModifier.defaultWeight()
-            ) {
-                HeaderBlockTemplate(data.header)
-                Spacer(modifier = GlanceModifier.height(16.dp).defaultWeight())
-                TextBlockTemplate(data.mainTextBlock)
-                ActionBlockTemplate(data.mainActionBlock)
-            }
-            SingleImageBlockTemplate(
-                data.mainImageBlock
-            )
+            MainEntity(data, GlanceModifier.defaultWeight())
         }
         Row(
             modifier = createCardModifier(),
@@ -160,7 +142,8 @@ private fun createTopLevelModifier(
     isImmersive: Boolean = false
 ): GlanceModifier {
     var modifier = GlanceModifier
-        .fillMaxSize().background(LocalTemplateColors.current.surface)
+        .fillMaxSize().padding(16.dp).cornerRadius(16.dp)
+        .background(LocalTemplateColors.current.primaryContainer)
     if (isImmersive && data.mainImageBlock.images.isNotEmpty()) {
         val mainImage = data.mainImageBlock.images[0]
         modifier = modifier.background(mainImage.image, ContentScale.Crop)
@@ -172,3 +155,27 @@ private fun createTopLevelModifier(
 @Composable
 private fun createCardModifier() = GlanceModifier.fillMaxWidth().padding(16.dp).cornerRadius(16.dp)
     .background(LocalTemplateColors.current.primaryContainer)
+
+@Composable
+private fun HeaderAndTextBlocks(data: GalleryTemplateData, modifier: GlanceModifier) {
+    Column(modifier = modifier) {
+        HeaderBlockTemplate(data.header)
+        Spacer(modifier = GlanceModifier.height(16.dp).defaultWeight())
+        TextBlockTemplate(data.mainTextBlock)
+        ActionBlockTemplate(data.mainActionBlock)
+    }
+}
+
+@Composable
+private fun MainEntity(data: GalleryTemplateData, modifier: GlanceModifier) {
+    // Show first block by lower numbered priority
+    if (data.mainTextBlock.priority <= data.mainImageBlock.priority) {
+        HeaderAndTextBlocks(data, modifier)
+        Spacer(modifier = GlanceModifier.width(16.dp))
+        SingleImageBlockTemplate(data.mainImageBlock)
+    } else {
+        SingleImageBlockTemplate(data.mainImageBlock)
+        Spacer(modifier = GlanceModifier.width(16.dp))
+        HeaderAndTextBlocks(data, modifier)
+    }
+}
