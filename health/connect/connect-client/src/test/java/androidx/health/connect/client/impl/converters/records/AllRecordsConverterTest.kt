@@ -53,8 +53,8 @@ import androidx.health.connect.client.records.HeightRecord
 import androidx.health.connect.client.records.HipCircumferenceRecord
 import androidx.health.connect.client.records.HydrationRecord
 import androidx.health.connect.client.records.LeanBodyMassRecord
-import androidx.health.connect.client.records.MenstruationRecord
-import androidx.health.connect.client.records.MenstruationRecord.Flow
+import androidx.health.connect.client.records.MenstruationFlowRecord
+import androidx.health.connect.client.records.MenstruationFlowRecord.Flow
 import androidx.health.connect.client.records.NutritionRecord
 import androidx.health.connect.client.records.OvulationTestRecord
 import androidx.health.connect.client.records.OvulationTestRecord.Result
@@ -491,7 +491,7 @@ class AllRecordsConverterTest {
     @Test
     fun testMenstruation() {
         val data =
-            MenstruationRecord(
+            MenstruationFlowRecord(
                 flow = Flow.HEAVY,
                 time = START_TIME,
                 zoneOffset = END_ZONE_OFFSET,

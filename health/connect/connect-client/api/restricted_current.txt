@@ -736,8 +736,8 @@ package androidx.health.connect.client.records {
     field public static final String UNKNOWN = "unknown";
   }
 
-  public final class MenstruationRecord implements androidx.health.connect.client.records.InstantaneousRecord {
-    ctor public MenstruationRecord(optional String? flow, java.time.Instant time, java.time.ZoneOffset? zoneOffset, optional androidx.health.connect.client.records.metadata.Metadata metadata);
+  public final class MenstruationFlowRecord implements androidx.health.connect.client.records.InstantaneousRecord {
+    ctor public MenstruationFlowRecord(optional String? flow, java.time.Instant time, java.time.ZoneOffset? zoneOffset, optional androidx.health.connect.client.records.metadata.Metadata metadata);
     method public String? getFlow();
     method public androidx.health.connect.client.records.metadata.Metadata getMetadata();
     method public java.time.Instant getTime();
@@ -748,9 +748,9 @@ package androidx.health.connect.client.records {
     property public java.time.ZoneOffset? zoneOffset;
   }
 
-  public static final class MenstruationRecord.Flow {
+  public static final class MenstruationFlowRecord.Flow {
     field public static final String HEAVY = "heavy";
-    field public static final androidx.health.connect.client.records.MenstruationRecord.Flow INSTANCE;
+    field public static final androidx.health.connect.client.records.MenstruationFlowRecord.Flow INSTANCE;
     field public static final String LIGHT = "light";
     field public static final String MEDIUM = "medium";
     field public static final String SPOTTING = "spotting";
