@@ -289,7 +289,7 @@ public interface InteractiveWatchFaceClient : AutoCloseable {
      * [Renderer.watchfaceColors] if known or `null` if not, and subsequently whenever the watch
      * face's [Renderer.watchfaceColors] change.
      *
-     * @param executor The [Executor] on which to run [OnWatchFaceReadyListener].
+     * @param executor The [Executor] on which to run [listener].
      * @param listener The [OnWatchFaceColorsListener] to run whenever the watch face's
      * [Renderer.watchfaceColors] change.
      */
@@ -306,7 +306,10 @@ public interface InteractiveWatchFaceClient : AutoCloseable {
 
 /** Controls a stateful remote interactive watch face. */
 internal class InteractiveWatchFaceClientImpl internal constructor(
-    private val iInteractiveWatchFace: IInteractiveWatchFace
+    private val iInteractiveWatchFace: IInteractiveWatchFace,
+    private val previewImageUpdateRequestedExecutor: Executor?,
+    private val previewImageUpdateRequestedListener:
+        WatchFaceControlClient.PreviewImageUpdateRequestedListener?
 ) : InteractiveWatchFaceClient {
 
     private val lock = Any()
@@ -340,6 +343,12 @@ internal class InteractiveWatchFaceClientImpl internal constructor(
                 executor.execute {
                     listener.onWatchFaceColors(lastWatchFaceColors)
                 }
+            }
+        }
+
+        override fun onPreviewImageUpdateRequested(watchFaceId: String) {
+            previewImageUpdateRequestedExecutor?.execute {
+                previewImageUpdateRequestedListener!!.onPreviewImageUpdateRequested(watchFaceId)
             }
         }
     }

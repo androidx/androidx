@@ -26,7 +26,7 @@ import androidx.wear.watchface.data.WatchFaceColorsWireFormat;
 interface IWatchfaceListener {
     // IMPORTANT NOTE: All methods must be given an explicit transaction id that must never change
     // in the future to remain binary backwards compatible.
-    // Next Id: 4
+    // Next Id: 5
 
     /**
      * API version number. This should be incremented every time a new method is added.
@@ -54,4 +54,11 @@ interface IWatchfaceListener {
      * @since API version 1.
      */
     oneway void onWatchfaceColorsChanged(in WatchFaceColorsWireFormat watchFaceColors) = 3;
+
+    /**
+     * Signals that the watch face's preview image needs updating.
+     *
+     * @since API version 1.
+     */
+    oneway void onPreviewImageUpdateRequested(in String watchFaceId) = 4;
 }

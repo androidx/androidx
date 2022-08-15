@@ -417,6 +417,7 @@ class WatchFaceControlClientTest {
             surfaceHolder
         )
         val deferredInteractiveInstance = handlerCoroutineScope.async {
+            @Suppress("deprecation")
             service.getOrCreateInteractiveWatchFaceClient(
                 "testId",
                 deviceConfig,
@@ -463,6 +464,7 @@ class WatchFaceControlClientTest {
             surfaceHolder
         )
         val deferredInteractiveInstance = handlerCoroutineScope.async {
+            @Suppress("deprecation")
             service.getOrCreateInteractiveWatchFaceClient(
                 "testId",
                 deviceConfig,
@@ -561,6 +563,7 @@ class WatchFaceControlClientTest {
     @Test
     fun getOrCreateInteractiveWatchFaceClient() {
         val deferredInteractiveInstance = handlerCoroutineScope.async {
+            @Suppress("deprecation")
             service.getOrCreateInteractiveWatchFaceClient(
                 "testId",
                 deviceConfig,
@@ -597,6 +600,7 @@ class WatchFaceControlClientTest {
     @Test
     fun getOrCreateInteractiveWatchFaceClient_initialStyle() {
         val deferredInteractiveInstance = handlerCoroutineScope.async {
+            @Suppress("deprecation")
             service.getOrCreateInteractiveWatchFaceClient(
                 "testId",
                 deviceConfig,
@@ -722,6 +726,7 @@ class WatchFaceControlClientTest {
     @Test
     public fun updateComplicationData() {
         val deferredInteractiveInstance = handlerCoroutineScope.async {
+            @Suppress("deprecation")
             service.getOrCreateInteractiveWatchFaceClient(
                 "testId",
                 deviceConfig,
@@ -890,6 +895,7 @@ class WatchFaceControlClientTest {
     @Test
     fun getOrCreateInteractiveWatchFaceClient_existingOpenInstance() {
         val deferredInteractiveInstance = handlerCoroutineScope.async {
+            @Suppress("deprecation")
             service.getOrCreateInteractiveWatchFaceClient(
                 "testId",
                 deviceConfig,
@@ -905,6 +911,7 @@ class WatchFaceControlClientTest {
         val interactiveInstance = awaitWithTimeout(deferredInteractiveInstance)
 
         val deferredInteractiveInstance2 = handlerCoroutineScope.async {
+            @Suppress("deprecation")
             service.getOrCreateInteractiveWatchFaceClient(
                 "testId",
                 deviceConfig,
@@ -925,6 +932,7 @@ class WatchFaceControlClientTest {
     @Test
     fun getOrCreateInteractiveWatchFaceClient_existingOpenInstance_styleChange() {
         val deferredInteractiveInstance = handlerCoroutineScope.async {
+            @Suppress("deprecation")
             service.getOrCreateInteractiveWatchFaceClient(
                 "testId",
                 deviceConfig,
@@ -940,6 +948,7 @@ class WatchFaceControlClientTest {
         val interactiveInstance = awaitWithTimeout(deferredInteractiveInstance)
 
         val deferredInteractiveInstance2 = handlerCoroutineScope.async {
+            @Suppress("deprecation")
             service.getOrCreateInteractiveWatchFaceClient(
                 "testId",
                 deviceConfig,
@@ -981,6 +990,7 @@ class WatchFaceControlClientTest {
     @Test
     fun getOrCreateInteractiveWatchFaceClient_existingClosedInstance() {
         val deferredInteractiveInstance = handlerCoroutineScope.async {
+            @Suppress("deprecation")
             service.getOrCreateInteractiveWatchFaceClient(
                 "testId",
                 deviceConfig,
@@ -1002,6 +1012,7 @@ class WatchFaceControlClientTest {
         interactiveInstance.close()
 
         val deferredExistingInstance = handlerCoroutineScope.async {
+            @Suppress("deprecation")
             service.getOrCreateInteractiveWatchFaceClient(
                 "testId",
                 deviceConfig,
@@ -1024,6 +1035,7 @@ class WatchFaceControlClientTest {
     @Test
     fun getInteractiveWatchFaceInstance() {
         val deferredInteractiveInstance = handlerCoroutineScope.async {
+            @Suppress("deprecation")
             service.getOrCreateInteractiveWatchFaceClient(
                 "testId",
                 deviceConfig,
@@ -1073,6 +1085,7 @@ class WatchFaceControlClientTest {
     @Test
     fun additionalContentDescriptionLabels() {
         val deferredInteractiveInstance = handlerCoroutineScope.async {
+            @Suppress("deprecation")
             service.getOrCreateInteractiveWatchFaceClient(
                 "testId",
                 deviceConfig,
@@ -1168,6 +1181,7 @@ class WatchFaceControlClientTest {
     @Test
     fun contentDescriptionLabels_after_close() {
         val deferredInteractiveInstance = handlerCoroutineScope.async {
+            @Suppress("deprecation")
             service.getOrCreateInteractiveWatchFaceClient(
                 "testId",
                 deviceConfig,
@@ -1193,6 +1207,7 @@ class WatchFaceControlClientTest {
     @Test
     fun updateInstance() {
         val deferredInteractiveInstance = handlerCoroutineScope.async {
+            @Suppress("deprecation")
             service.getOrCreateInteractiveWatchFaceClient(
                 "testId",
                 deviceConfig,
@@ -1261,6 +1276,7 @@ class WatchFaceControlClientTest {
     @Test
     fun getComplicationIdAt() {
         val deferredInteractiveInstance = handlerCoroutineScope.async {
+            @Suppress("deprecation")
             service.getOrCreateInteractiveWatchFaceClient(
                 "testId",
                 deviceConfig,
@@ -1390,6 +1406,7 @@ class WatchFaceControlClientTest {
             initCompletableDeferred
         )
         val deferredInteractiveInstance = handlerCoroutineScope.async {
+            @Suppress("deprecation")
             service.getOrCreateInteractiveWatchFaceClient(
                 "testId",
                 deviceConfig,
@@ -1437,6 +1454,7 @@ class WatchFaceControlClientTest {
             initCompletableDeferred
         )
         val deferredInteractiveInstance = handlerCoroutineScope.async {
+            @Suppress("deprecation")
             service.getOrCreateInteractiveWatchFaceClient(
                 "testId",
                 deviceConfig,
@@ -1501,6 +1519,7 @@ class WatchFaceControlClientTest {
             onBackgroundThreadGlContextCreatedCompletableDeferred
         )
         val deferredInteractiveInstance = handlerCoroutineScope.async {
+            @Suppress("deprecation")
             service.getOrCreateInteractiveWatchFaceClient(
                 "testId",
                 deviceConfig,
@@ -1538,6 +1557,7 @@ class WatchFaceControlClientTest {
     @Test
     fun isConnectionAlive_false_after_close() {
         val deferredInteractiveInstance = handlerCoroutineScope.async {
+            @Suppress("deprecation")
             service.getOrCreateInteractiveWatchFaceClient(
                 "testId",
                 deviceConfig,
@@ -1581,6 +1601,7 @@ class WatchFaceControlClientTest {
         wallpaperService = TestExampleOpenGLBackgroundInitWatchFaceService(context, surfaceHolder2)
 
         val deferredInteractiveInstance = handlerCoroutineScope.async {
+            @Suppress("deprecation")
             service.getOrCreateInteractiveWatchFaceClient(
                 "testId",
                 deviceConfig,
@@ -1644,6 +1665,7 @@ class WatchFaceControlClientTest {
             WatchFace.OverlayStyle(Color.valueOf(Color.RED), Color.valueOf(Color.BLACK))
         )
         val deferredInteractiveInstance = handlerCoroutineScope.async {
+            @Suppress("deprecation")
             service.getOrCreateInteractiveWatchFaceClient(
                 "testId",
                 deviceConfig,
@@ -1677,6 +1699,7 @@ class WatchFaceControlClientTest {
             WatchFace.OverlayStyle(Color.valueOf(Color.RED), Color.valueOf(Color.BLACK))
         )
         val deferredInteractiveInstance = handlerCoroutineScope.async {
+            @Suppress("deprecation")
             service.getOrCreateInteractiveWatchFaceClient(
                 "testId",
                 deviceConfig,
@@ -1737,6 +1760,7 @@ class WatchFaceControlClientTest {
             surfaceHolder
         )
         val deferredInteractiveInstance = handlerCoroutineScope.async {
+            @Suppress("deprecation")
             service.getOrCreateInteractiveWatchFaceClient(
                 "testId",
                 deviceConfig,
@@ -1864,6 +1888,49 @@ class WatchFaceControlClientTest {
         } finally {
             interactiveInstance.close()
         }
+    }
+
+    @Test
+    fun previewImageUpdateRequest() {
+        val wallpaperService =
+            TestWatchFaceServiceWithPreviewImageUpdateRequest(context, surfaceHolder)
+        var lastPreviewImageUpdateRequestedId = ""
+        val deferredInteractiveInstance = handlerCoroutineScope.async {
+            service.getOrCreateInteractiveWatchFaceClient(
+                "wfId-1",
+                deviceConfig,
+                systemState,
+                null,
+                complications,
+                { runnable -> runnable.run() },
+                object : WatchFaceControlClient.PreviewImageUpdateRequestedListener {
+                    override fun onPreviewImageUpdateRequested(instanceId: String) {
+                        lastPreviewImageUpdateRequestedId = instanceId
+                    }
+                }
+            )
+        }
+
+        // Create the engine which triggers creation of the interactive instance.
+        handler.post {
+            engine = wallpaperService.onCreateEngine() as WatchFaceService.EngineWrapper
+        }
+
+        // Wait for the instance to be created.
+        val interactiveInstance = awaitWithTimeout(deferredInteractiveInstance)
+
+        assertTrue(
+            wallpaperService.rendererCreatedLatch.await(
+                UPDATE_TIMEOUT_MILLIS,
+                TimeUnit.MILLISECONDS
+            )
+        )
+
+        assertThat(lastPreviewImageUpdateRequestedId).isEmpty()
+        wallpaperService.triggerPreviewImageUpdateRequest()
+        assertThat(lastPreviewImageUpdateRequestedId).isEqualTo("wfId-1")
+
+        interactiveInstance.close()
     }
 }
 
@@ -2337,4 +2404,50 @@ internal class TestLifeCycleWatchFaceService : WatchFaceService() {
             override fun renderHighlightLayer(zonedDateTime: ZonedDateTime) {}
         }
     )
+}
+
+internal class TestWatchFaceServiceWithPreviewImageUpdateRequest(
+    testContext: Context,
+    private var surfaceHolderOverride: SurfaceHolder,
+) : WatchFaceService() {
+    val rendererCreatedLatch = CountDownLatch(1)
+
+    init {
+        attachBaseContext(testContext)
+    }
+
+    override fun getWallpaperSurfaceHolderOverride() = surfaceHolderOverride
+
+    @Suppress("deprecation")
+    private lateinit var renderer: Renderer.CanvasRenderer
+
+    fun triggerPreviewImageUpdateRequest() {
+        renderer.sendPreviewImageNeedsUpdateRequest()
+    }
+
+    override suspend fun createWatchFace(
+        surfaceHolder: SurfaceHolder,
+        watchState: WatchState,
+        complicationSlotsManager: ComplicationSlotsManager,
+        currentUserStyleRepository: CurrentUserStyleRepository
+    ): WatchFace {
+        @Suppress("deprecation")
+        renderer = object : Renderer.CanvasRenderer(
+            surfaceHolder,
+            currentUserStyleRepository,
+            watchState,
+            CanvasType.HARDWARE,
+            16
+        ) {
+            override fun render(canvas: Canvas, bounds: Rect, zonedDateTime: ZonedDateTime) {}
+
+            override fun renderHighlightLayer(
+                canvas: Canvas,
+                bounds: Rect,
+                zonedDateTime: ZonedDateTime
+            ) {}
+        }
+        rendererCreatedLatch.countDown()
+        return WatchFace(WatchFaceType.DIGITAL, renderer)
+    }
 }

@@ -2283,6 +2283,10 @@ public abstract class WatchFaceService : WallpaperService() {
             }
         }
 
+        override fun sendPreviewImageNeedsUpdateRequest() {
+            instance!!.sendPreviewImageNeedsUpdateRequest()
+        }
+
         override fun onWatchFaceColorsChanged(watchFaceColors: WatchFaceColors?) {
             val instance = this.instance
             if (instance != null) {

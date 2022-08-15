@@ -5845,6 +5845,8 @@ public class WatchFaceServiceTest {
             override fun onWatchfaceColorsChanged(watchFaceColors: WatchFaceColorsWireFormat?) {
                 lastWatchFaceColors = watchFaceColors?.toApiFormat()
             }
+
+            override fun onPreviewImageUpdateRequested(watchFaceId: String) {}
         }
 
         engineWrapper = testWatchFaceService.onCreateEngine() as WatchFaceService.EngineWrapper
@@ -5874,6 +5876,121 @@ public class WatchFaceServiceTest {
         )
 
         interactiveWatchFaceInstance.release()
+        engineWrapper.onDestroy()
+    }
+
+    @Test
+    public fun onPreviewImageUpdateRequested() {
+        @Suppress("DEPRECATION")
+        lateinit var renderer: Renderer.CanvasRenderer
+        testWatchFaceService = TestWatchFaceService(
+            WatchFaceType.DIGITAL,
+            emptyList(),
+            { _, currentUserStyleRepository, watchState ->
+                @Suppress("DEPRECATION")
+                renderer = object : Renderer.CanvasRenderer(
+                    surfaceHolder,
+                    currentUserStyleRepository,
+                    watchState,
+                    CanvasType.HARDWARE,
+                    INTERACTIVE_UPDATE_RATE_MS
+                ) {
+                    override fun render(
+                        canvas: Canvas,
+                        bounds: Rect,
+                        zonedDateTime: ZonedDateTime
+                    ) { }
+
+                    override fun renderHighlightLayer(
+                        canvas: Canvas,
+                        bounds: Rect,
+                        zonedDateTime: ZonedDateTime
+                    ) {
+                    }
+                }
+                renderer
+            },
+            UserStyleSchema(emptyList()),
+            null,
+            handler,
+            null,
+            false,
+            null,
+            choreographer,
+            forceIsVisible = true
+        )
+
+        InteractiveInstanceManager
+            .getExistingInstanceOrSetPendingWallpaperInteractiveWatchFaceInstance(
+                InteractiveInstanceManager.PendingWallpaperInteractiveWatchFaceInstance(
+                    WallpaperInteractiveWatchFaceInstanceParams(
+                        SYSTEM_SUPPORTS_CONSISTENT_IDS_PREFIX + "Interactive",
+                        DeviceConfig(
+                            false,
+                            false,
+                            0,
+                            0
+                        ),
+                        WatchUiState(false, 0),
+                        UserStyle(emptyMap()).toWireFormat(),
+                        emptyList()
+                    ),
+                    object : IPendingInteractiveWatchFace.Stub() {
+                        override fun getApiVersion() =
+                            IPendingInteractiveWatchFace.API_VERSION
+
+                        override fun onInteractiveWatchFaceCreated(
+                            iInteractiveWatchFace: IInteractiveWatchFace
+                        ) {
+                            interactiveWatchFaceInstance = iInteractiveWatchFace
+                        }
+
+                        override fun onInteractiveWatchFaceCrashed(exception: CrashInfoParcel?) {
+                            fail("WatchFace crashed: $exception")
+                        }
+                    }
+                )
+            )
+
+        var lastPreviewImageUpdateRequestedWatchFaceId: String? = null
+        val listener = object : IWatchfaceListener.Stub() {
+            override fun getApiVersion() = 1
+
+            override fun onWatchfaceReady() { }
+
+            override fun onWatchfaceColorsChanged(watchFaceColors: WatchFaceColorsWireFormat?) {}
+
+            override fun onPreviewImageUpdateRequested(watchFaceId: String) {
+                lastPreviewImageUpdateRequestedWatchFaceId = watchFaceId
+            }
+        }
+
+        engineWrapper = testWatchFaceService.onCreateEngine() as WatchFaceService.EngineWrapper
+        engineWrapper.onCreate(surfaceHolder)
+        engineWrapper.onSurfaceChanged(surfaceHolder, 0, 100, 100)
+
+        interactiveWatchFaceInstance.addWatchFaceListener(listener)
+
+        assertThat(lastPreviewImageUpdateRequestedWatchFaceId).isNull()
+
+        renderer.sendPreviewImageNeedsUpdateRequest()
+
+        assertThat(lastPreviewImageUpdateRequestedWatchFaceId).isEqualTo(
+            SYSTEM_SUPPORTS_CONSISTENT_IDS_PREFIX + "Interactive"
+        )
+
+        interactiveWatchFaceInstance.removeWatchFaceListener(listener)
+
+        // This should be ignored.
+        interactiveWatchFaceInstance.updateWatchfaceInstance(
+            SYSTEM_SUPPORTS_CONSISTENT_IDS_PREFIX + "Interactive2",
+            UserStyleWireFormat(emptyMap())
+        )
+        renderer.sendPreviewImageNeedsUpdateRequest()
+        assertThat(lastPreviewImageUpdateRequestedWatchFaceId).isNotEqualTo(
+            SYSTEM_SUPPORTS_CONSISTENT_IDS_PREFIX + "Interactive2"
+        )
+
         engineWrapper.onDestroy()
     }
 

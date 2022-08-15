@@ -42,6 +42,7 @@ import androidx.annotation.UiThread
 import androidx.annotation.WorkerThread
 import androidx.wear.watchface.utility.TraceEvent
 import androidx.wear.watchface.style.CurrentUserStyleRepository
+import androidx.wear.watchface.style.UserStyleSchema
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -500,6 +501,20 @@ public sealed class Renderer @WorkerThread constructor(
     }
 
     internal abstract fun renderBlackFrame()
+
+    /**
+     * Sends a request to the system asking it to update the preview image. This is useful for
+     * watch faces with configuration outside of the [UserStyleSchema] E.g. a watchface with a
+     * selectable background.
+     *
+     * The system may choose to rate limit this method for performance reasons and the system is
+     * free to schedule when the update occurs.
+     *
+     * Requires a compatible system to work (if the system is incompatible this does nothing).
+     */
+    public fun sendPreviewImageNeedsUpdateRequest() {
+        watchFaceHostApi?.sendPreviewImageNeedsUpdateRequest()
+    }
 
     /**
      * Watch faces that require [Canvas] rendering should extend their [Renderer] from this class
