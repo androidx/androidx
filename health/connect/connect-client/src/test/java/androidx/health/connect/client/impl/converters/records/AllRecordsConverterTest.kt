@@ -109,8 +109,8 @@ private val END_ZONE_OFFSET = ZoneOffset.ofHours(2)
 private val TEST_METADATA =
     Metadata(
         uid = "uid",
-        clientId = "clientId",
-        clientVersion = 10,
+        clientRecordId = "clientId",
+        clientRecordVersion = 10,
         device = Device(manufacturer = "manufacturer"),
         lastModifiedTime = END_TIME,
         dataOrigin = DataOrigin(packageName = "appId")
