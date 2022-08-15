@@ -23,8 +23,6 @@ import android.os.Bundle;
 import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
-import androidx.car.app.serialization.Bundleable;
-import androidx.car.app.serialization.BundlerException;
 
 /** Helper to encode and decode a {@link SessionInfo} from an {@link Intent} */
 public class SessionInfoIntentEncoder {
@@ -32,8 +30,13 @@ public class SessionInfoIntentEncoder {
     private SessionInfoIntentEncoder() {
     }
 
-    /** The key for a {@link Bundleable} extra containing the {@link SessionInfo} for a bind. */
-    private static final String EXTRA_SESSION_INFO = "androidx.car.app.extra.SESSION_INFO";
+    /** The key for a {@link Bundle} extra containing the {@link SessionInfo} for a bind. */
+    private static final String EXTRA_SESSION_INFO = "androidx.car.app.extra.SESSION_INFO_BUNDLE";
+
+    /** Key for {@link SessionInfo#mDisplayType}. */
+    private static final String KEY_DISPLAY_TYPE = "display-type";
+    /** Key for {@link SessionInfo#mSessionId}. */
+    private static final String KEY_SESSION_ID = "session-id";
 
     /**
      * Sets the unique identifier for the given {@code intent} and encodes the passed
@@ -49,18 +52,17 @@ public class SessionInfoIntentEncoder {
         } else {
             intent.setData(new Uri.Builder().path(sessionInfo.toString()).build());
         }
-        try {
-            intent.putExtra(EXTRA_SESSION_INFO, Bundleable.create(sessionInfo));
-        } catch (BundlerException e) {
-            throw new RuntimeException(e);
-        }
+
+        Bundle sessionInfoBundle = new Bundle();
+        sessionInfoBundle.putInt(KEY_DISPLAY_TYPE, sessionInfo.getDisplayType());
+        sessionInfoBundle.putString(KEY_SESSION_ID, sessionInfo.getSessionId());
+        intent.putExtra(EXTRA_SESSION_INFO, sessionInfoBundle);
     }
 
     /**
      * Decodes a new {@link SessionInfo} for a given {@code intent}
      */
     @NonNull
-    @SuppressWarnings("deprecation")  /* getParcelable deprecation */
     public static SessionInfo decode(@NonNull Intent intent) {
         Bundle extras = intent.getExtras();
         if (extras == null) {
@@ -68,20 +70,11 @@ public class SessionInfoIntentEncoder {
                     "Expected the SessionInfo to be encoded in the bind intent extras, but the "
                             + "extras were null.");
         }
-        extras.setClassLoader(Bundleable.class.getClassLoader());
-        Bundleable sessionInfoBundleable = extras.getParcelable(EXTRA_SESSION_INFO);
-        if (sessionInfoBundleable == null) {
-            throw new IllegalArgumentException(
-                    "Expected the SessionInfo to be encoded in the bind intent extras, but they "
-                            + "couldn't be found in the extras.");
-        }
-        try {
-            return (SessionInfo) sessionInfoBundleable.get();
-        } catch (BundlerException e) {
-            throw new IllegalArgumentException(
-                    "Expected the SessionInfo to be encoded in the bind intent extras, but they "
-                            + "were encoded improperly", e);
-        }
+
+        Bundle sessionInfoBundle = extras.getBundle(EXTRA_SESSION_INFO);
+        int displayType = sessionInfoBundle.getInt(KEY_DISPLAY_TYPE);
+        String sessionId = sessionInfoBundle.getString(KEY_SESSION_ID);
+        return new SessionInfo(displayType, sessionId);
     }
 
     /** Returns whether or not the given {@code intent} contains an encoded {@link SessionInfo}. */
