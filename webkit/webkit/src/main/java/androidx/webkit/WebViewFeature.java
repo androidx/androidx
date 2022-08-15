@@ -20,6 +20,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Handler;
+import android.webkit.CookieManager;
 import android.webkit.ValueCallback;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceResponse;
@@ -99,6 +100,7 @@ public class WebViewFeature {
             ALGORITHMIC_DARKENING,
             REQUESTED_WITH_HEADER_CONTROL,
             ENTERPRISE_AUTHENTICATION_APP_LINK_POLICY,
+            GET_COOKIE_INFO,
     })
     @Retention(RetentionPolicy.SOURCE)
     @Target({ElementType.PARAMETER, ElementType.METHOD})
@@ -501,6 +503,15 @@ public class WebViewFeature {
      */
     public static final String ENTERPRISE_AUTHENTICATION_APP_LINK_POLICY =
             "ENTERPRISE_AUTHENTICATION_APP_LINK_POLICY";
+
+    /**
+     * Feature for {@link #isFeatureSupported(String)}.
+     * This feature covers
+     * {@link CookieManagerCompat#getCookieInfo(CookieManager, String)}.
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final String GET_COOKIE_INFO = "GET_COOKIE_INFO";
 
     /**
      * Return whether a feature is supported at run-time. On devices running Android version {@link
