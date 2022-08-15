@@ -47,7 +47,7 @@ import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 import org.junit.runners.Parameterized.Parameters
 
-private const val tracingPerfettoVersion = "1.0.0-alpha01" // TODO(224510255): get by 'reflection'
+private const val tracingPerfettoVersion = "1.0.0-alpha02" // TODO(224510255): get by 'reflection'
 private const val minSupportedSdk = Build.VERSION_CODES.R // TODO(234351579): Support API < 30
 
 @RunWith(Parameterized::class)
@@ -178,7 +178,7 @@ class PerfettoSdkHandshakeTest(private val testConfig: TestConfig) {
                 // find tracing-perfetto-binary AAR in test assets
                 val libraryZipPath: String? = run {
                     val rx =
-                        Regex(".*/tracing-perfetto-binary-[^/]+\\.aar", RegexOption.IGNORE_CASE)
+                        Regex("tracing-perfetto-binary-[^/]+\\.aar", RegexOption.IGNORE_CASE)
                     val queue = ArrayDeque(context.assets.list("")?.asList() ?: emptyList())
                     while (queue.isNotEmpty()) {
                         val curr = queue.removeFirst()
