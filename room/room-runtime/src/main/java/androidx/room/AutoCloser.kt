@@ -20,7 +20,6 @@ import android.os.Looper
 import android.os.SystemClock
 import androidx.annotation.GuardedBy
 import androidx.annotation.VisibleForTesting
-import androidx.room.util.SneakyThrow
 import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.sqlite.db.SupportSQLiteOpenHelper
 import java.io.IOException
@@ -92,11 +91,7 @@ internal class AutoCloser(
 
             delegateDatabase?.let {
                 if (it.isOpen) {
-                    try {
-                        it.close()
-                    } catch (e: IOException) {
-                        SneakyThrow.reThrow(e)
-                    }
+                    it.close()
                 }
             }
             delegateDatabase = null
