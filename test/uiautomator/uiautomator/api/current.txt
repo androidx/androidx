@@ -386,35 +386,34 @@ package androidx.test.uiautomator {
   }
 
   public class Until {
-    ctor public Until();
-    method public static androidx.test.uiautomator.UiObject2Condition<java.lang.Boolean!>! checkable(boolean);
-    method public static androidx.test.uiautomator.UiObject2Condition<java.lang.Boolean!>! checked(boolean);
-    method public static androidx.test.uiautomator.UiObject2Condition<java.lang.Boolean!>! clickable(boolean);
-    method public static androidx.test.uiautomator.UiObject2Condition<java.lang.Boolean!>! descContains(String!);
-    method public static androidx.test.uiautomator.UiObject2Condition<java.lang.Boolean!>! descEndsWith(String!);
-    method public static androidx.test.uiautomator.UiObject2Condition<java.lang.Boolean!>! descEquals(String!);
-    method public static androidx.test.uiautomator.UiObject2Condition<java.lang.Boolean!>! descMatches(java.util.regex.Pattern!);
-    method public static androidx.test.uiautomator.UiObject2Condition<java.lang.Boolean!>! descMatches(String!);
-    method public static androidx.test.uiautomator.UiObject2Condition<java.lang.Boolean!>! descStartsWith(String!);
-    method public static androidx.test.uiautomator.UiObject2Condition<java.lang.Boolean!>! enabled(boolean);
-    method public static androidx.test.uiautomator.SearchCondition<androidx.test.uiautomator.UiObject2!>! findObject(androidx.test.uiautomator.BySelector!);
-    method public static androidx.test.uiautomator.SearchCondition<java.util.List<androidx.test.uiautomator.UiObject2!>!>! findObjects(androidx.test.uiautomator.BySelector!);
-    method public static androidx.test.uiautomator.UiObject2Condition<java.lang.Boolean!>! focusable(boolean);
-    method public static androidx.test.uiautomator.UiObject2Condition<java.lang.Boolean!>! focused(boolean);
-    method public static androidx.test.uiautomator.SearchCondition<java.lang.Boolean!>! gone(androidx.test.uiautomator.BySelector!);
-    method public static androidx.test.uiautomator.SearchCondition<java.lang.Boolean!>! hasObject(androidx.test.uiautomator.BySelector!);
-    method public static androidx.test.uiautomator.UiObject2Condition<java.lang.Boolean!>! longClickable(boolean);
-    method public static androidx.test.uiautomator.EventCondition<java.lang.Boolean!>! newWindow();
-    method public static androidx.test.uiautomator.EventCondition<java.lang.Boolean!>! scrollFinished(androidx.test.uiautomator.Direction!);
-    method public static androidx.test.uiautomator.UiObject2Condition<java.lang.Boolean!>! scrollable(boolean);
-    method public static androidx.test.uiautomator.UiObject2Condition<java.lang.Boolean!>! selected(boolean);
-    method public static androidx.test.uiautomator.UiObject2Condition<java.lang.Boolean!>! textContains(String!);
-    method public static androidx.test.uiautomator.UiObject2Condition<java.lang.Boolean!>! textEndsWith(String!);
-    method public static androidx.test.uiautomator.UiObject2Condition<java.lang.Boolean!>! textEquals(String!);
-    method public static androidx.test.uiautomator.UiObject2Condition<java.lang.Boolean!>! textMatches(java.util.regex.Pattern!);
-    method public static androidx.test.uiautomator.UiObject2Condition<java.lang.Boolean!>! textMatches(String!);
-    method public static androidx.test.uiautomator.UiObject2Condition<java.lang.Boolean!>! textNotEquals(String!);
-    method public static androidx.test.uiautomator.UiObject2Condition<java.lang.Boolean!>! textStartsWith(String!);
+    method public static androidx.test.uiautomator.UiObject2Condition<java.lang.Boolean!> checkable(boolean);
+    method public static androidx.test.uiautomator.UiObject2Condition<java.lang.Boolean!> checked(boolean);
+    method public static androidx.test.uiautomator.UiObject2Condition<java.lang.Boolean!> clickable(boolean);
+    method public static androidx.test.uiautomator.UiObject2Condition<java.lang.Boolean!> descContains(String);
+    method public static androidx.test.uiautomator.UiObject2Condition<java.lang.Boolean!> descEndsWith(String);
+    method public static androidx.test.uiautomator.UiObject2Condition<java.lang.Boolean!> descEquals(String);
+    method public static androidx.test.uiautomator.UiObject2Condition<java.lang.Boolean!> descMatches(java.util.regex.Pattern);
+    method public static androidx.test.uiautomator.UiObject2Condition<java.lang.Boolean!> descMatches(String);
+    method public static androidx.test.uiautomator.UiObject2Condition<java.lang.Boolean!> descStartsWith(String);
+    method public static androidx.test.uiautomator.UiObject2Condition<java.lang.Boolean!> enabled(boolean);
+    method public static androidx.test.uiautomator.SearchCondition<androidx.test.uiautomator.UiObject2!> findObject(androidx.test.uiautomator.BySelector);
+    method public static androidx.test.uiautomator.SearchCondition<java.util.List<androidx.test.uiautomator.UiObject2!>!> findObjects(androidx.test.uiautomator.BySelector);
+    method public static androidx.test.uiautomator.UiObject2Condition<java.lang.Boolean!> focusable(boolean);
+    method public static androidx.test.uiautomator.UiObject2Condition<java.lang.Boolean!> focused(boolean);
+    method public static androidx.test.uiautomator.SearchCondition<java.lang.Boolean!> gone(androidx.test.uiautomator.BySelector);
+    method public static androidx.test.uiautomator.SearchCondition<java.lang.Boolean!> hasObject(androidx.test.uiautomator.BySelector);
+    method public static androidx.test.uiautomator.UiObject2Condition<java.lang.Boolean!> longClickable(boolean);
+    method public static androidx.test.uiautomator.EventCondition<java.lang.Boolean!> newWindow();
+    method public static androidx.test.uiautomator.EventCondition<java.lang.Boolean!> scrollFinished(androidx.test.uiautomator.Direction);
+    method public static androidx.test.uiautomator.UiObject2Condition<java.lang.Boolean!> scrollable(boolean);
+    method public static androidx.test.uiautomator.UiObject2Condition<java.lang.Boolean!> selected(boolean);
+    method public static androidx.test.uiautomator.UiObject2Condition<java.lang.Boolean!> textContains(String);
+    method public static androidx.test.uiautomator.UiObject2Condition<java.lang.Boolean!> textEndsWith(String);
+    method public static androidx.test.uiautomator.UiObject2Condition<java.lang.Boolean!> textEquals(String);
+    method public static androidx.test.uiautomator.UiObject2Condition<java.lang.Boolean!> textMatches(java.util.regex.Pattern);
+    method public static androidx.test.uiautomator.UiObject2Condition<java.lang.Boolean!> textMatches(String);
+    method public static androidx.test.uiautomator.UiObject2Condition<java.lang.Boolean!> textNotEquals(String);
+    method public static androidx.test.uiautomator.UiObject2Condition<java.lang.Boolean!> textStartsWith(String);
   }
 
 }
