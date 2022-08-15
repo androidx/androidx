@@ -162,4 +162,50 @@ class UpsertTest : TestDatabaseTest() {
         testObserver.assertError(SQLiteConstraintException::class.java)
         assertThat(testObserver.errors().get(0).message).ignoringCase().contains("foreign key")
     }
+
+    @Test
+    fun upsertFlowable() {
+        booksDao.upsertPublishers(TestUtil.PUBLISHER)
+        booksDao.upsertBook(TestUtil.BOOK_1)
+        val subscriber = TestSubscriber<List<Book>>()
+        booksDao.getBooksFlowable().subscribeWith(subscriber)
+        drain()
+        assertThat(subscriber.values().size).isEqualTo(1)
+        assertThat(subscriber.values()[0]).isEqualTo(listOf(TestUtil.BOOK_1))
+        booksDao.upsertBook(TestUtil.BOOK_1.copy(title = "changed title"))
+        drain()
+        assertThat(subscriber.values()[1][0].title).isEqualTo("changed title")
+        booksDao.upsertBooksWithReturns(buildList {
+            add(TestUtil.BOOK_2)
+            add(TestUtil.BOOK_3)
+        })
+        drain()
+        assertThat(subscriber.values().size).isEqualTo(3)
+        assertThat(subscriber.values()[2]).isEqualTo(
+            listOf(TestUtil.BOOK_1.copy(title = "changed title"), TestUtil.BOOK_2, TestUtil.BOOK_3)
+        )
+    }
+
+    @Test
+    fun upsertObservable() {
+        booksDao.addPublishers(TestUtil.PUBLISHER)
+        booksDao.upsertBook(TestUtil.BOOK_1)
+        val observer = TestObserver<List<Book>>()
+        booksDao.getBooksObservable().subscribeWith(observer)
+        drain()
+        assertThat(observer.values().size).isEqualTo(1)
+        assertThat(observer.values()[0]).isEqualTo(listOf(TestUtil.BOOK_1))
+        booksDao.upsertBook(TestUtil.BOOK_1.copy(title = "changed title"))
+        drain()
+        assertThat(observer.values()[1][0].title).isEqualTo("changed title")
+        booksDao.upsertBooksWithReturns(buildList {
+            add(TestUtil.BOOK_2)
+            add(TestUtil.BOOK_3)
+        })
+        drain()
+        assertThat(observer.values().size).isEqualTo(3)
+        assertThat(observer.values()[2]).isEqualTo(
+            listOf(TestUtil.BOOK_1.copy(title = "changed title"), TestUtil.BOOK_2, TestUtil.BOOK_3)
+        )
+    }
 }
