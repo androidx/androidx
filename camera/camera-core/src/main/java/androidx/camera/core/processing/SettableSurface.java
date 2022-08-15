@@ -217,12 +217,12 @@ public class SettableSurface extends DeferrableSurface {
      * <p>Do not provide the {@link SurfaceOutput} to external target if the
      * {@link ListenableFuture} fails.
      *
-     * @param applyGlTransform     whether the SurfaceOutput should apply the transform, which is
-     *                             calculated based on the input image buffer's attributes.
-     * @param resolution           resolution of input image buffer
-     * @param cropRect             crop rect of input image buffer
-     * @param rotationDegrees      expected rotation to the input image buffer
-     * @param mirroring            expected mirroring to the input image buffer
+     * @param applyGlTransform whether the SurfaceOutput should apply the transform, which is
+     *                         calculated based on the input image buffer's attributes.
+     * @param resolution       resolution of input image buffer
+     * @param cropRect         crop rect of input image buffer
+     * @param rotationDegrees  expected rotation to the input image buffer
+     * @param mirroring        expected mirroring to the input image buffer
      */
     @MainThread
     @NonNull
@@ -253,15 +253,15 @@ public class SettableSurface extends DeferrableSurface {
     /**
      * Closes the {@link DeferrableSurface} and notifies linked objects for the closure.
      */
-    @MainThread
     @Override
     public final void close() {
-        checkMainThread();
         super.close();
-        if (mConsumerToNotify != null) {
-            mConsumerToNotify.requestClose();
-            mConsumerToNotify = null;
-        }
+        mainThreadExecutor().execute(() -> {
+            if (mConsumerToNotify != null) {
+                mConsumerToNotify.requestClose();
+                mConsumerToNotify = null;
+            }
+        });
     }
 
     /**
