@@ -350,35 +350,35 @@ package androidx.test.uiautomator {
 
   public class UiSelector {
     ctor public UiSelector();
-    method public androidx.test.uiautomator.UiSelector! checkable(boolean);
-    method public androidx.test.uiautomator.UiSelector! checked(boolean);
-    method public androidx.test.uiautomator.UiSelector! childSelector(androidx.test.uiautomator.UiSelector!);
-    method public androidx.test.uiautomator.UiSelector! className(String!);
-    method public <T> androidx.test.uiautomator.UiSelector! className(Class<T!>!);
-    method public androidx.test.uiautomator.UiSelector! classNameMatches(String!);
-    method public androidx.test.uiautomator.UiSelector! clickable(boolean);
-    method protected androidx.test.uiautomator.UiSelector! cloneSelector();
-    method public androidx.test.uiautomator.UiSelector! description(String!);
-    method public androidx.test.uiautomator.UiSelector! descriptionContains(String!);
-    method public androidx.test.uiautomator.UiSelector! descriptionMatches(String!);
-    method public androidx.test.uiautomator.UiSelector! descriptionStartsWith(String!);
-    method public androidx.test.uiautomator.UiSelector! enabled(boolean);
-    method public androidx.test.uiautomator.UiSelector! focusable(boolean);
-    method public androidx.test.uiautomator.UiSelector! focused(boolean);
-    method public androidx.test.uiautomator.UiSelector! fromParent(androidx.test.uiautomator.UiSelector!);
-    method public androidx.test.uiautomator.UiSelector! index(int);
-    method public androidx.test.uiautomator.UiSelector! instance(int);
-    method public androidx.test.uiautomator.UiSelector! longClickable(boolean);
-    method public androidx.test.uiautomator.UiSelector! packageName(String!);
-    method public androidx.test.uiautomator.UiSelector! packageNameMatches(String!);
-    method public androidx.test.uiautomator.UiSelector! resourceId(String!);
-    method public androidx.test.uiautomator.UiSelector! resourceIdMatches(String!);
-    method public androidx.test.uiautomator.UiSelector! scrollable(boolean);
-    method public androidx.test.uiautomator.UiSelector! selected(boolean);
-    method public androidx.test.uiautomator.UiSelector! text(String!);
-    method public androidx.test.uiautomator.UiSelector! textContains(String!);
-    method public androidx.test.uiautomator.UiSelector! textMatches(String!);
-    method public androidx.test.uiautomator.UiSelector! textStartsWith(String!);
+    method public androidx.test.uiautomator.UiSelector checkable(boolean);
+    method public androidx.test.uiautomator.UiSelector checked(boolean);
+    method public androidx.test.uiautomator.UiSelector childSelector(androidx.test.uiautomator.UiSelector);
+    method public androidx.test.uiautomator.UiSelector className(String);
+    method public <T> androidx.test.uiautomator.UiSelector className(Class<T!>);
+    method public androidx.test.uiautomator.UiSelector classNameMatches(String);
+    method public androidx.test.uiautomator.UiSelector clickable(boolean);
+    method protected androidx.test.uiautomator.UiSelector cloneSelector();
+    method public androidx.test.uiautomator.UiSelector description(String);
+    method public androidx.test.uiautomator.UiSelector descriptionContains(String);
+    method public androidx.test.uiautomator.UiSelector descriptionMatches(String);
+    method public androidx.test.uiautomator.UiSelector descriptionStartsWith(String);
+    method public androidx.test.uiautomator.UiSelector enabled(boolean);
+    method public androidx.test.uiautomator.UiSelector focusable(boolean);
+    method public androidx.test.uiautomator.UiSelector focused(boolean);
+    method public androidx.test.uiautomator.UiSelector fromParent(androidx.test.uiautomator.UiSelector);
+    method public androidx.test.uiautomator.UiSelector index(int);
+    method public androidx.test.uiautomator.UiSelector instance(int);
+    method public androidx.test.uiautomator.UiSelector longClickable(boolean);
+    method public androidx.test.uiautomator.UiSelector packageName(String);
+    method public androidx.test.uiautomator.UiSelector packageNameMatches(String);
+    method public androidx.test.uiautomator.UiSelector resourceId(String);
+    method public androidx.test.uiautomator.UiSelector resourceIdMatches(String);
+    method public androidx.test.uiautomator.UiSelector scrollable(boolean);
+    method public androidx.test.uiautomator.UiSelector selected(boolean);
+    method public androidx.test.uiautomator.UiSelector text(String);
+    method public androidx.test.uiautomator.UiSelector textContains(String);
+    method public androidx.test.uiautomator.UiSelector textMatches(String);
+    method public androidx.test.uiautomator.UiSelector textStartsWith(String);
   }
 
   public interface UiWatcher {
