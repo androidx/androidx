@@ -318,6 +318,7 @@ package androidx.work {
   }
 
   public final class WorkInfo {
+    method public int getGeneration();
     method public java.util.UUID getId();
     method public androidx.work.Data getOutputData();
     method public androidx.work.Data getProgress();
