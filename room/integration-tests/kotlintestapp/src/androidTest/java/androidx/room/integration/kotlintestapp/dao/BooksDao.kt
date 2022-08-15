@@ -490,4 +490,7 @@ interface BooksDao {
 
     @Query("SELECT * FROM book")
     fun getBooksObservable(): Observable<List<Book>>
+
+    @Insert
+    fun addPublisherReturnArray(publishers: List<Publisher>): Array<Long>
 }
