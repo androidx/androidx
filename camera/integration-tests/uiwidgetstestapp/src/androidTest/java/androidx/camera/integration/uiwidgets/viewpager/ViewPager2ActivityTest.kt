@@ -22,8 +22,11 @@ import android.graphics.SurfaceTexture
 import android.view.TextureView
 import android.view.View
 import androidx.camera.camera2.Camera2Config
+import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.CameraSelector
 import androidx.camera.integration.uiwidgets.R
+import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.camera.testing.CameraPipeConfigTestRule
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CoreAppTestUtil
 import androidx.camera.view.PreviewView
@@ -44,6 +47,7 @@ import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
+import org.junit.After
 import org.junit.Assume
 import org.junit.Before
 import org.junit.Rule
@@ -53,24 +57,50 @@ import org.junit.runners.Parameterized
 
 @RunWith(Parameterized::class)
 @LargeTest
-class ViewPager2ActivityTest(private val lensFacing: Int) {
+class ViewPager2ActivityTest(private val lensFacing: Int, private val cameraXConfig: String) {
 
     companion object {
         private const val ACTION_IDLE_TIMEOUT: Long = 5000
+
         @JvmStatic
-        @Parameterized.Parameters(name = "lensFacing={0}")
-        fun data() = listOf(
-            CameraSelector.LENS_FACING_FRONT,
-            CameraSelector.LENS_FACING_BACK
+        private val lensFacingList =
+            arrayOf(CameraSelector.LENS_FACING_BACK, CameraSelector.LENS_FACING_FRONT)
+
+        @JvmStatic
+        private val cameraXConfigList = arrayOf(
+            CameraFragment.CAMERA2_IMPLEMENTATION_OPTION,
+            CameraFragment.CAMERA_PIPE_IMPLEMENTATION_OPTION
         )
+
+        @JvmStatic
+        @Parameterized.Parameters(name = "lensFacing={0}, cameraXConfig={1}")
+        fun data() = mutableListOf<Array<Any?>>().apply {
+            lensFacingList.forEach { lens ->
+                cameraXConfigList.forEach { cameraXConfig ->
+                    add(arrayOf(lens, cameraXConfig))
+                }
+            }
+        }
 
         @JvmField
         val testCameraRule = CameraUtil.PreTestCamera()
     }
 
     @get:Rule
+    val cameraPipeConfigTestRule = CameraPipeConfigTestRule(
+        active = cameraXConfig == CameraFragment.CAMERA_PIPE_IMPLEMENTATION_OPTION,
+        forAllTests = true,
+    )
+
+    @get:Rule
     val useCamera = CameraUtil.grantCameraPermissionAndPreTest(
-        testCameraRule, CameraUtil.PreTestCameraIdList(Camera2Config.defaultConfig())
+        testCameraRule, CameraUtil.PreTestCameraIdList(
+            if (cameraXConfig == CameraFragment.CAMERA2_IMPLEMENTATION_OPTION) {
+                Camera2Config.defaultConfig()
+            } else {
+                CameraPipeConfig.defaultConfig()
+            }
+        )
     )
 
     private val mDevice =
@@ -80,15 +110,27 @@ class ViewPager2ActivityTest(private val lensFacing: Int) {
     fun setUp() {
         Assume.assumeTrue(CameraUtil.hasCameraWithLensFacing(lensFacing))
 
+        // Ensure it's in a natural orientation. This change could delay around 1 sec, please
+        // call this earlier before launching the test activity.
+        mDevice.setOrientationNatural()
+
         // Clear the device UI and check if there is no dialog or lock screen on the top of the
         // window.
         CoreAppTestUtil.prepareDeviceUI(InstrumentationRegistry.getInstrumentation())
     }
 
+    @After
+    fun tearDown() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val cameraProvider = ProcessCameraProvider.getInstance(context)[10, TimeUnit.SECONDS]
+        cameraProvider.shutdown()[10, TimeUnit.SECONDS]
+        mDevice.unfreezeRotation()
+    }
+
     // The test makes sure the camera PreviewView is in the streaming state.
     @Test
     fun testPreviewViewUpdateAfterStopResume() {
-        launchActivity(lensFacing).use { scenario ->
+        launchActivity(lensFacing, cameraXConfig).use { scenario ->
             // At first, check Preview in stream state
             assertStreamState(scenario, PreviewView.StreamState.STREAMING)
 
@@ -106,7 +148,7 @@ class ViewPager2ActivityTest(private val lensFacing: Int) {
     @Test
     fun testPreviewViewUpdateAfterSwitch() {
 
-        launchActivity(lensFacing).use { scenario ->
+        launchActivity(lensFacing, cameraXConfig).use { scenario ->
             // At first, check Preview in stream state
             assertStreamState(scenario, PreviewView.StreamState.STREAMING)
 
@@ -126,7 +168,7 @@ class ViewPager2ActivityTest(private val lensFacing: Int) {
 
     @Test
     fun testPreviewViewUpdateAfterSwitchAndStop_ResumeAndSwitchBack() {
-        launchActivity(lensFacing).use { scenario ->
+        launchActivity(lensFacing, cameraXConfig).use { scenario ->
             // At first, check Preview in stream state
             assertStreamState(scenario, PreviewView.StreamState.STREAMING)
 
@@ -151,13 +193,18 @@ class ViewPager2ActivityTest(private val lensFacing: Int) {
         }
     }
 
-    private fun launchActivity(lensFacing: Int):
+    private fun launchActivity(
+        lensFacing: Int,
+        cameraXConfig: String = CameraFragment.CAMERA2_IMPLEMENTATION_OPTION,
+    ):
         ActivityScenario<ViewPager2Activity> {
             val intent = Intent(
                 ApplicationProvider.getApplicationContext<Context>(),
                 ViewPager2Activity::class.java
-            )
-            intent.putExtra(BaseActivity.INTENT_LENS_FACING, lensFacing)
+            ).apply {
+                putExtra(BaseActivity.INTENT_LENS_FACING, lensFacing)
+                putExtra(CameraFragment.KEY_CAMERA_IMPLEMENTATION, cameraXConfig)
+            }
             return ActivityScenario.launch<ViewPager2Activity>(intent)
         }
 
