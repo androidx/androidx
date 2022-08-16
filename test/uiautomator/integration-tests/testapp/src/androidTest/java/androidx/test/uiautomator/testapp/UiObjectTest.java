@@ -564,13 +564,66 @@ public class UiObjectTest extends BaseTest {
                 partlyInvisibleRegion.getBounds().toString());
     }
 
+    @Test
+    public void testWaitForExists() throws Exception {
+        launchTestActivity(WaitTestActivity.class);
+
+        UiObject text1 = mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id/text_1"));
+        assertEquals("text_1_not_changed", text1.getText());
+
+        UiObject expectedText1 = mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id"
+                + "/text_1").text("text_1_changed"));
+
+        text1.click();
+        assertTrue(expectedText1.waitForExists(TIMEOUT_MS));
+    }
+
+    @Test
+    public void testWaitForExist_timeout() throws Exception {
+        launchTestActivity(WaitTestActivity.class);
+
+        UiObject text1 = mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id/text_1"));
+        assertEquals("text_1_not_changed", text1.getText());
+
+        UiObject expectedText1 = mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id"
+                + "/text_1").text("text_1_changed"));
+
+        assertFalse(expectedText1.waitForExists(1_000));
+    }
+
+    @Test
+    public void testWaitUntilGone() throws Exception {
+        launchTestActivity(WaitTestActivity.class);
+
+        UiObject expectedText1 = mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id"
+                + "/text_1").text("text_1_not_changed"));
+        assertTrue(expectedText1.exists());
+        expectedText1.click();
+        assertTrue(expectedText1.waitUntilGone(TIMEOUT_MS));
+    }
+
+    @Test
+    public void testWaitUntilGone_timeout() {
+        launchTestActivity(WaitTestActivity.class);
+
+        UiObject expectedText1 = mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id"
+                + "/text_1").text("text_1_not_changed"));
+        assertTrue(expectedText1.exists());
+        assertFalse(expectedText1.waitUntilGone(1_000));
+    }
+
+    @Test
+    public void testExists() {
+        launchTestActivity(WaitTestActivity.class);
+
+        UiObject text1 = mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id/text_1"));
+        UiObject text3 = mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id/text_3"));
+
+        assertTrue(text1.exists());
+        assertFalse(text3.exists());
+    }
+
     /* TODO(b/241158642): Implement these tests, and the tests for exceptions of each tested method.
-
-    public void testWaitForExists() {}
-
-    public void testWaitUntilGone() {}
-
-    public void testExists() {}
 
     public void testPinchOut() {}
 
