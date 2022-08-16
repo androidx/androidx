@@ -412,5 +412,10 @@ package androidx.room {
     property @androidx.room.OnConflictStrategy public abstract int onConflict;
   }
 
+  @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.FUNCTION) public @interface Upsert {
+    method public abstract kotlin.reflect.KClass<?> entity() default java.lang.Object;
+    property public abstract kotlin.reflect.KClass<?> entity;
+  }
+
 }
 
