@@ -16,6 +16,7 @@ package androidx.work {
   public final class Configuration {
     method public String? getDefaultProcessName();
     method public java.util.concurrent.Executor getExecutor();
+    method public androidx.work.InitializationExceptionHandler? getInitializationExceptionHandler();
     method public androidx.work.InputMergerFactory getInputMergerFactory();
     method public int getMaxJobSchedulerId();
     method public int getMinJobSchedulerId();
@@ -31,6 +32,7 @@ package androidx.work {
     method public androidx.work.Configuration build();
     method public androidx.work.Configuration.Builder setDefaultProcessName(String);
     method public androidx.work.Configuration.Builder setExecutor(java.util.concurrent.Executor);
+    method public androidx.work.Configuration.Builder setInitializationExceptionHandler(androidx.work.InitializationExceptionHandler);
     method public androidx.work.Configuration.Builder setInputMergerFactory(androidx.work.InputMergerFactory);
     method public androidx.work.Configuration.Builder setJobSchedulerJobIdRange(int, int);
     method public androidx.work.Configuration.Builder setMaxSchedulerLimit(int);
@@ -169,6 +171,10 @@ package androidx.work {
 
   public interface ForegroundUpdater {
     method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> setForegroundAsync(android.content.Context, java.util.UUID, androidx.work.ForegroundInfo);
+  }
+
+  public interface InitializationExceptionHandler {
+    method public void handleException(Throwable);
   }
 
   public abstract class InputMerger {
