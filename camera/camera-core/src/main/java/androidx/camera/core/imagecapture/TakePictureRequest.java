@@ -38,6 +38,7 @@ import androidx.camera.core.impl.CameraCaptureCallback;
 import androidx.camera.core.impl.ImageCaptureConfig;
 import androidx.camera.core.impl.ImageOutputConfig;
 import androidx.camera.core.impl.SessionConfig;
+import androidx.camera.core.internal.compat.workaround.CaptureFailedRetryEnabler;
 
 import com.google.auto.value.AutoValue;
 
@@ -54,8 +55,12 @@ import java.util.concurrent.Executor;
 @AutoValue
 public abstract class TakePictureRequest {
 
-    // By default, ImageCapture does not retry requests.
-    private int mRemainingRetires = 0;
+    /**
+     * By default, ImageCapture does not retry requests. For some problematic devices, the
+     * capture request can become success after retrying. The allowed retry count will be
+     * provided by the {@link CaptureFailedRetryEnabler}.
+     */
+    private int mRemainingRetires = new CaptureFailedRetryEnabler().getRetryCount();
 
     /**
      * Gets the callback {@link Executor} provided by the app.
