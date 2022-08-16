@@ -99,6 +99,7 @@ abstract class LifecycleStatusChangeStressTestBase(
     fun setup(): Unit = runBlocking {
         assumeTrue(CameraUtil.deviceHasCamera())
         CoreAppTestUtil.assumeCompatibleDevice()
+        CoreAppTestUtil.assumeNotUntestableFrontCamera(cameraId)
         // Clear the device UI and check if there is no dialog or lock screen on the top of the
         // window before start the test.
         CoreAppTestUtil.prepareDeviceUI(InstrumentationRegistry.getInstrumentation())
@@ -121,7 +122,6 @@ abstract class LifecycleStatusChangeStressTestBase(
     fun tearDown(): Unit = runBlocking {
         if (::cameraProvider.isInitialized) {
             withContext(Dispatchers.Main) {
-                cameraProvider.unbindAll()
                 cameraProvider.shutdown()[10000, TimeUnit.MILLISECONDS]
             }
         }

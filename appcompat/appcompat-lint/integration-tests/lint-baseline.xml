@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.3.0-alpha07" type="baseline" client="gradle" dependencies="false" name="AGP (7.3.0-alpha07)" variant="all" version="7.3.0-alpha07">
+<issues format="6" by="lint 7.4.0-alpha08" type="baseline" client="gradle" dependencies="false" name="AGP (7.4.0-alpha08)" variant="all" version="7.4.0-alpha08">
 
     <issue
         id="ClassVerificationFailure"
@@ -98,24 +98,6 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/layout/image_view_using_android_tint.xml"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` member of class `ResourceLoader` requires synthetic accessor"
-        errorLine1="        ColorStateList csl2 = new ResourceLoader().getColorStateList("
-        errorLine2="                              ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/appcompat/AppCompatLintDemo.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `getColorStateList` of class `ResourceLoader` requires synthetic accessor"
-        errorLine1="        ColorStateList csl2 = new ResourceLoader().getColorStateList("
-        errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/appcompat/AppCompatLintDemo.java"/>
     </issue>
 
     <issue

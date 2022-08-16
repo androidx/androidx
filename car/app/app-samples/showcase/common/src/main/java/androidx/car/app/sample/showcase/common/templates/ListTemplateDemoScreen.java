@@ -81,14 +81,18 @@ public final class ListTemplateDemoScreen extends Screen implements DefaultLifec
                                 .build();
                 final String onClickText = getCarContext().getString(R.string.clicked_row_prefix)
                         + ": " + i;
-                listBuilder.addItem(
-                        new Row.Builder()
-                                .setOnClickListener(() -> onClick(onClickText))
-                                .setTitle(
-                                        getCarContext().getString(R.string.title_prefix) + " " + i)
-                                .addText(getCarContext().getString(R.string.first_line_text))
-                                .addText(secondText)
-                                .build());
+                Row.Builder rowBuilder = new Row.Builder()
+                        .setOnClickListener(() -> onClick(onClickText))
+                        .setTitle(
+                                getCarContext().getString(R.string.title_prefix) + " " + i);
+                if (i % 2 == 0) {
+                    rowBuilder.addText(getCarContext().getString(R.string.long_line_text));
+                } else {
+                    rowBuilder
+                            .addText(getCarContext().getString(R.string.first_line_text))
+                            .addText(secondText);
+                }
+                listBuilder.addItem(rowBuilder.build());
             }
         }
 

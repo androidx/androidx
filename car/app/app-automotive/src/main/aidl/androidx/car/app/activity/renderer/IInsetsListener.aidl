@@ -26,7 +26,15 @@ import android.graphics.Insets;
 interface IInsetsListener {
   /**
    * Notifies that the {@link Insets} have changed.
+   *
+   * @deprecated Use onWindowInsetsChanged(Insets, Insets) instead.
    */
   void onInsetsChanged(in Insets insets) = 1;
+
+  /**
+   * Notifies that the {@link Insets} of the window have changed.
+   */
+  void onWindowInsetsChanged(in Insets insets, in Insets safeInsets) = 2;
+
 }
 

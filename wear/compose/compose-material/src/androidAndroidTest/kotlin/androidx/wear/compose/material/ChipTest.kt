@@ -74,7 +74,8 @@ class ChipBehaviourTest {
       Chip(
         onClick = {},
         colors = ChipDefaults.primaryChipColors(),
-        modifier = Modifier.testTag("test-item")
+        modifier = Modifier.testTag("test-item"),
+        border = ChipDefaults.chipBorder()
       ) {
         TestImage()
       }
@@ -90,7 +91,8 @@ class ChipBehaviourTest {
         onClick = {},
         colors = ChipDefaults.primaryChipColors(),
         enabled = true,
-        modifier = Modifier.testTag("test-item")
+        modifier = Modifier.testTag("test-item"),
+        border = ChipDefaults.chipBorder()
       ) {
         TestImage()
       }
@@ -106,7 +108,8 @@ class ChipBehaviourTest {
         onClick = {},
         colors = ChipDefaults.primaryChipColors(),
         enabled = false,
-        modifier = Modifier.testTag("test-item")
+        modifier = Modifier.testTag("test-item"),
+        border = ChipDefaults.chipBorder()
       ) {
         TestImage()
       }
@@ -122,7 +125,8 @@ class ChipBehaviourTest {
         onClick = {},
         colors = ChipDefaults.primaryChipColors(),
         enabled = true,
-        modifier = Modifier.testTag("test-item")
+        modifier = Modifier.testTag("test-item"),
+        border = ChipDefaults.chipBorder()
       ) {
         TestImage()
       }
@@ -138,7 +142,8 @@ class ChipBehaviourTest {
         onClick = {},
         colors = ChipDefaults.primaryChipColors(),
         enabled = false,
-        modifier = Modifier.testTag("test-item")
+        modifier = Modifier.testTag("test-item"),
+        border = ChipDefaults.chipBorder()
       ) {
         TestImage()
       }
@@ -156,7 +161,8 @@ class ChipBehaviourTest {
         onClick = { clicked = true },
         colors = ChipDefaults.primaryChipColors(),
         enabled = true,
-        modifier = Modifier.testTag("test-item")
+        modifier = Modifier.testTag("test-item"),
+        border = ChipDefaults.chipBorder()
       ) {
         TestImage()
       }
@@ -178,7 +184,8 @@ class ChipBehaviourTest {
         onClick = { clicked = true },
         colors = ChipDefaults.primaryChipColors(),
         enabled = false,
-        modifier = Modifier.testTag("test-item")
+        modifier = Modifier.testTag("test-item"),
+        border = ChipDefaults.chipBorder()
       ) {
         TestImage()
       }
@@ -198,7 +205,8 @@ class ChipBehaviourTest {
         onClick = {},
         colors = ChipDefaults.primaryChipColors(),
         enabled = false,
-        modifier = Modifier.testTag("test-item")
+        modifier = Modifier.testTag("test-item"),
+        border = ChipDefaults.chipBorder()
       ) {
         TestImage()
       }
@@ -218,6 +226,7 @@ class ChipBehaviourTest {
     rule.isStadiumShape(LayoutDirection.Ltr) {
       Chip(
         modifier = Modifier.testTag("test-item"),
+        border = ChipDefaults.chipBorder(),
         onClick = {},
         colors = ChipDefaults.primaryChipColors(),
       ) { /* omit content to allow us to validate the shape by pixel checking */ }
@@ -228,6 +237,7 @@ class ChipBehaviourTest {
     rule.isStadiumShape(LayoutDirection.Rtl) {
       Chip(
         modifier = Modifier.testTag("test-item"),
+        border = ChipDefaults.chipBorder(),
         onClick = {},
         colors = ChipDefaults.primaryChipColors(),
       ) { /* omit content to allow us to validate the shape by pixel checking */ }
@@ -380,6 +390,7 @@ class ChipSizeTest {
       Chip(
         onClick = {},
         colors = ChipDefaults.primaryChipColors(),
+        border = ChipDefaults.chipBorder()
       ) {
         TestImage()
       }
@@ -387,6 +398,7 @@ class ChipSizeTest {
   }
 }
 
+@Suppress("DEPRECATION")
 class ChipColorTest {
   @get:Rule
   val rule = createComposeRule()
@@ -489,6 +501,15 @@ class ChipColorTest {
     )
 
   @Test
+  fun gives_outlined_enabled_colors() =
+    verifyColors(
+      TestChipColors.Outlined,
+      ChipStatus.Enabled,
+      { Color.Transparent },
+      { MaterialTheme.colors.primary }
+    )
+
+  @Test
   fun gives_image_background_enabled_colors() =
     verifyContentColors(
       TestChipColors.ImageBackground,
@@ -522,6 +543,16 @@ class ChipColorTest {
       ChipStatus.Disabled,
       { Color.Transparent },
       { MaterialTheme.colors.onSurface },
+      { Color.Transparent }
+    )
+
+  @Test
+  fun gives_outlined_disabled_colors() =
+    verifyColors(
+      TestChipColors.Outlined,
+      ChipStatus.Disabled,
+      { Color.Transparent },
+      { MaterialTheme.colors.primary },
       { Color.Transparent }
     )
 
@@ -566,7 +597,8 @@ class ChipColorTest {
           content = {},
           colors = ChipDefaults.primaryChipColors(backgroundColor = overrideColor),
           enabled = true,
-          modifier = Modifier.testTag("test-item")
+          modifier = Modifier.testTag("test-item"),
+          border = ChipDefaults.chipBorder()
         )
       }
     }
@@ -587,7 +619,8 @@ class ChipColorTest {
           content = {},
           colors = ChipDefaults.chipColors(disabledBackgroundColor = overrideColor),
           enabled = false,
-          modifier = Modifier.testTag("test-item")
+          modifier = Modifier.testTag("test-item"),
+          border = ChipDefaults.chipBorder()
         )
       }
     }
@@ -611,7 +644,8 @@ class ChipColorTest {
           actualContentColor = LocalContentColor.current
         },
         enabled = true,
-        modifier = Modifier.testTag("test-item")
+        modifier = Modifier.testTag("test-item"),
+        border = ChipDefaults.chipBorder()
       )
     }
 
@@ -686,7 +720,8 @@ class ChipColorTest {
           actualContentColor = LocalContentColor.current
         },
         enabled = false,
-        modifier = Modifier.testTag("test-item")
+        modifier = Modifier.testTag("test-item"),
+        border = ChipDefaults.chipBorder()
       )
     }
 
@@ -718,7 +753,8 @@ class ChipColorTest {
           colors = testChipColors.chipColors(),
           content = { actualContent = LocalContentColor.current },
           enabled = status.enabled(),
-          modifier = Modifier.testTag("test-item")
+          modifier = Modifier.testTag("test-item"),
+          border = ChipDefaults.chipBorder()
         )
       }
     }
@@ -757,13 +793,25 @@ class ChipColorTest {
           .fillMaxSize()
           .background(testBackground)
       ) {
-        Chip(
-          onClick = {},
-          colors = testChipColors.chipColors(),
-          content = { actualContent = LocalContentColor.current },
-          enabled = status.enabled(),
-          modifier = Modifier.testTag("test-item")
-        )
+        if (testChipColors == TestChipColors.Outlined) {
+          OutlinedChip(
+            onClick = {},
+            colors = testChipColors.chipColors(),
+            label = { actualContent = LocalContentColor.current },
+            enabled = status.enabled(),
+            modifier = Modifier.testTag("test-item"),
+            border = ChipDefaults.chipBorder()
+          )
+        } else {
+          Chip(
+            onClick = {},
+            colors = testChipColors.chipColors(),
+            content = { actualContent = LocalContentColor.current },
+            enabled = status.enabled(),
+            modifier = Modifier.testTag("test-item"),
+            border = ChipDefaults.chipBorder()
+          )
+        }
       }
     }
 
@@ -933,7 +981,8 @@ class ChipFontTest {
           actualTextStyle = LocalTextStyle.current
         },
         enabled = true,
-        modifier = Modifier.testTag("test-item")
+        modifier = Modifier.testTag("test-item"),
+        border = ChipDefaults.chipBorder()
       )
     }
     assertEquals(expectedTextStyle, actualTextStyle)
@@ -1038,10 +1087,11 @@ class ChipShapeTest {
     rule.setContentWithTheme {
       background = MaterialTheme.colors.surface
       chipColor = MaterialTheme.colors.primary
-      content(Modifier
-                .testTag("test-item")
-                .padding(padding)
-                .background(background))
+      content(
+        Modifier
+          .testTag("test-item")
+          .padding(padding)
+          .background(background))
     }
 
     rule.onNodeWithTag("test-item")
@@ -1130,6 +1180,12 @@ private enum class TestChipColors {
     @Composable
     override fun chipColors(): ChipColors {
       return ChipDefaults.childChipColors()
+    }
+  },
+  Outlined {
+    @Composable
+    override fun chipColors(): ChipColors {
+      return ChipDefaults.outlinedChipColors()
     }
   },
   ImageBackground {

@@ -275,8 +275,9 @@ fun Chips() {
         ListHeader { Text("Chips") }
         Chip(
             onClick = {},
-            colors = ChipDefaults.primaryChipColors()
-        ) { Text("Chip") }
+            colors = ChipDefaults.primaryChipColors(),
+            label = { Text("Chip") }
+        )
         CompactChip(onClick = {}, label = { Text("CompactChip") })
         ToggleChip(
             checked = true,

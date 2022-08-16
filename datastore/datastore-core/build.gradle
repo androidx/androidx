@@ -14,12 +14,11 @@
  * limitations under the License.
  */
 
+
 import androidx.build.KmpPlatformsKt
 import androidx.build.LibraryType
-import androidx.build.Publish
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
-
 
 plugins {
     id("AndroidXPlugin")
@@ -33,7 +32,13 @@ androidXMultiplatform {
     }
     mac()
     linux()
+    ios()
+
     sourceSets {
+        all {
+            languageSettings.optIn("kotlin.RequiresOptIn")
+        }
+
         commonMain {
             dependencies {
                 api(libs.kotlinStdlib)
@@ -79,22 +84,18 @@ androidXMultiplatform {
             }
         }
 
-
-        all {
-            languageSettings.optIn("kotlin.RequiresOptIn")
-        }
         targets.withType(KotlinNativeTarget).configureEach {
             binaries.all {
                 binaryOptions["memoryModel"] = "experimental"
             }
         }
-        targets.forEach {target ->
+        targets.all { target ->
             if (target.platformType == KotlinPlatformType.native) {
                 target.compilations["main"].defaultSourceSet {
-                    dependsOn(sourceSets["nativeMain"])
+                    dependsOn(nativeMain)
                 }
                 target.compilations["test"].defaultSourceSet {
-                    dependsOn(sourceSets["nativeTest"])
+                    dependsOn(nativeTest)
                 }
             }
         }

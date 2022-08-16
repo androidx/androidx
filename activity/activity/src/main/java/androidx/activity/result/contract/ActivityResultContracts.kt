@@ -22,11 +22,13 @@ import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Build
+import android.os.ext.SdkExtensions.getExtensionVersion
 import android.provider.ContactsContract
 import android.provider.DocumentsContract
 import android.provider.MediaStore
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.IntentSenderRequest
+import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts.GetMultipleContents.Companion.getClipDataUris
 import androidx.activity.result.contract.ActivityResultContracts.StartIntentSenderForResult.Companion.ACTION_INTENT_SENDER_REQUEST
 import androidx.activity.result.contract.ActivityResultContracts.StartIntentSenderForResult.Companion.EXTRA_SEND_INTENT_EXCEPTION
@@ -257,6 +259,7 @@ class ActivityResultContracts private constructor() {
             input: Void?
         ): SynchronousResult<Bitmap?>? = null
 
+        @Suppress("DEPRECATION")
         final override fun parseResult(resultCode: Int, intent: Intent?): Bitmap? {
             return intent.takeIf { resultCode == Activity.RESULT_OK }?.getParcelableExtra("data")
         }
@@ -317,6 +320,7 @@ class ActivityResultContracts private constructor() {
             input: Uri
         ): SynchronousResult<Bitmap?>? = null
 
+        @Suppress("DEPRECATION")
         final override fun parseResult(resultCode: Int, intent: Intent?): Bitmap? {
             return intent.takeIf { resultCode == Activity.RESULT_OK }?.getParcelableExtra("data")
         }
@@ -595,6 +599,194 @@ class ActivityResultContracts private constructor() {
 
         final override fun parseResult(resultCode: Int, intent: Intent?): Uri? {
             return intent.takeIf { resultCode == Activity.RESULT_OK }?.data
+        }
+    }
+
+    /**
+     * An [ActivityResultContract] to use the photo picker through [MediaStore.ACTION_PICK_IMAGES]
+     * when available, and else rely on ACTION_OPEN_DOCUMENT.
+     *
+     * The input is a [PickVisualMediaRequest].
+     *
+     * The output is a `Uri` when the user has selected a media or `null` when the user hasn't
+     * selected any item. Keep in mind that `Uri` returned by the photo picker isn't writable.
+     *
+     * This can be extended to override [createIntent] if you wish to pass additional
+     * extras to the Intent created by `super.createIntent()`.
+     */
+    open class PickVisualMedia : ActivityResultContract<PickVisualMediaRequest, Uri?>() {
+        companion object {
+            /**
+             * Check if the current device has support for the photo picker by checking the running
+             * Android version or the SDK extension version
+             */
+            @JvmStatic
+            fun isPhotoPickerAvailable(): Boolean {
+                return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    true
+                } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                    // getExtension is seen as part of Android Tiramisu only while the SdkExtensions
+                    // have been added on Android R
+                    getExtensionVersion(Build.VERSION_CODES.R) >= 2
+                } else {
+                    false
+                }
+            }
+
+            internal fun getVisualMimeType(input: VisualMediaType): String? {
+                return when (input) {
+                    is ImageOnly -> "image/*"
+                    is VideoOnly -> "video/*"
+                    is SingleMimeType -> input.mimeType
+                    is ImageAndVideo -> null
+                }
+            }
+        }
+
+        /**
+         * Represents filter input type accepted by the photo picker.
+         */
+        sealed interface VisualMediaType
+
+        /**
+         * [VisualMediaType] object used to filter images only when using the photo picker.
+         */
+        object ImageOnly : VisualMediaType
+
+        /**
+         * [VisualMediaType] object used to filter video only when using the photo picker.
+         */
+        object VideoOnly : VisualMediaType
+
+        /**
+         * [VisualMediaType] object used to filter images and video when using the photo picker.
+         */
+        object ImageAndVideo : VisualMediaType
+
+        /**
+         * [VisualMediaType] class used to filter a single mime type only when using the photo
+         * picker.
+         */
+        class SingleMimeType(val mimeType: String) : VisualMediaType
+
+        @CallSuper
+        override fun createIntent(context: Context, input: PickVisualMediaRequest): Intent {
+            // Check if Photo Picker is available on the device
+            return if (isPhotoPickerAvailable()) {
+                Intent(MediaStore.ACTION_PICK_IMAGES).apply {
+                    type = getVisualMimeType(input.mediaType)
+                }
+            } else {
+                // For older devices running KitKat and higher and devices running Android 12
+                // and 13 without the SDK extension that includes the Photo Picker, rely on the
+                // ACTION_OPEN_DOCUMENT intent
+                Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+                    type = getVisualMimeType(input.mediaType)
+
+                    if (type == null) {
+                        // ACTION_OPEN_DOCUMENT requires to set this parameter when launching the
+                        // intent with multiple mime types
+                        type = "*/*"
+                        putExtra(Intent.EXTRA_MIME_TYPES, arrayOf("image/*", "video/*"))
+                    }
+                }
+            }
+        }
+
+        @Suppress("InvalidNullabilityOverride")
+        final override fun getSynchronousResult(
+            context: Context,
+            input: PickVisualMediaRequest
+        ): SynchronousResult<Uri?>? = null
+
+        final override fun parseResult(resultCode: Int, intent: Intent?): Uri? {
+            return intent.takeIf { resultCode == Activity.RESULT_OK }?.data
+        }
+    }
+
+    /**
+     * An [ActivityResultContract] to use the Photo Picker through [MediaStore.ACTION_PICK_IMAGES]
+     * when available, and else rely on ACTION_OPEN_DOCUMENT.
+     *
+     * The constructor accepts one parameter `maxItems` to limit the number of selectable items when
+     * using the photo picker to return. Keep in mind that this parameter isn't supported on devices
+     * when the photo picker isn't available.
+     *
+     * The input is a [PickVisualMediaRequest].
+     *
+     * The output is a list `Uri` of the selected media. It can be empty if the user hasn't selected
+     * any items. Keep in mind that `Uri` returned by the photo picker aren't writable.
+     *
+     * This can be extended to override [createIntent] if you wish to pass additional
+     * extras to the Intent created by `super.createIntent()`.
+     */
+    @RequiresApi(19)
+    open class PickMultipleVisualMedia(
+        private val maxItems: Int = getMaxItems()
+    ) : ActivityResultContract<PickVisualMediaRequest, List<@JvmSuppressWildcards Uri>>() {
+
+        init {
+            require(maxItems > 1) {
+                "Max items must be higher than 1"
+            }
+        }
+
+        @CallSuper
+        override fun createIntent(context: Context, input: PickVisualMediaRequest): Intent {
+            // Check to see if the photo picker is available
+            return if (PickVisualMedia.isPhotoPickerAvailable()) {
+                Intent(MediaStore.ACTION_PICK_IMAGES).apply {
+                    type = PickVisualMedia.getVisualMimeType(input.mediaType)
+
+                    require(maxItems <= MediaStore.getPickImagesMaxLimit()) {
+                        "Max items must be less or equals MediaStore.getPickImagesMaxLimit()"
+                    }
+
+                    putExtra(MediaStore.EXTRA_PICK_IMAGES_MAX, maxItems)
+                }
+            } else {
+                // For older devices running KitKat and higher and devices running Android 12
+                // and 13 without the SDK extension that includes the Photo Picker, rely on the
+                // ACTION_OPEN_DOCUMENT intent
+                Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+                    type = PickVisualMedia.getVisualMimeType(input.mediaType)
+                    putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
+
+                    if (type == null) {
+                        // ACTION_OPEN_DOCUMENT requires to set this parameter when launching the
+                        // intent with multiple mime types
+                        type = "*/*"
+                        putExtra(Intent.EXTRA_MIME_TYPES, arrayOf("image/*", "video/*"))
+                    }
+                }
+            }
+        }
+
+        @Suppress("InvalidNullabilityOverride")
+        final override fun getSynchronousResult(
+            context: Context,
+            input: PickVisualMediaRequest
+        ): SynchronousResult<List<@JvmSuppressWildcards Uri>>? = null
+
+        final override fun parseResult(resultCode: Int, intent: Intent?): List<Uri> {
+            return intent.takeIf {
+                resultCode == Activity.RESULT_OK
+            }?.getClipDataUris() ?: emptyList()
+        }
+
+        internal companion object {
+            /**
+             * The photo picker has a maximum limit of selectable items returned by
+             * [MediaStore.getPickImagesMaxLimit()]. On devices not supporting the photo picker, the
+             * limit is ignored.
+             *
+             * @see MediaStore.EXTRA_PICK_IMAGES_MAX
+             */
+            internal fun getMaxItems() = if (PickVisualMedia.isPhotoPickerAvailable()) {
+                MediaStore.getPickImagesMaxLimit()
+            } else {
+                Integer.MAX_VALUE
+            }
         }
     }
 }

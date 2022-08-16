@@ -19,6 +19,7 @@ package androidx.core.app;
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertSame;
 import static org.mockito.AdditionalMatchers.aryEq;
 import static org.mockito.ArgumentMatchers.eq;
@@ -32,7 +33,9 @@ import android.app.Activity;
 import android.support.v4.BaseInstrumentationTestCase;
 import android.view.View;
 
+import androidx.annotation.OptIn;
 import androidx.core.app.ActivityCompat.PermissionCompatDelegate;
+import androidx.core.os.BuildCompat;
 import androidx.core.test.R;
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -147,6 +150,16 @@ public class ActivityCompatTest extends BaseInstrumentationTestCase<TestActivity
         ActivityCompat.requireViewById(getActivity(), View.NO_ID);
     }
 
+    @Test
+    @OptIn(markerClass = BuildCompat.PrereleaseSdkCheck.class)
+    public void testShouldShowRequestPermissionRationaleForPostNotifications() throws Throwable {
+        if (!BuildCompat.isAtLeastT()) {
+            // permission doesn't exist yet, so should return false
+            assertFalse(ActivityCompat.shouldShowRequestPermissionRationale(getActivity(),
+                    Manifest.permission.POST_NOTIFICATIONS));
+        }
+    }
+
     @SdkSuppress(minSdkVersion = 23)
     @Test
     public void testOnSharedElementsReady() {
@@ -165,6 +178,5 @@ public class ActivityCompatTest extends BaseInstrumentationTestCase<TestActivity
                 new ActivityCompat.SharedElementCallback21Impl(callback);
         wrapper.onSharedElementsArrived(null, null, listener);
         assertEquals(2, counter.get());
-
     }
 }

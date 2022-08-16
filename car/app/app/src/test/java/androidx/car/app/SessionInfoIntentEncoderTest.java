@@ -33,7 +33,7 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
 public class SessionInfoIntentEncoderTest {
-    private static final String EXTRA_SESSION_INFO = "androidx.car.app.extra.SESSION_INFO";
+    private static final String EXTRA_SESSION_INFO = "androidx.car.app.extra.SESSION_INFO_BUNDLE";
 
     @Test
     public void encode_insertsExtra() {
@@ -41,7 +41,7 @@ public class SessionInfoIntentEncoderTest {
 
         SessionInfoIntentEncoder.encode(DEFAULT_SESSION_INFO, intent);
 
-        assertThat(intent.hasExtra(EXTRA_SESSION_INFO));
+        assertThat(intent.hasExtra(EXTRA_SESSION_INFO)).isTrue();
     }
 
     @Test

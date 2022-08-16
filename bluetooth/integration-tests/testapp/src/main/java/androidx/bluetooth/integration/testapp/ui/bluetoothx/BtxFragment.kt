@@ -17,10 +17,12 @@
 package androidx.bluetooth.integration.testapp.ui.bluetoothx
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
+
+import androidx.bluetooth.core.BluetoothManager
 import androidx.bluetooth.integration.testapp.R
 import androidx.bluetooth.integration.testapp.databinding.FragmentBtxBinding
 import androidx.fragment.app.Fragment
@@ -64,7 +66,24 @@ class BtxFragment : Fragment() {
     }
 
     private fun scan() {
-        Toast.makeText(context, getString(R.string.scan_not_yet_implemented), Toast.LENGTH_SHORT)
-            .show()
+        Log.d(TAG, "scan() called")
+
+        val bluetoothManager = BluetoothManager(requireContext())
+
+        @Suppress("UNUSED_VARIABLE")
+        // TODO(ofy) Use below
+        val bluetoothAdapter = bluetoothManager.getAdapter()
+
+        // TODO(ofy) Convert to BluetoothX classes
+//        val bleScanner = bluetoothAdapter?.bluetoothLeScanner
+//
+//        val scanSettings = ScanSettings.Builder()
+//            .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
+//            .build()
+//
+//        bleScanner?.startScan(null, scanSettings, scanCallback)
+//
+//        Toast.makeText(context, getString(R.string.scan_start_message), Toast.LENGTH_LONG)
+//            .show()
     }
 }

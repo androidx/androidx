@@ -136,7 +136,7 @@ private fun macrobenchmark(
     scope.killProcess()
 
     userspaceTrace("compile $packageName") {
-        compilationMode.resetAndCompile(packageName) {
+        compilationMode.resetAndCompile(packageName, killProcessBlock = scope::killProcess) {
             setupBlock(scope)
             measureBlock(scope)
         }

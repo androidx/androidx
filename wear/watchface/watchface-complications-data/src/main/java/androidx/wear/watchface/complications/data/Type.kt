@@ -39,6 +39,12 @@ public enum class ComplicationType(private val wireType: Int) {
 
     @ComplicationExperimental
     PROTO_LAYOUT(WireComplicationData.TYPE_PROTO_LAYOUT),
+    @ComplicationExperimental
+    GOAL_PROGRESS(WireComplicationData.TYPE_GOAL_PROGRESS),
+    @ComplicationExperimental
+    DISCRETE_RANGED_VALUE(WireComplicationData.TYPE_DISCRETE_RANGED_VALUE),
+    @ComplicationExperimental
+    WEIGHTED_ELEMENTS(WireComplicationData.TYPE_WEIGHTED_ELEMENTS),
 
     @ComplicationExperimental
     LIST(WireComplicationData.TYPE_LIST);
@@ -79,6 +85,9 @@ public enum class ComplicationType(private val wireType: Int) {
                 PHOTO_IMAGE.wireType -> PHOTO_IMAGE
                 NO_PERMISSION.wireType -> NO_PERMISSION
                 PROTO_LAYOUT.wireType -> PROTO_LAYOUT
+                GOAL_PROGRESS.wireType -> GOAL_PROGRESS
+                DISCRETE_RANGED_VALUE.wireType -> DISCRETE_RANGED_VALUE
+                WEIGHTED_ELEMENTS.wireType -> WEIGHTED_ELEMENTS
                 LIST.wireType -> LIST
                 else -> EMPTY
             }

@@ -37,9 +37,11 @@ import androidx.glance.background
 import androidx.glance.currentState
 import androidx.glance.layout.Column
 import androidx.glance.layout.ContentScale
+import androidx.glance.layout.Spacer
 import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.padding
+import androidx.glance.layout.size
 
 /**
  * Sample AppWidget that showcase the [ContentScale] options for [Image]
@@ -61,6 +63,7 @@ class ImageAppWidget : GlanceAppWidget() {
                 modifier = GlanceModifier.fillMaxWidth(),
                 onClick = actionRunCallback<ChangeImageAction>()
             )
+            Spacer(GlanceModifier.size(4.dp))
             Image(
                 provider = ImageProvider(R.drawable.compose),
                 contentDescription = "Content Scale image sample (value: $type)",

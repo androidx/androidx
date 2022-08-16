@@ -20,13 +20,6 @@ import kotlinx.coroutines.withTimeout
 import java.util.concurrent.TimeUnit
 
 /**
- * Makes refresh runnable accessible in tests. Used for LimitOffsetPagingSource unit tests that
- * needs to block InvalidationTracker's invalidation notification
- */
-val InvalidationTracker.refreshRunnableForTest: Runnable
-    get() = this.refreshRunnable
-
-/**
  * True if invalidation tracker is pending a refresh event to get database changes.
  */
 val InvalidationTracker.pendingRefreshForTest

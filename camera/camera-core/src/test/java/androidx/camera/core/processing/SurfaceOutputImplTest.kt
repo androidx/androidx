@@ -18,12 +18,12 @@ package androidx.camera.core.processing
 
 import android.graphics.PixelFormat
 import android.graphics.SurfaceTexture
-import android.opengl.Matrix
 import android.os.Build
 import android.os.Looper
 import android.util.Size
 import android.view.Surface
 import androidx.camera.core.SurfaceEffect
+import androidx.camera.core.impl.utils.TransformUtils.sizeToRect
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor
 import com.google.common.truth.Truth.assertThat
 import org.junit.After
@@ -44,13 +44,10 @@ import org.robolectric.annotation.internal.DoNotInstrument
 class SurfaceOutputImplTest {
 
     companion object {
-        private val IDENTITY_MATRIX = FloatArray(16).apply {
-            Matrix.setIdentityM(this, 0)
-        }
-        private const val FLOAT_TOLERANCE = 1E-4
         private const val TARGET = SurfaceEffect.PREVIEW
         private const val FORMAT = PixelFormat.RGBA_8888
-        private val SIZE = Size(640, 480)
+        private val OUTPUT_SIZE = Size(640, 480)
+        private val INPUT_SIZE = Size(640, 480)
     }
 
     private lateinit var fakeSurface: Surface
@@ -121,42 +118,31 @@ class SurfaceOutputImplTest {
     }
 
     @Test
-    fun updateMatrix_multipliesMatrices() {
+    fun updateMatrix_noApplyGlTransform_sameResult() {
         // Arrange.
-        // 2x scaling on the x axis.
-        val scale2x = FloatArray(16).apply {
-            Matrix.setIdentityM(this, 0)
-            Matrix.scaleM(this, 0, 2F, 1F, 1F)
-        }
-        val surfaceOut = createFakeSurfaceOutputImpl(transform = scale2x)
+        val surfaceOut = createFakeSurfaceOutputImpl(applyGlTransform = false)
 
-        // Act: apply the 2x scaling on top of the 90° rotation.
-        // 90° clockwise rotation around (0, 0).
-        val rotate90 = FloatArray(16).apply {
-            Matrix.setRotateM(this, 0, 90F, 0F, 0F, -1F)
-        }
+        // Act.
+        val input = floatArrayOf(1f, 1f, 1f, 1f, 2f, 2f, 2f, 2f, 3f, 3f, 3f, 3f, 4f, 4f, 4f, 4f)
         val result = FloatArray(16)
-        surfaceOut.updateTransformMatrix(result, rotate90)
+        surfaceOut.updateTransformMatrix(result, input)
 
         // Assert.
-        // Assert the result is a multiplication of the two matrices.
-        val expectedMatrix = FloatArray(16).apply {
-            Matrix.multiplyMM(this, 0, scale2x, 0, rotate90, 0)
-        }
-        assertThat(result).usingTolerance(FLOAT_TOLERANCE).containsExactly(expectedMatrix)
-
-        // Assert coordinates mapping is correct.
-        //       90° rotation         2x scaling on the X axis
-        // (1,1) -------------> (1,-1) ----------------------> (2,-1)
-        val point = floatArrayOf(1F, 1F, 0F, 1F)
-        val expectedPoint = FloatArray(4)
-        Matrix.multiplyMV(expectedPoint, 0, result, 0, point, 0)
-        assertThat(expectedPoint).usingTolerance(FLOAT_TOLERANCE)
-            .containsExactly(floatArrayOf(2F, -1F, 0F, 1F))
+        assertThat(result).isEqualTo(input)
     }
 
-    private fun createFakeSurfaceOutputImpl(transform: FloatArray = IDENTITY_MATRIX) =
-        SurfaceOutputImpl(fakeSurface, TARGET, FORMAT, SIZE, transform).apply {
+    private fun createFakeSurfaceOutputImpl(applyGlTransform: Boolean = false) =
+        SurfaceOutputImpl(
+            fakeSurface,
+            TARGET,
+            FORMAT,
+            OUTPUT_SIZE,
+            applyGlTransform,
+            INPUT_SIZE,
+            sizeToRect(INPUT_SIZE),
+            0,
+            false
+        ).apply {
             surfaceOutputsToCleanup.add(this)
         }
 }

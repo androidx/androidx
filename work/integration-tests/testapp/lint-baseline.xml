@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.3.0-alpha07" type="baseline" client="gradle" dependencies="false" name="AGP (7.3.0-alpha07)" variant="all" version="7.3.0-alpha07">
+<issues format="6" by="lint 7.4.0-alpha08" type="baseline" client="gradle" dependencies="false" name="AGP (7.4.0-alpha08)" variant="all" version="7.4.0-alpha08">
 
     <issue
         id="ClassVerificationFailure"
@@ -71,96 +71,6 @@
         errorLine2="                                         ~~~~~">
         <location
             file="src/main/java/androidx/work/integration/testapp/MainActivity.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mImageRecyclerViewAdapter` of class `ImageProcessingActivity` requires synthetic accessor"
-        errorLine1="                        mImageRecyclerViewAdapter.updateList(images);"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/integration/testapp/imageprocessing/ImageProcessingActivity.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mShouldLoad` of class `ViewHolder` requires synthetic accessor"
-        errorLine1="                        if (mShouldLoad) {"
-        errorLine2="                            ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/integration/testapp/imageprocessing/ImageRecyclerViewAdapter.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mImageView` of class `ViewHolder` requires synthetic accessor"
-        errorLine1="                            mImageView.setImageBitmap(bitmap);"
-        errorLine2="                            ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/integration/testapp/imageprocessing/ImageRecyclerViewAdapter.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mTextView` of class `ViewHolder` requires synthetic accessor"
-        errorLine1="                            mTextView.setText(image.mOriginalAssetName);"
-        errorLine2="                            ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/integration/testapp/imageprocessing/ImageRecyclerViewAdapter.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mProgressBar` of class `ViewHolder` requires synthetic accessor"
-        errorLine1="                            mProgressBar.setVisibility(View.GONE);"
-        errorLine2="                            ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/integration/testapp/imageprocessing/ImageRecyclerViewAdapter.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mImageView` of class `ViewHolder` requires synthetic accessor"
-        errorLine1="                            mImageView.setVisibility(View.VISIBLE);"
-        errorLine2="                            ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/integration/testapp/imageprocessing/ImageRecyclerViewAdapter.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `scheduleWork` of class `RetryActivity` requires synthetic accessor"
-        errorLine1="                scheduleWork(&quot;one&quot;, 3, 0.2);"
-        errorLine2="                ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/integration/testapp/RetryActivity.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `scheduleWork` of class `RetryActivity` requires synthetic accessor"
-        errorLine1="                scheduleWork(&quot;two&quot;, 5, 0.5);"
-        errorLine2="                ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/integration/testapp/RetryActivity.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mTextView` of class `RetryActivity` requires synthetic accessor"
-        errorLine1="                            mTextView.setText(&quot;nothing to show&quot;);"
-        errorLine2="                            ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/integration/testapp/RetryActivity.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mTextView` of class `RetryActivity` requires synthetic accessor"
-        errorLine1="                            mTextView.setText(text);"
-        errorLine2="                            ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/integration/testapp/RetryActivity.java"/>
     </issue>
 
     <issue

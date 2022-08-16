@@ -19,6 +19,10 @@ package androidx.test.uiautomator;
 import android.graphics.Rect;
 import android.os.Build;
 import android.view.accessibility.AccessibilityNodeInfo;
+import android.view.accessibility.AccessibilityWindowInfo;
+
+import androidx.annotation.DoNotInline;
+import androidx.annotation.RequiresApi;
 
 /**
  * This class contains static helper methods to work with
@@ -54,15 +58,33 @@ class AccessibilityNodeInfoHelper {
         nodeRect.intersect(displayRect);
 
         // On platforms that give us access to the node's window
-        if (UiDevice.API_LEVEL_ACTUAL >= Build.VERSION_CODES.LOLLIPOP) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             // Trim any portion of the bounds that are outside the window
-            Rect window = new Rect();
-            if (node.getWindow() != null) {
-              node.getWindow().getBoundsInScreen(window);
-              nodeRect.intersect(window);
+            Rect bounds = new Rect();
+            AccessibilityWindowInfo window = Api21Impl.getWindow(node);
+            if (window != null) {
+                Api21Impl.getBoundsInScreen(window, bounds);
+                nodeRect.intersect(bounds);
             }
         }
 
         return nodeRect;
+    }
+
+    @RequiresApi(21)
+    static class Api21Impl {
+        private Api21Impl() {
+        }
+
+        @DoNotInline
+        static void getBoundsInScreen(AccessibilityWindowInfo accessibilityWindowInfo,
+                Rect outBounds) {
+            accessibilityWindowInfo.getBoundsInScreen(outBounds);
+        }
+
+        @DoNotInline
+        static AccessibilityWindowInfo getWindow(AccessibilityNodeInfo accessibilityNodeInfo) {
+            return accessibilityNodeInfo.getWindow();
+        }
     }
 }

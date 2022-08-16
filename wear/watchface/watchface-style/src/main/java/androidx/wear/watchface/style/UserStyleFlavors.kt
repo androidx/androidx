@@ -21,7 +21,8 @@ import android.content.res.XmlResourceParser
 import androidx.annotation.RestrictTo
 import androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy
 import androidx.wear.watchface.complications.IllegalNodeException
-import androidx.wear.watchface.complications.NAMESPACE_APP
+import androidx.wear.watchface.complications.getIntRefAttribute
+import androidx.wear.watchface.complications.getStringRefAttribute
 import androidx.wear.watchface.complications.hasValue
 import androidx.wear.watchface.complications.iterate
 import androidx.wear.watchface.style.data.UserStyleFlavorWireFormat
@@ -55,7 +56,7 @@ public class UserStyleFlavor(
 
     /** @hide */
     @Suppress("ShowingMemberInHiddenClass")
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     constructor(wireFormat: UserStyleFlavorWireFormat) : this(
         wireFormat.mId,
         UserStyleData(wireFormat.mStyle),
@@ -65,7 +66,7 @@ public class UserStyleFlavor(
 
     /** @hide */
     @Suppress("ShowingMemberInHiddenClass")
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     fun toWireFormat() =
         UserStyleFlavorWireFormat(
             id,
@@ -129,15 +130,9 @@ public class UserStyleFlavor(
                         require(setting != null) { "no setting found for id $id" }
                         when (setting) {
                             is UserStyleSetting.BooleanUserStyleSetting -> {
-                                val booleanValue = parser.getAttributeBooleanValue(
-                                    NAMESPACE_APP,
-                                    "value",
-                                    true
-                                )
-
                                 userStyle[setting] =
                                     UserStyleSetting.BooleanUserStyleSetting
-                                        .BooleanOption.from(booleanValue)
+                                        .BooleanOption.from(value!!.toBoolean())
                             }
                             is UserStyleSetting.DoubleRangeUserStyleSetting -> {
                                 userStyle[setting] =
@@ -163,6 +158,7 @@ public class UserStyleFlavor(
                         }
 
                         val policy = DefaultComplicationDataSourcePolicy.inflate(
+                            resources,
                             parser,
                             "ComplicationPolicy")
 
@@ -194,7 +190,7 @@ public class UserStyleFlavors(public val flavors: List<UserStyleFlavor>) {
 
     /** @hide */
     @Suppress("ShowingMemberInHiddenClass")
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     constructor(wireFormat: UserStyleFlavorsWireFormat) : this(
         wireFormat.mFlavors.map { UserStyleFlavor(it) }
     ) {
@@ -202,7 +198,7 @@ public class UserStyleFlavors(public val flavors: List<UserStyleFlavor>) {
 
     /** @hide */
     @Suppress("ShowingMemberInHiddenClass")
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     fun toWireFormat() =
         UserStyleFlavorsWireFormat(flavors.map { it.toWireFormat() })
 

@@ -24,6 +24,7 @@ import android.widget.FrameLayout
 import android.widget.LinearLayout
 import androidx.core.app.ComponentActivity
 import androidx.test.ext.junit.rules.ActivityScenarioRule
+import androidx.test.filters.FlakyTest
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.testutils.PollingCheck
@@ -115,6 +116,7 @@ class NestedScrollViewStretchFlingTest {
     }
 
     @Test
+    @FlakyTest(bugId = 240290945)
     fun flingContentAfterStretchOnBottom() {
         mRule.scenario.onActivity {
             nestedScrollView.scrollTo(0, nestedScrollView.scrollRange)

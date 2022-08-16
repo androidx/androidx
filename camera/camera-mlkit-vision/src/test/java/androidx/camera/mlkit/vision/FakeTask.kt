@@ -21,6 +21,7 @@ import com.google.android.gms.tasks.OnCompleteListener
 import com.google.android.gms.tasks.OnFailureListener
 import com.google.android.gms.tasks.OnSuccessListener
 import com.google.android.gms.tasks.Task
+import java.util.concurrent.CancellationException
 import java.util.concurrent.Executor
 
 /**
@@ -28,22 +29,26 @@ import java.util.concurrent.Executor
  */
 class FakeTask<T>(
     private val result: T?,
-    private val exception: Exception?
+    private val exception: Exception? = null,
+    private val canceled: Boolean = false
 ) : Task<T>() {
 
     override fun isComplete(): Boolean {
-        TODO("Not yet implemented")
+        return true
     }
 
     override fun isSuccessful(): Boolean {
-        TODO("Not yet implemented")
+        return result != null && !canceled && exception == null
     }
 
     override fun isCanceled(): Boolean {
-        TODO("Not yet implemented")
+        return canceled
     }
 
     override fun getResult(): T? {
+        if (canceled) {
+            throw CancellationException()
+        }
         return result
     }
 

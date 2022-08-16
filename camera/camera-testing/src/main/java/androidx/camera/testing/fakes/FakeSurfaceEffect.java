@@ -39,6 +39,7 @@ public class FakeSurfaceEffect implements SurfaceEffect {
     final SurfaceTexture mSurfaceTexture;
     final Surface mInputSurface;
     private final Executor mExecutor;
+    private final boolean mAutoCloseSurfaceOutput;
 
 
     @Nullable
@@ -50,12 +51,27 @@ public class FakeSurfaceEffect implements SurfaceEffect {
 
     Surface mOutputSurface;
 
+    /**
+     * Creates a {@link SurfaceEffect} that closes the {@link SurfaceOutput} automatically.
+     */
     public FakeSurfaceEffect(@NonNull Executor executor) {
+        this(executor, true);
+    }
+
+    /**
+     * @param autoCloseSurfaceOutput if true, automatically close the {@link SurfaceOutput} once
+     *                               the close request is received. Otherwise, the test needs to
+     *                               get {@link #getSurfaceOutput()} and call
+     *                               {@link SurfaceOutput#close()} to avoid the "Completer GCed"
+     *                               error in {@link DeferrableSurface}.
+     */
+    FakeSurfaceEffect(@NonNull Executor executor, boolean autoCloseSurfaceOutput) {
         mSurfaceTexture = new SurfaceTexture(0);
         mInputSurface = new Surface(mSurfaceTexture);
         mExecutor = executor;
         mIsInputSurfaceReleased = false;
         mIsOutputSurfaceRequestedToClose = false;
+        mAutoCloseSurfaceOutput = autoCloseSurfaceOutput;
     }
 
     @Override
@@ -72,7 +88,13 @@ public class FakeSurfaceEffect implements SurfaceEffect {
     public void onOutputSurface(@NonNull SurfaceOutput surfaceOutput) {
         mSurfaceOutput = surfaceOutput;
         mOutputSurface = surfaceOutput.getSurface(mExecutor,
-                () -> mIsOutputSurfaceRequestedToClose = true);
+                output -> {
+                    if (mAutoCloseSurfaceOutput) {
+                        surfaceOutput.close();
+                    }
+                    mIsOutputSurfaceRequestedToClose = true;
+                }
+        );
     }
 
     @Nullable
@@ -107,18 +129,8 @@ public class FakeSurfaceEffect implements SurfaceEffect {
      * Clear up the instance to avoid the "{@link DeferrableSurface} garbage collected" error.
      */
     public void cleanUp() {
-        if (mSurfaceRequest != null) {
-            mSurfaceRequest.willNotProvideSurface();
-        }
         if (mSurfaceOutput != null) {
             mSurfaceOutput.close();
         }
-        mSurfaceTexture.release();
-        mInputSurface.release();
-    }
-
-    @Override
-    protected void finalize() {
-        cleanUp();
     }
 }

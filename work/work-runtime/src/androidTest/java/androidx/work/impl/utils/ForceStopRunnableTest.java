@@ -25,6 +25,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -37,6 +38,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.database.sqlite.SQLiteCantOpenDatabaseException;
+import android.database.sqlite.SQLiteException;
 
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -195,6 +197,30 @@ public class ForceStopRunnableTest {
         runnable.run();
         verify(runnable, times(MAX_ATTEMPTS - 1)).sleep(anyLong());
         verify(runnable, times(MAX_ATTEMPTS)).forceStopRunnable();
+        verify(handler, times(1)).handleException(any(Throwable.class));
+    }
+
+    @Test
+    public void test_InitializationExceptionHandler_migrationFailures() {
+        mContext = mock(Context.class);
+        when(mContext.getApplicationContext()).thenReturn(mContext);
+        mWorkDatabase = WorkDatabase.create(mContext, mConfiguration.getTaskExecutor(), true);
+        when(mWorkManager.getWorkDatabase()).thenReturn(mWorkDatabase);
+        mRunnable = new ForceStopRunnable(mContext, mWorkManager);
+
+        InitializationExceptionHandler handler = mock(InitializationExceptionHandler.class);
+        Configuration configuration = new Configuration.Builder(mConfiguration)
+                .setInitializationExceptionHandler(handler)
+                .build();
+
+        when(mWorkManager.getConfiguration()).thenReturn(configuration);
+        // This is what WorkDatabasePathHelper uses under the hood to migrate the database.
+        when(mContext.getDatabasePath(anyString())).thenThrow(
+                new SQLiteException("Unable to migrate database"));
+
+        ForceStopRunnable runnable = spy(mRunnable);
+        doNothing().when(runnable).sleep(anyLong());
+        runnable.run();
         verify(handler, times(1)).handleException(any(Throwable.class));
     }
 

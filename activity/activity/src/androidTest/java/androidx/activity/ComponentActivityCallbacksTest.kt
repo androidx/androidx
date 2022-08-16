@@ -398,9 +398,11 @@ class ComponentActivityCallbacksTest {
     fun onPictureInPictureModeChangedWithConfig() {
         with(ActivityScenario.launch(ComponentActivity::class.java)) {
             lateinit var receivedInfo: PictureInPictureModeChangedInfo
+            var dispatchCount = 0
 
             val listener = Consumer<PictureInPictureModeChangedInfo> { info ->
                 receivedInfo = info
+                dispatchCount++
             }
             lateinit var newConfig: Configuration
             withActivity {
@@ -411,6 +413,7 @@ class ComponentActivityCallbacksTest {
 
             assertThat(receivedInfo.isInPictureInPictureMode).isTrue()
             assertThat(receivedInfo.newConfig).isSameInstanceAs(newConfig)
+            assertThat(dispatchCount).isEqualTo(1)
         }
     }
 

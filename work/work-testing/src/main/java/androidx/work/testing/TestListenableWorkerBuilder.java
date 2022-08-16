@@ -21,6 +21,7 @@ import android.content.Context;
 import android.net.Network;
 import android.net.Uri;
 
+import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
@@ -61,6 +62,7 @@ public class TestListenableWorkerBuilder<W extends ListenableWorker> {
     private Executor mExecutor;
     private ProgressUpdater mProgressUpdater;
     private ForegroundUpdater mForegroundUpdater;
+    private int mGeneration;
 
     TestListenableWorkerBuilder(@NonNull Context context, @NonNull Class<W> workerClass) {
         mContext = context;
@@ -288,6 +290,20 @@ public class TestListenableWorkerBuilder<W extends ListenableWorker> {
     }
 
     /**
+     * Sets a generation for this work.
+     *
+     * See {@link WorkerParameters#getGeneration()} for details.
+     *
+     * @param generation generation
+     * @return The current {@link TestListenableWorkerBuilder}
+     */
+    @NonNull
+    TestListenableWorkerBuilder<W> setGeneration(@IntRange(from = 0) int generation) {
+        mGeneration = generation;
+        return this;
+    }
+
+    /**
      * Builds the {@link ListenableWorker}.
      *
      * @return the instance of a {@link ListenableWorker}.
@@ -302,6 +318,7 @@ public class TestListenableWorkerBuilder<W extends ListenableWorker> {
                         mTags,
                         getRuntimeExtras(),
                         mRunAttemptCount,
+                        mGeneration,
                         // This is unused for ListenableWorker
                         getExecutor(),
                         getTaskExecutor(),

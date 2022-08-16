@@ -37,7 +37,6 @@ package androidx.wear.watchface.style {
     method public boolean isEmpty();
     method public androidx.wear.watchface.style.MutableUserStyle toMutableUserStyle();
     method public androidx.wear.watchface.style.UserStyleData toUserStyleData();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.wear.watchface.style.data.UserStyleWireFormat toWireFormat();
     property public java.util.Set<java.util.Map.Entry<androidx.wear.watchface.style.UserStyleSetting,androidx.wear.watchface.style.UserStyleSetting.Option>> entries;
     property public java.util.Set<androidx.wear.watchface.style.UserStyleSetting> keys;
     property public int size;
@@ -46,20 +45,16 @@ package androidx.wear.watchface.style {
 
   public final class UserStyleData {
     ctor public UserStyleData(java.util.Map<java.lang.String,byte[]> userStyleMap);
-    ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public UserStyleData(androidx.wear.watchface.style.data.UserStyleWireFormat userStyle);
     method public java.util.Map<java.lang.String,byte[]> getUserStyleMap();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.wear.watchface.style.data.UserStyleWireFormat toWireFormat();
     property public final java.util.Map<java.lang.String,byte[]> userStyleMap;
   }
 
   public final class UserStyleFlavor {
     ctor public UserStyleFlavor(String id, androidx.wear.watchface.style.UserStyleData style, java.util.Map<java.lang.Integer,androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy> complications);
     ctor public UserStyleFlavor(String id, androidx.wear.watchface.style.UserStyle style, java.util.Map<java.lang.Integer,androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy> complications);
-    ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public UserStyleFlavor(androidx.wear.watchface.style.data.UserStyleFlavorWireFormat wireFormat);
     method public java.util.Map<java.lang.Integer,androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy> getComplications();
     method public String getId();
     method public androidx.wear.watchface.style.UserStyleData getStyle();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.wear.watchface.style.data.UserStyleFlavorWireFormat toWireFormat();
     property public final java.util.Map<java.lang.Integer,androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy> complications;
     property public final String id;
     property public final androidx.wear.watchface.style.UserStyleData style;
@@ -68,20 +63,15 @@ package androidx.wear.watchface.style {
   public final class UserStyleFlavors {
     ctor public UserStyleFlavors(java.util.List<androidx.wear.watchface.style.UserStyleFlavor> flavors);
     ctor public UserStyleFlavors();
-    ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public UserStyleFlavors(androidx.wear.watchface.style.data.UserStyleFlavorsWireFormat wireFormat);
     method public java.util.List<androidx.wear.watchface.style.UserStyleFlavor> getFlavors();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.wear.watchface.style.data.UserStyleFlavorsWireFormat toWireFormat();
     property public final java.util.List<androidx.wear.watchface.style.UserStyleFlavor> flavors;
   }
 
   public final class UserStyleSchema {
     ctor public UserStyleSchema(java.util.List<? extends androidx.wear.watchface.style.UserStyleSetting> userStyleSettings);
-    ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public UserStyleSchema(androidx.wear.watchface.style.data.UserStyleSchemaWireFormat wireFormat);
     method public operator androidx.wear.watchface.style.UserStyleSetting? get(androidx.wear.watchface.style.UserStyleSetting.Id settingId);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.wear.watchface.style.UserStyle getDefaultUserStyle();
     method public byte[] getDigestHash();
     method public java.util.List<androidx.wear.watchface.style.UserStyleSetting> getUserStyleSettings();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.wear.watchface.style.data.UserStyleSchemaWireFormat toWireFormat();
     property public final java.util.List<androidx.wear.watchface.style.UserStyleSetting> userStyleSettings;
   }
 
@@ -96,8 +86,6 @@ package androidx.wear.watchface.style {
     method public androidx.wear.watchface.style.UserStyleSetting.Option getOptionForId(androidx.wear.watchface.style.UserStyleSetting.Option.Id optionId);
     method public final java.util.List<androidx.wear.watchface.style.UserStyleSetting.Option> getOptions();
     method public final androidx.wear.watchface.style.UserStyleSetting.WatchFaceEditorData? getWatchFaceEditorData();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final java.util.List<androidx.wear.watchface.style.data.OptionWireFormat> getWireFormatOptionsList();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public abstract androidx.wear.watchface.style.data.UserStyleSettingWireFormat toWireFormat();
     property public final java.util.Collection<androidx.wear.watchface.style.WatchFaceLayer> affectedWatchFaceLayers;
     property public final androidx.wear.watchface.style.UserStyleSetting.Option defaultOption;
     property public final int defaultOptionIndex;
@@ -114,13 +102,11 @@ package androidx.wear.watchface.style {
     ctor public UserStyleSetting.BooleanUserStyleSetting(androidx.wear.watchface.style.UserStyleSetting.Id id, android.content.res.Resources resources, @StringRes int displayNameResourceId, @StringRes int descriptionResourceId, android.graphics.drawable.Icon? icon, java.util.Collection<? extends androidx.wear.watchface.style.WatchFaceLayer> affectsWatchFaceLayers, boolean defaultValue, optional androidx.wear.watchface.style.UserStyleSetting.WatchFaceEditorData? watchFaceEditorData);
     ctor public UserStyleSetting.BooleanUserStyleSetting(androidx.wear.watchface.style.UserStyleSetting.Id id, android.content.res.Resources resources, @StringRes int displayNameResourceId, @StringRes int descriptionResourceId, android.graphics.drawable.Icon? icon, java.util.Collection<? extends androidx.wear.watchface.style.WatchFaceLayer> affectsWatchFaceLayers, boolean defaultValue);
     method public boolean getDefaultValue();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.wear.watchface.style.data.BooleanUserStyleSettingWireFormat toWireFormat();
   }
 
   public static final class UserStyleSetting.BooleanUserStyleSetting.BooleanOption extends androidx.wear.watchface.style.UserStyleSetting.Option {
     method public static androidx.wear.watchface.style.UserStyleSetting.BooleanUserStyleSetting.BooleanOption from(boolean value);
     method public boolean getValue();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.wear.watchface.style.data.BooleanOptionWireFormat toWireFormat();
     property public final boolean value;
     field public static final androidx.wear.watchface.style.UserStyleSetting.BooleanUserStyleSetting.BooleanOption.Companion Companion;
     field public static final androidx.wear.watchface.style.UserStyleSetting.BooleanUserStyleSetting.BooleanOption FALSE;
@@ -138,7 +124,6 @@ package androidx.wear.watchface.style {
     ctor public UserStyleSetting.ComplicationSlotsUserStyleSetting(androidx.wear.watchface.style.UserStyleSetting.Id id, android.content.res.Resources resources, @StringRes int displayNameResourceId, @StringRes int descriptionResourceId, android.graphics.drawable.Icon? icon, java.util.List<androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotsOption> complicationConfig, java.util.Collection<? extends androidx.wear.watchface.style.WatchFaceLayer> affectsWatchFaceLayers, optional androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotsOption defaultOption, optional androidx.wear.watchface.style.UserStyleSetting.WatchFaceEditorData? watchFaceEditorData);
     ctor public UserStyleSetting.ComplicationSlotsUserStyleSetting(androidx.wear.watchface.style.UserStyleSetting.Id id, android.content.res.Resources resources, @StringRes int displayNameResourceId, @StringRes int descriptionResourceId, android.graphics.drawable.Icon? icon, java.util.List<androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotsOption> complicationConfig, java.util.Collection<? extends androidx.wear.watchface.style.WatchFaceLayer> affectsWatchFaceLayers, optional androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotsOption defaultOption);
     ctor public UserStyleSetting.ComplicationSlotsUserStyleSetting(androidx.wear.watchface.style.UserStyleSetting.Id id, android.content.res.Resources resources, @StringRes int displayNameResourceId, @StringRes int descriptionResourceId, android.graphics.drawable.Icon? icon, java.util.List<androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotsOption> complicationConfig, java.util.Collection<? extends androidx.wear.watchface.style.WatchFaceLayer> affectsWatchFaceLayers);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.wear.watchface.style.data.ComplicationsUserStyleSettingWireFormat toWireFormat();
   }
 
   public static final class UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotOverlay {
@@ -168,7 +153,6 @@ package androidx.wear.watchface.style {
     method public CharSequence getDisplayName();
     method public android.graphics.drawable.Icon? getIcon();
     method public androidx.wear.watchface.style.UserStyleSetting.WatchFaceEditorData? getWatchFaceEditorData();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.wear.watchface.style.data.ComplicationsOptionWireFormat toWireFormat();
     property public final java.util.Collection<androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotOverlay> complicationSlotOverlays;
     property public final CharSequence displayName;
     property public final android.graphics.drawable.Icon? icon;
@@ -177,13 +161,11 @@ package androidx.wear.watchface.style {
 
   public static final class UserStyleSetting.CustomValueUserStyleSetting extends androidx.wear.watchface.style.UserStyleSetting {
     ctor public UserStyleSetting.CustomValueUserStyleSetting(java.util.Collection<? extends androidx.wear.watchface.style.WatchFaceLayer> affectsWatchFaceLayers, byte[] defaultValue);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.wear.watchface.style.data.CustomValueUserStyleSettingWireFormat toWireFormat();
   }
 
   public static final class UserStyleSetting.CustomValueUserStyleSetting.CustomValueOption extends androidx.wear.watchface.style.UserStyleSetting.Option {
     ctor public UserStyleSetting.CustomValueUserStyleSetting.CustomValueOption(byte[] customValue);
     method public byte[] getCustomValue();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.wear.watchface.style.data.CustomValueOptionWireFormat toWireFormat();
     property public final byte[] customValue;
   }
 
@@ -193,7 +175,6 @@ package androidx.wear.watchface.style {
     method public double getDefaultValue();
     method public double getMaximumValue();
     method public double getMinimumValue();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.wear.watchface.style.data.DoubleRangeUserStyleSettingWireFormat toWireFormat();
     property public final double defaultValue;
     property public final double maximumValue;
     property public final double minimumValue;
@@ -202,7 +183,6 @@ package androidx.wear.watchface.style {
   public static final class UserStyleSetting.DoubleRangeUserStyleSetting.DoubleRangeOption extends androidx.wear.watchface.style.UserStyleSetting.Option {
     ctor public UserStyleSetting.DoubleRangeUserStyleSetting.DoubleRangeOption(double value);
     method public double getValue();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.wear.watchface.style.data.DoubleRangeOptionWireFormat toWireFormat();
     property public final double value;
   }
 
@@ -221,7 +201,6 @@ package androidx.wear.watchface.style {
     ctor public UserStyleSetting.ListUserStyleSetting(androidx.wear.watchface.style.UserStyleSetting.Id id, android.content.res.Resources resources, @StringRes int displayNameResourceId, @StringRes int descriptionResourceId, android.graphics.drawable.Icon? icon, java.util.List<androidx.wear.watchface.style.UserStyleSetting.ListUserStyleSetting.ListOption> options, java.util.Collection<? extends androidx.wear.watchface.style.WatchFaceLayer> affectsWatchFaceLayers, optional androidx.wear.watchface.style.UserStyleSetting.ListUserStyleSetting.ListOption defaultOption, optional androidx.wear.watchface.style.UserStyleSetting.WatchFaceEditorData? watchFaceEditorData);
     ctor public UserStyleSetting.ListUserStyleSetting(androidx.wear.watchface.style.UserStyleSetting.Id id, android.content.res.Resources resources, @StringRes int displayNameResourceId, @StringRes int descriptionResourceId, android.graphics.drawable.Icon? icon, java.util.List<androidx.wear.watchface.style.UserStyleSetting.ListUserStyleSetting.ListOption> options, java.util.Collection<? extends androidx.wear.watchface.style.WatchFaceLayer> affectsWatchFaceLayers, optional androidx.wear.watchface.style.UserStyleSetting.ListUserStyleSetting.ListOption defaultOption);
     ctor public UserStyleSetting.ListUserStyleSetting(androidx.wear.watchface.style.UserStyleSetting.Id id, android.content.res.Resources resources, @StringRes int displayNameResourceId, @StringRes int descriptionResourceId, android.graphics.drawable.Icon? icon, java.util.List<androidx.wear.watchface.style.UserStyleSetting.ListUserStyleSetting.ListOption> options, java.util.Collection<? extends androidx.wear.watchface.style.WatchFaceLayer> affectsWatchFaceLayers);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.wear.watchface.style.data.ListUserStyleSettingWireFormat toWireFormat();
   }
 
   public static final class UserStyleSetting.ListUserStyleSetting.ListOption extends androidx.wear.watchface.style.UserStyleSetting.Option {
@@ -230,7 +209,6 @@ package androidx.wear.watchface.style {
     method public CharSequence getDisplayName();
     method public android.graphics.drawable.Icon? getIcon();
     method public androidx.wear.watchface.style.UserStyleSetting.WatchFaceEditorData? getWatchFaceEditorData();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.wear.watchface.style.data.ListOptionWireFormat toWireFormat();
     property public final CharSequence displayName;
     property public final android.graphics.drawable.Icon? icon;
     property public final androidx.wear.watchface.style.UserStyleSetting.WatchFaceEditorData? watchFaceEditorData;
@@ -242,7 +220,6 @@ package androidx.wear.watchface.style {
     method public long getDefaultValue();
     method public long getMaximumValue();
     method public long getMinimumValue();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.wear.watchface.style.data.LongRangeUserStyleSettingWireFormat toWireFormat();
     property public final long defaultValue;
     property public final long maximumValue;
     property public final long minimumValue;
@@ -251,20 +228,17 @@ package androidx.wear.watchface.style {
   public static final class UserStyleSetting.LongRangeUserStyleSetting.LongRangeOption extends androidx.wear.watchface.style.UserStyleSetting.Option {
     ctor public UserStyleSetting.LongRangeUserStyleSetting.LongRangeOption(long value);
     method public long getValue();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.wear.watchface.style.data.LongRangeOptionWireFormat toWireFormat();
     property public final long value;
   }
 
   public abstract static class UserStyleSetting.Option {
     ctor public UserStyleSetting.Option(androidx.wear.watchface.style.UserStyleSetting.Option.Id id);
     method public final androidx.wear.watchface.style.UserStyleSetting.Option.Id getId();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public abstract androidx.wear.watchface.style.data.OptionWireFormat toWireFormat();
     property public final androidx.wear.watchface.style.UserStyleSetting.Option.Id id;
     field public static final androidx.wear.watchface.style.UserStyleSetting.Option.Companion Companion;
   }
 
   public static final class UserStyleSetting.Option.Companion {
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.wear.watchface.style.UserStyleSetting.Option createFromWireFormat(androidx.wear.watchface.style.data.OptionWireFormat wireFormat);
   }
 
   public static final class UserStyleSetting.Option.Id {
@@ -286,9 +260,6 @@ package androidx.wear.watchface.style {
   }
 
   public final class UserStyleSettingKt {
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static Integer? getIntRefAttribute(android.content.res.Resources resources, android.content.res.XmlResourceParser parser, String name);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static String? getStringRefAttribute(android.content.res.Resources resources, android.content.res.XmlResourceParser parser, String name);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static void moveToStart(org.xmlpull.v1.XmlPullParser, String expectedNode);
   }
 
   public enum WatchFaceLayer {

@@ -28,6 +28,7 @@ import androidx.wear.watchface.control.data.WallpaperInteractiveWatchFaceInstanc
 import androidx.wear.watchface.samples.ExampleCanvasAnalogWatchFaceService
 import androidx.wear.watchface.style.CurrentUserStyleRepository
 import java.time.ZoneId
+import java.util.concurrent.CountDownLatch
 
 /** A simple canvas test analog watch face for integration tests. */
 internal class TestCanvasAnalogWatchFaceService(
@@ -37,7 +38,8 @@ internal class TestCanvasAnalogWatchFaceService(
     var mockZoneId: ZoneId,
     var surfaceHolderOverride: SurfaceHolder,
     var preRInitFlow: Boolean,
-    var directBootParams: WallpaperInteractiveWatchFaceInstanceParams?
+    var directBootParams: WallpaperInteractiveWatchFaceInstanceParams?,
+    val onInvalidateCountDownLatch: CountDownLatch?
 ) : WatchFaceService() {
 
     private val mutableWatchState = MutableWatchState()
@@ -112,4 +114,8 @@ internal class TestCanvasAnalogWatchFaceService(
         fileName: String,
         byteArray: ByteArray
     ) {}
+
+    override fun onInvalidate() {
+        onInvalidateCountDownLatch?.countDown()
+    }
 }

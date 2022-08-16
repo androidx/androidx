@@ -25,7 +25,6 @@ import static androidx.car.app.hardware.common.CarUnit.US_GALLON;
 import static java.util.Objects.requireNonNull;
 
 import android.car.Car;
-import android.car.VehicleAreaSeat;
 import android.car.VehicleAreaType;
 import android.car.VehiclePropertyIds;
 import android.car.hardware.CarPropertyValue;
@@ -46,6 +45,7 @@ import com.google.common.collect.ImmutableBiMap;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -120,33 +120,33 @@ public final class PropertyUtils {
             new ImmutableBiMap.Builder<CarZone, Integer>()
                     .put(new CarZone.Builder().setRow(CarZone.CAR_ZONE_ROW_FIRST)
                                     .setColumn(CarZone.CAR_ZONE_COLUMN_LEFT).build(),
-                            VehicleAreaSeat.SEAT_ROW_1_LEFT)
+                            CarZoneAreaIdConstants.VehicleAreaSeat.ROW_1_LEFT)
                     .put(new CarZone.Builder().setRow(CarZone.CAR_ZONE_ROW_FIRST)
                                     .setColumn(CarZone.CAR_ZONE_COLUMN_CENTER).build(),
-                            VehicleAreaSeat.SEAT_ROW_1_CENTER)
+                            CarZoneAreaIdConstants.VehicleAreaSeat.ROW_1_CENTER)
                     .put(new CarZone.Builder().setRow(CarZone.CAR_ZONE_ROW_FIRST)
                                     .setColumn(CarZone.CAR_ZONE_COLUMN_RIGHT).build(),
-                            VehicleAreaSeat.SEAT_ROW_1_RIGHT)
+                            CarZoneAreaIdConstants.VehicleAreaSeat.ROW_1_RIGHT)
                     .put(new CarZone.Builder().setRow(CarZone.CAR_ZONE_ROW_SECOND)
                                     .setColumn(CarZone.CAR_ZONE_COLUMN_LEFT).build(),
-                            VehicleAreaSeat.SEAT_ROW_2_LEFT)
+                            CarZoneAreaIdConstants.VehicleAreaSeat.ROW_2_LEFT)
                     .put(new CarZone.Builder().setRow(CarZone.CAR_ZONE_ROW_SECOND)
                                     .setColumn(CarZone.CAR_ZONE_COLUMN_CENTER).build(),
-                            VehicleAreaSeat.SEAT_ROW_2_CENTER)
+                            CarZoneAreaIdConstants.VehicleAreaSeat.ROW_2_CENTER)
                     .put(new CarZone.Builder().setRow(CarZone.CAR_ZONE_ROW_SECOND)
                                     .setColumn(CarZone.CAR_ZONE_COLUMN_RIGHT).build(),
-                            VehicleAreaSeat.SEAT_ROW_2_RIGHT)
+                            CarZoneAreaIdConstants.VehicleAreaSeat.ROW_2_RIGHT)
                     .put(new CarZone.Builder().setRow(CarZone.CAR_ZONE_ROW_THIRD)
                                     .setColumn(CarZone.CAR_ZONE_COLUMN_LEFT).build(),
-                            VehicleAreaSeat.SEAT_ROW_3_LEFT)
+                            CarZoneAreaIdConstants.VehicleAreaSeat.ROW_3_LEFT)
                     .put(new CarZone.Builder().setRow(CarZone.CAR_ZONE_ROW_THIRD)
                                     .setColumn(CarZone.CAR_ZONE_COLUMN_CENTER).build(),
-                            VehicleAreaSeat.SEAT_ROW_3_CENTER)
+                            CarZoneAreaIdConstants.VehicleAreaSeat.ROW_3_CENTER)
                     .put(new CarZone.Builder().setRow(CarZone.CAR_ZONE_ROW_THIRD)
                                     .setColumn(CarZone.CAR_ZONE_COLUMN_RIGHT).build(),
-                            VehicleAreaSeat.SEAT_ROW_3_RIGHT)
+                            CarZoneAreaIdConstants.VehicleAreaSeat.ROW_3_RIGHT)
                     .put(new CarZone.Builder().setRow(CarZone.CAR_ZONE_ROW_ALL)
-                                    .setColumn(CarZone.CAR_ZONE_COLUMN_ALL).build(), 0)
+                            .setColumn(CarZone.CAR_ZONE_COLUMN_ALL).build(), 0)
                     .buildOrThrow();
 
     // Permissions for writing properties. They are system level permissions.
@@ -418,6 +418,24 @@ public final class PropertyUtils {
                     + "their corresponding car zones.");
         }
         return propertyIdWithAreaIds;
+    }
+
+    /** Returns a map of min/max values in Integer corresponding to a set of car zones.
+     *
+     * <p> The method is a utility to convert Pair<?, ?> to Pair<Integer, Integer>.
+     */
+    @NonNull
+    public static Map<Set<CarZone>, Pair<Integer, Integer>> getMinMaxProfileIntegerMap(
+            @NonNull Map<Set<CarZone>, ? extends Pair<?, ?>> minMaxRange) {
+        Map<Set<CarZone>, Pair<Integer, Integer>>
+                carZoneSetsToIntegerValues = new HashMap<>();
+        for (Map.Entry<Set<CarZone>, ? extends Pair<?, ?>> entry : requireNonNull(minMaxRange
+                        .entrySet())) {
+            carZoneSetsToIntegerValues.put(entry.getKey(),
+                    new Pair<>((Integer) entry.getValue().first,
+                            (Integer) entry.getValue().second));
+        }
+        return carZoneSetsToIntegerValues;
     }
 
     private PropertyUtils() {

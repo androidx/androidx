@@ -64,7 +64,7 @@
     <ListView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:entries="@array/list_view_entries"></ListView>
+        android:entries="@array/list_view_entries" />
 
     <TextView
         android:layout_width="wrap_content"

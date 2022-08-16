@@ -1,66 +1,72 @@
+/*
+ * Copyright 2022 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package androidx.health.services.client.data
 
-import android.os.Parcelable
 import androidx.health.services.client.proto.DataProto
-import androidx.health.services.client.proto.DataProto.AggregateDataPoint.StatisticalDataPoint as StatisticalDataPointProto
 import java.time.Instant
 
 /**
- * An [AggregateDataPoint] containing the statistical aggregates [min], [max], and [average] for the
- * type [dataType] between [startTime] and [endTime]. This should generally correspond with
- * [DataPoint]s of type [DataType.TimeType.SAMPLE].
+ * Data point that represents statistics on [SampleDataPoint]s between [start] and [end], though it
+ * is not required to request samples separately.
  */
-@Suppress("ParcelCreator")
-public class StatisticalDataPoint(
-    public val startTime: Instant,
-    public val endTime: Instant,
-    public val dataType: DataType,
-    public val min: Value,
-    public val max: Value,
-    public val average: Value,
-) : AggregateDataPoint() {
+class StatisticalDataPoint<T : Number>(
+    /** The [DataType] this [DataPoint] represents. */
+    dataType: AggregateDataType<T, StatisticalDataPoint<T>>,
+    /** The minimum observed value between [start] and [end]. */
+    val min: T,
+    /** The maximum observed value between [start] and [end]. */
+    val max: T,
+    /** The average observed value between [start] and [end]. */
+    val average: T,
+    /** The beginning of time this point covers.  */
+    val start: Instant,
+    /** The end time this point covers.  */
+    val end: Instant
+) : DataPoint<T>(dataType) {
 
-    internal constructor(
-        proto: DataProto.AggregateDataPoint
-    ) : this(
-        Instant.ofEpochMilli(proto.statisticalDataPoint.startTimeEpochMs),
-        Instant.ofEpochMilli(proto.statisticalDataPoint.endTimeEpochMs),
-        DataType(proto.statisticalDataPoint.dataType),
-        Value(proto.statisticalDataPoint.minValue),
-        Value(proto.statisticalDataPoint.maxValue),
-        Value(proto.statisticalDataPoint.avgValue)
-    )
-
-    /** @hide */
-    override val proto: DataProto.AggregateDataPoint by lazy {
+    internal val proto: DataProto.AggregateDataPoint by lazy {
         DataProto.AggregateDataPoint.newBuilder()
             .setStatisticalDataPoint(
-                StatisticalDataPointProto.newBuilder()
-                    .setStartTimeEpochMs(startTime.toEpochMilli())
-                    .setEndTimeEpochMs(endTime.toEpochMilli())
+                DataProto.AggregateDataPoint.StatisticalDataPoint.newBuilder()
                     .setDataType(dataType.proto)
-                    .setMinValue(min.proto)
-                    .setMaxValue(max.proto)
-                    .setAvgValue(average.proto)
-                    .build()
-            )
-            .build()
+                    .setMinValue(dataType.toProtoFromValue(min))
+                    .setMaxValue(dataType.toProtoFromValue(max))
+                    .setAvgValue(dataType.toProtoFromValue(average))
+                    .setStartTimeEpochMs(start.toEpochMilli())
+                    .setEndTimeEpochMs(end.toEpochMilli())
+            ).build()
     }
 
-    override fun toString(): String =
-        "StatisticalDataPoint(" +
-            "startTime=$startTime, " +
-            "endTime=$endTime, " +
-            "dataType=$dataType, " +
-            "min=$min, " +
-            "max=$max, " +
-            "average=$average)"
-
-    public companion object {
-        @JvmField
-        public val CREATOR: Parcelable.Creator<StatisticalDataPoint> = newCreator {
-            val proto = DataProto.AggregateDataPoint.parseFrom(it)
-            StatisticalDataPoint(proto)
+    companion object {
+        @Suppress("UNCHECKED_CAST")
+        internal fun fromProto(
+            proto: DataProto.AggregateDataPoint.StatisticalDataPoint
+        ): StatisticalDataPoint<*> {
+            val dataType =
+                DataType.aggregateFromProto(proto.dataType)
+                    as AggregateDataType<Number, StatisticalDataPoint<Number>>
+            return StatisticalDataPoint(
+                dataType,
+                min = dataType.toValueFromProto(proto.minValue),
+                max = dataType.toValueFromProto(proto.maxValue),
+                average = dataType.toValueFromProto(proto.avgValue),
+                start = Instant.ofEpochMilli(proto.startTimeEpochMs),
+                end = Instant.ofEpochMilli(proto.endTimeEpochMs)
+            )
         }
     }
 }

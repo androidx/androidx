@@ -32,7 +32,7 @@ import java.util.List;
  *
  * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @VersionedParcelize
 public class ComplicationsOptionWireFormat extends OptionWireFormat {
     @ParcelField(2)

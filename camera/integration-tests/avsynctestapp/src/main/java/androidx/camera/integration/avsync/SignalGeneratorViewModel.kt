@@ -41,7 +41,7 @@ import kotlinx.coroutines.withContext
 private const val ACTIVE_LENGTH_SEC: Double = 0.5
 private const val ACTIVE_INTERVAL_SEC: Double = 1.0
 private const val ACTIVE_DELAY_SEC: Double = 0.0
-private const val VOLUME_PERCENTAGE: Double = 0.6
+private const val VOLUME_PERCENTAGE: Double = 1.0
 private const val TAG = "SignalGeneratorViewModel"
 
 enum class ActivationSignal {
@@ -79,6 +79,7 @@ class SignalGeneratorViewModel : ViewModel() {
 
         withContext(Dispatchers.Default) {
             audioGenerator.initAudioTrack(
+                context = context,
                 frequency = beepFrequency,
                 beepLengthInSec = ACTIVE_LENGTH_SEC,
             )

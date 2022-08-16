@@ -165,7 +165,7 @@ application@android:debuggable was tagged at .*\.xml:[0-9]+ to replace other dec
 Configuration cache entry reused with [0-9]+ problems\.
 See the profiling report at: file://\$GRADLE_USER_HOME/daemon/.*/reports/profile/profile\-[0-9]+\-[0-9]+\-[0-9]+\-[0-9]+\-[0-9]+\-[0-9]+\.html
 Configuration cache entry reused\.
-Configuration cache entry stored with [0-9]+ problems\.
+Configuration cache entry stored with [0-9]+ problem.*
 [0-9]+ actionable tasks: [0-9]+ executed, [0-9]+ from cache
 Configuration cache entry stored\.
 See the profiling report at\: file\:\/\/\$OUT_DIR\/androidx\/build\/reports\/profile\/profile\-[0-9]+\-[0-9]+\-[0-9]+\-[0-9]+\-[0-9]+\-[0-9]+\.html
@@ -184,7 +184,7 @@ Note: \$SUPPORT/samples/SupportSliceDemos/src/main/java/com/example/androidx/sli
 # > Task :compose:material:material:icons:generator:zipHtmlResultsOfTest
 Html results of .* zipped into.*\.zip
 # b/230127926
-[0-9]+ problems were found storing the configuration cache, [0-9]+ of which seem unique\.
+[0-9]+ problem.* found storing the configuration cache.*
 \- Task `:[:A-Za-z0-9#\-]+` of type `org\.jetbrains\.kotlin\.gradle\.plugin\.mpp\.[A-Za-z0-9]+`: invocation of 'Task\.project' at execution time is unsupported\.
 # https://youtrack.jetbrains.com/issue/KT-52694/
 \- Task `:listTaskOutputs` of type `androidx\.build\.ListTaskOutputsTask`: invocation of 'Task\.project' at execution time is unsupported\.
@@ -272,6 +272,14 @@ in DClass UserStyle
 @param copySelectedOptions
 in DClass Builder
 Did you make a typo\? Are you trying to refer to something not visible to users\?
+WARNING: do not use 'an' before the exception type in an @throws statement\. This is against jdoc spec, will be an error in the next version of dackka, and your exception is not being linked and looks bad\. This was observed in Throws\(root=CustomDocTag\(children=\[P\(children=\[DocumentationLink\(dri=java\.lang/IllegalArgumentException///PointingToDeclaration/, children=\[Text\(body=IllegalArgumentException, children=\[\], params=\{\}\)\], params=\{\}\), Text\(body= if the property name or index is invalid\., children=\[\], params=\{\}\)\], params=\{\}\)\], params=\{\}, name=MARKDOWN_FILE\), name=an, exceptionAddress=null\)\.
+WARNING: do not use 'an' before the exception type in an @throws statement\. This is against jdoc spec, will be an error in the next version of dackka, and your exception is not being linked and looks bad\. This was observed in Throws\(root=CustomDocTag\(children=\[P\(children=\[DocumentationLink\(dri=kotlin/IllegalArgumentException///PointingToDeclaration/, children=\[Text\(body=IllegalArgumentException, children=\[\], params=\{\}\)\], params=\{href=\[IllegalArgumentException\]\}\), Text\(body= if address is invalid\., children=\[\], params=\{\}\)\], params=\{\}\)\], params=\{\}, name=MARKDOWN_FILE\), name=an, exceptionAddress=null\)\.
+WARNING: link to @throws type RemoteException does not resolve\. Is it from a package that the containing file does not import\? Is docs inherited to an un\-documented override function, but the exception class is not in scope in the inheriting class\? The general fix for these is to fully qualify the exception name,  e\.g\.`@throws java\.io\.IOException under some conditions\. This was observed in Throws\(root=CustomDocTag\(children=\[P\(children=\[Text\(body=For any IPC transportation failures\., children=\[\], params=\{\}\)\], params=\{\}\)\], params=\{\}, name=MARKDOWN_FILE\), name=RemoteException, exceptionAddress=null\)\.`
+WARNING: link to @throws type IOException does not resolve\. Is it from a package that the containing file does not import\? Is docs inherited to an un\-documented override function, but the exception class is not in scope in the inheriting class\? The general fix for these is to fully qualify the exception name,  e\.g\.`@throws java\.io\.IOException under some conditions\. This was observed in Throws\(root=CustomDocTag\(children=\[P\(children=\[Text\(body=For any disk I/O issues\., children=\[\], params=\{\}\)\], params=\{\}\)\], params=\{\}, name=MARKDOWN_FILE\), name=IOException, exceptionAddress=null\)\.`
+WARNING: link to @throws type IOException does not resolve\. Is it from a package that the containing file does not import\? Is docs inherited to an un\-documented override function, but the exception class is not in scope in the inheriting class\? The general fix for these is to fully qualify the exception name,  e\.g\.`@throws java\.io\.IOException under some conditions\. This was observed in Throws\(root=CustomDocTag\(children=\[P\(children=\[Text\(body=when an exception is encountered when writing data to disk, children=\[\], params=\{\}\)\], params=\{\}\)\], params=\{\}, name=MARKDOWN_FILE\), name=IOException, exceptionAddress=null\)\.`
+WARNING: link to @throws type ComposeTimeoutException does not resolve\. Is it from a package that the containing file does not import\? Is docs inherited to an un\-documented override function, but the exception class is not in scope in the inheriting class\? The general fix for these is to fully qualify the exception name,  e\.g\.`@throws java\.io\.IOException under some conditions\. This was observed in Throws\(root=CustomDocTag\(children=\[P\(children=\[Text\(body=If the condition is not satisfied after , children=\[\], params=\{\}\), DocumentationLink\(dri=androidx\.compose\.ui\.test\.junit[0-9]+/AndroidComposeTestRule/waitUntil/\#kotlin\.Long\#kotlin\.Function[0-9]+\[kotlin\.Boolean\]/PointingToCallableParameters\([0-9]+\)/, children=\[Text\(body=timeoutMillis, children=\[\], params=\{\}\)\], params=\{href=\[timeoutMillis\]\}\), Text\(body=\., children=\[\], params=\{\}\)\], params=\{\}\)\], params=\{\}, name=MARKDOWN_FILE\), name=ComposeTimeoutException, exceptionAddress=null\)\.`
+WARNING: link to @throws type Renderer\.GlesException does not resolve\. Is it from a package that the containing file does not import\? Is docs inherited to an un\-documented override function, but the exception class is not in scope in the inheriting class\? The general fix for these is to fully qualify the exception name,  e\.g\.`@throws java\.io\.IOException under some conditions\. This was observed in Throws\(root=CustomDocTag\(children=\[P\(children=\[Text\(body=If any GL calls fail during initialization\., children=\[\], params=\{\}\)\], params=\{\}\)\], params=\{\}, name=MARKDOWN_FILE\), name=Renderer\.GlesException, exceptionAddress=null\)\.`
+WARNING: link to @throws type ServiceStartFailureException does not resolve\. Is it from a package that the containing file does not import\? Is docs inherited to an un\-documented override function, but the exception class is not in scope in the inheriting class\? The general fix for these is to fully qualify the exception name,  e\.g\.`@throws java\.io\.IOException under some conditions\. This was observed in Throws\(root=CustomDocTag\(children=\[P\(children=\[Text\(body=if the watchface dies during startup\., children=\[\], params=\{\}\)\], params=\{\}\)\], params=\{\}, name=MARKDOWN_FILE\), name=ServiceStartFailureException, exceptionAddress=null\)\.`
 # Wire proto generation, task :generateDebugProtos
 Writing .* to \$OUT_DIR/.*/build/generated/source/wire
 # > Task :compose:ui:ui-tooling:processDebugAndroidTestManifest
@@ -288,10 +296,6 @@ meta\-data\#androidx\.emoji[0-9]+\.text\.EmojiCompatInitializer was tagged at An
 \$SUPPORT/emoji[0-9]+/emoji[0-9]+\-bundled/src/main/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 # b/195025261
 To honour the JVM settings for this build a single\-use Daemon process will be forked.*
-# > Task :work:work-benchmark:processReleaseAndroidTestManifest
-[0-9]+ problems were found storing the configuration cache\.
-# > Task :car:app:app:generateProtocolApi
-\- Task `:car:app:app:generateProtocolApi` of type `GenerateProtocolApiTask`: invocation of 'Task\.project' at execution time is unsupported\.
 # > Tasks configureCMakeRelWithDebInfo or configureCMakeDebug
 C/C\+\+: Building ver\.\: [0-9]+\.[0-9]+\.[0-9]+
 C/C\+\+: Packaging for\: (amd\-[0-9]+|armhf\-[0-9]+|x86\-[0-9]+)

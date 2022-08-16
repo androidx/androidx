@@ -134,6 +134,7 @@ class PassThroughActivity : ComponentActivity() {
             finish()
         }
     }
+    @Suppress("DEPRECATION")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         launcher.launch(intent.getParcelableExtra("destinationIntent"))

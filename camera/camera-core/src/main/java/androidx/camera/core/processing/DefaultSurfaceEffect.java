@@ -120,7 +120,7 @@ public class DefaultSurfaceEffect implements SurfaceEffectInternal,
             return;
         }
         mGlExecutor.execute(() ->
-                mOutputSurfaces.put(surfaceOutput, surfaceOutput.getSurface(mGlExecutor, () -> {
+                mOutputSurfaces.put(surfaceOutput, surfaceOutput.getSurface(mGlExecutor, event -> {
                     surfaceOutput.close();
                     mOutputSurfaces.remove(surfaceOutput);
                 }))

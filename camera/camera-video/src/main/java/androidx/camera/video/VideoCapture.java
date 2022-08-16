@@ -35,6 +35,10 @@ import static androidx.camera.core.internal.UseCaseEventConfig.OPTION_USE_CASE_E
 import static androidx.camera.video.StreamInfo.STREAM_ID_ERROR;
 import static androidx.camera.video.impl.VideoCaptureConfig.OPTION_VIDEO_OUTPUT;
 
+import static java.util.Collections.singletonList;
+import static java.util.Objects.requireNonNull;
+
+import android.graphics.ImageFormat;
 import android.graphics.Rect;
 import android.media.MediaCodec;
 import android.util.Pair;
@@ -53,6 +57,7 @@ import androidx.camera.core.AspectRatio;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.Logger;
+import androidx.camera.core.SurfaceEffect;
 import androidx.camera.core.SurfaceRequest;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.ViewPort;
@@ -79,6 +84,10 @@ import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.camera.core.internal.ThreadConfig;
+import androidx.camera.core.processing.SettableSurface;
+import androidx.camera.core.processing.SurfaceEdge;
+import androidx.camera.core.processing.SurfaceEffectInternal;
+import androidx.camera.core.processing.SurfaceEffectNode;
 import androidx.camera.video.StreamInfo.StreamState;
 import androidx.camera.video.impl.VideoCaptureConfig;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
@@ -88,7 +97,6 @@ import com.google.common.util.concurrent.ListenableFuture;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -132,6 +140,10 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
     private SurfaceRequest mSurfaceRequest;
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     VideoOutput.SourceState mSourceState = VideoOutput.SourceState.INACTIVE;
+    @Nullable
+    private SurfaceEffectInternal mSurfaceEffect;
+    @Nullable
+    private SurfaceEffectNode mNode;
 
     /**
      * Create a VideoCapture associated with the given {@link VideoOutput}.
@@ -284,6 +296,16 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
     }
 
     /**
+     * Sets a {@link SurfaceEffectInternal}.
+     *
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public void setEffect(@Nullable SurfaceEffectInternal surfaceEffect) {
+        mSurfaceEffect = surfaceEffect;
+    }
+
+    /**
      * {@inheritDoc}
      *
      * @hide
@@ -376,7 +398,8 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         Rect cropRect = getCropRect(resolution);
         if (cameraInternal != null && surfaceRequest != null && cropRect != null) {
             surfaceRequest.updateTransformationInfo(SurfaceRequest.TransformationInfo.of(cropRect,
-                    getRelativeRotation(cameraInternal), getTargetRotationInternal()));
+                    mNode != null ? 0 : getRelativeRotation(cameraInternal),
+                    mNode != null ? Surface.ROTATION_0 : getTargetRotationInternal()));
         }
     }
 
@@ -403,12 +426,30 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
             @NonNull VideoCaptureConfig<T> config,
             @NonNull Size resolution) {
         Threads.checkMainThread();
+        CameraInternal camera = Preconditions.checkNotNull(getCamera());
 
-        mSurfaceRequest = new SurfaceRequest(resolution, Preconditions.checkNotNull(getCamera()),
-                false);
+        if (mSurfaceEffect != null) {
+            mNode = new SurfaceEffectNode(camera, /*applyGlTransform=*/true, mSurfaceEffect);
+            SettableSurface cameraSurface = new SettableSurface(
+                    SurfaceEffect.VIDEO_CAPTURE,
+                    resolution,
+                    ImageFormat.PRIVATE,
+                    getSensorToBufferTransformMatrix(),
+                    /*hasEmbeddedTransform=*/true,
+                    requireNonNull(getCropRect(resolution)),
+                    getRelativeRotation(camera),
+                    /*mirroring=*/false);
+            SurfaceEdge inputEdge = SurfaceEdge.create(singletonList(cameraSurface));
+            SurfaceEdge outputEdge = mNode.transform(inputEdge);
+            SettableSurface appSurface = outputEdge.getSurfaces().get(0);
+            mSurfaceRequest = appSurface.createSurfaceRequest(camera);
+            mDeferrableSurface = cameraSurface;
+        } else {
+            mSurfaceRequest = new SurfaceRequest(resolution, camera, false);
+            mDeferrableSurface = mSurfaceRequest.getDeferrableSurface();
+        }
         config.getVideoOutput().onSurfaceRequested(mSurfaceRequest);
         sendTransformationInfoIfReady(resolution);
-        mDeferrableSurface = mSurfaceRequest.getDeferrableSurface();
         // Since VideoCapture is in video module and can't be recognized by core module, use
         // MediaCodec class instead.
         mDeferrableSurface.setContainerClass(MediaCodec.class);
@@ -430,6 +471,10 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         if (mDeferrableSurface != null) {
             mDeferrableSurface.close();
             mDeferrableSurface = null;
+        }
+        if (mNode != null) {
+            mNode.release();
+            mNode = null;
         }
 
         mSurfaceRequest = null;
@@ -556,9 +601,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
             } else {
                 sessionConfigBuilder.addNonRepeatingSurface(mDeferrableSurface);
             }
-        } else {
-            // Don't attach surface when stream is invalid.
-        }
+        } // Don't attach surface when stream is invalid.
 
         setupSurfaceUpdateNotifier(sessionConfigBuilder, isStreamActive);
     }
@@ -683,7 +726,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
                 "No supportedResolutions after filter out");
 
         builder.getMutableConfig().insertOption(OPTION_SUPPORTED_RESOLUTIONS,
-                Collections.singletonList(
+                singletonList(
                         Pair.create(getImageFormat(), supportedResolutions.toArray(new Size[0]))));
     }
 

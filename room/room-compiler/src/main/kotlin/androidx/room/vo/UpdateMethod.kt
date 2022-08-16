@@ -26,4 +26,4 @@ class UpdateMethod(
     parameters: List<ShortcutQueryParameter>,
     methodBinder: DeleteOrUpdateMethodBinder?,
     @OnConflictStrategy val onConflictStrategy: Int
-) : ShortcutMethod(element, entities, parameters, methodBinder)
+) : DeleteOrUpdateShortcutMethod(element, entities, parameters, methodBinder)

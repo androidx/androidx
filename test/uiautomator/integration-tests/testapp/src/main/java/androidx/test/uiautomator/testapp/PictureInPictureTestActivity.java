@@ -18,8 +18,6 @@ package androidx.test.uiautomator.testapp;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.view.View;
-import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
@@ -29,24 +27,20 @@ import androidx.annotation.RequiresApi;
 @RequiresApi(24)
 public class PictureInPictureTestActivity extends Activity {
 
-    private TextView mMode;
-    private Button mButton;
-
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.pip_test_activity);
+    }
 
-        mMode = (TextView) findViewById(R.id.pip_mode);
-        mButton = (Button) findViewById(R.id.pip_button);
-        mButton.setOnClickListener(v -> enterPictureInPictureMode());
+    @Override
+    public void onUserLeaveHint() {
+        enterPictureInPictureMode();
     }
 
     @Override
     public void onPictureInPictureModeChanged(boolean isInPictureInPictureMode) {
-        if (isInPictureInPictureMode) {
-            mMode.setText("PiP Mode");
-            mButton.setVisibility(View.GONE);
-        }
+        TextView mode = findViewById(R.id.pip_mode);
+        mode.setText(isInPictureInPictureMode ? "PiP Mode" : "Default Mode");
     }
 }

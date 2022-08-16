@@ -50,6 +50,7 @@ public final class WorkerParameters {
     private @NonNull WorkerFactory mWorkerFactory;
     private @NonNull ProgressUpdater mProgressUpdater;
     private @NonNull ForegroundUpdater mForegroundUpdater;
+    private int mGeneration;
 
     /**
      * @hide
@@ -61,6 +62,7 @@ public final class WorkerParameters {
             @NonNull Collection<String> tags,
             @NonNull RuntimeExtras runtimeExtras,
             @IntRange(from = 0) int runAttemptCount,
+            @IntRange(from = 0) int generation,
             @NonNull Executor backgroundExecutor,
             @NonNull TaskExecutor workTaskExecutor,
             @NonNull WorkerFactory workerFactory,
@@ -71,6 +73,7 @@ public final class WorkerParameters {
         mTags = new HashSet<>(tags);
         mRuntimeExtras = runtimeExtras;
         mRunAttemptCount = runAttemptCount;
+        mGeneration = generation;
         mBackgroundExecutor = backgroundExecutor;
         mWorkTaskExecutor = workTaskExecutor;
         mWorkerFactory = workerFactory;
@@ -152,6 +155,24 @@ public final class WorkerParameters {
     @IntRange(from = 0)
     public int getRunAttemptCount() {
         return mRunAttemptCount;
+    }
+
+    /**
+     * Gets the generation of this Worker.
+     * <p>
+     * A work has multiple generations, if it was updated via
+     * {@link WorkManager#updateWork(WorkRequest)} or
+     * {@link WorkManager#enqueueUniquePeriodicWork(String,
+     * ExistingPeriodicWorkPolicy, PeriodicWorkRequest)} using
+     * {@link ExistingPeriodicWorkPolicy#UPDATE}.
+     * This worker can possibly be of an older generation rather than latest known,
+     * if an update has happened while this worker is running.
+     *
+     * @return a generation of this work.
+     */
+    @IntRange(from = 0)
+    public int getGeneration() {
+        return mGeneration;
     }
 
     /**

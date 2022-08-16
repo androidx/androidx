@@ -40,7 +40,7 @@ import java.util.Locale;
  */
 public class Tracer {
     private static final String UNKNOWN_METHOD_STRING = "(unknown method)";
-    private static final String UIAUTOMATOR_PACKAGE = "android.support.test.uiautomator";
+    private static final String UIAUTOMATOR_PACKAGE = Tracer.class.getPackage().getName();
     private static final int CALLER_LOCATION = 6;
     private static final int METHOD_TO_TRACE_LOCATION = 5;
     private static final int MIN_STACK_TRACE_LENGTH = 7;

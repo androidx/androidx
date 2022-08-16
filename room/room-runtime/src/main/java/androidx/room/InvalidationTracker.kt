@@ -27,7 +27,7 @@ import androidx.annotation.VisibleForTesting
 import androidx.annotation.WorkerThread
 import androidx.arch.core.internal.SafeIterableMap
 import androidx.lifecycle.LiveData
-import androidx.room.Room.Companion.LOG_TAG
+import androidx.room.Room.LOG_TAG
 import androidx.room.util.useCursor
 import androidx.sqlite.db.SimpleSQLiteQuery
 import androidx.sqlite.db.SupportSQLiteDatabase
@@ -53,37 +53,26 @@ import java.util.concurrent.atomic.AtomicBoolean
 // memory table table, flipping the invalidated flag ON.
 // * When multi-instance invalidation is turned on, MultiInstanceInvalidationClient will be created.
 // It works as an Observer, and notifies other instances of table invalidation.
-
 open class InvalidationTracker @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) constructor(
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY)
-    @field:RestrictTo(RestrictTo.Scope.LIBRARY)
-    protected val database: RoomDatabase,
+    internal val database: RoomDatabase,
     private val shadowTablesMap: Map<String, String>,
     private val viewTables: Map<String, @JvmSuppressWildcards Set<String>>,
     vararg tableNames: String
 ) {
-    @JvmField
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    val tableIdLookup: Map<String, Int>
-
-    @JvmField
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    val tablesNames: Array<String>
+    internal val tableIdLookup: Map<String, Int>
+    internal val tablesNames: Array<String>
 
     private var autoCloser: AutoCloser? = null
 
-    @JvmField
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY)
+    @field:RestrictTo(RestrictTo.Scope.LIBRARY)
     val pendingRefresh = AtomicBoolean(false)
 
     @Volatile
     private var initialized = false
 
     @Volatile
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY)
-    @set:RestrictTo(RestrictTo.Scope.LIBRARY)
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    var cleanupStatement: SupportSQLiteStatement? = null
+    internal var cleanupStatement: SupportSQLiteStatement? = null
 
     private val observedTableTracker: ObservedTableTracker = ObservedTableTracker(tableNames.size)
 
@@ -91,17 +80,7 @@ open class InvalidationTracker @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX
         InvalidationLiveDataContainer(database)
 
     @GuardedBy("observerMap")
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    @JvmField
-    @VisibleForTesting
-    protected val observerMap = SafeIterableMap<Observer, ObserverWrapper>()
-
-    @GuardedBy("observerMap")
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    @VisibleForTesting
-    fun getObserverMap(): SafeIterableMap<Observer, ObserverWrapper> {
-        return observerMap
-    }
+    internal val observerMap = SafeIterableMap<Observer, ObserverWrapper>()
 
     private var multiInstanceInvalidationClient: MultiInstanceInvalidationClient? = null
 
@@ -165,9 +144,7 @@ open class InvalidationTracker @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX
      *
      * You should never call this method, it is called by the generated code.
      */
-    // TODO (b/218894771): Make internal when RoomDatabase is converted to Kotlin
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    fun internalInit(database: SupportSQLiteDatabase) {
+    internal fun internalInit(database: SupportSQLiteDatabase) {
         synchronized(trackerLock) {
             if (initialized) {
                 Log.e(LOG_TAG, "Invalidation tracker is initialized twice :/.")
@@ -193,7 +170,6 @@ open class InvalidationTracker @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX
         }
     }
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
     internal fun startMultiInstanceInvalidation(
         context: Context,
         name: String,
@@ -208,7 +184,6 @@ open class InvalidationTracker @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX
         )
     }
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
     internal fun stopMultiInstanceInvalidation() {
         multiInstanceInvalidationClient?.stop()
         multiInstanceInvalidationClient = null
@@ -353,8 +328,7 @@ open class InvalidationTracker @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX
         }
     }
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    protected fun ensureInitialization(): Boolean {
+    internal fun ensureInitialization(): Boolean {
         if (!database.isOpen) {
             return false
         }
@@ -503,7 +477,6 @@ open class InvalidationTracker @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX
         }
     }
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
     internal fun syncTriggers(database: SupportSQLiteDatabase) {
         if (database.inTransaction()) {
             // we won't run this inside another transaction.
@@ -552,8 +525,7 @@ open class InvalidationTracker @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX
      *
      * This api should eventually be public.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    fun syncTriggers() {
+    internal fun syncTriggers() {
         if (!database.isOpen) {
             return
         }
@@ -613,15 +585,10 @@ open class InvalidationTracker @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX
      *
      * Internally table ids are used which may change from database to database so the table
      * related information is kept here rather than in the Observer.
-     *
-     * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    class ObserverWrapper(
-        @get:RestrictTo(RestrictTo.Scope.LIBRARY)
-        val observer: Observer,
-        @get:RestrictTo(RestrictTo.Scope.LIBRARY)
-        val tableIds: IntArray,
+    internal class ObserverWrapper(
+        internal val observer: Observer,
+        internal val tableIds: IntArray,
         private val tableNames: Array<String>
     ) {
         private val singleTableSet = if (tableNames.isNotEmpty()) {
@@ -640,8 +607,7 @@ open class InvalidationTracker @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX
          *
          * @param invalidatedTablesIds The table ids of the tables that are invalidated.
          */
-        @RestrictTo(RestrictTo.Scope.LIBRARY)
-        fun notifyByTableInvalidStatus(invalidatedTablesIds: Set<Int?>) {
+        internal fun notifyByTableInvalidStatus(invalidatedTablesIds: Set<Int?>) {
             val invalidatedTables = when (tableIds.size) {
                 0 -> emptySet()
                 1 -> if (invalidatedTablesIds.contains(tableIds[0])) {
@@ -669,8 +635,7 @@ open class InvalidationTracker @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX
          *
          * @param tables The invalidated table names.
          */
-        @RestrictTo(RestrictTo.Scope.LIBRARY)
-        fun notifyByTableNames(tables: Array<out String>) {
+        internal fun notifyByTableNames(tables: Array<out String>) {
             val invalidatedTables = when (tableNames.size) {
                 0 -> emptySet()
                 1 -> if (tables.any { it.equals(tableNames[0], ignoreCase = true) }) {
@@ -698,7 +663,7 @@ open class InvalidationTracker @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX
     /**
      * An observer that can listen for changes in the database.
      */
-    abstract class Observer(@get:RestrictTo(RestrictTo.Scope.LIBRARY) val tables: Array<String>) {
+    abstract class Observer(internal val tables: Array<String>) {
         /**
          * Observes the given list of tables and views.
          *
@@ -721,8 +686,7 @@ open class InvalidationTracker @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX
          */
         abstract fun onInvalidated(tables: Set<String>)
 
-        @get:RestrictTo(RestrictTo.Scope.LIBRARY)
-        open val isRemote: Boolean
+        internal open val isRemote: Boolean
             get() = false
     }
 
@@ -819,8 +783,7 @@ open class InvalidationTracker @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX
             }
         }
 
-        @RestrictTo(RestrictTo.Scope.LIBRARY)
-        companion object {
+        internal companion object {
             const val NO_OP = 0 // don't change trigger state for this table
             const val ADD = 1 // add triggers for this table
             const val REMOVE = 2 // remove triggers for this table
@@ -857,14 +820,12 @@ open class InvalidationTracker @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX
                 "$INVALIDATED_COLUMN_NAME INTEGER NOT NULL DEFAULT 0)"
 
         @VisibleForTesting
-        @RestrictTo(RestrictTo.Scope.LIBRARY)
-        const val RESET_UPDATED_TABLES_SQL =
+        internal const val RESET_UPDATED_TABLES_SQL =
             "UPDATE $UPDATE_TABLE_NAME SET $INVALIDATED_COLUMN_NAME = 0 " +
                 "WHERE $INVALIDATED_COLUMN_NAME = 1"
 
         @VisibleForTesting
-        @RestrictTo(RestrictTo.Scope.LIBRARY)
-        const val SELECT_UPDATED_TABLES_SQL =
+        internal const val SELECT_UPDATED_TABLES_SQL =
             "SELECT * FROM $UPDATE_TABLE_NAME WHERE $INVALIDATED_COLUMN_NAME = 1;"
 
         internal fun getTriggerName(

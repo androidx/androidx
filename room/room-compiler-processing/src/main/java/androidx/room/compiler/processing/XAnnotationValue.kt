@@ -38,6 +38,15 @@ interface XAnnotationValue {
      */
     val value: Any?
 
+    /**
+     * Returns the type of this annotation value as declared in the annotation class.
+     *
+     * For Java sources, this will be the return type of the method that declares this annotation
+     * value. For Kotlin sources, this will be the constructor parameter type that declares this
+     * annotation value.
+     */
+    val valueType: XType
+
     /** Returns true if the value is an [XType] */
     fun hasTypeValue(): Boolean
 

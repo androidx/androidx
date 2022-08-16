@@ -16,7 +16,6 @@
 
 package androidx.build
 
-import androidx.build.AndroidXPluginTestContext.Companion.fileList
 import androidx.build.AndroidXSelfTestProject.Companion.cubaneBuildGradleText
 import androidx.build.AndroidXSelfTestProject.Companion.cubaneKmpNoJavaProject
 import androidx.build.AndroidXSelfTestProject.Companion.cubaneProject
@@ -32,8 +31,8 @@ class AndroidXPluginTest {
         val output = runGradle(":cubane:cubane:createProjectZip", "--stacktrace").output
         Checkmark.checks {
             output.check { it.contains("BUILD SUCCESSFUL") }
-            outDir.check { it.fileList().contains("dist") }
-            outDir.resolve("dist/per-project-zips").fileList()
+            outDir.check { it.filesInFolder().contains("dist") }
+            outDir.resolve("dist/per-project-zips").filesInFolder()
                 .check { it.contains("cubane-cubane-all-0-1.2.3.zip") }
         }
     }
@@ -58,8 +57,8 @@ class AndroidXPluginTest {
     @Test
     fun androidLibraryAndKotlinAndroid() = pluginTest {
         val project = cubaneProject.copy(
-            buildGradleText = cubaneBuildGradleText(
-                listOf("com.android.library", "kotlin-android")
+            buildGradleTextTemplate = cubaneBuildGradleText(
+                listOf("com.android.library", "kotlin-android", "AndroidXPlugin")
             )
         )
         writeBuildFiles(project)
@@ -69,8 +68,8 @@ class AndroidXPluginTest {
     @Test
     fun kotlinAndroidAndAndroidLibrary() = pluginTest {
         val project = cubaneProject.copy(
-            buildGradleText = cubaneBuildGradleText(
-                listOf("kotlin-android", "com.android.library")
+            buildGradleTextTemplate = cubaneBuildGradleText(
+                plugins = listOf("kotlin-android", "com.android.library", "AndroidXPlugin")
             )
         )
         writeBuildFiles(project)
@@ -80,10 +79,11 @@ class AndroidXPluginTest {
     @Test
     fun androidSampleApplicationWithoutVersion() = pluginTest {
         val project = cubaneProject.copy(
-            buildGradleText = cubaneBuildGradleText(
-                pluginsBeforeAndroidX = listOf(
+            buildGradleTextTemplate = cubaneBuildGradleText(
+                plugins = listOf(
                     "com.android.application",
-                    "org.jetbrains.kotlin.android"
+                    "org.jetbrains.kotlin.android",
+                    "AndroidXPlugin"
                 ),
                 version = null
             )

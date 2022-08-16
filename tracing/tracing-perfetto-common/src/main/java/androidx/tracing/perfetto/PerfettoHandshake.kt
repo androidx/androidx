@@ -62,7 +62,14 @@ public class PerfettoHandshake(
             " $pathExtra " +
             "$targetPackage/$RECEIVER_CLASS_NAME"
         val rawResponse = executeShellCommand(command)
-        return parseResponse(rawResponse)
+
+        return try {
+            parseResponse(rawResponse)
+        } catch (e: IllegalArgumentException) {
+            val message = "Exception occurred while trying to parse a response." +
+                " Error: ${e.message}. Raw response: $rawResponse."
+            EnableTracingResponse(ResponseExitCodes.RESULT_CODE_ERROR_OTHER, null, message)
+        }
     }
 
     private fun parseResponse(rawResponse: String): EnableTracingResponse {
@@ -70,6 +77,10 @@ public class PerfettoHandshake(
             .split(Regex("\r?\n"))
             .firstOrNull { it.contains("Broadcast completed: result=") }
             ?: throw IllegalArgumentException("Cannot parse: $rawResponse")
+
+        if (line == "Broadcast completed: result=0") return EnableTracingResponse(
+            ResponseExitCodes.RESULT_CODE_CANCELLED, null, null
+        )
 
         val matchResult =
             Regex("Broadcast completed: (result=.*?)(, data=\".*?\")?(, extras: .*)?")
@@ -203,6 +214,15 @@ public class PerfettoHandshake(
     }
 
     public object ResponseExitCodes {
+        /**
+         * Indicates that the broadcast resulted in `result=0`, which is an equivalent
+         * of [android.app.Activity.RESULT_CANCELED].
+         *
+         * This most likely means that the app does not expose a [PerfettoHandshake] compatible
+         * receiver.
+         */
+        public const val RESULT_CODE_CANCELLED: Int = 0
+
         public const val RESULT_CODE_SUCCESS: Int = 1
         public const val RESULT_CODE_ALREADY_ENABLED: Int = 2
 
@@ -228,6 +248,7 @@ public class PerfettoHandshake(
 
     @Retention(AnnotationRetention.SOURCE)
     @IntDef(
+        ResponseExitCodes.RESULT_CODE_CANCELLED,
         ResponseExitCodes.RESULT_CODE_SUCCESS,
         ResponseExitCodes.RESULT_CODE_ALREADY_ENABLED,
         ResponseExitCodes.RESULT_CODE_ERROR_BINARY_MISSING,
@@ -239,7 +260,15 @@ public class PerfettoHandshake(
 
     public class EnableTracingResponse @RestrictTo(LIBRARY_GROUP) constructor(
         @EnableTracingResultCode public val exitCode: Int,
-        public val requiredVersion: String,
+
+        /**
+         * This can be `null` iff we cannot communicate with the broadcast receiver of the target
+         * process (e.g. app does not offer Perfetto tracing) or if we cannot parse the response
+         * from the receiver. In either case, tracing is unlikely to work under these circumstances,
+         * and more context on how to proceed can be found in [exitCode] or [message] properties.
+         */
+        public val requiredVersion: String?,
+
         public val message: String?
     )
 }

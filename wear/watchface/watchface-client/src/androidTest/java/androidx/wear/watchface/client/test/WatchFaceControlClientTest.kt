@@ -764,7 +764,9 @@ class WatchFaceControlClientTest {
                         10.0f,
                         100.0f,
                         ComplicationText.EMPTY
-                    ).build(),
+                    )
+                        .setText(PlainComplicationText.Builder("Battery").build())
+                        .build(),
                 EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID to
                     LongTextComplicationData.Builder(
                         PlainComplicationText.Builder("Test").build(),

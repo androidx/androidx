@@ -46,6 +46,7 @@ import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Maybe
 import io.reactivex.Single
+import io.reactivex.Observable
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.runBlocking
 import java.util.Date
@@ -459,4 +460,37 @@ interface BooksDao {
 
     @Upsert
     fun upsertPublishers(vararg publishers: Publisher)
+
+    @Upsert
+    fun upsertTwoPublishers(publisherOne: Publisher, publisherTwo: Publisher)
+
+    @Upsert
+    fun upsertMultiple(publisher: Publisher, publishers: List<Publisher>)
+
+    @Upsert
+    fun upsertPublisherSingle(publisher: Publisher): Single<Long>
+
+    @Upsert
+    fun upsertBookSingle(book: Book): Single<Long>
+
+    @Upsert
+    fun upsertBookMaybe(book: Book): Maybe<Long>
+
+    @Upsert
+    fun upsertBookCompletable(book: Book): Completable
+
+    @Upsert
+    fun upsertBook(book: Book)
+
+    @Upsert
+    fun upsertBooksWithReturns(books: List<Book>): Array<Long>
+
+    @Query("SELECT * FROM book")
+    fun getBooksFlowable(): Flowable<List<Book>>
+
+    @Query("SELECT * FROM book")
+    fun getBooksObservable(): Observable<List<Book>>
+
+    @Insert
+    fun addPublisherReturnArray(publishers: List<Publisher>): Array<Long>
 }

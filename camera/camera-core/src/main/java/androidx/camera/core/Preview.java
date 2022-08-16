@@ -312,7 +312,7 @@ public final class Preview extends UseCase {
         clearPipeline();
 
         // Create nodes and edges.
-        mNode = new SurfaceEffectNode(camera, mSurfaceEffect);
+        mNode = new SurfaceEffectNode(camera, /*applyGlTransform=*/false, mSurfaceEffect);
         SettableSurface cameraSurface = new SettableSurface(
                 SurfaceEffect.PREVIEW,
                 resolution,

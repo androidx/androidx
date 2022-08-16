@@ -35,7 +35,6 @@ import androidx.room.RoomDatabase;
 import androidx.room.integration.testapp.TestDatabase;
 import androidx.room.integration.testapp.dao.UserDao;
 import androidx.room.integration.testapp.vo.User;
-import androidx.room.util.SneakyThrow;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.MediumTest;
@@ -104,16 +103,12 @@ public class AutoClosingRoomOpenHelperTest {
         Thread.sleep(30);
         mUserDao.load(1);
         // Connection should be auto closed here
-
-
         mDb.runInTransaction(
                 () -> {
                     try {
                         Thread.sleep(100);
-                        // Connection would've been auto closed here
-                    } catch (InterruptedException e) {
-                        SneakyThrow.reThrow(e);
-                    }
+                    } catch (InterruptedException ignored) { }
+                    // Connection would've been auto closed here
                 }
         );
 

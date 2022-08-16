@@ -36,8 +36,9 @@ import androidx.room.solver.query.result.CoroutineResultBinder
 import androidx.room.solver.query.result.QueryResultBinder
 import androidx.room.solver.shortcut.binder.CallableDeleteOrUpdateMethodBinder.Companion.createDeleteOrUpdateBinder
 import androidx.room.solver.shortcut.binder.CallableInsertMethodBinder.Companion.createInsertBinder
+import androidx.room.solver.shortcut.binder.CallableUpsertMethodBinder.Companion.createUpsertBinder
 import androidx.room.solver.shortcut.binder.DeleteOrUpdateMethodBinder
-import androidx.room.solver.shortcut.binder.InsertMethodBinder
+import androidx.room.solver.shortcut.binder.InsertOrUpsertMethodBinder
 import androidx.room.solver.transaction.binder.CoroutineTransactionMethodBinder
 import androidx.room.solver.transaction.binder.InstantTransactionMethodBinder
 import androidx.room.solver.transaction.binder.TransactionMethodBinder
@@ -87,9 +88,14 @@ abstract class MethodProcessorDelegate(
     abstract fun findInsertMethodBinder(
         returnType: XType,
         params: List<ShortcutQueryParameter>
-    ): InsertMethodBinder
+    ): InsertOrUpsertMethodBinder
 
     abstract fun findDeleteOrUpdateMethodBinder(returnType: XType): DeleteOrUpdateMethodBinder
+
+    abstract fun findUpsertMethodBinder(
+        returnType: XType,
+        params: List<ShortcutQueryParameter>
+    ): InsertOrUpsertMethodBinder
 
     abstract fun findTransactionMethodBinder(
         callType: TransactionMethod.CallType
@@ -176,6 +182,11 @@ class DefaultMethodProcessorDelegate(
     override fun findDeleteOrUpdateMethodBinder(returnType: XType) =
         context.typeAdapterStore.findDeleteOrUpdateMethodBinder(returnType)
 
+    override fun findUpsertMethodBinder(
+        returnType: XType,
+        params: List<ShortcutQueryParameter>
+    ) = context.typeAdapterStore.findUpsertMethodBinder(returnType, params)
+
     override fun findTransactionMethodBinder(callType: TransactionMethod.CallType) =
         InstantTransactionMethodBinder(
             TransactionMethodAdapter(executableElement.jvmName, callType)
@@ -244,6 +255,23 @@ class SuspendMethodProcessorDelegate(
     ) = createInsertBinder(
         typeArg = returnType,
         adapter = context.typeAdapterStore.findInsertAdapter(returnType, params)
+    ) { callableImpl, dbField ->
+        addStatement(
+            "return $T.execute($N, $L, $L, $N)",
+            RoomCoroutinesTypeNames.COROUTINES_ROOM,
+            dbField,
+            "true", // inTransaction
+            callableImpl,
+            continuationParam.name
+        )
+    }
+
+    override fun findUpsertMethodBinder(
+        returnType: XType,
+        params: List<ShortcutQueryParameter>
+    ) = createUpsertBinder(
+        typeArg = returnType,
+        adapter = context.typeAdapterStore.findUpsertAdapter(returnType, params)
     ) { callableImpl, dbField ->
         addStatement(
             "return $T.execute($N, $L, $L, $N)",

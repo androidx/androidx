@@ -23,6 +23,7 @@ import static org.junit.Assert.assertTrue;
 import android.os.Build;
 import android.support.v4.BaseInstrumentationTestCase;
 
+import androidx.core.os.BuildCompat;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 
@@ -90,11 +91,34 @@ public class ComponentActivityTest extends BaseInstrumentationTestCase<TestCompo
         shouldNotDumpSpecialArgOnVersion("--translation", Build.VERSION_CODES.S);
     }
 
+    @Test
+    public void testShouldDumpInternalState_listDumpables() {
+        shouldNotDumpSpecialArgOnT("--list-dumpables");
+    }
+
+    @Test
+    public void testShouldDumpInternalState_dumpDumpable() {
+        shouldNotDumpSpecialArgOnT("--dump-dumpable");
+    }
+
     private void shouldNotDumpSpecialArgOnVersion(String specialArg, int minApiVersion) {
         String[] args = { specialArg };
         int actualApiVersion = Build.VERSION.SDK_INT;
 
         if (actualApiVersion >= minApiVersion) {
+            assertFalse(specialArg + " should be skipped on API " + actualApiVersion,
+                    mComponentActivity.shouldDumpInternalState(args));
+        } else {
+            assertTrue(specialArg + " should be ignored on API " + actualApiVersion,
+                    mComponentActivity.shouldDumpInternalState(args));
+        }
+    }
+
+    private void shouldNotDumpSpecialArgOnT(String specialArg) {
+        String[] args = { specialArg };
+        int actualApiVersion = Build.VERSION.SDK_INT;
+
+        if (BuildCompat.isAtLeastT()) {
             assertFalse(specialArg + " should be skipped on API " + actualApiVersion,
                     mComponentActivity.shouldDumpInternalState(args));
         } else {

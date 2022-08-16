@@ -31,7 +31,7 @@ import java.util.List;
  *
  * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @VersionedParcelize
 public class LongRangeUserStyleSettingWireFormat extends UserStyleSettingWireFormat {
 

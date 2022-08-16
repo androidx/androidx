@@ -41,32 +41,29 @@ private val NONE_TYPE_NAME = ClassName.get("androidx.room.compiler.processing.er
 
 fun XAnnotation.toAnnotationSpec(): AnnotationSpec {
   val builder = AnnotationSpec.builder(className)
-  annotationValues.forEach { builder.visitAnnotationValue(it) }
+  annotationValues.forEach { builder.addAnnotationValue(it) }
   return builder.build()
 }
 
-private fun AnnotationSpec.Builder.visitAnnotationValue(annotationValue: XAnnotationValue) {
-  val name = annotationValue.name
-  when (val value = annotationValue.value) {
-    is XAnnotation -> addMember(name, "\$L", value.toAnnotationSpec())
-    is XVariableElement -> addMember(name, "\$T.\$L", value.type.typeName, value.name)
-    is XType -> addMember(name, "\$T.class", value.typeName)
-    is List<*> -> value.forEach { if (it is XAnnotationValue) { visitAnnotationValue(it) } }
-    else -> this.addMemberForCommonValue(name, value)
-  }
-}
-
-private fun AnnotationSpec.Builder.addMemberForCommonValue(memberName: String, value: Any?) {
-    requireNotNull(value) { "value == null, constant non-null value expected for $memberName" }
-    require(SourceVersion.isName(memberName)) { "not a valid name: $memberName" }
-    when (value) {
-        is Class<*> -> addMember(memberName, "\$T.class", value)
-        is Enum<*> -> addMember(memberName, "\$T.\$L", value.javaClass, value.name)
-        is String -> addMember(memberName, "\$S", value)
-        is Float -> addMember(memberName, "\$Lf", value)
-        is Char -> addMember(memberName, "'\$L'", characterLiteralWithoutSingleQuotes(value))
-        else -> addMember(memberName, "\$L", value)
+private fun AnnotationSpec.Builder.addAnnotationValue(annotationValue: XAnnotationValue) {
+  annotationValue.apply {
+    requireNotNull(value) { "value == null, constant non-null value expected for $name" }
+    require(SourceVersion.isName(name)) { "not a valid name: $name" }
+    when {
+      hasListValue() -> asAnnotationValueList().forEach { addAnnotationValue(it) }
+      hasAnnotationValue() -> addMember(name, "\$L", asAnnotation().toAnnotationSpec())
+      hasEnumValue() -> addMember(
+        name, "\$T.\$L", asEnum().enclosingElement.className, asEnum().name
+      )
+      hasTypeValue() -> addMember(name, "\$T.class", asType().typeName)
+      hasStringValue() -> addMember(name, "\$S", asString())
+      hasFloatValue() -> addMember(name, "\$Lf", asFloat())
+      hasCharValue() -> addMember(
+        name, "'\$L'", characterLiteralWithoutSingleQuotes(asChar())
+      )
+      else -> addMember(name, "\$L", value)
     }
+  }
 }
 
 private fun characterLiteralWithoutSingleQuotes(c: Char): String? {

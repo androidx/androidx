@@ -20,7 +20,6 @@ package androidx.annotation.experimental.lint
 
 import com.android.tools.lint.checks.infrastructure.TestFile
 import com.android.tools.lint.checks.infrastructure.TestFiles.base64gzip
-import com.android.tools.lint.checks.infrastructure.TestFiles.java
 import com.android.tools.lint.checks.infrastructure.TestFiles.kotlin
 import com.android.tools.lint.checks.infrastructure.TestLintResult
 import com.android.tools.lint.checks.infrastructure.TestLintTask.lint
@@ -537,26 +536,4 @@ No warnings.
         )
     }
     /* ktlint-enable max-line-length */
-}
-
-/**
- * Loads a [TestFile] from Java source code included in the JAR resources.
- */
-fun javaSample(className: String): TestFile {
-    return java(
-        RequiresOptInDetectorTest::class.java.getResource(
-            "/java/${className.replace('.','/')}.java"
-        )!!.readText()
-    )
-}
-
-/**
- * Loads a [TestFile] from Kotlin source code included in the JAR resources.
- */
-fun ktSample(className: String): TestFile {
-    return kotlin(
-        RequiresOptInDetectorTest::class.java.getResource(
-            "/java/${className.replace('.','/')}.kt"
-        )!!.readText()
-    )
 }

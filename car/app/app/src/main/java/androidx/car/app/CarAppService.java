@@ -31,6 +31,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import androidx.car.app.annotations.ExperimentalCarApi;
+import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.validation.HostValidator;
 
 import java.io.FileDescriptor;
@@ -90,6 +91,7 @@ public abstract class CarAppService extends Service {
     /**
      * Used to declare that this app supports cluster in the manifest.
      */
+    @RequiresCarApi(6)
     public static final String CATEGORY_FEATURE_CLUSTER =
             "androidx.car.app.category.FEATURE_CLUSTER";
 
@@ -253,12 +255,8 @@ public abstract class CarAppService extends Service {
      * <p>Called by the system, do not call this method directly.
      *
      * @see CarContext#startCarApp(Intent)
-     * @deprecated this method continues to exist for backwards compatibility; however, is
-     * succeeded by {@link #onCreateSession(SessionInfo)}. Prefer to implement {@link
-     * #onCreateSession(SessionInfo)}.
      */
     @NonNull
-    @Deprecated
     public Session onCreateSession() {
         throw new RuntimeException(
                 "Please override and implement CarAppService#onCreateSession(SessionInfo).");
@@ -280,6 +278,7 @@ public abstract class CarAppService extends Service {
      */
     @NonNull
     @SuppressWarnings("deprecation")
+    @RequiresCarApi(6)
     public Session onCreateSession(@NonNull SessionInfo sessionInfo) {
         return onCreateSession();
     }

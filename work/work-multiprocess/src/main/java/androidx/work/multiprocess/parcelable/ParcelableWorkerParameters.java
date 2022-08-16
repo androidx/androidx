@@ -57,6 +57,7 @@ public class ParcelableWorkerParameters implements Parcelable {
     @NonNull
     private final WorkerParameters.RuntimeExtras mRuntimeExtras;
     private final int mRunAttemptCount;
+    private final int mGeneration;
 
     public ParcelableWorkerParameters(@NonNull WorkerParameters parameters) {
         mId = parameters.getId();
@@ -64,6 +65,7 @@ public class ParcelableWorkerParameters implements Parcelable {
         mTags = parameters.getTags();
         mRuntimeExtras = parameters.getRuntimeExtras();
         mRunAttemptCount = parameters.getRunAttemptCount();
+        mGeneration = parameters.getGeneration();
     }
 
     public static final Creator<ParcelableWorkerParameters> CREATOR =
@@ -94,6 +96,8 @@ public class ParcelableWorkerParameters implements Parcelable {
         mRuntimeExtras = parcelableRuntimeExtras.getRuntimeExtras();
         // runAttemptCount
         mRunAttemptCount = in.readInt();
+        // generation
+        mGeneration = in.readInt();
     }
 
     @Override
@@ -117,6 +121,8 @@ public class ParcelableWorkerParameters implements Parcelable {
         parcelableRuntimeExtras.writeToParcel(parcel, flags);
         // runAttemptCount
         parcel.writeInt(mRunAttemptCount);
+        // generation
+        parcel.writeInt(mGeneration);
     }
 
     @NonNull
@@ -178,6 +184,7 @@ public class ParcelableWorkerParameters implements Parcelable {
                 mTags,
                 mRuntimeExtras,
                 mRunAttemptCount,
+                mGeneration,
                 configuration.getExecutor(),
                 taskExecutor,
                 configuration.getWorkerFactory(),

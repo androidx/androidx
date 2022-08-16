@@ -1,6 +1,6 @@
 /*
  *******************************************************************************
- * Copyright (C) 2007-2014, International Business Machines Corporation and
+ * Copyright (C) 2007-2016, International Business Machines Corporation and
  * others. All Rights Reserved.
  *******************************************************************************
  */
@@ -46,13 +46,13 @@ import androidx.core.i18n.messageformat_icu.util.Output;
  * </p>
  * <p>
  * For more information, details, and tips for writing rules, see the <a
- * href="http://www.unicode.org/draft/reports/tr35/tr35.html#Language_Plural_Rules">LDML spec, C.11 Language Plural
- * Rules</a>
+ * href="https://www.unicode.org/reports/tr35/tr35-numbers.html#Language_Plural_Rules">LDML spec,
+ * Part 3.5 Language Plural Rules</a>
  * </p>
  * <p>
  * Examples:
  * </p>
- * 
+ *
  * <pre>
  * &quot;one: n is 1; few: n in 2..4&quot;
  * </pre>
@@ -62,7 +62,7 @@ import androidx.core.i18n.messageformat_icu.util.Output;
  * between 2 and 4 inclusive - and be an integer - for this condition to pass. All other numbers are assigned the
  * keyword "other" by the default rule.
  * </p>
- * 
+ *
  * <pre>
  * &quot;zero: n is 0; one: n is 1; zero: n mod 100 in 1..19&quot;
  * </pre>
@@ -71,7 +71,7 @@ import androidx.core.i18n.messageformat_icu.util.Output;
  * keyword whose condition passes is the one returned. Also notes that a modulus is applied to n in the last rule. Thus
  * its condition holds for 119, 219, 319...
  * </p>
- * 
+ *
  * <pre>
  * &quot;one: n is 1; few: n mod 10 in 2..4 and n mod 100 not in 12..14&quot;
  * </pre>
@@ -162,7 +162,7 @@ import androidx.core.i18n.messageformat_icu.util.Output;
  * includes all values. Using 'within' with a range_list consisting entirely of values is the same as using 'in' (it's
  * not an error).
  * </p>
- * 
+ *
  * icu_annot::stable ICU 3.8
  * @hide
  */
@@ -172,18 +172,8 @@ public class PluralRules implements Serializable {
     // static final UnicodeSet ALLOWED_ID = new UnicodeSet("[a-z]").freeze();
 
     // TODO Remove RulesList by moving its API and fields into PluralRules.
-    /**
-     * icu_annot::internal
-     * This API is ICU internal only.
-     */
-    // @Deprecated: in fact internal ICU
-    public static final String CATEGORY_SEPARATOR = ";  ";
-    /**
-     * icu_annot::internal
-     * This API is ICU internal only.
-     */
-    // @Deprecated: in fact internal ICU
-    public static final String KEYWORD_RULE_SEPARATOR = ": ";
+
+    private static final String CATEGORY_SEPARATOR = ";  ";
 
     private static final long serialVersionUID = 1;
 
@@ -192,19 +182,20 @@ public class PluralRules implements Serializable {
 
     /**
      * Provides a factory for returning plural rules
-     * 
-     * icu_annot::internal
+     *
+     * icu_annot::internal CLDR
      * This API is ICU internal only.
      */
     // @Deprecated: in fact internal ICU
     public static abstract class Factory {
         /**
          * Provides access to the predefined <code>PluralRules</code> for a given locale and the plural type.
-         * 
+         *
          * <p>
          * ICU defines plural rules for many locales based on CLDR <i>Language Plural Rules</i>. For these predefined
-         * rules, see CLDR page at http://unicode.org/repos/cldr-tmp/trunk/diff/supplemental/language_plural_rules.html
-         * 
+         * rules, see CLDR page at
+         * https://unicode-org.github.io/cldr-staging/charts/latest/supplemental/language_plural_rules.html
+         *
          * @param locale
          *            The locale for which a <code>PluralRules</code> object is returned.
          * @param type
@@ -212,7 +203,7 @@ public class PluralRules implements Serializable {
          * @return The predefined <code>PluralRules</code> object for this locale. If there's no predefined rules for
          *         this locale, the rules for the closest parent in the locale hierarchy that has one will be returned.
          *         The final fallback always returns the default rules.
-         * icu_annot::internal
+         * icu_annot::internal CLDR
          * This API is ICU internal only.
          */
         // @Deprecated: in fact internal ICU
@@ -222,7 +213,7 @@ public class PluralRules implements Serializable {
          * Utility for getting CARDINAL rules.
          * @param locale the locale
          * @return plural rules.
-         * icu_annot::internal
+         * icu_annot::internal CLDR
          * This API is ICU internal only.
          */
         // @Deprecated: in fact internal ICU
@@ -232,8 +223,8 @@ public class PluralRules implements Serializable {
 
         /**
          * Returns the locales for which there is plurals data.
-         * 
-         * icu_annot::internal
+         *
+         * icu_annot::internal CLDR
          * This API is ICU internal only.
         @Deprecated
         public abstract ULocale[] getAvailableULocales();
@@ -245,14 +236,14 @@ public class PluralRules implements Serializable {
          * All locales with the same functionally equivalent locale have plural rules that behave the same. This is not
          * exhaustive; there may be other locales whose plural rules behave the same that do not have the same equivalent
          * locale.
-         * 
+         *
          * @param locale
          *            the locale to check
          * @param isAvailable
          *            if not null and of length > 0, this will hold 'true' at index 0 if locale is directly defined
          *            (without fallback) as having plural rules
          * @return the functionally-equivalent locale
-         * icu_annot::internal
+         * icu_annot::internal CLDR
          * This API is ICU internal only.
         @Deprecated
         public abstract ULocale getFunctionalEquivalent(ULocale locale, boolean[] isAvailable);
@@ -260,7 +251,7 @@ public class PluralRules implements Serializable {
 
         /**
          * Returns the default factory.
-         * icu_annot::internal
+         * icu_annot::internal CLDR
          * This API is ICU internal only.
          */
         // @Deprecated: in fact internal ICU
@@ -270,7 +261,7 @@ public class PluralRules implements Serializable {
 
         /**
          * Returns whether or not there are overrides.
-         * icu_annot::internal
+         * icu_annot::internal CLDR
          * This API is ICU internal only.
         @Deprecated
         public abstract boolean hasOverride(ULocale locale);
@@ -363,7 +354,7 @@ public class PluralRules implements Serializable {
     };
 
     /**
-     * 
+     *
      */
     private static final Rule DEFAULT_RULE = new Rule("other", NO_CONSTRAINT, null, null);
 
@@ -415,64 +406,73 @@ public class PluralRules implements Serializable {
     }
 
     /**
-     * icu_annot::internal
+     * icu_annot::internal CLDR
      * This API is ICU internal only.
      */
     // @Deprecated: in fact internal ICU
     public static class FixedDecimal extends Number implements Comparable<FixedDecimal> {
         private static final long serialVersionUID = -4756200506571685661L;
         /**
-         * icu_annot::internal
+         * icu_annot::internal CLDR
          * This API is ICU internal only.
          */
         // @Deprecated: in fact internal ICU
         public final double source;
+
         /**
-         * icu_annot::internal
+         * icu_annot::internal CLDR
          * This API is ICU internal only.
          */
         // @Deprecated: in fact internal ICU
         public final int visibleDecimalDigitCount;
+
         /**
-         * icu_annot::internal
+         * icu_annot::internal CLDR
          * This API is ICU internal only.
          */
         // @Deprecated: in fact internal ICU
         public final int visibleDecimalDigitCountWithoutTrailingZeros;
+
         /**
-         * icu_annot::internal
+         * Whether the number has no nonzero fraction digits.
+         * icu_annot::internal CLDR
          * This API is ICU internal only.
          */
         // @Deprecated: in fact internal ICU
         public final long decimalDigits;
+
         /**
          * icu_annot::internal
          * This API is ICU internal only.
          */
         // @Deprecated: in fact internal ICU
         public final long decimalDigitsWithoutTrailingZeros;
+
         /**
          * icu_annot::internal
          * This API is ICU internal only.
          */
         // @Deprecated: in fact internal ICU
         public final long integerValue;
+
         /**
          * icu_annot::internal
          * This API is ICU internal only.
          */
         // @Deprecated: in fact internal ICU
         public final boolean hasIntegerValue;
+
         /**
          * icu_annot::internal
          * This API is ICU internal only.
          */
         // @Deprecated: in fact internal ICU
         public final boolean isNegative;
+
         private final int baseFactor;
 
         /**
-         * icu_annot::internal
+         * icu_annot::internal CLDR
          * This API is ICU internal only.
          */
         // @Deprecated: in fact internal ICU
@@ -481,7 +481,7 @@ public class PluralRules implements Serializable {
         }
 
         /**
-         * icu_annot::internal
+         * icu_annot::internal CLDR
          * This API is ICU internal only.
          */
         // @Deprecated: in fact internal ICU
@@ -490,7 +490,7 @@ public class PluralRules implements Serializable {
         }
 
         /**
-         * icu_annot::internal
+         * icu_annot::internal CLDR
          * This API is ICU internal only.
          */
         // @Deprecated: in fact internal ICU
@@ -499,7 +499,7 @@ public class PluralRules implements Serializable {
         }
 
         /**
-         * icu_annot::internal
+         * icu_annot::internal CLDR
          * This API is ICU internal only.
          */
         // @Deprecated: in fact internal ICU
@@ -508,7 +508,7 @@ public class PluralRules implements Serializable {
         }
 
         /**
-         * icu_annot::internal
+         * icu_annot::internal CLDR
          * This API is ICU internal only.
          */
         // @Deprecated: in fact internal ICU
@@ -517,7 +517,7 @@ public class PluralRules implements Serializable {
         }
 
         /**
-         * icu_annot::internal
+         * icu_annot::internal CLDR
          * This API is ICU internal only.
          */
         // @Deprecated: in fact internal ICU
@@ -526,7 +526,7 @@ public class PluralRules implements Serializable {
         }
 
         /**
-         * icu_annot::internal
+         * icu_annot::internal CLDR
          * This API is ICU internal only.
          */
         // @Deprecated: in fact internal ICU
@@ -535,7 +535,7 @@ public class PluralRules implements Serializable {
         }
 
         /**
-         * icu_annot::internal
+         * icu_annot::internal CLDR
          * This API is ICU internal only.
          */
         // @Deprecated: in fact internal ICU
@@ -544,7 +544,7 @@ public class PluralRules implements Serializable {
         }
 
         /**
-         * icu_annot::internal
+         * icu_annot::internal CLDR
          * This API is ICU internal only.
          */
         // @Deprecated: in fact internal ICU
@@ -555,7 +555,7 @@ public class PluralRules implements Serializable {
         static final long MAX = (long)1E18;
 
         /**
-         * icu_annot::internal
+         * icu_annot::internal CLDR
          * This API is ICU internal only.
          * @param n is the original number
          * @param v number of digits to the right of the decimal place. e.g. 1.00 = 2 25. = 0
@@ -568,12 +568,10 @@ public class PluralRules implements Serializable {
             source = isNegative ? -n : n;
             visibleDecimalDigitCount = v;
             decimalDigits = f;
-            integerValue = n > MAX 
-                    ? MAX 
-                            : (long)n;
+            integerValue = n > MAX ? MAX : (long) n;
             hasIntegerValue = source == integerValue;
             // check values. TODO make into unit test.
-            //            
+            //
             //            long visiblePower = (int) Math.pow(10, v);
             //            if (fractionalDigits > visiblePower) {
             //                throw new IllegalArgumentException();
@@ -602,7 +600,7 @@ public class PluralRules implements Serializable {
         }
 
         /**
-         * icu_annot::internal
+         * icu_annot::internal CLDR
          * This API is ICU internal only.
          */
         // @Deprecated: in fact internal ICU
@@ -624,7 +622,7 @@ public class PluralRules implements Serializable {
         }
 
         /**
-         * icu_annot::internal
+         * icu_annot::internal CLDR
          * This API is ICU internal only.
          */
         // @Deprecated: in fact internal ICU
@@ -633,7 +631,7 @@ public class PluralRules implements Serializable {
         }
 
         /**
-         * icu_annot::internal
+         * icu_annot::internal CLDR
          * This API is ICU internal only.
          */
         // @Deprecated: in fact internal ICU
@@ -646,9 +644,9 @@ public class PluralRules implements Serializable {
          * Return a guess as to the number of decimals that would be displayed. This is only a guess; callers should
          * always supply the decimals explicitly if possible. Currently, it is up to 6 decimals (without trailing zeros).
          * Returns 0 for infinities and nans.
-         * icu_annot::internal
+         * icu_annot::internal CLDR
          * This API is ICU internal only.
-         * 
+         *
          */
         // @Deprecated: in fact internal ICU
         public static int decimals(double n) {
@@ -684,14 +682,14 @@ public class PluralRules implements Serializable {
                     if (buf.charAt(i) != '0') {
                         break;
                     }
-                    --numFractionDigits; 
+                    --numFractionDigits;
                 }
                 return numFractionDigits;
             }
         }
 
         /**
-         * icu_annot::internal
+         * icu_annot::internal CLDR
          * This API is ICU internal only.
          */
         // @Deprecated: in fact internal ICU
@@ -711,7 +709,9 @@ public class PluralRules implements Serializable {
         }
 
         /**
-         * icu_annot::internal
+         * {@inheritDoc}
+         *
+         * icu_annot::internal CLDR
          * This API is ICU internal only.
          */
         // @Deprecated: in fact internal ICU
@@ -727,7 +727,7 @@ public class PluralRules implements Serializable {
         }
 
         /**
-         * icu_annot::internal
+         * icu_annot::internal CLDR
          * This API is ICU internal only.
          */
         // @Deprecated: in fact internal ICU
@@ -738,7 +738,7 @@ public class PluralRules implements Serializable {
 
         /**
          * We're not going to care about NaN.
-         * icu_annot::internal
+         * icu_annot::internal CLDR
          * This API is ICU internal only.
          */
         // @Deprecated: in fact internal ICU
@@ -761,7 +761,7 @@ public class PluralRules implements Serializable {
         }
 
         /**
-         * icu_annot::internal
+         * icu_annot::internal CLDR
          * This API is ICU internal only.
          */
         // @Deprecated: in fact internal ICU
@@ -781,7 +781,7 @@ public class PluralRules implements Serializable {
         }
 
         /**
-         * icu_annot::internal
+         * icu_annot::internal CLDR
          * This API is ICU internal only.
          */
         // @Deprecated: in fact internal ICU
@@ -792,7 +792,7 @@ public class PluralRules implements Serializable {
         }
 
         /**
-         * icu_annot::internal
+         * icu_annot::internal CLDR
          * This API is ICU internal only.
          */
         // @Deprecated: in fact internal ICU
@@ -802,7 +802,7 @@ public class PluralRules implements Serializable {
         }
 
         /**
-         * icu_annot::internal
+         * icu_annot::internal CLDR
          * This API is ICU internal only.
          */
         // @Deprecated: in fact internal ICU
@@ -811,18 +811,18 @@ public class PluralRules implements Serializable {
         }
 
         /**
-         * icu_annot::internal
+         * icu_annot::internal CLDR
          * This API is ICU internal only.
          */
         // @Deprecated: in fact internal ICU
         @Override
         public int intValue() {
             // TODO Auto-generated method stub
-            return (int)integerValue;
+            return (int) integerValue;
         }
 
         /**
-         * icu_annot::internal
+         * icu_annot::internal CLDR
          * This API is ICU internal only.
          */
         // @Deprecated: in fact internal ICU
@@ -832,7 +832,7 @@ public class PluralRules implements Serializable {
         }
 
         /**
-         * icu_annot::internal
+         * icu_annot::internal CLDR
          * This API is ICU internal only.
          */
         // @Deprecated: in fact internal ICU
@@ -842,7 +842,7 @@ public class PluralRules implements Serializable {
         }
 
         /**
-         * icu_annot::internal
+         * icu_annot::internal CLDR
          * This API is ICU internal only.
          */
         // @Deprecated: in fact internal ICU
@@ -852,7 +852,7 @@ public class PluralRules implements Serializable {
         }
 
         /**
-         * icu_annot::internal
+         * icu_annot::internal CLDR
          * This API is ICU internal only.
          */
         // @Deprecated: in fact internal ICU
@@ -874,19 +874,19 @@ public class PluralRules implements Serializable {
 
     /**
      * Selection parameter for either integer-only or decimal-only.
-     * icu_annot::internal
+     * icu_annot::internal CLDR
      * This API is ICU internal only.
      */
     // @Deprecated: in fact internal ICU
     public enum SampleType {
         /**
-         * icu_annot::internal
+         * icu_annot::internal CLDR
          * This API is ICU internal only.
          */
         // @Deprecated: in fact internal ICU
         INTEGER,
         /**
-         * icu_annot::internal
+         * icu_annot::internal CLDR
          * This API is ICU internal only.
          */
         // @Deprecated: in fact internal ICU
@@ -895,25 +895,25 @@ public class PluralRules implements Serializable {
 
     /**
      * A range of NumberInfo that includes all values with the same visibleFractionDigitCount.
-     * icu_annot::internal
+     * icu_annot::internal CLDR
      * This API is ICU internal only.
      */
     // @Deprecated: in fact internal ICU
     public static class FixedDecimalRange {
         /**
-         * icu_annot::internal
+         * icu_annot::internal CLDR
          * This API is ICU internal only.
          */
         // @Deprecated: in fact internal ICU
         public final FixedDecimal start;
         /**
-         * icu_annot::internal
+         * icu_annot::internal CLDR
          * This API is ICU internal only.
          */
         // @Deprecated: in fact internal ICU
         public final FixedDecimal end;
         /**
-         * icu_annot::internal
+         * icu_annot::internal CLDR
          * This API is ICU internal only.
          */
         // @Deprecated: in fact internal ICU
@@ -925,7 +925,7 @@ public class PluralRules implements Serializable {
             this.end = end;
         }
         /**
-         * icu_annot::internal
+         * icu_annot::internal CLDR
          * This API is ICU internal only.
          */
         // @Deprecated: in fact internal ICU
@@ -937,25 +937,25 @@ public class PluralRules implements Serializable {
 
     /**
      * A list of NumberInfo that includes all values with the same visibleFractionDigitCount.
-     * icu_annot::internal
+     * icu_annot::internal CLDR
      * This API is ICU internal only.
      */
     // @Deprecated: in fact internal ICU
     public static class FixedDecimalSamples {
         /**
-         * icu_annot::internal
+         * icu_annot::internal CLDR
          * This API is ICU internal only.
          */
         // @Deprecated: in fact internal ICU
         public final SampleType sampleType;
         /**
-         * icu_annot::internal
+         * icu_annot::internal CLDR
          * This API is ICU internal only.
          */
         // @Deprecated: in fact internal ICU
         public final Set<FixedDecimalRange> samples;
         /**
-         * icu_annot::internal
+         * icu_annot::internal CLDR
          * This API is ICU internal only.
          */
         // @Deprecated: in fact internal ICU
@@ -978,7 +978,7 @@ public class PluralRules implements Serializable {
             SampleType sampleType2;
             boolean bounded2 = true;
             boolean haveBound = false;
-            Set<FixedDecimalRange> samples2 = new LinkedHashSet<FixedDecimalRange>();
+            Set<FixedDecimalRange> samples2 = new LinkedHashSet<>();
 
             if (source.startsWith("integer")) {
                 sampleType2 = SampleType.INTEGER;
@@ -989,7 +989,7 @@ public class PluralRules implements Serializable {
             }
             source = source.substring(7).trim(); // remove both
 
-            for (String range : COMMA_SEPARATED.split(source)) {
+            for (String range : COMMA_SEPARATED.split(source, 0)) {
                 if (range.equals("…") || range.equals("...")) {
                     bounded2 = false;
                     haveBound = true;
@@ -998,9 +998,9 @@ public class PluralRules implements Serializable {
                 if (haveBound) {
                     throw new IllegalArgumentException("Can only have … at the end of samples: " + range);
                 }
-                String[] rangeParts = TILDE_SEPARATED.split(range);
+                String[] rangeParts = TILDE_SEPARATED.split(range, 0);
                 switch (rangeParts.length) {
-                case 1: 
+                case 1:
                     FixedDecimal sample = new FixedDecimal(rangeParts[0]);
                     checkDecimal(sampleType2, sample);
                     samples2.add(new FixedDecimalRange(sample, sample));
@@ -1020,12 +1020,12 @@ public class PluralRules implements Serializable {
 
         private static void checkDecimal(SampleType sampleType2, FixedDecimal sample) {
             if ((sampleType2 == SampleType.INTEGER) != (sample.getVisibleDecimalDigitCount() == 0)) {
-                throw new IllegalArgumentException("Ill-formed number range: " + sample);    
+                throw new IllegalArgumentException("Ill-formed number range: " + sample);
             }
         }
 
         /**
-         * icu_annot::internal
+         * icu_annot::internal CLDR
          * This API is ICU internal only.
          */
         // @Deprecated: in fact internal ICU
@@ -1043,7 +1043,7 @@ public class PluralRules implements Serializable {
         }
 
         /**
-         * icu_annot::internal
+         * icu_annot::internal CLDR
          * This API is ICU internal only.
          */
         // @Deprecated: in fact internal ICU
@@ -1066,7 +1066,7 @@ public class PluralRules implements Serializable {
         }
 
         /**
-         * icu_annot::internal
+         * icu_annot::internal CLDR
          * This API is ICU internal only.
          */
         // @Deprecated: in fact internal ICU
@@ -1075,7 +1075,7 @@ public class PluralRules implements Serializable {
         }
 
         /**
-         * icu_annot::internal
+         * icu_annot::internal CLDR
          * This API is ICU internal only.
          */
         // @Deprecated: in fact internal ICU
@@ -1115,7 +1115,7 @@ public class PluralRules implements Serializable {
         // static final UnicodeSet BREAK_AND_KEEP = new UnicodeSet('!', '!', '%', '%', ',', ',', '.', '.', '=', '=').freeze();
         static String[] split(String source) {
             int last = -1;
-            List<String> result = new ArrayList<String>();
+            List<String> result = new ArrayList<>();
             for (int i = 0; i < source.length(); ++i) {
                 char ch = source.charAt(i);
                 if (isBreakAndIgnore(ch) /* BREAK_AND_IGNORE.contains(ch) */) {
@@ -1169,10 +1169,10 @@ public class PluralRules implements Serializable {
             throws ParseException {
 
         Constraint result = null;
-        String[] or_together = OR_SEPARATED.split(description);
+        String[] or_together = OR_SEPARATED.split(description, 0);
         for (int i = 0; i < or_together.length; ++i) {
             Constraint andConstraint = null;
-            String[] and_together = AND_SEPARATED.split(or_together[i]);
+            String[] and_together = AND_SEPARATED.split(or_together[i], 0);
             for (int j = 0; j < and_together.length; ++j) {
                 Constraint newConstraint = NO_CONSTRAINT;
 
@@ -1234,7 +1234,7 @@ public class PluralRules implements Serializable {
                         t = nextToken(tokens, x++, condition);
                     }
 
-                    List<Long> valueList = new ArrayList<Long>();
+                    List<Long> valueList = new ArrayList<>();
 
                     // the token t is always one item ahead
                     while (true) {
@@ -1254,7 +1254,7 @@ public class PluralRules implements Serializable {
                                     if (!t.equals(",")) { // adjacent number: 1 2
                                         // no separator, fail
                                         throw unexpected(t, condition);
-                                    }                                
+                                    }
                                 }
                             } else if (!t.equals(",")) { // adjacent number: 1 2
                                 // no separator, fail
@@ -1367,12 +1367,12 @@ public class PluralRules implements Serializable {
         }
 
         description = description.substring(x+1).trim();
-        String[] constraintOrSamples = AT_SEPARATED.split(description);
+        String[] constraintOrSamples = AT_SEPARATED.split(description, 0);
         boolean sampleFailure = false;
         FixedDecimalSamples integerSamples = null, decimalSamples = null;
         switch (constraintOrSamples.length) {
         case 1: break;
-        case 2: 
+        case 2:
             integerSamples = FixedDecimalSamples.parse(constraintOrSamples[1]);
             if (integerSamples.sampleType == SampleType.DECIMAL) {
                 decimalSamples = integerSamples;
@@ -1386,7 +1386,7 @@ public class PluralRules implements Serializable {
                 throw new IllegalArgumentException("Must have @integer then @decimal in " + description);
             }
             break;
-        default: 
+        default:
             throw new IllegalArgumentException("Too many samples in " + description);
         }
         if (sampleFailure) {
@@ -1418,10 +1418,10 @@ public class PluralRules implements Serializable {
             throws ParseException {
         RuleList result = new RuleList();
         // remove trailing ;
-        if (description.endsWith(";")) { 
+        if (description.endsWith(";")) {
             description = description.substring(0,description.length()-1);
         }
-        String[] rules = SEMI_SEPARATED.split(description);
+        String[] rules = SEMI_SEPARATED.split(description, 0);
         for (int i = 0; i < rules.length; ++i) {
             Rule rule = parseRule(rules[i].trim());
             result.hasExplicitBoundingInfo |= rule.integerSamples != null || rule.decimalSamples != null;
@@ -1480,11 +1480,11 @@ public class PluralRules implements Serializable {
         @Override
         public boolean isLimited(SampleType sampleType) {
             boolean valueIsZero = lowerBound == upperBound && lowerBound == 0d;
-            boolean hasDecimals = 
+            boolean hasDecimals =
                     (operand == Operand.v || operand == Operand.w || operand == Operand.f || operand == Operand.t)
                     && inRange != valueIsZero; // either NOT f = zero or f = non-zero
             switch (sampleType) {
-            case INTEGER: 
+            case INTEGER:
                 return hasDecimals // will be empty
                         || ((operand == Operand.n || operand == Operand.i || operand == Operand.j)
                         && mod == 0
@@ -1493,7 +1493,7 @@ public class PluralRules implements Serializable {
             case DECIMAL:
                 return  (!hasDecimals || operand == Operand.n || operand == Operand.j)
                         && (integersOnly || lowerBound == upperBound)
-                        && mod == 0 
+                        && mod == 0
                         && inRange;
             }
             return false;
@@ -1510,7 +1510,7 @@ public class PluralRules implements Serializable {
             result.append(
                     !isList ? (inRange ? " = " : " != ")
                             : integersOnly ? (inRange ? " = " : " != ")
-                                    : (inRange ? " within " : " not within ") 
+                                    : (inRange ? " within " : " not within ")
                     );
             if (range_list != null) {
                 for (int i = 0; i < range_list.length; i += 2) {
@@ -1570,7 +1570,7 @@ public class PluralRules implements Serializable {
         public boolean isLimited(SampleType sampleType) {
             // we ignore the case where both a and b are unlimited but no values
             // satisfy both-- we still consider this 'unlimited'
-            return a.isLimited(sampleType) 
+            return a.isLimited(sampleType)
                     || b.isLimited(sampleType);
         }
 
@@ -1590,7 +1590,7 @@ public class PluralRules implements Serializable {
 
         @Override
         public boolean isFulfilled(FixedDecimal n) {
-            return a.isFulfilled(n) 
+            return a.isFulfilled(n)
                     || b.isFulfilled(n);
         }
 
@@ -1648,16 +1648,15 @@ public class PluralRules implements Serializable {
 
         @Override
         public String toString() {
-            return keyword + ": " + constraint.toString() 
+            return keyword + ": " + constraint.toString()
                     + (integerSamples == null ? "" : " " + integerSamples.toString())
                     + (decimalSamples == null ? "" : " " + decimalSamples.toString());
         }
 
         /**
-         * icu_annot::internal
-         * This API is ICU internal only.
+         * {@inheritDoc}
+         * icu_annot::stable ICU 3.8
          */
-        // @Deprecated: in fact internal ICU
         @Override
         public int hashCode() {
             return keyword.hashCode() ^ constraint.hashCode();
@@ -1671,7 +1670,7 @@ public class PluralRules implements Serializable {
     private static class RuleList implements Serializable {
         private boolean hasExplicitBoundingInfo = false;
         private static final long serialVersionUID = 1;
-        private final List<Rule> rules = new ArrayList<Rule>();
+        private final List<Rule> rules = new ArrayList<>();
 
         public RuleList addRule(Rule nextRule) {
             String keyword = nextRule.getKeyword();
@@ -1719,7 +1718,7 @@ public class PluralRules implements Serializable {
         }
 
         public Set<String> getKeywords() {
-            Set<String> result = new LinkedHashSet<String>();
+            Set<String> result = new LinkedHashSet<>();
             for (Rule rule : rules) {
                 result.add(rule.getKeyword());
             }
@@ -1866,12 +1865,12 @@ public class PluralRules implements Serializable {
 
     /**
      * Provides access to the predefined cardinal-number <code>PluralRules</code> for a given
-     * locale.
+     * {@link java.util.Locale}.
      * Same as forLocale(locale, PluralType.CARDINAL).
      *
      * <p>ICU defines plural rules for many locales based on CLDR <i>Language Plural Rules</i>.
      * For these predefined rules, see CLDR page at
-     * http://unicode.org/repos/cldr-tmp/trunk/diff/supplemental/language_plural_rules.html
+     * https://unicode-org.github.io/cldr-staging/charts/latest/supplemental/language_plural_rules.html
      *
      * @param locale The locale for which a <code>PluralRules</code> object is
      *   returned.
@@ -1880,7 +1879,7 @@ public class PluralRules implements Serializable {
      *   for the closest parent in the locale hierarchy that has one will
      *   be returned.  The final fallback always returns the default
      *   rules.
-     * icu_annot::stable ICU 3.8
+     * icu_annot::stable ICU 54
      */
     public static PluralRules forLocale(Locale locale) {
         return forLocale(locale, PluralType.CARDINAL);
@@ -1892,7 +1891,7 @@ public class PluralRules implements Serializable {
      *
      * <p>ICU defines plural rules for many locales based on CLDR <i>Language Plural Rules</i>.
      * For these predefined rules, see CLDR page at
-     * http://unicode.org/repos/cldr-tmp/trunk/diff/supplemental/language_plural_rules.html
+     * https://unicode-org.github.io/cldr-staging/charts/latest/supplemental/language_plural_rules.html
      *
      * @param locale The locale for which a <code>PluralRules</code> object is
      *   returned.
@@ -1934,17 +1933,17 @@ public class PluralRules implements Serializable {
     }
 
     /**
-     * icu_annot::internal
-     * This API is ICU internal only.
+     * {@inheritDoc}
+     * icu_annot::stable ICU 3.8
      */
-    // @Deprecated: in fact internal ICU
     @Override
     public int hashCode() {
         return rules.hashCode();
     }
+
     /**
-     * Given a number, returns the keyword of the first rule that applies to
-     * the number.
+     * Given a floating-point number, returns the keyword of the first rule
+     * that applies to the number.
      *
      * @param number The number for which the rule has to be determined.
      * @return The keyword of the selected rule.
@@ -1960,7 +1959,7 @@ public class PluralRules implements Serializable {
      *
      * @param number The number for which the rule has to be determined.
      * @return The keyword of the selected rule.
-     * icu_annot::internal
+     * icu_annot::internal Visible For Testing
      * This API is ICU internal only.
      */
     // @Deprecated: in fact internal ICU
@@ -1972,23 +1971,22 @@ public class PluralRules implements Serializable {
      * Given a number information, returns the keyword of the first rule that applies to
      * the number.
      *
-     * @param sample The number information for which the rule has to be determined.
+     * @param number The number information for which the rule has to be determined.
      * @return The keyword of the selected rule.
-     * icu_annot::internal
+     * icu_annot::internal CLDR
      * This API is ICU internal only.
      */
     // @Deprecated: in fact internal ICU
-    public String select(FixedDecimal sample) {
-        return rules.select(sample);
+    public String select(FixedDecimal number) {
+        return rules.select(number);
     }
-
 
     /**
      * Given a number information, and keyword, return whether the keyword would match the number.
      *
      * @param sample The number information for which the rule has to be determined.
      * @param keyword The keyword to filter on
-     * icu_annot::internal
+     * icu_annot::internal CLDR
      * This API is ICU internal only.
      */
     // @Deprecated: in fact internal ICU
@@ -2044,8 +2042,8 @@ public class PluralRules implements Serializable {
      * @param type the type of samples requested, INTEGER or DECIMAL
      * @return the values that trigger this keyword, or null.  The returned collection
      * is immutable. It will be empty if the keyword is not defined.
-     * 
-     * icu_annot::internal
+     *
+     * icu_annot::internal Visible For Testing
      * This API is ICU internal only.
      */
     // @Deprecated: in fact internal ICU
@@ -2082,7 +2080,7 @@ public class PluralRules implements Serializable {
      * @param keyword the keyword to test
      * @param sampleType the type of samples requested, INTEGER or DECIMAL
      * @return a list of values matching the keyword.
-     * icu_annot::internal
+     * icu_annot::internal CLDR
      * @deprecated ICU internal only
      */
     // @Deprecated: in fact internal ICU
@@ -2090,7 +2088,7 @@ public class PluralRules implements Serializable {
         if (!keywords.contains(keyword)) {
             return null;
         }
-        Set<Double> result = new TreeSet<Double>();
+        Set<Double> result = new TreeSet<>();
 
         if (rules.hasExplicitBoundingInfo) {
             FixedDecimalSamples samples = rules.getDecimalSamples(keyword, sampleType);
@@ -2122,12 +2120,7 @@ public class PluralRules implements Serializable {
         return result.size() == 0 ? null : Collections.unmodifiableSet(result);
     }
 
-    /**
-     * icu_annot::internal
-     * This API is ICU internal only.
-     */
-    // @Deprecated: in fact internal ICU
-    public boolean addSample(String keyword, Number sample, int maxCount, Set<Double> result) {
+    private boolean addSample(String keyword, Number sample, int maxCount, Set<Double> result) {
         String selectedKeyword = sample instanceof FixedDecimal ? select((FixedDecimal)sample) : select(sample.doubleValue());
         if (selectedKeyword.equals(keyword)) {
             result.add(sample.doubleValue());
@@ -2148,7 +2141,7 @@ public class PluralRules implements Serializable {
      * @param keyword the keyword to test
      * @param sampleType the type of samples requested, INTEGER or DECIMAL
      * @return a list of values matching the keyword.
-     * icu_annot::internal
+     * icu_annot::internal CLDR
      * This API is ICU internal only.
      */
     // @Deprecated: in fact internal ICU
@@ -2159,8 +2152,7 @@ public class PluralRules implements Serializable {
     /**
      * Returns the set of locales for which PluralRules are known.
      * @return the set of locales for which PluralRules are known, as a list
-     * icu_annot::draft ICU 4.2
-     * icu_annot::provisional This API might change or be removed in a future release.
+     * icu_annot::draft ICU 4.2 (retain)
     public static ULocale[] getAvailableULocales() {
         return Factory.getDefaultFactory().getAvailableULocales();
     }
@@ -2180,8 +2172,7 @@ public class PluralRules implements Serializable {
      * @param isAvailable if not null and of length > 0, this will hold 'true' at
      * index 0 if locale is directly defined (without fallback) as having plural rules
      * @return the functionally-equivalent locale
-     * icu_annot::draft ICU 4.2
-     * icu_annot::provisional This API might change or be removed in a future release.
+     * icu_annot::draft ICU 4.2 (retain)
     public static ULocale getFunctionalEquivalent(ULocale locale, boolean[] isAvailable) {
         return Factory.getDefaultFactory().getFunctionalEquivalent(locale, isAvailable);
     }
@@ -2219,51 +2210,45 @@ public class PluralRules implements Serializable {
 
     /**
      * Status of the keyword for the rules, given a set of explicit values.
-     * 
+     *
      * icu_annot::draft ICU 50
-     * icu_annot::provisional This API might change or be removed in a future release.
      */
     public enum KeywordStatus {
         /**
          * The keyword is not valid for the rules.
-         * 
+         *
          * icu_annot::draft ICU 50
-         * icu_annot::provisional This API might change or be removed in a future release.
          */
         INVALID,
         /**
          * The keyword is valid, but unused (it is covered by the explicit values, OR has no values for the given {@link SampleType}).
-         * 
+         *
          * icu_annot::draft ICU 50
-         * icu_annot::provisional This API might change or be removed in a future release.
          */
         SUPPRESSED,
         /**
          * The keyword is valid, used, and has a single possible value (before considering explicit values).
-         * 
+         *
          * icu_annot::draft ICU 50
-         * icu_annot::provisional This API might change or be removed in a future release.
          */
         UNIQUE,
         /**
          * The keyword is valid, used, not unique, and has a finite set of values.
-         * 
+         *
          * icu_annot::draft ICU 50
-         * icu_annot::provisional This API might change or be removed in a future release.
          */
         BOUNDED,
         /**
          * The keyword is valid but not bounded; there indefinitely many matching values.
-         * 
+         *
          * icu_annot::draft ICU 50
-         * icu_annot::provisional This API might change or be removed in a future release.
          */
         UNBOUNDED
     }
 
     /**
      * Find the status for the keyword, given a certain set of explicit values.
-     * 
+     *
      * @param keyword
      *            the particular keyword (call rules.getKeywords() to get the valid ones)
      * @param offset
@@ -2275,7 +2260,6 @@ public class PluralRules implements Serializable {
      *            If non null, set to the unique value.
      * @return the KeywordStatus
      * icu_annot::draft ICU 50
-     * icu_annot::provisional This API might change or be removed in a future release.
      */
     public KeywordStatus getKeywordStatus(String keyword, int offset, Set<Double> explicits,
             Output<Double> uniqueValue) {
@@ -2283,7 +2267,7 @@ public class PluralRules implements Serializable {
     }
     /**
      * Find the status for the keyword, given a certain set of explicit values.
-     * 
+     *
      * @param keyword
      *            the particular keyword (call rules.getKeywords() to get the valid ones)
      * @param offset
@@ -2296,9 +2280,10 @@ public class PluralRules implements Serializable {
      * @param uniqueValue
      *            If non null, set to the unique value.
      * @return the KeywordStatus
-     * icu_annot::internal
-     * icu_annot::provisional This API might change or be removed in a future release.
+     * icu_annot::internal Visible For Testing
+     * This API is ICU internal only.
      */
+    // @Deprecated: in fact internal ICU
     public KeywordStatus getKeywordStatus(String keyword, int offset, Set<Double> explicits,
             Output<Double> uniqueValue, SampleType sampleType) {
         if (uniqueValue != null) {
@@ -2335,7 +2320,7 @@ public class PluralRules implements Serializable {
 
         // Compute if the quick test is insufficient.
 
-        HashSet<Double> subtractedSet = new HashSet<Double>(values);
+        HashSet<Double> subtractedSet = new HashSet<>(values);
         for (Double explicit : explicits) {
             subtractedSet.remove(explicit - offset);
         }
@@ -2351,7 +2336,7 @@ public class PluralRules implements Serializable {
     }
 
     /**
-     * icu_annot::internal
+     * icu_annot::internal CLDR
      * This API is ICU internal only.
      */
     // @Deprecated: in fact internal ICU
@@ -2375,7 +2360,7 @@ public class PluralRules implements Serializable {
     }
     */
     /**
-     * icu_annot::internal
+     * icu_annot::internal CLDR
      * @deprecated internal
      */
     // @Deprecated: in fact internal ICU
@@ -2383,17 +2368,12 @@ public class PluralRules implements Serializable {
         return toString().compareTo(other.toString());
     }
 
-    /**
-     * icu_annot::internal
-     * @deprecated internal
-     */
-    // @Deprecated: in fact internal ICU
-    public Boolean isLimited(String keyword) {
+    Boolean isLimited(String keyword) {
         return rules.isLimited(keyword, SampleType.INTEGER);
     }
 
     /**
-     * icu_annot::internal
+     * icu_annot::internal Visible For Testing
      * @deprecated internal
      */
     // @Deprecated: in fact internal ICU
@@ -2402,7 +2382,7 @@ public class PluralRules implements Serializable {
     }
 
     /**
-     * icu_annot::internal
+     * icu_annot::internal CLDR
      * @deprecated internal
      */
     // @Deprecated: in fact internal ICU

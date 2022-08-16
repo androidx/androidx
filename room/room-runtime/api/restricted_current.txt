@@ -56,6 +56,20 @@ package androidx.room {
     method public final java.util.List<java.lang.Long> insertAndReturnIdsList(java.util.Collection<? extends T> entities);
   }
 
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class EntityUpsertionAdapter<T> {
+    ctor public EntityUpsertionAdapter(androidx.room.EntityInsertionAdapter<T> insertionAdapter, androidx.room.EntityDeletionOrUpdateAdapter<T> updateAdapter);
+    method public void upsert(T? entity);
+    method public void upsert(T![] entities);
+    method public void upsert(Iterable<? extends T> entities);
+    method public long upsertAndReturnId(T? entity);
+    method public long[] upsertAndReturnIdsArray(T![] entities);
+    method public long[] upsertAndReturnIdsArray(java.util.Collection<? extends T> entities);
+    method public Long![] upsertAndReturnIdsArrayBox(T![] entities);
+    method public Long![] upsertAndReturnIdsArrayBox(java.util.Collection<? extends T> entities);
+    method public java.util.List<java.lang.Long> upsertAndReturnIdsList(T![] entities);
+    method public java.util.List<java.lang.Long> upsertAndReturnIdsList(java.util.Collection<? extends T> entities);
+  }
+
   public class InvalidationTracker {
     ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public InvalidationTracker(androidx.room.RoomDatabase database, java.util.Map<java.lang.String,java.lang.String> shadowTablesMap, java.util.Map<java.lang.String,java.util.Set<java.lang.String>> viewTables, java.lang.String... tableNames);
     ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public InvalidationTracker(androidx.room.RoomDatabase database, java.lang.String... tableNames);
@@ -78,17 +92,11 @@ package androidx.room {
     method public abstract void onInvalidated(java.util.Set<java.lang.String> tables);
   }
 
-  public class Room {
-    ctor @Deprecated public Room();
-    method public static final <T extends androidx.room.RoomDatabase> androidx.room.RoomDatabase.Builder<T> databaseBuilder(android.content.Context context, Class<T> klass, String? name);
-    method public static final <T extends androidx.room.RoomDatabase> androidx.room.RoomDatabase.Builder<T> inMemoryDatabaseBuilder(android.content.Context context, Class<T> klass);
-    field public static final androidx.room.Room.Companion Companion;
+  public final class Room {
+    method public static <T extends androidx.room.RoomDatabase> androidx.room.RoomDatabase.Builder<T> databaseBuilder(android.content.Context context, Class<T> klass, String? name);
+    method public static <T extends androidx.room.RoomDatabase> androidx.room.RoomDatabase.Builder<T> inMemoryDatabaseBuilder(android.content.Context context, Class<T> klass);
+    field public static final androidx.room.Room INSTANCE;
     field public static final String MASTER_TABLE_NAME = "room_master_table";
-  }
-
-  public static final class Room.Companion {
-    method public <T extends androidx.room.RoomDatabase> androidx.room.RoomDatabase.Builder<T> databaseBuilder(android.content.Context context, Class<T> klass, String? name);
-    method public <T extends androidx.room.RoomDatabase> androidx.room.RoomDatabase.Builder<T> inMemoryDatabaseBuilder(android.content.Context context, Class<T> klass);
   }
 
   public abstract class RoomDatabase {

@@ -668,7 +668,7 @@ public class UiObject2 implements Searchable {
      * @return Whether the object can still scroll in the given direction.
      */
     public boolean fling(final Direction direction, final int speed) {
-        ViewConfiguration vc = ViewConfiguration.get(getDevice().getInstrumentation().getContext());
+        ViewConfiguration vc = ViewConfiguration.get(getDevice().getUiContext());
         if (speed < vc.getScaledMinimumFlingVelocity()) {
             throw new IllegalArgumentException("Speed is less than the minimum fling velocity");
         }
@@ -700,7 +700,7 @@ public class UiObject2 implements Searchable {
         }
 
         CharSequence currentText = node.getText();
-        if (!text.contentEquals(currentText)) {
+        if (currentText == null || !text.contentEquals(currentText)) {
             InteractionController ic = getDevice().getInteractionController();
 
             // Long click left + center
@@ -729,8 +729,8 @@ public class UiObject2 implements Searchable {
         }
         Log.v(TAG, String.format("setText(text=\"%s\")", text));
 
-        if (UiDevice.API_LEVEL_ACTUAL > Build.VERSION_CODES.KITKAT) {
-            // do this for API Level above 19 (exclusive)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            // ACTION_SET_TEXT is added in API 21.
             Bundle args = new Bundle();
             args.putCharSequence(AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE, text);
             if (!node.performAction(AccessibilityNodeInfo.ACTION_SET_TEXT, args)) {
@@ -739,7 +739,7 @@ public class UiObject2 implements Searchable {
             }
         } else {
             CharSequence currentText = node.getText();
-            if (!text.contentEquals(currentText)) {
+            if (currentText == null || !text.contentEquals(currentText)) {
                 // Give focus to the object. Expect this to fail if the object already has focus.
                 if (!node.performAction(AccessibilityNodeInfo.ACTION_FOCUS) && !node.isFocused()) {
                     // TODO: Decide if we should throw here

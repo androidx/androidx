@@ -16,15 +16,11 @@
 
 package androidx.room.processor
 
+import androidx.room.Upsert
 import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XType
-import androidx.room.solver.CodeGenScope
-import androidx.room.solver.shortcut.binder.UpsertMethodBinder
-import androidx.room.vo.ShortcutEntity
-import androidx.room.vo.ShortcutQueryParameter
 import androidx.room.vo.UpsertionMethod
-import com.squareup.javapoet.FieldSpec
-import com.squareup.javapoet.TypeSpec
+import androidx.room.vo.findFieldByColumnName
 
 class UpsertionMethodProcessor(
     baseContext: Context,
@@ -32,21 +28,67 @@ class UpsertionMethodProcessor(
     val executableElement: XMethodElement
 ) {
     val context = baseContext.fork(executableElement)
-    class StubUpsertMethodBinder : UpsertMethodBinder(null) {
-        override fun convertAndReturn(
-            parameters: List<ShortcutQueryParameter>,
-            upsertionAdapters: Map<String, Pair<FieldSpec, TypeSpec>>,
-            dbField: FieldSpec,
-            scope: CodeGenScope
-        ) {}
-    }
     fun process(): UpsertionMethod {
+        val delegate = ShortcutMethodProcessor(context, containing, executableElement)
+
+        val annotation = delegate.extractAnnotation(
+            Upsert::class,
+            ProcessorErrors.MISSING_UPSERT_ANNOTATION
+        )
+
+        val returnType = delegate.extractReturnType()
+        val returnTypeName = returnType.typeName
+        context.checker.notUnbound(
+            returnTypeName, executableElement,
+            ProcessorErrors.CANNOT_USE_UNBOUND_GENERICS_IN_UPSERTION_METHODS
+        )
+
+        val (entities, params) = delegate.extractParams(
+            targetEntityType = annotation?.getAsType("entity"),
+            missingParamError = ProcessorErrors.UPSERTION_DOES_NOT_HAVE_ANY_PARAMETERS_TO_UPSERT,
+            onValidatePartialEntity = { entity, pojo ->
+                val missingPrimaryKeys = entity.primaryKey.fields.any {
+                    pojo.findFieldByColumnName(it.columnName) == null
+                }
+                context.checker.check(
+                    entity.primaryKey.autoGenerateId || !missingPrimaryKeys,
+                    executableElement,
+                    ProcessorErrors.missingPrimaryKeysInPartialEntityForUpsert(
+                        partialEntityName = pojo.typeName.toString(),
+                        primaryKeyNames = entity.primaryKey.fields.columnNames
+                    )
+                )
+
+                // Verify all non null columns without a default value are in the POJO otherwise
+                // the UPSERT will fail with a NOT NULL constraint.
+                val missingRequiredFields = (entity.fields - entity.primaryKey.fields).filter {
+                    it.nonNull && it.defaultValue == null &&
+                        pojo.findFieldByColumnName(it.columnName) == null
+                }
+                context.checker.check(
+                    missingRequiredFields.isEmpty(),
+                    executableElement,
+                    ProcessorErrors.missingRequiredColumnsInPartialEntity(
+                        partialEntityName = pojo.typeName.toString(),
+                        missingColumnNames = missingRequiredFields.map { it.columnName }
+                    )
+                )
+            }
+        )
+
+        val methodBinder = delegate.findUpsertMethodBinder(returnType, params)
+        context.checker.check(
+            methodBinder.adapter != null,
+            executableElement,
+            ProcessorErrors.CANNOT_FIND_UPSERT_RESULT_ADAPTER
+        )
+
         return UpsertionMethod(
             element = executableElement,
-            returnType = executableElement.returnType,
-            entities = emptyMap<String, ShortcutEntity>(),
-            parameters = emptyList<ShortcutQueryParameter>(),
-            methodBinder = StubUpsertMethodBinder()
+            returnType = returnType,
+            entities = entities,
+            parameters = params,
+            methodBinder = methodBinder
         )
     }
 }

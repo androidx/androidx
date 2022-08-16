@@ -216,11 +216,19 @@ public class SettableSurface extends DeferrableSurface {
      *
      * <p>Do not provide the {@link SurfaceOutput} to external target if the
      * {@link ListenableFuture} fails.
+     *
+     * @param applyGlTransform whether the SurfaceOutput should apply the transform, which is
+     *                         calculated based on the input image buffer's attributes.
+     * @param resolution       resolution of input image buffer
+     * @param cropRect         crop rect of input image buffer
+     * @param rotationDegrees  expected rotation to the input image buffer
+     * @param mirroring        expected mirroring to the input image buffer
      */
     @MainThread
     @NonNull
-    public ListenableFuture<SurfaceOutput> createSurfaceOutputFuture(
-            @NonNull float[] glTransformation) {
+    public ListenableFuture<SurfaceOutput> createSurfaceOutputFuture(boolean applyGlTransform,
+            @NonNull Size resolution, @NonNull Rect cropRect, int rotationDegrees,
+            boolean mirroring) {
         checkMainThread();
         Preconditions.checkState(!mHasConsumer, "Consumer can only be linked once.");
         mHasConsumer = true;
@@ -233,7 +241,8 @@ public class SettableSurface extends DeferrableSurface {
                         return Futures.immediateFailedFuture(e);
                     }
                     SurfaceOutputImpl surfaceOutputImpl = new SurfaceOutputImpl(
-                            surface, getTargets(), getFormat(), getSize(), glTransformation);
+                            surface, getTargets(), getFormat(), getSize(), applyGlTransform,
+                            resolution, cropRect, rotationDegrees, mirroring);
                     surfaceOutputImpl.getCloseFuture().addListener(this::decrementUseCount,
                             directExecutor());
                     mConsumerToNotify = surfaceOutputImpl;
@@ -244,15 +253,15 @@ public class SettableSurface extends DeferrableSurface {
     /**
      * Closes the {@link DeferrableSurface} and notifies linked objects for the closure.
      */
-    @MainThread
     @Override
     public final void close() {
-        checkMainThread();
         super.close();
-        if (mConsumerToNotify != null) {
-            mConsumerToNotify.requestClose();
-            mConsumerToNotify = null;
-        }
+        mainThreadExecutor().execute(() -> {
+            if (mConsumerToNotify != null) {
+                mConsumerToNotify.requestClose();
+                mConsumerToNotify = null;
+            }
+        });
     }
 
     /**

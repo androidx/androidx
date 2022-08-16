@@ -217,7 +217,7 @@ class PreviewTest {
     @Test
     fun bindAndUnbindPreview_surfacesPropagated() {
         // Arrange.
-        val effect = FakeSurfaceEffectInternal(mainThreadExecutor())
+        val effect = FakeSurfaceEffectInternal(mainThreadExecutor(), false)
 
         // Act: create pipeline in Preview and provide Surface.
         val preview = createPreviewPipelineAndAttachEffect(effect)

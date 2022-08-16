@@ -16,7 +16,6 @@
 
 package androidx.asynclayoutinflater.view;
 
-import android.app.Activity;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
@@ -31,9 +30,6 @@ import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.app.AppCompatCallback;
-import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.util.Pools.SynchronizedPool;
 
 import java.util.concurrent.ArrayBlockingQueue;
@@ -71,48 +67,23 @@ import java.util.concurrent.Executor;
  */
 public final class AsyncLayoutInflater {
     private static final String TAG = "AsyncLayoutInflater";
-
     LayoutInflater mInflater;
-    LayoutInflater mInflaterDeprecated;
     Handler mHandler;
     InflateThread mInflateThread;
 
     public AsyncLayoutInflater(@NonNull Context context) {
-        mInflaterDeprecated = new BasicInflater(context);
         mInflater = new BasicInflater(context);
         mHandler = new Handler(Looper.myLooper(), mHandlerCallback);
         mInflateThread = InflateThread.getInstance();
-        if (context instanceof AppCompatActivity) {
-            AppCompatDelegate delegate = AppCompatDelegate.create((Activity) context,
-                    (AppCompatCallback) context);
-            if (delegate instanceof LayoutInflater.Factory2) {
-                mInflater.setFactory2((LayoutInflater.Factory2) delegate);
-            }
-        }
     }
 
     /**
      * Triggers view inflation on background thread.
-     *
-     * @deprecated may initialize incorrect class for AppCompat library. Use
-     * {@link #inflateWithOriginalFactory} instead.
      */
     @UiThread
-    @Deprecated
     public void inflate(@LayoutRes int resid, @Nullable ViewGroup parent,
             @NonNull OnInflateFinishedListener callback) {
-        inflateInternal(resid, parent, callback, mInflaterDeprecated, /* callbackExecutor= */ null);
-    }
-
-    /**
-     * Triggers inflation on a background thread. It uses an underlying
-     * inflater with same {@link LayoutInflater.Factory2} as the inflater for
-     * {@link AppCompatActivity}.
-     */
-    @UiThread
-    public void inflateWithOriginalFactory(@LayoutRes int resid, @Nullable ViewGroup parent,
-            @Nullable Executor callbackExecutor, @NonNull OnInflateFinishedListener callback) {
-        inflateInternal(resid, parent, callback, mInflater, callbackExecutor);
+        inflateInternal(resid, parent, callback, mInflater, /* callbackExecutor= */ null);
     }
 
     private void inflateInternal(@LayoutRes int resid, @Nullable ViewGroup parent,

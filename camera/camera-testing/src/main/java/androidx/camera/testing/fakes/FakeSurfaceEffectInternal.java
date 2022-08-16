@@ -32,8 +32,18 @@ public class FakeSurfaceEffectInternal extends FakeSurfaceEffect implements Surf
 
     private boolean mIsReleased;
 
+    /**
+     * {@inheritDoc}
+     */
     public FakeSurfaceEffectInternal(@NonNull Executor executor) {
-        super(executor);
+        this(executor, true);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public FakeSurfaceEffectInternal(@NonNull Executor executor, boolean autoCloseSurfaceOutput) {
+        super(executor, autoCloseSurfaceOutput);
         mIsReleased = false;
     }
 

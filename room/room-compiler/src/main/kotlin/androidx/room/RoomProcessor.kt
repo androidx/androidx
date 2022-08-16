@@ -17,10 +17,13 @@
 package androidx.room
 
 import androidx.room.DatabaseProcessingStep.Companion.ENV_CONFIG
+import androidx.room.compiler.processing.XProcessingEnv
+import androidx.room.compiler.processing.XRoundEnv
 import androidx.room.compiler.processing.javac.JavacBasicAnnotationProcessor
 import androidx.room.processor.Context
 import androidx.room.processor.ProcessorErrors
 import androidx.room.util.SimpleJavaVersion
+import androidx.room.verifier.DatabaseVerifier
 import androidx.room.vo.Warning
 import javax.lang.model.SourceVersion
 
@@ -112,5 +115,11 @@ class RoomProcessor : JavacBasicAnnotationProcessor({
 
     override fun getSupportedSourceVersion(): SourceVersion {
         return SourceVersion.latest()
+    }
+
+    override fun postRound(env: XProcessingEnv, round: XRoundEnv) {
+        if (round.isProcessingOver) {
+            DatabaseVerifier.cleanup()
+        }
     }
 }

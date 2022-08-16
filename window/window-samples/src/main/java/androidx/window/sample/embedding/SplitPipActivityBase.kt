@@ -260,7 +260,7 @@ abstract class SplitPipActivityBase : AppCompatActivity(), CompoundButton.OnChec
             val isSticky = viewBinding.useStickyPlaceHolderCheckBox.isChecked
             val rule = SplitPlaceholderRule.Builder(activityFilters, intent, 0, 0)
                 .setSticky(isSticky)
-                .setFinishPrimaryWithSecondary(SplitRule.FINISH_ADJACENT)
+                .setFinishPrimaryWithPlaceholder(SplitRule.FINISH_ADJACENT)
                 .setSplitRatio(splitRatio)
                 .build()
             splitController.registerRule(rule)

@@ -77,6 +77,7 @@ public class RemotePlaybackClient {
         actionFilter.addAction(ActionReceiver.ACTION_SESSION_STATUS_CHANGED);
         actionFilter.addAction(ActionReceiver.ACTION_MESSAGE_RECEIVED);
         mActionReceiver = new ActionReceiver();
+        // TODO(b/197817693): Add flag to indicate whether the receiver should be exported.
         context.registerReceiver(mActionReceiver, actionFilter);
 
         Intent itemStatusIntent = new Intent(ActionReceiver.ACTION_ITEM_STATUS_CHANGED);

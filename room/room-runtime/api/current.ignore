@@ -1,4 +1,8 @@
 // Baseline format: 1.0
+AddedFinal: androidx.room.Room:
+    Class androidx.room.Room added 'final' qualifier
+
+
 ChangedType: androidx.room.DatabaseConfiguration#autoMigrationSpecs:
     Field androidx.room.DatabaseConfiguration.autoMigrationSpecs has changed type from java.util.List<androidx.room.migration.AutoMigrationSpec!> to java.util.List<androidx.room.migration.AutoMigrationSpec>
 ChangedType: androidx.room.DatabaseConfiguration#callbacks:
@@ -55,3 +59,7 @@ ChangedType: androidx.room.RoomDatabase.MigrationContainer#findMigrationPath(int
     Method androidx.room.RoomDatabase.MigrationContainer.findMigrationPath has changed return type from java.util.List<androidx.room.migration.Migration!> to java.util.List<androidx.room.migration.Migration>
 ChangedType: androidx.room.RoomDatabase.MigrationContainer#getMigrations():
     Method androidx.room.RoomDatabase.MigrationContainer.getMigrations has changed return type from java.util.Map<java.lang.Integer!,java.util.Map<java.lang.Integer!,androidx.room.migration.Migration!>!> to java.util.Map<java.lang.Integer,java.util.Map<java.lang.Integer,androidx.room.migration.Migration>>
+
+
+RemovedDeprecatedMethod: androidx.room.Room#Room():
+    Removed deprecated constructor androidx.room.Room()

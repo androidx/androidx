@@ -18,6 +18,7 @@ package androidx.recyclerview.widget;
 
 import android.animation.Animator;
 import android.animation.ValueAnimator;
+import android.annotation.SuppressLint;
 import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.Rect;
@@ -556,8 +557,8 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
     }
 
     @Override
-    public void onDraw(@NonNull Canvas c, @NonNull RecyclerView parent,
-            @NonNull RecyclerView.State state) {
+    @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
+    public void onDraw(Canvas c, RecyclerView parent, RecyclerView.State state) {
         // we don't know if RV changed something so we should invalidate this index.
         mOverdrawChildPosition = -1;
         float dx = 0, dy = 0;
@@ -935,8 +936,9 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
     }
 
     @Override
-    public void getItemOffsets(@NonNull Rect outRect, @NonNull View view,
-            @NonNull RecyclerView parent, @NonNull RecyclerView.State state) {
+    @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
+    public void getItemOffsets(Rect outRect, View view, RecyclerView parent,
+            RecyclerView.State state) {
         outRect.setEmpty();
     }
 
@@ -1806,7 +1808,7 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
          * moved to.
          */
         @SuppressWarnings("WeakerAccess")
-        @Nullable
+        @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
         public ViewHolder chooseDropTarget(@NonNull ViewHolder selected,
                 @NonNull List<ViewHolder> dropTargets, int curX, int curY) {
             int right = curX + selected.itemView.getWidth();
@@ -2110,7 +2112,8 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
          * boolean)
          */
         public void onChildDrawOver(@NonNull Canvas c, @NonNull RecyclerView recyclerView,
-                @NonNull ViewHolder viewHolder,
+                @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
+                ViewHolder viewHolder,
                 float dX, float dY, int actionState, boolean isCurrentlyActive) {
             ItemTouchUIUtilImpl.INSTANCE.onDrawOver(c, recyclerView, viewHolder.itemView, dX, dY,
                     actionState, isCurrentlyActive);

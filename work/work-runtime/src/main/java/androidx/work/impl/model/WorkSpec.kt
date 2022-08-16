@@ -351,6 +351,9 @@ data class WorkSpec(
         @ColumnInfo(name = "run_attempt_count")
         var runAttemptCount: Int,
 
+        @ColumnInfo(name = "generation")
+        val generation: Int,
+
         @Relation(
             parentColumn = "id",
             entityColumn = "work_spec_id",
@@ -382,7 +385,8 @@ data class WorkSpec(
                 output,
                 tags,
                 progress,
-                runAttemptCount
+                runAttemptCount,
+                generation
             )
         }
     }

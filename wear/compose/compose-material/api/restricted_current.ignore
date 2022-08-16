@@ -1,0 +1,5 @@
+// Baseline format: 1.0
+InvalidNullConversion: androidx.wear.compose.material.ButtonDefaults#buttonColors(long, long, long, long):
+    Attempted to remove @NonNull annotation from method androidx.wear.compose.material.ButtonDefaults.buttonColors(long,long,long,long)
+InvalidNullConversion: androidx.wear.compose.material.ChipDefaults#chipColors(long, long, long, long, long, long, long, long):
+    Attempted to remove @NonNull annotation from method androidx.wear.compose.material.ChipDefaults.chipColors(long,long,long,long,long,long,long,long)

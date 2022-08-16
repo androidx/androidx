@@ -325,9 +325,7 @@ class ToGenericDocumentCodeGenerator {
             // The propertyType is not an element, this is not a type 1c list.
             return false;
         }
-        try {
-            getDocumentAnnotation(element);
-        } catch (ProcessingException e) {
+        if (getDocumentAnnotation(element) == null) {
             // The propertyType doesn't have @Document annotation, this is not a type 1c
             // list.
             return false;
@@ -479,7 +477,7 @@ class ToGenericDocumentCodeGenerator {
         }
 
         body.addStatement(
-                "builder.$N($S, $NCopy)", setPropertyMethod, propertyName, fieldName)
+                        "builder.$N($S, $NCopy)", setPropertyMethod, propertyName, fieldName)
                 .unindent().add("}\n");
 
         method.add(body.build());
@@ -504,9 +502,7 @@ class ToGenericDocumentCodeGenerator {
             // The propertyType is not an element, this is not a type 1c list.
             return false;
         }
-        try {
-            getDocumentAnnotation(element);
-        } catch (ProcessingException e) {
+        if (getDocumentAnnotation(element) == null)  {
             // The propertyType doesn't have @Document annotation, this is not a type 1c
             // list.
             return false;
@@ -589,7 +585,7 @@ class ToGenericDocumentCodeGenerator {
         }
 
         body.addStatement(
-                "builder.$N($S, $NCopy)", setPropertyMethod, propertyName, fieldName)
+                        "builder.$N($S, $NCopy)", setPropertyMethod, propertyName, fieldName)
                 .unindent().add("}\n");
 
         method.add(body.build());
@@ -643,9 +639,7 @@ class ToGenericDocumentCodeGenerator {
             // The propertyType is not an element, this is not a type 3c field.
             return false;
         }
-        try {
-            getDocumentAnnotation(element);
-        } catch (ProcessingException e) {
+        if (getDocumentAnnotation(element) == null) {
             // The propertyType doesn't have @Document annotation, this is not a type 3c
             // field.
             return false;

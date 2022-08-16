@@ -429,7 +429,7 @@ class TextLayoutTest {
                 endIndex = text.length,
                 trimFirstLineTop = false,
                 trimLastLineBottom = false,
-                topPercentage = 50
+                topRatio = 0.5f
             ), 0, text.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
         )
 

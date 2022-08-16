@@ -311,10 +311,6 @@ internal sealed class KspTypeElement(
             .toList()
     }
 
-    override fun toString(): String {
-        return declaration.toString()
-    }
-
     private class DefaultKspTypeElement(
         env: KspProcessingEnv,
         declaration: KSClassDeclaration

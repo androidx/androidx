@@ -501,7 +501,7 @@ class InteractionController {
         if (drag)
             SystemClock.sleep(REGULAR_CLICK_LENGTH);
         ret &= touchUp(upX, upY);
-        return(ret);
+        return ret;
     }
 
     /**
@@ -546,7 +546,7 @@ class InteractionController {
             }
         }
         ret &= touchUp(segments[segments.length - 1].x, segments[segments.length -1].y);
-        return(ret);
+        return ret;
     }
 
 
@@ -659,8 +659,7 @@ class InteractionController {
      */
     public boolean wakeDevice() throws RemoteException {
         if(!isScreenOn()) {
-            boolean supportsWakeButton = 
-                UiDevice.API_LEVEL_ACTUAL >= Build.VERSION_CODES.KITKAT_WATCH;
+            boolean supportsWakeButton = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT_WATCH;
             sendKey(supportsWakeButton ? KeyEvent.KEYCODE_WAKEUP : KeyEvent.KEYCODE_POWER, 0);
             return true;
         }
@@ -676,8 +675,7 @@ class InteractionController {
      */
     public boolean sleepDevice() throws RemoteException {
         if(isScreenOn()) {
-            boolean supportsSleepButton = 
-                UiDevice.API_LEVEL_ACTUAL >= Build.VERSION_CODES.KITKAT_WATCH;
+            boolean supportsSleepButton = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT_WATCH;
             sendKey(supportsSleepButton ? KeyEvent.KEYCODE_SLEEP : KeyEvent.KEYCODE_POWER, 0);
             return true;
         }

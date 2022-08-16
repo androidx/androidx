@@ -9,7 +9,7 @@ import java.lang.String;
 import javax.annotation.processing.Generated;
 
 @Generated("androidx.appsearch.compiler.AppSearchCompiler")
-public class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
+public final class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
   public static final String SCHEMA_NAME = "Gift";
 
   @Override
@@ -40,8 +40,6 @@ public class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
     String namespaceConv = genericDoc.getNamespace();
     int priceConv = (int) genericDoc.getPropertyLong("price");
     Gift document = Gift.create(idConv, namespaceConv, priceConv);
-    document.namespace = namespaceConv;
-    document.price = priceConv;
     return document;
   }
 }
