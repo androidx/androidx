@@ -38,7 +38,7 @@ internal class SurfaceViewRenderLayer<T>(
 ) : ParentRenderLayer<T> {
 
     private var mLayerCallback: ParentRenderLayer.Callback<T>? = null
-    private var mHardwareBufferRenderer: HardwareBufferRenderer? = null
+    private var mFrameBufferRenderer: FrameBufferRenderer? = null
     private var mRenderTarget: GLRenderer.RenderTarget? = null
     private var mParentSurfaceControl: SurfaceControlCompat? = null
 
@@ -58,12 +58,12 @@ internal class SurfaceViewRenderLayer<T>(
         renderer: GLRenderer,
         renderLayerCallback: GLFrontBufferedRenderer.Callback<T>
     ): GLRenderer.RenderTarget {
-        val hardwareBufferRenderer = HardwareBufferRenderer(
-            object : HardwareBufferRenderer.RenderCallbacks {
+        val frameBufferRenderer = FrameBufferRenderer(
+            object : FrameBufferRenderer.RenderCallback {
 
-                override fun obtainRenderBuffer(egl: EGLSpec): RenderBuffer =
-                    mLayerCallback?.getRenderBufferPool()?.obtain(egl)
-                        ?: throw IllegalArgumentException("No RenderBufferPool available")
+                override fun obtainFrameBuffer(egl: EGLSpec): FrameBuffer =
+                    mLayerCallback?.getFrameBufferPool()?.obtain(egl)
+                        ?: throw IllegalArgumentException("No FrameBufferPool available")
 
                 override fun onDraw(eglManager: EGLManager) {
                     GLES20.glClearColor(0.0f, 0.0f, 0.0f, 0.0f)
@@ -82,7 +82,7 @@ internal class SurfaceViewRenderLayer<T>(
 
                 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
                 override fun onDrawComplete(
-                    renderBuffer: RenderBuffer,
+                    frameBuffer: FrameBuffer,
                     syncFenceCompat: SyncFenceCompat?
                 ) {
                     val frontBufferedLayerSurfaceControl = mLayerCallback
@@ -99,8 +99,8 @@ internal class SurfaceViewRenderLayer<T>(
                         val transaction = SurfaceControlCompat.Transaction()
                             .setVisibility(frontBufferedLayerSurfaceControl, false)
                             .setVisibility(sc, true)
-                            .setBuffer(sc, renderBuffer.hardwareBuffer, syncFenceCompat) {
-                                mLayerCallback?.getRenderBufferPool()?.release(renderBuffer)
+                            .setBuffer(sc, frameBuffer.hardwareBuffer, syncFenceCompat) {
+                                mLayerCallback?.getFrameBufferPool()?.release(frameBuffer)
                             }
 
                         renderLayerCallback.onDoubleBufferedLayerRenderComplete(
@@ -137,9 +137,9 @@ internal class SurfaceViewRenderLayer<T>(
                 mLayerCallback?.onLayerDestroyed()
             }
         })
-        val renderTarget = renderer.attach(surfaceView, hardwareBufferRenderer)
+        val renderTarget = renderer.attach(surfaceView, frameBufferRenderer)
         mRenderTarget = renderTarget
-        mHardwareBufferRenderer = hardwareBufferRenderer
+        mFrameBufferRenderer = frameBufferRenderer
         return renderTarget
     }
 
@@ -154,7 +154,7 @@ internal class SurfaceViewRenderLayer<T>(
     }
 
     override fun clear() {
-        mHardwareBufferRenderer?.clear()
+        mFrameBufferRenderer?.clear()
         mRenderTarget?.requestRender()
     }
 
