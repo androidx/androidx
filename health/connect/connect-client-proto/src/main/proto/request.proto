@@ -97,3 +97,12 @@ message GetChangesTokenRequest {
 message GetChangesRequest {
   optional string changes_token = 1;
 }
+
+message RegisterForDataNotificationsRequest {
+  optional string notificationIntentAction = 1;
+  repeated DataType data_types = 2;
+}
+
+message UnregisterFromDataNotificationsRequest {
+  optional string notificationIntentAction = 1;
+}

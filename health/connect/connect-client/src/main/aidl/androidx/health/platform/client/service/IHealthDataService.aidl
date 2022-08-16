@@ -24,7 +24,9 @@ import androidx.health.platform.client.request.GetChangesRequest;
 import androidx.health.platform.client.request.UpsertDataRequest;
 import androidx.health.platform.client.request.ReadDataRequest;
 import androidx.health.platform.client.request.ReadDataRangeRequest;
+import androidx.health.platform.client.request.RegisterForDataNotificationsRequest;
 import androidx.health.platform.client.request.RequestContext;
+import androidx.health.platform.client.request.UnregisterFromDataNotificationsRequest;
 import androidx.health.platform.client.service.IGetChangesCallback;
 import androidx.health.platform.client.service.IGetChangesTokenCallback;
 import androidx.health.platform.client.service.IGetGrantedPermissionsCallback;
@@ -36,17 +38,19 @@ import androidx.health.platform.client.service.IInsertDataCallback;
 import androidx.health.platform.client.service.IReadDataCallback;
 import androidx.health.platform.client.service.IRevokeAllPermissionsCallback;
 import androidx.health.platform.client.service.IAggregateDataCallback;
+import androidx.health.platform.client.service.IRegisterForDataNotificationsCallback;
+import androidx.health.platform.client.service.IUnregisterFromDataNotificationsCallback;
 
 interface IHealthDataService {
   /**
    * API version of the AIDL interface. Should be incremented every time a new
    * method is added.
    */
-  const int CURRENT_API_VERSION = 1;
+  const int CURRENT_API_VERSION = 2;
 
   const int MIN_API_VERSION = 1;
 
-  // Next Id: 18
+  // Next Id: 20
 
   /**
    * Returns version of this AIDL interface.
@@ -77,4 +81,8 @@ interface IHealthDataService {
   void getChangesToken(in RequestContext context, in GetChangesTokenRequest request, in IGetChangesTokenCallback callback) = 16;
 
   void getChanges(in RequestContext context, in GetChangesRequest request, in IGetChangesCallback callback) = 17;
+
+  void registerForDataNotifications(in RequestContext context, in RegisterForDataNotificationsRequest request, in IRegisterForDataNotificationsCallback callback) = 18;
+
+  void unregisterFromDataNotifications(in RequestContext context, in UnregisterFromDataNotificationsRequest request, in IUnregisterFromDataNotificationsCallback callback) = 19;
 }
