@@ -16,9 +16,12 @@
 
 package androidx.camera.core.processing
 
+import android.graphics.ImageFormat
 import android.graphics.Rect
+import android.graphics.SurfaceTexture
 import android.hardware.camera2.CameraDevice.TEMPLATE_PREVIEW
 import android.media.ImageReader
+import android.os.Build
 import android.os.Handler
 import android.os.HandlerThread
 import android.util.Size
@@ -29,6 +32,7 @@ import androidx.camera.core.impl.DeferrableSurface
 import androidx.camera.core.impl.ImageFormatConstants
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.testing.CameraUtil
+import androidx.camera.testing.GLUtil
 import androidx.camera.testing.HandlerUtil
 import androidx.camera.testing.fakes.FakeCamera
 import androidx.concurrent.futures.await
@@ -49,6 +53,7 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.collectIndexed
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
 import org.junit.After
 import org.junit.Assert.fail
@@ -211,7 +216,7 @@ class DefaultSurfaceEffectTest {
 
     @Test
     fun render(): Unit = runBlocking {
-        testRenderFromCameraToImageReader()
+        testRender()
     }
 
     @Test
@@ -222,7 +227,7 @@ class DefaultSurfaceEffectTest {
                 fragCoordsVarName: String
             ): String = getCustomFragmentShader(samplerVarName, fragCoordsVarName)
         }
-        testRenderFromCameraToImageReader(shaderProvider)
+        testRender(shaderProvider)
     }
 
     @Test
@@ -277,6 +282,16 @@ class DefaultSurfaceEffectTest {
         }
     }
 
+    private suspend fun testRender(shaderProvider: ShaderProvider = ShaderProvider.DEFAULT) {
+        if (Build.VERSION.SDK_INT >= 23) {
+            // ImageReader support ImageFormat.PRIVATE from API 23
+            testRenderFromCameraToImageReader(shaderProvider)
+        } else {
+            // Render to SurfaceTexture surface as workaround
+            testRenderFromCameraToTextureSurface(shaderProvider)
+        }
+    }
+
     private suspend fun testRenderFromCameraToImageReader(
         shaderProvider: ShaderProvider = ShaderProvider.DEFAULT
     ) {
@@ -296,7 +311,7 @@ class DefaultSurfaceEffectTest {
         val imageReader = ImageReader.newInstance(
             WIDTH,
             HEIGHT,
-            ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE,
+            ImageFormat.PRIVATE,
             2
         )
         val scope = CoroutineScope(dispatcher)
@@ -316,6 +331,59 @@ class DefaultSurfaceEffectTest {
             }
         }
         val surfaceOutput = createSurfaceOutput(imageReader.surface)
+        surfaceEffect.onOutputSurface(surfaceOutput)
+
+        // Assert.
+        withTimeoutOrNull(10_000L) {
+            imageCollectJob.join()
+            true
+        } ?: fail("Timed out to receive images")
+    }
+
+    private suspend fun testRenderFromCameraToTextureSurface(
+        shaderProvider: ShaderProvider = ShaderProvider.DEFAULT
+    ) {
+        createSurfaceEffect(shaderProvider)
+        prepareHandlerThread()
+        // Prepare input
+        val inputSurfaceRequest = createInputSurfaceRequest()
+        surfaceEffect.onInputSurface(inputSurfaceRequest)
+        val inputDeferrableSurface = inputSurfaceRequest.deferrableSurface
+        val inputSurface = inputDeferrableSurface.surface.await()
+        openCameraAndSetRepeating(inputSurface)
+        cameraDeviceHolder.closedFuture.addListener({
+            inputDeferrableSurface.close()
+        }, CameraXExecutors.directExecutor())
+
+        // Prepare output
+        lateinit var outputSurfaceTexture: SurfaceTexture
+        lateinit var outputSurface: Surface
+        withContext(dispatcher) {
+            outputSurfaceTexture = SurfaceTexture(GLUtil.getTexIdFromGLContext()).apply {
+                setDefaultBufferSize(WIDTH, HEIGHT)
+            }
+            outputSurface = Surface(outputSurfaceTexture)
+        }
+
+        val scope = CoroutineScope(dispatcher)
+        val imageCollectJob = scope.launch {
+            callbackFlow {
+                outputSurfaceTexture.setOnFrameAvailableListener({
+                    it.updateTexImage()
+                    trySend(Unit)
+                }, handler)
+                awaitClose {
+                    outputSurfaceTexture.release()
+                    outputSurface.release()
+                }
+            }.collectIndexed { index, _ ->
+                if (index >= 4) {
+                    // stop the collect job
+                    scope.cancel()
+                }
+            }
+        }
+        val surfaceOutput = createSurfaceOutput(outputSurface)
         surfaceEffect.onOutputSurface(surfaceOutput)
 
         // Assert.
