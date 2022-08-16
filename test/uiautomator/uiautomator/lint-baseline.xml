@@ -13,7 +13,7 @@
     <issue
         id="LambdaLast"
         message="Functional interface parameters (such as parameter 1, &quot;action&quot;, in androidx.test.uiautomator.UiDevice.performActionAndWait) should be last to improve Kotlin interoperability; see https://kotlinlang.org/docs/reference/java-interop.html#sam-conversions"
-        errorLine1="            @NonNull EventCondition&lt;R> condition, long timeout) {"
+        errorLine1="            @NonNull EventCondition&lt;U> condition, long timeout) {"
         errorLine2="                                                  ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/test/uiautomator/UiDevice.java"/>

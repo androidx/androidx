@@ -101,7 +101,7 @@ package androidx.test.uiautomator {
     enum_constant public static final androidx.test.uiautomator.Direction UP;
   }
 
-  public abstract class EventCondition<R> {
+  public abstract class EventCondition<U> {
     ctor public EventCondition();
   }
 
@@ -109,7 +109,7 @@ package androidx.test.uiautomator {
     method public void sendStatus(int, android.os.Bundle);
   }
 
-  public abstract class SearchCondition<R> {
+  public abstract class SearchCondition<U> {
     ctor public SearchCondition();
   }
 
@@ -168,7 +168,7 @@ package androidx.test.uiautomator {
     method public boolean isScreenOn() throws android.os.RemoteException;
     method public boolean openNotification();
     method public boolean openQuickSettings();
-    method public <R> R! performActionAndWait(Runnable, androidx.test.uiautomator.EventCondition<R!>, long);
+    method public <U> U! performActionAndWait(Runnable, androidx.test.uiautomator.EventCondition<U!>, long);
     method public boolean pressBack();
     method public boolean pressDPadCenter();
     method public boolean pressDPadDown();
@@ -197,7 +197,7 @@ package androidx.test.uiautomator {
     method public boolean takeScreenshot(java.io.File);
     method public boolean takeScreenshot(java.io.File, float, int);
     method public void unfreezeRotation() throws android.os.RemoteException;
-    method public <R> R! wait(androidx.test.uiautomator.SearchCondition<R!>, long);
+    method public <U> U! wait(androidx.test.uiautomator.SearchCondition<U!>, long);
     method public void waitForIdle();
     method public void waitForIdle(long);
     method public boolean waitForWindowUpdate(String?, long);
@@ -263,8 +263,8 @@ package androidx.test.uiautomator {
     method public void click(android.graphics.Point);
     method public void click(long);
     method public void click(android.graphics.Point, long);
-    method public <R> R! clickAndWait(androidx.test.uiautomator.EventCondition<R!>, long);
-    method public <R> R! clickAndWait(android.graphics.Point, androidx.test.uiautomator.EventCondition<R!>, long);
+    method public <U> U! clickAndWait(androidx.test.uiautomator.EventCondition<U!>, long);
+    method public <U> U! clickAndWait(android.graphics.Point, androidx.test.uiautomator.EventCondition<U!>, long);
     method public void drag(android.graphics.Point);
     method public void drag(android.graphics.Point, int);
     method public androidx.test.uiautomator.UiObject2! findObject(androidx.test.uiautomator.BySelector);
@@ -305,11 +305,11 @@ package androidx.test.uiautomator {
     method public void setText(String?);
     method public void swipe(androidx.test.uiautomator.Direction, float);
     method public void swipe(androidx.test.uiautomator.Direction, float, int);
-    method public <R> R! wait(androidx.test.uiautomator.UiObject2Condition<R!>, long);
-    method public <R> R! wait(androidx.test.uiautomator.SearchCondition<R!>, long);
+    method public <U> U! wait(androidx.test.uiautomator.UiObject2Condition<U!>, long);
+    method public <U> U! wait(androidx.test.uiautomator.SearchCondition<U!>, long);
   }
 
-  public abstract class UiObject2Condition<R> {
+  public abstract class UiObject2Condition<U> {
     ctor public UiObject2Condition();
   }
 
