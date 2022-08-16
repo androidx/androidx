@@ -24,6 +24,7 @@ import android.content.ComponentName;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.SessionInfo;
+import androidx.core.util.Pair;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 
@@ -31,13 +32,15 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * A factory to provide a unique {@link CarAppViewModel} for each given {@link ComponentName}.
+ * A factory to provide a unique {@link CarAppViewModel} for each pair of {@link ComponentName} and
+ * {@link SessionInfo}.
  *
  * @hide
  */
 @RestrictTo(LIBRARY)
 class CarAppViewModelFactory implements ViewModelProvider.Factory {
-    private static final Map<ComponentName, CarAppViewModelFactory> sInstances = new HashMap<>();
+    private static final Map<Pair<ComponentName, SessionInfo>, CarAppViewModelFactory> sInstances =
+            new HashMap<>();
 
     Application mApplication;
     ComponentName mComponentName;
@@ -51,17 +54,19 @@ class CarAppViewModelFactory implements ViewModelProvider.Factory {
     }
 
     /**
-     * Retrieve a singleton instance of CarAppViewModelFactory for the given key.
+     * Retrieve a singleton instance of CarAppViewModelFactory for the given
+     * {@link ComponentName} and {@link SessionInfo}.
      *
      * @return A valid {@link CarAppViewModelFactory}
      */
     @NonNull
     static CarAppViewModelFactory getInstance(Application application,
             ComponentName componentName, SessionInfo sessionInfo) {
-        CarAppViewModelFactory instance = sInstances.get(componentName);
+        Pair<ComponentName, SessionInfo> instanceCacheKey = new Pair<>(componentName, sessionInfo);
+        CarAppViewModelFactory instance = sInstances.get(instanceCacheKey);
         if (instance == null) {
             instance = new CarAppViewModelFactory(componentName, application, sessionInfo);
-            sInstances.put(componentName, instance);
+            sInstances.put(instanceCacheKey, instance);
         }
         return instance;
     }
