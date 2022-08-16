@@ -35,6 +35,10 @@ public final class IsolateStartupParameters {
      * <p>
      * If a value higher than the device specific maximum heap size limit is supplied, this limit
      * will be used as the maximum heap size.
+     * <p>
+     * The applied limit may not be exact. For example, the limit may internally be rounded up to
+     * some multiple of bytes, be increased to some minimum value, or reduced to some maximum
+     * supported value.
      *
      * @param size heap size in bytes
      */
