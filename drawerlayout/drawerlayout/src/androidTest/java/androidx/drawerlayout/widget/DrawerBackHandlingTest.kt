@@ -57,6 +57,15 @@ public class DrawerBackHandlingTest {
         }
         listener.reset()
 
+        // Make sure we have focus, which in turn ensures we receive key events.
+        activityScenarioRule.withActivity {
+            drawerLayout.requestFocus()
+        }
+
+        PollingCheck.waitFor {
+            drawerLayout.hasFocus()
+        }
+
         // Ensure that back pressed dispatcher callback is registered on T+.
         if (Build.VERSION.SDK_INT >= 33) {
             Assert.assertTrue(drawerLayout.isBackInvokedCallbackRegistered)
