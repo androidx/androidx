@@ -38,7 +38,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.FlakyTest
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CoroutineScope
@@ -49,6 +48,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import kotlin.math.roundToInt
+import org.junit.Ignore
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
@@ -69,7 +69,7 @@ public class ScalingLazyListLayoutInfoTest {
         }
     }
 
-    @FlakyTest // b/235531540
+    @Ignore("Awaiting fix for b/236217874")
     @Test
     fun visibleItemsAreCorrect() {
         lateinit var state: ScalingLazyListState

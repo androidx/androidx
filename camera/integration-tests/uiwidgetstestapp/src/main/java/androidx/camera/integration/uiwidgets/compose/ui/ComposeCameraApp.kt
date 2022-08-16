@@ -19,6 +19,7 @@ package androidx.camera.integration.uiwidgets.compose.ui
 import androidx.camera.integration.uiwidgets.compose.ui.navigation.ComposeCameraNavHost
 import androidx.camera.integration.uiwidgets.compose.ui.navigation.ComposeCameraScreen
 import androidx.camera.integration.uiwidgets.compose.ui.screen.components.ComposeCameraScreenTabRow
+import androidx.camera.view.PreviewView
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
@@ -27,8 +28,11 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 
+// Provides callback when StreamState changes in a ComposeCameraScreen
 @Composable
-fun ComposeCameraApp() {
+fun ComposeCameraApp(
+    onStreamStateChange: (ComposeCameraScreen, PreviewView.StreamState) -> Unit = { _, _ -> }
+) {
     MaterialTheme {
         val allScreens = ComposeCameraScreen.values().toList()
         val navController = rememberNavController()
@@ -51,7 +55,8 @@ fun ComposeCameraApp() {
         ) { innerPadding ->
             ComposeCameraNavHost(
                 navController = navController,
-                modifier = Modifier.padding(innerPadding)
+                modifier = Modifier.padding(innerPadding),
+                onStreamStateChange = onStreamStateChange
             )
         }
     }

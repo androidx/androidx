@@ -49,6 +49,8 @@ import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.sin
 import java.time.Instant
+import java.time.LocalDateTime
+import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.util.Objects
 
@@ -252,7 +254,7 @@ public annotation class ComplicationSlotBoundsType {
  * min(boundingRect.width, boundingRect.height).
  */
 @ComplicationExperimental
-public class BoundingArc(var startAngle: Float, var totalAngle: Float, @Px var thickness: Float) {
+public class BoundingArc(val startAngle: Float, val totalAngle: Float, @Px val thickness: Float) {
     /**
      * Detects whether the supplied point falls within the edge complication's arc.
      *
@@ -989,8 +991,8 @@ public class ComplicationSlot
         }
 
         if (forceUpdate || complicationData.value != best) {
-            (complicationData as MutableStateFlow).value = best
             renderer.loadData(best, loadDrawablesAsynchronous)
+            (complicationData as MutableStateFlow).value = best
         }
     }
 
@@ -1171,6 +1173,7 @@ public class ComplicationSlot
         writer.println("defaultDataSourcePolicy.systemDataSourceFallbackDefaultType=" +
             defaultDataSourcePolicy.systemDataSourceFallbackDefaultType)
         writer.println("timelineComplicationData=$timelineComplicationData")
+        writer.println("timelineEntries=" + timelineEntries?.joinToString())
         writer.println("data=${renderer.getData()}")
         @OptIn(ComplicationExperimental::class)
         writer.println("boundingArc=$boundingArc")
@@ -1179,7 +1182,8 @@ public class ComplicationSlot
         complicationHistory?.let {
             writer.increaseIndent()
             for (entry in it) {
-                writer.println("${entry.complicationData} @ ${entry.time}")
+                val localDateTime = LocalDateTime.ofInstant(entry.time, ZoneId.systemDefault())
+                writer.println("${entry.complicationData} @ $localDateTime")
             }
             writer.decreaseIndent()
         }

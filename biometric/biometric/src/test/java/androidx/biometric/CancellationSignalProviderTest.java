@@ -25,6 +25,7 @@ import static org.mockito.Mockito.verify;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
+import androidx.test.filters.SdkSuppress;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -38,6 +39,7 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 @RunWith(RobolectricTestRunner.class)
 @Config(instrumentedPackages = { "androidx.core.os" })
 @DoNotInstrument
+@SdkSuppress(minSdkVersion = 16)
 public class CancellationSignalProviderTest {
     @Mock private android.os.CancellationSignal mBiometricCancellationSignal;
     @Mock private androidx.core.os.CancellationSignal mFingerprintCancellationSignal;

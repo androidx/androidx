@@ -16,31 +16,64 @@
 
 package androidx.core.uwb.rxjava3.mock
 
-import android.content.Context
-import androidx.core.uwb.UwbClientSessionScope
 import androidx.core.uwb.UwbManager
 import androidx.core.uwb.UwbAddress
 import androidx.core.uwb.RangingCapabilities
+import androidx.core.uwb.UwbClientSessionScope
+import androidx.core.uwb.UwbControleeSessionScope
+import androidx.core.uwb.UwbControllerSessionScope
 import com.google.android.gms.nearby.uwb.UwbComplexChannel
 
 /** A default implementation of [UwbManager] used in testing. */
-class TestUwbManager(val context: Context) : UwbManager {
+class TestUwbManager : UwbManager {
+    companion object {
+        @JvmField
+        val DEVICE_ADDRESS = byteArrayOf(0xB0.toByte())
+    }
+    @Deprecated("Renamed to controleeSessionScope")
     override suspend fun clientSessionScope(): UwbClientSessionScope {
+        return createClientSessionSCope(false)
+    }
+
+    override suspend fun controleeSessionScope(): UwbControleeSessionScope {
+        return createClientSessionSCope(false) as UwbControleeSessionScope
+    }
+
+    override suspend fun controllerSessionScope(): UwbControllerSessionScope {
+        return createClientSessionSCope(true) as UwbControllerSessionScope
+    }
+
+    private fun createClientSessionSCope(isController: Boolean): UwbClientSessionScope {
         val complexChannel = UwbComplexChannel.Builder()
-            .setPreambleIndex(0)
-            .setChannel(0)
+            .setPreambleIndex(10)
+            .setChannel(10)
             .build()
-        val localAddress = com.google.android.gms.nearby.uwb.UwbAddress(ByteArray(0))
+        val localAddress = com.google.android.gms.nearby.uwb.UwbAddress(DEVICE_ADDRESS)
+
         val rangingCapabilities =
-            com.google.android.gms.nearby.uwb.RangingCapabilities(true, false, false)
+            com.google.android.gms.nearby.uwb.RangingCapabilities(true, false, false, 200)
         val uwbClient = TestUwbClient(complexChannel, localAddress, rangingCapabilities, true)
-        return TestUwbClientSessionScope(
-            uwbClient, RangingCapabilities(
-                rangingCapabilities.supportsDistance(),
-                rangingCapabilities.supportsAzimuthalAngle(),
-                rangingCapabilities.supportsElevationAngle()
-            ),
-            UwbAddress(localAddress.address)
-        )
+        return if (isController) {
+             TestUwbControllerSessionScope(
+                uwbClient, RangingCapabilities(
+                    rangingCapabilities.supportsDistance(),
+                    rangingCapabilities.supportsAzimuthalAngle(),
+                    rangingCapabilities.supportsElevationAngle()
+                ),
+                UwbAddress(localAddress.address),
+                androidx.core.uwb.UwbComplexChannel(
+                    complexChannel.channel, complexChannel.preambleIndex
+                )
+            )
+        } else {
+            TestUwbControleeSessionScope(
+                uwbClient, RangingCapabilities(
+                    rangingCapabilities.supportsDistance(),
+                    rangingCapabilities.supportsAzimuthalAngle(),
+                    rangingCapabilities.supportsElevationAngle()
+                ),
+                UwbAddress(localAddress.address)
+            )
+        }
     }
 }

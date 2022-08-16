@@ -47,12 +47,22 @@ class GtestRunnerTest {
     @Test
     fun runsTheTest() {
         runner.run(runNotifier)
-        assertThat(runListener.failures.single().message.normalizeWhitespace()).contains(
+        assertThat(runListener.failures).hasSize(2)
+        val adderFailure = runListener.failures[0]
+        assertThat(adderFailure.message.normalizeWhitespace()).contains(
             """
                 Expected equality of these values:
                 42
                 add(42, 1)
                 Which is: 43
+            """.normalizeWhitespace()
+        )
+
+        val uncaughtExceptionFailure = runListener.failures[1]
+        assertThat(uncaughtExceptionFailure.message.normalizeWhitespace()).contains(
+            """
+                unknown file:-1
+                Unknown C++ exception thrown in the test body.
             """.normalizeWhitespace()
         )
     }
@@ -63,7 +73,10 @@ class GtestRunnerTest {
         assertThat(runListener.descriptions.map { it.displayName }).isEqualTo(
             listOf(
                 "adder_pass(androidx.test.ext.junitgtesttest.GtestRunnerTest\$NativeTests)",
-                "foo_fail(androidx.test.ext.junitgtesttest.GtestRunnerTest\$NativeTests)")
+                "foo_fail(androidx.test.ext.junitgtesttest.GtestRunnerTest\$NativeTests)",
+                "JUnitNotifyingListener_handles_null_file_names(androidx.test.ext.junitgtesttest." +
+                    "GtestRunnerTest\$NativeTests)"
+            )
 
         )
     }

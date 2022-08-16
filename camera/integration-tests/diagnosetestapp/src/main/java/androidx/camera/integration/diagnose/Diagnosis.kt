@@ -17,66 +17,42 @@
 package androidx.camera.integration.diagnose
 
 import android.content.Context
-import android.os.Build
-import android.util.Log
-import android.widget.Toast
+import androidx.annotation.WorkerThread
+import androidx.camera.view.LifecycleCameraController
 import java.io.File
-import java.io.FileOutputStream
-import java.util.zip.ZipEntry
-import java.util.zip.ZipOutputStream
 
 /**
  * Diagnosis object that runs diagnosis test on device and save result to a file.
  */
 class Diagnosis {
 
-    // TODO: convert to async function
-    fun collectDeviceInfo(context: Context) {
-        Log.d(TAG, "calling collectDeviceInfo()")
+    @WorkerThread
+    suspend fun diagnose(
+        context: Context,
+        tasks: List<DiagnosisTask>,
+        cameraController: LifecycleCameraController,
+        isAggregated: Boolean
+    ): File? {
 
-        // TODO: verify if external storage is available
-        val filename = "device_info_${System.currentTimeMillis()}.zip"
-        val tempFile = createTemp(context, filename)
-        tempFile.deleteOnExit()
-
-        // Open stream
-        val fout = FileOutputStream(tempFile)
-        val zout = ZipOutputStream(fout)
-
-        // Log device info
-        zout.putNextEntry(ZipEntry("device_info.txt"))
-        writeLine(zout, "Manufacturer: ${Build.MANUFACTURER}\n")
-        writeLine(zout, "Model: ${Build.MODEL}\n")
-        writeLine(zout, "Device: ${Build.DEVICE}\n")
-        writeLine(zout, "Version code name: ${Build.VERSION.CODENAME}\n")
-        writeLine(zout, "Version SDK: ${Build.VERSION.SDK_INT}\n")
-        writeLine(zout, "Fingerprint: ${Build.FINGERPRINT}\n")
-        zout.closeEntry()
-
-        // Close stream
-        zout.close()
-        fout.close()
-
-        Log.d(TAG, "file at ${tempFile.path}")
-        if (tempFile.exists()) {
-            val msg = "Successfully collected information"
-            Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
-            Log.d(TAG, msg)
+        if (tasks.isEmpty()) {
+            return null
         }
-    }
 
-    private fun createTemp(context: Context, filename: String): File {
-        val dir = File(context.externalCacheDir, "/")
-        if (!dir.exists()) {
-            assert(dir.mkdirs())
+        val zipFileName = "diagnose_report_${System.currentTimeMillis()}.zip"
+        val dataStore = DataStore(context, zipFileName)
+
+        tasks.forEach { task ->
+            task.runDiagnosisTask(cameraController, dataStore, context)
+            if (!isAggregated) {
+                dataStore.flushTextToTextFile("${task.getTaskName()}")
+            }
         }
-        return File(dir, filename)
-    }
+        if (isAggregated) {
+            dataStore.flushTextToTextFile("text_report")
+        }
 
-    private fun writeLine(zipOutputStream: ZipOutputStream, line: String) {
-        zipOutputStream.write(line.toByteArray())
+        return dataStore.flushZip()
     }
-
     companion object {
         private const val TAG = "Diagnosis"
     }

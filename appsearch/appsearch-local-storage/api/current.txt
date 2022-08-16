@@ -2,7 +2,8 @@
 package androidx.appsearch.localstorage {
 
   public class LocalStorage {
-    method public static com.google.common.util.concurrent.ListenableFuture<androidx.appsearch.app.AppSearchSession!> createSearchSession(androidx.appsearch.localstorage.LocalStorage.SearchContext);
+    method @Deprecated public static com.google.common.util.concurrent.ListenableFuture<androidx.appsearch.app.AppSearchSession!> createSearchSession(androidx.appsearch.localstorage.LocalStorage.SearchContext);
+    method public static com.google.common.util.concurrent.ListenableFuture<androidx.appsearch.app.AppSearchSession!> createSearchSessionAsync(androidx.appsearch.localstorage.LocalStorage.SearchContext);
   }
 
   public static final class LocalStorage.SearchContext {

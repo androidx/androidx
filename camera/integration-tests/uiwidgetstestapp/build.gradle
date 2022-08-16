@@ -65,8 +65,12 @@ dependencies {
     implementation(libs.kotlinStdlib)
     implementation(project(":camera:camera-core"))
     implementation(project(":camera:camera-camera2"))
+    implementation(project(":camera:camera-camera2-pipe-integration"))
     implementation(project(":camera:camera-lifecycle"))
     implementation(project(":camera:camera-view"))
+    implementation(project(":camera:camera-video"))
+    implementation(project(":camera:camera-mlkit-vision"))
+    implementation 'com.google.mlkit:barcode-scanning:17.0.2'
 
     // Android Support Library
     implementation("androidx.appcompat:appcompat:1.2.0")
@@ -87,6 +91,7 @@ dependencies {
     implementation 'androidx.activity:activity-compose:1.4.0'
     implementation 'androidx.compose.material:material:1.1.1'
     implementation 'androidx.compose.animation:animation:1.1.1'
+    implementation 'androidx.compose.runtime:runtime:1.1.1'
     implementation 'androidx.compose.ui:ui-tooling:1.1.1'
     implementation 'androidx.lifecycle:lifecycle-viewmodel-compose:2.4.1'
     implementation 'androidx.navigation:navigation-compose:2.4.2'
@@ -99,7 +104,7 @@ dependencies {
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.testUiautomator)
-    androidTestImplementation(libs.espressoCore)
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.3.0")
     androidTestImplementation(project(":camera:camera-testing"))
     androidTestImplementation(project(":internal-testutils-runtime"))
     androidTestImplementation(libs.truth)
@@ -107,4 +112,10 @@ dependencies {
     debugImplementation("androidx.fragment:fragment-testing:1.2.5")
     // Testing resource dependency for manifest
     debugImplementation(project(":camera:camera-testing"))
+
+    // Testing for Compose
+    // Test rules and transitive dependencies:
+    androidTestImplementation("androidx.compose.ui:ui-test-junit4:1.1.1")
+    // Needed for createComposeRule, but not createAndroidComposeRule:
+    debugImplementation("androidx.compose.ui:ui-test-manifest:1.1.1")
 }

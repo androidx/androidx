@@ -37,6 +37,7 @@ import androidx.car.app.CarToast;
 import androidx.car.app.Screen;
 import androidx.car.app.ScreenManager;
 import androidx.car.app.Session;
+import androidx.car.app.SessionInfo;
 import androidx.car.app.model.Action;
 import androidx.car.app.model.CarIcon;
 import androidx.car.app.model.Distance;
@@ -174,9 +175,11 @@ class NavigationSession extends Session implements NavigationScreen.Listener {
                 }
             };
 
-    NavigationSession() {
-        Lifecycle lifecycle = getLifecycle();
-        lifecycle.addObserver(mLifeCycleObserver);
+    NavigationSession(@NonNull SessionInfo sessionInfo) {
+        if (sessionInfo.getDisplayType() == SessionInfo.DISPLAY_TYPE_MAIN) {
+            Lifecycle lifecycle = getLifecycle();
+            lifecycle.addObserver(mLifeCycleObserver);
+        }
     }
 
     @Override

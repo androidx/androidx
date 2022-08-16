@@ -132,14 +132,6 @@ public class RowTest {
     }
 
     @Test
-    public void setDecoration() {
-        CarIcon decoration = TestUtils.getTestCarIcon(ApplicationProvider.getApplicationContext(),
-                "ic_test_1");
-        Row row = new Row.Builder().setTitle("Title").setDecoration(decoration).build();
-        assertThat(decoration).isEqualTo(row.getDecoration());
-    }
-
-    @Test
     public void setToggle() {
         Toggle toggle1 = new Toggle.Builder(isChecked -> {
         }).build();

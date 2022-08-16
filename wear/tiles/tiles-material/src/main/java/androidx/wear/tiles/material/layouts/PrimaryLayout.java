@@ -217,7 +217,16 @@ public class PrimaryLayout implements LayoutElement {
             return this;
         }
 
-        /** Sets the additional content to this layout, above the primary chip. */
+        /**
+         * Sets the additional content to this layout, above the primary chip.
+         *
+         * The content slot will wrap the elements' height, so the height of the given content must
+         * be fixed or set to wrap ({@code expand} can't be used).
+         *
+         * This layout has built-in horizontal margins, so the given content should have width set
+         * to {@code expand} to use all the available space, rather than an explicit width which may
+         * lead to clipping.
+         */
         @NonNull
         public Builder setContent(@NonNull LayoutElement content) {
             this.mContent = content;

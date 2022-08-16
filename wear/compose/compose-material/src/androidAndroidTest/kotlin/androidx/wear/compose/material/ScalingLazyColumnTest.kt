@@ -50,7 +50,6 @@ import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -83,7 +82,38 @@ public class ScalingLazyColumnTest {
     }
 
     @Test
-    fun initializationCorrectWithAutoCenteringAndNormalItemPadding() {
+    fun initializationCorrectWithAutoCenteringAndNormalItemPaddingForZeroItemList() {
+        initializationCorrectWithAutoCenteringAndNormalItemPaddingForNItemList(0)
+    }
+
+    @Test
+    fun initializationCorrectWithAutoCenteringAndNormalItemPaddingForOneItemList() {
+        initializationCorrectWithAutoCenteringAndNormalItemPaddingForNItemList(1)
+    }
+
+    @Test
+    fun initializationCorrectWithAutoCenteringAndNormalItemPaddingForTwoItemList() {
+        initializationCorrectWithAutoCenteringAndNormalItemPaddingForNItemList(2)
+    }
+
+    @Test
+    fun initializationCorrectWithAutoCenteringAndNormalItemPaddingForThreeItemList() {
+        initializationCorrectWithAutoCenteringAndNormalItemPaddingForNItemList(3)
+    }
+
+    @Test
+    fun initializationCorrectWithAutoCenteringAndNormalItemPaddingForFourItemList() {
+        initializationCorrectWithAutoCenteringAndNormalItemPaddingForNItemList(4)
+    }
+
+    @Test
+    fun initializationCorrectWithAutoCenteringAndNormalItemPaddingForFiveItemList() {
+        initializationCorrectWithAutoCenteringAndNormalItemPaddingForNItemList(5)
+    }
+
+    private fun initializationCorrectWithAutoCenteringAndNormalItemPaddingForNItemList(
+        itemCount: Int
+    ) {
         lateinit var state: ScalingLazyListState
         val listSize = itemSizeDp * 3.5f
         rule.setContent {
@@ -92,7 +122,7 @@ public class ScalingLazyColumnTest {
                     state = rememberScalingLazyListState().also { state = it },
                     modifier = Modifier.testTag(TEST_TAG).requiredSize(listSize),
                 ) {
-                    items(5) {
+                    items(itemCount) {
                         Box(Modifier.requiredSize(itemSizeDp))
                     }
                 }
@@ -902,7 +932,6 @@ public class ScalingLazyColumnTest {
         assertThat(state.centerItemScrollOffset).isEqualTo(0)
     }
 
-    @Ignore("Disabled due to b/239054957")
     @Test
     fun scrollToNonExistentItemWorks() {
         lateinit var state: ScalingLazyListState

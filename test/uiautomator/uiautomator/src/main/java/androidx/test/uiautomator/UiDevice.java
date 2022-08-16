@@ -21,11 +21,13 @@ import android.app.Instrumentation;
 import android.app.Service;
 import android.app.UiAutomation;
 import android.app.UiAutomation.AccessibilityEventFilter;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
 import android.graphics.Point;
+import android.hardware.display.DisplayManager;
 import android.os.Build;
 import android.os.ParcelFileDescriptor;
 import android.os.RemoteException;
@@ -82,23 +84,13 @@ public class UiDevice implements Searchable {
     private Instrumentation mInstrumentation;
     private QueryController mQueryController;
     private InteractionController mInteractionController;
+    private DisplayManager mDisplayManager;
 
     // Singleton instance
     private static UiDevice sInstance;
 
     // Get wait functionality from a mixin
     private WaitMixin<UiDevice> mWaitMixin = new WaitMixin<UiDevice>(this);
-
-
-    /**
-     * A forward-looking API Level for development platform builds
-     *
-     * This will be the actual API level on a released platform build, and will be last released
-     * API Level + 1 on development platform build
-     * @hide
-     */
-    static final int API_LEVEL_ACTUAL = Build.VERSION.SDK_INT
-            + ("REL".equals(Build.VERSION.CODENAME) ? 0 : 1);
 
     /**
      * @deprecated Should use {@link UiDevice#UiDevice(Instrumentation)} instead.
@@ -111,9 +103,11 @@ public class UiDevice implements Searchable {
         mInstrumentation = instrumentation;
         mQueryController = new QueryController(instrumentation);
         mInteractionController = new InteractionController(instrumentation);
+        mDisplayManager = (DisplayManager) instrumentation.getContext().getSystemService(
+                Service.DISPLAY_SERVICE);
 
         // Enable multi-window support for API level 21 and up
-        if (UiDevice.API_LEVEL_ACTUAL >= Build.VERSION_CODES.LOLLIPOP) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             // Subscribe to window information
             AccessibilityServiceInfo info = getUiAutomation().getServiceInfo();
             info.flags |= AccessibilityServiceInfo.FLAG_RETRIEVE_INTERACTIVE_WINDOWS;
@@ -560,7 +554,7 @@ public class UiDevice implements Searchable {
     public boolean click(int x, int y) {
         Tracer.trace(x, y);
         if (x >= getDisplayWidth() || y >= getDisplayHeight()) {
-            return (false);
+            return false;
         }
         return getInteractionController().clickNoSync(x, y);
     }
@@ -980,7 +974,8 @@ public class UiDevice implements Searchable {
             @Override
             public boolean accept(AccessibilityEvent t) {
                 if (t.getEventType() == AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED) {
-                    return packageName == null || packageName.contentEquals(t.getPackageName());
+                    return packageName == null || (t.getPackageName() != null
+                            && packageName.contentEquals(t.getPackageName()));
                 }
                 return false;
             }
@@ -1083,9 +1078,7 @@ public class UiDevice implements Searchable {
     }
 
     private Display getDefaultDisplay() {
-        WindowManager windowManager = (WindowManager)getInstrumentation().getContext()
-                .getSystemService(Service.WINDOW_SERVICE);
-        return windowManager.getDefaultDisplay();
+        return mDisplayManager.getDisplay(Display.DEFAULT_DISPLAY);
     }
 
     private List<AccessibilityWindowInfo> getWindows() {
@@ -1134,6 +1127,14 @@ public class UiDevice implements Searchable {
 
     Instrumentation getInstrumentation() {
         return mInstrumentation;
+    }
+
+    Context getUiContext() {
+        Context context = mInstrumentation.getContext();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            return Api31Impl.createWindowContext(context, getDefaultDisplay());
+        }
+        return context;
     }
 
     static UiAutomation getUiAutomation(final Instrumentation instrumentation) {
@@ -1202,6 +1203,18 @@ public class UiDevice implements Searchable {
         static SparseArray<List<AccessibilityWindowInfo>> getWindowsOnAllDisplays(
                 UiAutomation uiAutomation) {
             return uiAutomation.getWindowsOnAllDisplays();
+        }
+    }
+
+    @RequiresApi(31)
+    static class Api31Impl {
+        private Api31Impl() {
+        }
+
+        @DoNotInline
+        static Context createWindowContext(Context context, Display display) {
+            return context.createWindowContext(display,
+                    WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY, null);
         }
     }
 }

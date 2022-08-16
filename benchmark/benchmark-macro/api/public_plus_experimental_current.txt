@@ -81,6 +81,7 @@ package androidx.benchmark.macro {
     method public androidx.test.uiautomator.UiDevice getDevice();
     method public Integer? getIteration();
     method public String getPackageName();
+    method public void killProcess(optional boolean useKillAll);
     method public void killProcess();
     method public void pressHome(optional long delayDurationMs);
     method public void pressHome();

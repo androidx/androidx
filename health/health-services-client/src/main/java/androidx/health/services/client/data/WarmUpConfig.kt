@@ -25,19 +25,19 @@ import androidx.health.services.client.proto.DataProto
  * @constructor Creates a new WarmUpConfig for an exercise tracked using Health Services
  *
  * @property exerciseType The active [ExerciseType] user is performing for this exercise
- * @property dataTypes [DataType]s which should be tracked during this exercise
+ * @property dataTypes [DeltaDataType]s which should be tracked during this exercise
  */
 @Suppress("ParcelCreator")
 public class WarmUpConfig(
     public val exerciseType: ExerciseType,
-    public val dataTypes: Set<DataType>,
+    public val dataTypes: Set<DeltaDataType<*, *>>,
 ) : ProtoParcelable<DataProto.WarmUpConfig>() {
 
     internal constructor(
         proto: DataProto.WarmUpConfig
     ) : this(
         ExerciseType.fromProto(proto.exerciseType),
-        proto.dataTypesList.map { DataType(it) }.toSet(),
+        proto.dataTypesList.map { DataType.deltaFromProto(it) }.toSet(),
     )
 
     init {

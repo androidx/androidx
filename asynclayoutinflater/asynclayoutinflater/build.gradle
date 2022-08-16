@@ -8,9 +8,7 @@ plugins {
 dependencies {
     api("androidx.annotation:annotation:1.1.0")
     api("androidx.core:core:1.1.0")
-    implementation("androidx.appcompat:appcompat:1.1.0")
-
-    androidTestImplementation("androidx.appcompat:appcompat:1.1.0")
+    androidTestImplementation(project(":appcompat:appcompat"))
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.testRules)

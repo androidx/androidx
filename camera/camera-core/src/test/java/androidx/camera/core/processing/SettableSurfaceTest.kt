@@ -31,12 +31,15 @@ import androidx.camera.core.SurfaceRequest.Result.RESULT_REQUEST_CANCELLED
 import androidx.camera.core.impl.DeferrableSurface.SurfaceClosedException
 import androidx.camera.core.impl.DeferrableSurface.SurfaceUnavailableException
 import androidx.camera.core.impl.ImmediateSurface
+import androidx.camera.core.impl.utils.TransformUtils.sizeToRect
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor
 import androidx.camera.core.impl.utils.futures.FutureCallback
 import androidx.camera.core.impl.utils.futures.Futures
 import androidx.camera.testing.fakes.FakeCamera
 import androidx.concurrent.futures.CallbackToFutureAdapter
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -55,9 +58,7 @@ import org.robolectric.annotation.internal.DoNotInstrument
 class SettableSurfaceTest {
 
     companion object {
-        private val IDENTITY_MATRIX = FloatArray(16).apply {
-            android.opengl.Matrix.setIdentityM(this, 0)
-        }
+        private val INPUT_SIZE = Size(640, 480)
     }
 
     private lateinit var settableSurface: SettableSurface
@@ -79,6 +80,11 @@ class SettableSurfaceTest {
         settableSurface.close()
         fakeSurfaceTexture.release()
         fakeSurface.release()
+    }
+
+    @Test
+    fun closeSettableSurfaceOnIoDispatchers_noCrash(): Unit = runBlocking(Dispatchers.IO) {
+        settableSurface.close()
     }
 
     @Test
@@ -148,7 +154,7 @@ class SettableSurfaceTest {
     fun createSurfaceOutputWithClosedInstance_surfaceOutputNotCreated() {
         // Arrange: create a SurfaceOutput future from a closed LinkableSurface
         settableSurface.close()
-        val surfaceOutput = settableSurface.createSurfaceOutputFuture(IDENTITY_MATRIX)
+        val surfaceOutput = createSurfaceOutputFuture(settableSurface)
 
         // Act: wait for the SurfaceOutput to return.
         var successful: Boolean? = null
@@ -200,7 +206,7 @@ class SettableSurfaceTest {
     fun linkBothProviderAndConsumer_surfaceAndResultsArePropagatedE2E() {
         // Arrange: link a LinkableSurface with a SurfaceRequest and a SurfaceOutput.
         val surfaceRequest = settableSurface.createSurfaceRequest(FakeCamera())
-        val surfaceOutputFuture = settableSurface.createSurfaceOutputFuture(IDENTITY_MATRIX)
+        val surfaceOutputFuture = createSurfaceOutputFuture(settableSurface)
         var surfaceOutput: SurfaceOutput? = null
         Futures.transform(surfaceOutputFuture, {
             surfaceOutput = it
@@ -248,8 +254,16 @@ class SettableSurfaceTest {
 
     @Test(expected = IllegalStateException::class)
     fun createSurfaceOutputTwice_throwsException() {
-        settableSurface.createSurfaceOutputFuture(IDENTITY_MATRIX)
-        settableSurface.createSurfaceOutputFuture(IDENTITY_MATRIX)
+        createSurfaceOutputFuture(settableSurface)
+        createSurfaceOutputFuture(settableSurface)
         shadowOf(getMainLooper()).idle()
     }
+
+    private fun createSurfaceOutputFuture(settableSurface: SettableSurface) =
+        settableSurface.createSurfaceOutputFuture(/*applyGlTransform=*/false,
+            INPUT_SIZE,
+            sizeToRect(INPUT_SIZE),
+            /*rotationDegrees=*/0,
+            /*mirroring=*/false
+        )
 }

@@ -47,7 +47,7 @@ dependencies {
     api(libs.kotlinCoroutinesAndroid)
     implementation("androidx.annotation:annotation:1.2.0")
     implementation("androidx.collection:collection:1.1.0")
-    implementation("androidx.core:core:1.3.2")
+    implementation("androidx.core:core:1.8.0")
 
     compileOnly(project(":window:sidecar:sidecar"))
     compileOnly(project(":window:extensions:extensions"))
@@ -64,6 +64,7 @@ dependencies {
     testImplementation(compileOnly(project(":window:extensions:extensions")))
 
     androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.kotlinTestJunit)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.testRules)

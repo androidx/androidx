@@ -26,7 +26,6 @@ import android.os.Bundle
 import android.os.CancellationSignal
 import android.util.Pair
 import androidx.annotation.RequiresApi
-import androidx.room.util.SneakyThrow
 import androidx.sqlite.db.SupportSQLiteCompat
 import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.sqlite.db.SupportSQLiteOpenHelper
@@ -69,11 +68,7 @@ internal class AutoClosingRoomOpenHelper(
     }
 
     override fun close() {
-        try {
-            autoClosingDb.close()
-        } catch (e: IOException) {
-            SneakyThrow.reThrow(e)
-        }
+        autoClosingDb.close()
     }
 
     /**

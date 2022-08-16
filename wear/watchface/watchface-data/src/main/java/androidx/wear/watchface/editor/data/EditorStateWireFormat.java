@@ -38,7 +38,7 @@ import java.util.List;
  *
  * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @VersionedParcelize(allowSerialization = true)
 @SuppressLint("BanParcelableUsage") // TODO(b/169214666): Remove Parcelable
 public final class EditorStateWireFormat implements VersionedParcelable, Parcelable {

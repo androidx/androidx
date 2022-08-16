@@ -94,6 +94,7 @@ internal sealed class KspSyntheticPropertyMethodElement(
 
     final override val executableType: XMethodType by lazy {
         KspSyntheticPropertyMethodType.create(
+            env = env,
             element = this,
             container = field.enclosingElement.type
         )
@@ -118,6 +119,7 @@ internal sealed class KspSyntheticPropertyMethodElement(
 
     final override fun asMemberOf(other: XType): XMethodType {
         return KspSyntheticPropertyMethodType.create(
+            env = env,
             element = this,
             container = other
         )
@@ -129,6 +131,10 @@ internal sealed class KspSyntheticPropertyMethodElement(
 
     override fun hashCode(): Int {
         return XEquality.hashCode(equalityItems)
+    }
+
+    override fun toString(): String {
+        return jvmName
     }
 
     final override fun overrides(other: XMethodElement, owner: XTypeElement): Boolean {

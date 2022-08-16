@@ -307,7 +307,8 @@ public class CarAppActivityTest {
             activityContainer.onApplyWindowInsets(windowInsets);
 
             // Verify that the host is notified and insets are not handled locally
-            verify(insetsListener).onInsetsChanged(eq(systemWindowInsets.toPlatformInsets()));
+            verify(insetsListener).onWindowInsetsChanged(eq(systemWindowInsets.toPlatformInsets()),
+                    eq(Insets.NONE.toPlatformInsets()));
             assertThat(activityContainer.getPaddingBottom()).isEqualTo(0);
             assertThat(activityContainer.getPaddingTop()).isEqualTo(0);
             assertThat(activityContainer.getPaddingLeft()).isEqualTo(0);

@@ -17,29 +17,33 @@
 package androidx.health.services.client.impl.response
 
 import android.os.Parcelable
-import androidx.annotation.RestrictTo
 import androidx.health.services.client.data.DataPoint
+import androidx.health.services.client.data.IntervalDataPoint
 import androidx.health.services.client.data.ProtoParcelable
+import androidx.health.services.client.data.SampleDataPoint
 import androidx.health.services.client.proto.ResponsesProto
 
-/**
- * Response sent on MeasureCallback when new [DataPoints] [DataPoint] are available.
- *
- * @hide
- */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
-public class DataPointsResponse(public val dataPoints: List<DataPoint>) :
+/** Response sent on MeasureCallback when new (non-aggregate) [DataPoint]s are available. */
+internal class DataPointsResponse(public val dataPoints: List<DataPoint<*>>) :
     ProtoParcelable<ResponsesProto.DataPointsResponse>() {
 
-    /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
     public constructor(
         proto: ResponsesProto.DataPointsResponse
-    ) : this(proto.dataPointsList.map { DataPoint(it) })
+    ) : this(proto.dataPointsList.map { DataPoint.fromProto(it) })
 
     override val proto: ResponsesProto.DataPointsResponse by lazy {
         ResponsesProto.DataPointsResponse.newBuilder()
-            .addAllDataPoints(dataPoints.map { it.proto })
+            .addAllDataPoints(
+                dataPoints
+                    .filter { it is IntervalDataPoint || it is SampleDataPoint }
+                    .map {
+                        when (it) {
+                            is IntervalDataPoint -> it.proto
+                            is SampleDataPoint -> it.proto
+                            else -> throw IllegalStateException("Invalid DataPoint type: $it")
+                        }
+                    }
+            )
             .build()
     }
 

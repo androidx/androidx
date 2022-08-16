@@ -26,8 +26,10 @@ import android.util.Log
 import android.util.Size
 import android.view.Surface
 import androidx.camera.camera2.Camera2Config
+import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraInfo
+import androidx.camera.core.CameraXConfig
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageCapture
@@ -74,12 +76,14 @@ import org.mockito.Mockito.verifyNoMoreInteractions
 @RunWith(Parameterized::class)
 @SdkSuppress(minSdkVersion = 21)
 class VideoRecordingTest(
-    private var cameraSelector: CameraSelector
+    private val implName: String,
+    private var cameraSelector: CameraSelector,
+    private val cameraConfig: CameraXConfig
 ) {
 
     @get:Rule
     val cameraRule = CameraUtil.grantCameraPermissionAndPreTest(
-        CameraUtil.PreTestCameraIdList(Camera2Config.defaultConfig())
+        CameraUtil.PreTestCameraIdList(cameraConfig)
     )
 
     @get:Rule
@@ -91,11 +95,29 @@ class VideoRecordingTest(
         private const val TAG = "VideoRecordingTest"
 
         @JvmStatic
-        @Parameterized.Parameters
+        @Parameterized.Parameters(name = "{0}")
         fun data(): Collection<Array<Any>> {
             return listOf(
-                arrayOf(CameraSelector.DEFAULT_BACK_CAMERA),
-                arrayOf(CameraSelector.DEFAULT_FRONT_CAMERA),
+                arrayOf(
+                    "back+camera2",
+                    CameraSelector.DEFAULT_BACK_CAMERA,
+                    Camera2Config.defaultConfig()
+                ),
+                arrayOf(
+                    "front+camera2",
+                    CameraSelector.DEFAULT_FRONT_CAMERA,
+                    Camera2Config.defaultConfig()
+                ),
+                arrayOf(
+                    "back+camerapipe",
+                    CameraSelector.DEFAULT_BACK_CAMERA,
+                    CameraPipeConfig.defaultConfig()
+                ),
+                arrayOf(
+                    "front+camerapipe",
+                    CameraSelector.DEFAULT_FRONT_CAMERA,
+                    CameraPipeConfig.defaultConfig()
+                ),
             )
         }
     }

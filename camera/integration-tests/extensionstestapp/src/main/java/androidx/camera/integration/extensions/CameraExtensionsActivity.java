@@ -15,6 +15,13 @@
  */
 package androidx.camera.integration.extensions;
 
+import static androidx.camera.integration.extensions.CameraDirection.BACKWARD;
+import static androidx.camera.integration.extensions.CameraDirection.FORWARD;
+import static androidx.camera.integration.extensions.IntentExtraKey.INTENT_EXTRA_KEY_CAMERA_DIRECTION;
+import static androidx.camera.integration.extensions.IntentExtraKey.INTENT_EXTRA_KEY_CAMERA_ID;
+import static androidx.camera.integration.extensions.IntentExtraKey.INTENT_EXTRA_KEY_DELETE_CAPTURED_IMAGE;
+import static androidx.camera.integration.extensions.IntentExtraKey.INTENT_EXTRA_KEY_EXTENSION_MODE;
+
 import android.content.ContentValues;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
@@ -35,6 +42,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
+import android.view.ViewStub;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -86,30 +94,6 @@ import java.util.Map;
 /** An activity that shows off how extensions can be applied */
 public class CameraExtensionsActivity extends AppCompatActivity
         implements ActivityCompat.OnRequestPermissionsResultCallback {
-
-    /**
-     * The camera with the specified camera id will be opened if the intent used to launch the
-     * activity includes the information.
-     */
-    @VisibleForTesting
-    static final String INTENT_EXTRA_CAMERA_ID = "camera_id";
-    /**
-     * The specified extension mode will be tried to be enabled if the intent used to launch the
-     * activity includes the information.
-     */
-    @VisibleForTesting
-    static final String INTENT_EXTRA_EXTENSION_MODE = "extension_mode";
-    /**
-     * The captured image will be deleted automatically if the intent used to launch the activity
-     * includes the setting as true.
-     */
-    @VisibleForTesting
-    static final String INTENT_EXTRA_DELETE_CAPTURED_IMAGE = "delete_captured_image";
-
-    // Possible values for this intent key: "BACKWARD" or "FORWARD".
-    private static final String INTENT_EXTRA_CAMERA_DIRECTION = "camera_direction";
-    private static final String BACKWARD = "BACKWARD";
-    private static final String FORWARD = "FORWARD";
 
     private static final String TAG = "CameraExtensionActivity";
     private static final int PERMISSIONS_REQUEST_CODE = 42;
@@ -273,8 +257,8 @@ public class CameraExtensionsActivity extends AppCompatActivity
         captureButton.setOnClickListener((view) -> {
             resetTakePictureIdlingResource();
 
-            String fileName = formatter.format(Calendar.getInstance().getTime())
-                    + extensionModeString + ".jpg";
+            String fileName = "[" + formatter.format(Calendar.getInstance().getTime())
+                    + "][CameraX]" + extensionModeString + ".jpg";
             File saveFile = new File(dir, fileName);
             ImageCapture.OutputFileOptions outputFileOptions;
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -332,9 +316,9 @@ public class CameraExtensionsActivity extends AppCompatActivity
                                     sendBroadcast(intent);
                                 }
 
-                                Toast.makeText(getApplicationContext(),
-                                        "Saved image to " + saveFile,
-                                        Toast.LENGTH_SHORT).show();
+                                Toast.makeText(CameraExtensionsActivity.this,
+                                        "Saved image to " + fileName,
+                                        Toast.LENGTH_LONG).show();
                             }
                         }
 
@@ -357,13 +341,13 @@ public class CameraExtensionsActivity extends AppCompatActivity
 
         mInitializationIdlingResource.increment();
 
-        String cameraId = getIntent().getStringExtra(INTENT_EXTRA_CAMERA_ID);
+        String cameraId = getIntent().getStringExtra(INTENT_EXTRA_KEY_CAMERA_ID);
         if (cameraId != null) {
             mCurrentCameraSelector = CameraSelectorUtil.createCameraSelectorById(cameraId);
         }
 
         // Get params from adb extra string for the e2e test cases.
-        String cameraDirection = getIntent().getStringExtra(INTENT_EXTRA_CAMERA_DIRECTION);
+        String cameraDirection = getIntent().getStringExtra(INTENT_EXTRA_KEY_CAMERA_DIRECTION);
         if (cameraDirection != null) {
             if (cameraDirection.equals(BACKWARD)) {
                 mCurrentCameraSelector = CameraSelector.DEFAULT_BACK_CAMERA;
@@ -374,16 +358,18 @@ public class CameraExtensionsActivity extends AppCompatActivity
                         "The camera " + cameraDirection + " is unavailable.");
             }
         }
-        mCurrentExtensionMode = getIntent().getIntExtra(INTENT_EXTRA_EXTENSION_MODE,
+        mCurrentExtensionMode = getIntent().getIntExtra(INTENT_EXTRA_KEY_EXTENSION_MODE,
                 mCurrentExtensionMode);
 
-        mDeleteCapturedImage = getIntent().getBooleanExtra(INTENT_EXTRA_DELETE_CAPTURED_IMAGE,
+        mDeleteCapturedImage = getIntent().getBooleanExtra(INTENT_EXTRA_KEY_DELETE_CAPTURED_IMAGE,
                 mDeleteCapturedImage);
 
         StrictMode.VmPolicy policy =
                 new StrictMode.VmPolicy.Builder().detectAll().penaltyLog().build();
         StrictMode.setVmPolicy(policy);
-        mPreviewView = findViewById(R.id.previewView);
+        ViewStub viewFinderStub = findViewById(R.id.viewFinderStub);
+        viewFinderStub.setLayoutResource(R.layout.full_previewview);
+        mPreviewView = (PreviewView) viewFinderStub.inflate();
         mFrameInfo = findViewById(R.id.frameInfo);
         mPreviewView.setImplementationMode(PreviewView.ImplementationMode.COMPATIBLE);
         setupPinchToZoomAndTapToFocus(mPreviewView);
@@ -427,19 +413,36 @@ public class CameraExtensionsActivity extends AppCompatActivity
 
     @Override
     public boolean onCreateOptionsMenu(@Nullable Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.main_menu, menu);
+        if (menu != null) {
+            MenuInflater inflater = getMenuInflater();
+            inflater.inflate(R.menu.main_menu, menu);
+
+            // Remove Camera2Extensions implementation entry if the device API level is less than 32
+            if (Build.VERSION.SDK_INT < 31) {
+                menu.removeItem(R.id.menu_camera2_extensions);
+            }
+        }
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == R.id.menu_validation_tool) {
-            Intent intent = new Intent(this, CameraValidationResultActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(intent);
-            finish();
-            return true;
+        Intent intent = new Intent();
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+        switch (item.getItemId()) {
+            case R.id.menu_camera2_extensions:
+                if (Build.VERSION.SDK_INT >= 31) {
+                    mCameraProvider.unbindAll();
+                    intent.setClassName(this, Camera2ExtensionsActivity.class.getName());
+                    startActivity(intent);
+                    finish();
+                }
+                return true;
+            case R.id.menu_validation_tool:
+                intent.setClassName(this, CameraValidationResultActivity.class.getName());
+                startActivity(intent);
+                finish();
+                return true;
         }
 
         return super.onOptionsItemSelected(item);

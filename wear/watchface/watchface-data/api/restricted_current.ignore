@@ -1,0 +1,9 @@
+// Baseline format: 1.0
+RemovedPackage: androidx.wear.watchface.control.data:
+    Removed package androidx.wear.watchface.control.data
+RemovedPackage: androidx.wear.watchface.data:
+    Removed package androidx.wear.watchface.data
+RemovedPackage: androidx.wear.watchface.editor.data:
+    Removed package androidx.wear.watchface.editor.data
+RemovedPackage: androidx.wear.watchface.style.data:
+    Removed package androidx.wear.watchface.style.data

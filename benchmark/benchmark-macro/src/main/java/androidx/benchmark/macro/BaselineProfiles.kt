@@ -21,6 +21,7 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
+import androidx.benchmark.Arguments
 import androidx.benchmark.InstrumentationResults
 import androidx.benchmark.Outputs
 import androidx.benchmark.Shell
@@ -58,12 +59,21 @@ fun collectBaselineProfile(
         warmupIterations = 3
     )
 
+    val killProcessBlock = {
+        // When generating baseline profiles we want to default to using
+        // killProcess if the session is rooted. This is so we can collect
+        // baseline profiles for System Apps.
+        scope.killProcess(useKillAll = Shell.isSessionRooted())
+        Thread.sleep(Arguments.killProcessDelayMillis)
+    }
+
     // always kill the process at beginning of a collection.
-    scope.killProcess()
+    killProcessBlock.invoke()
     try {
         userspaceTrace("compile $packageName") {
             compilationMode.resetAndCompile(
-                packageName = packageName
+                packageName = packageName,
+                killProcessBlock = killProcessBlock
             ) {
                 profileBlock(scope)
             }
@@ -114,7 +124,7 @@ fun collectBaselineProfile(
             Log.d(TAG, "Total Run Time Ns: $totalRunTime")
         }
     } finally {
-        scope.killProcess()
+        killProcessBlock.invoke()
     }
 }
 

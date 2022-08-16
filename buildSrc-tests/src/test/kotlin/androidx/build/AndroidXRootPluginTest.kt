@@ -16,7 +16,6 @@
 
 package androidx.build
 
-import androidx.build.AndroidXPluginTestContext.Companion.fileList
 import androidx.build.AndroidXSelfTestProject.Companion.cubaneKmpProject
 import androidx.build.AndroidXSelfTestProject.Companion.cubaneProject
 import net.saff.checkmark.Checkmark.Companion.check
@@ -90,7 +89,7 @@ class AndroidXRootPluginTest {
 
         val where = tmpFolder.newFolder()
         saveMavenFoldersForDebugging(where.path)
-        where.fileList().check { it.contains("cubane") }
+        where.filesInFolder().check { it.contains("cubane") }
     }
 
     @Test
@@ -134,13 +133,13 @@ class AndroidXRootPluginTest {
             groupId = "docs-public",
             artifactId = null,
             version = null,
-            buildGradleText = docsPublicBuildGradle
+            buildGradleTextTemplate = docsPublicBuildGradle
         )
         val fakeAnnotations = AndroidXSelfTestProject(
             groupId = "fakeannotations",
             artifactId = null,
             version = null,
-            buildGradleText = ""
+            buildGradleTextTemplate = ""
         )
         writeBuildFiles(projects.toList() + listOf(docsPublicProject, fakeAnnotations))
     }

@@ -193,8 +193,6 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
 
     private final Rect mTmpRect = new Rect();
 
-    final ArrayList<DisableLayerRunnable> mPostedRunnables = new ArrayList<>();
-
     @LockMode
     private int mLockMode;
 
@@ -594,11 +592,6 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
         if (mFoldingFeatureObserver != null) {
             mFoldingFeatureObserver.unregisterLayoutStateChangeCallback();
         }
-        for (int i = 0, count = mPostedRunnables.size(); i < count; i++) {
-            final DisableLayerRunnable dlr = mPostedRunnables.get(i);
-            dlr.run();
-        }
-        mPostedRunnables.clear();
     }
 
     @Override
@@ -1828,23 +1821,6 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
         @Override
         public boolean onGenericMotionEvent(MotionEvent event) {
             return true;
-        }
-    }
-
-    private class DisableLayerRunnable implements Runnable {
-        final View mChildView;
-
-        DisableLayerRunnable(View childView) {
-            mChildView = childView;
-        }
-
-        @Override
-        public void run() {
-            if (mChildView.getParent() == SlidingPaneLayout.this) {
-                mChildView.setLayerType(View.LAYER_TYPE_NONE, null);
-                invalidateChildRegion(mChildView);
-            }
-            mPostedRunnables.remove(this);
         }
     }
 

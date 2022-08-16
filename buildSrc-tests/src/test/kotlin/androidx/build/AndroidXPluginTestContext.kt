@@ -16,17 +16,15 @@
 
 package androidx.build
 
-import androidx.build.AndroidXPluginTestContext.Companion.wrap
 import androidx.testutils.gradle.ProjectSetupRule
 import java.io.File
+import java.util.zip.ZipInputStream
 import net.saff.checkmark.Checkmark.Companion.check
-import net.saff.checkmark.Checkmark.Companion.checks
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.GradleRunner
+import org.gradle.testkit.runner.UnexpectedBuildFailure
+import org.junit.AssumptionViolatedException
 import org.junit.rules.TemporaryFolder
-import org.junit.rules.TestRule
-import org.junit.runner.Description
-import org.junit.runners.model.Statement
 
 /**
  * Main entry point for AndroidX plugin tests.
@@ -38,14 +36,12 @@ import org.junit.runners.model.Statement
 fun pluginTest(action: AndroidXPluginTestContext.() -> Unit) {
     TemporaryFolder().wrap { tmpFolder ->
         ProjectSetupRule().wrap { setup ->
-            val context = AndroidXPluginTestContext(tmpFolder, setup)
-            // checks: automatically capture context on failure
-            checks {
-                context.action()
-            }
+            AndroidXPluginTestContext(tmpFolder, setup).action()
         }
     }
 }
+
+typealias GradleRunAction = (GradleRunner) -> BuildResult
 
 /**
  * Context for tests of the AndroidX plugins.  Entry point is [pluginTest], and the values
@@ -55,6 +51,9 @@ fun pluginTest(action: AndroidXPluginTestContext.() -> Unit) {
  * @param setup: Gradle project setup (see [ProjectSetupRule])
  */
 data class AndroidXPluginTestContext(val tmpFolder: TemporaryFolder, val setup: ProjectSetupRule) {
+    // Default empty environment for runGradle (otherwise the host environment leaks through)
+    private val defaultEnv: Map<String, String> = mapOf()
+
     val props = setup.props
     val buildJars = BuildJars(props.buildSrcOutPath)
 
@@ -64,16 +63,61 @@ data class AndroidXPluginTestContext(val tmpFolder: TemporaryFolder, val setup: 
     // Gradle sometimes canonicalizes this path, so we have to or things don't match up.
     val supportRoot: File = setup.rootDir.canonicalFile
 
-    fun runGradle(vararg args: String): BuildResult {
-        // Empty environment so that the host environment does not leak through
-        val env = mapOf<String, String>()
-        return GradleRunner.create().withProjectDir(supportRoot)
-            .withArguments(
-                "-Dmaven.repo.local=$mavenLocalDir",
-                "-P$ALLOW_MISSING_LINT_CHECKS_PROJECT=true",
-                *args
-            )
-            .withEnvironment(env).withEnvironment(env).build()
+    private val defaultBuildAction: GradleRunAction = { it.build() }
+
+    fun runGradle(
+        vararg args: String,
+        env: Map<String, String> = defaultEnv,
+        buildAction: GradleRunAction = defaultBuildAction
+    ): BuildResult {
+        try {
+            return GradleRunner.create().withProjectDir(supportRoot)
+                .withArguments(
+                    "-Dmaven.repo.local=$mavenLocalDir",
+                    "-P$ALLOW_MISSING_LINT_CHECKS_PROJECT=true",
+                    *args
+                )
+                .withEnvironment(env).withEnvironment(env).let { buildAction(it) }.also {
+                    assumeNoClassloaderErrors(it)
+                }
+        } catch (e: UnexpectedBuildFailure) {
+            assumeNoClassloaderErrors(e.buildResult)
+            throw e
+        }
+    }
+
+    private fun assumeNoClassloaderErrors(result: BuildResult) {
+        // We're seeing b/237103195 flakily.  When we do, let's grab additional debugging info, and
+        // then throw an AssumptionViolatedException, because this is a bug in our test-running
+        // infrastructure, not a bug in the underlying plugins.
+        val className = "androidx.build.gradle.ExtensionsKt"
+        val classNotFound = "java.lang.ClassNotFoundException: $className"
+
+        val mpe = "groovy.lang.MissingPropertyException"
+        val propertyMissing = "$mpe: Could not get unknown property 'androidx' for root project"
+        val messages = listOf(classNotFound, propertyMissing)
+        if (messages.any { result.output.contains(it) }) {
+            buildString {
+                appendLine("classloader error START")
+                append(result.output)
+                appendLine("classloader error END")
+                appendLine("Contents of public.jar:")
+                buildJars.publicJar.let { jar ->
+                    ZipInputStream(jar.inputStream()).use {
+                        while (true) {
+                            val entry = it.nextEntry ?: return@use
+                            appendLine(entry.name)
+                        }
+                    }
+                }
+            }.let {
+                // Log to stderr, which we can find in the test output XML in host-test-reports,
+                // so we can manually debug an instance.
+                val ave = AssumptionViolatedException(it)
+                ave.printStackTrace()
+                throw ave
+            }
+        }
     }
 
     fun AndroidXSelfTestProject.checkConfigurationSucceeds() {
@@ -166,7 +210,7 @@ data class AndroidXPluginTestContext(val tmpFolder: TemporaryFolder, val setup: 
     }
 
     fun AndroidXSelfTestProject.readPublishedFile(fileName: String) =
-        mavenLocalDir.resolve("$groupId/$artifactId/$version/$fileName").readText()
+        mavenLocalDir.resolve("$groupId/$artifactId/$version/$fileName").assertExists().readText()
 
     var printBuildFileOnFailure: Boolean = false
 
@@ -185,21 +229,5 @@ data class AndroidXPluginTestContext(val tmpFolder: TemporaryFolder, val setup: 
                     }
             }
         }.toString()
-    }
-
-    companion object {
-        /**
-         * JUnit 4 [TestRule]s are traditionally added to a test class as public JVM fields
-         * with a @[org.junit.Rule] annotation.  This works decently in Java, but has drawbacks,
-         * such as requiring all methods in a test class to be subject to the same [TestRule]s, and
-         * making it difficult to configure [TestRule]s in different ways between test methods.
-         * With lambdas, objects that have been built as [TestRule] can use this extension function
-         * to allow per-method custom application.
-         */
-        fun <T : TestRule> T.wrap(fn: (T) -> Unit) = apply(object : Statement() {
-            override fun evaluate() = fn(this@wrap)
-        }, Description.EMPTY).evaluate()
-
-        fun File.fileList() = list()!!.toList()
     }
 }

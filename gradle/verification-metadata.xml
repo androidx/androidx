@@ -30,6 +30,7 @@
       <trusted-keys>
          <trusted-key id="00089ee8c3afa95a854d0f1df800dd0933ecf7f7" group="com.google.guava" name="guava"/>
          <trusted-key id="012579464d01c06a" group="org.apache"/>
+         <trusted-key id="019082bc00e0324e2aef4cf00d3b328562a119a7" group="org.openjdk.jmh"/>
          <trusted-key id="02216ed811210daa" group="io.github.detekt.sarif4k"/>
          <trusted-key id="0315bfb7970a144f">
             <trusting group="com.sun.istack"/>
@@ -65,6 +66,7 @@
          <trusted-key id="1188b69f6d6259ca" group="com.google.accompanist"/>
          <trusted-key id="11b581967f079a30a3e93140d57506cd188fd842" group="com.google.api.grpc"/>
          <trusted-key id="120d6f34e627ed3a772ebbfe55c7e5e701832382" group="org.snakeyaml"/>
+         <trusted-key id="12d16069219c90212a974d119ae296fd02e9f65b" group="org.apache.commons" name="commons-math3"/>
          <trusted-key id="147b691a19097624902f4ea9689cbe64f4bc997f" group="^org[.]mockito($|([.].*))" regex="true"/>
          <trusted-key id="151ba00a46886a5f95441a0f5d67bffcba1f9a39" group="com.google.gradle" name="osdetector-gradle-plugin"/>
          <trusted-key id="160a7a9cf46221a56b06ad64461a804f2609fd89" group="com.github.shyiko.klob" name="klob"/>
@@ -218,8 +220,10 @@
             <trusting group="com.squareup.leakcanary"/>
          </trusted-key>
          <trusted-key id="62c82e50836eb3ee" group="com.github.gundy"/>
+         <trusted-key id="635ee627345f3c1dd422b2e207d3516820bcf6b1" group="com.github.ben-manes.caffeine"/>
          <trusted-key id="6525fd70cc303655" group="org.codehaus.mojo"/>
          <trusted-key id="666a4692ce11b7b3f4eb7b3410066a9707090cf9" group="org.javassist" name="javassist"/>
+         <trusted-key id="682f765eea718d250bbdb2f1685c46769dbb5e5d" group="com.squareup" name="kotlinpoet"/>
          <trusted-key id="694621a7227d8d5289699830abe9f3126bb741c1">
             <trusting group="com.google.guava"/>
             <trusting group="com.google.jimfs"/>
@@ -243,6 +247,7 @@
             <trusting group="com.google.auto"/>
             <trusting group="com.google.auto.value" name="auto-value"/>
          </trusted-key>
+         <trusted-key id="70731c2ffb496dc4e8105aa3604f437c1682dde5" group="app.cash.paparazzi"/>
          <trusted-key id="70cd19bfd9f6c330027d6f260315bfb7970a144f">
             <trusting group="com.sun.xml.bind"/>
             <trusting group="javax.xml.bind"/>
@@ -257,15 +262,18 @@
          <trusted-key id="79156e0351af8604de9b186b09a79e1e15a04694" group="org.vafer" name="jdependency"/>
          <trusted-key id="7999befba1039e8b" group="net.bytebuddy"/>
          <trusted-key id="7a8860944fad5f62" group="org.apache.commons"/>
+         <trusted-key id="7c669810892cbd3148fa92995b05ccde140c2876" group="org.eclipse.jgit"/>
          <trusted-key id="7c7d8456294423ba" group="org.objenesis"/>
          <trusted-key id="7cb548acfe3d47e92afa566dc29b11246382a4d7" group="com.charleskorn.kaml"/>
          <trusted-key id="7cd52b5a8295137c88fb5748dddafa7674e54418" group="org.testng" name="testng"/>
          <trusted-key id="7e22d50a7ebd9d2cd269b2d4056aca74d46000bf" group="io.netty"/>
          <trusted-key id="7f36e793ae3252e5d9e9b98fee9e7dc9d92fc896" group="com.google.errorprone"/>
          <trusted-key id="7faa0f2206de228f0db01ad741321490758aad6f" group="org.codehaus.groovy"/>
+         <trusted-key id="80f6d6b0d90c6747753344cab5a9e81b565e89e0" group="org.tomlj" name="tomlj"/>
          <trusted-key id="8254180bfc943b816e0b5e2e5e2f2b3d474efe6b" group="it.unimi.dsi"/>
          <trusted-key id="82b5574242c20d6f" group="org.antlr"/>
          <trusted-key id="82f833963889d7ed06f1e4dc6525fd70cc303655" group="org.codehaus.mojo"/>
+         <trusted-key id="835a685c8c6f49c54980e5caf406f31bc1468eba" group="org.jcodec"/>
          <trusted-key id="840b2bf6da8ed8c8" group="com.google.android.apps.common.testing.accessibility.framework"/>
          <trusted-key id="842afb86375d805422835bfd82b5574242c20d6f" group="org.antlr"/>
          <trusted-key id="8569c95cadc508b09fe90f3002216ed811210daa" group="io.github.detekt.sarif4k" name="sarif4k"/>
@@ -369,10 +377,15 @@
          <trusted-key id="c2148900bcd3c2af" group="org.jetbrains.trove4j"/>
          <trusted-key id="c29b11246382a4d7" group="com.charleskorn.kaml"/>
          <trusted-key id="c51e6cbc7ff46f0b" group="com.google.auto.service"/>
-         <trusted-key id="c5aa57f4a38eba7b7f9156ddab2da4527f6ffc0b" group="com.squareup" name="kotlinpoet"/>
+         <trusted-key id="c5aa57f4a38eba7b7f9156ddab2da4527f6ffc0b">
+            <trusting group="com.squareup" name="kotlinpoet"/>
+            <trusting group="com.squareup" name="kotlinpoet-javapoet"/>
+         </trusted-key>
          <trusted-key id="c6f7d1c804c821f49af3bfc13ad93c3c677a106e" group="io.perfmark" name="perfmark-api"/>
          <trusted-key id="c70b844f002f21f6d2b9c87522e44ac0622b91c3" group="com.beust" name="jcommander"/>
          <trusted-key id="c7be5bcc9fec15518cfda882b0f3710fa64900e7">
+            <trusting group="com.google.auto"/>
+            <trusting group="com.google.auto.service"/>
             <trusting group="com.google.auto.value"/>
             <trusting group="com.google.code.gson"/>
          </trusted-key>
@@ -398,6 +411,7 @@
          <trusted-key id="cfae163b64ac9189" group="org.jetbrains.skiko"/>
          <trusted-key id="d041cad2e452550f" group="com.google.protobuf"/>
          <trusted-key id="d196a5e3e70732eeb2e5007f1861c322c56014b2" group="commons-lang"/>
+         <trusted-key id="d477d51812e692011db11e66a6ea2e2bf22e0543" group="io.github.java-diff-utils"/>
          <trusted-key id="d4c89ea4aaf455fd88b22087efe8086f9e93774e" group="junit"/>
          <trusted-key id="d4da5eab3cd7e958" group="com.google.devtools.ksp"/>
          <trusted-key id="d4fb0b7b5e8c18c993a8a386eb9d04a9a679fe18" group="com.uber.nullaway" name="nullaway"/>
@@ -409,10 +423,14 @@
          <trusted-key id="d790f72ea8fd39551012b62dcf9f3090ce4cb752" group="org.abego.treelayout" name="org.abego.treelayout.core"/>
          <trusted-key id="da7a1bb85b19e4fb05073431205c8673dc742c7c" group="org.apache.maven"/>
          <trusted-key id="db0597e3144342256bc81e3ec727d053c4481cf5" group="org.tensorflow"/>
-         <trusted-key id="dbd744ace7ade6aa50dd591f66b50994442d2d40" group="com.squareup.okio"/>
+         <trusted-key id="dbd744ace7ade6aa50dd591f66b50994442d2d40">
+            <trusting group="com.squareup.okio"/>
+            <trusting group="com.squareup.wire"/>
+         </trusted-key>
          <trusted-key id="dddafa7674e54418" group="org.testng"/>
          <trusted-key id="e0130a3ed5a2079e" group="org.webjars"/>
          <trusted-key id="e0cb7823cfd00fbf" group="com.jakewharton.android.repackaged"/>
+         <trusted-key id="e0d98c5fd55a8af232290e58dee12b9896f97e34" group="org.pcollections"/>
          <trusted-key id="e16ab52d79fd224f" group="com.google.api.grpc"/>
          <trusted-key id="e62231331bca7e1f292c9b88c1b12a5d99c0729d" group="org.jetbrains"/>
          <trusted-key id="e77417ac194160a3fabd04969a259c7ee636c5ed">
@@ -427,6 +445,7 @@
          <trusted-key id="eb380dc13c39f675" group="com.intellij"/>
          <trusted-key id="eb9d04a9a679fe18" group="com.uber.nullaway"/>
          <trusted-key id="ecdfea3cb4493b94" group="jline"/>
+         <trusted-key id="ee0ca873074092f806f59b65d364abaa39a47320" group="com.google.errorprone"/>
          <trusted-key id="ee9e7dc9d92fc896" group="com.google.errorprone"/>
          <trusted-key id="eef9ecc7d5d90518" group="com.google.dagger"/>
          <trusted-key id="efe8086f9e93774e" group="junit"/>
@@ -461,22 +480,6 @@
       </trusted-keys>
    </configuration>
    <components>
-      <component group="backport-util-concurrent" name="backport-util-concurrent" version="3.1" androidx:reason="Unsigned">
-         <artifact name="backport-util-concurrent-3.1.jar">
-            <sha256 value="f5759b7fcdfc83a525a036deedcbd32e5b536b625ebc282426f16ca137eb5902" origin="Generated by Gradle"/>
-         </artifact>
-         <artifact name="backport-util-concurrent-3.1.pom">
-            <sha256 value="770471090ca40a17b9e436ee2ec00819be42042da6f4085ece1d37916dc08ff9" origin="Generated by Gradle"/>
-         </artifact>
-      </component>
-      <component group="classworlds" name="classworlds" version="1.1-alpha-2" androidx:reason="Unsigned">
-         <artifact name="classworlds-1.1-alpha-2.jar">
-            <sha256 value="2bf4e59f3acd106fea6145a9a88fe8956509f8b9c0fdd11eb96fee757269e3f3" origin="Generated by Gradle"/>
-         </artifact>
-         <artifact name="classworlds-1.1-alpha-2.pom">
-            <sha256 value="0cc647963b74ad1d7a37c9868e9e5a8f474e49297e1863582253a08a4c719cb1" origin="Generated by Gradle"/>
-         </artifact>
-      </component>
       <component group="com.github.gundy" name="semver4j" version="0.16.4" androidx:reason="Unsigned https://github.com/gundy/semver4j/issues/6">
          <artifact name="semver4j-0.16.4-nodeps.jar">
             <sha256 value="3f59eca516374ccd4fd3551625bf50f8a4b191f700508f7ce4866460a6128af0" origin="Generated by Gradle"/>
@@ -486,7 +489,7 @@
             <sha256 value="32001db2443b339dd21f5b79ff29d1ade722d1ba080c214bde819f0f72d1604d" origin="Generated by Gradle"/>
          </artifact>
       </component>
-      <component group="com.google" name="google" version="1" androidx:reason="Unsigned">
+      <component group="com.google" name="google" version="1" androidx:reason="Unsigned. Used by protoc https://github.com/protocolbuffers/protobuf/pull/10290">
          <artifact name="google-1.pom">
             <sha256 value="cd6db17a11a31ede794ccbd1df0e4d9750f640234731f21cff885a9997277e81" origin="Generated by Gradle"/>
          </artifact>
@@ -555,7 +558,7 @@
             <sha256 value="02c12c3c2ae12dd475219ff691c82a4d9ea21f44bc594a181295bf6d43dcfbb0" origin="Generated by Gradle"/>
          </artifact>
       </component>
-      <component group="com.google.prefab" name="cli" version="2.0.0" androidx:reason="Unsigned">
+      <component group="com.google.prefab" name="cli" version="2.0.0" androidx:reason="Unsigned. https://github.com/google/prefab/issues/157">
          <artifact name="cli-2.0.0-all.jar">
             <sha256 value="d9bd89f68446b82be038aae774771ad85922d0b375209b17625a2734b5317e29" origin="Generated by Gradle"/>
          </artifact>
@@ -563,7 +566,7 @@
             <sha256 value="4856401a263b39c5394b36a16e0d99628cf05c68008a0cda9691c72bb101e1df" origin="Generated by Gradle"/>
          </artifact>
       </component>
-      <component group="com.googlecode.json-simple" name="json-simple" version="1.1" androidx:reason="Unsigned">
+      <component group="com.googlecode.json-simple" name="json-simple" version="1.1" androidx:reason="Unsigned. Used by AGP. b/239967984">
          <artifact name="json-simple-1.1.jar">
             <sha256 value="2d9484f4c649f708f47f9a479465fc729770ee65617dca3011836602264f6439" origin="Generated by Gradle"/>
          </artifact>
@@ -579,48 +582,6 @@
       <component group="com.gradle" name="gradle-enterprise-gradle-plugin" version="3.10.2" androidx:reason="Unsigned https://github.com/gradle/gradle/issues/20349">
          <artifact name="gradle-enterprise-gradle-plugin-3.10.2.pom">
             <sha256 value="57603c9a75a9ef86ce30b1cb2db728d3cd9caf1be967343f1fc2316c85df5653" origin="Generated by Gradle"/>
-         </artifact>
-      </component>
-      <component group="com.squareup.okio" name="okio" version="2.8.0" androidx:reason="Unsigned">
-         <artifact name="okio-2.8.0.module">
-            <sha256 value="17baab7270389a5fa63ab12811864d0a00f381611bc4eb042fa1bd5918ed0965" origin="Generated by Gradle"/>
-         </artifact>
-         <artifact name="okio-jvm-2.8.0.jar">
-            <sha256 value="4496b06e73982fcdd8a5393f46e5df2ce2fa4465df5895454cac68a32f09bbc8" origin="Generated by Gradle"/>
-         </artifact>
-      </component>
-      <component group="com.squareup.okio" name="okio" version="2.10.0" androidx:reason="Unsigned">
-         <artifact name="okio-jvm-2.10.0.jar">
-            <sha256 value="a27f091d34aa452e37227e2cfa85809f29012a8ef2501a9b5a125a978e4fcbc1" origin="Generated by Gradle"/>
-         </artifact>
-      </component>
-      <component group="com.squareup.sqldelight" name="coroutines-extensions-jvm" version="1.3.0" androidx:reason="Unsigned">
-         <artifact name="sqldelight-coroutines-extensions-jvm-1.3.0.jar">
-            <sha256 value="47305eab44f8b2aef533d8ce76cec9eb5175715cac26b538b6bff5b106ed0ba1" origin="Generated by Gradle"/>
-         </artifact>
-      </component>
-      <component group="com.squareup.wire" name="wire-grpc-client" version="3.6.0" androidx:reason="Unsigned">
-         <artifact name="wire-grpc-client-3.6.0.module">
-            <sha256 value="f4d91b43e5ce4603d63842652f063f16c0827abda1922dfb9551a4ac23ba4462" origin="Generated by Gradle"/>
-         </artifact>
-         <artifact name="wire-grpc-client-jvm-3.6.0.jar">
-            <sha256 value="96904172b35af353e4459786a7d02f1550698cd03b249799ecb563cea3b4c277" origin="Generated by Gradle"/>
-         </artifact>
-      </component>
-      <component group="com.squareup.wire" name="wire-runtime" version="3.6.0" androidx:reason="Unsigned">
-         <artifact name="wire-runtime-3.6.0.module">
-            <sha256 value="3b99891842fdec80e7b24ae7f7c485ae41ca35b47c902ca2043cc948aaf58010" origin="Generated by Gradle"/>
-         </artifact>
-         <artifact name="wire-runtime-jvm-3.6.0.jar">
-            <sha256 value="ac41d3f9b8a88046788c6827b0519bf0c53dcc271f598f48aa666c6f5a9523d0" origin="Generated by Gradle"/>
-         </artifact>
-      </component>
-      <component group="com.squareup.wire" name="wire-schema" version="3.6.0" androidx:reason="Unsigned">
-         <artifact name="wire-schema-3.6.0.module">
-            <sha256 value="85abd765f2efca0545889c935d8c240e31736a22221231a59bcc4510358b6aaa" origin="Generated by Gradle"/>
-         </artifact>
-         <artifact name="wire-schema-jvm-3.6.0.jar">
-            <sha256 value="108bc4bafe7024a41460a1a60e72b6a95b69e5afd29c9f11ba7d8e0de2207976" origin="Generated by Gradle"/>
          </artifact>
       </component>
       <component group="de.undercouch" name="gradle-download-task" version="4.1.1" androidx:reason="Invalid signature https://github.com/michel-kraemer/gradle-download-task/issues/187">
@@ -657,14 +618,6 @@
             <sha256 value="d8c46016037cda6360561b9c6a21a6c2a4847cad15c3c63903e15328fbcccc45" origin="Generated by Gradle"/>
          </artifact>
       </component>
-      <component group="javax.activation" name="activation" version="1.1" androidx:reason="Unsigned">
-         <artifact name="activation-1.1.jar">
-            <sha256 value="2881c79c9d6ef01c58e62beea13e9d1ac8b8baa16f2fc198ad6e6776defdcdd3" origin="Generated by Gradle"/>
-         </artifact>
-         <artifact name="activation-1.1.pom">
-            <sha256 value="d490e540a11504b9d71718b1c85fef7b3de6802361290824539b076d58faa8a0" origin="Generated by Gradle"/>
-         </artifact>
-      </component>
       <component group="javax.annotation" name="jsr250-api" version="1.0" androidx:reason="Unsigned">
          <artifact name="jsr250-api-1.0.jar">
             <sha256 value="a1a922d0d9b6d183ed3800dfac01d1e1eb159f0e8c6f94736931c1def54a941f" origin="Generated by Gradle"/>
@@ -689,28 +642,9 @@
             <sha256 value="2864f19da84fd52763d75a197a71779b2decbccaac3eb4e4760ffc884c5af4a2" origin="Generated by Gradle because artifact wasn't signed"/>
          </artifact>
       </component>
-      <component group="me.champeau.gradle" name="japicmp-gradle-plugin" version="0.2.9" androidx:reason="Unsigned">
-         <artifact name="japicmp-gradle-plugin-0.2.9.jar">
-            <sha256 value="320944e8f3a42a38a5e0f08c6e1e8ae11a63fc82e1f7bf0429a6b7d89d26fac3" origin="Generated by Gradle"/>
-         </artifact>
-         <artifact name="japicmp-gradle-plugin-0.2.9.pom">
-            <sha256 value="41fc0c243907c241cffa24a06a8cb542747c848ebad5feb6b0413d61b4a0ebc2" origin="Generated by Gradle"/>
-         </artifact>
-      </component>
-      <component group="nekohtml" name="nekohtml" version="1.9.6.2" androidx:reason="Unsigned">
-         <artifact name="nekohtml-1.9.6.2.jar">
-            <sha256 value="fdff6cfa9ed9cc911c842a5d2395f209ec621ef1239d46810e9e495809d3ae09" origin="Generated by Gradle"/>
-         </artifact>
-         <artifact name="nekohtml-1.9.6.2.pom">
-            <sha256 value="f5655d331af6afcd4dbaedaa739b889380c771a7e83f7aea5c8544a05074cf0b" origin="Generated by Gradle"/>
-         </artifact>
-      </component>
-      <component group="nekohtml" name="xercesMinimal" version="1.9.6.2" androidx:reason="Unsigned">
-         <artifact name="xercesMinimal-1.9.6.2.jar">
-            <sha256 value="95b8b357d19f63797dd7d67622fd3f18374d64acbc6584faba1c7759a31e8438" origin="Generated by Gradle"/>
-         </artifact>
-         <artifact name="xercesMinimal-1.9.6.2.pom">
-            <sha256 value="c219d697fa9c8f243d8f6e347499b6d4e8af1d0cac4bbc7b3907d338a2024c13" origin="Generated by Gradle"/>
+      <component group="kxml2" name="kxml2" version="2.3.0" androidx:reason="https://github.com/kobjects/kxml2/issues/20">
+         <artifact name="kxml2-2.3.0.pom">
+            <sha256 value="095bf24f46ded9de0b66ca9d671dcf54f8f615ba95150b1a313c3475c55fd6a5" origin="Generated by Gradle"/>
          </artifact>
       </component>
       <component group="net.java" name="jvnet-parent" version="1" androidx:reason="Unsigned">
@@ -736,7 +670,7 @@
             <sha256 value="1af699f8d9ddab67f9a0d202fbd7915eb0362a5a6dfd5ffc54cafa3465c9cb0a" origin="Generated by Gradle"/>
          </artifact>
       </component>
-      <component group="net.sf.kxml" name="kxml2" version="2.3.0" androidx:reason="Unsigned">
+      <component group="net.sf.kxml" name="kxml2" version="2.3.0" androidx:reason="https://github.com/kobjects/kxml2/issues/20">
          <artifact name="kxml2-2.3.0.jar">
             <sha256 value="f264dd9f79a1fde10ce5ecc53221eff24be4c9331c830b7d52f2f08a7b633de2" origin="Generated by Gradle"/>
          </artifact>
@@ -744,56 +678,12 @@
             <sha256 value="31ce606f4e9518936299bb0d27c978fa61e185fd1de7c9874fe959a53e34a685" origin="Generated by Gradle"/>
          </artifact>
       </component>
-      <component group="org.ccil.cowan.tagsoup" name="tagsoup" version="1.2" androidx:reason="Unsigned">
+      <component group="org.ccil.cowan.tagsoup" name="tagsoup" version="1.2" androidx:reason="Unsigned. Used by espresso-web. cr/160019907">
          <artifact name="tagsoup-1.2.jar">
             <sha256 value="10d12b82c9a58a7842765a1152a56fbbd11eac9122a621f5a86a087503297266" origin="Generated by Gradle"/>
          </artifact>
          <artifact name="tagsoup-1.2.pom">
             <sha256 value="186fd460ee13150e31188703a2c871bf86e20332636f3ede4ab959cd5568da78" origin="Generated by Gradle"/>
-         </artifact>
-      </component>
-      <component group="org.codehaus.plexus" name="plexus-utils" version="1.5.15" androidx:reason="Unsigned">
-         <artifact name="plexus-utils-1.5.15.jar">
-            <sha256 value="2ca121831e597b4d8f2cb22d17c5c041fc23a7777ceb6bfbdd4dfb34bbe7d997" origin="Generated by Gradle"/>
-         </artifact>
-         <artifact name="plexus-utils-1.5.15.pom">
-            <sha256 value="12a3c9a32b82fdc95223cab1f9d344e14ef3e396da14c4d0013451646f3280e7" origin="Generated by Gradle"/>
-         </artifact>
-      </component>
-      <component group="org.codehaus.plexus" name="plexus" version="1.0.4" androidx:reason="Unsigned">
-         <artifact name="plexus-1.0.4.pom">
-            <sha256 value="2242fd02d12b1ca73267fb3d89863025517200e7a4ee426cba4667d0172c74c3" origin="Generated by Gradle"/>
-         </artifact>
-      </component>
-      <component group="org.codehaus.plexus" name="plexus" version="2.0.2" androidx:reason="Unsigned">
-         <artifact name="plexus-2.0.2.pom">
-            <sha256 value="e246e2a062b5d989fdefc521c9c56431ba5554ff8d2344edee9218a34a546a33" origin="Generated by Gradle"/>
-         </artifact>
-      </component>
-      <component group="org.codehaus.plexus" name="plexus-components" version="1.1.14" androidx:reason="Unsigned">
-         <artifact name="plexus-components-1.1.14.pom">
-            <sha256 value="381d72c526be217b770f9f8c3f749a86d3b1548ac5c1fcb48d267530ec60d43f" origin="Generated by Gradle"/>
-         </artifact>
-      </component>
-      <component group="org.codehaus.plexus" name="plexus-container-default" version="1.0-alpha-9-stable-1" androidx:reason="Unsigned">
-         <artifact name="plexus-container-default-1.0-alpha-9-stable-1.jar">
-            <sha256 value="7c758612888782ccfe376823aee7cdcc7e0cdafb097f7ef50295a0b0c3a16edf" origin="Generated by Gradle"/>
-         </artifact>
-         <artifact name="plexus-container-default-1.0-alpha-9-stable-1.pom">
-            <sha256 value="ef71d45a49edfe76be0f520312a76bc2aae73ec0743a5ffffe10d30122c6e2b2" origin="Generated by Gradle"/>
-         </artifact>
-      </component>
-      <component group="org.codehaus.plexus" name="plexus-containers" version="1.0.3" androidx:reason="Unsigned">
-         <artifact name="plexus-containers-1.0.3.pom">
-            <sha256 value="7c75075badcb014443ee94c8c4cad2f4a9905be3ce9430fe7b220afc7fa3a80f" origin="Generated by Gradle"/>
-         </artifact>
-      </component>
-      <component group="org.codehaus.plexus" name="plexus-interpolation" version="1.11" androidx:reason="Unsigned">
-         <artifact name="plexus-interpolation-1.11.jar">
-            <sha256 value="fd9507feb858fa620d1b4aa4b7039fdea1a77e09d3fd28cfbddfff468d9d8c28" origin="Generated by Gradle"/>
-         </artifact>
-         <artifact name="plexus-interpolation-1.11.pom">
-            <sha256 value="b84d281f59b9da528139e0752a0e1cab0bd98d52c58442b00e45c9748e1d9eee" origin="Generated by Gradle"/>
          </artifact>
       </component>
       <component group="org.jetbrains.dokka" name="dokka-android-gradle-plugin" version="0.9.17-g014" androidx:reason="Unsigned">
@@ -820,12 +710,30 @@
             <sha256 value="b217e9a1f1503c9f0c744b736fc2afed6fa6c3c2e86e5276a3c549f5bd48baef" origin="Generated by Gradle"/>
          </artifact>
       </component>
-      <component group="org.ow2" name="ow2" version="1.5">
+      <component group="org.jetbrains.kotlin" name="kotlin-reflect" version="1.3.71" androidx:reason="https://youtrack.jetbrains.com/issue/KT-50957">
+         <artifact name="kotlin-reflect-1.3.71.pom">
+            <sha256 value="4df94aaeee8d900be431386e31ef44e82a66e57c3ae30866aec2875aff01fe70" origin="Generated by Gradle"/>
+         </artifact>
+      </component>
+      <component group="org.jetbrains.kotlinx" name="kotlinx-benchmark-plugin" version="0.4.4" androidx:reason="https://youtrack.jetbrains.com/issue/KT-53461">
+         <artifact name="kotlinx-benchmark-plugin-0.4.4.jar">
+            <sha256 value="b818d2b6c62cb6f46edbd098c4a6a71cec6f277f8fc3c51bca60d6f538693512" origin="Generated by Gradle"/>
+         </artifact>
+         <artifact name="kotlinx-benchmark-plugin-0.4.4.pom">
+            <sha256 value="57f0bbbf1d4d182e79f400d7cea1ebdd48bd1b4a092411756ccac054d1e07d5c" origin="Generated by Gradle"/>
+         </artifact>
+      </component>
+      <component group="org.jetbrains.kotlinx.benchmark" name="org.jetbrains.kotlinx.benchmark.gradle.plugin" version="0.4.4" androidx:reason="https://youtrack.jetbrains.com/issue/KT-53461">
+         <artifact name="org.jetbrains.kotlinx.benchmark.gradle.plugin-0.4.4.pom">
+            <sha256 value="72b338deead79e32f508da7ca3a8ac46a3ce3c76ce468e6b1b313ef4ddfb5cbd" origin="Generated by Gradle"/>
+         </artifact>
+      </component>
+      <component group="org.ow2" name="ow2" version="1.5" androidx:reason="https://gitlab.ow2.org/asm/asm/-/merge_requests/354">
          <artifact name="ow2-1.5.pom">
             <sha256 value="0f8a1b116e760b8fe6389c51b84e4b07a70fc11082d4f936e453b583dd50b43b" origin="Generated by Gradle"/>
          </artifact>
       </component>
-      <component group="org.ow2.asm" name="asm" version="7.0" androidx:reason="Unsigned">
+      <component group="org.ow2.asm" name="asm" version="7.0" androidx:reason="Unsigned. Used by AGP 7.0 dependency of androidx.benchmark library">
          <artifact name="asm-7.0.jar">
             <sha256 value="b88ef66468b3c978ad0c97fd6e90979e56155b4ac69089ba7a44e9aa7ffe9acf" origin="Generated by Gradle"/>
          </artifact>
@@ -833,7 +741,7 @@
             <sha256 value="83f65b1083d5ce4f8ba7f9545cfe9ff17824589c9a7cc82c3a4695801e4f5f68" origin="Generated by Gradle"/>
          </artifact>
       </component>
-      <component group="org.ow2.asm" name="asm-analysis" version="7.0" androidx:reason="Unsigned">
+      <component group="org.ow2.asm" name="asm-analysis" version="7.0" androidx:reason="Unsigned. Used by AGP 7.0 dependency of androidx.benchmark library">
          <artifact name="asm-analysis-7.0.jar">
             <sha256 value="e981f8f650c4d900bb033650b18e122fa6b161eadd5f88978d08751f72ee8474" origin="Generated by Gradle"/>
          </artifact>
@@ -841,7 +749,7 @@
             <sha256 value="c6b54477e9d5bae1e7addff2e24cbf92aaff2ff08fd6bc0596c3933c3fadc2cb" origin="Generated by Gradle"/>
          </artifact>
       </component>
-      <component group="org.ow2.asm" name="asm-commons" version="7.0" androidx:reason="Unsigned">
+      <component group="org.ow2.asm" name="asm-commons" version="7.0" androidx:reason="Unsigned. Used by AGP 7.0 dependency of androidx.benchmark library">
          <artifact name="asm-commons-7.0.jar">
             <sha256 value="fed348ef05958e3e846a3ac074a12af5f7936ef3d21ce44a62c4fa08a771927d" origin="Generated by Gradle"/>
          </artifact>
@@ -849,7 +757,7 @@
             <sha256 value="f4c697886cdb4a5b2472054a0b5e34371e9b48e620be40c3ed48e1f4b6d51eb4" origin="Generated by Gradle"/>
          </artifact>
       </component>
-      <component group="org.ow2.asm" name="asm-tree" version="7.0" androidx:reason="Unsigned">
+      <component group="org.ow2.asm" name="asm-tree" version="7.0" androidx:reason="Unsigned. Used by AGP 7.0 dependency of androidx.benchmark library">
          <artifact name="asm-tree-7.0.jar">
             <sha256 value="cfd7a0874f9de36a999c127feeadfbfe6e04d4a71ee954d7af3d853f0be48a6c" origin="Generated by Gradle"/>
          </artifact>
@@ -857,7 +765,7 @@
             <sha256 value="d39e7dd12f4ff535a0839d1949c39c7644355a4470220c94b76a5c168c57a068" origin="Generated by Gradle"/>
          </artifact>
       </component>
-      <component group="org.ow2.asm" name="asm-util" version="7.0" androidx:reason="Unsigned">
+      <component group="org.ow2.asm" name="asm-util" version="7.0" androidx:reason="Unsigned. Used by AGP 7.0 dependency of androidx.benchmark library">
          <artifact name="asm-util-7.0.jar">
             <sha256 value="75fbbca440ef463f41c2b0ab1a80abe67e910ac486da60a7863cbcb5bae7e145" origin="Generated by Gradle"/>
          </artifact>

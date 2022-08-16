@@ -356,13 +356,11 @@ class BanInappropriateExperimentalUsage : Detector(), Detector.UastScanner {
          *         path, or `null` if [jarFilePath] doesn't contain the string "androidx".
          */
         internal fun getMavenCoordinatesFromPath(jarFilePath: String): LintModelMavenName? {
-            if (!jarFilePath.contains("androidx")) return null
-
             val pathParts = jarFilePath.split("/")
-
             val androidxIndex = pathParts.indexOf("androidx")
-            val groupId = pathParts[androidxIndex] + "." + pathParts[androidxIndex + 1]
+            if (androidxIndex == -1) return null
 
+            val groupId = pathParts[androidxIndex] + "." + pathParts[androidxIndex + 1]
             val artifactId = pathParts[androidxIndex + 2]
 
             val filename = pathParts.last()

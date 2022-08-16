@@ -119,6 +119,10 @@
             android:exported="true"
             android:theme="@android:style/Theme.Light.NoTitleBar" />
 
+        <activity
+            android:name="androidx.core.app.GetSystemLocalesActivity"
+            android:exported="true" />
+
         <activity-alias
             android:name="androidx.core.app.NavUtilsAliasActivity"
             android:targetActivity="androidx.core.app.NavUtilsActivity">
@@ -162,6 +166,7 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
 
     <uses-permission android:name="android.permission.READ_PRIVILEGED_PHONE_STATE" />

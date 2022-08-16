@@ -16,36 +16,25 @@
 
 package androidx.health.services.client.data
 
-import android.os.Parcelable
 import androidx.health.services.client.proto.DataProto
 
 /** A condition which is considered met when a data type value passes a defined threshold. */
 @Suppress("ParcelCreator")
-public class DataTypeCondition(
-    public val dataType: DataType,
-    public val threshold: Value,
+public class DataTypeCondition<T : Number, D : DataType<T, out DataPoint<T>>>(
+    /** [DataType] which this condition applies to. */
+    public val dataType: D,
+
+    /** The threshold at which point this condition should be met. */
+    public val threshold: T,
+
+    /** The comparison type to use when comparing the threshold against the current value. */
     public val comparisonType: ComparisonType,
-) : ProtoParcelable<DataProto.DataTypeCondition>() {
+) {
 
-    internal constructor(
-        proto: DataProto.DataTypeCondition
-    ) : this(
-        DataType(proto.dataType),
-        Value(proto.threshold),
-        ComparisonType.fromProto(proto.comparisonType)
-    )
-
-    init {
-        require(dataType.format == threshold.format) {
-            "provided data type and threshold must have the same formats."
-        }
-    }
-
-    /** @hide */
-    override val proto: DataProto.DataTypeCondition by lazy {
+    internal val proto: DataProto.DataTypeCondition by lazy {
         DataProto.DataTypeCondition.newBuilder()
             .setDataType(dataType.proto)
-            .setThreshold(threshold.proto)
+            .setThreshold(dataType.toProtoFromValue(threshold))
             .setComparisonType(comparisonType.toProto())
             .build()
     }
@@ -54,32 +43,48 @@ public class DataTypeCondition(
         "DataTypeCondition(" +
             "dataType=$dataType, threshold=$threshold, comparisonType=$comparisonType)"
 
-    /** Checks whether or not the condition is satisfied by a given [DataPoint]. */
-    public fun isSatisfied(dataPoint: DataPoint): Boolean {
-        require(dataType == dataPoint.dataType) {
-            "attempted to evaluate data type condition with incorrect data type. Expected " +
-                "${dataType.name} but was ${dataPoint.dataType.name}"
-        }
-        return isThresholdSatisfied(dataPoint.value)
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is DataTypeCondition<*, *>) return false
+        if (dataType != other.dataType) return false
+        if (threshold != other.threshold) return false
+        if (comparisonType != other.comparisonType) return false
+
+        return true
     }
 
-    /** Checks whether or not the value of the condition is satisfied by a given [Value]. */
-    public fun isThresholdSatisfied(value: Value): Boolean {
-        val comparison = Value.compare(value, threshold)
-        return when (comparisonType) {
-            ComparisonType.LESS_THAN -> comparison < 0
-            ComparisonType.GREATER_THAN -> comparison > 0
-            ComparisonType.LESS_THAN_OR_EQUAL -> comparison <= 0
-            ComparisonType.GREATER_THAN_OR_EQUAL -> comparison >= 0
-            else -> false
-        }
+    override fun hashCode(): Int {
+        var result = dataType.hashCode()
+        result = 31 * result + threshold.hashCode()
+        result = 31 * result + comparisonType.hashCode()
+        return result
     }
 
-    public companion object {
-        @JvmField
-        public val CREATOR: Parcelable.Creator<DataTypeCondition> = newCreator {
-            val proto = DataProto.DataTypeCondition.parseFrom(it)
-            DataTypeCondition(proto)
+    internal companion object {
+        @Suppress("UNCHECKED_CAST")
+        internal fun deltaFromProto(
+            proto: DataProto.DataTypeCondition
+        ): DataTypeCondition<out Number, out DeltaDataType<out Number, *>> {
+            val dataType =
+                DataType.deltaFromProto(proto.dataType) as DeltaDataType<Number, *>
+            return DataTypeCondition(
+                dataType,
+                dataType.toValueFromProto(proto.threshold),
+                ComparisonType.fromProto(proto.comparisonType)
+            )
+        }
+
+        @Suppress("UNCHECKED_CAST")
+        internal fun aggregateFromProto(
+            proto: DataProto.DataTypeCondition
+        ): DataTypeCondition<out Number, out AggregateDataType<out Number, *>> {
+            val dataType =
+                DataType.aggregateFromProto(proto.dataType) as AggregateDataType<Number, *>
+            return DataTypeCondition(
+                dataType,
+                dataType.toValueFromProto(proto.threshold),
+                ComparisonType.fromProto(proto.comparisonType)
+            )
         }
     }
 }

@@ -32,7 +32,6 @@ import androidx.annotation.OptIn
 import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
-import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.view.CameraController
 import androidx.camera.view.CameraController.IMAGE_CAPTURE
 import androidx.camera.view.CameraController.VIDEO_CAPTURE
@@ -46,13 +45,21 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import java.text.SimpleDateFormat
 import java.util.Locale
-import java.util.concurrent.Executor
+import java.util.concurrent.ExecutorService
 import androidx.camera.mlkit.vision.MlKitAnalyzer
 import androidx.camera.view.CameraController.IMAGE_ANALYSIS
+import androidx.core.util.Preconditions
+import androidx.lifecycle.lifecycleScope
 import com.google.android.material.tabs.TabLayout
 import com.google.mlkit.vision.barcode.BarcodeScanner
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import java.io.IOException
+import java.util.concurrent.Executor
+import java.util.concurrent.Executors
+import kotlinx.coroutines.ExecutorCoroutineDispatcher
+import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class MainActivity : AppCompatActivity() {
 
@@ -65,6 +72,9 @@ class MainActivity : AppCompatActivity() {
     private lateinit var barcodeScanner: BarcodeScanner
     private lateinit var analyzer: MlKitAnalyzer
     private lateinit var diagnoseBtn: Button
+    private lateinit var calibrationExecutor: ExecutorService
+    private var calibrationThreadId: Long = -1
+    private lateinit var diagnosisDispatcher: ExecutorCoroutineDispatcher
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -79,6 +89,13 @@ class MainActivity : AppCompatActivity() {
         diagnosis = Diagnosis()
         barcodeScanner = BarcodeScanning.getClient()
         diagnoseBtn = findViewById(R.id.diagnose_btn)
+        calibrationExecutor = Executors.newSingleThreadExecutor() { runnable ->
+            val thread = Executors.defaultThreadFactory().newThread(runnable)
+            thread.name = "CalibrationThread"
+            calibrationThreadId = thread.id
+            return@newSingleThreadExecutor thread
+        }
+        diagnosisDispatcher = Executors.newFixedThreadPool(1).asCoroutineDispatcher()
 
         // Request CAMERA permission and fail gracefully if not granted.
         if (allPermissionsGranted()) {
@@ -125,12 +142,29 @@ class MainActivity : AppCompatActivity() {
         })
 
         diagnoseBtn.setOnClickListener {
-            try {
-                diagnosis.collectDeviceInfo(baseContext)
-            } catch (e: IOException) {
-                val msg = "Failed to collect information"
-                Toast.makeText(baseContext, msg, Toast.LENGTH_SHORT).show()
-                Log.e(TAG, "IOException caught: ${e.message}")
+            lifecycleScope.launch {
+                try {
+                    val reportFile = withContext(diagnosisDispatcher) {
+                        // creating tasks to diagnose
+                        val taskList = mutableListOf<DiagnosisTask>()
+                        taskList.add(CollectDeviceInfoTask())
+                        taskList.add(ImageCaptureTask())
+                        val isAggregated = true
+                        Log.i(TAG, "dispatcher: ${Thread.currentThread().name}")
+                        diagnosis.diagnose(baseContext, taskList, cameraController, isAggregated)
+                    }
+                    val msg: String = if (reportFile != null) {
+                        Log.d(TAG, "file at ${reportFile.path}")
+                        "Successfully collected device info"
+                    } else {
+                        "Diagnosis failed: No file"
+                    }
+                    Toast.makeText(baseContext, msg, Toast.LENGTH_SHORT).show()
+                } catch (e: IOException) {
+                    val msg = "Failed to collect information"
+                    Toast.makeText(baseContext, msg, Toast.LENGTH_SHORT).show()
+                    Log.e(TAG, "IOException caught: ${e.message}")
+                }
             }
         }
     }
@@ -287,26 +321,42 @@ class MainActivity : AppCompatActivity() {
         analyzer = MlKitAnalyzer(
             listOf(barcodeScanner),
             CameraController.COORDINATE_SYSTEM_VIEW_REFERENCED,
-            CameraXExecutors.mainThreadExecutor()
+            calibrationExecutor
         ) { result ->
+            // validating thread
+            checkCalibrationThread()
             val barcodes = result.getValue(barcodeScanner)
             if (barcodes != null && barcodes.size > 0) {
                 calibrate.analyze(barcodes)
-                // gives overlayView access to Calibration
-                overlayView.setCalibrationResult(calibrate)
-                // enable diagnose button when alignment is successful
-                diagnoseBtn.isEnabled = calibrate.isAligned
-                overlayView.invalidate()
+                // run UI on main thread
+                lifecycleScope.launch {
+                    // gives overlayView access to Calibration
+                    overlayView.setCalibrationResult(calibrate)
+                    // enable diagnose button when alignment is successful
+                    diagnoseBtn.isEnabled = calibrate.isAligned
+                    overlayView.invalidate()
+                }
             }
         }
         cameraController.setImageAnalysisAnalyzer(
-            CameraXExecutors.mainThreadExecutor(), analyzer)
+            calibrationExecutor, analyzer)
     }
 
     private fun allPermissionsGranted() = REQUIRED_PERMISSIONS.all {
         ContextCompat.checkSelfPermission(
             baseContext, it
         ) == PackageManager.PERMISSION_GRANTED
+    }
+
+    private fun checkCalibrationThread() {
+        Preconditions.checkState(calibrationThreadId == Thread.currentThread().id,
+            "Not working on Calibration Thread")
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        calibrationExecutor.shutdown()
+        diagnosisDispatcher.close()
     }
 
     companion object {

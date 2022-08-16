@@ -17,6 +17,7 @@
 package androidx.camera.camera2.internal;
 
 import android.hardware.camera2.CameraDevice;
+import android.hardware.camera2.CameraMetadata;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
@@ -58,22 +59,19 @@ public final class StreamUseCaseUtil {
         }
         if (useCaseConfigs.isEmpty()) {
             //If the collection is empty, return default case.
-            //TODO: b/237337336 Return SCALER_AVAILABLE_STREAM_USE_CASE_DEFAULT here
-            return OutputConfigurationCompat.STREAM_USE_CASE_NONE;
+            return CameraMetadata.SCALER_AVAILABLE_STREAM_USE_CASES_DEFAULT;
         } else {
             for (SessionConfig sessionConfig : sessionConfigs) {
                 if (sessionConfig.getTemplateType() == CameraDevice.TEMPLATE_ZERO_SHUTTER_LAG) {
                     //If is ZSL, return default case.
-                    //TODO: b/237337336 Return SCALER_AVAILABLE_STREAM_USE_CASE_DEFAULT here
-                    return OutputConfigurationCompat.STREAM_USE_CASE_NONE;
+                    return CameraMetadata.SCALER_AVAILABLE_STREAM_USE_CASES_DEFAULT;
                 }
             }
             boolean hasImageCapture = false, hasVideoCapture = false, hasPreview = false;
             for (UseCaseConfig<?> useCaseConfig : useCaseConfigs) {
                 if (useCaseConfig instanceof ImageAnalysisConfig) {
                     //If contains analysis use case, return default case.
-                    //TODO: b/237337336 Return SCALER_AVAILABLE_STREAM_USE_CASE_DEFAULT here
-                    return OutputConfigurationCompat.STREAM_USE_CASE_NONE;
+                    return CameraMetadata.SCALER_AVAILABLE_STREAM_USE_CASES_DEFAULT;
                 }
 
                 if (useCaseConfig instanceof PreviewConfig) {
@@ -84,9 +82,7 @@ public final class StreamUseCaseUtil {
                 if (useCaseConfig instanceof ImageCaptureConfig) {
                     if (hasVideoCapture) {
                         // If has both image and video capture, return preview video still case.
-                        //TODO: b/237337336 Return
-                        // SCALER_AVAILABLE_STREAM_USE_CASE_PREVIEW_VIDEO_STILL here
-                        return OutputConfigurationCompat.STREAM_USE_CASE_NONE;
+                        return CameraMetadata.SCALER_AVAILABLE_STREAM_USE_CASES_PREVIEW_VIDEO_STILL;
                     }
                     hasImageCapture = true;
                     continue;
@@ -96,34 +92,28 @@ public final class StreamUseCaseUtil {
                 if (useCaseConfig instanceof VideoCaptureConfig) {
                     if (hasImageCapture) {
                         // If has both image and video capture, return preview video still case.
-                        //TODO: b/237337336 Return
-                        // SCALER_AVAILABLE_STREAM_USE_CASE_PREVIEW_VIDEO_STILL here
-                        return OutputConfigurationCompat.STREAM_USE_CASE_NONE;
+                        return CameraMetadata.SCALER_AVAILABLE_STREAM_USE_CASES_PREVIEW_VIDEO_STILL;
                     }
                     hasVideoCapture = true;
                     continue;
 
                 }
             }
-            if (!hasPreview) {
-                // If doesn't contain preview, we are not sure what's the situation. Return
-                // default case.
-                //TODO: b/237337336 Return SCALER_AVAILABLE_STREAM_USE_CASE_DEFAULT here
-                return OutputConfigurationCompat.STREAM_USE_CASE_NONE;
-            }
 
             if (hasImageCapture) {
                 // If contains image capture, return still capture case.
-                //TODO: b/237337336 Return SCALER_AVAILABLE_STREAM_USE_CASE_STILL_CAPTURE here
-                return OutputConfigurationCompat.STREAM_USE_CASE_NONE;
+                return CameraMetadata.SCALER_AVAILABLE_STREAM_USE_CASES_STILL_CAPTURE;
             } else if (hasVideoCapture) {
                 // If contains video capture, return video record case.
-                //TODO: b/237337336 Return SCALER_AVAILABLE_STREAM_USE_CASE_VIDEO_RECORD here
-                return OutputConfigurationCompat.STREAM_USE_CASE_NONE;
+                return CameraMetadata.SCALER_AVAILABLE_STREAM_USE_CASES_VIDEO_RECORD;
             } else {
+                if (!hasPreview) {
+                    // If doesn't contain preview, we are not sure what's the situation. Return
+                    // default case.
+                    return CameraMetadata.SCALER_AVAILABLE_STREAM_USE_CASES_DEFAULT;
+                }
                 // If contains only preview, return view finder case.
-                //TODO: b/237337336 Return SCALER_AVAILABLE_STREAM_USE_CASE_VIEW_FINDER here
-                return OutputConfigurationCompat.STREAM_USE_CASE_NONE;
+                return CameraMetadata.SCALER_AVAILABLE_STREAM_USE_CASES_PREVIEW;
             }
         }
     }

@@ -39,7 +39,6 @@ import androidx.camera.camera2.pipe.StreamGraph
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.compat.Api24Compat
 import androidx.camera.camera2.pipe.config.CameraGraphScope
-import androidx.camera.camera2.pipe.core.Log
 import javax.inject.Inject
 import kotlinx.atomicfu.atomic
 
@@ -65,7 +64,6 @@ internal class StreamGraphImpl @Inject constructor(
     cameraMetadata: CameraMetadata,
     graphConfig: CameraGraph.Config
 ) : StreamGraph {
-    private val surfaceMap: MutableMap<StreamId, Surface> = mutableMapOf()
     private val _streamMap: Map<CameraStream.Config, CameraStream>
 
     internal val outputConfigs: List<OutputConfig>
@@ -166,63 +164,6 @@ internal class StreamGraphImpl @Inject constructor(
         _streamMap = streamMapBuilder
         outputs = streams.flatMap { it.outputs }
         outputConfigs = outputConfigListBuilder
-    }
-
-    private var _listener: SurfaceListener? = null
-    var listener: SurfaceListener?
-        get() = _listener
-        set(value) {
-            _listener = value
-            if (value != null) {
-                maybeUpdateSurfaces()
-            }
-        }
-
-    operator fun set(stream: StreamId, surface: Surface?) {
-        Log.info {
-            if (surface != null) {
-                "Configured $stream to use $surface"
-            } else {
-                "Removed surface for $stream"
-            }
-        }
-        if (surface == null) {
-            // TODO: Tell the graph processor that it should resubmit the repeating request or
-            //  reconfigure the camera2 captureSession
-            surfaceMap.remove(stream)
-        } else {
-            surfaceMap[stream] = surface
-        }
-        maybeUpdateSurfaces()
-    }
-
-    private fun maybeUpdateSurfaces() {
-        val surfaceListener = _listener ?: return
-        val surfaces = buildSurfaceMap()
-        if (surfaces.isEmpty()) {
-            return
-        }
-        surfaceListener.onSurfaceMapUpdated(surfaces)
-    }
-
-    private fun buildSurfaceMap(): Map<StreamId, Surface> {
-        // Rules:
-        // 1. There must be at least one non-null, valid surface.
-        // 2. All non-deferrable streams must have a valid surface.
-        val surfaces = mutableMapOf<StreamId, Surface>()
-        for (outputConfig in outputConfigs) {
-            for (stream in outputConfig.streamBuilder) {
-                val surface = surfaceMap[stream.id]
-                if (surface == null) {
-                    if (!outputConfig.deferrable) {
-                        return emptyMap()
-                    }
-                } else {
-                    surfaces[stream.id] = surface
-                }
-            }
-        }
-        return surfaces
     }
 
     @Suppress("SyntheticAccessor") // StreamId generates a synthetic constructor

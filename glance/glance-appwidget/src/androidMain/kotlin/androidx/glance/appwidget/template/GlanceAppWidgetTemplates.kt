@@ -28,18 +28,22 @@ import androidx.glance.LocalSize
 import androidx.glance.action.clickable
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.Column
+import androidx.glance.layout.ContentScale
 import androidx.glance.layout.Row
 import androidx.glance.layout.Spacer
 import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.height
 import androidx.glance.layout.width
+import androidx.glance.template.ActionBlock
 import androidx.glance.template.HeaderBlock
+import androidx.glance.template.ImageBlock
 import androidx.glance.template.LocalTemplateColors
 import androidx.glance.template.TemplateButton
 import androidx.glance.template.TemplateImageButton
 import androidx.glance.template.TemplateImageWithDescription
 import androidx.glance.template.TemplateText
 import androidx.glance.template.TemplateTextButton
+import androidx.glance.template.TextBlock
 import androidx.glance.template.TextType
 import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
@@ -165,6 +169,72 @@ internal fun AppWidgetTemplateButton(
                 style = TextStyle(color = colors.onPrimary),
                 modifier = glanceModifier
             )
+        }
+    }
+}
+
+/**
+ * Displays an [ImageBlock] as a single image for AppWidget layout template.
+ *
+ * @param imageBlock The [ImageBlock] data containing the main image for display
+ * @param modifier Glance modifier for further image button customization
+ */
+@Composable
+internal fun SingleImageBlockTemplate(
+    imageBlock: ImageBlock,
+    modifier: GlanceModifier = GlanceModifier
+) {
+    if (imageBlock.images.isNotEmpty()) {
+        val mainImage = imageBlock.images[0]
+        Image(
+            provider = mainImage.image,
+            contentDescription = mainImage.description,
+            modifier = modifier,
+            contentScale = ContentScale.Crop
+        )
+    }
+}
+
+/**
+ * Displays a [TextBlock] with top three types of text lines for AppWidget layout template.
+ *
+ * @param textBlock The [TextBlock] data containing top three types of text lines.
+ */
+@Composable
+internal fun TextBlockTemplate(textBlock: TextBlock) {
+    AppWidgetTextSection(
+        listOfNotNull(
+            textBlock.text1,
+            textBlock.text2,
+            textBlock.text3,
+        )
+    )
+}
+
+/**
+ * Displays a [HeaderBlock] with header information.
+ *
+ * @param headerBlock The [HeaderBlock] data containing the header information.
+ */
+@Composable
+internal fun HeaderBlockTemplate(headerBlock: HeaderBlock?) {
+    headerBlock?.let { AppWidgetTemplateHeader(it) }
+}
+
+/**
+ * Displays an [ActionBlock] as a sequence of action buttons for AppWidget layout template.
+ *
+ * @param actionBlock The [ActionBlock] data containing a list of buttons for display
+ */
+@Composable
+internal fun ActionBlockTemplate(actionBlock: ActionBlock?) {
+    if (actionBlock?.actionButtons?.isNotEmpty() == true) {
+        Spacer(modifier = GlanceModifier.height(16.dp))
+        Row {
+            actionBlock.actionButtons.forEach { button ->
+                AppWidgetTemplateButton(button)
+                Spacer(modifier = GlanceModifier.width(4.dp))
+            }
         }
     }
 }

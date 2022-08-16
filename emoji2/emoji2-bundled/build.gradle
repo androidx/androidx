@@ -27,6 +27,10 @@ android {
     }
     namespace "androidx.emoji2.bundled"
 
+    // Workaround for b/230466571 where targetSdkVersion gets merged incorrectly.
+    defaultConfig {
+        targetSdk null
+    }
 }
 
 dependencies {

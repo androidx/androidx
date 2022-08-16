@@ -28,6 +28,7 @@ import android.view.KeyEvent;
  * remote route volume in lock screen. It routes media key events back
  * to main app activity SampleMediaRouterActivity.
  */
+@SuppressWarnings("deprecation")
 public class SampleMediaButtonReceiver extends BroadcastReceiver {
     private static final String TAG = "SampleMediaButtonReceiver";
     private static SampleMediaRouterActivity mActivity;

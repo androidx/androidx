@@ -16,8 +16,6 @@
 
 package androidx.health.services.client.data
 
-import android.os.Parcelable
-import androidx.annotation.RestrictTo
 import androidx.health.services.client.proto.DataProto
 import androidx.health.services.client.proto.DataProto.ExerciseLapSummary.LapMetricsEntry
 import java.time.Duration
@@ -25,58 +23,64 @@ import java.time.Instant
 
 /** Describes a completed exercise lap. */
 @Suppress("ParcelCreator")
-public class ExerciseLapSummary(
+class ExerciseLapSummary(
     /** Returns the lap count of this summary. Lap count starts at 1 for the first lap. */
-    public val lapCount: Int,
+    val lapCount: Int,
 
     /** Returns the time at which the lap has started. */
-    public val startTime: Instant,
+    val startTime: Instant,
 
     /** Returns the time at which the lap has ended. */
-    public val endTime: Instant,
+    val endTime: Instant,
 
     /**
      * Returns the total elapsed time for which the exercise has been active during this lap, i.e.
      * started but not paused.
      */
-    public val activeDuration: Duration,
+    val activeDuration: Duration,
 
     /**
      * Returns the [DataPoint]s for each metric keyed by [DataType] tracked between [startTime] and
-     * [endTime] i.e. during the duration of this lap. This will only contain aggregated [DataType]s
+     * [endTime] i.e. during the duration of this lap. This will only contain [AggregateDataType]s
      * calculated over the duration of the lap.
      */
-    public val lapMetrics: Map<DataType, AggregateDataPoint>,
-) : ProtoParcelable<DataProto.ExerciseLapSummary>() {
+    val lapMetrics: DataPointContainer,
+) {
 
-    /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public constructor(
+    internal constructor(
         proto: DataProto.ExerciseLapSummary
     ) : this(
         proto.lapCount,
         Instant.ofEpochMilli(proto.startTimeEpochMs),
         Instant.ofEpochMilli(proto.endTimeEpochMs),
         Duration.ofMillis(proto.activeDurationMs),
-        proto
-            .lapMetricsList
-            .map { DataType(it.dataType) to AggregateDataPoint.fromProto(it.aggregateDataPoint) }
-            .toMap()
+        DataPointContainer(
+            proto.lapMetricsList.map { DataPoint.fromProto(it.aggregateDataPoint) }
+        )
     )
 
-    /** @hide */
-    override val proto: DataProto.ExerciseLapSummary by lazy {
+    internal val proto: DataProto.ExerciseLapSummary by lazy {
         DataProto.ExerciseLapSummary.newBuilder()
             .setLapCount(lapCount)
             .setStartTimeEpochMs(startTime.toEpochMilli())
             .setEndTimeEpochMs(endTime.toEpochMilli())
             .setActiveDurationMs(activeDuration.toMillis())
             .addAllLapMetrics(
-                lapMetrics
+                lapMetrics.statisticalDataPoints
                     .map {
                         LapMetricsEntry.newBuilder()
-                            .setDataType(it.key.proto)
-                            .setAggregateDataPoint(it.value.proto)
+                            .setDataType(it.dataType.proto)
+                            .setAggregateDataPoint(it.proto)
+                            .build()
+                    }
+                    .sortedBy { it.dataType.name } // Required to ensure equals() works
+            )
+            .addAllLapMetrics(
+                lapMetrics.cumulativeDataPoints
+                    .map {
+                        LapMetricsEntry.newBuilder()
+                            .setDataType(it.dataType.proto)
+                            .setAggregateDataPoint(it.proto)
                             .build()
                     }
                     .sortedBy { it.dataType.name } // Required to ensure equals() works
@@ -91,12 +95,4 @@ public class ExerciseLapSummary(
             "endTime=$endTime, " +
             "activeDuration=$activeDuration, " +
             "lapMetrics=$lapMetrics)"
-
-    public companion object {
-        @JvmField
-        public val CREATOR: Parcelable.Creator<ExerciseLapSummary> = newCreator { bytes ->
-            val proto = DataProto.ExerciseLapSummary.parseFrom(bytes)
-            ExerciseLapSummary(proto)
-        }
-    }
 }

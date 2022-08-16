@@ -224,6 +224,8 @@
         <map code="0x05E9" name="1em_rtl"/>	<!-- ש Shin -->
         <map code="0x05EA" name="1em_rtl"/>	<!-- ת Tav -->
 
+        <map code="0x2026" name="1em"/> <!-- ELLIPSIS -->
+
         <map code="0x1d11e" name="1em"/><!-- MUSICAL SYMBOL G CLEF -->
         <map code="0x1d11f" name="1em"/><!-- MUSICAL SYMBOL G CLEF OTTAVA ALTA -->
         <map code="0x1f600" name="1em"/><!-- GRINNING FACE -->

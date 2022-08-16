@@ -64,6 +64,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 @SmallTest
+@SuppressWarnings("deprecation")
 public class TypefaceCompatTest {
 
     public Context mContext;

@@ -471,11 +471,38 @@ class WorkUpdateTest {
             .isEqualTo(RetryWorker::class.java.name)
     }
 
+    @Test
+    @MediumTest
+    fun updateWorkerGeneration() {
+        val oneTimeWorkRequest = OneTimeWorkRequest.Builder(WorkerWithParam::class.java)
+            .setInitialDelay(10, TimeUnit.DAYS)
+            .build()
+        workManager.enqueue(oneTimeWorkRequest).result.get()
+
+        val updatedWorkRequest = OneTimeWorkRequest.Builder(WorkerWithParam::class.java)
+            .setId(oneTimeWorkRequest.id)
+            .build()
+
+        assertThat(workManager.updateWork(updatedWorkRequest).get()).isEqualTo(APPLIED_IMMEDIATELY)
+        val worker = workerFactory.awaitWorker(oneTimeWorkRequest.id) as WorkerWithParam
+        assertThat(worker.generation).isEqualTo(1)
+        val workInfo = workManager.getWorkInfoById(oneTimeWorkRequest.id).get()
+        assertThat(workInfo.generation).isEqualTo(1)
+    }
+
     @After
     fun tearDown() {
         workManager.cancelAllWork()
         WorkManagerImpl.setDelegate(null)
     }
+}
+
+class WorkerWithParam(
+    context: Context,
+    workerParams: WorkerParameters
+) : Worker(context, workerParams) {
+    val generation = workerParams.generation
+    override fun doWork(): Result = Result.success()
 }
 
 private fun WorkManagerImpl.awaitSuccess(id: UUID) =

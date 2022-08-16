@@ -26,6 +26,7 @@ import androidx.test.filters.MediumTest
 import androidx.wear.watchface.complications.IllegalNodeException
 import androidx.wear.watchface.complications.data.ComplicationType
 import androidx.wear.watchface.complications.iterate
+import androidx.wear.watchface.complications.moveToStart
 import androidx.wear.watchface.style.UserStyleSetting.ListUserStyleSetting.ListOption
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotsOption
 import androidx.wear.watchface.style.test.R

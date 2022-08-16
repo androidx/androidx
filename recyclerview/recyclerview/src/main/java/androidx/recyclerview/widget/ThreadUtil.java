@@ -16,7 +16,7 @@
 
 package androidx.recyclerview.widget;
 
-import androidx.annotation.NonNull;
+import android.annotation.SuppressLint;
 
 interface ThreadUtil<T> {
 
@@ -24,7 +24,8 @@ interface ThreadUtil<T> {
 
         void updateItemCount(int generation, int itemCount);
 
-        void addTile(int generation, @NonNull TileList.Tile<T> tile);
+        @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
+        void addTile(int generation, TileList.Tile<T> tile);
 
         void removeTile(int generation, int position);
     }
@@ -38,7 +39,8 @@ interface ThreadUtil<T> {
 
         void loadTile(int position, int scrollHint);
 
-        void recycleTile(@NonNull TileList.Tile<T> tile);
+        @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
+        void recycleTile(TileList.Tile<T> tile);
     }
 
     MainThreadCallback<T> getMainThreadProxy(MainThreadCallback<T> callback);

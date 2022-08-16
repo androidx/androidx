@@ -19,9 +19,9 @@ package androidx.camera.core.processing
 import android.graphics.ImageFormat
 import android.graphics.SurfaceTexture
 import android.hardware.camera2.CameraDevice
-import android.media.Image
 import android.media.ImageReader
 import android.opengl.Matrix
+import android.os.Build
 import android.os.Handler
 import android.os.HandlerThread
 import android.view.Surface
@@ -259,7 +259,7 @@ class OpenGlRendererTest {
 
     @Test
     fun render(): Unit = runBlocking(glDispatcher) {
-        testRenderFromCameraToImageReader()
+        testRender()
     }
 
     @Test
@@ -270,7 +270,17 @@ class OpenGlRendererTest {
                 fragCoordsVarName: String
             ): String = getCustomFragmentShader(samplerVarName, fragCoordsVarName)
         }
-        testRenderFromCameraToImageReader(shaderProvider)
+        testRender(shaderProvider)
+    }
+
+    private suspend fun testRender(shaderProvider: ShaderProvider = ShaderProvider.DEFAULT) {
+        if (Build.VERSION.SDK_INT >= 23) {
+            // ImageReader support ImageFormat.PRIVATE from API 23
+            testRenderFromCameraToImageReader(shaderProvider)
+        } else {
+            // Render to SurfaceTexture surface as workaround
+            testRenderFromCameraToTextureSurface(shaderProvider)
+        }
     }
 
     private suspend fun testRenderFromCameraToImageReader(
@@ -293,7 +303,7 @@ class OpenGlRendererTest {
         // Prepare output
         val imageReader =
             ImageReader.newInstance(WIDTH, HEIGHT, ImageFormat.PRIVATE, 2)
-        val imageFlow = callbackFlow<Image> {
+        val imageFlow = callbackFlow {
             val listener = ImageReader.OnImageAvailableListener {
                 trySend(it.acquireLatestImage())
             }
@@ -312,6 +322,62 @@ class OpenGlRendererTest {
         val imageCollectJob = scope.launch {
             imageFlow.collectIndexed { index, image ->
                 image.close()
+                if (index >= 4) {
+                    scope.cancel()
+                }
+            }
+        }
+
+        // Assert.
+        withTimeoutOrNull(10_000L) {
+            imageCollectJob.join()
+            true
+        } ?: fail("Timed out to receive images")
+    }
+
+    private suspend fun testRenderFromCameraToTextureSurface(
+        shaderProvider: ShaderProvider = ShaderProvider.DEFAULT
+    ) {
+        // Arrange.
+        createOpenGlRendererAndInit(shaderProvider = shaderProvider)
+
+        // Prepare input
+        val surfaceTexture = SurfaceTexture(glRenderer.textureName).apply {
+            setDefaultBufferSize(WIDTH, HEIGHT)
+        }
+        val inputSurface = Surface(surfaceTexture)
+        openCameraAndSetRepeating(inputSurface)
+        cameraDeviceHolder.closedFuture.addListener({
+            inputSurface.release()
+            surfaceTexture.release()
+        }, CameraXExecutors.directExecutor())
+
+        // Prepare output
+        val outputSurfaceTexture = SurfaceTexture(0).apply {
+            setDefaultBufferSize(WIDTH, HEIGHT)
+        }
+        val outputSurface = Surface(outputSurfaceTexture)
+        val imageFlow = callbackFlow {
+            outputSurfaceTexture.setOnFrameAvailableListener({
+                it.updateTexImage()
+                trySend(Unit)
+            }, glHandler)
+            awaitClose {
+                outputSurfaceTexture.release()
+                outputSurface.release()
+            }
+        }
+
+        // Bridge input to output
+        surfaceTexture.setOnFrameAvailableListener({
+            it.updateTexImage()
+            glRenderer.setOutputSurface(outputSurface)
+            glRenderer.render(0L, IDENTITY_MATRIX)
+        }, glHandler)
+
+        val scope = CoroutineScope(glDispatcher)
+        val imageCollectJob = scope.launch {
+            imageFlow.collectIndexed { index, _ ->
                 if (index >= 4) {
                     scope.cancel()
                 }

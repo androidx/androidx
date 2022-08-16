@@ -88,7 +88,7 @@ import androidx.camera.video.VideoOutput;
 import androidx.camera.video.VideoSpec;
 import androidx.test.core.app.ApplicationProvider;
 
-import org.apache.maven.artifact.ant.shaded.ReflectionUtils;
+import org.codehaus.plexus.util.ReflectionUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

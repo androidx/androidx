@@ -28,6 +28,8 @@ import android.graphics.Point;
 import android.graphics.Rect;
 import android.view.ViewConfiguration;
 
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.uiautomator.By;
 import androidx.test.uiautomator.Direction;
 import androidx.test.uiautomator.UiObject2;
@@ -46,7 +48,7 @@ public class UiObject2Tests extends BaseTest {
 
     @Test
     public void testClear() {
-        launchTestActivity(UiObject2TestClearTextActivity.class);
+        launchTestActivity(ClearTextTestActivity.class);
 
         UiObject2 object = mDevice.findObject(By.res(TEST_APP, "edit_text"));
         // Verify the text field has text before clear()
@@ -58,7 +60,7 @@ public class UiObject2Tests extends BaseTest {
 
     @Test
     public void testClick() {
-        launchTestActivity(UiObject2TestClickActivity.class);
+        launchTestActivity(ClickTestActivity.class);
 
         // Short click with no parameter (`click()`).
         UiObject2 button1 = mDevice.findObject(By.res(TEST_APP, "button1"));
@@ -70,7 +72,7 @@ public class UiObject2Tests extends BaseTest {
 
     @Test
     public void testClick_point() {
-        launchTestActivity(UiObject2TestClickActivity.class);
+        launchTestActivity(ClickTestActivity.class);
 
         // Short click with a point position as a parameter (`click(Point point)`).
 
@@ -91,7 +93,7 @@ public class UiObject2Tests extends BaseTest {
 
     @Test
     public void testClick_duration() {
-        launchTestActivity(UiObject2TestClickActivity.class);
+        launchTestActivity(ClickTestActivity.class);
 
         // Short click with a time duration as a parameter (`click(long duration)`).
         UiObject2 button4 = mDevice.findObject(By.res(TEST_APP, "button4"));
@@ -110,7 +112,7 @@ public class UiObject2Tests extends BaseTest {
 
     @Test
     public void testClick_pointAndDuration() {
-        launchTestActivity(UiObject2TestClickActivity.class);
+        launchTestActivity(ClickTestActivity.class);
 
         // Short click with two parameters (`click(Point point, long duration)`).
         UiObject2 button6 = mDevice.findObject(By.res(TEST_APP, "button6"));
@@ -130,12 +132,68 @@ public class UiObject2Tests extends BaseTest {
     }
 
     @Test
-    public void testClickAndWait() {
-        launchTestActivity(UiObject2TestClickAndWaitActivity.class);
+    public void testClickAndWait_conditionAndTimeout() {
+        launchTestActivity(ClickAndWaitTestActivity.class);
 
         // Click the button and wait for a new window
         UiObject2 button = mDevice.findObject(By.res(TEST_APP, "new_window_button"));
         assertTrue(button.clickAndWait(Until.newWindow(), TIMEOUT_MS));
+    }
+
+    @Test
+    public void testClickAndWait_pointAndConditionAndTimeout() {
+        launchTestActivity(ClickAndWaitTestActivity.class);
+
+        // Click point inside the button.
+        UiObject2 button1 = mDevice.findObject(By.res(TEST_APP, "new_window_button"));
+        assertTrue(button1.clickAndWait(getPointInsideBounds(button1), Until.newWindow(),
+                TIMEOUT_MS));
+
+        // Click point outside the button.
+        UiObject2 button2 = mDevice.findObject(By.res(TEST_APP, "new_window_button"));
+        assertTrue(button2.clickAndWait(getPointOutsideBounds(button2), Until.newWindow(),
+                TIMEOUT_MS));
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 24)
+    public void testDrag_dest() {
+        launchTestActivity(DragTestActivity.class);
+
+        UiObject2 dragButton = mDevice.findObject(By.res(TEST_APP, "drag_button"));
+        UiObject2 dragDestination = mDevice.findObject(By.res(TEST_APP, "drag_destination"));
+        Point dest = dragDestination.getVisibleCenter();
+        assertEquals("no_drag_yet", dragDestination.getText());
+        dragButton.drag(dest);
+        dragDestination.wait(Until.textEquals("drag_received"), TIMEOUT_MS);
+        assertEquals("drag_received", dragDestination.getText());
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 24)
+    public void testDrag_destAndSpeed() {
+        launchTestActivity(DragTestActivity.class);
+
+        UiObject2 dragButton = mDevice.findObject(By.res(TEST_APP, "drag_button"));
+        UiObject2 dragDestination = mDevice.findObject(By.res(TEST_APP, "drag_destination"));
+        Point dest = dragDestination.getVisibleCenter();
+        assertEquals("no_drag_yet", dragDestination.getText());
+        dragButton.drag(dest, 1000);
+        dragDestination.wait(Until.textEquals("drag_received"), TIMEOUT_MS);
+        assertEquals("drag_received", dragDestination.getText());
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 24)
+    public void testDrag_destAndSpeed_throwsIllegalArgumentException() {
+        launchTestActivity(DragTestActivity.class);
+
+        UiObject2 dragButton = mDevice.findObject(By.res(TEST_APP, "drag_button"));
+        UiObject2 dragDestination = mDevice.findObject(By.res(TEST_APP, "drag_destination"));
+        Point dest = dragDestination.getVisibleCenter();
+        assertEquals("no_drag_yet", dragDestination.getText());
+        assertThrows("Speed cannot be negative", IllegalArgumentException.class,
+                () -> dragButton.drag(dest, -1000));
     }
 
     @Test
@@ -214,12 +272,12 @@ public class UiObject2Tests extends BaseTest {
 
     @Test
     public void testGetClassName() {
-        launchTestActivity(UiObject2TestGetClassNameActivity.class);
+        launchTestActivity(MainActivity.class);
 
         UiObject2 button = mDevice.findObject(By.res(TEST_APP, "button"));
         assertEquals("android.widget.Button", button.getClassName());
 
-        UiObject2 textView = mDevice.findObject(By.res(TEST_APP, "text_view"));
+        UiObject2 textView = mDevice.findObject(By.res(TEST_APP, "example_id"));
         assertEquals("android.widget.TextView", textView.getClassName());
     }
 
@@ -260,50 +318,40 @@ public class UiObject2Tests extends BaseTest {
     public void testGetText() {
         launchTestActivity(MainActivity.class);
 
-        UiObject2 object = mDevice.findObject(By.text("Sample text"));
-        assertEquals("Sample text", object.getText());
+        UiObject2 sampleTextObject = mDevice.findObject(By.text("Sample text"));
+        assertEquals("Sample text", sampleTextObject.getText());
 
-        UiObject2 nestedObject = mDevice.findObject(By.res(TEST_APP, "nested_elements"));
-        assertNull(nestedObject.getText());
+        UiObject2 nullTextObject = mDevice.findObject(By.res(TEST_APP, "nested_elements"));
+        assertNull(nullTextObject.getText());
     }
 
     @Test
     public void testGetVisibleBounds() {
-        launchTestActivity(MainActivity.class);
+        launchTestActivity(VisibleBoundsTestActivity.class);
 
-        UiObject2 object = mDevice.findObject(By.pkg(TEST_APP));
-        Rect bounds = object.getVisibleBounds();
-        int top = bounds.top;
-        int bottom = bounds.bottom;
-        int left = bounds.left;
-        int right = bounds.right;
-        int boundsHeight = bounds.height();
-        int boundsWidth = bounds.width();
-        int displayHeight = mDevice.getDisplayHeight();
-        int displayWidth = mDevice.getDisplayWidth();
-        // Test the lower bounds
-        assertTrue(0 <= top);
-        assertTrue(0 <= left);
-        assertTrue(top < bottom);
-        assertTrue(left < right);
-        // Test the upper bounds
-        assertTrue(boundsHeight < displayHeight);
-        assertTrue(boundsWidth < displayWidth);
+        UiObject2 partlyInvisibleRegion = mDevice.findObject(
+                By.res(TEST_APP, "partly_invisible_region"));
+        UiObject2 regionInsideScrollable = mDevice.findObject(
+                By.res(TEST_APP, "region_inside_scrollable"));
+
+        partlyInvisibleRegion.click();
+        regionInsideScrollable.click();
+        assertEquals(partlyInvisibleRegion.getText(),
+                partlyInvisibleRegion.getVisibleBounds().toString());
+        assertEquals(regionInsideScrollable.getText(),
+                regionInsideScrollable.getVisibleBounds().toString());
     }
 
     @Test
     public void testGetVisibleCenter() {
-        launchTestActivity(MainActivity.class);
+        launchTestActivity(VisibleBoundsTestActivity.class);
 
-        UiObject2 object = mDevice.findObject(By.pkg(TEST_APP));
-        Rect bounds = object.getVisibleBounds();
-        Point center = object.getVisibleCenter();
-        int top = bounds.top;
-        int bottom = bounds.bottom;
-        int left = bounds.left;
-        int right = bounds.right;
-        assertEquals((left + right) / 2, center.x);
-        assertEquals((top + bottom) / 2, center.y);
+        UiObject2 partlyInvisibleRegion = mDevice.findObject(
+                By.res(TEST_APP, "partly_invisible_region"));
+
+        partlyInvisibleRegion.click((long) (ViewConfiguration.getLongPressTimeout() * 1.5));
+        assertEquals(partlyInvisibleRegion.getText(),
+                partlyInvisibleRegion.getVisibleCenter().toString());
     }
 
     @Test
@@ -333,7 +381,7 @@ public class UiObject2Tests extends BaseTest {
 
     @Test
     public void testIsCheckable() {
-        launchTestActivity(UiObject2TestClickActivity.class);
+        launchTestActivity(ClickTestActivity.class);
 
         // CheckBox objects are checkable by default.
         UiObject2 checkBox = mDevice.findObject(By.res(TEST_APP, "check_box"));
@@ -345,7 +393,7 @@ public class UiObject2Tests extends BaseTest {
 
     @Test
     public void testIsChecked() {
-        launchTestActivity(UiObject2TestClickActivity.class);
+        launchTestActivity(ClickTestActivity.class);
 
         UiObject2 checkBox = mDevice.findObject(By.res(TEST_APP, "check_box"));
         assertFalse(checkBox.isChecked());
@@ -367,7 +415,7 @@ public class UiObject2Tests extends BaseTest {
 
     @Test
     public void testIsEnabled() {
-        launchTestActivity(UiObject2TestIsEnabledActivity.class);
+        launchTestActivity(IsEnabledTestActivity.class);
 
         UiObject2 disabledObject = mDevice.findObject(By.res(TEST_APP, "disabled_text_view"));
         assertFalse(disabledObject.isEnabled());
@@ -377,7 +425,7 @@ public class UiObject2Tests extends BaseTest {
 
     @Test
     public void testIsFocusable() {
-        launchTestActivity(UiObject2TestIsFocusedActivity.class);
+        launchTestActivity(IsFocusedTestActivity.class);
 
         UiObject2 nonFocusableTextView = mDevice.findObject(By.res(TEST_APP,
                 "non_focusable_text_view"));
@@ -388,7 +436,7 @@ public class UiObject2Tests extends BaseTest {
 
     @Test
     public void testIsFocused() {
-        launchTestActivity(UiObject2TestIsFocusedActivity.class);
+        launchTestActivity(IsFocusedTestActivity.class);
 
         UiObject2 textView = mDevice.findObject(By.res(TEST_APP, "focusable_text_view"));
         assertFalse(textView.isFocused());
@@ -399,7 +447,7 @@ public class UiObject2Tests extends BaseTest {
 
     @Test
     public void testIsLongClickable() {
-        launchTestActivity(UiObject2TestIsLongClickableActivity.class);
+        launchTestActivity(IsLongClickableTestActivity.class);
 
         UiObject2 longClickableButton = mDevice.findObject(By.res(TEST_APP,
                 "long_clickable_button"));
@@ -411,7 +459,7 @@ public class UiObject2Tests extends BaseTest {
 
     @Test
     public void testIsScrollable() {
-        launchTestActivity(UiObject2TestVerticalScrollActivity.class);
+        launchTestActivity(VerticalScrollTestActivity.class);
 
         // ScrollView objects are scrollable by default.
         UiObject2 scrollView = mDevice.findObject(By.res(TEST_APP, "scroll_view"));
@@ -423,7 +471,7 @@ public class UiObject2Tests extends BaseTest {
 
     @Test
     public void testIsSelected() {
-        launchTestActivity(UiObject2TestIsSelectedActivity.class);
+        launchTestActivity(IsSelectedTestActivity.class);
 
         UiObject2 button = mDevice.findObject(By.res(TEST_APP, "selected_button"));
         button.click();
@@ -432,8 +480,8 @@ public class UiObject2Tests extends BaseTest {
     }
 
     @Test
-    public void testLongClickButton() {
-        launchTestActivity(UiObject2TestLongClickActivity.class);
+    public void testLongClick() {
+        launchTestActivity(LongClickTestActivity.class);
 
         // Find the button and verify its initial state
         UiObject2 button = mDevice.findObject(By.res(TEST_APP, "button"));
@@ -441,8 +489,7 @@ public class UiObject2Tests extends BaseTest {
 
         // Click on the button and verify that the text has changed
         button.longClick();
-        button.wait(Until.textEquals("I've been long clicked!"), TIMEOUT_MS);
-        assertEquals("I've been long clicked!", button.getText());
+        assertTrue(button.wait(Until.textEquals("I've been long clicked!"), TIMEOUT_MS));
     }
 
     @Test
@@ -498,6 +545,40 @@ public class UiObject2Tests extends BaseTest {
     }
 
     @Test
+    public void testSwipe() {
+        launchTestActivity(SwipeTestActivity.class);
+
+        UiObject2 swipeRegion = mDevice.findObject(By.res(TEST_APP, "swipe_region"));
+        swipeRegion.setGestureMargin(SCROLL_MARGIN);
+
+        swipeRegion.swipe(Direction.LEFT, 0.9f);
+        assertTrue(swipeRegion.wait(Until.textEquals("swipe_left"), TIMEOUT_MS));
+
+        swipeRegion.swipe(Direction.RIGHT, 1.0f);
+        assertTrue(swipeRegion.wait(Until.textEquals("swipe_right"), TIMEOUT_MS));
+
+        swipeRegion.swipe(Direction.UP, 0.9f, 1000);
+        assertTrue(swipeRegion.wait(Until.textEquals("swipe_up"), TIMEOUT_MS));
+
+        swipeRegion.swipe(Direction.DOWN, 1.0f, 1000);
+        assertTrue(swipeRegion.wait(Until.textEquals("swipe_down"), TIMEOUT_MS));
+    }
+
+    @Test
+    public void testSwipe_throwsIllegalArgumentException() {
+        launchTestActivity(SwipeTestActivity.class);
+
+        UiObject2 swipeRegion = mDevice.findObject(By.res(TEST_APP, "swipe_region"));
+
+        assertThrows("Percent must be between 0.0f and 1.0f", IllegalArgumentException.class,
+                () -> swipeRegion.swipe(Direction.UP, 10.0f));
+        assertThrows("Percent must be between 0.0f and 1.0f", IllegalArgumentException.class,
+                () -> swipeRegion.swipe(Direction.UP, -10.0f));
+        assertThrows("Speed cannot be negative", IllegalArgumentException.class,
+                () -> swipeRegion.swipe(Direction.UP, 1.0f, -10));
+    }
+
+    @Test
     public void testRecycle() {
         launchTestActivity(MainActivity.class);
 
@@ -514,7 +595,7 @@ public class UiObject2Tests extends BaseTest {
 
     @Test
     public void testScroll() {
-        launchTestActivity(UiObject2TestVerticalScrollActivity.class);
+        launchTestActivity(VerticalScrollTestActivity.class);
         assertTrue(mDevice.hasObject(By.res(TEST_APP, "top_text"))); // Initially at top.
 
         // Scroll down to bottom (20000px) in increments of 5000px.
@@ -538,7 +619,7 @@ public class UiObject2Tests extends BaseTest {
 
     @Test
     public void testScroll_untilEnd() {
-        launchTestActivity(UiObject2TestVerticalScrollActivity.class);
+        launchTestActivity(VerticalScrollTestActivity.class);
         assertTrue(mDevice.hasObject(By.res(TEST_APP, "top_text"))); // Initially at top.
 
         // Scroll until end (scroll method returns false).
@@ -548,6 +629,56 @@ public class UiObject2Tests extends BaseTest {
             // Continue until bottom.
         }
         assertTrue(mDevice.hasObject(By.res(TEST_APP, "bottom_text")));
+    }
+
+    @Test
+    public void testFling_direction() {
+        launchTestActivity(UiObject2TestFlingActivity.class);
+
+        // Avoid touching too close to the edges.
+        UiObject2 flingRegion = mDevice.findObject(By.res(TEST_APP, "fling_region"));
+        flingRegion.setGestureMargin(SCROLL_MARGIN);
+
+        // No fling yet.
+        assertEquals("no_fling", flingRegion.getText());
+
+        while (flingRegion.fling(Direction.LEFT)) {
+            // Continue until left bound.
+        }
+        assertTrue(flingRegion.wait(Until.textEquals("fling_left"), TIMEOUT_MS));
+    }
+
+    @Test
+    public void testFling_directionAndSpeed() {
+        launchTestActivity(UiObject2TestFlingActivity.class);
+
+        // Avoid touching too close to the edges.
+        UiObject2 flingRegion = mDevice.findObject(By.res(TEST_APP, "fling_region"));
+        flingRegion.setGestureMargin(SCROLL_MARGIN);
+
+        // No fling yet.
+        assertEquals("no_fling", flingRegion.getText());
+
+        while (flingRegion.fling(Direction.UP, 5000)) {
+            // Continue until up bound.
+        }
+        assertTrue(flingRegion.wait(Until.textEquals("fling_up"), TIMEOUT_MS));
+    }
+
+    @Test
+    public void testFling_throwsIllegalArgumentException() {
+        launchTestActivity(UiObject2TestFlingActivity.class);
+
+        UiObject2 flingRegion = mDevice.findObject(By.res(TEST_APP, "fling_region"));
+
+        int speed =
+                ViewConfiguration.get(
+                        ApplicationProvider.getApplicationContext()).getScaledMinimumFlingVelocity()
+                        / 2;
+
+        assertThrows("Speed is less than the minimum fling velocity",
+                IllegalArgumentException.class,
+                () -> flingRegion.fling(Direction.DOWN, speed));
     }
 
     @Test
@@ -608,7 +739,7 @@ public class UiObject2Tests extends BaseTest {
 
     @Test
     public void testSetText() {
-        launchTestActivity(UiObject2TestClearTextActivity.class);
+        launchTestActivity(ClearTextTestActivity.class);
 
         UiObject2 object = mDevice.findObject(By.res(TEST_APP, "edit_text"));
         // Verify the text field has "sample_text" before setText()
@@ -618,19 +749,7 @@ public class UiObject2Tests extends BaseTest {
         assertEquals("new_text", object.getText());
     }
 
-    /* TODO(b/235841473): Implement these tests
-    public void testDrag() {}
-
-    public void testFling() {}
-
-    public void testSwipe() {}
-
-    public void testWaitForExists() {}
-
-    public void testWaitForGone() {}
-    */
-
-    /* Helper method for `testClick*()`. Get a point inside the object. */
+    /* Helper method to get a point inside the object. */
     private Point getPointInsideBounds(UiObject2 obj) {
         Rect objBounds = obj.getVisibleBounds();
         int pointX = objBounds.left + objBounds.width() / 3;
@@ -638,7 +757,7 @@ public class UiObject2Tests extends BaseTest {
         return new Point(pointX, pointY);
     }
 
-    /* Helper method for `testClick*()`. Get a point outside the object. */
+    /* Helper method to get a point outside the object. */
     private Point getPointOutsideBounds(UiObject2 obj) {
         Rect objBounds = obj.getVisibleBounds();
         int pointX = objBounds.right + objBounds.width() / 3;

@@ -17,10 +17,8 @@
 package androidx.window.extensions.embedding;
 
 import androidx.annotation.NonNull;
-import androidx.window.extensions.ExperimentalWindowExtensionsApi;
 
 /** Describes a split of two containers with activities. */
-@ExperimentalWindowExtensionsApi
 public class SplitInfo {
     @NonNull
     private final ActivityStack mPrimaryActivityStack;

@@ -30,7 +30,7 @@ import androidx.annotation.RestrictTo;
  * Used for sending details of an exception over aidl.
  * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @SuppressLint("BanParcelableUsage")
 public class CrashInfoParcel implements Parcelable {
     @NonNull public final CrashInfo crashInfo;

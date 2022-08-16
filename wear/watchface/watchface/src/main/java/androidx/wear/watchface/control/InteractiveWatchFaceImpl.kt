@@ -71,6 +71,8 @@ internal class InteractiveWatchFaceImpl(
 
     override fun unused18() {}
 
+    override fun unused20() {}
+
     override fun getWatchFaceOverlayStyle(): WatchFaceOverlayStyleWireFormat? =
         WatchFaceService.awaitDeferredWatchFaceAndComplicationManagerThenRunOnBinderThread(
             engine,
@@ -149,6 +151,10 @@ internal class InteractiveWatchFaceImpl(
     ): Unit = uiThreadCoroutineScope.runBlockingWithTracing(
         "InteractiveWatchFaceImpl.updateComplicationData"
     ) {
+        if ("user" != Build.TYPE) {
+            Log.d(TAG, "updateComplicationData " + complicationDatumWireFormats.joinToString())
+        }
+
         engine?.setComplicationDataList(complicationDatumWireFormats)
             ?: Log.d(TAG, "updateComplicationData ignored due to null engine id $instanceId")
     }
@@ -166,7 +172,6 @@ internal class InteractiveWatchFaceImpl(
         ) {
             if (instanceId != newInstanceId) {
                 engine?.updateInstance(newInstanceId)
-                InteractiveInstanceManager.renameInstance(instanceId, newInstanceId)
                 instanceId = newInstanceId
             }
             engine?.setUserStyle(userStyle)

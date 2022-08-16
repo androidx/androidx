@@ -242,7 +242,7 @@ public class EditTextPreference extends DialogPreference {
         @Override
         public CharSequence provideSummary(@NonNull EditTextPreference preference) {
             if (TextUtils.isEmpty(preference.getText())) {
-                return (preference.getContext().getString(R.string.not_set));
+                return preference.getContext().getString(R.string.not_set);
             } else {
                 return preference.getText();
             }

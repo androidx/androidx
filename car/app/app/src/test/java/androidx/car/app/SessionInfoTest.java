@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package androidx.car.app;
 
 import static androidx.car.app.SessionInfo.DISPLAY_TYPE_CLUSTER;
@@ -49,7 +48,7 @@ public class SessionInfoTest {
         SessionInfo sessionInfo = new SessionInfo(DISPLAY_TYPE_MAIN, TEST_SESSION_ID);
 
         Set<Class<? extends Template>> result =
-                sessionInfo.getSupportedTemplates(CarAppApiLevels.LEVEL_5);
+                sessionInfo.getSupportedTemplates(CarAppApiLevels.LEVEL_6);
 
         assertThat(result).isNull();
     }
@@ -60,18 +59,18 @@ public class SessionInfoTest {
                 new SessionInfo(DISPLAY_TYPE_CLUSTER, TEST_SESSION_ID);
 
         Set<Class<? extends Template>> result =
-                sessionInfo.getSupportedTemplates(CarAppApiLevels.LEVEL_5);
+                sessionInfo.getSupportedTemplates(CarAppApiLevels.LEVEL_6);
 
         assertThat(result).isNotEmpty();
     }
 
     @Test
-    public void getSupportedTemplates_displayTypeCluster_apiLessThan5() {
+    public void getSupportedTemplates_displayTypeCluster_apiLessThan6() {
         SessionInfo sessionInfo =
                 new SessionInfo(DISPLAY_TYPE_CLUSTER, TEST_SESSION_ID);
 
         Set<Class<? extends Template>> result =
-                sessionInfo.getSupportedTemplates(CarAppApiLevels.LEVEL_4);
+                sessionInfo.getSupportedTemplates(CarAppApiLevels.LEVEL_5);
 
         assertThat(result).isEmpty();
     }

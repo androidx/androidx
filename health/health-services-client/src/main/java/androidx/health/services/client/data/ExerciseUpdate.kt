@@ -16,15 +16,13 @@
 
 package androidx.health.services.client.data
 
+import androidx.health.services.client.proto.DataProto.ExerciseUpdate.LatestMetricsEntry as LatestMetricsEntryProto
 import android.os.Parcelable
 import androidx.annotation.RestrictTo
 import androidx.health.services.client.data.ExerciseEndReason.Companion.toProto
+import androidx.health.services.client.data.ExerciseUpdate.ActiveDurationCheckpoint
 import androidx.health.services.client.proto.DataProto
-import androidx.health.services.client.proto.DataProto.AggregateDataPoint.AggregateCase.AGGREGATE_NOT_SET
-import androidx.health.services.client.proto.DataProto.AggregateDataPoint.AggregateCase.CUMULATIVE_DATA_POINT
-import androidx.health.services.client.proto.DataProto.AggregateDataPoint.AggregateCase.STATISTICAL_DATA_POINT
-import androidx.health.services.client.proto.DataProto.ExerciseUpdate.LatestMetricsEntry as LatestMetricsEntryProto
-import java.lang.IllegalStateException
+import androidx.health.services.client.proto.DataProto.AchievedExerciseGoal
 import java.time.Duration
 import java.time.Instant
 
@@ -46,21 +44,15 @@ public class ExerciseUpdate(
     /** The duration since boot when this ExerciseUpdate was created. */
     private val updateDurationFromBoot: Duration?,
 
-    /**
-     * Returns the list of latest [DataPoint] for each metric keyed by data type name. This allows a
-     * client to easily query for the "current" values of each metric since last call.
-     */
-    public val latestMetrics: Map<DataType, List<DataPoint>>,
-
-    /** Returns the latest aggregated values for each metric keyed by [DataType.name]. */
-    public val latestAggregateMetrics: Map<DataType, AggregateDataPoint>,
+    /** Returns the list of the latest [DataPoint]s. */
+    public val latestMetrics: DataPointContainer,
 
     /**
      * Returns the latest [ExerciseGoalType.ONE_TIME_GOAL] [ExerciseGoal]s that have been achieved.
      * [ExerciseGoalType.MILESTONE] [ExerciseGoal]s will be returned via
      * [latestMilestoneMarkerSummaries].
      */
-    public val latestAchievedGoals: Set<AchievedExerciseGoal>,
+    public val latestAchievedGoals: Set<ExerciseGoal<out Number>>,
 
     /** Returns the latest [MilestoneMarkerSummary]s. */
     public val latestMilestoneMarkerSummaries: Set<MilestoneMarkerSummary>,
@@ -97,23 +89,8 @@ public class ExerciseUpdate(
         } else {
             null
         },
-        proto
-            .latestMetricsList
-            .map { metric ->
-                DataType(metric.dataType) to metric.dataPointsList.map { DataPoint(it) }
-            }
-            .toMap(),
-        proto.latestAggregateMetricsList
-            .map { metric ->
-                when (metric.aggregateCase) {
-                    CUMULATIVE_DATA_POINT -> DataType(metric.cumulativeDataPoint.dataType)
-                    STATISTICAL_DATA_POINT -> DataType(metric.statisticalDataPoint.dataType)
-                    null, AGGREGATE_NOT_SET ->
-                        throw IllegalStateException("Aggregate not set on $metric")
-                } to AggregateDataPoint.fromProto(metric)
-            }
-            .toMap(),
-        proto.latestAchievedGoalsList.map { AchievedExerciseGoal(it) }.toSet(),
+        exerciseUpdateProtoToDataPointContainer(proto),
+        proto.latestAchievedGoalsList.map { ExerciseGoal.fromProto(it.exerciseGoal) }.toSet(),
         proto.mileStoneMarkerSummariesList.map { MilestoneMarkerSummary(it) }.toSet(),
         if (proto.hasExerciseConfig()) ExerciseConfig(proto.exerciseConfig) else null,
         if (proto.hasActiveDurationCheckpoint()) {
@@ -184,38 +161,48 @@ public class ExerciseUpdate(
                 .setState(exerciseStateInfo.state.toProto())
                 .setActiveDurationMs(activeDuration.toMillis())
                 .addAllLatestMetrics(
-                    latestMetrics
+                    latestMetrics.sampleDataPoints
+                        .groupBy { it.dataType }
                         .map {
                             LatestMetricsEntryProto.newBuilder()
                                 .setDataType(it.key.proto)
-                                .addAllDataPoints(it.value.map { dataPoint -> dataPoint.proto })
+                                .addAllDataPoints(it.value.map(SampleDataPoint<*>::proto))
                                 .build()
                         }
-                        .sortedBy { entry ->
-                            entry.dataType.name
-                        } // If we don't sort, equals() may not work.
+                        // If we don't sort, equals() may not work.
+                        .sortedBy { entry -> entry.dataType.name }
+                )
+                .addAllLatestMetrics(
+                    latestMetrics.intervalDataPoints
+                        .groupBy { it.dataType }
+                        .map {
+                            LatestMetricsEntryProto.newBuilder()
+                                .setDataType(it.key.proto)
+                                .addAllDataPoints(it.value.map(IntervalDataPoint<*>::proto))
+                                .build()
+                        }
+                        // If we don't sort, equals() may not work.
+                        .sortedBy { entry -> entry.dataType.name }
                 )
                 .addAllLatestAggregateMetrics(
-                    latestAggregateMetrics
-                        .map { it.value.proto }
-                        .sortedBy { entry ->
-                            when (entry.aggregateCase) {
-                                CUMULATIVE_DATA_POINT -> entry.cumulativeDataPoint.dataType.name
-                                STATISTICAL_DATA_POINT -> entry.statisticalDataPoint.dataType.name
-                                null, AGGREGATE_NOT_SET ->
-                                    throw IllegalStateException("Aggregate not set on $entry")
-                            }
-                        }
-                ) // If we don't sort, equals() may not work.
-                .addAllLatestAchievedGoals(latestAchievedGoals.map { it.proto })
-                .addAllMileStoneMarkerSummaries(latestMilestoneMarkerSummaries.map { it.proto })
+                    latestMetrics.statisticalDataPoints
+                        .map { it.proto }
+                        // If we don't sort, equals() may not work.
+                        .sortedBy { entry -> entry.statisticalDataPoint.dataType.name }
+                ).addAllLatestAggregateMetrics(latestMetrics.cumulativeDataPoints
+                    .map { it.proto }
+                    // If we don't sort, equals() may not work.
+                    .sortedBy { entry -> entry.cumulativeDataPoint.dataType.name })
+                .addAllLatestAchievedGoals(latestAchievedGoals.map {
+                    AchievedExerciseGoal.newBuilder().setExerciseGoal(it.proto).build()
+                }).addAllMileStoneMarkerSummaries(latestMilestoneMarkerSummaries.map { it.proto })
                 .setExerciseEndReason((exerciseStateInfo.endReason).toProto())
 
         startTime?.let { builder.setStartTimeEpochMs(startTime.toEpochMilli()) }
         updateDurationFromBoot?.let {
             builder.setUpdateDurationFromBootMs(updateDurationFromBoot.toMillis())
         }
-        exerciseConfig?.let { builder.setExerciseConfig(exerciseConfig.proto) }
+        exerciseConfig?.let { builder.setExerciseConfig(exerciseConfig.toProto()) }
         activeDurationCheckpoint?.let {
             builder.setActiveDurationCheckpoint(activeDurationCheckpoint.toProto())
         }
@@ -236,16 +223,33 @@ public class ExerciseUpdate(
             )
 
     /**
-     * Returns the ActiveDuration of the exercise at the time of the provided [DataPoint]. The
-     * provided [DataPoint] should be present in this [ExerciseUpdate].
+     * Returns the ActiveDuration of the exercise at the time of the provided [IntervalDataPoint].
+     * The provided [IntervalDataPoint] should be present in this [ExerciseUpdate].
      *
      * @throws IllegalArgumentException if [dataPoint] is not present in this [ExerciseUpdate]
      * @throws IllegalStateException if this [ExerciseUpdate] does not contain a valid
      * `updateDurationFromBoot` which may happen if the Health Services app is out of date
      */
-    public fun getActiveDurationAtDataPoint(dataPoint: DataPoint): Duration {
-        val dataPointList = latestMetrics[dataPoint.dataType]
-        if (dataPointList == null || dataPointList.indexOf(dataPoint) == -1) {
+    public fun getActiveDurationAtDataPoint(dataPoint: IntervalDataPoint<*>): Duration =
+        getActiveDurationAtDataPoint(dataPoint, dataPoint.endDurationFromBoot)
+
+    /**
+     * Returns the ActiveDuration of the exercise at the time of the provided [SampleDataPoint].
+     * The provided [SampleDataPoint] should be present in this [ExerciseUpdate].
+     *
+     * @throws IllegalArgumentException if [dataPoint] is not present in this [ExerciseUpdate]
+     * @throws IllegalStateException if this [ExerciseUpdate] does not contain a valid
+     * `updateDurationFromBoot` which may happen if the Health Services app is out of date
+     */
+    public fun getActiveDurationAtDataPoint(dataPoint: SampleDataPoint<*>): Duration =
+        getActiveDurationAtDataPoint(dataPoint, dataPoint.timeDurationFromBoot)
+
+    private fun getActiveDurationAtDataPoint(
+        dataPoint: DataPoint<*>,
+        durationFromBoot: Duration
+    ): Duration {
+        val dataPointList = latestMetrics.dataPoints[dataPoint.dataType]
+        if (dataPointList?.indexOf(dataPoint) == -1) {
             throw IllegalArgumentException("dataPoint not found in ExerciseUpdate")
         }
 
@@ -255,11 +259,11 @@ public class ExerciseUpdate(
         ) {
             return activeDuration
         }
+
         // Active duration applies to when this update was generated so calculate for the given time
         // by working backwards.
         // First find time since this point was generated.
-        val durationSinceProvidedTime =
-            getUpdateDurationFromBoot().minus(dataPoint.endDurationFromBoot)
+        val durationSinceProvidedTime = getUpdateDurationFromBoot().minus(durationFromBoot)
         return activeDuration.minus(durationSinceProvidedTime)
     }
 
@@ -270,7 +274,6 @@ public class ExerciseUpdate(
             "activeDuration=$activeDuration, " +
             "updateDurationFromBoot=$updateDurationFromBoot, " +
             "latestMetrics=$latestMetrics, " +
-            "latestAggregateMetrics=$latestAggregateMetrics, " +
             "latestAchievedGoals=$latestAchievedGoals, " +
             "latestMilestoneMarkerSummaries=$latestMilestoneMarkerSummaries, " +
             "exerciseConfig=$exerciseConfig, " +
@@ -285,7 +288,6 @@ public class ExerciseUpdate(
         if (startTime != other.startTime) return false
         if (activeDuration != other.activeDuration) return false
         if (latestMetrics != other.latestMetrics) return false
-        if (latestAggregateMetrics != other.latestAggregateMetrics) return false
         if (latestAchievedGoals != other.latestAchievedGoals) return false
         if (latestMilestoneMarkerSummaries != other.latestMilestoneMarkerSummaries) return false
         if (exerciseConfig != other.exerciseConfig) return false
@@ -300,7 +302,6 @@ public class ExerciseUpdate(
         var result = startTime?.hashCode() ?: 0
         result = 31 * result + activeDuration.hashCode()
         result = 31 * result + latestMetrics.hashCode()
-        result = 31 * result + latestAggregateMetrics.hashCode()
         result = 31 * result + latestAchievedGoals.hashCode()
         result = 31 * result + latestMilestoneMarkerSummaries.hashCode()
         result = 31 * result + (exerciseConfig?.hashCode() ?: 0)
@@ -315,6 +316,24 @@ public class ExerciseUpdate(
         public val CREATOR: Parcelable.Creator<ExerciseUpdate> = newCreator { bytes ->
             val proto = DataProto.ExerciseUpdate.parseFrom(bytes)
             ExerciseUpdate(proto)
+        }
+
+        internal fun exerciseUpdateProtoToDataPointContainer(
+            proto: DataProto.ExerciseUpdate
+        ): DataPointContainer {
+            val dataPoints = mutableListOf<DataPoint<*>>()
+
+            proto.latestMetricsList
+                .flatMap { it.dataPointsList }
+                .forEach {
+                    dataPoints += DataPoint.fromProto(it)
+                }
+            proto.latestAggregateMetricsList
+                .forEach {
+                    dataPoints += DataPoint.fromProto(it)
+                }
+
+            return DataPointContainer(dataPoints)
         }
     }
 }

@@ -20,7 +20,6 @@ import android.content.ContentResolver
 import android.content.ContentValues
 import android.content.Context
 import android.hardware.camera2.CameraCharacteristics
-import android.net.Uri
 import android.os.Build
 import android.os.Environment.DIRECTORY_DOCUMENTS
 import android.provider.MediaStore
@@ -29,10 +28,21 @@ import androidx.annotation.OptIn
 import androidx.camera.camera2.interop.Camera2CameraInfo
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop
 import androidx.camera.extensions.ExtensionsManager
+import androidx.camera.integration.extensions.ExtensionTestType.TEST_TYPE_CAMERA2_EXTENSION
+import androidx.camera.integration.extensions.ExtensionTestType.TEST_TYPE_CAMERAX_EXTENSION
+import androidx.camera.integration.extensions.TestResultType.TEST_RESULT_FAILED
+import androidx.camera.integration.extensions.TestResultType.TEST_RESULT_NOT_SUPPORTED
+import androidx.camera.integration.extensions.TestResultType.TEST_RESULT_NOT_TESTED
+import androidx.camera.integration.extensions.TestResultType.TEST_RESULT_PASSED
+import androidx.camera.integration.extensions.utils.Camera2ExtensionsUtil.AVAILABLE_CAMERA2_EXTENSION_MODES
+import androidx.camera.integration.extensions.utils.Camera2ExtensionsUtil.getCamera2ExtensionModeIdFromString
+import androidx.camera.integration.extensions.utils.Camera2ExtensionsUtil.getCamera2ExtensionModeStringFromId
+import androidx.camera.integration.extensions.utils.Camera2ExtensionsUtil.isCamera2ExtensionModeSupported
 import androidx.camera.integration.extensions.utils.CameraSelectorUtil.createCameraSelectorById
 import androidx.camera.integration.extensions.utils.ExtensionModeUtil.AVAILABLE_EXTENSION_MODES
 import androidx.camera.integration.extensions.utils.ExtensionModeUtil.getExtensionModeIdFromString
 import androidx.camera.integration.extensions.utils.ExtensionModeUtil.getExtensionModeStringFromId
+import androidx.camera.integration.extensions.utils.FileUtil.copyTempFileToOutputLocation
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.net.toUri
 import java.io.BufferedReader
@@ -49,18 +59,30 @@ import java.util.Locale
 private const val TAG = "TestResults"
 
 private const val TEST_RESULTS_FILE_NAME = "TestResult.csv"
-private const val TEST_RESULT_INDEX_CAMERA_ID = 0
-private const val TEST_RESULT_INDEX_EXTENSION_MODE = 1
-private const val TEST_RESULT_INDEX_TEST_RESULT = 2
+private const val TEST_RESULT_INDEX_TEST_TYPE = 0
+private const val TEST_RESULT_INDEX_CAMERA_ID = 1
+private const val TEST_RESULT_INDEX_EXTENSION_MODE = 2
+private const val TEST_RESULT_INDEX_TEST_RESULT = 3
 
 private const val TEST_RESULT_STRING_NOT_SUPPORTED = "NOT_SUPPORTED"
 private const val TEST_RESULT_STRING_NOT_TESTED = "NOT_TESTED"
 private const val TEST_RESULT_STRING_PASSED = "PASSED"
 private const val TEST_RESULT_STRING_FAILED = "FAILED"
 
+/**
+ * A class to load, save and export the test results.
+ */
 class TestResults constructor(private val context: Context) {
+    /**
+     * Camera id to lens facing map.
+     */
     private val cameraLensFacingMap = linkedMapOf<String, Int>()
-    private val cameraExtensionResultMap = linkedMapOf<String, LinkedHashMap<Int, Int>>()
+
+    /**
+     * Pair of <test type, camera id> to list of <extension mode, test result> map.
+     */
+    private val cameraExtensionResultMap =
+        linkedMapOf<Pair<String, String>, LinkedHashMap<Int, Int>>()
 
     fun loadTestResults(
         cameraProvider: ProcessCameraProvider,
@@ -74,22 +96,28 @@ class TestResults constructor(private val context: Context) {
 
     fun getCameraExtensionResultMap() = cameraExtensionResultMap
 
-    fun saveTestResults(cameraExtensionResultMap: LinkedHashMap<String, LinkedHashMap<Int, Int>>) {
+    /**
+     * Saves the test results.
+     *
+     * The input parameter is pair of <test type, camera id> to list of
+     * <extension mode, test result> map.
+     */
+    fun saveTestResults(
+        cameraExtensionResultMap: LinkedHashMap<Pair<String, String>, LinkedHashMap<Int, Int>>
+    ) {
         val testResultsFile = File(context.getExternalFilesDir(null), TEST_RESULTS_FILE_NAME)
         val outputStream = FileOutputStream(testResultsFile)
 
         val headerString = "Camera Id,Extension Mode,Test Result\n"
         outputStream.write(headerString.toByteArray())
 
-        cameraExtensionResultMap.forEach {
-            val cameraId = it.key
-            it.value.forEach {
-                val resultString =
-                    "$cameraId,${getExtensionModeStringFromId(it.key)},${
-                        getTestResultStringFromId(
-                            it.value
-                        )
-                    }\n"
+        cameraExtensionResultMap.forEach { entry ->
+            val (testType, cameraId) = entry.key
+            entry.value.forEach {
+                val (extensionMode, testResult) = it
+                val extensionModeString = getExtensionModeStringFromId(testType, extensionMode)
+                val testResultString = getTestResultStringFromId(testResult)
+                val resultString = "$testType,$cameraId,$extensionModeString,$testResultString\n"
                 outputStream.write(resultString.toByteArray())
             }
         }
@@ -127,7 +155,7 @@ class TestResults constructor(private val context: Context) {
                 testResultsFile.toUri(),
                 MediaStore.Files.getContentUri(MediaStore.VOLUME_EXTERNAL),
                 contentValues
-            )
+            ) != null
         ) {
             return "$DIRECTORY_DOCUMENTS/ExtensionsValidation/$savedFileName"
         }
@@ -155,8 +183,16 @@ class TestResults constructor(private val context: Context) {
         cameraProvider: ProcessCameraProvider,
         extensionsManager: ExtensionsManager
     ) {
+        val availableCameraIds = mutableListOf<String>()
+
         cameraProvider.availableCameraInfos.forEach {
             val cameraId = Camera2CameraInfo.from(it).cameraId
+            availableCameraIds.add(cameraId)
+            cameraLensFacingMap[cameraId] = cameraProvider.getLensFacingById(cameraId)
+        }
+
+        // Generates CameraX extension test items
+        availableCameraIds.forEach { cameraId ->
             val testResultMap = linkedMapOf<Int, Int>()
 
             AVAILABLE_EXTENSION_MODES.forEach { mode ->
@@ -169,10 +205,25 @@ class TestResults constructor(private val context: Context) {
                     if (isSupported) TEST_RESULT_NOT_TESTED else TEST_RESULT_NOT_SUPPORTED
             }
 
-            if (!testResultMap.isEmpty()) {
-                cameraExtensionResultMap[cameraId] = testResultMap
-                cameraLensFacingMap[cameraId] = cameraProvider.getLensFacingById(cameraId)
+            cameraExtensionResultMap[Pair(TEST_TYPE_CAMERAX_EXTENSION, cameraId)] = testResultMap
+        }
+
+        if (Build.VERSION.SDK_INT < 31) {
+            return
+        }
+
+        // Generates Camera2 extension test items
+        availableCameraIds.forEach { cameraId ->
+            val testResultMap = linkedMapOf<Int, Int>()
+
+            AVAILABLE_CAMERA2_EXTENSION_MODES.forEach { mode ->
+                val isSupported = isCamera2ExtensionModeSupported(context, cameraId, mode)
+
+                testResultMap[mode] =
+                    if (isSupported) TEST_RESULT_NOT_TESTED else TEST_RESULT_NOT_SUPPORTED
             }
+
+            cameraExtensionResultMap[Pair(TEST_TYPE_CAMERA2_EXTENSION, cameraId)] = testResultMap
         }
     }
 
@@ -196,12 +247,16 @@ class TestResults constructor(private val context: Context) {
             }
 
             val values = lineContent.split(",")
-            if (values.size != 3) {
+            if (values.size != 4) {
                 throw IllegalArgumentException("Extensions validation test results parsing error!")
             }
 
-            val extensionResultMap = cameraExtensionResultMap[values[TEST_RESULT_INDEX_CAMERA_ID]]
-            val mode = getExtensionModeIdFromString(values[TEST_RESULT_INDEX_EXTENSION_MODE])
+            val testType = values[TEST_RESULT_INDEX_TEST_TYPE]
+            val cameraId = values[TEST_RESULT_INDEX_CAMERA_ID]
+            val extensionResultMap = cameraExtensionResultMap[Pair(testType, cameraId)]
+            val mode =
+                getExtensionModeIdFromString(testType, values[TEST_RESULT_INDEX_EXTENSION_MODE])
+
             extensionResultMap?.set(
                 mode,
                 getTestResultIdFromString(values[TEST_RESULT_INDEX_TEST_RESULT])
@@ -214,9 +269,9 @@ class TestResults constructor(private val context: Context) {
     @OptIn(ExperimentalCamera2Interop::class)
     private fun ProcessCameraProvider.getLensFacingById(cameraId: String): Int {
         availableCameraInfos.forEach {
-            var camera2CameraInfo = Camera2CameraInfo.from(it)
+            val camera2CameraInfo = Camera2CameraInfo.from(it)
 
-            if (camera2CameraInfo.cameraId.equals(cameraId)) {
+            if (camera2CameraInfo.cameraId == cameraId) {
                 return camera2CameraInfo.getCameraCharacteristic(
                     CameraCharacteristics.LENS_FACING)!!
             }
@@ -240,78 +295,28 @@ class TestResults constructor(private val context: Context) {
     }
 
     companion object {
-
-        /**
-         * Copies temp file to the destination location.
-         *
-         * @return false if the copy process is failed.
-         */
-        fun copyTempFileToOutputLocation(
-            contentResolver: ContentResolver,
-            tempFileUri: Uri,
-            targetUrl: Uri,
-            contentValues: ContentValues,
-        ): Boolean {
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
-                Log.e(TAG, "The known devices which support Extensions should be at least" +
-                    " Android Q!")
-                return false
-            }
-
-            contentValues.put(MediaStore.Images.Media.IS_PENDING, 1)
-
-            val outputUri = contentResolver.insert(targetUrl, contentValues)
-
-            if (outputUri != null && copyTempFileToOutputLocation(
-                    contentResolver,
-                    tempFileUri,
-                    outputUri
-                )
-            ) {
-                contentValues.put(MediaStore.Images.Media.IS_PENDING, 0)
-                contentResolver.update(outputUri, contentValues, null, null)
-                return true
+        fun getExtensionModeStringFromId(testType: String, extensionMode: Int) =
+            if (testType == TEST_TYPE_CAMERAX_EXTENSION) {
+                getExtensionModeStringFromId(extensionMode)
+            } else if (testType == TEST_TYPE_CAMERA2_EXTENSION && Build.VERSION.SDK_INT >= 31) {
+                getCamera2ExtensionModeStringFromId(extensionMode)
             } else {
-                Log.e(TAG, "Failed to copy the temp file to the output path!")
+                throw RuntimeException(
+                    "Something went wrong about testType ($testType) and device API level" +
+                        " (${Build.VERSION.SDK_INT})."
+                )
             }
 
-            return false
-        }
-
-        /**
-         * Copies temp file to output [Uri].
-         *
-         * @return false if the [Uri] is not writable.
-         */
-        private fun copyTempFileToOutputLocation(
-            contentResolver: ContentResolver,
-            tempFileUri: Uri,
-            uri: Uri
-        ): Boolean {
-            contentResolver.openOutputStream(uri).use { outputStream ->
-                if (tempFileUri.path == null || outputStream == null) {
-                    return false
-                }
-
-                val tempFile = File(tempFileUri.path!!)
-
-                FileInputStream(tempFile).use { `in` ->
-                    val buf = ByteArray(1024)
-                    var len: Int
-                    while (`in`.read(buf).also { len = it } > 0) {
-                        outputStream.write(buf, 0, len)
-                    }
-                }
+        fun getExtensionModeIdFromString(testType: String, extensionModeString: String) =
+            if (testType == TEST_TYPE_CAMERAX_EXTENSION) {
+                getExtensionModeIdFromString(extensionModeString)
+            } else if (testType == TEST_TYPE_CAMERA2_EXTENSION && Build.VERSION.SDK_INT >= 31) {
+                getCamera2ExtensionModeIdFromString(extensionModeString)
+            } else {
+                throw RuntimeException(
+                    "Something went wrong about testType ($testType) and device API level" +
+                        " (${Build.VERSION.SDK_INT})."
+                )
             }
-            return true
-        }
-
-        const val INVALID_EXTENSION_MODE = -1
-
-        const val TEST_RESULT_NOT_SUPPORTED = -1
-        const val TEST_RESULT_NOT_TESTED = 0
-        const val TEST_RESULT_PARTIALLY_TESTED = 1
-        const val TEST_RESULT_PASSED = 2
-        const val TEST_RESULT_FAILED = 3
     }
 }

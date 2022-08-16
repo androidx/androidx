@@ -64,7 +64,6 @@ import java.util.concurrent.TimeUnit
     autoMigrations = [
         AutoMigration(from = 13, to = 14),
         AutoMigration(from = 14, to = 15, spec = AutoMigration_14_15::class),
-        AutoMigration(from = 15, to = 16),
     ],
     version = 16
 )
@@ -155,6 +154,7 @@ abstract class WorkDatabase : RoomDatabase() {
                 .addMigrations(RescheduleMigration(context, VERSION_10, VERSION_11))
                 .addMigrations(Migration_11_12)
                 .addMigrations(Migration_12_13)
+                .addMigrations(Migration_15_16)
                 .fallbackToDestructiveMigration()
                 .build()
         }

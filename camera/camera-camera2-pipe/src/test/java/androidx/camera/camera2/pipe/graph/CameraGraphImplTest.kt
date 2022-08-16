@@ -21,7 +21,7 @@ import android.hardware.camera2.CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LE
 import android.os.Build
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.Request
-import androidx.camera.camera2.pipe.testing.FakeCamera2Controller
+import androidx.camera.camera2.pipe.testing.FakeCameraController
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
 import androidx.camera.camera2.pipe.testing.FakeGraphProcessor
 import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
@@ -44,7 +44,7 @@ internal class CameraGraphImplTest {
         cameraId = fakeCameraId
     )
     private val fakeGraphProcessor = FakeGraphProcessor()
-    private val fakeCameraController = FakeCamera2Controller()
+    private val fakeCameraController = FakeCameraController()
     private lateinit var impl: CameraGraphImpl
 
     @Before
@@ -53,14 +53,18 @@ internal class CameraGraphImplTest {
             camera = fakeCameraId,
             streams = listOf(),
         )
+        val streamGraph = StreamGraphImpl(
+            fakeMetadata,
+            config
+        )
+        val surfaceGraph = SurfaceGraph(streamGraph, fakeCameraController)
+
         impl = CameraGraphImpl(
             config,
             fakeMetadata,
             fakeGraphProcessor,
-            StreamGraphImpl(
-                fakeMetadata,
-                config
-            ),
+            streamGraph,
+            surfaceGraph,
             fakeCameraController,
             GraphState3A(),
             Listener3A()

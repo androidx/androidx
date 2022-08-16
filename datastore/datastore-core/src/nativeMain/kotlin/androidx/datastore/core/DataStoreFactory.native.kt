@@ -44,9 +44,6 @@ public actual object DataStoreFactory {
      * @param migrations Migrations are run before any access to data can occur. Migrations must
      * be idempotent.
      * @param scope The scope in which IO operations and transform functions will execute.
-     * @param produceFile Function which returns the file that the new DataStore will act on. The
-     * function must return the same path every time. No two instances of DataStore should act on
-     * the same file at the same time.
      *
      * @return a new DataStore instance with the provided configuration
      */

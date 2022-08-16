@@ -19,6 +19,7 @@ package androidx.camera.mlkit.vision
 import android.graphics.Bitmap
 import android.graphics.Matrix
 import android.media.Image
+import androidx.annotation.VisibleForTesting
 import com.google.android.gms.tasks.Task
 import com.google.mlkit.vision.interfaces.Detector
 import java.nio.ByteBuffer
@@ -28,17 +29,25 @@ import java.nio.ByteBuffer
  */
 class FakeDetector(
     private val result: String?,
-    private val exception: Exception?,
-    private val detectorType: Int
+    private val detectorType: Int,
 ) : Detector<String> {
 
+    @VisibleForTesting
     var latestMatrix: Matrix? = null
+    @VisibleForTesting
     var latestRotationDegrees: Int = -1
 
+    private var closed = false
+    var taskException: Exception? = null
+    var taskCanceled: Boolean = false
+
     override fun process(image: Image, rotationDegrees: Int, matrix: Matrix): Task<String> {
+        if (closed) {
+            throw Exception("Closed")
+        }
         latestMatrix = matrix
         latestRotationDegrees = rotationDegrees
-        return FakeTask(result, exception)
+        return FakeTask(result, taskException, taskCanceled)
     }
 
     override fun getDetectorType(): Int {
@@ -46,7 +55,7 @@ class FakeDetector(
     }
 
     override fun close() {
-        TODO("Not yet implemented")
+        closed = true
     }
 
     override fun process(p0: Bitmap, p1: Int): Task<String> {

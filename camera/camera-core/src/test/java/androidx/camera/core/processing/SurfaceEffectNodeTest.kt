@@ -24,6 +24,8 @@ import android.os.Looper.getMainLooper
 import android.util.Size
 import android.view.Surface
 import androidx.camera.core.SurfaceEffect.PREVIEW
+import androidx.camera.core.impl.utils.TransformUtils.is90or270
+import androidx.camera.core.impl.utils.TransformUtils.rectToSize
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor
 import androidx.camera.core.impl.utils.futures.Futures
 import androidx.camera.testing.fakes.FakeCamera
@@ -65,8 +67,6 @@ class SurfaceEffectNodeTest {
         appSurfaceTexture = SurfaceTexture(0)
         appSurface = Surface(appSurfaceTexture)
         surfaceEffectInternal = FakeSurfaceEffectInternal(mainThreadExecutor())
-        node = SurfaceEffectNode(FakeCamera(), surfaceEffectInternal)
-        inputEdge = createInputEdge()
     }
 
     @After
@@ -74,33 +74,97 @@ class SurfaceEffectNodeTest {
         appSurfaceTexture.release()
         appSurface.release()
         surfaceEffectInternal.release()
-        node.release()
-        inputEdge.surfaces[0].close()
+        if (::node.isInitialized) {
+            node.release()
+        }
+        if (::inputEdge.isInitialized) {
+            inputEdge.surfaces.forEach { it.close() }
+        }
         shadowOf(getMainLooper()).idle()
     }
 
     @Test
-    fun transformInput_outputHasTheSameProperty() {
+    fun transformInput_withoutGlTransform_outputHasTheSameProperty() {
         // Arrange.
+        createSurfaceEffectNode()
+        createInputEdge()
         val inputSurface = inputEdge.surfaces[0]
 
         // Act.
         val outputEdge = node.transform(inputEdge)
 
-        // Asset: without transformation, the output has the same property as the input.
+        // Assert: without transformation, the output has the same property as the input.
         assertThat(outputEdge.surfaces).hasSize(1)
         val outputSurface = outputEdge.surfaces[0]
         assertThat(outputSurface.size).isEqualTo(inputSurface.size)
         assertThat(outputSurface.format).isEqualTo(inputSurface.format)
         assertThat(outputSurface.targets).isEqualTo(inputSurface.targets)
         assertThat(outputSurface.cropRect).isEqualTo(inputSurface.cropRect)
+        assertThat(outputSurface.rotationDegrees).isEqualTo(inputSurface.rotationDegrees)
         assertThat(outputSurface.mirroring).isEqualTo(inputSurface.mirroring)
         assertThat(outputSurface.hasEmbeddedTransform()).isFalse()
     }
 
     @Test
+    fun transformInput_withGlTransformRotation_outputIsCroppedAndRotated() {
+        val cropRect = Rect(200, 100, 600, 400)
+        for (rotationDegrees in arrayOf(0, 90, 180, 270)) {
+            // Arrange.
+            createSurfaceEffectNode(true)
+            createInputEdge(
+                size = rectToSize(cropRect),
+                cropRect = cropRect,
+                rotationDegrees = rotationDegrees
+            )
+            // The result cropRect should have zero left and top.
+            val expectedCropRect = if (is90or270(rotationDegrees))
+                Rect(0, 0, cropRect.height(), cropRect.width())
+            else
+                Rect(0, 0, cropRect.width(), cropRect.height())
+
+            // Act.
+            val outputEdge = node.transform(inputEdge)
+
+            // Assert: with transformation, the output size is cropped/rotated and the rotation
+            // degrees is reset.
+            assertThat(outputEdge.surfaces).hasSize(1)
+            val outputSurface = outputEdge.surfaces[0]
+            assertThat(outputSurface.size).isEqualTo(rectToSize(expectedCropRect))
+            assertThat(outputSurface.cropRect).isEqualTo(expectedCropRect)
+            assertThat(outputSurface.rotationDegrees).isEqualTo(0)
+
+            // Clean up.
+            inputEdge.surfaces[0].close()
+            node.release()
+        }
+    }
+
+    @Test
+    fun transformInput_withGlTransformMirroring_outputHasNoMirroring() {
+        for (mirroring in arrayOf(false, true)) {
+            // Arrange.
+            createSurfaceEffectNode(true)
+            createInputEdge(mirroring = mirroring)
+
+            // Act.
+            val outputEdge = node.transform(inputEdge)
+
+            // Assert: the mirroring of output is always false.
+            assertThat(outputEdge.surfaces).hasSize(1)
+            val outputSurface = outputEdge.surfaces[0]
+            assertThat(outputSurface.mirroring).isFalse()
+
+            // Clean up.
+            inputEdge.surfaces[0].close()
+            node.release()
+        }
+    }
+
+    @Test
     fun provideSurfaceToOutput_surfaceIsPropagatedE2E() {
         // Arrange.
+        createSurfaceEffectNode()
+        createInputEdge()
         val inputSurface = inputEdge.surfaces[0]
         val outputEdge = node.transform(inputEdge)
         val outputSurface = outputEdge.surfaces[0]
@@ -117,6 +181,8 @@ class SurfaceEffectNodeTest {
     @Test
     fun releaseNode_effectIsReleased() {
         // Arrange.
+        createSurfaceEffectNode()
+        createInputEdge()
         val outputSurface = node.transform(inputEdge).surfaces[0]
         outputSurface.setProvider(Futures.immediateFuture(appSurface))
         shadowOf(getMainLooper()).idle()
@@ -130,17 +196,30 @@ class SurfaceEffectNodeTest {
         assertThat(surfaceEffectInternal.isOutputSurfaceRequestedToClose).isTrue()
     }
 
-    private fun createInputEdge(): SurfaceEdge {
+    private fun createInputEdge(
+        target: Int = TARGET,
+        size: Size = SIZE,
+        format: Int = FORMAT,
+        sensorToBufferTransform: android.graphics.Matrix = android.graphics.Matrix(),
+        hasEmbeddedTransform: Boolean = true,
+        cropRect: Rect = CROP_RECT,
+        rotationDegrees: Int = ROTATION_DEGREES,
+        mirroring: Boolean = false
+    ) {
         val surface = SettableSurface(
-            TARGET,
-            SIZE,
-            FORMAT,
-            android.graphics.Matrix(),
-            true,
-            CROP_RECT,
-            ROTATION_DEGREES,
-            false
+            target,
+            size,
+            format,
+            sensorToBufferTransform,
+            hasEmbeddedTransform,
+            cropRect,
+            rotationDegrees,
+            mirroring
         )
-        return SurfaceEdge.create(listOf(surface))
+        inputEdge = SurfaceEdge.create(listOf(surface))
+    }
+
+    private fun createSurfaceEffectNode(applyGlTransform: Boolean = false) {
+        node = SurfaceEffectNode(FakeCamera(), applyGlTransform, surfaceEffectInternal)
     }
 }

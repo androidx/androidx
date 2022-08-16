@@ -271,13 +271,13 @@ public final class ImageCapture extends UseCase {
     static final ExifRotationAvailability EXIF_ROTATION_AVAILABILITY =
             new ExifRotationAvailability();
 
-    private final ImageReaderProxy.OnImageAvailableListener mClosingListener = (imageReader -> {
+    private final ImageReaderProxy.OnImageAvailableListener mClosingListener = imageReader -> {
         try (ImageProxy image = imageReader.acquireLatestImage()) {
             Log.d(TAG, "Discarding ImageProxy which was inadvertently acquired: " + image);
         } catch (IllegalStateException e) {
             Log.e(TAG, "Failed to acquire latest image.", e);
         }
-    });
+    };
 
     @NonNull
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
@@ -350,8 +350,6 @@ public final class ImageCapture extends UseCase {
     // Synthetic access
     @SuppressWarnings("WeakerAccess")
     final Executor mSequentialIoExecutor;
-
-    private Matrix mSensorToBufferTransformMatrix = new Matrix();
 
     /**
      * Creates a new image capture use case from the given configuration.
@@ -955,17 +953,6 @@ public final class ImageCapture extends UseCase {
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
-    @Override
-    public void setSensorToBufferTransformMatrix(@NonNull Matrix sensorToBufferTransformMatrix) {
-        mSensorToBufferTransformMatrix = sensorToBufferTransformMatrix;
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * @hide
-     */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
     @Override
     protected ResolutionInfo getResolutionInfoInternal() {
@@ -1182,7 +1169,7 @@ public final class ImageCapture extends UseCase {
                 getJpegQualityForImageCaptureRequest(attachedCamera, saveImage),
                 mCropAspectRatio,
                 getViewPortCropRect(),
-                mSensorToBufferTransformMatrix,
+                getSensorToBufferTransformMatrix(),
                 callbackExecutor,
                 callback));
     }

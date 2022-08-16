@@ -245,7 +245,7 @@ public class XmlDefinedUserStyleSchemaAndComplicationSlotsTest {
 
             assertThat(
                 watchFaceImpl.complicationSlotsManager.complicationSlots.size
-            ).isEqualTo(3)
+            ).isEqualTo(4)
 
             val slotA = watchFaceImpl.complicationSlotsManager.complicationSlots[10]!!
             assertThat(slotA.boundsType).isEqualTo(ComplicationSlotBoundsType.ROUND_RECT)
@@ -328,7 +328,7 @@ public class XmlDefinedUserStyleSchemaAndComplicationSlotsTest {
             assertThat(style[UserStyleSetting.Id("TimeStyle")]!!.id)
                 .isEqualTo(UserStyleSetting.Option.Id("minimal"))
             assertThat((style[UserStyleSetting.Id("BooleanId")]!! as BooleanOption).value)
-                .isEqualTo(true)
+                .isEqualTo(false)
             assertThat((style[UserStyleSetting.Id("DoubleId")]!! as DoubleRangeOption).value)
                 .isEqualTo(1.0)
             assertThat((style[UserStyleSetting.Id("LongId")]!! as LongRangeOption).value)
@@ -367,6 +367,16 @@ public class XmlDefinedUserStyleSchemaAndComplicationSlotsTest {
                     "primary(ComponentInfo{com.package/com.app}, SHORT_TEXT), " +
                     "secondary(null, null), " +
                     "system(16, SHORT_TEXT)]}]")
+            val slotD = watchFaceImpl.complicationSlotsManager.complicationSlots[40]!!
+            assertThat(slotD.supportedTypes).containsExactly(
+                ComplicationType.SHORT_TEXT,
+                ComplicationType.RANGED_VALUE,
+                ComplicationType.SMALL_IMAGE
+            ).inOrder()
+            assertThat(slotD.defaultDataSourcePolicy.primaryDataSource).isEqualTo(
+                ComponentName("com.package", "com.app.example1"))
+            assertThat(slotD.defaultDataSourcePolicy.secondaryDataSource).isEqualTo(
+                ComponentName("com.package", "com.app.example2"))
         }
     }
 }

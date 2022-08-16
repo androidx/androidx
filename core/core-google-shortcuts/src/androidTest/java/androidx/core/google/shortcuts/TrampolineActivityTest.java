@@ -124,6 +124,7 @@ public class TrampolineActivityTest {
         assertThat(scenario.getResult().getResultCode()).isEqualTo(Activity.RESULT_CANCELED);
     }
 
+    @SuppressWarnings("deprecation") // usage of PackageManager.queryIntentActivities
     @Test
     @SmallTest
     public void testManifest_canDiscoverMetadata() {
