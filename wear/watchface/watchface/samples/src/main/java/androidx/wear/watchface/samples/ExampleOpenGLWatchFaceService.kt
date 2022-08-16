@@ -27,6 +27,7 @@ import android.opengl.Matrix
 import android.util.Log
 import android.view.Gravity
 import android.view.SurfaceHolder
+import androidx.annotation.RequiresApi
 import androidx.wear.watchface.complications.ComplicationSlotBounds
 import androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy
 import androidx.wear.watchface.complications.SystemDataSources
@@ -171,6 +172,7 @@ open class ExampleOpenGLWatchFaceService : WatchFaceService() {
 }
 
 @Suppress("Deprecation")
+@RequiresApi(27)
 class ExampleOpenGLRenderer(
     surfaceHolder: SurfaceHolder,
     private val currentUserStyleRepository: CurrentUserStyleRepository,
@@ -637,6 +639,24 @@ class ExampleOpenGLRenderer(
             coords[i + 1] = (sin * x + cos * y).toFloat()
             i += 3
         }
+    }
+
+    override fun watchfaceColors() = when (
+        currentUserStyleRepository.userStyle.value[colorStyleSetting]!!.toString()
+    ) {
+        "red_style" -> WatchfaceColors(
+            Color.valueOf(0.5f, 0.2f, 0.2f, 1f),
+            Color.valueOf(0.4f, 0.15f, 0.15f, 1f),
+            Color.valueOf(0.1f, 0.1f, 0.1f, 1f)
+        )
+
+        "green_style" -> WatchfaceColors(
+            Color.valueOf(0.2f, 0.5f, 0.2f, 1f),
+            Color.valueOf(0.15f, 0.4f, 0.15f, 1f),
+            Color.valueOf(0.1f, 0.1f, 0.1f, 1f)
+        )
+
+        else -> null
     }
 
     override fun render(zonedDateTime: ZonedDateTime) {

@@ -17,12 +17,14 @@
 package androidx.wear.watchface
 
 import android.annotation.SuppressLint
+import android.app.WallpaperColors
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.graphics.Canvas
+import android.graphics.Color
 import android.graphics.Rect
 import android.os.Build
 import android.os.Build.VERSION.SDK_INT
@@ -1389,9 +1391,7 @@ public abstract class WatchFaceService : WallpaperService() {
             params.idAndComplicationDataWireFormats = emptyList()
 
             // Let wallpaper manager know the wallpaper has changed.
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
-                NotifyColorsChangedHelper.notifyColorsChanged(this)
-            }
+            notifySystemThatColorsChanged()
 
             backgroundThreadCoroutineScope.launch {
                 writeDirectBootPrefs(_context, DIRECT_BOOT_PREFS, params)
@@ -1644,6 +1644,19 @@ public abstract class WatchFaceService : WallpaperService() {
         override fun onSurfaceDestroyed(holder: SurfaceHolder) {
             surfaceDestroyed = true
         }
+
+        override fun onComputeColors(): WallpaperColors? =
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
+                getWatchFaceImplOrNull()?.renderer?.watchfaceColors()?.let {
+                    WallpaperColorsHelper.makeWallpaperColors(
+                        it.primaryColor,
+                        it.secondaryColor,
+                        it.tertiaryColor
+                    )
+                }
+            } else {
+                null
+            }
 
         override fun onCommand(
             action: String?,
@@ -2105,6 +2118,11 @@ public abstract class WatchFaceService : WallpaperService() {
                 }
                 deferredWatchFaceImpl.complete(watchFaceImpl)
 
+                // Let wallpaper manager know the wallpaper colors have changed.
+                if (!watchState.isHeadless) {
+                    notifySystemThatColorsChanged()
+                }
+
                 // Apply any pendingInitialComplications, this must be done after
                 // deferredWatchFaceImpl has completed or there's a window in which complication
                 // updates get lost.
@@ -2293,6 +2311,12 @@ public abstract class WatchFaceService : WallpaperService() {
             // as an ambient tick.
             if (mutableWatchState.isAmbient.value == true && !systemHasSentWatchUiState) {
                 ambientTickUpdate()
+            }
+        }
+
+        override fun notifySystemThatColorsChanged() {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
+                NotifyColorsChangedHelper.notifyColorsChanged(this@EngineWrapper)
             }
         }
 
@@ -2560,6 +2584,12 @@ public abstract class WatchFaceService : WallpaperService() {
         fun notifyColorsChanged(engine: Engine) {
             engine.notifyColorsChanged()
         }
+    }
+
+    @RequiresApi(27)
+    private object WallpaperColorsHelper {
+        fun makeWallpaperColors(primaryColor: Color, secondaryColor: Color, tertiaryColor: Color) =
+            WallpaperColors(primaryColor, secondaryColor, tertiaryColor)
     }
 }
 

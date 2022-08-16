@@ -450,6 +450,37 @@ public sealed class Renderer @WorkerThread constructor(
     internal open suspend fun backgroundThreadInitInternal() {}
 
     /**
+     * Provides information about the colors of a watch face, exposing the three most
+     * representative colors. This may be used by the system to influence the colors used for the
+     * system ui.
+     */
+    public class WatchfaceColors(
+        val primaryColor: Color,
+        val secondaryColor: Color,
+        val tertiaryColor: Color
+    )
+
+    /**
+     * Called by the system when it needs to know what colors the watch face is using. Return `null`
+     * if no color information is available at the moment and subsequently call
+     * [notifyWatchfaceColorsChanged] when color information becomes available.
+     *
+     * @return The [WatchfaceColors] for this watch face.
+     */
+    @UiThread
+    public open fun watchfaceColors(): WatchfaceColors? = null
+
+    /**
+     * Notifies the system that the watch face's colors have changed, this will trigger a call to
+     * [watchfaceColors]. Note the system automatically calls notifyColorsChanged when the style
+     * changes.
+     */
+    @UiThread
+    public fun notifyWatchfaceColorsChanged() {
+        watchFaceHostApi?.notifySystemThatColorsChanged()
+    }
+
+    /**
      * Multiple [WatchFaceService] instances and hence Renderers can exist concurrently (e.g. a
      * headless instance and an interactive instance) and using SharedAssets allows memory to be
      * saved by sharing immutable data (e.g. Bitmaps and shaders) between them.

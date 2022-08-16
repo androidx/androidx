@@ -37,6 +37,7 @@ import android.view.SurfaceHolder
 import android.view.animation.AnimationUtils
 import android.view.animation.PathInterpolator
 import androidx.annotation.ColorInt
+import androidx.annotation.RequiresApi
 import androidx.wear.watchface.complications.ComplicationSlotBounds
 import androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy
 import androidx.wear.watchface.complications.SystemDataSources
@@ -685,6 +686,7 @@ class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
 }
 
 @Suppress("Deprecation")
+@RequiresApi(27)
 class ExampleDigitalWatchCanvasRenderer(
     surfaceHolder: SurfaceHolder,
     private val context: Context,
@@ -1029,6 +1031,12 @@ class ExampleDigitalWatchCanvasRenderer(
             }
         }
     }
+
+    override fun watchfaceColors() = WatchfaceColors(
+        Color.valueOf(watchFaceColorStyle.activeStyle.primaryColor),
+        Color.valueOf(watchFaceColorStyle.activeStyle.secondaryColor),
+        Color.valueOf(Color.DKGRAY)
+    )
 
     override fun renderHighlightLayer(canvas: Canvas, bounds: Rect, zonedDateTime: ZonedDateTime) {
         drawComplicationHighlights(canvas, zonedDateTime)
