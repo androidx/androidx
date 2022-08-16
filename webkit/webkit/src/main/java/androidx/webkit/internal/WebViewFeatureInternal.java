@@ -54,6 +54,23 @@ import java.util.concurrent.Executor;
  * feature is supported by the current framework and/or WebView APK.
  */
 public class WebViewFeatureInternal {
+
+    /**
+     * WebView APK feature that is used in cases where the standard feature detection
+     * mechanism of querying for the flag in the WebView APK is not used.
+     *
+     * The non-standard feature detection mechanism can be provided by overriding the
+     * {@link ApiFeature#isSupportedByWebView()} method of the framework dependant subclass. If
+     * it is not overridden, {@link ApiFeature#isSupportedByWebView()} would return {@code false}.
+     *
+     * The value should not coincide with any other actual feature names in the WebView APK. The
+     * extra '_'s prefixing the value is added to reduce the chance of collision.
+     *
+     * One of the main reason for using a non-standard feature detection is to check whether a
+     * feature is present in the WebView APK without loading WebView into the calling process.
+     */
+    private static final String NONSTANDARD_FEATURE_DETECTION = "__NONSTANDARD_FEATURE_DETECTION";
+
     /**
      * This feature covers
      * {@link androidx.webkit.WebViewCompat#postVisualStateCallback(android.webkit.WebView, long,
@@ -364,6 +381,21 @@ public class WebViewFeatureInternal {
     public static final ApiFeature.P TRACING_CONTROLLER_BASIC_USAGE =
             new ApiFeature.P(WebViewFeature.TRACING_CONTROLLER_BASIC_USAGE,
                     Features.TRACING_CONTROLLER_BASIC_USAGE);
+
+    /**
+     * This feature covers
+     * {@link androidx.webkit.ProcessGlobalConfig#setDataDirectorySuffix(String)}.
+     */
+    public static final ApiFeature.P SET_DATA_DIRECTORY_SUFFIX =
+            new ApiFeature.P(WebViewFeature.SET_DATA_DIRECTORY_SUFFIX,
+                    NONSTANDARD_FEATURE_DETECTION) {
+                @Override
+                public boolean isSupportedByWebView() {
+                    // TODO(crbug.com/1355297): Change it to version check once the support is
+                    //  added to WebView.
+                    return false;
+                }
+            };
 
     /**
      * This feature covers
