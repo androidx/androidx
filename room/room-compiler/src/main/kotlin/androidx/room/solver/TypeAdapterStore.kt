@@ -448,14 +448,14 @@ class TypeAdapterStore private constructor(
         typeMirror: XType,
         params: List<ShortcutQueryParameter>
     ): InsertOrUpsertMethodAdapter? {
-        return InsertOrUpsertMethodAdapter.createInsert(typeMirror, params)
+        return InsertOrUpsertMethodAdapter.createInsert(context, typeMirror, params)
     }
 
     fun findUpsertAdapter(
         typeMirror: XType,
         params: List<ShortcutQueryParameter>
     ): InsertOrUpsertMethodAdapter? {
-        return InsertOrUpsertMethodAdapter.createUpsert(typeMirror, params)
+        return InsertOrUpsertMethodAdapter.createUpsert(context, typeMirror, params)
     }
 
     fun findQueryResultAdapter(
