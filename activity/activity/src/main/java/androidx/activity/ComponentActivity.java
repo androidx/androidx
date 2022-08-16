@@ -254,6 +254,7 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
     private final CopyOnWriteArrayList<Consumer<PictureInPictureModeChangedInfo>>
             mOnPictureInPictureModeChangedListeners = new CopyOnWriteArrayList<>();
 
+    private boolean mDispatchingOnMultiWindowModeChanged = false;
     private boolean mDispatchingOnPictureInPictureModeChanged = false;
 
     /**
@@ -945,6 +946,9 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
         // We specifically do not call super.onMultiWindowModeChanged() to avoid
         // crashing when this method is manually called prior to API 24 (which is
         // when this method was added to the framework)
+        if (mDispatchingOnMultiWindowModeChanged) {
+            return;
+        }
         for (Consumer<MultiWindowModeChangedInfo> listener : mOnMultiWindowModeChangedListeners) {
             listener.accept(new MultiWindowModeChangedInfo(isInMultiWindowMode));
         }
@@ -961,9 +965,15 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
     @Override
     public void onMultiWindowModeChanged(boolean isInMultiWindowMode,
             @NonNull Configuration newConfig) {
-        // We specifically do not call super.onMultiWindowModeChanged() to avoid
-        // triggering the call to onMultiWindowModeChanged(boolean) which would
-        // send a second callback to listeners without the newConfig
+        mDispatchingOnMultiWindowModeChanged = true;
+        try {
+            // We can unconditionally call super.onMultiWindowModeChanged() here because this
+            // function is marked with RequiresApi, meaning we are always on an API level
+            // where this call is valid.
+            super.onMultiWindowModeChanged(isInMultiWindowMode, newConfig);
+        } finally {
+            mDispatchingOnMultiWindowModeChanged = false;
+        }
         for (Consumer<MultiWindowModeChangedInfo> listener : mOnMultiWindowModeChangedListeners) {
             listener.accept(new MultiWindowModeChangedInfo(isInMultiWindowMode, newConfig));
         }
