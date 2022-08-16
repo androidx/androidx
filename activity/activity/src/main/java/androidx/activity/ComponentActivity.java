@@ -254,6 +254,8 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
     private final CopyOnWriteArrayList<Consumer<PictureInPictureModeChangedInfo>>
             mOnPictureInPictureModeChangedListeners = new CopyOnWriteArrayList<>();
 
+    private boolean mDispatchingOnPictureInPictureModeChanged = false;
+
     /**
      * Default constructor for ComponentActivity. All Activities must have a default constructor
      * for API 27 and lower devices or when using the default
@@ -994,6 +996,10 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
         // We specifically do not call super.onPictureInPictureModeChanged() to avoid
         // crashing when this method is manually called prior to API 24 (which is
         // when this method was added to the framework)
+        if (mDispatchingOnPictureInPictureModeChanged) {
+            return;
+        }
+
         for (Consumer<PictureInPictureModeChangedInfo> listener :
                 mOnPictureInPictureModeChangedListeners) {
             listener.accept(new PictureInPictureModeChangedInfo(isInPictureInPictureMode));
@@ -1011,9 +1017,15 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
     @Override
     public void onPictureInPictureModeChanged(boolean isInPictureInPictureMode,
             @NonNull Configuration newConfig) {
-        // We specifically do not call super.onPictureInPictureModeChanged() to avoid
-        // triggering the call to onPictureInPictureModeChanged(boolean) which would
-        // send a second callback to listeners without the newConfig
+        mDispatchingOnPictureInPictureModeChanged = true;
+        try {
+            // We can unconditionally call super.onPictureInPictureModeChanged() here because
+            // this function is marked with RequiresApi, meaning we are always on an API level
+            // where this call is valid.
+            super.onPictureInPictureModeChanged(isInPictureInPictureMode, newConfig);
+        } finally {
+            mDispatchingOnPictureInPictureModeChanged = false;
+        }
         for (Consumer<PictureInPictureModeChangedInfo> listener :
                 mOnPictureInPictureModeChangedListeners) {
             listener.accept(new PictureInPictureModeChangedInfo(
