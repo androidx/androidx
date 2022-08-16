@@ -32,6 +32,7 @@ import android.view.accessibility.AccessibilityNodeInfo;
 import android.view.accessibility.AccessibilityWindowInfo;
 
 import androidx.annotation.DoNotInline;
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 
 import java.util.ArrayList;
@@ -269,57 +270,21 @@ public class UiObject2 implements Searchable {
         return false;
     }
 
-    /** Returns the visible bounds of {@code node} in screen coordinates. */
-    @SuppressWarnings("RectIntersectReturnValueIgnored")
-    private Rect getVisibleBounds(AccessibilityNodeInfo node) {
-        // Get the object bounds in screen coordinates
-        Rect ret = new Rect();
-        node.getBoundsInScreen(ret);
-
-        // Trim any portion of the bounds that are not on the screen
-        final int displayId = getDisplayId();
-        if (displayId == Display.DEFAULT_DISPLAY) {
-            final Rect screen =
-                new Rect(0, 0, getDevice().getDisplayWidth(), getDevice().getDisplayHeight());
-            ret.intersect(screen);
-        } else {
-            final DisplayManager dm =
-                    (DisplayManager) mDevice.getInstrumentation().getContext().getSystemService(
-                            Service.DISPLAY_SERVICE);
-            final Display display = dm.getDisplay(getDisplayId());
-            if (display != null) {
-                final Point size = new Point();
-                display.getRealSize(size);
-                final Rect screen = new Rect(0, 0, size.x, size.y);
-                ret.intersect(screen);
-            }
+    /** Returns the visible bounds of an {@link AccessibilityNodeInfo}. */
+    @NonNull
+    private Rect getVisibleBounds(@NonNull AccessibilityNodeInfo node) {
+        DisplayManager displayManager =
+                (DisplayManager) mDevice.getInstrumentation().getContext().getSystemService(
+                        Service.DISPLAY_SERVICE);
+        Display display = displayManager.getDisplay(getDisplayId());
+        if (display != null) {
+            Point displaySize = new Point();
+            display.getRealSize(displaySize);
+            return AccessibilityNodeInfoHelper.getVisibleBoundsInScreen(
+                    node, displaySize.x, displaySize.y);
         }
-
-        // On platforms that give us access to the node's window
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            // Trim any portion of the bounds that are outside the window
-            Rect bounds = new Rect();
-            AccessibilityWindowInfo window = Api21Impl.getWindow(node);
-            if (window != null) {
-                Api21Impl.getBoundsInScreen(window, bounds);
-                ret.intersect(bounds);
-            }
-        }
-
-        // Find the visible bounds of our first scrollable ancestor
-        AccessibilityNodeInfo ancestor = null;
-        for (ancestor = node.getParent(); ancestor != null; ancestor = ancestor.getParent()) {
-            // If this ancestor is scrollable
-            if (ancestor.isScrollable()) {
-                // Trim any portion of the bounds that are hidden by the non-visible portion of our
-                // ancestor
-                Rect ancestorRect = getVisibleBounds(ancestor);
-                ret.intersect(ancestorRect);
-                break;
-            }
-        }
-
-        return ret;
+        return AccessibilityNodeInfoHelper.getVisibleBoundsInScreen(
+                node, Integer.MAX_VALUE, Integer.MAX_VALUE);
     }
 
     /** Returns a point in the center of the visible bounds of this object. */
@@ -795,12 +760,6 @@ public class UiObject2 implements Searchable {
         @DoNotInline
         static AccessibilityWindowInfo getWindow(AccessibilityNodeInfo accessibilityNodeInfo) {
             return accessibilityNodeInfo.getWindow();
-        }
-
-        @DoNotInline
-        static void getBoundsInScreen(AccessibilityWindowInfo accessibilityWindowInfo,
-                Rect outBounds) {
-            accessibilityWindowInfo.getBoundsInScreen(outBounds);
         }
     }
 
