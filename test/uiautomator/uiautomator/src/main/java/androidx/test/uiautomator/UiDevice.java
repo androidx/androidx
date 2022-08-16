@@ -17,6 +17,7 @@
 package androidx.test.uiautomator;
 
 import android.accessibilityservice.AccessibilityServiceInfo;
+import android.annotation.SuppressLint;
 import android.app.Instrumentation;
 import android.app.Service;
 import android.app.UiAutomation;
@@ -44,6 +45,7 @@ import android.view.accessibility.AccessibilityNodeInfo;
 import android.view.accessibility.AccessibilityWindowInfo;
 
 import androidx.annotation.DoNotInline;
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 
 import java.io.BufferedOutputStream;
@@ -131,7 +133,7 @@ public class UiDevice implements Searchable {
 
     /** Returns whether there is a match for the given {@code selector} criteria. */
     @Override
-    public boolean hasObject(BySelector selector) {
+    public boolean hasObject(@NonNull BySelector selector) {
         AccessibilityNodeInfo node = ByMatcher.findMatch(this, selector, getWindowRoots());
         if (node != null) {
             node.recycle();
@@ -145,14 +147,16 @@ public class UiDevice implements Searchable {
      * or null if no matching objects are found.
      */
     @Override
-    public UiObject2 findObject(BySelector selector) {
+    @SuppressLint("UnknownNullness") // Avoid unnecessary null checks from nullable testing APIs.
+    public UiObject2 findObject(@NonNull BySelector selector) {
         AccessibilityNodeInfo node = ByMatcher.findMatch(this, selector, getWindowRoots());
         return node != null ? new UiObject2(this, selector, node) : null;
     }
 
     /** Returns all objects that match the {@code selector} criteria. */
     @Override
-    public List<UiObject2> findObjects(BySelector selector) {
+    @NonNull
+    public List<UiObject2> findObjects(@NonNull BySelector selector) {
         List<UiObject2> ret = new ArrayList<UiObject2>();
         for (AccessibilityNodeInfo node : ByMatcher.findMatches(this, selector, getWindowRoots())) {
             ret.add(new UiObject2(this, selector, node));
