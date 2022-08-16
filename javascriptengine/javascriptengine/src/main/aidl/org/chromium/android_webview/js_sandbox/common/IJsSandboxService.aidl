@@ -42,6 +42,10 @@ interface IJsSandboxService {
      */
     const String WASM_FROM_ARRAY_BUFFER = "WASM_FROM_ARRAY_BUFFER";
 
+    /**
+     * Feature flag indicating that isolate creation can take a parameter
+     * to set the maximum heap size limit of the isolate.
+     */
     const String ISOLATE_MAX_HEAP_SIZE_LIMIT = "ISOLATE_MAX_HEAP_SIZE_LIMIT";
 
     /**
