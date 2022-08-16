@@ -94,17 +94,27 @@ import java.util.concurrent.atomic.AtomicReference
 import kotlin.test.assertIs
 import kotlin.test.assertNotNull
 import kotlinx.coroutines.runBlocking
+import org.junit.Assert.assertThrows
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.Parameterized
 
 @SdkSuppress(minSdkVersion = 29)
 @MediumTest
-class GlanceAppWidgetReceiverTest {
+@RunWith(Parameterized::class)
+class GlanceAppWidgetReceiverTest(useSessionManager: Boolean) {
     @get:Rule
-    val mHostRule = AppWidgetHostRule()
+    val mHostRule = AppWidgetHostRule(useSessionManager = useSessionManager)
 
     val context = InstrumentationRegistry.getInstrumentation().targetContext!!
+
+    companion object {
+        @Parameterized.Parameters(name = "useGlanceSession={0}")
+        @JvmStatic
+        fun data() = mutableListOf(true, false)
+    }
 
     @Before
     fun setUp() {
@@ -543,64 +553,65 @@ class GlanceAppWidgetReceiverTest {
     }
 
     @Test
-    fun updateAll() {
+    fun updateAll() = runBlocking {
         TestGlanceAppWidget.uiDefinition = {
-            Text("before")
+            Text("text")
         }
 
         mHostRule.startHost()
 
-        val didRun = AtomicBoolean(false)
-        TestGlanceAppWidget.uiDefinition = {
-            didRun.set(true)
-            Text("after")
-        }
-
-        runBlocking {
+        mHostRule.runAndWaitForUpdate {
             TestGlanceAppWidget.updateAll(context)
         }
-        assertThat(didRun.get()).isTrue()
     }
 
     @Test
-    fun updateIf() {
+    fun updateIf() = runBlocking {
+        val didRun = AtomicBoolean(false)
         TestGlanceAppWidget.uiDefinition = {
-            Text("before")
+            currentState<Preferences>()
+            didRun.set(true)
+            Text("text")
         }
 
         mHostRule.startHost()
+        assertThat(didRun.get()).isTrue()
 
-        val appWidgetManager = GlanceAppWidgetManager(context)
-        runBlocking {
-            appWidgetManager.getGlanceIds(TestGlanceAppWidget::class.java)
-                .forEach { glanceId ->
-                    updateAppWidgetState(context, glanceId) {
-                        it[testKey] = 2
-                    }
+        GlanceAppWidgetManager(context)
+            .getGlanceIds(TestGlanceAppWidget::class.java)
+            .forEach { glanceId ->
+                updateAppWidgetState(context, glanceId) {
+                    it[testKey] = 2
                 }
-        }
+            }
 
         // Make sure the app widget is updated if the test is true
-        val didRun = AtomicBoolean(false)
-        TestGlanceAppWidget.uiDefinition = {
-            didRun.set(true)
-            Text("after")
-        }
-        runBlocking {
+        didRun.set(false)
+        mHostRule.runAndWaitForUpdate {
             TestGlanceAppWidget.updateIf<Preferences>(context) { prefs ->
                 prefs[testKey] == 2
             }
         }
-
         assertThat(didRun.get()).isTrue()
 
         // Make sure it is not if the test is false
         didRun.set(false)
-        runBlocking {
-            TestGlanceAppWidget.updateIf<Preferences>(context) { prefs ->
-                prefs[testKey] == 3
+
+        // Waiting for the update should timeout since it is never triggered.
+        val exception = assertThrows(IllegalArgumentException::class.java) {
+            // AppWidgetService may send an APPWIDGET_UPDATE broadcast, which is not relevant to
+            // this and should be ignored.
+            mHostRule.ignoreBroadcasts {
+                runBlocking {
+                    mHostRule.runAndWaitForUpdate {
+                        TestGlanceAppWidget.updateIf<Preferences>(context) { prefs ->
+                            prefs[testKey] == 3
+                        }
+                    }
+                }
             }
         }
+        assertThat(exception).hasMessageThat().contains("Timeout before getting RemoteViews")
 
         assertThat(didRun.get()).isFalse()
     }
@@ -608,7 +619,7 @@ class GlanceAppWidgetReceiverTest {
     @Test
     fun viewState() {
         TestGlanceAppWidget.uiDefinition = {
-            val value = currentState<Preferences>()[testKey] ?: -1
+            val value = currentState(testKey) ?: -1
             Text("Value = $value")
         }
 
@@ -810,7 +821,9 @@ class GlanceAppWidgetReceiverTest {
 
         mHostRule.startHost()
         runBlocking {
-            mHostRule.updateAppWidget()
+            mHostRule.runAndWaitForUpdate {
+                TestGlanceAppWidget.update(context, AppWidgetId(mHostRule.appWidgetId))
+            }
         }
 
         // if no crash, we're good
@@ -870,7 +883,9 @@ class GlanceAppWidgetReceiverTest {
             updateAppWidgetState(context, AppWidgetId(mHostRule.appWidgetId)) {
                 it[testBoolKey] = false
             }
-            mHostRule.updateAppWidget()
+            mHostRule.runAndWaitForUpdate {
+                TestGlanceAppWidget.update(context, AppWidgetId(mHostRule.appWidgetId))
+            }
         }
 
         mHostRule.onHostView { root ->
@@ -914,7 +929,9 @@ class GlanceAppWidgetReceiverTest {
             updateAppWidgetState(context, AppWidgetId(mHostRule.appWidgetId)) {
                 it[testBoolKey] = false
             }
-            mHostRule.updateAppWidget()
+            mHostRule.runAndWaitForUpdate {
+                TestGlanceAppWidget.update(context, AppWidgetId(mHostRule.appWidgetId))
+            }
         }
 
         CompoundButtonActionTest.received.set(emptyList())
