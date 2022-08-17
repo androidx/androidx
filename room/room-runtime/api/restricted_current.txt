@@ -225,28 +225,29 @@ package androidx.room {
     field public final boolean isValid;
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class RoomSQLiteQuery implements androidx.sqlite.db.SupportSQLiteProgram androidx.sqlite.db.SupportSQLiteQuery {
-    method public static final androidx.room.RoomSQLiteQuery acquire(String query, int argumentCount);
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class RoomSQLiteQuery implements androidx.sqlite.db.SupportSQLiteProgram androidx.sqlite.db.SupportSQLiteQuery {
+    method public static androidx.room.RoomSQLiteQuery acquire(String query, int argumentCount);
     method public void bindBlob(int index, byte[] value);
     method public void bindDouble(int index, double value);
     method public void bindLong(int index, long value);
     method public void bindNull(int index);
     method public void bindString(int index, String value);
-    method public void bindTo(androidx.sqlite.db.SupportSQLiteProgram program);
+    method public void bindTo(androidx.sqlite.db.SupportSQLiteProgram statement);
     method public void clearBindings();
     method public void close();
     method public void copyArgumentsFrom(androidx.room.RoomSQLiteQuery other);
-    method public static final androidx.room.RoomSQLiteQuery copyFrom(androidx.sqlite.db.SupportSQLiteQuery supportSQLiteQuery);
+    method public static androidx.room.RoomSQLiteQuery copyFrom(androidx.sqlite.db.SupportSQLiteQuery supportSQLiteQuery);
     method public int getArgCount();
-    method public final int getCapacity();
+    method public int getCapacity();
     method public String getSql();
     method public void init(String query, int initArgCount);
     method public void release();
+    property public int argCount;
     property public final int capacity;
+    property public String sql;
     field public static final androidx.room.RoomSQLiteQuery.Companion Companion;
     field @VisibleForTesting public static final int DESIRED_POOL_SIZE = 10; // 0xa
     field @VisibleForTesting public static final int POOL_LIMIT = 15; // 0xf
-    field @VisibleForTesting public int argCount;
     field @VisibleForTesting public final byte[]![] blobBindings;
     field @VisibleForTesting public final double[] doubleBindings;
     field @VisibleForTesting public final long[] longBindings;

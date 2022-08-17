@@ -16,8 +16,6 @@
 
 package androidx.room
 
-import androidx.annotation.RestrictTo
-import androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP
 import kotlin.reflect.KClass
 
 /**
@@ -84,7 +82,6 @@ import kotlin.reflect.KClass
  */
 @Target(AnnotationTarget.FUNCTION)
 @Retention(AnnotationRetention.BINARY)
-@RestrictTo(LIBRARY_GROUP)
 public annotation class Upsert(
 
     /**

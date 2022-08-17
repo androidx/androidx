@@ -104,7 +104,7 @@ internal object StaticLayoutFactory {
      * Returns whether fallbackLineSpacing is enabled for the given layout.
      *
      * @param layout StaticLayout instance
-     * @param useFallbackLineSpacing fallbackLineSpacing canfiguration passed while creating the
+     * @param useFallbackLineSpacing fallbackLineSpacing configuration passed while creating the
      * StaticLayout.
      */
     fun isFallbackLineSpacingEnabled(

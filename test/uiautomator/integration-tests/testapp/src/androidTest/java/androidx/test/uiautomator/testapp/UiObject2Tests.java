@@ -494,52 +494,52 @@ public class UiObject2Tests extends BaseTest {
 
     @Test
     public void testPinchClose() {
-        launchTestActivity(UiObject2TestPinchActivity.class);
+        launchTestActivity(PinchTestActivity.class);
 
         UiObject2 pinchArea = mDevice.findObject(By.res(TEST_APP, "pinch_area"));
         UiObject2 scaleText = pinchArea.findObject(By.res(TEST_APP, "scale_factor"));
         pinchArea.pinchClose(1f);
         scaleText.wait(Until.textNotEquals("1.0f"), TIMEOUT_MS);
-        float scaleValueAfterPinch = Float.valueOf(scaleText.getText());
+        float scaleValueAfterPinch = Float.parseFloat(scaleText.getText());
         assertTrue(String.format("Expected scale value to be less than 1f after pinchClose(), "
                 + "but got [%f]", scaleValueAfterPinch), scaleValueAfterPinch < 1f);
     }
 
     @Test
     public void testPinchClose_withSpeed() {
-        launchTestActivity(UiObject2TestPinchActivity.class);
+        launchTestActivity(PinchTestActivity.class);
 
         UiObject2 pinchArea = mDevice.findObject(By.res(TEST_APP, "pinch_area"));
         UiObject2 scaleText = pinchArea.findObject(By.res(TEST_APP, "scale_factor"));
         pinchArea.pinchClose(.75f, SPEED_MS);
         scaleText.wait(Until.textNotEquals("1.0f"), TIMEOUT_MS);
-        float scaleValueAfterPinch = Float.valueOf(scaleText.getText());
+        float scaleValueAfterPinch = Float.parseFloat(scaleText.getText());
         assertTrue(String.format("Expected scale value to be less than 1f after pinchClose(), "
                 + "but got [%f]", scaleValueAfterPinch), scaleValueAfterPinch < 1f);
     }
 
     @Test
     public void testPinchOpen() {
-        launchTestActivity(UiObject2TestPinchActivity.class);
+        launchTestActivity(PinchTestActivity.class);
 
         UiObject2 pinchArea = mDevice.findObject(By.res(TEST_APP, "pinch_area"));
         UiObject2 scaleText = pinchArea.findObject(By.res(TEST_APP, "scale_factor"));
         pinchArea.pinchOpen(.5f);
         scaleText.wait(Until.textNotEquals("1.0f"), TIMEOUT_MS);
-        float scaleValueAfterPinch = Float.valueOf(scaleText.getText());
+        float scaleValueAfterPinch = Float.parseFloat(scaleText.getText());
         assertTrue(String.format("Expected scale text to be greater than 1f after pinchOpen(), "
                 + "but got [%f]", scaleValueAfterPinch), scaleValueAfterPinch > 1f);
     }
 
     @Test
     public void testPinchOpen_withSpeed() {
-        launchTestActivity(UiObject2TestPinchActivity.class);
+        launchTestActivity(PinchTestActivity.class);
 
         UiObject2 pinchArea = mDevice.findObject(By.res(TEST_APP, "pinch_area"));
         UiObject2 scaleText = pinchArea.findObject(By.res(TEST_APP, "scale_factor"));
         pinchArea.pinchOpen(.25f, SPEED_MS);
         scaleText.wait(Until.textNotEquals("1.0f"), TIMEOUT_MS);
-        float scaleValueAfterPinch = Float.valueOf(scaleText.getText());
+        float scaleValueAfterPinch = Float.parseFloat(scaleText.getText());
         assertTrue(String.format("Expected scale text to be greater than 1f after pinchOpen(), "
                 + "but got [%f]", scaleValueAfterPinch), scaleValueAfterPinch > 1f);
     }
@@ -683,7 +683,7 @@ public class UiObject2Tests extends BaseTest {
 
     @Test
     public void testSetGestureMargin() {
-        launchTestActivity(UiObject2TestPinchActivity.class);
+        launchTestActivity(PinchTestActivity.class);
 
         UiObject2 pinchArea = mDevice.findObject(By.res(TEST_APP, "pinch_area"));
         UiObject2 scaleText = pinchArea.findObject(By.res(TEST_APP, "scale_factor"));
@@ -711,7 +711,7 @@ public class UiObject2Tests extends BaseTest {
 
     @Test
     public void testSetGestureMargins() {
-        launchTestActivity(UiObject2TestPinchActivity.class);
+        launchTestActivity(PinchTestActivity.class);
 
         UiObject2 pinchArea = mDevice.findObject(By.res(TEST_APP, "pinch_area"));
         UiObject2 scaleText = pinchArea.findObject(By.res(TEST_APP, "scale_factor"));

@@ -596,7 +596,9 @@ public abstract class WorkManager {
             @NonNull WorkQuery workQuery);
 
     /**
-     * Updates the work with the new specification.
+     * Updates the work with the new specification. A {@link WorkRequest} passed as parameter
+     * must have an id set with {@link WorkRequest.Builder#setId(UUID)} that matches an id of the
+     * previously enqueued work.
      * <p>
      * It preserves enqueue time, e.g. if a work was enqueued 3 hours ago and had 6 hours long
      * initial delay, after the update it would be still eligible for run in 3 hours, assuming

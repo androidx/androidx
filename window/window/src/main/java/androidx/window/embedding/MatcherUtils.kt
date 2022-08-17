@@ -17,6 +17,7 @@ package androidx.window.embedding
 
 import android.app.Activity
 import android.content.ComponentName
+import android.content.Intent
 import android.util.Log
 import androidx.window.core.ExperimentalWindowApi
 
@@ -54,20 +55,36 @@ internal object MatcherUtils {
     }
 
     /**
-     * Returns `true` if [Activity.getComponentName] match or
-     * [Component][android.content.Intent.getComponent] of [Activity.getIntent] match allowing
+     * Returns `true` if [Activity.getComponentName] match or [Activity.getIntent] match allowing
      * wildcard patterns.
      */
-    internal fun areActivityOrIntentComponentsMatching(
+    internal fun isActivityOrIntentMatching(
         activity: Activity,
         ruleComponent: ComponentName
     ): Boolean {
         if (areComponentsMatching(activity.componentName, ruleComponent)) {
             return true
         }
-        // Returns false if activity's intent doesn't exist or its intent's Component doesn't match.
-        return activity.intent?.component ?.let {
-                component -> areComponentsMatching(component, ruleComponent) } ?: false
+        // Returns false if activity's intent doesn't exist or its intent doesn't match.
+        return activity.intent ?.let { intent -> isIntentMatching(intent, ruleComponent) } ?: false
+    }
+
+    /**
+     * Returns `true` if [Intent.getComponent] match or [Intent.getPackage] match allowing wildcard
+     * patterns.
+     */
+    internal fun isIntentMatching(
+        intent: Intent,
+        ruleComponent: ComponentName
+    ): Boolean {
+        if (intent.component != null) {
+            // Compare the component if set.
+            return areComponentsMatching(intent.component, ruleComponent)
+        }
+        // Check if there is wildcard match for Intent that only specifies the packageName.
+        val packageName = intent.`package` ?: return false
+        return (packageName == ruleComponent.packageName ||
+            wildcardMatch(packageName, ruleComponent.packageName)) && ruleComponent.className == "*"
     }
 
     /**

@@ -35,10 +35,38 @@
         </receiver>
 
         <receiver
-            android:name="androidx.glance.appwidget.template.demos.GalleryDemoWidgetReceiver"
+            android:name="androidx.glance.appwidget.template.demos.SmallImageGalleryReceiver"
             android:enabled="@bool/glance_appwidget_available"
             android:exported="false"
-            android:label="@string/gallery_template_name">
+            android:label="@string/small_image_gallery">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="android.intent.action.LOCALE_CHANGED" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/default_app_widget_info" />
+        </receiver>
+
+        <receiver
+            android:name="androidx.glance.appwidget.template.demos.MediumImageGalleryReceiver"
+            android:enabled="@bool/glance_appwidget_available"
+            android:exported="false"
+            android:label="@string/medium_image_gallery">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="android.intent.action.LOCALE_CHANGED" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/default_app_widget_info" />
+        </receiver>
+
+        <receiver
+            android:name="androidx.glance.appwidget.template.demos.LargeImageGalleryReceiver"
+            android:enabled="@bool/glance_appwidget_available"
+            android:exported="false"
+            android:label="@string/large_image_gallery">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
                 <action android:name="android.intent.action.LOCALE_CHANGED" />

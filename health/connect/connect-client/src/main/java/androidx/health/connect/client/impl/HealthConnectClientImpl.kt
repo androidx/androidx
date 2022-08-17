@@ -110,17 +110,17 @@ internal constructor(
     override suspend fun deleteRecords(
         recordType: KClass<out Record>,
         uidsList: List<String>,
-        clientIdsList: List<String>,
+        clientRecordIdsList: List<String>,
     ) {
         delegate
             .deleteData(
                 toDataTypeIdPairProtoList(recordType, uidsList),
-                toDataTypeIdPairProtoList(recordType, clientIdsList)
+                toDataTypeIdPairProtoList(recordType, clientRecordIdsList)
             )
             .await()
         Logger.debug(
             HEALTH_CONNECT_CLIENT_TAG,
-            "${uidsList.size + clientIdsList.size} records deleted."
+            "${uidsList.size + clientRecordIdsList.size} records deleted."
         )
     }
 

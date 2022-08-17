@@ -72,7 +72,7 @@ class ActivityFilter(
 
     fun matchesIntent(intent: Intent): Boolean {
         val match =
-            if (!MatcherUtils.areComponentsMatching(intent.component, componentName)) {
+            if (!MatcherUtils.isIntentMatching(intent, componentName)) {
                 false
             } else {
                 intentAction == null || intentAction == intent.action
@@ -89,7 +89,7 @@ class ActivityFilter(
 
     fun matchesActivity(activity: Activity): Boolean {
         val match =
-            MatcherUtils.areActivityOrIntentComponentsMatching(activity, componentName) &&
+            MatcherUtils.isActivityOrIntentMatching(activity, componentName) &&
                 (intentAction == null || intentAction == activity.intent?.action)
         if (sDebugMatchers) {
             val matchString = if (match) "MATCH" else "NO MATCH"

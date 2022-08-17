@@ -19,10 +19,12 @@ import androidx.build.Publish
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
+    id("org.jetbrains.kotlin.android")
 }
 
 dependencies {
     api("androidx.annotation:annotation:1.0.0")
+    implementation(libs.kotlinStdlib)
     testImplementation(libs.junit)
     testImplementation(libs.mockitoCore)
 }
