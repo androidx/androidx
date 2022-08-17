@@ -82,8 +82,8 @@ internal val DataProto.DataPoint.metadata: Metadata
             uid = if (hasUid()) uid else Metadata.EMPTY_UID,
             dataOrigin = DataOrigin(dataOrigin.applicationId),
             lastModifiedTime = Instant.ofEpochMilli(updateTimeMillis),
-            clientId = if (hasClientId()) clientId else null,
-            clientVersion = clientVersion,
+            clientRecordId = if (hasClientId()) clientId else null,
+            clientRecordVersion = clientVersion,
             device = toDevice(device)
         )
 
