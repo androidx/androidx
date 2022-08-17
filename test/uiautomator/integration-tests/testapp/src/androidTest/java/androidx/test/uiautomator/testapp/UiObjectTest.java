@@ -623,11 +623,60 @@ public class UiObjectTest extends BaseTest {
         assertFalse(text3.exists());
     }
 
+    @Test
+    public void testPinchOut() throws Exception {
+        launchTestActivity(PinchTestActivity.class);
+
+        UiObject pinchArea = mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id"
+                + "/pinch_area"));
+        UiObject scaleText = mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id"
+                + "/scale_factor"));
+
+        UiObject expectedScaleText = mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id"
+                + "/scale_factor").text("1.0f"));
+
+        assertTrue(pinchArea.pinchOut(100, 10));
+        assertTrue(expectedScaleText.waitUntilGone(TIMEOUT_MS));
+        float scaleValueAfterPinch = Float.parseFloat(scaleText.getText());
+        assertTrue(String.format(
+                "Expected scale text to be greater than 1f after pinchOut(), but got [%f]",
+                scaleValueAfterPinch), scaleValueAfterPinch > 1f);
+    }
+
+    @Test
+    public void testPinchIn() throws Exception {
+        launchTestActivity(PinchTestActivity.class);
+
+        UiObject pinchArea = mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id"
+                + "/pinch_area"));
+        UiObject scaleText = mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id"
+                + "/scale_factor"));
+
+        UiObject expectedScaleText = mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id"
+                + "/scale_factor").text("1.0f"));
+
+        assertTrue(pinchArea.pinchIn(100, 10));
+        assertTrue(expectedScaleText.waitUntilGone(TIMEOUT_MS));
+        float scaleValueAfterPinch = Float.parseFloat(scaleText.getText());
+        assertTrue(String.format("Expected scale value to be less than 1f after pinchIn(), "
+                + "but got [%f]", scaleValueAfterPinch), scaleValueAfterPinch < 1f);
+    }
+
+    @Test
+    public void testPinchFamily_throwsExceptions() {
+        launchTestActivity(PinchTestActivity.class);
+
+        UiObject noNode = mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id/no_node"));
+        UiObject smallArea = mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id"
+                + "/small_area"));
+
+        assertThrows(UiObjectNotFoundException.class, () -> noNode.pinchOut(100, 10));
+        assertThrows(UiObjectNotFoundException.class, () -> noNode.pinchIn(100, 10));
+        assertThrows(IllegalStateException.class, () -> smallArea.pinchOut(100, 10));
+        assertThrows(IllegalStateException.class, () -> smallArea.pinchIn(100, 10));
+    }
+
     /* TODO(b/241158642): Implement these tests, and the tests for exceptions of each tested method.
-
-    public void testPinchOut() {}
-
-    public void testPinchIn() {}
 
     public void testPerformTwoPointerGesture() {}
 

@@ -18,7 +18,6 @@ package androidx.test.uiautomator.testapp;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.ScaleGestureDetector.SimpleOnScaleGestureListener;
@@ -26,7 +25,7 @@ import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 
-public class UiObject2TestPinchActivity extends Activity {
+public class PinchTestActivity extends Activity {
 
     private ScaleGestureDetector mScaleDetector;
 
@@ -34,31 +33,14 @@ public class UiObject2TestPinchActivity extends Activity {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.uiobject2_testpinch_activity);
+        setContentView(R.layout.pinch_test_activity);
 
-        final TextView scaleFactor = (TextView)findViewById(R.id.scale_factor);
+        final TextView scaleFactor = findViewById(R.id.scale_factor);
 
         mScaleDetector = new ScaleGestureDetector(this, new SimpleOnScaleGestureListener() {
             @Override
-            public boolean onScaleBegin(ScaleGestureDetector detector) {
-                float scale = detector.getScaleFactor();
-                Log.d("FOO", String.format("Beginning scale: %s", scale));
-                float span = detector.getCurrentSpan();
-                Log.d("FOO", String.format("Beginning span: %s", span));
-                Log.d("FOO", String.format("Beginning span, X: %s, Y:%s", detector.getCurrentSpanX(), detector.getCurrentSpanY()));
-                Log.d("FOO", String.format("Beginning focus: %s, %s", detector.getFocusX(), detector.getFocusY()));
-                return true;
-
-            }
-
-            @Override
             public void onScaleEnd(ScaleGestureDetector detector) {
                 float scale = detector.getScaleFactor();
-                Log.d("FOO", String.format("Ending scale: %s", scale));
-                float span = detector.getCurrentSpan();
-                Log.d("FOO", String.format("Ending span: %s", span));
-                Log.d("FOO", String.format("Ending span, X: %s, Y:%s", detector.getCurrentSpanX(), detector.getCurrentSpanY()));
-                Log.d("FOO", String.format("Ending focus: %s, %s", detector.getFocusX(), detector.getFocusY()));
                 scaleFactor.setText(Float.toString(scale));
             }
         });
