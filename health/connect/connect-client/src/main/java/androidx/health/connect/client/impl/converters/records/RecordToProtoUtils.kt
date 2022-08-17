@@ -67,9 +67,9 @@ private fun DataProto.DataPoint.Builder.setMetadata(metadata: Metadata) = apply 
         setUpdateTimeMillis(metadata.lastModifiedTime.toEpochMilli())
     }
 
-    metadata.clientId?.let { setClientId(it) }
-    if (metadata.clientVersion > 0) {
-        metadata.clientVersion.let { setClientVersion(it) }
+    metadata.clientRecordId?.let { setClientId(it) }
+    if (metadata.clientRecordVersion > 0) {
+        metadata.clientRecordVersion.let { setClientVersion(it) }
     }
     metadata.device?.let { setDevice(it.toProto()) }
 }

@@ -43,26 +43,26 @@ public class Metadata(
     public val lastModifiedTime: Instant = Instant.EPOCH,
 
     /**
-     * Optional client supplied unique data identifier associated with the data.
+     * Optional client supplied record unique data identifier associated with the data.
      *
      * There is guaranteed a single entry for any type of data with same client provided identifier
      * for a given client. Any new insertions with the same client provided identifier will either
-     * replace or be ignored depending on associated [clientVersion].
+     * replace or be ignored depending on associated [clientRecordVersion].
      *
-     * @see clientVersion
+     * @see clientRecordVersion
      */
-    public val clientId: String? = null,
+    public val clientRecordId: String? = null,
 
     /**
      * Optional client supplied version associated with the data.
      *
      * This determines conflict resolution outcome when there are multiple insertions of the same
-     * [clientId]. Data with the highest [clientVersion] takes precedence. [clientVersion] starts
-     * with 0.
+     * [clientRecordId]. Data with the highest [clientRecordVersion] takes precedence.
+     * [clientRecordVersion] starts with 0.
      *
-     * @see clientId
+     * @see clientRecordId
      */
-    public val clientVersion: Long = 0,
+    public val clientRecordVersion: Long = 0,
 
     /** Optional client supplied device information associated with the data. */
     public val device: Device? = null,
@@ -74,8 +74,8 @@ public class Metadata(
         if (uid != other.uid) return false
         if (dataOrigin != other.dataOrigin) return false
         if (lastModifiedTime != other.lastModifiedTime) return false
-        if (clientId != other.clientId) return false
-        if (clientVersion != other.clientVersion) return false
+        if (clientRecordId != other.clientRecordId) return false
+        if (clientRecordVersion != other.clientRecordVersion) return false
         if (device != other.device) return false
 
         return true
@@ -85,8 +85,8 @@ public class Metadata(
         var result = uid.hashCode()
         result = 31 * result + dataOrigin.hashCode()
         result = 31 * result + lastModifiedTime.hashCode()
-        result = 31 * result + (clientId?.hashCode() ?: 0)
-        result = 31 * result + clientVersion.hashCode()
+        result = 31 * result + (clientRecordId?.hashCode() ?: 0)
+        result = 31 * result + clientRecordVersion.hashCode()
         result = 31 * result + (device?.hashCode() ?: 0)
         return result
     }
