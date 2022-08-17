@@ -158,7 +158,7 @@ class QueryInterceptorTest {
             SimpleSQLiteQuery(
                 "INSERT OR ABORT INTO `queryInterceptorTestDatabase` (`id`,`description`) " +
                     "VALUES (?,?)",
-                arrayOf<Any>("3", "Description")
+                arrayOf("3", "Description")
             )
         )
         assertQueryLogged(

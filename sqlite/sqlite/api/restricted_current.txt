@@ -2,12 +2,19 @@
 package androidx.sqlite.db {
 
   public final class SimpleSQLiteQuery implements androidx.sqlite.db.SupportSQLiteQuery {
-    ctor public SimpleSQLiteQuery(String, Object![]?);
-    ctor public SimpleSQLiteQuery(String);
-    method public static void bind(androidx.sqlite.db.SupportSQLiteProgram, Object![]?);
-    method public void bindTo(androidx.sqlite.db.SupportSQLiteProgram);
+    ctor public SimpleSQLiteQuery(String query, Object![]? bindArgs);
+    ctor public SimpleSQLiteQuery(String query);
+    method public static void bind(androidx.sqlite.db.SupportSQLiteProgram statement, Object![]? bindArgs);
+    method public void bindTo(androidx.sqlite.db.SupportSQLiteProgram statement);
     method public int getArgCount();
     method public String getSql();
+    property public int argCount;
+    property public String sql;
+    field public static final androidx.sqlite.db.SimpleSQLiteQuery.Companion Companion;
+  }
+
+  public static final class SimpleSQLiteQuery.Companion {
+    method public void bind(androidx.sqlite.db.SupportSQLiteProgram statement, Object![]? bindArgs);
   }
 
   public interface SupportSQLiteDatabase extends java.io.Closeable {
@@ -94,18 +101,20 @@ package androidx.sqlite.db {
   }
 
   public interface SupportSQLiteProgram extends java.io.Closeable {
-    method public void bindBlob(int, byte[]);
-    method public void bindDouble(int, double);
-    method public void bindLong(int, long);
-    method public void bindNull(int);
-    method public void bindString(int, String);
+    method public void bindBlob(int index, byte[] value);
+    method public void bindDouble(int index, double value);
+    method public void bindLong(int index, long value);
+    method public void bindNull(int index);
+    method public void bindString(int index, String value);
     method public void clearBindings();
   }
 
   public interface SupportSQLiteQuery {
-    method public void bindTo(androidx.sqlite.db.SupportSQLiteProgram);
+    method public void bindTo(androidx.sqlite.db.SupportSQLiteProgram statement);
     method public int getArgCount();
     method public String getSql();
+    property public abstract int argCount;
+    property public abstract String sql;
   }
 
   public final class SupportSQLiteQueryBuilder {

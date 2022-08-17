@@ -13,37 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package androidx.sqlite.db;
-
-import androidx.annotation.NonNull;
+package androidx.sqlite.db
 
 /**
  * A query with typed bindings. It is better to use this API instead of
- * {@link android.database.sqlite.SQLiteDatabase#rawQuery(String, String[])} because it allows
+ * [android.database.sqlite.SQLiteDatabase.rawQuery] because it allows
  * binding type safe parameters.
  */
-public interface SupportSQLiteQuery {
+interface SupportSQLiteQuery {
     /**
      * The SQL query. This query can have placeholders(?) for bind arguments.
-     *
-     * @return The SQL query to compile
      */
-    @NonNull
-    String getSql();
+    val sql: String
 
     /**
      * Callback to bind the query parameters to the compiled statement.
      *
      * @param statement The compiled statement
      */
-    void bindTo(@NonNull SupportSQLiteProgram statement);
+    fun bindTo(statement: SupportSQLiteProgram)
 
     /**
-     * Returns the number of arguments in this query. This is equal to the number of placeholders
+     * Is the number of arguments in this query. This is equal to the number of placeholders
      * in the query string. See: https://www.sqlite.org/c3ref/bind_blob.html for details.
-     *
-     * @return The number of arguments in the query.
      */
-    int getArgCount();
+    val argCount: Int
 }

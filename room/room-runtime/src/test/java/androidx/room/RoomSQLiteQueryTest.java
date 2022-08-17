@@ -45,7 +45,7 @@ public class RoomSQLiteQueryTest {
     public void acquireBasic() {
         RoomSQLiteQuery query = RoomSQLiteQuery.acquire("abc", 3);
         assertThat(query.getSql(), is("abc"));
-        assertThat(query.argCount, is(3));
+        assertThat(query.getArgCount(), is(3));
         assertThat(query.blobBindings.length, is(4));
         assertThat(query.longBindings.length, is(4));
         assertThat(query.stringBindings.length, is(4));
