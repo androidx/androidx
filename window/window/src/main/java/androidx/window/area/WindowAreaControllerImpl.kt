@@ -21,6 +21,7 @@ import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.window.core.BuildConfig
+import androidx.window.core.ConsumerAdapter
 import androidx.window.core.ExperimentalWindowApi
 import androidx.window.core.SpecificationComputer
 import androidx.window.extensions.area.WindowAreaComponent
@@ -60,13 +61,26 @@ internal class WindowAreaControllerImpl(
                 currentStatus = WindowAreaStatus.translate(status)
                 channel.trySend(currentStatus ?: WindowAreaStatus.UNSUPPORTED)
             }
-            windowAreaComponent.addRearDisplayStatusListener(listener)
-            try {
-                for (item in channel) {
-                    emit(item)
+            val loader = WindowAreaControllerImpl::class.java.classLoader
+            if (loader == null) {
+                channel.trySend(WindowAreaStatus.UNSUPPORTED)
+            } else {
+                val consumerAdapter = ConsumerAdapter(loader)
+                val subscription = consumerAdapter.createSubscriptionNoActivity(
+                    windowAreaComponent,
+                    Int::class,
+                    "addRearDisplayStatusListener",
+                    "removeRearDisplayStatusListener",
+                ) { value ->
+                    listener.accept(value)
                 }
-            } finally {
-                windowAreaComponent.removeRearDisplayStatusListener(listener)
+                try {
+                    for (item in channel) {
+                        emit(item)
+                    }
+                } finally {
+                    subscription.dispose()
+                }
             }
         }.distinctUntilChanged()
     }
@@ -84,7 +98,18 @@ internal class WindowAreaControllerImpl(
         }
         rearDisplaySessionConsumer =
             RearDisplaySessionConsumer(windowAreaSessionCallback, windowAreaComponent)
-        windowAreaComponent.startRearDisplaySession(activity, rearDisplaySessionConsumer)
+        val loader = WindowAreaControllerImpl::class.java.classLoader
+        loader?.let {
+            val consumerAdapter = ConsumerAdapter(it)
+            consumerAdapter.createConsumer(
+                windowAreaComponent,
+                Int::class,
+                "startRearDisplaySession",
+                activity
+            ) { value ->
+                rearDisplaySessionConsumer.accept(value)
+            }
+        }
     }
 
     internal class RearDisplaySessionConsumer(
