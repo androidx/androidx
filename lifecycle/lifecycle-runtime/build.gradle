@@ -32,6 +32,10 @@ dependencies {
         implementation(project(":lifecycle:lifecycle-common"))
         implementation(project(":lifecycle:lifecycle-runtime-ktx"))
         implementation(project(":lifecycle:lifecycle-runtime-testing"))
+        // this syntax is a temporary workout to allow project dependency on cross-project-set
+        // i.e. COMPOSE + MAIN project sets
+        // update syntax when b/239979823 is fixed
+        implementation("androidx.lifecycle:lifecycle-runtime-compose:{androidx.LibraryVersions.LIFECYCLE}")
     }
 }
 
