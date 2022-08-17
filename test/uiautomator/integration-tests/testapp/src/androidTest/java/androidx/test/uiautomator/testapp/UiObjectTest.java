@@ -21,6 +21,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
+import android.graphics.Point;
 import android.graphics.Rect;
 
 import androidx.test.filters.FlakyTest;
@@ -678,10 +679,24 @@ public class UiObjectTest extends BaseTest {
         assertThrows(IllegalStateException.class, () -> smallArea.pinchIn(100, 10));
     }
 
-    /* TODO(b/241158642): Implement these tests, and the tests for exceptions of each tested method.
+    @Test
+    public void testPerformTwoPointerGesture_withZeroSteps() throws Exception {
+        // Note that most part of `performTwoPointerGesture` (and `performMultiPointerGesture`)
+        // has already been indirectly tested in other tests. This test only test the case when
+        // the `step` parameter is set to zero.
+        launchTestActivity(PointerGestureTestActivity.class);
 
-    public void testPerformTwoPointerGesture() {}
+        UiObject touchRegion = mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id"
+                + "/touch_region"));
 
-    public void testPerformMultiPointerGesture() {}
-    */
+        Rect visibleBounds = touchRegion.getVisibleBounds();
+        Point startPoint1 = new Point(visibleBounds.left + 50, visibleBounds.top + 50);
+        Point startPoint2 = new Point(visibleBounds.right - 50, visibleBounds.top + 50);
+        Point endPoint1 = new Point(visibleBounds.left + 50, visibleBounds.bottom - 50);
+        Point endPoint2 = new Point(visibleBounds.right - 50, visibleBounds.bottom - 50);
+
+        assertTrue(touchRegion.performTwoPointerGesture(startPoint1, startPoint2, endPoint1,
+                endPoint2, 0));
+        assertEquals("2 touch(es) received", touchRegion.getText());
+    }
 }
