@@ -18,7 +18,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".UiObject2TestPinchActivity">
+    tools:context=".PinchTestActivity">
 
     <LinearLayout
         android:id="@+id/pinch_area"
@@ -34,6 +34,12 @@
             android:background="@android:color/black"
             android:text="1.0f"
             android:textColor="@android:color/white" />
+
+        <TextView
+            android:id="@+id/small_area"
+            android:layout_width="1dp"
+            android:layout_height="1dp"
+            android:text="small area" />
 
     </LinearLayout>
 
