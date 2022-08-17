@@ -34,6 +34,7 @@ class ActivityFilterTest {
     private val component1 = ComponentName("a.b.c", "a.b.c.TestActivity")
     private val component2 = ComponentName("d.e.f", "d.e.f.TestActivity")
     private val wildcard = ComponentName("*", "*")
+    private val classWildcard = ComponentName("a.b.c", "*")
     private val intent = Intent()
     private val activity = mock<Activity> {
         on { intent } doReturn intent
@@ -92,6 +93,17 @@ class ActivityFilterTest {
 
         assertWithMessage("#matchActivity must be true because intent.action matches regardless " +
             "of null component")
+            .that(filter.matchesActivity(activity)).isTrue()
+    }
+
+    @Test
+    fun testMatchActivity_MatchIntentWithPackage() {
+        val filter = ActivityFilter(classWildcard, null /* intentAction */)
+
+        intent.component = null
+        intent.`package` = classWildcard.packageName
+
+        assertWithMessage("#matchActivity must be true because intent.package matches")
             .that(filter.matchesActivity(activity)).isTrue()
     }
 }

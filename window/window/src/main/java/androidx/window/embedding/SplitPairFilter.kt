@@ -21,6 +21,7 @@ import android.content.Intent
 import android.util.Log
 import androidx.window.core.ExperimentalWindowApi
 import androidx.window.embedding.MatcherUtils.areComponentsMatching
+import androidx.window.embedding.MatcherUtils.isIntentMatching
 import androidx.window.embedding.MatcherUtils.sDebugMatchers
 import androidx.window.embedding.MatcherUtils.sMatchersTag
 
@@ -85,7 +86,7 @@ class SplitPairFilter(
         ) {
             false
         } else if (
-            !areComponentsMatching(secondaryActivityIntent.component, secondaryActivityName)
+            !isIntentMatching(secondaryActivityIntent, secondaryActivityName)
         ) {
             false
         } else {
