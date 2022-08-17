@@ -16,16 +16,17 @@
 
 package androidx.wear.watchface.control;
 
+import androidx.wear.watchface.data.WatchFaceColorsWireFormat;
+
 /**
- * Interface of a service that allows the user to create watch face instances.
+ * Binder interface that allows the watch face to send notifications to its clients.
  *
- * @Deprecated Use IWatchfaceListener instead where possible.
  * @hide
  */
-interface IWatchfaceReadyListener {
+interface IWatchfaceListener {
     // IMPORTANT NOTE: All methods must be given an explicit transaction id that must never change
     // in the future to remain binary backwards compatible.
-    // Next Id: 3
+    // Next Id: 4
 
     /**
      * API version number. This should be incremented every time a new method is added.
@@ -46,4 +47,11 @@ interface IWatchfaceReadyListener {
      * @since API version 1.
      */
     oneway void onWatchfaceReady() = 2;
+
+    /**
+     * Called when the watch face is ready to render.
+     *
+     * @since API version 1.
+     */
+    oneway void onWatchfaceColorsChanged(in WatchFaceColorsWireFormat watchFaceColors) = 3;
 }

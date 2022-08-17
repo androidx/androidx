@@ -73,6 +73,20 @@ internal class InteractiveWatchFaceImpl(
 
     override fun unused20() {}
 
+    override fun addWatchFaceListener(listener: IWatchfaceListener) {
+        engine?.addWatchFaceListener(listener) ?: Log.w(
+            TAG,
+            "addWatchFaceListener ignored due to null engine"
+        )
+    }
+
+    override fun removeWatchFaceListener(listener: IWatchfaceListener) {
+        engine?.removeWatchFaceListener(listener) ?: Log.w(
+            TAG,
+            "removeWatchFaceListener ignored due to null engine"
+        )
+    }
+
     override fun getWatchFaceOverlayStyle(): WatchFaceOverlayStyleWireFormat? =
         WatchFaceService.awaitDeferredWatchFaceAndComplicationManagerThenRunOnBinderThread(
             engine,

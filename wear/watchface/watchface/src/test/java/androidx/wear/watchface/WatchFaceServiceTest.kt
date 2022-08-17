@@ -19,7 +19,6 @@ package androidx.wear.watchface
 import android.annotation.SuppressLint
 import android.app.NotificationManager
 import android.app.PendingIntent
-import android.app.WallpaperColors
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -70,6 +69,7 @@ import androidx.wear.watchface.complications.rendering.CanvasComplicationDrawabl
 import androidx.wear.watchface.complications.rendering.ComplicationDrawable
 import androidx.wear.watchface.control.IInteractiveWatchFace
 import androidx.wear.watchface.control.IPendingInteractiveWatchFace
+import androidx.wear.watchface.control.IWatchfaceListener
 import androidx.wear.watchface.control.InteractiveInstanceManager
 import androidx.wear.watchface.control.data.CrashInfoParcel
 import androidx.wear.watchface.control.data.HeadlessWatchFaceInstanceParams
@@ -77,6 +77,7 @@ import androidx.wear.watchface.control.data.WallpaperInteractiveWatchFaceInstanc
 import androidx.wear.watchface.data.ComplicationSlotMetadataWireFormat
 import androidx.wear.watchface.data.DeviceConfig
 import androidx.wear.watchface.data.IdAndComplicationDataWireFormat
+import androidx.wear.watchface.data.WatchFaceColorsWireFormat
 import androidx.wear.watchface.data.WatchUiState
 import androidx.wear.watchface.style.CurrentUserStyleRepository
 import androidx.wear.watchface.style.UserStyle
@@ -5517,18 +5518,25 @@ public class WatchFaceServiceTest {
     @Test
     @RequiresApi(27)
     public fun onComputeColors() {
+        @Suppress("DEPRECATION")
+        lateinit var renderer: Renderer.CanvasRenderer
         testWatchFaceService = TestWatchFaceService(
             WatchFaceType.DIGITAL,
             emptyList(),
             { _, currentUserStyleRepository, watchState ->
                 @Suppress("DEPRECATION")
-                object : Renderer.CanvasRenderer(
+                renderer = object : Renderer.CanvasRenderer(
                     surfaceHolder,
                     currentUserStyleRepository,
                     watchState,
                     CanvasType.HARDWARE,
                     INTERACTIVE_UPDATE_RATE_MS
                 ) {
+                    init {
+                        watchfaceColors =
+                            WatchFaceColors(Color.valueOf(1), Color.valueOf(2), Color.valueOf(3))
+                    }
+
                     override fun render(
                         canvas: Canvas,
                         bounds: Rect,
@@ -5541,10 +5549,8 @@ public class WatchFaceServiceTest {
                         zonedDateTime: ZonedDateTime
                     ) {
                     }
-
-                    override fun watchfaceColors() =
-                        WatchfaceColors(Color.valueOf(1), Color.valueOf(2), Color.valueOf(3))
                 }
+                renderer
             },
             UserStyleSchema(emptyList()),
             null,
@@ -5588,13 +5594,41 @@ public class WatchFaceServiceTest {
                 )
             )
 
+        var lastWatchFaceColors: WatchFaceColors? = null
+        val listener = object : IWatchfaceListener.Stub() {
+            override fun getApiVersion() = 1
+
+            override fun onWatchfaceReady() { }
+
+            override fun onWatchfaceColorsChanged(watchFaceColors: WatchFaceColorsWireFormat?) {
+                lastWatchFaceColors = watchFaceColors?.toApiFormat()
+            }
+        }
+
         engineWrapper = testWatchFaceService.onCreateEngine() as WatchFaceService.EngineWrapper
         engineWrapper.onCreate(surfaceHolder)
         engineWrapper.onSurfaceChanged(surfaceHolder, 0, 100, 100)
 
-        // Check that onComputeColors is plumbed through to the Renderer.
-        assertThat(engineWrapper.onComputeColors()).isEqualTo(
-            WallpaperColors(Color.valueOf(1), Color.valueOf(2), Color.valueOf(3))
+        interactiveWatchFaceInstance.addWatchFaceListener(listener)
+
+        assertThat(lastWatchFaceColors).isEqualTo(
+            WatchFaceColors(Color.valueOf(1), Color.valueOf(2), Color.valueOf(3))
+        )
+
+        renderer.watchfaceColors =
+            WatchFaceColors(Color.valueOf(10), Color.valueOf(20), Color.valueOf(30))
+
+        assertThat(lastWatchFaceColors).isEqualTo(
+            WatchFaceColors(Color.valueOf(10), Color.valueOf(20), Color.valueOf(30))
+        )
+
+        interactiveWatchFaceInstance.removeWatchFaceListener(listener)
+
+        // This should be ignored.
+        renderer.watchfaceColors =
+            WatchFaceColors(Color.valueOf(100), Color.valueOf(200), Color.valueOf(300))
+        assertThat(lastWatchFaceColors).isNotEqualTo(
+            WatchFaceColors(Color.valueOf(100), Color.valueOf(200), Color.valueOf(300))
         )
 
         engineWrapper.onDestroy()

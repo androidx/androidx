@@ -1,1 +1,15 @@
 // Signature format: 4.0
+package androidx.wear.watchface.data {
+
+  @androidx.versionedparcelable.VersionedParcelize public final class WatchFaceColorsWireFormat implements android.os.Parcelable androidx.versionedparcelable.VersionedParcelable {
+    ctor public WatchFaceColorsWireFormat(int, int, int);
+    method public int describeContents();
+    method public int getPrimaryColor();
+    method public int getSecondaryColor();
+    method public int getTertiaryColor();
+    method public void writeToParcel(android.os.Parcel?, int);
+    field public static final android.os.Parcelable.Creator<androidx.wear.watchface.data.WatchFaceColorsWireFormat!> CREATOR;
+  }
+
+}
+
