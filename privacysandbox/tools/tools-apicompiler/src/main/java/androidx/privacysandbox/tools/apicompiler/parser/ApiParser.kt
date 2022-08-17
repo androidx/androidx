@@ -40,26 +40,27 @@ internal fun KSName.getFullName(): String {
 
 /** Top-level entry point to parse a complete user-defined sandbox SDK API into a [ParsedApi]. */
 class ApiParser(private val resolver: Resolver, private val logger: KSPLogger) {
+    private val validator: ApiValidator = ApiValidator(logger)
 
     fun parseApi(): ParsedApi {
         return ParsedApi(services = parseAllServices())
     }
 
     private fun parseAllServices(): Set<AnnotatedInterface> {
-        val symbolsWithServiceAnnotation = resolver
-            .getSymbolsWithAnnotation(PrivacySandboxService::class.qualifiedName!!)
-        val interfacesWithServiceAnnotation = symbolsWithServiceAnnotation
-            .filterIsInstance<KSClassDeclaration>().filter { it.classKind == ClassKind.INTERFACE }
+        val symbolsWithServiceAnnotation =
+            resolver.getSymbolsWithAnnotation(PrivacySandboxService::class.qualifiedName!!)
+        val interfacesWithServiceAnnotation =
+            symbolsWithServiceAnnotation.filterIsInstance<KSClassDeclaration>()
+                .filter { it.classKind == ClassKind.INTERFACE }
         if (symbolsWithServiceAnnotation.count() != interfacesWithServiceAnnotation.count()) {
             logger.error("Only interfaces can be annotated with @PrivacySandboxService.")
             return setOf()
         }
-        return interfacesWithServiceAnnotation
-            .map(this::parseInterface)
-            .toSet()
+        return interfacesWithServiceAnnotation.map(this::parseInterface).toSet()
     }
 
     private fun parseInterface(classDeclaration: KSClassDeclaration): AnnotatedInterface {
+        validator.validateInterface(classDeclaration)
         return AnnotatedInterface(
             name = classDeclaration.simpleName.getShortName(),
             packageName = classDeclaration.packageName.getFullName(),
