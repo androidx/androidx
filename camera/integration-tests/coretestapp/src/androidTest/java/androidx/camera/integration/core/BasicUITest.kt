@@ -39,6 +39,7 @@ import java.util.concurrent.TimeUnit
 import leakcanary.DetectLeaksAfterTestSuccess
 import org.junit.After
 import org.junit.Assume
+import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -126,6 +127,12 @@ class BasicUITest(
             // Arrange.
             // Wait for the Activity to be created and Preview appears before starting the test.
             scenario.waitForViewfinderIdle()
+
+            // Skips the test if ImageAnalysis can't be enabled when launching the activity. Some
+            // devices use YUV stream to take image and Preview + ImageCapture + ImageAnalysis
+            // might not be able to bind together.
+            assumeTrue(scenario.withActivity { imageAnalysis != null })
+
             // Click to disable the imageAnalysis use case.
             if (scenario.withActivity { imageAnalysis != null }) {
                 Espresso.onView(withId(R.id.AnalysisToggle)).perform(ViewActions.click())
