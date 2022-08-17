@@ -13,65 +13,60 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.sqlite.db
 
-package androidx.sqlite.db;
-
-import androidx.annotation.NonNull;
-
-import java.io.Closeable;
+import java.io.Closeable
 
 /**
- * An interface to map the behavior of {@link android.database.sqlite.SQLiteProgram}.
+ * An interface to map the behavior of [android.database.sqlite.SQLiteProgram].
  */
-
-@SuppressWarnings("unused")
-public interface SupportSQLiteProgram extends Closeable {
+interface SupportSQLiteProgram : Closeable {
     /**
      * Bind a NULL value to this statement. The value remains bound until
-     * {@link #clearBindings} is called.
+     * [.clearBindings] is called.
      *
      * @param index The 1-based index to the parameter to bind null to
      */
-    void bindNull(int index);
+    fun bindNull(index: Int)
 
     /**
      * Bind a long value to this statement. The value remains bound until
-     * {@link #clearBindings} is called.
-     *addToBindArgs
+     * [clearBindings] is called.
+     * addToBindArgs
      * @param index The 1-based index to the parameter to bind
      * @param value The value to bind
      */
-    void bindLong(int index, long value);
+    fun bindLong(index: Int, value: Long)
 
     /**
      * Bind a double value to this statement. The value remains bound until
-     * {@link #clearBindings} is called.
+     * [.clearBindings] is called.
      *
      * @param index The 1-based index to the parameter to bind
      * @param value The value to bind
      */
-    void bindDouble(int index, double value);
+    fun bindDouble(index: Int, value: Double)
 
     /**
      * Bind a String value to this statement. The value remains bound until
-     * {@link #clearBindings} is called.
+     * [.clearBindings] is called.
      *
      * @param index The 1-based index to the parameter to bind
      * @param value The value to bind, must not be null
      */
-    void bindString(int index, @NonNull String value);
+    fun bindString(index: Int, value: String)
 
     /**
      * Bind a byte array value to this statement. The value remains bound until
-     * {@link #clearBindings} is called.
+     * [.clearBindings] is called.
      *
      * @param index The 1-based index to the parameter to bind
      * @param value The value to bind, must not be null
      */
-    void bindBlob(int index, @NonNull byte[] value);
+    fun bindBlob(index: Int, value: ByteArray)
 
     /**
      * Clears all existing bindings. Unset bindings are treated as NULL.
      */
-    void clearBindings();
+    fun clearBindings()
 }

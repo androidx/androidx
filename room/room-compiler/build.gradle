@@ -125,7 +125,7 @@ dependencies {
             dir: provider {
                 // Wrapping in a provider as we access buildDir before this project is configured
                 // Replace with AGP API once it is added b/228109260
-                "${new File(project(":sqlite:sqlite").buildDir, "libJar")}"
+                "${new File(project(":sqlite:sqlite").buildDir, "intermediates/compile_library_classes_jar/release/")}"
             },
             include : "*.jar"
     ))
