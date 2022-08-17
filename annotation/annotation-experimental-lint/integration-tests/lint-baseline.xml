@@ -1126,4 +1126,13 @@
             file="src/main/java/sample/optin/UseKtExperimentalFromJava.java"/>
     </issue>
 
+    <issue
+        id="WrongRequiresOptIn"
+        message="Experimental annotation should use kotlin.RequiresOptIn"
+        errorLine1="annotation class ExperimentalKotlinAnnotationWrongAnnotation"
+        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/sample/kotlin/ExperimentalKotlinAnnotationWrongAnnotation.kt"/>
+    </issue>
+
 </issues>
