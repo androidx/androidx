@@ -1,6 +1,30 @@
 // Baseline format: 1.0
 AddedFinal: androidx.room.Room:
     Class androidx.room.Room added 'final' qualifier
+AddedFinal: androidx.room.RoomSQLiteQuery#bindBlob(int, byte[]):
+    Method androidx.room.RoomSQLiteQuery.bindBlob has added 'final' qualifier
+AddedFinal: androidx.room.RoomSQLiteQuery#bindDouble(int, double):
+    Method androidx.room.RoomSQLiteQuery.bindDouble has added 'final' qualifier
+AddedFinal: androidx.room.RoomSQLiteQuery#bindLong(int, long):
+    Method androidx.room.RoomSQLiteQuery.bindLong has added 'final' qualifier
+AddedFinal: androidx.room.RoomSQLiteQuery#bindNull(int):
+    Method androidx.room.RoomSQLiteQuery.bindNull has added 'final' qualifier
+AddedFinal: androidx.room.RoomSQLiteQuery#bindString(int, String):
+    Method androidx.room.RoomSQLiteQuery.bindString has added 'final' qualifier
+AddedFinal: androidx.room.RoomSQLiteQuery#bindTo(androidx.sqlite.db.SupportSQLiteProgram):
+    Method androidx.room.RoomSQLiteQuery.bindTo has added 'final' qualifier
+AddedFinal: androidx.room.RoomSQLiteQuery#clearBindings():
+    Method androidx.room.RoomSQLiteQuery.clearBindings has added 'final' qualifier
+AddedFinal: androidx.room.RoomSQLiteQuery#close():
+    Method androidx.room.RoomSQLiteQuery.close has added 'final' qualifier
+AddedFinal: androidx.room.RoomSQLiteQuery#copyArgumentsFrom(androidx.room.RoomSQLiteQuery):
+    Method androidx.room.RoomSQLiteQuery.copyArgumentsFrom has added 'final' qualifier
+AddedFinal: androidx.room.RoomSQLiteQuery#getArgCount():
+    Method androidx.room.RoomSQLiteQuery.getArgCount has added 'final' qualifier
+AddedFinal: androidx.room.RoomSQLiteQuery#getSql():
+    Method androidx.room.RoomSQLiteQuery.getSql has added 'final' qualifier
+AddedFinal: androidx.room.RoomSQLiteQuery#release():
+    Method androidx.room.RoomSQLiteQuery.release has added 'final' qualifier
 
 
 ChangedType: androidx.room.DatabaseConfiguration#autoMigrationSpecs:

@@ -5,7 +5,7 @@ package androidx.health.connect.client {
     method public suspend Object? aggregate(androidx.health.connect.client.request.AggregateRequest request, kotlin.coroutines.Continuation<? super androidx.health.connect.client.aggregate.AggregationResult>);
     method public suspend Object? aggregateGroupByDuration(androidx.health.connect.client.request.AggregateGroupByDurationRequest request, kotlin.coroutines.Continuation<? super java.util.List<? extends androidx.health.connect.client.aggregate.AggregationResultGroupedByDuration>>);
     method public suspend Object? aggregateGroupByPeriod(androidx.health.connect.client.request.AggregateGroupByPeriodRequest request, kotlin.coroutines.Continuation<? super java.util.List<? extends androidx.health.connect.client.aggregate.AggregationResultGroupedByPeriod>>);
-    method public suspend Object? deleteRecords(kotlin.reflect.KClass<? extends androidx.health.connect.client.records.Record> recordType, java.util.List<java.lang.String> uidsList, java.util.List<java.lang.String> clientIdsList, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public suspend Object? deleteRecords(kotlin.reflect.KClass<? extends androidx.health.connect.client.records.Record> recordType, java.util.List<java.lang.String> uidsList, java.util.List<java.lang.String> clientRecordIdsList, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public suspend Object? deleteRecords(kotlin.reflect.KClass<? extends androidx.health.connect.client.records.Record> recordType, androidx.health.connect.client.time.TimeRangeFilter timeRangeFilter, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public suspend Object? getChanges(String changesToken, kotlin.coroutines.Continuation<? super androidx.health.connect.client.response.ChangesResponse>);
     method public suspend Object? getChangesToken(androidx.health.connect.client.request.ChangesTokenRequest request, kotlin.coroutines.Continuation<? super java.lang.String>);
@@ -1326,15 +1326,15 @@ package androidx.health.connect.client.records.metadata {
   }
 
   public final class Metadata {
-    ctor public Metadata(optional String uid, optional androidx.health.connect.client.records.metadata.DataOrigin dataOrigin, optional java.time.Instant lastModifiedTime, optional String? clientId, optional long clientVersion, optional androidx.health.connect.client.records.metadata.Device? device);
-    method public String? getClientId();
-    method public long getClientVersion();
+    ctor public Metadata(optional String uid, optional androidx.health.connect.client.records.metadata.DataOrigin dataOrigin, optional java.time.Instant lastModifiedTime, optional String? clientRecordId, optional long clientRecordVersion, optional androidx.health.connect.client.records.metadata.Device? device);
+    method public String? getClientRecordId();
+    method public long getClientRecordVersion();
     method public androidx.health.connect.client.records.metadata.DataOrigin getDataOrigin();
     method public androidx.health.connect.client.records.metadata.Device? getDevice();
     method public java.time.Instant getLastModifiedTime();
     method public String getUid();
-    property public final String? clientId;
-    property public final long clientVersion;
+    property public final String? clientRecordId;
+    property public final long clientRecordVersion;
     property public final androidx.health.connect.client.records.metadata.DataOrigin dataOrigin;
     property public final androidx.health.connect.client.records.metadata.Device? device;
     property public final java.time.Instant lastModifiedTime;

@@ -127,12 +127,7 @@ public final class OnBackPressedDispatcher {
                     updateBackInvokedCallbackState();
                 }
             };
-            mOnBackInvokedCallback = new OnBackInvokedCallback() {
-                @Override
-                public void onBackInvoked() {
-                    onBackPressed();
-                }
-            };
+            mOnBackInvokedCallback = Api33Impl.createOnBackInvokedCallback(this::onBackPressed);
         }
     }
 
@@ -331,18 +326,22 @@ public final class OnBackPressedDispatcher {
 
         @DoNotInline
         static void registerOnBackInvokedCallback(
-                OnBackInvokedDispatcher onBackInvokedDispatcher, int priority,
-                OnBackInvokedCallback onBackInvokedCallback
+                Object dispatcher, int priority, Object callback
         ) {
+            OnBackInvokedDispatcher onBackInvokedDispatcher = (OnBackInvokedDispatcher) dispatcher;
+            OnBackInvokedCallback onBackInvokedCallback = (OnBackInvokedCallback) callback;
             onBackInvokedDispatcher.registerOnBackInvokedCallback(priority, onBackInvokedCallback);
         }
 
         @DoNotInline
-        static void unregisterOnBackInvokedCallback(
-                OnBackInvokedDispatcher onBackInvokedDispatcher,
-                OnBackInvokedCallback onBackInvokedCallback
-        ) {
+        static void unregisterOnBackInvokedCallback(Object dispatcher, Object callback) {
+            OnBackInvokedDispatcher onBackInvokedDispatcher = (OnBackInvokedDispatcher) dispatcher;
+            OnBackInvokedCallback onBackInvokedCallback = (OnBackInvokedCallback) callback;
             onBackInvokedDispatcher.unregisterOnBackInvokedCallback(onBackInvokedCallback);
+        }
+        @DoNotInline
+        static OnBackInvokedCallback createOnBackInvokedCallback(Runnable runnable) {
+            return runnable::run;
         }
     }
 }

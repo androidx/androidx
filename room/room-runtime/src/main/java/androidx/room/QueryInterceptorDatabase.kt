@@ -103,7 +103,7 @@ internal class QueryInterceptorDatabase(
         val queryInterceptorProgram = QueryInterceptorProgram()
         query.bindTo(queryInterceptorProgram)
         queryCallbackExecutor.execute {
-            queryCallback.onQuery(query.getSql(), queryInterceptorProgram.bindArgsCache)
+            queryCallback.onQuery(query.sql, queryInterceptorProgram.bindArgsCache)
         }
         return delegate.query(query)
     }

@@ -64,10 +64,10 @@ interface HealthConnectClient {
      * To insert some heart rate data:
      * @sample androidx.health.connect.client.samples.InsertHeartRateSeries
      *
-     * [androidx.health.connect.client.records.metadata.Metadata.clientId] can be used to
+     * [androidx.health.connect.client.records.metadata.Metadata.clientRecordId] can be used to
      * deduplicate data with a client provided unique identifier. When a subsequent [insertRecords]
-     * is called with the same [androidx.health.connect.client.records.metadata.Metadata.clientId],
-     * whichever [Record] with the higher [androidx.health.connect.client.records.metadata.Metadata.clientVersion]
+     * is called with the same [androidx.health.connect.client.records.metadata.Metadata.clientRecordId],
+     * whichever [Record] with the higher [androidx.health.connect.client.records.metadata.Metadata.clientRecordVersion]
      * takes precedence.
      *
      * @param records List of records to insert
@@ -101,7 +101,7 @@ interface HealthConnectClient {
      *
      * @param recordType Which type of [Record] to delete, such as `Steps::class`
      * @param uidsList List of uids of [Record] to delete
-     * @param clientIdsList List of client IDs of [Record] to delete
+     * @param clientRecordIdsList List of client record IDs of [Record] to delete
      * @throws RemoteException For any IPC transportation failures. Deleting by invalid identifiers
      * such as a non-existing identifier or deleting the same record multiple times will result in
      * IPC failure.
@@ -112,7 +112,7 @@ interface HealthConnectClient {
     suspend fun deleteRecords(
         recordType: KClass<out Record>,
         uidsList: List<String>,
-        clientIdsList: List<String>,
+        clientRecordIdsList: List<String>,
     )
 
     /**

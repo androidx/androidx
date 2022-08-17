@@ -24,6 +24,11 @@ plugins {
 dependencies {
     api(libs.kotlinStdlib)
     implementation(libs.kspApi)
+    implementation project(path: ':privacysandbox:tools:tools')
+
+    testImplementation(project(":room:room-compiler-processing-testing"))
+    testImplementation(libs.junit)
+    testImplementation(libs.truth)
 }
 
 androidx {
