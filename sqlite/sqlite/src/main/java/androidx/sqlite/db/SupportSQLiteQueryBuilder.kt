@@ -24,7 +24,7 @@ import java.util.regex.Pattern;
 @SuppressWarnings("unused")
 public final class SupportSQLiteQueryBuilder {
     private static final Pattern sLimitPattern =
-            Pattern.compile("\\s*\\d+\\s*(,\\s*\\d+\\s*)?");
+    Pattern.compile("\\s*\\d+\\s*(,\\s*\\d+\\s*)?");
 
     private boolean mDistinct = false;
     private final String mTable;
@@ -148,7 +148,7 @@ public final class SupportSQLiteQueryBuilder {
     public SupportSQLiteQuery create() {
         if (isEmpty(mGroupBy) && !isEmpty(mHaving)) {
             throw new IllegalArgumentException(
-                    "HAVING clauses are only permitted when using a groupBy clause");
+                "HAVING clauses are only permitted when using a groupBy clause");
         }
         StringBuilder query = new StringBuilder(120);
 

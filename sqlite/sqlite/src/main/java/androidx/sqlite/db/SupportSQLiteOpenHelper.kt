@@ -185,7 +185,7 @@ public interface SupportSQLiteOpenHelper extends Closeable {
          * @param newVersion The new database version.
          */
         public abstract void onUpgrade(@NonNull SupportSQLiteDatabase db, int oldVersion,
-                int newVersion);
+        int newVersion);
 
         /**
          * Called when the database needs to be downgraded. This is strictly similar to
@@ -206,7 +206,7 @@ public interface SupportSQLiteOpenHelper extends Closeable {
          */
         public void onDowngrade(@NonNull SupportSQLiteDatabase db, int oldVersion, int newVersion) {
             throw new SQLiteException("Can't downgrade database from version "
-                    + oldVersion + " to " + newVersion);
+                + oldVersion + " to " + newVersion);
         }
 
         /**
@@ -256,12 +256,12 @@ public interface SupportSQLiteOpenHelper extends Closeable {
                 try {
                     attachedDbs = db.getAttachedDbs();
                 } catch (SQLiteException e) {
-                /* ignore */
+                    /* ignore */
                 }
                 try {
                     db.close();
                 } catch (IOException e) {
-                /* ignore */
+                    /* ignore */
                 }
             } finally {
                 // Delete all files of this corrupt database and/or attached databases
@@ -296,7 +296,7 @@ public interface SupportSQLiteOpenHelper extends Closeable {
                     }
                 }
             } catch (Exception e) {
-            /* print warning and ignore exception */
+                /* print warning and ignore exception */
                 Log.w(TAG, "delete failed: ", e);
             }
         }
@@ -332,26 +332,26 @@ public interface SupportSQLiteOpenHelper extends Closeable {
         public final boolean allowDataLossOnRecovery;
 
         Configuration(
-                @NonNull Context context,
-                @Nullable String name,
-                @NonNull Callback callback) {
+        @NonNull Context context,
+        @Nullable String name,
+        @NonNull Callback callback) {
             this(context, name, callback, false);
         }
 
         Configuration(
-                @NonNull Context context,
-                @Nullable String name,
-                @NonNull Callback callback,
-                boolean useNoBackupDirectory) {
+        @NonNull Context context,
+        @Nullable String name,
+        @NonNull Callback callback,
+        boolean useNoBackupDirectory) {
             this(context, name, callback, useNoBackupDirectory, false);
         }
 
         Configuration(
-                @NonNull Context context,
-                @Nullable String name,
-                @NonNull Callback callback,
-                boolean useNoBackupDirectory,
-                boolean allowDataLossOnRecovery) {
+        @NonNull Context context,
+        @Nullable String name,
+        @NonNull Callback callback,
+        boolean useNoBackupDirectory,
+        boolean allowDataLossOnRecovery) {
             this.context = context;
             this.name = name;
             this.callback = callback;
@@ -394,19 +394,19 @@ public interface SupportSQLiteOpenHelper extends Closeable {
             public Configuration build() {
                 if (mCallback == null) {
                     throw new IllegalArgumentException("Must set a callback to create the"
-                            + " configuration.");
+                        + " configuration.");
                 }
                 if (mContext == null) {
                     throw new IllegalArgumentException("Must set a non-null context to create"
-                            + " the configuration.");
+                        + " the configuration.");
                 }
                 if (mUseNoBackupDirectory && TextUtils.isEmpty(mName)) {
                     throw new IllegalArgumentException(
-                            "Must set a non-null database name to a configuration that uses the "
-                                    + "no backup directory.");
+                        "Must set a non-null database name to a configuration that uses the "
+                            + "no backup directory.");
                 }
                 return new Configuration(mContext, mName, mCallback, mUseNoBackupDirectory,
-                        mAllowDataLossOnRecovery);
+                mAllowDataLossOnRecovery);
             }
 
             Builder(@NonNull Context context) {
