@@ -28,7 +28,7 @@ import java.util.List;
  * A data class represents a {@link Node} output that is based on {@link Surface}s.
  */
 @AutoValue
-public abstract class SurfaceEdge {
+public abstract class SurfaceEdge implements Edge {
 
     /**
      * Gets output surfaces.
