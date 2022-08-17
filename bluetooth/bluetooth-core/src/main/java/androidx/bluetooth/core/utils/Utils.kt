@@ -35,39 +35,33 @@ internal object Utils {
         key: String,
         clazz: Class<T>
     ): T? {
-        val parcelable: T?
         bundle.classLoader = clazz.classLoader
-        try {
+        return try {
             if (Build.VERSION.SDK_INT >= 33) {
-                parcelable = bundle.getParcelable(key, clazz)
+                bundle.getParcelable(key, clazz)
             } else {
-                parcelable = bundle.getParcelable(key)
+                bundle.getParcelable(key)
             }
         } catch (e: Exception) {
-            return null
+            null
         }
-        return parcelable
     }
-
+    @SuppressLint("ClassVerificationFailure") // bundle.getParcelable(key, clazz)
     @Suppress("DEPRECATION")
     fun <T : Parcelable> getParcelableArrayListFromBundle(
         bundle: Bundle,
         key: String,
         clazz: Class<T>
     ): List<T> {
-        bundle.classLoader = clazz.classLoader
-        if (Build.VERSION.SDK_INT >= 33) {
-            // TODO: Return framework's getParcelableArrayList when SDK 33 is available
-            // return bundle.getParcelableArrayList(key, clazz)
-            TODO()
-        } else {
-            val parcelable: List<T>
-            try {
-                parcelable = bundle.getParcelableArrayList(key) ?: emptyList()
-            } catch (e: Exception) {
-                return emptyList()
+        return try {
+            bundle.classLoader = clazz.classLoader
+            if (Build.VERSION.SDK_INT >= 33) {
+                bundle.getParcelableArrayList(key, clazz) ?: emptyList()
+            } else {
+                bundle.getParcelableArrayList(key) ?: emptyList()
             }
-            return parcelable
+        } catch (e: Exception) {
+            emptyList()
         }
     }
 }
