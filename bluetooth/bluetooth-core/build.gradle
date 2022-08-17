@@ -24,8 +24,11 @@ plugins {
 
 dependencies {
     implementation(libs.kotlinStdlib)
-
     implementation "androidx.annotation:annotation:1.4.0"
+
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testExtTruth)
+    androidTestImplementation(libs.testRunner)
 }
 
 androidx {
