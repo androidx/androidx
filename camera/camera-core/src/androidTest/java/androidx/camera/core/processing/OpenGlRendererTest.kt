@@ -16,12 +16,9 @@
 
 package androidx.camera.core.processing
 
-import android.graphics.ImageFormat
 import android.graphics.SurfaceTexture
 import android.hardware.camera2.CameraDevice
-import android.media.ImageReader
 import android.opengl.Matrix
-import android.os.Build
 import android.os.Handler
 import android.os.HandlerThread
 import android.view.Surface
@@ -31,22 +28,14 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.testutils.assertThrows
-import androidx.testutils.fail
 import com.google.common.truth.Truth.assertThat
 import java.util.Locale
 import kotlin.coroutines.ContinuationInterceptor
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.android.asCoroutineDispatcher
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.currentCoroutineContext
-import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.flow.collectIndexed
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
-import kotlinx.coroutines.withTimeoutOrNull
 import org.junit.After
 import org.junit.Before
 import org.junit.BeforeClass
@@ -104,6 +93,7 @@ class OpenGlRendererTest {
     private lateinit var glDispatcher: CoroutineDispatcher
     private lateinit var glRenderer: OpenGlRenderer
     private lateinit var cameraDeviceHolder: CameraUtil.CameraDeviceHolder
+    private lateinit var renderOutput: RenderOutput<*>
 
     @Before
     fun setUp() {
@@ -116,6 +106,9 @@ class OpenGlRendererTest {
     fun tearDown(): Unit = runBlocking {
         if (::cameraDeviceHolder.isInitialized) {
             CameraUtil.releaseCameraDevice(cameraDeviceHolder)
+        }
+        if (::renderOutput.isInitialized) {
+            renderOutput.release()
         }
         if (::glRenderer.isInitialized) {
             withContext(glDispatcher) {
@@ -191,12 +184,7 @@ class OpenGlRendererTest {
 
     @Test
     fun initByInvalidShaderString_throwException() {
-        val shaderProvider = object : ShaderProvider {
-            override fun createFragmentShader(
-                samplerVarName: String,
-                fragCoordsVarName: String
-            ) = "Invalid shader"
-        }
+        val shaderProvider = createCustomShaderProvider(shaderString = "Invalid shader")
         assertThrows(IllegalArgumentException::class.java) {
             runBlocking(glDispatcher) {
                 createOpenGlRendererAndInit(shaderProvider)
@@ -206,12 +194,8 @@ class OpenGlRendererTest {
 
     @Test
     fun initByFailedShaderProvider_throwException() {
-        val shaderProvider = object : ShaderProvider {
-            override fun createFragmentShader(
-                samplerVarName: String,
-                fragCoordsVarName: String
-            ) = throw RuntimeException("Failed Shader")
-        }
+        val shaderProvider =
+            createCustomShaderProvider(exceptionToThrow = RuntimeException("Failed Shader"))
         assertThrows(IllegalArgumentException::class.java) {
             runBlocking(glDispatcher) {
                 createOpenGlRendererAndInit(shaderProvider)
@@ -221,12 +205,7 @@ class OpenGlRendererTest {
 
     @Test
     fun initByIncorrectSamplerName_throwException() {
-        val shaderProvider = object : ShaderProvider {
-            override fun createFragmentShader(
-                samplerVarName: String,
-                fragCoordsVarName: String
-            ) = getCustomFragmentShader("_mySampler_", fragCoordsVarName)
-        }
+        val shaderProvider = createCustomShaderProvider(samplerVarName = "_mySampler_")
         assertThrows(IllegalArgumentException::class.java) {
             runBlocking(glDispatcher) {
                 createOpenGlRendererAndInit(shaderProvider)
@@ -236,12 +215,7 @@ class OpenGlRendererTest {
 
     @Test
     fun initByIncorrectFragCoordsName_throwException() {
-        val shaderProvider = object : ShaderProvider {
-            override fun createFragmentShader(
-                samplerVarName: String,
-                fragCoordsVarName: String
-            ) = getCustomFragmentShader(samplerVarName, "_myFragCoords_")
-        }
+        val shaderProvider = createCustomShaderProvider(fragCoordsVarName = "_myFragCoords_")
         assertThrows(IllegalArgumentException::class.java) {
             runBlocking(glDispatcher) {
                 createOpenGlRendererAndInit(shaderProvider)
@@ -257,33 +231,32 @@ class OpenGlRendererTest {
         assertThat(glRenderer.textureName).isNotEqualTo(0L)
     }
 
+    @SdkSuppress(minSdkVersion = 23)
     @Test
     fun render(): Unit = runBlocking(glDispatcher) {
-        testRender()
+        testRender(OutputType.IMAGE_READER)
     }
 
+    @SdkSuppress(minSdkVersion = 21, maxSdkVersion = 22)
+    @Test
+    fun renderBelowApi23(): Unit = runBlocking(glDispatcher) {
+        testRender(OutputType.SURFACE_TEXTURE)
+    }
+
+    @SdkSuppress(minSdkVersion = 23)
     @Test
     fun renderByCustomShader(): Unit = runBlocking(glDispatcher) {
-        val shaderProvider = object : ShaderProvider {
-            override fun createFragmentShader(
-                samplerVarName: String,
-                fragCoordsVarName: String
-            ): String = getCustomFragmentShader(samplerVarName, fragCoordsVarName)
-        }
-        testRender(shaderProvider)
+        testRender(OutputType.IMAGE_READER, createCustomShaderProvider())
     }
 
-    private suspend fun testRender(shaderProvider: ShaderProvider = ShaderProvider.DEFAULT) {
-        if (Build.VERSION.SDK_INT >= 23) {
-            // ImageReader support ImageFormat.PRIVATE from API 23
-            testRenderFromCameraToImageReader(shaderProvider)
-        } else {
-            // Render to SurfaceTexture surface as workaround
-            testRenderFromCameraToTextureSurface(shaderProvider)
-        }
+    @SdkSuppress(minSdkVersion = 21, maxSdkVersion = 22)
+    @Test
+    fun renderByCustomShaderBelowApi23(): Unit = runBlocking(glDispatcher) {
+        testRender(OutputType.SURFACE_TEXTURE, createCustomShaderProvider())
     }
 
-    private suspend fun testRenderFromCameraToImageReader(
+    private suspend fun testRender(
+        outputType: OutputType,
         shaderProvider: ShaderProvider = ShaderProvider.DEFAULT
     ) {
         // Arrange.
@@ -301,94 +274,17 @@ class OpenGlRendererTest {
         }, CameraXExecutors.directExecutor())
 
         // Prepare output
-        val imageReader =
-            ImageReader.newInstance(WIDTH, HEIGHT, ImageFormat.PRIVATE, 2)
-        val imageFlow = callbackFlow {
-            val listener = ImageReader.OnImageAvailableListener {
-                trySend(it.acquireLatestImage())
-            }
-            imageReader.setOnImageAvailableListener(listener, glHandler)
-            awaitClose { imageReader.close() }
-        }
+        renderOutput = RenderOutput.createRenderOutput(outputType)
 
         // Bridge input to output
         surfaceTexture.setOnFrameAvailableListener({
             it.updateTexImage()
-            glRenderer.setOutputSurface(imageReader.surface)
+            glRenderer.setOutputSurface(renderOutput.surface)
             glRenderer.render(0L, IDENTITY_MATRIX)
         }, glHandler)
 
-        val scope = CoroutineScope(glDispatcher)
-        val imageCollectJob = scope.launch {
-            imageFlow.collectIndexed { index, image ->
-                image.close()
-                if (index >= 4) {
-                    scope.cancel()
-                }
-            }
-        }
-
         // Assert.
-        withTimeoutOrNull(10_000L) {
-            imageCollectJob.join()
-            true
-        } ?: fail("Timed out to receive images")
-    }
-
-    private suspend fun testRenderFromCameraToTextureSurface(
-        shaderProvider: ShaderProvider = ShaderProvider.DEFAULT
-    ) {
-        // Arrange.
-        createOpenGlRendererAndInit(shaderProvider = shaderProvider)
-
-        // Prepare input
-        val surfaceTexture = SurfaceTexture(glRenderer.textureName).apply {
-            setDefaultBufferSize(WIDTH, HEIGHT)
-        }
-        val inputSurface = Surface(surfaceTexture)
-        openCameraAndSetRepeating(inputSurface)
-        cameraDeviceHolder.closedFuture.addListener({
-            inputSurface.release()
-            surfaceTexture.release()
-        }, CameraXExecutors.directExecutor())
-
-        // Prepare output
-        val outputSurfaceTexture = SurfaceTexture(0).apply {
-            setDefaultBufferSize(WIDTH, HEIGHT)
-        }
-        val outputSurface = Surface(outputSurfaceTexture)
-        val imageFlow = callbackFlow {
-            outputSurfaceTexture.setOnFrameAvailableListener({
-                it.updateTexImage()
-                trySend(Unit)
-            }, glHandler)
-            awaitClose {
-                outputSurfaceTexture.release()
-                outputSurface.release()
-            }
-        }
-
-        // Bridge input to output
-        surfaceTexture.setOnFrameAvailableListener({
-            it.updateTexImage()
-            glRenderer.setOutputSurface(outputSurface)
-            glRenderer.render(0L, IDENTITY_MATRIX)
-        }, glHandler)
-
-        val scope = CoroutineScope(glDispatcher)
-        val imageCollectJob = scope.launch {
-            imageFlow.collectIndexed { index, _ ->
-                if (index >= 4) {
-                    scope.cancel()
-                }
-            }
-        }
-
-        // Assert.
-        withTimeoutOrNull(10_000L) {
-            imageCollectJob.join()
-            true
-        } ?: fail("Timed out to receive images")
+        assertThat(renderOutput.await(/*imageCount=*/5, /*timeoutInMs=*/10_000L)).isTrue()
     }
 
     private suspend fun createOpenGlRendererAndInit(
@@ -406,15 +302,27 @@ class OpenGlRendererTest {
         }
     }
 
-    private fun getCustomFragmentShader(samplerVarName: String, fragCoordsVarName: String) =
-        String.format(
-            Locale.US,
-            CUSTOM_SHADER_FORMAT,
-            samplerVarName,
-            fragCoordsVarName,
-            samplerVarName,
-            fragCoordsVarName
-        )
+    private fun createCustomShaderProvider(
+        samplerVarName: String? = null,
+        fragCoordsVarName: String? = null,
+        shaderString: String? = null,
+        exceptionToThrow: Exception? = null,
+    ) = object : ShaderProvider {
+        override fun createFragmentShader(
+            correctSamplerVarName: String,
+            correctFragCoordsVarName: String
+        ): String {
+            exceptionToThrow?.let { throw it }
+            return shaderString ?: String.format(
+                Locale.US,
+                CUSTOM_SHADER_FORMAT,
+                samplerVarName ?: correctSamplerVarName,
+                fragCoordsVarName ?: correctFragCoordsVarName,
+                samplerVarName ?: correctSamplerVarName,
+                fragCoordsVarName ?: correctFragCoordsVarName
+            )
+        }
+    }
 
     private fun createOpenGlRenderer() {
         glRenderer = OpenGlRenderer()
