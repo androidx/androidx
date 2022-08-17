@@ -31,6 +31,7 @@ dependencies {
     constraints {
         implementation(project(":lifecycle:lifecycle-common"))
         implementation(project(":lifecycle:lifecycle-runtime-ktx"))
+        implementation(project(":lifecycle:lifecycle-runtime-testing"))
     }
 }
 
