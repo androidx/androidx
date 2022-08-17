@@ -30,6 +30,7 @@ import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.DeferrableSurface;
 import androidx.camera.core.impl.ImageCaptureConfig;
 import androidx.camera.core.impl.SessionConfig;
+import androidx.core.util.Pair;
 
 /**
  * The class that builds and maintains the {@link ImageCapture} pipeline.
@@ -46,6 +47,8 @@ public class ImagePipeline {
     @NonNull
     private Size mCameraSurfaceSize;
 
+    // ===== public methods =====
+
     @MainThread
     public ImagePipeline(
             @NonNull ImageCaptureConfig config,
@@ -56,7 +59,7 @@ public class ImagePipeline {
     }
 
     /**
-     * Creates a {@link SessionConfig.Builder} for configuring camera2.
+     * Creates a {@link SessionConfig.Builder} for configuring camera.
      */
     @NonNull
     public SessionConfig.Builder createSessionConfigBuilder() {
@@ -78,8 +81,35 @@ public class ImagePipeline {
         throw new UnsupportedOperationException();
     }
 
+    // ===== protected methods =====
+
     /**
-     * Gets the {@link DeferrableSurface} sent to camera2.
+     * Creates two requests from a {@link TakePictureRequest}: a request for camera and a request
+     * for post-processing.
+     *
+     * <p>{@link ImagePipeline} creates two requests from {@link TakePictureRequest}: 1) a
+     * request sent for post-processing pipeline and 2) a request for camera. The camera request
+     * is returned to the caller, and the post-processing request is handled by this class.
+     */
+    @MainThread
+    @NonNull
+    Pair<CameraRequest, ProcessingRequest> createRequests(
+            @NonNull TakePictureRequest takePictureRequest,
+            @NonNull TakePictureCallback takePictureCallback) {
+        checkMainThread();
+        throw new UnsupportedOperationException();
+    }
+
+    @MainThread
+    void postProcess(@NonNull ProcessingRequest request) {
+        checkMainThread();
+        throw new UnsupportedOperationException();
+    }
+
+    // ===== private methods =====
+
+    /**
+     * Gets the {@link DeferrableSurface} sent to camera.
      *
      * <p>This value is used to build {@link SessionConfig} and {@link CaptureConfig}.
      */

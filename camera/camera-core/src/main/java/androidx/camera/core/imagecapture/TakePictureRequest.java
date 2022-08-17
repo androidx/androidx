@@ -18,13 +18,19 @@ package androidx.camera.core.imagecapture;
 
 import static androidx.core.util.Preconditions.checkArgument;
 
+import static java.util.Objects.requireNonNull;
+
 import android.graphics.Matrix;
 import android.graphics.Rect;
+import android.os.Build;
 
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.camera.core.ImageCapture;
+import androidx.camera.core.ImageCaptureException;
+import androidx.camera.core.ImageProxy;
 import androidx.camera.core.impl.ImageCaptureConfig;
 import androidx.camera.core.impl.ImageOutputConfig;
 
@@ -37,8 +43,11 @@ import java.util.concurrent.Executor;
  *
  * <p> It contains app provided data and a snapshot of {@link ImageCapture} properties.
  */
+@RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 @AutoValue
 public abstract class TakePictureRequest {
+
+    // TODO(b/242683221): add a retry counter.
 
     /**
      * Gets the callback {@link Executor} provided by the app.
@@ -90,6 +99,39 @@ public abstract class TakePictureRequest {
      */
     @IntRange(from = 1, to = 100)
     abstract int getJpegQuality();
+
+    /**
+     * Delivers {@link ImageCaptureException} to the app.
+     */
+    void onError(@NonNull ImageCaptureException imageCaptureException) {
+        getAppExecutor().execute(() -> {
+            boolean hasInMemory = getInMemoryCallback() != null;
+            boolean hasOnDisk = getOnDiskCallback() != null;
+            if (hasInMemory && !hasOnDisk) {
+                requireNonNull(getInMemoryCallback()).onError(imageCaptureException);
+            } else if (hasOnDisk && !hasInMemory) {
+                requireNonNull(getOnDiskCallback()).onError(imageCaptureException);
+            } else {
+                throw new IllegalStateException("One and only one callback is allowed.");
+            }
+        });
+    }
+
+    /**
+     * Delivers on-disk capture result to the app.
+     */
+    void onResult(@Nullable ImageCapture.OutputFileResults outputFileResults) {
+        getAppExecutor().execute(() -> requireNonNull(getOnDiskCallback()).onImageSaved(
+                requireNonNull(outputFileResults)));
+    }
+
+    /**
+     * Delivers in-memory capture result to the app.
+     */
+    void onResult(@Nullable ImageProxy imageProxy) {
+        getAppExecutor().execute(() -> requireNonNull(getInMemoryCallback()).onCaptureSuccess(
+                requireNonNull(imageProxy)));
+    }
 
     /**
      * Creates a {@link TakePictureRequest} instance.
