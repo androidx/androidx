@@ -401,8 +401,6 @@ package androidx.health.services.client.data {
     property public final boolean isResuming;
     property public final String name;
     field public static final androidx.health.services.client.data.ExerciseState ACTIVE;
-    field public static final androidx.health.services.client.data.ExerciseState AUTO_ENDED;
-    field public static final androidx.health.services.client.data.ExerciseState AUTO_ENDED_PERMISSION_LOST;
     field public static final androidx.health.services.client.data.ExerciseState AUTO_ENDING;
     field public static final androidx.health.services.client.data.ExerciseState AUTO_ENDING_PERMISSION_LOST;
     field public static final androidx.health.services.client.data.ExerciseState AUTO_PAUSED;
@@ -411,9 +409,7 @@ package androidx.health.services.client.data {
     field public static final androidx.health.services.client.data.ExerciseState.Companion Companion;
     field public static final androidx.health.services.client.data.ExerciseState ENDED;
     field public static final androidx.health.services.client.data.ExerciseState PREPARING;
-    field public static final androidx.health.services.client.data.ExerciseState TERMINATED;
     field public static final androidx.health.services.client.data.ExerciseState TERMINATING;
-    field public static final androidx.health.services.client.data.ExerciseState USER_ENDED;
     field public static final androidx.health.services.client.data.ExerciseState USER_ENDING;
     field public static final androidx.health.services.client.data.ExerciseState USER_PAUSED;
     field public static final androidx.health.services.client.data.ExerciseState USER_PAUSING;
