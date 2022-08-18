@@ -82,6 +82,7 @@ public class MacrobenchmarkScope(
         block: (Intent) -> Unit = {}
     ) {
         val intent = context.packageManager.getLaunchIntentForPackage(packageName)
+            ?: context.packageManager.getLeanbackLaunchIntentForPackage(packageName)
             ?: throw IllegalStateException("Unable to acquire intent for package $packageName")
 
         block(intent)
