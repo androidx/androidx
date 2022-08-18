@@ -389,10 +389,22 @@ shell script:
 
 ### Attaching a debugger to the build
 
-Gradle tasks, including building a module, may be run or debugged from Android
-Studio's `Gradle` pane by finding the task to be debugged -- for example,
-`androidx > androidx > appcompat > appcompat > build > assemble` --
-right-clicking on it, and then selecting `Debug...`.
+Gradle tasks, including building a module, may be run or debugged from within
+Android Studio. To start, you need to add the task as a run configuration: you
+can do this manually by adding the corresponding task by clicking on the run
+configuration dropdown, pressing
+[`Edit Configurations`](https://www.jetbrains.com/help/idea/run-debug-gradle.html),
+and adding the corresponding task.
+
+You can also run the task through the IDE from the terminal, by using the
+[`Run highlighted command using IDE`](https://blog.jetbrains.com/idea/2020/07/run-ide-features-from-the-terminal/)
+feature - type in the task you want to run in the in-IDE terminal, and
+`ctrl+enter` / `cmd+enter` to launch this through the IDE. This will
+automatically add the configuration to the run configuration menu - you can then
+cancel the task.
+
+Once the task has been added to the run configuration menu, you can start
+debugging as with any other task by pressing the `debug` button.
 
 Note that debugging will not be available until Gradle sync has completed.
 
