@@ -662,3 +662,31 @@ fun String.foo() = // ...
 
 NOTE This guideline may be ignored for libraries that only work in Kotlin (think
 Compose).
+
+#### Function paremeters order {#kotlin-params-order}
+
+In Kotlin function parameters can have default values, which are used when you
+skip the corresponding argument.
+
+If a default parameter precedes a parameter with no default value, the default
+value can only be used by calling the function with named arguments:
+
+```kotlin
+fun foo(
+    someBoolean: Boolean = true,
+    someInt: Int,
+) { /*...*/ }
+
+// usage:
+foo(1) // does not compile as we try to set 1 as a value for "someBoolean" and
+       // didn't specify "someInt".
+foo(someInt = 1) // this compiles as we used named arguments syntax.
+```
+
+To not force our users to use named arguments we enforce the following
+parameters order for the public Kotlin functions:
+
+1.  All parameters without default values.
+2.  All parameters with default values.
+3.  An optional last parameter without default value which can be used as a
+    trailing lambda.
