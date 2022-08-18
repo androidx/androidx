@@ -36,6 +36,7 @@ import android.text.TextUtils;
 import androidx.core.os.CancellationSignal;
 import androidx.core.os.ExecutorCompat;
 import androidx.test.core.app.ApplicationProvider;
+import androidx.test.filters.FlakyTest;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 
@@ -148,6 +149,7 @@ public class LocationManagerCompatTest {
         assertTrue(LocationManagerCompat.getGnssYearOfHardware(mLocationManager) >= 0);
     }
 
+    @FlakyTest(bugId = 241572276)
     @SdkSuppress(minSdkVersion = 24)
     @Test
     public void testRegisterGnssMeasurementsCallback_handler() {
