@@ -21,6 +21,7 @@ import com.google.devtools.ksp.isPublic
 import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
+import com.google.devtools.ksp.symbol.KSValueParameter
 import com.google.devtools.ksp.symbol.Modifier
 
 class ApiValidator(private val logger: KSPLogger) {
@@ -85,6 +86,13 @@ class ApiValidator(private val logger: KSPLogger) {
         }
         if (!method.modifiers.contains(Modifier.SUSPEND)) {
             logger.error("Error in $name: method should be a suspend function.")
+        }
+    }
+
+    fun validateParameter(method: KSFunctionDeclaration, parameter: KSValueParameter) {
+        val name = method.qualifiedName?.getFullName() ?: method.simpleName.getFullName()
+        if (parameter.hasDefault) {
+            logger.error("Error in $name: parameters cannot have default values.")
         }
     }
 }

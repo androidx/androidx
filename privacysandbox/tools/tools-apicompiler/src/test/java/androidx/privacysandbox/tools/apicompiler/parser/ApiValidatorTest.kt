@@ -118,6 +118,13 @@ class ApiValidatorTest {
         )
     }
 
+    @Test
+    fun parameterWitDefaultValue_fails() {
+        checkSourceFails(serviceMethod("suspend fun foo(x: Int = 5)")).containsExactlyErrors(
+            "Error in com.mysdk.MySdk.foo: parameters cannot have default values."
+        )
+    }
+
     private fun serviceInterface(declaration: String) = Source.kotlin(
         "com/mysdk/MySdk.kt", """
             package com.mysdk

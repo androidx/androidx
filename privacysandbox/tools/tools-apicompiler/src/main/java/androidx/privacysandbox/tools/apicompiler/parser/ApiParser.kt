@@ -82,9 +82,11 @@ class ApiParser(private val resolver: Resolver, private val logger: KSPLogger) {
     }
 
     private fun getAllParameters(method: KSFunctionDeclaration) =
-        method.parameters.map(::parseParameter).toList()
+        method.parameters.map { parameter -> parseParameter(method, parameter) }.toList()
 
-    private fun parseParameter(parameter: KSValueParameter): Parameter {
+    private fun parseParameter(method: KSFunctionDeclaration, parameter: KSValueParameter):
+        Parameter {
+        validator.validateParameter(method, parameter)
         return Parameter(
             name = parameter.name!!.getFullName(),
             type = parseType(parameter.type.resolve()),
