@@ -24,11 +24,14 @@ import android.os.Build
 import android.util.Size
 import android.view.Display
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.Surface
 import android.view.SurfaceView
 import android.view.TextureView
 import android.view.View
+import android.view.ViewConfiguration
 import android.widget.FrameLayout
+import androidx.annotation.GuardedBy
 import androidx.camera.camera2.Camera2Config
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraInfo
@@ -72,6 +75,8 @@ import com.google.common.util.concurrent.ListenableFuture
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.Executor
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
 import java.util.concurrent.Semaphore
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
@@ -274,8 +279,13 @@ class PreviewViewDeviceTest {
                 return null
             }
         }
+
+        var clickEventHelper: ClickEventHelper? = null
+
         instrumentation.runOnMainSync {
             val previewView = PreviewView(context)
+            clickEventHelper = ClickEventHelper(previewView)
+            previewView.setOnTouchListener(clickEventHelper)
             previewView.controller = fakeController
             notifyLatchWhenLayoutReady(previewView, countDownLatch)
             setContentView(previewView)
@@ -284,10 +294,110 @@ class PreviewViewDeviceTest {
         Truth.assertThat(countDownLatch.await(TIMEOUT_SECONDS.toLong(), TimeUnit.SECONDS)).isTrue()
 
         // Act: click on PreviewView
-        uiDevice.findObject(UiSelector().index(0)).click()
+        clickEventHelper!!.performSingleClick(uiDevice, 3)
 
         // Assert: tap-to-focus is invoked.
-        Truth.assertThat(semaphore.tryAcquire(TIMEOUT_SECONDS.toLong(), TimeUnit.SECONDS)).isTrue()
+        Truth.assertThat(semaphore.tryAcquire(TIMEOUT_SECONDS.toLong(), TimeUnit.SECONDS))
+            .isTrue()
+    }
+
+    /**
+     * A helper to perform single click
+     *
+     * Some devices might have incorrect [MotionEvent#getEventTime()] and
+     * [MotionEvent#getDownTime()] info when issuing click event via UiDevice in the first time.
+     * The system time only occupies around 100ms but the event time difference is around 1000ms
+     * and then the click event is incorrectly recognized as long-click. The issue is caused by RPC
+     * operation handling timing issue. The issue causes [PreviewView] to ignore the click
+     * operation and then onTapToFocus event can't be received. The issue might be recovered in the
+     * new UiDevice click actions.
+     *
+     * This helper will help to perform the click operation and monitor the motion events to retry
+     * if a long click result is detected.
+     */
+    private class ClickEventHelper constructor(private val targetView: View) :
+        View.OnTouchListener {
+        private val lock = Any()
+        @GuardedBy("lock")
+        private var isPerformingClick = false
+        private var uiDevice: UiDevice? = null
+        private var limitedRetryCount = 0
+        private var retriedCounter = 0
+        private var executor: ExecutorService? = null
+
+        override fun onTouch(view: View, event: MotionEvent): Boolean {
+            if (view != targetView) {
+                return false
+            }
+
+            if (event.action == MotionEvent.ACTION_UP) {
+                val longPressTimeout = ViewConfiguration.getLongPressTimeout()
+
+                // Retries the click action if the UP event forms a incorrect long click operation
+                // and retry counter is still under the limited retry count.
+                if (event.eventTime - event.downTime > longPressTimeout &&
+                    retriedCounter < limitedRetryCount
+                ) {
+                    retriedCounter++
+                    performSingleClickInternal()
+                    return false
+                }
+
+                // Resets member variables if incorrect long click operation is not detected or
+                // retry is not allowed any more.
+                uiDevice = null
+                limitedRetryCount = 0
+                retriedCounter = 0
+                executor?.shutdown()
+                synchronized(lock) {
+                    isPerformingClick = false
+                }
+            }
+
+            return false
+        }
+
+        /**
+         * Perform single click action with UiDevice and will retry with the specified count when
+         * incorrect long click operation is detected.
+         *
+         * New single click request will be ignored if the previous request is still performing.
+         */
+        fun performSingleClick(uiDevice: UiDevice, retryCount: Int = 0) {
+            synchronized(lock) {
+                if (isPerformingClick) {
+                    return
+                } else {
+                    isPerformingClick = true
+                }
+            }
+
+            executor = Executors.newSingleThreadExecutor()
+            limitedRetryCount = retryCount
+            retriedCounter = 0
+            this.uiDevice = uiDevice
+            performSingleClickInternal()
+        }
+
+        private fun performSingleClickInternal() {
+            executor!!.execute {
+                var needClearContentDescription = false
+                val originalContentDescription = targetView.contentDescription
+
+                if (originalContentDescription == null || originalContentDescription.isEmpty()) {
+                    needClearContentDescription = true
+                    targetView.contentDescription = targetView.hashCode().toString()
+                }
+
+                uiDevice!!.findObject(
+                    UiSelector().descriptionContains(targetView.contentDescription.toString())
+                ).click()
+
+                if (needClearContentDescription) {
+                    targetView.contentDescription = originalContentDescription
+                }
+            }
+        }
     }
 
     @Test
