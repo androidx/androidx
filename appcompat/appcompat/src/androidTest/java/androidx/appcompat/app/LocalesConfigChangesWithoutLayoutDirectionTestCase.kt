@@ -28,7 +28,7 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Test
 
-@SdkSuppress(maxSdkVersion = 32)
+@SdkSuppress(minSdkVersion = 17, maxSdkVersion = 32)
 class LocalesConfigChangesWithoutLayoutDirectionTestCase {
     private lateinit var scenario: ActivityScenario<
         LocalesConfigChangesActivityWithoutLayoutDirection>
