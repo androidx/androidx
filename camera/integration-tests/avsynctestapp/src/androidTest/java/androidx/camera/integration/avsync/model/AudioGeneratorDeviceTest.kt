@@ -18,6 +18,7 @@ package androidx.camera.integration.avsync.model
 
 import android.content.Context
 import android.media.AudioTrack
+import androidx.camera.testing.LabTestRule
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -27,6 +28,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -38,26 +40,34 @@ class AudioGeneratorDeviceTest {
     private val context: Context = ApplicationProvider.getApplicationContext()
     private lateinit var audioGenerator: AudioGenerator
 
+    // TODO(b/242820044): Remove the rule after the issue is solved.
+    @get:Rule
+    val labTest: LabTestRule = LabTestRule()
+
     @Before
     fun setUp() {
         audioGenerator = AudioGenerator()
     }
 
+    @LabTestRule.LabTestOnly
     @Test(expected = IllegalArgumentException::class)
     fun initAudioTrack_throwExceptionWhenFrequencyNegative() = runTest {
         audioGenerator.initAudioTrack(context, -5300, 11.0)
     }
 
+    @LabTestRule.LabTestOnly
     @Test(expected = IllegalArgumentException::class)
     fun initAudioTrack_throwExceptionWhenLengthNegative() = runTest {
         audioGenerator.initAudioTrack(context, 5300, -11.0)
     }
 
+    @LabTestRule.LabTestOnly
     @Test
     fun initAudioTrack_canWorkCorrectly() = runTest {
         initialAudioTrack(5300, 11.0)
     }
 
+    @LabTestRule.LabTestOnly
     @Test
     fun canStartAndStopAudioTrack_withoutExceptionAfterInitialized() = runBlocking {
         // Arrange.

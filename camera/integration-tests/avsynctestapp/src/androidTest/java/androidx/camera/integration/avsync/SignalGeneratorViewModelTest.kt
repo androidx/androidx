@@ -37,6 +37,7 @@ import android.os.Build
 import androidx.camera.camera2.Camera2Config
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CameraXUtil
+import androidx.camera.testing.LabTestRule
 import androidx.camera.testing.fakes.FakeLifecycleOwner
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStore
@@ -89,9 +90,12 @@ class SignalGeneratorViewModelTest {
         android.Manifest.permission.RECORD_AUDIO
     )
 
-    @OptIn(ExperimentalCoroutinesApi::class)
+    // TODO(b/242820044): Remove the rule after the issue is solved.
+    @get:Rule
+    val labTest: LabTestRule = LabTestRule()
+
     @Before
-    fun setUp() = runTest {
+    fun setUp() = runBlocking {
         // Skip for b/168175357, b/233661493
         Assume.assumeFalse(
             "Skip tests for Cuttlefish MediaCodec issues",
@@ -123,6 +127,7 @@ class SignalGeneratorViewModelTest {
         CameraXUtil.shutdown()[10, TimeUnit.SECONDS]
     }
 
+    @LabTestRule.LabTestOnly
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun initialRecorder_canMakeRecorderReady() = runTest {
@@ -132,6 +137,7 @@ class SignalGeneratorViewModelTest {
         assertThat(viewModel.isRecorderReady).isTrue()
     }
 
+    @LabTestRule.LabTestOnly
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun initialSignalGenerator_canMakeGeneratorReady() = runTest {
@@ -142,6 +148,7 @@ class SignalGeneratorViewModelTest {
         assertThat(viewModel.isGeneratorReady).isTrue()
     }
 
+    @LabTestRule.LabTestOnly
     @Test
     fun startSignalGeneration_canMakeActiveFlagChangePeriodically(): Unit = runBlocking {
         // Arrange.
@@ -157,6 +164,7 @@ class SignalGeneratorViewModelTest {
         assertThat(latch.count).isEqualTo(0)
     }
 
+    @LabTestRule.LabTestOnly
     @Test
     fun stopSignalGeneration_canMakeActiveFlagStopChanging(): Unit = runBlocking {
         // Arrange.
@@ -173,6 +181,7 @@ class SignalGeneratorViewModelTest {
         assertThat(latch.count).isNotEqualTo(0)
     }
 
+    @LabTestRule.LabTestOnly
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun startAndStopRecording_canWorkCorrectlyAfterRecorderReady() = runTest {
