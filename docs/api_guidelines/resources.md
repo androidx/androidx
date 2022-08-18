@@ -56,11 +56,17 @@ Subsequent references in `<declare-styleable>` elements *must* not include a
 </resources>
 ```
 
+#### Translatable strings
+
+Translatable strings *must* be contained within files named `strings.xml` to be
+picked up for translation.
+
 ### Public resources
 
-Library resources are private by default, which means developers are discouraged
-from referencing any defined attributes or values from XML or code; however,
-library resources may be declared public to make them available to developers.
+Library resources in Jetpack are private by default, which means developers are
+discouraged from referencing any defined attributes or values from XML or code;
+however, library resources may be declared public to make them available to
+developers.
 
 Public library resources are considered API surface and are thus subject to the
 same API consistency and documentation requirements as Java APIs.
