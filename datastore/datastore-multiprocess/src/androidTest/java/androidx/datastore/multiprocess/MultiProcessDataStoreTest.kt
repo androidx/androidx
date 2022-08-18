@@ -21,6 +21,7 @@ import androidx.datastore.core.CorruptionException
 import androidx.datastore.core.DataStore
 import androidx.datastore.core.Serializer
 import androidx.datastore.multiprocess.handlers.NoOpCorruptionHandler
+import androidx.test.filters.FlakyTest
 import androidx.test.filters.LargeTest
 import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
@@ -394,6 +395,7 @@ class MultiProcessDataStoreTest {
         assertThat(store.data.first()).isEqualTo(1)
     }
 
+    @FlakyTest(bugId = 242765370)
     @Test
     fun testInitTaskFailsFirstTimeDueToReadFail() = runTest {
         store = newDataStore(initTasksList = listOf { api -> api.updateData { 1 } })

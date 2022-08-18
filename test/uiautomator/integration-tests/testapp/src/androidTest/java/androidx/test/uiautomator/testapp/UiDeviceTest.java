@@ -19,6 +19,7 @@ package androidx.test.uiautomator.testapp;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+import androidx.test.filters.FlakyTest;
 import androidx.test.filters.LargeTest;
 import androidx.test.uiautomator.By;
 import androidx.test.uiautomator.UiObject2;
@@ -42,6 +43,7 @@ public class UiDeviceTest extends BaseTest {
     @Rule
     public TemporaryFolder mTmpDir = new TemporaryFolder();
 
+    @FlakyTest(bugId = 242767707)
     @Test
     public void testClick() {
         launchTestActivity(UiDeviceTestClickActivity.class);
