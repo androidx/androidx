@@ -25,7 +25,7 @@ layers (app, widget, etc.) or layers specific to the feature.
 
 Maven specifications use the groupId format `androidx.<feature-name>` and
 artifactId format `<feature-name>` to match the Java package. For example,
-`androidx.core.role` uses the Maven spec `androidx.core:role`.
+`androidx.core.role` uses the Maven spec `androidx.core:core-role`.
 
 Sub-features that can be separated into their own artifact are recommended to
 use the following formats:
@@ -38,6 +38,15 @@ Gradle project names and directories follow the Maven spec format, substituting
 the project name separator `:` or directory separator `/` for the Maven
 separators `.` or `:`. For example, `androidx.core:core-role` would use project
 name `:core:core-role` and directory `/core/core-role`.
+
+Android namespaces should be unique and match the module's root Java package. If
+the root Java package is not unique, include the sub-feature name.
+
+```
+android {
+    namespace "androidx.core.role"
+}
+```
 
 New modules in androidx can be created using the
 [project creator script](#module-creation).
