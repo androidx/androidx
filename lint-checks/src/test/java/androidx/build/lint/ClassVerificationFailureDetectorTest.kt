@@ -20,6 +20,7 @@ package androidx.build.lint
 
 import androidx.build.lint.Stubs.Companion.RequiresApi
 import androidx.build.lint.Stubs.Companion.IntRange
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -346,6 +347,7 @@ Fix for src/androidx/AutofixUnsafeReferenceWithExistingClassJava.java line 36: E
         check(*input).expectFixDiffs(expectedFix)
     }
 
+    @Ignore("Ignored until the fix for b/241573146 is in the current version of studio")
     @Test
     fun `Detection and auto-fix for qualified expressions (issue 205026874)`() {
         val input = arrayOf(
@@ -377,7 +379,7 @@ Fix for src/androidx/sample/appcompat/widget/ActionBarBackgroundDrawable.java li
 +     }
 +
 +     @DoNotInline
-+     static void getOutline(drawable.Drawable drawable, Outline outline) {
++     static void getOutline(Drawable drawable, Outline outline) {
 +         drawable.getOutline(outline);
 +     }
 +
@@ -395,7 +397,7 @@ Fix for src/androidx/sample/appcompat/widget/ActionBarBackgroundDrawable.java li
 +     }
 +
 +     @DoNotInline
-+     static void getOutline(drawable.Drawable drawable, Outline outline) {
++     static void getOutline(Drawable drawable, Outline outline) {
 +         drawable.getOutline(outline);
 +     }
 +
