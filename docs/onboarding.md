@@ -508,6 +508,24 @@ Location of generated refdocs:
 *   docs-tip-of-tree:
     `{androidx-main}/out/androidx/docs-tip-of-tree/build/dackkaDocs`
 
+The generated docs are plain HTML pages with links that do not work locally.
+These issues are fixed when the docs are published to DAC, but to preview a
+local version of the docs with functioning links and CSS, run:
+
+```
+python3 development/offlinifyDocs/offlinify_dackka_docs.py
+```
+
+You will need to have the `bs4` Python package installed. The CSS used is not
+the same as what will be used when the docs are published.
+
+By default, this command converts the tip-of-tree docs for all libraries. To see
+more options, run:
+
+```
+python3 development/offlinifyDocs/offlinify_dackka_docs.py --help
+```
+
 #### Release docs
 
 To build API reference docs for published artifacts formatted for use on
