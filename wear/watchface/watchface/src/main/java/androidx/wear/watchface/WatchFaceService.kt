@@ -361,7 +361,7 @@ public abstract class WatchFaceService : WallpaperService() {
                         }
                     }
                 } catch (e: Exception) {
-                    Log.e(TAG, "Operation failed", e)
+                    Log.e(TAG, "Operation $traceName failed", e)
                     throw e
                 }
             }
@@ -382,7 +382,7 @@ public abstract class WatchFaceService : WallpaperService() {
                         task(engine.watchFaceInitDetails.await())
                     }
                 } catch (e: Exception) {
-                    Log.e(HeadlessWatchFaceImpl.TAG, "Operation failed", e)
+                    Log.e(HeadlessWatchFaceImpl.TAG, "Operation $traceName failed", e)
                     throw e
                 }
             }
