@@ -1,24 +1,34 @@
 ## Platform compatibility API patterns {#platform-compatibility-apis}
 
-NOTE For all library APIs that wrap or provide parity with platform APIs,
-*parity with the platform APIs overrides API guidelines*. For example, if the
-platform API being wrapped has incorrect `Executor` and `Callback` ordering
-according to the API Guidelines, the corresponding library API should have the
-exact same (incorrect) ordering.
+NOTE For all library APIs that wrap or provide parity with platform APIs, we
+prefer to follow modern API guidelines; however, developers *may* choose to
+prioritize parity with the platform APIs over adherence to modern guidelines.
+For example, if the platform API being wrapped has incorrect `Executor` and
+`Callback` ordering according to the API Guidelines, the corresponding library
+API *should* re-order the arguments.
 
-### Static shims (ex. [ViewCompat](https://developer.android.com/reference/android/support/v4/view/ViewCompat.html)) {#static-shim}
+### Static shims (ex. [ViewCompat](https://developer.android.com/reference/androidx/core/view/ViewCompat)) {#static-shim}
 
 When to use?
 
 *   Platform class exists at module's `minSdkVersion`
 *   Compatibility implementation does not need to store additional metadata
 
-Implementation requirements
+#### API guidelines {#static-shim-api-guidelines}
 
+##### Naming {#static-shim-naming}
+
+*   Class *should* be added to the `androidx.core:core` library
 *   Class name **must** be `<PlatformClass>Compat`
 *   Package name **must** be `androidx.<feature>.<platform.package>`
 *   Superclass **must** be `Object`
+
+##### Construction {#static-shim-construction}
+
 *   Class **must** be non-instantiable, i.e. constructor is private no-op
+
+#### Implementation {#static-shim-implementation}
+
 *   Static fields and static methods **must** match match signatures with
     `<PlatformClass>`
     *   Static fields that can be inlined, ex. integer constants, **must not**
@@ -34,7 +44,9 @@ Implementation requirements
 The following sample provides static helper methods for the platform class
 `android.os.Process`.
 
-```java
+~~~java
+package androidx.core.os;
+
 /**
  * Helper for accessing features in {@link Process}.
  */
@@ -61,51 +73,16 @@ public final class ProcessCompat {
     public static boolean isApplicationUid(int uid) {
         if (Build.VERSION.SDK_INT >= 24) {
             return Api24Impl.isApplicationUid(uid);
-        } else if (Build.VERSION.SDK_INT >= 17) {
-            return Api17Impl.isApplicationUid(uid);
-        } else if (Build.VERSION.SDK_INT == 16) {
-            return Api16Impl.isApplicationUid(uid);
+        } else if (Build.VERSION.SDK_INT >= 16) {
+            // Fall back to using reflection on private APIs.
+            // ...
         } else {
             return true;
         }
     }
-
-    @RequiresApi(24)
-    static class Api24Impl {
-        static boolean isApplicationUid(int uid) {
-            // In N, the method was made public on android.os.Process.
-            return Process.isApplicationUid(uid);
-        }
-    }
-
-    @RequiresApi(17)
-    static class Api17Impl {
-        private static Method sMethod_isAppMethod;
-        private static boolean sResolved;
-
-        static boolean isApplicationUid(int uid) {
-            // In JELLY_BEAN_MR2, the equivalent isApp(int) hidden method moved to public class
-            // android.os.UserHandle.
-            try {
-                if (!sResolved) {
-                    sResolved = true;
-                    sMethod_isAppMethod = UserHandle.class.getDeclaredMethod("isApp",int.class);
-                }
-                if (sMethod_isAppMethod != null) {
-                    return (Boolean) sMethod_isAppMethod.invoke(null, uid);
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            return true;
-        }
-    }
-
-    ...
 }
-```
 
-### Wrapper (ex. [AccessibilityNodeInfoCompat](https://developer.android.com/reference/android/support/v4/view/accessibility/AccessibilityNodeInfoCompat.html)) {#wrapper}
+### Wrapper (ex. [AccessibilityNodeInfoCompat](https://developer.android.com/reference/android/view/accessibility/AccessibilityNodeInfo)) {#wrapper}
 
 When to use?
 
@@ -115,6 +92,42 @@ When to use?
 *   **Note:** Should be avoided when possible, as using wrapper classes makes it
     very difficult to deprecate classes and migrate source code when the
     `minSdkVersion` is raised
+
+#### API guidelines {#wrapper-api-guidelines}
+
+##### Naming {#wrapper-naming}
+
+*   Class name **must** be `<PlatformClass>Compat`
+*   Package name **must** be `androidx.core.<platform.package>`
+*   Superclass **must not** be `<PlatformClass>`
+
+##### Construction {#wrapper-construction}
+
+*   Class *may* have public constructor(s) to provide parity with public
+    `PlatformClass` constructors
+    *   Constructor used to wrap `PlatformClass` **must not** be public
+*   Class **must** implement a static `PlatformClassCompat
+    toPlatformClassCompat(PlatformClass)` method to wrap `PlatformClass` on
+    supported SDK levels
+    *   If class does not exist at module's `minSdkVersion`, method must be
+        annotated with `@RequiresApi(<sdk>)` for SDK version where class was
+        introduced
+
+#### Implementation {#wrapper-implementation}
+
+*   Class *should* be added to the `androidx.core:core` library
+*   Class **must** implement a `PlatformClass toPlatformClass()` method to
+    unwrap `PlatformClass` on supported SDK levels
+    *   If class does not exist at module's `minSdkVersion`, method must be
+        annotated with `@RequiresApi(<sdk>)` for SDK version where class was
+        introduced
+*   Implementation *may* delegate to `PlatformClass` methods when available (see
+    below note for caveats)
+*   To avoid runtime class verification issues, all operations that interact
+    with the internal structure of `PlatformClass` must be implemented in inner
+    classes targeted to the SDK level at which the operation was added.
+    *   See the [sample](#wrapper-sample) for an example of interacting with a
+        method that was added in SDK level 23.
 
 #### Sample {#wrapper-sample}
 
@@ -126,7 +139,7 @@ public final class ModemInfoCompat {
   // Only guaranteed to be non-null on SDK_INT >= 23. Note that referencing the
   // class itself directly is fine -- only references to class members need to
   // be pushed into static inner classes.
-  private final ModemInfo wrappedObj;
+  private final Object wrappedObj;
 
   /**
    * [Copy platform docs for matching constructor.]
@@ -137,7 +150,6 @@ public final class ModemInfoCompat {
     } else {
       wrappedObj = null;
     }
-    ...
   }
 
   @RequiresApi(23)
@@ -192,7 +204,7 @@ public final class ModemInfoCompat {
       return Api23Impl.isLteSupported(mWrapped);
     } else if (SDK_INT >= 18) {
       // Smart fallback behavior based on earlier APIs.
-      ...
+      // ...
     }
     // Default behavior.
     return false;
@@ -210,12 +222,12 @@ public final class ModemInfoCompat {
     }
 
     @DoNotInline
-    static boolean isLteSupported(ModemInfo obj) {
-      return obj.isLteSupported();
+    static boolean isLteSupported(Object obj) {
+      return ((ModemInfo) obj).isLteSupported();
     }
   }
 }
-```
+~~~
 
 Note that libraries written in Java should express conversion to and from the
 platform class differently than Kotlin classes. For Java classes, conversion
@@ -254,91 +266,7 @@ class ModemInfoCompat {
 }
 ```
 
-#### API guidelines {#wrapper-api-guidelines}
-
-##### Naming {#wrapper-naming}
-
-*   Class name **must** be `<PlatformClass>Compat`
-*   Package name **must** be `androidx.core.<platform.package>`
-*   Superclass **must not** be `<PlatformClass>`
-
-##### Construction {#wrapper-construction}
-
-*   Class *may* have public constructor(s) to provide parity with public
-    `PlatformClass` constructors
-    *   Constructor used to wrap `PlatformClass` **must not** be public
-*   Class **must** implement a static `PlatformClassCompat
-    toPlatformClassCompat(PlatformClass)` method to wrap `PlatformClass` on
-    supported SDK levels
-    *   If class does not exist at module's `minSdkVersion`, method must be
-        annotated with `@RequiresApi(<sdk>)` for SDK version where class was
-        introduced
-
-#### Implementation {#wrapper-implementation}
-
-*   Class **must** implement a `PlatformClass toPlatformClass()` method to
-    unwrap `PlatformClass` on supported SDK levels
-    *   If class does not exist at module's `minSdkVersion`, method must be
-        annotated with `@RequiresApi(<sdk>)` for SDK version where class was
-        introduced
-*   Implementation *may* delegate to `PlatformClass` methods when available (see
-    below note for caveats)
-*   To avoid runtime class verification issues, all operations that interact
-    with the internal structure of `PlatformClass` must be implemented in inner
-    classes targeted to the SDK level at which the operation was added.
-    *   See the [sample](#wrapper-sample) for an example of interacting with a
-        method that was added in SDK level 23.
-
-### Safe super. invocation {#safe-super-calls}
-
-When to use?
-
-*   When invoking `method.superMethodIntroducedSinceMinSdk()`
-
-Implementation requirements
-
-*   Class must be a *non-static* **inner class** (captures `this` pointer)
-*   Class may not be exposed in public API
-
-This should only be used when calling `super` methods that will not verify (such
-as when overriding a new method to provide back compat).
-
-Super calls is not available in a `static` context in Java. It can however be
-called from an inner class.
-
-#### Sample {#safe-super-calls-sample}
-
-```java
-class AppCompatTextView : TextView {
-
-  @Nullable
-  SuperCaller mSuperCaller = null;
-
-  @Override
-  int getPropertyFromApi99() {
-  if (Build.VERSION.SDK_INT > 99) {
-    getSuperCaller().getPropertyFromApi99)();
-  }
-
-  @NonNull
-  @RequiresApi(99)
-  SuperCaller getSuperCaller() {
-    if (mSuperCaller == null) {
-      mSuperCaller = new SuperCaller();
-    }
-    return mSuperCaller;
-  }
-
-  @RequiresApi(99)
-  class SuperCaller {
-    int getPropertyFromApi99() {
-      return AppCompatTextView.super.getPropertyFromApi99();
-    }
-  }
-}
-```
-
-### Standalone (ex. [ArraySet](https://developer.android.com/reference/android/support/v4/util/ArraySet.html), [Fragment](https://developer.android.com/reference/android/support/v4/app/Fragment.html)) {#standalone}
+### Standalone (ex. [ArraySet](https://developer.android.com/reference/androidx/collection/ArraySet), [Fragment](https://developer.android.com/jetpack/androidx/releases/fragment)) {#standalone}
 
 When to use?
 
@@ -361,7 +289,7 @@ Implementation requirements
         `static toCompat<PlatformClass>` method naming convention.
 *   Implementation *may* delegate to `PlatformClass` methods when available
 
-### Standalone JAR library (no Android dependencies) {#standalone-jar-library-no-android-dependencies}
+### Standalone JAR library (no Android dependencies) {#standalone-jvm}
 
 When to use
 
@@ -392,3 +320,52 @@ that want to use a different SQL implementation on device. This abstraction, and
 the fact that Room generates code dynamically, means that Room interfaces can be
 used in host-side tests (though actual DB code should be tested on device, since
 DB impls may be significantly different on host).
+
+### Addressing class verification failures on `super.` invocation {#compat-super}
+
+Invoking a `super` call on a method introduced in an API level higher than a
+class's minimum SDK level will raise a run-time class verification failure, and
+will be detected by the `ClassVerificationFailure` lint check.
+
+```java {.bad}
+public void performAction() {
+  if (SDK_INT >= 31) {
+    super.performAction(); // This will cause a verification failure.
+  }
+}
+```
+
+These failures can be addressed by out-of-lining the `super` call to a
+non-static inner class.
+
+#### Sample {#compat-super-sample}
+
+```java
+class AppCompatTextView : TextView {
+
+  @Nullable
+  SuperCaller mSuperCaller = null;
+
+  @Override
+  int getPropertyFromApi99() {
+  if (Build.VERSION.SDK_INT > 99) {
+    getSuperCaller().getPropertyFromApi99)();
+  }
+
+  @NonNull
+  @RequiresApi(99)
+  private SuperCaller getSuperCaller() {
+    if (mSuperCaller == null) {
+      mSuperCaller = new Api99SuperCaller();
+    }
+    return mSuperCaller;
+  }
+
+  @RequiresApi(99)
+  private class Api99SuperCaller {
+    int getPropertyFromApi99() {
+      return AppCompatTextView.super.getPropertyFromApi99();
+    }
+  }
+}
+```
