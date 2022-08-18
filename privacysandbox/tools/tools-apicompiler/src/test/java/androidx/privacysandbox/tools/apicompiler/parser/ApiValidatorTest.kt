@@ -81,7 +81,7 @@ class ApiValidatorTest {
         checkSourceFails(
             serviceInterface(
                 """interface MySdk<T, U> {
-                    |   suspend fun getT(): T
+                    |   suspend fun getT()
                     |}
                 """.trimMargin()
             )
@@ -99,7 +99,7 @@ class ApiValidatorTest {
 
     @Test
     fun methodWithGenerics_fails() {
-        checkSourceFails(serviceMethod("suspend fun <T> foo(): T")).containsExactlyErrors(
+        checkSourceFails(serviceMethod("suspend fun <T> foo()")).containsExactlyErrors(
             "Error in com.mysdk.MySdk.foo: method cannot declare type parameters (<T>)."
         )
     }
@@ -122,6 +122,41 @@ class ApiValidatorTest {
     fun parameterWitDefaultValue_fails() {
         checkSourceFails(serviceMethod("suspend fun foo(x: Int = 5)")).containsExactlyErrors(
             "Error in com.mysdk.MySdk.foo: parameters cannot have default values."
+        )
+    }
+
+    @Test
+    fun parameterWithGenerics_fails() {
+        checkSourceFails(serviceMethod("suspend fun foo(x: MutableList<Int>)"))
+            .containsExactlyErrors(
+                "Error in com.mysdk.MySdk.foo: only primitive types are supported."
+            )
+    }
+
+    @Test
+    fun parameterLambda_fails() {
+        checkSourceFails(serviceMethod("suspend fun foo(x: (Int) -> Int)"))
+            .containsExactlyErrors(
+                "Error in com.mysdk.MySdk.foo: only primitive types are supported."
+            )
+    }
+
+    @Test
+    fun returnTypeCustomClass_fails() {
+        val source = Source.kotlin(
+            "com/mysdk/MySdk.kt", """
+                    package com.mysdk
+                    import androidx.privacysandbox.tools.PrivacySandboxService
+                    @PrivacySandboxService
+                    interface MySdk {
+                        suspend fun foo(): CustomClass
+                    }
+
+                    class CustomClass
+                """
+        )
+        checkSourceFails(source).containsExactlyErrors(
+            "Error in com.mysdk.MySdk.foo: only primitive types are supported."
         )
     }
 
