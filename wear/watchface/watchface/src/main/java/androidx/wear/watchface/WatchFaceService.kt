@@ -2541,6 +2541,7 @@ public abstract class WatchFaceService : WallpaperService() {
 
             writer.println("frameCallbackPending=$frameCallbackPending")
             writer.println("destroyed=$destroyed")
+            writer.println("surfaceDestroyed=$surfaceDestroyed")
             writer.println(
                 "pendingInitialComplications=" + pendingInitialComplications?.joinToString()
             )
