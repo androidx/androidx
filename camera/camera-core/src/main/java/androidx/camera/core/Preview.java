@@ -16,6 +16,7 @@
 
 package androidx.camera.core;
 
+import static androidx.camera.core.SurfaceOutput.GlTransformOptions.USE_SURFACE_TEXTURE_TRANSFORM;
 import static androidx.camera.core.impl.ImageInputConfig.OPTION_INPUT_FORMAT;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_APP_TARGET_ROTATION;
 import static androidx.camera.core.impl.PreviewConfig.IMAGE_INFO_PROCESSOR;
@@ -312,7 +313,7 @@ public final class Preview extends UseCase {
         clearPipeline();
 
         // Create nodes and edges.
-        mNode = new SurfaceEffectNode(camera, /*applyGlTransform=*/false, mSurfaceEffect);
+        mNode = new SurfaceEffectNode(camera, USE_SURFACE_TEXTURE_TRANSFORM, mSurfaceEffect);
         SettableSurface cameraSurface = new SettableSurface(
                 SurfaceEffect.PREVIEW,
                 resolution,

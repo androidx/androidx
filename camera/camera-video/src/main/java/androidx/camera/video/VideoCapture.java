@@ -16,6 +16,7 @@
 
 package androidx.camera.video;
 
+import static androidx.camera.core.SurfaceOutput.GlTransformOptions.APPLY_CROP_ROTATE_AND_MIRRORING;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_DEFAULT_RESOLUTION;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_MAX_RESOLUTION;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_SUPPORTED_RESOLUTIONS;
@@ -434,7 +435,8 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         //  for behavioral consistency.
         Range<Integer> targetFpsRange = config.getTargetFramerate(Defaults.DEFAULT_FPS_RANGE);
         if (mSurfaceEffect != null) {
-            mNode = new SurfaceEffectNode(camera, /*applyGlTransform=*/true, mSurfaceEffect);
+            mNode = new SurfaceEffectNode(camera, APPLY_CROP_ROTATE_AND_MIRRORING,
+                    mSurfaceEffect);
             SettableSurface cameraSurface = new SettableSurface(
                     SurfaceEffect.VIDEO_CAPTURE,
                     resolution,

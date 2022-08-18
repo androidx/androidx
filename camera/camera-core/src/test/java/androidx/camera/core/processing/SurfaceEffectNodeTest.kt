@@ -24,6 +24,9 @@ import android.os.Looper.getMainLooper
 import android.util.Size
 import android.view.Surface
 import androidx.camera.core.SurfaceEffect.PREVIEW
+import androidx.camera.core.SurfaceOutput.GlTransformOptions
+import androidx.camera.core.SurfaceOutput.GlTransformOptions.APPLY_CROP_ROTATE_AND_MIRRORING
+import androidx.camera.core.SurfaceOutput.GlTransformOptions.USE_SURFACE_TEXTURE_TRANSFORM
 import androidx.camera.core.impl.utils.TransformUtils.is90or270
 import androidx.camera.core.impl.utils.TransformUtils.rectToSize
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor
@@ -110,7 +113,7 @@ class SurfaceEffectNodeTest {
         val cropRect = Rect(200, 100, 600, 400)
         for (rotationDegrees in arrayOf(0, 90, 180, 270)) {
             // Arrange.
-            createSurfaceEffectNode(true)
+            createSurfaceEffectNode(APPLY_CROP_ROTATE_AND_MIRRORING)
             createInputEdge(
                 size = rectToSize(cropRect),
                 cropRect = cropRect,
@@ -143,7 +146,7 @@ class SurfaceEffectNodeTest {
     fun transformInput_withGlTransformMirroring_outputHasNoMirroring() {
         for (mirroring in arrayOf(false, true)) {
             // Arrange.
-            createSurfaceEffectNode(true)
+            createSurfaceEffectNode(APPLY_CROP_ROTATE_AND_MIRRORING)
             createInputEdge(mirroring = mirroring)
 
             // Act.
@@ -219,7 +222,9 @@ class SurfaceEffectNodeTest {
         inputEdge = SurfaceEdge.create(listOf(surface))
     }
 
-    private fun createSurfaceEffectNode(applyGlTransform: Boolean = false) {
-        node = SurfaceEffectNode(FakeCamera(), applyGlTransform, surfaceEffectInternal)
+    private fun createSurfaceEffectNode(
+        glTransformOptions: GlTransformOptions = USE_SURFACE_TEXTURE_TRANSFORM
+    ) {
+        node = SurfaceEffectNode(FakeCamera(), glTransformOptions, surfaceEffectInternal)
     }
 }

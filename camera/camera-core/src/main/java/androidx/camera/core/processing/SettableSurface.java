@@ -37,6 +37,7 @@ import androidx.annotation.RequiresApi;
 import androidx.camera.core.CameraEffect;
 import androidx.camera.core.SurfaceEffect;
 import androidx.camera.core.SurfaceOutput;
+import androidx.camera.core.SurfaceOutput.GlTransformOptions;
 import androidx.camera.core.SurfaceRequest;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.impl.CameraInternal;
@@ -240,18 +241,17 @@ public class SettableSurface extends DeferrableSurface {
      * <p>Do not provide the {@link SurfaceOutput} to external target if the
      * {@link ListenableFuture} fails.
      *
-     * @param applyGlTransform whether the SurfaceOutput should apply the transform, which is
-     *                         calculated based on the input image buffer's attributes.
-     * @param resolution       resolution of input image buffer
-     * @param cropRect         crop rect of input image buffer
-     * @param rotationDegrees  expected rotation to the input image buffer
-     * @param mirroring        expected mirroring to the input image buffer
+     * @param glTransformOptions OpenGL transformation options for SurfaceOutput
+     * @param resolution         resolution of input image buffer
+     * @param cropRect           crop rect of input image buffer
+     * @param rotationDegrees    expected rotation to the input image buffer
+     * @param mirroring          expected mirroring to the input image buffer
      */
     @MainThread
     @NonNull
-    public ListenableFuture<SurfaceOutput> createSurfaceOutputFuture(boolean applyGlTransform,
-            @NonNull Size resolution, @NonNull Rect cropRect, int rotationDegrees,
-            boolean mirroring) {
+    public ListenableFuture<SurfaceOutput> createSurfaceOutputFuture(
+            @NonNull GlTransformOptions glTransformOptions, @NonNull Size resolution,
+            @NonNull Rect cropRect, int rotationDegrees, boolean mirroring) {
         checkMainThread();
         Preconditions.checkState(!mHasConsumer, "Consumer can only be linked once.");
         mHasConsumer = true;
@@ -264,7 +264,7 @@ public class SettableSurface extends DeferrableSurface {
                         return Futures.immediateFailedFuture(e);
                     }
                     SurfaceOutputImpl surfaceOutputImpl = new SurfaceOutputImpl(
-                            surface, getTargets(), getFormat(), getSize(), applyGlTransform,
+                            surface, getTargets(), getFormat(), getSize(), glTransformOptions,
                             resolution, cropRect, rotationDegrees, mirroring);
                     surfaceOutputImpl.getCloseFuture().addListener(this::decrementUseCount,
                             directExecutor());
