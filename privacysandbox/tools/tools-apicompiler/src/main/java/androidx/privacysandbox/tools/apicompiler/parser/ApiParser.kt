@@ -72,6 +72,7 @@ class ApiParser(private val resolver: Resolver, private val logger: KSPLogger) {
         classDeclaration.getDeclaredFunctions().map(::parseMethod).toList()
 
     private fun parseMethod(method: KSFunctionDeclaration): Method {
+        validator.validateMethod(method)
         return Method(
             name = method.simpleName.getFullName(),
             parameters = getAllParameters(method),

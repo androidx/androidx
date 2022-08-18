@@ -20,11 +20,13 @@ import com.google.devtools.ksp.getDeclaredProperties
 import com.google.devtools.ksp.isPublic
 import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.symbol.KSClassDeclaration
+import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.Modifier
 
 class ApiValidator(private val logger: KSPLogger) {
     companion object {
         val validInterfaceModifiers = setOf(Modifier.PUBLIC)
+        val validMethodModifiers = setOf(Modifier.PUBLIC, Modifier.SUSPEND)
     }
 
     fun validateInterface(interfaceDeclaration: KSClassDeclaration) {
@@ -59,6 +61,30 @@ class ApiValidator(private val logger: KSPLogger) {
                         .sorted().joinToString(limit = 3)
                 })."
             )
+        }
+    }
+
+    fun validateMethod(method: KSFunctionDeclaration) {
+        val name = method.qualifiedName?.getFullName() ?: method.simpleName.getFullName()
+        if (!method.isAbstract) {
+            logger.error("Error in $name: method cannot have default implementation.")
+        }
+        if (method.typeParameters.isNotEmpty()) {
+            logger.error("Error in $name: method cannot declare type parameters (<${
+                method.typeParameters.joinToString(limit = 3) { it.name.getShortName() }
+            }>).")
+        }
+        val invalidModifiers =
+            method.modifiers.filterNot(validMethodModifiers::contains)
+        if (invalidModifiers.isNotEmpty()) {
+            logger.error(
+                "Error in $name: method contains invalid modifiers (${
+                    invalidModifiers.map { it.name.lowercase() }.sorted().joinToString(limit = 3)
+                })."
+            )
+        }
+        if (!method.modifiers.contains(Modifier.SUSPEND)) {
+            logger.error("Error in $name: method should be a suspend function.")
         }
     }
 }
