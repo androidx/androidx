@@ -101,6 +101,7 @@ public class WebSettingsCompatForceDarkTest extends
      * i.e. web contents are always darkened by a user agent.
      */
     @SuppressWarnings("deprecation")
+    @FlakyTest(bugId = 240432254)
     @Test
     public void testForceDark_userAgentDarkeningOnly() {
         WebkitUtils.checkFeature(WebViewFeature.FORCE_DARK);
