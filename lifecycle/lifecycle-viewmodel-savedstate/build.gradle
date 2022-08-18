@@ -53,6 +53,10 @@ dependencies {
 
     constraints {
         implementation(project(":lifecycle:lifecycle-viewmodel"))
+        // this syntax is a temporary workout to allow project dependency on cross-project-set
+        // i.e. COMPOSE + MAIN project sets
+        // update syntax when b/239979823 is fixed
+        implementation("androidx.lifecycle:lifecycle-viewmodel-compose:{androidx.LibraryVersions.LIFECYCLE}")
     }
 }
 
