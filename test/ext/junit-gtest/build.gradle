@@ -57,6 +57,11 @@ android {
             version libs.versions.cmake.get()
             path "src/main/cpp/CMakeLists.txt"
         }
+        experimentalProperties["prefab.junit-gtest.exportLibraries"] = [
+                "-uJava_androidx_test_ext_junitgtest_GtestRunner_initialize",
+                "-uJava_androidx_test_ext_junitgtest_GtestRunner_run",
+                "-uJava_androidx_test_ext_junitgtest_GtestRunner_addTest"
+        ]
     }
 
     buildFeatures {
