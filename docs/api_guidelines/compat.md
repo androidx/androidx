@@ -2,8 +2,13 @@
 
 ### Referencing new APIs {#compat-newapi}
 
-Generally, methods on extension library classes should be available to all
-devices above the library's `minSdkVersion`.
+Generally, methods on library classes should be available to all devices above
+the library's `minSdkVersion`; however, the behavior of the method may vary
+based on platform API availability.
+
+For example, a method may delegate to a platform API on SDKs where the API is
+available, backport a subset of behavior on earlier SDKs, and no-op on very old
+SDKs.
 
 #### Checking device SDK version {#compat-sdk}
 
@@ -14,8 +19,10 @@ was first fixed.
 
 Non-reflective calls to new APIs gated on `SDK_INT` **must** be made from
 version-specific static inner classes to avoid verification errors that
-negatively affect run-time performance. For more information, see Chromium's
-guide to
+negatively affect run-time performance. This is enforced at build time by the
+`ClassVerificationFailure` lint check, which offers auto-fixes in Java sources.
+
+For more information, see Chromium's guide to
 [Class Verification Failures](https://chromium.googlesource.com/chromium/src/+/HEAD/build/android/docs/class_verification_failures.md).
 
 Methods in implementation-specific classes **must** be paired with the
@@ -72,8 +79,8 @@ so ensures that such issues can be detected and fixed by OEMs.
 
 Methods that only need to be accessible on newer devices, including
 `to<PlatformClass>()` methods, may be annotated with `@RequiresApi(<sdk>)` to
-indicate they will fail to link on older SDKs. This annotation is enforced at
-build time by Lint.
+indicate they must not be called when running on older SDKs. This annotation is
+enforced at build time by the `NewApi` lint check.
 
 #### Handling `targetSdkVersion` behavior changes {#compat-targetsdk}
 
@@ -87,18 +94,15 @@ Libraries do not have control over the app's `targetSdkVersion` and -- in rare
 cases -- may need to handle variations in platform behavior. Refer to the
 following pages for version-specific behavior changes:
 
-*   API level 29:
-    [Android Q behavior changes: apps targeting Q](https://developer.android.com/preview/behavior-changes-q)
-*   API level 28:
-    [Behavior changes: apps targeting API level 28+](https://developer.android.com/about/versions/pie/android-9.0-changes-28)
-*   API level 26:
-    [Changes for apps targeting Android 8.0](https://developer.android.com/about/versions/oreo/android-8.0-changes#o-apps)
-*   API level 24:
-    [Changes for apps targeting Android 7.0](https://developer.android.com/about/versions/nougat/android-7.0-changes#n-apps)
-*   API level 21:
-    [Android 5.0 Behavior Changes](https://developer.android.com/about/versions/android-5.0-changes)
-*   API level 19:
-    [Android 4.4 APIs](https://developer.android.com/about/versions/android-4.4)
+*   [API level 33](https://developer.android.com/about/versions/13/behavior-changes-13)
+*   [API level 31](https://developer.android.com/about/versions/12/behavior-changes-12)
+*   [API level 30](https://developer.android.com/about/versions/11/behavior-changes-11)
+*   [API level 29](https://developer.android.com/about/versions/10/behavior-changes-10)
+*   [API level 28](https://developer.android.com/about/versions/pie/android-9.0-changes-28)
+*   [API level 26](https://developer.android.com/about/versions/oreo/android-8.0-changes)
+*   [API level 24](https://developer.android.com/about/versions/nougat/android-7.0-changes)
+*   [API level 21](https://developer.android.com/about/versions/lollipop/android-5.0-changes)
+*   [API level 19](https://developer.android.com/about/versions/kitkat/android-4.4#Behaviors)
 
 #### Working around Lint issues {#compat-lint}
 
@@ -128,7 +132,7 @@ public AccessibilityDelegate getAccessibilityDelegate(View v) {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
         // Retrieve the delegate using a public API.
         return v.getAccessibilityDelegate();
-    } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+    } else if (Build.VERSION.SDK_INT >= 11) {
         // Retrieve the delegate by reflecting on a private field. If the
         // field does not exist or cannot be accessed, this will no-op.
         if (sAccessibilityDelegateField == null) {
@@ -163,7 +167,7 @@ Calls to public APIs added in pre-release revisions *must* be gated using
 ```java
 if (BuildCompat.isAtLeastQ()) {
    // call new API added in Q
-} else if (Build.SDK_INT.VERSION >= Build.VERSION_CODES.SOME_RELEASE) {
+} else if (Build.SDK_INT.VERSION >= 23) {
    // make a best-effort using APIs that we expect to be available
 } else {
    // no-op or best-effort given no information
