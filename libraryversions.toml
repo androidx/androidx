@@ -83,6 +83,7 @@ PALETTE = "1.1.0-alpha01"
 PERCENTLAYOUT = "1.1.0-alpha01"
 PREFERENCE = "1.3.0-alpha01"
 PRINT = "1.1.0-beta01"
+PRIVACYSANDBOX_SDKRUNTIME = "1.0.0-alpha01"
 PRIVACYSANDBOX_TOOLS = "1.0.0-alpha01"
 PROFILEINSTALLER = "1.3.0-alpha01"
 RECOMMENDATION = "1.1.0-alpha01"
@@ -207,6 +208,7 @@ PALETTE = { group = "androidx.palette", atomicGroupVersion = "versions.PALETTE" 
 PERCENTLAYOUT = { group = "androidx.percentlayout", atomicGroupVersion = "versions.PERCENTLAYOUT" }
 PREFERENCE = { group = "androidx.preference", atomicGroupVersion = "versions.PREFERENCE" }
 PRINT = { group = "androidx.print", atomicGroupVersion = "versions.PRINT" }
+PRIVACYSANDBOX_SDKRUNTIME = { group = "androidx.privacysandbox.sdkruntime", atomicGroupVersion = "versions.PRIVACYSANDBOX_SDKRUNTIME" }
 PRIVACYSANDBOX_TOOLS = { group = "androidx.privacysandbox.tools", atomicGroupVersion = "versions.PRIVACYSANDBOX_TOOLS" }
 PROFILEINSTALLER = { group = "androidx.profileinstaller", atomicGroupVersion = "versions.PROFILEINSTALLER" }
 RECOMMENDATION = { group = "androidx.recommendation", atomicGroupVersion = "versions.RECOMMENDATION" }
