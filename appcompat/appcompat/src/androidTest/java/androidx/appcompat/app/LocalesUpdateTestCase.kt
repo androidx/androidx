@@ -34,9 +34,7 @@ import org.junit.Rule
 import org.junit.Test
 
 @LargeTest
-// TODO(b/218430372): Modify SdkSuppress annotation in tests for backward compatibility of
-//  setApplicationLocales
-@SdkSuppress(maxSdkVersion = 31)
+@SdkSuppress(maxSdkVersion = 32)
 class LocalesUpdateTestCase() {
     @get:Rule
     val rule = LocalesActivityTestRule(LocalesUpdateActivity::class.java)
