@@ -50,15 +50,8 @@ android {
 }
 
 dependencies {
-    // Using -Pandroidx.useMaxDepVersions does not use the right version of the annotation processor
-    // Remove this workaround after b/127495641 is fixed
-    if (project.hasProperty("androidx.useMaxDepVersions")) {
-        annotationProcessor(projectOrArtifact(":room:room-compiler"))
-        implementation(projectOrArtifact(":room:room-runtime"))
-    } else {
-        annotationProcessor("androidx.room:room-compiler:2.4.0-rc01")
-        implementation("androidx.room:room-runtime:2.4.0-rc01")
-    }
+    annotationProcessor(projectOrArtifact(":room:room-compiler"))
+    implementation(projectOrArtifact(":room:room-runtime"))
 
     implementation(libs.constraintLayout)
     // Fix for BuildCompat.isAtleastS()

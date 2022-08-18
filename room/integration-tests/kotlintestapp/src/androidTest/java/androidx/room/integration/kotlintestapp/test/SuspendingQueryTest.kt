@@ -843,17 +843,22 @@ class SuspendingQueryTest : TestDatabaseTest() {
                         ): SupportSQLiteOpenHelper {
                             val helperDelegate = factoryDelegate.create(configuration)
                             return object : SupportSQLiteOpenHelper by helperDelegate {
-                                override fun getWritableDatabase(): SupportSQLiteDatabase {
-                                    val databaseDelegate = helperDelegate.writableDatabase
-                                    return object : SupportSQLiteDatabase by databaseDelegate {
-                                        override fun beginTransaction() {
-                                            throw RuntimeException("Error beginning transaction.")
-                                        }
-                                        override fun beginTransactionNonExclusive() {
-                                            throw RuntimeException("Error beginning transaction.")
+                                override val writableDatabase: SupportSQLiteDatabase
+                                    get() {
+                                        val databaseDelegate = helperDelegate.writableDatabase
+                                        return object : SupportSQLiteDatabase by databaseDelegate {
+                                            override fun beginTransaction() {
+                                                throw RuntimeException(
+                                                    "Error beginning transaction."
+                                                )
+                                            }
+                                            override fun beginTransactionNonExclusive() {
+                                                throw RuntimeException(
+                                                    "Error beginning transaction."
+                                                )
+                                            }
                                         }
                                     }
-                                }
                             }
                         }
                     }

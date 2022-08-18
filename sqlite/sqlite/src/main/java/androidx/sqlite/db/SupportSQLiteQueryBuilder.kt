@@ -13,52 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.sqlite.db
 
-package androidx.sqlite.db;
-
-import java.util.regex.Pattern;
+import java.util.regex.Pattern
 
 /**
  * A simple query builder to create SQL SELECT queries.
  */
-@SuppressWarnings("unused")
-public final class SupportSQLiteQueryBuilder {
-    private static final Pattern sLimitPattern =
-    Pattern.compile("\\s*\\d+\\s*(,\\s*\\d+\\s*)?");
-
-    private boolean mDistinct = false;
-    private final String mTable;
-    private String[] mColumns = null;
-    private String mSelection;
-    private Object[] mBindArgs;
-    private String mGroupBy = null;
-    private String mHaving = null;
-    private String mOrderBy = null;
-    private String mLimit = null;
-
-    /**
-     * Creates a query for the given table name.
-     *
-     * @param tableName The table name(s) to query.
-     *
-     * @return A builder to create a query.
-     */
-    public static SupportSQLiteQueryBuilder builder(String tableName) {
-        return new SupportSQLiteQueryBuilder(tableName);
-    }
-
-    private SupportSQLiteQueryBuilder(String table) {
-        mTable = table;
-    }
+class SupportSQLiteQueryBuilder private constructor(private val table: String) {
+    private var distinct = false
+    private var columns: Array<String>? = null
+    private var selection: String? = null
+    private var bindArgs: Array<Any?>? = null
+    private var groupBy: String? = null
+    private var having: String? = null
+    private var orderBy: String? = null
+    private var limit: String? = null
 
     /**
      * Adds DISTINCT keyword to the query.
      *
      * @return this
      */
-    public SupportSQLiteQueryBuilder distinct() {
-        mDistinct = true;
-        return this;
+    fun distinct(): SupportSQLiteQueryBuilder = apply {
+        this.distinct = true
     }
 
     /**
@@ -68,9 +46,8 @@ public final class SupportSQLiteQueryBuilder {
      *
      * @return this
      */
-    public SupportSQLiteQueryBuilder columns(String[] columns) {
-        mColumns = columns;
-        return this;
+    fun columns(columns: Array<String>?): SupportSQLiteQueryBuilder = apply {
+        this.columns = columns
     }
 
     /**
@@ -81,10 +58,9 @@ public final class SupportSQLiteQueryBuilder {
      *
      * @return this
      */
-    public SupportSQLiteQueryBuilder selection(String selection, Object[] bindArgs) {
-        mSelection = selection;
-        mBindArgs = bindArgs;
-        return this;
+    fun selection(selection: String?, bindArgs: Array<Any?>?): SupportSQLiteQueryBuilder = apply {
+        this.selection = selection
+        this.bindArgs = bindArgs
     }
 
     /**
@@ -94,22 +70,19 @@ public final class SupportSQLiteQueryBuilder {
      *
      * @return this
      */
-    @SuppressWarnings("WeakerAccess")
-    public SupportSQLiteQueryBuilder groupBy(String groupBy) {
-        mGroupBy = groupBy;
-        return this;
+    fun groupBy(groupBy: String?): SupportSQLiteQueryBuilder = apply {
+        this.groupBy = groupBy
     }
 
     /**
-     * Adds a HAVING statement. You must also provide {@link #groupBy(String)} for this to work.
+     * Adds a HAVING statement. You must also provide [groupBy] for this to work.
      *
      * @param having The having clause.
      *
      * @return this
      */
-    public SupportSQLiteQueryBuilder having(String having) {
-        mHaving = having;
-        return this;
+    fun having(having: String?): SupportSQLiteQueryBuilder = apply {
+        this.having = having
     }
 
     /**
@@ -119,9 +92,8 @@ public final class SupportSQLiteQueryBuilder {
      *
      * @return this
      */
-    public SupportSQLiteQueryBuilder orderBy(String orderBy) {
-        mOrderBy = orderBy;
-        return this;
+    fun orderBy(orderBy: String?): SupportSQLiteQueryBuilder = apply {
+        this.orderBy = orderBy
     }
 
     /**
@@ -131,72 +103,81 @@ public final class SupportSQLiteQueryBuilder {
      *
      * @return this
      */
-    public SupportSQLiteQueryBuilder limit(String limit) {
-        if (!isEmpty(limit) && !sLimitPattern.matcher(limit).matches()) {
-            throw new IllegalArgumentException("invalid LIMIT clauses:" + limit);
-        }
-        mLimit = limit;
-        return this;
+    fun limit(limit: String): SupportSQLiteQueryBuilder = apply {
+        val patternMatches = limitPattern.matcher(
+            limit
+        ).matches()
+        require(limit.isEmpty() || patternMatches) { "invalid LIMIT clauses:$limit" }
+        this.limit = limit
     }
 
     /**
-     * Creates the {@link SupportSQLiteQuery} that can be passed into
-     * {@link SupportSQLiteDatabase#query(SupportSQLiteQuery)}.
+     * Creates the [SupportSQLiteQuery] that can be passed into
+     * [SupportSQLiteDatabase.query].
      *
      * @return a new query
      */
-    public SupportSQLiteQuery create() {
-        if (isEmpty(mGroupBy) && !isEmpty(mHaving)) {
-            throw new IllegalArgumentException(
-                "HAVING clauses are only permitted when using a groupBy clause");
+    fun create(): SupportSQLiteQuery {
+        require(groupBy?.isNotEmpty() == true || having?.isEmpty() == true) {
+            "HAVING clauses are only permitted when using a groupBy clause"
         }
-        StringBuilder query = new StringBuilder(120);
-
-        query.append("SELECT ");
-        if (mDistinct) {
-            query.append("DISTINCT ");
+        val query = buildString(120) {
+            append("SELECT ")
+            if (distinct) {
+                append("DISTINCT ")
+            }
+            if (columns?.size != 0) {
+                appendColumns(columns!!)
+            } else {
+                append(" * ")
+            }
+            append(" FROM ")
+            append(table)
+            appendClause(" WHERE ", selection)
+            appendClause(" GROUP BY ", groupBy)
+            appendClause(" HAVING ", having)
+            appendClause(" ORDER BY ", orderBy)
+            appendClause(" LIMIT ", limit)
         }
-        if (mColumns != null && mColumns.length != 0) {
-            appendColumns(query, mColumns);
-        } else {
-            query.append(" * ");
-        }
-        query.append(" FROM ");
-        query.append(mTable);
-        appendClause(query, " WHERE ", mSelection);
-        appendClause(query, " GROUP BY ", mGroupBy);
-        appendClause(query, " HAVING ", mHaving);
-        appendClause(query, " ORDER BY ", mOrderBy);
-        appendClause(query, " LIMIT ", mLimit);
-
-        return new SimpleSQLiteQuery(query.toString(), mBindArgs);
+        return SimpleSQLiteQuery(query, bindArgs)
     }
 
-    private static void appendClause(StringBuilder s, String name, String clause) {
-        if (!isEmpty(clause)) {
-            s.append(name);
-            s.append(clause);
+    private fun StringBuilder.appendClause(name: String, clause: String?) {
+        if (clause?.isNotEmpty() == true) {
+            append(name)
+            append(clause)
         }
     }
 
     /**
-     * Add the names that are non-null in columns to s, separating
+     * Add the names that are non-null in columns to string, separating
      * them with commas.
      */
-    private static void appendColumns(StringBuilder s, String[] columns) {
-        int n = columns.length;
-
-        for (int i = 0; i < n; i++) {
-            String column = columns[i];
+    private fun StringBuilder.appendColumns(columns: Array<String>) {
+        val n = columns.size
+        for (i in 0 until n) {
+            val column = columns[i]
             if (i > 0) {
-                s.append(", ");
+                append(", ")
             }
-            s.append(column);
+            append(column)
         }
-        s.append(' ');
+        append(' ')
     }
 
-    private static boolean isEmpty(String input) {
-        return input == null || input.length() == 0;
+    companion object {
+        private val limitPattern = Pattern.compile("\\s*\\d+\\s*(,\\s*\\d+\\s*)?")
+
+        /**
+         * Creates a query for the given table name.
+         *
+         * @param tableName The table name(s) to query.
+         *
+         * @return A builder to create a query.
+         */
+        @JvmStatic
+        fun builder(tableName: String): SupportSQLiteQueryBuilder {
+            return SupportSQLiteQueryBuilder(tableName)
+        }
     }
 }

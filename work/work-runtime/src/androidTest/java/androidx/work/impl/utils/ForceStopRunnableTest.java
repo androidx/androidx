@@ -34,6 +34,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import android.app.ActivityManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -66,7 +67,6 @@ import java.util.concurrent.Executor;
 @MediumTest
 @RunWith(AndroidJUnit4.class)
 public class ForceStopRunnableTest {
-
     private Context mContext;
     private WorkManagerImpl mWorkManager;
     private Scheduler mScheduler;
@@ -75,10 +75,13 @@ public class ForceStopRunnableTest {
     private PreferenceUtils mPreferenceUtils;
     private ForceStopRunnable mRunnable;
 
+    private ActivityManager mActivityManager;
+
     @Before
     public void setUp() {
         mContext = ApplicationProvider.getApplicationContext().getApplicationContext();
         mWorkManager = mock(WorkManagerImpl.class);
+        mActivityManager = mock(ActivityManager.class);
         mPreferenceUtils = mock(PreferenceUtils.class);
         mScheduler = mock(Scheduler.class);
         Executor executor = new SynchronousExecutor();
@@ -204,6 +207,7 @@ public class ForceStopRunnableTest {
     public void test_InitializationExceptionHandler_migrationFailures() {
         mContext = mock(Context.class);
         when(mContext.getApplicationContext()).thenReturn(mContext);
+        when(mContext.getSystemService(Context.ACTIVITY_SERVICE)).thenReturn(mActivityManager);
         mWorkDatabase = WorkDatabase.create(mContext, mConfiguration.getTaskExecutor(), true);
         when(mWorkManager.getWorkDatabase()).thenReturn(mWorkDatabase);
         mRunnable = new ForceStopRunnable(mContext, mWorkManager);

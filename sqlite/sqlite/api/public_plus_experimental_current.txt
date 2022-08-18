@@ -65,22 +65,27 @@ package androidx.sqlite.db {
     method public String? getDatabaseName();
     method public androidx.sqlite.db.SupportSQLiteDatabase getReadableDatabase();
     method public androidx.sqlite.db.SupportSQLiteDatabase getWritableDatabase();
-    method @RequiresApi(api=android.os.Build.VERSION_CODES.JELLY_BEAN) public void setWriteAheadLoggingEnabled(boolean);
+    method @RequiresApi(api=android.os.Build.VERSION_CODES.JELLY_BEAN) public void setWriteAheadLoggingEnabled(boolean enabled);
+    property public abstract String? databaseName;
+    property public abstract androidx.sqlite.db.SupportSQLiteDatabase readableDatabase;
+    property public abstract androidx.sqlite.db.SupportSQLiteDatabase writableDatabase;
   }
 
   public abstract static class SupportSQLiteOpenHelper.Callback {
-    ctor public SupportSQLiteOpenHelper.Callback(int);
-    method public void onConfigure(androidx.sqlite.db.SupportSQLiteDatabase);
-    method public void onCorruption(androidx.sqlite.db.SupportSQLiteDatabase);
-    method public abstract void onCreate(androidx.sqlite.db.SupportSQLiteDatabase);
-    method public void onDowngrade(androidx.sqlite.db.SupportSQLiteDatabase, int, int);
-    method public void onOpen(androidx.sqlite.db.SupportSQLiteDatabase);
-    method public abstract void onUpgrade(androidx.sqlite.db.SupportSQLiteDatabase, int, int);
+    ctor public SupportSQLiteOpenHelper.Callback(int version);
+    method public void onConfigure(androidx.sqlite.db.SupportSQLiteDatabase db);
+    method public void onCorruption(androidx.sqlite.db.SupportSQLiteDatabase db);
+    method public abstract void onCreate(androidx.sqlite.db.SupportSQLiteDatabase db);
+    method public void onDowngrade(androidx.sqlite.db.SupportSQLiteDatabase db, int oldVersion, int newVersion);
+    method public void onOpen(androidx.sqlite.db.SupportSQLiteDatabase db);
+    method public abstract void onUpgrade(androidx.sqlite.db.SupportSQLiteDatabase db, int oldVersion, int newVersion);
     field public final int version;
   }
 
-  public static class SupportSQLiteOpenHelper.Configuration {
-    method public static androidx.sqlite.db.SupportSQLiteOpenHelper.Configuration.Builder builder(android.content.Context);
+  public static final class SupportSQLiteOpenHelper.Configuration {
+    ctor public SupportSQLiteOpenHelper.Configuration(android.content.Context context, String? name, androidx.sqlite.db.SupportSQLiteOpenHelper.Callback callback, optional boolean useNoBackupDirectory, optional boolean allowDataLossOnRecovery);
+    method public static androidx.sqlite.db.SupportSQLiteOpenHelper.Configuration.Builder builder(android.content.Context context);
+    field public static final androidx.sqlite.db.SupportSQLiteOpenHelper.Configuration.Companion Companion;
     field public final boolean allowDataLossOnRecovery;
     field public final androidx.sqlite.db.SupportSQLiteOpenHelper.Callback callback;
     field public final android.content.Context context;
@@ -89,15 +94,19 @@ package androidx.sqlite.db {
   }
 
   public static class SupportSQLiteOpenHelper.Configuration.Builder {
-    method public androidx.sqlite.db.SupportSQLiteOpenHelper.Configuration.Builder allowDataLossOnRecovery(boolean);
+    method public androidx.sqlite.db.SupportSQLiteOpenHelper.Configuration.Builder allowDataLossOnRecovery(boolean allowDataLossOnRecovery);
     method public androidx.sqlite.db.SupportSQLiteOpenHelper.Configuration build();
-    method public androidx.sqlite.db.SupportSQLiteOpenHelper.Configuration.Builder callback(androidx.sqlite.db.SupportSQLiteOpenHelper.Callback);
-    method public androidx.sqlite.db.SupportSQLiteOpenHelper.Configuration.Builder name(String?);
-    method public androidx.sqlite.db.SupportSQLiteOpenHelper.Configuration.Builder noBackupDirectory(boolean);
+    method public androidx.sqlite.db.SupportSQLiteOpenHelper.Configuration.Builder callback(androidx.sqlite.db.SupportSQLiteOpenHelper.Callback callback);
+    method public androidx.sqlite.db.SupportSQLiteOpenHelper.Configuration.Builder name(String? name);
+    method public androidx.sqlite.db.SupportSQLiteOpenHelper.Configuration.Builder noBackupDirectory(boolean useNoBackupDirectory);
   }
 
-  public static interface SupportSQLiteOpenHelper.Factory {
-    method public androidx.sqlite.db.SupportSQLiteOpenHelper create(androidx.sqlite.db.SupportSQLiteOpenHelper.Configuration);
+  public static final class SupportSQLiteOpenHelper.Configuration.Companion {
+    method public androidx.sqlite.db.SupportSQLiteOpenHelper.Configuration.Builder builder(android.content.Context context);
+  }
+
+  public static fun interface SupportSQLiteOpenHelper.Factory {
+    method public androidx.sqlite.db.SupportSQLiteOpenHelper create(androidx.sqlite.db.SupportSQLiteOpenHelper.Configuration configuration);
   }
 
   public interface SupportSQLiteProgram extends java.io.Closeable {
@@ -118,15 +127,20 @@ package androidx.sqlite.db {
   }
 
   public final class SupportSQLiteQueryBuilder {
-    method public static androidx.sqlite.db.SupportSQLiteQueryBuilder! builder(String!);
-    method public androidx.sqlite.db.SupportSQLiteQueryBuilder! columns(String![]!);
-    method public androidx.sqlite.db.SupportSQLiteQuery! create();
-    method public androidx.sqlite.db.SupportSQLiteQueryBuilder! distinct();
-    method public androidx.sqlite.db.SupportSQLiteQueryBuilder! groupBy(String!);
-    method public androidx.sqlite.db.SupportSQLiteQueryBuilder! having(String!);
-    method public androidx.sqlite.db.SupportSQLiteQueryBuilder! limit(String!);
-    method public androidx.sqlite.db.SupportSQLiteQueryBuilder! orderBy(String!);
-    method public androidx.sqlite.db.SupportSQLiteQueryBuilder! selection(String!, Object![]!);
+    method public static androidx.sqlite.db.SupportSQLiteQueryBuilder builder(String tableName);
+    method public androidx.sqlite.db.SupportSQLiteQueryBuilder columns(String![]? columns);
+    method public androidx.sqlite.db.SupportSQLiteQuery create();
+    method public androidx.sqlite.db.SupportSQLiteQueryBuilder distinct();
+    method public androidx.sqlite.db.SupportSQLiteQueryBuilder groupBy(String? groupBy);
+    method public androidx.sqlite.db.SupportSQLiteQueryBuilder having(String? having);
+    method public androidx.sqlite.db.SupportSQLiteQueryBuilder limit(String limit);
+    method public androidx.sqlite.db.SupportSQLiteQueryBuilder orderBy(String? orderBy);
+    method public androidx.sqlite.db.SupportSQLiteQueryBuilder selection(String? selection, Object![]? bindArgs);
+    field public static final androidx.sqlite.db.SupportSQLiteQueryBuilder.Companion Companion;
+  }
+
+  public static final class SupportSQLiteQueryBuilder.Companion {
+    method public androidx.sqlite.db.SupportSQLiteQueryBuilder builder(String tableName);
   }
 
   public interface SupportSQLiteStatement extends androidx.sqlite.db.SupportSQLiteProgram {
