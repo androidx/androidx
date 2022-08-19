@@ -345,8 +345,8 @@ public class CarContextTest {
 
         Context applicationContext = mCarContext.getApplicationContext();
 
-        VirtualDisplay display = applicationContext.getSystemService(
-                DisplayManager.class).createVirtualDisplay("CarAppService",
+        VirtualDisplay display = ((DisplayManager) applicationContext.getSystemService(
+                Context.DISPLAY_SERVICE)).createVirtualDisplay("CarAppService",
                 mdpiConfig.screenWidthDp, mdpiConfig.screenHeightDp, 5, null,
                 VIRTUAL_DISPLAY_FLAG_OWN_CONTENT_ONLY);
         DisplayMetrics newDisplayMetrics = new DisplayMetrics();
