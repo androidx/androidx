@@ -46,7 +46,7 @@ annotation class DateTimeStyle
 class DateTimeFormatterJdkStyleOptions private constructor(
     val dateStyle: @DateTimeStyle Int,
     val timeStyle: @DateTimeStyle Int
-) : DateTimeFormatterOptions {
+) {
     companion object {
         /** Gets the date formatter with the given formatting style for the default locale.
          *

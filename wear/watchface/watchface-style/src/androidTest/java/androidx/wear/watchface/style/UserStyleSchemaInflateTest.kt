@@ -26,6 +26,7 @@ import androidx.test.filters.MediumTest
 import androidx.wear.watchface.complications.IllegalNodeException
 import androidx.wear.watchface.complications.data.ComplicationType
 import androidx.wear.watchface.complications.iterate
+import androidx.wear.watchface.complications.moveToStart
 import androidx.wear.watchface.style.UserStyleSetting.ListUserStyleSetting.ListOption
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotsOption
 import androidx.wear.watchface.style.test.R
@@ -47,7 +48,7 @@ class UserStyleSchemaInflateTest {
         // Parse next until start tag is found
         parser.moveToStart("UserStyleSchema")
 
-        val schema = UserStyleSchema.inflate(context.resources, parser)
+        val schema = UserStyleSchema.inflate(context.resources, parser, 1.0f, 1.0f)
 
         assertThat(schema.userStyleSettings.size).isEqualTo(3)
         val setting0 = schema.userStyleSettings[0] as UserStyleSetting.ListUserStyleSetting
@@ -133,7 +134,7 @@ class UserStyleSchemaInflateTest {
         // Parse next until start tag is found
         parser.moveToStart("UserStyleSchema")
 
-        val schema = UserStyleSchema.inflate(context.resources, parser)
+        val schema = UserStyleSchema.inflate(context.resources, parser, 1.0f, 1.0f)
 
         assertThat(schema.userStyleSettings.size).isEqualTo(4)
         val setting0 = schema.userStyleSettings[0] as UserStyleSetting.BooleanUserStyleSetting
@@ -245,8 +246,8 @@ class UserStyleSchemaInflateTest {
         parser1.moveToStart("UserStyleSchema")
         parser2.moveToStart("UserStyleSchema")
 
-        val schema1 = UserStyleSchema.inflate(context.resources, parser1)
-        val schema2 = UserStyleSchema.inflate(context.resources, parser2)
+        val schema1 = UserStyleSchema.inflate(context.resources, parser1, 1.0f, 1.0f)
+        val schema2 = UserStyleSchema.inflate(context.resources, parser2, 1.0f, 1.0f)
 
         assertThat(schema1.userStyleSettings.size).isEqualTo(6)
         assertThat(schema2.userStyleSettings.size).isEqualTo(2)
@@ -344,7 +345,7 @@ class UserStyleSchemaInflateTest {
         parser.iterate {
             when (parser.name) {
                 "UserStyleSchema" ->
-                    schema = UserStyleSchema.inflate(context.resources, parser)
+                    schema = UserStyleSchema.inflate(context.resources, parser, 1.0f, 1.0f)
                 "UserStyleFlavors" ->
                     flavors = UserStyleFlavors.inflate(context.resources, parser, schema!!)
                 else -> throw IllegalNodeException(parser)

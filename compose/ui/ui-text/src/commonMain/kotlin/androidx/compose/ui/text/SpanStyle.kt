@@ -80,7 +80,7 @@ private val DefaultColor = Color.Black
  * @see ParagraphStyle
  */
 @Immutable
-class SpanStyle @OptIn(ExperimentalTextApi::class) internal constructor(
+class SpanStyle internal constructor(
     // The fill to draw text, a unified representation of Color and Brush.
     internal val textDrawStyle: TextDrawStyle,
     val fontSize: TextUnit = TextUnit.Unspecified,
@@ -96,8 +96,7 @@ class SpanStyle @OptIn(ExperimentalTextApi::class) internal constructor(
     val background: Color = Color.Unspecified,
     val textDecoration: TextDecoration? = null,
     val shadow: Shadow? = null,
-    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-    @get:ExperimentalTextApi val platformStyle: PlatformSpanStyle? = null
+    val platformStyle: PlatformSpanStyle? = null
 ) {
 
     /**
@@ -132,7 +131,6 @@ class SpanStyle @OptIn(ExperimentalTextApi::class) internal constructor(
      * @see TextStyle
      * @see ParagraphStyle
      */
-    @OptIn(ExperimentalTextApi::class)
     constructor(
         color: Color = Color.Unspecified,
         fontSize: TextUnit = TextUnit.Unspecified,
@@ -199,7 +197,6 @@ class SpanStyle @OptIn(ExperimentalTextApi::class) internal constructor(
      * @see TextStyle
      * @see ParagraphStyle
      */
-    @ExperimentalTextApi
     constructor(
         color: Color = Color.Unspecified,
         fontSize: TextUnit = TextUnit.Unspecified,
@@ -239,13 +236,15 @@ class SpanStyle @OptIn(ExperimentalTextApi::class) internal constructor(
      * in order to set paragraph level styling such as line height, or text alignment please see
      * [ParagraphStyle].
      *
-     * @sample androidx.compose.ui.text.samples.SpanStyleSample
+     * @sample androidx.compose.ui.text.samples.SpanStyleBrushSample
      *
      * @sample androidx.compose.ui.text.samples.AnnotatedStringBuilderSample
      *
      * @param brush The brush to use when painting the text. If brush is given as null, it will be
      * treated as unspecified. It is equivalent to calling the alternative color constructor with
      * [Color.Unspecified]
+     * @param alpha Opacity to be applied to [brush] from 0.0f to 1.0f representing fully
+     * transparent to fully opaque respectively.
      * @param fontSize The size of glyphs (in logical pixels) to use when painting the text. This
      * may be [TextUnit.Unspecified] for inheriting from another [SpanStyle].
      * @param fontWeight The typeface thickness to use when painting the text (e.g., bold).
@@ -272,6 +271,7 @@ class SpanStyle @OptIn(ExperimentalTextApi::class) internal constructor(
     @ExperimentalTextApi
     constructor(
         brush: Brush?,
+        alpha: Float = Float.NaN,
         fontSize: TextUnit = TextUnit.Unspecified,
         fontWeight: FontWeight? = null,
         fontStyle: FontStyle? = null,
@@ -287,7 +287,7 @@ class SpanStyle @OptIn(ExperimentalTextApi::class) internal constructor(
         shadow: Shadow? = null,
         platformStyle: PlatformSpanStyle? = null
     ) : this(
-        textDrawStyle = TextDrawStyle.from(brush),
+        textDrawStyle = TextDrawStyle.from(brush, alpha),
         fontSize = fontSize,
         fontWeight = fontWeight,
         fontStyle = fontStyle,
@@ -312,9 +312,19 @@ class SpanStyle @OptIn(ExperimentalTextApi::class) internal constructor(
     /**
      * Brush to draw text. If not null, overrides [color].
      */
+    @ExperimentalTextApi
     @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
     @get:ExperimentalTextApi
     val brush: Brush? get() = this.textDrawStyle.brush
+
+    /**
+     * Opacity of text. This value is either provided along side Brush, or via alpha channel in
+     * color.
+     */
+    @ExperimentalTextApi
+    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
+    @get:ExperimentalTextApi
+    val alpha: Float get() = this.textDrawStyle.alpha
 
     /**
      * Returns a new span style that is a combination of this style and the given [other] style.
@@ -325,7 +335,6 @@ class SpanStyle @OptIn(ExperimentalTextApi::class) internal constructor(
      *
      * If the given span style is null, returns this span style.
      */
-    @OptIn(ExperimentalTextApi::class)
     @Stable
     fun merge(other: SpanStyle? = null): SpanStyle {
         if (other == null) return this
@@ -353,7 +362,6 @@ class SpanStyle @OptIn(ExperimentalTextApi::class) internal constructor(
         )
     }
 
-    @OptIn(ExperimentalTextApi::class)
     private fun mergePlatformStyle(other: PlatformSpanStyle?): PlatformSpanStyle? {
         if (platformStyle == null) return other
         if (other == null) return platformStyle
@@ -366,7 +374,6 @@ class SpanStyle @OptIn(ExperimentalTextApi::class) internal constructor(
     @Stable
     operator fun plus(other: SpanStyle): SpanStyle = this.merge(other)
 
-    @OptIn(ExperimentalTextApi::class)
     fun copy(
         color: Color = this.color,
         fontSize: TextUnit = this.fontSize,
@@ -402,7 +409,6 @@ class SpanStyle @OptIn(ExperimentalTextApi::class) internal constructor(
         )
     }
 
-    @ExperimentalTextApi
     fun copy(
         color: Color = this.color,
         fontSize: TextUnit = this.fontSize,
@@ -442,6 +448,7 @@ class SpanStyle @OptIn(ExperimentalTextApi::class) internal constructor(
     @ExperimentalTextApi
     fun copy(
         brush: Brush?,
+        alpha: Float = this.alpha,
         fontSize: TextUnit = this.fontSize,
         fontWeight: FontWeight? = this.fontWeight,
         fontStyle: FontStyle? = this.fontStyle,
@@ -458,7 +465,7 @@ class SpanStyle @OptIn(ExperimentalTextApi::class) internal constructor(
         platformStyle: PlatformSpanStyle? = this.platformStyle
     ): SpanStyle {
         return SpanStyle(
-            textDrawStyle = TextDrawStyle.from(brush),
+            textDrawStyle = TextDrawStyle.from(brush, alpha),
             fontSize = fontSize,
             fontWeight = fontWeight,
             fontStyle = fontStyle,
@@ -476,14 +483,13 @@ class SpanStyle @OptIn(ExperimentalTextApi::class) internal constructor(
         )
     }
 
-    override operator fun equals(other: Any?): Boolean {
+    override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is SpanStyle) return false
         return hasSameLayoutAffectingAttributes(other) &&
             hasSameNonLayoutAttributes(other)
     }
 
-    @OptIn(ExperimentalTextApi::class)
     internal fun hasSameLayoutAffectingAttributes(other: SpanStyle): Boolean {
         if (this === other) return true
         if (fontSize != other.fontSize) return false
@@ -512,6 +518,7 @@ class SpanStyle @OptIn(ExperimentalTextApi::class) internal constructor(
     override fun hashCode(): Int {
         var result = color.hashCode()
         result = 31 * result + brush.hashCode()
+        result = 31 * result + alpha.hashCode()
         result = 31 * result + fontSize.hashCode()
         result = 31 * result + (fontWeight?.hashCode() ?: 0)
         result = 31 * result + (fontStyle?.hashCode() ?: 0)
@@ -529,11 +536,28 @@ class SpanStyle @OptIn(ExperimentalTextApi::class) internal constructor(
         return result
     }
 
+    internal fun hashCodeLayoutAffectingAttributes(): Int {
+        var result = fontSize.hashCode()
+        result = 31 * result + (fontWeight?.hashCode() ?: 0)
+        result = 31 * result + (fontStyle?.hashCode() ?: 0)
+        result = 31 * result + (fontSynthesis?.hashCode() ?: 0)
+        result = 31 * result + (fontFamily?.hashCode() ?: 0)
+        result = 31 * result + (fontFeatureSettings?.hashCode() ?: 0)
+        result = 31 * result + letterSpacing.hashCode()
+        result = 31 * result + (baselineShift?.hashCode() ?: 0)
+        result = 31 * result + (textGeometricTransform?.hashCode() ?: 0)
+        result = 31 * result + (localeList?.hashCode() ?: 0)
+        result = 31 * result + background.hashCode()
+        result = 31 * result + (platformStyle?.hashCode() ?: 0)
+        return result
+    }
+
     @OptIn(ExperimentalTextApi::class)
     override fun toString(): String {
         return "SpanStyle(" +
             "color=$color, " +
             "brush=$brush, " +
+            "alpha=$alpha, " +
             "fontSize=$fontSize, " +
             "fontWeight=$fontWeight, " +
             "fontStyle=$fontStyle, " +
@@ -580,7 +604,6 @@ internal fun <T> lerpDiscrete(a: T, b: T, fraction: Float): T = if (fraction < 0
  * between [start] and [stop]. The interpolation can be extrapolated beyond 0.0 and
  * 1.0, so negative values and values greater than 1.0 are valid.
  */
-@OptIn(ExperimentalTextApi::class)
 fun lerp(start: SpanStyle, stop: SpanStyle, fraction: Float): SpanStyle {
     return SpanStyle(
         textDrawStyle = lerp(start.textDrawStyle, stop.textDrawStyle, fraction),
@@ -645,7 +668,6 @@ fun lerp(start: SpanStyle, stop: SpanStyle, fraction: Float): SpanStyle {
     )
 }
 
-@OptIn(ExperimentalTextApi::class)
 private fun lerpPlatformStyle(
     start: PlatformSpanStyle?,
     stop: PlatformSpanStyle?,
@@ -657,7 +679,6 @@ private fun lerpPlatformStyle(
     return lerp(startNonNull, stopNonNull, fraction)
 }
 
-@OptIn(ExperimentalTextApi::class)
 internal fun resolveSpanStyleDefaults(style: SpanStyle) = SpanStyle(
     textDrawStyle = style.textDrawStyle.takeOrElse { TextDrawStyle.from(DefaultColor) },
     fontSize = if (style.fontSize.isUnspecified) DefaultFontSize else style.fontSize,

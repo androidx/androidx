@@ -21,6 +21,7 @@ import static org.junit.Assert.assertTrue;
 
 import android.os.Build.VERSION_CODES;
 
+import androidx.annotation.RequiresApi;
 import androidx.core.graphics.ColorUtils;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
@@ -32,13 +33,14 @@ import org.junit.runner.RunWith;
 
 @MediumTest
 @RunWith(AndroidJUnit4.class)
-@SdkSuppress(minSdkVersion = VERSION_CODES.LOLLIPOP)
+@SdkSuppress(minSdkVersion = VERSION_CODES.Q)
+@RequiresApi(VERSION_CODES.Q)
 public class WebSettingsCompatLightThemeTest extends
         WebSettingsCompatDarkModeTestBase<WebViewLightThemeTestActivity> {
     public WebSettingsCompatLightThemeTest() {
         // targetSdkVersion to T, it is min version the algorithmic darkening works.
         // TODO(http://b/214741472): Use VERSION_CODES.TIRAMISU once available.
-        super(WebViewLightThemeTestActivity.class, VERSION_CODES.CUR_DEVELOPMENT);
+        super(WebViewLightThemeTestActivity.class, 33);
     }
 
     /**
@@ -59,7 +61,7 @@ public class WebSettingsCompatLightThemeTest extends
     public void testSimplifiedDarkMode_rendersLight() throws Throwable {
         WebkitUtils.checkFeature(WebViewFeature.ALGORITHMIC_DARKENING);
         WebkitUtils.checkFeature(WebViewFeature.OFF_SCREEN_PRERASTER);
-        setWebViewSize(64, 64);
+        setWebViewSize();
         // Loading about:blank which doesn't support dark style result in a light background.
         getWebViewOnUiThread().loadUrlAndWaitForCompletion("about:blank");
         assertTrue("Bitmap colour should be light",
@@ -83,7 +85,7 @@ public class WebSettingsCompatLightThemeTest extends
     public void testSimplifiedDarkMode_pageSupportDarkTheme() {
         WebkitUtils.checkFeature(WebViewFeature.ALGORITHMIC_DARKENING);
         WebkitUtils.checkFeature(WebViewFeature.OFF_SCREEN_PRERASTER);
-        setWebViewSize(64, 64);
+        setWebViewSize();
 
         // Loading about:blank which doesn't support dark style result in a light background.
         getWebViewOnUiThread().loadUrlAndWaitForCompletion("about:blank");

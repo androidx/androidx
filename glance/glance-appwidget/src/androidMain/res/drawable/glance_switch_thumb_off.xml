@@ -1,0 +1,25 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="40dp"
+    android:height="26dp"
+    android:viewportWidth="40"
+    android:viewportHeight="26"
+>
+  <group android:name="thumb" android:translateX="0">
+    <path
+        android:pathData="M13,22.5C18.7989,22.5 23.5,17.7989 23.5,12 23.5,6.201 18.7989,1.5 13,1.5 7.201,1.5 2.5,6.201 2.5,12 2.5,17.7989 7.201,22.5 13,22.5Z"
+        android:strokeWidth="1.05"
+        android:fillColor="@color/glance_switch_off_ambient_shadow"
+        android:fillType="evenOdd"/>
+    <path
+        android:pathData="m12.9681,24.2511c5.7734,0 10.4537,-5.084 10.4537,-11.3552 0,-6.2713 -4.6803,-11.3552 -10.4537,-11.3552 -5.7734,0 -10.4537,5.0839 -10.4537,11.3552 0,6.2713 4.6803,11.3552 10.4537,11.3552z"
+        android:strokeWidth="1.08951"
+        android:fillColor="@color/glance_switch_off_key_shadow"
+        android:fillType="evenOdd"/>
+    <path
+        android:name="thumb_icon"
+        android:pathData="M13,22C18.5228,22 23,17.5228 23,12 23,6.4771 18.5228,2 13,2 7.4771,2 3,6.4771 3,12c0,5.5228 4.4771,10 10,10z"
+        android:strokeWidth="1"
+        android:fillColor="#fff"
+        android:fillType="evenOdd"/>
+  </group>
+</vector>

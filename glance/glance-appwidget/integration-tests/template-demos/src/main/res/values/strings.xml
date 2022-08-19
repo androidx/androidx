@@ -19,11 +19,20 @@
 
     <!-- Name of the app widgets -->
     <string name="single_entity_template_widget_name"><u>Single Entity Template demo</u></string>
-    <string name="gallery_template_name"><u>Gallery demo</u></string>
-    <string name="list_template_widget_name"><u>List Template demo</u></string>
     <string name="override_widget_name"><u>Template layout override demo</u></string>
 
     <string name="template_data_saved_message">Saved</string>
     <string name="background_error_high">Value out of range, using max</string>
     <string name="background_error_low">Value out of range, using min</string>
+
+    <!-- Styles of the List Template widgets -->
+    <string name="list_style_with_header_action">List Template with header and action demo</string>
+    <string name="list_style_with_header">List Template with header demo</string>
+    <string name="list_style_no_header">List Template with no header demo</string>
+    <string name="list_style_brief">List Template with no header demo in brief info</string>
+
+    <!-- Sample of the Gallery Template widgets -->
+    <string name="small_image_gallery">Gallery Template with small 1:1 images, text first</string>
+    <string name="medium_image_gallery">Gallery Template with medium 16:9 images, text last</string>
+    <string name="large_image_gallery">Gallery Template with large 2:3 images, text first</string>
 </resources>

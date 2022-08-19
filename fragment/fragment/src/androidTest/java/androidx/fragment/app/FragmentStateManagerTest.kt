@@ -56,7 +56,10 @@ class FragmentStateManagerTest {
     @Suppress("DEPRECATION")
     fun constructorFragmentFactory() {
         val fragment = StrictFragment()
-        FragmentStateManager(dispatcher, fragmentStore, fragment).saveState()
+        fragmentStore.setSavedState(
+            fragment.mWho,
+            FragmentStateManager(dispatcher, fragmentStore, fragment).saveState()
+        )
 
         val stateBundle: Bundle = fragmentStore.getSavedState(fragment.mWho)!!
         val fragmentStateManager = FragmentStateManager(
@@ -75,7 +78,10 @@ class FragmentStateManagerTest {
     @Suppress("DEPRECATION")
     fun constructorRetainedFragment() {
         val fragment = StrictFragment()
-        FragmentStateManager(dispatcher, fragmentStore, fragment).saveState()
+        fragmentStore.setSavedState(
+            fragment.mWho,
+            FragmentStateManager(dispatcher, fragmentStore, fragment).saveState()
+        )
         assertThat(fragment.mSavedFragmentState)
             .isNull()
 
@@ -162,7 +168,10 @@ class FragmentStateManagerTest {
         assertThat(fragment.arguments)
             .isNull()
 
-        FragmentStateManager(dispatcher, fragmentStore, fragment).saveState()
+        fragmentStore.setSavedState(
+            fragment.mWho,
+            FragmentStateManager(dispatcher, fragmentStore, fragment).saveState()
+        )
         val stateBundle: Bundle = fragmentStore.getSavedState(fragment.mWho)!!
         val fragmentStateManager = FragmentStateManager(
             dispatcher, fragmentStore,

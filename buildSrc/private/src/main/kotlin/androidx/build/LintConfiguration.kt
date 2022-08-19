@@ -16,11 +16,12 @@
 
 package androidx.build
 
-import androidx.build.dependencyTracker.AffectedModuleDetector
 import com.android.build.api.dsl.Lint
 import com.android.build.gradle.internal.lint.AndroidLintAnalysisTask
+import com.android.build.gradle.internal.lint.AndroidLintTask
 import java.io.File
 import java.util.Locale
+import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.services.BuildService
 import org.gradle.api.services.BuildServiceParameters
@@ -53,18 +54,6 @@ fun Project.configureNonAndroidProjectForLint(extension: AndroidXExtension) {
 
     // Create fake variant tasks since that is what is invoked by developers.
     val lintTask = tasks.named("lint")
-    lintTask.configure { task ->
-        AffectedModuleDetector.configureTaskGuard(task)
-    }
-    afterEvaluate {
-        tasks.named("lintAnalyze").configure { task ->
-            AffectedModuleDetector.configureTaskGuard(task)
-        }
-        /* TODO: uncomment when we upgrade to AGP 7.1.0-alpha04
-        tasks.named("lintReport").configure { task ->
-            AffectedModuleDetector.configureTaskGuard(task)
-        }*/
-    }
     tasks.register("lintDebug") {
         it.dependsOn(lintTask)
         it.enabled = false
@@ -80,10 +69,14 @@ fun Project.configureNonAndroidProjectForLint(extension: AndroidXExtension) {
 
     val lint = extensions.getByType<Lint>()
     // Support the lint standalone plugin case which, as yet, lacks AndroidComponents finalizeDsl
-    afterEvaluate { configureLint(lint, extension) }
+    afterEvaluate { configureLint(lint, extension, true) }
 }
 
-fun Project.configureAndroidProjectForLint(lint: Lint, extension: AndroidXExtension) {
+fun Project.configureAndroidProjectForLint(
+    lint: Lint,
+    extension: AndroidXExtension,
+    isLibrary: Boolean
+) {
     project.afterEvaluate {
         // makes sure that the lintDebug task will exist, so we can find it by name
         setUpLintDebugIfNeeded()
@@ -91,32 +84,10 @@ fun Project.configureAndroidProjectForLint(lint: Lint, extension: AndroidXExtens
     tasks.register("lintAnalyze") {
         it.enabled = false
     }
-    configureLint(lint, extension)
+    configureLint(lint, extension, isLibrary)
     tasks.named("lint").configure { task ->
         // We already run lintDebug, we don't need to run lint which lints the release variant
         task.enabled = false
-    }
-    afterEvaluate {
-        for (variant in project.agpVariants) {
-            tasks.named(
-                "lint${variant.name.replaceFirstChar {
-                    if (it.isLowerCase()) it.titlecase(Locale.US) else it.toString()
-                }}"
-            ).configure { task ->
-                AffectedModuleDetector.configureTaskGuard(task)
-            }
-            tasks.named(
-                "lintAnalyze${variant.name.replaceFirstChar {
-                    if (it.isLowerCase()) it.titlecase(Locale.US) else it.toString()
-                }}"
-            ).configure { task ->
-                AffectedModuleDetector.configureTaskGuard(task)
-            }
-            /* TODO: uncomment when we upgrade to AGP 7.1.0-alpha04
-            tasks.named("lintReport${variant.name.capitalize(Locale.US)}").configure { task ->
-                AffectedModuleDetector.configureTaskGuard(task)
-            }*/
-        }
     }
 }
 
@@ -140,11 +111,15 @@ private fun Project.setUpLintDebugIfNeeded() {
     }
 }
 
-fun Project.configureLint(lint: Lint, extension: AndroidXExtension) {
-    project.dependencies.add(
-        "lintChecks",
-        project.rootProject.project(":lint-checks")
-    )
+fun Project.configureLint(lint: Lint, extension: AndroidXExtension, isLibrary: Boolean) {
+    val lintChecksProject = project.rootProject.findProject(":lint-checks")
+        ?: if (allowMissingLintProject()) {
+            return
+        } else {
+            throw GradleException("Project :lint-checks does not exist")
+        }
+
+    project.dependencies.add("lintChecks", lintChecksProject)
 
     // The purpose of this specific project is to test that lint is running, so
     // it contains expected violations that we do not want to trigger a build failure
@@ -160,6 +135,19 @@ fun Project.configureLint(lint: Lint, extension: AndroidXExtension) {
         task.usesService(
             task.project.gradle.sharedServices.registrations.getByName(LINT_SERVICE_NAME).service
         )
+    }
+
+    tasks.withType(AndroidLintTask::class.java).configureEach { task ->
+        // Remove the lint and column attributes from generated lint baseline XML.
+        if (task.name.startsWith("updateLintBaseline")) {
+            task.doLast {
+                task.outputs.files.find { it.name == "lint-baseline.xml" }?.let { file ->
+                    if (file.exists()) {
+                        file.writeText(removeLineAndColumnAttributes(file.readText()))
+                    }
+                }
+            }
+        }
     }
 
     // Lint is configured entirely in finalizeDsl so that individual projects cannot easily
@@ -195,16 +183,15 @@ fun Project.configureLint(lint: Lint, extension: AndroidXExtension) {
             fatal.add("VisibleForTests")
         }
 
-        // Re-enable after resolving b/233118540
-        if (
-            // for :room:room-compiler-processing-testing
-            extension.type == LibraryType.ANNOTATION_PROCESSOR_UTILS ||
+        // Reenable after b/238892319 is resolved
+        disable.add("NotificationPermission")
 
-            // for :internal-testutils-paging
-            extension.type == LibraryType.INTERNAL_TEST_LIBRARY
-        ) {
-            disable.add("NullAnnotationGroup")
-        }
+        // Broken in 7.4.0-alpha04 due to b/236262744
+        disable.add("CustomPermissionTypo")
+        disable.add("KnownPermissionError")
+        disable.add("PermissionNamingConvention")
+        disable.add("ReservedSystemPermission")
+        disable.add("SystemPermissionTypo")
 
         // Disable dependency checks that suggest to change them. We want libraries to be
         // intentional with their dependency version bumps.
@@ -248,6 +235,7 @@ fun Project.configureLint(lint: Lint, extension: AndroidXExtension) {
             // Only override if not set explicitly.
             // Some Kotlin projects may wish to disable this.
             if (
+                isLibrary &&
                 !disable.contains("SyntheticAccessor") &&
                 extension.type != LibraryType.SAMPLES
             ) {

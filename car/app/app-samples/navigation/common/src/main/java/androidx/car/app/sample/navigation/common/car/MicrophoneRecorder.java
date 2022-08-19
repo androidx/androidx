@@ -89,8 +89,9 @@ public class MicrophoneRecorder {
         recordingThread.start();
     }
 
+    @SuppressLint("ClassVerificationFailure") // runtime check for < API 26
     @RequiresPermission(RECORD_AUDIO)
-    private void play() {
+    private void play(AudioFocusRequest audioFocusRequest) {
         if (SDK_INT < VERSION_CODES.O) {
             return;
         }
@@ -131,6 +132,9 @@ public class MicrophoneRecorder {
             throw new IllegalStateException(e);
         }
         audioTrack.stop();
+        // Abandon the FocusRequest so that user's media can be resumed
+        mCarContext.getSystemService(AudioManager.class).abandonAudioFocusRequest(
+                audioFocusRequest);
     }
 
     @SuppressLint("ClassVerificationFailure") // runtime check for < API 26
@@ -194,7 +198,7 @@ public class MicrophoneRecorder {
             throw new IllegalStateException(e);
         }
         record.stopRecording();
-        play();
+        play(audioFocusRequest);
     }
 
     private void addHeader(OutputStream outputStream, int totalAudioLen) throws IOException {

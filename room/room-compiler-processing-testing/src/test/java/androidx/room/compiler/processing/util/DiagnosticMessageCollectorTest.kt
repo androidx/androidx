@@ -187,6 +187,19 @@ internal class DiagnosticMessageCollectorTest(
                     location = null
                 )
             ),
+            // ksp kotlin on Windows
+            TestParams(
+                message = "[ksp] C:\\foo\\bar\\Subject.kt:3: the real message",
+                severity = CompilerMessageSeverity.ERROR,
+                expected = RawDiagnosticMessage(
+                    kind = Diagnostic.Kind.ERROR,
+                    message = "the real message",
+                    location = Location(
+                        path = "C:\\foo\\bar\\Subject.kt",
+                        line = 3
+                    )
+                )
+            ),
         )
     }
 }

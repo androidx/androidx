@@ -61,7 +61,11 @@ class TypefaceCompatBaseImpl {
     private static <T> T findBestFont(T[] fonts, int style, StyleExtractor<T> extractor) {
         final int targetWeight = (style & Typeface.BOLD) == 0 ? 400 : 700;
         final boolean isTargetItalic = (style & Typeface.ITALIC) != 0;
+        return findBestFont(fonts, targetWeight, isTargetItalic, extractor);
+    }
 
+    private static <T> T findBestFont(T[] fonts, int targetWeight, boolean isTargetItalic,
+            StyleExtractor<T> extractor) {
         T best = null;
         int bestScore = Integer.MAX_VALUE;  // smaller is better
 
@@ -164,6 +168,22 @@ class TypefaceCompatBaseImpl {
         });
     }
 
+    private FontFileResourceEntry findBestEntry(FontFamilyFilesResourceEntry entry, int weight,
+            boolean italic) {
+        return findBestFont(entry.getEntries(), weight, italic,
+                new StyleExtractor<FontFileResourceEntry>() {
+                    @Override
+                    public int getWeight(FontFileResourceEntry entry) {
+                        return entry.getWeight();
+                    }
+
+                    @Override
+                    public boolean isItalic(FontFileResourceEntry entry) {
+                        return entry.isItalic();
+                    }
+                });
+    }
+
     @Nullable
     public Typeface createFromFontFamilyFilesResourceEntry(Context context,
             FontFamilyFilesResourceEntry entry, Resources resources, int style) {
@@ -173,6 +193,21 @@ class TypefaceCompatBaseImpl {
         }
         final Typeface typeface = TypefaceCompat.createFromResourcesFontFile(
                 context, resources, best.getResourceId(), best.getFileName(), 0, style);
+
+        addFontFamily(typeface, entry);
+
+        return typeface;
+    }
+
+    @Nullable
+    Typeface createFromFontFamilyFilesResourceEntry(Context context,
+            FontFamilyFilesResourceEntry entry, Resources resources, int weight, boolean italic) {
+        FontFileResourceEntry best = findBestEntry(entry, weight, italic);
+        if (best == null) {
+            return null;
+        }
+        final Typeface typeface = TypefaceCompat.createFromResourcesFontFile(
+                context, resources, best.getResourceId(), best.getFileName(), 0, Typeface.NORMAL);
 
         addFontFamily(typeface, entry);
 
@@ -202,6 +237,21 @@ class TypefaceCompatBaseImpl {
         } finally {
             tmpFile.delete();
         }
+    }
+
+    @NonNull
+    Typeface createWeightStyle(@NonNull Context context, @NonNull Typeface base,
+            int weight, boolean italic) {
+        Typeface out = null;
+        try {
+            out = WeightTypefaceApi14.createWeightStyle(this, context, base, weight, italic);
+        } catch (RuntimeException fallbackFailed) {
+            // ignore
+        }
+        if (out == null) {
+            out = base;
+        }
+        return out;
     }
 
     /**

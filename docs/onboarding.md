@@ -12,10 +12,9 @@ public APIs and an overview of the constraints placed on changes.
 
 ## Workstation setup {#setup}
 
-You will need to install the
-[`repo`](https://source.android.com/setup/develop#repo) tool, which is used for
-Git branch and commit management. If you want to learn more about `repo`, see
-the [Repo Command Reference](https://source.android.com/setup/develop/repo).
+This section will help you install the `repo` tool, which is used for Git branch
+and commit management. If you want to learn more about `repo`, see the
+[Repo Command Reference](https://source.android.com/setup/develop/repo).
 
 ### Linux and MacOS {#setup-linux-mac}
 
@@ -111,7 +110,7 @@ The following command will check out the public main development branch:
 
 ```shell
 mkdir androidx-main && cd androidx-main
-repo init -u https://android.googlesource.com/platform/manifest \
+repo init -u sso://android/platform/manifest \
     -b androidx-main --partial-clone --clone-filter=blob:limit=10M
 repo sync -c -j8
 ```
@@ -138,7 +137,17 @@ git config --global merge.renameLimit 999999
 git config --global diff.renameLimit 999999
 ```
 
-### To check out older source, use the superproject
+### Set up Git file exclusions {#source-exclude}
+
+Mac users should consider adding `.DS_Store` to a global `.gitignore` file to
+avoid accidentally checking in local metadata files:
+
+```shell
+echo .DS_Store>>~/.gitignore
+git config --global core.excludesFile '~/.gitignore'
+```
+
+### To check out older sources, use the superproject {#source-historical}
 
 The
 [git superproject](https://android.googlesource.com/platform/superproject/+/androidx-main)
@@ -231,6 +240,9 @@ build completes.
 > ```
 > -Dsun.java2d.uiScale.enabled=false
 > ```
+
+> NOTE: We are aware of a bug where running `./studiow` does not result in
+> Android Studio application being launched.
 
 If in the future you encounter unexpected errors in Studio and you want to check
 for the possibility it is due to some incorrect settings or other generated
@@ -377,10 +389,22 @@ shell script:
 
 ### Attaching a debugger to the build
 
-Gradle tasks, including building a module, may be run or debugged from Android
-Studio's `Gradle` pane by finding the task to be debugged -- for example,
-`androidx > androidx > appcompat > appcompat > build > assemble` --
-right-clicking on it, and then selecting `Debug...`.
+Gradle tasks, including building a module, may be run or debugged from within
+Android Studio. To start, you need to add the task as a run configuration: you
+can do this manually by adding the corresponding task by clicking on the run
+configuration dropdown, pressing
+[`Edit Configurations`](https://www.jetbrains.com/help/idea/run-debug-gradle.html),
+and adding the corresponding task.
+
+You can also run the task through the IDE from the terminal, by using the
+[`Run highlighted command using IDE`](https://blog.jetbrains.com/idea/2020/07/run-ide-features-from-the-terminal/)
+feature - type in the task you want to run in the in-IDE terminal, and
+`ctrl+enter` / `cmd+enter` to launch this through the IDE. This will
+automatically add the configuration to the run configuration menu - you can then
+cancel the task.
+
+Once the task has been added to the run configuration menu, you can start
+debugging as with any other task by pressing the `debug` button.
 
 Note that debugging will not be available until Gradle sync has completed.
 
@@ -483,6 +507,24 @@ Location of generated refdocs:
     `{androidx-main}/out/androidx/docs-public/build/dackkaDocs`
 *   docs-tip-of-tree:
     `{androidx-main}/out/androidx/docs-tip-of-tree/build/dackkaDocs`
+
+The generated docs are plain HTML pages with links that do not work locally.
+These issues are fixed when the docs are published to DAC, but to preview a
+local version of the docs with functioning links and CSS, run:
+
+```
+python3 development/offlinifyDocs/offlinify_dackka_docs.py
+```
+
+You will need to have the `bs4` Python package installed. The CSS used is not
+the same as what will be used when the docs are published.
+
+By default, this command converts the tip-of-tree docs for all libraries. To see
+more options, run:
+
+```
+python3 development/offlinifyDocs/offlinify_dackka_docs.py --help
+```
 
 #### Release docs
 
@@ -667,25 +709,59 @@ the latest API changes.
 #### Missing external dependency
 
 If Gradle cannot resolve a dependency listed in your `build.gradle`, you may
-need to import the corresponding artifact into `prebuilts/androidx/external`.
-Our workflow does not automatically download artifacts from the internet to
+need to import the corresponding artifact into one of the prebuilts
+repositories. These repositories are located under `prebuilts/androidx`. Our
+workflow does not automatically download artifacts from the internet to
 facilitate reproducible builds even if remote artifacts are changed.
 
-You can download a dependency by running:
+We use a script to download dependencies, you can learn more about it
+[here](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:development/importMaven/README.md).
 
-```shell
-cd frameworks/support && ./development/importMaven/import_maven_artifacts.py -n 'someGroupId:someArtifactId:someVersion'
-```
-
-This will create a change within the `prebuilts/androidx/external` directory.
-Make sure to upload this change before or concurrently (ex. in the same Gerrit
-topic) with the dependent library code.
+##### Importing dependencies in `libs.versions.toml`
 
 Libraries typically reference dependencies using constants defined in
-[`libs.versions.toml`](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:gradle/libs.versions.toml),
-so please update this file to include a constant for the version of the library
-that you have checked in. You will reference this constant in your library's
+[`libs.versions.toml`](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:gradle/libs.versions.toml).
+Update this file to include a constant for the version of the library that you
+want to depend on. You will reference this constant in your library's
 `build.gradle` dependencies.
+
+**After** you update the `libs.versions.toml` file with new dependencies, you
+can download them by running:
+
+```shell
+cd frameworks/support &&\
+development/importMaven/importMaven.sh import-toml
+```
+
+This command will resolve everything declared in the `libs.versions.toml` file
+and download missing artifacts into `prebuilts/androidx/external` or
+`prebuilts/androidx/internal`.
+
+Make sure to upload these changes before or concurrently (ex. in the same Gerrit
+topic) with the dependent library code.
+
+##### Downloading a dependency without changing `libs.versions.toml`
+
+You can also download a dependency without changing `libs.versions.toml` file by
+directly invoking:
+
+```shell
+cd frameworks/support &&\
+./development/importMaven/importMaven.sh someGroupId:someArtifactId:someVersion
+```
+
+##### Missing konan dependencies
+
+Kotlin Multiplatform projects need prebuilts to compile native code, which are
+located under `prebuilts/androidx/konan`. **After** you update the kotlin
+version of AndroidX, you should also download necessary prebuilts via:
+
+```shell
+cd frameworks/support &&\
+development/importMaven/importMaven.sh import-konan-binaries --konan-compiler-version <new-kotlin-version>
+```
+
+Please remember to commit changes in the `prebuilts/androidx/konan` repository.
 
 #### Dependency verification
 
@@ -779,14 +855,6 @@ ln -s /Users/$(whoami)/Library/Android/sdk/system-images \
       ../../prebuilts/fullsdk-darwin/system-images
 ```
 
-### Benchmarking {#testing-benchmarking}
-
-Libraries are encouraged to write and monitor performance benchmarks. See the
-[Benchmarking](benchmarking.md) and [Macrobenchmarking](macrobenchmarking.md)
-pages for more details, and the
-[Benchmarking section of d.android.com](http://d.android.com/benchmark) for more
-info on these tools.
-
 ## Library snapshots {#snapshots}
 
 ### Quick how-to
@@ -822,11 +890,10 @@ can find them on either our public-facing build server:
 
 or on our slightly-more-convenient [androidx.dev](https://androidx.dev) site:
 
-`https://androidx.dev/snapshots/builds/<build-id>/artifacts/repository` for a
-specific build ID
+`https://androidx.dev/snapshots/builds/<build-id>/artifacts` for a specific
+build ID
 
-`https://androidx.dev/snapshots/builds/latest/artifacts/repository` for
-tip-of-tree snapshots
+`https://androidx.dev/snapshots/latest/artifacts` for tip-of-tree snapshots
 
 ### Obtaining a build ID
 

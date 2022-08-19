@@ -15,7 +15,8 @@
  */
 
 
-import androidx.build.Publish
+import androidx.build.KmpPlatformsKt
+import androidx.build.LibraryType
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinNativeCompile
@@ -23,90 +24,45 @@ import org.jetbrains.kotlin.konan.target.Family
 
 plugins {
     id("AndroidXPlugin")
-    id("org.jetbrains.kotlin.multiplatform")
 }
 
-// This should be true when building from GitHub, and false when building
-// from AOSP.  Use this to block out any features or code that we're not
-// ready to build yet in AOSP
+def macEnabled = KmpPlatformsKt.enableMac(project)
+def linuxEnabled = KmpPlatformsKt.enableLinux(project)
 
-def boolProperty(name) {
-    return project.providers.gradleProperty(name).getOrNull()?.toBoolean()
-}
-
-def playground = androidx.build.StudioType.isPlayground(project)
-//Native on by default in playground
-def enableNative = boolProperty('androidx.kmp.native.enabled') ?: playground
-
-kotlin {
+androidXMultiplatform {
     jvm {
         withJava()
     }
-    if (enableNative) {
-        macosX64()
-        macosArm64()
-        linuxX64()
-    }
+    mac()
+    linux()
+    ios()
 
     sourceSets {
+        all {
+            languageSettings.optIn("kotlin.RequiresOptIn")
+            languageSettings.optIn("kotlin.contracts.ExperimentalContracts")
+        }
+
         commonMain {
             dependencies {
-                api(libs.kotlinStdlibCommon)
+                api(libs.kotlinStdlib)
             }
         }
+
         commonTest {
             dependencies {
-                implementation(libs.kotlinTestCommon)
+                implementation(libs.kotlinTest)
                 implementation(libs.kotlinTestAnnotationsCommon)
                 implementation(libs.kotlinCoroutinesCore)
             }
         }
 
-        if (enableNative) {
-            nativeMain {
-                dependsOn commonMain
-            }
-
-            nativeTest {
-                dependsOn commonTest
-            }
-
-            darwinMain {
-                dependsOn(nativeMain)
-            }
-            linuxMain {
-                dependsOn(nativeMain)
-            }
-
-            targets.all { target ->
-                if (target.platformType == KotlinPlatformType.native) {
-                    target.compilations["main"].defaultSourceSet {
-                        if (target.konanTarget.family == Family.OSX) {
-                            dependsOn(darwinMain)
-                        } else if (target.konanTarget.family == Family.LINUX) {
-                            dependsOn(linuxMain)
-                        } else {
-                            throw new GradleException("unknown native target ${target}")
-                        }
-                    }
-                    target.compilations["test"].defaultSourceSet {
-                        dependsOn(nativeTest)
-                    }
-                }
-            }
-            // Workaround for https://youtrack.jetbrains.com/issue/KT-51763
-            // Make sure commonization runs before any compilation task.
-            tasks.withType(KotlinNativeCompile).configureEach {
-                it.dependsOn(tasks.named("commonize"))
-            }
-        }
-
         jvmMain {
             dependencies {
-                api(libs.kotlinStdlib)
                 api("androidx.annotation:annotation:1.3.0")
             }
         }
+
         jvmTest {
             dependencies {
                 implementation(libs.kotlinTestJunit)
@@ -115,9 +71,57 @@ kotlin {
             }
         }
 
-        all {
-            languageSettings.optIn("kotlin.RequiresOptIn")
-            languageSettings.optIn("kotlin.contracts.ExperimentalContracts")
+        if (macEnabled || linuxEnabled) {
+            nativeMain {
+                dependsOn(commonMain)
+            }
+
+            nativeTest {
+                dependsOn(commonTest)
+            }
+        }
+
+        if (macEnabled) {
+            darwinMain {
+                dependsOn(nativeMain)
+            }
+        }
+
+        if (linuxEnabled) {
+            linuxMain {
+                dependsOn(nativeMain)
+            }
+        }
+
+        targets.withType(KotlinNativeTarget.class) {
+            binaries.all {
+                binaryOptions["memoryModel"] = "experimental"
+            }
+        }
+
+        targets.all { target ->
+            if (target.platformType == KotlinPlatformType.native) {
+                target.compilations["main"].defaultSourceSet {
+                    def konanTargetFamily = target.konanTarget.family
+                    if (konanTargetFamily == Family.OSX || konanTargetFamily == Family.IOS) {
+                        dependsOn(darwinMain)
+                    } else if (konanTargetFamily == Family.LINUX) {
+                        dependsOn(linuxMain)
+                    } else {
+                        throw new GradleException("unknown native target ${target}")
+                    }
+                }
+
+                target.compilations["test"].defaultSourceSet {
+                    dependsOn(nativeTest)
+                }
+            }
+        }
+
+        // Workaround for https://youtrack.jetbrains.com/issue/KT-51763
+        // Make sure commonization runs before any compilation task.
+        tasks.withType(KotlinNativeCompile).configureEach {
+            it.dependsOn(tasks.named("commonize"))
         }
     }
 }
@@ -133,15 +137,8 @@ dependencies {
 
 androidx {
     name = "Android Support Library collections"
-    publish = Publish.SNAPSHOT_AND_RELEASE
+    type = LibraryType.KMP_LIBRARY
     mavenGroup = LibraryGroups.COLLECTION
     inceptionYear = "2018"
     description = "Standalone efficient collections."
-    publishPlatforms = ["jvm"]
-}
-
-kotlin.targets.withType(KotlinNativeTarget.class) {
-    binaries.all {
-        binaryOptions["memoryModel"] = "experimental"
-    }
 }

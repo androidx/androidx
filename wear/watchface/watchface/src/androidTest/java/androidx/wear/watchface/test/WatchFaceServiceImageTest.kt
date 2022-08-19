@@ -26,6 +26,7 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Rect
 import android.graphics.SurfaceTexture
+import android.graphics.drawable.Icon
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
@@ -37,7 +38,6 @@ import android.view.SurfaceHolder
 import androidx.annotation.RequiresApi
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.FlakyTest
 import androidx.test.filters.MediumTest
 import androidx.test.screenshot.AndroidXScreenshotTestRule
 import androidx.test.screenshot.assertAgainstGolden
@@ -60,6 +60,7 @@ import androidx.wear.watchface.complications.data.MonochromaticImage
 import androidx.wear.watchface.complications.data.NoDataComplicationData
 import androidx.wear.watchface.complications.data.RangedValueComplicationData
 import androidx.wear.watchface.complications.data.SmallImage
+import androidx.wear.watchface.complications.data.SmallImageType
 import androidx.wear.watchface.control.IInteractiveWatchFace
 import androidx.wear.watchface.control.IPendingInteractiveWatchFace
 import androidx.wear.watchface.control.InteractiveInstanceManager
@@ -94,6 +95,9 @@ import java.time.Instant
 import java.time.ZoneId
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.android.asCoroutineDispatcher
+import kotlinx.coroutines.launch
 
 private const val BITMAP_WIDTH = 400
 private const val BITMAP_HEIGHT = 400
@@ -194,7 +198,7 @@ internal class TestControllableWatchFaceService(
     ) {
     }
 
-    override fun expectPreRInitFlow() = false
+    override fun isPreAndroidR() = false
 
     override fun getWallpaperSurfaceHolderOverride() = surfaceHolderOverride
 }
@@ -288,7 +292,7 @@ public class WatchFaceServiceImageTest {
         pretendBinderThread.quitSafely()
     }
 
-    private fun initCanvasWatchFace() {
+    private fun initCanvasWatchFace(onInvalidateCountDownLatch: CountDownLatch? = null) {
         canvasAnalogWatchFaceService = TestCanvasAnalogWatchFaceService(
             ApplicationProvider.getApplicationContext<Context>(),
             handler,
@@ -296,7 +300,8 @@ public class WatchFaceServiceImageTest {
             ZoneId.of("UTC"),
             surfaceHolder,
             true, // Not direct boot.
-            null
+            null,
+            onInvalidateCountDownLatch
         )
 
         Mockito.`when`(surfaceHolder.surfaceFrame)
@@ -546,12 +551,33 @@ public class WatchFaceServiceImageTest {
 
     @SuppressLint("NewApi")
     @Test
-    @FlakyTest(bugId = 227456150)
     public fun testPlaceholderComplications() {
         val latch = CountDownLatch(1)
         handler.post(this::initCanvasWatchFace)
         assertThat(initLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS)).isTrue()
 
+        // Latch that countsDown when the complication below has been delivered.
+        val complicationReceivedLatch = CountDownLatch(2)
+        CoroutineScope(handler.asCoroutineDispatcher()).launch {
+            engineWrapper.deferredWatchFaceImpl.await().complicationSlotsManager[
+                EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID
+            ]!!.complicationData.collect {
+                if (it is NoDataComplicationData && it.placeholder != null) {
+                    complicationReceivedLatch.countDown()
+                }
+            }
+        }
+        CoroutineScope(handler.asCoroutineDispatcher()).launch {
+            engineWrapper.deferredWatchFaceImpl.await().complicationSlotsManager[
+                EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID
+            ]!!.complicationData.collect {
+                if (it is NoDataComplicationData && it.placeholder != null) {
+                    complicationReceivedLatch.countDown()
+                }
+            }
+        }
+
+        // This is a oneway call.
         interactiveWatchFaceInstance.updateComplicationData(
             listOf(
                 IdAndComplicationDataWireFormat(
@@ -583,6 +609,8 @@ public class WatchFaceServiceImageTest {
             )
         )
 
+        assertThat(complicationReceivedLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS)).isTrue()
+
         var bitmap: Bitmap? = null
         pretendBinderHandler.post {
             bitmap = SharedMemoryImage.ashmemReadImageBundle(
@@ -606,6 +634,83 @@ public class WatchFaceServiceImageTest {
         bitmap!!.assertAgainstGolden(
             screenshotRule,
             "placeholderComplications"
+        )
+    }
+
+    @SuppressLint("NewApi")
+    @Test
+    public fun testSmallImageComplications() {
+        val latch = CountDownLatch(1)
+
+        // Latch that countsDown when the complications below have been delivered and the images
+        // have been loaded asynchronoiusly.
+        val onInvalidateCountDownLatch = CountDownLatch(2)
+        handler.post {
+            initCanvasWatchFace(onInvalidateCountDownLatch)
+        }
+        assertThat(initLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS)).isTrue()
+
+        val smallImage = SmallImage.Builder(
+            Icon.createWithResource(
+                ApplicationProvider.getApplicationContext<Context>(),
+                R.drawable.color_icon
+            ),
+            SmallImageType.ICON
+        ).build()
+
+        // This is a oneway call.
+        interactiveWatchFaceInstance.updateComplicationData(
+            listOf(
+                IdAndComplicationDataWireFormat(
+                    EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID,
+                        ShortTextComplicationData.Builder(
+                            PlainComplicationText.Builder("Test").build(),
+                            ComplicationText.EMPTY
+                        )
+                            .setSmallImage(smallImage)
+                            .build()
+                            .asWireComplicationData()
+                ),
+                IdAndComplicationDataWireFormat(
+                    EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID,
+                        RangedValueComplicationData.Builder(
+                            25f,
+                            0f,
+                            100f,
+                            ComplicationText.EMPTY
+                        )
+                            .setSmallImage(smallImage)
+                            .build()
+                            .asWireComplicationData()
+                )
+            )
+        )
+
+        assertThat(onInvalidateCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS)).isTrue()
+
+        var bitmap: Bitmap? = null
+        pretendBinderHandler.post {
+            bitmap = SharedMemoryImage.ashmemReadImageBundle(
+                interactiveWatchFaceInstance.renderWatchFaceToBitmap(
+                    WatchFaceRenderParams(
+                        RenderParameters(
+                            DrawMode.INTERACTIVE,
+                            WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
+                            null
+                        ).toWireFormat(),
+                        123456789,
+                        null,
+                        null
+                    )
+                )
+            )
+            latch.countDown()
+        }
+
+        assertThat(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS)).isTrue()
+        bitmap!!.assertAgainstGolden(
+            screenshotRule,
+            "smallImageComplications"
         )
     }
 
@@ -820,7 +925,8 @@ public class WatchFaceServiceImageTest {
                     mapOf(COLOR_STYLE_SETTING to GREEN_STYLE.encodeToByteArray())
                 ),
                 null
-            )
+            ),
+            null
         )
 
         val engineWrapper = service.onCreateEngine() as WatchFaceService.EngineWrapper

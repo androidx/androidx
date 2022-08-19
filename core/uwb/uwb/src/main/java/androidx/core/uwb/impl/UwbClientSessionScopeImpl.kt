@@ -30,7 +30,11 @@ import com.google.android.gms.nearby.uwb.RangingSessionCallback
 import com.google.android.gms.nearby.uwb.UwbClient
 import com.google.android.gms.nearby.uwb.UwbComplexChannel
 import com.google.android.gms.nearby.uwb.UwbDevice
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import androidx.core.uwb.helper.handleApiException
 import kotlinx.coroutines.channels.awaitClose
 
@@ -119,17 +123,19 @@ internal class UwbClientSessionScopeImpl(
             }
 
         try {
-            uwbClient.startRanging(parametersBuilder.build(), callback)
+            uwbClient.startRanging(parametersBuilder.build(), callback).await()
             sessionStarted = true
         } catch (e: ApiException) {
             handleApiException(e)
         }
 
         awaitClose {
-            try {
-                uwbClient.stopRanging(callback)
-            } catch (e: ApiException) {
-                handleApiException(e)
+            CoroutineScope(Dispatchers.Main.immediate).launch {
+                try {
+                    uwbClient.stopRanging(callback).await()
+                } catch (e: ApiException) {
+                    handleApiException(e)
+                }
             }
         }
     }

@@ -21,7 +21,7 @@ if (githubBuild) {
     apply plugin: "cpp-application"
 
     def COLLECTION_KMP_FRAMEWORK_NAME = 'CollectionKMP'
-    def FRAMEWORK_TASK = ':collection2:collection2:linkReleaseFrameworkMacosX64'
+    def FRAMEWORK_TASK = ':collection:collection:linkReleaseFrameworkMacosX64'
 
     tasks.withType(CppCompile) {
         def frameworkPath = tasks.getByPath(FRAMEWORK_TASK).outputs.files.singleFile.toString()

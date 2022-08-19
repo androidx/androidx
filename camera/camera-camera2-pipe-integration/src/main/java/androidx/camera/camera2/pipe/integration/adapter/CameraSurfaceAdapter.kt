@@ -51,7 +51,10 @@ class CameraSurfaceAdapter(
         debug { "Created StreamConfigurationMap from $context" }
     }
 
-    override fun checkSupported(cameraId: String, surfaceConfigList: List<SurfaceConfig>): Boolean {
+    override fun checkSupported(
+        cameraId: String,
+        surfaceConfigList: List<SurfaceConfig>?
+    ): Boolean {
         // TODO: This method needs to check to see if the list of SurfaceConfig's is in the map of
         //   guaranteed stream configurations for this camera's support level.
         return component.getAvailableCameraIds().contains(cameraId)
@@ -61,7 +64,7 @@ class CameraSurfaceAdapter(
         cameraId: String,
         imageFormat: Int,
         size: Size
-    ): SurfaceConfig? {
+    ): SurfaceConfig {
         // TODO: Many of the "find a stream combination that will work" is already provided by the
         //   existing camera2 implementation, and this implementation should leverage that work.
 

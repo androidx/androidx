@@ -19,9 +19,11 @@ package androidx.room.integration.testapp.migration;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteException;
 
 import androidx.annotation.NonNull;
+import androidx.room.DatabaseConfiguration;
 import androidx.room.migration.Migration;
 import androidx.room.testing.MigrationTestHelper;
 import androidx.room.util.TableInfo;
@@ -84,7 +86,7 @@ public class AutoMigrationTest {
                     3,
                     true
             );
-        } catch (IllegalStateException e) {
+        } catch (SQLiteConstraintException e) {
             assertThat(e.getMessage()).isEqualTo("Foreign key violation(s) detected in 'Entity9'."
                     + "\nNumber of different violations discovered: 1"
                     + "\nNumber of rows in violation: 2"
@@ -134,11 +136,32 @@ public class AutoMigrationTest {
         }
     }
 
+    @Test
+    public void autoMigrationShouldBeAddedToMigrations_WhenManualDowngradeMigrationIsPresent()
+            throws IOException {
+        createFirstVersion();
+        SupportSQLiteDatabase db = helper.runMigrationsAndValidate(
+                TEST_DB,
+                2,
+                true,
+                MIGRATION_1_0
+        );
+        DatabaseConfiguration config = helper.getDbConfigurationAfterMigrations();
+        assertThat(config).isNotNull();
+        assertThat(config.migrationContainer.findMigrationPath(1, 2)).isNotNull();
+        assertThat(config.migrationContainer.findMigrationPath(1, 2)).isNotEmpty();
+    }
+
     private static final Migration MIGRATION_1_2 = new Migration(1, 2) {
         @Override
         public void migrate(@NonNull SupportSQLiteDatabase database) {
             database.execSQL("ALTER TABLE `Entity0` ADD COLUMN `addedInV2` INTEGER NOT NULL "
                     + "DEFAULT 2");
         }
+    };
+
+    private static final Migration MIGRATION_1_0 = new Migration(1, 0) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase database) { }
     };
 }

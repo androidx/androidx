@@ -16,344 +16,479 @@
 
 package androidx.health.services.client.data
 
-import android.os.Bundle
-import androidx.annotation.Keep
 import java.time.Duration
+import java.time.Instant
 
-/** Helper class to facilitate working with [DataPoint]s. */
+/**
+ * Helper class to facilitate creating [DataPoint]s. In general, this should not be needed outside
+ * of tests.
+ */
 // TODO(b/177504986): Remove all @Keep annotations once we figure out why this class gets stripped
 // away by proguard.
-@Keep
-public object DataPoints {
-    /**
-     * When using [DataType.LOCATION], the value is represented as `double[]`. The `double` value at
-     * this index represents the latitude.
-     */
-    public const val LOCATION_DATA_POINT_LATITUDE_INDEX: Int = 0
+internal object DataPoints {
 
     /**
-     * When using [DataType.LOCATION], the value is represented as `double[]`. The `double` value at
-     * this index represents the longitude.
+     * Creates a new [IntervalDataPoint] of type [DataType.STEPS] with the given [steps].
+     *
+     * @param steps number of steps taken between [startDurationFromBoot] and [endDurationFromBoot]
+     * @param startDurationFromBoot the point in time this data point begins
+     * @param endDurationFromBoot the point in time this data point ends
      */
-    public const val LOCATION_DATA_POINT_LONGITUDE_INDEX: Int = 1
-
-    /**
-     * When using [DataType.LOCATION], the value is represented as `double[]`. The `double` value at
-     * this index represents the altitude. This value will default to [Double.MAX_VALUE] if it is
-     * not available.
-     */
-    public const val LOCATION_DATA_POINT_ALTITUDE_INDEX: Int = 2
-
-    /**
-     * When using [DataType.LOCATION], the value is represented as `double[]`. The `double` value at
-     * this index represents the bearing. This value will default to [Double.MAX_VALUE] if it is not
-     * available.
-     */
-    public const val LOCATION_DATA_POINT_BEARING_INDEX: Int = 3
-
-    /** Name of intent extra containing the data points set on pending intent. */
-    private const val EXTRA_DATA_POINTS: String = "hs.data_points_list"
-
-    /** Name of intent extra containing whether permissions are granted or not. */
-    private const val EXTRA_PERMISSIONS_GRANTED: String = "hs.data_points_has_permissions"
-
-    /** Creates a new [DataPoint] of type [DataType.STEPS] with the given `steps`. */
     @JvmStatic
-    @JvmOverloads
     public fun steps(
         steps: Long,
         startDurationFromBoot: Duration,
         endDurationFromBoot: Duration,
-        metadata: Bundle? = null
-    ): DataPoint =
-        DataPoint.createInterval(
-            DataType.STEPS,
-            Value.ofLong(steps),
-            startDurationFromBoot,
-            endDurationFromBoot,
-            metadata ?: Bundle()
+    ): IntervalDataPoint<Long> =
+        IntervalDataPoint(
+            dataType = DataType.STEPS,
+            value = steps,
+            startDurationFromBoot = startDurationFromBoot,
+            endDurationFromBoot = endDurationFromBoot,
         )
 
     /**
-     * Creates a new [DataPoint] of type [DataType.STEPS_PER_MINUTE] with the given
-     * `stepsPerMinute`.
+     * Creates a new [SampleDataPoint] of type [DataType.STEPS_PER_MINUTE] with the given
+     * [stepsPerMinute].
+     *
+     * @param stepsPerMinute step rate at [timeDurationFromBoot]
+     * @param timeDurationFromBoot the point in time [stepsPerMinute] is accurate
      */
     @JvmStatic
-    public fun stepsPerMinute(stepsPerMinute: Long, startDurationFromBoot: Duration): DataPoint =
-        DataPoint.createSample(
-            DataType.STEPS_PER_MINUTE,
-            Value.ofLong(stepsPerMinute),
-            startDurationFromBoot
+    public fun stepsPerMinute(
+        stepsPerMinute: Long,
+        timeDurationFromBoot: Duration
+    ): SampleDataPoint<Long> =
+        SampleDataPoint(
+            dataType = DataType.STEPS_PER_MINUTE,
+            value = stepsPerMinute,
+            timeDurationFromBoot = timeDurationFromBoot
         )
 
-    /** Creates a new [DataPoint] of type [DataType.DISTANCE] with the given `meters`. */
+    /**
+     * Creates a new [IntervalDataPoint] of type [DataType.DISTANCE] with the given [meters].
+     *
+     * @param meters distance traveled between [startDurationFromBoot] and [endDurationFromBoot]
+     * @param startDurationFromBoot the point in time this data point begins
+     * @param endDurationFromBoot the point in time this data point ends
+     */
     @JvmStatic
-    @JvmOverloads
     public fun distance(
         meters: Double,
         startDurationFromBoot: Duration,
         endDurationFromBoot: Duration,
-        metadata: Bundle? = null
-    ): DataPoint =
-        DataPoint.createInterval(
-            DataType.DISTANCE,
-            Value.ofDouble(meters),
-            startDurationFromBoot,
-            endDurationFromBoot,
-            metadata ?: Bundle()
+    ): IntervalDataPoint<Double> =
+        IntervalDataPoint(
+            dataType = DataType.DISTANCE,
+            value = meters,
+            startDurationFromBoot = startDurationFromBoot,
+            endDurationFromBoot = endDurationFromBoot,
         )
 
     /**
-     * Creates a new [DataPoint] of type [DataType.ELEVATION_GAIN] with the given `meters`.
+     * Creates a new [CumulativeDataPoint] for [DataType.DISTANCE_TOTAL] with the given [meters].
+     *
+     * @param meters distance accumulated between [startTime] and [endTime]
+     * @param startTime the point in time this data point begins
+     * @param endTime the point in time this data point ends
+     */
+    @JvmStatic
+    public fun distanceTotal(
+        meters: Double,
+        startTime: Instant,
+        endTime: Instant
+    ): CumulativeDataPoint<Double> =
+        CumulativeDataPoint(
+            dataType = DataType.DISTANCE_TOTAL,
+            total = meters,
+            start = startTime,
+            end = endTime
+        )
+
+    /**
+     * Creates a new [IntervalDataPoint] of type [DataType.ELEVATION_GAIN] with the given [meters].
      *
      * @param meters meters gained between [startDurationFromBoot] and [endDurationFromBoot]
      * @param startDurationFromBoot the point in time this data point begins
      * @param endDurationFromBoot the point in time this data point ends
-     * @param metadata optional OEM specific data, not intended for broad consumption
      */
     @JvmStatic
-    @JvmOverloads
     public fun elevationGain(
         meters: Double,
         startDurationFromBoot: Duration,
         endDurationFromBoot: Duration,
-        metadata: Bundle? = null
-    ): DataPoint =
-        DataPoint.createInterval(
-            DataType.ELEVATION_GAIN,
-            Value.ofDouble(meters),
-            startDurationFromBoot,
-            endDurationFromBoot,
-            metadata ?: Bundle()
+    ): IntervalDataPoint<Double> =
+        IntervalDataPoint(
+            dataType = DataType.ELEVATION_GAIN,
+            value = meters,
+            startDurationFromBoot = startDurationFromBoot,
+            endDurationFromBoot = endDurationFromBoot,
         )
 
     /**
-     * Create a new [DataPoint] of type [DataType.ELEVATION_LOSS] with the given `meters`.
+     * Create a new [IntervalDataPoint] of type [DataType.ELEVATION_LOSS] with the given [meters].
      *
      * @param meters meters lost between [startDurationFromBoot] and [endDurationFromBoot]
      * @param startDurationFromBoot the point in time this data point begins
      * @param endDurationFromBoot the point in time this data point ends
-     * @param metadata optional OEM specific data, not intended for broad consumption
      */
     @JvmStatic
-    @JvmOverloads
     public fun elevationLoss(
         meters: Double,
         startDurationFromBoot: Duration,
         endDurationFromBoot: Duration,
-        metadata: Bundle? = null
-    ): DataPoint =
-        DataPoint.createInterval(
-            DataType.ELEVATION_LOSS,
-            Value.ofDouble(meters),
-            startDurationFromBoot,
-            endDurationFromBoot,
-            metadata ?: Bundle()
+    ): IntervalDataPoint<Double> =
+        IntervalDataPoint(
+            dataType = DataType.ELEVATION_LOSS,
+            value = meters,
+            startDurationFromBoot = startDurationFromBoot,
+            endDurationFromBoot = endDurationFromBoot,
         )
 
-    /** Creates a new [DataPoint] of type [DataType.ABSOLUTE_ELEVATION] with the given `meters`. */
+    /**
+     * Creates a new [SampleDataPoint] of type [DataType.ABSOLUTE_ELEVATION] with the given
+     * [meters].
+     *
+     * @param meters absolute elevation in meters at [timeDurationFromBoot]
+     * @param timeDurationFromBoot the point in time [stepsPerMinute] is accurate
+     */
     @JvmStatic
-    @JvmOverloads
     public fun absoluteElevation(
         meters: Double,
-        durationFromBoot: Duration,
-        metadata: Bundle? = null
-    ): DataPoint =
-        DataPoint.createSample(
-            DataType.ABSOLUTE_ELEVATION,
-            Value.ofDouble(meters),
-            durationFromBoot,
-            metadata ?: Bundle()
+        timeDurationFromBoot: Duration,
+    ): SampleDataPoint<Double> =
+        SampleDataPoint(
+            dataType = DataType.ABSOLUTE_ELEVATION,
+            value = meters,
+            timeDurationFromBoot = timeDurationFromBoot,
         )
 
-    /** Creates a new [DataPoint] of type [DataType.FLOORS] with the given `floors`. */
+    /**
+     * Creates a new [StatisticalDataPoint] of type [DataType.ABSOLUTE_ELEVATION_STATS] with the
+     * given elevations (in meters).
+     *
+     * @param minAbsoluteElevationMeters lowest observed elevation in this interval
+     * @param maxAbsoluteElevationMeters highest observed elevation in this interval
+     * @param averageAbsoluteElevationMeters average observed elevation in this interval
+     * @param startTime the point in time this data point begins
+     * @param endTime the point in time this data point ends
+     */
     @JvmStatic
-    @JvmOverloads
+    public fun absoluteElevationStats(
+        minAbsoluteElevationMeters: Double,
+        maxAbsoluteElevationMeters: Double,
+        averageAbsoluteElevationMeters: Double,
+        startTime: Instant,
+        endTime: Instant
+    ): StatisticalDataPoint<Double> =
+        StatisticalDataPoint(
+            dataType = DataType.ABSOLUTE_ELEVATION_STATS,
+            min = minAbsoluteElevationMeters,
+            max = maxAbsoluteElevationMeters,
+            average = averageAbsoluteElevationMeters,
+            start = startTime,
+            end = endTime,
+        )
+
+    /**
+     * Creates a new [IntervalDataPoint] of type [DataType.FLOORS] with the given [floors].
+     *
+     * @param floors floors ascended between [startDurationFromBoot] and [endDurationFromBoot]
+     * @param startDurationFromBoot the point in time this data point begins
+     * @param endDurationFromBoot the point in time this data point ends
+     */
+    @JvmStatic
     public fun floors(
         floors: Double,
         startDurationFromBoot: Duration,
         endDurationFromBoot: Duration,
-        metadata: Bundle? = null
-    ): DataPoint =
-        DataPoint.createInterval(
-            DataType.FLOORS,
-            Value.ofDouble(floors),
-            startDurationFromBoot,
-            endDurationFromBoot,
-            metadata ?: Bundle()
+    ): IntervalDataPoint<Double> =
+        IntervalDataPoint(
+            dataType = DataType.FLOORS,
+            value = floors,
+            startDurationFromBoot = startDurationFromBoot,
+            endDurationFromBoot = endDurationFromBoot,
         )
 
-    /** Creates a new [DataPoint] of type [DataType.TOTAL_CALORIES] with the given `kcalories`. */
+    /**
+     * Creates a new [IntervalDataPoint] of type [DataType.CALORIES] with the given [kilocalories].
+     *
+     * @param kilocalories total calories burned (BMR + Active) between [startDurationFromBoot] and
+     * [endDurationFromBoot]
+     * @param startDurationFromBoot the point in time this data point begins
+     * @param endDurationFromBoot the point in time this data point ends
+     */
     @JvmStatic
-    @JvmOverloads
     public fun calories(
-        kcalories: Double,
+        kilocalories: Double,
         startDurationFromBoot: Duration,
         endDurationFromBoot: Duration,
-        metadata: Bundle? = null
-    ): DataPoint =
-        DataPoint.createInterval(
-            DataType.TOTAL_CALORIES,
-            Value.ofDouble(kcalories),
-            startDurationFromBoot,
-            endDurationFromBoot,
-            metadata ?: Bundle()
+    ): IntervalDataPoint<Double> =
+        IntervalDataPoint(
+            dataType = DataType.CALORIES,
+            value = kilocalories,
+            startDurationFromBoot = startDurationFromBoot,
+            endDurationFromBoot = endDurationFromBoot,
         )
 
-    /** Creates a new [DataPoint] of type [DataType.SWIMMING_STROKES] with the given `strokes`. */
+    /**
+     * Creates a new [CumulativeDataPoint] of type [DataType.CALORIES_TOTAL] with the given
+     * [kilocalories] that represents an accumulation over a longer period of time.
+     *
+     * @param kilocalories total calories burned (BMR + Active) between [startTime] and
+     * [endTime]
+     * @param startTime the point in time this data point begins
+     * @param endTime the point in time this data point ends
+     */
+    @JvmStatic
+    public fun caloriesTotal(
+        kilocalories: Double,
+        startTime: Instant,
+        endTime: Instant
+    ): CumulativeDataPoint<Double> =
+        CumulativeDataPoint(
+            dataType = DataType.CALORIES_TOTAL,
+            total = kilocalories,
+            start = startTime,
+            end = endTime
+        )
+
+    /**
+     * Creates a new [IntervalDataPoint] of type [DataType.SWIMMING_STROKES] with the given
+     * [strokes].
+     *
+     * @param strokes total swimming strokes between [startDurationFromBoot] and
+     * [endDurationFromBoot]
+     * @param startDurationFromBoot the point in time this data point begins
+     * @param endDurationFromBoot the point in time this data point ends
+     */
     @JvmStatic
     public fun swimmingStrokes(
         strokes: Long,
         startDurationFromBoot: Duration,
         endDurationFromBoot: Duration
-    ): DataPoint =
-        DataPoint.createInterval(
-            DataType.SWIMMING_STROKES,
-            Value.ofLong(strokes),
-            startDurationFromBoot,
-            endDurationFromBoot
+    ): IntervalDataPoint<Long> =
+        IntervalDataPoint(
+            dataType = DataType.SWIMMING_STROKES,
+            value = strokes,
+            startDurationFromBoot = startDurationFromBoot,
+            endDurationFromBoot = endDurationFromBoot
         )
 
     /**
-     * Creates a new [DataPoint] of type [DataType.GOLF_SHOT_COUNT] with the given [shots].
+     * Creates a new [IntervalDataPoint] of type [DataType.GOLF_SHOT_COUNT] with the given [shots].
      *
      * @param shots golf shots made between [startDurationFromBoot] and [endDurationFromBoot]
      * @param startDurationFromBoot the point in time this data point begins
      * @param endDurationFromBoot the point in time this data point ends
-     * @param metadata optional OEM specific data, not intended for broad consumption
      */
     @JvmStatic
-    @JvmOverloads
     public fun golfShotCount(
         shots: Long,
         startDurationFromBoot: Duration,
         endDurationFromBoot: Duration,
-        metadata: Bundle? = null
-    ): DataPoint =
-        DataPoint.createInterval(
-            DataType.GOLF_SHOT_COUNT,
-            Value.ofLong(shots),
-            startDurationFromBoot,
-            endDurationFromBoot,
-            metadata ?: Bundle()
+    ): IntervalDataPoint<Long> =
+        IntervalDataPoint(
+            dataType = DataType.GOLF_SHOT_COUNT,
+            value = shots,
+            startDurationFromBoot = startDurationFromBoot,
+            endDurationFromBoot = endDurationFromBoot,
         )
 
     /**
-     * Creates a new [DataPoint] of type [DataType.LOCATION] with the given `latitude`, `longitude`,
-     * `altitude`, `bearing`, and `accuracy`.
+     * Creates a new [SampleDataPoint] of type [DataType.LOCATION] with the given [latitude],
+     * [longitude], and optionally [altitude], [bearing], and [accuracy].
+     *
+     * @param latitude latitude at [timeDurationFromBoot]
+     * @param longitude longitude at [timeDurationFromBoot]
+     * @param timeDurationFromBoot the point in time this data was recorded
+     * @param altitude optional altitude or `null` at [timeDurationFromBoot]
+     * @param bearing optional bearing or `null` at [timeDurationFromBoot]
+     * @param accuracy optional [LocationAccuracy] describing this data or `null`
      */
     @JvmStatic
     @JvmOverloads
     public fun location(
         latitude: Double,
         longitude: Double,
-        altitude: Double = Double.MAX_VALUE,
-        bearing: Double = Double.MAX_VALUE,
-        durationFromBoot: Duration,
+        timeDurationFromBoot: Duration,
+        altitude: Double? = null,
+        bearing: Double? = null,
         accuracy: LocationAccuracy? = null
-    ): DataPoint =
-        DataPoint.createSample(
-            DataType.LOCATION,
-            Value.ofDoubleArray(latitude, longitude, altitude, bearing),
-            durationFromBoot,
+    ): SampleDataPoint<LocationData> =
+        SampleDataPoint(
+            dataType = DataType.LOCATION,
+            value = LocationData(latitude, longitude, altitude, bearing),
+            timeDurationFromBoot = timeDurationFromBoot,
             accuracy = accuracy
         )
 
-    /** Creates a new [DataPoint] of type [DataType.SPEED] with the given `metersPerSecond`. */
+    /**
+     * Creates a new [SampleDataPoint] of type [DataType.SPEED] with the given [metersPerSecond].
+     *
+     * @param metersPerSecond speed in meters per second at [timeDurationFromBoot]
+     * @param timeDurationFromBoot the point in time [metersPerSecond] was recorded
+     */
     @JvmStatic
-    @JvmOverloads
     public fun speed(
         metersPerSecond: Double,
-        durationFromBoot: Duration,
-        metadata: Bundle? = null
-    ): DataPoint =
-        DataPoint.createSample(
-            DataType.SPEED,
-            Value.ofDouble(metersPerSecond),
-            durationFromBoot,
-            metadata ?: Bundle()
-        )
-
-    /** Creates a new [DataPoint] of type [DataType.PACE] with the given `millisPerKm`. */
-    @JvmStatic
-    public fun pace(millisPerKm: Duration, durationFromBoot: Duration): DataPoint =
-        DataPoint.createSample(
-            DataType.PACE,
-            Value.ofDouble((millisPerKm.toMillis()).toDouble()),
-            durationFromBoot
+        timeDurationFromBoot: Duration,
+    ): SampleDataPoint<Double> =
+        SampleDataPoint(
+            dataType = DataType.SPEED,
+            value = metersPerSecond,
+            timeDurationFromBoot = timeDurationFromBoot,
         )
 
     /**
-     * Creates a new [DataPoint] of type [DataType.HEART_RATE_BPM] with the given `bpm` and
-     * `accuracy`.
+     * Creates a new [SampleDataPoint] of type [DataType.PACE] with the given
+     * [durationPerKilometer].
+     *
+     * @param durationPerKilometer pace in terms of time per kilometer at [timeDurationFromBoot]
+     * @param timeDurationFromBoot the point in time [durationPerKilometer] was recorded
+     */
+    @JvmStatic
+    public fun pace(
+        durationPerKilometer: Duration,
+        timeDurationFromBoot: Duration
+    ): SampleDataPoint<Double> =
+        SampleDataPoint(
+            dataType = DataType.PACE,
+            value = (durationPerKilometer.toMillis()).toDouble(),
+            timeDurationFromBoot = timeDurationFromBoot
+        )
+
+    /**
+     * Creates a new [SampleDataPoint] of type [DataType.HEART_RATE_BPM] with the given [bpm] and
+     * [accuracy].
+     *
+     * @param bpm heart rate given in beats per minute
+     * @param timeDurationFromBoot the point in time this data was recorded
+     * @param accuracy optional [HeartRateAccuracy] describing this data or `null`
      */
     @JvmStatic
     @JvmOverloads
     public fun heartRate(
         bpm: Double,
-        durationFromBoot: Duration,
+        timeDurationFromBoot: Duration,
         accuracy: HeartRateAccuracy? = null
-    ): DataPoint =
-        DataPoint.createSample(
-            DataType.HEART_RATE_BPM,
-            Value.ofDouble(bpm),
-            durationFromBoot,
+    ): SampleDataPoint<Double> =
+        SampleDataPoint(
+            dataType = DataType.HEART_RATE_BPM,
+            value = bpm,
+            timeDurationFromBoot = timeDurationFromBoot,
             accuracy = accuracy
         )
 
-    /** Creates a new [DataPoint] of type [DataType.DAILY_STEPS] with the given `steps`. */
+    /**
+     * Creates a new [StatisticalDataPoint] of type [DataType.HEART_RATE_BPM] with the given
+     * min/max/average beats per minute.
+     *
+     * @param minBpm lowest observed heart rate given in beats per minute in this interval
+     * @param maxBpm highest observed heart rate given in beats per minute in this interval
+     * @param averageBpm average observed heart rate given in beats per minute in this interval
+     * @param startTime the point in time this data point begins
+     * @param endTime the point in time this data point ends
+     */
     @JvmStatic
-    public fun dailySteps(
-        steps: Long,
-        startDurationFromBoot: Duration,
-        endDurationFromBoot: Duration
-    ): DataPoint =
-        DataPoint.createInterval(
-            DataType.DAILY_STEPS,
-            Value.ofLong(steps),
-            startDurationFromBoot,
-            endDurationFromBoot
+    public fun heartRateStats(
+        minBpm: Double,
+        maxBpm: Double,
+        averageBpm: Double,
+        startTime: Instant,
+        endTime: Instant,
+    ): StatisticalDataPoint<Double> =
+        StatisticalDataPoint(
+            dataType = DataType.HEART_RATE_BPM_STATS,
+            min = minBpm,
+            max = maxBpm,
+            average = averageBpm,
+            start = startTime,
+            end = endTime
         )
 
-    /** Creates a new [DataPoint] of type [DataType.DAILY_FLOORS] with the given `floors`. */
+    /**
+     * Creates a new [IntervalDataPoint] of type [DataType.STEPS_DAILY] with the given [dailySteps].
+     *
+     * @param dailySteps number of steps taken today, between [startDurationFromBoot] and
+     * [endDurationFromBoot]
+     * @param startDurationFromBoot the point in time this data point begins
+     * @param endDurationFromBoot the point in time this data point ends
+     */
+    @JvmStatic
+    public fun dailySteps(
+        dailySteps: Long,
+        startDurationFromBoot: Duration,
+        endDurationFromBoot: Duration
+    ): IntervalDataPoint<Long> =
+        IntervalDataPoint(
+            dataType = DataType.STEPS_DAILY,
+            value = dailySteps,
+            startDurationFromBoot = startDurationFromBoot,
+            endDurationFromBoot = endDurationFromBoot
+        )
+
+    /**
+     * Creates a new [IntervalDataPoint] of type [DataType.FLOORS_DAILY] with the given [floors].
+     *
+     * @param floors number of floors ascended today, between [startDurationFromBoot] and
+     * [endDurationFromBoot]
+     * @param startDurationFromBoot the point in time this data point begins
+     * @param endDurationFromBoot the point in time this data point ends
+     */
     @JvmStatic
     public fun dailyFloors(
         floors: Double,
         startDurationFromBoot: Duration,
         endDurationFromBoot: Duration
-    ): DataPoint =
-        DataPoint.createInterval(
-            DataType.DAILY_FLOORS,
-            Value.ofDouble(floors),
-            startDurationFromBoot,
-            endDurationFromBoot
+    ): IntervalDataPoint<Double> =
+        IntervalDataPoint(
+            dataType = DataType.FLOORS_DAILY,
+            value = floors,
+            startDurationFromBoot = startDurationFromBoot,
+            endDurationFromBoot = endDurationFromBoot
         )
 
-    /** Creates a new [DataPoint] of type [DataType.DAILY_CALORIES] with the given `calories`. */
+    /**
+     * Creates a new [IntervalDataPoint] of type [DataType.CALORIES_DAILY] with the given
+     * [calories].
+     *
+     * @param calories number of calories burned today including both active and passive / BMR,
+     * between [startDurationFromBoot] and [endDurationFromBoot]
+     * @param startDurationFromBoot the point in time this data point begins
+     * @param endDurationFromBoot the point in time this data point ends
+     */
     @JvmStatic
     public fun dailyCalories(
         calories: Double,
         startDurationFromBoot: Duration,
         endDurationFromBoot: Duration
-    ): DataPoint =
-        DataPoint.createInterval(
-            DataType.DAILY_CALORIES,
-            Value.ofDouble(calories),
-            startDurationFromBoot,
-            endDurationFromBoot
+    ): IntervalDataPoint<Double> =
+        IntervalDataPoint(
+            dataType = DataType.CALORIES_DAILY,
+            value = calories,
+            startDurationFromBoot = startDurationFromBoot,
+            endDurationFromBoot = endDurationFromBoot
         )
 
-    /** Creates a new [DataPoint] of type [DataType.DAILY_DISTANCE] with the given `meters`. */
+    /**
+     * Creates a new [IntervalDataPoint] of type [DataType.DISTANCE_DAILY] with the given [meters].
+     *
+     * @param meters number of meters traveled today through active/passive exercise between
+     * [startDurationFromBoot] and [endDurationFromBoot]
+     * @param startDurationFromBoot the point in time this data point begins
+     * @param endDurationFromBoot the point in time this data point ends
+     */
     @JvmStatic
     public fun dailyDistance(
         meters: Double,
         startDurationFromBoot: Duration,
-        endDurationFromBoot: Duration
-    ): DataPoint =
-        DataPoint.createInterval(
-            DataType.DAILY_DISTANCE,
-            Value.ofDouble(meters),
-            startDurationFromBoot,
-            endDurationFromBoot
+        endDurationFromBoot: Duration,
+    ): IntervalDataPoint<Double> =
+        IntervalDataPoint(
+            dataType = DataType.DISTANCE_DAILY,
+            value = meters,
+            startDurationFromBoot = startDurationFromBoot,
+            endDurationFromBoot = endDurationFromBoot
         )
 }

@@ -41,7 +41,7 @@ import org.junit.runner.RunWith;
 
 @RunWith(AndroidJUnit4.class)
 @LargeTest
-@SdkSuppress(minSdkVersion = 19)
+@SdkSuppress(minSdkVersion = 24)
 public class SlicePermissionTest {
 
     private static final Uri BASE_URI = Uri.parse("content://androidx.slice.core.permission/");

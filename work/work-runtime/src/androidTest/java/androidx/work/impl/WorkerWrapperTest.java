@@ -187,16 +187,6 @@ public class WorkerWrapperTest extends DatabaseTest {
 
     @Test
     @SmallTest
-    public void testPermanentErrorWithInvalidWorkSpecId() {
-        final String invalidWorkSpecId = "INVALID_ID";
-        WorkerWrapper workerWrapper = createBuilder(invalidWorkSpecId).build();
-        FutureListener listener = createAndAddFutureListener(workerWrapper);
-        workerWrapper.run();
-        assertThat(listener.mResult, is(false));
-    }
-
-    @Test
-    @SmallTest
     public void testInvalidWorkerClassName() {
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class).build();
         work.getWorkSpec().workerClassName = "dummy";
@@ -227,6 +217,7 @@ public class WorkerWrapperTest extends DatabaseTest {
                                 work.getTags(),
                                 new WorkerParameters.RuntimeExtras(),
                                 1,
+                                0,
                                 mSynchronousExecutor,
                                 mWorkTaskExecutor,
                                 mConfiguration.getWorkerFactory(),
@@ -814,6 +805,7 @@ public class WorkerWrapperTest extends DatabaseTest {
                         work.getTags(),
                         new WorkerParameters.RuntimeExtras(),
                         1,
+                        0,
                         mSynchronousExecutor,
                         mWorkTaskExecutor,
                         mConfiguration.getWorkerFactory(),
@@ -842,6 +834,7 @@ public class WorkerWrapperTest extends DatabaseTest {
                         work.getTags(),
                         new WorkerParameters.RuntimeExtras(),
                         1,
+                        0,
                         mSynchronousExecutor,
                         mWorkTaskExecutor,
                         mConfiguration.getWorkerFactory(),
@@ -861,6 +854,7 @@ public class WorkerWrapperTest extends DatabaseTest {
                         work.getTags(),
                         new WorkerParameters.RuntimeExtras(),
                         1,
+                        0,
                         mSynchronousExecutor,
                         mWorkTaskExecutor,
                         mConfiguration.getWorkerFactory(),
@@ -889,6 +883,7 @@ public class WorkerWrapperTest extends DatabaseTest {
                         Arrays.asList("one", "two", "three"),
                         new WorkerParameters.RuntimeExtras(),
                         1,
+                        0,
                         mSynchronousExecutor,
                         mWorkTaskExecutor,
                         mConfiguration.getWorkerFactory(),
@@ -901,6 +896,7 @@ public class WorkerWrapperTest extends DatabaseTest {
 
     @Test
     @SmallTest
+    @SdkSuppress(minSdkVersion = 24)
     public void testFromWorkSpec_hasCorrectRuntimeExtras() {
         OneTimeWorkRequest work =
                 new OneTimeWorkRequest.Builder(TestWorker.class).build();
@@ -917,6 +913,7 @@ public class WorkerWrapperTest extends DatabaseTest {
                         work.getTags(),
                         runtimeExtras,
                         1,
+                        0,
                         mSynchronousExecutor,
                         mWorkTaskExecutor,
                         mConfiguration.getWorkerFactory(),
@@ -1026,6 +1023,7 @@ public class WorkerWrapperTest extends DatabaseTest {
                                 work.getTags(),
                                 new WorkerParameters.RuntimeExtras(),
                                 1,
+                                0,
                                 backgroundExecutor,
                                 mWorkTaskExecutor,
                                 mConfiguration.getWorkerFactory(),
@@ -1071,6 +1069,7 @@ public class WorkerWrapperTest extends DatabaseTest {
                         work.getTags(),
                         new WorkerParameters.RuntimeExtras(),
                         1,
+                        0,
                         mSynchronousExecutor,
                         mWorkTaskExecutor,
                         mConfiguration.getWorkerFactory(),
@@ -1106,6 +1105,7 @@ public class WorkerWrapperTest extends DatabaseTest {
                         Collections.<String>emptyList(),
                         new WorkerParameters.RuntimeExtras(),
                         1,
+                        0,
                         mSynchronousExecutor,
                         mWorkTaskExecutor,
                         mConfiguration.getWorkerFactory(),
@@ -1237,7 +1237,9 @@ public class WorkerWrapperTest extends DatabaseTest {
                 mWorkTaskExecutor,
                 mMockForegroundProcessor,
                 mDatabase,
-                work.getStringId()).build();
+                mWorkSpecDao.getWorkSpec(work.getStringId()),
+                mDatabase.workTagDao().getTagsForWorkSpecId(work.getStringId())
+        ).build();
 
         FutureListener listener = createAndAddFutureListener(workerWrapper);
         workerWrapper.run();
@@ -1286,7 +1288,9 @@ public class WorkerWrapperTest extends DatabaseTest {
                 mWorkTaskExecutor,
                 mMockForegroundProcessor,
                 mDatabase,
-                work.getStringId()).build();
+                mWorkSpecDao.getWorkSpec(work.getStringId()),
+                mDatabase.workTagDao().getWorkSpecIdsWithTag(work.getStringId())
+                ).build();
 
         workerWrapper.interrupt();
         workerWrapper.run();
@@ -1313,7 +1317,9 @@ public class WorkerWrapperTest extends DatabaseTest {
                 mWorkTaskExecutor,
                 mMockForegroundProcessor,
                 mDatabase,
-                workSpecId);
+                mWorkSpecDao.getWorkSpec(workSpecId),
+                mDatabase.workTagDao().getWorkSpecIdsWithTag(workSpecId)
+        );
     }
 
     private FutureListener createAndAddFutureListener(WorkerWrapper workerWrapper) {

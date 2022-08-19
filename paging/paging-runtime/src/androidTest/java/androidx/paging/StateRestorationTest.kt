@@ -322,7 +322,7 @@ class StateRestorationTest {
     private fun saveAndRestore() {
         val state = recyclerView.saveState()
         createRecyclerView()
-        recyclerView.restoreState(state)
+        recyclerView.restoreState(state!!)
         measureAndLayout()
     }
 
@@ -513,7 +513,7 @@ class StateRestorationTest {
      * RecyclerView class that allows saving and restoring state.
      */
     class TestRecyclerView(context: Context) : RecyclerView(context) {
-        fun restoreState(state: Parcelable?) {
+        fun restoreState(state: Parcelable) {
             super.onRestoreInstanceState(state)
         }
 
@@ -527,7 +527,7 @@ class StateRestorationTest {
      */
     class RestoreAwareLayoutManager(context: Context) : LinearLayoutManager(context) {
         var restoredState = false
-        override fun onRestoreInstanceState(state: Parcelable?) {
+        override fun onRestoreInstanceState(state: Parcelable) {
             super.onRestoreInstanceState(state)
             restoredState = true
         }

@@ -2,14 +2,16 @@
 package androidx.core.i18n {
 
   public final class DateTimeFormatter {
-    ctor public DateTimeFormatter(android.content.Context context, androidx.core.i18n.DateTimeFormatterOptions options, optional java.util.Locale locale);
-    ctor public DateTimeFormatter(android.content.Context context, androidx.core.i18n.DateTimeFormatterOptions options);
+    ctor public DateTimeFormatter(android.content.Context context, androidx.core.i18n.DateTimeFormatterSkeletonOptions options, optional java.util.Locale locale);
+    ctor public DateTimeFormatter(android.content.Context context, androidx.core.i18n.DateTimeFormatterSkeletonOptions options);
+    ctor public DateTimeFormatter(androidx.core.i18n.DateTimeFormatterJdkStyleOptions options, optional java.util.Locale locale);
+    ctor public DateTimeFormatter(androidx.core.i18n.DateTimeFormatterJdkStyleOptions options);
     method public String format(long milliseconds);
     method public String format(java.util.Date date);
     method public String format(java.util.Calendar calendar);
   }
 
-  public final class DateTimeFormatterCommonOptions implements androidx.core.i18n.DateTimeFormatterOptions {
+  public final class DateTimeFormatterCommonOptions {
     ctor public DateTimeFormatterCommonOptions();
     field public static final androidx.core.i18n.DateTimeFormatterSkeletonOptions ABBR_MONTH_DAY;
     field public static final androidx.core.i18n.DateTimeFormatterSkeletonOptions ABBR_MONTH_WEEKDAY_DAY;
@@ -37,7 +39,7 @@ package androidx.core.i18n {
   public static final class DateTimeFormatterCommonOptions.Companion {
   }
 
-  public final class DateTimeFormatterJdkStyleOptions implements androidx.core.i18n.DateTimeFormatterOptions {
+  public final class DateTimeFormatterJdkStyleOptions {
     method public static androidx.core.i18n.DateTimeFormatterJdkStyleOptions createDateInstance(int style);
     method public static androidx.core.i18n.DateTimeFormatterJdkStyleOptions createDateTimeInstance(int dateStyle, int timeStyle);
     method public static androidx.core.i18n.DateTimeFormatterJdkStyleOptions createTimeInstance(int style);
@@ -54,11 +56,8 @@ package androidx.core.i18n {
     method public androidx.core.i18n.DateTimeFormatterJdkStyleOptions createTimeInstance(int style);
   }
 
-  public interface DateTimeFormatterOptions {
-  }
-
-  public final class DateTimeFormatterSkeletonOptions implements androidx.core.i18n.DateTimeFormatterOptions {
-    method public static androidx.core.i18n.DateTimeFormatterOptions fromString(String value);
+  public final class DateTimeFormatterSkeletonOptions {
+    method public static androidx.core.i18n.DateTimeFormatterSkeletonOptions fromString(String value);
     method public androidx.core.i18n.DateTimeFormatterSkeletonOptions.Day getDay();
     method public androidx.core.i18n.DateTimeFormatterSkeletonOptions.Era getEra();
     method public androidx.core.i18n.DateTimeFormatterSkeletonOptions.FractionalSecond getFractionalSecond();
@@ -90,7 +89,7 @@ package androidx.core.i18n {
   }
 
   public static final class DateTimeFormatterSkeletonOptions.Companion {
-    method public androidx.core.i18n.DateTimeFormatterOptions fromString(String value);
+    method public androidx.core.i18n.DateTimeFormatterSkeletonOptions fromString(String value);
   }
 
   public static final class DateTimeFormatterSkeletonOptions.Day {
@@ -262,6 +261,19 @@ package androidx.core.i18n {
 
   public static final class DateTimeFormatterSkeletonOptions.Year.Companion {
     method public androidx.core.i18n.DateTimeFormatterSkeletonOptions.Year fromString(String value);
+  }
+
+  public final class MessageFormat {
+    method public static String format(android.content.Context context, optional java.util.Locale locale, String msg, java.util.Map<java.lang.String,?> namedArguments);
+    method public static String format(android.content.Context context, String msg, java.util.Map<java.lang.String,?> namedArguments);
+    method public static String format(android.content.Context context, int id, java.util.Map<java.lang.String,?> namedArguments);
+    field public static final androidx.core.i18n.MessageFormat.Companion Companion;
+  }
+
+  public static final class MessageFormat.Companion {
+    method public String format(android.content.Context context, optional java.util.Locale locale, String msg, java.util.Map<java.lang.String,?> namedArguments);
+    method public String format(android.content.Context context, String msg, java.util.Map<java.lang.String,?> namedArguments);
+    method public String format(android.content.Context context, int id, java.util.Map<java.lang.String,?> namedArguments);
   }
 
 }

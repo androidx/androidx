@@ -125,6 +125,7 @@ class RxWorkerTest {
         emptyList(),
         WorkerParameters.RuntimeExtras(),
         1,
+        0,
         executor,
         InstantWorkTaskExecutor(),
         WorkerFactory.getDefaultWorkerFactory(),

@@ -6,7 +6,7 @@ import androidx.navigation.NavArgs
 import kotlin.jvm.JvmStatic
 
 public data class
-    ReallyReallyReallyReallyReallyReallyReallyReallyReallyReallyReallyReallyReallyReallyLongNameFragmentArgs
+    ReallyReallyReallyReallyReallyReallyReallyReallyReallyReallyReallyReallyReallyReallyLongNameFragmentArgs()
     : NavArgs {
   public fun toBundle(): Bundle {
     val result = Bundle()

@@ -20,6 +20,7 @@ import android.media.MediaCodec
 import android.os.Build
 import com.google.common.truth.Truth.assertThat
 import java.nio.ByteBuffer
+import java.nio.ByteOrder
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -32,7 +33,8 @@ import org.robolectric.annotation.internal.DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 class BufferCopiedEncodedDataTest(
     private val sourceOffset: Int,
-    private val sourceSize: Int
+    private val sourceSize: Int,
+    private val sourceByteOrder: ByteOrder,
 ) {
     companion object {
         private const val SOURCE_CAPACITY = 1024
@@ -41,16 +43,16 @@ class BufferCopiedEncodedDataTest(
         private val SOURCE_CONTENT = ByteArray(SOURCE_CAPACITY) { i -> (i % 127).toByte() }
 
         @JvmStatic
-        @ParameterizedRobolectricTestRunner.Parameters(name = "offset={0}, size={1}")
+        @ParameterizedRobolectricTestRunner.Parameters(name = "offset={0}, size={1}, byteOrder={2}")
         fun createTestSet() = listOf(
-            arrayOf(0, 1024),
-            arrayOf(0, 0),
-            arrayOf(1024, 0),
-            arrayOf(1023, 1),
-            arrayOf(1, 1023),
-            arrayOf(512, 512),
-            arrayOf(0, 29),
-            arrayOf(947, 73),
+            arrayOf(0, 1024, ByteOrder.BIG_ENDIAN),
+            arrayOf(0, 0, ByteOrder.BIG_ENDIAN),
+            arrayOf(1024, 0, ByteOrder.BIG_ENDIAN),
+            arrayOf(1023, 1, ByteOrder.BIG_ENDIAN),
+            arrayOf(1, 1023, ByteOrder.LITTLE_ENDIAN),
+            arrayOf(512, 512, ByteOrder.LITTLE_ENDIAN),
+            arrayOf(0, 29, ByteOrder.LITTLE_ENDIAN),
+            arrayOf(947, 73, ByteOrder.LITTLE_ENDIAN),
         )
     }
 
@@ -62,6 +64,7 @@ class BufferCopiedEncodedDataTest(
     @Before
     fun setup() {
         val byteBuffer = ByteBuffer.allocate(SOURCE_CAPACITY)
+        byteBuffer.order(sourceByteOrder)
         byteBuffer.put(SOURCE_CONTENT)
         val bufferInfo = MediaCodec.BufferInfo()
         bufferInfo.set(sourceOffset, sourceSize, sourceTimeUs, sourceFlags)
@@ -83,8 +86,23 @@ class BufferCopiedEncodedDataTest(
     @Test
     fun getByteBuffer_haveSameContent() {
         val sourceByteBuffer = fakeEncodedData.byteBuffer
+        val sourceBufferInfo = fakeEncodedData.bufferInfo
+        sourceByteBuffer.position(sourceBufferInfo.offset)
+        sourceByteBuffer.limit(sourceBufferInfo.offset + sourceBufferInfo.size)
+
         val copiedByteBuffer = copiedEncodedData.byteBuffer
+        val copiedBufferInfo = copiedEncodedData.bufferInfo
+        copiedByteBuffer.position(copiedBufferInfo.offset)
+        copiedByteBuffer.limit(copiedBufferInfo.offset + copiedBufferInfo.size)
+
         assertThat(copiedByteBuffer).isEqualTo(sourceByteBuffer)
+    }
+
+    @Test
+    fun getByteBuffer_haveSameByteOrder() {
+        val sourceByteBuffer = fakeEncodedData.byteBuffer
+        val copiedByteBuffer = copiedEncodedData.byteBuffer
+        assertThat(copiedByteBuffer.order()).isEqualTo(sourceByteBuffer.order())
     }
 
     @Test

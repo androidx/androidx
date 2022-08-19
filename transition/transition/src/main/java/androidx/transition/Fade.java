@@ -146,9 +146,8 @@ public class Fade extends Visibility {
 
     @Nullable
     @Override
-    public Animator onAppear(ViewGroup sceneRoot, View view,
-            TransitionValues startValues,
-            TransitionValues endValues) {
+    public Animator onAppear(@NonNull ViewGroup sceneRoot, @NonNull View view,
+            @Nullable TransitionValues startValues, @Nullable TransitionValues endValues) {
         if (DBG) {
             View startView = (startValues != null) ? startValues.view : null;
             Log.d(LOG_TAG, "Fade.onAppear: startView, startVis, endView, endVis = "
@@ -163,8 +162,8 @@ public class Fade extends Visibility {
 
     @Nullable
     @Override
-    public Animator onDisappear(ViewGroup sceneRoot, final View view, TransitionValues startValues,
-            TransitionValues endValues) {
+    public Animator onDisappear(@NonNull ViewGroup sceneRoot, @NonNull final View view,
+            @Nullable TransitionValues startValues, @Nullable TransitionValues endValues) {
         ViewUtils.saveNonTransitionAlpha(view);
         float startAlpha = getStartAlpha(startValues, 1);
         return createAnimation(view, startAlpha, 0);

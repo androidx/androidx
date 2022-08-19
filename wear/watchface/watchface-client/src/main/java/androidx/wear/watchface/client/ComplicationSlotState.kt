@@ -317,8 +317,9 @@ public class ComplicationSlotState {
     @Suppress("Deprecation")
     override fun toString(): String {
         @OptIn(ComplicationExperimental::class)
-        return "ComplicationSlotState(bounds=$bounds, boundsType=$boundsType, " +
-            "supportedTypes=$supportedTypes, defaultDataSourcePolicy=$defaultDataSourcePolicy, " +
+        return "ComplicationSlotState(bounds=$bounds, " +
+            "boundsType=$boundsType, supportedTypes=$supportedTypes, " +
+            "defaultDataSourcePolicy=$defaultDataSourcePolicy, " +
             "defaultDataSourceType=$defaultDataSourceType, isEnabled=$isEnabled, " +
             "isInitiallyEnabled=$isInitiallyEnabled, currentType=$currentType, " +
             "fixedComplicationDataSource=$fixedComplicationDataSource, " +

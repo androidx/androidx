@@ -18,6 +18,7 @@ package androidx.transition;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Rect;
@@ -280,6 +281,7 @@ class ViewOverlayApi14 implements ViewOverlayImpl {
         /**
          * @hide
          */
+        @SuppressLint("BanUncheckedReflection") // This class is only used on APIs 14-17
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         @SuppressWarnings("CatchAndPrintStackTrace")
         protected ViewParent invalidateChildInParentFast(int left, int top, Rect dirty) {

@@ -35,19 +35,20 @@ package androidx.core.uwb {
     field public static final int RANGING_UPDATE_RATE_AUTOMATIC;
     field public static final int RANGING_UPDATE_RATE_FREQUENT;
     field public static final int RANGING_UPDATE_RATE_INFREQUENT;
+    field public static final int UWB_CONFIG_ID_1;
   }
 
   public static final class RangingParameters.Companion {
   }
 
   public final class RangingPosition {
-    ctor public RangingPosition(androidx.core.uwb.RangingMeasurement distance, androidx.core.uwb.RangingMeasurement? azimuth, androidx.core.uwb.RangingMeasurement? elevation, long elapsedRealtimeNanos);
+    ctor public RangingPosition(androidx.core.uwb.RangingMeasurement? distance, androidx.core.uwb.RangingMeasurement? azimuth, androidx.core.uwb.RangingMeasurement? elevation, long elapsedRealtimeNanos);
     method public androidx.core.uwb.RangingMeasurement? getAzimuth();
-    method public androidx.core.uwb.RangingMeasurement getDistance();
+    method public androidx.core.uwb.RangingMeasurement? getDistance();
     method public long getElapsedRealtimeNanos();
     method public androidx.core.uwb.RangingMeasurement? getElevation();
     property public final androidx.core.uwb.RangingMeasurement? azimuth;
-    property public final androidx.core.uwb.RangingMeasurement distance;
+    property public final androidx.core.uwb.RangingMeasurement? distance;
     property public final long elapsedRealtimeNanos;
     property public final androidx.core.uwb.RangingMeasurement? elevation;
   }
@@ -101,6 +102,13 @@ package androidx.core.uwb {
   public interface UwbControleeSessionScope extends androidx.core.uwb.UwbClientSessionScope {
   }
 
+  public interface UwbControllerSessionScope extends androidx.core.uwb.UwbClientSessionScope {
+    method public suspend Object? addControlee(androidx.core.uwb.UwbAddress address, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public androidx.core.uwb.UwbComplexChannel getUwbComplexChannel();
+    method public suspend Object? removeControlee(androidx.core.uwb.UwbAddress address, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    property public abstract androidx.core.uwb.UwbComplexChannel uwbComplexChannel;
+  }
+
   public final class UwbDevice {
     ctor public UwbDevice(androidx.core.uwb.UwbAddress address);
     method public static androidx.core.uwb.UwbDevice createForAddress(String address);
@@ -116,7 +124,9 @@ package androidx.core.uwb {
   }
 
   public interface UwbManager {
-    method public suspend Object? clientSessionScope(kotlin.coroutines.Continuation<? super androidx.core.uwb.UwbClientSessionScope>);
+    method @Deprecated public suspend Object? clientSessionScope(kotlin.coroutines.Continuation<? super androidx.core.uwb.UwbClientSessionScope>);
+    method public suspend Object? controleeSessionScope(kotlin.coroutines.Continuation<? super androidx.core.uwb.UwbControleeSessionScope>);
+    method public suspend Object? controllerSessionScope(kotlin.coroutines.Continuation<? super androidx.core.uwb.UwbControllerSessionScope>);
     method public default static androidx.core.uwb.UwbManager createInstance(android.content.Context context);
     field public static final androidx.core.uwb.UwbManager.Companion Companion;
   }

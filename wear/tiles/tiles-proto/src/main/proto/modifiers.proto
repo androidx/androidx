@@ -82,9 +82,12 @@ message Background {
   Corner corner = 2;
 }
 
-// Metadata about an element, for use by libraries only.
+// Metadata about an element. For use by libraries building higher-level
+// components only. This can be used to track component metadata.
 message ElementMetadata {
-  // Property describing the element with which it is associated
+  // Property describing the element with which it is associated. For use by
+  // libraries building higher-level components only. This can be used to track
+  // component metadata.
   bytes tag_data = 1;
 }
 
@@ -109,7 +112,8 @@ message Modifiers {
   // Adds a background (with corner radius) to the modified element.
   Background background = 5;
 
-  // Metadata about an element, for use by libraries only.
+  // Metadata about an element. For use by libraries building higher-level
+  // components only. This can be used to track component metadata
   ElementMetadata metadata = 6;
 }
 

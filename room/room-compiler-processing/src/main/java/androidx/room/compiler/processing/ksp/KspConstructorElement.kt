@@ -24,14 +24,11 @@ import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 
 internal class KspConstructorElement(
     env: KspProcessingEnv,
-    override val containing: KspTypeElement,
     declaration: KSFunctionDeclaration
-) : KspExecutableElement(
-    env = env,
-    containing = containing,
-    declaration = declaration
-),
-    XConstructorElement {
+) : KspExecutableElement(env, declaration), XConstructorElement {
+    override val name: String
+        get() = "<init>"
+
     override val enclosingElement: KspTypeElement by lazy {
         declaration.requireEnclosingMemberContainer(env) as? KspTypeElement
             ?: error("Constructor parent must be a type element $this")
@@ -52,7 +49,7 @@ internal class KspConstructorElement(
         KspConstructorType(
             env = env,
             origin = this,
-            containing = this.containing.type
+            containing = this.enclosingElement.type
         )
     }
 

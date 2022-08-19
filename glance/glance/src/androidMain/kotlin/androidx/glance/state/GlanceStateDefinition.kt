@@ -32,7 +32,7 @@ import kotlinx.coroutines.sync.withLock
  * underlying data store is created. Use a unique [GlanceStateDefinition] to get a [GlanceState], once
  * defined, the data should be updated using the state directly, this definition should not change.
  */
-public interface GlanceStateDefinition<T> {
+interface GlanceStateDefinition<T> {
 
     /**
      * This file indicates the location of the persisted data.
@@ -41,7 +41,7 @@ public interface GlanceStateDefinition<T> {
      * @param fileKey The unique string key used to name and identify the data file corresponding to
      * a remote UI. Each remote UI has a unique UI key, used to key the data for that UI.
      */
-    public fun getLocation(context: Context, fileKey: String): File
+    fun getLocation(context: Context, fileKey: String): File
 
     /**
      * Creates the underlying data store.
@@ -50,7 +50,7 @@ public interface GlanceStateDefinition<T> {
      * @param fileKey The unique string key used to name and identify the data file corresponding to
      * a remote UI. Each remote UI has a unique UI key, used to key the data for that UI.
      */
-    public suspend fun getDataStore(context: Context, fileKey: String): DataStore<T>
+    suspend fun getDataStore(context: Context, fileKey: String): DataStore<T>
 }
 
 /**
@@ -61,7 +61,7 @@ public interface GlanceStateDefinition<T> {
  * @suppress
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public object GlanceState {
+object GlanceState {
     /**
      * Returns the stored data associated with the given UI key string.
      *
@@ -69,7 +69,7 @@ public object GlanceState {
      * @param fileKey identifies the data file associated with the store, must be unique for any
      * remote UI in the app.
      */
-    public suspend fun <T> getValue(
+    suspend fun <T> getValue(
         context: Context,
         definition: GlanceStateDefinition<T>,
         fileKey: String
@@ -82,7 +82,7 @@ public object GlanceState {
      * @param fileKey identifies the date file associated with the store, must be unique for any
      * remote UI in the app.
      */
-    public suspend fun <T> updateValue(
+    suspend fun <T> updateValue(
         context: Context,
         definition: GlanceStateDefinition<T>,
         fileKey: String,
@@ -92,7 +92,7 @@ public object GlanceState {
     /**
      * Delete the file underlying the [DataStore] and remove local references to the [DataStore].
      */
-    public suspend fun deleteStore(
+    suspend fun deleteStore(
         context: Context,
         definition: GlanceStateDefinition<*>,
         fileKey: String

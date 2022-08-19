@@ -22,17 +22,7 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("kotlin-android")
-}
-
-// If set to `true`, we'll use KSP instead of KAPT.
-// Note that the CI does not run tests with KSP yet so this is only for local usage.
-// Once variants are properly supported by both ksp and AndroidX, we'll add support for this.
-// (b/153917176)
-def useKsp = project.properties.getOrDefault("useKsp", "false").toBoolean()
-if (useKsp) {
-    apply plugin: "com.google.devtools.ksp"
-} else {
-    apply plugin: "kotlin-kapt"
+    id("com.google.devtools.ksp")
 }
 
 android {
@@ -56,18 +46,9 @@ dependencies {
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)
-    // depend on the shadowed version so that it tests with the shipped artifact
-    // this is a temporary attribute until KSP and AndroidX plugin supports variants.
-    // addendum -- shadowAndImplementation removed
-    if (useKsp) {
-        kspAndroidTest(
-                project(path: ":room:room-compiler")
-        )
-    } else {
-        kaptAndroidTest(
-                project(path: ":room:room-compiler")
-        )
-    }
+    kspAndroidTest(
+            project(path: ":room:room-compiler", configuration: "shadowAndImplementation")
+    )
     androidTestImplementation(libs.truth)
     androidTestImplementation("androidx.arch.core:core-testing:2.0.1")
     androidTestImplementation(project(":internal-testutils-common"))

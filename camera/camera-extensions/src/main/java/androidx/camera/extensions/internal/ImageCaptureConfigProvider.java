@@ -88,6 +88,7 @@ public class ImageCaptureConfigProvider implements ConfigProvider<ImageCaptureCo
     /**
      * Update extension related configs to the builder.
      */
+    @OptIn(markerClass = ExperimentalCamera2Interop.class)
     void updateBuilderConfig(@NonNull ImageCapture.Builder builder,
             @ExtensionMode.Mode int effectMode, @NonNull VendorExtender vendorExtender,
             @NonNull Context context) {

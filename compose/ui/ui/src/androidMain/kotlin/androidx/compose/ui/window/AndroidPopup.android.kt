@@ -113,8 +113,6 @@ class PopupProperties @ExperimentalComposeUiApi constructor(
     val securePolicy: SecureFlagPolicy = SecureFlagPolicy.Inherit,
     val excludeFromSystemGesture: Boolean = true,
     val clippingEnabled: Boolean = true,
-    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-    @get:ExperimentalComposeUiApi
     val usePlatformDefaultWidth: Boolean = false
 ) {
     @OptIn(ExperimentalComposeUiApi::class)
@@ -135,7 +133,6 @@ class PopupProperties @ExperimentalComposeUiApi constructor(
         usePlatformDefaultWidth = false
     )
 
-    @OptIn(ExperimentalComposeUiApi::class)
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is PopupProperties) return false
@@ -151,7 +148,6 @@ class PopupProperties @ExperimentalComposeUiApi constructor(
         return true
     }
 
-    @OptIn(ExperimentalComposeUiApi::class)
     override fun hashCode(): Int {
         var result = dismissOnBackPress.hashCode()
         result = 31 * result + focusable.hashCode()
@@ -410,7 +406,9 @@ internal class PopupLayout(
         parentLayoutCoordinates != null && popupContentSize != null
     }
 
-    private val maxSupportedElevation = 30.dp
+    // On systems older than Android S, there is a bug in the surface insets matrix math used by
+    // elevation, so high values of maxSupportedElevation break accessibility services: b/232788477.
+    private val maxSupportedElevation = 8.dp
 
     // The window visible frame used for the last popup position calculation.
     private val previousWindowVisibleFrame = Rect()

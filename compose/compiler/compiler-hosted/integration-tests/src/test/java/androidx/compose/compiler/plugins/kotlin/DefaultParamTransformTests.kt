@@ -63,23 +63,23 @@ class DefaultParamTransformTests : ComposeIrTransformTest() {
         """
             @Composable
             fun Test(%composer: Composer?, %changed: Int) {
-              if (isTraceInProgress()) {
-                traceEventStart(<>)
-              }
               %composer = %composer.startRestartGroup(<>)
               sourceInformation(%composer, "C(Test)<A(1)>,<B()>,<B(2)>:Test.kt")
               if (%changed !== 0 || !%composer.skipping) {
+                if (isTraceInProgress()) {
+                  traceEventStart(<>, %changed, -1, <>)
+                }
                 A(1, %composer, 0b0110)
                 B(0, %composer, 0, 0b0001)
                 B(2, %composer, 0b0110, 0)
+                if (isTraceInProgress()) {
+                  traceEventEnd()
+                }
               } else {
                 %composer.skipToGroupEnd()
               }
               %composer.endRestartGroup()?.updateScope { %composer: Composer?, %force: Int ->
                 Test(%composer, %changed or 0b0001)
-              }
-              if (isTraceInProgress()) {
-                traceEventEnd()
               }
             }
         """
@@ -103,9 +103,6 @@ class DefaultParamTransformTests : ComposeIrTransformTest() {
         """
             @Composable
             fun Example(foo: Foo, %composer: Composer?, %changed: Int, %default: Int) {
-              if (isTraceInProgress()) {
-                traceEventStart(<>)
-              }
               %composer = %composer.startRestartGroup(<>)
               sourceInformation(%composer, "C(Example)P(0:Foo):Test.kt")
               val %dirty = %changed
@@ -118,34 +115,37 @@ class DefaultParamTransformTests : ComposeIrTransformTest() {
                 if (%default and 0b0001 !== 0) {
                   foo = Foo(0)
                 }
+                if (isTraceInProgress()) {
+                  traceEventStart(<>, %changed, -1, <>)
+                }
                 print(foo)
+                if (isTraceInProgress()) {
+                  traceEventEnd()
+                }
               } else {
                 %composer.skipToGroupEnd()
               }
               %composer.endRestartGroup()?.updateScope { %composer: Composer?, %force: Int ->
                 Example(foo, %composer, %changed or 0b0001, %default)
               }
-              if (isTraceInProgress()) {
-                traceEventEnd()
-              }
             }
             @Composable
             fun Test(%composer: Composer?, %changed: Int) {
-              if (isTraceInProgress()) {
-                traceEventStart(<>)
-              }
               %composer = %composer.startRestartGroup(<>)
               sourceInformation(%composer, "C(Test)<Exampl...>:Test.kt")
               if (%changed !== 0 || !%composer.skipping) {
+                if (isTraceInProgress()) {
+                  traceEventStart(<>, %changed, -1, <>)
+                }
                 Example(<unsafe-coerce>(0), %composer, 0, 0b0001)
+                if (isTraceInProgress()) {
+                  traceEventEnd()
+                }
               } else {
                 %composer.skipToGroupEnd()
               }
               %composer.endRestartGroup()?.updateScope { %composer: Composer?, %force: Int ->
                 Test(%composer, %changed or 0b0001)
-              }
-              if (isTraceInProgress()) {
-                traceEventEnd()
               }
             }
         """
@@ -166,22 +166,22 @@ class DefaultParamTransformTests : ComposeIrTransformTest() {
         """
             @Composable
             fun Test(%composer: Composer?, %changed: Int) {
-              if (isTraceInProgress()) {
-                traceEventStart(<>)
-              }
               %composer = %composer.startRestartGroup(<>)
               sourceInformation(%composer, "C(Test)<A(0,>,<A(a>:Test.kt")
               if (%changed !== 0 || !%composer.skipping) {
+                if (isTraceInProgress()) {
+                  traceEventStart(<>, %changed, -1, <>)
+                }
                 A(0, 1, 2, 0, 0, %composer, 0b000110110110, 0b00011000)
                 A(0, 0, 2, 0, 0, %composer, 0b000110000110, 0b00011010)
+                if (isTraceInProgress()) {
+                  traceEventEnd()
+                }
               } else {
                 %composer.skipToGroupEnd()
               }
               %composer.endRestartGroup()?.updateScope { %composer: Composer?, %force: Int ->
                 Test(%composer, %changed or 0b0001)
-              }
-              if (isTraceInProgress()) {
-                traceEventEnd()
               }
             }
         """
@@ -227,9 +227,6 @@ class DefaultParamTransformTests : ComposeIrTransformTest() {
         """
             @Composable
             fun Test(x: Int, %composer: Composer?, %changed: Int, %default: Int) {
-              if (isTraceInProgress()) {
-                traceEventStart(<>)
-              }
               %composer = %composer.startRestartGroup(<>)
               sourceInformation(%composer, "C(Test):Test.kt")
               val %dirty = %changed
@@ -250,15 +247,18 @@ class DefaultParamTransformTests : ComposeIrTransformTest() {
                   }
                 }
                 %composer.endDefaults()
+                if (isTraceInProgress()) {
+                  traceEventStart(<>, %changed, -1, <>)
+                }
                 used(x)
+                if (isTraceInProgress()) {
+                  traceEventEnd()
+                }
               } else {
                 %composer.skipToGroupEnd()
               }
               %composer.endRestartGroup()?.updateScope { %composer: Composer?, %force: Int ->
                 Test(x, %composer, %changed or 0b0001, %default)
-              }
-              if (isTraceInProgress()) {
-                traceEventEnd()
               }
             }
         """
@@ -278,9 +278,6 @@ class DefaultParamTransformTests : ComposeIrTransformTest() {
         """
             @Composable
             fun A(a: Int, b: Int, %composer: Composer?, %changed: Int, %default: Int) {
-              if (isTraceInProgress()) {
-                traceEventStart(<>)
-              }
               %composer = %composer.startRestartGroup(<>)
               sourceInformation(%composer, "C(A):Test.kt")
               val %dirty = %changed
@@ -309,16 +306,19 @@ class DefaultParamTransformTests : ComposeIrTransformTest() {
                   }
                 }
                 %composer.endDefaults()
+                if (isTraceInProgress()) {
+                  traceEventStart(<>, %changed, -1, <>)
+                }
                 print(a)
                 print(b)
+                if (isTraceInProgress()) {
+                  traceEventEnd()
+                }
               } else {
                 %composer.skipToGroupEnd()
               }
               %composer.endRestartGroup()?.updateScope { %composer: Composer?, %force: Int ->
                 A(a, b, %composer, %changed or 0b0001, %default)
-              }
-              if (isTraceInProgress()) {
-                traceEventEnd()
               }
             }
         """
@@ -399,9 +399,6 @@ class DefaultParamTransformTests : ComposeIrTransformTest() {
         """
             @Composable
             fun Example(a00: Int, a01: Int, a02: Int, a03: Int, a04: Int, a05: Int, a06: Int, a07: Int, a08: Int, a09: Int, a10: Int, a11: Int, a12: Int, a13: Int, a14: Int, a15: Int, a16: Int, a17: Int, a18: Int, a19: Int, a20: Int, a21: Int, a22: Int, a23: Int, a24: Int, a25: Int, a26: Int, a27: Int, a28: Int, a29: Int, a30: Int, %composer: Composer?, %changed: Int, %changed1: Int, %changed2: Int, %changed3: Int, %default: Int) {
-              if (isTraceInProgress()) {
-                traceEventStart(<>)
-              }
               %composer = %composer.startRestartGroup(<>)
               sourceInformation(%composer, "C(Example):Test.kt")
               val %dirty = %changed
@@ -657,6 +654,9 @@ class DefaultParamTransformTests : ComposeIrTransformTest() {
                 if (%default and 0b01000000000000000000000000000000 !== 0) {
                   a30 = 0
                 }
+                if (isTraceInProgress()) {
+                  traceEventStart(<>, %changed, %changed1, <>)
+                }
                 used(a00)
                 used(a01)
                 used(a02)
@@ -688,14 +688,14 @@ class DefaultParamTransformTests : ComposeIrTransformTest() {
                 used(a28)
                 used(a29)
                 used(a30)
+                if (isTraceInProgress()) {
+                  traceEventEnd()
+                }
               } else {
                 %composer.skipToGroupEnd()
               }
               %composer.endRestartGroup()?.updateScope { %composer: Composer?, %force: Int ->
                 Example(a00, a01, a02, a03, a04, a05, a06, a07, a08, a09, a10, a11, a12, a13, a14, a15, a16, a17, a18, a19, a20, a21, a22, a23, a24, a25, a26, a27, a28, a29, a30, %composer, %changed or 0b0001, %changed1, %changed2, %changed3, %default)
-              }
-              if (isTraceInProgress()) {
-                traceEventEnd()
               }
             }
         """
@@ -778,9 +778,6 @@ class DefaultParamTransformTests : ComposeIrTransformTest() {
         """
             @Composable
             fun Example(a00: Int, a01: Int, a02: Int, a03: Int, a04: Int, a05: Int, a06: Int, a07: Int, a08: Int, a09: Int, a10: Int, a11: Int, a12: Int, a13: Int, a14: Int, a15: Int, a16: Int, a17: Int, a18: Int, a19: Int, a20: Int, a21: Int, a22: Int, a23: Int, a24: Int, a25: Int, a26: Int, a27: Int, a28: Int, a29: Int, a30: Int, a31: Int, %composer: Composer?, %changed: Int, %changed1: Int, %changed2: Int, %changed3: Int, %default: Int, %default1: Int) {
-              if (isTraceInProgress()) {
-                traceEventStart(<>)
-              }
               %composer = %composer.startRestartGroup(<>)
               sourceInformation(%composer, "C(Example):Test.kt")
               val %dirty = %changed
@@ -1044,6 +1041,9 @@ class DefaultParamTransformTests : ComposeIrTransformTest() {
                 if (%default1 and 0b0001 !== 0) {
                   a31 = 0
                 }
+                if (isTraceInProgress()) {
+                  traceEventStart(<>, %changed, %changed1, <>)
+                }
                 used(a00)
                 used(a01)
                 used(a02)
@@ -1076,14 +1076,14 @@ class DefaultParamTransformTests : ComposeIrTransformTest() {
                 used(a29)
                 used(a30)
                 used(a31)
+                if (isTraceInProgress()) {
+                  traceEventEnd()
+                }
               } else {
                 %composer.skipToGroupEnd()
               }
               %composer.endRestartGroup()?.updateScope { %composer: Composer?, %force: Int ->
                 Example(a00, a01, a02, a03, a04, a05, a06, a07, a08, a09, a10, a11, a12, a13, a14, a15, a16, a17, a18, a19, a20, a21, a22, a23, a24, a25, a26, a27, a28, a29, a30, a31, %composer, %changed or 0b0001, %changed1, %changed2, %changed3, %default, %default1)
-              }
-              if (isTraceInProgress()) {
-                traceEventEnd()
               }
             }
         """
@@ -1167,9 +1167,6 @@ class DefaultParamTransformTests : ComposeIrTransformTest() {
         """
             @Composable
             fun Example(a00: Int, a01: Int, a02: Int, a03: Int, a04: Int, a05: Int, a06: Int, a07: Int, a08: Int, a09: Foo?, a10: Int, a11: Int, a12: Int, a13: Int, a14: Int, a15: Int, a16: Int, a17: Int, a18: Int, a19: Int, a20: Int, a21: Int, a22: Int, a23: Int, a24: Int, a25: Int, a26: Int, a27: Int, a28: Int, a29: Int, a30: Int, a31: Foo?, %composer: Composer?, %changed: Int, %changed1: Int, %changed2: Int, %changed3: Int, %default: Int, %default1: Int) {
-              if (isTraceInProgress()) {
-                traceEventStart(<>)
-              }
               %composer = %composer.startRestartGroup(<>)
               sourceInformation(%composer, "C(Example):Test.kt")
               val %dirty = %changed
@@ -1443,6 +1440,9 @@ class DefaultParamTransformTests : ComposeIrTransformTest() {
                   }
                 }
                 %composer.endDefaults()
+                if (isTraceInProgress()) {
+                  traceEventStart(<>, %changed, %changed1, <>)
+                }
                 used(a00)
                 used(a01)
                 used(a02)
@@ -1475,14 +1475,14 @@ class DefaultParamTransformTests : ComposeIrTransformTest() {
                 used(a29)
                 used(a30)
                 used(a31)
+                if (isTraceInProgress()) {
+                  traceEventEnd()
+                }
               } else {
                 %composer.skipToGroupEnd()
               }
               %composer.endRestartGroup()?.updateScope { %composer: Composer?, %force: Int ->
                 Example(a00, a01, a02, a03, a04, a05, a06, a07, a08, a09, a10, a11, a12, a13, a14, a15, a16, a17, a18, a19, a20, a21, a22, a23, a24, a25, a26, a27, a28, a29, a30, a31, %composer, %changed or 0b0001, %changed1, %changed2, %changed3, %default, %default1)
-              }
-              if (isTraceInProgress()) {
-                traceEventEnd()
               }
             }
         """
@@ -1513,6 +1513,12 @@ class DefaultParamTransformTests : ComposeIrTransformTest() {
                 if (%default and 0b0001 !== 0) {
                   x = 0
                 }
+                if (isTraceInProgress()) {
+                  traceEventStart(<>, %changed, -1, <>)
+                }
+                if (isTraceInProgress()) {
+                  traceEventEnd()
+                }
                 %composer.endReplaceableGroup()
               }
               static val %stable: Int = 0
@@ -1524,11 +1530,71 @@ class DefaultParamTransformTests : ComposeIrTransformTest() {
               fun Example(%composer: Composer?, %changed: Int) {
                 %composer.startReplaceableGroup(<>)
                 sourceInformation(%composer, "C(Example)<foo()>:Test.kt")
+                if (isTraceInProgress()) {
+                  traceEventStart(<>, %changed, -1, <>)
+                }
                 foo(0, %composer, 0b01110000 and %changed shl 0b0011, 0b0001)
+                if (isTraceInProgress()) {
+                  traceEventEnd()
+                }
                 %composer.endReplaceableGroup()
               }
               static val %stable: Int = 0
             }
         """
     )
+
+    @Test
+    fun testDefaultArgsOnInvoke() = defaultParams(
+        """
+            object HasDefault {
+                @Composable
+                operator fun invoke(text: String = "SomeText"){
+                    println(text)
+                }
+            }
+
+            object NoDefault {
+                @Composable
+                operator fun invoke(text: String){
+                    println(text)
+                }
+            }
+
+            object MultipleDefault {
+                @Composable
+                operator fun invoke(text: String = "SomeText", value: Int = 5){
+                    println(text)
+                    println(value)
+                }
+            }
+        """,
+        """
+            @NonRestartableComposable
+            @Composable
+            fun Bar() {
+                HasDefault()
+                NoDefault("Some Text")
+                MultipleDefault()
+            }
+        """,
+        """
+            @NonRestartableComposable
+            @Composable
+            fun Bar(%composer: Composer?, %changed: Int) {
+              %composer.startReplaceableGroup(<>)
+              sourceInformation(%composer, "C(Bar)<HasDef...>,<NoDefa...>,<Multip...>:Test.kt")
+              if (isTraceInProgress()) {
+                traceEventStart(<>, %changed, -1, <>)
+              }
+              HasDefault(null, %composer, 0b00110000, 0b0001)
+              NoDefault("Some Text", %composer, 0b00110110)
+              MultipleDefault(null, 0, %composer, 0b000110000000, 0b0011)
+              if (isTraceInProgress()) {
+                traceEventEnd()
+              }
+              %composer.endReplaceableGroup()
+            }
+        """
+        )
 }

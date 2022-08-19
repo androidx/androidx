@@ -25,12 +25,8 @@ import javax.lang.model.element.ExecutableElement
 
 internal abstract class JavacExecutableElement(
     env: JavacProcessingEnv,
-    val containing: JavacTypeElement,
     override val element: ExecutableElement
-) : JavacElement(
-    env,
-    element
-),
+) : JavacElement(env, element),
     XExecutableElement,
     XHasModifiers by JavacHasModifiers(element) {
     abstract val kotlinMetadata: KmExecutable?
@@ -40,10 +36,6 @@ internal abstract class JavacExecutableElement(
     }
 
     abstract override val parameters: List<JavacMethodParameter>
-
-    override val equalityItems: Array<out Any?> by lazy {
-        arrayOf(element, containing)
-    }
 
     override val enclosingElement: JavacTypeElement by lazy {
         element.requireEnclosingType(env)

@@ -19,6 +19,15 @@ import androidx.build.Publish
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
+    id("kotlin-android")
+}
+
+dependencies {
+    implementation(libs.kotlinStdlib)
+
+    api(project(":bluetooth:bluetooth-core"))
+
+    implementation "androidx.annotation:annotation:1.4.0"
 }
 
 androidx {
@@ -31,4 +40,7 @@ androidx {
 
 android {
     namespace "androidx.bluetooth"
+    defaultConfig {
+        minSdkVersion 21
+    }
 }

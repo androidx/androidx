@@ -17,6 +17,7 @@
 package androidx.collection.integration
 
 import androidx.collection.ArraySet
+import androidx.collection.arraySetOf
 import java.util.function.IntFunction
 
 /**
@@ -40,8 +41,12 @@ fun arraySetSourceCompatibility(): Boolean {
         println(item)
     }
 
+    val array = Array(arraySet.size) { 0 }
+    arraySet.forEachIndexed(array::set) // Copy into an existing array
+
     @Suppress("RedundantSamConstructor", "DEPRECATION")
-    return arraySet.isEmpty() && arraySet.remove(0) && arraySet.removeAll(arrayOf(1, 2)) &&
+    return arraySet.isEmpty() && arraySet.remove(0) &&
+        arraySet.removeAll(arraySetOf(1, 2)) && arraySet.removeAll(listOf(1, 2)) &&
         arraySet.removeAt(0) == 0 && arraySet.contains(0) && arraySet.size == 0 &&
         arraySet.isEmpty() && arraySet.toArray() === arraySet.toArray(arrayOf<Number>()) &&
         arraySet + arrayOf(1) == arraySet - arrayOf(1) && arraySet == arrayOf(0) &&

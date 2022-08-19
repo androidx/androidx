@@ -39,30 +39,31 @@ import java.util.Locale
  * @param locale the locale used for formatting.
  *     If missing then the application locale will be used.
  */
-class DateTimeFormatter @JvmOverloads constructor(
-    context: Context,
-    options: DateTimeFormatterOptions,
-    locale: Locale = getDefaultFormattingLocale()
-) {
+class DateTimeFormatter {
 
     private val dateFormatter: IDateTimeFormatterImpl
-    init {
-        dateFormatter =
-            if (options is DateTimeFormatterSkeletonOptions ||
-                    options is DateTimeFormatterCommonOptions) {
 
-                val resolvedSkeleton = skeletonRespectingPrefs(context, locale, options.toString())
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                    DateTimeFormatterImplIcu(resolvedSkeleton, locale)
-                } else {
-                    DateTimeFormatterImplAndroid(resolvedSkeleton, locale)
-                }
-            } else if (options is DateTimeFormatterJdkStyleOptions) {
-                DateTimeFormatterImplJdkStyle(options.dateStyle, options.timeStyle, locale)
+    @JvmOverloads
+    constructor(
+        context: Context,
+        options: DateTimeFormatterSkeletonOptions,
+        locale: Locale = getDefaultFormattingLocale()
+    ) {
+        val resolvedSkeleton = skeletonRespectingPrefs(context, locale, options.toString())
+        dateFormatter =
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                DateTimeFormatterImplIcu(resolvedSkeleton, locale)
             } else {
-                // throw?
-                DateTimeFormatterImplJdkStyle(-1, -1, locale)
+                DateTimeFormatterImplAndroid(resolvedSkeleton, locale)
             }
+    }
+
+    @JvmOverloads
+    constructor(
+        options: DateTimeFormatterJdkStyleOptions,
+        locale: Locale = getDefaultFormattingLocale()
+    ) {
+        dateFormatter = DateTimeFormatterImplJdkStyle(options.dateStyle, options.timeStyle, locale)
     }
 
     private fun skeletonRespectingPrefs(

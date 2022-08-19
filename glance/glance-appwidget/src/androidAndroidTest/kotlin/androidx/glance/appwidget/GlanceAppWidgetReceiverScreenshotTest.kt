@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.glance.Button
+import androidx.glance.ButtonColors
 import androidx.glance.GlanceModifier
 import androidx.glance.Image
 import androidx.glance.ImageProvider
@@ -231,12 +232,20 @@ class GlanceAppWidgetReceiverScreenshotTest {
                         "Start",
                         onClick = actionStartActivity<Activity>(),
                         modifier = GlanceModifier.defaultWeight().fillMaxHeight(),
+                        colors = ButtonColors(
+                            backgroundColor = ColorProvider(Color.Transparent),
+                            contentColor = ColorProvider(Color.DarkGray)
+                        ),
                         style = TextStyle(textAlign = TextAlign.Start)
                     )
                     Button(
                         "End",
                         onClick = actionStartActivity<Activity>(),
                         modifier = GlanceModifier.defaultWeight().fillMaxHeight(),
+                        colors = ButtonColors(
+                            backgroundColor = ColorProvider(Color.Transparent),
+                            contentColor = ColorProvider(Color.DarkGray)
+                        ),
                         style = TextStyle(textAlign = TextAlign.End)
                     )
                 }

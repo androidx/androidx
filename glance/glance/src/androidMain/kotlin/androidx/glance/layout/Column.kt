@@ -25,14 +25,14 @@ import androidx.glance.unit.Dimension
 
 /** @suppress */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class EmittableColumn : EmittableWithChildren() {
+class EmittableColumn : EmittableWithChildren() {
     override var modifier: GlanceModifier = GlanceModifier
-    public var verticalAlignment: Alignment.Vertical = Alignment.Top
-    public var horizontalAlignment: Alignment.Horizontal = Alignment.Start
+    var verticalAlignment: Alignment.Vertical = Alignment.Top
+    var horizontalAlignment: Alignment.Horizontal = Alignment.Start
 }
 
 /** Scope defining modifiers only available on rows. */
-public interface ColumnScope {
+interface ColumnScope {
     /**
      * Size the element's height to split the available space with other weighted sibling elements
      * in the [Column]. The parent will divide the vertical space remaining after measuring
@@ -63,7 +63,7 @@ private object ColumnScopeImplInstance : ColumnScope {
  * @param content The content inside the [Column]
  */
 @Composable
-public fun Column(
+fun Column(
     modifier: GlanceModifier = GlanceModifier,
     verticalAlignment: Alignment.Vertical = Alignment.Top,
     horizontalAlignment: Alignment.Horizontal = Alignment.Start,

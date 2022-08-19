@@ -26,24 +26,16 @@ import androidx.room.compiler.processing.util.isValidJavaSourceName
  */
 interface XMethodElement : XExecutableElement {
     /**
-     * The name of the method in source.
+     * The name of the method in JVM.
+     * Use this properly when you need to generate code accessing this method.
      *
-     * For Kotlin sources, this might be different from [jvmName] if:
+     * For Kotlin sources, this might be different from name in source if:
      * * Function is annotated with @JvmName
      * * Function has a value class as a parameter or return type
      * * Function is internal
      *
-     * @see jvmName
-     */
-    val name: String
-
-    /**
-     * The name of the method in JVM.
-     * Use this properly when you need to generate code accessing this method.
-     *
      * Note that accessing this property requires resolving jvmName for Kotlin sources, which is an
      * expensive operation that includes type resolution (in KSP).
-     * @see name
      */
     val jvmName: String
 
@@ -123,11 +115,6 @@ interface XMethodElement : XExecutableElement {
      * member of the [owner].
      */
     fun overrides(other: XMethodElement, owner: XTypeElement): Boolean
-
-    /**
-     * Creates a new [XMethodElement] where containing element is replaced with [newContainer].
-     */
-    fun copyTo(newContainer: XTypeElement): XMethodElement
 
     /**
      * If true, this method can be invoked from Java sources. This is especially important for

@@ -26,5 +26,5 @@ import androidx.glance.background
  * element to paint the specified [Color] as its background, choosing [day] or [night]
  * depending on the device configuration, which will fill the bounds of the element.
  */
-public fun GlanceModifier.background(day: Color, night: Color): GlanceModifier =
+fun GlanceModifier.background(day: Color, night: Color): GlanceModifier =
     background(ColorProvider(day, night))

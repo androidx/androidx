@@ -28,7 +28,7 @@ import androidx.core.google.shortcuts.converters.AppSearchDocumentConverter;
 import androidx.core.google.shortcuts.converters.IndexableKeys;
 import androidx.core.util.Preconditions;
 
-import com.google.firebase.appindexing.Indexable;
+import com.google.android.gms.appindex.Indexable;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;

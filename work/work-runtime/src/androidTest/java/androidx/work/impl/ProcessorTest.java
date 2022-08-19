@@ -16,6 +16,8 @@
 
 package androidx.work.impl;
 
+import static androidx.work.impl.model.WorkSpecKt.generationalId;
+
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.mock;
@@ -30,6 +32,7 @@ import androidx.test.filters.SmallTest;
 import androidx.work.Configuration;
 import androidx.work.DatabaseTest;
 import androidx.work.OneTimeWorkRequest;
+import androidx.work.impl.model.WorkGenerationalId;
 import androidx.work.impl.utils.taskexecutor.InstantWorkTaskExecutor;
 import androidx.work.worker.InfiniteTestWorker;
 
@@ -62,18 +65,18 @@ public class ProcessorTest extends DatabaseTest {
     @Test
     @SmallTest
     public void testStopWork_invalidWorkId() {
-        String id = "INVALID_WORK_ID";
-        assertThat(mProcessor.stopWork(new WorkRunId(id)), is(false));
+        WorkGenerationalId id = new WorkGenerationalId("INVALID_WORK_ID", 0);
+        assertThat(mProcessor.stopWork(new StartStopToken(id)), is(false));
     }
 
     @Test
     @SmallTest
     public void testStartWork_doesNotStartWorkTwice() {
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(InfiniteTestWorker.class).build();
-        String id = work.getStringId();
+        WorkGenerationalId id = generationalId(work.getWorkSpec());
         insertWork(work);
-        assertThat(mProcessor.startWork(new WorkRunId(id)), is(true));
-        assertThat(mProcessor.startWork(new WorkRunId(id)), is(false));
+        assertThat(mProcessor.startWork(new StartStopToken(id)), is(true));
+        assertThat(mProcessor.startWork(new StartStopToken(id)), is(false));
     }
 
     @Test
@@ -83,14 +86,14 @@ public class ProcessorTest extends DatabaseTest {
         insertWork(work);
 
         assertThat(mProcessor.hasWork(), is(false));
-        mProcessor.startWork(new WorkRunId(work.getStringId()));
+        mProcessor.startWork(new StartStopToken(generationalId(work.getWorkSpec())));
         assertThat(mProcessor.hasWork(), is(true));
     }
 
     @Test
     @SmallTest
     public void testDontCancelWhenNeedsReschedule() {
-        mProcessor.onExecuted("dummy", true);
-        verify(mMockScheduler, never()).cancel("dummy");
+        mProcessor.onExecuted(new WorkGenerationalId("foo", 0), true);
+        verify(mMockScheduler, never()).cancel("foo");
     }
 }

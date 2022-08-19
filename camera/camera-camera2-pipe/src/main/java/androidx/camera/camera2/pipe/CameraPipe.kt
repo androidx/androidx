@@ -45,11 +45,11 @@ internal val cameraPipeIds = atomic(0)
  * [android.hardware.camera2.CameraDevice] and [android.hardware.camera2.CameraCaptureSession] via
  * the [CameraGraph] interface.
  */
-public class CameraPipe(config: Config, threadConfig: ThreadConfig = ThreadConfig()) {
+public class CameraPipe(config: Config) {
     private val debugId = cameraPipeIds.incrementAndGet()
     private val component: CameraPipeComponent = DaggerCameraPipeComponent.builder()
         .cameraPipeConfigModule(CameraPipeConfigModule(config))
-        .threadConfigModule(ThreadConfigModule(threadConfig))
+        .threadConfigModule(ThreadConfigModule(config.threadConfig))
         .build()
 
     /**
@@ -77,7 +77,8 @@ public class CameraPipe(config: Config, threadConfig: ThreadConfig = ThreadConfi
     public data class Config(
         val appContext: Context,
         val threadConfig: ThreadConfig = ThreadConfig(),
-        val cameraMetadataConfig: CameraMetadataConfig = CameraMetadataConfig()
+        val cameraMetadataConfig: CameraMetadataConfig = CameraMetadataConfig(),
+        val cameraBackendConfig: CameraBackendConfig = CameraBackendConfig()
     )
 
     /**
@@ -112,6 +113,31 @@ public class CameraPipe(config: Config, threadConfig: ThreadConfig = ThreadConfi
         public val cameraCacheBlocklist: Map<CameraId, Set<CameraCharacteristics.Key<*>>> =
             emptyMap()
     )
+
+    /**
+     * Configure the default and available [CameraBackend] instances that are available.
+     *
+     * @param internalBackend will override the default camera backend defined by [CameraPipe].
+     *   This may be used to mock and replace all interactions with camera2.
+     * @param defaultBackend defines which camera backend instance should be used by default. If
+     *   this value is specified, it must appear in the list of [cameraBackends]. If no value is
+     *   specified, the [internalBackend] instance will be used. If [internalBackend] is null, the
+     *   default backend will use the pre-defined [CameraPipe] internal backend.
+     * @param cameraBackends defines a map of unique [CameraBackendFactory] that may be used to
+     *   create, query, and operate cameras via [CameraPipe].
+     */
+    class CameraBackendConfig(
+        val internalBackend: CameraBackend? = null,
+        val defaultBackend: CameraBackendId? = null,
+        val cameraBackends: Map<CameraBackendId, CameraBackendFactory> = emptyMap()
+    ) {
+        init {
+            check(defaultBackend == null || cameraBackends.containsKey(defaultBackend)) {
+                "$defaultBackend does not exist in cameraBackends! Available backends are:" +
+                    " ${cameraBackends.keys}"
+            }
+        }
+    }
 
     override fun toString(): String = "CameraPipe-$debugId"
 

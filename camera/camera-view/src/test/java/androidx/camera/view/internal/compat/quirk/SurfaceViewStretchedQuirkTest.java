@@ -50,6 +50,11 @@ public class SurfaceViewStretchedQuirkTest {
         quirkExistsOnDevice("Oppo", "OP4E75L1");
     }
 
+    @Test
+    public void quirkExistsOnLenovoTabP12Pro() {
+        quirkExistsOnDevice("Lenovo", "Q706F");
+    }
+
     public void quirkExistsOnDevice(String manufacturer, String device) {
         // Arrange.
         ReflectionHelpers.setStaticField(Build.class, "DEVICE", device);

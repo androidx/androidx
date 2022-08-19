@@ -30,7 +30,7 @@ class PerfettoNativeTest {
         init {
             PerfettoNative.loadLib()
         }
-        const val libraryVersion = "1.0.0-alpha01" // TODO: get using reflection
+        const val libraryVersion = "1.0.0-alpha02" // TODO: get using reflection
     }
 
     @Test
@@ -43,8 +43,6 @@ class PerfettoNativeTest {
         PerfettoNative.nativeTraceEventBegin(321, "bar")
         PerfettoNative.nativeTraceEventEnd()
         PerfettoNative.nativeTraceEventEnd()
-
-        PerfettoNative.nativeFlushEvents()
 
         // TODO: verify the content by getting it back from Perfetto
     }

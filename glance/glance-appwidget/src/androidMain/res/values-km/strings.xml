@@ -17,6 +17,6 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="error_layout_title" msgid="7937809248738392417"><b>"បញ្ហា​ពាក់ព័ន្ធនឹង​ធាតុក្រាហ្វិក​កម្មវិធី​មើលមួយភ្លែត"</b></string>
-    <string name="error_layout_text" msgid="6543889412094559379">"ពិនិត្យមើល​បញ្ហាជាក់លាក់​ដោយប្រើ "<b><tt>"adb logcat"</tt></b>", កំពុង​ស្វែងរក "<b><tt>"GlanceAppWidget"</tt></b></string>
+    <string name="glance_error_layout_title" msgid="2896109737634971880"><b>"បញ្ហា​ពាក់ព័ន្ធនឹង​ធាតុក្រាហ្វិក​កម្មវិធី​មើលមួយភ្លែត"</b></string>
+    <string name="glance_error_layout_text" msgid="8513923302775602854">"ពិនិត្យមើល​បញ្ហាជាក់លាក់​ដោយប្រើ "<b><tt>"adb logcat"</tt></b>", កំពុង​ស្វែងរក "<b><tt>"GlanceAppWidget"</tt></b></string>
 </resources>

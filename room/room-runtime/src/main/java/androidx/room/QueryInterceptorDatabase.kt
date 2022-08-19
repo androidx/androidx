@@ -19,7 +19,6 @@ package androidx.room
 import android.database.Cursor
 import android.database.sqlite.SQLiteTransactionListener
 import android.os.CancellationSignal
-import androidx.annotation.NonNull
 
 import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.sqlite.db.SupportSQLiteQuery
@@ -104,15 +103,14 @@ internal class QueryInterceptorDatabase(
         val queryInterceptorProgram = QueryInterceptorProgram()
         query.bindTo(queryInterceptorProgram)
         queryCallbackExecutor.execute {
-            queryCallback.onQuery(query.getSql(), queryInterceptorProgram.bindArgsCache)
+            queryCallback.onQuery(query.sql, queryInterceptorProgram.bindArgsCache)
         }
         return delegate.query(query)
     }
 
-    @NonNull
     override fun query(
-        @NonNull query: SupportSQLiteQuery,
-        @NonNull cancellationSignal: CancellationSignal?
+        query: SupportSQLiteQuery,
+        cancellationSignal: CancellationSignal?
     ): Cursor {
         val queryInterceptorProgram = QueryInterceptorProgram()
         query.bindTo(queryInterceptorProgram)
@@ -138,7 +136,7 @@ internal class QueryInterceptorDatabase(
     // Suppress warning about `SQL` in execSQL not being camel case. This is an override function
     // and it can't be renamed.
     @Suppress("AcronymName")
-    override fun execSQL(sql: String, vararg bindArgs: Any) {
+    override fun execSQL(sql: String, bindArgs: Array<Any>) {
         val inputArguments = mutableListOf<Any>()
         inputArguments.addAll(listOf(bindArgs))
         queryCallbackExecutor.execute {

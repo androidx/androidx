@@ -22,6 +22,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.widget.ImageView;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -43,7 +44,7 @@ class ImageViewUtils {
      */
     static void animateTransform(@NonNull ImageView view, @Nullable Matrix matrix) {
         if (Build.VERSION.SDK_INT >= 29) {
-            view.animateTransform(matrix);
+            Api29Impl.animateTransform(view, matrix);
         } else if (matrix == null) {
             // There is a bug in ImageView.animateTransform() prior to Q so paddings are
             // ignored when matrix is null.
@@ -89,7 +90,7 @@ class ImageViewUtils {
             // Since this was an @hide method made public, we can link directly against it with
             // a try/catch for its absence instead of doing the same through reflection.
             try {
-                view.animateTransform(matrix);
+                Api29Impl.animateTransform(view, matrix);
             } catch (NoSuchMethodError e) {
                 sTryHiddenAnimateTransform = false;
             }
@@ -109,6 +110,17 @@ class ImageViewUtils {
         }
     }
 
-    private ImageViewUtils() {
+    private ImageViewUtils() { }
+
+    @RequiresApi(29)
+    static class Api29Impl {
+        private Api29Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static void animateTransform(ImageView imageView, Matrix matrix) {
+            imageView.animateTransform(matrix);
+        }
     }
 }

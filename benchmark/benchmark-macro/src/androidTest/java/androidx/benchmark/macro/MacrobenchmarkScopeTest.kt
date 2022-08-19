@@ -78,7 +78,10 @@ class MacrobenchmarkScopeTest {
             baselineProfileMode = BaselineProfileMode.Disable,
             warmupIterations = iterations
         )
-        compilation.resetAndCompile(Packages.TARGET) {
+        compilation.resetAndCompile(
+            Packages.TARGET,
+            killProcessBlock = scope::killProcess
+        ) {
             executions += 1
             scope.pressHome()
             scope.startActivityAndWait()
@@ -88,8 +91,12 @@ class MacrobenchmarkScopeTest {
 
     @Test
     fun compile_full() {
+        val scope = MacrobenchmarkScope(Packages.TARGET, launchWithClearTask = true)
         val compilation = CompilationMode.Full()
-        compilation.resetAndCompile(Packages.TARGET) {
+        compilation.resetAndCompile(
+            Packages.TARGET,
+            killProcessBlock = scope::killProcess
+        ) {
             fail("Should never be called for $compilation")
         }
     }

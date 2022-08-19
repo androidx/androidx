@@ -19,6 +19,7 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.TimeInterpolator;
 import android.animation.ValueAnimator;
+import android.annotation.SuppressLint;
 import android.view.View;
 import android.view.ViewPropertyAnimator;
 
@@ -85,6 +86,7 @@ public class DefaultItemAnimator extends SimpleItemAnimator {
         }
 
         @Override
+        @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
         public String toString() {
             return "ChangeInfo{"
                     + "oldHolder=" + oldHolder
@@ -189,6 +191,7 @@ public class DefaultItemAnimator extends SimpleItemAnimator {
     }
 
     @Override
+    @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
     public boolean animateRemove(final RecyclerView.ViewHolder holder) {
         resetAnimation(holder);
         mPendingRemovals.add(holder);
@@ -218,6 +221,7 @@ public class DefaultItemAnimator extends SimpleItemAnimator {
     }
 
     @Override
+    @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
     public boolean animateAdd(final RecyclerView.ViewHolder holder) {
         resetAnimation(holder);
         holder.itemView.setAlpha(0);
@@ -252,6 +256,7 @@ public class DefaultItemAnimator extends SimpleItemAnimator {
     }
 
     @Override
+    @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
     public boolean animateMove(final RecyclerView.ViewHolder holder, int fromX, int fromY,
             int toX, int toY) {
         final View view = holder.itemView;
@@ -316,8 +321,9 @@ public class DefaultItemAnimator extends SimpleItemAnimator {
     }
 
     @Override
-    public boolean animateChange(RecyclerView.ViewHolder oldHolder, RecyclerView.ViewHolder newHolder,
-            int fromLeft, int fromTop, int toLeft, int toTop) {
+    @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
+    public boolean animateChange(RecyclerView.ViewHolder oldHolder,
+            RecyclerView.ViewHolder newHolder, int fromLeft, int fromTop, int toLeft, int toTop) {
         if (oldHolder == newHolder) {
             // Don't know how to run change animations when the same view holder is re-used.
             // run a move animation to handle position changes.
@@ -433,6 +439,7 @@ public class DefaultItemAnimator extends SimpleItemAnimator {
     }
 
     @Override
+    @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
     public void endAnimation(RecyclerView.ViewHolder item) {
         final View view = item.itemView;
         // this will trigger end callback which should set properties to their target values.

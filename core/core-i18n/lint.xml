@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<lint>
+    <!-- Disable all lint checks for ICU4J files. -->
+    <issue id="all">
+        <ignore path="src/main/java/androidx/core/i18n/messageformat_icu/**" />
+    </issue>
+</lint>

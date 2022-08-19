@@ -25,6 +25,7 @@ import androidx.annotation.RestrictTo.Scope;
 import androidx.wear.tiles.DeviceParametersBuilders;
 import androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters;
 import androidx.wear.tiles.DimensionBuilders.DpProp;
+import androidx.wear.tiles.ModifiersBuilders.ElementMetadata;
 import androidx.wear.tiles.ModifiersBuilders.Modifiers;
 
 import java.nio.charset.StandardCharsets;
@@ -92,29 +93,23 @@ public class Helper {
         return tagName.getBytes(StandardCharsets.UTF_8);
     }
 
-    /**
-     * Returns the String representation of metadata tag from the given Modifiers. Note, this method
-     * assumes that Metadata exists.
-     */
+    /** Returns the String representation of metadata tag from the given ElementMetadata. */
     @NonNull
-    public static String getMetadataTagName(@NonNull Modifiers modifiers) {
-        return getTagName(getMetadataTagBytes(modifiers));
+    public static String getMetadataTagName(@NonNull ElementMetadata metadata) {
+        return getTagName(getMetadataTagBytes(metadata));
     }
 
-    /**
-     * Returns the metadata tag from the given Modifiers. Note, this method assumes that Metadata
-     * exists.
-     */
+    /** Returns the metadata tag from the given ElementMetadata. */
     @NonNull
-    public static byte[] getMetadataTagBytes(@NonNull Modifiers modifiers) {
-        return checkNotNull(modifiers.getMetadata()).getTagData();
+    public static byte[] getMetadataTagBytes(@NonNull ElementMetadata metadata) {
+        return checkNotNull(metadata).getTagData();
     }
 
     /** Returns true if the given Modifiers have Metadata tag set to the given String value. */
     public static boolean checkTag(@Nullable Modifiers modifiers, @NonNull String validTag) {
         return modifiers != null
                 && modifiers.getMetadata() != null
-                && validTag.equals(getMetadataTagName(modifiers));
+                && validTag.equals(getMetadataTagName(modifiers.getMetadata()));
     }
 
     /**
@@ -125,7 +120,7 @@ public class Helper {
             @Nullable Modifiers modifiers, @NonNull Collection<String> validTags) {
         return modifiers != null
                 && modifiers.getMetadata() != null
-                && validTags.contains(getMetadataTagName(modifiers));
+                && validTags.contains(getMetadataTagName(modifiers.getMetadata()));
     }
 
     /**
@@ -137,7 +132,7 @@ public class Helper {
         if (modifiers == null || modifiers.getMetadata() == null) {
             return false;
         }
-        byte[] metadataTag = getMetadataTagBytes(modifiers);
+        byte[] metadataTag = getMetadataTagBytes(modifiers.getMetadata());
         byte[] tag = Arrays.copyOf(metadataTag, validPrefix.length());
         return metadataTag.length == validBase.length && validPrefix.equals(getTagName(tag));
     }

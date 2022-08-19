@@ -33,7 +33,7 @@ import androidx.glance.GlanceNode
  * necessary. If the text exceeds the given number of lines, it will be truncated.
  */
 @Composable
-public fun Text(
+fun Text(
     text: String,
     modifier: GlanceModifier = GlanceModifier,
     style: TextStyle? = null,
@@ -52,11 +52,11 @@ public fun Text(
 
 /** @suppress */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class EmittableText : Emittable {
+class EmittableText : Emittable {
     override var modifier: GlanceModifier = GlanceModifier
-    public var text: String = ""
-    public var style: TextStyle? = null
-    public var maxLines: Int = Int.MAX_VALUE
+    var text: String = ""
+    var style: TextStyle? = null
+    var maxLines: Int = Int.MAX_VALUE
 
     override fun toString(): String =
         "EmittableText($text, style=$style, modifier=$modifier, maxLines=$maxLines)"

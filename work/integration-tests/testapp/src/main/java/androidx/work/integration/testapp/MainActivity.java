@@ -512,6 +512,26 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
 
+        findViewById(R.id.enqueue_periodic_work_multiprocess).setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Context context = MainActivity.this;
+                        Intent intent = RemoteService.Companion
+                                .enqueueUniquePeriodicIntent(context);
+                        context.startService(intent);
+                    }
+                });
+
+        findViewById(R.id.update_periodic_work_multiprocess).setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Context context = MainActivity.this;
+                        Intent intent = RemoteService.Companion.updateUniquePeriodicIntent(context);
+                        context.startService(intent);
+                    }
+                });
         findViewById(R.id.enqueue_remote_worker_1).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

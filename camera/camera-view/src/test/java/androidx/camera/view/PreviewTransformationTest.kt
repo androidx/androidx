@@ -24,7 +24,7 @@ import android.view.Surface
 import android.view.View
 import androidx.camera.core.SurfaceRequest
 import androidx.camera.core.impl.ImageOutputConfig.RotationValue
-import androidx.camera.view.TransformUtils.sizeToVertices
+import androidx.camera.core.impl.utils.TransformUtils.sizeToVertices
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import kotlin.math.roundToInt

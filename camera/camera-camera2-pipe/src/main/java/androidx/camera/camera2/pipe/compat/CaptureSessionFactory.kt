@@ -26,9 +26,10 @@ import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.compat.OutputConfigurationWrapper.Companion.SURFACE_GROUP_ID_NONE
-import androidx.camera.camera2.pipe.config.CameraGraphScope
+import androidx.camera.camera2.pipe.config.Camera2ControllerScope
 import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.core.Threads
+import androidx.camera.camera2.pipe.graph.StreamGraphImpl
 import dagger.Module
 import dagger.Provides
 import javax.inject.Inject
@@ -50,9 +51,9 @@ internal interface CaptureSessionFactory {
 }
 
 @Module
-internal object SessionFactoryModule {
+internal object Camera2CaptureSessionsModule {
     @SuppressLint("ObsoleteSdkInt")
-    @CameraGraphScope
+    @Camera2ControllerScope
     @Provides
     fun provideSessionFactory(
         androidLProvider: Provider<AndroidLSessionFactory>,
@@ -180,7 +181,7 @@ internal class AndroidMHighSpeedSessionFactory @Inject constructor(
 @RequiresApi(Build.VERSION_CODES.N)
 internal class AndroidNSessionFactory @Inject constructor(
     private val threads: Threads,
-    private val streamGraph: Camera2StreamGraph,
+    private val streamGraph: StreamGraphImpl,
     private val graphConfig: CameraGraph.Config
 ) : CaptureSessionFactory {
     override fun create(
@@ -232,7 +233,7 @@ internal class AndroidNSessionFactory @Inject constructor(
 internal class AndroidPSessionFactory @Inject constructor(
     private val threads: Threads,
     private val graphConfig: CameraGraph.Config,
-    private val streamGraph: Camera2StreamGraph
+    private val streamGraph: StreamGraphImpl
 ) : CaptureSessionFactory {
     override fun create(
         cameraDevice: CameraDeviceWrapper,
@@ -290,7 +291,7 @@ internal class AndroidPSessionFactory @Inject constructor(
 @RequiresApi(Build.VERSION_CODES.N)
 internal fun buildOutputConfigurations(
     graphConfig: CameraGraph.Config,
-    streamGraph: Camera2StreamGraph,
+    streamGraph: StreamGraphImpl,
     surfaces: Map<StreamId, Surface>
 ): OutputConfigurations {
     val allOutputs = arrayListOf<OutputConfigurationWrapper>()

@@ -406,6 +406,7 @@ public final class CarNotificationManager {
     @VisibleForTesting
     @ColorInt
     @Nullable
+    @SuppressWarnings("deprecation") // getColor(int id)
     Integer getColorInt(CarColor carColor) {
         boolean isDarkMode =
                 (mContext.getResources().getConfiguration().uiMode
@@ -420,13 +421,13 @@ public final class CarNotificationManager {
             case TYPE_SECONDARY:
                 return isDarkMode ? mSecondaryColorDark : mSecondaryColor;
             case TYPE_RED:
-                return mContext.getColor(R.color.carColorRed);
+                return mContext.getResources().getColor(R.color.carColorRed);
             case TYPE_GREEN:
-                return mContext.getColor(R.color.carColorGreen);
+                return mContext.getResources().getColor(R.color.carColorGreen);
             case TYPE_BLUE:
-                return mContext.getColor(R.color.carColorBlue);
+                return mContext.getResources().getColor(R.color.carColorBlue);
             case TYPE_YELLOW:
-                return mContext.getColor(R.color.carColorYellow);
+                return mContext.getResources().getColor(R.color.carColorYellow);
             case TYPE_DEFAULT:
             default:
                 return null;

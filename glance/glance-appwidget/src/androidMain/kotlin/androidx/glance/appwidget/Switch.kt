@@ -31,7 +31,7 @@ import androidx.glance.text.TextStyle
 import androidx.glance.unit.ColorProvider
 
 /** Set of colors to apply to a Switch depending on the checked state. */
-public sealed class SwitchColors {
+sealed class SwitchColors {
     internal abstract val thumb: CheckableColorProvider
     internal abstract val track: CheckableColorProvider
 }
@@ -56,7 +56,7 @@ internal data class SwitchColorsImpl(
  * @param uncheckedTrackColor the tint to apply to the track of the switch when it is not checked,
  * or null to use the default tint
  */
-public fun SwitchColors(
+fun SwitchColors(
     checkedThumbColor: ColorProvider? = null,
     uncheckedThumbColor: ColorProvider? = null,
     checkedTrackColor: ColorProvider? = null,
@@ -89,7 +89,7 @@ public fun SwitchColors(
  * @param trackColor the resource to use to tint the track. If an invalid resource id is provided,
  * the default switch colors will be used.
  */
-public fun SwitchColors(
+fun SwitchColors(
     @ColorRes thumbColor: Int,
     @ColorRes trackColor: Int = R.color.glance_default_switch_track
 ): SwitchColors =

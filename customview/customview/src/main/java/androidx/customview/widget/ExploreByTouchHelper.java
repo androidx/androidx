@@ -335,7 +335,8 @@ public abstract class ExploreByTouchHelper extends AccessibilityDelegateCompat {
     private static final FocusStrategy.BoundsAdapter<AccessibilityNodeInfoCompat> NODE_ADAPTER =
             new FocusStrategy.BoundsAdapter<AccessibilityNodeInfoCompat>() {
                 @Override
-                public void obtainBounds(AccessibilityNodeInfoCompat node, Rect outBounds) {
+                public void obtainBounds(@NonNull AccessibilityNodeInfoCompat node,
+                        @NonNull Rect outBounds) {
                     node.getBoundsInScreen(outBounds);
                 }
             };

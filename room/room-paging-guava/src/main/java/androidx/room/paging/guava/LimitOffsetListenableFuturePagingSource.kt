@@ -77,7 +77,7 @@ abstract class LimitOffsetListenableFuturePagingSource<Value : Any>(
                     nonInitialLoad(params, tempCount)
                 }
             },
-            db.getQueryExecutor()
+            db.queryExecutor
         )
     }
 

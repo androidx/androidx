@@ -23,6 +23,15 @@ plugins {
 }
 
 dependencies {
+    // Atomic Group
+    constraints {
+        implementation(project(":paging:paging-runtime"))
+        // syntax is temp workaround to allow project dependency on cross-project-set
+        // i.e. COMPOSE + MAIN project sets
+        // update syntax when b/239979823 is fixed
+        implementation("androidx.paging:paging-compose:${androidx.LibraryVersions.PAGING_COMPOSE}")
+    }
+
     api("androidx.annotation:annotation:1.3.0")
     api("androidx.arch.core:core-common:2.1.0")
     api(libs.kotlinStdlib)

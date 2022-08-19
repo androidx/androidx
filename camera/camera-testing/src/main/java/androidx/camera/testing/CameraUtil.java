@@ -25,10 +25,12 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.hardware.camera2.CameraAccessException;
+import android.hardware.camera2.CameraCaptureSession;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CameraManager;
 import android.hardware.camera2.CameraMetadata;
+import android.hardware.camera2.CaptureRequest;
 import android.media.CamcorderProfile;
 import android.media.MediaCodec;
 import android.media.MediaCodecInfo;
@@ -37,6 +39,7 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.util.Log;
+import android.view.Surface;
 
 import androidx.annotation.DoNotInline;
 import androidx.annotation.GuardedBy;
@@ -55,6 +58,7 @@ import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.camera.core.internal.CameraUseCaseAdapter;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
+import androidx.concurrent.futures.CallbackToFutureAdapter.Completer;
 import androidx.core.util.Preconditions;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.platform.app.InstrumentationRegistry;
@@ -76,6 +80,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -135,7 +140,6 @@ public final class CameraUtil {
      * <p>After the camera is no longer needed {@link #releaseCameraDevice(CameraDeviceHolder)}
      * should be called to clean up resources.
      *
-     * @throws CameraAccessException if the device is unable to access the camera
      * @throws InterruptedException  if a {@link CameraDevice} can not be retrieved within a set
      *                               time
      */
@@ -144,7 +148,7 @@ public final class CameraUtil {
     public static CameraDeviceHolder getCameraDevice(
             @NonNull String cameraId,
             @Nullable CameraDevice.StateCallback stateCallback)
-            throws CameraAccessException, InterruptedException, TimeoutException,
+            throws InterruptedException, TimeoutException,
             ExecutionException {
         return new CameraDeviceHolder(getCameraManager(), cameraId, stateCallback);
     }
@@ -192,7 +196,9 @@ public final class CameraUtil {
         @GuardedBy("mLock")
         CameraDevice mCameraDevice;
         final HandlerThread mHandlerThread;
+        final Handler mHandler;
         private ListenableFuture<Void> mCloseFuture;
+        CameraCaptureSessionHolder mCameraCaptureSessionHolder;
 
         @RequiresPermission(Manifest.permission.CAMERA)
         CameraDeviceHolder(@NonNull CameraManager cameraManager, @NonNull String cameraId,
@@ -200,6 +206,7 @@ public final class CameraUtil {
                 throws InterruptedException, ExecutionException, TimeoutException {
             mHandlerThread = new HandlerThread(String.format("CameraThread-%s", cameraId));
             mHandlerThread.start();
+            mHandler = new Handler(mHandlerThread.getLooper());
 
             ListenableFuture<Void> cameraOpenFuture = openCamera(cameraManager, cameraId,
                     stateCallback);
@@ -217,7 +224,7 @@ public final class CameraUtil {
                 mCloseFuture = CallbackToFutureAdapter.getFuture(closeCompleter -> {
                     cameraManager.openCamera(cameraId,
                             new DeviceStateCallbackImpl(openCompleter, closeCompleter,
-                                    extraStateCallback), new Handler(mHandlerThread.getLooper()));
+                                    extraStateCallback), mHandler);
                     return "Close[cameraId=" + cameraId + "]";
                 });
                 return "Open[cameraId=" + cameraId + "]";
@@ -267,6 +274,7 @@ public final class CameraUtil {
             public void onDisconnected(@NonNull CameraDevice cameraDevice) {
                 synchronized (mLock) {
                     mCameraDevice = null;
+                    mCameraCaptureSessionHolder = null;
                 }
                 if (mExtraStateCallback != null) {
                     mExtraStateCallback.onDisconnected(cameraDevice);
@@ -282,6 +290,7 @@ public final class CameraUtil {
                         notifyOpenFailed = true;
                     } else {
                         mCameraDevice = null;
+                        mCameraCaptureSessionHolder = null;
                     }
                 }
                 if (mExtraStateCallback != null) {
@@ -305,6 +314,7 @@ public final class CameraUtil {
             synchronized (mLock) {
                 cameraDevice = mCameraDevice;
                 mCameraDevice = null;
+                mCameraCaptureSessionHolder = null;
             }
 
             if (cameraDevice != null) {
@@ -315,12 +325,193 @@ public final class CameraUtil {
         }
 
         /**
+         * Returns a ListenableFuture representing the closed state.
+         */
+        @NonNull
+        public ListenableFuture<Void> getClosedFuture() {
+            return Futures.nonCancellationPropagating(mCloseFuture);
+        }
+
+        /**
          * Returns the camera device if it opened successfully and has not been closed.
          */
         @Nullable
         public CameraDevice get() {
             synchronized (mLock) {
                 return mCameraDevice;
+            }
+        }
+
+        /**
+         * Create a {@link CameraCaptureSession} by the hold CameraDevice
+         *
+         * @param surfaces the surfaces used to create CameraCaptureSession
+         * @return the CameraCaptureSession holder
+         */
+        @NonNull
+        public CameraCaptureSessionHolder createCaptureSession(@NonNull List<Surface> surfaces)
+                throws ExecutionException, InterruptedException, TimeoutException {
+            synchronized (mLock) {
+                Preconditions.checkState(mCameraDevice != null, "Camera is closed.");
+            }
+            if (mCameraCaptureSessionHolder != null) {
+                mCameraCaptureSessionHolder.close();
+                mCameraCaptureSessionHolder = null;
+            }
+            mCameraCaptureSessionHolder = new CameraCaptureSessionHolder(this, surfaces, null);
+            return mCameraCaptureSessionHolder;
+        }
+    }
+
+    /**
+     * A container class used to hold a {@link CameraCaptureSession}.
+     *
+     * <p>This class contains a valid {@link CameraCaptureSession} that can be retrieved with
+     * {@link #get()}, unless the session has been closed.
+     *
+     * <p>The instance can be obtained via {@link CameraDeviceHolder#createCaptureSession}
+     * and will be closed by creating another CameraCaptureSessionHolder. The latest instance will
+     * be closed when the associated CameraDeviceHolder is released by
+     * {@link CameraUtil#releaseCameraDevice(CameraDeviceHolder)}.
+     */
+    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info
+    public static class CameraCaptureSessionHolder {
+
+        private final CameraDeviceHolder mCameraDeviceHolder;
+        private CameraCaptureSession mCameraCaptureSession;
+        private ListenableFuture<Void> mCloseFuture;
+
+        CameraCaptureSessionHolder(@NonNull CameraDeviceHolder cameraDeviceHolder,
+                @NonNull List<Surface> surfaces,
+                @Nullable CameraCaptureSession.StateCallback stateCallback
+        ) throws ExecutionException, InterruptedException, TimeoutException {
+            mCameraDeviceHolder = cameraDeviceHolder;
+            CameraDevice cameraDevice = Preconditions.checkNotNull(cameraDeviceHolder.get());
+            ListenableFuture<CameraCaptureSession> openFuture = openCaptureSession(cameraDevice,
+                    surfaces, stateCallback, cameraDeviceHolder.mHandler);
+
+            mCameraCaptureSession = openFuture.get(5, TimeUnit.SECONDS);
+        }
+
+        @SuppressWarnings("deprecation")
+        @NonNull
+        private ListenableFuture<CameraCaptureSession> openCaptureSession(
+                @NonNull CameraDevice cameraDevice,
+                @NonNull List<Surface> surfaces,
+                @Nullable CameraCaptureSession.StateCallback stateCallback,
+                @NonNull Handler handler) {
+            return CallbackToFutureAdapter.getFuture(
+                    openCompleter -> {
+                        mCloseFuture = CallbackToFutureAdapter.getFuture(
+                                closeCompleter -> {
+                                    cameraDevice.createCaptureSession(surfaces,
+                                            new SessionStateCallbackImpl(
+                                                    openCompleter, closeCompleter, stateCallback),
+                                            handler);
+                                    return "Close CameraCaptureSession";
+                                });
+                        return "Open CameraCaptureSession";
+                    });
+        }
+
+        void close() throws ExecutionException, InterruptedException, TimeoutException {
+            if (mCameraCaptureSession != null) {
+                mCameraCaptureSession.close();
+                mCameraCaptureSession = null;
+            }
+            mCloseFuture.get(10L, TimeUnit.SECONDS);
+        }
+
+        /**
+         * A simplified method to start a repeating capture request.
+         *
+         * <p>For advance usage, use {@link #get} to obtain the CameraCaptureSession and then issue
+         * repeating request.
+         *
+         * @param template one of the {@link CameraDevice} template.
+         * @param surfaces the surfaces add to the repeating request
+         * @param captureParams the pairs of {@link CaptureRequest.Key} and value
+         * @param captureCallback the capture callback
+         * @throws CameraAccessException if fail to issue the request
+         */
+        @SuppressWarnings("unchecked") // Cast to CaptureRequest.Key<Object>
+        public void startRepeating(int template, @NonNull List<Surface> surfaces,
+                @Nullable Map<CaptureRequest.Key<?>, Object> captureParams,
+                @Nullable CameraCaptureSession.CaptureCallback captureCallback)
+                throws CameraAccessException {
+            checkSessionOrThrow();
+            CameraDevice cameraDevice = mCameraDeviceHolder.get();
+            Preconditions.checkState(cameraDevice != null, "CameraDevice is closed.");
+            CaptureRequest.Builder builder = cameraDevice.createCaptureRequest(template);
+            for (Surface surface : surfaces) {
+                builder.addTarget(surface);
+            }
+            if (captureParams != null) {
+                for (Map.Entry<CaptureRequest.Key<?>, Object> entry : captureParams.entrySet()) {
+                    builder.set((CaptureRequest.Key<Object>) entry.getKey(), entry.getValue());
+                }
+            }
+            mCameraCaptureSession.setRepeatingRequest(builder.build(), captureCallback,
+                    mCameraDeviceHolder.mHandler);
+        }
+
+        /**
+         * Returns the camera capture session if it opened successfully and has not been closed.
+         *
+         * @throws IllegalStateException if the camera capture session is closed
+         */
+        @NonNull
+        public CameraCaptureSession get() {
+            checkSessionOrThrow();
+            return mCameraCaptureSession;
+        }
+
+        private void checkSessionOrThrow() {
+            Preconditions.checkState(mCameraCaptureSession != null,
+                    "CameraCaptureSession is closed");
+        }
+
+        @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info
+        private static class SessionStateCallbackImpl extends
+                CameraCaptureSession.StateCallback {
+            private final Completer<CameraCaptureSession> mOpenCompleter;
+            private final CallbackToFutureAdapter.Completer<Void> mCloseCompleter;
+            @Nullable
+            private final CameraCaptureSession.StateCallback mExtraStateCallback;
+
+            SessionStateCallbackImpl(
+                    @NonNull Completer<CameraCaptureSession> openCompleter,
+                    @NonNull Completer<Void> closeCompleter,
+                    @Nullable CameraCaptureSession.StateCallback extraStateCallback) {
+                mOpenCompleter = openCompleter;
+                mCloseCompleter = closeCompleter;
+                mExtraStateCallback = extraStateCallback;
+            }
+
+            @Override
+            public void onConfigured(@NonNull CameraCaptureSession cameraCaptureSession) {
+                if (mExtraStateCallback != null) {
+                    mExtraStateCallback.onConfigured(cameraCaptureSession);
+                }
+                mOpenCompleter.set(cameraCaptureSession);
+            }
+
+            @Override
+            public void onConfigureFailed(@NonNull CameraCaptureSession cameraCaptureSession) {
+                if (mExtraStateCallback != null) {
+                    mExtraStateCallback.onConfigureFailed(cameraCaptureSession);
+                }
+                mOpenCompleter.setException(new RuntimeException("Failed to "
+                        + "open CameraCaptureSession"));
+                mCloseCompleter.set(null);
+            }
+
+            @Override
+            public void onClosed(@NonNull CameraCaptureSession session) {
+                if (mExtraStateCallback != null) {
+                    mExtraStateCallback.onClosed(session);
+                }
+                mCloseCompleter.set(null);
             }
         }
     }
@@ -466,6 +657,9 @@ public final class CameraUtil {
     public static boolean requiresCorrectedAspectRatio(@CameraSelector.LensFacing int lensFacing) {
         Integer hardwareLevelValue;
         CameraCharacteristics cameraCharacteristics = getCameraCharacteristics(lensFacing);
+        if (cameraCharacteristics == null) {
+            return false;
+        }
         hardwareLevelValue = cameraCharacteristics.get(
                 CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL);
         // There is a bug because of a flipped scaling factor in the intermediate texture
@@ -490,7 +684,7 @@ public final class CameraUtil {
         for (String cameraId : getBackwardCompatibleCameraIdListOrThrow()) {
             CameraCharacteristics characteristics = getCameraCharacteristicsOrThrow(cameraId);
             Integer cameraLensFacing = characteristics.get(CameraCharacteristics.LENS_FACING);
-            if (cameraLensFacing != null && cameraLensFacing.intValue() == lensFacingInteger) {
+            if (cameraLensFacing != null && cameraLensFacing == lensFacingInteger) {
                 return cameraId;
             }
         }
@@ -510,11 +704,11 @@ public final class CameraUtil {
         for (String cameraId : getBackwardCompatibleCameraIdListOrThrow()) {
             CameraCharacteristics characteristics = getCameraCharacteristicsOrThrow(cameraId);
             Integer cameraLensFacing = characteristics.get(CameraCharacteristics.LENS_FACING);
-            if (cameraLensFacing == null || cameraLensFacing.intValue() != lensFacingInteger) {
+            if (cameraLensFacing == null || cameraLensFacing != lensFacingInteger) {
                 continue;
             }
             Boolean hasFlashUnit = characteristics.get(CameraCharacteristics.FLASH_INFO_AVAILABLE);
-            if (hasFlashUnit != null && hasFlashUnit.booleanValue()) {
+            if (hasFlashUnit != null && hasFlashUnit) {
                 return true;
             }
         }
@@ -535,7 +729,7 @@ public final class CameraUtil {
         for (String cameraId : getBackwardCompatibleCameraIdListOrThrow()) {
             CameraCharacteristics characteristics = getCameraCharacteristicsOrThrow(cameraId);
             Integer cameraLensFacing = characteristics.get(CameraCharacteristics.LENS_FACING);
-            if (cameraLensFacing != null && cameraLensFacing.intValue() == lensFacingInteger) {
+            if (cameraLensFacing != null && cameraLensFacing == lensFacingInteger) {
                 return characteristics;
             }
         }
@@ -586,7 +780,7 @@ public final class CameraUtil {
         for (String cameraId : getBackwardCompatibleCameraIdListOrThrow()) {
             CameraCharacteristics characteristics = getCameraCharacteristicsOrThrow(cameraId);
             Integer cameraLensFacing = characteristics.get(CameraCharacteristics.LENS_FACING);
-            if (cameraLensFacing == null || cameraLensFacing.intValue() != lensFacingInteger) {
+            if (cameraLensFacing == null || cameraLensFacing != lensFacingInteger) {
                 continue;
             }
             return characteristics.get(CameraCharacteristics.SENSOR_ORIENTATION);
@@ -667,7 +861,7 @@ public final class CameraUtil {
      */
     @NonNull
     public static TestRule checkVideoRecordingResource() {
-        RuleChain rule = RuleChain.outerRule((base, description) -> new Statement() {
+        return RuleChain.outerRule((base, description) -> new Statement() {
             @RequiresApi(api = Build.VERSION_CODES.M)
             @Override
             public void evaluate() throws Throwable {
@@ -676,8 +870,6 @@ public final class CameraUtil {
                 base.evaluate();
             }
         });
-
-        return rule;
     }
 
     /**
@@ -722,7 +914,9 @@ public final class CameraUtil {
                 checkResult = false;
             } finally {
                 Logger.i(LOG_TAG, "codec.release()");
-                codec.release();
+                if (codec != null) {
+                    codec.release();
+                }
             }
         }
 
@@ -1031,10 +1225,10 @@ public final class CameraUtil {
      *
      * <p>For b/167201193
      *
-     * <P>Try to use the CameraXConfig to initialize CameraX when it fails to detect the valid
-     * lens facing info from camera characteristics. It throws an exception if it cannot
-     * successfully init CameraX (or throws AssumptionViolatedException when it is not in the
-     * CameraX lab).
+     * <P>Verify the lensFacing info is available in the CameraCharacteristic, or initialize
+     * CameraX with the CameraXConfig if it is provided. Throws an exception to interrupt the
+     * test if it detects incorrect info, or throws AssumptionViolatedException when it is not in
+     * the CameraX lab.
      */
     public static class PreTestCameraIdList implements TestRule {
         final boolean mThrowOnError = Log.isLoggable("CameraXDumpIdList", Log.DEBUG);
@@ -1064,24 +1258,18 @@ public final class CameraUtil {
                     if (mCameraIdListCorrect.get() == null) {
                         if (isCameraLensFacingInfoAvailable()) {
                             mCameraIdListCorrect.set(true);
-                        } else if (mCameraXConfig != null) {
-                            try {
-                                CameraXUtil.initialize(ApplicationProvider.getApplicationContext(),
-                                        mCameraXConfig).get(10, TimeUnit.SECONDS);
-                                Logger.i(LOG_TAG, "Successfully init CameraX");
-                                mCameraIdListCorrect.set(true);
-                            } catch (Exception e) {
-                                Logger.w(LOG_TAG, "CameraX init fail");
-                                mCameraIdListCorrect.set(false);
-                            } finally {
-                                try {
-                                    CameraXUtil.shutdown().get(10, TimeUnit.SECONDS);
-                                } catch (Exception e) {
-                                    // Ignore all exceptions in the shutdown process.
-                                }
-                            }
                         } else {
                             mCameraIdListCorrect.set(false);
+                        }
+
+                        // Always try to initialize CameraX if the CameraXConfig has been set.
+                        if (mCameraXConfig != null) {
+                            if (checkLensFacingByCameraXConfig(
+                                    ApplicationProvider.getApplicationContext(), mCameraXConfig)) {
+                                mCameraIdListCorrect.set(true);
+                            } else {
+                                mCameraIdListCorrect.set(false);
+                            }
                         }
                     }
 
@@ -1100,6 +1288,40 @@ public final class CameraUtil {
                 }
             };
         }
+    }
+
+    static boolean checkLensFacingByCameraXConfig(@NonNull Context context,
+            @NonNull CameraXConfig config) {
+        try {
+            // Shutdown exist instances, if there is any
+            CameraXUtil.shutdown().get(10, TimeUnit.SECONDS);
+
+            CameraXUtil.initialize(context, config).get(10, TimeUnit.SECONDS);
+            CameraX camerax = CameraXUtil.getOrCreateInstance(context, null).get(5,
+                    TimeUnit.SECONDS);
+            LinkedHashSet<CameraInternal> cameras = camerax.getCameraRepository().getCameras();
+
+            PackageManager pm = context.getPackageManager();
+            boolean backFeature = pm.hasSystemFeature(PackageManager.FEATURE_CAMERA);
+            boolean frontFeature = pm.hasSystemFeature(PackageManager.FEATURE_CAMERA_FRONT);
+            if (backFeature) {
+                CameraSelector.DEFAULT_BACK_CAMERA.select(cameras);
+            }
+            if (frontFeature) {
+                CameraSelector.DEFAULT_FRONT_CAMERA.select(cameras);
+            }
+            Logger.i(LOG_TAG, "Successfully init CameraX");
+            return true;
+        } catch (Exception e) {
+            Logger.w(LOG_TAG, "CameraX init fail", e);
+        } finally {
+            try {
+                CameraXUtil.shutdown().get(10, TimeUnit.SECONDS);
+            } catch (Exception e) {
+                // Ignore all exceptions in the shutdown process.
+            }
+        }
+        return false;
     }
 
     /**

@@ -60,7 +60,7 @@ internal class QueryInterceptorStatement(
         return delegate.simpleQueryForLong()
     }
 
-    override fun simpleQueryForString(): String {
+    override fun simpleQueryForString(): String? {
         queryCallbackExecutor.execute {
             queryCallback.onQuery(sqlStatement, bindArgsCache)
         }
@@ -82,12 +82,12 @@ internal class QueryInterceptorStatement(
         delegate.bindDouble(index, value)
     }
 
-    override fun bindString(index: Int, value: String?) {
+    override fun bindString(index: Int, value: String) {
         saveArgsToCache(index, value)
         delegate.bindString(index, value)
     }
 
-    override fun bindBlob(index: Int, value: ByteArray?) {
+    override fun bindBlob(index: Int, value: ByteArray) {
         saveArgsToCache(index, value)
         delegate.bindBlob(index, value)
     }

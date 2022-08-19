@@ -45,10 +45,14 @@ internal data class Slice(
                 .drop(1) // drop the header row
                 .map {
                     val columns = it.split(",")
+                    // Trace section names may have a ","
+                    // Parse the duration, and timestamps first. Whatever is remaining must be the
+                    // name.
+                    val size = columns.size
                     Slice(
-                        name = columns[0].unquote(),
-                        ts = columns[1].toLong(),
-                        dur = columns[2].toLong()
+                        name = columns.dropLast(2).joinToString(",").unquote(),
+                        ts = columns[size - 2].toLong(),
+                        dur = columns[size - 1].toLong()
                     )
                 }
         }

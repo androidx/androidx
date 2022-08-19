@@ -143,6 +143,9 @@ data class WorkSpec(
      */
     @ColumnInfo(name = "period_count", defaultValue = "0")
     var periodCount: Int = 0,
+
+    @ColumnInfo(defaultValue = "0")
+    val generation: Int = 0,
 ) {
     constructor(
         id: String,
@@ -348,6 +351,9 @@ data class WorkSpec(
         @ColumnInfo(name = "run_attempt_count")
         var runAttemptCount: Int,
 
+        @ColumnInfo(name = "generation")
+        val generation: Int,
+
         @Relation(
             parentColumn = "id",
             entityColumn = "work_spec_id",
@@ -379,7 +385,8 @@ data class WorkSpec(
                 output,
                 tags,
                 progress,
-                runAttemptCount
+                runAttemptCount,
+                generation
             )
         }
     }
@@ -394,3 +401,7 @@ data class WorkSpec(
         }
     }
 }
+
+data class WorkGenerationalId(val workSpecId: String, val generation: Int)
+
+fun WorkSpec.generationalId() = WorkGenerationalId(id, generation)

@@ -61,9 +61,24 @@ public final class GenericDocumentToPlatformConverter {
             } else if (property instanceof boolean[]) {
                 platformBuilder.setPropertyBoolean(propertyName, (boolean[]) property);
             } else if (property instanceof byte[][]) {
-                platformBuilder.setPropertyBytes(propertyName, (byte[][]) property);
+                byte[][] byteValues = (byte[][]) property;
+                // This is a patch for b/204677124, framework-appsearch in Android S and S_V2 will
+                // crash if the user put a document with empty byte[][] or document[].
+                if ((Build.VERSION.SDK_INT == Build.VERSION_CODES.S
+                        || Build.VERSION.SDK_INT == Build.VERSION_CODES.S_V2)
+                        && byteValues.length == 0) {
+                    continue;
+                }
+                platformBuilder.setPropertyBytes(propertyName, byteValues);
             } else if (property instanceof GenericDocument[]) {
                 GenericDocument[] documentValues = (GenericDocument[]) property;
+                // This is a patch for b/204677124, framework-appsearch in Android S and S_V2 will
+                // crash if the user put a document with empty byte[][] or document[].
+                if ((Build.VERSION.SDK_INT == Build.VERSION_CODES.S
+                        || Build.VERSION.SDK_INT == Build.VERSION_CODES.S_V2)
+                        && documentValues.length == 0) {
+                    continue;
+                }
                 android.app.appsearch.GenericDocument[] platformSubDocuments =
                         new android.app.appsearch.GenericDocument[documentValues.length];
                 for (int j = 0; j < documentValues.length; j++) {

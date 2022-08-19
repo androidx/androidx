@@ -49,7 +49,7 @@ internal class StartServiceIntentAction(
  * is only used for device versions after [android.os.Build.VERSION_CODES.O] that requires
  * foreground service to be launched differently
  */
-public fun actionStartService(intent: Intent, isForegroundService: Boolean = false): Action =
+fun actionStartService(intent: Intent, isForegroundService: Boolean = false): Action =
     StartServiceIntentAction(intent, isForegroundService)
 
 /**
@@ -60,7 +60,7 @@ public fun actionStartService(intent: Intent, isForegroundService: Boolean = fal
  * is only used for device versions after [android.os.Build.VERSION_CODES.O] that requires
  * foreground service to be launched differently
  */
-public fun actionStartService(
+fun actionStartService(
     componentName: ComponentName,
     isForegroundService: Boolean = false
 ): Action = StartServiceComponentAction(componentName, isForegroundService)
@@ -73,7 +73,7 @@ public fun actionStartService(
  * is only used for device versions after [android.os.Build.VERSION_CODES.O] that requires
  * foreground service to be launched differently
  */
-public fun <T : Service> actionStartService(
+fun <T : Service> actionStartService(
     service: Class<T>,
     isForegroundService: Boolean = false
 ): Action =
@@ -88,6 +88,6 @@ public fun <T : Service> actionStartService(
  */
 @Suppress("MissingNullability")
 /* Shouldn't need to specify @NonNull. b/199284086 */
-public inline fun <reified T : Service> actionStartService(
+inline fun <reified T : Service> actionStartService(
     isForegroundService: Boolean = false
 ): Action = actionStartService(T::class.java, isForegroundService)

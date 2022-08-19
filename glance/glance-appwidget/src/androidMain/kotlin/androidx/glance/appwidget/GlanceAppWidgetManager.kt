@@ -19,6 +19,7 @@ package androidx.glance.appwidget
 import android.appwidget.AppWidgetManager
 import android.content.ComponentName
 import android.content.Context
+import android.content.Intent
 import androidx.annotation.VisibleForTesting
 import androidx.compose.ui.unit.DpSize
 import androidx.datastore.core.DataStore
@@ -114,6 +115,47 @@ class GlanceAppWidgetManager(private val context: Context) {
         require(glanceId is AppWidgetId) { "This method only accepts App Widget Glance Id" }
         val bundle = appWidgetManager.getAppWidgetOptions(glanceId.appWidgetId)
         return bundle.extractAllSizes { DpSize.Zero }
+    }
+
+    /**
+     * Retrieve the platform AppWidget ID from the provided GlanceId
+     *
+     * Important: Do NOT use appwidget ID as identifier, instead create your own and store them in
+     * the GlanceStateDefinition. This method should only be used for compatibility or IPC
+     * communication reasons in conjunction with [getGlanceIdBy]
+     */
+    fun getAppWidgetId(glanceId: GlanceId): Int {
+        require(glanceId is AppWidgetId) { "This method only accepts App Widget Glance Id" }
+        return glanceId.appWidgetId
+    }
+
+    /**
+     * Retrieve the GlanceId of the provided AppWidget ID.
+     *
+     * @throws IllegalArgumentException if the provided id is not associated with an existing
+     * GlanceId
+     */
+    fun getGlanceIdBy(appWidgetId: Int): GlanceId {
+        requireNotNull(appWidgetManager.getAppWidgetInfo(appWidgetId)) {
+            "Invalid AppWidget ID."
+        }
+        return AppWidgetId(appWidgetId)
+    }
+
+    /**
+     * Retrieve the GlanceId from the configuration activity intent or null if not valid
+     */
+    fun getGlanceIdBy(configurationIntent: Intent): GlanceId? {
+        val appWidgetId = configurationIntent.extras?.getInt(
+            AppWidgetManager.EXTRA_APPWIDGET_ID,
+            AppWidgetManager.INVALID_APPWIDGET_ID
+        ) ?: AppWidgetManager.INVALID_APPWIDGET_ID
+
+        if (appWidgetId == AppWidgetManager.INVALID_APPWIDGET_ID) {
+            return null
+        }
+
+        return AppWidgetId(appWidgetId)
     }
 
     /** Check which receivers still exist, and clean the data store to only keep those. */

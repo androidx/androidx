@@ -19,7 +19,6 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.content.Context;
-import android.content.res.ColorStateList;
 import android.content.res.Configuration;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
@@ -74,8 +73,6 @@ public class ActionMenuView extends LinearLayoutCompat implements MenuBuilder.It
     private int mMinCellSize;
     private int mGeneratedItemPadding;
 
-    private ColorStateList mIconTint;
-
     OnMenuItemClickListener mOnMenuItemClickListener;
 
     public ActionMenuView(@NonNull Context context) {
@@ -90,32 +87,6 @@ public class ActionMenuView extends LinearLayoutCompat implements MenuBuilder.It
         mGeneratedItemPadding = (int) (GENERATED_ITEM_PADDING * density);
         mPopupContext = context;
         mPopupTheme = 0;
-    }
-
-    /**
-     * Set the tint for all icons in the menu.
-     * @param iconTintList tint to be applied to all menu items
-     */
-    public void setIconTint(@Nullable ColorStateList iconTintList) {
-        mIconTint = iconTintList;
-        int childCount = getChildCount();
-        for (int i = 0; i < childCount; i++) {
-            setItemIconTint(getChildAt(i));
-        }
-    }
-
-    /**
-     * Sets the icon tint for the child view, if it is an ItemView and has item data, and
-     * the icon tint is set for this menu.
-     * @param child A child of this view
-     */
-    private void setItemIconTint(View child) {
-        if (child instanceof ItemView && mIconTint != null) {
-            final MenuItemImpl itemData = ((ItemView) child).getItemData();
-            if (itemData != null) {
-                itemData.setIconTintList(mIconTint);
-            }
-        }
     }
 
     /**
@@ -153,19 +124,6 @@ public class ActionMenuView extends LinearLayoutCompat implements MenuBuilder.It
     public void setPresenter(ActionMenuPresenter presenter) {
         mPresenter = presenter;
         mPresenter.setMenuView(this);
-    }
-
-    @Override
-    protected void attachViewToParent(@Nullable View child, int index,
-            @Nullable ViewGroup.LayoutParams params) {
-        super.attachViewToParent(child, index, params);
-        setItemIconTint(child);
-    }
-
-    @Override
-    public void addView(@Nullable View child) {
-        super.addView(child);
-        setItemIconTint(child);
     }
 
     @Override

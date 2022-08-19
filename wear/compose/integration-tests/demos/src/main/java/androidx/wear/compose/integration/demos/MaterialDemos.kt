@@ -24,6 +24,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material.samples.AlertDialogSample
@@ -51,6 +52,10 @@ import androidx.wear.compose.material.samples.InlineSliderSample
 import androidx.wear.compose.material.samples.InlineSliderSegmentedSample
 import androidx.wear.compose.material.samples.InlineSliderWithIntegerSample
 import androidx.wear.compose.material.samples.LargeButtonWithIcon
+import androidx.wear.compose.material.samples.OutlinedButtonWithIcon
+import androidx.wear.compose.material.samples.OutlinedChipWithIconAndLabel
+import androidx.wear.compose.material.samples.OutlinedCompactButtonWithIcon
+import androidx.wear.compose.material.samples.OutlinedCompactChipWithIconAndLabel
 import androidx.wear.compose.material.samples.ScalingLazyColumnEdgeAnchoredAndAnimatedScrollTo
 import androidx.wear.compose.material.samples.SimplePicker
 import androidx.wear.compose.material.samples.SimpleScaffoldWithScrollIndicator
@@ -148,6 +153,7 @@ val WearMaterialDemos = DemoCategory(
                         )
                     },
                     ComposableDemo("Simple Picker") { SimplePicker() },
+                    ComposableDemo("No gradient") { PickerWithoutGradient() },
                 )
             } else {
                 listOf(
@@ -266,6 +272,9 @@ val WearMaterialDemos = DemoCategory(
                         ComposableDemo("Access Location") { DialogAccessLocation() },
                         ComposableDemo("Grant Permission") { DialogGrantPermission() },
                         ComposableDemo("Long Chips") { DialogLongChips() },
+                        ComposableDemo("Dialog Background") {
+                            DialogBackground(Color.Green)
+                        },
                         ComposableDemo("Confirmation") { DialogSuccessConfirmation() },
                     )
                 )
@@ -282,8 +291,14 @@ val WearMaterialDemos = DemoCategory(
                             Centralize { LargeButtonWithIcon() }
                         },
                         ComposableDemo("Button With Text") { Centralize { ButtonWithText() } },
+                        ComposableDemo("Outlined Button With Icon") {
+                            Centralize { OutlinedButtonWithIcon() }
+                        },
                         ComposableDemo("Compact Button With Icon") {
                             Centralize { CompactButtonWithIcon() }
+                        },
+                        ComposableDemo("Outline Compact Button With Icon") {
+                            Centralize { OutlinedCompactButtonWithIcon() }
                         },
                     )
                 ),
@@ -320,6 +335,11 @@ val WearMaterialDemos = DemoCategory(
                                 ChipWithIconAndLabels()
                             }
                         },
+                        ComposableDemo("Outlined Chip With Icon And long Label") {
+                            Centralize(Modifier.padding(horizontal = 10.dp)) {
+                                OutlinedChipWithIconAndLabel()
+                            }
+                        },
                         ComposableDemo("Compact Chip With Icon And Label") {
                             Centralize(Modifier.padding(horizontal = 10.dp)) {
                                 CompactChipWithIconAndLabel()
@@ -333,6 +353,11 @@ val WearMaterialDemos = DemoCategory(
                         ComposableDemo("Compact Chip Icon Only") {
                             Centralize(Modifier.padding(horizontal = 10.dp)) {
                                 CompactChipWithIcon()
+                            }
+                        },
+                        ComposableDemo("Outlined Compact Chip With Icon and Label") {
+                            Centralize(Modifier.padding(horizontal = 10.dp)) {
+                                OutlinedCompactChipWithIconAndLabel()
                             }
                         },
                     )

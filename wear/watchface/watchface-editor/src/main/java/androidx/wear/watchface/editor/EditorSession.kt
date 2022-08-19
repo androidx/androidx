@@ -27,6 +27,7 @@ import android.os.Handler
 import android.os.Looper
 import android.support.wearable.watchface.Constants
 import android.support.wearable.watchface.SharedMemoryImage
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContract
@@ -276,6 +277,7 @@ public interface EditorSession : AutoCloseable {
         }
 
         // Used by tests.
+        @Suppress("DEPRECATION")
         @Throws(TimeoutCancellationException::class)
         internal suspend fun createOnWatchEditorSessionImpl(
             activity: ComponentActivity,
@@ -428,9 +430,12 @@ public abstract class BaseEditorSession internal constructor(
     private companion object {
         /** Timeout for fetching ComplicationsPreviewData in [BaseEditorSession.close]. */
         private const val CLOSE_BROADCAST_TIMEOUT_MILLIS = 500L
+
+        private const val TAG = "BaseEditorSession"
     }
 
     init {
+        Log.d(TAG, "Session started")
         EditorService.globalEditorService.addCloseCallback(closeCallback)
     }
 
@@ -667,6 +672,7 @@ public abstract class BaseEditorSession internal constructor(
     }
 
     override fun close() {
+        Log.d(TAG, "close")
         // Silently do nothing if we've been force closed, this simplifies the editor activity.
         if (forceClosed) {
             return
@@ -727,6 +733,7 @@ public abstract class BaseEditorSession internal constructor(
 
     @UiThread
     internal fun forceClose() {
+        Log.d(TAG, "forceClose")
         commitChangesOnClose = false
         closed = true
         forceClosed = true
@@ -780,6 +787,10 @@ internal class OnWatchFaceEditorSessionImpl(
 ) {
     private lateinit var editorDelegate: WatchFace.EditorDelegate
 
+    private companion object {
+        private const val TAG = "OnWatchFaceEditorSessionImpl"
+    }
+
     override val userStyleSchema by lazy {
         requireNotClosed()
         editorDelegate.userStyleSchema
@@ -802,7 +813,7 @@ internal class OnWatchFaceEditorSessionImpl(
                 previewDataMap[it.key]?.type ?: it.value.complicationData.value.type
             }
             ComplicationSlotState(
-                it.value.computeBounds(editorDelegate.screenBounds, type),
+                it.value.computeBounds(editorDelegate.screenBounds, type, applyMargins = false),
                 it.value.boundsType,
                 it.value.supportedTypes,
                 it.value.defaultDataSourcePolicy,
@@ -839,7 +850,13 @@ internal class OnWatchFaceEditorSessionImpl(
                         validateAndUpdateUserStyle(args[1] as UserStyle)
                     }
                 }
-                else -> {}
+                else -> {
+                    Log.e(
+                        TAG,
+                        "userStyle proxy encountered unexpected method name '${method.name}'" +
+                            " please check your proguard rules."
+                    )
+                }
             }
             result
         }
@@ -1076,6 +1093,7 @@ internal class ComplicationDataSourceChooserContract : ActivityResultContract<
         return intent
     }
 
+    @Suppress("DEPRECATION")
     override fun parseResult(resultCode: Int, intent: Intent?) = intent?.let {
         val extras = intent.extras?.let { extras ->
             Bundle(extras).apply { remove(EXTRA_PROVIDER_INFO) }

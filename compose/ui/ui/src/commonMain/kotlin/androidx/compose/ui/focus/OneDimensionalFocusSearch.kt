@@ -17,6 +17,7 @@
 package androidx.compose.ui.focus
 
 import androidx.compose.runtime.collection.MutableVector
+import androidx.compose.runtime.collection.mutableVectorOf
 import androidx.compose.ui.focus.FocusDirection.Companion.Next
 import androidx.compose.ui.focus.FocusDirection.Companion.Previous
 import androidx.compose.ui.focus.FocusStateImpl.Active
@@ -25,6 +26,7 @@ import androidx.compose.ui.focus.FocusStateImpl.Captured
 import androidx.compose.ui.focus.FocusStateImpl.Deactivated
 import androidx.compose.ui.focus.FocusStateImpl.DeactivatedParent
 import androidx.compose.ui.focus.FocusStateImpl.Inactive
+import androidx.compose.ui.node.LayoutNode
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 
@@ -45,7 +47,8 @@ private fun FocusModifier.forwardFocusSearch(
 ): Boolean = when (focusState) {
     ActiveParent, DeactivatedParent -> {
         val focusedChild = focusedChild ?: error(NoActiveChild)
-        focusedChild.forwardFocusSearch(onFound) || searchChildren(focusedChild, Next, onFound)
+        focusedChild.forwardFocusSearch(onFound) ||
+            generateAndSearchChildren(focusedChild, Next, onFound)
     }
     Active, Captured, Deactivated -> pickChildForForwardSearch(onFound)
     Inactive -> onFound.invoke(this)
@@ -65,11 +68,11 @@ private fun FocusModifier.backwardFocusSearch(
 
             DeactivatedParent -> focusedChild.backwardFocusSearch(onFound) ||
                 // Since this item is deactivated, just skip it and search among its siblings.
-                searchChildren(focusedChild, Previous, onFound)
+                generateAndSearchChildren(focusedChild, Previous, onFound)
 
             // Since this item "is focused", it means we already visited all its children.
             // So just search among its siblings.
-            Active, Captured -> searchChildren(focusedChild, Previous, onFound)
+            Active, Captured -> generateAndSearchChildren(focusedChild, Previous, onFound)
 
             Deactivated, Inactive -> error(NoActiveChild)
         }
@@ -86,6 +89,28 @@ private fun FocusModifier.backwardFocusSearch(
     Inactive -> pickChildForBackwardSearch(onFound) || onFound.invoke(this)
 }
 
+// Search among your children for the next child.
+// If the next child is not found, generate more children by requesting a beyondBoundsLayout.
+private fun FocusModifier.generateAndSearchChildren(
+    focusedItem: FocusModifier,
+    direction: FocusDirection,
+    onFound: (FocusModifier) -> Boolean
+): Boolean {
+    // Search among the currently available children.
+    if (searchChildren(focusedItem, direction, onFound)) {
+        return true
+    }
+
+    // Generate more items until searchChildren() finds a result.
+    return searchBeyondBounds(direction) {
+        // Search among the added children. (The search continues as long as we return null).
+        searchChildren(focusedItem, direction, onFound).takeIf { found ->
+            // Stop searching when we find a result or if we don't have any more content.
+            found || !hasMoreContent
+        }
+    } ?: false
+}
+
 // Search for the next sibling that should be granted focus.
 private fun FocusModifier.searchChildren(
     focusedItem: FocusModifier,
@@ -95,7 +120,7 @@ private fun FocusModifier.searchChildren(
     check(focusState == ActiveParent || focusState == DeactivatedParent) {
         "This function should only be used within a parent that has focus."
     }
-
+    children.sortWith(FocusableChildrenComparator)
     when (direction) {
         Next -> children.forEachItemAfter(focusedItem) { child ->
             if (child.isEligibleForFocusSearch && child.forwardFocusSearch(onFound)) return true
@@ -117,13 +142,17 @@ private fun FocusModifier.searchChildren(
 
 private fun FocusModifier.pickChildForForwardSearch(
     onFound: (FocusModifier) -> Boolean
-): Boolean = children.any { it.forwardFocusSearch(onFound) }
+): Boolean {
+    children.sortWith(FocusableChildrenComparator)
+    return children.any { it.isEligibleForFocusSearch && it.forwardFocusSearch(onFound) }
+}
 
 private fun FocusModifier.pickChildForBackwardSearch(
     onFound: (FocusModifier) -> Boolean
 ): Boolean {
+    children.sortWith(FocusableChildrenComparator)
     children.forEachReversed {
-        if (it.backwardFocusSearch(onFound)) {
+        if (it.isEligibleForFocusSearch && it.backwardFocusSearch(onFound)) {
             return true
         }
     }
@@ -132,6 +161,7 @@ private fun FocusModifier.pickChildForBackwardSearch(
 
 private fun FocusModifier.isRoot() = parent == null
 
+@Suppress("BanInlineOptIn")
 @OptIn(ExperimentalContracts::class)
 private inline fun <T> MutableVector<T>.forEachItemAfter(item: T, action: (T) -> Unit) {
     contract { callsInPlace(action) }
@@ -146,6 +176,7 @@ private inline fun <T> MutableVector<T>.forEachItemAfter(item: T, action: (T) ->
     }
 }
 
+@Suppress("BanInlineOptIn")
 @OptIn(ExperimentalContracts::class)
 private inline fun <T> MutableVector<T>.forEachItemBefore(item: T, action: (T) -> Unit) {
     contract { callsInPlace(action) }
@@ -157,5 +188,58 @@ private inline fun <T> MutableVector<T>.forEachItemBefore(item: T, action: (T) -
         if (get(index) == item) {
             itemFound = true
         }
+    }
+}
+
+/**
+ * We use this comparator to sort the focus modifiers in place order.
+ *
+ * We want to visit the nodes in placement order instead of composition order.
+ * This is because components like LazyList reuse nodes without re-composing them, but it always
+ * re-places nodes that are reused.
+ *
+ * Instead of sorting the items, we could just look for the next largest place order index in linear
+ * time. However if the next item is deactivated, not eligible for focus search or none of its
+ * children are focusable we would have to backtrack and find the item with the next largest place
+ * order index. This would be more expensive than sorting the items. In addition to this, sorting
+ * the items makes the next focus search more efficient.
+ */
+private object FocusableChildrenComparator : Comparator<FocusModifier> {
+    override fun compare(focusModifier1: FocusModifier?, focusModifier2: FocusModifier?): Int {
+        requireNotNull(focusModifier1)
+        requireNotNull(focusModifier2)
+
+        // Ignore focus modifiers that won't be considered during focus search.
+        if (!focusModifier1.isEligibleForFocusSearch) return 0
+        if (!focusModifier2.isEligibleForFocusSearch) return 0
+
+        val layoutNode1 = checkNotNull(focusModifier1.coordinator?.layoutNode)
+        val layoutNode2 = checkNotNull(focusModifier2.coordinator?.layoutNode)
+
+        // Use natural order for focus modifiers within the same layout node.
+        if (layoutNode1 == layoutNode2) return 0
+
+        // Compare the place order of the children of the least common ancestor.
+        val pathFromRoot1 = pathFromRoot(layoutNode1)
+        val pathFromRoot2 = pathFromRoot(layoutNode2)
+        for (depth in 0..minOf(pathFromRoot1.lastIndex, pathFromRoot2.lastIndex)) {
+            // If the items from the two paths are not equal, we have
+            // found the first two children after the least common ancestor.
+            // We use the place order of these two parents to compare the focus modifiers.
+            if (pathFromRoot1[depth] != pathFromRoot2[depth]) {
+                return pathFromRoot1[depth].placeOrder.compareTo(pathFromRoot2[depth].placeOrder)
+            }
+        }
+        error("Could not find a common ancestor between the two FocusModifiers.")
+    }
+
+    private fun pathFromRoot(layoutNode: LayoutNode): MutableVector<LayoutNode> {
+        val path = mutableVectorOf<LayoutNode>()
+        var current: LayoutNode? = layoutNode
+        while (current != null) {
+            path.add(0, current)
+            current = current.parent
+        }
+        return path
     }
 }

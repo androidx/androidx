@@ -37,6 +37,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
 import org.robolectric.shadows.ShadowActivity;
 
@@ -51,7 +52,7 @@ public class CarAppPermissionActivityTest {
     @Mock
     private OnRequestPermissionsListener mMockListener;
 
-    private final List<String> mPermisssionsRequested = new ArrayList<>();
+    private final List<String> mPermissionsRequested = new ArrayList<>();
 
     private ActivityScenario<CarAppPermissionActivity> mActivity;
     private Application mApplication;
@@ -61,11 +62,12 @@ public class CarAppPermissionActivityTest {
         MockitoAnnotations.initMocks(this);
         mApplication = ApplicationProvider.getApplicationContext();
 
-        mPermisssionsRequested.add("foo");
-        mPermisssionsRequested.add("bar");
+        mPermissionsRequested.add("foo");
+        mPermissionsRequested.add("bar");
     }
 
     @Test
+    @Config(sdk = 23) // Note that while the app module minSDK is 21, the minSDK for hosts is 23
     public void onCreate_requestPermissionAction_requestsPermissions() {
         setupActivity(CarContext.REQUEST_PERMISSIONS_ACTION);
 
@@ -73,7 +75,7 @@ public class CarAppPermissionActivityTest {
             ShadowActivity shadowActivity = shadowOf(activity);
             ShadowActivity.PermissionsRequest request = shadowActivity.getLastRequestedPermission();
             assertThat(request.requestedPermissions).isEqualTo(
-                    mPermisssionsRequested.toArray(new String[0]));
+                    mPermissionsRequested.toArray(new String[0]));
         });
     }
 
@@ -87,7 +89,7 @@ public class CarAppPermissionActivityTest {
     private Intent createLaunchIntent(String action) {
         Bundle extras = new Bundle(2);
         extras.putStringArray(CarContext.EXTRA_PERMISSIONS_KEY,
-                mPermisssionsRequested.toArray(new String[0]));
+                mPermissionsRequested.toArray(new String[0]));
         extras.putBinder(CarContext.EXTRA_ON_REQUEST_PERMISSIONS_RESULT_LISTENER_KEY,
                 new IOnRequestPermissionsListener.Stub() {
                     @SuppressWarnings("unckecked")

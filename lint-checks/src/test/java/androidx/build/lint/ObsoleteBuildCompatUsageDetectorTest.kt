@@ -23,7 +23,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-@Ignore("ANDROID_HOME not available on CI")
 @RunWith(JUnit4::class)
 class ObsoleteBuildCompatUsageDetectorTest : AbstractLintDetectorTest(
     useDetector = ObsoleteBuildCompatUsageDetector(),
@@ -32,6 +31,7 @@ class ObsoleteBuildCompatUsageDetectorTest : AbstractLintDetectorTest(
 ) {
 
     @Test
+    @Ignore("ANDROID_HOME not available on CI")
     fun isAtLeastN() {
         val input = java(
             """
@@ -69,6 +69,7 @@ class ObsoleteBuildCompatUsageDetectorTest : AbstractLintDetectorTest(
     }
 
     @Test
+    @Ignore("ANDROID_HOME not available on CI")
     fun isAtLeastNStaticImport() {
         val input = java(
             """
@@ -106,6 +107,7 @@ class ObsoleteBuildCompatUsageDetectorTest : AbstractLintDetectorTest(
     }
 
     @Test
+    @Ignore("ANDROID_HOME not available on CI")
     fun isAtLeastNMR1() {
         val input = java(
             """
@@ -143,6 +145,7 @@ class ObsoleteBuildCompatUsageDetectorTest : AbstractLintDetectorTest(
     }
 
     @Test
+    @Ignore("ANDROID_HOME not available on CI")
     fun isAtLeastO() {
         val input = java(
             """
@@ -180,6 +183,7 @@ class ObsoleteBuildCompatUsageDetectorTest : AbstractLintDetectorTest(
     }
 
     @Test
+    @Ignore("ANDROID_HOME not available on CI")
     fun isAtLeastOMR1() {
         val input = java(
             """
@@ -217,6 +221,7 @@ class ObsoleteBuildCompatUsageDetectorTest : AbstractLintDetectorTest(
     }
 
     @Test
+    @Ignore("ANDROID_HOME not available on CI")
     fun isAtLeastP() {
         val input = java(
             """
@@ -254,6 +259,7 @@ class ObsoleteBuildCompatUsageDetectorTest : AbstractLintDetectorTest(
     }
 
     @Test
+    @Ignore("ANDROID_HOME not available on CI")
     fun isAtLeastQ() {
         val input = java(
             """

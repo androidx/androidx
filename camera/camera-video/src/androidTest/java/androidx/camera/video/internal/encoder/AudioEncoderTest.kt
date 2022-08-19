@@ -31,6 +31,7 @@ import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicLong
 import java.util.concurrent.atomic.AtomicReference
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
@@ -44,7 +45,6 @@ import org.junit.runner.RunWith
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito
-import org.mockito.Mockito.atLeastOnce
 import org.mockito.Mockito.clearInvocations
 import org.mockito.Mockito.inOrder
 import org.mockito.Mockito.never
@@ -98,6 +98,7 @@ class AudioEncoderTest {
     fun tearDown() {
         if (this::encoder.isInitialized) {
             encoder.release()
+            encoder.releasedFuture[10, TimeUnit.SECONDS]
         }
         if (this::fakeAudioLoop.isInitialized) {
             fakeAudioLoop.stop()
@@ -422,8 +423,9 @@ class AudioEncoderTest {
                 CameraXExecutors.ioExecutor().asCoroutineDispatcher()
             ) {
                 while (true) {
+                    val acquireFuture = bufferProvider.acquireBuffer()
                     try {
-                        val inputBuffer = bufferProvider.acquireBuffer().await()
+                        val inputBuffer = acquireFuture.await()
                         inputBuffer.apply {
                             byteBuffer.apply {
                                 put(
@@ -438,6 +440,15 @@ class AudioEncoderTest {
                             submit()
                         }
                     } catch (e: IllegalStateException) {
+                        if (e is CancellationException) {
+                            // When the fake loop is stopped, cancel acquired InputBuffer if any.
+                            if (!acquireFuture.cancel(true)) {
+                                try {
+                                    acquireFuture.await().cancel()
+                                } catch (ignored: Exception) {
+                                }
+                            }
+                        }
                         // For simplicity, AudioLoop doesn't monitor the encoder's state.
                         // When an IllegalStateException is thrown by encoder which is not started,
                         // AudioLoop should retry with a delay to avoid busy loop.

@@ -16,6 +16,8 @@
 
 package androidx.room;
 
+import android.annotation.SuppressLint;
+
 import androidx.annotation.RestrictTo;
 
 import java.util.Set;
@@ -43,6 +45,7 @@ import io.reactivex.schedulers.Schedulers;
 /**
  * Helper class to add RxJava2 support to Room.
  */
+@SuppressLint("PrivateConstructorForUtilityClass")
 @SuppressWarnings("WeakerAccess")
 public class RxRoom {
     /**

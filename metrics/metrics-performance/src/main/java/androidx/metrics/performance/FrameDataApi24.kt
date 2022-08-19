@@ -36,15 +36,33 @@ package androidx.metrics.performance
  * later to determine the UI state that was current when jank occurred.
  *
  * @see JankStats.jankHeuristicMultiplier
- * @see PerformanceMetricsState.addState
+ * @see PerformanceMetricsState.putState
  */
 open class FrameDataApi24(
     frameStartNanos: Long,
     frameDurationUiNanos: Long,
-    val frameDurationCpuNanos: Long,
+    frameDurationCpuNanos: Long,
     isJank: Boolean,
     states: List<StateInfo>
 ) : FrameData(frameStartNanos, frameDurationUiNanos, isJank, states) {
+
+    var frameDurationCpuNanos = frameDurationCpuNanos
+        private set
+
+    override fun copy(): FrameData {
+        return FrameDataApi24(frameStartNanos, frameDurationUiNanos, frameDurationCpuNanos, isJank,
+            ArrayList(states))
+    }
+
+    internal fun update(
+        frameStartNanos: Long,
+        frameDurationUiNanos: Long,
+        frameDurationCpuNanos: Long,
+        isJank: Boolean
+    ) {
+        super.update(frameStartNanos, frameDurationUiNanos, isJank)
+        this.frameDurationCpuNanos = frameDurationCpuNanos
+    }
 
     override fun equals(other: Any?): Boolean {
         return other is FrameDataApi24 &&

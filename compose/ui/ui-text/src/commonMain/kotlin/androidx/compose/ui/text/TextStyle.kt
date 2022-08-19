@@ -49,15 +49,11 @@ import androidx.compose.ui.unit.TextUnit
  * @see ParagraphStyle
  */
 @Immutable
-class TextStyle
-@OptIn(ExperimentalTextApi::class)
-internal constructor(
+class TextStyle internal constructor(
     internal val spanStyle: SpanStyle,
     internal val paragraphStyle: ParagraphStyle,
-    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-    @get:ExperimentalTextApi val platformStyle: PlatformTextStyle? = null,
+    val platformStyle: PlatformTextStyle? = null,
 ) {
-    @OptIn(ExperimentalTextApi::class)
     internal constructor(
         spanStyle: SpanStyle,
         paragraphStyle: ParagraphStyle,
@@ -100,7 +96,6 @@ internal constructor(
      * @param lineHeight Line height for the [Paragraph] in [TextUnit] unit, e.g. SP or EM.
      * @param textIndent The indentation of the paragraph.
      */
-    @OptIn(ExperimentalTextApi::class)
     constructor(
         color: Color = Color.Unspecified,
         fontSize: TextUnit = TextUnit.Unspecified,
@@ -184,7 +179,6 @@ internal constructor(
      * and bottom of last line. The configuration is applied only when a [lineHeight] is defined.
      * When null, [LineHeightStyle.Default] is used.
      */
-    @ExperimentalTextApi
     constructor(
         color: Color = Color.Unspecified,
         fontSize: TextUnit = TextUnit.Unspecified,
@@ -238,11 +232,13 @@ internal constructor(
     /**
      * Styling configuration for a `Text`.
      *
-     * @sample androidx.compose.ui.text.samples.TextStyleSample
+     * @sample androidx.compose.ui.text.samples.TextStyleBrushSample
      *
      * @param brush The brush to use when painting the text. If brush is given as null, it will be
      * treated as unspecified. It is equivalent to calling the alternative color constructor with
      * [Color.Unspecified]
+     * @param alpha Opacity to be applied to [brush] from 0.0f to 1.0f representing fully
+     * transparent to fully opaque respectively.
      * @param fontSize The size of glyphs to use when painting the text. This
      * may be [TextUnit.Unspecified] for inheriting from another [TextStyle].
      * @param fontWeight The typeface thickness to use when painting the text (e.g., bold).
@@ -274,6 +270,7 @@ internal constructor(
     @ExperimentalTextApi
     constructor(
         brush: Brush?,
+        alpha: Float = Float.NaN,
         fontSize: TextUnit = TextUnit.Unspecified,
         fontWeight: FontWeight? = null,
         fontStyle: FontStyle? = null,
@@ -296,6 +293,7 @@ internal constructor(
     ) : this(
         SpanStyle(
             brush = brush,
+            alpha = alpha,
             fontSize = fontSize,
             fontWeight = fontWeight,
             fontStyle = fontStyle,
@@ -390,7 +388,6 @@ internal constructor(
     @Stable
     operator fun plus(other: SpanStyle): TextStyle = this.merge(other)
 
-    @OptIn(ExperimentalTextApi::class)
     fun copy(
         color: Color = this.spanStyle.color,
         fontSize: TextUnit = this.spanStyle.fontSize,
@@ -445,7 +442,6 @@ internal constructor(
         )
     }
 
-    @ExperimentalTextApi
     fun copy(
         color: Color = this.spanStyle.color,
         fontSize: TextUnit = this.spanStyle.fontSize,
@@ -505,6 +501,7 @@ internal constructor(
     @ExperimentalTextApi
     fun copy(
         brush: Brush?,
+        alpha: Float = this.spanStyle.alpha,
         fontSize: TextUnit = this.spanStyle.fontSize,
         fontWeight: FontWeight? = this.spanStyle.fontWeight,
         fontStyle: FontStyle? = this.spanStyle.fontStyle,
@@ -528,6 +525,7 @@ internal constructor(
         return TextStyle(
             spanStyle = SpanStyle(
                 brush = brush,
+                alpha = alpha,
                 fontSize = fontSize,
                 fontWeight = fontWeight,
                 fontStyle = fontStyle,
@@ -558,6 +556,7 @@ internal constructor(
     /**
      * The brush to use when drawing text. If not null, overrides [color].
      */
+    @ExperimentalTextApi
     @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
     @get:ExperimentalTextApi
     val brush: Brush? get() = this.spanStyle.brush
@@ -566,6 +565,15 @@ internal constructor(
      * The text color.
      */
     val color: Color get() = this.spanStyle.color
+
+    /**
+     * Opacity of text. This value is either provided along side Brush, or via alpha channel in
+     * color.
+     */
+    @ExperimentalTextApi
+    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
+    @get:ExperimentalTextApi
+    val alpha: Float get() = this.spanStyle.alpha
 
     /**
      * The size of glyphs to use when painting the text. This
@@ -667,12 +675,8 @@ internal constructor(
      *
      * When null, [LineHeightStyle.Default] is used.
      */
-    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-    @ExperimentalTextApi
-    @get:ExperimentalTextApi
     val lineHeightStyle: LineHeightStyle? get() = this.paragraphStyle.lineHeightStyle
 
-    @OptIn(ExperimentalTextApi::class)
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is TextStyle) return false
@@ -697,15 +701,20 @@ internal constructor(
      *
      * @param other The TextStyle to compare to.
      */
-    @OptIn(ExperimentalTextApi::class)
     fun hasSameLayoutAffectingAttributes(other: TextStyle): Boolean {
         return (this === other) || (paragraphStyle == other.paragraphStyle &&
             spanStyle.hasSameLayoutAffectingAttributes(other.spanStyle))
     }
 
-    @OptIn(ExperimentalTextApi::class)
     override fun hashCode(): Int {
         var result = spanStyle.hashCode()
+        result = 31 * result + paragraphStyle.hashCode()
+        result = 31 * result + (platformStyle?.hashCode() ?: 0)
+        return result
+    }
+
+    internal fun hashCodeLayoutAffectingAttributes(): Int {
+        var result = spanStyle.hashCodeLayoutAffectingAttributes()
         result = 31 * result + paragraphStyle.hashCode()
         result = 31 * result + (platformStyle?.hashCode() ?: 0)
         return result
@@ -716,6 +725,7 @@ internal constructor(
         return "TextStyle(" +
             "color=$color, " +
             "brush=$brush, " +
+            "alpha=$alpha, " +
             "fontSize=$fontSize, " +
             "fontWeight=$fontWeight, " +
             "fontStyle=$fontStyle, " +
@@ -774,7 +784,6 @@ fun lerp(start: TextStyle, stop: TextStyle, fraction: Float): TextStyle {
  * @param direction a layout direction to be used for resolving text layout direction algorithm
  * @return resolved text style.
  */
-@OptIn(ExperimentalTextApi::class)
 fun resolveDefaults(style: TextStyle, direction: LayoutDirection) = TextStyle(
     spanStyle = resolveSpanStyleDefaults(style.spanStyle),
     paragraphStyle = resolveParagraphStyleDefaults(style.paragraphStyle, direction),
@@ -801,7 +810,6 @@ internal fun resolveTextDirection(
     }
 }
 
-@OptIn(ExperimentalTextApi::class)
 private fun createPlatformTextStyleInternal(
     platformSpanStyle: PlatformSpanStyle?,
     platformParagraphStyle: PlatformParagraphStyle?

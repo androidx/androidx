@@ -29,8 +29,8 @@ they **must** move to open-source.
 #### Closed-source dependencies
 
 In specific cases, libraries *may* include closed-source dependencies. See the
-[Open-source compatibility](api_guidelines.md#dependencies-aosp) section of the
-API Guidelines for implementation details.
+[Open-source compatibility](api_guidelines/dependencies.md#dependencies-aosp)
+section of the API Guidelines for implementation details.
 
 ### Examples of products that are _not_ open-source
 

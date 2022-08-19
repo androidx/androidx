@@ -33,7 +33,6 @@ android {
 }
 
 dependencies {
-    kotlinPlugin project(":compose:compiler:compiler")
 
     androidTestImplementation project(":benchmark:benchmark-junit4")
     androidTestImplementation project(":compose:runtime:runtime")

@@ -58,5 +58,5 @@ public interface ExerciseUpdateCallback {
      * @param dataType the [DataType] which experienced a change in availability
      * @param availability the new [Availability] state
      */
-    public fun onAvailabilityChanged(dataType: DataType, availability: Availability)
+    public fun onAvailabilityChanged(dataType: DataType<*, *>, availability: Availability)
 }

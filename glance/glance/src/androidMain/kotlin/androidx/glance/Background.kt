@@ -24,10 +24,10 @@ import androidx.glance.unit.ColorProvider
 
 /** @suppress */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class BackgroundModifier private constructor(
-    public val colorProvider: ColorProvider?,
-    public val imageProvider: ImageProvider?,
-    public val contentScale: ContentScale = ContentScale.FillBounds,
+class BackgroundModifier private constructor(
+    val colorProvider: ColorProvider?,
+    val imageProvider: ImageProvider?,
+    val contentScale: ContentScale = ContentScale.FillBounds,
 ) : GlanceModifier.Element {
     init {
         require((colorProvider != null) xor (imageProvider != null)) {
@@ -35,10 +35,10 @@ public class BackgroundModifier private constructor(
         }
     }
 
-    public constructor(colorProvider: ColorProvider) :
+    constructor(colorProvider: ColorProvider) :
         this(colorProvider = colorProvider, imageProvider = null)
 
-    public constructor(imageProvider: ImageProvider, contentScale: ContentScale) :
+    constructor(imageProvider: ImageProvider, contentScale: ContentScale) :
         this(colorProvider = null, imageProvider = imageProvider, contentScale = contentScale)
 
     override fun toString() =
@@ -51,7 +51,7 @@ public class BackgroundModifier private constructor(
  * element to paint the specified [Color] as its background, which will fill the bounds of the
  * element.
  */
-public fun GlanceModifier.background(color: Color): GlanceModifier =
+fun GlanceModifier.background(color: Color): GlanceModifier =
     background(ColorProvider(color))
 
 /**
@@ -59,7 +59,7 @@ public fun GlanceModifier.background(color: Color): GlanceModifier =
  * element to paint the specified color resource as its background, which will fill the bounds of
  * the element.
  */
-public fun GlanceModifier.background(@ColorRes color: Int): GlanceModifier =
+fun GlanceModifier.background(@ColorRes color: Int): GlanceModifier =
     background(ColorProvider(color))
 
 /**
@@ -67,13 +67,13 @@ public fun GlanceModifier.background(@ColorRes color: Int): GlanceModifier =
  * element to paint the specified [ColorProvider] as its background, which will fill the bounds of
  * the element.
  */
-public fun GlanceModifier.background(colorProvider: ColorProvider): GlanceModifier =
+fun GlanceModifier.background(colorProvider: ColorProvider): GlanceModifier =
     this.then(BackgroundModifier(colorProvider))
 
 /**
  * Apply a background image to the element this modifier is attached to.
  */
-public fun GlanceModifier.background(
+fun GlanceModifier.background(
     imageProvider: ImageProvider,
     contentScale: ContentScale = ContentScale.FillBounds
 ): GlanceModifier =

@@ -48,6 +48,7 @@ import android.view.KeyEvent;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
 
+import androidx.annotation.RequiresApi;
 import androidx.emoji2.bundled.util.Emoji;
 import androidx.emoji2.bundled.util.EmojiMatcher;
 import androidx.emoji2.bundled.util.KeyboardUtil;
@@ -119,6 +120,7 @@ public class EmojiCompatTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 19)
     public void testInitWithContext_returnsInstanceWhenFound() {
         EmojiCompat.reset((EmojiCompat) null);
         EmojiCompat.skipDefaultConfigurationLookup(false);
@@ -156,6 +158,7 @@ public class EmojiCompatTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 19)
     public void testProcess_returnsEmptySpanned_withEmptyString() {
         final CharSequence charSequence = EmojiCompat.get().process("");
         assertNotNull(charSequence);
@@ -202,6 +205,7 @@ public class EmojiCompatTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 19)
     public void testProcess_doesNotAddEmojiSpan() {
         final String string = "abc";
         final CharSequence charSequence = EmojiCompat.get().process(string);
@@ -288,6 +292,7 @@ public class EmojiCompatTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 19)
     public void testProcess_doesNotAddEmoji_forVariantBaseWithoutSelector() {
         assertCodePointDoesNotMatch(new int[]{Emoji.CHAR_DIGIT});
     }
@@ -457,6 +462,7 @@ public class EmojiCompatTest {
 
     @SuppressLint("Range")
     @Test(expected = IllegalArgumentException.class)
+    @SdkSuppress(minSdkVersion = 19)
     public void testProcess_throwsException_withMaxEmojiSetToNegative() {
         final String original = new TestString(Emoji.EMOJI_SINGLE_CODEPOINT).toString();
 
@@ -467,6 +473,7 @@ public class EmojiCompatTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 19)
     public void testProcess_withMaxEmojiSetToZero() {
         final String original = new TestString(Emoji.EMOJI_SINGLE_CODEPOINT).toString();
 
@@ -778,6 +785,7 @@ public class EmojiCompatTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 19)
     public void testUpdateEditorInfoAttrs_doesNotSetKeyIfNotInitialized() {
         final EditorInfo editorInfo = new EditorInfo();
         editorInfo.extras = new Bundle();
@@ -797,6 +805,7 @@ public class EmojiCompatTest {
     }
 
     @Test(expected = IllegalStateException.class)
+    @SdkSuppress(minSdkVersion = 19)
     public void testLoad_throwsException_whenLoadStrategyDefault() {
         final EmojiCompat.MetadataRepoLoader loader = mock(EmojiCompat.MetadataRepoLoader.class);
         final EmojiCompat.Config config = new TestConfigBuilder.TestConfig(loader);
@@ -1028,10 +1037,12 @@ public class EmojiCompatTest {
                 EmojiMatcher.hasEmojiAt(Emoji.DEFAULT_TEXT_STYLE, 0, 1));
     }
 
+    @RequiresApi(19)
     private void assertCodePointMatch(Emoji.EmojiMapping emoji) {
         assertCodePointMatch(emoji.id(), emoji.codepoints());
     }
 
+    @RequiresApi(19)
     private void assertCodePointMatch(int id, int[] codepoints) {
         TestString string = new TestString(codepoints);
         CharSequence charSequence = EmojiCompat.get().process(string.toString());
@@ -1051,6 +1062,7 @@ public class EmojiCompatTest {
                 EmojiMatcher.hasEmojiAt(id, string.emojiStartIndex(), string.emojiEndIndex()));
     }
 
+    @RequiresApi(19)
     private void assertCodePointDoesNotMatch(int[] codepoints) {
         TestString string = new TestString(codepoints);
         CharSequence charSequence = EmojiCompat.get().process(string.toString());

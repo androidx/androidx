@@ -20,6 +20,7 @@ import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.camera.core.EffectBundle;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.ViewPort;
 import androidx.camera.core.impl.CameraInternal;
@@ -215,7 +216,7 @@ final class LifecycleCameraRepository {
 
             setInactive(lifecycleOwner);
 
-            for (Key key: mLifecycleObserverMap.get(observer)) {
+            for (Key key : mLifecycleObserverMap.get(observer)) {
                 mCameraMap.remove(key);
             }
 
@@ -249,13 +250,15 @@ final class LifecycleCameraRepository {
      *
      * @param lifecycleCamera The LifecycleCamera which the use cases will be bound to.
      * @param viewPort The viewport which represents the visible camera sensor rect.
+     * @param effectBundle The effects applied to the camera outputs.
      * @param useCases The use cases to bind to a lifecycle.
      * @throws IllegalArgumentException If multiple LifecycleCameras with use cases are
      * registered to the same LifecycleOwner. Or all use cases will exceed the capability of the
      * camera after binding them to the LifecycleCamera.
      */
     void bindToLifecycleCamera(@NonNull LifecycleCamera lifecycleCamera,
-            @Nullable ViewPort viewPort, @NonNull Collection<UseCase> useCases) {
+            @Nullable ViewPort viewPort, @Nullable EffectBundle effectBundle,
+            @NonNull Collection<UseCase> useCases) {
         synchronized (mLock) {
             Preconditions.checkArgument(!useCases.isEmpty());
             LifecycleOwner lifecycleOwner = lifecycleCamera.getLifecycleOwner();
@@ -275,6 +278,7 @@ final class LifecycleCameraRepository {
 
             try {
                 lifecycleCamera.getCameraUseCaseAdapter().setViewPort(viewPort);
+                lifecycleCamera.getCameraUseCaseAdapter().setEffectBundle(effectBundle);
                 lifecycleCamera.bind(useCases);
             } catch (CameraUseCaseAdapter.CameraException e) {
                 throw new IllegalArgumentException(e.getMessage());
@@ -502,6 +506,7 @@ final class LifecycleCameraRepository {
          * Monitors which {@link LifecycleOwner} receives an ON_START event and then stop
          * other {@link LifecycleCamera} to keep only one active at a time.
          */
+        @SuppressWarnings("unused") // Called via OnLifecycleEvent
         @OnLifecycleEvent(Lifecycle.Event.ON_START)
         public void onStart(LifecycleOwner lifecycleOwner) {
             mLifecycleCameraRepository.setActive(lifecycleOwner);
@@ -510,6 +515,7 @@ final class LifecycleCameraRepository {
         /**
          * Monitors which {@link LifecycleOwner} receives an ON_STOP event.
          */
+        @SuppressWarnings("unused") // Called via OnLifecycleEvent
         @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
         public void onStop(LifecycleOwner lifecycleOwner) {
             mLifecycleCameraRepository.setInactive(lifecycleOwner);
@@ -520,6 +526,7 @@ final class LifecycleCameraRepository {
          * removes any {@link LifecycleCamera} associated with it from this
          * repository when that lifecycle is destroyed.
          */
+        @SuppressWarnings("unused") // Called via OnLifecycleEvent
         @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
         public void onDestroy(LifecycleOwner lifecycleOwner) {
             mLifecycleCameraRepository.unregisterLifecycle(lifecycleOwner);

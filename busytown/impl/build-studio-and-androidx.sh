@@ -99,10 +99,7 @@ export LINT_PRINT_STACKTRACE=true
 function buildAndroidx() {
   RETURN_CODE=0
   LOG_PROCESSOR="$SCRIPTS_DIR/../development/build_log_processor.sh"
-  properties="-Pandroidx.summarizeStderr --no-daemon"
-  # Remove -Pandroid.overrideVersionCheck=true once b/233766756 is fixed
-  if "$LOG_PROCESSOR" frameworks/support/gradlew $properties -p frameworks/support $androidxArguments --profile \
-    -Pandroid.overrideVersionCheck=true \
+  if "$LOG_PROCESSOR" frameworks/support/gradlew -p frameworks/support $androidxArguments --profile \
     --dependency-verification=off; then # building against tip of tree of AGP that potentially pulls in new dependencies
     echo build passed
   else

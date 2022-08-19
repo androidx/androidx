@@ -17,5 +17,5 @@
 
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:state_checked="true" android:color="?android:attr/colorControlActivated" />
-    <item android:color="@color/switch_thumb_normal_material_light" />
+    <item android:color="@color/glance_switch_thumb_normal_material_light" />
 </selector>

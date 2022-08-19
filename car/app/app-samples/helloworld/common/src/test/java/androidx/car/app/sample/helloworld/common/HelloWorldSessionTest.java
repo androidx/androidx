@@ -23,6 +23,7 @@ import android.content.Intent;
 
 import androidx.car.app.Screen;
 import androidx.car.app.Session;
+import androidx.car.app.SessionInfo;
 import androidx.car.app.testing.SessionController;
 import androidx.car.app.testing.TestCarContext;
 import androidx.car.app.testing.TestScreenManager;
@@ -50,7 +51,7 @@ public class HelloWorldSessionTest {
     @Test
     public void onCreateScreen_returnsExpectedScreen() {
         HelloWorldService service = Robolectric.setupService(HelloWorldService.class);
-        Session session = service.onCreateSession();
+        Session session = service.onCreateSession(SessionInfo.DEFAULT_SESSION_INFO);
         SessionController controller =
                 new SessionController(session, mTestCarContext,
                         new Intent().setComponent(

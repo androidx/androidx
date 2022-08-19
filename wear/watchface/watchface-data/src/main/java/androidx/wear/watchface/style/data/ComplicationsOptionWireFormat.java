@@ -24,13 +24,15 @@ import androidx.annotation.RestrictTo;
 import androidx.versionedparcelable.ParcelField;
 import androidx.versionedparcelable.VersionedParcelize;
 
+import java.util.List;
+
 /**
  * Wire format for {@link
  * androidx.wear.watchface.style.ComplicationsUserStyleSetting.ComplicationsOption}.
  *
  * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @VersionedParcelize
 public class ComplicationsOptionWireFormat extends OptionWireFormat {
     @ParcelField(2)
@@ -50,13 +52,32 @@ public class ComplicationsOptionWireFormat extends OptionWireFormat {
      */
     @ParcelField(100)
     @NonNull
-    public ComplicationOverlayWireFormat[]
-            mComplicationOverlays =
+    public ComplicationOverlayWireFormat[] mComplicationOverlays =
             new ComplicationOverlayWireFormat[0];
+
+    @ParcelField(value = 101, defaultValue = "null")
+    @Nullable
+    public List<PerComplicationTypeMargins> mComplicationOverlaysMargins;
 
     ComplicationsOptionWireFormat() {
     }
 
+    public ComplicationsOptionWireFormat(
+            @NonNull byte[] id,
+            @NonNull CharSequence displayName,
+            @Nullable Icon icon,
+            @NonNull ComplicationOverlayWireFormat[] complicationOverlays,
+            @Nullable List<PerComplicationTypeMargins> complicationOverlaysMargins
+    ) {
+        super(id);
+        mDisplayName = displayName;
+        mIcon = icon;
+        mComplicationOverlays = complicationOverlays;
+        mComplicationOverlaysMargins = complicationOverlaysMargins;
+    }
+
+    /** @deprecated Use a constructor with perComplicationTypeMargins instead. */
+    @Deprecated
     public ComplicationsOptionWireFormat(
             @NonNull byte[] id,
             @NonNull CharSequence displayName,

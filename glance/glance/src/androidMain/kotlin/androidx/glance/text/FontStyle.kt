@@ -20,16 +20,16 @@ package androidx.glance.text
  * Describes the style of the font: [Normal]] or [Italic].
  */
 @JvmInline
-public value class FontStyle private constructor(private val style: Int) {
-    public companion object {
+value class FontStyle private constructor(private val style: Int) {
+    companion object {
         /** Use the upright glyphs */
-        public val Normal: FontStyle = FontStyle(0)
+        val Normal: FontStyle = FontStyle(0)
 
         /** Use glyphs designed for slanting */
-        public val Italic: FontStyle = FontStyle(1)
+        val Italic: FontStyle = FontStyle(1)
 
         /** Returns a list of possible values of [FontStyle]. */
-        public fun values(): List<FontStyle> = listOf(Normal, Italic)
+        fun values(): List<FontStyle> = listOf(Normal, Italic)
     }
 
     override fun toString(): String {

@@ -303,13 +303,11 @@ class ScalingLazyListState constructor(
                         lazyListState.layoutInfo.visibleItemsInfo.size >= 2 && (
                             // or Empty list (other than the 2 spacers)
                             lazyListState.layoutInfo.visibleItemsInfo.size == 2 ||
-                                // or first item is non-zero size
-                                lazyListState.layoutInfo.visibleItemsInfo.first().size > 0 ||
-                                // or first item is supposed to be zero size
-                                calculateTopAutoCenteringPaddingFromLazyListItemInfo(
+                                // or first item is correctly size
+                                topSpacerIsCorrectlySized(
                                     lazyListState.layoutInfo.visibleItemsInfo,
                                     lazyListState.layoutInfo.totalItemsCount
-                                ) == 0
+                                )
                             )
                         )
                 } else {
@@ -560,29 +558,28 @@ class ScalingLazyListState constructor(
     }
 
     /**
-     * Calculate the amount of top padding needed (if any) to make sure that the
-     * [AutoCenteringParams.itemIndex] item can be placed in the center of the viewport at
-     * [AutoCenteringParams.itemOffset]
+     * Determine if the top Spacer component in the underlying LazyColumn has the correct size. We
+     * need to be sure that it has the correct size before we do scrollToInitialItem in order to
+     * make sure that the initial scroll will be successful.
      */
-    private fun calculateTopAutoCenteringPaddingFromLazyListItemInfo(
+    private fun topSpacerIsCorrectlySized(
         visibleItems: List<LazyListItemInfo>,
         totalItemCount: Int
-    ): Int {
-        // Check is list is empty or we are not at the start of the visible items
-        if (autoCentering.value == null || visibleItems.isEmpty() ||
-            visibleItems[0].index != 0) return 0
+    ): Boolean {
+        // If the top items has a non-zero size we know that it has been correctly inflated.
+        if (lazyListState.layoutInfo.visibleItemsInfo.first().size > 0) return true
 
         // Work out the index we want to find - if there are less items in the list than would be
-        // needed to make initialItemIndex be visible then use the last visible item. The -3 is to
+        // needed to make initialItemIndex be visible then use the last visible item. The -2 is to
         // allow for the spacers, i.e. an underlying list of size 3 has 2 spacers in index 0 and 2
-        // and one real item in index 1.
-        val itemIndexToFind = (autoCentering.value!!.itemIndex + 1).coerceAtMost(totalItemCount - 3)
+        // and one real item in underlying lazy column index 1.
+        val itemIndexToFind = (autoCentering.value!!.itemIndex + 1).coerceAtMost(totalItemCount - 2)
 
         // Find the initialCenterItem, if it is null that means it is not in view - therefore
         // we have more than enough content before it to make sure it can be scrolled to the center
         // of the viewport
         val initialCenterItemSize =
-            visibleItems.find { it.index == itemIndexToFind }?.size ?: return 0
+            visibleItems.find { it.index == itemIndexToFind }?.size ?: return true
 
         // Determine how much space we actually need
         var spaceNeeded = spaceNeeded(initialCenterItemSize)
@@ -596,7 +593,10 @@ class ScalingLazyListState constructor(
                 }
             }
         }
-        return (spaceNeeded.roundToInt() + gapBetweenItemsPx.value!!).coerceAtLeast(0)
+        // Finally if the remaining space needed is less that the gap between items then we do not
+        // need to add any additional space so the spacer being size zero is correct. Otherwise we
+        // need to wait for it to be inflated.
+        return spaceNeeded.roundToInt() < gapBetweenItemsPx.value!!
     }
 
     private fun spaceNeeded(unadjustedSize: Int) =

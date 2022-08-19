@@ -1,0 +1,697 @@
+// Baseline format: 1.0
+ArrayReturn: androidx.test.uiautomator.UiDevice#swipe(android.graphics.Point[], int) parameter #0:
+    Method parameter should be Collection<Point> (or subclass) instead of raw array; was `android.graphics.Point[]`
+
+
+MissingNullability: androidx.test.uiautomator.By#checkable(boolean):
+    Missing nullability on method `checkable` return
+MissingNullability: androidx.test.uiautomator.By#checked(boolean):
+    Missing nullability on method `checked` return
+MissingNullability: androidx.test.uiautomator.By#clazz(Class):
+    Missing nullability on method `clazz` return
+MissingNullability: androidx.test.uiautomator.By#clazz(Class) parameter #0:
+    Missing nullability on parameter `clazz` in method `clazz`
+MissingNullability: androidx.test.uiautomator.By#clazz(String):
+    Missing nullability on method `clazz` return
+MissingNullability: androidx.test.uiautomator.By#clazz(String) parameter #0:
+    Missing nullability on parameter `className` in method `clazz`
+MissingNullability: androidx.test.uiautomator.By#clazz(String, String):
+    Missing nullability on method `clazz` return
+MissingNullability: androidx.test.uiautomator.By#clazz(String, String) parameter #0:
+    Missing nullability on parameter `packageName` in method `clazz`
+MissingNullability: androidx.test.uiautomator.By#clazz(String, String) parameter #1:
+    Missing nullability on parameter `className` in method `clazz`
+MissingNullability: androidx.test.uiautomator.By#clazz(java.util.regex.Pattern):
+    Missing nullability on method `clazz` return
+MissingNullability: androidx.test.uiautomator.By#clazz(java.util.regex.Pattern) parameter #0:
+    Missing nullability on parameter `className` in method `clazz`
+MissingNullability: androidx.test.uiautomator.By#clickable(boolean):
+    Missing nullability on method `clickable` return
+MissingNullability: androidx.test.uiautomator.By#copy(androidx.test.uiautomator.BySelector):
+    Missing nullability on method `copy` return
+MissingNullability: androidx.test.uiautomator.By#copy(androidx.test.uiautomator.BySelector) parameter #0:
+    Missing nullability on parameter `original` in method `copy`
+MissingNullability: androidx.test.uiautomator.By#depth(int):
+    Missing nullability on method `depth` return
+MissingNullability: androidx.test.uiautomator.By#desc(String):
+    Missing nullability on method `desc` return
+MissingNullability: androidx.test.uiautomator.By#desc(String) parameter #0:
+    Missing nullability on parameter `contentDescription` in method `desc`
+MissingNullability: androidx.test.uiautomator.By#desc(java.util.regex.Pattern):
+    Missing nullability on method `desc` return
+MissingNullability: androidx.test.uiautomator.By#desc(java.util.regex.Pattern) parameter #0:
+    Missing nullability on parameter `contentDescription` in method `desc`
+MissingNullability: androidx.test.uiautomator.By#descContains(String):
+    Missing nullability on method `descContains` return
+MissingNullability: androidx.test.uiautomator.By#descContains(String) parameter #0:
+    Missing nullability on parameter `substring` in method `descContains`
+MissingNullability: androidx.test.uiautomator.By#descEndsWith(String):
+    Missing nullability on method `descEndsWith` return
+MissingNullability: androidx.test.uiautomator.By#descEndsWith(String) parameter #0:
+    Missing nullability on parameter `substring` in method `descEndsWith`
+MissingNullability: androidx.test.uiautomator.By#descStartsWith(String):
+    Missing nullability on method `descStartsWith` return
+MissingNullability: androidx.test.uiautomator.By#descStartsWith(String) parameter #0:
+    Missing nullability on parameter `substring` in method `descStartsWith`
+MissingNullability: androidx.test.uiautomator.By#enabled(boolean):
+    Missing nullability on method `enabled` return
+MissingNullability: androidx.test.uiautomator.By#focusable(boolean):
+    Missing nullability on method `focusable` return
+MissingNullability: androidx.test.uiautomator.By#focused(boolean):
+    Missing nullability on method `focused` return
+MissingNullability: androidx.test.uiautomator.By#hasChild(androidx.test.uiautomator.BySelector):
+    Missing nullability on method `hasChild` return
+MissingNullability: androidx.test.uiautomator.By#hasChild(androidx.test.uiautomator.BySelector) parameter #0:
+    Missing nullability on parameter `childSelector` in method `hasChild`
+MissingNullability: androidx.test.uiautomator.By#hasDescendant(androidx.test.uiautomator.BySelector):
+    Missing nullability on method `hasDescendant` return
+MissingNullability: androidx.test.uiautomator.By#hasDescendant(androidx.test.uiautomator.BySelector) parameter #0:
+    Missing nullability on parameter `descendantSelector` in method `hasDescendant`
+MissingNullability: androidx.test.uiautomator.By#hasDescendant(androidx.test.uiautomator.BySelector, int):
+    Missing nullability on method `hasDescendant` return
+MissingNullability: androidx.test.uiautomator.By#hasDescendant(androidx.test.uiautomator.BySelector, int) parameter #0:
+    Missing nullability on parameter `descendantSelector` in method `hasDescendant`
+MissingNullability: androidx.test.uiautomator.By#longClickable(boolean):
+    Missing nullability on method `longClickable` return
+MissingNullability: androidx.test.uiautomator.By#pkg(String):
+    Missing nullability on method `pkg` return
+MissingNullability: androidx.test.uiautomator.By#pkg(String) parameter #0:
+    Missing nullability on parameter `applicationPackage` in method `pkg`
+MissingNullability: androidx.test.uiautomator.By#pkg(java.util.regex.Pattern):
+    Missing nullability on method `pkg` return
+MissingNullability: androidx.test.uiautomator.By#pkg(java.util.regex.Pattern) parameter #0:
+    Missing nullability on parameter `applicationPackage` in method `pkg`
+MissingNullability: androidx.test.uiautomator.By#res(String):
+    Missing nullability on method `res` return
+MissingNullability: androidx.test.uiautomator.By#res(String) parameter #0:
+    Missing nullability on parameter `resourceName` in method `res`
+MissingNullability: androidx.test.uiautomator.By#res(String, String):
+    Missing nullability on method `res` return
+MissingNullability: androidx.test.uiautomator.By#res(String, String) parameter #0:
+    Missing nullability on parameter `resourcePackage` in method `res`
+MissingNullability: androidx.test.uiautomator.By#res(String, String) parameter #1:
+    Missing nullability on parameter `resourceId` in method `res`
+MissingNullability: androidx.test.uiautomator.By#res(java.util.regex.Pattern):
+    Missing nullability on method `res` return
+MissingNullability: androidx.test.uiautomator.By#res(java.util.regex.Pattern) parameter #0:
+    Missing nullability on parameter `resourceName` in method `res`
+MissingNullability: androidx.test.uiautomator.By#scrollable(boolean):
+    Missing nullability on method `scrollable` return
+MissingNullability: androidx.test.uiautomator.By#selected(boolean):
+    Missing nullability on method `selected` return
+MissingNullability: androidx.test.uiautomator.By#text(String):
+    Missing nullability on method `text` return
+MissingNullability: androidx.test.uiautomator.By#text(String) parameter #0:
+    Missing nullability on parameter `text` in method `text`
+MissingNullability: androidx.test.uiautomator.By#text(java.util.regex.Pattern):
+    Missing nullability on method `text` return
+MissingNullability: androidx.test.uiautomator.By#text(java.util.regex.Pattern) parameter #0:
+    Missing nullability on parameter `regex` in method `text`
+MissingNullability: androidx.test.uiautomator.By#textContains(String):
+    Missing nullability on method `textContains` return
+MissingNullability: androidx.test.uiautomator.By#textContains(String) parameter #0:
+    Missing nullability on parameter `substring` in method `textContains`
+MissingNullability: androidx.test.uiautomator.By#textEndsWith(String):
+    Missing nullability on method `textEndsWith` return
+MissingNullability: androidx.test.uiautomator.By#textEndsWith(String) parameter #0:
+    Missing nullability on parameter `substring` in method `textEndsWith`
+MissingNullability: androidx.test.uiautomator.By#textStartsWith(String):
+    Missing nullability on method `textStartsWith` return
+MissingNullability: androidx.test.uiautomator.By#textStartsWith(String) parameter #0:
+    Missing nullability on parameter `substring` in method `textStartsWith`
+MissingNullability: androidx.test.uiautomator.BySelector#checkable(boolean):
+    Missing nullability on method `checkable` return
+MissingNullability: androidx.test.uiautomator.BySelector#checked(boolean):
+    Missing nullability on method `checked` return
+MissingNullability: androidx.test.uiautomator.BySelector#clazz(Class):
+    Missing nullability on method `clazz` return
+MissingNullability: androidx.test.uiautomator.BySelector#clazz(Class) parameter #0:
+    Missing nullability on parameter `clazz` in method `clazz`
+MissingNullability: androidx.test.uiautomator.BySelector#clazz(String):
+    Missing nullability on method `clazz` return
+MissingNullability: androidx.test.uiautomator.BySelector#clazz(String) parameter #0:
+    Missing nullability on parameter `className` in method `clazz`
+MissingNullability: androidx.test.uiautomator.BySelector#clazz(String, String):
+    Missing nullability on method `clazz` return
+MissingNullability: androidx.test.uiautomator.BySelector#clazz(String, String) parameter #0:
+    Missing nullability on parameter `packageName` in method `clazz`
+MissingNullability: androidx.test.uiautomator.BySelector#clazz(String, String) parameter #1:
+    Missing nullability on parameter `className` in method `clazz`
+MissingNullability: androidx.test.uiautomator.BySelector#clazz(java.util.regex.Pattern):
+    Missing nullability on method `clazz` return
+MissingNullability: androidx.test.uiautomator.BySelector#clazz(java.util.regex.Pattern) parameter #0:
+    Missing nullability on parameter `className` in method `clazz`
+MissingNullability: androidx.test.uiautomator.BySelector#clickable(boolean):
+    Missing nullability on method `clickable` return
+MissingNullability: androidx.test.uiautomator.BySelector#depth(int):
+    Missing nullability on method `depth` return
+MissingNullability: androidx.test.uiautomator.BySelector#depth(int, int):
+    Missing nullability on method `depth` return
+MissingNullability: androidx.test.uiautomator.BySelector#desc(String):
+    Missing nullability on method `desc` return
+MissingNullability: androidx.test.uiautomator.BySelector#desc(String) parameter #0:
+    Missing nullability on parameter `contentDescription` in method `desc`
+MissingNullability: androidx.test.uiautomator.BySelector#desc(java.util.regex.Pattern):
+    Missing nullability on method `desc` return
+MissingNullability: androidx.test.uiautomator.BySelector#desc(java.util.regex.Pattern) parameter #0:
+    Missing nullability on parameter `contentDescription` in method `desc`
+MissingNullability: androidx.test.uiautomator.BySelector#descContains(String):
+    Missing nullability on method `descContains` return
+MissingNullability: androidx.test.uiautomator.BySelector#descContains(String) parameter #0:
+    Missing nullability on parameter `substring` in method `descContains`
+MissingNullability: androidx.test.uiautomator.BySelector#descEndsWith(String):
+    Missing nullability on method `descEndsWith` return
+MissingNullability: androidx.test.uiautomator.BySelector#descEndsWith(String) parameter #0:
+    Missing nullability on parameter `substring` in method `descEndsWith`
+MissingNullability: androidx.test.uiautomator.BySelector#descStartsWith(String):
+    Missing nullability on method `descStartsWith` return
+MissingNullability: androidx.test.uiautomator.BySelector#descStartsWith(String) parameter #0:
+    Missing nullability on parameter `substring` in method `descStartsWith`
+MissingNullability: androidx.test.uiautomator.BySelector#enabled(boolean):
+    Missing nullability on method `enabled` return
+MissingNullability: androidx.test.uiautomator.BySelector#focusable(boolean):
+    Missing nullability on method `focusable` return
+MissingNullability: androidx.test.uiautomator.BySelector#focused(boolean):
+    Missing nullability on method `focused` return
+MissingNullability: androidx.test.uiautomator.BySelector#hasChild(androidx.test.uiautomator.BySelector):
+    Missing nullability on method `hasChild` return
+MissingNullability: androidx.test.uiautomator.BySelector#hasChild(androidx.test.uiautomator.BySelector) parameter #0:
+    Missing nullability on parameter `childSelector` in method `hasChild`
+MissingNullability: androidx.test.uiautomator.BySelector#hasDescendant(androidx.test.uiautomator.BySelector):
+    Missing nullability on method `hasDescendant` return
+MissingNullability: androidx.test.uiautomator.BySelector#hasDescendant(androidx.test.uiautomator.BySelector) parameter #0:
+    Missing nullability on parameter `descendantSelector` in method `hasDescendant`
+MissingNullability: androidx.test.uiautomator.BySelector#hasDescendant(androidx.test.uiautomator.BySelector, int):
+    Missing nullability on method `hasDescendant` return
+MissingNullability: androidx.test.uiautomator.BySelector#hasDescendant(androidx.test.uiautomator.BySelector, int) parameter #0:
+    Missing nullability on parameter `descendantSelector` in method `hasDescendant`
+MissingNullability: androidx.test.uiautomator.BySelector#longClickable(boolean):
+    Missing nullability on method `longClickable` return
+MissingNullability: androidx.test.uiautomator.BySelector#maxDepth(int):
+    Missing nullability on method `maxDepth` return
+MissingNullability: androidx.test.uiautomator.BySelector#minDepth(int):
+    Missing nullability on method `minDepth` return
+MissingNullability: androidx.test.uiautomator.BySelector#pkg(String):
+    Missing nullability on method `pkg` return
+MissingNullability: androidx.test.uiautomator.BySelector#pkg(String) parameter #0:
+    Missing nullability on parameter `applicationPackage` in method `pkg`
+MissingNullability: androidx.test.uiautomator.BySelector#pkg(java.util.regex.Pattern):
+    Missing nullability on method `pkg` return
+MissingNullability: androidx.test.uiautomator.BySelector#pkg(java.util.regex.Pattern) parameter #0:
+    Missing nullability on parameter `applicationPackage` in method `pkg`
+MissingNullability: androidx.test.uiautomator.BySelector#res(String):
+    Missing nullability on method `res` return
+MissingNullability: androidx.test.uiautomator.BySelector#res(String) parameter #0:
+    Missing nullability on parameter `resourceName` in method `res`
+MissingNullability: androidx.test.uiautomator.BySelector#res(String, String):
+    Missing nullability on method `res` return
+MissingNullability: androidx.test.uiautomator.BySelector#res(String, String) parameter #0:
+    Missing nullability on parameter `resourcePackage` in method `res`
+MissingNullability: androidx.test.uiautomator.BySelector#res(String, String) parameter #1:
+    Missing nullability on parameter `resourceId` in method `res`
+MissingNullability: androidx.test.uiautomator.BySelector#res(java.util.regex.Pattern):
+    Missing nullability on method `res` return
+MissingNullability: androidx.test.uiautomator.BySelector#res(java.util.regex.Pattern) parameter #0:
+    Missing nullability on parameter `resourceName` in method `res`
+MissingNullability: androidx.test.uiautomator.BySelector#scrollable(boolean):
+    Missing nullability on method `scrollable` return
+MissingNullability: androidx.test.uiautomator.BySelector#selected(boolean):
+    Missing nullability on method `selected` return
+MissingNullability: androidx.test.uiautomator.BySelector#text(String):
+    Missing nullability on method `text` return
+MissingNullability: androidx.test.uiautomator.BySelector#text(String) parameter #0:
+    Missing nullability on parameter `textValue` in method `text`
+MissingNullability: androidx.test.uiautomator.BySelector#text(java.util.regex.Pattern):
+    Missing nullability on method `text` return
+MissingNullability: androidx.test.uiautomator.BySelector#text(java.util.regex.Pattern) parameter #0:
+    Missing nullability on parameter `textValue` in method `text`
+MissingNullability: androidx.test.uiautomator.BySelector#textContains(String):
+    Missing nullability on method `textContains` return
+MissingNullability: androidx.test.uiautomator.BySelector#textContains(String) parameter #0:
+    Missing nullability on parameter `substring` in method `textContains`
+MissingNullability: androidx.test.uiautomator.BySelector#textEndsWith(String):
+    Missing nullability on method `textEndsWith` return
+MissingNullability: androidx.test.uiautomator.BySelector#textEndsWith(String) parameter #0:
+    Missing nullability on parameter `substring` in method `textEndsWith`
+MissingNullability: androidx.test.uiautomator.BySelector#textStartsWith(String):
+    Missing nullability on method `textStartsWith` return
+MissingNullability: androidx.test.uiautomator.BySelector#textStartsWith(String) parameter #0:
+    Missing nullability on parameter `substring` in method `textStartsWith`
+MissingNullability: androidx.test.uiautomator.Configurator#getInstance():
+    Missing nullability on method `getInstance` return
+MissingNullability: androidx.test.uiautomator.Configurator#setActionAcknowledgmentTimeout(long):
+    Missing nullability on method `setActionAcknowledgmentTimeout` return
+MissingNullability: androidx.test.uiautomator.Configurator#setKeyInjectionDelay(long):
+    Missing nullability on method `setKeyInjectionDelay` return
+MissingNullability: androidx.test.uiautomator.Configurator#setScrollAcknowledgmentTimeout(long):
+    Missing nullability on method `setScrollAcknowledgmentTimeout` return
+MissingNullability: androidx.test.uiautomator.Configurator#setToolType(int):
+    Missing nullability on method `setToolType` return
+MissingNullability: androidx.test.uiautomator.Configurator#setUiAutomationFlags(int):
+    Missing nullability on method `setUiAutomationFlags` return
+MissingNullability: androidx.test.uiautomator.Configurator#setWaitForIdleTimeout(long):
+    Missing nullability on method `setWaitForIdleTimeout` return
+MissingNullability: androidx.test.uiautomator.Configurator#setWaitForSelectorTimeout(long):
+    Missing nullability on method `setWaitForSelectorTimeout` return
+MissingNullability: androidx.test.uiautomator.Direction#reverse(androidx.test.uiautomator.Direction):
+    Missing nullability on method `reverse` return
+MissingNullability: androidx.test.uiautomator.Direction#reverse(androidx.test.uiautomator.Direction) parameter #0:
+    Missing nullability on parameter `direction` in method `reverse`
+MissingNullability: androidx.test.uiautomator.IAutomationSupport#sendStatus(int, android.os.Bundle) parameter #1:
+    Missing nullability on parameter `status` in method `sendStatus`
+MissingNullability: androidx.test.uiautomator.UiAutomatorInstrumentationTestRunner#getAndroidTestRunner():
+    Missing nullability on method `getAndroidTestRunner` return
+MissingNullability: androidx.test.uiautomator.UiAutomatorInstrumentationTestRunner#initializeUiAutomatorTest(androidx.test.uiautomator.UiAutomatorTestCase) parameter #0:
+    Missing nullability on parameter `test` in method `initializeUiAutomatorTest`
+MissingNullability: androidx.test.uiautomator.UiAutomatorTestCase#getParams():
+    Missing nullability on method `getParams` return
+MissingNullability: androidx.test.uiautomator.UiAutomatorTestCase#getUiDevice():
+    Missing nullability on method `getUiDevice` return
+MissingNullability: androidx.test.uiautomator.UiCollection#UiCollection(androidx.test.uiautomator.UiSelector) parameter #0:
+    Missing nullability on parameter `selector` in method `UiCollection`
+MissingNullability: androidx.test.uiautomator.UiCollection#getChildByDescription(androidx.test.uiautomator.UiSelector, String):
+    Missing nullability on method `getChildByDescription` return
+MissingNullability: androidx.test.uiautomator.UiCollection#getChildByDescription(androidx.test.uiautomator.UiSelector, String) parameter #0:
+    Missing nullability on parameter `childPattern` in method `getChildByDescription`
+MissingNullability: androidx.test.uiautomator.UiCollection#getChildByDescription(androidx.test.uiautomator.UiSelector, String) parameter #1:
+    Missing nullability on parameter `text` in method `getChildByDescription`
+MissingNullability: androidx.test.uiautomator.UiCollection#getChildByInstance(androidx.test.uiautomator.UiSelector, int):
+    Missing nullability on method `getChildByInstance` return
+MissingNullability: androidx.test.uiautomator.UiCollection#getChildByInstance(androidx.test.uiautomator.UiSelector, int) parameter #0:
+    Missing nullability on parameter `childPattern` in method `getChildByInstance`
+MissingNullability: androidx.test.uiautomator.UiCollection#getChildByText(androidx.test.uiautomator.UiSelector, String):
+    Missing nullability on method `getChildByText` return
+MissingNullability: androidx.test.uiautomator.UiCollection#getChildByText(androidx.test.uiautomator.UiSelector, String) parameter #0:
+    Missing nullability on parameter `childPattern` in method `getChildByText`
+MissingNullability: androidx.test.uiautomator.UiCollection#getChildByText(androidx.test.uiautomator.UiSelector, String) parameter #1:
+    Missing nullability on parameter `text` in method `getChildByText`
+MissingNullability: androidx.test.uiautomator.UiCollection#getChildCount(androidx.test.uiautomator.UiSelector) parameter #0:
+    Missing nullability on parameter `childPattern` in method `getChildCount`
+MissingNullability: androidx.test.uiautomator.UiDevice#dumpWindowHierarchy(java.io.File) parameter #0:
+    Missing nullability on parameter `dest` in method `dumpWindowHierarchy`
+MissingNullability: androidx.test.uiautomator.UiDevice#dumpWindowHierarchy(java.io.OutputStream) parameter #0:
+    Missing nullability on parameter `out` in method `dumpWindowHierarchy`
+MissingNullability: androidx.test.uiautomator.UiDevice#findObject(androidx.test.uiautomator.BySelector):
+    Missing nullability on method `findObject` return
+MissingNullability: androidx.test.uiautomator.UiDevice#findObject(androidx.test.uiautomator.BySelector) parameter #0:
+    Missing nullability on parameter `selector` in method `findObject`
+MissingNullability: androidx.test.uiautomator.UiDevice#findObject(androidx.test.uiautomator.UiSelector):
+    Missing nullability on method `findObject` return
+MissingNullability: androidx.test.uiautomator.UiDevice#findObject(androidx.test.uiautomator.UiSelector) parameter #0:
+    Missing nullability on parameter `selector` in method `findObject`
+MissingNullability: androidx.test.uiautomator.UiDevice#findObjects(androidx.test.uiautomator.BySelector):
+    Missing nullability on method `findObjects` return
+MissingNullability: androidx.test.uiautomator.UiDevice#findObjects(androidx.test.uiautomator.BySelector) parameter #0:
+    Missing nullability on parameter `selector` in method `findObjects`
+MissingNullability: androidx.test.uiautomator.UiDevice#getCurrentPackageName():
+    Missing nullability on method `getCurrentPackageName` return
+MissingNullability: androidx.test.uiautomator.UiDevice#getDisplaySizeDp():
+    Missing nullability on method `getDisplaySizeDp` return
+MissingNullability: androidx.test.uiautomator.UiDevice#getInstance(android.app.Instrumentation):
+    Missing nullability on method `getInstance` return
+MissingNullability: androidx.test.uiautomator.UiDevice#getInstance(android.app.Instrumentation) parameter #0:
+    Missing nullability on parameter `instrumentation` in method `getInstance`
+MissingNullability: androidx.test.uiautomator.UiDevice#getLastTraversedText():
+    Missing nullability on method `getLastTraversedText` return
+MissingNullability: androidx.test.uiautomator.UiDevice#getLauncherPackageName():
+    Missing nullability on method `getLauncherPackageName` return
+MissingNullability: androidx.test.uiautomator.UiDevice#getProductName():
+    Missing nullability on method `getProductName` return
+MissingNullability: androidx.test.uiautomator.UiDevice#hasObject(androidx.test.uiautomator.BySelector) parameter #0:
+    Missing nullability on parameter `selector` in method `hasObject`
+MissingNullability: androidx.test.uiautomator.UiDevice#hasWatcherTriggered(String) parameter #0:
+    Missing nullability on parameter `watcherName` in method `hasWatcherTriggered`
+MissingNullability: androidx.test.uiautomator.UiDevice#performActionAndWait(Runnable, androidx.test.uiautomator.EventCondition<R>, long) parameter #0:
+    Missing nullability on parameter `action` in method `performActionAndWait`
+MissingNullability: androidx.test.uiautomator.UiDevice#performActionAndWait(Runnable, androidx.test.uiautomator.EventCondition<R>, long) parameter #1:
+    Missing nullability on parameter `condition` in method `performActionAndWait`
+MissingNullability: androidx.test.uiautomator.UiDevice#registerWatcher(String, androidx.test.uiautomator.UiWatcher) parameter #0:
+    Missing nullability on parameter `name` in method `registerWatcher`
+MissingNullability: androidx.test.uiautomator.UiDevice#registerWatcher(String, androidx.test.uiautomator.UiWatcher) parameter #1:
+    Missing nullability on parameter `watcher` in method `registerWatcher`
+MissingNullability: androidx.test.uiautomator.UiDevice#removeWatcher(String) parameter #0:
+    Missing nullability on parameter `name` in method `removeWatcher`
+MissingNullability: androidx.test.uiautomator.UiDevice#swipe(android.graphics.Point[], int) parameter #0:
+    Missing nullability on parameter `segments` in method `swipe`
+MissingNullability: androidx.test.uiautomator.UiDevice#takeScreenshot(java.io.File) parameter #0:
+    Missing nullability on parameter `storePath` in method `takeScreenshot`
+MissingNullability: androidx.test.uiautomator.UiDevice#takeScreenshot(java.io.File, float, int) parameter #0:
+    Missing nullability on parameter `storePath` in method `takeScreenshot`
+MissingNullability: androidx.test.uiautomator.UiDevice#wait(androidx.test.uiautomator.SearchCondition<R>, long) parameter #0:
+    Missing nullability on parameter `condition` in method `wait`
+MissingNullability: androidx.test.uiautomator.UiDevice#waitForWindowUpdate(String, long) parameter #0:
+    Missing nullability on parameter `packageName` in method `waitForWindowUpdate`
+MissingNullability: androidx.test.uiautomator.UiObject#dragTo(androidx.test.uiautomator.UiObject, int) parameter #0:
+    Missing nullability on parameter `destObj` in method `dragTo`
+MissingNullability: androidx.test.uiautomator.UiObject#findAccessibilityNodeInfo(long):
+    Missing nullability on method `findAccessibilityNodeInfo` return
+MissingNullability: androidx.test.uiautomator.UiObject#getBounds():
+    Missing nullability on method `getBounds` return
+MissingNullability: androidx.test.uiautomator.UiObject#getChild(androidx.test.uiautomator.UiSelector):
+    Missing nullability on method `getChild` return
+MissingNullability: androidx.test.uiautomator.UiObject#getChild(androidx.test.uiautomator.UiSelector) parameter #0:
+    Missing nullability on parameter `selector` in method `getChild`
+MissingNullability: androidx.test.uiautomator.UiObject#getClassName():
+    Missing nullability on method `getClassName` return
+MissingNullability: androidx.test.uiautomator.UiObject#getContentDescription():
+    Missing nullability on method `getContentDescription` return
+MissingNullability: androidx.test.uiautomator.UiObject#getFromParent(androidx.test.uiautomator.UiSelector):
+    Missing nullability on method `getFromParent` return
+MissingNullability: androidx.test.uiautomator.UiObject#getFromParent(androidx.test.uiautomator.UiSelector) parameter #0:
+    Missing nullability on parameter `selector` in method `getFromParent`
+MissingNullability: androidx.test.uiautomator.UiObject#getPackageName():
+    Missing nullability on method `getPackageName` return
+MissingNullability: androidx.test.uiautomator.UiObject#getSelector():
+    Missing nullability on method `getSelector` return
+MissingNullability: androidx.test.uiautomator.UiObject#getText():
+    Missing nullability on method `getText` return
+MissingNullability: androidx.test.uiautomator.UiObject#getVisibleBounds():
+    Missing nullability on method `getVisibleBounds` return
+MissingNullability: androidx.test.uiautomator.UiObject#performMultiPointerGesture(android.view.MotionEvent.PointerCoords[]...) parameter #0:
+    Missing nullability on parameter `touches` in method `performMultiPointerGesture`
+MissingNullability: androidx.test.uiautomator.UiObject#performTwoPointerGesture(android.graphics.Point, android.graphics.Point, android.graphics.Point, android.graphics.Point, int) parameter #0:
+    Missing nullability on parameter `startPoint1` in method `performTwoPointerGesture`
+MissingNullability: androidx.test.uiautomator.UiObject#performTwoPointerGesture(android.graphics.Point, android.graphics.Point, android.graphics.Point, android.graphics.Point, int) parameter #1:
+    Missing nullability on parameter `startPoint2` in method `performTwoPointerGesture`
+MissingNullability: androidx.test.uiautomator.UiObject#performTwoPointerGesture(android.graphics.Point, android.graphics.Point, android.graphics.Point, android.graphics.Point, int) parameter #2:
+    Missing nullability on parameter `endPoint1` in method `performTwoPointerGesture`
+MissingNullability: androidx.test.uiautomator.UiObject#performTwoPointerGesture(android.graphics.Point, android.graphics.Point, android.graphics.Point, android.graphics.Point, int) parameter #3:
+    Missing nullability on parameter `endPoint2` in method `performTwoPointerGesture`
+MissingNullability: androidx.test.uiautomator.UiObject#setText(String) parameter #0:
+    Missing nullability on parameter `text` in method `setText`
+MissingNullability: androidx.test.uiautomator.UiObject2#click(android.graphics.Point) parameter #0:
+    Missing nullability on parameter `point` in method `click`
+MissingNullability: androidx.test.uiautomator.UiObject2#click(android.graphics.Point, long) parameter #0:
+    Missing nullability on parameter `point` in method `click`
+MissingNullability: androidx.test.uiautomator.UiObject2#clickAndWait(android.graphics.Point, androidx.test.uiautomator.EventCondition<R>, long) parameter #0:
+    Missing nullability on parameter `point` in method `clickAndWait`
+MissingNullability: androidx.test.uiautomator.UiObject2#clickAndWait(android.graphics.Point, androidx.test.uiautomator.EventCondition<R>, long) parameter #1:
+    Missing nullability on parameter `condition` in method `clickAndWait`
+MissingNullability: androidx.test.uiautomator.UiObject2#clickAndWait(androidx.test.uiautomator.EventCondition<R>, long) parameter #0:
+    Missing nullability on parameter `condition` in method `clickAndWait`
+MissingNullability: androidx.test.uiautomator.UiObject2#drag(android.graphics.Point) parameter #0:
+    Missing nullability on parameter `dest` in method `drag`
+MissingNullability: androidx.test.uiautomator.UiObject2#drag(android.graphics.Point, int) parameter #0:
+    Missing nullability on parameter `dest` in method `drag`
+MissingNullability: androidx.test.uiautomator.UiObject2#findObject(androidx.test.uiautomator.BySelector):
+    Missing nullability on method `findObject` return
+MissingNullability: androidx.test.uiautomator.UiObject2#findObject(androidx.test.uiautomator.BySelector) parameter #0:
+    Missing nullability on parameter `selector` in method `findObject`
+MissingNullability: androidx.test.uiautomator.UiObject2#findObjects(androidx.test.uiautomator.BySelector):
+    Missing nullability on method `findObjects` return
+MissingNullability: androidx.test.uiautomator.UiObject2#findObjects(androidx.test.uiautomator.BySelector) parameter #0:
+    Missing nullability on parameter `selector` in method `findObjects`
+MissingNullability: androidx.test.uiautomator.UiObject2#fling(androidx.test.uiautomator.Direction) parameter #0:
+    Missing nullability on parameter `direction` in method `fling`
+MissingNullability: androidx.test.uiautomator.UiObject2#fling(androidx.test.uiautomator.Direction, int) parameter #0:
+    Missing nullability on parameter `direction` in method `fling`
+MissingNullability: androidx.test.uiautomator.UiObject2#getApplicationPackage():
+    Missing nullability on method `getApplicationPackage` return
+MissingNullability: androidx.test.uiautomator.UiObject2#getChildren():
+    Missing nullability on method `getChildren` return
+MissingNullability: androidx.test.uiautomator.UiObject2#getClassName():
+    Missing nullability on method `getClassName` return
+MissingNullability: androidx.test.uiautomator.UiObject2#getContentDescription():
+    Missing nullability on method `getContentDescription` return
+MissingNullability: androidx.test.uiautomator.UiObject2#getParent():
+    Missing nullability on method `getParent` return
+MissingNullability: androidx.test.uiautomator.UiObject2#getResourceName():
+    Missing nullability on method `getResourceName` return
+MissingNullability: androidx.test.uiautomator.UiObject2#getText():
+    Missing nullability on method `getText` return
+MissingNullability: androidx.test.uiautomator.UiObject2#getVisibleBounds():
+    Missing nullability on method `getVisibleBounds` return
+MissingNullability: androidx.test.uiautomator.UiObject2#getVisibleCenter():
+    Missing nullability on method `getVisibleCenter` return
+MissingNullability: androidx.test.uiautomator.UiObject2#hasObject(androidx.test.uiautomator.BySelector) parameter #0:
+    Missing nullability on parameter `selector` in method `hasObject`
+MissingNullability: androidx.test.uiautomator.UiObject2#scroll(androidx.test.uiautomator.Direction, float) parameter #0:
+    Missing nullability on parameter `direction` in method `scroll`
+MissingNullability: androidx.test.uiautomator.UiObject2#scroll(androidx.test.uiautomator.Direction, float, int) parameter #0:
+    Missing nullability on parameter `direction` in method `scroll`
+MissingNullability: androidx.test.uiautomator.UiObject2#setText(String) parameter #0:
+    Missing nullability on parameter `text` in method `setText`
+MissingNullability: androidx.test.uiautomator.UiObject2#swipe(androidx.test.uiautomator.Direction, float) parameter #0:
+    Missing nullability on parameter `direction` in method `swipe`
+MissingNullability: androidx.test.uiautomator.UiObject2#swipe(androidx.test.uiautomator.Direction, float, int) parameter #0:
+    Missing nullability on parameter `direction` in method `swipe`
+MissingNullability: androidx.test.uiautomator.UiObject2#wait(androidx.test.uiautomator.SearchCondition<R>, long) parameter #0:
+    Missing nullability on parameter `condition` in method `wait`
+MissingNullability: androidx.test.uiautomator.UiObject2#wait(androidx.test.uiautomator.UiObject2Condition<R>, long) parameter #0:
+    Missing nullability on parameter `condition` in method `wait`
+MissingNullability: androidx.test.uiautomator.UiObjectNotFoundException#UiObjectNotFoundException(String) parameter #0:
+    Missing nullability on parameter `msg` in method `UiObjectNotFoundException`
+MissingNullability: androidx.test.uiautomator.UiObjectNotFoundException#UiObjectNotFoundException(String, Throwable) parameter #0:
+    Missing nullability on parameter `detailMessage` in method `UiObjectNotFoundException`
+MissingNullability: androidx.test.uiautomator.UiObjectNotFoundException#UiObjectNotFoundException(String, Throwable) parameter #1:
+    Missing nullability on parameter `throwable` in method `UiObjectNotFoundException`
+MissingNullability: androidx.test.uiautomator.UiObjectNotFoundException#UiObjectNotFoundException(Throwable) parameter #0:
+    Missing nullability on parameter `throwable` in method `UiObjectNotFoundException`
+MissingNullability: androidx.test.uiautomator.UiScrollable#UiScrollable(androidx.test.uiautomator.UiSelector) parameter #0:
+    Missing nullability on parameter `container` in method `UiScrollable`
+MissingNullability: androidx.test.uiautomator.UiScrollable#exists(androidx.test.uiautomator.UiSelector) parameter #0:
+    Missing nullability on parameter `selector` in method `exists`
+MissingNullability: androidx.test.uiautomator.UiScrollable#getChildByDescription(androidx.test.uiautomator.UiSelector, String):
+    Missing nullability on method `getChildByDescription` return
+MissingNullability: androidx.test.uiautomator.UiScrollable#getChildByDescription(androidx.test.uiautomator.UiSelector, String) parameter #0:
+    Missing nullability on parameter `childPattern` in method `getChildByDescription`
+MissingNullability: androidx.test.uiautomator.UiScrollable#getChildByDescription(androidx.test.uiautomator.UiSelector, String) parameter #1:
+    Missing nullability on parameter `text` in method `getChildByDescription`
+MissingNullability: androidx.test.uiautomator.UiScrollable#getChildByDescription(androidx.test.uiautomator.UiSelector, String, boolean):
+    Missing nullability on method `getChildByDescription` return
+MissingNullability: androidx.test.uiautomator.UiScrollable#getChildByDescription(androidx.test.uiautomator.UiSelector, String, boolean) parameter #0:
+    Missing nullability on parameter `childPattern` in method `getChildByDescription`
+MissingNullability: androidx.test.uiautomator.UiScrollable#getChildByDescription(androidx.test.uiautomator.UiSelector, String, boolean) parameter #1:
+    Missing nullability on parameter `text` in method `getChildByDescription`
+MissingNullability: androidx.test.uiautomator.UiScrollable#getChildByInstance(androidx.test.uiautomator.UiSelector, int):
+    Missing nullability on method `getChildByInstance` return
+MissingNullability: androidx.test.uiautomator.UiScrollable#getChildByInstance(androidx.test.uiautomator.UiSelector, int) parameter #0:
+    Missing nullability on parameter `childPattern` in method `getChildByInstance`
+MissingNullability: androidx.test.uiautomator.UiScrollable#getChildByText(androidx.test.uiautomator.UiSelector, String):
+    Missing nullability on method `getChildByText` return
+MissingNullability: androidx.test.uiautomator.UiScrollable#getChildByText(androidx.test.uiautomator.UiSelector, String) parameter #0:
+    Missing nullability on parameter `childPattern` in method `getChildByText`
+MissingNullability: androidx.test.uiautomator.UiScrollable#getChildByText(androidx.test.uiautomator.UiSelector, String) parameter #1:
+    Missing nullability on parameter `text` in method `getChildByText`
+MissingNullability: androidx.test.uiautomator.UiScrollable#getChildByText(androidx.test.uiautomator.UiSelector, String, boolean):
+    Missing nullability on method `getChildByText` return
+MissingNullability: androidx.test.uiautomator.UiScrollable#getChildByText(androidx.test.uiautomator.UiSelector, String, boolean) parameter #0:
+    Missing nullability on parameter `childPattern` in method `getChildByText`
+MissingNullability: androidx.test.uiautomator.UiScrollable#getChildByText(androidx.test.uiautomator.UiSelector, String, boolean) parameter #1:
+    Missing nullability on parameter `text` in method `getChildByText`
+MissingNullability: androidx.test.uiautomator.UiScrollable#scrollDescriptionIntoView(String) parameter #0:
+    Missing nullability on parameter `text` in method `scrollDescriptionIntoView`
+MissingNullability: androidx.test.uiautomator.UiScrollable#scrollIntoView(androidx.test.uiautomator.UiObject) parameter #0:
+    Missing nullability on parameter `obj` in method `scrollIntoView`
+MissingNullability: androidx.test.uiautomator.UiScrollable#scrollIntoView(androidx.test.uiautomator.UiSelector) parameter #0:
+    Missing nullability on parameter `selector` in method `scrollIntoView`
+MissingNullability: androidx.test.uiautomator.UiScrollable#scrollTextIntoView(String) parameter #0:
+    Missing nullability on parameter `text` in method `scrollTextIntoView`
+MissingNullability: androidx.test.uiautomator.UiScrollable#setAsHorizontalList():
+    Missing nullability on method `setAsHorizontalList` return
+MissingNullability: androidx.test.uiautomator.UiScrollable#setAsVerticalList():
+    Missing nullability on method `setAsVerticalList` return
+MissingNullability: androidx.test.uiautomator.UiScrollable#setMaxSearchSwipes(int):
+    Missing nullability on method `setMaxSearchSwipes` return
+MissingNullability: androidx.test.uiautomator.UiScrollable#setSwipeDeadZonePercentage(double):
+    Missing nullability on method `setSwipeDeadZonePercentage` return
+MissingNullability: androidx.test.uiautomator.UiSelector#checkable(boolean):
+    Missing nullability on method `checkable` return
+MissingNullability: androidx.test.uiautomator.UiSelector#checked(boolean):
+    Missing nullability on method `checked` return
+MissingNullability: androidx.test.uiautomator.UiSelector#childSelector(androidx.test.uiautomator.UiSelector):
+    Missing nullability on method `childSelector` return
+MissingNullability: androidx.test.uiautomator.UiSelector#childSelector(androidx.test.uiautomator.UiSelector) parameter #0:
+    Missing nullability on parameter `selector` in method `childSelector`
+MissingNullability: androidx.test.uiautomator.UiSelector#className(Class<T>):
+    Missing nullability on method `className` return
+MissingNullability: androidx.test.uiautomator.UiSelector#className(Class<T>) parameter #0:
+    Missing nullability on parameter `type` in method `className`
+MissingNullability: androidx.test.uiautomator.UiSelector#className(String):
+    Missing nullability on method `className` return
+MissingNullability: androidx.test.uiautomator.UiSelector#className(String) parameter #0:
+    Missing nullability on parameter `className` in method `className`
+MissingNullability: androidx.test.uiautomator.UiSelector#classNameMatches(String):
+    Missing nullability on method `classNameMatches` return
+MissingNullability: androidx.test.uiautomator.UiSelector#classNameMatches(String) parameter #0:
+    Missing nullability on parameter `regex` in method `classNameMatches`
+MissingNullability: androidx.test.uiautomator.UiSelector#clickable(boolean):
+    Missing nullability on method `clickable` return
+MissingNullability: androidx.test.uiautomator.UiSelector#cloneSelector():
+    Missing nullability on method `cloneSelector` return
+MissingNullability: androidx.test.uiautomator.UiSelector#description(String):
+    Missing nullability on method `description` return
+MissingNullability: androidx.test.uiautomator.UiSelector#description(String) parameter #0:
+    Missing nullability on parameter `desc` in method `description`
+MissingNullability: androidx.test.uiautomator.UiSelector#descriptionContains(String):
+    Missing nullability on method `descriptionContains` return
+MissingNullability: androidx.test.uiautomator.UiSelector#descriptionContains(String) parameter #0:
+    Missing nullability on parameter `desc` in method `descriptionContains`
+MissingNullability: androidx.test.uiautomator.UiSelector#descriptionMatches(String):
+    Missing nullability on method `descriptionMatches` return
+MissingNullability: androidx.test.uiautomator.UiSelector#descriptionMatches(String) parameter #0:
+    Missing nullability on parameter `regex` in method `descriptionMatches`
+MissingNullability: androidx.test.uiautomator.UiSelector#descriptionStartsWith(String):
+    Missing nullability on method `descriptionStartsWith` return
+MissingNullability: androidx.test.uiautomator.UiSelector#descriptionStartsWith(String) parameter #0:
+    Missing nullability on parameter `desc` in method `descriptionStartsWith`
+MissingNullability: androidx.test.uiautomator.UiSelector#enabled(boolean):
+    Missing nullability on method `enabled` return
+MissingNullability: androidx.test.uiautomator.UiSelector#focusable(boolean):
+    Missing nullability on method `focusable` return
+MissingNullability: androidx.test.uiautomator.UiSelector#focused(boolean):
+    Missing nullability on method `focused` return
+MissingNullability: androidx.test.uiautomator.UiSelector#fromParent(androidx.test.uiautomator.UiSelector):
+    Missing nullability on method `fromParent` return
+MissingNullability: androidx.test.uiautomator.UiSelector#fromParent(androidx.test.uiautomator.UiSelector) parameter #0:
+    Missing nullability on parameter `selector` in method `fromParent`
+MissingNullability: androidx.test.uiautomator.UiSelector#index(int):
+    Missing nullability on method `index` return
+MissingNullability: androidx.test.uiautomator.UiSelector#instance(int):
+    Missing nullability on method `instance` return
+MissingNullability: androidx.test.uiautomator.UiSelector#longClickable(boolean):
+    Missing nullability on method `longClickable` return
+MissingNullability: androidx.test.uiautomator.UiSelector#packageName(String):
+    Missing nullability on method `packageName` return
+MissingNullability: androidx.test.uiautomator.UiSelector#packageName(String) parameter #0:
+    Missing nullability on parameter `name` in method `packageName`
+MissingNullability: androidx.test.uiautomator.UiSelector#packageNameMatches(String):
+    Missing nullability on method `packageNameMatches` return
+MissingNullability: androidx.test.uiautomator.UiSelector#packageNameMatches(String) parameter #0:
+    Missing nullability on parameter `regex` in method `packageNameMatches`
+MissingNullability: androidx.test.uiautomator.UiSelector#resourceId(String):
+    Missing nullability on method `resourceId` return
+MissingNullability: androidx.test.uiautomator.UiSelector#resourceId(String) parameter #0:
+    Missing nullability on parameter `id` in method `resourceId`
+MissingNullability: androidx.test.uiautomator.UiSelector#resourceIdMatches(String):
+    Missing nullability on method `resourceIdMatches` return
+MissingNullability: androidx.test.uiautomator.UiSelector#resourceIdMatches(String) parameter #0:
+    Missing nullability on parameter `regex` in method `resourceIdMatches`
+MissingNullability: androidx.test.uiautomator.UiSelector#scrollable(boolean):
+    Missing nullability on method `scrollable` return
+MissingNullability: androidx.test.uiautomator.UiSelector#selected(boolean):
+    Missing nullability on method `selected` return
+MissingNullability: androidx.test.uiautomator.UiSelector#text(String):
+    Missing nullability on method `text` return
+MissingNullability: androidx.test.uiautomator.UiSelector#text(String) parameter #0:
+    Missing nullability on parameter `text` in method `text`
+MissingNullability: androidx.test.uiautomator.UiSelector#textContains(String):
+    Missing nullability on method `textContains` return
+MissingNullability: androidx.test.uiautomator.UiSelector#textContains(String) parameter #0:
+    Missing nullability on parameter `text` in method `textContains`
+MissingNullability: androidx.test.uiautomator.UiSelector#textMatches(String):
+    Missing nullability on method `textMatches` return
+MissingNullability: androidx.test.uiautomator.UiSelector#textMatches(String) parameter #0:
+    Missing nullability on parameter `regex` in method `textMatches`
+MissingNullability: androidx.test.uiautomator.UiSelector#textStartsWith(String):
+    Missing nullability on method `textStartsWith` return
+MissingNullability: androidx.test.uiautomator.UiSelector#textStartsWith(String) parameter #0:
+    Missing nullability on parameter `text` in method `textStartsWith`
+MissingNullability: androidx.test.uiautomator.Until#checkable(boolean):
+    Missing nullability on method `checkable` return
+MissingNullability: androidx.test.uiautomator.Until#checked(boolean):
+    Missing nullability on method `checked` return
+MissingNullability: androidx.test.uiautomator.Until#clickable(boolean):
+    Missing nullability on method `clickable` return
+MissingNullability: androidx.test.uiautomator.Until#descContains(String):
+    Missing nullability on method `descContains` return
+MissingNullability: androidx.test.uiautomator.Until#descContains(String) parameter #0:
+    Missing nullability on parameter `substring` in method `descContains`
+MissingNullability: androidx.test.uiautomator.Until#descEndsWith(String):
+    Missing nullability on method `descEndsWith` return
+MissingNullability: androidx.test.uiautomator.Until#descEndsWith(String) parameter #0:
+    Missing nullability on parameter `substring` in method `descEndsWith`
+MissingNullability: androidx.test.uiautomator.Until#descEquals(String):
+    Missing nullability on method `descEquals` return
+MissingNullability: androidx.test.uiautomator.Until#descEquals(String) parameter #0:
+    Missing nullability on parameter `contentDescription` in method `descEquals`
+MissingNullability: androidx.test.uiautomator.Until#descMatches(String):
+    Missing nullability on method `descMatches` return
+MissingNullability: androidx.test.uiautomator.Until#descMatches(String) parameter #0:
+    Missing nullability on parameter `regex` in method `descMatches`
+MissingNullability: androidx.test.uiautomator.Until#descMatches(java.util.regex.Pattern):
+    Missing nullability on method `descMatches` return
+MissingNullability: androidx.test.uiautomator.Until#descMatches(java.util.regex.Pattern) parameter #0:
+    Missing nullability on parameter `regex` in method `descMatches`
+MissingNullability: androidx.test.uiautomator.Until#descStartsWith(String):
+    Missing nullability on method `descStartsWith` return
+MissingNullability: androidx.test.uiautomator.Until#descStartsWith(String) parameter #0:
+    Missing nullability on parameter `substring` in method `descStartsWith`
+MissingNullability: androidx.test.uiautomator.Until#enabled(boolean):
+    Missing nullability on method `enabled` return
+MissingNullability: androidx.test.uiautomator.Until#findObject(androidx.test.uiautomator.BySelector):
+    Missing nullability on method `findObject` return
+MissingNullability: androidx.test.uiautomator.Until#findObject(androidx.test.uiautomator.BySelector) parameter #0:
+    Missing nullability on parameter `selector` in method `findObject`
+MissingNullability: androidx.test.uiautomator.Until#findObjects(androidx.test.uiautomator.BySelector):
+    Missing nullability on method `findObjects` return
+MissingNullability: androidx.test.uiautomator.Until#findObjects(androidx.test.uiautomator.BySelector) parameter #0:
+    Missing nullability on parameter `selector` in method `findObjects`
+MissingNullability: androidx.test.uiautomator.Until#focusable(boolean):
+    Missing nullability on method `focusable` return
+MissingNullability: androidx.test.uiautomator.Until#focused(boolean):
+    Missing nullability on method `focused` return
+MissingNullability: androidx.test.uiautomator.Until#gone(androidx.test.uiautomator.BySelector):
+    Missing nullability on method `gone` return
+MissingNullability: androidx.test.uiautomator.Until#gone(androidx.test.uiautomator.BySelector) parameter #0:
+    Missing nullability on parameter `selector` in method `gone`
+MissingNullability: androidx.test.uiautomator.Until#hasObject(androidx.test.uiautomator.BySelector):
+    Missing nullability on method `hasObject` return
+MissingNullability: androidx.test.uiautomator.Until#hasObject(androidx.test.uiautomator.BySelector) parameter #0:
+    Missing nullability on parameter `selector` in method `hasObject`
+MissingNullability: androidx.test.uiautomator.Until#longClickable(boolean):
+    Missing nullability on method `longClickable` return
+MissingNullability: androidx.test.uiautomator.Until#newWindow():
+    Missing nullability on method `newWindow` return
+MissingNullability: androidx.test.uiautomator.Until#scrollFinished(androidx.test.uiautomator.Direction):
+    Missing nullability on method `scrollFinished` return
+MissingNullability: androidx.test.uiautomator.Until#scrollFinished(androidx.test.uiautomator.Direction) parameter #0:
+    Missing nullability on parameter `direction` in method `scrollFinished`
+MissingNullability: androidx.test.uiautomator.Until#scrollable(boolean):
+    Missing nullability on method `scrollable` return
+MissingNullability: androidx.test.uiautomator.Until#selected(boolean):
+    Missing nullability on method `selected` return
+MissingNullability: androidx.test.uiautomator.Until#textContains(String):
+    Missing nullability on method `textContains` return
+MissingNullability: androidx.test.uiautomator.Until#textContains(String) parameter #0:
+    Missing nullability on parameter `substring` in method `textContains`
+MissingNullability: androidx.test.uiautomator.Until#textEndsWith(String):
+    Missing nullability on method `textEndsWith` return
+MissingNullability: androidx.test.uiautomator.Until#textEndsWith(String) parameter #0:
+    Missing nullability on parameter `substring` in method `textEndsWith`
+MissingNullability: androidx.test.uiautomator.Until#textEquals(String):
+    Missing nullability on method `textEquals` return
+MissingNullability: androidx.test.uiautomator.Until#textEquals(String) parameter #0:
+    Missing nullability on parameter `text` in method `textEquals`
+MissingNullability: androidx.test.uiautomator.Until#textMatches(String):
+    Missing nullability on method `textMatches` return
+MissingNullability: androidx.test.uiautomator.Until#textMatches(String) parameter #0:
+    Missing nullability on parameter `regex` in method `textMatches`
+MissingNullability: androidx.test.uiautomator.Until#textMatches(java.util.regex.Pattern):
+    Missing nullability on method `textMatches` return
+MissingNullability: androidx.test.uiautomator.Until#textMatches(java.util.regex.Pattern) parameter #0:
+    Missing nullability on parameter `regex` in method `textMatches`
+MissingNullability: androidx.test.uiautomator.Until#textNotEquals(String):
+    Missing nullability on method `textNotEquals` return
+MissingNullability: androidx.test.uiautomator.Until#textNotEquals(String) parameter #0:
+    Missing nullability on parameter `text` in method `textNotEquals`
+MissingNullability: androidx.test.uiautomator.Until#textStartsWith(String):
+    Missing nullability on method `textStartsWith` return
+MissingNullability: androidx.test.uiautomator.Until#textStartsWith(String) parameter #0:
+    Missing nullability on parameter `substring` in method `textStartsWith`
+
+
+PercentageInt: androidx.test.uiautomator.UiScrollable#getSwipeDeadZonePercentage():
+    Percentage must use ints, was `double` in `getSwipeDeadZonePercentage`
+
+
+ReferencesDeprecated: androidx.test.uiautomator.UiAutomatorInstrumentationTestRunner#getAndroidTestRunner():
+    Return type of deprecated type android.test.AndroidTestRunner in androidx.test.uiautomator.UiAutomatorInstrumentationTestRunner.getAndroidTestRunner(): this method should also be deprecated
+ReferencesDeprecated: androidx.test.uiautomator.UiAutomatorInstrumentationTestRunner#initializeUiAutomatorTest(androidx.test.uiautomator.UiAutomatorTestCase):
+    Parameter of deprecated type androidx.test.uiautomator.UiAutomatorTestCase in androidx.test.uiautomator.UiAutomatorInstrumentationTestRunner.initializeUiAutomatorTest(): this method should also be deprecated
+
+
+StreamFiles: androidx.test.uiautomator.UiDevice#takeScreenshot(java.io.File):
+    Methods accepting `File` should also accept `FileDescriptor` or streams: method androidx.test.uiautomator.UiDevice.takeScreenshot(java.io.File)
+StreamFiles: androidx.test.uiautomator.UiDevice#takeScreenshot(java.io.File, float, int):
+    Methods accepting `File` should also accept `FileDescriptor` or streams: method androidx.test.uiautomator.UiDevice.takeScreenshot(java.io.File,float,int)

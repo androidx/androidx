@@ -16,6 +16,7 @@
 
 package androidx.wear.watchface
 
+import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.content.ComponentName
 import android.content.Context
@@ -77,6 +78,12 @@ internal class TestWatchFaceService(
 
     override fun forceIsVisibleForTesting() = forceIsVisible
 
+    /**
+     * [WatchFaceService.EngineWrapper.onDestroy] is called more than once in some tests which is a
+     * problem due to using a CoroutineScope after it's been cancelled leading to exceptions.
+     */
+    override fun cancelCoroutineScopesInOnDestroy() = false
+
     fun reset() {
         clearTappedState()
         complicationSelected = null
@@ -96,6 +103,7 @@ internal class TestWatchFaceService(
 
     override fun createUserStyleSchema() = userStyleSchema
 
+    @SuppressLint("WrongThread") // The WorkerThread is actually on the UI thread in this test.
     override fun createComplicationSlotsManager(
         currentUserStyleRepository: CurrentUserStyleRepository
     ): ComplicationSlotsManager {
@@ -166,7 +174,7 @@ internal class TestWatchFaceService(
         complicationCache?.set(fileName, byteArray)
     }
 
-    override fun expectPreRInitFlow() = preAndroidR
+    override fun isPreAndroidR() = preAndroidR
 }
 
 /**

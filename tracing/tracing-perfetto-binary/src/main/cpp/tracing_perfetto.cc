@@ -25,7 +25,7 @@
 // Concept of version useful e.g. for human-readable error messages, and stable once released.
 // Does not replace the need for a binary verification mechanism (e.g. checksum check).
 // TODO: populate using CMake
-#define VERSION "1.0.0-alpha01"
+#define VERSION "1.0.0-alpha02"
 
 namespace tracing_perfetto {
     void RegisterWithPerfetto() {
@@ -40,17 +40,14 @@ namespace tracing_perfetto {
     }
 
     void TraceEventBegin(int key, const char *traceInfo) {
+        // Note: key is ignored for now
         TRACE_EVENT_BEGIN(CATEGORY_RENDERING, nullptr, [&](perfetto::EventContext ctx) {
-            ctx.event()->set_name(std::string(traceInfo) + " key=" + std::to_string(key));
+            ctx.event()->set_name(traceInfo);
         });
     }
 
     void TraceEventEnd() {
         TRACE_EVENT_END(CATEGORY_RENDERING);
-    }
-
-    void Flush() {
-        perfetto::TrackEvent::Flush();
     }
 
     const char* Version() {

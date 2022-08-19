@@ -65,6 +65,7 @@ import androidx.annotation.LayoutRes;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.ActivityOptionsCompat;
@@ -76,6 +77,7 @@ import androidx.core.app.PictureInPictureModeChangedInfo;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.OnConfigurationChangedProvider;
 import androidx.core.content.OnTrimMemoryProvider;
+import androidx.core.os.BuildCompat;
 import androidx.core.util.Consumer;
 import androidx.core.view.MenuHost;
 import androidx.core.view.MenuHostHelper;
@@ -151,8 +153,8 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
                 @Override
                 public void run() {
                     // Calling onBackPressed() on an Activity with its state saved can cause an
-                    // error on devices on API levels before 26. We catch that specific error and
-                    // throw all others.
+                    // error on devices on API levels before 26. We catch that specific error
+                    // and throw all others.
                     try {
                         ComponentActivity.super.onBackPressed();
                     } catch (IllegalStateException e) {
@@ -171,6 +173,7 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
 
     private final ActivityResultRegistry mActivityResultRegistry = new ActivityResultRegistry() {
 
+        @SuppressWarnings("deprecation")
         @Override
         public <I, O> void onLaunch(
                 final int requestCode,
@@ -250,6 +253,9 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
             mOnMultiWindowModeChangedListeners = new CopyOnWriteArrayList<>();
     private final CopyOnWriteArrayList<Consumer<PictureInPictureModeChangedInfo>>
             mOnPictureInPictureModeChangedListeners = new CopyOnWriteArrayList<>();
+
+    private boolean mDispatchingOnMultiWindowModeChanged = false;
+    private boolean mDispatchingOnPictureInPictureModeChanged = false;
 
     /**
      * Default constructor for ComponentActivity. All Activities must have a default constructor
@@ -345,6 +351,7 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
      * If your ComponentActivity is annotated with {@link ContentView}, this will
      * call {@link #setContentView(int)} for you.
      */
+    @OptIn(markerClass = BuildCompat.PrereleaseSdkCheck.class)
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         // Restore the Saved State first so that it is available to
@@ -353,6 +360,9 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
         mContextAwareHelper.dispatchOnContextAvailable(this);
         super.onCreate(savedInstanceState);
         ReportFragment.injectIfNeededIn(this);
+        if (BuildCompat.isAtLeastT()) {
+            mOnBackPressedDispatcher.setOnBackInvokedDispatcher(getOnBackInvokedDispatcher());
+        }
         if (mContentLayoutId != 0) {
             setContentView(mContentLayoutId);
         }
@@ -493,25 +503,32 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
     }
 
     @Override
-    public boolean onPrepareOptionsMenu(@NonNull Menu menu) {
-        super.onPrepareOptionsMenu(menu);
-        mMenuHostHelper.onPrepareMenu(menu);
+    public boolean onPreparePanel(int featureId, @Nullable View view, @NonNull Menu menu) {
+        if (featureId == Window.FEATURE_OPTIONS_PANEL) {
+            super.onPreparePanel(featureId, view, menu);
+            mMenuHostHelper.onPrepareMenu(menu);
+        }
         return true;
     }
 
     @Override
-    public boolean onCreateOptionsMenu(@NonNull Menu menu) {
-        super.onCreateOptionsMenu(menu);
-        mMenuHostHelper.onCreateMenu(menu, getMenuInflater());
+    public boolean onCreatePanelMenu(int featureId, @NonNull Menu menu) {
+        if (featureId == Window.FEATURE_OPTIONS_PANEL) {
+            super.onCreatePanelMenu(featureId, menu);
+            mMenuHostHelper.onCreateMenu(menu, getMenuInflater());
+        }
         return true;
     }
 
     @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if (super.onOptionsItemSelected(item)) {
+    public boolean onMenuItemSelected(int featureId, @NonNull MenuItem item) {
+        if (super.onMenuItemSelected(featureId, item)) {
             return true;
         }
-        return mMenuHostHelper.onMenuItemSelected(item);
+        if (featureId == Window.FEATURE_OPTIONS_PANEL) {
+            return mMenuHostHelper.onMenuItemSelected(item);
+        }
+        return false;
     }
 
     @Override
@@ -683,7 +700,7 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
      */
     @Override
     @Deprecated
-    public void startActivityForResult(@SuppressLint("UnknownNullness") Intent intent,
+    public void startActivityForResult(@NonNull Intent intent,
             int requestCode) {
         super.startActivityForResult(intent, requestCode);
     }
@@ -702,7 +719,7 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
      */
     @Override
     @Deprecated
-    public void startActivityForResult(@SuppressLint("UnknownNullness") Intent intent,
+    public void startActivityForResult(@NonNull Intent intent,
             int requestCode, @Nullable Bundle options) {
         super.startActivityForResult(intent, requestCode, options);
     }
@@ -722,7 +739,7 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
      */
     @Override
     @Deprecated
-    public void startIntentSenderForResult(@SuppressLint("UnknownNullness") IntentSender intent,
+    public void startIntentSenderForResult(@NonNull IntentSender intent,
             int requestCode, @Nullable Intent fillInIntent, int flagsMask, int flagsValues,
             int extraFlags)
             throws IntentSender.SendIntentException {
@@ -745,7 +762,7 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
      */
     @Override
     @Deprecated
-    public void startIntentSenderForResult(@SuppressLint("UnknownNullness") IntentSender intent,
+    public void startIntentSenderForResult(@NonNull IntentSender intent,
             int requestCode, @Nullable Intent fillInIntent, int flagsMask, int flagsValues,
             int extraFlags, @Nullable Bundle options) throws IntentSender.SendIntentException {
         super.startIntentSenderForResult(intent, requestCode, fillInIntent, flagsMask, flagsValues,
@@ -929,6 +946,9 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
         // We specifically do not call super.onMultiWindowModeChanged() to avoid
         // crashing when this method is manually called prior to API 24 (which is
         // when this method was added to the framework)
+        if (mDispatchingOnMultiWindowModeChanged) {
+            return;
+        }
         for (Consumer<MultiWindowModeChangedInfo> listener : mOnMultiWindowModeChangedListeners) {
             listener.accept(new MultiWindowModeChangedInfo(isInMultiWindowMode));
         }
@@ -945,9 +965,15 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
     @Override
     public void onMultiWindowModeChanged(boolean isInMultiWindowMode,
             @NonNull Configuration newConfig) {
-        // We specifically do not call super.onMultiWindowModeChanged() to avoid
-        // triggering the call to onMultiWindowModeChanged(boolean) which would
-        // send a second callback to listeners without the newConfig
+        mDispatchingOnMultiWindowModeChanged = true;
+        try {
+            // We can unconditionally call super.onMultiWindowModeChanged() here because this
+            // function is marked with RequiresApi, meaning we are always on an API level
+            // where this call is valid.
+            super.onMultiWindowModeChanged(isInMultiWindowMode, newConfig);
+        } finally {
+            mDispatchingOnMultiWindowModeChanged = false;
+        }
         for (Consumer<MultiWindowModeChangedInfo> listener : mOnMultiWindowModeChangedListeners) {
             listener.accept(new MultiWindowModeChangedInfo(isInMultiWindowMode, newConfig));
         }
@@ -980,6 +1006,10 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
         // We specifically do not call super.onPictureInPictureModeChanged() to avoid
         // crashing when this method is manually called prior to API 24 (which is
         // when this method was added to the framework)
+        if (mDispatchingOnPictureInPictureModeChanged) {
+            return;
+        }
+
         for (Consumer<PictureInPictureModeChangedInfo> listener :
                 mOnPictureInPictureModeChangedListeners) {
             listener.accept(new PictureInPictureModeChangedInfo(isInPictureInPictureMode));
@@ -997,9 +1027,15 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
     @Override
     public void onPictureInPictureModeChanged(boolean isInPictureInPictureMode,
             @NonNull Configuration newConfig) {
-        // We specifically do not call super.onPictureInPictureModeChanged() to avoid
-        // triggering the call to onPictureInPictureModeChanged(boolean) which would
-        // send a second callback to listeners without the newConfig
+        mDispatchingOnPictureInPictureModeChanged = true;
+        try {
+            // We can unconditionally call super.onPictureInPictureModeChanged() here because
+            // this function is marked with RequiresApi, meaning we are always on an API level
+            // where this call is valid.
+            super.onPictureInPictureModeChanged(isInPictureInPictureMode, newConfig);
+        } finally {
+            mDispatchingOnPictureInPictureModeChanged = false;
+        }
         for (Consumer<PictureInPictureModeChangedInfo> listener :
                 mOnPictureInPictureModeChangedListeners) {
             listener.accept(new PictureInPictureModeChangedInfo(

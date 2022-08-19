@@ -24,6 +24,7 @@ import android.graphics.drawable.Drawable;
 import android.util.Property;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.leanback.graphics.BoundsRule.ValueRule;
 
@@ -76,11 +77,13 @@ public class CompositeDrawable extends Drawable implements Drawable.Callback {
     }
 
     @Override
+    @NonNull
     public ConstantState getConstantState() {
         return mState;
     }
 
     @Override
+    @NonNull
     public Drawable mutate() {
         if (!mMutated && super.mutate() == this) {
             mState = new CompositeState(mState, this, null);
@@ -99,20 +102,21 @@ public class CompositeDrawable extends Drawable implements Drawable.Callback {
     /**
      * Adds the supplied region.
      */
-    public void addChildDrawable(Drawable drawable) {
+    public void addChildDrawable(@NonNull Drawable drawable) {
         mState.mChildren.add(new ChildDrawable(drawable, this));
     }
 
     /**
      * Sets the supplied region at given index.
      */
-    public void setChildDrawableAt(int index, Drawable drawable) {
+    public void setChildDrawableAt(int index, @NonNull Drawable drawable) {
         mState.mChildren.set(index, new ChildDrawable(drawable, this));
     }
 
     /**
      * Returns the {@link Drawable} for the given index.
      */
+    @NonNull
     public Drawable getDrawable(int index) {
         return mState.mChildren.get(index).mDrawable;
     }
@@ -120,6 +124,7 @@ public class CompositeDrawable extends Drawable implements Drawable.Callback {
     /**
      * Returns the {@link ChildDrawable} at the given index.
      */
+    @NonNull
     public ChildDrawable getChildAt(int index) {
         return mState.mChildren.get(index);
     }
@@ -134,7 +139,7 @@ public class CompositeDrawable extends Drawable implements Drawable.Callback {
     /**
      * Removes the given region.
      */
-    public void removeDrawable(Drawable drawable) {
+    public void removeDrawable(@NonNull Drawable drawable) {
         final ArrayList<ChildDrawable> children = mState.mChildren;
         for (int i = 0; i < children.size(); i++) {
             if (drawable == children.get(i).mDrawable) {
@@ -153,7 +158,7 @@ public class CompositeDrawable extends Drawable implements Drawable.Callback {
     }
 
     @Override
-    public void draw(Canvas canvas) {
+    public void draw(@NonNull Canvas canvas) {
         final ArrayList<ChildDrawable> children = mState.mChildren;
         for (int i = 0; i < children.size(); i++) {
             children.get(i).mDrawable.draw(canvas);
@@ -167,7 +172,7 @@ public class CompositeDrawable extends Drawable implements Drawable.Callback {
     }
 
     @Override
-    public void setColorFilter(ColorFilter colorFilter) {
+    public void setColorFilter(@Nullable ColorFilter colorFilter) {
         final ArrayList<ChildDrawable> children = mState.mChildren;
         for (int i = 0; i < children.size(); i++) {
             children.get(i).mDrawable.setColorFilter(colorFilter);
@@ -212,17 +217,17 @@ public class CompositeDrawable extends Drawable implements Drawable.Callback {
     }
 
     @Override
-    public void invalidateDrawable(Drawable who) {
+    public void invalidateDrawable(@NonNull Drawable who) {
         invalidateSelf();
     }
 
     @Override
-    public void scheduleDrawable(Drawable who, Runnable what, long when) {
+    public void scheduleDrawable(@NonNull Drawable who, @NonNull Runnable what, long when) {
         scheduleSelf(what, when);
     }
 
     @Override
-    public void unscheduleDrawable(Drawable who, Runnable what) {
+    public void unscheduleDrawable(@NonNull Drawable who, @NonNull Runnable what) {
         unscheduleSelf(what);
     }
 
@@ -247,7 +252,7 @@ public class CompositeDrawable extends Drawable implements Drawable.Callback {
         private final Rect adjustedBounds = new Rect();
         final CompositeDrawable mParent;
 
-        public ChildDrawable(Drawable drawable, CompositeDrawable parent) {
+        public ChildDrawable(@NonNull Drawable drawable, @NonNull CompositeDrawable parent) {
             this.mDrawable = drawable;
             this.mParent = parent;
             this.mBoundsRule = new BoundsRule();
@@ -283,6 +288,7 @@ public class CompositeDrawable extends Drawable implements Drawable.Callback {
         /**
          * Returns the instance of {@link BoundsRule}.
          */
+        @NonNull
         public BoundsRule getBoundsRule() {
             return this.mBoundsRule;
         }
@@ -290,6 +296,7 @@ public class CompositeDrawable extends Drawable implements Drawable.Callback {
         /**
          * Returns the {@link Drawable}.
          */
+        @NonNull
         public Drawable getDrawable() {
             return mDrawable;
         }

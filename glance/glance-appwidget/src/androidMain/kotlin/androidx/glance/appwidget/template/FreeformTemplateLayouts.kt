@@ -17,21 +17,21 @@
 package androidx.glance.appwidget.template
 
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.glance.GlanceModifier
 import androidx.glance.ImageProvider
-import androidx.glance.LocalSize
 import androidx.glance.background
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.Column
 import androidx.glance.layout.ContentScale
 import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.padding
-import androidx.glance.unit.ColorProvider
 import androidx.glance.template.FreeformTemplateData
+import androidx.glance.template.LocalTemplateMode
 import androidx.glance.template.TemplateMode
 import androidx.glance.template.TemplateText
+import androidx.glance.template.TextType
+import androidx.glance.unit.ColorProvider
 
 /**
  * Composable layout for a freeform template app widget. The freeform template is optimized to
@@ -40,17 +40,8 @@ import androidx.glance.template.TemplateText
  * @param data the data that defines the widget
  */
 @Composable
-public fun FreeformTemplate(data: FreeformTemplateData) {
-    val height = LocalSize.current.height
-    val width = LocalSize.current.width
-    val mode = if (height <= Dp(240f) && width <= Dp(240f)) {
-        TemplateMode.Collapsed
-    } else if ((width / height) < (3.0 / 2.0)) {
-        TemplateMode.Vertical
-    } else {
-        TemplateMode.Horizontal
-    }
-    when (mode) {
+fun FreeformTemplate(data: FreeformTemplateData) {
+    when (LocalTemplateMode.current) {
         TemplateMode.Collapsed -> WidgetLayoutCollapsed(data)
         TemplateMode.Vertical -> WidgetLayoutVertical(data)
         TemplateMode.Horizontal -> WidgetLayoutHorizontal(data)
@@ -110,10 +101,10 @@ private fun textList(
 ): List<TemplateText> {
     val result = mutableListOf<TemplateText>()
     title?.let {
-        result.add(TemplateText(it.text, TemplateText.Type.Title))
+        result.add(TemplateText(it.text, TextType.Title))
     }
     subtitle?.let {
-        result.add(TemplateText(it.text, TemplateText.Type.Label))
+        result.add(TemplateText(it.text, TextType.Label))
     }
 
     return result

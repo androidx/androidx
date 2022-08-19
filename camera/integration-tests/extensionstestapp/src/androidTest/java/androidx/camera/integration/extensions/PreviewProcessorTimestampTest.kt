@@ -39,7 +39,7 @@ import androidx.camera.core.impl.PreviewConfig
 import androidx.camera.core.impl.UseCaseConfigFactory
 import androidx.camera.extensions.ExtensionMode
 import androidx.camera.extensions.ExtensionsManager
-import androidx.camera.integration.extensions.util.ExtensionsTestUtil
+import androidx.camera.integration.extensions.util.CameraXExtensionsTestUtil
 import androidx.camera.integration.extensions.utils.CameraSelectorUtil
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.CameraUtil
@@ -147,7 +147,7 @@ class PreviewProcessorTimestampTest(
 
     @Before
     fun setUp(): Unit = runBlocking {
-        assumeTrue(ExtensionsTestUtil.isTargetDeviceAvailableForExtensions())
+        assumeTrue(CameraXExtensionsTestUtil.isTargetDeviceAvailableForExtensions())
         assumeFalse(Build.BRAND.equals("Samsung", ignoreCase = true))
         cameraProvider = ProcessCameraProvider.getInstance(context)[10000, TimeUnit.MILLISECONDS]
         extensionsManager = ExtensionsManager.getInstanceAsync(
@@ -238,7 +238,7 @@ class PreviewProcessorTimestampTest(
         @JvmStatic
         @get:Parameterized.Parameters(name = "cameraId = {0}, extensionMode = {1}")
         val parameters: Collection<Array<Any>>
-            get() = ExtensionsTestUtil.getAllCameraIdExtensionModeCombinations()
+            get() = CameraXExtensionsTestUtil.getAllCameraIdExtensionModeCombinations()
 
         /**
          * Retrieves the default extended camera config provider id string

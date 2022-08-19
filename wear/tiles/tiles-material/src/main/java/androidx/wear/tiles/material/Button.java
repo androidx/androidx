@@ -19,10 +19,10 @@ package androidx.wear.tiles.material;
 import static androidx.annotation.Dimension.DP;
 import static androidx.wear.tiles.DimensionBuilders.dp;
 import static androidx.wear.tiles.LayoutElementBuilders.CONTENT_SCALE_MODE_FILL_BOUNDS;
-import static androidx.wear.tiles.material.ButtonDefaults.DEFAULT_BUTTON_SIZE;
-import static androidx.wear.tiles.material.ButtonDefaults.EXTRA_LARGE_BUTTON_SIZE;
-import static androidx.wear.tiles.material.ButtonDefaults.LARGE_BUTTON_SIZE;
-import static androidx.wear.tiles.material.ButtonDefaults.PRIMARY_BUTTON_COLORS;
+import static androidx.wear.tiles.material.ButtonDefaults.DEFAULT_SIZE;
+import static androidx.wear.tiles.material.ButtonDefaults.EXTRA_LARGE_SIZE;
+import static androidx.wear.tiles.material.ButtonDefaults.LARGE_SIZE;
+import static androidx.wear.tiles.material.ButtonDefaults.PRIMARY_COLORS;
 import static androidx.wear.tiles.material.Helper.checkNotNull;
 import static androidx.wear.tiles.material.Helper.checkTag;
 import static androidx.wear.tiles.material.Helper.getMetadataTagName;
@@ -65,8 +65,27 @@ import java.util.Map;
  * <p>The Button is circular in shape. The recommended sizes are defined in {@link ButtonDefaults}.
  *
  * <p>The recommended set of {@link ButtonColors} styles can be obtained from {@link
- * ButtonDefaults}., e.g. {@link ButtonDefaults#PRIMARY_BUTTON_COLORS} to get a color scheme for a
- * primary {@link Button}.
+ * ButtonDefaults}., e.g. {@link ButtonDefaults#PRIMARY_COLORS} to get a color scheme for a primary
+ * {@link Button}.
+ *
+ * <p>When accessing the contents of a container for testing, note that this element can't be simply
+ * casted back to the original type, i.e.:
+ *
+ * <pre>{@code
+ * Button button = new Button...
+ * Box box = new Box.Builder().addContent(button).build();
+ *
+ * Button myButton = (Button) box.getContents().get(0);
+ * }</pre>
+ *
+ * will fail.
+ *
+ * <p>To be able to get {@link Button} object from any layout element, {@link #fromLayoutElement}
+ * method should be used, i.e.:
+ *
+ * <pre>{@code
+ * Button myButton = Button.fromLayoutElement(box.getContents().get(0));
+ * }</pre>
  */
 public class Button implements LayoutElement {
     /** Tool tag for Metadata in Modifiers, so we know that Box is actually a Button with text. */
@@ -107,13 +126,13 @@ public class Button implements LayoutElement {
         @Nullable private LayoutElement mCustomContent;
         @NonNull private final Clickable mClickable;
         @NonNull private CharSequence mContentDescription = "";
-        @NonNull private DpProp mSize = DEFAULT_BUTTON_SIZE;
+        @NonNull private DpProp mSize = DEFAULT_SIZE;
         @Nullable private String mText = null;
         @Nullable private Integer mTypographyName = null;
         @Nullable private String mIcon = null;
         @Nullable private DpProp mIconSize = null;
         @Nullable private String mImage = null;
-        @NonNull private ButtonColors mButtonColors = PRIMARY_BUTTON_COLORS;
+        @NonNull private ButtonColors mButtonColors = PRIMARY_COLORS;
         @ButtonType private int mType = NOT_SET;
 
         static {
@@ -149,9 +168,9 @@ public class Button implements LayoutElement {
 
         /**
          * Sets the size for the {@link Button}. Strongly recommended values are {@link
-         * ButtonDefaults#DEFAULT_BUTTON_SIZE}, {@link ButtonDefaults#LARGE_BUTTON_SIZE} and {@link
-         * ButtonDefaults#EXTRA_LARGE_BUTTON_SIZE}. If not set, {@link
-         * ButtonDefaults#DEFAULT_BUTTON_SIZE} will be used.
+         * ButtonDefaults#DEFAULT_SIZE}, {@link ButtonDefaults#LARGE_SIZE} and {@link
+         * ButtonDefaults#EXTRA_LARGE_SIZE}. If not set, {@link ButtonDefaults#DEFAULT_SIZE} will be
+         * used.
          */
         @NonNull
         public Builder setSize(@NonNull DpProp size) {
@@ -161,9 +180,9 @@ public class Button implements LayoutElement {
 
         /**
          * Sets the size for the {@link Button}. Strongly recommended values are {@link
-         * ButtonDefaults#DEFAULT_BUTTON_SIZE}, {@link ButtonDefaults#LARGE_BUTTON_SIZE} and {@link
-         * ButtonDefaults#EXTRA_LARGE_BUTTON_SIZE}. If not set, {@link
-         * ButtonDefaults#DEFAULT_BUTTON_SIZE} will be used.
+         * ButtonDefaults#DEFAULT_SIZE}, {@link ButtonDefaults#LARGE_SIZE} and {@link
+         * ButtonDefaults#EXTRA_LARGE_SIZE}. If not set, {@link ButtonDefaults#DEFAULT_SIZE} will be
+         * used.
          */
         @NonNull
         public Builder setSize(@Dimension(unit = DP) float size) {
@@ -172,9 +191,8 @@ public class Button implements LayoutElement {
         }
 
         /**
-         * Sets the colors for the {@link Button}. If set, {@link ButtonColors#getBackgroundColor()}
-         * will be used for the background of the button. If not set, {@link
-         * ButtonDefaults#PRIMARY_BUTTON_COLORS} will be used.
+         * Sets the colors for the {@link Button}. If not set, {@link ButtonDefaults#PRIMARY_COLORS}
+         * will be used.
          */
         @NonNull
         public Builder setButtonColors(@NonNull ButtonColors buttonColors) {
@@ -194,15 +212,15 @@ public class Button implements LayoutElement {
         }
 
         /**
-         * Sets the content of this Button to be the given icon. Any previously added content will
-         * be overridden. Provided icon will be tinted to the given content color from {@link
-         * ButtonColors} and with the given size. This icon should be image with chosen alpha
-         * channel and not an actual image.
+         * Sets the content of this Button to be the given icon with the given size. Any previously
+         * added content will be overridden. Provided icon will be tinted to the given content color
+         * from {@link ButtonColors} and with the given size. This icon should be image with chosen
+         * alpha channel and not an actual image.
          */
         @NonNull
-        public Builder setIconContent(@NonNull String resourceId, @NonNull DpProp size) {
+        public Builder setIconContent(@NonNull String imageResourceId, @NonNull DpProp size) {
             resetContent();
-            this.mIcon = resourceId;
+            this.mIcon = imageResourceId;
             this.mType = ICON;
             this.mIconSize = size;
             return this;
@@ -215,21 +233,20 @@ public class Button implements LayoutElement {
          * should be image with chosen alpha channel and not an actual image.
          */
         @NonNull
-        public Builder setIconContent(@NonNull String resourceId) {
+        public Builder setIconContent(@NonNull String imageResourceId) {
             resetContent();
-            this.mIcon = resourceId;
+            this.mIcon = imageResourceId;
             this.mType = ICON;
             return this;
         }
 
         /**
          * Sets the content of this Button to be the given text with the default font for the set
-         * size (for the {@link ButtonDefaults#DEFAULT_BUTTON_SIZE}, {@link
-         * ButtonDefaults#LARGE_BUTTON_SIZE} and {@link ButtonDefaults#EXTRA_LARGE_BUTTON_SIZE} is
-         * {@link Typography#TYPOGRAPHY_TITLE2}, {@link Typography#TYPOGRAPHY_TITLE1} and {@link
-         * Typography#TYPOGRAPHY_DISPLAY3} respectively). Any previously added content will be
-         * overridden. Text should contain no more than 3 characters, otherwise it will overflow
-         * from the edges.
+         * size (for the {@link ButtonDefaults#DEFAULT_SIZE}, {@link ButtonDefaults#LARGE_SIZE} and
+         * {@link ButtonDefaults#EXTRA_LARGE_SIZE} is {@link Typography#TYPOGRAPHY_TITLE2}, {@link
+         * Typography#TYPOGRAPHY_TITLE1} and {@link Typography#TYPOGRAPHY_DISPLAY3} respectively).
+         * Any previously added content will be overridden. Text should contain no more than 3
+         * characters, otherwise it will overflow from the edges.
          */
         @NonNull
         public Builder setTextContent(@NonNull String text) {
@@ -255,15 +272,13 @@ public class Button implements LayoutElement {
         }
 
         /**
-         * Sets the content of this Button to be the given icon with the default size that is half
-         * of the size of the button. Any previously added content will be overridden. Provided icon
-         * will be tinted to the given content color from {@link ButtonColors}. This icon should be
-         * image with chosen alpha channel and not an actual image.
+         * Sets the content of this Button to be the given image, i.e. contacts photo. Any
+         * previously added content will be overridden.
          */
         @NonNull
-        public Builder setImageContent(@NonNull String resourceId) {
+        public Builder setImageContent(@NonNull String imageResourceId) {
             resetContent();
-            this.mImage = resourceId;
+            this.mImage = imageResourceId;
             this.mType = IMAGE;
             return this;
         }
@@ -281,8 +296,6 @@ public class Button implements LayoutElement {
         @NonNull
         @Override
         public Button build() {
-            assertContentFields();
-
             Modifiers.Builder modifiers =
                     new Modifiers.Builder()
                             .setClickable(mClickable)
@@ -376,38 +389,13 @@ public class Button implements LayoutElement {
             }
         }
 
-        private void assertContentFields() {
-            int numOfNonNull = 0;
-            if (mText != null) {
-                numOfNonNull++;
-            }
-            if (mIcon != null) {
-                numOfNonNull++;
-            }
-            if (mImage != null) {
-                numOfNonNull++;
-            }
-            if (mCustomContent != null) {
-                numOfNonNull++;
-            }
-            if (numOfNonNull == 0 || mType == NOT_SET) {
-                throw new IllegalArgumentException("Content is not set.");
-            }
-            if (numOfNonNull > 1) {
-                throw new IllegalArgumentException(
-                        "Too many contents are set. Only one content should be set in the button.");
-            }
-        }
-
-        private @TypographyName int getDefaultTypographyForSize(@NonNull DpProp size) {
-            if (size.getValue() == LARGE_BUTTON_SIZE.getValue()) {
+        private static @TypographyName int getDefaultTypographyForSize(@NonNull DpProp size) {
+            if (size.getValue() == LARGE_SIZE.getValue()) {
                 return Typography.TYPOGRAPHY_TITLE1;
+            } else if (size.getValue() == EXTRA_LARGE_SIZE.getValue()) {
+                return Typography.TYPOGRAPHY_DISPLAY3;
             } else {
-                if (size.getValue() == EXTRA_LARGE_BUTTON_SIZE.getValue()) {
-                    return Typography.TYPOGRAPHY_DISPLAY3;
-                } else {
-                    return Typography.TYPOGRAPHY_TITLE2;
-                }
+                return Typography.TYPOGRAPHY_TITLE2;
             }
         }
     }
@@ -536,15 +524,20 @@ public class Button implements LayoutElement {
     /** Returns metadata tag set to this Button. */
     @NonNull
     String getMetadataTag() {
-        return getMetadataTagName(checkNotNull(mElement.getModifiers()));
+        return getMetadataTagName(
+                checkNotNull(checkNotNull(mElement.getModifiers()).getMetadata()));
     }
 
     /**
-     * Returns Button object from the given LayoutElement if that element can be converted to
-     * Button. Otherwise, returns null.
+     * Returns Button object from the given LayoutElement (e.g. one retrieved from a container's
+     * content with {@code container.getContents().get(index)}) if that element can be converted to
+     * Button. Otherwise, it will return null.
      */
     @Nullable
     public static Button fromLayoutElement(@NonNull LayoutElement element) {
+        if (element instanceof Button) {
+            return (Button) element;
+        }
         if (!(element instanceof Box)) {
             return null;
         }

@@ -68,17 +68,4 @@
         app:title="Title"
         app:menu="@menu/sample_actions" />
 
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/toolbar_icons"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:title="Title"
-        app:menu="@menu/appcompat_menu_icon_tinting"/>
-
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/toolbar_no_menu"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:title="Title"/>
-
 </LinearLayout>

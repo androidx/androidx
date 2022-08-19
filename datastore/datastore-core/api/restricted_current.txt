@@ -1,6 +1,14 @@
 // Signature format: 4.0
 package androidx.datastore.core {
 
+  public interface Closeable {
+    method public void close();
+  }
+
+  public final class CloseableKt {
+    method public static inline <T extends androidx.datastore.core.Closeable, R> R! use(T, kotlin.jvm.functions.Function1<? super T,? extends R> block);
+  }
+
   public final class CorruptionException extends java.io.IOException {
     ctor public CorruptionException(String message, optional Throwable? cause);
   }
@@ -22,7 +30,12 @@ package androidx.datastore.core {
     method public <T> androidx.datastore.core.DataStore<T> create(androidx.datastore.core.Serializer<T> serializer, optional androidx.datastore.core.handlers.ReplaceFileCorruptionHandler<T>? corruptionHandler, optional java.util.List<? extends androidx.datastore.core.DataMigration<T>> migrations, kotlin.jvm.functions.Function0<? extends java.io.File> produceFile);
     method public <T> androidx.datastore.core.DataStore<T> create(androidx.datastore.core.Serializer<T> serializer, optional androidx.datastore.core.handlers.ReplaceFileCorruptionHandler<T>? corruptionHandler, kotlin.jvm.functions.Function0<? extends java.io.File> produceFile);
     method public <T> androidx.datastore.core.DataStore<T> create(androidx.datastore.core.Serializer<T> serializer, kotlin.jvm.functions.Function0<? extends java.io.File> produceFile);
+    method public <T> androidx.datastore.core.DataStore<T> create(androidx.datastore.core.Storage<T> storage, androidx.datastore.core.handlers.ReplaceFileCorruptionHandler<T>? corruptionHandler, java.util.List<? extends androidx.datastore.core.DataMigration<T>> migrations, kotlinx.coroutines.CoroutineScope scope);
     field public static final androidx.datastore.core.DataStoreFactory INSTANCE;
+  }
+
+  public interface ReadScope<T> extends androidx.datastore.core.Closeable {
+    method public suspend Object? readData(kotlin.coroutines.Continuation<? super T>);
   }
 
   public interface Serializer<T> {
@@ -30,6 +43,24 @@ package androidx.datastore.core {
     method public suspend Object? readFrom(java.io.InputStream input, kotlin.coroutines.Continuation<? super T>);
     method public suspend Object? writeTo(T? t, java.io.OutputStream output, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     property public abstract T! defaultValue;
+  }
+
+  public interface Storage<T> {
+    method public androidx.datastore.core.StorageConnection<T> createConnection();
+  }
+
+  public interface StorageConnection<T> extends androidx.datastore.core.Closeable {
+    method public suspend <R> Object? readTransaction(kotlin.jvm.functions.Function2<? super androidx.datastore.core.ReadScope<T>,? super kotlin.coroutines.Continuation<? super R>,?> block, kotlin.coroutines.Continuation<? super R>);
+    method public suspend Object? writeTransaction(kotlin.jvm.functions.Function2<? super androidx.datastore.core.WriteScope<T>,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?> block, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+  }
+
+  public final class StorageConnectionKt {
+    method public static suspend <T> Object? readData(androidx.datastore.core.StorageConnection<T>, kotlin.coroutines.Continuation<? super T>);
+    method public static suspend <T> Object? writeData(androidx.datastore.core.StorageConnection<T>, T? value, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+  }
+
+  public interface WriteScope<T> extends androidx.datastore.core.ReadScope<T> {
+    method public suspend Object? writeData(T? value, kotlin.coroutines.Continuation<? super kotlin.Unit>);
   }
 
 }

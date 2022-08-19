@@ -161,7 +161,7 @@ public class ExerciseState private constructor(public val id: Int, public val na
          * Used only in the manually started exercise.
          */
         @JvmField
-        public val USER_ENDED: ExerciseState = ExerciseState(10, "USER_ENDED")
+        internal val USER_ENDED: ExerciseState = ExerciseState(10, "USER_ENDED")
 
         /**
          * The exercise is being automatically ended due to a lack of exercise updates being
@@ -180,7 +180,7 @@ public class ExerciseState private constructor(public val id: Int, public val na
          * Used only in the manually started exercise.
          */
         @JvmField
-        public val AUTO_ENDED: ExerciseState = ExerciseState(12, "AUTO_ENDED")
+        internal val AUTO_ENDED: ExerciseState = ExerciseState(12, "AUTO_ENDED")
 
         /**
          * The exercise is being automatically ended due to lack of client's permissions to receive
@@ -195,7 +195,7 @@ public class ExerciseState private constructor(public val id: Int, public val na
          * data for the exercise.
          */
         @JvmField
-        public val AUTO_ENDED_PERMISSION_LOST: ExerciseState =
+        internal val AUTO_ENDED_PERMISSION_LOST: ExerciseState =
             ExerciseState(17, "AUTO_ENDED_PERMISSION_LOST")
 
         /**
@@ -215,7 +215,7 @@ public class ExerciseState private constructor(public val id: Int, public val na
          * Used in both of the manually started exercise and the automatic exercise detection.
          */
         @JvmField
-        public val TERMINATED: ExerciseState = ExerciseState(14, "TERMINATED")
+        internal val TERMINATED: ExerciseState = ExerciseState(14, "TERMINATED")
 
         /**
          * The exercise has been ended, with the reason specified by [ExerciseStateInfo.endReason].
@@ -226,7 +226,7 @@ public class ExerciseState private constructor(public val id: Int, public val na
         private val RESUMING_STATES = setOf(USER_RESUMING, AUTO_RESUMING)
         private val PAUSED_STATES = setOf(USER_PAUSED, AUTO_PAUSED)
         private val ENDED_STATES =
-            setOf(USER_ENDED, AUTO_ENDED, AUTO_ENDED_PERMISSION_LOST, TERMINATED)
+            setOf(USER_ENDED, AUTO_ENDED, AUTO_ENDED_PERMISSION_LOST, TERMINATED, ENDED)
         private val ENDING_STATES =
             setOf(USER_ENDING, AUTO_ENDING, AUTO_ENDING_PERMISSION_LOST, TERMINATING)
         private val OTHER_STATES =

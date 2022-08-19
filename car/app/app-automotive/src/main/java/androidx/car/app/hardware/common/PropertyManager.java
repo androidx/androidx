@@ -18,12 +18,10 @@ package androidx.car.app.hardware.common;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
-import android.car.VehicleAreaType;
 import android.car.hardware.CarPropertyValue;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.util.Log;
-import android.util.Pair;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
@@ -92,20 +90,25 @@ public class PropertyManager {
     /**
      * Submits a request for registering the listener to get property updates.
      *
-     * @param propertyIds           a list of property id in {@link android.car.VehiclePropertyIds}
+     * @param propertyIdsToCarZones a map of property id in {@link android.car.VehiclePropertyIds}
+     *                              to their CarZones
      * @param sampleRate            sample rate in Hz
      * @param listener              {@link OnCarPropertyResponseListener}
      * @param executor              execute the task for registering properties
-     * @throws SecurityException    if the application did not grant permissions for
-     *                              registering properties
+     * @throws SecurityException if the application did not grant permissions for
+     *                           registering properties
      */
     @SuppressWarnings("FutureReturnValueIgnored")
-    public void submitRegisterListenerRequest(@NonNull List<Integer> propertyIds, float sampleRate,
+    public void submitRegisterListenerRequest(
+            @NonNull Map<Integer, List<CarZone>> propertyIdsToCarZones, float sampleRate,
             @NonNull OnCarPropertyResponseListener listener, @NonNull Executor executor) {
+        List<PropertyIdAreaId> propertyIdWithAreaIds =
+                PropertyUtils.getPropertyIdWithAreaIds(propertyIdsToCarZones);
+        List<Integer> propertyIds = new ArrayList<>(propertyIdsToCarZones.keySet());
         checkPermissions(propertyIds);
         long samplingIntervalMs;
         synchronized (mLock) {
-            mListenerAndResponseCache.putListenerAndPropertyIds(listener, propertyIds);
+            mListenerAndResponseCache.putListenerAndUIds(listener, propertyIdWithAreaIds);
             if (sampleRate == 0) {
                 throw new IllegalArgumentException("Sample rate cannot be zero.");
             }
@@ -115,81 +118,113 @@ public class PropertyManager {
 
         // register properties
         executor.execute(() -> {
-            for (int propertyId : propertyIds) {
+            for (PropertyIdAreaId propertyIdAndAreadId : propertyIdWithAreaIds) {
                 try {
-                    mPropertyRequestProcessor.registerProperty(propertyId, sampleRate);
+                    mPropertyRequestProcessor.registerProperty(propertyIdAndAreadId.getPropertyId(),
+                            sampleRate);
                 } catch (IllegalArgumentException e) {
                     // the property is not implemented
                     Log.e(LogTags.TAG_CAR_HARDWARE,
-                            "Failed to register for property: " + propertyId, e);
-                    mPropertyProcessorCallback.onErrorEvent(CarInternalError.create(propertyId,
-                            VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL,
-                            CarValue.STATUS_UNIMPLEMENTED));
+                            "Failed to register for property: "
+                                    + propertyIdAndAreadId.getPropertyId(), e);
+                    mPropertyProcessorCallback.onErrorEvent(
+                            CarInternalError.create(propertyIdAndAreadId.getPropertyId(),
+                                    propertyIdAndAreadId.getAreaId(),
+                                    CarValue.STATUS_UNIMPLEMENTED));
                 } catch (Exception e) {
                     Log.e(LogTags.TAG_CAR_HARDWARE,
-                            "Failed to register for property: " + propertyId, e);
-                    mPropertyProcessorCallback.onErrorEvent(CarInternalError.create(propertyId,
-                            VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL, CarValue.STATUS_UNAVAILABLE));
+                            "Failed to register for property: "
+                                    + propertyIdAndAreadId.getPropertyId(), e);
+                    mPropertyProcessorCallback.onErrorEvent(
+                            CarInternalError.create(propertyIdAndAreadId.getPropertyId(),
+                                    propertyIdAndAreadId.getAreaId(), CarValue.STATUS_UNAVAILABLE));
                 }
             }
         });
-        mScheduledExecutorService.schedule(()-> dispatchResponseWithDelay(listener),
+        mScheduledExecutorService.schedule(() -> dispatchResponseWithDelay(listener),
                 samplingIntervalMs, TimeUnit.MILLISECONDS);
     }
 
     /**
      * Submits a request for unregistering the listener to get property updates.
      *
-     * @param listener                  {@link OnCarPropertyResponseListener} to be unregistered.
-     * @throws IllegalStateException    if the listener was not registered yet
-     * @throws SecurityException        if the application did not grant permissions for
-     *                                  unregistering properties
+     * @param listener {@link OnCarPropertyResponseListener} to be unregistered.
+     * @throws IllegalStateException if the listener was not registered yet
+     * @throws SecurityException     if the application did not grant permissions for
+     *                               unregistering properties
      */
     public void submitUnregisterListenerRequest(@NonNull OnCarPropertyResponseListener listener) {
-        List<Integer> propertyIds;
-        List<Integer> propertyIdsToBeUnregistered;
+        List<PropertyIdAreaId> uIdsToBeUnregistered;
         synchronized (mLock) {
-            propertyIds = mListenerAndResponseCache.getPropertyIdsByListener(listener);
-            if (propertyIds == null) {
+            if (mListenerAndResponseCache.getUIdsByListener(listener).isEmpty()) {
                 throw new IllegalStateException("Listener was not registered yet.");
             }
-            propertyIdsToBeUnregistered = mListenerAndResponseCache.removeListener(listener);
+            uIdsToBeUnregistered = mListenerAndResponseCache.removeListener(listener);
+            if (uIdsToBeUnregistered.size() == 0) {
+                Log.w(LogTags.TAG_CAR_HARDWARE, "No property was unregistered.");
+                return;
+            }
             mListenerToSamplingIntervalMap.remove(listener);
         }
-        if (propertyIdsToBeUnregistered.size() != 0) {
-            mScheduledExecutorService.execute(() -> {
-                for (int propertyId : propertyIdsToBeUnregistered) {
-                    mPropertyRequestProcessor.unregisterProperty(propertyId);
-                }
-            });
-        }
+        mScheduledExecutorService.execute(() -> {
+            for (PropertyIdAreaId uId : uIdsToBeUnregistered) {
+                mPropertyRequestProcessor.unregisterProperty(uId.getPropertyId());
+            }
+        });
     }
 
     /**
      * Submits {@link CarPropertyResponse} for getting property values.
      *
-     * @param rawRequests           a list of {@link GetPropertyRequest}
+     * @param rawRequests a list of {@link GetPropertyRequest}
      * @param executor              executes the expensive operation such as fetching property
      *                              values from cars
-     * @throws SecurityException    if the application did not grant permissions for getting
-     *                              property
-     *
      * @return {@link ListenableFuture} contains a list of {@link CarPropertyResponse}
+     * @throws SecurityException if the application did not grant permissions for getting
+     *                           property
      */
     @NonNull
     public ListenableFuture<List<CarPropertyResponse<?>>> submitGetPropertyRequest(
-            @NonNull List<GetPropertyRequest> rawRequests, @NonNull Executor executor) {
+            @NonNull List<GetPropertyRequest> rawRequests,
+            @NonNull Executor executor) {
         List<Integer> propertyIds = new ArrayList<>();
+        Map<Integer, List<CarZone>> propertyIdsToCarZones = new HashMap<>();
         for (GetPropertyRequest request : rawRequests) {
             propertyIds.add(request.getPropertyId());
+            propertyIdsToCarZones.put(request.getPropertyId(), request.getCarZones());
         }
+
         checkPermissions(propertyIds);
-        List<Pair<Integer, Integer>> requests = parseRawRequest(rawRequests);
+        List<PropertyIdAreaId> propertyIdWithAreaIds =
+                PropertyUtils.getPropertyIdWithAreaIds(propertyIdsToCarZones);
         return CallbackToFutureAdapter.getFuture(completer -> {
             // Getting properties' value is expensive operation.
-            executor.execute(() ->
-                    mPropertyRequestProcessor.fetchCarPropertyValues(requests, (values, errors) ->
-                                    completer.set(createResponses(values, errors))));
+            executor.execute(() -> mPropertyRequestProcessor.fetchCarPropertyValues(
+                    propertyIdWithAreaIds,
+                    (values, errors) -> completer.set(createResponses(values, errors))));
+            return "Get property values done";
+        });
+    }
+
+    /**
+     * Returns a list of {@link CarPropertyProfile}s that contains the supported car zones and
+     * the corresponding min/max values for the given propertyIds.
+     *
+     * @param propertyIds a list of property Ids.
+     * @param executor              executes the expensive operation such as fetching property
+     *                              values from cars
+     * @return {@link ListenableFuture} contains a list of {@link CarPropertyProfile}
+     * @throws SecurityException if the application did not grant permissions for getting
+     *                           property
+     */
+    @NonNull
+    public ListenableFuture<List<CarPropertyProfile<?>>> fetchSupportedZonesResponse(
+            @NonNull List<Integer> propertyIds, @NonNull Executor executor) {
+        checkPermissions(propertyIds);
+        return CallbackToFutureAdapter.getFuture(completer -> {
+            executor.execute(() -> mPropertyRequestProcessor.fetchCarPropertyProfiles(
+                    propertyIds,
+                    completer::set));
             return "Get property values done";
         });
     }
@@ -199,12 +234,12 @@ public class PropertyManager {
      *
      * <p>For on_change properties and error events, dispatches them to listeners without delay.
      *
-     * @param propertyId property id in {@link android.car.VehiclePropertyIds}
+     * @param uId PropertyIdAreaId Class object.
      */
-    void dispatchResponsesWithoutDelay(int propertyId) {
+    void dispatchResponsesWithoutDelay(PropertyIdAreaId uId) {
         synchronized (mLock) {
-            Set<OnCarPropertyResponseListener> listeners =
-                    mListenerAndResponseCache.getListenersByPropertyId(propertyId);
+            List<OnCarPropertyResponseListener> listeners =
+                    mListenerAndResponseCache.getListenersByUId(uId);
             if (listeners == null) {
                 return;
             }
@@ -232,7 +267,7 @@ public class PropertyManager {
                 propertyResponses = mListenerAndResponseCache.getResponsesByListener(listener);
 
                 //Schedules for next dispatch
-                mScheduledExecutorService.schedule(()-> dispatchResponseWithDelay(listener),
+                mScheduledExecutorService.schedule(() -> dispatchResponseWithDelay(listener),
                         delayTime, TimeUnit.MILLISECONDS);
             }
         }
@@ -255,8 +290,9 @@ public class PropertyManager {
                 if (mListenerAndResponseCache.updateResponseIfNeeded(carPropertyValue)) {
                     int propertyId = carPropertyValue.getPropertyId();
                     if (PropertyUtils.isOnChangeProperty(propertyId)) {
-                        mScheduledExecutorService.execute(() ->
-                                dispatchResponsesWithoutDelay(propertyId));
+                        mScheduledExecutorService.execute(() -> dispatchResponsesWithoutDelay(
+                                PropertyIdAreaId.builder().setPropertyId(propertyId)
+                                        .setAreaId(carPropertyValue.getAreaId()).build()));
                     }
                 }
             }
@@ -266,37 +302,24 @@ public class PropertyManager {
         public void onErrorEvent(CarInternalError carInternalError) {
             synchronized (mLock) {
                 mListenerAndResponseCache.updateInternalError(carInternalError);
-                mScheduledExecutorService.execute(() ->
-                        dispatchResponsesWithoutDelay(carInternalError.getPropertyId()));
+                mScheduledExecutorService.execute(() -> dispatchResponsesWithoutDelay(
+                        PropertyIdAreaId.builder().setPropertyId(carInternalError.getPropertyId())
+                                .setAreaId(carInternalError.getAreaId()).build()));
             }
         }
     }
 
     private static List<CarPropertyResponse<?>> createResponses(
             List<CarPropertyValue<?>> propertyValues, List<CarInternalError> propertyErrors) {
-        // TODO(b/190869722): handle AreaId to VehicleZone map in V1.2
         List<CarPropertyResponse<?>> carResponses = new ArrayList<>();
         for (CarPropertyValue<?> value : propertyValues) {
             carResponses.add(PropertyUtils.convertPropertyValueToPropertyResponse(value));
         }
-        for (CarInternalError error: propertyErrors) {
-            carResponses.add(CarPropertyResponse.builder()
-                    .setPropertyId(error.getPropertyId())
-                    .setStatus(error.getErrorCode()).build());
+        for (CarInternalError error : propertyErrors) {
+            carResponses.add(CarPropertyResponse.builder().setPropertyId(
+                    error.getPropertyId()).setStatus(error.getErrorCode()).build());
         }
         return carResponses;
-    }
-
-    // Maps VehicleZones to AreaIds.
-    private List<Pair<Integer, Integer>> parseRawRequest(List<GetPropertyRequest> requestList) {
-        List<Pair<Integer, Integer>> requestsWithAreaId = new ArrayList<>(requestList.size());
-        for (GetPropertyRequest request : requestList) {
-            if (PropertyUtils.isGlobalProperty(request.getPropertyId())) {
-                // ignore the VehicleZone, set areaId to 0.
-                requestsWithAreaId.add(new Pair<>(request.getPropertyId(), 0));
-            }
-        }
-        return requestsWithAreaId;
     }
 
     private void checkPermissions(List<Integer> propertyIds) {

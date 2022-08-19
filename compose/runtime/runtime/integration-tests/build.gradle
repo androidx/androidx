@@ -27,7 +27,6 @@ plugins {
 AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project)
 
 dependencies {
-    kotlinPlugin(projectOrArtifact(":compose:compiler:compiler"))
 
     if(!AndroidXComposePlugin.isMultiplatformEnabled(project)) {
         androidTestImplementation(projectOrArtifact(":compose:ui:ui"))
@@ -105,5 +104,6 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
 tasks.withType(KotlinCompile).configureEach {
     kotlinOptions {
         incremental = false
+        freeCompilerArgs += "-Xcontext-receivers"
     }
 }

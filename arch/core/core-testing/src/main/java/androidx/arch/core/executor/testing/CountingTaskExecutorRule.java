@@ -18,6 +18,7 @@ package androidx.arch.core.executor.testing;
 
 import android.os.SystemClock;
 
+import androidx.annotation.NonNull;
 import androidx.arch.core.executor.ArchTaskExecutor;
 import androidx.arch.core.executor.DefaultTaskExecutor;
 
@@ -42,12 +43,12 @@ public class CountingTaskExecutorRule extends TestWatcher {
         super.starting(description);
         ArchTaskExecutor.getInstance().setDelegate(new DefaultTaskExecutor() {
             @Override
-            public void executeOnDiskIO(Runnable runnable) {
+            public void executeOnDiskIO(@NonNull Runnable runnable) {
                 super.executeOnDiskIO(new CountingRunnable(runnable));
             }
 
             @Override
-            public void postToMainThread(Runnable runnable) {
+            public void postToMainThread(@NonNull Runnable runnable) {
                 super.postToMainThread(new CountingRunnable(runnable));
             }
         });
@@ -108,7 +109,7 @@ public class CountingTaskExecutorRule extends TestWatcher {
      * @throws InterruptedException If thread is interrupted while waiting
      * @throws TimeoutException If tasks cannot be drained at the given time
      */
-    public void drainTasks(int time, TimeUnit timeUnit)
+    public void drainTasks(int time, @NonNull TimeUnit timeUnit)
             throws InterruptedException, TimeoutException {
         long end = SystemClock.uptimeMillis() + timeUnit.toMillis(time);
         synchronized (mCountLock) {

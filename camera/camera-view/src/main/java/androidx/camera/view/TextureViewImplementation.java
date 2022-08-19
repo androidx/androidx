@@ -39,6 +39,7 @@ import androidx.core.util.Preconditions;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
+import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -55,12 +56,14 @@ final class TextureViewImplementation extends PreviewViewImplementation {
     SurfaceRequest mSurfaceRequest;
     boolean mIsSurfaceTextureDetachedFromView = false;
     SurfaceTexture mDetachedSurfaceTexture;
-
     AtomicReference<CallbackToFutureAdapter.Completer<Void>> mNextFrameCompleter =
             new AtomicReference<>();
-
     @Nullable
     OnSurfaceNotInUseListener mOnSurfaceNotInUseListener;
+    @Nullable
+    PreviewView.OnFrameUpdateListener mOnFrameUpdateListener;
+    @Nullable
+    Executor mFrameUpdateExecutor;
 
     TextureViewImplementation(@NonNull FrameLayout parent,
             @NonNull PreviewTransformation previewTransform) {
@@ -174,7 +177,7 @@ final class TextureViewImplementation extends PreviewViewImplementation {
                                 }
 
                                 @Override
-                                public void onFailure(Throwable t) {
+                                public void onFailure(@NonNull Throwable t) {
                                     throw new IllegalStateException("SurfaceReleaseFuture did not "
                                             + "complete nicely.", t);
                                 }
@@ -195,6 +198,13 @@ final class TextureViewImplementation extends PreviewViewImplementation {
 
                 if (completer != null) {
                     completer.set(null);
+                }
+
+                PreviewView.OnFrameUpdateListener onFrameUpdateListener = mOnFrameUpdateListener;
+                Executor frameUpdateExecutor = mFrameUpdateExecutor;
+                if (onFrameUpdateListener != null && frameUpdateExecutor != null) {
+                    frameUpdateExecutor.execute(() ->
+                            onFrameUpdateListener.onFrameUpdate(surfaceTexture.getTimestamp()));
                 }
             }
         });
@@ -274,5 +284,12 @@ final class TextureViewImplementation extends PreviewViewImplementation {
 
         // Get bitmap of the SurfaceTexture's display contents
         return mTextureView.getBitmap();
+    }
+
+    @Override
+    void setFrameUpdateListener(@NonNull Executor executor,
+            @NonNull PreviewView.OnFrameUpdateListener listener) {
+        mOnFrameUpdateListener = listener;
+        mFrameUpdateExecutor = executor;
     }
 }

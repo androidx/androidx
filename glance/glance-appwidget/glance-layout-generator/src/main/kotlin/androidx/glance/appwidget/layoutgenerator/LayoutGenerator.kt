@@ -93,13 +93,17 @@ internal class LayoutGenerator {
             generateContainersChildrenBeforeS(outputLayoutDir) +
             generateRootElements(outputLayoutDir) +
             generateRootAliases(outputValueDir)
+        val topLevelLayouts = containerFiles + childrenFiles.filter { isTopLevelLayout(it) }
         return GeneratedFiles(
             generatedContainers = containerFiles.associateWith {
                 generateContainers(it, outputLayoutDir)
             },
-            generatedChildren = childrenFiles
-                .filter { isTopLevelLayout(it) }
-                .associateWith { generateBoxChildrenForT(it, outputLayoutDirT) },
+            generatedBoxChildren = topLevelLayouts.associateWith {
+                generateBoxChildrenForT(it, outputLayoutDirT)
+            },
+            generatedRowColumnChildren = topLevelLayouts.associateWith {
+                generateRowColumnChildrenForT(it, outputLayoutDirT)
+            },
             extraFiles = generatedFiles,
         )
     }
@@ -439,6 +443,22 @@ internal class LayoutGenerator {
             BoxChildProperties(output, horizontalAlignment, verticalAlignment)
         }
 
+    private fun generateRowColumnChildrenForT(
+        file: File,
+        outputLayoutDir: File,
+    ): List<RowColumnChildProperties> =
+        listOf(
+            Pair(ValidSize.Expand, ValidSize.Wrap),
+            Pair(ValidSize.Wrap, ValidSize.Expand),
+        ).map { (width, height) ->
+            val generated = generateSimpleLayout(parseLayoutTemplate(file), width, height)
+            val output = outputLayoutDir.resolveRes(
+                makeRowColumnChildResourceName(file, width, height)
+            )
+            writeGeneratedLayout(generated, output)
+            RowColumnChildProperties(output, width, height)
+        }
+
     /**
      * Generate a simple layout.
      *
@@ -522,7 +542,7 @@ internal class LayoutGenerator {
 
     private fun isTopLevelLayout(file: File) =
         parseLayoutTemplate(file).run {
-            if (documentElement.appAttr("isTopLevelLayout")?.nodeValue == "true") true else false
+            documentElement.appAttr("glance_isTopLevelLayout")?.nodeValue == "true"
         }
 }
 
@@ -537,7 +557,8 @@ internal const val RootLayoutAliasCount = 100
 
 internal data class GeneratedFiles(
     val generatedContainers: Map<File, List<ContainerProperties>>,
-    val generatedChildren: Map<File, List<BoxChildProperties>>,
+    val generatedBoxChildren: Map<File, List<BoxChildProperties>>,
+    val generatedRowColumnChildren: Map<File, List<RowColumnChildProperties>>,
     val extraFiles: Set<File>
 )
 
@@ -559,6 +580,12 @@ internal data class BoxChildProperties(
     val generatedFile: File,
     val horizontalAlignment: HorizontalAlignment,
     val verticalAlignment: VerticalAlignment,
+)
+
+internal data class RowColumnChildProperties(
+    val generatedFile: File,
+    val width: ValidSize,
+    val height: ValidSize,
 )
 
 internal enum class ValidSize(val androidValue: String, val resourceName: String) {

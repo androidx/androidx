@@ -67,13 +67,14 @@ internal val Element.internalName: String
             when (nestingKind) {
                 NestingKind.TOP_LEVEL ->
                     qualifiedName.toString().replace('.', '/')
-                NestingKind.MEMBER ->
+                NestingKind.MEMBER, NestingKind.LOCAL ->
                     enclosingElement.internalName + "$" + simpleName
-                NestingKind.LOCAL, NestingKind.ANONYMOUS ->
+                NestingKind.ANONYMOUS ->
                     error("Unsupported nesting $nestingKind")
                 else ->
                     error("Unsupported, nestingKind == null")
             }
+        is ExecutableElement -> enclosingElement.internalName
         is QualifiedNameable -> qualifiedName.toString().replace('.', '/')
         else -> simpleName.toString()
     }
@@ -196,7 +197,8 @@ internal object JvmDescriptorTypeVisitor : AbstractTypeVisitor8<String, Unit>() 
 
     override fun visitNull(t: NullType, u: Unit): String = visitUnknown(t, u)
 
-    override fun visitError(t: ErrorType, u: Unit): String = visitUnknown(t, u)
+    override fun visitError(t: ErrorType, u: Unit): String =
+        throw TypeNotPresentException(t.toString(), null)
 
     override fun visitIntersection(t: IntersectionType, u: Unit) = t.descriptor()
 

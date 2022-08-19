@@ -17,7 +17,7 @@
 let Benchmark = require('benchmark');
 let suite = new Benchmark.Suite();
 
-let Collection = require('androidx-collection2')
+let Collection = require('androidx-collection')
     .androidx.collection;
 
 let SourceValues = [];

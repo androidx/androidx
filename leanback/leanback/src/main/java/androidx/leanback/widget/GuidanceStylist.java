@@ -23,6 +23,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.leanback.R;
 
 import java.util.List;
@@ -89,7 +90,12 @@ public class GuidanceStylist implements FragmentAnimationProvider {
          * @param breadcrumb The breadcrumb for the current guided step.
          * @param icon The icon drawable representing the current guided step.
          */
-        public Guidance(String title, String description, String breadcrumb, Drawable icon) {
+        public Guidance(
+                @Nullable String title,
+                @Nullable String description,
+                @Nullable String breadcrumb,
+                @Nullable Drawable icon
+        ) {
             mBreadcrumb = breadcrumb;
             mTitle = title;
             mDescription = description;
@@ -100,6 +106,7 @@ public class GuidanceStylist implements FragmentAnimationProvider {
          * Returns the title specified when this Guidance was constructed.
          * @return The title for this Guidance.
          */
+        @Nullable
         public String getTitle() {
             return mTitle;
         }
@@ -108,6 +115,7 @@ public class GuidanceStylist implements FragmentAnimationProvider {
          * Returns the description specified when this Guidance was constructed.
          * @return The description for this Guidance.
          */
+        @Nullable
         public String getDescription() {
             return mDescription;
         }
@@ -116,6 +124,7 @@ public class GuidanceStylist implements FragmentAnimationProvider {
          * Returns the breadcrumb specified when this Guidance was constructed.
          * @return The breadcrumb for this Guidance.
          */
+        @Nullable
         public String getBreadcrumb() {
             return mBreadcrumb;
         }
@@ -124,6 +133,7 @@ public class GuidanceStylist implements FragmentAnimationProvider {
          * Returns the icon drawable specified when this Guidance was constructed.
          * @return The icon for this Guidance.
          */
+        @Nullable
         public Drawable getIconDrawable() {
             return mIconDrawable;
         }
@@ -147,9 +157,12 @@ public class GuidanceStylist implements FragmentAnimationProvider {
      * @param guidance The guidance data for the view.
      * @return The view to be added to the caller's view hierarchy.
      */
+    @NonNull
     public View onCreateView(
-            final LayoutInflater inflater, ViewGroup container, Guidance guidance) {
-
+            final @NonNull LayoutInflater inflater,
+            @Nullable ViewGroup container,
+            @NonNull Guidance guidance
+    ) {
         View guidanceView = inflater.inflate(onProvideLayoutId(), container, false);
         mTitleView = (TextView) guidanceView.findViewById(R.id.guidance_title);
         mBreadcrumbView = (TextView) guidanceView.findViewById(R.id.guidance_breadcrumb);
@@ -226,6 +239,7 @@ public class GuidanceStylist implements FragmentAnimationProvider {
      * Returns the view displaying the title of the guidance.
      * @return The text view object for the title.
      */
+    @Nullable
     public TextView getTitleView() {
         return mTitleView;
     }
@@ -234,6 +248,7 @@ public class GuidanceStylist implements FragmentAnimationProvider {
      * Returns the view displaying the description of the guidance.
      * @return The text view object for the description.
      */
+    @Nullable
     public TextView getDescriptionView() {
         return mDescriptionView;
     }
@@ -242,6 +257,7 @@ public class GuidanceStylist implements FragmentAnimationProvider {
      * Returns the view displaying the breadcrumb of the guidance.
      * @return The text view object for the breadcrumb.
      */
+    @Nullable
     public TextView getBreadcrumbView() {
         return mBreadcrumbView;
     }
@@ -250,6 +266,7 @@ public class GuidanceStylist implements FragmentAnimationProvider {
      * Returns the view displaying the icon of the guidance.
      * @return The image view object for the icon.
      */
+    @Nullable
     public ImageView getIconView() {
         return mIconView;
     }

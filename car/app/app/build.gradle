@@ -49,6 +49,7 @@ plugins {
 dependencies {
     // OnBackPressedDispatcher is part of the API
     api("androidx.activity:activity:1.2.0")
+    implementation(libs.guavaAndroid)
     implementation("androidx.annotation:annotation:1.2.0")
     implementation("androidx.core:core:1.7.0")
     implementation("androidx.lifecycle:lifecycle-viewmodel:2.2.0")
@@ -83,7 +84,7 @@ android {
         aidl = true
     }
     defaultConfig {
-        minSdkVersion 23
+        minSdkVersion 21
         multiDexEnabled = true
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
@@ -113,25 +114,15 @@ androidx {
 class ProtocolApiTask extends DefaultTask {
     private final WorkerExecutor workerExecutor
 
-    @Input
-    public Provider<List<File> > classpath = project.provider({
-        FileCollection dependencyClasspath = getLibraryVariant().getCompileClasspath(null)
-
-        def resolvedClasspath = new ArrayList<File>()
-        resolvedClasspath.addAll(getLibraryExtension().bootClasspath)
-        resolvedClasspath.addAll(dependencyClasspath)
-        resolvedClasspath
-    })
-
-    @Input
-    public Provider<List<File> > sourceDirs = project.provider({
-       List<File> resolvedSourceDirs = new ArrayList<File>()
-       for (ConfigurableFileTree fileTree : getLibraryVariant().getSourceFolders(SourceKind
-               .JAVA)) {
-           resolvedSourceDirs.add(fileTree.getDir())
-       }
-       resolvedSourceDirs
-    })
+    @Classpath
+    public FileCollection metalavaClasspath
+    @Classpath
+    public FileCollection bootClasspath
+    @Classpath
+    public FileCollection dependencyClasspath
+    @InputFiles
+    @PathSensitive(PathSensitivity.RELATIVE)
+    public FileCollection sourceDirs
 
     @Inject
     ProtocolApiTask(WorkerExecutor workerExecutor) {
@@ -139,30 +130,12 @@ class ProtocolApiTask extends DefaultTask {
     }
 
     @Internal
-    def getLibraryVariant() {
-        LibraryExtension extension = getLibraryExtension()
-        LibraryApiTaskConfig config = new LibraryApiTaskConfig(extension)
-        return config.library.libraryVariants.find({
-            it.name == Release.DEFAULT_PUBLISH_CONFIG
-        })
-    }
-
-    @Internal
-    def getLibraryExtension() {
-        return project.extensions.findByType(LibraryExtension.class)
-    }
-
-    @Internal
     def runMetalava(List<String> additionalArgs) {
-        FileCollection metalavaClasspath = MetalavaRunnerKt.getMetalavaClasspath(project)
-
-        List<File> classpath = classpath.get()
-        List<File> sourceDirs = sourceDirs.get().findAll{ it -> it.exists() }
         List<String> standardArgs = [
                 "--classpath",
-                classpath.join(File.pathSeparator),
+                (bootClasspath.files + dependencyClasspath.files).join(File.pathSeparator),
                 '--source-path',
-                sourceDirs.join(File.pathSeparator),
+                sourceDirs.filter { it.exists() }.join(File.pathSeparator),
                 '--format=v4',
                 '--output-kotlin-nulls=yes',
                 '--quiet'
@@ -183,12 +156,6 @@ class GenerateProtocolApiTask extends ProtocolApiTask {
     @Inject
     GenerateProtocolApiTask(WorkerExecutor workerExecutor) {
         super(workerExecutor)
-    }
-
-    @InputFiles
-    @PathSensitive(PathSensitivity.RELATIVE)
-    def getInputSource() {
-        return sourceDirs.get() // Re-run on source changes
     }
 
     @OutputFile
@@ -422,6 +389,34 @@ def API_LEVEL_FILE_PATH = "$RESOURCE_DIRECTORY/car-app-api.level"
 
 LibraryExtension library = project.extensions.getByType(LibraryExtension.class)
 
+def getLibraryExtension() {
+    return project.extensions.findByType(LibraryExtension.class)
+}
+
+def getLibraryVariant() {
+    LibraryExtension extension = getLibraryExtension()
+    return extension.libraryVariants.find({
+        it.name == Release.DEFAULT_PUBLISH_CONFIG
+    })
+}
+
+public FileCollection getSourceCollection() {
+    def taskDependencies = new ArrayList<Object>()
+    def sourceFiles = project.provider {
+        getLibraryVariant().getSourceFolders(SourceKind.JAVA).collect { folder ->
+            for (builtBy in folder.builtBy) {
+                taskDependencies.add(builtBy)
+            }
+            folder.dir
+        }
+    }
+    def sourceCollection = project.files(sourceFiles)
+    for (dep in taskDependencies) {
+        sourceCollection.builtBy(dep)
+    }
+    return sourceCollection
+}
+
 // afterEvaluate required to read extension properties
 afterEvaluate {
     task writeCarApiLevelFile(type: ApiLevelFileWriterTask) {
@@ -440,32 +435,45 @@ afterEvaluate {
         resources.setIncludes(includes)
     }
 
+    FileCollection sourceCollection = getSourceCollection()
+    FileCollection dependencyClasspath = getLibraryVariant().getCompileClasspath(null)
+    FileCollection metalavaClasspath = MetalavaRunnerKt.getMetalavaClasspath(project)
+    FileCollection bootClasspath = project.files(getLibraryExtension().bootClasspath)
+
     ProtocolLocation projectProtocolLocation = new ProtocolLocation(project)
-    task generateProtocolApi(type: GenerateProtocolApiTask) {
-        description = "Generate an API signature file for the classes annotated with @CarProtocol"
-        generatedApi = projectProtocolLocation.generatedApi
-        dependsOn(assemble)
+    tasks.register("generateProtocolApi", GenerateProtocolApiTask) { task ->
+        task.description = "Generate an API signature file for the classes annotated with @CarProtocol"
+        task.generatedApi = projectProtocolLocation.generatedApi
+        task.dependsOn(assemble)
+        task.sourceDirs = sourceCollection
+        task.dependencyClasspath = dependencyClasspath
+        task.metalavaClasspath = metalavaClasspath
+        task.bootClasspath = bootClasspath
     }
-    task checkProtocolApiCompat(type: CheckProtocolApiCompatibilityTask) {
-        description = "Check for BREAKING changes to the protocol API"
-        previousApi = projectProtocolLocation.previousApi
-        generatedApi = projectProtocolLocation.generatedApi
-        dependsOn(generateProtocolApi)
+    tasks.register("checkProtocolApiCompat", CheckProtocolApiCompatibilityTask) { task ->
+        task.description = "Check for BREAKING changes to the protocol API"
+        task.previousApi = projectProtocolLocation.previousApi
+        task.generatedApi = projectProtocolLocation.generatedApi
+        task.dependsOn(generateProtocolApi)
+        task.sourceDirs = sourceCollection
+        task.dependencyClasspath = dependencyClasspath
+        task.metalavaClasspath = metalavaClasspath
+        task.bootClasspath = bootClasspath
     }
-    task checkProtocolApi(type: CheckProtocolApiTask) {
-        description = "Check for changes to the protocol API"
-        generatedApi = projectProtocolLocation.generatedApi
-        previousApi = projectProtocolLocation.previousApi
-        currentApi = projectProtocolLocation.currentApi
-        dependsOn(checkProtocolApiCompat)
+    tasks.register("checkProtocolApi", CheckProtocolApiTask) { task ->
+        task.description = "Check for changes to the protocol API"
+        task.generatedApi = projectProtocolLocation.generatedApi
+        task.previousApi = projectProtocolLocation.previousApi
+        task.currentApi = projectProtocolLocation.currentApi
+        task.dependsOn(checkProtocolApiCompat)
     }
-    task updateProtocolApi(type: UpdateProtocolApiTask) {
-        description = "Update protocol API signature file for current Car API level to reflect" +
+    tasks.register("updateProtocolApi", UpdateProtocolApiTask) { task ->
+        task.description = "Update protocol API signature file for current Car API level to reflect" +
                 "the current state of the protocol API in the source tree."
-        protocolDir = projectProtocolLocation.protocolDir
-        generatedApi = projectProtocolLocation.generatedApi
-        currentApi = projectProtocolLocation.currentApi
-        dependsOn(checkProtocolApiCompat)
+        task.protocolDir = projectProtocolLocation.protocolDir
+        task.generatedApi = projectProtocolLocation.generatedApi
+        task.currentApi = projectProtocolLocation.currentApi
+        task.dependsOn(checkProtocolApiCompat)
     }
     EnableCachingKt.cacheEvenIfNoOutputs(checkProtocolApi)
     EnableCachingKt.cacheEvenIfNoOutputs(checkProtocolApiCompat)

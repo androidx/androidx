@@ -16,6 +16,7 @@
 
 package androidx.core.app;
 
+import android.Manifest;
 import android.app.AppOpsManager;
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -44,6 +45,7 @@ import android.util.Log;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresPermission;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -201,6 +203,7 @@ public final class NotificationManagerCompat {
      * @param id           the ID of the notification
      * @param notification the notification to post to the system
      */
+    @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
     public void notify(int id, @NonNull Notification notification) {
         notify(null, id, notification);
     }
@@ -213,6 +216,7 @@ public final class NotificationManagerCompat {
      *                     your app.
      * @param notification the notification to post to the system
      */
+    @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
     public void notify(@Nullable String tag, int id, @NonNull Notification notification) {
         if (useSideChannelForNotification(notification)) {
             pushSideChannelQueue(new NotifyTask(mContext.getPackageName(), id, tag, notification));
@@ -794,6 +798,7 @@ public final class NotificationManagerCompat {
          * Check the current list of enabled listener packages and update the records map
          * accordingly.
          */
+        @SuppressWarnings("deprecation")
         private void updateListenerMap() {
             Set<String> enabledPackages = getEnabledListenerPackages(mContext);
             if (enabledPackages.equals(mCachedEnabledPackages)) {

@@ -30,6 +30,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.widget.TextView;
 
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.appcompat.app.AlertDialog;
@@ -52,17 +53,15 @@ public class SlicePermissionActivity extends AppCompatActivity implements OnClic
 
     private Uri mUri;
     private String mCallingPkg;
-    private String mProviderPkg;
     private AlertDialog mDialog;
 
     @Override
-    @SuppressWarnings("deprecation")
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         mUri = getIntent().getParcelableExtra(SliceProviderCompat.EXTRA_BIND_URI);
         mCallingPkg = getIntent().getStringExtra(SliceProviderCompat.EXTRA_PKG);
-        mProviderPkg = getIntent().getStringExtra(SliceProviderCompat.EXTRA_PROVIDER_PKG);
+        String providerPkg = getIntent().getStringExtra(SliceProviderCompat.EXTRA_PROVIDER_PKG);
 
         try {
             PackageManager pm = getPackageManager();
@@ -70,7 +69,7 @@ public class SlicePermissionActivity extends AppCompatActivity implements OnClic
                     loadSafeLabel(pm, pm.getApplicationInfo(mCallingPkg, 0))
                     .toString());
             CharSequence app2 = BidiFormatter.getInstance().unicodeWrap(
-                    loadSafeLabel(pm, pm.getApplicationInfo(mProviderPkg, 0))
+                    loadSafeLabel(pm, pm.getApplicationInfo(providerPkg, 0))
                     .toString());
             mDialog = new AlertDialog.Builder(this)
                     .setTitle(getString(R.string.abc_slice_permission_title, app1, app2))

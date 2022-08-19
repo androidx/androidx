@@ -22,11 +22,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.testutils.assertShape
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
@@ -459,6 +461,71 @@ public class ButtonSizeTest {
     }
 }
 
+public class ButtonShapeTest {
+    @get:Rule
+    public val rule = createComposeRule()
+
+    @Test
+    public fun default_button_shape_is_circle() {
+        rule.isShape(CircleShape) { modifier ->
+            Button(
+                onClick = {},
+                enabled = true,
+                colors = ButtonDefaults.primaryButtonColors(),
+                modifier = modifier
+            ) {
+            }
+        }
+    }
+
+    @Test
+    public fun allows_custom_button_shape_override() {
+        val shape = CutCornerShape(4.dp)
+
+        rule.isShape(shape) { modifier ->
+            Button(
+                onClick = {},
+                enabled = true,
+                colors = ButtonDefaults.primaryButtonColors(),
+                modifier = modifier,
+                shape = shape
+            ) {
+            }
+        }
+    }
+
+    @Test
+    public fun default_compact_button_shape_is_circle() {
+        rule.isShape(CircleShape) { modifier ->
+            CompactButton(
+                onClick = {},
+                enabled = true,
+                colors = ButtonDefaults.primaryButtonColors(),
+                backgroundPadding = 0.dp,
+                modifier = modifier
+            ) {
+            }
+        }
+    }
+
+    @Test
+    public fun allows_custom_compact_button_shape_override() {
+        val shape = CutCornerShape(4.dp)
+
+        rule.isShape(shape) { modifier ->
+            CompactButton(
+                onClick = {},
+                enabled = true,
+                colors = ButtonDefaults.primaryButtonColors(),
+                backgroundPadding = 0.dp,
+                modifier = modifier,
+                shape = shape
+            ) {
+            }
+        }
+    }
+}
+
 public class ButtonColorTest {
     @get:Rule
     public val rule = createComposeRule()
@@ -545,6 +612,14 @@ public class ButtonColorTest {
         )
 
     @Test
+    public fun gives_enabled_button_outlined_colors() =
+        verifyOutlinedButtonColors(
+            Status.Enabled,
+            { ButtonDefaults.outlinedButtonColors() },
+            { Color.Transparent },
+            { MaterialTheme.colors.primary },
+        )
+    @Test
     public fun gives_enabled_compact_button_icon_colors() =
         verifyCompactButtonColors(
             Status.Enabled,
@@ -562,6 +637,14 @@ public class ButtonColorTest {
             { MaterialTheme.colors.onSurface },
         )
 
+    @Test
+    public fun gives_disabled_button_outlined_colors() =
+        verifyOutlinedButtonColors(
+            Status.Disabled,
+            { ButtonDefaults.outlinedButtonColors() },
+            { Color.Transparent },
+            { MaterialTheme.colors.primary },
+        )
     @Test
     public fun gives_disabled_compact_button_icon_colors() =
         verifyCompactButtonColors(
@@ -751,6 +834,30 @@ public class ButtonColorTest {
         }
     }
 
+    public fun verifyOutlinedButtonColors(
+        status: Status,
+        buttonColors: @Composable () -> ButtonColors,
+        backgroundColor: @Composable () -> Color,
+        contentColor: @Composable () -> Color,
+    ) {
+        verifyColors(
+            status,
+            backgroundColor,
+            contentColor,
+        ) {
+            var actualColor = Color.Transparent
+            OutlinedButton(
+                onClick = {},
+                colors = buttonColors(),
+                enabled = status.enabled(),
+                modifier = Modifier.testTag(TEST_TAG)
+            ) {
+                actualColor = LocalContentColor.current
+            }
+            return@verifyColors actualColor
+        }
+    }
+
     public fun verifyCompactButtonColors(
         status: Status,
         buttonColors: @Composable () -> ButtonColors,
@@ -900,6 +1007,38 @@ private fun ComposeContentTestRule.isCircular(
             verticalPadding = padding,
             backgroundColor = surface,
             shapeColor = background
+        )
+}
+
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+private fun ComposeContentTestRule.isShape(
+    expectedShape: Shape,
+    content: @Composable (Modifier) -> Unit
+) {
+    var background = Color.Transparent
+    var buttonColor = Color.Transparent
+    val padding = 0.dp
+
+    setContentWithTheme {
+        background = MaterialTheme.colors.surface
+        buttonColor = MaterialTheme.colors.primary
+        content(
+            Modifier
+                .testTag(TEST_TAG)
+                .padding(padding)
+                .background(background))
+    }
+
+    onNodeWithTag(TEST_TAG)
+        .captureToImage()
+        .assertShape(
+            density = density,
+            horizontalPadding = 0.dp,
+            verticalPadding = 0.dp,
+            shapeColor = buttonColor,
+            backgroundColor = background,
+            shapeOverlapPixelCount = 2.0f,
+            shape = expectedShape,
         )
 }
 

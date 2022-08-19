@@ -23,15 +23,17 @@ import androidx.glance.GlanceComposable
 import androidx.glance.LocalSize
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.SizeMode
+import androidx.glance.color.dynamicThemeColorProviders
 import androidx.glance.state.GlanceStateDefinition
 import androidx.glance.state.PreferencesGlanceStateDefinition
+import androidx.glance.template.LocalTemplateColors
 import androidx.glance.template.LocalTemplateMode
 import androidx.glance.template.TemplateMode
 
 /**
  * A [GlanceAppWidget] that provides template local values.
  */
-public abstract class GlanceTemplateAppWidget : GlanceAppWidget() {
+abstract class GlanceTemplateAppWidget : GlanceAppWidget() {
 
     /** Default widget size mode is [SizeMode.Exact] */
     override val sizeMode = SizeMode.Exact
@@ -43,7 +45,13 @@ public abstract class GlanceTemplateAppWidget : GlanceAppWidget() {
     final override fun Content() {
         // TODO: Add other local values
         val mode = mode()
-        CompositionLocalProvider(LocalTemplateMode provides mode) { TemplateContent() }
+        val colors = dynamicThemeColorProviders()
+        CompositionLocalProvider(
+            LocalTemplateMode provides mode,
+            LocalTemplateColors provides colors
+        ) {
+            TemplateContent()
+        }
     }
 
     @Composable

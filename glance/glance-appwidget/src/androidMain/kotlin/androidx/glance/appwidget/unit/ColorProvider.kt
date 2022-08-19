@@ -32,14 +32,14 @@ import androidx.glance.unit.ResourceColorProvider
  * Returns a [ColorProvider] that provides [day] when night mode is off, and [night] when night
  * mode is on.
  */
-public fun ColorProvider(day: Color, night: Color): ColorProvider {
+fun ColorProvider(day: Color, night: Color): ColorProvider {
     return DayNightColorProvider(day, night)
 }
 
 internal data class DayNightColorProvider(val day: Color, val night: Color) : ColorProvider {
-    override fun resolve(context: Context) = resolve(context.isNightMode)
+    override fun getColor(context: Context) = getColor(context.isNightMode)
 
-    fun resolve(isNightMode: Boolean) = if (isNightMode) night else day
+    fun getColor(isNightMode: Boolean) = if (isNightMode) night else day
 }
 
 internal val Context.isNightMode: Boolean
@@ -92,9 +92,9 @@ internal data class CheckedUncheckedColorProvider private constructor(
      * Resolves the [CheckedUncheckedColorProvider] to a single [Color] given the night mode and
      * checked states.
      */
-    fun resolve(context: Context, isNightMode: Boolean, isChecked: Boolean) = when {
-        isChecked -> checked.toDayNightColorProvider(context, isChecked).resolve(isNightMode)
-        else -> unchecked.toDayNightColorProvider(context, isChecked).resolve(isNightMode)
+    fun getColor(context: Context, isNightMode: Boolean, isChecked: Boolean) = when {
+        isChecked -> checked.toDayNightColorProvider(context, isChecked).getColor(isNightMode)
+        else -> unchecked.toDayNightColorProvider(context, isChecked).getColor(isNightMode)
     }
 
     companion object {

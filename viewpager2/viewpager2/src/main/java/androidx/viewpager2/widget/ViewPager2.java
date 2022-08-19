@@ -178,6 +178,7 @@ public final class ViewPager2 extends ViewGroup {
     }
 
     @RequiresApi(21)
+    @SuppressLint("ClassVerificationFailure")
     public ViewPager2(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr,
             int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
@@ -389,6 +390,7 @@ public final class ViewPager2 extends ViewGroup {
         Parcelable mAdapterState;
 
         @RequiresApi(24)
+        @SuppressLint("ClassVerificationFailure")
         SavedState(Parcel source, ClassLoader loader) {
             super(source, loader);
             readValues(source, loader);
@@ -579,7 +581,8 @@ public final class ViewPager2 extends ViewGroup {
     }
 
     public @Orientation int getOrientation() {
-        return mLayoutManager.getOrientation();
+        return mLayoutManager.getOrientation() == LinearLayoutManager.VERTICAL
+                ? ViewPager2.ORIENTATION_VERTICAL : ViewPager2.ORIENTATION_HORIZONTAL;
     }
 
     boolean isRtl() {

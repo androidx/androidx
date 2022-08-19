@@ -22,6 +22,7 @@ import android.transition.TransitionSet
 import android.view.View
 import android.widget.TextView
 import androidx.annotation.LayoutRes
+import androidx.annotation.RequiresApi
 import androidx.core.app.SharedElementCallback
 import androidx.fragment.app.test.FragmentTestActivity
 import androidx.fragment.test.R
@@ -1679,6 +1680,7 @@ class FragmentTransitionTest(
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 class AddTransitionFragmentInActivity : FragmentActivity() {
     val fragment = TransitionFragment()
 

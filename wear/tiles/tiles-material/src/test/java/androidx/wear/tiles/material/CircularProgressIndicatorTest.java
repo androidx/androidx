@@ -147,6 +147,9 @@ public class CircularProgressIndicatorTest {
                 expectedColors,
                 expectedThickness,
                 expectedContentDescription);
+
+        assertThat(CircularProgressIndicator.fromLayoutElement(actualCircularProgressIndicator))
+                .isEqualTo(actualCircularProgressIndicator);
     }
 
     private void assertProgressIndicatorIsEqual(

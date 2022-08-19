@@ -16,6 +16,7 @@
 
 package androidx.camera.core.impl;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 
 /**
@@ -30,6 +31,7 @@ public interface CaptureStage {
     /**
      * Returns the configuration for the capture.
      */
+    @NonNull
     CaptureConfig getCaptureConfig();
 
     /**
@@ -49,7 +51,7 @@ public interface CaptureStage {
         }
 
         @Override
-        public CaptureConfig getCaptureConfig() {
+        public @NonNull CaptureConfig getCaptureConfig() {
             return mCaptureConfig;
         }
     }

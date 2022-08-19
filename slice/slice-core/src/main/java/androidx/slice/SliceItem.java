@@ -27,6 +27,7 @@ import static android.app.slice.SliceItem.FORMAT_TEXT;
 
 import static androidx.slice.Slice.appendHints;
 
+import android.annotation.SuppressLint;
 import android.app.PendingIntent;
 import android.app.RemoteInput;
 import android.content.Context;
@@ -54,6 +55,7 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.annotation.StringDef;
 import androidx.core.graphics.drawable.IconCompat;
+import androidx.core.util.ObjectsCompat;
 import androidx.core.util.Pair;
 import androidx.versionedparcelable.CustomVersionedParcelable;
 import androidx.versionedparcelable.NonParcelField;
@@ -110,27 +112,38 @@ public final class SliceItem extends CustomVersionedParcelable {
     /**
      * @hide
      */
+    @NonNull
     @RestrictTo(Scope.LIBRARY)
     @ParcelField(value = 1, defaultValue = "androidx.slice.Slice.NO_HINTS")
-    protected @Slice.SliceHint String[] mHints = Slice.NO_HINTS;
+    @Slice.SliceHint String[] mHints = Slice.NO_HINTS;
+
+    @NonNull
     @ParcelField(value = 2, defaultValue = FORMAT_TEXT)
     String mFormat = FORMAT_TEXT;
+
+    @Nullable
     @ParcelField(value = 3, defaultValue = "null")
     String mSubType = null;
+
+    @Nullable
     @NonParcelField
     Object mObj;
+
     @NonParcelField
     CharSequence mSanitizedText;
 
+    @Nullable
     @ParcelField(4)
     SliceItemHolder mHolder;
 
     /**
      * @hide
      */
+    @SuppressWarnings("NullableProblems")
+    @SuppressLint("UnknownNullness") // obj cannot be correctly annotated
     @RestrictTo(Scope.LIBRARY_GROUP)
-    public SliceItem(Object obj, @SliceType String format, String subType,
-            @Slice.SliceHint String[] hints) {
+    public SliceItem(Object obj, @NonNull @SliceType String format, @Nullable String subType,
+            @NonNull @Slice.SliceHint String[] hints) {
         mHints = hints;
         mFormat = format;
         mSubType = subType;
@@ -140,9 +153,10 @@ public final class SliceItem extends CustomVersionedParcelable {
     /**
      * @hide
      */
+    @SuppressLint("UnknownNullness") // obj cannot be correctly annotated
     @RestrictTo(Scope.LIBRARY_GROUP)
-    public SliceItem(Object obj, @SliceType String format, String subType,
-            @Slice.SliceHint List<String> hints) {
+    public SliceItem(Object obj, @NonNull @SliceType String format, @Nullable String subType,
+            @NonNull @Slice.SliceHint List<String> hints) {
         this (obj, format, subType, hints.toArray(new String[hints.size()]));
     }
 
@@ -158,17 +172,20 @@ public final class SliceItem extends CustomVersionedParcelable {
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
-    public SliceItem(PendingIntent intent, Slice slice, String format, String subType,
-            @Slice.SliceHint String[] hints) {
+    public SliceItem(@NonNull PendingIntent intent, @Nullable Slice slice,
+            @NonNull @SliceType String format, @Nullable String subType,
+            @NonNull @Slice.SliceHint String[] hints) {
         this(new Pair<Object, Slice>(intent, slice), format, subType, hints);
     }
 
     /**
      * @hide
      */
+    @SuppressLint("LambdaLast")
     @RestrictTo(Scope.LIBRARY_GROUP)
-    public SliceItem(ActionHandler action, Slice slice, String format, String subType,
-            @Slice.SliceHint String[] hints) {
+    public SliceItem(@NonNull ActionHandler action, @Nullable Slice slice,
+            @NonNull @SliceType String format, @Nullable String subType,
+            @NonNull @Slice.SliceHint String[] hints) {
         this(new Pair<Object, Slice>(action, slice), format, subType, hints);
     }
 
@@ -184,6 +201,7 @@ public final class SliceItem extends CustomVersionedParcelable {
     /**
      * @hide
      */
+    @SuppressWarnings("unused")
     @RestrictTo(Scope.LIBRARY)
     public @NonNull @Slice.SliceHint String[] getHintArray() {
         return mHints;
@@ -193,7 +211,7 @@ public final class SliceItem extends CustomVersionedParcelable {
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
-    public void addHint(@Slice.SliceHint String hint) {
+    public void addHint(@Slice.SliceHint @NonNull String hint) {
         mHints = ArrayUtils.appendElement(String.class, mHints, hint);
     }
 
@@ -212,6 +230,7 @@ public final class SliceItem extends CustomVersionedParcelable {
      * </ul>
      * @see #getSubType() ()
      */
+    @NonNull
     public @SliceType String getFormat() {
         return mFormat;
     }
@@ -225,6 +244,7 @@ public final class SliceItem extends CustomVersionedParcelable {
      * {@link android.app.slice.Slice#SUBTYPE_MESSAGE}.
      * @see #getFormat()
      */
+    @Nullable
     public String getSubType() {
         return mSubType;
     }
@@ -232,6 +252,7 @@ public final class SliceItem extends CustomVersionedParcelable {
     /**
      * @return The text held by this {@link android.app.slice.SliceItem#FORMAT_TEXT} SliceItem
      */
+    @Nullable
     public CharSequence getText() {
         return (CharSequence) mObj;
     }
@@ -242,6 +263,7 @@ public final class SliceItem extends CustomVersionedParcelable {
      * ony spans that are unsupported by the androidx Slice renderer removed.
      */
     @RestrictTo(Scope.LIBRARY_GROUP_PREFIX)
+    @Nullable
     public CharSequence getSanitizedText() {
         if (mSanitizedText == null) mSanitizedText = sanitizeText(getText());
         return mSanitizedText;
@@ -261,6 +283,7 @@ public final class SliceItem extends CustomVersionedParcelable {
     /**
      * @return The icon held by this {@link android.app.slice.SliceItem#FORMAT_IMAGE} SliceItem
      */
+    @Nullable
     public IconCompat getIcon() {
         return (IconCompat) mObj;
     }
@@ -269,8 +292,10 @@ public final class SliceItem extends CustomVersionedParcelable {
      * @return The pending intent held by this {@link android.app.slice.SliceItem#FORMAT_ACTION}
      * SliceItem
      */
+    @Nullable
     @SuppressWarnings("unchecked")
     public PendingIntent getAction() {
+        ObjectsCompat.requireNonNull(mObj, "Object must be non-null");
         Object action = ((Pair<Object, Slice>) mObj).first;
         if (action instanceof PendingIntent) {
             return (PendingIntent) action;
@@ -295,6 +320,7 @@ public final class SliceItem extends CustomVersionedParcelable {
     @RestrictTo(Scope.LIBRARY_GROUP_PREFIX)
     public boolean fireActionInternal(@Nullable Context context, @Nullable Intent i)
             throws PendingIntent.CanceledException {
+        ObjectsCompat.requireNonNull(mObj, "Object must be non-null for FORMAT_ACTION");
         Object action = ((Pair<Object, Slice>) mObj).first;
         if (action instanceof PendingIntent) {
             ((PendingIntent) action).send(context, 0, i, null, null);
@@ -310,6 +336,7 @@ public final class SliceItem extends CustomVersionedParcelable {
      * SliceItem
      * @hide
      */
+    @Nullable
     @RequiresApi(20)
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     public RemoteInput getRemoteInput() {
@@ -320,6 +347,7 @@ public final class SliceItem extends CustomVersionedParcelable {
      * @return The color held by this {@link android.app.slice.SliceItem#FORMAT_INT} SliceItem
      */
     public int getInt() {
+        ObjectsCompat.requireNonNull(mObj, "Object must be non-null for FORMAT_INT");
         return (Integer) mObj;
     }
 
@@ -327,8 +355,10 @@ public final class SliceItem extends CustomVersionedParcelable {
      * @return The slice held by this {@link android.app.slice.SliceItem#FORMAT_ACTION} or
      * {@link android.app.slice.SliceItem#FORMAT_SLICE} SliceItem
      */
+    @Nullable
     @SuppressWarnings("unchecked")
     public Slice getSlice() {
+        ObjectsCompat.requireNonNull(mObj, "Object must be non-null for FORMAT_SLICE");
         if (FORMAT_ACTION.equals(getFormat())) {
             return ((Pair<Object, Slice>) mObj).second;
         }
@@ -340,6 +370,7 @@ public final class SliceItem extends CustomVersionedParcelable {
      * SliceItem
      */
     public long getLong() {
+        ObjectsCompat.requireNonNull(mObj, "Object must be non-null for FORMAT_LONG");
         return (Long) mObj;
     }
 
@@ -347,7 +378,7 @@ public final class SliceItem extends CustomVersionedParcelable {
      * @param hint The hint to check for
      * @return true if this item contains the given hint
      */
-    public boolean hasHint(@Slice.SliceHint String hint) {
+    public boolean hasHint(@NonNull @Slice.SliceHint String hint) {
         return ArrayUtils.contains(mHints, hint);
     }
 
@@ -355,7 +386,7 @@ public final class SliceItem extends CustomVersionedParcelable {
      * @hide
      */
     @RestrictTo(Scope.LIBRARY)
-    public SliceItem(Bundle in) {
+    public SliceItem(@NonNull Bundle in) {
         mHints = in.getStringArray(HINTS);
         mFormat = in.getString(FORMAT);
         mSubType = in.getString(SUBTYPE);
@@ -364,8 +395,8 @@ public final class SliceItem extends CustomVersionedParcelable {
 
     /**
      * @hide
-     * @return
      */
+    @NonNull
     @RestrictTo(Scope.LIBRARY)
     public Bundle toBundle() {
         Bundle b = new Bundle();
@@ -379,8 +410,9 @@ public final class SliceItem extends CustomVersionedParcelable {
     /**
      * @hide
      */
+    @SuppressWarnings("unused")
     @RestrictTo(Scope.LIBRARY)
-    public boolean hasHints(@Slice.SliceHint String[] hints) {
+    public boolean hasHints(@Nullable @Slice.SliceHint String[] hints) {
         if (hints == null) return true;
         for (String hint : hints) {
             if (!TextUtils.isEmpty(hint) && !ArrayUtils.contains(mHints, hint)) {
@@ -394,7 +426,7 @@ public final class SliceItem extends CustomVersionedParcelable {
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
-    public boolean hasAnyHints(@Slice.SliceHint String... hints) {
+    public boolean hasAnyHints(@Nullable @Slice.SliceHint String... hints) {
         if (hints == null) return false;
         for (String hint : hints) {
             if (ArrayUtils.contains(mHints, hint)) {
@@ -405,7 +437,7 @@ public final class SliceItem extends CustomVersionedParcelable {
     }
 
     @SuppressWarnings("unchecked")
-    private void writeObj(Bundle dest, Object obj, String type) {
+    private void writeObj(@NonNull Bundle dest, Object obj, @NonNull String type) {
         switch (type) {
             case FORMAT_IMAGE:
                 dest.putBundle(OBJ, ((IconCompat) obj).toBundle());
@@ -424,9 +456,11 @@ public final class SliceItem extends CustomVersionedParcelable {
                 dest.putCharSequence(OBJ, (CharSequence) obj);
                 break;
             case FORMAT_INT:
+                ObjectsCompat.requireNonNull(mObj, "Object must be non-null for FORMAT_INT");
                 dest.putInt(OBJ, (Integer) mObj);
                 break;
             case FORMAT_LONG:
+                ObjectsCompat.requireNonNull(mObj, "Object must be non-null for FORMAT_LONG");
                 dest.putLong(OBJ, (Long) mObj);
                 break;
             case FORMAT_BUNDLE:
@@ -434,8 +468,8 @@ public final class SliceItem extends CustomVersionedParcelable {
         }
     }
 
-    @SuppressWarnings("deprecation")
-    private static Object readObj(String type, Bundle in) {
+    @Nullable
+    private static Object readObj(@NonNull String type, @NonNull Bundle in) {
         switch (type) {
             case FORMAT_IMAGE:
                 return IconCompat.createFromBundle(in.getBundle(OBJ));
@@ -462,8 +496,9 @@ public final class SliceItem extends CustomVersionedParcelable {
     /**
      * @hide
      */
+    @NonNull
     @RestrictTo(Scope.LIBRARY)
-    public static String typeToString(String format) {
+    public static String typeToString(@NonNull String format) {
         switch (format) {
             case FORMAT_SLICE:
                 return "Slice";
@@ -486,6 +521,7 @@ public final class SliceItem extends CustomVersionedParcelable {
     /**
      * @return A string representation of this slice item.
      */
+    @NonNull
     @Override
     public String toString() {
         return toString("");
@@ -495,9 +531,10 @@ public final class SliceItem extends CustomVersionedParcelable {
      * @return A string representation of this slice item.
      * @hide
      */
+    @NonNull
     @RestrictTo(Scope.LIBRARY)
     @SuppressWarnings("unchecked")
-    public String toString(String indent) {
+    public String toString(@NonNull String indent) {
         StringBuilder sb = new StringBuilder();
         sb.append(indent);
         sb.append(getFormat());
@@ -513,12 +550,18 @@ public final class SliceItem extends CustomVersionedParcelable {
         }
         final String nextIndent = indent + "  ";
         switch (getFormat()) {
-            case FORMAT_SLICE:
+            case FORMAT_SLICE: {
+                Slice slice = getSlice();
+                ObjectsCompat.requireNonNull(slice, "Slice must be non-null for FORMAT_SLICE");
                 sb.append("{\n");
-                sb.append(getSlice().toString(nextIndent));
+                sb.append(slice.toString(nextIndent));
                 sb.append('\n').append(indent).append('}');
                 break;
-            case FORMAT_ACTION:
+            }
+            case FORMAT_ACTION: {
+                Slice slice = getSlice();
+                ObjectsCompat.requireNonNull(mObj, "Object must be non-null for FORMAT_ACTION");
+                ObjectsCompat.requireNonNull(slice, "Slice must be non-null for FORMAT_SLICE");
                 // Not using getAction because the action can actually be other types.
                 Object action = ((Pair<Object, Slice>) mObj).first;
                 sb.append('[').append(action).append("] ");
@@ -526,6 +569,7 @@ public final class SliceItem extends CustomVersionedParcelable {
                 sb.append(getSlice().toString(nextIndent));
                 sb.append('\n').append(indent).append('}');
                 break;
+            }
             case FORMAT_TEXT:
                 sb.append('"').append(getText()).append('"');
                 break;
@@ -591,6 +635,7 @@ public final class SliceItem extends CustomVersionedParcelable {
         return new Annotation(SLICE_CONTENT, SLICE_CONTENT_SENSITIVE);
     }
 
+    @NonNull
     private static String layoutDirectionToString(int layoutDirection) {
         switch (layoutDirection) {
             case android.util.LayoutDirection.LTR:
@@ -618,7 +663,7 @@ public final class SliceItem extends CustomVersionedParcelable {
         }
     }
 
-    private static boolean isRedactionNeeded(Spanned text) {
+    private static boolean isRedactionNeeded(@NonNull Spanned text) {
         for (Annotation span : text.getSpans(0, text.length(), Annotation.class)) {
             if (SLICE_CONTENT.equals(span.getKey())
                     && SLICE_CONTENT_SENSITIVE.equals(span.getValue())) {
@@ -628,7 +673,8 @@ public final class SliceItem extends CustomVersionedParcelable {
         return false;
     }
 
-    private static CharSequence redactSpannableText(Spannable text) {
+    @NonNull
+    private static CharSequence redactSpannableText(@NonNull Spannable text) {
         Spanned out = text;
         for (Annotation span : text.getSpans(0, text.length(), Annotation.class)) {
             if (!SLICE_CONTENT.equals(span.getKey())
@@ -645,6 +691,7 @@ public final class SliceItem extends CustomVersionedParcelable {
         return out;
     }
 
+    @NonNull
     private static String createRedacted(final int n) {
         StringBuilder s = new StringBuilder();
         for (int i = 0; i < n; i++) {
@@ -653,7 +700,8 @@ public final class SliceItem extends CustomVersionedParcelable {
         return s.toString();
     }
 
-    private static CharSequence sanitizeText(CharSequence text) {
+    @Nullable
+    private static CharSequence sanitizeText(@Nullable CharSequence text) {
         if (text instanceof Spannable) {
             fixSpannableText((Spannable) text);
             return text;
@@ -667,14 +715,14 @@ public final class SliceItem extends CustomVersionedParcelable {
         }
     }
 
-    private static boolean checkSpannedText(Spanned text) {
+    private static boolean checkSpannedText(@NonNull Spanned text) {
         for (Object span : text.getSpans(0, text.length(), Object.class)) {
             if (!checkSpan(span)) return false;
         }
         return true;
     }
 
-    private static void fixSpannableText(Spannable text) {
+    private static void fixSpannableText(@NonNull Spannable text) {
         for (Object span : text.getSpans(0, text.length(), Object.class)) {
             Object fixedSpan = fixSpan(span);
             if (fixedSpan == span) continue;
@@ -700,6 +748,7 @@ public final class SliceItem extends CustomVersionedParcelable {
                 || span instanceof StyleSpan;
     }
 
+    @Nullable
     private static Object fixSpan(Object span) {
         return checkSpan(span) ? span : null;
     }
@@ -712,6 +761,6 @@ public final class SliceItem extends CustomVersionedParcelable {
         /**
          * Called when a pending intent would be sent on a real slice.
          */
-        void onAction(SliceItem item, Context context, Intent intent);
+        void onAction(@NonNull SliceItem item, @Nullable Context context, @Nullable Intent intent);
     }
 }

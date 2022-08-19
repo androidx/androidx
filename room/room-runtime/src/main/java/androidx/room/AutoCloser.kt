@@ -19,9 +19,7 @@ import android.os.Handler
 import android.os.Looper
 import android.os.SystemClock
 import androidx.annotation.GuardedBy
-import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
-import androidx.room.util.SneakyThrow
 import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.sqlite.db.SupportSQLiteOpenHelper
 import java.io.IOException
@@ -38,10 +36,7 @@ import java.util.concurrent.TimeUnit
  * @param autoCloseTimeoutAmount time for auto close timer
  * @param autoCloseTimeUnit      time unit for autoCloseTimeoutAmount
  * @param autoCloseExecutor      the executor on which the auto close operation will happen
- *
- * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 internal class AutoCloser(
     autoCloseTimeoutAmount: Long,
     autoCloseTimeUnit: TimeUnit,
@@ -96,11 +91,7 @@ internal class AutoCloser(
 
             delegateDatabase?.let {
                 if (it.isOpen) {
-                    try {
-                        it.close()
-                    } catch (e: IOException) {
-                        SneakyThrow.reThrow(e)
-                    }
+                    it.close()
                 }
             }
             delegateDatabase = null

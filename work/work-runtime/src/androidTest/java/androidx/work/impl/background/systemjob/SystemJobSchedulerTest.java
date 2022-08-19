@@ -49,6 +49,7 @@ import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 import androidx.work.Configuration;
 import androidx.work.OneTimeWorkRequest;
+import androidx.work.SchedulingExceptionHandler;
 import androidx.work.WorkInfo;
 import androidx.work.WorkManagerTest;
 import androidx.work.impl.WorkDatabase;
@@ -233,6 +234,27 @@ public class SystemJobSchedulerTest extends WorkManagerTest {
         mSystemJobScheduler.schedule(workSpec);
         // JobScheduler#schedule() should be called once at the very least.
         verify(mJobScheduler, times(1)).schedule(any(JobInfo.class));
+    }
+
+    @Test
+    @MediumTest
+    @SdkSuppress(minSdkVersion = 23)
+    public void testSchedulingExceptionHandler() {
+        doCallRealMethod().when(mSystemJobScheduler)
+                .scheduleInternal(any(WorkSpec.class), anyInt());
+
+        SchedulingExceptionHandler handler = mock(SchedulingExceptionHandler.class);
+        Configuration configuration = new Configuration.Builder()
+                .setSchedulingExceptionHandler(handler)
+                .build();
+
+        when(mWorkManager.getConfiguration()).thenReturn(configuration);
+        doThrow(new IllegalStateException("Error scheduling")).when(mJobScheduler).schedule(any());
+        OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class).build();
+        WorkSpec workSpec = work.getWorkSpec();
+        addToWorkSpecDao(workSpec);
+        mSystemJobScheduler.schedule(workSpec);
+        verify(handler, times(1)).handleException(any());
     }
 
     @Test

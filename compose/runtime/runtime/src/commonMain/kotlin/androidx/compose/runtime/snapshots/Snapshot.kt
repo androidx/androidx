@@ -28,6 +28,7 @@ import androidx.compose.runtime.synchronized
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
+import androidx.compose.runtime.internal.JvmDefaultWithCompatibility
 
 /**
  * A snapshot of the values return by mutable states and other state objects. All state object
@@ -214,8 +215,8 @@ sealed class Snapshot(
 
     /**
      * Notify the snapshot that all objects created in this snapshot to this point should be
-     * considered initialized. If any state object is are modified passed this point it will
-     * appear as modified in the snapshot and any applicable snapshot write observer will be
+     * considered initialized. If any state object is modified after this point it will
+     * appear as modified in the snapshot. Any applicable snapshot write observer will be
      * called for the object and the object will be part of the a set of mutated objects sent to
      * any applicable snapshot apply observer.
      *
@@ -451,7 +452,8 @@ sealed class Snapshot(
                             previousSnapshot = currentSnapshot as? MutableSnapshot,
                             specifiedReadObserver = readObserver,
                             specifiedWriteObserver = writeObserver,
-                            mergeParentObservers = true
+                            mergeParentObservers = true,
+                            ownsPreviousSnapshot = false
                         )
                     else if (readObserver == null) return block()
                     else currentSnapshot.takeNestedSnapshot(readObserver)
@@ -472,6 +474,7 @@ sealed class Snapshot(
         /**
          * Passed [block] will be run with all the currently set snapshot read observers disabled.
          */
+        @Suppress("BanInlineOptIn") // Treat Kotlin Contracts as non-experimental.
         @OptIn(ExperimentalContracts::class)
         inline fun <T> withoutReadObservation(block: @DisallowComposableCalls () -> T): T {
             contract { callsInPlace(block, InvocationKind.EXACTLY_ONCE) }
@@ -1135,6 +1138,7 @@ abstract class StateRecord {
  * Interface implemented by all snapshot aware state objects. Used by this module to maintain the
  * state records of a state object.
  */
+@JvmDefaultWithCompatibility
 interface StateObject {
     /**
      * The first state record in a linked list of state records.
@@ -1431,7 +1435,8 @@ internal class TransparentObserverMutableSnapshot(
     private val previousSnapshot: MutableSnapshot?,
     internal val specifiedReadObserver: ((Any) -> Unit)?,
     internal val specifiedWriteObserver: ((Any) -> Unit)?,
-    private val mergeParentObservers: Boolean
+    private val mergeParentObservers: Boolean,
+    private val ownsPreviousSnapshot: Boolean
 ) : MutableSnapshot(
     INVALID_SNAPSHOT,
     SnapshotIdSet.EMPTY,
@@ -1451,6 +1456,9 @@ internal class TransparentObserverMutableSnapshot(
     override fun dispose() {
         // Explicitly don't call super.dispose()
         disposed = true
+        if (ownsPreviousSnapshot) {
+            previousSnapshot?.dispose()
+        }
     }
 
     override var id: Int
@@ -1483,7 +1491,8 @@ internal class TransparentObserverMutableSnapshot(
         return if (!mergeParentObservers) {
             createTransparentSnapshotWithNoParentReadObserver(
                 previousSnapshot = currentSnapshot.takeNestedSnapshot(null),
-                readObserver = readObserver
+                readObserver = mergedReadObserver,
+                ownsPreviousSnapshot = true
             )
         } else {
             currentSnapshot.takeNestedSnapshot(mergedReadObserver)
@@ -1505,7 +1514,8 @@ internal class TransparentObserverMutableSnapshot(
                 previousSnapshot = nestedSnapshot,
                 specifiedReadObserver = mergedReadObserver,
                 specifiedWriteObserver = mergedWriteObserver,
-                mergeParentObservers = false
+                mergeParentObservers = false,
+                ownsPreviousSnapshot = true
             )
         } else {
             currentSnapshot.takeNestedMutableSnapshot(
@@ -1529,7 +1539,8 @@ internal class TransparentObserverMutableSnapshot(
 internal class TransparentObserverSnapshot(
     private val previousSnapshot: Snapshot?,
     specifiedReadObserver: ((Any) -> Unit)?,
-    private val mergeParentObservers: Boolean
+    private val mergeParentObservers: Boolean,
+    private val ownsPreviousSnapshot: Boolean
 ) : Snapshot(
     INVALID_SNAPSHOT,
     SnapshotIdSet.EMPTY,
@@ -1549,6 +1560,9 @@ internal class TransparentObserverSnapshot(
     override fun dispose() {
         // Explicitly don't call super.dispose()
         disposed = true
+        if (ownsPreviousSnapshot) {
+            previousSnapshot?.dispose()
+        }
     }
 
     override var id: Int
@@ -1577,8 +1591,9 @@ internal class TransparentObserverSnapshot(
         val mergedReadObserver = mergedReadObserver(readObserver, this.readObserver)
         return if (!mergeParentObservers) {
             createTransparentSnapshotWithNoParentReadObserver(
-                previousSnapshot = currentSnapshot.takeNestedSnapshot(null),
-                readObserver = readObserver
+                currentSnapshot.takeNestedSnapshot(null),
+                mergedReadObserver,
+                ownsPreviousSnapshot = true
             )
         } else {
             currentSnapshot.takeNestedSnapshot(mergedReadObserver)
@@ -1596,18 +1611,21 @@ internal class TransparentObserverSnapshot(
 private fun createTransparentSnapshotWithNoParentReadObserver(
     previousSnapshot: Snapshot?,
     readObserver: ((Any) -> Unit)? = null,
+    ownsPreviousSnapshot: Boolean = false
 ): Snapshot = if (previousSnapshot is MutableSnapshot || previousSnapshot == null) {
     TransparentObserverMutableSnapshot(
         previousSnapshot = previousSnapshot as? MutableSnapshot,
         specifiedReadObserver = readObserver,
         specifiedWriteObserver = null,
-        mergeParentObservers = false
+        mergeParentObservers = false,
+        ownsPreviousSnapshot = ownsPreviousSnapshot
     )
 } else {
     TransparentObserverSnapshot(
         previousSnapshot = previousSnapshot,
         specifiedReadObserver = readObserver,
-        mergeParentObservers = false
+        mergeParentObservers = false,
+        ownsPreviousSnapshot = ownsPreviousSnapshot
     )
 }
 
@@ -1732,8 +1750,9 @@ private fun <T> takeNewGlobalSnapshot(
 }
 
 private fun <T> advanceGlobalSnapshot(block: (invalid: SnapshotIdSet) -> T): T {
-    val previousGlobalSnapshot = currentGlobalSnapshot.get()
+    var previousGlobalSnapshot = snapshotInitializer as GlobalSnapshot
     val result = sync {
+        previousGlobalSnapshot = currentGlobalSnapshot.get()
         takeNewGlobalSnapshot(previousGlobalSnapshot, block)
     }
 

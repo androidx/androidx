@@ -589,7 +589,7 @@ public class AccessibilityDelegateCompatTest extends
 
     @FlakyTest(bugId = 206644987)
     @Test
-    @SdkSuppress(minSdkVersion = 19)
+    @SdkSuppress(minSdkVersion = 19, maxSdkVersion = 32) // API 33 fails 100% b/233396250
     public void testSetAccessibilityPaneTitle_sendsOutCorrectEvent() throws TimeoutException {
         final Activity activity = mActivityTestRule.getActivity();
         final CharSequence title = "Sample title";

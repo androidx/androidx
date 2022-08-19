@@ -18,6 +18,8 @@ package androidx.leanback.media;
 
 import android.view.SurfaceHolder;
 
+import androidx.annotation.Nullable;
+
 /**
  * Optional interface to be implemented by any subclass of {@link PlaybackGlueHost} that contains
  * a {@link android.view.SurfaceView}. This will allow subclass of {@link PlaybackGlue} to setup
@@ -29,5 +31,5 @@ public interface SurfaceHolderGlueHost {
     /**
      * Sets the {@link SurfaceHolder.Callback} on the the host.
      */
-    void setSurfaceHolderCallback(SurfaceHolder.Callback callback);
+    void setSurfaceHolderCallback(@Nullable SurfaceHolder.Callback callback);
 }

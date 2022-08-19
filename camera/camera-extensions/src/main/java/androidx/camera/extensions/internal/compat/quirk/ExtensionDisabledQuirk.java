@@ -52,10 +52,7 @@ public class ExtensionDisabledQuirk implements Quirk {
      */
     public boolean shouldDisableExtension(@NonNull String cameraId,
             @ExtensionMode.Mode int extensionMode) {
-        if (mIsAdvancedInterface) {
-            // Force disable advanced interface until it is well tested
-            return true;
-        } else if (isPixel5() && !mIsAdvancedInterface) {
+        if (isPixel5() && !mIsAdvancedInterface) {
             // 1. Disables Pixel 5's Basic Extender capability.
             return true;
         } else if (isMotoRazr5G() && ("0".equals(cameraId) || "1".equals(cameraId)) && (

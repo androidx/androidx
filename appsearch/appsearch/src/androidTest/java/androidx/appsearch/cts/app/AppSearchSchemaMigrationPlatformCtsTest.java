@@ -30,9 +30,9 @@ import com.google.common.util.concurrent.ListenableFuture;
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
 public class AppSearchSchemaMigrationPlatformCtsTest extends AppSearchSchemaMigrationCtsTestBase{
     @Override
-    protected ListenableFuture<AppSearchSession> createSearchSession(@NonNull String dbName) {
+    protected ListenableFuture<AppSearchSession> createSearchSessionAsync(@NonNull String dbName) {
         Context context = ApplicationProvider.getApplicationContext();
-        return PlatformStorage.createSearchSession(
+        return PlatformStorage.createSearchSessionAsync(
                 new PlatformStorage.SearchContext.Builder(context, dbName).build());
     }
 }

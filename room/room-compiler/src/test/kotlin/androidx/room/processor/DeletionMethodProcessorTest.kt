@@ -26,7 +26,8 @@ import org.junit.runners.JUnit4
 
 @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
 @RunWith(JUnit4::class)
-class DeletionMethodProcessorTest : ShortcutMethodProcessorTest<DeletionMethod>(Delete::class) {
+class DeletionMethodProcessorTest :
+    DeleteOrUpdateShortcutMethodProcessorTest<DeletionMethod>(Delete::class) {
     override fun invalidReturnTypeError(): String = CANNOT_FIND_DELETE_RESULT_ADAPTER
 
     override fun noParamsError(): String = DELETION_MISSING_PARAMS

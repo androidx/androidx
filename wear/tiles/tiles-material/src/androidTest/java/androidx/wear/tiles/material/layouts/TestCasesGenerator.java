@@ -17,7 +17,9 @@
 package androidx.wear.tiles.material.layouts;
 
 import static androidx.wear.tiles.ColorBuilders.argb;
+import static androidx.wear.tiles.DimensionBuilders.dp;
 import static androidx.wear.tiles.DimensionBuilders.expand;
+import static androidx.wear.tiles.DimensionBuilders.wrap;
 
 import android.content.Context;
 import android.graphics.Color;
@@ -27,14 +29,18 @@ import androidx.annotation.NonNull;
 import androidx.wear.tiles.ActionBuilders.LaunchAction;
 import androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters;
 import androidx.wear.tiles.LayoutElementBuilders.Box;
+import androidx.wear.tiles.LayoutElementBuilders.Column;
 import androidx.wear.tiles.LayoutElementBuilders.LayoutElement;
+import androidx.wear.tiles.LayoutElementBuilders.Spacer;
 import androidx.wear.tiles.ModifiersBuilders.Background;
 import androidx.wear.tiles.ModifiersBuilders.Clickable;
 import androidx.wear.tiles.ModifiersBuilders.Modifiers;
 import androidx.wear.tiles.material.Button;
 import androidx.wear.tiles.material.ButtonDefaults;
+import androidx.wear.tiles.material.Chip;
 import androidx.wear.tiles.material.ChipColors;
 import androidx.wear.tiles.material.CircularProgressIndicator;
+import androidx.wear.tiles.material.Colors;
 import androidx.wear.tiles.material.CompactChip;
 import androidx.wear.tiles.material.ProgressIndicatorColors;
 import androidx.wear.tiles.material.ProgressIndicatorDefaults;
@@ -78,19 +84,29 @@ public class TestCasesGenerator {
                 new PrimaryLayout.Builder(deviceParameters)
                         .setPrimaryChipContent(primaryChipBuilder.build())
                         .build());
-
+        testCases.put(
+                "default_longtext_primarychiplayout_golden" + goldenSuffix,
+                new PrimaryLayout.Builder(deviceParameters)
+                        .setPrimaryChipContent(
+                                new CompactChip.Builder(
+                                                context,
+                                                "Too_long_textToo_long_textToo_long_text",
+                                                clickable,
+                                                deviceParameters)
+                                        .build())
+                        .build());
         testCases.put(
                 "coloredbox_primarylabel_primarychiplayout_golden" + goldenSuffix,
                 new PrimaryLayout.Builder(deviceParameters)
                         .setPrimaryChipContent(primaryChipBuilder.build())
-                        .setContent(buildColoredBox(Color.YELLOW))
+                        .setContent(buildColoredBoxPLL(Color.YELLOW))
                         .setPrimaryLabelTextContent(buildTextLabel(context, "Primary label"))
                         .build());
         testCases.put(
                 "coloredbox_primarylabel_secondarylabel_primarychiplayout_golden" + goldenSuffix,
                 new PrimaryLayout.Builder(deviceParameters)
                         .setPrimaryChipContent(primaryChipBuilder.build())
-                        .setContent(buildColoredBox(Color.YELLOW))
+                        .setContent(buildColoredBoxPLL(Color.YELLOW))
                         .setPrimaryLabelTextContent(buildTextLabel(context, "Primary label"))
                         .setSecondaryLabelTextContent(buildTextLabel(context, "Secondary label"))
                         .build());
@@ -98,7 +114,7 @@ public class TestCasesGenerator {
                 "coloredbox_secondarylabel_primarychiplayout_golden" + goldenSuffix,
                 new PrimaryLayout.Builder(deviceParameters)
                         .setPrimaryChipContent(primaryChipBuilder.build())
-                        .setContent(buildColoredBox(Color.YELLOW))
+                        .setContent(buildColoredBoxPLL(Color.YELLOW))
                         .setSecondaryLabelTextContent(buildTextLabel(context, "Secondary label"))
                         .build());
 
@@ -115,7 +131,34 @@ public class TestCasesGenerator {
                 "coloredbox_primarychiplayout_golden" + goldenSuffix,
                 new PrimaryLayout.Builder(deviceParameters)
                         .setPrimaryChipContent(primaryChipBuilder.build())
-                        .setContent(buildColoredBox(Color.YELLOW))
+                        .setContent(buildColoredBoxPLL(Color.YELLOW))
+                        .build());
+        testCases.put(
+                "two_chips_content_primarychiplayout_golden" + goldenSuffix,
+                new PrimaryLayout.Builder(deviceParameters)
+                        .setPrimaryChipContent(primaryChipBuilder.build())
+                        .setContent(
+                                new Column.Builder()
+                                        .setWidth(expand())
+                                        .setHeight(wrap())
+                                        .addContent(
+                                                new Chip.Builder(
+                                                                context,
+                                                                clickable,
+                                                                deviceParameters)
+                                                        .setPrimaryLabelContent("First chip")
+                                                        .setWidth(expand())
+                                                        .build())
+                                        .addContent(new Spacer.Builder().setHeight(dp(4)).build())
+                                        .addContent(
+                                                new Chip.Builder(
+                                                                context,
+                                                                clickable,
+                                                                deviceParameters)
+                                                        .setPrimaryLabelContent("Second chip")
+                                                        .setWidth(expand())
+                                                        .build())
+                                        .build())
                         .build());
 
         primaryChipBuilder =
@@ -126,7 +169,7 @@ public class TestCasesGenerator {
                         .setPrimaryChipContent(primaryChipBuilder.build())
                         .setContent(
                                 new MultiSlotLayout.Builder()
-                                        .addSlotContent(buildColoredBox(Color.YELLOW))
+                                        .addSlotContent(buildColoredBoxMSL(Color.YELLOW))
                                         .build())
                         .build());
         testCases.put(
@@ -135,8 +178,8 @@ public class TestCasesGenerator {
                         .setPrimaryChipContent(primaryChipBuilder.build())
                         .setContent(
                                 new MultiSlotLayout.Builder()
-                                        .addSlotContent(buildColoredBox(Color.YELLOW))
-                                        .addSlotContent(buildColoredBox(Color.BLUE))
+                                        .addSlotContent(buildColoredBoxMSL(Color.YELLOW))
+                                        .addSlotContent(buildColoredBoxMSL(Color.BLUE))
                                         .build())
                         .build());
         testCases.put(
@@ -145,9 +188,9 @@ public class TestCasesGenerator {
                         .setPrimaryChipContent(primaryChipBuilder.build())
                         .setContent(
                                 new MultiSlotLayout.Builder()
-                                        .addSlotContent(buildColoredBox(Color.YELLOW))
-                                        .addSlotContent(buildColoredBox(Color.BLUE))
-                                        .addSlotContent(buildColoredBox(Color.MAGENTA))
+                                        .addSlotContent(buildColoredBoxMSL(Color.YELLOW))
+                                        .addSlotContent(buildColoredBoxMSL(Color.BLUE))
+                                        .addSlotContent(buildColoredBoxMSL(Color.MAGENTA))
                                         .build())
                         .build());
         testCases.put(
@@ -156,8 +199,8 @@ public class TestCasesGenerator {
                         .setPrimaryChipContent(primaryChipBuilder.build())
                         .setContent(
                                 new MultiSlotLayout.Builder()
-                                        .addSlotContent(buildColoredBox(Color.YELLOW))
-                                        .addSlotContent(buildColoredBox(Color.BLUE))
+                                        .addSlotContent(buildColoredBoxMSL(Color.YELLOW))
+                                        .addSlotContent(buildColoredBoxMSL(Color.BLUE))
                                         .build())
                         .setPrimaryLabelTextContent(buildTextLabel(context, "Primary label"))
                         .build());
@@ -167,8 +210,8 @@ public class TestCasesGenerator {
                         .setPrimaryChipContent(primaryChipBuilder.build())
                         .setContent(
                                 new MultiSlotLayout.Builder()
-                                        .addSlotContent(buildColoredBox(Color.YELLOW))
-                                        .addSlotContent(buildColoredBox(Color.BLUE))
+                                        .addSlotContent(buildColoredBoxMSL(Color.YELLOW))
+                                        .addSlotContent(buildColoredBoxMSL(Color.BLUE))
                                         .build())
                         .setPrimaryLabelTextContent(buildTextLabel(context, "Primary label"))
                         .setSecondaryLabelTextContent(buildTextLabel(context, "Secondary label"))
@@ -178,8 +221,8 @@ public class TestCasesGenerator {
                 new PrimaryLayout.Builder(deviceParameters)
                         .setContent(
                                 new MultiSlotLayout.Builder()
-                                        .addSlotContent(buildColoredBox(Color.YELLOW))
-                                        .addSlotContent(buildColoredBox(Color.BLUE))
+                                        .addSlotContent(buildColoredBoxMSL(Color.YELLOW))
+                                        .addSlotContent(buildColoredBoxMSL(Color.BLUE))
                                         .build())
                         .build());
         testCases.put(
@@ -187,8 +230,8 @@ public class TestCasesGenerator {
                 new PrimaryLayout.Builder(deviceParameters)
                         .setContent(
                                 new MultiSlotLayout.Builder()
-                                        .addSlotContent(buildColoredBox(Color.YELLOW))
-                                        .addSlotContent(buildColoredBox(Color.BLUE))
+                                        .addSlotContent(buildColoredBoxMSL(Color.YELLOW))
+                                        .addSlotContent(buildColoredBoxMSL(Color.BLUE))
                                         .build())
                         .setPrimaryLabelTextContent(buildTextLabel(context, "Primary label"))
                         .build());
@@ -197,8 +240,8 @@ public class TestCasesGenerator {
                 new PrimaryLayout.Builder(deviceParameters)
                         .setContent(
                                 new MultiSlotLayout.Builder()
-                                        .addSlotContent(buildColoredBox(Color.YELLOW))
-                                        .addSlotContent(buildColoredBox(Color.BLUE))
+                                        .addSlotContent(buildColoredBoxMSL(Color.YELLOW))
+                                        .addSlotContent(buildColoredBoxMSL(Color.BLUE))
                                         .build())
                         .setPrimaryLabelTextContent(buildTextLabel(context, "Primary label"))
                         .setSecondaryLabelTextContent(buildTextLabel(context, "Secondary label"))
@@ -209,9 +252,9 @@ public class TestCasesGenerator {
                         .setPrimaryChipContent(primaryChipBuilder.build())
                         .setContent(
                                 new MultiSlotLayout.Builder()
-                                        .addSlotContent(buildColoredBox(Color.YELLOW))
-                                        .addSlotContent(buildColoredBox(Color.BLUE))
-                                        .addSlotContent(buildColoredBox(Color.MAGENTA))
+                                        .addSlotContent(buildColoredBoxMSL(Color.YELLOW))
+                                        .addSlotContent(buildColoredBoxMSL(Color.BLUE))
+                                        .addSlotContent(buildColoredBoxMSL(Color.MAGENTA))
                                         .build())
                         .setPrimaryLabelTextContent(buildTextLabel(context, "Primary label"))
                         .build());
@@ -221,9 +264,9 @@ public class TestCasesGenerator {
                         .setPrimaryChipContent(primaryChipBuilder.build())
                         .setContent(
                                 new MultiSlotLayout.Builder()
-                                        .addSlotContent(buildColoredBox(Color.YELLOW))
-                                        .addSlotContent(buildColoredBox(Color.BLUE))
-                                        .addSlotContent(buildColoredBox(Color.MAGENTA))
+                                        .addSlotContent(buildColoredBoxMSL(Color.YELLOW))
+                                        .addSlotContent(buildColoredBoxMSL(Color.BLUE))
+                                        .addSlotContent(buildColoredBoxMSL(Color.MAGENTA))
                                         .build())
                         .setPrimaryLabelTextContent(buildTextLabel(context, "Primary label"))
                         .setSecondaryLabelTextContent(buildTextLabel(context, "Secondary label"))
@@ -233,9 +276,9 @@ public class TestCasesGenerator {
                 new PrimaryLayout.Builder(deviceParameters)
                         .setContent(
                                 new MultiSlotLayout.Builder()
-                                        .addSlotContent(buildColoredBox(Color.YELLOW))
-                                        .addSlotContent(buildColoredBox(Color.BLUE))
-                                        .addSlotContent(buildColoredBox(Color.MAGENTA))
+                                        .addSlotContent(buildColoredBoxMSL(Color.YELLOW))
+                                        .addSlotContent(buildColoredBoxMSL(Color.BLUE))
+                                        .addSlotContent(buildColoredBoxMSL(Color.MAGENTA))
                                         .build())
                         .build());
         testCases.put(
@@ -243,9 +286,9 @@ public class TestCasesGenerator {
                 new PrimaryLayout.Builder(deviceParameters)
                         .setContent(
                                 new MultiSlotLayout.Builder()
-                                        .addSlotContent(buildColoredBox(Color.YELLOW))
-                                        .addSlotContent(buildColoredBox(Color.BLUE))
-                                        .addSlotContent(buildColoredBox(Color.MAGENTA))
+                                        .addSlotContent(buildColoredBoxMSL(Color.YELLOW))
+                                        .addSlotContent(buildColoredBoxMSL(Color.BLUE))
+                                        .addSlotContent(buildColoredBoxMSL(Color.MAGENTA))
                                         .build())
                         .setPrimaryLabelTextContent(buildTextLabel(context, "Primary label"))
                         .build());
@@ -254,9 +297,9 @@ public class TestCasesGenerator {
                 new PrimaryLayout.Builder(deviceParameters)
                         .setContent(
                                 new MultiSlotLayout.Builder()
-                                        .addSlotContent(buildColoredBox(Color.YELLOW))
-                                        .addSlotContent(buildColoredBox(Color.BLUE))
-                                        .addSlotContent(buildColoredBox(Color.MAGENTA))
+                                        .addSlotContent(buildColoredBoxMSL(Color.YELLOW))
+                                        .addSlotContent(buildColoredBoxMSL(Color.BLUE))
+                                        .addSlotContent(buildColoredBoxMSL(Color.MAGENTA))
                                         .build())
                         .setPrimaryLabelTextContent(buildTextLabel(context, "Primary label"))
                         .setSecondaryLabelTextContent(buildTextLabel(context, "Secondary label"))
@@ -268,10 +311,10 @@ public class TestCasesGenerator {
                         .setPrimaryChipContent(primaryChipBuilder.build())
                         .setContent(
                                 new MultiSlotLayout.Builder()
-                                        .addSlotContent(buildColoredBox(Color.YELLOW))
-                                        .addSlotContent(buildColoredBox(Color.BLUE))
-                                        .addSlotContent(buildColoredBox(Color.MAGENTA))
-                                        .setHorizontalSpacerWidth(20)
+                                        .addSlotContent(buildColoredBoxMSL(Color.YELLOW))
+                                        .addSlotContent(buildColoredBoxMSL(Color.BLUE))
+                                        .addSlotContent(buildColoredBoxMSL(Color.MAGENTA))
+                                        .setHorizontalSpacerWidth(2)
                                         .build())
                         .setPrimaryLabelTextContent(buildTextLabel(context, "Primary label"))
                         .setSecondaryLabelTextContent(buildTextLabel(context, "Secondary label"))
@@ -286,15 +329,31 @@ public class TestCasesGenerator {
                         .setTypography(Typography.TYPOGRAPHY_DISPLAY1)
                         .build();
         testCases.put(
+                "default_text_progressindicatorlayout_golden" + goldenSuffix,
+                new EdgeContentLayout.Builder(deviceParameters)
+                        .setEdgeContent(progressIndicatorBuilder.build())
+                        .setPrimaryLabelTextContent(
+                                new Text.Builder(context, "Primary label")
+                                        .setTypography(Typography.TYPOGRAPHY_CAPTION1)
+                                        .setColor(argb(Colors.PRIMARY))
+                                        .build())
+                        .setContent(textContent)
+                        .setSecondaryLabelTextContent(
+                                new Text.Builder(context, "Secondary label")
+                                        .setTypography(Typography.TYPOGRAPHY_CAPTION1)
+                                        .setColor(argb(Colors.ON_SURFACE))
+                                        .build())
+                        .build());
+        testCases.put(
                 "default_empty_progressindicatorlayout_golden" + NORMAL_SCALE_SUFFIX,
-                new ProgressIndicatorLayout.Builder(deviceParameters)
-                        .setProgressIndicatorContent(progressIndicatorBuilder.build())
+                new EdgeContentLayout.Builder(deviceParameters)
+                        .setEdgeContent(progressIndicatorBuilder.build())
                         .build());
         testCases.put(
                 "custom_progressindicatorlayout_golden" + goldenSuffix,
-                new ProgressIndicatorLayout.Builder(deviceParameters)
+                new EdgeContentLayout.Builder(deviceParameters)
                         .setContent(textContent)
-                        .setProgressIndicatorContent(
+                        .setEdgeContent(
                                 progressIndicatorBuilder
                                         .setCircularProgressIndicatorColors(
                                                 new ProgressIndicatorColors(
@@ -303,16 +362,16 @@ public class TestCasesGenerator {
                         .build());
         testCases.put(
                 "coloredbox_progressindicatorlayout_golden" + NORMAL_SCALE_SUFFIX,
-                new ProgressIndicatorLayout.Builder(deviceParameters)
-                        .setProgressIndicatorContent(
+                new EdgeContentLayout.Builder(deviceParameters)
+                        .setEdgeContent(
                                 progressIndicatorBuilder
                                         .setCircularProgressIndicatorColors(
                                                 ProgressIndicatorDefaults.DEFAULT_COLORS)
                                         .build())
                         .setContent(
                                 new Box.Builder()
-                                        .setWidth(expand())
-                                        .setHeight(expand())
+                                        .setWidth(dp(500))
+                                        .setHeight(dp(500))
                                         .setModifiers(
                                                 new Modifiers.Builder()
                                                         .setBackground(
@@ -334,17 +393,17 @@ public class TestCasesGenerator {
         Button largeButton1 =
                 new Button.Builder(context, clickable)
                         .setTextContent("1")
-                        .setSize(ButtonDefaults.LARGE_BUTTON_SIZE)
+                        .setSize(ButtonDefaults.LARGE_SIZE)
                         .build();
         Button largeButton2 =
                 new Button.Builder(context, clickable)
                         .setTextContent("2")
-                        .setSize(ButtonDefaults.LARGE_BUTTON_SIZE)
+                        .setSize(ButtonDefaults.LARGE_SIZE)
                         .build();
         Button extraLargeButton =
                 new Button.Builder(context, clickable)
                         .setTextContent("1")
-                        .setSize(ButtonDefaults.EXTRA_LARGE_BUTTON_SIZE)
+                        .setSize(ButtonDefaults.EXTRA_LARGE_SIZE)
                         .build();
         testCases.put(
                 "multibutton_layout_1button_golden" + goldenSuffix,
@@ -553,10 +612,23 @@ public class TestCasesGenerator {
     }
 
     @NonNull
-    private static Box buildColoredBox(int color) {
+    private static Box buildColoredBoxMSL(int color) {
+        return new Box.Builder()
+                .setWidth(dp(60))
+                .setHeight(dp(60))
+                .setModifiers(
+                        new Modifiers.Builder()
+                                .setBackground(
+                                        new Background.Builder().setColor(argb(color)).build())
+                                .build())
+                .build();
+    }
+
+    @NonNull
+    private static Box buildColoredBoxPLL(int color) {
         return new Box.Builder()
                 .setWidth(expand())
-                .setHeight(expand())
+                .setHeight(dp(60))
                 .setModifiers(
                         new Modifiers.Builder()
                                 .setBackground(

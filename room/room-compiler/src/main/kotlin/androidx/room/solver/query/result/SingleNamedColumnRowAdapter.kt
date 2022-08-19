@@ -65,9 +65,9 @@ class SingleNamedColumnRowAdapter(
     private lateinit var columnIndexVar: ColumnIndexVar
 
     override fun onCursorReady(
-        indices: List<ColumnIndexVar>,
         cursorVarName: String,
-        scope: CodeGenScope
+        scope: CodeGenScope,
+        indices: List<ColumnIndexVar>
     ) {
         columnIndexVar = indices.singleOrNull()
             ?: error("Expected a single resolved index var but got ${indices.size}")

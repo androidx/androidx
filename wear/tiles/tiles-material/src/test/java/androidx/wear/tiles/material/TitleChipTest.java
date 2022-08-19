@@ -113,6 +113,7 @@ public class TitleChipTest {
     private void assertChip(TitleChip actualTitleChip, ChipColors colors, DpProp width) {
         assertChipIsEqual(actualTitleChip, colors, width);
         assertFromLayoutElementChipIsEqual(actualTitleChip, colors, width);
+        assertThat(TitleChip.fromLayoutElement(actualTitleChip)).isEqualTo(actualTitleChip);
     }
 
     private void assertChipIsEqual(TitleChip actualTitleChip, ChipColors colors, DpProp width) {

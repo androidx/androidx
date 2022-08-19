@@ -14,49 +14,99 @@
  * limitations under the License.
  */
 
-import androidx.build.Publish
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
+import androidx.build.KmpPlatformsKt
+import androidx.build.LibraryType
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
+import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 
 plugins {
     id("AndroidXPlugin")
-    id("org.jetbrains.kotlin.multiplatform")
 }
 
-kotlin {
+def enableNative = KmpPlatformsKt.enableNative(project)
+
+androidXMultiplatform {
     jvm {
         withJava()
     }
+    mac()
+    linux()
+    ios()
 
     sourceSets {
-        jvmMain {
+        all {
+            languageSettings.optIn("kotlin.RequiresOptIn")
+        }
+
+        commonMain {
             dependencies {
                 api(libs.kotlinStdlib)
                 api(libs.kotlinCoroutinesCore)
+            }
+        }
+        jvmMain {
+            dependencies {
                 api("androidx.annotation:annotation:1.3.0")
+            }
+        }
+
+        commonTest {
+            dependencies {
+                implementation(libs.kotlinTestCommon)
+                implementation(libs.kotlinTestAnnotationsCommon)
+                implementation(libs.kotlinCoroutinesTest)
+                implementation(libs.okio)
+                api(project(":datastore:datastore-core-okio"))
+                implementation(project(":internal-testutils-kmp"))
+                implementation(project(":internal-testutils-datastore"))
             }
         }
 
         jvmTest {
             dependencies {
                 implementation(libs.junit)
-                implementation(libs.kotlinCoroutinesTest)
-                implementation(libs.truth)
-                implementation(project(":internal-testutils-truth"))
+                implementation(libs.kotlinTest)
+                implementation(project(":internal-testutils-kmp"))
+                implementation(project(":internal-testutils-datastore"))
             }
         }
 
-        all {
-            languageSettings.optIn("kotlin.RequiresOptIn")
+        if (enableNative) {
+            nativeMain {
+                dependsOn(commonMain)
+                dependencies {
+                    implementation(libs.atomicFu)
+                }
+            }
+            nativeTest {
+                dependsOn(commonTest)
+            }
+        }
+
+        targets.withType(KotlinNativeTarget).configureEach {
+            binaries.all {
+                binaryOptions["memoryModel"] = "experimental"
+            }
+        }
+        targets.all { target ->
+            if (target.platformType == KotlinPlatformType.native) {
+                target.compilations["main"].defaultSourceSet {
+                    dependsOn(nativeMain)
+                }
+                target.compilations["test"].defaultSourceSet {
+                    dependsOn(nativeTest)
+                }
+            }
         }
     }
 }
 
 androidx {
     name = "Android DataStore Core"
-    publish = Publish.SNAPSHOT_AND_RELEASE
+    type = LibraryType.KMP_LIBRARY
     mavenGroup = LibraryGroups.DATASTORE
     inceptionYear = "2020"
     description = "Android DataStore Core - contains the underlying store used by each serialization method"
     legacyDisableKotlinStrictApiMode = true
-    publishPlatforms = ["jvm"]
 }

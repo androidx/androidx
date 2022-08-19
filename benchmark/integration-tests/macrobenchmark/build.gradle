@@ -38,6 +38,7 @@ dependencies {
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.testUiautomator)
+    androidTestImplementation(libs.testExtTruth)
 }
 
 // Allow usage of Kotlin's @OptIn.

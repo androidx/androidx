@@ -24,7 +24,6 @@ JNIEXPORT void JNICALL
 Java_androidx_tracing_perfetto_jni_PerfettoNative_nativeRegisterWithPerfetto(
         JNIEnv *env, __unused jclass clazz) {
     tracing_perfetto::RegisterWithPerfetto();
-    PERFETTO_LOG("Perfetto: initialized");
 }
 
 JNIEXPORT void JNICALL
@@ -32,7 +31,6 @@ Java_androidx_tracing_perfetto_jni_PerfettoNative_nativeTraceEventBegin(
         JNIEnv *env, __unused jclass clazz, jint key, jstring traceInfo) {
     const char *traceInfoUtf = env->GetStringUTFChars(traceInfo, NULL);
     tracing_perfetto::TraceEventBegin(key, traceInfoUtf);
-    PERFETTO_LOG("Perfetto: TraceEventBegin(%s key=%d)", traceInfoUtf, key);
     env->ReleaseStringUTFChars(traceInfo, traceInfoUtf);
 }
 
@@ -40,19 +38,12 @@ JNIEXPORT void JNICALL
 Java_androidx_tracing_perfetto_jni_PerfettoNative_nativeTraceEventEnd(
         JNIEnv *env, __unused jclass clazz) {
     tracing_perfetto::TraceEventEnd();
-    PERFETTO_LOG("Perfetto: TraceEventEnd()");
 }
 
-JNIEXPORT void JNICALL
-Java_androidx_tracing_perfetto_jni_PerfettoNative_nativeFlushEvents(
-        JNIEnv *env, __unused jclass clazz) {
-    tracing_perfetto::Flush();
-    PERFETTO_LOG("Perfetto: Flush()");
-}
 JNIEXPORT jstring JNICALL
 Java_androidx_tracing_perfetto_jni_PerfettoNative_nativeVersion(
         JNIEnv *env, __unused jclass clazz) {
-    PERFETTO_LOG("Perfetto: Version()");
     return env->NewStringUTF(tracing_perfetto::Version());
 }
 } // extern "C"
+

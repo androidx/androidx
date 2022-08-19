@@ -52,6 +52,25 @@ import androidx.wear.tiles.proto.ModifiersProto;
  *
  * <p>There are pre-built typography styles that can be obtained from constants in {@link
  * FontStyle}.
+ *
+ * <p>When accessing the contents of a container for testing, note that this element can't be simply
+ * casted back to the original type, i.e.:
+ *
+ * <pre>{@code
+ * Text text = new Text...
+ * Box box = new Box.Builder().addContent(text).build();
+ *
+ * Text myText = (Text) box.getContents().get(0);
+ * }</pre>
+ *
+ * will fail.
+ *
+ * <p>To be able to get {@link Text} object from any layout element, {@link #fromLayoutElement}
+ * method should be used, i.e.:
+ *
+ * <pre>{@code
+ * Text myText = Text.fromLayoutElement(box.getContents().get(0));
+ * }</pre>
  */
 public class Text implements LayoutElement {
     /** Tool tag for Metadata in Modifiers, so we know that Text is actually a Material Text. */
@@ -285,15 +304,19 @@ public class Text implements LayoutElement {
     /** Returns metadata tag set to this Text, which should be {@link #METADATA_TAG}. */
     @NonNull
     String getMetadataTag() {
-        return getMetadataTagName(checkNotNull(getModifiers()));
+        return getMetadataTagName(checkNotNull(checkNotNull(getModifiers()).getMetadata()));
     }
 
     /**
-     * Returns Material Text object from the given LayoutElement if that element can be converted to
-     * Material Text. Otherwise, returns null.
+     * Returns Material Text object from the given LayoutElement (e.g. one retrieved from a
+     * container's content with {@code container.getContents().get(index)}) if that element can be
+     * converted to Material Text. Otherwise, it will return null.
      */
     @Nullable
     public static Text fromLayoutElement(@NonNull LayoutElement element) {
+        if (element instanceof Text) {
+            return (Text) element;
+        }
         if (!(element instanceof LayoutElementBuilders.Text)) {
             return null;
         }

@@ -134,6 +134,8 @@ package androidx.paging {
   }
 
   public enum LoadType {
+    method public static androidx.paging.LoadType valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.paging.LoadType[] values();
     enum_constant public static final androidx.paging.LoadType APPEND;
     enum_constant public static final androidx.paging.LoadType PREPEND;
     enum_constant public static final androidx.paging.LoadType REFRESH;
@@ -465,6 +467,8 @@ package androidx.paging {
   }
 
   public enum TerminalSeparatorType {
+    method public static androidx.paging.TerminalSeparatorType valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.paging.TerminalSeparatorType[] values();
     enum_constant public static final androidx.paging.TerminalSeparatorType FULLY_COMPLETE;
     enum_constant public static final androidx.paging.TerminalSeparatorType SOURCE_COMPLETE;
   }

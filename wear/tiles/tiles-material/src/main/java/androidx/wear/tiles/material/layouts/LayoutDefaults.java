@@ -28,12 +28,12 @@ public class LayoutDefaults {
     /**
      * The default percentage for the bottom margin for primary chip in the {@link PrimaryLayout}.
      */
-    static final float PRIMARY_LAYOUT_MARGIN_BOTTOM_ROUND_PERCENT = 6.3f / 100;
+    static final float PRIMARY_LAYOUT_MARGIN_BOTTOM_ROUND_PERCENT = 2.1f / 100;
 
     /**
      * The default percentage for the bottom margin for primary chip in the {@link PrimaryLayout}.
      */
-    static final float PRIMARY_LAYOUT_MARGIN_BOTTOM_SQUARE_PERCENT = 2.2f / 100;
+    static final float PRIMARY_LAYOUT_MARGIN_BOTTOM_SQUARE_PERCENT = 0;
 
     /**
      * The default percentage for the top margin for primary chip in the {@link PrimaryLayout} on
@@ -45,13 +45,25 @@ public class LayoutDefaults {
      * The default percentage for the top margin for primary chip in the {@link PrimaryLayout} on
      * square devices.
      */
-    static final float PRIMARY_LAYOUT_MARGIN_TOP_SQUARE_PERCENT = 15.6f / 100;
+    static final float PRIMARY_LAYOUT_MARGIN_TOP_SQUARE_PERCENT = 13.3f / 100;
+
+    /**
+     * The default spacer above primary label in {@link PrimaryLayout} to make space for Tile icon
+     * on round devices.
+     */
+    static final DpProp PRIMARY_LAYOUT_PRIMARY_LABEL_SPACER_HEIGHT_ROUND_DP = dp(0);
+
+    /**
+     * The default spacer above primary label in {@link PrimaryLayout} to make space for Tile icon
+     * on square devices.
+     */
+    static final DpProp PRIMARY_LAYOUT_PRIMARY_LABEL_SPACER_HEIGHT_SQUARE_DP = dp(4);
 
     /**
      * The default percentage for the horizontal margin for primary chip in the {@link
      * PrimaryLayout}.
      */
-    static final float PRIMARY_LAYOUT_MARGIN_HORIZONTAL_ROUND_PERCENT = 5.2f / 100;
+    static final float PRIMARY_LAYOUT_MARGIN_HORIZONTAL_ROUND_PERCENT = 6.3f / 100;
 
     /**
      * The default percentage for the horizontal margin for primary chip in the {@link
@@ -59,26 +71,35 @@ public class LayoutDefaults {
      */
     static final float PRIMARY_LAYOUT_MARGIN_HORIZONTAL_SQUARE_PERCENT = 2.8f / 100;
 
-    /** The default spacer height for primary chip in the {@link PrimaryLayout}. */
-    static final DpProp PRIMARY_LAYOUT_SPACER_HEIGHT = dp(12);
+    /**
+     * The padding for the primary chip in {@link PrimaryLayout} so it doesn't bleed off screen if
+     * text is too big.
+     */
+    static final float PRIMARY_LAYOUT_CHIP_HORIZONTAL_PADDING_ROUND_DP = 30;
 
-    /** The default horizontal margin in the {@link ProgressIndicatorLayout}. */
-    static final float PROGRESS_INDICATOR_LAYOUT_MARGIN_HORIZONTAL_ROUND_DP = 14;
+    /**
+     * The padding for the primary chip in {@link PrimaryLayout} so it doesn't bleed off screen if
+     * text is too big.
+     */
+    static final float PRIMARY_LAYOUT_CHIP_HORIZONTAL_PADDING_SQUARE_DP = 0;
 
-    /** The default horizontal margin in the {@link ProgressIndicatorLayout}. */
-    static final float PROGRESS_INDICATOR_LAYOUT_MARGIN_HORIZONTAL_SQUARE_DP = 16;
+    /** The default horizontal margin in the {@link EdgeContentLayout}. */
+    static final float EDGE_CONTENT_LAYOUT_MARGIN_HORIZONTAL_ROUND_DP = 14;
+
+    /** The default horizontal margin in the {@link EdgeContentLayout}. */
+    static final float EDGE_CONTENT_LAYOUT_MARGIN_HORIZONTAL_SQUARE_DP = 16;
 
     /**
      * The recommended padding that should be above the main content (text) in the {@link
-     * ProgressIndicatorLayout}.
+     * EdgeContentLayout}.
      */
-    public static final float PROGRESS_INDICATOR_LAYOUT_PADDING_ABOVE_MAIN_CONTENT_DP = 6;
+    public static final float EDGE_CONTENT_LAYOUT_PADDING_ABOVE_MAIN_CONTENT_DP = 6;
 
     /**
      * The recommended padding that should be below the main content (text) in the {@link
-     * ProgressIndicatorLayout}.
+     * EdgeContentLayout}.
      */
-    public static final float PROGRESS_INDICATOR_LAYOUT_PADDING_BELOW_MAIN_CONTENT_DP = 8;
+    public static final float EDGE_CONTENT_LAYOUT_PADDING_BELOW_MAIN_CONTENT_DP = 8;
 
     /** The default spacer width for slots in a {@link MultiSlotLayout}. */
     public static final DpProp MULTI_SLOT_LAYOUT_HORIZONTAL_SPACER_WIDTH = dp(8);
@@ -93,18 +114,18 @@ public class LayoutDefaults {
      * The default size of button in case when there are 3 or more buttons in the {@link
      * MultiButtonLayout}.
      */
-    static final DpProp MULTI_BUTTON_3_PLUS_SIZE = ButtonDefaults.DEFAULT_BUTTON_SIZE;
+    static final DpProp MULTI_BUTTON_3_PLUS_SIZE = ButtonDefaults.DEFAULT_SIZE;
 
     /** The default size of button in case when there 2 buttons in the {@link MultiButtonLayout}. */
-    static final DpProp MULTI_BUTTON_2_SIZE = ButtonDefaults.LARGE_BUTTON_SIZE;
+    static final DpProp MULTI_BUTTON_2_SIZE = ButtonDefaults.LARGE_SIZE;
 
     /**
      * The default size of button in case when there is 1 button in the {@link MultiButtonLayout}.
      */
-    static final DpProp MULTI_BUTTON_1_SIZE = ButtonDefaults.EXTRA_LARGE_BUTTON_SIZE;
+    static final DpProp MULTI_BUTTON_1_SIZE = ButtonDefaults.EXTRA_LARGE_SIZE;
 
     /** The default width for vertical spacer between buttons in the {@link MultiButtonLayout}. */
-    static final DpProp MULTI_BUTTON_SPACER_WIDTH = dp(8);
+    static final DpProp MULTI_BUTTON_SPACER_WIDTH = dp(6);
 
     /**
      * The default height for horizontal spacer between buttons in the {@link MultiButtonLayout}.

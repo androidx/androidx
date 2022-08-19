@@ -124,6 +124,25 @@ class DaoWriterTest {
         }
     }
 
+    @Test
+    fun upsertDao() {
+        singleDao(
+            loadTestSource(
+                fileName = "daoWriter/input/UpsertDao.java",
+                qName = "foo.bar.UpsertDao"
+            )
+        ) {
+            it.assertCompilationResult {
+                generatedSource(
+                    loadTestSource(
+                        fileName = "daoWriter/output/UpsertDao.java",
+                        qName = "foo.bar.UpsertDao_Impl"
+                    )
+                )
+            }
+        }
+    }
+
     private fun singleDao(
         vararg inputs: Source,
         handler: (XTestInvocation) -> Unit

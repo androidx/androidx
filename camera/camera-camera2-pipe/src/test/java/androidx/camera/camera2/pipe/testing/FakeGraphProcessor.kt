@@ -107,7 +107,7 @@ internal class FakeGraphProcessor(
         }
     }
 
-    override fun onGraphModified(requestProcessor: RequestProcessor) {
+    override fun onGraphUpdated(requestProcessor: RequestProcessor) {
         invalidate()
     }
 

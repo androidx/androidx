@@ -16,6 +16,7 @@
 
 import androidx.build.LibraryType
 import androidx.build.AndroidXComposePlugin
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
@@ -26,7 +27,6 @@ plugins {
 AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project)
 
 dependencies {
-    kotlinPlugin(project(":compose:compiler:compiler"))
 
     if(!AndroidXComposePlugin.isMultiplatformEnabled(project)) {
         api(project(":compose:foundation:foundation"))
@@ -40,7 +40,7 @@ dependencies {
         implementation(project(":compose:material:material-ripple"))
         implementation(project(":compose:ui:ui-util"))
         implementation(project(":wear:compose:compose-foundation"))
-        implementation(project(":profileinstaller:profileinstaller"))
+        implementation("androidx.profileinstaller:profileinstaller:1.2.0")
 
         androidTestImplementation(project(":compose:ui:ui-test"))
         androidTestImplementation(project(":compose:ui:ui-test-junit4"))
@@ -136,4 +136,10 @@ androidx {
     targetsJavaConsumers = false
 }
 
-
+tasks.withType(KotlinCompile).configureEach {
+    kotlinOptions {
+        freeCompilerArgs += [
+                "-Xjvm-default=all",
+        ]
+    }
+}

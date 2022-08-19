@@ -51,6 +51,7 @@ class SystemJobInfoConverter {
 
     static final String EXTRA_WORK_SPEC_ID = "EXTRA_WORK_SPEC_ID";
     static final String EXTRA_IS_PERIODIC = "EXTRA_IS_PERIODIC";
+    static final String EXTRA_WORK_SPEC_GENERATION = "EXTRA_WORK_SPEC_GENERATION";
 
     private final ComponentName mWorkServiceComponent;
 
@@ -73,6 +74,7 @@ class SystemJobInfoConverter {
         Constraints constraints = workSpec.constraints;
         PersistableBundle extras = new PersistableBundle();
         extras.putString(EXTRA_WORK_SPEC_ID, workSpec.id);
+        extras.putInt(EXTRA_WORK_SPEC_GENERATION, workSpec.getGeneration());
         extras.putBoolean(EXTRA_IS_PERIODIC, workSpec.isPeriodic());
         JobInfo.Builder builder = new JobInfo.Builder(jobId, mWorkServiceComponent)
                 .setRequiresCharging(constraints.requiresCharging())

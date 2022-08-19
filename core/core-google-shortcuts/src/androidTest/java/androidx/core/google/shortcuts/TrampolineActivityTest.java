@@ -124,9 +124,9 @@ public class TrampolineActivityTest {
         assertThat(scenario.getResult().getResultCode()).isEqualTo(Activity.RESULT_CANCELED);
     }
 
+    @SuppressWarnings("deprecation") // usage of PackageManager.queryIntentActivities
     @Test
     @SmallTest
-    @SuppressWarnings("deprecation")
     public void testManifest_canDiscoverMetadata() {
         PackageManager packageManager = mContext.getPackageManager();
         Intent activityIntent = new Intent(SHORTCUT_LISTENER_INTENT_FILTER_ACTION);
@@ -135,10 +135,14 @@ public class TrampolineActivityTest {
         List<ResolveInfo> resolveInfos = packageManager.queryIntentActivities(
                 activityIntent, PackageManager.GET_META_DATA);
 
-        assertThat(resolveInfos.stream().anyMatch(resolveInfo ->
-                SHORTCUT_LISTENER_CLASS_NAME.equals(resolveInfo.activityInfo.metaData
-                        .getString(SHORTCUT_LISTENER_META_DATA_KEY))))
-                .isTrue();
+        boolean hasMetadata = false;
+        for (ResolveInfo resolveInfo : resolveInfos) {
+            if (SHORTCUT_LISTENER_CLASS_NAME.equals(
+                    resolveInfo.activityInfo.metaData.getString(SHORTCUT_LISTENER_META_DATA_KEY))) {
+                hasMetadata = true;
+            }
+        }
+        assertThat(hasMetadata).isTrue();
     }
 
     private Intent createIntentToTestActivity() throws Exception {

@@ -38,6 +38,8 @@ import android.database.sqlite.SQLiteCantOpenDatabaseException;
 import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteDatabaseCorruptException;
 import android.database.sqlite.SQLiteDatabaseLockedException;
+import android.database.sqlite.SQLiteDiskIOException;
+import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteTableLockedException;
 import android.os.Build;
 import android.text.TextUtils;
@@ -102,8 +104,29 @@ public class ForceStopRunnable implements Runnable {
                 return;
             }
             while (true) {
-                // Migrate the database to the no-backup directory if necessary.
-                WorkDatabasePathHelper.migrateDatabase(mContext);
+
+                try {
+                    // Migrate the database to the no-backup directory if necessary.
+                    // Migrations are not retry-able. So if something unexpected were to happen
+                    // here, the best we can do is to hand things off to the
+                    // InitializationExceptionHandler.
+                    WorkDatabasePathHelper.migrateDatabase(mContext);
+                } catch (SQLiteException sqLiteException) {
+                    // This should typically never happen.
+                    String message = "Unexpected SQLite exception during migrations";
+                    Logger.get().error(TAG, message);
+                    IllegalStateException exception =
+                            new IllegalStateException(message, sqLiteException);
+                    InitializationExceptionHandler exceptionHandler =
+                            mWorkManager.getConfiguration().getInitializationExceptionHandler();
+                    if (exceptionHandler != null) {
+                        exceptionHandler.handleException(exception);
+                        break;
+                    } else {
+                        throw exception;
+                    }
+                }
+
                 // Clean invalid jobs attributed to WorkManager, and Workers that might have been
                 // interrupted because the application crashed (RUNNING state).
                 Logger.get().debug(TAG, "Performing cleanup operations.");
@@ -111,11 +134,12 @@ public class ForceStopRunnable implements Runnable {
                     forceStopRunnable();
                     break;
                 } catch (SQLiteCantOpenDatabaseException
-                        | SQLiteDatabaseCorruptException
-                        | SQLiteDatabaseLockedException
-                        | SQLiteTableLockedException
-                        | SQLiteConstraintException
-                        | SQLiteAccessPermException exception) {
+                         | SQLiteDiskIOException
+                         | SQLiteDatabaseCorruptException
+                         | SQLiteDatabaseLockedException
+                         | SQLiteTableLockedException
+                         | SQLiteConstraintException
+                         | SQLiteAccessPermException exception) {
                     mRetryCount++;
                     if (mRetryCount >= MAX_ATTEMPTS) {
                         // ForceStopRunnable is usually the first thing that accesses a database
@@ -129,7 +153,7 @@ public class ForceStopRunnable implements Runnable {
                         IllegalStateException throwable = new IllegalStateException(message,
                                 exception);
                         InitializationExceptionHandler exceptionHandler =
-                                mWorkManager.getConfiguration().getExceptionHandler();
+                                mWorkManager.getConfiguration().getInitializationExceptionHandler();
                         if (exceptionHandler != null) {
                             Logger.get().debug(TAG,
                                     "Routing exception to the specified exception handler",

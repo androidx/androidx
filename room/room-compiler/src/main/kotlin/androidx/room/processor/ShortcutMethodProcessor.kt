@@ -208,6 +208,11 @@ class ShortcutMethodProcessor(
         params: List<ShortcutQueryParameter>
     ) = delegate.findInsertMethodBinder(returnType, params)
 
+    fun findUpsertMethodBinder(
+        returnType: XType,
+        params: List<ShortcutQueryParameter>
+    ) = delegate.findUpsertMethodBinder(returnType, params)
+
     fun findDeleteOrUpdateMethodBinder(returnType: XType) =
         delegate.findDeleteOrUpdateMethodBinder(returnType)
 }

@@ -29,7 +29,7 @@ import androidx.appsearch.builtintypes.Timer;
 import androidx.core.google.shortcuts.utils.ConverterUtils;
 import androidx.core.util.Preconditions;
 
-import com.google.firebase.appindexing.Indexable;
+import com.google.android.gms.appindex.Indexable;
 
 /**
  * Convert for the {@link Timer} built-in type.

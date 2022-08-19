@@ -30,37 +30,51 @@ class BanSynchronizedMethodsTest : AbstractLintDetectorTest(
 
     @Test
     fun `Detection of synchronized methods in Java sources`() {
-        val input = arrayOf(
-            javaSample("androidx.SynchronizedMethodJava"),
+        val input = java(
+            "src/androidx/SynchronizedMethodJava.java",
+            """
+                public class SynchronizedMethodJava {
+
+                    public synchronized void someMethod() {
+                    }
+                }
+            """.trimIndent()
         )
 
         /* ktlint-disable max-line-length */
         val expected = """
-src/androidx/SynchronizedMethodJava.java:22: Error: Use of synchronized methods is not recommended [BanSynchronizedMethods]
+src/androidx/SynchronizedMethodJava.java:3: Error: Use of synchronized methods is not recommended [BanSynchronizedMethods]
     public synchronized void someMethod() {
     ^
 1 errors, 0 warnings
         """.trimIndent()
         /* ktlint-enable max-line-length */
 
-        check(*input).expect(expected)
+        check(input).expect(expected)
     }
 
     @Test
     fun `Detection of synchronized methods in Kotlin sources`() {
-        val input = arrayOf(
-            ktSample("androidx.SynchronizedMethodKotlin"),
+        val input = kotlin(
+            "src/androidx/SynchronizedMethodKotlin.kt",
+            """
+                class SynchronizedMethodKotlin {
+
+                    @Synchronized
+                    fun someMethod() {}
+                }
+            """.trimIndent()
         )
 
         /* ktlint-disable max-line-length */
         val expected = """
-src/androidx/SynchronizedMethodKotlin.kt:22: Error: Use of synchronized methods is not recommended [BanSynchronizedMethods]
+src/androidx/SynchronizedMethodKotlin.kt:3: Error: Use of synchronized methods is not recommended [BanSynchronizedMethods]
     @Synchronized
     ^
 1 errors, 0 warnings
         """.trimIndent()
         /* ktlint-enable max-line-length */
 
-        check(*input).expect(expected)
+        check(input).expect(expected)
     }
 }

@@ -16,10 +16,12 @@
 
 package androidx.wear.watchface.style
 
+import android.graphics.RectF
 import android.graphics.drawable.Icon
 import android.os.Build
 import android.os.Parcel
 import androidx.annotation.RequiresApi
+import androidx.wear.watchface.complications.ComplicationSlotBounds
 
 import androidx.wear.watchface.style.UserStyleSetting.BooleanUserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting
@@ -36,8 +38,6 @@ import androidx.wear.watchface.style.data.UserStyleWireFormat
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
-import org.junit.Assume.assumeTrue
-import org.junit.Before
 import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -78,11 +78,6 @@ public class StyleParcelableTest {
         icon4,
         watchFaceEditorData = WatchFaceEditorData(wfIcon4)
     )
-
-    @Before
-    public fun setUp() {
-        assumeTrue("These tests require API 28", Build.VERSION.SDK_INT >= 28)
-    }
 
     @Test
     public fun parcelAndUnparcelStyleSettingAndOption() {
@@ -595,6 +590,20 @@ public class StyleParcelableTest {
                             enabled = false
                         )
                     )
+                ),
+                ComplicationSlotsUserStyleSetting.ComplicationSlotsOption(
+                    Option.Id("RIGHT_COMPLICATION_MOVED"),
+                    "MoveRight",
+                    null,
+                    listOf(
+                        ComplicationSlotsUserStyleSetting.ComplicationSlotOverlay(
+                            leftComplicationID,
+                            complicationSlotBounds = ComplicationSlotBounds(
+                                RectF(0.1f, 0.2f, 0.3f, 0.4f),
+                                RectF(0.5f, 0.6f, 0.7f, 0.8f)
+                            )
+                        )
+                    )
                 )
             ),
             listOf(WatchFaceLayer.COMPLICATIONS)
@@ -616,7 +625,7 @@ public class StyleParcelableTest {
 
         val options = unparceled.options.filterIsInstance<
             ComplicationSlotsUserStyleSetting.ComplicationSlotsOption>()
-        assertThat(options.size).isEqualTo(4)
+        assertThat(options.size).isEqualTo(5)
         assertThat(options[0].id.value.decodeToString()).isEqualTo("LEFT_AND_RIGHT_COMPLICATIONS")
         assertThat(options[0].complicationSlotOverlays.size).isEqualTo(0)
 
@@ -639,6 +648,21 @@ public class StyleParcelableTest {
         val options3Overlays = ArrayList(options[3].complicationSlotOverlays)
         assertThat(options3Overlays[0].complicationSlotId).isEqualTo(leftComplicationID)
         assertFalse(options3Overlays[0].enabled!!)
+
+        assertThat(options[4].id.value.decodeToString()).isEqualTo("RIGHT_COMPLICATION_MOVED")
+        assertThat(options[4].complicationSlotOverlays.size).isEqualTo(1)
+        val options4Overlays = ArrayList(options[4].complicationSlotOverlays)
+        assertThat(options4Overlays[0].complicationSlotId).isEqualTo(leftComplicationID)
+        assertThat(options4Overlays[0].enabled).isNull()
+
+        val expectedComplicationSlotBounds = ComplicationSlotBounds(
+            RectF(0.1f, 0.2f, 0.3f, 0.4f),
+            RectF(0.5f, 0.6f, 0.7f, 0.8f)
+        )
+        assertThat(options4Overlays[0].complicationSlotBounds?.perComplicationTypeBounds)
+            .containsExactlyEntriesIn(expectedComplicationSlotBounds.perComplicationTypeBounds)
+        assertThat(options4Overlays[0].complicationSlotBounds?.perComplicationTypeMargins)
+            .containsExactlyEntriesIn(expectedComplicationSlotBounds.perComplicationTypeMargins)
     }
 
     @Test

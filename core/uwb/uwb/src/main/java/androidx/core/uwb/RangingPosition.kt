@@ -36,7 +36,7 @@ package androidx.core.uwb
  * measurement.
  */
 class RangingPosition(
-    val distance: RangingMeasurement,
+    val distance: RangingMeasurement?,
     val azimuth: RangingMeasurement?,
     val elevation: RangingMeasurement?,
     val elapsedRealtimeNanos: Long

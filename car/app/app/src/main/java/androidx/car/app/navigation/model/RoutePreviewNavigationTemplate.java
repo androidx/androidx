@@ -19,7 +19,7 @@ package androidx.car.app.navigation.model;
 import static androidx.car.app.model.constraints.ActionsConstraints.ACTIONS_CONSTRAINTS_HEADER;
 import static androidx.car.app.model.constraints.ActionsConstraints.ACTIONS_CONSTRAINTS_MAP;
 import static androidx.car.app.model.constraints.ActionsConstraints.ACTIONS_CONSTRAINTS_NAVIGATION;
-import static androidx.car.app.model.constraints.RowListConstraints.ROW_LIST_CONSTRAINTS_ROUTE_PREVIEW;
+import static androidx.car.app.model.constraints.RowListConstraints.MAP_ROW_LIST_CONSTRAINTS_ALLOW_SELECTABLE;
 
 import static java.util.Objects.requireNonNull;
 
@@ -443,7 +443,8 @@ public final class RoutePreviewNavigationTemplate implements Template {
          */
         @NonNull
         public Builder setItemList(@NonNull ItemList itemList) {
-            ROW_LIST_CONSTRAINTS_ROUTE_PREVIEW.validateOrThrow(requireNonNull(itemList));
+            MAP_ROW_LIST_CONSTRAINTS_ALLOW_SELECTABLE
+                    .validateOrThrow(requireNonNull(itemList));
             ModelUtils.validateAllRowsHaveDistanceOrDuration(itemList.getItems());
             ModelUtils.validateAllRowsHaveOnlySmallImages(itemList.getItems());
 

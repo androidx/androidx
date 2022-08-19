@@ -37,9 +37,13 @@ public class PropertyResponseCacheTest {
     @Test
     public void getResponsesByListener_returnsUnknownResponseIfNotInCache() {
         Integer testPropertyId = 1;
+        PropertyIdAreaId testPropertyIdAreaIds = PropertyIdAreaId.builder()
+                .setAreaId(0)
+                .setPropertyId(testPropertyId)
+                .build();
         PropertyResponseCache propertyResponseCache = new PropertyResponseCache();
-        propertyResponseCache.putListenerAndPropertyIds(mOnCarPropertyResponseListener,
-                ImmutableList.of(testPropertyId));
+        propertyResponseCache.putListenerAndUIds(mOnCarPropertyResponseListener,
+                ImmutableList.of(testPropertyIdAreaIds));
         List<CarPropertyResponse<?>> carPropertyResponses =
                 propertyResponseCache.getResponsesByListener(mOnCarPropertyResponseListener);
         assertThat(carPropertyResponses).containsExactly(

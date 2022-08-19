@@ -26,6 +26,7 @@ import android.os.SystemClock
 import android.util.Size
 import android.view.Surface
 import androidx.camera.camera2.Camera2Config
+import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraXConfig
 import androidx.camera.core.Preview
@@ -45,7 +46,6 @@ import androidx.camera.video.internal.compat.quirk.DeviceQuirks
 import androidx.concurrent.futures.ResolvableFuture
 import androidx.core.content.ContextCompat
 import androidx.test.core.app.ApplicationProvider
-import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
@@ -61,6 +61,7 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.junit.runners.Parameterized
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.atLeast
@@ -78,15 +79,27 @@ private const val FRAME_RATE = 30
 private const val I_FRAME_INTERVAL = 1
 
 @LargeTest
-@RunWith(AndroidJUnit4::class)
+@RunWith(Parameterized::class)
 @Suppress("DEPRECATION")
 @SdkSuppress(minSdkVersion = 21)
-class VideoEncoderTest {
+class VideoEncoderTest(
+    private val implName: String,
+    private val cameraConfig: CameraXConfig,
+) {
 
     @get:Rule
     val cameraRule = CameraUtil.grantCameraPermissionAndPreTest(
-        CameraUtil.PreTestCameraIdList(Camera2Config.defaultConfig())
+        CameraUtil.PreTestCameraIdList(cameraConfig)
     )
+
+    companion object {
+        @JvmStatic
+        @Parameterized.Parameters(name = "{0}")
+        fun data() = listOf(
+            arrayOf(Camera2Config::class.simpleName, Camera2Config.defaultConfig()),
+            arrayOf(CameraPipeConfig::class.simpleName, CameraPipeConfig.defaultConfig())
+        )
+    }
 
     private val instrumentation = InstrumentationRegistry.getInstrumentation()
     private val context: Context = ApplicationProvider.getApplicationContext()
@@ -109,12 +122,11 @@ class VideoEncoderTest {
     @Before
     fun setUp() {
         assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_BACK))
-        // Same issue happened in new video encoder in pre-submit test. Bypass this test on
-        // CuttleFish API 29.
-        // TODO(b/168175357): Fix VideoCaptureTest problems on CuttleFish API 29
+        // Skip for b/168175357, b/233661493
         assumeFalse(
-            "Cuttlefish has MediaCodec dequeueInput/Output buffer fails issue. Unable to test.",
-            Build.MODEL.contains("Cuttlefish") && Build.VERSION.SDK_INT == 29
+            "Skip tests for Cuttlefish MediaCodec issues",
+            Build.MODEL.contains("Cuttlefish") &&
+                (Build.VERSION.SDK_INT == 29 || Build.VERSION.SDK_INT == 33)
         )
 
         val cameraXConfig: CameraXConfig = Camera2Config.defaultConfig()

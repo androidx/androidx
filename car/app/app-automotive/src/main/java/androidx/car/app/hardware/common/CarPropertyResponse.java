@@ -23,6 +23,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.annotations.ExperimentalCarApi;
+import androidx.core.util.Preconditions;
 
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
@@ -57,7 +58,10 @@ public abstract class CarPropertyResponse<T> {
      */
     public abstract long getTimestampMillis();
 
-    /** Returns response's value. */
+    /**
+     * If {@link #getStatus()} is {@link CarValue#STATUS_SUCCESS}, then it return response's
+     * {@code T} value. Otherwise, it returns {@code null}.
+     */
     @Nullable
     public abstract T getValue();
 
@@ -66,7 +70,7 @@ public abstract class CarPropertyResponse<T> {
     @NonNull
     public abstract ImmutableList<CarZone> getCarZones();
 
-    /** Get a builder class for {@link CarPropertyResponse}*/
+    /** Get a builder class for {@link CarPropertyResponse}. */
     @NonNull
     @OptIn(markerClass = ExperimentalCarApi.class)
     public static <T> Builder<T> builder() {
@@ -91,11 +95,23 @@ public abstract class CarPropertyResponse<T> {
         @NonNull
         public abstract Builder<T> setTimestampMillis(long timestampMillis);
 
-        /** Sets a value for the {@link CarPropertyResponse}. */
+        /**
+         * Sets a value for the {@link CarPropertyResponse}.
+         *
+         * <p>If set with a non {@code null} value, then {@link #setStatus(int)} must be set with
+         * {@link CarValue#STATUS_SUCCESS}. If this condition is not met, {@link #build()} will
+         * throw an {@link IllegalArgumentException}.
+         */
         @NonNull
         public abstract Builder<T> setValue(@Nullable T value);
 
-        /** Sets a status code for the {@link CarPropertyResponse}. */
+        /**
+         * Sets a status code for the {@link CarPropertyResponse}.
+         *
+         * <p>If status is set to {@link CarValue#STATUS_SUCCESS}, then {@link #setValue(Object)}
+         * must be set with a non {@code null} value. If this condition is not met, {@link #build()}
+         * will throw an {@link IllegalArgumentException}.
+         */
         @NonNull
         public abstract Builder<T> setStatus(@CarValue.StatusCode int status);
 
@@ -103,8 +119,31 @@ public abstract class CarPropertyResponse<T> {
         @NonNull
         public abstract Builder<T> setCarZones(@NonNull List<CarZone> carZones);
 
-        /** Create an instance of {@link CarPropertyResponse}. */
+        /**
+         * Package-private method used internally by {@link #build()}. Declaring this method
+         * allows {@link #build()} to check {@link Preconditions}.
+         */
         @NonNull
-        public abstract CarPropertyResponse<T> build();
+        abstract CarPropertyResponse<T> autoBuild();
+
+        /**
+         * Create an instance of {@link CarPropertyResponse}.
+         *
+         * @throws IllegalArgumentException If {@link #getStatus()} is not
+         *                                  {@link CarValue#STATUS_SUCCESS} and {@link #getValue()}
+         *                                  is not {@code null}, or {@link #getStatus()} is
+         *                                  {@link CarValue#STATUS_SUCCESS} and {@link #getValue()}
+         *                                  is {@code null}.
+         */
+        @NonNull
+        public final CarPropertyResponse<T> build() {
+            CarPropertyResponse<T> carPropertyResponse = autoBuild();
+            Preconditions.checkState((carPropertyResponse.getStatus() == CarValue.STATUS_SUCCESS
+                            && carPropertyResponse.getValue() != null) || (
+                            carPropertyResponse.getStatus() != CarValue.STATUS_SUCCESS
+                                    && carPropertyResponse.getValue() == null),
+                    "Invalid status and value combo: " + carPropertyResponse);
+            return carPropertyResponse;
+        }
     }
 }

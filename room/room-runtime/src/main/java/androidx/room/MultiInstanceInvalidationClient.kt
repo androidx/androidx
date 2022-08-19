@@ -22,7 +22,7 @@ import android.content.Context
 import android.os.IBinder
 import android.os.RemoteException
 import android.util.Log
-import androidx.room.Room.Companion.LOG_TAG
+import androidx.room.Room.LOG_TAG
 import java.util.concurrent.Executor
 import java.util.concurrent.atomic.AtomicBoolean
 

@@ -18,9 +18,11 @@ package androidx.health.services.client
 
 import androidx.health.services.client.data.Availability
 import androidx.health.services.client.data.DataPoint
+import androidx.health.services.client.data.DataPointContainer
 import androidx.health.services.client.data.DataType
+import androidx.health.services.client.data.DeltaDataType
 
-/** Callback for [MeasureClient.registerCallback]. */
+/** Callback for [MeasureClient.registerMeasureCallback]. */
 public interface MeasureCallback {
 
     /** Called when this callback has been successfully registered with Health Services. */
@@ -38,15 +40,16 @@ public interface MeasureCallback {
     /**
      * Called when the availability of a [DataType] changes.
      *
-     * @param dataType the [DataType] that experienced a change in availability
+     * @param dataType the [DeltaDataType] that experienced a change in availability
      * @param availability the new [Availability] status for this [dataType]
      */
-    public fun onAvailabilityChanged(dataType: DataType, availability: Availability)
+    public fun onAvailabilityChanged(dataType: DeltaDataType<*, *>, availability: Availability)
 
     /**
-     * Called when new data is available. Data can be batched in a list of [DataPoint].
+     * Called when new data is available. Data may be batched.
      *
-     * @param data the (potentially batched) set of measured [DataPoint]s
+     * @param data the (potentially batched) set of measured [DataPoint]s corresponding to one or
+     * more of the requested [DeltaDataType]s
      */
-    public fun onDataReceived(data: List<@JvmSuppressWildcards DataPoint>)
+    public fun onDataReceived(data: DataPointContainer)
 }

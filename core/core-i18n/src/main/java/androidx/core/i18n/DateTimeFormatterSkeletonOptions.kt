@@ -16,7 +16,6 @@
 
 package androidx.core.i18n
 
-import android.util.Log
 import java.util.regex.Pattern
 
 /**
@@ -53,7 +52,7 @@ class DateTimeFormatterSkeletonOptions internal constructor(
     private val second: Second,
     private val fractionalSecond: FractionalSecond,
     private val timezone: Timezone
-) : DateTimeFormatterOptions {
+) {
 
     /**********************************************
      * Date fields
@@ -444,24 +443,34 @@ class DateTimeFormatterSkeletonOptions internal constructor(
     }
 
     companion object {
+        // WARNING: if you change this regexp also update the switch in [fromString]
         private val pattern = Pattern.compile("(G+)|(y+)|(M+)|(d+)|(E+)|" +
                 "(a+)|(B+)|(j+)|(h+)|(H+)|(m+)|(s+)|(S+)|(z+)|(O+)|(v+)")
         private val TAG = this::class.qualifiedName
 
         /**
-         * Creates the a [DateTimeFormatterOptions] object from a string.
+         * Creates the a [DateTimeFormatterSkeletonOptions] object from a string.
          *
          * Although less discoverable than using the `Builder`, it is useful for serialization,
          * and to implement the MessageFormat functionality.
          *
          * @param value the skeleton that specifies the fields to be formatted and their length.
          * @return the formatting options to use with [androidx.core.i18n.DateTimeFormatter].
+         *
+         * @throws IllegalArgumentException if the [value] contains an unknown skeleton field.
+         * @throws RuntimeException library error (unknown skeleton field encountered).
          */
         @JvmStatic
-        fun fromString(value: String): DateTimeFormatterOptions {
+        fun fromString(value: String): DateTimeFormatterSkeletonOptions {
             val result = Builder()
+            if (value.isEmpty()) {
+                return result.build()
+            }
+
+            var validFields = false
             val matcher = pattern.matcher(value)
             while (matcher.find()) {
+                validFields = true
                 val skeletonField = matcher.group()
                 when (skeletonField.firstOrNull()) {
                     'G' -> result.setEra(Era.fromString(skeletonField))
@@ -475,11 +484,15 @@ class DateTimeFormatterSkeletonOptions internal constructor(
                     's' -> result.setSecond(Second.fromString(skeletonField))
                     'S' -> result.setFractionalSecond(FractionalSecond.fromString(skeletonField))
                     'z', 'O', 'v' -> result.setTimezone(Timezone.fromString(skeletonField))
-                    else -> Log.w(
-                        TAG,
-                        "Unrecognized skeleton field '$skeletonField' in \"$value\". Ignored."
-                    )
+                    else ->
+                        // This should not happen, the regexp should protect us.
+                        throw RuntimeException(
+                            "Unrecognized skeleton field '$skeletonField' in \"${value}\".")
                 }
+            }
+            if (!validFields) {
+                throw IllegalArgumentException(
+                    "Unrecognized skeleton field found in \"${value}\".")
             }
             return result.build()
         }

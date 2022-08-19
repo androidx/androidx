@@ -16,12 +16,15 @@
 
 package androidx.compose.ui.layout
 
+import androidx.compose.ui.node.LookaheadCapablePlaceable
 import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.internal.JvmDefaultWithCompatibility
 
 /**
  * The receiver scope of a layout's measure lambda. The return value of the
  * measure lambda is [MeasureResult], which should be returned by [layout]
  */
+@JvmDefaultWithCompatibility
 interface MeasureScope : IntrinsicMeasureScope {
     /**
      * Sets the size and alignment lines of the measured layout, as well as
@@ -50,6 +53,7 @@ interface MeasureScope : IntrinsicMeasureScope {
             Placeable.PlacementScope.executeWithRtlMirroringValues(
                 width,
                 layoutDirection,
+                this@MeasureScope as? LookaheadCapablePlaceable,
                 placementBlock
             )
         }

@@ -1133,7 +1133,8 @@ public class WatchFaceImpl @UiThread constructor(
         IdAndComplicationStateWireFormat(
             it.key,
             ComplicationStateWireFormat(
-                it.value.computeBounds(renderer.screenBounds),
+                it.value.computeBounds(renderer.screenBounds, applyMargins = false),
+                it.value.computeBounds(renderer.screenBounds, applyMargins = true),
                 it.value.boundsType,
                 ComplicationType.toWireTypes(it.value.supportedTypes),
                 it.value.defaultDataSourcePolicy.dataSourcesAsList(),

@@ -34,6 +34,14 @@ interface WorkTagDao {
     fun insert(workTag: WorkTag)
 
     /**
+     * Deletes [WorkSpec]s from the database.
+     *
+     * @param id The WorkSpec id to delete.
+     */
+    @Query("DELETE FROM worktag WHERE work_spec_id=:id")
+    fun deleteByWorkSpecId(id: String)
+
+    /**
      * Retrieves all [WorkSpec] ids with the given tag.
      *
      * @param tag The matching tag
@@ -50,4 +58,8 @@ interface WorkTagDao {
      */
     @Query("SELECT DISTINCT tag FROM worktag WHERE work_spec_id=:id")
     fun getTagsForWorkSpecId(id: String): List<String>
+
+    fun insertTags(id: String, tags: Set<String>) {
+        tags.forEach { tag -> insert(WorkTag(tag, id)) }
+    }
 }

@@ -62,9 +62,9 @@ class EntityRowAdapter(val entity: Entity) : QueryMappedRowAdapter(entity.type) 
     }
 
     override fun onCursorReady(
-        indices: List<ColumnIndexVar>,
         cursorVarName: String,
-        scope: CodeGenScope
+        scope: CodeGenScope,
+        indices: List<ColumnIndexVar>
     ) {
         // Check if given indices are the default ones, i.e. onCursorReady() was called without
         // an indices argument and these are the default parameter ones, which means a wrapped

@@ -20,6 +20,9 @@ import android.graphics.Rect;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 /**
  * A propagation that varies with the distance to the epicenter of the Transition
  * or center of the scene if no epicenter exists. When a View is visible in the
@@ -54,8 +57,8 @@ public class CircularPropagation extends VisibilityPropagation {
     }
 
     @Override
-    public long getStartDelay(ViewGroup sceneRoot, Transition transition,
-            TransitionValues startValues, TransitionValues endValues) {
+    public long getStartDelay(@NonNull ViewGroup sceneRoot, @NonNull Transition transition,
+            @Nullable TransitionValues startValues, @Nullable TransitionValues endValues) {
         if (startValues == null && endValues == null) {
             return 0;
         }

@@ -28,10 +28,12 @@ import android.view.Surface;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.impl.Camera2CameraCaptureResultConverter;
 import androidx.camera.camera2.impl.Camera2ImplConfig;
 import androidx.camera.camera2.interop.CaptureRequestOptions;
+import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
 import androidx.camera.core.impl.CameraCaptureFailure;
 import androidx.camera.core.impl.CameraCaptureResult;
 import androidx.camera.core.impl.Config;
@@ -112,6 +114,7 @@ public class AdvancedSessionProcessor extends SessionProcessorBase {
         mImpl.deInitSession();
     }
 
+    @OptIn(markerClass = ExperimentalCamera2Interop.class)
     @Override
     public void setParameters(
             @NonNull Config parameters) {
@@ -253,6 +256,7 @@ public class AdvancedSessionProcessor extends SessionProcessorBase {
         private final int mTemplateId;
 
         @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+        @OptIn(markerClass = ExperimentalCamera2Interop.class)
         RequestAdapter(@NonNull RequestProcessorImpl.Request implRequest) {
             mImplRequest = implRequest;
 

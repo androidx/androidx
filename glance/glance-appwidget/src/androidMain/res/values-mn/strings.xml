@@ -17,6 +17,6 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="error_layout_title" msgid="7937809248738392417"><b>"Гялс харах аппын виджетийн алдаа"</b></string>
-    <string name="error_layout_text" msgid="6543889412094559379"><b><tt>"Adb logcat"</tt></b>" ашиглан, "<b><tt>"GlanceAppWidget"</tt></b>"-г хайж тодорхой алдааг шалгана уу"</string>
+    <string name="glance_error_layout_title" msgid="2896109737634971880"><b>"Гялс харах аппын виджетийн алдаа"</b></string>
+    <string name="glance_error_layout_text" msgid="8513923302775602854"><b><tt>"Adb logcat"</tt></b>" ашиглан, "<b><tt>"GlanceAppWidget"</tt></b>"-г хайж тодорхой алдааг шалгана уу"</string>
 </resources>

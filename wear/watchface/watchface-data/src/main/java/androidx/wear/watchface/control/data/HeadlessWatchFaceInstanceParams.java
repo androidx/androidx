@@ -35,7 +35,7 @@ import androidx.wear.watchface.data.DeviceConfig;
  *
  * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @VersionedParcelize
 @SuppressLint("BanParcelableUsage") // TODO(b/169214666): Remove Parcelable
 public class HeadlessWatchFaceInstanceParams implements VersionedParcelable, Parcelable {

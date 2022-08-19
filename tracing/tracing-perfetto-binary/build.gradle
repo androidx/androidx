@@ -15,6 +15,7 @@
  */
 
 import androidx.build.Publish
+import androidx.build.SupportConfigKt
 
 plugins {
     id("AndroidXPlugin")
@@ -22,11 +23,52 @@ plugins {
     id("kotlin-android")
 }
 
+/**
+ * When `reusePrebuiltsAar` is set to `true` reuses the AAR file from the ../../prebuilts directory.
+ * When `reusePrebuiltsAar` is set to `false` builds the project from scratch (from CXX) files.
+ *
+ * This was introduced to address the following issues that occurred when always building
+ * the project from scratch:
+ * - no stripping of debug symbols in 'test' configurations resulting in very large
+ *   files (200+ MB total) being added to e.g. each Benchmark project (b/228627720).
+ * - no caching due to the way CMake builds are currently handled in Android Gradle Plugin
+ *   resulting in always building the CXX files from scratch, which is very slow due to the
+ *   size of Perfetto SDK (b/230790969).
+ *
+ *  Additionally, using the prebuilts reference directly (instead of the project reference)
+ *  resulted in the project not getting published to Maven or Snapshot Builds (androidx.dev).
+ */
+
+def reusePrebuiltsAar = Boolean.parseBoolean(
+        System.getProperty("TRACING_PERFETTO_REUSE_PREBUILTS_AAR", "true")
+)
+def prebuiltsAarVersion = androidx.LibraryVersions.TRACING_PERFETTO
+def unzippedPrebuiltsAarDir = "$buildDir/unzipped-aar"
+
+if (reusePrebuiltsAar) {
+    def unzipTask = tasks.register("unzipPrebuiltsAarDir", Copy) {
+        def zipFile = SupportConfigKt.getPrebuiltsRoot(project).toPath().resolve(
+                "androidx/internal/androidx/tracing/tracing-perfetto-binary/$prebuiltsAarVersion/" +
+                        "tracing-perfetto-binary-${prebuiltsAarVersion}.aar"
+        )
+        from zipTree(zipFile)
+        into file(unzippedPrebuiltsAarDir)
+    }
+
+    tasks.findByName("preBuild").dependsOn(unzipTask)
+}
+
 android {
-    externalNativeBuild {
-        cmake {
-            path "src/main/cpp/CMakeLists.txt"
-            version libs.versions.cmake.get()
+    if (reusePrebuiltsAar) {
+        sourceSets {
+            main.jniLibs.srcDirs += new File(unzippedPrebuiltsAarDir, "jni")
+        }
+    } else { // build .so files from scratch
+        externalNativeBuild {
+            cmake {
+                path "src/main/cpp/CMakeLists.txt"
+                version libs.versions.cmake.get()
+            }
         }
     }
     namespace "androidx.tracing.perfetto.binary"
@@ -40,7 +82,7 @@ dependencies {
 
 androidx {
     name = "AndroidX Tracing: Perfetto SDK Native Dependencies"
-    publish = Publish.SNAPSHOT_ONLY
+    publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.TRACING_PERFETTO
     mavenGroup = LibraryGroups.TRACING
     inceptionYear = "2022"

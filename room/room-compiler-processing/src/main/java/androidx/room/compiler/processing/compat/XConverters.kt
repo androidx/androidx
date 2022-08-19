@@ -20,14 +20,18 @@ import androidx.room.compiler.processing.XAnnotation
 import androidx.room.compiler.processing.XAnnotationValue
 import androidx.room.compiler.processing.XElement
 import androidx.room.compiler.processing.XExecutableElement
+import androidx.room.compiler.processing.XExecutableParameterElement
 import androidx.room.compiler.processing.XExecutableType
+import androidx.room.compiler.processing.XFieldElement
 import androidx.room.compiler.processing.XFiler
 import androidx.room.compiler.processing.XMessager
+import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XProcessingEnv
 import androidx.room.compiler.processing.XRoundEnv
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.XVariableElement
+import androidx.room.compiler.processing.compat.XConverters.toXProcessing
 import androidx.room.compiler.processing.javac.JavacAnnotation
 import androidx.room.compiler.processing.javac.JavacAnnotationValue
 import androidx.room.compiler.processing.javac.JavacElement
@@ -40,6 +44,24 @@ import androidx.room.compiler.processing.javac.JavacRoundEnv
 import androidx.room.compiler.processing.javac.JavacType
 import androidx.room.compiler.processing.javac.JavacTypeElement
 import androidx.room.compiler.processing.javac.JavacVariableElement
+import androidx.room.compiler.processing.ksp.KspAnnotation
+import androidx.room.compiler.processing.ksp.KspAnnotationValue
+import androidx.room.compiler.processing.ksp.KspElement
+import androidx.room.compiler.processing.ksp.KspExecutableElement
+import androidx.room.compiler.processing.ksp.KspExecutableParameterElement
+import androidx.room.compiler.processing.ksp.KspExecutableType
+import androidx.room.compiler.processing.ksp.KspFieldElement
+import androidx.room.compiler.processing.ksp.KspProcessingEnv
+import androidx.room.compiler.processing.ksp.KspType
+import androidx.room.compiler.processing.ksp.KspTypeElement
+import androidx.room.compiler.processing.ksp.synthetic.KspSyntheticPropertyMethodElement
+import com.google.devtools.ksp.symbol.KSAnnotation
+import com.google.devtools.ksp.symbol.KSClassDeclaration
+import com.google.devtools.ksp.symbol.KSFunctionDeclaration
+import com.google.devtools.ksp.symbol.KSPropertyDeclaration
+import com.google.devtools.ksp.symbol.KSType
+import com.google.devtools.ksp.symbol.KSValueArgument
+import com.google.devtools.ksp.symbol.KSValueParameter
 import javax.annotation.processing.Filer
 import javax.annotation.processing.Messager
 import javax.annotation.processing.ProcessingEnvironment
@@ -53,7 +75,7 @@ import javax.lang.model.element.VariableElement
 import javax.lang.model.type.ExecutableType
 import javax.lang.model.type.TypeMirror
 
-// Migration APIs for converting between Javac and XProcessing types.
+// Migration APIs for converting between Javac, KSP, and XProcessing types.
 object XConverters {
     @JvmStatic
     fun XProcessingEnv.toJavac(): ProcessingEnvironment = (this as JavacProcessingEnv).delegate
@@ -120,6 +142,12 @@ object XConverters {
         JavacAnnotation(env as JavacProcessingEnv, this)
 
     @JvmStatic
+    fun AnnotationValue.toXProcessing(method: ExecutableElement, env: XProcessingEnv):
+        XAnnotationValue = JavacAnnotationValue(
+            env as JavacProcessingEnv, method.toXProcessing(env) as XMethodElement, this
+        )
+
+    @JvmStatic
     fun Filer.toXProcessing(env: XProcessingEnv): XFiler =
         JavacFiler(env as JavacProcessingEnv, this)
 
@@ -137,4 +165,117 @@ object XConverters {
     @JvmStatic
     fun TypeMirror.toXProcessing(env: XProcessingEnv): XType =
         (env as JavacProcessingEnv).wrap(this, null, null)
+
+    @JvmStatic
+    fun XTypeElement.toKS(): KSClassDeclaration = (this as KspTypeElement).declaration
+
+    @JvmStatic
+    fun XExecutableElement.toKS(): KSFunctionDeclaration =
+        when (this) {
+            is KspExecutableElement -> this.declaration
+            is KspSyntheticPropertyMethodElement ->
+                error("Kotlin properties don't have getters/setters in KSP")
+            else -> error("Don't know how to convert element of type '${this::class}' to KSP")
+        }
+
+    @JvmStatic
+    fun XFieldElement.toKS(): KSPropertyDeclaration = (this as KspFieldElement).declaration
+
+    @JvmStatic
+    fun XExecutableParameterElement.toKS(): KSValueParameter =
+        (this as KspExecutableParameterElement).declaration as KSValueParameter
+
+    @JvmStatic
+    fun XAnnotation.toKS(): KSAnnotation = (this as KspAnnotation).ksAnnotated
+
+    @JvmStatic
+    fun XAnnotationValue.toKS(): KSValueArgument = (this as KspAnnotationValue).valueArgument
+
+    @JvmStatic
+    fun XType.toKS(): KSType = (this as KspType).ksType
+
+    @JvmStatic
+    fun KSClassDeclaration.toXProcessing(env: XProcessingEnv): XTypeElement =
+        (env as KspProcessingEnv).wrapClassDeclaration(this)
+
+    @JvmStatic
+    fun KSFunctionDeclaration.toXProcessing(env: XProcessingEnv): XExecutableElement =
+        KspExecutableElement.create(env as KspProcessingEnv, this)
+
+    @JvmStatic
+    fun KSValueParameter.toXProcessing(env: XProcessingEnv): XVariableElement =
+        KspExecutableParameterElement.create(env as KspProcessingEnv, this)
+
+    @JvmStatic
+    fun KSPropertyDeclaration.toXProcessing(env: XProcessingEnv): XVariableElement =
+        KspFieldElement.create(env as KspProcessingEnv, this)
+
+    @JvmStatic
+    fun KSAnnotation.toXProcessing(env: XProcessingEnv): XAnnotation =
+        KspAnnotation(env as KspProcessingEnv, this)
+
+    @JvmStatic
+    fun KSValueArgument.toXProcessing(env: XProcessingEnv): XAnnotationValue {
+        val kspAnnotation = (this.parent as KSAnnotation).toXProcessing(env) as KspAnnotation
+        return KspAnnotationValue(
+            env as KspProcessingEnv,
+            kspAnnotation,
+            kspAnnotation.type,
+            this
+        )
+    }
+
+    @JvmStatic
+    fun KSType.toXProcessing(env: XProcessingEnv): XType =
+        (env as KspProcessingEnv).wrap(this, true)
+
+    @Deprecated("This will be removed in a future version of XProcessing.")
+    @JvmStatic
+    fun XType.getProcessingEnv(): XProcessingEnv {
+        return when (this) {
+            is JavacType -> this.env
+            is KspType -> this.env
+            else -> error("Unexpected type: $this")
+        }
+    }
+
+    @Deprecated("This will be removed in a future version of XProcessing.")
+    @JvmStatic
+    fun XElement.getProcessingEnv(): XProcessingEnv {
+        return when (this) {
+            is JavacElement -> this.env
+            is KspElement -> this.env
+            else -> error("Unexpected element: $this")
+        }
+    }
+
+    @Deprecated("This will be removed in a future version of XProcessing.")
+    @JvmStatic
+    fun XAnnotation.getProcessingEnv(): XProcessingEnv {
+        return when (this) {
+            is JavacAnnotation -> this.env
+            is KspAnnotation -> this.env
+            else -> error("Unexpected annotation type: $this")
+        }
+    }
+
+    @Deprecated("This will be removed in a future version of XProcessing.")
+    @JvmStatic
+    fun XAnnotationValue.getProcessingEnv(): XProcessingEnv {
+        return when (this) {
+            is JavacAnnotationValue -> this.env
+            is KspAnnotationValue -> this.env
+            else -> error("Unexpected annotation value: $this")
+        }
+    }
+
+    @Deprecated("This will be removed in a future version of XProcessing.")
+    @JvmStatic
+    fun XExecutableType.getProcessingEnv(): XProcessingEnv {
+        return when (this) {
+            is JavacExecutableType -> this.env
+            is KspExecutableType -> this.env
+            else -> error("Unexpected executable type: $this")
+        }
+    }
 }

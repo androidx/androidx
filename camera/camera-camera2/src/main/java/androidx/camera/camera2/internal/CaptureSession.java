@@ -221,7 +221,7 @@ final class CaptureSession implements CaptureSessionInterface {
                         }
 
                         @Override
-                        public void onFailure(Throwable t) {
+                        public void onFailure(@NonNull Throwable t) {
                             synchronized (mSessionLock) {
                                 // Stop the Opener if we get any failure during opening.
                                 mSynchronizedCaptureSessionOpener.stop();
@@ -314,6 +314,12 @@ final class CaptureSession implements CaptureSessionInterface {
                                         outputConfig,
                                         mConfiguredSurfaceMap,
                                         physicalCameraIdForAllStreams);
+                        if (sessionConfig.getImplementationOptions().containsOption(
+                                Camera2ImplConfig.STREAM_USE_CASE_OPTION)) {
+                            outputConfiguration.setStreamUseCase(
+                                    sessionConfig.getImplementationOptions().retrieveOption(
+                                            Camera2ImplConfig.STREAM_USE_CASE_OPTION));
+                        }
                         outputConfigList.add(outputConfiguration);
                     }
 

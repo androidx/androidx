@@ -24,6 +24,7 @@ import com.google.android.gms.nearby.uwb.RangingMeasurement
 import com.google.android.gms.nearby.uwb.RangingParameters
 import com.google.android.gms.nearby.uwb.RangingPosition
 import com.google.android.gms.nearby.uwb.RangingSessionCallback
+import com.google.android.gms.nearby.uwb.RangingSessionCallback.RangingSuspendedReason.STOP_RANGING_CALLED
 import com.google.android.gms.nearby.uwb.UwbAddress
 import com.google.android.gms.nearby.uwb.UwbClient
 import com.google.android.gms.nearby.uwb.UwbComplexChannel
@@ -38,7 +39,8 @@ class TestUwbClient(
     val complexChannel: UwbComplexChannel,
     val localAddress: UwbAddress,
     val rangingCapabilities: RangingCapabilities,
-    val isAvailable: Boolean
+    val isAvailable: Boolean,
+    private val isController: Boolean
 ) : UwbClient {
     var stopRangingCalled = false
         private set
@@ -50,6 +52,17 @@ class TestUwbClient(
     }
     override fun getApiKey(): ApiKey<zze> {
         TODO("Not yet implemented")
+    }
+
+    override fun addControlee(p0: UwbAddress): Task<Void> {
+        if (!isController) {
+            throw RuntimeException("Illegal api calls for controlee client.")
+        }
+        if (!startedRanging) {
+            throw ApiException(Status(UwbStatusCodes.INVALID_API_CALL))
+        }
+        callback.onRangingResult(UwbDevice.createForAddress(p0.address), rangingPosition)
+        return Tasks.forResult(null)
     }
 
     override fun getComplexChannel(): Task<UwbComplexChannel> {
@@ -68,6 +81,17 @@ class TestUwbClient(
         return Tasks.forResult(isAvailable)
     }
 
+    override fun removeControlee(p0: UwbAddress): Task<Void> {
+        if (!isController) {
+            throw RuntimeException("Illegal api calls for controlee client.")
+        }
+        if (!startedRanging) {
+            throw ApiException(Status(UwbStatusCodes.INVALID_API_CALL))
+        }
+        callback.onRangingSuspended(UwbDevice.createForAddress(p0.address), STOP_RANGING_CALLED)
+        return Tasks.forResult(null)
+    }
+
     override fun startRanging(
         parameters: RangingParameters,
         sessionCallback: RangingSessionCallback
@@ -76,8 +100,13 @@ class TestUwbClient(
             throw ApiException(Status(UwbStatusCodes.RANGING_ALREADY_STARTED))
         }
         callback = sessionCallback
-        val peer = parameters.peerDevices.first()
-        callback.onRangingResult(peer, rangingPosition)
+        if (isController) {
+            for (peer in parameters.peerDevices) {
+                callback.onRangingResult(peer, rangingPosition)
+            }
+        } else {
+            callback.onRangingResult(parameters.peerDevices.first(), rangingPosition)
+        }
         startedRanging = true
         return Tasks.forResult(null)
     }

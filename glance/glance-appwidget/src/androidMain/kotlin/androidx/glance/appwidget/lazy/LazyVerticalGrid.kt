@@ -36,7 +36,7 @@ import androidx.compose.ui.unit.Dp
  * [LazyVerticalGridScope.items] to add a list of items.
  */
 @Composable
-public fun LazyVerticalGrid(
+fun LazyVerticalGrid(
     gridCells: GridCells,
     modifier: GlanceModifier = GlanceModifier,
     horizontalAlignment: Alignment.Horizontal = Alignment.Start,
@@ -231,8 +231,8 @@ internal abstract class EmittableLazyVerticalGridList : EmittableWithChildren(
   resetsDepthForChildren = true
   ) {
   override var modifier: GlanceModifier = GlanceModifier
-  public var horizontalAlignment: Alignment.Horizontal = Alignment.Start
-  public var gridCells: GridCells = GridCells.Fixed(1)
+  var horizontalAlignment: Alignment.Horizontal = Alignment.Start
+  var gridCells: GridCells = GridCells.Fixed(1)
 
   override fun toString() =
       "EmittableLazyVerticalGridList(modifier=$modifier, " +

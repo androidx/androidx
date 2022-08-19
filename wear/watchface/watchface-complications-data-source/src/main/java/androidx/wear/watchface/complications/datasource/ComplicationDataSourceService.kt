@@ -65,11 +65,12 @@ public class ComplicationRequest(
     public val complicationType: ComplicationType = complicationType
 
     /**
-     * If `true` then
-     * [ComplicationRequestListener.onComplicationData] should be called as soon as possible
-     * (ideally less than 100ms instead of the usual 20s deadline). This will only be `true` within
-     * a [ComplicationDataSourceService.onStartImmediateComplicationRequests]
-     * [ComplicationDataSourceService.onStopImmediateComplicationRequests] pair.
+     * If `true` then [ComplicationRequestListener.onComplicationData] should be called as soon as
+     * possible (ideally less than 100ms instead of the usual 20s deadline). This will only be
+     * `true` within a [ComplicationDataSourceService.onStartImmediateComplicationRequests]
+     * [ComplicationDataSourceService.onStopImmediateComplicationRequests] pair which will not be
+     * called unless the [ComplicationDataSourceService] has privileged permission
+     * `com.google.android.wearable.permission.USE_IMMEDIATE_COMPLICATION_UPDATE`.
      */
     @get:JvmName("isImmediateResponseRequired")
     public val immediateResponseRequired = immediateResponseRequired
@@ -296,7 +297,7 @@ public abstract class ComplicationDataSourceService : Service() {
     /**
      * If a metadata key with [METADATA_KEY_IMMEDIATE_UPDATE_PERIOD_MILLISECONDS] is present in the
      * manifest, and the provider has privileged permission
-     * com.google.android.wearable.permission.USE_IMMEDIATE_COMPLICATION_UPDATE, then
+     * `com.google.android.wearable.permission.USE_IMMEDIATE_COMPLICATION_UPDATE`, then
      * [onStartImmediateComplicationRequests] will be called when the watch
      * face is visible and non-ambient. A series of [onComplicationRequest]s will follow where
      * [ComplicationRequest.immediateResponseRequired] is `true`, ending with a call to
@@ -312,7 +313,7 @@ public abstract class ComplicationDataSourceService : Service() {
     /**
      * If a metadata key with [METADATA_KEY_IMMEDIATE_UPDATE_PERIOD_MILLISECONDS] is present in the
      * manifest, and the provider has privileged permission
-     * com.google.android.wearable.permission.USE_IMMEDIATE_COMPLICATION_UPDATE, then
+     * `com.google.android.wearable.permission.USE_IMMEDIATE_COMPLICATION_UPDATE`, then
      * [onStartImmediateComplicationRequests] will be called when the watch face ceases to be
      * visible and non-ambient. No subsequent calls to [onComplicationRequest] where
      * [ComplicationRequest.immediateResponseRequired] is `true` will be made unless the

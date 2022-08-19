@@ -43,6 +43,7 @@ class AndroidXIssueRegistry : IssueRegistry() {
                 BanConcurrentHashMap.ISSUE,
                 BanInappropriateExperimentalUsage.ISSUE,
                 BanInappropriateExperimentalUsage.NULL_ANNOTATION_GROUP_ISSUE,
+                BanInlineOptIn.ISSUE,
                 BanKeepAnnotation.ISSUE,
                 TargetApiAnnotationUsageDetector.ISSUE,
                 // If you add more SampledAnnotationDetector issues here, you
@@ -62,7 +63,9 @@ class AndroidXIssueRegistry : IssueRegistry() {
                 PrivateConstructorForUtilityClassDetector.ISSUE,
                 ClassVerificationFailureDetector.ISSUE,
                 IdeaSuppressionDetector.ISSUE,
-                CameraXQuirksClassDetector.ISSUE
+                CameraXQuirksClassDetector.ISSUE,
+                NullabilityAnnotationsDetector.ISSUE,
+                IgnoreClassLevelDetector.ISSUE,
             )
         }
     }

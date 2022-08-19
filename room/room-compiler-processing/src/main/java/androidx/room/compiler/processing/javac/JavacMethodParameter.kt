@@ -26,11 +26,10 @@ import javax.lang.model.element.VariableElement
 internal class JavacMethodParameter(
     env: JavacProcessingEnv,
     override val enclosingElement: JavacExecutableElement,
-    containing: JavacTypeElement,
     element: VariableElement,
     kotlinMetadataFactory: () -> KmValueParameter?,
     val argIndex: Int
-) : JavacVariableElement(env, containing, element), XExecutableParameterElement {
+) : JavacVariableElement(env, element), XExecutableParameterElement {
 
     private val kotlinMetadata by lazy { kotlinMetadataFactory() }
 

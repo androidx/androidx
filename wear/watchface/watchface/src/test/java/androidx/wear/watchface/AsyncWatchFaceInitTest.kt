@@ -112,7 +112,7 @@ internal class TestAsyncWatchFaceService(
     ) {
     }
 
-    override fun expectPreRInitFlow() = false
+    override fun isPreAndroidR() = false
 }
 
 @Config(manifest = Config.NONE)

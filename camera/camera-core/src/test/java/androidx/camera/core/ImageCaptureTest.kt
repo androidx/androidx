@@ -103,7 +103,6 @@ class ImageCaptureTest {
     @Throws(ExecutionException::class, InterruptedException::class)
     fun setUp() {
         val cameraInfo = FakeCameraInfoInternal().apply {
-            isYuvReprocessingSupported = true
             isPrivateReprocessingSupported = true
         }
 

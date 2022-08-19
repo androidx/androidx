@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.3.0-alpha07" type="baseline" client="gradle" dependencies="false" name="AGP (7.3.0-alpha07)" variant="all" version="7.3.0-alpha07">
+<issues format="6" by="lint 7.4.0-alpha08" type="baseline" client="cli" dependencies="false" name="AGP (7.4.0-alpha08)" variant="all" version="7.4.0-alpha08">
 
     <issue
         id="UnknownNullness"
@@ -22,15 +22,6 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public void drainTasks(int time, TimeUnit timeUnit)"
-        errorLine2="                                     ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/arch/core/executor/testing/CountingTaskExecutorRule.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    protected void starting(Description description) {"
         errorLine2="                            ~~~~~~~~~~~">
         <location
@@ -44,60 +35,6 @@
         errorLine2="                            ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/arch/core/executor/testing/InstantTaskExecutorRule.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public TaskExecutor getTaskExecutor() {"
-        errorLine2="           ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/arch/core/executor/JunitTaskExecutorRule.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public Statement apply(final Statement base, Description description) {"
-        errorLine2="           ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/arch/core/executor/JunitTaskExecutorRule.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public Statement apply(final Statement base, Description description) {"
-        errorLine2="                                 ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/arch/core/executor/JunitTaskExecutorRule.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public Statement apply(final Statement base, Description description) {"
-        errorLine2="                                                 ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/arch/core/executor/JunitTaskExecutorRule.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public void executeOnDiskIO(Runnable runnable) {"
-        errorLine2="                                ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/arch/core/executor/TaskExecutorWithFakeMainThread.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public void postToMainThread(Runnable runnable) {"
-        errorLine2="                                 ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/arch/core/executor/TaskExecutorWithFakeMainThread.java"/>
     </issue>
 
 </issues>
