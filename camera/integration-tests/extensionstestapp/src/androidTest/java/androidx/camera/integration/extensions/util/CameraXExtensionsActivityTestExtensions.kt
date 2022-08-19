@@ -16,8 +16,7 @@
 
 package androidx.camera.integration.extensions.util
 
-import androidx.annotation.RequiresApi
-import androidx.camera.integration.extensions.Camera2ExtensionsActivity
+import androidx.camera.integration.extensions.CameraExtensionsActivity
 import androidx.camera.integration.extensions.R
 import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso
@@ -28,16 +27,15 @@ import androidx.test.espresso.matcher.ViewMatchers
 import androidx.testutils.withActivity
 
 /**
- * Waits until the capture session has been configured and its idling resource has become idle.
+ * Waits until the initialization idling resource has become idle.
  */
-@RequiresApi(31)
-internal fun ActivityScenario<Camera2ExtensionsActivity>.waitForCaptureSessionConfiguredIdle() {
+internal fun ActivityScenario<CameraExtensionsActivity>.waitForInitializationIdle() {
     val idlingResource = withActivity {
-        getCaptureSessionConfiguredIdlingResource()
+        initializationIdlingResource
     }
     try {
         IdlingRegistry.getInstance().register(idlingResource)
-        // Waits for the CaptureSessionConfiguredIdlingResource becoming idle
+        // Waits for the initializationIdlingResource becoming idle
         Espresso.onIdle()
     } finally { // Always releases the idling resource, in case of timeout exceptions.
         IdlingRegistry.getInstance().unregister(idlingResource)
@@ -45,17 +43,16 @@ internal fun ActivityScenario<Camera2ExtensionsActivity>.waitForCaptureSessionCo
 }
 
 /**
- * Waits until the preview has received frames and its idling resource has become idle.
+ * Waits until the PreviewView has become STREAMING state and its idling resource has become idle.
  */
-@RequiresApi(31)
-internal fun ActivityScenario<Camera2ExtensionsActivity>.waitForPreviewIdle() {
+internal fun ActivityScenario<CameraExtensionsActivity>.waitForPreviewIdle() {
     val idlingResource = withActivity {
-        resetPreviewIdlingResource()
-        getPreviewIdlingResource()
+        resetPreviewViewStreamingStateIdlingResource()
+        previewViewStreamingStateIdlingResource
     }
     try {
         IdlingRegistry.getInstance().register(idlingResource)
-        // Waits for the PreviewIdlingResource becoming idle
+        // Waits for the previewViewStreamingStateIdlingResource becoming idle
         Espresso.onView(ViewMatchers.withId(R.id.viewFinder))
             .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
     } finally { // Always releases the idling resource, in case of timeout exceptions.
@@ -66,17 +63,15 @@ internal fun ActivityScenario<Camera2ExtensionsActivity>.waitForPreviewIdle() {
 /**
  * Waits until captured image has been saved and its idling resource has become idle.
  */
-@RequiresApi(31)
-internal fun ActivityScenario<Camera2ExtensionsActivity>.waitForImageSavedIdle() {
+internal fun ActivityScenario<CameraExtensionsActivity>.takePictureAndWaitForImageSavedIdle() {
     val idlingResource = withActivity {
-        getImageSavedIdlingResource()
+        takePictureIdlingResource
     }
     try {
         IdlingRegistry.getInstance().register(idlingResource)
-        // Performs click action and waits for the ImageSavedIdlingResource becoming idle
+        // Performs click action and waits for the takePictureIdlingResource becoming idle
         Espresso.onView(ViewMatchers.withId(R.id.Picture)).perform(ViewActions.click())
     } finally { // Always releases the idling resource, in case of timeout exceptions.
         IdlingRegistry.getInstance().unregister(idlingResource)
-        withActivity { deleteSessionImages() }
     }
 }

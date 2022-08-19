@@ -23,8 +23,9 @@ import androidx.camera.camera2.Camera2Config
 import androidx.camera.integration.extensions.Camera2ExtensionsActivity
 import androidx.camera.integration.extensions.IntentExtraKey.INTENT_EXTRA_KEY_CAMERA_ID
 import androidx.camera.integration.extensions.IntentExtraKey.INTENT_EXTRA_KEY_EXTENSION_MODE
+import androidx.camera.integration.extensions.util.BASIC_SAMPLE_PACKAGE
 import androidx.camera.integration.extensions.util.Camera2ExtensionsTestUtil
-import androidx.camera.integration.extensions.util.EXTENSIONS_TEST_APP_PACKAGE
+import androidx.camera.integration.extensions.util.CameraXExtensionsTestUtil
 import androidx.camera.integration.extensions.util.waitForCaptureSessionConfiguredIdle
 import androidx.camera.integration.extensions.util.waitForImageSavedIdle
 import androidx.camera.integration.extensions.util.waitForPreviewIdle
@@ -80,7 +81,7 @@ class Camera2ExtensionsActivityTest(
     @Before
     fun setup() {
         Assume.assumeTrue(CameraUtil.deviceHasCamera())
-        CoreAppTestUtil.assumeCompatibleDevice()
+        assumeTrue(CameraXExtensionsTestUtil.isTargetDeviceAvailableForExtensions())
         // Clears the device UI and check if there is no dialog or lock screen on the top of the
         // window before start the test.
         CoreAppTestUtil.prepareDeviceUI(InstrumentationRegistry.getInstrumentation())
@@ -209,7 +210,7 @@ class Camera2ExtensionsActivityTest(
         val context = ApplicationProvider.getApplicationContext<Context>()
         assumeTrue(isCamera2ExtensionModeSupported(context, cameraId, extensionMode))
         val intent = context.packageManager
-            .getLaunchIntentForPackage(EXTENSIONS_TEST_APP_PACKAGE)!!.apply {
+            .getLaunchIntentForPackage(BASIC_SAMPLE_PACKAGE)!!.apply {
                 putExtra(INTENT_EXTRA_KEY_CAMERA_ID, cameraId)
                 putExtra(INTENT_EXTRA_KEY_EXTENSION_MODE, extensionMode)
                 setClassName(context, Camera2ExtensionsActivity::class.java.name)

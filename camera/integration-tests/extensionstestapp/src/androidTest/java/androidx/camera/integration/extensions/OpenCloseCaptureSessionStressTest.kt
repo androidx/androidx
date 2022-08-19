@@ -40,9 +40,9 @@ import androidx.camera.core.impl.OptionsBundle
 import androidx.camera.core.impl.UseCaseConfigFactory
 import androidx.camera.extensions.ExtensionMode
 import androidx.camera.extensions.ExtensionsManager
-import androidx.camera.integration.extensions.util.ExtensionsTestUtil
-import androidx.camera.integration.extensions.util.ExtensionsTestUtil.STRESS_TEST_OPERATION_REPEAT_COUNT
-import androidx.camera.integration.extensions.util.ExtensionsTestUtil.STRESS_TEST_REPEAT_COUNT
+import androidx.camera.integration.extensions.util.CameraXExtensionsTestUtil
+import androidx.camera.integration.extensions.util.CameraXExtensionsTestUtil.STRESS_TEST_OPERATION_REPEAT_COUNT
+import androidx.camera.integration.extensions.util.CameraXExtensionsTestUtil.STRESS_TEST_REPEAT_COUNT
 import androidx.camera.integration.extensions.utils.CameraSelectorUtil
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.CameraUtil
@@ -104,7 +104,7 @@ class OpenCloseCaptureSessionStressTest(
 
     @Before
     fun setUp(): Unit = runBlocking {
-        assumeTrue(ExtensionsTestUtil.isTargetDeviceAvailableForExtensions())
+        assumeTrue(CameraXExtensionsTestUtil.isTargetDeviceAvailableForExtensions())
         cameraProvider = ProcessCameraProvider.getInstance(context)[10000, TimeUnit.MILLISECONDS]
         extensionsManager = ExtensionsManager.getInstanceAsync(
             context,
@@ -221,7 +221,7 @@ class OpenCloseCaptureSessionStressTest(
         @JvmStatic
         @get:Parameterized.Parameters(name = "cameraId = {0}, extensionMode = {1}")
         val parameters: Collection<Array<Any>>
-            get() = ExtensionsTestUtil.getAllCameraIdExtensionModeCombinations()
+            get() = CameraXExtensionsTestUtil.getAllCameraIdExtensionModeCombinations()
 
         /**
          * Retrieves the default extended camera config provider id string
