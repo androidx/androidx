@@ -18,31 +18,31 @@ package androidx.camera.integration.extensions
 
 import android.Manifest
 import android.content.Context
-import android.content.Intent
 import androidx.camera.camera2.Camera2Config
 import androidx.camera.extensions.ExtensionMode
-import androidx.camera.integration.extensions.IntentExtraKey.INTENT_EXTRA_KEY_CAMERA_ID
-import androidx.camera.integration.extensions.IntentExtraKey.INTENT_EXTRA_KEY_DELETE_CAPTURED_IMAGE
-import androidx.camera.integration.extensions.IntentExtraKey.INTENT_EXTRA_KEY_EXTENSION_MODE
-import androidx.camera.integration.extensions.util.ExtensionsTestUtil
-import androidx.camera.integration.extensions.util.ExtensionsTestUtil.STRESS_TEST_OPERATION_REPEAT_COUNT
+import androidx.camera.extensions.ExtensionsManager
+import androidx.camera.integration.extensions.util.CameraXExtensionsTestUtil
+import androidx.camera.integration.extensions.util.CameraXExtensionsTestUtil.STRESS_TEST_OPERATION_REPEAT_COUNT
+import androidx.camera.integration.extensions.util.CameraXExtensionsTestUtil.launchCameraExtensionsActivity
+import androidx.camera.integration.extensions.util.HOME_TIMEOUT_MS
+import androidx.camera.integration.extensions.util.takePictureAndWaitForImageSavedIdle
+import androidx.camera.integration.extensions.util.waitForPreviewIdle
+import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CameraUtil.PreTestCameraIdList
 import androidx.camera.testing.CoreAppTestUtil
 import androidx.camera.testing.LabTestRule
 import androidx.camera.testing.StressTestRule
-import androidx.camera.testing.waitForIdle
-import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.action.ViewActions
-import androidx.test.espresso.idling.CountingIdlingResource
 import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.GrantPermissionRule
 import androidx.test.uiautomator.UiDevice
 import androidx.testutils.RepeatRule
+import java.util.concurrent.TimeUnit
 import org.junit.After
 import org.junit.Assume.assumeTrue
 import org.junit.Before
@@ -51,8 +51,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
-
-private const val BASIC_SAMPLE_PACKAGE = "androidx.camera.integration.extensions"
 
 /**
  * Stress tests to verify that Preview and ImageCapture can work well when switching modes.
@@ -68,24 +66,17 @@ class SwitchAvailableModesStressTest(private val cameraId: String) {
     )
 
     @get:Rule
-    val labTest: LabTestRule = LabTestRule()
-
-    @get:Rule
-    val repeatRule = RepeatRule()
-
-    @get:Rule
     val storagePermissionRule =
         GrantPermissionRule.grant(Manifest.permission.WRITE_EXTERNAL_STORAGE)!!
 
-    private lateinit var activityScenario: ActivityScenario<CameraExtensionsActivity>
+    private val context = ApplicationProvider.getApplicationContext<Context>()
 
-    private lateinit var initializationIdlingResource: CountingIdlingResource
-    private lateinit var previewViewIdlingResource: CountingIdlingResource
-    private lateinit var takePictureIdlingResource: CountingIdlingResource
+    private var firstSupportedExtensionMode: Int = ExtensionMode.NONE
 
     companion object {
         @ClassRule
-        @JvmField val stressTest = StressTestRule()
+        @JvmField
+        val stressTest = StressTestRule()
 
         @Parameterized.Parameters(name = "cameraId = {0}")
         @JvmStatic
@@ -93,93 +84,95 @@ class SwitchAvailableModesStressTest(private val cameraId: String) {
     }
 
     @Before
-    fun setUp() {
-        assumeTrue(ExtensionsTestUtil.isTargetDeviceAvailableForExtensions())
+    fun setup() {
+        assumeTrue(CameraUtil.deviceHasCamera())
+        assumeTrue(CameraXExtensionsTestUtil.isTargetDeviceAvailableForExtensions())
         // Clear the device UI and check if there is no dialog or lock screen on the top of the
-        // window before starting the test.
+        // window before start the test.
         CoreAppTestUtil.prepareDeviceUI(InstrumentationRegistry.getInstrumentation())
         // Use the natural orientation throughout these tests to ensure the activity isn't
         // recreated unexpectedly. This will also freeze the sensors until
         // mDevice.unfreezeRotation() in the tearDown() method. Any simulated rotations will be
         // explicitly initiated from within the test.
         device.setOrientationNatural()
+
+        val cameraProvider =
+            ProcessCameraProvider.getInstance(context)[10000, TimeUnit.MILLISECONDS]
+
+        val extensionsManager = ExtensionsManager.getInstanceAsync(
+            context,
+            cameraProvider
+        )[10000, TimeUnit.MILLISECONDS]
+
+        // Checks whether any extension mode can be supported first before launching the activity.
+        CameraXExtensionsTestUtil.assumeAnyExtensionModeSupported(
+            extensionsManager,
+            cameraId
+        )
+
+        firstSupportedExtensionMode =
+            CameraXExtensionsTestUtil.getFirstSupportedExtensionMode(extensionsManager, cameraId)
     }
 
     @After
     fun tearDown() {
+        val cameraProvider =
+            ProcessCameraProvider.getInstance(context)[10000, TimeUnit.MILLISECONDS]
+        cameraProvider.shutdown()
+
+        val extensionsManager = ExtensionsManager.getInstanceAsync(
+            context,
+            cameraProvider
+        )[10000, TimeUnit.MILLISECONDS]
+        extensionsManager.shutdown()
+
         // Unfreeze rotation so the device can choose the orientation via its own policy. Be nice
         // to other tests :)
         device.unfreezeRotation()
-
-        if (::activityScenario.isInitialized) {
-            activityScenario.onActivity { it.finish() }
-        }
+        device.pressHome()
+        device.waitForIdle(HOME_TIMEOUT_MS)
     }
 
     @LabTestRule.LabTestOnly
     @Test
-    @RepeatRule.Repeat(times = ExtensionsTestUtil.STRESS_TEST_REPEAT_COUNT)
+    @RepeatRule.Repeat(times = CameraXExtensionsTestUtil.STRESS_TEST_REPEAT_COUNT)
     fun switchModeTenTimes_canCaptureImageInEachTime() {
-        launchActivityAndRetrieveIdlingResources()
+        val activityScenario = launchCameraExtensionsActivity(cameraId, firstSupportedExtensionMode)
 
-        for (i in 1..STRESS_TEST_OPERATION_REPEAT_COUNT) {
-            // Issues take picture.
-            Espresso.onView(ViewMatchers.withId(R.id.Picture)).perform(ViewActions.click())
+        with(activityScenario) {
+            use {
+                repeat(STRESS_TEST_OPERATION_REPEAT_COUNT) {
+                    // Switches to next available mode
+                    Espresso.onView(ViewMatchers.withId(R.id.PhotoToggle))
+                        .perform(ViewActions.click())
 
-            // Waits for the take picture success callback.
-            takePictureIdlingResource.waitForIdle()
+                    // Waits for preview view turned to STREAMING state after switching mode
+                    waitForPreviewIdle()
 
-            previewViewIdlingResource.increment()
-
-            // Switches to next available mode
-            Espresso.onView(ViewMatchers.withId(R.id.PhotoToggle)).perform(ViewActions.click())
-
-            // Waits for preview view turned to STREAMING state after switching camera
-            previewViewIdlingResource.waitForIdle()
+                    // Waits for the take picture success callback.
+                    takePictureAndWaitForImageSavedIdle()
+                }
+            }
         }
     }
 
     @LabTestRule.LabTestOnly
     @Test
-    @RepeatRule.Repeat(times = ExtensionsTestUtil.STRESS_TEST_REPEAT_COUNT)
+    @RepeatRule.Repeat(times = CameraXExtensionsTestUtil.STRESS_TEST_REPEAT_COUNT)
     fun canCaptureImage_afterSwitchModeTenTimes() {
-        launchActivityAndRetrieveIdlingResources()
+        val activityScenario = launchCameraExtensionsActivity(cameraId, firstSupportedExtensionMode)
 
-        // Switches to next available mode ten times
-        for (i in 1..STRESS_TEST_OPERATION_REPEAT_COUNT) {
-            Espresso.onView(ViewMatchers.withId(R.id.PhotoToggle)).perform(ViewActions.click())
-        }
+        with(activityScenario) {
+            use {
+                repeat(STRESS_TEST_OPERATION_REPEAT_COUNT) {
+                    // Switches to next available mode
+                    Espresso.onView(ViewMatchers.withId(R.id.PhotoToggle))
+                        .perform(ViewActions.click())
 
-        // Issues take picture.
-        Espresso.onView(ViewMatchers.withId(R.id.Picture)).perform(ViewActions.click())
-
-        // Waits for the take picture success callback.
-        takePictureIdlingResource.waitForIdle()
-    }
-
-    private fun launchActivityAndRetrieveIdlingResources() {
-        val intent = ApplicationProvider.getApplicationContext<Context>().packageManager
-            .getLaunchIntentForPackage(BASIC_SAMPLE_PACKAGE)?.apply {
-                putExtra(INTENT_EXTRA_KEY_CAMERA_ID, cameraId)
-                putExtra(INTENT_EXTRA_KEY_EXTENSION_MODE, ExtensionMode.NONE)
-                putExtra(INTENT_EXTRA_KEY_DELETE_CAPTURED_IMAGE, true)
-                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                    // Waits for the take picture success callback.
+                    takePictureAndWaitForImageSavedIdle()
+                }
             }
-
-        activityScenario = ActivityScenario.launch(intent)
-
-        activityScenario.onActivity {
-            initializationIdlingResource = it.initializationIdlingResource
-            previewViewIdlingResource = it.previewViewStreamingStateIdlingResource
-            takePictureIdlingResource = it.takePictureIdlingResource
         }
-
-        // Waits for CameraExtensionsActivity's initialization to be complete
-        initializationIdlingResource.waitForIdle()
-
-        // Waits for preview view turned to STREAMING state to make sure that the capture session
-        // has been created and the capture stages can be retrieved from the vendor library
-        // successfully.
-        previewViewIdlingResource.waitForIdle()
     }
 }

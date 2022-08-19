@@ -16,12 +16,15 @@
 
 package androidx.camera.integration.extensions.util
 
+import android.content.Context
+import android.content.Intent
 import android.hardware.camera2.CameraCharacteristics
 import android.os.Build
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.Preview
 import androidx.camera.extensions.ExtensionMode
+import androidx.camera.extensions.ExtensionsManager
 import androidx.camera.extensions.impl.AutoImageCaptureExtenderImpl
 import androidx.camera.extensions.impl.AutoPreviewExtenderImpl
 import androidx.camera.extensions.impl.BeautyImageCaptureExtenderImpl
@@ -35,11 +38,19 @@ import androidx.camera.extensions.impl.NightImageCaptureExtenderImpl
 import androidx.camera.extensions.impl.NightPreviewExtenderImpl
 import androidx.camera.extensions.impl.PreviewExtenderImpl
 import androidx.camera.extensions.internal.ExtensionVersion
+import androidx.camera.integration.extensions.CameraExtensionsActivity
+import androidx.camera.integration.extensions.IntentExtraKey
+import androidx.camera.integration.extensions.utils.CameraSelectorUtil.createCameraSelectorById
 import androidx.camera.integration.extensions.utils.ExtensionModeUtil
+import androidx.camera.integration.extensions.utils.ExtensionModeUtil.AVAILABLE_EXTENSION_MODES
 import androidx.camera.testing.CameraUtil
+import androidx.test.core.app.ActivityScenario
+import androidx.test.core.app.ApplicationProvider
+import com.google.common.truth.Truth.assertThat
 import junit.framework.AssertionFailedError
+import org.junit.Assume.assumeTrue
 
-object ExtensionsTestUtil {
+object CameraXExtensionsTestUtil {
 
     /**
      * Gets a list of all camera id and extension mode combinations.
@@ -132,6 +143,82 @@ object ExtensionsTestUtil {
         // Skips Cuttlefish device since actually it is not a real marketing device which supports
         // extensions and it will cause pre-submit failures.
         return !Build.MODEL.contains("Cuttlefish", true)
+    }
+
+    @JvmStatic
+    fun assumeExtensionModeSupported(
+        extensionsManager: ExtensionsManager,
+        cameraId: String,
+        extensionMode: Int
+    ) {
+        val cameraIdCameraSelector = createCameraSelectorById(cameraId)
+        assumeTrue(extensionsManager.isExtensionAvailable(cameraIdCameraSelector, extensionMode))
+    }
+
+    @JvmStatic
+    fun assumeAnyExtensionModeSupported(
+        extensionsManager: ExtensionsManager,
+        cameraId: String
+    ) {
+        val cameraIdCameraSelector = createCameraSelectorById(cameraId)
+        var anyExtensionModeSupported = false
+
+        AVAILABLE_EXTENSION_MODES.forEach { mode ->
+            if (extensionsManager.isExtensionAvailable(cameraIdCameraSelector, mode)) {
+                anyExtensionModeSupported = true
+                return@forEach
+            }
+        }
+
+        assumeTrue(anyExtensionModeSupported)
+    }
+
+    @JvmStatic
+    fun getFirstSupportedExtensionMode(
+        extensionsManager: ExtensionsManager,
+        cameraId: String
+    ): Int {
+        val cameraIdCameraSelector = createCameraSelectorById(cameraId)
+
+        AVAILABLE_EXTENSION_MODES.forEach { mode ->
+            if (extensionsManager.isExtensionAvailable(cameraIdCameraSelector, mode)) {
+                return mode
+            }
+        }
+
+        return ExtensionMode.NONE
+    }
+
+    @JvmStatic
+    fun launchCameraExtensionsActivity(
+        cameraId: String,
+        extensionMode: Int,
+        deleteCapturedImages: Boolean = true,
+    ): ActivityScenario<CameraExtensionsActivity> {
+        val intent = ApplicationProvider.getApplicationContext<Context>().packageManager
+            .getLaunchIntentForPackage(BASIC_SAMPLE_PACKAGE)?.apply {
+                putExtra(IntentExtraKey.INTENT_EXTRA_KEY_CAMERA_ID, cameraId)
+                putExtra(IntentExtraKey.INTENT_EXTRA_KEY_EXTENSION_MODE, extensionMode)
+                putExtra(
+                    IntentExtraKey.INTENT_EXTRA_KEY_DELETE_CAPTURED_IMAGE,
+                    deleteCapturedImages
+                )
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            }
+
+        val activityScenario: ActivityScenario<CameraExtensionsActivity> =
+            ActivityScenario.launch(intent)
+
+        activityScenario.waitForInitializationIdle()
+
+        // Ensure ActivityScenario is cleaned up properly
+        // Wait for PreviewView to become STREAMING state and its IdlingResource to become idle.
+        activityScenario.onActivity {
+            // Checks that CameraExtensionsActivity's current extension mode is correct.
+            assertThat(it.currentExtensionMode).isEqualTo(extensionMode)
+        }
+
+        return activityScenario
     }
 
     /**
