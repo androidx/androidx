@@ -30,18 +30,23 @@ import androidx.wear.watchface.utility.TraceEvent
 import androidx.wear.watchface.ComplicationSlot
 import androidx.wear.watchface.ComplicationSlotsManager
 import androidx.wear.watchface.ContentDescriptionLabel
+import androidx.wear.watchface.Renderer
 import androidx.wear.watchface.RenderParameters
 import androidx.wear.watchface.TapType
+import androidx.wear.watchface.WatchFaceColors
 import androidx.wear.watchface.control.IInteractiveWatchFace
 import androidx.wear.watchface.control.data.WatchFaceRenderParams
 import androidx.wear.watchface.ComplicationSlotBoundsType
+import androidx.wear.watchface.control.IWatchfaceListener
 import androidx.wear.watchface.control.IWatchfaceReadyListener
 import androidx.wear.watchface.data.IdAndComplicationDataWireFormat
+import androidx.wear.watchface.data.WatchFaceColorsWireFormat
 import androidx.wear.watchface.data.WatchUiState
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleSchema
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting
 import androidx.wear.watchface.style.UserStyleData
+import androidx.wear.watchface.toApiFormat
 import java.time.Instant
 import java.util.concurrent.Executor
 
@@ -258,6 +263,39 @@ public interface InteractiveWatchFaceClient : AutoCloseable {
      * Stops listening for events registered by [addOnWatchFaceReadyListener].
      */
     public fun removeOnWatchFaceReadyListener(listener: OnWatchFaceReadyListener)
+
+    /**
+     * Interface passed to [addOnWatchFaceReadyListener] which calls
+     * [OnWatchFaceColorsListener.onWatchFaceColors] initially with the current
+     * [Renderer.watchfaceColors] if known or `null` if not, and subsequently whenever the watch
+     * face's [Renderer.watchfaceColors] change.
+     */
+    public fun interface OnWatchFaceColorsListener {
+        /**
+         * Called initially with the current [Renderer.watchfaceColors] if known or `null` if not,
+         * and subsequently whenever the watch face's [Renderer.watchfaceColors] change.
+         */
+        public fun onWatchFaceColors(watchFaceColors: WatchFaceColors?)
+    }
+
+    /**
+     * Registers a [OnWatchFaceColorsListener] which gets called initially with the current
+     * [Renderer.watchfaceColors] if known or `null` if not, and subsequently whenever the watch
+     * face's [Renderer.watchfaceColors] change.
+     *
+     * @param executor The [Executor] on which to run [OnWatchFaceReadyListener].
+     * @param listener The [OnWatchFaceColorsListener] to run whenever the watch face's
+     * [Renderer.watchfaceColors] change.
+     */
+    public fun addOnWatchFaceColorsListener(
+        executor: Executor,
+        listener: OnWatchFaceColorsListener
+    ) {}
+
+    /**
+     * Stops listening for events registered by [addOnWatchFaceColorsListener].
+     */
+    public fun removeOnWatchFaceColorsListener(listener: OnWatchFaceColorsListener) {}
 }
 
 /** Controls a stateful remote interactive watch face. */
@@ -270,8 +308,35 @@ internal class InteractiveWatchFaceClientImpl internal constructor(
         HashMap<InteractiveWatchFaceClient.ClientDisconnectListener, Executor>()
     private val readyListeners =
         HashMap<InteractiveWatchFaceClient.OnWatchFaceReadyListener, Executor>()
+    private val watchFaceColorsChangeListeners =
+        HashMap<InteractiveWatchFaceClient.OnWatchFaceColorsListener, Executor>()
     private var watchfaceReadyListenerRegistered = false
+    private var lastWatchFaceColors: WatchFaceColors? = null
     private var closed = false
+
+    private val iWatchFaceListener = object : IWatchfaceListener.Stub() {
+        override fun getApiVersion() = IWatchfaceListener.API_VERSION
+
+        override fun onWatchfaceReady() {
+            this@InteractiveWatchFaceClientImpl.onWatchFaceReady()
+        }
+
+        override fun onWatchfaceColorsChanged(watchFaceColors: WatchFaceColorsWireFormat?) {
+            var listenerCopy:
+                HashMap<InteractiveWatchFaceClient.OnWatchFaceColorsListener, Executor>
+
+            synchronized(lock) {
+                listenerCopy = HashMap(watchFaceColorsChangeListeners)
+                lastWatchFaceColors = watchFaceColors?.toApiFormat()
+            }
+
+            for ((listener, executor) in listenerCopy) {
+                executor.execute {
+                    listener.onWatchFaceColors(lastWatchFaceColors)
+                }
+            }
+        }
+    }
 
     init {
         iInteractiveWatchFace.asBinder().linkToDeath(
@@ -291,6 +356,10 @@ internal class InteractiveWatchFaceClientImpl internal constructor(
             },
             0
         )
+
+        if (iInteractiveWatchFace.apiVersion >= 6) {
+            iInteractiveWatchFace.addWatchFaceListener(iWatchFaceListener)
+        }
     }
 
     override fun updateComplicationData(
@@ -371,6 +440,9 @@ internal class InteractiveWatchFaceClientImpl internal constructor(
         )
 
     override fun close() = TraceEvent("InteractiveWatchFaceClientImpl.close").use {
+        if (iInteractiveWatchFace.apiVersion >= 6) {
+            iInteractiveWatchFace.removeWatchFaceListener(iWatchFaceListener)
+        }
         iInteractiveWatchFace.release()
         synchronized(lock) {
             closed = true
@@ -436,31 +508,38 @@ internal class InteractiveWatchFaceClientImpl internal constructor(
     override fun isConnectionAlive() =
         iInteractiveWatchFace.asBinder().isBinderAlive && synchronized(lock) { !closed }
 
-    private fun registerWatchfaceReadyListener() {
+    private fun maybeRegisterWatchfaceReadyListener() {
         if (watchfaceReadyListenerRegistered) {
             return
         }
-        if (iInteractiveWatchFace.apiVersion >= 2) {
-            iInteractiveWatchFace.addWatchfaceReadyListener(
-                object : IWatchfaceReadyListener.Stub() {
-                    override fun getApiVersion(): Int = IWatchfaceReadyListener.API_VERSION
+        when {
+            // From version 6 we want to use IWatchFaceListener instead.
+            iInteractiveWatchFace.apiVersion >= 6 -> return
 
-                    override fun onWatchfaceReady() {
-                        this@InteractiveWatchFaceClientImpl.onWatchFaceReady()
+            iInteractiveWatchFace.apiVersion >= 2 -> {
+                iInteractiveWatchFace.addWatchfaceReadyListener(
+                    object : IWatchfaceReadyListener.Stub() {
+                        override fun getApiVersion(): Int = IWatchfaceReadyListener.API_VERSION
+
+                        override fun onWatchfaceReady() {
+                            this@InteractiveWatchFaceClientImpl.onWatchFaceReady()
+                        }
                     }
+                )
+            }
+
+            else -> {
+                // We can emulate this on an earlier API by using a call to get userStyleSchema that
+                // will block until the watch face is ready. to Avoid blocking the current thread we
+                // spin up a temporary thread.
+                val thread = HandlerThread("addWatchFaceReadyListener")
+                thread.start()
+                val handler = Handler(thread.looper)
+                handler.post {
+                    iInteractiveWatchFace.userStyleSchema
+                    this@InteractiveWatchFaceClientImpl.onWatchFaceReady()
+                    thread.quitSafely()
                 }
-            )
-        } else {
-            // We can emulate this on an earlier API by using a call to get userStyleSchema that
-            // will block until the watch face is ready. to Avoid blocking the current thread we
-            // spin up a temporary thread.
-            val thread = HandlerThread("addWatchFaceReadyListener")
-            thread.start()
-            val handler = Handler(thread.looper)
-            handler.post {
-                iInteractiveWatchFace.userStyleSchema
-                this@InteractiveWatchFaceClientImpl.onWatchFaceReady()
-                thread.quitSafely()
             }
         }
         watchfaceReadyListenerRegistered = true
@@ -488,7 +567,7 @@ internal class InteractiveWatchFaceClientImpl internal constructor(
             require(!readyListeners.contains(listener)) {
                 "Don't call addWatchFaceReadyListener multiple times for the same listener"
             }
-            registerWatchfaceReadyListener()
+            maybeRegisterWatchfaceReadyListener()
             readyListeners.put(listener, executor)
         }
     }
@@ -498,6 +577,31 @@ internal class InteractiveWatchFaceClientImpl internal constructor(
     ) {
         synchronized(lock) {
             readyListeners.remove(listener)
+        }
+    }
+
+    override fun addOnWatchFaceColorsListener(
+        executor: Executor,
+        listener: InteractiveWatchFaceClient.OnWatchFaceColorsListener
+    ) {
+        val colors = synchronized(lock) {
+            require(!watchFaceColorsChangeListeners.contains(listener)) {
+                "Don't call addOnWatchFaceColorsListener multiple times for the same listener"
+            }
+            maybeRegisterWatchfaceReadyListener()
+            watchFaceColorsChangeListeners.put(listener, executor)
+
+            lastWatchFaceColors
+        }
+
+        listener.onWatchFaceColors(colors)
+    }
+
+    override fun removeOnWatchFaceColorsListener(
+        listener: InteractiveWatchFaceClient.OnWatchFaceColorsListener
+    ) {
+        synchronized(lock) {
+            watchFaceColorsChangeListeners.remove(listener)
         }
     }
 }

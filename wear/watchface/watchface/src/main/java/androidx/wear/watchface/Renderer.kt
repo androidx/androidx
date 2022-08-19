@@ -160,6 +160,9 @@ internal fun verticalFlip(
  * is a memory barrier between construction and rendering so no special threading primitives are
  * required.
  *
+ * It is recommended to set [watchfaceColors] with representative [WatchFaceColors] this is used by
+ * compatible systems to influence the system's color scheme.
+ *
  * Please note [android.graphics.drawable.AnimatedImageDrawable] and similar classes which rely on
  * [android.graphics.drawable.Drawable.Callback] do not animate properly out of the box unless you
  * register an implementation with [android.graphics.drawable.Drawable.setCallback] that calls
@@ -187,7 +190,16 @@ public sealed class Renderer @WorkerThread constructor(
     @IntRange(from = 0, to = 60000)
     public var interactiveDrawModeUpdateDelayMillis: Long,
 ) {
+    private var pendingWatchFaceColors: WatchFaceColors? = null
+    private var pendingWatchFaceColorsSet = false
+
     internal var watchFaceHostApi: WatchFaceHostApi? = null
+        set(value) {
+            field = value
+            if (pendingWatchFaceColorsSet) {
+                value?.onWatchFaceColorsChanged(pendingWatchFaceColors)
+            }
+        }
 
     internal companion object {
         internal class SharedAssetsHolder {
@@ -450,35 +462,25 @@ public sealed class Renderer @WorkerThread constructor(
     internal open suspend fun backgroundThreadInitInternal() {}
 
     /**
-     * Provides information about the colors of a watch face, exposing the three most
-     * representative colors. This may be used by the system to influence the colors used for the
-     * system ui.
-     */
-    public class WatchfaceColors(
-        val primaryColor: Color,
-        val secondaryColor: Color,
-        val tertiaryColor: Color
-    )
-
-    /**
-     * Called by the system when it needs to know what colors the watch face is using. Return `null`
-     * if no color information is available at the moment and subsequently call
-     * [notifyWatchfaceColorsChanged] when color information becomes available.
+     * Representative [WatchFaceColors] which are made available to system clients via
+     * [androidx.wear.watchface.client.InteractiveWatchFaceClient.OnWatchFaceColorsListener].
      *
-     * @return The [WatchfaceColors] for this watch face.
+     * Initially this value is `null` signifying that the colors are unknown. When possible the
+     * watchFace should assign `non null` [WatchFaceColors] and keep this updated when the colors
+     * change (e.g. due to a style change).
      */
-    @UiThread
-    public open fun watchfaceColors(): WatchfaceColors? = null
+    public var watchfaceColors: WatchFaceColors? = null
+       set(value) {
+           require(value != null) { "watchfaceColors must be non-null " }
 
-    /**
-     * Notifies the system that the watch face's colors have changed, this will trigger a call to
-     * [watchfaceColors]. Note the system automatically calls notifyColorsChanged when the style
-     * changes.
-     */
-    @UiThread
-    public fun notifyWatchfaceColorsChanged() {
-        watchFaceHostApi?.notifySystemThatColorsChanged()
-    }
+           val hostApi = watchFaceHostApi
+           if (hostApi == null) {
+               pendingWatchFaceColors = value
+               pendingWatchFaceColorsSet = true
+           } else {
+               hostApi.onWatchFaceColorsChanged(value)
+           }
+       }
 
     /**
      * Multiple [WatchFaceService] instances and hence Renderers can exist concurrently (e.g. a
