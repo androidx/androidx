@@ -26,51 +26,48 @@ import androidx.annotation.RestrictTo
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-internal class Utils {
-    companion object {
+internal object Utils {
+    // TODO: Migrate to BundleCompat when available
+    @SuppressLint("ClassVerificationFailure") // bundle.getParcelable(key, clazz)
+    @Suppress("DEPRECATION") // bundle.getParcelable(key)
+    fun <T : Parcelable> getParcelableFromBundle(
+        bundle: Bundle,
+        key: String,
+        clazz: Class<T>
+    ): T? {
+        val parcelable: T?
+        bundle.classLoader = clazz.classLoader
+        try {
+            if (Build.VERSION.SDK_INT >= 33) {
+                parcelable = bundle.getParcelable(key, clazz)
+            } else {
+                parcelable = bundle.getParcelable(key)
+            }
+        } catch (e: Exception) {
+            return null
+        }
+        return parcelable
+    }
 
-        // TODO: Migrate to BundleCompat when available
-        @SuppressLint("ClassVerificationFailure") // bundle.getParcelable(key, clazz)
-        @Suppress("DEPRECATION") // bundle.getParcelable(key)
-        fun <T : Parcelable> getParcelableFromBundle(
-            bundle: Bundle,
-            key: String,
-            clazz: Class<T>
-        ): T? {
-            val parcelable: T?
-            bundle.classLoader = clazz.classLoader
+    @Suppress("DEPRECATION")
+    fun <T : Parcelable> getParcelableArrayListFromBundle(
+        bundle: Bundle,
+        key: String,
+        clazz: Class<T>
+    ): List<T> {
+        bundle.classLoader = clazz.classLoader
+        if (Build.VERSION.SDK_INT >= 33) {
+            // TODO: Return framework's getParcelableArrayList when SDK 33 is available
+            // return bundle.getParcelableArrayList(key, clazz)
+            TODO()
+        } else {
+            val parcelable: List<T>
             try {
-                if (Build.VERSION.SDK_INT >= 33) {
-                    parcelable = bundle.getParcelable(key, clazz)
-                } else {
-                    parcelable = bundle.getParcelable(key)
-                }
+                parcelable = bundle.getParcelableArrayList(key) ?: emptyList()
             } catch (e: Exception) {
-                return null
+                return emptyList()
             }
             return parcelable
-        }
-
-        @Suppress("DEPRECATION")
-        fun <T : Parcelable> getParcelableArrayListFromBundle(
-            bundle: Bundle,
-            key: String,
-            clazz: Class<T>
-        ): List<T> {
-            bundle.classLoader = clazz.classLoader
-            if (Build.VERSION.SDK_INT >= 33) {
-                // TODO: Return framework's getParcelableArrayList when SDK 33 is available
-                // return bundle.getParcelableArrayList(key, clazz)
-                TODO()
-            } else {
-                val parcelable: List<T>
-                try {
-                    parcelable = bundle.getParcelableArrayList(key) ?: emptyList()
-                } catch (e: Exception) {
-                    return emptyList()
-                }
-                return parcelable
-            }
         }
     }
 }
