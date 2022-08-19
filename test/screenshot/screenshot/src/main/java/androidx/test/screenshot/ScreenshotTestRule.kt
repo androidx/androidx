@@ -21,11 +21,13 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.screenshot.matchers.BitmapMatcher
 import androidx.test.screenshot.matchers.MSSIMMatcher
 import androidx.test.screenshot.matchers.PixelPerfectMatcher
 import androidx.test.screenshot.proto.ScreenshotResultProto
+import androidx.test.screenshot.proto.ScreenshotResultProto.ScreenshotResult.Status
 import org.junit.Assume
 import org.junit.rules.TestRule
 import org.junit.rules.TestWatcher
@@ -185,7 +187,7 @@ open class ScreenshotTestRule(
         val expected = fetchExpectedImage(goldenIdentifier)
         if (expected == null) {
             reportResult(
-                status = ScreenshotResultProto.ScreenshotResult.Status.MISSING_GOLDEN,
+                status = Status.MISSING_GOLDEN,
                 goldenIdentifier = goldenIdentifier,
                 actual = actual
             )
@@ -198,7 +200,7 @@ open class ScreenshotTestRule(
 
         if (actual.width != expected.width || actual.height != expected.height) {
             reportResult(
-                status = ScreenshotResultProto.ScreenshotResult.Status.SIZE_MISMATCH,
+                status = Status.SIZE_MISMATCH,
                 goldenIdentifier = goldenIdentifier,
                 actual = actual,
                 expected = expected
@@ -217,9 +219,9 @@ open class ScreenshotTestRule(
         )
 
         val status = if (comparisonResult.matches) {
-            ScreenshotResultProto.ScreenshotResult.Status.PASSED
+            Status.PASSED
         } else {
-            ScreenshotResultProto.ScreenshotResult.Status.FAILED
+            Status.FAILED
         }
 
         reportResult(
@@ -240,7 +242,7 @@ open class ScreenshotTestRule(
     }
 
     private fun reportResult(
-        status: ScreenshotResultProto.ScreenshotResult.Status,
+        status: Status,
         goldenIdentifier: String,
         actual: Bitmap,
         comparisonStatistics: String? = null,
@@ -262,19 +264,19 @@ open class ScreenshotTestRule(
 
         val report = Bundle()
 
-        if (status != ScreenshotResultProto.ScreenshotResult.Status.PASSED) {
-            actual.writeToDevice(OutputFileType.IMAGE_ACTUAL).also {
+        if (status != Status.PASSED) {
+            actual.writeToDevice(OutputFileType.IMAGE_ACTUAL, status).also {
                 resultProto.currentScreenshotFileName = it.name
                 report.putString(bundleKeyPrefix + OutputFileType.IMAGE_ACTUAL, it.absolutePath)
             }
             diff?.run {
-                writeToDevice(OutputFileType.IMAGE_DIFF).also {
+                writeToDevice(OutputFileType.IMAGE_DIFF, status).also {
                     resultProto.diffImageFileName = it.name
                     report.putString(bundleKeyPrefix + OutputFileType.IMAGE_DIFF, it.absolutePath)
                 }
             }
             expected?.run {
-                writeToDevice(OutputFileType.IMAGE_EXPECTED).also {
+                writeToDevice(OutputFileType.IMAGE_EXPECTED, status).also {
                     resultProto.expectedImageFileName = it.name
                     report.putString(
                         bundleKeyPrefix + OutputFileType.IMAGE_EXPECTED,
@@ -284,7 +286,7 @@ open class ScreenshotTestRule(
             }
         }
 
-        writeToDevice(OutputFileType.RESULT_PROTO) {
+        writeToDevice(OutputFileType.RESULT_PROTO, status) {
             it.write(resultProto.build().toString().toByteArray())
         }.also {
             report.putString(bundleKeyPrefix + OutputFileType.RESULT_PROTO, it.absolutePath)
@@ -303,21 +305,25 @@ open class ScreenshotTestRule(
         return File(deviceOutputDirectory, fileName)
     }
 
-    private fun Bitmap.writeToDevice(fileType: OutputFileType): File {
-        return writeToDevice(fileType) {
+    private fun Bitmap.writeToDevice(fileType: OutputFileType, status: Status): File {
+        return writeToDevice(fileType, status) {
             compress(Bitmap.CompressFormat.PNG, 0 /*ignored for png*/, it)
         }
     }
 
     private fun writeToDevice(
         fileType: OutputFileType,
+        status: Status,
         writeAction: (FileOutputStream) -> Unit
     ): File {
         if (!deviceOutputDirectory.exists() && !deviceOutputDirectory.mkdir()) {
             throw IOException("Could not create folder.")
         }
 
-        var file = getPathOnDeviceFor(fileType)
+        val file = getPathOnDeviceFor(fileType)
+        if (status != Status.UNSPECIFIED && status != Status.PASSED) {
+            Log.d(javaClass.simpleName, "Writing screenshot test result $fileType to $file")
+        }
         try {
             FileOutputStream(file).use {
                 writeAction(it)

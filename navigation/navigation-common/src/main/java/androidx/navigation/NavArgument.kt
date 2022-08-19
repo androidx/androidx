@@ -80,6 +80,17 @@ public class NavArgument internal constructor(
         return true
     }
 
+    override fun toString(): String {
+        val sb = StringBuilder()
+        sb.append(javaClass.simpleName)
+        sb.append(" Type: $type")
+        sb.append(" Nullable: $isNullable")
+        if (isDefaultValuePresent) {
+            sb.append(" DefaultValue: $defaultValue")
+        }
+        return sb.toString()
+    }
+
     public override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other == null || javaClass != other.javaClass) return false

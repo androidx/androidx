@@ -253,6 +253,14 @@ annotation class NotNull
 annotation class Nullable
             """
         )
+
+        val IgnoreAnnotation = TestFiles.kotlin(
+            """
+package org.junit
+
+annotation class Ignore
+            """
+        )
         /* ktlint-enable max-line-length */
     }
 }

@@ -19,6 +19,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.leanback.R;
 import androidx.leanback.system.Settings;
 import androidx.leanback.transition.TransitionHelper;
@@ -81,11 +83,12 @@ public class VerticalGridPresenter extends Presenter {
         final VerticalGridView mGridView;
         boolean mInitialized;
 
-        public ViewHolder(VerticalGridView view) {
+        public ViewHolder(@NonNull VerticalGridView view) {
             super(view);
             mGridView = view;
         }
 
+        @NonNull
         public VerticalGridView getGridView() {
             return mGridView;
         }
@@ -208,7 +211,7 @@ public class VerticalGridPresenter extends Presenter {
      * on each child of vertical grid.   If subclass returns false in isUsingDefaultShadow()
      * and does not use Z-shadow on SDK >= L, it should override isUsingZOrder() return false.
      */
-    public boolean isUsingZOrder(Context context) {
+    public boolean isUsingZOrder(@NonNull Context context) {
         return !Settings.getInstance(context).preferStaticShadows();
     }
 
@@ -230,8 +233,9 @@ public class VerticalGridPresenter extends Presenter {
         return mUseFocusDimmer;
     }
 
+    @NonNull
     @Override
-    public final ViewHolder onCreateViewHolder(ViewGroup parent) {
+    public final ViewHolder onCreateViewHolder(@NonNull ViewGroup parent) {
         ViewHolder vh = createGridViewHolder(parent);
         vh.mInitialized = false;
         vh.mItemBridgeAdapter = new VerticalGridItemBridgeAdapter();
@@ -245,7 +249,8 @@ public class VerticalGridPresenter extends Presenter {
     /**
      * Subclass may override this to inflate a different layout.
      */
-    protected ViewHolder createGridViewHolder(ViewGroup parent) {
+    @NonNull
+    protected ViewHolder createGridViewHolder(@NonNull ViewGroup parent) {
         View root = LayoutInflater.from(parent.getContext()).inflate(
                 R.layout.lb_vertical_grid, parent, false);
         return new ViewHolder((VerticalGridView) root.findViewById(R.id.browse_grid));
@@ -258,7 +263,7 @@ public class VerticalGridPresenter extends Presenter {
      *
      * @param vh The ViewHolder to initialize for the vertical grid.
      */
-    protected void initializeGridViewHolder(ViewHolder vh) {
+    protected void initializeGridViewHolder(@NonNull ViewHolder vh) {
         if (mNumColumns == -1) {
             throw new IllegalStateException("Number of columns must be set");
         }
@@ -291,7 +296,12 @@ public class VerticalGridPresenter extends Presenter {
         final ViewHolder gridViewHolder = vh;
         vh.getGridView().setOnChildSelectedListener(new OnChildSelectedListener() {
             @Override
-            public void onChildSelected(ViewGroup parent, View view, int position, long id) {
+            public void onChildSelected(
+                    @NonNull ViewGroup parent,
+                    @Nullable View view,
+                    int position,
+                    long id
+            ) {
                 selectChildView(gridViewHolder, view);
             }
         });
@@ -326,12 +336,13 @@ public class VerticalGridPresenter extends Presenter {
      *
      * @return   The options to be used for shadow, overlay and rounded corner.
      */
+    @NonNull
     protected ShadowOverlayHelper.Options createShadowOverlayOptions() {
         return ShadowOverlayHelper.Options.DEFAULT;
     }
 
     @Override
-    public void onBindViewHolder(Presenter.ViewHolder viewHolder, Object item) {
+    public void onBindViewHolder(@NonNull Presenter.ViewHolder viewHolder, @Nullable Object item) {
         if (DEBUG) Log.v(TAG, "onBindViewHolder " + item);
         ViewHolder vh = (ViewHolder) viewHolder;
         vh.mItemBridgeAdapter.setAdapter((ObjectAdapter) item);
@@ -339,7 +350,7 @@ public class VerticalGridPresenter extends Presenter {
     }
 
     @Override
-    public void onUnbindViewHolder(Presenter.ViewHolder viewHolder) {
+    public void onUnbindViewHolder(@NonNull Presenter.ViewHolder viewHolder) {
         if (DEBUG) Log.v(TAG, "onUnbindViewHolder");
         ViewHolder vh = (ViewHolder) viewHolder;
         vh.mItemBridgeAdapter.setAdapter(null);
@@ -350,13 +361,14 @@ public class VerticalGridPresenter extends Presenter {
      * Sets the item selected listener.
      * Since this is a grid the row parameter is always null.
      */
-    public final void setOnItemViewSelectedListener(OnItemViewSelectedListener listener) {
+    public final void setOnItemViewSelectedListener(@Nullable OnItemViewSelectedListener listener) {
         mOnItemViewSelectedListener = listener;
     }
 
     /**
      * Returns the item selected listener.
      */
+    @Nullable
     public final OnItemViewSelectedListener getOnItemViewSelectedListener() {
         return mOnItemViewSelectedListener;
     }
@@ -367,13 +379,14 @@ public class VerticalGridPresenter extends Presenter {
      * item presenter sets during {@link Presenter#onCreateViewHolder(ViewGroup)}.
      * So in general, developer should choose one of the listeners but not both.
      */
-    public final void setOnItemViewClickedListener(OnItemViewClickedListener listener) {
+    public final void setOnItemViewClickedListener(@Nullable OnItemViewClickedListener listener) {
         mOnItemViewClickedListener = listener;
     }
 
     /**
      * Returns the item clicked listener.
      */
+    @Nullable
     public final OnItemViewClickedListener getOnItemViewClickedListener() {
         return mOnItemViewClickedListener;
     }
@@ -399,7 +412,7 @@ public class VerticalGridPresenter extends Presenter {
      * @param afterEntrance  true if children of vertical grid participating in entrance transition
      *                       should be set to visible, false otherwise.
      */
-    public void setEntranceTransitionState(VerticalGridPresenter.ViewHolder holder,
+    public void setEntranceTransitionState(@NonNull ViewHolder holder,
             boolean afterEntrance) {
         holder.mGridView.setChildrenVisibility(afterEntrance? View.VISIBLE : View.INVISIBLE);
     }

@@ -20,4 +20,6 @@
     <string name="nav_app_bar_open_drawer_description">Open navigation drawer</string>
     <!-- Content description for navigating "up" from a Toolbar or action bar. [CHAR LIMIT=NONE] -->
     <string name="nav_app_bar_navigate_up_description">Navigate up</string>
+
+    <string name="dest_title">destination title</string>
 </resources>

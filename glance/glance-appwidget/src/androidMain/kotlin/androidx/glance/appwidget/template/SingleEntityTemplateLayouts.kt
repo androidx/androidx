@@ -17,8 +17,6 @@
 package androidx.glance.appwidget.template
 
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.glance.GlanceModifier
 import androidx.glance.Image
@@ -34,9 +32,12 @@ import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.height
 import androidx.glance.layout.padding
 import androidx.glance.layout.width
-import androidx.glance.template.TemplateMode
+import androidx.glance.template.LocalTemplateColors
+import androidx.glance.template.LocalTemplateMode
 import androidx.glance.template.SingleEntityTemplateData
+import androidx.glance.template.TemplateMode
 import androidx.glance.template.TemplateText
+import androidx.glance.template.TextType
 
 // TODO: Define template layouts for other surfaces
 /**
@@ -46,18 +47,8 @@ import androidx.glance.template.TemplateText
  * @param data the data that defines the widget
  */
 @Composable
-public fun SingleEntityTemplate(data: SingleEntityTemplateData) {
-    // TODO: Add parameters here for other layout info, such as color preferences
-    val height = LocalSize.current.height
-    val width = LocalSize.current.width
-    val mode = if (height <= Dp(240f) && width <= Dp(240f)) {
-        TemplateMode.Collapsed
-    } else if ((width / height) < (3.0 / 2.0)) {
-        TemplateMode.Vertical
-    } else {
-        TemplateMode.Horizontal
-    }
-    when (mode) {
+fun SingleEntityTemplate(data: SingleEntityTemplateData) {
+    when (LocalTemplateMode.current) {
         TemplateMode.Collapsed -> WidgetLayoutCollapsed(data)
         TemplateMode.Vertical -> WidgetLayoutVertical(data)
         TemplateMode.Horizontal -> WidgetLayoutHorizontal(data)
@@ -66,7 +57,8 @@ public fun SingleEntityTemplate(data: SingleEntityTemplateData) {
 
 @Composable
 private fun WidgetLayoutCollapsed(data: SingleEntityTemplateData) {
-    var modifier = GlanceModifier.fillMaxSize().padding(16.dp)
+    var modifier = GlanceModifier
+        .fillMaxSize().padding(16.dp).background(LocalTemplateColors.current.surface)
 
     data.image?.let { image ->
         modifier = modifier.background(image.image, ContentScale.Crop)
@@ -80,7 +72,11 @@ private fun WidgetLayoutCollapsed(data: SingleEntityTemplateData) {
 
 @Composable
 private fun WidgetLayoutVertical(data: SingleEntityTemplateData) {
-    Column(modifier = GlanceModifier.fillMaxSize().padding(16.dp)) {
+
+    Column(modifier = GlanceModifier
+        .fillMaxSize()
+        .padding(16.dp)
+        .background(LocalTemplateColors.current.surface)) {
         data.headerIcon?.let { AppWidgetTemplateHeader(it, data.header) }
         Spacer(modifier = GlanceModifier.height(16.dp))
         data.image?.let { image ->
@@ -102,10 +98,14 @@ private fun WidgetLayoutVertical(data: SingleEntityTemplateData) {
 
 @Composable
 private fun WidgetLayoutHorizontal(data: SingleEntityTemplateData) {
-    Row(modifier = GlanceModifier.fillMaxSize().padding(16.dp)) {
+    Row(modifier = GlanceModifier
+        .fillMaxSize()
+        .padding(16.dp)
+        .background(LocalTemplateColors.current.surface)) {
+
         Column(
             modifier =
-            GlanceModifier.fillMaxHeight().background(Color.Transparent).defaultWeight()
+            GlanceModifier.defaultWeight().fillMaxHeight()
         ) {
             data.headerIcon?.let { AppWidgetTemplateHeader(it, data.header) }
             Spacer(modifier = GlanceModifier.height(16.dp))
@@ -142,9 +142,9 @@ private fun textList(
     body: TemplateText? = null
 ): List<TemplateText> {
     val result = mutableListOf<TemplateText>()
-    title?.let { result.add(TemplateText(it.text, TemplateText.Type.Title)) }
-    subtitle?.let { result.add(TemplateText(it.text, TemplateText.Type.Label)) }
-    body?.let { result.add(TemplateText(it.text, TemplateText.Type.Body)) }
+    title?.let { result.add(TemplateText(it.text, TextType.Title)) }
+    subtitle?.let { result.add(TemplateText(it.text, TextType.Label)) }
+    body?.let { result.add(TemplateText(it.text, TextType.Body)) }
 
     return result
 }

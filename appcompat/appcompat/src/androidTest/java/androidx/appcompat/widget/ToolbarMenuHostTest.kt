@@ -28,6 +28,7 @@ import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.FlakyTest
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.testutils.PollingCheck
@@ -95,7 +96,7 @@ class ToolbarMenuHostTest {
     @Test
     fun providedOnPrepareMenu() {
         with(ActivityScenario.launch(ToolbarTestActivity::class.java)) {
-            var menuPrepared: Boolean
+            var menuPrepared = false
             val toolbar: Toolbar = withActivity {
                 findViewById(androidx.appcompat.test.R.id.toolbar)
             }
@@ -116,13 +117,17 @@ class ToolbarMenuHostTest {
                 })
             }
 
-            menuPrepared = false
-            withActivity { toolbar.invalidateMenu() }
+            assertThat(menuPrepared).isFalse()
+
+            toolbar.showOverflowMenu()
+            PollingCheck.waitFor { toolbar.isOverflowMenuShowing }
+
             assertThat(menuPrepared).isTrue()
         }
     }
 
     @Test
+    @FlakyTest(bugId = 238664379)
     fun providedMenuItemSelected() {
         with(ActivityScenario.launch(ToolbarTestActivity::class.java)) {
             var itemSelectedId: Int? = null

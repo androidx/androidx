@@ -379,25 +379,20 @@ public object CardDefaults {
     @Composable
     public fun cardBackgroundPainter(
         startBackgroundColor: Color =
-            MaterialTheme.colors.onSurfaceVariant.copy(alpha = 0.20f)
+            MaterialTheme.colors.primary.copy(alpha = 0.30f)
                 .compositeOver(MaterialTheme.colors.background),
         endBackgroundColor: Color =
-            MaterialTheme.colors.onSurfaceVariant.copy(alpha = 0.10f)
+            MaterialTheme.colors.onSurfaceVariant.copy(alpha = 0.20f)
                 .compositeOver(MaterialTheme.colors.background),
         gradientDirection: LayoutDirection = LocalLayoutDirection.current
     ): Painter {
-        val backgroundColors: List<Color> = if (gradientDirection == LayoutDirection.Ltr) {
-            listOf(
+        return BrushPainter(FortyFiveDegreeLinearGradient(
+            colors = listOf(
                 startBackgroundColor,
                 endBackgroundColor
-            )
-        } else {
-            listOf(
-                endBackgroundColor,
-                startBackgroundColor
-            )
-        }
-        return BrushPainter(FortyFiveDegreeLinearGradient(backgroundColors))
+            ),
+            ltr = gradientDirection == LayoutDirection.Ltr)
+        )
     }
 
     /**
@@ -455,16 +450,19 @@ public object CardDefaults {
 internal class FortyFiveDegreeLinearGradient internal constructor(
     private val colors: List<Color>,
     private val stops: List<Float>? = null,
-    private val tileMode: TileMode = TileMode.Clamp
+    private val tileMode: TileMode = TileMode.Clamp,
+    private val ltr: Boolean
 ) : ShaderBrush() {
 
     override fun createShader(size: Size): Shader {
         val minWidthHeight = min(size.height, size.width)
+        val from = if (ltr) Offset(0f, 0f) else Offset(minWidthHeight, 0f)
+        val to = if (ltr) Offset(minWidthHeight, minWidthHeight) else Offset(0f, minWidthHeight)
         return LinearGradientShader(
             colors = colors,
             colorStops = stops,
-            from = Offset(0f, 0f),
-            to = Offset(minWidthHeight, minWidthHeight),
+            from = from,
+            to = to,
             tileMode = tileMode
         )
     }
@@ -476,6 +474,7 @@ internal class FortyFiveDegreeLinearGradient internal constructor(
         if (colors != other.colors) return false
         if (stops != other.stops) return false
         if (tileMode != other.tileMode) return false
+        if (ltr != other.ltr) return false
 
         return true
     }

@@ -90,10 +90,10 @@ public class Camera2CameraInfoImplTest {
     private static final int CAMERA1_LENS_FACING_INT = CameraCharacteristics.LENS_FACING_FRONT;
     private static final boolean CAMERA1_FLASH_INFO_BOOLEAN = false;
 
-    private static final int CAMERA0_SUPPORTED_YUV_REPROCESSING =
-            CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_YUV_REPROCESSING;
+    private static final int CAMERA0_SUPPORTED_PRIVATE_REPROCESSING =
+            CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_PRIVATE_REPROCESSING;
     private static final int[] CAMERA0_SUPPORTED_CAPABILITIES = new int[] {
-            CAMERA0_SUPPORTED_YUV_REPROCESSING,
+            CAMERA0_SUPPORTED_PRIVATE_REPROCESSING,
     };
 
     private CameraCharacteristicsCompat mCameraCharacteristics0;
@@ -469,17 +469,6 @@ public class Camera2CameraInfoImplTest {
     }
 
     @Test
-    public void cameraInfoWithCameraControl_canReturnIsYuvReprocessingSupported()
-            throws CameraAccessExceptionCompat {
-        init(/* hasReprocessingCapabilities = */ true);
-
-        final Camera2CameraInfoImpl cameraInfo = new Camera2CameraInfoImpl(
-                CAMERA0_ID, mCameraManagerCompat);
-
-        assertThat(cameraInfo.isYuvReprocessingSupported()).isTrue();
-    }
-
-    @Test
     public void cameraInfoWithCameraControl_canReturnIsPrivateReprocessingSupported()
             throws CameraAccessExceptionCompat {
         init(/* hasReprocessingCapabilities = */ true);
@@ -487,7 +476,7 @@ public class Camera2CameraInfoImplTest {
         final Camera2CameraInfoImpl cameraInfo = new Camera2CameraInfoImpl(
                 CAMERA0_ID, mCameraManagerCompat);
 
-        assertThat(cameraInfo.isPrivateReprocessingSupported()).isFalse();
+        assertThat(cameraInfo.isPrivateReprocessingSupported()).isTrue();
     }
 
     @Config(minSdk = 23)

@@ -16,6 +16,8 @@
 
 package androidx.recyclerview.widget;
 
+import android.annotation.SuppressLint;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -862,6 +864,7 @@ public class SortedList<T> {
         abstract public void onChanged(int position, int count);
 
         @Override
+        @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
         public void onChanged(int position, int count, Object payload) {
             onChanged(position, count);
         }
@@ -948,6 +951,7 @@ public class SortedList<T> {
          *                        Other method calls (e.g. {@link #compare(Object, Object)} from
          *                        the SortedList are directly forwarded to this Callback.
          */
+        @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
         public BatchedCallback(Callback<T2> wrappedCallback) {
             mWrappedCallback = wrappedCallback;
             mBatchingListUpdateCallback = new BatchingListUpdateCallback(mWrappedCallback);
@@ -979,6 +983,7 @@ public class SortedList<T> {
         }
 
         @Override
+        @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
         public void onChanged(int position, int count, Object payload) {
             mBatchingListUpdateCallback.onChanged(position, count, payload);
         }

@@ -58,6 +58,7 @@
       <intent-filter>
         <action android:name="androidx.car.app.CarAppService" />
         <category android:name="androidx.car.app.category.NAVIGATION"/>
+        <category android:name="androidx.car.app.category.FEATURE_CLUSTER"/>
       </intent-filter>
       <intent-filter>
         <action android:name="androidx.car.app.action.NAVIGATE" />

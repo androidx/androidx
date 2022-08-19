@@ -25,9 +25,9 @@ import androidx.wear.tiles.ColorBuilders.ColorProp;
 /**
  * Represents the background and content colors used in a button Tiles component.
  *
- * <p>See {@link ButtonDefaults#PRIMARY_BUTTON_COLORS} for the default colors used in a primary
- * styled {@link Button}. See {@link ButtonDefaults#SECONDARY_BUTTON_COLORS} for the default colors
- * used in a secondary styled {@link Button}.
+ * <p>See {@link ButtonDefaults#PRIMARY_COLORS} for the default colors used in a primary styled
+ * {@link Button}. See {@link ButtonDefaults#SECONDARY_COLORS} for the default colors used in a
+ * secondary styled {@link Button}.
  */
 public class ButtonColors {
     @NonNull private final ColorProp mBackgroundColor;

@@ -36,9 +36,11 @@ import androidx.compose.ui.demos.focus.ReuseFocusRequesterDemo
 import androidx.compose.ui.demos.focus.ScrollableLazyRowFocusDemo
 import androidx.compose.ui.demos.focus.ScrollableRowFocusDemo
 import androidx.compose.ui.demos.focus.LazyListChildFocusDemos
+import androidx.compose.ui.demos.focus.NestedLazyListFocusSearchDemo
 import androidx.compose.ui.demos.focus.TwoDimensionalFocusSearchDemo
 import androidx.compose.ui.demos.gestures.ButtonMetaStateDemo
 import androidx.compose.ui.demos.gestures.DetectTapGesturesDemo
+import androidx.compose.ui.demos.gestures.DetectTapPressureGesturesDemo
 import androidx.compose.ui.demos.gestures.DoubleTapGestureFilterDemo
 import androidx.compose.ui.demos.gestures.DoubleTapInTapDemo
 import androidx.compose.ui.demos.gestures.DragAndScaleGestureFilterDemo
@@ -84,6 +86,7 @@ private val GestureDemos = DemoCategory(
             listOf(
                 ComposableDemo("Press Indication") { PressIndicatorGestureFilterDemo() },
                 ComposableDemo("Tap") { DetectTapGesturesDemo() },
+                ComposableDemo("Pressure Tap") { DetectTapPressureGesturesDemo() },
                 ComposableDemo("Double Tap") { DoubleTapGestureFilterDemo() },
                 ComposableDemo("Long Press") { LongPressGestureDetectorDemo() },
                 ComposableDemo("Scroll") { ScrollGestureFilterDemo() },
@@ -146,6 +149,7 @@ private val FocusDemos = DemoCategory(
         ComposableDemo("LazyList Child Focusability") { LazyListChildFocusDemos() },
         ComposableDemo("Focus In Adjacent Scrollable Rows") { AdjacentScrollablesFocusDemo() },
         ComposableDemo("Clickable in LazyColumn") { ClickableInLazyColumnDemo() },
+        ComposableDemo("Nested LazyLists") { NestedLazyListFocusSearchDemo() },
         ComposableDemo("Conditional Focusability") { ConditionalFocusabilityDemo() }
     )
 )
@@ -162,7 +166,11 @@ private val GraphicsDemos = DemoCategory(
     "Graphics",
     listOf(
         ComposableDemo("VectorGraphicsDemo") { VectorGraphicsDemo() },
-        ComposableDemo("DeclarativeGraphicsDemo") { DeclarativeGraphicsDemo() }
+        ComposableDemo("DeclarativeGraphicsDemo") { DeclarativeGraphicsDemo() },
+        ActivityDemo(
+            "Painter Resources Demo",
+            PainterResourcesDemoActivity::class
+        )
     )
 )
 

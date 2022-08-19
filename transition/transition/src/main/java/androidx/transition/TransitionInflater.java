@@ -27,6 +27,7 @@ import android.view.InflateException;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.collection.ArrayMap;
 import androidx.core.content.res.TypedArrayUtils;
 
@@ -67,6 +68,7 @@ public class TransitionInflater {
      * @throws android.content.res.Resources.NotFoundException when the
      *                                                         transition cannot be loaded
      */
+    @Nullable
     public Transition inflateTransition(int resource) {
         XmlResourceParser parser = mContext.getResources().getXml(resource);
         try {
@@ -89,7 +91,8 @@ public class TransitionInflater {
      * @throws android.content.res.Resources.NotFoundException when the
      *                                                         transition manager cannot be loaded
      */
-    public TransitionManager inflateTransitionManager(int resource, ViewGroup sceneRoot) {
+    @Nullable
+    public TransitionManager inflateTransitionManager(int resource, @NonNull ViewGroup sceneRoot) {
         XmlResourceParser parser = mContext.getResources().getXml(resource);
         try {
             return createTransitionManagerFromXml(parser, Xml.asAttributeSet(parser), sceneRoot);
@@ -111,7 +114,7 @@ public class TransitionInflater {
     //
     // Transition loading
     //
-    private Transition createTransitionFromXml(XmlPullParser parser,
+    private @Nullable Transition createTransitionFromXml(XmlPullParser parser,
             AttributeSet attrs, Transition parent)
             throws XmlPullParserException, IOException {
 
@@ -222,8 +225,8 @@ public class TransitionInflater {
 
     @SuppressLint("RestrictedApi") // remove once core lib would be released with the new
     // LIBRARY_GROUP_PREFIX restriction. tracking in b/127286008
-    private void getTargetIds(XmlPullParser parser,
-            AttributeSet attrs, Transition transition) throws XmlPullParserException, IOException {
+    private void getTargetIds(XmlPullParser parser, AttributeSet attrs,
+            @NonNull Transition transition) throws XmlPullParserException, IOException {
 
         // Make sure we are on a start tag.
         int type;
@@ -281,8 +284,9 @@ public class TransitionInflater {
     // TransitionManager loading
     //
 
-    private TransitionManager createTransitionManagerFromXml(XmlPullParser parser,
-            AttributeSet attrs, ViewGroup sceneRoot) throws XmlPullParserException, IOException {
+    private @Nullable TransitionManager createTransitionManagerFromXml(XmlPullParser parser,
+            AttributeSet attrs, @NonNull ViewGroup sceneRoot) throws XmlPullParserException,
+            IOException {
 
         // Make sure we are on a start tag.
         int type;
@@ -310,8 +314,9 @@ public class TransitionInflater {
 
     @SuppressLint("RestrictedApi") // remove once core lib would be released with the new
     // LIBRARY_GROUP_PREFIX restriction. tracking in b/127286008
-    private void loadTransition(AttributeSet attrs, XmlPullParser parser, ViewGroup sceneRoot,
-            TransitionManager transitionManager) throws Resources.NotFoundException {
+    private void loadTransition(AttributeSet attrs, XmlPullParser parser,
+            @NonNull ViewGroup sceneRoot, TransitionManager transitionManager)
+            throws Resources.NotFoundException {
 
         TypedArray a = mContext.obtainStyledAttributes(attrs, Styleable.TRANSITION_MANAGER);
         int transitionId = TypedArrayUtils.getNamedResourceId(a, parser, "transition",

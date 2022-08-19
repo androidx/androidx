@@ -19,62 +19,34 @@ package androidx.tracing.perfetto
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import androidx.annotation.IntDef
+import android.os.Build
+import android.util.JsonWriter
 import androidx.annotation.RestrictTo
 import androidx.annotation.RestrictTo.Scope.LIBRARY
 import androidx.tracing.perfetto.Tracing.EnableTracingResponse
-import androidx.tracing.perfetto.TracingReceiver.Companion.ACTION_ENABLE_TRACING
+import androidx.tracing.perfetto.PerfettoHandshake.EnableTracingResponse
+import androidx.tracing.perfetto.PerfettoHandshake.RequestKeys.ACTION_ENABLE_TRACING
+import androidx.tracing.perfetto.PerfettoHandshake.RequestKeys.KEY_PATH
+import androidx.tracing.perfetto.PerfettoHandshake.ResponseExitCodes.RESULT_CODE_ERROR_OTHER
+import androidx.tracing.perfetto.PerfettoHandshake.ResponseKeys
 import java.io.File
+import java.io.StringWriter
+import java.util.concurrent.LinkedBlockingQueue
+import java.util.concurrent.ThreadPoolExecutor
+import java.util.concurrent.TimeUnit
 
 /** Allows for enabling tracing in an app using a broadcast. @see [ACTION_ENABLE_TRACING] */
 @RestrictTo(LIBRARY)
 class TracingReceiver : BroadcastReceiver() {
-    companion object {
-        /**
-         * Request to enable tracing.
-         *
-         * Request can include [KEY_PATH] as an optional extra.
-         *
-         * Response to the request is a JSON string (to allow for CLI support) with the following:
-         * - [KEY_EXIT_CODE] (always)
-         * - [KEY_REQUIRED_VERSION] (always)
-         * - [KEY_ERROR_MESSAGE] (optional)
-         */
-        const val ACTION_ENABLE_TRACING = "androidx.tracing.perfetto.action.ENABLE_TRACING"
-
-        /** Path to tracing native binary file (optional). */
-        const val KEY_PATH = "path"
-
-        /** Request exit code. */
-        const val KEY_EXIT_CODE = "exitCode"
-
-        /**
-         * Required version of the binaries. Java and binary library versions have to match to
-         * ensure compatibility.
-         */
-        const val KEY_REQUIRED_VERSION = "requiredVersion"
-
-        /** Response error message if present. */
-        const val KEY_ERROR_MESSAGE = "errorMessage"
-
-        const val RESULT_CODE_SUCCESS = 1
-        const val RESULT_CODE_ALREADY_ENABLED = 2
-        const val RESULT_CODE_ERROR_BINARY_MISSING = 11
-        const val RESULT_CODE_ERROR_BINARY_VERSION_MISMATCH = 12
-        const val RESULT_CODE_ERROR_BINARY_VERIFICATION_ERROR = 13
-        const val RESULT_CODE_ERROR_OTHER = 99
+    private val executor by lazy {
+        ThreadPoolExecutor(
+            /* corePoolSize = */ 0,
+            /* maximumPoolSize = */ 1,
+            /* keepAliveTime = */ 10, // gives time for tooling to side-load the .so file
+            /* unit = */ TimeUnit.SECONDS,
+            /* workQueue = */ LinkedBlockingQueue()
+        )
     }
-
-    @Retention(AnnotationRetention.SOURCE)
-    @IntDef(
-        RESULT_CODE_SUCCESS,
-        RESULT_CODE_ALREADY_ENABLED,
-        RESULT_CODE_ERROR_BINARY_MISSING,
-        RESULT_CODE_ERROR_BINARY_VERSION_MISMATCH,
-        RESULT_CODE_ERROR_BINARY_VERIFICATION_ERROR,
-        RESULT_CODE_ERROR_OTHER
-    )
-    internal annotation class EnableTracingResultCode
 
     // TODO: check value on app start
     override fun onReceive(context: Context?, intent: Intent?) {
@@ -84,33 +56,46 @@ class TracingReceiver : BroadcastReceiver() {
         // will be used if present.
         val srcPath = intent.extras?.getString(KEY_PATH)
 
-        val response: EnableTracingResponse = when {
+        val pendingResult = goAsync()
+
+        executor.execute {
+            try {
+                val response = enableTracing(srcPath, context)
+                pendingResult.setResult(response.exitCode, response.toJsonString(), null)
+            } finally {
+                pendingResult.finish()
+            }
+        }
+    }
+
+    private fun enableTracing(srcPath: String?, context: Context?): EnableTracingResponse =
+        when {
+            Build.VERSION.SDK_INT < Build.VERSION_CODES.R -> {
+                // TODO(234351579): Support API < 30
+                EnableTracingResponse(
+                    RESULT_CODE_ERROR_OTHER,
+                    "SDK version not supported. Current minimum SDK = ${Build.VERSION_CODES.R}"
+                )
+            }
             srcPath != null && context != null -> {
                 try {
                     val dstFile = copyExternalLibraryFile(context, srcPath)
-                    Tracing.enable(dstFile.path)
+                    Tracing.enable(dstFile, context)
                 } catch (e: Exception) {
-                    EnableTracingResponse(
-                        exitCode = RESULT_CODE_ERROR_OTHER,
-                        errorMessage = e.toErrorMessage()
-                    )
+                    EnableTracingResponse(RESULT_CODE_ERROR_OTHER, e)
                 }
             }
             srcPath != null && context == null -> {
                 EnableTracingResponse(
-                    exitCode = RESULT_CODE_ERROR_OTHER,
-                    errorMessage = "Cannot copy source file: $srcPath without access to" +
-                        " a Context instance."
+                    RESULT_CODE_ERROR_OTHER,
+                    "Cannot copy source file: $srcPath without access to a Context instance."
                 )
             }
             else -> {
                 // Library path was not provided, trying to resolve using app's local library files.
-                Tracing.enable(null)
+                Tracing.enable()
             }
         }
-
-        setResult(response.exitCode, response.toJsonString(), null)
-    }
 
     private fun copyExternalLibraryFile(
         context: Context,
@@ -132,5 +117,28 @@ class TracingReceiver : BroadcastReceiver() {
         srcFile.copyTo(dstFile, overwrite = true)
 
         return dstFile
+    }
+
+    private fun EnableTracingResponse.toJsonString(): String {
+        val output = StringWriter()
+
+        JsonWriter(output).use {
+            it.beginObject()
+
+            it.name(ResponseKeys.KEY_EXIT_CODE)
+            it.value(exitCode)
+
+            it.name(ResponseKeys.KEY_REQUIRED_VERSION)
+            it.value(requiredVersion)
+
+            message?.let { msg ->
+                it.name(ResponseKeys.KEY_MESSAGE)
+                it.value(msg)
+            }
+
+            it.endObject()
+        }
+
+        return output.toString()
     }
 }

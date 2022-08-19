@@ -33,6 +33,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -274,8 +275,9 @@ fun Chips() {
         ListHeader { Text("Chips") }
         Chip(
             onClick = {},
-            colors = ChipDefaults.primaryChipColors()
-        ) { Text("Chip") }
+            colors = ChipDefaults.primaryChipColors(),
+            label = { Text("Chip") }
+        )
         CompactChip(onClick = {}, label = { Text("CompactChip") })
         ToggleChip(
             checked = true,
@@ -318,8 +320,13 @@ fun Picker(scrollState: ScrollState) {
     ) {
         ListHeader { Text("Pickers") }
         val items = listOf("One", "Two", "Three", "Four", "Five")
+        val state = rememberPickerState(items.size)
+        val contentDescription by remember {
+            derivedStateOf { "${state.selectedOption + 1 }" }
+        }
         Picker(
-            state = rememberPickerState(items.size),
+            state = state,
+            contentDescription = contentDescription,
             option = { Text(items[it]) },
             modifier = Modifier.size(100.dp, 100.dp),
         )

@@ -19,9 +19,12 @@ package androidx.emoji2.text;
 import static org.mockito.Mockito.mock;
 
 import android.graphics.Typeface;
+import android.os.Build;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 
+@RequiresApi(api = Build.VERSION_CODES.KITKAT)
 public class NoFontTestEmojiConfig extends EmojiCompat.Config {
 
     static EmojiCompat.Config emptyConfig() {

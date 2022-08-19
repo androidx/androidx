@@ -54,7 +54,6 @@ import androidx.annotation.GuardedBy;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
@@ -164,6 +163,10 @@ public final class ImageAnalysis extends UseCase {
      * <p>All {@link ImageProxy} sent to {@link Analyzer#analyze(ImageProxy)} will have
      * format {@link android.graphics.PixelFormat#RGBA_8888}
      *
+     * <p>The output order is a single-plane with the order of R, G, B, A in increasing byte index
+     * in the {@link java.nio.ByteBuffer}. The {@link java.nio.ByteBuffer} is retrieved from
+     * {@link ImageProxy.PlaneProxy#getBuffer()}.
+     *
      * @see Builder#setOutputImageFormat(int)
      */
     public static final int OUTPUT_IMAGE_FORMAT_RGBA_8888 = 2;
@@ -239,7 +242,6 @@ public final class ImageAnalysis extends UseCase {
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     @Override
-    @OptIn(markerClass = ExperimentalAnalyzer.class)
     protected UseCaseConfig<?> onMergeConfig(@NonNull CameraInfoInternal cameraInfo,
             @NonNull UseCaseConfig.Builder<?, ?, ?> builder) {
 
@@ -258,9 +260,11 @@ public final class ImageAnalysis extends UseCase {
         Size analyzerResolution;
         synchronized (mAnalysisLock) {
             analyzerResolution = mSubscribedAnalyzer != null
-                    ? mSubscribedAnalyzer.getTargetResolutionOverride() : null;
+                    ? mSubscribedAnalyzer.getDefaultTargetResolution() : null;
         }
-        if (analyzerResolution != null) {
+
+        if (analyzerResolution != null
+                && !builder.getUseCaseConfig().containsOption(OPTION_TARGET_RESOLUTION)) {
             builder.getMutableConfig().insertOption(OPTION_TARGET_RESOLUTION, analyzerResolution);
         }
 
@@ -502,6 +506,7 @@ public final class ImageAnalysis extends UseCase {
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     public void setSensorToBufferTransformMatrix(@NonNull Matrix matrix) {
+        super.setSensorToBufferTransformMatrix(matrix);
         mImageAnalysisAbstractAnalyzer.setSensorToBufferTransformMatrix(matrix);
     }
 
@@ -796,23 +801,27 @@ public final class ImageAnalysis extends UseCase {
         void analyze(@NonNull ImageProxy image);
 
         /**
-         * Implement this method to override the target resolution of {@link ImageAnalysis}.
+         * Implement this method to set a default target resolution for the {@link ImageAnalysis}.
          *
          * <p> Implement this method if the {@link Analyzer} requires a specific resolution to
-         * work. The return value will be used to override the target resolution of the
-         * {@link ImageAnalysis}. Return {@code null} if no overriding is needed. By default,
+         * work. The return value will be used as the default target resolution for the
+         * {@link ImageAnalysis}. Return {@code null} if no falling back is needed. By default,
          * this method returns {@code null}.
+         *
+         * <p> If the app does not set a target resolution for {@link ImageAnalysis}, then this
+         * value will be used as the target resolution. If the {@link ImageAnalysis} has set a
+         * target resolution, e.g. if {@link ImageAnalysis.Builder#setTargetResolution(Size)} is
+         * called, then the {@link ImageAnalysis} will use the app value over this value.
          *
          * <p> Note that this method is invoked by CameraX at the time of binding to lifecycle. In
          * order for this value to be effective, the {@link Analyzer} has to be set before
          * {@link ImageAnalysis} is bound to a lifecycle. Otherwise, the value will be ignored.
          *
-         * @return the resolution to override the target resolution of {@link ImageAnalysis}, or
-         * {@code null} if no overriding is needed.
+         * @return the default resolution of {@link ImageAnalysis}, or {@code null} if no specific
+         * resolution is needed.
          */
-        @ExperimentalAnalyzer
         @Nullable
-        default Size getTargetResolutionOverride() {
+        default Size getDefaultTargetResolution() {
             return null;
         }
 
@@ -833,7 +842,6 @@ public final class ImageAnalysis extends UseCase {
          *
          * @see #updateTransform(Matrix)
          */
-        @ExperimentalAnalyzer
         default int getTargetCoordinateSystem() {
             return COORDINATE_SYSTEM_ORIGINAL;
         }
@@ -846,17 +854,22 @@ public final class ImageAnalysis extends UseCase {
          * by the implementation to transform the coordinates detected in the camera frame. For
          * example, the coordinates of the detected face.
          *
-         * <p>If the value is {@code null}, it could either mean value of the target coordinate
-         * system is {@link #COORDINATE_SYSTEM_ORIGINAL}, or currently there is no valid
-         * transformation for the target coordinate system, for example, if currently the view
-         * finder is not visible in UI.
+         * <p>If the value is {@code null}, it means that no valid transformation is available.
+         * It could have different causes depending on the value of
+         * {@link #getTargetCoordinateSystem()}:
+         * <ul>
+         *     <li> If the target coordinate system is {@link #COORDINATE_SYSTEM_ORIGINAL}, it is
+         *     always invalid because in that case, the coordinate system depends on how the
+         *     analysis algorithm processes the {@link ImageProxy}.
+         *     <li> It is also invalid if the target coordinate system is not available, for example
+         *     if the analyzer targets the viewfinder and the view finder is not visible in UI.
+         * </ul>
          *
          * <p>This method is invoked whenever a new transformation is ready. For example, when
          * the view finder is first a launched as well as when it's resized.
          *
          * @see #getTargetCoordinateSystem()
          */
-        @ExperimentalAnalyzer
         default void updateTransform(@Nullable Matrix matrix) {
             // no-op
         }
@@ -869,7 +882,6 @@ public final class ImageAnalysis extends UseCase {
      * implementation. By using this option, CameraX will pass {@code null} to
      * {@link Analyzer#updateTransform(Matrix)}.
      */
-    @ExperimentalAnalyzer
     public static final int COORDINATE_SYSTEM_ORIGINAL = 0;
 
     /**

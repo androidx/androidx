@@ -22,6 +22,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.junit.Assume.assumeTrue;
 
 import android.content.pm.PackageManager;
 import android.content.res.AssetFileDescriptor;
@@ -646,6 +647,8 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
     @Test
     @LargeTest
     public void videoSurfaceResetting() throws Exception {
+        // b/239017530
+        assumeTrue(Build.VERSION.SDK_INT != 29);
         final int tolerance = 150;
         final int audioLatencyTolerance = 1000;  /* covers audio path latency variability */
         final int seekPos = 1840;  // This is the I-frame position
@@ -826,7 +829,11 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
         retriever.setDataSource(file);
         String rotation = retriever.extractMetadata(
                 MediaMetadataRetriever.METADATA_KEY_VIDEO_ROTATION);
-        retriever.release();
+        try {
+            retriever.release();
+        } catch (IOException e) {
+            // Nothing we can  do about it.
+        }
         retriever = null;
         assertNotNull(rotation);
         assertEquals(Integer.parseInt(rotation), angle);
@@ -1090,7 +1097,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
     }
     */
 
-    @FlakyTest(bugId = 187340262)
+    @Ignore("b/213625878")
     @Test
     @LargeTest
     public void playbackRate() throws Exception {

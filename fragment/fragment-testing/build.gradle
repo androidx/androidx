@@ -36,6 +36,7 @@ dependencies {
     androidTestImplementation(libs.truth)
     androidTestImplementation(libs.mockitoCore, excludes.bytebuddy) // DexMaker has it"s own MockMaker
     androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy) // DexMaker has it"s own MockMaker
+    androidTestImplementation(libs.multidex)
 
     lintPublish(project(":fragment:fragment-testing-lint"))
 }
@@ -50,4 +51,7 @@ androidx {
 
 android {
     namespace "androidx.fragment.testing"
+    defaultConfig {
+        multiDexEnabled true
+    }
 }

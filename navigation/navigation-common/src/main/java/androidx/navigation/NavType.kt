@@ -67,11 +67,25 @@ public abstract class NavType<T>(
     public abstract fun parseValue(value: String): T
 
     /**
+     * Parse a value of this type from a String and then combine that
+     * parsed value with the given previousValue of the same type to
+     * provide a new value that contains both the new and previous value.
+     *
+     * By default, the given value will replace the previousValue.
+     *
+     * @param value string representation of a value of this type
+     * @param previousValue previously parsed value of this type
+     * @return combined parsed value of the type represented by this NavType
+     * @throws IllegalArgumentException if value cannot be parsed into this type
+     */
+    public open fun parseValue(value: String, previousValue: T) = parseValue(value)
+
+    /**
      * Parse a value of this type from a String and put it in a `bundle`
      *
      * @param bundle bundle to put value in
      * @param key    bundle key under which to put the value
-     * @param value  parsed value
+     * @param value  string representation of a value of this type
      * @return parsed value of the type represented by this NavType
      * @suppress
      */
@@ -80,6 +94,31 @@ public abstract class NavType<T>(
         val parsedValue = parseValue(value)
         put(bundle, key, parsedValue)
         return parsedValue
+    }
+
+    /**
+     * Parse a value of this type from a String, combine that parsed value
+     * with the given previousValue, and then put that combined parsed
+     * value in a `bundle`.
+     *
+     * @param bundle bundle to put value in
+     * @param key    bundle key under which to put the value
+     * @param value  string representation of a value of this type
+     * @param previousValue previously parsed value of this type
+     * @return combined parsed value of the type represented by this NavType
+     * @suppress
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public fun parseAndPut(bundle: Bundle, key: String, value: String?, previousValue: T): T {
+        if (!bundle.containsKey(key)) {
+            throw IllegalArgumentException("There is no previous value in this bundle.")
+        }
+        if (value != null) {
+            val parsedCombinedValue = parseValue(value, previousValue)
+            put(bundle, key, parsedCombinedValue)
+            return parsedCombinedValue
+        }
+        return previousValue
     }
 
     /**
@@ -326,7 +365,11 @@ public abstract class NavType<T>(
             }
 
             override fun parseValue(value: String): IntArray {
-                throw UnsupportedOperationException("Arrays don't support default values.")
+                return intArrayOf(IntType.parseValue(value))
+            }
+
+            override fun parseValue(value: String, previousValue: IntArray?): IntArray {
+                return previousValue?.plus(parseValue(value)) ?: parseValue(value)
             }
         }
 
@@ -390,7 +433,11 @@ public abstract class NavType<T>(
             }
 
             override fun parseValue(value: String): LongArray {
-                throw UnsupportedOperationException("Arrays don't support default values.")
+                return longArrayOf(LongType.parseValue(value))
+            }
+
+            override fun parseValue(value: String, previousValue: LongArray?): LongArray? {
+                return previousValue?.plus(parseValue(value)) ?: parseValue(value)
             }
         }
 
@@ -441,7 +488,11 @@ public abstract class NavType<T>(
             }
 
             override fun parseValue(value: String): FloatArray {
-                throw UnsupportedOperationException("Arrays don't support default values.")
+                return floatArrayOf(FloatType.parseValue(value))
+            }
+
+            override fun parseValue(value: String, previousValue: FloatArray?): FloatArray? {
+                return previousValue?.plus(parseValue(value)) ?: parseValue(value)
             }
         }
 
@@ -500,7 +551,11 @@ public abstract class NavType<T>(
             }
 
             override fun parseValue(value: String): BooleanArray {
-                throw UnsupportedOperationException("Arrays don't support default values.")
+                return booleanArrayOf(BoolType.parseValue(value))
+            }
+
+            override fun parseValue(value: String, previousValue: BooleanArray?): BooleanArray? {
+                return previousValue?.plus(parseValue(value)) ?: parseValue(value)
             }
         }
 
@@ -552,8 +607,12 @@ public abstract class NavType<T>(
                 return bundle[key] as Array<String>?
             }
 
-            override fun parseValue(value: String): Array<String>? {
-                throw UnsupportedOperationException("Arrays don't support default values.")
+            override fun parseValue(value: String): Array<String> {
+                return arrayOf(value)
+            }
+
+            override fun parseValue(value: String, previousValue: Array<String>?): Array<String>? {
+                return previousValue?.plus(parseValue(value)) ?: parseValue(value)
             }
         }
     }

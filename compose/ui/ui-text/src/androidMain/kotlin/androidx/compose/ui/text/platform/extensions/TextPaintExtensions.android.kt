@@ -96,7 +96,7 @@ internal fun AndroidTextPaint.applySpanStyle(
     // setBrush draws the text with given Brush. ShaderBrush requires Size to
     // create a Shader. However, Size is unavailable at this stage of the layout.
     // Paragraph.paint will receive a proper Size after layout is completed.
-    setBrush(style.brush, Size.Unspecified)
+    setBrush(style.brush, Size.Unspecified, style.alpha)
     setShadow(style.shadow)
     setTextDecoration(style.textDecoration)
 
@@ -129,4 +129,16 @@ internal fun AndroidTextPaint.applySpanStyle(
  */
 internal fun SpanStyle.hasFontAttributes(): Boolean {
     return fontFamily != null || fontStyle != null || fontWeight != null
+}
+
+/**
+ * Platform shadow layer turns off shadow when blur is zero. Where as developers expect when blur
+ * is zero, the shadow is still visible but without any blur. This utility function is used
+ * while setting shadow on spans or paint in order to replace 0 with Float.MIN_VALUE so that the
+ * shadow will still be visible and the blur is practically 0.
+ */
+internal fun correctBlurRadius(blurRadius: Float) = if (blurRadius == 0f) {
+    Float.MIN_VALUE
+} else {
+    blurRadius
 }

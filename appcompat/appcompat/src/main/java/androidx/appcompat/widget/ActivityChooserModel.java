@@ -683,6 +683,7 @@ class ActivityChooserModel extends DataSetObservable {
      *
      * @return Whether loading was performed.
      */
+    @SuppressWarnings("deprecation")
     private boolean loadActivitiesIfNeeded() {
         if (mReloadActivities && mIntent != null) {
             mReloadActivities = false;

@@ -1,41 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.3.0-alpha07" type="baseline" client="gradle" dependencies="false" name="AGP (7.3.0-alpha07)" variant="all" version="7.3.0-alpha07">
-
-    <issue
-        id="NewApi"
-        message="Class requires API level 16 (current min is 14): `android.os.CancellationSignal`"
-        errorLine1="                return mock(android.os.CancellationSignal.class);"
-        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/test/java/androidx/biometric/CancellationSignalProviderTest.java"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 16 (current min is 14): `getBiometricCancellationSignal`"
-        errorLine1="                provider.getBiometricCancellationSignal();"
-        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/test/java/androidx/biometric/CancellationSignalProviderTest.java"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 16 (current min is 14): `android.os.CancellationSignal#cancel`"
-        errorLine1="        doThrow(NullPointerException.class).when(biometricSignal).cancel();"
-        errorLine2="                                                                  ~~~~~~">
-        <location
-            file="src/test/java/androidx/biometric/CancellationSignalProviderTest.java"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 16 (current min is 14): `getBiometricCancellationSignal`"
-        errorLine1="        assertThat(provider.getBiometricCancellationSignal()).isNotEqualTo(biometricSignal);"
-        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/test/java/androidx/biometric/CancellationSignalProviderTest.java"/>
-    </issue>
+<issues format="6" by="lint 7.4.0-alpha08" type="baseline" client="gradle" dependencies="false" name="AGP (7.4.0-alpha08)" variant="all" version="7.4.0-alpha08">
 
     <issue
         id="WrongConstant"

@@ -62,11 +62,15 @@ fun ScalingLazyColumnDetail() {
         Dp(applicationContext.resources.configuration.screenHeightDp.toFloat()).roundToPx()
     }
     val halfScreenHeightPx = screenHeightPx / 2f
-    ScalingLazyColumn(state = state) {
+    ScalingLazyColumn(
+        modifier = Modifier.fillMaxWidth(),
+        state = state
+    ) {
         item {
-            ListHeader {
-                Text(text = "Screen height :${screenHeightPx}px")
-            }
+            Text(
+                text = "Screen height: ${screenHeightPx}px",
+                style = MaterialTheme.typography.caption1
+            )
         }
         items(20, key = { ix -> ix }) { ix ->
             val item = state.layoutInfo.visibleItemsInfo.find { i -> i.index == ix + 1 }
@@ -81,13 +85,16 @@ fun ScalingLazyColumnDetail() {
             }
             Chip(
                 onClick = {},
-                colors = ChipDefaults.secondaryChipColors()) {
-                Text(
-                    modifier = Modifier.fillMaxWidth(),
-                    textAlign = TextAlign.Center,
-                    text = description,
-                    style = MaterialTheme.typography.caption3)
-            }
+                colors = ChipDefaults.secondaryChipColors(),
+                label = {
+                    Text(
+                        modifier = Modifier.fillMaxWidth(),
+                        textAlign = TextAlign.Center,
+                        text = description,
+                        style = MaterialTheme.typography.caption3
+                    )
+                }
+            )
         }
     }
 }
@@ -106,6 +113,7 @@ fun ScalingLazyColumnMixedTypes() {
         }
         item {
             DemoIconChip(
+                style = ChipStyle.Secondary,
                 label = "App Title",
                 secondaryLabel = "Defaults",
                 colors = ChipDefaults.secondaryChipColors(),
@@ -134,6 +142,7 @@ fun ScalingLazyColumnMixedTypes() {
         }
         item {
             DemoIconChip(
+                style = ChipStyle.Secondary,
                 label = "App Title",
                 secondaryLabel = "Defaults",
                 colors = ChipDefaults.secondaryChipColors(),

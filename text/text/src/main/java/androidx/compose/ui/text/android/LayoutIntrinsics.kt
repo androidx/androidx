@@ -24,6 +24,7 @@ import androidx.compose.ui.text.android.style.LetterSpacingSpanEm
 import androidx.compose.ui.text.android.style.LetterSpacingSpanPx
 import java.text.BreakIterator
 import java.util.PriorityQueue
+import kotlin.math.ceil
 
 /**
  * Computes and caches the text layout intrinsic values such as min/max width.
@@ -59,8 +60,17 @@ class LayoutIntrinsics(
      * of text where no soft line breaks are applied.
      */
     val maxIntrinsicWidth: Float by lazy(LazyThreadSafetyMode.NONE) {
-        var desiredWidth: Float = boringMetrics?.width?.toFloat()
-            ?: Layout.getDesiredWidth(charSequence, 0, charSequence.length, textPaint)
+        var desiredWidth = boringMetrics?.width?.toFloat()
+
+        // boring metrics doesn't cover RTL text so we fallback to different calculation when boring
+        // metrics can't be calculated
+        if (desiredWidth == null) {
+            // b/233856978, apply `ceil` function here to be consistent with the boring metrics
+            // width calculation that does it under the hood, too
+            desiredWidth = ceil(
+                Layout.getDesiredWidth(charSequence, 0, charSequence.length, textPaint)
+            )
+        }
         if (shouldIncreaseMaxIntrinsic(desiredWidth, charSequence, textPaint)) {
             // b/173574230, increase maxIntrinsicWidth, so that StaticLayout won't form 2
             // lines for the given maxIntrinsicWidth

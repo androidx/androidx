@@ -1,0 +1,552 @@
+/*
+ * Copyright (C) 2022 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import androidx.build.AndroidXComposePlugin
+import androidx.build.LibraryType
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
+import java.security.MessageDigest
+import java.util.stream.Collectors
+
+plugins {
+    id("AndroidXPlugin")
+    id("AndroidXComposePlugin")
+    id("com.android.library")
+    id("org.jetbrains.kotlin.android")
+}
+
+dependencies {
+    api(libs.kotlinStdlib)
+
+    api("androidx.annotation:annotation:1.1.0")
+    api(project(":compose:animation:animation"))
+    api(project(':compose:runtime:runtime'))
+    api(project(":compose:ui:ui"))
+
+    implementation(libs.kotlinStdlibCommon)
+    implementation(project(":compose:foundation:foundation"))
+    implementation(project(":compose:foundation:foundation-layout"))
+    implementation(project(":compose:ui:ui-graphics"))
+    implementation(project(":compose:ui:ui-text"))
+    implementation(project(":compose:ui:ui-util"))
+    implementation("androidx.profileinstaller:profileinstaller:1.2.0-alpha02")
+
+    testImplementation(libs.testRules)
+    testImplementation(libs.testRunner)
+    testImplementation(libs.junit)
+    implementation(libs.truth)
+
+    androidTestImplementation(project(":compose:ui:ui-test"))
+    androidTestImplementation(project(":compose:ui:ui-test-junit4"))
+    androidTestImplementation(project(":compose:test-utils"))
+    androidTestImplementation(libs.testRunner)
+}
+
+android {
+    namespace "androidx.tv.foundation"
+    defaultConfig {
+        minSdkVersion 28
+    }
+    // Use Robolectric 4.+
+    testOptions.unitTests.includeAndroidResources = true
+    lintOptions {
+        disable 'IllegalExperimentalApiUsage' // TODO (b/233188423): Address before moving to beta
+    }
+}
+
+androidx {
+    name = "androidx.tv:tv-foundation"
+    type = LibraryType.PUBLISHED_LIBRARY
+    mavenGroup = LibraryGroups.TV
+    inceptionYear = "2022"
+    description = "This library makes it easier for developers" +
+            "to write Jetpack Compose applications for TV devices by providing " +
+            "functionality to support TV specific devices sizes, shapes and d-pad navigation " +
+            "supported components. It builds upon the Jetpack Compose libraries."
+    targetsJavaConsumers = false
+}
+
+tasks.withType(KotlinCompile).configureEach {
+    kotlinOptions {
+        freeCompilerArgs += [
+                "-Xjvm-default=all",
+        ]
+    }
+}
+
+// Functions and tasks to monitor changes in copied files.
+
+task generateMd5 {
+    ext.genMd5 = { fileNameToHash ->
+        MessageDigest digest = MessageDigest.getInstance("MD5")
+        file(fileNameToHash).withInputStream(){is->
+            byte[] buffer = new byte[8192]
+            int read = 0
+            while( (read = is.read(buffer)) > 0) {
+                digest.update(buffer, 0, read);
+            }
+        }
+        byte[] md5sum = digest.digest()
+        BigInteger bigInt = new BigInteger(1, md5sum)
+        bigInt.toString(16).padLeft(32, '0')
+    }
+
+    doLast {
+        String hashValue = genMd5(file)
+        print "value="
+        println hashValue
+    }
+}
+
+List<CopiedClass> copiedClasses = new ArrayList<>();
+
+copiedClasses.add(
+        new CopiedClass(
+                "../../compose/foundation/foundation/src/commonMain/kotlin/androidx/compose/foundation/gestures/Scrollable.kt",
+                "src/commonMain/kotlin/androidx/tv/foundation/MarioScrollable.kt",
+                "afaf0f2be6b57df076db42d9218f83d9"
+        )
+)
+
+copiedClasses.add(
+        new CopiedClass(
+                "../../compose/foundation/foundation/src/commonMain/kotlin/androidx/compose/foundation/lazy/DataIndex.kt",
+                "src/commonMain/kotlin/androidx/tv/foundation/lazy/list/DataIndex.kt",
+                "2aa3c6d2dd05057478e723b2247517e1"
+        )
+)
+
+copiedClasses.add(
+        new CopiedClass(
+                "../../compose/foundation/foundation/src/commonMain/kotlin/androidx/compose/foundation/lazy/LazyItemScopeImpl.kt",
+                "src/commonMain/kotlin/androidx/tv/foundation/lazy/list/LazyItemScopeImpl.kt",
+                "31e6796d0d03cb84483396a39fc5b7e7"
+        )
+)
+
+copiedClasses.add(
+        new CopiedClass(
+                "../../compose/foundation/foundation/src/commonMain/kotlin/androidx/compose/foundation/lazy/LazyListHeaders.kt",
+                "src/commonMain/kotlin/androidx/tv/foundation/lazy/list/LazyListHeaders.kt",
+                "4d71c69f9cb38f741da9cfc4109567dd"
+        )
+)
+
+copiedClasses.add(
+        new CopiedClass(
+                "../../compose/foundation/foundation/src/commonMain/kotlin/androidx/compose/foundation/lazy/LazyListItemPlacementAnimator.kt",
+                "src/commonMain/kotlin/androidx/tv/foundation/lazy/list/LazyListItemPlacementAnimator.kt",
+                "a74bfa05e68e2b6c2e108f022dfbfa26"
+        )
+)
+
+copiedClasses.add(
+        new CopiedClass(
+                "../../compose/foundation/foundation/src/commonMain/kotlin/androidx/compose/foundation/lazy/LazyListItemProviderImpl.kt",
+                "src/commonMain/kotlin/androidx/tv/foundation/lazy/list/LazyListItemProviderImpl.kt",
+                "57ff505cbdfa854e15b4fbd9d4a574eb"
+        )
+)
+
+copiedClasses.add(
+        new CopiedClass(
+                "../../compose/foundation/foundation/src/commonMain/kotlin/androidx/compose/foundation/lazy/LazyListItemProvider.kt",
+                "src/commonMain/kotlin/androidx/tv/foundation/lazy/list/LazyListItemsProvider.kt",
+                "42a2c446c81fba89fd7b8480d063b308"
+        )
+)
+
+copiedClasses.add(
+        new CopiedClass(
+                "../../compose/foundation/foundation/src/commonMain/kotlin/androidx/compose/foundation/lazy/LazyList.kt",
+                "src/commonMain/kotlin/androidx/tv/foundation/lazy/list/LazyList.kt",
+                "c605794683c01c516674436c9ebc1f44"
+        )
+)
+
+copiedClasses.add(
+        new CopiedClass(
+                "../../compose/foundation/foundation/src/commonMain/kotlin/androidx/compose/foundation/lazy/LazyListMeasure.kt",
+                "src/commonMain/kotlin/androidx/tv/foundation/lazy/list/LazyListMeasure.kt",
+                "95c14abd0367f0f39218c9bdd175b242"
+        )
+)
+
+copiedClasses.add(
+        new CopiedClass(
+                "../../compose/foundation/foundation/src/commonMain/kotlin/androidx/compose/foundation/lazy/LazyListMeasureResult.kt",
+                "src/commonMain/kotlin/androidx/tv/foundation/lazy/list/LazyListMeasureResult.kt",
+                "d4407572c6550d184133f8b3fd37869f"
+        )
+)
+
+copiedClasses.add(
+        new CopiedClass(
+                "../../compose/foundation/foundation/src/commonMain/kotlin/androidx/compose/foundation/lazy/LazyListScopeImpl.kt",
+                "src/commonMain/kotlin/androidx/tv/foundation/lazy/list/LazyListScopeImpl.kt",
+                "1888e8b115c73b5ea7f33d48d9887845"
+        )
+)
+
+copiedClasses.add(
+        new CopiedClass(
+                "../../compose/foundation/foundation/src/commonMain/kotlin/androidx/compose/foundation/lazy/LazyListScrolling.kt",
+                "src/commonMain/kotlin/androidx/tv/foundation/lazy/list/LazyListScrolling.kt",
+                "a32b856a1e8740a6a521df04c9d51ed1"
+        )
+)
+
+copiedClasses.add(
+        new CopiedClass(
+                "../../compose/foundation/foundation/src/commonMain/kotlin/androidx/compose/foundation/lazy/LazyListScrollPosition.kt",
+                "src/commonMain/kotlin/androidx/tv/foundation/lazy/list/LazyListScrollPosition.kt",
+                "82df7d370ba5b20309e5191a0af431a0"
+        )
+)
+
+copiedClasses.add(
+        new CopiedClass(
+                "../../compose/foundation/foundation/src/commonMain/kotlin/androidx/compose/foundation/lazy/LazyListState.kt",
+                "src/commonMain/kotlin/androidx/tv/foundation/lazy/list/LazyListState.kt",
+                "45821a5bf14d3e6e25fee63e61930f57"
+        )
+)
+
+copiedClasses.add(
+        new CopiedClass(
+                "../../compose/foundation/foundation/src/commonMain/kotlin/androidx/compose/foundation/lazy/LazyMeasuredItem.kt",
+                "src/commonMain/kotlin/androidx/tv/foundation/lazy/list/LazyMeasuredItem.kt",
+                "78b09b4d78ec9d761274b9ca8d24f4f7"
+        )
+)
+
+copiedClasses.add(
+        new CopiedClass(
+                "../../compose/foundation/foundation/src/commonMain/kotlin/androidx/compose/foundation/lazy/LazyMeasuredItemProvider.kt",
+                "src/commonMain/kotlin/androidx/tv/foundation/lazy/list/LazyMeasuredItemProvider.kt",
+                "bec4211cb3d91bb936e9f0872864244b"
+        )
+)
+
+copiedClasses.add(
+        new CopiedClass(
+                "../../compose/foundation/foundation/src/commonMain/kotlin/androidx/compose/foundation/lazy/LazySemantics.kt",
+                "src/commonMain/kotlin/androidx/tv/foundation/lazy/list/LazySemantics.kt",
+                "739205f656bf107604ba7167e3cee7e7"
+        )
+)
+
+copiedClasses.add(
+        new CopiedClass(
+                "../../compose/foundation/foundation/src/commonMain/kotlin/androidx/compose/foundation/lazy/grid/ItemIndex.kt",
+                "src/commonMain/kotlin/androidx/tv/foundation/lazy/grid/ItemIndex.kt",
+                "1031b8b91a81c684b3c4584bc93d3fb0"
+        )
+)
+
+copiedClasses.add(
+        new CopiedClass(
+                "../../compose/foundation/foundation/src/commonMain/kotlin/androidx/compose/foundation/lazy/grid/LazyGridDsl.kt",
+                "src/commonMain/kotlin/androidx/tv/foundation/lazy/grid/LazyGridDsl.kt",
+                "6a0b2db56ef38fb1ac004e4fc9847db8"
+        )
+)
+
+copiedClasses.add(
+        new CopiedClass(
+                "../../compose/foundation/foundation/src/commonMain/kotlin/androidx/compose/foundation/lazy/grid/LazyGridItemInfo.kt",
+                "src/commonMain/kotlin/androidx/tv/foundation/lazy/grid/LazyGridItemInfo.kt",
+                "1f3b13ee45de79bc67ace4133e634600"
+        )
+)
+
+copiedClasses.add(
+        new CopiedClass(
+                "../../compose/foundation/foundation/src/commonMain/kotlin/androidx/compose/foundation/lazy/grid/LazyGridItemPlacementAnimator.kt",
+                "src/commonMain/kotlin/androidx/tv/foundation/lazy/grid/LazyGridItemPlacementAnimator.kt",
+                "0bbc162aab675ca2a34350e3044433e7"
+        )
+)
+
+copiedClasses.add(
+        new CopiedClass(
+                "../../compose/foundation/foundation/src/commonMain/kotlin/androidx/compose/foundation/lazy/grid/LazyGridItemScopeImpl.kt",
+                "src/commonMain/kotlin/androidx/tv/foundation/lazy/grid/LazyGridItemScopeImpl.kt",
+                "b3ff4600791c73028b8661c0e2b49110"
+        )
+)
+
+copiedClasses.add(
+        new CopiedClass(
+                "../../compose/foundation/foundation/src/commonMain/kotlin/androidx/compose/foundation/lazy/grid/LazyGridItemScope.kt",
+                "src/commonMain/kotlin/androidx/tv/foundation/lazy/grid/LazyGridItemScope.kt",
+                "1a40313cc5e67b5808586c012bbfb058"
+        )
+)
+
+copiedClasses.add(
+        new CopiedClass(
+                "../../compose/foundation/foundation/src/commonMain/kotlin/androidx/compose/foundation/lazy/grid/LazyGridItemProviderImpl.kt",
+                "src/commonMain/kotlin/androidx/tv/foundation/lazy/grid/LazyGridItemsProviderImpl.kt",
+                "48fdfb1dfa5d39c88d4aa96732192421"
+        )
+)
+
+copiedClasses.add(
+        new CopiedClass(
+                "../../compose/foundation/foundation/src/commonMain/kotlin/androidx/compose/foundation/lazy/grid/LazyGridItemProvider.kt",
+                "src/commonMain/kotlin/androidx/tv/foundation/lazy/grid/LazyGridItemProvider.kt",
+                "e5e95e6cad43cec2b0c30bf201e3cae9"
+        )
+)
+
+copiedClasses.add(
+        new CopiedClass(
+                "../../compose/foundation/foundation/src/commonMain/kotlin/androidx/compose/foundation/lazy/grid/LazyGrid.kt",
+                "src/commonMain/kotlin/androidx/tv/foundation/lazy/grid/LazyGrid.kt",
+                "69dbab5e83deab809219d4d7a9ee7fa8"
+        )
+)
+
+copiedClasses.add(
+        new CopiedClass(
+                "../../compose/foundation/foundation/src/commonMain/kotlin/androidx/compose/foundation/lazy/grid/LazyGridLayoutInfo.kt",
+                "src/commonMain/kotlin/androidx/tv/foundation/lazy/grid/LazyGridLayoutInfo.kt",
+                "b421c5e74856a78982efe0d8a79d10cb"
+        )
+)
+
+copiedClasses.add(
+        new CopiedClass(
+                "../../compose/foundation/foundation/src/commonMain/kotlin/androidx/compose/foundation/lazy/grid/LazyGridMeasure.kt",
+                "src/commonMain/kotlin/androidx/tv/foundation/lazy/grid/LazyGridMeasure.kt",
+                "2b38f5261ad092d9048cfc4f0a841a1a"
+        )
+)
+
+copiedClasses.add(
+        new CopiedClass(
+                "../../compose/foundation/foundation/src/commonMain/kotlin/androidx/compose/foundation/lazy/grid/LazyGridMeasureResult.kt",
+                "src/commonMain/kotlin/androidx/tv/foundation/lazy/grid/LazyGridMeasureResult.kt",
+                "1277598d36d8507d7bf0305cc629a11c"
+        )
+)
+
+copiedClasses.add(
+        new CopiedClass(
+                "../../compose/foundation/foundation/src/commonMain/kotlin/androidx/compose/foundation/lazy/grid/LazyGridScopeImpl.kt",
+                "src/commonMain/kotlin/androidx/tv/foundation/lazy/grid/LazyGridScopeImpl.kt",
+                "3296c6edcbd56450ba919df105cb36c0"
+        )
+)
+
+copiedClasses.add(
+        new CopiedClass(
+                "../../compose/foundation/foundation/src/commonMain/kotlin/androidx/compose/foundation/lazy/grid/LazyGridScopeMarker.kt",
+                "src/commonMain/kotlin/androidx/tv/foundation/lazy/grid/LazyGridScopeMarker.kt",
+                "0b7ff258a80e2413f89d56ab0ef41b46"
+        )
+)
+
+copiedClasses.add(
+        new CopiedClass(
+                "../../compose/foundation/foundation/src/commonMain/kotlin/androidx/compose/foundation/lazy/grid/LazyGridScrolling.kt",
+                "src/commonMain/kotlin/androidx/tv/foundation/lazy/grid/LazyGridScrolling.kt",
+                "15f2f9bb89c1603aa4b7e7d1f8a2de5a"
+        )
+)
+
+copiedClasses.add(
+        new CopiedClass(
+                "../../compose/foundation/foundation/src/commonMain/kotlin/androidx/compose/foundation/lazy/grid/LazyGridScrollPosition.kt",
+                "src/commonMain/kotlin/androidx/tv/foundation/lazy/grid/LazyGridScrollPosition.kt",
+                "9b3d47322ad526fb17a3d9505a80f673"
+        )
+)
+
+copiedClasses.add(
+        new CopiedClass(
+                "../../compose/foundation/foundation/src/commonMain/kotlin/androidx/compose/foundation/lazy/grid/LazyGridSpan.kt",
+                "src/commonMain/kotlin/androidx/tv/foundation/lazy/grid/LazyGridSpan.kt",
+                "cc63cb4f05cc556e8fcf7504ac0ea57c"
+        )
+)
+
+copiedClasses.add(
+        new CopiedClass(
+                "../../compose/foundation/foundation/src/commonMain/kotlin/androidx/compose/foundation/lazy/grid/LazyGridSpanLayoutProvider.kt",
+                "src/commonMain/kotlin/androidx/tv/foundation/lazy/grid/LazyGridSpanLayoutProvider.kt",
+                "894b9f69a27e247bbe609bdac22bb5ed"
+        )
+)
+
+copiedClasses.add(
+        new CopiedClass(
+                "../../compose/foundation/foundation/src/commonMain/kotlin/androidx/compose/foundation/lazy/grid/LazyGridState.kt",
+                "src/commonMain/kotlin/androidx/tv/foundation/lazy/grid/LazyGridState.kt",
+                "1e37d8a6f159aabe11f488121de59b70"
+        )
+)
+
+copiedClasses.add(
+        new CopiedClass(
+                "../../compose/foundation/foundation/src/commonMain/kotlin/androidx/compose/foundation/lazy/grid/LazyMeasuredItem.kt",
+                "src/commonMain/kotlin/androidx/tv/foundation/lazy/grid/LazyMeasuredItem.kt",
+                "09d9b21d33325a94cac738aad58e2422"
+        )
+)
+
+copiedClasses.add(
+        new CopiedClass(
+                "../../compose/foundation/foundation/src/commonMain/kotlin/androidx/compose/foundation/lazy/grid/LazyMeasuredItemProvider.kt",
+                "src/commonMain/kotlin/androidx/tv/foundation/lazy/grid/LazyMeasuredItemProvider.kt",
+                "3acdfddfd06eb17aac5dbdd326482e35"
+        )
+)
+
+copiedClasses.add(
+        new CopiedClass(
+                "../../compose/foundation/foundation/src/commonMain/kotlin/androidx/compose/foundation/lazy/grid/LazyMeasuredLine.kt",
+                "src/commonMain/kotlin/androidx/tv/foundation/lazy/grid/LazyMeasuredLine.kt",
+                "1104f01e8b1f6eced2401b207114f4a4"
+        )
+)
+
+copiedClasses.add(
+        new CopiedClass(
+                "../../compose/foundation/foundation/src/commonMain/kotlin/androidx/compose/foundation/lazy/grid/LazyMeasuredLineProvider.kt",
+                "src/commonMain/kotlin/androidx/tv/foundation/lazy/grid/LazyMeasuredLineProvider.kt",
+                "b7b731e6e8fdc520064aaef989575bda"
+        )
+)
+
+copiedClasses.add(
+        new CopiedClass(
+                "../../compose/foundation/foundation/src/commonMain/kotlin/androidx/compose/foundation/lazy/grid/LazySemantics.kt",
+                "src/commonMain/kotlin/androidx/tv/foundation/lazy/grid/LazySemantics.kt",
+                "dab277484b4ec57a5275095b505f79d4"
+        )
+)
+
+copiedClasses.add(
+        new CopiedClass(
+                "../../compose/foundation/foundation/src/commonMain/kotlin/androidx/compose/foundation/lazy/LazyDsl.kt",
+                "src/commonMain/kotlin/androidx/tv/foundation/lazy/list/LazyDsl.kt",
+                "8462c0a61f14639f39dd6f76c6a2aebc"
+        )
+)
+
+copiedClasses.add(
+        new CopiedClass(
+                "../../compose/foundation/foundation/src/commonMain/kotlin/androidx/compose/foundation/lazy/LazyListPinningModifier.kt",
+                "src/commonMain/kotlin/androidx/tv/foundation/lazy/LazyListPinningModifier.kt",
+                "e37450505d13ab0fd1833f136ec8aa3c"
+        )
+)
+
+copiedClasses.add(
+        new CopiedClass(
+                "../../compose/foundation/foundation/src/commonMain/kotlin/androidx/compose/foundation/lazy/LazyScopeMarker.kt",
+                "src/main/java/androidx/tv/foundation/lazy/list/TvLazyListScopeMarker.kt",
+                "f7b72b3c6bad88868153300b9fbdd922"
+        )
+)
+
+copiedClasses.add(
+        new CopiedClass(
+                "../../compose/foundation/foundation/src/commonMain/kotlin/androidx/compose/foundation/lazy/LazyItemScope.kt",
+                "src/main/java/androidx/tv/foundation/lazy/list/TvLazyListItemScope.kt",
+                "6254294540cfadf2d6da1bbbce1611e8"
+        )
+)
+
+copiedClasses.add(
+        new CopiedClass(
+                "../../compose/foundation/foundation/src/commonMain/kotlin/androidx/compose/foundation/lazy/LazyListItemInfo.kt",
+                "src/main/java/androidx/tv/foundation/lazy/list/TvLazyListItemInfo.kt",
+                "7571daa18ca079fd6de31d37c3022574"
+        )
+)
+
+copiedClasses.add(
+        new CopiedClass(
+                "../../compose/foundation/foundation/src/commonMain/kotlin/androidx/compose/foundation/lazy/LazyListLayoutInfo.kt",
+                "src/main/java/androidx/tv/foundation/lazy/list/TvLazyListLayoutInfo.kt",
+                "fa1dffc993bdc486e0819c5d8018cda3"
+        )
+)
+
+task doCopiesNeedUpdate {
+    ext.genMd5 = { fileNameToHash ->
+        try {
+            MessageDigest digest = MessageDigest.getInstance("MD5")
+            file(fileNameToHash).withInputStream() { is ->
+                byte[] buffer = new byte[8192]
+                int read
+                while ((read = is.read(buffer)) > 0) {
+                    digest.update(buffer, 0, read);
+                }
+            }
+            byte[] md5sum = digest.digest()
+            BigInteger bigInt = new BigInteger(1, md5sum)
+            bigInt.toString(16).padLeft(32, '0')
+        } catch (Exception e) {
+            throw new GradleException("Failed for file=$fileNameToHash", e)
+        }
+    }
+
+
+    doLast {
+        List<String> failureFiles = new ArrayList<>()
+        copiedClasses.forEach(copiedClass -> {
+            try {
+                String actualMd5 = genMd5(copiedClass.originalFilePath)
+                if (copiedClass.lastKnownGoodHash != actualMd5) {
+                    failureFiles.add(copiedClass.toString()+ ", actual=" + actualMd5)
+                }
+            } catch (Exception e) {
+                throw new GradleException("Failed for file=${copiedClass.originalFilePath}", e)
+            }
+        })
+
+        if (!failureFiles.isEmpty()) {
+            throw new GradleException(
+                    "Files that were copied have been updated at the source. " +
+                            "Please update the copy and then" +
+                            " update the hash in the compose-foundation build.gradle file." +
+                            failureFiles.stream().collect(Collectors.joining("\n", "\n", "")))
+        }
+    }
+}
+
+class CopiedClass {
+    String originalFilePath
+    String copyFilePath
+    String lastKnownGoodHash
+
+    CopiedClass(String originalFilePath, String copyFilePath, String lastKnownGoodHash) {
+        this.originalFilePath = originalFilePath
+        this.copyFilePath = copyFilePath
+        this.lastKnownGoodHash = lastKnownGoodHash
+    }
+
+    @Override
+    String toString() {
+        return "originalFilePath='" + originalFilePath + '\'' +
+                ", copyFilePath='" + copyFilePath + '\'' +
+                ", lastKnownGoodHash='" + lastKnownGoodHash + '\''
+    }
+}

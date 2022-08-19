@@ -73,8 +73,8 @@ import kotlin.math.max
 fun LinearProgressIndicator(
     progress: Float,
     modifier: Modifier = Modifier,
-    color: Color = LinearProgressIndicatorTokens.ActiveIndicatorColor.toColor(),
-    trackColor: Color = LinearProgressIndicatorTokens.TrackColor.toColor(),
+    color: Color = ProgressIndicatorDefaults.linearColor,
+    trackColor: Color = ProgressIndicatorDefaults.linearTrackColor,
 ) {
     Canvas(
         modifier
@@ -95,6 +95,8 @@ fun LinearProgressIndicator(
  *
  * ![Linear progress indicator image](https://developer.android.com/images/reference/androidx/compose/material3/linear-progress-indicator.png)
  *
+ * @sample androidx.compose.material3.samples.IndeterminateLinearProgressIndicatorSample
+ *
  * @param modifier the [Modifier] to be applied to this progress indicator
  * @param color color of this progress indicator
  * @param trackColor color of the track behind the indicator, visible when the progress has not
@@ -103,8 +105,8 @@ fun LinearProgressIndicator(
 @Composable
 fun LinearProgressIndicator(
     modifier: Modifier = Modifier,
-    color: Color = LinearProgressIndicatorTokens.ActiveIndicatorColor.toColor(),
-    trackColor: Color = LinearProgressIndicatorTokens.TrackColor.toColor(),
+    color: Color = ProgressIndicatorDefaults.linearColor,
+    trackColor: Color = ProgressIndicatorDefaults.linearTrackColor,
 ) {
     val infiniteTransition = rememberInfiniteTransition()
     // Fractional position of the 'head' and 'tail' of the two lines drawn, i.e. if the head is 0.8
@@ -228,8 +230,8 @@ private fun DrawScope.drawLinearIndicatorTrack(
 fun CircularProgressIndicator(
     progress: Float,
     modifier: Modifier = Modifier,
-    color: Color = CircularProgressIndicatorTokens.ActiveIndicatorColor.toColor(),
-    strokeWidth: Dp = CircularProgressIndicatorTokens.ActiveIndicatorWidth
+    color: Color = ProgressIndicatorDefaults.circularColor,
+    strokeWidth: Dp = ProgressIndicatorDefaults.CircularStrokeWidth
 ) {
     val stroke = with(LocalDensity.current) {
         Stroke(width = strokeWidth.toPx(), cap = StrokeCap.Butt)
@@ -254,6 +256,8 @@ fun CircularProgressIndicator(
  *
  * ![Circular progress indicator image](https://developer.android.com/images/reference/androidx/compose/material3/circular-progress-indicator.png)
  *
+ * @sample androidx.compose.material3.samples.IndeterminateCircularProgressIndicatorSample
+ *
  * @param modifier the [Modifier] to be applied to this progress indicator
  * @param color color of this progress indicator
  * @param strokeWidth stroke width of this progress indicator
@@ -261,8 +265,8 @@ fun CircularProgressIndicator(
 @Composable
 fun CircularProgressIndicator(
     modifier: Modifier = Modifier,
-    color: Color = CircularProgressIndicatorTokens.ActiveIndicatorColor.toColor(),
-    strokeWidth: Dp = CircularProgressIndicatorTokens.ActiveIndicatorWidth
+    color: Color = ProgressIndicatorDefaults.circularColor,
+    strokeWidth: Dp = ProgressIndicatorDefaults.CircularStrokeWidth
 ) {
     val stroke = with(LocalDensity.current) {
         Stroke(width = strokeWidth.toPx(), cap = StrokeCap.Square)
@@ -393,6 +397,21 @@ private fun DrawScope.drawIndeterminateCircularIndicator(
  * Contains the default values used for [LinearProgressIndicator] and [CircularProgressIndicator].
  */
 object ProgressIndicatorDefaults {
+    /** Default color for a linear progress indicator. */
+    val linearColor: Color @Composable get() =
+        LinearProgressIndicatorTokens.ActiveIndicatorColor.toColor()
+
+    /** Default color for a circular progress indicator. */
+    val circularColor: Color @Composable get() =
+        CircularProgressIndicatorTokens.ActiveIndicatorColor.toColor()
+
+    /** Default track color for a linear progress indicator. */
+    val linearTrackColor: Color @Composable get() =
+        LinearProgressIndicatorTokens.TrackColor.toColor()
+
+    /** Default stroke width for a circular progress indicator. */
+    val CircularStrokeWidth = CircularProgressIndicatorTokens.ActiveIndicatorWidth
+
     /**
      * The default [AnimationSpec] that should be used when animating between progress in a
      * determinate progress indicator.

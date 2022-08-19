@@ -19,6 +19,7 @@ package androidx.wear.watchface.control;
 /**
  * Interface of a service that allows the user to create watch face instances.
  *
+ * @Deprecated Use IWatchfaceListener instead where possible.
  * @hide
  */
 interface IWatchfaceReadyListener {

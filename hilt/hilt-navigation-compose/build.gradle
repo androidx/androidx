@@ -34,7 +34,6 @@ android {
 }
 
 dependencies {
-    kotlinPlugin(projectOrArtifact(":compose:compiler:compiler"))
 
     implementation(libs.kotlinStdlib)
     api("androidx.hilt:hilt-navigation:1.0.0")

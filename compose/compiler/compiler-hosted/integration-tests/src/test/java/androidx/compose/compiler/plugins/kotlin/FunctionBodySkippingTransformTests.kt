@@ -72,9 +72,6 @@ class FunctionBodySkippingTransformTests : FunctionBodySkippingTransfomrTestsBas
         """
             @Composable
             fun Test(x: Int, y: Int, %composer: Composer?, %changed: Int, %default: Int) {
-              if (isTraceInProgress()) {
-                traceEventStart(<>)
-              }
               %composer = %composer.startRestartGroup(<>)
               sourceInformation(%composer, "C(Test)<Wrap>:Test.kt")
               val %dirty = %changed
@@ -95,10 +92,16 @@ class FunctionBodySkippingTransformTests : FunctionBodySkippingTransfomrTestsBas
                 if (%default and 0b0010 !== 0) {
                   y = 0
                 }
+                if (isTraceInProgress()) {
+                  traceEventStart(<>, %dirty, -1, <>)
+                }
                 used(y)
                 Wrap(composableLambda(%composer, <>, true) { %composer: Composer?, %changed: Int ->
                   sourceInformation(%composer, "C:Test.kt")
                   if (%changed and 0b1011 !== 0b0010 || !%composer.skipping) {
+                    if (isTraceInProgress()) {
+                      traceEventStart(<>, %changed, -1, <>)
+                    }
                     if (x > 0) {
                       %composer.startReplaceableGroup(<>)
                       sourceInformation(%composer, "<A(x)>")
@@ -110,18 +113,21 @@ class FunctionBodySkippingTransformTests : FunctionBodySkippingTransfomrTestsBas
                       A(x, 0, %composer, 0b1110 and %dirty, 0b0010)
                       %composer.endReplaceableGroup()
                     }
+                    if (isTraceInProgress()) {
+                      traceEventEnd()
+                    }
                   } else {
                     %composer.skipToGroupEnd()
                   }
                 }, %composer, 0b0110)
+                if (isTraceInProgress()) {
+                  traceEventEnd()
+                }
               } else {
                 %composer.skipToGroupEnd()
               }
               %composer.endRestartGroup()?.updateScope { %composer: Composer?, %force: Int ->
                 Test(x, y, %composer, %changed or 0b0001, %default)
-              }
-              if (isTraceInProgress()) {
-                traceEventEnd()
               }
             }
         """
@@ -150,9 +156,6 @@ class FunctionBodySkippingTransformTests : FunctionBodySkippingTransfomrTestsBas
         """
             @Composable
             fun BasicText(style: TextStyle?, onTextLayout: Function1<TextLayoutResult, Unit>?, overflow: TextOverflow, %composer: Composer?, %changed: Int, %default: Int) {
-              if (isTraceInProgress()) {
-                traceEventStart(<>)
-              }
               %composer = %composer.startRestartGroup(<>)
               sourceInformation(%composer, "C(BasicText)P(2!,1:c#ui.text.style.TextOverflow):Test.kt")
               val %dirty = %changed
@@ -182,17 +185,20 @@ class FunctionBodySkippingTransformTests : FunctionBodySkippingTransfomrTestsBas
                 if (%default and 0b0100 !== 0) {
                   overflow = Companion.Clip
                 }
+                if (isTraceInProgress()) {
+                  traceEventStart(<>, %changed, -1, <>)
+                }
                 used(style)
                 used(onTextLayout)
                 used(overflow)
+                if (isTraceInProgress()) {
+                  traceEventEnd()
+                }
               } else {
                 %composer.skipToGroupEnd()
               }
               %composer.endRestartGroup()?.updateScope { %composer: Composer?, %force: Int ->
                 BasicText(style, onTextLayout, overflow, %composer, %changed or 0b0001, %default)
-              }
-              if (isTraceInProgress()) {
-                traceEventEnd()
               }
             }
         """
@@ -216,9 +222,6 @@ class FunctionBodySkippingTransformTests : FunctionBodySkippingTransfomrTestsBas
         """
             @Composable
             fun A(arrangement: Vertical?, %composer: Composer?, %changed: Int, %default: Int) {
-              if (isTraceInProgress()) {
-                traceEventStart(<>)
-              }
               %composer = %composer.startRestartGroup(<>)
               sourceInformation(%composer, "C(A):Test.kt")
               val %dirty = %changed
@@ -231,15 +234,18 @@ class FunctionBodySkippingTransformTests : FunctionBodySkippingTransfomrTestsBas
                 if (%default and 0b0001 !== 0) {
                   arrangement = Arrangement.Top
                 }
+                if (isTraceInProgress()) {
+                  traceEventStart(<>, %changed, -1, <>)
+                }
                 used(arrangement)
+                if (isTraceInProgress()) {
+                  traceEventEnd()
+                }
               } else {
                 %composer.skipToGroupEnd()
               }
               %composer.endRestartGroup()?.updateScope { %composer: Composer?, %force: Int ->
                 A(arrangement, %composer, %changed or 0b0001, %default)
-              }
-              if (isTraceInProgress()) {
-                traceEventEnd()
               }
             }
         """
@@ -261,9 +267,6 @@ class FunctionBodySkippingTransformTests : FunctionBodySkippingTransfomrTestsBas
             @Composable
             @ComposableInferredTarget(scheme = "[0[0]]")
             fun Example(content: Function2<Composer, Int, Unit>?, %composer: Composer?, %changed: Int, %default: Int) {
-              if (isTraceInProgress()) {
-                traceEventStart(<>)
-              }
               %composer = %composer.startRestartGroup(<>)
               sourceInformation(%composer, "C(Example)<conten...>:Test.kt")
               val %dirty = %changed
@@ -276,22 +279,31 @@ class FunctionBodySkippingTransformTests : FunctionBodySkippingTransfomrTestsBas
                 if (%default and 0b0001 !== 0) {
                   content = ComposableSingletons%TestKt.lambda-1
                 }
+                if (isTraceInProgress()) {
+                  traceEventStart(<>, %dirty, -1, <>)
+                }
                 content(%composer, 0b1110 and %dirty)
+                if (isTraceInProgress()) {
+                  traceEventEnd()
+                }
               } else {
                 %composer.skipToGroupEnd()
               }
               %composer.endRestartGroup()?.updateScope { %composer: Composer?, %force: Int ->
                 Example(content, %composer, %changed or 0b0001, %default)
               }
-              if (isTraceInProgress()) {
-                traceEventEnd()
-              }
             }
             internal object ComposableSingletons%TestKt {
               val lambda-1: Function2<Composer, Int, Unit> = composableLambdaInstance(<>, false) { %composer: Composer?, %changed: Int ->
                 sourceInformation(%composer, "C:Test.kt")
                 if (%changed and 0b1011 !== 0b0010 || !%composer.skipping) {
+                  if (isTraceInProgress()) {
+                    traceEventStart(<>, %changed, -1, <>)
+                  }
                   Unit
+                  if (isTraceInProgress()) {
+                    traceEventEnd()
+                  }
                 } else {
                   %composer.skipToGroupEnd()
                 }
@@ -319,9 +331,6 @@ class FunctionBodySkippingTransformTests : FunctionBodySkippingTransfomrTestsBas
               Example(class <no name provided> : A {
                 @Composable
                 override fun compute(it: Int, %composer: Composer?, %changed: Int) {
-                  if (isTraceInProgress()) {
-                    traceEventStart(<>)
-                  }
                   %composer = %composer.startRestartGroup(<>)
                   sourceInformation(%composer, "C(compute)<comput...>:Test.kt")
                   val %dirty = %changed
@@ -329,16 +338,19 @@ class FunctionBodySkippingTransformTests : FunctionBodySkippingTransfomrTestsBas
                     %dirty = %dirty or if (%composer.changed(it)) 0b0100 else 0b0010
                   }
                   if (%dirty and 0b1011 !== 0b0010 || !%composer.skipping) {
+                    if (isTraceInProgress()) {
+                      traceEventStart(<>, %dirty, -1, <>)
+                    }
                     a.compute(it, %composer, 0b1110 and %dirty)
+                    if (isTraceInProgress()) {
+                      traceEventEnd()
+                    }
                   } else {
                     %composer.skipToGroupEnd()
                   }
                   val tmp0_rcvr = <this>
                   %composer.endRestartGroup()?.updateScope { %composer: Composer?, %force: Int ->
                     tmp0_rcvr.compute(it, %composer, %changed or 0b0001)
-                  }
-                  if (isTraceInProgress()) {
-                    traceEventEnd()
                   }
                 }
               }
@@ -377,9 +389,6 @@ class FunctionBodySkippingTransformTests : FunctionBodySkippingTransfomrTestsBas
             @Composable
             @ComposableInferredTarget(scheme = "[androidx.compose.ui.UiComposable[androidx.compose.ui.UiComposable]]")
             fun Button(colors: ButtonColors, %composer: Composer?, %changed: Int) {
-              if (isTraceInProgress()) {
-                traceEventStart(<>)
-              }
               %composer = %composer.startRestartGroup(<>)
               sourceInformation(%composer, "C(Button)<getCol...>,<Text("...>:Test.kt")
               val %dirty = %changed
@@ -387,49 +396,58 @@ class FunctionBodySkippingTransformTests : FunctionBodySkippingTransfomrTestsBas
                 %dirty = %dirty or if (%composer.changed(colors)) 0b0100 else 0b0010
               }
               if (%dirty and 0b1011 !== 0b0010 || !%composer.skipping) {
+                if (isTraceInProgress()) {
+                  traceEventStart(<>, %dirty, -1, <>)
+                }
                 Text("hello world", null, colors.getColor(%composer, 0b1110 and %dirty), <unsafe-coerce>(0L), null, null, null, <unsafe-coerce>(0L), null, null, <unsafe-coerce>(0L), <unsafe-coerce>(0), false, 0, null, null, %composer, 0b0110, 0, 0b1111111111111010)
+                if (isTraceInProgress()) {
+                  traceEventEnd()
+                }
               } else {
                 %composer.skipToGroupEnd()
               }
               %composer.endRestartGroup()?.updateScope { %composer: Composer?, %force: Int ->
                 Button(colors, %composer, %changed or 0b0001)
               }
-              if (isTraceInProgress()) {
-                traceEventEnd()
-              }
             }
             @Composable
             @ComposableTarget(applier = "androidx.compose.ui.UiComposable")
             fun Test(%composer: Composer?, %changed: Int) {
-              if (isTraceInProgress()) {
-                traceEventStart(<>)
-              }
               %composer = %composer.startRestartGroup(<>)
               sourceInformation(%composer, "C(Test)<Button>:Test.kt")
               if (%changed !== 0 || !%composer.skipping) {
+                if (isTraceInProgress()) {
+                  traceEventStart(<>, %changed, -1, <>)
+                }
                 Button(class <no name provided> : ButtonColors {
                   @Composable
                   override fun getColor(%composer: Composer?, %changed: Int): Color {
                     %composer.startReplaceableGroup(<>)
                     sourceInformation(%composer, "C(getColor)<condit...>:Test.kt")
+                    if (isTraceInProgress()) {
+                      traceEventStart(<>, %changed, -1, <>)
+                    }
                     val tmp0 = if (condition(%composer, 0)) {
                       Companion.Red
                     } else {
                       Companion.Blue
+                    }
+                    if (isTraceInProgress()) {
+                      traceEventEnd()
                     }
                     %composer.endReplaceableGroup()
                     return tmp0
                   }
                 }
                 <no name provided>(), %composer, 0)
+                if (isTraceInProgress()) {
+                  traceEventEnd()
+                }
               } else {
                 %composer.skipToGroupEnd()
               }
               %composer.endRestartGroup()?.updateScope { %composer: Composer?, %force: Int ->
                 Test(%composer, %changed or 0b0001)
-              }
-              if (isTraceInProgress()) {
-                traceEventEnd()
               }
             }
         """
@@ -516,9 +534,6 @@ class FunctionBodySkippingTransformTests : FunctionBodySkippingTransfomrTestsBas
             @Composable
             @ComposableInferredTarget(scheme = "[0[0]]")
             fun RowColumnImpl(orientation: LayoutOrientation, modifier: Modifier?, arrangement: Vertical?, crossAxisAlignment: Horizontal?, crossAxisSize: SizeMode?, content: Function2<Composer, Int, Unit>, %composer: Composer?, %changed: Int, %default: Int) {
-              if (isTraceInProgress()) {
-                traceEventStart(<>)
-              }
               %composer = %composer.startRestartGroup(<>)
               sourceInformation(%composer, "C(RowColumnImpl)P(5,4!1,2,3)<conten...>:Test.kt")
               val %dirty = %changed
@@ -565,28 +580,28 @@ class FunctionBodySkippingTransformTests : FunctionBodySkippingTransfomrTestsBas
                 if (%default and 0b00010000 !== 0) {
                   crossAxisSize = SizeMode.Wrap
                 }
+                if (isTraceInProgress()) {
+                  traceEventStart(<>, %dirty, -1, <>)
+                }
                 used(orientation)
                 used(modifier)
                 used(arrangement)
                 used(crossAxisAlignment)
                 used(crossAxisSize)
                 content(%composer, 0b1110 and %dirty shr 0b1111)
+                if (isTraceInProgress()) {
+                  traceEventEnd()
+                }
               } else {
                 %composer.skipToGroupEnd()
               }
               %composer.endRestartGroup()?.updateScope { %composer: Composer?, %force: Int ->
                 RowColumnImpl(orientation, modifier, arrangement, crossAxisAlignment, crossAxisSize, content, %composer, %changed or 0b0001, %default)
               }
-              if (isTraceInProgress()) {
-                traceEventEnd()
-              }
             }
             @Composable
             @ComposableInferredTarget(scheme = "[0[0]]")
             fun Column(modifier: Modifier?, verticalArrangement: Vertical?, horizontalGravity: Horizontal?, content: Function2<Composer, Int, Unit>, %composer: Composer?, %changed: Int, %default: Int) {
-              if (isTraceInProgress()) {
-                traceEventStart(<>)
-              }
               %composer = %composer.startRestartGroup(<>)
               sourceInformation(%composer, "C(Column)P(2,3,1)<RowCol...>:Test.kt")
               val %dirty = %changed
@@ -620,17 +635,20 @@ class FunctionBodySkippingTransformTests : FunctionBodySkippingTransfomrTestsBas
                 if (%default and 0b0100 !== 0) {
                   horizontalGravity = Companion.Start
                 }
+                if (isTraceInProgress()) {
+                  traceEventStart(<>, %dirty, -1, <>)
+                }
                 val tmp0_orientation = LayoutOrientation.Vertical
                 val tmp1_crossAxisSize = SizeMode.Wrap
                 RowColumnImpl(tmp0_orientation, modifier, verticalArrangement, horizontalGravity, tmp1_crossAxisSize, content, %composer, 0b0110000000000110 or 0b01110000 and %dirty shl 0b0011 or 0b001110000000 and %dirty shl 0b0011 or 0b0001110000000000 and %dirty shl 0b0011 or 0b01110000000000000000 and %dirty shl 0b0110, 0)
+                if (isTraceInProgress()) {
+                  traceEventEnd()
+                }
               } else {
                 %composer.skipToGroupEnd()
               }
               %composer.endRestartGroup()?.updateScope { %composer: Composer?, %force: Int ->
                 Column(modifier, verticalArrangement, horizontalGravity, content, %composer, %changed or 0b0001, %default)
-              }
-              if (isTraceInProgress()) {
-                traceEventEnd()
               }
             }
         """
@@ -655,9 +673,6 @@ class FunctionBodySkippingTransformTests : FunctionBodySkippingTransfomrTestsBas
         """
             @Composable
             fun SimpleBox(modifier: Modifier?, %composer: Composer?, %changed: Int, %default: Int) {
-              if (isTraceInProgress()) {
-                traceEventStart(<>)
-              }
               %composer = %composer.startRestartGroup(<>)
               sourceInformation(%composer, "C(SimpleBox):Test.kt")
               val %dirty = %changed
@@ -670,15 +685,18 @@ class FunctionBodySkippingTransformTests : FunctionBodySkippingTransfomrTestsBas
                 if (%default and 0b0001 !== 0) {
                   modifier = Companion
                 }
+                if (isTraceInProgress()) {
+                  traceEventStart(<>, %changed, -1, <>)
+                }
                 used(modifier)
+                if (isTraceInProgress()) {
+                  traceEventEnd()
+                }
               } else {
                 %composer.skipToGroupEnd()
               }
               %composer.endRestartGroup()?.updateScope { %composer: Composer?, %force: Int ->
                 SimpleBox(modifier, %composer, %changed or 0b0001, %default)
-              }
-              if (isTraceInProgress()) {
-                traceEventEnd()
               }
             }
         """
@@ -698,9 +716,6 @@ class FunctionBodySkippingTransformTests : FunctionBodySkippingTransfomrTestsBas
         """
             @Composable
             fun Example(a: Int, %composer: Composer?, %changed: Int, %default: Int) {
-              if (isTraceInProgress()) {
-                traceEventStart(<>)
-              }
               %composer = %composer.startRestartGroup(<>)
               sourceInformation(%composer, "C(Example):Test.kt")
               val %dirty = %changed
@@ -721,15 +736,18 @@ class FunctionBodySkippingTransformTests : FunctionBodySkippingTransfomrTestsBas
                   }
                 }
                 %composer.endDefaults()
+                if (isTraceInProgress()) {
+                  traceEventStart(<>, %changed, -1, <>)
+                }
                 print(a)
+                if (isTraceInProgress()) {
+                  traceEventEnd()
+                }
               } else {
                 %composer.skipToGroupEnd()
               }
               %composer.endRestartGroup()?.updateScope { %composer: Composer?, %force: Int ->
                 Example(a, %composer, %changed or 0b0001, %default)
-              }
-              if (isTraceInProgress()) {
-                traceEventEnd()
               }
             }
         """
@@ -752,9 +770,6 @@ class FunctionBodySkippingTransformTests : FunctionBodySkippingTransfomrTestsBas
         """
             @Composable
             fun Example(a: Int, %composer: Composer?, %changed: Int) {
-              if (isTraceInProgress()) {
-                traceEventStart(<>)
-              }
               %composer = %composer.startRestartGroup(<>)
               sourceInformation(%composer, "C(Example)<Inner(...>:Test.kt")
               val %dirty = %changed
@@ -762,22 +777,31 @@ class FunctionBodySkippingTransformTests : FunctionBodySkippingTransfomrTestsBas
                 %dirty = %dirty or if (%composer.changed(a)) 0b0100 else 0b0010
               }
               if (%dirty and 0b1011 !== 0b0010 || !%composer.skipping) {
+                if (isTraceInProgress()) {
+                  traceEventStart(<>, %dirty, -1, <>)
+                }
                 @Composable
                 fun Inner(%composer: Composer?, %changed: Int) {
                   %composer.startReplaceableGroup(<>)
                   sourceInformation(%composer, "C(Inner)<A(a)>:Test.kt")
+                  if (isTraceInProgress()) {
+                    traceEventStart(<>, %changed, -1, <>)
+                  }
                   A(a, %composer, 0b1110 and %dirty)
+                  if (isTraceInProgress()) {
+                    traceEventEnd()
+                  }
                   %composer.endReplaceableGroup()
                 }
                 Inner(%composer, 0)
+                if (isTraceInProgress()) {
+                  traceEventEnd()
+                }
               } else {
                 %composer.skipToGroupEnd()
               }
               %composer.endRestartGroup()?.updateScope { %composer: Composer?, %force: Int ->
                 Example(a, %composer, %changed or 0b0001)
-              }
-              if (isTraceInProgress()) {
-                traceEventEnd()
               }
             }
         """
@@ -808,6 +832,9 @@ class FunctionBodySkippingTransformTests : FunctionBodySkippingTransfomrTestsBas
             fun Example(%composer: Composer?, %changed: Int) {
               %composer.startReplaceableGroup(<>)
               sourceInformation(%composer, "C(Example)<Call()>:Test.kt")
+              if (isTraceInProgress()) {
+                traceEventStart(<>, %changed, -1, <>)
+              }
               Call(%composer, 0)
               val tmp0_iterator = 0 .. 1.iterator()
               while (tmp0_iterator.hasNext()) {
@@ -821,6 +848,9 @@ class FunctionBodySkippingTransformTests : FunctionBodySkippingTransfomrTestsBas
                 }
                 Call(%composer, 0)
                 %composer.endReplaceableGroup()
+              }
+              if (isTraceInProgress()) {
+                traceEventEnd()
               }
               %composer.endReplaceableGroup()
             }
@@ -852,9 +882,6 @@ class FunctionBodySkippingTransformTests : FunctionBodySkippingTransfomrTestsBas
         """
             @Composable
             fun SimpleBox(modifier: Modifier?, shape: Shape?, %composer: Composer?, %changed: Int, %default: Int) {
-              if (isTraceInProgress()) {
-                traceEventStart(<>)
-              }
               %composer = %composer.startRestartGroup(<>)
               sourceInformation(%composer, "C(SimpleBox):Test.kt")
               val %dirty = %changed
@@ -883,16 +910,19 @@ class FunctionBodySkippingTransformTests : FunctionBodySkippingTransfomrTestsBas
                   }
                 }
                 %composer.endDefaults()
+                if (isTraceInProgress()) {
+                  traceEventStart(<>, %changed, -1, <>)
+                }
                 used(modifier)
                 used(shape)
+                if (isTraceInProgress()) {
+                  traceEventEnd()
+                }
               } else {
                 %composer.skipToGroupEnd()
               }
               %composer.endRestartGroup()?.updateScope { %composer: Composer?, %force: Int ->
                 SimpleBox(modifier, shape, %composer, %changed or 0b0001, %default)
-              }
-              if (isTraceInProgress()) {
-                traceEventEnd()
               }
             }
         """
@@ -919,9 +949,6 @@ class FunctionBodySkippingTransformTests : FunctionBodySkippingTransfomrTestsBas
             @Composable
             @ComposableInferredTarget(scheme = "[0[0]]")
             fun SimpleBox(modifier: Modifier?, content: Function2<Composer, Int, Unit>?, %composer: Composer?, %changed: Int, %default: Int) {
-              if (isTraceInProgress()) {
-                traceEventStart(<>)
-              }
               %composer = %composer.startRestartGroup(<>)
               sourceInformation(%composer, "C(SimpleBox)P(1)<conten...>:Test.kt")
               val %dirty = %changed
@@ -942,23 +969,32 @@ class FunctionBodySkippingTransformTests : FunctionBodySkippingTransfomrTestsBas
                 if (%default and 0b0010 !== 0) {
                   content = ComposableSingletons%TestKt.lambda-1
                 }
+                if (isTraceInProgress()) {
+                  traceEventStart(<>, %dirty, -1, <>)
+                }
                 used(modifier)
                 content(%composer, 0b1110 and %dirty shr 0b0011)
+                if (isTraceInProgress()) {
+                  traceEventEnd()
+                }
               } else {
                 %composer.skipToGroupEnd()
               }
               %composer.endRestartGroup()?.updateScope { %composer: Composer?, %force: Int ->
                 SimpleBox(modifier, content, %composer, %changed or 0b0001, %default)
               }
-              if (isTraceInProgress()) {
-                traceEventEnd()
-              }
             }
             internal object ComposableSingletons%TestKt {
               val lambda-1: Function2<Composer, Int, Unit> = composableLambdaInstance(<>, false) { %composer: Composer?, %changed: Int ->
                 sourceInformation(%composer, "C:Test.kt")
                 if (%changed and 0b1011 !== 0b0010 || !%composer.skipping) {
+                  if (isTraceInProgress()) {
+                    traceEventStart(<>, %changed, -1, <>)
+                  }
                   Unit
+                  if (isTraceInProgress()) {
+                    traceEventEnd()
+                  }
                 } else {
                   %composer.skipToGroupEnd()
                 }
@@ -995,8 +1031,14 @@ class FunctionBodySkippingTransformTests : FunctionBodySkippingTransfomrTestsBas
                   %dirty = %dirty or if (%composer.changed(y)) 0b00100000 else 0b00010000
                 }
                 if (%dirty and 0b001011011011 !== 0b10010010 || !%composer.skipping) {
+                  if (isTraceInProgress()) {
+                    traceEventStart(<>, %dirty, -1, <>)
+                  }
                   A(x, %composer, 0b1110 and %dirty)
                   B(y, %composer, 0b1110 and %dirty shr 0b0011)
+                  if (isTraceInProgress()) {
+                    traceEventEnd()
+                  }
                 } else {
                   %composer.skipToGroupEnd()
                 }
@@ -1023,8 +1065,14 @@ class FunctionBodySkippingTransformTests : FunctionBodySkippingTransfomrTestsBas
             internal object ComposableSingletons%TestKt {
               val lambda-1: Function4<Int, Foo, Composer, Int, Unit> = composableLambdaInstance(<>, false) { x: Int, y: Foo, %composer: Composer?, %changed: Int ->
                 sourceInformation(%composer, "C<A(x)>,<B(y)>:Test.kt")
+                if (isTraceInProgress()) {
+                  traceEventStart(<>, %changed, -1, <>)
+                }
                 A(x, %composer, 0b1110 and %changed)
                 B(y, %composer, 0b1000)
+                if (isTraceInProgress()) {
+                  traceEventEnd()
+                }
               }
             }
         """
@@ -1048,9 +1096,6 @@ class FunctionBodySkippingTransformTests : FunctionBodySkippingTransfomrTestsBas
             @Composable
             @ComposableInferredTarget(scheme = "[0[0]]")
             fun SomeThing(content: Function2<Composer, Int, Unit>, %composer: Composer?, %changed: Int) {
-              if (isTraceInProgress()) {
-                traceEventStart(<>)
-              }
               %composer = %composer.startRestartGroup(<>)
               sourceInformation(%composer, "C(SomeThing)<conten...>:Test.kt")
               val %dirty = %changed
@@ -1058,41 +1103,50 @@ class FunctionBodySkippingTransformTests : FunctionBodySkippingTransfomrTestsBas
                 %dirty = %dirty or if (%composer.changed(content)) 0b0100 else 0b0010
               }
               if (%dirty and 0b1011 !== 0b0010 || !%composer.skipping) {
+                if (isTraceInProgress()) {
+                  traceEventStart(<>, %dirty, -1, <>)
+                }
                 content(%composer, 0b1110 and %dirty)
+                if (isTraceInProgress()) {
+                  traceEventEnd()
+                }
               } else {
                 %composer.skipToGroupEnd()
               }
               %composer.endRestartGroup()?.updateScope { %composer: Composer?, %force: Int ->
                 SomeThing(content, %composer, %changed or 0b0001)
               }
-              if (isTraceInProgress()) {
-                traceEventEnd()
-              }
             }
             @Composable
             fun Example(%composer: Composer?, %changed: Int) {
-              if (isTraceInProgress()) {
-                traceEventStart(<>)
-              }
               %composer = %composer.startRestartGroup(<>)
               sourceInformation(%composer, "C(Example)<SomeTh...>:Test.kt")
               if (%changed !== 0 || !%composer.skipping) {
+                if (isTraceInProgress()) {
+                  traceEventStart(<>, %changed, -1, <>)
+                }
                 SomeThing(ComposableSingletons%TestKt.lambda-1, %composer, 0b0110)
+                if (isTraceInProgress()) {
+                  traceEventEnd()
+                }
               } else {
                 %composer.skipToGroupEnd()
               }
               %composer.endRestartGroup()?.updateScope { %composer: Composer?, %force: Int ->
                 Example(%composer, %changed or 0b0001)
               }
-              if (isTraceInProgress()) {
-                traceEventEnd()
-              }
             }
             internal object ComposableSingletons%TestKt {
               val lambda-1: Function2<Composer, Int, Unit> = composableLambdaInstance(<>, false) { %composer: Composer?, %changed: Int ->
                 sourceInformation(%composer, "C:Test.kt")
                 if (%changed and 0b1011 !== 0b0010 || !%composer.skipping) {
+                  if (isTraceInProgress()) {
+                    traceEventStart(<>, %changed, -1, <>)
+                  }
                   val id = object
+                  if (isTraceInProgress()) {
+                    traceEventEnd()
+                  }
                 } else {
                   %composer.skipToGroupEnd()
                 }
@@ -1114,9 +1168,6 @@ class FunctionBodySkippingTransformTests : FunctionBodySkippingTransfomrTestsBas
         """
             @Composable
             fun B(values: IntArray, %composer: Composer?, %changed: Int) {
-              if (isTraceInProgress()) {
-                traceEventStart(<>)
-              }
               %composer = %composer.startRestartGroup(<>)
               sourceInformation(%composer, "C(B):Test.kt")
               val %dirty = %changed
@@ -1131,15 +1182,18 @@ class FunctionBodySkippingTransformTests : FunctionBodySkippingTransfomrTestsBas
                 %dirty = %dirty or 0b0010
               }
               if (%dirty and 0b1011 !== 0b0010 || !%composer.skipping) {
+                if (isTraceInProgress()) {
+                  traceEventStart(<>, %changed, -1, <>)
+                }
                 print(values)
+                if (isTraceInProgress()) {
+                  traceEventEnd()
+                }
               } else {
                 %composer.skipToGroupEnd()
               }
               %composer.endRestartGroup()?.updateScope { %composer: Composer?, %force: Int ->
                 B(*values, %composer, %changed or 0b0001)
-              }
-              if (isTraceInProgress()) {
-                traceEventEnd()
               }
             }
         """
@@ -1160,9 +1214,6 @@ class FunctionBodySkippingTransformTests : FunctionBodySkippingTransfomrTestsBas
         """
             @Composable
             fun B(values: Array<out Foo>, %composer: Composer?, %changed: Int) {
-              if (isTraceInProgress()) {
-                traceEventStart(<>)
-              }
               %composer = %composer.startRestartGroup(<>)
               sourceInformation(%composer, "C(B):Test.kt")
               val %dirty = %changed
@@ -1177,15 +1228,18 @@ class FunctionBodySkippingTransformTests : FunctionBodySkippingTransfomrTestsBas
                 %dirty = %dirty or 0b0010
               }
               if (%dirty and 0b1011 !== 0b0010 || !%composer.skipping) {
+                if (isTraceInProgress()) {
+                  traceEventStart(<>, %changed, -1, <>)
+                }
                 print(values)
+                if (isTraceInProgress()) {
+                  traceEventEnd()
+                }
               } else {
                 %composer.skipToGroupEnd()
               }
               %composer.endRestartGroup()?.updateScope { %composer: Composer?, %force: Int ->
                 B(*values, %composer, %changed or 0b0001)
-              }
-              if (isTraceInProgress()) {
-                traceEventEnd()
               }
             }
         """
@@ -1205,17 +1259,17 @@ class FunctionBodySkippingTransformTests : FunctionBodySkippingTransfomrTestsBas
         """
             @Composable
             fun B(values: Array<out Foo>, %composer: Composer?, %changed: Int) {
-              if (isTraceInProgress()) {
-                traceEventStart(<>)
-              }
               %composer = %composer.startRestartGroup(<>)
               sourceInformation(%composer, "C(B):Test.kt")
-              print(values)
-              %composer.endRestartGroup()?.updateScope { %composer: Composer?, %force: Int ->
-                B(*values, %composer, %changed or 0b0001)
+              if (isTraceInProgress()) {
+                traceEventStart(<>, %changed, -1, <>)
               }
+              print(values)
               if (isTraceInProgress()) {
                 traceEventEnd()
+              }
+              %composer.endRestartGroup()?.updateScope { %composer: Composer?, %force: Int ->
+                B(*values, %composer, %changed or 0b0001)
               }
             }
         """
@@ -1242,13 +1296,16 @@ class FunctionBodySkippingTransformTests : FunctionBodySkippingTransfomrTestsBas
               var counter: Int = 0
               @Composable
               fun A(%composer: Composer?, %changed: Int) {
-                if (isTraceInProgress()) {
-                  traceEventStart(<>)
-                }
                 %composer = %composer.startRestartGroup(<>)
                 sourceInformation(%composer, "C(A):Test.kt")
                 if (%changed and 0b0001 !== 0 || !%composer.skipping) {
+                  if (isTraceInProgress()) {
+                    traceEventStart(<>, %changed, -1, <>)
+                  }
                   print("hello world")
+                  if (isTraceInProgress()) {
+                    traceEventEnd()
+                  }
                 } else {
                   %composer.skipToGroupEnd()
                 }
@@ -1256,24 +1313,21 @@ class FunctionBodySkippingTransformTests : FunctionBodySkippingTransfomrTestsBas
                 %composer.endRestartGroup()?.updateScope { %composer: Composer?, %force: Int ->
                   tmp0_rcvr.A(%composer, %changed or 0b0001)
                 }
-                if (isTraceInProgress()) {
-                  traceEventEnd()
-                }
               }
               @Composable
               fun B(%composer: Composer?, %changed: Int) {
-                if (isTraceInProgress()) {
-                  traceEventStart(<>)
-                }
                 %composer = %composer.startRestartGroup(<>)
                 sourceInformation(%composer, "C(B):Test.kt")
+                if (isTraceInProgress()) {
+                  traceEventStart(<>, %changed, -1, <>)
+                }
                 print(counter)
+                if (isTraceInProgress()) {
+                  traceEventEnd()
+                }
                 val tmp0_rcvr = <this>
                 %composer.endRestartGroup()?.updateScope { %composer: Composer?, %force: Int ->
                   tmp0_rcvr.B(%composer, %changed or 0b0001)
-                }
-                if (isTraceInProgress()) {
-                  traceEventEnd()
                 }
               }
               static val %stable: Int = 8
@@ -1297,9 +1351,6 @@ class FunctionBodySkippingTransformTests : FunctionBodySkippingTransfomrTestsBas
         """
             @Composable
             fun Example(a: Int, b: Int, c: Int, %composer: Composer?, %changed: Int, %default: Int) {
-              if (isTraceInProgress()) {
-                traceEventStart(<>)
-              }
               %composer = %composer.startRestartGroup(<>)
               sourceInformation(%composer, "C(Example)<makeIn...>:Test.kt")
               val %dirty = %changed
@@ -1336,17 +1387,20 @@ class FunctionBodySkippingTransformTests : FunctionBodySkippingTransfomrTestsBas
                   }
                 }
                 %composer.endDefaults()
+                if (isTraceInProgress()) {
+                  traceEventStart(<>, %changed, -1, <>)
+                }
                 used(a)
                 used(b)
                 used(c)
+                if (isTraceInProgress()) {
+                  traceEventEnd()
+                }
               } else {
                 %composer.skipToGroupEnd()
               }
               %composer.endRestartGroup()?.updateScope { %composer: Composer?, %force: Int ->
                 Example(a, b, c, %composer, %changed or 0b0001, %default)
-              }
-              if (isTraceInProgress()) {
-                traceEventEnd()
               }
             }
         """
@@ -1374,9 +1428,6 @@ class FunctionBodySkippingTransformTests : FunctionBodySkippingTransfomrTestsBas
             @Composable
             @ComposableInferredTarget(scheme = "[0[0]]")
             fun Wrap(y: Int, content: Function3<@[ParameterName(name = 'x')] Int, Composer, Int, Unit>, %composer: Composer?, %changed: Int) {
-              if (isTraceInProgress()) {
-                traceEventStart(<>)
-              }
               %composer = %composer.startRestartGroup(<>)
               sourceInformation(%composer, "C(Wrap)P(1)<conten...>:Test.kt")
               val %dirty = %changed
@@ -1387,22 +1438,22 @@ class FunctionBodySkippingTransformTests : FunctionBodySkippingTransfomrTestsBas
                 %dirty = %dirty or if (%composer.changed(content)) 0b00100000 else 0b00010000
               }
               if (%dirty and 0b01011011 !== 0b00010010 || !%composer.skipping) {
+                if (isTraceInProgress()) {
+                  traceEventStart(<>, %dirty, -1, <>)
+                }
                 content(y, %composer, 0b1110 and %dirty or 0b01110000 and %dirty)
+                if (isTraceInProgress()) {
+                  traceEventEnd()
+                }
               } else {
                 %composer.skipToGroupEnd()
               }
               %composer.endRestartGroup()?.updateScope { %composer: Composer?, %force: Int ->
                 Wrap(y, content, %composer, %changed or 0b0001)
               }
-              if (isTraceInProgress()) {
-                traceEventEnd()
-              }
             }
             @Composable
             fun Test(x: Int, y: Int, %composer: Composer?, %changed: Int, %default: Int) {
-              if (isTraceInProgress()) {
-                traceEventStart(<>)
-              }
               %composer = %composer.startRestartGroup(<>)
               sourceInformation(%composer, "C(Test)<Wrap(1...>:Test.kt")
               val %dirty = %changed
@@ -1423,6 +1474,9 @@ class FunctionBodySkippingTransformTests : FunctionBodySkippingTransfomrTestsBas
                 if (%default and 0b0010 !== 0) {
                   y = 0
                 }
+                if (isTraceInProgress()) {
+                  traceEventStart(<>, %dirty, -1, <>)
+                }
                 used(y)
                 Wrap(10, composableLambda(%composer, <>, true) { it: Int, %composer: Composer?, %changed: Int ->
                   sourceInformation(%composer, "C<A(x)>:Test.kt")
@@ -1431,20 +1485,26 @@ class FunctionBodySkippingTransformTests : FunctionBodySkippingTransfomrTestsBas
                     %dirty = %dirty or if (%composer.changed(it)) 0b0100 else 0b0010
                   }
                   if (%dirty and 0b01011011 !== 0b00010010 || !%composer.skipping) {
+                    if (isTraceInProgress()) {
+                      traceEventStart(<>, %changed, -1, <>)
+                    }
                     used(it)
                     A(x, 0, %composer, 0b1110 and %dirty, 0b0010)
+                    if (isTraceInProgress()) {
+                      traceEventEnd()
+                    }
                   } else {
                     %composer.skipToGroupEnd()
                   }
                 }, %composer, 0b00110110)
+                if (isTraceInProgress()) {
+                  traceEventEnd()
+                }
               } else {
                 %composer.skipToGroupEnd()
               }
               %composer.endRestartGroup()?.updateScope { %composer: Composer?, %force: Int ->
                 Test(x, y, %composer, %changed or 0b0001, %default)
-              }
-              if (isTraceInProgress()) {
-                traceEventEnd()
               }
             }
         """
@@ -1473,8 +1533,14 @@ class FunctionBodySkippingTransformTests : FunctionBodySkippingTransfomrTestsBas
               if (%default and 0b0010 !== 0) {
                 y = 0
               }
+              if (isTraceInProgress()) {
+                traceEventStart(<>, %changed, -1, <>)
+              }
               A(x, y, %composer, 0b1110 and %changed or 0b01110000 and %changed, 0)
               val tmp0 = x + y
+              if (isTraceInProgress()) {
+                traceEventEnd()
+              }
               %composer.endReplaceableGroup()
               return tmp0
             }
@@ -1501,7 +1567,13 @@ class FunctionBodySkippingTransformTests : FunctionBodySkippingTransfomrTestsBas
                   %dirty = %dirty or if (%composer.changed(x)) 0b0100 else 0b0010
                 }
                 if (%dirty and 0b01011011 !== 0b00010010 || !%composer.skipping) {
+                  if (isTraceInProgress()) {
+                    traceEventStart(<>, %dirty, -1, <>)
+                  }
                   A(x, 0, %composer, 0b1110 and %dirty, 0b0010)
+                  if (isTraceInProgress()) {
+                    traceEventEnd()
+                  }
                 } else {
                   %composer.skipToGroupEnd()
                 }
@@ -1523,7 +1595,13 @@ class FunctionBodySkippingTransformTests : FunctionBodySkippingTransfomrTestsBas
             fun Test(x: Int, %composer: Composer?, %changed: Int): Int {
               %composer.startReplaceableGroup(<>)
               sourceInformation(%composer, "C(Test)<A()>:Test.kt")
+              if (isTraceInProgress()) {
+                traceEventStart(<>, %changed, -1, <>)
+              }
               val tmp0 = A(0, 0, %composer, 0, 0b0011)
+              if (isTraceInProgress()) {
+                traceEventEnd()
+              }
               %composer.endReplaceableGroup()
               return tmp0
             }
@@ -1543,9 +1621,6 @@ class FunctionBodySkippingTransformTests : FunctionBodySkippingTransfomrTestsBas
         """
             @Composable
             fun Test(x: Int, y: Int, %composer: Composer?, %changed: Int) {
-              if (isTraceInProgress()) {
-                traceEventStart(<>)
-              }
               %composer = %composer.startRestartGroup(<>)
               sourceInformation(%composer, "C(Test)<A(y>:Test.kt")
               val %dirty = %changed
@@ -1556,15 +1631,18 @@ class FunctionBodySkippingTransformTests : FunctionBodySkippingTransfomrTestsBas
                 %dirty = %dirty or if (%composer.changed(y)) 0b00100000 else 0b00010000
               }
               if (%dirty and 0b01011011 !== 0b00010010 || !%composer.skipping) {
+                if (isTraceInProgress()) {
+                  traceEventStart(<>, %dirty, -1, <>)
+                }
                 A(x, y, %composer, 0b1110 and %dirty or 0b01110000 and %dirty, 0)
+                if (isTraceInProgress()) {
+                  traceEventEnd()
+                }
               } else {
                 %composer.skipToGroupEnd()
               }
               %composer.endRestartGroup()?.updateScope { %composer: Composer?, %force: Int ->
                 Test(x, y, %composer, %changed or 0b0001)
-              }
-              if (isTraceInProgress()) {
-                traceEventEnd()
               }
             }
         """
@@ -1593,9 +1671,6 @@ class FunctionBodySkippingTransformTests : FunctionBodySkippingTransfomrTestsBas
         """
             @Composable
             fun CanSkip(a: Int, b: Foo?, %composer: Composer?, %changed: Int, %default: Int) {
-              if (isTraceInProgress()) {
-                traceEventStart(<>)
-              }
               %composer = %composer.startRestartGroup(<>)
               sourceInformation(%composer, "C(CanSkip):Test.kt")
               val %dirty = %changed
@@ -1624,52 +1699,55 @@ class FunctionBodySkippingTransformTests : FunctionBodySkippingTransfomrTestsBas
                   }
                 }
                 %composer.endDefaults()
+                if (isTraceInProgress()) {
+                  traceEventStart(<>, %changed, -1, <>)
+                }
                 used(a)
                 used(b)
+                if (isTraceInProgress()) {
+                  traceEventEnd()
+                }
               } else {
                 %composer.skipToGroupEnd()
               }
               %composer.endRestartGroup()?.updateScope { %composer: Composer?, %force: Int ->
                 CanSkip(a, b, %composer, %changed or 0b0001, %default)
               }
-              if (isTraceInProgress()) {
-                traceEventEnd()
-              }
             }
             @Composable
             fun CannotSkip(a: Int, b: Foo, %composer: Composer?, %changed: Int) {
-              if (isTraceInProgress()) {
-                traceEventStart(<>)
-              }
               %composer = %composer.startRestartGroup(<>)
               sourceInformation(%composer, "C(CannotSkip):Test.kt")
+              if (isTraceInProgress()) {
+                traceEventStart(<>, %changed, -1, <>)
+              }
               used(a)
               used(b)
               print("Hello World")
-              %composer.endRestartGroup()?.updateScope { %composer: Composer?, %force: Int ->
-                CannotSkip(a, b, %composer, %changed or 0b0001)
-              }
               if (isTraceInProgress()) {
                 traceEventEnd()
+              }
+              %composer.endRestartGroup()?.updateScope { %composer: Composer?, %force: Int ->
+                CannotSkip(a, b, %composer, %changed or 0b0001)
               }
             }
             @Composable
             fun NoParams(%composer: Composer?, %changed: Int) {
-              if (isTraceInProgress()) {
-                traceEventStart(<>)
-              }
               %composer = %composer.startRestartGroup(<>)
               sourceInformation(%composer, "C(NoParams):Test.kt")
               if (%changed !== 0 || !%composer.skipping) {
+                if (isTraceInProgress()) {
+                  traceEventStart(<>, %changed, -1, <>)
+                }
                 print("Hello World")
+                if (isTraceInProgress()) {
+                  traceEventEnd()
+                }
               } else {
                 %composer.skipToGroupEnd()
               }
               %composer.endRestartGroup()?.updateScope { %composer: Composer?, %force: Int ->
                 NoParams(%composer, %changed or 0b0001)
-              }
-              if (isTraceInProgress()) {
-                traceEventEnd()
               }
             }
         """
@@ -1689,9 +1767,6 @@ class FunctionBodySkippingTransformTests : FunctionBodySkippingTransfomrTestsBas
         """
             @Composable
             fun Bar.CanSkip(b: Foo?, %composer: Composer?, %changed: Int, %default: Int) {
-              if (isTraceInProgress()) {
-                traceEventStart(<>)
-              }
               %composer = %composer.startRestartGroup(<>)
               sourceInformation(%composer, "C(CanSkip):Test.kt")
               val %dirty = %changed
@@ -1709,15 +1784,18 @@ class FunctionBodySkippingTransformTests : FunctionBodySkippingTransfomrTestsBas
                   }
                 }
                 %composer.endDefaults()
+                if (isTraceInProgress()) {
+                  traceEventStart(<>, %changed, -1, <>)
+                }
                 print("Hello World")
+                if (isTraceInProgress()) {
+                  traceEventEnd()
+                }
               } else {
                 %composer.skipToGroupEnd()
               }
               %composer.endRestartGroup()?.updateScope { %composer: Composer?, %force: Int ->
                 CanSkip(b, %composer, %changed or 0b0001, %default)
-              }
-              if (isTraceInProgress()) {
-                traceEventEnd()
               }
             }
         """
@@ -1737,21 +1815,21 @@ class FunctionBodySkippingTransformTests : FunctionBodySkippingTransfomrTestsBas
         """
             @Composable
             fun Test(%composer: Composer?, %changed: Int) {
-              if (isTraceInProgress()) {
-                traceEventStart(<>)
-              }
               %composer = %composer.startRestartGroup(<>)
               sourceInformation(%composer, "C(Test)<A()>:Test.kt")
               if (%changed !== 0 || !%composer.skipping) {
+                if (isTraceInProgress()) {
+                  traceEventStart(<>, %changed, -1, <>)
+                }
                 A(%composer, 0)
+                if (isTraceInProgress()) {
+                  traceEventEnd()
+                }
               } else {
                 %composer.skipToGroupEnd()
               }
               %composer.endRestartGroup()?.updateScope { %composer: Composer?, %force: Int ->
                 Test(%composer, %changed or 0b0001)
-              }
-              if (isTraceInProgress()) {
-                traceEventEnd()
               }
             }
         """
@@ -1771,9 +1849,6 @@ class FunctionBodySkippingTransformTests : FunctionBodySkippingTransfomrTestsBas
         """
             @Composable
             fun Test(x: Int, %composer: Composer?, %changed: Int) {
-              if (isTraceInProgress()) {
-                traceEventStart(<>)
-              }
               %composer = %composer.startRestartGroup(<>)
               sourceInformation(%composer, "C(Test)<A(x)>:Test.kt")
               val %dirty = %changed
@@ -1781,15 +1856,18 @@ class FunctionBodySkippingTransformTests : FunctionBodySkippingTransfomrTestsBas
                 %dirty = %dirty or if (%composer.changed(x)) 0b0100 else 0b0010
               }
               if (%dirty and 0b1011 !== 0b0010 || !%composer.skipping) {
+                if (isTraceInProgress()) {
+                  traceEventStart(<>, %dirty, -1, <>)
+                }
                 A(x, %composer, 0b1110 and %dirty)
+                if (isTraceInProgress()) {
+                  traceEventEnd()
+                }
               } else {
                 %composer.skipToGroupEnd()
               }
               %composer.endRestartGroup()?.updateScope { %composer: Composer?, %force: Int ->
                 Test(x, %composer, %changed or 0b0001)
-              }
-              if (isTraceInProgress()) {
-                traceEventEnd()
               }
             }
         """
@@ -1819,9 +1897,6 @@ class FunctionBodySkippingTransformTests : FunctionBodySkippingTransfomrTestsBas
         """
             @Composable
             fun A(text: String, %composer: Composer?, %changed: Int) {
-              if (isTraceInProgress()) {
-                traceEventStart(<>)
-              }
               %composer = %composer.startRestartGroup(<>)
               sourceInformation(%composer, "C(A)<B(text...>:Test.kt")
               val %dirty = %changed
@@ -1829,22 +1904,22 @@ class FunctionBodySkippingTransformTests : FunctionBodySkippingTransfomrTestsBas
                 %dirty = %dirty or if (%composer.changed(text)) 0b0100 else 0b0010
               }
               if (%dirty and 0b1011 !== 0b0010 || !%composer.skipping) {
+                if (isTraceInProgress()) {
+                  traceEventStart(<>, %dirty, -1, <>)
+                }
                 B(text, <unsafe-coerce>(0), %composer, 0b1110 and %dirty, 0b0010)
+                if (isTraceInProgress()) {
+                  traceEventEnd()
+                }
               } else {
                 %composer.skipToGroupEnd()
               }
               %composer.endRestartGroup()?.updateScope { %composer: Composer?, %force: Int ->
                 A(text, %composer, %changed or 0b0001)
               }
-              if (isTraceInProgress()) {
-                traceEventEnd()
-              }
             }
             @Composable
             fun B(text: String, color: Color, %composer: Composer?, %changed: Int, %default: Int) {
-              if (isTraceInProgress()) {
-                traceEventStart(<>)
-              }
               %composer = %composer.startRestartGroup(<>)
               sourceInformation(%composer, "C(B)P(1,0:Color):Test.kt")
               val %dirty = %changed
@@ -1862,16 +1937,19 @@ class FunctionBodySkippingTransformTests : FunctionBodySkippingTransfomrTestsBas
                 if (%default and 0b0010 !== 0) {
                   color = Companion.Unset
                 }
+                if (isTraceInProgress()) {
+                  traceEventStart(<>, %changed, -1, <>)
+                }
                 used(text)
                 used(color)
+                if (isTraceInProgress()) {
+                  traceEventEnd()
+                }
               } else {
                 %composer.skipToGroupEnd()
               }
               %composer.endRestartGroup()?.updateScope { %composer: Composer?, %force: Int ->
                 B(text, color, %composer, %changed or 0b0001, %default)
-              }
-              if (isTraceInProgress()) {
-                traceEventEnd()
               }
             }
         """
@@ -1933,12 +2011,12 @@ class FunctionBodySkippingTransformTests : FunctionBodySkippingTransfomrTestsBas
         """
             @Composable
             fun A(%composer: Composer?, %changed: Int) {
-              if (isTraceInProgress()) {
-                traceEventStart(<>)
-              }
               %composer = %composer.startRestartGroup(<>)
               sourceInformation(%composer, "C(A)<D>,<C({})>,<C(stab...>,<C(16.d...>,<C(Dp(1...>,<C(16.d...>,<C(norm...>,<C(Int....>,<C(stab...>,<C(Modi...>,<C(Foo....>,<C(cons...>,<C(123)>,<C(123>,<C(x)>,<C(x>:Test.kt")
               if (%changed !== 0 || !%composer.skipping) {
+                if (isTraceInProgress()) {
+                  traceEventStart(<>, %changed, -1, <>)
+                }
                 val x = 123
                 D(ComposableSingletons%TestKt.lambda-1, %composer, 0b0110)
                 C({
@@ -1957,41 +2035,47 @@ class FunctionBodySkippingTransformTests : FunctionBodySkippingTransfomrTestsBas
                 C(123 + 345, %composer, 0b0110)
                 C(x, %composer, 0b0110)
                 C(x * 123, %composer, 0b0110)
+                if (isTraceInProgress()) {
+                  traceEventEnd()
+                }
               } else {
                 %composer.skipToGroupEnd()
               }
               %composer.endRestartGroup()?.updateScope { %composer: Composer?, %force: Int ->
                 A(%composer, %changed or 0b0001)
               }
-              if (isTraceInProgress()) {
-                traceEventEnd()
-              }
             }
             @Composable
             fun B(%composer: Composer?, %changed: Int) {
-              if (isTraceInProgress()) {
-                traceEventStart(<>)
-              }
               %composer = %composer.startRestartGroup(<>)
               sourceInformation(%composer, "C(B)<C(Math...>,<C(Math...>:Test.kt")
               if (%changed !== 0 || !%composer.skipping) {
+                if (isTraceInProgress()) {
+                  traceEventStart(<>, %changed, -1, <>)
+                }
                 C(random(), %composer, 0)
                 C(random() / 100.0f, %composer, 0)
+                if (isTraceInProgress()) {
+                  traceEventEnd()
+                }
               } else {
                 %composer.skipToGroupEnd()
               }
               %composer.endRestartGroup()?.updateScope { %composer: Composer?, %force: Int ->
                 B(%composer, %changed or 0b0001)
               }
-              if (isTraceInProgress()) {
-                traceEventEnd()
-              }
             }
             internal object ComposableSingletons%TestKt {
               val lambda-1: Function2<Composer, Int, Unit> = composableLambdaInstance(<>, false) { %composer: Composer?, %changed: Int ->
                 sourceInformation(%composer, "C:Test.kt")
                 if (%changed and 0b1011 !== 0b0010 || !%composer.skipping) {
+                  if (isTraceInProgress()) {
+                    traceEventStart(<>, %changed, -1, <>)
+                  }
                   Unit
+                  if (isTraceInProgress()) {
+                    traceEventEnd()
+                  }
                 } else {
                   %composer.skipToGroupEnd()
                 }
@@ -2013,34 +2097,39 @@ class FunctionBodySkippingTransformTests : FunctionBodySkippingTransfomrTestsBas
         """
             @Composable
             fun Example(%composer: Composer?, %changed: Int) {
-              if (isTraceInProgress()) {
-                traceEventStart(<>)
-              }
               %composer = %composer.startRestartGroup(<>)
               sourceInformation(%composer, "C(Example)<D>:Test.kt")
               if (%changed !== 0 || !%composer.skipping) {
+                if (isTraceInProgress()) {
+                  traceEventStart(<>, %changed, -1, <>)
+                }
                 D(ComposableSingletons%TestKt.lambda-1, %composer, 0b0110)
+                if (isTraceInProgress()) {
+                  traceEventEnd()
+                }
               } else {
                 %composer.skipToGroupEnd()
               }
               %composer.endRestartGroup()?.updateScope { %composer: Composer?, %force: Int ->
                 Example(%composer, %changed or 0b0001)
               }
-              if (isTraceInProgress()) {
-                traceEventEnd()
-              }
             }
             internal object ComposableSingletons%TestKt {
               val lambda-1: Function2<Composer, Int, Unit> = composableLambdaInstance(<>, false) { %composer: Composer?, %changed: Int ->
                 sourceInformation(%composer, "C:Test.kt")
                 if (%changed and 0b1011 !== 0b0010 || !%composer.skipping) {
+                  if (isTraceInProgress()) {
+                    traceEventStart(<>, %changed, -1, <>)
+                  }
                   Unit
+                  if (isTraceInProgress()) {
+                    traceEventEnd()
+                  }
                 } else {
                   %composer.skipToGroupEnd()
                 }
               }
             }
-
         """
     )
 
@@ -2058,9 +2147,6 @@ class FunctionBodySkippingTransformTests : FunctionBodySkippingTransfomrTestsBas
         """
             @Composable
             fun Test(x: Int, %composer: Composer?, %changed: Int, %default: Int) {
-              if (isTraceInProgress()) {
-                traceEventStart(<>)
-              }
               %composer = %composer.startRestartGroup(<>)
               sourceInformation(%composer, "C(Test)<A(x)>:Test.kt")
               val %dirty = %changed
@@ -2073,15 +2159,18 @@ class FunctionBodySkippingTransformTests : FunctionBodySkippingTransfomrTestsBas
                 if (%default and 0b0001 !== 0) {
                   x = 0
                 }
+                if (isTraceInProgress()) {
+                  traceEventStart(<>, %dirty, -1, <>)
+                }
                 A(x, %composer, 0b1110 and %dirty)
+                if (isTraceInProgress()) {
+                  traceEventEnd()
+                }
               } else {
                 %composer.skipToGroupEnd()
               }
               %composer.endRestartGroup()?.updateScope { %composer: Composer?, %force: Int ->
                 Test(x, %composer, %changed or 0b0001, %default)
-              }
-              if (isTraceInProgress()) {
-                traceEventEnd()
               }
             }
         """
@@ -2102,9 +2191,6 @@ class FunctionBodySkippingTransformTests : FunctionBodySkippingTransfomrTestsBas
         """
             @Composable
             fun Test(x: Int, %composer: Composer?, %changed: Int, %default: Int) {
-              if (isTraceInProgress()) {
-                traceEventStart(<>)
-              }
               %composer = %composer.startRestartGroup(<>)
               sourceInformation(%composer, "C(Test)<I()>,<A(x)>:Test.kt")
               val %dirty = %changed
@@ -2125,15 +2211,18 @@ class FunctionBodySkippingTransformTests : FunctionBodySkippingTransfomrTestsBas
                   }
                 }
                 %composer.endDefaults()
+                if (isTraceInProgress()) {
+                  traceEventStart(<>, %dirty, -1, <>)
+                }
                 A(x, %composer, 0b1110 and %dirty)
+                if (isTraceInProgress()) {
+                  traceEventEnd()
+                }
               } else {
                 %composer.skipToGroupEnd()
               }
               %composer.endRestartGroup()?.updateScope { %composer: Composer?, %force: Int ->
                 Test(x, %composer, %changed or 0b0001, %default)
-              }
-              if (isTraceInProgress()) {
-                traceEventEnd()
               }
             }
         """
@@ -2154,17 +2243,17 @@ class FunctionBodySkippingTransformTests : FunctionBodySkippingTransfomrTestsBas
         """
             @Composable
             fun Test(x: Foo, %composer: Composer?, %changed: Int) {
-              if (isTraceInProgress()) {
-                traceEventStart(<>)
-              }
               %composer = %composer.startRestartGroup(<>)
               sourceInformation(%composer, "C(Test)<A(x)>:Test.kt")
-              A(x, %composer, 0b1000)
-              %composer.endRestartGroup()?.updateScope { %composer: Composer?, %force: Int ->
-                Test(x, %composer, %changed or 0b0001)
+              if (isTraceInProgress()) {
+                traceEventStart(<>, %changed, -1, <>)
               }
+              A(x, %composer, 0b1000)
               if (isTraceInProgress()) {
                 traceEventEnd()
+              }
+              %composer.endRestartGroup()?.updateScope { %composer: Composer?, %force: Int ->
+                Test(x, %composer, %changed or 0b0001)
               }
             }
         """
@@ -2185,9 +2274,6 @@ class FunctionBodySkippingTransformTests : FunctionBodySkippingTransfomrTestsBas
         """
             @Composable
             fun Test(x: Foo?, %composer: Composer?, %changed: Int, %default: Int) {
-              if (isTraceInProgress()) {
-                traceEventStart(<>)
-              }
               %composer = %composer.startRestartGroup(<>)
               sourceInformation(%composer, "C(Test)<A(x)>:Test.kt")
               val %dirty = %changed
@@ -2208,15 +2294,18 @@ class FunctionBodySkippingTransformTests : FunctionBodySkippingTransfomrTestsBas
                   }
                 }
                 %composer.endDefaults()
+                if (isTraceInProgress()) {
+                  traceEventStart(<>, %dirty, -1, <>)
+                }
                 A(x, %composer, 0b1110 and %dirty)
+                if (isTraceInProgress()) {
+                  traceEventEnd()
+                }
               } else {
                 %composer.skipToGroupEnd()
               }
               %composer.endRestartGroup()?.updateScope { %composer: Composer?, %force: Int ->
                 Test(x, %composer, %changed or 0b0001, %default)
-              }
-              if (isTraceInProgress()) {
-                traceEventEnd()
               }
             }
         """
@@ -2237,9 +2326,6 @@ class FunctionBodySkippingTransformTests : FunctionBodySkippingTransfomrTestsBas
         """
             @Composable
             fun Test(a: Int, b: Boolean, c: Int, d: Foo?, e: List<Int>?, %composer: Composer?, %changed: Int, %default: Int) {
-              if (isTraceInProgress()) {
-                traceEventStart(<>)
-              }
               %composer = %composer.startRestartGroup(<>)
               sourceInformation(%composer, "C(Test)<A(a,>:Test.kt")
               val %dirty = %changed
@@ -2288,15 +2374,18 @@ class FunctionBodySkippingTransformTests : FunctionBodySkippingTransfomrTestsBas
                   }
                 }
                 %composer.endDefaults()
+                if (isTraceInProgress()) {
+                  traceEventStart(<>, %dirty, -1, <>)
+                }
                 A(a, b, c, d, e, %composer, 0b1000000000000000 or 0b1110 and %dirty or 0b01110000 and %dirty or 0b001110000000 and %dirty or 0b0001110000000000 and %dirty)
+                if (isTraceInProgress()) {
+                  traceEventEnd()
+                }
               } else {
                 %composer.skipToGroupEnd()
               }
               %composer.endRestartGroup()?.updateScope { %composer: Composer?, %force: Int ->
                 Test(a, b, c, d, e, %composer, %changed or 0b0001, %default)
-              }
-              if (isTraceInProgress()) {
-                traceEventEnd()
               }
             }
         """
@@ -2316,9 +2405,6 @@ class FunctionBodySkippingTransformTests : FunctionBodySkippingTransfomrTestsBas
         """
             @Composable
             fun X(x: Int, %composer: Composer?, %changed: Int) {
-              if (isTraceInProgress()) {
-                traceEventStart(<>)
-              }
               %composer = %composer.startRestartGroup(<>)
               sourceInformation(%composer, "C(X)<X(x>,<X(x)>:Test.kt")
               val %dirty = %changed
@@ -2326,16 +2412,19 @@ class FunctionBodySkippingTransformTests : FunctionBodySkippingTransfomrTestsBas
                 %dirty = %dirty or if (%composer.changed(x)) 0b0100 else 0b0010
               }
               if (%dirty and 0b1011 !== 0b0010 || !%composer.skipping) {
+                if (isTraceInProgress()) {
+                  traceEventStart(<>, %dirty, -1, <>)
+                }
                 X(x + 1, %composer, 0)
                 X(x, %composer, 0b1110 and %dirty)
+                if (isTraceInProgress()) {
+                  traceEventEnd()
+                }
               } else {
                 %composer.skipToGroupEnd()
               }
               %composer.endRestartGroup()?.updateScope { %composer: Composer?, %force: Int ->
                 X(x, %composer, %changed or 0b0001)
-              }
-              if (isTraceInProgress()) {
-                traceEventEnd()
               }
             }
         """
@@ -2387,7 +2476,13 @@ class FunctionBodySkippingTransformTests : FunctionBodySkippingTransfomrTestsBas
               val lambda-1: @[ExtensionFunctionType] Function5<LazyItemScope, Int, User?, Composer, Int, Unit> = composableLambdaInstance(<>, false) { index: Int, user: User?, %composer: Composer?, %changed: Int ->
                 sourceInformation(%composer, "C:Test.kt")
                 if (%changed and 0b0001010000000001 !== 0b010000000000 || !%composer.skipping) {
+                  if (isTraceInProgress()) {
+                    traceEventStart(<>, %changed, -1, <>)
+                  }
                   print("Hello World")
+                  if (isTraceInProgress()) {
+                    traceEventEnd()
+                  }
                 } else {
                   %composer.skipToGroupEnd()
                 }
@@ -2411,9 +2506,6 @@ class FunctionBodySkippingTransformTests : FunctionBodySkippingTransfomrTestsBas
         """
             @Composable
             fun Unstable.Test(%composer: Composer?, %changed: Int) {
-              if (isTraceInProgress()) {
-                traceEventStart(<>)
-              }
               %composer = %composer.startRestartGroup(<>)
               sourceInformation(%composer, "C(Test)<doSome...>:Test.kt")
               val %dirty = %changed
@@ -2421,33 +2513,36 @@ class FunctionBodySkippingTransformTests : FunctionBodySkippingTransfomrTestsBas
                 %dirty = %dirty or if (%composer.changed(<this>)) 0b0100 else 0b0010
               }
               if (%dirty and 0b1011 !== 0b0010 || !%composer.skipping) {
+                if (isTraceInProgress()) {
+                  traceEventStart(<>, %dirty, -1, <>)
+                }
                 doSomething(<this>, %composer, 0b1110 and %dirty)
+                if (isTraceInProgress()) {
+                  traceEventEnd()
+                }
               } else {
                 %composer.skipToGroupEnd()
               }
               %composer.endRestartGroup()?.updateScope { %composer: Composer?, %force: Int ->
                 Test(%composer, %changed or 0b0001)
               }
-              if (isTraceInProgress()) {
-                traceEventEnd()
-              }
             }
             @Composable
             fun doSomething(x: Unstable, %composer: Composer?, %changed: Int) {
-              if (isTraceInProgress()) {
-                traceEventStart(<>)
-              }
               %composer = %composer.startRestartGroup(<>)
               sourceInformation(%composer, "C(doSomething):Test.kt")
               if (%changed and 0b0001 !== 0 || !%composer.skipping) {
+                if (isTraceInProgress()) {
+                  traceEventStart(<>, %changed, -1, <>)
+                }
+                if (isTraceInProgress()) {
+                  traceEventEnd()
+                }
               } else {
                 %composer.skipToGroupEnd()
               }
               %composer.endRestartGroup()?.updateScope { %composer: Composer?, %force: Int ->
                 doSomething(x, %composer, %changed or 0b0001)
-              }
-              if (isTraceInProgress()) {
-                traceEventEnd()
               }
             }
         """
@@ -2483,7 +2578,13 @@ class FunctionBodySkippingTransformTests : FunctionBodySkippingTransfomrTestsBas
             @Composable
             @ExplicitGroupsComposable
             fun A(foo: Foo, %composer: Composer?, %changed: Int) {
+              if (isTraceInProgress()) {
+                traceEventStart(<>, %changed, -1, <>)
+              }
               foo.b(null, %composer, 0b1110 and %changed, 0b0001)
+              if (isTraceInProgress()) {
+                traceEventEnd()
+              }
             }
             @Composable
             @ExplicitGroupsComposable
@@ -2525,9 +2626,6 @@ class FunctionBodySkippingTransformTests : FunctionBodySkippingTransfomrTestsBas
         """
             @Composable
             fun A(x: Int, %composer: Composer?, %changed: Int) {
-              if (isTraceInProgress()) {
-                traceEventStart(<>)
-              }
               %composer = %composer.startRestartGroup(<>)
               sourceInformation(%composer, "C(A)<B(>:Test.kt")
               val %dirty = %changed
@@ -2535,15 +2633,18 @@ class FunctionBodySkippingTransformTests : FunctionBodySkippingTransfomrTestsBas
                 %dirty = %dirty or if (%composer.changed(x)) 0b0100 else 0b0010
               }
               if (%dirty and 0b1011 !== 0b0010 || !%composer.skipping) {
+                if (isTraceInProgress()) {
+                  traceEventStart(<>, %dirty, -1, <>)
+                }
                 B(x, x + 1, 123, fooGlobal, %composer, 0b110110000000 or 0b1110 and %dirty)
+                if (isTraceInProgress()) {
+                  traceEventEnd()
+                }
               } else {
                 %composer.skipToGroupEnd()
               }
               %composer.endRestartGroup()?.updateScope { %composer: Composer?, %force: Int ->
                 A(x, %composer, %changed or 0b0001)
-              }
-              if (isTraceInProgress()) {
-                traceEventEnd()
               }
             }
         """
@@ -2579,7 +2680,13 @@ class FunctionBodySkippingTransformTests : FunctionBodySkippingTransfomrTestsBas
               val lambda-1: @[ExtensionFunctionType] Function3<Foo, Composer, Int, Unit> = composableLambdaInstance(<>, false) { %composer: Composer?, %changed: Int ->
                 sourceInformation(%composer, "C:Test.kt")
                 if (%changed and 0b01010001 !== 0b00010000 || !%composer.skipping) {
+                  if (isTraceInProgress()) {
+                    traceEventStart(<>, %changed, -1, <>)
+                  }
                   Unit
+                  if (isTraceInProgress()) {
+                    traceEventEnd()
+                  }
                 } else {
                   %composer.skipToGroupEnd()
                 }
@@ -2591,7 +2698,13 @@ class FunctionBodySkippingTransformTests : FunctionBodySkippingTransfomrTestsBas
                   %dirty = %dirty or if (%composer.changed(%this%null)) 0b0100 else 0b0010
                 }
                 if (%dirty and 0b01011011 !== 0b00010010 || !%composer.skipping) {
+                  if (isTraceInProgress()) {
+                    traceEventStart(<>, %changed, -1, <>)
+                  }
                   used(%this%null.x)
+                  if (isTraceInProgress()) {
+                    traceEventEnd()
+                  }
                 } else {
                   %composer.skipToGroupEnd()
                 }
@@ -2599,7 +2712,13 @@ class FunctionBodySkippingTransformTests : FunctionBodySkippingTransfomrTestsBas
               val lambda-3: @[ExtensionFunctionType] Function3<StableFoo, Composer, Int, Unit> = composableLambdaInstance(<>, false) { %composer: Composer?, %changed: Int ->
                 sourceInformation(%composer, "C:Test.kt")
                 if (%changed and 0b01010001 !== 0b00010000 || !%composer.skipping) {
+                  if (isTraceInProgress()) {
+                    traceEventStart(<>, %changed, -1, <>)
+                  }
                   Unit
+                  if (isTraceInProgress()) {
+                    traceEventEnd()
+                  }
                 } else {
                   %composer.skipToGroupEnd()
                 }
@@ -2611,7 +2730,13 @@ class FunctionBodySkippingTransformTests : FunctionBodySkippingTransfomrTestsBas
                   %dirty = %dirty or if (%composer.changed(%this%null)) 0b0100 else 0b0010
                 }
                 if (%dirty and 0b01011011 !== 0b00010010 || !%composer.skipping) {
+                  if (isTraceInProgress()) {
+                    traceEventStart(<>, %changed, -1, <>)
+                  }
                   used(%this%null.x)
+                  if (isTraceInProgress()) {
+                    traceEventEnd()
+                  }
                 } else {
                   %composer.skipToGroupEnd()
                 }
@@ -2641,9 +2766,6 @@ class FunctionBodySkippingTransformTests : FunctionBodySkippingTransfomrTestsBas
         """
             @Composable
             fun A(x: Int, %composer: Composer?, %changed: Int) {
-              if (isTraceInProgress()) {
-                traceEventStart(<>)
-              }
               %composer = %composer.startRestartGroup(<>)
               sourceInformation(%composer, "C(A)<Provid...>,<B(x)>:Test.kt")
               val %dirty = %changed
@@ -2651,6 +2773,9 @@ class FunctionBodySkippingTransformTests : FunctionBodySkippingTransfomrTestsBas
                 %dirty = %dirty or if (%composer.changed(x)) 0b0100 else 0b0010
               }
               if (%dirty and 0b1011 !== 0b0010 || !%composer.skipping) {
+                if (isTraceInProgress()) {
+                  traceEventStart(<>, %dirty, -1, <>)
+                }
                 Provide(composableLambda(%composer, <>, true) { y: Int, %composer: Composer?, %changed: Int ->
                   sourceInformation(%composer, "C<Provid...>,<B(x,>:Test.kt")
                   val %dirty = %changed
@@ -2658,6 +2783,9 @@ class FunctionBodySkippingTransformTests : FunctionBodySkippingTransfomrTestsBas
                     %dirty = %dirty or if (%composer.changed(y)) 0b0100 else 0b0010
                   }
                   if (%dirty and 0b01011011 !== 0b00010010 || !%composer.skipping) {
+                    if (isTraceInProgress()) {
+                      traceEventStart(<>, %dirty, -1, <>)
+                    }
                     Provide(composableLambda(%composer, <>, true) { z: Int, %composer: Composer?, %changed: Int ->
                       sourceInformation(%composer, "C<B(x,>:Test.kt")
                       val %dirty = %changed
@@ -2665,25 +2793,34 @@ class FunctionBodySkippingTransformTests : FunctionBodySkippingTransfomrTestsBas
                         %dirty = %dirty or if (%composer.changed(z)) 0b0100 else 0b0010
                       }
                       if (%dirty and 0b01011011 !== 0b00010010 || !%composer.skipping) {
+                        if (isTraceInProgress()) {
+                          traceEventStart(<>, %dirty, -1, <>)
+                        }
                         B(x, y, z, %composer, 0b1110 and %dirty or 0b01110000 and %dirty shl 0b0011 or 0b001110000000 and %dirty shl 0b0110, 0)
+                        if (isTraceInProgress()) {
+                          traceEventEnd()
+                        }
                       } else {
                         %composer.skipToGroupEnd()
                       }
                     }, %composer, 0b0110)
                     B(x, y, 0, %composer, 0b1110 and %dirty or 0b01110000 and %dirty shl 0b0011, 0b0100)
+                    if (isTraceInProgress()) {
+                      traceEventEnd()
+                    }
                   } else {
                     %composer.skipToGroupEnd()
                   }
                 }, %composer, 0b0110)
                 B(x, 0, 0, %composer, 0b1110 and %dirty, 0b0110)
+                if (isTraceInProgress()) {
+                  traceEventEnd()
+                }
               } else {
                 %composer.skipToGroupEnd()
               }
               %composer.endRestartGroup()?.updateScope { %composer: Composer?, %force: Int ->
                 A(x, %composer, %changed or 0b0001)
-              }
-              if (isTraceInProgress()) {
-                traceEventEnd()
               }
             }
         """
@@ -2706,9 +2843,6 @@ class FunctionBodySkippingTransformTests : FunctionBodySkippingTransfomrTestsBas
         """
             @Composable
             fun A(x: Int, %composer: Composer?, %changed: Int) {
-              if (isTraceInProgress()) {
-                traceEventStart(<>)
-              }
               %composer = %composer.startRestartGroup(<>)
               sourceInformation(%composer, "C(A)<foo(x)>:Test.kt")
               val %dirty = %changed
@@ -2716,22 +2850,31 @@ class FunctionBodySkippingTransformTests : FunctionBodySkippingTransfomrTestsBas
                 %dirty = %dirty or if (%composer.changed(x)) 0b0100 else 0b0010
               }
               if (%dirty and 0b1011 !== 0b0010 || !%composer.skipping) {
+                if (isTraceInProgress()) {
+                  traceEventStart(<>, %dirty, -1, <>)
+                }
                 @Composable
                 fun foo(y: Int, %composer: Composer?, %changed: Int) {
                   %composer.startReplaceableGroup(<>)
                   sourceInformation(%composer, "C(foo)<B(x,>:Test.kt")
+                  if (isTraceInProgress()) {
+                    traceEventStart(<>, %changed, -1, <>)
+                  }
                   B(x, y, %composer, 0b1110 and %dirty or 0b01110000 and %changed shl 0b0011)
+                  if (isTraceInProgress()) {
+                    traceEventEnd()
+                  }
                   %composer.endReplaceableGroup()
                 }
                 foo(x, %composer, 0b1110 and %dirty)
+                if (isTraceInProgress()) {
+                  traceEventEnd()
+                }
               } else {
                 %composer.skipToGroupEnd()
               }
               %composer.endRestartGroup()?.updateScope { %composer: Composer?, %force: Int ->
                 A(x, %composer, %changed or 0b0001)
-              }
-              if (isTraceInProgress()) {
-                traceEventEnd()
               }
             }
         """
@@ -2801,9 +2944,6 @@ class FunctionBodySkippingTransformTests : FunctionBodySkippingTransfomrTestsBas
         """
             @Composable
             fun Example(a00: Int, a01: Int, a02: Int, a03: Int, a04: Int, a05: Int, a06: Int, a07: Int, a08: Int, a09: Int, a10: Int, a11: Int, a12: Int, a13: Int, a14: Int, %composer: Composer?, %changed: Int, %changed1: Int, %default: Int) {
-              if (isTraceInProgress()) {
-                traceEventStart(<>)
-              }
               %composer = %composer.startRestartGroup(<>)
               sourceInformation(%composer, "C(Example)<Exampl...>,<Exampl...>:Test.kt")
               val %dirty = %changed
@@ -2929,16 +3069,19 @@ class FunctionBodySkippingTransformTests : FunctionBodySkippingTransfomrTestsBas
                 if (%default and 0b0100000000000000 !== 0) {
                   a14 = 0
                 }
+                if (isTraceInProgress()) {
+                  traceEventStart(<>, %dirty, %dirty1, <>)
+                }
                 Example(a00, a01, a02, a03, a04, a05, a06, a07, a08, a09, a10, a11, a12, a13, a14, %composer, 0b1110 and %dirty or 0b01110000 and %dirty or 0b001110000000 and %dirty or 0b0001110000000000 and %dirty or 0b1110000000000000 and %dirty or 0b01110000000000000000 and %dirty or 0b001110000000000000000000 and %dirty or 0b0001110000000000000000000000 and %dirty or 0b1110000000000000000000000000 and %dirty or 0b01110000000000000000000000000000 and %dirty, 0b1110 and %dirty1 or 0b01110000 and %dirty1 or 0b001110000000 and %dirty1 or 0b0001110000000000 and %dirty1 or 0b1110000000000000 and %dirty1, 0)
                 Example(a14, a13, a12, a11, a10, a09, a08, a07, a06, a05, a04, a03, a02, a01, a00, %composer, 0b1110 and %dirty1 shr 0b1100 or 0b01110000 and %dirty1 shr 0b0110 or 0b001110000000 and %dirty1 or 0b0001110000000000 and %dirty1 shl 0b0110 or 0b1110000000000000 and %dirty1 shl 0b1100 or 0b01110000000000000000 and %dirty shr 0b1100 or 0b001110000000000000000000 and %dirty shr 0b0110 or 0b0001110000000000000000000000 and %dirty or 0b1110000000000000000000000000 and %dirty shl 0b0110 or 0b01110000000000000000000000000000 and %dirty shl 0b1100, 0b1110 and %dirty shr 0b1100 or 0b01110000 and %dirty shr 0b0110 or 0b001110000000 and %dirty or 0b0001110000000000 and %dirty shl 0b0110 or 0b1110000000000000 and %dirty shl 0b1100, 0)
+                if (isTraceInProgress()) {
+                  traceEventEnd()
+                }
               } else {
                 %composer.skipToGroupEnd()
               }
               %composer.endRestartGroup()?.updateScope { %composer: Composer?, %force: Int ->
                 Example(a00, a01, a02, a03, a04, a05, a06, a07, a08, a09, a10, a11, a12, a13, a14, %composer, %changed or 0b0001, %changed1, %default)
-              }
-              if (isTraceInProgress()) {
-                traceEventEnd()
               }
             }
         """
@@ -3011,9 +3154,6 @@ class FunctionBodySkippingTransformTests : FunctionBodySkippingTransfomrTestsBas
         """
             @Composable
             fun Example(a00: Int, a01: Int, a02: Int, a03: Int, a04: Int, a05: Int, a06: Int, a07: Int, a08: Int, a09: Int, a10: Int, a11: Int, a12: Int, a13: Int, a14: Int, a15: Int, %composer: Composer?, %changed: Int, %changed1: Int, %default: Int) {
-              if (isTraceInProgress()) {
-                traceEventStart(<>)
-              }
               %composer = %composer.startRestartGroup(<>)
               sourceInformation(%composer, "C(Example)<Exampl...>,<Exampl...>:Test.kt")
               val %dirty = %changed
@@ -3147,16 +3287,19 @@ class FunctionBodySkippingTransformTests : FunctionBodySkippingTransfomrTestsBas
                 if (%default and 0b1000000000000000 !== 0) {
                   a15 = 0
                 }
+                if (isTraceInProgress()) {
+                  traceEventStart(<>, %dirty, %dirty1, <>)
+                }
                 Example(a00, a01, a02, a03, a04, a05, a06, a07, a08, a09, a10, a11, a12, a13, a14, a15, %composer, 0b1110 and %dirty or 0b01110000 and %dirty or 0b001110000000 and %dirty or 0b0001110000000000 and %dirty or 0b1110000000000000 and %dirty or 0b01110000000000000000 and %dirty or 0b001110000000000000000000 and %dirty or 0b0001110000000000000000000000 and %dirty or 0b1110000000000000000000000000 and %dirty or 0b01110000000000000000000000000000 and %dirty, 0b1110 and %dirty1 or 0b01110000 and %dirty1 or 0b001110000000 and %dirty1 or 0b0001110000000000 and %dirty1 or 0b1110000000000000 and %dirty1 or 0b01110000000000000000 and %dirty1, 0)
                 Example(a15, a14, a13, a12, a11, a10, a09, a08, a07, a06, a05, a04, a03, a02, a01, a00, %composer, 0b1110 and %dirty1 shr 0b1111 or 0b01110000 and %dirty1 shr 0b1001 or 0b001110000000 and %dirty1 shr 0b0011 or 0b0001110000000000 and %dirty1 shl 0b0011 or 0b1110000000000000 and %dirty1 shl 0b1001 or 0b01110000000000000000 and %dirty1 shl 0b1111 or 0b001110000000000000000000 and %dirty shr 0b1001 or 0b0001110000000000000000000000 and %dirty shr 0b0011 or 0b1110000000000000000000000000 and %dirty shl 0b0011 or 0b01110000000000000000000000000000 and %dirty shl 0b1001, 0b1110 and %dirty shr 0b1111 or 0b01110000 and %dirty shr 0b1001 or 0b001110000000 and %dirty shr 0b0011 or 0b0001110000000000 and %dirty shl 0b0011 or 0b1110000000000000 and %dirty shl 0b1001 or 0b01110000000000000000 and %dirty shl 0b1111, 0)
+                if (isTraceInProgress()) {
+                  traceEventEnd()
+                }
               } else {
                 %composer.skipToGroupEnd()
               }
               %composer.endRestartGroup()?.updateScope { %composer: Composer?, %force: Int ->
                 Example(a00, a01, a02, a03, a04, a05, a06, a07, a08, a09, a10, a11, a12, a13, a14, a15, %composer, %changed or 0b0001, %changed1, %default)
-              }
-              if (isTraceInProgress()) {
-                traceEventEnd()
               }
             }
         """
@@ -3198,7 +3341,13 @@ class FunctionBodySkippingTransformTests : FunctionBodySkippingTransfomrTestsBas
               @Composable
               fun getHashCode(%composer: Composer?, %changed: Int): Int {
                 sourceInformationMarkerStart(%composer, <>, "C(getHashCode):Test.kt")
+                if (isTraceInProgress()) {
+                  traceEventStart(<>, %changed, -1, <>)
+                }
                 val tmp0 = %composer.hashCode()
+                if (isTraceInProgress()) {
+                  traceEventEnd()
+                }
                 sourceInformationMarkerEnd(%composer)
                 return tmp0
               }
@@ -3208,7 +3357,13 @@ class FunctionBodySkippingTransformTests : FunctionBodySkippingTransfomrTestsBas
             @Composable
             fun getHashCode(%composer: Composer?, %changed: Int): Int {
               sourceInformationMarkerStart(%composer, <>, "C(getHashCode):Test.kt")
+              if (isTraceInProgress()) {
+                traceEventStart(<>, %changed, -1, <>)
+              }
               val tmp0 = %composer.hashCode()
+              if (isTraceInProgress()) {
+                traceEventEnd()
+              }
               sourceInformationMarkerEnd(%composer)
               return tmp0
             }
@@ -3236,9 +3391,6 @@ class FunctionBodySkippingTransformTests : FunctionBodySkippingTransfomrTestsBas
         """
             @Composable
             fun Example(wontChange: Int, mightChange: Int, %composer: Composer?, %changed: Int, %default: Int) {
-              if (isTraceInProgress()) {
-                traceEventStart(<>)
-              }
               %composer = %composer.startRestartGroup(<>)
               sourceInformation(%composer, "C(Example)P(1)<curren...>,<A(wont...>,<A(migh...>:Test.kt")
               val %dirty = %changed
@@ -3267,16 +3419,19 @@ class FunctionBodySkippingTransformTests : FunctionBodySkippingTransfomrTestsBas
                   }
                 }
                 %composer.endDefaults()
+                if (isTraceInProgress()) {
+                  traceEventStart(<>, %dirty, -1, <>)
+                }
                 A(wontChange, %composer, 0b1110 and %dirty)
                 A(mightChange, %composer, 0b1110 and %dirty shr 0b0011)
+                if (isTraceInProgress()) {
+                  traceEventEnd()
+                }
               } else {
                 %composer.skipToGroupEnd()
               }
               %composer.endRestartGroup()?.updateScope { %composer: Composer?, %force: Int ->
                 Example(wontChange, mightChange, %composer, %changed or 0b0001, %default)
-              }
-              if (isTraceInProgress()) {
-                traceEventEnd()
               }
             }
         """
@@ -3295,9 +3450,6 @@ class FunctionBodySkippingTransformTests : FunctionBodySkippingTransfomrTestsBas
             @Composable
             @ComposableInferredTarget(scheme = "[0[0]]")
             fun Example(content: Function2<Composer, Int, Unit>, %composer: Composer?, %changed: Int) {
-              if (isTraceInProgress()) {
-                traceEventStart(<>)
-              }
               %composer = %composer.startRestartGroup(<>)
               sourceInformation(%composer, "C(Example)<invoke...>:Test.kt")
               val %dirty = %changed
@@ -3305,15 +3457,18 @@ class FunctionBodySkippingTransformTests : FunctionBodySkippingTransfomrTestsBas
                 %dirty = %dirty or if (%composer.changed(content)) 0b0100 else 0b0010
               }
               if (%dirty and 0b1011 !== 0b0010 || !%composer.skipping) {
+                if (isTraceInProgress()) {
+                  traceEventStart(<>, %dirty, -1, <>)
+                }
                 content(%composer, 0b1110 and %dirty)
+                if (isTraceInProgress()) {
+                  traceEventEnd()
+                }
               } else {
                 %composer.skipToGroupEnd()
               }
               %composer.endRestartGroup()?.updateScope { %composer: Composer?, %force: Int ->
                 Example(content, %composer, %changed or 0b0001)
-              }
-              if (isTraceInProgress()) {
-                traceEventEnd()
               }
             }
         """
@@ -3332,7 +3487,13 @@ class FunctionBodySkippingTransformTests : FunctionBodySkippingTransfomrTestsBas
             fun B() {
               return A { %composer: Composer?, %changed: Int ->
                 %composer.startReplaceableGroup(<>)
+                if (isTraceInProgress()) {
+                  traceEventStart(<>, %changed, -1, <>)
+                }
                 val tmp0 = 123
+                if (isTraceInProgress()) {
+                  traceEventEnd()
+                }
                 %composer.endReplaceableGroup()
                 tmp0
               }
@@ -3363,9 +3524,6 @@ class FunctionBodySkippingTransformTests : FunctionBodySkippingTransfomrTestsBas
             @Composable
             @ComposableInferredTarget(scheme = "[0[0]]")
             fun Box2(modifier: Modifier?, paddingStart: Dp, content: Function2<Composer, Int, Unit>?, %composer: Composer?, %changed: Int, %default: Int) {
-              if (isTraceInProgress()) {
-                traceEventStart(<>)
-              }
               %composer = %composer.startRestartGroup(<>)
               sourceInformation(%composer, "C(Box2)P(1,2:c#ui.unit.Dp)<conten...>:Test.kt")
               val %dirty = %changed
@@ -3394,24 +3552,33 @@ class FunctionBodySkippingTransformTests : FunctionBodySkippingTransfomrTestsBas
                 if (%default and 0b0100 !== 0) {
                   content = ComposableSingletons%TestKt.lambda-1
                 }
+                if (isTraceInProgress()) {
+                  traceEventStart(<>, %dirty, -1, <>)
+                }
                 used(modifier)
                 used(paddingStart)
                 content(%composer, 0b1110 and %dirty shr 0b0110)
+                if (isTraceInProgress()) {
+                  traceEventEnd()
+                }
               } else {
                 %composer.skipToGroupEnd()
               }
               %composer.endRestartGroup()?.updateScope { %composer: Composer?, %force: Int ->
                 Box2(modifier, paddingStart, content, %composer, %changed or 0b0001, %default)
               }
-              if (isTraceInProgress()) {
-                traceEventEnd()
-              }
             }
             internal object ComposableSingletons%TestKt {
               val lambda-1: Function2<Composer, Int, Unit> = composableLambdaInstance(<>, false) { %composer: Composer?, %changed: Int ->
                 sourceInformation(%composer, "C:Test.kt")
                 if (%changed and 0b1011 !== 0b0010 || !%composer.skipping) {
+                  if (isTraceInProgress()) {
+                    traceEventStart(<>, %changed, -1, <>)
+                  }
                   Unit
+                  if (isTraceInProgress()) {
+                    traceEventEnd()
+                  }
                 } else {
                   %composer.skipToGroupEnd()
                 }
@@ -3440,9 +3607,6 @@ class FunctionBodySkippingTransformTests : FunctionBodySkippingTransfomrTestsBas
         """
             @Composable
             fun Test(cond: Boolean, %composer: Composer?, %changed: Int) {
-              if (isTraceInProgress()) {
-                traceEventStart(<>)
-              }
               %composer = %composer.startRestartGroup(<>)
               sourceInformation(%composer, "C(Test)<B()>:Test.kt")
               val %dirty = %changed
@@ -3450,6 +3614,9 @@ class FunctionBodySkippingTransformTests : FunctionBodySkippingTransfomrTestsBas
                 %dirty = %dirty or if (%composer.changed(cond)) 0b0100 else 0b0010
               }
               if (%dirty and 0b1011 !== 0b0010 || !%composer.skipping) {
+                if (isTraceInProgress()) {
+                  traceEventStart(<>, %changed, -1, <>)
+                }
                 %composer.startReplaceableGroup(<>)
                 sourceInformation(%composer, "<A()>")
                 if (cond) {
@@ -3459,14 +3626,14 @@ class FunctionBodySkippingTransformTests : FunctionBodySkippingTransfomrTestsBas
                 if (cond) {
                   B(%composer, 0)
                 }
+                if (isTraceInProgress()) {
+                  traceEventEnd()
+                }
               } else {
                 %composer.skipToGroupEnd()
               }
               %composer.endRestartGroup()?.updateScope { %composer: Composer?, %force: Int ->
                 Test(cond, %composer, %changed or 0b0001)
-              }
-              if (isTraceInProgress()) {
-                traceEventEnd()
               }
             }
         """
@@ -3498,24 +3665,21 @@ class FunctionBodySkippingTransformTests : FunctionBodySkippingTransfomrTestsBas
         """
             @Composable
             fun Unskippable(a: Unstable, b: Stable, c: MaybeStable, %composer: Composer?, %changed: Int) {
-              if (isTraceInProgress()) {
-                traceEventStart(<>)
-              }
               %composer = %composer.startRestartGroup(<>)
               sourceInformation(%composer, "C(Unskippable):Test.kt")
-              used(a)
-              %composer.endRestartGroup()?.updateScope { %composer: Composer?, %force: Int ->
-                Unskippable(a, b, c, %composer, %changed or 0b0001)
+              if (isTraceInProgress()) {
+                traceEventStart(<>, %changed, -1, <>)
               }
+              used(a)
               if (isTraceInProgress()) {
                 traceEventEnd()
+              }
+              %composer.endRestartGroup()?.updateScope { %composer: Composer?, %force: Int ->
+                Unskippable(a, b, c, %composer, %changed or 0b0001)
               }
             }
             @Composable
             fun Skippable1(a: Unstable, b: Stable, c: MaybeStable, %composer: Composer?, %changed: Int) {
-              if (isTraceInProgress()) {
-                traceEventStart(<>)
-              }
               %composer = %composer.startRestartGroup(<>)
               sourceInformation(%composer, "C(Skippable1):Test.kt")
               val %dirty = %changed
@@ -3523,22 +3687,22 @@ class FunctionBodySkippingTransformTests : FunctionBodySkippingTransfomrTestsBas
                 %dirty = %dirty or if (%composer.changed(b)) 0b00100000 else 0b00010000
               }
               if (%dirty and 0b01010001 !== 0b00010000 || !%composer.skipping) {
+                if (isTraceInProgress()) {
+                  traceEventStart(<>, %changed, -1, <>)
+                }
                 used(b)
+                if (isTraceInProgress()) {
+                  traceEventEnd()
+                }
               } else {
                 %composer.skipToGroupEnd()
               }
               %composer.endRestartGroup()?.updateScope { %composer: Composer?, %force: Int ->
                 Skippable1(a, b, c, %composer, %changed or 0b0001)
               }
-              if (isTraceInProgress()) {
-                traceEventEnd()
-              }
             }
             @Composable
             fun Skippable2(a: Unstable, b: Stable, c: MaybeStable, %composer: Composer?, %changed: Int) {
-              if (isTraceInProgress()) {
-                traceEventStart(<>)
-              }
               %composer = %composer.startRestartGroup(<>)
               sourceInformation(%composer, "C(Skippable2):Test.kt")
               val %dirty = %changed
@@ -3546,33 +3710,36 @@ class FunctionBodySkippingTransformTests : FunctionBodySkippingTransfomrTestsBas
                 %dirty = %dirty or if (%composer.changed(c)) 0b000100000000 else 0b10000000
               }
               if (%dirty and 0b001010000001 !== 0b10000000 || !%composer.skipping) {
+                if (isTraceInProgress()) {
+                  traceEventStart(<>, %changed, -1, <>)
+                }
                 used(c)
+                if (isTraceInProgress()) {
+                  traceEventEnd()
+                }
               } else {
                 %composer.skipToGroupEnd()
               }
               %composer.endRestartGroup()?.updateScope { %composer: Composer?, %force: Int ->
                 Skippable2(a, b, c, %composer, %changed or 0b0001)
               }
-              if (isTraceInProgress()) {
-                traceEventEnd()
-              }
             }
             @Composable
             fun Skippable3(a: Unstable, b: Stable, c: MaybeStable, %composer: Composer?, %changed: Int) {
-              if (isTraceInProgress()) {
-                traceEventStart(<>)
-              }
               %composer = %composer.startRestartGroup(<>)
               sourceInformation(%composer, "C(Skippable3):Test.kt")
               if (%changed and 0b0001 !== 0 || !%composer.skipping) {
+                if (isTraceInProgress()) {
+                  traceEventStart(<>, %changed, -1, <>)
+                }
+                if (isTraceInProgress()) {
+                  traceEventEnd()
+                }
               } else {
                 %composer.skipToGroupEnd()
               }
               %composer.endRestartGroup()?.updateScope { %composer: Composer?, %force: Int ->
                 Skippable3(a, b, c, %composer, %changed or 0b0001)
-              }
-              if (isTraceInProgress()) {
-                traceEventEnd()
               }
             }
         """
@@ -3596,9 +3763,6 @@ class FunctionBodySkippingTransformTests : FunctionBodySkippingTransfomrTestsBas
         """
             @Composable
             fun MaybeStable.example(x: Int, %composer: Composer?, %changed: Int) {
-              if (isTraceInProgress()) {
-                traceEventStart(<>)
-              }
               %composer = %composer.startRestartGroup(<>)
               sourceInformation(%composer, "C(example):Test.kt")
               val %dirty = %changed
@@ -3609,16 +3773,19 @@ class FunctionBodySkippingTransformTests : FunctionBodySkippingTransfomrTestsBas
                 %dirty = %dirty or if (%composer.changed(x)) 0b00100000 else 0b00010000
               }
               if (%dirty and 0b01011011 !== 0b00010010 || !%composer.skipping) {
+                if (isTraceInProgress()) {
+                  traceEventStart(<>, %changed, -1, <>)
+                }
                 used(<this>)
                 used(x)
+                if (isTraceInProgress()) {
+                  traceEventEnd()
+                }
               } else {
                 %composer.skipToGroupEnd()
               }
               %composer.endRestartGroup()?.updateScope { %composer: Composer?, %force: Int ->
                 example(x, %composer, %changed or 0b0001)
-              }
-              if (isTraceInProgress()) {
-                traceEventEnd()
               }
             }
             val example: @[ExtensionFunctionType] Function4<MaybeStable, Int, Composer, Int, Unit> = ComposableSingletons%TestKt.lambda-1
@@ -3633,8 +3800,14 @@ class FunctionBodySkippingTransformTests : FunctionBodySkippingTransfomrTestsBas
                   %dirty = %dirty or if (%composer.changed(it)) 0b00100000 else 0b00010000
                 }
                 if (%dirty and 0b001011011011 !== 0b10010010 || !%composer.skipping) {
+                  if (isTraceInProgress()) {
+                    traceEventStart(<>, %changed, -1, <>)
+                  }
                   used(%this%null)
                   used(it)
+                  if (isTraceInProgress()) {
+                    traceEventEnd()
+                  }
                 } else {
                   %composer.skipToGroupEnd()
                 }
@@ -3658,9 +3831,6 @@ class FunctionBodySkippingTransformTests : FunctionBodySkippingTransfomrTestsBas
         """
             @Composable
             fun VarargComposable(state: MutableState<Int>, values: Array<out String>?, %composer: Composer?, %changed: Int, %default: Int) {
-              if (isTraceInProgress()) {
-                traceEventStart(<>)
-              }
               %composer = %composer.startRestartGroup(<>)
               sourceInformation(%composer, "C(VarargComposable):Test.kt")
               val %dirty = %changed
@@ -3696,15 +3866,18 @@ class FunctionBodySkippingTransformTests : FunctionBodySkippingTransfomrTestsBas
                   }
                 }
                 %composer.endDefaults()
+                if (isTraceInProgress()) {
+                  traceEventStart(<>, %changed, -1, <>)
+                }
                 state.value
+                if (isTraceInProgress()) {
+                  traceEventEnd()
+                }
               } else {
                 %composer.skipToGroupEnd()
               }
               %composer.endRestartGroup()?.updateScope { %composer: Composer?, %force: Int ->
                 VarargComposable(state, *values, %composer, %changed or 0b0001, %default)
-              }
-              if (isTraceInProgress()) {
-                traceEventEnd()
               }
             }
         """
@@ -3747,7 +3920,13 @@ class FunctionBodySkippingTransformTestsNoSource : FunctionBodySkippingTransfomr
               @ReadOnlyComposable
               @Composable
               fun getHashCode(%composer: Composer?, %changed: Int): Int {
+                if (isTraceInProgress()) {
+                  traceEventStart(<>, %changed, -1, <>)
+                }
                 val tmp0 = %composer.hashCode()
+                if (isTraceInProgress()) {
+                  traceEventEnd()
+                }
                 return tmp0
               }
               static val %stable: Int = 0
@@ -3755,7 +3934,13 @@ class FunctionBodySkippingTransformTestsNoSource : FunctionBodySkippingTransfomr
             @ReadOnlyComposable
             @Composable
             fun getHashCode(%composer: Composer?, %changed: Int): Int {
+              if (isTraceInProgress()) {
+                traceEventStart(<>, %changed, -1, <>)
+              }
               val tmp0 = %composer.hashCode()
+              if (isTraceInProgress()) {
+                traceEventEnd()
+              }
               return tmp0
             }
         """

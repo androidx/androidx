@@ -16,6 +16,7 @@
 
 package androidx.wear.compose.integration.demos
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -31,6 +32,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material.Button
@@ -101,6 +103,54 @@ fun DialogAccessLocation() {
         scrollState = scrollState,
     ) {
         Alert(
+            scrollState = scrollState,
+            icon = {
+                DemoIcon(
+                    resourceId = R.drawable.ic_baseline_location_on_24,
+                    contentDescription = "Location"
+                )
+            },
+            title = {
+                Text(
+                    text = "Allow Bikemap to access this device's location?",
+                    textAlign = TextAlign.Center,
+                    color = MaterialTheme.colors.onBackground
+                )
+            },
+            negativeButton = {
+                Button(
+                    onClick = { showDialog = false },
+                    colors = ButtonDefaults.secondaryButtonColors()
+                ) {
+                    DemoIcon(resourceId = R.drawable.ic_clear_24px, contentDescription = "Cross")
+                }
+            },
+            positiveButton = {
+                Button(
+                    onClick = { showDialog = false },
+                    colors = ButtonDefaults.primaryButtonColors()
+                ) {
+                    DemoIcon(resourceId = R.drawable.ic_check_24px, contentDescription = "Tick")
+                }
+            },
+        )
+    }
+}
+
+@Composable
+fun DialogBackground(background: Color) {
+    // By setting the background of the launcher and the dialog,
+    // it is easier to see animation details such as the vignette.
+    var showDialog by remember { mutableStateOf(false) }
+    val scrollState = rememberScalingLazyListState()
+    LaunchScreen(onClick = { showDialog = true }, background = background)
+    Dialog(
+        showDialog = showDialog,
+        onDismissRequest = { showDialog = false },
+        scrollState = scrollState,
+    ) {
+        Alert(
+            backgroundColor = background,
             scrollState = scrollState,
             icon = {
                 DemoIcon(
@@ -255,9 +305,9 @@ fun DialogSuccessConfirmation() {
 }
 
 @Composable
-private fun LaunchScreen(onClick: () -> Unit) {
+private fun LaunchScreen(onClick: () -> Unit, background: Color = MaterialTheme.colors.background) {
     Column(
-        modifier = Modifier.fillMaxSize().padding(horizontal = 20.dp),
+        modifier = Modifier.fillMaxSize().background(background).padding(horizontal = 20.dp),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {

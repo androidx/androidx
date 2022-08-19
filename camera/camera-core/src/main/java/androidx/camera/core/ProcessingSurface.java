@@ -166,7 +166,7 @@ final class ProcessingSurface extends DeferrableSurface {
                     }
 
                     @Override
-                    public void onFailure(Throwable t) {
+                    public void onFailure(@NonNull Throwable t) {
                         Logger.e(TAG, "Failed to extract Listenable<Surface>.", t);
                     }
                 }, directExecutor());
@@ -262,8 +262,20 @@ final class ProcessingSurface extends DeferrableSurface {
         } else {
             SingleImageProxyBundle imageProxyBundle = new SingleImageProxyBundle(image,
                     mTagBundleKey);
+            try {
+                // Increments the use count to prevent the surface from being closed during the
+                // processing duration.
+                incrementUseCount();
+            } catch (SurfaceClosedException e) {
+                Logger.d(TAG, "The ProcessingSurface has been closed. Don't process the incoming "
+                        + "image.");
+                imageProxyBundle.close();
+                return;
+            }
             mCaptureProcessor.process(imageProxyBundle);
             imageProxyBundle.close();
+            // Decrements the use count to allow the surface to be closed.
+            decrementUseCount();
         }
     }
 }

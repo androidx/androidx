@@ -16,13 +16,16 @@
 
 package androidx.room.compiler.processing.javac
 
-import androidx.room.compiler.processing.XAnnotationValue
+import androidx.room.compiler.processing.InternalXAnnotationValue
+import androidx.room.compiler.processing.XArrayType
 import androidx.room.compiler.processing.XEnumTypeElement
+import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XNullability
+import androidx.room.compiler.processing.XType
+import androidx.room.compiler.processing.compat.XConverters.toJavac
 import com.google.auto.common.MoreTypes
 import javax.lang.model.element.AnnotationMirror
 import javax.lang.model.element.AnnotationValue
-import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.VariableElement
 import javax.lang.model.type.TypeKind
 import javax.lang.model.type.TypeMirror
@@ -30,19 +33,20 @@ import javax.lang.model.util.AbstractAnnotationValueVisitor8
 
 internal class JavacAnnotationValue(
     val env: JavacProcessingEnv,
-    val method: ExecutableElement,
+    private val method: XMethodElement,
     val annotationValue: AnnotationValue,
+    override val valueType: XType = method.returnType,
     private val valueProvider: () -> Any? = {
         UNWRAP_VISITOR.visit(annotationValue, VisitorData(env, method))
     }
-) : XAnnotationValue {
+) : InternalXAnnotationValue() {
     override val name: String
-        get() = method.simpleName.toString()
+        get() = method.toJavac().simpleName.toString()
 
     override val value: Any? by lazy { valueProvider.invoke() }
 }
 
-private data class VisitorData(val env: JavacProcessingEnv, val method: ExecutableElement)
+private data class VisitorData(val env: JavacProcessingEnv, val method: XMethodElement)
 
 private val UNWRAP_VISITOR = object : AbstractAnnotationValueVisitor8<Any?, VisitorData>() {
     override fun visitBoolean(b: Boolean, data: VisitorData) = b
@@ -85,6 +89,14 @@ private val UNWRAP_VISITOR = object : AbstractAnnotationValueVisitor8<Any?, Visi
     override fun visitAnnotation(a: AnnotationMirror, data: VisitorData) =
         JavacAnnotation(data.env, a)
 
-    override fun visitArray(vals: MutableList<out AnnotationValue>, data: VisitorData) =
-        vals.map { JavacAnnotationValue(data.env, data.method, it) { it.accept(this, data) } }
+    override fun visitArray(
+        vals: MutableList<out AnnotationValue>,
+        data: VisitorData
+    ): List<JavacAnnotationValue> {
+        // The method's return type has to be an array type since visitArray was called.
+        val valueType = (data.method.returnType as XArrayType).componentType
+        return vals.map {
+            JavacAnnotationValue(data.env, data.method, it, valueType) { it.accept(this, data) }
+        }
+    }
 }

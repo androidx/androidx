@@ -98,7 +98,7 @@ internal class HeadlessWatchFaceImpl(
         ) { watchFaceImpl -> watchFaceImpl.renderComplicationToBitmap(params) }
 
     override fun getUserStyleSchema() =
-        WatchFaceService.deferredWatchFaceAndComplicationManagerThenRunOnBinderThread(
+        WatchFaceService.awaitDeferredWatchFaceAndComplicationManagerThenRunOnBinderThread(
             engine,
             "HeadlessWatchFaceImpl.getUserStyleSchema"
         ) { watchFaceInitDetails ->
@@ -106,7 +106,7 @@ internal class HeadlessWatchFaceImpl(
         }
 
     override fun computeUserStyleSchemaDigestHash() =
-        WatchFaceService.deferredWatchFaceAndComplicationManagerThenRunOnBinderThread(
+        WatchFaceService.awaitDeferredWatchFaceAndComplicationManagerThenRunOnBinderThread(
             engine,
             "HeadlessWatchFaceImpl.computeUserStyleSchemaDigestHash"
         ) { watchFaceInitDetails ->
@@ -114,7 +114,7 @@ internal class HeadlessWatchFaceImpl(
         }
 
     override fun getUserStyleFlavors() =
-        WatchFaceService.deferredWatchFaceAndComplicationManagerThenRunOnBinderThread(
+        WatchFaceService.awaitDeferredWatchFaceAndComplicationManagerThenRunOnBinderThread(
             engine,
             "HeadlessWatchFaceImpl.getUserStyleFlavors"
         ) { watchFaceInitDetails ->
@@ -135,7 +135,8 @@ internal class HeadlessWatchFaceImpl(
                         watchFaceService = null
                     }
                 }
-            }
+                engineCopy
+            }.cancelCoroutineScopes()
         }
     }
 }

@@ -13,7 +13,7 @@ dependencies {
     }
 
     api("androidx.annotation:annotation:1.2.0")
-    api("androidx.annotation:annotation-experimental:1.1.0")
+    api(project(":annotation:annotation-experimental"))
     api("androidx.lifecycle:lifecycle-runtime:2.3.1")
     api("androidx.versionedparcelable:versionedparcelable:1.1.1")
     implementation("androidx.collection:collection:1.0.0")
@@ -49,6 +49,7 @@ dependencies {
     androidTestImplementation(project(":internal-testutils-runtime"), {
         exclude group: "androidx.core", module: "core"
     })
+    androidTestImplementation(project(":internal-testutils-fonts"))
     androidTestImplementation(project(":internal-testutils-mockito"))
 
     testImplementation(libs.junit)

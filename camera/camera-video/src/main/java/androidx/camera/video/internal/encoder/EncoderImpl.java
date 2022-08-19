@@ -67,6 +67,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Future;
 import java.util.concurrent.RejectedExecutionException;
@@ -155,6 +157,8 @@ public class EncoderImpl implements Encoder {
     final EncoderInput mEncoderInput;
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     final Executor mEncoderExecutor;
+    private final ListenableFuture<Void> mReleasedFuture;
+    private final Completer<Void> mReleasedCompleter;
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     final Queue<Integer> mFreeInputBufferIndexQueue = new ArrayDeque<>();
     private final Queue<Completer<InputBuffer>> mAcquisitionQueue = new ArrayDeque<>();
@@ -233,6 +237,14 @@ public class EncoderImpl implements Encoder {
         } catch (MediaCodec.CodecException e) {
             throw new InvalidConfigException(e);
         }
+
+        AtomicReference<Completer<Void>> releaseFutureRef = new AtomicReference<>();
+        mReleasedFuture = Futures.nonCancellationPropagating(
+                CallbackToFutureAdapter.getFuture(completer -> {
+                    releaseFutureRef.set(completer);
+                    return "mReleasedFuture";
+                }));
+        mReleasedCompleter = Preconditions.checkNotNull(releaseFutureRef.get());
 
         setState(CONFIGURED);
     }
@@ -563,6 +575,13 @@ public class EncoderImpl implements Encoder {
         });
     }
 
+    /** {@inheritDoc} */
+    @NonNull
+    @Override
+    public ListenableFuture<Void> getReleasedFuture() {
+        return mReleasedFuture;
+    }
+
     /**
      * Sends a hint to the encoder that the source has stopped producing data.
      *
@@ -595,6 +614,8 @@ public class EncoderImpl implements Encoder {
         }
 
         setState(RELEASED);
+
+        mReleasedCompleter.set(null);
     }
 
     /**
@@ -681,7 +702,7 @@ public class EncoderImpl implements Encoder {
 
                                     @ExecutedBy("mEncoderExecutor")
                                     @Override
-                                    public void onFailure(Throwable t) {
+                                    public void onFailure(@NonNull Throwable t) {
                                         if (t instanceof MediaCodec.CodecException) {
                                             handleEncodeError(
                                                     (MediaCodec.CodecException) t);
@@ -694,7 +715,7 @@ public class EncoderImpl implements Encoder {
                     }
 
                     @Override
-                    public void onFailure(Throwable t) {
+                    public void onFailure(@NonNull Throwable t) {
                         handleEncodeError(EncodeException.ERROR_UNKNOWN,
                                 "Unable to acquire InputBuffer.", t);
                     }
@@ -757,8 +778,8 @@ public class EncoderImpl implements Encoder {
     @ExecutedBy("mEncoderExecutor")
     void stopMediaCodec(@Nullable Runnable afterStop) {
         /*
-         * MediaCodec#close will free all its input/output ByteBuffers. Therefore, before calling
-         * MediaCodec#close, it must ensure all dispatched EncodedData(output ByteBuffers) and
+         * MediaCodec#stop will free all its input/output ByteBuffers. Therefore, before calling
+         * MediaCodec#stop, it must ensure all dispatched EncodedData(output ByteBuffers) and
          * InputBuffer(input ByteBuffers) are complete. Otherwise, the ByteBuffer receiver will
          * get buffer overflow when accessing the ByteBuffers.
          */
@@ -769,7 +790,15 @@ public class EncoderImpl implements Encoder {
         for (InputBuffer inputBuffer : mInputBufferSet) {
             futures.add(inputBuffer.getTerminationFuture());
         }
+        if (!futures.isEmpty()) {
+            Logger.d(mTag, "Waiting for resources to return."
+                    + " encoded data = " + mEncodedDataSet.size()
+                    + ", input buffers = " + mInputBufferSet.size());
+        }
         Futures.successfulAsList(futures).addListener(() -> {
+            if (!futures.isEmpty()) {
+                Logger.d(mTag, "encoded data and input buffers are returned");
+            }
             if (mEncoderInput instanceof SurfaceInput && !mSourceStoppedSignalled) {
                 // For a SurfaceInput, the codec is in control of dequeuing buffers from the
                 // underlying BufferQueue. If we stop the codec, then it will stop dequeuing buffers
@@ -1099,7 +1128,7 @@ public class EncoderImpl implements Encoder {
                         }
 
                         @Override
-                        public void onFailure(Throwable t) {
+                        public void onFailure(@NonNull Throwable t) {
                             mEncodedDataSet.remove(encodedData);
                             if (t instanceof MediaCodec.CodecException) {
                                 handleEncodeError(
@@ -1444,7 +1473,7 @@ public class EncoderImpl implements Encoder {
                         ListenableFuture<InputBuffer> future = acquireInputBuffer();
                         Futures.propagate(future, completer);
                         // Cancel by outer, also cancel internal future.
-                        completer.addCancellationListener(() -> future.cancel(true),
+                        completer.addCancellationListener(() -> cancelInputBuffer(future),
                                 CameraXExecutors.directExecutor());
 
                         // Keep tracking the acquisition by internal future. Once the provider state
@@ -1463,6 +1492,18 @@ public class EncoderImpl implements Encoder {
                 });
                 return "acquireBuffer";
             });
+        }
+
+        private void cancelInputBuffer(@NonNull ListenableFuture<InputBuffer> inputBufferFuture) {
+            if (!inputBufferFuture.cancel(true)) {
+                // Not able to cancel the future, need to cancel the input buffer as possible.
+                Preconditions.checkState(inputBufferFuture.isDone());
+                try {
+                    inputBufferFuture.get().cancel();
+                } catch (ExecutionException | InterruptedException | CancellationException e) {
+                    Logger.w(mTag, "Unable to cancel the input buffer: " + e);
+                }
+            }
         }
 
         /** {@inheritDoc} */

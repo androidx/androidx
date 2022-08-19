@@ -19,8 +19,10 @@ package androidx.wear.compose.material.samples
 import androidx.annotation.Sampled
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material.AutoCenteringParams
@@ -37,7 +39,9 @@ import kotlinx.coroutines.launch
 @Sampled
 @Composable
 fun SimpleScalingLazyColumn() {
-    ScalingLazyColumn {
+    ScalingLazyColumn(
+        modifier = Modifier.fillMaxWidth()
+    ) {
         item {
             ListHeader {
                 Text(text = "List Header")
@@ -58,6 +62,7 @@ fun SimpleScalingLazyColumn() {
 fun SimpleScalingLazyColumnWithSnap() {
     val state = rememberScalingLazyListState()
     ScalingLazyColumn(
+        modifier = Modifier.fillMaxWidth(),
         state = state,
         flingBehavior = ScalingLazyColumnDefaults.snapFlingBehavior(state = state)
     ) {
@@ -91,6 +96,7 @@ fun ScalingLazyColumnEdgeAnchoredAndAnimatedScrollTo() {
     )
 
     ScalingLazyColumn(
+        modifier = Modifier.fillMaxWidth(),
         anchorType = ScalingLazyListAnchorType.ItemStart,
         verticalArrangement = Arrangement.spacedBy(itemSpacing),
         state = state,
@@ -120,6 +126,7 @@ fun ScalingLazyColumnEdgeAnchoredAndAnimatedScrollTo() {
 @Composable
 fun SimpleScalingLazyColumnWithContentPadding() {
     ScalingLazyColumn(
+        modifier = Modifier.fillMaxWidth(),
         contentPadding = PaddingValues(top = 20.dp, bottom = 20.dp),
         autoCentering = null
     ) {
@@ -141,7 +148,9 @@ fun SimpleScalingLazyColumnWithContentPadding() {
 @Sampled
 @Composable
 fun ScalingLazyColumnWithHeaders() {
-    ScalingLazyColumn {
+    ScalingLazyColumn(
+        modifier = Modifier.fillMaxWidth(),
+    ) {
         item { ListHeader { Text("Header1") } }
         items(5) {
             Chip(

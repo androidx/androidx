@@ -406,7 +406,7 @@ public class WebViewFeatureInternal {
      * {@link androidx.webkit.WebSettingsCompat#setForceDark(WebSettings, int)} and
      * {@link androidx.webkit.WebSettingsCompat#getForceDark(WebSettings)}.
      */
-    public static final ApiFeature.NoFramework FORCE_DARK = new ApiFeature.NoFramework(
+    public static final ApiFeature.Q FORCE_DARK = new ApiFeature.Q(
             WebViewFeature.FORCE_DARK, Features.FORCE_DARK);
 
     /**
@@ -473,6 +473,15 @@ public class WebViewFeatureInternal {
             new ApiFeature.NoFramework(WebViewFeature.REQUESTED_WITH_HEADER_CONTROL,
                     Features.REQUESTED_WITH_HEADER_CONTROL);
 
+
+    /**
+     * This feature covers
+     * {@link androidx.webkit.WebSettingsCompat#setEnterpriseAuthenticationAppLinkPolicyEnabled(WebSettings, boolean)} and
+     * {@link androidx.webkit.WebSettingsCompat#getEnterpriseAuthenticationAppLinkPolicyEnabled(WebSettings)}.
+     */
+    public static final ApiFeature.NoFramework ENTERPRISE_AUTHENTICATION_APP_LINK_POLICY =
+            new ApiFeature.NoFramework(WebViewFeature.ENTERPRISE_AUTHENTICATION_APP_LINK_POLICY,
+                    Features.ENTERPRISE_AUTHENTICATION_APP_LINK_POLICY);
     // --- Add new feature constants above this line ---
 
     private WebViewFeatureInternal() {

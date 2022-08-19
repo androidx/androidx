@@ -34,7 +34,7 @@ import java.lang.reflect.InvocationTargetException
 import kotlin.UnsupportedOperationException
 
 /**
- * An utility class that provides `ViewModels` for a scope.
+ * A utility class that provides `ViewModels` for a scope.
  *
  * Default `ViewModelProvider` for an `Activity` or a `Fragment` can be obtained
  * by passing it to the constructor: `ViewModelProvider(myFragment)`
@@ -181,10 +181,13 @@ constructor(
         }
         val extras = MutableCreationExtras(defaultCreationExtras)
         extras[VIEW_MODEL_KEY] = key
-        return factory.create(
-            modelClass,
-            extras
-        ).also { store.put(key, it) }
+        // AGP has some desugaring issues associated with compileOnly dependencies so we need to
+        // fall back to the other create method to keep from crashing.
+        return try {
+            factory.create(modelClass, extras)
+        } catch (e: AbstractMethodError) {
+            factory.create(modelClass)
+        }.also { store.put(key, it) }
     }
 
     /**
@@ -272,7 +275,7 @@ constructor(
         @Suppress("DocumentExceptions")
         override fun <T : ViewModel> create(modelClass: Class<T>, extras: CreationExtras): T {
             return if (application != null) {
-                create(modelClass, application)
+                create(modelClass)
             } else {
                 val application = extras[APPLICATION_KEY]
                 if (application != null) {

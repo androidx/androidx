@@ -132,6 +132,38 @@ public class RowTest {
     }
 
     @Test
+    public void setDecoration_positiveValue() {
+        int decoration = 5;
+        Row row = new Row.Builder().setTitle("Title").setNumericDecoration(decoration).build();
+        assertThat(decoration).isEqualTo(row.getNumericDecoration());
+    }
+
+    @Test
+    public void setDecoration_zero() {
+        int decoration = 0;
+        Row row = new Row.Builder().setTitle("Title").setNumericDecoration(decoration).build();
+        assertThat(decoration).isEqualTo(row.getNumericDecoration());
+    }
+
+    @Test
+    public void setDecoration_noDecoration() {
+        int decoration = Row.NO_DECORATION;
+        Row row = new Row.Builder().setTitle("Title").setNumericDecoration(decoration).build();
+        assertThat(decoration).isEqualTo(row.getNumericDecoration());
+    }
+
+    @Test
+    public void setDecoration_negative_throws() {
+        int decoration = -123;
+        Row.Builder rowBuilder =
+                new Row.Builder().setTitle("Title");
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> rowBuilder.setNumericDecoration(decoration)
+        );
+    }
+
+    @Test
     public void setToggle() {
         Toggle toggle1 = new Toggle.Builder(isChecked -> {
         }).build();
@@ -162,6 +194,49 @@ public class RowTest {
         row.getOnClickDelegate().sendClick(onDoneCallback);
         verify(onClickListener).onClick();
         verify(onDoneCallback).onSuccess(null);
+    }
+
+    @Test
+    public void addAction() {
+        Row row = new Row.Builder()
+                .setTitle("Title")
+                .addAction(Action.PAN)
+                .addAction(Action.BACK)
+                .build();
+        assertThat(row.getActions()).containsExactly(Action.PAN, Action.BACK);
+    }
+
+    @Test
+    public void addAction_invalidActionType_throws() {
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new Row.Builder().setTitle("Title").addAction(Action.APP_ICON).build());
+    }
+
+    @Test
+    public void addAction_manyActions_throws() {
+        CarIcon carIcon = TestUtils.getTestCarIcon(ApplicationProvider.getApplicationContext(),
+                "ic_test_1");
+        Action customAction = TestUtils.createAction("Title", carIcon);
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new Row.Builder().setTitle("Title")
+                        .addAction(Action.BACK)
+                        .addAction(Action.PAN)
+                        .addAction(customAction)
+                        .build());
+    }
+
+    @Test
+    public void addAction_invalidActionNullIcon_throws() {
+        Action customAction = TestUtils.createAction("Title", null);
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new Row.Builder().setTitle("Title")
+                        .addAction(customAction)
+                        .build());
     }
 
     @Test

@@ -125,6 +125,14 @@ public class AccessibilityNodeInfoCompatTest {
         assertThat(nodeCompat.isTextEntryKey(), is(false));
     }
 
+    @Test
+    public void testGetSetUniqueId() {
+        final String uniqueId = (Build.VERSION.SDK_INT >= 19) ? "localUId" : null;
+        AccessibilityNodeInfoCompat nodeCompat = obtainedWrappedNodeCompat();
+        nodeCompat.setUniqueId(uniqueId);
+        assertThat(nodeCompat.getUniqueId(), equalTo(uniqueId));
+    }
+
     @SdkSuppress(minSdkVersion = 19)
     @Test
     public void testAccessibilityActionsNotNull() {
@@ -267,5 +275,26 @@ public class AccessibilityNodeInfoCompatTest {
 
         accessibilityNodeInfoCompat.setAvailableExtraData(testData);
         assertThat(accessibilityNodeInfoCompat.getAvailableExtraData(), equalTo(testData));
+    }
+
+    @SdkSuppress(minSdkVersion = 33)
+    @SmallTest
+    @Test
+    public void testGetExtraRenderingInfo() {
+        AccessibilityNodeInfoCompat accessibilityNodeInfoCompat = obtainedWrappedNodeCompat();
+        assertThat(
+                accessibilityNodeInfoCompat.getExtraRenderingInfo(),
+                equalTo(accessibilityNodeInfoCompat.unwrap().getExtraRenderingInfo()));
+    }
+
+    @SdkSuppress(minSdkVersion = 33)
+    @SmallTest
+    @Test
+    public void testSetGetTextSelectable() {
+        AccessibilityNodeInfoCompat accessibilityNodeInfoCompat = obtainedWrappedNodeCompat();
+        accessibilityNodeInfoCompat.setTextSelectable(false);
+        assertThat(accessibilityNodeInfoCompat.isTextSelectable(), equalTo(false));
+        accessibilityNodeInfoCompat.setTextSelectable(true);
+        assertThat(accessibilityNodeInfoCompat.isTextSelectable(), equalTo(true));
     }
 }

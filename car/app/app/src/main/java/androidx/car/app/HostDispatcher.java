@@ -32,6 +32,7 @@ import androidx.annotation.RestrictTo;
 import androidx.car.app.CarContext.CarServiceType;
 import androidx.car.app.constraints.IConstraintHost;
 import androidx.car.app.navigation.INavigationHost;
+import androidx.car.app.suggestion.ISuggestionHost;
 import androidx.car.app.utils.LogTags;
 import androidx.car.app.utils.RemoteUtils;
 import androidx.car.app.utils.ThreadUtils;
@@ -53,6 +54,8 @@ public final class HostDispatcher {
     private IConstraintHost mConstraintHost;
     @Nullable
     private INavigationHost mNavigationHost;
+    @Nullable
+    private ISuggestionHost mSuggestionHost;
 
     /**
      * Dispatches the {@code call} to the host for the given {@code hostType}.
@@ -139,7 +142,7 @@ public final class HostDispatcher {
             return null;
         }
 
-        IInterface host = null;
+        IInterface host;
         switch (hostType) {
             case CarContext.APP_SERVICE:
                 if (mAppHost == null) {
@@ -159,6 +162,18 @@ public final class HostDispatcher {
                                                     CarContext.CONSTRAINT_SERVICE)));
                 }
                 host = mConstraintHost;
+                break;
+            case CarContext.SUGGESTION_SERVICE:
+                if (mSuggestionHost == null) {
+                    mSuggestionHost =
+                            RemoteUtils.dispatchCallToHostForResult(
+                                    "getHost(Suggestion)", () ->
+                                            ISuggestionHost.Stub.asInterface(
+                                                    requireNonNull(mCarHost).getHost(
+                                                            CarContext.SUGGESTION_SERVICE))
+                            );
+                }
+                host = mSuggestionHost;
                 break;
             case CarContext.NAVIGATION_SERVICE:
                 if (mNavigationHost == null) {

@@ -45,6 +45,7 @@ public object Arguments {
     public val suppressedErrors: Set<String>
 
     val enabledRules: Set<RuleType>
+
     enum class RuleType {
         Microbenchmark,
         Macrobenchmark,
@@ -52,7 +53,9 @@ public object Arguments {
     }
 
     val enableCompilation: Boolean
-    val enablePackageReset: Boolean
+    val killProcessDelayMillis: Long
+    val enableStartupProfiles: Boolean
+    val strictStartupProfiles: Boolean
 
     // internal properties are microbenchmark only
     internal val outputEnable: Boolean
@@ -132,18 +135,15 @@ public object Arguments {
         enableCompilation =
             arguments.getBenchmarkArgument("compilation.enabled")?.toBoolean() ?: true
 
-        enablePackageReset =
-            arguments.getBenchmarkArgument("packageReset.enabled")?.toBoolean() ?: false
-
         _profiler = arguments.getProfiler(outputEnable)
         profilerSampleFrequency =
             arguments.getBenchmarkArgument("profiling.sampleFrequency")?.ifBlank { null }
-            ?.toInt()
-            ?: 1000
+                ?.toInt()
+                ?: 1000
         profilerSampleDurationSeconds =
             arguments.getBenchmarkArgument("profiling.sampleDurationSeconds")?.ifBlank { null }
-            ?.toLong()
-            ?: 5
+                ?.toLong()
+                ?: 5
         if (_profiler != null) {
             Log.d(
                 BenchmarkState.TAG,
@@ -152,5 +152,14 @@ public object Arguments {
             )
         }
         additionalTestOutputDir = arguments.getString("additionalTestOutputDir")
+
+        killProcessDelayMillis =
+            arguments.getBenchmarkArgument("killProcessDelayMillis")?.toLong() ?: 0L
+
+        enableStartupProfiles =
+            arguments.getBenchmarkArgument("startupProfiles.enable")?.toBoolean() ?: false
+
+        strictStartupProfiles =
+            arguments.getBenchmarkArgument("startupProfiles.strict")?.toBoolean() ?: false
     }
 }

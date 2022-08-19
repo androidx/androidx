@@ -26,6 +26,7 @@ import android.content.ContentResolver
 import android.content.ContentValues
 import android.content.Context
 import android.graphics.SurfaceTexture
+import android.location.Location
 import android.media.MediaMetadataRetriever
 import android.media.MediaRecorder
 import android.net.Uri
@@ -34,7 +35,9 @@ import android.os.ParcelFileDescriptor
 import android.provider.MediaStore
 import android.util.Size
 import androidx.camera.camera2.Camera2Config
+import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.CameraSelector
+import androidx.camera.core.CameraXConfig
 import androidx.camera.core.Preview
 import androidx.camera.core.SurfaceRequest
 import androidx.camera.core.impl.ImageFormatConstants
@@ -42,6 +45,7 @@ import androidx.camera.core.impl.Observable
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.core.internal.CameraUseCaseAdapter
 import androidx.camera.testing.AudioUtil
+import androidx.camera.testing.CameraPipeConfigTestRule
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CameraXUtil
 import androidx.camera.testing.GarbageCollectionUtil
@@ -58,7 +62,6 @@ import androidx.camera.video.internal.compat.quirk.MediaStoreVideoCannotWrite
 import androidx.camera.video.internal.encoder.InvalidConfigException
 import androidx.core.util.Consumer
 import androidx.test.core.app.ApplicationProvider
-import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
@@ -66,6 +69,7 @@ import androidx.test.rule.GrantPermissionRule
 import androidx.testutils.assertThrows
 import androidx.testutils.fail
 import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import java.io.File
 import java.util.concurrent.Executor
 import java.util.concurrent.Semaphore
@@ -83,10 +87,12 @@ import org.junit.After
 import org.junit.Assume.assumeFalse
 import org.junit.Assume.assumeTrue
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestName
 import org.junit.runner.RunWith
+import org.junit.runners.Parameterized
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
 import org.mockito.ArgumentMatchers.argThat
@@ -103,13 +109,22 @@ private const val FINALIZE_TIMEOUT = 5000L
 private const val TEST_ATTRIBUTION_TAG = "testAttribution"
 
 @LargeTest
-@RunWith(AndroidJUnit4::class)
+@RunWith(Parameterized::class)
 @SdkSuppress(minSdkVersion = 21)
-class RecorderTest {
+class RecorderTest(
+    private val implName: String,
+    private val cameraConfig: CameraXConfig,
+) {
+
+    @get:Rule
+    val cameraPipeConfigTestRule = CameraPipeConfigTestRule(
+        active = implName == CameraPipeConfig::class.simpleName,
+        forAllTests = true,
+    )
 
     @get:Rule
     val cameraRule = CameraUtil.grantCameraPermissionAndPreTest(
-        CameraUtil.PreTestCameraIdList(Camera2Config.defaultConfig())
+        CameraUtil.PreTestCameraIdList(cameraConfig)
     )
 
     @get:Rule
@@ -124,6 +139,15 @@ class RecorderTest {
 
     @get:Rule
     val labTest: LabTestRule = LabTestRule()
+
+    companion object {
+        @JvmStatic
+        @Parameterized.Parameters(name = "{0}")
+        fun data() = listOf(
+            arrayOf(Camera2Config::class.simpleName, Camera2Config.defaultConfig()),
+            arrayOf(CameraPipeConfig::class.simpleName, CameraPipeConfig.defaultConfig())
+        )
+    }
 
     private val instrumentation = InstrumentationRegistry.getInstrumentation()
     private val context: Context = ApplicationProvider.getApplicationContext()
@@ -140,16 +164,17 @@ class RecorderTest {
     @Before
     fun setUp() {
         assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_BACK))
-        // Skip for b/168175357
+        // Skip for b/168175357, b/233661493
         assumeFalse(
-            "Cuttlefish has MediaCodec dequeueInput/Output buffer fails issue. Unable to test.",
-            Build.MODEL.contains("Cuttlefish") && Build.VERSION.SDK_INT == 29
+            "Skip tests for Cuttlefish MediaCodec issues",
+            Build.MODEL.contains("Cuttlefish") &&
+                (Build.VERSION.SDK_INT == 29 || Build.VERSION.SDK_INT == 33)
         )
         assumeTrue(AudioUtil.canStartAudioRecord(MediaRecorder.AudioSource.CAMCORDER))
 
         CameraXUtil.initialize(
             context,
-            Camera2Config.defaultConfig()
+            cameraConfig
         ).get()
         cameraUseCaseAdapter = CameraUtil.createCameraUseCaseAdapter(context, cameraSelector)
 
@@ -391,6 +416,7 @@ class RecorderTest {
     }
 
     @Test
+    @Ignore("b/239752223")
     fun canPauseResume() {
         clearInvocations(videoRecordEventListener)
         invokeSurfaceRequest()
@@ -559,6 +585,7 @@ class RecorderTest {
     }
 
     @Test
+    @Ignore("b/239752223")
     fun setFileSizeLimit() {
         val fileSizeLimit = 500L * 1024L // 500 KB
         runFileSizeLimitTest(fileSizeLimit)
@@ -568,9 +595,20 @@ class RecorderTest {
     // the encoder. This will ensure that the recording will be finalized even if it has no data
     // written to it.
     @Test
+    @Ignore("b/239752223")
     fun setFileSizeLimitLowerThanInitialDataSize() {
         val fileSizeLimit = 1L // 1 byte
         runFileSizeLimitTest(fileSizeLimit)
+    }
+
+    @Test
+    fun setLocation() {
+        runLocationTest(createLocation(25.033267462243586, 121.56454121737946))
+    }
+
+    @Test
+    fun setNegativeLocation() {
+        runLocationTest(createLocation(-27.14394722411734, -109.33053675296067))
     }
 
     @Test
@@ -999,6 +1037,7 @@ class RecorderTest {
     }
 
     @Test
+    @Ignore("b/239752223")
     fun canRecordWithoutAudio() {
         clearInvocations(videoRecordEventListener)
         invokeSurfaceRequest()
@@ -1175,34 +1214,69 @@ class RecorderTest {
     }
 
     private fun checkFileAudio(uri: Uri, hasAudio: Boolean) {
-        val mediaRetriever = MediaMetadataRetriever()
-        mediaRetriever.apply {
-            setDataSource(context, uri)
-            val value = extractMetadata(MediaMetadataRetriever.METADATA_KEY_HAS_AUDIO)
+        MediaMetadataRetriever().apply {
+            try {
+                setDataSource(context, uri)
+                val value = extractMetadata(MediaMetadataRetriever.METADATA_KEY_HAS_AUDIO)
 
-            assertThat(value).isEqualTo(
-                if (hasAudio) {
-                    "yes"
-                } else {
-                    null
-                }
-            )
+                assertThat(value).isEqualTo(
+                    if (hasAudio) {
+                        "yes"
+                    } else {
+                        null
+                    }
+                )
+            } finally {
+                release()
+            }
         }
     }
 
     private fun checkFileVideo(uri: Uri, hasVideo: Boolean) {
-        val mediaRetriever = MediaMetadataRetriever()
-        mediaRetriever.apply {
-            setDataSource(context, uri)
-            val value = extractMetadata(MediaMetadataRetriever.METADATA_KEY_HAS_VIDEO)
+        MediaMetadataRetriever().apply {
+            try {
+                setDataSource(context, uri)
+                val value = extractMetadata(MediaMetadataRetriever.METADATA_KEY_HAS_VIDEO)
 
-            assertThat(value).isEqualTo(
-                if (hasVideo) {
-                    "yes"
-                } else {
-                    null
-                }
-            )
+                assertThat(value).isEqualTo(
+                    if (hasVideo) {
+                        "yes"
+                    } else {
+                        null
+                    }
+                )
+            } finally {
+                release()
+            }
+        }
+    }
+
+    private fun checkLocation(uri: Uri, location: Location) {
+        MediaMetadataRetriever().apply {
+            try {
+                setDataSource(context, uri)
+                // Only test on mp4 output format, others will be ignored.
+                val mime = extractMetadata(MediaMetadataRetriever.METADATA_KEY_MIMETYPE)
+                assumeTrue("Unsupported mime = $mime",
+                    "video/mp4".equals(mime, ignoreCase = true))
+                val value = extractMetadata(MediaMetadataRetriever.METADATA_KEY_LOCATION)
+                assertThat(value).isNotNull()
+                // ex: (90, 180) => "+90.0000+180.0000/" (ISO-6709 standard)
+                val matchGroup =
+                    "([\\+-]?[0-9]+(\\.[0-9]+)?)([\\+-]?[0-9]+(\\.[0-9]+)?)".toRegex()
+                        .find(value!!) ?: fail("Fail on checking location metadata: $value")
+                val lat = matchGroup.groupValues[1].toDouble()
+                val lon = matchGroup.groupValues[3].toDouble()
+
+                // MediaMuxer.setLocation rounds the value to 4 decimal places
+                val tolerance = 0.0001
+                assertWithMessage("Fail on latitude. $lat($value) vs ${location.latitude}")
+                    .that(lat).isWithin(tolerance).of(location.latitude)
+                assertWithMessage("Fail on longitude. $lon($value) vs ${location.longitude}")
+                    .that(lon).isWithin(tolerance).of(location.longitude)
+            } finally {
+                release()
+            }
         }
     }
 
@@ -1255,4 +1329,43 @@ class RecorderTest {
         recording.close()
         file.delete()
     }
+
+    private fun runLocationTest(location: Location) {
+        val recorder = Recorder.Builder().build()
+        invokeSurfaceRequest(recorder)
+        val file = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
+        val outputOptions = FileOutputOptions.Builder(file)
+            .setLocation(location)
+            .build()
+
+        val recording = recorder
+            .prepareRecording(context, outputOptions)
+            .start(CameraXExecutors.directExecutor(), videoRecordEventListener)
+
+        val inOrder = inOrder(videoRecordEventListener)
+        inOrder.verify(videoRecordEventListener, timeout(5000L))
+            .accept(any(VideoRecordEvent.Start::class.java))
+        inOrder.verify(videoRecordEventListener, timeout(15000L).atLeast(5))
+            .accept(any(VideoRecordEvent.Status::class.java))
+
+        recording.stopSafely()
+
+        inOrder.verify(videoRecordEventListener, timeout(FINALIZE_TIMEOUT))
+            .accept(any(VideoRecordEvent.Finalize::class.java))
+
+        val uri = Uri.fromFile(file)
+        checkLocation(uri, location)
+
+        file.delete()
+    }
+
+    private fun createLocation(
+        latitude: Double,
+        longitude: Double,
+        provider: String = "FakeProvider"
+    ): Location =
+        Location(provider).apply {
+            this.latitude = latitude
+            this.longitude = longitude
+        }
 }

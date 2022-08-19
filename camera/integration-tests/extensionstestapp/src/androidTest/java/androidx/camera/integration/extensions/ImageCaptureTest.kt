@@ -18,23 +18,23 @@ package androidx.camera.integration.extensions
 
 import android.Manifest
 import android.content.Context
-import android.content.Intent
 import androidx.camera.camera2.Camera2Config
-import androidx.camera.integration.extensions.util.ExtensionsTestUtil
+import androidx.camera.extensions.ExtensionsManager
+import androidx.camera.integration.extensions.util.CameraXExtensionsTestUtil
+import androidx.camera.integration.extensions.util.CameraXExtensionsTestUtil.assumeExtensionModeSupported
+import androidx.camera.integration.extensions.util.CameraXExtensionsTestUtil.launchCameraExtensionsActivity
+import androidx.camera.integration.extensions.util.HOME_TIMEOUT_MS
+import androidx.camera.integration.extensions.util.takePictureAndWaitForImageSavedIdle
+import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CameraUtil.PreTestCameraIdList
 import androidx.camera.testing.CoreAppTestUtil
-import androidx.camera.testing.waitForIdle
-import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
-import androidx.test.espresso.Espresso
-import androidx.test.espresso.IdlingResource
-import androidx.test.espresso.action.ViewActions
-import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.GrantPermissionRule
-import com.google.common.truth.Truth.assertThat
+import androidx.test.uiautomator.UiDevice
+import java.util.concurrent.TimeUnit
 import org.junit.After
 import org.junit.Assume.assumeTrue
 import org.junit.Before
@@ -43,14 +43,13 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
-private const val BASIC_SAMPLE_PACKAGE = "androidx.camera.integration.extensions"
-
 /**
  * The tests to verify that ImageCapture can work well when extension modes are enabled.
  */
 @LargeTest
 @RunWith(Parameterized::class)
 class ImageCaptureTest(private val cameraId: String, private val extensionMode: Int) {
+    private val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
 
     @get:Rule
     val useCamera = CameraUtil.grantCameraPermissionAndPreTest(
@@ -61,27 +60,54 @@ class ImageCaptureTest(private val cameraId: String, private val extensionMode: 
     val storagePermissionRule =
         GrantPermissionRule.grant(Manifest.permission.WRITE_EXTERNAL_STORAGE)!!
 
-    private lateinit var activityScenario: ActivityScenario<CameraExtensionsActivity>
+    private val context = ApplicationProvider.getApplicationContext<Context>()
 
     companion object {
         @Parameterized.Parameters(name = "cameraId = {0}, extensionMode = {1}")
         @JvmStatic
-        fun parameters() = ExtensionsTestUtil.getAllCameraIdExtensionModeCombinations()
+        fun parameters() = CameraXExtensionsTestUtil.getAllCameraIdExtensionModeCombinations()
     }
 
     @Before
-    fun setUp() {
-        assumeTrue(ExtensionsTestUtil.isTargetDeviceAvailableForExtensions())
+    fun setup() {
+        assumeTrue(CameraXExtensionsTestUtil.isTargetDeviceAvailableForExtensions())
         // Clear the device UI and check if there is no dialog or lock screen on the top of the
         // window before start the test.
         CoreAppTestUtil.prepareDeviceUI(InstrumentationRegistry.getInstrumentation())
+        // Use the natural orientation throughout these tests to ensure the activity isn't
+        // recreated unexpectedly. This will also freeze the sensors until
+        // mDevice.unfreezeRotation() in the tearDown() method. Any simulated rotations will be
+        // explicitly initiated from within the test.
+        device.setOrientationNatural()
+
+        val cameraProvider =
+            ProcessCameraProvider.getInstance(context)[10000, TimeUnit.MILLISECONDS]
+
+        val extensionsManager = ExtensionsManager.getInstanceAsync(
+            context,
+            cameraProvider
+        )[10000, TimeUnit.MILLISECONDS]
+
+        assumeExtensionModeSupported(extensionsManager, cameraId, extensionMode)
     }
 
     @After
     fun tearDown() {
-        if (::activityScenario.isInitialized) {
-            activityScenario.onActivity { it.finish() }
-        }
+        val cameraProvider =
+            ProcessCameraProvider.getInstance(context)[10000, TimeUnit.MILLISECONDS]
+        cameraProvider.shutdown()
+
+        val extensionsManager = ExtensionsManager.getInstanceAsync(
+            context,
+            cameraProvider
+        )[10000, TimeUnit.MILLISECONDS]
+        extensionsManager.shutdown()
+
+        // Unfreeze rotation so the device can choose the orientation via its own policy. Be nice
+        // to other tests :)
+        device.unfreezeRotation()
+        device.pressHome()
+        device.waitForIdle(HOME_TIMEOUT_MS)
     }
 
     /**
@@ -89,51 +115,12 @@ class ImageCaptureTest(private val cameraId: String, private val extensionMode: 
      */
     @Test
     fun takePictureWithExtensionMode() {
-        val intent = ApplicationProvider.getApplicationContext<Context>().packageManager
-            .getLaunchIntentForPackage(BASIC_SAMPLE_PACKAGE)?.apply {
-                putExtra(CameraExtensionsActivity.INTENT_EXTRA_CAMERA_ID, cameraId)
-                putExtra(CameraExtensionsActivity.INTENT_EXTRA_EXTENSION_MODE, extensionMode)
-                putExtra(CameraExtensionsActivity.INTENT_EXTRA_DELETE_CAPTURED_IMAGE, true)
-                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        val activityScenario = launchCameraExtensionsActivity(cameraId, extensionMode)
+
+        with(activityScenario) {
+            use {
+                takePictureAndWaitForImageSavedIdle()
             }
-
-        activityScenario = ActivityScenario.launch(intent)
-        var initializationIdlingResource: IdlingResource? = null
-        var previewViewIdlingResource: IdlingResource? = null
-        var takePictureIdlingResource: IdlingResource? = null
-
-        activityScenario.onActivity {
-            initializationIdlingResource = it.mInitializationIdlingResource
-            previewViewIdlingResource = it.mPreviewViewIdlingResource
-            takePictureIdlingResource = it.mTakePictureIdlingResource
-        }
-
-        // Wait for CameraExtensionsActivity's initialization to be complete
-        initializationIdlingResource.waitForIdle()
-
-        activityScenario.onActivity {
-            assumeTrue(it.isExtensionModeSupported(cameraId, extensionMode))
-        }
-
-        // Waits for preview view turned to STREAMING state to make sure that the capture session
-        // has been created and the capture stages can be retrieved from the vendor library
-        // successfully.
-        previewViewIdlingResource.waitForIdle()
-
-        activityScenario.onActivity {
-            // Checks that CameraExtensionsActivity's current extension mode is correct.
-            assertThat(it.currentExtensionMode).isEqualTo(extensionMode)
-        }
-
-        // Issue take picture.
-        Espresso.onView(withId(R.id.Picture)).perform(ViewActions.click())
-
-        // Wait for the take picture success callback.
-        takePictureIdlingResource.waitForIdle()
-
-        activityScenario.onActivity {
-            assertThat(it.imageCapture).isNotNull()
-            assertThat(it.preview).isNotNull()
         }
     }
 }

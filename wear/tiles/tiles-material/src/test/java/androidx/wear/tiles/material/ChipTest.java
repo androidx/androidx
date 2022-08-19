@@ -24,8 +24,6 @@ import static androidx.wear.tiles.material.Utils.areChipColorsEqual;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import static org.junit.Assert.assertThrows;
-
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import android.content.Context;
@@ -75,7 +73,7 @@ public class ChipTest {
         String contentDescription = "Chip";
         Chip chip =
                 new Chip.Builder(CONTEXT, CLICKABLE, DEVICE_PARAMETERS)
-                        .setPrimaryTextContent(MAIN_TEXT)
+                        .setPrimaryLabelContent(MAIN_TEXT)
                         .setHorizontalAlignment(HORIZONTAL_ALIGN_CENTER)
                         .setContentDescription(contentDescription)
                         .build();
@@ -94,18 +92,22 @@ public class ChipTest {
     @Test
     public void testFullChipColors() {
         ChipColors colors = new ChipColors(Color.YELLOW, Color.WHITE, Color.BLUE, Color.MAGENTA);
+        String secondaryLabel = "Label";
         Chip chip =
                 new Chip.Builder(CONTEXT, CLICKABLE, DEVICE_PARAMETERS)
                         .setChipColors(colors)
-                        .setPrimaryTextLabelIconContent(MAIN_TEXT, "Label", "ICON_ID")
+                        .setPrimaryLabelContent(MAIN_TEXT)
+                        .setSecondaryLabelContent(secondaryLabel)
+                        .setIconContent("ICON_ID")
                         .build();
         assertChip(
                 chip,
                 HORIZONTAL_ALIGN_START,
                 colors,
+                MAIN_TEXT + "\n" + secondaryLabel,
                 Chip.METADATA_TAG_ICON,
                 MAIN_TEXT,
-                "Label",
+                secondaryLabel,
                 "ICON_ID",
                 null);
     }
@@ -115,24 +117,18 @@ public class ChipTest {
         Chip chip =
                 new Chip.Builder(CONTEXT, CLICKABLE, DEVICE_PARAMETERS)
                         .setHorizontalAlignment(HORIZONTAL_ALIGN_START)
-                        .setPrimaryTextContent(MAIN_TEXT)
+                        .setPrimaryLabelContent(MAIN_TEXT)
                         .build();
         assertChip(
                 chip,
                 HORIZONTAL_ALIGN_START,
                 ChipDefaults.PRIMARY_COLORS,
+                MAIN_TEXT,
                 Chip.METADATA_TAG_TEXT,
                 MAIN_TEXT,
                 null,
                 null,
                 null);
-    }
-
-    @Test
-    public void testChipEmptyFails() {
-        assertThrows(
-                IllegalStateException.class,
-                () -> new Chip.Builder(CONTEXT, CLICKABLE, DEVICE_PARAMETERS).build());
     }
 
     @Test
@@ -154,10 +150,12 @@ public class ChipTest {
                                         .build())
                         .build();
 
+        String contentDescription = "Custom chip";
         Chip chip =
                 new Chip.Builder(CONTEXT, CLICKABLE, DEVICE_PARAMETERS)
                         .setCustomContent(content)
                         .setHorizontalAlignment(HORIZONTAL_ALIGN_START)
+                        .setContentDescription(contentDescription)
                         .build();
 
         assertChip(
@@ -166,6 +164,7 @@ public class ChipTest {
                 new ChipColors(
                         ChipDefaults.PRIMARY_COLORS.getBackgroundColor(),
                         new ColorProp.Builder().build()),
+                contentDescription,
                 Chip.METADATA_TAG_CUSTOM_CONTENT,
                 null,
                 null,
@@ -195,6 +194,7 @@ public class ChipTest {
                 expectedLabel,
                 expectedIcon,
                 expectedCustomContent);
+
         assertFromLayoutElementChipIsEqual(
                 actualChip,
                 hAlign,
@@ -205,6 +205,8 @@ public class ChipTest {
                 expectedLabel,
                 expectedIcon,
                 expectedCustomContent);
+
+        assertThat(Chip.fromLayoutElement(actualChip)).isEqualTo(actualChip);
     }
 
     @Test
@@ -235,27 +237,6 @@ public class ChipTest {
                         .build();
 
         assertThat(Chip.fromLayoutElement(box)).isNull();
-    }
-
-    private void assertChip(
-            @NonNull Chip actualChip,
-            @HorizontalAlignment int hAlign,
-            @NonNull ChipColors colors,
-            @NonNull String expectedMetadata,
-            @Nullable String expectedPrimaryText,
-            @Nullable String expectedLabel,
-            @Nullable String expectedIcon,
-            @Nullable LayoutElement expectedCustomContent) {
-        assertChip(
-                actualChip,
-                hAlign,
-                colors,
-                null,
-                expectedMetadata,
-                expectedPrimaryText,
-                expectedLabel,
-                expectedIcon,
-                expectedCustomContent);
     }
 
     private void assertFromLayoutElementChipIsEqual(
@@ -311,21 +292,21 @@ public class ChipTest {
         }
 
         if (expectedPrimaryText == null) {
-            assertThat(actualChip.getPrimaryText()).isNull();
+            assertThat(actualChip.getPrimaryLabelContent()).isNull();
         } else {
-            assertThat(actualChip.getPrimaryText()).isEqualTo(expectedPrimaryText);
+            assertThat(actualChip.getPrimaryLabelContent()).isEqualTo(expectedPrimaryText);
         }
 
         if (expectedLabel == null) {
-            assertThat(actualChip.getLabel()).isNull();
+            assertThat(actualChip.getSecondaryLabelContent()).isNull();
         } else {
-            assertThat(actualChip.getLabel()).isEqualTo(expectedLabel);
+            assertThat(actualChip.getSecondaryLabelContent()).isEqualTo(expectedLabel);
         }
 
         if (expectedIcon == null) {
-            assertThat(actualChip.getIcon()).isNull();
+            assertThat(actualChip.getIconContent()).isNull();
         } else {
-            assertThat(actualChip.getIcon()).isEqualTo(expectedIcon);
+            assertThat(actualChip.getIconContent()).isEqualTo(expectedIcon);
         }
 
         if (expectedCustomContent == null) {

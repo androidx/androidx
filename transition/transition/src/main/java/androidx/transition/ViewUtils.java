@@ -96,7 +96,7 @@ class ViewUtils {
     /**
      * Backward-compatible {@link View#getWindowId()}.
      */
-    static WindowIdImpl getWindowId(@NonNull View view) {
+    static @NonNull WindowIdImpl getWindowId(@NonNull View view) {
         if (Build.VERSION.SDK_INT >= 18) {
             return new WindowIdApi18(view);
         }

@@ -22,7 +22,11 @@ import android.content.Context
 import android.content.Intent
 import android.util.Log
 import androidx.lifecycle.LifecycleService
+import androidx.work.Constraints
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkInfo
 import androidx.work.WorkQuery
 import androidx.work.await
@@ -90,6 +94,17 @@ class RemoteService : LifecycleService() {
                     queryWorkInfo()
                 }
             }
+            ACTION_ENQUEUE_UNIQUE_PERIODIC -> {
+                mScope.launch {
+                    enqueuePeriodicWorkRequestWithInitialDelay()
+                }
+            }
+
+            ACTION_UPDATE_UNIQUE_PERIODIC -> {
+                mScope.launch {
+                    updateUniquePeriodicWork()
+                }
+            }
             else -> Log.d(TAG, "Unknown intent")
         }
     }
@@ -99,6 +114,29 @@ class RemoteService : LifecycleService() {
         Log.d(TAG, "Enqueue-ing TestWorker")
         val remoteWorkManager = RemoteWorkManager.getInstance(this)
         remoteWorkManager.enqueue(listOf(request)).await()
+    }
+
+    private suspend fun enqueuePeriodicWorkRequestWithInitialDelay() {
+        val request = PeriodicWorkRequestBuilder<TestWorker>(15, TimeUnit.MINUTES)
+            .setInitialDelay(15L, TimeUnit.MINUTES)
+            .build()
+        Log.d(TAG, "Enqueue-ing PeriodicWorker ${request.id}")
+        val remoteWorkManager = RemoteWorkManager.getInstance(this)
+        remoteWorkManager.enqueueUniquePeriodicWork(
+            "unique-periodic",
+            ExistingPeriodicWorkPolicy.KEEP, request
+        ).await()
+    }
+
+    private suspend fun updateUniquePeriodicWork() {
+        val request = PeriodicWorkRequestBuilder<TestWorker>(15, TimeUnit.MINUTES)
+            .setConstraints(Constraints(requiredNetworkType = NetworkType.CONNECTED))
+            .build()
+        Log.d(TAG, "Enqueue-ing PeriodicWorker ${request.id}")
+        val remoteWorkManager = RemoteWorkManager.getInstance(this)
+        remoteWorkManager.enqueueUniquePeriodicWork(
+            "unique-periodic", ExistingPeriodicWorkPolicy.UPDATE, request
+        ).await()
     }
 
     @SuppressLint("EnqueueWork")
@@ -147,6 +185,8 @@ class RemoteService : LifecycleService() {
         const val ACTION_CANCEL_WORK_BY_TAG = "ACTION_CANCEL_WORK_BY_TAG"
         const val ACTION_CANCEL_ALL_WORK = "ACTION_CANCEL_ALL_WORK"
         const val ACTION_QUERY_WORK_INFO = "ACTION_QUERY_WORK_INFO"
+        const val ACTION_ENQUEUE_UNIQUE_PERIODIC = "ACTION_ENQUEUE_UNIQUE_PERIODIC"
+        const val ACTION_UPDATE_UNIQUE_PERIODIC = "ACTION_UPDATE_UNIQUE_PERIODIC"
 
         fun enqueueIntent(context: Context): Intent {
             val intent = Intent(context.applicationContext, RemoteService::class.java)
@@ -157,6 +197,18 @@ class RemoteService : LifecycleService() {
         fun enqueueContinuationIntent(context: Context): Intent {
             val intent = Intent(context.applicationContext, RemoteService::class.java)
             intent.action = ACTION_ENQUEUE_CONTINUATION
+            return intent
+        }
+
+        fun enqueueUniquePeriodicIntent(context: Context): Intent {
+            val intent = Intent(context.applicationContext, RemoteService::class.java)
+            intent.action = ACTION_ENQUEUE_UNIQUE_PERIODIC
+            return intent
+        }
+
+        fun updateUniquePeriodicIntent(context: Context): Intent {
+            val intent = Intent(context.applicationContext, RemoteService::class.java)
+            intent.action = ACTION_UPDATE_UNIQUE_PERIODIC
             return intent
         }
 

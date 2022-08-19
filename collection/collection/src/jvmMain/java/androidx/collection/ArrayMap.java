@@ -490,6 +490,7 @@ public class ArrayMap<K, V> extends SimpleArrayMap<K, V> implements Map<K, V> {
         }
     }
 
+    @SuppressWarnings("KotlinInternalInJava") // https://youtrack.jetbrains.com/issue/KTIJ-1190
     final class KeyIterator extends IndexBasedArrayIterator<K> {
         KeyIterator() {
             super(ArrayMap.this.size());
@@ -506,6 +507,7 @@ public class ArrayMap<K, V> extends SimpleArrayMap<K, V> implements Map<K, V> {
         }
     }
 
+    @SuppressWarnings("KotlinInternalInJava") // https://youtrack.jetbrains.com/issue/KTIJ-1190
     final class ValueIterator extends IndexBasedArrayIterator<V> {
         ValueIterator() {
             super(ArrayMap.this.size());

@@ -104,6 +104,7 @@ public class CompactChipTest {
     private void assertChip(CompactChip actualCompactChip, ChipColors colors) {
         assertChipIsEqual(actualCompactChip, colors);
         assertFromLayoutElementChipIsEqual(actualCompactChip, colors);
+        assertThat(CompactChip.fromLayoutElement(actualCompactChip)).isEqualTo(actualCompactChip);
     }
 
     private void assertChipIsEqual(CompactChip actualCompactChip, ChipColors colors) {

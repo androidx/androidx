@@ -16,78 +16,131 @@
 
 package androidx.build
 
-import androidx.testutils.gradle.ProjectSetupRule
-import java.io.File
+import androidx.build.AndroidXSelfTestProject.Companion.cubaneKmpProject
+import androidx.build.AndroidXSelfTestProject.Companion.cubaneProject
 import net.saff.checkmark.Checkmark.Companion.check
-import org.gradle.testkit.runner.GradleRunner
 import org.junit.Assert
 import org.junit.Test
-import org.junit.rules.TemporaryFolder
-import org.junit.rules.TestRule
-import org.junit.runner.Description
-import org.junit.runners.model.Statement
 
 class AndroidXRootPluginTest {
     @Test
-    fun rootProjectConfigurationHasAndroidXTasks() {
-        TemporaryFolder().wrap { tmpFolder ->
-            ProjectSetupRule().wrap { setup ->
-                val props = setup.props
+    fun rootProjectConfigurationHasAndroidXTasks() = pluginTest {
+        writeBuildFiles()
 
-                fun buildSrcFile(path: String) =
-                    File(props.tipOfTreeMavenRepoPath, "../../../buildSrc/$path")
+        // Check that our classpath jars exist
+        Assert.assertTrue(buildJars.privateJar.path, buildJars.privateJar.exists())
 
-                val privateJar = buildSrcFile("private/build/libs/private.jar")
-                val publicJar = buildSrcFile("public/build/libs/public.jar")
-
-                val settingsGradleText = """
-                  pluginManagement {
-                    ${setup.repositories}
-                  }
-                """.trimIndent()
-
-                File(setup.rootDir, "settings.gradle").writeText(settingsGradleText)
-
-                val buildGradleText = """
-                  buildscript {
-                    project.ext.outDir = file("${tmpFolder.newFolder().path}")
-                    project.ext.supportRootFolder = file("${tmpFolder.newFolder().path}")
-
-                    ${setup.repositories}
-
-                    dependencies {
-                      classpath(project.files("${privateJar.path}"))
-                      classpath(project.files("${publicJar.path}"))
-                      classpath '${props.agpDependency}'
-                      classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:${props.kotlinVersion}'
-                    }
-                  }
-
-                  apply plugin: androidx.build.AndroidXRootImplPlugin
-                """.trimIndent()
-
-                File(setup.rootDir, "build.gradle").writeText(buildGradleText)
-                Assert.assertTrue(privateJar.path, privateJar.exists())
-                GradleRunner.create().withProjectDir(setup.rootDir)
-                    .withArguments("tasks", "--stacktrace")
-                    .build().output.check {
-                        it.contains("listAndroidXProperties - Lists AndroidX-specific properties")
-                    }
-            }
+        // --stacktrace gives more details on failure.
+        runGradle(
+            "tasks",
+            "--stacktrace",
+            "-P$ALLOW_MISSING_LINT_CHECKS_PROJECT=true"
+        ).output.check {
+            it.contains("listAndroidXProperties - Lists AndroidX-specific properties")
         }
     }
 
-    companion object {
-        /**
-         * JUnit 4 [TestRule]s are traditionally added to a test class as public JVM fields
-         * with a @[org.junit.Rule] annotation.  This works decently in Java, but has drawbacks,
-         * such as requiring all methods in a test class to be subject to the same [TestRule]s, and
-         * making it difficult to configure [TestRule]s in different ways between test methods.
-         * With lambdas, objects that have been built as [TestRule] can use this extension function
-         * to allow per-method custom application.
-         */
-        private fun <T : TestRule> T.wrap(fn: (T) -> Unit) = apply(object : Statement() {
-            override fun evaluate() = fn(this@wrap)
-        }, Description.EMPTY).evaluate()
+    @Test
+    fun unzipSourcesWithNoProjects() = pluginTest {
+        setupDocsProjects()
+
+        runGradle(":docs-public:unzipSourcesForDackka", "--stacktrace").output.check {
+            it.contains("BUILD SUCCESSFUL")
+        }
+    }
+
+    @Test
+    fun unzipSourcesWithCubane() = pluginTest {
+        setupDocsProjects(cubaneProject)
+        cubaneProject.publishMavenLocal()
+        runGradle(":docs-public:unzipSourcesForDackka", "--stacktrace").output.check {
+            it.contains("BUILD SUCCESSFUL")
+        }
+    }
+
+    @Test
+    fun unzipSourcesWithCubaneKmp() = pluginTest {
+        setupDocsProjects(cubaneKmpProject)
+
+        runGradle(":cubane:cubanekmp:tasks", "--all", "--stacktrace").output.check {
+            it.contains("publishJvmPublicationToMavenLocal")
+        }
+
+        cubaneKmpProject.publishMavenLocal()
+
+        // Make sure we are using metadata, not pom (unfortunately, if we use pom, and don't check,
+        // this test passes without testing the things we actually want to know)
+        // (See b/230396269)
+        cubaneKmpProject.readPublishedFile("cubanekmp-1.2.3.pom")
+            .check { it.contains("do_not_remove: published-with-gradle-metadata") }
+
+        cubaneKmpProject.readPublishedFile("cubanekmp-1.2.3.module")
+            .check { it.contains("\"org.gradle.docstype\": \"sources\"") }
+
+        runGradle(":docs-public:unzipSourcesForDackka", "--stacktrace").output.check {
+            it.contains("BUILD SUCCESSFUL")
+        }
+    }
+
+    @Test
+    fun testSaveMavenFoldersForDebugging() = pluginTest {
+        setupDocsProjects(cubaneProject)
+        cubaneProject.publishMavenLocal()
+
+        val where = tmpFolder.newFolder()
+        saveMavenFoldersForDebugging(where.path)
+        where.filesInFolder().check { it.contains("cubane") }
+    }
+
+    @Test
+    fun testPublishNoDuplicates() = pluginTest {
+        setupDocsProjects(cubaneKmpProject)
+
+        runGradle(":cubane:cubanekmp:publish", "--stacktrace").output.check {
+            // If we have overlapping publications, it will print an error message like
+            // """
+            // Multiple publications with coordinates
+            // 'androidx.collection:collection:1.3.0-alpha01' are published to repository 'maven'.
+            // The publications 'kotlinMultiplatform' in project ':collection:collection' and
+            // 'sourcesMaven' in project ':collection:collection' will overwrite each other!
+            // """
+            !it.contains("will overwrite each other")
+        }
+    }
+
+    private fun AndroidXPluginTestContext.setupDocsProjects(
+        vararg projects: AndroidXSelfTestProject
+    ) {
+        val sourceDependencies = projects.map { it.sourceCoordinate }
+        val docsPublicBuildGradle =
+            """|plugins {
+               |  id("com.android.library")
+               |}
+               |
+               |// b/233089408: would prefer to use plugins { id } syntax, but work around.
+               |apply plugin: androidx.build.docs.AndroidXDocsImplPlugin
+               |
+               |repositories {
+               |  mavenLocal()
+               |}
+               |
+               |dependencies {
+               |  ${sourceDependencies.joinToString("\n") { "docs(\"$it\")" }}
+               |}
+               |""".trimMargin()
+
+        val docsPublicProject = AndroidXSelfTestProject(
+            groupId = "docs-public",
+            artifactId = null,
+            version = null,
+            buildGradleTextTemplate = docsPublicBuildGradle
+        )
+        val fakeAnnotations = AndroidXSelfTestProject(
+            groupId = "fakeannotations",
+            artifactId = null,
+            version = null,
+            buildGradleTextTemplate = ""
+        )
+        writeBuildFiles(projects.toList() + listOf(docsPublicProject, fakeAnnotations))
     }
 }

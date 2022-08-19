@@ -29,6 +29,8 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 
 import androidx.annotation.ColorInt;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.leanback.R;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -141,13 +143,13 @@ public class DetailsOverviewRowPresenter extends RowPresenter {
 
         final DetailsOverviewRow.Listener mListener = new DetailsOverviewRow.Listener() {
             @Override
-            public void onImageDrawableChanged(DetailsOverviewRow row) {
+            public void onImageDrawableChanged(@NonNull DetailsOverviewRow row) {
                 mHandler.removeCallbacks(mUpdateDrawableCallback);
                 mHandler.post(mUpdateDrawableCallback);
             }
 
             @Override
-            public void onItemChanged(DetailsOverviewRow row) {
+            public void onItemChanged(@NonNull DetailsOverviewRow row) {
                 if (mDetailsDescriptionViewHolder != null) {
                     mDetailsPresenter.onUnbindViewHolder(mDetailsDescriptionViewHolder);
                 }
@@ -155,7 +157,7 @@ public class DetailsOverviewRowPresenter extends RowPresenter {
             }
 
             @Override
-            public void onActionsAdapterChanged(DetailsOverviewRow row) {
+            public void onActionsAdapterChanged(@NonNull DetailsOverviewRow row) {
                 bindActions(row.getActionsAdapter());
             }
         };
@@ -189,7 +191,12 @@ public class DetailsOverviewRowPresenter extends RowPresenter {
 
         final OnChildSelectedListener mChildSelectedListener = new OnChildSelectedListener() {
             @Override
-            public void onChildSelected(ViewGroup parent, View view, int position, long id) {
+            public void onChildSelected(
+                    @NonNull ViewGroup parent,
+                    @Nullable View view,
+                    int position,
+                    long id
+            ) {
                 dispatchItemSelection(view);
             }
         };
@@ -544,7 +551,10 @@ public class DetailsOverviewRowPresenter extends RowPresenter {
     }
 
     @Override
-    protected void onBindRowViewHolder(RowPresenter.ViewHolder holder, Object item) {
+    protected void onBindRowViewHolder(
+            @NonNull RowPresenter.ViewHolder holder,
+            @NonNull Object item
+    ) {
         super.onBindRowViewHolder(holder, item);
 
         DetailsOverviewRow row = (DetailsOverviewRow) item;
@@ -557,7 +567,7 @@ public class DetailsOverviewRowPresenter extends RowPresenter {
     }
 
     @Override
-    protected void onUnbindRowViewHolder(RowPresenter.ViewHolder holder) {
+    protected void onUnbindRowViewHolder(@NonNull RowPresenter.ViewHolder holder) {
         ViewHolder vh = (ViewHolder) holder;
         DetailsOverviewRow dor = (DetailsOverviewRow) vh.getRow();
         dor.removeListener(vh.mListener);
@@ -584,7 +594,7 @@ public class DetailsOverviewRowPresenter extends RowPresenter {
     }
 
     @Override
-    protected void onRowViewAttachedToWindow(RowPresenter.ViewHolder vh) {
+    protected void onRowViewAttachedToWindow(@NonNull RowPresenter.ViewHolder vh) {
         super.onRowViewAttachedToWindow(vh);
         if (mDetailsPresenter != null) {
             mDetailsPresenter.onViewAttachedToWindow(
@@ -593,7 +603,7 @@ public class DetailsOverviewRowPresenter extends RowPresenter {
     }
 
     @Override
-    protected void onRowViewDetachedFromWindow(RowPresenter.ViewHolder vh) {
+    protected void onRowViewDetachedFromWindow(@NonNull RowPresenter.ViewHolder vh) {
         super.onRowViewDetachedFromWindow(vh);
         if (mDetailsPresenter != null) {
             mDetailsPresenter.onViewDetachedFromWindow(

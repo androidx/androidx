@@ -25,16 +25,26 @@ function usage() {
   echo " c, compose"
   echo "  Open the project subset compose"
   echo
+  echo " ca, camera"
+  echo "  Open the project subset camera"
+  echo
   echo " f, flan"
   echo "  Open the project subset flan: Fragment, Lifecycle, Activity, and Navigation"
   echo
   echo " media"
   echo "  Open the project subset media: Media, Media2, and MediaRouter"
   echo
+  echo " kmp"
+  echo "  Open the project subset KMP: Projects that have KMP builds"
+  echo
   echo " w, wear"
   echo "  Open the project subset for Wear OS libraries"
   echo
   echo " g, glance"
+  echo "  Open the project subset for glance projects"
+  echo
+  echo
+  echo " native"
   echo "  Open the project subset for glance projects"
   echo
   echo " a, all"
@@ -83,6 +93,9 @@ while [ "$1" != "" ]; do
   if [ "$subsetArg" == "c" -o "$subsetArg" == "compose" ]; then
     newSubset=compose
   fi
+  if [ "$subsetArg" == "ca" -o "$subsetArg" == "camera" ]; then
+    newSubset=camera
+  fi
   if [ "$subsetArg" == "f" -o "$subsetArg" == "flan" ]; then
     newSubset=flan
   fi
@@ -95,8 +108,17 @@ while [ "$1" != "" ]; do
   if [ "$subsetArg" == "g" -o "$subsetArg" == "glance" ]; then
       newSubset=glance
   fi
+  if [ "$subsetArg" == "k" -o "$subsetArg" == "kmp" ]; then
+      newSubset=kmp
+  fi
+  if [ "$subsetArg" == "native" ]; then
+    newSubset=native
+  fi
   if [ "$subsetArg" == "a" -o "$subsetArg" == "all" ]; then
     newSubset=all
+  fi
+  if [ "$subsetArg" == "t" -o "$subsetArg" == "tools" ]; then
+    newSubset=tools
   fi
   if [ "$newSubset" == "" ]; then
     echo "Unrecognized argument: '$subsetArg'"

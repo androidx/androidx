@@ -20,6 +20,7 @@ import static androidx.camera.camera2.impl.Camera2ImplConfig.DEVICE_STATE_CALLBA
 import static androidx.camera.camera2.impl.Camera2ImplConfig.SESSION_CAPTURE_CALLBACK_OPTION;
 import static androidx.camera.camera2.impl.Camera2ImplConfig.SESSION_PHYSICAL_CAMERA_ID_OPTION;
 import static androidx.camera.camera2.impl.Camera2ImplConfig.SESSION_STATE_CALLBACK_OPTION;
+import static androidx.camera.camera2.impl.Camera2ImplConfig.STREAM_USE_CASE_OPTION;
 import static androidx.camera.camera2.impl.Camera2ImplConfig.TEMPLATE_TYPE_OPTION;
 
 import android.annotation.SuppressLint;
@@ -98,6 +99,25 @@ public final class Camera2Interop {
         @NonNull
         public Extender<T> setCaptureRequestTemplate(int templateType) {
             mBaseBuilder.getMutableConfig().insertOption(TEMPLATE_TYPE_OPTION, templateType);
+            return this;
+        }
+
+        /**
+         * Sets a CameraDevice template on the given configuration. Requires API 33 or above.
+         *
+         * <p>See {@link android.hardware.camera2.CameraMetadata} for valid stream use cases.
+         * See {@link android.hardware.camera2.params.OutputConfiguration} to see how
+         * Camera2 framework uses this.
+         *
+         * @param streamUseCase The stream use case to set.
+         * @return The current Extender.
+         * @hide
+         */
+        @RequiresApi(33)
+        @RestrictTo(Scope.LIBRARY)
+        @NonNull
+        public Extender<T> setStreamUseCase(long streamUseCase) {
+            mBaseBuilder.getMutableConfig().insertOption(STREAM_USE_CASE_OPTION, streamUseCase);
             return this;
         }
 

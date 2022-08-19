@@ -47,9 +47,11 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.test.R;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -100,9 +102,12 @@ public class RecyclerViewBasicTest {
                 0, layoutManager.mLayoutCount);
     }
 
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN)
+    @Test
+    @Ignore("b/236978861")
     public void setScrollContainer() {
-        assertEquals("RecyclerView should announce itself as scroll container for the IME to "
-                + "handle it properly", true, mRecyclerView.isScrollContainer());
+        assertTrue("RecyclerView should announce itself as scroll container for the IME to "
+                + "handle it properly", mRecyclerView.isScrollContainer());
     }
 
     @Test

@@ -23,6 +23,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatImageView;
 import androidx.vectordrawable.graphics.drawable.Animatable2Compat;
@@ -57,24 +58,24 @@ public class AVDCListenerDemo extends AppCompatActivity {
         Animatable2Compat.AnimationCallback textView1Callback = new
                 Animatable2Compat.AnimationCallback() {
                     @Override
-                    public void onAnimationStart(Drawable drawable) {
+                    public void onAnimationStart(@NonNull Drawable drawable) {
                         textView1.setText("AVD 1 started");
                     }
 
                     @Override
-                    public void onAnimationEnd(Drawable drawable) {
+                    public void onAnimationEnd(@NonNull Drawable drawable) {
                         textView1.setText("AVD 1 Ended");
                     }
                 };
         Animatable2Compat.AnimationCallback textView2Callback = new
                 Animatable2Compat.AnimationCallback() {
                     @Override
-                    public void onAnimationStart(Drawable drawable) {
+                    public void onAnimationStart(@NonNull Drawable drawable) {
                         textView2.setText("AVD 1 started");
                     }
 
                     @Override
-                    public void onAnimationEnd(Drawable drawable) {
+                    public void onAnimationEnd(@NonNull Drawable drawable) {
                         textView2.setText("AVD 1 Ended");
                     }
                 };
@@ -86,12 +87,12 @@ public class AVDCListenerDemo extends AppCompatActivity {
         AnimatedVectorDrawableCompat.registerAnimationCallback(drawable2,
                 new Animatable2Compat.AnimationCallback() {
                     @Override
-                    public void onAnimationStart(Drawable drawable) {
+                    public void onAnimationStart(@NonNull Drawable drawable) {
                         textView3.setText("AVD 2 started");
                     }
 
                     @Override
-                    public void onAnimationEnd(Drawable drawable) {
+                    public void onAnimationEnd(@NonNull Drawable drawable) {
                         textView3.setText("AVD 2 Ended");
                     }
                 });
@@ -99,12 +100,12 @@ public class AVDCListenerDemo extends AppCompatActivity {
         Animatable2Compat.AnimationCallback textView4Callback = new
                 Animatable2Compat.AnimationCallback() {
                     @Override
-                    public void onAnimationStart(Drawable drawable) {
+                    public void onAnimationStart(@NonNull Drawable drawable) {
                         textView4.setText("AVD 2 started");
                     }
 
                     @Override
-                    public void onAnimationEnd(Drawable drawable) {
+                    public void onAnimationEnd(@NonNull Drawable drawable) {
                         textView4.setText("AVD 2 Ended");
                     }
                 };

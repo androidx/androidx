@@ -19,12 +19,21 @@
 
     <uses-sdk
         android:minSdkVersion="14"
-        tools:overrideLibrary="android_libs.ub_uiautomator" />
+        tools:overrideLibrary="android_libs.ub_uiautomator, androidx.test.uiautomator" />
 
     <application
         android:name="androidx.multidex.MultiDexApplication"
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat">
+
+        <service
+            android:name="androidx.appcompat.app.AppLocalesMetadataHolderService"
+            android:enabled="false"
+            android:exported="false">
+            <meta-data
+                android:name="autoStoreLocales"
+                android:value="false" />
+        </service>
 
         <activity
             android:name="androidx.appcompat.app.AppCompatActivity"/>
@@ -238,6 +247,21 @@
             android:name="androidx.appcompat.app.FragmentContentIdActivity"/>
 
         <activity
+            android:name="androidx.appcompat.app.g3.FilternatorActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden"/>
+
+        <activity
+            android:name="androidx.appcompat.app.g3.FilternatorActivityWithCustomDefault"
+            android:configChanges="orientation|screenSize|keyboardHidden"/>
+
+        <activity
+            android:name="androidx.appcompat.app.g3.OldTranslateActivity"
+            android:configChanges="screenSize|keyboardHidden|orientation|smallestScreenSize|screenLayout"
+            android:recreateOnConfigChanges="mcc|mnc"
+            android:documentLaunchMode="never"
+            android:windowSoftInputMode="adjustNothing"/>
+
+        <activity
             android:name="androidx.appcompat.app.NightModeActivity"
             android:theme="@style/Theme.AppCompat.DayNight"/>
 
@@ -271,16 +295,6 @@
             android:name="androidx.appcompat.app.NightModeUiModeConfigChangesActivityC"
             android:theme="@style/Theme.AppCompat.DayNight"
             android:configChanges="uiMode"/>
-
-        <activity
-            android:name="androidx.appcompat.app.NightModeRotationConfigChangesActivityA"
-            android:theme="@style/Theme.AppCompat.DayNight"
-            android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout|fontScale|uiMode|mcc|mnc"
-            android:screenOrientation="portrait" />
-
-        <activity
-            android:name="androidx.appcompat.app.NightModeRotationConfigChangesActivityB"
-            android:screenOrientation="landscape" />
 
         <activity
             android:name="androidx.appcompat.app.NightModeRotateDoesNotRecreateActivity"
@@ -318,6 +332,10 @@
             android:theme="@style/Theme.CustomInflater"/>
 
         <activity
+            android:name="androidx.appcompat.app.NoDisplayAppCompatActivity"
+            android:theme="@style/Theme.AppCompatNoDisplay"/>
+
+        <activity
             android:name="androidx.appcompat.app.NoThemeAppCompatActivity"
             android:theme="@android:style/Theme.Holo.NoActionBar"/>
 
@@ -334,6 +352,40 @@
 
         <activity
             android:name="androidx.appcompat.widget.TooltipCompatTestActivity" />
+        <activity android:name="androidx.appcompat.app.LocalesUpdateActivity"/>
+
+        <activity
+            android:name="androidx.appcompat.app.LocalesConfigChangesActivity"
+            android:configChanges="locale|layoutDirection"/>
+
+        <activity
+            android:name="androidx.appcompat.app.LocalesCustomApplyOverrideConfigurationActivity" />
+
+        <activity android:name="androidx.appcompat.app.LocalesDialogFragment"/>
+
+        <activity android:name="androidx.appcompat.app.LocalesCustomAttachBaseContextActivity"/>
+
+        <activity
+            android:name="androidx.appcompat.app.LocalesRotateDoesNotRecreateActivity"
+            android:configChanges="orientation|screenSize"/>
+
+        <activity android:name="androidx.appcompat.app.LocalesActivityA"/>
+
+        <activity android:name="androidx.appcompat.app.LocalesActivityB"/>
+
+        <activity
+            android:name="androidx.appcompat.app.LocalesConfigChangesActivityA"
+            android:configChanges="locale|layoutDirection"/>
+
+        <activity
+            android:name="androidx.appcompat.app.LocalesConfigChangesActivityB"
+            android:configChanges="locale|layoutDirection"/>
+
+        <activity
+            android:name="androidx.appcompat.app.LocalesConfigChangesActivityWithoutLayoutDirection"
+            android:configChanges="locale"/>
+
+        <activity android:name="androidx.appcompat.app.LocalesLateOnCreateActivity"/>
 
     </application>
 

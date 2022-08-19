@@ -57,6 +57,25 @@ import java.util.List;
  *
  * <p>For additional examples and suggested layouts see <a
  * href="/training/wearables/design/tiles-design-system">Tiles Design System</a>.
+ *
+ * <p>When accessing the contents of a container for testing, note that this element can't be simply
+ * casted back to the original type, i.e.:
+ *
+ * <pre>{@code
+ * MultiButtonLayout mbl = new MultiButtonLayout...
+ * Box box = new Box.Builder().addContent(mbl).build();
+ *
+ * MultiButtonLayout myMbl = (MultiButtonLayout) box.getContents().get(0);
+ * }</pre>
+ *
+ * will fail.
+ *
+ * <p>To be able to get {@link MultiButtonLayout} object from any layout element, {@link
+ * #fromLayoutElement} method should be used, i.e.:
+ *
+ * <pre>{@code
+ * MultiButtonLayout myMbl = MultiButtonLayout.fromLayoutElement(box.getContents().get(0));
+ * }</pre>
  */
 public class MultiButtonLayout implements LayoutElement {
     /** Tool tag for Metadata in Modifiers, so we know that Box is actually a MultiButtonLayout. */
@@ -307,7 +326,8 @@ public class MultiButtonLayout implements LayoutElement {
     /** Returns metadata tag set to this MultiButtonLayouts. */
     @NonNull
     String getMetadataTag() {
-        return getMetadataTagName(checkNotNull(mElement.getModifiers()));
+        return getMetadataTagName(
+                checkNotNull(checkNotNull(mElement.getModifiers()).getMetadata()));
     }
 
     /**
@@ -343,11 +363,15 @@ public class MultiButtonLayout implements LayoutElement {
     }
 
     /**
-     * Returns MultiButtonLayout object from the given LayoutElement if that element can be
-     * converted to MultiButtonLayout. Otherwise, returns null.
+     * Returns MultiButtonLayout object from the given LayoutElement (e.g. one retrieved from a
+     * container's content with {@code container.getContents().get(index)}) if that element can be
+     * converted to MultiButtonLayout. Otherwise, it will return null.
      */
     @Nullable
     public static MultiButtonLayout fromLayoutElement(@NonNull LayoutElement element) {
+        if (element instanceof MultiButtonLayout) {
+            return (MultiButtonLayout) element;
+        }
         if (!(element instanceof Box)) {
             return null;
         }

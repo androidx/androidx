@@ -17,7 +17,6 @@
 package androidx.camera.camera2.internal;
 
 import static android.hardware.camera2.CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_PRIVATE_REPROCESSING;
-import static android.hardware.camera2.CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_YUV_REPROCESSING;
 
 import static androidx.camera.camera2.internal.ZslUtil.isCapabilitySupported;
 
@@ -193,7 +192,7 @@ public final class Camera2CameraInfoImpl implements CameraInfoInternal {
 
     @Override
     public int getSensorRotationDegrees(@RotationValue int relativeRotation) {
-        Integer sensorOrientation = getSensorOrientation();
+        int sensorOrientation = getSensorOrientation();
         int relativeRotationDegrees =
                 CameraOrientationUtil.surfaceRotationToDegrees(relativeRotation);
         // Currently this assumes that a back-facing camera is always opposite to the screen.
@@ -356,14 +355,7 @@ public final class Camera2CameraInfoImpl implements CameraInfoInternal {
 
     @Override
     public boolean isZslSupported() {
-        return Build.VERSION.SDK_INT >= 23
-                && (isYuvReprocessingSupported() || isPrivateReprocessingSupported());
-    }
-
-    @Override
-    public boolean isYuvReprocessingSupported() {
-        return isCapabilitySupported(mCameraCharacteristicsCompat,
-                REQUEST_AVAILABLE_CAPABILITIES_YUV_REPROCESSING);
+        return Build.VERSION.SDK_INT >= 23 && isPrivateReprocessingSupported();
     }
 
     @Override
@@ -467,7 +459,7 @@ public final class Camera2CameraInfoImpl implements CameraInfoInternal {
      */
     static class RedirectableLiveData<T> extends MediatorLiveData<T> {
         private LiveData<T> mLiveDataSource;
-        private T mInitialValue;
+        private final T mInitialValue;
 
         RedirectableLiveData(T initialValue) {
             mInitialValue = initialValue;

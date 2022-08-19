@@ -8,11 +8,20 @@ cycle or SemVer revision.
 
 ## Semantic versioning
 
-Artifacts follow strict [semantic versioning](http://semver.org) with an added
-inter-version sequence of pre-release revisions. The version for a finalized
-release will follow the format `<major>.<minor>.<bugfix>` with an optional
-`-<alpha|beta|rc><nn>` suffix. Internal or nightly releases (via
-[androidx.dev](http://androidx.dev)) should use the `-SNAPSHOT` suffix.
+Artifacts follow strict [semantic versioning](http://semver.org) for binary
+compatibility with an added inter-version sequence of pre-release revisions. The
+version for a finalized release artifact will follow the format
+`<major>.<minor>.<bugfix>` with an optional `-<alpha|beta|rc><nn>` suffix.
+Internal or nightly releases (via [androidx.dev](http://androidx.dev)) use the
+`-SNAPSHOT` suffix.
+
+### Source compatibility
+
+Libraries are encouraged -- but not required -- to preserve source compatibility
+across minor versions. Strictly requiring source compatibility would require
+major version bumps when implementing quality-of-life improvements such as
+nullability annotations or generics, which would be
+[disruptive to the library ecosystem](#major-implications).
 
 ### Notation
 
@@ -58,7 +67,7 @@ their dependencies. Major version bumps are
 #### When to increment {#major-when}
 
 An artifact *must* increment its major version number in response to breaking
-changes in binary or behavioral compatibility within the library itself _or_ in
+changes in binary or behavioral compatibility within the library itself *or* in
 response to breaking changes within a dependency.
 
 For example, if an artifact updates a SemVer-type dependency from `1.0.0` to
@@ -67,12 +76,12 @@ For example, if an artifact updates a SemVer-type dependency from `1.0.0` to
 An artifact *may in rare cases* increment its major version number to indicate
 an important but non-breaking change in the library. Note, however, that the
 SemVer implications of incrementing the major version are the same as a breaking
-change -- dependent projects _must_ assume the major version change is breaking
+change -- dependent projects *must* assume the major version change is breaking
 and update their dependency specifications.
 
 #### Ecosystem implications {#major-implications}
 
-When an artifact increases its major version, _all_ artifacts that depended on
+When an artifact increases its major version, *all* artifacts that depended on
 the previous major version are no longer considered compatible and must
 explicitly migrate to depend on the new major version.
 
@@ -140,13 +149,16 @@ lexicographic ordering of versions used by SemVer.
 
 Snapshot releases are whatever exists at tip-of-tree. They are only subject to
 the constraints placed on the average commit. Depending on when it's cut, a
-snapshot may even be binary-identical to an alpha, beta, or stable release.
+snapshot may even be binary-identical to an `alpha`, `beta`, or `stable`
+release.
+
+### Tooling guarantees
 
 Versioning policies are enforced by the following Gradle tasks:
 
 `checkApi`: ensures that changes to public API are intentional and tracked,
-asking the developer to explicitly run updateApi (see below) if any changes are
-detected
+asking the developer to explicitly run `updateApi` (see below) if any changes
+are detected
 
 `checkApiRelease`: verifies that API changes between previously released and
 currently under-development versions conform to semantic versioning guarantees
@@ -162,11 +174,11 @@ line.
 
 ## Picking the right version {#picking-the-right-version}
 
-AndroidX follows [Strict Semantic Versioning](https://semver.org), which means
-that the version code is strongly tied to the API surface. A full version
-consists of revision numbers for major, minor, and bugfix as well as a
-pre-release stage and revision. Correct versioning is, for the most part,
-automatically enforced; however, please check for the following:
+Libraries follow [semantic versioning](https://semver.org), which means that the
+version code is strongly tied to the API surface. A full version consists of
+revision numbers for major, minor, and bugfix as well as a pre-release stage and
+revision. Correct versioning is, for the most part, automatically enforced;
+however, please check for the following:
 
 ### Initial version {#initial-version}
 
@@ -192,8 +204,8 @@ high-quality stable release. The owner for a library should typically submit a
 CL to update the stage or revision when they are ready to perform a public
 release.
 
-Libraries are expected to allow >= 2 weeks per pre-release stage. This 'soaking
-period' gives developers time to try/use each version, find bugs, and ensure a
+Libraries are expected to allow >= 2 weeks per pre-release stage. This "soaking
+period" gives developers time to try each version, find bugs, and ensure a
 quality stable release. Therefore, at minimum:
 
 -   An `alpha` version must be publically available for 2 weeks before releasing
@@ -219,6 +231,8 @@ Council review but are expected to have performed a minimum level of validation.
         `publish=true` or create an `api` directory) and remain enabled
     *   May add/remove APIs within `alpha` cycle, but deprecate/remove cycle is
         strongly recommended.
+    *   May use [experimental APIs](api_guidelines.md#experimental-api) across
+        same-version group boundaries
 *   Testing
     *   All changes **should** be accompanied by a `Test:` stanza
     *   All pre-submit and post-submit tests are passing
@@ -248,14 +262,17 @@ additions of `@Experimental` APIs or changes to `@Experimental` APIs.
 *   API surface
     *   Entire API surface has been reviewed by API Council
     *   All APIs from alpha undergoing deprecate/remove cycle must be removed
-        *   The final removal of a `@Deprecated` API must occur in alpha, not in
-            Beta.
+        *   The final removal of a `@Deprecated` API should occur in alpha, not
+            in beta
+    *   Must not use [experimental APIs](api_guidelines.md#experimental-api)
+        across same-version group boundaries
 *   Testing
     *   All public APIs are tested
     *   All pre-submit and post-submit tests are enabled (e.g. all suppressions
         are removed) and passing
     *   Your library passes `./gradlew library:checkReleaseReady`
-*   No experimental features (e.g. `@UseExperimental`) may be used
+*   Use of experimental Kotlin features (e.g. `@OptIn`) must be audited for
+    stability
 *   All dependencies are `beta`, `rc`, or stable
 *   Be able to answer the question "How will developers test their apps against
     your library?"
@@ -271,9 +288,9 @@ additions of `@Experimental` APIs or changes to `@Experimental` APIs.
         *   Must go through the full `@Deprecate` and hard-removal cycle in
             separate `beta` releases for any exception-approved API removals or
             changes
-    *   May not remove `@Experimental` from experimental APIs, as this would
-        amount to an API addition
-    *   **May** add new `@Experimental` APIs and change existing `@Experimental`
+    *   May not remove `@RequiresOptIn` annotations from experimental APIs, as
+        this would amount to an API addition
+    *   **May** add new `@RequiresOptIn` APIs and change existing experimental
         APIs
 
 ### RC {#rc}
@@ -288,7 +305,7 @@ testing.
 *   Release branch, e.g. `androidx-<group_id>-release`, is created
 *   API surface
     *   Any API changes from `beta` cycle are reviewed by API Council
-*   No **known** P0 or P1 (ship-blocking) issues
+*   No **known** `P0` or `P1` (ship-blocking) issues
 *   All dependencies are `rc` or stable
 
 #### Within the `rcXX` cycle
@@ -336,7 +353,6 @@ A few notes about version updates:
     how to do this. After the release branch is snapped to that build, you will
     need to update your version in `androidx-main` to `alpha01` of the next
     minor (or major) version.
-
 
 ### How to update your version
 

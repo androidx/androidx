@@ -16,7 +16,18 @@
 
 package androidx.datastore.core
 
-import com.google.common.truth.Truth.assertThat
+import androidx.kruth.assertThat
+import java.io.DataInputStream
+import java.io.DataOutputStream
+import java.io.IOException
+import java.io.InputStream
+import java.io.OutputStream
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
+import kotlin.test.Ignore
+import kotlin.test.Test
+import kotlin.time.ExperimentalTime
+import kotlin.time.seconds
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Job
@@ -29,25 +40,11 @@ import kotlinx.coroutines.flow.retry
 import kotlinx.coroutines.flow.takeWhile
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
-import org.junit.Ignore
 import org.junit.Rule
-import org.junit.Test
 import org.junit.rules.TemporaryFolder
 import org.junit.rules.Timeout
-import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
-import java.io.DataInputStream
-import java.io.DataOutputStream
-import java.io.IOException
-import java.io.InputStream
-import java.io.OutputStream
-import java.util.concurrent.Executors
-import java.util.concurrent.TimeUnit
-import kotlin.time.ExperimentalTime
-import kotlin.time.seconds
 
-@RunWith(JUnit4::class)
-@ExperimentalTime
+@OptIn(ExperimentalTime::class)
 class SingleProcessDataStoreStressTest {
     @get:Rule
     val tempFolder = TemporaryFolder()

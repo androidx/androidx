@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// @exportToFramework:copyToPath(testing/testutils/src/android/app/appsearch/testutil/external/AlwaysSupportedFeatures.java)
 package androidx.appsearch.localstorage;
 
 import androidx.annotation.NonNull;
@@ -33,7 +34,16 @@ public class AlwaysSupportedFeatures implements Features {
         if (Features.SEARCH_RESULT_MATCH_INFO_SUBMATCH.equals(feature)) {
             return true;
         }
-        if (Features.GLOBAL_SEARCH_SESSION_ADD_REMOVE_OBSERVER.equals(feature)) {
+        if (Features.GLOBAL_SEARCH_SESSION_REGISTER_OBSERVER_CALLBACK.equals(feature)) {
+            return true;
+        }
+        if (Features.GLOBAL_SEARCH_SESSION_GET_SCHEMA.equals(feature)) {
+            return true;
+        }
+        if (Features.GLOBAL_SEARCH_SESSION_GET_BY_ID.equals(feature)) {
+            return true;
+        }
+        if (Features.ADD_PERMISSIONS_AND_GET_VISIBILITY.equals(feature)) {
             return true;
         }
         return false;

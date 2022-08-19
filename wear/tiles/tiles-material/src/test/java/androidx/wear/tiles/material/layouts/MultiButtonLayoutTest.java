@@ -58,7 +58,7 @@ public class MultiButtonLayoutTest {
         Button button1 =
                 new Button.Builder(CONTEXT, CLICKABLE)
                         .setTextContent("1")
-                        .setSize(ButtonDefaults.EXTRA_LARGE_BUTTON_SIZE)
+                        .setSize(ButtonDefaults.EXTRA_LARGE_SIZE)
                         .build();
 
         MultiButtonLayout layout =
@@ -152,6 +152,8 @@ public class MultiButtonLayoutTest {
 
         assertThat(newLayout).isNotNull();
         assertLayoutIsEqual(newLayout, expectedButtons);
+
+        assertThat(MultiButtonLayout.fromLayoutElement(actualLayout)).isEqualTo(actualLayout);
     }
 
     private void assertLayoutIsEqual(MultiButtonLayout actualLayout, List<Button> expectedButtons) {

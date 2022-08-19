@@ -57,8 +57,8 @@ package androidx.customview.widget {
     method public boolean checkTouchSlop(int);
     method public boolean checkTouchSlop(int, int);
     method public boolean continueSettling(boolean);
-    method public static androidx.customview.widget.ViewDragHelper! create(android.view.ViewGroup, androidx.customview.widget.ViewDragHelper.Callback);
-    method public static androidx.customview.widget.ViewDragHelper! create(android.view.ViewGroup, float, androidx.customview.widget.ViewDragHelper.Callback);
+    method public static androidx.customview.widget.ViewDragHelper create(android.view.ViewGroup, androidx.customview.widget.ViewDragHelper.Callback);
+    method public static androidx.customview.widget.ViewDragHelper create(android.view.ViewGroup, float, androidx.customview.widget.ViewDragHelper.Callback);
     method public android.view.View? findTopChildUnder(int, int);
     method public void flingCapturedView(int, int, int, int);
     method public int getActivePointerId();

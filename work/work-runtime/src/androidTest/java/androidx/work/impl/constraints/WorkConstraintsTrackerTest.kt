@@ -15,15 +15,12 @@
  */
 package androidx.work.impl.constraints
 
-import android.content.Context
-import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
-import androidx.work.impl.constraints.controllers.ConstraintController
 import androidx.work.impl.constraints.trackers.ConstraintTracker
 import androidx.work.impl.model.WorkSpec
-import androidx.work.impl.utils.taskexecutor.InstantWorkTaskExecutor
-import androidx.work.impl.utils.taskexecutor.TaskExecutor
+import androidx.work.impl.testutils.TestConstraintController
+import androidx.work.impl.testutils.TestConstraintTracker
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -123,44 +120,20 @@ private fun WorkConstraintsTracker(
     callback: WorkConstraintsCallback,
     vararg trackers: ConstraintTracker<Boolean>
 ): WorkConstraintsTrackerImpl {
-    val controllers = trackers.map { TestConstraintController(it) }
+    val controllers = trackers.map { TestConstraintController(it, TEST_WORKSPEC_IDS) }
     return WorkConstraintsTrackerImpl(callback, controllers.toTypedArray())
-}
-
-private class TestConstraintTracker(
-    override val initialState: Boolean = false,
-    context: Context = ApplicationProvider.getApplicationContext(),
-    taskExecutor: TaskExecutor = InstantWorkTaskExecutor(),
-) : ConstraintTracker<Boolean>(context, taskExecutor) {
-    var isTracking = false
-
-    override fun startTracking() {
-        isTracking = true
-    }
-
-    override fun stopTracking() {
-        isTracking = false
-    }
-}
-
-private class TestConstraintController(
-    tracker: ConstraintTracker<Boolean>,
-    private val constrainedIds: List<String> = TEST_WORKSPEC_IDS
-) : ConstraintController<Boolean>(tracker) {
-    override fun hasConstraint(workSpec: WorkSpec) = workSpec.id in constrainedIds
-    override fun isConstrained(value: Boolean) = !value
 }
 
 private class CapturingWorkConstraintsCallback(
     var unconstrainedWorkSpecIds: List<String>? = null,
     var constrainedWorkSpecIds: List<String>? = null,
 ) : WorkConstraintsCallback {
-    override fun onAllConstraintsMet(workSpecIds: List<String>) {
-        unconstrainedWorkSpecIds = workSpecIds
+    override fun onAllConstraintsMet(workSpecs: List<WorkSpec>) {
+        unconstrainedWorkSpecIds = workSpecs.map { it.id }
     }
 
-    override fun onAllConstraintsNotMet(workSpecIds: List<String>) {
-        constrainedWorkSpecIds = workSpecIds
+    override fun onAllConstraintsNotMet(workSpecs: List<WorkSpec>) {
+        constrainedWorkSpecIds = workSpecs.map { it.id }
     }
 
     fun consumeCurrent(): Pair<List<String>?, List<String>?> {

@@ -26,7 +26,13 @@ plugins {
 }
 
 dependencies {
-    kotlinPlugin(projectOrArtifact(":compose:compiler:compiler"))
+    constraints {
+        // this syntax mirrors the temp workaround in paging-common dependencies constraint
+        // which allows paging-common to have project constraint on compose even though
+        // compose is not within the `MAIN` project-set.
+        // update syntax when b/239979823 is fixed
+        implementation("androidx.paging:paging-common:${androidx.LibraryVersions.PAGING}")
+    }
 
     implementation(libs.kotlinStdlib)
     api("androidx.compose.foundation:foundation:1.0.5")

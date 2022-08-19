@@ -42,6 +42,7 @@ import android.hardware.camera2.CameraCaptureSession;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CameraManager;
+import android.hardware.camera2.CameraMetadata;
 import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.CaptureResult;
 import android.hardware.camera2.TotalCaptureResult;
@@ -71,14 +72,20 @@ import androidx.camera.core.impl.CameraCaptureCallbacks;
 import androidx.camera.core.impl.CameraCaptureResult;
 import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.DeferrableSurface;
+import androidx.camera.core.impl.ImageAnalysisConfig;
+import androidx.camera.core.impl.ImageCaptureConfig;
 import androidx.camera.core.impl.ImmediateSurface;
 import androidx.camera.core.impl.MutableOptionsBundle;
+import androidx.camera.core.impl.PreviewConfig;
 import androidx.camera.core.impl.Quirks;
 import androidx.camera.core.impl.SessionConfig;
+import androidx.camera.core.impl.UseCaseConfig;
+import androidx.camera.core.impl.VideoCaptureConfig;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.camera.testing.CameraUtil;
+import androidx.camera.testing.fakes.FakeUseCaseConfig;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.os.HandlerCompat;
 import androidx.test.core.app.ApplicationProvider;
@@ -103,6 +110,7 @@ import org.mockito.Mockito;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -231,7 +239,7 @@ public final class CaptureSessionTest {
         FutureCallback<Void> mockFutureCallback = mock(FutureCallback.class);
 
         Futures.addCallback(captureSession.open(mTestParameters0.mSessionConfig,
-                mCameraDeviceHolder.get(), mCaptureSessionOpenerBuilder.build()),
+                        mCameraDeviceHolder.get(), mCaptureSessionOpenerBuilder.build()),
                 mockFutureCallback, CameraXExecutors.mainThreadExecutor());
 
         assertTrue(mTestParameters0.waitForData());
@@ -261,6 +269,140 @@ public final class CaptureSessionTest {
         } catch (CameraAccessException e) {
         }
         return false;
+    }
+
+    // Set stream use case is not supported before API 33
+    @SdkSuppress(maxSdkVersion = 32)
+    @Test
+    public void setStreamUseCaseNotSupported() {
+        ImageReader imageReader0 = ImageReader.newInstance(640, 480, ImageFormat.YUV_420_888, 2);
+        OutputConfigurationCompat outputConfigurationCompat =
+                new OutputConfigurationCompat(imageReader0.getSurface());
+        assertTrue(outputConfigurationCompat.getStreamUseCase()
+                == OutputConfigurationCompat.STREAM_USE_CASE_NONE);
+        outputConfigurationCompat.setStreamUseCase(1);
+        assertTrue(outputConfigurationCompat.getStreamUseCase()
+                == OutputConfigurationCompat.STREAM_USE_CASE_NONE);
+    }
+
+    @SdkSuppress(minSdkVersion = 33)
+    @Test
+    public void setStreamUseCase() {
+        ImageReader imageReader0 = ImageReader.newInstance(640, 480, ImageFormat.YUV_420_888, 2);
+        OutputConfigurationCompat outputConfigurationCompat =
+                new OutputConfigurationCompat(imageReader0.getSurface());
+        assertTrue(outputConfigurationCompat.getStreamUseCase()
+                == CameraMetadata.SCALER_AVAILABLE_STREAM_USE_CASES_DEFAULT);
+        outputConfigurationCompat.setStreamUseCase(
+                CameraMetadata.SCALER_AVAILABLE_STREAM_USE_CASES_PREVIEW);
+        assertTrue(outputConfigurationCompat.getStreamUseCase()
+                == CameraMetadata.SCALER_AVAILABLE_STREAM_USE_CASES_PREVIEW);
+    }
+
+    @SdkSuppress(maxSdkVersion = 32)
+    @Test
+    public void getStreamUseCaseFromUseCaseConfigsNotSupported() {
+        Collection<UseCaseConfig<?>> useCaseConfigs = new ArrayList<>();
+        useCaseConfigs.add(new FakeUseCaseConfig.Builder().getUseCaseConfig());
+        assertTrue(StreamUseCaseUtil.getStreamUseCaseFromUseCaseConfigs(useCaseConfigs,
+                new ArrayList<>())
+                == OutputConfigurationCompat.STREAM_USE_CASE_NONE);
+    }
+
+    @SdkSuppress(minSdkVersion = 33)
+    @Test
+    public void getStreamUseCaseFromUseCaseConfigsEmptyUseCase() {
+        Collection<UseCaseConfig<?>> useCaseConfigs = new ArrayList<>();
+        assertTrue(StreamUseCaseUtil.getStreamUseCaseFromUseCaseConfigs(useCaseConfigs,
+                new ArrayList<>())
+                == CameraMetadata.SCALER_AVAILABLE_STREAM_USE_CASES_DEFAULT);
+    }
+
+    @SdkSuppress(minSdkVersion = 33)
+    @Test
+    public void getStreamUseCaseFromUseCaseConfigsNoPreview() {
+        Collection<UseCaseConfig<?>> useCaseConfigs = new ArrayList<>();
+        useCaseConfigs.add(new FakeUseCaseConfig.Builder().getUseCaseConfig());
+        assertTrue(StreamUseCaseUtil.getStreamUseCaseFromUseCaseConfigs(useCaseConfigs,
+                new ArrayList<>())
+                == CameraMetadata.SCALER_AVAILABLE_STREAM_USE_CASES_DEFAULT);
+    }
+
+    @SdkSuppress(minSdkVersion = 33)
+    @Test
+    public void getStreamUseCaseFromUseCaseConfigsPreview() {
+        Collection<UseCaseConfig<?>> useCaseConfigs = new ArrayList<>();
+        PreviewConfig previewConfig = new PreviewConfig(MutableOptionsBundle.create());
+        useCaseConfigs.add(previewConfig);
+        assertTrue(StreamUseCaseUtil.getStreamUseCaseFromUseCaseConfigs(useCaseConfigs,
+                new ArrayList<>())
+                == CameraMetadata.SCALER_AVAILABLE_STREAM_USE_CASES_PREVIEW);
+    }
+
+    @SdkSuppress(minSdkVersion = 33)
+    @Test
+    public void getStreamUseCaseFromUseCaseConfigsZSL() {
+        Collection<UseCaseConfig<?>> useCaseConfigs = new ArrayList<>();
+        PreviewConfig previewConfig = new PreviewConfig(MutableOptionsBundle.create());
+        useCaseConfigs.add(previewConfig);
+        Collection<SessionConfig> sessionConfigs = new ArrayList<>();
+        sessionConfigs.add(new SessionConfig.Builder().setTemplateType(
+                CameraDevice.TEMPLATE_ZERO_SHUTTER_LAG).build());
+        assertTrue(StreamUseCaseUtil.getStreamUseCaseFromUseCaseConfigs(useCaseConfigs,
+                sessionConfigs)
+                == CameraMetadata.SCALER_AVAILABLE_STREAM_USE_CASES_DEFAULT);
+    }
+
+    @SdkSuppress(minSdkVersion = 33)
+    @Test
+    public void getStreamUseCaseFromUseCaseConfigsAnalysis() {
+        Collection<UseCaseConfig<?>> useCaseConfigs = new ArrayList<>();
+        PreviewConfig previewConfig = new PreviewConfig(MutableOptionsBundle.create());
+        useCaseConfigs.add(previewConfig);
+        ImageAnalysisConfig analysisConfig = new ImageAnalysisConfig(MutableOptionsBundle.create());
+        useCaseConfigs.add(analysisConfig);
+        assertTrue(StreamUseCaseUtil.getStreamUseCaseFromUseCaseConfigs(useCaseConfigs,
+                new ArrayList<>())
+                == CameraMetadata.SCALER_AVAILABLE_STREAM_USE_CASES_DEFAULT);
+    }
+
+    @SdkSuppress(minSdkVersion = 33)
+    @Test
+    public void getStreamUseCaseFromUseCaseConfigsImageCapture() {
+        Collection<UseCaseConfig<?>> useCaseConfigs = new ArrayList<>();
+        ImageCaptureConfig imageCaptureConfig = new ImageCaptureConfig(
+                MutableOptionsBundle.create());
+        useCaseConfigs.add(imageCaptureConfig);
+        assertTrue(StreamUseCaseUtil.getStreamUseCaseFromUseCaseConfigs(useCaseConfigs,
+                new ArrayList<>())
+                == CameraMetadata.SCALER_AVAILABLE_STREAM_USE_CASES_STILL_CAPTURE);
+    }
+
+    @SdkSuppress(minSdkVersion = 33)
+    @Test
+    public void getStreamUseCaseFromUseCaseConfigsVideoCapture() {
+        Collection<UseCaseConfig<?>> useCaseConfigs = new ArrayList<>();
+        VideoCaptureConfig videoCaptureConfig =
+                new VideoCaptureConfig(MutableOptionsBundle.create());
+        useCaseConfigs.add(videoCaptureConfig);
+        assertTrue(StreamUseCaseUtil.getStreamUseCaseFromUseCaseConfigs(useCaseConfigs,
+                new ArrayList<>())
+                == CameraMetadata.SCALER_AVAILABLE_STREAM_USE_CASES_VIDEO_RECORD);
+    }
+
+    @SdkSuppress(minSdkVersion = 33)
+    @Test
+    public void getStreamUseCaseFromUseCaseConfigsVideoAndImageCapture() {
+        Collection<UseCaseConfig<?>> useCaseConfigs = new ArrayList<>();
+        VideoCaptureConfig videoCaptureConfig =
+                new VideoCaptureConfig(MutableOptionsBundle.create());
+        useCaseConfigs.add(videoCaptureConfig);
+        ImageCaptureConfig imageCaptureConfig = new ImageCaptureConfig(
+                MutableOptionsBundle.create());
+        useCaseConfigs.add(imageCaptureConfig);
+        assertTrue(StreamUseCaseUtil.getStreamUseCaseFromUseCaseConfigs(useCaseConfigs,
+                new ArrayList<>())
+                == CameraMetadata.SCALER_AVAILABLE_STREAM_USE_CASES_PREVIEW_VIDEO_STILL);
     }
 
     // Sharing surface of YUV format is supported since API 28
@@ -431,7 +573,7 @@ public final class CaptureSessionTest {
         FutureCallback<Void> mockFutureCallback = mock(FutureCallback.class);
 
         Futures.addCallback(captureSession.open(mTestParameters0.mSessionConfig,
-                mCameraDeviceHolder.get(), mCaptureSessionOpenerBuilder.build()),
+                        mCameraDeviceHolder.get(), mCaptureSessionOpenerBuilder.build()),
                 mockFutureCallback, CameraXExecutors.mainThreadExecutor());
 
         verify(mockFutureCallback, timeout(3000)).onFailure(any(Throwable.class));
@@ -449,7 +591,7 @@ public final class CaptureSessionTest {
         FutureCallback<Void> mockFutureCallback = mock(FutureCallback.class);
 
         Futures.addCallback(captureSession.open(mTestParameters0.mSessionConfig,
-                mCameraDeviceHolder.get(), mCaptureSessionOpenerBuilder.build()),
+                        mCameraDeviceHolder.get(), mCaptureSessionOpenerBuilder.build()),
                 mockFutureCallback, CameraXExecutors.mainThreadExecutor());
 
         verify(mockFutureCallback, timeout(3000)).onSuccess(any());
@@ -525,7 +667,7 @@ public final class CaptureSessionTest {
         captureSession.setSessionConfig(parameters.mSessionConfig);
         FutureCallback<Void> mockFutureCallback = mock(FutureCallback.class);
         Futures.addCallback(captureSession.open(parameters.mSessionConfig,
-                mCameraDeviceHolder.get(), mCaptureSessionOpenerBuilder.build()),
+                        mCameraDeviceHolder.get(), mCaptureSessionOpenerBuilder.build()),
                 mockFutureCallback, CameraXExecutors.mainThreadExecutor());
 
         verify(mockFutureCallback, timeout(waitTimeout)).onSuccess(any());
@@ -1039,7 +1181,7 @@ public final class CaptureSessionTest {
         ArgumentCaptor<Throwable> throwableCaptor = ArgumentCaptor.forClass(Throwable.class);
 
         Futures.addCallback(captureSession.open(mTestParameters0.mSessionConfig,
-                mCameraDeviceHolder.get(), mCaptureSessionOpenerBuilder.build()),
+                        mCameraDeviceHolder.get(), mCaptureSessionOpenerBuilder.build()),
                 mockFutureCallback, CameraXExecutors.mainThreadExecutor());
 
         verify(mockFutureCallback, timeout(3000).times(1)).onFailure(throwableCaptor.capture());

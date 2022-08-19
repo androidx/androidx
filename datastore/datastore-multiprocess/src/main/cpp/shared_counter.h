@@ -21,7 +21,8 @@
 #define DATASTORE_SHARED_COUNTER_H
 
 namespace datastore {
-int CreateSharedCounter(int fd, void** counter_address);
+int TruncateFile(int fd);
+int CreateSharedCounter(int fd, void** counter_address, bool enable_mlock);
 uint32_t GetCounterValue(std::atomic<uint32_t>* counter);
 uint32_t IncrementAndGetCounterValue(std::atomic<uint32_t>* counter);
 } // namespace datastore

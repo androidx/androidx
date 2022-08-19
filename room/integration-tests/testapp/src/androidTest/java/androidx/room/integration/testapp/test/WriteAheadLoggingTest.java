@@ -44,12 +44,14 @@ import androidx.room.integration.testapp.vo.User;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.FlakyTest;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -66,6 +68,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 @RunWith(AndroidJUnit4.class)
+@FlakyTest(bugId = 241095868)
 @LargeTest
 @SdkSuppress(minSdkVersion = 16)
 public class WriteAheadLoggingTest {
@@ -132,6 +135,7 @@ public class WriteAheadLoggingTest {
         }
     }
 
+    @FlakyTest(bugId = 241095868)
     @Test
     public void observeLiveData() {
         UserDao dao = mDatabase.getUserDao();
@@ -143,6 +147,7 @@ public class WriteAheadLoggingTest {
         stopObserver(user1, observer);
     }
 
+    @FlakyTest(bugId = 241095868)
     @Test
     public void observeLiveDataWithTransaction() {
         UserDao dao = mDatabase.getUserDao();
@@ -154,6 +159,7 @@ public class WriteAheadLoggingTest {
         stopObserver(user1, observer);
     }
 
+    @Ignore("b/239575607")
     @Test
     public void parallelWrites() throws InterruptedException, ExecutionException {
         int numberOfThreads = 10;

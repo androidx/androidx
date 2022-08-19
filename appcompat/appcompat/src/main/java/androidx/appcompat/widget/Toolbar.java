@@ -42,13 +42,17 @@ import android.view.ViewParent;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.window.OnBackInvokedCallback;
+import android.window.OnBackInvokedDispatcher;
 
 import androidx.annotation.ColorInt;
+import androidx.annotation.DoNotInline;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.MainThread;
 import androidx.annotation.MenuRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.StringRes;
 import androidx.annotation.StyleRes;
@@ -154,8 +158,7 @@ import java.util.List;
 public class Toolbar extends ViewGroup implements MenuHost {
     private static final String TAG = "Toolbar";
 
-    private ActionMenuView mMenuView;
-    private ColorStateList mMenuViewTint;
+    ActionMenuView mMenuView;
     private TextView mTitleTextView;
     private TextView mSubtitleTextView;
     private ImageButton mNavButtonView;
@@ -229,9 +232,21 @@ public class Toolbar extends ViewGroup implements MenuHost {
     private ActionMenuPresenter mOuterActionMenuPresenter;
     private ExpandedActionViewMenuPresenter mExpandedMenuPresenter;
     private MenuPresenter.Callback mActionMenuPresenterCallback;
-    private MenuBuilder.Callback mMenuBuilderCallback;
+    MenuBuilder.Callback mMenuBuilderCallback;
 
     private boolean mCollapsible;
+
+    // The callback handling back events. If this is non-null, the
+    // callback has been registered at least once.
+    private OnBackInvokedCallback mBackInvokedCallback;
+
+    // The dispatcher on which the callback was registered. If this
+    // value is null, the callback is not registered anywhere.
+    private OnBackInvokedDispatcher mBackInvokedDispatcher;
+
+    // Whether this Toolbar should register a back invocation handler
+    // when its action view is expanded.
+    private boolean mBackInvokedCallbackEnabled;
 
     private final Runnable mShowOverflowMenuRunnable = new Runnable() {
         @Override public void run() {
@@ -368,14 +383,36 @@ public class Toolbar extends ViewGroup implements MenuHost {
     }
 
     /**
-     * Set the tint for all icons in the toolbar's menu.
-     * @param iconTintList tint to be applied to all menu items
+     * Sets whether the toolbar will attempt to register its own {@link OnBackInvokedCallback} in
+     * supported configurations to handle collapsing expanded action items when a back invocation
+     * occurs.
+     * <p>
+     * This feature is only supported on SDK 33 and above for applications that have enabled back
+     * invocation callback handling.
+     *
+     * @param enabled {@code true} to attempt to register a back invocation callback in supported
+     *                configurations or {@code false} to not automatically handle back invocations
+     *
+     * @see #isBackInvokedCallbackEnabled()
      */
-    public void setIconTint(@Nullable ColorStateList iconTintList) {
-        mMenuViewTint = iconTintList;
-        if (mMenuView != null) {
-            mMenuView.setIconTint(iconTintList);
+    public void setBackInvokedCallbackEnabled(boolean enabled) {
+        if (mBackInvokedCallbackEnabled != enabled) {
+            mBackInvokedCallbackEnabled = enabled;
+
+            // mShouldHandleBackInvoked changed
+            updateBackInvokedCallbackState();
         }
+    }
+
+    /**
+     * Returns whether the toolbar will attempt to register its own {@link OnBackInvokedCallback}
+     * in supported configurations to handle collapsing expanded action items when a back
+     * invocation occurs.
+     *
+     * @see #setBackInvokedCallbackEnabled(boolean)
+     */
+    public boolean isBackInvokedCallbackEnabled() {
+        return mBackInvokedCallbackEnabled;
     }
 
     /**
@@ -618,6 +655,9 @@ public class Toolbar extends ViewGroup implements MenuHost {
         mMenuView.setPopupTheme(mPopupTheme);
         mMenuView.setPresenter(outerPresenter);
         mOuterActionMenuPresenter = outerPresenter;
+
+        // mExpandedMenuPresenter has changed.
+        updateBackInvokedCallbackState();
     }
 
     /**
@@ -1202,6 +1242,9 @@ public class Toolbar extends ViewGroup implements MenuHost {
             }
             mMenuView.setExpandedActionViewsExclusive(true);
             menu.addMenuPresenter(mExpandedMenuPresenter, mPopupContext);
+
+            // mExpandedMenuPresenter has changed.
+            updateBackInvokedCallbackState();
         }
     }
 
@@ -1210,14 +1253,38 @@ public class Toolbar extends ViewGroup implements MenuHost {
             mMenuView = new ActionMenuView(getContext());
             mMenuView.setPopupTheme(mPopupTheme);
             mMenuView.setOnMenuItemClickListener(mMenuViewItemClickListener);
-            mMenuView.setMenuCallbacks(mActionMenuPresenterCallback, mMenuBuilderCallback);
+            mMenuView.setMenuCallbacks(mActionMenuPresenterCallback,
+                    // Have Toolbar insert a Callback to ensure onPrepareMenu is called properly
+                    new MenuBuilder.Callback() {
+                    // The mMenuView item does not call into the mMenuBuilderCallback when
+                    // menuItems are selected, so this should not get called, but we implement it
+                    // anyway
+                    @Override
+                    public boolean onMenuItemSelected(@NonNull MenuBuilder menu,
+                            @NonNull MenuItem item) {
+                        // Check if there is a mMenuBuilderCallback and if so, forward the call.
+                        return mMenuBuilderCallback != null
+                                && mMenuBuilderCallback.onMenuItemSelected(menu, item);
+                    }
+
+                    @Override
+                    public void onMenuModeChange(@NonNull MenuBuilder menu) {
+                        // If the menu is not showing, we are about to show it, so we need to
+                        // make the prepare call.
+                        if (!mMenuView.isOverflowMenuShowing()) {
+                            mMenuHostHelper.onPrepareMenu(menu);
+                        }
+                        // If there is a mMenuBuilderCallback, forward the onMenuModeChanged call.
+                        if (mMenuBuilderCallback != null) {
+                            mMenuBuilderCallback.onMenuModeChange(menu);
+                        }
+                    }
+                }
+            );
             final LayoutParams lp = generateDefaultLayoutParams();
             lp.gravity = GravityCompat.END | (mButtonGravity & Gravity.VERTICAL_GRAVITY_MASK);
             mMenuView.setLayoutParams(lp);
             addSystemView(mMenuView, false);
-            if (mMenuViewTint != null) {
-                mMenuView.setIconTint(mMenuViewTint);
-            }
         }
     }
 
@@ -1634,6 +1701,13 @@ public class Toolbar extends ViewGroup implements MenuHost {
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
         removeCallbacks(mShowOverflowMenuRunnable);
+        updateBackInvokedCallbackState();
+    }
+
+    @Override
+    protected void onAttachedToWindow() {
+        super.onAttachedToWindow();
+        updateBackInvokedCallbackState();
     }
 
     @Override
@@ -2398,8 +2472,6 @@ public class Toolbar extends ViewGroup implements MenuHost {
         ArrayList<MenuItem> newMenuItemList = getCurrentMenuItems();
         newMenuItemList.removeAll(oldMenuItemList);
         mProvidedMenuItems = newMenuItemList;
-
-        mMenuHostHelper.onPrepareMenu(menu);
     }
 
     @Override
@@ -2442,6 +2514,36 @@ public class Toolbar extends ViewGroup implements MenuHost {
             getMenu().removeItem(menuItem.getItemId());
         }
         onCreateMenu();
+    }
+
+    /**
+     * Call this method whenever a property changes that affects whether the view will handle a
+     * back press, which is the combination of {@link #hasExpandedActionView()} and properties that
+     * affect whether this view would normally receive key press events.
+     */
+    void updateBackInvokedCallbackState() {
+        if (Build.VERSION.SDK_INT >= 33) {
+            OnBackInvokedDispatcher currentDispatcher =
+                    Api33Impl.findOnBackInvokedDispatcher(this);
+            boolean shouldBeRegistered = hasExpandedActionView()
+                    && currentDispatcher != null
+                    && ViewCompat.isAttachedToWindow(this)
+                    && mBackInvokedCallbackEnabled;
+
+            if (shouldBeRegistered && mBackInvokedDispatcher == null) {
+                if (mBackInvokedCallback == null) {
+                    mBackInvokedCallback = Api33Impl.newOnBackInvokedCallback(
+                            this::collapseActionView);
+                }
+                Api33Impl.tryRegisterOnBackInvokedCallback(
+                        currentDispatcher, mBackInvokedCallback);
+                mBackInvokedDispatcher = currentDispatcher;
+            } else if (!shouldBeRegistered && mBackInvokedDispatcher != null) {
+                Api33Impl.tryUnregisterOnBackInvokedCallback(
+                        mBackInvokedDispatcher, mBackInvokedCallback);
+                mBackInvokedDispatcher = null;
+            }
+        }
     }
 
     /**
@@ -2660,6 +2762,9 @@ public class Toolbar extends ViewGroup implements MenuHost {
                 ((CollapsibleActionView) mExpandedActionView).onActionViewExpanded();
             }
 
+            // mCurrentExpandedItem has changed.
+            updateBackInvokedCallbackState();
+
             return true;
         }
 
@@ -2680,6 +2785,9 @@ public class Toolbar extends ViewGroup implements MenuHost {
             requestLayout();
             item.setActionViewExpanded(false);
 
+            // mCurrentExpandedItem has changed.
+            updateBackInvokedCallbackState();
+
             return true;
         }
 
@@ -2698,4 +2806,37 @@ public class Toolbar extends ViewGroup implements MenuHost {
         }
     }
 
+    @RequiresApi(33)
+    static class Api33Impl {
+        private Api33Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static void tryRegisterOnBackInvokedCallback(@NonNull Object dispatcherObj,
+                @NonNull Object callback) {
+            OnBackInvokedDispatcher dispatcher = (OnBackInvokedDispatcher) dispatcherObj;
+            dispatcher.registerOnBackInvokedCallback(OnBackInvokedDispatcher.PRIORITY_OVERLAY,
+                    (OnBackInvokedCallback) callback);
+        }
+
+        @DoNotInline
+        static void tryUnregisterOnBackInvokedCallback(@NonNull Object dispatcherObj,
+                @NonNull Object callbackObj) {
+            OnBackInvokedDispatcher dispatcher = (OnBackInvokedDispatcher) dispatcherObj;
+            dispatcher.unregisterOnBackInvokedCallback((OnBackInvokedCallback) callbackObj);
+        }
+
+        @Nullable
+        @DoNotInline
+        static OnBackInvokedDispatcher findOnBackInvokedDispatcher(@NonNull View view) {
+            return view.findOnBackInvokedDispatcher();
+        }
+
+        @NonNull
+        @DoNotInline
+        static OnBackInvokedCallback newOnBackInvokedCallback(@NonNull Runnable action) {
+            return action::run;
+        }
+    }
 }

@@ -31,6 +31,7 @@ import com.google.common.truth.Truth.assertThat
 import com.google.mlkit.vision.interfaces.Detector
 import com.google.mlkit.vision.interfaces.Detector.TYPE_BARCODE_SCANNING
 import com.google.mlkit.vision.interfaces.Detector.TYPE_FACE_DETECTION
+import kotlin.coroutines.cancellation.CancellationException
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mockito.mock
@@ -54,23 +55,65 @@ class MlKitAnalyzerTest {
     }
 
     @Test
+    fun detectorIsClosed_returnsException() {
+        // Arrange: create 2 detectors, one is closed and one is open.
+        val closedDetector = FakeDetector(RETURN_VALUE, TYPE_BARCODE_SCANNING)
+        closedDetector.close()
+        val openDetector = FakeDetector(RETURN_VALUE, TYPE_BARCODE_SCANNING)
+        var result: MlKitAnalyzer.Result? = null
+        val mlKitAnalyzer = MlKitAnalyzer(
+            listOf(closedDetector, openDetector),
+            ImageAnalysis.COORDINATE_SYSTEM_ORIGINAL,
+            directExecutor()
+        ) {
+            result = it
+        }
+        // Act.
+        mlKitAnalyzer.analyze(createFakeImageProxy())
+        // Assert: the closed detector contains a Exception. The open one contains the value.
+        assertThat(result!!.getThrowable(closedDetector)).isInstanceOf(Exception::class.java)
+        assertThat(result!!.getValue(openDetector)).isEqualTo(RETURN_VALUE)
+    }
+
+    @Test
+    fun taskIsCanceled_returnsCancellationException() {
+        // Arrange: create a detector that delivers canceled tasks.
+        val fakeDetector = FakeDetector(RETURN_VALUE, TYPE_BARCODE_SCANNING)
+        fakeDetector.taskCanceled = true
+        var result: MlKitAnalyzer.Result? = null
+        val mlKitAnalyzer = MlKitAnalyzer(
+            listOf(fakeDetector),
+            ImageAnalysis.COORDINATE_SYSTEM_ORIGINAL,
+            directExecutor()
+        ) {
+            result = it
+        }
+        // Act.
+        mlKitAnalyzer.analyze(createFakeImageProxy())
+        // Assert: the result has a CancellationException.
+        assertThat(result!!.getThrowable(fakeDetector))
+            .isInstanceOf(CancellationException::class.java)
+    }
+
+    @Test
     fun createAnalyzerWith2Detectors_overridesWithHigherResolution() {
-        val barcodeScanner = FakeDetector(RETURN_VALUE, null, TYPE_BARCODE_SCANNING)
-        val faceDetector = FakeDetector(RETURN_VALUE, null, TYPE_FACE_DETECTION)
+        val barcodeScanner = FakeDetector(RETURN_VALUE, TYPE_BARCODE_SCANNING)
+        val faceDetector = FakeDetector(RETURN_VALUE, TYPE_FACE_DETECTION)
         val mlKitAnalyzer = MlKitAnalyzer(
             listOf(barcodeScanner, faceDetector),
             ImageAnalysis.COORDINATE_SYSTEM_ORIGINAL,
             directExecutor()
         ) {}
 
-        assertThat(mlKitAnalyzer.targetResolutionOverride).isEqualTo(Size(1280, 720))
+        assertThat(mlKitAnalyzer.defaultTargetResolution).isEqualTo(Size(1280, 720))
     }
 
     @Test
     fun analyze_detectorsReceiveValues() {
         // Arrange: 2 detectors, one succeeds and one fails.
-        val failDetector = FakeDetector(null, Exception(), TYPE_BARCODE_SCANNING)
-        val successDetector = FakeDetector(RETURN_VALUE, null, TYPE_BARCODE_SCANNING)
+        val failDetector = FakeDetector(null, TYPE_BARCODE_SCANNING)
+        failDetector.taskException = Exception()
+        val successDetector = FakeDetector(RETURN_VALUE, TYPE_BARCODE_SCANNING)
         var result: MlKitAnalyzer.Result? = null
         val mlKitAnalyzer = MlKitAnalyzer(
             listOf(failDetector, successDetector),
@@ -98,7 +141,7 @@ class MlKitAnalyzerTest {
     @Test(expected = IllegalArgumentException::class)
     fun segmentationAndPreviewView_throwsException() {
         MlKitAnalyzer(
-            listOf(FakeDetector(RETURN_VALUE, null, Detector.TYPE_SEGMENTATION)),
+            listOf(FakeDetector(RETURN_VALUE, Detector.TYPE_SEGMENTATION)),
             COORDINATE_SYSTEM_VIEW_REFERENCED,
             directExecutor()
         ) {}
@@ -109,7 +152,7 @@ class MlKitAnalyzerTest {
         // Arrange.
         val additionalTransform = Matrix()
         additionalTransform.setScale(2F, 2F)
-        val detector = FakeDetector(RETURN_VALUE, null, TYPE_BARCODE_SCANNING)
+        val detector = FakeDetector(RETURN_VALUE, TYPE_BARCODE_SCANNING)
         val analyzer = MlKitAnalyzer(
             listOf(detector),
             COORDINATE_SYSTEM_VIEW_REFERENCED,

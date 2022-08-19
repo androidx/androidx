@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 The Android Open Source Project
+ * Copyright 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@ package androidx.compose.ui.test.injectionscope.key
 
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.input.key.Key
-import androidx.compose.ui.input.key.nativeKeyCode
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.KeyInjectionScope
 import androidx.compose.ui.test.injectionscope.key.Common.assertTyped
@@ -27,24 +26,20 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.pressKey
-import androidx.compose.ui.test.pressKeys
 import androidx.compose.ui.test.util.TestTextField
 import androidx.compose.ui.test.util.TestTextField.Tag
+import androidx.test.filters.FlakyTest
 import androidx.test.filters.LargeTest
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 
 /**
- * Tests if [KeyInjectionScope.pressKey] and [KeyInjectionScope.pressKeys] work.
+ * Tests if [KeyInjectionScope.pressKey] works.
  */
 @LargeTest
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalTestApi::class)
 class KeyPressTest {
-    companion object {
-        private val enter = Key.Enter
-        private val backspace = Key.Backspace
-    }
 
     @get:Rule
     val rule = createComposeRule()
@@ -61,38 +56,26 @@ class KeyPressTest {
 
     @Test
     fun pressingEnter_typesNewLine() {
-        rule.performKeyInput { pressKey(enter) }
+        rule.performKeyInput { pressKey(Key.Enter) }
         rule.assertTyped("\n")
     }
 
     @Test
     fun pressingLetterKeys_typesLetterChars() {
-        rule.performKeyInput { pressKey(Key.A); pressKey(Key.B) }
+        rule.performKeyInput {
+            pressKey(Key.A)
+            pressKey(Key.B)
+        }
         rule.performKeyInput { pressKey(Key.B) }
         rule.assertTyped("abb")
     }
 
-    @Test
-    fun typeAlphabet_withPressKeys() {
-        rule.performKeyInput {
-            pressKeys((Key.A.nativeKeyCode..Key.Z.nativeKeyCode).map { Key(it) }.toList())
-        }
-        rule.assertTyped(('a'..'z').joinToString(separator = ""))
-    }
-
+    @FlakyTest(bugId = 236864049)
     @Test
     fun pressingNumberKeys_typesNumberChars() {
         rule.performKeyInput { pressKey(Key.One) }
         rule.performKeyInput { pressKey(Key.Two) }
         rule.assertTyped("12")
-    }
-
-    @Test
-    fun pressKeyMultipleTimes_pressesKey_correctNumberOfTimes() {
-        rule.performKeyInput {
-            pressKey(Key.A, 10)
-        }
-        rule.assertTyped((1..10).joinToString(separator = "") { "a" })
     }
 
     @Test
@@ -103,9 +86,7 @@ class KeyPressTest {
             pressKey(Key.C)
         }
         rule.assertTyped("abc")
-        rule.performKeyInput {
-            pressKey(backspace)
-        }
+        rule.performKeyInput { pressKey(Key.Backspace) }
         rule.assertTyped("ab")
     }
 }

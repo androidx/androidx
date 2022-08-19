@@ -502,7 +502,8 @@ public class EditorSessionTest {
                     } else {
                         RectF(0.3f, 0.4f, 0.4f, 0.6f)
                     }
-                }
+                },
+                ComplicationType.values().associateWith { RectF() }
             )
         )
             .build()
@@ -526,6 +527,7 @@ public class EditorSessionTest {
                 SystemDataSources.DATA_SOURCE_DAY_OF_WEEK,
                 ComplicationType.SHORT_TEXT
             ),
+            @Suppress("DEPRECATION")
             ComplicationSlotBounds(
                 ComplicationType.values().associateWith {
                     if (it == ComplicationType.LONG_TEXT) {
@@ -533,7 +535,8 @@ public class EditorSessionTest {
                     } else {
                         RectF(0.6f, 0.4f, 0.7f, 0.6f)
                     }
-                }
+                },
+                ComplicationType.values().associateWith { RectF() }
             )
         )
             .setConfigExtras(
@@ -1114,6 +1117,7 @@ public class EditorSessionTest {
         }
     }
 
+    @Suppress("DEPRECATION")
     @Test
     public fun launchComplicationDataSourceChooser() {
         ComplicationDataSourceChooserContract.useTestComplicationHelperActivity = true
@@ -2296,7 +2300,9 @@ public class EditorSessionTest {
                     watchState,
                     mockWatchFaceHostApi,
                     CompletableDeferred(),
-                    CoroutineScope(handler.asCoroutineDispatcher())
+                    CoroutineScope(handler.asCoroutineDispatcher()),
+                    ApplicationProvider.getApplicationContext<Context>().contentResolver,
+                    ambientSettingAvailable = false
                 ),
                 null
             )

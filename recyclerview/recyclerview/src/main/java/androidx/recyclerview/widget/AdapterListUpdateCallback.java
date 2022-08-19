@@ -16,6 +16,8 @@
 
 package androidx.recyclerview.widget;
 
+import android.annotation.SuppressLint;
+
 import androidx.annotation.NonNull;
 
 /**
@@ -56,6 +58,7 @@ public final class AdapterListUpdateCallback implements ListUpdateCallback {
 
     /** {@inheritDoc} */
     @Override
+    @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
     public void onChanged(int position, int count, Object payload) {
         mAdapter.notifyItemRangeChanged(position, count, payload);
     }

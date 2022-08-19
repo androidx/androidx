@@ -297,7 +297,7 @@ public final class LocationCompat {
      *
      * @throws IllegalStateException if the Mean Sea Level altitude of the location is not set
      */
-    public static @FloatRange double getMslAltitudeMeters(@NonNull Location location) {
+    public static double getMslAltitudeMeters(@NonNull Location location) {
         Preconditions.checkState(hasMslAltitude(location),
                 "The Mean Sea Level altitude of the location is not set.");
         return getOrCreateExtras(location).getDouble(EXTRA_MSL_ALTITUDE);
@@ -307,7 +307,7 @@ public final class LocationCompat {
      * Sets the Mean Sea Level altitude of the location in meters.
      */
     public static void setMslAltitudeMeters(@NonNull Location location,
-            @FloatRange double mslAltitudeMeters) {
+            double mslAltitudeMeters) {
         getOrCreateExtras(location).putDouble(EXTRA_MSL_ALTITUDE, mslAltitudeMeters);
     }
 

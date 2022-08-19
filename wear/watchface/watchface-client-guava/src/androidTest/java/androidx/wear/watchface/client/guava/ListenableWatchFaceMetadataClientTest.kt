@@ -22,7 +22,9 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.res.XmlResourceParser
+import android.os.Build
 import android.os.IBinder
+import androidx.annotation.RequiresApi
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -43,10 +45,11 @@ private const val TIMEOUT_MS = 500L
  * [ListenableWatchFaceMetadataClientTest] and to optionally override the reported API version.
  */
 public class WatchFaceControlTestService : Service() {
+    @RequiresApi(Build.VERSION_CODES.O_MR1)
     private val realService = object : WatchFaceControlService() {
         @SuppressLint("NewApi")
         override fun createServiceStub(): IWatchFaceInstanceServiceStub =
-            IWatchFaceInstanceServiceStub(this, MainScope())
+            IWatchFaceInstanceServiceStub(this@WatchFaceControlTestService, MainScope())
 
         init {
             setContext(ApplicationProvider.getApplicationContext<Context>())

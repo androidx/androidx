@@ -18,6 +18,7 @@ package androidx.leanback.media;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -230,8 +231,8 @@ public class PlaybackBannerControlGlue<T extends PlayerAdapter>
      *                   the array is defined as NUMBER_OF_SEEK_SPEEDS.
      * @param impl Implementation to underlying media player.
      */
-    public PlaybackBannerControlGlue(Context context,
-            int[] seekSpeeds,
+    public PlaybackBannerControlGlue(@NonNull Context context,
+            @NonNull int[] seekSpeeds,
             T impl) {
         this(context, seekSpeeds, seekSpeeds, impl);
     }
@@ -246,10 +247,12 @@ public class PlaybackBannerControlGlue<T extends PlayerAdapter>
      *                   the array is defined as NUMBER_OF_SEEK_SPEEDS.
      * @param impl Implementation to underlying media player.
      */
-    public PlaybackBannerControlGlue(Context context,
-                                    int[] fastForwardSpeeds,
-                                    int[] rewindSpeeds,
-                                    T impl) {
+    public PlaybackBannerControlGlue(
+            @NonNull Context context,
+            @NonNull int[] fastForwardSpeeds,
+            @NonNull int[] rewindSpeeds,
+            T impl
+    ) {
         super(context, impl);
 
         if (fastForwardSpeeds.length == 0 || fastForwardSpeeds.length > NUMBER_OF_SEEK_SPEEDS) {
@@ -270,13 +273,13 @@ public class PlaybackBannerControlGlue<T extends PlayerAdapter>
     }
 
     @Override
-    public void setControlsRow(PlaybackControlsRow controlsRow) {
+    public void setControlsRow(@NonNull PlaybackControlsRow controlsRow) {
         super.setControlsRow(controlsRow);
         onUpdatePlaybackState();
     }
 
     @Override
-    protected void onCreatePrimaryActions(ArrayObjectAdapter primaryActionsAdapter) {
+    protected void onCreatePrimaryActions(@NonNull ArrayObjectAdapter primaryActionsAdapter) {
         final long supportedActions = getSupportedActions();
         if ((supportedActions & ACTION_SKIP_TO_PREVIOUS) != 0 && mSkipPreviousAction == null) {
             primaryActionsAdapter.add(mSkipPreviousAction =
@@ -320,14 +323,15 @@ public class PlaybackBannerControlGlue<T extends PlayerAdapter>
         }
     }
 
+    @NonNull
     @Override
     protected PlaybackRowPresenter onCreateRowPresenter() {
         final AbstractDetailsDescriptionPresenter detailsPresenter =
                 new AbstractDetailsDescriptionPresenter() {
                     @Override
-                    protected void onBindDescription(ViewHolder
-                            viewHolder, Object object) {
-                        PlaybackBannerControlGlue glue = (PlaybackBannerControlGlue) object;
+                    protected void onBindDescription(@NonNull ViewHolder
+                            viewHolder, @NonNull Object object) {
+                        PlaybackBannerControlGlue<?> glue = (PlaybackBannerControlGlue<?>) object;
                         viewHolder.getTitle().setText(glue.getTitle());
                         viewHolder.getSubtitle().setText(glue.getSubtitle());
                     }
@@ -336,12 +340,15 @@ public class PlaybackBannerControlGlue<T extends PlayerAdapter>
         PlaybackControlsRowPresenter rowPresenter =
                 new PlaybackControlsRowPresenter(detailsPresenter) {
             @Override
-            protected void onBindRowViewHolder(RowPresenter.ViewHolder vh, Object item) {
+            protected void onBindRowViewHolder(
+                    @NonNull RowPresenter.ViewHolder vh,
+                    @NonNull Object item
+            ) {
                 super.onBindRowViewHolder(vh, item);
                 vh.setOnKeyListener(PlaybackBannerControlGlue.this);
             }
             @Override
-            protected void onUnbindRowViewHolder(RowPresenter.ViewHolder vh) {
+            protected void onUnbindRowViewHolder(@NonNull RowPresenter.ViewHolder vh) {
                 super.onUnbindRowViewHolder(vh);
                 vh.setOnKeyListener(null);
             }
@@ -354,7 +361,7 @@ public class PlaybackBannerControlGlue<T extends PlayerAdapter>
      * Handles action clicks.  A subclass may override this add support for additional actions.
      */
     @Override
-    public void onActionClicked(Action action) {
+    public void onActionClicked(@NonNull Action action) {
         dispatchAction(action, null);
     }
 
@@ -419,6 +426,7 @@ public class PlaybackBannerControlGlue<T extends PlayerAdapter>
 
     // Helper function to decrement mPlaybackSpeed when necessary. The mPlaybackSpeed will control
     // the UI of rewind button in control row.
+    @SuppressLint("WrongConstant")
     private void decrementRewindPlaybackSpeed() {
         switch (mPlaybackSpeed) {
             case -PLAYBACK_SPEED_FAST_L0:

@@ -97,7 +97,7 @@ private suspend fun RoomDatabase.createTransactionContext(): CoroutineContext {
     coroutineContext[Job]?.invokeOnCompletion {
         controlJob.cancel()
     }
-    val dispatcher = getTransactionExecutor().acquireTransactionThread(controlJob)
+    val dispatcher = transactionExecutor.acquireTransactionThread(controlJob)
     val transactionElement = TransactionElement(controlJob, dispatcher)
     val threadLocalElement =
         suspendingTransactionId.asContextElement(System.identityHashCode(controlJob))

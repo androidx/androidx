@@ -16,9 +16,12 @@
 // @exportToFramework:skipFile()
 package androidx.appsearch.app;
 
+import android.annotation.SuppressLint;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresFeature;
-import androidx.appsearch.observer.AppSearchObserverCallback;
+import androidx.appsearch.exceptions.AppSearchException;
+import androidx.appsearch.observer.ObserverCallback;
 import androidx.appsearch.observer.ObserverSpec;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -36,6 +39,31 @@ import java.util.concurrent.Executor;
  */
 public interface GlobalSearchSession extends Closeable {
     /**
+     * Retrieves {@link GenericDocument} documents, belonging to the specified package name and
+     * database name and identified by the namespace and ids in the request, from the
+     * {@link GlobalSearchSession} database. When a call is successful, the result will be
+     * returned in the successes section of the {@link AppSearchBatchResult} object in the callback.
+     * If the package doesn't exist, database doesn't exist, or if the calling package doesn't have
+     * access, these failures will be reflected as {@link AppSearchResult} objects with a
+     * RESULT_NOT_FOUND status code in the failures section of the {@link AppSearchBatchResult}
+     * object.
+     *
+     * @param packageName the name of the package to get from
+     * @param databaseName the name of the database to get from
+     * @param request a request containing a namespace and IDs of the documents to retrieve.
+     */
+    @NonNull
+    // @exportToFramework:startStrip()
+    @RequiresFeature(
+            enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
+            name = Features.GLOBAL_SEARCH_SESSION_GET_BY_ID)
+    // @exportToFramework:endStrip()
+    ListenableFuture<AppSearchBatchResult<String, GenericDocument>> getByDocumentIdAsync(
+            @NonNull String packageName,
+            @NonNull String databaseName,
+            @NonNull GetByDocumentIdRequest request);
+
+    /**
      * Retrieves documents from all AppSearch databases that the querying application has access to.
      *
      * <p>Applications can be granted access to documents by specifying
@@ -51,7 +79,7 @@ public interface GlobalSearchSession extends Closeable {
      * forming a query string.
      *
      * <p>This method is lightweight. The heavy work will be done in
-     * {@link SearchResults#getNextPage}.
+     * {@link SearchResults#getNextPageAsync}.
      *
      * @param queryExpression query string to search.
      * @param searchSpec      spec for setting document filters, adding projection, setting term
@@ -64,11 +92,11 @@ public interface GlobalSearchSession extends Closeable {
     /**
      * Reports that a particular document has been used from a system surface.
      *
-     * <p>See {@link AppSearchSession#reportUsage} for a general description of document usage, as
-     * well as an API that can be used by the app itself.
+     * <p>See {@link AppSearchSession#reportUsageAsync} for a general description of document usage,
+     * as well as an API that can be used by the app itself.
      *
      * <p>Usage reported via this method is accounted separately from usage reported via
-     * {@link AppSearchSession#reportUsage} and may be accessed using the constants
+     * {@link AppSearchSession#reportUsageAsync} and may be accessed using the constants
      * {@link SearchSpec#RANKING_STRATEGY_SYSTEM_USAGE_COUNT} and
      * {@link SearchSpec#RANKING_STRATEGY_SYSTEM_USAGE_LAST_USED_TIMESTAMP}.
      *
@@ -79,7 +107,70 @@ public interface GlobalSearchSession extends Closeable {
      *     is not part of the system.
      */
     @NonNull
-    ListenableFuture<Void> reportSystemUsage(@NonNull ReportSystemUsageRequest request);
+    ListenableFuture<Void> reportSystemUsageAsync(@NonNull ReportSystemUsageRequest request);
+
+    /**
+     * @deprecated use {@link #reportSystemUsageAsync}
+     *
+     * @return The pending result of performing this operation which resolves to {@code null} on
+     *     success. The pending result will be completed with an
+     *     {@link androidx.appsearch.exceptions.AppSearchException} with a code of
+     *     {@link AppSearchResult#RESULT_SECURITY_ERROR} if this API is invoked by an app which
+     *     is not part of the system.
+     */
+    @NonNull
+    @Deprecated
+    default ListenableFuture<Void> reportSystemUsage(@NonNull ReportSystemUsageRequest request) {
+        return reportSystemUsageAsync(request);
+    }
+
+    /**
+     * Retrieves the collection of schemas most recently successfully provided to
+     * {@link AppSearchSession#setSchemaAsync} for any types belonging to the requested package and
+     * database that the caller has been granted access to.
+     *
+     * <p> If the requested package/database combination does not exist or the caller has not been
+     * granted access to it, then an empty GetSchemaResponse will be returned.
+     *
+     *
+     * @param packageName the package that owns the requested {@link AppSearchSchema} instances.
+     * @param databaseName the database that owns the requested {@link AppSearchSchema} instances.
+     * @return The pending {@link GetSchemaResponse} containing the schemas that the caller has
+     * access to or an empty GetSchemaResponse if the request package and database does not
+     * exist, has not set a schema or contains no schemas that are accessible to the caller.
+     */
+    // This call hits disk; async API prevents us from treating these calls as properties.
+    @SuppressLint("KotlinPropertyAccess")
+    @NonNull
+    // @exportToFramework:startStrip()
+    @RequiresFeature(
+            enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
+            name = Features.GLOBAL_SEARCH_SESSION_GET_SCHEMA)
+    // @exportToFramework:endStrip()
+    ListenableFuture<GetSchemaResponse> getSchemaAsync(@NonNull String packageName,
+            @NonNull String databaseName);
+
+    /**
+     * @deprecated use {@link #getSchemaAsync}.
+     *
+     * @param packageName the package that owns the requested {@link AppSearchSchema} instances.
+     * @param databaseName the database that owns the requested {@link AppSearchSchema} instances.
+     * @return The pending {@link GetSchemaResponse} containing the schemas that the caller has
+     * access to or an empty GetSchemaResponse if the request package and database does not
+     * exist, has not set a schema or contains no schemas that are accessible to the caller.
+     */
+    @SuppressLint("KotlinPropertyAccess")
+    @NonNull
+    // @exportToFramework:startStrip()
+    @RequiresFeature(
+            enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
+            name = Features.GLOBAL_SEARCH_SESSION_GET_SCHEMA)
+    // @exportToFramework:endStrip()
+    @Deprecated
+    default ListenableFuture<GetSchemaResponse> getSchema(@NonNull String packageName,
+            @NonNull String databaseName) {
+        return getSchemaAsync(packageName, databaseName);
+    }
 
     /**
      * Returns the {@link Features} to check for the availability of certain features
@@ -89,63 +180,75 @@ public interface GlobalSearchSession extends Closeable {
     Features getFeatures();
 
     /**
-     * Adds an {@link AppSearchObserverCallback} to monitor changes within the
-     * databases owned by {@code observedPackage} if they match the given
+     * Adds an {@link ObserverCallback} to monitor changes within the databases owned by
+     * {@code targetPackageName} if they match the given
      * {@link androidx.appsearch.observer.ObserverSpec}.
      *
-     * <p>If the data owned by {@code observedPackage} is not visible to you, the registration call
-     * will succeed but no notifications will be dispatched. Notifications could start flowing later
-     * if {@code observedPackage} changes its schema visibility settings.
+     * <p>The observer callback is only triggered for data that changes after it is registered. No
+     * notification about existing data is sent as a result of registering an observer. To find out
+     * about existing data, you must use the {@link GlobalSearchSession#search} API.
      *
-     * <p>If no package matching {@code observedPackage} exists on the system, the registration call
-     * will succeed but no notifications will be dispatched. Notifications could start flowing later
-     * if {@code observedPackage} is installed and starts indexing data.
+     * <p>If the data owned by {@code targetPackageName} is not visible to you, the registration
+     * call will succeed but no notifications will be dispatched. Notifications could start flowing
+     * later if {@code targetPackageName} changes its schema visibility settings.
+     *
+     * <p>If no package matching {@code targetPackageName} exists on the system, the registration
+     * call will succeed but no notifications will be dispatched. Notifications could start flowing
+     * later if {@code targetPackageName} is installed and starts indexing data.
      *
      * <p>This feature may not be available in all implementations. Check
-     * {@link Features#GLOBAL_SEARCH_SESSION_ADD_REMOVE_OBSERVER} before calling this method.
+     * {@link Features#GLOBAL_SEARCH_SESSION_REGISTER_OBSERVER_CALLBACK} before calling this method.
      *
-     * @param observedPackage Package whose changes to monitor
+     * @param targetPackageName Package whose changes to monitor
      * @param spec            Specification of what types of changes to listen for
      * @param executor        Executor on which to call the {@code observer} callback methods.
      * @param observer        Callback to trigger when a schema or document changes
+     * @throws AppSearchException            if an error occurs trying to register the observer
      * @throws UnsupportedOperationException if this feature is not available on this
      *                                       AppSearch implementation.
      */
     // @exportToFramework:startStrip()
     @RequiresFeature(
             enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
-            name = Features.GLOBAL_SEARCH_SESSION_ADD_REMOVE_OBSERVER)
+            name = Features.GLOBAL_SEARCH_SESSION_REGISTER_OBSERVER_CALLBACK)
     // @exportToFramework:endStrip()
-    void addObserver(
-            @NonNull String observedPackage,
+    void registerObserverCallback(
+            @NonNull String targetPackageName,
             @NonNull ObserverSpec spec,
             @NonNull Executor executor,
-            @NonNull AppSearchObserverCallback observer);
+            @NonNull ObserverCallback observer) throws AppSearchException;
 
     /**
-     * Removes previously registered {@link AppSearchObserverCallback} instances from the system.
+     * Removes previously registered {@link ObserverCallback} instances from the system.
      *
-     * <p>All instances of {@link AppSearchObserverCallback} which are equal to the provided
-     * callback using {@link AppSearchObserverCallback#equals} will be removed.
+     * <p>All instances of {@link ObserverCallback} which are registered to observe
+     * {@code targetPackageName} and compare equal to the provided callback using the provided
+     * argument's {@link ObserverCallback#equals} will be removed.
      *
      * <p>If no matching observers have been registered, this method has no effect. If multiple
      * matching observers have been registered, all will be removed.
      *
      * <p>This feature may not be available in all implementations. Check
-     * {@link Features#GLOBAL_SEARCH_SESSION_ADD_REMOVE_OBSERVER} before calling this method.
+     * {@link Features#GLOBAL_SEARCH_SESSION_REGISTER_OBSERVER_CALLBACK} before calling this method.
      *
-     * @param observedPackage Package in which the observers to be removed are registered
-     * @param observer        Callback to unregister
+     * @param targetPackageName Package which the observers to be removed are listening to.
+     * @param observer          Callback to unregister.
+     * @throws AppSearchException            if an error occurs trying to remove the observer, such
+     *                                       as a failure to communicate with the system service
+     *                                       in the platform backend. Note that no
+     *                                       error will be thrown if the provided observer
+     *                                       doesn't match any registered observer.
      * @throws UnsupportedOperationException if this feature is not available on this
      *                                       AppSearch implementation.
      */
     // @exportToFramework:startStrip()
     @RequiresFeature(
             enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
-            name = Features.GLOBAL_SEARCH_SESSION_ADD_REMOVE_OBSERVER)
+            name = Features.GLOBAL_SEARCH_SESSION_REGISTER_OBSERVER_CALLBACK)
     // @exportToFramework:endStrip()
-    void removeObserver(
-            @NonNull String observedPackage, @NonNull AppSearchObserverCallback observer);
+    void unregisterObserverCallback(
+            @NonNull String targetPackageName, @NonNull ObserverCallback observer)
+            throws AppSearchException;
 
     /** Closes the {@link GlobalSearchSession}. */
     @Override

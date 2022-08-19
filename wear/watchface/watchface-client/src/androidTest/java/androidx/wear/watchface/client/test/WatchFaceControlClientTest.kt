@@ -60,6 +60,7 @@ import androidx.wear.watchface.DrawMode
 import androidx.wear.watchface.RenderParameters
 import androidx.wear.watchface.Renderer
 import androidx.wear.watchface.WatchFace
+import androidx.wear.watchface.WatchFaceColors
 import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.WatchFaceType
 import androidx.wear.watchface.WatchState
@@ -764,7 +765,9 @@ class WatchFaceControlClientTest {
                         10.0f,
                         100.0f,
                         ComplicationText.EMPTY
-                    ).build(),
+                    )
+                        .setText(PlainComplicationText.Builder("Battery").build())
+                        .build(),
                 EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID to
                     LongTextComplicationData.Builder(
                         PlainComplicationText.Builder("Test").build(),
@@ -1564,6 +1567,37 @@ class WatchFaceControlClientTest {
     }
 
     @Test
+    fun watchfaceOverlayStyle_after_close() {
+        val wallpaperService = TestWatchfaceOverlayStyleWatchFaceService(
+            context,
+            surfaceHolder,
+            WatchFace.OverlayStyle(Color.valueOf(Color.RED), Color.valueOf(Color.BLACK))
+        )
+        val deferredInteractiveInstance = handlerCoroutineScope.async {
+            service.getOrCreateInteractiveWatchFaceClient(
+                "testId",
+                deviceConfig,
+                systemState,
+                null,
+                complications
+            )
+        }
+
+        // Create the engine which triggers creation of the interactive instance.
+        handler.post {
+            engine = wallpaperService.onCreateEngine() as WatchFaceService.EngineWrapper
+        }
+
+        // Wait for the instance to be created.
+        val interactiveInstance = awaitWithTimeout(deferredInteractiveInstance)
+
+        interactiveInstance.close()
+
+        assertThat(interactiveInstance.overlayStyle.backgroundColor).isNull()
+        assertThat(interactiveInstance.overlayStyle.foregroundColor).isNull()
+    }
+
+    @Test
     fun computeUserStyleSchemaDigestHash() {
         val headlessInstance1 = service.createHeadlessWatchFaceClient(
             "id",
@@ -1650,6 +1684,82 @@ class WatchFaceControlClientTest {
             "Renderer.onDestroy",
             "WatchFaceService.onDestroy"
         )
+    }
+
+    @Test
+    fun watchFaceColors() {
+        val deferredInteractiveInstance = handlerCoroutineScope.async {
+            service.getOrCreateInteractiveWatchFaceClient(
+                "testId",
+                deviceConfig,
+                systemState,
+                null,
+                complications
+            )
+        }
+
+        // Create the engine which triggers creation of InteractiveWatchFaceClient.
+        createEngine()
+
+        val interactiveInstance = awaitWithTimeout(deferredInteractiveInstance)
+
+        try {
+            val watchFaceColorsLatch = CountDownLatch(1)
+            var watchFaceColors: WatchFaceColors? = null
+
+            interactiveInstance.addOnWatchFaceColorsListener(
+                { runnable -> runnable.run() }
+            ) {
+                watchFaceColors = it
+                if (watchFaceColors != null) {
+                    watchFaceColorsLatch.countDown()
+                }
+            }
+
+            assertTrue(watchFaceColorsLatch.await(UPDATE_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS))
+
+            assertThat(watchFaceColors).isEqualTo(
+                WatchFaceColors(
+                    Color.valueOf(1.0f, 1.0f, 1.0f, 1.0f),
+                    Color.valueOf(0.93333334f, 0.6313726f, 0.6039216f, 1.0f),
+                    Color.valueOf(0.26666668f, 0.26666668f, 0.26666668f, 1.0f)
+                )
+            )
+
+            val watchFaceColorsLatch2 = CountDownLatch(1)
+            var watchFaceColors2: WatchFaceColors? = null
+
+            interactiveInstance.updateWatchFaceInstance(
+                "testId",
+                UserStyleData(
+                    mapOf(
+                        COLOR_STYLE_SETTING to BLUE_STYLE.encodeToByteArray(),
+                        WATCH_HAND_LENGTH_STYLE_SETTING to DoubleRangeOption(0.9).id.value,
+                    )
+                )
+            )
+
+            interactiveInstance.addOnWatchFaceColorsListener(
+                { runnable -> runnable.run() }
+            ) {
+                watchFaceColors2 = it
+                if (watchFaceColors2 != null) {
+                    watchFaceColorsLatch2.countDown()
+                }
+            }
+
+            assertTrue(watchFaceColorsLatch2.await(UPDATE_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS))
+
+            assertThat(watchFaceColors2).isEqualTo(
+                WatchFaceColors(
+                    Color.valueOf(0.30980393f, 0.7647059f, 0.96862745f, 1.0f),
+                    Color.valueOf(0.08235294f, 0.39607844f, 0.7529412f, 1.0f),
+                    Color.valueOf(0.26666668f, 0.26666668f, 0.26666668f, 1.0f)
+                )
+            )
+        } finally {
+            interactiveInstance.close()
+        }
     }
 }
 

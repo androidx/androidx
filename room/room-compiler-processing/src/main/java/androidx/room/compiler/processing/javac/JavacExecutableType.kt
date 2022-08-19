@@ -17,6 +17,7 @@
 package androidx.room.compiler.processing.javac
 
 import androidx.room.compiler.processing.XExecutableType
+import androidx.room.compiler.processing.XType
 import javax.lang.model.type.ExecutableType
 
 internal abstract class JavacExecutableType(
@@ -46,5 +47,14 @@ internal abstract class JavacExecutableType(
 
     override fun toString(): String {
         return executableType.toString()
+    }
+
+    override val thrownTypes: List<XType>
+        // The thrown types are the same as on the element since those can't change
+        get() = element.thrownTypes
+
+    override fun isSameType(other: XExecutableType): Boolean {
+        return other is JavacExecutableType &&
+            env.typeUtils.isSameType(executableType, other.executableType)
     }
 }

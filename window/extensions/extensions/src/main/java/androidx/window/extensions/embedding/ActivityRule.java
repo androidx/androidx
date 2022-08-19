@@ -23,14 +23,12 @@ import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
-import androidx.window.extensions.ExperimentalWindowExtensionsApi;
 
 import java.util.function.Predicate;
 
 /**
  * Split configuration rule for individual activities.
  */
-@ExperimentalWindowExtensionsApi
 public class ActivityRule extends EmbeddingRule {
     @NonNull
     private final Predicate<Activity> mActivityPredicate;

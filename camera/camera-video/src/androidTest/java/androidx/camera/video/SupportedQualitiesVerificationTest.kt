@@ -35,9 +35,11 @@ package androidx.camera.video
 import android.content.Context
 import android.os.Build
 import androidx.camera.camera2.Camera2Config
+import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraSelector
+import androidx.camera.core.CameraXConfig
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.CameraUtil
@@ -66,11 +68,13 @@ class SupportedQualitiesVerificationTest(
     private val lensFacing: Int,
     private var cameraSelector: CameraSelector,
     private var quality: Quality,
+    private val cameraConfig: CameraXConfig,
+    private val implName: String,
 ) {
 
     @get:Rule
     val cameraRule = CameraUtil.grantCameraPermissionAndPreTest(
-        CameraUtil.PreTestCameraIdList(Camera2Config.defaultConfig())
+        CameraUtil.PreTestCameraIdList(cameraConfig)
     )
 
     companion object {
@@ -91,11 +95,28 @@ class SupportedQualitiesVerificationTest(
         )
 
         @JvmStatic
-        @Parameterized.Parameters(name = "lensFacing={0}, quality={2}")
+        @Parameterized.Parameters(name = "lensFacing={0}, quality={2}, config={4}")
         fun data() = mutableListOf<Array<Any?>>().apply {
             cameraSelectors.forEach { cameraSelector ->
                 quality.forEach { quality ->
-                    add(arrayOf(cameraSelector.lensFacing, cameraSelector, quality))
+                    add(
+                        arrayOf(
+                            cameraSelector.lensFacing,
+                            cameraSelector,
+                            quality,
+                            Camera2Config.defaultConfig(),
+                            Camera2Config::class.simpleName
+                        )
+                    )
+                    add(
+                        arrayOf(
+                            cameraSelector.lensFacing,
+                            cameraSelector,
+                            quality,
+                            CameraPipeConfig.defaultConfig(),
+                            CameraPipeConfig::class.simpleName
+                        )
+                    )
                 }
             }
         }

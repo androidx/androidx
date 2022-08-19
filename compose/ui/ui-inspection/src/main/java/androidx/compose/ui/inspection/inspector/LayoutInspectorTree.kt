@@ -22,11 +22,6 @@ import androidx.compose.runtime.tooling.CompositionData
 import androidx.compose.runtime.tooling.CompositionGroup
 import androidx.compose.ui.R
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.inspection.data.ContextCache
-import androidx.compose.ui.inspection.data.ParameterInformation
-import androidx.compose.ui.inspection.data.SourceContext
-import androidx.compose.ui.inspection.data.SourceLocation
-import androidx.compose.ui.inspection.data.asLazyTree
 import androidx.compose.ui.layout.GraphicLayerInfo
 import androidx.compose.ui.layout.LayoutInfo
 import androidx.compose.ui.node.Ref
@@ -34,6 +29,12 @@ import androidx.compose.ui.node.RootForTest
 import androidx.compose.ui.platform.ViewRootForInspector
 import androidx.compose.ui.semantics.SemanticsModifier
 import androidx.compose.ui.semantics.getAllSemanticsNodes
+import androidx.compose.ui.tooling.data.ContextCache
+import androidx.compose.ui.tooling.data.ParameterInformation
+import androidx.compose.ui.tooling.data.SourceContext
+import androidx.compose.ui.tooling.data.SourceLocation
+import androidx.compose.ui.tooling.data.UiToolingDataApi
+import androidx.compose.ui.tooling.data.mapTree
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
@@ -99,6 +100,7 @@ fun packageNameHash(packageName: String) =
 /**
  * Generator of a tree for the Layout Inspector.
  */
+@OptIn(UiToolingDataApi::class)
 class LayoutInspectorTree {
     @Suppress("MemberVisibilityCanBePrivate")
     var hideSystemNodes = true
@@ -372,13 +374,13 @@ class LayoutInspectorTree {
 
     private fun convert(view: View, table: CompositionData): MutableInspectorNode? {
         val fakeParent = newNode()
-        val group = table.asLazyTree(::convert, contextCache) ?: return null
+        val group = table.mapTree(::convert, contextCache) ?: return null
         addToParent(fakeParent, listOf(group), buildFakeChildNodes = true)
         return if (belongsToView(fakeParent.layoutNodes, view)) fakeParent else null
     }
 
     private fun findParameters(table: CompositionData): InspectorNode? {
-        table.asLazyTree(::convert, contextCache) ?: return null
+        table.mapTree(::convert, contextCache) ?: return null
         return foundNode
     }
 
@@ -551,13 +553,10 @@ class LayoutInspectorTree {
                 .flatMap { config -> config.map { RawParameter(it.key.name, it.value) } }
         )
 
-        node.mergedSemantics.addAll(
-            modifierInfo.asSequence()
-                .map { it.modifier }
-                .filterIsInstance<SemanticsModifier>()
-                .map { it.id }
-                .flatMap { semanticsMap[it].orEmpty() }
-        )
+        val mergedSemantics = semanticsMap.get(layoutInfo.semanticsId)
+        if (mergedSemantics != null) {
+            node.mergedSemantics.addAll(mergedSemantics)
+        }
 
         node.id = modifierInfo.asSequence()
             .map { it.extra }
@@ -747,9 +746,7 @@ class LayoutInspectorTree {
             if (!capturing) {
                 return node
             }
-            val root = group.data.filterIsInstance<ViewRootForInspector>().singleOrNull()
-                ?: group.data.filterIsInstance<Ref<ViewRootForInspector>>().singleOrNull()?.value
-                ?: return node
+            val root = findSingleRootInGroupData(group) ?: return node
 
             val view = root.subCompositionView
             if (view != null) {
@@ -763,6 +760,12 @@ class LayoutInspectorTree {
                 clear()
             }
             return node
+        }
+
+        private fun findSingleRootInGroupData(group: CompositionGroup): ViewRootForInspector? {
+            group.data.filterIsInstance<ViewRootForInspector>().singleOrNull()?.let { return it }
+            val refs = group.data.filterIsInstance<Ref<*>>().map { it.value }
+            return refs.filterIsInstance<ViewRootForInspector>().singleOrNull()
         }
 
         /**

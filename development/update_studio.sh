@@ -1,7 +1,7 @@
 #!/bin/bash
 # Get versions
-AGP_VERSION=${1:-7.4.0-alpha01}
-STUDIO_VERSION_STRING=${2:-"Android Studio Electric Eel (2022.1.1) Canary 1"}
+AGP_VERSION=${1:-7.4.0-alpha08}
+STUDIO_VERSION_STRING=${2:-"Android Studio Electric Eel (2022.1.1) Canary 8"}
 STUDIO_IFRAME_LINK=`curl "https://developer.android.com/studio/archive.html" | grep iframe | sed "s/.*src=\"\([a-zA-Z0-9\/\._]*\)\".*/https:\/\/android-dot-devsite-v2-prod.appspot.com\1/g"`
 STUDIO_LINK=`curl -s $STUDIO_IFRAME_LINK | grep -C30 "$STUDIO_VERSION_STRING" | grep Linux | tail -n 1 | sed 's/.*a href="\(.*\).*"/\1/g'`
 STUDIO_VERSION=`echo $STUDIO_LINK | sed "s/.*ide-zips\/\(.*\)\/android-studio-.*/\1/g"`
@@ -36,11 +36,11 @@ while read line
              | tail -n +3 \
              | head -n -1)
 
-ATP_VERSION=${4:-0.0.8-alpha07}
+ATP_VERSION=${4:-0.0.8-alpha08}
 ARTIFACTS_TO_DOWNLOAD+="com.google.testing.platform:android-test-plugin:$ATP_VERSION,"
 ARTIFACTS_TO_DOWNLOAD+="com.google.testing.platform:launcher:$ATP_VERSION,"
 ARTIFACTS_TO_DOWNLOAD+="com.google.testing.platform:android-driver-instrumentation:$ATP_VERSION,"
 ARTIFACTS_TO_DOWNLOAD+="com.google.testing.platform:core:$ATP_VERSION"
 
 # Download all the artifacts
-./development/importMaven/import_maven_artifacts.py -n "$ARTIFACTS_TO_DOWNLOAD"
+./development/importMaven/importMaven.sh "$ARTIFACTS_TO_DOWNLOAD"

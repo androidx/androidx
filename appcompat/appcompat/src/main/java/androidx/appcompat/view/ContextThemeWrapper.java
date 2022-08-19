@@ -16,8 +16,6 @@
 
 package androidx.appcompat.view;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
-
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.res.AssetManager;
@@ -28,7 +26,6 @@ import android.view.LayoutInflater;
 
 import androidx.annotation.DoNotInline;
 import androidx.annotation.RequiresApi;
-import androidx.annotation.RestrictTo;
 import androidx.annotation.StyleRes;
 import androidx.appcompat.R;
 
@@ -36,8 +33,10 @@ import androidx.appcompat.R;
  * A context wrapper that allows you to modify or replace the theme of the wrapped context.
  */
 public class ContextThemeWrapper extends ContextWrapper {
-    private final boolean mCheckedHandlesConfigChanges;
-    private final boolean mHandlesConfigChanges;
+    /**
+     * Lazily-populated configuration object representing an empty, default configuration.
+     */
+    private static Configuration sEmptyConfig;
 
     private int mThemeResource;
     private Resources.Theme mTheme;
@@ -54,9 +53,6 @@ public class ContextThemeWrapper extends ContextWrapper {
      */
     public ContextThemeWrapper() {
         super(null);
-
-        mCheckedHandlesConfigChanges = false;
-        mHandlesConfigChanges = false;
     }
 
     /**
@@ -73,9 +69,6 @@ public class ContextThemeWrapper extends ContextWrapper {
     public ContextThemeWrapper(Context base, @StyleRes int themeResId) {
         super(base);
         mThemeResource = themeResId;
-
-        mCheckedHandlesConfigChanges = false;
-        mHandlesConfigChanges = false;
     }
 
     /**
@@ -90,29 +83,6 @@ public class ContextThemeWrapper extends ContextWrapper {
     public ContextThemeWrapper(Context base, Resources.Theme theme) {
         super(base);
         mTheme = theme;
-
-        mCheckedHandlesConfigChanges = false;
-        mHandlesConfigChanges = false;
-    }
-
-    /**
-     * Creates a new context wrapper with the specified theme.
-     *
-     * @param base the base context
-     * @param themeResId the resource ID of the theme to be applied on top of
-     *                   the base context's theme
-     * @param handlesConfigChanges whether the host Activity handles configuration
-     *                             changes relevant (e.g. uiMode, locale) to AppCompat
-     *
-     * @hide For internal use only.
-     */
-    @RestrictTo(LIBRARY_GROUP)
-    public ContextThemeWrapper(Context base, int themeResId, boolean handlesConfigChanges) {
-        super(base);
-        mThemeResource = themeResId;
-
-        mCheckedHandlesConfigChanges = true;
-        mHandlesConfigChanges = handlesConfigChanges;
     }
 
     @Override
@@ -148,9 +118,14 @@ public class ContextThemeWrapper extends ContextWrapper {
 
     private Resources getResourcesInternal() {
         if (mResources == null) {
-            if (mOverrideConfiguration == null) {
+            if (mOverrideConfiguration == null
+                    || (Build.VERSION.SDK_INT >= 26
+                    && isEmptyConfiguration(mOverrideConfiguration))) {
+                // If we're not applying any overrides, use the base context's resources. On API
+                // 26+, this will avoid pulling in resources that share a backing implementation
+                // with the application context.
                 mResources = super.getResources();
-            } else if (Build.VERSION.SDK_INT >= 17 && shouldUseManagedResources()) {
+            } else if (Build.VERSION.SDK_INT >= 17) {
                 final Context resContext =
                         Api17Impl.createConfigurationContext(this, mOverrideConfiguration);
                 mResources = resContext.getResources();
@@ -162,27 +137,6 @@ public class ContextThemeWrapper extends ContextWrapper {
             }
         }
         return mResources;
-    }
-
-    /**
-     * Returns whether this wrapper should attempt to use a Resources object that receives
-     * updates from the global ResourceManager.
-     * <p>
-     * This is typically only necessary for apps that are handling uiMode or locale changes and are
-     * setting up their custom configuration outside of attachBaseContext, e.g. their initial
-     * wrapper will be created with a default override configuration.
-     */
-    private boolean shouldUseManagedResources() {
-        return !(mCheckedHandlesConfigChanges && mHandlesConfigChanges
-                && isDefaultConfiguration(mOverrideConfiguration));
-    }
-
-    /**
-     * Returns whether the parts of the Configuration that we care about (locale and uiMode) are set
-     * to their default values.
-     */
-    private static boolean isDefaultConfiguration(Configuration config) {
-        return config.uiMode == 0 && config.locale == null;
     }
 
     @Override
@@ -257,6 +211,27 @@ public class ContextThemeWrapper extends ContextWrapper {
     public AssetManager getAssets() {
         // Ensure we're returning assets with the correct configuration.
         return getResources().getAssets();
+    }
+
+    /**
+     * @return {@code true} if the specified configuration is {@code null} or is a no-op when
+     *         used as a configuration overlay
+     */
+    @RequiresApi(26)
+    private static boolean isEmptyConfiguration(Configuration overrideConfiguration) {
+        if (overrideConfiguration == null) {
+            return true;
+        }
+
+        if (sEmptyConfig == null) {
+            Configuration emptyConfig = new Configuration();
+            // Workaround for incorrect default fontScale on earlier SDKs (b/29924927). Note
+            // that Configuration.setToDefaults() is *not* a no-op configuration overlay.
+            emptyConfig.fontScale = 0.0f;
+            sEmptyConfig = emptyConfig;
+        }
+
+        return overrideConfiguration.equals(sEmptyConfig);
     }
 
     @RequiresApi(17)

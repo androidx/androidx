@@ -23,6 +23,11 @@ plugins {
 }
 
 dependencies {
+    // Atomic group
+    constraints {
+        implementation(project(":appcompat:appcompat"))
+    }
+
     api("androidx.annotation:annotation:1.2.0")
     api("androidx.core:core:1.6.0")
     implementation("androidx.collection:collection:1.0.0")
@@ -61,7 +66,6 @@ android {
 androidx {
     name = "Android Resources Library"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenVersion = LibraryVersions.APPCOMPAT
     mavenGroup = LibraryGroups.APPCOMPAT
     inceptionYear = "2019"
     description = "The Resources Library is a static library that you can add to your Android application in order to use resource APIs that backport the latest APIs to older versions of the platform. Compatible on devices running API 14 or later."

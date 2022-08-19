@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -40,41 +39,32 @@ import java.util.concurrent.atomic.AtomicReference;
 @SuppressLint("SyntheticAccessor")
 public class TaskExecutorWithFakeMainThread extends TaskExecutor {
     @SuppressWarnings("WeakerAccess") /* synthetic access */
-    List<Throwable> mCaughtExceptions = Collections.synchronizedList(new ArrayList
-            <Throwable>());
+    List<Throwable> mCaughtExceptions = Collections.synchronizedList(new ArrayList<>());
 
-    private ExecutorService mIOService;
+    private final ExecutorService mIOService;
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
-    private AtomicReference<Thread> mMainThread = new AtomicReference<>();
+    private final AtomicReference<Thread> mMainThread = new AtomicReference<>();
     private final int mIOThreadCount;
 
-    private ExecutorService mMainThreadService =
-            Executors.newSingleThreadExecutor(new ThreadFactory() {
-                @Override
-                public Thread newThread(@NonNull final Runnable r) {
-                    mMainThread.compareAndSet(null, new LoggingThread(r));
-                    return mMainThread.get();
-                }
+    private final ExecutorService mMainThreadService =
+            Executors.newSingleThreadExecutor(r -> {
+                mMainThread.compareAndSet(null, new LoggingThread(r));
+                return mMainThread.get();
             });
 
     public TaskExecutorWithFakeMainThread(int ioThreadCount) {
         mIOThreadCount = ioThreadCount;
-        mIOService = Executors.newFixedThreadPool(ioThreadCount, new ThreadFactory() {
-            @Override
-            public Thread newThread(@NonNull Runnable r) {
-                return new LoggingThread(r);
-            }
-        });
+        mIOService = Executors.newFixedThreadPool(ioThreadCount, LoggingThread::new);
     }
 
     @Override
-    public void executeOnDiskIO(Runnable runnable) {
+    public void executeOnDiskIO(@NonNull Runnable runnable) {
         mIOService.execute(runnable);
     }
 
     @Override
-    public void postToMainThread(Runnable runnable) {
+    public void postToMainThread(@NonNull Runnable runnable) {
         // Tasks in SingleThreadExecutor are guaranteed to execute sequentially,
         // and no more than one task will be active at any given time.
         // So if we call this method from the main thread, new task will be scheduled,
@@ -91,7 +81,7 @@ public class TaskExecutorWithFakeMainThread extends TaskExecutor {
         return mCaughtExceptions;
     }
 
-    @SuppressWarnings("SameParameterValue")
+    @SuppressWarnings({"SameParameterValue", "ResultOfMethodCallIgnored"})
     void shutdown(int timeoutInSeconds) throws InterruptedException {
         mMainThreadService.shutdown();
         mIOService.shutdown();
@@ -102,7 +92,6 @@ public class TaskExecutorWithFakeMainThread extends TaskExecutor {
     /**
      * Drains tasks at the given time limit
      * @param seconds Number of seconds to wait
-     * @throws InterruptedException
      */
     public void drainTasks(int seconds) throws InterruptedException {
         if (isMainThread()) {
@@ -111,26 +100,18 @@ public class TaskExecutorWithFakeMainThread extends TaskExecutor {
         final CountDownLatch enterLatch = new CountDownLatch(mIOThreadCount);
         final CountDownLatch exitLatch = new CountDownLatch(1);
         for (int i = 0; i < mIOThreadCount; i++) {
-            executeOnDiskIO(new Runnable() {
-                @Override
-                public void run() {
-                    enterLatch.countDown();
-                    try {
-                        exitLatch.await();
-                    } catch (InterruptedException e) {
-                        throw new RuntimeException(e);
-                    }
+            executeOnDiskIO(() -> {
+                enterLatch.countDown();
+                try {
+                    exitLatch.await();
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
                 }
             });
         }
 
         final CountDownLatch mainLatch = new CountDownLatch(1);
-        postToMainThread(new Runnable() {
-            @Override
-            public void run() {
-                mainLatch.countDown();
-            }
-        });
+        postToMainThread(mainLatch::countDown);
         if (!enterLatch.await(seconds, TimeUnit.SECONDS)) {
             throw new AssertionError("Could not drain IO tasks in " + seconds
                     + " seconds");
@@ -145,14 +126,11 @@ public class TaskExecutorWithFakeMainThread extends TaskExecutor {
     @SuppressWarnings("WeakerAccess")
     class LoggingThread extends Thread {
         LoggingThread(final Runnable target) {
-            super(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        target.run();
-                    } catch (Throwable t) {
-                        mCaughtExceptions.add(t);
-                    }
+            super(() -> {
+                try {
+                    target.run();
+                } catch (Throwable t) {
+                    mCaughtExceptions.add(t);
                 }
             });
         }

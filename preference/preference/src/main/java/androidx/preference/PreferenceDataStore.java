@@ -16,6 +16,7 @@
 
 package androidx.preference;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import java.util.Set;
@@ -52,7 +53,7 @@ public abstract class PreferenceDataStore {
      * @param value The new value for the preference
      * @see #getString(String, String)
      */
-    public void putString(String key, @Nullable String value) {
+    public void putString(@NonNull String key, @Nullable String value) {
         throw new UnsupportedOperationException("Not implemented on this data store");
     }
 
@@ -65,7 +66,7 @@ public abstract class PreferenceDataStore {
      * @param values The set of new values for the preference
      * @see #getStringSet(String, Set)
      */
-    public void putStringSet(String key, @Nullable Set<String> values) {
+    public void putStringSet(@NonNull String key, @Nullable Set<String> values) {
         throw new UnsupportedOperationException("Not implemented on this data store");
     }
 
@@ -78,7 +79,7 @@ public abstract class PreferenceDataStore {
      * @param value The new value for the preference
      * @see #getInt(String, int)
      */
-    public void putInt(String key, int value) {
+    public void putInt(@NonNull String key, int value) {
         throw new UnsupportedOperationException("Not implemented on this data store");
     }
 
@@ -91,7 +92,7 @@ public abstract class PreferenceDataStore {
      * @param value The new value for the preference
      * @see #getLong(String, long)
      */
-    public void putLong(String key, long value) {
+    public void putLong(@NonNull String key, long value) {
         throw new UnsupportedOperationException("Not implemented on this data store");
     }
 
@@ -104,7 +105,7 @@ public abstract class PreferenceDataStore {
      * @param value The new value for the preference
      * @see #getFloat(String, float)
      */
-    public void putFloat(String key, float value) {
+    public void putFloat(@NonNull String key, float value) {
         throw new UnsupportedOperationException("Not implemented on this data store");
     }
 
@@ -117,7 +118,7 @@ public abstract class PreferenceDataStore {
      * @param value The new value for the preference
      * @see #getBoolean(String, boolean)
      */
-    public void putBoolean(String key, boolean value) {
+    public void putBoolean(@NonNull String key, boolean value) {
         throw new UnsupportedOperationException("Not implemented on this data store");
     }
 
@@ -130,7 +131,7 @@ public abstract class PreferenceDataStore {
      * @see #putString(String, String)
      */
     @Nullable
-    public String getString(String key, @Nullable String defValue) {
+    public String getString(@NonNull String key, @Nullable String defValue) {
         return defValue;
     }
 
@@ -143,7 +144,7 @@ public abstract class PreferenceDataStore {
      * @see #putStringSet(String, Set)
      */
     @Nullable
-    public Set<String> getStringSet(String key, @Nullable Set<String> defValues) {
+    public Set<String> getStringSet(@NonNull String key, @Nullable Set<String> defValues) {
         return defValues;
     }
 
@@ -155,7 +156,7 @@ public abstract class PreferenceDataStore {
      * @return The value from the data store or the default return value
      * @see #putInt(String, int)
      */
-    public int getInt(String key, int defValue) {
+    public int getInt(@NonNull String key, int defValue) {
         return defValue;
     }
 
@@ -167,7 +168,7 @@ public abstract class PreferenceDataStore {
      * @return The value from the data store or the default return value
      * @see #putLong(String, long)
      */
-    public long getLong(String key, long defValue) {
+    public long getLong(@NonNull String key, long defValue) {
         return defValue;
     }
 
@@ -179,7 +180,7 @@ public abstract class PreferenceDataStore {
      * @return The value from the data store or the default return value
      * @see #putFloat(String, float)
      */
-    public float getFloat(String key, float defValue) {
+    public float getFloat(@NonNull String key, float defValue) {
         return defValue;
     }
 
@@ -191,7 +192,7 @@ public abstract class PreferenceDataStore {
      * @return the value from the data store or the default return value
      * @see #getBoolean(String, boolean)
      */
-    public boolean getBoolean(String key, boolean defValue) {
+    public boolean getBoolean(@NonNull String key, boolean defValue) {
         return defValue;
     }
 }

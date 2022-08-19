@@ -20,7 +20,8 @@ package androidx.core.uwb
  * Set of parameters which should be passed to the UWB chip to start ranging.
  *
  * @property uwbConfigType
- * The UWB configuration type. One type specifies one fixed set of pre-defined parameters.
+ * The UWB configuration type. One type specifies one fixed set of pre-defined parameters. The
+ * UWB config type includes [UWB_CONFIG_ID_1].
  *
  * @property sessionId
  * The ID of the ranging session. If the value is SESSION_ID_UNSET (0), it will
@@ -43,7 +44,9 @@ package androidx.core.uwb
  * The peers to perform ranging with. If using unicast, length should be 1.
  *
  * @property updateRateType
- * The update rate type of the ranging data
+ * The update rate type of the ranging data. The update rate types include
+ * [RANGING_UPDATE_RATE_AUTOMATIC], [RANGING_UPDATE_RATE_FREQUENT], and
+ * [RANGING_UPDATE_RATE_INFREQUENT].
  */
 class RangingParameters(
     val uwbConfigType: Int,
@@ -69,7 +72,7 @@ class RangingParameters(
          * <p> Typical use case: device tracking tags
          */
         @JvmField
-        internal val UWB_CONFIG_ID_1 = 1
+        val UWB_CONFIG_ID_1 = 1
 
         /**
          * Pre-defined one-to-many STATIC STS DS-TWR ranging

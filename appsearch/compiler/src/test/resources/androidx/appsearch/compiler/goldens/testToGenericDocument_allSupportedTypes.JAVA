@@ -19,7 +19,7 @@ import java.util.List;
 import javax.annotation.processing.Generated;
 
 @Generated("androidx.appsearch.compiler.AppSearchCompiler")
-public class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
+public final class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
   public static final String SCHEMA_NAME = "Gift";
 
   @Override
@@ -55,6 +55,7 @@ public class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
             .build())
           .addProperty(new AppSearchSchema.DocumentPropertyConfig.Builder("collectGift", $$__AppSearch__Gift.SCHEMA_NAME)
             .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
+            .setShouldIndexNestedProperties(false)
             .build())
           .addProperty(new AppSearchSchema.LongPropertyConfig.Builder("arrBoxLong")
             .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
@@ -99,6 +100,7 @@ public class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
             .build())
           .addProperty(new AppSearchSchema.DocumentPropertyConfig.Builder("arrGift", $$__AppSearch__Gift.SCHEMA_NAME)
             .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
+            .setShouldIndexNestedProperties(false)
             .build())
           .addProperty(new AppSearchSchema.StringPropertyConfig.Builder("string")
             .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
@@ -140,6 +142,7 @@ public class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
             .build())
           .addProperty(new AppSearchSchema.DocumentPropertyConfig.Builder("gift", $$__AppSearch__Gift.SCHEMA_NAME)
             .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
+            .setShouldIndexNestedProperties(false)
             .build())
           .build();
   }

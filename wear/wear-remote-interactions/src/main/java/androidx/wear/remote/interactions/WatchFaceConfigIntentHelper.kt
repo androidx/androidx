@@ -85,6 +85,7 @@ public class WatchFaceConfigIntentHelper private constructor() {
          * @return the value of an item previously added with [putWatchFaceComponentExtra], or
          * null if no value was found.
          */
+        @Suppress("DEPRECATION")
         @JvmStatic
         @Nullable
         public fun getWatchFaceComponentExtra(watchFaceIntent: Intent): ComponentName? =

@@ -29,8 +29,8 @@ import androidx.health.services.client.proto.DataProto.PassiveMonitoringUpdate a
  */
 @Suppress("ParcelCreator")
 public class PassiveMonitoringUpdate(
-    /** List of [DataPoint] s from Passive tracking. */
-    public val dataPoints: List<DataPoint>,
+    /** List of [DataPoint]s from Passive tracking. */
+    public val dataPoints: DataPointContainer,
 
     /** The [UserActivityInfo] of the user from Passive tracking. */
     public val userActivityInfoUpdates: List<UserActivityInfo>,
@@ -39,7 +39,7 @@ public class PassiveMonitoringUpdate(
     internal constructor(
         proto: DataProto.PassiveMonitoringUpdate
     ) : this(
-        proto.dataPointsList.map { DataPoint(it) },
+        DataPointContainer(proto.dataPointsList.map { DataPoint.fromProto(it) }),
         proto.userActivityInfoUpdatesList.map { UserActivityInfo(it) }
     )
 
@@ -54,7 +54,8 @@ public class PassiveMonitoringUpdate(
     /** @hide */
     override val proto: PassiveMonitoringUpdateProto by lazy {
         PassiveMonitoringUpdateProto.newBuilder()
-            .addAllDataPoints(dataPoints.map { it.proto })
+            .addAllDataPoints(dataPoints.sampleDataPoints.map { it.proto })
+            .addAllDataPoints(dataPoints.intervalDataPoints.map { it.proto })
             .addAllUserActivityInfoUpdates(userActivityInfoUpdates.map { it.proto })
             .build()
     }

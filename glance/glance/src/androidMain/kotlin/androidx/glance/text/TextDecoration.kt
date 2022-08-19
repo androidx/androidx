@@ -22,28 +22,28 @@ import androidx.compose.runtime.Stable
  * Defines a horizontal line to be drawn on the text.
  */
 @JvmInline
-public value class TextDecoration internal constructor(private val mask: Int) {
-    public companion object {
-        public val None: TextDecoration = TextDecoration(0x0)
+value class TextDecoration internal constructor(private val mask: Int) {
+    companion object {
+        val None: TextDecoration = TextDecoration(0x0)
 
         /**
          * Draws a horizontal line below the text.
          */
-        public val Underline: TextDecoration = TextDecoration(0x1)
+        val Underline: TextDecoration = TextDecoration(0x1)
 
         /**
          * Draws a horizontal line over the text.
          *
          * Note: This will have no effect if used on Wear Tiles.
          */
-        public val LineThrough: TextDecoration = TextDecoration(0x2)
+        val LineThrough: TextDecoration = TextDecoration(0x2)
 
         /**
          * Creates a decoration that includes all the given decorations.
          *
          * @param decorations The decorations to be added
          */
-        public fun combine(decorations: List<TextDecoration>): TextDecoration {
+        fun combine(decorations: List<TextDecoration>): TextDecoration {
             val mask = decorations.fold(0) { acc, decoration ->
                 acc or decoration.mask
             }
@@ -54,7 +54,7 @@ public value class TextDecoration internal constructor(private val mask: Int) {
      * Creates a decoration that includes both of the TextDecorations.
      */
     @Stable
-    public operator fun plus(decoration: TextDecoration): TextDecoration {
+    operator fun plus(decoration: TextDecoration): TextDecoration {
         return TextDecoration(this.mask or decoration.mask)
     }
 
@@ -62,7 +62,7 @@ public value class TextDecoration internal constructor(private val mask: Int) {
      * Check whether this [TextDecoration] contains the given decoration.
      */
     @Stable
-    public operator fun contains(other: TextDecoration): Boolean {
+    operator fun contains(other: TextDecoration): Boolean {
         return (mask or other.mask) == mask
     }
 

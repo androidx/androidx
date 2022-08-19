@@ -29,18 +29,18 @@ import androidx.compose.ui.graphics.takeOrElse
 @Stable
 public class Colors(
     primary: Color = Color(0xFFAECBFA),
-    primaryVariant: Color = Color(0xFF669DF6),
+    primaryVariant: Color = Color(0xFF8AB4F8),
     secondary: Color = Color(0xFFFDE293),
     secondaryVariant: Color = Color(0xFF594F33),
     background: Color = Color.Black,
-    surface: Color = Color(0xFF202124),
+    surface: Color = Color(0xFF303133),
     error: Color = Color(0xFFEE675C),
-    onPrimary: Color = Color(0xFF202124),
-    onSecondary: Color = Color(0xFF202124),
+    onPrimary: Color = Color(0xFF303133),
+    onSecondary: Color = Color(0xFF303133),
     onBackground: Color = Color.White,
     onSurface: Color = Color.White,
     onSurfaceVariant: Color = Color(0xFFDADCE0),
-    onError: Color = Color(0xFF202124)
+    onError: Color = Color(0xFF000000)
 ) {
     public var primary: Color by mutableStateOf(primary, structuralEqualityPolicy())
         internal set

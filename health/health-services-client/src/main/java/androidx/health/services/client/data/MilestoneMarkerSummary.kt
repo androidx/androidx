@@ -18,6 +18,7 @@ package androidx.health.services.client.data
 
 import android.os.Parcelable
 import androidx.health.services.client.proto.DataProto
+import androidx.health.services.client.proto.DataProto.AchievedExerciseGoal
 import androidx.health.services.client.proto.DataProto.MilestoneMarkerSummary.SummaryMetricsEntry
 import java.time.Duration
 import java.time.Instant
@@ -39,14 +40,15 @@ public class MilestoneMarkerSummary(
      */
     public val activeDuration: Duration,
 
-    /** The [AchievedExerciseGoal] that triggered this milestone summary. */
-    public val achievedGoal: AchievedExerciseGoal,
+    /** The [ExerciseGoal] that triggered this milestone summary. */
+    public val achievedGoal: ExerciseGoal<out Number>,
 
     /**
-     * Returns the [DataPoint] for each aggregated metric keyed by [DataType] tracked between
-     * [startTime] and [endTime] i.e. during the duration of this milestone.
+     * Returns the [DataPointContainer] for aggregated metrics tracked between [startTime] and
+     * [endTime] i.e. during the duration of this milestone. This summary will only contain
+     * [DataPoint]s for [AggregateDataType]s.
      */
-    public val summaryMetrics: Map<DataType, AggregateDataPoint>,
+    public val summaryMetrics: DataPointContainer,
 ) : ProtoParcelable<DataProto.MilestoneMarkerSummary>() {
 
     internal constructor(
@@ -55,11 +57,10 @@ public class MilestoneMarkerSummary(
         Instant.ofEpochMilli(proto.startTimeEpochMs),
         Instant.ofEpochMilli(proto.endTimeEpochMs),
         Duration.ofMillis(proto.activeDurationMs),
-        AchievedExerciseGoal(proto.achievedGoal),
-        proto
-            .summaryMetricsList
-            .map { DataType(it.dataType) to AggregateDataPoint.fromProto(it.aggregateDataPoint) }
-            .toMap()
+        ExerciseGoal.fromProto(proto.achievedGoal.exerciseGoal),
+        DataPointContainer(proto.summaryMetricsList.map {
+                DataPoint.fromProto(it.aggregateDataPoint)
+        })
     )
 
     /** @hide */
@@ -68,18 +69,28 @@ public class MilestoneMarkerSummary(
             .setStartTimeEpochMs(startTime.toEpochMilli())
             .setEndTimeEpochMs(endTime.toEpochMilli())
             .setActiveDurationMs(activeDuration.toMillis())
-            .setAchievedGoal(achievedGoal.proto)
+            .setAchievedGoal(AchievedExerciseGoal.newBuilder().setExerciseGoal(achievedGoal.proto))
             .addAllSummaryMetrics(
-                summaryMetrics
+                summaryMetrics.cumulativeDataPoints
                     .map {
                         SummaryMetricsEntry.newBuilder()
-                            .setDataType(it.key.proto)
-                            .setAggregateDataPoint(it.value.proto)
+                            .setDataType(it.dataType.proto)
+                            .setAggregateDataPoint(it.proto)
                             .build()
                     }
-                    .sortedBy { entry ->
-                        entry.dataType.name
-                    } // Sorting to ensure equals() works correctly.
+                    // Sorting to ensure equals() works correctly.
+                    .sortedBy { it.dataType.name }
+            )
+            .addAllSummaryMetrics(
+                summaryMetrics.statisticalDataPoints
+                    .map {
+                        SummaryMetricsEntry.newBuilder()
+                            .setDataType(it.dataType.proto)
+                            .setAggregateDataPoint(it.proto)
+                            .build()
+                    }
+                    // Sorting to ensure equals() works correctly.
+                    .sortedBy { it.dataType.name }
             )
             .build()
     }

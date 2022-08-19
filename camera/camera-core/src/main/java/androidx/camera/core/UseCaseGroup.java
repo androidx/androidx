@@ -16,10 +16,12 @@
 
 package androidx.camera.core;
 
+import static androidx.core.util.Preconditions.checkArgument;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
-import androidx.core.util.Preconditions;
+import androidx.annotation.RestrictTo;
 import androidx.lifecycle.Lifecycle;
 
 import java.util.ArrayList;
@@ -42,9 +44,14 @@ public final class UseCaseGroup {
     @NonNull
     private final List<UseCase> mUseCases;
 
-    UseCaseGroup(@Nullable ViewPort viewPort, @NonNull List<UseCase> useCases) {
+    @NonNull
+    private final EffectBundle mEffectBundle;
+
+    UseCaseGroup(@Nullable ViewPort viewPort, @NonNull List<UseCase> useCases,
+            @NonNull EffectBundle effectBundle) {
         mViewPort = viewPort;
         mUseCases = useCases;
+        mEffectBundle = effectBundle;
     }
 
     /**
@@ -64,6 +71,17 @@ public final class UseCaseGroup {
     }
 
     /**
+     * Gets the {@link EffectBundle}.
+     *
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @NonNull
+    public EffectBundle getEffectBundle() {
+        return mEffectBundle;
+    }
+
+    /**
      * A builder for generating {@link UseCaseGroup}.
      */
     public static final class Builder {
@@ -71,6 +89,9 @@ public final class UseCaseGroup {
         private ViewPort mViewPort;
 
         private final List<UseCase> mUseCases;
+
+        @Nullable
+        private EffectBundle mEffectBundle;
 
         public Builder() {
             mUseCases = new ArrayList<>();
@@ -82,6 +103,21 @@ public final class UseCaseGroup {
         @NonNull
         public Builder setViewPort(@NonNull ViewPort viewPort) {
             mViewPort = viewPort;
+            return this;
+        }
+
+        /**
+         * Sets the {@link EffectBundle} for the {@link UseCase}s.
+         *
+         * <p>Once set, CameraX will use the {@link SurfaceEffect}s to process the outputs of
+         * the {@link UseCase}s.
+         *
+         * @hide
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        @NonNull
+        public Builder setEffectBundle(@NonNull EffectBundle effectBundle) {
+            mEffectBundle = effectBundle;
             return this;
         }
 
@@ -99,8 +135,8 @@ public final class UseCaseGroup {
          */
         @NonNull
         public UseCaseGroup build() {
-            Preconditions.checkArgument(!mUseCases.isEmpty(), "UseCase must not be empty.");
-            return new UseCaseGroup(mViewPort, mUseCases);
+            checkArgument(!mUseCases.isEmpty(), "UseCase must not be empty.");
+            return new UseCaseGroup(mViewPort, mUseCases, mEffectBundle);
         }
     }
 

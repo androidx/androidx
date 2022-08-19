@@ -106,6 +106,10 @@
             android:name="androidx.core.widget.EdgeEffectCompatTest$EdgeEffectCompatTestActivity"
             android:exported="true" />
         <activity
+            android:name="androidx.core.app.ComponentActivity"
+            android:exported="true" />
+
+        <activity
             android:name="androidx.core.view.WindowCompatActivity"
             android:exported="true"
             android:theme="@android:style/Theme.Light.NoTitleBar" />
@@ -114,6 +118,10 @@
             android:name="androidx.core.view.WindowInsetsCompatActivity"
             android:exported="true"
             android:theme="@android:style/Theme.Light.NoTitleBar" />
+
+        <activity
+            android:name="androidx.core.app.GetSystemLocalesActivity"
+            android:exported="true" />
 
         <activity-alias
             android:name="androidx.core.app.NavUtilsAliasActivity"
@@ -158,6 +166,7 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
 
     <uses-permission android:name="android.permission.READ_PRIVILEGED_PHONE_STATE" />

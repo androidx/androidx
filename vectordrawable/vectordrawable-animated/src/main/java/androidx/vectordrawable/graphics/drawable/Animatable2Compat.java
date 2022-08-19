@@ -60,13 +60,13 @@ public interface Animatable2Compat extends Animatable {
          *
          * @param drawable The drawable started the animation.
          */
-        public void onAnimationStart(Drawable drawable) {};
+        public void onAnimationStart(@NonNull Drawable drawable) {}
         /**
          * Called when the animation ends.
          *
          * @param drawable The drawable finished the animation.
          */
-        public void onAnimationEnd(Drawable drawable) {};
+        public void onAnimationEnd(@NonNull Drawable drawable) {}
 
         // Only when passing this Animatable2Compat.AnimationCallback to a frameworks' AVD, we need
         // to bridge this compat version callback with the frameworks' callback.

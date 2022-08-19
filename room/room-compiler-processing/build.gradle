@@ -26,6 +26,7 @@ dependencies {
     api(libs.kotlinStdlib)
     api(libs.javapoet)
     api(libs.kotlinPoet)
+    api(libs.kotlinPoetJavaPoet)
     implementation(libs.guava)
     implementation(libs.autoCommon)
     implementation(libs.autoValueAnnotations)

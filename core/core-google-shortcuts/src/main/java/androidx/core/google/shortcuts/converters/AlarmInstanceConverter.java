@@ -28,7 +28,7 @@ import androidx.appsearch.builtintypes.AlarmInstance;
 import androidx.core.google.shortcuts.utils.ConverterUtils;
 import androidx.core.util.Preconditions;
 
-import com.google.firebase.appindexing.Indexable;
+import com.google.android.gms.appindex.Indexable;
 
 import java.text.DateFormat;
 import java.text.ParseException;

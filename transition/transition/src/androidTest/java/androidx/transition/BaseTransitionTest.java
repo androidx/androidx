@@ -27,6 +27,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
+import androidx.annotation.NonNull;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.testutils.AnimationDurationScaleRule;
 import androidx.transition.test.R;
@@ -123,15 +124,15 @@ public abstract class BaseTransitionTest extends BaseTest {
     public class TestTransition extends Visibility {
 
         @Override
-        public Animator onAppear(ViewGroup sceneRoot, View view, TransitionValues startValues,
-                TransitionValues endValues) {
+        public Animator onAppear(@NonNull ViewGroup sceneRoot, @NonNull View view,
+                TransitionValues startValues, TransitionValues endValues) {
             mTransitionTargets.add(endValues.view);
             return ObjectAnimator.ofFloat(BaseTransitionTest.this, "animatedValue", 0, 1);
         }
 
         @Override
-        public Animator onDisappear(ViewGroup sceneRoot, View view, TransitionValues startValues,
-                TransitionValues endValues) {
+        public Animator onDisappear(@NonNull ViewGroup sceneRoot, @NonNull View view,
+                TransitionValues startValues, TransitionValues endValues) {
             mTransitionTargets.add(startValues.view);
             return ObjectAnimator.ofFloat(BaseTransitionTest.this, "animatedValue", 1, 0);
         }

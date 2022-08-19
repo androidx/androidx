@@ -20,20 +20,23 @@ import static androidx.annotation.Dimension.DP;
 import static androidx.wear.tiles.DimensionBuilders.dp;
 import static androidx.wear.tiles.DimensionBuilders.expand;
 import static androidx.wear.tiles.DimensionBuilders.wrap;
-import static androidx.wear.tiles.material.ChipDefaults.COMPACT_HEIGHT;
+import static androidx.wear.tiles.material.ChipDefaults.COMPACT_HEIGHT_TAPPABLE;
 import static androidx.wear.tiles.material.Helper.checkNotNull;
 import static androidx.wear.tiles.material.Helper.checkTag;
 import static androidx.wear.tiles.material.Helper.getMetadataTagBytes;
 import static androidx.wear.tiles.material.Helper.getTagBytes;
 import static androidx.wear.tiles.material.Helper.isRoundDevice;
 import static androidx.wear.tiles.material.layouts.LayoutDefaults.DEFAULT_VERTICAL_SPACER_HEIGHT;
+import static androidx.wear.tiles.material.layouts.LayoutDefaults.PRIMARY_LAYOUT_CHIP_HORIZONTAL_PADDING_ROUND_DP;
+import static androidx.wear.tiles.material.layouts.LayoutDefaults.PRIMARY_LAYOUT_CHIP_HORIZONTAL_PADDING_SQUARE_DP;
 import static androidx.wear.tiles.material.layouts.LayoutDefaults.PRIMARY_LAYOUT_MARGIN_BOTTOM_ROUND_PERCENT;
 import static androidx.wear.tiles.material.layouts.LayoutDefaults.PRIMARY_LAYOUT_MARGIN_BOTTOM_SQUARE_PERCENT;
 import static androidx.wear.tiles.material.layouts.LayoutDefaults.PRIMARY_LAYOUT_MARGIN_HORIZONTAL_ROUND_PERCENT;
 import static androidx.wear.tiles.material.layouts.LayoutDefaults.PRIMARY_LAYOUT_MARGIN_HORIZONTAL_SQUARE_PERCENT;
 import static androidx.wear.tiles.material.layouts.LayoutDefaults.PRIMARY_LAYOUT_MARGIN_TOP_ROUND_PERCENT;
 import static androidx.wear.tiles.material.layouts.LayoutDefaults.PRIMARY_LAYOUT_MARGIN_TOP_SQUARE_PERCENT;
-import static androidx.wear.tiles.material.layouts.LayoutDefaults.PRIMARY_LAYOUT_SPACER_HEIGHT;
+import static androidx.wear.tiles.material.layouts.LayoutDefaults.PRIMARY_LAYOUT_PRIMARY_LABEL_SPACER_HEIGHT_ROUND_DP;
+import static androidx.wear.tiles.material.layouts.LayoutDefaults.PRIMARY_LAYOUT_PRIMARY_LABEL_SPACER_HEIGHT_SQUARE_DP;
 
 import android.annotation.SuppressLint;
 
@@ -65,10 +68,34 @@ import java.util.List;
 /**
  * Tiles layout that represents a suggested layout style for Material Tiles with the primary
  * (compact) chip at the bottom with the given content in the center and the recommended margin and
- * padding applied.
+ * padding applied. There is a fixed slot for an optional primary label above or optional secondary
+ * label below the main content area.
+ *
+ * <p>It is highly recommended that main content has max lines between 2 and 4 (dependant on labels
+ * present), i.e.: * No labels are present: content with max 4 lines, * 1 label is present: content
+ * with max 3 lines, * 2 labels are present: content with max 2 lines.
  *
  * <p>For additional examples and suggested layouts see <a
  * href="/training/wearables/design/tiles-design-system">Tiles Design System</a>.
+ *
+ * <p>When accessing the contents of a container for testing, note that this element can't be simply
+ * casted back to the original type, i.e.:
+ *
+ * <pre>{@code
+ * PrimaryLayout pl = new PrimaryLayout...
+ * Box box = new Box.Builder().addContent(pl).build();
+ *
+ * PrimaryLayout myPl = (PrimaryLayout) box.getContents().get(0);
+ * }</pre>
+ *
+ * will fail.
+ *
+ * <p>To be able to get {@link PrimaryLayout} object from any layout element, {@link
+ * #fromLayoutElement} method should be used, i.e.:
+ *
+ * <pre>{@code
+ * PrimaryLayout myPl = PrimaryLayout.fromLayoutElement(box.getContents().get(0));
+ * }</pre>
  */
 public class PrimaryLayout implements LayoutElement {
     /**
@@ -107,6 +134,13 @@ public class PrimaryLayout implements LayoutElement {
      */
     static final int CONTENT_PRESENT = 0x8;
 
+    /** Position of the primary label in its own inner column if exists. */
+    static final int PRIMARY_LABEL_POSITION = 1;
+    /** Position of the content in its own inner column. */
+    static final int CONTENT_ONLY_POSITION = 0;
+    /** Position of the primary chip in main layout column. */
+    static final int PRIMARY_CHIP_POSITION = 1;
+
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Retention(RetentionPolicy.SOURCE)
@@ -119,14 +153,18 @@ public class PrimaryLayout implements LayoutElement {
 
     // This contains inner columns and primary chip.
     @NonNull private final List<LayoutElement> mAllContent;
-
     // This contains optional labels, spacers and main content.
-    @NonNull private final List<LayoutElement> mInnerColumn;
+    @NonNull private final List<LayoutElement> mPrimaryLabel;
+    // This contains optional labels, spacers and main content.
+    @NonNull private final List<LayoutElement> mContentAndSecondaryLabel;
 
     PrimaryLayout(@NonNull Box layoutElement) {
         this.mImpl = layoutElement;
         this.mAllContent = ((Column) layoutElement.getContents().get(0)).getContents();
-        this.mInnerColumn = ((Column) mAllContent.get(0)).getContents();
+        List<LayoutElement> innerContent = ((Column) mAllContent.get(0)).getContents();
+        this.mPrimaryLabel = ((Column) innerContent.get(0)).getContents();
+        this.mContentAndSecondaryLabel =
+                ((Column) ((Box) innerContent.get(1)).getContents().get(0)).getContents();
     }
 
     /** Builder class for {@link PrimaryLayout}. */
@@ -179,7 +217,16 @@ public class PrimaryLayout implements LayoutElement {
             return this;
         }
 
-        /** Sets the additional content to this layout, above the primary chip. */
+        /**
+         * Sets the additional content to this layout, above the primary chip.
+         *
+         * The content slot will wrap the elements' height, so the height of the given content must
+         * be fixed or set to wrap ({@code expand} can't be used).
+         *
+         * This layout has built-in horizontal margins, so the given content should have width set
+         * to {@code expand} to use all the available space, rather than an explicit width which may
+         * lead to clipping.
+         */
         @NonNull
         public Builder setContent(@NonNull LayoutElement content) {
             this.mContent = content;
@@ -188,8 +235,8 @@ public class PrimaryLayout implements LayoutElement {
         }
 
         /**
-         * Sets the vertical spacer height which is used as a space between main content and primary
-         * or secondary label if there is any. If not set, {@link
+         * Sets the vertical spacer height which is used as a space between main content and
+         * secondary label if there is any. If not set, {@link
          * LayoutDefaults#DEFAULT_VERTICAL_SPACER_HEIGHT} will be used.
          */
         @NonNull
@@ -202,27 +249,18 @@ public class PrimaryLayout implements LayoutElement {
         }
 
         /** Constructs and returns {@link PrimaryLayout} with the provided content and look. */
+        // The @Dimension(unit = DP) on dp() is seemingly being ignored, so lint complains that
+        // we're passing DP to something expecting PX. Just suppress the warning for now.
+        @SuppressLint("ResourceType")
         @NonNull
         @Override
         public PrimaryLayout build() {
-            float topPadding =
-                    mDeviceParameters.getScreenHeightDp()
-                            * (isRoundDevice(mDeviceParameters)
-                                    ? PRIMARY_LAYOUT_MARGIN_TOP_ROUND_PERCENT
-                                    : PRIMARY_LAYOUT_MARGIN_TOP_SQUARE_PERCENT);
-            float bottomPadding =
-                    mPrimaryChip != null
-                            ? (mDeviceParameters.getScreenHeightDp()
-                                    * (isRoundDevice(mDeviceParameters)
-                                            ? PRIMARY_LAYOUT_MARGIN_BOTTOM_ROUND_PERCENT
-                                            : PRIMARY_LAYOUT_MARGIN_BOTTOM_SQUARE_PERCENT))
-                            : topPadding;
+            float topPadding = getTopPadding();
+            float bottomPadding = getBottomPadding();
             float horizontalPadding = getHorizontalPadding();
+            float horizontalChipPadding = getChipHorizontalPadding();
 
-            float primaryChipHeight =
-                    mPrimaryChip != null
-                            ? (COMPACT_HEIGHT.getValue() + PRIMARY_LAYOUT_SPACER_HEIGHT.getValue())
-                            : 0;
+            float primaryChipHeight = mPrimaryChip != null ? COMPACT_HEIGHT_TAPPABLE.getValue() : 0;
 
             DpProp mainContentHeight =
                     dp(
@@ -231,65 +269,96 @@ public class PrimaryLayout implements LayoutElement {
                                     - bottomPadding
                                     - topPadding);
 
-            Modifiers modifiers =
-                    new Modifiers.Builder()
-                            .setPadding(
-                                    new Padding.Builder()
-                                            .setTop(dp(topPadding))
-                                            .setBottom(dp(bottomPadding))
-                                            .setStart(dp(horizontalPadding))
-                                            .setEnd(dp(horizontalPadding))
-                                            .build())
-                            .build();
+            // Layout organization: column(column(primary label + spacer + (box(column(content +
+            // secondary label))) + chip)
 
-            Column.Builder innerContentBuilder =
+            // First column that has all other content and chip.
+            Column.Builder layoutBuilder = new Column.Builder();
+
+            // Contains primary label, main content and secondary label. Primary label will be
+            // wrapped, while other content will be expanded so it can be centered in the remaining
+            // space.
+            Column.Builder contentAreaBuilder =
                     new Column.Builder()
                             .setWidth(expand())
                             .setHeight(mainContentHeight)
                             .setHorizontalAlignment(LayoutElementBuilders.HORIZONTAL_ALIGN_CENTER);
 
+            // Contains main content and secondary label with wrapped height so it can be put inside
+            // of the Box to be centered.
+            Column.Builder contentSecondaryLabelBuilder =
+                    new Column.Builder()
+                            .setWidth(expand())
+                            .setHeight(wrap())
+                            .setHorizontalAlignment(LayoutElementBuilders.HORIZONTAL_ALIGN_CENTER);
+
+            // Needs to be in column because of the spacers.
+            Column.Builder primaryLabelBuilder =
+                    new Column.Builder().setWidth(expand()).setHeight(wrap());
+
             if (mPrimaryLabelText != null) {
-                innerContentBuilder.addContent(mPrimaryLabelText);
-                innerContentBuilder.addContent(
-                        new Spacer.Builder().setHeight(mVerticalSpacerHeight).build());
+                primaryLabelBuilder.addContent(
+                        new Spacer.Builder().setHeight(getPrimaryLabelTopSpacerHeight()).build());
+                primaryLabelBuilder.addContent(mPrimaryLabelText);
             }
 
-            innerContentBuilder.addContent(
+            contentAreaBuilder.addContent(primaryLabelBuilder.build());
+
+            contentSecondaryLabelBuilder.addContent(
                     new Box.Builder()
                             .setVerticalAlignment(LayoutElementBuilders.VERTICAL_ALIGN_CENTER)
-                            .setHeight(expand())
                             .setWidth(expand())
+                            .setHeight(wrap())
                             .addContent(mContent)
                             .build());
 
             if (mSecondaryLabelText != null) {
-                innerContentBuilder.addContent(
+                contentSecondaryLabelBuilder.addContent(
                         new Spacer.Builder().setHeight(mVerticalSpacerHeight).build());
-                innerContentBuilder.addContent(mSecondaryLabelText);
+                contentSecondaryLabelBuilder.addContent(mSecondaryLabelText);
             }
 
-            Column.Builder layoutBuilder =
-                    new Column.Builder()
-                            .setModifiers(modifiers)
+            contentAreaBuilder.addContent(
+                    new Box.Builder()
+                            .setVerticalAlignment(LayoutElementBuilders.VERTICAL_ALIGN_CENTER)
                             .setWidth(expand())
                             .setHeight(expand())
-                            .setHorizontalAlignment(LayoutElementBuilders.HORIZONTAL_ALIGN_CENTER);
+                            .addContent(contentSecondaryLabelBuilder.build())
+                            .build());
 
-            layoutBuilder.addContent(innerContentBuilder.build());
+            layoutBuilder
+                    .setModifiers(
+                            new Modifiers.Builder()
+                                    .setPadding(
+                                            new Padding.Builder()
+                                                    .setStart(dp(horizontalPadding))
+                                                    .setEnd(dp(horizontalPadding))
+                                                    .setTop(dp(topPadding))
+                                                    .setBottom(dp(bottomPadding))
+                                                    .build())
+                                    .build())
+                    .setWidth(expand())
+                    .setHeight(expand())
+                    .setHorizontalAlignment(LayoutElementBuilders.HORIZONTAL_ALIGN_CENTER);
+
+            layoutBuilder.addContent(contentAreaBuilder.build());
 
             if (mPrimaryChip != null) {
-                layoutBuilder
-                        .addContent(
-                                new Spacer.Builder()
-                                        .setHeight(PRIMARY_LAYOUT_SPACER_HEIGHT)
-                                        .build())
-                        .addContent(
-                                new Box.Builder()
-                                        .setVerticalAlignment(
-                                                LayoutElementBuilders.VERTICAL_ALIGN_BOTTOM)
-                                        .setHeight(wrap())
-                                        .addContent(mPrimaryChip)
-                                        .build());
+                layoutBuilder.addContent(
+                        new Box.Builder()
+                                .setVerticalAlignment(LayoutElementBuilders.VERTICAL_ALIGN_BOTTOM)
+                                .setWidth(expand())
+                                .setHeight(wrap())
+                                .setModifiers(
+                                        new Modifiers.Builder()
+                                                .setPadding(
+                                                        new Padding.Builder()
+                                                                .setStart(dp(horizontalChipPadding))
+                                                                .setEnd(dp(horizontalChipPadding))
+                                                                .build())
+                                                .build())
+                                .addContent(mPrimaryChip)
+                                .build());
             }
 
             byte[] metadata = METADATA_TAG_BASE.clone();
@@ -313,14 +382,59 @@ public class PrimaryLayout implements LayoutElement {
         }
 
         /**
+         * Returns the recommended bottom padding, based on percentage values in {@link
+         * LayoutDefaults}.
+         */
+        private float getBottomPadding() {
+            return mPrimaryChip != null
+                    ? (mDeviceParameters.getScreenHeightDp()
+                            * (isRoundDevice(mDeviceParameters)
+                                    ? PRIMARY_LAYOUT_MARGIN_BOTTOM_ROUND_PERCENT
+                                    : PRIMARY_LAYOUT_MARGIN_BOTTOM_SQUARE_PERCENT))
+                    : getTopPadding();
+        }
+
+        /**
+         * Returns the recommended top padding, based on percentage values in {@link
+         * LayoutDefaults}.
+         */
+        @Dimension(unit = DP)
+        private float getTopPadding() {
+            return mDeviceParameters.getScreenHeightDp()
+                    * (isRoundDevice(mDeviceParameters)
+                            ? PRIMARY_LAYOUT_MARGIN_TOP_ROUND_PERCENT
+                            : PRIMARY_LAYOUT_MARGIN_TOP_SQUARE_PERCENT);
+        }
+
+        /**
          * Returns the recommended horizontal padding, based on percentage values in {@link
          * LayoutDefaults}.
          */
-        float getHorizontalPadding() {
+        @Dimension(unit = DP)
+        private float getHorizontalPadding() {
             return mDeviceParameters.getScreenWidthDp()
                     * (isRoundDevice(mDeviceParameters)
                             ? PRIMARY_LAYOUT_MARGIN_HORIZONTAL_ROUND_PERCENT
                             : PRIMARY_LAYOUT_MARGIN_HORIZONTAL_SQUARE_PERCENT);
+        }
+
+        /**
+         * Returns the recommended horizontal padding for primary chip, based on percentage values
+         * and DP values in {@link LayoutDefaults}.
+         */
+        @Dimension(unit = DP)
+        private float getChipHorizontalPadding() {
+            return isRoundDevice(mDeviceParameters)
+                    ? PRIMARY_LAYOUT_CHIP_HORIZONTAL_PADDING_ROUND_DP
+                    : PRIMARY_LAYOUT_CHIP_HORIZONTAL_PADDING_SQUARE_DP;
+        }
+
+        /** Returns the spacer height to be placed above primary label to accommodate Tile icon. */
+        @NonNull
+        private DpProp getPrimaryLabelTopSpacerHeight() {
+            return isRoundDevice(mDeviceParameters)
+                    ? PRIMARY_LAYOUT_PRIMARY_LABEL_SPACER_HEIGHT_ROUND_DP
+                    : PRIMARY_LAYOUT_PRIMARY_LABEL_SPACER_HEIGHT_SQUARE_DP;
         }
     }
 
@@ -330,8 +444,7 @@ public class PrimaryLayout implements LayoutElement {
         if (!areElementsPresent(PRIMARY_LABEL_PRESENT)) {
             return null;
         }
-        // By tag we know that primary label exists, it will always be at position 0.
-        return mInnerColumn.get(0);
+        return mPrimaryLabel.get(PRIMARY_LABEL_POSITION);
     }
 
     /** Get the secondary label content from this layout. */
@@ -340,8 +453,8 @@ public class PrimaryLayout implements LayoutElement {
         if (!areElementsPresent(SECONDARY_LABEL_PRESENT)) {
             return null;
         }
-        // By tag we know that secondary label exists, it will always be at last position.
-        return mInnerColumn.get(mInnerColumn.size() - 1);
+        // By tag we know that secondary label exists. It will always be at last position.
+        return mContentAndSecondaryLabel.get(mContentAndSecondaryLabel.size() - 1);
     }
 
     /** Get the inner content from this layout. */
@@ -350,17 +463,14 @@ public class PrimaryLayout implements LayoutElement {
         if (!areElementsPresent(CONTENT_PRESENT)) {
             return null;
         }
-        // By tag we know that content exists, it will at position 0 if there is no primary label,
-        // or at position 2 (primary label, spacer - content) otherwise.
-        int contentPosition = areElementsPresent(PRIMARY_LABEL_PRESENT) ? 2 : 0;
-        return ((Box) mInnerColumn.get(contentPosition)).getContents().get(0);
+        return ((Box) mContentAndSecondaryLabel.get(CONTENT_ONLY_POSITION)).getContents().get(0);
     }
 
     /** Get the primary chip content from this layout. */
     @Nullable
     public LayoutElement getPrimaryChipContent() {
         if (areElementsPresent(CHIP_PRESENT)) {
-            return ((Box) mAllContent.get(2)).getContents().get(0);
+            return ((Box) mAllContent.get(PRIMARY_CHIP_POSITION)).getContents().get(0);
         }
         return null;
     }
@@ -371,13 +481,8 @@ public class PrimaryLayout implements LayoutElement {
     @SuppressLint("ResourceType")
     @Dimension(unit = DP)
     public float getVerticalSpacerHeight() {
-        // We don't need special cases for primary or secondary label - if primary label is present,
-        // then the first spacer is at the position 1 and we can get height from it. However, if the
-        // primary label is not present, the spacer will be between content and secondary label (if
-        // there is secondary label) so its position is again 1.
-        if (areElementsPresent(PRIMARY_LABEL_PRESENT)
-                || areElementsPresent(SECONDARY_LABEL_PRESENT)) {
-            LayoutElement element = mInnerColumn.get(1);
+        if (areElementsPresent(SECONDARY_LABEL_PRESENT)) {
+            LayoutElement element = mContentAndSecondaryLabel.get(CONTENT_ONLY_POSITION + 1);
             if (element instanceof Spacer) {
                 SpacerDimension height = ((Spacer) element).getHeight();
                 if (height instanceof DpProp) {
@@ -395,15 +500,19 @@ public class PrimaryLayout implements LayoutElement {
     /** Returns metadata tag set to this PrimaryLayout. */
     @NonNull
     byte[] getMetadataTag() {
-        return getMetadataTagBytes(checkNotNull(mImpl.getModifiers()));
+        return getMetadataTagBytes(checkNotNull(checkNotNull(mImpl.getModifiers()).getMetadata()));
     }
 
     /**
-     * Returns PrimaryLayout object from the given LayoutElement if that element can be converted to
-     * PrimaryLayout. Otherwise, returns null.
+     * Returns PrimaryLayout object from the given LayoutElement (e.g. one retrieved from a
+     * container's content with {@code container.getContents().get(index)}) if that element can be
+     * converted to PrimaryLayout. Otherwise, it will return null.
      */
     @Nullable
     public static PrimaryLayout fromLayoutElement(@NonNull LayoutElement element) {
+        if (element instanceof PrimaryLayout) {
+            return (PrimaryLayout) element;
+        }
         if (!(element instanceof Box)) {
             return null;
         }

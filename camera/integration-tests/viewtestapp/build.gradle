@@ -80,7 +80,6 @@ dependencies {
     implementation("androidx.appcompat:appcompat:1.3.0")
 
     // Compose UI
-    kotlinPlugin(projectOrArtifact(":compose:compiler:compiler"))
     implementation(project(":compose:runtime:runtime"))
     implementation("androidx.compose.ui:ui:1.0.5")
     implementation("androidx.compose.material:material:1.0.5")
@@ -93,7 +92,7 @@ dependencies {
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.testUiautomator)
-    androidTestImplementation(libs.espressoCore)
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.3.0")
     androidTestImplementation("androidx.lifecycle:lifecycle-runtime-testing:2.3.1")
     androidTestImplementation("androidx.lifecycle:lifecycle-runtime:2.3.1")
     androidTestImplementation("androidx.lifecycle:lifecycle-livedata-ktx:2.2.0")

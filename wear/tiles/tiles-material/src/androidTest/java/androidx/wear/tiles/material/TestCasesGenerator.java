@@ -73,22 +73,22 @@ public class TestCasesGenerator {
         testCases.put(
                 "extralarge_secondary_icon_after_button_golden" + NORMAL_SCALE_SUFFIX,
                 new Button.Builder(context, clickable)
-                        .setButtonColors(ButtonDefaults.SECONDARY_BUTTON_COLORS)
+                        .setButtonColors(ButtonDefaults.SECONDARY_COLORS)
                         .setIconContent(ICON_ID)
-                        .setSize(ButtonDefaults.EXTRA_LARGE_BUTTON_SIZE)
+                        .setSize(ButtonDefaults.EXTRA_LARGE_SIZE)
                         .build());
         testCases.put(
                 "large_secondary_icon_40size_button_golden" + NORMAL_SCALE_SUFFIX,
                 new Button.Builder(context, clickable)
-                        .setSize(ButtonDefaults.LARGE_BUTTON_SIZE)
-                        .setButtonColors(ButtonDefaults.SECONDARY_BUTTON_COLORS)
+                        .setSize(ButtonDefaults.LARGE_SIZE)
+                        .setButtonColors(ButtonDefaults.SECONDARY_COLORS)
                         .setIconContent(ICON_ID, dp(40))
                         .build());
         testCases.put(
                 "extralarge_custom_text_custom_sizefont_button_golden" + goldenSuffix,
                 new Button.Builder(context, clickable)
                         .setButtonColors(new ButtonColors(Color.YELLOW, Color.GREEN))
-                        .setSize(ButtonDefaults.EXTRA_LARGE_BUTTON_SIZE)
+                        .setSize(ButtonDefaults.EXTRA_LARGE_SIZE)
                         .setCustomContent(
                                 new Text.Builder(context, "ABC")
                                         .setTypography(Typography.TYPOGRAPHY_DISPLAY1)
@@ -106,32 +106,35 @@ public class TestCasesGenerator {
         testCases.put(
                 "default_chip_maintext_golden" + goldenSuffix,
                 new Chip.Builder(context, clickable, deviceParameters)
-                        .setPrimaryTextContent(mainText)
-                        .setHorizontalAlignment(HORIZONTAL_ALIGN_START)
+                        .setPrimaryLabelContent(mainText)
                         .build());
         testCases.put(
                 "default_chip_maintextlabeltext_golden" + goldenSuffix,
                 new Chip.Builder(context, clickable, deviceParameters)
-                        .setPrimaryTextLabelContent(mainText, labelText)
+                        .setPrimaryLabelContent(mainText)
+                        .setSecondaryLabelContent(labelText)
                         .setHorizontalAlignment(HORIZONTAL_ALIGN_START)
                         .build());
         testCases.put(
                 "default_chip_maintexticon_golden" + goldenSuffix,
                 new Chip.Builder(context, clickable, deviceParameters)
-                        .setPrimaryTextIconContent(mainText, ICON_ID)
+                        .setPrimaryLabelContent(mainText)
+                        .setIconContent(ICON_ID)
                         .build());
         testCases.put(
                 "secondary_chip_maintext_centered_golden" + goldenSuffix,
                 new Chip.Builder(context, clickable, deviceParameters)
                         .setHorizontalAlignment(HORIZONTAL_ALIGN_CENTER)
                         .setChipColors(ChipDefaults.SECONDARY_COLORS)
-                        .setPrimaryTextContent(mainText)
+                        .setPrimaryLabelContent(mainText)
                         .build());
         testCases.put(
                 "custom_chip_all_overflows_golden" + goldenSuffix,
                 new Chip.Builder(context, clickable, deviceParameters)
                         .setWidth(130)
-                        .setPrimaryTextLabelIconContent(mainText, labelText, ICON_ID)
+                        .setPrimaryLabelContent(mainText)
+                        .setSecondaryLabelContent(labelText)
+                        .setIconContent(ICON_ID)
                         .setChipColors(
                                 new ChipColors(Color.YELLOW, Color.GREEN, Color.BLACK, Color.GRAY))
                         .build());
@@ -139,18 +142,23 @@ public class TestCasesGenerator {
                 "default_chip_all_centered_golden" + goldenSuffix,
                 new Chip.Builder(context, clickable, deviceParameters)
                         .setHorizontalAlignment(HORIZONTAL_ALIGN_CENTER)
-                        .setPrimaryTextLabelIconContent(mainText, labelText, ICON_ID)
+                        .setPrimaryLabelContent(mainText)
+                        .setSecondaryLabelContent(labelText)
+                        .setIconContent(ICON_ID)
                         .build());
         testCases.put(
                 "default_chip_all_rigthalign_golden" + goldenSuffix,
                 new Chip.Builder(context, clickable, deviceParameters)
                         .setHorizontalAlignment(HORIZONTAL_ALIGN_END)
-                        .setPrimaryTextLabelIconContent(mainText, labelText, ICON_ID)
+                        .setPrimaryLabelContent(mainText)
+                        .setSecondaryLabelContent(labelText)
+                        .setIconContent(ICON_ID)
                         .build());
         testCases.put(
                 "custom_chip_icon_primary_overflows_golden" + goldenSuffix,
                 new Chip.Builder(context, clickable, deviceParameters)
-                        .setPrimaryTextIconContent(mainText, ICON_ID)
+                        .setPrimaryLabelContent(mainText)
+                        .setIconContent(ICON_ID)
                         .setWidth(150)
                         .setHorizontalAlignment(HORIZONTAL_ALIGN_START)
                         .setChipColors(
@@ -193,7 +201,7 @@ public class TestCasesGenerator {
         testCases.put(
                 "chip_2lines_primary_overflows_golden" + goldenSuffix,
                 new Chip.Builder(context, clickable, deviceParameters)
-                        .setPrimaryTextContent("abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde")
+                        .setPrimaryLabelContent("abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde")
                         .build());
 
         // Different text lengths to test expanding the width based on the size of text. If it's
@@ -209,7 +217,8 @@ public class TestCasesGenerator {
                 new CompactChip.Builder(context, "Abcdefghi", clickable, deviceParameters).build());
         testCases.put(
                 "compactchip_default_toolong_golden" + goldenSuffix,
-                new CompactChip.Builder(context, "AbcdefghiEXTRA", clickable, deviceParameters)
+                new CompactChip.Builder(
+                                context, "AbcdefghiEXTRAEXTRAEXTRA", clickable, deviceParameters)
                         .build());
         testCases.put(
                 "compactchip_custom_default_golden" + goldenSuffix,

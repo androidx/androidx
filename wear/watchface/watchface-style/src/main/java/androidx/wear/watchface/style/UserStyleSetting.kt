@@ -22,6 +22,7 @@ import android.content.Context
 import android.content.res.Resources
 import android.content.res.XmlResourceParser
 import android.graphics.BitmapFactory
+import android.graphics.RectF
 import android.graphics.drawable.Icon
 import android.os.Build
 import android.os.Bundle
@@ -35,8 +36,11 @@ import androidx.wear.watchface.complications.IllegalNodeException
 import androidx.wear.watchface.complications.NAMESPACE_ANDROID
 import androidx.wear.watchface.complications.NAMESPACE_APP
 import androidx.wear.watchface.complications.data.ComplicationType
+import androidx.wear.watchface.complications.getIntRefAttribute
+import androidx.wear.watchface.complications.getStringRefAttribute
 import androidx.wear.watchface.complications.hasValue
 import androidx.wear.watchface.complications.iterate
+import androidx.wear.watchface.complications.moveToStart
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotOverlay
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotsOption
 import androidx.wear.watchface.style.data.BooleanOptionWireFormat
@@ -53,13 +57,14 @@ import androidx.wear.watchface.style.data.ListUserStyleSettingWireFormat
 import androidx.wear.watchface.style.data.LongRangeOptionWireFormat
 import androidx.wear.watchface.style.data.LongRangeUserStyleSettingWireFormat
 import androidx.wear.watchface.style.data.OptionWireFormat
+import androidx.wear.watchface.style.data.PerComplicationTypeMargins
 import androidx.wear.watchface.style.data.UserStyleSettingWireFormat
 import java.io.DataOutputStream
-import org.xmlpull.v1.XmlPullParser
 import java.io.InputStream
 import java.nio.ByteBuffer
 import java.security.DigestOutputStream
 import java.security.InvalidParameterException
+import org.xmlpull.v1.XmlPullParser
 
 /** Wrapper around either a [CharSequence] or a string resource. */
 internal sealed class DisplayText {
@@ -450,11 +455,11 @@ public sealed class UserStyleSetting private constructor(
     )
 
     /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public abstract fun toWireFormat(): UserStyleSettingWireFormat
 
     /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun getWireFormatOptionsList(): List<OptionWireFormat> =
         options.map { it.toWireFormat() }
 
@@ -585,7 +590,7 @@ public sealed class UserStyleSetting private constructor(
 
         public companion object {
             /** @hide */
-            @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+            @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
             public fun createFromWireFormat(
                 wireFormat: OptionWireFormat
             ): Option =
@@ -617,7 +622,7 @@ public sealed class UserStyleSetting private constructor(
 
         /** @hide */
         @Suppress("HiddenAbstractMethod")
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public abstract fun toWireFormat(): OptionWireFormat
 
         override fun equals(other: Any?): Boolean {
@@ -771,7 +776,7 @@ public sealed class UserStyleSetting private constructor(
         internal constructor(wireFormat: BooleanUserStyleSettingWireFormat) : super(wireFormat)
 
         /** @hide */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         override fun toWireFormat(): BooleanUserStyleSettingWireFormat =
             BooleanUserStyleSettingWireFormat(
                 id.value,
@@ -830,7 +835,7 @@ public sealed class UserStyleSetting private constructor(
             emptyList()
         ) {
             /** @hide */
-            @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+            @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
             override fun toWireFormat(): BooleanOptionWireFormat =
                 BooleanOptionWireFormat(id.value)
 
@@ -963,7 +968,8 @@ public sealed class UserStyleSetting private constructor(
             }
 
             internal constructor(
-                wireFormat: ComplicationOverlayWireFormat
+                wireFormat: ComplicationOverlayWireFormat,
+                perComplicationTypeMargins: Map<Int, RectF>?
             ) : this(
                 wireFormat.mComplicationSlotId,
                 when (wireFormat.mEnabled) {
@@ -976,7 +982,14 @@ public sealed class UserStyleSetting private constructor(
                 },
                 wireFormat.mPerComplicationTypeBounds?.let { perComplicationTypeBounds ->
                     ComplicationSlotBounds.createFromPartialMap(
-                        perComplicationTypeBounds.mapKeys { ComplicationType.fromWireType(it.key) }
+                        perComplicationTypeBounds.mapKeys {
+                            ComplicationType.fromWireType(it.key)
+                        },
+                        perComplicationTypeMargins?.let { margins ->
+                            margins.mapKeys {
+                                ComplicationType.fromWireType(it.key)
+                            }
+                        } ?: emptyMap()
                     )
                 },
                 wireFormat.accessibilityTraversalIndex
@@ -1008,7 +1021,9 @@ public sealed class UserStyleSetting private constructor(
                 @SuppressLint("ResourceType")
                 fun inflate(
                     resources: Resources,
-                    parser: XmlResourceParser
+                    parser: XmlResourceParser,
+                    complicationScaleX: Float,
+                    complicationScaleY: Float
                 ): ComplicationSlotOverlay {
                     val complicationSlotId = getIntRefAttribute(
                         resources, parser, "complicationSlotId"
@@ -1036,7 +1051,12 @@ public sealed class UserStyleSetting private constructor(
                         } else {
                             null
                         }
-                    val bounds = ComplicationSlotBounds.inflate(resources, parser)
+                    val bounds = ComplicationSlotBounds.inflate(
+                        resources,
+                        parser,
+                        complicationScaleX,
+                        complicationScaleY
+                    )
 
                     return ComplicationSlotOverlay(
                         complicationSlotId,
@@ -1189,7 +1209,7 @@ public sealed class UserStyleSetting private constructor(
         }
 
         /** @hide */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         override fun toWireFormat(): ComplicationsUserStyleSettingWireFormat =
             ComplicationsUserStyleSettingWireFormat(
                 id.value,
@@ -1206,20 +1226,44 @@ public sealed class UserStyleSetting private constructor(
             )
 
         internal companion object {
+            private fun <T> bindScale(
+                function: (
+                    resources: Resources,
+                    parser: XmlResourceParser,
+                    complicationScaleX: Float,
+                    complicationScaleY: Float
+                ) -> T,
+                complicationScaleX: Float,
+                complicationScaleY: Float
+            ): (resources: Resources, parser: XmlResourceParser) -> T {
+                return { resources: Resources, parser: XmlResourceParser ->
+                    function(resources, parser, complicationScaleX, complicationScaleY)
+                }
+            }
+
             @SuppressLint("ResourceType")
             @Suppress("UNCHECKED_CAST")
             fun inflate(
                 resources: Resources,
-                parser: XmlResourceParser
+                parser: XmlResourceParser,
+                complicationScaleX: Float,
+                complicationScaleY: Float
             ): ComplicationSlotsUserStyleSetting {
                 val params = createBaseWithParent(
                     resources,
                     parser,
                     createParent(
-                        resources, parser, "ComplicationSlotsUserStyleSetting", ::inflate
+                        resources,
+                        parser,
+                        "ComplicationSlotsUserStyleSetting",
+                        bindScale(::inflate, complicationScaleX, complicationScaleY)
                     ),
                     inflateDefault = true,
-                    optionInflater = "ComplicationSlotsOption" to ComplicationSlotsOption::inflate
+                    optionInflater = "ComplicationSlotsOption" to bindScale(
+                        ComplicationSlotsOption::inflate,
+                        complicationScaleX,
+                        complicationScaleY
+                    )
                 )
                 return ComplicationSlotsUserStyleSetting(
                     params.id,
@@ -1344,7 +1388,13 @@ public sealed class UserStyleSetting private constructor(
                 wireFormat: ComplicationsOptionWireFormat
             ) : super(Id(wireFormat.mId), emptyList()) {
                 complicationSlotOverlays =
-                    wireFormat.mComplicationOverlays.map { ComplicationSlotOverlay(it) }
+                    wireFormat.mComplicationOverlays.mapIndexed { index, value ->
+                        ComplicationSlotOverlay(
+                            value,
+                            wireFormat.mComplicationOverlaysMargins?.get(index)
+                                ?.mPerComplicationTypeMargins
+                        )
+                    }
                 displayNameInternal = DisplayText.CharSequenceDisplayText(wireFormat.mDisplayName)
                 icon = wireFormat.mIcon
                 watchFaceEditorData = null // This will get overwritten.
@@ -1379,14 +1429,22 @@ public sealed class UserStyleSetting private constructor(
             }
 
             /** @hide */
-            @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+            @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
             override fun toWireFormat():
                 ComplicationsOptionWireFormat =
                 ComplicationsOptionWireFormat(
                     id.value,
                     displayName,
                     icon,
-                    complicationSlotOverlays.map { it.toWireFormat() }.toTypedArray()
+                    complicationSlotOverlays.map { it.toWireFormat() }.toTypedArray(),
+                    complicationSlotOverlays.map { overlay ->
+                        PerComplicationTypeMargins(
+                            overlay.complicationSlotBounds
+                                ?.perComplicationTypeMargins?.mapKeys {
+                                    it.key.toWireComplicationType()
+                                } ?: emptyMap()
+                        )
+                    }
                 )
 
             override fun write(dos: DataOutputStream) {
@@ -1403,7 +1461,9 @@ public sealed class UserStyleSetting private constructor(
                 @SuppressLint("ResourceType")
                 fun inflate(
                     resources: Resources,
-                    parser: XmlResourceParser
+                    parser: XmlResourceParser,
+                    complicationScaleX: Float,
+                    complicationScaleY: Float
                 ): ComplicationSlotsOption {
                     val id = getStringRefAttribute(resources, parser, "id")
                     require(id != null) { "ComplicationSlotsOption must have an id" }
@@ -1422,7 +1482,12 @@ public sealed class UserStyleSetting private constructor(
                     parser.iterate {
                         when (parser.name) {
                             "ComplicationSlotOverlay" -> complicationSlotOverlays.add(
-                                ComplicationSlotOverlay.inflate(resources, parser)
+                                ComplicationSlotOverlay.inflate(
+                                    resources,
+                                    parser,
+                                    complicationScaleX,
+                                    complicationScaleY
+                                )
                             )
 
                             "OnWatchEditorData" -> {
@@ -1638,7 +1703,7 @@ public sealed class UserStyleSetting private constructor(
         internal constructor(wireFormat: DoubleRangeUserStyleSettingWireFormat) : super(wireFormat)
 
         /** @hide */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         override fun toWireFormat(): DoubleRangeUserStyleSettingWireFormat =
             DoubleRangeUserStyleSettingWireFormat(
                 id.value,
@@ -1679,7 +1744,7 @@ public sealed class UserStyleSetting private constructor(
                 DoubleRangeUserStyleSetting::class.java
 
             /** @hide */
-            @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+            @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
             override fun toWireFormat(): DoubleRangeOptionWireFormat =
                 DoubleRangeOptionWireFormat(id.value)
 
@@ -1850,7 +1915,7 @@ public sealed class UserStyleSetting private constructor(
         }
 
         /** @hide */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         override fun toWireFormat(): ListUserStyleSettingWireFormat =
             ListUserStyleSettingWireFormat(
                 id.value,
@@ -2068,7 +2133,7 @@ public sealed class UserStyleSetting private constructor(
             }
 
             /** @hide */
-            @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+            @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
             override fun toWireFormat(): ListOptionWireFormat =
                 ListOptionWireFormat(
                     id.value,
@@ -2334,7 +2399,7 @@ public sealed class UserStyleSetting private constructor(
         internal constructor(wireFormat: LongRangeUserStyleSettingWireFormat) : super(wireFormat)
 
         /** @hide */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         override fun toWireFormat(): LongRangeUserStyleSettingWireFormat =
             LongRangeUserStyleSettingWireFormat(
                 id.value,
@@ -2377,7 +2442,7 @@ public sealed class UserStyleSetting private constructor(
                 LongRangeUserStyleSetting::class.java
 
             /** @hide */
-            @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+            @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
             override fun toWireFormat(): LongRangeOptionWireFormat =
                 LongRangeOptionWireFormat(id.value)
 
@@ -2457,7 +2522,7 @@ public sealed class UserStyleSetting private constructor(
         internal constructor(wireFormat: CustomValueUserStyleSettingWireFormat) : super(wireFormat)
 
         /** @hide */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         override fun toWireFormat(): CustomValueUserStyleSettingWireFormat =
             CustomValueUserStyleSettingWireFormat(
                 id.value,
@@ -2495,7 +2560,7 @@ public sealed class UserStyleSetting private constructor(
                 CustomValueUserStyleSetting::class.java
 
             /** @hide */
-            @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+            @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
             override fun toWireFormat(): CustomValueOptionWireFormat =
                 CustomValueOptionWireFormat(id.value)
 
@@ -2642,7 +2707,7 @@ private fun <T> getAttributeChecked(
 }
 
 /** @hide */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 fun getStringRefAttribute(
     resources: Resources,
     parser: XmlResourceParser,
@@ -2659,7 +2724,7 @@ fun getStringRefAttribute(
 }
 
 /** @hide */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 fun getIntRefAttribute(
     resources: Resources,
     parser: XmlResourceParser,
@@ -2676,7 +2741,7 @@ fun getIntRefAttribute(
 }
 
 /** @hide */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 fun XmlPullParser.moveToStart(expectedNode: String) {
     var type: Int
     do {

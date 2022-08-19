@@ -1116,6 +1116,15 @@ private var compositionTracer: CompositionTracer? = null
 @ComposeCompilerApi
 fun isTraceInProgress(): Boolean = compositionTracer.let { it != null && it.isTraceInProgress() }
 
+@OptIn(InternalComposeTracingApi::class)
+@ComposeCompilerApi
+@Deprecated(
+    message = "Use the overload with \$dirty metadata instead",
+    ReplaceWith("traceEventStart(key, dirty1, dirty2, info)"),
+    DeprecationLevel.HIDDEN
+)
+fun traceEventStart(key: Int, info: String): Unit = traceEventStart(key, -1, -1, info)
+
 /**
  * Internal tracing API.
  *
@@ -1126,8 +1135,9 @@ fun isTraceInProgress(): Boolean = compositionTracer.let { it != null && it.isTr
  */
 @OptIn(InternalComposeTracingApi::class)
 @ComposeCompilerApi
-fun traceEventStart(key: Int, dirty1: Int, dirty2: Int, info: String): Unit =
-    compositionTracer?.traceEventStart(key, dirty1, dirty2, info) ?: Unit
+fun traceEventStart(key: Int, dirty1: Int, dirty2: Int, info: String) {
+    compositionTracer?.traceEventStart(key, dirty1, dirty2, info)
+}
 
 /**
  * Internal tracing API.
@@ -1136,7 +1146,9 @@ fun traceEventStart(key: Int, dirty1: Int, dirty2: Int, info: String): Unit =
  */
 @OptIn(InternalComposeTracingApi::class)
 @ComposeCompilerApi
-fun traceEventEnd(): Unit = compositionTracer?.traceEventEnd() ?: Unit
+fun traceEventEnd() {
+    compositionTracer?.traceEventEnd()
+}
 
 /**
  * A Compose internal function. DO NOT call directly.
@@ -1404,10 +1416,14 @@ internal class ComposerImpl(
         entersStack.clear()
         providersInvalidStack.clear()
         providerUpdates.clear()
-        reader.close()
+        if (!reader.closed) { reader.close() }
+        if (!writer.closed) { writer.close() }
+        createFreshInsertTable()
         compoundKeyHash = 0
         childrenComposing = 0
         nodeExpected = false
+        inserting = false
+        reusing = false
         isComposing = false
         forciblyRecompose = false
     }
@@ -1776,7 +1792,7 @@ internal class ComposerImpl(
                     is RecomposeScopeImpl -> {
                         val composition = previous.composition
                         if (composition != null) {
-                            previous.composition = null
+                            previous.release()
                             composition.pendingInvalidScopes = true
                         }
                     }
@@ -2350,6 +2366,9 @@ internal class ComposerImpl(
                 // Invoke the scope's composition function
                 firstInRange.scope.compose(this)
 
+                // We could have moved out of a provider so the provider cache is invalid.
+                providerCache = null
+
                 // Restore the parent of the reader to the previous parent
                 reader.restoreParent(parent)
             } else {
@@ -2564,7 +2583,11 @@ internal class ComposerImpl(
     private fun SlotReader.groupCompoundKeyPart(group: Int) =
         if (hasObjectKey(group)) {
             groupObjectKey(group)?.let {
-                if (it is Enum<*>) it.ordinal else it.hashCode()
+                when (it) {
+                    is Enum<*> -> it.ordinal
+                    is MovableContent<*> -> movableContentKey
+                    else -> it.hashCode()
+                }
             } ?: 0
         } else groupKey(group).let {
             if (it == reuseKey) groupAux(group)?.let { aux ->
@@ -2664,7 +2687,7 @@ internal class ComposerImpl(
                             val composition = data.composition
                             if (composition != null) {
                                 composition.pendingInvalidScopes = true
-                                data.composition = null
+                                data.release()
                             }
                             reader.reposition(group)
                             recordSlotTableOperation { _, slots, _ ->
@@ -2776,54 +2799,74 @@ internal class ComposerImpl(
         startMovableGroup(movableContentKey, content)
         changed(parameter)
 
-        if (inserting) writer.markGroup()
-
-        // Capture the local providers at the point of the invocation. This allows detecting
-        // changes to the locals as the value moves well as enables finding the correct providers
-        // when applying late changes which might be very complicated otherwise.
-        val providersChanged = if (inserting) false else reader.groupAux != locals
-        if (providersChanged) providerUpdates[reader.currentGroup] = locals
-        start(compositionLocalMapKey, compositionLocalMap, false, locals)
-
         // All movable content has a compound hash value rooted at the content itself so the hash
         // value doesn't change as the content moves in the tree.
         val savedCompoundKeyHash = compoundKeyHash
-        compoundKeyHash = movableContentKey
 
-        // Either insert a place-holder to be inserted later (either created new or moved from
-        // another location) or (re)compose the movable content. This is forced if a new value
-        // needs to be created as a late change.
-        if (inserting && !force) {
-            writerHasAProvider = true
-            providerCache = null
+        try {
+            compoundKeyHash = movableContentKey
 
-            // Create an anchor to the movable group
-            val anchor = writer.anchor(writer.parent(writer.parent))
-            val reference = MovableContentStateReference(
-                content,
-                parameter,
-                composition,
-                insertTable,
-                anchor,
-                emptyList(),
-                currentCompositionLocalScope()
-            )
-            parentContext.insertMovableContent(reference)
-        } else {
-            val savedProvidersInvalid = providersInvalid
-            providersInvalid = providersChanged
-            invokeComposable(this, { content.content(parameter) })
-            providersInvalid = savedProvidersInvalid
+            if (inserting) writer.markGroup()
+
+            // Capture the local providers at the point of the invocation. This allows detecting
+            // changes to the locals as the value moves well as enables finding the correct providers
+            // when applying late changes which might be very complicated otherwise.
+            val providersChanged = if (inserting) false else reader.groupAux != locals
+            if (providersChanged) providerUpdates[reader.currentGroup] = locals
+            start(compositionLocalMapKey, compositionLocalMap, false, locals)
+
+            // Either insert a place-holder to be inserted later (either created new or moved from
+            // another location) or (re)compose the movable content. This is forced if a new value
+            // needs to be created as a late change.
+            if (inserting && !force) {
+                writerHasAProvider = true
+                providerCache = null
+
+                // Create an anchor to the movable group
+                val anchor = writer.anchor(writer.parent(writer.parent))
+                val reference = MovableContentStateReference(
+                    content,
+                    parameter,
+                    composition,
+                    insertTable,
+                    anchor,
+                    emptyList(),
+                    currentCompositionLocalScope()
+                )
+                parentContext.insertMovableContent(reference)
+            } else {
+                val savedProvidersInvalid = providersInvalid
+                providersInvalid = providersChanged
+                invokeComposable(this, { content.content(parameter) })
+                providersInvalid = savedProvidersInvalid
+            }
+        } finally {
+            // Restore the state back to what is expected by the caller.
+            endGroup()
+            compoundKeyHash = savedCompoundKeyHash
+            endMovableGroup()
         }
-
-        // Restore the state back to what is expected by the caller.
-        compoundKeyHash = savedCompoundKeyHash
-        endGroup()
-        endMovableGroup()
     }
 
     @InternalComposeApi
     override fun insertMovableContentReferences(
+        references: List<Pair<MovableContentStateReference, MovableContentStateReference?>>
+    ) {
+        var completed = false
+        try {
+            insertMovableContentGuarded(references)
+            completed = true
+        } finally {
+            if (completed) {
+                cleanUpCompose()
+            } else {
+                // if we finished with error, cleanup more aggressively
+                abortRoot()
+            }
+        }
+    }
+
+    private fun insertMovableContentGuarded(
         references: List<Pair<MovableContentStateReference, MovableContentStateReference?>>
     ) {
         fun positionToParentOf(slots: SlotWriter, applier: Applier<Any?>, index: Int) {
@@ -2934,7 +2977,14 @@ internal class ComposerImpl(
                         }
                     }
                 } else {
-                    val nodesToInsert = from.slotTable.collectNodesFrom(from.anchor)
+                    // If the state was already removed from the from table then it will have a
+                    // state recorded in the recomposer, retrieve that now if we can. If not the
+                    // state is still in its original location, recompose over it there.
+                    val resolvedState = parentContext.movableContentStateResolve(from)
+                    val fromTable = resolvedState?.slotTable ?: from.slotTable
+                    val fromAnchor = resolvedState?.slotTable?.anchor(0) ?: from.anchor
+                    val nodesToInsert = fromTable.collectNodesFrom(fromAnchor)
+
                     // Insert nodes if necessary
                     if (nodesToInsert.isNotEmpty()) {
                         record { applier, _, _ ->
@@ -2946,24 +2996,30 @@ internal class ComposerImpl(
                                 applier.insertTopDown(base + i, node)
                             }
                         }
-                        val group = slotTable.anchorIndex(anchor)
-                        updateNodeCount(
-                            group,
-                            updatedNodeCount(group) + nodesToInsert.size
-                        )
+                        if (to.slotTable == slotTable) {
+                            // Inserting the content into the current slot table then we need to
+                            // update the virtual node counts. Otherwise, we are inserting into
+                            // a new slot table which is being created, not updated, so the virtual
+                            // node counts do not need to be updated.
+                            val group = slotTable.anchorIndex(anchor)
+                            updateNodeCount(
+                                group,
+                                updatedNodeCount(group) + nodesToInsert.size
+                            )
+                        }
                     }
 
                     // Copy the slot table into the anchor location
                     record { _, slots, _ ->
-                        val state = parentContext.movableContentStateResolve(from)
-                            ?: composeRuntimeError("Could not resolve state for movable content")
+                        val state = resolvedState ?: parentContext.movableContentStateResolve(from)
+                        ?: composeRuntimeError("Could not resolve state for movable content")
 
                         // The slot table contains the movable content group plus the group
                         // containing the movable content's table which then contains the actual
                         // state to be inserted. The state is at index 2 in the table (for the
-                        // to groups) and is inserted into the provider group at offset 1 from the
+                        // two groups) and is inserted into the provider group at offset 1 from the
                         // current location.
-                        val anchors = slots.moveIntoGroupFrom(1, state.slotTable, 1)
+                        val anchors = slots.moveIntoGroupFrom(1, state.slotTable, 2)
 
                         // For all the anchors that moved, if the anchor is tracking a recompose
                         // scope, update it to reference its new composer.
@@ -2973,17 +3029,14 @@ internal class ComposerImpl(
                                 // The recompose scope is always at slot 0 of a restart group.
                                 val recomposeScope = slots.slot(anchor, 0) as? RecomposeScopeImpl
                                 // Check for null as the anchor might not be for a recompose scope
-                                recomposeScope?.let { it.composition = toComposition }
+                                recomposeScope?.adoptedBy(toComposition)
                             }
                         }
                     }
 
-                    // Recompose over the moved content.
-                    val fromTable = from.slotTable
-
                     fromTable.read { reader ->
                         withReader(reader) {
-                            val newLocation = fromTable.anchorIndex(from.anchor)
+                            val newLocation = fromTable.anchorIndex(fromAnchor)
                             reader.reposition(newLocation)
                             writersReaderDelta = newLocation
                             val offsetChanges = mutableListOf<Change>()
@@ -3025,7 +3078,6 @@ internal class ComposerImpl(
             }
             writersReaderDelta = 0
         }
-        cleanUpCompose()
     }
 
     private inline fun <R> withChanges(newChanges: MutableList<Change>, block: () -> R): R {
@@ -3067,7 +3119,7 @@ internal class ComposerImpl(
             nodeIndex = 0
             invalidations.fastForEach { (scope, instances) ->
                 if (instances != null) {
-                    instances.forEach { instance ->
+                    instances.fastForEach { instance ->
                         tryImminentInvalidation(scope, instance)
                     }
                 } else {
@@ -3438,7 +3490,7 @@ internal class ComposerImpl(
             // another insert. If the nested movable content ends up being removed this is reported
             // during that recomposition so there is no need to look at child movable content here.
             return if (reader.hasMark(group)) {
-                @Suppress("UNCHECKED_CAST")
+                @Suppress("UNCHECKED_CAST") // The mark is only used when this cast is valid.
                 val value = reader.groupObjectKey(group) as MovableContent<Any?>
                 val parameter = reader.groupGet(group, 0)
                 val anchor = reader.anchor(group)
@@ -3460,9 +3512,28 @@ internal class ComposerImpl(
                 record { _, slots, _ ->
                     val slotTable = SlotTable()
 
+                    // Write a table that as if it was written by a calling
+                    // invokeMovableContentLambda because this might be removed from the
+                    // composition before the new composition can be composed to receive it. When
+                    // the new composition receives the state it must recompose over the state by
+                    // calling invokeMovableContentLambda.
                     slotTable.write { writer ->
                         writer.beginInsert()
+
+                        // This is the prefix created by invokeMovableContentLambda
+                        writer.startGroup(movableContentKey, value)
+                        writer.markGroup()
+                        writer.update(parameter)
+
+                        // Move the content into current location
                         slots.moveTo(anchor, 1, writer)
+
+                        // skip the group that was just inserted.
+                        writer.skipGroup()
+
+                        // End the group that represents the call to invokeMovableContentLambda
+                        writer.endGroup()
+
                         writer.endInsert()
                     }
                     val state = MovableContentState(slotTable)
@@ -3582,6 +3653,10 @@ internal class ComposerImpl(
         startedGroups.clear()
         invalidateStack.clear()
         clearUpdatedNodeCounts()
+    }
+
+    internal fun verifyConsistent() {
+        insertTable.verifyWellFormed()
     }
 
     private var previousRemove = -1
@@ -3968,7 +4043,7 @@ internal fun SlotWriter.removeCurrentGroup(rememberManager: RememberManager) {
                 val composition = slot.composition
                 if (composition != null) {
                     composition.pendingInvalidScopes = true
-                    slot.composition = null
+                    slot.release()
                 }
             }
         }
@@ -4223,6 +4298,8 @@ internal val reference: Any = OpaqueKey("reference")
 @PublishedApi
 internal const val reuseKey = 207
 
+internal class ComposeRuntimeError(override val message: String) : IllegalStateException()
+
 internal inline fun runtimeCheck(value: Boolean, lazyMessage: () -> Any) {
     if (!value) {
         val message = lazyMessage()
@@ -4233,7 +4310,7 @@ internal inline fun runtimeCheck(value: Boolean, lazyMessage: () -> Any) {
 internal fun runtimeCheck(value: Boolean) = runtimeCheck(value) { "Check failed" }
 
 internal fun composeRuntimeError(message: String): Nothing {
-    error(
+    throw ComposeRuntimeError(
         "Compose Runtime internal error. Unexpected or incorrect use of the Compose " +
             "internal runtime API ($message). Please report to Google or use " +
             "https://goo.gle/compose-feedback"

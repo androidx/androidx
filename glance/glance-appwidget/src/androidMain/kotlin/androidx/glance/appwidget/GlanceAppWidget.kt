@@ -66,7 +66,7 @@ import kotlinx.coroutines.withContext
  * @param errorUiLayout If different from 0 and an error occurs within this GlanceAppWidget,
  * the App Widget is updated with an error UI using this layout resource ID.
  */
-public abstract class GlanceAppWidget(
+abstract class GlanceAppWidget(
     @LayoutRes
     private val errorUiLayout: Int = R.layout.glance_error_layout
 ) {
@@ -75,29 +75,29 @@ public abstract class GlanceAppWidget(
      */
     @Composable
     @GlanceComposable
-    public abstract fun Content()
+    abstract fun Content()
 
     /**
      * Defines the handling of sizes.
      */
-    public open val sizeMode: SizeMode = SizeMode.Single
+    open val sizeMode: SizeMode = SizeMode.Single
 
     /**
      * Data store for widget data specific to the view.
      */
-    public open val stateDefinition: GlanceStateDefinition<*>? = PreferencesGlanceStateDefinition
+    open val stateDefinition: GlanceStateDefinition<*>? = PreferencesGlanceStateDefinition
 
     /**
      * Method called by the framework when an App Widget has been removed from its host.
      *
      * When the method returns, the state associated with the [glanceId] will be deleted.
      */
-    public open suspend fun onDelete(context: Context, glanceId: GlanceId) {}
+    open suspend fun onDelete(context: Context, glanceId: GlanceId) {}
 
     /**
      * Triggers the composition of [Content] and sends the result to the [AppWidgetManager].
      */
-    public suspend fun update(context: Context, glanceId: GlanceId) {
+    suspend fun update(context: Context, glanceId: GlanceId) {
         require(glanceId is AppWidgetId) {
             "The glanceId '$glanceId' is not a valid App Widget glance id"
         }
@@ -546,7 +546,7 @@ internal fun logException(throwable: Throwable) {
 }
 
 /** Update all App Widgets managed by the [GlanceAppWidget] class. */
-public suspend fun GlanceAppWidget.updateAll(@Suppress("ContextFirst") context: Context) {
+suspend fun GlanceAppWidget.updateAll(@Suppress("ContextFirst") context: Context) {
     val manager = GlanceAppWidgetManager(context)
     manager.getGlanceIds(javaClass).forEach { update(context, it) }
 }
@@ -554,7 +554,7 @@ public suspend fun GlanceAppWidget.updateAll(@Suppress("ContextFirst") context: 
 /**
  * Update all App Widgets managed by the [GlanceAppWidget] class, if they fulfill some condition.
  */
-public suspend inline fun <reified State> GlanceAppWidget.updateIf(
+suspend inline fun <reified State> GlanceAppWidget.updateIf(
     @Suppress("ContextFirst") context: Context,
     predicate: (State) -> Boolean
 ) {

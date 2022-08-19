@@ -22,24 +22,26 @@ import android.view.ViewGroup
 import android.widget.BaseAdapter
 import android.widget.TextView
 import androidx.camera.integration.extensions.R
+import androidx.camera.integration.extensions.TestResultType.TEST_RESULT_FAILED
+import androidx.camera.integration.extensions.TestResultType.TEST_RESULT_NOT_SUPPORTED
+import androidx.camera.integration.extensions.TestResultType.TEST_RESULT_NOT_TESTED
+import androidx.camera.integration.extensions.TestResultType.TEST_RESULT_PARTIALLY_TESTED
+import androidx.camera.integration.extensions.TestResultType.TEST_RESULT_PASSED
 import androidx.camera.integration.extensions.validation.CameraValidationResultActivity.Companion.getLensFacingStringFromInt
-import androidx.camera.integration.extensions.validation.TestResults.Companion.TEST_RESULT_FAILED
-import androidx.camera.integration.extensions.validation.TestResults.Companion.TEST_RESULT_NOT_SUPPORTED
-import androidx.camera.integration.extensions.validation.TestResults.Companion.TEST_RESULT_NOT_TESTED
-import androidx.camera.integration.extensions.validation.TestResults.Companion.TEST_RESULT_PARTIALLY_TESTED
-import androidx.camera.integration.extensions.validation.TestResults.Companion.TEST_RESULT_PASSED
 
 class CameraValidationResultAdapter constructor(
     private val layoutInflater: LayoutInflater,
     private val cameraLensFacingMap: LinkedHashMap<String, Int>,
-    private val cameraExtensionResultMap: LinkedHashMap<String, LinkedHashMap<Int, Int>>
+    private val cameraExtensionResultMap: LinkedHashMap<Pair<String, String>,
+        LinkedHashMap<Int, Int>>
 ) : BaseAdapter() {
 
     override fun getCount(): Int {
         return cameraExtensionResultMap.size
     }
 
-    override fun getItem(position: Int): MutableMap.MutableEntry<String, LinkedHashMap<Int, Int>> {
+    override fun getItem(position: Int): MutableMap.MutableEntry<Pair<String, String>,
+        LinkedHashMap<Int, Int>> {
         return cameraExtensionResultMap.entries.elementAt(position)
     }
 
@@ -56,8 +58,9 @@ class CameraValidationResultAdapter constructor(
         }
 
         val item = getItem(position)
+        val (testType, cameraId) = item.key
 
-        val testResult = getTestResult(item.key)
+        val testResult = getTestResult(testType, cameraId)
         var backgroundResource = 0
         var iconResource = 0
 
@@ -72,8 +75,8 @@ class CameraValidationResultAdapter constructor(
         }
 
         val padding = 10
-        val lensFacingName = cameraLensFacingMap[item.key]?.let { getLensFacingStringFromInt(it) }
-        textView.text = "Camera ${item.key} [$lensFacingName]"
+        val lensFacingName = cameraLensFacingMap[cameraId]?.let { getLensFacingStringFromInt(it) }
+        textView.text = "[$testType][$cameraId][$lensFacingName]"
         textView.setPadding(padding, 0, padding, 0)
         textView.compoundDrawablePadding = padding
         textView.setBackgroundResource(backgroundResource)
@@ -81,12 +84,12 @@ class CameraValidationResultAdapter constructor(
         return textView
     }
 
-    private fun getTestResult(cameraId: String): Int {
+    private fun getTestResult(testType: String, cameraId: String): Int {
         var notTestedCount = 0
         var passCount = 0
         var failCount = 0
 
-        cameraExtensionResultMap[cameraId]?.forEach {
+        cameraExtensionResultMap[Pair(testType, cameraId)]?.forEach {
             if (it.value == TEST_RESULT_NOT_TESTED) {
                 notTestedCount++
             } else if (it.value == TEST_RESULT_PASSED) {

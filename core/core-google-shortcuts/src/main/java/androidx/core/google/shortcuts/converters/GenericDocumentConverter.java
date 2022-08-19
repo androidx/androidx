@@ -27,8 +27,8 @@ import androidx.appsearch.app.GenericDocument;
 import androidx.core.google.shortcuts.utils.ConverterUtils;
 import androidx.core.util.Preconditions;
 
-import com.google.firebase.appindexing.FirebaseAppIndexingInvalidArgumentException;
-import com.google.firebase.appindexing.Indexable;
+import com.google.android.gms.appindex.AppIndexInvalidArgumentException;
+import com.google.android.gms.appindex.Indexable;
 
 /**
  * Default converter for all {@link GenericDocument}. This converter will map each property into
@@ -70,7 +70,7 @@ public class GenericDocumentConverter implements AppSearchDocumentConverter {
                 try {
                     indexableBuilder.put(property,
                             convertGenericDocuments(context, (GenericDocument[]) rawProperty));
-                } catch (FirebaseAppIndexingInvalidArgumentException e) {
+                } catch (AppIndexInvalidArgumentException e) {
                     Log.e(TAG, "Cannot convert GenericDocument for property " + property);
                 }
             } else {

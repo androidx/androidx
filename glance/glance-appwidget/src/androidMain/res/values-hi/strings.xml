@@ -17,6 +17,6 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="error_layout_title" msgid="7937809248738392417"><b>"At A Glance ऐप्लिकेशन के विजेट से जुड़ी गड़बड़ी"</b></string>
-    <string name="error_layout_text" msgid="6543889412094559379"><b><tt>"adb logcat"</tt></b>" की मदद से, "<b><tt>"GlanceAppWidget"</tt></b>" को ढूंढकर पता लगाएं कि असल गड़बड़ी क्या है"</string>
+    <string name="glance_error_layout_title" msgid="2896109737634971880"><b>"Glance App Widget से जुड़ी गड़बड़ी"</b></string>
+    <string name="glance_error_layout_text" msgid="8513923302775602854"><b><tt>"adb logcat"</tt></b>" की मदद से, "<b><tt>"GlanceAppWidget"</tt></b>" को ढूंढकर असल गड़बड़ी का पता लगाएं"</string>
 </resources>

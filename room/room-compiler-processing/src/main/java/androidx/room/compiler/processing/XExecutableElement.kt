@@ -21,7 +21,7 @@ package androidx.room.compiler.processing
  *
  * @see [javax.lang.model.element.ExecutableElement]
  */
-interface XExecutableElement : XHasModifiers, XElement {
+interface XExecutableElement : XHasModifiers, XParameterizable, XElement {
     /**
      * The element that declared this executable.
      *
@@ -46,6 +46,7 @@ interface XExecutableElement : XHasModifiers, XElement {
      * The list of `Throwable`s that are declared in this executable's signature.
      */
     val thrownTypes: List<XType>
+
     /**
      * Returns true if this method receives a vararg parameter.
      */

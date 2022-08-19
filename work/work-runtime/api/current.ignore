@@ -1,6 +1,8 @@
 // Baseline format: 1.0
 AddedAbstractMethod: androidx.work.WorkManager#getConfiguration():
     Added method androidx.work.WorkManager.getConfiguration()
+AddedAbstractMethod: androidx.work.WorkManager#updateWork(androidx.work.WorkRequest):
+    Added method androidx.work.WorkManager.updateWork(androidx.work.WorkRequest)
 
 
 ChangedType: androidx.work.OneTimeWorkRequest#from(java.util.List<? extends java.lang.Class<? extends androidx.work.ListenableWorker>>):

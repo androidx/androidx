@@ -15,6 +15,7 @@
  */
 
 import androidx.build.Publish
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
@@ -24,7 +25,6 @@ plugins {
 }
 
 dependencies {
-    kotlinPlugin project(":compose:compiler:compiler")
     implementation(libs.kotlinStdlib)
     implementation project(":core:core")
     implementation project(":compose:runtime:runtime")
@@ -45,4 +45,12 @@ androidx {
 
 android {
     namespace "androidx.compose.material3.catalog.library"
+}
+
+tasks.withType(KotlinCompile).configureEach {
+    kotlinOptions {
+        freeCompilerArgs += [
+                "-Xjvm-default=all",
+        ]
+    }
 }

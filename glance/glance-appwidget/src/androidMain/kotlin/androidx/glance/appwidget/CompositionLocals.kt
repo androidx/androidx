@@ -25,5 +25,5 @@ import androidx.compose.runtime.staticCompositionLocalOf
  *
  * See [AppWidgetManager#getAppWidgetOptions] for details
  */
-public val LocalAppWidgetOptions: ProvidableCompositionLocal<Bundle> =
+val LocalAppWidgetOptions: ProvidableCompositionLocal<Bundle> =
     staticCompositionLocalOf { error("No default app widget options") }

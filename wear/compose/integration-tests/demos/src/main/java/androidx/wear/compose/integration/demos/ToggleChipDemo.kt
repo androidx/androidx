@@ -65,6 +65,7 @@ fun ToggleChips(
 
     ScalingLazyColumnWithRSB(
         state = scrollState,
+        horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterVertically),
     ) {
         item {

@@ -101,8 +101,8 @@ public class GridLayoutManagerCustomSizeInScrollDirectionTest extends BaseGridLa
         if (mAddDecorOffsets) {
             rv.addItemDecoration(new RecyclerView.ItemDecoration() {
                 @Override
-                public void getItemOffsets(Rect outRect, View view, RecyclerView parent,
-                        RecyclerView.State state) {
+                public void getItemOffsets(@NonNull Rect outRect, @NonNull View view,
+                        @NonNull RecyclerView parent, @NonNull RecyclerView.State state) {
                     if (mConfig.mOrientation == HORIZONTAL) {
                         outRect.set(decorOffset, 0, decorOffset, 0);
                     } else {

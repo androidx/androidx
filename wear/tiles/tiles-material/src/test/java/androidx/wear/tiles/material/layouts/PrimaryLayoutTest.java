@@ -153,13 +153,13 @@ public class PrimaryLayoutTest {
     public void testWrongTag() {
         Box box =
                 new Box.Builder()
-                    .setModifiers(
-                        new Modifiers.Builder()
-                            .setMetadata(
-                                new ElementMetadata.Builder()
-                                    .setTagData("test".getBytes(UTF_8))
-                                    .build())
-                                .build())
+                        .setModifiers(
+                                new Modifiers.Builder()
+                                        .setMetadata(
+                                                new ElementMetadata.Builder()
+                                                        .setTagData("test".getBytes(UTF_8))
+                                                        .build())
+                                        .build())
                         .build();
 
         assertThat(PrimaryLayout.fromLayoutElement(box)).isNull();
@@ -169,15 +169,15 @@ public class PrimaryLayoutTest {
     public void testWrongLengthTag() {
         Box box =
                 new Box.Builder()
-                    .setModifiers(
-                        new Modifiers.Builder()
-                            .setMetadata(
-                                new ElementMetadata.Builder()
-                                    .setTagData(
-                                        PrimaryLayout.METADATA_TAG_PREFIX
-                                            .getBytes(UTF_8))
-                                    .build())
-                            .build())
+                        .setModifiers(
+                                new Modifiers.Builder()
+                                        .setMetadata(
+                                                new ElementMetadata.Builder()
+                                                        .setTagData(
+                                                                PrimaryLayout.METADATA_TAG_PREFIX
+                                                                        .getBytes(UTF_8))
+                                                        .build())
+                                        .build())
                         .build();
 
         assertThat(PrimaryLayout.fromLayoutElement(box)).isNull();
@@ -210,6 +210,8 @@ public class PrimaryLayoutTest {
                 expectedPrimaryChip,
                 expectedPrimaryLabel,
                 expectedSecondaryLabel);
+
+        assertThat(PrimaryLayout.fromLayoutElement(actualLayout)).isEqualTo(actualLayout);
     }
 
     private void assertLayoutIsEqual(
@@ -225,18 +227,22 @@ public class PrimaryLayoutTest {
             assertThat(actualLayout.getContent()).isNull();
         } else {
             assertThat(actualLayout.getContent().toLayoutElementProto())
-                .isEqualTo(expectedContent.toLayoutElementProto());
+                    .isEqualTo(expectedContent.toLayoutElementProto());
             expectedMetadata[PrimaryLayout.FLAG_INDEX] =
-                (byte) (expectedMetadata[PrimaryLayout.FLAG_INDEX] | PrimaryLayout.CONTENT_PRESENT);
+                    (byte)
+                            (expectedMetadata[PrimaryLayout.FLAG_INDEX]
+                                    | PrimaryLayout.CONTENT_PRESENT);
         }
 
         if (expectedPrimaryChip == null) {
             assertThat(actualLayout.getPrimaryChipContent()).isNull();
         } else {
             assertThat(actualLayout.getPrimaryChipContent().toLayoutElementProto())
-                .isEqualTo(expectedPrimaryChip.toLayoutElementProto());
+                    .isEqualTo(expectedPrimaryChip.toLayoutElementProto());
             expectedMetadata[PrimaryLayout.FLAG_INDEX] =
-                (byte) (expectedMetadata[PrimaryLayout.FLAG_INDEX] | PrimaryLayout.CHIP_PRESENT);
+                    (byte)
+                            (expectedMetadata[PrimaryLayout.FLAG_INDEX]
+                                    | PrimaryLayout.CHIP_PRESENT);
         }
 
         assertThat(actualLayout.getVerticalSpacerHeight()).isEqualTo(height);
@@ -245,22 +251,22 @@ public class PrimaryLayoutTest {
             assertThat(actualLayout.getPrimaryLabelTextContent()).isNull();
         } else {
             assertThat(actualLayout.getPrimaryLabelTextContent().toLayoutElementProto())
-                .isEqualTo(expectedPrimaryLabel.toLayoutElementProto());
+                    .isEqualTo(expectedPrimaryLabel.toLayoutElementProto());
             expectedMetadata[PrimaryLayout.FLAG_INDEX] =
-                (byte)
-                    (expectedMetadata[PrimaryLayout.FLAG_INDEX]
-                        | PrimaryLayout.PRIMARY_LABEL_PRESENT);
+                    (byte)
+                            (expectedMetadata[PrimaryLayout.FLAG_INDEX]
+                                    | PrimaryLayout.PRIMARY_LABEL_PRESENT);
         }
 
         if (expectedSecondaryLabel == null) {
             assertThat(actualLayout.getSecondaryLabelTextContent()).isNull();
         } else {
             assertThat(actualLayout.getSecondaryLabelTextContent().toLayoutElementProto())
-                .isEqualTo(expectedSecondaryLabel.toLayoutElementProto());
+                    .isEqualTo(expectedSecondaryLabel.toLayoutElementProto());
             expectedMetadata[PrimaryLayout.FLAG_INDEX] =
-                (byte)
-                    (expectedMetadata[PrimaryLayout.FLAG_INDEX]
-                        | PrimaryLayout.SECONDARY_LABEL_PRESENT);
+                    (byte)
+                            (expectedMetadata[PrimaryLayout.FLAG_INDEX]
+                                    | PrimaryLayout.SECONDARY_LABEL_PRESENT);
         }
 
         assertThat(actualLayout.getMetadataTag()).isEqualTo(expectedMetadata);

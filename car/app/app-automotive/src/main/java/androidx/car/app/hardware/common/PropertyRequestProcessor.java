@@ -16,7 +16,13 @@
 
 package androidx.car.app.hardware.common;
 
+import static android.car.VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL;
+import static android.car.VehicleAreaType.VEHICLE_AREA_TYPE_SEAT;
+import static android.car.VehiclePropertyIds.HVAC_TEMPERATURE_SET;
+
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
+import static androidx.car.app.hardware.common.CarValue.STATUS_SUCCESS;
+import static androidx.car.app.hardware.common.CarZoneUtils.convertAreaIdToCarZones;
 
 import android.car.Car;
 import android.car.hardware.CarPropertyConfig;
@@ -29,8 +35,13 @@ import android.util.Pair;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 
+import com.google.common.collect.ImmutableList;
+
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import javax.annotation.Nullable;
 
@@ -43,6 +54,8 @@ import javax.annotation.Nullable;
 final class PropertyRequestProcessor {
     private final CarPropertyManager mCarPropertyManager;
     private PropertyEventCallback mPropertyEventCallback;
+
+    static final float TEMPERATURE_CONFIG_DENOMINATION = 10f;
 
     /**
      *  Registers this listener to get results from
@@ -57,6 +70,16 @@ final class PropertyRequestProcessor {
          */
         void onGetProperties(List<CarPropertyValue<?>> propertyValues,
                 List<CarInternalError> errors);
+    }
+
+    interface OnGetCarPropertyProfilesListener {
+        /**
+         * Called when get all properties' supported car zones have value or errors.
+         *
+         * @param carPropertyProfiles  a list of {@link CarPropertyProfile}, empty if there are no
+         *                           responses.
+         */
+        void onGetCarPropertyProfiles(List<CarPropertyProfile<?>> carPropertyProfiles);
     }
 
     /**
@@ -111,36 +134,106 @@ final class PropertyRequestProcessor {
      * Gets {@link CarPropertyValue} and returns results by
      * {@link OnGetPropertiesListener#onGetProperties(List, List)}.
      *
-     * @param requests  a list of {@Code Pair<Integer, Integer>}, {@Code Pair.first} is the
-     *                  property id, {@Code Pair.second} is the area id
+     * @param requests  a list of {@Code PropertyIdAreaId}, consisting of property id and the
+     *                  area id
      * @param listener  the listener that will be invoked with the results of the request
      */
     public void fetchCarPropertyValues(
-            @NonNull List<Pair<Integer, Integer>> requests,
+            @NonNull List<PropertyIdAreaId> requests,
             @NonNull OnGetPropertiesListener listener) {
         List<CarPropertyValue<?>> values = new ArrayList<>();
         List<CarInternalError> errors = new ArrayList<>();
-        for (Pair<Integer, Integer> request : requests) {
+        for (PropertyIdAreaId request : requests) {
             try {
-                CarPropertyConfig<?> propertyConfig = getPropertyConfig(request.first);
+                CarPropertyConfig<?> propertyConfig = getPropertyConfig(request.getPropertyId());
                 if (propertyConfig == null) {
-                    errors.add(CarInternalError.create(request.first, request.second,
+                    errors.add(CarInternalError.create(request.getPropertyId(), request.getAreaId(),
                             CarValue.STATUS_UNIMPLEMENTED));
                 } else {
                     Class<?> clazz = propertyConfig.getPropertyType();
                     CarPropertyValue<?> propertyValue = mCarPropertyManager.getProperty(clazz,
-                            request.first, request.second);
+                            request.getPropertyId(), request.getAreaId());
                     values.add(propertyValue);
                 }
             } catch (IllegalArgumentException e) {
-                errors.add(CarInternalError.create(request.first, request.second,
+                errors.add(CarInternalError.create(request.getPropertyId(), request.getAreaId(),
                         CarValue.STATUS_UNIMPLEMENTED));
             } catch (Exception e) {
-                errors.add(CarInternalError.create(request.first, request.second,
+                errors.add(CarInternalError.create(request.getPropertyId(), request.getAreaId(),
                         CarValue.STATUS_UNAVAILABLE));
             }
         }
         listener.onGetProperties(values, errors);
+    }
+
+    public void fetchCarPropertyProfiles(List<Integer> propertyIds,
+            @NonNull OnGetCarPropertyProfilesListener listener) {
+        ImmutableList.Builder<CarInternalError> errors = new ImmutableList.Builder<>();
+        List<CarPropertyProfile<?>> carPropertyProfile = new ArrayList<>();
+        for (Integer propertyId : propertyIds) {
+            try {
+                CarPropertyConfig<?> propertyConfig = getPropertyConfig(propertyId);
+                if (propertyConfig == null
+                        || (propertyConfig.getAreaType() != VEHICLE_AREA_TYPE_GLOBAL
+                        && propertyConfig.getAreaType() != VEHICLE_AREA_TYPE_SEAT)) {
+                    errors.add(CarInternalError.create(propertyId, CarValue.STATUS_UNIMPLEMENTED));
+                } else {
+                    int areaType = propertyConfig.getAreaType() == VEHICLE_AREA_TYPE_SEAT
+                            ? CarZoneUtils.AreaType.SEAT : CarZoneUtils.AreaType.NONE;
+                    Map<Set<CarZone>, Pair<Object, Object>> minMaxRange = new HashMap<>();
+                    List<Set<CarZone>> carZones = new ArrayList<>();
+                    for (Integer areaId : propertyConfig.getAreaIds()) {
+                        if (propertyConfig.getMinValue(areaId) != null
+                                && propertyConfig.getMaxValue(areaId) != null) {
+                            minMaxRange.put(convertAreaIdToCarZones(areaType,
+                                    areaId), new Pair<>(propertyConfig.getMinValue(areaId),
+                                    propertyConfig.getMaxValue(areaId)));
+                        }
+                        carZones.add(convertAreaIdToCarZones(areaType, areaId));
+                    }
+
+                    if (propertyConfig.getConfigArray().size() != 0
+                            && propertyId == HVAC_TEMPERATURE_SET) {
+                        carPropertyProfile.add(CarPropertyProfile.builder()
+                                .setPropertyId(propertyId)
+                                .setCelsiusRange(new Pair<>(
+                                        (propertyConfig.getConfigArray().get(0)
+                                                / TEMPERATURE_CONFIG_DENOMINATION),
+                                        (propertyConfig.getConfigArray().get(1)
+                                                / TEMPERATURE_CONFIG_DENOMINATION)))
+                                .setFahrenheitRange(new Pair<>(
+                                        (propertyConfig.getConfigArray().get(3)
+                                                / TEMPERATURE_CONFIG_DENOMINATION),
+                                        (propertyConfig.getConfigArray().get(4)
+                                                / TEMPERATURE_CONFIG_DENOMINATION)))
+                                .setCelsiusIncrement(propertyConfig.getConfigArray().get(2)
+                                        / TEMPERATURE_CONFIG_DENOMINATION)
+                                .setFahrenheitIncrement(
+                                        propertyConfig.getConfigArray().get(5)
+                                                / TEMPERATURE_CONFIG_DENOMINATION)
+                                .setStatus(STATUS_SUCCESS)
+                                .build());
+                    } else {
+                        carPropertyProfile.add(CarPropertyProfile.builder()
+                                .setPropertyId(propertyId)
+                                .setCarZones(carZones)
+                                .setStatus(STATUS_SUCCESS)
+                                .setCarZoneSetsToMinMaxRange(minMaxRange).build());
+                    }
+                }
+            } catch (IllegalArgumentException e) {
+                errors.add(CarInternalError.create(propertyId, CarValue.STATUS_UNIMPLEMENTED));
+            } catch (Exception e) {
+                errors.add(CarInternalError.create(propertyId, CarValue.STATUS_UNAVAILABLE));
+            }
+        }
+        for (CarInternalError error : errors.build()) {
+            carPropertyProfile.add(CarPropertyProfile.builder()
+                    .setPropertyId(error.getPropertyId())
+                    .setStatus(error.getErrorCode())
+                    .build());
+        }
+        listener.onGetCarPropertyProfiles(carPropertyProfile);
     }
 
     /**

@@ -33,7 +33,7 @@ import androidx.glance.unit.ColorProvider
 import androidx.glance.unit.FixedColorProvider
 
 /** Set of colors to apply to a CheckBox depending on the checked state. */
-public sealed class CheckBoxColors {
+sealed class CheckBoxColors {
     internal abstract val checkBox: CheckableColorProvider
 }
 
@@ -48,7 +48,7 @@ internal data class CheckBoxColorsImpl(
  * @param checkedColor the [Color] to use when the CheckBox is checked
  * @param uncheckedColor the [Color] to use when the CheckBox is not checked
  */
-public fun CheckBoxColors(checkedColor: Color, uncheckedColor: Color): CheckBoxColors =
+fun CheckBoxColors(checkedColor: Color, uncheckedColor: Color): CheckBoxColors =
     CheckBoxColors(FixedColorProvider(checkedColor), FixedColorProvider(uncheckedColor))
 
 /**
@@ -63,7 +63,7 @@ public fun CheckBoxColors(checkedColor: Color, uncheckedColor: Color): CheckBoxC
  * @param uncheckedColor the [ColorProvider] to use when the check box is not checked, or null to
  * use the default tint
  */
-public fun CheckBoxColors(
+fun CheckBoxColors(
     checkedColor: ColorProvider? = null,
     uncheckedColor: ColorProvider? = null
 ): CheckBoxColors =
@@ -85,7 +85,7 @@ public fun CheckBoxColors(
  * @param checkBoxColor the resource to use to tint the check box. If an invalid resource id is
  * provided, the default check box colors will be used.
  */
-public fun CheckBoxColors(@ColorRes checkBoxColor: Int): CheckBoxColors =
+fun CheckBoxColors(@ColorRes checkBoxColor: Int): CheckBoxColors =
     CheckBoxColorsImpl(
         ResourceCheckableColorProvider(
             resId = checkBoxColor,
@@ -109,7 +109,7 @@ public fun CheckBoxColors(@ColorRes checkBoxColor: Int): CheckBoxColors =
  * necessary. If the text exceeds the given number of lines, it will be truncated.
  */
 @Composable
-public fun CheckBox(
+fun CheckBox(
     checked: Boolean,
     onCheckedChange: Action?,
     modifier: GlanceModifier = GlanceModifier,

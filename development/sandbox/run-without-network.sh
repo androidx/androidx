@@ -8,5 +8,6 @@ $PREBUILTS_DIR/build-tools/linux-x86/bin/nsjail \
     --chroot=/ \
     --cwd=$(pwd) \
     --rw \
+    --quiet \
     -- \
     /bin/bash -c "echo EXECUTING OFFLINE: $* && $*"

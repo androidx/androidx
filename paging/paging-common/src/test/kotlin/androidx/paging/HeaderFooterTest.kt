@@ -42,7 +42,8 @@ class HeaderFooterTest {
 
     private fun <T : Any> PageEvent<T>.toPagingData() = PagingData(
         flowOf(this),
-        PagingData.NOOP_RECEIVER
+        PagingData.NOOP_UI_RECEIVER,
+        PagingData.NOOP_HINT_RECEIVER
     )
 
     private suspend fun <T : Any> PageEvent<T>.insertHeaderItem(item: T) = toPagingData()

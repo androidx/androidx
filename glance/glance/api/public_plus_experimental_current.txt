@@ -8,8 +8,16 @@ package androidx.glance {
     method public static androidx.glance.GlanceModifier background(androidx.glance.GlanceModifier, androidx.glance.ImageProvider imageProvider, optional int contentScale);
   }
 
+  public final class ButtonColors {
+    ctor public ButtonColors(androidx.glance.unit.ColorProvider backgroundColor, androidx.glance.unit.ColorProvider contentColor);
+    method public androidx.glance.unit.ColorProvider getBackgroundColor();
+    method public androidx.glance.unit.ColorProvider getContentColor();
+    property public final androidx.glance.unit.ColorProvider backgroundColor;
+    property public final androidx.glance.unit.ColorProvider contentColor;
+  }
+
   public final class ButtonKt {
-    method @androidx.compose.runtime.Composable public static void Button(String text, androidx.glance.action.Action onClick, optional androidx.glance.GlanceModifier modifier, optional boolean enabled, optional androidx.glance.text.TextStyle? style, optional int maxLines);
+    method @androidx.compose.runtime.Composable public static void Button(String text, androidx.glance.action.Action onClick, optional androidx.glance.GlanceModifier modifier, optional boolean enabled, optional androidx.glance.text.TextStyle? style, optional androidx.glance.ButtonColors colors, optional int maxLines);
   }
 
   public final class CombinedGlanceModifier implements androidx.glance.GlanceModifier {
@@ -79,6 +87,8 @@ package androidx.glance {
   }
 
   public enum Visibility {
+    method public static androidx.glance.Visibility valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.glance.Visibility[] values();
     enum_constant public static final androidx.glance.Visibility Gone;
     enum_constant public static final androidx.glance.Visibility Invisible;
     enum_constant public static final androidx.glance.Visibility Visible;
@@ -140,6 +150,69 @@ package androidx.glance.action {
     method public static androidx.glance.action.Action actionStartActivity(android.content.ComponentName componentName, optional androidx.glance.action.ActionParameters parameters);
     method public static <T extends android.app.Activity> androidx.glance.action.Action actionStartActivity(Class<T> activity, optional androidx.glance.action.ActionParameters parameters);
     method public static inline <reified T extends android.app.Activity> androidx.glance.action.Action! actionStartActivity(optional androidx.glance.action.ActionParameters parameters);
+  }
+
+}
+
+package androidx.glance.color {
+
+  public final class ColorProviders {
+    ctor public ColorProviders(androidx.glance.unit.ColorProvider primary, androidx.glance.unit.ColorProvider onPrimary, androidx.glance.unit.ColorProvider primaryContainer, androidx.glance.unit.ColorProvider onPrimaryContainer, androidx.glance.unit.ColorProvider secondary, androidx.glance.unit.ColorProvider onSecondary, androidx.glance.unit.ColorProvider secondaryContainer, androidx.glance.unit.ColorProvider onSecondaryContainer, androidx.glance.unit.ColorProvider tertiary, androidx.glance.unit.ColorProvider onTertiary, androidx.glance.unit.ColorProvider tertiaryContainer, androidx.glance.unit.ColorProvider onTertiaryContainer, androidx.glance.unit.ColorProvider error, androidx.glance.unit.ColorProvider errorContainer, androidx.glance.unit.ColorProvider onError, androidx.glance.unit.ColorProvider onErrorContainer, androidx.glance.unit.ColorProvider background, androidx.glance.unit.ColorProvider onBackground, androidx.glance.unit.ColorProvider surface, androidx.glance.unit.ColorProvider onSurface, androidx.glance.unit.ColorProvider surfaceVariant, androidx.glance.unit.ColorProvider onSurfaceVariant, androidx.glance.unit.ColorProvider outline, androidx.glance.unit.ColorProvider inverseOnSurface, androidx.glance.unit.ColorProvider inverseSurface, androidx.glance.unit.ColorProvider inversePrimary);
+    method public androidx.glance.unit.ColorProvider getBackground();
+    method public androidx.glance.unit.ColorProvider getError();
+    method public androidx.glance.unit.ColorProvider getErrorContainer();
+    method public androidx.glance.unit.ColorProvider getInverseOnSurface();
+    method public androidx.glance.unit.ColorProvider getInversePrimary();
+    method public androidx.glance.unit.ColorProvider getInverseSurface();
+    method public androidx.glance.unit.ColorProvider getOnBackground();
+    method public androidx.glance.unit.ColorProvider getOnError();
+    method public androidx.glance.unit.ColorProvider getOnErrorContainer();
+    method public androidx.glance.unit.ColorProvider getOnPrimary();
+    method public androidx.glance.unit.ColorProvider getOnPrimaryContainer();
+    method public androidx.glance.unit.ColorProvider getOnSecondary();
+    method public androidx.glance.unit.ColorProvider getOnSecondaryContainer();
+    method public androidx.glance.unit.ColorProvider getOnSurface();
+    method public androidx.glance.unit.ColorProvider getOnSurfaceVariant();
+    method public androidx.glance.unit.ColorProvider getOnTertiary();
+    method public androidx.glance.unit.ColorProvider getOnTertiaryContainer();
+    method public androidx.glance.unit.ColorProvider getOutline();
+    method public androidx.glance.unit.ColorProvider getPrimary();
+    method public androidx.glance.unit.ColorProvider getPrimaryContainer();
+    method public androidx.glance.unit.ColorProvider getSecondary();
+    method public androidx.glance.unit.ColorProvider getSecondaryContainer();
+    method public androidx.glance.unit.ColorProvider getSurface();
+    method public androidx.glance.unit.ColorProvider getSurfaceVariant();
+    method public androidx.glance.unit.ColorProvider getTertiary();
+    method public androidx.glance.unit.ColorProvider getTertiaryContainer();
+    property public final androidx.glance.unit.ColorProvider background;
+    property public final androidx.glance.unit.ColorProvider error;
+    property public final androidx.glance.unit.ColorProvider errorContainer;
+    property public final androidx.glance.unit.ColorProvider inverseOnSurface;
+    property public final androidx.glance.unit.ColorProvider inversePrimary;
+    property public final androidx.glance.unit.ColorProvider inverseSurface;
+    property public final androidx.glance.unit.ColorProvider onBackground;
+    property public final androidx.glance.unit.ColorProvider onError;
+    property public final androidx.glance.unit.ColorProvider onErrorContainer;
+    property public final androidx.glance.unit.ColorProvider onPrimary;
+    property public final androidx.glance.unit.ColorProvider onPrimaryContainer;
+    property public final androidx.glance.unit.ColorProvider onSecondary;
+    property public final androidx.glance.unit.ColorProvider onSecondaryContainer;
+    property public final androidx.glance.unit.ColorProvider onSurface;
+    property public final androidx.glance.unit.ColorProvider onSurfaceVariant;
+    property public final androidx.glance.unit.ColorProvider onTertiary;
+    property public final androidx.glance.unit.ColorProvider onTertiaryContainer;
+    property public final androidx.glance.unit.ColorProvider outline;
+    property public final androidx.glance.unit.ColorProvider primary;
+    property public final androidx.glance.unit.ColorProvider primaryContainer;
+    property public final androidx.glance.unit.ColorProvider secondary;
+    property public final androidx.glance.unit.ColorProvider secondaryContainer;
+    property public final androidx.glance.unit.ColorProvider surface;
+    property public final androidx.glance.unit.ColorProvider surfaceVariant;
+    property public final androidx.glance.unit.ColorProvider tertiary;
+    property public final androidx.glance.unit.ColorProvider tertiaryContainer;
+  }
+
+  public final class ColorProvidersKt {
   }
 
 }
@@ -337,8 +410,46 @@ package androidx.glance.state {
 
 package androidx.glance.template {
 
+  public final class ActionBlock {
+    ctor public ActionBlock(optional java.util.List<? extends androidx.glance.template.TemplateButton> actionButtons, optional int type);
+    method public java.util.List<androidx.glance.template.TemplateButton> getActionButtons();
+    method public int getType();
+    property public final java.util.List<androidx.glance.template.TemplateButton> actionButtons;
+    property public final int type;
+  }
+
+  @kotlin.jvm.JvmInline public final value class AspectRatio {
+    field public static final androidx.glance.template.AspectRatio.Companion Companion;
+  }
+
+  public static final class AspectRatio.Companion {
+    method public int getRatio16x9();
+    method public int getRatio1x1();
+    method public int getRatio2x3();
+    property public final int Ratio16x9;
+    property public final int Ratio1x1;
+    property public final int Ratio2x3;
+  }
+
+  @kotlin.jvm.JvmInline public final value class ButtonType {
+    field public static final androidx.glance.template.ButtonType.Companion Companion;
+  }
+
+  public static final class ButtonType.Companion {
+    method public int getFab();
+    method public int getIcon();
+    method public int getText();
+    method public int getTextIcon();
+    property public final int Fab;
+    property public final int Icon;
+    property public final int Text;
+    property public final int TextIcon;
+  }
+
   public final class CompositionLocalsKt {
+    method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.glance.color.ColorProviders> getLocalTemplateColors();
     method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.glance.template.TemplateMode> getLocalTemplateMode();
+    property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.glance.color.ColorProviders> LocalTemplateColors;
     property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.glance.template.TemplateMode> LocalTemplateMode;
   }
 
@@ -361,48 +472,96 @@ package androidx.glance.template {
   }
 
   public final class GalleryTemplateData {
-    ctor public GalleryTemplateData(String header, String title, String headline, androidx.glance.template.TemplateImageWithDescription image, androidx.glance.template.TemplateImageWithDescription logo, androidx.glance.unit.ColorProvider backgroundColor);
-    method public androidx.glance.unit.ColorProvider getBackgroundColor();
-    method public String getHeader();
-    method public String getHeadline();
-    method public androidx.glance.template.TemplateImageWithDescription getImage();
-    method public androidx.glance.template.TemplateImageWithDescription getLogo();
-    method public String getTitle();
-    property public final androidx.glance.unit.ColorProvider backgroundColor;
-    property public final String header;
-    property public final String headline;
-    property public final androidx.glance.template.TemplateImageWithDescription image;
-    property public final androidx.glance.template.TemplateImageWithDescription logo;
-    property public final String title;
+    ctor public GalleryTemplateData(optional androidx.glance.template.HeaderBlock? header, androidx.glance.template.TextBlock mainTextBlock, androidx.glance.template.ImageBlock mainImageBlock, optional androidx.glance.template.ActionBlock? mainActionBlock, androidx.glance.template.ImageBlock galleryImageBlock);
+    method public androidx.glance.template.ImageBlock getGalleryImageBlock();
+    method public androidx.glance.template.HeaderBlock? getHeader();
+    method public androidx.glance.template.ActionBlock? getMainActionBlock();
+    method public androidx.glance.template.ImageBlock getMainImageBlock();
+    method public androidx.glance.template.TextBlock getMainTextBlock();
+    property public final androidx.glance.template.ImageBlock galleryImageBlock;
+    property public final androidx.glance.template.HeaderBlock? header;
+    property public final androidx.glance.template.ActionBlock? mainActionBlock;
+    property public final androidx.glance.template.ImageBlock mainImageBlock;
+    property public final androidx.glance.template.TextBlock mainTextBlock;
+  }
+
+  public final class HeaderBlock {
+    ctor public HeaderBlock(androidx.glance.template.TemplateText text, optional androidx.glance.template.TemplateImageWithDescription? icon, optional androidx.glance.template.ActionBlock? actionBlock);
+    method public androidx.glance.template.ActionBlock? getActionBlock();
+    method public androidx.glance.template.TemplateImageWithDescription? getIcon();
+    method public androidx.glance.template.TemplateText getText();
+    property public final androidx.glance.template.ActionBlock? actionBlock;
+    property public final androidx.glance.template.TemplateImageWithDescription? icon;
+    property public final androidx.glance.template.TemplateText text;
+  }
+
+  public final class ImageBlock {
+    ctor public ImageBlock(optional java.util.List<androidx.glance.template.TemplateImageWithDescription> images, optional int aspectRatio, optional int size, optional int priority);
+    method public int getAspectRatio();
+    method public java.util.List<androidx.glance.template.TemplateImageWithDescription> getImages();
+    method public int getPriority();
+    method public int getSize();
+    property public final int aspectRatio;
+    property public final java.util.List<androidx.glance.template.TemplateImageWithDescription> images;
+    property public final int priority;
+    property public final int size;
+  }
+
+  @kotlin.jvm.JvmInline public final value class ImageSize {
+    field public static final androidx.glance.template.ImageSize.Companion Companion;
+  }
+
+  public static final class ImageSize.Companion {
+    method public int getLarge();
+    method public int getMedium();
+    method public int getSmall();
+    property public final int Large;
+    property public final int Medium;
+    property public final int Small;
+  }
+
+  @kotlin.jvm.JvmInline public final value class ListStyle {
+    field public static final androidx.glance.template.ListStyle.Companion Companion;
+  }
+
+  public static final class ListStyle.Companion {
+    method public int getBrief();
+    method public int getFull();
+    property public final int Brief;
+    property public final int Full;
   }
 
   public final class ListTemplateData {
-    ctor public ListTemplateData(androidx.glance.template.TemplateImageWithDescription headerIcon, optional java.util.List<androidx.glance.template.ListTemplateItem> listContent, optional androidx.glance.template.TemplateText? header, optional androidx.glance.template.TemplateText? title, optional androidx.glance.template.TemplateTextButton? button, optional androidx.glance.unit.ColorProvider? backgroundColor);
+    ctor public ListTemplateData(optional androidx.glance.template.TemplateImageWithDescription? headerIcon, optional java.util.List<androidx.glance.template.ListTemplateItem> listContent, optional androidx.glance.template.TemplateText? header, optional androidx.glance.template.TemplateText? title, optional androidx.glance.template.TemplateButton? button, optional androidx.glance.unit.ColorProvider? backgroundColor, optional int listStyle);
     method public androidx.glance.unit.ColorProvider? getBackgroundColor();
-    method public androidx.glance.template.TemplateTextButton? getButton();
+    method public androidx.glance.template.TemplateButton? getButton();
     method public androidx.glance.template.TemplateText? getHeader();
-    method public androidx.glance.template.TemplateImageWithDescription getHeaderIcon();
+    method public androidx.glance.template.TemplateImageWithDescription? getHeaderIcon();
     method public java.util.List<androidx.glance.template.ListTemplateItem> getListContent();
+    method public int getListStyle();
     method public androidx.glance.template.TemplateText? getTitle();
     property public final androidx.glance.unit.ColorProvider? backgroundColor;
-    property public final androidx.glance.template.TemplateTextButton? button;
+    property public final androidx.glance.template.TemplateButton? button;
     property public final androidx.glance.template.TemplateText? header;
-    property public final androidx.glance.template.TemplateImageWithDescription headerIcon;
+    property public final androidx.glance.template.TemplateImageWithDescription? headerIcon;
     property public final java.util.List<androidx.glance.template.ListTemplateItem> listContent;
+    property public final int listStyle;
     property public final androidx.glance.template.TemplateText? title;
   }
 
   public final class ListTemplateItem {
-    ctor public ListTemplateItem(androidx.glance.template.TemplateText title, androidx.glance.template.TemplateText? body, androidx.glance.action.Action? action, androidx.glance.template.TemplateImageWithDescription? image, androidx.glance.template.TemplateButton? button);
+    ctor public ListTemplateItem(androidx.glance.template.TemplateText title, optional androidx.glance.template.TemplateText? body, optional androidx.glance.template.TemplateText? label, optional androidx.glance.action.Action? action, optional androidx.glance.template.TemplateImageWithDescription? image, optional androidx.glance.template.TemplateButton? button);
     method public androidx.glance.action.Action? getAction();
     method public androidx.glance.template.TemplateText? getBody();
     method public androidx.glance.template.TemplateButton? getButton();
     method public androidx.glance.template.TemplateImageWithDescription? getImage();
+    method public androidx.glance.template.TemplateText? getLabel();
     method public androidx.glance.template.TemplateText getTitle();
     property public final androidx.glance.action.Action? action;
     property public final androidx.glance.template.TemplateText? body;
     property public final androidx.glance.template.TemplateButton? button;
     property public final androidx.glance.template.TemplateImageWithDescription? image;
+    property public final androidx.glance.template.TemplateText? label;
     property public final androidx.glance.template.TemplateText title;
   }
 
@@ -448,30 +607,54 @@ package androidx.glance.template {
   }
 
   public enum TemplateMode {
+    method public static androidx.glance.template.TemplateMode valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.glance.template.TemplateMode[] values();
     enum_constant public static final androidx.glance.template.TemplateMode Collapsed;
     enum_constant public static final androidx.glance.template.TemplateMode Horizontal;
     enum_constant public static final androidx.glance.template.TemplateMode Vertical;
   }
 
   public final class TemplateText {
-    ctor public TemplateText(String text, androidx.glance.template.TemplateText.Type type);
+    ctor public TemplateText(String text, optional int type);
     method public String getText();
-    method public androidx.glance.template.TemplateText.Type getType();
+    method public int getType();
     property public final String text;
-    property public final androidx.glance.template.TemplateText.Type type;
-  }
-
-  public enum TemplateText.Type {
-    enum_constant public static final androidx.glance.template.TemplateText.Type Body;
-    enum_constant public static final androidx.glance.template.TemplateText.Type Display;
-    enum_constant public static final androidx.glance.template.TemplateText.Type Label;
-    enum_constant public static final androidx.glance.template.TemplateText.Type Title;
+    property public final int type;
   }
 
   public final class TemplateTextButton extends androidx.glance.template.TemplateButton {
     ctor public TemplateTextButton(androidx.glance.action.Action action, String text);
     method public String getText();
     property public final String text;
+  }
+
+  public final class TextBlock {
+    ctor public TextBlock(androidx.glance.template.TemplateText text1, optional androidx.glance.template.TemplateText? text2, optional androidx.glance.template.TemplateText? text3, optional int priority);
+    method public int getPriority();
+    method public androidx.glance.template.TemplateText getText1();
+    method public androidx.glance.template.TemplateText? getText2();
+    method public androidx.glance.template.TemplateText? getText3();
+    property public final int priority;
+    property public final androidx.glance.template.TemplateText text1;
+    property public final androidx.glance.template.TemplateText? text2;
+    property public final androidx.glance.template.TemplateText? text3;
+  }
+
+  @kotlin.jvm.JvmInline public final value class TextType {
+    field public static final androidx.glance.template.TextType.Companion Companion;
+  }
+
+  public static final class TextType.Companion {
+    method public int getBody();
+    method public int getDisplay();
+    method public int getHeadline();
+    method public int getLabel();
+    method public int getTitle();
+    property public final int Body;
+    property public final int Display;
+    property public final int Headline;
+    property public final int Label;
+    property public final int Title;
   }
 
 }
@@ -545,6 +728,7 @@ package androidx.glance.text {
 
   @androidx.compose.runtime.Immutable public final class TextStyle {
     ctor public TextStyle(optional androidx.glance.unit.ColorProvider? color, optional androidx.compose.ui.unit.TextUnit? fontSize, optional androidx.glance.text.FontWeight? fontWeight, optional androidx.glance.text.FontStyle? fontStyle, optional androidx.glance.text.TextAlign? textAlign, optional androidx.glance.text.TextDecoration? textDecoration);
+    method public androidx.glance.text.TextStyle copy(optional androidx.glance.unit.ColorProvider? color, optional androidx.compose.ui.unit.TextUnit? fontSize, optional androidx.glance.text.FontWeight? fontWeight, optional androidx.glance.text.FontStyle? fontStyle, optional androidx.glance.text.TextAlign? textAlign, optional androidx.glance.text.TextDecoration? textDecoration);
     method public androidx.glance.unit.ColorProvider? getColor();
     method public androidx.compose.ui.unit.TextUnit? getFontSize();
     method public androidx.glance.text.FontStyle? getFontStyle();
@@ -564,7 +748,7 @@ package androidx.glance.text {
 package androidx.glance.unit {
 
   public interface ColorProvider {
-    method public long resolve(android.content.Context context);
+    method public long getColor(android.content.Context context);
   }
 
   public final class ColorProviderKt {

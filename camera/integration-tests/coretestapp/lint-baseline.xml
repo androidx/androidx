@@ -1,94 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.3.0-alpha07" type="baseline" client="gradle" dependencies="false" name="AGP (7.3.0-alpha07)" variant="all" version="7.3.0-alpha07">
+<issues format="6" by="lint 7.4.0-alpha08" type="baseline" client="gradle" dependencies="false" name="AGP (7.4.0-alpha08)" variant="all" version="7.4.0-alpha08">
 
     <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mImageAnalysisResult` of class `CameraXActivity` requires synthetic accessor"
-        errorLine1="            mImageAnalysisResult.setValue("
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~">
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with&#xA;&apos;@androidx.camera.core.ExperimentalZeroShutterLag&apos; or &apos;@OptIn(markerClass = androidx.camera.core.ExperimentalZeroShutterLag.class)&apos;"
+        errorLine1="            return ImageCapture.CAPTURE_MODE_ZERO_SHUTTER_LAG;"
+        errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"/>
     </issue>
 
     <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mAnalysisIdlingResource` of class `CameraXActivity` requires synthetic accessor"
-        errorLine1="                if (!mAnalysisIdlingResource.isIdleNow()) {"
-        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~">
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with&#xA;&apos;@androidx.camera.core.ExperimentalZeroShutterLag&apos; or &apos;@OptIn(markerClass = androidx.camera.core.ExperimentalZeroShutterLag.class)&apos;"
+        errorLine1="                &amp;&amp; getCameraInfo().isZslSupported() ? View.VISIBLE : View.GONE);"
+        errorLine2="                                   ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mAnalysisIdlingResource` of class `CameraXActivity` requires synthetic accessor"
-        errorLine1="                    mAnalysisIdlingResource.decrement();"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mImageSavedIdlingResource` of class `CameraXActivity` requires synthetic accessor"
-        errorLine1="                        mImageSavedIdlingResource.increment();"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `createDefaultPictureFolderIfNotExist` of class `CameraXActivity` requires synthetic accessor"
-        errorLine1="                        createDefaultPictureFolderIfNotExist();"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mImageCaptureExecutorService` of class `CameraXActivity` requires synthetic accessor"
-        errorLine1="                                mImageCaptureExecutorService,"
-        errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mImageSavedIdlingResource` of class `CameraXActivity` requires synthetic accessor"
-        errorLine1="                                            mImageSavedIdlingResource.decrement();"
-        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mImageSavedIdlingResource` of class `CameraXActivity` requires synthetic accessor"
-        errorLine1="                                            mImageSavedIdlingResource.decrement();"
-        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mCameraProvider` of class `OpenGLActivity` requires synthetic accessor"
-        errorLine1="                            if (mCameraProvider != null) {"
-        errorLine2="                                ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/integration/core/OpenGLActivity.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `startCamera` of class `OpenGLActivity` requires synthetic accessor"
-        errorLine1="                                startCamera();"
-        errorLine2="                                ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/integration/core/OpenGLActivity.java"/>
     </issue>
 
     <issue

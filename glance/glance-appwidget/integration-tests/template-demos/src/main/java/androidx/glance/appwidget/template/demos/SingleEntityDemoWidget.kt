@@ -29,36 +29,37 @@ import androidx.glance.appwidget.SizeMode
 import androidx.glance.appwidget.action.ActionCallback
 import androidx.glance.appwidget.action.actionRunCallback
 import androidx.glance.appwidget.state.updateAppWidgetState
-import androidx.glance.currentState
+import androidx.glance.appwidget.template.GlanceTemplateAppWidget
 import androidx.glance.appwidget.template.SingleEntityTemplate
+import androidx.glance.currentState
 import androidx.glance.template.SingleEntityTemplateData
 import androidx.glance.template.TemplateImageWithDescription
 import androidx.glance.template.TemplateText
 import androidx.glance.template.TemplateTextButton
-import androidx.glance.template.TemplateText.Type
+import androidx.glance.template.TextType
 
 /**
  * Demo app widget using [SingleEntityTemplate] to define layout.
  */
-class SingleEntityDemoWidget : GlanceAppWidget() {
+class SingleEntityDemoWidget : GlanceTemplateAppWidget() {
     override val sizeMode = SizeMode.Exact
 
     @Composable
-    override fun Content() {
+    override fun TemplateContent() {
         SingleEntityTemplate(
             SingleEntityTemplateData(
-                header = TemplateText("Single Entity Demo", Type.Title),
+                header = TemplateText("Single Entity Demo", TextType.Title),
                 headerIcon = TemplateImageWithDescription(
                     ImageProvider(R.drawable.compose),
                     "Header icon"
                 ),
                 text1 = TemplateText(
-                    getTitle(currentState<Preferences>()[ToggleKey] == true), Type.Title
+                    getTitle(currentState<Preferences>()[ToggleKey] == true), TextType.Title
                 ),
-                text2 = TemplateText("Subtitle", Type.Label),
+                text2 = TemplateText("Subtitle", TextType.Label),
                 text3 = TemplateText(
                     "Body Lorem ipsum dolor sit amet, consectetur adipiscing elit",
-                    Type.Body
+                    TextType.Body
                 ),
                 button = TemplateTextButton(
                     actionRunCallback<SEButtonAction>(),

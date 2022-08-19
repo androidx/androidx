@@ -17,16 +17,16 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 31
+    compileSdk 32
 
     defaultConfig {
         applicationId "androidx.car.app.sample.showcase"
         minSdkVersion 23
-        targetSdkVersion 31
+        targetSdkVersion 32
         // Increment this to generate signed builds for uploading to Playstore
         // Make sure this is different from the showcase-automotive version
-        versionCode 108
-        versionName "108"
+        versionCode 112
+        versionName "112"
     }
 
     buildTypes {
@@ -45,6 +45,7 @@ android {
     }
 
     testOptions.unitTests.includeAndroidResources true
+    namespace "androidx.car.app.sample.showcase"
 }
 
 dependencies {

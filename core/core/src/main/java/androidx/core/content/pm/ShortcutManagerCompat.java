@@ -860,6 +860,7 @@ public class ShortcutManagerCompat {
         return sShortcutInfoCompatSaver;
     }
 
+    @SuppressWarnings("deprecation")
     private static List<ShortcutInfoChangeListener> getShortcutInfoListeners(Context context) {
         if (sShortcutInfoChangeListeners == null) {
             List<ShortcutInfoChangeListener> result = new ArrayList<>();

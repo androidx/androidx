@@ -26,6 +26,7 @@ import androidx.annotation.NonNull;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.work.impl.DefaultRunnableScheduler;
+import androidx.work.impl.model.WorkGenerationalId;
 import androidx.work.impl.utils.WorkTimer;
 
 import org.junit.Before;
@@ -35,7 +36,7 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public class WorkTimerTest {
 
-    private static final String WORKSPEC_ID_1 = "1";
+    private static final WorkGenerationalId WORKSPEC_ID_1 = new WorkGenerationalId("1", 0);
 
     private WorkTimer mWorkTimer;
     private TestTimeLimitExceededListener mListener;
@@ -73,7 +74,7 @@ public class WorkTimerTest {
     public static class TestTimeLimitExceededListener implements
             WorkTimer.TimeLimitExceededListener {
         @Override
-        public void onTimeLimitExceeded(@NonNull String workSpecId) {
+        public void onTimeLimitExceeded(@NonNull WorkGenerationalId id) {
             // does nothing
         }
     }

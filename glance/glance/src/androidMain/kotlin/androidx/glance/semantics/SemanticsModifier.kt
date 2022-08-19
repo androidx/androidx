@@ -20,14 +20,14 @@ import androidx.glance.GlanceModifier
 
 /** @suppress **/
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public data class SemanticsModifier(
+data class SemanticsModifier(
     val configuration: SemanticsConfiguration
 ) : GlanceModifier.Element
 
 /**
  * Add semantics for use in testing, accessibility and similar use cases.
  */
-public fun GlanceModifier.semantics(
+fun GlanceModifier.semantics(
     properties: (SemanticsPropertyReceiver.() -> Unit)
 ): GlanceModifier =
     this.then(

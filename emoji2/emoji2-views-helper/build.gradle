@@ -23,13 +23,12 @@ dependencies {
 }
 
 android {
-    sourceSets {
-        main {
-            // We use a non-standard manifest path.
-            manifest.srcFile 'AndroidManifest.xml'
-        }
-    }
     namespace "androidx.emoji2.viewsintegration"
+
+    // Workaround for b/230466571 where targetSdkVersion gets merged incorrectly.
+    defaultConfig {
+        targetSdk null
+    }
 }
 
 androidx {

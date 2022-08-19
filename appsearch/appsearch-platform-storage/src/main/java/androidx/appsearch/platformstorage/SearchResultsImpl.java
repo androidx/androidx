@@ -15,6 +15,7 @@
  */
 package androidx.appsearch.platformstorage;
 
+import android.annotation.SuppressLint;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
@@ -26,6 +27,7 @@ import androidx.appsearch.app.SearchSpec;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.platformstorage.converter.SearchResultToPlatformConverter;
 import androidx.concurrent.futures.ResolvableFuture;
+import androidx.core.os.BuildCompat;
 import androidx.core.util.Preconditions;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -56,25 +58,31 @@ class SearchResultsImpl implements SearchResults {
         mExecutor = Preconditions.checkNotNull(executor);
     }
 
+    @SuppressLint("WrongConstant")
     @Override
     @NonNull
-    public ListenableFuture<List<SearchResult>> getNextPage() {
+    @BuildCompat.PrereleaseSdkCheck
+    public ListenableFuture<List<SearchResult>> getNextPageAsync() {
         ResolvableFuture<List<SearchResult>> future = ResolvableFuture.create();
         mPlatformResults.getNextPage(mExecutor, result -> {
             if (result.isSuccess()) {
                 List<android.app.appsearch.SearchResult> frameworkResults = result.getResultValue();
                 List<SearchResult> jetpackResults = new ArrayList<>(frameworkResults.size());
                 for (int i = 0; i < frameworkResults.size(); i++) {
-                    if (Build.VERSION.SDK_INT == Build.VERSION_CODES.S) {
+                    if (Build.VERSION.SDK_INT == Build.VERSION_CODES.S
+                            || Build.VERSION.SDK_INT == Build.VERSION_CODES.S_V2) {
                         // This is a patch for b/197361770, framework-appsearch in Android S will
                         // disable the whole namespace filter if none of given namespaces exist.
-                        // And that will result in Icing return all documents this query is able
-                        // to access.
+                        // And that will result in Icing returns all documents that this query is
+                        // able to access.
                         if (i == 0 && !mSearchSpec.getFilterNamespaces().isEmpty()
                                 && !mSearchSpec.getFilterNamespaces().contains(
                                 frameworkResults.get(i).getGenericDocument().getNamespace())) {
-                            // And in the meantime, since none of the namespace and document that
-                            // use query for exists, we should just return an empty result.
+                            // We should never return a document with a namespace that is not
+                            // required in the request. And also since the bug will only happen
+                            // when the required namespace doesn't exist, we should just return
+                            // an empty result when we found the result contains unexpected
+                            // namespace.
                             future.set(Collections.emptyList());
                             return;
                         }
@@ -87,6 +95,9 @@ class SearchResultsImpl implements SearchResults {
                 future.set(jetpackResults);
             } else {
                 future.setException(
+                        // Without the SuppressLint annotation on the method, this line causes a
+                        // lint error because getResultCode isn't defined as returning a value from
+                        // AppSearchResult.ResultCode
                         new AppSearchException(result.getResultCode(), result.getErrorMessage()));
             }
         });

@@ -18,12 +18,15 @@ package androidx.compose.ui.layout
 
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.node.LayoutNodeWrapper
+import androidx.compose.ui.graphics.Matrix
+import androidx.compose.ui.node.NodeCoordinator
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.internal.JvmDefaultWithCompatibility
 
 /**
  * A holder of the measured bounds for the layout (MeasureBox).
  */
+@JvmDefaultWithCompatibility
 interface LayoutCoordinates {
     /**
      * The size of this layout in the local coordinates space.
@@ -91,6 +94,12 @@ interface LayoutCoordinates {
     fun localBoundingBoxOf(sourceCoordinates: LayoutCoordinates, clipBounds: Boolean = true): Rect
 
     /**
+     * Modifies [matrix] to be a transform to convert a coordinate in [sourceCoordinates]
+     * to a coordinate in `this` [LayoutCoordinates].
+     */
+    fun transformFrom(sourceCoordinates: LayoutCoordinates, matrix: Matrix) {}
+
+    /**
      * Returns the position in pixels of an [alignment line][AlignmentLine],
      * or [AlignmentLine.Unspecified] if the line is not provided.
      */
@@ -111,18 +120,27 @@ fun LayoutCoordinates.positionInWindow(): Offset = localToWindow(Offset.Zero)
  * The boundaries of this layout inside the root composable.
  */
 fun LayoutCoordinates.boundsInRoot(): Rect =
-    findRoot().localBoundingBoxOf(this)
+    findRootCoordinates().localBoundingBoxOf(this)
 
 /**
  * The boundaries of this layout relative to the window's origin.
  */
 fun LayoutCoordinates.boundsInWindow(): Rect {
-    val root = findRoot()
+    val root = findRootCoordinates()
     val bounds = boundsInRoot()
-    val topLeft = root.localToWindow(Offset(bounds.left, bounds.top))
-    val topRight = root.localToWindow(Offset(bounds.right, bounds.top))
-    val bottomRight = root.localToWindow(Offset(bounds.right, bounds.bottom))
-    val bottomLeft = root.localToWindow(Offset(bounds.left, bounds.bottom))
+    val rootWidth = root.size.width.toFloat()
+    val rootHeight = root.size.height.toFloat()
+    val boundsLeft = bounds.left.coerceIn(0f, rootWidth)
+    val boundsTop = bounds.top.coerceIn(0f, rootHeight)
+    val boundsRight = bounds.right.coerceIn(0f, rootWidth)
+    val boundsBottom = bounds.bottom.coerceIn(0f, rootHeight)
+    if (boundsLeft == boundsRight || boundsTop == boundsBottom) {
+        return Rect.Zero
+    }
+    val topLeft = root.localToWindow(Offset(boundsLeft, boundsTop))
+    val topRight = root.localToWindow(Offset(boundsRight, boundsTop))
+    val bottomRight = root.localToWindow(Offset(boundsRight, boundsBottom))
+    val bottomLeft = root.localToWindow(Offset(boundsLeft, boundsBottom))
     val left = minOf(topLeft.x, topRight.x, bottomLeft.x, bottomRight.x)
     val top = minOf(topLeft.y, topRight.y, bottomLeft.y, bottomRight.y)
     val right = maxOf(topLeft.x, topRight.x, bottomLeft.x, bottomRight.x)
@@ -147,21 +165,23 @@ fun LayoutCoordinates.boundsInParent(): Rect =
         ?: Rect(0f, 0f, size.width.toFloat(), size.height.toFloat())
 
 /**
- * Returns the [LayoutCoordinates] of the root layout element in the hierarchy. This will have
- * the size of the entire compose UI.
+ * Walks up the [LayoutCoordinates] hierarchy to find the [LayoutCoordinates] whose
+ * [LayoutCoordinates.parentCoordinates] is `null` and returns it. If
+ * [LayoutCoordinates.isAttached], this will have the size of the
+ * [ComposeView][androidx.compose.ui.platform.ComposeView].
  */
-internal fun LayoutCoordinates.findRoot(): LayoutCoordinates {
+fun LayoutCoordinates.findRootCoordinates(): LayoutCoordinates {
     var root = this
     var parent = root.parentLayoutCoordinates
     while (parent != null) {
         root = parent
         parent = root.parentLayoutCoordinates
     }
-    var rootLayoutNodeWrapper = root as? LayoutNodeWrapper ?: return root
-    var parentLayoutNodeWrapper = rootLayoutNodeWrapper.wrappedBy
-    while (parentLayoutNodeWrapper != null) {
-        rootLayoutNodeWrapper = parentLayoutNodeWrapper
-        parentLayoutNodeWrapper = parentLayoutNodeWrapper.wrappedBy
+    var rootCoordinator = root as? NodeCoordinator ?: return root
+    var parentCoordinator = rootCoordinator.wrappedBy
+    while (parentCoordinator != null) {
+        rootCoordinator = parentCoordinator
+        parentCoordinator = parentCoordinator.wrappedBy
     }
-    return rootLayoutNodeWrapper
+    return rootCoordinator
 }

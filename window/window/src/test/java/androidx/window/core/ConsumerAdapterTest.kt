@@ -16,17 +16,17 @@
 
 package androidx.window.core
 
+import android.annotation.SuppressLint
 import android.app.Activity
-import android.os.Build
-import androidx.annotation.RequiresApi
 import com.nhaarman.mockitokotlin2.mock
 import java.util.function.Consumer
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
-import org.junit.Assume.assumeTrue
-import org.junit.Before
 import org.junit.Test
 
+/**
+ * Tests for [ConsumerAdapter] ensuring that the reflection calls work as expected.
+ */
 class ConsumerAdapterTest {
 
     internal class TestListenerInterface {
@@ -52,13 +52,8 @@ class ConsumerAdapterTest {
     private val listenerInterface = TestListenerInterface()
     private val adapter = ConsumerAdapter(loader)
 
-    @Before
-    fun setUp() {
-        assumeTrue(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
-    }
-
     @Test
-    @RequiresApi(24)
+    @SuppressLint("NewApi") // Test runs on the JVM so SDK check isn't necessary
     fun testAddByReflection() {
         val values = mutableListOf<String>()
         adapter.addConsumer(listenerInterface, String::class, "addConsumer") { s: String ->
@@ -71,7 +66,7 @@ class ConsumerAdapterTest {
     }
 
     @Test
-    @RequiresApi(24)
+    @SuppressLint("NewApi") // Test runs on the JVM so SDK check isn't necessary
     fun testSubscribeByReflection() {
         val values = mutableListOf<String>()
         adapter.createSubscription(
@@ -90,7 +85,6 @@ class ConsumerAdapterTest {
     }
 
     @Test
-    @RequiresApi(24)
     fun testDisposeSubscribe() {
         val values = mutableListOf<String>()
         val subscription = adapter.createSubscription(
@@ -108,7 +102,6 @@ class ConsumerAdapterTest {
     }
 
     @Test
-    @RequiresApi(24)
     fun testToStringAdd() {
         val values = mutableListOf<String>()
         val consumer: (String) -> Unit = { s: String -> values.add(s) }

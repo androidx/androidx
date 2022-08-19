@@ -58,8 +58,9 @@ public class ConstraintProxyUpdateReceiver extends BroadcastReceiver {
      * @return an {@link Intent} with information about the constraint proxies which need to be
      * enabled.
      */
+    @NonNull
     public static Intent newConstraintProxyUpdateIntent(
-            Context context,
+            @NonNull Context context,
             boolean batteryNotLowProxyEnabled,
             boolean batteryChargingProxyEnabled,
             boolean storageNotLowProxyEnabled,

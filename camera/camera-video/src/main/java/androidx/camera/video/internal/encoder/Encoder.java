@@ -22,6 +22,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.camera.video.internal.BufferProvider;
 
+import com.google.common.util.concurrent.ListenableFuture;
+
 import java.util.concurrent.Executor;
 
 /**
@@ -90,6 +92,14 @@ public interface Encoder {
      * may be the current surface or one of the obsolete surfaces.
      */
     void release();
+
+    /**
+     * Returns a ListenableFuture to represent the release status.
+     *
+     * <p>Cancellation on the returned ListenableFuture takes no effect.
+     */
+    @NonNull
+    ListenableFuture<Void> getReleasedFuture();
 
     /**
      * Sets callback to encoder.

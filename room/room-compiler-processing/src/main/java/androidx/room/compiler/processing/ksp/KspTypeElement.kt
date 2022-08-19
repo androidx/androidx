@@ -26,6 +26,7 @@ import androidx.room.compiler.processing.XMemberContainer
 import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
+import androidx.room.compiler.processing.XTypeParameterElement
 import androidx.room.compiler.processing.collectAllMethods
 import androidx.room.compiler.processing.collectFieldsIncludingPrivateSupers
 import androidx.room.compiler.processing.filterMethodsByConfig
@@ -69,8 +70,8 @@ internal sealed class KspTypeElement(
     override val enclosingElement: XMemberContainer?
         get() = enclosingTypeElement
 
-    override val equalityItems: Array<out Any?> by lazy {
-        arrayOf(declaration)
+    override val typeParameters: List<XTypeParameterElement> by lazy {
+        declaration.typeParameters.map { KspTypeParameterElement(env, it) }
     }
 
     override val qualifiedName: String by lazy {
@@ -159,7 +160,6 @@ internal sealed class KspTypeElement(
                 KspFieldElement(
                     env = env,
                     declaration = it,
-                    containing = this
                 )
             }.let {
                 // only order instance properties with backing fields, we don't care about the order
@@ -180,7 +180,6 @@ internal sealed class KspTypeElement(
                 KspFieldElement(
                     env = env,
                     declaration = it,
-                    containing = this
                 )
             }
         declaredProperties + companionProperties
@@ -251,7 +250,6 @@ internal sealed class KspTypeElement(
         return declaration.primaryConstructor?.let {
             KspConstructorElement(
                 env = env,
-                containing = this,
                 declaration = it
             )
         }
@@ -275,7 +273,6 @@ internal sealed class KspTypeElement(
             }.map {
                 KspMethodElement.create(
                     env = env,
-                    containing = this,
                     declaration = it
                 )
             }.toList()
@@ -292,7 +289,6 @@ internal sealed class KspTypeElement(
         return declaration.getConstructors().map {
             KspConstructorElement(
                 env = env,
-                containing = this,
                 declaration = it
             )
         }.toList()
@@ -313,10 +309,6 @@ internal sealed class KspTypeElement(
         return declaration.declarations.filterIsInstance<KSClassDeclaration>()
             .map { env.wrapClassDeclaration(it) }
             .toList()
-    }
-
-    override fun toString(): String {
-        return declaration.toString()
     }
 
     private class DefaultKspTypeElement(

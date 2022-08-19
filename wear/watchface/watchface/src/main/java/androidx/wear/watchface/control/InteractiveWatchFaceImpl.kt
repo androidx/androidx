@@ -19,6 +19,7 @@ package androidx.wear.watchface.control
 import android.os.Build
 import android.os.Bundle
 import android.support.wearable.watchface.accessibility.ContentDescriptionLabel
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.wear.watchface.utility.TraceEvent
 import androidx.wear.watchface.TapEvent
@@ -33,12 +34,18 @@ import androidx.wear.watchface.style.data.UserStyleSchemaWireFormat
 import androidx.wear.watchface.style.data.UserStyleWireFormat
 import kotlinx.coroutines.launch
 import java.time.Instant
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 
 /** An interactive watch face instance with SysUI and WCS facing interfaces.*/
 internal class InteractiveWatchFaceImpl(
     internal var engine: WatchFaceService.EngineWrapper?,
     internal var instanceId: String
 ) : IInteractiveWatchFace.Stub() {
+    private companion object {
+        private const val TAG = "InteractiveWatchFaceImpl"
+    }
+
     private val uiThreadCoroutineScope = engine!!.uiThreadCoroutineScope
 
     override fun getApiVersion() = IInteractiveWatchFace.API_VERSION
@@ -64,8 +71,24 @@ internal class InteractiveWatchFaceImpl(
 
     override fun unused18() {}
 
+    override fun unused20() {}
+
+    override fun addWatchFaceListener(listener: IWatchfaceListener) {
+        engine?.addWatchFaceListener(listener) ?: Log.w(
+            TAG,
+            "addWatchFaceListener ignored due to null engine"
+        )
+    }
+
+    override fun removeWatchFaceListener(listener: IWatchfaceListener) {
+        engine?.removeWatchFaceListener(listener) ?: Log.w(
+            TAG,
+            "removeWatchFaceListener ignored due to null engine"
+        )
+    }
+
     override fun getWatchFaceOverlayStyle(): WatchFaceOverlayStyleWireFormat? =
-        WatchFaceService.deferredWatchFaceAndComplicationManagerThenRunOnBinderThread(
+        WatchFaceService.awaitDeferredWatchFaceAndComplicationManagerThenRunOnBinderThread(
             engine,
             "InteractiveWatchFaceImpl.getWatchFaceOverlayStyle"
         ) { watchFaceInitDetails ->
@@ -101,7 +124,11 @@ internal class InteractiveWatchFaceImpl(
         WatchFaceService.awaitDeferredWatchFaceImplThenRunOnUiThreadBlocking(
             engine,
             "InteractiveWatchFaceImpl.setWatchUiState"
-        ) { engine?.setWatchUiState(watchUiState) }
+        ) {
+            engine?.let {
+                it.setWatchUiState(watchUiState, fromSysUi = true)
+            } ?: Log.d(TAG, "setWatchUiState ignored due to null engine id $instanceId")
+        }
     }
 
     override fun getInstanceId(): String = instanceId
@@ -109,19 +136,26 @@ internal class InteractiveWatchFaceImpl(
     override fun ambientTickUpdate() {
         uiThreadCoroutineScope.runBlockingWithTracing(
             "InteractiveWatchFaceImpl.ambientTickUpdate"
-        ) { engine?.ambientTickUpdate() }
+        ) {
+            engine?.ambientTickUpdate()
+                ?: Log.d(TAG, "ambientTickUpdate ignored due to null engine id $instanceId")
+        }
     }
 
     override fun release(): Unit = TraceEvent("InteractiveWatchFaceImpl.release").use {
-        uiThreadCoroutineScope.launch {
-            engine?.let {
-                try {
-                    it.deferredWatchFaceImpl.await()
-                } catch (e: Exception) {
-                    // deferredWatchFaceImpl may have completed with an exception. This will
-                    // have already been reported so we can ignore it.
+        // Note this is a one way method called on a binder thread, so it shouldn't matter if we
+        // block.
+        runBlocking {
+            withContext(uiThreadCoroutineScope.coroutineContext) {
+                engine?.let {
+                    try {
+                        it.deferredWatchFaceImpl.await()
+                    } catch (e: Exception) {
+                        // deferredWatchFaceImpl may have completed with an exception. This will
+                        // have already been reported so we can ignore it.
+                    }
+                    InteractiveInstanceManager.releaseInstance(instanceId)
                 }
-                InteractiveInstanceManager.releaseInstance(instanceId)
             }
         }
     }
@@ -130,7 +164,14 @@ internal class InteractiveWatchFaceImpl(
         complicationDatumWireFormats: MutableList<IdAndComplicationDataWireFormat>
     ): Unit = uiThreadCoroutineScope.runBlockingWithTracing(
         "InteractiveWatchFaceImpl.updateComplicationData"
-    ) { engine?.setComplicationDataList(complicationDatumWireFormats) }
+    ) {
+        if ("user" != Build.TYPE) {
+            Log.d(TAG, "updateComplicationData " + complicationDatumWireFormats.joinToString())
+        }
+
+        engine?.setComplicationDataList(complicationDatumWireFormats)
+            ?: Log.d(TAG, "updateComplicationData ignored due to null engine id $instanceId")
+    }
 
     override fun updateWatchfaceInstance(
         newInstanceId: String,
@@ -145,7 +186,6 @@ internal class InteractiveWatchFaceImpl(
         ) {
             if (instanceId != newInstanceId) {
                 engine?.updateInstance(newInstanceId)
-                InteractiveInstanceManager.renameInstance(instanceId, newInstanceId)
                 instanceId = newInstanceId
             }
             engine?.setUserStyle(userStyle)
@@ -173,12 +213,17 @@ internal class InteractiveWatchFaceImpl(
     override fun addWatchfaceReadyListener(listener: IWatchfaceReadyListener) {
         uiThreadCoroutineScope.launch {
             engine?.addWatchfaceReadyListener(listener)
+                ?: Log.d(TAG, "addWatchfaceReadyListener ignored due to null engine id $instanceId")
         }
     }
 
     fun onDestroy() {
-        uiThreadCoroutineScope.launch {
-            engine = null
+        // Note this is almost certainly called on the ui thread, from release() above.
+        runBlocking {
+            withContext(uiThreadCoroutineScope.coroutineContext) {
+                Log.d(TAG, "onDestroy id $instanceId")
+                engine = null
+            }
         }
     }
 }

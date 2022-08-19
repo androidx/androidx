@@ -129,7 +129,7 @@ class RoomInvalidationHookTest {
  * extract the framework sqlite database instance from a room database via reflection.
  */
 private fun RoomDatabase.getSqliteDb(): SQLiteDatabase {
-    val supportDb = this.getOpenHelper().writableDatabase
+    val supportDb = this.openHelper.writableDatabase
     // this runs with defaults so we can extract db from it until inspection supports support
     // instances directly
     return supportDb::class.java.getDeclaredField("mDelegate").let {

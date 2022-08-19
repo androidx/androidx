@@ -57,6 +57,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathFillType
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
@@ -190,17 +191,17 @@ public fun ToggleChip(
                 label = label,
                 secondaryLabel = secondaryLabel,
             )
+            Spacer(
+                modifier = Modifier.size(
+                    ToggleChipDefaults.ToggleControlSpacing
+                )
+            )
             Box(
                 modifier = Modifier
                     .align(Alignment.CenterVertically)
-                    .width(36.dp)
+                    .width(24.dp)
                     .wrapContentWidth(align = Alignment.End)
             ) {
-                Spacer(
-                    modifier = Modifier.size(
-                        ToggleChipDefaults.ToggleControlSpacing
-                    )
-                )
                 CompositionLocalProvider(
                     LocalContentColor provides
                         colors.toggleControlColor(
@@ -568,8 +569,12 @@ public object ToggleChipDefaults {
      */
     @Composable
     public fun toggleChipColors(
-        checkedStartBackgroundColor: Color = MaterialTheme.colors.surface.copy(alpha = 0.75f),
-        checkedEndBackgroundColor: Color = MaterialTheme.colors.primary.copy(alpha = 0.325f),
+        checkedStartBackgroundColor: Color =
+            MaterialTheme.colors.surface.copy(alpha = 0f)
+                .compositeOver(MaterialTheme.colors.surface),
+        checkedEndBackgroundColor: Color =
+            MaterialTheme.colors.primary.copy(alpha = 0.5f)
+                .compositeOver(MaterialTheme.colors.surface),
         checkedContentColor: Color = MaterialTheme.colors.onSurface,
         checkedSecondaryContentColor: Color = MaterialTheme.colors.onSurfaceVariant,
         checkedToggleControlColor: Color = MaterialTheme.colors.secondary,

@@ -18,6 +18,7 @@
 
 package androidx.build.lint
 
+import androidx.build.lint.BanInappropriateExperimentalUsage.Companion.getMavenCoordinatesFromPath
 import androidx.build.lint.BanInappropriateExperimentalUsage.Companion.isAnnotationAlwaysAllowed
 import com.android.tools.lint.checks.infrastructure.ProjectDescription
 import com.android.tools.lint.checks.infrastructure.TestFile
@@ -61,6 +62,27 @@ class BanInappropriateExperimentalUsageTest : AbstractLintDetectorTest(
         assertFalse(isAnnotationAlwaysAllowed("androidx.foo.bar"))
         assertFalse(isAnnotationAlwaysAllowed("com.google.foo.bar"))
         /* ktlint-enable max-line-length */
+    }
+
+    @Test
+    fun `getLibraryFromPath should return correct Maven coordinates`() {
+        /* ktlint-disable max-line-length */
+        val paging = getMavenCoordinatesFromPath("/path/to/checkout/out/androidx/paging/paging-common/build/libs/paging-common-3.2.0-alpha01.jar")
+        val room = getMavenCoordinatesFromPath("/path/to/checkout/out/androidx/room/room-compiler-processing/build/libs/room-compiler-processing-2.5.0-alpha02.jar")
+        /* ktlint-enable max-line-length */
+
+        assertNotNull(paging!!)
+        assertEquals("androidx.paging", paging.groupId)
+        assertEquals("paging-common", paging.artifactId)
+        assertEquals("3.2.0-alpha01", paging.version)
+
+        assertNotNull(room!!)
+        assertEquals("androidx.room", room.groupId)
+        assertEquals("room-compiler-processing", room.artifactId)
+        assertEquals("2.5.0-alpha02", room.version)
+
+        val invalid = getMavenCoordinatesFromPath("/foo/bar/baz")
+        assertNull(invalid)
     }
 
     @Test

@@ -16,23 +16,23 @@
 
 package androidx.datastore.core
 
+import androidx.datastore.TestingSerializerConfig
 import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
-import com.google.common.truth.Truth.assertThat
+import androidx.kruth.assertThat
+import java.io.File
+import java.util.concurrent.TimeUnit
+import kotlin.test.BeforeTest
+import kotlin.test.Test
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
-import org.junit.Before
 import org.junit.Rule
-import org.junit.Test
 import org.junit.rules.TemporaryFolder
 import org.junit.rules.Timeout
-import java.io.File
-import java.util.concurrent.TimeUnit
 
-@kotlinx.coroutines.ExperimentalCoroutinesApi
-@kotlinx.coroutines.ObsoleteCoroutinesApi
-@kotlinx.coroutines.FlowPreview
+@OptIn(ExperimentalCoroutinesApi::class)
 class DataStoreFactoryTest {
     @get:Rule
     val timeout = Timeout(10, TimeUnit.SECONDS)
@@ -43,7 +43,7 @@ class DataStoreFactoryTest {
     private lateinit var testFile: File
     private lateinit var dataStoreScope: TestScope
 
-    @Before
+    @BeforeTest
     fun setUp() {
         testFile = tmp.newFile()
         dataStoreScope = TestScope(UnconfinedTestDispatcher())
@@ -71,7 +71,9 @@ class DataStoreFactoryTest {
         val valueToReplace = 123.toByte()
 
         val store = DataStoreFactory.create(
-            serializer = TestingSerializer(failReadWithCorruptionException = true),
+            serializer = TestingSerializer(
+                TestingSerializerConfig(failReadWithCorruptionException = true)
+            ),
             corruptionHandler = ReplaceFileCorruptionHandler<Byte> {
                 valueToReplace
             },

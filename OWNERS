@@ -5,12 +5,15 @@ aurimas@google.com
 ccraik@google.com
 clarabayarri@google.com
 emberrose@google.com
+fsladkey@google.com
 ilake@google.com
 jeffrygaston@google.com
 jellefresen@google.com
 jsproch@google.com
+juliamcclellan@google.com
 lpf@google.com
 mount@google.com
+natnaelbelay@google.com
 nickanthony@google.com
 owengray@google.com
 romainguy@android.com
@@ -24,3 +27,4 @@ yboyar@google.com
 
 per-file *settings.gradle = set noparent
 per-file *settings.gradle = nickanthony@google.com, alanv@google.com, aurimas@google.com
+per-file *libraryversions.toml = jnichol@google.com

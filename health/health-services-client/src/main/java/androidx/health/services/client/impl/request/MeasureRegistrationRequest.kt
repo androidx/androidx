@@ -30,7 +30,7 @@ import androidx.health.services.client.proto.RequestsProto
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class MeasureRegistrationRequest(
     public val packageName: String,
-    public val dataType: DataType,
+    public val dataType: DataType<*, *>,
 ) : ProtoParcelable<RequestsProto.MeasureRegistrationRequest>() {
 
     override val proto: RequestsProto.MeasureRegistrationRequest by lazy {
@@ -44,7 +44,7 @@ public class MeasureRegistrationRequest(
         @JvmField
         public val CREATOR: Parcelable.Creator<MeasureRegistrationRequest> = newCreator { bytes ->
             val proto = RequestsProto.MeasureRegistrationRequest.parseFrom(bytes)
-            MeasureRegistrationRequest(proto.packageName, DataType(proto.dataType))
+            MeasureRegistrationRequest(proto.packageName, DataType.deltaFromProto(proto.dataType))
         }
     }
 }

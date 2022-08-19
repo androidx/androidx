@@ -68,6 +68,16 @@ public class BroadcastsReceiver constructor(
         /** Called when we receive [WatchFaceImpl.MOCK_TIME_INTENT]. */
         @UiThread
         public fun onMockTime(intent: Intent)
+
+        /** Called when we receive [Intent.ACTION_SCREEN_OFF] */
+        @UiThread
+        public fun onActionScreenOff() {
+        }
+
+        /** Called when we receive [Intent.ACTION_SCREEN_ON] */
+        @UiThread
+        public fun onActionScreenOn() {
+        }
     }
 
     companion object {
@@ -78,88 +88,48 @@ public class BroadcastsReceiver constructor(
         internal const val INITIAL_LOW_BATTERY_THRESHOLD = 15f
     }
 
-    internal val actionTimeTickReceiver: BroadcastReceiver = object : BroadcastReceiver() {
+    internal val receiver: BroadcastReceiver = object : BroadcastReceiver() {
         @SuppressWarnings("SyntheticAccessor")
         override fun onReceive(context: Context, intent: Intent) {
-            observer.onActionTimeTick()
-        }
-    }
-
-    internal val actionTimeZoneReceiver: BroadcastReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context, intent: Intent) {
-            observer.onActionTimeZoneChanged()
-        }
-    }
-
-    internal val actionTimeReceiver: BroadcastReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context?, intent: Intent?) {
-            observer.onActionTimeChanged()
-        }
-    }
-
-    internal val actionBatteryLowReceiver: BroadcastReceiver = object : BroadcastReceiver() {
-        @SuppressWarnings("SyntheticAccessor")
-        override fun onReceive(context: Context, intent: Intent) {
-            observer.onActionBatteryLow()
-        }
-    }
-
-    internal val actionBatteryOkayReceiver: BroadcastReceiver = object : BroadcastReceiver() {
-        @SuppressWarnings("SyntheticAccessor")
-        override fun onReceive(context: Context, intent: Intent) {
-            observer.onActionBatteryOkay()
-        }
-    }
-
-    internal val actionPowerConnectedReceiver: BroadcastReceiver = object : BroadcastReceiver() {
-        @SuppressWarnings("SyntheticAccessor")
-        override fun onReceive(context: Context, intent: Intent) {
-            observer.onActionPowerConnected()
-        }
-    }
-
-    internal val actionPowerDisconnectedReceiver: BroadcastReceiver = object : BroadcastReceiver() {
-        @SuppressWarnings("SyntheticAccessor")
-        override fun onReceive(context: Context, intent: Intent) {
-            observer.onActionPowerDisconnected()
-        }
-    }
-
-    internal val mockTimeReceiver: BroadcastReceiver = object : BroadcastReceiver() {
-        @SuppressWarnings("SyntheticAccessor")
-        override fun onReceive(context: Context, intent: Intent) {
-            observer.onMockTime(intent)
+            when (intent.action) {
+                Intent.ACTION_BATTERY_LOW -> observer.onActionBatteryLow()
+                Intent.ACTION_BATTERY_OKAY -> observer.onActionBatteryOkay()
+                Intent.ACTION_POWER_CONNECTED -> observer.onActionPowerConnected()
+                Intent.ACTION_POWER_DISCONNECTED -> observer.onActionPowerDisconnected()
+                Intent.ACTION_TIME_CHANGED -> observer.onActionTimeChanged()
+                Intent.ACTION_TIME_TICK -> observer.onActionTimeTick()
+                Intent.ACTION_TIMEZONE_CHANGED -> observer.onActionTimeZoneChanged()
+                Intent.ACTION_SCREEN_OFF -> observer.onActionScreenOff()
+                Intent.ACTION_SCREEN_ON -> observer.onActionScreenOn()
+                WatchFaceImpl.MOCK_TIME_INTENT -> observer.onMockTime(intent)
+                else -> System.err.println("<< IGNORING $intent")
+            }
         }
     }
 
     init {
-        context.registerReceiver(actionTimeTickReceiver, IntentFilter(Intent.ACTION_TIME_TICK))
         context.registerReceiver(
-            actionTimeZoneReceiver,
-            IntentFilter(Intent.ACTION_TIMEZONE_CHANGED)
+            receiver,
+            IntentFilter(Intent.ACTION_SCREEN_OFF).apply {
+                addAction(Intent.ACTION_SCREEN_ON)
+                addAction(Intent.ACTION_TIME_TICK)
+                addAction(Intent.ACTION_TIMEZONE_CHANGED)
+                addAction(Intent.ACTION_TIME_CHANGED)
+                addAction(Intent.ACTION_BATTERY_LOW)
+                addAction(Intent.ACTION_BATTERY_OKAY)
+                addAction(Intent.ACTION_POWER_CONNECTED)
+                addAction(Intent.ACTION_POWER_DISCONNECTED)
+                addAction(WatchFaceImpl.MOCK_TIME_INTENT)
+            }
         )
-        context.registerReceiver(actionTimeReceiver, IntentFilter(Intent.ACTION_TIME_CHANGED))
-        context.registerReceiver(actionBatteryLowReceiver, IntentFilter(Intent.ACTION_BATTERY_LOW))
-        context.registerReceiver(
-            actionBatteryOkayReceiver,
-            IntentFilter(Intent.ACTION_BATTERY_OKAY)
-        )
-        context.registerReceiver(
-            actionPowerConnectedReceiver,
-            IntentFilter(Intent.ACTION_POWER_CONNECTED)
-        )
-        context.registerReceiver(
-            actionPowerDisconnectedReceiver,
-            IntentFilter(Intent.ACTION_POWER_DISCONNECTED)
-        )
-        context.registerReceiver(mockTimeReceiver, IntentFilter(WatchFaceImpl.MOCK_TIME_INTENT))
     }
 
     /** Called to send observers initial battery state in advance of receiving any broadcasts. */
     internal fun processBatteryStatus(batteryStatus: Intent?) {
         val status = batteryStatus?.getIntExtra(BatteryManager.EXTRA_STATUS, -1) ?: -1
         if (status == BatteryManager.BATTERY_STATUS_CHARGING ||
-            status == BatteryManager.BATTERY_STATUS_FULL) {
+            status == BatteryManager.BATTERY_STATUS_FULL
+        ) {
             observer.onActionPowerConnected()
         } else {
             observer.onActionPowerDisconnected()
@@ -178,13 +148,6 @@ public class BroadcastsReceiver constructor(
     }
 
     public fun onDestroy() {
-        context.unregisterReceiver(actionTimeTickReceiver)
-        context.unregisterReceiver(actionTimeZoneReceiver)
-        context.unregisterReceiver(actionTimeReceiver)
-        context.unregisterReceiver(actionBatteryLowReceiver)
-        context.unregisterReceiver(actionBatteryOkayReceiver)
-        context.unregisterReceiver(actionPowerConnectedReceiver)
-        context.unregisterReceiver(actionPowerDisconnectedReceiver)
-        context.unregisterReceiver(mockTimeReceiver)
+        context.unregisterReceiver(receiver)
     }
 }

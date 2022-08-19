@@ -36,6 +36,7 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.StateListDrawable;
+import android.hardware.SensorManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcel;
@@ -226,6 +227,14 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
             {16843830 /* android.R.attr.nestedScrollingEnabled */};
 
     /**
+     * The following are copied from OverScroller to determine how far a fling will go.
+     */
+    private static final float SCROLL_FRICTION = 0.015f;
+    private static final float INFLEXION = 0.35f; // Tension lines cross at (INFLEXION, 1)
+    private static final float DECELERATION_RATE = (float) (Math.log(0.78) / Math.log(0.9));
+    private final float mPhysicalCoef;
+
+    /**
      * On Kitkat and JB MR2, there is a bug which prevents DisplayList from being invalidated if
      * a View is two levels deep(wrt to ViewHolder.itemView). DisplayList can be invalidated by
      * setting View's visibility to INVISIBLE when View is detached. On Kitkat and JB MR2, Recycler
@@ -264,6 +273,14 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
      * side-effect.
      */
     private static final boolean IGNORE_DETACHED_FOCUSED_CHILD = Build.VERSION.SDK_INT <= 15;
+
+    /**
+     * When flinging the stretch towards scrolling content, it should destretch quicker than the
+     * fling would normally do. The visual effect of flinging the stretch looks strange as little
+     * appears to happen at first and then when the stretch disappears, the content starts
+     * scrolling quickly.
+     */
+    private static final float FLING_DESTRETCH_FACTOR = 4f;
 
     static final boolean DISPATCH_TEMP_DETACH = false;
 
@@ -705,6 +722,11 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
                 ViewConfigurationCompat.getScaledVerticalScrollFactor(vc, context);
         mMinFlingVelocity = vc.getScaledMinimumFlingVelocity();
         mMaxFlingVelocity = vc.getScaledMaximumFlingVelocity();
+        final float ppi = context.getResources().getDisplayMetrics().density * 160.0f;
+        mPhysicalCoef = SensorManager.GRAVITY_EARTH // g (m/s^2)
+                * 39.37f // inch/meter
+                * ppi
+                * 0.84f; // look and feel tuning
         setWillNotDraw(getOverScrollMode() == View.OVER_SCROLL_NEVER);
 
         mItemAnimator.setListener(mItemAnimatorListener);
@@ -2688,26 +2710,49 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
 
         // Flinging while the edge effect is active should affect the edge effect,
         // not scrolling.
+        int flingX = 0;
+        int flingY = 0;
         if (velocityX != 0) {
             if (mLeftGlow != null && EdgeEffectCompat.getDistance(mLeftGlow) != 0) {
-                mLeftGlow.onAbsorb(-velocityX);
+                if (shouldAbsorb(mLeftGlow, -velocityX, getWidth())) {
+                    mLeftGlow.onAbsorb(-velocityX);
+                } else {
+                    flingX = velocityX;
+                }
                 velocityX = 0;
             } else if (mRightGlow != null && EdgeEffectCompat.getDistance(mRightGlow) != 0) {
-                mRightGlow.onAbsorb(velocityX);
+                if (shouldAbsorb(mRightGlow, velocityX, getWidth())) {
+                    mRightGlow.onAbsorb(velocityX);
+                } else {
+                    flingX = velocityX;
+                }
                 velocityX = 0;
             }
         }
         if (velocityY != 0) {
             if (mTopGlow != null && EdgeEffectCompat.getDistance(mTopGlow) != 0) {
-                mTopGlow.onAbsorb(-velocityY);
+                if (shouldAbsorb(mTopGlow, -velocityY, getHeight())) {
+                    mTopGlow.onAbsorb(-velocityY);
+                } else {
+                    flingY = velocityY;
+                }
                 velocityY = 0;
             } else if (mBottomGlow != null && EdgeEffectCompat.getDistance(mBottomGlow) != 0) {
-                mBottomGlow.onAbsorb(velocityY);
+                if (shouldAbsorb(mBottomGlow, velocityY, getHeight())) {
+                    mBottomGlow.onAbsorb(velocityY);
+                } else {
+                    flingY = velocityY;
+                }
                 velocityY = 0;
             }
         }
+        if (flingX != 0 || flingY != 0) {
+            flingX = Math.max(-mMaxFlingVelocity, Math.min(flingX, mMaxFlingVelocity));
+            flingY = Math.max(-mMaxFlingVelocity, Math.min(flingY, mMaxFlingVelocity));
+            mViewFlinger.fling(flingX, flingY);
+        }
         if (velocityX == 0 && velocityY == 0) {
-            return false; // consumed all the velocity in the overscroll fling
+            return flingX != 0 || flingY != 0;
         }
 
         if (!dispatchNestedPreFling(velocityX, velocityY)) {
@@ -2735,6 +2780,90 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
             }
         }
         return false;
+    }
+
+    /**
+     * Returns true if edgeEffect should call onAbsorb() with veclocity or false if it should
+     * animate with a fling. It will animate with a fling if the velocity will remove the
+     * EdgeEffect through its normal operation.
+     *
+     * @param edgeEffect The EdgeEffect that might absorb the velocity.
+     * @param velocity The velocity of the fling motion
+     * @param size The width or height of the RecyclerView, depending on the edge that the
+     *             EdgeEffect is on.
+     * @return true if the velocity should be absorbed or false if it should be flung.
+     */
+    private boolean shouldAbsorb(@NonNull EdgeEffect edgeEffect, int velocity, int size) {
+        if (velocity > 0) {
+            return true;
+        }
+        float distance = EdgeEffectCompat.getDistance(edgeEffect) * size;
+
+        // This is flinging without the spring, so let's see if it will fling past the overscroll
+        float flingDistance = getSplineFlingDistance(-velocity);
+
+        return flingDistance < distance;
+    }
+
+    /**
+     * If mLeftGlow or mRightGlow is currently active and the motion will remove some of the
+     * stretch, this will consume any of unconsumedX that the glow can. If the motion would
+     * increase the stretch, or the EdgeEffect isn't a stretch, then nothing will be consumed.
+     *
+     * @param unconsumedX The horizontal delta that might be consumed by the horizontal EdgeEffects
+     * @return The remaining unconsumed delta after the edge effects have consumed.
+     */
+    int consumeFlingInHorizontalStretch(int unconsumedX) {
+        return consumeFlingInStretch(unconsumedX, mLeftGlow, mRightGlow, getWidth());
+    }
+
+    /**
+     * If mTopGlow or mBottomGlow is currently active and the motion will remove some of the
+     * stretch, this will consume any of unconsumedY that the glow can. If the motion would
+     * increase the stretch, or the EdgeEffect isn't a stretch, then nothing will be consumed.
+     *
+     * @param unconsumedY The vertical delta that might be consumed by the vertical EdgeEffects
+     * @return The remaining unconsumed delta after the edge effects have consumed.
+     */
+    int consumeFlingInVerticalStretch(int unconsumedY) {
+        return consumeFlingInStretch(unconsumedY, mTopGlow, mBottomGlow, getHeight());
+    }
+
+    /**
+     * Used by consumeFlingInHorizontalStretch() and consumeFlinInVerticalStretch() for
+     * consuming deltas from EdgeEffects
+     * @param unconsumed The unconsumed delta that the EdgeEffets may consume
+     * @param startGlow The start (top or left) EdgeEffect
+     * @param endGlow The end (bottom or right) EdgeEffect
+     * @param size The width or height of the container, depending on whether this is for
+     *             horizontal or vertical EdgeEffects
+     * @return The unconsumed delta after the EdgeEffects have had an opportunity to consume.
+     */
+    private int consumeFlingInStretch(
+            int unconsumed,
+            EdgeEffect startGlow,
+            EdgeEffect endGlow,
+            int size
+    ) {
+        if (unconsumed > 0 && startGlow != null && EdgeEffectCompat.getDistance(startGlow) != 0f) {
+            float deltaDistance = -unconsumed * FLING_DESTRETCH_FACTOR / size;
+            int consumed = Math.round(-size / FLING_DESTRETCH_FACTOR
+                    * EdgeEffectCompat.onPullDistance(startGlow, deltaDistance, 0.5f));
+            if (consumed != unconsumed) {
+                startGlow.finish();
+            }
+            return unconsumed - consumed;
+        }
+        if (unconsumed < 0 && endGlow != null && EdgeEffectCompat.getDistance(endGlow) != 0f) {
+            float deltaDistance = unconsumed * FLING_DESTRETCH_FACTOR / size;
+            int consumed = Math.round(size / FLING_DESTRETCH_FACTOR
+                    * EdgeEffectCompat.onPullDistance(endGlow, deltaDistance, 0.5f));
+            if (consumed != unconsumed) {
+                endGlow.finish();
+            }
+            return unconsumed - consumed;
+        }
+        return unconsumed;
     }
 
     /**
@@ -5530,6 +5659,20 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
         // Do nothing
     }
 
+    /**
+     * Copied from OverScroller, this returns the distance that a fling with the given velocity
+     * will go.
+     * @param velocity The velocity of the fling
+     * @return The distance that will be traveled by a fling of the given velocity.
+     */
+    private float getSplineFlingDistance(int velocity) {
+        final double l =
+                Math.log(INFLEXION * Math.abs(velocity) / (SCROLL_FRICTION * mPhysicalCoef));
+        final double decelMinusOne = DECELERATION_RATE - 1.0;
+        return (float) (SCROLL_FRICTION * mPhysicalCoef
+                * Math.exp(DECELERATION_RATE / decelMinusOne * l));
+    }
+
     void dispatchOnScrollStateChanged(int state) {
         // Let the LayoutManager go first; this allows it to bring any properties into
         // a consistent state before the RecyclerView subclass responds.
@@ -5617,6 +5760,10 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
                 int unconsumedY = y - mLastFlingY;
                 mLastFlingX = x;
                 mLastFlingY = y;
+
+                unconsumedX = consumeFlingInHorizontalStretch(unconsumedX);
+                unconsumedY = consumeFlingInVerticalStretch(unconsumedY);
+
                 int consumedX = 0;
                 int consumedY = 0;
 
@@ -8479,6 +8626,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
          * @param message The message for the exception. Can be null.
          * @see #assertInLayoutOrScroll(String)
          */
+        @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
         public void assertNotInLayoutOrScroll(String message) {
             if (mRecyclerView != null) {
                 mRecyclerView.assertNotInLayoutOrScroll(message);
@@ -8658,6 +8806,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
          * @see #isItemPrefetchEnabled()
          * @see #collectInitialPrefetchPositions(int, LayoutPrefetchRegistry)
          */
+        @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
         public void collectAdjacentPrefetchPositions(int dx, int dy, State state,
                 LayoutPrefetchRegistry layoutPrefetchRegistry) {
         }
@@ -8686,6 +8835,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
          * @see #isItemPrefetchEnabled()
          * @see #collectAdjacentPrefetchPositions(int, int, State, LayoutPrefetchRegistry)
          */
+        @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
         public void collectInitialPrefetchPositions(int adapterItemCount,
                 LayoutPrefetchRegistry layoutPrefetchRegistry) {
         }
@@ -8793,6 +8943,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
          * @see #onAttachedToWindow(RecyclerView)
          */
         @CallSuper
+        @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
         public void onDetachedFromWindow(RecyclerView view, Recycler recycler) {
             onDetachedFromWindow(view);
         }
@@ -8857,6 +9008,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
          *                 position
          * @param state    Transient state of RecyclerView
          */
+        @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
         public void onLayoutChildren(Recycler recycler, State state) {
             Log.e(TAG, "You must override onLayoutChildren(Recycler recycler, State state) ");
         }
@@ -8872,6 +9024,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
          *
          * @param state Transient state of RecyclerView
          */
+        @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
         public void onLayoutCompleted(State state) {
         }
 
@@ -8890,6 +9043,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
          *
          * @return A new LayoutParams for a child view
          */
+        @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
         public abstract LayoutParams generateDefaultLayoutParams();
 
         /**
@@ -8919,6 +9073,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
          * @param lp Source LayoutParams object to copy values from
          * @return a new LayoutParams object
          */
+        @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
         public LayoutParams generateLayoutParams(ViewGroup.LayoutParams lp) {
             if (lp instanceof LayoutParams) {
                 return new LayoutParams((LayoutParams) lp);
@@ -8943,6 +9098,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
          * @param attrs AttributeSet describing the supplied arguments
          * @return a new LayoutParams object
          */
+        @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
         public LayoutParams generateLayoutParams(Context c, AttributeSet attrs) {
             return new LayoutParams(c, attrs);
         }
@@ -8960,6 +9116,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
          * negative and scrolling proceeeded in that direction.
          * <code>Math.abs(result)</code> may be less than dx if a boundary was reached.
          */
+        @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
         public int scrollHorizontallyBy(int dx, Recycler recycler, State state) {
             return 0;
         }
@@ -8977,6 +9134,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
          * negative and scrolling proceeeded in that direction.
          * <code>Math.abs(result)</code> may be less than dy if a boundary was reached.
          */
+        @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
         public int scrollVerticallyBy(int dy, Recycler recycler, State state) {
             return 0;
         }
@@ -9024,6 +9182,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
          * @param state        Current State of RecyclerView
          * @param position     Scroll to this adapter position.
          */
+        @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
         public void smoothScrollToPosition(RecyclerView recyclerView, State state,
                 int position) {
             Log.e(TAG, "You must override smoothScrollToPosition to support smooth scrolling");
@@ -9039,6 +9198,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
          *
          * @param smoothScroller Instance which defines how smooth scroll should be animated
          */
+        @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
         public void startSmoothScroll(SmoothScroller smoothScroller) {
             if (mSmoothScroller != null && smoothScroller != mSmoothScroller
                     && mSmoothScroller.isRunning()) {
@@ -9073,6 +9233,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
          * @param view The View for which the animations should be ended.
          * @see RecyclerView.ItemAnimator#endAnimations()
          */
+        @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
         public void endAnimation(View view) {
             if (mRecyclerView.mItemAnimator != null) {
                 mRecyclerView.mItemAnimator.endAnimation(getChildViewHolderInt(view));
@@ -9092,6 +9253,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
          *
          * @param child View to add and then remove with animation.
          */
+        @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
         public void addDisappearingView(View child) {
             addDisappearingView(child, -1);
         }
@@ -9110,6 +9272,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
          * @param child View to add and then remove with animation.
          * @param index Index of the view.
          */
+        @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
         public void addDisappearingView(View child, int index) {
             addViewInt(child, index, true);
         }
@@ -9121,6 +9284,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
          *
          * @param child View to add
          */
+        @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
         public void addView(View child) {
             addView(child, -1);
         }
@@ -9133,6 +9297,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
          * @param child View to add
          * @param index Index to add child at
          */
+        @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
         public void addView(View child, int index) {
             addViewInt(child, index, false);
         }
@@ -9199,6 +9364,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
          *
          * @param child View to remove
          */
+        @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
         public void removeView(View child) {
             mChildHelper.removeView(child);
         }
@@ -10858,6 +11024,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
          * @param state The parcelable that was returned by the previous LayoutManager's
          *              {@link #onSaveInstanceState()} method.
          */
+        @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
         public void onRestoreInstanceState(Parcelable state) {
 
         }

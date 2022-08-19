@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.3.0-alpha07" type="baseline" client="gradle" dependencies="false" name="AGP (7.3.0-alpha07)" variant="all" version="7.3.0-alpha07">
+<issues format="6" by="lint 7.4.0-alpha08" type="baseline" client="gradle" dependencies="false" name="AGP (7.4.0-alpha08)" variant="all" version="7.4.0-alpha08">
 
     <issue
         id="BanSynchronizedMethods"
@@ -75,7 +75,7 @@
 
     <issue
         id="MissingQuantity"
-        message="For locale &quot;fr&quot; (French) the following quantities should also be defined: `many`"
+        message="For locale &quot;fr&quot; (French) the following quantity should also be defined: `many` (e.g. &quot;1000000 de jours&quot;)"
         errorLine1="    &lt;plurals name=&quot;abc_slice_duration_min&quot; formatted=&quot;false&quot; msgid=&quot;7664017844210142826&quot;>"
         errorLine2="    ^">
         <location
@@ -84,7 +84,7 @@
 
     <issue
         id="MissingQuantity"
-        message="For locale &quot;fr&quot; (French) the following quantities should also be defined: `many`"
+        message="For locale &quot;fr&quot; (French) the following quantity should also be defined: `many` (e.g. &quot;1000000 de jours&quot;)"
         errorLine1="    &lt;plurals name=&quot;abc_slice_duration_min&quot; formatted=&quot;false&quot; msgid=&quot;7664017844210142826&quot;>"
         errorLine2="    ^">
         <location
@@ -93,7 +93,7 @@
 
     <issue
         id="MissingQuantity"
-        message="For locale &quot;fr&quot; (French) the following quantities should also be defined: `many`"
+        message="For locale &quot;fr&quot; (French) the following quantity should also be defined: `many` (e.g. &quot;1000000 de jours&quot;)"
         errorLine1="    &lt;plurals name=&quot;abc_slice_duration_years&quot; formatted=&quot;false&quot; msgid=&quot;2628491538787454021&quot;>"
         errorLine2="    ^">
         <location
@@ -102,7 +102,7 @@
 
     <issue
         id="MissingQuantity"
-        message="For locale &quot;fr&quot; (French) the following quantities should also be defined: `many`"
+        message="For locale &quot;fr&quot; (French) the following quantity should also be defined: `many` (e.g. &quot;1000000 de jours&quot;)"
         errorLine1="    &lt;plurals name=&quot;abc_slice_duration_years&quot; formatted=&quot;false&quot; msgid=&quot;2628491538787454021&quot;>"
         errorLine2="    ^">
         <location
@@ -111,7 +111,7 @@
 
     <issue
         id="MissingQuantity"
-        message="For locale &quot;fr&quot; (French) the following quantities should also be defined: `many`"
+        message="For locale &quot;fr&quot; (French) the following quantity should also be defined: `many` (e.g. &quot;1000000 de jours&quot;)"
         errorLine1="    &lt;plurals name=&quot;abc_slice_duration_days&quot; formatted=&quot;false&quot; msgid=&quot;8356547162075064530&quot;>"
         errorLine2="    ^">
         <location
@@ -120,7 +120,7 @@
 
     <issue
         id="MissingQuantity"
-        message="For locale &quot;fr&quot; (French) the following quantities should also be defined: `many`"
+        message="For locale &quot;fr&quot; (French) the following quantity should also be defined: `many` (e.g. &quot;1000000 de jours&quot;)"
         errorLine1="    &lt;plurals name=&quot;abc_slice_duration_days&quot; formatted=&quot;false&quot; msgid=&quot;8356547162075064530&quot;>"
         errorLine2="    ^">
         <location

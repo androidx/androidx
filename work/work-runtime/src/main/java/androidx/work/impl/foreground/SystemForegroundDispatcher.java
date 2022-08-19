@@ -18,6 +18,8 @@ package androidx.work.impl.foreground;
 
 import static android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_NONE;
 
+import static androidx.work.impl.model.WorkSpecKt.generationalId;
+
 import android.app.Notification;
 import android.content.Context;
 import android.content.Intent;
@@ -33,11 +35,11 @@ import androidx.annotation.VisibleForTesting;
 import androidx.work.ForegroundInfo;
 import androidx.work.Logger;
 import androidx.work.impl.ExecutionListener;
-import androidx.work.impl.WorkDatabase;
 import androidx.work.impl.WorkManagerImpl;
 import androidx.work.impl.constraints.WorkConstraintsCallback;
 import androidx.work.impl.constraints.WorkConstraintsTracker;
 import androidx.work.impl.constraints.WorkConstraintsTrackerImpl;
+import androidx.work.impl.model.WorkGenerationalId;
 import androidx.work.impl.model.WorkSpec;
 import androidx.work.impl.utils.taskexecutor.TaskExecutor;
 
@@ -67,6 +69,7 @@ public class SystemForegroundDispatcher implements WorkConstraintsCallback, Exec
     private static final String KEY_NOTIFICATION_ID = "KEY_NOTIFICATION_ID";
     private static final String KEY_FOREGROUND_SERVICE_TYPE = "KEY_FOREGROUND_SERVICE_TYPE";
     private static final String KEY_WORKSPEC_ID = "KEY_WORKSPEC_ID";
+    private static final String KEY_GENERATION = "KEY_GENERATION";
 
     // actions
     private static final String ACTION_START_FOREGROUND = "ACTION_START_FOREGROUND";
@@ -83,13 +86,13 @@ public class SystemForegroundDispatcher implements WorkConstraintsCallback, Exec
     final Object mLock;
 
     @SuppressWarnings("WeakerAccess") // Synthetic access
-    String mCurrentForegroundWorkSpecId;
+    WorkGenerationalId mCurrentForegroundId;
 
     @SuppressWarnings("WeakerAccess") // Synthetic access
-    final Map<String, ForegroundInfo> mForegroundInfoById;
+    final Map<WorkGenerationalId, ForegroundInfo> mForegroundInfoById;
 
     @SuppressWarnings("WeakerAccess") // Synthetic access
-    final Map<String, WorkSpec> mWorkSpecById;
+    final Map<WorkGenerationalId, WorkSpec> mWorkSpecById;
 
     @SuppressWarnings("WeakerAccess") // Synthetic access
     final Set<WorkSpec> mTrackedWorkSpecs;
@@ -105,7 +108,7 @@ public class SystemForegroundDispatcher implements WorkConstraintsCallback, Exec
         mLock = new Object();
         mWorkManagerImpl = WorkManagerImpl.getInstance(mContext);
         mTaskExecutor = mWorkManagerImpl.getWorkTaskExecutor();
-        mCurrentForegroundWorkSpecId = null;
+        mCurrentForegroundId = null;
         mForegroundInfoById = new LinkedHashMap<>();
         mTrackedWorkSpecs = new HashSet<>();
         mWorkSpecById = new HashMap<>();
@@ -123,7 +126,7 @@ public class SystemForegroundDispatcher implements WorkConstraintsCallback, Exec
         mLock = new Object();
         mWorkManagerImpl = workManagerImpl;
         mTaskExecutor = mWorkManagerImpl.getWorkTaskExecutor();
-        mCurrentForegroundWorkSpecId = null;
+        mCurrentForegroundId = null;
         mForegroundInfoById = new LinkedHashMap<>();
         mTrackedWorkSpecs = new HashSet<>();
         mWorkSpecById = new HashMap<>();
@@ -133,10 +136,10 @@ public class SystemForegroundDispatcher implements WorkConstraintsCallback, Exec
 
     @MainThread
     @Override
-    public void onExecuted(@NonNull String workSpecId, boolean needsReschedule) {
+    public void onExecuted(@NonNull WorkGenerationalId id, boolean needsReschedule) {
         boolean removed = false;
         synchronized (mLock) {
-            WorkSpec workSpec = mWorkSpecById.remove(workSpecId);
+            WorkSpec workSpec = mWorkSpecById.remove(id);
             if (workSpec != null) {
                 removed = mTrackedWorkSpecs.remove(workSpec);
             }
@@ -146,23 +149,23 @@ public class SystemForegroundDispatcher implements WorkConstraintsCallback, Exec
             }
         }
 
-        ForegroundInfo removedInfo = mForegroundInfoById.remove(workSpecId);
+        ForegroundInfo removedInfo = mForegroundInfoById.remove(id);
         // Promote new notifications to the foreground if necessary.
-        if (workSpecId.equals(mCurrentForegroundWorkSpecId)) {
+        if (id.equals(mCurrentForegroundId)) {
             if (mForegroundInfoById.size() > 0) {
                 // Find the next eligible ForegroundInfo
                 // LinkedHashMap uses insertion order, so find the last one because that was
                 // the most recent ForegroundInfo used. That way when different WorkSpecs share
                 // notification ids, we still end up in a reasonably good place.
-                Iterator<Map.Entry<String, ForegroundInfo>> iterator =
+                Iterator<Map.Entry<WorkGenerationalId, ForegroundInfo>> iterator =
                         mForegroundInfoById.entrySet().iterator();
 
-                Map.Entry<String, ForegroundInfo> entry = iterator.next();
+                Map.Entry<WorkGenerationalId, ForegroundInfo> entry = iterator.next();
                 while (iterator.hasNext()) {
                     entry = iterator.next();
                 }
 
-                mCurrentForegroundWorkSpecId = entry.getKey();
+                mCurrentForegroundId = entry.getKey();
                 if (mCallback != null) {
                     ForegroundInfo info = entry.getValue();
                     mCallback.startForeground(
@@ -190,9 +193,9 @@ public class SystemForegroundDispatcher implements WorkConstraintsCallback, Exec
             // thread, so there is a chance that handleStop() fires before onExecuted() is called
             // on the main thread.
             Logger.get().debug(TAG,
-                    "Removing Notification (id: " + removedInfo.getNotificationId() +
-                            ", workSpecId: " + workSpecId +
-                            ", notificationType: " + removedInfo.getForegroundServiceType());
+                    "Removing Notification (id: " + removedInfo.getNotificationId()
+                            + ", workSpecId: " + id
+                            + ", notificationType: " + removedInfo.getForegroundServiceType());
             callback.cancelNotification(removedInfo.getNotificationId());
         }
     }
@@ -235,16 +238,15 @@ public class SystemForegroundDispatcher implements WorkConstraintsCallback, Exec
     private void handleStartForeground(@NonNull Intent intent) {
         Logger.get().info(TAG, "Started foreground service " + intent);
         final String workSpecId = intent.getStringExtra(KEY_WORKSPEC_ID);
-        final WorkDatabase database = mWorkManagerImpl.getWorkDatabase();
         mTaskExecutor.executeOnTaskThread(new Runnable() {
             @Override
             public void run() {
-                WorkSpec workSpec = database.workSpecDao().getWorkSpec(workSpecId);
+                WorkSpec workSpec = mWorkManagerImpl.getProcessor().getRunningWorkSpec(workSpecId);
                 // Only track constraints if there are constraints that need to be tracked
                 // (constraints are immutable)
                 if (workSpec != null && workSpec.hasConstraints()) {
                     synchronized (mLock) {
-                        mWorkSpecById.put(workSpecId, workSpec);
+                        mWorkSpecById.put(generationalId(workSpec), workSpec);
                         mTrackedWorkSpecs.add(workSpec);
                         mConstraintsTracker.replace(mTrackedWorkSpecs);
                     }
@@ -253,11 +255,14 @@ public class SystemForegroundDispatcher implements WorkConstraintsCallback, Exec
         });
     }
 
+    @SuppressWarnings("deprecation")
     @MainThread
     private void handleNotify(@NonNull Intent intent) {
         int notificationId = intent.getIntExtra(KEY_NOTIFICATION_ID, 0);
         int notificationType = intent.getIntExtra(KEY_FOREGROUND_SERVICE_TYPE, 0);
         String workSpecId = intent.getStringExtra(KEY_WORKSPEC_ID);
+        int generation = intent.getIntExtra(KEY_GENERATION, 0);
+        WorkGenerationalId workId = new WorkGenerationalId(workSpecId, generation);
         Notification notification = intent.getParcelableExtra(KEY_NOTIFICATION);
 
         Logger.get().debug(TAG,
@@ -270,10 +275,10 @@ public class SystemForegroundDispatcher implements WorkConstraintsCallback, Exec
             ForegroundInfo info = new ForegroundInfo(
                     notificationId, notification, notificationType);
 
-            mForegroundInfoById.put(workSpecId, info);
-            if (TextUtils.isEmpty(mCurrentForegroundWorkSpecId)) {
+            mForegroundInfoById.put(workId, info);
+            if (mCurrentForegroundId == null) {
                 // This is the current workSpecId which owns the Foreground lifecycle.
-                mCurrentForegroundWorkSpecId = workSpecId;
+                mCurrentForegroundId = workId;
                 mCallback.startForeground(notificationId, notificationType, notification);
             } else {
                 // Update notification
@@ -283,12 +288,13 @@ public class SystemForegroundDispatcher implements WorkConstraintsCallback, Exec
                 if (notificationType != FOREGROUND_SERVICE_TYPE_NONE
                         && Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                     int foregroundServiceType = FOREGROUND_SERVICE_TYPE_NONE;
-                    for (Map.Entry<String, ForegroundInfo> entry : mForegroundInfoById.entrySet()) {
+                    for (Map.Entry<WorkGenerationalId, ForegroundInfo> entry
+                            : mForegroundInfoById.entrySet()) {
                         ForegroundInfo foregroundInfo = entry.getValue();
                         foregroundServiceType |= foregroundInfo.getForegroundServiceType();
                     }
                     ForegroundInfo currentInfo =
-                            mForegroundInfoById.get(mCurrentForegroundWorkSpecId);
+                            mForegroundInfoById.get(mCurrentForegroundId);
                     if (currentInfo != null) {
                         mCallback.startForeground(
                                 currentInfo.getNotificationId(),
@@ -319,17 +325,18 @@ public class SystemForegroundDispatcher implements WorkConstraintsCallback, Exec
     }
 
     @Override
-    public void onAllConstraintsMet(@NonNull List<String> workSpecIds) {
+    public void onAllConstraintsMet(@NonNull List<WorkSpec> workSpecs) {
         // Do nothing
     }
 
     @Override
-    public void onAllConstraintsNotMet(@NonNull List<String> workSpecIds) {
-        if (!workSpecIds.isEmpty()) {
-            for (String workSpecId : workSpecIds) {
+    public void onAllConstraintsNotMet(@NonNull List<WorkSpec> workSpecs) {
+        if (!workSpecs.isEmpty()) {
+            for (WorkSpec workSpec : workSpecs) {
+                String workSpecId = workSpec.id;
                 Logger.get().debug(TAG,
                         "Constraints unmet for WorkSpec " + workSpecId);
-                mWorkManagerImpl.stopForegroundWork(workSpecId);
+                mWorkManagerImpl.stopForegroundWork(generationalId(workSpec));
             }
         }
     }
@@ -345,15 +352,15 @@ public class SystemForegroundDispatcher implements WorkConstraintsCallback, Exec
     @NonNull
     public static Intent createStartForegroundIntent(
             @NonNull Context context,
-            @NonNull String workSpecId,
+            @NonNull WorkGenerationalId id,
             @NonNull ForegroundInfo info) {
         Intent intent = new Intent(context, SystemForegroundService.class);
         intent.setAction(ACTION_START_FOREGROUND);
-        intent.putExtra(KEY_WORKSPEC_ID, workSpecId);
+        intent.putExtra(KEY_WORKSPEC_ID, id.getWorkSpecId());
+        intent.putExtra(KEY_GENERATION, id.getGeneration());
         intent.putExtra(KEY_NOTIFICATION_ID, info.getNotificationId());
         intent.putExtra(KEY_FOREGROUND_SERVICE_TYPE, info.getForegroundServiceType());
         intent.putExtra(KEY_NOTIFICATION, info.getNotification());
-        intent.putExtra(KEY_WORKSPEC_ID, workSpecId);
         return intent;
     }
 
@@ -382,21 +389,22 @@ public class SystemForegroundDispatcher implements WorkConstraintsCallback, Exec
      * {@link SystemForegroundService}.
      *
      * @param context    The application {@link Context}
-     * @param workSpecId The {@link WorkSpec} id
+     * @param id The {@link WorkSpec} id
      * @param info       The {@link ForegroundInfo}
      * @return The {@link Intent}
      */
     @NonNull
     public static Intent createNotifyIntent(
             @NonNull Context context,
-            @NonNull String workSpecId,
+            @NonNull WorkGenerationalId id,
             @NonNull ForegroundInfo info) {
         Intent intent = new Intent(context, SystemForegroundService.class);
         intent.setAction(ACTION_NOTIFY);
         intent.putExtra(KEY_NOTIFICATION_ID, info.getNotificationId());
         intent.putExtra(KEY_FOREGROUND_SERVICE_TYPE, info.getForegroundServiceType());
         intent.putExtra(KEY_NOTIFICATION, info.getNotification());
-        intent.putExtra(KEY_WORKSPEC_ID, workSpecId);
+        intent.putExtra(KEY_WORKSPEC_ID, id.getWorkSpecId());
+        intent.putExtra(KEY_GENERATION, id.getGeneration());
         return intent;
     }
 

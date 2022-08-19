@@ -22,15 +22,15 @@ import androidx.glance.LocalSize
 /**
  * Modes describing how the [GlanceAppWidget] should handle size specification.
  */
-public sealed interface SizeMode {
+sealed interface SizeMode {
     /**
      * The [GlanceAppWidget] provides a single UI.
      *
      * The [LocalSize] will be the minimum size the App Widget can be, as defined in
      * the App Widget provider info (see [android.appwidget.AppWidgetManager.getAppWidgetInfo]).
      */
-    public object Single : SizeMode {
-        public override fun toString(): String = "SizeMode.Single"
+    object Single : SizeMode {
+        override fun toString(): String = "SizeMode.Single"
     }
 
     /**
@@ -41,8 +41,8 @@ public sealed interface SizeMode {
      * The composable will be called for each size. During that call, the [LocalSize] will be the
      * one for which the UI is generated.
      */
-    public object Exact : SizeMode {
-        public override fun toString(): String = "SizeMode.Exact"
+    object Exact : SizeMode {
+        override fun toString(): String = "SizeMode.Exact"
     }
 
     /**
@@ -59,13 +59,13 @@ public sealed interface SizeMode {
      *
      * @param sizes List of sizes to use, must not be empty.
      */
-    public class Responsive(val sizes: Set<DpSize>) : SizeMode {
+    class Responsive(val sizes: Set<DpSize>) : SizeMode {
 
         init {
             require(sizes.isNotEmpty()) { "The set of sizes cannot be empty" }
         }
 
-        public override fun equals(other: Any?): Boolean {
+        override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (javaClass != other?.javaClass) return false
 
@@ -76,8 +76,8 @@ public sealed interface SizeMode {
             return true
         }
 
-        public override fun hashCode(): Int = sizes.hashCode()
+        override fun hashCode(): Int = sizes.hashCode()
 
-        public override fun toString(): String = "SizeMode.Responsive(sizes=$sizes)"
+        override fun toString(): String = "SizeMode.Responsive(sizes=$sizes)"
     }
 }

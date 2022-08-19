@@ -13,6 +13,7 @@
  */
 package androidx.leanback.widget;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
@@ -20,6 +21,8 @@ import android.os.Bundle;
 import android.text.InputType;
 
 import androidx.annotation.DrawableRes;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.core.content.ContextCompat;
 import androidx.leanback.R;
@@ -142,7 +145,7 @@ public class GuidedAction extends Action {
          * Creates a BuilderBase for GuidedAction or its subclass.
          * @param context Context object used to build the GuidedAction.
          */
-        public BuilderBase(Context context) {
+        public BuilderBase(@NonNull Context context) {
             mContext = context;
             mActionFlags = PF_ENABLED | PF_FOCUSABLE | PF_AUTORESTORE;
         }
@@ -151,6 +154,7 @@ public class GuidedAction extends Action {
          * Returns Context of this Builder.
          * @return Context of this Builder.
          */
+        @NonNull
         public Context getContext() {
             return mContext;
         }
@@ -163,7 +167,7 @@ public class GuidedAction extends Action {
          * Subclass of BuilderBase should call this function to apply values.
          * @param action GuidedAction to apply BuilderBase values.
          */
-        protected final void applyValues(GuidedAction action) {
+        protected final void applyValues(@NonNull GuidedAction action) {
             // Base Action values
             action.setId(mId);
             action.setLabel1(mTitle);
@@ -231,7 +235,7 @@ public class GuidedAction extends Action {
          * action to be taken on click, e.g. "Continue" or "Cancel".
          * @param title The title for this action.
          */
-        public B title(CharSequence title) {
+        public B title(@Nullable CharSequence title) {
             mTitle = title;
             return (B) this;
         }
@@ -251,7 +255,7 @@ public class GuidedAction extends Action {
          * replaces the string of title.
          * @param editTitle The optional title text to edit when TextView is activated.
          */
-        public B editTitle(CharSequence editTitle) {
+        public B editTitle(@Nullable CharSequence editTitle) {
             mEditTitle = editTitle;
             return (B) this;
         }
@@ -272,7 +276,7 @@ public class GuidedAction extends Action {
          * providing extra information on what the action will do.
          * @param description The description for this action.
          */
-        public B description(CharSequence description) {
+        public B description(@Nullable CharSequence description) {
             mDescription = description;
             return (B) this;
         }
@@ -292,7 +296,7 @@ public class GuidedAction extends Action {
          * description replaces the string of description.
          * @param description The description to edit for this action.
          */
-        public B editDescription(CharSequence description) {
+        public B editDescription(@Nullable CharSequence description) {
             mEditDescription = description;
             return (B) this;
         }
@@ -313,7 +317,7 @@ public class GuidedAction extends Action {
          * directly when the action is clicked.
          * @param intent The intent associated with this action.
          */
-        public B intent(Intent intent) {
+        public B intent(@Nullable Intent intent) {
             mIntent = intent;
             return (B) this;
         }
@@ -322,7 +326,7 @@ public class GuidedAction extends Action {
          * Sets the action's icon drawable.
          * @param icon The drawable for the icon associated with this action.
          */
-        public B icon(Drawable icon) {
+        public B icon(@Nullable Drawable icon) {
             mIcon = icon;
             return (B) this;
         }
@@ -530,7 +534,7 @@ public class GuidedAction extends Action {
          * @param subActions
          * @return The same BuilderBase object.
          */
-        public B subActions(List<GuidedAction> subActions) {
+        public B subActions(@Nullable List<GuidedAction> subActions) {
             mSubActions = subActions;
             return (B) this;
         }
@@ -552,7 +556,7 @@ public class GuidedAction extends Action {
          * @param hints List of hints for autofill.
          * @return The same BuilderBase object.
          */
-        public B autofillHints(String... hints) {
+        public B autofillHints(@Nullable String... hints) {
             mAutofillHints = hints;
             return (B) this;
         }
@@ -575,7 +579,7 @@ public class GuidedAction extends Action {
          * Creates a Builder for GuidedAction.
          * @param context Context to build GuidedAction.
          */
-        public Builder(Context context) {
+        public Builder(@Nullable Context context) {
             super(context);
         }
 
@@ -583,6 +587,7 @@ public class GuidedAction extends Action {
          * Builds the GuidedAction corresponding to this Builder.
          * @return The GuidedAction as configured through this Builder.
          */
+        @NonNull
         public GuidedAction build() {
             GuidedAction action = new GuidedAction();
             applyValues(action);
@@ -627,6 +632,7 @@ public class GuidedAction extends Action {
      * Returns the title of this action.
      * @return The title set when this action was built.
      */
+    @Nullable
     public CharSequence getTitle() {
         return getLabel1();
     }
@@ -635,7 +641,7 @@ public class GuidedAction extends Action {
      * Sets the title of this action.
      * @param title The title set when this action was built.
      */
-    public void setTitle(CharSequence title) {
+    public void setTitle(@Nullable CharSequence title) {
         setLabel1(title);
     }
 
@@ -644,6 +650,7 @@ public class GuidedAction extends Action {
      * {@link #getTitle()}.
      * @return Optional title text to edit instead of {@link #getTitle()}.
      */
+    @Nullable
     public CharSequence getEditTitle() {
         return mEditTitle;
     }
@@ -652,7 +659,7 @@ public class GuidedAction extends Action {
      * Sets the optional title text to edit instead of {@link #setTitle(CharSequence)}.
      * @param editTitle Optional title text to edit instead of {@link #setTitle(CharSequence)}.
      */
-    public void setEditTitle(CharSequence editTitle) {
+    public void setEditTitle(@Nullable CharSequence editTitle) {
         mEditTitle = editTitle;
     }
 
@@ -661,6 +668,7 @@ public class GuidedAction extends Action {
      * {@link #getDescription()}.
      * @return Optional description text to edit instead of {@link #getDescription()}.
      */
+    @Nullable
     public CharSequence getEditDescription() {
         return mEditDescription;
     }
@@ -670,7 +678,7 @@ public class GuidedAction extends Action {
      * @param editDescription Optional description text to edit instead of
      * {@link #setDescription(CharSequence)}.
      */
-    public void setEditDescription(CharSequence editDescription) {
+    public void setEditDescription(@Nullable CharSequence editDescription) {
         mEditDescription = editDescription;
     }
 
@@ -687,6 +695,7 @@ public class GuidedAction extends Action {
      * Returns the description of this action.
      * @return The description of this action.
      */
+    @Nullable
     public CharSequence getDescription() {
         return getLabel2();
     }
@@ -695,7 +704,7 @@ public class GuidedAction extends Action {
      * Sets the description of this action.
      * @param description The description of the action.
      */
-    public void setDescription(CharSequence description) {
+    public void setDescription(@Nullable CharSequence description) {
         setLabel2(description);
     }
 
@@ -703,6 +712,7 @@ public class GuidedAction extends Action {
      * Returns the intent associated with this action.
      * @return The intent set when this action was built.
      */
+    @Nullable
     public Intent getIntent() {
         return mIntent;
     }
@@ -711,7 +721,7 @@ public class GuidedAction extends Action {
      * Sets the intent of this action.
      * @param intent New intent to set on this action.
      */
-    public void setIntent(Intent intent) {
+    public void setIntent(@Nullable Intent intent) {
         mIntent = intent;
     }
 
@@ -881,13 +891,15 @@ public class GuidedAction extends Action {
      * Change sub actions list.
      * @param actions Sub actions list to set on this action.  Sets null to disable sub actions.
      */
-    public void setSubActions(List<GuidedAction> actions) {
+    public void setSubActions(@Nullable List<GuidedAction> actions) {
         mSubActions = actions;
     }
 
     /**
      * @return List of sub actions or null if sub actions list is not enabled.
      */
+    @SuppressLint("NullableCollection")
+    @Nullable
     public List<GuidedAction> getSubActions() {
         return mSubActions;
     }
@@ -929,7 +941,7 @@ public class GuidedAction extends Action {
      * @param bundle  Bundle to save the Action.
      * @param key Key used to save the Action.
      */
-    public void onSaveInstanceState(Bundle bundle, String key) {
+    public void onSaveInstanceState(@NonNull Bundle bundle, @NonNull String key) {
         if (needAutoSaveTitle() && getTitle() != null) {
             bundle.putString(key, getTitle().toString());
         } else if (needAutoSaveDescription() && getDescription() != null) {
@@ -951,7 +963,7 @@ public class GuidedAction extends Action {
      * @param bundle  Bundle to restore the Action from.
      * @param key Key used to restore the Action.
      */
-    public void onRestoreInstanceState(Bundle bundle, String key) {
+    public void onRestoreInstanceState(@NonNull Bundle bundle, @NonNull String key) {
         if (needAutoSaveTitle()) {
             String title = bundle.getString(key);
             if (title != null) {

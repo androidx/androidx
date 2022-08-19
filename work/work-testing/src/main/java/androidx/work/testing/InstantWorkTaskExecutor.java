@@ -37,11 +37,13 @@ class InstantWorkTaskExecutor implements TaskExecutor {
         return mSynchronousExecutor;
     }
 
+    @NonNull
     @Override
     public Executor getMainThreadExecutor() {
         return mSynchronousExecutor;
     }
 
+    @NonNull
     @Override
     public SerialExecutor getSerialTaskExecutor() {
         return mSerialExecutor;

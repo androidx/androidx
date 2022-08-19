@@ -205,35 +205,19 @@ public interface CameraInfo {
     }
 
     /**
-     * Returns if zsl is supported based on current device information.
+     * Returns if {@link ImageCapture#CAPTURE_MODE_ZERO_SHUTTER_LAG} is supported on the current
+     * device.
      *
-     * <p> Zsl will be supported when all of the following conditions are met
+     * <p> ZERO_SHUTTER_LAG will be supported when all of the following conditions are met
      * <ul>
      *     <li> API Level >= 23
-     *     <li> {@link ImageFormat#YUV_420_888} or {@link ImageFormat#PRIVATE} reprocessing is
-     *     supported
+     *     <li> {@link ImageFormat#PRIVATE} reprocessing is supported
      * </ul>
      *
      * @return True if supported, otherwise false.
-     *
-     * @hide
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
+    @ExperimentalZeroShutterLag
     default boolean isZslSupported() {
-        return false;
-    }
-
-    /**
-     * Returns if {@link ImageFormat#YUV_420_888} reprocessing is supported on the device.
-     *
-     * @return True if supported, otherwise false.
-     *
-     * @See CameraMetadata#REQUEST_AVAILABLE_CAPABILITIES_YUV_REPROCESSING
-     *
-     * @hide
-     */
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    default boolean isYuvReprocessingSupported() {
         return false;
     }
 

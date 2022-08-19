@@ -1,0 +1,33 @@
+import androidx.build.AndroidXComposePlugin
+import androidx.build.LibraryType
+
+plugins {
+    id("AndroidXComposePlugin")
+    id("AndroidXPlugin")
+    id("com.android.library")
+}
+
+// Disable multi-platform; this will only be used on Android.
+AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project, /* isMultiplatformEnabled= */false)
+
+dependencies {
+    implementation(libs.kotlinStdlib)
+    api("androidx.annotation:annotation:1.4.0")
+    api("androidx.compose.runtime:runtime:1.1.1")
+}
+
+android {
+    defaultConfig {
+        minSdkVersion 21
+    }
+    namespace "androidx.glance.preview"
+}
+
+androidx {
+    name = "Android Glance Preview"
+    type = LibraryType.PUBLISHED_LIBRARY
+    mavenGroup = LibraryGroups.GLANCE
+    inceptionYear = "2022"
+    description = "Glance preview library. This library provides the API required for marking the" +
+            "glance @Composable components that should have preview in the Android Studio."
+}

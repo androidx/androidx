@@ -186,49 +186,56 @@ public class NavDeepLink internal constructor(
             for (paramName in paramArgMap.keys) {
                 var argMatcher: Matcher? = null
                 val storedParam = paramArgMap[paramName]
-                var inputParams = deepLink.getQueryParameter(paramName)
+                var inputParams = deepLink.getQueryParameters(paramName)
                 if (isSingleQueryParamValueOnly) {
                     // If the deep link contains a single query param with no value,
                     // we will treat everything after the '?' as the input parameter
                     val deepLinkString = deepLink.toString()
                     val argValue = deepLinkString.substringAfter('?')
                     if (argValue != deepLinkString) {
-                        inputParams = argValue
+                        inputParams = listOf(argValue)
                     }
                 }
-                if (inputParams != null) {
-                    // Match the input arguments with the saved regex
-                    argMatcher = Pattern.compile(
-                        storedParam!!.paramRegex, Pattern.DOTALL
-                    ).matcher(inputParams)
-                    if (!argMatcher.matches()) {
-                        return null
-                    }
-                }
-                val queryParamBundle = Bundle()
-                try {
-                    // Params could have multiple arguments, we need to handle them all
-                    for (index in 0 until storedParam!!.size()) {
-                        var value: String? = null
-                        if (argMatcher != null) {
-                            value = argMatcher.group(index + 1) ?: ""
-                        }
-                        val argName = storedParam.getArgumentName(index)
-                        val argument = arguments[argName]
-                        // Passing in a value the exact same as the placeholder will be treated the
-                        // as if no value was passed, being replaced if it is optional or throwing an
-                        // error if it is required.
-                        if (value != null && value != "{$argName}" &&
-                            parseArgument(queryParamBundle, argName, value, argument)
-                        ) {
+                // If the input query param is repeated, we want to do all the
+                // matching and parsing for each value
+                for (inputParam in inputParams) {
+                    if (inputParams != null) {
+                        // Match the input arguments with the saved regex
+                        argMatcher = Pattern.compile(
+                            storedParam!!.paramRegex, Pattern.DOTALL
+                        ).matcher(inputParam)
+                        if (!argMatcher.matches()) {
                             return null
                         }
                     }
-                    bundle.putAll(queryParamBundle)
-                } catch (e: IllegalArgumentException) {
-                    // Failed to parse means that at least one of the arguments that were supposed
-                    // to fill in the query parameter was not valid and therefore, we will exclude
-                    // that particular parameter from the argument bundle.
+                    val queryParamBundle = Bundle()
+                    try {
+                        // Params could have multiple arguments, we need to handle them all
+                        for (index in 0 until storedParam!!.size()) {
+                            var value: String? = null
+                            if (argMatcher != null) {
+                                value = argMatcher.group(index + 1) ?: ""
+                            }
+                            val argName = storedParam.getArgumentName(index)
+                            val argument = arguments[argName]
+                            // If we have a repeated param, treat it as such
+                            if (parseArgumentForRepeatedParam(bundle, argName, value, argument)) {
+                                // Passing in a value the exact same as the placeholder will be treated the
+                                // as if no value was passed, being replaced if it is optional or throwing an
+                                // error if it is required.
+                                if (value != null && value != "{$argName}" &&
+                                    parseArgument(queryParamBundle, argName, value, argument)
+                                ) {
+                                    return null
+                                }
+                            }
+                        }
+                        bundle.putAll(queryParamBundle)
+                    } catch (e: IllegalArgumentException) {
+                        // Failed to parse means that at least one of the arguments that were supposed
+                        // to fill in the query parameter was not valid and therefore, we will exclude
+                        // that particular parameter from the argument bundle.
+                    }
                 }
             }
         }
@@ -243,6 +250,16 @@ public class NavDeepLink internal constructor(
         return bundle
     }
 
+    internal fun calculateMatchingPathSegments(requestedLink: Uri?): Int {
+        if (requestedLink == null || uriPattern == null) return 0
+
+        val requestedPathSegments = requestedLink.pathSegments
+        val uriPathSegments = Uri.parse(uriPattern).pathSegments
+
+        val matches = requestedPathSegments.intersect(uriPathSegments)
+        return matches.size
+    }
+
     private fun parseArgument(
         bundle: Bundle,
         name: String,
@@ -254,6 +271,23 @@ public class NavDeepLink internal constructor(
             type.parseAndPut(bundle, name, value)
         } else {
             bundle.putString(name, value)
+        }
+        return false
+    }
+
+    private fun parseArgumentForRepeatedParam(
+        bundle: Bundle,
+        name: String,
+        value: String?,
+        argument: NavArgument?
+    ): Boolean {
+        if (!bundle.containsKey(name)) {
+            return true
+        }
+        if (argument != null) {
+            val type = argument.type
+            val previousValue = type[bundle, name]
+            type.parseAndPut(bundle, name, value, previousValue)
         }
         return false
     }
@@ -451,7 +485,14 @@ public class NavDeepLink internal constructor(
                 }
                 for (paramName in parameterizedUri.queryParameterNames) {
                     val argRegex = StringBuilder()
-                    val queryParam = parameterizedUri.getQueryParameter(paramName)
+                    val queryParams = parameterizedUri.getQueryParameters(paramName)
+                    require(queryParams.size <= 1) {
+                        "Query parameter $paramName must only be present once in $uriPattern." +
+                            "To support repeated query parameters, use an array type for your" +
+                            "argument and the pattern provided in your URI will be used to" +
+                            "parse each query parameter instance."
+                    }
+                    val queryParam = queryParams.firstOrNull()
                         ?: paramName.apply { isSingleQueryParamValueOnly = true }
                     matcher = fillInPattern.matcher(queryParam)
                     var appendPos = 0

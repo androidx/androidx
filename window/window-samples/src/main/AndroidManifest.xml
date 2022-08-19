@@ -134,6 +134,46 @@
             android:label="Placeholder"
             android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout|colorMode|density|touchscreen"
             android:taskAffinity="androidx.window.sample.list_detail_split_affinity" />
+
+        <!-- Split PiP App -->
+
+        <activity
+            android:name=".embedding.SplitPipActivityA"
+            android:exported="true"
+            android:label="Split and PiP"
+            android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout|colorMode|density|touchscreen"
+            android:supportsPictureInPicture="true"
+            android:taskAffinity="androidx.window.sample.split_pip">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".embedding.SplitPipActivityB"
+            android:exported="false"
+            android:label="PiP B"
+            android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout|colorMode|density|touchscreen"
+            android:supportsPictureInPicture="true"
+            android:taskAffinity="androidx.window.sample.split_pip">
+        </activity>
+        <activity
+            android:name=".embedding.SplitPipActivityNoPip"
+            android:exported="false"
+            android:label="No PiP support"
+            android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout|colorMode|density|touchscreen"
+            android:taskAffinity="androidx.window.sample.split_pip">
+        </activity>
+        <activity
+            android:name=".embedding.SplitPipActivityPlaceholder"
+            android:exported="false"
+            android:label="PiP Placeholder"
+            android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout|colorMode|density|touchscreen"
+            android:taskAffinity="androidx.window.sample.split_pip">
+        </activity>
+
+        <!-- ActivityEmbedding Initializer -->
+
         <provider android:name="androidx.startup.InitializationProvider"
             android:authorities="${applicationId}.androidx-startup"
             android:exported="false"
@@ -142,5 +182,11 @@
             <meta-data  android:name="androidx.window.sample.embedding.ExampleWindowInitializer"
                 android:value="androidx.startup" />
         </provider>
+
+        <!-- The app supports ActivityEmbedding itself, so it doesn't need system override. -->
+        <property
+            android:name="android.window.PROPERTY_ACTIVITY_EMBEDDING_ALLOW_SYSTEM_OVERRIDE"
+            android:value="false" />
+
     </application>
 </manifest>

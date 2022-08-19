@@ -25,6 +25,7 @@ import android.os.Build.VERSION_CODES;
 
 import androidx.core.graphics.ColorUtils;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.FlakyTest;
 import androidx.test.filters.MediumTest;
 import androidx.test.filters.SdkSuppress;
 
@@ -65,11 +66,12 @@ public class WebSettingsCompatForceDarkTest extends
      * should be reflected in that test as necessary. See http://go/modifying-webview-cts.
      */
     @SuppressWarnings("deprecation")
+    @FlakyTest(bugId = 230480958)
     @Test
     public void testForceDark_rendersDark() throws Throwable {
         WebkitUtils.checkFeature(WebViewFeature.FORCE_DARK);
         WebkitUtils.checkFeature(WebViewFeature.OFF_SCREEN_PRERASTER);
-        setWebViewSize(64, 64);
+        setWebViewSize();
 
         // Loading about:blank into a force-dark-on webview should result in a dark background
         WebSettingsCompat.setForceDark(
@@ -99,12 +101,13 @@ public class WebSettingsCompatForceDarkTest extends
      * i.e. web contents are always darkened by a user agent.
      */
     @SuppressWarnings("deprecation")
+    @FlakyTest(bugId = 240432254)
     @Test
     public void testForceDark_userAgentDarkeningOnly() {
         WebkitUtils.checkFeature(WebViewFeature.FORCE_DARK);
         WebkitUtils.checkFeature(WebViewFeature.FORCE_DARK_STRATEGY);
         WebkitUtils.checkFeature(WebViewFeature.OFF_SCREEN_PRERASTER);
-        setWebViewSize(64, 64);
+        setWebViewSize();
 
         // Loading empty page with or without dark theme support into a force-dark-on webview with
         // force dark only algorithm should result in a dark background.
@@ -136,7 +139,7 @@ public class WebSettingsCompatForceDarkTest extends
         WebkitUtils.checkFeature(WebViewFeature.FORCE_DARK);
         WebkitUtils.checkFeature(WebViewFeature.FORCE_DARK_STRATEGY);
         WebkitUtils.checkFeature(WebViewFeature.OFF_SCREEN_PRERASTER);
-        setWebViewSize(64, 64);
+        setWebViewSize();
 
         WebSettingsCompat.setForceDark(
                 getSettingsOnUiThread(), WebSettingsCompat.FORCE_DARK_ON);
@@ -169,7 +172,7 @@ public class WebSettingsCompatForceDarkTest extends
         WebkitUtils.checkFeature(WebViewFeature.FORCE_DARK);
         WebkitUtils.checkFeature(WebViewFeature.FORCE_DARK_STRATEGY);
         WebkitUtils.checkFeature(WebViewFeature.OFF_SCREEN_PRERASTER);
-        setWebViewSize(64, 64);
+        setWebViewSize();
 
         getWebViewOnUiThread().loadUrlAndWaitForCompletion("about:blank");
 

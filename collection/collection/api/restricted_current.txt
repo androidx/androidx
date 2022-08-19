@@ -23,31 +23,26 @@ package androidx.collection {
     method public static <K, V> androidx.collection.ArrayMap<K,V> arrayMapOf(kotlin.Pair<? extends K,? extends V>... pairs);
   }
 
-  public final class ArraySet<E> implements java.util.Collection<E> java.util.Set<E> {
+  public final class ArraySet<E> extends kotlin.collections.AbstractMutableCollection<E> implements kotlin.jvm.internal.markers.KMutableSet java.util.Set<E> {
+    ctor public ArraySet(optional int capacity);
     ctor public ArraySet();
-    ctor public ArraySet(int);
-    ctor public ArraySet(androidx.collection.ArraySet<E!>?);
-    ctor public ArraySet(java.util.Collection<E!>?);
-    ctor public ArraySet(E![]?);
-    method public boolean add(E?);
-    method public void addAll(androidx.collection.ArraySet<? extends E>);
-    method public boolean addAll(java.util.Collection<? extends E>);
-    method public void clear();
-    method public boolean contains(Object?);
-    method public boolean containsAll(java.util.Collection<?>);
-    method public void ensureCapacity(int);
-    method public int indexOf(Object?);
-    method public boolean isEmpty();
-    method public java.util.Iterator<E!> iterator();
-    method public boolean remove(Object?);
-    method public boolean removeAll(androidx.collection.ArraySet<? extends E>);
-    method public boolean removeAll(java.util.Collection<?>);
-    method public E! removeAt(int);
-    method public boolean retainAll(java.util.Collection<?>);
-    method public int size();
-    method public Object![] toArray();
-    method public <T> T![] toArray(T![]);
-    method public E! valueAt(int);
+    ctor public ArraySet(androidx.collection.ArraySet<? extends E>? set);
+    ctor public ArraySet(java.util.Collection<? extends E>? set);
+    ctor public ArraySet(E![]? array);
+    method public void addAll(androidx.collection.ArraySet<? extends E> array);
+    method public operator boolean contains(E? element);
+    method public boolean containsAll(java.util.Collection<E!> elements);
+    method public void ensureCapacity(int minimumCapacity);
+    method public int getSize();
+    method public int indexOf(Object? key);
+    method public java.util.Iterator<E> iterator();
+    method public boolean remove(E? element);
+    method public boolean removeAll(androidx.collection.ArraySet<? extends E> array);
+    method public boolean removeAll(java.util.Collection<E!> elements);
+    method public E! removeAt(int index);
+    method public boolean retainAll(java.util.Collection<E!> elements);
+    method public E! valueAt(int index);
+    property public int size;
   }
 
   public final class ArraySetKt {
@@ -218,6 +213,9 @@ package androidx.collection {
     method public int size();
     method public E! valueAt(int index);
     property public final boolean isEmpty;
+  }
+
+  public final class SparseArrayCompatKt {
   }
 
   public final class SparseArrayKt {

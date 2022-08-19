@@ -30,15 +30,15 @@ import kotlin.reflect.KClass
  *
  * ```
  * @Dao
- * public interface MusicDao {
+ * interface MusicDao {
  *   @Insert(onConflict = OnConflictStrategy.REPLACE)
- *   public fun insertSongs(varargs songs: Song)
+ *   fun insertSongs(varargs songs: Song)
  *
  *   @Insert
- *   public fun insertBoth(song1: Song, song2: Song)
+ *   fun insertBoth(song1: Song, song2: Song)
  *
  *   @Insert
- *   public fun insertAlbumWithSongs(album: Album, songs: List<Song>);
+ *   fun insertAlbumWithSongs(album: Album, songs: List<Song>)
  * }
  * ```
  *
@@ -69,9 +69,9 @@ import kotlin.reflect.KClass
  * )
  *
  * @Dao
- * public interface PlaylistDao {
+ * interface PlaylistDao {
  *   @Insert(entity = Playlist::class)
- *   public fun insertNewPlaylist(nameDescription: NameAndDescription);
+ *   fun insertNewPlaylist(nameDescription: NameAndDescription)
  * }
  * ```
  *

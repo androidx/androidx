@@ -274,6 +274,7 @@ public class CustomTabsIntentTest {
         assertNullSessionInExtras(intent);
     }
 
+    @SuppressWarnings("deprecation")
     @Test
     public void putsSessionBinderAndId_IfSuppliedInConstructor() {
         CustomTabsSession session = TestUtil.makeMockSession();
@@ -283,6 +284,7 @@ public class CustomTabsIntentTest {
         assertEquals(session.getId(), intent.getParcelableExtra(CustomTabsIntent.EXTRA_SESSION_ID));
     }
 
+    @SuppressWarnings("deprecation")
     @Test
     public void putsSessionBinderAndId_IfSuppliedInSetter() {
         CustomTabsSession session = TestUtil.makeMockSession();
@@ -292,6 +294,7 @@ public class CustomTabsIntentTest {
         assertEquals(session.getId(), intent.getParcelableExtra(CustomTabsIntent.EXTRA_SESSION_ID));
     }
 
+    @SuppressWarnings("deprecation")
     @Test
     public void putsPendingSessionId() {
         CustomTabsSession.PendingSession pendingSession = TestUtil.makeMockPendingSession();

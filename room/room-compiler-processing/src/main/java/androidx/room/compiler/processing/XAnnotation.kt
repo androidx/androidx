@@ -16,6 +16,8 @@
 
 package androidx.room.compiler.processing
 
+import com.squareup.javapoet.ClassName
+
 /**
  * This wraps annotations that may be declared in sources, and thus not representable with a
  * compiled type. This is an equivalent to the Java AnnotationMirror API.
@@ -46,6 +48,25 @@ interface XAnnotation {
      * [name].
      */
     val type: XType
+
+    /**
+     * The [XTypeElement] representing the annotation class.
+     *
+     * Accessing this requires resolving the type, and is thus more expensive that just accessing
+     * [name].
+     */
+    val typeElement: XTypeElement
+        // All annotations are represented by XTypeElements, so this should always be non-null.
+        get() = requireNotNull(type.typeElement)
+
+    /**
+     * The [ClassName] representing the annotation class.
+     *
+     * Accessing this requires resolving the type, and is thus more expensive that just accessing
+     * [name].
+     */
+    val className: ClassName
+        get() = typeElement.className
 
     /** All values declared in the annotation class. */
     val annotationValues: List<XAnnotationValue>
@@ -128,11 +149,8 @@ interface XAnnotation {
     fun getAsAnnotationValueList(methodName: String): List<XAnnotationValue> =
         getAnnotationValue(methodName).asAnnotationValueList()
 
-    /**Returns the value of the given [methodName] as a [XAnnotationValue]. */
-    fun getAnnotationValue(methodName: String): XAnnotationValue {
-        return annotationValues.firstOrNull { it.name == methodName }
-            ?: error("No property named $methodName was found in annotation $name")
-    }
+    /** Returns the value of the given [methodName] as a [XAnnotationValue]. */
+    fun getAnnotationValue(methodName: String): XAnnotationValue
 }
 
 /**
@@ -169,9 +187,9 @@ inline fun <reified T> XAnnotation.get(methodName: String): T = get(methodName, 
 fun <T> XAnnotation.get(methodName: String, clazz: Class<T>): T {
     val argument = getAnnotationValue(methodName)
 
-    val value = if (argument.value is List<*>) {
+    val value = if (argument.hasListValue()) {
         // If the argument is for a list, unwrap each item in the list
-        (argument.value as List<*>).map { (it as XAnnotationValue).value }
+        argument.asAnnotationValueList().map { it.value }
     } else {
         argument.value
     }

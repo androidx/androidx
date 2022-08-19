@@ -65,11 +65,13 @@ class TestWorkManagerImpl extends WorkManagerImpl implements TestDriver {
                 configuration,
                 new TaskExecutor() {
                     Executor mSynchronousExecutor = new SynchronousExecutor();
+                    @NonNull
                     @Override
                     public Executor getMainThreadExecutor() {
                         return mSynchronousExecutor;
                     }
 
+                    @NonNull
                     @Override
                     public SerialExecutor getSerialTaskExecutor() {
                         return serialExecutor;

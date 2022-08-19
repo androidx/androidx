@@ -24,6 +24,7 @@ import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XMemberContainer
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
+import androidx.room.compiler.processing.XTypeParameterElement
 import androidx.room.compiler.processing.collectAllMethods
 import androidx.room.compiler.processing.collectFieldsIncludingPrivateSupers
 import androidx.room.compiler.processing.filterMethodsByConfig
@@ -66,6 +67,13 @@ internal sealed class JavacTypeElement(
         enclosingTypeElement
     }
 
+    override val typeParameters: List<XTypeParameterElement> by lazy {
+        element.typeParameters.mapIndexed { index, typeParameter ->
+            val typeArgument = kotlinMetadata?.kmType?.typeArguments?.get(index)
+            JavacTypeParameterElement(env, this, typeParameter, typeArgument)
+        }
+    }
+
     override val closestMemberContainer: JavacTypeElement
         get() = this
 
@@ -80,7 +88,6 @@ internal sealed class JavacTypeElement(
                 JavacFieldElement(
                     env = env,
                     element = it,
-                    containing = this
                 )
             }
     }
@@ -137,7 +144,6 @@ internal sealed class JavacTypeElement(
         ElementFilter.methodsIn(element.enclosedElements).map {
             JavacMethodElement(
                 env = env,
-                containing = this,
                 element = it
             )
         }.filterMethodsByConfig(env)
@@ -151,7 +157,6 @@ internal sealed class JavacTypeElement(
         return ElementFilter.constructorsIn(element.enclosedElements).map {
             JavacConstructorElement(
                 env = env,
-                containing = this,
                 element = it
             )
         }
@@ -170,7 +175,7 @@ internal sealed class JavacTypeElement(
     }
 
     override val type: JavacDeclaredType by lazy {
-        env.wrap<JavacDeclaredType>(
+        env.wrap(
             typeMirror = element.asType(),
             kotlinType = kotlinMetadata?.kmType,
             elementNullability = element.nullability
@@ -215,10 +220,6 @@ internal sealed class JavacTypeElement(
                 elementNullability = element.nullability
             )
         }
-    }
-
-    override val equalityItems: Array<out Any?> by lazy {
-        arrayOf(element)
     }
 
     class DefaultJavacTypeElement(

@@ -177,18 +177,28 @@ package androidx.appsearch.app {
 
   public interface AppSearchSession extends java.io.Closeable {
     method public void close();
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.appsearch.app.AppSearchBatchResult<java.lang.String!,androidx.appsearch.app.GenericDocument!>!> getByDocumentId(androidx.appsearch.app.GetByDocumentIdRequest);
+    method @Deprecated public default com.google.common.util.concurrent.ListenableFuture<androidx.appsearch.app.AppSearchBatchResult<java.lang.String!,androidx.appsearch.app.GenericDocument!>!> getByDocumentId(androidx.appsearch.app.GetByDocumentIdRequest);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.appsearch.app.AppSearchBatchResult<java.lang.String!,androidx.appsearch.app.GenericDocument!>!> getByDocumentIdAsync(androidx.appsearch.app.GetByDocumentIdRequest);
     method public androidx.appsearch.app.Features getFeatures();
-    method public com.google.common.util.concurrent.ListenableFuture<java.util.Set<java.lang.String!>!> getNamespaces();
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.appsearch.app.GetSchemaResponse!> getSchema();
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.appsearch.app.StorageInfo!> getStorageInfo();
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.appsearch.app.AppSearchBatchResult<java.lang.String!,java.lang.Void!>!> put(androidx.appsearch.app.PutDocumentsRequest);
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.appsearch.app.AppSearchBatchResult<java.lang.String!,java.lang.Void!>!> remove(androidx.appsearch.app.RemoveByDocumentIdRequest);
-    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> remove(String, androidx.appsearch.app.SearchSpec);
-    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> reportUsage(androidx.appsearch.app.ReportUsageRequest);
-    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> requestFlush();
+    method @Deprecated public default com.google.common.util.concurrent.ListenableFuture<java.util.Set<java.lang.String!>!> getNamespaces();
+    method public com.google.common.util.concurrent.ListenableFuture<java.util.Set<java.lang.String!>!> getNamespacesAsync();
+    method @Deprecated public default com.google.common.util.concurrent.ListenableFuture<androidx.appsearch.app.GetSchemaResponse!> getSchema();
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.appsearch.app.GetSchemaResponse!> getSchemaAsync();
+    method @Deprecated public default com.google.common.util.concurrent.ListenableFuture<androidx.appsearch.app.StorageInfo!> getStorageInfo();
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.appsearch.app.StorageInfo!> getStorageInfoAsync();
+    method @Deprecated public default com.google.common.util.concurrent.ListenableFuture<androidx.appsearch.app.AppSearchBatchResult<java.lang.String!,java.lang.Void!>!> put(androidx.appsearch.app.PutDocumentsRequest);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.appsearch.app.AppSearchBatchResult<java.lang.String!,java.lang.Void!>!> putAsync(androidx.appsearch.app.PutDocumentsRequest);
+    method @Deprecated public default com.google.common.util.concurrent.ListenableFuture<androidx.appsearch.app.AppSearchBatchResult<java.lang.String!,java.lang.Void!>!> remove(androidx.appsearch.app.RemoveByDocumentIdRequest);
+    method @Deprecated public default com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> remove(String, androidx.appsearch.app.SearchSpec);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.appsearch.app.AppSearchBatchResult<java.lang.String!,java.lang.Void!>!> removeAsync(androidx.appsearch.app.RemoveByDocumentIdRequest);
+    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> removeAsync(String, androidx.appsearch.app.SearchSpec);
+    method @Deprecated public default com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> reportUsage(androidx.appsearch.app.ReportUsageRequest);
+    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> reportUsageAsync(androidx.appsearch.app.ReportUsageRequest);
+    method @Deprecated public default com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> requestFlush();
+    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> requestFlushAsync();
     method public androidx.appsearch.app.SearchResults search(String, androidx.appsearch.app.SearchSpec);
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.appsearch.app.SetSchemaResponse!> setSchema(androidx.appsearch.app.SetSchemaRequest);
+    method @Deprecated public default com.google.common.util.concurrent.ListenableFuture<androidx.appsearch.app.SetSchemaResponse!> setSchema(androidx.appsearch.app.SetSchemaRequest);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.appsearch.app.SetSchemaResponse!> setSchemaAsync(androidx.appsearch.app.SetSchemaRequest);
   }
 
   public interface DocumentClassFactory<T> {
@@ -200,7 +210,10 @@ package androidx.appsearch.app {
 
   public interface Features {
     method public boolean isFeatureSupported(String);
-    field public static final String GLOBAL_SEARCH_SESSION_ADD_REMOVE_OBSERVER = "GLOBAL_SEARCH_SESSION_ADD_REMOVE_OBSERVER";
+    field public static final String ADD_PERMISSIONS_AND_GET_VISIBILITY = "ADD_PERMISSIONS_AND_GET_VISIBILITY";
+    field public static final String GLOBAL_SEARCH_SESSION_GET_BY_ID = "GLOBAL_SEARCH_SESSION_GET_BY_ID";
+    field public static final String GLOBAL_SEARCH_SESSION_GET_SCHEMA = "GLOBAL_SEARCH_SESSION_GET_SCHEMA";
+    field public static final String GLOBAL_SEARCH_SESSION_REGISTER_OBSERVER_CALLBACK = "GLOBAL_SEARCH_SESSION_REGISTER_OBSERVER_CALLBACK";
     field public static final String SEARCH_RESULT_MATCH_INFO_SUBMATCH = "SEARCH_RESULT_MATCH_INFO_SUBMATCH";
   }
 
@@ -253,6 +266,7 @@ package androidx.appsearch.app {
   public final class GetByDocumentIdRequest {
     method public java.util.Set<java.lang.String!> getIds();
     method public String getNamespace();
+    method public java.util.Map<java.lang.String!,java.util.List<androidx.appsearch.app.PropertyPath!>!> getProjectionPaths();
     method public java.util.Map<java.lang.String!,java.util.List<java.lang.String!>!> getProjections();
     field public static final String PROJECTION_SCHEMA_TYPE_WILDCARD = "*";
   }
@@ -262,10 +276,14 @@ package androidx.appsearch.app {
     method public androidx.appsearch.app.GetByDocumentIdRequest.Builder addIds(java.lang.String!...);
     method public androidx.appsearch.app.GetByDocumentIdRequest.Builder addIds(java.util.Collection<java.lang.String!>);
     method public androidx.appsearch.app.GetByDocumentIdRequest.Builder addProjection(String, java.util.Collection<java.lang.String!>);
+    method public androidx.appsearch.app.GetByDocumentIdRequest.Builder addProjectionPaths(String, java.util.Collection<androidx.appsearch.app.PropertyPath!>);
     method public androidx.appsearch.app.GetByDocumentIdRequest build();
   }
 
   public final class GetSchemaResponse {
+    method @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.ADD_PERMISSIONS_AND_GET_VISIBILITY) public java.util.Map<java.lang.String!,java.util.Set<java.util.Set<java.lang.Integer!>!>!> getRequiredPermissionsForSchemaTypeVisibility();
+    method @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.ADD_PERMISSIONS_AND_GET_VISIBILITY) public java.util.Set<java.lang.String!> getSchemaTypesNotDisplayedBySystem();
+    method @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.ADD_PERMISSIONS_AND_GET_VISIBILITY) public java.util.Map<java.lang.String!,java.util.Set<androidx.appsearch.app.PackageIdentifier!>!> getSchemaTypesVisibleToPackages();
     method public java.util.Set<androidx.appsearch.app.AppSearchSchema!> getSchemas();
     method @IntRange(from=0) public int getVersion();
   }
@@ -273,17 +291,24 @@ package androidx.appsearch.app {
   public static final class GetSchemaResponse.Builder {
     ctor public GetSchemaResponse.Builder();
     method public androidx.appsearch.app.GetSchemaResponse.Builder addSchema(androidx.appsearch.app.AppSearchSchema);
+    method public androidx.appsearch.app.GetSchemaResponse.Builder addSchemaTypeNotDisplayedBySystem(String);
     method public androidx.appsearch.app.GetSchemaResponse build();
+    method public androidx.appsearch.app.GetSchemaResponse.Builder setRequiredPermissionsForSchemaTypeVisibility(String, java.util.Set<java.util.Set<java.lang.Integer!>!>);
+    method public androidx.appsearch.app.GetSchemaResponse.Builder setSchemaTypeVisibleToPackages(String, java.util.Set<androidx.appsearch.app.PackageIdentifier!>);
     method public androidx.appsearch.app.GetSchemaResponse.Builder setVersion(@IntRange(from=0) int);
   }
 
   public interface GlobalSearchSession extends java.io.Closeable {
-    method @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.GLOBAL_SEARCH_SESSION_ADD_REMOVE_OBSERVER) public void addObserver(String, androidx.appsearch.observer.ObserverSpec, java.util.concurrent.Executor, androidx.appsearch.observer.AppSearchObserverCallback);
     method public void close();
+    method @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.GLOBAL_SEARCH_SESSION_GET_BY_ID) public com.google.common.util.concurrent.ListenableFuture<androidx.appsearch.app.AppSearchBatchResult<java.lang.String!,androidx.appsearch.app.GenericDocument!>!> getByDocumentIdAsync(String, String, androidx.appsearch.app.GetByDocumentIdRequest);
     method public androidx.appsearch.app.Features getFeatures();
-    method @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.GLOBAL_SEARCH_SESSION_ADD_REMOVE_OBSERVER) public void removeObserver(String, androidx.appsearch.observer.AppSearchObserverCallback);
-    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> reportSystemUsage(androidx.appsearch.app.ReportSystemUsageRequest);
+    method @Deprecated @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.GLOBAL_SEARCH_SESSION_GET_SCHEMA) public default com.google.common.util.concurrent.ListenableFuture<androidx.appsearch.app.GetSchemaResponse!> getSchema(String, String);
+    method @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.GLOBAL_SEARCH_SESSION_GET_SCHEMA) public com.google.common.util.concurrent.ListenableFuture<androidx.appsearch.app.GetSchemaResponse!> getSchemaAsync(String, String);
+    method @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.GLOBAL_SEARCH_SESSION_REGISTER_OBSERVER_CALLBACK) public void registerObserverCallback(String, androidx.appsearch.observer.ObserverSpec, java.util.concurrent.Executor, androidx.appsearch.observer.ObserverCallback) throws androidx.appsearch.exceptions.AppSearchException;
+    method @Deprecated public default com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> reportSystemUsage(androidx.appsearch.app.ReportSystemUsageRequest);
+    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> reportSystemUsageAsync(androidx.appsearch.app.ReportSystemUsageRequest);
     method public androidx.appsearch.app.SearchResults search(String, androidx.appsearch.app.SearchSpec);
+    method @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.GLOBAL_SEARCH_SESSION_REGISTER_OBSERVER_CALLBACK) public void unregisterObserverCallback(String, androidx.appsearch.observer.ObserverCallback) throws androidx.appsearch.exceptions.AppSearchException;
   }
 
   public abstract class Migrator {
@@ -297,6 +322,22 @@ package androidx.appsearch.app {
     ctor public PackageIdentifier(String, byte[]);
     method public String getPackageName();
     method public byte[] getSha256Certificate();
+  }
+
+  public class PropertyPath implements java.lang.Iterable<androidx.appsearch.app.PropertyPath.PathSegment> {
+    ctor public PropertyPath(java.util.List<androidx.appsearch.app.PropertyPath.PathSegment!>);
+    ctor public PropertyPath(String);
+    method public androidx.appsearch.app.PropertyPath.PathSegment get(int);
+    method public java.util.Iterator<androidx.appsearch.app.PropertyPath.PathSegment!> iterator();
+    method public int size();
+  }
+
+  public static class PropertyPath.PathSegment {
+    method public static androidx.appsearch.app.PropertyPath.PathSegment create(String, int);
+    method public static androidx.appsearch.app.PropertyPath.PathSegment create(String);
+    method public int getPropertyIndex();
+    method public String getPropertyName();
+    field public static final int NON_REPEATED_CARDINALITY = -1; // 0xffffffff
   }
 
   public final class PutDocumentsRequest {
@@ -373,6 +414,7 @@ package androidx.appsearch.app {
     method public androidx.appsearch.app.SearchResult.MatchRange getExactMatchRange();
     method public String getFullText();
     method public String getPropertyPath();
+    method public androidx.appsearch.app.PropertyPath getPropertyPathObject();
     method public CharSequence getSnippet();
     method public androidx.appsearch.app.SearchResult.MatchRange getSnippetRange();
     method @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.SEARCH_RESULT_MATCH_INFO_SUBMATCH) public CharSequence getSubmatch();
@@ -395,7 +437,8 @@ package androidx.appsearch.app {
 
   public interface SearchResults extends java.io.Closeable {
     method public void close();
-    method public com.google.common.util.concurrent.ListenableFuture<java.util.List<androidx.appsearch.app.SearchResult!>!> getNextPage();
+    method @Deprecated public default com.google.common.util.concurrent.ListenableFuture<java.util.List<androidx.appsearch.app.SearchResult!>!> getNextPage();
+    method public com.google.common.util.concurrent.ListenableFuture<java.util.List<androidx.appsearch.app.SearchResult!>!> getNextPageAsync();
   }
 
   public final class SearchSpec {
@@ -404,6 +447,7 @@ package androidx.appsearch.app {
     method public java.util.List<java.lang.String!> getFilterSchemas();
     method public int getMaxSnippetSize();
     method public int getOrder();
+    method public java.util.Map<java.lang.String!,java.util.List<androidx.appsearch.app.PropertyPath!>!> getProjectionPaths();
     method public java.util.Map<java.lang.String!,java.util.List<java.lang.String!>!> getProjections();
     method public int getRankingStrategy();
     method public int getResultCountPerPage();
@@ -440,6 +484,7 @@ package androidx.appsearch.app {
     method public androidx.appsearch.app.SearchSpec.Builder addFilterSchemas(java.lang.String!...);
     method public androidx.appsearch.app.SearchSpec.Builder addFilterSchemas(java.util.Collection<java.lang.String!>);
     method public androidx.appsearch.app.SearchSpec.Builder addProjection(String, java.util.Collection<java.lang.String!>);
+    method public androidx.appsearch.app.SearchSpec.Builder addProjectionPaths(String, java.util.Collection<androidx.appsearch.app.PropertyPath!>);
     method public androidx.appsearch.app.SearchSpec build();
     method public androidx.appsearch.app.SearchSpec.Builder setMaxSnippetSize(@IntRange(from=0, to=0x2710) int);
     method public androidx.appsearch.app.SearchSpec.Builder setOrder(int);
@@ -453,20 +498,31 @@ package androidx.appsearch.app {
 
   public final class SetSchemaRequest {
     method public java.util.Map<java.lang.String!,androidx.appsearch.app.Migrator!> getMigrators();
+    method public java.util.Map<java.lang.String!,java.util.Set<java.util.Set<java.lang.Integer!>!>!> getRequiredPermissionsForSchemaTypeVisibility();
     method public java.util.Set<androidx.appsearch.app.AppSearchSchema!> getSchemas();
     method public java.util.Set<java.lang.String!> getSchemasNotDisplayedBySystem();
     method public java.util.Map<java.lang.String!,java.util.Set<androidx.appsearch.app.PackageIdentifier!>!> getSchemasVisibleToPackages();
     method @IntRange(from=1) public int getVersion();
     method public boolean isForceOverride();
+    field @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.ADD_PERMISSIONS_AND_GET_VISIBILITY) public static final int READ_ASSISTANT_APP_SEARCH_DATA = 6; // 0x6
+    field @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.ADD_PERMISSIONS_AND_GET_VISIBILITY) public static final int READ_CALENDAR = 2; // 0x2
+    field @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.ADD_PERMISSIONS_AND_GET_VISIBILITY) public static final int READ_CONTACTS = 3; // 0x3
+    field @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.ADD_PERMISSIONS_AND_GET_VISIBILITY) public static final int READ_EXTERNAL_STORAGE = 4; // 0x4
+    field @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.ADD_PERMISSIONS_AND_GET_VISIBILITY) public static final int READ_HOME_APP_SEARCH_DATA = 5; // 0x5
+    field @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.ADD_PERMISSIONS_AND_GET_VISIBILITY) public static final int READ_SMS = 1; // 0x1
   }
 
   public static final class SetSchemaRequest.Builder {
     ctor public SetSchemaRequest.Builder();
     method public androidx.appsearch.app.SetSchemaRequest.Builder addDocumentClasses(Class<?>!...) throws androidx.appsearch.exceptions.AppSearchException;
     method public androidx.appsearch.app.SetSchemaRequest.Builder addDocumentClasses(java.util.Collection<? extends java.lang.Class<?>>) throws androidx.appsearch.exceptions.AppSearchException;
+    method @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.ADD_PERMISSIONS_AND_GET_VISIBILITY) public androidx.appsearch.app.SetSchemaRequest.Builder addRequiredPermissionsForDocumentClassVisibility(Class<?>, java.util.Set<java.lang.Integer!>) throws androidx.appsearch.exceptions.AppSearchException;
+    method @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.ADD_PERMISSIONS_AND_GET_VISIBILITY) public androidx.appsearch.app.SetSchemaRequest.Builder addRequiredPermissionsForSchemaTypeVisibility(String, java.util.Set<java.lang.Integer!>);
     method public androidx.appsearch.app.SetSchemaRequest.Builder addSchemas(androidx.appsearch.app.AppSearchSchema!...);
     method public androidx.appsearch.app.SetSchemaRequest.Builder addSchemas(java.util.Collection<androidx.appsearch.app.AppSearchSchema!>);
     method public androidx.appsearch.app.SetSchemaRequest build();
+    method @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.ADD_PERMISSIONS_AND_GET_VISIBILITY) public androidx.appsearch.app.SetSchemaRequest.Builder clearRequiredPermissionsForDocumentClassVisibility(Class<?>) throws androidx.appsearch.exceptions.AppSearchException;
+    method @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.ADD_PERMISSIONS_AND_GET_VISIBILITY) public androidx.appsearch.app.SetSchemaRequest.Builder clearRequiredPermissionsForSchemaTypeVisibility(String);
     method public androidx.appsearch.app.SetSchemaRequest.Builder setDocumentClassDisplayedBySystem(Class<?>, boolean) throws androidx.appsearch.exceptions.AppSearchException;
     method public androidx.appsearch.app.SetSchemaRequest.Builder setDocumentClassVisibilityForPackage(Class<?>, boolean, androidx.appsearch.app.PackageIdentifier) throws androidx.appsearch.exceptions.AppSearchException;
     method public androidx.appsearch.app.SetSchemaRequest.Builder setForceOverride(boolean);
@@ -535,17 +591,18 @@ package androidx.appsearch.exceptions {
 
 package androidx.appsearch.observer {
 
-  public interface AppSearchObserverCallback {
-    method public void onDocumentChanged(androidx.appsearch.observer.DocumentChangeInfo);
-    method public void onSchemaChanged(androidx.appsearch.observer.SchemaChangeInfo);
-  }
-
   public final class DocumentChangeInfo {
-    ctor public DocumentChangeInfo(String, String, String, String);
+    ctor public DocumentChangeInfo(String, String, String, String, java.util.Set<java.lang.String!>);
+    method public java.util.Set<java.lang.String!> getChangedDocumentIds();
     method public String getDatabaseName();
     method public String getNamespace();
     method public String getPackageName();
     method public String getSchemaName();
+  }
+
+  public interface ObserverCallback {
+    method public void onDocumentChanged(androidx.appsearch.observer.DocumentChangeInfo);
+    method public void onSchemaChanged(androidx.appsearch.observer.SchemaChangeInfo);
   }
 
   public final class ObserverSpec {
@@ -562,7 +619,8 @@ package androidx.appsearch.observer {
   }
 
   public final class SchemaChangeInfo {
-    ctor public SchemaChangeInfo(String, String);
+    ctor public SchemaChangeInfo(String, String, java.util.Set<java.lang.String!>);
+    method public java.util.Set<java.lang.String!> getChangedSchemaNames();
     method public String getDatabaseName();
     method public String getPackageName();
   }

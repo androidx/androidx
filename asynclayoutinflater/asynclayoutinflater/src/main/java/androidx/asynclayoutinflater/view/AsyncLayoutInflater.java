@@ -33,13 +33,14 @@ import androidx.annotation.UiThread;
 import androidx.core.util.Pools.SynchronizedPool;
 
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.Executor;
 
 /**
  * <p>Helper class for inflating layouts asynchronously. To use, construct
  * an instance of {@link AsyncLayoutInflater} on the UI thread and call
  * {@link #inflate(int, ViewGroup, OnInflateFinishedListener)}. The
  * {@link OnInflateFinishedListener} will be invoked on the UI thread
- * when the inflate request has completed.
+ * is no executor is passed, otherwise, it is called on the given executor.
  *
  * <p>This is intended for parts of the UI that are created lazily or in
  * response to user interactions. This allows the UI thread to continue
@@ -66,29 +67,38 @@ import java.util.concurrent.ArrayBlockingQueue;
  */
 public final class AsyncLayoutInflater {
     private static final String TAG = "AsyncLayoutInflater";
-
     LayoutInflater mInflater;
     Handler mHandler;
     InflateThread mInflateThread;
 
-    @SuppressWarnings("deprecation")
     public AsyncLayoutInflater(@NonNull Context context) {
         mInflater = new BasicInflater(context);
-        mHandler = new Handler(mHandlerCallback);
+        mHandler = new Handler(Looper.myLooper(), mHandlerCallback);
         mInflateThread = InflateThread.getInstance();
     }
 
+    /**
+     * Triggers view inflation on background thread.
+     */
     @UiThread
     public void inflate(@LayoutRes int resid, @Nullable ViewGroup parent,
             @NonNull OnInflateFinishedListener callback) {
+        inflateInternal(resid, parent, callback, mInflater, /* callbackExecutor= */ null);
+    }
+
+    private void inflateInternal(@LayoutRes int resid, @Nullable ViewGroup parent,
+            @NonNull OnInflateFinishedListener callback, LayoutInflater inflater,
+            Executor callbackExecutor) {
         if (callback == null) {
             throw new NullPointerException("callback argument may not be null!");
         }
         InflateRequest request = mInflateThread.obtainRequest();
-        request.inflater = this;
+        request.mInflater = inflater;
+        request.mHandler = mHandler;
         request.resid = resid;
         request.parent = parent;
         request.callback = callback;
+        request.mExecutor = callbackExecutor;
         mInflateThread.enqueue(request);
     }
 
@@ -97,15 +107,22 @@ public final class AsyncLayoutInflater {
         public boolean handleMessage(Message msg) {
             InflateRequest request = (InflateRequest) msg.obj;
             if (request.view == null) {
-                request.view = mInflater.inflate(
-                        request.resid, request.parent, false);
+                request.view = request.mInflater.inflate(request.resid, request.parent, false);
             }
-            request.callback.onInflateFinished(
-                    request.view, request.resid, request.parent);
-            mInflateThread.releaseRequest(request);
+
+            if (request.mExecutor != null) {
+                request.mExecutor.execute(() -> triggerCallbacks(request, mInflateThread));
+            } else {
+                triggerCallbacks(request, mInflateThread);
+            }
             return true;
         }
     };
+
+    static void triggerCallbacks(InflateRequest request, InflateThread mInflateThread) {
+        request.callback.onInflateFinished(request.view, request.resid, request.parent);
+        mInflateThread.releaseRequest(request);
+    }
 
     public interface OnInflateFinishedListener {
         void onInflateFinished(@NonNull View view, @LayoutRes int resid,
@@ -113,22 +130,21 @@ public final class AsyncLayoutInflater {
     }
 
     private static class InflateRequest {
-        AsyncLayoutInflater inflater;
+        LayoutInflater mInflater;
+        Handler mHandler;
         ViewGroup parent;
         int resid;
         View view;
         OnInflateFinishedListener callback;
+        Executor mExecutor;
 
         InflateRequest() {
         }
     }
 
     private static class BasicInflater extends LayoutInflater {
-        private static final String[] sClassPrefixList = {
-            "android.widget.",
-            "android.webkit.",
-            "android.app."
-        };
+        private static final String[] sClassPrefixList =
+                {"android.widget.", "android.webkit.", "android.app."};
 
         BasicInflater(Context context) {
             super(context);
@@ -159,6 +175,7 @@ public final class AsyncLayoutInflater {
 
     private static class InflateThread extends Thread {
         private static final InflateThread sInstance;
+
         static {
             sInstance = new InflateThread();
             sInstance.setName("AsyncLayoutInflator");
@@ -186,15 +203,19 @@ public final class AsyncLayoutInflater {
             }
 
             try {
-                request.view = request.inflater.mInflater.inflate(
-                        request.resid, request.parent, false);
+                request.view = request.mInflater.inflate(request.resid, request.parent, false);
             } catch (RuntimeException ex) {
                 // Probably a Looper failure, retry on the UI thread
                 Log.w(TAG, "Failed to inflate resource in the background! Retrying on the UI"
                         + " thread", ex);
             }
-            Message.obtain(request.inflater.mHandler, 0, request)
-                    .sendToTarget();
+
+            // Trigger callback on bg thread if async inflation was successful.
+            if (request.view != null && request.mExecutor != null) {
+                request.mExecutor.execute(() -> triggerCallbacks(request, this));
+            } else {
+                Message.obtain(request.mHandler, 0, request).sendToTarget();
+            }
         }
 
         @Override
@@ -214,10 +235,12 @@ public final class AsyncLayoutInflater {
 
         public void releaseRequest(InflateRequest obj) {
             obj.callback = null;
-            obj.inflater = null;
+            obj.mInflater = null;
+            obj.mHandler = null;
             obj.parent = null;
             obj.resid = 0;
             obj.view = null;
+            obj.mExecutor = null;
             mRequestPool.release(obj);
         }
 
@@ -225,8 +248,7 @@ public final class AsyncLayoutInflater {
             try {
                 mQueue.put(request);
             } catch (InterruptedException e) {
-                throw new RuntimeException(
-                        "Failed to enqueue async inflate request", e);
+                throw new RuntimeException("Failed to enqueue async inflate request", e);
             }
         }
     }
