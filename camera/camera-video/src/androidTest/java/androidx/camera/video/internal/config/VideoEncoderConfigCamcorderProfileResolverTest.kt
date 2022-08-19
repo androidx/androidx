@@ -50,13 +50,7 @@ class VideoEncoderConfigCamcorderProfileResolverTest(
     private val implName: String,
     private val cameraConfig: CameraXConfig
 ) {
-
     companion object {
-        // TODO(b/177918193): We currently cannot communicate the frame rate to the camera,
-        //  so we only support 30fps. For now we want to ensure we only ever get an FPS of 30,
-        //  but this check can be removed once we can change frame rate.
-        const val FIXED_FRAME_RATE = 30
-
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
         fun data() = listOf(
@@ -64,7 +58,6 @@ class VideoEncoderConfigCamcorderProfileResolverTest(
             arrayOf(CameraPipeConfig::class.simpleName, CameraPipeConfig.defaultConfig())
         )
     }
-
     private val context: Context = ApplicationProvider.getApplicationContext()
     private val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
     private val defaultVideoSpec = VideoSpec.builder().build()
@@ -108,17 +101,14 @@ class VideoEncoderConfigCamcorderProfileResolverTest(
                 it.videoCodecMimeType!!,
                 defaultVideoSpec,
                 Size(it.videoFrameWidth, it.videoFrameHeight),
-                it
+                it,
+                /*expectedFrameRateRange=*/null
             ).get()
 
             assertThat(config.mimeType).isEqualTo(it.videoCodecMimeType)
-            // TODO(b/177918193): Frame rate ratio needs to scale bitrate since we use a fixed
-            //  frame rate. The output config frame rate may not match the profile frame rate.
-            val scaledBitrate =
-                (it.videoBitRate * config.frameRate.toDouble() / it.videoFrameRate).toInt()
-            assertThat(config.bitrate).isEqualTo(scaledBitrate)
+            assertThat(config.bitrate).isEqualTo(it.videoBitRate)
             assertThat(config.resolution).isEqualTo(Size(it.videoFrameWidth, it.videoFrameHeight))
-            assertThat(config.frameRate).isEqualTo(FIXED_FRAME_RATE)
+            assertThat(config.frameRate).isEqualTo(it.videoFrameRate)
         }
     }
 
@@ -131,7 +121,8 @@ class VideoEncoderConfigCamcorderProfileResolverTest(
             profile.videoCodecMimeType!!,
             defaultVideoSpec,
             surfaceSize,
-            profile
+            profile,
+            /*expectedFrameRateRange=*/null
         ).get().bitrate
 
         val increasedSurfaceSize = Size(surfaceSize.width + 100, surfaceSize.height + 100)
@@ -142,7 +133,8 @@ class VideoEncoderConfigCamcorderProfileResolverTest(
                 profile.videoCodecMimeType!!,
                 defaultVideoSpec,
                 increasedSurfaceSize,
-                profile
+                profile,
+                /*expectedFrameRateRange=*/null
             ).get().bitrate
         ).isGreaterThan(defaultBitrate)
 
@@ -151,7 +143,8 @@ class VideoEncoderConfigCamcorderProfileResolverTest(
                 profile.videoCodecMimeType!!,
                 defaultVideoSpec,
                 decreasedSurfaceSize,
-                profile
+                profile,
+                /*expectedFrameRateRange=*/null
             ).get().bitrate
         ).isLessThan(defaultBitrate)
     }
@@ -165,7 +158,8 @@ class VideoEncoderConfigCamcorderProfileResolverTest(
             profile.videoCodecMimeType!!,
             defaultVideoSpec,
             surfaceSize,
-            profile
+            profile,
+            /*expectedFrameRateRange=*/null
         ).get().bitrate
 
         // Create video spec with limit 20% higher than default.
@@ -182,7 +176,8 @@ class VideoEncoderConfigCamcorderProfileResolverTest(
                 profile.videoCodecMimeType!!,
                 higherVideoSpec,
                 surfaceSize,
-                profile
+                profile,
+                /*expectedFrameRateRange=*/null
             ).get().bitrate
         ).isEqualTo(higherBitrate)
 
@@ -191,31 +186,80 @@ class VideoEncoderConfigCamcorderProfileResolverTest(
                 profile.videoCodecMimeType!!,
                 lowerVideoSpec,
                 surfaceSize,
-                profile
+                profile,
+                /*expectedFrameRateRange=*/null
             ).get().bitrate
         ).isEqualTo(lowerBitrate)
     }
 
-    // TODO(b/177918193): We currently cannot communicate the frame rate to the camera,
-    //  so we only support 30fps. Ensure the encoder config always is 30 so the encoder
-    //  gets the correct frame rate.
-    //  This test can be removed once setting the frame rate is supported.
     @Test
-    fun frameRateIsAlways30() {
-        // Give a VideoSpec with a frame rate higher than 30
-        val videoSpec = VideoSpec.builder().setFrameRate(Range(60, 60)).build()
+    fun resolvedFrameRateIsClampedToOperatingRate() {
         val profile = videoCapabilities.getProfile(Quality.HIGHEST)!!
         val surfaceSize = Size(profile.videoFrameWidth, profile.videoFrameHeight)
 
-        assertThat(
-            VideoEncoderConfigCamcorderProfileResolver(
-                profile.videoCodecMimeType!!,
-                videoSpec,
-                surfaceSize,
-                profile
-            ).get().frameRate
-        ).isEqualTo(
-            FIXED_FRAME_RATE
+        // Construct operating ranges that are both lower and higher than the profile FPS
+        val lowerOperatingRange = Range(profile.videoFrameRate / 4, profile.videoFrameRate / 2)
+        val higherOperatingRange = Range(profile.videoFrameRate * 2, profile.videoFrameRate * 4)
+
+        val clampedDownFrameRate = VideoEncoderConfigCamcorderProfileResolver(
+            profile.videoCodecMimeType!!,
+            defaultVideoSpec,
+            surfaceSize,
+            profile,
+            lowerOperatingRange
+        ).get().frameRate
+
+        val clampedUpFrameRate = VideoEncoderConfigCamcorderProfileResolver(
+            profile.videoCodecMimeType!!,
+            defaultVideoSpec,
+            surfaceSize,
+            profile,
+            higherOperatingRange
+        ).get().frameRate
+
+        assertThat(clampedDownFrameRate).isEqualTo(lowerOperatingRange.upper)
+        assertThat(clampedUpFrameRate).isEqualTo(higherOperatingRange.lower)
+    }
+
+    @Test
+    fun resolvedFrameRateInsideOperatingRangeIsUnchanged() {
+        val profile = videoCapabilities.getProfile(Quality.HIGHEST)!!
+        val surfaceSize = Size(profile.videoFrameWidth, profile.videoFrameHeight)
+
+        // Construct a range that includes the profile FPS
+        val operatingRange = Range(profile.videoFrameRate / 2, profile.videoFrameRate * 2)
+
+        val resolvedFrameRate = VideoEncoderConfigCamcorderProfileResolver(
+            profile.videoCodecMimeType!!,
+            defaultVideoSpec,
+            surfaceSize,
+            profile,
+            operatingRange
+        ).get().frameRate
+
+        assertThat(resolvedFrameRate).isEqualTo(profile.videoFrameRate)
+    }
+
+    @Test
+    fun bitrateScalesWithFrameRateOperatingRange() {
+        val profile = videoCapabilities.getProfile(Quality.HIGHEST)!!
+        val surfaceSize = Size(profile.videoFrameWidth, profile.videoFrameHeight)
+
+        // Construct a range which is constant and half the profile FPS
+        val operatingFrameRate = profile.videoFrameRate / 2
+        val operatingRange = Range(operatingFrameRate, operatingFrameRate)
+
+        val resolvedBitrate = VideoEncoderConfigCamcorderProfileResolver(
+            profile.videoCodecMimeType!!,
+            defaultVideoSpec,
+            surfaceSize,
+            profile,
+            operatingRange
+        ).get().bitrate
+
+        assertThat(resolvedBitrate).isEqualTo(
+            (profile.videoBitRate *
+                (operatingFrameRate.toDouble() / profile.videoFrameRate)).toInt()
         )
     }
 }

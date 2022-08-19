@@ -24,6 +24,7 @@ import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.media.ImageReader;
 import android.os.Build;
+import android.util.Range;
 import android.util.Size;
 import android.view.Surface;
 import android.view.SurfaceView;
@@ -192,9 +193,31 @@ public class SettableSurface extends DeferrableSurface {
     @MainThread
     @NonNull
     public SurfaceRequest createSurfaceRequest(@NonNull CameraInternal cameraInternal) {
+        return createSurfaceRequest(cameraInternal, null);
+    }
+
+    /**
+     * Creates a {@link SurfaceRequest} that is linked to this {@link SettableSurface}.
+     *
+     * <p>The {@link SurfaceRequest} is for requesting a {@link Surface} from an external source
+     * such as {@code PreviewView} or {@code VideoCapture}. {@link SettableSurface} uses the
+     * {@link Surface} provided by {@link SurfaceRequest#provideSurface} as its source. For how
+     * the ref-counting works, please see the Javadoc of {@link #setProvider}.
+     *
+     * <p>It throws {@link IllegalStateException} if the current {@link SettableSurface}
+     * already has a provider.
+     *
+     * <p>This overload optionally allows allows specifying the expected frame rate range in which
+     * the surface should operate.
+     */
+    @MainThread
+    @NonNull
+    public SurfaceRequest createSurfaceRequest(@NonNull CameraInternal cameraInternal,
+            @Nullable Range<Integer> expectedFpsRange) {
         checkMainThread();
         // TODO(b/238230154) figure out how to support HDR.
-        SurfaceRequest surfaceRequest = new SurfaceRequest(getSize(), cameraInternal, true);
+        SurfaceRequest surfaceRequest = new SurfaceRequest(getSize(), cameraInternal, true,
+                expectedFpsRange);
         try {
             setProvider(surfaceRequest.getDeferrableSurface());
         } catch (SurfaceClosedException e) {
