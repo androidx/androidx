@@ -134,6 +134,30 @@ class HiltViewModelComposeTest {
         assertThat(firstViewModel).isSameInstanceAs(secondViewModel)
     }
 
+    @Test
+    fun keyedViewModel() {
+        lateinit var firstViewModel: SimpleViewModel
+        lateinit var secondViewModel: SimpleViewModel
+        lateinit var thirdViewModel: SimpleViewModel
+        composeTestRule.setContent {
+            val navController = rememberNavController()
+            NavHost(navController, startDestination = "Main") {
+                composable("Main") {
+                    firstViewModel = hiltViewModel(key = "One")
+                    secondViewModel = hiltViewModel(key = "One")
+                    thirdViewModel = hiltViewModel(key = "Two")
+                }
+            }
+        }
+        composeTestRule.waitForIdle()
+
+        assertThat(firstViewModel).isNotNull()
+        assertThat(secondViewModel).isNotNull()
+        assertThat(thirdViewModel).isNotNull()
+        assertThat(firstViewModel).isSameInstanceAs(secondViewModel)
+        assertThat(firstViewModel).isNotSameInstanceAs(thirdViewModel)
+    }
+
     @Composable
     private fun NavigateButton(text: String, listener: () -> Unit = { }) {
         Button(onClick = listener) {
