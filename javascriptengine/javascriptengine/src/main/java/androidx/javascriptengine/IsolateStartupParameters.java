@@ -43,8 +43,7 @@ public final class IsolateStartupParameters {
      * @param size heap size in bytes
      */
     @RequiresFeature(name = JavaScriptSandbox.JS_FEATURE_ISOLATE_MAX_HEAP_SIZE,
-            enforcement =
-                    "androidx.javascriptengine.JavaScriptSandbox#isFeatureSupported")
+            enforcement = "androidx.javascriptengine.JavaScriptSandbox#isFeatureSupported")
     public void setMaxHeapSizeBytes(@IntRange(from = 0) long size) {
         if (size < 0) {
             throw new IllegalArgumentException("maxHeapSizeBytes should be >= 0");

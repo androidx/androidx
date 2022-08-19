@@ -97,12 +97,12 @@ public final class JavaScriptSandbox implements AutoCloseable {
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @StringDef(value =
-            {
-                    JS_FEATURE_ISOLATE_TERMINATION,
-                    JS_FEATURE_PROMISE_RETURN,
-                    JS_FEATURE_PROVIDE_CONSUME_ARRAY_BUFFER,
-                    JS_FEATURE_WASM_COMPILATION,
-            })
+                       {
+                               JS_FEATURE_ISOLATE_TERMINATION,
+                               JS_FEATURE_PROMISE_RETURN,
+                               JS_FEATURE_PROVIDE_CONSUME_ARRAY_BUFFER,
+                               JS_FEATURE_WASM_COMPILATION,
+                       })
     @Retention(RetentionPolicy.SOURCE)
     @Target({ElementType.PARAMETER, ElementType.METHOD})
     public @interface JsSandboxFeature {}
@@ -184,9 +184,8 @@ public final class JavaScriptSandbox implements AutoCloseable {
         // one of the methods and have it fail.
         @Override
         public void onServiceDisconnected(ComponentName name) {
-            runShutdownTasks(
-                    new RuntimeException(
-                            "JavaScriptSandbox internal error: onServiceDisconnected()"));
+            runShutdownTasks(new RuntimeException(
+                    "JavaScriptSandbox internal error: onServiceDisconnected()"));
         }
 
         @Override
@@ -269,7 +268,8 @@ public final class JavaScriptSandbox implements AutoCloseable {
         return bindToServiceWithCallback(context, compName, flag);
     }
 
-    @NonNull private static ListenableFuture<JavaScriptSandbox> bindToServiceWithCallback(
+    @NonNull
+    private static ListenableFuture<JavaScriptSandbox> bindToServiceWithCallback(
             Context context, ComponentName compName, int flag) {
         Intent intent = new Intent();
         intent.setComponent(compName);

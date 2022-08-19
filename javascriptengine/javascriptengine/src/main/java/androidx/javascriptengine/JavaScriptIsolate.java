@@ -70,8 +70,7 @@ public final class JavaScriptIsolate implements AutoCloseable {
 
                 @Override
                 public Thread newThread(Runnable r) {
-                    return new Thread(
-                            r, "JavaScriptIsolate Thread #" + mCount.getAndIncrement());
+                    return new Thread(r, "JavaScriptIsolate Thread #" + mCount.getAndIncrement());
                 }
             });
     private final JavaScriptSandbox mJsSandbox;
@@ -144,8 +143,7 @@ public final class JavaScriptIsolate implements AutoCloseable {
      */
     @SuppressWarnings("NullAway")
     @NonNull
-    public ListenableFuture<String> evaluateJavaScriptAsync(
-            @NonNull String code) {
+    public ListenableFuture<String> evaluateJavaScriptAsync(@NonNull String code) {
         if (mJsIsolateStub == null) {
             throw new IllegalStateException(
                     "Calling evaluateJavascript() after closing the Isolate");
@@ -249,11 +247,10 @@ public final class JavaScriptIsolate implements AutoCloseable {
      * @param inputBytes Bytes to be passed into the JavaScript environment
      *
      * @return {@code true} on success, {@code false} if the name has already been used before,
- *              in which case the client should use an unused name
+     *         in which case the client should use an unused name
      */
     @RequiresFeature(name = JavaScriptSandbox.JS_FEATURE_PROVIDE_CONSUME_ARRAY_BUFFER,
-            enforcement =
-                    "androidx.javascriptengine.JavaScriptSandbox#isFeatureSupported")
+            enforcement = "androidx.javascriptengine.JavaScriptSandbox#isFeatureSupported")
     public boolean provideNamedData(@NonNull String name, @NonNull byte[] inputBytes) {
         if (mJsIsolateStub == null) {
             throw new IllegalStateException("Calling provideNamedData() after closing the Isolate");
@@ -271,8 +268,7 @@ public final class JavaScriptIsolate implements AutoCloseable {
             mThreadPoolTaskExecutor.execute(
                     () -> {
                         convertByteArrayToStream(inputBytes, outputStream);
-                    }
-            );
+                    });
 
             AssetFileDescriptor asd = new AssetFileDescriptor(readSide, offset, length);
             return mJsIsolateStub.provideNamedData(name, asd);
