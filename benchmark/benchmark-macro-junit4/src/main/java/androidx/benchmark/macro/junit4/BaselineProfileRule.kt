@@ -87,12 +87,14 @@ class BaselineProfileRule : TestRule {
     @JvmOverloads
     public fun collectBaselineProfile(
         packageName: String,
+        iterations: Int = 3,
         packageFilters: List<String> = emptyList(),
         profileBlock: MacrobenchmarkScope.() -> Unit
     ) {
         collectBaselineProfile(
             uniqueName = currentDescription.toUniqueName(),
             packageName = packageName,
+            iterations = iterations,
             packageFilters = packageFilters,
             profileBlock = profileBlock
         )
