@@ -50,9 +50,27 @@ package androidx.tv.material.carousel {
 
 }
 
-package androidx.tv.material.pager {
+package androidx.tv.material.immersivelist {
 
-  public final class PagerKt {
+  @androidx.compose.runtime.Immutable @androidx.tv.material.ExperimentalTvMaterialApi public final class ImmersiveListBackgroundScope implements androidx.compose.foundation.layout.BoxScope {
+    method @androidx.compose.animation.ExperimentalAnimationApi @androidx.compose.runtime.Composable public void AnimatedContent(int targetState, optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function1<? super androidx.compose.animation.AnimatedContentScope<java.lang.Integer>,androidx.compose.animation.ContentTransform> transitionSpec, optional androidx.compose.ui.Alignment contentAlignment, kotlin.jvm.functions.Function2<? super androidx.compose.animation.AnimatedVisibilityScope,? super java.lang.Integer,kotlin.Unit> content);
+    method @androidx.compose.runtime.Composable public void AnimatedVisibility(boolean visible, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.animation.EnterTransition enter, optional androidx.compose.animation.ExitTransition exit, optional String label, kotlin.jvm.functions.Function1<? super androidx.compose.animation.AnimatedVisibilityScope,kotlin.Unit> content);
+  }
+
+  @androidx.tv.material.ExperimentalTvMaterialApi public final class ImmersiveListDefaults {
+    method public androidx.compose.animation.EnterTransition getEnterTransition();
+    method public androidx.compose.animation.ExitTransition getExitTransition();
+    property public final androidx.compose.animation.EnterTransition EnterTransition;
+    property public final androidx.compose.animation.ExitTransition ExitTransition;
+    field public static final androidx.tv.material.immersivelist.ImmersiveListDefaults INSTANCE;
+  }
+
+  public final class ImmersiveListKt {
+    method @androidx.compose.runtime.Composable @androidx.tv.material.ExperimentalTvMaterialApi public static void ImmersiveList(kotlin.jvm.functions.Function3<? super androidx.tv.material.immersivelist.ImmersiveListBackgroundScope,? super java.lang.Integer,? super java.lang.Boolean,kotlin.Unit> background, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.ui.Alignment listAlignment, kotlin.jvm.functions.Function1<? super androidx.tv.material.immersivelist.ImmersiveListScope,kotlin.Unit> list);
+  }
+
+  @androidx.compose.runtime.Immutable @androidx.tv.material.ExperimentalTvMaterialApi public final class ImmersiveListScope {
+    method public androidx.compose.ui.Modifier focusableItem(androidx.compose.ui.Modifier, int index);
   }
 
 }
