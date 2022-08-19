@@ -30,6 +30,30 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 
+        <Button
+            android:id="@+id/image_capture_btn"
+            android:layout_gravity="bottom"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="20dp"
+            android:text="@string/image_capture"
+            android:textSize="20sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <Button
+            android:id="@+id/video_capture_btn"
+            android:layout_gravity="bottom"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="20dp"
+            android:text="@string/start_video_capture"
+            android:textSize="20sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
         <androidx.camera.integration.diagnose.OverlayView
             android:id="@+id/overlay_view"
             android:layout_width="match_parent"
@@ -39,8 +63,8 @@
             <Button
                 android:id="@+id/diagnose_btn"
                 android:layout_width="wrap_content"
+                android:layout_gravity="bottom"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
                 android:enabled="false"
                 android:padding="20dp"
                 android:text="@string/begin_diagnosis"
