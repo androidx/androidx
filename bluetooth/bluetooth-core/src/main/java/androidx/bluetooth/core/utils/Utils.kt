@@ -16,6 +16,7 @@
 
 package androidx.bluetooth.core.utils
 
+import android.annotation.SuppressLint
 import android.os.Build
 import android.os.Bundle
 import android.os.Parcelable
@@ -29,26 +30,25 @@ internal class Utils {
     companion object {
 
         // TODO: Migrate to BundleCompat when available
-        @Suppress("DEPRECATION")
+        @SuppressLint("ClassVerificationFailure") // bundle.getParcelable(key, clazz)
+        @Suppress("DEPRECATION") // bundle.getParcelable(key)
         fun <T : Parcelable> getParcelableFromBundle(
             bundle: Bundle,
             key: String,
             clazz: Class<T>
         ): T? {
+            val parcelable: T?
             bundle.classLoader = clazz.classLoader
-            if (Build.VERSION.SDK_INT >= 33) {
-                // TODO: Return framework's getParcelable when SDK 33 is available
-                // return bundle.getParcelable(key, clazz)
-                TODO()
-            } else {
-                val parcelable: T?
-                try {
+            try {
+                if (Build.VERSION.SDK_INT >= 33) {
+                    parcelable = bundle.getParcelable(key, clazz)
+                } else {
                     parcelable = bundle.getParcelable(key)
-                } catch (e: Exception) {
-                    return null
                 }
-                return parcelable
+            } catch (e: Exception) {
+                return null
             }
+            return parcelable
         }
 
         @Suppress("DEPRECATION")
