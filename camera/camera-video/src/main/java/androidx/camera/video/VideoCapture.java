@@ -42,6 +42,7 @@ import android.graphics.ImageFormat;
 import android.graphics.Rect;
 import android.media.MediaCodec;
 import android.util.Pair;
+import android.util.Range;
 import android.util.Size;
 import android.view.Display;
 import android.view.Surface;
@@ -428,6 +429,10 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         Threads.checkMainThread();
         CameraInternal camera = Preconditions.checkNotNull(getCamera());
 
+        // TODO(b/229410005): The expected FPS range will need to come from the camera rather
+        //  than what is requested in the config. For now we use the default range of (30, 30)
+        //  for behavioral consistency.
+        Range<Integer> targetFpsRange = config.getTargetFramerate(Defaults.DEFAULT_FPS_RANGE);
         if (mSurfaceEffect != null) {
             mNode = new SurfaceEffectNode(camera, /*applyGlTransform=*/true, mSurfaceEffect);
             SettableSurface cameraSurface = new SettableSurface(
@@ -442,12 +447,13 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
             SurfaceEdge inputEdge = SurfaceEdge.create(singletonList(cameraSurface));
             SurfaceEdge outputEdge = mNode.transform(inputEdge);
             SettableSurface appSurface = outputEdge.getSurfaces().get(0);
-            mSurfaceRequest = appSurface.createSurfaceRequest(camera);
+            mSurfaceRequest = appSurface.createSurfaceRequest(camera, targetFpsRange);
             mDeferrableSurface = cameraSurface;
         } else {
-            mSurfaceRequest = new SurfaceRequest(resolution, camera, false);
+            mSurfaceRequest = new SurfaceRequest(resolution, camera, false, targetFpsRange);
             mDeferrableSurface = mSurfaceRequest.getDeferrableSurface();
         }
+
         config.getVideoOutput().onSurfaceRequested(mSurfaceRequest);
         sendTransformationInfoIfReady(resolution);
         // Since VideoCapture is in video module and can't be recognized by core module, use
@@ -515,6 +521,8 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         private static final VideoOutput DEFAULT_VIDEO_OUTPUT =
                 SurfaceRequest::willNotProvideSurface;
         private static final VideoCaptureConfig<?> DEFAULT_CONFIG;
+
+        static final Range<Integer> DEFAULT_FPS_RANGE = new Range<>(30, 30);
 
         static {
             Builder<?> builder = new Builder<>(DEFAULT_VIDEO_OUTPUT)

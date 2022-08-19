@@ -40,6 +40,7 @@ import android.os.Build;
 import android.os.ParcelFileDescriptor;
 import android.provider.MediaStore;
 import android.util.Pair;
+import android.util.Range;
 import android.util.Size;
 import android.view.Surface;
 
@@ -1234,15 +1235,17 @@ public final class Recorder implements VideoOutput {
 
     @NonNull
     private static VideoEncoderConfig resolveVideoEncoderConfig(@NonNull MimeInfo videoMimeInfo,
-            @NonNull VideoSpec videoSpec, @NonNull Size surfaceSize) {
+            @NonNull VideoSpec videoSpec, @NonNull Size surfaceSize,
+            @Nullable Range<Integer> expectedFrameRateRange) {
         Supplier<VideoEncoderConfig> configSupplier;
         if (videoMimeInfo.getCompatibleCamcorderProfile() != null) {
             configSupplier = new VideoEncoderConfigCamcorderProfileResolver(
                     videoMimeInfo.getMimeType(), videoSpec, surfaceSize,
-                    videoMimeInfo.getCompatibleCamcorderProfile());
+                    videoMimeInfo.getCompatibleCamcorderProfile(),
+                    expectedFrameRateRange);
         } else {
             configSupplier = new VideoEncoderConfigDefaultResolver(videoMimeInfo.getMimeType(),
-                    videoSpec, surfaceSize);
+                    videoSpec, surfaceSize, expectedFrameRateRange);
         }
 
         return configSupplier.get();
@@ -1331,8 +1334,15 @@ public final class Recorder implements VideoOutput {
     private void setupVideo(@NonNull SurfaceRequest surfaceRequest) {
         MediaSpec mediaSpec = getObservableData(mMediaSpec);
         MimeInfo videoMimeInfo = resolveVideoMimeInfo(mediaSpec);
-        VideoEncoderConfig config = resolveVideoEncoderConfig(videoMimeInfo,
-                mediaSpec.getVideoSpec(), surfaceRequest.getResolution());
+
+        // The VideoSpec from mMediaSpec only contains settings requested by the recorder, but
+        // the actual settings may need to differ depending on the FPS chosen by the camera.
+        // The expected frame rate from the camera is passed on here from the SurfaceRequest.
+        VideoEncoderConfig config = resolveVideoEncoderConfig(
+                videoMimeInfo,
+                mediaSpec.getVideoSpec(),
+                surfaceRequest.getResolution(),
+                surfaceRequest.getExpectedFrameRate());
 
         try {
             mVideoEncoder = mVideoEncoderFactory.createEncoder(mExecutor, config);
