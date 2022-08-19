@@ -4,5 +4,8 @@ package androidx.lifecycle.compose {
   public final class FlowExtKt {
   }
 
+  public final class StateKt {
+  }
+
 }
 

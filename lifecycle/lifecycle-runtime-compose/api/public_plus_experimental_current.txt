@@ -11,5 +11,10 @@ package androidx.lifecycle.compose {
     method @androidx.compose.runtime.Composable @androidx.lifecycle.compose.ExperimentalLifecycleComposeApi public static <T> androidx.compose.runtime.State<T> collectAsStateWithLifecycle(kotlinx.coroutines.flow.Flow<? extends T>, T? initialValue, androidx.lifecycle.Lifecycle lifecycle, optional androidx.lifecycle.Lifecycle.State minActiveState, optional kotlin.coroutines.CoroutineContext context);
   }
 
+  public final class StateKt {
+    method @androidx.compose.runtime.Composable @androidx.lifecycle.compose.ExperimentalLifecycleComposeApi public static <T> androidx.compose.runtime.State<T> rememberUpdatedStateWithLifecycle(T? initialValue, optional androidx.lifecycle.LifecycleOwner lifecycleOwner, optional androidx.lifecycle.Lifecycle.State minActiveState, optional kotlin.coroutines.CoroutineContext context, kotlin.jvm.functions.Function0<? extends T> updater);
+    method @androidx.compose.runtime.Composable @androidx.lifecycle.compose.ExperimentalLifecycleComposeApi public static <T> androidx.compose.runtime.State<T> rememberUpdatedStateWithLifecycle(T? initialValue, androidx.lifecycle.Lifecycle lifecycle, optional androidx.lifecycle.Lifecycle.State minActiveState, optional kotlin.coroutines.CoroutineContext context, kotlin.jvm.functions.Function0<? extends T> updater);
+  }
+
 }
 

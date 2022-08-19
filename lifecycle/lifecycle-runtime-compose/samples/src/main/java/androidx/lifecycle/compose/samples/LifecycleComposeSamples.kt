@@ -23,8 +23,11 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.compose.rememberUpdatedStateWithLifecycle
+import kotlin.random.Random
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -61,4 +64,15 @@ fun FlowCollectAsStateWithLifecycle() {
     val state = remember { ExampleState() }
     val count by state.counter.collectAsStateWithLifecycle(initialValue = 0)
     Text(text = "$count")
+}
+
+@Sampled
+@Composable
+fun UpdatedStateWithLifecycle() {
+    val random by rememberUpdatedStateWithLifecycle(
+        initialValue = 0,
+        minActiveState = Lifecycle.State.RESUMED,
+        updater = { Random.nextInt() },
+    )
+    Text(text = "$random")
 }
