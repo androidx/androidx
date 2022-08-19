@@ -17,14 +17,12 @@
 package androidx.wear.watchface
 
 import android.annotation.SuppressLint
-import android.app.WallpaperColors
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.graphics.Canvas
-import android.graphics.Color
 import android.graphics.Rect
 import android.os.Build
 import android.os.Build.VERSION.SDK_INT
@@ -62,6 +60,7 @@ import androidx.wear.watchface.complications.data.ComplicationType
 import androidx.wear.watchface.complications.data.toApiComplicationData
 import androidx.wear.watchface.complications.data.toWireTypes
 import androidx.wear.watchface.control.HeadlessWatchFaceImpl
+import androidx.wear.watchface.control.IWatchfaceListener
 import androidx.wear.watchface.control.IWatchfaceReadyListener
 import androidx.wear.watchface.control.InteractiveInstanceManager
 import androidx.wear.watchface.control.InteractiveWatchFaceImpl
@@ -1209,6 +1208,13 @@ public abstract class WatchFaceService : WallpaperService() {
 
         private val mainThreadPriorityDelegate = getMainThreadPriorityDelegate()
 
+        // Members after this are protected by the lock.
+        private val lock = Any()
+
+        /** Protected by [lock]. */
+        private val listeners = HashSet<IWatchfaceListener>()
+        private var lastWatchFaceColors: WatchFaceColors? = null
+
         /**
          * Returns the [WatchFaceImpl] if [deferredWatchFaceImpl] has completed successfully or
          * `null` otherwise. Throws exception if there were problems with watchface validation.
@@ -1389,9 +1395,6 @@ public abstract class WatchFaceService : WallpaperService() {
             // We don't want to display complications in direct boot mode so replace with an empty
             // list. NB we can't actually serialise complications anyway so that's just as well...
             params.idAndComplicationDataWireFormats = emptyList()
-
-            // Let wallpaper manager know the wallpaper has changed.
-            notifySystemThatColorsChanged()
 
             backgroundThreadCoroutineScope.launch {
                 writeDirectBootPrefs(_context, DIRECT_BOOT_PREFS, params)
@@ -1644,19 +1647,6 @@ public abstract class WatchFaceService : WallpaperService() {
         override fun onSurfaceDestroyed(holder: SurfaceHolder) {
             surfaceDestroyed = true
         }
-
-        override fun onComputeColors(): WallpaperColors? =
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
-                getWatchFaceImplOrNull()?.renderer?.watchfaceColors()?.let {
-                    WallpaperColorsHelper.makeWallpaperColors(
-                        it.primaryColor,
-                        it.secondaryColor,
-                        it.tertiaryColor
-                    )
-                }
-            } else {
-                null
-            }
 
         override fun onCommand(
             action: String?,
@@ -2118,11 +2108,6 @@ public abstract class WatchFaceService : WallpaperService() {
                 }
                 deferredWatchFaceImpl.complete(watchFaceImpl)
 
-                // Let wallpaper manager know the wallpaper colors have changed.
-                if (!watchState.isHeadless) {
-                    notifySystemThatColorsChanged()
-                }
-
                 // Apply any pendingInitialComplications, this must be done after
                 // deferredWatchFaceImpl has completed or there's a window in which complication
                 // updates get lost.
@@ -2314,9 +2299,14 @@ public abstract class WatchFaceService : WallpaperService() {
             }
         }
 
-        override fun notifySystemThatColorsChanged() {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
-                NotifyColorsChangedHelper.notifyColorsChanged(this@EngineWrapper)
+        override fun onWatchFaceColorsChanged(watchFaceColors: WatchFaceColors?) {
+            val listenersCopy = synchronized(lock) {
+                lastWatchFaceColors = watchFaceColors
+                HashSet<IWatchfaceListener>(listeners)
+            }
+
+            listenersCopy.forEach {
+                it.onWatchfaceColorsChanged(lastWatchFaceColors?.toWireFormat())
             }
         }
 
@@ -2501,6 +2491,26 @@ public abstract class WatchFaceService : WallpaperService() {
         private fun getAccessibilityManager() =
             _context.getSystemService(Context.ACCESSIBILITY_SERVICE) as AccessibilityManager
 
+        fun addWatchFaceListener(listener: IWatchfaceListener) {
+            val colors = synchronized(lock) {
+                listeners.add(listener)
+                lastWatchFaceColors
+            }
+
+            listener.onWatchfaceColorsChanged(colors?.toWireFormat())
+
+            uiThreadCoroutineScope.launch {
+                deferredWatchFaceImpl.await()
+                listener.onWatchfaceReady()
+            }
+        }
+
+        fun removeWatchFaceListener(listener: IWatchfaceListener) {
+            synchronized(lock) {
+                listeners.remove(listener)
+            }
+        }
+
         @UiThread
         internal fun dump(writer: IndentingPrintWriter) {
             require(uiThreadHandler.looper.isCurrentThread) {
@@ -2546,6 +2556,10 @@ public abstract class WatchFaceService : WallpaperService() {
                 "pendingInitialComplications=" + pendingInitialComplications?.joinToString()
             )
 
+            synchronized(lock) {
+                writer.println("listeners = " + listeners.joinToString(", "))
+            }
+
             if (!destroyed) {
                 getWatchFaceImplOrNull()?.dump(writer)
             }
@@ -2578,19 +2592,6 @@ public abstract class WatchFaceService : WallpaperService() {
         @Px
         fun extractFromWindowInsets(insets: WindowInsets?) =
             insets?.getInsets(WindowInsets.Type.systemBars())?.bottom ?: 0
-    }
-
-    @RequiresApi(27)
-    private object NotifyColorsChangedHelper {
-        fun notifyColorsChanged(engine: Engine) {
-            engine.notifyColorsChanged()
-        }
-    }
-
-    @RequiresApi(27)
-    private object WallpaperColorsHelper {
-        fun makeWallpaperColors(primaryColor: Color, secondaryColor: Color, tertiaryColor: Color) =
-            WallpaperColors(primaryColor, secondaryColor, tertiaryColor)
     }
 }
 

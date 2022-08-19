@@ -139,5 +139,5 @@ public interface WatchFaceHostApi {
     public fun onActionTimeTick() {}
 
     /** The engine must notify the system that the watch face's colors have changed. */
-    public fun notifySystemThatColorsChanged() {}
+    public fun onWatchFaceColorsChanged(watchFaceColors: WatchFaceColors?) {}
 }
