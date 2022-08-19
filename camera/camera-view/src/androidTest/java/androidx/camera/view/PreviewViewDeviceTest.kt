@@ -53,6 +53,7 @@ import androidx.camera.testing.fakes.FakeCamera
 import androidx.camera.testing.fakes.FakeCameraInfoInternal
 import androidx.camera.view.PreviewView.ImplementationMode
 import androidx.camera.view.internal.compat.quirk.DeviceQuirks
+import androidx.camera.view.internal.compat.quirk.SurfaceViewNotCroppedByParentQuirk
 import androidx.camera.view.internal.compat.quirk.SurfaceViewStretchedQuirk
 import androidx.camera.view.test.R
 import androidx.core.content.ContextCompat
@@ -396,6 +397,11 @@ class PreviewViewDeviceTest {
     @UiThreadTest
     fun usesSurfaceView_whenNonLegacyDevice_andAPILevelNewerThanN() {
         Assume.assumeTrue(Build.VERSION.SDK_INT > 24)
+        Assume.assumeTrue(
+            DeviceQuirks.get(
+                SurfaceViewNotCroppedByParentQuirk::class.java
+            ) == null
+        )
         Assume.assumeTrue(
             DeviceQuirks.get(
                 SurfaceViewStretchedQuirk::class.java
