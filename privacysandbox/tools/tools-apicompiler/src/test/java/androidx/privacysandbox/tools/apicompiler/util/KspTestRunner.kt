@@ -64,9 +64,17 @@ fun checkSourceFails(source: Source): CompilationResultSubject {
 
 class CompilationResultSubject(private val result: TestCompilationResult) {
     fun containsError(error: String) {
-        assertThat(result.diagnostics[Diagnostic.Kind.ERROR]?.map(DiagnosticMessage::msg))
+        assertThat(getErrorMessages())
             .contains(error)
     }
+
+    fun containsExactlyErrors(vararg errors: String) {
+        assertThat(getErrorMessages())
+            .containsExactly(*errors)
+    }
+
+    private fun getErrorMessages() =
+        result.diagnostics[Diagnostic.Kind.ERROR]?.map(DiagnosticMessage::msg)
 }
 
 private class CapturingSymbolProcessor(private val logger: KSPLogger) : SymbolProcessor {
