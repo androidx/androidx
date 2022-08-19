@@ -22,6 +22,7 @@ import android.bluetooth.le.BluetoothLeAdvertiser as FwkBluetoothLeAdvertiser
 import android.bluetooth.le.BluetoothLeScanner as FwkBluetoothLeScanner
 import android.bluetooth.BluetoothDevice as FwkBluetoothDevice
 import android.bluetooth.BluetoothServerSocket
+import android.bluetooth.BluetoothStatusCodes
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresPermission
@@ -36,16 +37,13 @@ import java.util.UUID
  * a {@link BluetoothServerSocket} to listen for connection requests from other
  * devices, and start a scan for Bluetooth LE devices.
  *
- * <p>To get a {@link BluetoothAdapter} representing the local Bluetooth
- * adapter, call the {@link BluetoothManager#getAdapter} function on {@link BluetoothManager}.
- * </p><p>
- * * Fundamentally, this is your starting point for all
+ * Fundamentally, this is your starting point for all
  * Bluetooth actions. * </p>
  * <p>This class is thread safe.</p>
  *
  * @hide
  */
-class BluetoothAdapter private constructor(private val fwkAdapter: FwkBluetoothAdapter) {
+class BluetoothAdapter internal constructor(private val fwkAdapter: FwkBluetoothAdapter) {
     companion object {
         /**
          * Intent used to broadcast the change in connection state of the local
@@ -355,338 +353,6 @@ class BluetoothAdapter private constructor(private val fwkAdapter: FwkBluetoothA
             BluetoothAdapterImplApi33()
         }
 
-    internal interface BluetoothAdapterImpl {
-        fun startDiscovery(): Boolean
-        fun cancelDiscovery(): Boolean
-        fun closeProfileProxy(profile: Int, proxy: FwkBluetoothProfile)
-
-        val address: String
-
-        val bluetoothLeAdvertiser: FwkBluetoothLeAdvertiser?
-
-        val bluetoothLeScanner: FwkBluetoothLeScanner?
-
-        val bondedDevices: Set<FwkBluetoothDevice>
-
-        val discoverableTimeout: Duration?
-
-        val leMaximumAdvertisingDataLength: Int
-
-        val maxConnectedAudioDevices: Int
-
-        val name: String
-        fun setName(name: String): Boolean
-
-        // TODO: Implement getProfileConnectionState when BluetoothX support Bluetooth Classic
-
-        // TODO: implement getProfileProxy when library support Bluetooth Classic
-
-        fun getRemoteDevice(address: ByteArray): FwkBluetoothDevice
-        fun getRemoteDevice(address: String): FwkBluetoothDevice
-        fun getRemoteLeDevice(address: String, addressType: Int): FwkBluetoothDevice
-
-        val state: Int
-
-        val isDiscovering: Boolean
-
-        val isEnabled: Boolean
-
-        val isLe2MPhySupported: Boolean
-
-        val isLeCodedPhySupported: Boolean
-
-        val isLeExtendedAdvertisingSupported: Boolean
-
-        val isLePeriodicAdvertisingSupported: Boolean
-
-        val isMultipleAdvertisementSupported: Boolean
-
-        val isOffloadedScanBatchingSupported: Boolean
-
-        val isLeAudioBroadcastAssistantSupported: Int
-
-        val isLeAudioBroadcastSourceSupported: Int
-
-        val isLeAudioSupported: Int
-        fun listenUsingInsecureL2capChannel(): BluetoothServerSocket
-        fun listenUsingL2capChannel(): BluetoothServerSocket
-        fun listenUsingInsecureRfcommWithServiceRecord(
-            name: String,
-            uuid: UUID
-        ): BluetoothServerSocket
-
-        fun listenUsingRfcommWithServiceRecord(name: String, uuid: UUID): BluetoothServerSocket
-    }
-
-    internal open inner class BluetoothAdapterImplBase : BluetoothAdapterImpl {
-        @RequiresPermission(
-            anyOf = [
-                "android.permission.BLUETOOTH_ADMIN",
-                "android.permission.BLUETOOTH_SCAN",
-            ]
-        )
-        override fun cancelDiscovery(): Boolean {
-            return fwkAdapter.cancelDiscovery()
-        }
-
-        @RequiresPermission(
-            anyOf = [
-                "android.permission.BLUETOOTH_ADMIN",
-                "android.permission.BLUETOOTH_SCAN",
-            ]
-        )
-        override fun startDiscovery(): Boolean {
-            return fwkAdapter.startDiscovery()
-        }
-
-        // TODO: Change proxy into library's BluetoothProfile
-        override fun closeProfileProxy(profile: Int, proxy: FwkBluetoothProfile) {
-            fwkAdapter.closeProfileProxy(profile, proxy)
-        }
-
-        @get:RequiresPermission(
-            anyOf = [
-                "android.permission.BLUETOOTH",
-                "android.permission.BLUETOOTH_CONNECT",
-                "android.permission.LOCAL_MAC_ADDRESS",
-            ]
-        )
-        override val address: String
-            get() = fwkAdapter.address
-
-        // TODO: Change to Library's BluetoothLeAdvertiser when available
-        override val bluetoothLeAdvertiser: FwkBluetoothLeAdvertiser?
-            get() = fwkAdapter.bluetoothLeAdvertiser
-
-        // TODO: Change to Library BluetoothLeScanner when available
-        override val bluetoothLeScanner: FwkBluetoothLeScanner?
-            get() = fwkAdapter.bluetoothLeScanner
-
-        // TODO: Change to Library BluetoothDevice when available
-        @get:RequiresPermission(
-            anyOf = ["android.permission.BLUETOOTH",
-                "android.permission.BLUETOOTH_CONNECT"]
-        )
-        override val bondedDevices: Set<FwkBluetoothDevice>
-            get() = fwkAdapter.bondedDevices
-
-        @get:RequiresPermission("android.permission.BLUETOOTH_SCAN")
-        override val discoverableTimeout: Duration?
-            get() {
-                TODO("Implement backward-compatibility")
-            }
-
-        @get:RequiresPermission("android.permission.BLUETOOTH")
-        override val leMaximumAdvertisingDataLength: Int
-            get() {
-                TODO("Add implementation for lower sdk version")
-            }
-
-        @get:RequiresPermission("android.permission.BLUETOOTH_CONNECT")
-        override val maxConnectedAudioDevices: Int
-            get() {
-                TODO("Add implementation for lower sdk version")
-            }
-
-        /**
-         * Get the friendly Bluetooth name of the local Bluetooth adapter.
-         * <p>This name is visible to remote Bluetooth devices.
-         *
-         * @return the Bluetooth name, or null on error
-         */
-        @get:RequiresPermission(
-            anyOf = ["android.permission.BLUETOOTH_CONNECT",
-                "android.permission.BLUETOOTH"]
-        )
-        override val name: String
-            get() = fwkAdapter.name
-
-        /**
-         * Set the friendly Bluetooth name of the local Bluetooth adapter.
-         * <p>This name is visible to remote Bluetooth devices.
-         * <p>Valid Bluetooth names are a maximum of 248 bytes using UTF-8
-         * encoding, although many remote devices can only display the first
-         * 40 characters, and some may be limited to just 20.
-         * <p>If Bluetooth state is not {@link #STATE_ON}, this API
-         * will return false. After turning on Bluetooth,
-         * wait for {@link #ACTION_STATE_CHANGED} with {@link #STATE_ON}
-         * to get the updated value.
-         *
-         * @param name a valid Bluetooth name
-         * @return true if the name was set, false otherwise
-         */
-        @RequiresPermission(
-            anyOf = ["android.permission.BLUETOOTH_CONNECT",
-                "android.permission.BLUETOOTH_ADMIN"]
-        )
-        override fun setName(name: String): Boolean {
-            return fwkAdapter.setName(name)
-        }
-
-        // TODO: Change to Library BluetoothDevice when available
-        override fun getRemoteDevice(address: ByteArray): FwkBluetoothDevice {
-            return fwkAdapter.getRemoteDevice(address)
-        }
-
-        override fun getRemoteDevice(address: String): FwkBluetoothDevice {
-            return fwkAdapter.getRemoteDevice(address)
-        }
-
-        override fun getRemoteLeDevice(address: String, addressType: Int): FwkBluetoothDevice {
-            TODO("Handle backward compatibility")
-        }
-
-        override val state: Int get() = fwkAdapter.state
-
-        @get:RequiresPermission(
-            anyOf = ["android.permission.BLUETOOTH",
-                "android.permission.BLUETOOTH_SCAN"]
-        )
-        override val isDiscovering: Boolean
-            get() = fwkAdapter.isDiscovering
-
-        override val isEnabled: Boolean
-            get() = fwkAdapter.isEnabled
-
-        override val isLe2MPhySupported: Boolean
-            get() {
-                TODO("Handle backward-compatibility")
-            }
-
-        override val isLeCodedPhySupported: Boolean
-            get() {
-                TODO("Handle backward-compatibility")
-            }
-
-        override val isLeExtendedAdvertisingSupported: Boolean
-            get() {
-                TODO("Handle backward-compatibility")
-            }
-
-        override val isLePeriodicAdvertisingSupported: Boolean
-            get() {
-                TODO("Handle backward-compatibility")
-            }
-
-        override val isMultipleAdvertisementSupported: Boolean
-            get() = fwkAdapter.isMultipleAdvertisementSupported
-
-        override val isOffloadedScanBatchingSupported: Boolean
-            get() = fwkAdapter.isOffloadedScanBatchingSupported
-
-        override val isLeAudioBroadcastAssistantSupported: Int
-            get() {
-                TODO("Handle backward-compatibility")
-            }
-
-        override val isLeAudioBroadcastSourceSupported: Int
-            get() {
-                TODO("Handle backward-compatibility")
-            }
-
-        override val isLeAudioSupported: Int
-            get() {
-                TODO("Handle backward-compatibility")
-            }
-
-        override fun listenUsingInsecureL2capChannel(): BluetoothServerSocket {
-            TODO("Handle backward-compatibility")
-        }
-
-        override fun listenUsingL2capChannel(): BluetoothServerSocket {
-            TODO("Handle backward-compatibility")
-        }
-
-        @RequiresPermission("android.permission.BLUETOOTH_CONNECT")
-        override fun listenUsingInsecureRfcommWithServiceRecord(
-            name: String,
-            uuid: UUID
-        ): BluetoothServerSocket {
-            return fwkAdapter.listenUsingInsecureRfcommWithServiceRecord(name, uuid)
-        }
-
-        @RequiresPermission("android.permission.BLUETOOTH_CONNECT")
-        override fun listenUsingRfcommWithServiceRecord(
-            name: String,
-            uuid: UUID
-        ): BluetoothServerSocket {
-            return fwkAdapter.listenUsingRfcommWithServiceRecord(name, uuid)
-        }
-    }
-
-    @RequiresApi(Build.VERSION_CODES.O)
-    internal open inner class BluetoothAdapterImplApi26 : BluetoothAdapterImplBase() {
-
-        @get:RequiresPermission("android.permission.BLUETOOTH")
-        override val leMaximumAdvertisingDataLength: Int
-            get() {
-                return fwkAdapter.leMaximumAdvertisingDataLength
-            }
-
-        override val isLe2MPhySupported: Boolean
-            get() {
-                return fwkAdapter.isLe2MPhySupported
-            }
-
-        override val isLeCodedPhySupported: Boolean
-            get() {
-                return fwkAdapter.isLeCodedPhySupported
-            }
-
-        override val isLeExtendedAdvertisingSupported: Boolean
-            get() {
-                return fwkAdapter.isLeExtendedAdvertisingSupported
-            }
-
-        override val isLePeriodicAdvertisingSupported: Boolean
-            get() {
-                return fwkAdapter.isLePeriodicAdvertisingSupported
-            }
-    }
-
-    @RequiresApi(Build.VERSION_CODES.Q)
-    internal open inner class BluetoothAdapterImplApi29() : BluetoothAdapterImplApi26() {
-
-        @RequiresPermission(anyOf = ["android.permission.BLUETOOTH",
-            "android.permission.BLUETOOTH_CONNECT"])
-        override fun listenUsingInsecureL2capChannel(): BluetoothServerSocket {
-            return fwkAdapter.listenUsingInsecureL2capChannel()
-        }
-    }
-
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
-    internal open inner class BluetoothAdapterImplApi33 : BluetoothAdapterImplApi29() {
-
-        @get:RequiresPermission("android.permission.BLUETOOTH_CONNECT")
-        override val maxConnectedAudioDevices: Int
-            get() {
-                return fwkAdapter.maxConnectedAudioDevices
-            }
-
-        @get:RequiresPermission("android.permission.BLUETOOTH_SCAN")
-        override val discoverableTimeout: Duration?
-            get() {
-                return fwkAdapter.discoverableTimeout
-            }
-
-        override fun getRemoteLeDevice(address: String, addressType: Int): FwkBluetoothDevice {
-            return fwkAdapter.getRemoteLeDevice(address, addressType)
-        }
-
-        override val isLeAudioBroadcastAssistantSupported: Int
-            get() {
-                return fwkAdapter.isLeAudioBroadcastAssistantSupported
-            }
-        override val isLeAudioBroadcastSourceSupported: Int
-            get() {
-                return fwkAdapter.isLeAudioBroadcastSourceSupported
-            }
-        override val isLeAudioSupported: Int
-            get() {
-                return fwkAdapter.isLeAudioSupported
-            }
-    }
-
     /**
      * Cancel the current device discovery process.
      * <p>Because discovery is a heavyweight procedure for the Bluetooth
@@ -840,7 +506,8 @@ class BluetoothAdapter private constructor(private val fwkAdapter: FwkBluetoothA
     @get:RequiresPermission("android.permission.BLUETOOTH_SCAN")
     // TODO: Implement when sdk 33 is available
     // TODO: Implement DurationCompat
-    val discoverableTimeout: Duration? = impl.discoverableTimeout
+    val discoverableTimeout: Duration?
+        get() = impl.discoverableTimeout
 
     /**
      * Return the maximum LE advertising data length in bytes, if LE Extended Advertising feature is
@@ -872,7 +539,11 @@ class BluetoothAdapter private constructor(private val fwkAdapter: FwkBluetoothA
         anyOf = ["android.permission.BLUETOOTH_CONNECT",
             "android.permission.BLUETOOTH"]
     )
-    val name: String
+    @set:RequiresPermission(
+        anyOf = ["android.permission.BLUETOOTH_CONNECT",
+            "android.permission.BLUETOOTH"]
+    )
+    var name: String
         /**
          * Get the friendly Bluetooth name of the local Bluetooth adapter.
          * <p>This name is visible to remote Bluetooth devices.
@@ -880,6 +551,23 @@ class BluetoothAdapter private constructor(private val fwkAdapter: FwkBluetoothA
          * @return the Bluetooth name, or null on error
          */
         get() = impl.name
+        /**
+         * Set the friendly Bluetooth name of the local Bluetooth adapter.
+         * <p>This name is visible to remote Bluetooth devices.
+         * <p>Valid Bluetooth names are a maximum of 248 bytes using UTF-8
+         * encoding, although many remote devices can only display the first
+         * 40 characters, and some may be limited to just 20.
+         * <p>If Bluetooth state is not {@link #STATE_ON}, this API
+         * will return false. After turning on Bluetooth,
+         * wait for {@link #ACTION_STATE_CHANGED} with {@link #STATE_ON}
+         * to get the updated value.
+         *
+         * @param name a valid Bluetooth name
+         * @return true if the name was set, false otherwise
+         */
+        set(value) {
+            impl.name = value
+        }
 
     /**
      * Set the friendly Bluetooth name of the local Bluetooth adapter.
@@ -1026,11 +714,7 @@ class BluetoothAdapter private constructor(private val fwkAdapter: FwkBluetoothA
      */
     val isLe2MPhySupported: Boolean
         get() {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                return impl.isLe2MPhySupported
-            } else {
-                TODO("Handle backward-compatibility")
-            }
+            return impl.isLe2MPhySupported
         }
 
     /**
@@ -1044,11 +728,7 @@ class BluetoothAdapter private constructor(private val fwkAdapter: FwkBluetoothA
      */
     val isLeCodedPhySupported: Boolean
         get() {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                return impl.isLeCodedPhySupported
-            } else {
-                TODO("Handle backward-compatibility")
-            }
+            return impl.isLeCodedPhySupported
         }
 
     /**
@@ -1075,7 +755,6 @@ class BluetoothAdapter private constructor(private val fwkAdapter: FwkBluetoothA
      * @return true if chipset supports LE Periodic Advertising feature
      */
     val isLePeriodicAdvertisingSupported: Boolean
-        @RequiresApi(Build.VERSION_CODES.O)
         get() {
             return impl.isLePeriodicAdvertisingSupported
         }
@@ -1092,6 +771,13 @@ class BluetoothAdapter private constructor(private val fwkAdapter: FwkBluetoothA
     val isMultipleAdvertisementSupported: Boolean
         get() = impl.isMultipleAdvertisementSupported
 
+    /**
+     * Return true if offloaded filters are supported
+     *
+     * @return true if chipset supports on-chip filtering
+     */
+    val isOffloadedFilteringSupported: Boolean
+        get() = impl.isOffloadedScanBatchingSupported
     /**
      * Return true if offloaded scan batching is supported
      *
@@ -1262,5 +948,323 @@ class BluetoothAdapter private constructor(private val fwkAdapter: FwkBluetoothA
     @RequiresPermission("android.permission.BLUETOOTH_CONNECT")
     fun listenUsingRfcommWithServiceRecord(name: String, uuid: UUID): BluetoothServerSocket {
         return impl.listenUsingRfcommWithServiceRecord(name, uuid)
+    }
+
+    internal interface BluetoothAdapterImpl {
+        fun startDiscovery(): Boolean
+        fun cancelDiscovery(): Boolean
+        fun closeProfileProxy(profile: Int, proxy: FwkBluetoothProfile)
+
+        val address: String
+
+        val bluetoothLeAdvertiser: FwkBluetoothLeAdvertiser?
+
+        val bluetoothLeScanner: FwkBluetoothLeScanner?
+
+        val bondedDevices: Set<FwkBluetoothDevice>
+
+        val discoverableTimeout: Duration?
+
+        val leMaximumAdvertisingDataLength: Int
+
+        val maxConnectedAudioDevices: Int
+
+        var name: String
+        fun setName(name: String): Boolean
+
+        // TODO: Implement getProfileConnectionState when BluetoothX support Bluetooth Classic
+
+        // TODO: implement getProfileProxy when library support Bluetooth Classic
+
+        fun getRemoteDevice(address: ByteArray): FwkBluetoothDevice
+        fun getRemoteDevice(address: String): FwkBluetoothDevice
+        fun getRemoteLeDevice(address: String, addressType: Int): FwkBluetoothDevice
+
+        val state: Int
+
+        val isDiscovering: Boolean
+
+        val isEnabled: Boolean
+
+        val isLe2MPhySupported: Boolean
+
+        val isLeCodedPhySupported: Boolean
+
+        val isLeExtendedAdvertisingSupported: Boolean
+
+        val isLePeriodicAdvertisingSupported: Boolean
+
+        val isMultipleAdvertisementSupported: Boolean
+
+        val isOffloadedScanBatchingSupported: Boolean
+
+        val isLeAudioBroadcastAssistantSupported: Int
+
+        val isLeAudioBroadcastSourceSupported: Int
+
+        val isLeAudioSupported: Int
+        fun listenUsingInsecureL2capChannel(): BluetoothServerSocket
+        fun listenUsingL2capChannel(): BluetoothServerSocket
+        fun listenUsingInsecureRfcommWithServiceRecord(
+            name: String,
+            uuid: UUID
+        ): BluetoothServerSocket
+
+        fun listenUsingRfcommWithServiceRecord(name: String, uuid: UUID): BluetoothServerSocket
+    }
+
+    internal open inner class BluetoothAdapterImplBase : BluetoothAdapterImpl {
+        @RequiresPermission(
+            anyOf = [
+                "android.permission.BLUETOOTH_ADMIN",
+                "android.permission.BLUETOOTH_SCAN",
+            ]
+        )
+        override fun cancelDiscovery(): Boolean {
+            return fwkAdapter.cancelDiscovery()
+        }
+
+        @RequiresPermission(
+            anyOf = [
+                "android.permission.BLUETOOTH_ADMIN",
+                "android.permission.BLUETOOTH_SCAN",
+            ]
+        )
+        override fun startDiscovery(): Boolean {
+            return fwkAdapter.startDiscovery()
+        }
+
+        // TODO: Change proxy into library's BluetoothProfile
+        override fun closeProfileProxy(profile: Int, proxy: FwkBluetoothProfile) {
+            fwkAdapter.closeProfileProxy(profile, proxy)
+        }
+
+        @get:RequiresPermission(
+            anyOf = [
+                "android.permission.BLUETOOTH",
+                "android.permission.BLUETOOTH_CONNECT",
+                "android.permission.LOCAL_MAC_ADDRESS",
+            ]
+        )
+        override val address: String
+            get() = fwkAdapter.address
+
+        // TODO: Change to Library's BluetoothLeAdvertiser when available
+        override val bluetoothLeAdvertiser: FwkBluetoothLeAdvertiser?
+            get() = fwkAdapter.bluetoothLeAdvertiser
+
+        // TODO: Change to Library BluetoothLeScanner when available
+        override val bluetoothLeScanner: FwkBluetoothLeScanner?
+            get() = fwkAdapter.bluetoothLeScanner
+
+        // TODO: Change to Library BluetoothDevice when available
+        @get:RequiresPermission(
+            anyOf = ["android.permission.BLUETOOTH",
+                "android.permission.BLUETOOTH_CONNECT"]
+        )
+        override val bondedDevices: Set<FwkBluetoothDevice>
+            get() = fwkAdapter.bondedDevices
+
+        @get:RequiresPermission("android.permission.BLUETOOTH_SCAN")
+        override val discoverableTimeout: Duration?
+            get() {
+                TODO("Implement backward-compatibility")
+            }
+
+        @get:RequiresPermission("android.permission.BLUETOOTH")
+        override val leMaximumAdvertisingDataLength: Int
+            get() {
+                TODO("Add implementation for lower sdk version")
+            }
+
+        @get:RequiresPermission("android.permission.BLUETOOTH_CONNECT")
+        override val maxConnectedAudioDevices: Int
+            get() {
+                TODO("Add implementation for lower sdk version")
+            }
+
+        @get:RequiresPermission(
+            anyOf = ["android.permission.BLUETOOTH_CONNECT",
+                "android.permission.BLUETOOTH"]
+        )
+        @set:RequiresPermission(
+        anyOf = ["android.permission.BLUETOOTH_CONNECT",
+        "android.permission.BLUETOOTH"]
+        )
+        override var name: String
+            get() = fwkAdapter.name
+            set(value) {
+                fwkAdapter.name = value
+            }
+        @RequiresPermission(
+            anyOf = ["android.permission.BLUETOOTH_CONNECT",
+                "android.permission.BLUETOOTH_ADMIN"]
+        )
+        override fun setName(name: String): Boolean {
+            return fwkAdapter.setName(name)
+        }
+
+        // TODO: Change to Library BluetoothDevice when available
+        override fun getRemoteDevice(address: ByteArray): FwkBluetoothDevice {
+            return fwkAdapter.getRemoteDevice(address)
+        }
+
+        override fun getRemoteDevice(address: String): FwkBluetoothDevice {
+            return fwkAdapter.getRemoteDevice(address)
+        }
+
+        override fun getRemoteLeDevice(address: String, addressType: Int): FwkBluetoothDevice {
+            TODO("Handle backward compatibility")
+        }
+
+        override val state: Int get() = fwkAdapter.state
+
+        @get:RequiresPermission(
+            anyOf = ["android.permission.BLUETOOTH",
+                "android.permission.BLUETOOTH_SCAN"]
+        )
+        override val isDiscovering: Boolean
+            get() = fwkAdapter.isDiscovering
+
+        override val isEnabled: Boolean
+            get() = fwkAdapter.isEnabled
+
+        override val isLe2MPhySupported: Boolean
+            get() {
+                return false
+            }
+
+        override val isLeCodedPhySupported: Boolean
+            get() {
+                return false
+            }
+
+        override val isLeExtendedAdvertisingSupported: Boolean
+            get() {
+                return false
+            }
+
+        override val isLePeriodicAdvertisingSupported: Boolean
+            get() {
+                return false
+            }
+
+        override val isMultipleAdvertisementSupported: Boolean
+            get() = fwkAdapter.isMultipleAdvertisementSupported
+
+        override val isOffloadedScanBatchingSupported: Boolean
+            get() = fwkAdapter.isOffloadedScanBatchingSupported
+
+        override val isLeAudioBroadcastAssistantSupported: Int
+            get() {
+                return BluetoothStatusCodes.FEATURE_NOT_SUPPORTED
+            }
+
+        override val isLeAudioBroadcastSourceSupported: Int
+            get() {
+                return BluetoothStatusCodes.FEATURE_NOT_SUPPORTED
+            }
+
+        override val isLeAudioSupported: Int
+            get() {
+                return BluetoothStatusCodes.FEATURE_NOT_SUPPORTED
+            }
+
+        override fun listenUsingInsecureL2capChannel(): BluetoothServerSocket {
+            TODO("Handle backward-compatibility")
+        }
+
+        override fun listenUsingL2capChannel(): BluetoothServerSocket {
+            TODO("Handle backward-compatibility")
+        }
+
+        @RequiresPermission("android.permission.BLUETOOTH_CONNECT")
+        override fun listenUsingInsecureRfcommWithServiceRecord(
+            name: String,
+            uuid: UUID
+        ): BluetoothServerSocket {
+            return fwkAdapter.listenUsingInsecureRfcommWithServiceRecord(name, uuid)
+        }
+
+        @RequiresPermission("android.permission.BLUETOOTH_CONNECT")
+        override fun listenUsingRfcommWithServiceRecord(
+            name: String,
+            uuid: UUID
+        ): BluetoothServerSocket {
+            return fwkAdapter.listenUsingRfcommWithServiceRecord(name, uuid)
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    internal open inner class BluetoothAdapterImplApi26 : BluetoothAdapterImplBase() {
+
+        @get:RequiresPermission("android.permission.BLUETOOTH")
+        override val leMaximumAdvertisingDataLength: Int
+            get() {
+                return fwkAdapter.leMaximumAdvertisingDataLength
+            }
+
+        override val isLe2MPhySupported: Boolean
+            get() {
+                return fwkAdapter.isLe2MPhySupported
+            }
+
+        override val isLeCodedPhySupported: Boolean
+            get() {
+                return fwkAdapter.isLeCodedPhySupported
+            }
+
+        override val isLeExtendedAdvertisingSupported: Boolean
+            get() {
+                return fwkAdapter.isLeExtendedAdvertisingSupported
+            }
+
+        override val isLePeriodicAdvertisingSupported: Boolean
+            get() {
+                return fwkAdapter.isLePeriodicAdvertisingSupported
+            }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.Q)
+    internal open inner class BluetoothAdapterImplApi29() : BluetoothAdapterImplApi26() {
+
+        @RequiresPermission(anyOf = ["android.permission.BLUETOOTH",
+            "android.permission.BLUETOOTH_CONNECT"])
+        override fun listenUsingInsecureL2capChannel(): BluetoothServerSocket {
+            return fwkAdapter.listenUsingInsecureL2capChannel()
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    internal open inner class BluetoothAdapterImplApi33 : BluetoothAdapterImplApi29() {
+
+        @get:RequiresPermission("android.permission.BLUETOOTH_CONNECT")
+        override val maxConnectedAudioDevices: Int
+            get() {
+                return fwkAdapter.maxConnectedAudioDevices
+            }
+
+        @get:RequiresPermission("android.permission.BLUETOOTH_SCAN")
+        override val discoverableTimeout: Duration?
+            get() {
+                return fwkAdapter.discoverableTimeout
+            }
+
+        override fun getRemoteLeDevice(address: String, addressType: Int): FwkBluetoothDevice {
+            return fwkAdapter.getRemoteLeDevice(address, addressType)
+        }
+
+        override val isLeAudioBroadcastAssistantSupported: Int
+            get() {
+                return fwkAdapter.isLeAudioBroadcastAssistantSupported
+            }
+        override val isLeAudioBroadcastSourceSupported: Int
+            get() {
+                return fwkAdapter.isLeAudioBroadcastSourceSupported
+            }
+        override val isLeAudioSupported: Int
+            get() {
+                return fwkAdapter.isLeAudioSupported
+            }
     }
 }
