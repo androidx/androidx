@@ -177,31 +177,32 @@ public class ListenableWorkerImpl extends IListenableWorkerImpl.Stub {
         synchronized (sLock) {
             mFutureMap.put(id, future);
         }
+        mTaskExecutor.getMainThreadExecutor().execute(() -> {
+            try {
+                ListenableWorker worker = mConfiguration.getWorkerFactory()
+                        .createWorkerWithDefaultFallback(mContext, workerClassName,
+                                workerParameters);
+                if (worker == null) {
+                    String message = "Unable to create an instance of " + workerClassName;
+                    Logger.get().error(TAG, message);
+                    future.setException(new IllegalStateException(message));
+                    return;
+                }
 
-        ListenableWorker worker = mConfiguration.getWorkerFactory()
-                .createWorkerWithDefaultFallback(mContext, workerClassName, workerParameters);
+                if (!(worker instanceof RemoteListenableWorker)) {
+                    String message = workerClassName + " does not extend "
+                            + RemoteListenableWorker.class.getName();
+                    Logger.get().error(TAG, message);
+                    future.setException(new IllegalStateException(message));
+                    return;
+                }
 
-        if (worker == null) {
-            String message = "Unable to create an instance of " + workerClassName;
-            Logger.get().error(TAG, message);
-            future.setException(new IllegalStateException(message));
-            return future;
-        }
-
-        if (!(worker instanceof RemoteListenableWorker)) {
-            String message =
-                    workerClassName + " does not extend " + RemoteListenableWorker.class.getName();
-            Logger.get().error(TAG, message);
-            future.setException(new IllegalStateException(message));
-            return future;
-        }
-
-        try {
-            RemoteListenableWorker remoteListenableWorker = (RemoteListenableWorker) worker;
-            future.setFuture(remoteListenableWorker.startRemoteWork());
-        } catch (Throwable throwable) {
-            future.setException(throwable);
-        }
+                RemoteListenableWorker remoteListenableWorker = (RemoteListenableWorker) worker;
+                future.setFuture(remoteListenableWorker.startRemoteWork());
+            } catch (Throwable throwable) {
+                future.setException(throwable);
+            }
+        });
 
         return future;
     }
