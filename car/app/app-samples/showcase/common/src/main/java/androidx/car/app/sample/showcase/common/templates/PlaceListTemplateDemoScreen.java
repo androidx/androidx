@@ -38,7 +38,7 @@ public final class PlaceListTemplateDemoScreen extends Screen {
     @Override
     public Template onGetTemplate() {
         return new PlaceListMapTemplate.Builder()
-                .setItemList(mPlaces.getPlaceList())
+                .setItemList(mPlaces.getPlaceList(/*randomOrder=*/false))
                 .setTitle(getCarContext().getString(R.string.place_list_template_demo_title))
                 .setHeaderAction(Action.BACK)
                 .build();
