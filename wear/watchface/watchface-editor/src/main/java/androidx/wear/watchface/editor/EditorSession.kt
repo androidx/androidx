@@ -787,6 +787,10 @@ internal class OnWatchFaceEditorSessionImpl(
 ) {
     private lateinit var editorDelegate: WatchFace.EditorDelegate
 
+    private companion object {
+        private const val TAG = "OnWatchFaceEditorSessionImpl"
+    }
+
     override val userStyleSchema by lazy {
         requireNotClosed()
         editorDelegate.userStyleSchema
@@ -846,7 +850,13 @@ internal class OnWatchFaceEditorSessionImpl(
                         validateAndUpdateUserStyle(args[1] as UserStyle)
                     }
                 }
-                else -> {}
+                else -> {
+                    Log.e(
+                        TAG,
+                        "userStyle proxy encountered unexpected method name '${method.name}'" +
+                            " please check your proguard rules."
+                    )
+                }
             }
             result
         }
