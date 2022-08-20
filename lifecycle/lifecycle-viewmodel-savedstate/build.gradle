@@ -50,6 +50,10 @@ dependencies {
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.testRules)
+
+    constraints {
+        implementation(project(":lifecycle:lifecycle-viewmodel"))
+    }
 }
 
 //used by testImplementation safe-args-generator
