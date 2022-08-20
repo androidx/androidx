@@ -41,6 +41,10 @@ dependencies {
     androidTestImplementation(libs.kotlinCoroutinesTest)
 
     lintPublish(project(":lifecycle:lifecycle-runtime-ktx-lint"))
+
+    constraints {
+        implementation(project(":lifecycle:lifecycle-runtime"))
+    }
 }
 
 androidx {
