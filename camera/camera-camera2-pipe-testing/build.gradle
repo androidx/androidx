@@ -32,6 +32,7 @@ dependencies {
     // Classes and types that are only needed at runtime
     implementation(libs.kotlinStdlib)
     implementation(libs.kotlinCoroutinesGuava)
+    implementation(libs.kotlinCoroutinesTest)
     implementation(project(":camera:camera-camera2-pipe"))
 
     testImplementation(libs.testCore)
@@ -49,6 +50,13 @@ android {
     // Use Robolectric 4.+
     testOptions.unitTests.includeAndroidResources = true
     namespace "androidx.camera.camera2.pipe.testing"
+}
+
+// Allow usage of Kotlin's @OptIn.
+tasks.withType(KotlinCompile).configureEach {
+    kotlinOptions {
+        freeCompilerArgs += ["-opt-in=kotlin.RequiresOptIn"]
+    }
 }
 
 androidx {

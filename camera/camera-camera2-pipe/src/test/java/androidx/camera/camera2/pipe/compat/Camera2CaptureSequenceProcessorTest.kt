@@ -31,10 +31,13 @@ import androidx.camera.camera2.pipe.RequestTemplate
 import androidx.camera.camera2.pipe.StreamFormat
 import androidx.camera.camera2.pipe.graph.StreamGraphImpl
 import androidx.camera.camera2.pipe.testing.FakeCameraDeviceWrapper
+import androidx.camera.camera2.pipe.testing.FakeCaptureSequenceListener
 import androidx.camera.camera2.pipe.testing.FakeThreads
 import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
 import androidx.camera.camera2.pipe.testing.RobolectricCameras
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -42,13 +45,14 @@ import org.robolectric.Shadows
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(RobolectricCameraPipeTestRunner::class)
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.P, maxSdk = 29)
-internal class Camera2RequestProcessorTest {
+internal class Camera2CaptureSequenceProcessorTest {
     // TODO: This fails with "Failed to allocate native CameraMetadata" on robolectric prior
     //  to Android P. Update the test class to include support for older versions when a new
-    //  version of robolectric is dropped into androidX.
+    //  version of robolectric is dropped into AndroidX.
 
     private val mainLooper = Shadows.shadowOf(Looper.getMainLooper())
     private val cameraId = RobolectricCameras.create(
@@ -131,10 +135,10 @@ internal class Camera2RequestProcessorTest {
     }
 
     @Test
-    fun requestIsCreatedAndSubmitted() {
-        val requestProcessor = Camera2RequestProcessor(
+    fun requestIsCreatedAndSubmitted() = runTest {
+        val captureSequenceProcessor = Camera2CaptureSequenceProcessor(
             fakeCaptureSession,
-            FakeThreads.forTests,
+            FakeThreads.fromTestScope(this),
             RequestTemplate(1),
             mapOf(
                 stream1.id to surface1,
@@ -142,8 +146,9 @@ internal class Camera2RequestProcessorTest {
             )
         )
 
-        val result = requestProcessor.submit(
-            Request(listOf(stream1.id, stream2.id)),
+        val sequence = captureSequenceProcessor.build(
+            isRepeating = false,
+            requests = listOf(Request(listOf(stream1.id, stream2.id))),
             defaultParameters = mapOf<Any, Any?>(
                 CaptureRequest.CONTROL_AE_MODE to CaptureRequest.CONTROL_AE_MODE_ON_ALWAYS_FLASH,
                 CaptureRequest.CONTROL_AF_MODE to CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE
@@ -151,10 +156,13 @@ internal class Camera2RequestProcessorTest {
             requiredParameters = mapOf<Any, Any?>(
                 CaptureRequest.CONTROL_AF_MODE to CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_VIDEO
             ),
-            defaultListeners = listOf()
+            listeners = listOf(),
+            sequenceListener = FakeCaptureSequenceListener()
         )
 
-        assertThat(result).isTrue()
+        val result = captureSequenceProcessor.submit(sequence!!)
+
+        assertThat(result).isGreaterThan(0)
         assertThat(fakeCaptureSession.lastCapture).hasSize(1)
         assertThat(fakeCaptureSession.lastRepeating).isNull()
 
@@ -162,40 +170,50 @@ internal class Camera2RequestProcessorTest {
     }
 
     @Test
-    fun requestIsSubmittedWithPartialSurfaces() {
-        val requestProcessor = Camera2RequestProcessor(
+    fun requestIsSubmittedWithPartialSurfaces() = runTest {
+        val captureSequenceProcessor = Camera2CaptureSequenceProcessor(
             fakeCaptureSession,
-            FakeThreads.forTests,
+            FakeThreads.fromTestScope(this),
             RequestTemplate(1),
             mapOf(
                 stream1.id to surface1
             )
         )
-        val result = requestProcessor.submit(
-            Request(listOf(stream1.id, stream2.id)),
+        val captureSequence = captureSequenceProcessor.build(
+            isRepeating = false,
+            requests = listOf(Request(listOf(stream1.id, stream2.id))),
             defaultParameters = mapOf<Any, Any?>(),
             requiredParameters = mapOf<Any, Any?>(),
-            defaultListeners = listOf()
+            listeners = emptyList(),
+            sequenceListener = FakeCaptureSequenceListener()
         )
-        assertThat(result).isTrue()
+        assertThat(captureSequence).isNotNull()
+
+        val result = captureSequenceProcessor.submit(captureSequence!!)
+        assertThat(result).isGreaterThan(0)
     }
 
     @Test
-    fun requestIsNotSubmittedWithEmptySurfaceList() {
-        val requestProcessor = Camera2RequestProcessor(
+    fun requestIsNotSubmittedWithEmptySurfaceList() = runTest {
+        val captureSequenceProcessor = Camera2CaptureSequenceProcessor(
             fakeCaptureSession,
-            FakeThreads.forTests,
+            FakeThreads.fromTestScope(this),
             RequestTemplate(1),
             mapOf(
                 stream1.id to surface1
             )
         )
-        val result = requestProcessor.submit(
-            Request(listOf(stream2.id)),
+
+        // Key part is that only stream1 has a surface, but stream2 is requested.
+        val captureSequence = captureSequenceProcessor.build(
+            isRepeating = false,
+            requests = listOf(Request(listOf(stream2.id))),
             defaultParameters = mapOf<Any, Any?>(),
             requiredParameters = mapOf<Any, Any?>(),
-            defaultListeners = listOf()
+            listeners = emptyList(),
+            sequenceListener = FakeCaptureSequenceListener()
         )
-        assertThat(result).isFalse()
+
+        assertThat(captureSequence).isNull()
     }
 }

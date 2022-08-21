@@ -21,33 +21,30 @@ import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CaptureResult
 import android.os.Build
 import androidx.camera.camera2.pipe.FrameNumber
-import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.RequestNumber
 import androidx.camera.camera2.pipe.Result3A
-import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
 import androidx.camera.camera2.pipe.testing.FakeFrameMetadata
-import androidx.camera.camera2.pipe.testing.FakeGraphProcessor
 import androidx.camera.camera2.pipe.testing.FakeRequestMetadata
-import androidx.camera.camera2.pipe.testing.FakeRequestProcessor
 import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
-import com.google.common.truth.Truth
-import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.GlobalScope
+import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(RobolectricCameraPipeTestRunner::class)
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 internal class Controller3AUnlock3ATest {
-    private val graphState3A = GraphState3A()
-    private val graphProcessor = FakeGraphProcessor(graphState3A = graphState3A)
-    private val requestProcessor = FakeRequestProcessor()
+    private val graphTestContext = GraphTestContext()
+    private val graphState3A = graphTestContext.graphProcessor.graphState3A
+    private val graphProcessor = graphTestContext.graphProcessor
+    private val captureSequenceProcessor = graphTestContext.captureSequenceProcessor
     private val listener3A = Listener3A()
     private val fakeMetadata = FakeCameraMetadata(
         mapOf(
@@ -62,17 +59,14 @@ internal class Controller3AUnlock3ATest {
         listener3A
     )
 
-    @OptIn(DelicateCoroutinesApi::class)
     @Test
-    fun testUnlockAe(): Unit = runBlocking {
-        initGraphProcessor()
-
-        val unLock3AAsyncTask = GlobalScope.async {
+    fun testUnlockAe() = runTest {
+        val unLock3AAsyncTask = async {
             controller3A.unlock3A(ae = true)
         }
 
         // Launch a task to repeatedly invoke a given capture result.
-        GlobalScope.launch {
+        val repeatingJob = launch {
             while (true) {
                 listener3A.onRequestSequenceCreated(
                     FakeRequestMetadata(
@@ -96,14 +90,17 @@ internal class Controller3AUnlock3ATest {
 
         val result = unLock3AAsyncTask.await()
         // Result of unlock3A call shouldn't be complete yet since the AE is locked.
-        Truth.assertThat(result.isCompleted).isFalse()
+        assertThat(result.isCompleted).isFalse()
 
         // There should be one request to lock AE.
-        val request1 = requestProcessor.nextEvent().requestSequence
-        Truth.assertThat(request1!!.requiredParameters[CaptureRequest.CONTROL_AE_LOCK])
+        val request1 = captureSequenceProcessor.nextEvent().requestSequence
+        assertThat(request1!!.requiredParameters[CaptureRequest.CONTROL_AE_LOCK])
             .isEqualTo(false)
 
-        GlobalScope.launch {
+        repeatingJob.cancel()
+        repeatingJob.join()
+
+        launch {
             listener3A.onRequestSequenceCreated(
                 FakeRequestMetadata(
                     requestNumber = RequestNumber(1)
@@ -122,19 +119,16 @@ internal class Controller3AUnlock3ATest {
         }
 
         val result3A = result.await()
-        Truth.assertThat(result3A.frameMetadata!!.frameNumber.value).isEqualTo(101L)
-        Truth.assertThat(result3A.status).isEqualTo(Result3A.Status.OK)
+        assertThat(result3A.frameMetadata!!.frameNumber.value).isEqualTo(101L)
+        assertThat(result3A.status).isEqualTo(Result3A.Status.OK)
     }
 
-    @OptIn(DelicateCoroutinesApi::class)
     @Test
-    fun testUnlockAf(): Unit = runBlocking {
-        initGraphProcessor()
-
-        val unLock3AAsyncTask = GlobalScope.async { controller3A.unlock3A(af = true) }
+    fun testUnlockAf() = runTest {
+        val unLock3AAsyncTask = async { controller3A.unlock3A(af = true) }
 
         // Launch a task to repeatedly invoke a given capture result.
-        GlobalScope.launch {
+        val repeatingJob = launch {
             while (true) {
                 listener3A.onRequestSequenceCreated(
                     FakeRequestMetadata(
@@ -158,14 +152,17 @@ internal class Controller3AUnlock3ATest {
 
         val result = unLock3AAsyncTask.await()
         // Result of unlock3A call shouldn't be complete yet since the AF is locked.
-        Truth.assertThat(result.isCompleted).isFalse()
+        assertThat(result.isCompleted).isFalse()
 
         // There should be one request to unlock AF.
-        val request1 = requestProcessor.nextEvent().requestSequence
-        Truth.assertThat(request1!!.requiredParameters[CaptureRequest.CONTROL_AF_TRIGGER])
+        val request1 = captureSequenceProcessor.nextEvent().requestSequence
+        assertThat(request1!!.requiredParameters[CaptureRequest.CONTROL_AF_TRIGGER])
             .isEqualTo(CaptureRequest.CONTROL_AF_TRIGGER_CANCEL)
 
-        GlobalScope.launch {
+        repeatingJob.cancel()
+        repeatingJob.join()
+
+        launch {
             listener3A.onRequestSequenceCreated(
                 FakeRequestMetadata(
                     requestNumber = RequestNumber(1)
@@ -184,21 +181,18 @@ internal class Controller3AUnlock3ATest {
         }
 
         val result3A = result.await()
-        Truth.assertThat(result3A.frameMetadata!!.frameNumber.value).isEqualTo(101L)
-        Truth.assertThat(result3A.status).isEqualTo(Result3A.Status.OK)
+        assertThat(result3A.frameMetadata!!.frameNumber.value).isEqualTo(101L)
+        assertThat(result3A.status).isEqualTo(Result3A.Status.OK)
     }
 
-    @OptIn(DelicateCoroutinesApi::class)
     @Test
-    fun testUnlockAwb(): Unit = runBlocking {
-        initGraphProcessor()
-
-        val unLock3AAsyncTask = GlobalScope.async {
+    fun testUnlockAwb() = runTest {
+        val unLock3AAsyncTask = async {
             controller3A.unlock3A(awb = true)
         }
 
         // Launch a task to repeatedly invoke a given capture result.
-        GlobalScope.launch {
+        val repeatingJob = launch {
             while (true) {
                 listener3A.onRequestSequenceCreated(
                     FakeRequestMetadata(
@@ -222,14 +216,17 @@ internal class Controller3AUnlock3ATest {
 
         val result = unLock3AAsyncTask.await()
         // Result of unlock3A call shouldn't be complete yet since the AWB is locked.
-        Truth.assertThat(result.isCompleted).isFalse()
+        assertThat(result.isCompleted).isFalse()
 
         // There should be one request to lock AWB.
-        val request1 = requestProcessor.nextEvent().requestSequence
-        Truth.assertThat(request1!!.requiredParameters[CaptureRequest.CONTROL_AWB_LOCK])
+        val request1 = captureSequenceProcessor.nextEvent().requestSequence
+        assertThat(request1!!.requiredParameters[CaptureRequest.CONTROL_AWB_LOCK])
             .isEqualTo(false)
 
-        GlobalScope.launch {
+        repeatingJob.cancel()
+        repeatingJob.join()
+
+        launch {
             listener3A.onRequestSequenceCreated(
                 FakeRequestMetadata(
                     requestNumber = RequestNumber(1)
@@ -248,19 +245,16 @@ internal class Controller3AUnlock3ATest {
         }
 
         val result3A = result.await()
-        Truth.assertThat(result3A.frameMetadata!!.frameNumber.value).isEqualTo(101L)
-        Truth.assertThat(result3A.status).isEqualTo(Result3A.Status.OK)
+        assertThat(result3A.frameMetadata!!.frameNumber.value).isEqualTo(101L)
+        assertThat(result3A.status).isEqualTo(Result3A.Status.OK)
     }
 
-    @OptIn(DelicateCoroutinesApi::class)
     @Test
-    fun testUnlockAeAf(): Unit = runBlocking {
-        initGraphProcessor()
-
-        val unLock3AAsyncTask = GlobalScope.async { controller3A.unlock3A(ae = true, af = true) }
+    fun testUnlockAeAf() = runTest {
+        val unLock3AAsyncTask = async { controller3A.unlock3A(ae = true, af = true) }
 
         // Launch a task to repeatedly invoke a given capture result.
-        GlobalScope.launch {
+        val repeatingJob = launch {
             while (true) {
                 listener3A.onRequestSequenceCreated(
                     FakeRequestMetadata(
@@ -285,18 +279,21 @@ internal class Controller3AUnlock3ATest {
 
         val result = unLock3AAsyncTask.await()
         // Result of unlock3A call shouldn't be complete yet since the AF is locked.
-        Truth.assertThat(result.isCompleted).isFalse()
+        assertThat(result.isCompleted).isFalse()
 
         // There should be one request to unlock AF.
-        val request1 = requestProcessor.nextEvent().requestSequence
-        Truth.assertThat(request1!!.requiredParameters[CaptureRequest.CONTROL_AF_TRIGGER])
+        val request1 = captureSequenceProcessor.nextEvent().requestSequence
+        assertThat(request1!!.requiredParameters[CaptureRequest.CONTROL_AF_TRIGGER])
             .isEqualTo(CaptureRequest.CONTROL_AF_TRIGGER_CANCEL)
         // Then request to unlock AE.
-        val request2 = requestProcessor.nextEvent().requestSequence
-        Truth.assertThat(request2!!.requiredParameters[CaptureRequest.CONTROL_AE_LOCK])
+        val request2 = captureSequenceProcessor.nextEvent().requestSequence
+        assertThat(request2!!.requiredParameters[CaptureRequest.CONTROL_AE_LOCK])
             .isEqualTo(false)
 
-        GlobalScope.launch {
+        repeatingJob.cancel()
+        repeatingJob.join()
+
+        launch {
             listener3A.onRequestSequenceCreated(
                 FakeRequestMetadata(
                     requestNumber = RequestNumber(1)
@@ -316,15 +313,12 @@ internal class Controller3AUnlock3ATest {
         }
 
         val result3A = result.await()
-        Truth.assertThat(result3A.frameMetadata!!.frameNumber.value).isEqualTo(101L)
-        Truth.assertThat(result3A.status).isEqualTo(Result3A.Status.OK)
+        assertThat(result3A.frameMetadata!!.frameNumber.value).isEqualTo(101L)
+        assertThat(result3A.status).isEqualTo(Result3A.Status.OK)
     }
 
-    @OptIn(DelicateCoroutinesApi::class)
     @Test
-    fun testUnlockAfWhenAfNotSupported(): Unit = runBlocking {
-        initGraphProcessor()
-
+    fun testUnlockAfWhenAfNotSupported() = runTest {
         val fakeMetadata = FakeCameraMetadata(
             mapOf(
                 CameraCharacteristics.CONTROL_AF_AVAILABLE_MODES to
@@ -333,13 +327,8 @@ internal class Controller3AUnlock3ATest {
         )
         val controller3A = Controller3A(graphProcessor, fakeMetadata, graphState3A, listener3A)
         val result = controller3A.unlock3A(af = true).await()
-        Truth.assertThat(result.status).isEqualTo(Result3A.Status.OK)
-        Truth.assertThat(result.frameMetadata).isEqualTo(null)
-    }
-
-    private fun initGraphProcessor() {
-        graphProcessor.onGraphStarted(requestProcessor)
-        graphProcessor.startRepeating(Request(streams = listOf(StreamId(1))))
+        assertThat(result.status).isEqualTo(Result3A.Status.OK)
+        assertThat(result.frameMetadata).isEqualTo(null)
     }
 
     companion object {

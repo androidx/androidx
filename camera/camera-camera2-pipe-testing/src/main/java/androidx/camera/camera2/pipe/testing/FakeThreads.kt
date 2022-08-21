@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 The Android Open Source Project
+ * Copyright 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,43 +17,37 @@
 package androidx.camera.camera2.pipe.testing
 
 import android.os.Handler
+import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.core.Threads
-import java.util.concurrent.Executor
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.asExecutor
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.TestScope
 
-internal object FakeThreads {
-    @Suppress("deprecation")
-    val fakeHandler = { Handler() }
-    val forTests = Threads(
-        CoroutineScope(SupervisorJob() + CoroutineName("CXCP-TestScope") + Dispatchers.Default),
-        blockingExecutor = Dispatchers.IO.asExecutor(),
-        blockingDispatcher = Dispatchers.IO,
-        backgroundExecutor = Dispatchers.Default.asExecutor(),
-        backgroundDispatcher = Dispatchers.Default,
-        lightweightExecutor = Dispatchers.Default.asExecutor(),
-        lightweightDispatcher = Dispatchers.Default,
-        camera2Handler = fakeHandler,
-        camera2Executor = { Dispatchers.IO.asExecutor() }
-    )
-
-    fun fromExecutor(executor: Executor): Threads {
-        return fromDispatcher(executor.asCoroutineDispatcher())
+@RequiresApi(21)
+object FakeThreads {
+    fun fromDispatcher(dispatcher: CoroutineDispatcher): Threads {
+        val scope = CoroutineScope(dispatcher.plus(CoroutineName("CXCP-TestScope")))
+        return create(scope, dispatcher)
     }
 
-    fun fromDispatcher(dispatcher: CoroutineDispatcher): Threads {
+    @OptIn(ExperimentalCoroutinesApi::class)
+    fun fromTestScope(scope: TestScope): Threads {
+        val dispatcher = StandardTestDispatcher(scope.testScheduler)
+        return create(scope, dispatcher)
+    }
+
+    private fun create(scope: CoroutineScope, dispatcher: CoroutineDispatcher): Threads {
         val executor = dispatcher.asExecutor()
 
         @Suppress("deprecation")
         val fakeHandler = { Handler() }
 
         return Threads(
-            CoroutineScope(dispatcher.plus(CoroutineName("CXCP-TestScope"))),
+            scope,
             blockingExecutor = executor,
             blockingDispatcher = dispatcher,
             backgroundExecutor = executor,
@@ -61,7 +55,7 @@ internal object FakeThreads {
             lightweightExecutor = executor,
             lightweightDispatcher = dispatcher,
             camera2Handler = fakeHandler,
-            camera2Executor = { dispatcher.asExecutor() }
+            camera2Executor = { executor }
         )
     }
 }

@@ -21,8 +21,8 @@ package androidx.camera.camera2.pipe.graph
 import androidx.annotation.GuardedBy
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraGraph
+import androidx.camera.camera2.pipe.CaptureSequenceProcessor
 import androidx.camera.camera2.pipe.Request
-import androidx.camera.camera2.pipe.RequestProcessor
 import androidx.camera.camera2.pipe.config.CameraGraphScope
 import androidx.camera.camera2.pipe.config.ForCameraGraph
 import androidx.camera.camera2.pipe.core.Debug
@@ -37,11 +37,11 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 /**
- * The [GraphProcessor] is responsible for queuing and submitting requests to a single
- * [RequestProcessor] instance, and for maintaining state across one or more [RequestProcessor]
- * instances.
+ * The [GraphProcessor] is responsible for queuing and then submitting them to a
+ * [CaptureSequenceProcessor] when it becomes available. This enables interactions to be queued up
+ * and submitted before the camera is available.
  */
-internal interface GraphProcessor : GraphListener {
+internal interface GraphProcessor {
     fun submit(request: Request)
     fun submit(requests: List<Request>)
     suspend fun submit(parameters: Map<*, Any?>): Boolean
@@ -56,14 +56,14 @@ internal interface GraphProcessor : GraphListener {
     fun invalidate()
 
     /**
-     * Abort all submitted requests that have not yet been submitted to the [RequestProcessor] as
-     * well as aborting requests on the [RequestProcessor] itself.
+     * Abort all submitted requests that have not yet been submitted, as well as asking the
+     * [CaptureSequenceProcessor] to abort any submitted requests, which may or may not succeed.
      */
     fun abort()
 
     /**
      * Closing the [GraphProcessor] will abort all queued requests. Any requests submitted after the
-     * [GraphProcessor] is closed will be immediately aborted.
+     * [GraphProcessor] is closed will immediately be aborted.
      */
     fun close()
 }
@@ -78,7 +78,7 @@ internal class GraphProcessorImpl @Inject constructor(
     private val graphState3A: GraphState3A,
     @ForCameraGraph private val graphScope: CoroutineScope,
     @ForCameraGraph private val graphListeners: List<@JvmSuppressWildcards Request.Listener>
-) : GraphProcessor {
+) : GraphProcessor, GraphListener {
     private val lock = Any()
 
     @GuardedBy("lock")
@@ -91,7 +91,7 @@ internal class GraphProcessorImpl @Inject constructor(
     private var nextRepeatingRequest: Request? = null
 
     @GuardedBy("lock")
-    private var _requestProcessor: RequestProcessor? = null
+    private var _requestProcessor: GraphRequestProcessor? = null
 
     @GuardedBy("lock")
     private var submitting = false
@@ -102,8 +102,8 @@ internal class GraphProcessorImpl @Inject constructor(
     @GuardedBy("lock")
     private var closed = false
 
-    override fun onGraphStarted(requestProcessor: RequestProcessor) {
-        var oldRequestProcessor: RequestProcessor? = null
+    override fun onGraphStarted(requestProcessor: GraphRequestProcessor) {
+        var old: GraphRequestProcessor? = null
         synchronized(lock) {
             if (closed) {
                 requestProcessor.close()
@@ -111,30 +111,29 @@ internal class GraphProcessorImpl @Inject constructor(
             }
 
             if (_requestProcessor != null && _requestProcessor !== requestProcessor) {
-                oldRequestProcessor = _requestProcessor
+                old = _requestProcessor
             }
             _requestProcessor = requestProcessor
         }
 
-        val processorToClose = oldRequestProcessor
+        val processorToClose = old
         if (processorToClose != null) {
             synchronized(processorToClose) {
                 processorToClose.close()
             }
         }
-
         resubmit()
     }
 
-    override fun onGraphStopped(requestProcessor: RequestProcessor) {
-        var oldRequestProcessor: RequestProcessor? = null
+    override fun onGraphStopped(requestProcessor: GraphRequestProcessor) {
+        var old: GraphRequestProcessor? = null
         synchronized(lock) {
             if (closed) {
                 return
             }
 
             if (requestProcessor === _requestProcessor) {
-                oldRequestProcessor = _requestProcessor
+                old = _requestProcessor
                 _requestProcessor = null
             } else {
                 warn {
@@ -144,7 +143,7 @@ internal class GraphProcessorImpl @Inject constructor(
             }
         }
 
-        val processorToClose = oldRequestProcessor
+        val processorToClose = old
         if (processorToClose != null) {
             synchronized(processorToClose) {
                 processorToClose.close()
@@ -152,12 +151,12 @@ internal class GraphProcessorImpl @Inject constructor(
         }
     }
 
-    override fun onGraphUpdated(requestProcessor: RequestProcessor) {
+    override fun onGraphModified(requestProcessor: GraphRequestProcessor) {
         synchronized(lock) {
             if (closed) {
                 return
             }
-            if (requestProcessor != _requestProcessor) {
+            if (requestProcessor !== _requestProcessor) {
                 return
             }
         }
@@ -177,7 +176,7 @@ internal class GraphProcessorImpl @Inject constructor(
     }
 
     override fun stopRepeating() {
-        val processor: RequestProcessor?
+        val processor: GraphRequestProcessor?
 
         synchronized(lock) {
             processor = _requestProcessor
@@ -222,7 +221,7 @@ internal class GraphProcessorImpl @Inject constructor(
      */
     override suspend fun submit(parameters: Map<*, Any?>): Boolean =
         withContext(threads.lightweightDispatcher) {
-            val processor: RequestProcessor?
+            val processor: GraphRequestProcessor?
             val request: Request?
             val requiredParameters: MutableMap<Any, Any?> = mutableMapOf()
 
@@ -239,10 +238,11 @@ internal class GraphProcessorImpl @Inject constructor(
             return@withContext when {
                 processor == null || request == null -> false
                 else -> processor.submit(
-                    request,
+                    isRepeating = false,
+                    requests = listOf(request),
                     defaultParameters = cameraGraphConfig.defaultParameters,
                     requiredParameters = requiredParameters,
-                    defaultListeners = graphListeners
+                    listeners = graphListeners
                 )
             }
         }
@@ -256,7 +256,7 @@ internal class GraphProcessorImpl @Inject constructor(
     }
 
     override fun abort() {
-        val processor: RequestProcessor?
+        val processor: GraphRequestProcessor?
         val requests: List<List<Request>>
 
         synchronized(lock) {
@@ -283,7 +283,7 @@ internal class GraphProcessorImpl @Inject constructor(
     }
 
     override fun close() {
-        val processor: RequestProcessor?
+        val processor: GraphRequestProcessor?
         synchronized(lock) {
             if (closed) {
                 return
@@ -321,7 +321,7 @@ internal class GraphProcessorImpl @Inject constructor(
     }
 
     private fun tryStartRepeating() {
-        val processor: RequestProcessor?
+        val processor: GraphRequestProcessor?
         val request: Request?
 
         synchronized(lock) {
@@ -350,18 +350,18 @@ internal class GraphProcessorImpl @Inject constructor(
         }
 
         if (processor != null && request != null) {
-
             Debug.traceStart { "$this#startRepeating" }
             synchronized(processor) {
                 val requiredParameters = mutableMapOf<Any, Any?>()
                 graphState3A.writeTo(requiredParameters)
                 requiredParameters.putAllMetadata(cameraGraphConfig.requiredParameters)
 
-                if (processor.startRepeating(
-                        request,
+                if (processor.submit(
+                        isRepeating = true,
+                        requests = listOf(request),
                         defaultParameters = cameraGraphConfig.defaultParameters,
                         requiredParameters = requiredParameters,
-                        defaultListeners = graphListeners
+                        listeners = graphListeners
                     )
                 ) {
                     // ONLY update the current repeating request if the update succeeds
@@ -385,7 +385,7 @@ internal class GraphProcessorImpl @Inject constructor(
 
     private fun submitLoop() {
         var burst: List<Request>
-        var processor: RequestProcessor
+        var processor: GraphRequestProcessor
 
         synchronized(lock) {
             if (closed) return
@@ -416,21 +416,13 @@ internal class GraphProcessorImpl @Inject constructor(
                     graphState3A.writeTo(requiredParameters)
                     requiredParameters.putAllMetadata(cameraGraphConfig.requiredParameters)
 
-                    if (burst.size == 1) {
-                        processor.submit(
-                            burst[0],
-                            defaultParameters = cameraGraphConfig.defaultParameters,
-                            requiredParameters = requiredParameters,
-                            defaultListeners = graphListeners
-                        )
-                    } else {
-                        processor.submit(
-                            burst,
-                            defaultParameters = cameraGraphConfig.defaultParameters,
-                            requiredParameters = requiredParameters,
-                            defaultListeners = graphListeners
-                        )
-                    }
+                    processor.submit(
+                        isRepeating = false,
+                        requests = burst,
+                        defaultParameters = cameraGraphConfig.defaultParameters,
+                        requiredParameters = requiredParameters,
+                        listeners = graphListeners
+                    )
                 }
             } finally {
                 Debug.traceStop()
