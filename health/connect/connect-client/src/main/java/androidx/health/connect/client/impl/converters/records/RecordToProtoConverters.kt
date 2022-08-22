@@ -93,7 +93,7 @@ fun Record.toProto(): DataProto.DataPoint =
             instantaneousProto()
                 .setDataType(protoDataType("BloodGlucose"))
                 .apply {
-                    putValues("level", doubleVal(levelMillimolesPerLiter))
+                    putValues("level", doubleVal(level.inMillimolesPerLiter))
                     specimenSource?.let { putValues("specimenSource", enumVal(it)) }
                     mealType?.let { putValues("mealType", enumVal(it)) }
                     relationToMeal?.let { putValues("relationToMeal", enumVal(it)) }

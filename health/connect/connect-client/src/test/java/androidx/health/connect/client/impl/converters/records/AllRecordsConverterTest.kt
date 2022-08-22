@@ -80,6 +80,7 @@ import androidx.health.connect.client.records.WheelchairPushesRecord
 import androidx.health.connect.client.records.metadata.DataOrigin
 import androidx.health.connect.client.records.metadata.Device
 import androidx.health.connect.client.records.metadata.Metadata
+import androidx.health.connect.client.units.BloodGlucose
 import androidx.health.connect.client.units.celsius
 import androidx.health.connect.client.units.grams
 import androidx.health.connect.client.units.kilocalories
@@ -162,7 +163,7 @@ class AllRecordsConverterTest {
     fun testBloodGlucose() {
         val data =
             BloodGlucoseRecord(
-                levelMillimolesPerLiter = 1.0,
+                level = BloodGlucose.millimolesPerLiter(1.0),
                 specimenSource = null,
                 mealType = null,
                 relationToMeal = null,
