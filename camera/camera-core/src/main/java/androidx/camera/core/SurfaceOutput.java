@@ -172,4 +172,16 @@ public interface SurfaceOutput {
             return new AutoValue_SurfaceOutput_Event(code, surfaceOutput);
         }
     }
+
+    /** OpenGL transformation options for SurfaceOutput. */
+    enum GlTransformOptions {
+        /** Apply only the value of {@link SurfaceTexture#getTransformMatrix(float[])}. */
+        USE_SURFACE_TEXTURE_TRANSFORM,
+
+        /**
+         * Discard the value of {@link SurfaceTexture#getTransformMatrix(float[])} and calculate
+         * the transform based on crop rect, rotation degrees and mirroring.
+         */
+        APPLY_CROP_ROTATE_AND_MIRRORING,
+    }
 }
