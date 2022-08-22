@@ -326,7 +326,7 @@ class TableInfo(
 
         override fun toString(): String {
             return ("Column{name='$name', type='$type', affinity='$affinity', " +
-                "notNull=notNull, primaryKeyPosition=$primaryKeyPosition, " +
+                "notNull=$notNull, primaryKeyPosition=$primaryKeyPosition, " +
                 "defaultValue='$defaultValue'}")
         }
     }
