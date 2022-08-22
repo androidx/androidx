@@ -48,6 +48,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.window.OnBackInvokedDispatcher;
 
 import androidx.activity.contextaware.ContextAware;
 import androidx.activity.contextaware.ContextAwareHelper;
@@ -61,6 +62,7 @@ import androidx.activity.result.IntentSenderRequest;
 import androidx.activity.result.contract.ActivityResultContract;
 import androidx.annotation.CallSuper;
 import androidx.annotation.ContentView;
+import androidx.annotation.DoNotInline;
 import androidx.annotation.LayoutRes;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
@@ -361,7 +363,9 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
         super.onCreate(savedInstanceState);
         ReportFragment.injectIfNeededIn(this);
         if (BuildCompat.isAtLeastT()) {
-            mOnBackPressedDispatcher.setOnBackInvokedDispatcher(getOnBackInvokedDispatcher());
+            mOnBackPressedDispatcher.setOnBackInvokedDispatcher(
+                    Api33Impl.getOnBackInvokedDispatcher(this)
+            );
         }
         if (mContentLayoutId != 0) {
             setContentView(mContentLayoutId);
@@ -1090,5 +1094,14 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
             view.cancelPendingInputEvents();
         }
 
+    }
+
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    static class Api33Impl {
+        private Api33Impl() { }
+        @DoNotInline
+        static OnBackInvokedDispatcher getOnBackInvokedDispatcher(Activity activity) {
+            return activity.getOnBackInvokedDispatcher();
+        }
     }
 }
