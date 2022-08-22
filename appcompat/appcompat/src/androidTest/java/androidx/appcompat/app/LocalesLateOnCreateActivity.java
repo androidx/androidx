@@ -39,7 +39,7 @@ public class LocalesLateOnCreateActivity extends LocalesUpdateActivity {
     public void onCreate(Bundle bundle) {
         // Override locales so that AppCompat attempts to re-apply during onCreate().
 
-        if (Build.VERSION.SDK_INT >= 21) {
+        if (Build.VERSION.SDK_INT >= 24) {
             DEFAULT_LOCALE_LIST = LocaleListCompat.forLanguageTags(
                     Locale.US.toLanguageTag() + "," + Locale.CHINESE.toLanguageTag());
             TEST_LOCALE_LIST = LocaleListCompat.forLanguageTags(
@@ -53,7 +53,13 @@ public class LocalesLateOnCreateActivity extends LocalesUpdateActivity {
             TEST_LOCALE_LIST = LocaleListCompat.create(Locale.CANADA_FRENCH);
             EXPECTED_LOCALE_LIST = LocaleListCompat.create(Locale.CANADA_FRENCH);
         }
-        disableAutomaticLocales(getApplicationContext());
+
+        // Setting default initial locales for testing, apply only if no app-specific locales
+        // are present.
+        if (AppCompatDelegate.getApplicationLocales().equals(
+                LocaleListCompat.getEmptyLocaleList())) {
+            disableAutomaticLocales(getApplicationContext());
+        }
 
         super.onCreate(bundle);
     }
