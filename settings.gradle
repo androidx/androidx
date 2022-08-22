@@ -797,8 +797,8 @@ includeProject(":room:integration-tests:room-testapp-noappcompat", "room/integra
 includeProject(":room:room-benchmark", "room/benchmark", [BuildType.MAIN])
 includeProject(":room:room-common", [BuildType.MAIN, BuildType.COMPOSE])
 includeProject(":room:room-compiler", [BuildType.MAIN, BuildType.COMPOSE])
-includeProject(":room:room-compiler-processing", [BuildType.MAIN, BuildType.COMPOSE])
-includeProject(":room:room-compiler-processing-testing", [BuildType.MAIN, BuildType.COMPOSE])
+includeProject(":room:room-compiler-processing", [BuildType.MAIN, BuildType.COMPOSE, BuildType.FLAN])
+includeProject(":room:room-compiler-processing-testing", [BuildType.MAIN, BuildType.COMPOSE, BuildType.FLAN])
 includeProject(":room:room-guava", [BuildType.MAIN])
 includeProject(":room:room-ktx", [BuildType.MAIN, BuildType.COMPOSE])
 includeProject(":room:room-migration", [BuildType.MAIN, BuildType.COMPOSE])
@@ -967,7 +967,7 @@ includeProject(":support-wear-demos", new File(samplesRoot, "SupportWearDemos"),
 //
 /////////////////////////////
 
-includeProject(":internal-testutils-common", "testutils/testutils-common", [BuildType.MAIN, BuildType.COMPOSE])
+includeProject(":internal-testutils-common", "testutils/testutils-common", [BuildType.MAIN, BuildType.COMPOSE, BuildType.FLAN])
 includeProject(":internal-testutils-datastore", "testutils/testutils-datastore", [BuildType.MAIN, BuildType.KMP])
 includeProject(":internal-testutils-runtime", "testutils/testutils-runtime", [BuildType.MAIN, BuildType.FLAN, BuildType.COMPOSE, BuildType.MEDIA, BuildType.WEAR, BuildType.CAMERA])
 includeProject(":internal-testutils-appcompat", "testutils/testutils-appcompat", [BuildType.MAIN])
