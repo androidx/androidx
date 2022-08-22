@@ -21,6 +21,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteException;
+import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.room.DatabaseConfiguration;
@@ -30,6 +31,7 @@ import androidx.room.util.TableInfo;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.junit.Rule;
@@ -43,6 +45,7 @@ import java.io.IOException;
  */
 @RunWith(AndroidJUnit4.class)
 @LargeTest
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN) // Due to FTS table migrations
 public class AutoMigrationTest {
     private static final String TEST_DB = "auto-migration-test";
     @Rule
