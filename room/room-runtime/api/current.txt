@@ -24,6 +24,9 @@ package androidx.room {
     field public final java.util.List<java.lang.Object> typeConverters;
   }
 
+  public final class EntityUpsertionAdapterKt {
+  }
+
   public class InvalidationTracker {
     method @WorkerThread public void addObserver(androidx.room.InvalidationTracker.Observer observer);
     method public void refreshVersionsAsync();
