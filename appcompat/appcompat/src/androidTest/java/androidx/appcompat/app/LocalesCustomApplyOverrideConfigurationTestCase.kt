@@ -24,7 +24,6 @@ import androidx.appcompat.testutils.LocalesUtils.setLocalesAndWaitForRecreate
 import androidx.appcompat.testutils.NightModeUtils
 import androidx.appcompat.testutils.NightModeUtils.assertConfigurationNightModeEquals
 import androidx.core.os.LocaleListCompat
-import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import org.junit.Assert.assertEquals
 import org.junit.Rule
@@ -33,10 +32,7 @@ import org.junit.Test
 /**
  * This is one approach to customize Activity's configuration that's used in google3.
  */
-@LargeTest
-// TODO(b/218430372): Modify SdkSuppress annotation in tests for backward compatibility of
-// setApplicationLocales
-@SdkSuppress(minSdkVersion = 17, maxSdkVersion = 31)
+@SdkSuppress(minSdkVersion = 17, maxSdkVersion = 32)
 class LocalesCustomApplyOverrideConfigurationTestCase() {
 
     @get:Rule
