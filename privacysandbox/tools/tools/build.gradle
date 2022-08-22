@@ -30,5 +30,5 @@ androidx {
     type = LibraryType.PUBLISHED_LIBRARY
     mavenGroup = LibraryGroups.PRIVACYSANDBOX_TOOLS
     inceptionYear = "2022"
-    description = "Tools for comunicating with SDKs running in the Privacy Sandbox."
+    description = "Tools for communicating with SDKs running in the Privacy Sandbox."
 }

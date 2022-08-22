@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package androidx.privacysandbox.tools.apicompiler.model
+package androidx.privacysandbox.tools.core
 
-/** Result of parsing a full developer-defined API for an SDK. */
-data class ParsedApi(
-    val services: Set<AnnotatedInterface>,
+public data class Method(
+    val name: String,
+    val parameters: List<Parameter>,
+    val returnType: Type,
 )

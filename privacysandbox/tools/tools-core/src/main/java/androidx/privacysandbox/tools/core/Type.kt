@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-package androidx.privacysandbox.tools.apicompiler.model
+package androidx.privacysandbox.tools.core
 
-data class Type(
+public data class Type(
   val name: String,
 )
