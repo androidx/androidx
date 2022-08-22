@@ -26,8 +26,9 @@ import androidx.annotation.IntRange
 import androidx.window.R
 import androidx.window.core.ExperimentalWindowApi
 import androidx.window.embedding.SplitAttributes.LayoutDirection.Companion.LOCALE
-import androidx.window.embedding.SplitRule.Companion.FINISH_ALWAYS
-import androidx.window.embedding.SplitRule.Companion.FINISH_NEVER
+import androidx.window.embedding.SplitRule.FinishBehavior.Companion.ALWAYS
+import androidx.window.embedding.SplitRule.FinishBehavior.Companion.NEVER
+import androidx.window.embedding.SplitRule.FinishBehavior.Companion.getFinishBehaviorFromValue
 import org.xmlpull.v1.XmlPullParser
 
 /**
@@ -170,11 +171,11 @@ internal class SplitRuleParser {
             )
             val finishPrimaryWithSecondary = typedArray.getInt(
                 R.styleable.SplitPairRule_finishPrimaryWithSecondary,
-                FINISH_NEVER
+                NEVER.value
             )
             val finishSecondaryWithPrimary = typedArray.getInt(
                 R.styleable.SplitPairRule_finishSecondaryWithPrimary,
-                FINISH_ALWAYS
+                ALWAYS.value
             )
             val clearTop = typedArray.getBoolean(R.styleable.SplitPairRule_clearTop, false)
             typedArray.recycle()
@@ -184,8 +185,8 @@ internal class SplitRuleParser {
             SplitPairRule(
                 tag,
                 emptySet(),
-                finishPrimaryWithSecondary,
-                finishSecondaryWithPrimary,
+                getFinishBehaviorFromValue(finishPrimaryWithSecondary),
+                getFinishBehaviorFromValue(finishSecondaryWithPrimary),
                 clearTop,
                 minWidth,
                 minHeight,
@@ -233,11 +234,11 @@ internal class SplitRuleParser {
             )
             val finishPrimaryWithPlaceholder = typedArray.getInt(
                 R.styleable.SplitPlaceholderRule_finishPrimaryWithPlaceholder,
-                FINISH_ALWAYS
+                ALWAYS.value
             )
-            if (finishPrimaryWithPlaceholder == FINISH_NEVER) {
+            if (finishPrimaryWithPlaceholder == NEVER.value) {
                 throw IllegalArgumentException(
-                    "FINISH_NEVER is not a valid configuration for Placeholder activities. " +
+                    "Never is not a valid configuration for Placeholder activities. " +
                         "Please use FINISH_ALWAYS or FINISH_ADJACENT instead or refer to the " +
                         "current API")
             }
@@ -272,7 +273,7 @@ internal class SplitRuleParser {
                 emptySet(),
                 Intent().setComponent(placeholderActivityClassName),
                 stickyPlaceholder,
-                finishPrimaryWithPlaceholder,
+                getFinishBehaviorFromValue(finishPrimaryWithPlaceholder),
                 minWidth,
                 minHeight,
                 minSmallestWidth,

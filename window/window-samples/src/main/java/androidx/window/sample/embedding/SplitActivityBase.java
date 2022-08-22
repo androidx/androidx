@@ -18,6 +18,10 @@ package androidx.window.sample.embedding;
 
 import static android.app.PendingIntent.FLAG_IMMUTABLE;
 
+import static androidx.window.embedding.SplitRule.FinishBehavior.ADJACENT;
+import static androidx.window.embedding.SplitRule.FinishBehavior.ALWAYS;
+import static androidx.window.embedding.SplitRule.FinishBehavior.NEVER;
+
 import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.ComponentName;
@@ -43,7 +47,6 @@ import androidx.window.embedding.SplitInfo;
 import androidx.window.embedding.SplitPairFilter;
 import androidx.window.embedding.SplitPairRule;
 import androidx.window.embedding.SplitPlaceholderRule;
-import androidx.window.embedding.SplitRule;
 import androidx.window.sample.databinding.ActivitySplitActivityLayoutBinding;
 
 import java.util.HashSet;
@@ -179,8 +182,8 @@ public class SplitActivityBase extends AppCompatActivity
         mViewBinding.splitBCCheckBox.setChecked(bAndCPairConfig != null);
         mViewBinding.finishBCCheckBox.setEnabled(bAndCPairConfig != null);
         mViewBinding.finishBCCheckBox.setChecked(bAndCPairConfig != null
-                && bAndCPairConfig.getFinishPrimaryWithSecondary() == SplitRule.FINISH_ALWAYS
-                && bAndCPairConfig.getFinishSecondaryWithPrimary() == SplitRule.FINISH_ALWAYS);
+                && bAndCPairConfig.getFinishPrimaryWithSecondary() == ALWAYS
+                && bAndCPairConfig.getFinishSecondaryWithPrimary() == ALWAYS);
 
         SplitPairRule fConfig = getRuleFor(null, SplitActivityF.class);
         mViewBinding.splitWithFCheckBox.setChecked(fConfig != null);
@@ -277,8 +280,8 @@ public class SplitActivityBase extends AppCompatActivity
                 0 /* minHeight */,
                 0 /* minSmallestWidth */
         )
-                .setFinishPrimaryWithSecondary(SplitRule.FINISH_NEVER)
-                .setFinishSecondaryWithPrimary(SplitRule.FINISH_NEVER)
+                .setFinishPrimaryWithSecondary(NEVER)
+                .setFinishSecondaryWithPrimary(NEVER)
                 .setClearTop(true)
                 .setDefaultSplitAttributes(defaultSplitAttributes)
                 .build();
@@ -299,7 +302,7 @@ public class SplitActivityBase extends AppCompatActivity
                 0 /* minSmallestWidth */
         )
                 .setSticky(mViewBinding.useStickyPlaceholderCheckBox.isChecked())
-                .setFinishPrimaryWithPlaceholder(SplitRule.FINISH_ADJACENT)
+                .setFinishPrimaryWithPlaceholder(ADJACENT)
                 .setDefaultSplitAttributes(defaultSplitAttributes)
                 .build();
         if (mViewBinding.usePlaceholderCheckBox.isChecked()) {
@@ -316,12 +319,10 @@ public class SplitActivityBase extends AppCompatActivity
                 0 /* minSmallestWidth */
         )
                 .setFinishPrimaryWithSecondary(
-                        mViewBinding.finishBCCheckBox.isChecked()
-                                ? SplitRule.FINISH_ALWAYS : SplitRule.FINISH_NEVER
+                        mViewBinding.finishBCCheckBox.isChecked() ? ALWAYS : NEVER
                 )
                 .setFinishSecondaryWithPrimary(
-                        mViewBinding.finishBCCheckBox.isChecked()
-                                ? SplitRule.FINISH_ALWAYS : SplitRule.FINISH_NEVER
+                        mViewBinding.finishBCCheckBox.isChecked() ? ALWAYS : NEVER
                 )
                 .setClearTop(true)
                 .setDefaultSplitAttributes(defaultSplitAttributes)
@@ -339,8 +340,8 @@ public class SplitActivityBase extends AppCompatActivity
                 0 /* minHeight */,
                 0 /* minSmallestWidth */
         )
-                .setFinishPrimaryWithSecondary(SplitRule.FINISH_NEVER)
-                .setFinishSecondaryWithPrimary(SplitRule.FINISH_NEVER)
+                .setFinishPrimaryWithSecondary(NEVER)
+                .setFinishSecondaryWithPrimary(NEVER)
                 .setClearTop(true)
                 .setDefaultSplitAttributes(defaultSplitAttributes)
                 .build();
