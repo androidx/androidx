@@ -25,7 +25,7 @@ import java.time.ZoneOffset
  * Captures a description of how heavy a user's menstrual flow was (spotting, light, medium, or
  * heavy). Each record represents a description of how heavy the user's menstrual bleeding was.
  */
-public class MenstruationRecord(
+public class MenstruationFlowRecord(
     /**
      * How heavy the user's menstrual flow was. Optional field. Allowed values: [Flow].
      *
@@ -38,7 +38,7 @@ public class MenstruationRecord(
 ) : InstantaneousRecord {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (other !is MenstruationRecord) return false
+        if (other !is MenstruationFlowRecord) return false
 
         if (flow != other.flow) return false
         if (time != other.time) return false
@@ -73,10 +73,10 @@ public class MenstruationRecord(
     @StringDef(
         value =
             [
-                MenstruationRecord.Flow.SPOTTING,
-                MenstruationRecord.Flow.LIGHT,
-                MenstruationRecord.Flow.MEDIUM,
-                MenstruationRecord.Flow.HEAVY,
+                MenstruationFlowRecord.Flow.SPOTTING,
+                MenstruationFlowRecord.Flow.LIGHT,
+                MenstruationFlowRecord.Flow.MEDIUM,
+                MenstruationFlowRecord.Flow.HEAVY,
             ]
     )
     @RestrictTo(RestrictTo.Scope.LIBRARY)
