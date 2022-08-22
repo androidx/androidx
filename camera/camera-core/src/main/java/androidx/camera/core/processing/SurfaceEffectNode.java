@@ -21,6 +21,7 @@ import static androidx.camera.core.impl.utils.TransformUtils.is90or270;
 import static androidx.camera.core.impl.utils.TransformUtils.rectToSize;
 import static androidx.camera.core.impl.utils.TransformUtils.sizeToRect;
 import static androidx.camera.core.impl.utils.TransformUtils.sizeToRectF;
+import static androidx.camera.core.impl.utils.TransformUtils.within360;
 import static androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor;
 import static androidx.core.util.Preconditions.checkArgument;
 
@@ -167,6 +168,7 @@ public class SurfaceEffectNode implements Node<SurfaceEdge, SurfaceEdge> {
                         Preconditions.checkNotNull(surfaceOutput);
                         mSurfaceEffect.onOutputSurface(surfaceOutput);
                         mSurfaceEffect.onInputSurface(surfaceRequest);
+                        setupSurfaceUpdatePipeline(input, surfaceRequest, output, surfaceOutput);
                     }
 
                     @Override
@@ -177,7 +179,21 @@ public class SurfaceEffectNode implements Node<SurfaceEdge, SurfaceEdge> {
                         surfaceRequest.willNotProvideSurface();
                     }
                 }, mainThreadExecutor());
+    }
 
+    void setupSurfaceUpdatePipeline(@NonNull SettableSurface input,
+            @NonNull SurfaceRequest inputSurfaceRequest, @NonNull SettableSurface output,
+            @NonNull SurfaceOutput surfaceOutput) {
+        inputSurfaceRequest.setTransformationInfoListener(mainThreadExecutor(), info -> {
+            // Calculate rotation degrees
+            // To obtain the required rotation degrees of output surface, the rotation degrees of
+            // surfaceOutput has to be eliminated.
+            int rotationDegrees = info.getRotationDegrees() - surfaceOutput.getRotationDegrees();
+            if (input.getMirroring()) {
+                rotationDegrees = -rotationDegrees;
+            }
+            output.setRotationDegrees(within360(rotationDegrees));
+        });
     }
 
     /**

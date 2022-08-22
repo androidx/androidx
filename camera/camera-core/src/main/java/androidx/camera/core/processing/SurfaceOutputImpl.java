@@ -16,6 +16,7 @@
 
 package androidx.camera.core.processing;
 
+import static androidx.camera.core.SurfaceOutput.GlTransformOptions.APPLY_CROP_ROTATE_AND_MIRRORING;
 import static androidx.camera.core.impl.utils.MatrixExt.preRotate;
 import static androidx.camera.core.impl.utils.TransformUtils.getRectToRect;
 import static androidx.camera.core.impl.utils.TransformUtils.rotateSize;
@@ -105,11 +106,15 @@ final class SurfaceOutputImpl implements SurfaceOutput {
         mGlTransformOptions = glTransformOptions;
         mInputSize = inputSize;
         mInputCropRect = new Rect(inputCropRect);
-        mRotationDegrees = rotationDegree;
         mMirroring = mirroring;
 
-        if (mGlTransformOptions == GlTransformOptions.APPLY_CROP_ROTATE_AND_MIRRORING) {
+        if (mGlTransformOptions == APPLY_CROP_ROTATE_AND_MIRRORING) {
+            mRotationDegrees = rotationDegree;
             calculateGlTransform();
+        } else {
+            // TODO(b/241910577): remove this assignment when the PreviewView handles cropped
+            //  stream.
+            mRotationDegrees = 0;
         }
 
         mCloseFuture = CallbackToFutureAdapter.getFuture(
@@ -191,6 +196,14 @@ final class SurfaceOutputImpl implements SurfaceOutput {
     @Override
     public int getFormat() {
         return mFormat;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    @Override
+    public int getRotationDegrees() {
+        return mRotationDegrees;
     }
 
     /**

@@ -27,6 +27,8 @@ import androidx.camera.core.SurfaceEffect.PREVIEW
 import androidx.camera.core.SurfaceOutput.GlTransformOptions
 import androidx.camera.core.SurfaceOutput.GlTransformOptions.APPLY_CROP_ROTATE_AND_MIRRORING
 import androidx.camera.core.SurfaceOutput.GlTransformOptions.USE_SURFACE_TEXTURE_TRANSFORM
+import androidx.camera.core.SurfaceRequest
+import androidx.camera.core.SurfaceRequest.TransformationInfo
 import androidx.camera.core.impl.utils.TransformUtils.is90or270
 import androidx.camera.core.impl.utils.TransformUtils.rectToSize
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor
@@ -64,6 +66,8 @@ class SurfaceEffectNodeTest {
     private lateinit var appSurfaceTexture: SurfaceTexture
     private lateinit var node: SurfaceEffectNode
     private lateinit var inputEdge: SurfaceEdge
+    private lateinit var outputSurfaceRequest: SurfaceRequest
+    private var outputTransformInfo: TransformationInfo? = null
 
     @Before
     fun setup() {
@@ -83,11 +87,14 @@ class SurfaceEffectNodeTest {
         if (::inputEdge.isInitialized) {
             inputEdge.surfaces.forEach { it.close() }
         }
+        if (::outputSurfaceRequest.isInitialized) {
+            outputSurfaceRequest.deferrableSurface.close()
+        }
         shadowOf(getMainLooper()).idle()
     }
 
     @Test
-    fun transformInput_withoutGlTransform_outputHasTheSameProperty() {
+    fun transformInput_useSurfaceTextureTransform_outputHasTheSameProperty() {
         // Arrange.
         createSurfaceEffectNode()
         createInputEdge()
@@ -109,7 +116,7 @@ class SurfaceEffectNodeTest {
     }
 
     @Test
-    fun transformInput_withGlTransformRotation_outputIsCroppedAndRotated() {
+    fun transformInput_applyCropRotateAndMirroring_outputIsCroppedAndRotated() {
         val cropRect = Rect(200, 100, 600, 400)
         for (rotationDegrees in arrayOf(0, 90, 180, 270)) {
             // Arrange.
@@ -143,7 +150,7 @@ class SurfaceEffectNodeTest {
     }
 
     @Test
-    fun transformInput_withGlTransformMirroring_outputHasNoMirroring() {
+    fun transformInput_applyCropRotateAndMirroring_outputHasNoMirroring() {
         for (mirroring in arrayOf(false, true)) {
             // Arrange.
             createSurfaceEffectNode(APPLY_CROP_ROTATE_AND_MIRRORING)
@@ -161,6 +168,46 @@ class SurfaceEffectNodeTest {
             inputEdge.surfaces[0].close()
             node.release()
         }
+    }
+
+    @Test
+    fun transformInput_applyCropRotateAndMirroring_initialTransformInfoIsPropagated() {
+        // Arrange.
+        createSurfaceEffectNode(APPLY_CROP_ROTATE_AND_MIRRORING)
+        createInputEdge(rotationDegrees = 90, cropRect = Rect(0, 0, 600, 400))
+
+        // Act.
+        val outputEdge = node.transform(inputEdge)
+        val outputSurface = outputEdge.surfaces[0]
+        createOutputSurfaceRequestAndProvideSurface(outputSurface)
+        shadowOf(getMainLooper()).idle()
+
+        // Assert: surfaceOutput of SurfaceEffect will consume the initial rotation degrees and
+        // output surface will receive 0 degrees.
+        assertThat(surfaceEffectInternal.surfaceOutput!!.rotationDegrees).isEqualTo(90)
+        assertThat(outputTransformInfo!!.rotationDegrees).isEqualTo(0)
+        assertThat(outputTransformInfo!!.cropRect).isEqualTo(Rect(0, 0, 400, 600))
+    }
+
+    @Test
+    fun setRotationToInput_applyCropRotateAndMirroring_rotationIsPropagated() {
+        // Arrange.
+        createSurfaceEffectNode(APPLY_CROP_ROTATE_AND_MIRRORING)
+        createInputEdge(rotationDegrees = 90)
+        val inputSurface = inputEdge.surfaces[0]
+        val outputEdge = node.transform(inputEdge)
+        val outputSurface = outputEdge.surfaces[0]
+        createOutputSurfaceRequestAndProvideSurface(outputSurface)
+        shadowOf(getMainLooper()).idle()
+
+        // Act.
+        inputSurface.rotationDegrees = 270
+        shadowOf(getMainLooper()).idle()
+
+        // Assert: surfaceOutput of SurfaceEffect will consume the initial rotation degrees and
+        // output surface will receive the remaining degrees.
+        assertThat(surfaceEffectInternal.surfaceOutput!!.rotationDegrees).isEqualTo(90)
+        assertThat(outputTransformInfo!!.rotationDegrees).isEqualTo(180)
     }
 
     @Test
@@ -226,5 +273,17 @@ class SurfaceEffectNodeTest {
         glTransformOptions: GlTransformOptions = USE_SURFACE_TEXTURE_TRANSFORM
     ) {
         node = SurfaceEffectNode(FakeCamera(), glTransformOptions, surfaceEffectInternal)
+    }
+
+    private fun createOutputSurfaceRequestAndProvideSurface(
+        settableSurface: SettableSurface,
+        surface: Surface = appSurface
+    ) {
+        outputSurfaceRequest = settableSurface.createSurfaceRequest(FakeCamera()).apply {
+            setTransformationInfoListener(mainThreadExecutor()) {
+                outputTransformInfo = it
+            }
+            provideSurface(surface, mainThreadExecutor()) { surface.release() }
+        }
     }
 }

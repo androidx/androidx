@@ -85,6 +85,11 @@ public interface SurfaceOutput {
     int getFormat();
 
     /**
+     * Get the rotation degrees.
+     */
+    int getRotationDegrees();
+
+    /**
      * Call this method to mark the {@link Surface} as no longer in use.
      *
      * <p>After this is called, the implementation should stop writing to the {@link Surface}
