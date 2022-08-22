@@ -26,8 +26,6 @@ import android.view.KeyEvent;
 import android.view.MotionEvent.PointerCoords;
 import android.view.accessibility.AccessibilityNodeInfo;
 
-import androidx.annotation.NonNull;
-
 /**
  * A UiObject is a representation of a view. It is not in any way directly bound to a
  * view as an object reference. A UiObject contains information to help it
@@ -352,12 +350,56 @@ public class UiObject {
                 rect.centerY(), rect.right - SWIPE_MARGIN_LIMIT, rect.centerY(), steps);
     }
 
-    /** Returns the visible bounds of an {@link AccessibilityNodeInfo}. */
-    @NonNull
-    private Rect getVisibleBounds(@NonNull AccessibilityNodeInfo node) {
+    /**
+     * Finds the visible bounds of a partially visible UI element
+     *
+     * @param node
+     * @return null if node is null, else a Rect containing visible bounds
+     */
+    @SuppressWarnings("RectIntersectReturnValueIgnored")
+    private Rect getVisibleBounds(AccessibilityNodeInfo node) {
+        if (node == null) {
+            return null;
+        }
+
+        // targeted node's bounds
         int w = getDevice().getDisplayWidth();
         int h = getDevice().getDisplayHeight();
-        return AccessibilityNodeInfoHelper.getVisibleBoundsInScreen(node, w, h);
+        Rect nodeRect = AccessibilityNodeInfoHelper.getVisibleBoundsInScreen(node, w, h);
+
+        // is the targeted node within a scrollable container?
+        AccessibilityNodeInfo scrollableParentNode = getScrollableParent(node);
+        if(scrollableParentNode == null) {
+            // nothing to adjust for so return the node's Rect as is
+            return nodeRect;
+        }
+
+        // Scrollable parent's visible bounds
+        Rect parentRect = AccessibilityNodeInfoHelper
+                .getVisibleBoundsInScreen(scrollableParentNode, w, h);
+        // adjust for partial clipping of targeted by parent node if required
+        nodeRect.intersect(parentRect);
+        return nodeRect;
+    }
+
+    /**
+     * Walks up the layout hierarchy to find a scrollable parent. A scrollable parent
+     * indicates that this node might be in a container where it is partially
+     * visible due to scrolling. In this case, its clickable center might not be visible and
+     * the click coordinates should be adjusted.
+     *
+     * @param node
+     * @return The accessibility node info.
+     */
+    private AccessibilityNodeInfo getScrollableParent(AccessibilityNodeInfo node) {
+        AccessibilityNodeInfo parent = node;
+        while(parent != null) {
+            parent = parent.getParent();
+            if (parent != null && parent.isScrollable()) {
+                return parent;
+            }
+        }
+        return null;
     }
 
     /**
