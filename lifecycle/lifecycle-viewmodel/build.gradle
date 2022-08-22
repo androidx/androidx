@@ -39,6 +39,10 @@ dependencies {
     testImplementation(libs.truth)
 
     constraints {
+        // this syntax is a temporary workout to allow project dependency on cross-project-set
+        // i.e. COMPOSE + MAIN project sets
+        // update syntax when b/239979823 is fixed
+        implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:{androidx.LibraryVersions.LIFECYCLE}")
         implementation(project(":lifecycle:lifecycle-viewmodel-savedstate"))
     }
 
