@@ -26,7 +26,6 @@ import androidx.annotation.RequiresApi
 import androidx.appcompat.testutils.LocalesActivityTestRule
 import androidx.appcompat.testutils.LocalesUtils.CUSTOM_LOCALE_LIST
 import androidx.appcompat.testutils.LocalesUtils.assertConfigurationLocalesEquals
-import androidx.core.os.BuildCompat
 import androidx.core.os.LocaleListCompat
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -35,7 +34,6 @@ import androidx.test.platform.app.InstrumentationRegistry
 import junit.framework.Assert.assertEquals
 import junit.framework.Assert.assertNull
 import org.junit.After
-import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -46,11 +44,7 @@ import org.junit.runner.RunWith
  */
 @LargeTest
 @RunWith(AndroidJUnit4::class)
-// TODO(b/218430372): Modify SdkSuppress annotation in tests for backward compatibility of
-// setApplicationLocales
-// This test should only be run for API version T and hence after API bump both
-// minSdkVersion and maxSdkVersion should be set to 33.
-@SdkSuppress(minSdkVersion = 32, maxSdkVersion = 33)
+@SdkSuppress(minSdkVersion = 33, maxSdkVersion = 33)
 class LocalesSyncToFrameworkTestCase {
     @get:Rule
     val rule = LocalesActivityTestRule(LocalesUpdateActivity::class.java)
@@ -62,9 +56,6 @@ class LocalesSyncToFrameworkTestCase {
     @RequiresApi(33)
     @Before
     fun setUp() {
-        // TODO(b/223775393): Remove BuildCompat.isAtLeastT() checks after API version is
-        //  bumped to 33
-        assumeTrue("Requires API version >=T", BuildCompat.isAtLeastT())
         // setting the app to follow system.
         AppCompatDelegate.Api33Impl.localeManagerSetApplicationLocales(
             AppCompatDelegate.getLocaleManagerForApplication(),
@@ -148,11 +139,6 @@ class LocalesSyncToFrameworkTestCase {
     @After
     @RequiresApi(33)
     fun teardown() {
-        // TODO(b/223775393): Remove BuildCompat.isAtLeastT() checks after API version is
-        //  bumped to 33
-        if (!BuildCompat.isAtLeastT()) {
-            return
-        }
         val context = instrumentation.context
 
         AppCompatDelegate.setIsAutoStoreLocalesOptedIn(true)

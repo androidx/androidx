@@ -33,9 +33,7 @@ import org.junit.Before
 import org.junit.Test
 
 @LargeTest
-// TODO(b/218430372): Modify SdkSuppress annotation in tests for backward compatibility of
-//  setApplicationLocales
-@SdkSuppress(maxSdkVersion = 31)
+@SdkSuppress(maxSdkVersion = 32)
 class LocalesConfigChangesTestCase() {
     private lateinit var scenario: ActivityScenario<LocalesConfigChangesActivity>
     private var systemLocales = LocaleListCompat.getEmptyLocaleList()
