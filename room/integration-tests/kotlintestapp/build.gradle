@@ -112,6 +112,7 @@ dependencies {
     androidTestImplementation(project(":internal-testutils-common"))
     androidTestImplementation("androidx.arch.core:core-testing:2.0.1")
     androidTestImplementation("androidx.paging:paging-runtime:3.1.1")
+    androidTestImplementation(project(":lifecycle:lifecycle-runtime-testing"))
     androidTestImplementation(libs.rxjava2)
     testImplementation(libs.mockitoCore)
 }
