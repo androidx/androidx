@@ -40,7 +40,7 @@ internal fun KSName.getFullName(): String {
 
 /** Top-level entry point to parse a complete user-defined sandbox SDK API into a [ParsedApi]. */
 class ApiParser(private val resolver: Resolver, private val logger: KSPLogger) {
-    private val validator: ApiValidator = ApiValidator(logger)
+    private val validator: ApiValidator = ApiValidator(logger, resolver)
 
     fun parseApi(): ParsedApi {
         return ParsedApi(services = parseAllServices())
@@ -72,25 +72,29 @@ class ApiParser(private val resolver: Resolver, private val logger: KSPLogger) {
         classDeclaration.getDeclaredFunctions().map(::parseMethod).toList()
 
     private fun parseMethod(method: KSFunctionDeclaration): Method {
+        validator.validateMethod(method)
         return Method(
             name = method.simpleName.getFullName(),
             parameters = getAllParameters(method),
             // TODO: returnType "Can be null if an error occurred during resolution".
-            returnType = parseType(method.returnType!!.resolve()),
+            returnType = parseType(method, method.returnType!!.resolve()),
         )
     }
 
     private fun getAllParameters(method: KSFunctionDeclaration) =
-        method.parameters.map(::parseParameter).toList()
+        method.parameters.map { parameter -> parseParameter(method, parameter) }.toList()
 
-    private fun parseParameter(parameter: KSValueParameter): Parameter {
+    private fun parseParameter(method: KSFunctionDeclaration, parameter: KSValueParameter):
+        Parameter {
+        validator.validateParameter(method, parameter)
         return Parameter(
             name = parameter.name!!.getFullName(),
-            type = parseType(parameter.type.resolve()),
+            type = parseType(method, parameter.type.resolve()),
         )
     }
 
-    private fun parseType(type: KSType): Type {
+    private fun parseType(method: KSFunctionDeclaration, type: KSType): Type {
+        validator.validateType(method, type)
         return Type(
             name = type.declaration.simpleName.getFullName(),
         )
