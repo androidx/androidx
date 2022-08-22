@@ -29,33 +29,36 @@ import androidx.core.util.Pair
 class FakeImagePipeline(config: ImageCaptureConfig, cameraSurfaceSize: Size) :
     ImagePipeline(config, cameraSurfaceSize) {
 
-    var receivedProcessingRequest: MutableSet<ProcessingRequest> = mutableSetOf()
-    var responseMap: MutableMap<TakePictureRequest, Pair<CameraRequest, ProcessingRequest>> =
-        mutableMapOf()
+    private var receivedProcessingRequest: MutableSet<ProcessingRequest> = mutableSetOf()
+    private var responseMap: MutableMap<TakePictureRequest,
+        Pair<CameraRequest, ProcessingRequest>> = mutableMapOf()
     var captureConfigMap: MutableMap<TakePictureRequest, List<CaptureConfig>> = mutableMapOf()
 
     constructor() : this(ImageCaptureConfig(OptionsBundle.emptyBundle()), Size(640, 480))
 
     @MainThread
-    override fun createRequests(
+    internal override fun createRequests(
         request: TakePictureRequest,
         callback: TakePictureCallback
     ): Pair<CameraRequest, ProcessingRequest> {
         if (responseMap[request] == null) {
             val captureConfig = captureConfigMap[request] ?: listOf()
             responseMap[request] =
-                Pair(CameraRequest(captureConfig, callback), ProcessingRequest(callback))
+                Pair(
+                    CameraRequest(captureConfig, callback),
+                    FakeProcessingRequest({ mutableListOf() }, callback)
+                )
         }
         return responseMap[request]!!
     }
 
-    override fun postProcess(
+    internal override fun postProcess(
         request: ProcessingRequest
     ) {
         receivedProcessingRequest.add(request)
     }
 
-    fun getProcessingRequest(takePictureRequest: TakePictureRequest): ProcessingRequest {
+    internal fun getProcessingRequest(takePictureRequest: TakePictureRequest): ProcessingRequest {
         return responseMap[takePictureRequest]!!.second!!
     }
 }
