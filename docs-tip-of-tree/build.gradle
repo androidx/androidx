@@ -121,6 +121,7 @@ dependencies {
     docs(project(":core:core-role"))
     docs(project(":core:uwb:uwb"))
     docs(project(":core:uwb:uwb-rxjava3"))
+    docs(project(":credentials:credentials"))
     docs(project(":cursoradapter:cursoradapter"))
     docs(project(":customview:customview"))
     docs(project(":customview:customview-poolingcontainer"))
