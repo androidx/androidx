@@ -81,10 +81,15 @@ import androidx.wear.watchface.samples.EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATI
 import androidx.wear.watchface.samples.ExampleCanvasAnalogWatchFaceService
 import androidx.wear.watchface.samples.ExampleOpenGLBackgroundInitWatchFaceService
 import androidx.wear.watchface.samples.GREEN_STYLE
+import androidx.wear.watchface.samples.LEFT_COMPLICATION
 import androidx.wear.watchface.samples.NO_COMPLICATIONS
+import androidx.wear.watchface.samples.R
 import androidx.wear.watchface.samples.WATCH_HAND_LENGTH_STYLE_SETTING
 import androidx.wear.watchface.style.CurrentUserStyleRepository
+import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleData
+import androidx.wear.watchface.style.UserStyleSchema
+import androidx.wear.watchface.style.UserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.BooleanUserStyleSetting.BooleanOption
 import androidx.wear.watchface.style.UserStyleSetting.DoubleRangeUserStyleSetting.DoubleRangeOption
 import androidx.wear.watchface.style.WatchFaceLayer
@@ -436,7 +441,6 @@ class WatchFaceControlClientTest {
 
         try {
             assertThat(interactiveInstance.complicationSlotsState.keys).containsExactly(123)
-
             val slot = interactiveInstance.complicationSlotsState[123]!!
             assertThat(slot.defaultDataSourcePolicy.primaryDataSource)
                 .isEqualTo(ComponentName("com.package1", "com.app1"))
@@ -487,6 +491,56 @@ class WatchFaceControlClientTest {
             val slot = interactiveInstance.complicationSlotsState[123]!!
             assertThat(slot.nameResourceId).isNull()
             assertThat(slot.screenReaderNameResourceId).isNull()
+        } finally {
+            interactiveInstance.close()
+        }
+    }
+
+    @Test
+    fun specifiedComplicationSlotNamesThroughComplicationSlotOption() {
+        val wallpaperService = TestComplicationStyleUpdateWatchFaceService(
+            context,
+            surfaceHolder
+        )
+        val deferredInteractiveInstance = handlerCoroutineScope.async {
+            service.getOrCreateInteractiveWatchFaceClient(
+                "testId",
+                deviceConfig,
+                systemState,
+                null,
+                complications
+            )
+        }
+        // Create the engine which triggers construction of the interactive instance.
+        handler.post {
+            engine = wallpaperService.onCreateEngine() as WatchFaceService.EngineWrapper
+        }
+
+        // Wait for the instance to be created.
+        val interactiveInstance = awaitWithTimeout(deferredInteractiveInstance)
+
+        // User style settings to be updated
+        val userStyleSettings = interactiveInstance.userStyleSchema.userStyleSettings
+        val leftComplicationUserStyleSetting = userStyleSettings[0]
+        val optionWithNameOverride = leftComplicationUserStyleSetting.options[1]
+
+        // Apply complication style option
+        interactiveInstance.updateWatchFaceInstance(
+            "testId",
+            UserStyle(
+                selectedOptions = mapOf(
+                    leftComplicationUserStyleSetting to optionWithNameOverride
+                )
+            )
+        )
+
+        try {
+            assertThat(interactiveInstance.complicationSlotsState.keys).containsExactly(123)
+
+            val slot = interactiveInstance.complicationSlotsState[123]!!
+            assertThat(slot.nameResourceId).isEqualTo(R.string.left_complication_screen_name)
+            assertThat(slot.screenReaderNameResourceId)
+                .isEqualTo(R.string.left_complication_screen_reader_name)
         } finally {
             interactiveInstance.close()
         }
@@ -2450,4 +2504,142 @@ internal class TestWatchFaceServiceWithPreviewImageUpdateRequest(
         rendererCreatedLatch.countDown()
         return WatchFace(WatchFaceType.DIGITAL, renderer)
     }
+}
+
+internal class TestComplicationStyleUpdateWatchFaceService(
+    testContext: Context,
+    private var surfaceHolderOverride: SurfaceHolder
+) : WatchFaceService() {
+
+    init {
+        attachBaseContext(testContext)
+    }
+
+    private val complicationsStyleSetting =
+        UserStyleSetting.ComplicationSlotsUserStyleSetting(
+            UserStyleSetting.Id(COMPLICATIONS_STYLE_SETTING),
+            resources,
+            R.string.watchface_complications_setting,
+            R.string.watchface_complications_setting_description,
+            icon = null,
+            complicationConfig = listOf(
+                UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotsOption(
+                    UserStyleSetting.Option.Id(NO_COMPLICATIONS),
+                    resources,
+                    R.string.watchface_complications_setting_none,
+                    null,
+                    listOf(
+                        UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotOverlay(
+                            123,
+                            enabled = false
+                        )
+                    )
+                ),
+                UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotsOption(
+                    UserStyleSetting.Option.Id(LEFT_COMPLICATION),
+                    resources,
+                    R.string.watchface_complications_setting_left,
+                    null,
+                    listOf(
+                        UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotOverlay(
+                            123,
+                            enabled = true,
+                            nameResourceId = R.string.left_complication_screen_name,
+                            screenReaderNameResourceId =
+                                R.string.left_complication_screen_reader_name
+                        )
+                    )
+                )
+            ),
+            listOf(WatchFaceLayer.COMPLICATIONS)
+        )
+
+    override fun createUserStyleSchema(): UserStyleSchema =
+        UserStyleSchema(listOf(complicationsStyleSetting))
+
+    override fun getWallpaperSurfaceHolderOverride() = surfaceHolderOverride
+
+    override fun createComplicationSlotsManager(
+        currentUserStyleRepository: CurrentUserStyleRepository
+    ): ComplicationSlotsManager {
+        return ComplicationSlotsManager(
+            listOf(
+                ComplicationSlot.createRoundRectComplicationSlotBuilder(
+                    123,
+                    { _, _ ->
+                        object : CanvasComplication {
+                            override fun render(
+                                canvas: Canvas,
+                                bounds: Rect,
+                                zonedDateTime: ZonedDateTime,
+                                renderParameters: RenderParameters,
+                                slotId: Int
+                            ) {
+                            }
+
+                            override fun drawHighlight(
+                                canvas: Canvas,
+                                bounds: Rect,
+                                boundsType: Int,
+                                zonedDateTime: ZonedDateTime,
+                                color: Int
+                            ) {
+                            }
+
+                            override fun getData() = NoDataComplicationData()
+
+                            override fun loadData(
+                                complicationData: ComplicationData,
+                                loadDrawablesAsynchronous: Boolean
+                            ) {
+                            }
+                        }
+                    },
+                    listOf(
+                        ComplicationType.PHOTO_IMAGE,
+                        ComplicationType.LONG_TEXT,
+                        ComplicationType.SHORT_TEXT
+                    ),
+                    DefaultComplicationDataSourcePolicy(
+                        ComponentName("com.package1", "com.app1"),
+                        ComplicationType.PHOTO_IMAGE,
+                        ComponentName("com.package2", "com.app2"),
+                        ComplicationType.LONG_TEXT,
+                        SystemDataSources.DATA_SOURCE_STEP_COUNT,
+                        ComplicationType.SHORT_TEXT
+                    ),
+                    ComplicationSlotBounds(
+                        RectF(0.1f, 0.2f, 0.3f, 0.4f)
+                    )
+                ).build()
+            ),
+            currentUserStyleRepository
+        )
+    }
+
+    override suspend fun createWatchFace(
+        surfaceHolder: SurfaceHolder,
+        watchState: WatchState,
+        complicationSlotsManager: ComplicationSlotsManager,
+        currentUserStyleRepository: CurrentUserStyleRepository
+    ) = WatchFace(
+        WatchFaceType.ANALOG,
+        @Suppress("deprecation")
+        object : Renderer.CanvasRenderer(
+            surfaceHolder,
+            currentUserStyleRepository,
+            watchState,
+            CanvasType.HARDWARE,
+            16
+        ) {
+            override fun render(canvas: Canvas, bounds: Rect, zonedDateTime: ZonedDateTime) {}
+
+            override fun renderHighlightLayer(
+                canvas: Canvas,
+                bounds: Rect,
+                zonedDateTime: ZonedDateTime
+            ) {
+            }
+        }
+    )
 }

@@ -27,4 +27,7 @@
     <string name="list_setting_common_id" translatable="false">ColorStyle</string>
     <string name="list_setting_common_option_red_id" translatable="false">red</string>
     <string name="list_setting_common_option_green_id" translatable="false">green</string>
+
+    <string name="complication_name" translatable="false">Name</string>
+    <string name="complication_screen_reader_name" translatable="false">This is a name</string>
 </resources>
