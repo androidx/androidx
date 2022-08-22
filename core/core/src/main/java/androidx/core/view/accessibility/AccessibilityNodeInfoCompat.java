@@ -736,6 +736,20 @@ public class AccessibilityNodeInfoCompat {
             }
             return true;
         }
+
+        @NonNull
+        @Override
+        public String toString() {
+            StringBuilder builder = new StringBuilder();
+            builder.append("AccessibilityActionCompat: ");
+            // Mirror AccessibilityNodeInfoCompat.toString's action string.
+            String actionName = getActionSymbolicName(mId);
+            if (actionName.equals("ACTION_UNKNOWN") && getLabel() != null) {
+                actionName = getLabel().toString();
+            }
+            builder.append(actionName);
+            return builder.toString();
+        }
     }
 
     /**
@@ -4270,7 +4284,7 @@ public class AccessibilityNodeInfoCompat {
         return (extras.getInt(BOOLEAN_PROPERTY_KEY, 0) & property) == property;
     }
 
-    private static String getActionSymbolicName(int action) {
+    static String getActionSymbolicName(int action) {
         switch (action) {
             case ACTION_FOCUS:
                 return "ACTION_FOCUS";

@@ -174,6 +174,18 @@ public class AccessibilityNodeInfoCompatTest {
         }
     }
 
+    @SdkSuppress(minSdkVersion = 19)
+    @Test
+    public void testAccessibilityActionToString() {
+        AccessibilityActionCompat actionCompat;
+        actionCompat = AccessibilityActionCompat.ACTION_SHOW_ON_SCREEN;
+        final String showOnScreen = "AccessibilityActionCompat: ACTION_SHOW_ON_SCREEN";
+        assertThat(actionCompat.toString(), is(showOnScreen));
+        final String customAction = "CustomAction";
+        actionCompat = new AccessibilityActionCompat(123123123, customAction);
+        assertThat(actionCompat.toString(), is("AccessibilityActionCompat: " + customAction));
+    }
+
     @Test
     public void testTouchDelegateInfo() {
         final Map<Region, View> targetMap = new HashMap<>(1);
