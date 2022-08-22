@@ -110,21 +110,6 @@ public interface GlobalSearchSession extends Closeable {
     ListenableFuture<Void> reportSystemUsageAsync(@NonNull ReportSystemUsageRequest request);
 
     /**
-     * @deprecated use {@link #reportSystemUsageAsync}
-     *
-     * @return The pending result of performing this operation which resolves to {@code null} on
-     *     success. The pending result will be completed with an
-     *     {@link androidx.appsearch.exceptions.AppSearchException} with a code of
-     *     {@link AppSearchResult#RESULT_SECURITY_ERROR} if this API is invoked by an app which
-     *     is not part of the system.
-     */
-    @NonNull
-    @Deprecated
-    default ListenableFuture<Void> reportSystemUsage(@NonNull ReportSystemUsageRequest request) {
-        return reportSystemUsageAsync(request);
-    }
-
-    /**
      * Retrieves the collection of schemas most recently successfully provided to
      * {@link AppSearchSession#setSchemaAsync} for any types belonging to the requested package and
      * database that the caller has been granted access to.
@@ -149,28 +134,6 @@ public interface GlobalSearchSession extends Closeable {
     // @exportToFramework:endStrip()
     ListenableFuture<GetSchemaResponse> getSchemaAsync(@NonNull String packageName,
             @NonNull String databaseName);
-
-    /**
-     * @deprecated use {@link #getSchemaAsync}.
-     *
-     * @param packageName the package that owns the requested {@link AppSearchSchema} instances.
-     * @param databaseName the database that owns the requested {@link AppSearchSchema} instances.
-     * @return The pending {@link GetSchemaResponse} containing the schemas that the caller has
-     * access to or an empty GetSchemaResponse if the request package and database does not
-     * exist, has not set a schema or contains no schemas that are accessible to the caller.
-     */
-    @SuppressLint("KotlinPropertyAccess")
-    @NonNull
-    // @exportToFramework:startStrip()
-    @RequiresFeature(
-            enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
-            name = Features.GLOBAL_SEARCH_SESSION_GET_SCHEMA)
-    // @exportToFramework:endStrip()
-    @Deprecated
-    default ListenableFuture<GetSchemaResponse> getSchema(@NonNull String packageName,
-            @NonNull String databaseName) {
-        return getSchemaAsync(packageName, databaseName);
-    }
 
     /**
      * Returns the {@link Features} to check for the availability of certain features
