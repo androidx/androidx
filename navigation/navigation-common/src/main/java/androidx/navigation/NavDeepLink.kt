@@ -161,83 +161,16 @@ public class NavDeepLink internal constructor(
         deepLink: Uri,
         arguments: Map<String, NavArgument?>
     ): Bundle? {
+        // first check overall uri pattern for quick return if general pattern does not match
         val matcher = pattern?.matcher(deepLink.toString()) ?: return null
         if (!matcher.matches()) {
             return null
         }
+        // get matching path and query arguments and store in bundle
         val bundle = Bundle()
-        val size = this.arguments.size
-        for (index in 0 until size) {
-            val argumentName = this.arguments[index]
-            val value = Uri.decode(matcher.group(index + 1))
-            val argument = arguments[argumentName]
-            try {
-                if (parseArgument(bundle, argumentName, value, argument)) {
-                    return null
-                }
-            } catch (e: IllegalArgumentException) {
-                // Failed to parse means this isn't a valid deep link
-                // for the given URI - i.e., the URI contains a non-integer
-                // value for an integer argument
-                return null
-            }
-        }
-        if (isParameterizedQuery) {
-            for (paramName in paramArgMap.keys) {
-                var argMatcher: Matcher? = null
-                val storedParam = paramArgMap[paramName]
-                var inputParams = deepLink.getQueryParameters(paramName)
-                if (isSingleQueryParamValueOnly) {
-                    // If the deep link contains a single query param with no value,
-                    // we will treat everything after the '?' as the input parameter
-                    val deepLinkString = deepLink.toString()
-                    val argValue = deepLinkString.substringAfter('?')
-                    if (argValue != deepLinkString) {
-                        inputParams = listOf(argValue)
-                    }
-                }
-                // If the input query param is repeated, we want to do all the
-                // matching and parsing for each value
-                for (inputParam in inputParams) {
-                    if (inputParams != null) {
-                        // Match the input arguments with the saved regex
-                        argMatcher = Pattern.compile(
-                            storedParam!!.paramRegex, Pattern.DOTALL
-                        ).matcher(inputParam)
-                        if (!argMatcher.matches()) {
-                            return null
-                        }
-                    }
-                    val queryParamBundle = Bundle()
-                    try {
-                        // Params could have multiple arguments, we need to handle them all
-                        for (index in 0 until storedParam!!.size()) {
-                            var value: String? = null
-                            if (argMatcher != null) {
-                                value = argMatcher.group(index + 1) ?: ""
-                            }
-                            val argName = storedParam.getArgumentName(index)
-                            val argument = arguments[argName]
-                            // If we have a repeated param, treat it as such
-                            if (parseArgumentForRepeatedParam(bundle, argName, value, argument)) {
-                                // Passing in a value the exact same as the placeholder will be treated the
-                                // as if no value was passed, being replaced if it is optional or throwing an
-                                // error if it is required.
-                                if (value != null && value != "{$argName}" &&
-                                    parseArgument(queryParamBundle, argName, value, argument)
-                                ) {
-                                    return null
-                                }
-                            }
-                        }
-                        bundle.putAll(queryParamBundle)
-                    } catch (e: IllegalArgumentException) {
-                        // Failed to parse means that at least one of the arguments that were supposed
-                        // to fill in the query parameter was not valid and therefore, we will exclude
-                        // that particular parameter from the argument bundle.
-                    }
-                }
-            }
+        if (!getMatchingPathArguments(matcher, bundle, arguments)) return null
+        if (isParameterizedQuery && !getMatchingQueryArguments(deepLink, bundle, arguments)) {
+            return null
         }
 
         // Check that all required arguments are present in bundle
@@ -248,6 +181,96 @@ public class NavDeepLink internal constructor(
         }
 
         return bundle
+    }
+
+    private fun getMatchingPathArguments(
+        matcher: Matcher,
+        bundle: Bundle,
+        arguments: Map<String, NavArgument?>
+    ): Boolean {
+        this.arguments.mapIndexed { index, argumentName ->
+            val value = Uri.decode(matcher.group(index + 1))
+            val argument = arguments[argumentName]
+            try {
+                if (parseArgument(bundle, argumentName, value, argument)) {
+                    return false
+                }
+            } catch (e: IllegalArgumentException) {
+                // Failed to parse means this isn't a valid deep link
+                // for the given URI - i.e., the URI contains a non-integer
+                // value for an integer argument
+                return false
+            }
+        }
+        return true
+    }
+
+    private fun getMatchingQueryArguments(
+        deepLink: Uri,
+        bundle: Bundle,
+        arguments: Map<String, NavArgument?>
+    ): Boolean {
+        paramArgMap.forEach { entry ->
+            val paramName = entry.key
+            val storedParam = entry.value
+
+            var inputParams = deepLink.getQueryParameters(paramName)
+            if (isSingleQueryParamValueOnly) {
+                // If the deep link contains a single query param with no value,
+                // we will treat everything after the '?' as the input parameter
+                val deepLinkString = deepLink.toString()
+                val argValue = deepLinkString.substringAfter('?')
+                if (argValue != deepLinkString) {
+                    inputParams = listOf(argValue)
+                }
+            }
+            if (!parseInputParams(inputParams, storedParam, bundle, arguments)) {
+                return false
+            }
+        }
+        return true
+    }
+
+    private fun parseInputParams(
+        inputParams: List<String>?,
+        storedParam: ParamQuery,
+        bundle: Bundle,
+        arguments: Map<String, NavArgument?>,
+    ): Boolean {
+        inputParams?.forEach { inputParam ->
+            val argMatcher = storedParam.paramRegex?.let {
+                Pattern.compile(
+                    it, Pattern.DOTALL
+                ).matcher(inputParam)
+            }
+            if (argMatcher == null || !argMatcher.matches()) {
+                return false
+            }
+
+            val queryParamBundle = Bundle()
+            try {
+                storedParam.arguments.mapIndexed { index, argName ->
+                    val value = argMatcher.group(index + 1) ?: ""
+                    val argument = arguments[argName]
+                    if (parseArgumentForRepeatedParam(bundle, argName, value, argument)) {
+                        // Passing in a value the exact same as the placeholder will be treated the
+                        // as if no value was passed, being replaced if it is optional or throwing an
+                        // error if it is required.
+                        if (value != "{$argName}" &&
+                            parseArgument(queryParamBundle, argName, value, argument)
+                        ) {
+                            return false
+                        }
+                    }
+                }
+                bundle.putAll(queryParamBundle)
+            } catch (e: IllegalArgumentException) {
+                // Failed to parse means that at least one of the arguments that were supposed
+                // to fill in the query parameter was not valid and therefore, we will exclude
+                // that particular parameter from the argument bundle.
+            }
+        }
+        return true
     }
 
     internal fun calculateMatchingPathSegments(requestedLink: Uri?): Int {
@@ -464,86 +487,103 @@ public class NavDeepLink internal constructor(
         private val SCHEME_PATTERN = Pattern.compile("^[a-zA-Z]+[+\\w\\-.]*:")
     }
 
-    init {
-        if (uriPattern != null) {
-            val parameterizedUri = Uri.parse(uriPattern)
-            isParameterizedQuery = parameterizedUri.query != null
-            val uriRegex = StringBuilder("^")
-            if (!SCHEME_PATTERN.matcher(uriPattern).find()) {
-                uriRegex.append("http[s]?://")
-            }
-            @Suppress("RegExpRedundantEscape")
-            val fillInPattern = Pattern.compile("\\{(.+?)\\}")
-            if (isParameterizedQuery) {
-                var matcher = Pattern.compile("(\\?)").matcher(uriPattern)
-                if (matcher.find()) {
-                    isExactDeepLink = buildPathRegex(
-                        uriPattern.substring(0, matcher.start()),
-                        uriRegex,
-                        fillInPattern
-                    )
-                }
-                for (paramName in parameterizedUri.queryParameterNames) {
-                    val argRegex = StringBuilder()
-                    val queryParams = parameterizedUri.getQueryParameters(paramName)
-                    require(queryParams.size <= 1) {
-                        "Query parameter $paramName must only be present once in $uriPattern." +
-                            "To support repeated query parameters, use an array type for your" +
-                            "argument and the pattern provided in your URI will be used to" +
-                            "parse each query parameter instance."
-                    }
-                    val queryParam = queryParams.firstOrNull()
-                        ?: paramName.apply { isSingleQueryParamValueOnly = true }
-                    matcher = fillInPattern.matcher(queryParam)
-                    var appendPos = 0
-                    val param = ParamQuery()
-                    // Build the regex for each query param
-                    while (matcher.find()) {
-                        param.addArgumentName(matcher.group(1) as String)
-                        argRegex.append(
-                            Pattern.quote(
-                                queryParam.substring(
-                                    appendPos,
-                                    matcher.start()
-                                )
-                            )
-                        )
-                        argRegex.append("(.+?)?")
-                        appendPos = matcher.end()
-                    }
-                    if (appendPos < queryParam.length) {
-                        argRegex.append(Pattern.quote(queryParam.substring(appendPos)))
-                    }
-                    // Save the regex with wildcards unquoted, and add the param to the map with its
-                    // name as the key
-                    param.paramRegex = argRegex.toString().replace(".*", "\\E.*\\Q")
-                    paramArgMap[paramName] = param
-                }
-            } else {
-                isExactDeepLink = buildPathRegex(uriPattern, uriRegex, fillInPattern)
-            }
-            // Since we've used Pattern.quote() above, we need to
-            // specifically escape any .* instances to ensure
-            // they are still treated as wildcards in our final regex
-            patternFinalRegex = uriRegex.toString().replace(".*", "\\E.*\\Q")
-        }
-        if (mimeType != null) {
-            val mimeTypePattern = Pattern.compile("^[\\s\\S]+/[\\s\\S]+$")
-            val mimeTypeMatcher = mimeTypePattern.matcher(mimeType)
-            require(mimeTypeMatcher.matches()) {
-                "The given mimeType $mimeType does not match to required \"type/subtype\" format"
-            }
+    private fun parsePath() {
+        if (uriPattern == null) return
 
-            // get the type and subtype of the mimeType
-            val splitMimeType = MimeType(
-                mimeType
+        val uriRegex = StringBuilder("^")
+        // append scheme pattern
+        if (!SCHEME_PATTERN.matcher(uriPattern).find()) {
+            uriRegex.append("http[s]?://")
+        }
+        @Suppress("RegExpRedundantEscape")
+        val fillInPattern = Pattern.compile("\\{(.+?)\\}")
+        // extra beginning of uriPattern until it hits either a query(?), a framgment(#), or
+        // end of uriPattern
+        var matcher = Pattern.compile("(\\?|\\#|$)").matcher(uriPattern)
+        matcher.find().let {
+            isExactDeepLink = buildPathRegex(
+                uriPattern.substring(0, matcher.start()),
+                uriRegex,
+                fillInPattern
             )
-
-            // the matching pattern can have the exact name or it can be wildcard literal (*)
-            val mimeTypeRegex = "^(${splitMimeType.type}|[*]+)/(${splitMimeType.subType}|[*]+)$"
-
-            // if the deep link type or subtype is wildcard, allow anything
-            mimeTypeFinalRegex = mimeTypeRegex.replace("*|[*]", "[\\s\\S]")
         }
+        // we need to specifically escape any .* instances to ensure
+        // they are still treated as wildcards in our final regex
+        patternFinalRegex = uriRegex.toString().replace(".*", "\\E.*\\Q")
+    }
+
+    private fun parseQuery() {
+        if (uriPattern == null || Uri.parse(uriPattern).query == null) return
+        val uri = Uri.parse(uriPattern)
+
+        isParameterizedQuery = true
+        val fillInPattern = Pattern.compile("\\{(.+?)\\}")
+
+        for (paramName in uri.queryParameterNames) {
+            val argRegex = StringBuilder()
+            val queryParams = uri.getQueryParameters(paramName)
+            require(queryParams.size <= 1) {
+                "Query parameter $paramName must only be present once in $uriPattern." +
+                    "To support repeated query parameters, use an array type for your" +
+                    "argument and the pattern provided in your URI will be used to" +
+                    "parse each query parameter instance."
+            }
+            val queryParam = queryParams.firstOrNull()
+                ?: paramName.apply { isSingleQueryParamValueOnly = true }
+            val matcher = fillInPattern.matcher(queryParam)
+            var appendPos = 0
+            val param = ParamQuery()
+            // Build the regex for each query param
+            while (matcher.find()) {
+                // matcher.group(1) as String = "tab" (the extracted param arg from {tab})
+                param.addArgumentName(matcher.group(1) as String)
+                argRegex.append(
+                    Pattern.quote(
+                        queryParam.substring(
+                            appendPos,
+                            matcher.start()
+                        )
+                    )
+                )
+                argRegex.append("(.+?)?")
+                appendPos = matcher.end()
+            }
+            if (appendPos < queryParam.length) {
+                argRegex.append(Pattern.quote(queryParam.substring(appendPos)))
+            }
+
+            // Save the regex with wildcards unquoted, and add the param to the map with its
+            // name as the key
+            param.paramRegex = argRegex.toString().replace(".*", "\\E.*\\Q")
+            paramArgMap[paramName] = param
+        }
+    }
+
+    private fun parseMime() {
+        if (mimeType == null) return
+
+        val mimeTypePattern = Pattern.compile("^[\\s\\S]+/[\\s\\S]+$")
+        val mimeTypeMatcher = mimeTypePattern.matcher(mimeType)
+        require(mimeTypeMatcher.matches()) {
+            "The given mimeType $mimeType does not match to required \"type/subtype\" format"
+        }
+
+        // get the type and subtype of the mimeType
+        val splitMimeType = MimeType(
+            mimeType
+        )
+
+        // the matching pattern can have the exact name or it can be wildcard literal (*)
+        val mimeTypeRegex = "^(${splitMimeType.type}|[*]+)/(${splitMimeType.subType}|[*]+)$"
+        println("cfok inside mimeTypeRegex $mimeTypeRegex")
+
+        // if the deep link type or subtype is wildcard, allow anything
+        mimeTypeFinalRegex = mimeTypeRegex.replace("*|[*]", "[\\s\\S]")
+    }
+
+    init {
+        parsePath()
+        parseQuery()
+        parseMime()
     }
 }
