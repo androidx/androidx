@@ -34,6 +34,10 @@ dependencies {
   testImplementation(libs.kotlinCoroutinesTest)
   testImplementation(project(":lifecycle:lifecycle-runtime-testing"))
   testImplementation("androidx.arch.core:core-testing:2.1.0")
+
+  constraints {
+    implementation(project(":lifecycle:lifecycle-reactivestreams"))
+  }
 }
 
 androidx {
