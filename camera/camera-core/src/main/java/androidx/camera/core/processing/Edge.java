@@ -16,20 +16,36 @@
 
 package androidx.camera.core.processing;
 
-import android.media.ImageWriter;
+import static kotlin.jvm.internal.Intrinsics.checkNotNull;
+
 import android.view.Surface;
 
+import androidx.annotation.NonNull;
+import androidx.core.util.Consumer;
+
 /**
- * A handler to a publisher/subscriber pair.
+ * A {@link Consumer} that can be listened to by another {@link Consumer}.
  *
- * <p>Upstream units publish the frames to the edge, which will be delivered to the downstream
- * subscribers. Edge usually contains both the image buffer and the specifications about the
- * image, such as the size and format of the image buffer.
+ * <p>This is a publisher/subscriber mechanism that follows the pattern of the {@link Surface}
+ * API, where the upstream pipeline publishes data to the class by calling {@link #accept}, which
+ * will be automatically sent to the downstream pipeline registered via {@link #setListener}.
  *
- * <p>One example is Android’s {@link Surface} API. Surface is a handler to a {@code BufferQueue}.
- * The publisher, e.g. camera, sends images to the {@link Surface} by using APIs such as
- * {@link ImageWriter}, OpenGL and/or NDK. Subscribers can get the frames by using APIs such as
- * {@code ImageReader.OnImageAvailableListener} or {@code SurfaceTexture.OnFrameAvailableListener}.
+ * @param <T> the data type.
  */
-public interface Edge {
+public class Edge<T> implements Consumer<T> {
+
+    private Consumer<T> mListener;
+
+    @Override
+    public void accept(@NonNull T t) {
+        checkNotNull(mListener, "Listener is not set.");
+        mListener.accept(t);
+    }
+
+    /**
+     * Sets a listener that will get data updates.
+     */
+    public void setListener(@NonNull Consumer<T> listener) {
+        mListener = listener;
+    }
 }
