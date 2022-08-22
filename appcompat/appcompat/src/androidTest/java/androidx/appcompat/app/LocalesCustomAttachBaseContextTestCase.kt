@@ -34,7 +34,7 @@ import org.junit.Rule
 import org.junit.Test
 
 @LargeTest
-@SdkSuppress(maxSdkVersion = 32)
+@SdkSuppress(minSdkVersion = 17, maxSdkVersion = 32)
 class LocalesCustomAttachBaseContextTestCase() {
 
     @get:Rule
