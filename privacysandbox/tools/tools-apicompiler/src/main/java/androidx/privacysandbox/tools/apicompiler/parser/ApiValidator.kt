@@ -18,13 +18,21 @@ package androidx.privacysandbox.tools.apicompiler.parser
 
 import com.google.devtools.ksp.getDeclaredProperties
 import com.google.devtools.ksp.isPublic
+import com.google.devtools.ksp.processing.KSBuiltIns
 import com.google.devtools.ksp.processing.KSPLogger
+import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.symbol.KSClassDeclaration
+import com.google.devtools.ksp.symbol.KSFunctionDeclaration
+import com.google.devtools.ksp.symbol.KSType
+import com.google.devtools.ksp.symbol.KSValueParameter
 import com.google.devtools.ksp.symbol.Modifier
 
-class ApiValidator(private val logger: KSPLogger) {
+class ApiValidator(private val logger: KSPLogger, private val resolver: Resolver) {
+    private val primitiveTypes = getPrimitiveTypes(resolver.builtIns)
+
     companion object {
         val validInterfaceModifiers = setOf(Modifier.PUBLIC)
+        val validMethodModifiers = setOf(Modifier.PUBLIC, Modifier.SUSPEND)
     }
 
     fun validateInterface(interfaceDeclaration: KSClassDeclaration) {
@@ -56,9 +64,62 @@ class ApiValidator(private val logger: KSPLogger) {
             logger.error(
                 "Error in $name: annotated interfaces cannot declare type parameters (${
                     interfaceDeclaration.typeParameters.map { it.simpleName.getShortName() }
-                        .sorted().joinToString(limit = 3)
+                        .sorted()
+                        .joinToString(limit = 3)
                 })."
             )
         }
     }
+
+    fun validateMethod(method: KSFunctionDeclaration) {
+        val name = method.qualifiedName?.getFullName() ?: method.simpleName.getFullName()
+        if (!method.isAbstract) {
+            logger.error("Error in $name: method cannot have default implementation.")
+        }
+        if (method.typeParameters.isNotEmpty()) {
+            logger.error("Error in $name: method cannot declare type parameters (<${
+                method.typeParameters.joinToString(limit = 3) { it.name.getShortName() }
+            }>).")
+        }
+        val invalidModifiers = method.modifiers.filterNot(validMethodModifiers::contains)
+        if (invalidModifiers.isNotEmpty()) {
+            logger.error(
+                "Error in $name: method contains invalid modifiers (${
+                    invalidModifiers.map { it.name.lowercase() }.sorted().joinToString(limit = 3)
+                })."
+            )
+        }
+        if (!method.modifiers.contains(Modifier.SUSPEND)) {
+            logger.error("Error in $name: method should be a suspend function.")
+        }
+    }
+
+    fun validateParameter(method: KSFunctionDeclaration, parameter: KSValueParameter) {
+        val name = method.qualifiedName?.getFullName() ?: method.simpleName.getFullName()
+        if (parameter.hasDefault) {
+            logger.error("Error in $name: parameters cannot have default values.")
+        }
+    }
+
+    fun validateType(method: KSFunctionDeclaration, type: KSType) {
+        val name = getMethodName(method)
+        if (!primitiveTypes.contains(type)) {
+            logger.error("Error in $name: only primitive types are supported.")
+        }
+    }
+
+    private fun getPrimitiveTypes(builtIns: KSBuiltIns) = listOf(
+        builtIns.booleanType,
+        builtIns.shortType,
+        builtIns.intType,
+        builtIns.longType,
+        builtIns.floatType,
+        builtIns.doubleType,
+        builtIns.charType,
+        builtIns.stringType,
+        builtIns.unitType,
+    )
+
+    private fun getMethodName(method: KSFunctionDeclaration) =
+        method.qualifiedName?.getFullName() ?: method.simpleName.getFullName()
 }

@@ -66,7 +66,7 @@ class ApiValidatorTest {
         checkSourceFails(
             serviceInterface(
                 """external fun interface MySdk {
-                    |   fun apply()
+                    |   suspend fun apply()
                     |}
                 """.trimMargin()
             )
@@ -81,7 +81,7 @@ class ApiValidatorTest {
         checkSourceFails(
             serviceInterface(
                 """interface MySdk<T, U> {
-                    |   fun getT(): T
+                    |   suspend fun getT()
                     |}
                 """.trimMargin()
             )
@@ -90,12 +90,90 @@ class ApiValidatorTest {
         )
     }
 
-    private fun serviceInterface(declaration: String) = Source.kotlin(
-        "com/mysdk/MySdk.kt", """
+    @Test
+    fun methodWithImplementation_fails() {
+        checkSourceFails(serviceMethod("suspend fun foo(): Int = 1")).containsExactlyErrors(
+            "Error in com.mysdk.MySdk.foo: method cannot have default implementation."
+        )
+    }
+
+    @Test
+    fun methodWithGenerics_fails() {
+        checkSourceFails(serviceMethod("suspend fun <T> foo()")).containsExactlyErrors(
+            "Error in com.mysdk.MySdk.foo: method cannot declare type parameters (<T>)."
+        )
+    }
+
+    @Test
+    fun methodWithInvalidModifiers_fails() {
+        checkSourceFails(serviceMethod("suspend inline fun foo()")).containsExactlyErrors(
+            "Error in com.mysdk.MySdk.foo: method contains invalid modifiers (inline)."
+        )
+    }
+
+    @Test
+    fun nonSuspendMethod_fails() {
+        checkSourceFails(serviceMethod("fun foo()")).containsExactlyErrors(
+            "Error in com.mysdk.MySdk.foo: method should be a suspend function."
+        )
+    }
+
+    @Test
+    fun parameterWitDefaultValue_fails() {
+        checkSourceFails(serviceMethod("suspend fun foo(x: Int = 5)")).containsExactlyErrors(
+            "Error in com.mysdk.MySdk.foo: parameters cannot have default values."
+        )
+    }
+
+    @Test
+    fun parameterWithGenerics_fails() {
+        checkSourceFails(serviceMethod("suspend fun foo(x: MutableList<Int>)"))
+            .containsExactlyErrors(
+                "Error in com.mysdk.MySdk.foo: only primitive types are supported."
+            )
+    }
+
+    @Test
+    fun parameterLambda_fails() {
+        checkSourceFails(serviceMethod("suspend fun foo(x: (Int) -> Int)"))
+            .containsExactlyErrors(
+                "Error in com.mysdk.MySdk.foo: only primitive types are supported."
+            )
+    }
+
+    @Test
+    fun returnTypeCustomClass_fails() {
+        val source = Source.kotlin(
+            "com/mysdk/MySdk.kt", """
                     package com.mysdk
                     import androidx.privacysandbox.tools.PrivacySandboxService
                     @PrivacySandboxService
-                    $declaration
+                    interface MySdk {
+                        suspend fun foo(): CustomClass
+                    }
+
+                    class CustomClass
                 """
+        )
+        checkSourceFails(source).containsExactlyErrors(
+            "Error in com.mysdk.MySdk.foo: only primitive types are supported."
+        )
+    }
+
+    private fun serviceInterface(declaration: String) = Source.kotlin(
+        "com/mysdk/MySdk.kt", """
+            package com.mysdk
+            import androidx.privacysandbox.tools.PrivacySandboxService
+            @PrivacySandboxService
+            $declaration
+        """
+    )
+
+    private fun serviceMethod(declaration: String) = serviceInterface(
+        """
+            interface MySdk {
+                $declaration
+            }
+        """
     )
 }
