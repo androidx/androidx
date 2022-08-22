@@ -60,8 +60,6 @@ import androidx.wear.watchface.complications.data.ComplicationType
 import androidx.wear.watchface.complications.data.toApiComplicationData
 import androidx.wear.watchface.complications.data.toWireTypes
 import androidx.wear.watchface.control.HeadlessWatchFaceImpl
-import androidx.wear.watchface.control.IWatchfaceListener
-import androidx.wear.watchface.control.IWatchfaceReadyListener
 import androidx.wear.watchface.control.InteractiveInstanceManager
 import androidx.wear.watchface.control.InteractiveWatchFaceImpl
 import androidx.wear.watchface.control.data.CrashInfoParcel
@@ -348,7 +346,7 @@ public abstract class WatchFaceService : WallpaperService() {
             task: (watchFaceImpl: WatchFaceImpl) -> R
         ): R? = TraceEvent(traceName).use {
             if (engine == null) {
-                Log.w(TAG, "Task $traceName posted after close(), ignoring.")
+                Log.w(TAG, "Task $traceName ignored due to null engine.")
                 return null
             }
             runBlocking {
@@ -372,7 +370,7 @@ public abstract class WatchFaceService : WallpaperService() {
             task: (watchFaceInitDetails: WatchFaceService.WatchFaceInitDetails) -> R
         ): R? = TraceEvent(traceName).use {
             if (engine == null) {
-                Log.w(TAG, "Task $traceName posted after close(), ignoring.")
+                Log.w(TAG, "Task $traceName ignored due to null engine.")
                 return null
             }
             runBlocking {
@@ -1141,6 +1139,7 @@ public abstract class WatchFaceService : WallpaperService() {
         internal lateinit var ambientUpdateWakelock: PowerManager.WakeLock
 
         private lateinit var choreographer: ChoreographerWrapper
+        internal var instance: InteractiveWatchFaceImpl? = null
 
         /**
          * Whether we already have a [frameCallback] posted and waiting in the [Choreographer]
@@ -1207,13 +1206,6 @@ public abstract class WatchFaceService : WallpaperService() {
         private var createdBy = "?"
 
         private val mainThreadPriorityDelegate = getMainThreadPriorityDelegate()
-
-        // Members after this are protected by the lock.
-        private val lock = Any()
-
-        /** Protected by [lock]. */
-        private val listeners = HashSet<IWatchfaceListener>()
-        private var lastWatchFaceColors: WatchFaceColors? = null
 
         /**
          * Returns the [WatchFaceImpl] if [deferredWatchFaceImpl] has completed successfully or
@@ -1401,13 +1393,6 @@ public abstract class WatchFaceService : WallpaperService() {
             }
         }
 
-        /** This can be called on any thread. */
-        @UiThread
-        internal suspend fun addWatchfaceReadyListener(listener: IWatchfaceReadyListener) {
-            deferredWatchFaceImpl.await()
-            listener.onWatchfaceReady()
-        }
-
         @UiThread
         internal fun setImmutableSystemState(deviceConfig: DeviceConfig) {
             // These properties never change so set them once only.
@@ -1469,16 +1454,10 @@ public abstract class WatchFaceService : WallpaperService() {
             if (pendingInitialComplications == null) {
                 pendingInitialComplications = complicationDataWireFormats
             } else {
-                // We need to merge the updates.
-                val complicationUpdateMap = pendingInitialComplications!!.associate {
-                    Pair(it.id, it.complicationData)
-                }.toMutableMap()
-                for (data in complicationDataWireFormats) {
-                    complicationUpdateMap[data.id] = data.complicationData
-                }
-                pendingInitialComplications = complicationUpdateMap.map {
-                    IdAndComplicationDataWireFormat(it.key, it.value)
-                }
+                pendingInitialComplications = mergePendingComplications(
+                    pendingInitialComplications!!,
+                    complicationDataWireFormats
+                )
             }
         }
 
@@ -1591,15 +1570,14 @@ public abstract class WatchFaceService : WallpaperService() {
                 mainThreadPriorityDelegate.setNormalPriority()
             }
 
+            instance?.detachEngine()
+
             destroyed = true
             backgroundThreadCoroutineScope.cancel()
             quitBackgroundThreadIfCreated()
             uiThreadHandler.removeCallbacks(invalidateRunnable)
             if (this::choreographer.isInitialized) {
                 choreographer.removeFrameCallback(frameCallback)
-            }
-            if (this::interactiveInstanceId.isInitialized) {
-                InteractiveInstanceManager.deleteInstance(interactiveInstanceId)
             }
             stopListeningForAccessibilityStateChanges()
 
@@ -1915,9 +1893,14 @@ public abstract class WatchFaceService : WallpaperService() {
                 _createdBy
             )
 
-            val instance = InteractiveWatchFaceImpl(this, params.instanceId)
-            InteractiveInstanceManager.addInstance(instance)
+            val instance = InteractiveInstanceManager.getOrCreateInstance(
+                params.instanceId,
+                // New scope because this needs to outlive EngineWrapper.
+                CoroutineScope(uiThreadHandler.asCoroutineDispatcher().immediate)
+            )
+            instance.attachEngine(this)
             interactiveInstanceId = params.instanceId
+            this.instance = instance
             return instance
         }
 
@@ -2107,6 +2090,7 @@ public abstract class WatchFaceService : WallpaperService() {
                     pendingUserStyle = null
                 }
                 deferredWatchFaceImpl.complete(watchFaceImpl)
+                instance?.onWatchFaceReady()
 
                 // Apply any pendingInitialComplications, this must be done after
                 // deferredWatchFaceImpl has completed or there's a window in which complication
@@ -2300,13 +2284,11 @@ public abstract class WatchFaceService : WallpaperService() {
         }
 
         override fun onWatchFaceColorsChanged(watchFaceColors: WatchFaceColors?) {
-            val listenersCopy = synchronized(lock) {
-                lastWatchFaceColors = watchFaceColors
-                HashSet<IWatchfaceListener>(listeners)
-            }
-
-            listenersCopy.forEach {
-                it.onWatchfaceColorsChanged(lastWatchFaceColors?.toWireFormat())
+            val instance = this.instance
+            if (instance != null) {
+                instance.onWatchFaceColorsChanged(watchFaceColors)
+            } else {
+                Log.w(TAG, "onWatchFaceColorsChanged ignored due to null instance")
             }
         }
 
@@ -2491,26 +2473,6 @@ public abstract class WatchFaceService : WallpaperService() {
         private fun getAccessibilityManager() =
             _context.getSystemService(Context.ACCESSIBILITY_SERVICE) as AccessibilityManager
 
-        fun addWatchFaceListener(listener: IWatchfaceListener) {
-            val colors = synchronized(lock) {
-                listeners.add(listener)
-                lastWatchFaceColors
-            }
-
-            listener.onWatchfaceColorsChanged(colors?.toWireFormat())
-
-            uiThreadCoroutineScope.launch {
-                deferredWatchFaceImpl.await()
-                listener.onWatchfaceReady()
-            }
-        }
-
-        fun removeWatchFaceListener(listener: IWatchfaceListener) {
-            synchronized(lock) {
-                listeners.remove(listener)
-            }
-        }
-
         @UiThread
         internal fun dump(writer: IndentingPrintWriter) {
             require(uiThreadHandler.looper.isCurrentThread) {
@@ -2556,9 +2518,7 @@ public abstract class WatchFaceService : WallpaperService() {
                 "pendingInitialComplications=" + pendingInitialComplications?.joinToString()
             )
 
-            synchronized(lock) {
-                writer.println("listeners = " + listeners.joinToString(", "))
-            }
+            instance?.dump(writer)
 
             if (!destroyed) {
                 getWatchFaceImplOrNull()?.dump(writer)
@@ -2670,3 +2630,19 @@ fun sanitizeWatchFaceId(instanceId: String?) =
     } else {
         instanceId
     }
+
+/** Merges [update] into [pendingComplications]. */
+internal fun mergePendingComplications(
+    pendingComplications: List<IdAndComplicationDataWireFormat>,
+    update: List<IdAndComplicationDataWireFormat>
+): List<IdAndComplicationDataWireFormat> {
+    val complicationUpdateMap = pendingComplications.associate {
+        Pair(it.id, it.complicationData)
+    }.toMutableMap()
+    for (data in update) {
+        complicationUpdateMap[data.id] = data.complicationData
+    }
+    return complicationUpdateMap.map {
+        IdAndComplicationDataWireFormat(it.key, it.value)
+    }
+}
