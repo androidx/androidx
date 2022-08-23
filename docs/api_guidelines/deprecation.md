@@ -5,12 +5,22 @@ that may be made within a library revision and make it difficult to remove an
 API, there are many other ways to influence how developers interact with your
 library.
 
-### Deprecation (`@deprecated`)
+### Deprecation (`@Deprecated`)
 
 Deprecation lets a developer know that they should stop using an API or class.
-All deprecations must be marked with a `@Deprecated` Java annotation as well as
-a `@deprecated <migration-docs>` docs annotation explaining how the developer
-should migrate away from the API.
+All deprecations must be marked with a `@Deprecated` code annotation as well as
+a `@deprecated <explanation>` docs annotation (for Java) or
+[`@Deprecated(message = <explanation>)`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-deprecated/)
+(for Kotlin) explaining the rationale and how the developer should migrate away
+from the API.
+
+Deprecations in Kotlin are encouraged to provide an automatic migration by
+specifying the
+[`replaceWith = ReplaceWith(<replacement>)`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-replace-with/)
+parameter to `@Deprecated` in cases where the migration is a straightforward
+replacement and *may* specify
+[`level = DeprecationLevel.ERROR`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-deprecation-level/)
+(source-breaking) in cases where the API on track to be fully removed.
 
 Deprecation is an non-breaking API change that must occur in a **major** or
 **minor** release.
@@ -19,7 +29,7 @@ APIs that are added during a pre-release cycle and marked as `@Deprecated`
 within the same cycle, e.g. added in `alpha01` and deprecated in `alpha06`,
 [must be removed](versioning.md#beta-checklist) before moving to `beta01`.
 
-### Soft removal (@removed)
+### Soft removal (`@removed` or `DeprecationLevel.HIDDEN`)
 
 Soft removal preserves binary compatibility while preventing source code from
 compiling against an API. It is a *source-breaking change* and not recommended.
@@ -27,8 +37,11 @@ compiling against an API. It is a *source-breaking change* and not recommended.
 Soft removals **must** do the following:
 
 *   Mark the API as deprecated for at least one stable release prior to removal.
-*   Mark the API with a `@RestrictTo(LIBRARY)` Java annotation as well as a
-    `@removed <reason>` docs annotation explaining why the API was removed.
+*   In Java sources, mark the API with a `@RestrictTo(LIBRARY)` Java annotation
+    as well as a `@removed <reason>` docs annotation explaining why the API was
+    removed.
+*   In Kotlin sources, mark the API with `@Deprecated(message = <reason>,
+    level = DeprecationLevel.HIDDEN)` explaining why the API was removed.
 *   Maintain binary compatibility, as the API may still be called by existing
     dependent libraries.
 *   Maintain behavioral compatibility and existing tests.
