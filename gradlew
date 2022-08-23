@@ -126,11 +126,6 @@ export ALLOW_PUBLIC_REPOS=1
 export ANDROIDX_PROJECTS=COMPOSE
 export COMPOSE_CUSTOM_GROUP=org.jetbrains.compose
 
-# Warn developers if they try to build top level project without the full checkout
-[ ! -d "$JAVA_HOME" ] && echo "You likely checked out the standalone AndroidX git project.
-
-This type of checkout only supports building a subset of projects, see CONTRIBUTING.md" && exit -1
-
 # ----------------------------------------------------------------------------
 
 # Determine the Java command to use to start the JVM.
