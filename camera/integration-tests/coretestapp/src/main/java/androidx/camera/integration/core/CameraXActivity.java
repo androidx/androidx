@@ -165,6 +165,8 @@ public class CameraXActivity extends AppCompatActivity {
     // Possible values for this intent key: "switch_test_case", "preview_test_case" or
     // "default_test_case".
     private static final String INTENT_EXTRA_E2E_TEST_CASE = "e2e_test_case";
+    // Launch the activity with the specified video quality.
+    private static final String INTENT_EXTRA_VIDEO_QUALITY = "video_quality";
     public static final String INTENT_EXTRA_CAMERA_IMPLEMENTATION = "camera_implementation";
     // Launch the activity with the specified camera id.
     @VisibleForTesting
@@ -1025,6 +1027,31 @@ public class CameraXActivity extends AppCompatActivity {
         mAnalysisToggle.setChecked((useCaseCombination & BIND_IMAGE_ANALYSIS) != 0L);
     }
 
+    private void updateVideoQualityByIntent(@NonNull Intent intent) {
+        Bundle bundle = intent.getExtras();
+        if (bundle == null) {
+            return;
+        }
+
+        Quality quality = itemIdToQuality(bundle.getInt(INTENT_EXTRA_VIDEO_QUALITY, 0));
+        if (quality == QUALITY_AUTO || !mVideoToggle.isChecked()) {
+            return;
+        }
+
+        if (mCameraProvider == null) {
+            throw new IllegalStateException("Need to obtain mCameraProvider first!");
+        }
+
+        // Check and set specific quality.
+        Camera targetCamera = mCameraProvider.bindToLifecycle(this, mCurrentCameraSelector);
+        List<Quality> supportedQualities =
+                QualitySelector.getSupportedQualities(targetCamera.getCameraInfo());
+        if (supportedQualities.contains(quality)) {
+            mVideoQuality = quality;
+            mRecordUi.getButtonQuality().setText(getQualityIconName(mVideoQuality));
+        }
+    }
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -1149,6 +1176,7 @@ public class CameraXActivity extends AppCompatActivity {
             mInitializationIdlingResource.decrement();
             if (cameraProviderResult.hasProvider()) {
                 mCameraProvider = cameraProviderResult.getProvider();
+                updateVideoQualityByIntent(getIntent());
                 tryBindUseCases();
             } else {
                 Log.e(TAG, "Failed to retrieve ProcessCameraProvider",
@@ -1221,7 +1249,6 @@ public class CameraXActivity extends AppCompatActivity {
                 mLaunchingCameraLensFacing = camera2CameraInfo.getCameraCharacteristic(
                         CameraCharacteristics.LENS_FACING);
             }
-
             List<UseCase> useCases = buildUseCases();
             mCamera = bindToLifecycleSafely(useCases);
 
