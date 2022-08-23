@@ -33,7 +33,10 @@ fun startupProfile(profile: String, includeStartupOnly: Boolean = false): String
             null -> null
             else -> {
                 val (flags, classPrefix, _) = result.destructured
-                if (includeStartupOnly && !flags.contains("S")) {
+                // Empty flags are indicative that the class needs to be aggressively preloaded
+                // Therefore the class belongs in the primary dex.
+                val isStartup = flags.isEmpty() || flags.contains("S")
+                if (includeStartupOnly && !isStartup) {
                     null
                 } else {
                     "SL$classPrefix;"
