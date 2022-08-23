@@ -75,5 +75,6 @@ dependencies {
 
     // Testing resource dependency for manifest
     debugImplementation(project(":camera:camera-testing"))
+    debugImplementation(libs.testCore)
 }
 
