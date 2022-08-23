@@ -165,6 +165,24 @@ class NavDestinationAndroidTest {
     }
 
     @Test
+    fun matchDeepLinkWithSingleQueryParamAndFrag() {
+        val destination = NoOpNavigator().createDestination()
+        destination.addArgument("id", intArgument())
+        destination.addDeepLink("www.example.com/users?{id}#{myFrag}")
+
+        val match = destination.matchDeepLink(
+            Uri.parse("https://www.example.com/users?43#theFrag")
+        )
+
+        assertWithMessage("Deep link should match")
+            .that(match)
+            .isNotNull()
+        assertWithMessage("Deep link should extract id argument correctly")
+            .that(match?.matchingArgs?.getInt("id"))
+            .isEqualTo(43)
+    }
+
+    @Test
     fun matchDeepLinkBestMatchExact() {
         val destination = NoOpNavigator().createDestination()
 
