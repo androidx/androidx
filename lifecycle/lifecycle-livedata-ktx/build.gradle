@@ -48,6 +48,10 @@ dependencies {
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.kotlinCoroutinesTest)
     androidTestImplementation(libs.kotlinCoroutinesAndroid)
+
+    constraints {
+        implementation(project(":lifecycle:lifecycle-livedata"))
+    }
 }
 
 androidx {

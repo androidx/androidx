@@ -37,6 +37,7 @@ dependencies {
         // i.e. COMPOSE + MAIN project sets
         // update syntax when b/239979823 is fixed
         implementation("androidx.lifecycle:lifecycle-livedata-core:{androidx.LibraryVersions.LIFECYCLE}")
+        implementation(project(":lifecycle:lifecycle-livedata-ktx"))
     }
 }
 
