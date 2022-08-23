@@ -473,7 +473,6 @@ public class WebViewFeatureInternal {
             new ApiFeature.NoFramework(WebViewFeature.REQUESTED_WITH_HEADER_CONTROL,
                     Features.REQUESTED_WITH_HEADER_CONTROL);
 
-
     /**
      * This feature covers
      * {@link androidx.webkit.WebSettingsCompat#setEnterpriseAuthenticationAppLinkPolicyEnabled(WebSettings, boolean)} and
@@ -482,6 +481,13 @@ public class WebViewFeatureInternal {
     public static final ApiFeature.NoFramework ENTERPRISE_AUTHENTICATION_APP_LINK_POLICY =
             new ApiFeature.NoFramework(WebViewFeature.ENTERPRISE_AUTHENTICATION_APP_LINK_POLICY,
                     Features.ENTERPRISE_AUTHENTICATION_APP_LINK_POLICY);
+
+    /**
+     * This feature covers
+     * {@link androidx.webkit.CookieManager#getCookieInfo(CookieManager, String)}.
+     */
+    public static final ApiFeature.NoFramework GET_COOKIE_INFO =
+            new ApiFeature.NoFramework(WebViewFeature.GET_COOKIE_INFO, Features.GET_COOKIE_INFO);
     // --- Add new feature constants above this line ---
 
     private WebViewFeatureInternal() {
