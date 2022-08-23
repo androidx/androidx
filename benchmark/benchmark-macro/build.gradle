@@ -22,6 +22,7 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("kotlin-android")
+    id("com.squareup.wire")
 }
 
 android {
@@ -57,6 +58,9 @@ dependencies {
     implementation("androidx.tracing:tracing-ktx:1.1.0-rc01")
     implementation(libs.testCore)
     implementation(libs.testUiautomator)
+    implementation(libs.wireRuntime)
+    implementation(libs.retrofit)
+    implementation(libs.retrofitConverterWire)
 
     androidTestImplementation(project(":internal-testutils-ktx"))
     androidTestImplementation("androidx.activity:activity-ktx:1.3.1")
@@ -75,3 +79,72 @@ androidx {
     inceptionYear = "2020"
     description = "Android Benchmark - Macrobenchmark"
 }
+
+// Allow usage of Kotlin's @OptIn.
+tasks.withType(KotlinCompile).configureEach {
+    kotlinOptions {
+        freeCompilerArgs += [ '-opt-in=kotlin.RequiresOptIn' ]
+    }
+}
+
+wire {
+    kotlin {}
+    sourcePath {
+        srcDir 'src/main/proto'
+        include '*.proto'
+    }
+
+    prune 'perfetto.protos.AndroidBatteryMetric'
+    prune 'perfetto.protos.AndroidBinderMetric'
+    prune 'perfetto.protos.AndroidCameraMetric'
+    prune 'perfetto.protos.AndroidCameraUnaggregatedMetric'
+    prune 'perfetto.protos.AndroidCpuMetric'
+    prune 'perfetto.protos.AndroidDisplayMetrics'
+    prune 'perfetto.protos.AndroidDmaHeapMetric'
+    prune 'perfetto.protos.AndroidDvfsMetric'
+    prune 'perfetto.protos.AndroidFastrpcMetric'
+    prune 'perfetto.protos.AndroidFrameTimelineMetric'
+    prune 'perfetto.protos.AndroidGpuMetric'
+    prune 'perfetto.protos.AndroidHwcomposerMetrics'
+    prune 'perfetto.protos.AndroidHwuiMetric'
+    prune 'perfetto.protos.AndroidIonMetric'
+    prune 'perfetto.protos.AndroidIrqRuntimeMetric'
+    prune 'perfetto.protos.AndroidJankCujMetric'
+    prune 'perfetto.protos.AndroidLmkMetric'
+    prune 'perfetto.protos.AndroidLmkReasonMetric'
+    prune 'perfetto.protos.AndroidMemoryMetric'
+    prune 'perfetto.protos.AndroidMemoryUnaggregatedMetric'
+    prune 'perfetto.protos.AndroidMultiuserMetric'
+    prune 'perfetto.protos.AndroidNetworkMetric'
+    prune 'perfetto.protos.AndroidOtherTracesMetric'
+    prune 'perfetto.protos.AndroidPackageList'
+    prune 'perfetto.protos.AndroidPowerRails'
+    prune 'perfetto.protos.AndroidProcessMetadata'
+    prune 'perfetto.protos.AndroidRtRuntimeMetric'
+    prune 'perfetto.protos.AndroidSimpleperfMetric'
+    prune 'perfetto.protos.AndroidSurfaceflingerMetric'
+    prune 'perfetto.protos.AndroidSysUiCujMetrics'
+    prune 'perfetto.protos.AndroidTaskNames'
+    prune 'perfetto.protos.AndroidTraceQualityMetric'
+    prune 'perfetto.protos.AndroidTrustyWorkqueues'
+    prune 'perfetto.protos.G2dMetrics'
+    prune 'perfetto.protos.JavaHeapHistogram'
+    prune 'perfetto.protos.JavaHeapStats'
+    prune 'perfetto.protos.ProcessRenderInfo'
+    prune 'perfetto.protos.ProfilerSmaps'
+    prune 'perfetto.protos.TraceAnalysisStats'
+    prune 'perfetto.protos.TraceMetadata'
+    prune 'perfetto.protos.UnsymbolizedFrames'
+}
+
+// https://github.com/square/wire/issues/1947
+// Remove when we upgrade to fixed wire library
+afterEvaluate {
+    tasks.named("compileReleaseKotlin").configure {
+        it.dependsOn("generateDebugProtos")
+    }
+    tasks.named("compileDebugKotlin").configure {
+        it.dependsOn("generateReleaseProtos")
+    }
+}
+
