@@ -33,6 +33,7 @@ import static android.car.VehiclePropertyIds.HVAC_STEERING_WHEEL_HEAT;
 import static android.car.VehiclePropertyIds.HVAC_TEMPERATURE_SET;
 
 import static androidx.car.app.hardware.climate.AutomotiveCarClimate.DEFAULT_SAMPLE_RATE_HZ;
+import static androidx.car.app.hardware.climate.AutomotiveCarClimate.HVAC_ELECTRIC_DEFROSTER;
 import static androidx.car.app.hardware.climate.ClimateProfileRequest.FEATURE_CABIN_TEMPERATURE;
 import static androidx.car.app.hardware.climate.ClimateProfileRequest.FEATURE_FAN_DIRECTION;
 import static androidx.car.app.hardware.climate.ClimateProfileRequest.FEATURE_FAN_SPEED;
@@ -41,6 +42,7 @@ import static androidx.car.app.hardware.climate.ClimateProfileRequest.FEATURE_HV
 import static androidx.car.app.hardware.climate.ClimateProfileRequest.FEATURE_HVAC_AUTO_RECIRCULATION;
 import static androidx.car.app.hardware.climate.ClimateProfileRequest.FEATURE_HVAC_DEFROSTER;
 import static androidx.car.app.hardware.climate.ClimateProfileRequest.FEATURE_HVAC_DUAL_MODE;
+import static androidx.car.app.hardware.climate.ClimateProfileRequest.FEATURE_HVAC_ELECTRIC_DEFROSTER;
 import static androidx.car.app.hardware.climate.ClimateProfileRequest.FEATURE_HVAC_MAX_AC;
 import static androidx.car.app.hardware.climate.ClimateProfileRequest.FEATURE_HVAC_MAX_DEFROSTER;
 import static androidx.car.app.hardware.climate.ClimateProfileRequest.FEATURE_HVAC_POWER;
@@ -102,6 +104,12 @@ import java.util.concurrent.atomic.AtomicReference;
 @Config(manifest = Config.NONE, shadows = {ShadowCar.class})
 @DoNotInstrument
 public class AutomotiveCarClimateTest {
+    private static final CarZone FRONT_LEFT_ZONE = new CarZone.Builder()
+            .setRow(CarZone.CAR_ZONE_ROW_FIRST)
+            .setColumn(CarZone.CAR_ZONE_COLUMN_LEFT).build();
+    private static final CarZone FRONT_RIGHT_ZONE = new CarZone.Builder()
+            .setRow(CarZone.CAR_ZONE_ROW_FIRST)
+            .setColumn(CarZone.CAR_ZONE_COLUMN_RIGHT).build();
     @Rule
     public GrantPermissionRule mPermissionsRule = GrantPermissionRule.grant(
             "android.car.permission.CONTROL_CAR_CLIMATE");
@@ -132,10 +140,10 @@ public class AutomotiveCarClimateTest {
 
     @Test
     public void registerHvacPower_verifyResponse() throws InterruptedException {
-        CarClimateFeature.Builder mCarClimateBuilder = new CarClimateFeature.Builder(
+        CarClimateFeature.Builder carClimateBuilder = new CarClimateFeature.Builder(
                 FEATURE_HVAC_POWER);
-        mCarClimateBuilder.addCarZones(mCarZone);
-        CarClimateFeature mCarClimateFeature = new CarClimateFeature(mCarClimateBuilder);
+        carClimateBuilder.addCarZones(mCarZone);
+        CarClimateFeature mCarClimateFeature = new CarClimateFeature(carClimateBuilder);
         RegisterClimateStateRequest.Builder builder =
                 new RegisterClimateStateRequest.Builder(false);
         builder.addClimateRegisterFeatures(mCarClimateFeature);
@@ -174,14 +182,54 @@ public class AutomotiveCarClimateTest {
     }
 
     @Test
+    public void registerElectricDefroster_verifyResponse() throws InterruptedException {
+        CarClimateFeature.Builder carClimateBuilder = new CarClimateFeature.Builder(
+                FEATURE_HVAC_ELECTRIC_DEFROSTER);
+        carClimateBuilder.addCarZones(mCarZone);
+        CarClimateFeature mCarClimateFeature = new CarClimateFeature(carClimateBuilder);
+        RegisterClimateStateRequest.Builder builder =
+                new RegisterClimateStateRequest.Builder(false);
+        builder.addClimateRegisterFeatures(mCarClimateFeature);
+
+        AtomicReference<CarValue<Boolean>> loadedResult = new AtomicReference<>();
+        CarClimateStateCallback listener = new CarClimateStateCallback() {
+            @Override
+            public void onElectricDefrosterStateAvailable(
+                    @NonNull CarValue<Boolean> electricDefrosterState) {
+                loadedResult.set(electricDefrosterState);
+                mCountDownLatch.countDown();
+            }
+        };
+
+        mAutomotiveCarClimate.registerClimateStateCallback(mExecutor, builder.build(), listener);
+
+        Map<Integer, List<CarZone>> propertyIdsWithCarZones =
+                ImmutableMap.<Integer, List<CarZone>>builder().put(HVAC_ELECTRIC_DEFROSTER,
+                        Collections.singletonList(mCarZone)).buildKeepingLast();
+
+        ArgumentCaptor<OnCarPropertyResponseListener> captor = ArgumentCaptor.forClass(
+                OnCarPropertyResponseListener.class);
+        verify(mPropertyManager).submitRegisterListenerRequest(eq(propertyIdsWithCarZones),
+                eq(DEFAULT_SAMPLE_RATE_HZ), captor.capture(), eq(mExecutor));
+
+        mResponse.add(CarPropertyResponse.builder().setPropertyId(HVAC_ELECTRIC_DEFROSTER)
+                .setCarZones(Collections.singletonList(mCarZone)).setValue(true).setStatus(
+                STATUS_SUCCESS).build());
+
+        captor.getValue().onCarPropertyResponses(mResponse);
+        mCountDownLatch.await();
+
+        CarValue<Boolean> carValue = loadedResult.get();
+        assertThat(carValue.getValue()).isEqualTo(true);
+        assertThat(carValue.getCarZones()).isEqualTo(Collections.singletonList(mCarZone));
+        assertThat(carValue.getStatus()).isEqualTo(STATUS_SUCCESS);
+    }
+
+    @Test
     public void fetchHvacPower_verifyResponse() throws InterruptedException {
-        CarZone frontLeft = new CarZone.Builder().setRow(CarZone.CAR_ZONE_ROW_FIRST)
-                .setColumn(CarZone.CAR_ZONE_COLUMN_LEFT).build();
-        CarZone frontRight = new CarZone.Builder().setRow(CarZone.CAR_ZONE_ROW_FIRST)
-                .setColumn(CarZone.CAR_ZONE_COLUMN_RIGHT).build();
         List<Set<CarZone>> carZones = new ArrayList<>();
-        carZones.add(Collections.singleton(frontLeft));
-        carZones.add(Collections.singleton(frontRight));
+        carZones.add(Collections.singleton(FRONT_LEFT_ZONE));
+        carZones.add(Collections.singleton(FRONT_RIGHT_ZONE));
         List<Integer> propertyIds = Collections.singletonList(HVAC_POWER_ON);
         mCarPropertyProfiles.add(CarPropertyProfile.builder().setPropertyId(HVAC_POWER_ON)
                 .setCarZones(carZones).setStatus(STATUS_SUCCESS).build());
@@ -200,12 +248,12 @@ public class AutomotiveCarClimateTest {
             }
         };
 
-        CarClimateFeature.Builder mCarClimateBuilder = new CarClimateFeature.Builder(
+        CarClimateFeature.Builder carClimateBuilder = new CarClimateFeature.Builder(
                 FEATURE_HVAC_POWER);
-        mCarClimateBuilder.addCarZones(frontLeft);
-        mCarClimateBuilder.addCarZones(frontRight);
+        carClimateBuilder.addCarZones(FRONT_LEFT_ZONE);
+        carClimateBuilder.addCarZones(FRONT_RIGHT_ZONE);
 
-        CarClimateFeature mCarClimateFeature = new CarClimateFeature(mCarClimateBuilder);
+        CarClimateFeature mCarClimateFeature = new CarClimateFeature(carClimateBuilder);
         ClimateProfileRequest.Builder builder =
                 new ClimateProfileRequest.Builder();
         builder.addClimateProfileFeatures(mCarClimateFeature);
@@ -220,13 +268,9 @@ public class AutomotiveCarClimateTest {
 
     @Test
     public void fetchCabinTemperature_verifyResponse() throws InterruptedException {
-        CarZone frontLeft = new CarZone.Builder().setRow(CarZone.CAR_ZONE_ROW_FIRST)
-                .setColumn(CarZone.CAR_ZONE_COLUMN_LEFT).build();
-        CarZone frontRight = new CarZone.Builder().setRow(CarZone.CAR_ZONE_ROW_FIRST)
-                .setColumn(CarZone.CAR_ZONE_COLUMN_RIGHT).build();
         List<Set<CarZone>> carZones = new ArrayList<>();
-        carZones.add(Collections.singleton(frontLeft));
-        carZones.add(Collections.singleton(frontRight));
+        carZones.add(Collections.singleton(FRONT_LEFT_ZONE));
+        carZones.add(Collections.singleton(FRONT_RIGHT_ZONE));
         List<Integer> propertyIds = Collections.singletonList(HVAC_TEMPERATURE_SET);
         mCarPropertyProfiles.add(CarPropertyProfile.builder().setPropertyId(HVAC_TEMPERATURE_SET)
                 .setCelsiusRange(new Pair<>(16.0f, 18.0f))
@@ -249,12 +293,12 @@ public class AutomotiveCarClimateTest {
             }
         };
 
-        CarClimateFeature.Builder mCarClimateBuilder = new CarClimateFeature.Builder(
+        CarClimateFeature.Builder carClimateBuilder = new CarClimateFeature.Builder(
                 FEATURE_CABIN_TEMPERATURE);
-        mCarClimateBuilder.addCarZones(frontLeft);
-        mCarClimateBuilder.addCarZones(frontRight);
+        carClimateBuilder.addCarZones(FRONT_LEFT_ZONE);
+        carClimateBuilder.addCarZones(FRONT_RIGHT_ZONE);
 
-        CarClimateFeature mCarClimateFeature = new CarClimateFeature(mCarClimateBuilder);
+        CarClimateFeature mCarClimateFeature = new CarClimateFeature(carClimateBuilder);
         ClimateProfileRequest.Builder builder =
                 new ClimateProfileRequest.Builder();
         builder.addClimateProfileFeatures(mCarClimateFeature);
@@ -278,15 +322,11 @@ public class AutomotiveCarClimateTest {
     @Test
     public void fetchFanSpeed_verifyResponse() throws InterruptedException {
         Map<Set<CarZone>, Pair<Object, Object>> minMaxValueMap = new HashMap<>();
-        CarZone frontLeft = new CarZone.Builder().setRow(CarZone.CAR_ZONE_ROW_FIRST)
-                .setColumn(CarZone.CAR_ZONE_COLUMN_LEFT).build();
-        CarZone frontRight = new CarZone.Builder().setRow(CarZone.CAR_ZONE_ROW_FIRST)
-                .setColumn(CarZone.CAR_ZONE_COLUMN_RIGHT).build();
-        minMaxValueMap.put(Collections.singleton(frontLeft), new Pair<>(1, 7));
-        minMaxValueMap.put(Collections.singleton(frontRight), new Pair<>(2, 6));
+        minMaxValueMap.put(Collections.singleton(FRONT_LEFT_ZONE), new Pair<>(1, 7));
+        minMaxValueMap.put(Collections.singleton(FRONT_RIGHT_ZONE), new Pair<>(2, 6));
         List<Set<CarZone>> carZones = new ArrayList<>();
-        carZones.add(Collections.singleton(frontLeft));
-        carZones.add(Collections.singleton(frontRight));
+        carZones.add(Collections.singleton(FRONT_LEFT_ZONE));
+        carZones.add(Collections.singleton(FRONT_RIGHT_ZONE));
         List<Integer> propertyIds = Collections.singletonList(HVAC_FAN_SPEED);
         mCarPropertyProfiles.add(CarPropertyProfile.builder().setPropertyId(HVAC_FAN_SPEED)
                 .setCarZones(carZones).setCarZoneSetsToMinMaxRange(minMaxValueMap)
@@ -306,12 +346,12 @@ public class AutomotiveCarClimateTest {
             }
         };
 
-        CarClimateFeature.Builder mCarClimateBuilder = new CarClimateFeature.Builder(
+        CarClimateFeature.Builder carClimateBuilder = new CarClimateFeature.Builder(
                 FEATURE_FAN_SPEED);
-        mCarClimateBuilder.addCarZones(frontLeft);
-        mCarClimateBuilder.addCarZones(frontRight);
+        carClimateBuilder.addCarZones(FRONT_LEFT_ZONE);
+        carClimateBuilder.addCarZones(FRONT_RIGHT_ZONE);
 
-        CarClimateFeature mCarClimateFeature = new CarClimateFeature(mCarClimateBuilder);
+        CarClimateFeature mCarClimateFeature = new CarClimateFeature(carClimateBuilder);
         ClimateProfileRequest.Builder builder =
                 new ClimateProfileRequest.Builder();
         builder.addClimateProfileFeatures(mCarClimateFeature);
@@ -328,15 +368,11 @@ public class AutomotiveCarClimateTest {
     @Test
     public void fetchFanDirection_verifyResponse() throws InterruptedException {
         Map<Set<CarZone>, Pair<Object, Object>> minMaxValueMap = new HashMap<>();
-        CarZone frontLeft = new CarZone.Builder().setRow(CarZone.CAR_ZONE_ROW_FIRST)
-                .setColumn(CarZone.CAR_ZONE_COLUMN_LEFT).build();
-        CarZone frontRight = new CarZone.Builder().setRow(CarZone.CAR_ZONE_ROW_FIRST)
-                .setColumn(CarZone.CAR_ZONE_COLUMN_RIGHT).build();
-        minMaxValueMap.put(Collections.singleton(frontLeft), new Pair<>(1, 7));
-        minMaxValueMap.put(Collections.singleton(frontRight), new Pair<>(2, 6));
+        minMaxValueMap.put(Collections.singleton(FRONT_LEFT_ZONE), new Pair<>(1, 7));
+        minMaxValueMap.put(Collections.singleton(FRONT_RIGHT_ZONE), new Pair<>(2, 6));
         List<Set<CarZone>> carZones = new ArrayList<>();
-        carZones.add(Collections.singleton(frontLeft));
-        carZones.add(Collections.singleton(frontRight));
+        carZones.add(Collections.singleton(FRONT_LEFT_ZONE));
+        carZones.add(Collections.singleton(FRONT_RIGHT_ZONE));
         mCarPropertyProfiles.add(CarPropertyProfile.builder().setPropertyId(HVAC_FAN_DIRECTION)
                 .setCarZones(carZones).setCarZoneSetsToMinMaxRange(minMaxValueMap)
                 .setStatus(STATUS_SUCCESS).build());
@@ -357,12 +393,12 @@ public class AutomotiveCarClimateTest {
             }
         };
 
-        CarClimateFeature.Builder mCarClimateBuilder = new CarClimateFeature.Builder(
+        CarClimateFeature.Builder carClimateBuilder = new CarClimateFeature.Builder(
                 FEATURE_FAN_DIRECTION);
-        mCarClimateBuilder.addCarZones(frontLeft);
-        mCarClimateBuilder.addCarZones(frontRight);
+        carClimateBuilder.addCarZones(FRONT_LEFT_ZONE);
+        carClimateBuilder.addCarZones(FRONT_RIGHT_ZONE);
 
-        CarClimateFeature mCarClimateFeature = new CarClimateFeature(mCarClimateBuilder);
+        CarClimateFeature mCarClimateFeature = new CarClimateFeature(carClimateBuilder);
         ClimateProfileRequest.Builder builder =
                 new ClimateProfileRequest.Builder();
         builder.addClimateProfileFeatures(mCarClimateFeature);
@@ -379,15 +415,11 @@ public class AutomotiveCarClimateTest {
     @Test
     public void fetchSeatTemperature_verifyResponse() throws InterruptedException {
         Map<Set<CarZone>, Pair<Object, Object>> minMaxValueMap = new HashMap<>();
-        CarZone frontLeft = new CarZone.Builder().setRow(CarZone.CAR_ZONE_ROW_FIRST)
-                .setColumn(CarZone.CAR_ZONE_COLUMN_LEFT).build();
-        CarZone frontRight = new CarZone.Builder().setRow(CarZone.CAR_ZONE_ROW_FIRST)
-                .setColumn(CarZone.CAR_ZONE_COLUMN_RIGHT).build();
-        minMaxValueMap.put(Collections.singleton(frontLeft), new Pair<>(1, 7));
-        minMaxValueMap.put(Collections.singleton(frontRight), new Pair<>(2, 6));
+        minMaxValueMap.put(Collections.singleton(FRONT_LEFT_ZONE), new Pair<>(1, 7));
+        minMaxValueMap.put(Collections.singleton(FRONT_RIGHT_ZONE), new Pair<>(2, 6));
         List<Set<CarZone>> carZones = new ArrayList<>();
-        carZones.add(Collections.singleton(frontLeft));
-        carZones.add(Collections.singleton(frontRight));
+        carZones.add(Collections.singleton(FRONT_LEFT_ZONE));
+        carZones.add(Collections.singleton(FRONT_RIGHT_ZONE));
         mCarPropertyProfiles.add(CarPropertyProfile.builder().setPropertyId(HVAC_SEAT_TEMPERATURE)
                 .setCarZones(carZones).setCarZoneSetsToMinMaxRange(minMaxValueMap)
                 .setStatus(STATUS_SUCCESS).build());
@@ -408,12 +440,12 @@ public class AutomotiveCarClimateTest {
             }
         };
 
-        CarClimateFeature.Builder mCarClimateBuilder = new CarClimateFeature.Builder(
+        CarClimateFeature.Builder carClimateBuilder = new CarClimateFeature.Builder(
                 FEATURE_SEAT_TEMPERATURE_LEVEL);
-        mCarClimateBuilder.addCarZones(frontLeft);
-        mCarClimateBuilder.addCarZones(frontRight);
+        carClimateBuilder.addCarZones(FRONT_LEFT_ZONE);
+        carClimateBuilder.addCarZones(FRONT_RIGHT_ZONE);
 
-        CarClimateFeature mCarClimateFeature = new CarClimateFeature(mCarClimateBuilder);
+        CarClimateFeature mCarClimateFeature = new CarClimateFeature(carClimateBuilder);
         ClimateProfileRequest.Builder builder =
                 new ClimateProfileRequest.Builder();
         builder.addClimateProfileFeatures(mCarClimateFeature);
@@ -430,15 +462,11 @@ public class AutomotiveCarClimateTest {
     @Test
     public void fetchSeatVentilation_verifyResponse() throws InterruptedException {
         Map<Set<CarZone>, Pair<Object, Object>> minMaxValueMap = new HashMap<>();
-        CarZone frontLeft = new CarZone.Builder().setRow(CarZone.CAR_ZONE_ROW_FIRST)
-                .setColumn(CarZone.CAR_ZONE_COLUMN_LEFT).build();
-        CarZone frontRight = new CarZone.Builder().setRow(CarZone.CAR_ZONE_ROW_FIRST)
-                .setColumn(CarZone.CAR_ZONE_COLUMN_RIGHT).build();
-        minMaxValueMap.put(Collections.singleton(frontLeft), new Pair<>(1, 7));
-        minMaxValueMap.put(Collections.singleton(frontRight), new Pair<>(2, 6));
+        minMaxValueMap.put(Collections.singleton(FRONT_LEFT_ZONE), new Pair<>(1, 7));
+        minMaxValueMap.put(Collections.singleton(FRONT_RIGHT_ZONE), new Pair<>(2, 6));
         List<Set<CarZone>> carZones = new ArrayList<>();
-        carZones.add(Collections.singleton(frontLeft));
-        carZones.add(Collections.singleton(frontRight));
+        carZones.add(Collections.singleton(FRONT_LEFT_ZONE));
+        carZones.add(Collections.singleton(FRONT_RIGHT_ZONE));
         mCarPropertyProfiles.add(CarPropertyProfile.builder().setPropertyId(HVAC_SEAT_VENTILATION)
                 .setCarZones(carZones).setCarZoneSetsToMinMaxRange(minMaxValueMap)
                 .setStatus(STATUS_SUCCESS).build());
@@ -459,12 +487,12 @@ public class AutomotiveCarClimateTest {
             }
         };
 
-        CarClimateFeature.Builder mCarClimateBuilder = new CarClimateFeature.Builder(
+        CarClimateFeature.Builder carClimateBuilder = new CarClimateFeature.Builder(
                 FEATURE_SEAT_VENTILATION_LEVEL);
-        mCarClimateBuilder.addCarZones(frontLeft);
-        mCarClimateBuilder.addCarZones(frontRight);
+        carClimateBuilder.addCarZones(FRONT_LEFT_ZONE);
+        carClimateBuilder.addCarZones(FRONT_RIGHT_ZONE);
 
-        CarClimateFeature mCarClimateFeature = new CarClimateFeature(mCarClimateBuilder);
+        CarClimateFeature mCarClimateFeature = new CarClimateFeature(carClimateBuilder);
         ClimateProfileRequest.Builder builder =
                 new ClimateProfileRequest.Builder();
         builder.addClimateProfileFeatures(mCarClimateFeature);
@@ -481,15 +509,11 @@ public class AutomotiveCarClimateTest {
     @Test
     public void fetchSteeringWheelHeat_verifyResponse() throws InterruptedException {
         Map<Set<CarZone>, Pair<Object, Object>> minMaxValueMap = new HashMap<>();
-        CarZone frontLeft = new CarZone.Builder().setRow(CarZone.CAR_ZONE_ROW_FIRST)
-                .setColumn(CarZone.CAR_ZONE_COLUMN_LEFT).build();
-        CarZone frontRight = new CarZone.Builder().setRow(CarZone.CAR_ZONE_ROW_FIRST)
-                .setColumn(CarZone.CAR_ZONE_COLUMN_RIGHT).build();
-        minMaxValueMap.put(Collections.singleton(frontLeft), new Pair<>(1, 7));
-        minMaxValueMap.put(Collections.singleton(frontRight), new Pair<>(2, 6));
+        minMaxValueMap.put(Collections.singleton(FRONT_LEFT_ZONE), new Pair<>(1, 7));
+        minMaxValueMap.put(Collections.singleton(FRONT_RIGHT_ZONE), new Pair<>(2, 6));
         List<Set<CarZone>> carZones = new ArrayList<>();
-        carZones.add(Collections.singleton(frontLeft));
-        carZones.add(Collections.singleton(frontRight));
+        carZones.add(Collections.singleton(FRONT_LEFT_ZONE));
+        carZones.add(Collections.singleton(FRONT_RIGHT_ZONE));
         mCarPropertyProfiles.add(CarPropertyProfile.builder().setPropertyId(
                 HVAC_STEERING_WHEEL_HEAT)
                 .setCarZones(carZones).setCarZoneSetsToMinMaxRange(minMaxValueMap)
@@ -511,12 +535,12 @@ public class AutomotiveCarClimateTest {
             }
         };
 
-        CarClimateFeature.Builder mCarClimateBuilder = new CarClimateFeature.Builder(
+        CarClimateFeature.Builder carClimateBuilder = new CarClimateFeature.Builder(
                 FEATURE_STEERING_WHEEL_HEAT);
-        mCarClimateBuilder.addCarZones(frontLeft);
-        mCarClimateBuilder.addCarZones(frontRight);
+        carClimateBuilder.addCarZones(FRONT_LEFT_ZONE);
+        carClimateBuilder.addCarZones(FRONT_RIGHT_ZONE);
 
-        CarClimateFeature mCarClimateFeature = new CarClimateFeature(mCarClimateBuilder);
+        CarClimateFeature mCarClimateFeature = new CarClimateFeature(carClimateBuilder);
         ClimateProfileRequest.Builder builder =
                 new ClimateProfileRequest.Builder();
         builder.addClimateProfileFeatures(mCarClimateFeature);
@@ -532,13 +556,9 @@ public class AutomotiveCarClimateTest {
 
     @Test
     public void fetchHvacRecirculation_verifyResponse() throws InterruptedException {
-        CarZone frontLeft = new CarZone.Builder().setRow(CarZone.CAR_ZONE_ROW_FIRST)
-                .setColumn(CarZone.CAR_ZONE_COLUMN_LEFT).build();
-        CarZone frontRight = new CarZone.Builder().setRow(CarZone.CAR_ZONE_ROW_FIRST)
-                .setColumn(CarZone.CAR_ZONE_COLUMN_RIGHT).build();
         List<Set<CarZone>> carZones = new ArrayList<>();
-        carZones.add(Collections.singleton(frontLeft));
-        carZones.add(Collections.singleton(frontRight));
+        carZones.add(Collections.singleton(FRONT_LEFT_ZONE));
+        carZones.add(Collections.singleton(FRONT_RIGHT_ZONE));
         mCarPropertyProfiles.add(CarPropertyProfile.builder().setPropertyId(HVAC_RECIRC_ON)
                 .setCarZones(carZones).setStatus(STATUS_SUCCESS).build());
         ListenableFuture<List<CarPropertyProfile<?>>> listenableCarPropertyProfile =
@@ -558,12 +578,12 @@ public class AutomotiveCarClimateTest {
             }
         };
 
-        CarClimateFeature.Builder mCarClimateBuilder = new CarClimateFeature.Builder(
+        CarClimateFeature.Builder carClimateBuilder = new CarClimateFeature.Builder(
                 FEATURE_HVAC_RECIRCULATION);
-        mCarClimateBuilder.addCarZones(frontLeft);
-        mCarClimateBuilder.addCarZones(frontRight);
+        carClimateBuilder.addCarZones(FRONT_LEFT_ZONE);
+        carClimateBuilder.addCarZones(FRONT_RIGHT_ZONE);
 
-        CarClimateFeature mCarClimateFeature = new CarClimateFeature(mCarClimateBuilder);
+        CarClimateFeature mCarClimateFeature = new CarClimateFeature(carClimateBuilder);
         ClimateProfileRequest.Builder builder =
                 new ClimateProfileRequest.Builder();
         builder.addClimateProfileFeatures(mCarClimateFeature);
@@ -578,13 +598,9 @@ public class AutomotiveCarClimateTest {
 
     @Test
     public void fetchHvacAutoRecirculation_verifyResponse() throws InterruptedException {
-        CarZone frontLeft = new CarZone.Builder().setRow(CarZone.CAR_ZONE_ROW_FIRST)
-                .setColumn(CarZone.CAR_ZONE_COLUMN_LEFT).build();
-        CarZone frontRight = new CarZone.Builder().setRow(CarZone.CAR_ZONE_ROW_FIRST)
-                .setColumn(CarZone.CAR_ZONE_COLUMN_RIGHT).build();
         List<Set<CarZone>> carZones = new ArrayList<>();
-        carZones.add(Collections.singleton(frontLeft));
-        carZones.add(Collections.singleton(frontRight));
+        carZones.add(Collections.singleton(FRONT_LEFT_ZONE));
+        carZones.add(Collections.singleton(FRONT_RIGHT_ZONE));
         List<Integer> propertyIds = Collections.singletonList(HVAC_AUTO_RECIRC_ON);
         mCarPropertyProfiles.add(CarPropertyProfile.builder().setPropertyId(HVAC_AUTO_RECIRC_ON)
                 .setCarZones(carZones).setStatus(STATUS_SUCCESS).build());
@@ -604,12 +620,12 @@ public class AutomotiveCarClimateTest {
             }
         };
 
-        CarClimateFeature.Builder mCarClimateBuilder = new CarClimateFeature.Builder(
+        CarClimateFeature.Builder carClimateBuilder = new CarClimateFeature.Builder(
                 FEATURE_HVAC_AUTO_RECIRCULATION);
-        mCarClimateBuilder.addCarZones(frontLeft);
-        mCarClimateBuilder.addCarZones(frontRight);
+        carClimateBuilder.addCarZones(FRONT_LEFT_ZONE);
+        carClimateBuilder.addCarZones(FRONT_RIGHT_ZONE);
 
-        CarClimateFeature mCarClimateFeature = new CarClimateFeature(mCarClimateBuilder);
+        CarClimateFeature mCarClimateFeature = new CarClimateFeature(carClimateBuilder);
         ClimateProfileRequest.Builder builder =
                 new ClimateProfileRequest.Builder();
         builder.addClimateProfileFeatures(mCarClimateFeature);
@@ -624,13 +640,9 @@ public class AutomotiveCarClimateTest {
 
     @Test
     public void fetchHvacAutoMode_verifyResponse() throws InterruptedException {
-        CarZone frontLeft = new CarZone.Builder().setRow(CarZone.CAR_ZONE_ROW_FIRST)
-                .setColumn(CarZone.CAR_ZONE_COLUMN_LEFT).build();
-        CarZone frontRight = new CarZone.Builder().setRow(CarZone.CAR_ZONE_ROW_FIRST)
-                .setColumn(CarZone.CAR_ZONE_COLUMN_RIGHT).build();
         List<Set<CarZone>> carZones = new ArrayList<>();
-        carZones.add(Collections.singleton(frontLeft));
-        carZones.add(Collections.singleton(frontRight));
+        carZones.add(Collections.singleton(FRONT_LEFT_ZONE));
+        carZones.add(Collections.singleton(FRONT_RIGHT_ZONE));
         List<Integer> propertyIds = Collections.singletonList(HVAC_AUTO_ON);
         mCarPropertyProfiles.add(CarPropertyProfile.builder().setPropertyId(HVAC_AUTO_ON)
                 .setCarZones(carZones).setStatus(STATUS_SUCCESS).build());
@@ -650,12 +662,12 @@ public class AutomotiveCarClimateTest {
             }
         };
 
-        CarClimateFeature.Builder mCarClimateBuilder = new CarClimateFeature.Builder(
+        CarClimateFeature.Builder carClimateBuilder = new CarClimateFeature.Builder(
                 FEATURE_HVAC_AUTO_MODE);
-        mCarClimateBuilder.addCarZones(frontLeft);
-        mCarClimateBuilder.addCarZones(frontRight);
+        carClimateBuilder.addCarZones(FRONT_LEFT_ZONE);
+        carClimateBuilder.addCarZones(FRONT_RIGHT_ZONE);
 
-        CarClimateFeature mCarClimateFeature = new CarClimateFeature(mCarClimateBuilder);
+        CarClimateFeature mCarClimateFeature = new CarClimateFeature(carClimateBuilder);
         ClimateProfileRequest.Builder builder =
                 new ClimateProfileRequest.Builder();
         builder.addClimateProfileFeatures(mCarClimateFeature);
@@ -670,13 +682,9 @@ public class AutomotiveCarClimateTest {
 
     @Test
     public void fetchHvacDualMode_verifyResponse() throws InterruptedException {
-        CarZone frontLeft = new CarZone.Builder().setRow(CarZone.CAR_ZONE_ROW_FIRST)
-                .setColumn(CarZone.CAR_ZONE_COLUMN_LEFT).build();
-        CarZone frontRight = new CarZone.Builder().setRow(CarZone.CAR_ZONE_ROW_FIRST)
-                .setColumn(CarZone.CAR_ZONE_COLUMN_RIGHT).build();
         List<Set<CarZone>> carZones = new ArrayList<>();
-        carZones.add(Collections.singleton(frontLeft));
-        carZones.add(Collections.singleton(frontRight));
+        carZones.add(Collections.singleton(FRONT_LEFT_ZONE));
+        carZones.add(Collections.singleton(FRONT_RIGHT_ZONE));
         List<Integer> propertyIds = Collections.singletonList(HVAC_DUAL_ON);
         mCarPropertyProfiles.add(CarPropertyProfile.builder().setPropertyId(HVAC_DUAL_ON)
                 .setCarZones(carZones).setStatus(STATUS_SUCCESS).build());
@@ -696,12 +704,12 @@ public class AutomotiveCarClimateTest {
             }
         };
 
-        CarClimateFeature.Builder mCarClimateBuilder = new CarClimateFeature.Builder(
+        CarClimateFeature.Builder carClimateBuilder = new CarClimateFeature.Builder(
                 FEATURE_HVAC_DUAL_MODE);
-        mCarClimateBuilder.addCarZones(frontLeft);
-        mCarClimateBuilder.addCarZones(frontRight);
+        carClimateBuilder.addCarZones(FRONT_LEFT_ZONE);
+        carClimateBuilder.addCarZones(FRONT_RIGHT_ZONE);
 
-        CarClimateFeature mCarClimateFeature = new CarClimateFeature(mCarClimateBuilder);
+        CarClimateFeature mCarClimateFeature = new CarClimateFeature(carClimateBuilder);
         ClimateProfileRequest.Builder builder =
                 new ClimateProfileRequest.Builder();
         builder.addClimateProfileFeatures(mCarClimateFeature);
@@ -716,13 +724,9 @@ public class AutomotiveCarClimateTest {
 
     @Test
     public void fetchDefroster_verifyResponse() throws InterruptedException {
-        CarZone frontLeft = new CarZone.Builder().setRow(CarZone.CAR_ZONE_ROW_FIRST)
-                .setColumn(CarZone.CAR_ZONE_COLUMN_LEFT).build();
-        CarZone frontRight = new CarZone.Builder().setRow(CarZone.CAR_ZONE_ROW_FIRST)
-                .setColumn(CarZone.CAR_ZONE_COLUMN_RIGHT).build();
         List<Set<CarZone>> carZones = new ArrayList<>();
-        carZones.add(Collections.singleton(frontLeft));
-        carZones.add(Collections.singleton(frontRight));
+        carZones.add(Collections.singleton(FRONT_LEFT_ZONE));
+        carZones.add(Collections.singleton(FRONT_RIGHT_ZONE));
         List<Integer> propertyIds = Collections.singletonList(HVAC_DEFROSTER);
         mCarPropertyProfiles.add(CarPropertyProfile.builder().setPropertyId(HVAC_DEFROSTER)
                 .setCarZones(carZones).setStatus(STATUS_SUCCESS).build());
@@ -741,12 +745,12 @@ public class AutomotiveCarClimateTest {
             }
         };
 
-        CarClimateFeature.Builder mCarClimateBuilder = new CarClimateFeature.Builder(
+        CarClimateFeature.Builder carClimateBuilder = new CarClimateFeature.Builder(
                 FEATURE_HVAC_DEFROSTER);
-        mCarClimateBuilder.addCarZones(frontLeft);
-        mCarClimateBuilder.addCarZones(frontRight);
+        carClimateBuilder.addCarZones(FRONT_LEFT_ZONE);
+        carClimateBuilder.addCarZones(FRONT_RIGHT_ZONE);
 
-        CarClimateFeature mCarClimateFeature = new CarClimateFeature(mCarClimateBuilder);
+        CarClimateFeature mCarClimateFeature = new CarClimateFeature(carClimateBuilder);
         ClimateProfileRequest.Builder builder =
                 new ClimateProfileRequest.Builder();
         builder.addClimateProfileFeatures(mCarClimateFeature);
@@ -761,13 +765,9 @@ public class AutomotiveCarClimateTest {
 
     @Test
     public void fetchMaxDefroster_verifyResponse() throws InterruptedException {
-        CarZone frontLeft = new CarZone.Builder().setRow(CarZone.CAR_ZONE_ROW_FIRST)
-                .setColumn(CarZone.CAR_ZONE_COLUMN_LEFT).build();
-        CarZone frontRight = new CarZone.Builder().setRow(CarZone.CAR_ZONE_ROW_FIRST)
-                .setColumn(CarZone.CAR_ZONE_COLUMN_RIGHT).build();
         List<Set<CarZone>> carZones = new ArrayList<>();
-        carZones.add(Collections.singleton(frontLeft));
-        carZones.add(Collections.singleton(frontRight));
+        carZones.add(Collections.singleton(FRONT_LEFT_ZONE));
+        carZones.add(Collections.singleton(FRONT_RIGHT_ZONE));
         List<Integer> propertyIds = Collections.singletonList(HVAC_MAX_DEFROST_ON);
         mCarPropertyProfiles.add(CarPropertyProfile.builder().setPropertyId(HVAC_MAX_DEFROST_ON)
                 .setCarZones(carZones).setStatus(STATUS_SUCCESS).build());
@@ -787,12 +787,54 @@ public class AutomotiveCarClimateTest {
             }
         };
 
-        CarClimateFeature.Builder mCarClimateBuilder = new CarClimateFeature.Builder(
+        CarClimateFeature.Builder carClimateBuilder = new CarClimateFeature.Builder(
                 FEATURE_HVAC_MAX_DEFROSTER);
-        mCarClimateBuilder.addCarZones(frontLeft);
-        mCarClimateBuilder.addCarZones(frontRight);
+        carClimateBuilder.addCarZones(FRONT_LEFT_ZONE);
+        carClimateBuilder.addCarZones(FRONT_RIGHT_ZONE);
 
-        CarClimateFeature mCarClimateFeature = new CarClimateFeature(mCarClimateBuilder);
+        CarClimateFeature mCarClimateFeature = new CarClimateFeature(carClimateBuilder);
+        ClimateProfileRequest.Builder builder =
+                new ClimateProfileRequest.Builder();
+        builder.addClimateProfileFeatures(mCarClimateFeature);
+        mAutomotiveCarClimate.fetchClimateProfile(mExecutor, builder.build(), listener);
+        verify(mPropertyManager, times(1)).fetchSupportedZonesResponse(
+                eq(propertyIds),
+                eq(mExecutor));
+        mCountDownLatch.await();
+
+        assertThat(loadedResult.get().getSupportedCarZoneSets()).isEqualTo(carZones);
+    }
+
+    @Test
+    public void fetchElectricDefroster_verifyResponse() throws InterruptedException {
+        List<Set<CarZone>> carZones = new ArrayList<>();
+        carZones.add(Collections.singleton(FRONT_LEFT_ZONE));
+        carZones.add(Collections.singleton(FRONT_RIGHT_ZONE));
+        List<Integer> propertyIds = Collections.singletonList(HVAC_ELECTRIC_DEFROSTER);
+        mCarPropertyProfiles.add(CarPropertyProfile.builder().setPropertyId(HVAC_ELECTRIC_DEFROSTER)
+                .setCarZones(carZones).setStatus(STATUS_SUCCESS).build());
+        ListenableFuture<List<CarPropertyProfile<?>>> listenableCarPropertyProfile =
+                Futures.immediateFuture(mCarPropertyProfiles);
+        when(mPropertyManager.fetchSupportedZonesResponse(
+                eq(propertyIds), eq(mExecutor))).thenReturn(
+                listenableCarPropertyProfile);
+
+        AtomicReference<ElectricDefrosterProfile> loadedResult = new AtomicReference<>();
+        CarClimateProfileCallback listener = new CarClimateProfileCallback() {
+            @Override
+            public void onElectricDefrosterProfileAvailable(@NonNull ElectricDefrosterProfile
+                    electricDefrosterProfile) {
+                loadedResult.set(electricDefrosterProfile);
+                mCountDownLatch.countDown();
+            }
+        };
+
+        CarClimateFeature.Builder carClimateBuilder = new CarClimateFeature.Builder(
+                FEATURE_HVAC_ELECTRIC_DEFROSTER);
+        carClimateBuilder.addCarZones(FRONT_LEFT_ZONE);
+        carClimateBuilder.addCarZones(FRONT_RIGHT_ZONE);
+
+        CarClimateFeature mCarClimateFeature = new CarClimateFeature(carClimateBuilder);
         ClimateProfileRequest.Builder builder =
                 new ClimateProfileRequest.Builder();
         builder.addClimateProfileFeatures(mCarClimateFeature);
@@ -807,13 +849,9 @@ public class AutomotiveCarClimateTest {
 
     @Test
     public void fetchHvacAc_verifyResponse() throws InterruptedException {
-        CarZone frontLeft = new CarZone.Builder().setRow(CarZone.CAR_ZONE_ROW_FIRST)
-                .setColumn(CarZone.CAR_ZONE_COLUMN_LEFT).build();
-        CarZone frontRight = new CarZone.Builder().setRow(CarZone.CAR_ZONE_ROW_FIRST)
-                .setColumn(CarZone.CAR_ZONE_COLUMN_RIGHT).build();
         List<Set<CarZone>> carZones = new ArrayList<>();
-        carZones.add(Collections.singleton(frontLeft));
-        carZones.add(Collections.singleton(frontRight));
+        carZones.add(Collections.singleton(FRONT_LEFT_ZONE));
+        carZones.add(Collections.singleton(FRONT_RIGHT_ZONE));
         List<Integer> propertyIds = Collections.singletonList(HVAC_AC_ON);
         mCarPropertyProfiles.add(CarPropertyProfile.builder().setPropertyId(HVAC_AC_ON)
                 .setCarZones(carZones).setStatus(STATUS_SUCCESS).build());
@@ -833,12 +871,12 @@ public class AutomotiveCarClimateTest {
             }
         };
 
-        CarClimateFeature.Builder mCarClimateBuilder = new CarClimateFeature.Builder(
+        CarClimateFeature.Builder carClimateBuilder = new CarClimateFeature.Builder(
                 FEATURE_HVAC_AC);
-        mCarClimateBuilder.addCarZones(frontLeft);
-        mCarClimateBuilder.addCarZones(frontRight);
+        carClimateBuilder.addCarZones(FRONT_LEFT_ZONE);
+        carClimateBuilder.addCarZones(FRONT_RIGHT_ZONE);
 
-        CarClimateFeature mCarClimateFeature = new CarClimateFeature(mCarClimateBuilder);
+        CarClimateFeature mCarClimateFeature = new CarClimateFeature(carClimateBuilder);
         ClimateProfileRequest.Builder builder =
                 new ClimateProfileRequest.Builder();
         builder.addClimateProfileFeatures(mCarClimateFeature);
@@ -853,13 +891,9 @@ public class AutomotiveCarClimateTest {
 
     @Test
     public void fetchHvacMaxAc_verifyResponse() throws InterruptedException {
-        CarZone frontLeft = new CarZone.Builder().setRow(CarZone.CAR_ZONE_ROW_FIRST)
-                .setColumn(CarZone.CAR_ZONE_COLUMN_LEFT).build();
-        CarZone frontRight = new CarZone.Builder().setRow(CarZone.CAR_ZONE_ROW_FIRST)
-                .setColumn(CarZone.CAR_ZONE_COLUMN_RIGHT).build();
         List<Set<CarZone>> carZones = new ArrayList<>();
-        carZones.add(Collections.singleton(frontLeft));
-        carZones.add(Collections.singleton(frontRight));
+        carZones.add(Collections.singleton(FRONT_LEFT_ZONE));
+        carZones.add(Collections.singleton(FRONT_RIGHT_ZONE));
         List<Integer> propertyIds = Collections.singletonList(HVAC_MAX_AC_ON);
         mCarPropertyProfiles.add(CarPropertyProfile.builder().setPropertyId(HVAC_MAX_AC_ON)
                 .setCarZones(carZones).setStatus(STATUS_SUCCESS).build());
@@ -879,12 +913,12 @@ public class AutomotiveCarClimateTest {
             }
         };
 
-        CarClimateFeature.Builder mCarClimateBuilder = new CarClimateFeature.Builder(
+        CarClimateFeature.Builder carClimateBuilder = new CarClimateFeature.Builder(
                 FEATURE_HVAC_MAX_AC);
-        mCarClimateBuilder.addCarZones(frontLeft);
-        mCarClimateBuilder.addCarZones(frontRight);
+        carClimateBuilder.addCarZones(FRONT_LEFT_ZONE);
+        carClimateBuilder.addCarZones(FRONT_RIGHT_ZONE);
 
-        CarClimateFeature mCarClimateFeature = new CarClimateFeature(mCarClimateBuilder);
+        CarClimateFeature mCarClimateFeature = new CarClimateFeature(carClimateBuilder);
         ClimateProfileRequest.Builder builder =
                 new ClimateProfileRequest.Builder();
         builder.addClimateProfileFeatures(mCarClimateFeature);
