@@ -75,8 +75,8 @@ apacheAnt = { module = "org.apache.ant:ant", version = "1.10.11" }
 apacheCommonsCodec = { module = "commons-codec:commons-codec", version = "1.15" }
 apacheCommonIo = { module = "commons-io:commons-io", version = "2.4" }
 assertj = { module = "org.assertj:assertj-core", version = "3.11.1" }
-asm = { module = "org.ow2.asm:asm", version = "asm"}
-asmCommons = { module = "org.ow2.asm:asm-commons", version = "asm"}
+asm = { module = "org.ow2.asm:asm", version.ref = "asm"}
+asmCommons = { module = "org.ow2.asm:asm-commons", version.ref = "asm"}
 checkerframework = { module = "org.checkerframework:checker-qual", version = "2.5.3" }
 checkmark = { module = "net.saff.checkmark:checkmark", version = "0.1.6" }
 constraintLayout = { module = "androidx.constraintlayout:constraintlayout", version = "2.0.1"}
