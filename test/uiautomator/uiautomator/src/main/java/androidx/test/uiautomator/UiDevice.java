@@ -17,6 +17,7 @@
 package androidx.test.uiautomator;
 
 import android.accessibilityservice.AccessibilityServiceInfo;
+import android.annotation.SuppressLint;
 import android.app.Instrumentation;
 import android.app.Service;
 import android.app.UiAutomation;
@@ -44,6 +45,8 @@ import android.view.accessibility.AccessibilityNodeInfo;
 import android.view.accessibility.AccessibilityWindowInfo;
 
 import androidx.annotation.DoNotInline;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
 import java.io.BufferedOutputStream;
@@ -125,13 +128,14 @@ public class UiDevice implements Searchable {
      * @param selector
      * @return UiObject object
      */
-    public UiObject findObject(UiSelector selector) {
+    @NonNull
+    public UiObject findObject(@NonNull UiSelector selector) {
         return new UiObject(this, selector);
     }
 
     /** Returns whether there is a match for the given {@code selector} criteria. */
     @Override
-    public boolean hasObject(BySelector selector) {
+    public boolean hasObject(@NonNull BySelector selector) {
         AccessibilityNodeInfo node = ByMatcher.findMatch(this, selector, getWindowRoots());
         if (node != null) {
             node.recycle();
@@ -145,14 +149,16 @@ public class UiDevice implements Searchable {
      * or null if no matching objects are found.
      */
     @Override
-    public UiObject2 findObject(BySelector selector) {
+    @SuppressLint("UnknownNullness") // Avoid unnecessary null checks from nullable testing APIs.
+    public UiObject2 findObject(@NonNull BySelector selector) {
         AccessibilityNodeInfo node = ByMatcher.findMatch(this, selector, getWindowRoots());
         return node != null ? new UiObject2(this, selector, node) : null;
     }
 
     /** Returns all objects that match the {@code selector} criteria. */
     @Override
-    public List<UiObject2> findObjects(BySelector selector) {
+    @NonNull
+    public List<UiObject2> findObjects(@NonNull BySelector selector) {
         List<UiObject2> ret = new ArrayList<UiObject2>();
         for (AccessibilityNodeInfo node : ByMatcher.findMatches(this, selector, getWindowRoots())) {
             ret.add(new UiObject2(this, selector, node));
@@ -171,7 +177,7 @@ public class UiDevice implements Searchable {
      * was not met before the {@code timeout}.
      */
     @SuppressWarnings("TypeNameShadowing")
-    public <R> R wait(SearchCondition<R> condition, long timeout) {
+    public <R> R wait(@NonNull SearchCondition<R> condition, long timeout) {
         return mWaitMixin.wait(condition, timeout);
     }
 
@@ -184,8 +190,8 @@ public class UiDevice implements Searchable {
      * @return The final result returned by the condition.
      */
     @SuppressWarnings("TypeNameShadowing")
-    public <R> R performActionAndWait(Runnable action, EventCondition<R> condition, long timeout) {
-
+    public <R> R performActionAndWait(@NonNull Runnable action,
+            @NonNull EventCondition<R> condition, long timeout) {
         AccessibilityEvent event = null;
         try {
             event = getUiAutomation().executeAndWaitForEvent(
@@ -246,6 +252,7 @@ public class UiDevice implements Searchable {
      * @since API Level 16
      */
     @Deprecated
+    @NonNull
     public static UiDevice getInstance() {
         if (sInstance == null) {
             throw new IllegalStateException("UiDevice singleton not initialized");
@@ -258,7 +265,8 @@ public class UiDevice implements Searchable {
      *
      * @return UiDevice instance
      */
-    public static UiDevice getInstance(Instrumentation instrumentation) {
+    @NonNull
+    public static UiDevice getInstance(@NonNull Instrumentation instrumentation) {
         if (sInstance == null) {
             sInstance = new UiDevice(instrumentation);
         }
@@ -273,6 +281,7 @@ public class UiDevice implements Searchable {
      *
      * @return a Point containing the display size in dp
      */
+    @NonNull
     public Point getDisplaySizeDp() {
         Tracer.trace();
         Display display = getDefaultDisplay();
@@ -296,6 +305,7 @@ public class UiDevice implements Searchable {
      * @return product name of the device
      * @since API Level 17
      */
+    @NonNull
     public String getProductName() {
         Tracer.trace();
         return Build.PRODUCT;
@@ -316,6 +326,7 @@ public class UiDevice implements Searchable {
      * @return text of the last traversal event, else return an empty string
      * @since API Level 16
      */
+    @SuppressLint("UnknownNullness") // Avoid unnecessary null checks from nullable testing APIs.
     public String getLastTraversedText() {
         Tracer.trace();
         return getQueryController().getLastTraversedText();
@@ -608,7 +619,7 @@ public class UiDevice implements Searchable {
      * @return true on success
      * @since API Level 16
      */
-    public boolean swipe(Point[] segments, int segmentSteps) {
+    public boolean swipe(@NonNull Point[] segments, int segmentSteps) {
         Tracer.trace(segments, segmentSteps);
         return getInteractionController().swipe(segments, segmentSteps);
     }
@@ -640,6 +651,7 @@ public class UiDevice implements Searchable {
      * @since API Level 16
      */
     @Deprecated
+    @SuppressLint("UnknownNullness") // Avoid unnecessary null checks from nullable testing APIs.
     public String getCurrentActivityName() {
         Tracer.trace();
         return getQueryController().getCurrentActivityName();
@@ -650,6 +662,7 @@ public class UiDevice implements Searchable {
      * @return String name of package
      * @since API Level 16
      */
+    @SuppressLint("UnknownNullness") // Avoid unnecessary null checks from nullable testing APIs.
     public String getCurrentPackageName() {
         Tracer.trace();
         return getQueryController().getCurrentPackageName();
@@ -663,7 +676,7 @@ public class UiDevice implements Searchable {
      * @param watcher {@link UiWatcher}
      * @since API Level 16
      */
-    public void registerWatcher(String name, UiWatcher watcher) {
+    public void registerWatcher(@Nullable String name, @Nullable UiWatcher watcher) {
         Tracer.trace(name, watcher);
         if (mInWatcherContext) {
             throw new IllegalStateException("Cannot register new watcher from within another");
@@ -678,7 +691,7 @@ public class UiDevice implements Searchable {
      * @param name used to register the UiWatcher
      * @since API Level 16
      */
-    public void removeWatcher(String name) {
+    public void removeWatcher(@Nullable String name) {
         Tracer.trace(name);
         if (mInWatcherContext) {
             throw new IllegalStateException("Cannot remove a watcher from within another");
@@ -737,7 +750,7 @@ public class UiDevice implements Searchable {
      * @return true if triggered else false
      * @since API Level 16
      */
-    public boolean hasWatcherTriggered(String watcherName) {
+    public boolean hasWatcherTriggered(@Nullable String watcherName) {
         Tracer.trace(watcherName);
         return mWatchersTriggers.contains(watcherName);
     }
@@ -908,7 +921,7 @@ public class UiDevice implements Searchable {
      *     {@link UiDevice#dumpWindowHierarchy(OutputStream)} instead.
      */
     @Deprecated
-    public void dumpWindowHierarchy(String fileName) {
+    public void dumpWindowHierarchy(@NonNull String fileName) {
         Tracer.trace(fileName);
 
         File dumpFile = new File(fileName);
@@ -928,7 +941,7 @@ public class UiDevice implements Searchable {
      * @param dest The file in which to store the window hierarchy information.
      * @throws IOException
      */
-    public void dumpWindowHierarchy(File dest) throws IOException {
+    public void dumpWindowHierarchy(@NonNull File dest) throws IOException {
         try (OutputStream stream = new BufferedOutputStream(new FileOutputStream(dest))) {
             dumpWindowHierarchy(stream);
         }
@@ -940,7 +953,7 @@ public class UiDevice implements Searchable {
      * @param out The output stream that the window hierarchy information is written to.
      * @throws IOException
      */
-    public void dumpWindowHierarchy(OutputStream out) throws IOException {
+    public void dumpWindowHierarchy(@NonNull OutputStream out) throws IOException {
         AccessibilityNodeInfoDumper.dumpWindowHierarchy(this, out);
     }
 
@@ -958,7 +971,7 @@ public class UiDevice implements Searchable {
      *         window does not have the specified package name
      * @since API Level 16
      */
-    public boolean waitForWindowUpdate(final String packageName, long timeout) {
+    public boolean waitForWindowUpdate(@Nullable String packageName, long timeout) {
         Tracer.trace(packageName, timeout);
         if (packageName != null) {
             if (!packageName.equals(getCurrentPackageName())) {
@@ -1001,7 +1014,7 @@ public class UiDevice implements Searchable {
      * @return true if screen shot is created successfully, false otherwise
      * @since API Level 17
      */
-    public boolean takeScreenshot(File storePath) {
+    public boolean takeScreenshot(@NonNull File storePath) {
         Tracer.trace(storePath);
         return takeScreenshot(storePath, 1.0f, 90);
     }
@@ -1017,7 +1030,7 @@ public class UiDevice implements Searchable {
      * @return true if screen shot is created successfully, false otherwise
      * @since API Level 17
      */
-    public boolean takeScreenshot(File storePath, float scale, int quality) {
+    public boolean takeScreenshot(@NonNull File storePath, float scale, int quality) {
         Tracer.trace(storePath, scale, quality);
         Bitmap screenshot = getUiAutomation().takeScreenshot();
         if (screenshot == null) {
@@ -1043,6 +1056,7 @@ public class UiDevice implements Searchable {
      *
      * @return package name of the default launcher
      */
+    @SuppressLint("UnknownNullness") // Avoid unnecessary null checks from nullable testing APIs.
     public String getLauncherPackageName() {
         Intent intent = new Intent(Intent.ACTION_MAIN);
         intent.addCategory(Intent.CATEGORY_HOME);
@@ -1064,7 +1078,8 @@ public class UiDevice implements Searchable {
      * @hide
      */
     @RequiresApi(21)
-    public String executeShellCommand(String cmd) throws IOException {
+    @NonNull
+    public String executeShellCommand(@NonNull String cmd) throws IOException {
         try (ParcelFileDescriptor pfd = Api21Impl.executeShellCommand(getUiAutomation(), cmd);
              FileInputStream fis = new ParcelFileDescriptor.AutoCloseInputStream(pfd)) {
             byte[] buf = new byte[512];
