@@ -37,22 +37,4 @@
             file="src/main/java/androidx/test/uiautomator/UiAutomatorInstrumentationTestRunner.java"/>
     </issue>
 
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public void legacySetText(String text) throws UiObjectNotFoundException {"
-        errorLine2="                              ~~~~~~">
-        <location
-            file="src/main/java/androidx/test/uiautomator/UiObject.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public void legacySetText(String text) {"
-        errorLine2="                              ~~~~~~">
-        <location
-            file="src/main/java/androidx/test/uiautomator/UiObject2.java"/>
-    </issue>
-
 </issues>
