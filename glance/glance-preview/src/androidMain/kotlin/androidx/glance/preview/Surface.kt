@@ -21,8 +21,10 @@ import androidx.annotation.StringDef
 
 /**
  * The list of glance surfaces that have preview available. The list will grow as more glance
- * surfaces will are added and allow the preview functionality.
+ * surfaces are added and allow the preview functionality. Items should be used as values for
+ * surface parameter in [GlancePreview] annotation.
  */
+@ExperimentalGlancePreviewApi
 object Surfaces {
     const val APP_WIDGET = "AppWidget"
     const val TILE = "Tile"
@@ -30,8 +32,11 @@ object Surfaces {
 
 /**
  * The annotation that ensures that the variable value is strictly a recognized glance surface.
+ *
+ * @see GlancePreview annotation
  */
 @Retention(AnnotationRetention.SOURCE)
+@OptIn(ExperimentalGlancePreviewApi::class)
 @StringDef(value = [Surfaces.APP_WIDGET, Surfaces.TILE])
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 annotation class Surface
