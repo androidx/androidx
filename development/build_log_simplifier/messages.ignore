@@ -476,4 +476,5 @@ WARNING: Please consider reporting this to the maintainers of androidx\.compose\
 # > Task :buildSrc-tests:test
 WARNING: Illegal reflective access using Lookup on org\.gradle\.internal\.classloader\.ClassLoaderUtils\$AbstractClassLoaderLookuper .* to class java\.lang\.ClassLoader
 WARNING: Please consider reporting this to the maintainers of org\.gradle\.internal\.classloader\.ClassLoaderUtils\$AbstractClassLoaderLookuper
-
+# AGP warning about API usage we have no control over
+Values of variant API AnnotationProcessorOptions\.arguments are queried and may return non final values, this is unsupported
