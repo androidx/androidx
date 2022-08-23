@@ -1,0 +1,30 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="test" type="GradleRunConfiguration" factoryName="Gradle" folderName="desktop">
+    <ExternalSystemSettings>
+      <option name="executionName" />
+      <option name="externalProjectPath" value="$PROJECT_DIR$" />
+      <option name="externalSystemIdString" value="GRADLE" />
+      <option name="scriptParameters" value="" />
+      <option name="taskDescriptions">
+        <list />
+      </option>
+      <option name="taskNames">
+        <list>
+          <option value=":compose:ui:ui:cleanDesktopTest" />
+          <option value=":compose:ui:ui:desktopTest" />
+          <option value=":compose:foundation:foundation:cleanDesktopTest" />
+          <option value=":compose:foundation:foundation:desktopTest" />
+          <option value=":compose:material:material:cleanDesktopTest" />
+          <option value=":compose:material:material:desktopTest" />
+          <option value=":compose:ui:ui-graphics:cleanDesktopTest" />
+          <option value=":compose:ui:ui-graphics:desktopTest" />
+        </list>
+      </option>
+      <option name="vmOptions" />
+    </ExternalSystemSettings>
+    <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
+    <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
+    <DebugAllEnabled>false</DebugAllEnabled>
+    <method v="2" />
+  </configuration>
+</component>

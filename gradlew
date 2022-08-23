@@ -118,13 +118,13 @@ else
     plat="linux"
 fi
 
-# Tests for lint checks default to using sdk defined by this variable. This removes a lot of
-# setup from each lint module.
-export ANDROID_HOME="$APP_HOME/../../prebuilts/fullsdk-$plat"
-# override JAVA_HOME, because CI machines have it and it points to very old JDK
-export JAVA_HOME="$APP_HOME/../../prebuilts/jdk/jdk11/$plat-$platform_suffix"
-export JAVA_TOOLS_JAR="$APP_HOME/../../prebuilts/jdk/jdk8/$plat-x86/lib/tools.jar"
+# Compose/jb-main specific configuration
+export ANDROID_HOME="$APP_HOME/jbdeps/android-sdk/$plat"
+export JAVA_TOOLS_JAR="$APP_HOME/jbdeps/jdk8/tools.jar"
 export STUDIO_GRADLE_JDK=$JAVA_HOME
+export ALLOW_PUBLIC_REPOS=1
+export ANDROIDX_PROJECTS=COMPOSE
+export COMPOSE_CUSTOM_GROUP=org.jetbrains.compose
 
 # Warn developers if they try to build top level project without the full checkout
 [ ! -d "$JAVA_HOME" ] && echo "You likely checked out the standalone AndroidX git project.
