@@ -40,6 +40,10 @@ dependencies {
         // the 'MAIN' project-set.
         // update syntax when b/239979823 is fixed.
         implementation("androidx.lifecycle:lifecycle-livedata:{androidx.LibraryVersions.LIFECYCLE}")
+        // this syntax is a temporary workout to allow project dependency on cross-project-set
+        // i.e. COMPOSE + MAIN project sets
+        // update syntax when b/239979823 is fixed
+        implementation("androidx.lifecycle:lifecycle-livedata-core-ktx:{androidx.LibraryVersions.LIFECYCLE}")
     }
 }
 
