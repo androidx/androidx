@@ -517,4 +517,13 @@ interface BooksDao {
 
     @Insert
     fun addPublisherReturnArray(publishers: List<Publisher>): Array<Long>
+
+    @Upsert
+    suspend fun upsertBookSuspend(books: Book)
+
+    @Upsert
+    suspend fun upsertBookSuspendReturnId(book: Book): Long
+
+    @Upsert
+    suspend fun upsertBooksSuspendReturnIds(books: List<Book>): List<Long>
 }
