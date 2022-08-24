@@ -52,6 +52,7 @@ dependencies {
     androidTestImplementation(libs.testRules)
 
     constraints {
+        implementation(project(":lifecycle:lifecycle-livedata-core"))
         implementation(project(":lifecycle:lifecycle-viewmodel"))
     }
 }
