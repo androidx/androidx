@@ -16,6 +16,7 @@
 
 package androidx.glance.template
 
+import androidx.annotation.IntRange
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.glance.ImageProvider
@@ -143,19 +144,26 @@ class TemplateImageButton(
 
 /**
  * A block of text with up to three different [TextType] of text lines that are displayed by the
- * text index order (for example, text1 is displayed first). The block also has a priority number
- * relative to other blocks such as an [ImageBlock]. Lower numbered block has higher priority to be
- * displayed first.
+ * text index order (for example, text1 is displayed first) by design. The block also has a priority
+ * number relative to other blocks such as an [ImageBlock].
+ *
+ * Priority is a number assigned to blocks to show the semantic importance of each block in a
+ * sequence. Different templates will interpret priority in different ways. Some may treat this
+ * as an ordering, some may only use it to define which elements are most important when showing
+ * smaller layouts. Priority number is zero based with smaller numbers being higher priority.
+ * If two blocks has the same priority number, the default order (e.g. text before image)
+ * is used. Currently only [TextBlock] and [ImageBlock] comparison are supported in the design.
  *
  * @param text1 The text displayed first within the block.
  * @param text2 The text displayed second within the block.
  * @param text3 The text displayed third  within the block.
- * @param priority The display priority number relative to other blocks. Default to the highest: 0.
+ * @param priority The display priority number relative to other blocks.
  */
 class TextBlock(
     val text1: TemplateText,
     val text2: TemplateText? = null,
     val text3: TemplateText? = null,
+    @IntRange(from = 0)
     val priority: Int = 0,
 ) {
     override fun hashCode(): Int {
@@ -189,12 +197,12 @@ class TextBlock(
  * @param aspectRatio The preferred aspect ratio of the images. Default to [AspectRatio.Ratio1x1].
  * @param size The preferred size type of the images. Default to [ImageSize.Small].
  * @param priority The display priority number relative to other blocks such as a [TextBlock].
- * Default to the highest priority number 0.
  */
 class ImageBlock(
     val images: List<TemplateImageWithDescription> = listOf(),
     val aspectRatio: AspectRatio = AspectRatio.Ratio1x1,
     val size: ImageSize = ImageSize.Small,
+    @IntRange(from = 0)
     val priority: Int = 0,
 ) {
     override fun hashCode(): Int {
@@ -283,7 +291,9 @@ class HeaderBlock(
 }
 
 /**
- * The aspect ratio of an image.
+ * The aspect ratio type of an image.
+ *
+ * Note that images not in the selected ratio are cropped for display by design.
  */
 @JvmInline
 value class AspectRatio private constructor(private val value: Int) {
@@ -306,23 +316,23 @@ value class AspectRatio private constructor(private val value: Int) {
 }
 
 /**
- * The relative image size as a hint.
+ * The image size describes image scale category in sizing. Actual size is implementation dependent.
  */
 @JvmInline
 value class ImageSize private constructor(private val value: Int) {
     companion object {
         /**
-         * Relative small sized image.
+         * Small sized image.
          */
         val Small: ImageSize = ImageSize(0)
 
         /**
-         * Relative medium sized image.
+         * Medium sized image.
          */
         val Medium: ImageSize = ImageSize(1)
 
         /**
-         * Relative large sized image.
+         * Large sized image.
          */
         val Large: ImageSize = ImageSize(2)
     }

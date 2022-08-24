@@ -496,7 +496,7 @@ package androidx.glance.template {
   }
 
   public final class ImageBlock {
-    ctor public ImageBlock(optional java.util.List<androidx.glance.template.TemplateImageWithDescription> images, optional int aspectRatio, optional int size, optional int priority);
+    ctor public ImageBlock(optional java.util.List<androidx.glance.template.TemplateImageWithDescription> images, optional int aspectRatio, optional int size, optional @IntRange(from=0L) int priority);
     method public int getAspectRatio();
     method public java.util.List<androidx.glance.template.TemplateImageWithDescription> getImages();
     method public int getPriority();
@@ -629,7 +629,7 @@ package androidx.glance.template {
   }
 
   public final class TextBlock {
-    ctor public TextBlock(androidx.glance.template.TemplateText text1, optional androidx.glance.template.TemplateText? text2, optional androidx.glance.template.TemplateText? text3, optional int priority);
+    ctor public TextBlock(androidx.glance.template.TemplateText text1, optional androidx.glance.template.TemplateText? text2, optional androidx.glance.template.TemplateText? text3, optional @IntRange(from=0L) int priority);
     method public int getPriority();
     method public androidx.glance.template.TemplateText getText1();
     method public androidx.glance.template.TemplateText? getText2();
