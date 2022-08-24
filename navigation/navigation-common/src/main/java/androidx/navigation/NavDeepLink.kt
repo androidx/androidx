@@ -47,14 +47,21 @@ public class NavDeepLink internal constructor(
      */
     public val mimeType: String?
 ) {
-    private val arguments = mutableListOf<String>()
+    private val pathArgs = mutableListOf<String>()
     private val paramArgMap = mutableMapOf<String, ParamQuery>()
+    private val fragArgs = mutableListOf<String>()
+
     private var patternFinalRegex: String? = null
     private val pattern by lazy {
         patternFinalRegex?.let { Pattern.compile(it, Pattern.CASE_INSENSITIVE) }
     }
     private var isParameterizedQuery = false
     private var isSingleQueryParamValueOnly = false
+
+    private var fragmentFinalRegex: String? = null
+    private val fragmentPattern by lazy {
+        fragmentFinalRegex?.let { Pattern.compile(it, Pattern.CASE_INSENSITIVE) }
+    }
 
     private var mimeTypeFinalRegex: String? = null
     private val mimeTypePattern by lazy {
@@ -63,7 +70,7 @@ public class NavDeepLink internal constructor(
 
     /** Arguments present in the deep link, including both path and query arguments. */
     internal val argumentsNames: List<String>
-        get() = arguments + paramArgMap.values.flatMap { it.arguments }
+        get() = pathArgs + paramArgMap.values.flatMap { it.arguments } + fragArgs
 
     public var isExactDeepLink: Boolean = false
         /** @suppress */
@@ -75,34 +82,27 @@ public class NavDeepLink internal constructor(
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public constructor(uri: String) : this(uri, null, null)
 
-    private fun buildPathRegex(
+    private fun buildRegex(
         uri: String,
+        args: MutableList<String>,
         uriRegex: StringBuilder,
-        fillInPattern: Pattern
-    ): Boolean {
-        val matcher = fillInPattern.matcher(uri)
+    ) {
+        val matcher = FILL_IN_PATTERN.matcher(uri)
         var appendPos = 0
-        // Track whether this is an exact deep link
-        var exactDeepLink = !uri.contains(".*")
         while (matcher.find()) {
             val argName = matcher.group(1) as String
-            arguments.add(argName)
+            args.add(argName)
             // Use Pattern.quote() to treat the input string as a literal
-            uriRegex.append(Pattern.quote(uri.substring(appendPos, matcher.start())))
+            if (matcher.start() > appendPos) {
+                uriRegex.append(Pattern.quote(uri.substring(appendPos, matcher.start())))
+            }
             uriRegex.append("([^/]+?)")
             appendPos = matcher.end()
-            exactDeepLink = false
         }
         if (appendPos < uri.length) {
             // Use Pattern.quote() to treat the input string as a literal
             uriRegex.append(Pattern.quote(uri.substring(appendPos)))
         }
-        // Match either the end of string if all params are optional or match the
-        // question mark (or pound symbol) and 0 or more characters after it
-        // We do not use '.*' here because the finalregex would replace it with a quoted
-        // version below.
-        uriRegex.append("($|(\\?(.)*)|(\\#(.)*))")
-        return exactDeepLink
     }
 
     internal fun matches(uri: Uri): Boolean {
@@ -172,6 +172,8 @@ public class NavDeepLink internal constructor(
         if (isParameterizedQuery && !getMatchingQueryArguments(deepLink, bundle, arguments)) {
             return null
         }
+        // no match on optional fragment should not prevent a link from matching otherwise
+        getMatchingUriFragment(deepLink.fragment, bundle, arguments)
 
         // Check that all required arguments are present in bundle
         for ((argName, argument) in arguments.entries) {
@@ -183,12 +185,36 @@ public class NavDeepLink internal constructor(
         return bundle
     }
 
+    private fun getMatchingUriFragment(
+        fragment: String?,
+        bundle: Bundle,
+        arguments: Map<String, NavArgument?>
+    ) {
+        // Base condition of a matching fragment is a complete match on regex pattern. If a
+        // required fragment arg is present while regex does not match, this will be caught later
+        // on as a non-match when we check for presence of required args in the bundle.
+        val matcher = fragmentPattern?.matcher(fragment.toString()) ?: return
+        if (!matcher.matches()) return
+
+        this.fragArgs.mapIndexed { index, argumentName ->
+            val value = Uri.decode(matcher.group(index + 1))
+            val argument = arguments[argumentName]
+            try {
+                if (parseArgument(bundle, argumentName, value, argument)) {
+                    return
+                }
+            } catch (e: IllegalArgumentException) {
+                return
+            }
+        }
+    }
+
     private fun getMatchingPathArguments(
         matcher: Matcher,
         bundle: Bundle,
         arguments: Map<String, NavArgument?>
     ): Boolean {
-        this.arguments.mapIndexed { index, argumentName ->
+        this.pathArgs.mapIndexed { index, argumentName ->
             val value = Uri.decode(matcher.group(index + 1))
             val argument = arguments[argumentName]
             try {
@@ -484,6 +510,7 @@ public class NavDeepLink internal constructor(
 
     private companion object {
         private val SCHEME_PATTERN = Pattern.compile("^[a-zA-Z]+[+\\w\\-.]*:")
+        private val FILL_IN_PATTERN = Pattern.compile("\\{(.+?)\\}")
     }
 
     private fun parsePath() {
@@ -494,17 +521,15 @@ public class NavDeepLink internal constructor(
         if (!SCHEME_PATTERN.matcher(uriPattern).find()) {
             uriRegex.append("http[s]?://")
         }
-        @Suppress("RegExpRedundantEscape")
-        val fillInPattern = Pattern.compile("\\{(.+?)\\}")
-        // extra beginning of uriPattern until it hits either a query(?), a framgment(#), or
+        // extract beginning of uriPattern until it hits either a query(?), a framgment(#), or
         // end of uriPattern
         var matcher = Pattern.compile("(\\?|\\#|$)").matcher(uriPattern)
         matcher.find().let {
-            isExactDeepLink = buildPathRegex(
-                uriPattern.substring(0, matcher.start()),
-                uriRegex,
-                fillInPattern
-            )
+            buildRegex(uriPattern.substring(0, matcher.start()), pathArgs, uriRegex)
+            isExactDeepLink = !uriRegex.contains(".*") && !uriRegex.contains("([^/]+?)")
+            // Match either the end of string if all params are optional or match the
+            // question mark (or pound symbol) and 0 or more characters after it
+            uriRegex.append("($|(\\?(.)*)|(\\#(.)*))")
         }
         // we need to specifically escape any .* instances to ensure
         // they are still treated as wildcards in our final regex
@@ -516,7 +541,6 @@ public class NavDeepLink internal constructor(
         val uri = Uri.parse(uriPattern)
 
         isParameterizedQuery = true
-        val fillInPattern = Pattern.compile("\\{(.+?)\\}")
 
         for (paramName in uri.queryParameterNames) {
             val argRegex = StringBuilder()
@@ -529,7 +553,7 @@ public class NavDeepLink internal constructor(
             }
             val queryParam = queryParams.firstOrNull()
                 ?: paramName.apply { isSingleQueryParamValueOnly = true }
-            val matcher = fillInPattern.matcher(queryParam)
+            val matcher = FILL_IN_PATTERN.matcher(queryParam)
             var appendPos = 0
             val param = ParamQuery()
             // Build the regex for each query param
@@ -558,6 +582,15 @@ public class NavDeepLink internal constructor(
         }
     }
 
+    private fun parseFragment() {
+        if (uriPattern == null || Uri.parse(uriPattern).fragment == null) return
+
+        val fragment = Uri.parse(uriPattern).fragment
+        val fragRegex = StringBuilder()
+        buildRegex(fragment!!, fragArgs, fragRegex)
+        fragmentFinalRegex = fragRegex.toString()
+    }
+
     private fun parseMime() {
         if (mimeType == null) return
 
@@ -583,6 +616,7 @@ public class NavDeepLink internal constructor(
     init {
         parsePath()
         parseQuery()
+        parseFragment()
         parseMime()
     }
 }
