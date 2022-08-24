@@ -33,6 +33,7 @@ package androidx.javascriptengine {
     method public androidx.javascriptengine.JavaScriptIsolate createIsolate();
     method public androidx.javascriptengine.JavaScriptIsolate createIsolate(androidx.javascriptengine.IsolateStartupParameters);
     method public boolean isFeatureSupported(String);
+    method public static boolean isSupported();
     field public static final String JS_FEATURE_ISOLATE_MAX_HEAP_SIZE = "JS_FEATURE_ISOLATE_MAX_HEAP_SIZE";
     field public static final String JS_FEATURE_ISOLATE_TERMINATION = "JS_FEATURE_ISOLATE_TERMINATION";
     field public static final String JS_FEATURE_PROMISE_RETURN = "JS_FEATURE_PROMISE_RETURN";
@@ -42,6 +43,10 @@ package androidx.javascriptengine {
 
   public final class SandboxDeadException extends androidx.javascriptengine.JavaScriptException {
     ctor public SandboxDeadException();
+  }
+
+  public final class SandboxUnsupportedException extends java.lang.RuntimeException {
+    ctor public SandboxUnsupportedException(String);
   }
 
 }
