@@ -27,6 +27,7 @@ import androidx.health.services.client.data.DataType.Companion.FLOORS_DAILY
 import androidx.health.services.client.data.DataType.Companion.STEPS_DAILY
 import androidx.health.services.client.data.DataType.Companion.FORMAT_BYTE_ARRAY
 import androidx.health.services.client.data.DataType.Companion.LOCATION
+import androidx.health.services.client.data.DataType.Companion.SKIN_TEMPERATURE
 import androidx.health.services.client.data.DataType.Companion.STEPS
 import androidx.health.services.client.data.DataType.Companion.SWIMMING_LAP_COUNT
 import androidx.health.services.client.data.DataType.TimeType.Companion.UNKNOWN
@@ -187,6 +188,7 @@ internal class DataTypeTest {
             remove(DISTANCE_DAILY)
             remove(FLOORS_DAILY)
             remove(STEPS_DAILY)
+            remove(SKIN_TEMPERATURE)
         }.map { it.name }
 
         assertThat(aggregateNames).containsExactlyElementsIn(deltaNames)

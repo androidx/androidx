@@ -208,6 +208,7 @@ package androidx.health.services.client.data {
     field public static final androidx.health.services.client.data.AggregateDataType<java.lang.Long,androidx.health.services.client.data.CumulativeDataPoint<java.lang.Long>> RESTING_EXERCISE_DURATION_TOTAL;
     field public static final androidx.health.services.client.data.DeltaDataType<java.lang.Long,androidx.health.services.client.data.IntervalDataPoint<java.lang.Long>> RUNNING_STEPS;
     field public static final androidx.health.services.client.data.AggregateDataType<java.lang.Long,androidx.health.services.client.data.CumulativeDataPoint<java.lang.Long>> RUNNING_STEPS_TOTAL;
+    field public static final androidx.health.services.client.data.DeltaDataType<java.lang.Double,androidx.health.services.client.data.SampleDataPoint<java.lang.Double>> SKIN_TEMPERATURE;
     field public static final androidx.health.services.client.data.DeltaDataType<java.lang.Double,androidx.health.services.client.data.SampleDataPoint<java.lang.Double>> SPEED;
     field public static final androidx.health.services.client.data.AggregateDataType<java.lang.Double,androidx.health.services.client.data.StatisticalDataPoint<java.lang.Double>> SPEED_STATS;
     field public static final androidx.health.services.client.data.DeltaDataType<java.lang.Long,androidx.health.services.client.data.IntervalDataPoint<java.lang.Long>> STEPS;
