@@ -50,6 +50,7 @@ import com.intellij.psi.PsiModifierListOwner
 import com.intellij.psi.PsiSuperExpression
 import com.intellij.psi.PsiType
 import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.psi.util.PsiTypesUtil
 import kotlin.math.min
 import org.jetbrains.uast.UCallExpression
 import org.jetbrains.uast.UClass
@@ -205,8 +206,6 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
             if (api <= minSdk) {
                 return
             }
-
-            containingClass.qualifiedName
 
             val receiver = if (call.isMethodCall()) {
                 call.receiver
@@ -496,7 +495,8 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
             call: UCallExpression,
             api: Int
         ): LintFix? {
-            if (isKotlin(call.sourcePsi)) {
+            val callPsi = call.sourcePsi ?: return null
+            if (isKotlin(callPsi)) {
                 // We only support Java right now.
                 return null
             }
@@ -505,7 +505,9 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
             val callContainingClass = call.getContainingUClass() ?: return null
 
             val (wrapperMethodName, methodForInsertion) = generateWrapperMethod(
-                method
+                method,
+                // Find what type the result of this call is used as
+                PsiTypesUtil.getExpectedTypeByParent(callPsi)
             ) ?: return null
 
             val (wrapperClassName, insertionPoint, insertionSource) = generateInsertionSource(
@@ -681,7 +683,10 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
          * @return Pair containing (1) the name of the static wrapper method and (2) generated
          * source code for a static wrapper around the platform method
          */
-        private fun generateWrapperMethod(method: PsiMethod): Pair<String, String>? {
+        private fun generateWrapperMethod(
+            method: PsiMethod,
+            expectedReturnType: PsiType?
+        ): Pair<String, String>? {
             val methodName = method.name
             val evaluator = context.evaluator
             val isStatic = evaluator.isStatic(method)
@@ -712,22 +717,34 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
                 "${param.name}"
             }
 
-            val wrapperMethodName: String
-            val returnTypeStr: String
-            val returnStmtStr: String
+            var wrapperMethodName: String
+            var returnTypeStr: String
             val receiverStr: String
 
             if (isConstructor) {
                 wrapperMethodName = "create$methodName"
                 returnTypeStr = hostType
-                returnStmtStr = "return "
                 receiverStr = "new "
             } else {
                 wrapperMethodName = methodName
-                returnTypeStr = method.returnType?.canonicalText ?: "void"
-                returnStmtStr = if ("void" == returnTypeStr) "" else "return "
+                // PsiMethod.returnType is only supposed to be null if the method is a constructor,
+                // so something has gone wrong if it's null here.
+                returnTypeStr = method.returnType?.canonicalText ?: return null
                 receiverStr = if (isStatic) "$hostType." else "$hostVar."
             }
+
+            // If the parent is expecting a different return type, use that type.
+            // This is to prevent a CVF on an implicit cast from a type that isn't available at the
+            // caller's API level to a type that is, which becomes a cast from Object.
+            // The real return type should be the same or a subtype of what the parent is expecting.
+            // Also changes the method name to avoid conflicts if the same method with a different
+            // expected return type is needed elsewhere.
+            if (expectedReturnType != null && expectedReturnType.canonicalText != returnTypeStr) {
+                returnTypeStr = expectedReturnType.canonicalText
+                wrapperMethodName += "Returns${expectedReturnType.presentableText}"
+            }
+
+            val returnStmtStr = if ("void" == returnTypeStr) "" else "return "
 
             return Pair(
                 wrapperMethodName,
