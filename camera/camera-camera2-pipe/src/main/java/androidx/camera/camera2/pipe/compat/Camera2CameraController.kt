@@ -20,6 +20,7 @@ import android.view.Surface
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraController
 import androidx.camera.camera2.pipe.CameraGraph
+import androidx.camera.camera2.pipe.CameraSurfaceManager
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.config.Camera2ControllerScope
 import androidx.camera.camera2.pipe.graph.GraphListener
@@ -44,7 +45,8 @@ internal class Camera2CameraController @Inject constructor(
     private val graphListener: GraphListener,
     private val captureSessionFactory: CaptureSessionFactory,
     private val requestProcessorFactory: Camera2RequestProcessorFactory,
-    private val virtualCameraManager: VirtualCameraManager
+    private val virtualCameraManager: VirtualCameraManager,
+    private val cameraSurfaceManager: CameraSurfaceManager
 ) : CameraController {
     private var currentCamera: VirtualCamera? = null
     private var currentSession: VirtualSessionState? = null
@@ -64,6 +66,7 @@ internal class Camera2CameraController @Inject constructor(
                 graphListener,
                 captureSessionFactory,
                 requestProcessorFactory,
+                cameraSurfaceManager,
                 scope
             )
             currentSession = session

@@ -20,10 +20,10 @@ import android.view.Surface
 import androidx.annotation.GuardedBy
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraController
+import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.config.CameraGraphScope
 import androidx.camera.camera2.pipe.core.Log
-import androidx.camera.camera2.pipe.CameraGraph
 import javax.inject.Inject
 
 /**

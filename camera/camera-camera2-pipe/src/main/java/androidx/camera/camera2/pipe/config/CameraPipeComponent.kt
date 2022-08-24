@@ -25,14 +25,15 @@ import androidx.camera.camera2.pipe.CameraBackend
 import androidx.camera.camera2.pipe.CameraBackendFactory
 import androidx.camera.camera2.pipe.CameraBackendId
 import androidx.camera.camera2.pipe.CameraBackends
-import androidx.camera.camera2.pipe.internal.CameraBackendsImpl
 import androidx.camera.camera2.pipe.CameraContext
 import androidx.camera.camera2.pipe.CameraDevices
 import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.CameraPipe.CameraMetadataConfig
+import androidx.camera.camera2.pipe.CameraSurfaceManager
 import androidx.camera.camera2.pipe.compat.Camera2CameraDevices
 import androidx.camera.camera2.pipe.core.Debug
 import androidx.camera.camera2.pipe.core.Threads
+import androidx.camera.camera2.pipe.internal.CameraBackendsImpl
 import dagger.Binds
 import dagger.Component
 import dagger.Module
@@ -56,6 +57,7 @@ internal annotation class CameraPipeCameraBackend
 internal interface CameraPipeComponent {
     fun cameraGraphComponentBuilder(): CameraGraphComponent.Builder
     fun cameras(): CameraDevices
+    fun cameraSurfaceManager(): CameraSurfaceManager
 }
 
 @Module(
