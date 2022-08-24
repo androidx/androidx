@@ -16,7 +16,7 @@
 
 package androidx.privacysandbox.tools.apicompiler.util
 
-import androidx.privacysandbox.tools.apicompiler.model.ParsedApi
+import androidx.privacysandbox.tools.core.ParsedApi
 import androidx.privacysandbox.tools.apicompiler.parser.ApiParser
 import androidx.room.compiler.processing.util.DiagnosticMessage
 import androidx.room.compiler.processing.util.Source
