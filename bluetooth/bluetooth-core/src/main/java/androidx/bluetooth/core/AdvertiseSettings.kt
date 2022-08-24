@@ -15,19 +15,66 @@
  */
 
 package androidx.bluetooth.core
-import android.bluetooth.le.AdvertiseSettings as FwkAdvertiseSettings
 
-// TODO: Add constructor that removes Builder pattern
-// TODO: Implement Bundleable instead of Parcelable
-// TODO: Add all functions
+import android.bluetooth.le.AdvertiseSettings as FwkAdvertiseSettings
+import android.os.Bundle
+import androidx.bluetooth.core.utils.Bundleable
+import androidx.bluetooth.core.utils.Utils
+
 /**
  * The {@link AdvertiseSettings} provide a way to adjust advertising preferences for each
  * Bluetooth LE advertisement instance.
  * @hide
  */
-class AdvertiseSettings internal constructor() {
+class AdvertiseSettings internal constructor(private val fwkInstance: FwkAdvertiseSettings) :
+    Bundleable {
 
     companion object {
+        internal const val FIELD_FWK_ADVERTISE_SETTINGS = 0
+
+        val CREATOR: Bundleable.Creator<AdvertiseSettings> =
+            object : Bundleable.Creator<AdvertiseSettings> {
+                override fun fromBundle(bundle: Bundle): AdvertiseSettings {
+                    val fwkAdvertiseSettings =
+                        Utils.getParcelableFromBundle(
+                            bundle,
+                            keyForField(FIELD_FWK_ADVERTISE_SETTINGS),
+                            android.bluetooth.le.AdvertiseSettings::class.java
+                        ) ?: throw IllegalArgumentException(
+                            "Bundle doesn't include a framework advertise settings"
+                        )
+                    return AdvertiseSettings(fwkAdvertiseSettings)
+                }
+            }
+
+        internal fun keyForField(field: Int): String {
+            return field.toString(Character.MAX_RADIX)
+        }
+
+        internal fun buildFwkAdvertiseSettings(
+            advertiseMode: Int? = null,
+            advertiseTxPowerLevel: Int? = null,
+            advertiseConnectable: Boolean = true,
+            advertiseTimeoutMillis: Int? = null,
+        ): FwkAdvertiseSettings {
+            val builder = FwkAdvertiseSettings.Builder()
+                .setConnectable(advertiseConnectable)
+
+            if (advertiseMode != null) {
+                builder.setAdvertiseMode(advertiseMode)
+            }
+
+            if (advertiseTxPowerLevel != null) {
+                builder.setTxPowerLevel(advertiseTxPowerLevel)
+            }
+
+            if (advertiseTimeoutMillis != null) {
+                builder.setTimeout(advertiseTimeoutMillis)
+            }
+
+            return builder.build()
+        }
+
         /**
         * Perform Bluetooth LE advertising in low power mode. This is the default and preferred
         * advertising mode as it consumes the least power.
@@ -72,5 +119,36 @@ class AdvertiseSettings internal constructor() {
          * The maximum limited advertisement duration as specified by the Bluetooth SIG
          */
         const val LIMITED_ADVERTISING_MAX_MILLIS = 180_000
+    }
+
+    val advertiseMode: Int
+        /** Returns the advertise mode. */
+        get() = fwkInstance.mode
+    val advertiseTxPowerLevel: Int
+        /** Returns the TX power level for advertising. */
+        get() = fwkInstance.txPowerLevel
+    val advertiseConnectable: Boolean
+        /** Returns whether the advertisement will indicate connectable. */
+        get() = fwkInstance.isConnectable
+    val advertiseTimeoutMillis: Int
+        /** Returns the advertising time limit in milliseconds. */
+        get() = fwkInstance.timeout
+
+    constructor(
+        advertiseMode: Int? = null,
+        advertiseTxPowerLevel: Int? = null,
+        advertiseConnectable: Boolean = true,
+        advertiseTimeoutMillis: Int? = null
+    ) : this(buildFwkAdvertiseSettings(
+        advertiseMode,
+        advertiseTxPowerLevel,
+        advertiseConnectable,
+        advertiseTimeoutMillis
+    ))
+
+    override fun toBundle(): Bundle {
+        val bundle = Bundle()
+        bundle.putParcelable(keyForField(FIELD_FWK_ADVERTISE_SETTINGS), fwkInstance)
+        return bundle
     }
 }
