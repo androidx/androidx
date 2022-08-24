@@ -181,6 +181,7 @@ public final class Row implements Item {
      *
      * @see Builder#setNumericDecoration(int)
      */
+    @RequiresCarApi(6)
     public int getNumericDecoration() {
         return mDecoration;
     }
@@ -343,7 +344,7 @@ public final class Row implements Item {
         @Nullable
         CarIcon mImage;
         final List<Action> mActions = new ArrayList<>();
-        int mDecoration;
+        int mDecoration = Row.NO_DECORATION;
         @Nullable
         Toggle mToggle;
         @Nullable
@@ -556,6 +557,7 @@ public final class Row implements Item {
          * @throws IllegalArgumentException if {@code decoration} is invalid
          */
         @NonNull
+        @RequiresCarApi(6)
         public Builder setNumericDecoration(int decoration) {
             if (decoration < 0 && decoration != NO_DECORATION) {
                 throw new IllegalArgumentException(
