@@ -74,7 +74,8 @@ import kotlinx.coroutines.launch
  */
 
 @OptIn(ExperimentalFoundationApi::class)
-fun Modifier.marioScrollable(
+@ExperimentalTvFoundationApi
+fun Modifier.scrollableWithPivot(
     state: ScrollableState,
     orientation: Orientation,
     pivotOffsets: PivotOffsets,
@@ -82,7 +83,7 @@ fun Modifier.marioScrollable(
     reverseDirection: Boolean = false
 ): Modifier = composed(
     inspectorInfo = debugInspectorInfo {
-        name = "marioScrollable"
+        name = "scrollableWithPivot"
         properties["orientation"] = orientation
         properties["state"] = state
         properties["enabled"] = enabled
@@ -312,8 +313,8 @@ private class ContentInViewModifier(
 
 // TODO: b/203141462 - make this public and move it to ui
 /**
- * Whether this modifier is inside a scrollable container, provided by [Modifier.marioScrollable].
- * Defaults to false.
+ * Whether this modifier is inside a scrollable container, provided by
+ * [Modifier.scrollableWithPivot]. Defaults to false.
  */
 internal val ModifierLocalScrollableContainer = modifierLocalOf { false }
 

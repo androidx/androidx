@@ -1,16 +1,15 @@
 // Signature format: 4.0
 package androidx.tv.foundation {
 
-  public final class MarioScrollableKt {
-    method public static androidx.compose.ui.Modifier marioScrollable(androidx.compose.ui.Modifier, androidx.compose.foundation.gestures.ScrollableState state, androidx.compose.foundation.gestures.Orientation orientation, androidx.tv.foundation.PivotOffsets pivotOffsets, optional boolean enabled, optional boolean reverseDirection);
-  }
-
   public final class PivotOffsets {
     ctor public PivotOffsets(optional float parentFraction, optional float childFraction);
     method public float getChildFraction();
     method public float getParentFraction();
     property public final float childFraction;
     property public final float parentFraction;
+  }
+
+  public final class ScrollableWithPivotKt {
   }
 
 }

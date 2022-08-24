@@ -40,14 +40,15 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.constrainHeight
 import androidx.compose.ui.unit.constrainWidth
 import androidx.compose.ui.unit.offset
+import androidx.tv.foundation.ExperimentalTvFoundationApi
 import androidx.tv.foundation.PivotOffsets
 import androidx.tv.foundation.lazy.LazyListBeyondBoundsInfo
 import androidx.tv.foundation.lazy.lazyListBeyondBoundsModifier
 import androidx.tv.foundation.lazy.lazyListPinningModifier
-import androidx.tv.foundation.marioScrollable
+import androidx.tv.foundation.scrollableWithPivot
 
 @Suppress("IllegalExperimentalApiUsage") // TODO (b/233188423): Address before moving to beta
-@OptIn(ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class, ExperimentalTvFoundationApi::class)
 @Composable
 internal fun LazyList(
     /** Modifier to be applied for the inner layout */
@@ -117,7 +118,7 @@ internal fun LazyList(
             .clipScrollableContainer(orientation)
             .lazyListBeyondBoundsModifier(state, beyondBoundsInfo, reverseLayout)
             .lazyListPinningModifier(state, beyondBoundsInfo)
-            .marioScrollable(
+            .scrollableWithPivot(
                 orientation = orientation,
                 reverseDirection = run {
                     // A finger moves with the content, not with the viewport. Therefore,
