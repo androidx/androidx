@@ -2289,7 +2289,11 @@ public final class ImageCapture extends UseCase {
         @Nullable
         private final Uri mSavedUri;
 
-        OutputFileResults(@Nullable Uri savedUri) {
+        /**
+         * @hide
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        public OutputFileResults(@Nullable Uri savedUri) {
             mSavedUri = savedUri;
         }
 
