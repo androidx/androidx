@@ -20,6 +20,7 @@ import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
+import androidx.benchmark.Arguments
 import androidx.benchmark.Outputs
 import androidx.benchmark.Outputs.dateToFileName
 import androidx.benchmark.PropOverride
@@ -41,10 +42,22 @@ class PerfettoCaptureWrapper {
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     private fun start(packages: List<String>): Boolean {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            Log.d(PerfettoHelper.LOG_TAG, "Recording perfetto trace")
-            capture?.start(packages)
+        capture?.apply {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                Log.d(PerfettoHelper.LOG_TAG, "Recording perfetto trace")
+                if (Arguments.fullTracingEnable &&
+                    packages.isNotEmpty() &&
+                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.R
+                ) {
+                    enableAndroidxTracingPerfetto(
+                        targetPackage = packages.first(),
+                        provideBinariesIfMissing = true
+                    )
+                }
+                start(packages)
+            }
         }
+
         return true
     }
 
