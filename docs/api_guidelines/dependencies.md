@@ -15,9 +15,9 @@ schedule.
     `androidx.core:core` library and requires that they be loaded in the
     workspace.
 -   Playground `projectOrArtifact(":core:core")` is used for
-    [Playground](playground.md) projects and will use tip-of-tree sources, if
-    present in the workspace, or `SNAPSHOT` prebuilt artifacts from
-    [androidx.dev](http://androidx.dev) otherwise.
+    [Playground](/company/teams/androidx/playground.md) projects and will use
+    tip-of-tree sources, if present in the workspace, or `SNAPSHOT` prebuilt
+    artifacts from [androidx.dev](http://androidx.dev) otherwise.
 -   Explicit `"androidx.core:core:1.4.0"` uses the prebuilt AAR and requires
     that it be checked in to the `prebuilts/androidx/internal` local Maven
     repository.
@@ -132,6 +132,34 @@ lint checks are run in the clients' dependent projects.
 not be made available at design time (ex. in auto-complete) unless the client
 explicitly adds them.
 
+#### Constraints {#dependencies-constraints}
+
+Dependency constraints ensure that when certain libraries are used together,
+they meet certain requirements. Defining a constraint on a library *does not*
+pull that library into the classpath.
+
+In Jetpack, we use constraints to ensure that atomically-grouped libraries all
+resolve to the same version
+([example](https://android-review.googlesource.com/c/platform/frameworks/support/+/1973425))
+and, in rare cases, to avoid conflicts resulting from classes being moved
+between artifacts
+([example](https://android-review.googlesource.com/c/platform/frameworks/support/+/2086029)).
+
+`core/core-ktx/build.gradle`: `dependencies { // Atomic group constraints {
+implementation(project(":core:core")) } }`
+
+In *extremely* rare cases, libraries may need to define a constraint on a
+project that is not in its `studiow` project set, ex. a constraint between the
+Paging and Compose libraries. As a workaround, libraries may hard-code the Maven
+coordinate using a version variable
+([example](https://android-review.googlesource.com/c/platform/frameworks/support/+/2160202))
+to indicate the tip-of-tree version.
+
+`paging/paging-common.build.gradle`: `dependencies { // Atomic Group constraints
+{
+implementation("androidx.paging:paging-compose:${LibraryVersions.PAGING_COMPOSE}")
+}`
+
 ### System health {#dependencies-health}
 
 Generally, Jetpack libraries should avoid dependencies that negatively impact
@@ -144,16 +172,12 @@ system health implications of their dependencies, including:
 
 #### Kotlin {#dependencies-kotlin}
 
-Kotlin is *strongly recommended* for new libraries; however, it's important to
-consider its size impact on clients. Currently, the Kotlin stdlib adds a minimum
-of 40kB post-optimization. It may not make sense to use Kotlin for a library
-that targets Java-only clients or space-constrained (ex. Android Go) clients.
+Kotlin is *strongly recommended* for new libraries and the Kotlin stdlib will
+already be present in the transitive dependencies of any library that depends on
+`androidx.annotations`.
 
-Existing Java-based libraries are *strongly discouraged* from using Kotlin,
-primarily because our documentation system does not currently provide a
-Java-facing version of Kotlin API reference docs. Java-based libraries *may*
-migrate to Kotlin, but they must consider the docs usability and size impacts on
-existing Java-only and space-constrained clients.
+Java-based libraries *may* migrate to Kotlin, but they must be careful to
+maintain binary compatibility during the migration.
 
 #### Kotlin coroutines {#dependencies-coroutines}
 
@@ -170,25 +194,6 @@ would like to depend on Guava's `ListenableFuture` may instead depend on the
 standalone `com.google.guava:listenablefuture` artifact. See
 [Asynchronous work with return values](#async-return) for more details on using
 `ListenableFuture` in Jetpack libraries.
-
-#### Java 8 {#dependencies-java8}
-
-Libraries that take a dependency on a library targeting Java 8 must *also*
-target Java 8, which will incur a ~5% build performance (as of 8/2019) hit for
-clients. New libraries targeting Java 8 may use Java 8 dependencies.
-
-The default language level for `androidx` libraries is Java 8, and we encourage
-libraries to stay on Java 8. However, if you have a business need to target Java
-7, you can specify Java 7 in your `build.gradle` as follows:
-
-```groovy
-android {
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_7
-        targetCompatibility = JavaVersion.VERSION_1_7
-    }
-}
-```
 
 #### Protobuf {#dependencies-protobuf}
 
@@ -210,9 +215,9 @@ classes, e.g. the Java `Builder` pattern.
 
 ### Open-source compatibility {#dependencies-aosp}
 
-Jetpack's [open-source](open_source.md) principle requires that libraries
-consider the open-source compatibility implications of their dependencies,
-including:
+Jetpack's [open-source](/company/teams/androidx/open_source.md) guidelines
+require that libraries consider the open-source compatibility implications of
+their dependencies, including:
 
 -   Closed-source or proprietary libraries or services that may not be available
     on AOSP devices
