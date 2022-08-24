@@ -742,16 +742,16 @@ package androidx.health.services.client.data {
   }
 
   public final class PassiveListenerConfig extends androidx.health.services.client.data.ProtoParcelable<androidx.health.services.client.proto.DataProto.PassiveListenerConfig> {
-    ctor public PassiveListenerConfig(java.util.Set<? extends androidx.health.services.client.data.DataType<? extends java.lang.Object,? extends androidx.health.services.client.data.DataPoint<?>>> dataTypes, boolean shouldRequestUserActivityState, java.util.Set<androidx.health.services.client.data.PassiveGoal> passiveGoals, java.util.Set<androidx.health.services.client.data.HealthEvent.Type> healthEventTypes);
+    ctor public PassiveListenerConfig(java.util.Set<? extends androidx.health.services.client.data.DataType<? extends java.lang.Object,? extends androidx.health.services.client.data.DataPoint<?>>> dataTypes, boolean shouldRequestUserActivityState, java.util.Set<androidx.health.services.client.data.PassiveGoal> dailyGoals, java.util.Set<androidx.health.services.client.data.HealthEvent.Type> healthEventTypes);
     method public static androidx.health.services.client.data.PassiveListenerConfig.Builder builder();
+    method public java.util.Set<androidx.health.services.client.data.PassiveGoal> getDailyGoals();
     method public java.util.Set<androidx.health.services.client.data.DataType<? extends java.lang.Object,? extends androidx.health.services.client.data.DataPoint<?>>> getDataTypes();
     method public java.util.Set<androidx.health.services.client.data.HealthEvent.Type> getHealthEventTypes();
-    method public java.util.Set<androidx.health.services.client.data.PassiveGoal> getPassiveGoals();
     method public androidx.health.services.client.proto.DataProto.PassiveListenerConfig getProto();
     method public boolean getShouldRequestUserActivityState();
+    property public final java.util.Set<androidx.health.services.client.data.PassiveGoal> dailyGoals;
     property public final java.util.Set<androidx.health.services.client.data.DataType<? extends java.lang.Object,? extends androidx.health.services.client.data.DataPoint<?>>> dataTypes;
     property public final java.util.Set<androidx.health.services.client.data.HealthEvent.Type> healthEventTypes;
-    property public final java.util.Set<androidx.health.services.client.data.PassiveGoal> passiveGoals;
     property public final boolean shouldRequestUserActivityState;
     field public static final android.os.Parcelable.Creator<androidx.health.services.client.data.PassiveListenerConfig> CREATOR;
     field public static final androidx.health.services.client.data.PassiveListenerConfig.Companion Companion;
@@ -760,9 +760,9 @@ package androidx.health.services.client.data {
   public static final class PassiveListenerConfig.Builder {
     ctor public PassiveListenerConfig.Builder();
     method public androidx.health.services.client.data.PassiveListenerConfig build();
+    method public androidx.health.services.client.data.PassiveListenerConfig.Builder setDailyGoals(java.util.Set<androidx.health.services.client.data.PassiveGoal> dailyGoals);
     method public androidx.health.services.client.data.PassiveListenerConfig.Builder setDataTypes(java.util.Set<? extends androidx.health.services.client.data.DataType<?,?>> dataTypes);
     method public androidx.health.services.client.data.PassiveListenerConfig.Builder setHealthEventTypes(java.util.Set<androidx.health.services.client.data.HealthEvent.Type> healthEventTypes);
-    method public androidx.health.services.client.data.PassiveListenerConfig.Builder setPassiveGoals(java.util.Set<androidx.health.services.client.data.PassiveGoal> passiveGoals);
     method public androidx.health.services.client.data.PassiveListenerConfig.Builder setShouldRequestUserActivityState(boolean requestUserActivityState);
   }
 
