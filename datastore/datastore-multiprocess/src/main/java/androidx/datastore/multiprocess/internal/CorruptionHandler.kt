@@ -13,14 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:RestrictTo(RestrictTo.Scope.LIBRARY)
 
 package androidx.datastore.multiprocess
 
+import androidx.annotation.RestrictTo
 import androidx.datastore.core.CorruptionException
+import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
 
 /**
  * CorruptionHandlers allow recovery from corruption that prevents reading data from the file (as
  * indicated by a CorruptionException).
+ *
+ * This is a duplicate of {@link androidx.datastore.core.CorruptionHandler}.
  */
 internal interface CorruptionHandler<T> {
     /**
@@ -34,4 +39,20 @@ internal interface CorruptionHandler<T> {
      * @return The value that DataStore should attempt to write to disk.
      **/
     public suspend fun handleCorruption(ex: CorruptionException): T
+}
+
+/**
+ * Create a `CorruptionHandler` instance to adapt the `ReplaceFileCorruptionHandler` instance. As
+ * MPDSFactory takes in `ReplaceFileCorruptionHandler` in public API, it needs to be adapted to the
+ * local definition of `CorruptionHandler` as it is a duplicated class.
+ */
+// TODO(b/242906637): remove this method when interface definition is deduped
+internal fun <T> adapterCorruptionHandlerOrNull(
+    handler: ReplaceFileCorruptionHandler<T>?
+): CorruptionHandler<T>? {
+    return if (handler != null) object : CorruptionHandler<T> {
+        override suspend fun handleCorruption(ex: CorruptionException): T {
+            return handler.handleCorruption(ex)
+        }
+    } else null
 }
