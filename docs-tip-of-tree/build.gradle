@@ -240,6 +240,7 @@ dependencies {
     docs(project(":privacysandbox:tools:tools"))
     docs(project(":privacysandbox:tools:tools-apicompiler"))
     docs(project(":privacysandbox:tools:tools-apigenerator"))
+    docs(project(":privacysandbox:tools:tools-core"))
     docs(project(":profileinstaller:profileinstaller"))
     docs(project(":recommendation:recommendation"))
     docs(project(":recyclerview:recyclerview"))
