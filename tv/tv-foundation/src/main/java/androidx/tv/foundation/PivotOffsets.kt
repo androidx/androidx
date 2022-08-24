@@ -17,7 +17,7 @@
 package androidx.tv.foundation
 
 /**
- * Holds the offsets needed for mario-scrolling.
+ * Holds the offsets needed for scrolling-with-offset.
  *
  * {@property parentFraction} defines the offset of the starting edge of the child
  * element from the starting edge of the parent element. This value should be between 0 and 1.
