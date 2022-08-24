@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package androidx.privacysandbox.tools.apicompiler.model
+package androidx.privacysandbox.tools.core
 
 /** Result of parsing a Kotlin interface. */
-data class AnnotatedInterface(
+public data class AnnotatedInterface(
     val name: String,
     val packageName: String,
     val methods: List<Method> = emptyList(),

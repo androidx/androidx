@@ -15,3 +15,8 @@
  */
 
 package androidx.privacysandbox.tools.core
+
+public data class Parameter(
+    val name: String,
+    val type: Type,
+)
