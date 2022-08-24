@@ -163,15 +163,15 @@ package androidx.health.connect.client.records {
   }
 
   public final class BloodGlucoseRecord implements androidx.health.connect.client.records.InstantaneousRecord {
-    ctor public BloodGlucoseRecord(double levelMillimolesPerLiter, optional String? specimenSource, optional String? mealType, optional String? relationToMeal, java.time.Instant time, java.time.ZoneOffset? zoneOffset, optional androidx.health.connect.client.records.metadata.Metadata metadata);
-    method public double getLevelMillimolesPerLiter();
+    ctor public BloodGlucoseRecord(androidx.health.connect.client.units.BloodGlucose level, optional String? specimenSource, optional String? mealType, optional String? relationToMeal, java.time.Instant time, java.time.ZoneOffset? zoneOffset, optional androidx.health.connect.client.records.metadata.Metadata metadata);
+    method public androidx.health.connect.client.units.BloodGlucose getLevel();
     method public String? getMealType();
     method public androidx.health.connect.client.records.metadata.Metadata getMetadata();
     method public String? getRelationToMeal();
     method public String? getSpecimenSource();
     method public java.time.Instant getTime();
     method public java.time.ZoneOffset? getZoneOffset();
-    property public final double levelMillimolesPerLiter;
+    property public final androidx.health.connect.client.units.BloodGlucose level;
     property public final String? mealType;
     property public androidx.health.connect.client.records.metadata.Metadata metadata;
     property public final String? relationToMeal;
@@ -1423,6 +1423,22 @@ package androidx.health.connect.client.time {
 }
 
 package androidx.health.connect.client.units {
+
+  public final class BloodGlucose implements java.lang.Comparable<androidx.health.connect.client.units.BloodGlucose> {
+    method public int compareTo(androidx.health.connect.client.units.BloodGlucose other);
+    method public double getMilligramsPerDeciliter();
+    method public double getMillimolesPerLiter();
+    method public static androidx.health.connect.client.units.BloodGlucose milligramsPerDeciliter(double value);
+    method public static androidx.health.connect.client.units.BloodGlucose millimolesPerLiter(double value);
+    property public final double inMilligramsPerDeciliter;
+    property public final double inMillimolesPerLiter;
+    field public static final androidx.health.connect.client.units.BloodGlucose.Companion Companion;
+  }
+
+  public static final class BloodGlucose.Companion {
+    method public androidx.health.connect.client.units.BloodGlucose milligramsPerDeciliter(double value);
+    method public androidx.health.connect.client.units.BloodGlucose millimolesPerLiter(double value);
+  }
 
   public final class Energy implements java.lang.Comparable<androidx.health.connect.client.units.Energy> {
     method public static androidx.health.connect.client.units.Energy calories(double value);

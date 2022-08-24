@@ -70,6 +70,7 @@ import androidx.health.connect.client.records.Vo2MaxRecord
 import androidx.health.connect.client.records.WaistCircumferenceRecord
 import androidx.health.connect.client.records.WeightRecord
 import androidx.health.connect.client.records.WheelchairPushesRecord
+import androidx.health.connect.client.units.BloodGlucose
 import androidx.health.connect.client.units.celsius
 import androidx.health.connect.client.units.grams
 import androidx.health.connect.client.units.kilocalories
@@ -105,7 +106,7 @@ fun toRecord(proto: DataProto.DataPoint): Record =
                 )
             "BloodGlucose" ->
                 BloodGlucoseRecord(
-                    levelMillimolesPerLiter = getDouble("level"),
+                    level = BloodGlucose.millimolesPerLiter(getDouble("level")),
                     specimenSource = getEnum("specimenSource"),
                     mealType = getEnum("mealType"),
                     relationToMeal = getEnum("relationToMeal"),
