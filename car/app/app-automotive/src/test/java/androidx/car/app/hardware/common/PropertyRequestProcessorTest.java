@@ -17,6 +17,7 @@
 package androidx.car.app.hardware.common;
 
 import static android.car.VehiclePropertyIds.HVAC_POWER_ON;
+import static android.car.VehiclePropertyIds.HVAC_TEMPERATURE_SET;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -25,6 +26,7 @@ import android.car.Car;
 import android.car.VehicleAreaType;
 import android.car.VehiclePropertyIds;
 import android.car.hardware.CarPropertyValue;
+import android.util.Pair;
 
 import androidx.test.core.app.ApplicationProvider;
 
@@ -97,7 +99,7 @@ public class PropertyRequestProcessorTest extends MockedCarTestBase {
     /**
      * Tests for
      * {@link PropertyRequestProcessor#fetchCarPropertyProfiles(
-     * List, OnGetCarPropertyProfilesListener)}.
+     * List, OnGetCarPropertyProfilesListener)} for HVAC_POWER_ON property.
      */
     @Test
     public void fetchCarPropertyProfilesTest() throws Exception {
@@ -118,6 +120,39 @@ public class PropertyRequestProcessorTest extends MockedCarTestBase {
         assertThat(carPropertyProfiles.get(0).getCarZones()).isEqualTo(carZones);
         assertThat(carPropertyProfiles.get(0).getCarZoneSetsToMinMaxRange())
                 .isEqualTo(CAR_ZONE_SET_TO_MIN_MAX_RANGE);
+    }
+
+    /**
+     * Tests for
+     * {@link PropertyRequestProcessor#fetchCarPropertyProfiles(
+     * List, OnGetCarPropertyProfilesListener)} for HVAC_TEMPERATURE_SET property.
+     */
+    @Test
+    public void fetchCarPropertyCabinTemperatureProfilesTest() throws Exception {
+        TestPropertyProfileListener listener = new TestPropertyProfileListener();
+        List<Integer> propertyIds = new ArrayList<>();
+        ImmutableList<Set<CarZone>> carZones =
+                ImmutableList.<Set<CarZone>>builder().add(Collections.singleton(
+                        new CarZone.Builder().setRow(CarZone.CAR_ZONE_ROW_FIRST)
+                                .setColumn(CarZone.CAR_ZONE_COLUMN_LEFT).build())).build();
+
+        propertyIds.add(HVAC_TEMPERATURE_SET);
+        mRequestProcessor.fetchCarPropertyProfiles(propertyIds, listener);
+        listener.assertOnGetCarPropertyProfilesCalled();
+        List<CarPropertyProfile<?>> carPropertyProfiles = listener.getCarPropertyProfiles();
+
+        assertThat(carPropertyProfiles.size()).isEqualTo(1);
+        assertThat(carPropertyProfiles.get(0).getPropertyId()).isEqualTo(HVAC_TEMPERATURE_SET);
+        assertThat(carPropertyProfiles.get(0).getCarZoneSetsToMinMaxRange())
+                .isEqualTo(null);
+        assertThat(carPropertyProfiles.get(0).getCelsiusRange())
+                .isEqualTo(new Pair<>(16.0f, 28.0f));
+        assertThat(carPropertyProfiles.get(0).getFahrenheitRange())
+                .isEqualTo(new Pair<>(60.5f, 85.5f));
+        assertThat(carPropertyProfiles.get(0).getCelsiusIncrement())
+                .isEqualTo(0.5f);
+        assertThat(carPropertyProfiles.get(0).getFahrenheitIncrement())
+                .isEqualTo(1f);
     }
 
     private static class TestListener implements PropertyRequestProcessor.OnGetPropertiesListener {
