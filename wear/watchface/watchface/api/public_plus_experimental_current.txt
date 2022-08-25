@@ -220,6 +220,7 @@ package androidx.wear.watchface {
     method @UiThread public abstract void onDump(java.io.PrintWriter writer);
     method @UiThread protected void onRenderParametersChanged(androidx.wear.watchface.RenderParameters renderParameters);
     method public final void postInvalidate();
+    method public final void sendPreviewImageNeedsUpdateRequest();
     method public final void setAdditionalContentDescriptionLabels(java.util.Collection<kotlin.Pair<java.lang.Integer,androidx.wear.watchface.ContentDescriptionLabel>>);
     method public final void setInteractiveDrawModeUpdateDelayMillis(long);
     method public final void setWatchfaceColors(androidx.wear.watchface.WatchFaceColors?);

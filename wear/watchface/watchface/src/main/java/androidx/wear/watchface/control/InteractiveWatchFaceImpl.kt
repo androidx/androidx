@@ -368,6 +368,16 @@ internal class InteractiveWatchFaceImpl(
         }
     }
 
+    fun sendPreviewImageNeedsUpdateRequest() {
+        val listenersCopy = synchronized(lock) {
+            HashSet<IWatchfaceListener>(listeners)
+        }
+
+        listenersCopy.forEach {
+            it.onPreviewImageUpdateRequested(instanceId)
+        }
+    }
+
     internal fun dump(writer: IndentingPrintWriter) {
         writer.println("WatchFaceEngine:")
         writer.increaseIndent()
