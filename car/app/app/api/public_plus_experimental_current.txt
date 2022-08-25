@@ -398,11 +398,11 @@ package androidx.car.app.hardware.climate {
   }
 
   @androidx.car.app.annotations.ExperimentalCarApi public final class FanDirectionProfile {
-    method public java.util.Map<java.util.Set<androidx.car.app.hardware.common.CarZone!>!,android.util.Pair<java.lang.Integer!,java.lang.Integer!>!> getCarZoneSetsToFanDirectionValues();
+    method public java.util.Map<java.util.Set<androidx.car.app.hardware.common.CarZone!>!,java.util.Set<java.lang.Integer!>!> getCarZoneSetsToFanDirectionValues();
   }
 
   public static final class FanDirectionProfile.Builder {
-    ctor public FanDirectionProfile.Builder(java.util.Map<java.util.Set<androidx.car.app.hardware.common.CarZone!>!,android.util.Pair<java.lang.Integer!,java.lang.Integer!>!>);
+    ctor public FanDirectionProfile.Builder(java.util.Map<java.util.Set<androidx.car.app.hardware.common.CarZone!>!,java.util.Set<java.lang.Integer!>!>);
     method public androidx.car.app.hardware.climate.FanDirectionProfile build();
   }
 
