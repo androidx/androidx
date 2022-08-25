@@ -36,6 +36,8 @@ public class UiSelectorTests extends BaseTest {
 
         assertTrue(mDevice.findObject(new UiSelector().text("Sample text")).exists());
         assertFalse(mDevice.findObject(new UiSelector().text("Not text")).exists());
+
+        assertEquals("UiSelector[TEXT=text]", new UiSelector().text("text").toString());
     }
 
     @Test
@@ -44,6 +46,9 @@ public class UiSelectorTests extends BaseTest {
 
         assertTrue(mDevice.findObject(new UiSelector().textMatches(".*text.*")).exists());
         assertFalse(mDevice.findObject(new UiSelector().textMatches(".*nottext.*")).exists());
+
+        assertEquals("UiSelector[TEXT_REGEX=.*text.*]",
+                new UiSelector().textMatches(".*text.*").toString());
     }
 
     @Test
@@ -52,6 +57,9 @@ public class UiSelectorTests extends BaseTest {
 
         assertTrue(mDevice.findObject(new UiSelector().textStartsWith("Text")).exists());
         assertFalse(mDevice.findObject(new UiSelector().textStartsWith("NotText")).exists());
+
+        assertEquals("UiSelector[START_TEXT=Text]",
+                new UiSelector().textStartsWith("Text").toString());
     }
 
     @Test
@@ -60,6 +68,9 @@ public class UiSelectorTests extends BaseTest {
 
         assertTrue(mDevice.findObject(new UiSelector().textContains("text")).exists());
         assertFalse(mDevice.findObject(new UiSelector().textContains("not-text")).exists());
+
+        assertEquals("UiSelector[CONTAINS_TEXT=text]",
+                new UiSelector().textContains("text").toString());
     }
 
     @Test
@@ -70,6 +81,8 @@ public class UiSelectorTests extends BaseTest {
                 mDevice.findObject(new UiSelector().className("android.widget.Button")).exists());
         assertFalse(
                 mDevice.findObject(new UiSelector().className("android.widget.Switch")).exists());
+
+        assertEquals("UiSelector[CLASS=class]", new UiSelector().className("class").toString());
     }
 
     @Test
@@ -78,6 +91,9 @@ public class UiSelectorTests extends BaseTest {
 
         assertTrue(mDevice.findObject(new UiSelector().classNameMatches(".*get\\.B.*")).exists());
         assertFalse(mDevice.findObject(new UiSelector().classNameMatches(".*Switch")).exists());
+
+        assertEquals("UiSelector[CLASS_REGEX=.*]",
+                new UiSelector().classNameMatches(".*").toString());
     }
 
     @Test
@@ -86,6 +102,9 @@ public class UiSelectorTests extends BaseTest {
 
         assertTrue(mDevice.findObject(new UiSelector().className(Button.class)).exists());
         assertFalse(mDevice.findObject(new UiSelector().className(Switch.class)).exists());
+
+        assertEquals("UiSelector[CLASS=android.widget.Button]",
+                new UiSelector().className(Button.class).toString());
     }
 
     @Test
@@ -94,6 +113,9 @@ public class UiSelectorTests extends BaseTest {
 
         assertTrue(mDevice.findObject(new UiSelector().description("I'm accessible!")).exists());
         assertFalse(mDevice.findObject(new UiSelector().description("accessible")).exists());
+
+        assertEquals("UiSelector[DESCRIPTION=desc]",
+                new UiSelector().description("desc").toString());
     }
 
     @Test
@@ -105,6 +127,9 @@ public class UiSelectorTests extends BaseTest {
         assertFalse(
                 mDevice.findObject(
                         new UiSelector().descriptionMatches(".*not_accessible.*")).exists());
+
+        assertEquals("UiSelector[DESCRIPTION_REGEX=.*]",
+                new UiSelector().descriptionMatches(".*").toString());
     }
 
     @Test
@@ -113,6 +138,9 @@ public class UiSelectorTests extends BaseTest {
 
         assertTrue(mDevice.findObject(new UiSelector().descriptionStartsWith("I'm")).exists());
         assertFalse(mDevice.findObject(new UiSelector().descriptionStartsWith("Im")).exists());
+
+        assertEquals("UiSelector[START_DESCRIPTION=start]",
+                new UiSelector().descriptionStartsWith("start").toString());
     }
 
     @Test
@@ -122,6 +150,9 @@ public class UiSelectorTests extends BaseTest {
         assertTrue(mDevice.findObject(new UiSelector().descriptionContains("acc")).exists());
         assertFalse(
                 mDevice.findObject(new UiSelector().descriptionContains("abc")).exists());
+
+        assertEquals("UiSelector[CONTAINS_DESCRIPTION=desc]",
+                new UiSelector().descriptionContains("desc").toString());
     }
 
     @Test
@@ -133,6 +164,8 @@ public class UiSelectorTests extends BaseTest {
         assertFalse(
                 mDevice.findObject(
                         new UiSelector().resourceId(TEST_APP + ":id/not_example_id")).exists());
+
+        assertEquals("UiSelector[RESOURCE_ID=id]", new UiSelector().resourceId("id").toString());
     }
 
     @Test
@@ -143,6 +176,9 @@ public class UiSelectorTests extends BaseTest {
                 new UiSelector().resourceIdMatches(".*testapp:id/example.*")).exists());
         assertFalse(mDevice.findObject(
                 new UiSelector().resourceIdMatches(".*testapp:id/not_example.*")).exists());
+
+        assertEquals("UiSelector[RESOURCE_ID_REGEX=id.*]",
+                new UiSelector().resourceIdMatches("id.*").toString());
     }
 
     @Test
@@ -154,6 +190,8 @@ public class UiSelectorTests extends BaseTest {
                 new UiSelector().resourceId(TEST_APP + ":id/tree_N3").index(1)).exists());
         assertFalse(mDevice.findObject(
                 new UiSelector().resourceId(TEST_APP + ":id/tree_N2").index(1)).exists());
+
+        assertEquals("UiSelector[INDEX=1]", new UiSelector().index(1).toString());
     }
 
     @Test
@@ -164,6 +202,8 @@ public class UiSelectorTests extends BaseTest {
         // the screen.
         assertEquals("tree_N5",
                 mDevice.findObject(new UiSelector().className(Button.class).instance(2)).getText());
+
+        assertEquals("UiSelector[INSTANCE=2]", new UiSelector().instance(2).toString());
     }
 
     @Test
@@ -176,6 +216,8 @@ public class UiSelectorTests extends BaseTest {
         assertTrue(mDevice.findObject(
                 new UiSelector().resourceId(TEST_APP + ":id/disabled_text_view").enabled(
                         false)).exists());
+
+        assertEquals("UiSelector[ENABLED=true]", new UiSelector().enabled(true).toString());
     }
 
     @Test
@@ -191,6 +233,8 @@ public class UiSelectorTests extends BaseTest {
         assertTrue(mDevice.findObject(
                 new UiSelector().resourceId(TEST_APP + ":id/focusable_text_view").focused(
                         true)).exists());
+
+        assertEquals("UiSelector[FOCUSED=true]", new UiSelector().focused(true).toString());
     }
 
     @Test
@@ -202,6 +246,8 @@ public class UiSelectorTests extends BaseTest {
                         true)).exists());
         assertTrue(mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id"
                 + "/non_focusable_text_view").focusable(false)).exists());
+
+        assertEquals("UiSelector[FOCUSABLE=true]", new UiSelector().focusable(true).toString());
     }
 
     @Test
@@ -213,6 +259,8 @@ public class UiSelectorTests extends BaseTest {
                         true)).exists());
         assertTrue(mDevice.findObject(
                 new UiSelector().resourceId(TEST_APP + ":id/top_text").scrollable(false)).exists());
+
+        assertEquals("UiSelector[SCROLLABLE=true]", new UiSelector().scrollable(true).toString());
     }
 
     @Test
@@ -229,6 +277,8 @@ public class UiSelectorTests extends BaseTest {
         assertTrue(mDevice.findObject(
                 new UiSelector().resourceId(TEST_APP + ":id/selected_target").selected(
                         true)).exists());
+
+        assertEquals("UiSelector[SELECTED=true]", new UiSelector().selected(true).toString());
     }
 
     @Test
@@ -243,6 +293,8 @@ public class UiSelectorTests extends BaseTest {
         checkBox.click();
         assertTrue(mDevice.findObject(
                 new UiSelector().resourceId(TEST_APP + ":id/check_box").checked(true)).exists());
+
+        assertEquals("UiSelector[CHECKED=true]", new UiSelector().checked(true).toString());
     }
 
     @Test
@@ -253,6 +305,8 @@ public class UiSelectorTests extends BaseTest {
                 new UiSelector().text("Accessible button").clickable(true)).exists());
         assertTrue(
                 mDevice.findObject(new UiSelector().text("Sample text").clickable(false)).exists());
+
+        assertEquals("UiSelector[CLICKABLE=true]", new UiSelector().clickable(true).toString());
     }
 
     @Test
@@ -263,6 +317,8 @@ public class UiSelectorTests extends BaseTest {
                 new UiSelector().resourceId(TEST_APP + ":id/check_box").checkable(true)).exists());
         assertTrue(mDevice.findObject(
                 new UiSelector().resourceId(TEST_APP + ":id/button1").checkable(false)).exists());
+
+        assertEquals("UiSelector[CHECKABLE=true]", new UiSelector().checkable(true).toString());
     }
 
     @Test
@@ -274,6 +330,9 @@ public class UiSelectorTests extends BaseTest {
         assertTrue(mDevice.findObject(
                 new UiSelector().resourceId(TEST_APP + ":id/text_view").longClickable(
                         false)).exists());
+
+        assertEquals("UiSelector[LONG_CLICKABLE=true]",
+                new UiSelector().longClickable(true).toString());
     }
 
     @Test
@@ -289,6 +348,9 @@ public class UiSelectorTests extends BaseTest {
 
         assertTrue(mDevice.findObject(expectedTreeN3Selector).exists());
         assertFalse(mDevice.findObject(notExpectedTreeN3Selector).exists());
+
+        assertEquals("UiSelector[CHILD=UiSelector[TEXT=text]]",
+                new UiSelector().childSelector(new UiSelector().text("text")).toString());
     }
 
     @Test
@@ -304,6 +366,9 @@ public class UiSelectorTests extends BaseTest {
 
         assertTrue(mDevice.findObject(expectedTreeN5Selector).exists());
         assertFalse(mDevice.findObject(notExpectedTreeN5Selector).exists());
+
+        assertEquals("UiSelector[PARENT=UiSelector[TEXT=text]]",
+                new UiSelector().fromParent(new UiSelector().text("text")).toString());
     }
 
     @Test
@@ -312,6 +377,9 @@ public class UiSelectorTests extends BaseTest {
 
         assertTrue(mDevice.findObject(new UiSelector().packageName(TEST_APP)).exists());
         assertFalse(mDevice.findObject(new UiSelector().packageName(TEST_APP + "abc")).exists());
+
+        assertEquals("UiSelector[PACKAGE_NAME=pack]",
+                new UiSelector().packageName("pack").toString());
     }
 
     @Test
@@ -321,10 +389,8 @@ public class UiSelectorTests extends BaseTest {
         assertTrue(mDevice.findObject(new UiSelector().packageNameMatches(".*testapp.*")).exists());
         assertFalse(
                 mDevice.findObject(new UiSelector().packageNameMatches(".*nottest.*")).exists());
+
+        assertEquals("UiSelector[PACKAGE_NAME_REGEX=pack.*]",
+                new UiSelector().packageNameMatches("pack.*").toString());
     }
-
-    /* TODO(b/242916007): Implement these tests, and the tests for exceptions of each tested method.
-
-    public void testToString() {}
-    */
 }

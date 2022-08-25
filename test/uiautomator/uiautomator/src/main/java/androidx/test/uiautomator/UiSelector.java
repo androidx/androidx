@@ -989,113 +989,118 @@ public class UiSelector {
             }
             final int criterion = mSelectorAttributes.keyAt(i);
             switch (criterion) {
-            case SELECTOR_TEXT:
-                builder.append("TEXT=").append(mSelectorAttributes.valueAt(i));
-                break;
-            case SELECTOR_TEXT_REGEX:
-                builder.append("TEXT_REGEX=").append(mSelectorAttributes.valueAt(i));
-                break;
-            case SELECTOR_START_TEXT:
-                builder.append("START_TEXT=").append(mSelectorAttributes.valueAt(i));
-                break;
-            case SELECTOR_CONTAINS_TEXT:
-                builder.append("CONTAINS_TEXT=").append(mSelectorAttributes.valueAt(i));
-                break;
-            case SELECTOR_CLASS:
-                builder.append("CLASS=").append(mSelectorAttributes.valueAt(i));
-                break;
-            case SELECTOR_CLASS_REGEX:
-                builder.append("CLASS_REGEX=").append(mSelectorAttributes.valueAt(i));
-                break;
-            case SELECTOR_DESCRIPTION:
-                builder.append("DESCRIPTION=").append(mSelectorAttributes.valueAt(i));
-                break;
-            case SELECTOR_DESCRIPTION_REGEX:
-                builder.append("DESCRIPTION_REGEX=").append(mSelectorAttributes.valueAt(i));
-                break;
-            case SELECTOR_START_DESCRIPTION:
-                builder.append("START_DESCRIPTION=").append(mSelectorAttributes.valueAt(i));
-                break;
-            case SELECTOR_CONTAINS_DESCRIPTION:
-                builder.append("CONTAINS_DESCRIPTION=").append(mSelectorAttributes.valueAt(i));
-                break;
-            case SELECTOR_INDEX:
-                builder.append("INDEX=").append(mSelectorAttributes.valueAt(i));
-                break;
-            case SELECTOR_INSTANCE:
-                builder.append("INSTANCE=").append(mSelectorAttributes.valueAt(i));
-                break;
-            case SELECTOR_ENABLED:
-                builder.append("ENABLED=").append(mSelectorAttributes.valueAt(i));
-                break;
-            case SELECTOR_FOCUSED:
-                builder.append("FOCUSED=").append(mSelectorAttributes.valueAt(i));
-                break;
-            case SELECTOR_FOCUSABLE:
-                builder.append("FOCUSABLE=").append(mSelectorAttributes.valueAt(i));
-                break;
-            case SELECTOR_SCROLLABLE:
-                builder.append("SCROLLABLE=").append(mSelectorAttributes.valueAt(i));
-                break;
-            case SELECTOR_CLICKABLE:
-                builder.append("CLICKABLE=").append(mSelectorAttributes.valueAt(i));
-                break;
-            case SELECTOR_CHECKABLE:
-                builder.append("CHECKABLE=").append(mSelectorAttributes.valueAt(i));
-                break;
-            case SELECTOR_LONG_CLICKABLE:
-                builder.append("LONG_CLICKABLE=").append(mSelectorAttributes.valueAt(i));
-                break;
-            case SELECTOR_CHECKED:
-                builder.append("CHECKED=").append(mSelectorAttributes.valueAt(i));
-                break;
-            case SELECTOR_SELECTED:
-                builder.append("SELECTED=").append(mSelectorAttributes.valueAt(i));
-                break;
-            case SELECTOR_ID:
-                builder.append("ID=").append(mSelectorAttributes.valueAt(i));
-                break;
-            case SELECTOR_CHILD:
-                if (all)
-                    builder.append("CHILD=").append(mSelectorAttributes.valueAt(i));
-                else
-                    builder.append("CHILD[..]");
-                break;
-            case SELECTOR_PATTERN:
-                if (all)
-                    builder.append("PATTERN=").append(mSelectorAttributes.valueAt(i));
-                else
-                    builder.append("PATTERN[..]");
-                break;
-            case SELECTOR_CONTAINER:
-                if (all)
-                    builder.append("CONTAINER=").append(mSelectorAttributes.valueAt(i));
-                else
-                    builder.append("CONTAINER[..]");
-                break;
-            case SELECTOR_PARENT:
-                if (all)
-                    builder.append("PARENT=").append(mSelectorAttributes.valueAt(i));
-                else
-                    builder.append("PARENT[..]");
-                break;
-            case SELECTOR_COUNT:
-                builder.append("COUNT=").append(mSelectorAttributes.valueAt(i));
-                break;
-            case SELECTOR_PACKAGE_NAME:
-                builder.append("PACKAGE NAME=").append(mSelectorAttributes.valueAt(i));
-                break;
-            case SELECTOR_PACKAGE_NAME_REGEX:
-                builder.append("PACKAGE_NAME_REGEX=").append(mSelectorAttributes.valueAt(i));
-                break;
-            case SELECTOR_RESOURCE_ID:
-                builder.append("RESOURCE_ID=").append(mSelectorAttributes.valueAt(i));
-                break;
-            case SELECTOR_RESOURCE_ID_REGEX:
-                builder.append("RESOURCE_ID_REGEX=").append(mSelectorAttributes.valueAt(i));
-                break;
-            default:
-                builder.append("UNDEFINED="+criterion+" ").append(mSelectorAttributes.valueAt(i));
+                case SELECTOR_TEXT:
+                    builder.append("TEXT=").append(mSelectorAttributes.valueAt(i));
+                    break;
+                case SELECTOR_TEXT_REGEX:
+                    builder.append("TEXT_REGEX=").append(mSelectorAttributes.valueAt(i));
+                    break;
+                case SELECTOR_START_TEXT:
+                    builder.append("START_TEXT=").append(mSelectorAttributes.valueAt(i));
+                    break;
+                case SELECTOR_CONTAINS_TEXT:
+                    builder.append("CONTAINS_TEXT=").append(mSelectorAttributes.valueAt(i));
+                    break;
+                case SELECTOR_CLASS:
+                    builder.append("CLASS=").append(mSelectorAttributes.valueAt(i));
+                    break;
+                case SELECTOR_CLASS_REGEX:
+                    builder.append("CLASS_REGEX=").append(mSelectorAttributes.valueAt(i));
+                    break;
+                case SELECTOR_DESCRIPTION:
+                    builder.append("DESCRIPTION=").append(mSelectorAttributes.valueAt(i));
+                    break;
+                case SELECTOR_DESCRIPTION_REGEX:
+                    builder.append("DESCRIPTION_REGEX=").append(mSelectorAttributes.valueAt(i));
+                    break;
+                case SELECTOR_START_DESCRIPTION:
+                    builder.append("START_DESCRIPTION=").append(mSelectorAttributes.valueAt(i));
+                    break;
+                case SELECTOR_CONTAINS_DESCRIPTION:
+                    builder.append("CONTAINS_DESCRIPTION=").append(mSelectorAttributes.valueAt(i));
+                    break;
+                case SELECTOR_INDEX:
+                    builder.append("INDEX=").append(mSelectorAttributes.valueAt(i));
+                    break;
+                case SELECTOR_INSTANCE:
+                    builder.append("INSTANCE=").append(mSelectorAttributes.valueAt(i));
+                    break;
+                case SELECTOR_ENABLED:
+                    builder.append("ENABLED=").append(mSelectorAttributes.valueAt(i));
+                    break;
+                case SELECTOR_FOCUSED:
+                    builder.append("FOCUSED=").append(mSelectorAttributes.valueAt(i));
+                    break;
+                case SELECTOR_FOCUSABLE:
+                    builder.append("FOCUSABLE=").append(mSelectorAttributes.valueAt(i));
+                    break;
+                case SELECTOR_SCROLLABLE:
+                    builder.append("SCROLLABLE=").append(mSelectorAttributes.valueAt(i));
+                    break;
+                case SELECTOR_CLICKABLE:
+                    builder.append("CLICKABLE=").append(mSelectorAttributes.valueAt(i));
+                    break;
+                case SELECTOR_CHECKABLE:
+                    builder.append("CHECKABLE=").append(mSelectorAttributes.valueAt(i));
+                    break;
+                case SELECTOR_LONG_CLICKABLE:
+                    builder.append("LONG_CLICKABLE=").append(mSelectorAttributes.valueAt(i));
+                    break;
+                case SELECTOR_CHECKED:
+                    builder.append("CHECKED=").append(mSelectorAttributes.valueAt(i));
+                    break;
+                case SELECTOR_SELECTED:
+                    builder.append("SELECTED=").append(mSelectorAttributes.valueAt(i));
+                    break;
+                case SELECTOR_ID:
+                    builder.append("ID=").append(mSelectorAttributes.valueAt(i));
+                    break;
+                case SELECTOR_CHILD:
+                    if (all) {
+                        builder.append("CHILD=").append(mSelectorAttributes.valueAt(i));
+                    } else {
+                        builder.append("CHILD[..]");
+                    }
+                    break;
+                case SELECTOR_PATTERN:
+                    if (all) {
+                        builder.append("PATTERN=").append(mSelectorAttributes.valueAt(i));
+                    } else {
+                        builder.append("PATTERN[..]");
+                    }
+                    break;
+                case SELECTOR_CONTAINER:
+                    if (all) {
+                        builder.append("CONTAINER=").append(mSelectorAttributes.valueAt(i));
+                    } else {
+                        builder.append("CONTAINER[..]");
+                    }
+                    break;
+                case SELECTOR_PARENT:
+                    if (all) {
+                        builder.append("PARENT=").append(mSelectorAttributes.valueAt(i));
+                    } else {
+                        builder.append("PARENT[..]");
+                    }
+                    break;
+                case SELECTOR_COUNT:
+                    builder.append("COUNT=").append(mSelectorAttributes.valueAt(i));
+                    break;
+                case SELECTOR_PACKAGE_NAME:
+                    builder.append("PACKAGE_NAME=").append(mSelectorAttributes.valueAt(i));
+                    break;
+                case SELECTOR_PACKAGE_NAME_REGEX:
+                    builder.append("PACKAGE_NAME_REGEX=").append(mSelectorAttributes.valueAt(i));
+                    break;
+                case SELECTOR_RESOURCE_ID:
+                    builder.append("RESOURCE_ID=").append(mSelectorAttributes.valueAt(i));
+                    break;
+                case SELECTOR_RESOURCE_ID_REGEX:
+                    builder.append("RESOURCE_ID_REGEX=").append(mSelectorAttributes.valueAt(i));
+                    break;
+                default:
+                    builder.append("UNDEFINED=" + criterion + " ").append(
+                            mSelectorAttributes.valueAt(i));
             }
         }
         builder.append("]");
