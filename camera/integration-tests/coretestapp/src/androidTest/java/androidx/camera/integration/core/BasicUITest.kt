@@ -89,6 +89,7 @@ class BasicUITest(
         CameraXActivity::class.java
     ).apply {
         putExtra(CameraXActivity.INTENT_EXTRA_CAMERA_IMPLEMENTATION, cameraConfig)
+        putExtra(CameraXActivity.INTENT_EXTRA_CAMERA_IMPLEMENTATION_NO_HISTORY, true)
     }
 
     @Before
