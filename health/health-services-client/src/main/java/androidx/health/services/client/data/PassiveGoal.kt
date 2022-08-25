@@ -37,10 +37,9 @@ class PassiveGoal(
         TriggerFrequency.fromProto(proto.triggerFrequency)
     )
 
-    internal val proto: PassiveGoalProto by lazy {
+    internal val proto: PassiveGoalProto =
         PassiveGoalProto.newBuilder().setCondition(dataTypeCondition.proto)
             .setTriggerFrequency(triggerFrequency.toProto()).build()
-    }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

@@ -64,7 +64,7 @@ public class MilestoneMarkerSummary(
     )
 
     /** @hide */
-    override val proto: DataProto.MilestoneMarkerSummary by lazy {
+    override val proto: DataProto.MilestoneMarkerSummary =
         DataProto.MilestoneMarkerSummary.newBuilder()
             .setStartTimeEpochMs(startTime.toEpochMilli())
             .setEndTimeEpochMs(endTime.toEpochMilli())
@@ -93,7 +93,6 @@ public class MilestoneMarkerSummary(
                     .sortedBy { it.dataType.name }
             )
             .build()
-    }
 
     override fun toString(): String =
         "MilestoneMarkerSummary(" +

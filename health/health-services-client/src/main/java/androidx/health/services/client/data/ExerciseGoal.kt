@@ -33,14 +33,16 @@ internal constructor(
 ) : ProtoParcelable<DataProto.ExerciseGoal>() {
 
     /** @hide */
-    override val proto: DataProto.ExerciseGoal by lazy {
+    override val proto: DataProto.ExerciseGoal = getDataProtoExerciseGoalProto()
+
+    private fun getDataProtoExerciseGoalProto(): DataProto.ExerciseGoal {
         val builder =
             DataProto.ExerciseGoal.newBuilder().setExerciseGoalType(exerciseGoalType.toProto())
                 .setDataTypeCondition(dataTypeCondition.proto)
         if (period != null) {
             builder.period = dataTypeCondition.dataType.toProtoFromValue(period)
         }
-        builder.build()
+        return builder.build()
     }
 
     // TODO(yeabkal): try to unify equality logic across goal types.
