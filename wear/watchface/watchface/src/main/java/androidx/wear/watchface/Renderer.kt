@@ -194,11 +194,22 @@ public sealed class Renderer @WorkerThread constructor(
     private var pendingWatchFaceColors: WatchFaceColors? = null
     private var pendingWatchFaceColorsSet = false
 
+    // Protected by lock
+    private var pendingSendPreviewImageNeedsUpdateRequest = false
+    private val lock = Any()
+
+    // Protected by lock. NB UI thread code doesn't need the lock.
     internal var watchFaceHostApi: WatchFaceHostApi? = null
         set(value) {
-            field = value
+            val pendingSendPreviewImageNeedsUpdateRequestCopy = synchronized(lock) {
+                field = value
+                pendingSendPreviewImageNeedsUpdateRequest
+            }
             if (pendingWatchFaceColorsSet) {
                 value?.onWatchFaceColorsChanged(pendingWatchFaceColors)
+            }
+            if (pendingSendPreviewImageNeedsUpdateRequestCopy) {
+                value?.sendPreviewImageNeedsUpdateRequest()
             }
         }
 
@@ -511,9 +522,16 @@ public sealed class Renderer @WorkerThread constructor(
      * free to schedule when the update occurs.
      *
      * Requires a compatible system to work (if the system is incompatible this does nothing).
+     * This can be called from any thread.
      */
     public fun sendPreviewImageNeedsUpdateRequest() {
-        watchFaceHostApi?.sendPreviewImageNeedsUpdateRequest()
+        synchronized(lock) {
+            if (watchFaceHostApi == null) {
+                pendingSendPreviewImageNeedsUpdateRequest = true
+            } else {
+                watchFaceHostApi!!.sendPreviewImageNeedsUpdateRequest()
+            }
+        }
     }
 
     /**

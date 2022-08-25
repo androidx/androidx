@@ -18,17 +18,29 @@ package androidx.wear.watchface.client.guava
 
 import android.content.ComponentName
 import android.content.Context
+import android.graphics.Canvas
 import android.graphics.Rect
 import android.view.Surface
 import android.view.SurfaceHolder
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import androidx.wear.watchface.CanvasType
+import androidx.wear.watchface.ComplicationSlotsManager
+import androidx.wear.watchface.Renderer
+import androidx.wear.watchface.WatchFace
+import androidx.wear.watchface.WatchFaceService
+import androidx.wear.watchface.WatchFaceType
+import androidx.wear.watchface.WatchState
 import androidx.wear.watchface.client.DeviceConfig
 import androidx.wear.watchface.client.ListenableWatchFaceControlClient
+import androidx.wear.watchface.client.WatchFaceControlClient
 import androidx.wear.watchface.client.WatchUiState
 import androidx.wear.watchface.samples.ExampleCanvasAnalogWatchFaceService
+import androidx.wear.watchface.style.CurrentUserStyleRepository
 import com.google.common.truth.Truth.assertThat
+import java.time.ZonedDateTime
+import java.util.concurrent.CountDownLatch
 import org.junit.Assert.assertNull
 import org.junit.Before
 import org.junit.Test
@@ -37,6 +49,7 @@ import org.mockito.Mock
 import org.mockito.Mockito
 import org.mockito.MockitoAnnotations
 import java.util.concurrent.TimeUnit
+import org.junit.Assert
 
 private const val TIMEOUT_MS = 500L
 
@@ -49,6 +62,8 @@ public class ListenableWatchFaceControlClientTest {
     @Mock
     private lateinit var surface: Surface
 
+    private val context = ApplicationProvider.getApplicationContext<Context>()
+
     @Before
     public fun setUp() {
         MockitoAnnotations.initMocks(this)
@@ -59,7 +74,6 @@ public class ListenableWatchFaceControlClientTest {
 
     @Test
     public fun headlessSchemaSettingIds() {
-        val context = ApplicationProvider.getApplicationContext<Context>()
         val client = ListenableWatchFaceControlClient.createWatchFaceControlClient(
             context,
             context.packageName
@@ -93,7 +107,6 @@ public class ListenableWatchFaceControlClientTest {
 
     @Test
     public fun createHeadlessWatchFaceClient_nonExistentWatchFaceComponentName() {
-        val context = ApplicationProvider.getApplicationContext<Context>()
         val client = ListenableWatchFaceControlClient.createWatchFaceControlClient(
             context,
             context.packageName
@@ -118,7 +131,6 @@ public class ListenableWatchFaceControlClientTest {
 
     @Test
     public fun listenableGetOrCreateWallpaperServiceBackedInteractiveWatchFaceWcsClient() {
-        val context = ApplicationProvider.getApplicationContext<Context>()
         val client = ListenableWatchFaceControlClient.createWatchFaceControlClient(
             context,
             context.packageName
@@ -166,7 +178,6 @@ public class ListenableWatchFaceControlClientTest {
 
     @Test
     public fun createMultipleHeadlessInstances() {
-        val context = ApplicationProvider.getApplicationContext<Context>()
         val client = ListenableWatchFaceControlClient.createWatchFaceControlClient(
             context,
             context.packageName
@@ -219,7 +230,6 @@ public class ListenableWatchFaceControlClientTest {
 
     @Test
     public fun createInteractiveAndHeadlessInstances() {
-        val context = ApplicationProvider.getApplicationContext<Context>()
         val client = ListenableWatchFaceControlClient.createWatchFaceControlClient(
             context,
             context.packageName
@@ -272,7 +282,6 @@ public class ListenableWatchFaceControlClientTest {
 
     @Test
     public fun getInteractiveWatchFaceInstanceSysUI_notExist() {
-        val context = ApplicationProvider.getApplicationContext<Context>()
         val client = ListenableWatchFaceControlClient.createWatchFaceControlClient(
             context,
             context.packageName
@@ -283,7 +292,6 @@ public class ListenableWatchFaceControlClientTest {
 
     @Test
     public fun createWatchFaceControlClient_cancel() {
-        val context = ApplicationProvider.getApplicationContext<Context>()
         ListenableWatchFaceControlClient.createWatchFaceControlClient(
             context,
             context.packageName
@@ -300,7 +308,6 @@ public class ListenableWatchFaceControlClientTest {
 
     @Test
     public fun listenableGetOrCreateInteractiveWatchFaceClient_cancel() {
-        val context = ApplicationProvider.getApplicationContext<Context>()
         val client = ListenableWatchFaceControlClient.createWatchFaceControlClient(
             context,
             context.packageName
@@ -349,5 +356,97 @@ public class ListenableWatchFaceControlClientTest {
         assertThat(interactiveInstance).isNotNull()
         interactiveInstance.close()
         client.close()
+    }
+
+    @Test
+    public fun previewImageUpdateRequestedListener() {
+        val client = ListenableWatchFaceControlClient.createWatchFaceControlClient(
+            context,
+            context.packageName
+        ).get(TIMEOUT_MS, TimeUnit.MILLISECONDS)
+
+        var lastPreviewImageUpdateRequestedId = ""
+        val interactiveInstanceFuture =
+            client.listenableGetOrCreateInteractiveWatchFaceClient(
+                "listenableTestId",
+                DeviceConfig(
+                    false,
+                    false,
+                    0,
+                    0
+                ),
+                WatchUiState(false, 0),
+                null,
+                null,
+                { runnable -> runnable.run() },
+                object : WatchFaceControlClient.PreviewImageUpdateRequestedListener {
+                    override fun onPreviewImageUpdateRequested(instanceId: String) {
+                        lastPreviewImageUpdateRequestedId = instanceId
+                    }
+                }
+            )
+
+        val service = TestWatchFaceServiceWithPreviewImageUpdateRequest(context, surfaceHolder)
+        service.onCreateEngine().onSurfaceChanged(
+            surfaceHolder,
+            0,
+            surfaceHolder.surfaceFrame.width(),
+            surfaceHolder.surfaceFrame.height()
+        )
+
+        val interactiveInstance = interactiveInstanceFuture.get(TIMEOUT_MS, TimeUnit.MILLISECONDS)
+        Assert.assertTrue(service.rendererCreatedLatch.await(500, TimeUnit.MILLISECONDS))
+
+        assertThat(lastPreviewImageUpdateRequestedId).isEmpty()
+        service.triggerPreviewImageUpdateRequest()
+        assertThat(lastPreviewImageUpdateRequestedId).isEqualTo("listenableTestId")
+
+        interactiveInstance.close()
+    }
+}
+
+internal class TestWatchFaceServiceWithPreviewImageUpdateRequest(
+    testContext: Context,
+    private var surfaceHolderOverride: SurfaceHolder,
+) : WatchFaceService() {
+    val rendererCreatedLatch = CountDownLatch(1)
+
+    init {
+        attachBaseContext(testContext)
+    }
+
+    override fun getWallpaperSurfaceHolderOverride() = surfaceHolderOverride
+
+    @Suppress("deprecation")
+    private lateinit var renderer: Renderer.CanvasRenderer
+
+    fun triggerPreviewImageUpdateRequest() {
+        renderer.sendPreviewImageNeedsUpdateRequest()
+    }
+
+    override suspend fun createWatchFace(
+        surfaceHolder: SurfaceHolder,
+        watchState: WatchState,
+        complicationSlotsManager: ComplicationSlotsManager,
+        currentUserStyleRepository: CurrentUserStyleRepository
+    ): WatchFace {
+        @Suppress("deprecation")
+        renderer = object : Renderer.CanvasRenderer(
+            surfaceHolder,
+            currentUserStyleRepository,
+            watchState,
+            CanvasType.HARDWARE,
+            16
+        ) {
+            override fun render(canvas: Canvas, bounds: Rect, zonedDateTime: ZonedDateTime) {}
+
+            override fun renderHighlightLayer(
+                canvas: Canvas,
+                bounds: Rect,
+                zonedDateTime: ZonedDateTime
+            ) {}
+        }
+        rendererCreatedLatch.countDown()
+        return WatchFace(WatchFaceType.DIGITAL, renderer)
     }
 }
