@@ -328,6 +328,7 @@ public final class Preview extends UseCase {
         SettableSurface appSurface = outputEdge.getSurfaces().get(0);
 
         // Send the app Surface to the app.
+        mSessionDeferrableSurface = cameraSurface;
         mCurrentSurfaceRequest = appSurface.createSurfaceRequest(camera);
         if (sendSurfaceRequestIfReady()) {
             sendTransformationInfoIfReady();
@@ -336,7 +337,6 @@ public final class Preview extends UseCase {
         }
 
         // Send the camera Surface to the camera2.
-        mSessionDeferrableSurface = cameraSurface;
         SessionConfig.Builder sessionConfigBuilder = SessionConfig.Builder.createFrom(config);
         addCameraSurfaceAndErrorListener(sessionConfigBuilder, cameraId, config, resolution);
         return sessionConfigBuilder;
@@ -440,6 +440,9 @@ public final class Preview extends UseCase {
         Rect cropRect = getCropRect(mSurfaceSize);
         SurfaceRequest surfaceRequest = mCurrentSurfaceRequest;
         if (cameraInternal != null && surfaceProvider != null && cropRect != null) {
+            // TODO: when SurfaceEffectNode exists, use SettableSurface.setRotationDegrees(int)
+            //  instead. However, this requires PreviewView to rely on relative rotation but not
+            //  target rotation.
             surfaceRequest.updateTransformationInfo(SurfaceRequest.TransformationInfo.of(cropRect,
                     getRelativeRotation(cameraInternal), getAppTargetRotation()));
         }

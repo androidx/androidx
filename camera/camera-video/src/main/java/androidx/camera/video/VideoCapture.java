@@ -399,10 +399,23 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         SurfaceRequest surfaceRequest = mSurfaceRequest;
         Rect cropRect = getCropRect(resolution);
         if (cameraInternal != null && surfaceRequest != null && cropRect != null) {
-            surfaceRequest.updateTransformationInfo(SurfaceRequest.TransformationInfo.of(cropRect,
-                    mNode != null ? 0 : getRelativeRotation(cameraInternal),
-                    mNode != null ? Surface.ROTATION_0 : getTargetRotationInternal()));
+            int relativeRotation = getRelativeRotation(cameraInternal);
+            int targetRotation = getAppTargetRotation();
+            if (mNode != null) {
+                SettableSurface cameraSurface = getCameraSettableSurface();
+                cameraSurface.setRotationDegrees(relativeRotation);
+            } else {
+                surfaceRequest.updateTransformationInfo(
+                        SurfaceRequest.TransformationInfo.of(cropRect, relativeRotation,
+                                targetRotation));
+            }
         }
+    }
+
+    @NonNull
+    private SettableSurface getCameraSettableSurface() {
+        Preconditions.checkNotNull(mNode);
+        return (SettableSurface) requireNonNull(mDeferrableSurface);
     }
 
     /**
