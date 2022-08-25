@@ -16,7 +16,6 @@
 
 package androidx.wear.watchface
 
-import android.annotation.SuppressLint
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -57,6 +56,7 @@ import androidx.wear.watchface.complications.SystemDataSources.DataSourceId
 import androidx.wear.watchface.complications.data.ComplicationData
 import androidx.wear.watchface.complications.data.ComplicationExperimental
 import androidx.wear.watchface.complications.data.ComplicationType
+import androidx.wear.watchface.complications.data.NoDataComplicationData
 import androidx.wear.watchface.complications.data.toApiComplicationData
 import androidx.wear.watchface.complications.data.toWireTypes
 import androidx.wear.watchface.control.HeadlessWatchFaceImpl
@@ -968,14 +968,26 @@ public abstract class WatchFaceService : WallpaperService() {
         }
 
         @Suppress("DEPRECATION")
-        fun onComplicationSlotDataUpdate(extras: Bundle) {
+        fun onComplicationSlotDataUpdate(extras: Bundle) = TraceEvent(
+            "EngineWrapper.setComplicationSlotData"
+        ).use {
             extras.classLoader = WireComplicationData::class.java.classLoader
             val complicationData: WireComplicationData =
                 extras.getParcelable(Constants.EXTRA_COMPLICATION_DATA)!!
-            engineWrapper.setComplicationSlotData(
-                extras.getInt(Constants.EXTRA_COMPLICATION_ID),
-                complicationData.toApiComplicationData()
-            )
+
+            val complicationSlotId = extras.getInt(Constants.EXTRA_COMPLICATION_ID)
+            val data = complicationData.toApiComplicationData()
+            val watchFaceImpl = engineWrapper.getWatchFaceImplOrNull()
+            if (watchFaceImpl != null) {
+                watchFaceImpl.onComplicationSlotDataUpdate(complicationSlotId, data)
+                watchFaceImpl.complicationSlotsManager.onComplicationsUpdated()
+            } else {
+                // If the watch face hasn't loaded yet then we append
+                // pendingComplicationDataUpdates so it can be applied later.
+                pendingComplicationDataUpdates.add(
+                    PendingComplicationData(complicationSlotId, data)
+                )
+            }
         }
 
         fun onSetBinder(extras: Bundle) {
@@ -1196,10 +1208,6 @@ public abstract class WatchFaceService : WallpaperService() {
 
         private var asyncWatchFaceConstructionPending = false
 
-        // Stores the initial ComplicationSlots which could get updated before they're applied.
-        internal var pendingInitialComplications: List<IdAndComplicationDataWireFormat>? = null
-            private set
-
         private var initialUserStyle: UserStyleWireFormat? = null
         internal lateinit var interactiveInstanceId: String
 
@@ -1409,72 +1417,45 @@ public abstract class WatchFaceService : WallpaperService() {
             }
         }
 
-        @SuppressLint("SyntheticAccessor")
-        internal fun setComplicationSlotData(
-            complicationSlotId: Int,
-            data: ComplicationData
-        ): Unit = TraceEvent("EngineWrapper.setComplicationSlotData").use {
-            val watchFaceImpl = getWatchFaceImplOrNull()
-            if (watchFaceImpl != null) {
-                watchFaceImpl.onComplicationSlotDataUpdate(complicationSlotId, data)
-                watchFaceImpl.complicationSlotsManager.onComplicationsUpdated()
-            } else {
-                // If the watch face hasn't loaded yet then we append
-                // pendingComplicationDataUpdates so it can be applied later.
-                wslFlow.pendingComplicationDataUpdates.add(
-                    WslFlow.PendingComplicationData(complicationSlotId, data)
-                )
-            }
-        }
-
         @UiThread
-        internal fun setComplicationDataList(
-            complicationDataWireFormats: List<IdAndComplicationDataWireFormat>
+        internal fun setComplications(
+            complications: Map<Int, WireComplicationData>
         ): Unit = TraceEvent("EngineWrapper.setComplicationDataList").use {
-            val watchFaceImpl = getWatchFaceImplOrNull()
-            if (watchFaceImpl != null) {
-                for (idAndComplicationData in complicationDataWireFormats) {
-                    watchFaceImpl.onComplicationSlotDataUpdate(
-                        idAndComplicationData.id,
-                        idAndComplicationData.complicationData.toApiComplicationData()
+            getWatchFaceImplOrNull()?.let {
+                for ((id, complicationData) in complications) {
+                    it.onComplicationSlotDataUpdate(
+                        id,
+                        complicationData.toApiComplicationData()
                     )
                 }
-                watchFaceImpl.complicationSlotsManager.onComplicationsUpdated()
-            } else {
-                setPendingInitialComplications(complicationDataWireFormats)
+                it.complicationSlotsManager.onComplicationsUpdated()
             }
         }
 
         @UiThread
-        internal fun setPendingInitialComplications(
-            complicationDataWireFormats: List<IdAndComplicationDataWireFormat>
-        ) {
-            // If the watchface hasn't been created yet, update pendingInitialComplications so
-            // it can be applied later.
-            if (pendingInitialComplications == null) {
-                pendingInitialComplications = complicationDataWireFormats
-            } else {
-                pendingInitialComplications = mergePendingComplications(
-                    pendingInitialComplications!!,
-                    complicationDataWireFormats
-                )
-            }
-        }
-
-        @UiThread
-        internal suspend fun updateInstance(newInstanceId: String) {
-            val watchFaceImpl = deferredWatchFaceImpl.await()
-            // If the favorite ID has changed then the complications are probably invalid.
-            watchFaceImpl.complicationSlotsManager.clearComplicationData()
-
-            // However we may have valid complications cached.
-            readComplicationDataCache(_context, newInstanceId)?.let {
-                this.setComplicationDataList(it)
-            }
-
+        internal fun updateInstanceAndLoadCachedComplications(
+            newInstanceId: String
+        ): HashMap<Int, WireComplicationData> {
             InteractiveInstanceManager.renameInstance(interactiveInstanceId, newInstanceId)
             interactiveInstanceId = newInstanceId
             mutableWatchState.watchFaceInstanceId.value = sanitizeWatchFaceId(newInstanceId)
+
+            // Initial map of complication IDs to NoDataComplicationData.
+            val complications = HashMap<Int, WireComplicationData>()
+            getWatchFaceImplOrNull()?.let {
+                for (complication in it.complicationSlotsManager.complicationSlots) {
+                    complications[complication.key] =
+                        NoDataComplicationData().asWireComplicationData()
+                }
+            }
+            // Apply any cached data.
+            readComplicationDataCache(_context, newInstanceId)?.let {
+                for (complication in it) {
+                    complications[complication.id] = complication.complicationData
+                }
+            }
+            setComplications(complications)
+            return complications
         }
 
         override fun getContext(): Context = _context
@@ -1879,14 +1860,6 @@ public abstract class WatchFaceService : WallpaperService() {
             mutableWatchState.watchFaceInstanceId.value = sanitizeWatchFaceId(params.instanceId)
             val watchState = mutableWatchState.asWatchState()
 
-            // Store the initial complications, this could be modified by new data before being
-            // applied.
-            pendingInitialComplications = params.idAndComplicationDataWireFormats
-
-            if (pendingInitialComplications == null || pendingInitialComplications!!.isEmpty()) {
-                pendingInitialComplications = readComplicationDataCache(_context, params.instanceId)
-            }
-
             createWatchFaceInternal(
                 watchState,
                 getWallpaperSurfaceHolderOverride(),
@@ -1897,7 +1870,22 @@ public abstract class WatchFaceService : WallpaperService() {
                 params.instanceId,
                 // New scope because this needs to outlive EngineWrapper.
                 CoroutineScope(uiThreadHandler.asCoroutineDispatcher().immediate)
-            )
+            ) {
+                // Create a map of the initial complications on demand.
+                HashMap<Int, WireComplicationData>().apply {
+                    var initialComplications = params.idAndComplicationDataWireFormats
+                    if (initialComplications == null || initialComplications.isEmpty()) {
+                        initialComplications =
+                            readComplicationDataCache(_context, params.instanceId)
+                    }
+                    initialComplications?.let {
+                        for (complication in initialComplications) {
+                            this[complication.id] = complication.complicationData
+                        }
+                    }
+                }
+            }
+
             instance.attachEngine(this)
             interactiveInstanceId = params.instanceId
             this.instance = instance
@@ -2091,14 +2079,6 @@ public abstract class WatchFaceService : WallpaperService() {
                 }
                 deferredWatchFaceImpl.complete(watchFaceImpl)
                 instance?.onWatchFaceReady()
-
-                // Apply any pendingInitialComplications, this must be done after
-                // deferredWatchFaceImpl has completed or there's a window in which complication
-                // updates get lost.
-                pendingInitialComplications?.let {
-                    setComplicationDataList(it)
-                }
-                pendingInitialComplications = null
 
                 asyncWatchFaceConstructionPending = false
                 watchFaceImpl.initComplete = true
@@ -2518,9 +2498,6 @@ public abstract class WatchFaceService : WallpaperService() {
             writer.println("frameCallbackPending=$frameCallbackPending")
             writer.println("destroyed=$destroyed")
             writer.println("surfaceDestroyed=$surfaceDestroyed")
-            writer.println(
-                "pendingInitialComplications=" + pendingInitialComplications?.joinToString()
-            )
 
             instance?.dump(writer)
 
@@ -2634,19 +2611,3 @@ fun sanitizeWatchFaceId(instanceId: String?) =
     } else {
         instanceId
     }
-
-/** Merges [update] into [pendingComplications]. */
-internal fun mergePendingComplications(
-    pendingComplications: List<IdAndComplicationDataWireFormat>,
-    update: List<IdAndComplicationDataWireFormat>
-): List<IdAndComplicationDataWireFormat> {
-    val complicationUpdateMap = pendingComplications.associate {
-        Pair(it.id, it.complicationData)
-    }.toMutableMap()
-    for (data in update) {
-        complicationUpdateMap[data.id] = data.complicationData
-    }
-    return complicationUpdateMap.map {
-        IdAndComplicationDataWireFormat(it.key, it.value)
-    }
-}
