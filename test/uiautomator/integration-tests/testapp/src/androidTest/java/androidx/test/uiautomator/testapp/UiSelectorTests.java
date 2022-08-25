@@ -16,12 +16,14 @@
 
 package androidx.test.uiautomator.testapp;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import android.widget.Button;
 import android.widget.Switch;
 
+import androidx.test.uiautomator.UiObject;
 import androidx.test.uiautomator.UiSelector;
 
 import org.junit.Test;
@@ -143,29 +145,138 @@ public class UiSelectorTests extends BaseTest {
                 new UiSelector().resourceIdMatches(".*testapp:id/not_example.*")).exists());
     }
 
+    @Test
+    public void testIndex() {
+        launchTestActivity(ParentChildTestActivity.class);
+
+        // `tree_N3` is the second child of its direct parent (1st in 0-based).
+        assertTrue(mDevice.findObject(
+                new UiSelector().resourceId(TEST_APP + ":id/tree_N3").index(1)).exists());
+        assertFalse(mDevice.findObject(
+                new UiSelector().resourceId(TEST_APP + ":id/tree_N2").index(1)).exists());
+    }
+
+    @Test
+    public void testInstance() throws Exception {
+        launchTestActivity(ParentChildTestActivity.class);
+
+        // `tree_N5` is the third instance (2nd in 0-based) of class `Button` ever rendered on
+        // the screen.
+        assertEquals("tree_N5",
+                mDevice.findObject(new UiSelector().className(Button.class).instance(2)).getText());
+    }
+
+    @Test
+    public void testEnabled() {
+        launchTestActivity(IsEnabledTestActivity.class);
+
+        assertTrue(mDevice.findObject(
+                new UiSelector().resourceId(TEST_APP + ":id/enabled_text_view").enabled(
+                        true)).exists());
+        assertTrue(mDevice.findObject(
+                new UiSelector().resourceId(TEST_APP + ":id/disabled_text_view").enabled(
+                        false)).exists());
+    }
+
+    @Test
+    public void testFocused() throws Exception {
+        launchTestActivity(IsFocusedTestActivity.class);
+
+        UiObject button = mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id/button"));
+
+        assertTrue(mDevice.findObject(
+                new UiSelector().resourceId(TEST_APP + ":id/focusable_text_view").focused(
+                        false)).exists());
+        button.click();
+        assertTrue(mDevice.findObject(
+                new UiSelector().resourceId(TEST_APP + ":id/focusable_text_view").focused(
+                        true)).exists());
+    }
+
+    @Test
+    public void testFocusable() {
+        launchTestActivity(IsFocusedTestActivity.class);
+
+        assertTrue(mDevice.findObject(
+                new UiSelector().resourceId(TEST_APP + ":id/focusable_text_view").focusable(
+                        true)).exists());
+        assertTrue(mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id"
+                + "/non_focusable_text_view").focusable(false)).exists());
+    }
+
+    @Test
+    public void testScrollable() {
+        launchTestActivity(VerticalScrollTestActivity.class);
+
+        assertTrue(mDevice.findObject(
+                new UiSelector().resourceId(TEST_APP + ":id/scroll_view").scrollable(
+                        true)).exists());
+        assertTrue(mDevice.findObject(
+                new UiSelector().resourceId(TEST_APP + ":id/top_text").scrollable(false)).exists());
+    }
+
+    @Test
+    public void testSelected() throws Exception {
+        launchTestActivity(IsSelectedTestActivity.class);
+
+        UiObject selectedButton = mDevice.findObject(
+                new UiSelector().resourceId(TEST_APP + ":id/selected_button"));
+
+        assertTrue(mDevice.findObject(
+                new UiSelector().resourceId(TEST_APP + ":id/selected_target").selected(
+                        false)).exists());
+        selectedButton.click();
+        assertTrue(mDevice.findObject(
+                new UiSelector().resourceId(TEST_APP + ":id/selected_target").selected(
+                        true)).exists());
+    }
+
+    @Test
+    public void testChecked() throws Exception {
+        launchTestActivity(ClickTestActivity.class);
+
+        UiObject checkBox = mDevice.findObject(
+                new UiSelector().resourceId(TEST_APP + ":id/check_box"));
+
+        assertTrue(mDevice.findObject(
+                new UiSelector().resourceId(TEST_APP + ":id/check_box").checked(false)).exists());
+        checkBox.click();
+        assertTrue(mDevice.findObject(
+                new UiSelector().resourceId(TEST_APP + ":id/check_box").checked(true)).exists());
+    }
+
+    @Test
+    public void testClickable() {
+        launchTestActivity(MainActivity.class);
+
+        assertTrue(mDevice.findObject(
+                new UiSelector().text("Accessible button").clickable(true)).exists());
+        assertTrue(
+                mDevice.findObject(new UiSelector().text("Sample text").clickable(false)).exists());
+    }
+
+    @Test
+    public void testCheckable() {
+        launchTestActivity(ClickTestActivity.class);
+
+        assertTrue(mDevice.findObject(
+                new UiSelector().resourceId(TEST_APP + ":id/check_box").checkable(true)).exists());
+        assertTrue(mDevice.findObject(
+                new UiSelector().resourceId(TEST_APP + ":id/button1").checkable(false)).exists());
+    }
+
+    @Test
+    public void testLongClickable() {
+        launchTestActivity(LongClickTestActivity.class);
+
+        assertTrue(mDevice.findObject(
+                new UiSelector().resourceId(TEST_APP + ":id/button").longClickable(true)).exists());
+        assertTrue(mDevice.findObject(
+                new UiSelector().resourceId(TEST_APP + ":id/text_view").longClickable(
+                        false)).exists());
+    }
+
     /* TODO(b/242916007): Implement these tests, and the tests for exceptions of each tested method.
-
-    public void testIndex() {}
-
-    public void testInstance() {}
-
-    public void testEnabled() {}
-
-    public void testFocused() {}
-
-    public void testFocusable() {}
-
-    public void testScrollable() {}
-
-    public void testSelected() {}
-
-    public void testChecked() {}
-
-    public void testClickable() {}
-
-    public void testCheckable() {}
-
-    public void testLongClickable() {}
 
     public void testChildSelector() {}
 
