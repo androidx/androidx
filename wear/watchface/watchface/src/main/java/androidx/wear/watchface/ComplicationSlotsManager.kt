@@ -31,14 +31,12 @@ import androidx.annotation.WorkerThread
 import androidx.wear.watchface.complications.ComplicationSlotBounds
 import androidx.wear.watchface.complications.data.ComplicationData
 import androidx.wear.watchface.complications.data.ComplicationType
-import androidx.wear.watchface.complications.data.NoDataComplicationData
 import androidx.wear.watchface.utility.TraceEvent
 import androidx.wear.watchface.control.data.IdTypeAndDefaultProviderPolicyWireFormat
 import androidx.wear.watchface.style.CurrentUserStyleRepository
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotsOption
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import java.time.Instant
 
@@ -321,13 +319,6 @@ public class ComplicationSlotsManager(
             return
         }
         complication.setComplicationData(data, false, instant)
-    }
-
-    @UiThread
-    internal fun clearComplicationData() {
-        for ((_, complication) in complicationSlots) {
-            complication.setComplicationData(NoDataComplicationData(), false, Instant.EPOCH)
-        }
     }
 
     /**

@@ -23,6 +23,7 @@ import android.util.Log
 import android.support.wearable.complications.ComplicationData
 import androidx.annotation.RequiresApi
 import androidx.annotation.UiThread
+import androidx.annotation.VisibleForTesting
 import androidx.wear.watchface.IndentingPrintWriter
 import androidx.wear.watchface.utility.TraceEvent
 import androidx.wear.watchface.TapEvent
@@ -48,10 +49,12 @@ import kotlinx.coroutines.withContext
  * @param instanceId The system's id for this instance
  * @param uiThreadCoroutineScope A UI thread [CoroutineScope], this must must have the same lifetime
  * as the [WatchFaceService].
+ * @param initialComplications The initial complications for this instance, may be empty.
  */
 internal class InteractiveWatchFaceImpl(
     internal var instanceId: String,
-    private val uiThreadCoroutineScope: CoroutineScope
+    private val uiThreadCoroutineScope: CoroutineScope,
+    initialComplications: HashMap<Int, ComplicationData>
 ) : IInteractiveWatchFace.Stub() {
     private companion object {
         private const val TAG = "InteractiveWatchFaceImpl"
@@ -59,10 +62,12 @@ internal class InteractiveWatchFaceImpl(
 
     private class PendingUpdateWatchfaceInstance(
         val newInstanceId: String,
-        val userStyle: UserStyleWireFormat
+        var userStyle: UserStyleWireFormat
     )
 
+    // You can't have non null pendingUpdateWatchfaceInstance and a non null pendingStyleChange
     private var pendingUpdateWatchfaceInstance: PendingUpdateWatchfaceInstance? = null
+    private var pendingStyleChange: UserStyleWireFormat? = null
 
     // Members after this are protected by the lock.
     private val lock = Any()
@@ -70,7 +75,8 @@ internal class InteractiveWatchFaceImpl(
     /** Protected by [lock]. */
     private val listeners = HashSet<IWatchfaceListener>()
     private var lastWatchFaceColors: WatchFaceColors? = null
-    private var complications = HashMap<Int, ComplicationData>()
+    @VisibleForTesting
+    internal var complications = initialComplications
     /** This is deprecated, instead we prefer [IWatchfaceListener.onWatchfaceReady]. */
     private var watchfaceReadyListener: IWatchfaceReadyListener? = null
     private var watchFaceReady = false
@@ -99,20 +105,10 @@ internal class InteractiveWatchFaceImpl(
                 " already attached"
         }
 
-        val currentWatchUiState: WatchUiState?
         synchronized(lock) {
             this.engine = engine
-            currentWatchUiState = watchUiState
-            complications
-        }.let {
-            engine.setComplicationDataList(
-                it.map { complication ->
-                    IdAndComplicationDataWireFormat(complication.key, complication.value)
-                }
-            )
-        }
-
-        currentWatchUiState?.let {
+            watchUiState
+        }?.let {
             engine.setWatchUiState(it, fromSysUi = true)
         }
     }
@@ -144,13 +140,28 @@ internal class InteractiveWatchFaceImpl(
             listener.onWatchfaceReady()
         }
 
-        pendingUpdateWatchfaceInstance?.let {
-            // NB this won't actually block since the watchface is ready.
-            runBlocking {
-                updateWatchfaceInstanceImpl(it.newInstanceId, it.userStyle)
-            }
-            pendingUpdateWatchfaceInstance = null
+        val complicationsCopy = synchronized(lock) {
+            HashMap(complications)
         }
+
+        // NB this won't actually block since the watchface is ready.
+        runBlocking {
+            require(pendingUpdateWatchfaceInstance == null || pendingStyleChange == null)
+
+            // In the case where updateWatchfaceInstance and complications were delivered while the
+            // engine was null, we need to load any cached complications and apply updates.
+            pendingUpdateWatchfaceInstance?.let {
+                updateWatchfaceInstanceImpl(it.newInstanceId, it.userStyle)
+                pendingUpdateWatchfaceInstance = null
+            }
+
+            // Similarly we need to apply any pending style changes.
+            pendingStyleChange?.let {
+                engine!!.setUserStyle(it)
+            }
+        }
+
+        engine!!.setComplications(complicationsCopy)
     }
 
     override fun getApiVersion() = IInteractiveWatchFace.API_VERSION
@@ -284,7 +295,7 @@ internal class InteractiveWatchFaceImpl(
     }
 
     override fun updateComplicationData(
-        complicationDatumWireFormats: MutableList<IdAndComplicationDataWireFormat>
+        complicationDatumWireFormats: List<IdAndComplicationDataWireFormat>
     ) {
         if ("user" != Build.TYPE) {
             Log.d(TAG, "updateComplicationData " + complicationDatumWireFormats.joinToString())
@@ -298,7 +309,32 @@ internal class InteractiveWatchFaceImpl(
 
         uiThreadCoroutineScope.launch {
             TraceEvent("InteractiveWatchFaceImpl.updateComplicationData").use {
-                engine?.setComplicationDataList(complicationDatumWireFormats)
+                engine?.setComplications(
+                    complicationDatumWireFormats.associateBy(
+                        { it.id },
+                        { it.complicationData }
+                    )
+                )
+            }
+        }
+    }
+
+    // This function doesn't use runBlockingWithTracing since that deadlocks some of our tests.
+    fun updateStyle(userStyle: UserStyleWireFormat) {
+        uiThreadCoroutineScope.launch {
+            TraceEvent("InteractiveWatchFaceImpl.updateComplicationData").use {
+                val engineCopy = engine
+                if (engineCopy != null) {
+                    engineCopy.setUserStyle(userStyle)
+                } else {
+                    // If there's a pending pendingUpdateWatchfaceInstance, then override the
+                    // userStyle
+                    if (pendingUpdateWatchfaceInstance != null) {
+                        pendingUpdateWatchfaceInstance!!.userStyle = userStyle
+                    } else {
+                        pendingStyleChange = userStyle
+                    }
+                }
             }
         }
     }
@@ -307,6 +343,15 @@ internal class InteractiveWatchFaceImpl(
         newInstanceId: String,
         userStyle: UserStyleWireFormat
     ) {
+        // If the instance ID has changed we need to clear the complications.
+        // NB updateWatchfaceInstanceImpl does this too, but we're doing this here in case the
+        // engine is null, which simplifies complication handling in onWatchFaceReady.
+        if (newInstanceId != instanceId) {
+            synchronized(lock) {
+                complications = HashMap()
+            }
+        }
+
         /**
          * This is blocking to ensure ordering with respect to any subsequent [getInstanceId] and
          * [getPreviewReferenceTimeMillis] calls.
@@ -324,6 +369,9 @@ internal class InteractiveWatchFaceImpl(
                 // attempt to
                 pendingUpdateWatchfaceInstance =
                     PendingUpdateWatchfaceInstance(newInstanceId, userStyle)
+
+                // We don't need a pendingUpdateWatchfaceInstance and a pendingStyleChange.
+                pendingStyleChange = null
             }
         }
     }
@@ -334,7 +382,9 @@ internal class InteractiveWatchFaceImpl(
         userStyle: UserStyleWireFormat
     ) {
         if (instanceId != newInstanceId) {
-            engine!!.updateInstance(newInstanceId)
+            // Complications are tied to the newInstanceId, if it's changed we need to load any
+            // cached ones for newInstanceId.
+            complications = engine!!.updateInstanceAndLoadCachedComplications(newInstanceId)
             instanceId = newInstanceId
         }
         engine!!.setUserStyle(userStyle)
