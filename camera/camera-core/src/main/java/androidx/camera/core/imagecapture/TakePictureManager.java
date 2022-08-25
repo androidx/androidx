@@ -246,7 +246,7 @@ public class TakePictureManager {
 
         @MainThread
         @Override
-        public void onFinalResult(@Nullable ImageCapture.OutputFileResults outputFileResults) {
+        public void onFinalResult(@NonNull ImageCapture.OutputFileResults outputFileResults) {
             checkMainThread();
             checkOnImageCaptured();
             markComplete();
@@ -255,7 +255,7 @@ public class TakePictureManager {
 
         @MainThread
         @Override
-        public void onFinalResult(@Nullable ImageProxy imageProxy) {
+        public void onFinalResult(@NonNull ImageProxy imageProxy) {
             checkMainThread();
             checkOnImageCaptured();
             markComplete();

@@ -16,22 +16,97 @@
 
 package androidx.camera.core.imagecapture;
 
+import static java.util.Objects.requireNonNull;
+
+import android.graphics.Matrix;
+import android.graphics.Rect;
+import android.os.Build;
+
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCaptureException;
 import androidx.camera.core.ImageProxy;
+import androidx.camera.core.impl.CaptureBundle;
+import androidx.camera.core.impl.CaptureStage;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A post-processing request and its callback.
  */
-public class ProcessingRequest {
+@RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+class ProcessingRequest {
 
+    @Nullable
+    private final ImageCapture.OutputFileOptions mOutputFileOptions;
+    @NonNull
+    private final Rect mCropRect;
+    private final int mRotationDegrees;
+    private final int mJpegQuality;
+    @NonNull
+    private final Matrix mSensorToBufferTransform;
+    @NonNull
     private final TakePictureCallback mCallback;
+    @NonNull
+    private final String mTagBundleKey;
+    @NonNull
+    private final List<Integer> mStageIds;
 
-    ProcessingRequest(@NonNull TakePictureCallback callback) {
+    ProcessingRequest(@Nullable ImageCapture.OutputFileOptions outputFileOptions,
+            @NonNull CaptureBundle captureBundle,
+            @NonNull Rect cropRect,
+            int rotationDegrees,
+            int jpegQuality,
+            @NonNull Matrix sensorToBufferTransform,
+            @NonNull TakePictureCallback callback) {
+        mOutputFileOptions = outputFileOptions;
+        mJpegQuality = jpegQuality;
+        mRotationDegrees = rotationDegrees;
+        mCropRect = cropRect;
+        mSensorToBufferTransform = sensorToBufferTransform;
         mCallback = callback;
+        mTagBundleKey = String.valueOf(captureBundle.hashCode());
+        mStageIds = new ArrayList<>();
+        for (CaptureStage captureStage : requireNonNull(captureBundle.getCaptureStages())) {
+            mStageIds.add(captureStage.getId());
+        }
+    }
+
+    @NonNull
+    String getTagBundleKey() {
+        return mTagBundleKey;
+    }
+
+    @NonNull
+    List<Integer> getStageIds() {
+        return mStageIds;
+    }
+
+    @Nullable
+    ImageCapture.OutputFileOptions getOutputFileOptions() {
+        return mOutputFileOptions;
+    }
+
+    @NonNull
+    Rect getCropRect() {
+        return mCropRect;
+    }
+
+    int getRotationDegrees() {
+        return mRotationDegrees;
+    }
+
+    int getJpegQuality() {
+        return mJpegQuality;
+    }
+
+    @NonNull
+    Matrix getSensorToBufferTransform() {
+        return mSensorToBufferTransform;
     }
 
     /**
@@ -65,5 +140,4 @@ public class ProcessingRequest {
     void onProcessFailure(@NonNull ImageCaptureException imageCaptureException) {
         mCallback.onProcessFailure(imageCaptureException);
     }
-
 }
