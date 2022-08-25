@@ -35,6 +35,7 @@ CORE_REMOTEVIEWS = "1.0.0-beta03"
 CORE_ROLE = "1.2.0-alpha01"
 CORE_SPLASHSCREEN = "1.1.0-alpha01"
 CORE_UWB = "1.0.0-alpha04"
+CREDENTIALS = "1.0.0-alpha01"
 CURSORADAPTER = "1.1.0-alpha01"
 CUSTOMVIEW = "1.2.0-alpha02"
 CUSTOMVIEW_POOLINGCONTAINER = "1.1.0-alpha01"
@@ -170,6 +171,7 @@ CONTENTPAGER = { group = "androidx.contentpager", atomicGroupVersion = "versions
 COORDINATORLAYOUT = { group = "androidx.coordinatorlayout", atomicGroupVersion = "versions.COORDINATORLAYOUT" }
 CORE = { group = "androidx.core" }
 CORE_UWB = { group = "androidx.core.uwb", atomicGroupVersion = "versions.CORE_UWB" }
+CREDENTIALS = { group = "androidx.credentials", atomicGroupVersion = "versions.CREDENTIALS" }
 CURSORADAPTER = { group = "androidx.cursoradapter", atomicGroupVersion = "versions.CURSORADAPTER" }
 CUSTOMVIEW = { group = "androidx.customview" }
 DATASTORE = { group = "androidx.datastore", atomicGroupVersion = "versions.DATASTORE" }
