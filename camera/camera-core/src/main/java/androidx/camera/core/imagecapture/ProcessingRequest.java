@@ -56,8 +56,9 @@ class ProcessingRequest {
     @NonNull
     private final List<Integer> mStageIds;
 
-    ProcessingRequest(@Nullable ImageCapture.OutputFileOptions outputFileOptions,
+    ProcessingRequest(
             @NonNull CaptureBundle captureBundle,
+            @Nullable ImageCapture.OutputFileOptions outputFileOptions,
             @NonNull Rect cropRect,
             int rotationDegrees,
             int jpegQuality,
