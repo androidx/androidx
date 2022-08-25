@@ -66,7 +66,7 @@ class BluetoothGattCharacteristic internal constructor(
         const val FORMAT_UINT8 = FwkBluetoothGattCharacteristic.FORMAT_UINT8
 
         /**
-         * Characteristic proprty: Characteristic is broadcastable.
+         * Characteristic property: Characteristic is broadcastable.
          */
         const val PROPERTY_BROADCAST =
             FwkBluetoothGattCharacteristic.PROPERTY_BROADCAST
@@ -363,14 +363,6 @@ class BluetoothGattCharacteristic internal constructor(
                 }
         }
 
-        init {
-            fwkCharacteristic.descriptors.forEach {
-                val descriptor = BluetoothGattDescriptor(it)
-                _descriptors.add(descriptor)
-                descriptor.characteristic = characteristic
-            }
-        }
-
         override val uuid: UUID
             get() = fwkCharacteristic.uuid
         override val properties
@@ -388,6 +380,13 @@ class BluetoothGattCharacteristic internal constructor(
         override val descriptors
             get() = _descriptors.toList()
         override var service: BluetoothGattService? = null
+        init {
+            fwkCharacteristic.descriptors.forEach {
+                val descriptor = BluetoothGattDescriptor(it)
+                _descriptors.add(descriptor)
+                descriptor.characteristic = characteristic
+            }
+        }
 
         override fun addDescriptor(
             descriptor: BluetoothGattDescriptor,
