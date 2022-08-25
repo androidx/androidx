@@ -156,8 +156,7 @@ public class UiObject2 implements Searchable {
      * @return The final result returned by the {@code condition}, or null if the {@code condition}
      * was not met before the {@code timeout}.
      */
-    @SuppressWarnings("TypeNameShadowing")
-    public <R> R wait(@NonNull UiObject2Condition<R> condition, long timeout) {
+    public <U> U wait(@NonNull UiObject2Condition<U> condition, long timeout) {
         return mWaitMixin.wait(condition, timeout);
     }
 
@@ -169,8 +168,7 @@ public class UiObject2 implements Searchable {
      * @return The final result returned by the {@code condition}, or null if the {@code condition}
      * was not met before the {@code timeout}.
      */
-    @SuppressWarnings("TypeNameShadowing")
-    public <R> R wait(@NonNull SearchCondition<R> condition, long timeout) {
+    public <U> U wait(@NonNull SearchCondition<U> condition, long timeout) {
         return mWaitMixin.wait(condition, timeout);
     }
 
@@ -469,8 +467,7 @@ public class UiObject2 implements Searchable {
     }
 
     /** Clicks on this object, and waits for the given condition to become true. */
-    @SuppressWarnings("TypeNameShadowing")
-    public <R> R clickAndWait(@NonNull EventCondition<R> condition, long timeout) {
+    public <U> U clickAndWait(@NonNull EventCondition<U> condition, long timeout) {
         Log.v(TAG, String.format("clickAndWait(center=%s,timeout=%d)",
                 getVisibleCenter(), timeout));
         return mGestureController.performGestureAndWait(condition, timeout,
@@ -486,8 +483,7 @@ public class UiObject2 implements Searchable {
      * @param condition The {@link EventCondition} to wait for.
      * @param timeout The duration in milliseconds waiting for {@code condition} before timed out.
      */
-    @SuppressWarnings("TypeNameShadowing")
-    public <R> R clickAndWait(@NonNull Point point, @NonNull EventCondition<R> condition,
+    public <U> U clickAndWait(@NonNull Point point, @NonNull EventCondition<U> condition,
             long timeout) {
         clipToGestureBounds(point);
         Log.v(TAG, String.format("clickAndWait(point=%s,timeout=%d)", point, timeout));
