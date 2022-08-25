@@ -30,9 +30,16 @@ package androidx.health.connect.client {
   }
 
   public interface PermissionController {
-    method public androidx.activity.result.contract.ActivityResultContract<java.util.Set<androidx.health.connect.client.permission.HealthPermission>,java.util.Set<androidx.health.connect.client.permission.HealthPermission>> createRequestPermissionActivityContract();
+    method public default static androidx.activity.result.contract.ActivityResultContract<java.util.Set<androidx.health.connect.client.permission.HealthPermission>,java.util.Set<androidx.health.connect.client.permission.HealthPermission>> createRequestPermissionResultContract(optional String providerPackageName);
+    method public default static androidx.activity.result.contract.ActivityResultContract<java.util.Set<androidx.health.connect.client.permission.HealthPermission>,java.util.Set<androidx.health.connect.client.permission.HealthPermission>> createRequestPermissionResultContract();
     method public suspend Object? getGrantedPermissions(java.util.Set<androidx.health.connect.client.permission.HealthPermission> permissions, kotlin.coroutines.Continuation<? super java.util.Set<? extends androidx.health.connect.client.permission.HealthPermission>>);
     method public suspend Object? revokeAllPermissions(kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    field public static final androidx.health.connect.client.PermissionController.Companion Companion;
+  }
+
+  public static final class PermissionController.Companion {
+    method public androidx.activity.result.contract.ActivityResultContract<java.util.Set<androidx.health.connect.client.permission.HealthPermission>,java.util.Set<androidx.health.connect.client.permission.HealthPermission>> createRequestPermissionResultContract(optional String providerPackageName);
+    method public androidx.activity.result.contract.ActivityResultContract<java.util.Set<androidx.health.connect.client.permission.HealthPermission>,java.util.Set<androidx.health.connect.client.permission.HealthPermission>> createRequestPermissionResultContract();
   }
 
 }
