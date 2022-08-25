@@ -52,6 +52,7 @@ class AppLocalesStorageHelper {
     static final String APP_LOCALES_META_DATA_HOLDER_SERVICE_NAME = "androidx.appcompat.app"
             + ".AppLocalesMetadataHolderService";
     static final String TAG = "AppLocalesStorageHelper";
+    static final boolean DEBUG = false;
 
     private AppLocalesStorageHelper() {}
 
@@ -66,8 +67,10 @@ class AppLocalesStorageHelper {
         try {
             fis = context.openFileInput(APPLICATION_LOCALES_RECORD_FILE);
         } catch (FileNotFoundException fnfe) {
-            Log.w(TAG, "Reading app Locales : Locales record file not found: "
-                    + APPLICATION_LOCALES_RECORD_FILE);
+            if (DEBUG) {
+                Log.d(TAG, "Reading app Locales : Locales record file not found: "
+                        + APPLICATION_LOCALES_RECORD_FILE);
+            }
             return appLocales;
         }
         try {
@@ -103,10 +106,12 @@ class AppLocalesStorageHelper {
         }
 
         if (!appLocales.isEmpty()) {
-            Log.d(TAG,
-                    "Reading app Locales : Locales read from file: "
-                            + APPLICATION_LOCALES_RECORD_FILE + " ," + " appLocales: "
-                            + appLocales);
+            if (DEBUG) {
+                Log.d(TAG,
+                        "Reading app Locales : Locales read from file: "
+                                + APPLICATION_LOCALES_RECORD_FILE + " ," + " appLocales: "
+                                + appLocales);
+            }
         } else {
             context.deleteFile(APPLICATION_LOCALES_RECORD_FILE);
         }
@@ -138,11 +143,13 @@ class AppLocalesStorageHelper {
             serializer.attribute(/* namespace= */ null, LOCALE_RECORD_ATTRIBUTE_TAG, locales);
             serializer.endTag(/* namespace= */ null, LOCALE_RECORD_FILE_TAG);
             serializer.endDocument();
-            Log.d(TAG, "Storing App Locales : app-locales: "
-                    + locales + " persisted successfully.");
+            if (DEBUG) {
+                Log.d(TAG, "Storing App Locales : app-locales: "
+                        + locales + " persisted successfully.");
+            }
         } catch (Exception e) {
-            Log.w(TAG, "Storing App Locales : Failed to persist app-locales: "
-                    + locales, e);
+            Log.w(TAG, "Storing App Locales : Failed to persist app-locales in storage ",
+                    e);
         } finally {
             if (fos != null) {
                 try {
