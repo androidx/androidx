@@ -104,7 +104,7 @@ internal class SampleDataPointTest {
     }
 
     @Test
-    fun protoRoundTripLocation_altitudeAndBearingNull() {
+    fun protoRoundTripLocation_defaultAltitudeAndBearing() {
         val proto = SampleDataPoint(
             dataType = LOCATION,
             value = LocationData(
@@ -114,7 +114,6 @@ internal class SampleDataPointTest {
             timeDurationFromBoot = 20.duration(),
             accuracy = LocationAccuracy(
                 horizontalPositionErrorMeters = 3.5,
-                verticalPositionErrorMeters = null
             )
         ).proto
 
@@ -124,11 +123,11 @@ internal class SampleDataPointTest {
         val data = dataPoint.value as LocationData
         assertThat(data.latitude).isEqualTo(41.2)
         assertThat(data.longitude).isEqualTo(82.3)
-        assertThat(data.altitude).isNull()
-        assertThat(data.bearing).isNull()
+        assertThat(data.altitude).isEqualTo(LocationData.ALTITUDE_UNAVAILABLE)
+        assertThat(data.bearing).isEqualTo(LocationData.BEARING_UNAVAILABLE)
         assertThat(dataPoint.timeDurationFromBoot).isEqualTo(20.duration())
         val accuracy = dataPoint.accuracy as LocationAccuracy
         assertThat(accuracy.horizontalPositionErrorMeters).isEqualTo(3.5)
-        assertThat(accuracy.verticalPositionErrorMeters).isNull()
+        assertThat(accuracy.verticalPositionErrorMeters).isEqualTo(Double.MAX_VALUE)
     }
 }

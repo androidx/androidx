@@ -658,12 +658,12 @@ package androidx.health.services.client.data {
   }
 
   public final class LocationAccuracy extends androidx.health.services.client.data.DataPointAccuracy {
-    ctor public LocationAccuracy(double horizontalPositionErrorMeters, Double? verticalPositionErrorMeters);
+    ctor public LocationAccuracy(@FloatRange(from=0.0) double horizontalPositionErrorMeters, optional @FloatRange(from=0.0) double verticalPositionErrorMeters);
     method public double getHorizontalPositionErrorMeters();
     method public androidx.health.services.client.proto.DataProto.DataPointAccuracy getProto();
-    method public Double? getVerticalPositionErrorMeters();
+    method public double getVerticalPositionErrorMeters();
     property public final double horizontalPositionErrorMeters;
-    property public final Double? verticalPositionErrorMeters;
+    property public final double verticalPositionErrorMeters;
     field public static final android.os.Parcelable.Creator<androidx.health.services.client.data.LocationAccuracy> CREATOR;
     field public static final androidx.health.services.client.data.LocationAccuracy.Companion Companion;
   }
@@ -691,15 +691,17 @@ package androidx.health.services.client.data {
   }
 
   public final class LocationData {
-    ctor public LocationData(double latitude, double longitude, optional Double? altitude, optional Double? bearing);
-    method public Double? getAltitude();
-    method public Double? getBearing();
+    ctor public LocationData(@FloatRange(from=-90.0, to=90.0) double latitude, @FloatRange(from=-180.0, to=180.0) double longitude, optional @FloatRange double altitude, optional @FloatRange(from=-1.0, to=360.0, toInclusive=false) double bearing);
+    method public double getAltitude();
+    method public double getBearing();
     method public double getLatitude();
     method public double getLongitude();
-    property public final Double? altitude;
-    property public final Double? bearing;
+    property public final double altitude;
+    property public final double bearing;
     property public final double latitude;
     property public final double longitude;
+    field public static final double ALTITUDE_UNAVAILABLE = 1.7976931348623157E308;
+    field public static final double BEARING_UNAVAILABLE = -1.0;
   }
 
   public final class MeasureCapabilities extends androidx.health.services.client.data.ProtoParcelable<androidx.health.services.client.proto.DataProto.MeasureCapabilities> {
