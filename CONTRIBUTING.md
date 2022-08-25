@@ -53,7 +53,7 @@ creating a fork of the [androidx/androidx](https://github.com/androidx/androidx)
 
   ```bash
   sdkmanager --install "ndk;23.1.7779620"
-  sdkmanager --install "cmake;3.22.1" --channel=3 #channel 3 is the canary channel
+  sdkmanager --install "cmake;3.22.1"
   ```
 
 - Next, set up the following environment variables:
