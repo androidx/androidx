@@ -28,7 +28,7 @@ import java.time.Period
  * may be anywhere between 23, 24, or 25 hour. Use [AggregateGroupByDurationRequest] if time slice
  * is of fixed intervals, such as an hour, every ten minutes.
  *
- * @param metrics Set of [AggregateMetric]s to aggregate, such as `Steps::STEPS_COUNT_TOTAL`.
+ * @param metrics Set of [AggregateMetric]s to aggregate.
  * @param timeRangeFilter The [TimeRangeFilter] to read from.
  * @param timeRangeSlicer The bucket size of each returned aggregate row. [timeRangeFilter] will be
  * sliced into several equal-sized time buckets (except for the last one).
