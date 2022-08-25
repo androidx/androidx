@@ -220,6 +220,7 @@
     <string name="clicked_row_prefix" msgid="9068303427922069941">"Kliknięty wiersz"</string>
     <string name="first_line_text" msgid="6648055806656590336">"1. linia tekstu"</string>
     <string name="second_line_text" msgid="38664490158836864">"2. linia tekstu"</string>
+    <string name="long_line_text" msgid="8082962600953333087">"Ten tekst może być wyświetlany w całości w trybie bez ograniczeń (np. trybie parkowania lub trybie z ograniczeniami z niską prędkością). W trybie z ograniczeniami (takim jak tryb samochodowy) zostanie jednak przycięty do 2 linii. W celach testowych zastosowano tekst o wyjątkowej długości"</string>
     <string name="title_prefix" msgid="3991742709199357049">"Tytuł"</string>
     <string name="list_template_demo_title" msgid="1740208242737246151">"Wersja demonstracyjna szablonu listy"</string>
     <string name="long_msg_template_demo_title" msgid="1793748562161438131">"Wersja demonstracyjna szablonu długiej wiadomości"</string>

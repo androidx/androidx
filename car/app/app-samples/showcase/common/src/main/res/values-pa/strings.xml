@@ -220,6 +220,7 @@
     <string name="clicked_row_prefix" msgid="9068303427922069941">"ਕਤਾਰ \'ਤੇ ਕਲਿੱਕ ਕੀਤਾ ਗਿਆ"</string>
     <string name="first_line_text" msgid="6648055806656590336">"ਲਿਖਤ ਦੀ ਪਹਿਲੀ ਲਾਈਨ"</string>
     <string name="second_line_text" msgid="38664490158836864">"ਲਿਖਤ ਦੀ ਦੂਜੀ ਲਾਈਨ"</string>
+    <string name="long_line_text" msgid="8082962600953333087">"ਇਹ ਸਬਟੈਕਸਟ ਅਣ-ਪ੍ਰਤਿਬੰਧਿਤ ਮੋਡ ਵਿੱਚ ਪੂਰੀ ਤਰ੍ਹਾਂ ਦਿਖਾਇਆ ਜਾ ਸਕਦਾ ਹੈ (ਉਦਾਹਰਨ, ਪਾਰਕਿੰਗ ਮੋਡ, ਪ੍ਰਤਿਬੰਧਿਤ ਘੱਟ ਗਤੀ ਮੋਡ)। ਪਰ ਪ੍ਰਤਿਬੰਧਿਤ ਮੋਡ ਵਿੱਚ ਹੁੰਦੇ ਹੋਏ ਇਸਨੂੰ ਸਿਰਫ਼ ਦੋ ਲਾਈਨਾਂ ਤੱਕ ਘਟਾਇਆ ਜਾਵੇਗਾ (ਉਦਾਹਰਨ, ਡਰਾਈਵਿੰਗ ਮੋਡ)। ਜਾਂਚ ਦੇ ਉਦੇਸ਼ਾਂ ਲਈ, ਇਹ ਸਬਟੈਕਸਟ ਬਹੁਤ ਬਹੁਤ ਬਹੁਤ ਬਹੁਤ ਬਹੁਤ ਲੰਮਾ ਹੈ"</string>
     <string name="title_prefix" msgid="3991742709199357049">"ਸਿਰਲੇਖ"</string>
     <string name="list_template_demo_title" msgid="1740208242737246151">"ਸੂਚੀ ਟੈਮਪਲੇਟ ਦਾ ਡੈਮੋ"</string>
     <string name="long_msg_template_demo_title" msgid="1793748562161438131">"ਲੰਮੇ ਸੁਨੇਹੇ ਵਾਲੇ ਟੈਮਪਲੇਟ ਦਾ ਡੈਮੋ"</string>

@@ -73,10 +73,10 @@
     <string name="yes_action_toast_msg" msgid="6216215197177241247">"አዎ አዝርዝር ተጭኗል!"</string>
     <string name="no_action_toast_msg" msgid="6165492423831023809">"ምንም አዝራር አልተጫነም!"</string>
     <string name="alert_timeout_toast_msg" msgid="5568380708832805374">"የማንቂያ ጊዜ አብቅቷል!"</string>
-    <string name="first_row_title" msgid="219428344573165351">"ትልቅ ምስል እና ረጅም ጽሑፍ ረጅም ጽሑፍ ረጅም ጽሑፍ ረጅም ጽሑፍ ረጅም ጽሑፍ ያለው ረድፍ"</string>
-    <string name="first_row_text" msgid="3887390298628338716">"ጽሑፍ ጽሑፍ ጽሑፍ"</string>
+    <string name="first_row_title" msgid="219428344573165351">"ትልቅ ምስል እና ረጅም ጽሁፍ ረጅም ጽሁፍ ረጅም ጽሁፍ ረጅም ጽሁፍ ረጅም ጽሁፍ ያለው ረድፍ"</string>
+    <string name="first_row_text" msgid="3887390298628338716">"ጽሁፍ ጽሁፍ ጽሁፍ"</string>
     <string name="other_row_title_prefix" msgid="4702355788835253197">"የረድፍ ርዕስ"</string>
-    <string name="other_row_text" msgid="7510279447493169945">"የረድፍ ጽሑፍ"</string>
+    <string name="other_row_text" msgid="7510279447493169945">"የረድፍ ጽሁፍ"</string>
     <string name="navigate" msgid="2713090390373996139">"አስስ"</string>
     <string name="dial" msgid="3145707439707628311">"ደውል"</string>
     <string name="address" msgid="9010635942573581302">"አድራሻ"</string>
@@ -96,12 +96,12 @@
     <string name="unavailable" msgid="3636401138255192934">"አይገኝም"</string>
     <string name="ev_connector_types" msgid="735458637011996125">"የኢቪ አገናኝ ዓይነቶች"</string>
     <string name="example_title" msgid="530257630320010494">"ምስሌ %d"</string>
-    <string name="example_1_text" msgid="8456567953748293512">"ይህ ጽሑፍ ቀይ ቀለም አለው"</string>
-    <string name="example_2_text" msgid="718820705318661440">"ይህ ጽሑፍ አረንጓዴ ቀለም አለው"</string>
-    <string name="example_3_text" msgid="977269832109695627">"ይህ ጽሑፍ ሰማያዊ ቀለም አለው"</string>
-    <string name="example_4_text" msgid="2043547015979437373">"ይህ ጽሑፍ ቢጫ ቀለም አለው"</string>
-    <string name="example_5_text" msgid="4387859825054561488">"ይህ ጽሑፍ ዋናውን ቀለም ይጠቀማል"</string>
-    <string name="example_6_text" msgid="7991523168517599600">"ይህ ጽሑፍ ሁለተኛውን ቀለም ይጠቀማል"</string>
+    <string name="example_1_text" msgid="8456567953748293512">"ይህ ጽሁፍ ቀይ ቀለም አለው"</string>
+    <string name="example_2_text" msgid="718820705318661440">"ይህ ጽሁፍ አረንጓዴ ቀለም አለው"</string>
+    <string name="example_3_text" msgid="977269832109695627">"ይህ ጽሁፍ ሰማያዊ ቀለም አለው"</string>
+    <string name="example_4_text" msgid="2043547015979437373">"ይህ ጽሁፍ ቢጫ ቀለም አለው"</string>
+    <string name="example_5_text" msgid="4387859825054561488">"ይህ ጽሁፍ ዋናውን ቀለም ይጠቀማል"</string>
+    <string name="example_6_text" msgid="7991523168517599600">"ይህ ጽሁፍ ሁለተኛውን ቀለም ይጠቀማል"</string>
     <string name="color_demo" msgid="1822427636476178993">"የቀለም ቅንጭብ ማሳያ"</string>
     <string name="list_limit" msgid="3023536401535417286">"የዝርዝር ገደብ"</string>
     <string name="grid_limit" msgid="1350116012893549206">"የፍርግርግ ገደብ"</string>
@@ -220,13 +220,14 @@
     <string name="clicked_row_prefix" msgid="9068303427922069941">"ረድፍ ጠቅ ተደርጓል"</string>
     <string name="first_line_text" msgid="6648055806656590336">"የጽሑፍ የመጀመሪያ መስመር"</string>
     <string name="second_line_text" msgid="38664490158836864">"የጽሑፍ ሁለተኛ መስመር"</string>
+    <string name="long_line_text" msgid="8082962600953333087">"ይህ ንዑስ ጽሁፍ በልተገደበ ሁነታ ውስጥ ሙሉ በሙሉ ማሳየት ይችላል (ለምሳሌ፣ የመኪና ማቆሚያ ሁነታ፣ የተገደበ ዝቅተኛ ፍጥነት ሁነታ)። ነገር ግን ይህ የተገደበ ሁነታ ውስጥ ሳለ በሁለት መስመሮች ብቻ ነው የሚቆረጠው (ለምሳሌ፣ የማሽከርከር ሁነታ)። ለሙከራ ዓላማዎች ሲባል ይህ ንዑስ ጽሁፍ በጣም በጣም በጣም በጣም በጣም ረጅም ነው"</string>
     <string name="title_prefix" msgid="3991742709199357049">"ርዕስ"</string>
     <string name="list_template_demo_title" msgid="1740208242737246151">"የዝርዝር ቅንብር ደንብ ማሳያ"</string>
     <string name="long_msg_template_demo_title" msgid="1793748562161438131">"ረጅም የመልዕክት ቅንብር ደንብ ማሳያ"</string>
     <string name="long_msg_template_not_supported_text" msgid="3641559637317672505">"የእርስዎ አስተናጋጅ ረጅም የመልዕክት ቅንብር ደንብ አይደግፍም"</string>
     <string name="long_msg_template_not_supported_title" msgid="8600719470226274925">"ተኳሃኝ ያልሆነ አስተናጋጅ"</string>
     <string name="msg_template_demo_title" msgid="3895210951340409473">"የመልዕክት ቅንብር ደንብ ቅንጭብ ማሳያ"</string>
-    <string name="msg_template_demo_text" msgid="2275291617716161409">"መልእክት እዚህ ይሆናል።\nበሁለተኛው መስመር ላይ ተጨማሪ ጽሑፍ።"</string>
+    <string name="msg_template_demo_text" msgid="2275291617716161409">"መልእክት እዚህ ይሆናል።\nበሁለተኛው መስመር ላይ ተጨማሪ ጽሁፍ።"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"የፔን ቅንብር ደንብ ቅንጭብ ማሳያ"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"የዝርዝር ቅንብር ደንብ ቅንጭብ ማሳያ ይመድቡ"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"ቦታዎችን ያስሱ"</string>
@@ -267,13 +268,13 @@
     <string name="title_with_app_icon_row_title" msgid="6294250714820740520">"የመተግበሪያ አዶ ያለው ርዕስ"</string>
     <string name="title_with_res_id_image_row_title" msgid="3813134904602875778">"የንብረት መታወቂያ ምስል ያለው ርዕስ"</string>
     <string name="title_with_svg_image_row_title" msgid="6109092343637263755">"የSVG ምስል ያለው ርዕስ"</string>
-    <string name="colored_secondary_row_title" msgid="5173288934252528929">"ባለቀለም ሁለተኛ ደረጃ ጽሑፍ"</string>
-    <string name="title_with_secondary_lines_row_title" msgid="7769408881272549837">"ብዙ የሁለተኛ ደረጃ ጽሑፍ መስመሮች ያሉት ርዕስ"</string>
+    <string name="colored_secondary_row_title" msgid="5173288934252528929">"ባለቀለም ሁለተኛ ደረጃ ጽሁፍ"</string>
+    <string name="title_with_secondary_lines_row_title" msgid="7769408881272549837">"ብዙ የሁለተኛ ደረጃ ጽሁፍ መስመሮች ያሉት ርዕስ"</string>
     <string name="title_with_secondary_lines_row_text_1" msgid="8945114692653524102">"መሳሳት እና መሳሳት እና እንደገና መሳሳት፣ ነገር ግን ያነሰ እና ያነሰ እና ያነሰ።"</string>
     <string name="title_with_secondary_lines_row_text_2" msgid="1017734603405251531">"- ፒት ሄን"</string>
     <string name="rows_demo_title" msgid="3198566660454251007">"የረድፎች ቅንጭብ ማሳያ"</string>
     <string name="text_icons_demo_title" msgid="8732943920672143201">"የጽሑፍ እና የአዶዎች ቅንጭብ ማሳያዎች"</string>
-    <string name="row_text_icons_demo_title" msgid="135167694047524905">"ጽሑፍ እና የአዶዎች ቅንጭብ ማሳያ ረድፎች"</string>
+    <string name="row_text_icons_demo_title" msgid="135167694047524905">"ጽሁፍ እና የአዶዎች ቅንጭብ ማሳያ ረድፎች"</string>
     <string name="selectable_lists_demo_title" msgid="5492658731113129386">"ሊመረጡ የሚችሉ ዝርዝሮች ቅንጭብ ማሳያ"</string>
     <string name="option_1_title" msgid="7221252541651471199">"አማራጭ 1"</string>
     <string name="option_2_title" msgid="1905146448697963818">"አማራጭ 2"</string>
@@ -281,7 +282,7 @@
     <string name="option_row_radio_title" msgid="5978617101267398181">"የሬዲዮ አዝራር ያለው ረድፍ"</string>
     <string name="option_row_radio_icon_title" msgid="3304229002524317977">"የሬዲዮ አዝራርና አዶ ያለው ረድፍ"</string>
     <string name="option_row_radio_icon_colored_text_title" msgid="947641896184637026">"የሬዲዮ አዝራርና የተቀለመ ጽሑፍና አዶ ያለው ረድፍ"</string>
-    <string name="some_additional_text" msgid="4009872495806318260">"አንዳንድ ተጨማሪ ጽሑፍ"</string>
+    <string name="some_additional_text" msgid="4009872495806318260">"አንዳንድ ተጨማሪ ጽሁፍ"</string>
     <string name="sample_additional_list" msgid="5085372891301576306">"የናሙና ሊመረጥ የሚችል ዝርዝር"</string>
     <string name="task_restriction_demo_title" msgid="2212084350718766941">"የተግባር ገደብ ቅንጭብ ማሳያ"</string>
     <string name="task_limit_reached_msg" msgid="6038763366777119364">"የተግባር ገደብ ላይ ደርሷል\nወደፊት መሄድ መተግበሪያውን በኃይል ያስቆማል"</string>

@@ -18,7 +18,7 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="back_caps_action_title" msgid="6392829425035919422">"ପଛକୁ ଫେରନ୍ତୁ"</string>
-    <string name="home_caps_action_title" msgid="4853167242566949502">"ମୂଳପୃଷ୍ଠା"</string>
+    <string name="home_caps_action_title" msgid="4853167242566949502">"ହୋମ"</string>
     <string name="exit_action_title" msgid="9086586388884500731">"ବାହାରି ଯାଆନ୍ତୁ"</string>
     <string name="refresh_action_title" msgid="3674260822403151377">"ରିଫ୍ରେସ କରନ୍ତୁ"</string>
     <string name="close_action_title" msgid="2661907510124308560">"ବନ୍ଦ କରନ୍ତୁ"</string>
@@ -220,6 +220,7 @@
     <string name="clicked_row_prefix" msgid="9068303427922069941">"କ୍ଲିକ କରାଯାଇଥିବା ଧାଡ଼ି"</string>
     <string name="first_line_text" msgid="6648055806656590336">"ଟେକ୍ସଟର ପ୍ରଥମ ଲାଇନ"</string>
     <string name="second_line_text" msgid="38664490158836864">"ଟେକ୍ସଟର ଦ୍ୱିତୀୟ ଲାଇନ"</string>
+    <string name="long_line_text" msgid="8082962600953333087">"ଏହି ସବଟେକ୍ସଟି ଅପ୍ରତିବନ୍ଧିତ ମୋଡ (ଉଦା. ପାର୍କିଂ ମୋଡ, ପ୍ରତିବନ୍ଧିତ ନିମ୍ନ ଗତି ମୋଡ)ରେ ସମ୍ପୂର୍ଣ୍ଣ ଭାବରେ ଡିସପ୍ଲେ ହୋଇପାରିବ। କିନ୍ତୁ ପ୍ରତିବନ୍ଧିତ ମୋଡ (ଉଦା. ଡ୍ରାଇଭିଂ ମୋଡ)ରେ ଥିବା ସମୟରେ ଏହା କେବଳ ଦୁଇଟି ଧାଡ଼ିରେ ଟ୍ରଂକେଟ ହୋଇଯିବ। ପରୀକ୍ଷଣ ଉଦ୍ଦେଶ୍ୟ ପାଇଁ, ଏହି ସବଟେକ୍ସଟି ଅତ୍ୟଧିକ ମାତ୍ରାରେ ଲମ୍ବା ଅଟେ"</string>
     <string name="title_prefix" msgid="3991742709199357049">"ଟାଇଟେଲ"</string>
     <string name="list_template_demo_title" msgid="1740208242737246151">"ତାଲିକାର ଟେମ୍ପଲେଟର ଡେମୋ"</string>
     <string name="long_msg_template_demo_title" msgid="1793748562161438131">"ବଡ଼ ମେସେଜ ଥିବା ଟେମ୍ପଲେଟର ଡେମୋ"</string>
