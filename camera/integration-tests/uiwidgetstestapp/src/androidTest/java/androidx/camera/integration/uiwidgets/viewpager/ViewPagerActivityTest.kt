@@ -207,6 +207,7 @@ class ViewPagerActivityTest(private val lensFacing: Int, private val cameraXConf
             ).apply {
                 putExtra(BaseActivity.INTENT_LENS_FACING, lensFacing)
                 putExtra(CameraFragment.KEY_CAMERA_IMPLEMENTATION, cameraXConfig)
+                putExtra(CameraFragment.KEY_CAMERA_IMPLEMENTATION_NO_HISTORY, true)
             }
             return ActivityScenario.launch<ViewPagerActivity>(intent)
         }
