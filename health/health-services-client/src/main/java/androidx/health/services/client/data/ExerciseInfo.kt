@@ -41,12 +41,11 @@ public class ExerciseInfo(
     )
 
     /** @hide */
-    override val proto: DataProto.ExerciseInfo by lazy {
+    override val proto: DataProto.ExerciseInfo =
         DataProto.ExerciseInfo.newBuilder()
             .setExerciseTrackedStatus(exerciseTrackedStatus.toProto())
             .setExerciseType(exerciseType.toProto())
             .build()
-    }
 
     public companion object {
         @JvmField

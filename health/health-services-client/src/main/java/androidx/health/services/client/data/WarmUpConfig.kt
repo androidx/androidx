@@ -45,12 +45,11 @@ public class WarmUpConfig(
     }
 
     /** @hide */
-    override val proto: DataProto.WarmUpConfig by lazy {
+    override val proto: DataProto.WarmUpConfig =
         DataProto.WarmUpConfig.newBuilder()
             .setExerciseType(exerciseType.toProto())
             .addAllDataTypes(dataTypes.map { it.proto })
             .build()
-    }
 
     override fun toString(): String =
         "WarmUpConfig(exerciseType=$exerciseType, dataTypes=$dataTypes)"
