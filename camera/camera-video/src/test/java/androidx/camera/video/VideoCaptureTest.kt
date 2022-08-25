@@ -397,13 +397,13 @@ class VideoCaptureTest {
         addAndAttachUseCases(videoCapture)
 
         // Assert.
-        assertThat(transformationInfo!!.targetRotation).isEqualTo(Surface.ROTATION_90)
+        assertThat(transformationInfo!!.rotationDegrees).isEqualTo(270)
 
         // Act.
         videoCapture.targetRotation = Surface.ROTATION_180
 
         // Assert.
-        assertThat(transformationInfo!!.targetRotation).isEqualTo(Surface.ROTATION_180)
+        assertThat(transformationInfo!!.rotationDegrees).isEqualTo(180)
     }
 
     @Test

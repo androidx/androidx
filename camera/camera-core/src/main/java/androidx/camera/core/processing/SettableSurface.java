@@ -16,6 +16,7 @@
 
 package androidx.camera.core.processing;
 
+import static androidx.camera.core.impl.ImageOutputConfig.ROTATION_NOT_SPECIFIED;
 import static androidx.camera.core.impl.utils.Threads.checkMainThread;
 import static androidx.camera.core.impl.utils.executor.CameraXExecutors.directExecutor;
 import static androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor;
@@ -39,6 +40,7 @@ import androidx.camera.core.SurfaceEffect;
 import androidx.camera.core.SurfaceOutput;
 import androidx.camera.core.SurfaceOutput.GlTransformOptions;
 import androidx.camera.core.SurfaceRequest;
+import androidx.camera.core.SurfaceRequest.TransformationInfo;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.DeferrableSurface;
@@ -75,11 +77,12 @@ public class SettableSurface extends DeferrableSurface {
     private final Matrix mSensorToBufferTransform;
     private final boolean mHasEmbeddedTransform;
     private final Rect mCropRect;
-    private final int mRotationDegrees;
     private final boolean mMirroring;
     @CameraEffect.Targets
     private final int mTargets;
 
+    // Guarded by main thread.
+    private int mRotationDegrees;
     // Guarded by main thread.
     @Nullable
     private SurfaceOutputImpl mConsumerToNotify;
@@ -87,6 +90,9 @@ public class SettableSurface extends DeferrableSurface {
     private boolean mHasProvider = false;
     // Guarded by main thread.
     private boolean mHasConsumer = false;
+    // Guarded by main thread.
+    @Nullable
+    private SurfaceRequest mProviderSurfaceRequest;
 
     /**
      * Please see the getters to understand the parameters.
@@ -225,6 +231,8 @@ public class SettableSurface extends DeferrableSurface {
             // This should never happen. We just created the SurfaceRequest. It can't be closed.
             throw new AssertionError("Surface is somehow already closed", e);
         }
+        mProviderSurfaceRequest = surfaceRequest;
+        notifyTransformationInfoUpdate();
         return surfaceRequest;
     }
 
@@ -359,6 +367,31 @@ public class SettableSurface extends DeferrableSurface {
      */
     public int getRotationDegrees() {
         return mRotationDegrees;
+    }
+
+    /**
+     * Sets the rotation degrees.
+     *
+     * <p>If the surface provider is created via {@link #createSurfaceRequest(CameraInternal)}, the
+     * returned SurfaceRequest will receive the rotation update by
+     * {@link SurfaceRequest.TransformationInfoListener}.
+     */
+    @MainThread
+    public void setRotationDegrees(int rotationDegrees) {
+        checkMainThread();
+        if (mRotationDegrees == rotationDegrees) {
+            return;
+        }
+        mRotationDegrees = rotationDegrees;
+        notifyTransformationInfoUpdate();
+    }
+
+    @MainThread
+    private void notifyTransformationInfoUpdate() {
+        if (mProviderSurfaceRequest != null) {
+            mProviderSurfaceRequest.updateTransformationInfo(
+                    TransformationInfo.of(mCropRect, mRotationDegrees, ROTATION_NOT_SPECIFIED));
+        }
     }
 
     /**
