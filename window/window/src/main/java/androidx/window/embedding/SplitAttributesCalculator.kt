@@ -22,7 +22,6 @@ import androidx.window.core.ExperimentalWindowApi
 import androidx.window.layout.WindowLayoutInfo
 import androidx.window.layout.WindowMetrics
 
-// TODO(b/240912390): refer to the real API in later CLs.
 /**
  * A developer-defined [SplitAttributes] calculator to compute the current [SplitAttributes] with
  * the current device and window state if it is registered via
@@ -33,7 +32,7 @@ import androidx.window.layout.WindowMetrics
  *
  * By default, [SplitRule.defaultSplitAttributes] are applied if the parent container's
  * [WindowMetrics] satisfies the [SplitRule]'s minimum dimensions requirements, which are
- * [SplitRule.minWidth], `SplitRule.minHeight` and [SplitRule.minSmallestWidth].
+ * [SplitRule.minWidth], [SplitRule.minHeight] and [SplitRule.minSmallestWidth].
  * The [SplitRule.defaultSplitAttributes] can be set by
  * - [SplitRule] Builder APIs, which are
  *   [SplitPairRule.Builder.setDefaultSplitAttributes] and
@@ -139,10 +138,9 @@ interface SplitAttributesCalculator {
          * `splitLayoutDirection` attributes from static rule definitions.
          */
         val defaultSplitAttributes: SplitAttributes,
-        // TODO(b/240912390): refer to the real API in later CLs.
         /**
          * Whether the [parentWindowMetrics] are larger than [SplitRule]'s minimum size criteria,
-         * which are [SplitRule.minWidth], `SplitRule.minHeight` and [SplitRule.minSmallestWidth]
+         * which are [SplitRule.minWidth], [SplitRule.minHeight] and [SplitRule.minSmallestWidth]
          */
         @get: JvmName("isDefaultMinSizeSatisfied")
         val isDefaultMinSizeSatisfied: Boolean,

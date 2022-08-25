@@ -116,7 +116,8 @@ class EmbeddingRuleConstructionTests {
         val rule = SplitPairRule.Builder(
             HashSet(),
             validBounds.width(),
-            validBounds.width()
+            validBounds.height(),
+            validBounds.width(),
         ).build()
         val expectedSplitLayout = SplitAttributes.Builder()
             .setSplitType(SplitAttributes.SplitType.ratio(0.5f))
@@ -152,7 +153,8 @@ class EmbeddingRuleConstructionTests {
         val rule = SplitPairRule.Builder(
             filters,
             123,
-            456
+            456,
+            789,
         )
             .setFinishPrimaryWithSecondary(FINISH_ADJACENT)
             .setFinishSecondaryWithPrimary(FINISH_ADJACENT)
@@ -167,7 +169,8 @@ class EmbeddingRuleConstructionTests {
         assertEquals(TEST_TAG, rule.tag)
         assertEquals(filters, rule.filters)
         assertEquals(123, rule.minWidth)
-        assertEquals(456, rule.minSmallestWidth)
+        assertEquals(456, rule.minHeight)
+        assertEquals(789, rule.minSmallestWidth)
     }
 
     /**
@@ -180,13 +183,23 @@ class EmbeddingRuleConstructionTests {
             SplitPairRule.Builder(
                 HashSet(),
                 minWidth = -1,
-                minSmallestWidth = 456
+                minHeight = 456,
+                minSmallestWidth = 789,
             ).build()
         }
         assertThrows(IllegalArgumentException::class.java) {
             SplitPairRule.Builder(
                 HashSet(),
                 minWidth = 123,
+                minHeight = -1,
+                minSmallestWidth = 789,
+            ).build()
+        }
+        assertThrows(IllegalArgumentException::class.java) {
+            SplitPairRule.Builder(
+                HashSet(),
+                minWidth = 123,
+                minHeight = 456,
                 minSmallestWidth = -1
             ).build()
         }
@@ -250,7 +263,8 @@ class EmbeddingRuleConstructionTests {
             HashSet(),
             Intent(),
             123,
-            456
+            456,
+            789,
         )
             .build()
         assertNull(rule.tag)
@@ -262,7 +276,8 @@ class EmbeddingRuleConstructionTests {
             .build()
         assertEquals(expectedSplitLayout, rule.defaultSplitAttributes)
         assertEquals(123, rule.minWidth)
-        assertEquals(456, rule.minSmallestWidth)
+        assertEquals(456, rule.minHeight)
+        assertEquals(789, rule.minSmallestWidth)
     }
 
     /**
@@ -287,7 +302,8 @@ class EmbeddingRuleConstructionTests {
             filters,
             intent,
             123,
-            456
+            456,
+            789,
         )
             .setFinishPrimaryWithPlaceholder(FINISH_ADJACENT)
             .setSticky(true)
@@ -300,7 +316,8 @@ class EmbeddingRuleConstructionTests {
         assertEquals(filters, rule.filters)
         assertEquals(intent, rule.placeholderIntent)
         assertEquals(123, rule.minWidth)
-        assertEquals(456, rule.minSmallestWidth)
+        assertEquals(456, rule.minHeight)
+        assertEquals(789, rule.minSmallestWidth)
         assertEquals(TEST_TAG, rule.tag)
     }
 
@@ -315,7 +332,8 @@ class EmbeddingRuleConstructionTests {
                 HashSet(),
                 Intent(),
                 minWidth = -1,
-                minSmallestWidth = 456
+                minHeight = 456,
+                minSmallestWidth = 789,
             ).build()
         }
         assertThrows(IllegalArgumentException::class.java) {
@@ -323,7 +341,8 @@ class EmbeddingRuleConstructionTests {
                 HashSet(),
                 Intent(),
                 minWidth = 123,
-                minSmallestWidth = -1
+                minHeight = -1,
+                minSmallestWidth = 789,
             ).build()
         }
         assertThrows(IllegalArgumentException::class.java) {
@@ -331,7 +350,17 @@ class EmbeddingRuleConstructionTests {
                 HashSet(),
                 Intent(),
                 minWidth = 123,
-                minSmallestWidth = 456
+                minHeight = 456,
+                minSmallestWidth = -1,
+            ).build()
+        }
+        assertThrows(IllegalArgumentException::class.java) {
+            SplitPlaceholderRule.Builder(
+                HashSet(),
+                Intent(),
+                minWidth = 123,
+                minHeight = 456,
+                minSmallestWidth = 789,
             )
                 .setFinishPrimaryWithPlaceholder(FINISH_NEVER)
                 .build()
@@ -459,7 +488,8 @@ class EmbeddingRuleConstructionTests {
             filters,
             intent,
             123,
-            456
+            456,
+            789,
         )
             .setTag(TEST_TAG)
             .build()

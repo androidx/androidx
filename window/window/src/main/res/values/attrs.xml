@@ -25,6 +25,8 @@
     <attr name="splitRatio" format="float" />
     <!-- The smallest value of width of the parent window when the split should be used. -->
     <attr name="splitMinWidth" format="dimension" />
+    <!-- The smallest value of height of the parent window when the split should be used. -->
+    <attr name="splitMinHeight" format="dimension" />
     <!-- The smallest value of the smallest-width (sw) of the parent window in any rotation when
      the split should be used. -->
     <attr name="splitMinSmallestWidth" format="dimension" />
@@ -80,6 +82,7 @@
         <attr name="clearTop" format="boolean" />
         <attr name="splitRatio"/>
         <attr name="splitMinWidth"/>
+        <attr name="splitMinHeight"/>
         <attr name="splitMinSmallestWidth"/>
         <attr name="splitLayoutDirection"/>
         <attr name="tag"/>
@@ -99,6 +102,7 @@
         <attr name="finishPrimaryWithPlaceholder"/>
         <attr name="splitRatio"/>
         <attr name="splitMinWidth"/>
+        <attr name="splitMinHeight"/>
         <attr name="splitMinSmallestWidth"/>
         <attr name="splitLayoutDirection"/>
         <attr name="tag"/>

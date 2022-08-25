@@ -20,6 +20,9 @@
         window:tag="test"
         window:placeholderActivityName="C"
         window:splitRatio="0.3"
+        window:splitMinWidth="0dp"
+        window:splitMinHeight="600dp"
+        window:splitMinSmallestWidth="0dp"
         window:splitLayoutDirection="bottomToTop">
         <ActivityFilter
             window:activityName="androidx.window.sample.embedding.SplitActivityList"/>

@@ -217,7 +217,7 @@ package androidx.window.embedding {
   }
 
   public static final class SplitPairRule.Builder {
-    ctor public SplitPairRule.Builder(java.util.Set<androidx.window.embedding.SplitPairFilter> filters, @IntRange(from=0L) int minWidth, @IntRange(from=0L) int minSmallestWidth);
+    ctor public SplitPairRule.Builder(java.util.Set<androidx.window.embedding.SplitPairFilter> filters, @IntRange(from=0L) int minWidth, @IntRange(from=0L) int minHeight, @IntRange(from=0L) int minSmallestWidth);
     method public androidx.window.embedding.SplitPairRule build();
     method public androidx.window.embedding.SplitPairRule.Builder setClearTop(boolean clearTop);
     method public androidx.window.embedding.SplitPairRule.Builder setDefaultSplitAttributes(androidx.window.embedding.SplitAttributes defaultSplitAttributes);
@@ -239,7 +239,7 @@ package androidx.window.embedding {
   }
 
   public static final class SplitPlaceholderRule.Builder {
-    ctor public SplitPlaceholderRule.Builder(java.util.Set<androidx.window.embedding.ActivityFilter> filters, android.content.Intent placeholderIntent, @IntRange(from=0L) int minWidth, @IntRange(from=0L) int minSmallestWidth);
+    ctor public SplitPlaceholderRule.Builder(java.util.Set<androidx.window.embedding.ActivityFilter> filters, android.content.Intent placeholderIntent, @IntRange(from=0L) int minWidth, @IntRange(from=0L) int minHeight, @IntRange(from=0L) int minSmallestWidth);
     method public androidx.window.embedding.SplitPlaceholderRule build();
     method public androidx.window.embedding.SplitPlaceholderRule.Builder setDefaultSplitAttributes(androidx.window.embedding.SplitAttributes defaultSplitAttributes);
     method public androidx.window.embedding.SplitPlaceholderRule.Builder setFinishPrimaryWithPlaceholder(int finishPrimaryWithPlaceholder);
@@ -249,9 +249,11 @@ package androidx.window.embedding {
 
   @androidx.window.core.ExperimentalWindowApi public class SplitRule extends androidx.window.embedding.EmbeddingRule {
     method public final androidx.window.embedding.SplitAttributes getDefaultSplitAttributes();
+    method public final int getMinHeight();
     method public final int getMinSmallestWidth();
     method public final int getMinWidth();
     property public final androidx.window.embedding.SplitAttributes defaultSplitAttributes;
+    property public final int minHeight;
     property public final int minSmallestWidth;
     property public final int minWidth;
     field public static final androidx.window.embedding.SplitRule.Companion Companion;

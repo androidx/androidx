@@ -95,10 +95,12 @@ class SplitPairRule : SplitRule {
         @SplitFinishBehavior finishSecondaryWithPrimary: Int = FINISH_ALWAYS,
         clearTop: Boolean = false,
         @IntRange(from = 0) minWidth: Int,
+        @IntRange(from = 0) minHeight: Int,
         @IntRange(from = 0) minSmallestWidth: Int,
         defaultSplitAttributes: SplitAttributes,
-    ) : super(tag, minWidth, minSmallestWidth, defaultSplitAttributes) {
+    ) : super(tag, minWidth, minHeight, minSmallestWidth, defaultSplitAttributes) {
         checkArgumentNonnegative(minWidth, "minWidth must be non-negative")
+        checkArgumentNonnegative(minHeight, "minHeight must be non-negative")
         checkArgumentNonnegative(minSmallestWidth, "minSmallestWidth must be non-negative")
         this.filters = filters.toSet()
         this.clearTop = clearTop
@@ -110,12 +112,15 @@ class SplitPairRule : SplitRule {
      * Builder for [SplitPairRule].
      * @param filters See [SplitPairRule.filters].
      * @param minWidth See [SplitPairRule.minWidth].
+     * @param minHeight See [SplitPairRule.minHeight]
      * @param minSmallestWidth See [SplitPairRule.minSmallestWidth].
      */
     class Builder(
         private val filters: Set<SplitPairFilter>,
         @IntRange(from = 0)
         private val minWidth: Int,
+        @IntRange(from = 0)
+        private val minHeight: Int,
         @IntRange(from = 0)
         private val minSmallestWidth: Int,
     ) {
@@ -165,8 +170,9 @@ class SplitPairRule : SplitRule {
             finishSecondaryWithPrimary,
             clearTop,
             minWidth,
+            minHeight,
             minSmallestWidth,
-            defaultSplitAttributes
+            defaultSplitAttributes,
         )
     }
 
@@ -185,6 +191,7 @@ class SplitPairRule : SplitRule {
             finishSecondaryWithPrimary,
             clearTop,
             minWidth,
+            minHeight,
             minSmallestWidth,
             defaultSplitAttributes,
         )
@@ -218,6 +225,7 @@ class SplitPairRule : SplitRule {
             "tag=$tag" +
             ", defaultSplitAttributes=$defaultSplitAttributes" +
             ", minWidth=$minWidth" +
+            ", minHeight=$minHeight" +
             ", minSmallestWidth=$minSmallestWidth" +
             ", clearTop=$clearTop" +
             ", finishPrimaryWithSecondary=$finishPrimaryWithSecondary" +

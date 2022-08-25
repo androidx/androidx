@@ -100,10 +100,12 @@ class SplitPlaceholderRule : SplitRule {
         isSticky: Boolean,
         @SplitPlaceholderFinishBehavior finishPrimaryWithPlaceholder: Int = FINISH_ALWAYS,
         @IntRange(from = 0) minWidth: Int = 0,
+        @IntRange(from = 0) minHeight: Int = 0,
         @IntRange(from = 0) minSmallestWidth: Int = 0,
         defaultSplitAttributes: SplitAttributes,
-    ) : super(tag, minWidth, minSmallestWidth, defaultSplitAttributes) {
+    ) : super(tag, minWidth, minHeight, minSmallestWidth, defaultSplitAttributes) {
         checkArgumentNonnegative(minWidth, "minWidth must be non-negative")
+        checkArgumentNonnegative(minHeight, "minHeight must be non-negative")
         checkArgumentNonnegative(minSmallestWidth, "minSmallestWidth must be non-negative")
         checkArgument(finishPrimaryWithPlaceholder != FINISH_NEVER,
             "FINISH_NEVER is not a valid configuration for SplitPlaceholderRule. " +
@@ -119,6 +121,7 @@ class SplitPlaceholderRule : SplitRule {
      * @param filters See [SplitPlaceholderRule.filters].
      * @param placeholderIntent See [SplitPlaceholderRule.placeholderIntent].
      * @param minWidth See [SplitPlaceholderRule.minWidth].
+     * @param minHeight See [SplitPlaceholderRule.minHeight]
      * @param minSmallestWidth See [SplitPlaceholderRule.minSmallestWidth].
      */
     class Builder(
@@ -126,6 +129,8 @@ class SplitPlaceholderRule : SplitRule {
         private val placeholderIntent: Intent,
         @IntRange(from = 0)
         private val minWidth: Int,
+        @IntRange(from = 0)
+        private val minHeight: Int,
         @IntRange(from = 0)
         private val minSmallestWidth: Int,
     ) {
@@ -165,7 +170,9 @@ class SplitPlaceholderRule : SplitRule {
             placeholderIntent,
             isSticky,
             finishPrimaryWithPlaceholder,
-            minWidth, minSmallestWidth,
+            minWidth,
+            minHeight,
+            minSmallestWidth,
             defaultSplitAttributes,
         )
     }
@@ -185,6 +192,7 @@ class SplitPlaceholderRule : SplitRule {
             isSticky,
             finishPrimaryWithPlaceholder,
             minWidth,
+            minHeight,
             minSmallestWidth,
             defaultSplitAttributes,
         )
@@ -217,6 +225,7 @@ class SplitPlaceholderRule : SplitRule {
              "tag=$tag" +
              ", defaultSplitAttributes=$defaultSplitAttributes" +
              ", minWidth=$minWidth" +
+             ", minHeight=$minHeight" +
              ", minSmallestWidth=$minSmallestWidth" +
              ", placeholderIntent=$placeholderIntent" +
              ", isSticky=$isSticky" +

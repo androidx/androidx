@@ -36,23 +36,77 @@ import kotlin.math.min
  * [SplitController.registerRule]. The rules can only be  applied to activities that
  * belong to the same application and are running in the same process. The rules are always
  * applied only to activities that will be started  after the rules were set.
+ *
+ * Note that regardless of whether the minimal requirements ([minWidth], [minHeight] or
+ * [minSmallestWidth]) are met or not, [SplitAttributesCalculator.computeSplitAttributesForParams]
+ * will still be called for the rule if the calculator is registered via
+ * [SplitController.setSplitAttributesCalculator]. Whether this [SplitRule]'s minimum requirements
+ * are satisfied is dispatched in
+ * [SplitAttributesCalculator.SplitAttributesCalculatorParams.isDefaultMinSizeSatisfied] instead.
+ * The width and height could be verified in
+ * [SplitAttributesCalculator.computeSplitAttributesForParams] as the sample[1] below shows.
+ * It is useful if this rule is supported to split the parent container in different directions
+ * with different device states.
+ *
+ * [1]:
+ * ```
+ * override computeSplitAttributesForParams(
+ *     params: SplitAttributesCalculatorParams
+ * ): SplitAttributes {
+ *     val taskConfiguration = params.taskConfiguration
+ *     val builder = SplitAttributes.Builder()
+ *     if (taskConfiguration.screenWidthDp >= 600) {
+ *         return builder
+ *             .setLayoutDirection(SplitAttributes.LayoutDirection.LOCALE)
+ *             .build()
+ *     } else if (taskConfiguration.screenHeightDp >= 600)
+ *         return builder
+ *             .setLayoutDirection(SplitAttributes.LayoutDirection.TOP_TO_BOTTOM)
+ *             .build()
+ *     } else {
+ *         // Fallback to expand the secondary container
+ *         return builder
+ *             .setSplitType(SplitAttributes.SplitType.expandSecondaryContainer())
+ *             .build()
+ *     }
+ * }
+ * ```
+ * It is useful if this [SplitRule] is supported to split the parent container in different
+ * directions with different device states.
  */
 @ExperimentalWindowApi
 open class SplitRule internal constructor(
     tag: String? = null,
     /**
-     * The smallest value of width of the parent window when the split should be used, in pixels.
-     * When the window size is smaller than requested here, activities in the secondary container
-     * will be stacked on top of the activities in the primary one, completely overlapping them.
+     * The smallest value of width of the parent task window when the split should be used, in
+     * pixels. Set to `0` to always show the split regardless of task window metrics.
+     * When the window size is smaller than requested here, activities in the secondary
+     * container will be stacked on top of the activities in the primary one, completely overlapping
+     * them.
      */
     @IntRange(from = 0)
     val minWidth: Int,
 
     /**
-     * The smallest value of the smallest possible width of the parent window in any rotation
-     * when the split should be used, in pixels. When the window size is smaller than requested
-     * here, activities in the secondary container will be stacked on top of the activities in
-     * the primary one, completely overlapping them.
+     * The smallest value of height of the parent task window when the split should be used, in
+     * pixels. Set to `0` to always show the split regardless of the task window metrics.
+     * When the window size is smaller than requested here, activities in the secondary
+     * container will be stacked on top of the activities in the primary one, completely overlapping
+     * them. It is useful if it's necessary to split the parent window horizontally for this
+     * [SplitRule].
+     *
+     * @see SplitAttributes.LayoutDirection.TOP_TO_BOTTOM
+     * @see SplitAttributes.LayoutDirection.BOTTOM_TO_TOP
+     */
+    @IntRange(from = 0)
+    val minHeight: Int,
+
+    /**
+     * The smallest value of the smallest possible width of the parent task window in any rotation
+     * when the split should be used, in pixels. Set to `0` to always show the split regardless of
+     * the task window metrics. When the window size is smaller than requested here, activities in
+     * the secondary container will be stacked on top of the activities in the primary one,
+     * completely overlapping them.
      */
     @IntRange(from = 0)
     val minSmallestWidth: Int,
@@ -72,6 +126,7 @@ open class SplitRule internal constructor(
     ) : this(
         tag = null,
         minWidth,
+        minHeight = 0, // Set as 0 to provide compatibility for deprecated constructors.
         minSmallestWidth,
         SplitAttributes.Builder()
             .setSplitType(
@@ -148,11 +203,12 @@ open class SplitRule internal constructor(
      */
     internal fun checkParentBounds(bounds: Rect): Boolean {
         val validMinWidth = (minWidth == 0 || bounds.width() >= minWidth)
+        val validMinHeight = (minHeight == 0 || bounds.height() >= minHeight)
         val validSmallestMinWidth = (
             minSmallestWidth == 0 ||
                 min(bounds.width(), bounds.height()) >= minSmallestWidth
             )
-        return validMinWidth && validSmallestMinWidth
+        return validMinWidth && validMinHeight && validSmallestMinWidth
     }
 
     @RequiresApi(30)
@@ -169,6 +225,7 @@ open class SplitRule internal constructor(
 
         if (!super.equals(other)) return false
         if (minWidth != other.minWidth) return false
+        if (minHeight != other.minHeight) return false
         if (minSmallestWidth != other.minSmallestWidth) return false
         if (defaultSplitAttributes != other.defaultSplitAttributes) return false
         return true
@@ -177,6 +234,7 @@ open class SplitRule internal constructor(
     override fun hashCode(): Int {
         var result = super.hashCode()
         result = 31 * result + minWidth
+        result = 31 * result + minHeight
         result = 31 * result + minSmallestWidth
         result = 31 * result + defaultSplitAttributes.hashCode()
         return result
