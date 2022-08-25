@@ -276,15 +276,54 @@ public class UiSelectorTests extends BaseTest {
                         false)).exists());
     }
 
+    @Test
+    public void testChildSelector() {
+        launchTestActivity(ParentChildTestActivity.class);
+
+        UiSelector treeN2Selector = new UiSelector().resourceIdMatches(".*2.*");
+        UiSelector treeN5Selector = new UiSelector().resourceIdMatches(".*5.*");
+        UiSelector expectedTreeN3Selector = new UiSelector().resourceId(
+                TEST_APP + ":id/tree_N3").childSelector(treeN5Selector);
+        UiSelector notExpectedTreeN3Selector = new UiSelector().resourceId(
+                TEST_APP + ":id/tree_N3").childSelector(treeN2Selector);
+
+        assertTrue(mDevice.findObject(expectedTreeN3Selector).exists());
+        assertFalse(mDevice.findObject(notExpectedTreeN3Selector).exists());
+    }
+
+    @Test
+    public void testFromParent() {
+        launchTestActivity(ParentChildTestActivity.class);
+
+        UiSelector treeN2Selector = new UiSelector().resourceIdMatches(".*2.*");
+        UiSelector treeN4Selector = new UiSelector().resourceIdMatches(".*4.*");
+        UiSelector expectedTreeN5Selector = new UiSelector().resourceId(
+                TEST_APP + ":id/tree_N5").fromParent(treeN4Selector); // N5 is sibling of N4.
+        UiSelector notExpectedTreeN5Selector = new UiSelector().resourceId(
+                TEST_APP + ":id/tree_N5").fromParent(treeN2Selector);
+
+        assertTrue(mDevice.findObject(expectedTreeN5Selector).exists());
+        assertFalse(mDevice.findObject(notExpectedTreeN5Selector).exists());
+    }
+
+    @Test
+    public void testPackageName() {
+        launchTestActivity(MainActivity.class);
+
+        assertTrue(mDevice.findObject(new UiSelector().packageName(TEST_APP)).exists());
+        assertFalse(mDevice.findObject(new UiSelector().packageName(TEST_APP + "abc")).exists());
+    }
+
+    @Test
+    public void testPackageNameMatches() {
+        launchTestActivity(MainActivity.class);
+
+        assertTrue(mDevice.findObject(new UiSelector().packageNameMatches(".*testapp.*")).exists());
+        assertFalse(
+                mDevice.findObject(new UiSelector().packageNameMatches(".*nottest.*")).exists());
+    }
+
     /* TODO(b/242916007): Implement these tests, and the tests for exceptions of each tested method.
-
-    public void testChildSelector() {}
-
-    public void testFromParent() {}
-
-    public void testPackageName() {}
-
-    public void testPackageNameMatches() {}
 
     public void testToString() {}
     */
