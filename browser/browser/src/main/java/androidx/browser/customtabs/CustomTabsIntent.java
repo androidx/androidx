@@ -342,13 +342,6 @@ public final class CustomTabsIntent {
             "androidx.browser.customtabs.extra.INITIAL_ACTIVITY_HEIGHT_PX";
 
     /**
-     * Extra that sets the Custom Tab Activity's height in dp.
-     * See {@link #EXTRA_INITIAL_ACTIVITY_HEIGHT_PX}.
-     */
-    public static final String EXTRA_INITIAL_ACTIVITY_HEIGHT_DP =
-            "androidx.browser.customtabs.extra.INITIAL_ACTIVITY_HEIGHT_DP";
-
-    /**
      * Extra that sets the toolbar's top corner radii in dp. This will only have
      * effect if the custom tab is behaving as a bottom sheet. Currently, this is capped at 16dp.
      */
