@@ -997,6 +997,60 @@ class NavDeepLinkTest {
     }
 
     @Test
+    fun deepLinkFragmentMatch() {
+        val deepLinkArgument = "$DEEP_LINK_EXACT_HTTPS/users#{frag}"
+        val deepLink = NavDeepLink(deepLinkArgument)
+
+        val matchArgs = deepLink.getMatchingArguments(
+            Uri.parse("$DEEP_LINK_EXACT_HTTPS/users#testFrag"),
+            mapOf("frag" to stringArgument())
+        )
+        assertWithMessage("Args should not be null")
+            .that(matchArgs)
+            .isNotNull()
+        assertWithMessage("Args should contain the fragment")
+            .that(matchArgs?.getString("frag"))
+            .isEqualTo("testFrag")
+    }
+
+    @Test
+    fun deepLinkFragmentMatchWithQuery() {
+        val deepLinkArgument = "$DEEP_LINK_EXACT_HTTPS/users?id={id}#{frag}"
+        val deepLink = NavDeepLink(deepLinkArgument)
+
+        val matchArgs = deepLink.getMatchingArguments(
+            Uri.parse("$DEEP_LINK_EXACT_HTTPS/users?id=43#testFrag"),
+            mapOf("id" to intArgument(), "frag" to stringArgument())
+        )
+        assertWithMessage("Args should not be null")
+            .that(matchArgs)
+            .isNotNull()
+        assertWithMessage("Args should contain the query")
+            .that(matchArgs?.getInt("id"))
+            .isEqualTo(43)
+        assertWithMessage("Args should contain the fragment")
+            .that(matchArgs?.getString("frag"))
+            .isEqualTo("testFrag")
+    }
+
+    @Test
+    fun deepLinkFragmentMatchWithOptionalQuery() {
+        val deepLinkArgument = "$DEEP_LINK_EXACT_HTTPS/users?id={id}#{frag}"
+        val deepLink = NavDeepLink(deepLinkArgument)
+
+        val matchArgs = deepLink.getMatchingArguments(
+            Uri.parse("$DEEP_LINK_EXACT_HTTPS/users#testFrag"),
+            mapOf("id" to nullableStringArgument(), "frag" to stringArgument())
+        )
+        assertWithMessage("Args should not be null")
+            .that(matchArgs)
+            .isNotNull()
+        assertWithMessage("Args should contain the fragment")
+            .that(matchArgs?.getString("frag"))
+            .isEqualTo("testFrag")
+    }
+
+    @Test
     @Throws(UnsupportedEncodingException::class)
     fun deepLinkArgumentMatchEncoded() {
         val deepLinkArgument = "$DEEP_LINK_EXACT_HTTPS/users/{name}/posts"

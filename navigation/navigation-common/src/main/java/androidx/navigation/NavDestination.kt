@@ -351,6 +351,7 @@ public open class NavDestination(
         var bestMatch: DeepLinkMatch? = null
         for (deepLink in deepLinks) {
             val uri = navDeepLinkRequest.uri
+            // includes matching args for path, query, and fragment
             val matchingArguments =
                 if (uri != null) deepLink.getMatchingArguments(uri, arguments) else null
             val matchingPathSegments = deepLink.calculateMatchingPathSegments(uri)
