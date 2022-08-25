@@ -21,16 +21,20 @@ import androidx.window.extensions.embedding.ActivityRule.Builder as ActivityRule
 import androidx.window.extensions.embedding.EmbeddingRule as OEMEmbeddingRule
 import androidx.window.extensions.embedding.SplitAttributes as OEMSplitAttributes
 import androidx.window.extensions.embedding.SplitAttributes.SplitType as OEMSplitType
+import androidx.window.extensions.embedding.SplitAttributesCalculator as OEMSplitAttributesCalculator
+import androidx.window.extensions.embedding.SplitAttributesCalculator.SplitAttributesCalculatorParams as OEMSplitAttributesCalculatorParams
 import androidx.window.extensions.embedding.SplitInfo as OEMSplitInfo
 import androidx.window.extensions.embedding.SplitPairRule as OEMSplitPairRule
 import androidx.window.extensions.embedding.SplitPairRule.Builder as SplitPairRuleBuilder
 import androidx.window.extensions.embedding.SplitPlaceholderRule as OEMSplitPlaceholderRule
 import androidx.window.extensions.embedding.SplitPlaceholderRule.Builder as SplitPlaceholderRuleBuilder
+import androidx.window.layout.WindowMetrics as JetpackWindowMetrics
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
 import android.util.LayoutDirection
 import android.view.WindowMetrics
+import androidx.core.view.WindowInsetsCompat
 import androidx.window.core.ExperimentalWindowApi
 import androidx.window.core.PredicateAdapter
 import androidx.window.embedding.EmbeddingAdapter.VendorApiLevel1Impl.setDefaultSplitAttributesCompat
@@ -41,8 +45,10 @@ import androidx.window.embedding.SplitAttributes.LayoutDirection.Companion.LOCAL
 import androidx.window.embedding.SplitAttributes.LayoutDirection.Companion.RIGHT_TO_LEFT
 import androidx.window.embedding.SplitAttributes.LayoutDirection.Companion.TOP_TO_BOTTOM
 import androidx.window.embedding.SplitAttributes.SplitType
+import androidx.window.embedding.SplitAttributesCalculator.SplitAttributesCalculatorParams
 import androidx.window.extensions.WindowExtensions
 import androidx.window.extensions.WindowExtensions.INVALID_VENDOR_API_LEVEL
+import androidx.window.layout.ExtensionsWindowLayoutInfoAdapter
 
 /**
  * Adapter class that translates data classes between Extension and Jetpack interfaces.
@@ -54,7 +60,7 @@ internal class EmbeddingAdapter(
     private val vendorApiLevel = EmbeddingCompat.getExtensionApiLevel() ?: INVALID_VENDOR_API_LEVEL
 
     fun translate(splitInfoList: List<OEMSplitInfo>): List<SplitInfo> {
-        return splitInfoList.map(::translate)
+        return splitInfoList.map(this::translate)
     }
 
     private fun translate(splitInfo: OEMSplitInfo): SplitInfo {
@@ -99,8 +105,9 @@ internal class EmbeddingAdapter(
                     OEMSplitAttributes.LayoutDirection.LOCALE -> LOCALE
                     OEMSplitAttributes.LayoutDirection.TOP_TO_BOTTOM -> TOP_TO_BOTTOM
                     OEMSplitAttributes.LayoutDirection.BOTTOM_TO_TOP -> BOTTOM_TO_TOP
-                    else -> throw IllegalArgumentException("Unknown layout direction: " +
-                        "$layoutDirection")
+                    else -> throw IllegalArgumentException(
+                        "Unknown layout direction: $layoutDirection"
+                    )
                 }
             ).build()
 
@@ -145,10 +152,45 @@ internal class EmbeddingAdapter(
     }
 
     @SuppressLint("ClassVerificationFailure", "NewApi")
-    private fun translateParentMetricsPredicate(splitRule: SplitRule): Any {
-        return predicateAdapter.buildPredicate(WindowMetrics::class) { windowMetrics ->
+    private fun translateParentMetricsPredicate(splitRule: SplitRule): Any =
+        predicateAdapter.buildPredicate(WindowMetrics::class) { windowMetrics ->
             splitRule.checkParentMetrics(windowMetrics)
         }
+
+    fun translateSplitAttributesCalculator(
+        calculator: SplitAttributesCalculator
+    ): OEMSplitAttributesCalculator =
+        OEMSplitAttributesCalculator { oemSplitAttributesCalculatorParams ->
+            translateSplitAttributes(
+                calculator.computeSplitAttributesForParams(
+                    translate(oemSplitAttributesCalculatorParams)
+                )
+            )
+        }
+
+    @SuppressLint("ClassVerificationFailure", "NewApi")
+    fun translate(
+        params: OEMSplitAttributesCalculatorParams
+    ): SplitAttributesCalculatorParams = let {
+        val taskWindowMetrics = params.parentWindowMetrics
+        val taskConfiguration = params.parentConfiguration
+        val defaultSplitAttributes = params.defaultSplitAttributes
+        val isDefaultMinSizeSatisfied = params.isDefaultMinSizeSatisfied
+        val windowLayoutInfo = params.parentWindowLayoutInfo
+        val splitRuleTag = params.splitRuleTag
+
+        val jetpackWindowMetrics = JetpackWindowMetrics(
+            taskWindowMetrics.bounds,
+            WindowInsetsCompat.toWindowInsetsCompat(taskWindowMetrics.windowInsets)
+        )
+        SplitAttributesCalculatorParams(
+            jetpackWindowMetrics,
+            taskConfiguration,
+            translate(defaultSplitAttributes),
+            isDefaultMinSizeSatisfied,
+            ExtensionsWindowLayoutInfoAdapter.translate(jetpackWindowMetrics, windowLayoutInfo),
+            splitRuleTag,
+        )
     }
 
     @SuppressLint("ClassVerificationFailure", "NewApi")
@@ -173,7 +215,7 @@ internal class EmbeddingAdapter(
         val builder = SplitPairRuleBuilder::class.java.getConstructor(
             predicateClass,
             predicateClass,
-            predicateClass
+            predicateClass,
         ).newInstance(
             translateActivityPairPredicates(rule.filters),
             translateActivityIntentPredicates(rule.filters),
@@ -214,7 +256,8 @@ internal class EmbeddingAdapter(
                     TOP_TO_BOTTOM -> OEMSplitAttributes.LayoutDirection.TOP_TO_BOTTOM
                     BOTTOM_TO_TOP -> OEMSplitAttributes.LayoutDirection.BOTTOM_TO_TOP
                     else -> throw IllegalArgumentException("Unsupported layoutDirection:" +
-                        "$splitAttributes.layoutDirection")
+                        "$splitAttributes.layoutDirection"
+                    )
                 }
             ).build()
     }

@@ -33,8 +33,10 @@ package androidx.window.extensions.area {
 package androidx.window.extensions.embedding {
 
   public interface ActivityEmbeddingComponent {
+    method public void clearSplitAttributesCalculator();
     method public boolean isActivityEmbedded(android.app.Activity);
     method public void setEmbeddingRules(java.util.Set<androidx.window.extensions.embedding.EmbeddingRule!>);
+    method public void setSplitAttributesCalculator(androidx.window.extensions.embedding.SplitAttributesCalculator);
     method public void setSplitInfoCallback(java.util.function.Consumer<java.util.List<androidx.window.extensions.embedding.SplitInfo!>!>);
   }
 
@@ -97,6 +99,19 @@ package androidx.window.extensions.embedding {
     ctor public SplitAttributes.SplitType.RatioSplitType(@FloatRange(from=0.0, to=1.0, fromInclusive=false, toInclusive=false) float);
     method @FloatRange(from=0.0, to=1.0, fromInclusive=false, toInclusive=false) public float getRatio();
     method public static androidx.window.extensions.embedding.SplitAttributes.SplitType.RatioSplitType splitEqually();
+  }
+
+  public interface SplitAttributesCalculator {
+    method public androidx.window.extensions.embedding.SplitAttributes computeSplitAttributesForParams(androidx.window.extensions.embedding.SplitAttributesCalculator.SplitAttributesCalculatorParams);
+  }
+
+  public static class SplitAttributesCalculator.SplitAttributesCalculatorParams {
+    method public androidx.window.extensions.embedding.SplitAttributes getDefaultSplitAttributes();
+    method public android.content.res.Configuration getParentConfiguration();
+    method public androidx.window.extensions.layout.WindowLayoutInfo getParentWindowLayoutInfo();
+    method public android.view.WindowMetrics getParentWindowMetrics();
+    method public String? getSplitRuleTag();
+    method public boolean isDefaultMinSizeSatisfied();
   }
 
   public class SplitInfo {

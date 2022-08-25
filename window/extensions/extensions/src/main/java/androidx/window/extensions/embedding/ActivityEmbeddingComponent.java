@@ -53,4 +53,21 @@ public interface ActivityEmbeddingComponent {
      * occupies a portion of Task bounds.
      */
     boolean isActivityEmbedded(@NonNull Activity activity);
+
+    /**
+     * Sets a {@link SplitAttributesCalculator}.
+     *
+     * @param calculator the calculator to set. It will replace the previously set
+     * {@link SplitAttributesCalculator} if it exists.
+     * @since {@link androidx.window.extensions.WindowExtensions#VENDOR_API_LEVEL_2}
+     */
+    void setSplitAttributesCalculator(@NonNull SplitAttributesCalculator calculator);
+
+    /**
+     * Clears the previously set {@link SplitAttributesCalculator}.
+     *
+     * @see #setSplitAttributesCalculator(SplitAttributesCalculator)
+     * @since {@link androidx.window.extensions.WindowExtensions#VENDOR_API_LEVEL_2}
+     */
+    void clearSplitAttributesCalculator();
 }

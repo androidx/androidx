@@ -25,6 +25,7 @@ import androidx.window.extensions.WindowExtensionsProvider
 import androidx.window.extensions.embedding.ActivityEmbeddingComponent
 import java.lang.reflect.Proxy
 import androidx.window.extensions.embedding.SplitInfo as OEMSplitInfo
+import androidx.window.extensions.WindowExtensions
 
 /**
  * Adapter implementation for different historical versions of activity embedding OEM interface in
@@ -56,6 +57,30 @@ internal class EmbeddingCompat constructor(
     override fun isActivityEmbedded(activity: Activity): Boolean {
         return embeddingExtension.isActivityEmbedded(activity)
     }
+
+    override fun setSplitAttributesCalculator(calculator: SplitAttributesCalculator) {
+        if (!isSplitAttributesCalculatorSupported()) {
+            throw UnsupportedOperationException("#setSplitAttributesCalculator is not supported " +
+                "on the device.")
+        }
+        return embeddingExtension.setSplitAttributesCalculator(
+            adapter.translateSplitAttributesCalculator(calculator)
+        )
+    }
+
+    override fun clearSplitAttributesCalculator() {
+        if (!isSplitAttributesCalculatorSupported()) {
+            throw UnsupportedOperationException("#clearSplitAttributesCalculator is not " +
+                "supported on the device.")
+        }
+        return embeddingExtension.clearSplitAttributesCalculator()
+    }
+
+    override fun isSplitAttributesCalculatorSupported(): Boolean =
+        let {
+            val vendorApiLevel = getExtensionApiLevel()
+            vendorApiLevel != null && vendorApiLevel >= WindowExtensions.VENDOR_API_LEVEL_2
+        }
 
     companion object {
         const val DEBUG = true

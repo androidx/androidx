@@ -299,4 +299,15 @@ internal class ExtensionEmbeddingBackend @VisibleForTesting constructor(
     override fun isActivityEmbedded(activity: Activity): Boolean {
         return embeddingExtension?.isActivityEmbedded(activity) ?: false
     }
+
+    override fun setSplitAttributesCalculator(calculator: SplitAttributesCalculator) {
+        embeddingExtension?.setSplitAttributesCalculator(calculator)
+    }
+
+    override fun clearSplitAttributesCalculator() {
+        embeddingExtension?.clearSplitAttributesCalculator()
+    }
+
+    override fun isSplitAttributesCalculatorSupported(): Boolean =
+        embeddingExtension?.isSplitAttributesCalculatorSupported() ?: false
 }

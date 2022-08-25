@@ -141,16 +141,38 @@ package androidx.window.embedding {
     property public final float ratio;
   }
 
+  @androidx.window.core.ExperimentalWindowApi public interface SplitAttributesCalculator {
+    method public androidx.window.embedding.SplitAttributes computeSplitAttributesForParams(androidx.window.embedding.SplitAttributesCalculator.SplitAttributesCalculatorParams params);
+  }
+
+  public static final class SplitAttributesCalculator.SplitAttributesCalculatorParams {
+    method public androidx.window.embedding.SplitAttributes getDefaultSplitAttributes();
+    method public android.content.res.Configuration getParentConfiguration();
+    method public androidx.window.layout.WindowLayoutInfo getParentWindowLayoutInfo();
+    method public androidx.window.layout.WindowMetrics getParentWindowMetrics();
+    method public String? getSplitRuleTag();
+    method public boolean isDefaultMinSizeSatisfied();
+    property public final androidx.window.embedding.SplitAttributes defaultSplitAttributes;
+    property public final boolean isDefaultMinSizeSatisfied;
+    property public final android.content.res.Configuration parentConfiguration;
+    property public final androidx.window.layout.WindowLayoutInfo parentWindowLayoutInfo;
+    property public final androidx.window.layout.WindowMetrics parentWindowMetrics;
+    property public final String? splitRuleTag;
+  }
+
   @androidx.window.core.ExperimentalWindowApi public final class SplitController {
     method public void addSplitListener(android.app.Activity activity, java.util.concurrent.Executor executor, androidx.core.util.Consumer<java.util.List<androidx.window.embedding.SplitInfo>> consumer);
     method public void clearRegisteredRules();
+    method public void clearSplitAttributesCalculator();
     method public static androidx.window.embedding.SplitController getInstance();
     method public java.util.Set<androidx.window.embedding.EmbeddingRule> getSplitRules();
     method public static void initialize(android.content.Context context, int staticRuleResourceId);
     method public boolean isActivityEmbedded(android.app.Activity activity);
+    method public boolean isSplitAttributesCalculatorSupported();
     method public boolean isSplitSupported();
     method public void registerRule(androidx.window.embedding.EmbeddingRule rule);
     method public void removeSplitListener(androidx.core.util.Consumer<java.util.List<androidx.window.embedding.SplitInfo>> consumer);
+    method public void setSplitAttributesCalculator(androidx.window.embedding.SplitAttributesCalculator calculator);
     method public void unregisterRule(androidx.window.embedding.EmbeddingRule rule);
     field public static final androidx.window.embedding.SplitController.Companion Companion;
   }

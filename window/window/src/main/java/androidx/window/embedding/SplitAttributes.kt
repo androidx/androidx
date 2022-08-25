@@ -27,7 +27,6 @@ import androidx.window.embedding.SplitAttributes.LayoutDirection.Companion.LOCAL
 import androidx.window.embedding.SplitAttributes.SplitType
 import androidx.window.embedding.SplitAttributes.SplitType.Companion.splitEqually
 
-// TODO(b/240912390): refer to the real API in later CLs.
 /**
  * Attributes to describe how the task bounds are split, which includes information on how the task
  * bounds are split between the activity containers:
@@ -41,7 +40,7 @@ import androidx.window.embedding.SplitAttributes.SplitType.Companion.splitEquall
  * `<SplitPlaceholderRule>` tag in XML file. They will be parsed as [SplitType] and
  * [layoutDirection]. Note that [SplitType.HingeSplitType] is not supported to be defined in XML
  * format.
- * - Used in `SplitAttributesCalculator.computeSplitAttributesForState` to customize the
+ * - Used in [SplitAttributesCalculator.computeSplitAttributesForParams] to customize the
  * `SplitAttributes` for a given device and window state.
  *
  * @see SplitAttributes.SplitType
@@ -134,6 +133,41 @@ class SplitAttributes internal constructor(
              * Indicate that both primary and secondary activity containers are expanded to fill the
              * task parent container, and the secondary container occludes the primary one. It is
              * useful to make the apps occupy the full task bounds in some device states.
+             *
+             * An example is to make the secondary container always occupy the full task bounds if
+             * the device is in portrait, and split the task bounds horizontally if the device is
+             * in landscape.
+             * This also can be used to expand containers with some device states via
+             * [SplitAttributesCalculator]. Below is an example how to always fill the task
+             * bounds if the device is in portrait:
+             * ```
+             * override computeSplitAttributesForParams(
+             *     params: SplitAttributesCalculatorParams
+             * ): SplitAttributes {
+             *     val tag = params.splitRuleTag
+             *     val bounds = params.parentWindowMetrics.bounds
+             *     val defaultSplitAttributes = params.defaultSplitAttributes
+             *     val isDefaultMinSizeSatisfied = params.isDefaultMinSizeSatisfied
+             *
+             *     val expandContainers = SplitAttributes,Builder()
+             *         .setSplitType(expandSecondaryContainer())
+             *         .build()
+             *     if (!isDefaultMinSizeSatisfied) {
+             *         return expandContainers
+             *     }
+             *     // Always expand containers for the splitRule tagged as
+             *     // TAG_SPLIT_RULE_EXPAND_IN_PORTRAIT if the device is in portrait
+             *     // even if [isDefaultMinSizeSatisfied] reports true.
+             *     if (
+             *         bounds.height() > bounds.width() &&
+             *         TAG_SPLIT_RULE_EXPAND_IN_PORTRAIT.equals(tag)
+             *     ) {
+             *         return expandContainers
+             *     }
+             *     // Otherwise, use the default splitAttributes.
+             *     return defaultSplitAttributes
+             * }
+             * ```
              */
             @JvmStatic
             fun expandContainers(): ExpandContainersSplitType = EXPAND_CONTAINERS

@@ -131,6 +131,38 @@ class SplitController private constructor() {
         return embeddingBackend.isActivityEmbedded(activity)
     }
 
+    /**
+     * Sets or updates the previously registered [SplitAttributesCalculator].
+     *
+     * **Note** that if the [SplitAttributesCalculator] is replaced, the existing split pairs will
+     * be updated after there's a window or device state change.
+     * The caller **must** make sure [isSplitAttributesCalculatorSupported] before invoking.
+     *
+     * @param calculator the calculator to set. It will replace the previously set
+     * [SplitAttributesCalculator] if it exists.
+     * @throws UnsupportedOperationException if [isSplitAttributesCalculatorSupported] reports
+     * `false`
+     */
+    fun setSplitAttributesCalculator(calculator: SplitAttributesCalculator) {
+        embeddingBackend.setSplitAttributesCalculator(calculator)
+    }
+
+    /**
+     * Clears the previously set [SplitAttributesCalculator].
+     * The caller **must** make sure [isSplitAttributesCalculatorSupported] before invoking.
+     *
+     * @see setSplitAttributesCalculator
+     * @throws UnsupportedOperationException if [isSplitAttributesCalculatorSupported] reports
+     * `false`
+     */
+    fun clearSplitAttributesCalculator() {
+        embeddingBackend.clearSplitAttributesCalculator()
+    }
+
+    /** Returns whether [SplitAttributesCalculator] is supported or not. */
+    fun isSplitAttributesCalculatorSupported(): Boolean =
+        embeddingBackend.isSplitAttributesCalculatorSupported()
+
     companion object {
         @Volatile
         private var globalInstance: SplitController? = null

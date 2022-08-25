@@ -16,6 +16,8 @@
 
 package androidx.window.layout
 
+import androidx.window.extensions.layout.FoldingFeature as OEMFoldingFeature
+import androidx.window.extensions.layout.WindowLayoutInfo as OEMWindowLayoutInfo
 import android.graphics.Rect
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.window.TestActivity
@@ -31,8 +33,6 @@ import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
-import androidx.window.extensions.layout.FoldingFeature as OEMFoldingFeature
-import androidx.window.extensions.layout.WindowLayoutInfo as OEMWindowLayoutInfo
 
 class ExtensionsWindowLayoutInfoAdapterTest {
 
@@ -43,12 +43,13 @@ class ExtensionsWindowLayoutInfoAdapterTest {
     @Test
     fun testTranslate_foldingFeature() {
         activityScenario.scenario.onActivity { activity ->
-            val bounds = computeCurrentWindowMetrics(activity).bounds
+            val windowMetrics = computeCurrentWindowMetrics(activity)
+            val bounds = windowMetrics.bounds
             val featureBounds = Rect(0, bounds.centerY(), bounds.width(), bounds.centerY())
             val oemFeature = OEMFoldingFeature(featureBounds, TYPE_HINGE, STATE_HALF_OPENED)
             val expected = HardwareFoldingFeature(Bounds(featureBounds), HINGE, HALF_OPENED)
 
-            val actual = ExtensionsWindowLayoutInfoAdapter.translate(activity, oemFeature)
+            val actual = ExtensionsWindowLayoutInfoAdapter.translate(windowMetrics, oemFeature)
 
             assertEquals(expected, actual)
         }
@@ -73,11 +74,12 @@ class ExtensionsWindowLayoutInfoAdapterTest {
     @Test
     fun testTranslate_foldingFeature_invalidType() {
         activityScenario.scenario.onActivity { activity ->
-            val bounds = computeCurrentWindowMetrics(activity).bounds
+            val windowMetrics = computeCurrentWindowMetrics(activity)
+            val bounds = windowMetrics.bounds
             val featureBounds = Rect(0, bounds.centerY(), bounds.width(), bounds.centerY())
             val oemFeature = OEMFoldingFeature(featureBounds, -1, STATE_HALF_OPENED)
 
-            val actual = ExtensionsWindowLayoutInfoAdapter.translate(activity, oemFeature)
+            val actual = ExtensionsWindowLayoutInfoAdapter.translate(windowMetrics, oemFeature)
 
             assertNull(actual)
         }
@@ -86,11 +88,12 @@ class ExtensionsWindowLayoutInfoAdapterTest {
     @Test
     fun testTranslate_foldingFeature_invalidState() {
         activityScenario.scenario.onActivity { activity ->
-            val bounds = computeCurrentWindowMetrics(activity).bounds
+            val windowMetrics = computeCurrentWindowMetrics(activity)
+            val bounds = windowMetrics.bounds
             val featureBounds = Rect(0, bounds.centerY(), bounds.width(), bounds.centerY())
             val oemFeature = OEMFoldingFeature(featureBounds, TYPE_HINGE, -1)
 
-            val actual = ExtensionsWindowLayoutInfoAdapter.translate(activity, oemFeature)
+            val actual = ExtensionsWindowLayoutInfoAdapter.translate(windowMetrics, oemFeature)
 
             assertNull(actual)
         }
@@ -99,7 +102,8 @@ class ExtensionsWindowLayoutInfoAdapterTest {
     @Test
     fun testTranslate_foldingFeature_invalidBounds() {
         activityScenario.scenario.onActivity { activity ->
-            val windowBounds = computeCurrentWindowMetrics(activity).bounds
+            val windowMetrics = computeCurrentWindowMetrics(activity)
+            val windowBounds = windowMetrics.bounds
 
             val source = invalidNonZeroFoldBounds(windowBounds)
                 .map { featureBounds ->
@@ -107,7 +111,7 @@ class ExtensionsWindowLayoutInfoAdapterTest {
                 }
 
             val invalidFeatures = source.mapNotNull { feature ->
-                ExtensionsWindowLayoutInfoAdapter.translate(activity, feature)
+                ExtensionsWindowLayoutInfoAdapter.translate(windowMetrics, feature)
             }
 
             assertTrue(source.isNotEmpty())

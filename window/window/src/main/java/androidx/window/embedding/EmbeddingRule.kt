@@ -24,13 +24,12 @@ import androidx.window.core.ExperimentalWindowApi
  */
 @ExperimentalWindowApi
 abstract class EmbeddingRule internal constructor(
-    // TODO(b/240912390): refer to the real API in later CLs.
     /**
-     * A unique string to identify this [EmbeddingRule].
+     * A unique string to identify this [EmbeddingRule], which defaults to `null`.
      * The suggested usage is to set the tag in the corresponding rule builder to be able to
      * differentiate between different rules in the callbacks. For example, it can be used to
      * compute the right [SplitAttributes] for the right split rule in
-     * `SplitAttributesCalculator#computeSplitAttributesForState`.
+     * [SplitAttributesCalculator.computeSplitAttributesForParams].
      *
      * @see SplitController.registerRule
      */
