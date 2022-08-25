@@ -29,7 +29,8 @@ internal interface InstantaneousRecord : Record {
     public val time: Instant
     /**
      * User experienced zone offset at [time], or null if unknown. Providing these will help history
-     * aggregations results stay consistent should user travel.
+     * aggregations results stay consistent should user travel. Queries with user
+     * experienced time filters will assume system current zone offset if the information is absent.
      */
     public val zoneOffset: ZoneOffset?
 }
