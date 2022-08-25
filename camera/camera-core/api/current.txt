@@ -205,7 +205,7 @@ package androidx.camera.core {
     method public androidx.camera.core.ImageAnalysis.Builder setBackpressureStrategy(int);
     method public androidx.camera.core.ImageAnalysis.Builder setImageQueueDepth(int);
     method public androidx.camera.core.ImageAnalysis.Builder setOutputImageFormat(int);
-    method public androidx.camera.core.ImageAnalysis.Builder setOutputImageRotationEnabled(boolean);
+    method @RequiresApi(23) public androidx.camera.core.ImageAnalysis.Builder setOutputImageRotationEnabled(boolean);
     method public androidx.camera.core.ImageAnalysis.Builder setTargetAspectRatio(int);
     method public androidx.camera.core.ImageAnalysis.Builder setTargetName(String);
     method public androidx.camera.core.ImageAnalysis.Builder setTargetResolution(android.util.Size);
