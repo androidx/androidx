@@ -176,8 +176,7 @@ public class UiDevice implements Searchable {
      * @return The final result returned by the {@code condition}, or null if the {@code condition}
      * was not met before the {@code timeout}.
      */
-    @SuppressWarnings("TypeNameShadowing")
-    public <R> R wait(@NonNull SearchCondition<R> condition, long timeout) {
+    public <U> U wait(@NonNull SearchCondition<U> condition, long timeout) {
         return mWaitMixin.wait(condition, timeout);
     }
 
@@ -189,9 +188,8 @@ public class UiDevice implements Searchable {
      * @param timeout Maximum amount of time to wait in milliseconds.
      * @return The final result returned by the condition.
      */
-    @SuppressWarnings("TypeNameShadowing")
-    public <R> R performActionAndWait(@NonNull Runnable action,
-            @NonNull EventCondition<R> condition, long timeout) {
+    public <U> U performActionAndWait(@NonNull Runnable action,
+            @NonNull EventCondition<U> condition, long timeout) {
         AccessibilityEvent event = null;
         try {
             event = getUiAutomation().executeAndWaitForEvent(

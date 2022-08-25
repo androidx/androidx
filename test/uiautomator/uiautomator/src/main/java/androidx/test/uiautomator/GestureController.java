@@ -90,8 +90,7 @@ class GestureController {
      * @param gestures One or more {@link PointerGesture}s which define the gesture to be performed.
      * @return The final result returned by the condition.
      */
-    @SuppressWarnings("TypeNameShadowing")
-    public <R> R performGestureAndWait(EventCondition<R> condition, long timeout,
+    public <U> U performGestureAndWait(EventCondition<U> condition, long timeout,
             PointerGesture ... gestures) {
 
         return getDevice().performActionAndWait(new GestureRunnable(gestures), condition, timeout);

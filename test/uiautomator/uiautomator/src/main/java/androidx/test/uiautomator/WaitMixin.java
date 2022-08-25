@@ -30,16 +30,14 @@ class WaitMixin<T> {
         mObject = instance;
     }
 
-    @SuppressWarnings("TypeNameShadowing")
-    public <R> R wait(Condition<? super T, R> condition, long timeout) {
+    public <U> U wait(Condition<? super T, U> condition, long timeout) {
         return wait(condition, timeout, DEFAULT_POLL_INTERVAL);
     }
 
-    @SuppressWarnings("TypeNameShadowing")
-    public <R> R wait(Condition<? super T, R> condition, long timeout, long interval) {
+    public <U> U wait(Condition<? super T, U> condition, long timeout, long interval) {
         long startTime = SystemClock.uptimeMillis();
 
-        R result = condition.apply(mObject);
+        U result = condition.apply(mObject);
         for (long elapsedTime = 0; result == null || result.equals(false);
                 elapsedTime = SystemClock.uptimeMillis() - startTime) {
 
