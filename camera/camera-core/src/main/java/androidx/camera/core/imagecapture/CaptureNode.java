@@ -162,6 +162,12 @@ class CaptureNode implements Node<CaptureNode.In, CaptureNode.Out> {
         }
     }
 
+    @VisibleForTesting
+    @NonNull
+    In getInputEdge() {
+        return mInputEdge;
+    }
+
     /**
      * Input edges of a {@link CaptureNode}.
      */

@@ -18,9 +18,9 @@ package androidx.camera.core.imagecapture
 
 import android.util.Size
 import androidx.annotation.MainThread
+import androidx.camera.core.imagecapture.Utils.createEmptyImageCaptureConfig
 import androidx.camera.core.impl.CaptureConfig
 import androidx.camera.core.impl.ImageCaptureConfig
-import androidx.camera.core.impl.OptionsBundle
 import androidx.core.util.Pair
 
 /**
@@ -34,7 +34,10 @@ class FakeImagePipeline(config: ImageCaptureConfig, cameraSurfaceSize: Size) :
         Pair<CameraRequest, ProcessingRequest>> = mutableMapOf()
     var captureConfigMap: MutableMap<TakePictureRequest, List<CaptureConfig>> = mutableMapOf()
 
-    constructor() : this(ImageCaptureConfig(OptionsBundle.emptyBundle()), Size(640, 480))
+    constructor() : this(
+        createEmptyImageCaptureConfig(),
+        Size(640, 480)
+    )
 
     @MainThread
     internal override fun createRequests(

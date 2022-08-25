@@ -16,8 +16,12 @@
 
 package androidx.camera.core.imagecapture
 
+import android.graphics.ImageFormat
+import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageProxy
 import androidx.camera.core.impl.CaptureBundle
+import androidx.camera.core.impl.ImageCaptureConfig
+import androidx.camera.core.impl.ImageInputConfig
 import androidx.camera.testing.fakes.FakeCaptureStage
 import androidx.camera.testing.fakes.FakeImageInfo
 import androidx.camera.testing.fakes.FakeImageProxy
@@ -26,6 +30,15 @@ import androidx.camera.testing.fakes.FakeImageProxy
  * Utility methods for testing image capture.
  */
 object Utils {
+
+    /**
+     * Creates an empty [ImageCaptureConfig] so [ImagePipeline] constructor won't crash.
+     */
+    fun createEmptyImageCaptureConfig(): ImageCaptureConfig {
+        val builder = ImageCapture.Builder().setCaptureOptionUnpacker { _, _ -> }
+        builder.mutableConfig.insertOption(ImageInputConfig.OPTION_INPUT_FORMAT, ImageFormat.JPEG)
+        return builder.useCaseConfig
+    }
 
     fun createCaptureBundle(stageIds: IntArray): CaptureBundle {
         return CaptureBundle {
