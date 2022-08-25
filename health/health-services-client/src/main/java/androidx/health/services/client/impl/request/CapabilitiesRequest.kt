@@ -30,9 +30,8 @@ import androidx.health.services.client.proto.RequestsProto
 public class CapabilitiesRequest(public val packageName: String) :
     ProtoParcelable<RequestsProto.CapabilitiesRequest>() {
 
-    override val proto: RequestsProto.CapabilitiesRequest by lazy {
+    override val proto: RequestsProto.CapabilitiesRequest =
         RequestsProto.CapabilitiesRequest.newBuilder().setPackageName(packageName).build()
-    }
 
     public companion object {
         @JvmField

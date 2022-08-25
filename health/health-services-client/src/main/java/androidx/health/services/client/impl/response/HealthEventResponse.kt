@@ -34,9 +34,8 @@ internal class HealthEventResponse(public val healthEvent: HealthEvent) :
         proto: ResponsesProto.HealthEventResponse
     ) : this(HealthEvent(proto.healthEvent))
 
-    override val proto: ResponsesProto.HealthEventResponse by lazy {
+    override val proto: ResponsesProto.HealthEventResponse =
         ResponsesProto.HealthEventResponse.newBuilder().setHealthEvent(healthEvent.proto).build()
-    }
 
     public companion object {
         @JvmField
