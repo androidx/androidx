@@ -31,8 +31,6 @@ InvalidNullabilityOverride: androidx.fragment.app.Fragment#onCreateContextMenu(a
     Invalid nullability on parameter `menu` in method `onCreateContextMenu`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
 InvalidNullabilityOverride: androidx.fragment.app.Fragment#onCreateContextMenu(android.view.ContextMenu, android.view.View, android.view.ContextMenu.ContextMenuInfo) parameter #1:
     Invalid nullability on parameter `v` in method `onCreateContextMenu`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
-InvalidNullabilityOverride: androidx.fragment.app.Fragment.SavedState#writeToParcel(android.os.Parcel, int) parameter #0:
-    Invalid nullability on parameter `dest` in method `writeToParcel`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
 InvalidNullabilityOverride: androidx.fragment.app.FragmentContainerView#addView(android.view.View, int, android.view.ViewGroup.LayoutParams) parameter #0:
     Invalid nullability on parameter `child` in method `addView`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
 InvalidNullabilityOverride: androidx.fragment.app.FragmentContainerView#dispatchApplyWindowInsets(android.view.WindowInsets) parameter #0:

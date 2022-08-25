@@ -41,8 +41,6 @@ MissingNullability: androidx.drawerlayout.widget.DrawerLayout#onKeyUp(int, andro
     Missing nullability on parameter `event` in method `onKeyUp`
 MissingNullability: androidx.drawerlayout.widget.DrawerLayout#onRestoreInstanceState(android.os.Parcelable) parameter #0:
     Missing nullability on parameter `state` in method `onRestoreInstanceState`
-MissingNullability: androidx.drawerlayout.widget.DrawerLayout#onSaveInstanceState():
-    Missing nullability on method `onSaveInstanceState` return
 MissingNullability: androidx.drawerlayout.widget.DrawerLayout#onTouchEvent(android.view.MotionEvent) parameter #0:
     Missing nullability on parameter `ev` in method `onTouchEvent`
 MissingNullability: androidx.drawerlayout.widget.DrawerLayout.SavedState#CREATOR:

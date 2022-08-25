@@ -1,32 +1,4 @@
 // Baseline format: 1.0
-AsyncSuffixFuture: androidx.appsearch.app.AppSearchSession#getByDocumentId(androidx.appsearch.app.GetByDocumentIdRequest):
-    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
-AsyncSuffixFuture: androidx.appsearch.app.AppSearchSession#getNamespaces():
-    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
-AsyncSuffixFuture: androidx.appsearch.app.AppSearchSession#getSchema():
-    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
-AsyncSuffixFuture: androidx.appsearch.app.AppSearchSession#getStorageInfo():
-    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
-AsyncSuffixFuture: androidx.appsearch.app.AppSearchSession#put(androidx.appsearch.app.PutDocumentsRequest):
-    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
-AsyncSuffixFuture: androidx.appsearch.app.AppSearchSession#remove(String, androidx.appsearch.app.SearchSpec):
-    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
-AsyncSuffixFuture: androidx.appsearch.app.AppSearchSession#remove(androidx.appsearch.app.RemoveByDocumentIdRequest):
-    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
-AsyncSuffixFuture: androidx.appsearch.app.AppSearchSession#reportUsage(androidx.appsearch.app.ReportUsageRequest):
-    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
-AsyncSuffixFuture: androidx.appsearch.app.AppSearchSession#requestFlush():
-    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
-AsyncSuffixFuture: androidx.appsearch.app.AppSearchSession#setSchema(androidx.appsearch.app.SetSchemaRequest):
-    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
-AsyncSuffixFuture: androidx.appsearch.app.GlobalSearchSession#getSchema(String, String):
-    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
-AsyncSuffixFuture: androidx.appsearch.app.GlobalSearchSession#reportSystemUsage(androidx.appsearch.app.ReportSystemUsageRequest):
-    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
-AsyncSuffixFuture: androidx.appsearch.app.SearchResults#getNextPage():
-    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
-
-
 NullableCollection: androidx.appsearch.app.GenericDocument#getPropertyDocumentArray(String):
     Return type of method androidx.appsearch.app.GenericDocument.getPropertyDocumentArray(String) is a nullable collection (`androidx.appsearch.app.GenericDocument[]`); must be non-null
 NullableCollection: androidx.appsearch.app.GenericDocument#getPropertyStringArray(String):
