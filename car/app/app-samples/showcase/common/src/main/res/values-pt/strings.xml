@@ -220,6 +220,7 @@
     <string name="clicked_row_prefix" msgid="9068303427922069941">"Linha clicada"</string>
     <string name="first_line_text" msgid="6648055806656590336">"Primeira linha de texto"</string>
     <string name="second_line_text" msgid="38664490158836864">"Segunda linha de texto"</string>
+    <string name="long_line_text" msgid="8082962600953333087">"Este subtexto pode ser totalmente mostrado em um modo irrestrito, como o de estacionamento e o de baixa velocidade restrita. No entanto, ele vai ser truncado para apenas duas linhas no modo restrito, como no de direção. Para fins de teste, o subtexto é extremamente longo."</string>
     <string name="title_prefix" msgid="3991742709199357049">"Título"</string>
     <string name="list_template_demo_title" msgid="1740208242737246151">"Demonstração do modelo de lista"</string>
     <string name="long_msg_template_demo_title" msgid="1793748562161438131">"Demonstração de modelo de mensagem longa"</string>
