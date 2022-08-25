@@ -131,12 +131,16 @@ Downloading file\:\$SUPPORT\/gradle\/wrapper\/.*
 Daemon will be stopped at the end of the build
 # > Configure project :appsearch:appsearch\-local\-backend
 Configuration on demand is an incubating feature\.
+Calculating task graph as configuration cache cannot be reused because the set of Gradle properties has changed\.
 You are using legacy USE_ANDROIDX_REMOTE_BUILD_CACHE=true type, this cache has been turned down, so you are \*not\* using a remote cache\. Please move to the new cache using http://go/androidx\-dev\#remote\-build\-cache
 Configuration cache is an incubating feature\.
 # > Configure project :
 updated local\.properties
 # > Configure project :compose:test\-utils
 The following Kotlin source sets were configured but not added to any Kotlin compilation:
+\* iosArm[0-9]+Main
+\* iosSimulatorArm[0-9]+Main
+\* iosX[0-9]+Main
 \* androidAndroidTestRelease
 \* androidTestFixtures
 \* androidTestFixturesDebug
@@ -478,3 +482,11 @@ WARNING: Illegal reflective access using Lookup on org\.gradle\.internal\.classl
 WARNING: Please consider reporting this to the maintainers of org\.gradle\.internal\.classloader\.ClassLoaderUtils\$AbstractClassLoaderLookuper
 # AGP warning about API usage we have no control over
 Values of variant API AnnotationProcessorOptions\.arguments are queried and may return non final values, this is unsupported
+# > Task :help
+Welcome to Gradle [0-9]+\.[0-9]+\.
+To run a build, run gradlew <task> \.\.\.
+To see a list of available tasks, run gradlew tasks
+To see more detail about a task, run gradlew help \-\-task <task>
+To see a list of command\-line options, run gradlew \-\-help
+For more detail on using Gradle, see https://docs\.gradle\.org/[0-9]+\.[0-9]+/userguide/command_line_interface\.html
+For troubleshooting, visit https://help\.gradle\.org
