@@ -81,6 +81,7 @@ import com.google.common.truth.IntegerSubject
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import java.util.concurrent.CountDownLatch
+import kotlin.math.roundToInt
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -1725,6 +1726,36 @@ class LazyListTest(orientation: Orientation) : BaseLazyListTestWithOrientation(o
             assertThat(state.firstVisibleItemIndex).isEqualTo(1)
             assertThat(state.firstVisibleItemScrollOffset).isEqualTo(10)
         }
+    }
+
+    @Test
+    fun usingFillParentMaxSizeOnInfinityConstraintsIsIgnored() {
+        rule.setContentWithTestViewConfiguration {
+            Layout(content = {
+                LazyColumnOrRow {
+                    items(1) {
+                        Box(
+                            Modifier
+                                .fillParentMaxSize(0.95f)
+                                .testTag("item"))
+                    }
+                }
+            }) { measurables, _ ->
+                val crossInfinityConstraints = if (vertical) {
+                    Constraints(maxWidth = Constraints.Infinity, maxHeight = 100)
+                } else {
+                    Constraints(maxWidth = 100, maxHeight = Constraints.Infinity)
+                }
+                val placeable = measurables.first().measure(crossInfinityConstraints)
+                layout(placeable.width, placeable.height) {
+                    placeable.place(0, 0)
+                }
+            }
+        }
+
+        rule.onNodeWithTag("item")
+            .assertMainAxisSizeIsEqualTo(with(rule.density) { (100 * 0.95f).roundToInt().toDp() })
+            .assertCrossAxisSizeIsEqualTo(0.dp)
     }
 
     // ********************* END OF TESTS *********************
