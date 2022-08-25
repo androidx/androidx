@@ -171,6 +171,23 @@ class SurfaceRequestTest {
     }
 
     @Test
+    fun handleInvalidate_runWhenInvalidateCalled() {
+        // Arrange.
+        var isCalled = false
+        val request = createNewRequest(FAKE_SIZE) {
+            isCalled = true
+        }
+        Truth.assertThat(isCalled).isFalse()
+
+        // Act.
+        request.willNotProvideSurface()
+        request.invalidate()
+
+        // Assert.
+        Truth.assertThat(isCalled).isTrue()
+    }
+
+    @Test
     @Suppress("UNCHECKED_CAST")
     fun cancelledRequest_resultsInREQUEST_CANCELLED() {
         val request = createNewRequest(FAKE_SIZE)
@@ -331,9 +348,10 @@ class SurfaceRequestTest {
     private fun createNewRequest(
         size: Size,
         expectedFrameRate: Range<Int>? = null,
-        autoCleanup: Boolean = true
+        autoCleanup: Boolean = true,
+        onInvalidated: () -> Unit = {},
     ): SurfaceRequest {
-        val request = SurfaceRequest(size, FakeCamera(), false, expectedFrameRate)
+        val request = SurfaceRequest(size, FakeCamera(), false, expectedFrameRate, onInvalidated)
         if (autoCleanup) {
             surfaceRequests.add(request)
         }

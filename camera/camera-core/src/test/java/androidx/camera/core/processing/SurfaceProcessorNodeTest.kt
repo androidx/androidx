@@ -265,7 +265,7 @@ class SurfaceProcessorNodeTest {
             cropRect,
             rotationDegrees,
             mirroring
-        )
+        ) {}
         inputEdge = SurfaceEdge.create(listOf(surface))
     }
 

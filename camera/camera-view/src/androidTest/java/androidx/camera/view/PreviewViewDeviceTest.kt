@@ -1072,7 +1072,7 @@ class PreviewViewDeviceTest(
         val surfaceRequest = SurfaceRequest(
             DEFAULT_SURFACE_SIZE, fakeCamera,
             isRGBA8888Required
-        )
+        ) {}
         surfaceRequestList.add(surfaceRequest)
         return surfaceRequest
     }

@@ -68,7 +68,7 @@ class SurfaceViewImplementationTest {
         mParent = FrameLayout(mContext)
         setContentView(mParent)
 
-        mSurfaceRequest = SurfaceRequest(ANY_SIZE, FakeCamera(), false)
+        mSurfaceRequest = SurfaceRequest(ANY_SIZE, FakeCamera(), false) {}
         mImplementation = SurfaceViewImplementation(mParent, PreviewTransformation())
     }
 
@@ -92,7 +92,7 @@ class SurfaceViewImplementationTest {
         val previousSurfaceView = mImplementation.mSurfaceView
 
         // Act.
-        val sameResolutionSurfaceRequest = SurfaceRequest(ANY_SIZE, FakeCamera(), false)
+        val sameResolutionSurfaceRequest = SurfaceRequest(ANY_SIZE, FakeCamera(), false) {}
         mImplementation.testSurfaceRequest(sameResolutionSurfaceRequest)
         val newSurfaceView = mImplementation.mSurfaceView
 
@@ -109,7 +109,8 @@ class SurfaceViewImplementationTest {
 
         // Act.
         val differentSize: Size by lazy { Size(720, 480) }
-        val differentResolutionSurfaceRequest = SurfaceRequest(differentSize, FakeCamera(), false)
+        val differentResolutionSurfaceRequest =
+            SurfaceRequest(differentSize, FakeCamera(), false) {}
         mImplementation.testSurfaceRequest(differentResolutionSurfaceRequest)
         val newSurfaceView = mImplementation.mSurfaceView
 
