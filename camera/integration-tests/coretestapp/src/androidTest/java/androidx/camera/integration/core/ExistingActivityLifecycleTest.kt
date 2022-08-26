@@ -92,6 +92,7 @@ class ExistingActivityLifecycleTest(
         CameraXActivity::class.java
     ).apply {
         putExtra(CameraXActivity.INTENT_EXTRA_CAMERA_IMPLEMENTATION, cameraConfig)
+        putExtra(CameraXActivity.INTENT_EXTRA_CAMERA_IMPLEMENTATION_NO_HISTORY, true)
     }
 
     @Before
@@ -370,7 +371,6 @@ class ExistingActivityLifecycleTest(
                     CameraXActivity::class.java
                 ).apply {
                     addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                    putExtra(CameraXActivity.INTENT_EXTRA_CAMERA_IMPLEMENTATION, cameraConfig)
                 }
             )!!
 

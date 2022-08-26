@@ -168,6 +168,8 @@ public class CameraXActivity extends AppCompatActivity {
     // Launch the activity with the specified video quality.
     private static final String INTENT_EXTRA_VIDEO_QUALITY = "video_quality";
     public static final String INTENT_EXTRA_CAMERA_IMPLEMENTATION = "camera_implementation";
+    public static final String INTENT_EXTRA_CAMERA_IMPLEMENTATION_NO_HISTORY =
+            "camera_implementation_no_history";
     // Launch the activity with the specified camera id.
     @VisibleForTesting
     public static final String INTENT_EXTRA_CAMERA_ID = "camera_id";
@@ -1158,8 +1160,17 @@ public class CameraXActivity extends AppCompatActivity {
             }
 
             String cameraImplementation = bundle.getString(INTENT_EXTRA_CAMERA_IMPLEMENTATION);
+            Boolean cameraImplementationNoHistory =
+                    bundle.getBoolean(INTENT_EXTRA_CAMERA_IMPLEMENTATION_NO_HISTORY, false);
+            if (cameraImplementationNoHistory) {
+                Intent newIntent = new Intent(getIntent());
+                newIntent.removeExtra(INTENT_EXTRA_CAMERA_IMPLEMENTATION);
+                newIntent.removeExtra(INTENT_EXTRA_CAMERA_IMPLEMENTATION_NO_HISTORY);
+                setIntent(newIntent);
+            }
             if (cameraImplementation != null) {
-                CameraXViewModel.configureCameraProvider(cameraImplementation);
+                CameraXViewModel.configureCameraProvider(
+                        cameraImplementation, cameraImplementationNoHistory);
             }
 
             // Update the app UI according to the e2e test case.
