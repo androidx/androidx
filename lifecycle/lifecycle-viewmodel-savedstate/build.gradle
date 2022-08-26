@@ -52,6 +52,7 @@ dependencies {
     androidTestImplementation(libs.testRules)
 
     constraints {
+        implementation(project(":lifecycle:lifecycle-livedata-core"))
         implementation(project(":lifecycle:lifecycle-viewmodel"))
         // this syntax is a temporary workout to allow project dependency on cross-project-set
         // i.e. COMPOSE + MAIN project sets
