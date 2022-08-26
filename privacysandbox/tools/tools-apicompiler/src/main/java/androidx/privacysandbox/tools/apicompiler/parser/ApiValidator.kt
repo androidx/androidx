@@ -26,6 +26,7 @@ import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.KSType
 import com.google.devtools.ksp.symbol.KSValueParameter
 import com.google.devtools.ksp.symbol.Modifier
+import com.google.devtools.ksp.symbol.Nullability
 
 class ApiValidator(private val logger: KSPLogger, private val resolver: Resolver) {
     private val primitiveTypes = getPrimitiveTypes(resolver.builtIns)
@@ -61,13 +62,10 @@ class ApiValidator(private val logger: KSPLogger, private val resolver: Resolver
         if (interfaceDeclaration.typeParameters.isNotEmpty()) {
             interfaceDeclaration.typeParameters.map { it.simpleName.getShortName() }.sorted()
                 .joinToString(limit = 3)
-            logger.error(
-                "Error in $name: annotated interfaces cannot declare type parameters (${
-                    interfaceDeclaration.typeParameters.map { it.simpleName.getShortName() }
-                        .sorted()
-                        .joinToString(limit = 3)
-                })."
-            )
+            logger.error("Error in $name: annotated interfaces cannot declare type parameters (${
+                interfaceDeclaration.typeParameters.map { it.simpleName.getShortName() }.sorted()
+                    .joinToString(limit = 3)
+            }).")
         }
     }
 
@@ -103,7 +101,10 @@ class ApiValidator(private val logger: KSPLogger, private val resolver: Resolver
 
     fun validateType(method: KSFunctionDeclaration, type: KSType) {
         val name = getMethodName(method)
-        if (!primitiveTypes.contains(type)) {
+        if (type.nullability == Nullability.NULLABLE) {
+            logger.error("Error in $name: nullable types are not supported.")
+        } // else because primitive nullables are not primitive
+        else if (!primitiveTypes.contains(type)) {
             logger.error("Error in $name: only primitive types are supported.")
         }
     }
