@@ -24,7 +24,9 @@ import androidx.compose.runtime.Composable
 import androidx.core.util.Preconditions
 
 private const val KEY_BEEP_FREQUENCY = "beep_frequency"
+private const val KEY_BEEP_ENABLED = "beep_enabled"
 private const val DEFAULT_BEEP_FREQUENCY = 1500
+private const val DEFAULT_BEEP_ENABLED = true
 private const val MIN_SCREEN_BRIGHTNESS = 0F
 private const val MAX_SCREEN_BRIGHTNESS = 1F
 private const val DEFAULT_SCREEN_BRIGHTNESS = 0.5F
@@ -36,7 +38,7 @@ class MainActivity : ComponentActivity() {
 
         setScreenBrightness()
         setContent {
-            App(getBeepFrequency())
+            App(getBeepFrequency(), getBeepEnabled())
         }
     }
 
@@ -54,6 +56,10 @@ class MainActivity : ComponentActivity() {
         return DEFAULT_BEEP_FREQUENCY
     }
 
+    private fun getBeepEnabled(): Boolean {
+        return intent.getBooleanExtra(KEY_BEEP_ENABLED, DEFAULT_BEEP_ENABLED)
+    }
+
     private fun setScreenBrightness(brightness: Float = DEFAULT_SCREEN_BRIGHTNESS) {
         Preconditions.checkArgument(brightness in MIN_SCREEN_BRIGHTNESS..MAX_SCREEN_BRIGHTNESS)
 
@@ -64,8 +70,8 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun App(beepFrequency: Int) {
+fun App(beepFrequency: Int, beepEnabled: Boolean) {
     MaterialTheme {
-        SignalGeneratorScreen(beepFrequency)
+        SignalGeneratorScreen(beepFrequency, beepEnabled)
     }
 }
