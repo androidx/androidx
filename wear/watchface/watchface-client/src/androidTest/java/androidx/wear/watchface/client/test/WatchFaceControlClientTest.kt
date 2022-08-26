@@ -503,6 +503,7 @@ class WatchFaceControlClientTest {
             surfaceHolder
         )
         val deferredInteractiveInstance = handlerCoroutineScope.async {
+            @Suppress("deprecation")
             service.getOrCreateInteractiveWatchFaceClient(
                 "testId",
                 deviceConfig,
@@ -859,6 +860,7 @@ class WatchFaceControlClientTest {
         assumeTrue("Requires Android R", Build.VERSION.SDK_INT >= Build.VERSION_CODES.R)
 
         val deferredInteractiveInstance = handlerCoroutineScope.async {
+            @Suppress("deprecation")
             service.getOrCreateInteractiveWatchFaceClient(
                 "testId",
                 deviceConfig,
@@ -1871,6 +1873,7 @@ class WatchFaceControlClientTest {
     @Test
     fun watchFaceColors() {
         val deferredInteractiveInstance = handlerCoroutineScope.async {
+            @Suppress("deprecation")
             service.getOrCreateInteractiveWatchFaceClient(
                 "testId",
                 deviceConfig,

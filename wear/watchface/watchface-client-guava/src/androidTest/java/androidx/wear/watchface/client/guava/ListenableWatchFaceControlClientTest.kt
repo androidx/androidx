@@ -136,6 +136,7 @@ public class ListenableWatchFaceControlClientTest {
             context.packageName
         ).get(TIMEOUT_MS, TimeUnit.MILLISECONDS)
 
+        @Suppress("deprecation")
         val interactiveInstanceFuture =
             client.listenableGetOrCreateInteractiveWatchFaceClient(
                 "listenableTestId",
@@ -235,6 +236,7 @@ public class ListenableWatchFaceControlClientTest {
             context.packageName
         ).get(TIMEOUT_MS, TimeUnit.MILLISECONDS)
 
+        @Suppress("deprecation")
         val interactiveInstanceFuture =
             client.listenableGetOrCreateInteractiveWatchFaceClient(
                 "listenableTestId",
@@ -313,6 +315,7 @@ public class ListenableWatchFaceControlClientTest {
             context.packageName
         ).get(TIMEOUT_MS, TimeUnit.MILLISECONDS)
 
+        @Suppress("deprecation")
         client.listenableGetOrCreateInteractiveWatchFaceClient(
             "listenableTestId",
             DeviceConfig(
@@ -327,6 +330,7 @@ public class ListenableWatchFaceControlClientTest {
         ).cancel(true)
 
         // Canceling should not prevent a subsequent listenableGetOrCreateInteractiveWatchFaceClient
+        @Suppress("deprecation")
         val interactiveInstanceFuture =
             client.listenableGetOrCreateInteractiveWatchFaceClient(
                 "listenableTestId",

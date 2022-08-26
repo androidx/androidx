@@ -214,6 +214,14 @@ public interface WatchFaceControlClient : AutoCloseable {
      * @throws [ServiceStartFailureException] if the watchface dies during startup.
      */
     @Throws(RemoteException::class)
+    @Deprecated(
+        "Use an overload that specifies PreviewImageUpdateRequestedListener",
+        ReplaceWith(
+            "getOrCreateInteractiveWatchFaceClient(" +
+                "String, DeviceConfig, WatchUiState, UserStyleData?, Map<Int, ComplicationData>?," +
+                " Executor, PreviewImageUpdateRequestedListener)"
+        )
+    )
     public suspend fun getOrCreateInteractiveWatchFaceClient(
         id: String,
         deviceConfig: DeviceConfig,
@@ -265,6 +273,7 @@ public interface WatchFaceControlClient : AutoCloseable {
      * @throws [ServiceStartFailureException] if the watchface dies during startup.
      */
     @Throws(RemoteException::class)
+    @Suppress("deprecation")
     public suspend fun getOrCreateInteractiveWatchFaceClient(
         instanceId: String,
         deviceConfig: DeviceConfig,
@@ -415,6 +424,13 @@ internal class WatchFaceControlClientImpl internal constructor(
         }
     }
 
+    @Deprecated(
+        "Use an overload that specifies PreviewImageUpdateRequestedListener",
+        replaceWith = ReplaceWith(
+            "getOrCreateInteractiveWatchFaceClient(String, DeviceConfig, WatchUiState, " +
+                "UserStyleData?, Map<Int, ComplicationData>?, Executor, " +
+                "PreviewImageUpdateRequestedListener)")
+    )
     override suspend fun getOrCreateInteractiveWatchFaceClient(
         id: String,
         deviceConfig: DeviceConfig,
