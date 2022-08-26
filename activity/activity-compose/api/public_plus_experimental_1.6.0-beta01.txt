@@ -36,5 +36,10 @@ package androidx.activity.compose {
     method @Deprecated public void unregister();
   }
 
+  public final class ReportLoadedKt {
+    method @androidx.compose.runtime.Composable public static void ReportLoadedAfter(kotlin.jvm.functions.Function1<? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?> block);
+    method @androidx.compose.runtime.Composable public static void ReportLoadedWhen(kotlin.jvm.functions.Function0<java.lang.Boolean> predicate);
+  }
+
 }
 
