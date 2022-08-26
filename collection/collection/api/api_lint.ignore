@@ -1,12 +1,6 @@
 // Baseline format: 1.0
 ArrayReturn: androidx.collection.ArraySet#ArraySet(E[]) parameter #0:
     Method parameter should be Collection<E> (or subclass) instead of raw array; was `E[]`
-ArrayReturn: androidx.collection.ArraySet#toArray():
-    Method should return Collection<Object> (or subclass) instead of raw array; was `java.lang.Object[]`
-ArrayReturn: androidx.collection.ArraySet#toArray(T[]):
-    Method should return Collection<T> (or subclass) instead of raw array; was `T[]`
-ArrayReturn: androidx.collection.ArraySet#toArray(T[]) parameter #0:
-    Method parameter should be Collection<T> (or subclass) instead of raw array; was `T[]`
 
 
 KotlinOperator: androidx.collection.SparseArrayCompat#get(int, E):
@@ -17,33 +11,3 @@ NoClone: androidx.collection.LongSparseArray#clone():
     Provide an explicit copy constructor instead of implementing `clone()`
 NoClone: androidx.collection.SparseArrayCompat#clone():
     Provide an explicit copy constructor instead of implementing `clone()`
-
-
-VisiblySynchronized: androidx.collection.LruCache#createCount():
-    Internal locks must not be exposed (synchronizing on this or class is still externally observable): method androidx.collection.LruCache.createCount()
-VisiblySynchronized: androidx.collection.LruCache#evictionCount():
-    Internal locks must not be exposed (synchronizing on this or class is still externally observable): method androidx.collection.LruCache.evictionCount()
-VisiblySynchronized: androidx.collection.LruCache#get(K):
-    Internal locks must not be exposed (synchronizing on this or class is still externally observable): method androidx.collection.LruCache.get(K)
-VisiblySynchronized: androidx.collection.LruCache#hitCount():
-    Internal locks must not be exposed (synchronizing on this or class is still externally observable): method androidx.collection.LruCache.hitCount()
-VisiblySynchronized: androidx.collection.LruCache#maxSize():
-    Internal locks must not be exposed (synchronizing on this or class is still externally observable): method androidx.collection.LruCache.maxSize()
-VisiblySynchronized: androidx.collection.LruCache#missCount():
-    Internal locks must not be exposed (synchronizing on this or class is still externally observable): method androidx.collection.LruCache.missCount()
-VisiblySynchronized: androidx.collection.LruCache#put(K, V):
-    Internal locks must not be exposed (synchronizing on this or class is still externally observable): method androidx.collection.LruCache.put(K,V)
-VisiblySynchronized: androidx.collection.LruCache#putCount():
-    Internal locks must not be exposed (synchronizing on this or class is still externally observable): method androidx.collection.LruCache.putCount()
-VisiblySynchronized: androidx.collection.LruCache#remove(K):
-    Internal locks must not be exposed (synchronizing on this or class is still externally observable): method androidx.collection.LruCache.remove(K)
-VisiblySynchronized: androidx.collection.LruCache#resize(int):
-    Internal locks must not be exposed (synchronizing on this or class is still externally observable): method androidx.collection.LruCache.resize(int)
-VisiblySynchronized: androidx.collection.LruCache#size():
-    Internal locks must not be exposed (synchronizing on this or class is still externally observable): method androidx.collection.LruCache.size()
-VisiblySynchronized: androidx.collection.LruCache#snapshot():
-    Internal locks must not be exposed (synchronizing on this or class is still externally observable): method androidx.collection.LruCache.snapshot()
-VisiblySynchronized: androidx.collection.LruCache#toString():
-    Internal locks must not be exposed (synchronizing on this or class is still externally observable): method androidx.collection.LruCache.toString()
-VisiblySynchronized: androidx.collection.LruCache#trimToSize(int):
-    Internal locks must not be exposed (synchronizing on this or class is still externally observable): method androidx.collection.LruCache.trimToSize(int)

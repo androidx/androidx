@@ -1,18 +1,4 @@
 // Baseline format: 1.0
-AutoBoxing: androidx.health.services.client.data.LocationAccuracy#LocationAccuracy(double, Double) parameter #1:
-    Must avoid boxed primitives (`java.lang.Double`)
-AutoBoxing: androidx.health.services.client.data.LocationAccuracy#getVerticalPositionErrorMeters():
-    Must avoid boxed primitives (`java.lang.Double`)
-AutoBoxing: androidx.health.services.client.data.LocationData#LocationData(double, double, Double, Double) parameter #2:
-    Must avoid boxed primitives (`java.lang.Double`)
-AutoBoxing: androidx.health.services.client.data.LocationData#LocationData(double, double, Double, Double) parameter #3:
-    Must avoid boxed primitives (`java.lang.Double`)
-AutoBoxing: androidx.health.services.client.data.LocationData#getAltitude():
-    Must avoid boxed primitives (`java.lang.Double`)
-AutoBoxing: androidx.health.services.client.data.LocationData#getBearing():
-    Must avoid boxed primitives (`java.lang.Double`)
-
-
 ExecutorRegistration: androidx.health.services.client.ExerciseClient#clearUpdateCallbackAsync(androidx.health.services.client.ExerciseUpdateCallback):
     Registration methods should have overload that accepts delivery Executor: `clearUpdateCallbackAsync`
 

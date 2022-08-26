@@ -35,8 +35,6 @@ ExecutorRegistration: androidx.room.RoomDatabase.Builder#createFromInputStream(j
     Registration methods should have overload that accepts delivery Executor: `createFromInputStream`
 
 
-InvalidNullabilityOverride: androidx.room.MultiInstanceInvalidationService#onBind(android.content.Intent):
-    Invalid nullability on method `onBind` return. Overrides of unannotated super method cannot be Nullable.
 InvalidNullabilityOverride: androidx.room.MultiInstanceInvalidationService#onBind(android.content.Intent) parameter #0:
     Invalid nullability on parameter `intent` in method `onBind`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
 
@@ -49,18 +47,6 @@ MissingGetterMatchingBuilder: androidx.room.RoomDatabase.Builder#addTypeConverte
     T does not declare a `getTypeConverters()` method matching method androidx.room.RoomDatabase.Builder.addTypeConverter(Object)
 MissingGetterMatchingBuilder: androidx.room.RoomDatabase.Builder#setJournalMode(androidx.room.RoomDatabase.JournalMode):
     T does not declare a `getJournalMode()` method matching method androidx.room.RoomDatabase.Builder.setJournalMode(androidx.room.RoomDatabase.JournalMode)
-
-
-MissingNullability: androidx.room.DatabaseConfiguration#journalMode:
-    Missing nullability on field `journalMode` in class `class androidx.room.DatabaseConfiguration`
-MissingNullability: androidx.room.InvalidationTracker.Observer#Observer(String, java.lang.String...) parameter #1:
-    Missing nullability on parameter `rest` in method `Observer`
-MissingNullability: androidx.room.RoomDatabase#compileStatement(String):
-    Missing nullability on method `compileStatement` return
-MissingNullability: androidx.room.RoomDatabase#createOpenHelper(androidx.room.DatabaseConfiguration) parameter #0:
-    Missing nullability on parameter `config` in method `createOpenHelper`
-MissingNullability: androidx.room.RoomDatabase.Builder#fallbackToDestructiveMigrationFrom(int...) parameter #0:
-    Missing nullability on parameter `startVersions` in method `fallbackToDestructiveMigrationFrom`
 
 
 NullableCollection: androidx.room.DatabaseConfiguration#callbacks:
