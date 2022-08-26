@@ -17,6 +17,7 @@
 package androidx.bluetooth.core
 
 import android.bluetooth.le.ScanFilter as FwkScanFilter
+import android.annotation.SuppressLint
 import android.os.Build
 import android.os.Bundle
 import android.os.ParcelUuid
@@ -26,41 +27,104 @@ import androidx.bluetooth.core.utils.Utils
 
 /**
  * TODO: Copy docs
- * TODO: Implement APIs added in API 33
- *       getters: getAdvertisingData, getAdvertisingDataMask, getAdvertisingDataType
- *       setters: setAdvertisingDataTypeWithData, setAdvertisingDataType,
  * @hide
  */
 class ScanFilter internal constructor(
-    internal val impl: ScanFilterInterface
-) : ScanFilterInterface by impl {
+    internal val base: ScanFilterBase
+) : ScanFilterInterface by base, Bundleable {
     companion object {
+        internal const val FIELD_FWK_SCAN_FILTER = 0
+        internal const val FIELD_SERVICE_SOLICITATION_UUID = 1
+        internal const val FIELD_SERVICE_SOLICITATION_UUID_MASK = 2
+        internal const val FIELD_ADVERTISING_DATA = 3
+        internal const val FIELD_ADVERTISING_DATA_MASK = 4
+        internal const val FIELD_ADVERTISING_DATA_TYPE = 5
+
         val CREATOR: Bundleable.Creator<ScanFilter> =
-            if (Build.VERSION.SDK_INT < 29) {
-                ScanFilterImplBase.CREATOR
-            } else {
-                ScanFilterImplApi29.CREATOR
+            object : Bundleable.Creator<ScanFilter> {
+                override fun fromBundle(bundle: Bundle): ScanFilter {
+                    return bundle.getScanFilter()
+                }
             }
 
-        internal fun createScanFilterImpl(args: ScanFilterArgs): ScanFilterInterface {
-            return if (Build.VERSION.SDK_INT < 29) {
-                ScanFilterImplBase(
-                    ScanFilterImplBase.getFwkScanFilterBuilder(args).build(),
-                    args.serviceSolicitationUuid,
-                    args.serviceSolicitationUuidMask
-                )
-            } else {
-                ScanFilterImplApi29(
-                    ScanFilterImplApi29.getFwkScanFilterBuilder(args).build()
-                )
+        internal fun keyForField(field: Int): String {
+            return field.toString(Character.MAX_RADIX)
+        }
+
+        internal fun Bundle.putScanFilter(filter: ScanFilter) {
+            this.putParcelable(
+                keyForField(FIELD_FWK_SCAN_FILTER), filter.base.fwkInstance)
+            if (Build.VERSION.SDK_INT < 29) {
+                if (filter.serviceSolicitationUuid != null) {
+                    this.putParcelable(
+                        keyForField(FIELD_SERVICE_SOLICITATION_UUID),
+                        filter.serviceSolicitationUuid)
+                }
+                if (filter.serviceSolicitationUuidMask != null) {
+                    this.putParcelable(
+                        keyForField(FIELD_SERVICE_SOLICITATION_UUID_MASK),
+                        filter.serviceSolicitationUuidMask)
+                }
+            }
+            if (Build.VERSION.SDK_INT < 33) {
+                if (filter.advertisingData != null) {
+                    this.putByteArray(
+                        keyForField(FIELD_ADVERTISING_DATA),
+                        filter.advertisingData)
+                    this.putByteArray(
+                        keyForField(FIELD_ADVERTISING_DATA_MASK),
+                        filter.advertisingDataMask)
+                    this.putInt(
+                        keyForField(FIELD_ADVERTISING_DATA_TYPE),
+                        filter.advertisingDataType)
+                }
             }
         }
+
+        internal fun Bundle.getScanFilter(): ScanFilter {
+            val fwkScanFilter =
+                Utils.getParcelableFromBundle(
+                    this,
+                    keyForField(FIELD_FWK_SCAN_FILTER),
+                    android.bluetooth.le.ScanFilter::class.java
+                ) ?: throw IllegalArgumentException(
+                    "Bundle doesn't include a framework scan filter"
+                )
+
+            var args = ScanFilterArgs()
+            if (Build.VERSION.SDK_INT < 33) {
+                args.advertisingDataType = this.getInt(
+                    keyForField(FIELD_ADVERTISING_DATA_TYPE), -1)
+                args.advertisingData = this.getByteArray(
+                    keyForField(FIELD_ADVERTISING_DATA))
+                args.advertisingDataMask = this.getByteArray(
+                    keyForField(FIELD_ADVERTISING_DATA_MASK))
+            }
+            if (Build.VERSION.SDK_INT < 29) {
+                args.serviceSolicitationUuid =
+                    Utils.getParcelableFromBundle(
+                        this,
+                        keyForField(FIELD_SERVICE_SOLICITATION_UUID),
+                        ParcelUuid::class.java
+                    )
+                args.serviceSolicitationUuidMask =
+                    Utils.getParcelableFromBundle(
+                        this,
+                        keyForField(FIELD_SERVICE_SOLICITATION_UUID_MASK),
+                        ParcelUuid::class.java
+                    )
+            }
+            return ScanFilter(fwkScanFilter, args)
+        }
     }
-    internal constructor(fwkScanFilter: FwkScanFilter) : this(
-        if (Build.VERSION.SDK_INT < 29) {
-            ScanFilterImplBase(fwkScanFilter)
+
+    internal constructor(fwkInstance: FwkScanFilter) : this(
+        if (Build.VERSION.SDK_INT >= 33) {
+            ScanFilterImplApi33(fwkInstance)
+        } else if (Build.VERSION.SDK_INT >= 29) {
+            ScanFilterImplApi29(fwkInstance)
         } else {
-            ScanFilterImplApi29(fwkScanFilter)
+            ScanFilterImplBase(fwkInstance)
         }
     )
 
@@ -76,8 +140,11 @@ class ScanFilter internal constructor(
         manufacturerData: ByteArray? = null,
         manufacturerDataMask: ByteArray? = null,
         serviceSolicitationUuid: ParcelUuid? = null,
-        serviceSolicitationUuidMask: ParcelUuid? = null
-    ) : this(createScanFilterImpl(ScanFilterArgs(
+        serviceSolicitationUuidMask: ParcelUuid? = null,
+        advertisingData: ByteArray? = null,
+        advertisingDataMask: ByteArray? = null,
+        advertisingDataType: Int = -1 // TODO: Use ScanRecord.DATA_TYPE_NONE
+    ) : this(ScanFilterArgs(
         deviceName,
         deviceAddress,
         serviceUuid,
@@ -89,8 +156,28 @@ class ScanFilter internal constructor(
         manufacturerData,
         manufacturerDataMask,
         serviceSolicitationUuid,
-        serviceSolicitationUuidMask
-    )))
+        serviceSolicitationUuidMask,
+        advertisingData,
+        advertisingDataMask,
+        advertisingDataType
+    ))
+
+    internal constructor(args: ScanFilterArgs) : this(args.toFwkScanFilter(), args)
+
+    internal constructor(fwkInstance: FwkScanFilter, args: ScanFilterArgs) : this(
+        if (Build.VERSION.SDK_INT >= 33) {
+            ScanFilterImplApi33(fwkInstance)
+        } else if (Build.VERSION.SDK_INT >= 29) {
+            ScanFilterImplApi29(fwkInstance, args)
+        } else {
+            ScanFilterImplBase(fwkInstance, args)
+        }
+    )
+    override fun toBundle(): Bundle {
+        val bundle = Bundle()
+        bundle.putScanFilter(this)
+        return bundle
+    }
 }
 
 internal data class ScanFilterArgs(
@@ -105,10 +192,61 @@ internal data class ScanFilterArgs(
     var manufacturerData: ByteArray? = null,
     var manufacturerDataMask: ByteArray? = null,
     var serviceSolicitationUuid: ParcelUuid? = null,
-    var serviceSolicitationUuidMask: ParcelUuid? = null
-)
+    var serviceSolicitationUuidMask: ParcelUuid? = null,
+    var advertisingData: ByteArray? = null,
+    var advertisingDataMask: ByteArray? = null,
+    var advertisingDataType: Int = -1 // TODO: Use ScanRecord.DATA_TYPE_NONE
+) {
+    // "ClassVerificationFailure" for FwkScanFilter.Builder
+    // "WrongConstant" for AdvertisingDataType
+    @SuppressLint("ClassVerificationFailure", "WrongConstant")
+    internal fun toFwkScanFilter(): FwkScanFilter {
+        val builder = FwkScanFilter.Builder()
+            .setDeviceName(deviceName)
+            .setDeviceAddress(deviceAddress)
+            .setServiceUuid(serviceUuid)
 
-internal interface ScanFilterInterface : Bundleable {
+        if (serviceDataUuid != null) {
+            if (serviceDataMask == null) {
+                builder.setServiceData(serviceDataUuid, serviceData)
+            } else {
+                builder.setServiceData(
+                    serviceDataUuid, serviceData, serviceDataMask)
+            }
+        }
+        if (manufacturerId >= 0) {
+            if (manufacturerDataMask == null) {
+                builder.setManufacturerData(manufacturerId, manufacturerData)
+            } else {
+                builder.setManufacturerData(
+                    manufacturerId, manufacturerData, manufacturerDataMask)
+            }
+        }
+
+        if (Build.VERSION.SDK_INT >= 29 && serviceSolicitationUuid != null) {
+            if (serviceSolicitationUuidMask == null) {
+                builder.setServiceSolicitationUuid(serviceSolicitationUuid)
+            } else {
+                builder.setServiceSolicitationUuid(
+                    serviceSolicitationUuid, serviceSolicitationUuidMask
+                )
+            }
+        }
+
+        if (Build.VERSION.SDK_INT >= 33 && advertisingDataType > 0) {
+            if (advertisingData != null && advertisingDataMask != null) {
+                builder.setAdvertisingDataTypeWithData(advertisingDataType,
+                    advertisingData!!, advertisingDataMask!!)
+            } else {
+                builder.setAdvertisingDataType(advertisingDataType)
+            }
+        }
+
+        return builder.build()
+    }
+}
+
+internal interface ScanFilterInterface {
     val deviceName: String?
     val deviceAddress: String?
     val serviceUuid: ParcelUuid?
@@ -121,21 +259,14 @@ internal interface ScanFilterInterface : Bundleable {
     val manufacturerDataMask: ByteArray?
     val serviceSolicitationUuid: ParcelUuid?
     val serviceSolicitationUuidMask: ParcelUuid?
+    val advertisingData: ByteArray?
+    val advertisingDataMask: ByteArray?
+    val advertisingDataType: Int
 }
 
-internal abstract class ScanFilterImpl internal constructor(
+internal abstract class ScanFilterBase internal constructor(
     internal val fwkInstance: FwkScanFilter
 ) : ScanFilterInterface {
-    companion object {
-        internal const val FIELD_FWK_SCAN_FILTER = 0
-        internal const val FIELD_SERVICE_SOLICITATION_UUID = 1
-        internal const val FIELD_SERVICE_SOLICITATION_UUID_MASK = 2
-
-        internal fun keyForField(field: Int): String {
-            return field.toString(Character.MAX_RADIX)
-        }
-    }
-
     override val deviceName: String?
         get() = fwkInstance.deviceName
     override val deviceAddress: String?
@@ -161,82 +292,19 @@ internal abstract class ScanFilterImpl internal constructor(
 internal class ScanFilterImplBase internal constructor(
     fwkInstance: FwkScanFilter,
     override val serviceSolicitationUuid: ParcelUuid? = null,
-    override val serviceSolicitationUuidMask: ParcelUuid? = null
-) : ScanFilterImpl(fwkInstance) {
-    companion object {
-        val CREATOR: Bundleable.Creator<ScanFilter> =
-            object : Bundleable.Creator<ScanFilter> {
-                override fun fromBundle(bundle: Bundle): ScanFilter {
-                    val fwkScanFilter =
-                        Utils.getParcelableFromBundle(
-                            bundle,
-                            keyForField(FIELD_FWK_SCAN_FILTER),
-                            FwkScanFilter::class.java
-                        ) ?: throw IllegalArgumentException(
-                            "Bundle doesn't include a framework scan filter"
-                        )
-                    val serviceSolicitationUuid =
-                        Utils.getParcelableFromBundle(
-                            bundle,
-                            keyForField(FIELD_SERVICE_SOLICITATION_UUID),
-                            ParcelUuid::class.java
-                        )
-                    val serviceSolicitationUuidMask =
-                        Utils.getParcelableFromBundle(
-                            bundle,
-                            keyForField(FIELD_SERVICE_SOLICITATION_UUID_MASK),
-                            ParcelUuid::class.java
-                        )
-                    return ScanFilter(ScanFilterImplBase(
-                        fwkScanFilter,
-                        serviceSolicitationUuid,
-                        serviceSolicitationUuidMask))
-                }
-            }
-
-        internal fun getFwkScanFilterBuilder(args: ScanFilterArgs): FwkScanFilter.Builder {
-            val builder = FwkScanFilter.Builder()
-                .setDeviceName(args.deviceName)
-                .setDeviceAddress(args.deviceAddress)
-                .setServiceUuid(args.serviceUuid)
-
-            if (args.serviceDataUuid != null) {
-                if (args.serviceDataMask == null) {
-                    builder.setServiceData(args.serviceDataUuid, args.serviceData)
-                } else {
-                    builder.setServiceData(
-                        args.serviceDataUuid, args.serviceData, args.serviceDataMask)
-                }
-            }
-            if (args.manufacturerId >= 0) {
-                if (args.manufacturerDataMask == null) {
-                    builder.setManufacturerData(args.manufacturerId, args.manufacturerData)
-                } else {
-                    builder.setManufacturerData(
-                        args.manufacturerId, args.manufacturerData, args.manufacturerDataMask)
-                }
-            }
-            return builder
-        }
-    }
-
-    override fun toBundle(): Bundle {
-        val bundle = Bundle()
-        bundle.putParcelable(keyForField(FIELD_FWK_SCAN_FILTER), fwkInstance)
-        if (serviceSolicitationUuid != null) {
-            bundle.putParcelable(
-                keyForField(FIELD_SERVICE_SOLICITATION_UUID), serviceSolicitationUuid)
-        }
-        if (serviceSolicitationUuidMask != null) {
-            bundle.putParcelable(
-                keyForField(FIELD_SERVICE_SOLICITATION_UUID_MASK), serviceSolicitationUuidMask)
-        }
-        return bundle
-    }
+    override val serviceSolicitationUuidMask: ParcelUuid? = null,
+    override val advertisingData: ByteArray? = null,
+    override val advertisingDataMask: ByteArray? = null,
+    override val advertisingDataType: Int = -1 // TODO: Use ScanRecord.DATA_TYPE_NONE
+) : ScanFilterBase(fwkInstance) {
+    internal constructor(fwkInstance: FwkScanFilter, args: ScanFilterArgs) : this(
+        fwkInstance, args.serviceSolicitationUuid, args.serviceSolicitationUuidMask,
+        args.advertisingData, args.advertisingDataMask, args.advertisingDataType
+    )
 }
 
 @RequiresApi(Build.VERSION_CODES.Q)
-internal abstract class ScanFilterImpl29(fwkInstance: FwkScanFilter) : ScanFilterImpl(fwkInstance) {
+internal abstract class ScanFilterBase29(fwkInstance: FwkScanFilter) : ScanFilterBase(fwkInstance) {
     override val serviceSolicitationUuid: ParcelUuid?
         get() = fwkInstance.serviceSolicitationUuid
     override val serviceSolicitationUuidMask: ParcelUuid?
@@ -245,42 +313,28 @@ internal abstract class ScanFilterImpl29(fwkInstance: FwkScanFilter) : ScanFilte
 
 @RequiresApi(Build.VERSION_CODES.Q)
 internal class ScanFilterImplApi29 internal constructor(
-    fwkInstance: FwkScanFilter
-) : ScanFilterImpl29(fwkInstance) {
-    companion object {
-        val CREATOR: Bundleable.Creator<ScanFilter> =
-            object : Bundleable.Creator<ScanFilter> {
-                override fun fromBundle(bundle: Bundle): ScanFilter {
-                    val fwkScanFilter =
-                        Utils.getParcelableFromBundle(
-                            bundle,
-                            keyForField(FIELD_FWK_SCAN_FILTER),
-                            android.bluetooth.le.ScanFilter::class.java
-                        ) ?: throw IllegalArgumentException(
-                            "Bundle doesn't include a framework scan filter"
-                        )
-                    return ScanFilter(fwkScanFilter)
-                }
-            }
-
-        internal fun getFwkScanFilterBuilder(args: ScanFilterArgs): FwkScanFilter.Builder {
-            val builder = ScanFilterImplBase.getFwkScanFilterBuilder(args)
-
-            if (args.serviceSolicitationUuid != null) {
-                if (args.serviceSolicitationUuidMask == null) {
-                    builder.setServiceSolicitationUuid(args.serviceSolicitationUuid)
-                } else {
-                    builder.setServiceSolicitationUuid(
-                        args.serviceSolicitationUuid, args.serviceSolicitationUuidMask)
-                }
-            }
-            return builder
-        }
-    }
-
-    override fun toBundle(): Bundle {
-        val bundle = Bundle()
-        bundle.putParcelable(keyForField(FIELD_FWK_SCAN_FILTER), fwkInstance)
-        return bundle
-    }
+    fwkInstance: FwkScanFilter,
+    override val advertisingData: ByteArray? = null,
+    override val advertisingDataMask: ByteArray? = null,
+    override val advertisingDataType: Int = -1 // TODO: Use ScanRecord.DATA_TYPE_NONE
+) : ScanFilterBase29(fwkInstance) {
+    internal constructor(fwkInstance: FwkScanFilter, args: ScanFilterArgs) : this(
+        fwkInstance, args.advertisingData, args.advertisingDataMask, args.advertisingDataType
+    )
 }
+
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
+internal abstract class ScanFilterBase33(fwkInstance: FwkScanFilter) :
+    ScanFilterBase29(fwkInstance) {
+    override val advertisingData: ByteArray?
+        get() = fwkInstance.advertisingData
+    override val advertisingDataMask: ByteArray?
+        get() = fwkInstance.advertisingDataMask
+    override val advertisingDataType: Int
+        get() = fwkInstance.advertisingDataType
+}
+
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
+internal class ScanFilterImplApi33 internal constructor(
+    fwkInstance: FwkScanFilter
+) : ScanFilterBase33(fwkInstance)
