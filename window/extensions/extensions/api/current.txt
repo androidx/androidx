@@ -34,6 +34,7 @@ package androidx.window.extensions.embedding {
 
   public interface ActivityEmbeddingComponent {
     method public void clearSplitAttributesCalculator();
+    method public void clearSplitInfoCallback();
     method public boolean isActivityEmbedded(android.app.Activity);
     method public void setEmbeddingRules(java.util.Set<androidx.window.extensions.embedding.EmbeddingRule!>);
     method public void setSplitAttributesCalculator(androidx.window.extensions.embedding.SplitAttributesCalculator);
