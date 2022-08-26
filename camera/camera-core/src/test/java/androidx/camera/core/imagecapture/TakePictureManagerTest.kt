@@ -81,6 +81,7 @@ class TakePictureManagerTest {
         // Act: pause the manage and finish the 1st request.
         takePictureManager.pause()
         imagePipeline.getProcessingRequest(request1).onImageCaptured()
+        shadowOf(getMainLooper()).idle()
 
         // Assert: only one request is sent.
         assertThat(imageCaptureControl.actions).containsExactly(
@@ -91,6 +92,7 @@ class TakePictureManagerTest {
 
         // Act: resume to process the 2nd request.
         takePictureManager.resume()
+        shadowOf(getMainLooper()).idle()
 
         // Assert: 2nd request is sent too.
         assertThat(imageCaptureControl.actions).containsExactly(
@@ -135,6 +137,7 @@ class TakePictureManagerTest {
         // Act: offer 2 requests
         takePictureManager.offerRequest(request1)
         takePictureManager.offerRequest(request2)
+        shadowOf(getMainLooper()).idle()
 
         // Assert:
         assertThat(imageCaptureControl.actions).containsExactly(
@@ -147,6 +150,7 @@ class TakePictureManagerTest {
 
         // Act: invoke image captured so TakePictureManager can issue another request.
         imagePipeline.getProcessingRequest(request1).onImageCaptured()
+        shadowOf(getMainLooper()).idle()
 
         // Assert: imageCaptureControl was invoked in the exact given order.
         assertThat(imageCaptureControl.actions).containsExactly(
@@ -173,6 +177,7 @@ class TakePictureManagerTest {
         takePictureManager.offerRequest(request1)
         takePictureManager.offerRequest(request2)
         takePictureManager.offerRequest(request3)
+        shadowOf(getMainLooper()).idle()
         val response1 = ImageCaptureException(ImageCapture.ERROR_UNKNOWN, "", null)
         val response2 = OutputFileResults(null)
         val response3 = FakeImageProxy(FakeImageInfo())

@@ -99,6 +99,33 @@ class CaptureNodeTest {
         assertThat(imagePropagated).containsExactly(imageA1, imageA2, imageB1)
     }
 
+    @Test
+    fun receiveImageFirst_onCaptureInvoked() {
+        // Arrange: create a request with two stages: 1 and 2.
+        val captureBundle = createCaptureBundle(intArrayOf(1, 2))
+        val callback = FakeTakePictureCallback()
+        val request = FakeProcessingRequest(captureBundle, callback)
+        val tagBundleKey = captureBundle.hashCode().toString()
+        val image1 = createFakeImage(tagBundleKey, 1)
+        val image2 = createFakeImage(tagBundleKey, 2)
+
+        // Act: send image1, request, then image2
+        captureNode.onImageProxyAvailable(image1)
+        assertThat(callback.onImageCapturedCalled).isFalse()
+        assertThat(imagePropagated).isEmpty()
+        assertThat(requestsPropagated).isEmpty()
+
+        captureNode.onRequestAvailable(request)
+        assertThat(callback.onImageCapturedCalled).isFalse()
+        assertThat(requestsPropagated).containsExactly(request)
+        assertThat(imagePropagated).containsExactly(image1)
+
+        captureNode.onImageProxyAvailable(image2)
+        assertThat(callback.onImageCapturedCalled).isTrue()
+        assertThat(requestsPropagated).containsExactly(request)
+        assertThat(imagePropagated).containsExactly(image1, image2)
+    }
+
     @Test(expected = IllegalStateException::class)
     fun receiveRequestWhenThePreviousOneUnfinished_throwException() {
         // Arrange: create 2 requests: A and B.
@@ -109,10 +136,5 @@ class CaptureNodeTest {
         // Act: Send B without A being finished.
         captureNode.onRequestAvailable(requestA)
         captureNode.onRequestAvailable(requestB)
-    }
-
-    @Test(expected = IllegalStateException::class)
-    fun frameArriveBeforeRequest_throwException() {
-        captureNode.onImageProxyAvailable(createFakeImage("", 1))
     }
 }
