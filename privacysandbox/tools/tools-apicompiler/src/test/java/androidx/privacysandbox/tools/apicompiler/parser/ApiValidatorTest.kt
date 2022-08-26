@@ -160,6 +160,14 @@ class ApiValidatorTest {
         )
     }
 
+    @Test
+    fun nullableParameter_fails() {
+        checkSourceFails(serviceMethod("suspend fun foo(x: Int?)"))
+            .containsExactlyErrors(
+                "Error in com.mysdk.MySdk.foo: nullable types are not supported."
+            )
+    }
+
     private fun serviceInterface(declaration: String) = Source.kotlin(
         "com/mysdk/MySdk.kt", """
             package com.mysdk
