@@ -220,6 +220,7 @@
     <string name="clicked_row_prefix" msgid="9068303427922069941">"S-a dat clic pe rândul"</string>
     <string name="first_line_text" msgid="6648055806656590336">"Primul rând de text"</string>
     <string name="second_line_text" msgid="38664490158836864">"Al doilea rând de text"</string>
+    <string name="long_line_text" msgid="8082962600953333087">"Subtextul se poate afișa integral în modul nerestricționat (de ex., modul de parcare, modul restricționat cu viteză redusă). Dar va fi trunchiat la numai două rânduri în modul restricționat (de ex., modul cu mașina). În scopuri de testare, subtextul va fi foarte lung."</string>
     <string name="title_prefix" msgid="3991742709199357049">"Titlu"</string>
     <string name="list_template_demo_title" msgid="1740208242737246151">"Demonstrație cu șablon pentru listă"</string>
     <string name="long_msg_template_demo_title" msgid="1793748562161438131">"Demonstrație cu șablon pentru mesaj lung"</string>
@@ -248,7 +249,7 @@
     <string name="password_sign_in_instruction_prefix" msgid="9105788349198243508">"Nume de utilizator"</string>
     <string name="pin_sign_in_instruction" msgid="2288691296234360441">"Introduceți acest cod PIN pe telefon"</string>
     <string name="qr_code_sign_in_title" msgid="8137070561006464518">"Scanați codul QR pentru a vă conecta"</string>
-    <string name="sign_in_with_google_title" msgid="8043752000786977249">"Conectați-vă cu Google"</string>
+    <string name="sign_in_with_google_title" msgid="8043752000786977249">"Conectează-te cu Google"</string>
     <string name="provider_sign_in_instruction" msgid="7586815688292506743">"Folosiți acest buton pentru a finaliza conectarea cu Google"</string>
     <string name="sign_in_complete_text" msgid="8423984266325680606">"V-ați conectat!"</string>
     <string name="sign_in_complete_title" msgid="8919868148773983428">"Conectare finalizată"</string>

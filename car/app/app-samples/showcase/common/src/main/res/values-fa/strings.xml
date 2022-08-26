@@ -220,6 +220,7 @@
     <string name="clicked_row_prefix" msgid="9068303427922069941">"روی ردیف کلیک شد"</string>
     <string name="first_line_text" msgid="6648055806656590336">"اولین خط نوشتار"</string>
     <string name="second_line_text" msgid="38664490158836864">"خط دوم نوشتار"</string>
+    <string name="long_line_text" msgid="8082962600953333087">"این نوشتار فرعی می‌تواند به‌طور کامل در حالت نامحدود نمایش داده شود (برای مثال حالت پارکینگ، حالت سرعت پایین محدودشده). اما در حالت محدود (مثلاً حالت رانندگی) کوتاه می‌شود و فقط دو خط نشان داده می‌شود. برای اهداف آزمایشی، این نوشتار فرعی بسیار بسیار بسیار بسیار بسیار طولانی است"</string>
     <string name="title_prefix" msgid="3991742709199357049">"عنوان"</string>
     <string name="list_template_demo_title" msgid="1740208242737246151">"الگوی فهرست نمونه"</string>
     <string name="long_msg_template_demo_title" msgid="1793748562161438131">"نمونه الگوی پیام طولانی"</string>
@@ -295,7 +296,7 @@
     <string name="toggle_test_second_toggle_text" msgid="1813071017415876745">"تغییرات حالت‌مند مجاز است"</string>
     <string name="image_test_title" msgid="8273863429801477547">"امتحان کردن تصویر"</string>
     <string name="image_test_text" msgid="6264812093895530445">"تغییرات تصویر مجاز است"</string>
-    <string name="additional_data_title" msgid="3546689652240300617">"داده‌های تکمیلی"</string>
+    <string name="additional_data_title" msgid="3546689652240300617">"داده‌های جانبی"</string>
     <string name="additional_data_text" msgid="2846223398214158872">"به‌روزرسانی در عملیات‌های برگشتی مجاز است."</string>
     <string name="toggle_test_enabled" msgid="982370904182034076">"آزمایش تغییر وضعیت فعال شد"</string>
     <string name="toggle_test_disabled" msgid="8366040658408451664">"آزمایش تغییر وضعیت غیرفعال شد"</string>

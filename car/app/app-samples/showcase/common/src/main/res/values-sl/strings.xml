@@ -220,6 +220,7 @@
     <string name="clicked_row_prefix" msgid="9068303427922069941">"Uporabnik je kliknil vrstico"</string>
     <string name="first_line_text" msgid="6648055806656590336">"Prva vrstica besedila"</string>
     <string name="second_line_text" msgid="38664490158836864">"Druga vrstica besedila"</string>
+    <string name="long_line_text" msgid="8082962600953333087">"To podbesedilo je lahko prikazano v celoti v neomejenem načinu (npr. v načinu parkiranja, v načinu nizke omejene hitrosti). V omejenem načinu (npr. v načinu vožnje) pa bo skrajšano na dve vrstici. Za namene preizkusa je to podbesedilo zelo zelo zelo zelo zelo zelo dolgo."</string>
     <string name="title_prefix" msgid="3991742709199357049">"Naslov"</string>
     <string name="list_template_demo_title" msgid="1740208242737246151">"Predstavitvena različica predloge seznama"</string>
     <string name="long_msg_template_demo_title" msgid="1793748562161438131">"Predstavitvena različica predloge dolgega sporočila"</string>
