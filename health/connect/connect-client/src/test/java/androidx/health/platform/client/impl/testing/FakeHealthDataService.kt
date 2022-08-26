@@ -66,6 +66,8 @@ class FakeHealthDataService : IHealthDataService.Stub() {
     var lastAggregateRequest: AggregateDataRequest? = null
     var lastGetChangesTokenRequest: GetChangesTokenRequest? = null
     var lastGetChangesRequest: GetChangesRequest? = null
+    var lastRegisterForDataNotificationsRequest: RegisterForDataNotificationsRequest? = null
+    var lastUnregisterFromDataNotificationsRequest: UnregisterFromDataNotificationsRequest? = null
 
     /** State for returned responses. */
     var insertDataResponse: InsertDataResponse? = null
@@ -234,7 +236,12 @@ class FakeHealthDataService : IHealthDataService.Stub() {
         request: RegisterForDataNotificationsRequest,
         callback: IRegisterForDataNotificationsCallback,
     ) {
-        TODO("Implement when needed")
+        lastRegisterForDataNotificationsRequest = request
+        errorCode?.also {
+            callback.onError(ErrorStatus.create(errorCode = it))
+            return@registerForDataNotifications
+        }
+        callback.onSuccess()
     }
 
     override fun unregisterFromDataNotifications(
@@ -242,6 +249,11 @@ class FakeHealthDataService : IHealthDataService.Stub() {
         request: UnregisterFromDataNotificationsRequest,
         callback: IUnregisterFromDataNotificationsCallback,
     ) {
-        TODO("Implement when needed")
+        lastUnregisterFromDataNotificationsRequest = request
+        errorCode?.also {
+            callback.onError(ErrorStatus.create(errorCode = it))
+            return@unregisterFromDataNotifications
+        }
+        callback.onSuccess()
     }
 }
