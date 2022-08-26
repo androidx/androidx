@@ -80,6 +80,7 @@ internal class InteractiveWatchFaceImpl(
     /** This is deprecated, instead we prefer [IWatchfaceListener.onWatchfaceReady]. */
     private var watchfaceReadyListener: IWatchfaceReadyListener? = null
     private var watchFaceReady = false
+    private var pendingPreviewImageUpdateRequested: String? = null
 
     // UiThread: write needs a lock, read doesn't.
     // Other threads: Read access only which needs a lock.
@@ -190,6 +191,7 @@ internal class InteractiveWatchFaceImpl(
 
     override fun addWatchFaceListener(listener: IWatchfaceListener) {
         val watchFaceIsReadyCopy: Boolean
+        val pendingPreviewImageUpdateRequestedCopy: String?
         val colors = synchronized(lock) {
             if (listeners.add(listener)) {
                 Log.d(TAG, "addWatchFaceListener $listener")
@@ -197,6 +199,8 @@ internal class InteractiveWatchFaceImpl(
                 Log.w(TAG, "addWatchFaceListener $listener failed because its already registered")
                 return
             }
+            pendingPreviewImageUpdateRequestedCopy = pendingPreviewImageUpdateRequested
+            pendingPreviewImageUpdateRequested = null
             watchFaceIsReadyCopy = watchFaceReady
             lastWatchFaceColors
         }
@@ -205,6 +209,10 @@ internal class InteractiveWatchFaceImpl(
 
         if (watchFaceIsReadyCopy) {
             listener.onWatchfaceReady()
+        }
+
+        if (pendingPreviewImageUpdateRequestedCopy != null) {
+            listener.onPreviewImageUpdateRequested(pendingPreviewImageUpdateRequestedCopy)
         }
     }
 
@@ -420,6 +428,9 @@ internal class InteractiveWatchFaceImpl(
 
     fun sendPreviewImageNeedsUpdateRequest() {
         val listenersCopy = synchronized(lock) {
+            if (listeners.isEmpty()) {
+                pendingPreviewImageUpdateRequested = instanceId
+            }
             HashSet<IWatchfaceListener>(listeners)
         }
 
@@ -433,6 +444,7 @@ internal class InteractiveWatchFaceImpl(
         writer.increaseIndent()
         synchronized(lock) {
             writer.print("engine = $engine")
+            writer.print("pendingPreviewImageUpdateRequested = $pendingPreviewImageUpdateRequested")
             writer.print(
                 "complications = " + complications.map {
                     "{id = ${it.key}, value = ${it.value}}"
