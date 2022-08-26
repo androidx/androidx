@@ -46,6 +46,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 @Composable
 fun SignalGeneratorScreen(
     beepFrequency: Int,
+    beepEnabled: Boolean,
     viewModel: SignalGeneratorViewModel = viewModel()
 ) {
     val context = LocalContext.current
@@ -53,7 +54,7 @@ fun SignalGeneratorScreen(
 
     LaunchedEffect(true) {
         viewModel.initialRecorder(context, lifecycleOwner)
-        viewModel.initialSignalGenerator(context, beepFrequency)
+        viewModel.initialSignalGenerator(context, beepFrequency, beepEnabled)
     }
 
     MainContent(
