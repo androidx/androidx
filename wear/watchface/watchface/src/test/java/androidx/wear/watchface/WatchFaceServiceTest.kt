@@ -80,6 +80,7 @@ import androidx.wear.watchface.data.DeviceConfig
 import androidx.wear.watchface.data.IdAndComplicationDataWireFormat
 import androidx.wear.watchface.data.WatchFaceColorsWireFormat
 import androidx.wear.watchface.data.WatchUiState
+import androidx.wear.watchface.style.WatchFaceLayer
 import androidx.wear.watchface.style.CurrentUserStyleRepository
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleSchema
@@ -89,7 +90,6 @@ import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyle
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotsOption
 import androidx.wear.watchface.style.UserStyleSetting.ListUserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.Option
-import androidx.wear.watchface.style.WatchFaceLayer
 import androidx.wear.watchface.style.data.UserStyleWireFormat
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.eq
@@ -144,6 +144,8 @@ private const val RIGHT_COMPLICATION = "RIGHT_COMPLICATION"
 private const val LEFT_AND_RIGHT_COMPLICATIONS = "LEFT_AND_RIGHT_COMPLICATIONS"
 private const val RIGHT_AND_LEFT_COMPLICATIONS = "RIGHT_AND_LEFT_COMPLICATIONS"
 private const val INTERACTIVE_INSTANCE_ID = SYSTEM_SUPPORTS_CONSISTENT_IDS_PREFIX + "Interactive"
+private const val NAME_RESOURCE_ID = 123456
+private const val SCREEN_READER_NAME_RESOURCE_ID = 567890
 
 internal enum class Priority {
     Unset,
@@ -2467,7 +2469,12 @@ public class WatchFaceServiceTest {
             Option.Id(RIGHT_COMPLICATION),
             "Right",
             null,
-            listOf(ComplicationSlotOverlay.Builder(LEFT_COMPLICATION_ID).setEnabled(false).build())
+            listOf(ComplicationSlotOverlay.Builder(LEFT_COMPLICATION_ID).setEnabled(false).build(),
+                ComplicationSlotOverlay.Builder(RIGHT_COMPLICATION_ID)
+                    .setEnabled(true)
+                    .setNameResourceId(NAME_RESOURCE_ID)
+                    .setScreenReaderNameResourceId(SCREEN_READER_NAME_RESOURCE_ID)
+                    .build())
         )
         val complicationsStyleSetting = ComplicationSlotsUserStyleSetting(
             UserStyleSetting.Id("complications_style_setting"),
@@ -2511,6 +2518,9 @@ public class WatchFaceServiceTest {
 
         assertFalse(leftComplication.enabled)
         assertTrue(rightComplication.enabled)
+        assertEquals(rightComplication.nameResourceId, NAME_RESOURCE_ID)
+        assertEquals(rightComplication.screenReaderNameResourceId,
+            SCREEN_READER_NAME_RESOURCE_ID)
 
         // Select both complicationSlots.
         val mutableUserStyleC = currentUserStyleRepository.userStyle.value.toMutableUserStyle()

@@ -52,9 +52,9 @@ package androidx.wear.watchface {
     method public boolean getFixedComplicationDataSource();
     method public int getId();
     method public boolean getInitiallyEnabled();
-    method public Integer? getNameResourceId();
+    method @UiThread public Integer? getNameResourceId();
     method public androidx.wear.watchface.CanvasComplication getRenderer();
-    method public Integer? getScreenReaderNameResourceId();
+    method @UiThread public Integer? getScreenReaderNameResourceId();
     method @UiThread public java.util.List<androidx.wear.watchface.complications.data.ComplicationType> getSupportedTypes();
     method public androidx.wear.watchface.ComplicationTapFilter getTapFilter();
     method public boolean isActiveAt(java.time.Instant instant);
@@ -74,9 +74,9 @@ package androidx.wear.watchface {
     property public final boolean fixedComplicationDataSource;
     property public final int id;
     property public final boolean initiallyEnabled;
-    property public final Integer? nameResourceId;
+    property @UiThread public final Integer? nameResourceId;
     property public final androidx.wear.watchface.CanvasComplication renderer;
-    property public final Integer? screenReaderNameResourceId;
+    property @UiThread public final Integer? screenReaderNameResourceId;
     property @UiThread public final java.util.List<androidx.wear.watchface.complications.data.ComplicationType> supportedTypes;
     property public final androidx.wear.watchface.ComplicationTapFilter tapFilter;
     field public static final androidx.wear.watchface.ComplicationSlot.Companion Companion;
