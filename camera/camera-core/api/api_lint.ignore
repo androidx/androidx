@@ -35,8 +35,6 @@ MissingGetterMatchingBuilder: androidx.camera.core.FocusMeteringAction.Builder#a
     androidx.camera.core.FocusMeteringAction does not declare a `getPoints()` method matching method androidx.camera.core.FocusMeteringAction.Builder.addPoint(androidx.camera.core.MeteringPoint,int)
 MissingGetterMatchingBuilder: androidx.camera.core.FocusMeteringAction.Builder#setAutoCancelDuration(long, java.util.concurrent.TimeUnit):
     androidx.camera.core.FocusMeteringAction does not declare a `getAutoCancelDuration()` method matching method androidx.camera.core.FocusMeteringAction.Builder.setAutoCancelDuration(long,java.util.concurrent.TimeUnit)
-MissingGetterMatchingBuilder: androidx.camera.core.ImageAnalysis.Builder#setBackgroundExecutor(java.util.concurrent.Executor):
-    androidx.camera.core.ImageAnalysis does not declare a `getBackgroundExecutor()` method matching method androidx.camera.core.ImageAnalysis.Builder.setBackgroundExecutor(java.util.concurrent.Executor)
 MissingGetterMatchingBuilder: androidx.camera.core.ImageAnalysis.Builder#setTargetAspectRatio(int):
     androidx.camera.core.ImageAnalysis does not declare a `getTargetAspectRatio()` method matching method androidx.camera.core.ImageAnalysis.Builder.setTargetAspectRatio(int)
 MissingGetterMatchingBuilder: androidx.camera.core.ImageAnalysis.Builder#setTargetName(String):

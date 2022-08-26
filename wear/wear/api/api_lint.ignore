@@ -165,8 +165,6 @@ MissingNullability: androidx.wear.widget.CurvingLayoutCallback#onLayoutFinished(
     Missing nullability on parameter `parent` in method `onLayoutFinished`
 MissingNullability: androidx.wear.widget.RoundedDrawable#onBoundsChange(android.graphics.Rect) parameter #0:
     Missing nullability on parameter `bounds` in method `onBoundsChange`
-MissingNullability: androidx.wear.widget.RoundedDrawable#setColorFilter(android.graphics.ColorFilter) parameter #0:
-    Missing nullability on parameter `cf` in method `setColorFilter`
 MissingNullability: androidx.wear.widget.SwipeDismissFrameLayout#SwipeDismissFrameLayout(android.content.Context) parameter #0:
     Missing nullability on parameter `context` in method `SwipeDismissFrameLayout`
 MissingNullability: androidx.wear.widget.SwipeDismissFrameLayout#SwipeDismissFrameLayout(android.content.Context, android.util.AttributeSet) parameter #0:
