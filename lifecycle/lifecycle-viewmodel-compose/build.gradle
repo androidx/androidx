@@ -55,6 +55,15 @@ dependencies {
     androidTestImplementation(projectOrArtifact(":lifecycle:lifecycle-runtime-testing"))
 
     samples(projectOrArtifact(":lifecycle:lifecycle-viewmodel-compose:lifecycle-viewmodel-compose-samples"))
+
+    constraints {
+        // this syntax mirrors the temporary workaround in lifecycle-viewmodel-savedstate
+        // dependency constraints which allows lifecycle-viewmodel-savedstate to have a
+        // project constraint on compose, even though compose is not within the 'MAIN'
+        // project-set.
+        // update syntax when b/239979823 is fixed.
+        implementation("androidx.lifecycle:lifecycle-viewmodel-savedstate:{androidx.LibraryVersions.LIFECYCLE}")
+    }
 }
 
 androidx {
