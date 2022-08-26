@@ -30,6 +30,7 @@ dependencies {
     androidTestImplementation(libs.testExtTruth)
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.junit)
+    androidTestImplementation(libs.testRules)
 }
 
 androidx {
