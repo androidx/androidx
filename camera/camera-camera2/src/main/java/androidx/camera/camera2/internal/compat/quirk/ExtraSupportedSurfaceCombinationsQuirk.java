@@ -275,7 +275,7 @@ public class ExtraSupportedSurfaceCombinationsQuirk implements Quirk {
         // (YUV, ANALYSIS) + (PRIV, PREVIEW) + (YUV, MAXIMUM)
         SurfaceCombination surfaceCombination = new SurfaceCombination();
         surfaceCombination.addSurfaceConfig(SurfaceConfig.create(SurfaceConfig.ConfigType.YUV,
-                SurfaceConfig.ConfigSize.ANALYSIS));
+                SurfaceConfig.ConfigSize.VGA));
         surfaceCombination.addSurfaceConfig(SurfaceConfig.create(SurfaceConfig.ConfigType.PRIV,
                 SurfaceConfig.ConfigSize.PREVIEW));
         surfaceCombination.addSurfaceConfig(SurfaceConfig.create(SurfaceConfig.ConfigType.YUV,
@@ -289,7 +289,7 @@ public class ExtraSupportedSurfaceCombinationsQuirk implements Quirk {
         // (YUV, ANALYSIS) + (YUV, PREVIEW) + (YUV, MAXIMUM)
         SurfaceCombination surfaceCombination = new SurfaceCombination();
         surfaceCombination.addSurfaceConfig(SurfaceConfig.create(SurfaceConfig.ConfigType.YUV,
-                SurfaceConfig.ConfigSize.ANALYSIS));
+                SurfaceConfig.ConfigSize.VGA));
         surfaceCombination.addSurfaceConfig(SurfaceConfig.create(SurfaceConfig.ConfigType.YUV,
                 SurfaceConfig.ConfigSize.PREVIEW));
         surfaceCombination.addSurfaceConfig(SurfaceConfig.create(SurfaceConfig.ConfigType.YUV,

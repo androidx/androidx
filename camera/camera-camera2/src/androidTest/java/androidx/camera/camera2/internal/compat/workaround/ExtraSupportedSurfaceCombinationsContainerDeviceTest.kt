@@ -272,7 +272,7 @@ class ExtraSupportedSurfaceCombinationsContainerDeviceTest(val cameraId: String)
         surfaceCombinationYuvPrivYuv.addSurfaceConfig(
             SurfaceConfig.create(
                 SurfaceConfig.ConfigType.YUV,
-                SurfaceConfig.ConfigSize.ANALYSIS
+                SurfaceConfig.ConfigSize.VGA
             )
         )
         surfaceCombinationYuvPrivYuv.addSurfaceConfig(
@@ -307,7 +307,7 @@ class ExtraSupportedSurfaceCombinationsContainerDeviceTest(val cameraId: String)
         surfaceCombinationYuvYuvYuv.addSurfaceConfig(
             SurfaceConfig.create(
                 SurfaceConfig.ConfigType.YUV,
-                SurfaceConfig.ConfigSize.ANALYSIS
+                SurfaceConfig.ConfigSize.VGA
             )
         )
         surfaceCombinationYuvYuvYuv.addSurfaceConfig(
