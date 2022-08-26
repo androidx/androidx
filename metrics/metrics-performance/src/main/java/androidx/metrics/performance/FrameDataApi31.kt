@@ -28,6 +28,8 @@ package androidx.metrics.performance
  * @property frameDurationCpuNanos The time spent in the non-GPU portions of this frame (in
  * nanoseconds).  This includes the time spent on the UI thread [frameDurationUiNanos] plus time
  * spent on the RenderThread.
+ * @property frameDurationTotalNanos The total time spent rendering this frame (in nanoseconds),
+ * which includes both CPU and GPU processing.
  * @property frameOverrunNanos The amount of time past the frame deadline that this frame took to
  * complete. A positive value indicates some jank, a negative value indicates that the frame was
  * complete within the given deadline.
@@ -45,44 +47,55 @@ class FrameDataApi31(
     frameStartNanos: Long,
     frameDurationUiNanos: Long,
     frameDurationCpuNanos: Long,
+    frameDurationTotalNanos: Long,
     frameOverrunNanos: Long,
     isJank: Boolean,
     states: List<StateInfo>
-) : FrameDataApi24(frameStartNanos, frameDurationUiNanos, frameDurationCpuNanos, isJank, states) {
+) : FrameDataApi24(frameStartNanos, frameDurationUiNanos,
+    frameDurationCpuNanos, isJank, states) {
 
+    var frameDurationTotalNanos = frameDurationTotalNanos
+        private set
     var frameOverrunNanos = frameOverrunNanos
         private set
 
     override fun copy(): FrameData {
         return FrameDataApi31(frameStartNanos, frameDurationUiNanos, frameDurationCpuNanos,
-            frameOverrunNanos, isJank, ArrayList(states))
+            frameDurationTotalNanos, frameOverrunNanos, isJank, ArrayList(states))
     }
 
     internal fun update(
         frameStartNanos: Long,
         frameDurationUiNanos: Long,
         frameDurationCpuNanos: Long,
+        frameDurationTotalNanos: Long,
         frameOverrunNanos: Long,
         isJank: Boolean
     ) {
-        super.update(frameStartNanos, frameDurationUiNanos, frameDurationCpuNanos, isJank)
+        super.update(frameStartNanos, frameDurationUiNanos,
+            frameDurationCpuNanos, isJank)
+        this.frameDurationTotalNanos = frameDurationTotalNanos
         this.frameOverrunNanos = frameOverrunNanos
     }
 
     override fun equals(other: Any?): Boolean {
         return other is FrameDataApi31 &&
             super.equals(other) &&
+            (frameDurationTotalNanos == other.frameDurationTotalNanos) &&
             (frameOverrunNanos == other.frameOverrunNanos)
     }
 
     override fun hashCode(): Int {
-        return 31 * super.hashCode() + frameOverrunNanos.hashCode()
+        return 31 * super.hashCode() +
+            31 * frameDurationTotalNanos.hashCode() +
+            frameOverrunNanos.hashCode()
     }
 
     override fun toString(): String {
         return "FrameData(frameStartNanos=$frameStartNanos, " +
             "frameDurationUiNanos=$frameDurationUiNanos, " +
             "frameDurationCpuNanos=$frameDurationCpuNanos, " +
+            "frameDurationTotalNanos=$frameDurationTotalNanos, " +
             "frameOverrunNanos=$frameOverrunNanos, " +
             "isJank=$isJank, " +
             "states=$states)"
