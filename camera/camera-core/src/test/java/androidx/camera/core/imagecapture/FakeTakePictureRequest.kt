@@ -22,6 +22,7 @@ import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCapture.OnImageCapturedCallback
 import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.ImageProxy
+import androidx.camera.core.impl.CameraCaptureCallback
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor
 import java.util.concurrent.Executor
 
@@ -94,6 +95,10 @@ class FakeTakePictureRequest() : TakePictureRequest() {
 
     override fun getJpegQuality(): Int {
         return 100
+    }
+
+    override fun getSessionConfigCameraCaptureCallbacks(): MutableList<CameraCaptureCallback> {
+        return arrayListOf()
     }
 
     enum class Type {

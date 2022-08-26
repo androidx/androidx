@@ -33,8 +33,8 @@ internal class FakeProcessingRequest(
     sensorToBufferTransform: Matrix,
     callback: TakePictureCallback
 ) : ProcessingRequest(
-    outputFileOptions,
     captureBundle,
+    outputFileOptions,
     cropRect,
     rotationDegrees,
     jpegQuality,
