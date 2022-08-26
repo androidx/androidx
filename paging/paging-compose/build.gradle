@@ -45,6 +45,7 @@ dependencies {
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.junit)
     androidTestImplementation(libs.truth)
+    androidTestImplementation(project(":internal-testutils-ktx"))
 
     samples(projectOrArtifact(":paging:paging-compose:paging-compose-samples"))
 }
