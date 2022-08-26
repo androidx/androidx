@@ -25,7 +25,9 @@ import android.net.Uri
 import android.os.Build
 import android.view.Surface
 import androidx.camera.camera2.Camera2Config
+import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.CameraSelector
+import androidx.camera.core.CameraXConfig
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
@@ -34,6 +36,7 @@ import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.core.impl.utils.futures.FutureCallback
 import androidx.camera.core.impl.utils.futures.Futures
 import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.camera.testing.CameraPipeConfigTestRule
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CoreAppTestUtil
 import androidx.camera.view.CameraController.TAP_TO_FOCUS_FAILED
@@ -49,7 +52,6 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.matcher.ViewMatchers.withId
-import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.GrantPermissionRule
@@ -69,33 +71,27 @@ import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.junit.runners.Parameterized
 
 /**
  * Instrument tests for [CameraControllerFragment].
  */
 @LargeTest
-@RunWith(AndroidJUnit4::class)
-class CameraControllerFragmentTest {
-
-    companion object {
-        // The right shift needed to get color component from a Int color, in the order of R, G
-        // and B.
-        private val RGB_SHIFTS = ImmutableList.of(/*R*/16, /*G*/ 8, /*B*/0)
-        private const val COLOR_MASK = 0xFF
-
-        // The minimum luminance for comparing pictures. Arbitrarily chosen.
-        private const val MIN_LUMINANCE = 50F
-
-        @JvmField
-        val testCameraRule = CameraUtil.PreTestCamera()
-
-        const val TIMEOUT_SECONDS = 10L
-    }
+@RunWith(Parameterized::class)
+class CameraControllerFragmentTest(
+    private val implName: String,
+    private val cameraConfig: CameraXConfig
+) {
+    @get:Rule
+    val cameraPipeConfigTestRule = CameraPipeConfigTestRule(
+        active = implName == CameraPipeConfig::class.simpleName,
+        forAllTests = true,
+    )
 
     @get:Rule
     val useCameraRule = CameraUtil.grantCameraPermissionAndPreTest(
         testCameraRule,
-        CameraUtil.PreTestCameraIdList(Camera2Config.defaultConfig())
+        CameraUtil.PreTestCameraIdList(cameraConfig)
     )
 
     @get:Rule
@@ -115,6 +111,7 @@ class CameraControllerFragmentTest {
         // Clear the device UI and check if there is no dialog or lock screen on the top of the
         // window before start the test.
         CoreAppTestUtil.prepareDeviceUI(instrumentation)
+        ProcessCameraProvider.configureInstance(cameraConfig)
         cameraProvider = ProcessCameraProvider.getInstance(
             ApplicationProvider.getApplicationContext()
         )[10000, TimeUnit.MILLISECONDS]
@@ -208,8 +205,10 @@ class CameraControllerFragmentTest {
     @UiThreadTest
     @Test
     fun controllerNotBound_cameraInfoIsNull() {
-        fragment.previewView.controller = null
-        assertThat(fragment.cameraController.cameraInfo).isNull()
+        instrumentation.runOnMainSync {
+            fragment.previewView.controller = null
+            assertThat(fragment.cameraController.cameraInfo).isNull()
+        }
     }
 
     @Test
@@ -625,4 +624,26 @@ class CameraControllerFragmentTest {
         val isFlippedHorizontally: Boolean,
         val isFlippedVertically: Boolean
     )
+
+    companion object {
+        // The right shift needed to get color component from a Int color, in the order of R, G
+        // and B.
+        private val RGB_SHIFTS = ImmutableList.of(/*R*/16, /*G*/ 8, /*B*/0)
+        private const val COLOR_MASK = 0xFF
+
+        // The minimum luminance for comparing pictures. Arbitrarily chosen.
+        private const val MIN_LUMINANCE = 50F
+
+        @JvmField
+        val testCameraRule = CameraUtil.PreTestCamera()
+
+        const val TIMEOUT_SECONDS = 10L
+
+        @JvmStatic
+        @Parameterized.Parameters(name = "{0}")
+        fun data() = listOf(
+            arrayOf(Camera2Config::class.simpleName, Camera2Config.defaultConfig()),
+            arrayOf(CameraPipeConfig::class.simpleName, CameraPipeConfig.defaultConfig())
+        )
+    }
 }

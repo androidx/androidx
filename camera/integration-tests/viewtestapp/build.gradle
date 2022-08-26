@@ -58,6 +58,7 @@ android {
 dependencies {
     // Internal library
     implementation(project(":camera:camera-camera2"))
+    implementation(project(":camera:camera-camera2-pipe-integration"))
     implementation(project(":camera:camera-lifecycle"))
     implementation(project(":camera:camera-mlkit-vision"))
     implementation("androidx.lifecycle:lifecycle-runtime:2.3.1")
