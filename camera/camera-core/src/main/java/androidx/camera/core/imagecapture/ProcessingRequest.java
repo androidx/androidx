@@ -110,6 +110,10 @@ class ProcessingRequest {
         return mSensorToBufferTransform;
     }
 
+    boolean isInMemoryCapture() {
+        return getOutputFileOptions() == null;
+    }
+
     /**
      * @see TakePictureCallback#onImageCaptured()
      */
@@ -122,7 +126,7 @@ class ProcessingRequest {
      * @see TakePictureCallback#onFinalResult
      */
     @MainThread
-    void onFinalResult(@Nullable ImageCapture.OutputFileResults outputFileResults) {
+    void onFinalResult(@NonNull ImageCapture.OutputFileResults outputFileResults) {
         mCallback.onFinalResult(outputFileResults);
     }
 
@@ -130,7 +134,7 @@ class ProcessingRequest {
      * @see TakePictureCallback#onFinalResult
      */
     @MainThread
-    void onFinalResult(@Nullable ImageProxy imageProxy) {
+    void onFinalResult(@NonNull ImageProxy imageProxy) {
         mCallback.onFinalResult(imageProxy);
     }
 
