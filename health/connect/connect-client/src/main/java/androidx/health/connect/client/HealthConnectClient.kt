@@ -41,7 +41,6 @@ import androidx.health.connect.client.response.ReadRecordsResponse
 import androidx.health.connect.client.time.TimeRangeFilter
 import androidx.health.platform.client.HealthDataService
 import java.io.IOException
-import java.lang.IllegalStateException
 import kotlin.reflect.KClass
 
 /** Interface to access health and fitness records. */
@@ -261,6 +260,54 @@ interface HealthConnectClient {
      * @see getChanges
      */
     suspend fun getChangesToken(request: ChangesTokenRequest): String
+
+    /**
+     * Registers the provided [notificationIntentAction] and [recordTypes] for data notifications.
+     *
+     * Health Connect will automatically broadcast notification messages to the client application
+     * with the action specified by [notificationIntentAction] argument. Messages are
+     * sent when the data specified by [recordTypes] is updated. Messages may not be sent
+     * immediately, but in batches.
+     *
+     * The client application must have a read permission granted for a [Record] in order to receive
+     * notifications for it.
+     *
+     * The client application must have a [BroadcastReceiver][android.content.BroadcastReceiver]
+     * registered, either in the `AndroidManifest.xml` file or at runtime. The registered
+     * `BroadcastReceiver` must have an [IntentFilter][android.content.IntentFilter] specified with
+     * the same action as in [notificationIntentAction] argument.
+     *
+     * @param notificationIntentAction an action to be used for broadcast messages.
+     * @param recordTypes specifies [Record] types of interest.
+     *
+     * @throws RemoteException For any IPC transportation failures.
+     * @throws SecurityException For requests with unpermitted access.
+     * @throws IOException For any disk I/O issues.
+     * @throws IllegalStateException If service is not available.
+     *
+     * @see unregisterFromDataNotifications
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY) // Not yet ready for public
+    suspend fun registerForDataNotifications(
+        notificationIntentAction: String,
+        recordTypes: Iterable<KClass<out Record>>,
+    )
+
+    /**
+     * Unregisters the provided [notificationIntentAction] from data notifications.
+     *
+     * @param notificationIntentAction an action previously registered using
+     * [registerForDataNotifications] method.
+     *
+     * @throws RemoteException For any IPC transportation failures.
+     * @throws SecurityException For requests with unpermitted access.
+     * @throws IOException For any disk I/O issues.
+     * @throws IllegalStateException If service is not available.
+     *
+     * @see registerForDataNotifications
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY) // Not yet ready for public
+    suspend fun unregisterFromDataNotifications(notificationIntentAction: String)
 
     /**
      * Retrieves changes in Android Health Platform, from a specific point in time represented by

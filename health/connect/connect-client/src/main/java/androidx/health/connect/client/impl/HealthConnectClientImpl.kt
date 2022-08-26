@@ -25,8 +25,8 @@ import androidx.health.connect.client.aggregate.AggregationResultGroupedByPeriod
 import androidx.health.connect.client.impl.converters.aggregate.retrieveAggregateDataRow
 import androidx.health.connect.client.impl.converters.aggregate.toAggregateDataRowGroupByDuration
 import androidx.health.connect.client.impl.converters.aggregate.toAggregateDataRowGroupByPeriod
+import androidx.health.connect.client.impl.converters.datatype.toDataType
 import androidx.health.connect.client.impl.converters.datatype.toDataTypeIdPairProtoList
-import androidx.health.connect.client.impl.converters.datatype.toDataTypeName
 import androidx.health.connect.client.impl.converters.permission.toJetpackPermission
 import androidx.health.connect.client.impl.converters.permission.toProtoPermission
 import androidx.health.connect.client.impl.converters.records.toProto
@@ -148,11 +148,7 @@ internal constructor(
             delegate
                 .getChangesToken(
                     RequestProto.GetChangesTokenRequest.newBuilder()
-                        .addAllDataType(
-                            request.recordTypes.map {
-                                DataProto.DataType.newBuilder().setName(it.toDataTypeName()).build()
-                            }
-                        )
+                        .addAllDataType(request.recordTypes.map { it.toDataType() })
                         .addAllDataOriginFilters(
                             request.dataOriginFilters.map {
                                 DataProto.DataOrigin.newBuilder()
@@ -224,5 +220,35 @@ internal constructor(
             "Retrieved ${result.size} period aggregation buckets."
         )
         return result
+    }
+
+    override suspend fun registerForDataNotifications(
+        notificationIntentAction: String,
+        recordTypes: Iterable<KClass<out Record>>,
+    ) {
+        delegate.registerForDataNotifications(
+            request = RequestProto.RegisterForDataNotificationsRequest.newBuilder()
+                .setNotificationIntentAction(notificationIntentAction)
+                .addAllDataTypes(recordTypes.map { it.toDataType() })
+                .build(),
+        ).await()
+
+        Logger.debug(
+            HEALTH_CONNECT_CLIENT_TAG,
+            "Registered for data notifications for action: $notificationIntentAction",
+        )
+    }
+
+    override suspend fun unregisterFromDataNotifications(notificationIntentAction: String) {
+        delegate.unregisterFromDataNotifications(
+            request = RequestProto.UnregisterFromDataNotificationsRequest.newBuilder()
+                .setNotificationIntentAction(notificationIntentAction)
+                .build(),
+        ).await()
+
+        Logger.debug(
+            HEALTH_CONNECT_CLIENT_TAG,
+            "Unregistered from data notifications for action: $notificationIntentAction",
+        )
     }
 }

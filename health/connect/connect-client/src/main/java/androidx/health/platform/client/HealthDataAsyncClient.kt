@@ -70,4 +70,12 @@ interface HealthDataAsyncClient {
     fun getChanges(
         request: RequestProto.GetChangesRequest
     ): ListenableFuture<ResponseProto.GetChangesResponse>
+
+    fun registerForDataNotifications(
+        request: RequestProto.RegisterForDataNotificationsRequest,
+    ): ListenableFuture<Void>
+
+    fun unregisterFromDataNotifications(
+        request: RequestProto.UnregisterFromDataNotificationsRequest,
+    ): ListenableFuture<Void>
 }

@@ -19,7 +19,6 @@ package androidx.health.connect.client.impl.converters.datatype
 
 import androidx.annotation.RestrictTo
 import androidx.health.connect.client.records.Record
-import androidx.health.platform.client.proto.DataProto
 import androidx.health.platform.client.proto.RequestProto
 import kotlin.reflect.KClass
 
@@ -29,7 +28,7 @@ fun toDataTypeIdPairProto(
     uid: String
 ): RequestProto.DataTypeIdPair =
     RequestProto.DataTypeIdPair.newBuilder()
-        .setDataType(DataProto.DataType.newBuilder().setName(dataTypeKC.toDataTypeName()).build())
+        .setDataType(dataTypeKC.toDataType())
         .setId(uid)
         .build()
 
@@ -41,9 +40,7 @@ fun toDataTypeIdPairProtoList(
     for (uid in uidsList) {
         dataTypeIdPairList.add(
             RequestProto.DataTypeIdPair.newBuilder()
-                .setDataType(
-                    DataProto.DataType.newBuilder().setName(dataTypeKC.toDataTypeName()).build()
-                )
+                .setDataType(dataTypeKC.toDataType())
                 .setId(uid)
                 .build()
         )
