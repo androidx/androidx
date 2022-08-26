@@ -1,6 +1,7 @@
 package androidx.bluetooth.core
 
 import android.bluetooth.le.ScanFilter as FwkScanFilter
+import android.bluetooth.le.ScanRecord
 import android.os.Build
 import android.os.ParcelUuid
 import com.google.common.truth.Truth.assertThat
@@ -21,6 +22,9 @@ class ScanFilterTest {
         val TEST_MANUFACTURER_DATA = "MANUFACTURER-DATA".toByteArray()
         val TEST_SERVICE_SOLICITATION_UUID =
             ParcelUuid.fromString("CCCCCCC0-CCCC-CCCC-CCCC-CCCCCCCCCCCC")
+        val TEST_ADVERTISING_DATA_TYPE = ScanRecord.DATA_TYPE_LOCAL_NAME_SHORT
+        val TEST_ADVERTISING_DATA = "TEST_ADVERTISING_NAME".toByteArray()
+        val TEST_ADVERTISING_DATA_MASK = "****_***********_****".toByteArray()
     }
 
     @Test
@@ -33,9 +37,12 @@ class ScanFilterTest {
             serviceData = TEST_SERVICE_DATA,
             manufacturerId = TEST_MANUFACTURER_ID,
             manufacturerData = TEST_MANUFACTURER_DATA,
-            serviceSolicitationUuid = TEST_SERVICE_SOLICITATION_UUID
+            serviceSolicitationUuid = TEST_SERVICE_SOLICITATION_UUID,
+            advertisingDataType = TEST_ADVERTISING_DATA_TYPE,
+            advertisingData = TEST_ADVERTISING_DATA,
+            advertisingDataMask = TEST_ADVERTISING_DATA_MASK
         )
-        val fwkScanFilter = (scanFilter.impl as ScanFilterImpl).fwkInstance
+        val fwkScanFilter = scanFilter.base.fwkInstance
         assertThat(fwkScanFilter.deviceName).isEqualTo(TEST_DEVICE_NAME)
         assertThat(fwkScanFilter.deviceAddress).isEqualTo(TEST_DEVICE_ADDRESS)
         assertThat(fwkScanFilter.serviceUuid).isEqualTo(TEST_SERVICE_UUID)
@@ -43,9 +50,17 @@ class ScanFilterTest {
         assertThat(fwkScanFilter.serviceData).isEqualTo(TEST_SERVICE_DATA)
         assertThat(fwkScanFilter.manufacturerId).isEqualTo(TEST_MANUFACTURER_ID)
         assertThat(fwkScanFilter.manufacturerData).isEqualTo(TEST_MANUFACTURER_DATA)
-        if (Build.VERSION.SDK_INT > 29) {
+        if (Build.VERSION.SDK_INT >= 29) {
             assertThat(fwkScanFilter.serviceSolicitationUuid)
                 .isEqualTo(TEST_SERVICE_SOLICITATION_UUID)
+        }
+        if (Build.VERSION.SDK_INT >= 33) {
+            assertThat(fwkScanFilter.advertisingDataType)
+                .isEqualTo(TEST_ADVERTISING_DATA_TYPE)
+            assertThat(fwkScanFilter.advertisingData)
+                .isEqualTo(TEST_ADVERTISING_DATA)
+            assertThat(fwkScanFilter.advertisingDataMask)
+                .isEqualTo(TEST_ADVERTISING_DATA_MASK)
         }
     }
 
@@ -57,8 +72,12 @@ class ScanFilterTest {
             .setServiceUuid(TEST_SERVICE_UUID)
             .setServiceData(TEST_SERVICE_DATA_UUID, TEST_SERVICE_DATA)
             .setManufacturerData(TEST_MANUFACTURER_ID, TEST_MANUFACTURER_DATA)
-        if (Build.VERSION.SDK_INT > 29) {
+        if (Build.VERSION.SDK_INT >= 29) {
             fwkScanFilterBuilder.setServiceSolicitationUuid(TEST_SERVICE_SOLICITATION_UUID)
+        }
+        if (Build.VERSION.SDK_INT >= 33) {
+            fwkScanFilterBuilder.setAdvertisingDataTypeWithData(TEST_ADVERTISING_DATA_TYPE,
+                TEST_ADVERTISING_DATA, TEST_ADVERTISING_DATA_MASK)
         }
 
         val scanFilter = ScanFilter(fwkScanFilterBuilder.build())
@@ -70,9 +89,13 @@ class ScanFilterTest {
         assertThat(scanFilter.serviceData).isEqualTo(TEST_SERVICE_DATA)
         assertThat(scanFilter.manufacturerId).isEqualTo(TEST_MANUFACTURER_ID)
         assertThat(scanFilter.manufacturerData).isEqualTo(TEST_MANUFACTURER_DATA)
-        if (Build.VERSION.SDK_INT > 29) {
-            assertThat(scanFilter.serviceSolicitationUuid)
-                .isEqualTo(TEST_SERVICE_SOLICITATION_UUID)
+        if (Build.VERSION.SDK_INT >= 29) {
+            assertThat(scanFilter.serviceSolicitationUuid).isEqualTo(TEST_SERVICE_SOLICITATION_UUID)
+        }
+        if (Build.VERSION.SDK_INT >= 33) {
+            assertThat(scanFilter.advertisingDataType).isEqualTo(TEST_ADVERTISING_DATA_TYPE)
+            assertThat(scanFilter.advertisingData).isEqualTo(TEST_ADVERTISING_DATA)
+            assertThat(scanFilter.advertisingDataMask).isEqualTo(TEST_ADVERTISING_DATA_MASK)
         }
     }
 
@@ -86,7 +109,10 @@ class ScanFilterTest {
             serviceData = TEST_SERVICE_DATA,
             manufacturerId = TEST_MANUFACTURER_ID,
             manufacturerData = TEST_MANUFACTURER_DATA,
-            serviceSolicitationUuid = TEST_SERVICE_SOLICITATION_UUID
+            serviceSolicitationUuid = TEST_SERVICE_SOLICITATION_UUID,
+            advertisingDataType = TEST_ADVERTISING_DATA_TYPE,
+            advertisingData = TEST_ADVERTISING_DATA,
+            advertisingDataMask = TEST_ADVERTISING_DATA_MASK
         )
         val bundle = scanFilter.toBundle()
 
@@ -100,5 +126,8 @@ class ScanFilterTest {
         assertThat(scanFilterFromBundle.manufacturerData).isEqualTo(TEST_MANUFACTURER_DATA)
         assertThat(scanFilterFromBundle.serviceSolicitationUuid)
             .isEqualTo(TEST_SERVICE_SOLICITATION_UUID)
+        assertThat(scanFilterFromBundle.advertisingDataType).isEqualTo(TEST_ADVERTISING_DATA_TYPE)
+        assertThat(scanFilterFromBundle.advertisingData).isEqualTo(TEST_ADVERTISING_DATA)
+        assertThat(scanFilterFromBundle.advertisingDataMask).isEqualTo(TEST_ADVERTISING_DATA_MASK)
     }
 }
