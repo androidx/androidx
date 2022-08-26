@@ -127,15 +127,20 @@ package androidx.wear.watchface.style {
   }
 
   public static final class UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotOverlay {
-    ctor public UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotOverlay(int complicationSlotId, optional Boolean? enabled, optional androidx.wear.watchface.complications.ComplicationSlotBounds? complicationSlotBounds, optional Integer? accessibilityTraversalIndex);
+    ctor public UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotOverlay(int complicationSlotId, optional Boolean? enabled, optional androidx.wear.watchface.complications.ComplicationSlotBounds? complicationSlotBounds, optional Integer? accessibilityTraversalIndex, optional Integer? nameResourceId, optional Integer? screenReaderNameResourceId);
+    ctor @Deprecated public UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotOverlay(int complicationSlotId, optional boolean enabled, optional androidx.wear.watchface.complications.ComplicationSlotBounds? complicationSlotBounds, optional int accessibilityTraversalIndex);
     method public Integer? getAccessibilityTraversalIndex();
     method public androidx.wear.watchface.complications.ComplicationSlotBounds? getComplicationSlotBounds();
     method public int getComplicationSlotId();
     method public Boolean? getEnabled();
+    method public Integer? getNameResourceId();
+    method public Integer? getScreenReaderNameResourceId();
     property public final Integer? accessibilityTraversalIndex;
     property public final androidx.wear.watchface.complications.ComplicationSlotBounds? complicationSlotBounds;
     property public final int complicationSlotId;
     property public final Boolean? enabled;
+    property public final Integer? nameResourceId;
+    property public final Integer? screenReaderNameResourceId;
   }
 
   public static final class UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotOverlay.Builder {
@@ -144,6 +149,8 @@ package androidx.wear.watchface.style {
     method public androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotOverlay.Builder setAccessibilityTraversalIndex(int accessibilityTraversalIndex);
     method public androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotOverlay.Builder setComplicationSlotBounds(androidx.wear.watchface.complications.ComplicationSlotBounds complicationSlotBounds);
     method public androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotOverlay.Builder setEnabled(boolean enabled);
+    method public androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotOverlay.Builder setNameResourceId(int nameResourceId);
+    method public androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotOverlay.Builder setScreenReaderNameResourceId(int screenReaderNameResourceId);
   }
 
   public static final class UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotsOption extends androidx.wear.watchface.style.UserStyleSetting.Option {

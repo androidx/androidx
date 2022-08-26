@@ -21,6 +21,8 @@ RemovedMethod: androidx.wear.watchface.style.UserStyleSetting.BooleanUserStyleSe
     Removed method androidx.wear.watchface.style.UserStyleSetting.BooleanUserStyleSetting.BooleanOption.toWireFormat()
 RemovedMethod: androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting#toWireFormat():
     Removed method androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting.toWireFormat()
+RemovedMethod: androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotOverlay#ComplicationSlotOverlay(int, Boolean, androidx.wear.watchface.complications.ComplicationSlotBounds, Integer):
+    Removed constructor androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotOverlay(int,Boolean,androidx.wear.watchface.complications.ComplicationSlotBounds,Integer)
 RemovedMethod: androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotsOption#toWireFormat():
     Removed method androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotsOption.toWireFormat()
 RemovedMethod: androidx.wear.watchface.style.UserStyleSetting.CustomValueUserStyleSetting#toWireFormat():
