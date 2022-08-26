@@ -25,7 +25,7 @@ import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 
-public class UiObject2TestFlingActivity extends Activity {
+public class FlingTestActivity extends Activity {
 
     private GestureDetector mGestureDetector;
 
@@ -33,7 +33,7 @@ public class UiObject2TestFlingActivity extends Activity {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.uiobject2_testfling_activity);
+        setContentView(R.layout.fling_test_activity);
 
         TextView flingRegion = findViewById(R.id.fling_region);
 

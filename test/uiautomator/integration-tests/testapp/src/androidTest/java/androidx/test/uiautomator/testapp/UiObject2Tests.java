@@ -633,7 +633,7 @@ public class UiObject2Tests extends BaseTest {
 
     @Test
     public void testFling_direction() {
-        launchTestActivity(UiObject2TestFlingActivity.class);
+        launchTestActivity(FlingTestActivity.class);
 
         // Avoid touching too close to the edges.
         UiObject2 flingRegion = mDevice.findObject(By.res(TEST_APP, "fling_region"));
@@ -650,7 +650,7 @@ public class UiObject2Tests extends BaseTest {
 
     @Test
     public void testFling_directionAndSpeed() {
-        launchTestActivity(UiObject2TestFlingActivity.class);
+        launchTestActivity(FlingTestActivity.class);
 
         // Avoid touching too close to the edges.
         UiObject2 flingRegion = mDevice.findObject(By.res(TEST_APP, "fling_region"));
@@ -667,7 +667,7 @@ public class UiObject2Tests extends BaseTest {
 
     @Test
     public void testFling_throwsIllegalArgumentException() {
-        launchTestActivity(UiObject2TestFlingActivity.class);
+        launchTestActivity(FlingTestActivity.class);
 
         UiObject2 flingRegion = mDevice.findObject(By.res(TEST_APP, "fling_region"));
 
