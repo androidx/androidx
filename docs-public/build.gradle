@@ -8,10 +8,10 @@ android {
 }
 
 dependencies {
-    docs("androidx.activity:activity:1.6.0-rc01")
-    docs("androidx.activity:activity-compose:1.6.0-rc01")
-    samples("androidx.activity:activity-compose-samples:1.6.0-rc01")
-    docs("androidx.activity:activity-ktx:1.6.0-rc01")
+    docs("androidx.activity:activity:1.6.0-rc02")
+    docs("androidx.activity:activity-compose:1.6.0-rc02")
+    samples("androidx.activity:activity-compose-samples:1.6.0-rc02")
+    docs("androidx.activity:activity-ktx:1.6.0-rc02")
     docs("androidx.ads:ads-identifier:1.0.0-alpha04")
     docs("androidx.ads:ads-identifier-provider:1.0.0-alpha04")
     docs("androidx.annotation:annotation:1.5.0-beta01")
