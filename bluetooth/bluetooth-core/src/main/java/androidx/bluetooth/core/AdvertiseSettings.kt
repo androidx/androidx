@@ -26,7 +26,7 @@ import androidx.bluetooth.core.utils.Utils
  * Bluetooth LE advertisement instance.
  * @hide
  */
-class AdvertiseSettings internal constructor(private val fwkInstance: FwkAdvertiseSettings) :
+class AdvertiseSettings internal constructor(internal val fwkInstance: FwkAdvertiseSettings) :
     Bundleable {
 
     companion object {
