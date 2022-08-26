@@ -31,11 +31,14 @@ import androidx.annotation.RequiresApi;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCaptureException;
 import androidx.camera.core.ImageProxy;
+import androidx.camera.core.impl.CameraCaptureCallback;
 import androidx.camera.core.impl.ImageCaptureConfig;
 import androidx.camera.core.impl.ImageOutputConfig;
+import androidx.camera.core.impl.SessionConfig;
 
 import com.google.auto.value.AutoValue;
 
+import java.util.List;
 import java.util.concurrent.Executor;
 
 /**
@@ -44,6 +47,7 @@ import java.util.concurrent.Executor;
  * <p> It contains app provided data and a snapshot of {@link ImageCapture} properties.
  */
 @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+@SuppressWarnings("AutoValueImmutableFields")
 @AutoValue
 public abstract class TakePictureRequest {
 
@@ -101,6 +105,14 @@ public abstract class TakePictureRequest {
     abstract int getJpegQuality();
 
     /**
+     * Gets the {@link CameraCaptureCallback}s set on the {@link SessionConfig}.
+     *
+     * <p>This is for calling back to Camera2InterOp. See: aosp/947197.
+     */
+    @NonNull
+    abstract List<CameraCaptureCallback> getSessionConfigCameraCaptureCallbacks();
+
+    /**
      * Delivers {@link ImageCaptureException} to the app.
      */
     void onError(@NonNull ImageCaptureException imageCaptureException) {
@@ -144,13 +156,14 @@ public abstract class TakePictureRequest {
             @NonNull Rect cropRect,
             @NonNull Matrix sensorToBufferTransform,
             int rotationDegrees,
-            int jpegQuality) {
+            int jpegQuality,
+            @NonNull List<CameraCaptureCallback> sessionConfigCameraCaptureCallbacks) {
         checkArgument((onDiskCallback == null) == (outputFileOptions == null),
                 "onDiskCallback and outputFileOptions should be both null or both non-null.");
         checkArgument((onDiskCallback == null) ^ (inMemoryCallback == null),
                 "One and only one on-disk or in-memory callback should be present.");
         return new AutoValue_TakePictureRequest(appExecutor, inMemoryCallback,
                 onDiskCallback, outputFileOptions, cropRect, sensorToBufferTransform,
-                rotationDegrees, jpegQuality);
+                rotationDegrees, jpegQuality, sessionConfigCameraCaptureCallbacks);
     }
 }
