@@ -1,11 +1,13 @@
-# Do Not Mock
+## Testing
+
+### Do not rely on mocks
 
 All APIs created in Jetpack **must have a testing story**: how developers should
 write tests for their code that relies on a library, this story should not be
 "use Mockito to mock class `Foo`". Your goal as an API owner is to **create
 better alternatives** to mocking.
 
-## Why can't I suggest mocks as testing strategy?
+#### Why can't I suggest mocks as testing strategy?
 
 Frequently, mocks don't follow guarantees outlined in the API they mock. That
 leads to:
@@ -44,7 +46,7 @@ leads to:
     this mock grows with the project, and as a result test code has sub-optimal
     half-baked class implementation of on top of the mock.
 
-## But it is okay to mock interfaces, right?
+#### But it's okay to mock interfaces, right?
 
 It depends. There are interfaces that don't imply any behavior guarantees and
 they are ok to be mocked. However, **not all** interfaces are like that: for
@@ -52,7 +54,7 @@ example, `Map` is an interface but it has a lot of contracts required from
 correct implementation. Examples of interfaces that are ok to mock are callback
 interfaces in general, for example: `View.OnClickListener`, `Runnable`.
 
-## What about spying?
+#### What about spying?
 
 Spying on these classes is banned as well - Mockito spies permit stubbing of
 methods just like mocks do, and interaction verification is brittle and
@@ -62,7 +64,7 @@ task submitted to an `Executor`, or the presence of a fragment added to your
 layout. If an API in your library misses a way to have such checks, you should
 add methods to do that.
 
-## Avoid Mockito in your own tests.
+#### Avoid Mockito in your own tests
 
 One of the things that would help you to identify if your library is testable
 without Mockito is not using Mockito yourself. Yes, historically we heavily
@@ -97,7 +99,7 @@ fun test() {
 }
 ```
 
-## Don't compromise in API to enable Mockito
+#### Don't compromise in API to enable Mockito
 
 Mockito on Android
 [had an issue](https://github.com/Mockito/Mockito/issues/1173) with mocking
@@ -107,9 +109,9 @@ mockable, however **it is not a reason for open up a class for extension**. What
 you should instead is verify that is possible to write the same test without
 mocking, if not, again you should **provide better alternative in your API**.
 
-## How do I approach testing story for my API?
+#### How do I approach testing story for my API?
 
-Best way is to step into developer's shoes and write a sample app that is a
+The best way is to step into developer's shoes and write a sample app that is a
 showcase for your API, then go to the next step - test that code also. If you
 are able to implement tests for your demo app, then users of your API will also
 be able to implement tests for functionalities where your API is also used.
