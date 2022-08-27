@@ -1,1 +1,59 @@
 // Signature format: 4.0
+package androidx.tv.material {
+
+  @kotlin.RequiresOptIn(message="This tv-material API is experimental and likely to change or be removed in the future.") public @interface ExperimentalTvMaterialApi {
+  }
+
+}
+
+package androidx.tv.material.carousel {
+
+  @androidx.tv.material.ExperimentalTvMaterialApi public final class CarouselDefaults {
+    method @androidx.compose.runtime.Composable @androidx.tv.material.ExperimentalTvMaterialApi public void Indicator(androidx.tv.material.carousel.CarouselState carouselState, int slideCount, optional androidx.compose.ui.Modifier modifier);
+    method public androidx.compose.animation.EnterTransition getEnterTransition();
+    method public androidx.compose.animation.ExitTransition getExitTransition();
+    method public java.time.Duration getTimeToDisplaySlide();
+    property public final androidx.compose.animation.EnterTransition EnterTransition;
+    property public final androidx.compose.animation.ExitTransition ExitTransition;
+    property public final java.time.Duration TimeToDisplaySlide;
+    field public static final androidx.tv.material.carousel.CarouselDefaults INSTANCE;
+  }
+
+  @androidx.tv.material.ExperimentalTvMaterialApi public final class CarouselItemDefaults {
+    method public androidx.compose.animation.EnterTransition getOverlayEnterTransition();
+    method public java.time.Duration getOverlayEnterTransitionStartDelay();
+    method public androidx.compose.animation.ExitTransition getOverlayExitTransition();
+    property public final androidx.compose.animation.EnterTransition OverlayEnterTransition;
+    property public final java.time.Duration OverlayEnterTransitionStartDelay;
+    property public final androidx.compose.animation.ExitTransition OverlayExitTransition;
+    field public static final androidx.tv.material.carousel.CarouselItemDefaults INSTANCE;
+  }
+
+  public final class CarouselItemKt {
+    method @androidx.compose.runtime.Composable @androidx.tv.material.ExperimentalTvMaterialApi public static void CarouselItem(kotlin.jvm.functions.Function0<kotlin.Unit> background, optional androidx.compose.ui.Modifier modifier, optional java.time.Duration overlayEnterTransitionStartDelay, optional androidx.compose.animation.EnterTransition overlayEnterTransition, optional androidx.compose.animation.ExitTransition overlayExitTransition, kotlin.jvm.functions.Function0<kotlin.Unit> overlay);
+  }
+
+  public final class CarouselKt {
+    method @androidx.compose.runtime.Composable @androidx.tv.material.ExperimentalTvMaterialApi public static void Carousel(int slideCount, optional androidx.compose.ui.Modifier modifier, optional androidx.tv.material.carousel.CarouselState carouselState, optional java.time.Duration timeToDisplaySlide, optional androidx.compose.animation.EnterTransition enterTransition, optional androidx.compose.animation.ExitTransition exitTransition, optional kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit> carouselIndicator, kotlin.jvm.functions.Function1<? super java.lang.Integer,kotlin.Unit> content);
+  }
+
+  @androidx.compose.runtime.Stable @androidx.tv.material.ExperimentalTvMaterialApi public final class CarouselState {
+    ctor public CarouselState(optional int initialSlideIndex);
+    method public int getSlideIndex();
+    method public androidx.tv.material.carousel.ScrollPauseHandle pauseAutoScroll(int slideIndex);
+    property public final int slideIndex;
+  }
+
+  @androidx.tv.material.ExperimentalTvMaterialApi public sealed interface ScrollPauseHandle {
+    method public void resumeAutoScroll();
+  }
+
+}
+
+package androidx.tv.material.pager {
+
+  public final class PagerKt {
+  }
+
+}
+
