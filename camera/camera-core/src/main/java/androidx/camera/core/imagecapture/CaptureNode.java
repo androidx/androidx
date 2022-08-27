@@ -35,7 +35,9 @@ import androidx.camera.core.ImageProxy;
 import androidx.camera.core.MetadataImageReader;
 import androidx.camera.core.SafeCloseImageReaderProxy;
 import androidx.camera.core.impl.CameraCaptureCallback;
+import androidx.camera.core.impl.DeferrableSurface;
 import androidx.camera.core.impl.ImageReaderProxy;
+import androidx.camera.core.impl.ImmediateSurface;
 import androidx.camera.core.processing.Edge;
 import androidx.camera.core.processing.Node;
 
@@ -68,12 +70,14 @@ class CaptureNode implements Node<CaptureNode.In, CaptureNode.Out> {
     private final Set<Integer> mPendingStageIds = new HashSet<>();
     private ProcessingRequest mCurrentRequest = null;
 
-    private SafeCloseImageReaderProxy mSafeCloseImageReaderProxy;
+    SafeCloseImageReaderProxy mSafeCloseImageReaderProxy;
     private Out mOutputEdge;
+    private In mInputEdge;
 
     @NonNull
     @Override
     public Out transform(@NonNull In inputEdge) {
+        mInputEdge = inputEdge;
         Size size = inputEdge.getSize();
         int format = inputEdge.getFormat();
 
@@ -141,6 +145,9 @@ class CaptureNode implements Node<CaptureNode.In, CaptureNode.Out> {
         if (mSafeCloseImageReaderProxy != null) {
             mSafeCloseImageReaderProxy.safeClose();
         }
+        if (mInputEdge != null) {
+            mInputEdge.closeSurface();
+        }
     }
 
     /**
@@ -151,7 +158,7 @@ class CaptureNode implements Node<CaptureNode.In, CaptureNode.Out> {
 
         private CameraCaptureCallback mCameraCaptureCallback;
 
-        private Surface mSurface;
+        private DeferrableSurface mSurface;
 
         /**
          * Size of the {@link ImageReader} buffer.
@@ -175,12 +182,17 @@ class CaptureNode implements Node<CaptureNode.In, CaptureNode.Out> {
          * <p>The value will be used in a capture request sent to the camera.
          */
         @NonNull
-        Surface getSurface() {
+        DeferrableSurface getSurface() {
             return mSurface;
         }
 
         void setSurface(@NonNull Surface surface) {
-            mSurface = surface;
+            checkState(mSurface == null, "The surface is already set.");
+            mSurface = new ImmediateSurface(surface);
+        }
+
+        void closeSurface() {
+            mSurface.close();
         }
 
         /**
