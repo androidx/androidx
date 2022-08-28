@@ -139,6 +139,26 @@ package androidx.tv.material3 {
     property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.graphics.Color> LocalContentColor;
   }
 
+  @androidx.tv.material3.ExperimentalTvMaterial3Api public final class DrawerState {
+    ctor public DrawerState(optional androidx.tv.material3.DrawerValue initialValue);
+    method public androidx.tv.material3.DrawerValue getCurrentValue();
+    method public void setValue(androidx.tv.material3.DrawerValue drawerValue);
+    property public final androidx.tv.material3.DrawerValue currentValue;
+    field public static final androidx.tv.material3.DrawerState.Companion Companion;
+  }
+
+  public static final class DrawerState.Companion {
+    method public androidx.compose.runtime.saveable.Saver<androidx.tv.material3.DrawerState,androidx.tv.material3.DrawerValue> getSaver();
+    property public final androidx.compose.runtime.saveable.Saver<androidx.tv.material3.DrawerState,androidx.tv.material3.DrawerValue> Saver;
+  }
+
+  @androidx.tv.material3.ExperimentalTvMaterial3Api public enum DrawerValue {
+    method public static androidx.tv.material3.DrawerValue valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
+    method public static androidx.tv.material3.DrawerValue[] values();
+    enum_constant public static final androidx.tv.material3.DrawerValue Closed;
+    enum_constant public static final androidx.tv.material3.DrawerValue Open;
+  }
+
   @kotlin.RequiresOptIn(message="This tv-material API is experimental and likely to change or be removed in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalTvMaterial3Api {
   }
 
@@ -199,6 +219,12 @@ package androidx.tv.material3 {
 
   public final class MaterialThemeKt {
     method @androidx.compose.runtime.Composable @androidx.tv.material3.ExperimentalTvMaterial3Api public static void MaterialTheme(optional androidx.tv.material3.ColorScheme colorScheme, optional androidx.tv.material3.Shapes shapes, optional androidx.tv.material3.Typography typography, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+  }
+
+  public final class NavigationDrawerKt {
+    method @androidx.compose.runtime.Composable @androidx.tv.material3.ExperimentalTvMaterial3Api public static void ModalNavigationDrawer(kotlin.jvm.functions.Function1<? super androidx.tv.material3.DrawerValue,kotlin.Unit> drawerContent, optional androidx.compose.ui.Modifier modifier, optional androidx.tv.material3.DrawerState drawerState, optional long scrimColor, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+    method @androidx.compose.runtime.Composable @androidx.tv.material3.ExperimentalTvMaterial3Api public static void NavigationDrawer(kotlin.jvm.functions.Function1<? super androidx.tv.material3.DrawerValue,kotlin.Unit> drawerContent, optional androidx.compose.ui.Modifier modifier, optional androidx.tv.material3.DrawerState drawerState, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+    method @androidx.compose.runtime.Composable @androidx.tv.material3.ExperimentalTvMaterial3Api public static androidx.tv.material3.DrawerState rememberDrawerState(androidx.tv.material3.DrawerValue initialValue);
   }
 
   @androidx.compose.runtime.Stable @androidx.tv.material3.ExperimentalTvMaterial3Api public final class ScaleIndication implements androidx.compose.foundation.Indication {
