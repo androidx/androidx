@@ -17,6 +17,7 @@
 package androidx.core.app;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.ContextWrapper;
@@ -808,6 +809,7 @@ public class ActivityCompat extends ContextCompat {
          *     https://github.com/androidx/androidx/pull/435
          * </a>
          */
+        @SuppressLint("BanUncheckedReflection")
         @DoNotInline
         static boolean shouldShowRequestPermissionRationale(Activity activity, String permission) {
             try {
