@@ -1000,7 +1000,7 @@ public final class CaptureSessionTest {
                 mCaptureSessionOpenerBuilder.build());
         InOrder inOrder = inOrder(mTestParameters0.mMockCameraEventCallback);
 
-        inOrder.verify(mTestParameters0.mMockCameraEventCallback, timeout(3000)).onPresetSession();
+        inOrder.verify(mTestParameters0.mMockCameraEventCallback, timeout(3000)).onInitSession();
         inOrder.verify(mTestParameters0.mMockCameraEventCallback, timeout(3000)).onEnableSession();
         inOrder.verify(mTestParameters0.mMockCameraEventCallback, timeout(3000)).onRepeating();
         verify(mTestParameters0.mMockCameraEventCallback, never()).onDisableSession();
@@ -1009,6 +1009,8 @@ public final class CaptureSessionTest {
 
         captureSession.close();
         verify(mTestParameters0.mMockCameraEventCallback, timeout(3000)).onDisableSession();
+        captureSession.release(false);
+        verify(mTestParameters0.mMockCameraEventCallback, timeout(3000)).onDeInitSession();
 
         verifyNoMoreInteractions(mTestParameters0.mMockCameraEventCallback);
     }
@@ -1021,13 +1023,15 @@ public final class CaptureSessionTest {
                 mCaptureSessionOpenerBuilder.build());
 
         InOrder inOrder = inOrder(mTestParameters0.mMockCameraEventCallback);
-        inOrder.verify(mTestParameters0.mMockCameraEventCallback, timeout(3000)).onPresetSession();
+        inOrder.verify(mTestParameters0.mMockCameraEventCallback, timeout(3000)).onInitSession();
         inOrder.verify(mTestParameters0.mMockCameraEventCallback, timeout(3000)).onEnableSession();
         // Should not trigger repeating since the repeating SessionConfig is empty.
         verify(mTestParameters0.mMockCameraEventCallback, never()).onRepeating();
 
         captureSession.close();
         inOrder.verify(mTestParameters0.mMockCameraEventCallback, timeout(3000)).onDisableSession();
+        captureSession.release(false);
+        verify(mTestParameters0.mMockCameraEventCallback, timeout(3000)).onDeInitSession();
 
         verifyNoMoreInteractions(mTestParameters0.mMockCameraEventCallback);
     }
@@ -1618,7 +1622,7 @@ public final class CaptureSessionTest {
                 CameraCaptureCallback.class);
 
         @Override
-        public CaptureConfig onPresetSession() {
+        public CaptureConfig onInitSession() {
             return getCaptureConfig(CaptureRequest.CONTROL_CAPTURE_INTENT,
                     CaptureRequest.CONTROL_CAPTURE_INTENT_VIDEO_RECORD, null);
         }

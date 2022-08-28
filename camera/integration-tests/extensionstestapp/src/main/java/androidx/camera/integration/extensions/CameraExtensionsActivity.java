@@ -139,6 +139,8 @@ public class CameraExtensionsActivity extends AppCompatActivity
     Map<Long, Long> mFrameTimestampMap = new HashMap<>();
     TextView mFrameInfo;
 
+    String mCurrentCameraId = null;
+
     void setupButtons() {
         Button btnToggleMode = findViewById(R.id.PhotoToggle);
         Button btnSwitchCamera = findViewById(R.id.Switch);
@@ -148,8 +150,18 @@ public class CameraExtensionsActivity extends AppCompatActivity
 
     void switchCameras() {
         mCameraProvider.unbindAll();
-        mCurrentCameraSelector = (mCurrentCameraSelector == CameraSelector.DEFAULT_BACK_CAMERA)
-                ? CameraSelector.DEFAULT_FRONT_CAMERA : CameraSelector.DEFAULT_BACK_CAMERA;
+        if (mCurrentCameraId != null) {
+            String nextCameraId = CameraSelectorUtil.findNextSupportedCameraId(
+                    this, mExtensionsManager, mCurrentCameraId, mCurrentExtensionMode);
+            if (nextCameraId == null) {
+                Log.e(TAG, "Cannot find next camera id that supports the extensions mode");
+                return;
+            }
+            mCurrentCameraSelector = CameraSelectorUtil.createCameraSelectorById(mCurrentCameraId);
+        } else {
+            mCurrentCameraSelector = (mCurrentCameraSelector == CameraSelector.DEFAULT_BACK_CAMERA)
+                    ? CameraSelector.DEFAULT_FRONT_CAMERA : CameraSelector.DEFAULT_BACK_CAMERA;
+        }
         if (!bindUseCasesWithCurrentExtensionMode()) {
             bindUseCasesWithNextExtensionMode();
         }
@@ -341,9 +353,9 @@ public class CameraExtensionsActivity extends AppCompatActivity
 
         mInitializationIdlingResource.increment();
 
-        String cameraId = getIntent().getStringExtra(INTENT_EXTRA_KEY_CAMERA_ID);
-        if (cameraId != null) {
-            mCurrentCameraSelector = CameraSelectorUtil.createCameraSelectorById(cameraId);
+        mCurrentCameraId = getIntent().getStringExtra(INTENT_EXTRA_KEY_CAMERA_ID);
+        if (mCurrentCameraId != null) {
+            mCurrentCameraSelector = CameraSelectorUtil.createCameraSelectorById(mCurrentCameraId);
         }
 
         // Get params from adb extra string for the e2e test cases.

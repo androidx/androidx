@@ -16,6 +16,8 @@
 
 package androidx.camera.extensions.internal;
 
+import android.content.Context;
+import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CaptureResult;
 import android.hardware.camera2.TotalCaptureResult;
 import android.media.Image;
@@ -24,6 +26,7 @@ import android.util.Size;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.impl.Camera2CameraCaptureResultConverter;
 import androidx.camera.core.ExperimentalGetImage;
@@ -34,6 +37,7 @@ import androidx.camera.core.impl.CameraCaptureResults;
 import androidx.camera.core.impl.CaptureProcessor;
 import androidx.camera.core.impl.ImageProxyBundle;
 import androidx.camera.extensions.impl.CaptureProcessorImpl;
+import androidx.camera.extensions.impl.ExtenderStateListener;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -48,17 +52,59 @@ import java.util.concurrent.TimeoutException;
  * A {@link CaptureProcessor} that calls a vendor provided implementation.
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-public final class AdaptingCaptureProcessor implements CaptureProcessor {
+public final class AdaptingCaptureProcessor implements CaptureProcessor, VendorProcessor {
+    @NonNull
     private final CaptureProcessorImpl mImpl;
+    @Nullable
+    private volatile Surface mSurface;
+    private volatile int mImageFormat;
+    private volatile Size mResolution;
+
+    private BlockingCloseAccessCounter mAccessCounter = new BlockingCloseAccessCounter();
 
     public AdaptingCaptureProcessor(@NonNull CaptureProcessorImpl impl) {
         mImpl = impl;
     }
 
+    /**
+     * Invoked after
+     * {@link ExtenderStateListener#onInit(String, CameraCharacteristics, Context)}()} to
+     * initialize the processor.
+     */
+    @Override
+    public void onInit() {
+        if (!mAccessCounter.tryIncrement()) {
+            return;
+        }
+
+        // Delay the onOutputSurface / onImageFormatUpdate/ onResolutionUpdate calls because on
+        // some OEM devices, these CaptureProcessImpl configuration should be performed only after
+        // onInit. Otherwise it will cause black preview issue.
+        try {
+            mImpl.onOutputSurface(mSurface, mImageFormat);
+            mImpl.onImageFormatUpdate(mImageFormat);
+            mImpl.onResolutionUpdate(mResolution);
+        } finally {
+            mAccessCounter.decrement();
+        }
+    }
+
+    @Override
+    public void close() {
+        mAccessCounter.destroyAndWaitForZeroAccess();
+        mSurface = null;
+        mResolution = null;
+    }
+
     @Override
     public void onOutputSurface(@NonNull Surface surface, int imageFormat) {
-        mImpl.onOutputSurface(surface, imageFormat);
-        mImpl.onImageFormatUpdate(imageFormat);
+        mSurface = surface;
+        mImageFormat = imageFormat;
+    }
+
+    @Override
+    public void onResolutionUpdate(@NonNull Size size) {
+        mResolution = size;
     }
 
     @Override
@@ -104,11 +150,14 @@ public final class AdaptingCaptureProcessor implements CaptureProcessor {
             }
         }
 
-        mImpl.process(bundleMap);
-    }
+        if (!mAccessCounter.tryIncrement()) {
+            return;
+        }
 
-    @Override
-    public void onResolutionUpdate(@NonNull Size size) {
-        mImpl.onResolutionUpdate(size);
+        try {
+            mImpl.process(bundleMap);
+        } finally {
+            mAccessCounter.decrement();
+        }
     }
 }
