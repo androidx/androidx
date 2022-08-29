@@ -478,7 +478,3 @@ WARNING: Illegal reflective access using Lookup on org\.gradle\.internal\.classl
 WARNING: Please consider reporting this to the maintainers of org\.gradle\.internal\.classloader\.ClassLoaderUtils\$AbstractClassLoaderLookuper
 # AGP warning about API usage we have no control over
 Values of variant API AnnotationProcessorOptions\.arguments are queried and may return non final values, this is unsupported
-# > Task :tv:tv-material-samples:minifyReleaseWithR8
-WARNING:\$OUT_DIR/androidx/tv/tv\-material\-samples/build/intermediates/merged_java_res/release/base\.jar: R[0-9]+: Unexpected reference to missing service class: META\-INF/services/org\.jetbrains\.kotlin\.compiler\.plugin\.CommandLineProcessor\.
-WARNING:\$OUT_DIR/androidx/tv/tv\-material\-samples/build/intermediates/merged_java_res/release/base\.jar: R[0-9]+: Unexpected reference to missing service class: META\-INF/services/org\.jetbrains\.kotlin\.compiler\.plugin\.ComponentRegistrar\.
-WARNING:\$OUT_DIR/androidx/tv/tv\-material\-samples/build/intermediates/merged_java_res/release/base\.jar: R[0-9]+: Unexpected reference to missing service class: META\-INF/services/org\.jetbrains\.kotlin\.diagnostics\.rendering\.DefaultErrorMessages\$Extension\.

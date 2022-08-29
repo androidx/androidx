@@ -95,10 +95,12 @@ class TvLazyListState constructor(
      * be recomposed on every change causing potential performance issues.
      *
      * If you want to run some side effects like sending an analytics event or updating a state
-     * based on this value consider using "snapshotFlow".
+     * based on this value consider using "snapshotFlow":
+     * @sample androidx.compose.foundation.samples.UsingListScrollPositionForSideEffectSample
      *
      * If you need to use it in the composition then consider wrapping the calculation into a
-     * derived state in order to only have recompositions when the derived value changes.
+     * derived state in order to only have recompositions when the derived value changes:
+     * @sample androidx.compose.foundation.samples.UsingListScrollPositionInCompositionSample
      */
     val firstVisibleItemIndex: Int get() = scrollPosition.index.value
 
@@ -125,7 +127,8 @@ class TvLazyListState constructor(
      * Therefore, avoid using it in the composition.
      *
      * If you want to run some side effects like sending an analytics event or updating a state
-     * based on this value consider using "snapshotFlow"
+     * based on this value consider using "snapshotFlow":
+     * @sample androidx.compose.foundation.samples.UsingListLayoutInfoForSideEffectSample
      */
     val layoutInfo: TvLazyListLayoutInfo get() = layoutInfoState.value
 
