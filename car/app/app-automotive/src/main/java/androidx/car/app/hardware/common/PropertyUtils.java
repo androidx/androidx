@@ -472,6 +472,25 @@ public final class PropertyUtils {
         return carZoneSetsToIntegerValues;
     }
 
+    /** Returns a map of min/max values in Float corresponding to a set of car zones.
+     *
+     * <p> The method is a utility to convert Pair<?, ?> to Pair<Float, Float>.
+     */
+    @NonNull
+    public static Map<Set<CarZone>, Pair<Float, Float>> getMinMaxProfileFloatMap(
+            @NonNull Map<Set<CarZone>, ? extends Pair<?, ?>> minMaxRange) {
+        Map<Set<CarZone>, Pair<Float, Float>>
+                carZoneSetsToFloatValues = new HashMap<>();
+        for (Map.Entry<Set<CarZone>, ? extends Pair<?, ?>> entry : requireNonNull(minMaxRange
+                .entrySet())) {
+            int min = (Integer) entry.getValue().first;
+            int max = (Integer) entry.getValue().second;
+            carZoneSetsToFloatValues.put(entry.getKey(),
+                    new Pair<>((float) min, (float) max));
+        }
+        return carZoneSetsToFloatValues;
+    }
+
     private PropertyUtils() {
     }
 }
