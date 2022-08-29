@@ -59,6 +59,12 @@ class CaptureNodeTest {
     }
 
     @Test
+    fun transform_verifyInputSurface() {
+        assertThat(captureNodeIn.surface.surface.get())
+            .isEqualTo(captureNode.mSafeCloseImageReaderProxy.surface)
+    }
+
+    @Test
     fun send2RequestsAndImages_requestsReceived() {
         // Arrange: create 2 requests: A and B.
         // A has two stages: 1 and 2.
