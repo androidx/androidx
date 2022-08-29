@@ -72,11 +72,14 @@ public class ProfileInstallReceiver extends BroadcastReceiver {
                     new ResultDiagnostics(), /* forceWriteProfile */true);
         } else if (ACTION_SKIP_FILE.equals(action)) {
             Bundle extras = intent.getExtras();
-            String operation = extras.getString(EXTRA_SKIP_FILE_OPERATION);
-            if (EXTRA_SKIP_FILE_OPERATION_WRITE.equals(operation)) {
-                ProfileInstaller.writeSkipFile(context, Runnable::run, new ResultDiagnostics());
-            } else if (EXTRA_SKIP_FILE_OPERATION_DELETE.equals(operation)) {
-                ProfileInstaller.deleteSkipFile(context, Runnable::run, new ResultDiagnostics());
+            if (extras != null) {
+                String operation = extras.getString(EXTRA_SKIP_FILE_OPERATION);
+                if (EXTRA_SKIP_FILE_OPERATION_WRITE.equals(operation)) {
+                    ProfileInstaller.writeSkipFile(context, Runnable::run, new ResultDiagnostics());
+                } else if (EXTRA_SKIP_FILE_OPERATION_DELETE.equals(operation)) {
+                    ProfileInstaller.deleteSkipFile(
+                            context, Runnable::run, new ResultDiagnostics());
+                }
             }
         }
     }
