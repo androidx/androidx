@@ -356,7 +356,9 @@ class ExistingActivityLifecycleTest(
 
     @Test
     fun checkPreviewUpdatedWithNewInstance() {
-        ActivityScenario.launch<CameraXActivity>(launchIntent).use { firstActivity ->
+        ActivityScenario.launchActivityForResult<CameraXActivity>(
+            launchIntent
+        ).use { firstActivity ->
             // Arrange. Check the 1st activity Preview.
             firstActivity.waitForViewfinderIdle()
 
