@@ -48,7 +48,8 @@ import java.util.Set;
  * A {@link Node} that calls back when all the images for one capture are received.
  *
  * <p>This {@link Node} waits for all the images in a {@link ProcessingRequest} are received
- * before invoking the {@link ProcessingRequest#onImageCaptured()} callback.
+ * before invoking the {@link ProcessingRequest#onImageCaptured()} callback. Then it makes
+ * sure that the {@link ImageProxy} are omitted after their corresponding {@link ProcessingRequest}.
  *
  * <p>It's also responsible for managing the {@link ImageReaderProxy}. It makes sure that the
  * queue is not overflowed.
@@ -66,6 +67,7 @@ class CaptureNode implements Node<CaptureNode.In, CaptureNode.Out> {
 
     @NonNull
     private final Set<Integer> mPendingStageIds = new HashSet<>();
+    private final Set<ImageProxy> mPendingImages = new HashSet<>();
     private ProcessingRequest mCurrentRequest = null;
 
     private SafeCloseImageReaderProxy mSafeCloseImageReaderProxy;
@@ -97,24 +99,28 @@ class CaptureNode implements Node<CaptureNode.In, CaptureNode.Out> {
     @MainThread
     void onImageProxyAvailable(@NonNull ImageProxy imageProxy) {
         checkMainThread();
-        checkState(mCurrentRequest != null, "Image arrives before the request.");
+        if (mCurrentRequest == null) {
+            // Request has not arrived yet. Track the image and match later.
+            mPendingImages.add(imageProxy);
+        } else {
+            // Match image and send it downstream.
+            matchAndPropagateImage(imageProxy);
+        }
+    }
+
+    private void matchAndPropagateImage(@NonNull ImageProxy imageProxy) {
         // Check if the capture is complete.
-        int stageId = (Integer) requireNonNull(imageProxy.getImageInfo()
-                .getTagBundle().getTag(mCurrentRequest.getTagBundleKey()));
+        int stageId = (Integer) requireNonNull(
+                imageProxy.getImageInfo().getTagBundle().getTag(mCurrentRequest.getTagBundleKey()));
         checkState(mPendingStageIds.contains(stageId),
                 "Received an unexpected stage id" + stageId);
         mPendingStageIds.remove(stageId);
 
         if (mPendingStageIds.isEmpty()) {
             // The capture is complete. Let the pipeline know it can take another picture.
-            ProcessingRequest request = mCurrentRequest;
+            mCurrentRequest.onImageCaptured();
             mCurrentRequest = null;
-            // Trigger callback after nullify the variable to avoid the null check in
-            // #onRequestAvailable
-            request.onImageCaptured();
         }
-
-        // Send the image downstream.
         mOutputEdge.getImageEdge().accept(imageProxy);
     }
 
@@ -132,6 +138,12 @@ class CaptureNode implements Node<CaptureNode.In, CaptureNode.Out> {
 
         // Send the request downstream.
         mOutputEdge.getRequestEdge().accept(request);
+
+        // Match pending images and send them downstream.
+        for (ImageProxy imageProxy : mPendingImages) {
+            matchAndPropagateImage(imageProxy);
+        }
+        mPendingImages.clear();
     }
 
     @MainThread

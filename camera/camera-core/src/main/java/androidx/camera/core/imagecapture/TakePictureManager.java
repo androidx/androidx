@@ -19,6 +19,7 @@ package androidx.camera.core.imagecapture;
 import static androidx.camera.core.ImageCapture.ERROR_CAPTURE_FAILED;
 import static androidx.camera.core.impl.utils.Threads.checkMainThread;
 import static androidx.camera.core.impl.utils.executor.CameraXExecutors.directExecutor;
+import static androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor;
 import static androidx.core.util.Preconditions.checkState;
 
 import static java.util.Objects.requireNonNull;
@@ -204,7 +205,7 @@ public class TakePictureManager {
                         throwable));
                 mImageCaptureControl.unlockFlashMode();
             }
-        }, directExecutor());
+        }, mainThreadExecutor());
     }
 
     @VisibleForTesting
