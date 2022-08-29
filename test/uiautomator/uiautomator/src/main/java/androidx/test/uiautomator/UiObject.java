@@ -619,8 +619,12 @@ public class UiObject {
      * Set the text content by sending individual key codes.
      * @hide
      */
-    public void legacySetText(String text) throws UiObjectNotFoundException {
-        Tracer.trace();
+    public void legacySetText(@Nullable String text) throws UiObjectNotFoundException {
+        // Per framework convention, setText(null) means clearing it.
+        if (text == null) {
+            text = "";
+        }
+        Tracer.trace(text);
         // long click left + center
         AccessibilityNodeInfo node = findAccessibilityNodeInfo(mConfig.getWaitForSelectorTimeout());
         if (node == null) {

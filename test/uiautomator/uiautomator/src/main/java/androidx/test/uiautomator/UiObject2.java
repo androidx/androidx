@@ -702,7 +702,7 @@ public class UiObject2 implements Searchable {
      * Set the text content by sending individual key codes.
      * @hide
      */
-    public void legacySetText(String text) {
+    public void legacySetText(@Nullable String text) {
         AccessibilityNodeInfo node = getAccessibilityNodeInfo();
 
         // Per framework convention, setText(null) means clearing it
