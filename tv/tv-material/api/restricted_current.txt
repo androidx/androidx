@@ -1,18 +1,1 @@
 // Signature format: 4.0
-package androidx.tv.material.carousel {
-
-  public final class CarouselItemKt {
-  }
-
-  public final class CarouselKt {
-  }
-
-}
-
-package androidx.tv.material.pager {
-
-  public final class PagerKt {
-  }
-
-}
-

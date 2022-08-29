@@ -83,6 +83,8 @@ sealed interface TvLazyListItemScope {
      * enable item reordering animations. Aside from item reordering all other position changes
      * caused by events like arrangement or alignment changes will also be animated.
      *
+     * @sample androidx.compose.foundation.samples.ItemPlacementAnimationSample
+     *
      * @param animationSpec a finite animation that will be used to animate the item placement.
      */
     @ExperimentalFoundationApi
