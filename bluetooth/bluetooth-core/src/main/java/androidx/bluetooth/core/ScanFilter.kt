@@ -30,8 +30,8 @@ import androidx.bluetooth.core.utils.Utils
  * @hide
  */
 class ScanFilter internal constructor(
-    internal val base: ScanFilterBase
-) : ScanFilterInterface by base, Bundleable {
+    internal val impl: ScanFilterImpl
+) : ScanFilterImpl by impl, Bundleable {
     companion object {
         internal const val FIELD_FWK_SCAN_FILTER = 0
         internal const val FIELD_SERVICE_SOLICITATION_UUID = 1
@@ -53,7 +53,7 @@ class ScanFilter internal constructor(
 
         internal fun Bundle.putScanFilter(filter: ScanFilter) {
             this.putParcelable(
-                keyForField(FIELD_FWK_SCAN_FILTER), filter.base.fwkInstance)
+                keyForField(FIELD_FWK_SCAN_FILTER), filter.impl.fwkInstance)
             if (Build.VERSION.SDK_INT < 29) {
                 if (filter.serviceSolicitationUuid != null) {
                     this.putParcelable(
@@ -124,7 +124,7 @@ class ScanFilter internal constructor(
         } else if (Build.VERSION.SDK_INT >= 29) {
             ScanFilterImplApi29(fwkInstance)
         } else {
-            ScanFilterImplBase(fwkInstance)
+            ScanFilterImplApi21(fwkInstance)
         }
     )
 
@@ -170,7 +170,7 @@ class ScanFilter internal constructor(
         } else if (Build.VERSION.SDK_INT >= 29) {
             ScanFilterImplApi29(fwkInstance, args)
         } else {
-            ScanFilterImplBase(fwkInstance, args)
+            ScanFilterImplApi21(fwkInstance, args)
         }
     )
     override fun toBundle(): Bundle {
@@ -246,7 +246,7 @@ internal data class ScanFilterArgs(
     }
 }
 
-internal interface ScanFilterInterface {
+internal interface ScanFilterImpl {
     val deviceName: String?
     val deviceAddress: String?
     val serviceUuid: ParcelUuid?
@@ -262,11 +262,13 @@ internal interface ScanFilterInterface {
     val advertisingData: ByteArray?
     val advertisingDataMask: ByteArray?
     val advertisingDataType: Int
+
+    val fwkInstance: FwkScanFilter
 }
 
-internal abstract class ScanFilterBase internal constructor(
-    internal val fwkInstance: FwkScanFilter
-) : ScanFilterInterface {
+internal abstract class ScanFilterFwkImplApi21 internal constructor(
+    override val fwkInstance: FwkScanFilter
+) : ScanFilterImpl {
     override val deviceName: String?
         get() = fwkInstance.deviceName
     override val deviceAddress: String?
@@ -289,14 +291,14 @@ internal abstract class ScanFilterBase internal constructor(
         get() = fwkInstance.manufacturerDataMask
 }
 
-internal class ScanFilterImplBase internal constructor(
+internal class ScanFilterImplApi21 internal constructor(
     fwkInstance: FwkScanFilter,
     override val serviceSolicitationUuid: ParcelUuid? = null,
     override val serviceSolicitationUuidMask: ParcelUuid? = null,
     override val advertisingData: ByteArray? = null,
     override val advertisingDataMask: ByteArray? = null,
     override val advertisingDataType: Int = -1 // TODO: Use ScanRecord.DATA_TYPE_NONE
-) : ScanFilterBase(fwkInstance) {
+) : ScanFilterFwkImplApi21(fwkInstance) {
     internal constructor(fwkInstance: FwkScanFilter, args: ScanFilterArgs) : this(
         fwkInstance, args.serviceSolicitationUuid, args.serviceSolicitationUuidMask,
         args.advertisingData, args.advertisingDataMask, args.advertisingDataType
@@ -304,7 +306,9 @@ internal class ScanFilterImplBase internal constructor(
 }
 
 @RequiresApi(Build.VERSION_CODES.Q)
-internal abstract class ScanFilterBase29(fwkInstance: FwkScanFilter) : ScanFilterBase(fwkInstance) {
+internal abstract class ScanFilterFwkImplApi29(
+    fwkInstance: FwkScanFilter
+) : ScanFilterFwkImplApi21(fwkInstance) {
     override val serviceSolicitationUuid: ParcelUuid?
         get() = fwkInstance.serviceSolicitationUuid
     override val serviceSolicitationUuidMask: ParcelUuid?
@@ -317,15 +321,15 @@ internal class ScanFilterImplApi29 internal constructor(
     override val advertisingData: ByteArray? = null,
     override val advertisingDataMask: ByteArray? = null,
     override val advertisingDataType: Int = -1 // TODO: Use ScanRecord.DATA_TYPE_NONE
-) : ScanFilterBase29(fwkInstance) {
+) : ScanFilterFwkImplApi29(fwkInstance) {
     internal constructor(fwkInstance: FwkScanFilter, args: ScanFilterArgs) : this(
         fwkInstance, args.advertisingData, args.advertisingDataMask, args.advertisingDataType
     )
 }
 
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
-internal abstract class ScanFilterBase33(fwkInstance: FwkScanFilter) :
-    ScanFilterBase29(fwkInstance) {
+internal abstract class ScanFilterFwkImplApi33(fwkInstance: FwkScanFilter) :
+    ScanFilterFwkImplApi29(fwkInstance) {
     override val advertisingData: ByteArray?
         get() = fwkInstance.advertisingData
     override val advertisingDataMask: ByteArray?
@@ -337,4 +341,4 @@ internal abstract class ScanFilterBase33(fwkInstance: FwkScanFilter) :
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 internal class ScanFilterImplApi33 internal constructor(
     fwkInstance: FwkScanFilter
-) : ScanFilterBase33(fwkInstance)
+) : ScanFilterFwkImplApi33(fwkInstance)

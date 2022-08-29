@@ -42,7 +42,7 @@ class ScanFilterTest {
             advertisingData = TEST_ADVERTISING_DATA,
             advertisingDataMask = TEST_ADVERTISING_DATA_MASK
         )
-        val fwkScanFilter = scanFilter.base.fwkInstance
+        val fwkScanFilter = scanFilter.impl.fwkInstance
         assertThat(fwkScanFilter.deviceName).isEqualTo(TEST_DEVICE_NAME)
         assertThat(fwkScanFilter.deviceAddress).isEqualTo(TEST_DEVICE_ADDRESS)
         assertThat(fwkScanFilter.serviceUuid).isEqualTo(TEST_SERVICE_UUID)
