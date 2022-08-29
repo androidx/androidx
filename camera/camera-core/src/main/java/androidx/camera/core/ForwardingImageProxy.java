@@ -23,6 +23,7 @@ import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.annotation.RestrictTo;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -35,9 +36,12 @@ import java.util.Set;
  *
  * <p>Listeners for the image close call can be added. When the image is closed, the listeners will
  * be notified.
+ *
+ * @hide
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-abstract class ForwardingImageProxy implements ImageProxy {
+public abstract class ForwardingImageProxy implements ImageProxy {
     private final Object mLock = new Object();
 
     protected final ImageProxy mImage;
@@ -50,7 +54,7 @@ abstract class ForwardingImageProxy implements ImageProxy {
      *
      * @param image to wrap
      */
-    protected ForwardingImageProxy(ImageProxy image) {
+    protected ForwardingImageProxy(@NonNull ImageProxy image) {
         mImage = image;
     }
 
@@ -98,6 +102,7 @@ abstract class ForwardingImageProxy implements ImageProxy {
         return mImage.getImageInfo();
     }
 
+    @Nullable
     @Override
     @ExperimentalGetImage
     public Image getImage() {
@@ -109,7 +114,7 @@ abstract class ForwardingImageProxy implements ImageProxy {
      *
      * @param listener to add
      */
-    void addOnImageCloseListener(OnImageCloseListener listener) {
+    public void addOnImageCloseListener(@NonNull OnImageCloseListener listener) {
         synchronized (mLock) {
             mOnImageCloseListeners.add(listener);
         }
@@ -130,12 +135,12 @@ abstract class ForwardingImageProxy implements ImageProxy {
     }
 
     /** Listener for the image close event. */
-    interface OnImageCloseListener {
+    public interface OnImageCloseListener {
         /**
          * Callback for image close.
          *
          * @param image which is closed
          */
-        void onImageClose(ImageProxy image);
+        void onImageClose(@NonNull ImageProxy image);
     }
 }
