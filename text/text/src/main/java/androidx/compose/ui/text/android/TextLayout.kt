@@ -981,4 +981,4 @@ private fun TextLayout.getLineHeightSpans(): Array<LineHeightStyleSpan> {
     return lineHeightStyleSpans
 }
 
-internal fun Layout.isLineEllipsized(lineIndex: Int) = this.getEllipsisStart(lineIndex) != 0
+internal fun Layout.isLineEllipsized(lineIndex: Int) = this.getEllipsisCount(lineIndex) > 0
