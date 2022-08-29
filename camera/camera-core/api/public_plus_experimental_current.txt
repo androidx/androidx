@@ -41,6 +41,7 @@ package androidx.camera.core {
     method public androidx.camera.core.CameraSelector getCameraSelector();
     method public androidx.lifecycle.LiveData<androidx.camera.core.CameraState!> getCameraState();
     method public androidx.camera.core.ExposureState getExposureState();
+    method @FloatRange(from=0, fromInclusive=false) public default float getIntrinsicZoomRatio();
     method public default int getLensFacing();
     method public int getSensorRotationDegrees();
     method public int getSensorRotationDegrees(int);
