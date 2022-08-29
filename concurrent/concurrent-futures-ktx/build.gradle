@@ -30,8 +30,6 @@ dependencies {
     testImplementation(libs.junit)
     testImplementation(libs.kotlinTest)
     testImplementation(libs.kotlinCoroutinesTest)
-    testImplementation(libs.testExtJunit)
-    testImplementation(libs.testCore)
 }
 
 androidx {
