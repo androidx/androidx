@@ -14,48 +14,33 @@
  * limitations under the License.
  */
 
-package androidx.room;
+package androidx.room
 
-import androidx.annotation.NonNull;
-import androidx.room.migration.AutoMigrationSpec;
-import androidx.room.migration.Migration;
-import androidx.sqlite.db.SupportSQLiteOpenHelper;
+import androidx.room.migration.AutoMigrationSpec
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteOpenHelper
+import org.mockito.kotlin.mock
 
-import org.mockito.Mockito;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-
-public class BuilderTest_TestDatabase_Impl extends BuilderTest.TestDatabase {
-    DatabaseConfiguration mConfig;
-    List<Migration> mAutoMigrations = Arrays.asList(new BuilderTest.EmptyMigration(1, 2));
-
-    @Override
-    public void init(DatabaseConfiguration configuration) {
-        super.init(configuration);
-        mConfig = configuration;
+internal class BuilderTest_TestDatabase_Impl : BuilderTest.TestDatabase() {
+    lateinit var mConfig: DatabaseConfiguration
+    var mAutoMigrations = listOf<Migration>(BuilderTest.EmptyMigration(1, 2))
+    override fun init(configuration: DatabaseConfiguration) {
+        super.init(configuration)
+        mConfig = configuration
     }
 
-    @Override
-    protected SupportSQLiteOpenHelper createOpenHelper(DatabaseConfiguration config) {
-        return Mockito.mock(SupportSQLiteOpenHelper.class);
+    override fun createOpenHelper(config: DatabaseConfiguration): SupportSQLiteOpenHelper {
+        return mock()
     }
 
-    @Override
-    protected InvalidationTracker createInvalidationTracker() {
-        return Mockito.mock(InvalidationTracker.class);
+    override fun createInvalidationTracker(): InvalidationTracker {
+        return mock()
     }
 
-    @Override
-    public void clearAllTables() {
-    }
-
-    @NonNull
-    @Override
-    public List<Migration> getAutoMigrations(
-            @NonNull Map<Class<? extends AutoMigrationSpec>, AutoMigrationSpec> autoMigrationSpecs
-    ) {
-        return mAutoMigrations;
+    override fun clearAllTables() {}
+    override fun getAutoMigrations(
+        autoMigrationSpecs: Map<Class<out AutoMigrationSpec>, AutoMigrationSpec>
+    ): List<Migration> {
+        return mAutoMigrations
     }
 }

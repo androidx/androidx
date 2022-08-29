@@ -14,136 +14,133 @@
  * limitations under the License.
  */
 
-package androidx.room;
+package androidx.room
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.CoreMatchers.sameInstance;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
+import androidx.room.RoomSQLiteQuery.Companion.acquire
+import androidx.sqlite.db.SupportSQLiteProgram
+import com.google.common.truth.Truth.assertThat
+import org.junit.Before
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.verify
 
-import androidx.sqlite.db.SupportSQLiteProgram;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
-
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
-@RunWith(JUnit4.class)
-public class RoomSQLiteQueryTest {
+@RunWith(JUnit4::class)
+class RoomSQLiteQueryTest {
     @Before
-    public void clear() {
-        RoomSQLiteQuery.queryPool.clear();
+    fun clear() {
+        RoomSQLiteQuery.queryPool.clear()
     }
 
     @Test
-    public void acquireBasic() {
-        RoomSQLiteQuery query = RoomSQLiteQuery.acquire("abc", 3);
-        assertThat(query.getSql(), is("abc"));
-        assertThat(query.getArgCount(), is(3));
-        assertThat(query.blobBindings.length, is(4));
-        assertThat(query.longBindings.length, is(4));
-        assertThat(query.stringBindings.length, is(4));
-        assertThat(query.doubleBindings.length, is(4));
+    fun acquireBasic() {
+        val query = acquire("abc", 3)
+        assertThat(query.sql).isEqualTo("abc")
+        assertThat(query.argCount).isEqualTo(3)
+        assertThat(query.blobBindings.size).isEqualTo(4)
+        assertThat(query.longBindings.size).isEqualTo(4)
+        assertThat(query.stringBindings.size).isEqualTo(4)
+        assertThat(query.doubleBindings.size).isEqualTo(4)
     }
 
     @Test
-    public void acquireSameSizeAgain() {
-        RoomSQLiteQuery query = RoomSQLiteQuery.acquire("abc", 3);
-        query.release();
-        assertThat(RoomSQLiteQuery.acquire("blah", 3), sameInstance(query));
+    fun acquireSameSizeAgain() {
+        val query = acquire("abc", 3)
+        query.release()
+        assertThat(acquire("blah", 3)).isSameInstanceAs(query)
     }
 
     @Test
-    public void acquireSameSizeWithoutRelease() {
-        RoomSQLiteQuery query = RoomSQLiteQuery.acquire("abc", 3);
-        assertThat(RoomSQLiteQuery.acquire("fda", 3), not(sameInstance(query)));
+    fun acquireSameSizeWithoutRelease() {
+        val query = acquire("abc", 3)
+        assertThat(
+            acquire("fda", 3)
+        ).isNotSameInstanceAs(query)
     }
 
     @Test
-    public void bindings() {
-        RoomSQLiteQuery query = RoomSQLiteQuery.acquire("abc", 6);
-        byte[] myBlob = new byte[3];
-        long myLong = 3L;
-        double myDouble = 7.0;
-        String myString = "ss";
-        query.bindBlob(1, myBlob);
-        query.bindLong(2, myLong);
-        query.bindNull(3);
-        query.bindDouble(4, myDouble);
-        query.bindString(5, myString);
-        query.bindNull(6);
-        SupportSQLiteProgram program = mock(SupportSQLiteProgram.class);
-        query.bindTo(program);
-
-        verify(program).bindBlob(1, myBlob);
-        verify(program).bindLong(2, myLong);
-        verify(program).bindNull(3);
-        verify(program).bindDouble(4, myDouble);
-        verify(program).bindString(5, myString);
-        verify(program).bindNull(6);
+    fun bindings() {
+        val query = acquire("abc", 6)
+        val myBlob = ByteArray(3)
+        val myLong = 3L
+        val myDouble = 7.0
+        val myString = "ss"
+        query.bindBlob(1, myBlob)
+        query.bindLong(2, myLong)
+        query.bindNull(3)
+        query.bindDouble(4, myDouble)
+        query.bindString(5, myString)
+        query.bindNull(6)
+        val program: SupportSQLiteProgram = mock()
+        query.bindTo(program)
+        verify(program).bindBlob(1, myBlob)
+        verify(program).bindLong(2, myLong)
+        verify(program).bindNull(3)
+        verify(program).bindDouble(4, myDouble)
+        verify(program).bindString(5, myString)
+        verify(program).bindNull(6)
     }
 
     @Test
-    public void dontKeepSameSizeTwice() {
-        RoomSQLiteQuery query1 = RoomSQLiteQuery.acquire("abc", 3);
-        RoomSQLiteQuery query2 = RoomSQLiteQuery.acquire("zx", 3);
-        RoomSQLiteQuery query3 = RoomSQLiteQuery.acquire("qw", 0);
-
-        query1.release();
-        query2.release();
-        assertThat(RoomSQLiteQuery.queryPool.size(), is(1));
-
-        query3.release();
-        assertThat(RoomSQLiteQuery.queryPool.size(), is(2));
+    fun dontKeepSameSizeTwice() {
+        val query1 = acquire("abc", 3)
+        val query2 = acquire("zx", 3)
+        val query3 = acquire("qw", 0)
+        query1.release()
+        query2.release()
+        assertThat(RoomSQLiteQuery.queryPool.size).isEqualTo(1)
+        query3.release()
+        assertThat(RoomSQLiteQuery.queryPool.size).isEqualTo(2)
     }
 
     @Test
-    public void returnExistingForSmallerSize() {
-        RoomSQLiteQuery query = RoomSQLiteQuery.acquire("abc", 3);
-        query.release();
-        assertThat(RoomSQLiteQuery.acquire("dsa", 2), sameInstance(query));
+    fun returnExistingForSmallerSize() {
+        val query = acquire("abc", 3)
+        query.release()
+        assertThat(acquire("dsa", 2)).isSameInstanceAs(query)
     }
 
     @Test
-    public void returnNewForBigger() {
-        RoomSQLiteQuery query = RoomSQLiteQuery.acquire("abc", 3);
-        query.release();
-        assertThat(RoomSQLiteQuery.acquire("dsa", 4), not(sameInstance(query)));
+    fun returnNewForBigger() {
+        val query = acquire("abc", 3)
+        query.release()
+        assertThat(
+            acquire("dsa", 4)
+        ).isNotSameInstanceAs(query)
     }
 
     @Test
-    public void pruneCache() {
-        for (int i = 0; i < RoomSQLiteQuery.POOL_LIMIT; i++) {
-            RoomSQLiteQuery.acquire("dsdsa", i).release();
+    fun pruneCache() {
+        for (i in 0 until RoomSQLiteQuery.POOL_LIMIT) {
+            acquire("dsdsa", i).release()
         }
-        pruneCacheTest();
+        pruneCacheTest()
     }
 
     @Test
-    public void pruneCacheReverseInsertion() {
-        List<RoomSQLiteQuery> queries = new ArrayList<>();
-        for (int i = RoomSQLiteQuery.POOL_LIMIT - 1; i >= 0; i--) {
-            queries.add(RoomSQLiteQuery.acquire("dsdsa", i));
+    fun pruneCacheReverseInsertion() {
+        val queries: MutableList<RoomSQLiteQuery> = ArrayList()
+        for (i in RoomSQLiteQuery.POOL_LIMIT - 1 downTo 0) {
+            queries.add(acquire("dsdsa", i))
         }
-        for (RoomSQLiteQuery query : queries) {
-            query.release();
+        for (query in queries) {
+            query.release()
         }
-        pruneCacheTest();
+        pruneCacheTest()
     }
 
-    private void pruneCacheTest() {
-        assertThat(RoomSQLiteQuery.queryPool.size(), is(RoomSQLiteQuery.POOL_LIMIT));
-        RoomSQLiteQuery.acquire("dsadsa", RoomSQLiteQuery.POOL_LIMIT + 1).release();
-        assertThat(RoomSQLiteQuery.queryPool.size(), is(RoomSQLiteQuery.DESIRED_POOL_SIZE));
-        Iterator<RoomSQLiteQuery> itr = RoomSQLiteQuery.queryPool.values().iterator();
-        for (int i = 0; i < RoomSQLiteQuery.DESIRED_POOL_SIZE; i++) {
-            assertThat(itr.next().getCapacity(), is(i));
+    private fun pruneCacheTest() {
+        assertThat(
+            RoomSQLiteQuery.queryPool.size
+        ).isEqualTo(RoomSQLiteQuery.POOL_LIMIT)
+        acquire("dsadsa", RoomSQLiteQuery.POOL_LIMIT + 1).release()
+        assertThat(
+            RoomSQLiteQuery.queryPool.size
+        ).isEqualTo(RoomSQLiteQuery.DESIRED_POOL_SIZE)
+        val itr: Iterator<RoomSQLiteQuery> = RoomSQLiteQuery.queryPool.values.iterator()
+        for (i in 0 until RoomSQLiteQuery.DESIRED_POOL_SIZE) {
+            assertThat(itr.next().capacity).isEqualTo(i)
         }
     }
 }

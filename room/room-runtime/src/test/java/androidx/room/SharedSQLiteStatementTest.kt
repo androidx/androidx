@@ -13,114 +13,87 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.room;
+package androidx.room
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import androidx.sqlite.db.SupportSQLiteStatement
+import com.google.common.truth.Truth.assertThat
+import java.util.concurrent.FutureTask
+import org.junit.Before
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
+import org.mockito.kotlin.anyOrNull
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.whenever
 
-import androidx.sqlite.db.SupportSQLiteStatement;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
-
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.FutureTask;
-
-@RunWith(JUnit4.class)
-public class SharedSQLiteStatementTest {
-    private SharedSQLiteStatement mSharedStmt;
-    RoomDatabase mDb;
+@RunWith(JUnit4::class)
+class SharedSQLiteStatementTest {
+    private lateinit var mSharedStmt: SharedSQLiteStatement
+    lateinit var mDb: RoomDatabase
     @Before
-    public void init() {
-        mDb = mock(RoomDatabase.class);
-        when(mDb.compileStatement(anyString())).thenAnswer(new Answer<SupportSQLiteStatement>() {
-
-            @Override
-            public SupportSQLiteStatement answer(InvocationOnMock invocation) throws Throwable {
-                return mock(SupportSQLiteStatement.class);
+    fun init() {
+        val mdata: RoomDatabase = mock()
+        whenever(mdata.compileStatement(anyOrNull())).thenAnswer {
+            mock<SupportSQLiteStatement>()
+        }
+        whenever(mdata.invalidationTracker).thenReturn(mock())
+        mDb = mdata
+        mSharedStmt = object : SharedSQLiteStatement(mdata) {
+            override fun createQuery(): String {
+                return "foo"
             }
-        });
-        when(mDb.getInvalidationTracker()).thenReturn(mock(InvalidationTracker.class));
-        mSharedStmt = new SharedSQLiteStatement(mDb) {
-            @Override
-            protected String createQuery() {
-                return "foo";
-            }
-        };
+        }
     }
 
     @Test
-    public void checkMainThread() {
-        mSharedStmt.acquire();
-        verify(mDb).assertNotMainThread();
+    fun checkMainThread() {
+        mSharedStmt.acquire()
+        verify(mDb).assertNotMainThread()
     }
 
     @Test
-    public void basic() {
-        assertThat(mSharedStmt.acquire(), notNullValue());
+    fun basic() {
+        assertThat(mSharedStmt.acquire()).isNotNull()
     }
 
     @Test
-    public void getTwiceWithoutReleasing() {
-        SupportSQLiteStatement stmt1 = mSharedStmt.acquire();
-        SupportSQLiteStatement stmt2 = mSharedStmt.acquire();
-        assertThat(stmt1, notNullValue());
-        assertThat(stmt2, notNullValue());
-        assertThat(stmt1, is(not(stmt2)));
+    fun twiceWithoutReleasing() {
+            val stmt1 = mSharedStmt.acquire()
+            val stmt2 = mSharedStmt.acquire()
+            assertThat(stmt1).isNotNull()
+            assertThat(stmt2).isNotNull()
+            assertThat(stmt1).isNotEqualTo(stmt2)
+        }
+
+    @Test
+    fun twiceWithReleasing() {
+            val stmt1 = mSharedStmt.acquire()
+            mSharedStmt.release(stmt1)
+            val stmt2 = mSharedStmt.acquire()
+            assertThat(stmt1).isNotNull()
+            assertThat(stmt1).isEqualTo(stmt2)
+        }
+
+    @Test
+    fun fromAnotherThreadWhileHolding() {
+        val stmt1 = mSharedStmt.acquire()
+        val task = FutureTask { mSharedStmt.acquire() }
+        Thread(task).start()
+        val stmt2 = task.get()
+        assertThat(stmt1).isNotNull()
+        assertThat(stmt2).isNotNull()
+        assertThat(stmt1).isNotEqualTo(stmt2)
     }
 
     @Test
-    public void getTwiceWithReleasing() {
-        SupportSQLiteStatement stmt1 = mSharedStmt.acquire();
-        mSharedStmt.release(stmt1);
-        SupportSQLiteStatement stmt2 = mSharedStmt.acquire();
-        assertThat(stmt1, notNullValue());
-        assertThat(stmt1, is(stmt2));
-    }
-
-    @Test
-    public void getFromAnotherThreadWhileHolding() throws ExecutionException, InterruptedException {
-        SupportSQLiteStatement stmt1 = mSharedStmt.acquire();
-        FutureTask<SupportSQLiteStatement> task = new FutureTask<>(
-                new Callable<SupportSQLiteStatement>() {
-                    @Override
-                    public SupportSQLiteStatement call() throws Exception {
-                        return mSharedStmt.acquire();
-                    }
-                });
-        new Thread(task).run();
-        SupportSQLiteStatement stmt2 = task.get();
-        assertThat(stmt1, notNullValue());
-        assertThat(stmt2, notNullValue());
-        assertThat(stmt1, is(not(stmt2)));
-    }
-
-    @Test
-    public void getFromAnotherThreadAfterReleasing() throws ExecutionException,
-            InterruptedException {
-        SupportSQLiteStatement stmt1 = mSharedStmt.acquire();
-        mSharedStmt.release(stmt1);
-        FutureTask<SupportSQLiteStatement> task = new FutureTask<>(
-                new Callable<SupportSQLiteStatement>() {
-                    @Override
-                    public SupportSQLiteStatement call() throws Exception {
-                        return mSharedStmt.acquire();
-                    }
-                });
-        new Thread(task).run();
-        SupportSQLiteStatement stmt2 = task.get();
-        assertThat(stmt1, notNullValue());
-        assertThat(stmt1, is(stmt2));
+    fun fromAnotherThreadAfterReleasing() {
+        val stmt1 = mSharedStmt.acquire()
+        mSharedStmt.release(stmt1)
+        val task = FutureTask { mSharedStmt.acquire() }
+        Thread(task).start()
+        val stmt2 = task.get()
+        assertThat(stmt1).isNotNull()
+        assertThat(stmt1).isEqualTo(stmt2)
     }
 }

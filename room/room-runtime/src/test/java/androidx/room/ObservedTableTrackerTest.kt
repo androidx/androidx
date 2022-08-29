@@ -13,84 +13,112 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.room
 
+import com.google.common.truth.Truth.assertThat
+import java.util.Arrays
+import kotlin.test.assertNull
+import org.junit.Before
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
 
-package androidx.room;
-
-
-import static androidx.room.InvalidationTracker.ObservedTableTracker.ADD;
-import static androidx.room.InvalidationTracker.ObservedTableTracker.NO_OP;
-import static androidx.room.InvalidationTracker.ObservedTableTracker.REMOVE;
-
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.hamcrest.MatcherAssert.assertThat;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
-
-import java.util.Arrays;
-
-@RunWith(JUnit4.class)
-public class ObservedTableTrackerTest {
-    private static final int TABLE_COUNT = 5;
-    private InvalidationTracker.ObservedTableTracker mTracker;
-
+@RunWith(JUnit4::class)
+class ObservedTableTrackerTest {
+    private lateinit var mTracker: InvalidationTracker.ObservedTableTracker
     @Before
-    public void setup() {
-        mTracker = new InvalidationTracker.ObservedTableTracker(TABLE_COUNT);
+    fun setup() {
+        mTracker = InvalidationTracker.ObservedTableTracker(TABLE_COUNT)
     }
 
     @Test
-    public void basicAdd() {
-        mTracker.onAdded(2, 3);
-        assertThat(mTracker.getTablesToSync(), is(createResponse(2, ADD, 3, ADD)));
+    fun basicAdd() {
+        mTracker.onAdded(2, 3)
+        assertThat(
+            mTracker.getTablesToSync()
+        ).isEqualTo(
+            createResponse(
+                2,
+                InvalidationTracker.ObservedTableTracker.ADD,
+                3,
+                InvalidationTracker.ObservedTableTracker.ADD
+            )
+        )
     }
 
     @Test
-    public void basicRemove() {
-        initState(2, 3);
-        mTracker.onRemoved(3);
-        assertThat(mTracker.getTablesToSync(), is(createResponse(3, REMOVE)));
+    fun basicRemove() {
+        initState(2, 3)
+        mTracker.onRemoved(3)
+        assertThat(
+            mTracker.getTablesToSync()
+        ).isEqualTo(
+            createResponse(3, InvalidationTracker.ObservedTableTracker.REMOVE)
+        )
     }
 
     @Test
-    public void noChange() {
-        initState(1, 3);
-        mTracker.onAdded(3);
-        assertThat(mTracker.getTablesToSync(), is(nullValue()));
+    fun noChange() {
+        initState(1, 3)
+        mTracker.onAdded(3)
+        assertNull(
+            mTracker.getTablesToSync()
+        )
     }
 
     @Test
-    public void multipleAdditionsDeletions() {
-        initState(2, 4);
-        mTracker.onAdded(2);
-        assertThat(mTracker.getTablesToSync(), is(nullValue()));
-        mTracker.onAdded(2, 4);
-        assertThat(mTracker.getTablesToSync(), is(nullValue()));
-        mTracker.onRemoved(2);
-        assertThat(mTracker.getTablesToSync(), is(nullValue()));
-        mTracker.onRemoved(2, 4);
-        assertThat(mTracker.getTablesToSync(), is(nullValue()));
-        mTracker.onAdded(1, 3);
-        mTracker.onRemoved(2, 4);
-        assertThat(mTracker.getTablesToSync(), is(
-                createResponse(1, ADD, 2, REMOVE, 3, ADD, 4, REMOVE)));
+    fun multipleAdditionsDeletions() {
+        initState(2, 4)
+        mTracker.onAdded(2)
+        assertNull(
+            mTracker.getTablesToSync()
+        )
+        mTracker.onAdded(2, 4)
+        assertNull(
+            mTracker.getTablesToSync()
+        )
+        mTracker.onRemoved(2)
+        assertNull(
+            mTracker.getTablesToSync()
+        )
+        mTracker.onRemoved(2, 4)
+        assertNull(
+            mTracker.getTablesToSync()
+        )
+        mTracker.onAdded(1, 3)
+        mTracker.onRemoved(2, 4)
+        assertThat(
+            mTracker.getTablesToSync()
+        ).isEqualTo(
+            createResponse(
+                1,
+                InvalidationTracker.ObservedTableTracker.ADD,
+                2,
+                InvalidationTracker.ObservedTableTracker.REMOVE,
+                3,
+                InvalidationTracker.ObservedTableTracker.ADD,
+                4,
+                InvalidationTracker.ObservedTableTracker.REMOVE
+            )
+        )
     }
 
-    private void initState(int... tableIds) {
-        mTracker.onAdded(tableIds);
-        mTracker.getTablesToSync();
+    private fun initState(vararg tableIds: Int) {
+        mTracker.onAdded(*tableIds)
+        mTracker.getTablesToSync()
     }
 
-    private static int[] createResponse(int... tuples) {
-        int[] result = new int[TABLE_COUNT];
-        Arrays.fill(result, NO_OP);
-        for (int i = 0; i < tuples.length; i += 2) {
-            result[tuples[i]] = tuples[i + 1];
+    companion object {
+        private const val TABLE_COUNT = 5
+        private fun createResponse(vararg tuples: Int): IntArray {
+            val result = IntArray(TABLE_COUNT)
+            Arrays.fill(result, InvalidationTracker.ObservedTableTracker.NO_OP)
+            var i = 0
+            while (i < tuples.size) {
+                result[tuples[i]] = tuples[i + 1]
+                i += 2
+            }
+            return result
         }
-        return result;
     }
 }
