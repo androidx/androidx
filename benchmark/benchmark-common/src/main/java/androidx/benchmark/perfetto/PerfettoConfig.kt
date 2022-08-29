@@ -103,6 +103,13 @@ private val PROCESS_STATS_DATASOURCE = TraceConfig.DataSource(
     )
 )
 
+private val PACKAGE_LIST_DATASOURCE = TraceConfig.DataSource(
+    config = DataSourceConfig(
+        name = "android.packages_list",
+        target_buffer = 1,
+    )
+)
+
 private val LINUX_SYS_STATS_DATASOURCE = TraceConfig.DataSource(
     config = DataSourceConfig(
         name = "linux.sys_stats",
@@ -168,6 +175,7 @@ fun perfettoConfig(
     data_sources = listOf(
         ftraceDataSource(atraceApps),
         PROCESS_STATS_DATASOURCE,
+        PACKAGE_LIST_DATASOURCE,
         LINUX_SYS_STATS_DATASOURCE,
         ANDROID_POWER_DATASOURCE,
         TraceConfig.DataSource(DataSourceConfig("android.surfaceflinger.frametimeline")),
