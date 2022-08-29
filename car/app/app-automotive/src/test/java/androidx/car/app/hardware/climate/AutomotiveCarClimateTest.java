@@ -55,6 +55,7 @@ import static androidx.car.app.hardware.common.CarValue.STATUS_SUCCESS;
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.util.concurrent.MoreExecutors.directExecutor;
 
+import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
@@ -267,15 +268,19 @@ public class AutomotiveCarClimateTest {
     }
 
     @Test
-    public void fetchCabinTemperature_verifyResponse() throws InterruptedException {
+    public void fetchCabinConfigArrayTemperature_verifyResponse() throws InterruptedException {
         List<Set<CarZone>> carZones = new ArrayList<>();
         carZones.add(Collections.singleton(FRONT_LEFT_ZONE));
         carZones.add(Collections.singleton(FRONT_RIGHT_ZONE));
         List<Integer> propertyIds = Collections.singletonList(HVAC_TEMPERATURE_SET);
         mCarPropertyProfiles.add(CarPropertyProfile.builder().setPropertyId(HVAC_TEMPERATURE_SET)
+                .setCelsiusIncrement(1f)
                 .setCelsiusRange(new Pair<>(16.0f, 18.0f))
-                .setFahrenheitRange(new Pair<>(60.5f, 64.5f)).setCelsiusIncrement(0.5f)
-                .setFahrenheitIncrement(1.0f).setCarZones(carZones).setStatus(STATUS_SUCCESS)
+                .setFahrenheitRange(new Pair<>(60.5f, 64.5f))
+                .setFahrenheitIncrement(0.5f)
+                .setCarZoneSetsToMinMaxRange(null)
+                .setCarZones(carZones)
+                .setStatus(STATUS_SUCCESS)
                 .build());
         ListenableFuture<List<CarPropertyProfile<?>>> listenableCarPropertyProfiles =
                 Futures.immediateFuture(mCarPropertyProfiles);
@@ -289,6 +294,7 @@ public class AutomotiveCarClimateTest {
             public void onCabinTemperatureProfileAvailable(@NonNull CabinTemperatureProfile
                     cabinTemperatureProfile) {
                 loadedResult.set(cabinTemperatureProfile);
+                CabinTemperatureProfile response = loadedResult.get();
                 mCountDownLatch.countDown();
             }
         };
@@ -314,9 +320,79 @@ public class AutomotiveCarClimateTest {
         assertThat(cabinTemperatureProfile.getSupportedMinMaxFahrenheitRange())
                 .isEqualTo(new Pair<>(60.5f, 64.5f));
         assertThat(cabinTemperatureProfile.getCelsiusSupportedIncrement())
-                .isEqualTo(0.5f);
+                .isEqualTo(1f);
         assertThat(cabinTemperatureProfile.getFahrenheitSupportedIncrement())
-                .isEqualTo(1.0f);
+                .isEqualTo(0.5f);
+        assertThrows(IllegalStateException.class,
+                cabinTemperatureProfile::getCarZoneSetsToCabinCelsiusTemperatureRanges);
+    }
+
+    @Test
+    public void fetchMinMaxCabinTemperature_verifyResponse() throws InterruptedException {
+        List<Set<CarZone>> carZones = new ArrayList<>();
+        carZones.add(Collections.singleton(FRONT_LEFT_ZONE));
+        carZones.add(Collections.singleton(FRONT_RIGHT_ZONE));
+        List<Integer> propertyIds = Collections.singletonList(HVAC_TEMPERATURE_SET);
+        Map<Set<CarZone>, Pair<Object, Object>> requestMinMaxValueMap = new HashMap<>();
+        requestMinMaxValueMap.put(Collections.singleton(FRONT_LEFT_ZONE), new Pair<>(16, 32));
+        requestMinMaxValueMap.put(Collections.singleton(FRONT_RIGHT_ZONE), new Pair<>(16, 32));
+        mCarPropertyProfiles.add(CarPropertyProfile.builder().setPropertyId(HVAC_TEMPERATURE_SET)
+                .setCelsiusRange(null)
+                .setFahrenheitRange(null)
+                .setCelsiusIncrement(-1f)
+                .setFahrenheitIncrement(-1f)
+                .setCarZoneSetsToMinMaxRange(requestMinMaxValueMap)
+                .setCarZones(carZones)
+                .setStatus(STATUS_SUCCESS)
+                .build());
+        ListenableFuture<List<CarPropertyProfile<?>>> listenableCarPropertyProfiles =
+                Futures.immediateFuture(mCarPropertyProfiles);
+        when(mPropertyManager.fetchSupportedZonesResponse(
+                eq(propertyIds), eq(mExecutor))).thenReturn(
+                listenableCarPropertyProfiles);
+
+        AtomicReference<CabinTemperatureProfile> loadedResult = new AtomicReference<>();
+        CarClimateProfileCallback listener = new CarClimateProfileCallback() {
+            @Override
+            public void onCabinTemperatureProfileAvailable(@NonNull CabinTemperatureProfile
+                    cabinTemperatureProfile) {
+                loadedResult.set(cabinTemperatureProfile);
+                CabinTemperatureProfile response = loadedResult.get();
+                mCountDownLatch.countDown();
+            }
+        };
+
+        CarClimateFeature.Builder mCarClimateBuilder = new CarClimateFeature.Builder(
+                FEATURE_CABIN_TEMPERATURE);
+        mCarClimateBuilder.addCarZones(FRONT_LEFT_ZONE);
+        mCarClimateBuilder.addCarZones(FRONT_RIGHT_ZONE);
+
+        CarClimateFeature mCarClimateFeature = new CarClimateFeature(mCarClimateBuilder);
+        ClimateProfileRequest.Builder builder =
+                new ClimateProfileRequest.Builder();
+        builder.addClimateProfileFeatures(mCarClimateFeature);
+        mAutomotiveCarClimate.fetchClimateProfile(mExecutor, builder.build(), listener);
+        verify(mPropertyManager, times(1)).fetchSupportedZonesResponse(
+                eq(propertyIds),
+                eq(mExecutor));
+        mCountDownLatch.await();
+
+        CabinTemperatureProfile cabinTemperatureProfile = loadedResult.get();
+        Map<Set<CarZone>, Pair<Object, Object>> responseMinMaxValueMap = new HashMap<>();
+        responseMinMaxValueMap.put(Collections.singleton(FRONT_LEFT_ZONE),
+                new Pair<>(16.0f, 32.0f));
+        responseMinMaxValueMap.put(Collections.singleton(FRONT_RIGHT_ZONE),
+                new Pair<>(16.0f, 32.0f));
+        assertThat(cabinTemperatureProfile.getCarZoneSetsToCabinCelsiusTemperatureRanges())
+                .isEqualTo(responseMinMaxValueMap);
+        assertThrows(IllegalStateException.class,
+                cabinTemperatureProfile::getSupportedMinMaxCelsiusRange);
+        assertThrows(IllegalStateException.class,
+                cabinTemperatureProfile::getSupportedMinMaxFahrenheitRange);
+        assertThrows(IllegalStateException.class,
+                cabinTemperatureProfile::getCelsiusSupportedIncrement);
+        assertThrows(IllegalStateException.class,
+                cabinTemperatureProfile::getFahrenheitSupportedIncrement);
     }
 
     @Test

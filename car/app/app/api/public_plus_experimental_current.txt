@@ -250,17 +250,26 @@ package androidx.car.app.hardware {
 package androidx.car.app.hardware.climate {
 
   @androidx.car.app.annotations.ExperimentalCarApi public final class CabinTemperatureProfile {
+    method public java.util.Map<java.util.Set<androidx.car.app.hardware.common.CarZone!>!,android.util.Pair<java.lang.Float!,java.lang.Float!>!> getCarZoneSetsToCabinCelsiusTemperatureRanges();
     method public float getCelsiusSupportedIncrement();
     method public float getFahrenheitSupportedIncrement();
     method public android.util.Pair<java.lang.Float!,java.lang.Float!> getSupportedMinMaxCelsiusRange();
     method public android.util.Pair<java.lang.Float!,java.lang.Float!> getSupportedMinMaxFahrenheitRange();
+    method public boolean hasCarZoneSetsToCabinCelsiusTemperatureRanges();
     method public boolean hasCelsiusSupportedIncrement();
     method public boolean hasFahrenheitSupportedIncrement();
+    method public boolean hasSupportedMinMaxCelsiusRange();
+    method public boolean hasSupportedMinMaxFahrenheitRange();
   }
 
   public static final class CabinTemperatureProfile.Builder {
-    ctor public CabinTemperatureProfile.Builder(android.util.Pair<java.lang.Float!,java.lang.Float!>, android.util.Pair<java.lang.Float!,java.lang.Float!>, float, float);
+    ctor public CabinTemperatureProfile.Builder();
     method public androidx.car.app.hardware.climate.CabinTemperatureProfile build();
+    method public androidx.car.app.hardware.climate.CabinTemperatureProfile.Builder setCarZoneSetsToCabinCelsiusTemperatureRanges(java.util.Map<java.util.Set<androidx.car.app.hardware.common.CarZone!>!,android.util.Pair<java.lang.Float!,java.lang.Float!>!>);
+    method public androidx.car.app.hardware.climate.CabinTemperatureProfile.Builder setCelsiusSupportedIncrement(float);
+    method public androidx.car.app.hardware.climate.CabinTemperatureProfile.Builder setFahrenheitSupportedIncrement(float);
+    method public androidx.car.app.hardware.climate.CabinTemperatureProfile.Builder setSupportedMinMaxCelsiusRange(android.util.Pair<java.lang.Float!,java.lang.Float!>);
+    method public androidx.car.app.hardware.climate.CabinTemperatureProfile.Builder setSupportedMinMaxFahrenheitRange(android.util.Pair<java.lang.Float!,java.lang.Float!>);
   }
 
   @MainThread @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(5) public interface CarClimate {

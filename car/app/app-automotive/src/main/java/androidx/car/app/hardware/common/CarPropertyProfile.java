@@ -79,12 +79,10 @@ public abstract class CarPropertyProfile<T> {
     public abstract Pair<Float, Float> getFahrenheitRange();
 
     /** Returns the increment value for the temperature set config in Celsius. */
-    @Nullable
-    public abstract Float getCelsiusIncrement();
+    public abstract float getCelsiusIncrement();
 
     /** Returns the increment value for the temperature set config in Fahrenheit. */
-    @Nullable
-    public abstract Float getFahrenheitIncrement();
+    public abstract float getFahrenheitIncrement();
 
     /** Returns a list of set of {@link CarZone}s controlled together. */
     @NonNull
@@ -102,8 +100,8 @@ public abstract class CarPropertyProfile<T> {
                 .setCarZoneSetsToMinMaxRange(null)
                 .setCelsiusRange(null)
                 .setFahrenheitRange(null)
-                .setCelsiusIncrement(null)
-                .setFahrenheitIncrement(null);
+                .setCelsiusIncrement(-1f)
+                .setFahrenheitIncrement(-1f);
     }
 
     /**
@@ -141,12 +139,12 @@ public abstract class CarPropertyProfile<T> {
         /** Sets the value of increment for temperature set config in Celsius. */
         @NonNull
         public abstract Builder<T> setCelsiusIncrement(
-                @Nullable Float celsiusIncrement);
+                float celsiusIncrement);
 
         /** Sets the value of increment for temperature set config in Fahrenheit. */
         @NonNull
         public abstract Builder<T> setFahrenheitIncrement(
-                @Nullable Float fahrenheitIncrement);
+                float fahrenheitIncrement);
 
         /** Sets the list of set of {@link CarZone}s for the {@link CarPropertyProfile}. */
         @NonNull

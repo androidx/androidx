@@ -45,6 +45,7 @@ import org.mockito.MockitoAnnotations;
 import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Set;
 
@@ -95,6 +96,8 @@ public class MockedCarTestBase {
     @Mock
     private CarPropertyProfile<Integer> mHvacPowerOnMinMaxMock;
     @Mock
+    private CarPropertyConfig<Integer> mCabinTempConfigMock;
+    @Mock
     private Car mCarMock;
     @Mock
     private CarPropertyManager mCarPropertyManagerMock;
@@ -124,6 +127,9 @@ public class MockedCarTestBase {
         doReturn(Collections.singletonList(mHvacPowerOnMinMaxConfigMock))
                 .when(mCarPropertyManagerMock).getPropertyList(
                         argThat((set) -> set.contains(VehiclePropertyIds.HVAC_POWER_ON)));
+        doReturn(Collections.singletonList(mCabinTempConfigMock))
+                .when(mCarPropertyManagerMock).getPropertyList(
+                        argThat((set) -> set.contains(VehiclePropertyIds.HVAC_TEMPERATURE_SET)));
 
         // Sets up property configs
         when(mModelYearConfigMock.getPropertyType()).thenReturn(Integer.class);
@@ -131,9 +137,14 @@ public class MockedCarTestBase {
         when(mManufacturerConfigMock.getPropertyType()).thenReturn(String.class);
         when(mHvacPowerOnMinMaxConfigMock.getAreaType()).thenReturn(VEHICLE_AREA_TYPE_SEAT);
         when(mHvacPowerOnMinMaxConfigMock.getAreaIds()).thenReturn(AREA_IDS);
+        when(mCabinTempConfigMock.getAreaType()).thenReturn(VEHICLE_AREA_TYPE_SEAT);
+        when(mCabinTempConfigMock.getAreaIds()).thenReturn(AREA_IDS);
+        when(mCabinTempConfigMock.getMinValue(AREA_IDS[0])).thenReturn(MIN_PROPERTY_VALUE);
+        when(mCabinTempConfigMock.getMaxValue(AREA_IDS[0])).thenReturn(MAX_PROPERTY_VALUE);
+        when(mCabinTempConfigMock.getConfigArray()).thenReturn(
+                Arrays.asList(160, 280, 5, 605, 855, 10));
         when(mHvacPowerOnMinMaxConfigMock.getMinValue(AREA_IDS[0])).thenReturn(MIN_PROPERTY_VALUE);
         when(mHvacPowerOnMinMaxConfigMock.getMaxValue(AREA_IDS[0])).thenReturn(MAX_PROPERTY_VALUE);
-
 
         // Sets up property values
         when(mModelYearValueMock.getPropertyId()).thenReturn(VehiclePropertyIds.INFO_MODEL_YEAR);
@@ -152,6 +163,8 @@ public class MockedCarTestBase {
         when(mHvacPowerOnMinMaxMock.getCarZones()).thenReturn(CAR_ZONES);
         when(mHvacPowerOnMinMaxMock.getCarZoneSetsToMinMaxRange())
                 .thenReturn(CAR_ZONE_SET_TO_MIN_MAX_RANGE);
+        when(mCabinTempConfigMock.getPropertyId())
+                .thenReturn(VehiclePropertyIds.HVAC_TEMPERATURE_SET);
 
         // Adds fuel_door config and value for testing permission
         doReturn(mFuelDoorConfigMock).when(mCarPropertyManagerMock)
