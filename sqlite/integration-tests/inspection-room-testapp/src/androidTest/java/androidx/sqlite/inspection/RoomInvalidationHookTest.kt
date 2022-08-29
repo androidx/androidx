@@ -132,7 +132,7 @@ private fun RoomDatabase.getSqliteDb(): SQLiteDatabase {
     val supportDb = this.openHelper.writableDatabase
     // this runs with defaults so we can extract db from it until inspection supports support
     // instances directly
-    return supportDb::class.java.getDeclaredField("mDelegate").let {
+    return supportDb::class.java.getDeclaredField("delegate").let {
         it.isAccessible = true
         it.get(supportDb)
     } as SQLiteDatabase
