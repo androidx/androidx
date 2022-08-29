@@ -7,7 +7,8 @@ pluginManagement {
         maven {
             url = new File(buildscript.sourceFile.parent + "/../../prebuilts/androidx/external").getCanonicalFile()
         }
-        if (System.getenv("ALLOW_PUBLIC_REPOS") != null || System.getProperty("ALLOW_PUBLIC_REPOS") != null) {
+        def isJBFork = true
+        if (isJBFork) {
             mavenCentral()
             google()
             maven {
@@ -29,8 +30,10 @@ buildscript {
     }
 }
 
+def isJBFork = true
+
 // Abort immediately if we're running in Studio, but not a managed instance of Studio.
-if (startParameter.projectProperties.containsKey('android.injected.invoked.from.ide')) {
+if (!isJBFork) {
     def expectedAgpVersion = System.getenv().get("EXPECTED_AGP_VERSION")
     if (expectedAgpVersion == null) {
         throw new Exception("Android Studio must be run from studiow or gradlew studio.")

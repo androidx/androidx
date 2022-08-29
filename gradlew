@@ -82,23 +82,6 @@ esac
 
 CLASSPATH=$APP_HOME/gradle/wrapper/gradle-wrapper.jar
 
-# --------- androidx specific code needed for lint and java. ------------------
-
-# Pick the correct fullsdk for this OS.
-if [ $darwin == "true" ]; then
-    plat="darwin"
-else
-    plat="linux"
-fi
-
-# Compose/jb-main specific configuration
-export ANDROID_HOME="$APP_HOME/jbdeps/android-sdk/$plat"
-export JAVA_TOOLS_JAR="$APP_HOME/jbdeps/jdk8/tools.jar"
-export STUDIO_GRADLE_JDK=$JAVA_HOME
-export ALLOW_PUBLIC_REPOS=1
-export ANDROIDX_PROJECTS=COMPOSE
-export COMPOSE_CUSTOM_GROUP=org.jetbrains.compose
-
 # Determine the Java command to use to start the JVM.
 if [ -n "$JAVA_HOME" ] ; then
     if [ -x "$JAVA_HOME/jre/sh/java" ] ; then
@@ -146,7 +129,6 @@ fi
 if [ "$cygwin" = "true" -o "$msys" = "true" ] ; then
     APP_HOME=`cygpath --path --mixed "$APP_HOME"`
     CLASSPATH=`cygpath --path --mixed "$CLASSPATH"`
-
     JAVACMD=`cygpath --unix "$JAVACMD"`
 
     # We build the pattern for arguments to be converted via cygpath
