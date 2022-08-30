@@ -26,6 +26,7 @@ import androidx.camera.core.impl.utils.futures.Futures
 import androidx.camera.testing.fakes.FakeImageInfo
 import androidx.camera.testing.fakes.FakeImageProxy
 import com.google.common.truth.Truth.assertThat
+import org.junit.After
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -44,6 +45,11 @@ class TakePictureManagerTest {
     private val imagePipeline = FakeImagePipeline()
     private val imageCaptureControl = FakeImageCaptureControl()
     private val takePictureManager = TakePictureManager(imageCaptureControl, imagePipeline)
+
+    @After
+    fun tearDown() {
+        imagePipeline.close()
+    }
 
     @Test(expected = IllegalStateException::class)
     fun callOnFailureTwice_throwsException() {

@@ -76,6 +76,8 @@ public class ProcessingNode implements Node<ProcessingNode.In, Void> {
         ProcessingRequest request = inputPacket.getProcessingRequest();
         ImageProxy image = inputPacket.getImageProxy();
         if (inputPacket.getProcessingRequest().isInMemoryCapture()) {
+            // TODO(b/240998057): update the transform info of the output image based on request
+            //  and/or Exif info.
             mainThreadExecutor().execute(() -> request.onFinalResult(image));
         } else {
             throw new UnsupportedOperationException();
