@@ -19,6 +19,7 @@ package androidx.test.uiautomator.testapp;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThrows;
+import static org.junit.Assert.assertTrue;
 
 import android.widget.TextView;
 
@@ -112,22 +113,89 @@ public class UiScrollableTest extends BaseTest {
                         "This is the bottom", false));
     }
 
-    /* TODO(b/243837077): Implement these tests, and the tests for exceptions of each tested method.
+    @Test
+    public void testScrollDescriptionIntoView() throws Exception {
+        launchTestActivity(VerticalScrollTestActivity.class);
 
-    public void testScrollDescriptionIntoView() {}
+        UiScrollable relativeLayout = new UiScrollable(
+                new UiSelector().resourceId(TEST_APP + ":id/relative_layout"));
+        UiObject target = mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id"
+                + "/from_top_15000"));
 
-    public void testScrollIntoView() {}
+        assertFalse(target.exists());
+        assertTrue(relativeLayout.scrollDescriptionIntoView("This is 15000px from the top"));
+        assertTrue(target.exists());
+        assertFalse(relativeLayout.scrollDescriptionIntoView("This is non-existent"));
+    }
 
-    public void testScrollIntoView() {}
+    @Test
+    public void testScrollIntoView_withUiObject() throws Exception {
+        launchTestActivity(VerticalScrollTestActivity.class);
 
-    public void testEnsureFullyVisible() {}
+        UiScrollable relativeLayout = new UiScrollable(
+                new UiSelector().resourceId(TEST_APP + ":id/relative_layout"));
+        UiObject target = mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id"
+                + "/from_top_15000"));
+        UiObject nonExistentTarget = mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id"
+                + "/not_exist"));
 
-    public void testScrollTextIntoView() {}
+        assertFalse(target.exists());
+        assertTrue(relativeLayout.scrollIntoView(target));
+        assertTrue(target.exists());
+        assertFalse(relativeLayout.scrollIntoView(nonExistentTarget));
+    }
 
-    public void testSetMaxSearchSwipes() {}
+    @Test
+    public void testScrollIntoView_withUiSelector() throws Exception {
+        launchTestActivity(VerticalScrollTestActivity.class);
 
-    public void testGetMaxSearchSwipes() {}
-    */
+        UiScrollable relativeLayout = new UiScrollable(
+                new UiSelector().resourceId(TEST_APP + ":id/relative_layout"));
+        UiSelector target = new UiSelector().resourceId(TEST_APP + ":id/from_top_15000");
+        UiSelector nonExistentTarget = new UiSelector().resourceId(TEST_APP + ":id/not_exist");
+
+        assertFalse(mDevice.findObject(target).exists());
+        assertTrue(relativeLayout.scrollIntoView(target));
+        assertTrue(mDevice.findObject(target).exists());
+        assertFalse(relativeLayout.scrollIntoView(nonExistentTarget));
+    }
+
+    @Test
+    public void testEnsureFullyVisible() throws Exception {
+        launchTestActivity(VerticalScrollTestActivity.class);
+
+        UiScrollable relativeLayout = new UiScrollable(
+                new UiSelector().resourceId(TEST_APP + ":id/relative_layout"));
+        UiObject target = mDevice.findObject(
+                new UiSelector().resourceId(TEST_APP + ":id/from_top_15000"));
+
+        assertTrue(relativeLayout.scrollIntoView(target));
+        assertTrue(relativeLayout.ensureFullyVisible(target));
+        assertThrows(UiObjectNotFoundException.class,
+                () -> relativeLayout.ensureFullyVisible(
+                        mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id/no_node"))));
+    }
+
+    @Test
+    public void testScrollTextIntoView() throws Exception {
+        launchTestActivity(VerticalScrollTestActivity.class);
+
+        UiScrollable relativeLayout = new UiScrollable(
+                new UiSelector().resourceId(TEST_APP + ":id/relative_layout"));
+        UiObject target = mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id"
+                + "/from_top_15000"));
+
+        assertFalse(target.exists());
+        assertTrue(relativeLayout.scrollTextIntoView("This is 15000px from the top"));
+        assertTrue(target.exists());
+        assertFalse(relativeLayout.scrollTextIntoView("This is non-existent"));
+    }
+
+    @Test
+    public void testSetMaxSearchSwipesAndGetMaxSearchSwipes() {
+        UiScrollable scrollable = new UiScrollable(new UiSelector()).setMaxSearchSwipes(5);
+        assertEquals(5, scrollable.getMaxSearchSwipes());
+    }
 
     @Test
     public void testFlingForward() throws Exception {
