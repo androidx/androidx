@@ -166,6 +166,14 @@ public open class ListenableWatchFaceControlClient(
      * @return a [ListenableFuture] for the [InteractiveWatchFaceClient].
      */
     @Suppress("AsyncSuffixFuture")
+    @Deprecated(
+        "Use an overload that specifies PreviewImageUpdateRequestedListener",
+        ReplaceWith(
+            "listenableGetOrCreateInteractiveWatchFaceClient(" +
+                "String, DeviceConfig, WatchUiState, UserStyleData?, Map<Int, ComplicationData>?," +
+                " Executor, PreviewImageUpdateRequestedListener)"
+        )
+    )
     public open fun listenableGetOrCreateInteractiveWatchFaceClient(
         id: String,
         deviceConfig: DeviceConfig,
@@ -176,6 +184,7 @@ public open class ListenableWatchFaceControlClient(
         launchFutureCoroutine(
             "ListenableWatchFaceControlClient.listenableGetOrCreateInteractiveWatchFaceClient",
         ) {
+            @Suppress("Deprecation")
             watchFaceControlClient.getOrCreateInteractiveWatchFaceClient(
                 id,
                 deviceConfig,
@@ -229,6 +238,14 @@ public open class ListenableWatchFaceControlClient(
             )
         }
 
+    @Deprecated(
+        "Use an overload that specifies PreviewImageUpdateRequestedListener",
+        replaceWith = ReplaceWith(
+            "getOrCreateInteractiveWatchFaceClient(String, DeviceConfig, WatchUiState," +
+                " UserStyleData?, Map<Int, ComplicationData>?, Executor, " +
+                "PreviewImageUpdateRequestedListener)")
+    )
+    @Suppress("deprecation")
     override suspend fun getOrCreateInteractiveWatchFaceClient(
         id: String,
         deviceConfig: DeviceConfig,
