@@ -255,7 +255,8 @@ package androidx.hardware {
     method public boolean await(long timeoutNanos);
     method public boolean awaitForever();
     method public void close();
-    method public long getSignalTime();
+    method protected void finalize();
+    method @RequiresApi(android.os.Build.VERSION_CODES.O) public long getSignalTime();
     method public boolean isValid();
     field public static final androidx.hardware.SyncFence.Companion Companion;
     field public static final long SIGNAL_TIME_INVALID = -1L; // 0xffffffffffffffffL
