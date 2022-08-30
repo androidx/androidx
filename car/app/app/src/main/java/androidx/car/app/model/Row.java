@@ -30,6 +30,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.annotations.CarProtocol;
+import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.constraints.ActionsConstraints;
 import androidx.car.app.model.constraints.CarIconConstraints;
@@ -161,6 +162,7 @@ public final class Row implements Item {
      *
      * @see Builder#addAction(Action)
      */
+    @ExperimentalCarApi
     @NonNull
     public List<Action> getActions() {
         return mActions;
@@ -181,6 +183,7 @@ public final class Row implements Item {
      *
      * @see Builder#setNumericDecoration(int)
      */
+    @ExperimentalCarApi
     @RequiresCarApi(6)
     public int getNumericDecoration() {
         return mDecoration;
@@ -534,6 +537,7 @@ public final class Row implements Item {
          *                                  exceeds the maximum number of allowed actions or does
          *                                  not contain a valid {@link CarIcon}.
          */
+        @ExperimentalCarApi
         @NonNull
         public Builder addAction(@NonNull Action action) {
             List<Action> mActionsCopy = new ArrayList<>(mActions);
@@ -556,6 +560,7 @@ public final class Row implements Item {
          * {@link Row#NO_DECORATION}.
          * @throws IllegalArgumentException if {@code decoration} is invalid
          */
+        @ExperimentalCarApi
         @NonNull
         @RequiresCarApi(6)
         public Builder setNumericDecoration(int decoration) {
