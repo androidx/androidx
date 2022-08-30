@@ -25,6 +25,7 @@ import android.annotation.SuppressLint;
 import android.os.Looper;
 
 import androidx.annotation.IntDef;
+import androidx.annotation.IntRange;
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -563,6 +564,7 @@ public final class Row implements Item {
         @ExperimentalCarApi
         @NonNull
         @RequiresCarApi(6)
+        @IntRange(from = 0)
         public Builder setNumericDecoration(int decoration) {
             if (decoration < 0 && decoration != NO_DECORATION) {
                 throw new IllegalArgumentException(
