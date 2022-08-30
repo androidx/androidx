@@ -395,7 +395,7 @@ public class ListenableWatchFaceControlClientTest {
         )
 
         val interactiveInstance = interactiveInstanceFuture.get(TIMEOUT_MS, TimeUnit.MILLISECONDS)
-        Assert.assertTrue(service.rendererCreatedLatch.await(500, TimeUnit.MILLISECONDS))
+        Assert.assertTrue(service.rendererInitializedLatch.await(500, TimeUnit.MILLISECONDS))
 
         assertThat(lastPreviewImageUpdateRequestedId).isEmpty()
         service.triggerPreviewImageUpdateRequest()
@@ -409,7 +409,7 @@ internal class TestWatchFaceServiceWithPreviewImageUpdateRequest(
     testContext: Context,
     private var surfaceHolderOverride: SurfaceHolder,
 ) : WatchFaceService() {
-    val rendererCreatedLatch = CountDownLatch(1)
+    val rendererInitializedLatch = CountDownLatch(1)
 
     init {
         attachBaseContext(testContext)
@@ -438,6 +438,10 @@ internal class TestWatchFaceServiceWithPreviewImageUpdateRequest(
             CanvasType.HARDWARE,
             16
         ) {
+            override suspend fun init() {
+                rendererInitializedLatch.countDown()
+            }
+
             override fun render(canvas: Canvas, bounds: Rect, zonedDateTime: ZonedDateTime) {}
 
             override fun renderHighlightLayer(
@@ -446,7 +450,6 @@ internal class TestWatchFaceServiceWithPreviewImageUpdateRequest(
                 zonedDateTime: ZonedDateTime
             ) {}
         }
-        rendererCreatedLatch.countDown()
         return WatchFace(WatchFaceType.DIGITAL, renderer)
     }
 }
