@@ -1885,7 +1885,7 @@ public open class NavController(
             if (hierarchy.isEmpty())
                 newDest
             else
-                hierarchy.last().destination
+                hierarchy.first().destination
         // Pop any orphaned navigation graphs that don't connect to the new destinations
         while (!backQueue.isEmpty() && backQueue.last().destination is NavGraph &&
             (backQueue.last().destination as NavGraph).findNode(
