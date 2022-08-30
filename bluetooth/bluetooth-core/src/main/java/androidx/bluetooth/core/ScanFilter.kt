@@ -17,6 +17,7 @@
 package androidx.bluetooth.core
 
 import android.bluetooth.le.ScanFilter as FwkScanFilter
+import android.bluetooth.le.ScanResult as FwkScanResult
 import android.annotation.SuppressLint
 import android.os.Build
 import android.os.Bundle
@@ -26,12 +27,23 @@ import androidx.bluetooth.core.utils.Bundleable
 import androidx.bluetooth.core.utils.Utils
 
 /**
- * TODO: Copy docs
- * @hide
+ * Criteria for filtering result from Bluetooth LE scans. A {@link ScanFilter} allows clients to
+ * restrict scan results to only those that are of interest to them.
+ * <p>
+ * Current filtering on the following fields are supported:
+ * <li>Service UUIDs which identify the bluetooth gatt services running on the device.
+ * <li>Name of remote Bluetooth LE device.
+ * <li>Mac address of the remote device.
+ * <li>Service data which is the data associated with a service.
+ * <li>Manufacturer specific data which is the data associated with a particular manufacturer.
+ * <li>Advertising data type and corresponding data.
+ *
+ * @see BluetoothLeScanner
  */
+// TODO: Add @See ScanResult once ScanResult added
 class ScanFilter internal constructor(
     internal val impl: ScanFilterImpl
-) : ScanFilterImpl by impl, Bundleable {
+) : Bundleable {
     companion object {
         internal const val FIELD_FWK_SCAN_FILTER = 0
         internal const val FIELD_SERVICE_SOLICITATION_UUID = 1
@@ -40,6 +52,7 @@ class ScanFilter internal constructor(
         internal const val FIELD_ADVERTISING_DATA_MASK = 4
         internal const val FIELD_ADVERTISING_DATA_TYPE = 5
 
+        @JvmField
         val CREATOR: Bundleable.Creator<ScanFilter> =
             object : Bundleable.Creator<ScanFilter> {
                 override fun fromBundle(bundle: Bundle): ScanFilter {
@@ -118,6 +131,37 @@ class ScanFilter internal constructor(
         }
     }
 
+    val deviceName: String?
+        get() = impl.deviceName
+    val deviceAddress: String?
+        get() = impl.deviceAddress
+    val serviceUuid: ParcelUuid?
+        get() = impl.serviceUuid
+    val serviceUuidMask: ParcelUuid?
+        get() = impl.serviceUuidMask
+    val serviceDataUuid: ParcelUuid?
+        get() = impl.serviceDataUuid
+    val serviceData: ByteArray?
+        get() = impl.serviceData
+    val serviceDataMask: ByteArray?
+        get() = impl.serviceDataMask
+    val manufacturerId: Int
+        get() = impl.manufacturerId
+    val manufacturerData: ByteArray?
+        get() = impl.manufacturerData
+    val manufacturerDataMask: ByteArray?
+        get() = impl.manufacturerDataMask
+    val serviceSolicitationUuid: ParcelUuid?
+        get() = impl.serviceSolicitationUuid
+    val serviceSolicitationUuidMask: ParcelUuid?
+        get() = impl.serviceSolicitationUuidMask
+    val advertisingData: ByteArray?
+        get() = impl.advertisingData
+    val advertisingDataMask: ByteArray?
+        get() = impl.advertisingDataMask
+    val advertisingDataType: Int
+        get() = impl.advertisingDataType
+
     internal constructor(fwkInstance: FwkScanFilter) : this(
         if (Build.VERSION.SDK_INT >= 33) {
             ScanFilterImplApi33(fwkInstance)
@@ -173,6 +217,14 @@ class ScanFilter internal constructor(
             ScanFilterImplApi21(fwkInstance, args)
         }
     )
+
+    /**
+     * Check if the scan filter matches a {@code scanResult}. A scan result is considered as a match
+     * if it matches all the field filters.
+     */
+    // TODO: add test for this method
+    fun matches(scanResult: FwkScanResult?): Boolean = impl.matches(scanResult)
+
     override fun toBundle(): Bundle {
         val bundle = Bundle()
         bundle.putScanFilter(this)
@@ -264,6 +316,8 @@ internal interface ScanFilterImpl {
     val advertisingDataType: Int
 
     val fwkInstance: FwkScanFilter
+
+    fun matches(scanResult: FwkScanResult?): Boolean
 }
 
 internal abstract class ScanFilterFwkImplApi21 internal constructor(
@@ -289,6 +343,10 @@ internal abstract class ScanFilterFwkImplApi21 internal constructor(
         get() = fwkInstance.manufacturerData
     override val manufacturerDataMask: ByteArray?
         get() = fwkInstance.manufacturerDataMask
+
+    override fun matches(scanResult: android.bluetooth.le.ScanResult?): Boolean {
+        return fwkInstance.matches(scanResult)
+    }
 }
 
 internal class ScanFilterImplApi21 internal constructor(

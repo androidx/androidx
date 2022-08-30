@@ -19,13 +19,17 @@ package androidx.bluetooth.core.utils
 import android.os.Bundle
 
 /**
- * @hide
+ * A class that serializes and stores an object for sending over IPC.
  */
 interface Bundleable {
-    /** Returns a [Bundle] representing the information stored in this object.  */
+    /**
+     * Returns a [Bundle] representing the information stored in this object.
+     */
     fun toBundle(): Bundle
 
-    /** Interface for the static `CREATOR` field of [Bundleable] classes.  */
+    /**
+     *  Interface for the static `CREATOR` field of [Bundleable] classes.
+     */
     interface Creator<T : Bundleable> {
         /**
          * Restores a [Bundleable] instance from a [Bundle] produced by [Bundleable.toBundle].
