@@ -48,7 +48,6 @@ final class JpegBytes2CroppedBitmap implements Processor<Packet<byte[]>, Packet<
         return Packet.of(
                 bitmap,
                 packet.getExif(),
-                packet.getCameraCaptureResult(),
                 ImageFormat.FLEX_RGBA_8888,
                 new Size(bitmap.getWidth(), bitmap.getHeight()),
                 new Rect(0, 0, bitmap.getWidth(), bitmap.getHeight()),

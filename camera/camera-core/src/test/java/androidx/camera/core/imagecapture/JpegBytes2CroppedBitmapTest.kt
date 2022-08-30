@@ -27,7 +27,6 @@ import androidx.camera.core.processing.Packet
 import androidx.camera.testing.ExifUtil.createExif
 import androidx.camera.testing.TestImageUtil.createJpegBytes
 import androidx.camera.testing.TestImageUtil.getAverageDiff
-import androidx.camera.testing.fakes.FakeCameraCaptureResult
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -60,7 +59,6 @@ class JpegBytes2CroppedBitmapTest {
         val input = Packet.of(
             jpegBytes,
             createExif(jpegBytes),
-            FakeCameraCaptureResult(),
             ImageFormat.JPEG,
             Size(WIDTH, HEIGHT),
             cropRect,
