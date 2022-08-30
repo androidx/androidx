@@ -18,6 +18,7 @@ package androidx.benchmark.darwin.tests
 
 import androidx.benchmark.darwin.TestCase
 import androidx.benchmark.darwin.TestCaseContext
+import androidx.benchmark.darwin.TestCases
 import platform.Foundation.NSLog
 import platform.XCTest.XCTMeasureOptions
 import platform.posix.sleep
@@ -48,5 +49,11 @@ class SleepTestCase : TestCase() {
 
     override fun testDescription(): String {
         return "A test that sleeps for 3 seconds"
+    }
+
+    companion object {
+        fun addBenchmarkTest() {
+            TestCases.addBenchmarkTest(SleepTestCase())
+        }
     }
 }
