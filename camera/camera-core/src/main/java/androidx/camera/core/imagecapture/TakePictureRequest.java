@@ -89,7 +89,7 @@ public abstract class TakePictureRequest {
      * {@link ImageCapture#takePicture} is called.
      */
     @NonNull
-    abstract Matrix sensorToBufferTransform();
+    abstract Matrix getSensorToBufferTransform();
 
     /**
      * A snapshot of rotation degrees when {@link ImageCapture#takePicture} is called.

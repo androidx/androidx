@@ -85,7 +85,7 @@ class FakeTakePictureRequest() : TakePictureRequest() {
         return Rect(0, 0, 640, 480)
     }
 
-    override fun sensorToBufferTransform(): Matrix {
+    override fun getSensorToBufferTransform(): Matrix {
         return Matrix()
     }
 
