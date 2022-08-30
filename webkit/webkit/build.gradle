@@ -31,6 +31,7 @@ dependencies {
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.testRules)
+    androidTestImplementation("androidx.appcompat:appcompat:1.1.0")
     androidTestImplementation("androidx.concurrent:concurrent-futures:1.0.0")
     androidTestImplementation(libs.mockitoCore, excludes.bytebuddy) // DexMaker has it"s own MockMaker
     androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy)

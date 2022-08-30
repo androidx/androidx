@@ -16,12 +16,10 @@
 
 package androidx.webkit;
 
-import android.os.Build;
 import android.webkit.WebSettings;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RequiresFeature;
 import androidx.annotation.RestrictTo;
 import androidx.webkit.internal.ApiFeature;
@@ -477,14 +475,20 @@ public class WebSettingsCompat {
      * </table>
      * </p>
      *
+     * <p>
+     * To check if {@code  WebViewFeature.ALGORITHMIC_DARKENING} is supported,
+     * {@link androidx.webkit.WebViewFeature#isFeatureSupported} should be called after WebView
+     * is created.
+     *
+     * <p>
      * @param allow allow algorithmic darkening or not.
+     *
      */
     @RequiresFeature(name = WebViewFeature.ALGORITHMIC_DARKENING,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
-    @RequiresApi(Build.VERSION_CODES.Q)
     public static void setAlgorithmicDarkeningAllowed(@NonNull WebSettings settings,
             boolean allow) {
-        ApiFeature.NoFramework feature = WebViewFeatureInternal.ALGORITHMIC_DARKENING;
+        ApiFeature.T feature = WebViewFeatureInternal.ALGORITHMIC_DARKENING;
         if (feature.isSupportedByWebView()) {
             getAdapter(settings).setAlgorithmicDarkeningAllowed(allow);
         } else {
@@ -501,9 +505,8 @@ public class WebSettingsCompat {
      */
     @RequiresFeature(name = WebViewFeature.ALGORITHMIC_DARKENING,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
-    @RequiresApi(Build.VERSION_CODES.Q)
     public static boolean isAlgorithmicDarkeningAllowed(@NonNull WebSettings settings) {
-        ApiFeature.NoFramework feature = WebViewFeatureInternal.ALGORITHMIC_DARKENING;
+        ApiFeature.T feature = WebViewFeatureInternal.ALGORITHMIC_DARKENING;
         if (feature.isSupportedByWebView()) {
             return getAdapter(settings).isAlgorithmicDarkeningAllowed();
         } else {

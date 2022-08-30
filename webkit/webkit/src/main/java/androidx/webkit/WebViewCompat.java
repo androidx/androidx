@@ -349,22 +349,39 @@ public class WebViewCompat {
             return null;
         }
 
+        PackageInfo info = getCurrentLoadedWebViewPackage();
+        if (info != null) return info;
+
+        // If WebViewFactory.getLoadedPackageInfo() returns null then WebView hasn't been loaded
+        // yet, in that case we need to fetch the name of the WebView package, and fetch the
+        // corresponding PackageInfo through the PackageManager
+        return getNotYetLoadedWebViewPackageInfo(context);
+    }
+
+    /**
+     * @hide Internal use only.
+     * @see #getCurrentWebViewPackage(Context)
+     * @return the loaded WebView package, or null if no WebView is created.
+     */
+    @Nullable
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public static PackageInfo getCurrentLoadedWebViewPackage() {
+        // There was no WebView Package before Lollipop, the WebView code was part of the framework
+        // back then.
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            return null;
+        }
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             return ApiHelperForO.getCurrentWebViewPackage();
         } else { // L-N
             try {
-                PackageInfo loadedWebViewPackageInfo = getLoadedWebViewPackageInfo();
-                if (loadedWebViewPackageInfo != null) return loadedWebViewPackageInfo;
+                return getLoadedWebViewPackageInfo();
             } catch (ClassNotFoundException | IllegalAccessException | InvocationTargetException
-                | NoSuchMethodException  e) {
-                return null;
+                     | NoSuchMethodException  e) {
             }
-
-            // If WebViewFactory.getLoadedPackageInfo() returns null then WebView hasn't been loaded
-            // yet, in that case we need to fetch the name of the WebView package, and fetch the
-            // corresponding PackageInfo through the PackageManager
-            return getNotYetLoadedWebViewPackageInfo(context);
         }
+        return null;
     }
 
     /**
