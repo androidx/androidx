@@ -443,14 +443,14 @@ public class AutomotiveCarClimateTest {
 
     @Test
     public void fetchFanDirection_verifyResponse() throws InterruptedException {
-        Map<Set<CarZone>, Pair<Object, Object>> minMaxValueMap = new HashMap<>();
-        minMaxValueMap.put(Collections.singleton(FRONT_LEFT_ZONE), new Pair<>(1, 7));
-        minMaxValueMap.put(Collections.singleton(FRONT_RIGHT_ZONE), new Pair<>(2, 6));
+        Map<Set<CarZone>, Set<Integer>> fanDirectionValues = new HashMap<>();
+        fanDirectionValues.put(Collections.singleton(FRONT_LEFT_ZONE), Collections.singleton(1));
+        fanDirectionValues.put(Collections.singleton(FRONT_RIGHT_ZONE), Collections.singleton(6));
         List<Set<CarZone>> carZones = new ArrayList<>();
         carZones.add(Collections.singleton(FRONT_LEFT_ZONE));
         carZones.add(Collections.singleton(FRONT_RIGHT_ZONE));
         mCarPropertyProfiles.add(CarPropertyProfile.builder().setPropertyId(HVAC_FAN_DIRECTION)
-                .setCarZones(carZones).setCarZoneSetsToMinMaxRange(minMaxValueMap)
+                .setCarZones(carZones).setHvacFanDirection(fanDirectionValues)
                 .setStatus(STATUS_SUCCESS).build());
         ListenableFuture<List<CarPropertyProfile<?>>> listenableCarPropertyProfile =
                 Futures.immediateFuture(mCarPropertyProfiles);
@@ -485,7 +485,7 @@ public class AutomotiveCarClimateTest {
         mCountDownLatch.await();
 
         assertThat(loadedResult.get().getCarZoneSetsToFanDirectionValues()).isEqualTo(
-                minMaxValueMap);
+                fanDirectionValues);
     }
 
     @Test
