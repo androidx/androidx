@@ -92,7 +92,6 @@ readonly javaLibraryDirsThatDontUseDackka=(
   "androidx/tracing"
   "androidx/transition"
   "androidx/tvprovider"
-  "androidx/versionedparcelable"
   "androidx/webkit"
   "androidx/work"
 )
@@ -142,7 +141,6 @@ readonly kotlinLibraryDirsThatDontUseDackka=(
   "androidx/tracing"
   "androidx/transition"
   "androidx/tvprovider"
-  "androidx/versionedparcelable"
   "androidx/webkit"
   "androidx/work"
 )
