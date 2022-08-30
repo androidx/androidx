@@ -16,6 +16,7 @@
 
 package androidx.car.app.hardware.common;
 
+import static android.car.VehiclePropertyIds.HVAC_FAN_DIRECTION;
 import static android.car.VehiclePropertyIds.HVAC_POWER_ON;
 import static android.car.VehiclePropertyIds.HVAC_TEMPERATURE_SET;
 
@@ -131,10 +132,6 @@ public class PropertyRequestProcessorTest extends MockedCarTestBase {
     public void fetchCarPropertyCabinTemperatureProfilesTest() throws Exception {
         TestPropertyProfileListener listener = new TestPropertyProfileListener();
         List<Integer> propertyIds = new ArrayList<>();
-        ImmutableList<Set<CarZone>> carZones =
-                ImmutableList.<Set<CarZone>>builder().add(Collections.singleton(
-                        new CarZone.Builder().setRow(CarZone.CAR_ZONE_ROW_FIRST)
-                                .setColumn(CarZone.CAR_ZONE_COLUMN_LEFT).build())).build();
 
         propertyIds.add(HVAC_TEMPERATURE_SET);
         mRequestProcessor.fetchCarPropertyProfiles(propertyIds, listener);
@@ -153,6 +150,27 @@ public class PropertyRequestProcessorTest extends MockedCarTestBase {
                 .isEqualTo(0.5f);
         assertThat(carPropertyProfiles.get(0).getFahrenheitIncrement())
                 .isEqualTo(1f);
+    }
+
+    /**
+     * Tests for
+     * {@link PropertyRequestProcessor#fetchCarPropertyProfiles(
+     * List, OnGetCarPropertyProfilesListener)} for HVAC_FAN_DIRECTION property.
+     */
+    @Test
+    public void fetchCarPropertyFanDirectionProfilesTest() throws Exception {
+        TestPropertyProfileListener listener = new TestPropertyProfileListener();
+        List<Integer> propertyIds = new ArrayList<>();
+
+        propertyIds.add(HVAC_FAN_DIRECTION);
+        mRequestProcessor.fetchCarPropertyProfiles(propertyIds, listener);
+        listener.assertOnGetCarPropertyProfilesCalled();
+        List<CarPropertyProfile<?>> carPropertyProfiles = listener.getCarPropertyProfiles();
+
+        assertThat(carPropertyProfiles.size()).isEqualTo(1);
+        assertThat(carPropertyProfiles.get(0).getPropertyId()).isEqualTo(HVAC_FAN_DIRECTION);
+        assertThat(carPropertyProfiles.get(0).getHvacFanDirection())
+                .isEqualTo(CAR_ZONE_SET_TO_FAN_DIRECTION_VALUES);
     }
 
     private static class TestListener implements PropertyRequestProcessor.OnGetPropertiesListener {

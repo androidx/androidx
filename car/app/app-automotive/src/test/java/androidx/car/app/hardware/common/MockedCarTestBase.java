@@ -74,6 +74,11 @@ public class MockedCarTestBase {
                     Pair<Integer, Integer>>builder()
             .put(CAR_ZONES.get(0), new Pair<>(MIN_PROPERTY_VALUE,
                     MAX_PROPERTY_VALUE)).buildKeepingLast();
+    public static final ImmutableMap<Set<CarZone>, Set<Integer>>
+            CAR_ZONE_SET_TO_FAN_DIRECTION_VALUES = ImmutableMap.<Set<CarZone>,
+                    Set<Integer>>builder()
+            .put(CAR_ZONES.get(0), Set.of(1, 2)).buildKeepingLast();
+    public static final Integer[] FAN_DIRECTION_VALUE = {1, 2};
 
     @Mock
     private CarPropertyValue<Integer> mModelYearValueMock;
@@ -97,6 +102,14 @@ public class MockedCarTestBase {
     private CarPropertyProfile<Integer> mHvacPowerOnMinMaxMock;
     @Mock
     private CarPropertyConfig<Integer> mCabinTempConfigMock;
+    @Mock
+    private CarPropertyConfig<Integer> mHvacFanDirectionConfigMock;
+    @Mock
+    private CarPropertyProfile<Integer> mHvacFanDirectionProfileMock;
+    @Mock
+    private CarPropertyConfig<Integer[]> mHvacFanDirectionAvailableConfigMock;
+    @Mock
+    private CarPropertyValue<Integer[]> mHvacFanDirectionAvailableValueMock;
     @Mock
     private Car mCarMock;
     @Mock
@@ -130,6 +143,15 @@ public class MockedCarTestBase {
         doReturn(Collections.singletonList(mCabinTempConfigMock))
                 .when(mCarPropertyManagerMock).getPropertyList(
                         argThat((set) -> set.contains(VehiclePropertyIds.HVAC_TEMPERATURE_SET)));
+        doReturn(Collections.singletonList(mHvacFanDirectionConfigMock))
+                .when(mCarPropertyManagerMock).getPropertyList(
+                        argThat((set) -> set.contains(VehiclePropertyIds.HVAC_FAN_DIRECTION)));
+        doReturn(Collections.singletonList(mHvacFanDirectionAvailableConfigMock))
+                .when(mCarPropertyManagerMock).getPropertyList(
+                        argThat((set) -> set.contains(
+                                VehiclePropertyIds.HVAC_FAN_DIRECTION_AVAILABLE)));
+        doReturn(mHvacFanDirectionAvailableValueMock).when(mCarPropertyManagerMock).getProperty(
+                eq(VehiclePropertyIds.HVAC_FAN_DIRECTION_AVAILABLE), anyInt());
 
         // Sets up property configs
         when(mModelYearConfigMock.getPropertyType()).thenReturn(Integer.class);
@@ -145,6 +167,9 @@ public class MockedCarTestBase {
                 Arrays.asList(160, 280, 5, 605, 855, 10));
         when(mHvacPowerOnMinMaxConfigMock.getMinValue(AREA_IDS[0])).thenReturn(MIN_PROPERTY_VALUE);
         when(mHvacPowerOnMinMaxConfigMock.getMaxValue(AREA_IDS[0])).thenReturn(MAX_PROPERTY_VALUE);
+        when(mHvacFanDirectionAvailableConfigMock.getPropertyType()).thenReturn(Integer[].class);
+        when(mHvacFanDirectionAvailableConfigMock.getAreaType()).thenReturn(VEHICLE_AREA_TYPE_SEAT);
+        when(mHvacFanDirectionAvailableConfigMock.getAreaIds()).thenReturn(AREA_IDS);
 
         // Sets up property values
         when(mModelYearValueMock.getPropertyId()).thenReturn(VehiclePropertyIds.INFO_MODEL_YEAR);
@@ -165,6 +190,11 @@ public class MockedCarTestBase {
                 .thenReturn(CAR_ZONE_SET_TO_MIN_MAX_RANGE);
         when(mCabinTempConfigMock.getPropertyId())
                 .thenReturn(VehiclePropertyIds.HVAC_TEMPERATURE_SET);
+        when(mHvacFanDirectionProfileMock.getPropertyId()).thenReturn(
+                VehiclePropertyIds.HVAC_FAN_DIRECTION);
+        when(mHvacFanDirectionProfileMock.getHvacFanDirection())
+                .thenReturn(CAR_ZONE_SET_TO_FAN_DIRECTION_VALUES);
+        when(mHvacFanDirectionAvailableValueMock.getValue()).thenReturn(FAN_DIRECTION_VALUE);
 
         // Adds fuel_door config and value for testing permission
         doReturn(mFuelDoorConfigMock).when(mCarPropertyManagerMock)

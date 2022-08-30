@@ -18,8 +18,11 @@ package androidx.car.app.hardware.common;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
+import static java.lang.annotation.ElementType.TYPE_USE;
+
 import android.util.Pair;
 
+import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
@@ -28,6 +31,9 @@ import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -48,8 +54,81 @@ import java.util.Set;
 @AutoValue
 public abstract class CarPropertyProfile<T> {
 
+    /**
+     * Possible hvac fan direction values.
+     */
+    @IntDef({
+            UNKNOWN,
+            FACE,
+            FLOOR,
+            DEFROST,
+            /**
+             * FACE_FLOOR = FACE | FLOOR
+             */
+            FACE_FLOOR,
+            /**
+             * FLOOR_DEFROST = FLOOR | DEFROST
+             */
+            FLOOR_DEFROST,
+            /**
+             * FACE_DEFROST = FACE | DEFROST | FLOOR
+             */
+            FACE_DEFROST,
+            /**
+             * FACE_FLOOR_DEFROST = FACE | FLOOR | DEFROST
+             */
+            FACE_FLOOR_DEFROST
+    })
+    @Target(value = TYPE_USE)
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface HvacFanDirection {
+    }
+
+    /** Refers to 'unknown' value of fan direction. */
+    @HvacFanDirection
+    public static final int UNKNOWN = 0x0;
+
+    /** Refers to 'face' value of fan direction. */
+    @HvacFanDirection
+    public static final int FACE = 0x1;
+
+    /** Refers to 'floor' value of fan direction. */
+    @HvacFanDirection
+    public static final int FLOOR = 0x2;
+
+    /** Refers to 'fan and floor' value of fan direction. */
+    @HvacFanDirection
+    public static final int FACE_FLOOR = 0x3;
+
+    /** Refers to 'defrost' value of fan direction. */
+    @HvacFanDirection
+    public static final int DEFROST = 0x4;
+
+    /** Refers to 'face and defrost' value of fan direction. */
+    @HvacFanDirection
+    public static final int FACE_DEFROST = 0x5;
+
+    /** Refers to 'defrost and floor' value of fan direction. */
+    @HvacFanDirection
+    public static final int FLOOR_DEFROST = 0x6;
+
+    /** Refers to 'face, floor and defrost' value of fan direction. */
+    @HvacFanDirection
+    public static final int FACE_FLOOR_DEFROST = 0x7;
+
     /** Returns one of the values in {@link android.car.VehiclePropertyIds}. */
     public abstract int getPropertyId();
+
+    /**
+     * Returns combination of the values in HvacFanDirection corresponding to a set of car zones.
+     *
+     * <p>The set of car zones represent the zones in which the associated feature can be regulated
+     * together.
+     */
+    @Nullable
+    @HvacFanDirection
+    public abstract ImmutableMap<Set<CarZone>, Set<Integer>> getHvacFanDirection();
+
 
     /** Returns a map of min/max values for a property corresponding to a set of car zones.
      *
@@ -101,7 +180,8 @@ public abstract class CarPropertyProfile<T> {
                 .setCelsiusRange(null)
                 .setFahrenheitRange(null)
                 .setCelsiusIncrement(-1f)
-                .setFahrenheitIncrement(-1f);
+                .setFahrenheitIncrement(-1f)
+                .setHvacFanDirection(null);
     }
 
     /**
@@ -114,6 +194,14 @@ public abstract class CarPropertyProfile<T> {
         /** Sets a property ID for the {@link CarPropertyProfile}. */
         @NonNull
         public abstract Builder<T> setPropertyId(int propertyId);
+
+        /**
+         * Sets the fan direction values grouped per car zone for the
+         * {@link CarPropertyProfile}.
+         */
+        @NonNull
+        public abstract Builder<T> setHvacFanDirection(@Nullable Map<Set<CarZone>,
+                Set<@HvacFanDirection Integer>> hvacFanDirection);
 
         /**
          * Sets a status code for the {@link CarPropertyProfile}.

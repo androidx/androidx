@@ -359,14 +359,14 @@ public class AutomotiveCarClimate implements CarClimate {
                         );
                         break;
                     case FEATURE_FAN_DIRECTION:
-                        if (carPropertyProfile.getCarZoneSetsToMinMaxRange() == null) {
-                            Log.e(LogTags.TAG_CAR_HARDWARE, "Failed to fetch direction speed"
-                                    + " value with profile: " + carPropertyProfile);
+                        if (carPropertyProfile.getHvacFanDirection() == null) {
+                            Log.e(LogTags.TAG_CAR_HARDWARE, "Failed to fetch direction value"
+                                    + " with profile: " + carPropertyProfile);
                             break;
                         }
                         onCarClimateProfileCallback.onFanDirectionProfileAvailable(
-                                new FanDirectionProfile.Builder(getMinMaxProfileIntegerMap(
-                                        carPropertyProfile.getCarZoneSetsToMinMaxRange()))
+                                new FanDirectionProfile.Builder(
+                                        carPropertyProfile.getHvacFanDirection())
                                         .build()
                         );
                         break;
