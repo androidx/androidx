@@ -17,10 +17,12 @@
 package androidx.car.app.hardware.common;
 
 import androidx.annotation.NonNull;
+import androidx.car.app.annotations.ExperimentalCarApi;
 
 import com.google.common.collect.ImmutableSet;
 
 /** Interface for zone to area mapping functionality */
+@ExperimentalCarApi
 public interface CarZoneAreaIdConverter {
     /** Converts {@code areaId} into a list of Car zones. */
     @NonNull
