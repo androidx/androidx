@@ -4,7 +4,7 @@ package androidx.car.app.activity {
   public abstract class BaseCarAppActivity extends androidx.fragment.app.FragmentActivity implements androidx.lifecycle.LifecycleOwner {
     ctor public BaseCarAppActivity();
     method public void bindToViewModel(androidx.car.app.SessionInfo);
-    method public android.content.ComponentName? retrieveServiceComponentName();
+    method public android.content.ComponentName? getServiceComponentName();
   }
 
   public final class CarAppActivity extends androidx.car.app.activity.BaseCarAppActivity implements androidx.lifecycle.LifecycleOwner {
