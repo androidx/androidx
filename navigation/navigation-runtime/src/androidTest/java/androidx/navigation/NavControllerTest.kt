@@ -743,7 +743,7 @@ class NavControllerTest {
 
         Intents.init()
 
-        with(ActivityScenario.launch<TestActivity>(intent)) {
+        with(ActivityScenario.launchActivityForResult<TestActivity>(intent)) {
             withActivity {
                 val navController = navController
                 navController.setGraph(R.navigation.nav_simple)
