@@ -59,6 +59,8 @@ class SyncFence(private var fd: Int) : AutoCloseable {
      * Returns the time that the fence signaled in the [CLOCK_MONOTONIC] time domain.
      * This returns [SyncFence.SIGNAL_TIME_INVALID] if the SyncFence is invalid.
      */
+    // Relies on NDK APIs sync_file_info/sync_file_info_free which were introduced in API level 26
+    @RequiresApi(Build.VERSION_CODES.O)
     fun getSignalTime(): Long =
         if (isValid()) {
             nGetSignalTime(fd)
@@ -105,6 +107,10 @@ class SyncFence(private var fd: Int) : AutoCloseable {
     override fun close() {
         nClose(fd)
         fd = -1
+    }
+
+    protected fun finalize() {
+        close()
     }
 
     // SyncFence in the framework implements timeoutNanos as a long but
