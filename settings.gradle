@@ -381,6 +381,7 @@ includeProject(":asynclayoutinflater:asynclayoutinflater-appcompat", [BuildType.
 includeProject(":autofill:autofill", [BuildType.MAIN])
 includeProject(":benchmark:benchmark-benchmark", "benchmark/benchmark", [BuildType.MAIN, BuildType.COMPOSE])
 includeProject(":benchmark:benchmark-common")
+includeProject(":benchmark:benchmark-darwin", [BuildType.KMP])
 includeProject(":benchmark:benchmark-darwin-core", [BuildType.KMP])
 includeProject(":benchmark:benchmark-gradle-plugin", "benchmark/gradle-plugin", [BuildType.MAIN])
 includeProject(":benchmark:benchmark-junit4")

@@ -8,7 +8,7 @@ androidXMultiplatform {
   sourceSets {
   }
 
-  /// b/243154573
+  // b/243154573
   jvm()
 
   ios {
@@ -29,8 +29,8 @@ androidXMultiplatform {
 }
 
 androidx {
-    name = "Android Benchmark - Darwin Core"
+    name = "AndroidX Benchmarks - Darwin Core"
     mavenGroup = LibraryGroups.BENCHMARK
     inceptionYear = "2022"
-    description = "Android Benchmark - Darwin Core"
+    description = "AndroidX Benchmarks - Darwin Core"
 }
