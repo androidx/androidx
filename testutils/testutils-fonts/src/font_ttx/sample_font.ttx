@@ -20,6 +20,7 @@
     <GlyphID id="1" name="1em"/>
     <GlyphID id="2" name="1em_rtl"/>
     <GlyphID id="3" name="space"/>
+    <GlyphID id="3" name="1em_ellipsis"/>
     <GlyphID id="4" name="linefeed"/>
   </GlyphOrder>
 
@@ -131,6 +132,7 @@
     <mtx name="1em" width="1000" lsb="0"/>
     <mtx name="1em_rtl" width="1000" lsb="0"/>
     <mtx name="space" width="1000" lsb="0"/>
+    <mtx name="1em_ellipsis" width="1000" lsb="0"/>
     <mtx name="linefeed" width="500" lsb="0"/>
   </hmtx>
 
@@ -224,7 +226,7 @@
         <map code="0x05E9" name="1em_rtl"/>	<!-- ש Shin -->
         <map code="0x05EA" name="1em_rtl"/>	<!-- ת Tav -->
 
-        <map code="0x2026" name="1em"/> <!-- ELLIPSIS -->
+        <map code="0x2026" name="1em_ellipsis"/> <!-- ELLIPSIS -->
 
         <map code="0x1d11e" name="1em"/><!-- MUSICAL SYMBOL G CLEF -->
         <map code="0x1d11f" name="1em"/><!-- MUSICAL SYMBOL G CLEF OTTAVA ALTA -->
@@ -254,6 +256,15 @@
             <pt x="1000" y="-200" on="1"/>
             <pt x="0" y="300" on="1"/>
             <pt x="1000" y="800" on="1"/>
+        </contour>
+        <instructions />
+    </TTGlyph>
+    <TTGlyph name="1em_ellipsis" xMin="0" yMin="-200" xMax="1000" yMax="800">
+        <contour>
+            <pt x="0" y="-200" on="1"/>
+            <pt x="1000" y="-200" on="1"/>
+            <pt x="1000" y="0" on="1"/>
+            <pt x="0" y="0" on="1"/>
         </contour>
         <instructions />
     </TTGlyph>
