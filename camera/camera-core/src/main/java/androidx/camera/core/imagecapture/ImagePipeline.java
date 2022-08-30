@@ -16,8 +16,12 @@
 
 package androidx.camera.core.imagecapture;
 
+import static androidx.camera.core.CaptureBundles.singleDefaultCaptureBundle;
 import static androidx.camera.core.impl.utils.Threads.checkMainThread;
 
+import static java.util.Objects.requireNonNull;
+
+import android.graphics.ImageFormat;
 import android.media.ImageReader;
 import android.os.Build;
 import android.util.Size;
@@ -25,12 +29,18 @@ import android.util.Size;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.ImageCapture;
+import androidx.camera.core.impl.CaptureBundle;
 import androidx.camera.core.impl.CaptureConfig;
-import androidx.camera.core.impl.DeferrableSurface;
+import androidx.camera.core.impl.CaptureStage;
 import androidx.camera.core.impl.ImageCaptureConfig;
 import androidx.camera.core.impl.SessionConfig;
+import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.core.util.Pair;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * The class that builds and maintains the {@link ImageCapture} pipeline.
@@ -41,21 +51,43 @@ import androidx.core.util.Pair;
 @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 public class ImagePipeline {
 
+    // Use case configs.
     @NonNull
-    private ImageCaptureConfig mConfig;
-    @SuppressWarnings("UnusedVariable")
+    private final ImageCaptureConfig mUseCaseConfig;
     @NonNull
-    private Size mCameraSurfaceSize;
+    private final CaptureConfig mCaptureConfig;
+
+    // Post-processing pipeline.
+    @NonNull
+    private final CaptureNode mCaptureNode;
+    @NonNull
+    private final SingleBundlingNode mBundlingNode;
+    @NonNull
+    private ProcessingNode mProcessingNode;
+    @NonNull
+    private final CaptureNode.In mPipelineIn;
 
     // ===== public methods =====
 
     @MainThread
     public ImagePipeline(
-            @NonNull ImageCaptureConfig config,
+            @NonNull ImageCaptureConfig useCaseConfig,
             @NonNull Size cameraSurfaceSize) {
         checkMainThread();
-        mConfig = config;
-        mCameraSurfaceSize = cameraSurfaceSize;
+        mUseCaseConfig = useCaseConfig;
+        mCaptureConfig = CaptureConfig.Builder.createFrom(useCaseConfig).build();
+
+        // Create nodes
+        mCaptureNode = new CaptureNode();
+        mBundlingNode = new SingleBundlingNode();
+        mProcessingNode = new ProcessingNode(
+                requireNonNull(mUseCaseConfig.getIoExecutor(CameraXExecutors.ioExecutor())));
+
+        // Connect nodes
+        mPipelineIn = CaptureNode.In.of(cameraSurfaceSize, mUseCaseConfig.getInputFormat());
+        CaptureNode.Out captureOut = mCaptureNode.transform(mPipelineIn);
+        ProcessingNode.In processingIn = mBundlingNode.transform(captureOut);
+        mProcessingNode.transform(processingIn);
     }
 
     /**
@@ -63,8 +95,8 @@ public class ImagePipeline {
      */
     @NonNull
     public SessionConfig.Builder createSessionConfigBuilder() {
-        SessionConfig.Builder builder = SessionConfig.Builder.createFrom(mConfig);
-        builder.addNonRepeatingSurface(getCameraSurface());
+        SessionConfig.Builder builder = SessionConfig.Builder.createFrom(mUseCaseConfig);
+        builder.addNonRepeatingSurface(mPipelineIn.getSurface());
         // TODO(b/242536140): enable ZSL.
         return builder;
     }
@@ -78,7 +110,9 @@ public class ImagePipeline {
     @MainThread
     public void close() {
         checkMainThread();
-        throw new UnsupportedOperationException();
+        mCaptureNode.release();
+        mBundlingNode.release();
+        mProcessingNode.release();
     }
 
     // ===== protected methods =====
@@ -97,26 +131,87 @@ public class ImagePipeline {
             @NonNull TakePictureRequest takePictureRequest,
             @NonNull TakePictureCallback takePictureCallback) {
         checkMainThread();
-        throw new UnsupportedOperationException();
+        CaptureBundle captureBundle = createCaptureBundle();
+        return new Pair<>(
+                createCameraRequest(
+                        captureBundle,
+                        takePictureRequest,
+                        takePictureCallback),
+                createProcessingRequest(
+                        captureBundle,
+                        takePictureRequest,
+                        takePictureCallback));
     }
 
     @MainThread
     void postProcess(@NonNull ProcessingRequest request) {
         checkMainThread();
-        throw new UnsupportedOperationException();
+        mPipelineIn.getRequestEdge().accept(request);
     }
 
     // ===== private methods =====
 
-    /**
-     * Gets the {@link DeferrableSurface} sent to camera.
-     *
-     * <p>This value is used to build {@link SessionConfig} and {@link CaptureConfig}.
-     */
-    @MainThread
     @NonNull
-    private DeferrableSurface getCameraSurface() {
-        checkMainThread();
-        throw new UnsupportedOperationException();
+    private CaptureBundle createCaptureBundle() {
+        return requireNonNull(mUseCaseConfig.getCaptureBundle(singleDefaultCaptureBundle()));
     }
+
+    @NonNull
+    private ProcessingRequest createProcessingRequest(
+            @NonNull CaptureBundle captureBundle,
+            @NonNull TakePictureRequest takePictureRequest,
+            @NonNull TakePictureCallback takePictureCallback) {
+        return new ProcessingRequest(
+                captureBundle,
+                takePictureRequest.getOutputFileOptions(),
+                takePictureRequest.getCropRect(),
+                takePictureRequest.getRotationDegrees(),
+                takePictureRequest.getJpegQuality(),
+                takePictureRequest.getSensorToBufferTransform(),
+                takePictureCallback);
+    }
+
+    private CameraRequest createCameraRequest(
+            @NonNull CaptureBundle captureBundle,
+            @NonNull TakePictureRequest takePictureRequest,
+            @NonNull TakePictureCallback takePictureCallback) {
+        List<CaptureConfig> captureConfigs = new ArrayList<>();
+        String tagBundleKey = String.valueOf(captureBundle.hashCode());
+        for (final CaptureStage captureStage : requireNonNull(captureBundle.getCaptureStages())) {
+            final CaptureConfig.Builder builder = new CaptureConfig.Builder();
+            builder.setTemplateType(mCaptureConfig.getTemplateType());
+
+            // Add the default implementation options of ImageCapture
+            builder.addImplementationOptions(mCaptureConfig.getImplementationOptions());
+            builder.addAllCameraCaptureCallbacks(
+                    takePictureRequest.getSessionConfigCameraCaptureCallbacks());
+            builder.addSurface(mPipelineIn.getSurface());
+
+            // Only sets the JPEG rotation and quality for JPEG format. Some devices do not
+            // handle these configs for non-JPEG images.See b/204375890.
+            if (mPipelineIn.getFormat() == ImageFormat.JPEG) {
+                // TODO(b/242536202): handle ExifRotationAvailability
+                builder.addImplementationOption(CaptureConfig.OPTION_JPEG_QUALITY,
+                        takePictureRequest.getJpegQuality());
+            }
+
+            // Add the implementation options required by the CaptureStage
+            builder.addImplementationOptions(
+                    captureStage.getCaptureConfig().getImplementationOptions());
+
+            // Use CaptureBundle object as the key for TagBundle
+            builder.addTag(tagBundleKey, captureStage.getId());
+            builder.addCameraCaptureCallback(mPipelineIn.getCameraCaptureCallback());
+            captureConfigs.add(builder.build());
+        }
+
+        return new CameraRequest(captureConfigs, takePictureCallback);
+    }
+
+    @NonNull
+    @VisibleForTesting
+    CaptureNode getCaptureNode() {
+        return mCaptureNode;
+    }
+
 }

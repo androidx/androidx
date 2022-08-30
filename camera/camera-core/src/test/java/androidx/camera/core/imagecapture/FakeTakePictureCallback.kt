@@ -27,6 +27,8 @@ internal class FakeTakePictureCallback : TakePictureCallback {
 
     var onImageCapturedCalled = false
     var inMemoryResult: ImageProxy? = null
+    var captureFailure: ImageCaptureException? = null
+    var processFailure: ImageCaptureException? = null
 
     override fun onImageCaptured() {
         onImageCapturedCalled = true
@@ -40,8 +42,10 @@ internal class FakeTakePictureCallback : TakePictureCallback {
     }
 
     override fun onCaptureFailure(imageCaptureException: ImageCaptureException) {
+        captureFailure = imageCaptureException
     }
 
     override fun onProcessFailure(imageCaptureException: ImageCaptureException) {
+        processFailure = imageCaptureException
     }
 }
