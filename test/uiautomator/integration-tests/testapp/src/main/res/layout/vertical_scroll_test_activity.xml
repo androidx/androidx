@@ -26,6 +26,7 @@
         android:layout_height="wrap_content">
 
         <RelativeLayout
+            android:id="@+id/relative_layout"
             android:layout_width="fill_parent"
             android:layout_height="20000px">
 
@@ -34,6 +35,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="50px"
                 android:layout_alignParentTop="true"
+                android:contentDescription="This is the top"
                 android:text="This is the top" />
 
             <TextView
@@ -42,6 +44,7 @@
                 android:layout_height="50px"
                 android:layout_alignParentTop="true"
                 android:layout_marginTop="5000px"
+                android:contentDescription="This is 5000px from the top"
                 android:text="This is 5000px from the top" />
 
             <TextView
@@ -50,6 +53,7 @@
                 android:layout_height="50px"
                 android:layout_alignParentTop="true"
                 android:layout_marginTop="10000px"
+                android:contentDescription="This is 10000px from the top"
                 android:text="This is 10000px from the top" />
 
             <TextView
@@ -58,14 +62,24 @@
                 android:layout_height="50px"
                 android:layout_alignParentTop="true"
                 android:layout_marginTop="15000px"
+                android:contentDescription="This is 15000px from the top"
                 android:text="This is 15000px from the top" />
 
-            <TextView
-                android:id="@+id/bottom_text"
+            <LinearLayout
+                android:id="@+id/bottom_layout"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentBottom="true"
-                android:text="This is the bottom" />
+                android:contentDescription="This is the parent of the bottom text">
+
+                <TextView
+                    android:id="@+id/bottom_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:contentDescription="This is the bottom"
+                    android:text="This is the bottom" />
+
+            </LinearLayout>
 
         </RelativeLayout>
 
