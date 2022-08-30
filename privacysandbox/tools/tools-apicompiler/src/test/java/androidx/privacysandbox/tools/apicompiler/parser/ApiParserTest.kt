@@ -43,6 +43,7 @@ class ApiParserTest {
                     @PrivacySandboxService
                     interface MySdk {
                         fun doStuff(x: Int, y: Int): String
+                        fun doMoreStuff()
                     }
                 """
             )
@@ -59,19 +60,24 @@ class ApiParserTest {
                                     Parameter(
                                         name = "x",
                                         type = Type(
-                                            name = "Int",
+                                            name = "kotlin.Int",
                                         )
                                     ),
                                     Parameter(
                                         name = "y",
                                         type = Type(
-                                            name = "Int",
+                                            name = "kotlin.Int",
                                         )
                                     )
                                 ),
                                 returnType = Type(
-                                    name = "String",
+                                    name = "kotlin.String",
                                 )
+                            ),
+                            Method(
+                                name = "doMoreStuff",
+                                parameters = listOf(),
+                                returnType = Type("kotlin.Unit")
                             )
                         )
                     )
