@@ -201,28 +201,33 @@ public open class IWatchFaceInstanceServiceStub(
     ): IInteractiveWatchFace? {
         val asyncTraceEvent =
             AsyncTraceEvent("IWatchFaceInstanceServiceStub.getOrCreateInteractiveWatchFaceWCS")
-        return InteractiveInstanceManager
-            .getExistingInstanceOrSetPendingWallpaperInteractiveWatchFaceInstance(
-                InteractiveInstanceManager.PendingWallpaperInteractiveWatchFaceInstance(
-                    params,
-                    // Wrapped IPendingInteractiveWatchFace to support tracing.
-                    object : IPendingInteractiveWatchFace.Stub() {
-                        override fun getApiVersion() = callback.apiVersion
+        return try {
+            InteractiveInstanceManager
+                .getExistingInstanceOrSetPendingWallpaperInteractiveWatchFaceInstance(
+                    InteractiveInstanceManager.PendingWallpaperInteractiveWatchFaceInstance(
+                        params,
+                        // Wrapped IPendingInteractiveWatchFace to support tracing.
+                        object : IPendingInteractiveWatchFace.Stub() {
+                            override fun getApiVersion() = callback.apiVersion
 
-                        override fun onInteractiveWatchFaceCreated(
-                            iInteractiveWatchFaceWcs: IInteractiveWatchFace?
-                        ) {
-                            asyncTraceEvent.close()
-                            callback.onInteractiveWatchFaceCreated(iInteractiveWatchFaceWcs)
-                        }
+                            override fun onInteractiveWatchFaceCreated(
+                                iInteractiveWatchFaceWcs: IInteractiveWatchFace?
+                            ) {
+                                asyncTraceEvent.close()
+                                callback.onInteractiveWatchFaceCreated(iInteractiveWatchFaceWcs)
+                            }
 
-                        override fun onInteractiveWatchFaceCrashed(exception: CrashInfoParcel) {
-                            asyncTraceEvent.close()
-                            callback.onInteractiveWatchFaceCrashed(exception)
+                            override fun onInteractiveWatchFaceCrashed(exception: CrashInfoParcel) {
+                                asyncTraceEvent.close()
+                                callback.onInteractiveWatchFaceCrashed(exception)
+                            }
                         }
-                    }
+                    )
                 )
-            )
+        } catch (e: Exception) {
+            Log.e(TAG, "getOrCreateInteractiveWatchFace failed ", e)
+            throw e
+        }
     }
 
     override fun getEditorService(): EditorService = EditorService.globalEditorService
