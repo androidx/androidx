@@ -1276,12 +1276,16 @@ public class CameraXActivity extends AppCompatActivity {
             Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
 
             // Restore toggle buttons to the previous state if the bind failed.
-            mPreviewToggle.setChecked(getPreview() != null);
-            mPhotoToggle.setChecked(getImageCapture() != null);
-            mAnalysisToggle.setChecked(getImageAnalysis() != null);
-            mVideoToggle.setChecked(getVideoCapture() != null);
+            if (mUseCases != null) {
+                mPreviewToggle.setChecked(getPreview() != null);
+                mPhotoToggle.setChecked(getImageCapture() != null);
+                mAnalysisToggle.setChecked(getImageAnalysis() != null);
+                mVideoToggle.setChecked(getVideoCapture() != null);
+            }
             // Reset video quality to avoid always fail by quality too large.
             mRecordUi.getButtonQuality().setText(getQualityIconName(mVideoQuality = QUALITY_AUTO));
+
+            reduceUseCaseToFindSupportedCombination();
 
             if (!calledBySelf) {
                 // Only call self if not already calling self to avoid an infinite loop.
@@ -1289,6 +1293,44 @@ public class CameraXActivity extends AppCompatActivity {
             }
         }
         updateButtonsUi();
+    }
+
+    /**
+     * Checks whether currently checked use cases combination can be supported or not.
+     */
+    private boolean isCheckedUseCasesCombinationSupported() {
+        return mCamera.isUseCasesCombinationSupported(buildUseCases().toArray(new UseCase[0]));
+    }
+
+    /**
+     * Unchecks use case to find a supported use cases combination.
+     *
+     * Only VideoCapture or ImageAnalysis will be tried to uncheck. If only Preview and
+     * ImageCapture are remained, the combination should always be supported.
+     */
+    private void reduceUseCaseToFindSupportedCombination() {
+        // Checks whether current combination can be supported
+        if (isCheckedUseCasesCombinationSupported()) {
+            return;
+        }
+
+        // Remove VideoCapture to check whether the new use cases combination can be supported.
+        if (mVideoToggle.isChecked()) {
+            mVideoToggle.setChecked(false);
+            if (isCheckedUseCasesCombinationSupported()) {
+                return;
+            }
+        }
+
+        // Remove ImageAnalysis to check whether the new use cases combination can be supported.
+        if (mAnalysisToggle.isChecked()) {
+            mAnalysisToggle.setChecked(false);
+            if (isCheckedUseCasesCombinationSupported()) {
+                return;
+            }
+        }
+
+        // Preview + ImageCapture should be always supported.
     }
 
     /**
