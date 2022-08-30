@@ -26,8 +26,6 @@ import static org.mockito.Mockito.verify;
 import android.content.Context;
 import android.content.Intent;
 
-import androidx.appsearch.app.ShortcutAdapter;
-import androidx.appsearch.builtintypes.Timer;
 import androidx.core.content.pm.ShortcutInfoCompat;
 import androidx.core.google.shortcuts.builders.CapabilityBuilder;
 import androidx.core.google.shortcuts.builders.ParameterBuilder;
@@ -215,41 +213,6 @@ public class ShortcutInfoChangeListenerImplTest {
 
     @Test
     @SmallTest
-    public void onShortcutUpdated_entityShortcut_savesToAppIndex() throws Exception {
-        ArgumentCaptor<Indexable> indexableCaptor = ArgumentCaptor.forClass(Indexable.class);
-
-        Timer timer = new Timer.Builder(ShortcutAdapter.DEFAULT_NAMESPACE, "timer_id")
-                .setCreationTimestampMillis(1000)
-                .build();
-        ShortcutInfoCompat timerShortcut =
-                ShortcutAdapter.createShortcutBuilderFromDocument(mContext, timer)
-                        .build();
-
-        mShortcutInfoChangeListener.onShortcutUpdated(Collections.singletonList(timerShortcut));
-
-        verify(mFirebaseAppIndex, only()).update(indexableCaptor.capture());
-        List<Indexable> allValues = indexableCaptor.getAllValues();
-
-        Indexable expected = new Indexable.Builder("Timer")
-                .setMetadata(new Indexable.Metadata.Builder().setScore(0))
-                .setUrl(ShortcutUtils.getIndexableUrl(mContext, "timer_id"))
-                .put("_namespace", ShortcutAdapter.DEFAULT_NAMESPACE)
-                .put("_ttlMillis", 0)
-                .put("_creationTimestampMillis", 1000)
-                .put("id", "timer_id")
-                .put("length", 0)
-                .put("name", ShortcutAdapter.DEFAULT_NAMESPACE)
-                .put("remainingTime", 0)
-                .put("timerStatus", "Unknown")
-                .put("vibrate", false)
-                .put("bootCount", 0)
-                .put("originalDurationMillis", 0)
-                .build();
-        assertThat(allValues).containsExactly(expected);
-    }
-
-    @Test
-    @SmallTest
     public void onShortcutAdded_savesToAppIndex() throws Exception {
         ArgumentCaptor<Indexable> indexableCaptor = ArgumentCaptor.forClass(Indexable.class);
 
@@ -371,66 +334,11 @@ public class ShortcutInfoChangeListenerImplTest {
         assertThat(allValues).containsExactly(expected);
     }
 
-    @Test
-    @SmallTest
-    public void onShortcutAdded_withCapabilityBindingEntity_reportEntityUsage() throws Exception {
-        ArgumentCaptor<Action> actionCaptor = ArgumentCaptor.forClass(Action.class);
-
-        Intent intent = Intent.parseUri("app://shortcut", 0);
-        ShortcutInfoCompat shortcut = new ShortcutInfoCompat.Builder(mContext, "publicIntent")
-                .setShortLabel("short label")
-                .setIntent(intent)
-                .addCapabilityBinding(
-                        "actions.intent.ORDER_MENU_ITEM",
-                        "menuItem.name",
-                        ImmutableList.of(
-                                createEntityUri("item1"),
-                                createEntityUri("item2"),
-                                "item3"))
-                .addCapabilityBinding(
-                        "actions.intent.ORDER_MENU_ITEM",
-                        "menuItem.inMenuSection.inMenu.forRestaurant.name",
-                        ImmutableList.of(
-                                createEntityUri("restaurant1"),
-                                createEntityUri("restaurant2"),
-                                "restaurant3"))
-                .build();
-
-        mShortcutInfoChangeListener.onShortcutAdded(ImmutableList.of(shortcut));
-
-        verify(mFirebaseUserActions, times(4)).end(actionCaptor.capture());
-
-        Action expectedAction1 = new Action.Builder(Action.Builder.VIEW_ACTION)
-                .setObject("", ShortcutUtils.getIndexableUrl(mContext, "item1"))
-                .build();
-        Action expectedAction2 = new Action.Builder(Action.Builder.VIEW_ACTION)
-                .setObject("", ShortcutUtils.getIndexableUrl(mContext, "item2"))
-                .build();
-        Action expectedAction3 = new Action.Builder(Action.Builder.VIEW_ACTION)
-                .setObject("", ShortcutUtils.getIndexableUrl(mContext, "restaurant1"))
-                .build();
-        Action expectedAction4 = new Action.Builder(Action.Builder.VIEW_ACTION)
-                .setObject("", ShortcutUtils.getIndexableUrl(mContext, "restaurant2"))
-                .build();
-
-
-        // Action has no equals comparator, so instead we compare their string forms.
-        assertThat(convertActionsToString(actionCaptor.getAllValues())).containsExactly(
-                expectedAction1.toString(),
-                expectedAction2.toString(),
-                expectedAction3.toString(),
-                expectedAction4.toString());
-    }
-
     private List<String> convertActionsToString(List<Action> actions) {
         List<String> actionStrings = new ArrayList<>();
         for (Action action : actions) {
             actionStrings.add(action.toString());
         }
         return actionStrings;
-    }
-
-    private String createEntityUri(String id) {
-        return "appsearch://__shortcut_adapter_db__/__shortcut_adapter_ns__/" + id;
     }
 }
