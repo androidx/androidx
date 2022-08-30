@@ -19,6 +19,13 @@ package androidx.benchmark.darwin
 /**
  * Returns a [List] of [TestCase]s to run for benchmarks.
  */
-expect object TestCases {
-    fun benchmarkTests(): List<TestCase>
+object TestCases {
+    private val testCases = mutableSetOf<TestCase>()
+    fun benchmarkTests(): List<TestCase> {
+        return testCases.toList()
+    }
+
+    fun addBenchmarkTest(testCase: TestCase) {
+        testCases += testCase
+    }
 }
