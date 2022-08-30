@@ -22,6 +22,7 @@ import android.hardware.camera2.TotalCaptureResult
 import androidx.camera.camera2.Camera2Config
 import androidx.camera.camera2.interop.Camera2Interop
 import androidx.camera.camera2.pipe.integration.CameraPipeConfig
+import androidx.camera.core.Camera
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraX
 import androidx.camera.core.CameraXConfig
@@ -46,6 +47,7 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import org.junit.After
 import org.junit.Assume
+import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -79,6 +81,7 @@ class UseCaseCombinationTest(
     private val context: Context = ApplicationProvider.getApplicationContext()
     private lateinit var cameraProvider: ProcessCameraProvider
     private lateinit var fakeLifecycleOwner: FakeLifecycleOwner
+    private lateinit var camera: Camera
 
     @Before
     fun initializeCameraX(): Unit = runBlocking {
@@ -89,6 +92,8 @@ class UseCaseCombinationTest(
         withContext(Dispatchers.Main) {
             fakeLifecycleOwner = FakeLifecycleOwner()
             fakeLifecycleOwner.startAndResume()
+
+            camera = cameraProvider.bindToLifecycle(fakeLifecycleOwner, DEFAULT_SELECTOR)
         }
     }
 
@@ -111,6 +116,8 @@ class UseCaseCombinationTest(
         val previewMonitor = PreviewMonitor()
         val preview = initPreview(previewMonitor)
         val imageCapture = initImageCapture()
+
+        assertThat(camera.isUseCasesCombinationSupported(preview, imageCapture)).isTrue()
 
         // TODO(b/160249108) move off of main thread once UseCases can be attached on any thread
         // Act.
@@ -139,6 +146,8 @@ class UseCaseCombinationTest(
         val preview = initPreview(previewMonitor)
         val imageAnalysisMonitor = AnalysisMonitor()
         val imageAnalysis = initImageAnalysis(imageAnalysisMonitor)
+
+        assertThat(camera.isUseCasesCombinationSupported(preview, imageAnalysis)).isTrue()
 
         // TODO(b/160249108) move off of main thread once UseCases can be attached on any thread
         // Act.
@@ -169,6 +178,8 @@ class UseCaseCombinationTest(
         val imageAnalysisMonitor = AnalysisMonitor()
         val imageAnalysis = initImageAnalysis(imageAnalysisMonitor)
 
+        assumeTrue(camera.isUseCasesCombinationSupported(preview, imageCapture, imageAnalysis))
+
         // TODO(b/160249108) move off of main thread once UseCases can be attached on any thread
         // Act.
         withContext(Dispatchers.Main) {
@@ -196,6 +207,8 @@ class UseCaseCombinationTest(
         val previewMonitor = PreviewMonitor()
         val preview = initPreview(previewMonitor)
         val imageCapture = initImageCapture()
+
+        assertThat(camera.isUseCasesCombinationSupported(preview, imageCapture)).isTrue()
 
         withContext(Dispatchers.Main) {
             preview.setSurfaceProvider(SurfaceTextureProvider.createSurfaceTextureProvider())
@@ -232,6 +245,9 @@ class UseCaseCombinationTest(
         val imageCapture = initImageCapture()
         val imageAnalysisMonitor = AnalysisMonitor()
         val imageAnalysis = initImageAnalysis(imageAnalysisMonitor)
+
+        assumeTrue(camera.isUseCasesCombinationSupported(preview, imageCapture, imageAnalysis))
+
         withContext(Dispatchers.Main) {
             preview.setSurfaceProvider(SurfaceTextureProvider.createSurfaceTextureProvider())
             cameraProvider.bindToLifecycle(
@@ -279,6 +295,9 @@ class UseCaseCombinationTest(
         val imageCapture = initImageCapture()
         val imageAnalysisMonitor = AnalysisMonitor()
         val imageAnalysis = initImageAnalysis(imageAnalysisMonitor)
+
+        assumeTrue(camera.isUseCasesCombinationSupported(preview, imageCapture, imageAnalysis))
+
         withContext(Dispatchers.Main) {
             preview.setSurfaceProvider(SurfaceTextureProvider.createSurfaceTextureProvider())
             cameraProvider.bindToLifecycle(
@@ -313,6 +332,9 @@ class UseCaseCombinationTest(
         val imageCapture = initImageCapture()
         val imageAnalysisMonitor = AnalysisMonitor()
         val imageAnalysis = initImageAnalysis(imageAnalysisMonitor)
+
+        assumeTrue(camera.isUseCasesCombinationSupported(preview, imageCapture, imageAnalysis))
+
         withContext(Dispatchers.Main) {
             preview.setSurfaceProvider(SurfaceTextureProvider.createSurfaceTextureProvider())
             cameraProvider.bindToLifecycle(
@@ -348,6 +370,9 @@ class UseCaseCombinationTest(
         val imageCapture = initImageCapture()
         val imageAnalysisMonitor = AnalysisMonitor()
         val imageAnalysis = initImageAnalysis(imageAnalysisMonitor)
+
+        assumeTrue(camera.isUseCasesCombinationSupported(preview, imageCapture, imageAnalysis))
+
         withContext(Dispatchers.Main) {
             preview.setSurfaceProvider(SurfaceTextureProvider.createSurfaceTextureProvider())
             cameraProvider.bindToLifecycle(
