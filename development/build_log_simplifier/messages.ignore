@@ -482,6 +482,8 @@ WARNING: Illegal reflective access using Lookup on org\.gradle\.internal\.classl
 WARNING: Please consider reporting this to the maintainers of org\.gradle\.internal\.classloader\.ClassLoaderUtils\$AbstractClassLoaderLookuper
 # AGP warning about API usage we have no control over
 Values of variant API AnnotationProcessorOptions\.arguments are queried and may return non final values, this is unsupported
+# AGP warning that will go away soon
+WARNING:Software Components will not be created automatically for Maven publishing from Android Gradle Plugin 8\.0\. To opt\-in to the future behavior, set the Gradle property android\.disableAutomaticComponentCreation=true in the `gradle\.properties` file or use the new publishing DSL\.
 # > Task :help
 Welcome to Gradle [0-9]+\.[0-9]+\.
 To run a build, run gradlew <task> \.\.\.
