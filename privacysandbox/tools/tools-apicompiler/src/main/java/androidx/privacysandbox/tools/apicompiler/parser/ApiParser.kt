@@ -96,7 +96,9 @@ class ApiParser(private val resolver: Resolver, private val logger: KSPLogger) {
     private fun parseType(method: KSFunctionDeclaration, type: KSType): Type {
         validator.validateType(method, type)
         return Type(
-            name = type.declaration.simpleName.getFullName(),
+            // we should always have the qualified name here because there can't be local type
+            // declarations in method signatures.
+            name = type.declaration.qualifiedName!!.getFullName(),
         )
     }
 }
