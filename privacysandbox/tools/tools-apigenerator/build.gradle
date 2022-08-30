@@ -23,6 +23,16 @@ plugins {
 
 dependencies {
     api(libs.kotlinStdlib)
+    implementation(libs.asm)
+    implementation(libs.asmCommons)
+    implementation(libs.kotlinMetadataJvm)
+    implementation project(path: ':privacysandbox:tools:tools')
+    implementation project(path: ':privacysandbox:tools:tools-core')
+
+    testImplementation(project(":room:room-compiler-processing-testing"))
+    testImplementation(project(":internal-testutils-truth"))
+    testImplementation(libs.junit)
+    testImplementation(libs.truth)
 }
 
 androidx {

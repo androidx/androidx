@@ -17,6 +17,6 @@
 package androidx.privacysandbox.tools
 
 /** Entry point for an SDK service running in the privacy sandbox. */
-@Retention(AnnotationRetention.BINARY)
+@Retention(AnnotationRetention.RUNTIME)
 @Target(AnnotationTarget.CLASS)
 public annotation class PrivacySandboxService
