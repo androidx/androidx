@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.camera.core.internal.utils
+package androidx.camera.core.impl.utils
 
 import android.os.Build
 import android.util.Rational
