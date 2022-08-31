@@ -75,13 +75,6 @@ androidx {
     description = "Android Benchmark - Common"
 }
 
-// Allow usage of Kotlin's @Experimental annotation, which is itself experimental.
-tasks.withType(KotlinCompile).configureEach {
-    kotlinOptions {
-        freeCompilerArgs += ["-opt-in=kotlin.Experimental"]
-    }
-}
-
 // https://github.com/square/wire/issues/1947
 // Remove when we upgrade to fixed wire library
 afterEvaluate {
