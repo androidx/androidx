@@ -16,6 +16,8 @@
 
 package androidx.camera.testing;
 
+import static androidx.core.util.Preconditions.checkState;
+
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -73,6 +75,21 @@ public class TestImageUtil {
         canvas.drawRect(centerX, centerY, width, height, createPaint(Color.YELLOW));
         canvas.drawRect(0, centerY, centerX, height, createPaint(Color.BLUE));
         return bitmap;
+    }
+
+    /**
+     * Calculates the average color difference between the 2 bitmaps.
+     */
+    public static int getAverageDiff(@NonNull Bitmap bitmap1, @NonNull Bitmap bitmap2) {
+        checkState(bitmap1.getWidth() == bitmap2.getWidth());
+        checkState(bitmap1.getHeight() == bitmap2.getHeight());
+        int totalDiff = 0;
+        for (int i = 0; i < bitmap1.getWidth(); i++) {
+            for (int j = 0; j < bitmap1.getHeight(); j++) {
+                totalDiff += calculateColorDiff(bitmap1.getPixel(i, j), bitmap2.getPixel(i, j));
+            }
+        }
+        return totalDiff / (bitmap1.getWidth() * bitmap2.getHeight());
     }
 
     /**

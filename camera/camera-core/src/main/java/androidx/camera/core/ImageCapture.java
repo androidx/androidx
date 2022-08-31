@@ -2155,28 +2155,48 @@ public final class ImageCapture extends UseCase {
             mMetadata = metadata == null ? new Metadata() : metadata;
         }
 
+        /**
+         * @hide
+         */
         @Nullable
-        File getFile() {
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        public File getFile() {
             return mFile;
         }
 
+        /**
+         * @hide
+         */
         @Nullable
-        ContentResolver getContentResolver() {
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        public ContentResolver getContentResolver() {
             return mContentResolver;
         }
 
+        /**
+         * @hide
+         */
         @Nullable
-        Uri getSaveCollection() {
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        public Uri getSaveCollection() {
             return mSaveCollection;
         }
 
+        /**
+         * @hide
+         */
         @Nullable
-        ContentValues getContentValues() {
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        public ContentValues getContentValues() {
             return mContentValues;
         }
 
+        /**
+         * @hide
+         */
         @Nullable
-        OutputStream getOutputStream() {
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        public OutputStream getOutputStream() {
             return mOutputStream;
         }
 
