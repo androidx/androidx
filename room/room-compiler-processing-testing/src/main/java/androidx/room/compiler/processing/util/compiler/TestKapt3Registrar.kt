@@ -44,6 +44,7 @@ import org.jetbrains.kotlin.resolve.jvm.extensions.AnalysisHandlerExtension
 import org.jetbrains.kotlin.resolve.jvm.extensions.PartialAnalysisHandlerExtension
 import java.io.File
 import javax.annotation.processing.Processor
+import org.jetbrains.kotlin.kapt3.util.doOpenInternalPackagesIfRequired
 
 /**
  * Registers the KAPT component for the kotlin compilation.
@@ -61,6 +62,7 @@ internal class TestKapt3Registrar(
         project: MockProject,
         configuration: CompilerConfiguration
     ) {
+        doOpenInternalPackagesIfRequired()
         val contentRoots = configuration[CLIConfigurationKeys.CONTENT_ROOTS] ?: emptyList()
 
         val optionsBuilder = baseOptions.apply {
