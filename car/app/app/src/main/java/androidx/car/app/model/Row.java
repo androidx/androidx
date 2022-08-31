@@ -111,7 +111,7 @@ public final class Row implements Item {
     @Keep
     private final List<Action> mActions;
     @Keep
-    private final int mDecoration;
+    private final int mNumericDecoration;
     @Keep
     @Nullable
     private final Toggle mToggle;
@@ -187,7 +187,7 @@ public final class Row implements Item {
     @ExperimentalCarApi
     @RequiresCarApi(6)
     public int getNumericDecoration() {
-        return mDecoration;
+        return mNumericDecoration;
     }
 
     /**
@@ -315,7 +315,7 @@ public final class Row implements Item {
         mTexts = CollectionUtils.unmodifiableCopy(builder.mTexts);
         mImage = builder.mImage;
         mActions = CollectionUtils.unmodifiableCopy(builder.mActions);
-        mDecoration = builder.mDecoration;
+        mNumericDecoration = builder.mDecoration;
         mToggle = builder.mToggle;
         mOnClickDelegate = builder.mOnClickDelegate;
         mMetadata = builder.mMetadata;
@@ -330,7 +330,7 @@ public final class Row implements Item {
         mTexts = Collections.emptyList();
         mImage = null;
         mActions = Collections.emptyList();
-        mDecoration = NO_DECORATION;
+        mNumericDecoration = NO_DECORATION;
         mToggle = null;
         mOnClickDelegate = null;
         mMetadata = EMPTY_METADATA;
