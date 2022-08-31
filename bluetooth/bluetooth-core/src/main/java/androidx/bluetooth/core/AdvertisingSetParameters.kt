@@ -16,13 +16,11 @@
 
 package androidx.bluetooth.core
 
-import android.bluetooth.le.AdvertisingSetParameters as FwkAdvertisingSetParameters
 import android.bluetooth.BluetoothDevice as FwkBluetoothDevice
+import android.bluetooth.le.AdvertisingSetParameters as FwkAdvertisingSetParameters
 import android.os.Build
 import android.os.Bundle
 import androidx.annotation.RequiresApi
-import androidx.bluetooth.core.utils.Bundleable
-import androidx.bluetooth.core.utils.Utils
 
 /**
  * TODO: Add docs
