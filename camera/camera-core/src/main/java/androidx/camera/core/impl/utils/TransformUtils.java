@@ -26,6 +26,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.core.util.Preconditions;
 
+import java.util.Locale;
+
 /**
  * Utility class for transform.
  *
@@ -53,6 +55,11 @@ public class TransformUtils {
         return new Size(rect.width(), rect.height());
     }
 
+    /** Returns a formatted string for a Rect. */
+    @NonNull
+    public static String rectToString(@NonNull Rect rect) {
+        return String.format(Locale.US, "%s(%dx%d)", rect, rect.width(), rect.height());
+    }
 
     /**
      * Transforms size to a {@link Rect} with zero left and top.
