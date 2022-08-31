@@ -273,22 +273,91 @@ public class UiScrollableTest extends BaseTest {
         assertEquals("swipe_right", scrollRegion.getText());
     }
 
-    /* TODO(b/243837077): Implement these tests, and the tests for exceptions of each tested method.
+    @Test
+    public void testScrollToBeginning_withSteps() throws Exception {
+        launchTestActivity(VerticalScrollTestActivity.class);
 
-    public void testScrollToBeginning() {}
+        UiScrollable relativeLayout = new UiScrollable(
+                new UiSelector().resourceId(TEST_APP + ":id/relative_layout"));
+        UiObject topText = mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id"
+                + "/top_text"));
 
-    public void testScrollToBeginning() {}
+        assertTrue(relativeLayout.scrollTextIntoView("This is 15000px from the top"));
+        assertFalse(topText.exists());
+        assertTrue(relativeLayout.scrollToBeginning(20, 50));
+        assertTrue(topText.exists());
+    }
 
-    public void testFlingToBeginning() {}
+    @Test
+    public void testScrollToBeginning() throws Exception {
+        launchTestActivity(VerticalScrollTestActivity.class);
 
-    public void testScrollToEnd() {}
+        UiScrollable relativeLayout = new UiScrollable(
+                new UiSelector().resourceId(TEST_APP + ":id/relative_layout"));
+        UiObject topText = mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id"
+                + "/top_text"));
 
-    public void testScrollToEnd() {}
+        assertTrue(relativeLayout.scrollTextIntoView("This is 15000px from the top"));
+        assertFalse(topText.exists());
+        assertTrue(relativeLayout.scrollToBeginning(20));
+        assertTrue(topText.exists());
+    }
 
-    public void testFlingToEnd() {}
+    @Test
+    public void testFlingToBeginning() throws Exception {
+        launchTestActivity(FlingTestActivity.class);
 
-    public void testGetSwipeDeadZonePercentage() {}
+        UiScrollable flingRegion = new UiScrollable(new UiSelector().resourceId(TEST_APP + ":id"
+                + "/fling_region")).setAsVerticalList();
 
-    public void testSetSwipeDeadZonePercentage() {}
-     */
+        assertTrue(flingRegion.flingToBeginning(20));
+        assertEquals("fling_up", flingRegion.getText());
+    }
+
+    @Test
+    public void testScrollToEnd_withSteps() throws Exception {
+        launchTestActivity(VerticalScrollTestActivity.class);
+
+        UiScrollable relativeLayout = new UiScrollable(
+                new UiSelector().resourceId(TEST_APP + ":id/relative_layout"));
+        UiObject bottomText = mDevice.findObject(
+                new UiSelector().resourceId(TEST_APP + ":id/bottom_text"));
+
+        assertFalse(bottomText.exists());
+        assertTrue(relativeLayout.scrollToEnd(20, 50));
+        assertTrue(bottomText.exists());
+    }
+
+    @Test
+    public void testScrollToEnd() throws Exception {
+        launchTestActivity(VerticalScrollTestActivity.class);
+        launchTestActivity(VerticalScrollTestActivity.class);
+
+        UiScrollable relativeLayout = new UiScrollable(
+                new UiSelector().resourceId(TEST_APP + ":id/relative_layout"));
+        UiObject bottomText = mDevice.findObject(
+                new UiSelector().resourceId(TEST_APP + ":id/bottom_text"));
+
+        assertFalse(bottomText.exists());
+        assertTrue(relativeLayout.scrollToEnd(20));
+        assertTrue(bottomText.exists());
+    }
+
+    @Test
+    public void testFlingToEnd() throws Exception {
+        launchTestActivity(FlingTestActivity.class);
+
+        UiScrollable flingRegion = new UiScrollable(new UiSelector().resourceId(TEST_APP + ":id"
+                + "/fling_region")).setAsVerticalList();
+
+        assertTrue(flingRegion.flingToEnd(20));
+        assertEquals("fling_down", flingRegion.getText());
+    }
+
+    @Test
+    public void testSetSwipeDeadZonePercentageAndGetSwipeDeadZonePercentage() {
+        UiScrollable scrollable =
+                new UiScrollable(new UiSelector()).setSwipeDeadZonePercentage(0.2);
+        assertEquals(0.2, scrollable.getSwipeDeadZonePercentage(), 0.01);
+    }
 }
