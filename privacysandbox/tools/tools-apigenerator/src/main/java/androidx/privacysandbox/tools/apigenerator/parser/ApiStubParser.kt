@@ -18,10 +18,16 @@ package androidx.privacysandbox.tools.apigenerator.parser
 
 import androidx.privacysandbox.tools.PrivacySandboxService
 import androidx.privacysandbox.tools.core.AnnotatedInterface
+import androidx.privacysandbox.tools.core.Method
+import androidx.privacysandbox.tools.core.Parameter
 import androidx.privacysandbox.tools.core.ParsedApi
+import androidx.privacysandbox.tools.core.Type
 import java.io.File
 import kotlinx.metadata.Flag
 import kotlinx.metadata.KmClass
+import kotlinx.metadata.KmClassifier
+import kotlinx.metadata.KmFunction
+import kotlinx.metadata.KmType
 import kotlinx.metadata.jvm.KotlinClassHeader
 import kotlinx.metadata.jvm.KotlinClassMetadata
 import org.objectweb.asm.ClassReader
@@ -29,7 +35,7 @@ import org.objectweb.asm.ClassReader.SKIP_CODE
 import org.objectweb.asm.ClassReader.SKIP_DEBUG
 import org.objectweb.asm.ClassReader.SKIP_FRAMES
 import org.objectweb.asm.Opcodes
-import org.objectweb.asm.Type
+import org.objectweb.asm.Type.getDescriptor
 import org.objectweb.asm.tree.AnnotationNode
 import org.objectweb.asm.tree.ClassNode
 
@@ -45,7 +51,7 @@ internal object ApiStubParser {
             .filter { it.extension == "class" }
             .map { it.inputStream().use { inputStream -> toClassNode(inputStream.readBytes()) } }
             .filter { it.visibleAnnotationsWithType<PrivacySandboxService>().isNotEmpty() }
-            .map(ApiStubParser::parseClass)
+            .map(this::parseClass)
             .toSet()
         if (services.isEmpty()) throw IllegalArgumentException(
             "Unable to find valid interfaces annotated with @PrivacySandboxService."
@@ -83,7 +89,11 @@ internal object ApiStubParser {
             )
         }
 
-        return AnnotatedInterface(className, packageName)
+        return AnnotatedInterface(
+            className,
+            packageName,
+            kotlinMetadata.functions.map(this::parseMethod),
+        )
     }
 
     private fun parseKotlinMetadata(classNode: ClassNode): KmClass {
@@ -115,11 +125,28 @@ internal object ApiStubParser {
             )
         }
     }
+
+    private fun parseMethod(function: KmFunction): Method {
+        return Method(
+            function.name,
+            function.valueParameters.map { Parameter(it.name, parseType(it.type)) },
+            parseType(function.returnType),
+        )
+    }
+
+    private fun parseType(type: KmType): Type {
+        return when (val classifier = type.classifier) {
+            is KmClassifier.Class -> Type(classifier.name.replace('/', '.'))
+            else -> throw IllegalArgumentException(
+                "Unsupported type in API description: $type"
+            )
+        }
+    }
 }
 
 inline fun <reified T> ClassNode.visibleAnnotationsWithType(): List<AnnotationNode> {
     return (visibleAnnotations ?: listOf<AnnotationNode>())
-        .filter { Type.getDescriptor(T::class.java) == it?.desc }
+        .filter { getDescriptor(T::class.java) == it?.desc }
         .filterNotNull()
 }
 
