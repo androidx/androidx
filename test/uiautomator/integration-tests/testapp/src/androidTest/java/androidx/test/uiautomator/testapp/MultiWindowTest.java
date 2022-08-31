@@ -46,7 +46,7 @@ import java.util.List;
 
 /** Integration tests for multi-window support. */
 @LargeTest
-public class MultiWindowTests extends BaseTest {
+public class MultiWindowTest extends BaseTest {
 
     private static final long TIMEOUT_MS = 30_000;
     private static final long DELAY_MS = 5_000;
