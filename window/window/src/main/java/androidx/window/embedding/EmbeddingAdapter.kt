@@ -20,8 +20,6 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
 import android.view.WindowMetrics
-import androidx.window.core.ExperimentalWindowApi
-import androidx.window.core.PredicateAdapter
 import androidx.window.extensions.embedding.ActivityRule as OEMActivityRule
 import androidx.window.extensions.embedding.ActivityRule.Builder as ActivityRuleBuilder
 import androidx.window.extensions.embedding.EmbeddingRule as OEMEmbeddingRule
@@ -30,6 +28,8 @@ import androidx.window.extensions.embedding.SplitPairRule as OEMSplitPairRule
 import androidx.window.extensions.embedding.SplitPairRule.Builder as SplitPairRuleBuilder
 import androidx.window.extensions.embedding.SplitPlaceholderRule as OEMSplitPlaceholderRule
 import androidx.window.extensions.embedding.SplitPlaceholderRule.Builder as SplitPlaceholderRuleBuilder
+import androidx.window.core.ExperimentalWindowApi
+import androidx.window.core.PredicateAdapter
 import androidx.window.extensions.WindowExtensionsProvider
 
 /**
