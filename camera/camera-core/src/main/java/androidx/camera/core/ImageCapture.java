@@ -1481,7 +1481,7 @@ public final class ImageCapture extends UseCase {
         }
 
         @Override
-        public void onImageClose(ImageProxy image) {
+        public void onImageClose(@NonNull ImageProxy image) {
             synchronized (mLock) {
                 mOutstandingImages--;
                 processNextRequest();
