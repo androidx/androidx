@@ -17,6 +17,9 @@
 package androidx.privacysandbox.tools.apigenerator.parser
 
 import androidx.privacysandbox.tools.core.AnnotatedInterface
+import androidx.privacysandbox.tools.core.Method
+import androidx.privacysandbox.tools.core.Parameter
+import androidx.privacysandbox.tools.core.Type
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.compiler.TestCompilationArguments
 import androidx.room.compiler.processing.util.compiler.compile
@@ -36,12 +39,33 @@ class ApiStubParserTest {
                     package com.mysdk
                     import androidx.privacysandbox.tools.PrivacySandboxService
                     @PrivacySandboxService
-                    interface MySdk
+                    interface MySdk {
+                      fun doSomething(magicNumber: Int, awesomeString: String)
+                      fun returnMagicNumber(): Int
+                    }
                 """
         )
 
         assertThat(compileAndParseApi(source))
-            .containsExactly(AnnotatedInterface("MySdk", "com.mysdk"))
+            .containsExactly(
+                AnnotatedInterface(
+                    name = "MySdk", packageName = "com.mysdk", methods = listOf(
+                        Method(
+                            name = "doSomething",
+                            parameters = listOf(
+                                Parameter("magicNumber", Type("kotlin.Int")),
+                                Parameter("awesomeString", Type("kotlin.String"))
+                            ),
+                            returnType = Type("kotlin.Unit")
+                        ),
+                        Method(
+                            name = "returnMagicNumber",
+                            parameters = listOf(),
+                            returnType = Type("kotlin.Int")
+                        )
+                    )
+                )
+            )
     }
 
     @Test
