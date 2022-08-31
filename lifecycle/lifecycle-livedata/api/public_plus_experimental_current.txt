@@ -3,6 +3,7 @@ package androidx.lifecycle {
 
   public class MediatorLiveData<T> extends androidx.lifecycle.MutableLiveData<T> {
     ctor public MediatorLiveData();
+    ctor public MediatorLiveData(T!);
     method @MainThread public <S> void addSource(androidx.lifecycle.LiveData<S!>, androidx.lifecycle.Observer<? super S>);
     method @MainThread public <S> void removeSource(androidx.lifecycle.LiveData<S!>);
   }
