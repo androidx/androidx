@@ -65,21 +65,13 @@
                 android:contentDescription="This is 15000px from the top"
                 android:text="This is 15000px from the top" />
 
-            <LinearLayout
-                android:id="@+id/bottom_layout"
+            <TextView
+                android:id="@+id/bottom_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentBottom="true"
-                android:contentDescription="This is the parent of the bottom text">
-
-                <TextView
-                    android:id="@+id/bottom_text"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:contentDescription="This is the bottom"
-                    android:text="This is the bottom" />
-
-            </LinearLayout>
+                android:contentDescription="This is the bottom"
+                android:text="This is the bottom" />
 
         </RelativeLayout>
 
