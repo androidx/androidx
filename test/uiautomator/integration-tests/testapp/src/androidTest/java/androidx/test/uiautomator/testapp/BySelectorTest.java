@@ -29,7 +29,7 @@ import org.junit.Test;
 
 import java.util.regex.Pattern;
 
-public class BySelectorTests extends BaseTest {
+public class BySelectorTest extends BaseTest {
 
     @Test
     public void testCopy() {

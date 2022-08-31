@@ -28,7 +28,7 @@ import androidx.test.uiautomator.UiSelector;
 
 import org.junit.Test;
 
-public class UiSelectorTests extends BaseTest {
+public class UiSelectorTest extends BaseTest {
 
     @Test
     public void testText() {
