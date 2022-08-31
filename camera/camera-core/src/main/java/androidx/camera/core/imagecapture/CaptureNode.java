@@ -31,6 +31,7 @@ import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
+import androidx.camera.core.ForwardingImageProxy;
 import androidx.camera.core.ImageProxy;
 import androidx.camera.core.MetadataImageReader;
 import androidx.camera.core.SafeCloseImageReaderProxy;
@@ -56,8 +57,6 @@ import java.util.Set;
  * <p>It's also responsible for managing the {@link ImageReaderProxy}. It makes sure that the
  * queue is not overflowed.
  *
- * TODO(b/242539529): expose a method that returns the number of empty slots in the queue.
- * TODO(b/242539529): accept a callback that gets invoked when a slot is freed up in the queue.
  */
 @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 class CaptureNode implements Node<CaptureNode.In, CaptureNode.Out> {
@@ -125,6 +124,8 @@ class CaptureNode implements Node<CaptureNode.In, CaptureNode.Out> {
             mCurrentRequest.onImageCaptured();
             mCurrentRequest = null;
         }
+
+        // Send the image downstream.
         mOutputEdge.getImageEdge().accept(imageProxy);
     }
 
@@ -132,6 +133,9 @@ class CaptureNode implements Node<CaptureNode.In, CaptureNode.Out> {
     @MainThread
     void onRequestAvailable(@NonNull ProcessingRequest request) {
         checkMainThread();
+        // Unable to issue request if the queue has no capacity.
+        checkState(getCapacity() > 0,
+                "Too many acquire images. Close image to be able to process next.");
         // Check if there is already a current request. Only one concurrent request is allowed.
         checkState(mCurrentRequest == null || mPendingStageIds.isEmpty(),
                 "The previous request is not complete");
@@ -166,6 +170,22 @@ class CaptureNode implements Node<CaptureNode.In, CaptureNode.Out> {
     @NonNull
     In getInputEdge() {
         return mInputEdge;
+    }
+
+    @MainThread
+    public int getCapacity() {
+        checkMainThread();
+        checkState(mSafeCloseImageReaderProxy != null,
+                "The ImageReader is not initialized.");
+        return mSafeCloseImageReaderProxy.getCapacity();
+    }
+
+    @MainThread
+    public void setOnImageCloseListener(ForwardingImageProxy.OnImageCloseListener listener) {
+        checkMainThread();
+        checkState(mSafeCloseImageReaderProxy != null,
+                "The ImageReader is not initialized.");
+        mSafeCloseImageReaderProxy.setOnImageCloseListener(listener);
     }
 
     /**
