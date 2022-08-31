@@ -13,266 +13,240 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.room
 
-package androidx.room;
+import androidx.arch.core.executor.ArchTaskExecutor
+import androidx.arch.core.executor.testing.CountingTaskExecutorRule
+import io.reactivex.functions.Consumer
+import io.reactivex.observers.TestObserver
+import io.reactivex.subscribers.TestSubscriber
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicReference
+import com.google.common.truth.Truth.assertThat
+import org.junit.Before
+import org.junit.Rule
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
+import org.mockito.kotlin.any
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.times
+import org.mockito.kotlin.whenever
+import org.mockito.kotlin.doAnswer
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.never
 
-import androidx.arch.core.executor.ArchTaskExecutor;
-import androidx.arch.core.executor.testing.CountingTaskExecutorRule;
-
-import org.hamcrest.CoreMatchers;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.Callable;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicReference;
-
-import io.reactivex.Flowable;
-import io.reactivex.Observable;
-import io.reactivex.annotations.NonNull;
-import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Consumer;
-import io.reactivex.observers.TestObserver;
-import io.reactivex.subscribers.TestSubscriber;
-
-@RunWith(JUnit4.class)
-public class RxRoomTest {
-    @Rule
-    public CountingTaskExecutorRule mExecutor = new CountingTaskExecutorRule();
-
-    private RoomDatabase mDatabase;
-    private InvalidationTracker mInvalidationTracker;
-    private List<InvalidationTracker.Observer> mAddedObservers = new ArrayList<>();
-
+@RunWith(JUnit4::class)
+class RxRoomTest {
+    @get:Rule
+    var mExecutor = CountingTaskExecutorRule()
+    private lateinit var mDatabase: RoomDatabase
+    private lateinit var mInvalidationTracker: InvalidationTracker
+    private val mAddedObservers = mutableListOf<InvalidationTracker.Observer>()
     @Before
-    public void init() {
-        mDatabase = mock(RoomDatabase.class);
-        mInvalidationTracker = mock(InvalidationTracker.class);
-        when(mDatabase.getInvalidationTracker()).thenReturn(mInvalidationTracker);
-        when(mDatabase.getQueryExecutor()).thenReturn(ArchTaskExecutor.getIOThreadExecutor());
-        doAnswer(new Answer() {
-            @Override
-            public Object answer(InvocationOnMock invocation) throws Throwable {
-                mAddedObservers.add((InvalidationTracker.Observer) invocation.getArguments()[0]);
-                return null;
-            }
-        }).when(mInvalidationTracker).addObserver(any(InvalidationTracker.Observer.class));
+    fun init() {
+        mDatabase = mock()
+        mInvalidationTracker = mock()
+
+        whenever(mDatabase.invalidationTracker).thenReturn(mInvalidationTracker)
+        whenever(mDatabase.queryExecutor)
+            .thenReturn(ArchTaskExecutor.getIOThreadExecutor())
+
+        doAnswer { invocation ->
+            mAddedObservers.add(invocation.arguments[0] as InvalidationTracker.Observer)
+            null
+        }.whenever(mInvalidationTracker).addObserver(
+            any()
+        )
     }
 
     @Test
-    public void basicAddRemove_Flowable() {
-        Flowable<Object> flowable = RxRoom.createFlowable(mDatabase, "a", "b");
-        verify(mInvalidationTracker, never()).addObserver(any(InvalidationTracker.Observer.class));
-        Disposable disposable = flowable.subscribe();
-        verify(mInvalidationTracker).addObserver(any(InvalidationTracker.Observer.class));
-        assertThat(mAddedObservers.size(), CoreMatchers.is(1));
-
-        InvalidationTracker.Observer observer = mAddedObservers.get(0);
-        disposable.dispose();
-
-        verify(mInvalidationTracker).removeObserver(observer);
-
-        disposable = flowable.subscribe();
+    fun basicAddRemove_Flowable() {
+        val flowable = RxRoom.createFlowable(mDatabase, "a", "b")
+        verify(mInvalidationTracker, never()).addObserver(
+            any()
+        )
+        var disposable = flowable.subscribe()
+        verify(mInvalidationTracker).addObserver(
+            any()
+        )
+        assertThat(mAddedObservers.size).isEqualTo(1)
+        val observer = mAddedObservers[0]
+        disposable.dispose()
+        verify(mInvalidationTracker).removeObserver(observer)
+        disposable = flowable.subscribe()
         verify(mInvalidationTracker, times(2))
-                .addObserver(any(InvalidationTracker.Observer.class));
-        assertThat(mAddedObservers.size(), CoreMatchers.is(2));
-        assertThat(mAddedObservers.get(1), CoreMatchers.not(CoreMatchers.sameInstance(observer)));
-        InvalidationTracker.Observer observer2 = mAddedObservers.get(1);
-        disposable.dispose();
-        verify(mInvalidationTracker).removeObserver(observer2);
+            .addObserver(
+                any()
+            )
+        assertThat(mAddedObservers.size).isEqualTo(2)
+        assertThat(mAddedObservers[1]).isNotSameInstanceAs(observer)
+
+        val observer2 = mAddedObservers[1]
+        disposable.dispose()
+        verify(mInvalidationTracker).removeObserver(observer2)
     }
 
     @Test
-    public void basicAddRemove_Observable() {
-        Observable<Object> observable = RxRoom.createObservable(mDatabase, "a", "b");
-        verify(mInvalidationTracker, never()).addObserver(any(InvalidationTracker.Observer.class));
-        Disposable disposable = observable.subscribe();
-        verify(mInvalidationTracker).addObserver(any(InvalidationTracker.Observer.class));
-        assertThat(mAddedObservers.size(), CoreMatchers.is(1));
-
-        InvalidationTracker.Observer observer = mAddedObservers.get(0);
-        disposable.dispose();
-
-        verify(mInvalidationTracker).removeObserver(observer);
-
-        disposable = observable.subscribe();
+    fun basicAddRemove_Observable() {
+        val observable = RxRoom.createObservable(mDatabase, "a", "b")
+        verify(mInvalidationTracker, never()).addObserver(
+            any()
+        )
+        var disposable = observable.subscribe()
+        verify(mInvalidationTracker).addObserver(
+            any()
+        )
+        assertThat(mAddedObservers.size).isEqualTo(1)
+        val observer = mAddedObservers[0]
+        disposable.dispose()
+        verify(mInvalidationTracker).removeObserver(observer)
+        disposable = observable.subscribe()
         verify(mInvalidationTracker, times(2))
-                .addObserver(any(InvalidationTracker.Observer.class));
-        assertThat(mAddedObservers.size(), CoreMatchers.is(2));
-        assertThat(mAddedObservers.get(1), CoreMatchers.not(CoreMatchers.sameInstance(observer)));
-        InvalidationTracker.Observer observer2 = mAddedObservers.get(1);
-        disposable.dispose();
-        verify(mInvalidationTracker).removeObserver(observer2);
+            .addObserver(
+                any()
+            )
+        assertThat(mAddedObservers.size).isEqualTo(2)
+        assertThat(mAddedObservers[1]).isNotSameInstanceAs(observer)
+
+        val observer2 = mAddedObservers[1]
+        disposable.dispose()
+        verify(mInvalidationTracker).removeObserver(observer2)
     }
 
     @Test
-    public void basicNotify_Flowable() {
-        String[] tables = {"a", "b"};
-        Set<String> tableSet = new HashSet<>(Arrays.asList(tables));
-        Flowable<Object> flowable = RxRoom.createFlowable(mDatabase, tables);
-        CountingConsumer consumer = new CountingConsumer();
-        Disposable disposable = flowable.subscribe(consumer);
-        assertThat(mAddedObservers.size(), CoreMatchers.is(1));
-        InvalidationTracker.Observer observer = mAddedObservers.get(0);
-        assertThat(consumer.mCount, CoreMatchers.is(1));
-        observer.onInvalidated(tableSet);
-        assertThat(consumer.mCount, CoreMatchers.is(2));
-        observer.onInvalidated(tableSet);
-        assertThat(consumer.mCount, CoreMatchers.is(3));
-        disposable.dispose();
-        observer.onInvalidated(tableSet);
-        assertThat(consumer.mCount, CoreMatchers.is(3));
+    fun basicNotify_Flowable() {
+        val tables = arrayOf("a", "b")
+        val tableSet: Set<String> = HashSet(listOf(*tables))
+        val flowable = RxRoom.createFlowable(mDatabase, *tables)
+        val consumer = CountingConsumer()
+        val disposable = flowable.subscribe(consumer)
+        assertThat(mAddedObservers.size).isEqualTo(1)
+        val observer = mAddedObservers[0]
+        assertThat(consumer.mCount).isEqualTo(1)
+        observer.onInvalidated(tableSet)
+        assertThat(consumer.mCount).isEqualTo(2)
+        observer.onInvalidated(tableSet)
+        assertThat(consumer.mCount).isEqualTo(3)
+        disposable.dispose()
+        observer.onInvalidated(tableSet)
+        assertThat(consumer.mCount).isEqualTo(3)
     }
 
     @Test
-    public void basicNotify_Observable() {
-        String[] tables = {"a", "b"};
-        Set<String> tableSet = new HashSet<>(Arrays.asList(tables));
-        Observable<Object> observable = RxRoom.createObservable(mDatabase, tables);
-        CountingConsumer consumer = new CountingConsumer();
-        Disposable disposable = observable.subscribe(consumer);
-        assertThat(mAddedObservers.size(), CoreMatchers.is(1));
-        InvalidationTracker.Observer observer = mAddedObservers.get(0);
-        assertThat(consumer.mCount, CoreMatchers.is(1));
-        observer.onInvalidated(tableSet);
-        assertThat(consumer.mCount, CoreMatchers.is(2));
-        observer.onInvalidated(tableSet);
-        assertThat(consumer.mCount, CoreMatchers.is(3));
-        disposable.dispose();
-        observer.onInvalidated(tableSet);
-        assertThat(consumer.mCount, CoreMatchers.is(3));
+    fun basicNotify_Observable() {
+        val tables = arrayOf("a", "b")
+        val tableSet: Set<String> = HashSet(listOf(*tables))
+        val observable = RxRoom.createObservable(mDatabase, *tables)
+        val consumer = CountingConsumer()
+        val disposable = observable.subscribe(consumer)
+        assertThat(mAddedObservers.size).isEqualTo(1)
+        val observer = mAddedObservers[0]
+        assertThat(consumer.mCount).isEqualTo(1)
+        observer.onInvalidated(tableSet)
+        assertThat(consumer.mCount).isEqualTo(2)
+        observer.onInvalidated(tableSet)
+        assertThat(consumer.mCount).isEqualTo(3)
+        disposable.dispose()
+        observer.onInvalidated(tableSet)
+        assertThat(consumer.mCount).isEqualTo(3)
     }
 
     @Test
-    public void internalCallable_Flowable() throws Exception {
-        final AtomicReference<String> value = new AtomicReference<>(null);
-        String[] tables = {"a", "b"};
-        Set<String> tableSet = new HashSet<>(Arrays.asList(tables));
-        final Flowable<String> flowable = RxRoom.createFlowable(mDatabase, false, tables,
-                new Callable<String>() {
-                    @Override
-                    public String call() throws Exception {
-                        return value.get();
-                    }
-                });
-        final CountingConsumer consumer = new CountingConsumer();
-        flowable.subscribe(consumer);
-        drain();
-        InvalidationTracker.Observer observer = mAddedObservers.get(0);
+    @Throws(Exception::class)
+    fun internalCallable_Flowable() {
+        val value = AtomicReference<Any>(null)
+        val tables = arrayOf("a", "b")
+        val tableSet: Set<String> = HashSet(listOf(*tables))
+        val flowable = RxRoom.createFlowable(
+            mDatabase, false, tables
+        ) { value.get() }
+        val consumer = CountingConsumer()
+        flowable.subscribe(consumer)
+        drain()
+        val observer = mAddedObservers[0]
         // no value because it is null
-        assertThat(consumer.mCount, CoreMatchers.is(0));
-        value.set("bla");
-        observer.onInvalidated(tableSet);
-        drain();
+        assertThat(consumer.mCount).isEqualTo(0)
+        value.set("bla")
+        observer.onInvalidated(tableSet)
+        drain()
         // get value
-        assertThat(consumer.mCount, CoreMatchers.is(1));
-        observer.onInvalidated(tableSet);
-        drain();
+        assertThat(consumer.mCount).isEqualTo(1)
+        observer.onInvalidated(tableSet)
+        drain()
         // get value
-        assertThat(consumer.mCount, CoreMatchers.is(2));
-        value.set(null);
-        observer.onInvalidated(tableSet);
-        drain();
+        assertThat(consumer.mCount).isEqualTo(2)
+        value.set(null)
+        observer.onInvalidated(tableSet)
+        drain()
         // no value
-        assertThat(consumer.mCount, CoreMatchers.is(2));
+        assertThat(consumer.mCount).isEqualTo(2)
     }
 
     @Test
-    public void internalCallable_Observable() throws Exception {
-        final AtomicReference<String> value = new AtomicReference<>(null);
-        String[] tables = {"a", "b"};
-        Set<String> tableSet = new HashSet<>(Arrays.asList(tables));
-        final Observable<String> flowable = RxRoom.createObservable(mDatabase, false, tables,
-                new Callable<String>() {
-                    @Override
-                    public String call() throws Exception {
-                        return value.get();
-                    }
-                });
-        final CountingConsumer consumer = new CountingConsumer();
-        flowable.subscribe(consumer);
-        drain();
-        InvalidationTracker.Observer observer = mAddedObservers.get(0);
+    @Throws(Exception::class)
+    fun internalCallable_Observable() {
+        val value = AtomicReference<Any>(null)
+        val tables = arrayOf("a", "b")
+        val tableSet: Set<String> = HashSet(listOf(*tables))
+        val flowable = RxRoom.createObservable(
+            mDatabase, false, tables
+        ) { value.get() }
+        val consumer = CountingConsumer()
+        flowable.subscribe(consumer)
+        drain()
+        val observer = mAddedObservers[0]
         // no value because it is null
-        assertThat(consumer.mCount, CoreMatchers.is(0));
-        value.set("bla");
-        observer.onInvalidated(tableSet);
-        drain();
+        assertThat(consumer.mCount).isEqualTo(0)
+        value.set("bla")
+        observer.onInvalidated(tableSet)
+        drain()
         // get value
-        assertThat(consumer.mCount, CoreMatchers.is(1));
-        observer.onInvalidated(tableSet);
-        drain();
+        assertThat(consumer.mCount).isEqualTo(1)
+        observer.onInvalidated(tableSet)
+        drain()
         // get value
-        assertThat(consumer.mCount, CoreMatchers.is(2));
-        value.set(null);
-        observer.onInvalidated(tableSet);
-        drain();
+        assertThat(consumer.mCount).isEqualTo(2)
+        value.set(null)
+        observer.onInvalidated(tableSet)
+        drain()
         // no value
-        assertThat(consumer.mCount, CoreMatchers.is(2));
+        assertThat(consumer.mCount).isEqualTo(2)
     }
 
     @Test
-    public void exception_Flowable() throws Exception {
-        final Flowable<String> flowable = RxRoom.createFlowable(mDatabase, false, new String[]{"a"},
-                new Callable<String>() {
-                    @Override
-                    public String call() throws Exception {
-                        throw new Exception("i want exception");
-                    }
-                });
-        TestSubscriber<String> subscriber = new TestSubscriber<>();
-        flowable.subscribe(subscriber);
-        drain();
-        assertThat(subscriber.errorCount(), CoreMatchers.is(1));
-        assertThat(subscriber.errors().get(0).getMessage(), CoreMatchers.is("i want exception"));
+    fun exception_Flowable() {
+        val flowable = RxRoom.createFlowable<String>(
+            mDatabase, false, arrayOf("a")
+        ) { throw Exception("i want exception") }
+        val subscriber = TestSubscriber<String>()
+        flowable.subscribe(subscriber)
+        drain()
+        assertThat(subscriber.errorCount()).isEqualTo(1)
+        assertThat(subscriber.errors()[0].message).isEqualTo("i want exception")
     }
 
     @Test
-    public void exception_Observable() throws Exception {
-        final Observable<String> flowable = RxRoom.createObservable(mDatabase, false,
-                new String[]{"a"},
-                new Callable<String>() {
-                    @Override
-                    public String call() throws Exception {
-                        throw new Exception("i want exception");
-                    }
-                });
-        TestObserver<String> observer = new TestObserver<>();
-        flowable.subscribe(observer);
-        drain();
-        assertThat(observer.errorCount(), CoreMatchers.is(1));
-        assertThat(observer.errors().get(0).getMessage(), CoreMatchers.is("i want exception"));
+    fun exception_Observable() {
+        val flowable = RxRoom.createObservable<String>(
+            mDatabase, false, arrayOf("a")
+        ) { throw Exception("i want exception") }
+        val observer = TestObserver<String>()
+        flowable.subscribe(observer)
+        drain()
+        assertThat(observer.errorCount()).isEqualTo(1)
+        assertThat(observer.errors()[0].message).isEqualTo("i want exception")
     }
 
-    private void drain() throws Exception {
-        mExecutor.drainTasks(10, TimeUnit.SECONDS);
+    private fun drain() {
+        mExecutor.drainTasks(10, TimeUnit.SECONDS)
     }
 
-    private static class CountingConsumer implements Consumer<Object> {
-        int mCount = 0;
-
-        @Override
-        public void accept(@NonNull Object o) throws Exception {
-            mCount++;
+    private class CountingConsumer : Consumer<Any> {
+        var mCount = 0
+        override fun accept(o: Any) {
+            mCount++
         }
     }
 }
