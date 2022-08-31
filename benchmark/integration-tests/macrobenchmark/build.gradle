@@ -1,3 +1,4 @@
+import androidx.build.SupportConfigKt
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 /*
@@ -26,6 +27,12 @@ android {
     defaultConfig {
         minSdkVersion 23
     }
+    sourceSets {
+        androidTest.assets.srcDirs += new File(
+                SupportConfigKt.getPrebuiltsRoot(project),
+                "androidx/traceprocessor/testdata"
+        )
+    }
     namespace "androidx.benchmark.integration.macrobenchmark"
 }
 
@@ -33,6 +40,7 @@ dependencies {
     androidTestImplementation(project(":benchmark:benchmark-junit4"))
     androidTestImplementation(project(":benchmark:benchmark-macro-junit4"))
     androidTestImplementation(project(":internal-testutils-macrobenchmark"))
+    androidTestImplementation(project(":tracing:tracing-ktx"))
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
