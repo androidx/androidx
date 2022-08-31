@@ -57,6 +57,7 @@ public class DynamicActivityNavigator(
             val moduleName = destination.moduleName
             if (moduleName != null && installManager.needsInstall(moduleName)) {
                 installManager.performInstall(entry, extras, moduleName)
+                return
             }
         }
         super.navigate(
