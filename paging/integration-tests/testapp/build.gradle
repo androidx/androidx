@@ -59,13 +59,6 @@ android {
     namespace "androidx.paging.integration.testapp"
 }
 
-// Allow usage of Kotlin's @OptIn.
-tasks.withType(KotlinCompile).configureEach {
-    kotlinOptions {
-        freeCompilerArgs += ["-opt-in=kotlin.RequiresOptIn"]
-    }
-}
-
 // Enable parameter names to support Room incremental when its a project() dep.
 // See b/198431380
 tasks.withType(JavaCompile) {
