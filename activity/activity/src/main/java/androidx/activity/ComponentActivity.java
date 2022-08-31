@@ -129,7 +129,8 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
         OnNewIntentProvider,
         OnMultiWindowModeChangedProvider,
         OnPictureInPictureModeChangedProvider,
-        MenuHost {
+        MenuHost,
+        FullyLoadedReporterOwner {
 
     static final class NonConfigurationInstances {
         Object custom;
@@ -167,6 +168,27 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
                     }
                 }
             });
+
+    @NonNull
+    private final FullyLoadedReporter mFullyLoadedReporter = new FullyLoadedReporter(
+            runnable -> {
+                View decorView = getWindow().getDecorView();
+                if (SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
+                    decorView.post(runnable);
+                } else {
+                    Api16Impl.postOnAnimation(decorView, runnable);
+                }
+                if (Looper.myLooper() != Looper.getMainLooper()) {
+                    decorView.postInvalidate();
+                } else {
+                    decorView.invalidate();
+                }
+            },
+            () -> {
+                reportFullyDrawn();
+                return null;
+            }
+    );
 
     @LayoutRes
     private int mContentLayoutId;
@@ -477,6 +499,7 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
         ViewTreeViewModelStoreOwner.set(getWindow().getDecorView(), this);
         ViewTreeSavedStateRegistryOwner.set(getWindow().getDecorView(), this);
         ViewTreeOnBackPressedDispatcherOwner.set(getWindow().getDecorView(), this);
+        ViewTreeFullyLoadedReporterOwner.set(getWindow().getDecorView(), this);
     }
 
     @Nullable
@@ -690,6 +713,11 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
         return mSavedStateRegistryController.getSavedStateRegistry();
     }
 
+    @NonNull
+    @Override
+    public FullyLoadedReporter getFullyLoadedReporter() {
+        return mFullyLoadedReporter;
+    }
     /**
      * {@inheritDoc}
      *
@@ -1079,8 +1107,9 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
                 // throwing, we fall back to a no-op call.
                 super.reportFullyDrawn();
             }
-            // The Activity.reportFullyDrawn() got added in API 19, fall back to a no-op call if
-            // this method gets called on devices with an earlier version.
+            // Activity.reportFullyDrawn() was added in API 19, so we can't call super
+            // prior to that, but we still need to update our FullyLoadedReporter's state
+            mFullyLoadedReporter.fullyDrawnReported();
         } finally {
             Trace.endSection();
         }
@@ -1102,6 +1131,16 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
         @DoNotInline
         static OnBackInvokedDispatcher getOnBackInvokedDispatcher(Activity activity) {
             return activity.getOnBackInvokedDispatcher();
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.JELLY_BEAN)
+    static class Api16Impl {
+        private Api16Impl() { }
+
+        @DoNotInline
+        static void postOnAnimation(View view, Runnable runnable) {
+            view.postOnAnimation(runnable);
         }
     }
 }

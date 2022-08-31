@@ -79,6 +79,9 @@
         <activity
             android:name="androidx.activity.OptionMenuNoSuperActivity"
             android:exported="true" />
+        <activity
+            android:name="androidx.activity.FullyLoadedActivity"
+            android:exported="true" />
     </application>
 
 </manifest>
