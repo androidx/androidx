@@ -25,6 +25,7 @@ import androidx.camera.integration.extensions.util.CameraXExtensionsTestUtil.ass
 import androidx.camera.integration.extensions.util.CameraXExtensionsTestUtil.launchCameraExtensionsActivity
 import androidx.camera.integration.extensions.util.HOME_TIMEOUT_MS
 import androidx.camera.integration.extensions.util.waitForPreviewIdle
+import androidx.camera.integration.extensions.utils.CameraSelectorUtil
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CameraUtil.PreTestCameraIdList
@@ -34,6 +35,7 @@ import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.GrantPermissionRule
 import androidx.test.uiautomator.UiDevice
+import androidx.testutils.withActivity
 import java.util.concurrent.TimeUnit
 import org.junit.After
 import org.junit.Assume.assumeTrue
@@ -61,6 +63,7 @@ class PreviewTest(private val cameraId: String, private val extensionMode: Int) 
         GrantPermissionRule.grant(Manifest.permission.WRITE_EXTERNAL_STORAGE)!!
 
     private val context = ApplicationProvider.getApplicationContext<Context>()
+    private lateinit var extensionsManager: ExtensionsManager
 
     companion object {
         @Parameterized.Parameters(name = "cameraId = {0}, extensionMode = {1}")
@@ -84,7 +87,7 @@ class PreviewTest(private val cameraId: String, private val extensionMode: Int) 
         val cameraProvider =
             ProcessCameraProvider.getInstance(context)[10000, TimeUnit.MILLISECONDS]
 
-        val extensionsManager = ExtensionsManager.getInstanceAsync(
+        extensionsManager = ExtensionsManager.getInstanceAsync(
             context,
             cameraProvider
         )[10000, TimeUnit.MILLISECONDS]
@@ -121,6 +124,37 @@ class PreviewTest(private val cameraId: String, private val extensionMode: Int) 
 
         with(activityScenario) {
             use {
+                waitForPreviewIdle()
+            }
+        }
+    }
+
+    private fun assumeNextCameraIdExtensionModeSupported(cameraId: String, extensionsMode: Int) {
+        val nextCameraId = CameraSelectorUtil.findNextSupportedCameraId(
+            ApplicationProvider.getApplicationContext(),
+            extensionsManager,
+            cameraId,
+            extensionMode
+        )
+        assumeTrue(
+            "Cannot find next camera id that supports extensions mode($extensionsMode)",
+            nextCameraId != null)
+    }
+    /**
+     * Checks that Preview can successfully enter the STREAMING state to show the preview when an
+     * extension mode is enabled and after switching cameras.
+     */
+    @Test
+    fun previewCanEnterStreamingStateAfterSwitchingCamera() {
+        assumeNextCameraIdExtensionModeSupported(cameraId, extensionMode)
+        val activityScenario = launchCameraExtensionsActivity(cameraId, extensionMode)
+
+        with(activityScenario) {
+            use {
+                waitForPreviewIdle()
+                withActivity {
+                    switchCameras()
+                }
                 waitForPreviewIdle()
             }
         }

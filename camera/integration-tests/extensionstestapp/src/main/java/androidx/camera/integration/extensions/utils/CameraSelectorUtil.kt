@@ -16,12 +16,17 @@
 
 package androidx.camera.integration.extensions.utils
 
+import android.content.Context
+import android.hardware.camera2.CameraAccessException
+import android.hardware.camera2.CameraManager
 import androidx.annotation.OptIn
 import androidx.camera.camera2.interop.Camera2CameraInfo
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop
 import androidx.camera.core.CameraFilter
 import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraSelector
+import androidx.camera.extensions.ExtensionMode
+import androidx.camera.extensions.ExtensionsManager
 
 object CameraSelectorUtil {
 
@@ -37,4 +42,34 @@ object CameraSelectorUtil {
 
             throw IllegalArgumentException("No camera can be find for id: $cameraId")
         }).build()
+
+    @JvmStatic
+    fun findNextSupportedCameraId(
+        context: Context,
+        extensionsManager: ExtensionsManager,
+        currentCameraId: String,
+        @ExtensionMode.Mode extensionsMode: Int
+    ): String? {
+        val cameraManager = context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
+        try {
+            val supportedCameraIdList = cameraManager.cameraIdList.filter {
+                extensionsManager.isExtensionAvailable(
+                        createCameraSelectorById(it),
+                        extensionsMode
+                )
+            }
+
+            if (supportedCameraIdList.size == 1) {
+                return null
+            }
+
+            supportedCameraIdList.forEachIndexed { index, id ->
+                if (currentCameraId == id) {
+                    return supportedCameraIdList[(index + 1) % supportedCameraIdList.size]
+                }
+            }
+        } catch (e: CameraAccessException) {
+        }
+        return null
+    }
 }

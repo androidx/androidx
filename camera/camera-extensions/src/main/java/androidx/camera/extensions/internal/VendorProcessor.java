@@ -19,11 +19,18 @@ package androidx.camera.extensions.internal;
 import androidx.annotation.RequiresApi;
 
 /**
- * A processor that can be closed so that the underlying processing implementation is skipped,
- * if it has been closed.
+ * A processor that is used for invoking vendor extensions. {@link #onInit()} will be invoked
+ * after
+ * {@link androidx.camera.extensions.impl.ExtenderStateListener#onInit}. {@link #close()} is
+ * invoked to close the processor.
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-public interface CloseableProcessor {
+public interface VendorProcessor {
+    /**
+     * Initialize the processor after
+     * {@link androidx.camera.extensions.impl.ExtenderStateListener#onInit}.
+     */
+    default void onInit() {}
 
     /**
      * Close the processor.
