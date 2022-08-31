@@ -41,7 +41,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class UiObject2Tests extends BaseTest {
+public class UiObject2Test extends BaseTest {
     private static final int TIMEOUT_MS = 10_000;
     private static final int SPEED_MS = 100;
     private static final int SCROLL_MARGIN = 50;
