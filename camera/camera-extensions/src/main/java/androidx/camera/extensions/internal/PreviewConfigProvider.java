@@ -44,6 +44,7 @@ import androidx.camera.extensions.ExtensionMode;
 import androidx.camera.extensions.impl.CaptureStageImpl;
 import androidx.camera.extensions.impl.PreviewExtenderImpl;
 import androidx.camera.extensions.impl.PreviewImageProcessorImpl;
+import androidx.core.util.Preconditions;
 
 import java.util.List;
 
@@ -141,64 +142,54 @@ public class PreviewConfigProvider implements ConfigProvider<PreviewConfig> {
         final PreviewExtenderImpl mImpl;
         @NonNull
         private final Context mContext;
-
-        final CloseableProcessor mCloseableProcessor;
+        @Nullable
+        final VendorProcessor mPreviewProcessor;
+        @Nullable
+        CameraInfo mCameraInfo;
 
         // Once the adapter has set mActive to false a new instance needs to be created
         @GuardedBy("mLock")
-        volatile boolean mActive = true;
         final Object mLock = new Object();
-        @GuardedBy("mLock")
-        private volatile int mEnabledSessionCount = 0;
-        @GuardedBy("mLock")
-        private volatile boolean mUnbind = false;
 
         PreviewEventAdapter(@NonNull PreviewExtenderImpl impl,
-                @NonNull Context context, @Nullable CloseableProcessor closeableProcessor) {
+                @NonNull Context context, @Nullable VendorProcessor previewProcessor) {
             mImpl = impl;
             mContext = context;
-            mCloseableProcessor = closeableProcessor;
+            mPreviewProcessor = previewProcessor;
         }
 
-        @OptIn(markerClass = ExperimentalCamera2Interop.class)
+        // Invoked from main thread
         @Override
         public void onAttach(@NonNull CameraInfo cameraInfo) {
             synchronized (mLock) {
-                if (mActive) {
-                    String cameraId = Camera2CameraInfo.from(cameraInfo).getCameraId();
-                    CameraCharacteristics cameraCharacteristics =
-                            Camera2CameraInfo.extractCameraCharacteristics(cameraInfo);
-                    mImpl.onInit(cameraId, cameraCharacteristics, mContext);
-                }
+                mCameraInfo = cameraInfo;
             }
         }
 
+        // Invoked from main thread
         @Override
         public void onDetach() {
             synchronized (mLock) {
-                mUnbind = true;
-                if (mEnabledSessionCount == 0) {
-                    callDeInit();
+                if (mPreviewProcessor != null) {
+                    mPreviewProcessor.close();
                 }
             }
         }
 
-        private void callDeInit() {
-            synchronized (mLock) {
-                if (mActive) {
-                    if (mCloseableProcessor != null) {
-                        mCloseableProcessor.close();
-                    }
-                    mImpl.onDeInit();
-                    mActive = false;
-                }
-            }
-        }
-
+        // Invoked from camera thread
         @Override
         @Nullable
-        public CaptureConfig onPresetSession() {
+        @OptIn(markerClass = ExperimentalCamera2Interop.class)
+        public CaptureConfig onInitSession() {
             synchronized (mLock) {
+                Preconditions.checkNotNull(mCameraInfo,
+                        "PreviewConfigProvider was not attached.");
+
+                String cameraId = Camera2CameraInfo.from(mCameraInfo).getCameraId();
+                CameraCharacteristics cameraCharacteristics =
+                        Camera2CameraInfo.extractCameraCharacteristics(mCameraInfo);
+                mImpl.onInit(cameraId, cameraCharacteristics, mContext);
+                mPreviewProcessor.onInit();
                 CaptureStageImpl captureStageImpl = mImpl.onPresetSession();
                 if (captureStageImpl != null) {
                     if (Build.VERSION.SDK_INT >= 28) {
@@ -216,64 +207,54 @@ public class PreviewConfigProvider implements ConfigProvider<PreviewConfig> {
             return null;
         }
 
+        // Invoked from camera thread
         @Override
         @Nullable
         public CaptureConfig onEnableSession() {
-            try {
-                synchronized (mLock) {
-                    if (mActive) {
-                        CaptureStageImpl captureStageImpl = mImpl.onEnableSession();
-                        if (captureStageImpl != null) {
-                            return new AdaptingCaptureStage(captureStageImpl).getCaptureConfig();
-                        }
-                    }
-                }
-
-                return null;
-            } finally {
-                synchronized (mLock) {
-                    mEnabledSessionCount++;
-                }
-            }
-        }
-
-        @Override
-        @Nullable
-        public CaptureConfig onDisableSession() {
-            try {
-                synchronized (mLock) {
-                    if (mActive) {
-                        CaptureStageImpl captureStageImpl = mImpl.onDisableSession();
-                        if (captureStageImpl != null) {
-                            return new AdaptingCaptureStage(captureStageImpl).getCaptureConfig();
-                        }
-                    }
-                }
-
-                return null;
-            } finally {
-                synchronized (mLock) {
-                    mEnabledSessionCount--;
-                    if (mEnabledSessionCount == 0 && mUnbind) {
-                        callDeInit();
-                    }
-                }
-            }
-        }
-
-        @Override
-        @Nullable
-        public CaptureConfig onRepeating() {
             synchronized (mLock) {
-                if (mActive) {
-                    CaptureStageImpl captureStageImpl = mImpl.getCaptureStage();
-                    if (captureStageImpl != null) {
-                        return new AdaptingCaptureStage(captureStageImpl).getCaptureConfig();
-                    }
+                CaptureStageImpl captureStageImpl = mImpl.onEnableSession();
+                if (captureStageImpl != null) {
+                    return new AdaptingCaptureStage(captureStageImpl).getCaptureConfig();
                 }
             }
 
             return null;
+        }
+
+        // Invoked from camera thread
+        @Override
+        @Nullable
+        public CaptureConfig onDisableSession() {
+            synchronized (mLock) {
+                CaptureStageImpl captureStageImpl = mImpl.onDisableSession();
+                if (captureStageImpl != null) {
+                    return new AdaptingCaptureStage(captureStageImpl).getCaptureConfig();
+                }
+            }
+
+            return null;
+        }
+
+        // Invoked from camera thread
+        @Override
+        @Nullable
+        public CaptureConfig onRepeating() {
+            synchronized (mLock) {
+                CaptureStageImpl captureStageImpl = mImpl.getCaptureStage();
+                if (captureStageImpl != null) {
+                    return new AdaptingCaptureStage(captureStageImpl).getCaptureConfig();
+                }
+            }
+
+            return null;
+        }
+
+        // Invoked from camera thread
+        @Override
+        public void onDeInitSession() {
+            synchronized (mLock) {
+                mImpl.onDeInit();
+            }
         }
     }
 }

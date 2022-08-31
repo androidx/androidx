@@ -152,7 +152,8 @@ object CameraXExtensionsTestUtil {
         extensionMode: Int
     ) {
         val cameraIdCameraSelector = createCameraSelectorById(cameraId)
-        assumeTrue(extensionsManager.isExtensionAvailable(cameraIdCameraSelector, extensionMode))
+        assumeTrue("Extensions mode($extensionMode) not supported",
+            extensionsManager.isExtensionAvailable(cameraIdCameraSelector, extensionMode))
     }
 
     @JvmStatic

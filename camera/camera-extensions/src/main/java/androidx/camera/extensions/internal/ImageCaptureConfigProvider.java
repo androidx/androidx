@@ -22,7 +22,6 @@ import android.os.Build;
 import android.util.Pair;
 import android.util.Size;
 
-import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.OptIn;
@@ -46,10 +45,10 @@ import androidx.camera.extensions.ExtensionMode;
 import androidx.camera.extensions.impl.CaptureProcessorImpl;
 import androidx.camera.extensions.impl.CaptureStageImpl;
 import androidx.camera.extensions.impl.ImageCaptureExtenderImpl;
+import androidx.core.util.Preconditions;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Provides extensions related configs for image capture
@@ -99,8 +98,10 @@ public class ImageCaptureConfigProvider implements ConfigProvider<ImageCaptureCo
             if (imageCaptureExtenderImpl != null) {
                 CaptureProcessorImpl captureProcessor =
                         imageCaptureExtenderImpl.getCaptureProcessor();
+                AdaptingCaptureProcessor adaptingCaptureProcessor = null;
                 if (captureProcessor != null) {
-                    builder.setCaptureProcessor(new AdaptingCaptureProcessor(captureProcessor));
+                    adaptingCaptureProcessor = new AdaptingCaptureProcessor(captureProcessor);
+                    builder.setCaptureProcessor(adaptingCaptureProcessor);
                 }
 
                 if (imageCaptureExtenderImpl.getMaxCaptureStage() > 0) {
@@ -110,7 +111,7 @@ public class ImageCaptureConfigProvider implements ConfigProvider<ImageCaptureCo
 
                 ImageCaptureEventAdapter imageCaptureEventAdapter =
                         new ImageCaptureEventAdapter(imageCaptureExtenderImpl,
-                                context);
+                                context, adaptingCaptureProcessor);
                 new Camera2ImplConfig.Extender<>(builder).setCameraEventCallback(
                         new CameraEventCallbacks(imageCaptureEventAdapter));
                 builder.setUseCaseEventCallback(imageCaptureEventAdapter);
@@ -139,123 +140,107 @@ public class ImageCaptureConfigProvider implements ConfigProvider<ImageCaptureCo
         private final ImageCaptureExtenderImpl mImpl;
         @NonNull
         private final Context mContext;
-        private final AtomicBoolean mActive = new AtomicBoolean(true);
-        private final Object mLock = new Object();
-        @GuardedBy("mLock")
-        private volatile int mEnabledSessionCount = 0;
-        @GuardedBy("mLock")
-        private volatile boolean mUnbind = false;
+        @Nullable
+        private VendorProcessor mVendorCaptureProcessor;
+        @Nullable
+        private volatile CameraInfo mCameraInfo;
+
 
         ImageCaptureEventAdapter(@NonNull ImageCaptureExtenderImpl impl,
-                @NonNull Context context) {
+                @NonNull Context context,
+                @Nullable VendorProcessor vendorCaptureProcessor) {
             mImpl = impl;
             mContext = context;
+            mVendorCaptureProcessor = vendorCaptureProcessor;
         }
 
-        @OptIn(markerClass = ExperimentalCamera2Interop.class)
+
+        // Invoked from main thread
         @Override
         public void onAttach(@NonNull CameraInfo cameraInfo) {
-            if (mActive.get()) {
-                String cameraId = Camera2CameraInfo.from(cameraInfo).getCameraId();
-                CameraCharacteristics cameraCharacteristics =
-                        Camera2CameraInfo.extractCameraCharacteristics(cameraInfo);
-                mImpl.onInit(cameraId, cameraCharacteristics, mContext);
-            }
+            mCameraInfo = cameraInfo;
         }
 
+        // Invoked from main thread
         @Override
         public void onDetach() {
-            synchronized (mLock) {
-                mUnbind = true;
-                if (mEnabledSessionCount == 0) {
-                    callDeInit();
-                }
-            }
         }
 
-        private void callDeInit() {
-            if (mActive.get()) {
-                mImpl.onDeInit();
-                mActive.set(false);
-            }
-        }
-
+        // Invoked from camera thread
         @Override
         @Nullable
-        public CaptureConfig onPresetSession() {
-            if (mActive.get()) {
-                CaptureStageImpl captureStageImpl = mImpl.onPresetSession();
-                if (captureStageImpl != null) {
-                    if (Build.VERSION.SDK_INT >= 28) {
-                        return new AdaptingCaptureStage(captureStageImpl).getCaptureConfig();
-                    } else {
-                        Logger.w(TAG, "The CaptureRequest parameters returned from "
-                                + "onPresetSession() will be passed to the camera device as part "
-                                + "of the capture session via "
-                                + "SessionConfiguration#setSessionParameters(CaptureRequest) "
-                                + "which only supported from API level 28!");
-                    }
+        @OptIn(markerClass = ExperimentalCamera2Interop.class)
+        public CaptureConfig onInitSession() {
+            Preconditions.checkNotNull(mCameraInfo,
+                    "ImageCaptureConfigProvider was not attached.");
+            String cameraId = Camera2CameraInfo.from(mCameraInfo).getCameraId();
+            CameraCharacteristics cameraCharacteristics =
+                    Camera2CameraInfo.extractCameraCharacteristics(mCameraInfo);
+            mImpl.onInit(cameraId, cameraCharacteristics, mContext);
+
+            if (mVendorCaptureProcessor != null) {
+                mVendorCaptureProcessor.onInit();
+            }
+
+            CaptureStageImpl captureStageImpl = mImpl.onPresetSession();
+            if (captureStageImpl != null) {
+                if (Build.VERSION.SDK_INT >= 28) {
+                    return new AdaptingCaptureStage(captureStageImpl).getCaptureConfig();
+                } else {
+                    Logger.w(TAG, "The CaptureRequest parameters returned from "
+                            + "onPresetSession() will be passed to the camera device as part "
+                            + "of the capture session via "
+                            + "SessionConfiguration#setSessionParameters(CaptureRequest) "
+                            + "which only supported from API level 28!");
                 }
             }
             return null;
         }
 
+        // Invoked from camera thread
         @Override
         @Nullable
         public CaptureConfig onEnableSession() {
-            try {
-                if (mActive.get()) {
-                    CaptureStageImpl captureStageImpl = mImpl.onEnableSession();
-                    if (captureStageImpl != null) {
-                        return new AdaptingCaptureStage(captureStageImpl).getCaptureConfig();
-                    }
-                }
-
-                return null;
-            } finally {
-                synchronized (mLock) {
-                    mEnabledSessionCount++;
-                }
-            }
-        }
-
-        @Override
-        @Nullable
-        public CaptureConfig onDisableSession() {
-            try {
-                if (mActive.get()) {
-                    CaptureStageImpl captureStageImpl = mImpl.onDisableSession();
-                    if (captureStageImpl != null) {
-                        return new AdaptingCaptureStage(captureStageImpl).getCaptureConfig();
-                    }
-                }
-
-                return null;
-            } finally {
-                synchronized (mLock) {
-                    mEnabledSessionCount--;
-                    if (mEnabledSessionCount == 0 && mUnbind) {
-                        callDeInit();
-                    }
-                }
-            }
-        }
-
-        @Override
-        @Nullable
-        public List<CaptureStage> getCaptureStages() {
-            if (mActive.get()) {
-                List<CaptureStageImpl> captureStages = mImpl.getCaptureStages();
-                if (captureStages != null && !captureStages.isEmpty()) {
-                    ArrayList<CaptureStage> ret = new ArrayList<>();
-                    for (CaptureStageImpl s : captureStages) {
-                        ret.add(new AdaptingCaptureStage(s));
-                    }
-                    return ret;
-                }
+            CaptureStageImpl captureStageImpl = mImpl.onEnableSession();
+            if (captureStageImpl != null) {
+                return new AdaptingCaptureStage(captureStageImpl).getCaptureConfig();
             }
 
             return null;
+        }
+
+        // Invoked from camera thread
+        @Override
+        @Nullable
+        public CaptureConfig onDisableSession() {
+            CaptureStageImpl captureStageImpl = mImpl.onDisableSession();
+            if (captureStageImpl != null) {
+                return new AdaptingCaptureStage(captureStageImpl).getCaptureConfig();
+            }
+
+            return null;
+        }
+
+        // Invoked from main thread
+        @Override
+        @Nullable
+        public List<CaptureStage> getCaptureStages() {
+            List<CaptureStageImpl> captureStages = mImpl.getCaptureStages();
+            if (captureStages != null && !captureStages.isEmpty()) {
+                ArrayList<CaptureStage> ret = new ArrayList<>();
+                for (CaptureStageImpl s : captureStages) {
+                    ret.add(new AdaptingCaptureStage(s));
+                }
+                return ret;
+            }
+
+            return null;
+        }
+
+        // Invoked from camera thread
+        @Override
+        public void onDeInitSession() {
+            mImpl.onDeInit();
         }
     }
 }

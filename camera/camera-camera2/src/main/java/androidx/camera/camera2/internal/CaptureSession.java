@@ -291,7 +291,7 @@ final class CaptureSession implements CaptureSessionInterface {
                     mCameraEventCallbacks = camera2Config
                             .getCameraEventCallback(CameraEventCallbacks.createEmptyCallback());
                     List<CaptureConfig> presetList =
-                            mCameraEventCallbacks.createComboCallback().onPresetSession();
+                            mCameraEventCallbacks.createComboCallback().onInitSession();
 
                     // Generate the CaptureRequest builder from repeating request since Android
                     // recommend use the same template type as the initial capture request. The
@@ -490,6 +490,7 @@ final class CaptureSession implements CaptureSessionInterface {
                     }
                     // Fall through
                 case OPENING:
+                    mCameraEventCallbacks.createComboCallback().onDeInitSession();
                     mState = State.RELEASING;
                     Preconditions.checkNotNull(mSynchronizedCaptureSessionOpener, "The "
                             + "Opener shouldn't null in state:" + mState);
