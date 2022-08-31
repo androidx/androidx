@@ -22,6 +22,7 @@
     <uses-permission android:name="android.permission.WRITE_CONTACTS"/>
 
     <application
+        android:name="androidx.fragment.app.LeakCanaryApp"
         android:supportsRtl="true"
         android:theme="@style/TestActivityTheme">
         <activity android:name="androidx.fragment.app.test.FragmentTestActivity"/>

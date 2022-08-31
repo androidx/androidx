@@ -19,6 +19,7 @@ android {
 
     defaultConfig {
         multiDexEnabled true
+        testInstrumentationRunnerArgument "listener", "leakcanary.FailTestOnLeakRunListener"
     }
     namespace "androidx.fragment"
 }
@@ -42,6 +43,8 @@ dependencies {
         exclude group: "androidx.activity", module: "activity"
     })
     androidTestImplementation(libs.kotlinStdlib)
+    androidTestImplementation(libs.leakcanary)
+    androidTestImplementation(libs.leakcanaryInstrumentation)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)
