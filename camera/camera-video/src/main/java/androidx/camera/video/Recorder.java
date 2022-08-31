@@ -26,6 +26,11 @@ import static androidx.camera.video.VideoRecordEvent.Finalize.ERROR_SOURCE_INACT
 import static androidx.camera.video.VideoRecordEvent.Finalize.ERROR_UNKNOWN;
 import static androidx.camera.video.VideoRecordEvent.Finalize.VideoRecordError;
 import static androidx.camera.video.internal.DebugUtils.readableUs;
+import static androidx.camera.video.internal.config.AudioConfigUtil.resolveAudioEncoderConfig;
+import static androidx.camera.video.internal.config.AudioConfigUtil.resolveAudioMimeInfo;
+import static androidx.camera.video.internal.config.AudioConfigUtil.resolveAudioSourceSettings;
+import static androidx.camera.video.internal.config.VideoConfigUtil.resolveVideoEncoderConfig;
+import static androidx.camera.video.internal.config.VideoConfigUtil.resolveVideoMimeInfo;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -40,7 +45,6 @@ import android.os.Build;
 import android.os.ParcelFileDescriptor;
 import android.provider.MediaStore;
 import android.util.Pair;
-import android.util.Range;
 import android.util.Size;
 import android.view.Surface;
 
@@ -73,13 +77,7 @@ import androidx.camera.video.internal.compat.Api26Impl;
 import androidx.camera.video.internal.compat.quirk.DeactivateEncoderSurfaceBeforeStopEncoderQuirk;
 import androidx.camera.video.internal.compat.quirk.DeviceQuirks;
 import androidx.camera.video.internal.compat.quirk.EncoderNotUsePersistentInputSurfaceQuirk;
-import androidx.camera.video.internal.config.AudioEncoderConfigCamcorderProfileResolver;
-import androidx.camera.video.internal.config.AudioEncoderConfigDefaultResolver;
-import androidx.camera.video.internal.config.AudioSourceSettingsCamcorderProfileResolver;
-import androidx.camera.video.internal.config.AudioSourceSettingsDefaultResolver;
 import androidx.camera.video.internal.config.MimeInfo;
-import androidx.camera.video.internal.config.VideoEncoderConfigCamcorderProfileResolver;
-import androidx.camera.video.internal.config.VideoEncoderConfigDefaultResolver;
 import androidx.camera.video.internal.encoder.AudioEncoderConfig;
 import androidx.camera.video.internal.encoder.BufferCopiedEncodedData;
 import androidx.camera.video.internal.encoder.EncodeException;
@@ -96,7 +94,6 @@ import androidx.camera.video.internal.workaround.CorrectNegativeLatLongForMediaM
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.util.Consumer;
 import androidx.core.util.Preconditions;
-import androidx.core.util.Supplier;
 
 import com.google.auto.value.AutoValue;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -1004,17 +1001,8 @@ public final class Recorder implements VideoOutput {
             // Fetch and cache nearest camcorder profile, if one exists.
             VideoCapabilities capabilities =
                     VideoCapabilities.from(surfaceRequest.getCamera().getCameraInfo());
-            Quality highestSupportedQuality =
-                    capabilities.findHighestSupportedQualityFor(surfaceSize);
-            Logger.d(TAG, "Using supported quality of " + highestSupportedQuality
-                    + " for surface size " + surfaceSize);
-            if (highestSupportedQuality != Quality.NONE) {
-                mResolvedCamcorderProfile = capabilities.getProfile(highestSupportedQuality);
-                if (mResolvedCamcorderProfile == null) {
-                    throw new AssertionError("Camera advertised available quality but did not "
-                            + "produce CamcorderProfile for advertised quality.");
-                }
-            }
+            mResolvedCamcorderProfile = capabilities.findHighestSupportedCamcorderProfileFor(
+                    surfaceSize);
             setupVideo(surfaceRequest);
         }
     }
@@ -1105,152 +1093,6 @@ public final class Recorder implements VideoOutput {
         return activeRecording.getRecordingId() == recordingRecord.getRecordingId();
     }
 
-    @ExecutedBy("mSequentialExecutor")
-    @NonNull
-    private MimeInfo resolveAudioMimeInfo(@NonNull MediaSpec mediaSpec) {
-        String mediaSpecAudioMime = MediaSpec.outputFormatToAudioMime(mediaSpec.getOutputFormat());
-        int mediaSpecAudioProfile =
-                MediaSpec.outputFormatToAudioProfile(mediaSpec.getOutputFormat());
-        String resolvedAudioMime = mediaSpecAudioMime;
-        int resolvedAudioProfile = mediaSpecAudioProfile;
-        boolean camcorderProfileIsCompatible = false;
-        if (mResolvedCamcorderProfile != null) {
-            String camcorderProfileAudioMime = mResolvedCamcorderProfile.getAudioCodecMimeType();
-            int camcorderProfileAudioProfile = mResolvedCamcorderProfile.getRequiredAudioProfile();
-
-            if (camcorderProfileAudioMime == null) {
-                Logger.d(TAG, "CamcorderProfile contains undefined AUDIO mime type so cannot be "
-                        + "used. May rely on fallback defaults to derive settings [chosen mime "
-                        + "type: "
-                        + resolvedAudioMime + "(profile: " + resolvedAudioProfile + ")]");
-            } else if (mediaSpec.getOutputFormat() == MediaSpec.OUTPUT_FORMAT_AUTO) {
-                camcorderProfileIsCompatible = true;
-                resolvedAudioMime = camcorderProfileAudioMime;
-                resolvedAudioProfile = camcorderProfileAudioProfile;
-                Logger.d(TAG, "MediaSpec contains OUTPUT_FORMAT_AUTO. Using CamcorderProfile "
-                        + "to derive AUDIO settings [mime type: "
-                        + resolvedAudioMime + "(profile: " + resolvedAudioProfile + ")]");
-            } else if (Objects.equals(mediaSpecAudioMime, camcorderProfileAudioMime)
-                    && mediaSpecAudioProfile == camcorderProfileAudioProfile) {
-                camcorderProfileIsCompatible = true;
-                resolvedAudioMime = camcorderProfileAudioMime;
-                resolvedAudioProfile = camcorderProfileAudioProfile;
-                Logger.d(TAG, "MediaSpec audio mime/profile matches CamcorderProfile. "
-                        + "Using CamcorderProfile to derive AUDIO settings [mime type: "
-                        + resolvedAudioMime + "(profile: " + resolvedAudioProfile + ")]");
-            } else {
-                Logger.d(TAG, "MediaSpec audio mime or profile does not match CamcorderProfile, so "
-                        + "CamcorderProfile settings cannot be used. May rely on fallback "
-                        + "defaults to derive AUDIO settings [CamcorderProfile mime type: "
-                        + camcorderProfileAudioMime + "(profile: " + camcorderProfileAudioProfile
-                        + "), chosen mime type: "
-                        + resolvedAudioMime + "(profile: " + resolvedAudioProfile + ")]");
-            }
-        }
-
-        MimeInfo.Builder mimeInfoBuilder = MimeInfo.builder(resolvedAudioMime)
-                .setProfile(resolvedAudioProfile);
-        if (camcorderProfileIsCompatible) {
-            mimeInfoBuilder.setCompatibleCamcorderProfile(mResolvedCamcorderProfile);
-        }
-
-        return mimeInfoBuilder.build();
-    }
-
-    @ExecutedBy("mSequentialExecutor")
-    @NonNull
-    private MimeInfo resolveVideoMimeInfo(@NonNull MediaSpec mediaSpec) {
-        String mediaSpecVideoMime = MediaSpec.outputFormatToVideoMime(mediaSpec.getOutputFormat());
-        String resolvedVideoMime = mediaSpecVideoMime;
-        boolean camcorderProfileIsCompatible = false;
-        if (mResolvedCamcorderProfile != null) {
-            String camcorderProfileVideoMime = mResolvedCamcorderProfile.getVideoCodecMimeType();
-            // Use camcorder profile settings if the media spec's output format
-            // is set to auto or happens to match the CamcorderProfile's output format.
-            if (camcorderProfileVideoMime == null) {
-                Logger.d(TAG, "CamcorderProfile contains undefined VIDEO mime type so cannot be "
-                        + "used. May rely on fallback defaults to derive settings [chosen mime "
-                        + "type: " + resolvedVideoMime + "]");
-            } else if (mediaSpec.getOutputFormat() == MediaSpec.OUTPUT_FORMAT_AUTO) {
-                camcorderProfileIsCompatible = true;
-                resolvedVideoMime = camcorderProfileVideoMime;
-                Logger.d(TAG, "MediaSpec contains OUTPUT_FORMAT_AUTO. Using CamcorderProfile "
-                        + "to derive VIDEO settings [mime type: " + resolvedVideoMime + "]");
-            } else if (Objects.equals(mediaSpecVideoMime, camcorderProfileVideoMime)) {
-                camcorderProfileIsCompatible = true;
-                resolvedVideoMime = camcorderProfileVideoMime;
-                Logger.d(TAG, "MediaSpec video mime matches CamcorderProfile. Using "
-                        + "CamcorderProfile to derive VIDEO settings [mime type: "
-                        + resolvedVideoMime + "]");
-            } else {
-                Logger.d(TAG, "MediaSpec video mime does not match CamcorderProfile, so "
-                        + "CamcorderProfile settings cannot be used. May rely on fallback "
-                        + "defaults to derive VIDEO settings [CamcorderProfile mime type: "
-                        + camcorderProfileVideoMime + ", chosen mime type: "
-                        + resolvedVideoMime + "]");
-            }
-        } else {
-            Logger.d(TAG,
-                    "No CamcorderProfile present. May rely on fallback defaults to derive VIDEO "
-                            + "settings [chosen mime type: " + resolvedVideoMime + "]");
-        }
-
-        MimeInfo.Builder mimeInfoBuilder = MimeInfo.builder(resolvedVideoMime);
-        if (camcorderProfileIsCompatible) {
-            mimeInfoBuilder.setCompatibleCamcorderProfile(mResolvedCamcorderProfile);
-        }
-
-        return mimeInfoBuilder.build();
-    }
-
-    @NonNull
-    private static AudioSource.Settings resolveAudioSourceSettings(@NonNull MimeInfo audioMimeInfo,
-            @NonNull AudioSpec audioSpec) {
-        Supplier<AudioSource.Settings> settingsSupplier;
-        if (audioMimeInfo.getCompatibleCamcorderProfile() != null) {
-            settingsSupplier = new AudioSourceSettingsCamcorderProfileResolver(audioSpec,
-                    audioMimeInfo.getCompatibleCamcorderProfile());
-        } else {
-            settingsSupplier = new AudioSourceSettingsDefaultResolver(audioSpec);
-        }
-
-        return settingsSupplier.get();
-    }
-
-    @NonNull
-    private static AudioEncoderConfig resolveAudioEncoderConfig(@NonNull MimeInfo audioMimeInfo,
-            @NonNull AudioSource.Settings audioSourceSettings, @NonNull AudioSpec audioSpec) {
-        Supplier<AudioEncoderConfig> configSupplier;
-        if (audioMimeInfo.getCompatibleCamcorderProfile() != null) {
-            configSupplier = new AudioEncoderConfigCamcorderProfileResolver(
-                    audioMimeInfo.getMimeType(), audioMimeInfo.getProfile(), audioSpec,
-                    audioSourceSettings, audioMimeInfo.getCompatibleCamcorderProfile());
-        } else {
-            configSupplier = new AudioEncoderConfigDefaultResolver(audioMimeInfo.getMimeType(),
-                    audioMimeInfo.getProfile(), audioSpec, audioSourceSettings);
-        }
-
-        return configSupplier.get();
-    }
-
-    @NonNull
-    private static VideoEncoderConfig resolveVideoEncoderConfig(@NonNull MimeInfo videoMimeInfo,
-            @NonNull VideoSpec videoSpec, @NonNull Size surfaceSize,
-            @Nullable Range<Integer> expectedFrameRateRange) {
-        Supplier<VideoEncoderConfig> configSupplier;
-        if (videoMimeInfo.getCompatibleCamcorderProfile() != null) {
-            configSupplier = new VideoEncoderConfigCamcorderProfileResolver(
-                    videoMimeInfo.getMimeType(), videoSpec, surfaceSize,
-                    videoMimeInfo.getCompatibleCamcorderProfile(),
-                    expectedFrameRateRange);
-        } else {
-            configSupplier = new VideoEncoderConfigDefaultResolver(videoMimeInfo.getMimeType(),
-                    videoSpec, surfaceSize, expectedFrameRateRange);
-        }
-
-        return configSupplier.get();
-    }
-
     /**
      * Setup audio related resources.
      *
@@ -1263,7 +1105,7 @@ public final class Recorder implements VideoOutput {
             throws ResourceCreationException {
         MediaSpec mediaSpec = getObservableData(mMediaSpec);
         // Resolve the audio mime info
-        MimeInfo audioMimeInfo = resolveAudioMimeInfo(mediaSpec);
+        MimeInfo audioMimeInfo = resolveAudioMimeInfo(mediaSpec, mResolvedCamcorderProfile);
 
         // Select and create the audio source
         AudioSource.Settings audioSourceSettings =
@@ -1333,7 +1175,7 @@ public final class Recorder implements VideoOutput {
     @ExecutedBy("mSequentialExecutor")
     private void setupVideo(@NonNull SurfaceRequest surfaceRequest) {
         MediaSpec mediaSpec = getObservableData(mMediaSpec);
-        MimeInfo videoMimeInfo = resolveVideoMimeInfo(mediaSpec);
+        MimeInfo videoMimeInfo = resolveVideoMimeInfo(mediaSpec, mResolvedCamcorderProfile);
 
         // The VideoSpec from mMediaSpec only contains settings requested by the recorder, but
         // the actual settings may need to differ depending on the FPS chosen by the camera.
