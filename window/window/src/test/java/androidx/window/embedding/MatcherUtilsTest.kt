@@ -19,6 +19,7 @@ package androidx.window.embedding
 import androidx.window.core.ActivityComponentInfo
 import androidx.window.core.ExperimentalWindowApi
 import androidx.window.embedding.MatcherUtils.areComponentsMatching
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -30,19 +31,58 @@ class MatcherUtilsTest {
 
     @Test
     fun areComponentsMatching_wildcardTrue() {
-        assertTrue(areComponentsMatching(null, wildcardActivityComponentInfo))
+        assertTrue(areComponentsMatching(null, WILDCARD_ACTIVITY_COMPONENT_INFO))
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun areComponentsMatching_wildcardActivityComponentThrows() {
-        areComponentsMatching(wildcardActivityComponentInfo, fakeActivityComponentInfo)
+        areComponentsMatching(WILDCARD_ACTIVITY_COMPONENT_INFO, FAKE_ACTIVITY_COMPONENT_INFO)
+    }
+
+    @Test
+    fun areComponentsMatching_samePackageWildcardClass() {
+        assertTrue(
+            areComponentsMatching(
+                FAKE_ACTIVITY_COMPONENT_INFO,
+                PACKAGE_WILDCARD_ACTIVITY_COMPONENT_INFO
+            )
+        )
+    }
+
+    @Test
+    fun areComponentsMatching_sameClassWildcardPackage() {
+        assertTrue(
+            areComponentsMatching(
+                FAKE_ACTIVITY_COMPONENT_INFO,
+                CLASS_WILDCARD_ACTIVITY_COMPONENT_INFO
+            )
+        )
+    }
+
+    @Test
+    fun areComponentsMatching_falseIfDifferent() {
+        val nonMatchingActivityComponentInfo = ActivityComponentInfo(
+            "other.$FAKE_PACKAGE",
+            "Other$FAKE_CLASS"
+        )
+        assertFalse(
+            areComponentsMatching(FAKE_ACTIVITY_COMPONENT_INFO, nonMatchingActivityComponentInfo)
+        )
     }
 
     companion object {
-        private const val fakePackage = "fake.package"
-        private const val fakeClass = "FakeClass"
-        private const val wildcard = "*"
-        private val wildcardActivityComponentInfo = ActivityComponentInfo(wildcard, wildcard)
-        private val fakeActivityComponentInfo = ActivityComponentInfo(fakePackage, fakeClass)
+        private const val FAKE_PACKAGE = "fake.package"
+        private const val FAKE_CLASS = "FakeClass"
+        private const val WILDCARD = "*"
+        private val WILDCARD_ACTIVITY_COMPONENT_INFO = ActivityComponentInfo(WILDCARD, WILDCARD)
+        private val FAKE_ACTIVITY_COMPONENT_INFO = ActivityComponentInfo(FAKE_PACKAGE, FAKE_CLASS)
+        private val PACKAGE_WILDCARD_ACTIVITY_COMPONENT_INFO = ActivityComponentInfo(
+            WILDCARD,
+            FAKE_CLASS
+        )
+        private val CLASS_WILDCARD_ACTIVITY_COMPONENT_INFO = ActivityComponentInfo(
+            FAKE_PACKAGE,
+            WILDCARD
+        )
     }
 }
