@@ -17,11 +17,18 @@
 package androidx.test.uiautomator.testapp;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
+import android.graphics.Point;
+import android.widget.TextView;
 
 import androidx.test.filters.LargeTest;
 import androidx.test.uiautomator.By;
 import androidx.test.uiautomator.UiObject2;
+import androidx.test.uiautomator.Until;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -30,6 +37,9 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import java.io.File;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.xpath.XPathConstants;
@@ -41,6 +51,115 @@ public class UiDeviceTest extends BaseTest {
 
     @Rule
     public TemporaryFolder mTmpDir = new TemporaryFolder();
+
+    @Test
+    public void testHasObject() {
+        launchTestActivity(MainActivity.class);
+
+        assertTrue(mDevice.hasObject(By.text("Accessible button")));
+        assertFalse(mDevice.hasObject(By.text("non-existent text")));
+    }
+
+    @Test
+    public void testFindObjects() {
+        launchTestActivity(MainActivity.class);
+
+        // The package name in the `By` selector needs to be specified, otherwise
+        // `mDevice.findObjects` will grab all the `TextView` in the display screen.
+        // Note that the items in `ListView` will also be `TextView`. So there are 9 `TextView`s
+        // in total.
+        List<UiObject2> results = mDevice.findObjects(By.pkg(TEST_APP).clazz(TextView.class));
+        assertEquals(9, results.size());
+
+        Set<String> resultTexts = new HashSet<>();
+        for (UiObject2 result : results) {
+            resultTexts.add(result.getText());
+        }
+        assertTrue(resultTexts.contains("Third Level"));
+        assertTrue(resultTexts.contains("Second Level"));
+        assertTrue(resultTexts.contains("First Level"));
+        assertTrue(resultTexts.contains("Sample text"));
+        assertTrue(resultTexts.contains("Text View 1"));
+        assertTrue(resultTexts.contains("TextView with an id"));
+        assertTrue(resultTexts.contains("Item1"));
+        assertTrue(resultTexts.contains("Item2"));
+        assertTrue(resultTexts.contains("Item3"));
+
+        assertEquals(0, mDevice.findObjects(By.text("non-existent text")).size());
+    }
+
+    @Test
+    public void testPerformActionAndWait() {
+        launchTestActivity(ClickAndWaitTestActivity.class);
+
+        UiObject2 button = mDevice.findObject(By.res(TEST_APP, "new_window_button"));
+        Point buttonCenter = button.getVisibleCenter();
+
+        assertTrue(mDevice.performActionAndWait(() -> mDevice.click(buttonCenter.x, buttonCenter.y),
+                Until.newWindow(), 10_000));
+    }
+
+    @Test
+    public void testSetCompressedLayoutHeirarchy() { // NOTYPO: already-existing typo
+        launchTestActivity(MainActivity.class);
+
+        mDevice.setCompressedLayoutHeirarchy(true); // NOTYPO
+        assertNull(mDevice.findObject(By.res(TEST_APP, "nested_elements")));
+
+        mDevice.setCompressedLayoutHeirarchy(false); // NOTYPO
+        assertNotNull(mDevice.findObject(By.res(TEST_APP, "nested_elements")));
+    }
+
+    /* TODO(b/235841020): Implement these tests, and the tests for exceptions of each tested method.
+
+    public void testGetInstance() {}
+
+    public void testGetInstance_withInstrumentation() {}
+
+    public void testGetDisplaySizeDp() {}
+
+    public void testGetProductName() {}
+
+    public void testGetLastTraversedText() {}
+
+    public void testClearLastTraversedText() {}
+
+    public void testPressMenu() {}
+
+    public void testPressBack() {}
+
+    public void testPressHome() {}
+
+    public void testPressSearch() {}
+
+    public void testPressDPadCenter() {}
+
+    public void testPressDPadDown() {}
+
+    public void testPressDPadUp() {}
+
+    public void testPressDPadLeft() {}
+
+    public void testPressDPadRight() {}
+
+    public void testPressDelete() {}
+
+    public void testPressEnter() {}
+
+    public void testPressKeyCode() {}
+
+    public void testPressKeyCode_withMetaState() {}
+
+    public void testPressRecentApps() {}
+
+    public void testOpenNotification() {}
+
+    public void testOpenQuickSettings() {}
+
+    public void testGetDisplayWidth() {}
+
+    public void testGetDisplayHeight() {}
+     */
 
     @Test
     public void testClick() {
@@ -56,6 +175,61 @@ public class UiDeviceTest extends BaseTest {
         assertNotNull(button);
         assertEquals("I've been clicked!", button.getText());
     }
+
+    /* TODO(b/235841020): Implement these tests, and the tests for exceptions of each tested method.
+
+    public void testSwipe() {}
+
+    public void testDrag() {}
+
+    public void testSwipe_withPointArray() {}
+
+    public void testWaitForIdle() {}
+
+    public void testWaitForIdle_withTimeout() {}
+
+    public void testGetCurrentActivityName() {}
+
+    public void testGetCurrentPackageName() {}
+
+    public void testRegisterWatcher() {}
+
+    public void testRemoveWatcher() {}
+
+    public void testRunWatchers() {}
+
+    public void testResetWatcherTriggers() {}
+
+    public void testHasWatcherTriggered() {}
+
+    public void testHasAnyWatcherTriggered() {}
+
+    public void testIsNaturalOrientation() {}
+
+    public void testGetDisplayRotation() {}
+
+    public void testFreezeRotation() {}
+
+    public void testUnfreezeRotation() {}
+
+    public void testSetOrientationLeft() {}
+
+    public void testSetOrientationRight() {}
+
+    public void testSetOrientationNatural() {}
+
+    public void testWakeUp() {}
+
+    public void testIsScreenOn() {}
+
+    public void testSleep() {}
+
+    public void testDumpWindowHierarchy_withString() {}
+
+    public void testDumpWindowHierarchy_withFile() {} // already added
+
+    public void testDumpWindowHierarchy_withOutputStream() {}
+    */
 
     @Test
     public void testDumpWindowHierarchy() throws Exception {
@@ -88,4 +262,17 @@ public class UiDeviceTest extends BaseTest {
         assertEquals("true", element.getAttribute("visible-to-user"));
         assertNotNull(element.getAttribute("bounds"));
     }
+
+    /* TODO(b/235841020): Implement these tests, and the tests for exceptions of each tested method.
+
+    public void testWaitForWindowUpdate() {}
+
+    public void testTakeScreenshot() {} // already added
+
+    public void testTakeScreenshot_withScaleAndQuality() {} // already added
+
+    public void testGetLauncherPackageName() {}
+
+    public void testExecuteShellCommand() {} // already added
+    */
 }
