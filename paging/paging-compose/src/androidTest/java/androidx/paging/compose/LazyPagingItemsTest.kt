@@ -25,6 +25,7 @@ import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.testutils.TestDispatcher
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertTopPositionInRootIsEqualTo
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -594,5 +595,60 @@ class LazyPagingItemsTest {
 
         rule.onNodeWithText("Item=1. index=1. remembered index=0")
             .assertExists()
+    }
+
+    @Test
+    fun collectOnDefaultThread() {
+        val items = mutableListOf(1, 2, 3)
+        val pager = createPager {
+            TestPagingSource(items = items, loadDelay = 0)
+        }
+
+        lateinit var lazyPagingItems: LazyPagingItems<Int>
+        rule.setContent {
+            lazyPagingItems = pager.flow.collectAsLazyPagingItems()
+        }
+
+        rule.waitUntil {
+            lazyPagingItems.itemCount == 3
+        }
+        assertThat(lazyPagingItems.itemSnapshotList).containsExactlyElementsIn(
+            items
+        )
+    }
+
+    @Test
+    fun collectOnWorkerThread() {
+        val items = mutableListOf(1, 2, 3)
+        val pager = createPager {
+            TestPagingSource(items = items, loadDelay = 0)
+        }
+
+        val context = TestDispatcher()
+
+        lateinit var lazyPagingItems: LazyPagingItems<Int>
+        rule.setContent {
+            assertThat(context.queue).isEmpty()
+            lazyPagingItems = pager.flow.collectAsLazyPagingItems(context)
+        }
+
+        rule.waitForIdle()
+        // LaunchedEffect queued on custom context
+        assertThat(context.queue).isNotEmpty()
+        assertThat(lazyPagingItems.itemSnapshotList).isEmpty()
+        context.executeAll()
+
+        rule.waitForIdle()
+        // collection queued on custom context
+        assertThat(context.queue).isNotEmpty()
+        assertThat(lazyPagingItems.itemSnapshotList).isEmpty()
+        context.executeAll()
+
+        rule.waitUntil {
+            lazyPagingItems.itemCount == items.size
+        }
+        assertThat(lazyPagingItems.itemSnapshotList).containsExactlyElementsIn(
+            items
+        )
     }
 }
