@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+ChangedType: androidx.sqlite.db.SupportSQLiteDatabase#getAttachedDbs():
+    Method androidx.sqlite.db.SupportSQLiteDatabase.getAttachedDbs has changed return type from java.util.List<android.util.Pair<java.lang.String!,java.lang.String!>!> to java.util.List<android.util.Pair<java.lang.String,java.lang.String>>

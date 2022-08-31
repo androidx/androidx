@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:JvmName("SupportSQLiteDatabaseKt")
 
 package androidx.sqlite.db
 
@@ -21,7 +22,7 @@ package androidx.sqlite.db
  *
  * @param exclusive Run in `EXCLUSIVE` mode when true, `IMMEDIATE` mode otherwise.
  */
-public inline fun <T> SupportSQLiteDatabase.transaction(
+inline fun <T> SupportSQLiteDatabase.transaction(
     exclusive: Boolean = true,
     body: SupportSQLiteDatabase.() -> T
 ): T {

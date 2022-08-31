@@ -33,6 +33,9 @@ dependencies {
 
 android {
     namespace "androidx.sqlite.db"
+    kotlinOptions {
+        freeCompilerArgs += ["-Xjvm-default=all"]
+    }
 }
 
 androidx {
