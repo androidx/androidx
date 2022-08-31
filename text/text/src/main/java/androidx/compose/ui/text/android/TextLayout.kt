@@ -201,6 +201,12 @@ class TextLayout constructor(
 
     val lineHeightSpans: Array<LineHeightStyleSpan>
 
+    /**
+     * Android Canvas object that overrides the `getClipBounds` method and delegates the rest
+     * to the Canvas object that it wraps. See [TextAndroidCanvas] for more details.
+     */
+    private val textCanvas = TextAndroidCanvas()
+
     init {
         val end = charSequence.length
         val frameworkTextDir = getTextDirectionHeuristic(textDirectionHeuristic)
@@ -686,7 +692,8 @@ class TextLayout constructor(
             canvas.translate(0f, topPadding.toFloat())
         }
 
-        layout.draw(canvas)
+        textCanvas.setCanvas(canvas)
+        layout.draw(textCanvas)
 
         if (topPadding != 0) {
             canvas.translate(0f, -1 * topPadding.toFloat())
