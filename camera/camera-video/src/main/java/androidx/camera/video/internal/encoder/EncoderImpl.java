@@ -28,7 +28,7 @@ import static androidx.camera.video.internal.encoder.EncoderImpl.InternalState.S
 
 import android.annotation.SuppressLint;
 import android.media.MediaCodec;
-import android.media.MediaCodecList;
+import android.media.MediaCodecInfo;
 import android.media.MediaFormat;
 import android.os.Bundle;
 import android.util.Range;
@@ -155,6 +155,7 @@ public class EncoderImpl implements Encoder {
     final MediaCodec mMediaCodec;
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     final EncoderInput mEncoderInput;
+    private final EncoderInfo mEncoderInfo;
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     final Executor mEncoderExecutor;
     private final ListenableFuture<Void> mReleasedFuture;
@@ -228,10 +229,10 @@ public class EncoderImpl implements Encoder {
 
         mMediaFormat = encoderConfig.toMediaFormat();
         Logger.d(mTag, "mMediaFormat = " + mMediaFormat);
-        mMediaCodec = mEncoderFinder.findEncoder(mMediaFormat,
-                new MediaCodecList(MediaCodecList.ALL_CODECS));
+        mMediaCodec = mEncoderFinder.findEncoder(mMediaFormat);
         Logger.i(mTag, "Selected encoder: " + mMediaCodec.getName());
-
+        mEncoderInfo = createEncoderInfo(mIsVideoEncoder, mMediaCodec.getCodecInfo(),
+                encoderConfig.getMimeType());
         try {
             reset();
         } catch (MediaCodec.CodecException e) {
@@ -283,6 +284,12 @@ public class EncoderImpl implements Encoder {
     @NonNull
     public EncoderInput getInput() {
         return mEncoderInput;
+    }
+
+    @NonNull
+    @Override
+    public EncoderInfo getEncoderInfo() {
+        return mEncoderInfo;
     }
 
     /**
@@ -950,6 +957,13 @@ public class EncoderImpl implements Encoder {
                 inputBuffer.cancel();
             }
         }
+    }
+
+    @NonNull
+    private static EncoderInfo createEncoderInfo(boolean isVideoEncoder,
+            @NonNull MediaCodecInfo codecInfo, @NonNull String mime) throws InvalidConfigException {
+        return isVideoEncoder ? new VideoEncoderInfoImpl(codecInfo, mime)
+                : new AudioEncoderInfoImpl(codecInfo, mime);
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */

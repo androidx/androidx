@@ -178,6 +178,11 @@ class VideoEncoderTest(
     }
 
     @Test
+    fun canGetEncoderInfo() {
+        assertThat(videoEncoder.encoderInfo).isNotNull()
+    }
+
+    @Test
     fun canRestartVideoEncoder() {
         // Arrange.
         videoEncoder.start()
