@@ -457,6 +457,17 @@ public class ImageProcessingUtilTest {
         int rgbBufLength = rgbPixelBuf.capacity();
         int[] rgbPixelArray = new int[rgbBufLength];
         rgbPixelBuf.get(rgbPixelArray);
+
+        // the output array is in the order of ABGR (LITTLE ENDIAN) if BIG_ENDIAN is not set
+        for (int i = 0; i < rgbBufLength; i++) {
+            int alpha = (rgbPixelArray[i] >> 24) & 0xff;
+            int blue = (rgbPixelArray[i] >> 16) & 0xff;
+            int green = (rgbPixelArray[i] >> 8) & 0xff;
+            int red = (rgbPixelArray[i] >> 0) & 0xff;
+            rgbPixelArray[i] =
+                    (alpha & 0xff) << 24 | (red & 0xff) << 16 | (green & 0xff) << 8 | (blue & 0xff);
+        }
+
         Bitmap rgbBitmap = Bitmap.createBitmap(rgbPixelArray, 0,
                 pixelPlane.getRowStride() / pixelPlane.getPixelStride(),
                 WIDTH, HEIGHT, Bitmap.Config.ARGB_8888);
