@@ -1,0 +1,3362 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 7.4.0-alpha08" type="baseline" client="gradle" dependencies="false" name="AGP (7.4.0-alpha08)" variant="all" version="7.4.0-alpha08">
+
+    <issue
+        id="OnClick"
+        message="Corresponding method handler &apos;`public void onAddTab(android.view.View)`&apos; not found"
+        errorLine1="                android:onClick=&quot;onAddTab&quot; />"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/action_bar_tabs.xml"/>
+    </issue>
+
+    <issue
+        id="OnClick"
+        message="Corresponding method handler &apos;`public void onRemoveTab(android.view.View)`&apos; not found"
+        errorLine1="                android:onClick=&quot;onRemoveTab&quot; />"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/action_bar_tabs.xml"/>
+    </issue>
+
+    <issue
+        id="OnClick"
+        message="Corresponding method handler &apos;`public void onToggleTabs(android.view.View)`&apos; not found"
+        errorLine1="                android:onClick=&quot;onToggleTabs&quot; />"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/action_bar_tabs.xml"/>
+    </issue>
+
+    <issue
+        id="OnClick"
+        message="Corresponding method handler &apos;`public void onRemoveAllTabs(android.view.View)`&apos; not found"
+        errorLine1="                android:onClick=&quot;onRemoveAllTabs&quot; />"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/action_bar_tabs.xml"/>
+    </issue>
+
+    <issue
+        id="MissingPermission"
+        message="Call requires permission which may be rejected by user: code should explicitly check to see if permission is available (with `checkPermission`) or explicitly handle a potential `SecurityException`"
+        errorLine1="        notificationManager.notify(NOTIFICATION_ID, notification);"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/media/Player.java"/>
+    </issue>
+
+    <issue
+        id="WebViewLayout"
+        message="Placing a `&lt;WebView>` in a parent element that uses a `wrap_content layout_height` can lead to subtle bugs; use `match_parent` instead"
+        errorLine1="        &lt;WebView"
+        errorLine2="         ~~~~~~~">
+        <location
+            file="src/main/res/layout/appcompat_night_mode.xml"/>
+        <location
+            file="src/main/res/layout/appcompat_night_mode.xml"
+            message="`wrap_content` here may not work well with WebView below"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 14): `android.os.StrictMode.VmPolicy.Builder#detectImplicitDirectBoot`"
+        errorLine1="                        .detectImplicitDirectBoot()"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/app/AppCompatDefaultNightModeBootAwareActivity.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 17 (current min is 14): `setLocalNightMode`"
+        errorLine1="        getDelegate().setLocalNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);"
+        errorLine2="                      ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/app/AppCompatLocalNightModeActivity.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 17 (current min is 14): `setLocalNightMode`"
+        errorLine1="        getDelegate().setLocalNightMode(AppCompatDelegate.MODE_NIGHT_NO);"
+        errorLine2="                      ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/app/AppCompatLocalNightModeActivity.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 17 (current min is 14): `setLocalNightMode`"
+        errorLine1="        getDelegate().setLocalNightMode(AppCompatDelegate.MODE_NIGHT_YES);"
+        errorLine2="                      ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/app/AppCompatLocalNightModeActivity.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 17 (current min is 14): `setLocalNightMode`"
+        errorLine1="        getDelegate().setLocalNightMode(AppCompatDelegate.MODE_NIGHT_AUTO_TIME);"
+        errorLine2="                      ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/app/AppCompatLocalNightModeActivity.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 17 (current min is 14): `setLocalNightMode`"
+        errorLine1="        getDelegate().setLocalNightMode(AppCompatDelegate.MODE_NIGHT_AUTO_BATTERY);"
+        errorLine2="                      ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/app/AppCompatLocalNightModeActivity.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 17 (current min is 14): `setLocalNightMode`"
+        errorLine1="        dialog.getDelegate().setLocalNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);"
+        errorLine2="                             ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/app/AppCompatNightModeAlertDialog.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 17 (current min is 14): `setLocalNightMode`"
+        errorLine1="        dialog.getDelegate().setLocalNightMode(AppCompatDelegate.MODE_NIGHT_NO);"
+        errorLine2="                             ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/app/AppCompatNightModeAlertDialog.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 17 (current min is 14): `setLocalNightMode`"
+        errorLine1="        dialog.getDelegate().setLocalNightMode(AppCompatDelegate.MODE_NIGHT_YES);"
+        errorLine2="                             ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/app/AppCompatNightModeAlertDialog.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 17 (current min is 14): `setLocalNightMode`"
+        errorLine1="        dialog.getDelegate().setLocalNightMode(AppCompatDelegate.MODE_NIGHT_AUTO_TIME);"
+        errorLine2="                             ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/app/AppCompatNightModeAlertDialog.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 17 (current min is 14): `setLocalNightMode`"
+        errorLine1="        dialog.getDelegate().setLocalNightMode(AppCompatDelegate.MODE_NIGHT_AUTO_BATTERY);"
+        errorLine2="                             ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/app/AppCompatNightModeAlertDialog.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 17 (current min is 14): `setLocalNightMode`"
+        errorLine1="        dialog.getDelegate().setLocalNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);"
+        errorLine2="                             ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/app/AppCompatNightModeDialog.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 17 (current min is 14): `setLocalNightMode`"
+        errorLine1="        dialog.getDelegate().setLocalNightMode(AppCompatDelegate.MODE_NIGHT_NO);"
+        errorLine2="                             ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/app/AppCompatNightModeDialog.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 17 (current min is 14): `setLocalNightMode`"
+        errorLine1="        dialog.getDelegate().setLocalNightMode(AppCompatDelegate.MODE_NIGHT_YES);"
+        errorLine2="                             ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/app/AppCompatNightModeDialog.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 17 (current min is 14): `setLocalNightMode`"
+        errorLine1="        dialog.getDelegate().setLocalNightMode(AppCompatDelegate.MODE_NIGHT_AUTO_TIME);"
+        errorLine2="                             ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/app/AppCompatNightModeDialog.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 17 (current min is 14): `setLocalNightMode`"
+        errorLine1="        dialog.getDelegate().setLocalNightMode(AppCompatDelegate.MODE_NIGHT_AUTO_BATTERY);"
+        errorLine2="                             ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/app/AppCompatNightModeDialog.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Exception requires API level 17 (current min is 17): `android.view.WindowManager.InvalidDisplayException`, and having a surrounding/preceding version check **does not** help since prior to API level 19, just **loading** the class will cause a crash. Consider marking the surrounding class with `RequiresApi(19)` to ensure that the class is never loaded except when on API 19 or higher."
+        errorLine1="                } catch (WindowManager.InvalidDisplayException ex) {"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/media/LocalPlayer.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="`&lt;class>` requires API level 24 (current min is 14)"
+        errorLine1="    class=&quot;com.example.androidx.drawable.MyDrawable&quot;"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/drawable/my_drawable.xml"/>
+    </issue>
+
+    <issue
+        id="AppCompatResource"
+        message="Should use `app:showAsAction` with the appcompat library with `xmlns:app=&quot;http://schemas.android.com/apk/res-auto&quot;`"
+        errorLine1="        android:showAsAction=&quot;always&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/menu/content_actions.xml"/>
+    </issue>
+
+    <issue
+        id="AppCompatResource"
+        message="Should use `app:actionViewClass` with the appcompat library with `xmlns:app=&quot;http://schemas.android.com/apk/res-auto&quot;`"
+        errorLine1="        android:actionViewClass=&quot;androidx.appcompat.widget.SearchView&quot; />"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/menu/content_actions.xml"/>
+    </issue>
+
+    <issue
+        id="AppCompatResource"
+        message="Should use `app:showAsAction` with the appcompat library with `xmlns:app=&quot;http://schemas.android.com/apk/res-auto&quot;`"
+        errorLine1="        android:showAsAction=&quot;always&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/menu/content_actions.xml"/>
+    </issue>
+
+    <issue
+        id="AppCompatResource"
+        message="Should use `app:actionProviderClass` with the appcompat library with `xmlns:app=&quot;http://schemas.android.com/apk/res-auto&quot;`"
+        errorLine1="        android:actionProviderClass=&quot;androidx.appcompat.widget.ShareActionProvider&quot; />"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/menu/content_actions.xml"/>
+    </issue>
+
+    <issue
+        id="AppCompatResource"
+        message="Should use `app:showAsAction` with the appcompat library with `xmlns:app=&quot;http://schemas.android.com/apk/res-auto&quot;`"
+        errorLine1="            android:showAsAction=&quot;never&quot; />"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/menu/content_actions.xml"/>
+    </issue>
+
+    <issue
+        id="AppCompatResource"
+        message="Should use `app:showAsAction` with the appcompat library with `xmlns:app=&quot;http://schemas.android.com/apk/res-auto&quot;`"
+        errorLine1="            android:showAsAction=&quot;never&quot; />"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/menu/content_actions.xml"/>
+    </issue>
+
+    <issue
+        id="AppCompatResource"
+        message="Should use `app:showAsAction` with the appcompat library with `xmlns:app=&quot;http://schemas.android.com/apk/res-auto&quot;`"
+        errorLine1="            android:showAsAction=&quot;never&quot; />"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/menu/content_actions.xml"/>
+    </issue>
+
+    <issue
+        id="AppCompatResource"
+        message="Should use `app:showAsAction` with the appcompat library with `xmlns:app=&quot;http://schemas.android.com/apk/res-auto&quot;`"
+        errorLine1="        android:showAsAction=&quot;ifRoom&quot; />"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/menu/content_actions.xml"/>
+    </issue>
+
+    <issue
+        id="AppCompatResource"
+        message="Should use `app:showAsAction` with the appcompat library with `xmlns:app=&quot;http://schemas.android.com/apk/res-auto&quot;`"
+        errorLine1="        android:showAsAction=&quot;ifRoom&quot;>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/menu/content_actions.xml"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 29; however, the containing class com.example.androidx.app.AppCompatDefaultNightModeBootAwareActivity is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                        .detectImplicitDirectBoot()"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/app/AppCompatDefaultNightModeBootAwareActivity.java"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 24; however, the containing class com.example.androidx.widget.selection.fancy.FancySelectionDemoActivity.OnContextClickListener is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            if (view.showContextMenu(x, y)) {"
+        errorLine2="                     ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/widget/selection/fancy/FancySelectionDemoActivity.java"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 17; however, the containing class com.example.androidx.media.LocalPlayer.SurfaceViewPlayer is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            if (mPresentation != null &amp;&amp; mPresentation.getDisplay() != presentationDisplay) {"
+        errorLine2="                                                       ~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/media/LocalPlayer.java"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class com.example.androidx.media.Player is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            NotificationChannel channel = new NotificationChannel("
+        errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/media/Player.java"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class com.example.androidx.media.Player is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            channel.setDescription(description);"
+        errorLine2="                    ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/media/Player.java"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class com.example.androidx.media.Player is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                    mContext.getSystemService(NotificationManager.class);"
+        errorLine2="                             ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/media/Player.java"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class com.example.androidx.media.Player is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            notificationManager.createNotificationChannel(channel);"
+        errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/media/Player.java"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class com.example.androidx.media.SampleMediaRouteProvider is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="        if (Build.VERSION.SDK_INT >= 23 &amp;&amp; !Settings.canDrawOverlays(getContext())) {"
+        errorLine2="                                                     ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/media/SampleMediaRouteProvider.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="        @NotNull"
+        errorLine2="        ~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/widget/RemoveLargeItemsDemo.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="        public MyViewHolder onCreateViewHolder(@NotNull ViewGroup parent, int viewType) {"
+        errorLine2="                                               ~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/widget/RemoveLargeItemsDemo.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use `@androidx.annotation.NonNull` instead of `@org.jetbrains.annotations.NotNull`"
+        errorLine1="        public void onBindViewHolder(@NotNull MyViewHolder myViewHolder, int position) {"
+        errorLine2="                                     ~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/widget/RemoveLargeItemsDemo.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="This folder configuration (`v11`) is unnecessary; `minSdkVersion` is 14. Merge all the resources in this folder into `layout`.">
+        <location
+            file="src/main/res/layout-v11"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
+        errorLine2="                            ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/app/ActionBarActionMode.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
+        errorLine2="                            ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/app/ActionBarBackgroundChange.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
+        errorLine2="                            ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/app/ActionBarDisplayOptions.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void onTabSelected(Tab tab, FragmentTransaction ft) {"
+        errorLine2="                              ~~~">
+        <location
+            file="src/main/java/com/example/androidx/app/ActionBarDisplayOptions.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void onTabSelected(Tab tab, FragmentTransaction ft) {"
+        errorLine2="                                       ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/app/ActionBarDisplayOptions.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void onTabUnselected(Tab tab, FragmentTransaction ft) {"
+        errorLine2="                                ~~~">
+        <location
+            file="src/main/java/com/example/androidx/app/ActionBarDisplayOptions.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void onTabUnselected(Tab tab, FragmentTransaction ft) {"
+        errorLine2="                                         ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/app/ActionBarDisplayOptions.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void onTabReselected(Tab tab, FragmentTransaction ft) {"
+        errorLine2="                                ~~~">
+        <location
+            file="src/main/java/com/example/androidx/app/ActionBarDisplayOptions.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void onTabReselected(Tab tab, FragmentTransaction ft) {"
+        errorLine2="                                         ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/app/ActionBarDisplayOptions.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
+        errorLine2="                            ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/app/ActionBarFragmentMenu.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public void onCreate(Bundle savedInstanceState) {"
+        errorLine2="                             ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/app/ActionBarFragmentMenu.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public void onCreateOptionsMenu(Menu menu, @NonNull MenuInflater inflater) {"
+        errorLine2="                                        ~~~~">
+        <location
+            file="src/main/java/com/example/androidx/app/ActionBarFragmentMenu.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public boolean onOptionsItemSelected(MenuItem item) {"
+        errorLine2="                                             ~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/app/ActionBarFragmentMenu.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public void onCreate(Bundle savedInstanceState) {"
+        errorLine2="                             ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/app/ActionBarFragmentMenu.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public void onCreateOptionsMenu(Menu menu, @NonNull MenuInflater inflater) {"
+        errorLine2="                                        ~~~~">
+        <location
+            file="src/main/java/com/example/androidx/app/ActionBarFragmentMenu.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public boolean onOptionsItemSelected(MenuItem item) {"
+        errorLine2="                                             ~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/app/ActionBarFragmentMenu.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public void onCreate(Bundle savedInstanceState) {"
+        errorLine2="                             ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/app/ActionBarFragmentMenu.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public boolean onOptionsItemSelected(MenuItem item) {"
+        errorLine2="                                             ~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/app/ActionBarFragmentMenu.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
+        errorLine2="                            ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/app/ActionBarHideOnScroll.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
+        errorLine2="                            ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/app/ActionBarMechanics.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public boolean onOptionsItemSelected(MenuItem item) {"
+        errorLine2="                                         ~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/app/ActionBarMechanics.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public boolean onOptionsItemSelected(MenuItem item) {"
+        errorLine2="                                         ~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/app/ActionBarSettingsActionProviderActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public SettingsActionProvider(Context context) {"
+        errorLine2="                                      ~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/app/ActionBarSettingsActionProviderActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public View onCreateActionView() {"
+        errorLine2="               ~~~~">
+        <location
+            file="src/main/java/com/example/androidx/app/ActionBarSettingsActionProviderActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
+        errorLine2="                            ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/app/ActionBarUsage.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public boolean onOptionsItemSelected(MenuItem item) {"
+        errorLine2="                                         ~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/app/ActionBarUsage.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
+        errorLine2="                            ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/app/AlertDialogUsage.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
+        errorLine2="                            ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/widget/AnimatedRecyclerView.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public boolean onOptionsItemSelected(MenuItem item) {"
+        errorLine2="                                         ~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/widget/AnimatedRecyclerView.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void checkboxClicked(View view) {"
+        errorLine2="                                ~~~~">
+        <location
+            file="src/main/java/com/example/androidx/widget/AnimatedRecyclerView.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void itemClicked(View view) {"
+        errorLine2="                            ~~~~">
+        <location
+            file="src/main/java/com/example/androidx/widget/AnimatedRecyclerView.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void deleteSelectedItems(View view) {"
+        errorLine2="                                    ~~~~">
+        <location
+            file="src/main/java/com/example/androidx/widget/AnimatedRecyclerView.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void d1a2d3(View view) {"
+        errorLine2="                       ~~~~">
+        <location
+            file="src/main/java/com/example/androidx/widget/AnimatedRecyclerView.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void addDeleteItem(View view) {"
+        errorLine2="                              ~~~~">
+        <location
+            file="src/main/java/com/example/androidx/widget/AnimatedRecyclerView.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void deleteAddItem(View view) {"
+        errorLine2="                              ~~~~">
+        <location
+            file="src/main/java/com/example/androidx/widget/AnimatedRecyclerView.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void addItem(View view) {"
+        errorLine2="                        ~~~~">
+        <location
+            file="src/main/java/com/example/androidx/widget/AnimatedRecyclerView.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
+        errorLine2="                            ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/app/AppCompatAnimatedSelector.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
+        errorLine2="                            ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/app/AppCompatAnimatedVector.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void setModeNightFollowSystem(View view) {"
+        errorLine2="                                         ~~~~">
+        <location
+            file="src/main/java/com/example/androidx/app/AppCompatDefaultNightModeActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void setModeNightNo(View view) {"
+        errorLine2="                               ~~~~">
+        <location
+            file="src/main/java/com/example/androidx/app/AppCompatDefaultNightModeActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void setModeNightYes(View view) {"
+        errorLine2="                                ~~~~">
+        <location
+            file="src/main/java/com/example/androidx/app/AppCompatDefaultNightModeActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void setModeNightAutoTime(View view) {"
+        errorLine2="                                     ~~~~">
+        <location
+            file="src/main/java/com/example/androidx/app/AppCompatDefaultNightModeActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void setModeNightAutoBattery(View view) {"
+        errorLine2="                                        ~~~~">
+        <location
+            file="src/main/java/com/example/androidx/app/AppCompatDefaultNightModeActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void setModeNightFollowSystem(View view) {"
+        errorLine2="                                         ~~~~">
+        <location
+            file="src/main/java/com/example/androidx/app/AppCompatDefaultNightModeBootAwareActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void setModeNightNo(View view) {"
+        errorLine2="                               ~~~~">
+        <location
+            file="src/main/java/com/example/androidx/app/AppCompatDefaultNightModeBootAwareActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void setModeNightYes(View view) {"
+        errorLine2="                                ~~~~">
+        <location
+            file="src/main/java/com/example/androidx/app/AppCompatDefaultNightModeBootAwareActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void setModeNightAutoTime(View view) {"
+        errorLine2="                                     ~~~~">
+        <location
+            file="src/main/java/com/example/androidx/app/AppCompatDefaultNightModeBootAwareActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void setModeNightAutoBattery(View view) {"
+        errorLine2="                                        ~~~~">
+        <location
+            file="src/main/java/com/example/androidx/app/AppCompatDefaultNightModeBootAwareActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void setModeNightFollowSystem(View view) {"
+        errorLine2="                                         ~~~~">
+        <location
+            file="src/main/java/com/example/androidx/app/AppCompatLocalNightModeActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void setModeNightNo(View view) {"
+        errorLine2="                               ~~~~">
+        <location
+            file="src/main/java/com/example/androidx/app/AppCompatLocalNightModeActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void setModeNightYes(View view) {"
+        errorLine2="                                ~~~~">
+        <location
+            file="src/main/java/com/example/androidx/app/AppCompatLocalNightModeActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void setModeNightAutoTime(View view) {"
+        errorLine2="                                     ~~~~">
+        <location
+            file="src/main/java/com/example/androidx/app/AppCompatLocalNightModeActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void setModeNightAutoBattery(View view) {"
+        errorLine2="                                        ~~~~">
+        <location
+            file="src/main/java/com/example/androidx/app/AppCompatLocalNightModeActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void setModeNightFollowSystem(View view) {"
+        errorLine2="                                         ~~~~">
+        <location
+            file="src/main/java/com/example/androidx/app/AppCompatNightModeAlertDialog.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void setModeNightNo(View view) {"
+        errorLine2="                               ~~~~">
+        <location
+            file="src/main/java/com/example/androidx/app/AppCompatNightModeAlertDialog.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void setModeNightYes(View view) {"
+        errorLine2="                                ~~~~">
+        <location
+            file="src/main/java/com/example/androidx/app/AppCompatNightModeAlertDialog.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void setModeNightAutoTime(View view) {"
+        errorLine2="                                     ~~~~">
+        <location
+            file="src/main/java/com/example/androidx/app/AppCompatNightModeAlertDialog.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void setModeNightAutoBattery(View view) {"
+        errorLine2="                                        ~~~~">
+        <location
+            file="src/main/java/com/example/androidx/app/AppCompatNightModeAlertDialog.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void launchActivity(View view) {"
+        errorLine2="                               ~~~~">
+        <location
+            file="src/main/java/com/example/androidx/app/AppCompatNightModeBounceActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void setModeNightFollowSystem(View view) {"
+        errorLine2="                                         ~~~~">
+        <location
+            file="src/main/java/com/example/androidx/app/AppCompatNightModeDialog.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void setModeNightNo(View view) {"
+        errorLine2="                               ~~~~">
+        <location
+            file="src/main/java/com/example/androidx/app/AppCompatNightModeDialog.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void setModeNightYes(View view) {"
+        errorLine2="                                ~~~~">
+        <location
+            file="src/main/java/com/example/androidx/app/AppCompatNightModeDialog.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void setModeNightAutoTime(View view) {"
+        errorLine2="                                     ~~~~">
+        <location
+            file="src/main/java/com/example/androidx/app/AppCompatNightModeDialog.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void setModeNightAutoBattery(View view) {"
+        errorLine2="                                        ~~~~">
+        <location
+            file="src/main/java/com/example/androidx/app/AppCompatNightModeDialog.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
+        errorLine2="                            ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/app/AppCompatWidgetsButtons.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
+        errorLine2="                            ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/app/AppCompatWidgetsRatingBars.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
+        errorLine2="                            ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/app/AppCompatWidgetsSpinners.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
+        errorLine2="                            ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/app/AppCompatWidgetsSwitches.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
+        errorLine2="                            ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/app/AppCompatWidgetsTextInput.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
+        errorLine2="                            ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/app/AppCompatWidgetsTextViews.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
+        errorLine2="                            ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/app/AppCompatWidgetsToggleButtons.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
+        errorLine2="                            ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/widget/AsyncListUtilActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public boolean onOptionsItemSelected(MenuItem item) {"
+        errorLine2="                                         ~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/widget/AsyncListUtilActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected RecyclerView mRecyclerView;"
+        errorLine2="              ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/widget/BaseLayoutManagerActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
+        errorLine2="                            ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/widget/BaseLayoutManagerActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected void onRecyclerViewInit(RecyclerView recyclerView) {"
+        errorLine2="                                      ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/widget/BaseLayoutManagerActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected RecyclerView.Adapter createAdapter() {"
+        errorLine2="              ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/widget/BaseLayoutManagerActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void onScrollClicked(View view) {"
+        errorLine2="                                ~~~~">
+        <location
+            file="src/main/java/com/example/androidx/widget/BaseLayoutManagerActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected ConfigToggle[] createConfigToggles() {"
+        errorLine2="              ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/widget/BaseLayoutManagerActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
+        errorLine2="                            ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/view/CardViewActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected ConfigToggle(Context context, int labelId) {"
+        errorLine2="                           ~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/widget/util/ConfigToggle.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public String getText() {"
+        errorLine2="           ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/widget/util/ConfigToggle.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public ConfigViewHolder(View itemView) {"
+        errorLine2="                            ~~~~">
+        <location
+            file="src/main/java/com/example/androidx/widget/util/ConfigViewHolder.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void bind(ConfigToggle toggle) {"
+        errorLine2="                     ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/widget/util/ConfigViewHolder.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
+        errorLine2="                            ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/drawable/CustomDrawableActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
+        errorLine2="                            ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/app/DialogFragmentUsage.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,"
+        errorLine2="                                 ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/app/DialogFragmentUsage.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {"
+        errorLine2="                                        ~~~~">
+        <location
+            file="src/main/java/com/example/androidx/app/DialogFragmentUsage.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {"
+        errorLine2="                                                   ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/app/DialogFragmentUsage.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public boolean onOptionsItemSelected(MenuItem item) {"
+        errorLine2="                                             ~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/app/DialogFragmentUsage.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
+        errorLine2="                            ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/app/DialogUsage.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void onBind(ItemTouchViewHolder viewHolder) {"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/widget/touch/DragAndDropActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void clearView(RecyclerView.ViewHolder viewHolder) {"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/widget/touch/DragAndDropActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void onSelectedChanged(RecyclerView.ViewHolder viewHolder, int actionState) {"
+        errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/widget/touch/DragAndDropActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public ItemTouchViewHolder onCreateViewHolder(ViewGroup parent) {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/widget/touch/DragAndDropActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public ItemTouchViewHolder onCreateViewHolder(ViewGroup parent) {"
+        errorLine2="                                                  ~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/widget/touch/DragAndDropActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public int getMovementFlags(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {"
+        errorLine2="                                ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/widget/touch/DragAndDropActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public int getMovementFlags(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {"
+        errorLine2="                                                           ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/widget/touch/DragAndDropActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
+        errorLine2="                            ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/widget/DrawerLayoutActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected void onPostCreate(Bundle savedInstanceState) {"
+        errorLine2="                                ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/widget/DrawerLayoutActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public boolean onOptionsItemSelected(MenuItem item) {"
+        errorLine2="                                         ~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/widget/DrawerLayoutActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void onConfigurationChanged(Configuration newConfig) {"
+        errorLine2="                                       ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/widget/DrawerLayoutActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
+        errorLine2="                            ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/view/GridLayout1.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
+        errorLine2="                            ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/view/GridLayout2.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public static View create(Context context) {"
+        errorLine2="                  ~~~~">
+        <location
+            file="src/main/java/com/example/androidx/view/GridLayout3.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public static View create(Context context) {"
+        errorLine2="                              ~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/view/GridLayout3.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
+        errorLine2="                            ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/view/GridLayout3.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected GridLayoutManager createLayoutManager() {"
+        errorLine2="              ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/widget/GridLayoutManagerActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected ConfigToggle[] createConfigToggles() {"
+        errorLine2="              ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/widget/GridLayoutManagerActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected RecyclerView.Adapter createAdapter() {"
+        errorLine2="              ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/widget/GridLayoutManagerActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public RecyclerView mRecyclerView;"
+        errorLine2="           ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/widget/touch/ItemTouchHelperActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public ItemTouchAdapter mAdapter;"
+        errorLine2="           ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/widget/touch/ItemTouchHelperActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public ItemTouchHelper mItemTouchHelper;"
+        errorLine2="           ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/widget/touch/ItemTouchHelperActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public ItemTouchHelper.Callback mCallback;"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/widget/touch/ItemTouchHelperActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void onCreate(Bundle savedInstanceState) {"
+        errorLine2="                         ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/widget/touch/ItemTouchHelperActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public ItemTouchHelper createItemTouchHelper() {"
+        errorLine2="           ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/widget/touch/ItemTouchHelperActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public ItemTouchHelper.Callback createCallback() {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/widget/touch/ItemTouchHelperActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public boolean onChildDraw(Canvas c, RecyclerView recyclerView,"
+        errorLine2="                               ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/widget/touch/ItemTouchHelperActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public boolean onChildDraw(Canvas c, RecyclerView recyclerView,"
+        errorLine2="                                         ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/widget/touch/ItemTouchHelperActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="            RecyclerView.ViewHolder viewHolder,"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/widget/touch/ItemTouchHelperActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public boolean onChildDrawOver(Canvas c, RecyclerView recyclerView,"
+        errorLine2="                                   ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/widget/touch/ItemTouchHelperActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public boolean onChildDrawOver(Canvas c, RecyclerView recyclerView,"
+        errorLine2="                                             ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/widget/touch/ItemTouchHelperActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="            RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState,"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/widget/touch/ItemTouchHelperActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void clearView(RecyclerView.ViewHolder viewHolder) {"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/widget/touch/ItemTouchHelperActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void onSelectedChanged(RecyclerView.ViewHolder viewHolder, int actionState) {"
+        errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/widget/touch/ItemTouchHelperActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public ItemTouchViewHolder onCreateViewHolder(ViewGroup parent) {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/widget/touch/ItemTouchHelperActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public ItemTouchViewHolder onCreateViewHolder(ViewGroup parent) {"
+        errorLine2="                                                  ~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/widget/touch/ItemTouchHelperActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    abstract public int getMovementFlags(RecyclerView recyclerView,"
+        errorLine2="                                         ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/widget/touch/ItemTouchHelperActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="            RecyclerView.ViewHolder viewHolder);"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/widget/touch/ItemTouchHelperActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public ItemTouchAdapter createAdapter() {"
+        errorLine2="           ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/widget/touch/ItemTouchHelperActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void onBind(ItemTouchViewHolder viewHolder) {"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/widget/touch/ItemTouchHelperActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void onCreateViewHolder(ItemTouchViewHolder viewHolder) {"
+        errorLine2="                                   ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/widget/touch/ItemTouchHelperActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public ItemTouchViewHolder(View itemView) {"
+        errorLine2="                                   ~~~~">
+        <location
+            file="src/main/java/com/example/androidx/widget/touch/ItemTouchHelperActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public ItemTouchViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/widget/touch/ItemTouchHelperActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public ItemTouchViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {"
+        errorLine2="                                                      ~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/widget/touch/ItemTouchHelperActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public void onBindViewHolder(ItemTouchViewHolder holder, int position) {"
+        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/widget/touch/ItemTouchHelperActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected LinearLayoutManager createLayoutManager() {"
+        errorLine2="              ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/widget/LinearLayoutManagerActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected void onRecyclerViewInit(RecyclerView recyclerView) {"
+        errorLine2="                                      ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/widget/LinearLayoutManagerActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected ConfigToggle[] createConfigToggles() {"
+        errorLine2="              ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/widget/LinearLayoutManagerActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected RecyclerView.Adapter createAdapter() {"
+        errorLine2="              ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/widget/LinearLayoutManagerJankActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected ConfigToggle[] createConfigToggles() {"
+        errorLine2="              ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/widget/LinearLayoutManagerJankActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
+        errorLine2="                            ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/widget/ListPopupWindowActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
+        errorLine2="                            ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/widget/ListViewActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public LocalPlayer(Context context) {"
+        errorLine2="                       ~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/media/LocalPlayer.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void connect(RouteInfo route) {"
+        errorLine2="                        ~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/media/LocalPlayer.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void play(final PlaylistItem item) {"
+        errorLine2="                           ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/media/LocalPlayer.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void seek(final PlaylistItem item) {"
+        errorLine2="                           ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/media/LocalPlayer.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void getStatus(final PlaylistItem item, final boolean update) {"
+        errorLine2="                                ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/media/LocalPlayer.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void enqueue(final PlaylistItem item) {"
+        errorLine2="                              ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/media/LocalPlayer.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public PlaylistItem remove(String iid) {"
+        errorLine2="           ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/media/LocalPlayer.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public PlaylistItem remove(String iid) {"
+        errorLine2="                               ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/media/LocalPlayer.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected Context getContext() { return mContext; }"
+        errorLine2="              ~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/media/LocalPlayer.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected MediaPlayer getMediaPlayer() { return mMediaPlayer; }"
+        errorLine2="              ~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/media/LocalPlayer.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected void setSurface(Surface surface) {"
+        errorLine2="                              ~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/media/LocalPlayer.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected void setSurface(SurfaceHolder surfaceHolder) {"
+        errorLine2="                              ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/media/LocalPlayer.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected void removeSurface(SurfaceHolder surfaceHolder) {"
+        errorLine2="                                 ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/media/LocalPlayer.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public SurfaceViewPlayer(Context context) {"
+        errorLine2="                                 ~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/media/LocalPlayer.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public void connect(RouteInfo route) {"
+        errorLine2="                            ~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/media/LocalPlayer.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public void surfaceChanged(SurfaceHolder holder, int format,"
+        errorLine2="                                   ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/media/LocalPlayer.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public void surfaceCreated(SurfaceHolder holder) {"
+        errorLine2="                                   ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/media/LocalPlayer.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public void surfaceDestroyed(SurfaceHolder holder) {"
+        errorLine2="                                     ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/media/LocalPlayer.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public OverlayPlayer(Context context) {"
+        errorLine2="                             ~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/media/LocalPlayer.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public void connect(RouteInfo route) {"
+        errorLine2="                            ~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/media/LocalPlayer.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public void onWindowCreated(Surface surface) {"
+        errorLine2="                                    ~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/media/LocalPlayer.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public void onWindowCreated(SurfaceHolder surfaceHolder) {"
+        errorLine2="                                    ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/media/LocalPlayer.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public Bitmap getSnapshot() {"
+        errorLine2="               ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/media/LocalPlayer.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
+        errorLine2="                            ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/app/MenuItemIconTinting.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public boolean onOptionsItemSelected(MenuItem item) {"
+        errorLine2="                                         ~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/app/MenuItemIconTinting.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void draw(Canvas canvas) {"
+        errorLine2="                     ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/drawable/MyDrawable.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void setColorFilter(ColorFilter colorFilter) {"
+        errorLine2="                               ~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/drawable/MyDrawable.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public MyMediaRouteControllerDialog(Context context) {"
+        errorLine2="                                        ~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/media/MyMediaRouteControllerDialog.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public View onCreateMediaControlView(Bundle savedInstanceState) {"
+        errorLine2="           ~~~~">
+        <location
+            file="src/main/java/com/example/androidx/media/MyMediaRouteControllerDialog.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public View onCreateMediaControlView(Bundle savedInstanceState) {"
+        errorLine2="                                         ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/media/MyMediaRouteControllerDialog.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected LinearLayoutManager createLayoutManager() {"
+        errorLine2="              ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/widget/NestedRecyclerViewActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected void onRecyclerViewInit(RecyclerView recyclerView) {"
+        errorLine2="                                      ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/widget/NestedRecyclerViewActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected ConfigToggle[] createConfigToggles() {"
+        errorLine2="              ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/widget/NestedRecyclerViewActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="            public ViewHolder(TextView itemView) {"
+        errorLine2="                              ~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/widget/NestedRecyclerViewActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="            public ViewHolder(RecyclerView itemView) {"
+        errorLine2="                              ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/widget/NestedRecyclerViewActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected RecyclerView.Adapter createAdapter() {"
+        errorLine2="              ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/widget/NestedRecyclerViewActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected OverlayWindowListener mListener;"
+        errorLine2="              ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/media/OverlayDisplayWindow.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected OverlayDisplayWindow(Context context, String name,"
+        errorLine2="                                   ~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/media/OverlayDisplayWindow.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected OverlayDisplayWindow(Context context, String name,"
+        errorLine2="                                                    ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/media/OverlayDisplayWindow.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public static OverlayDisplayWindow create(Context context, String name,"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/media/OverlayDisplayWindow.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public static OverlayDisplayWindow create(Context context, String name,"
+        errorLine2="                                              ~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/media/OverlayDisplayWindow.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public static OverlayDisplayWindow create(Context context, String name,"
+        errorLine2="                                                               ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/media/OverlayDisplayWindow.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void setOverlayWindowListener(OverlayWindowListener listener) {"
+        errorLine2="                                         ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/media/OverlayDisplayWindow.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public Context getContext() {"
+        errorLine2="           ~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/media/OverlayDisplayWindow.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public abstract Bitmap getSnapshot();"
+        errorLine2="                    ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/media/OverlayDisplayWindow.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        void onWindowCreated(Surface surface);"
+        errorLine2="                             ~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/media/OverlayDisplayWindow.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        void onWindowCreated(SurfaceHolder surfaceHolder);"
+        errorLine2="                             ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/media/OverlayDisplayWindow.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
+        errorLine2="                            ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/widget/PagerRecyclerViewActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
+        errorLine2="                            ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/graphics/PaletteActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public void onCreate(Bundle savedInstanceState) {"
+        errorLine2="                             ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/graphics/PaletteActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public void onViewCreated(View view, Bundle savedInstanceState) {"
+        errorLine2="                                  ~~~~">
+        <location
+            file="src/main/java/com/example/androidx/graphics/PaletteActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public void onViewCreated(View view, Bundle savedInstanceState) {"
+        errorLine2="                                             ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/graphics/PaletteActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public void onActivityCreated(Bundle savedInstanceState) {"
+        errorLine2="                                      ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/graphics/PaletteActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {"
+        errorLine2="                                        ~~~~">
+        <location
+            file="src/main/java/com/example/androidx/graphics/PaletteActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {"
+        errorLine2="                                                   ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/graphics/PaletteActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public boolean onOptionsItemSelected(MenuItem item) {"
+        errorLine2="                                             ~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/graphics/PaletteActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public void onListItemClick(ListView l, View v, int position, long id) {"
+        errorLine2="                                    ~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/graphics/PaletteActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public void onListItemClick(ListView l, View v, int position, long id) {"
+        errorLine2="                                                ~~~~">
+        <location
+            file="src/main/java/com/example/androidx/graphics/PaletteActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public Loader&lt;Cursor> onCreateLoader(int id, Bundle bundle) {"
+        errorLine2="                                                     ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/graphics/PaletteActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public void onLoadFinished(@NonNull Loader&lt;Cursor> cursorLoader, Cursor cursor) {"
+        errorLine2="                                                                         ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/graphics/PaletteActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
+        errorLine2="                            ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/graphics/PaletteDetailActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public boolean onOptionsItemSelected(MenuItem item) {"
+        errorLine2="                                         ~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/graphics/PaletteDetailActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected Context mContext;"
+        errorLine2="              ~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/media/Player.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected Callback mCallback;"
+        errorLine2="              ~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/media/Player.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected MediaSessionCompat mMediaSession;"
+        errorLine2="              ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/media/Player.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected String mNotificationChannelId;"
+        errorLine2="              ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/media/Player.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public abstract void connect(RouteInfo route);"
+        errorLine2="                                 ~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/media/Player.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public abstract void play(final PlaylistItem item);"
+        errorLine2="                                    ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/media/Player.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public abstract void seek(final PlaylistItem item);"
+        errorLine2="                                    ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/media/Player.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public abstract void getStatus(final PlaylistItem item, final boolean update);"
+        errorLine2="                                         ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/media/Player.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public abstract void enqueue(final PlaylistItem item);"
+        errorLine2="                                       ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/media/Player.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public abstract PlaylistItem remove(String iid);"
+        errorLine2="                    ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/media/Player.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public abstract PlaylistItem remove(String iid);"
+        errorLine2="                                        ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/media/Player.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public Bitmap getSnapshot() { return null; }"
+        errorLine2="           ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/media/Player.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void setCallback(Callback callback) {"
+        errorLine2="                            ~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/media/Player.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public static Player create(Context context, RouteInfo route, MediaSessionCompat session) {"
+        errorLine2="                  ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/media/Player.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public static Player create(Context context, RouteInfo route, MediaSessionCompat session) {"
+        errorLine2="                                ~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/media/Player.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public static Player create(Context context, RouteInfo route, MediaSessionCompat session) {"
+        errorLine2="                                                 ~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/media/Player.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public static Player create(Context context, RouteInfo route, MediaSessionCompat session) {"
+        errorLine2="                                                                  ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/media/Player.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected void updateMetadata(PlaylistItem currentItem) {"
+        errorLine2="                                  ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/media/Player.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
+        errorLine2="                            ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/widget/PopupMenuActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
+        errorLine2="                            ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/widget/RecyclerViewActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public boolean onOptionsItemSelected(MenuItem item) {"
+        errorLine2="                                         ~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/widget/RecyclerViewActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
+        errorLine2="                            ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/widget/RecyclerViewSmoothScrollByActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public RemotePlayer(Context context) {"
+        errorLine2="                        ~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/media/RemotePlayer.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void connect(RouteInfo route) {"
+        errorLine2="                        ~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/media/RemotePlayer.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void play(final PlaylistItem item) {"
+        errorLine2="                           ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/media/RemotePlayer.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void seek(final PlaylistItem item) {"
+        errorLine2="                           ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/media/RemotePlayer.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void getStatus(final PlaylistItem item, final boolean update) {"
+        errorLine2="                                ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/media/RemotePlayer.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void enqueue(final PlaylistItem item) {"
+        errorLine2="                              ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/media/RemotePlayer.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public PlaylistItem remove(String itemId) {"
+        errorLine2="           ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/media/RemotePlayer.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public PlaylistItem remove(String itemId) {"
+        errorLine2="                               ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/media/RemotePlayer.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public Bitmap getSnapshot() {"
+        errorLine2="           ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/media/RemotePlayer.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
+        errorLine2="                            ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/widget/RvIn2NestedScrollViewsActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
+        errorLine2="                            ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/widget/RvInNestedScrollViewActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public MediaRouteProvider onCreateMediaRouteProvider() {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/media/SampleDynamicGroupMrpService.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public static void setActivity(SampleMediaRouterActivity activity) {"
+        errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/media/SampleMediaButtonReceiver.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public MediaRouteProvider onCreateMediaRouteProvider() {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/media/SampleMediaRouteProviderService.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
+        errorLine2="                            ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/app/SearchActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public SessionManager(String name) {"
+        errorLine2="                          ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/media/SessionManager.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public String getSessionId() {"
+        errorLine2="           ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/media/SessionManager.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public PlaylistItem getCurrentItem() {"
+        errorLine2="           ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/media/SessionManager.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public List&lt;PlaylistItem> getPlaylist() {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/media/SessionManager.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public PlaylistItem add(String title, Uri uri, String mime) {"
+        errorLine2="           ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/media/SessionManager.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public PlaylistItem add(String title, Uri uri, String mime) {"
+        errorLine2="                            ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/media/SessionManager.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public PlaylistItem add(String title, Uri uri, String mime) {"
+        errorLine2="                                          ~~~">
+        <location
+            file="src/main/java/com/example/androidx/media/SessionManager.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public PlaylistItem add(String title, Uri uri, String mime) {"
+        errorLine2="                                                   ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/media/SessionManager.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public PlaylistItem add(String title, Uri uri, String mime, long startPosition,"
+        errorLine2="           ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/media/SessionManager.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public PlaylistItem add(String title, Uri uri, String mime, long startPosition,"
+        errorLine2="                            ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/media/SessionManager.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public PlaylistItem add(String title, Uri uri, String mime, long startPosition,"
+        errorLine2="                                          ~~~">
+        <location
+            file="src/main/java/com/example/androidx/media/SessionManager.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public PlaylistItem add(String title, Uri uri, String mime, long startPosition,"
+        errorLine2="                                                   ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/media/SessionManager.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="            PendingIntent receiver) {"
+        errorLine2="            ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/media/SessionManager.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public PlaylistItem remove(String iid) {"
+        errorLine2="           ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/media/SessionManager.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public PlaylistItem remove(String iid) {"
+        errorLine2="                               ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/media/SessionManager.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public PlaylistItem seek(String iid, long pos) {"
+        errorLine2="           ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/media/SessionManager.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public PlaylistItem seek(String iid, long pos) {"
+        errorLine2="                             ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/media/SessionManager.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public PlaylistItem getStatus(String iid) {"
+        errorLine2="           ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/media/SessionManager.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public PlaylistItem getStatus(String iid) {"
+        errorLine2="                                  ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/media/SessionManager.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public String startSession() {"
+        errorLine2="           ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/media/SessionManager.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void setPlayer(Player player) {"
+        errorLine2="                          ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/media/SessionManager.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void setCallback(Callback callback) {"
+        errorLine2="                            ~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/media/SessionManager.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        void onItemChanged(PlaylistItem item);"
+        errorLine2="                           ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/media/SessionManager.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
+        errorLine2="                            ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/widget/selection/simple/SimpleSelectionDemoActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public String mBoundString;"
+        errorLine2="               ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/widget/adapter/SimpleStringAdapter.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public TextView mTextView;"
+        errorLine2="               ~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/widget/adapter/SimpleStringAdapter.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public ViewHolder(TextView v) {"
+        errorLine2="                          ~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/widget/adapter/SimpleStringAdapter.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public String getValueAt(int position) {"
+        errorLine2="           ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/widget/adapter/SimpleStringAdapter.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public SimpleStringAdapter(Context context, String[] strings) {"
+        errorLine2="                               ~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/widget/adapter/SimpleStringAdapter.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public SimpleStringAdapter(Context context, String[] strings) {"
+        errorLine2="                                                ~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/widget/adapter/SimpleStringAdapter.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public SimpleStringAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/widget/adapter/SimpleStringAdapter.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public SimpleStringAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {"
+        errorLine2="                                                             ~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/widget/adapter/SimpleStringAdapter.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void onBindViewHolder(ViewHolder holder, int position) {"
+        errorLine2="                                 ~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/widget/adapter/SimpleStringAdapter.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public RecyclerView.LayoutParams getLayoutParams() {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/widget/adapter/SimpleStringAdapter.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public List&lt;String> getValues() {"
+        errorLine2="           ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/widget/adapter/SimpleStringAdapter.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void setValues(List&lt;String> values) {"
+        errorLine2="                          ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/widget/adapter/SimpleStringAdapter.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
+        errorLine2="                            ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/widget/selection/single/SingleStableIdSelectionDemoActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
+        errorLine2="                            ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/util/SortedListActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected LinearLayoutManager createLayoutManager() {"
+        errorLine2="              ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/widget/StableIdActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected RecyclerView.Adapter createAdapter() {"
+        errorLine2="              ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/widget/StableIdActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected void onRecyclerViewInit(RecyclerView recyclerView) {"
+        errorLine2="                                      ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/widget/StableIdActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="            public ViewHolder(View itemView) {"
+        errorLine2="                              ~~~~">
+        <location
+            file="src/main/java/com/example/androidx/widget/StableIdActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected StaggeredGridLayoutManager createLayoutManager() {"
+        errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/widget/StaggeredGridLayoutManagerActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected ConfigToggle[] createConfigToggles() {"
+        errorLine2="              ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/widget/StaggeredGridLayoutManagerActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void onCreate(Bundle savedInstanceState) {"
+        errorLine2="                         ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/AndroidXDemos.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected List&lt;Map&lt;String, Object>> getData(String prefix) {"
+        errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/AndroidXDemos.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected List&lt;Map&lt;String, Object>> getData(String prefix) {"
+        errorLine2="                                                ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/AndroidXDemos.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected Intent activityIntent(String pkg, String componentName) {"
+        errorLine2="              ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/AndroidXDemos.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected Intent activityIntent(String pkg, String componentName) {"
+        errorLine2="                                    ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/AndroidXDemos.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected Intent activityIntent(String pkg, String componentName) {"
+        errorLine2="                                                ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/AndroidXDemos.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected Intent browseIntent(String path) {"
+        errorLine2="              ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/AndroidXDemos.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected Intent browseIntent(String path) {"
+        errorLine2="                                  ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/AndroidXDemos.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected void addItem(List&lt;Map&lt;String, Object>> data, String name, Intent intent) {"
+        errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/AndroidXDemos.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected void addItem(List&lt;Map&lt;String, Object>> data, String name, Intent intent) {"
+        errorLine2="                                                           ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/AndroidXDemos.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected void addItem(List&lt;Map&lt;String, Object>> data, String name, Intent intent) {"
+        errorLine2="                                                                        ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/AndroidXDemos.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void onBind(ItemTouchViewHolder viewHolder) {"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/widget/touch/SwipeToDismissActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void clearView(RecyclerView.ViewHolder viewHolder) {"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/widget/touch/SwipeToDismissActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void onSelectedChanged(RecyclerView.ViewHolder viewHolder, int actionState) {"
+        errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/widget/touch/SwipeToDismissActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public boolean onChildDraw(Canvas c, RecyclerView recyclerView,"
+        errorLine2="                               ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/widget/touch/SwipeToDismissActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public boolean onChildDraw(Canvas c, RecyclerView recyclerView,"
+        errorLine2="                                         ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/widget/touch/SwipeToDismissActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="            RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState,"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/widget/touch/SwipeToDismissActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public ItemTouchViewHolder onCreateViewHolder(ViewGroup parent) {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/widget/touch/SwipeToDismissActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public ItemTouchViewHolder onCreateViewHolder(ViewGroup parent) {"
+        errorLine2="                                                  ~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/widget/touch/SwipeToDismissActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public int getMovementFlags(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {"
+        errorLine2="                                ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/widget/touch/SwipeToDismissActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public int getMovementFlags(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {"
+        errorLine2="                                                           ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/widget/touch/SwipeToDismissActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
+        errorLine2="                            ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/app/ToolbarActionMode.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
+        errorLine2="                            ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/app/ToolbarBackgroundChange.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public boolean onOptionsItemSelected(MenuItem item) {"
+        errorLine2="                                         ~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/app/ToolbarBackgroundChange.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
+        errorLine2="                            ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/app/ToolbarDisplayOptions.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
+        errorLine2="                            ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/app/ToolbarFragmentPagerMenu.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public void onCreate(Bundle savedInstanceState) {"
+        errorLine2="                             ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/app/ToolbarFragmentPagerMenu.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {"
+        errorLine2="                                        ~~~~">
+        <location
+            file="src/main/java/com/example/androidx/app/ToolbarFragmentPagerMenu.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {"
+        errorLine2="                                                   ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/app/ToolbarFragmentPagerMenu.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,"
+        errorLine2="               ~~~~">
+        <location
+            file="src/main/java/com/example/androidx/app/ToolbarFragmentPagerMenu.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,"
+        errorLine2="                                 ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/app/ToolbarFragmentPagerMenu.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public boolean onOptionsItemSelected(MenuItem item) {"
+        errorLine2="                                             ~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/app/ToolbarFragmentPagerMenu.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public void onCreate(Bundle savedInstanceState) {"
+        errorLine2="                             ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/app/ToolbarFragmentPagerMenu.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {"
+        errorLine2="                                        ~~~~">
+        <location
+            file="src/main/java/com/example/androidx/app/ToolbarFragmentPagerMenu.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {"
+        errorLine2="                                                   ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/app/ToolbarFragmentPagerMenu.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,"
+        errorLine2="               ~~~~">
+        <location
+            file="src/main/java/com/example/androidx/app/ToolbarFragmentPagerMenu.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,"
+        errorLine2="                                 ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/app/ToolbarFragmentPagerMenu.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public boolean onOptionsItemSelected(MenuItem item) {"
+        errorLine2="                                             ~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/app/ToolbarFragmentPagerMenu.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
+        errorLine2="                            ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/app/ToolbarTall.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public boolean onOptionsItemSelected(MenuItem item) {"
+        errorLine2="                                         ~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/app/ToolbarTall.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
+        errorLine2="                            ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/app/ToolbarUsage.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public boolean onOptionsItemSelected(MenuItem item) {"
+        errorLine2="                                         ~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/app/ToolbarUsage.java"/>
+    </issue>
+
+</issues>
