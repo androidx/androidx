@@ -366,7 +366,7 @@ example, if you are working on `core` module use:
 
 To make warnings fail your build (same as presubmit), use the `--strict` flag,
 which our gradlew expands into a few correctness-related flags including
-`-Pandroidx.allWarningsAsErrors`:
+`-Pandroidx.validateNoUnrecognizedMessages`:
 
 ```shell
 ./gradlew core:core:assemble --strict
