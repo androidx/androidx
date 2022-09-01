@@ -1952,6 +1952,7 @@ class WatchFaceControlClientTest {
         val wallpaperService =
             TestWatchFaceServiceWithPreviewImageUpdateRequest(context, surfaceHolder)
         var lastPreviewImageUpdateRequestedId = ""
+
         val deferredInteractiveInstance = handlerCoroutineScope.async {
             service.getOrCreateInteractiveWatchFaceClient(
                 "wfId-1",
@@ -1960,11 +1961,7 @@ class WatchFaceControlClientTest {
                 null,
                 complications,
                 { runnable -> runnable.run() },
-                object : WatchFaceControlClient.PreviewImageUpdateRequestedListener {
-                    override fun onPreviewImageUpdateRequested(instanceId: String) {
-                        lastPreviewImageUpdateRequestedId = instanceId
-                    }
-                }
+                { lastPreviewImageUpdateRequestedId = it }
             )
         }
 

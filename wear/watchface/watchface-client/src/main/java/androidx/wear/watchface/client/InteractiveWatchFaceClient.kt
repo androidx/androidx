@@ -49,6 +49,7 @@ import androidx.wear.watchface.style.UserStyleData
 import androidx.wear.watchface.toApiFormat
 import java.time.Instant
 import java.util.concurrent.Executor
+import java.util.function.Consumer
 
 /**
  * Controls a stateful remote interactive watch face. Typically this will be used for the current
@@ -308,8 +309,7 @@ public interface InteractiveWatchFaceClient : AutoCloseable {
 internal class InteractiveWatchFaceClientImpl internal constructor(
     private val iInteractiveWatchFace: IInteractiveWatchFace,
     private val previewImageUpdateRequestedExecutor: Executor?,
-    private val previewImageUpdateRequestedListener:
-        WatchFaceControlClient.PreviewImageUpdateRequestedListener?
+    private val previewImageUpdateRequestedListener: Consumer<String>?
 ) : InteractiveWatchFaceClient {
 
     private val lock = Any()
@@ -348,7 +348,7 @@ internal class InteractiveWatchFaceClientImpl internal constructor(
 
         override fun onPreviewImageUpdateRequested(watchFaceId: String) {
             previewImageUpdateRequestedExecutor?.execute {
-                previewImageUpdateRequestedListener!!.onPreviewImageUpdateRequested(watchFaceId)
+                previewImageUpdateRequestedListener!!.accept(watchFaceId)
             }
         }
     }
