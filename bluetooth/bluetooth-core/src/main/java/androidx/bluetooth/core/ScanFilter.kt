@@ -23,8 +23,7 @@ import android.os.Build
 import android.os.Bundle
 import android.os.ParcelUuid
 import androidx.annotation.RequiresApi
-import androidx.bluetooth.core.utils.Bundleable
-import androidx.bluetooth.core.utils.Utils
+import androidx.annotation.RestrictTo
 
 /**
  * Criteria for filtering result from Bluetooth LE scans. A {@link ScanFilter} allows clients to
@@ -41,6 +40,7 @@ import androidx.bluetooth.core.utils.Utils
  * @see BluetoothLeScanner
  */
 // TODO: Add @See ScanResult once ScanResult added
+@SuppressWarnings("HiddenSuperclass") // Bundleable
 class ScanFilter internal constructor(
     internal val impl: ScanFilterImpl
 ) : Bundleable {
@@ -52,6 +52,10 @@ class ScanFilter internal constructor(
         internal const val FIELD_ADVERTISING_DATA_MASK = 4
         internal const val FIELD_ADVERTISING_DATA_TYPE = 5
 
+        /**
+         * @hide
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
         @JvmField
         val CREATOR: Bundleable.Creator<ScanFilter> =
             object : Bundleable.Creator<ScanFilter> {
@@ -225,6 +229,10 @@ class ScanFilter internal constructor(
     // TODO: add test for this method
     fun matches(scanResult: FwkScanResult?): Boolean = impl.matches(scanResult)
 
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     override fun toBundle(): Bundle {
         val bundle = Bundle()
         bundle.putScanFilter(this)

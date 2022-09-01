@@ -20,8 +20,6 @@ import android.bluetooth.BluetoothGattService as FwkBluetoothGattService
 import android.os.Build
 import android.os.Bundle
 import androidx.annotation.RequiresApi
-import androidx.bluetooth.core.utils.Bundleable
-import androidx.bluetooth.core.utils.Utils
 import java.util.UUID
 
 /**

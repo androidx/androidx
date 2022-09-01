@@ -18,8 +18,6 @@ package androidx.bluetooth.core
 
 import android.bluetooth.le.AdvertiseSettings as FwkAdvertiseSettings
 import android.os.Bundle
-import androidx.bluetooth.core.utils.Bundleable
-import androidx.bluetooth.core.utils.Utils
 
 /**
  * The {@link AdvertiseSettings} provide a way to adjust advertising preferences for each
