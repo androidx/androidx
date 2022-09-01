@@ -45,10 +45,3 @@ android {
     }
     namespace "androidx.wear.watchface.editor.samples"
 }
-
-// Allow usage of Kotlin's @OptIn.
-tasks.withType(KotlinCompile).configureEach {
-    kotlinOptions {
-        freeCompilerArgs += ["-opt-in=kotlin.RequiresOptIn"]
-    }
-}

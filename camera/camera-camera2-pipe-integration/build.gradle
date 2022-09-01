@@ -98,13 +98,6 @@ kapt {
     }
 }
 
-// Allow usage of Kotlin's @OptIn.
-tasks.withType(KotlinCompile).configureEach {
-    kotlinOptions {
-        freeCompilerArgs += ["-opt-in=kotlin.RequiresOptIn"]
-    }
-}
-
 androidx {
     name = "Jetpack Camera Camera Pipe Integration Library"
     publish = Publish.NONE

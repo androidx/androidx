@@ -81,10 +81,3 @@ androidx {
     inceptionYear = "2022"
     description = "read or write user's health and fitness records."
 }
-
-// Allow usage of Kotlin's @OptIn.
-tasks.withType(KotlinCompile).configureEach {
-    kotlinOptions {
-        freeCompilerArgs += ["-opt-in=kotlin.RequiresOptIn"]
-    }
-}

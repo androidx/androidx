@@ -79,10 +79,3 @@ androidx {
     inceptionYear = "2020"
     description = "Android Wear Watchface"
 }
-
-// Allow usage of Kotlin's @OptIn.
-tasks.withType(KotlinCompile).configureEach {
-    kotlinOptions {
-        freeCompilerArgs += ["-opt-in=kotlin.RequiresOptIn"]
-    }
-}

@@ -54,13 +54,6 @@ dependencies {
     androidTestImplementation(project(":internal-testutils-common"))
 }
 
-// Allow usage of Kotlin's @OptIn.
-tasks.withType(KotlinCompile).configureEach {
-    kotlinOptions {
-        freeCompilerArgs += ["-opt-in=kotlin.RequiresOptIn"]
-    }
-}
-
 androidx {
     name = "Room Paging"
     type = LibraryType.PUBLISHED_LIBRARY

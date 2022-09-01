@@ -39,10 +39,3 @@ androidx {
     inceptionYear = "2019"
     description = "Kotlin Extensions for Androidx implementation of Guava's ListenableFuture"
 }
-
-// Allow usage of Kotlin's @OptIn.
-tasks.withType(KotlinCompile).configureEach {
-    kotlinOptions {
-        freeCompilerArgs += ["-opt-in=kotlin.RequiresOptIn"]
-    }
-}
