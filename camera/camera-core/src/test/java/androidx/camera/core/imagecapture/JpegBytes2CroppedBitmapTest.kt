@@ -23,6 +23,8 @@ import android.graphics.Matrix
 import android.graphics.Rect
 import android.os.Build
 import android.util.Size
+import androidx.camera.core.imagecapture.Utils.HEIGHT
+import androidx.camera.core.imagecapture.Utils.WIDTH
 import androidx.camera.core.processing.Packet
 import androidx.camera.testing.ExifUtil.createExif
 import androidx.camera.testing.TestImageUtil.createJpegBytes
@@ -41,11 +43,6 @@ import org.robolectric.annotation.internal.DoNotInstrument
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 class JpegBytes2CroppedBitmapTest {
-
-    companion object {
-        private const val WIDTH = 640
-        private const val HEIGHT = 480
-    }
 
     private val processor = JpegBytes2CroppedBitmap()
 

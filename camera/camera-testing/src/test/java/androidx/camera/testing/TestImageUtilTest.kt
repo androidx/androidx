@@ -23,7 +23,9 @@ import android.graphics.Color.RED
 import android.graphics.Color.YELLOW
 import android.graphics.Rect
 import android.os.Build
+import androidx.camera.core.internal.utils.ImageUtil.jpegImageToJpegByteArray
 import androidx.camera.testing.TestImageUtil.createJpegBytes
+import androidx.camera.testing.TestImageUtil.createJpegFakeImageProxy
 import androidx.camera.testing.TestImageUtil.getAverageDiff
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
@@ -55,5 +57,20 @@ class TestImageUtilTest {
         assertThat(getAverageDiff(bitmap, Rect(321, 0, 640, 240), GREEN)).isEqualTo(0)
         assertThat(getAverageDiff(bitmap, Rect(321, 241, 640, 480), YELLOW)).isEqualTo(0)
         assertThat(getAverageDiff(bitmap, Rect(0, 241, 320, 480), BLUE)).isEqualTo(0)
+    }
+
+    @Test
+    fun createJpegImageProxy_verifyContent() {
+        // Arrange: create JPEG bytes.
+        val jpegBytes = createJpegBytes(WIDTH, HEIGHT)
+        // Act: create ImageProxy output the JPEG bytes.
+        val image = createJpegFakeImageProxy(jpegBytes)
+        // Act: get the image out of the ImageProxy and verify its content.
+        val restoredJpegBytes = jpegImageToJpegByteArray(image)
+        val diff = getAverageDiff(
+            decodeByteArray(jpegBytes, 0, jpegBytes.size),
+            decodeByteArray(restoredJpegBytes, 0, restoredJpegBytes.size)
+        )
+        assertThat(diff).isEqualTo(0)
     }
 }
