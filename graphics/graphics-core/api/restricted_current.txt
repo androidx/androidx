@@ -230,7 +230,6 @@ package androidx.graphics.surface {
     method public void commit();
     method @RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU) public void commitTransactionOnDraw(android.view.AttachedSurfaceControl attachedSurfaceControl);
     method public androidx.graphics.surface.SurfaceControlCompat.Transaction reparent(androidx.graphics.surface.SurfaceControlCompat surfaceControl, androidx.graphics.surface.SurfaceControlCompat? newParent);
-    method public androidx.graphics.surface.SurfaceControlCompat.Transaction reparent(androidx.graphics.surface.SurfaceControlCompat surfaceControl, android.view.SurfaceView surfaceView);
     method @RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU) public androidx.graphics.surface.SurfaceControlCompat.Transaction reparent(androidx.graphics.surface.SurfaceControlCompat surfaceControl, android.view.AttachedSurfaceControl attachedSurfaceControl);
     method public androidx.graphics.surface.SurfaceControlCompat.Transaction setAlpha(androidx.graphics.surface.SurfaceControlCompat surfaceControl, float alpha);
     method public androidx.graphics.surface.SurfaceControlCompat.Transaction setBuffer(androidx.graphics.surface.SurfaceControlCompat surfaceControl, android.hardware.HardwareBuffer buffer, optional androidx.graphics.lowlatency.SyncFenceCompat? fence, optional kotlin.jvm.functions.Function0<kotlin.Unit>? releaseCallback);
