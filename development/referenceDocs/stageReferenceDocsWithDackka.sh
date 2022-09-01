@@ -93,7 +93,6 @@ readonly javaLibraryDirsThatDontUseDackka=(
   "androidx/tvprovider"
   "androidx/versionedparcelable"
   "androidx/webkit"
-  "androidx/work"
 )
 readonly kotlinLibraryDirsThatDontUseDackka=(
   "android/support/v4"
@@ -142,7 +141,6 @@ readonly kotlinLibraryDirsThatDontUseDackka=(
   "androidx/tvprovider"
   "androidx/versionedparcelable"
   "androidx/webkit"
-  "androidx/work"
 )
 
 # Change directory to this script's location and store the directory
