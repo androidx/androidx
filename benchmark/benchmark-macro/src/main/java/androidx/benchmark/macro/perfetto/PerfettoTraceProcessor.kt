@@ -17,6 +17,7 @@
 package androidx.benchmark.macro.perfetto
 
 import android.util.Log
+import androidx.annotation.RestrictTo
 import androidx.benchmark.Outputs
 import androidx.benchmark.Shell
 import androidx.benchmark.perfetto.PerfettoHelper
@@ -24,10 +25,13 @@ import androidx.benchmark.userspaceTrace
 import org.jetbrains.annotations.TestOnly
 import java.io.File
 
+import androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX
+
 /**
  * Enables parsing perfetto traces on-device
  */
-internal object PerfettoTraceProcessor {
+@RestrictTo(LIBRARY_GROUP_PREFIX) // for internal benchmarking only
+object PerfettoTraceProcessor {
     private const val TAG = "PerfettoTraceProcessor"
 
     /**
@@ -47,6 +51,12 @@ internal object PerfettoTraceProcessor {
         }
     }
 
+    /**
+     * Returns a json string containing the requested metric computed by trace_shell_processor on
+     * the given perfetto trace.
+     *
+     * @throws IllegalStateException if the returned json is empty as result of an invalid trace.
+     */
     fun getJsonMetrics(absoluteTracePath: String, metric: String): String {
         validateTracePath(absoluteTracePath)
         require(!metric.contains(" ")) {
@@ -75,7 +85,7 @@ internal object PerfettoTraceProcessor {
      *
      * Note that sliceNames may include wildcard matches, such as `foo%`
      */
-    fun querySlices(
+    internal fun querySlices(
         absoluteTracePath: String,
         vararg sliceNames: String
     ): List<Slice> {
@@ -96,7 +106,7 @@ internal object PerfettoTraceProcessor {
         )
     }
 
-    internal fun rawQuery(
+    fun rawQuery(
         absoluteTracePath: String,
         query: String
     ): String {

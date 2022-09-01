@@ -181,6 +181,14 @@ package androidx.benchmark.macro.perfetto {
   public final class ForceTracingKt {
   }
 
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class PerfettoTraceProcessor {
+    method public String getJsonMetrics(String absoluteTracePath, String metric);
+    method @org.jetbrains.annotations.TestOnly public String getShellPath();
+    method public String rawQuery(String absoluteTracePath, String query);
+    property @org.jetbrains.annotations.TestOnly public final String shellPath;
+    field public static final androidx.benchmark.macro.perfetto.PerfettoTraceProcessor INSTANCE;
+  }
+
   public final class StringHelperKt {
   }
 
