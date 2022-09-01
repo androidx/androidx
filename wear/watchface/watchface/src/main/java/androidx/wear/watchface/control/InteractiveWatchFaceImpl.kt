@@ -227,13 +227,12 @@ internal class InteractiveWatchFaceImpl(
     }
 
     override fun getWatchFaceOverlayStyle(): WatchFaceOverlayStyleWireFormat? =
-        WatchFaceService.awaitDeferredWatchFaceAndComplicationManagerThenRunOnBinderThread(
+        WatchFaceService.awaitDeferredWatchFaceThenRunOnBinderThread(
             synchronized(lock) { engine },
             "InteractiveWatchFaceImpl.getWatchFaceOverlayStyle"
-        ) { watchFaceInitDetails ->
-            WatchFaceOverlayStyleWireFormat(
-                watchFaceInitDetails.watchFace.overlayStyle.backgroundColor,
-                watchFaceInitDetails.watchFace.overlayStyle.foregroundColor
+        ) { WatchFaceOverlayStyleWireFormat(
+                it.overlayStyle.backgroundColor,
+                it.overlayStyle.foregroundColor
             )
         }
 
@@ -399,17 +398,17 @@ internal class InteractiveWatchFaceImpl(
     }
 
     override fun getComplicationDetails(): List<IdAndComplicationStateWireFormat>? {
-        return WatchFaceService.awaitDeferredWatchFaceImplThenRunOnUiThreadBlocking(
+        return WatchFaceService.awaitDeferredEarlyInitDetailsThenRunOnBinderThread(
             synchronized(lock) { engine },
             "InteractiveWatchFaceImpl.getComplicationDetails"
-        ) { watchFaceImpl -> watchFaceImpl.getComplicationState() }
+        ) { it.complicationSlotsManager.getComplicationsState(it.surfaceHolder.surfaceFrame) }
     }
 
     override fun getUserStyleSchema(): UserStyleSchemaWireFormat? {
-        return WatchFaceService.awaitDeferredWatchFaceImplThenRunOnUiThreadBlocking(
+        return WatchFaceService.awaitDeferredEarlyInitDetailsThenRunOnBinderThread(
             synchronized(lock) { engine },
             "InteractiveWatchFaceImpl.getUserStyleSchema"
-        ) { watchFaceImpl -> watchFaceImpl.currentUserStyleRepository.schema.toWireFormat() }
+        ) { it.userStyleRepository.schema.toWireFormat() }
     }
 
     override fun bringAttentionToComplication(id: Int) {
