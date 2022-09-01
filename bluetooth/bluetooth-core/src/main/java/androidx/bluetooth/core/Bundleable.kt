@@ -14,13 +14,16 @@
  * limitations under the License.
  */
 
-package androidx.bluetooth.core.utils
+package androidx.bluetooth.core
 
 import android.os.Bundle
+import androidx.annotation.RestrictTo
 
 /**
  * A class that serializes and stores an object for sending over IPC.
+ * @hide
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 interface Bundleable {
     /**
      * Returns a [Bundle] representing the information stored in this object.

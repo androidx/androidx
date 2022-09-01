@@ -14,18 +14,13 @@
  * limitations under the License.
  */
 
-package androidx.bluetooth.core.utils
+package androidx.bluetooth.core
 
 import android.annotation.SuppressLint
 import android.os.Build
 import android.os.Bundle
 import android.os.Parcelable
-import androidx.annotation.RestrictTo
 
-/**
- * @hide
- */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 internal object Utils {
     // TODO: Migrate to BundleCompat when available
     @SuppressLint("ClassVerificationFailure") // bundle.getParcelable(key, clazz)

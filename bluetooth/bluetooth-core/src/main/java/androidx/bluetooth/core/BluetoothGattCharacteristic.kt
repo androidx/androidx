@@ -16,14 +16,12 @@
 
 package androidx.bluetooth.core
 
+import android.bluetooth.BluetoothGattCharacteristic as FwkBluetoothGattCharacteristic
 import android.os.Build
 import android.os.Bundle
-import android.bluetooth.BluetoothGattCharacteristic as FwkBluetoothGattCharacteristic
 import androidx.annotation.RequiresApi
-import androidx.bluetooth.core.utils.Bundleable
-import androidx.bluetooth.core.utils.Utils
-
 import java.util.UUID
+
 /**
  * @hide
  */

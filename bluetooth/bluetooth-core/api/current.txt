@@ -1,7 +1,7 @@
 // Signature format: 4.0
 package androidx.bluetooth.core {
 
-  public final class ScanFilter implements androidx.bluetooth.core.utils.Bundleable {
+  public final class ScanFilter {
     ctor public ScanFilter(optional String? deviceName, optional String? deviceAddress, optional android.os.ParcelUuid? serviceUuid, optional android.os.ParcelUuid? serviceUuidMask, optional android.os.ParcelUuid? serviceDataUuid, optional byte[]? serviceData, optional byte[]? serviceDataMask, optional int manufacturerId, optional byte[]? manufacturerData, optional byte[]? manufacturerDataMask, optional android.os.ParcelUuid? serviceSolicitationUuid, optional android.os.ParcelUuid? serviceSolicitationUuidMask, optional byte[]? advertisingData, optional byte[]? advertisingDataMask, optional int advertisingDataType);
     method public byte[]? getAdvertisingData();
     method public byte[]? getAdvertisingDataMask();
@@ -19,7 +19,6 @@ package androidx.bluetooth.core {
     method public android.os.ParcelUuid? getServiceUuid();
     method public android.os.ParcelUuid? getServiceUuidMask();
     method public boolean matches(android.bluetooth.le.ScanResult? scanResult);
-    method public android.os.Bundle toBundle();
     property public final byte[]? advertisingData;
     property public final byte[]? advertisingDataMask;
     property public final int advertisingDataType;
@@ -35,23 +34,10 @@ package androidx.bluetooth.core {
     property public final android.os.ParcelUuid? serviceSolicitationUuidMask;
     property public final android.os.ParcelUuid? serviceUuid;
     property public final android.os.ParcelUuid? serviceUuidMask;
-    field public static final androidx.bluetooth.core.utils.Bundleable.Creator<androidx.bluetooth.core.ScanFilter> CREATOR;
     field public static final androidx.bluetooth.core.ScanFilter.Companion Companion;
   }
 
   public static final class ScanFilter.Companion {
-  }
-
-}
-
-package androidx.bluetooth.core.utils {
-
-  public interface Bundleable {
-    method public android.os.Bundle toBundle();
-  }
-
-  public static interface Bundleable.Creator<T extends androidx.bluetooth.core.utils.Bundleable> {
-    method public T fromBundle(android.os.Bundle bundle);
   }
 
 }

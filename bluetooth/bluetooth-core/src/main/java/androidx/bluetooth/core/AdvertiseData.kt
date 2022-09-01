@@ -16,14 +16,12 @@
 
 package androidx.bluetooth.core
 
-import android.os.ParcelUuid
-import android.util.SparseArray
 import android.bluetooth.le.AdvertiseData as FwkAdvertiseData
 import android.os.Build
 import android.os.Bundle
+import android.os.ParcelUuid
+import android.util.SparseArray
 import androidx.annotation.RequiresApi
-import androidx.bluetooth.core.utils.Bundleable
-import androidx.bluetooth.core.utils.Utils
 
 /**
  * TODO: Add docs

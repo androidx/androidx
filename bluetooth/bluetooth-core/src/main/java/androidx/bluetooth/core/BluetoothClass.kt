@@ -20,8 +20,7 @@ import android.bluetooth.BluetoothClass as FwkBluetoothClass
 import android.annotation.SuppressLint
 import android.os.Build
 import android.os.Bundle
-import androidx.bluetooth.core.utils.Bundleable
-import androidx.bluetooth.core.utils.Utils
+
 /**
  * Represents a Bluetooth class, which describes general characteristics
  * and capabilities of a device. For example, a Bluetooth class will
