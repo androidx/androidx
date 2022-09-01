@@ -41,6 +41,9 @@ class AndroidImageReaderProxy implements ImageReaderProxy {
     private final ImageReader mImageReader;
     private final Object mLock = new Object();
 
+    @GuardedBy("mLock")
+    private boolean mIsImageAvailableListenerCleared = true;
+
     /**
      * Creates a new instance which wraps the given image reader.
      *
@@ -153,10 +156,20 @@ class AndroidImageReaderProxy implements ImageReaderProxy {
             @NonNull OnImageAvailableListener listener,
             @NonNull Executor executor) {
         synchronized (mLock) {
+            mIsImageAvailableListenerCleared = false;
             // ImageReader does not accept an executor. As a workaround, the callback is run on main
             // handler then immediately posted to the executor.
-            ImageReader.OnImageAvailableListener transformedListener = (imageReader) ->
-                    executor.execute(() -> listener.onImageAvailable(AndroidImageReaderProxy.this));
+            ImageReader.OnImageAvailableListener transformedListener = (imageReader) -> {
+                synchronized (mLock) {
+                    // There might be a timing issue that the listener is executed after
+                    // clearOnImageAvailableListener() has been called. Uses a flag to skip the
+                    // execution if the listener has actually been cleared.
+                    if (!mIsImageAvailableListenerCleared) {
+                        executor.execute(
+                                () -> listener.onImageAvailable(AndroidImageReaderProxy.this));
+                    }
+                }
+            };
             mImageReader.setOnImageAvailableListener(transformedListener,
                     MainThreadAsyncHandler.getInstance());
         }
@@ -165,6 +178,7 @@ class AndroidImageReaderProxy implements ImageReaderProxy {
     @Override
     public void clearOnImageAvailableListener() {
         synchronized (mLock) {
+            mIsImageAvailableListenerCleared = true;
             mImageReader.setOnImageAvailableListener(null, null);
         }
     }
