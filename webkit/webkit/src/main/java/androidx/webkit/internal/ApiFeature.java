@@ -118,14 +118,14 @@ public abstract class ApiFeature implements ConditionallySupportedFeature {
     /**
      * Represents a feature that has no framework support.
      */
-    public static final class NoFramework extends ApiFeature {
+    public static class NoFramework extends ApiFeature {
 
         NoFramework(@NonNull String publicFeatureValue, @NonNull String internalFeatureValue) {
             super(publicFeatureValue, internalFeatureValue);
         }
 
         @Override
-        public boolean isSupportedByFramework() {
+        public final boolean isSupportedByFramework() {
             return false;
         }
     }
@@ -133,14 +133,14 @@ public abstract class ApiFeature implements ConditionallySupportedFeature {
     /**
      * Represents a feature that was added in M.
      */
-    public static final class M extends ApiFeature {
+    public static class M extends ApiFeature {
 
         M(@NonNull String publicFeatureValue, @NonNull String internalFeatureValue) {
             super(publicFeatureValue, internalFeatureValue);
         }
 
         @Override
-        public boolean isSupportedByFramework() {
+        public final boolean isSupportedByFramework() {
             return Build.VERSION.SDK_INT >= Build.VERSION_CODES.M;
         }
     }
@@ -148,14 +148,14 @@ public abstract class ApiFeature implements ConditionallySupportedFeature {
     /**
      * Represents a feature that was added in N.
      */
-    public static final class N extends ApiFeature {
+    public static class N extends ApiFeature {
 
         N(@NonNull String publicFeatureValue, @NonNull String internalFeatureValue) {
             super(publicFeatureValue, internalFeatureValue);
         }
 
         @Override
-        public boolean isSupportedByFramework() {
+        public final boolean isSupportedByFramework() {
             return Build.VERSION.SDK_INT >= Build.VERSION_CODES.N;
         }
     }
@@ -163,14 +163,14 @@ public abstract class ApiFeature implements ConditionallySupportedFeature {
     /**
      * Represents a feature that was added in O.
      */
-    public static final class O extends ApiFeature {
+    public static class O extends ApiFeature {
 
         O(@NonNull String publicFeatureValue, @NonNull String internalFeatureValue) {
             super(publicFeatureValue, internalFeatureValue);
         }
 
         @Override
-        public boolean isSupportedByFramework() {
+        public final boolean isSupportedByFramework() {
             return Build.VERSION.SDK_INT >= Build.VERSION_CODES.O;
         }
     }
@@ -178,14 +178,14 @@ public abstract class ApiFeature implements ConditionallySupportedFeature {
     /**
      * Represents a feature that was added in O_MR1.
      */
-    public static final class O_MR1 extends ApiFeature {
+    public static class O_MR1 extends ApiFeature {
 
         O_MR1(@NonNull String publicFeatureValue, @NonNull String internalFeatureValue) {
             super(publicFeatureValue, internalFeatureValue);
         }
 
         @Override
-        public boolean isSupportedByFramework() {
+        public final boolean isSupportedByFramework() {
             return Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1;
         }
     }
@@ -193,14 +193,14 @@ public abstract class ApiFeature implements ConditionallySupportedFeature {
     /**
      * Represents a feature that was added in P.
      */
-    public static final class P extends ApiFeature {
+    public static class P extends ApiFeature {
 
         P(@NonNull String publicFeatureValue, @NonNull String internalFeatureValue) {
             super(publicFeatureValue, internalFeatureValue);
         }
 
         @Override
-        public boolean isSupportedByFramework() {
+        public final boolean isSupportedByFramework() {
             return Build.VERSION.SDK_INT >= Build.VERSION_CODES.P;
         }
     }
@@ -208,14 +208,14 @@ public abstract class ApiFeature implements ConditionallySupportedFeature {
     /**
      * Represents a feature that was added in Q.
      */
-    public static final class Q extends ApiFeature {
+    public static class Q extends ApiFeature {
 
         Q(@NonNull String publicFeatureValue, @NonNull String internalFeatureValue) {
             super(publicFeatureValue, internalFeatureValue);
         }
 
         @Override
-        public boolean isSupportedByFramework() {
+        public final boolean isSupportedByFramework() {
             return Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q;
         }
     }
