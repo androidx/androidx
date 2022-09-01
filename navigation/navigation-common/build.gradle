@@ -80,9 +80,3 @@ androidx {
     inceptionYear = "2017"
     description = "Android Navigation-Common"
 }
-
-tasks.withType(KotlinCompile).configureEach {
-    kotlinOptions {
-        freeCompilerArgs += "-opt-in=kotlin.RequiresOptIn"
-    }
-}

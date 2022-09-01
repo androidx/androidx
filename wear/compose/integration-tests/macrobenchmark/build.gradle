@@ -40,13 +40,6 @@ dependencies {
     androidTestImplementation(libs.testUiautomator)
 }
 
-// Allow usage of Kotlin's @OptIn.
-tasks.withType(KotlinCompile).configureEach {
-    kotlinOptions {
-        freeCompilerArgs += [ '-opt-in=kotlin.RequiresOptIn' ]
-    }
-}
-
 // Define a task dependency so the app is installed before we run macro benchmarks.
 tasks.getByPath(":wear:compose:integration-tests:macrobenchmark:connectedCheck")
  .dependsOn(tasks.getByPath(":wear:compose:integration-tests:macrobenchmark-target:installRelease"))
