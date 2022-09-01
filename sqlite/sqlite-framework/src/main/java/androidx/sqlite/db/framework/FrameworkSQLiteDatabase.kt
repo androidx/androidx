@@ -186,7 +186,14 @@ internal class FrameworkSQLiteDatabase(
     }
 
     override fun delete(table: String, whereClause: String?, whereArgs: Array<Any?>?): Int {
-        val query = ("DELETE FROM $table ${whereClause?.isEmpty() == true} else WHERE $whereClause")
+        val query = buildString {
+            append("DELETE FROM ")
+            append(table)
+            if (whereClause?.isEmpty() == true) {
+                append(" WHERE ")
+                append(whereClause)
+            }
+        }
         val statement = compileStatement(query)
         SimpleSQLiteQuery.bind(statement, whereArgs)
         return statement.executeUpdateDelete()
