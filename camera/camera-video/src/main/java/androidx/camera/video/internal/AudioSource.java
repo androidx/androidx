@@ -16,6 +16,12 @@
 
 package androidx.camera.video.internal;
 
+import static android.media.AudioFormat.ENCODING_PCM_16BIT;
+import static android.media.AudioFormat.ENCODING_PCM_24BIT_PACKED;
+import static android.media.AudioFormat.ENCODING_PCM_32BIT;
+import static android.media.AudioFormat.ENCODING_PCM_8BIT;
+import static android.media.AudioFormat.ENCODING_PCM_FLOAT;
+
 import static androidx.camera.video.internal.AudioSource.InternalState.CONFIGURED;
 import static androidx.camera.video.internal.AudioSource.InternalState.RELEASED;
 import static androidx.camera.video.internal.AudioSource.InternalState.STARTED;
@@ -107,6 +113,12 @@ public final class AudioSource {
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     final int mBufferSize;
 
+    final int mSampleRate;
+
+    final int mBytesPerFrame;
+
+    long mTotalFramesRead = 0;
+
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     InternalState mState = CONFIGURED;
 
@@ -174,7 +186,10 @@ public final class AudioSource {
 
         mExecutor = CameraXExecutors.newSequentialExecutor(executor);
         mBufferSize = minBufferSize * 2;
+        mSampleRate = settings.getSampleRate();
         try {
+            mBytesPerFrame = getBytesPerFrame(settings.getAudioFormat(),
+                    settings.getChannelCount());
             if (Build.VERSION.SDK_INT >= 23) {
                 AudioFormat audioFormatObj = new AudioFormat.Builder()
                         .setSampleRate(settings.getSampleRate())
@@ -417,6 +432,7 @@ public final class AudioSource {
                         byteBuffer.limit(length);
                         inputBuffer.setPresentationTimeUs(generatePresentationTimeUs());
                         inputBuffer.submit();
+                        mTotalFramesRead += length / mBytesPerFrame;
                     } else {
                         Logger.w(TAG, "Unable to read data from AudioRecord.");
                         inputBuffer.cancel();
@@ -474,6 +490,7 @@ public final class AudioSource {
             notifyError(new AudioSourceAccessException("Unable to start the audio record.", e));
             return;
         }
+        mTotalFramesRead = 0;
         mIsSendingAudio = true;
         sendNextAudio();
     }
@@ -518,7 +535,8 @@ public final class AudioSource {
             AudioTimestamp audioTimestamp = new AudioTimestamp();
             if (Api24Impl.getTimestamp(mAudioRecord, audioTimestamp,
                     AudioTimestamp.TIMEBASE_MONOTONIC) == AudioRecord.SUCCESS) {
-                presentationTimeUs = TimeUnit.NANOSECONDS.toMicros(audioTimestamp.nanoTime);
+                presentationTimeUs = computeInterpolatedTimeUs(mSampleRate, mTotalFramesRead,
+                        audioTimestamp);
             } else {
                 Logger.w(TAG, "Unable to get audio timestamp");
             }
@@ -527,6 +545,15 @@ public final class AudioSource {
             presentationTimeUs = TimeUnit.NANOSECONDS.toMicros(System.nanoTime());
         }
         return presentationTimeUs;
+    }
+
+    private static long computeInterpolatedTimeUs(int sampleRate, long framePosition,
+            @NonNull AudioTimestamp timestamp) {
+        long frameDiff = framePosition - timestamp.framePosition;
+        long compensateTimeInNanoSec = TimeUnit.SECONDS.toNanos(1) * frameDiff / sampleRate;
+        long resultInNanoSec = timestamp.nanoTime + compensateTimeInNanoSec;
+
+        return resultInNanoSec < 0 ? 0 : TimeUnit.NANOSECONDS.toMicros(resultInNanoSec);
     }
 
     /** Check if the combination of sample rate, channel count and audio format is supported. */
@@ -551,6 +578,24 @@ public final class AudioSource {
     private static int getMinBufferSize(int sampleRate, int channelCount, int audioFormat) {
         return AudioRecord.getMinBufferSize(sampleRate, channelCountToChannelConfig(channelCount),
                 audioFormat);
+    }
+
+    private static int getBytesPerFrame(int audioFormat, int channelCount) {
+        Preconditions.checkState(channelCount > 0);
+
+        switch (audioFormat) {
+            case ENCODING_PCM_8BIT:
+                return channelCount;
+            case ENCODING_PCM_16BIT:
+                return channelCount * 2;
+            case ENCODING_PCM_24BIT_PACKED:
+                return channelCount * 3;
+            case ENCODING_PCM_32BIT:
+            case ENCODING_PCM_FLOAT:
+                return channelCount * 4;
+            default:
+                throw new IllegalArgumentException("Invalid audio format: " + audioFormat);
+        }
     }
 
     /**
