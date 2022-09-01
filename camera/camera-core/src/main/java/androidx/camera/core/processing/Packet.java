@@ -27,8 +27,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.ImageProxy;
-import androidx.camera.core.impl.CameraCaptureResult;
-import androidx.camera.core.impl.ImageReaderProxy;
 import androidx.camera.core.impl.utils.Exif;
 
 import com.google.auto.value.AutoValue;
@@ -71,22 +69,15 @@ public abstract class Packet<T> {
     /**
      * The Exif info extracted from JPEG bytes.
      */
-    @Nullable
-    public abstract Exif getExif();
-
-    /**
-     * The {@link CameraCaptureResult} returned from {@link ImageReaderProxy}.
-     *
-     * <p>This value can be used to generate the Exif info in the image doesn't contain Exif info
-     * itself.
-     */
     @NonNull
-    public abstract CameraCaptureResult getCameraCaptureResult();
+    public abstract Exif getExif();
 
     /**
      * Gets the format of the image.
      *
      * <p>This value must match the format of the image in {@link #getData()}.
+     *
+     * <p>For {@link Bitmap} type, the value is {@link ImageFormat#FLEX_RGBA_8888}.
      */
     public abstract int getFormat();
 
@@ -127,10 +118,9 @@ public abstract class Packet<T> {
      */
     @NonNull
     public static Packet<Bitmap> of(@NonNull Bitmap data, @Nullable Exif exif,
-            @NonNull CameraCaptureResult cameraCaptureResult, @NonNull Rect cropRect,
-            int rotationDegrees, @NonNull Matrix sensorToBufferTransform) {
-        return new AutoValue_Packet<>(data, exif, cameraCaptureResult,
-                ImageFormat.FLEX_RGBA_8888, new Size(data.getWidth(), data.getHeight()),
+            @NonNull Rect cropRect, int rotationDegrees, @NonNull Matrix sensorToBufferTransform) {
+        return new AutoValue_Packet<>(data, exif, ImageFormat.FLEX_RGBA_8888,
+                new Size(data.getWidth(), data.getHeight()),
                 cropRect, rotationDegrees, sensorToBufferTransform);
     }
 
@@ -138,11 +128,10 @@ public abstract class Packet<T> {
      * Creates {@link Packet}.
      */
     @NonNull
-    public static <T> Packet<T> of(@NonNull T data, @Nullable Exif exif,
-            @NonNull CameraCaptureResult cameraCaptureResult,
+    public static <T> Packet<T> of(@NonNull T data, @NonNull Exif exif,
             int format, @NonNull Size size, @NonNull Rect cropRect,
             int rotationDegrees, @NonNull Matrix sensorToBufferTransform) {
-        return new AutoValue_Packet<>(data, exif, cameraCaptureResult, format, size, cropRect,
+        return new AutoValue_Packet<>(data, exif, format, size, cropRect,
                 rotationDegrees, sensorToBufferTransform);
     }
 }
