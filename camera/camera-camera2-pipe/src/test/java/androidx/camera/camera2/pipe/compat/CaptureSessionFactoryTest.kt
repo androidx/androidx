@@ -25,13 +25,14 @@ import android.view.Surface
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.CameraStream
+import androidx.camera.camera2.pipe.CameraSurfaceManager
 import androidx.camera.camera2.pipe.RequestProcessor
 import androidx.camera.camera2.pipe.StreamFormat
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.config.Camera2ControllerScope
+import androidx.camera.camera2.pipe.config.CameraGraphScope
 import androidx.camera.camera2.pipe.config.CameraPipeModules
 import androidx.camera.camera2.pipe.config.SharedCameraGraphModules
-import androidx.camera.camera2.pipe.config.CameraGraphScope
 import androidx.camera.camera2.pipe.config.ThreadConfigModule
 import androidx.camera.camera2.pipe.graph.StreamGraphImpl
 import androidx.camera.camera2.pipe.testing.FakeGraphProcessor
@@ -116,6 +117,7 @@ internal class CaptureSessionFactoryTest {
                         surfaceMap: Map<StreamId, Surface>
                     ): RequestProcessor = FakeRequestProcessor()
                 },
+                CameraSurfaceManager(),
                 this
             )
         )

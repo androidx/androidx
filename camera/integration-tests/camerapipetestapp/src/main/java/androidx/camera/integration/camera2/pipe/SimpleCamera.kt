@@ -28,10 +28,10 @@ import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.CameraPipe
-import androidx.camera.camera2.pipe.Request
-import androidx.camera.camera2.pipe.RequestTemplate
 import androidx.camera.camera2.pipe.CameraStream.Config
 import androidx.camera.camera2.pipe.OutputStream
+import androidx.camera.camera2.pipe.Request
+import androidx.camera.camera2.pipe.RequestTemplate
 import androidx.camera.camera2.pipe.StreamFormat
 import androidx.camera.camera2.pipe.core.Debug
 import kotlin.math.absoluteValue
