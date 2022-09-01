@@ -38,6 +38,7 @@ import androidx.camera.core.impl.Quirk;
 public class AfRegionFlipHorizontallyQuirk implements Quirk {
     static boolean load(@NonNull final CameraCharacteristicsCompat cameraCharacteristicsCompat) {
         return (Build.BRAND.equalsIgnoreCase("SAMSUNG")
+                && Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU // Samsung fixed it in T.
                 && cameraCharacteristicsCompat.get(CameraCharacteristics.LENS_FACING)
                         == CameraCharacteristics.LENS_FACING_FRONT);
     }
