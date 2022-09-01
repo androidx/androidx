@@ -1,6 +1,31 @@
 // Signature format: 4.0
 package androidx.bluetooth.core {
 
+  public final class AdvertiseSettings implements androidx.bluetooth.core.Bundleable {
+    ctor public AdvertiseSettings(optional int advertiseMode, optional int advertiseTxPowerLevel, optional boolean advertiseConnectable, optional int advertiseTimeoutMillis);
+    method public boolean getAdvertiseConnectable();
+    method public int getAdvertiseMode();
+    method public int getAdvertiseTimeoutMillis();
+    method public int getAdvertiseTxPowerLevel();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.os.Bundle toBundle();
+    property public final boolean advertiseConnectable;
+    property public final int advertiseMode;
+    property public final int advertiseTimeoutMillis;
+    property public final int advertiseTxPowerLevel;
+    field public static final int ADVERTISE_MODE_BALANCED = 1; // 0x1
+    field public static final int ADVERTISE_MODE_LOW_LATENCY = 2; // 0x2
+    field public static final int ADVERTISE_MODE_LOW_POWER = 0; // 0x0
+    field public static final int ADVERTISE_TX_POWER_HIGH = 3; // 0x3
+    field public static final int ADVERTISE_TX_POWER_LOW = 1; // 0x1
+    field public static final int ADVERTISE_TX_POWER_MEDIUM = 2; // 0x2
+    field public static final int ADVERTISE_TX_POWER_ULTRA_LOW = 0; // 0x0
+    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static final androidx.bluetooth.core.Bundleable.Creator<androidx.bluetooth.core.AdvertiseSettings> CREATOR;
+    field public static final androidx.bluetooth.core.AdvertiseSettings.Companion Companion;
+  }
+
+  public static final class AdvertiseSettings.Companion {
+  }
+
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public interface Bundleable {
     method public android.os.Bundle toBundle();
   }
