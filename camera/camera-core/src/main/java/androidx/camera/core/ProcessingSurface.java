@@ -213,6 +213,8 @@ final class ProcessingSurface extends DeferrableSurface {
                 return;
             }
 
+            mInputImageReader.clearOnImageAvailableListener();
+
             // Since the ProcessingSurface DeferrableSurface has been terminated, it is safe to
             // close the inputs.
             mInputImageReader.close();
