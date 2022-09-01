@@ -52,12 +52,6 @@ gradlePlugin {
     }
 }
 
-tasks.withType(KotlinCompile).configureEach {
-    kotlinOptions {
-        freeCompilerArgs += [ "-opt-in=kotlin.Experimental" ]
-    }
-}
-
 androidx {
     name = "Android Inspection Gradle Plugin"
     type = LibraryType.GRADLE_PLUGIN
