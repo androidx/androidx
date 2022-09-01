@@ -187,9 +187,7 @@ public final class Preview extends UseCase {
     @VisibleForTesting
     @Nullable
     SurfaceRequest mCurrentSurfaceRequest;
-    // Flag indicates that there is a SurfaceRequest created by Preview but hasn't sent to the
-    // caller.
-    private boolean mHasUnsentSurfaceRequest = false;
+
     // The attached surface size. Same as getAttachedSurfaceResolution() but is available during
     // createPipeline().
     @Nullable
@@ -234,10 +232,9 @@ public final class Preview extends UseCase {
                 isRGBA8888SurfaceRequired);
         mCurrentSurfaceRequest = surfaceRequest;
 
-        if (sendSurfaceRequestIfReady()) {
-            sendTransformationInfoIfReady();
-        } else {
-            mHasUnsentSurfaceRequest = true;
+        if (mSurfaceProvider != null) {
+            // Only send surface request if the provider is set.
+            sendSurfaceRequest();
         }
 
         if (captureProcessor != null) {
@@ -330,10 +327,9 @@ public final class Preview extends UseCase {
         // Send the app Surface to the app.
         mSessionDeferrableSurface = cameraSurface;
         mCurrentSurfaceRequest = appSurface.createSurfaceRequest(camera);
-        if (sendSurfaceRequestIfReady()) {
-            sendTransformationInfoIfReady();
-        } else {
-            mHasUnsentSurfaceRequest = true;
+        if (mSurfaceProvider != null) {
+            // Only send surface request if the provider is set.
+            sendSurfaceRequest();
         }
 
         // Send the camera Surface to the camera2.
@@ -389,7 +385,17 @@ public final class Preview extends UseCase {
             @NonNull String cameraId,
             @NonNull PreviewConfig config,
             @NonNull Size resolution) {
-        sessionConfigBuilder.addSurface(mSessionDeferrableSurface);
+        // TODO(b/245309800): Add the Surface if post-processing pipeline is used. Post-processing
+        //  pipeline always provide a Surface.
+
+        // Not to add deferrable surface if the surface provider is not set, as that means the
+        // surface will never be provided. For simplicity, the same rule also applies to
+        // SurfaceEffectNode and CaptureProcessor cases, since no surface provider also means no
+        // output target for these two cases.
+        if (mSurfaceProvider != null) {
+            sessionConfigBuilder.addSurface(mSessionDeferrableSurface);
+        }
+
         sessionConfigBuilder.addErrorListener((sessionConfig, error) -> {
             // Ensure the attached camera has not changed before resetting.
             // TODO(b/143915543): Ensure this never gets called by a camera that is not attached
@@ -439,7 +445,8 @@ public final class Preview extends UseCase {
         SurfaceProvider surfaceProvider = mSurfaceProvider;
         Rect cropRect = getCropRect(mSurfaceSize);
         SurfaceRequest surfaceRequest = mCurrentSurfaceRequest;
-        if (cameraInternal != null && surfaceProvider != null && cropRect != null) {
+        if (cameraInternal != null && surfaceProvider != null && cropRect != null
+                && surfaceRequest != null) {
             // TODO: when SurfaceEffectNode exists, use SettableSurface.setRotationDegrees(int)
             //  instead. However, this requires PreviewView to rely on relative rotation but not
             //  target rotation.
@@ -490,35 +497,24 @@ public final class Preview extends UseCase {
             mSurfaceProviderExecutor = executor;
             notifyActive();
 
-            if (mHasUnsentSurfaceRequest) {
-                if (sendSurfaceRequestIfReady()) {
-                    sendTransformationInfoIfReady();
-                    mHasUnsentSurfaceRequest = false;
-                }
-            } else {
-                // No pending SurfaceRequest. It could be a previous request has already been
-                // sent, which means the caller wants to replace the Surface. Or, it could be the
-                // pipeline has not started. Or the use case may have been detached from the camera.
-                // Either way, try updating session config and let createPipeline() sends a
-                // new SurfaceRequest.
-                if (getAttachedSurfaceResolution() != null) {
-                    updateConfigAndOutput(getCameraId(), (PreviewConfig) getCurrentConfig(),
-                            getAttachedSurfaceResolution());
-                    notifyReset();
-                }
+            // It could be a previous request has already been sent, which means the caller wants
+            // to replace the Surface. Or, it could be the pipeline has not started. Or the use
+            // case may have been detached from the camera. Either way, try updating session
+            // config and let createPipeline() sends a new SurfaceRequest.
+            if (getAttachedSurfaceResolution() != null) {
+                updateConfigAndOutput(getCameraId(), (PreviewConfig) getCurrentConfig(),
+                        getAttachedSurfaceResolution());
+                notifyReset();
             }
         }
     }
 
-    private boolean sendSurfaceRequestIfReady() {
-        final SurfaceRequest surfaceRequest = mCurrentSurfaceRequest;
-        final SurfaceProvider surfaceProvider = mSurfaceProvider;
-        if (surfaceProvider != null && surfaceRequest != null) {
-            mSurfaceProviderExecutor.execute(
-                    () -> surfaceProvider.onSurfaceRequested(surfaceRequest));
-            return true;
-        }
-        return false;
+    private void sendSurfaceRequest() {
+        final SurfaceProvider surfaceProvider = Preconditions.checkNotNull(mSurfaceProvider);
+        final SurfaceRequest surfaceRequest = Preconditions.checkNotNull(mCurrentSurfaceRequest);
+
+        mSurfaceProviderExecutor.execute(() -> surfaceProvider.onSurfaceRequested(surfaceRequest));
+        sendTransformationInfoIfReady();
     }
 
     /**

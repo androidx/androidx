@@ -136,6 +136,34 @@ class UseCaseCombinationTest(
         previewMonitor.waitForStream()
     }
 
+    /** Test Combination: Preview (no surface provider) + ImageCapture */
+    @Test
+    fun previewCombinesImageCapture_withNoSurfaceProvider(): Unit = runBlocking {
+        skipTestOnCameraPipeConfig()
+
+        // Arrange.
+        val previewMonitor = PreviewMonitor()
+        val preview = initPreview(previewMonitor)
+        val imageCapture = initImageCapture()
+
+        assertThat(camera.isUseCasesCombinationSupported(preview, imageCapture)).isTrue()
+
+        // TODO(b/160249108) move off of main thread once UseCases can be attached on any thread
+        // Act.
+        withContext(Dispatchers.Main) {
+            cameraProvider.bindToLifecycle(
+                fakeLifecycleOwner,
+                DEFAULT_SELECTOR,
+                preview,
+                imageCapture
+            )
+        }
+
+        // Assert.
+        imageCapture.waitForCapturing()
+        previewMonitor.waitForStreamIdle()
+    }
+
     /** Test Combination: Preview + ImageAnalysis */
     @Test
     fun previewCombinesImageAnalysis(): Unit = runBlocking {
@@ -163,6 +191,35 @@ class UseCaseCombinationTest(
 
         // Assert.
         previewMonitor.waitForStream()
+        imageAnalysisMonitor.waitForImageAnalysis()
+    }
+
+    /** Test Combination: Preview (no surface provider) + ImageAnalysis */
+    @Test
+    fun previewCombinesImageAnalysis_withNoSurfaceProvider(): Unit = runBlocking {
+        skipTestOnCameraPipeConfig()
+
+        // Arrange.
+        val previewMonitor = PreviewMonitor()
+        val preview = initPreview(previewMonitor)
+        val imageAnalysisMonitor = AnalysisMonitor()
+        val imageAnalysis = initImageAnalysis(imageAnalysisMonitor)
+
+        assertThat(camera.isUseCasesCombinationSupported(preview, imageAnalysis)).isTrue()
+
+        // TODO(b/160249108) move off of main thread once UseCases can be attached on any thread
+        // Act.
+        withContext(Dispatchers.Main) {
+            cameraProvider.bindToLifecycle(
+                fakeLifecycleOwner,
+                DEFAULT_SELECTOR,
+                preview,
+                imageAnalysis
+            )
+        }
+
+        // Assert.
+        previewMonitor.waitForStreamIdle()
         imageAnalysisMonitor.waitForImageAnalysis()
     }
 
