@@ -43,14 +43,10 @@ import androidx.annotation.UiThread
 import androidx.annotation.VisibleForTesting
 import androidx.wear.watchface.complications.SystemDataSources
 import androidx.wear.watchface.complications.data.ComplicationData
-import androidx.wear.watchface.complications.data.ComplicationExperimental
-import androidx.wear.watchface.complications.data.ComplicationType
 import androidx.wear.watchface.complications.data.toApiComplicationData
 import androidx.wear.watchface.control.data.ComplicationRenderParams
 import androidx.wear.watchface.control.data.HeadlessWatchFaceInstanceParams
 import androidx.wear.watchface.control.data.WatchFaceRenderParams
-import androidx.wear.watchface.data.ComplicationStateWireFormat
-import androidx.wear.watchface.data.IdAndComplicationStateWireFormat
 import androidx.wear.watchface.style.CurrentUserStyleRepository
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleData
@@ -1122,38 +1118,6 @@ public class WatchFaceImpl @UiThread constructor(
             }
             else -> lastTappedComplicationId = null
         }
-    }
-
-    @OptIn(ComplicationExperimental::class)
-    @UiThread
-    internal fun getComplicationState() = complicationSlotsManager.complicationSlots.map {
-        val systemDataSourceFallbackDefaultType =
-            it.value.defaultDataSourcePolicy.systemDataSourceFallbackDefaultType
-                .toWireComplicationType()
-        IdAndComplicationStateWireFormat(
-            it.key,
-            ComplicationStateWireFormat(
-                it.value.computeBounds(renderer.screenBounds, applyMargins = false),
-                it.value.computeBounds(renderer.screenBounds, applyMargins = true),
-                it.value.boundsType,
-                ComplicationType.toWireTypes(it.value.supportedTypes),
-                it.value.defaultDataSourcePolicy.dataSourcesAsList(),
-                it.value.defaultDataSourcePolicy.systemDataSourceFallback,
-                systemDataSourceFallbackDefaultType,
-                it.value.defaultDataSourcePolicy.primaryDataSourceDefaultType
-                    ?.toWireComplicationType() ?: systemDataSourceFallbackDefaultType,
-                it.value.defaultDataSourcePolicy.secondaryDataSourceDefaultType
-                    ?.toWireComplicationType() ?: systemDataSourceFallbackDefaultType,
-                it.value.enabled,
-                it.value.initiallyEnabled,
-                it.value.renderer.getData().type.toWireComplicationType(),
-                it.value.fixedComplicationDataSource,
-                it.value.configExtras,
-                it.value.nameResourceId,
-                it.value.screenReaderNameResourceId,
-                it.value.boundingArc?.toWireFormat()
-            )
-        )
     }
 
     @UiThread

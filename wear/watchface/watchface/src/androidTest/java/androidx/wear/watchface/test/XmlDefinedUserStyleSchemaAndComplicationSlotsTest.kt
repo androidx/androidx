@@ -316,8 +316,8 @@ public class XmlDefinedUserStyleSchemaAndComplicationSlotsTest {
             assertThat(slotC.defaultDataSourcePolicy.systemDataSourceFallbackDefaultType)
                 .isEqualTo(ComplicationType.NOT_CONFIGURED)
 
-            val watchFaceInitDetails = wrapper.watchFaceInitDetails.await()
-            val flavors = watchFaceInitDetails.userStyleFlavors
+            val earlyInitDetails = wrapper.deferredEarlyInitDetails.await()
+            val flavors = earlyInitDetails.userStyleFlavors
 
             assertThat(flavors.flavors.size).isEqualTo(1)
             val flavor = flavors.flavors[0]

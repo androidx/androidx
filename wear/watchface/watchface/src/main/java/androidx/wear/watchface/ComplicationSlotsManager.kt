@@ -21,6 +21,7 @@ import android.app.PendingIntent.CanceledException
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.graphics.Rect
 import android.util.Log
 import androidx.annotation.Px
 import androidx.annotation.RestrictTo
@@ -30,9 +31,12 @@ import androidx.annotation.VisibleForTesting.Companion.PACKAGE_PRIVATE
 import androidx.annotation.WorkerThread
 import androidx.wear.watchface.complications.ComplicationSlotBounds
 import androidx.wear.watchface.complications.data.ComplicationData
+import androidx.wear.watchface.complications.data.ComplicationExperimental
 import androidx.wear.watchface.complications.data.ComplicationType
 import androidx.wear.watchface.utility.TraceEvent
 import androidx.wear.watchface.control.data.IdTypeAndDefaultProviderPolicyWireFormat
+import androidx.wear.watchface.data.ComplicationStateWireFormat
+import androidx.wear.watchface.data.IdAndComplicationStateWireFormat
 import androidx.wear.watchface.style.CurrentUserStyleRepository
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotsOption
@@ -147,26 +151,29 @@ public class ComplicationSlotsManager(
     }
 
     /** @hide */
+    @WorkerThread
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun listenForStyleChanges(coroutineScope: CoroutineScope) {
         val complicationsStyleCategory =
             currentUserStyleRepository.schema.userStyleSettings.firstOrNull {
                 it is ComplicationSlotsUserStyleSetting
-            }
+            } ?: return
 
-        // Add a listener if we have a ComplicationSlotsUserStyleSetting so we can track changes and
-        // automatically apply them.
-        if (complicationsStyleCategory != null) {
-            // Ensure we apply any initial StyleCategoryOption overlay by initializing with null.
-            var previousOption: ComplicationSlotsOption? = null
-            coroutineScope.launch {
-                currentUserStyleRepository.userStyle.collect { userStyle ->
-                    val newlySelectedOption =
-                        userStyle[complicationsStyleCategory]!! as ComplicationSlotsOption
-                    if (previousOption != newlySelectedOption) {
-                        previousOption = newlySelectedOption
-                        applyComplicationSlotsStyleCategoryOption(newlySelectedOption)
-                    }
+        var previousOption: ComplicationSlotsOption = currentUserStyleRepository.userStyle.value[
+            complicationsStyleCategory
+        ]!! as ComplicationSlotsOption
+
+        // Apply the initial settings on the worker thread.
+        applyComplicationSlotsStyleCategoryOption(previousOption)
+
+        // Add a listener so we can track changes and automatically apply them on the UIThread
+        coroutineScope.launch {
+            currentUserStyleRepository.userStyle.collect { userStyle ->
+                val newlySelectedOption =
+                    userStyle[complicationsStyleCategory]!! as ComplicationSlotsOption
+                if (previousOption != newlySelectedOption) {
+                    previousOption = newlySelectedOption
+                    applyComplicationSlotsStyleCategoryOption(newlySelectedOption)
                 }
             }
         }
@@ -188,8 +195,6 @@ public class ComplicationSlotsManager(
             // Force lazy construction of renderers.
             complication.renderer.onRendererCreated(renderer)
         }
-
-        listenForStyleChanges(watchFaceHostApi.getUiThreadCoroutineScope())
 
         require(
             complicationSlots.values.distinctBy { it.renderer }.size ==
@@ -435,6 +440,42 @@ public class ComplicationSlotsManager(
         for (complicationListener in complicationListeners) {
             complicationListener.onComplicationSlotTapped(complicationSlotId)
         }
+    }
+
+    /**
+     * Note getComplicationState may be called before [init], this is why it requires
+     * [screenBounds].
+     */
+    @OptIn(ComplicationExperimental::class)
+    @UiThread
+    internal fun getComplicationsState(screenBounds: Rect) = complicationSlots.map {
+        val systemDataSourceFallbackDefaultType =
+            it.value.defaultDataSourcePolicy.systemDataSourceFallbackDefaultType
+                .toWireComplicationType()
+        IdAndComplicationStateWireFormat(
+            it.key,
+            ComplicationStateWireFormat(
+                it.value.computeBounds(screenBounds, applyMargins = false),
+                it.value.computeBounds(screenBounds, applyMargins = true),
+                it.value.boundsType,
+                ComplicationType.toWireTypes(it.value.supportedTypes),
+                it.value.defaultDataSourcePolicy.dataSourcesAsList(),
+                it.value.defaultDataSourcePolicy.systemDataSourceFallback,
+                systemDataSourceFallbackDefaultType,
+                it.value.defaultDataSourcePolicy.primaryDataSourceDefaultType
+                    ?.toWireComplicationType() ?: systemDataSourceFallbackDefaultType,
+                it.value.defaultDataSourcePolicy.secondaryDataSourceDefaultType
+                    ?.toWireComplicationType() ?: systemDataSourceFallbackDefaultType,
+                it.value.enabled,
+                it.value.initiallyEnabled,
+                it.value.renderer.getData().type.toWireComplicationType(),
+                it.value.fixedComplicationDataSource,
+                it.value.configExtras,
+                it.value.nameResourceId,
+                it.value.screenReaderNameResourceId,
+                it.value.boundingArc?.toWireFormat()
+            )
+        )
     }
 
     @UiThread

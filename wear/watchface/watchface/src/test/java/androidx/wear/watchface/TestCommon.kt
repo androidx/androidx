@@ -44,7 +44,7 @@ import java.time.ZonedDateTime
 internal class TestWatchFaceService(
     @WatchFaceType private val watchFaceType: Int,
     private val complicationSlots: List<ComplicationSlot>,
-    private val rendererFactory: (
+    private val rendererFactory: suspend (
         surfaceHolder: SurfaceHolder,
         currentUserStyleRepository: CurrentUserStyleRepository,
         watchState: WatchState,
