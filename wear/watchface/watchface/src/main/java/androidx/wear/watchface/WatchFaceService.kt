@@ -321,7 +321,7 @@ public abstract class WatchFaceService : WallpaperService() {
 
         /**
          * The maximum delay for [awaitDeferredWatchFaceImplThenRunOnUiThreadBlocking] and
-         * [awaitDeferredWatchFaceAndComplicationManagerThenRunOnBinderThread] in milliseconds.
+         * [awaitDeferredEarlyInitDetailsThenRunOnBinderThread] in milliseconds.
          */
         private const val AWAIT_DEFERRED_TIMEOUT = 10000L
 
@@ -364,10 +364,14 @@ public abstract class WatchFaceService : WallpaperService() {
             }
         }
 
-        internal fun <R> awaitDeferredWatchFaceAndComplicationManagerThenRunOnBinderThread(
+        /**
+         * During startup tasks will run before those posted by
+         * [awaitDeferredWatchFaceImplThenRunOnUiThreadBlocking].
+         */
+        internal fun <R> awaitDeferredWatchFaceThenRunOnBinderThread(
             engine: WatchFaceService.EngineWrapper?,
             traceName: String,
-            task: (watchFaceInitDetails: WatchFaceService.WatchFaceInitDetails) -> R
+            task: (watchFace: WatchFace) -> R
         ): R? = TraceEvent(traceName).use {
             if (engine == null) {
                 Log.w(TAG, "Task $traceName ignored due to null engine.")
@@ -376,10 +380,36 @@ public abstract class WatchFaceService : WallpaperService() {
             runBlocking {
                 try {
                     withTimeout(AWAIT_DEFERRED_TIMEOUT) {
-                        task(engine.watchFaceInitDetails.await())
+                        task(engine.deferredWatchFace.await())
                     }
                 } catch (e: Exception) {
-                    Log.e(HeadlessWatchFaceImpl.TAG, "Operation $traceName failed", e)
+                    Log.e(TAG, "Operation $traceName failed", e)
+                    throw e
+                }
+            }
+        }
+
+        /**
+         * During startup tasks will run before those posted by
+         * [awaitDeferredWatchFaceImplThenRunOnUiThreadBlocking] and
+         * [awaitDeferredWatchFaceThenRunOnBinderThread].
+         */
+        internal fun <R> awaitDeferredEarlyInitDetailsThenRunOnBinderThread(
+            engine: WatchFaceService.EngineWrapper?,
+            traceName: String,
+            task: (earlyInitDetails: EarlyInitDetails) -> R
+        ): R? = TraceEvent(traceName).use {
+            if (engine == null) {
+                Log.w(TAG, "Task $traceName ignored due to null engine.")
+                return null
+            }
+            runBlocking {
+                try {
+                    withTimeout(AWAIT_DEFERRED_TIMEOUT) {
+                        task(engine.deferredEarlyInitDetails.await())
+                    }
+                } catch (e: Exception) {
+                    Log.e(TAG, "Operation $traceName failed", e)
                     throw e
                 }
             }
@@ -1074,11 +1104,11 @@ public abstract class WatchFaceService : WallpaperService() {
         }
     }
 
-    internal class WatchFaceInitDetails(
-        val watchFace: WatchFace,
+    internal class EarlyInitDetails(
         val complicationSlotsManager: ComplicationSlotsManager,
         val userStyleRepository: CurrentUserStyleRepository,
-        val userStyleFlavors: UserStyleFlavors
+        val userStyleFlavors: UserStyleFlavors,
+        val surfaceHolder: SurfaceHolder
     )
 
     /** @hide */
@@ -1102,13 +1132,15 @@ public abstract class WatchFaceService : WallpaperService() {
         internal val wslFlow = WslFlow(this)
 
         /**
-         * [watchFaceInitDetails] will complete before [deferredWatchFaceImpl].
+         * [deferredEarlyInitDetails] will complete before [deferredWatchFace] and
+         * [deferredWatchFaceImpl].
          */
-        internal var watchFaceInitDetails = CompletableDeferred<WatchFaceInitDetails>()
+        internal var deferredEarlyInitDetails = CompletableDeferred<EarlyInitDetails>()
 
-        /**
-         * [deferredWatchFaceImpl] will complete after [watchFaceInitDetails].
-         */
+        /** [deferredWatchFace] will complete before [deferredWatchFaceImpl]. */
+        internal var deferredWatchFace = CompletableDeferred<WatchFace>()
+
+        /** [deferredWatchFaceImpl] will complete after [deferredWatchFace]. */
         @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public val deferredWatchFaceImpl = CompletableDeferred<WatchFaceImpl>()
 
@@ -1570,10 +1602,9 @@ public abstract class WatchFaceService : WallpaperService() {
                     // it.
                     if (deferredWatchFaceImpl.isCompleted) {
                         deferredWatchFaceImpl.await().onDestroy()
-                    } else if (watchFaceInitDetails.isCompleted) {
+                    } else if (deferredWatchFace.isCompleted) {
                         // However we should destroy the renderer if its been created.
-                        watchFaceInitDetails
-                            .await().watchFace.renderer.onDestroy()
+                        deferredWatchFace.await().renderer.onDestroy()
                     }
                 }
             } catch (e: Exception) {
@@ -1919,18 +1950,22 @@ public abstract class WatchFaceService : WallpaperService() {
                     TraceEvent("WatchFaceService.createUserStyleSchema").use {
                         CurrentUserStyleRepository(createUserStyleSchema())
                     }
+                initStyle(currentUserStyleRepository)
+
                 val complicationSlotsManager =
                     TraceEvent("WatchFaceService.createComplicationsManager").use {
                         createComplicationSlotsManager(currentUserStyleRepository)
                     }
                 complicationSlotsManager.watchState = watchState
+                complicationSlotsManager.listenForStyleChanges(uiThreadCoroutineScope)
+
                 val userStyleFlavors =
                     TraceEvent("WatchFaceService.createUserStyleFlavors").use {
                         createUserStyleFlavors(currentUserStyleRepository, complicationSlotsManager)
                     }
 
                 val deferredWatchFace = CompletableDeferred<WatchFace>()
-                val initStyleAndComplicationsDone = CompletableDeferred<Unit>()
+                val initComplicationsDone = CompletableDeferred<Unit>()
 
                 // WatchFaceImpl (which registers broadcast observers) needs to be constructed
                 // on the UIThread. Part of this process can be done in parallel with
@@ -1940,31 +1975,34 @@ public abstract class WatchFaceService : WallpaperService() {
                         complicationSlotsManager,
                         currentUserStyleRepository,
                         deferredWatchFace,
-                        initStyleAndComplicationsDone,
+                        initComplicationsDone,
                         watchState
                     )
                 }
 
                 try {
+                    val surfaceHolder = overrideSurfaceHolder ?: deferredSurfaceHolder.await()
+                    deferredEarlyInitDetails.complete(
+                        EarlyInitDetails(
+                            complicationSlotsManager,
+                            currentUserStyleRepository,
+                            userStyleFlavors,
+                            surfaceHolder
+                        )
+                    )
+
                     val watchFace = TraceEvent("WatchFaceService.createWatchFace").use {
                         // Note by awaiting deferredSurfaceHolder we ensure onSurfaceChanged has
                         // been called and we're passing the correct updated surface holder. This is
                         // important for GL rendering.
                         createWatchFace(
-                            overrideSurfaceHolder ?: deferredSurfaceHolder.await(),
+                            surfaceHolder,
                             watchState,
                             complicationSlotsManager,
                             currentUserStyleRepository
                         )
                     }
-                    watchFaceInitDetails.complete(
-                        WatchFaceInitDetails(
-                            watchFace,
-                            complicationSlotsManager,
-                            currentUserStyleRepository,
-                            userStyleFlavors
-                        )
-                    )
+                    this@EngineWrapper.deferredWatchFace.complete(watchFace)
 
                     watchFace.renderer.backgroundThreadInitInternal()
 
@@ -1984,14 +2022,10 @@ public abstract class WatchFaceService : WallpaperService() {
                     }
 
                     // Perform more initialization on the background thread.
-                    initStyleAndComplications(
-                        complicationSlotsManager,
-                        currentUserStyleRepository,
-                        watchFace.renderer
-                    )
+                    initComplications(complicationSlotsManager, watchFace.renderer)
 
                     // Now init has completed, it's OK to complete deferredWatchFaceImpl.
-                    initStyleAndComplicationsDone.complete(Unit)
+                    initComplicationsDone.complete(Unit)
 
                     // validateSchemaWireSize is fairly expensive so only perform it for
                     // interactive watch faces.
@@ -2098,17 +2132,11 @@ public abstract class WatchFaceService : WallpaperService() {
             }
         }
 
-        /**
-         * It is OK to call this from a worker thread because we carefully ensure there's no
-         * concurrent writes to the ComplicationSlotsManager. No UI thread rendering can be done
-         * until after this has completed.
-         */
+        /** No UI thread rendering can be done until after this has completed. */
         @WorkerThread
-        internal fun initStyleAndComplications(
-            complicationSlotsManager: ComplicationSlotsManager,
-            currentUserStyleRepository: CurrentUserStyleRepository,
-            renderer: Renderer
-        ) = TraceEvent("initStyleAndComplications").use {
+        internal fun initStyle(
+            currentUserStyleRepository: CurrentUserStyleRepository
+        ) = TraceEvent("initStyle").use {
             // If the system has a stored user style then Home/SysUI is in charge of style
             // persistence, otherwise we need to do our own.
             val storedUserStyle = getInitialUserStyle()
@@ -2122,7 +2150,6 @@ public abstract class WatchFaceService : WallpaperService() {
                 TraceEvent("WatchFaceImpl.init apply userStyle from prefs").use {
                     // The system doesn't support preference persistence we need to do it ourselves.
                     val preferencesFile = "watchface_prefs_${_context.javaClass.name}.txt"
-
                     currentUserStyleRepository.updateUserStyle(
                         UserStyle(
                             UserStyleData(readPrefs(_context, preferencesFile)),
@@ -2137,6 +2164,18 @@ public abstract class WatchFaceService : WallpaperService() {
                     }
                 }
             }
+        }
+
+        /**
+         * It is OK to call this from a worker thread because we carefully ensure there's no
+         * concurrent writes to the ComplicationSlotsManager. No UI thread rendering can be done
+         * until after this has completed.
+         */
+        @WorkerThread
+        internal fun initComplications(
+            complicationSlotsManager: ComplicationSlotsManager,
+            renderer: Renderer
+        ) = TraceEvent("initStyleAndComplications").use {
 
             // We need to inhibit an immediate callback during initialization because members are
             // not fully constructed and it will fail. It's also superfluous because we're going
@@ -2364,17 +2403,16 @@ public abstract class WatchFaceService : WallpaperService() {
                 TraceEvent(
                     "WatchFaceService.updateContentDescriptionLabels A"
                 ).close()
-                val watchFaceAndComplicationManager =
-                    watchFaceInitDetails.await()
+                val watchFace = deferredWatchFace.await()
+                val earlyInitDetails = deferredEarlyInitDetails.await()
 
                 TraceEvent(
                     "WatchFaceService.updateContentDescriptionLabels"
                 ).use {
                     // The side effects of this need to be applied before deferredWatchFaceImpl is
                     // completed.
-                    val renderer = watchFaceAndComplicationManager.watchFace.renderer
-                    val complicationSlotsManager =
-                        watchFaceAndComplicationManager.complicationSlotsManager
+                    val renderer = watchFace.renderer
+                    val complicationSlotsManager = earlyInitDetails.complicationSlotsManager
 
                     // Add a ContentDescriptionLabel for the main clock element.
                     labels.add(
