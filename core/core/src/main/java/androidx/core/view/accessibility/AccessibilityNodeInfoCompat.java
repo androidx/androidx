@@ -811,6 +811,10 @@ public class AccessibilityNodeInfoCompat {
      * A vertical tree is a hierarchical collection with one column and
      * as many rows as the first level children.
      * </p>
+     * <p>
+     * To be a valid list, a collection has 1 row and any number of columns or 1 column and any
+     * number of rows.
+     * </p>
      */
     public static class CollectionInfoCompat {
         /** Selection mode where items are not selectable. */
