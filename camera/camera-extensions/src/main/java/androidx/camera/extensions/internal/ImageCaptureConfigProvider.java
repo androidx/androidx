@@ -141,10 +141,10 @@ public class ImageCaptureConfigProvider implements ConfigProvider<ImageCaptureCo
         @NonNull
         private final Context mContext;
         @Nullable
-        private VendorProcessor mVendorCaptureProcessor;
+        VendorProcessor mVendorCaptureProcessor;
+
         @Nullable
         private volatile CameraInfo mCameraInfo;
-
 
         ImageCaptureEventAdapter(@NonNull ImageCaptureExtenderImpl impl,
                 @NonNull Context context,
@@ -153,7 +153,6 @@ public class ImageCaptureConfigProvider implements ConfigProvider<ImageCaptureCo
             mContext = context;
             mVendorCaptureProcessor = vendorCaptureProcessor;
         }
-
 
         // Invoked from main thread
         @Override
@@ -240,6 +239,9 @@ public class ImageCaptureConfigProvider implements ConfigProvider<ImageCaptureCo
         // Invoked from camera thread
         @Override
         public void onDeInitSession() {
+            if (mVendorCaptureProcessor != null) {
+                mVendorCaptureProcessor.onDeInit();
+            }
             mImpl.onDeInit();
         }
     }

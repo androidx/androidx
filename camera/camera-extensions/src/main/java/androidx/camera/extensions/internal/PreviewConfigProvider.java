@@ -147,7 +147,6 @@ public class PreviewConfigProvider implements ConfigProvider<PreviewConfig> {
         @Nullable
         CameraInfo mCameraInfo;
 
-        // Once the adapter has set mActive to false a new instance needs to be created
         @GuardedBy("mLock")
         final Object mLock = new Object();
 
@@ -189,7 +188,9 @@ public class PreviewConfigProvider implements ConfigProvider<PreviewConfig> {
                 CameraCharacteristics cameraCharacteristics =
                         Camera2CameraInfo.extractCameraCharacteristics(mCameraInfo);
                 mImpl.onInit(cameraId, cameraCharacteristics, mContext);
-                mPreviewProcessor.onInit();
+                if (mPreviewProcessor != null) {
+                    mPreviewProcessor.onInit();
+                }
                 CaptureStageImpl captureStageImpl = mImpl.onPresetSession();
                 if (captureStageImpl != null) {
                     if (Build.VERSION.SDK_INT >= 28) {
@@ -253,6 +254,9 @@ public class PreviewConfigProvider implements ConfigProvider<PreviewConfig> {
         @Override
         public void onDeInitSession() {
             synchronized (mLock) {
+                if (mPreviewProcessor != null) {
+                    mPreviewProcessor.onDeInit();
+                }
                 mImpl.onDeInit();
             }
         }
