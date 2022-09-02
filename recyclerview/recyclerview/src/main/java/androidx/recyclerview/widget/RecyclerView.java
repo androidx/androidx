@@ -11183,6 +11183,12 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
         public void onInitializeAccessibilityNodeInfoForItem(@NonNull Recycler recycler,
                 @NonNull State state, @NonNull View host,
                 @NonNull AccessibilityNodeInfoCompat info) {
+            int rowIndexGuess = canScrollVertically() ? getPosition(host) : 0;
+            int columnIndexGuess = canScrollHorizontally() ? getPosition(host) : 0;
+            final AccessibilityNodeInfoCompat.CollectionItemInfoCompat itemInfo =
+                    AccessibilityNodeInfoCompat.CollectionItemInfoCompat.obtain(rowIndexGuess, 1,
+                            columnIndexGuess, 1, false, false);
+            info.setCollectionItemInfo(itemInfo);
         }
 
         /**
@@ -11231,7 +11237,10 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
          * @return The number of rows in LayoutManager for accessibility.
          */
         public int getRowCountForAccessibility(@NonNull Recycler recycler, @NonNull State state) {
-            return -1;
+            if (mRecyclerView == null || mRecyclerView.mAdapter == null) {
+                return 1;
+            }
+            return canScrollVertically() ? mRecyclerView.mAdapter.getItemCount() : 1;
         }
 
         /**
@@ -11248,7 +11257,10 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
          */
         public int getColumnCountForAccessibility(@NonNull Recycler recycler,
                 @NonNull State state) {
-            return -1;
+            if (mRecyclerView == null || mRecyclerView.mAdapter == null) {
+                return 1;
+            }
+            return canScrollHorizontally() ? mRecyclerView.mAdapter.getItemCount() : 1;
         }
 
         /**
