@@ -779,6 +779,44 @@ class GlanceAppWidgetReceiverTest {
     }
 
     @Test
+    fun canCreateCheckableColorProvider() {
+        TestGlanceAppWidget.uiDefinition = {
+            Switch(
+                checked = true,
+                onCheckedChange = null,
+                text = "Hello Checked Switch (day: Blue/Green, night: Red/Yellow)",
+                style = TextStyle(
+                    color = androidx.glance.appwidget.unit.ColorProvider(
+                        day = Color.Black,
+                        night = Color.White
+                    ),
+                    fontWeight = FontWeight.Bold,
+                    fontStyle = FontStyle.Normal,
+                ),
+                colors = switchColors(
+                    checkedThumbColor = androidx.glance.appwidget.unit.ColorProvider(
+                        day = Color.Blue,
+                        night = Color.Red
+                    ),
+                    checkedTrackColor = androidx.glance.appwidget.unit.ColorProvider(
+                        day = Color.Green,
+                        night = Color.Yellow
+                    ),
+                    uncheckedThumbColor = ColorProvider(Color.Magenta),
+                    uncheckedTrackColor = ColorProvider(Color.Magenta),
+                )
+            )
+        }
+
+        mHostRule.startHost()
+        runBlocking {
+            mHostRule.updateAppWidget()
+        }
+
+        // if no crash, we're good
+    }
+
+    @Test
     fun radioActionCallback() {
         TestGlanceAppWidget.uiDefinition = {
             RadioButton(

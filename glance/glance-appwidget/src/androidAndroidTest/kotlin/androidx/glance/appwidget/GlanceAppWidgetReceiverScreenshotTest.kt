@@ -636,8 +636,9 @@ private fun CheckBoxScreenshotTest() {
                 fontWeight = FontWeight.Bold,
                 fontStyle = FontStyle.Normal,
             ),
-            colors = CheckBoxColors(
-                checkedColor = ColorProvider(day = Color.Magenta, night = Color.Yellow)
+            colors = checkBoxColors(
+                checkedColor = ColorProvider(day = Color.Magenta, night = Color.Yellow),
+                uncheckedColor = ColorProvider(day = Color.Black, night = Color.Gray)
             )
         )
 
@@ -651,7 +652,7 @@ private fun CheckBoxScreenshotTest() {
                 fontWeight = FontWeight.Medium,
                 fontStyle = FontStyle.Italic,
             ),
-            colors = CheckBoxColors(checkedColor = Color.Red, uncheckedColor = Color.Green)
+            colors = checkBoxColors(checkedColor = Color.Red, uncheckedColor = Color.Green)
         )
     }
 }
@@ -668,21 +669,29 @@ private fun SwitchTest() {
                 fontWeight = FontWeight.Bold,
                 fontStyle = FontStyle.Normal,
             ),
-            colors = SwitchColors(
+            colors = switchColors(
                 checkedThumbColor = ColorProvider(day = Color.Blue, night = Color.Red),
+                uncheckedThumbColor = ColorProvider(Color.Magenta),
                 checkedTrackColor = ColorProvider(day = Color.Green, night = Color.Yellow),
+                uncheckedTrackColor = ColorProvider(Color.Magenta)
             )
         )
 
         Switch(
             checked = false,
             onCheckedChange = null,
-            text = "Hello Unchecked Switch",
+            text = "Hello Unchecked Switch. day: thumb magenta / track cyan, night: thumb cyan",
             style = TextStyle(
                 color = ColorProvider(day = Color.Black, night = Color.White),
                 textDecoration = TextDecoration.Underline,
                 fontWeight = FontWeight.Medium,
                 fontStyle = FontStyle.Italic,
+            ),
+            colors = switchColors(
+                checkedThumbColor = ColorProvider(Color.Blue),
+                uncheckedThumbColor = ColorProvider(day = Color.Magenta, night = Color.Cyan),
+                checkedTrackColor = ColorProvider(Color.Blue),
+                uncheckedTrackColor = ColorProvider(day = Color.Cyan, night = Color.Magenta)
             )
         )
     }
@@ -703,7 +712,7 @@ private fun RadioButtonScreenshotTest() {
                 fontWeight = FontWeight.Bold,
                 fontStyle = FontStyle.Normal,
             ),
-            colors = RadioButtonColors(
+            colors = radioButtonColors(
                 checkedColor = ColorProvider(day = Color.Magenta, night = Color.Yellow),
                 uncheckedColor = ColorProvider(day = Color.Yellow, night = Color.Magenta)
             )
@@ -719,7 +728,7 @@ private fun RadioButtonScreenshotTest() {
                 fontWeight = FontWeight.Medium,
                 fontStyle = FontStyle.Italic,
             ),
-            colors = RadioButtonColors(checkedColor = Color.Red, uncheckedColor = Color.Green)
+            colors = radioButtonColors(checkedColor = Color.Red, uncheckedColor = Color.Green)
         )
     }
 }
