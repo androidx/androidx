@@ -18,6 +18,7 @@ package androidx.car.app.hardware.common;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import androidx.annotation.IntDef;
+import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
@@ -138,7 +139,9 @@ public final class CarZone {
      */
     public static final CarZone CAR_ZONE_GLOBAL = new CarZone.Builder().build();
 
+    @Keep
     private final int mRow;
+    @Keep
     private final int mColumn;
 
     /** Returns one of the values in CarZoneRow. */
