@@ -50,12 +50,12 @@ fun parseSource(source: Source): ParsedApi {
     return provider.processor.capture!!
 }
 
-fun checkSourceFails(source: Source): CompilationResultSubject {
+fun checkSourceFails(vararg sources: Source): CompilationResultSubject {
     val provider = CapturingSymbolProcessor.Provider()
     val result = compile(
         Files.createTempDirectory("test").toFile(),
         TestCompilationArguments(
-            sources = listOf(source),
+            sources = sources.asList(),
             symbolProcessorProviders = listOf(provider)
         )
     )
