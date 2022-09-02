@@ -637,13 +637,17 @@ class GlanceAppWidgetReceiverTest {
                 Text(
                     "text1",
                     modifier = GlanceModifier.clickable(
-                        actionRunCallback<CallbackTest>(actionParametersOf(CallbackTest.key to 1))
+                        actionRunCallback<CallbackTest>(
+                            actionParametersOf(CallbackTest.key to 1)
+                        )
                     )
                 )
                 Text(
                     "text2",
                     modifier = GlanceModifier.clickable(
-                        actionRunCallback<CallbackTest>(actionParametersOf(CallbackTest.key to 2))
+                        actionRunCallback<CallbackTest>(
+                            actionParametersOf(CallbackTest.key to 2)
+                        )
                     )
                 )
             }
