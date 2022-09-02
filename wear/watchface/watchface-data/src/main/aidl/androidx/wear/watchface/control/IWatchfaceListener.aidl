@@ -61,4 +61,6 @@ interface IWatchfaceListener {
      * @since API version 1.
      */
     oneway void onPreviewImageUpdateRequested(in String watchFaceId) = 4;
+
+    // NOTE listener methods must ALWAYS be oneway because they are dispatched within a lock.
 }
