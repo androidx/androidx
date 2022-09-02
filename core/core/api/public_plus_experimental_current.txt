@@ -3572,6 +3572,7 @@ package androidx.core.view.accessibility {
   }
 
   public class AccessibilityWindowInfoCompat {
+    ctor public AccessibilityWindowInfoCompat();
     method public androidx.core.view.accessibility.AccessibilityNodeInfoCompat? getAnchor();
     method public void getBoundsInScreen(android.graphics.Rect);
     method public androidx.core.view.accessibility.AccessibilityWindowInfoCompat? getChild(int);
