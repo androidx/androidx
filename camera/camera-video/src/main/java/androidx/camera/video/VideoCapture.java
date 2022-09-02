@@ -627,7 +627,11 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
                 }
             }, CameraXExecutors.mainThreadExecutor());
         } else {
-            mSurfaceRequest = new SurfaceRequest(resolution, camera, targetFpsRange,
+            mSurfaceRequest = new SurfaceRequest(
+                    resolution,
+                    camera,
+                    streamSpec.getDynamicRange(),
+                    targetFpsRange,
                     onSurfaceInvalidated);
             mDeferrableSurface = mSurfaceRequest.getDeferrableSurface();
         }

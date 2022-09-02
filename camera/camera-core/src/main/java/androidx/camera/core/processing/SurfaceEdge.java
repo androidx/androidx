@@ -252,18 +252,18 @@ public class SurfaceEdge {
      * <p>It throws {@link IllegalStateException} if the current {@link SurfaceEdge}
      * already has a provider.
      *
-     * <p>This overload optionally allows allows specifying the expected frame rate range in which
-     * the surface should operate.
+     * <p>This overload optionally allows allows specifying the dynamic range and expected frame
+     * rate range with which the surface should operate.
      */
     @MainThread
     @NonNull
     public SurfaceRequest createSurfaceRequest(@NonNull CameraInternal cameraInternal,
-            @Nullable Range<Integer> expectedFpsRange) {
+            @Nullable Range<Integer> expectedFrameRateRange) {
         checkMainThread();
         checkNotClosed();
         // TODO(b/238230154) figure out how to support HDR.
         SurfaceRequest surfaceRequest = new SurfaceRequest(mStreamSpec.getResolution(),
-                cameraInternal, expectedFpsRange,
+                cameraInternal, mStreamSpec.getDynamicRange(), expectedFrameRateRange,
                 () -> mainThreadExecutor().execute(() -> {
                     if (!mIsClosed) {
                         invalidate();
