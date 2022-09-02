@@ -25,17 +25,28 @@ import java.io.File
 import java.nio.file.Path
 import java.nio.file.Paths
 
-class AidlGenerator(
-    private val aidlCompiler: AidlCompiler
+class AidlGenerator private constructor(
+    private val aidlCompiler: AidlCompiler,
+    private val api: ParsedApi,
+    private val workingDir: Path
 ) {
-    fun generate(api: ParsedApi, workingDir: Path): List<GeneratedSource> {
-        val aidlInterfaces = generateAidlInterfaces(api, workingDir)
-        return compileAidlInterfaces(aidlInterfaces, workingDir)
+    companion object {
+        fun generate(
+            aidlCompiler: AidlCompiler,
+            api: ParsedApi,
+            workingDir: Path
+        ): List<GeneratedSource> {
+            return AidlGenerator(aidlCompiler, api, workingDir).generate()
+        }
     }
 
-    private fun generateAidlInterfaces(api: ParsedApi, workingDir: Path): List<GeneratedSource> {
+    private fun generate(): List<GeneratedSource> {
+        return compileAidlInterfaces(generateAidlInterfaces())
+    }
+
+    private fun generateAidlInterfaces(): List<GeneratedSource> {
         workingDir.toFile().ensureDirectory()
-        val aidlSources = generateAidlContent(api).map {
+        val aidlSources = generateAidlContent().map {
             val aidlFile = getAidlFile(workingDir, it)
             aidlFile.parentFile.mkdirs()
             aidlFile.createNewFile()
@@ -45,10 +56,7 @@ class AidlGenerator(
         return aidlSources
     }
 
-    private fun compileAidlInterfaces(
-        aidlSources: List<GeneratedSource>,
-        workingDir: Path
-    ): List<GeneratedSource> {
+    private fun compileAidlInterfaces(aidlSources: List<GeneratedSource>): List<GeneratedSource> {
         aidlCompiler.compile(workingDir, aidlSources.map { it.file.toPath() })
         val javaSources = aidlSources.map {
             GeneratedSource(
@@ -65,7 +73,7 @@ class AidlGenerator(
         return javaSources
     }
 
-    private fun generateAidlContent(api: ParsedApi) =
+    private fun generateAidlContent() =
         api.services.map { service ->
             InMemorySource(
                 service.packageName,
