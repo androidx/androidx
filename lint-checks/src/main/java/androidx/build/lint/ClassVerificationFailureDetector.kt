@@ -45,12 +45,17 @@ import com.intellij.psi.PsiAnonymousClass
 import com.intellij.psi.PsiClass
 import com.intellij.psi.PsiClassType
 import com.intellij.psi.PsiCompiledElement
+import com.intellij.psi.PsiElement
+import com.intellij.psi.PsiExpressionList
 import com.intellij.psi.PsiMethod
+import com.intellij.psi.PsiMethodCallExpression
 import com.intellij.psi.PsiModifierListOwner
+import com.intellij.psi.PsiParenthesizedExpression
 import com.intellij.psi.PsiSuperExpression
 import com.intellij.psi.PsiType
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.util.PsiTypesUtil
+import com.intellij.psi.util.PsiUtil
 import kotlin.math.min
 import org.jetbrains.uast.UCallExpression
 import org.jetbrains.uast.UClass
@@ -507,7 +512,7 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
             val (wrapperMethodName, methodForInsertion) = generateWrapperMethod(
                 method,
                 // Find what type the result of this call is used as
-                PsiTypesUtil.getExpectedTypeByParent(callPsi)
+                getExpectedTypeByParent(callPsi)
             ) ?: return null
 
             val (wrapperClassName, insertionPoint, insertionSource) = generateInsertionSource(
@@ -540,6 +545,42 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
                         .shortenNames()
                         .build(),
                 )
+        }
+
+        /**
+         * Find what type the parent of the element is expecting the element to be.
+         */
+        private fun getExpectedTypeByParent(element: PsiElement): PsiType? {
+            val expectedType = PsiTypesUtil.getExpectedTypeByParent(element)
+            if (expectedType != null) return expectedType
+
+            // PsiTypesUtil didn't know the expected type, but it doesn't handle the case when the
+            // value is a parameter to a method call. See if that's what this is.
+            val (parent, childOfParent) = getParentSkipParens(element)
+            if (parent is PsiExpressionList) {
+                val grandparent = PsiUtil.skipParenthesizedExprUp(parent.parent)
+                if (grandparent is PsiMethodCallExpression) {
+                    val paramIndex = parent.expressions.indexOf(childOfParent)
+                    if (paramIndex < 0) return null
+                    val method = grandparent.resolveMethod() ?: return null
+                    return method.parameterList.getParameter(paramIndex)?.type
+                }
+            }
+            // Not a parameter, still don't know the expected type (or there isn't one).
+            return null
+        }
+
+        /**
+         * Return the first parent of the element which isn't a PsiParenthesizedExpression, and also
+         * return the direct child element of that parent.
+         */
+        private fun getParentSkipParens(element: PsiElement): Pair<PsiElement, PsiElement> {
+            val parent = element.parent
+            return if (parent is PsiParenthesizedExpression) {
+                getParentSkipParens(parent)
+            } else {
+                Pair(parent, element)
+            }
         }
 
         /**
@@ -744,6 +785,14 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
             if (expectedReturnType != null && expectedReturnType.canonicalText != returnTypeStr) {
                 returnTypeStr = expectedReturnType.canonicalText
                 wrapperMethodName += "Returns${expectedReturnType.presentableText}"
+            } else if (expectedReturnType == null && returnTypeStr != "void" &&
+                !classAvailableAtMinSdk(returnTypeStr)) {
+                // This method returns a value of a type that isn't available at the min SDK.
+                // The expected return type is null either because the returned value isn't used or
+                // getExpectedTypeByParent didn't know how it is used. In case it is used and is
+                // actually expected to be a different type, don't suggest an autofix to prevent an
+                // invalid implicit cast.
+                return null
             }
 
             val returnStmtStr = if ("void" == returnTypeStr) "" else "return "
@@ -757,6 +806,16 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
                     }
                 """
             )
+        }
+
+        /**
+         * Check if the specified class is available at the min SDK.
+         */
+        private fun classAvailableAtMinSdk(className: String): Boolean {
+            val apiDatabase = apiDatabase ?: return false
+            val minSdk = getMinSdk(context)
+            val version = apiDatabase.getClassVersion(className)
+            return version <= minSdk
         }
 
         private fun getInheritanceChain(
