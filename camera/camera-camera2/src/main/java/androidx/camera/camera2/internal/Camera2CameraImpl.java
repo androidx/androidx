@@ -44,6 +44,7 @@ import androidx.camera.camera2.internal.compat.ApiCompat;
 import androidx.camera.camera2.internal.compat.CameraAccessExceptionCompat;
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
 import androidx.camera.camera2.internal.compat.CameraManagerCompat;
+import androidx.camera.camera2.internal.compat.params.DynamicRangesCompat;
 import androidx.camera.camera2.internal.compat.quirk.DeviceQuirks;
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
 import androidx.camera.core.CameraState;
@@ -201,6 +202,9 @@ final class Camera2CameraImpl implements CameraInternal {
     @NonNull
     private final CameraCharacteristicsCompat mCameraCharacteristicsCompat;
 
+    @NonNull
+    private final DynamicRangesCompat mDynamicRangesCompat;
+
     /**
      * Constructor for a camera.
      *
@@ -234,7 +238,6 @@ final class Camera2CameraImpl implements CameraInternal {
         mCameraStateMachine = new CameraStateMachine(cameraStateRegistry);
         mCaptureSessionRepository = new CaptureSessionRepository(mExecutor);
         mDisplayInfoManager = displayInfoManager;
-        mCaptureSession = newCaptureSession();
 
         try {
             mCameraCharacteristicsCompat =
@@ -248,6 +251,10 @@ final class Camera2CameraImpl implements CameraInternal {
         } catch (CameraAccessExceptionCompat e) {
             throw CameraUnavailableExceptionHelper.createFrom(e);
         }
+        mDynamicRangesCompat =
+                DynamicRangesCompat.fromCameraCharacteristics(mCameraCharacteristicsCompat);
+        mCaptureSession = newCaptureSession();
+
         mCaptureSessionOpenerBuilder = new SynchronizedCaptureSessionOpener.Builder(mExecutor,
                 mScheduledExecutorService, schedulerHandler, mCaptureSessionRepository,
                 cameraInfoImpl.getCameraQuirks(), DeviceQuirks.getAll());
@@ -268,10 +275,11 @@ final class Camera2CameraImpl implements CameraInternal {
     private CaptureSessionInterface newCaptureSession() {
         synchronized (mLock) {
             if (mSessionProcessor == null) {
-                return new CaptureSession();
+                return new CaptureSession(mDynamicRangesCompat);
             } else {
                 return new ProcessingCaptureSession(mSessionProcessor,
-                        mCameraInfoInternal, mExecutor, mScheduledExecutorService);
+                        mCameraInfoInternal, mDynamicRangesCompat, mExecutor,
+                        mScheduledExecutorService);
             }
         }
     }
@@ -359,7 +367,7 @@ final class Camera2CameraImpl implements CameraInternal {
     @ExecutedBy("mExecutor")
     private void configAndClose(boolean abortInFlightCaptures) {
 
-        final CaptureSession noOpSession = new CaptureSession();
+        final CaptureSession noOpSession = new CaptureSession(mDynamicRangesCompat);
 
         mConfiguringForClose.add(noOpSession);  // Make mCameraDevice is not closed and existed.
         resetCaptureSession(abortInFlightCaptures);
