@@ -170,6 +170,7 @@ playServicesBase = { module = "com.google.android.gms:play-services-base", versi
 playServicesBasement = { module = "com.google.android.gms:play-services-basement", version = "17.0.0" }
 playServicesWearable = { module = "com.google.android.gms:play-services-wearable", version = "17.1.0" }
 paparazzi = { module = "app.cash.paparazzi:paparazzi", version.ref = "paparazzi" }
+paparazziNativeJvm = { module = "app.cash.paparazzi:layoutlib-native-jdk11", version.ref = "paparazziNative" }
 paparazziNativeLinuxX64 = { module = "app.cash.paparazzi:layoutlib-native-linux", version.ref = "paparazziNative" }
 paparazziNativeMacOsArm64 = { module = "app.cash.paparazzi:layoutlib-native-macarm", version.ref = "paparazziNative" }
 paparazziNativeMacOsX64 = { module = "app.cash.paparazzi:layoutlib-native-macosx", version.ref = "paparazziNative" }
