@@ -671,4 +671,44 @@ Fix for src/androidx/AutofixUnsafeCallWithImplicitCast.java line 59: Extract to 
 
         check(*input).expect(expected).expectFixDiffs(expectedFix)
     }
+
+    @Test
+    fun `Auto-fix for constructor needs qualified class name (issue 244714253)`() {
+        val input = arrayOf(
+            javaSample("androidx.AutofixUnsafeConstructorQualifiedClass"),
+            RequiresApi
+        )
+
+        /* ktlint-disable max-line-length */
+        val expected = """
+src/androidx/AutofixUnsafeConstructorQualifiedClass.java:32: Error: This call references a method added in API level 24; however, the containing class androidx.AutofixUnsafeConstructorQualifiedClass is reachable from earlier API levels and will fail run-time class verification. [ClassVerificationFailure]
+        new Notification.DecoratedCustomViewStyle();
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+1 errors, 0 warnings
+        """
+
+        val expectedFix = """
+Fix for src/androidx/AutofixUnsafeConstructorQualifiedClass.java line 32: Extract to static inner class:
+@@ -32 +32
+-         new Notification.DecoratedCustomViewStyle();
++         Api24Impl.createDecoratedCustomViewStyle();
+@@ -34 +34
++ @RequiresApi(24)
++ static class Api24Impl {
++     private Api24Impl() {
++         // This class is not instantiable.
++     }
++
++     @DoNotInline
++     static Notification.DecoratedCustomViewStyle createDecoratedCustomViewStyle() {
++         return new Notification.DecoratedCustomViewStyle();
++     }
++
+@@ -35 +46
++ }
+        """
+        /* ktlint-enable max-line-length */
+
+        check(*input).expect(expected).expectFixDiffs(expectedFix)
+    }
 }

@@ -687,7 +687,6 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
             method: PsiMethod,
             expectedReturnType: PsiType?
         ): Pair<String, String>? {
-            val methodName = method.name
             val evaluator = context.evaluator
             val isStatic = evaluator.isStatic(method)
             val isConstructor = method.isConstructor
@@ -717,15 +716,18 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
                 "${param.name}"
             }
 
+            val methodName: String
             var wrapperMethodName: String
             var returnTypeStr: String
             val receiverStr: String
 
             if (isConstructor) {
-                wrapperMethodName = "create$methodName"
+                methodName = hostType
+                wrapperMethodName = "create$hostClassName"
                 returnTypeStr = hostType
                 receiverStr = "new "
             } else {
+                methodName = method.name
                 wrapperMethodName = methodName
                 // PsiMethod.returnType is only supposed to be null if the method is a constructor,
                 // so something has gone wrong if it's null here.
