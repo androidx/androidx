@@ -16,13 +16,23 @@
 
 package androidx.camera.testing;
 
+import static androidx.camera.core.impl.utils.Exif.createFromFile;
+import static androidx.camera.core.impl.utils.Exif.createFromInputStream;
+
+import static java.io.File.createTempFile;
+
 import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.utils.Exif;
+import androidx.core.util.Consumer;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 
 /**
@@ -30,6 +40,9 @@ import java.io.IOException;
  */
 @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 public class ExifUtil {
+
+    private static final String TEMP_FILE_PREFIX = "exif_temp_file_prefix";
+    private static final String TEMP_FILE_SUFFIX = "exif_temp_file_suffix";
 
     private ExifUtil() {
     }
@@ -40,7 +53,42 @@ public class ExifUtil {
     @NonNull
     public static Exif createExif(@NonNull byte[] jpegBytes) throws IOException {
         ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(jpegBytes);
-        return Exif.createFromInputStream(byteArrayInputStream);
+        return createFromInputStream(byteArrayInputStream);
     }
 
+    /**
+     * Updates the exif info of the given JPEG and return a new JPEG byte array.
+     */
+    @NonNull
+    public static byte[] updateExif(@NonNull byte[] jpegBytes, @NonNull Consumer<Exif> exifUpdater)
+            throws IOException {
+        File tempFile = saveBytesToFile(jpegBytes);
+        tempFile.deleteOnExit();
+        Exif exif = createFromFile(tempFile);
+        exifUpdater.accept(exif);
+        exif.save();
+        return readBytesFromFile(tempFile);
+    }
+
+    private static File saveBytesToFile(@NonNull byte[] jpegBytes) throws IOException {
+        File file = createTempFile(TEMP_FILE_PREFIX, TEMP_FILE_SUFFIX);
+        try (FileOutputStream output = new FileOutputStream(file)) {
+            output.write(jpegBytes);
+        }
+        return file;
+    }
+
+    private static byte[] readBytesFromFile(@NonNull File file) throws IOException {
+        byte[] buffer = new byte[1024];
+        try (FileInputStream in = new FileInputStream(file);
+             ByteArrayOutputStream out = new ByteArrayOutputStream(1024)) {
+            int read;
+            while (true) {
+                read = in.read(buffer);
+                if (read == -1) break;
+                out.write(buffer, 0, read);
+            }
+            return out.toByteArray();
+        }
+    }
 }

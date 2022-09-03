@@ -25,6 +25,12 @@ import android.os.Build
 import android.util.Size
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCapture.OutputFileOptions
+import androidx.camera.core.imagecapture.Utils.ALTITUDE
+import androidx.camera.core.imagecapture.Utils.EXIF_DESCRIPTION
+import androidx.camera.core.imagecapture.Utils.HEIGHT
+import androidx.camera.core.imagecapture.Utils.ROTATION_DEGREES
+import androidx.camera.core.imagecapture.Utils.TEMP_FILE
+import androidx.camera.core.imagecapture.Utils.WIDTH
 import androidx.camera.core.impl.utils.Exif
 import androidx.camera.core.impl.utils.Exif.createFromFileString
 import androidx.camera.core.processing.Packet
@@ -33,7 +39,6 @@ import androidx.camera.testing.TestImageUtil.createBitmap
 import androidx.camera.testing.TestImageUtil.createJpegBytes
 import androidx.camera.testing.TestImageUtil.getAverageDiff
 import com.google.common.truth.Truth.assertThat
-import java.io.File
 import java.io.FileOutputStream
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -51,16 +56,6 @@ import org.robolectric.annotation.internal.DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 class JpegBytes2DiskTest {
 
-    companion object {
-        private const val WIDTH = 640
-        private const val HEIGHT = 480
-        private const val FILE_PREFIX = "prefix"
-        private const val FILE_SUFFIX = "suffix"
-        private const val EXIF_DESCRIPTION = "description"
-        private const val ROTATION = 180
-        private const val ALTITUDE = 0.1
-    }
-
     private val processor = JpegBytes2Disk()
 
     @Test
@@ -73,17 +68,16 @@ class JpegBytes2DiskTest {
             ImageFormat.JPEG,
             Size(WIDTH, HEIGHT),
             Rect(0, 0, WIDTH, HEIGHT),
-            ROTATION,
+            ROTATION_DEGREES,
             Matrix()
         )
-        val file = File.createTempFile(FILE_PREFIX, FILE_SUFFIX)
         // Act: save to a OutputStream.
-        FileOutputStream(file).use {
+        FileOutputStream(TEMP_FILE).use {
             val input = JpegBytes2Disk.In.of(inputPacket, OutputFileOptions.Builder(it).build())
             processor.process(input)
         }
         // Assert.
-        val restoredBitmap = BitmapFactory.decodeFile(file.path)
+        val restoredBitmap = BitmapFactory.decodeFile(TEMP_FILE.path)
         assertThat(getAverageDiff(restoredBitmap, createBitmap(WIDTH, HEIGHT))).isEqualTo(0)
     }
 
@@ -94,7 +88,7 @@ class JpegBytes2DiskTest {
         // Assert.
         val restoredBitmap = BitmapFactory.decodeFile(path)
         assertThat(getAverageDiff(restoredBitmap, createBitmap(WIDTH, HEIGHT))).isEqualTo(0)
-        assertThat(createFromFileString(path).rotation).isEqualTo(ROTATION)
+        assertThat(createFromFileString(path).rotation).isEqualTo(ROTATION_DEGREES)
     }
 
     @Test
@@ -107,7 +101,7 @@ class JpegBytes2DiskTest {
         // Assert.
         val restoredExif = createFromFileString(path)
         assertThat(restoredExif.description).isEqualTo(EXIF_DESCRIPTION)
-        assertThat(restoredExif.rotation).isEqualTo(ROTATION)
+        assertThat(restoredExif.rotation).isEqualTo(ROTATION_DEGREES)
     }
 
     @Test
@@ -148,7 +142,7 @@ class JpegBytes2DiskTest {
     private fun saveFileAndGetPath(
         exif: Exif = createExif(createJpegBytes(WIDTH, HEIGHT)),
         metadata: ImageCapture.Metadata = ImageCapture.Metadata(),
-        rotation: Int = ROTATION
+        rotation: Int = ROTATION_DEGREES
     ): String {
         val jpegBytes = createJpegBytes(WIDTH, HEIGHT)
         val inputPacket = Packet.of(
@@ -160,8 +154,7 @@ class JpegBytes2DiskTest {
             rotation,
             Matrix()
         )
-        val options = OutputFileOptions.Builder(File.createTempFile(FILE_PREFIX, FILE_SUFFIX))
-            .setMetadata(metadata).build()
+        val options = OutputFileOptions.Builder(TEMP_FILE).setMetadata(metadata).build()
         val input = JpegBytes2Disk.In.of(inputPacket, options)
         return processor.process(input).savedUri!!.path!!
     }
