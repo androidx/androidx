@@ -25,11 +25,22 @@ import androidx.camera.core.impl.ImageInputConfig
 import androidx.camera.testing.fakes.FakeCaptureStage
 import androidx.camera.testing.fakes.FakeImageInfo
 import androidx.camera.testing.fakes.FakeImageProxy
+import java.io.File
+import java.util.UUID
 
 /**
  * Utility methods for testing image capture.
  */
 object Utils {
+
+    internal const val WIDTH = 640
+    internal const val HEIGHT = 480
+    internal const val EXIF_DESCRIPTION = "description"
+    internal const val ROTATION_DEGREES = 180
+    internal const val ALTITUDE = 0.1
+    internal val TEMP_FILE = File.createTempFile(
+        "unit_test_" + UUID.randomUUID().toString(), ".temp"
+    ).also { it.deleteOnExit() }
 
     /**
      * Creates an empty [ImageCaptureConfig] so [ImagePipeline] constructor won't crash.

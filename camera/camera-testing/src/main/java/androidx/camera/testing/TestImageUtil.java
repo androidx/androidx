@@ -16,6 +16,9 @@
 
 package androidx.camera.testing;
 
+import static android.graphics.BitmapFactory.decodeByteArray;
+import static android.graphics.ImageFormat.JPEG;
+
 import static androidx.core.util.Preconditions.checkState;
 
 import android.graphics.Bitmap;
@@ -27,6 +30,9 @@ import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+import androidx.camera.testing.fakes.FakeImageInfo;
+import androidx.camera.testing.fakes.FakeImageProxy;
+import androidx.camera.testing.fakes.FakeJpegPlaneProxy;
 
 import java.io.ByteArrayOutputStream;
 
@@ -48,6 +54,20 @@ import java.io.ByteArrayOutputStream;
 public class TestImageUtil {
 
     private TestImageUtil() {
+    }
+
+    /**
+     * Creates a {@link FakeImageProxy} from JPEG bytes.
+     */
+    @NonNull
+    public static FakeImageProxy createJpegFakeImageProxy(@NonNull byte[] jpegBytes) {
+        Bitmap bitmap = decodeByteArray(jpegBytes, 0, jpegBytes.length);
+        FakeImageProxy image = new FakeImageProxy(new FakeImageInfo());
+        image.setFormat(JPEG);
+        image.setPlanes(new FakeJpegPlaneProxy[]{new FakeJpegPlaneProxy(jpegBytes)});
+        image.setWidth(bitmap.getWidth());
+        image.setHeight(bitmap.getHeight());
+        return image;
     }
 
     /**
