@@ -127,7 +127,7 @@ Robolectric tests are supported in AndroidX; however, if you targeting a
 pre-release version of the Android SDK then you may see an error like
 
 ```
-java.lang.IllegalArgumentException: Package targetSdkVersion=31 > maxSdkVersion=30
+java.lang.IllegalArgumentException: Package targetSdkVersion=33 > maxSdkVersion=32
 at org.robolectric.plugins.DefaultSdkPicker.configuredSdks(DefaultSdkPicker.java:118)
 at org.robolectric.plugins.DefaultSdkPicker.selectSdks(DefaultSdkPicker.java:69)
 ```
@@ -137,9 +137,9 @@ creating a `<project>/src/test/resources/robolectric.properties` file with the
 following contents:
 
 ```
-# Robolectric currently doesn't support API 31, so we have to explicitly specify 30 as the target
+# Robolectric currently doesn't support API 33, so we have to explicitly specify 32 as the target
 # sdk for now. Remove when no longer necessary.
-sdk=30
+sdk=32
 ```
 
 ## Using the emulator {#emulator}
