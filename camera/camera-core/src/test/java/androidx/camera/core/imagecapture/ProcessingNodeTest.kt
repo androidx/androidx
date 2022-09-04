@@ -24,13 +24,11 @@ import android.graphics.Rect
 import android.os.Build
 import android.os.Looper.getMainLooper
 import androidx.camera.core.ImageCaptureException
-import androidx.camera.core.imagecapture.Utils.CROP_RECT
 import androidx.camera.core.imagecapture.Utils.EXIF_DESCRIPTION
 import androidx.camera.core.imagecapture.Utils.HEIGHT
-import androidx.camera.core.imagecapture.Utils.OUTPUT_FILE_OPTIONS
-import androidx.camera.core.imagecapture.Utils.SENSOR_TO_BUFFER
 import androidx.camera.core.imagecapture.Utils.WIDTH
 import androidx.camera.core.imagecapture.Utils.createCaptureBundle
+import androidx.camera.core.imagecapture.Utils.createProcessingRequest
 import androidx.camera.core.impl.utils.Exif.createFromFileString
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor
 import androidx.camera.core.internal.utils.ImageUtil
@@ -87,15 +85,7 @@ class ProcessingNodeTest {
         // Arrange: create an invalid ImageProxy.
         val takePictureCallback = FakeTakePictureCallback()
         val image = FakeImageProxy(FakeImageInfo())
-        val processingRequest = ProcessingRequest(
-            { listOf() },
-            OUTPUT_FILE_OPTIONS,
-            CROP_RECT,
-            /*rotationDegrees=*/0,
-            /*jpegQuality=*/100,
-            SENSOR_TO_BUFFER,
-            takePictureCallback
-        )
+        val processingRequest = createProcessingRequest(takePictureCallback)
         val input = ProcessingNode.InputPacket.of(processingRequest, image)
 
         // Act: send input to the edge and wait for callback
@@ -115,15 +105,7 @@ class ProcessingNodeTest {
             it.description = EXIF_DESCRIPTION
         }
         val image = createJpegFakeImageProxy(jpegBytes)
-        val processingRequest = ProcessingRequest(
-            { listOf() },
-            OUTPUT_FILE_OPTIONS,
-            CROP_RECT,
-            /*rotationDegrees=*/0,
-            /*jpegQuality=*/100,
-            SENSOR_TO_BUFFER,
-            takePictureCallback
-        )
+        val processingRequest = createProcessingRequest(takePictureCallback)
         val input = ProcessingNode.InputPacket.of(processingRequest, image)
 
         // Act: send input to the edge and wait for the saved URI
