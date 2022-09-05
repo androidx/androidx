@@ -19,11 +19,9 @@ package androidx.wear.watchface.control
 import android.annotation.SuppressLint
 import android.util.Log
 import androidx.annotation.UiThread
-import androidx.annotation.VisibleForTesting
 import androidx.wear.watchface.utility.TraceEvent
 import androidx.wear.watchface.IndentingPrintWriter
 import androidx.wear.watchface.control.data.WallpaperInteractiveWatchFaceInstanceParams
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 
@@ -58,24 +56,15 @@ internal class InteractiveInstanceManager {
         private var pendingWallpaperInteractiveWatchFaceInstance:
             PendingWallpaperInteractiveWatchFaceInstance? = null
 
-        @VisibleForTesting
-        fun getInstances() = synchronized(pendingWallpaperInteractiveWatchFaceInstanceLock) {
-            instances.map { it.key }
-        }
-
         @SuppressLint("SyntheticAccessor")
-        fun getOrCreateInstance(
-            instanceId: String,
-            uiThreadCoroutineScope: CoroutineScope
-        ): InteractiveWatchFaceImpl =
+        fun addInstance(impl: InteractiveWatchFaceImpl) {
             synchronized(pendingWallpaperInteractiveWatchFaceInstanceLock) {
-                instances.computeIfAbsent(instanceId) {
-                    RefCountedInteractiveWatchFaceInstance(
-                        InteractiveWatchFaceImpl(instanceId, uiThreadCoroutineScope),
-                        1
-                    )
-                }.impl
+                require(!instances.containsKey(impl.instanceId)) {
+                    "Already have an InteractiveWatchFaceImpl with id ${impl.instanceId}"
+                }
+                instances[impl.instanceId] = RefCountedInteractiveWatchFaceInstance(impl, 1)
             }
+        }
 
         @SuppressLint("SyntheticAccessor")
         fun getAndRetainInstance(instanceId: String): InteractiveWatchFaceImpl? {
@@ -91,9 +80,18 @@ internal class InteractiveInstanceManager {
             synchronized(pendingWallpaperInteractiveWatchFaceInstanceLock) {
                 instances[instanceId]?.let {
                     if (--it.refcount == 0) {
+                        it.impl.onDestroy()
                         instances.remove(instanceId)
                     }
                 }
+            }
+        }
+
+        @SuppressLint("SyntheticAccessor")
+        fun deleteInstance(instanceId: String) {
+            synchronized(pendingWallpaperInteractiveWatchFaceInstanceLock) {
+                instances[instanceId]?.impl?.onDestroy()
+                instances.remove(instanceId)
             }
         }
 
