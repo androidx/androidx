@@ -18,7 +18,6 @@ package androidx.wear.watchface.control
 
 import android.os.Build
 import android.os.Bundle
-import android.os.RemoteCallbackList
 import android.support.wearable.watchface.accessibility.ContentDescriptionLabel
 import android.util.Log
 import android.support.wearable.complications.ComplicationData
@@ -69,62 +68,33 @@ internal class InteractiveWatchFaceImpl(
     // You can't have non null pendingUpdateWatchfaceInstance and a non null pendingStyleChange
     private var pendingUpdateWatchfaceInstance: PendingUpdateWatchfaceInstance? = null
     private var pendingStyleChange: UserStyleWireFormat? = null
-    private val listeners = RemoteCallbackList<IWatchfaceListener>()
 
     // Members after this are protected by the lock.
     private val lock = Any()
 
     /** Protected by [lock]. */
+    private val listeners = HashSet<IWatchfaceListener>()
     private var lastWatchFaceColors: WatchFaceColors? = null
-
     @VisibleForTesting
     internal var complications = initialComplications
-
     /** This is deprecated, instead we prefer [IWatchfaceListener.onWatchfaceReady]. */
     private var watchfaceReadyListener: IWatchfaceReadyListener? = null
     private var watchFaceReady = false
-    private var lastPreviewImageUpdateRequestId: String? = null
+    private var pendingPreviewImageUpdateRequested: String? = null
 
     // UiThread: write needs a lock, read doesn't.
     // Other threads: Read access only which needs a lock.
     internal var engine: WatchFaceService.EngineWrapper? = null
     private var watchUiState: WatchUiState? = null
 
-    /**
-     * @param taskName The name to use when logging any exception
-     * @param listenerCallback The callback to invoke for each registered [IWatchfaceListener]
-     * @return the number of calls to [listenerCallback] that did not throw an exception.
-     */
-    private fun forEachListener(
-        taskName: String,
-        listenerCallback: (listener: IWatchfaceListener) -> Unit
-    ): Int {
-        var i = listeners.beginBroadcast()
-        var successCount = 0
-        while (i > 0) {
-            i--
-            val listener = listeners.getBroadcastItem(i)
-            try {
-                listenerCallback(listener)
-                successCount++
-            } catch (e: Exception) {
-                Log.e(
-                    TAG,
-                    "In $taskName broadcastToListeners failed for ${listener.asBinder()}",
-                    e
-                )
-            }
-        }
-        listeners.finishBroadcast()
-        return successCount
-    }
-
     internal fun onWatchFaceColorsChanged(watchFaceColors: WatchFaceColors?) {
-        synchronized(lock) {
+        val listenersCopy = synchronized(lock) {
             lastWatchFaceColors = watchFaceColors
-            forEachListener("onWatchFaceColorsChanged") {
-                it.onWatchfaceColorsChanged(watchFaceColors?.toWireFormat())
-            }
+            HashSet<IWatchfaceListener>(listeners)
+        }
+
+        listenersCopy.forEach {
+            it.onWatchfaceColorsChanged(lastWatchFaceColors?.toWireFormat())
         }
     }
 
@@ -158,12 +128,20 @@ internal class InteractiveWatchFaceImpl(
     /** Fires any watchfaceReadyListener  */
     @UiThread
     fun onWatchFaceReady() {
-        val complicationsCopy = synchronized(lock) {
+        val readyListener: IWatchfaceReadyListener?
+        val listenersCopy = synchronized(lock) {
             watchFaceReady = true
-            forEachListener("onWatchFaceReady") {
-                it.onWatchfaceReady()
-            }
-            watchfaceReadyListener?.onWatchfaceReady()
+            readyListener = watchfaceReadyListener
+            HashSet(listeners)
+        }
+
+        readyListener?.onWatchfaceReady()
+
+        for (listener in listenersCopy) {
+            listener.onWatchfaceReady()
+        }
+
+        val complicationsCopy = synchronized(lock) {
             HashMap(complications)
         }
 
@@ -212,32 +190,39 @@ internal class InteractiveWatchFaceImpl(
     override fun unused20() {}
 
     override fun addWatchFaceListener(listener: IWatchfaceListener) {
-        val binder = listener.asBinder()
-        synchronized(lock) {
-            if (listeners.register(listener)) {
-                Log.d(TAG, "addWatchFaceListener $binder")
+        val watchFaceIsReadyCopy: Boolean
+        val pendingPreviewImageUpdateRequestedCopy: String?
+        val colors = synchronized(lock) {
+            if (listeners.add(listener)) {
+                Log.d(TAG, "addWatchFaceListener $listener")
             } else {
-                Log.w(TAG, "addWatchFaceListener $binder failed because its already registered")
+                Log.w(TAG, "addWatchFaceListener $listener failed because its already registered")
                 return
             }
-            lastPreviewImageUpdateRequestId?.let {
-                listener.onPreviewImageUpdateRequested(it)
-            }
-            if (watchFaceReady) {
-                listener.onWatchfaceReady()
-            }
-            listener.onWatchfaceColorsChanged(lastWatchFaceColors?.toWireFormat())
+            pendingPreviewImageUpdateRequestedCopy = pendingPreviewImageUpdateRequested
+            pendingPreviewImageUpdateRequested = null
+            watchFaceIsReadyCopy = watchFaceReady
+            lastWatchFaceColors
+        }
+
+        listener.onWatchfaceColorsChanged(colors?.toWireFormat())
+
+        if (watchFaceIsReadyCopy) {
+            listener.onWatchfaceReady()
+        }
+
+        if (pendingPreviewImageUpdateRequestedCopy != null) {
+            listener.onPreviewImageUpdateRequested(pendingPreviewImageUpdateRequestedCopy)
         }
     }
 
     override fun removeWatchFaceListener(listener: IWatchfaceListener) {
         synchronized(lock) {
-            val binder = listener.asBinder()
-            if (listeners.unregister(listener)) {
-                Log.d(TAG, "removeWatchFaceListener $binder")
-            } else {
-                Log.w(TAG, "removeWatchFaceListener $binder failed because it's not registered")
-            }
+           if (listeners.remove(listener)) {
+               Log.d(TAG, "removeWatchFaceListener $listener")
+           } else {
+               Log.w(TAG, "removeWatchFaceListener $listener failed because it's not registered")
+           }
         }
     }
 
@@ -431,26 +416,26 @@ internal class InteractiveWatchFaceImpl(
     }
 
     override fun addWatchfaceReadyListener(listener: IWatchfaceReadyListener) {
-       synchronized(lock) {
+        val ready = synchronized(lock) {
             watchfaceReadyListener = listener
-            if (watchFaceReady) {
-                listener.onWatchfaceReady()
-            }
+            watchFaceReady
+        }
+        if (ready) {
+            listener.onWatchfaceReady()
         }
     }
 
     fun sendPreviewImageNeedsUpdateRequest() {
-        synchronized(lock) {
-            lastPreviewImageUpdateRequestId = instanceId
-
-            forEachListener("onWatchFaceReady") {
-                it.onPreviewImageUpdateRequested(instanceId)
+        val listenersCopy = synchronized(lock) {
+            if (listeners.isEmpty()) {
+                pendingPreviewImageUpdateRequested = instanceId
             }
+            HashSet<IWatchfaceListener>(listeners)
         }
-    }
 
-    internal fun onDestroy() {
-        listeners.kill()
+        listenersCopy.forEach {
+            it.onPreviewImageUpdateRequested(instanceId)
+        }
     }
 
     internal fun dump(writer: IndentingPrintWriter) {
@@ -458,15 +443,15 @@ internal class InteractiveWatchFaceImpl(
         writer.increaseIndent()
         synchronized(lock) {
             writer.println("engine = $engine")
-            writer.println("lastPreviewImageUpdateRequestId = $lastPreviewImageUpdateRequestId")
+            writer.println(
+                "pendingPreviewImageUpdateRequested = $pendingPreviewImageUpdateRequested"
+            )
             writer.println(
                 "complications = " + complications.map {
                     "{id = ${it.key}, value = ${it.value}}"
                 }.joinToString(",")
             )
-            forEachListener("dump") {
-                writer.println("listener = " + it.asBinder())
-            }
+            writer.println("listeners = " + listeners.joinToString(", "))
             writer.println("watchfaceReadyListener = $watchfaceReadyListener")
         }
         writer.decreaseIndent()
