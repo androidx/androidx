@@ -424,15 +424,11 @@ public class UserStyleData(
  * [UserStyleSetting.ComplicationSlotsUserStyleSetting] and one
  * [UserStyleSetting.CustomValueUserStyleSetting] in the list.
  */
-@OptIn(ExperimentalHierarchicalStyle::class)
 public class UserStyleSchema constructor(
     // TODO(b/223610314): Deprecate userStyleSettings after rootUserStyleSettings is available
     public val userStyleSettings: List<UserStyleSetting>
 ) {
     /** For use with hierarchical schemas, lists all the settings with no parent [Option]. */
-    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-    @get:ExperimentalHierarchicalStyle
-    @ExperimentalHierarchicalStyle
     public val rootUserStyleSettings by lazy {
         userStyleSettings.filter { !it.hasParent }
     }

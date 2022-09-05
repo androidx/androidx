@@ -272,7 +272,6 @@ public class StyleParcelableTest {
         assertThat(schema.userStyleSettings[3].watchFaceEditorData).isNull()
     }
 
-    @OptIn(ExperimentalHierarchicalStyle::class)
     @Test
     public fun parcelAndUnparcelHierarchicalSchema() {
         val twelveHourClockOption =

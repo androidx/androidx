@@ -40,7 +40,6 @@ import org.junit.runner.RunWith
 class UserStyleSchemaInflateTest {
     private val context = ApplicationProvider.getApplicationContext<Context>()
 
-    @OptIn(ExperimentalHierarchicalStyle::class)
     @Test
     public fun test_inflate_list_schema() {
         val parser = context.resources.getXml(R.xml.list_schema)

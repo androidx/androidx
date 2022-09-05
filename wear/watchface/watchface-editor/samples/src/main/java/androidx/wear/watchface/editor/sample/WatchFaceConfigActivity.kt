@@ -25,7 +25,6 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.wear.watchface.editor.ChosenComplicationDataSource
 import androidx.wear.watchface.editor.EditorSession
-import androidx.wear.watchface.style.ExperimentalHierarchicalStyle
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleSchema
 import kotlinx.coroutines.CoroutineScope
@@ -67,7 +66,6 @@ private const val DIGITAL_WATCHFACE_REFERENCE_TIME_MS = 1602321000000L
  * Config activity for the watch face, which supports complication and data source selection, as
  * well as userStyle configuration.
  */
-@OptIn(ExperimentalHierarchicalStyle::class)
 class WatchFaceConfigActivity : FragmentActivity() {
     companion object {
         private const val TAG = "WatchFaceConfigActivity"
