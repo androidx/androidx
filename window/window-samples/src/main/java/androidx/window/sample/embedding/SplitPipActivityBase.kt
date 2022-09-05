@@ -36,7 +36,9 @@ import androidx.window.embedding.SplitInfo
 import androidx.window.embedding.SplitPairFilter
 import androidx.window.embedding.SplitPairRule
 import androidx.window.embedding.SplitPlaceholderRule
-import androidx.window.embedding.SplitRule
+import androidx.window.embedding.SplitRule.FinishBehavior.Companion.ADJACENT
+import androidx.window.embedding.SplitRule.FinishBehavior.Companion.ALWAYS
+import androidx.window.embedding.SplitRule.FinishBehavior.Companion.NEVER
 import androidx.window.sample.R
 import androidx.window.sample.databinding.ActivitySplitPipActivityLayoutBinding
 import androidx.window.sample.util.PictureInPictureUtil.setPictureInPictureParams
@@ -182,10 +184,10 @@ abstract class SplitPipActivityBase : AppCompatActivity(), CompoundButton.OnChec
             viewBinding.splitMainCheckBox.isChecked = true
             viewBinding.finishPrimaryWithSecondaryCheckBox.isEnabled = true
             viewBinding.finishPrimaryWithSecondaryCheckBox.isChecked =
-                splitRule.finishPrimaryWithSecondary == SplitRule.FINISH_ALWAYS
+                splitRule.finishPrimaryWithSecondary == ALWAYS
             viewBinding.finishSecondaryWithPrimaryCheckBox.isEnabled = true
             viewBinding.finishSecondaryWithPrimaryCheckBox.isChecked =
-                splitRule.finishSecondaryWithPrimary == SplitRule.FINISH_ALWAYS
+                splitRule.finishSecondaryWithPrimary == ALWAYS
         } else {
             viewBinding.splitMainCheckBox.isChecked = false
             viewBinding.finishPrimaryWithSecondaryCheckBox.isEnabled = false
@@ -247,9 +249,9 @@ abstract class SplitPipActivityBase : AppCompatActivity(), CompoundButton.OnChec
             val finishBWithA = viewBinding.finishSecondaryWithPrimaryCheckBox.isChecked
             val rule = SplitPairRule.Builder(pairFilters, 0, 0, 0)
                 .setFinishPrimaryWithSecondary(
-                    if (finishAWithB) SplitRule.FINISH_ALWAYS else SplitRule.FINISH_NEVER)
+                    if (finishAWithB) ALWAYS else NEVER)
                 .setFinishSecondaryWithPrimary(
-                    if (finishBWithA) SplitRule.FINISH_ALWAYS else SplitRule.FINISH_NEVER)
+                    if (finishBWithA) ALWAYS else NEVER)
                 .setClearTop(true)
                 .setDefaultSplitAttributes(defaultSplitAttributes)
                 .build()
@@ -263,7 +265,7 @@ abstract class SplitPipActivityBase : AppCompatActivity(), CompoundButton.OnChec
             val isSticky = viewBinding.useStickyPlaceHolderCheckBox.isChecked
             val rule = SplitPlaceholderRule.Builder(activityFilters, intent, 0, 0, 0)
                 .setSticky(isSticky)
-                .setFinishPrimaryWithPlaceholder(SplitRule.FINISH_ADJACENT)
+                .setFinishPrimaryWithPlaceholder(ADJACENT)
                 .setDefaultSplitAttributes(defaultSplitAttributes)
                 .build()
             splitController.registerRule(rule)

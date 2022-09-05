@@ -208,12 +208,12 @@ package androidx.window.embedding {
     ctor @Deprecated public SplitPairRule(java.util.Set<androidx.window.embedding.SplitPairFilter> filters, optional int finishPrimaryWithSecondary, optional int finishSecondaryWithPrimary, optional boolean clearTop, @IntRange(from=0L) int minWidth, @IntRange(from=0L) int minSmallestWidth, optional @FloatRange(from=0.0, to=1.0) float splitRatio, optional int layoutDir);
     method public boolean getClearTop();
     method public java.util.Set<androidx.window.embedding.SplitPairFilter> getFilters();
-    method public int getFinishPrimaryWithSecondary();
-    method public int getFinishSecondaryWithPrimary();
+    method public androidx.window.embedding.SplitRule.FinishBehavior getFinishPrimaryWithSecondary();
+    method public androidx.window.embedding.SplitRule.FinishBehavior getFinishSecondaryWithPrimary();
     property public final boolean clearTop;
     property public final java.util.Set<androidx.window.embedding.SplitPairFilter> filters;
-    property public final int finishPrimaryWithSecondary;
-    property public final int finishSecondaryWithPrimary;
+    property public final androidx.window.embedding.SplitRule.FinishBehavior finishPrimaryWithSecondary;
+    property public final androidx.window.embedding.SplitRule.FinishBehavior finishSecondaryWithPrimary;
   }
 
   public static final class SplitPairRule.Builder {
@@ -221,19 +221,19 @@ package androidx.window.embedding {
     method public androidx.window.embedding.SplitPairRule build();
     method public androidx.window.embedding.SplitPairRule.Builder setClearTop(boolean clearTop);
     method public androidx.window.embedding.SplitPairRule.Builder setDefaultSplitAttributes(androidx.window.embedding.SplitAttributes defaultSplitAttributes);
-    method public androidx.window.embedding.SplitPairRule.Builder setFinishPrimaryWithSecondary(int finishPrimaryWithSecondary);
-    method public androidx.window.embedding.SplitPairRule.Builder setFinishSecondaryWithPrimary(int finishSecondaryWithPrimary);
+    method public androidx.window.embedding.SplitPairRule.Builder setFinishPrimaryWithSecondary(androidx.window.embedding.SplitRule.FinishBehavior finishPrimaryWithSecondary);
+    method public androidx.window.embedding.SplitPairRule.Builder setFinishSecondaryWithPrimary(androidx.window.embedding.SplitRule.FinishBehavior finishSecondaryWithPrimary);
     method public androidx.window.embedding.SplitPairRule.Builder setTag(String? tag);
   }
 
   @androidx.window.core.ExperimentalWindowApi public final class SplitPlaceholderRule extends androidx.window.embedding.SplitRule {
     ctor @Deprecated public SplitPlaceholderRule(java.util.Set<androidx.window.embedding.ActivityFilter> filters, android.content.Intent placeholderIntent, boolean isSticky, optional int finishPrimaryWithPlaceholder, optional @IntRange(from=0L) int minWidth, optional @IntRange(from=0L) int minSmallestWidth, optional @FloatRange(from=0.0, to=1.0) float splitRatio, optional @IntRange(from=0L, to=3L) int layoutDirection);
     method public java.util.Set<androidx.window.embedding.ActivityFilter> getFilters();
-    method public int getFinishPrimaryWithPlaceholder();
+    method public androidx.window.embedding.SplitRule.FinishBehavior getFinishPrimaryWithPlaceholder();
     method public android.content.Intent getPlaceholderIntent();
     method public boolean isSticky();
     property public final java.util.Set<androidx.window.embedding.ActivityFilter> filters;
-    property public final int finishPrimaryWithPlaceholder;
+    property public final androidx.window.embedding.SplitRule.FinishBehavior finishPrimaryWithPlaceholder;
     property public final boolean isSticky;
     property public final android.content.Intent placeholderIntent;
   }
@@ -242,7 +242,7 @@ package androidx.window.embedding {
     ctor public SplitPlaceholderRule.Builder(java.util.Set<androidx.window.embedding.ActivityFilter> filters, android.content.Intent placeholderIntent, @IntRange(from=0L) int minWidth, @IntRange(from=0L) int minHeight, @IntRange(from=0L) int minSmallestWidth);
     method public androidx.window.embedding.SplitPlaceholderRule build();
     method public androidx.window.embedding.SplitPlaceholderRule.Builder setDefaultSplitAttributes(androidx.window.embedding.SplitAttributes defaultSplitAttributes);
-    method public androidx.window.embedding.SplitPlaceholderRule.Builder setFinishPrimaryWithPlaceholder(int finishPrimaryWithPlaceholder);
+    method public androidx.window.embedding.SplitPlaceholderRule.Builder setFinishPrimaryWithPlaceholder(androidx.window.embedding.SplitRule.FinishBehavior finishPrimaryWithPlaceholder);
     method public androidx.window.embedding.SplitPlaceholderRule.Builder setSticky(boolean isSticky);
     method public androidx.window.embedding.SplitPlaceholderRule.Builder setTag(String? tag);
   }
@@ -256,13 +256,16 @@ package androidx.window.embedding {
     property public final int minHeight;
     property public final int minSmallestWidth;
     property public final int minWidth;
-    field public static final androidx.window.embedding.SplitRule.Companion Companion;
-    field public static final int FINISH_ADJACENT = 2; // 0x2
-    field public static final int FINISH_ALWAYS = 1; // 0x1
-    field public static final int FINISH_NEVER = 0; // 0x0
   }
 
-  public static final class SplitRule.Companion {
+  public static final class SplitRule.FinishBehavior {
+    field public static final androidx.window.embedding.SplitRule.FinishBehavior ADJACENT;
+    field public static final androidx.window.embedding.SplitRule.FinishBehavior ALWAYS;
+    field public static final androidx.window.embedding.SplitRule.FinishBehavior.Companion Companion;
+    field public static final androidx.window.embedding.SplitRule.FinishBehavior NEVER;
+  }
+
+  public static final class SplitRule.FinishBehavior.Companion {
   }
 
 }

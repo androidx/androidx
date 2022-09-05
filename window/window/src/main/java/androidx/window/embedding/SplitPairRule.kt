@@ -22,6 +22,9 @@ import androidx.annotation.IntRange
 import androidx.core.util.Preconditions.checkArgument
 import androidx.core.util.Preconditions.checkArgumentNonnegative
 import androidx.window.core.ExperimentalWindowApi
+import androidx.window.embedding.SplitRule.FinishBehavior.Companion.ALWAYS
+import androidx.window.embedding.SplitRule.FinishBehavior.Companion.NEVER
+import androidx.window.embedding.SplitRule.FinishBehavior.Companion.getFinishBehaviorFromValue
 
 /**
  * Split configuration rules for activity pairs. Define when activities that were launched on top of
@@ -43,18 +46,16 @@ class SplitPairRule : SplitRule {
     /**
      * Determines what happens with the primary container when all activities are finished in the
      * associated secondary container.
-     * @see SplitRule.SplitFinishBehavior
+     * @see SplitRule.FinishBehavior
      */
-    @SplitFinishBehavior
-    val finishPrimaryWithSecondary: Int
+    val finishPrimaryWithSecondary: FinishBehavior
 
     /**
      * Determines what happens with the secondary container when all activities are finished in the
      * associated primary container.
-     * @see SplitRule.SplitFinishBehavior
+     * @see SplitRule.FinishBehavior
      */
-    @SplitFinishBehavior
-    val finishSecondaryWithPrimary: Int
+    val finishSecondaryWithPrimary: FinishBehavior
 
     /**
      * If there is an existing split with the same primary container, indicates whether the
@@ -70,8 +71,8 @@ class SplitPairRule : SplitRule {
     )
     constructor(
         filters: Set<SplitPairFilter>,
-        @SplitFinishBehavior finishPrimaryWithSecondary: Int = FINISH_NEVER,
-        @SplitFinishBehavior finishSecondaryWithPrimary: Int = FINISH_ALWAYS,
+        finishPrimaryWithSecondary: Int = NEVER.value,
+        finishSecondaryWithPrimary: Int = ALWAYS.value,
         clearTop: Boolean = false,
         @IntRange(from = 0) minWidth: Int,
         @IntRange(from = 0) minSmallestWidth: Int,
@@ -83,16 +84,15 @@ class SplitPairRule : SplitRule {
         checkArgument(splitRatio in 0.0..1.0, "splitRatio must be in 0.0..1.0 range")
         this.filters = filters.toSet()
         this.clearTop = clearTop
-        this.finishPrimaryWithSecondary = finishPrimaryWithSecondary
-        this.finishSecondaryWithPrimary = finishSecondaryWithPrimary
+        this.finishPrimaryWithSecondary = getFinishBehaviorFromValue(finishPrimaryWithSecondary)
+        this.finishSecondaryWithPrimary = getFinishBehaviorFromValue(finishSecondaryWithPrimary)
     }
 
-    // TODO(b/243345984): Update FinishBehavior to enum-like class instead of integer constants
     internal constructor(
         tag: String? = null,
         filters: Set<SplitPairFilter>,
-        @SplitFinishBehavior finishPrimaryWithSecondary: Int = FINISH_NEVER,
-        @SplitFinishBehavior finishSecondaryWithPrimary: Int = FINISH_ALWAYS,
+        finishPrimaryWithSecondary: FinishBehavior = NEVER,
+        finishSecondaryWithPrimary: FinishBehavior = ALWAYS,
         clearTop: Boolean = false,
         @IntRange(from = 0) minWidth: Int,
         @IntRange(from = 0) minHeight: Int,
@@ -125,10 +125,8 @@ class SplitPairRule : SplitRule {
         private val minSmallestWidth: Int,
     ) {
         private var tag: String? = null
-        @SplitFinishBehavior
-        private var finishPrimaryWithSecondary: Int = FINISH_NEVER
-        @SplitFinishBehavior
-        private var finishSecondaryWithPrimary: Int = FINISH_ALWAYS
+        private var finishPrimaryWithSecondary: FinishBehavior = NEVER
+        private var finishSecondaryWithPrimary: FinishBehavior = ALWAYS
         private var clearTop: Boolean = false
         private var defaultSplitAttributes: SplitAttributes = SplitAttributes.Builder().build()
 
@@ -136,7 +134,7 @@ class SplitPairRule : SplitRule {
          * @see SplitPairRule.finishPrimaryWithSecondary
          */
         fun setFinishPrimaryWithSecondary(
-            @SplitFinishBehavior finishPrimaryWithSecondary: Int
+            finishPrimaryWithSecondary: FinishBehavior
         ): Builder =
             apply { this.finishPrimaryWithSecondary = finishPrimaryWithSecondary }
 
@@ -144,7 +142,7 @@ class SplitPairRule : SplitRule {
          * @see SplitPairRule.finishSecondaryWithPrimary
          */
         fun setFinishSecondaryWithPrimary(
-            @SplitFinishBehavior finishSecondaryWithPrimary: Int
+            finishSecondaryWithPrimary: FinishBehavior
         ): Builder =
             apply { this.finishSecondaryWithPrimary = finishSecondaryWithPrimary }
 

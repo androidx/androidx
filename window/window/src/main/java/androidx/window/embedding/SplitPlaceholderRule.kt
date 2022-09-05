@@ -19,11 +19,13 @@ package androidx.window.embedding
 import android.content.Intent
 import android.util.LayoutDirection
 import androidx.annotation.FloatRange
-import androidx.annotation.IntDef
 import androidx.annotation.IntRange
 import androidx.core.util.Preconditions.checkArgument
 import androidx.core.util.Preconditions.checkArgumentNonnegative
 import androidx.window.core.ExperimentalWindowApi
+import androidx.window.embedding.SplitRule.FinishBehavior.Companion.ALWAYS
+import androidx.window.embedding.SplitRule.FinishBehavior.Companion.NEVER
+import androidx.window.embedding.SplitRule.FinishBehavior.Companion.getFinishBehaviorFromValue
 
 /**
  * Configuration rules for split placeholders.
@@ -49,21 +51,13 @@ class SplitPlaceholderRule : SplitRule {
     val isSticky: Boolean
 
     /**
-     * Defines whether a container should be finished together when the associated placeholder
-     * activity is being finished based on current presentation mode.
-     */
-    @Target(AnnotationTarget.PROPERTY, AnnotationTarget.VALUE_PARAMETER, AnnotationTarget.TYPE)
-    @Retention(AnnotationRetention.SOURCE)
-    @IntDef(FINISH_ALWAYS, FINISH_ADJACENT)
-    internal annotation class SplitPlaceholderFinishBehavior
-
-    /**
      * Determines what happens with the primary container when all activities are finished in the
      * associated placeholder container.
-     * @see SplitPlaceholderFinishBehavior
+     *
+     * **Note** that it is not valid to set [SplitRule.FinishBehavior.NEVER]
+     * @see SplitRule.FinishBehavior
      */
-    @SplitPlaceholderFinishBehavior
-    val finishPrimaryWithPlaceholder: Int
+    val finishPrimaryWithPlaceholder: FinishBehavior
 
     // TODO(b/229656253): Reduce visibility to remove from public API.
     @Deprecated(
@@ -74,7 +68,7 @@ class SplitPlaceholderRule : SplitRule {
         filters: Set<ActivityFilter>,
         placeholderIntent: Intent,
         isSticky: Boolean,
-        @SplitPlaceholderFinishBehavior finishPrimaryWithPlaceholder: Int = FINISH_ALWAYS,
+        finishPrimaryWithPlaceholder: Int = ALWAYS.value,
         @IntRange(from = 0) minWidth: Int = 0,
         @IntRange(from = 0) minSmallestWidth: Int = 0,
         @FloatRange(from = 0.0, to = 1.0) splitRatio: Float = 0.5f,
@@ -83,22 +77,21 @@ class SplitPlaceholderRule : SplitRule {
         checkArgumentNonnegative(minWidth, "minWidth must be non-negative")
         checkArgumentNonnegative(minSmallestWidth, "minSmallestWidth must be non-negative")
         checkArgument(splitRatio in 0.0..1.0, "splitRatio must be in 0.0..1.0 range")
-        checkArgument(finishPrimaryWithPlaceholder != FINISH_NEVER,
-            "FINISH_NEVER is not a valid configuration for SplitPlaceholderRule. " +
+        checkArgument(finishPrimaryWithPlaceholder != NEVER.value,
+            "NEVER is not a valid configuration for SplitPlaceholderRule. " +
                 "Please use FINISH_ALWAYS or FINISH_ADJACENT instead or refer to the current API.")
         this.filters = filters.toSet()
         this.placeholderIntent = placeholderIntent
         this.isSticky = isSticky
-        this.finishPrimaryWithPlaceholder = finishPrimaryWithPlaceholder
+        this.finishPrimaryWithPlaceholder = getFinishBehaviorFromValue(finishPrimaryWithPlaceholder)
     }
 
-    // TODO(b/243345984): Update FinishBehavior to enum-like class instead of integer constants
     internal constructor(
         tag: String? = null,
         filters: Set<ActivityFilter>,
         placeholderIntent: Intent,
         isSticky: Boolean,
-        @SplitPlaceholderFinishBehavior finishPrimaryWithPlaceholder: Int = FINISH_ALWAYS,
+        finishPrimaryWithPlaceholder: FinishBehavior = ALWAYS,
         @IntRange(from = 0) minWidth: Int = 0,
         @IntRange(from = 0) minHeight: Int = 0,
         @IntRange(from = 0) minSmallestWidth: Int = 0,
@@ -107,8 +100,8 @@ class SplitPlaceholderRule : SplitRule {
         checkArgumentNonnegative(minWidth, "minWidth must be non-negative")
         checkArgumentNonnegative(minHeight, "minHeight must be non-negative")
         checkArgumentNonnegative(minSmallestWidth, "minSmallestWidth must be non-negative")
-        checkArgument(finishPrimaryWithPlaceholder != FINISH_NEVER,
-            "FINISH_NEVER is not a valid configuration for SplitPlaceholderRule. " +
+        checkArgument(finishPrimaryWithPlaceholder != NEVER,
+            "NEVER is not a valid configuration for SplitPlaceholderRule. " +
                 "Please use FINISH_ALWAYS or FINISH_ADJACENT instead or refer to the current API.")
         this.filters = filters.toSet()
         this.placeholderIntent = placeholderIntent
@@ -134,8 +127,7 @@ class SplitPlaceholderRule : SplitRule {
         @IntRange(from = 0)
         private val minSmallestWidth: Int,
     ) {
-        @SplitPlaceholderFinishBehavior
-        private var finishPrimaryWithPlaceholder: Int = FINISH_ALWAYS
+        private var finishPrimaryWithPlaceholder: FinishBehavior = ALWAYS
         private var isSticky: Boolean = false
         private var defaultSplitAttributes: SplitAttributes = SplitAttributes.Builder().build()
         private var tag: String? = null
@@ -143,9 +135,7 @@ class SplitPlaceholderRule : SplitRule {
         /**
          * @see SplitPlaceholderRule.finishPrimaryWithPlaceholder
          */
-        fun setFinishPrimaryWithPlaceholder(
-            @SplitPlaceholderFinishBehavior finishPrimaryWithPlaceholder: Int
-        ): Builder =
+        fun setFinishPrimaryWithPlaceholder(finishPrimaryWithPlaceholder: FinishBehavior): Builder =
             apply {
                this.finishPrimaryWithPlaceholder = finishPrimaryWithPlaceholder
             }

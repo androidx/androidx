@@ -27,9 +27,9 @@ import androidx.window.embedding.SplitAttributes.LayoutDirection.Companion.BOTTO
 import androidx.window.embedding.SplitAttributes.LayoutDirection.Companion.LEFT_TO_RIGHT
 import androidx.window.embedding.SplitAttributes.LayoutDirection.Companion.LOCALE
 import androidx.window.embedding.SplitAttributes.LayoutDirection.Companion.TOP_TO_BOTTOM
-import androidx.window.embedding.SplitRule.Companion.FINISH_ADJACENT
-import androidx.window.embedding.SplitRule.Companion.FINISH_ALWAYS
-import androidx.window.embedding.SplitRule.Companion.FINISH_NEVER
+import androidx.window.embedding.SplitRule.FinishBehavior.Companion.ADJACENT
+import androidx.window.embedding.SplitRule.FinishBehavior.Companion.ALWAYS
+import androidx.window.embedding.SplitRule.FinishBehavior.Companion.NEVER
 import androidx.window.test.R
 import junit.framework.TestCase.assertNull
 import org.junit.Assert.assertEquals
@@ -77,8 +77,8 @@ class EmbeddingRuleConstructionTests {
             .setLayoutDirection(LOCALE)
             .build()
         assertNull(rule.tag)
-        assertEquals(FINISH_NEVER, rule.finishPrimaryWithSecondary)
-        assertEquals(FINISH_ALWAYS, rule.finishSecondaryWithPrimary)
+        assertEquals(NEVER, rule.finishPrimaryWithSecondary)
+        assertEquals(ALWAYS, rule.finishSecondaryWithPrimary)
         assertEquals(false, rule.clearTop)
         assertEquals(expectedSplitLayout, rule.defaultSplitAttributes)
         assertTrue(rule.checkParentBounds(validBounds))
@@ -99,8 +99,8 @@ class EmbeddingRuleConstructionTests {
             .setLayoutDirection(TOP_TO_BOTTOM)
             .build()
         assertEquals(TEST_TAG, rule.tag)
-        assertEquals(FINISH_NEVER, rule.finishPrimaryWithSecondary)
-        assertEquals(FINISH_ALWAYS, rule.finishSecondaryWithPrimary)
+        assertEquals(NEVER, rule.finishPrimaryWithSecondary)
+        assertEquals(ALWAYS, rule.finishSecondaryWithPrimary)
         assertEquals(false, rule.clearTop)
         assertEquals(expectedSplitLayout, rule.defaultSplitAttributes)
         assertTrue(rule.checkParentBounds(validBounds))
@@ -124,8 +124,8 @@ class EmbeddingRuleConstructionTests {
             .setLayoutDirection(LOCALE)
             .build()
         assertNull(rule.tag)
-        assertEquals(FINISH_NEVER, rule.finishPrimaryWithSecondary)
-        assertEquals(FINISH_ALWAYS, rule.finishSecondaryWithPrimary)
+        assertEquals(NEVER, rule.finishPrimaryWithSecondary)
+        assertEquals(ALWAYS, rule.finishSecondaryWithPrimary)
         assertEquals(false, rule.clearTop)
         assertEquals(expectedSplitLayout, rule.defaultSplitAttributes)
         assertTrue(rule.checkParentBounds(validBounds))
@@ -156,14 +156,14 @@ class EmbeddingRuleConstructionTests {
             456,
             789,
         )
-            .setFinishPrimaryWithSecondary(FINISH_ADJACENT)
-            .setFinishSecondaryWithPrimary(FINISH_ADJACENT)
+            .setFinishPrimaryWithSecondary(ADJACENT)
+            .setFinishSecondaryWithPrimary(ADJACENT)
             .setClearTop(true)
             .setDefaultSplitAttributes(expectedSplitLayout)
             .setTag(TEST_TAG)
             .build()
-        assertEquals(FINISH_ADJACENT, rule.finishPrimaryWithSecondary)
-        assertEquals(FINISH_ADJACENT, rule.finishSecondaryWithPrimary)
+        assertEquals(ADJACENT, rule.finishPrimaryWithSecondary)
+        assertEquals(ADJACENT, rule.finishSecondaryWithPrimary)
         assertEquals(true, rule.clearTop)
         assertEquals(expectedSplitLayout, rule.defaultSplitAttributes)
         assertEquals(TEST_TAG, rule.tag)
@@ -222,7 +222,7 @@ class EmbeddingRuleConstructionTests {
             .setLayoutDirection(LOCALE)
             .build()
         assertNull(rule.tag)
-        assertEquals(FINISH_ALWAYS, rule.finishPrimaryWithPlaceholder)
+        assertEquals(ALWAYS, rule.finishPrimaryWithPlaceholder)
         assertEquals(false, rule.isSticky)
         assertEquals(expectedSplitLayout, rule.defaultSplitAttributes)
         assertTrue(rule.checkParentBounds(validBounds))
@@ -246,7 +246,7 @@ class EmbeddingRuleConstructionTests {
             .setLayoutDirection(BOTTOM_TO_TOP)
             .build()
         assertEquals(TEST_TAG, rule.tag)
-        assertEquals(FINISH_ALWAYS, rule.finishPrimaryWithPlaceholder)
+        assertEquals(ALWAYS, rule.finishPrimaryWithPlaceholder)
         assertEquals(false, rule.isSticky)
         assertEquals(expectedSplitLayout, rule.defaultSplitAttributes)
         assertTrue(rule.checkParentBounds(validBounds))
@@ -268,7 +268,7 @@ class EmbeddingRuleConstructionTests {
         )
             .build()
         assertNull(rule.tag)
-        assertEquals(FINISH_ALWAYS, rule.finishPrimaryWithPlaceholder)
+        assertEquals(ALWAYS, rule.finishPrimaryWithPlaceholder)
         assertEquals(false, rule.isSticky)
         val expectedSplitLayout = SplitAttributes.Builder()
             .setSplitType(SplitAttributes.SplitType.ratio(0.5f))
@@ -305,12 +305,12 @@ class EmbeddingRuleConstructionTests {
             456,
             789,
         )
-            .setFinishPrimaryWithPlaceholder(FINISH_ADJACENT)
+            .setFinishPrimaryWithPlaceholder(ADJACENT)
             .setSticky(true)
             .setDefaultSplitAttributes(expectedSplitLayout)
             .setTag(TEST_TAG)
             .build()
-        assertEquals(FINISH_ADJACENT, rule.finishPrimaryWithPlaceholder)
+        assertEquals(ADJACENT, rule.finishPrimaryWithPlaceholder)
         assertEquals(true, rule.isSticky)
         assertEquals(expectedSplitLayout, rule.defaultSplitAttributes)
         assertEquals(filters, rule.filters)
@@ -362,7 +362,7 @@ class EmbeddingRuleConstructionTests {
                 minHeight = 456,
                 minSmallestWidth = 789,
             )
-                .setFinishPrimaryWithPlaceholder(FINISH_NEVER)
+                .setFinishPrimaryWithPlaceholder(NEVER)
                 .build()
         }
     }

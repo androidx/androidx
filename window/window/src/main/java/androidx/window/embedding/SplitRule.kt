@@ -23,10 +23,10 @@ import android.util.LayoutDirection
 import android.view.WindowMetrics
 import androidx.annotation.DoNotInline
 import androidx.annotation.FloatRange
-import androidx.annotation.IntDef
 import androidx.annotation.IntRange
 import androidx.annotation.RequiresApi
 import androidx.window.core.ExperimentalWindowApi
+import androidx.window.embedding.SplitRule.FinishBehavior.Companion.ADJACENT
 import kotlin.math.min
 
 /**
@@ -150,7 +150,7 @@ open class SplitRule internal constructor(
      * Determines what happens with the associated container when all activities are finished in
      * one of the containers in a split.
      *
-     * For example, given that [SplitPairRule.finishPrimaryWithSecondary] is [FINISH_ADJACENT] and
+     * For example, given that [SplitPairRule.finishPrimaryWithSecondary] is [ADJACENT] and
      * secondary container finishes. The primary associated container is finished if it's
      * side-by-side with secondary container. The primary associated container is not finished
      * if it occupies entire task bounds.
@@ -159,33 +159,43 @@ open class SplitRule internal constructor(
      * @see SplitPairRule.finishSecondaryWithPrimary
      * @see SplitPlaceholderRule.finishPrimaryWithPlaceholder
      */
-    companion object {
-        /**
-         * Never finish the associated container.
-         * @see SplitRule.Companion
-         */
-        const val FINISH_NEVER = 0
-        /**
-         * Always finish the associated container independent of the current presentation mode.
-         * @see SplitRule.Companion
-         */
-        const val FINISH_ALWAYS = 1
-        /**
-         * Only finish the associated container when displayed side-by-side/adjacent to the one
-         * being finished. Does not finish the associated one when containers are stacked on top of
-         * each other.
-         * @see SplitRule.Companion
-         */
-        const val FINISH_ADJACENT = 2
-    }
+    class FinishBehavior private constructor(
+        /** The description of this [FinishBehavior] */
+        private val description: String,
+        /** The enum value defined in `splitLayoutDirection` attributes in `attrs.xml` */
+        internal val value: Int,
+    ) {
+        override fun toString(): String = description
 
-    /**
-     * Defines whether an associated container should be finished together with the one that's
-     * already being finished based on their current presentation mode.
-     */
-    @Retention(AnnotationRetention.SOURCE)
-    @IntDef(FINISH_NEVER, FINISH_ALWAYS, FINISH_ADJACENT)
-    internal annotation class SplitFinishBehavior
+        companion object {
+            /** Never finish the associated container. */
+            @JvmField
+            val NEVER = FinishBehavior("NEVER", 0)
+            /**
+             * Always finish the associated container independent of the current presentation mode.
+             */
+            @JvmField
+            val ALWAYS = FinishBehavior("ALWAYS", 1)
+            /**
+             * Only finish the associated container when displayed side-by-side/adjacent to the one
+             * being finished. Does not finish the associated one when containers are stacked on top
+             * of each other.
+             */
+            @JvmField
+            val ADJACENT = FinishBehavior("ADJACENT", 2)
+
+            @JvmStatic
+            internal fun getFinishBehaviorFromValue(
+                @IntRange(from = 0, to = 2) value: Int
+            ): FinishBehavior =
+                when (value) {
+                    NEVER.value -> NEVER
+                    ALWAYS.value -> ALWAYS
+                    ADJACENT.value -> ADJACENT
+                    else -> throw IllegalArgumentException("Unknown finish behavior:$value")
+                }
+        }
+    }
 
     /**
      * Verifies if the provided parent bounds are large enough to apply the rule.

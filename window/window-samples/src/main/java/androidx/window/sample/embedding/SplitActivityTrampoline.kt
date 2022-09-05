@@ -23,7 +23,7 @@ import androidx.window.embedding.ActivityFilter
 import androidx.window.embedding.SplitAttributes
 import androidx.window.embedding.SplitController
 import androidx.window.embedding.SplitPlaceholderRule
-import androidx.window.embedding.SplitRule.Companion.FINISH_ADJACENT
+import androidx.window.embedding.SplitRule.FinishBehavior.Companion.ADJACENT
 
 /**
  * Example trampoline activity that launches a split and finishes itself.
@@ -48,7 +48,7 @@ class SplitActivityTrampoline : SplitActivityBase() {
             minHeight = 0,
             minSmallestWidth = 0,
         )
-            .setFinishPrimaryWithPlaceholder(FINISH_ADJACENT)
+            .setFinishPrimaryWithPlaceholder(ADJACENT)
             .setDefaultSplitAttributes(defaultSplitAttributes)
             .build()
         SplitController.getInstance().registerRule(placeholderRule)

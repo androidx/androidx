@@ -48,6 +48,9 @@ import androidx.window.embedding.SplitAttributes.SplitType
 import androidx.window.embedding.SplitAttributesCalculator.SplitAttributesCalculatorParams
 import androidx.window.extensions.WindowExtensions
 import androidx.window.extensions.WindowExtensions.INVALID_VENDOR_API_LEVEL
+import androidx.window.extensions.embedding.SplitPairRule.FINISH_ADJACENT
+import androidx.window.extensions.embedding.SplitPairRule.FINISH_ALWAYS
+import androidx.window.extensions.embedding.SplitPairRule.FINISH_NEVER
 import androidx.window.layout.ExtensionsWindowLayoutInfoAdapter
 
 /**
@@ -207,7 +210,6 @@ internal class EmbeddingAdapter(
         }
     }
 
-    @SuppressLint("WrongConstant") // Converting from Jetpack to Extensions constants
     private fun translateSplitPairRule(
         rule: SplitPairRule,
         predicateClass: Class<*>
@@ -223,8 +225,8 @@ internal class EmbeddingAdapter(
         )
             .safeSetDefaultSplitAttributes(rule.defaultSplitAttributes)
             .setShouldClearTop(rule.clearTop)
-            .setFinishPrimaryWithSecondary(rule.finishPrimaryWithSecondary)
-            .setFinishSecondaryWithPrimary(rule.finishSecondaryWithPrimary)
+            .setFinishPrimaryWithSecondary(translateFinishBehavior(rule.finishPrimaryWithSecondary))
+            .setFinishSecondaryWithPrimary(translateFinishBehavior(rule.finishSecondaryWithPrimary))
         val tag = rule.tag
         if (tag != null && vendorApiLevel >= WindowExtensions.VENDOR_API_LEVEL_2) {
             builder.setTag(tag)
@@ -284,7 +286,6 @@ internal class EmbeddingAdapter(
     private fun translateRatio(splitRatio: SplitType.RatioSplitType): OEMSplitType.RatioSplitType =
         OEMSplitType.RatioSplitType(splitRatio.ratio)
 
-    @SuppressLint("WrongConstant") // Converting from Jetpack to Extensions constants
     private fun translateSplitPlaceholderRule(
         rule: SplitPlaceholderRule,
         predicateClass: Class<*>
@@ -311,17 +312,27 @@ internal class EmbeddingAdapter(
     }
 
     private fun SplitPlaceholderRuleBuilder.safeSetFinishPrimaryWithPlaceholder(
-        behavior: @SplitPlaceholderRule.SplitPlaceholderFinishBehavior Int
+        behavior: SplitRule.FinishBehavior
     ): SplitPlaceholderRuleBuilder {
-        return if (vendorApiLevel >= WindowExtensions.VENDOR_API_LEVEL_2) {
-            setFinishPrimaryWithPlaceholder(behavior)
+        return if (
+            vendorApiLevel >= WindowExtensions.VENDOR_API_LEVEL_2
+        ) {
+            setFinishPrimaryWithPlaceholder(translateFinishBehavior(behavior))
         } else {
             setFinishPrimaryWithPlaceholderCompat(
                 this@safeSetFinishPrimaryWithPlaceholder,
-                behavior
+                translateFinishBehavior(behavior)
             )
         }
     }
+
+    private fun translateFinishBehavior(behavior: SplitRule.FinishBehavior): Int =
+        when (behavior) {
+            SplitRule.FinishBehavior.NEVER -> FINISH_NEVER
+            SplitRule.FinishBehavior.ALWAYS -> FINISH_ALWAYS
+            SplitRule.FinishBehavior.ADJACENT -> FINISH_ADJACENT
+            else -> throw IllegalArgumentException("Unknown finish behavior:$behavior")
+        }
 
     private fun SplitPlaceholderRuleBuilder.safeSetDefaultSplitAttributes(
         defaultAttrs: SplitAttributes
@@ -374,7 +385,7 @@ internal class EmbeddingAdapter(
     private object VendorApiLevel1Impl {
         fun setFinishPrimaryWithPlaceholderCompat(
             builder: SplitPlaceholderRuleBuilder,
-            behavior: @SplitPlaceholderRule.SplitPlaceholderFinishBehavior Int
+            behavior: Int
         ): SplitPlaceholderRuleBuilder = builder.setFinishPrimaryWithSecondary(behavior)
 
         fun setDefaultSplitAttributesCompat(
