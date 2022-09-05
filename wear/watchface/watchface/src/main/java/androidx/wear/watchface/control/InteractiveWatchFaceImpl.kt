@@ -439,14 +439,12 @@ internal class InteractiveWatchFaceImpl(
     }
 
     internal fun dump(writer: IndentingPrintWriter) {
-        writer.println("InteractiveWatchFaceImpl:")
+        writer.println("WatchFaceEngine:")
         writer.increaseIndent()
         synchronized(lock) {
-            writer.println("engine = $engine")
-            writer.println(
-                "pendingPreviewImageUpdateRequested = $pendingPreviewImageUpdateRequested"
-            )
-            writer.println(
+            writer.print("engine = $engine")
+            writer.print("pendingPreviewImageUpdateRequested = $pendingPreviewImageUpdateRequested")
+            writer.print(
                 "complications = " + complications.map {
                     "{id = ${it.key}, value = ${it.value}}"
                 }.joinToString(",")
