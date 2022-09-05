@@ -321,6 +321,7 @@ internal class InteractiveWatchFaceImpl(
         uiThreadCoroutineScope.runBlockingWithTracing(
             "InteractiveWatchFaceImpl.updateWatchfaceInstance"
         ) {
+            System.out.println("<<< updateWatchfaceInstance $engine")
             if (engine != null) {
                 updateWatchfaceInstanceImpl(newInstanceId, userStyle)
             } else {

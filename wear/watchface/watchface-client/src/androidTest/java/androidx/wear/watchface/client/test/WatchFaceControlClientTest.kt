@@ -247,6 +247,7 @@ class WatchFaceControlClientTest {
             latch.countDown()
         }
         if (!latch.await(timeoutMillis, TimeUnit.MILLISECONDS)) {
+            System.err.println("<<< FAIL")
             throw TimeoutException("Timeout waiting for thing!")
         }
         return value!!
@@ -1455,6 +1456,7 @@ class WatchFaceControlClientTest {
 
     @Test
     fun addWatchFaceReadyListener_canvasRender() {
+        System.err.println("<<< addWatchFaceReadyListener_canvasRender")
         val initCompletableDeferred = CompletableDeferred<Unit>()
         val wallpaperService = TestAsyncCanvasRenderInitWatchFaceService(
             context,
