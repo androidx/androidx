@@ -30,6 +30,7 @@ import android.graphics.RectF
 import android.graphics.SurfaceTexture
 import android.os.Build
 import android.os.Handler
+import android.os.IBinder
 import android.os.Looper
 import android.view.Surface
 import android.view.SurfaceHolder
@@ -71,6 +72,7 @@ import androidx.wear.watchface.client.WatchUiState
 import androidx.wear.watchface.complications.data.ComplicationData
 import androidx.wear.watchface.complications.data.ComplicationExperimental
 import androidx.wear.watchface.complications.data.NoDataComplicationData
+import androidx.wear.watchface.control.IInteractiveWatchFace
 import androidx.wear.watchface.control.WatchFaceControlService
 import androidx.wear.watchface.samples.BLUE_STYLE
 import androidx.wear.watchface.samples.COLOR_STYLE_SETTING
@@ -119,7 +121,6 @@ import java.time.ZonedDateTime
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
-import org.junit.Assume.assumeTrue
 
 private const val CONNECT_TIMEOUT_MILLIS = 500L
 private const val DESTROY_TIMEOUT_MILLIS = 500L
@@ -139,6 +140,12 @@ class WatchFaceControlClientTest {
     }
 
     @Mock
+    private lateinit var mockBinder: IBinder
+
+    @Mock
+    private lateinit var iInteractiveWatchFace: IInteractiveWatchFace
+
+    @Mock
     private lateinit var surfaceHolder: SurfaceHolder
 
     @Mock
@@ -151,7 +158,6 @@ class WatchFaceControlClientTest {
     private val handlerCoroutineScope =
         CoroutineScope(Handler(handler.looper).asCoroutineDispatcher())
     private lateinit var wallpaperService: WatchFaceService
-    private var engineTearDownNeeded = false
 
     @Before
     fun setUp() {
@@ -163,25 +169,21 @@ class WatchFaceControlClientTest {
             .thenReturn(Rect(0, 0, 400, 400))
         Mockito.`when`(surfaceHolder.surface).thenReturn(surface)
         Mockito.`when`(surface.isValid).thenReturn(false)
-        engineTearDownNeeded = true
     }
 
     @After
     fun tearDown() {
         // Interactive instances are not currently shut down when all instances go away. E.g. WCS
         // crashing does not cause the watch face to stop. So we need to shut down explicitly.
-        if (this::engine.isInitialized && engineTearDownNeeded) tearDownEngine()
-        service.close()
-    }
-
-    private fun tearDownEngine() {
-        val latch = CountDownLatch(1)
-        handler.post {
-            engine.onDestroy()
-            latch.countDown()
+        if (this::engine.isInitialized) {
+            val latch = CountDownLatch(1)
+            handler.post {
+                engine.onDestroy()
+                latch.countDown()
+            }
+            latch.await(DESTROY_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)
         }
-        latch.await(DESTROY_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)
-        engineTearDownNeeded = false
+        service.close()
     }
 
     @get:Rule
@@ -247,7 +249,6 @@ class WatchFaceControlClientTest {
             latch.countDown()
         }
         if (!latch.await(timeoutMillis, TimeUnit.MILLISECONDS)) {
-            System.err.println("<<< FAIL")
             throw TimeoutException("Timeout waiting for thing!")
         }
         return value!!
@@ -851,102 +852,6 @@ class WatchFaceControlClientTest {
         assertThat(rightComplicationDetails.currentType).isEqualTo(
             ComplicationType.LONG_TEXT
         )
-
-        interactiveInstance.close()
-    }
-
-    @Test
-    public fun updateComplicationData_after_detachAndReattach() {
-        // This test relies WF DirectBoot which is only supported from R onwards.
-        assumeTrue("Requires Android R", Build.VERSION.SDK_INT >= Build.VERSION_CODES.R)
-
-        val deferredInteractiveInstance = handlerCoroutineScope.async {
-            @Suppress("deprecation")
-            service.getOrCreateInteractiveWatchFaceClient(
-                "testId",
-                deviceConfig,
-                systemState,
-                null,
-                complications
-            )
-        }
-
-        // Create the engine which triggers creation of InteractiveWatchFaceClient.
-        handler.post {
-            engine = wallpaperService.onCreateEngine() as WatchFaceService.EngineWrapper
-        }
-
-        val interactiveInstance = awaitWithTimeout(deferredInteractiveInstance)
-        val migrateEngineCountDown = CountDownLatch(1)
-
-        handler.post {
-            // Simulate WallpaperService.Engine.detach
-            engine.onDestroy()
-
-            // Simulate reattaching
-            engine = wallpaperService.onCreateEngine() as WatchFaceService.EngineWrapper
-            migrateEngineCountDown.countDown()
-        }
-
-        assertTrue(migrateEngineCountDown.await(UPDATE_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS))
-
-        // Under the hood updateComplicationData is a oneway aidl method so we need to perform some
-        // additional synchronization to ensure it's side effects have been applied before
-        // inspecting complicationSlotsState otherwise we risk test flakes.
-        val updateCountDownLatch = CountDownLatch(1)
-        var leftComplicationSlot: ComplicationSlot
-
-        runBlocking {
-            leftComplicationSlot = engine.deferredWatchFaceImpl.await()
-                .complicationSlotsManager.complicationSlots[
-                EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID
-            ]!!
-        }
-
-        handlerCoroutineScope.launch {
-            leftComplicationSlot.complicationData.collect {
-                updateCountDownLatch.countDown()
-            }
-        }
-
-        // It should be possible to update the complications
-        interactiveInstance.updateComplicationData(
-            mapOf(
-                EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID to
-                    RangedValueComplicationData.Builder(
-                        50.0f,
-                        10.0f,
-                        100.0f,
-                        ComplicationText.EMPTY
-                    )
-                        .setText(PlainComplicationText.Builder("Battery").build())
-                        .build(),
-                EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID to
-                    LongTextComplicationData.Builder(
-                        PlainComplicationText.Builder("Test").build(),
-                        ComplicationText.EMPTY
-                    ).build()
-            )
-        )
-        assertTrue(updateCountDownLatch.await(UPDATE_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS))
-
-        assertThat(interactiveInstance.complicationSlotsState.size).isEqualTo(2)
-
-        val leftComplicationDetails = interactiveInstance.complicationSlotsState[
-            EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID
-        ]!!
-        val rightComplicationDetails = interactiveInstance.complicationSlotsState[
-            EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID
-        ]!!
-
-        assertThat(leftComplicationDetails.currentType).isEqualTo(
-            ComplicationType.RANGED_VALUE
-        )
-        assertThat(rightComplicationDetails.currentType).isEqualTo(
-            ComplicationType.LONG_TEXT
-        )
-
-        interactiveInstance.close()
     }
 
     @Test
@@ -965,7 +870,7 @@ class WatchFaceControlClientTest {
         // Create the engine which triggers creation of InteractiveWatchFaceClient.
         createEngine()
 
-        val interactiveInstance = awaitWithTimeout(deferredInteractiveInstance)
+        awaitWithTimeout(deferredInteractiveInstance)
 
         val deferredInteractiveInstance2 = handlerCoroutineScope.async {
             @Suppress("deprecation")
@@ -978,11 +883,7 @@ class WatchFaceControlClientTest {
             )
         }
 
-        val interactiveInstance2 = awaitWithTimeout(deferredInteractiveInstance2)
-        assertThat(interactiveInstance2.instanceId).isEqualTo("testId")
-
-        interactiveInstance.close()
-        interactiveInstance2.close()
+        assertThat(awaitWithTimeout(deferredInteractiveInstance2).instanceId).isEqualTo("testId")
     }
 
     @SuppressLint("NewApi") // renderWatchFaceToBitmap
@@ -1002,7 +903,7 @@ class WatchFaceControlClientTest {
         // Create the engine which triggers creation of InteractiveWatchFaceClient.
         createEngine()
 
-        val interactiveInstance = awaitWithTimeout(deferredInteractiveInstance)
+        awaitWithTimeout(deferredInteractiveInstance)
 
         val deferredInteractiveInstance2 = handlerCoroutineScope.async {
             @Suppress("deprecation")
@@ -1039,7 +940,6 @@ class WatchFaceControlClientTest {
             // Note the hour hand pips and both complicationSlots should be visible in this image.
             bitmap.assertAgainstGolden(screenshotRule, "existingOpenInstance_styleChange")
         } finally {
-            interactiveInstance.close()
             interactiveInstance2.close()
         }
     }
@@ -1106,7 +1006,7 @@ class WatchFaceControlClientTest {
         createEngine()
 
         // Wait for the instance to be created.
-        val interactiveInstance = awaitWithTimeout(deferredInteractiveInstance)
+        awaitWithTimeout(deferredInteractiveInstance)
 
         val sysUiInterface =
             service.getInteractiveWatchFaceClientInstance("testId")!!
@@ -1136,7 +1036,6 @@ class WatchFaceControlClientTest {
         assertThat(sysUiInterface.overlayStyle.foregroundColor).isNull()
 
         sysUiInterface.close()
-        interactiveInstance.close()
     }
 
     @Test
@@ -1230,9 +1129,6 @@ class WatchFaceControlClientTest {
             contentDescriptionLabels[4].getTextAt(context.resources, Instant.EPOCH)
         ).isEqualTo("After")
         assertThat(contentDescriptionLabels[4].tapAction).isEqualTo(pendingIntent2)
-
-        sysUiInterface.close()
-        interactiveInstance.close()
     }
 
     @Test
@@ -1256,7 +1152,6 @@ class WatchFaceControlClientTest {
 
         assertThat(interactiveInstance.contentDescriptionLabels).isNotEmpty()
         interactiveInstance.close()
-        tearDownEngine()
         assertThat(interactiveInstance.contentDescriptionLabels).isEmpty()
     }
 
@@ -1456,7 +1351,6 @@ class WatchFaceControlClientTest {
 
     @Test
     fun addWatchFaceReadyListener_canvasRender() {
-        System.err.println("<<< addWatchFaceReadyListener_canvasRender")
         val initCompletableDeferred = CompletableDeferred<Unit>()
         val wallpaperService = TestAsyncCanvasRenderInitWatchFaceService(
             context,
@@ -1776,7 +1670,6 @@ class WatchFaceControlClientTest {
         val interactiveInstance = awaitWithTimeout(deferredInteractiveInstance)
 
         interactiveInstance.close()
-        tearDownEngine()
 
         assertThat(interactiveInstance.overlayStyle.backgroundColor).isNull()
         assertThat(interactiveInstance.overlayStyle.foregroundColor).isNull()
@@ -1861,7 +1754,7 @@ class WatchFaceControlClientTest {
         )!!
 
         // Blocks until the headless instance has been fully constructed.
-        headlessInstance.userStyleSchema
+        headlessInstance.previewReferenceInstant
         headlessInstance.close()
 
         assertThat(TestLifeCycleWatchFaceService.lifeCycleEvents).containsExactly(

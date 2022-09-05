@@ -242,13 +242,7 @@ public interface InteractiveWatchFaceClient : AutoCloseable {
          * Called when the watchface is ready to render.
          *
          * Note in the event of the watch face disconnecting (e.g. due to a crash) this callback
-         * may never fire. Use [ClientDisconnectListener] to observe disconnects.
-         *
-         * Note if the watch face process gets killed it'll automatically restart leading to
-         * additional notifications. Clients can observe disconnection via
-         * [ClientDisconnectListener]. In addition sometimes after restart WallpaperService will
-         * create two engines, the first of which gets detached leading to two notifications.
-         * Currently there isn't a way of observing the detached state however this will be brief.
+         * will never fire. Use [ClientDisconnectListener] to observe disconnects.
          */
         public fun onWatchFaceReady()
     }
