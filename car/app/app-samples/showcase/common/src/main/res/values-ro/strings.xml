@@ -240,7 +240,7 @@
     <string name="sign_in_template_not_supported_text" msgid="7184733753948837646">"Gazda nu acceptă șablonul pentru conectare"</string>
     <string name="sign_in_template_not_supported_title" msgid="4892883228898541764">"Gazdă incompatibilă"</string>
     <string name="email_hint" msgid="7205549445477319606">"E-mail"</string>
-    <string name="sign_in_title" msgid="4551967308262681703">"Conectați-vă"</string>
+    <string name="sign_in_title" msgid="4551967308262681703">"Conectează-te"</string>
     <string name="sign_in_instructions" msgid="9044850228284294762">"Introduceți datele de conectare"</string>
     <string name="invalid_email_error_msg" msgid="5261362663718987167">"Numele utilizatorului trebuie să fie o adresă de e-mail validă"</string>
     <string name="invalid_length_error_msg" msgid="8238905276326976425">"Numele utilizatorului trebuie să aibă minimum %s caractere"</string>
