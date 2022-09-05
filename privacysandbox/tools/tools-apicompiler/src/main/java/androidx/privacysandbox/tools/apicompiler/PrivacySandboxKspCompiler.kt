@@ -17,6 +17,8 @@
 package androidx.privacysandbox.tools.apicompiler
 
 import androidx.privacysandbox.tools.apicompiler.parser.ApiParser
+import com.google.devtools.ksp.processing.CodeGenerator
+import com.google.devtools.ksp.processing.Dependencies
 import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.processing.SymbolProcessor
@@ -24,15 +26,32 @@ import com.google.devtools.ksp.processing.SymbolProcessorEnvironment
 import com.google.devtools.ksp.processing.SymbolProcessorProvider
 import com.google.devtools.ksp.symbol.KSAnnotated
 
-class PrivacySandboxKspCompiler(val logger: KSPLogger) : SymbolProcessor {
+class PrivacySandboxKspCompiler(
+    private val logger: KSPLogger,
+    private val codeGenerator: CodeGenerator
+) :
+    SymbolProcessor {
+    var invoked = false
+
     override fun process(resolver: Resolver): List<KSAnnotated> {
+        if (invoked) {
+            return emptyList()
+        }
         ApiParser(resolver, logger).parseApi()
+        // TODO: remove once actual conde generation is in place.
+        createTestFile()
+        invoked = true
         return emptyList()
+    }
+
+    private fun createTestFile() {
+        val testFile = codeGenerator.createNewFile(Dependencies(false), "", "TestFile", "txt")
+        testFile.write("TestFile".toByteArray())
     }
 
     class Provider : SymbolProcessorProvider {
         override fun create(environment: SymbolProcessorEnvironment): SymbolProcessor {
-            return PrivacySandboxKspCompiler(environment.logger)
+            return PrivacySandboxKspCompiler(environment.logger, environment.codeGenerator)
         }
     }
 }
