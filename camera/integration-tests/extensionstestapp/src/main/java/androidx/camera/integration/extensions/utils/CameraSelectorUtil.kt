@@ -40,7 +40,7 @@ object CameraSelectorUtil {
                 }
             }
 
-            throw IllegalArgumentException("No camera can be find for id: $cameraId")
+            return@CameraFilter emptyList()
         }).build()
 
     @JvmStatic
