@@ -289,7 +289,6 @@ public class WatchFaceServiceImageTest {
             latch.countDown()
         }
         assertThat(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS)).isTrue()
-        assertThat(InteractiveInstanceManager.getInstances()).isEmpty()
         pretendBinderThread.quitSafely()
     }
 
@@ -945,7 +944,6 @@ public class WatchFaceServiceImageTest {
         } finally {
             val latch = CountDownLatch(1)
             handler.post {
-                engineWrapper.instance!!.release()
                 engineWrapper.onDestroy()
                 latch.countDown()
             }
