@@ -24,6 +24,7 @@ import androidx.room.compiler.processing.util.compiler.TestCompilationArguments
 import androidx.room.compiler.processing.util.compiler.TestCompilationResult
 import androidx.room.compiler.processing.util.compiler.compile
 import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.processing.SymbolProcessor
@@ -63,6 +64,18 @@ fun checkSourceFails(source: Source): CompilationResultSubject {
 }
 
 class CompilationResultSubject(private val result: TestCompilationResult) {
+    companion object {
+        fun assertThat(result: TestCompilationResult) = CompilationResultSubject(result)
+    }
+
+    fun succeeds() {
+        assertWithMessage("UnexpectedErrors: ${getErrorMessages()}").that(result.success).isTrue()
+    }
+
+    fun fails() {
+        assertThat(result.success).isFalse()
+    }
+
     fun containsError(error: String) {
         assertThat(getErrorMessages())
             .contains(error)
