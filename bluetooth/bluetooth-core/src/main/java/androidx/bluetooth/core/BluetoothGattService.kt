@@ -17,6 +17,7 @@
 package androidx.bluetooth.core
 
 import android.bluetooth.BluetoothGattService as FwkBluetoothGattService
+import android.annotation.SuppressLint
 import android.os.Build
 import android.os.Bundle
 import androidx.annotation.RequiresApi
@@ -203,6 +204,7 @@ class BluetoothGattService internal constructor(service: FwkBluetoothGattService
 
             val CREATOR: Bundleable.Creator<BluetoothGattService> =
                 object : Bundleable.Creator<BluetoothGattService> {
+                    @SuppressLint("SoonBlockedPrivateApi")
                     override fun fromBundle(bundle: Bundle): BluetoothGattService {
                         val uuid = bundle.getString(keyForField(FIELD_FWK_SERVICE_UUID))
                             ?: throw IllegalArgumentException("Bundle doesn't include uuid")
@@ -213,11 +215,15 @@ class BluetoothGattService internal constructor(service: FwkBluetoothGattService
                             throw IllegalArgumentException("Bundle doesn't include service type")
                         }
 
-                        val fwkService = FwkBluetoothGattService::class.java.getConstructor(
-                            UUID::class.java,
-                            Integer.TYPE,
-                            Integer.TYPE,
-                        ).newInstance(UUID.fromString(uuid), instanceId, type)
+                        val fwkServiceWithoutInstanceId =
+                            FwkBluetoothGattService(UUID.fromString(uuid), type)
+                        val fwkService = fwkServiceWithoutInstanceId.runCatching {
+                            this.javaClass.getDeclaredField("mInstanceId").let {
+                                it.isAccessible = true
+                                it.setInt(this, instanceId)
+                            }
+                            this
+                        }.getOrDefault(fwkServiceWithoutInstanceId)
 
                         val gattService = BluetoothGattService(fwkService)
 

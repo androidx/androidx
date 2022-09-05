@@ -16,9 +16,10 @@
 
 package androidx.bluetooth.core
 
-import android.bluetooth.BluetoothGattCharacteristic as FwkBluetoothGattCharacteristic
 import android.os.Build
 import android.os.Bundle
+import android.bluetooth.BluetoothGattCharacteristic as FwkBluetoothGattCharacteristic
+import android.annotation.SuppressLint
 import androidx.annotation.RequiresApi
 import java.util.UUID
 
@@ -298,6 +299,7 @@ class BluetoothGattCharacteristic internal constructor(
 
             val CREATOR: Bundleable.Creator<BluetoothGattCharacteristic> =
                 object : Bundleable.Creator<BluetoothGattCharacteristic> {
+                    @SuppressLint("SoonBlockedPrivateApi")
                     override fun fromBundle(bundle: Bundle): BluetoothGattCharacteristic {
                         val uuid = bundle.getString(keyForField(FIELD_FWK_CHARACTERISTIC_UUID))
                             ?: throw IllegalArgumentException("Bundle doesn't include uuid")
@@ -324,25 +326,24 @@ class BluetoothGattCharacteristic internal constructor(
                             throw IllegalArgumentException("Bundle doesn't include keySize")
                         }
 
-                        val fwkCharacteristic =
-                            FwkBluetoothGattCharacteristic::class.java.getConstructor(
-                                UUID::class.java,
-                                Integer.TYPE,
-                                Integer.TYPE,
-                                Integer.TYPE,
-                            ).newInstance(
-                                UUID.fromString(uuid),
-                                instanceId,
-                                properties,
-                                permissions,
-                            )
-                        fwkCharacteristic.writeType = writeType
+                        val fwkCharacteristicWithoutPrivateField = FwkBluetoothGattCharacteristic(
+                            UUID.fromString(uuid),
+                            properties,
+                            permissions,
+                        )
 
-                        // Asserted, will always be true
-                        if (Build.VERSION.SDK_INT < 24) {
-                            fwkCharacteristic.javaClass.getDeclaredField("mKeySize")
-                                .setInt(fwkCharacteristic, keySize)
-                        }
+                        val fwkCharacteristic = fwkCharacteristicWithoutPrivateField.runCatching {
+                                this.writeType = writeType
+                                this.javaClass.getDeclaredField("mKeySize").let {
+                                    it.isAccessible = true
+                                    it.setInt(this, keySize)
+                                }
+                                this.javaClass.getDeclaredField("mInstanceId").let {
+                                    it.isAccessible = true
+                                    it.setInt(this, instanceId)
+                                }
+                                this
+                            }.getOrDefault(fwkCharacteristicWithoutPrivateField)
 
                         val gattCharacteristic = BluetoothGattCharacteristic(fwkCharacteristic)
 
@@ -417,10 +418,14 @@ class BluetoothGattCharacteristic internal constructor(
             if (Build.VERSION.SDK_INT < 24) {
                 bundle.putInt(
                     keyForField(FIELD_FWK_CHARACTERISTIC_KEY_SIZE),
-                    fwkCharacteristic.javaClass.getDeclaredField("mKeySize")
-                        .getInt(fwkCharacteristic)
+                    fwkCharacteristic.javaClass.getDeclaredField("mKeySize").runCatching {
+                        this.isAccessible = true
+                        this.getInt(fwkCharacteristic)
+                    }.getOrDefault(16) // 16 is the default value in framework
+
                 )
             }
+
             val descriptorBundles = ArrayList(descriptors.map { it.toBundle() })
             bundle.putParcelableArrayList(
                 keyForField(FIELD_FWK_CHARACTERISTIC_DESCRIPTORS),
