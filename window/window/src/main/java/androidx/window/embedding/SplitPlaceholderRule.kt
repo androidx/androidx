@@ -78,11 +78,32 @@ class SplitPlaceholderRule : SplitRule {
         @IntRange(from = 0) minWidth: Int = 0,
         @IntRange(from = 0) minSmallestWidth: Int = 0,
         @FloatRange(from = 0.0, to = 1.0) splitRatio: Float = 0.5f,
-        @LayoutDir layoutDirection: Int = LayoutDirection.LOCALE
+        @IntRange(from = 0, to = 3) layoutDirection: Int = LayoutDirection.LOCALE
     ) : super(minWidth, minSmallestWidth, splitRatio, layoutDirection) {
         checkArgumentNonnegative(minWidth, "minWidth must be non-negative")
         checkArgumentNonnegative(minSmallestWidth, "minSmallestWidth must be non-negative")
         checkArgument(splitRatio in 0.0..1.0, "splitRatio must be in 0.0..1.0 range")
+        checkArgument(finishPrimaryWithPlaceholder != FINISH_NEVER,
+            "FINISH_NEVER is not a valid configuration for SplitPlaceholderRule. " +
+                "Please use FINISH_ALWAYS or FINISH_ADJACENT instead or refer to the current API.")
+        this.filters = filters.toSet()
+        this.placeholderIntent = placeholderIntent
+        this.isSticky = isSticky
+        this.finishPrimaryWithPlaceholder = finishPrimaryWithPlaceholder
+    }
+
+    // TODO(b/243345984): Update FinishBehavior to enum-like class instead of integer constants
+    internal constructor(
+        filters: Set<ActivityFilter>,
+        placeholderIntent: Intent,
+        isSticky: Boolean,
+        @SplitPlaceholderFinishBehavior finishPrimaryWithPlaceholder: Int = FINISH_ALWAYS,
+        @IntRange(from = 0) minWidth: Int = 0,
+        @IntRange(from = 0) minSmallestWidth: Int = 0,
+        defaultSplitAttributes: SplitAttributes,
+    ) : super(minWidth, minSmallestWidth, defaultSplitAttributes) {
+        checkArgumentNonnegative(minWidth, "minWidth must be non-negative")
+        checkArgumentNonnegative(minSmallestWidth, "minSmallestWidth must be non-negative")
         checkArgument(finishPrimaryWithPlaceholder != FINISH_NEVER,
             "FINISH_NEVER is not a valid configuration for SplitPlaceholderRule. " +
                 "Please use FINISH_ALWAYS or FINISH_ADJACENT instead or refer to the current API.")
@@ -110,10 +131,7 @@ class SplitPlaceholderRule : SplitRule {
         @SplitPlaceholderFinishBehavior
         private var finishPrimaryWithPlaceholder: Int = FINISH_ALWAYS
         private var isSticky: Boolean = false
-        @FloatRange(from = 0.0, to = 1.0)
-        private var splitRatio: Float = 0.5f
-        @LayoutDir
-        private var layoutDir: Int = LayoutDirection.LOCALE
+        private var defaultSplitAttributes: SplitAttributes = SplitAttributes.Builder().build()
 
         /**
          * @see SplitPlaceholderRule.finishPrimaryWithPlaceholder
@@ -131,22 +149,18 @@ class SplitPlaceholderRule : SplitRule {
         fun setSticky(isSticky: Boolean): Builder =
             apply { this.isSticky = isSticky }
 
-        /**
-         * @see SplitPlaceholderRule.splitRatio
-         */
-        fun setSplitRatio(@FloatRange(from = 0.0, to = 1.0) splitRatio: Float): Builder =
-            apply { this.splitRatio = splitRatio }
+        /** @see SplitPlaceholderRule.defaultSplitAttributes */
+        fun setDefaultSplitAttributes(defaultSplitAttributes: SplitAttributes): Builder =
+            apply { this.defaultSplitAttributes = defaultSplitAttributes }
 
-        /**
-         * @see SplitPlaceholderRule.layoutDirection
-         */
-        @SuppressWarnings("MissingGetterMatchingBuilder")
-        fun setLayoutDir(@LayoutDir layoutDir: Int): Builder =
-            apply { this.layoutDir = layoutDir }
-
-        @Suppress("DEPRECATION")
-        fun build() = SplitPlaceholderRule(filters, placeholderIntent, isSticky,
-            finishPrimaryWithPlaceholder, minWidth, minSmallestWidth, splitRatio, layoutDir)
+        fun build() = SplitPlaceholderRule(
+            filters,
+            placeholderIntent,
+            isSticky,
+            finishPrimaryWithPlaceholder,
+            minWidth, minSmallestWidth,
+            defaultSplitAttributes,
+        )
     }
 
     /**
@@ -157,7 +171,6 @@ class SplitPlaceholderRule : SplitRule {
         val newSet = mutableSetOf<ActivityFilter>()
         newSet.addAll(filters)
         newSet.add(filter)
-        @Suppress("DEPRECATION")
         return SplitPlaceholderRule(
             newSet.toSet(),
             placeholderIntent,
@@ -165,8 +178,7 @@ class SplitPlaceholderRule : SplitRule {
             finishPrimaryWithPlaceholder,
             minWidth,
             minSmallestWidth,
-            splitRatio,
-            layoutDirection
+            defaultSplitAttributes,
         )
     }
 
@@ -191,4 +203,15 @@ class SplitPlaceholderRule : SplitRule {
         result = 31 * result + filters.hashCode()
         return result
     }
+
+    override fun toString(): String =
+         "SplitPlaceholderRule{" +
+             "defaultSplitAttributes=$defaultSplitAttributes" +
+             ", minWidth=$minWidth" +
+             ", minSmallestWidth=$minSmallestWidth" +
+             ", placeholderIntent=$placeholderIntent" +
+             ", isSticky=$isSticky" +
+             ", finishPrimaryWithPlaceholder=$finishPrimaryWithPlaceholder" +
+             ", filters=$filters" +
+             "}"
 }

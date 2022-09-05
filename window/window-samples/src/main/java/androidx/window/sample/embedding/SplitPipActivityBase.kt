@@ -30,6 +30,7 @@ import androidx.core.util.Consumer
 import androidx.window.core.ExperimentalWindowApi
 import androidx.window.embedding.ActivityFilter
 import androidx.window.embedding.EmbeddingRule
+import androidx.window.embedding.SplitAttributes
 import androidx.window.embedding.SplitController
 import androidx.window.embedding.SplitInfo
 import androidx.window.embedding.SplitPairFilter
@@ -235,7 +236,9 @@ abstract class SplitPipActivityBase : AppCompatActivity(), CompoundButton.OnChec
     /** Updates the split rules based on the current selection on checkboxes. */
     private fun updateSplitRules() {
         splitController.clearRegisteredRules()
-
+        val defaultSplitAttributes = SplitAttributes.Builder()
+            .setSplitType(SplitAttributes.SplitType.ratio(splitRatio))
+            .build()
         if (viewBinding.splitMainCheckBox.isChecked) {
             val pairFilters = HashSet<SplitPairFilter>()
             pairFilters.add(SplitPairFilter(componentNameA, componentNameB, null))
@@ -248,7 +251,7 @@ abstract class SplitPipActivityBase : AppCompatActivity(), CompoundButton.OnChec
                 .setFinishSecondaryWithPrimary(
                     if (finishBWithA) SplitRule.FINISH_ALWAYS else SplitRule.FINISH_NEVER)
                 .setClearTop(true)
-                .setSplitRatio(splitRatio)
+                .setDefaultSplitAttributes(defaultSplitAttributes)
                 .build()
             splitController.registerRule(rule)
         }
@@ -261,7 +264,7 @@ abstract class SplitPipActivityBase : AppCompatActivity(), CompoundButton.OnChec
             val rule = SplitPlaceholderRule.Builder(activityFilters, intent, 0, 0)
                 .setSticky(isSticky)
                 .setFinishPrimaryWithPlaceholder(SplitRule.FINISH_ADJACENT)
-                .setSplitRatio(splitRatio)
+                .setDefaultSplitAttributes(defaultSplitAttributes)
                 .build()
             splitController.registerRule(rule)
         }

@@ -30,7 +30,7 @@ import org.junit.Test;
 @SmallTest
 public class SplitAttributesTest {
     @Test
-    public void testSplitLayoutEquals() {
+    public void testSplitAttributesEquals() {
         final SplitAttributes layout1 = new SplitAttributes.Builder()
                 .setSplitType(splitEqually())
                 .setLayoutDirection(LayoutDirection.LOCALE)
