@@ -69,7 +69,7 @@ class AidlGenerator(
         api.services.map { service ->
             InMemorySource(
                 service.packageName,
-                "I${service.name}",
+                aidlNameForInterface(service),
                 generateAidlService(service)
             )
         }
@@ -81,8 +81,7 @@ class AidlGenerator(
         )
         return """
                 package ${service.packageName};
-
-                oneway interface I${service.name} {
+                oneway interface ${aidlNameForInterface(service)} {
                     $generatedMethods
                 }
             """.trimIndent()
@@ -93,9 +92,7 @@ class AidlGenerator(
             "(${method.parameters.joinToString(transform = ::generateAidlParameter)});"
 
     private fun generateAidlParameter(parameter: Parameter) =
-        "${generateAidlType(parameter.type)} ${parameter.name}"
-
-    private fun generateAidlType(type: Type) = type.name.lowercase() // TODO map primitives
+        "${parameter.type.toAidlType()} ${parameter.name}"
 
     private fun getAidlFile(rootPath: Path, aidlSource: InMemorySource) =
         Paths.get(
@@ -110,6 +107,9 @@ class AidlGenerator(
         }
         return aidlFile.resolveSibling("${aidlFile.nameWithoutExtension}.java")
     }
+
+    private fun aidlNameForInterface(annotatedInterface: AnnotatedInterface) =
+        "I${annotatedInterface.name}"
 }
 
 data class InMemorySource(
@@ -132,3 +132,17 @@ internal fun File.ensureDirectory() {
         "$this is not a directory"
     }
 }
+
+internal fun Type.toAidlType() =
+    when (name) {
+        Boolean::class.qualifiedName -> "boolean"
+        Int::class.qualifiedName -> "int"
+        Long::class.qualifiedName -> "long"
+        Float::class.qualifiedName -> "float"
+        Double::class.qualifiedName -> "double"
+        String::class.qualifiedName -> "string"
+        Char::class.qualifiedName -> "char"
+        Short::class.qualifiedName -> "short"
+        Unit::class.qualifiedName -> "void"
+        else -> throw IllegalArgumentException("Unsupported type conversion ${this.name}")
+    }

@@ -49,18 +49,18 @@ class AidlGeneratorTest {
                                 Parameter(
                                     name = "x",
                                     type = Type(
-                                        name = "Int",
+                                        name = "kotlin.Int",
                                     )
                                 ),
                                 Parameter(
                                     name = "y",
                                     type = Type(
-                                        name = "Int",
+                                        name = "kotlin.Int",
                                     )
                                 )
                             ),
                             returnType = Type(
-                                name = "String",
+                                name = "kotlin.String",
                             )
                         )
                     )
@@ -84,7 +84,6 @@ class AidlGeneratorTest {
         assertThat(aidlGeneratedFiles.first().readText()).isEqualTo(
             """
                 package com.mysdk;
-
                 oneway interface IMySdk {
                     void doStuff(int x, int y);
                 }
