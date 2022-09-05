@@ -50,7 +50,6 @@ import org.mockito.Mockito
 import org.robolectric.annotation.Config
 import java.util.ArrayDeque
 import java.util.PriorityQueue
-import org.junit.After
 
 internal class TestAsyncWatchFaceService(
     private val handler: Handler,
@@ -189,11 +188,6 @@ public class AsyncWatchFaceInitTest {
         }.`when`(handler).removeCallbacks(ArgumentMatchers.any())
     }
 
-    @After
-    fun tearDown() {
-        assertThat(InteractiveInstanceManager.getInstances()).isEmpty()
-    }
-
     @RequiresApi(Build.VERSION_CODES.O_MR1)
     @Test
     public fun createInteractiveInstanceFailsIfDirectBootWatchFaceCreationIsInProgress() {
@@ -235,8 +229,6 @@ public class AsyncWatchFaceInitTest {
         runPostedTasksFor(0)
 
         assertThat(pendingException.message).startsWith("WatchFace already exists!")
-
-        InteractiveInstanceManager.releaseInstance(initParams.instanceId)
     }
 
     @RequiresApi(Build.VERSION_CODES.O_MR1)
@@ -321,6 +313,5 @@ public class AsyncWatchFaceInitTest {
         runPostedTasksFor(0)
 
         assertNotNull(pendingInteractiveWatchFaceWcs)
-        pendingInteractiveWatchFaceWcs?.release()
     }
 }
