@@ -283,7 +283,6 @@ class SplitAttributes internal constructor(
                 LEFT_TO_RIGHT.value -> LEFT_TO_RIGHT
                 RIGHT_TO_LEFT.value -> RIGHT_TO_LEFT
                 LOCALE.value -> LOCALE
-                // TODO(b/240912390): add horizontal layout static definitions
                 TOP_TO_BOTTOM.value -> TOP_TO_BOTTOM
                 BOTTOM_TO_TOP.value -> BOTTOM_TO_TOP
                 else -> throw IllegalArgumentException("Undefined value:$value")

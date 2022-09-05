@@ -14,9 +14,14 @@
   See the License for the specific language governing permissions and
   limitations under the License.
   -->
-<resources>
-    <!-- Defines what part of the width should be given to the primary activity. Defaults to an
-    equal width split. -->
+<resources xmlns:xs="http://schemas.android.com/apk/res/android">
+    <!-- Defines what activity container should be given to the primary part of the task
+     bounds. Values in range (0.0, 1.0) define the size of the primary container of the split
+     relative to the corresponding task dimension size. 0.0 means the secondary activity container
+     fills the full Task bounds, and occludes the primary activity container, which is also expanded
+     to fill the full Task bounds. 0.5 means the primary and secondary container shares an equal
+     split. Ratio larger than `0.5` means the primary container takes more partition. Otherwise,
+     the secondary container takes more partition. -->
     <attr name="splitRatio" format="float" />
     <!-- The smallest value of width of the parent window when the split should be used. -->
     <attr name="splitMinWidth" format="dimension" />
@@ -24,9 +29,19 @@
      the split should be used. -->
     <attr name="splitMinSmallestWidth" format="dimension" />
     <attr name="splitLayoutDirection" format="enum">
+        <!-- A layout direction that splits the task bounds vertically, and the direction is deduced
+        from the language script of locale. The direction can be either rtl or ltr -->
         <enum name="locale" value="0" />
+        <!-- The primary container is placed on the left, and the secondary is on the right hand
+        side. -->
         <enum name="ltr" value="1" />
+        <!-- The primary container is placed on the right, and the secondary is on the left hand
+        side. -->
         <enum name="rtl" value="2" />
+        <!-- The primary container is placed on top, and the secondary is at the bottom. -->
+        <enum name="topToBottom" value="3" />
+        <!-- The primary container is placed on bottom, and the secondary is at the top. -->
+        <enum name="bottomToTop" value="4" />
     </attr>
     <attr name="finishPrimaryWithSecondary" format="enum">
         <enum name="never" value="0" />
