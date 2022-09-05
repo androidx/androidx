@@ -160,7 +160,8 @@ package androidx.wear.watchface.client {
   }
 
   public static interface InteractiveWatchFaceClient.ClientDisconnectListener {
-    method public void onClientDisconnected();
+    method @Deprecated public default void onClientDisconnected();
+    method public default void onClientDisconnected(int disconnectReason);
   }
 
   public static final class InteractiveWatchFaceClient.Companion {

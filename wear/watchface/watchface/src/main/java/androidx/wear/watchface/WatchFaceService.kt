@@ -32,6 +32,7 @@ import android.os.HandlerThread
 import android.os.Looper
 import android.os.PowerManager
 import android.os.Process
+import android.os.RemoteCallbackList
 import android.os.RemoteException
 import android.os.Trace
 import android.service.wallpaper.WallpaperService
@@ -1240,11 +1241,10 @@ public abstract class WatchFaceService : WallpaperService() {
 
         private val mainThreadPriorityDelegate = getMainThreadPriorityDelegate()
 
-        // Members after this are protected by the lock.
         private val lock = Any()
 
         /** Protected by [lock]. */
-        private val listeners = HashSet<IWatchfaceListener>()
+        private val listeners = RemoteCallbackList<IWatchfaceListener>()
         private var lastWatchFaceColors: WatchFaceColors? = null
         private var lastPreviewImageNeedsUpdateRequest: String? = null
 
@@ -2339,23 +2339,62 @@ public abstract class WatchFaceService : WallpaperService() {
             }
         }
 
+        /**
+         * @param taskName The name to use when logging any exception
+         * @param listenerCallback The callback to invoke for each registered [IWatchfaceListener]
+         * @return the number of calls to [listenerCallback] that did not throw an exception.
+         */
+        private fun forEachListener(
+            taskName: String,
+            listenerCallback: (listener: IWatchfaceListener) -> Unit
+        ): Int {
+            var i = listeners.beginBroadcast()
+            var successCount = 0
+            while (i > 0) {
+                i--
+                val listener = listeners.getBroadcastItem(i)
+                try {
+                    listenerCallback(listener)
+                    successCount++
+                } catch (e: Exception) {
+                    Log.e(
+                        TAG,
+                        "In $taskName broadcastToListeners failed for ${listener.asBinder()}",
+                        e
+                    )
+                }
+            }
+            listeners.finishBroadcast()
+            return successCount
+        }
+
         override fun sendPreviewImageNeedsUpdateRequest() {
             synchronized(lock) {
                 lastPreviewImageNeedsUpdateRequest = interactiveInstanceId
-                HashSet<IWatchfaceListener>(listeners)
-            }.forEach {
-                it.onPreviewImageUpdateRequested(interactiveInstanceId)
+
+                forEachListener("sendPreviewImageNeedsUpdateRequest") {
+                    it.onPreviewImageUpdateRequested(interactiveInstanceId)
+                }
             }
         }
 
         override fun onWatchFaceColorsChanged(watchFaceColors: WatchFaceColors?) {
-            val listenersCopy = synchronized(lock) {
+            synchronized(lock) {
                 lastWatchFaceColors = watchFaceColors
-                HashSet<IWatchfaceListener>(listeners)
-            }
 
-            listenersCopy.forEach {
-                it.onWatchfaceColorsChanged(lastWatchFaceColors?.toWireFormat())
+                forEachListener("onWatchFaceColorsChanged") {
+                    it.onWatchfaceColorsChanged(lastWatchFaceColors?.toWireFormat())
+                }
+            }
+        }
+
+        internal fun onEngineDetached() {
+            synchronized(lock) {
+                forEachListener("onWatchFaceColorsChanged") {
+                    if (it.apiVersion >= 2) {
+                        it.onEngineDetached()
+                    }
+                }
             }
         }
 
@@ -2540,17 +2579,20 @@ public abstract class WatchFaceService : WallpaperService() {
             _context.getSystemService(Context.ACCESSIBILITY_SERVICE) as AccessibilityManager
 
         fun addWatchFaceListener(listener: IWatchfaceListener) {
-            val previewImageNeedsUpdateRequest: String?
-            val colors = synchronized(lock) {
-                listeners.add(listener)
-                previewImageNeedsUpdateRequest = lastPreviewImageNeedsUpdateRequest
-                lastWatchFaceColors
-            }
-
-            listener.onWatchfaceColorsChanged(colors?.toWireFormat())
-
-            previewImageNeedsUpdateRequest?.let {
-                listener.onPreviewImageUpdateRequested(it)
+            synchronized(lock) {
+                if (listeners.register(listener)) {
+                    Log.d(TAG, "addWatchFaceListener $listener")
+                } else {
+                    Log.w(
+                        TAG,
+                        "addWatchFaceListener $listener failed because its already registered"
+                    )
+                    return
+                }
+                lastPreviewImageNeedsUpdateRequest?.let {
+                    listener.onPreviewImageUpdateRequested(it)
+                }
+                listener.onWatchfaceColorsChanged(lastWatchFaceColors?.toWireFormat())
             }
 
             uiThreadCoroutineScope.launch {
@@ -2561,7 +2603,14 @@ public abstract class WatchFaceService : WallpaperService() {
 
         fun removeWatchFaceListener(listener: IWatchfaceListener) {
             synchronized(lock) {
-                listeners.remove(listener)
+                if (listeners.unregister(listener)) {
+                    Log.d(TAG, "removeWatchFaceListener $listener")
+                } else {
+                    Log.w(
+                        TAG,
+                        "removeWatchFaceListener $listener failed because it's not registered"
+                    )
+                }
             }
         }
 
@@ -2611,7 +2660,9 @@ public abstract class WatchFaceService : WallpaperService() {
             )
 
             synchronized(lock) {
-                writer.println("listeners = " + listeners.joinToString(", "))
+                forEachListener("dump") {
+                    writer.println("listener = " + it.asBinder())
+                }
             }
 
             if (!destroyed) {
