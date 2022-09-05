@@ -16,7 +16,6 @@
 
 package androidx.wear.watchface
 
-import android.annotation.SuppressLint
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -93,6 +92,7 @@ import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
 import java.io.PrintWriter
 import java.time.Instant
+import java.time.ZoneId
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
@@ -642,6 +642,27 @@ public abstract class WatchFaceService : WallpaperService() {
 
     internal var backgroundThread: HandlerThread? = null
 
+    /**
+     * Interface for getting the current system time.
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public interface SystemTimeProvider {
+        /** Returns the current system time in milliseconds. */
+        public fun getSystemTimeMillis(): Long
+
+        /** Returns the current system [ZoneId]. */
+        public fun getSystemTimeZoneId(): ZoneId
+    }
+
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public open fun getSystemTimeProvider(): SystemTimeProvider = object : SystemTimeProvider {
+        override fun getSystemTimeMillis() = System.currentTimeMillis()
+
+        override fun getSystemTimeZoneId() = ZoneId.systemDefault()
+    }
+
     /** This is open for testing. The background thread is used for watch face initialization. */
     internal open fun getBackgroundThreadHandlerImpl(): Handler {
         synchronized(this) {
@@ -868,7 +889,6 @@ public abstract class WatchFaceService : WallpaperService() {
         var pendingProperties: Bundle? = null
         var pendingSetWatchFaceStyle = false
         var pendingVisibilityChanged: Boolean? = null
-        var pendingComplicationDataUpdates = ArrayList<PendingComplicationData>()
         var complicationsActivated = false
         var watchFaceInitStarted = false
         var lastActiveComplicationSlots: IntArray? = null
@@ -908,7 +928,6 @@ public abstract class WatchFaceService : WallpaperService() {
             @DataSourceId fallbackSystemDataSource: Int,
             type: Int
         ) {
-
             // For android R flow iWatchFaceService won't have been set.
             if (!iWatchFaceServiceInitialized()) {
                 return
@@ -1003,11 +1022,11 @@ public abstract class WatchFaceService : WallpaperService() {
         @Suppress("DEPRECATION")
         fun onComplicationSlotDataUpdate(extras: Bundle) {
             extras.classLoader = WireComplicationData::class.java.classLoader
-            val complicationData: WireComplicationData =
-                extras.getParcelable(Constants.EXTRA_COMPLICATION_DATA)!!
-            engineWrapper.setComplicationSlotData(
-                extras.getInt(Constants.EXTRA_COMPLICATION_ID),
-                complicationData.toApiComplicationData()
+            val complicationData =
+                extras.getParcelable<WireComplicationData>(Constants.EXTRA_COMPLICATION_DATA)!!
+            val complicationSlotId = extras.getInt(Constants.EXTRA_COMPLICATION_ID)
+            engineWrapper.setComplicationDataList(
+                listOf(IdAndComplicationDataWireFormat(complicationSlotId, complicationData))
             )
         }
 
@@ -1083,12 +1102,6 @@ public abstract class WatchFaceService : WallpaperService() {
                 if (visibility != null) {
                     engineWrapper.onVisibilityChanged(visibility)
                     pendingVisibilityChanged = null
-                }
-                for (complicationDataUpdate in pendingComplicationDataUpdates) {
-                    watchFaceImpl.onComplicationSlotDataUpdate(
-                        complicationDataUpdate.complicationSlotId,
-                        complicationDataUpdate.data
-                    )
                 }
                 watchFaceImpl.complicationSlotsManager.onComplicationsUpdated()
             }
@@ -1174,6 +1187,7 @@ public abstract class WatchFaceService : WallpaperService() {
         internal lateinit var ambientUpdateWakelock: PowerManager.WakeLock
 
         private lateinit var choreographer: ChoreographerWrapper
+        override val systemTimeProvider = getSystemTimeProvider()
 
         /**
          * Whether we already have a [frameCallback] posted and waiting in the [Choreographer]
@@ -1263,6 +1277,20 @@ public abstract class WatchFaceService : WallpaperService() {
             return if (deferredWatchFaceImpl.isCompleted) {
                 runBlocking {
                     deferredWatchFaceImpl.await()
+                }
+            } else {
+                null
+            }
+        }
+
+        /**
+         * Returns the [EarlyInitDetails] if [deferredEarlyInitDetails] has completed successfully
+         * or `null` otherwise.
+         */
+        internal fun getEarlyInitDetailsOrNull(): EarlyInitDetails? {
+            return if (deferredEarlyInitDetails.isCompleted) {
+                runBlocking {
+                    deferredEarlyInitDetails.await()
                 }
             } else {
                 null
@@ -1457,37 +1485,23 @@ public abstract class WatchFaceService : WallpaperService() {
             }
         }
 
-        @SuppressLint("SyntheticAccessor")
-        internal fun setComplicationSlotData(
-            complicationSlotId: Int,
-            data: ComplicationData
-        ): Unit = TraceEvent("EngineWrapper.setComplicationSlotData").use {
-            val watchFaceImpl = getWatchFaceImplOrNull()
-            if (watchFaceImpl != null) {
-                watchFaceImpl.onComplicationSlotDataUpdate(complicationSlotId, data)
-                watchFaceImpl.complicationSlotsManager.onComplicationsUpdated()
-            } else {
-                // If the watch face hasn't loaded yet then we append
-                // pendingComplicationDataUpdates so it can be applied later.
-                wslFlow.pendingComplicationDataUpdates.add(
-                    WslFlow.PendingComplicationData(complicationSlotId, data)
-                )
-            }
-        }
-
         @UiThread
         internal fun setComplicationDataList(
             complicationDataWireFormats: List<IdAndComplicationDataWireFormat>
         ): Unit = TraceEvent("EngineWrapper.setComplicationDataList").use {
-            val watchFaceImpl = getWatchFaceImplOrNull()
-            if (watchFaceImpl != null) {
+            val earlyInitDetails = getEarlyInitDetailsOrNull()
+            if (earlyInitDetails != null) {
+                val now = Instant.ofEpochMilli(systemTimeProvider.getSystemTimeMillis())
                 for (idAndComplicationData in complicationDataWireFormats) {
-                    watchFaceImpl.onComplicationSlotDataUpdate(
+                    earlyInitDetails.complicationSlotsManager.onComplicationDataUpdate(
                         idAndComplicationData.id,
-                        idAndComplicationData.complicationData.toApiComplicationData()
+                        idAndComplicationData.complicationData.toApiComplicationData(),
+                        now
                     )
                 }
-                watchFaceImpl.complicationSlotsManager.onComplicationsUpdated()
+                earlyInitDetails.complicationSlotsManager.onComplicationsUpdated()
+                invalidate()
+                scheduleWriteComplicationDataCache()
             } else {
                 setPendingInitialComplications(complicationDataWireFormats)
             }
@@ -1728,7 +1742,7 @@ public abstract class WatchFaceService : WallpaperService() {
                                 x,
                                 y,
                                 Instant.ofEpochMilli(
-                                    watchFaceImpl.systemTimeProvider.getSystemTimeMillis()
+                                    systemTimeProvider.getSystemTimeMillis()
                                 )
                             )
                         )
@@ -1742,7 +1756,7 @@ public abstract class WatchFaceService : WallpaperService() {
                                 x,
                                 y,
                                 Instant.ofEpochMilli(
-                                    watchFaceImpl.systemTimeProvider.getSystemTimeMillis()
+                                    systemTimeProvider.getSystemTimeMillis()
                                 )
                             )
                         )
@@ -1758,7 +1772,7 @@ public abstract class WatchFaceService : WallpaperService() {
                                 x,
                                 y,
                                 Instant.ofEpochMilli(
-                                    watchFaceImpl.systemTimeProvider.getSystemTimeMillis()
+                                    systemTimeProvider.getSystemTimeMillis()
                                 )
                             )
                         )
@@ -2021,6 +2035,14 @@ public abstract class WatchFaceService : WallpaperService() {
                         )
                     )
 
+                    // Apply any pendingInitialComplications, this must be done after
+                    // deferredWatchFaceImpl has completed or there's a window in which complication
+                    // updates get lost.
+                    pendingInitialComplications?.let {
+                        setComplicationDataList(it)
+                    }
+                    pendingInitialComplications = null
+
                     val watchFace = TraceEvent("WatchFaceService.createWatchFace").use {
                         // Note by awaiting deferredSurfaceHolder we ensure onSurfaceChanged has
                         // been called and we're passing the correct updated surface holder. This is
@@ -2143,14 +2165,6 @@ public abstract class WatchFaceService : WallpaperService() {
                 }
                 deferredWatchFaceImpl.complete(watchFaceImpl)
 
-                // Apply any pendingInitialComplications, this must be done after
-                // deferredWatchFaceImpl has completed or there's a window in which complication
-                // updates get lost.
-                pendingInitialComplications?.let {
-                    setComplicationDataList(it)
-                }
-                pendingInitialComplications = null
-
                 asyncWatchFaceConstructionPending = false
                 watchFaceImpl.initComplete = true
 
@@ -2225,7 +2239,6 @@ public abstract class WatchFaceService : WallpaperService() {
                     override fun onInvalidate() {
                         // This could be called on any thread.
                         uiThreadHandler.runOnHandlerWithTracing("onInvalidate") {
-                            this@WatchFaceService.onInvalidate()
                             if (initFinished) {
                                 getWatchFaceImplOrNull()?.invalidateIfNotAnimating()
                             }
@@ -2282,6 +2295,7 @@ public abstract class WatchFaceService : WallpaperService() {
         }
 
         override fun invalidate() {
+            this@WatchFaceService.onInvalidate()
             if (!allowWatchfaceToAnimate) {
                 return
             }

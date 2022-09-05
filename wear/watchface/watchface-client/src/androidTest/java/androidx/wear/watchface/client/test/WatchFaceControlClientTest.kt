@@ -1061,7 +1061,7 @@ class WatchFaceControlClientTest {
         // We need to wait for watch face init to have completed before lateinit
         // wallpaperService.watchFace will be assigned. To do this we issue an arbitrary API
         // call which by necessity awaits full initialization.
-        interactiveInstance.complicationSlotsState
+        interactiveInstance.previewReferenceInstant
 
         // Add some additional ContentDescriptionLabels
         val pendingIntent1 = PendingIntent.getActivity(
@@ -2104,11 +2104,13 @@ internal class TestAsyncCanvasRenderInitWatchFaceService(
                 TODO("Not yet implemented")
             }
         }
-    ).setSystemTimeProvider(object : WatchFace.SystemTimeProvider {
+    )
+
+    override fun getSystemTimeProvider() = object : SystemTimeProvider {
         override fun getSystemTimeMillis() = 123456789L
 
         override fun getSystemTimeZoneId() = ZoneId.of("UTC")
-    })
+    }
 }
 
 internal class TestAsyncGlesRenderInitWatchFaceService(

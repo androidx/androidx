@@ -270,19 +270,6 @@ public class WatchFace(
         public fun onComplicationSlotConfigExtrasChanged()
     }
 
-    /**
-     * Interface for getting the current system time.
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public interface SystemTimeProvider {
-        /** Returns the current system time in milliseconds. */
-        public fun getSystemTimeMillis(): Long
-
-        /** Returns the current system [ZoneId]. */
-        public fun getSystemTimeZoneId(): ZoneId
-    }
-
     /** Listens for taps on the watchface. */
     public interface TapListener {
         /**
@@ -460,12 +447,6 @@ public class WatchFace(
     public var overridePreviewReferenceInstant: Instant? = null
         private set
 
-    internal var systemTimeProvider: SystemTimeProvider = object : SystemTimeProvider {
-        override fun getSystemTimeMillis() = System.currentTimeMillis()
-
-        override fun getSystemTimeZoneId() = ZoneId.systemDefault()
-    }
-
     /**
      * Overrides the reference time for editor preview images.
      *
@@ -481,12 +462,6 @@ public class WatchFace(
     @SuppressWarnings("ExecutorRegistration")
     public fun setTapListener(tapListener: TapListener?): WatchFace = apply {
         this.tapListener = tapListener
-    }
-
-    /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public fun setSystemTimeProvider(systemTimeProvider: SystemTimeProvider): WatchFace = apply {
-        this.systemTimeProvider = systemTimeProvider
     }
 
     /**
@@ -616,7 +591,7 @@ public class WatchFaceImpl @UiThread constructor(
                 ),
         )
 
-    internal val systemTimeProvider = watchface.systemTimeProvider
+    internal val systemTimeProvider = watchFaceHostApi.systemTimeProvider
     private val legacyWatchFaceStyle = watchface.legacyWatchFaceStyle
     internal val renderer = watchface.renderer
     private val tapListener = watchface.tapListener
@@ -1066,19 +1041,6 @@ public class WatchFaceImpl @UiThread constructor(
         }
 
         return delayMillis
-    }
-
-    /**
-     * Called when new complication data is received.
-     *
-     * @param complicationSlotId The id of the [ComplicationSlot] that the data relates to.
-     * @param data The [ComplicationData] that should be displayed in the complication.
-     */
-    @UiThread
-    internal fun onComplicationSlotDataUpdate(complicationSlotId: Int, data: ComplicationData) {
-        complicationSlotsManager.onComplicationDataUpdate(complicationSlotId, data, getNow())
-        watchFaceHostApi.invalidate()
-        watchFaceHostApi.scheduleWriteComplicationDataCache()
     }
 
     /**

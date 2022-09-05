@@ -47,6 +47,7 @@ internal class InteractiveWatchFaceImpl(
     }
 
     private val uiThreadCoroutineScope = engine!!.uiThreadCoroutineScope
+    private val systemTimeProvider = engine!!.systemTimeProvider
 
     override fun getApiVersion() = IInteractiveWatchFace.API_VERSION
 
@@ -61,9 +62,7 @@ internal class InteractiveWatchFaceImpl(
                 TapEvent(
                     xPos,
                     yPos,
-                    Instant.ofEpochMilli(
-                        watchFaceImpl.systemTimeProvider.getSystemTimeMillis()
-                    )
+                    Instant.ofEpochMilli(systemTimeProvider.getSystemTimeMillis())
                 )
             )
         }
@@ -145,16 +144,16 @@ internal class InteractiveWatchFaceImpl(
         // Note this is a one way method called on a binder thread, so it shouldn't matter if we
         // block.
         runBlocking {
-            withContext(uiThreadCoroutineScope.coroutineContext) {
-                engine?.let {
-                    try {
+            try {
+                withContext(uiThreadCoroutineScope.coroutineContext) {
+                    engine?.let {
                         it.deferredWatchFaceImpl.await()
-                    } catch (e: Exception) {
-                        // deferredWatchFaceImpl may have completed with an exception. This will
-                        // have already been reported so we can ignore it.
                     }
                     InteractiveInstanceManager.releaseInstance(instanceId)
                 }
+            } catch (e: Exception) {
+                // deferredWatchFaceImpl may have completed with an exception. This will
+                // have already been reported so we can ignore it.
             }
         }
     }
@@ -192,10 +191,10 @@ internal class InteractiveWatchFaceImpl(
     }
 
     override fun getComplicationDetails(): List<IdAndComplicationStateWireFormat>? {
-        return WatchFaceService.awaitDeferredWatchFaceImplThenRunOnUiThreadBlocking(
+        return WatchFaceService.awaitDeferredEarlyInitDetailsThenRunOnBinderThread(
             engine,
             "InteractiveWatchFaceImpl.getComplicationDetails"
-        ) { it.complicationSlotsManager.getComplicationsState(it.renderer.screenBounds) }
+        ) { it.complicationSlotsManager.getComplicationsState(it.surfaceHolder.surfaceFrame) }
     }
 
     override fun getUserStyleSchema(): UserStyleSchemaWireFormat? {

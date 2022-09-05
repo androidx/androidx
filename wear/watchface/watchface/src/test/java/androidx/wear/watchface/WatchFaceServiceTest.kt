@@ -64,7 +64,6 @@ import androidx.wear.watchface.complications.data.PlainComplicationText
 import androidx.wear.watchface.complications.data.ShortTextComplicationData
 import androidx.wear.watchface.complications.data.TimeDifferenceComplicationText
 import androidx.wear.watchface.complications.data.TimeDifferenceStyle
-import androidx.wear.watchface.complications.data.toApiComplicationData
 import androidx.wear.watchface.complications.rendering.CanvasComplicationDrawable
 import androidx.wear.watchface.complications.rendering.ComplicationDrawable
 import androidx.wear.watchface.control.IInteractiveWatchFace
@@ -117,7 +116,6 @@ import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
 import org.junit.Assume
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.ArgumentCaptor
@@ -727,6 +725,7 @@ public class WatchFaceServiceTest {
             engineWrapper.onDestroy()
         }
 
+        assertThat(InteractiveInstanceManager.getInstances()).isEmpty()
         validateMockitoUsage()
     }
 
@@ -1484,15 +1483,19 @@ public class WatchFaceServiceTest {
             UserStyleSchema(emptyList())
         )
 
-        watchFaceImpl.onComplicationSlotDataUpdate(
-            LEFT_COMPLICATION_ID,
-            ShortTextComplicationData.Builder(
-                TimeDifferenceComplicationText.Builder(
-                    TimeDifferenceStyle.STOPWATCH,
-                    CountUpTimeReference(Instant.parse("2022-10-30T10:15:30.001Z"))
-                ).setMinimumTimeUnit(TimeUnit.MINUTES).build(),
-                androidx.wear.watchface.complications.data.ComplicationText.EMPTY
-            ).build()
+        engineWrapper.setComplicationDataList(
+            listOf(
+                IdAndComplicationDataWireFormat(
+                    LEFT_COMPLICATION_ID,
+                    ShortTextComplicationData.Builder(
+                        TimeDifferenceComplicationText.Builder(
+                            TimeDifferenceStyle.STOPWATCH,
+                            CountUpTimeReference(Instant.parse("2022-10-30T10:15:30.001Z"))
+                        ).setMinimumTimeUnit(TimeUnit.MINUTES).build(),
+                        androidx.wear.watchface.complications.data.ComplicationText.EMPTY
+                    ).build().asWireComplicationData()
+                )
+            )
         )
 
         renderer.interactiveDrawModeUpdateDelayMillis = 60000
@@ -1523,15 +1526,19 @@ public class WatchFaceServiceTest {
 
         // Sending a complication with a scheduled update alters the result of getNextChangeInstant.
         val referenceInstant = Instant.parse("2022-10-30T10:15:30.001Z")
-        watchFaceImpl.onComplicationSlotDataUpdate(
-            LEFT_COMPLICATION_ID,
-            ShortTextComplicationData.Builder(
-                TimeDifferenceComplicationText.Builder(
-                    TimeDifferenceStyle.STOPWATCH,
-                    CountUpTimeReference(referenceInstant)
-                ).setMinimumTimeUnit(TimeUnit.HOURS).build(),
-                androidx.wear.watchface.complications.data.ComplicationText.EMPTY
-            ).build()
+        engineWrapper.setComplicationDataList(
+            listOf(
+                IdAndComplicationDataWireFormat(
+                    LEFT_COMPLICATION_ID,
+                    ShortTextComplicationData.Builder(
+                        TimeDifferenceComplicationText.Builder(
+                            TimeDifferenceStyle.STOPWATCH,
+                            CountUpTimeReference(referenceInstant)
+                        ).setMinimumTimeUnit(TimeUnit.HOURS).build(),
+                        androidx.wear.watchface.complications.data.ComplicationText.EMPTY
+                    ).build().asWireComplicationData()
+                )
+            )
         )
 
         val nowInstant = Instant.EPOCH.plusSeconds(10)
@@ -1540,15 +1547,19 @@ public class WatchFaceServiceTest {
 
         // Sending another complication with an earlier scheduled update alters the result of
         // getNextChangeInstant again.
-        watchFaceImpl.onComplicationSlotDataUpdate(
-            RIGHT_COMPLICATION_ID,
-            ShortTextComplicationData.Builder(
-                TimeDifferenceComplicationText.Builder(
-                    TimeDifferenceStyle.STOPWATCH,
-                    CountUpTimeReference(referenceInstant)
-                ).setMinimumTimeUnit(TimeUnit.SECONDS).build(),
-                androidx.wear.watchface.complications.data.ComplicationText.EMPTY
-            ).build()
+        engineWrapper.setComplicationDataList(
+            listOf(
+                IdAndComplicationDataWireFormat(
+                    RIGHT_COMPLICATION_ID,
+                    ShortTextComplicationData.Builder(
+                        TimeDifferenceComplicationText.Builder(
+                            TimeDifferenceStyle.STOPWATCH,
+                            CountUpTimeReference(referenceInstant)
+                        ).setMinimumTimeUnit(TimeUnit.SECONDS).build(),
+                        androidx.wear.watchface.complications.data.ComplicationText.EMPTY
+                    ).build().asWireComplicationData()
+                )
+            )
         )
 
         assertThat(complicationSlotsManager.getNextChangeInstant(nowInstant))
@@ -1873,12 +1884,12 @@ public class WatchFaceServiceTest {
 
         runPostedTasksFor(0)
 
-        // setContentDescriptionLabels gets called twice in the legacy WSL flow, once initially and
-        // once in response to the complication data wallpaper commands.
+        // setContentDescriptionLabels gets called once in the legacy WSL flow in response to the
+        // complication data wallpaper commands.
         val arguments = ArgumentCaptor.forClass(Array<ContentDescriptionLabel>::class.java)
-        verify(iWatchFaceService, times(2)).setContentDescriptionLabels(arguments.capture())
+        verify(iWatchFaceService, times(1)).setContentDescriptionLabels(arguments.capture())
 
-        val argument = arguments.allValues[1]
+        val argument = arguments.allValues[0]
         assertThat(argument.size).isEqualTo(3)
         assertThat(argument[0].bounds).isEqualTo(Rect(25, 25, 75, 75)) // Clock element.
         assertThat(argument[1].bounds).isEqualTo(Rect(20, 40, 40, 60)) // Left complication.
@@ -2357,7 +2368,6 @@ public class WatchFaceServiceTest {
     }
 
     @Test
-    @Ignore // Temporarily broken. b/222673768
     public fun getComplicationDetails_early_init_with_styleOverrides() {
         val complicationsStyleSetting = ComplicationSlotsUserStyleSetting(
             UserStyleSetting.Id("complications_style_setting"),
@@ -2794,6 +2804,7 @@ public class WatchFaceServiceTest {
         assertThat(complicationCache).containsKey(INTERACTIVE_INSTANCE_ID)
 
         engineWrapper.onDestroy()
+        InteractiveInstanceManager.releaseInstance(INTERACTIVE_INSTANCE_ID)
 
         val service2 = TestWatchFaceService(
             WatchFaceType.ANALOG,
@@ -2816,6 +2827,7 @@ public class WatchFaceServiceTest {
             complicationCache = complicationCache
         )
 
+        lateinit var instance2: IInteractiveWatchFace
         InteractiveInstanceManager
             .getExistingInstanceOrSetPendingWallpaperInteractiveWatchFaceInstance(
                 InteractiveInstanceManager.PendingWallpaperInteractiveWatchFaceInstance(
@@ -2827,6 +2839,7 @@ public class WatchFaceServiceTest {
                         override fun onInteractiveWatchFaceCreated(
                             iInteractiveWatchFace: IInteractiveWatchFace
                         ) {
+                            instance2 = iInteractiveWatchFace
                         }
 
                         override fun onInteractiveWatchFaceCrashed(exception: CrashInfoParcel?) {
@@ -2865,7 +2878,7 @@ public class WatchFaceServiceTest {
             assertThat(rightComplicationData.tapActionLostDueToSerialization).isFalse()
         }
 
-        engineWrapper2.onDestroy()
+        instance2.release()
     }
 
     @Test
@@ -2910,7 +2923,7 @@ public class WatchFaceServiceTest {
         assertThat(complicationCache.size).isEqualTo(1)
         assertThat(complicationCache).containsKey(INTERACTIVE_INSTANCE_ID)
 
-        engineWrapper.onDestroy()
+        interactiveWatchFaceInstance.release()
 
         val service2 = TestWatchFaceService(
             WatchFaceType.ANALOG,
@@ -2933,6 +2946,7 @@ public class WatchFaceServiceTest {
             complicationCache = complicationCache
         )
 
+        lateinit var instance2: IInteractiveWatchFace
         InteractiveInstanceManager
             .getExistingInstanceOrSetPendingWallpaperInteractiveWatchFaceInstance(
                 InteractiveInstanceManager.PendingWallpaperInteractiveWatchFaceInstance(
@@ -2944,6 +2958,7 @@ public class WatchFaceServiceTest {
                         override fun onInteractiveWatchFaceCreated(
                             iInteractiveWatchFace: IInteractiveWatchFace
                         ) {
+                            instance2 = iInteractiveWatchFace
                         }
 
                         override fun onInteractiveWatchFaceCrashed(exception: CrashInfoParcel?) {
@@ -2990,7 +3005,7 @@ public class WatchFaceServiceTest {
                 .isEqualTo("B")
         }
 
-        engineWrapper2.onDestroy()
+        instance2.release()
     }
 
     @Test
@@ -3555,14 +3570,16 @@ public class WatchFaceServiceTest {
         engineWrapper = testWatchFaceService.onCreateEngine() as WatchFaceService.EngineWrapper
         engineWrapper.onSurfaceChanged(surfaceHolder, 0, 100, 100)
 
+        // This increments refcount to 2
         val instance = InteractiveInstanceManager.getAndRetainInstance(instanceId)
         assertThat(instance).isNotNull()
         watchFaceImpl = engineWrapper.getWatchFaceImplOrNull()!!
         val userStyle = watchFaceImpl.currentUserStyleRepository.userStyle.value
         assertThat(userStyle[colorStyleSetting]).isEqualTo(blueStyleOption)
         assertThat(userStyle[watchHandStyleSetting]).isEqualTo(gothicStyleOption)
+        instance!!.release()
 
-        InteractiveInstanceManager.deleteInstance(instanceId)
+        InteractiveInstanceManager.releaseInstance(instanceId)
     }
 
     @Test
@@ -4030,6 +4047,7 @@ public class WatchFaceServiceTest {
         ).isEqualTo("RIGHT!")
         assertThat(engineWrapper.contentDescriptionLabels[2].tapAction)
             .isEqualTo(rightPendingIntent)
+        interactiveInstance.release()
     }
 
     @Test
@@ -4421,6 +4439,7 @@ public class WatchFaceServiceTest {
         )
 
         headlessEngineWrapper.onDestroy()
+        interactiveWatchFaceInstance.release()
         engineWrapper.onDestroy()
 
         assertThat(eventLog).containsExactly(
@@ -4550,6 +4569,7 @@ public class WatchFaceServiceTest {
         )
 
         headlessEngineWrapper.onDestroy()
+        interactiveWatchFaceInstance.release()
         engineWrapper.onDestroy()
 
         assertThat(eventLog).containsExactly(
@@ -4640,6 +4660,8 @@ public class WatchFaceServiceTest {
 
         engineWrapper.onDestroy()
         assertThat(onDestroyCalled).isTrue()
+
+        InteractiveInstanceManager.releaseInstance("TestID")
     }
 
     @Test
@@ -4769,6 +4791,7 @@ public class WatchFaceServiceTest {
         engineWrapper.onVisibilityChanged(true)
         assertThat(mainThreadPriorityDelegate.priority).isEqualTo(Priority.Interactive)
 
+        interactiveWatchFaceInstance.release()
         engineWrapper.onDestroy()
         assertThat(mainThreadPriorityDelegate.priority).isEqualTo(Priority.Normal)
     }
@@ -4920,7 +4943,9 @@ public class WatchFaceServiceTest {
             UserStyleSchema(emptyList())
         )
 
-        watchFaceImpl.onComplicationSlotDataUpdate(LEFT_COMPLICATION_ID, a.toApiComplicationData())
+        engineWrapper.setComplicationDataList(
+            listOf(IdAndComplicationDataWireFormat(LEFT_COMPLICATION_ID, a))
+        )
 
         complicationSlotsManager.selectComplicationDataForInstant(Instant.ofEpochSecond(999))
         assertThat(getLeftShortTextComplicationDataText()).isEqualTo("A")
@@ -4972,7 +4997,9 @@ public class WatchFaceServiceTest {
             UserStyleSchema(emptyList())
         )
 
-        watchFaceImpl.onComplicationSlotDataUpdate(LEFT_COMPLICATION_ID, a.toApiComplicationData())
+        engineWrapper.setComplicationDataList(
+            listOf(IdAndComplicationDataWireFormat(LEFT_COMPLICATION_ID, a))
+        )
 
         complicationSlotsManager.selectComplicationDataForInstant(Instant.ofEpochSecond(999))
         assertThat(getLeftShortTextComplicationDataText()).isEqualTo("A")
@@ -5031,9 +5058,10 @@ public class WatchFaceServiceTest {
             UserStyleSchema(emptyList())
         )
 
-        watchFaceImpl.onComplicationSlotDataUpdate(
-            LEFT_COMPLICATION_ID,
-            wireLongTextComplication.toApiComplicationData()
+        engineWrapper.setComplicationDataList(
+            listOf(
+                IdAndComplicationDataWireFormat(LEFT_COMPLICATION_ID, wireLongTextComplication)
+            )
         )
 
         complicationSlotsManager.selectComplicationDataForInstant(Instant.ofEpochSecond(0))
@@ -5556,7 +5584,10 @@ public class WatchFaceServiceTest {
 
         val NEW_ID = SYSTEM_SUPPORTS_CONSISTENT_IDS_PREFIX + "New"
         runBlocking {
-            engineWrapper.updateInstance(NEW_ID)
+            interactiveWatchFaceInstance.updateWatchfaceInstance(
+                NEW_ID,
+                UserStyleWireFormat(emptyMap())
+            )
         }
 
         assertThat(engineWrapper.interactiveInstanceId).isEqualTo(NEW_ID)
@@ -5805,6 +5836,7 @@ public class WatchFaceServiceTest {
             SYSTEM_SUPPORTS_CONSISTENT_IDS_PREFIX + "Interactive2"
         )
 
+        interactiveWatchFaceInstance.release()
         engineWrapper.onDestroy()
     }
 
