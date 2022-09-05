@@ -2862,7 +2862,7 @@ class AppCompatDelegateImpl extends AppCompatDelegate
             }
         }
 
-        if (handled && newLocales != null) {
+        if (newLocales != null) {
             // LocaleListCompat's default locales are updated here using the configuration
             // locales to keep default locales in sync with application locales and also to cover
             // the case where framework re-adjusts input locales by bringing forward the most
