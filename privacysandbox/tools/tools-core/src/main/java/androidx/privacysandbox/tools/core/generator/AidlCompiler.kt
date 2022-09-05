@@ -31,6 +31,7 @@ class AidlCompiler(
                 aidlCompilerPath.toString(),
                 "--structured",
                 "--lang=java",
+                "--include=$workingDir",
                 "--out=$workingDir",
                 *sources.map(Path::toString).toTypedArray()
             )

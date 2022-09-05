@@ -47,20 +47,57 @@ class AidlGeneratorTest {
                             name = "doStuff",
                             parameters = listOf(
                                 Parameter(
-                                    name = "x",
+                                    name = "a",
+                                    type = Type(
+                                        name = "kotlin.Boolean",
+                                    )
+                                ),
+                                Parameter(
+                                    name = "b",
                                     type = Type(
                                         name = "kotlin.Int",
                                     )
                                 ),
                                 Parameter(
-                                    name = "y",
+                                    name = "c",
                                     type = Type(
-                                        name = "kotlin.Int",
+                                        name = "kotlin.Long",
+                                    )
+                                ),
+                                Parameter(
+                                    name = "d",
+                                    type = Type(
+                                        name = "kotlin.Float",
+                                    )
+                                ),
+                                Parameter(
+                                    name = "e",
+                                    type = Type(
+                                        name = "kotlin.Double",
+                                    )
+                                ),
+                                Parameter(
+                                    name = "f",
+                                    type = Type(
+                                        name = "kotlin.Char",
+                                    )
+                                ),
+                                Parameter(
+                                    name = "g",
+                                    type = Type(
+                                        name = "kotlin.Short",
                                     )
                                 )
                             ),
                             returnType = Type(
                                 name = "kotlin.String",
+                            )
+                        ),
+                        Method(
+                            name = "doMoreStuff",
+                            parameters = listOf(),
+                            returnType = Type(
+                                name = "kotlin.Unit",
                             )
                         )
                     )
@@ -76,25 +113,60 @@ class AidlGeneratorTest {
 
         // Check expected java sources were generated.
         assertThat(javaGeneratedSources.map { it.packageName to it.interfaceName })
-            .containsExactly("com.mysdk" to "IMySdk")
+            .containsExactly(
+                "com.mysdk" to "IMySdk",
+                "com.mysdk" to "IStringTransactionCallback",
+                "com.mysdk" to "IUnitTransactionCallback",
+                "com.mysdk" to "ICancellationSignal",
+            )
 
         // Check the contents of the AIDL generated files.
-        val aidlGeneratedFiles = tmpDir.toFile().walk().filter { it.extension == "aidl" }.toList()
-        assertThat(aidlGeneratedFiles).hasSize(1)
-        assertThat(aidlGeneratedFiles.first().readText()).isEqualTo(
-            """
+        val aidlGeneratedFiles = tmpDir.toFile().walk().filter { it.extension == "aidl" }
+            .map { it.name to it.readText() }.toList()
+        assertThat(aidlGeneratedFiles).containsExactly(
+            "IMySdk.aidl" to """
                 package com.mysdk;
+                import com.mysdk.IStringTransactionCallback;
+                import com.mysdk.IUnitTransactionCallback;
                 oneway interface IMySdk {
-                    void doStuff(int x, int y);
+                    void doStuff(boolean a, int b, long c, float d, double e, char f, int g, IStringTransactionCallback transactionCallback);
+                    void doMoreStuff(IUnitTransactionCallback transactionCallback);
                 }
-            """.trimIndent()
+            """.trimIndent(),
+            "ICancellationSignal.aidl" to """
+                package com.mysdk;
+                oneway interface ICancellationSignal {
+                    void cancel();
+                }
+            """.trimIndent(),
+            "IStringTransactionCallback.aidl" to """
+                package com.mysdk;
+                import com.mysdk.ICancellationSignal;
+                oneway interface IStringTransactionCallback {
+                    void onCancellable(ICancellationSignal cancellationSignal);
+                    void onSuccess(String result);
+                    void onFailure(int errorCode, String errorMessage);
+                }
+            """.trimIndent(),
+            "IUnitTransactionCallback.aidl" to """
+                package com.mysdk;
+                import com.mysdk.ICancellationSignal;
+                oneway interface IUnitTransactionCallback {
+                    void onCancellable(ICancellationSignal cancellationSignal);
+                    void onSuccess();
+                    void onFailure(int errorCode, String errorMessage);
+                }
+            """.trimIndent(),
         )
 
         // Check that the Java generated sources compile.
         ensureCompiles(
-            listOf(
-                Source.java("com/mysdk/IMySdk", javaGeneratedSources.first().file.readText())
-            )
+            javaGeneratedSources.map {
+                Source.java(
+                    "${it.packageName.replace('.', '/')}/${it.interfaceName}",
+                    it.file.readText()
+                )
+            }.toList()
         )
     }
 
