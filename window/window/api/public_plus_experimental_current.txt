@@ -80,6 +80,64 @@ package androidx.window.embedding {
   @androidx.window.core.ExperimentalWindowApi public abstract class EmbeddingRule {
   }
 
+  @androidx.window.core.ExperimentalWindowApi public final class SplitAttributes {
+    method public androidx.window.embedding.SplitAttributes.LayoutDirection getLayoutDirection();
+    method public androidx.window.embedding.SplitAttributes.SplitType getSplitType();
+    property public final androidx.window.embedding.SplitAttributes.LayoutDirection layoutDirection;
+    property public final androidx.window.embedding.SplitAttributes.SplitType splitType;
+    field public static final androidx.window.embedding.SplitAttributes.Companion Companion;
+  }
+
+  public static final class SplitAttributes.Builder {
+    ctor public SplitAttributes.Builder();
+    method public androidx.window.embedding.SplitAttributes build();
+    method public androidx.window.embedding.SplitAttributes.Builder setLayoutDirection(androidx.window.embedding.SplitAttributes.LayoutDirection layoutDirection);
+    method public androidx.window.embedding.SplitAttributes.Builder setSplitType(androidx.window.embedding.SplitAttributes.SplitType type);
+  }
+
+  public static final class SplitAttributes.Companion {
+  }
+
+  public static final class SplitAttributes.LayoutDirection {
+    field public static final androidx.window.embedding.SplitAttributes.LayoutDirection BOTTOM_TO_TOP;
+    field public static final androidx.window.embedding.SplitAttributes.LayoutDirection.Companion Companion;
+    field public static final androidx.window.embedding.SplitAttributes.LayoutDirection LEFT_TO_RIGHT;
+    field public static final androidx.window.embedding.SplitAttributes.LayoutDirection LOCALE;
+    field public static final androidx.window.embedding.SplitAttributes.LayoutDirection RIGHT_TO_LEFT;
+    field public static final androidx.window.embedding.SplitAttributes.LayoutDirection TOP_TO_BOTTOM;
+  }
+
+  public static final class SplitAttributes.LayoutDirection.Companion {
+  }
+
+  public static class SplitAttributes.SplitType {
+    method public static final androidx.window.embedding.SplitAttributes.SplitType.ExpandContainersSplitType expandContainers();
+    method public static final androidx.window.embedding.SplitAttributes.SplitType.RatioSplitType ratio(@FloatRange(from=0.0, to=1.0, fromInclusive=false, toInclusive=false) float ratio);
+    method public static final androidx.window.embedding.SplitAttributes.SplitType.HingeSplitType splitByHinge(optional androidx.window.embedding.SplitAttributes.SplitType fallbackSplitType);
+    method public static final androidx.window.embedding.SplitAttributes.SplitType.RatioSplitType splitEqually();
+    field public static final androidx.window.embedding.SplitAttributes.SplitType.Companion Companion;
+  }
+
+  public static final class SplitAttributes.SplitType.Companion {
+    method public androidx.window.embedding.SplitAttributes.SplitType.ExpandContainersSplitType expandContainers();
+    method public androidx.window.embedding.SplitAttributes.SplitType.RatioSplitType ratio(@FloatRange(from=0.0, to=1.0, fromInclusive=false, toInclusive=false) float ratio);
+    method public androidx.window.embedding.SplitAttributes.SplitType.HingeSplitType splitByHinge(optional androidx.window.embedding.SplitAttributes.SplitType fallbackSplitType);
+    method public androidx.window.embedding.SplitAttributes.SplitType.RatioSplitType splitEqually();
+  }
+
+  public static final class SplitAttributes.SplitType.ExpandContainersSplitType extends androidx.window.embedding.SplitAttributes.SplitType {
+  }
+
+  public static final class SplitAttributes.SplitType.HingeSplitType extends androidx.window.embedding.SplitAttributes.SplitType {
+    method public androidx.window.embedding.SplitAttributes.SplitType getFallbackSplitType();
+    property public final androidx.window.embedding.SplitAttributes.SplitType fallbackSplitType;
+  }
+
+  public static final class SplitAttributes.SplitType.RatioSplitType extends androidx.window.embedding.SplitAttributes.SplitType {
+    method public float getRatio();
+    property public final float ratio;
+  }
+
   @androidx.window.core.ExperimentalWindowApi public final class SplitController {
     method public void addSplitListener(android.app.Activity activity, java.util.concurrent.Executor executor, androidx.core.util.Consumer<java.util.List<androidx.window.embedding.SplitInfo>> consumer);
     method public void clearRegisteredRules();
