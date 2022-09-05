@@ -112,6 +112,8 @@ class BluetoothAdapterTest {
         val fwkBluetoothAdapter =
             BluetoothManager(ApplicationProvider.getApplicationContext()).getAdapter()
         val bluetoothAdapter = BluetoothAdapter(fwkBluetoothAdapter)
+        assertTrue("Bluetooth is not enabled", bluetoothAdapter.isEnabled)
+
         // Check correct name
         val testName = "Bluetooth:Test-name_?~"
         val originalName = bluetoothAdapter.name
@@ -127,12 +129,9 @@ class BluetoothAdapterTest {
 
     private fun waitForAdapterNameChange(): Boolean {
         try {
-            Log.e("BluetoothAdapterTest", "trying")
             adapterNameChangedlock.lock()
             // Wait for the Adapter name to be changed
-            Log.e("BluetoothAdapterTest", "waiting")
             conditionAdapterNameChanged.await(5000, TimeUnit.MILLISECONDS)
-            Log.e("BluetoothAdapterTest", "finish waiting")
         } catch (e: InterruptedException) {
             Log.e("BluetoothAdapterTest", "waitForAdapterNameChange: interrrupted")
         } finally {
