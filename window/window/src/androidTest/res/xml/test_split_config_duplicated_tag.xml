@@ -16,15 +16,15 @@
   -->
 <resources
     xmlns:window="http://schemas.android.com/apk/res-auto">
-    <SplitPlaceholderRule
-        window:tag="test"
-        window:placeholderActivityName="C"
-        window:splitRatio="0.3"
-        window:splitMinWidth="0dp"
-        window:splitMinHeight="600dp"
-        window:splitMinSmallestWidth="0dp"
-        window:splitLayoutDirection="bottomToTop">
+    <ActivityRule
+        window:tag="test">
         <ActivityFilter
-            window:activityName="androidx.window.sample.embedding.SplitActivityList"/>
-    </SplitPlaceholderRule>
+            window:activityName="A"/>
+    </ActivityRule>
+    <SplitPairRule
+        window:tag="test">
+        <SplitPairFilter
+            window:primaryActivityName="A"
+            window:secondaryActivityName="B"/>
+    </SplitPairRule>
 </resources>

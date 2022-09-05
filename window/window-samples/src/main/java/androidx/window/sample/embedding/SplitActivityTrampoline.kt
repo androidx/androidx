@@ -45,7 +45,9 @@ class SplitActivityTrampoline : SplitActivityBase() {
             activityFilters,
             placeholderIntent,
             minWidth = minSplitWidth(),
-            minSmallestWidth = 0)
+            minHeight = 0,
+            minSmallestWidth = 0,
+        )
             .setFinishPrimaryWithPlaceholder(FINISH_ADJACENT)
             .setDefaultSplitAttributes(defaultSplitAttributes)
             .build()

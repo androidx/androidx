@@ -24,11 +24,13 @@ import android.view.WindowMetrics;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.window.extensions.WindowExtensions;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.Objects;
 import java.util.function.Predicate;
 
 /**
@@ -64,8 +66,9 @@ public class SplitPlaceholderRule extends SplitRule {
             @SplitPlaceholderFinishBehavior int finishPrimaryWithPlaceholder,
             @NonNull Predicate<Activity> activityPredicate,
             @NonNull Predicate<Intent> intentPredicate,
-            @NonNull Predicate<WindowMetrics> parentWindowMetricsPredicate) {
-        super(parentWindowMetricsPredicate, defaultSplitAttributes);
+            @NonNull Predicate<WindowMetrics> parentWindowMetricsPredicate,
+            @Nullable String tag) {
+        super(parentWindowMetricsPredicate, defaultSplitAttributes, tag);
         mIsSticky = isSticky;
         mFinishPrimaryWithPlaceholder = finishPrimaryWithPlaceholder;
         mActivityPredicate = activityPredicate;
@@ -152,6 +155,8 @@ public class SplitPlaceholderRule extends SplitRule {
         private boolean mIsSticky = false;
         @SplitPlaceholderFinishBehavior
         private int mFinishPrimaryWithPlaceholder = FINISH_ALWAYS;
+        @Nullable
+        private String mTag;
 
         public Builder(@NonNull Intent placeholderIntent,
                 @NonNull Predicate<Activity> activityPredicate,
@@ -235,6 +240,16 @@ public class SplitPlaceholderRule extends SplitRule {
             return this;
         }
 
+        /**
+         * @see SplitPlaceholderRule#getTag()
+         * @since {@link WindowExtensions#VENDOR_API_LEVEL_2}
+         */
+        @NonNull
+        public Builder setTag(@NonNull String tag) {
+            mTag = Objects.requireNonNull(tag);
+            return this;
+        }
+
         /** Builds a new instance of {@link SplitPlaceholderRule}. */
         @NonNull
         public SplitPlaceholderRule build() {
@@ -248,7 +263,7 @@ public class SplitPlaceholderRule extends SplitRule {
                             .build();
             return new SplitPlaceholderRule(mPlaceholderIntent, mDefaultSplitAttributes, mIsSticky,
                     mFinishPrimaryWithPlaceholder, mActivityPredicate,
-                    mIntentPredicate, mParentWindowMetricsPredicate);
+                    mIntentPredicate, mParentWindowMetricsPredicate, mTag);
         }
     }
 
@@ -282,6 +297,7 @@ public class SplitPlaceholderRule extends SplitRule {
     @Override
     public String toString() {
         return "SplitPlaceholderRule{"
+                + "mTag=" + getTag()
                 + "mDefaultSplitAttributes=" + getDefaultSplitAttributes()
                 + ", mActivityPredicate=" + mActivityPredicate
                 + ", mIsSticky=" + mIsSticky

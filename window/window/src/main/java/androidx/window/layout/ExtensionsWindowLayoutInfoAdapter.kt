@@ -28,7 +28,10 @@ import androidx.window.extensions.layout.WindowLayoutInfo as OEMWindowLayoutInfo
 
 internal object ExtensionsWindowLayoutInfoAdapter {
 
-    internal fun translate(activity: Activity, oemFeature: OEMFoldingFeature): FoldingFeature? {
+    internal fun translate(
+        windowMetrics: WindowMetrics,
+        oemFeature: OEMFoldingFeature,
+    ): FoldingFeature? {
         val type = when (oemFeature.type) {
             OEMFoldingFeature.TYPE_FOLD -> FOLD
             OEMFoldingFeature.TYPE_HINGE -> HINGE
@@ -40,17 +43,28 @@ internal object ExtensionsWindowLayoutInfoAdapter {
             else -> return null
         }
         val bounds = Bounds(oemFeature.bounds)
-        return if (validBounds(activity, bounds)) {
+        return if (validBounds(windowMetrics, bounds)) {
             HardwareFoldingFeature(Bounds(oemFeature.bounds), type, state)
         } else {
             null
         }
     }
 
-    internal fun translate(activity: Activity, info: OEMWindowLayoutInfo): WindowLayoutInfo {
+    internal fun translate(
+        activity: Activity,
+        info: OEMWindowLayoutInfo,
+    ): WindowLayoutInfo {
+        val windowMetrics = computeCurrentWindowMetrics(activity)
+        return translate(windowMetrics, info)
+    }
+
+    internal fun translate(
+        windowMetrics: WindowMetrics,
+        info: OEMWindowLayoutInfo,
+    ): WindowLayoutInfo {
         val features = info.displayFeatures.mapNotNull { feature ->
             when (feature) {
-                is OEMFoldingFeature -> translate(activity, feature)
+                is OEMFoldingFeature -> translate(windowMetrics, feature)
                 else -> null
             }
         }
@@ -58,19 +72,18 @@ internal object ExtensionsWindowLayoutInfoAdapter {
     }
 
     /**
-     * Validate the bounds for a [FoldingFeature] within a given [Activity]. Check the following
-     * <ul>
-     *     <li>Bounds are not 0</li>
-     *     <li>Bounds are either full width or full height</li>
-     *     <li>Bounds do not take up the entire window</li>
-     * </ul>
+     * Checks the bounds for a [FoldingFeature] within a given [WindowMetrics]. Validates the
+     * following:
+     * - [Bounds] are not `0`
+     * - [Bounds] are either full width or full height
+     * - [Bounds] do not take up the entire [windowMetrics]
      *
-     * @param activity housing the [FoldingFeature].
+     * @param windowMetrics housing the [FoldingFeature].
      * @param bounds the bounds of a [FoldingFeature]
-     * @return true if the bounds are valid for the [Activity], false otherwise.
+     * @return true if the bounds are valid for the [WindowMetrics], false otherwise.
      */
-    private fun validBounds(activity: Activity, bounds: Bounds): Boolean {
-        val windowBounds = computeCurrentWindowMetrics(activity).bounds
+    private fun validBounds(windowMetrics: WindowMetrics, bounds: Bounds): Boolean {
+        val windowBounds = windowMetrics.bounds
         if (bounds.isZero) {
             return false
         }

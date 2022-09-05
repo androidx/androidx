@@ -274,6 +274,7 @@ public class SplitActivityBase extends AppCompatActivity
         SplitPairRule rule = new SplitPairRule.Builder(
                 pairFilters,
                 minSplitWidth,
+                0 /* minHeight */,
                 0 /* minSmallestWidth */
         )
                 .setFinishPrimaryWithSecondary(SplitRule.FINISH_NEVER)
@@ -294,6 +295,7 @@ public class SplitActivityBase extends AppCompatActivity
                 activityFilters,
                 intent,
                 minSplitWidth,
+                0 /* minHeight */,
                 0 /* minSmallestWidth */
         )
                 .setSticky(mViewBinding.useStickyPlaceholderCheckBox.isChecked())
@@ -310,6 +312,7 @@ public class SplitActivityBase extends AppCompatActivity
         rule = new SplitPairRule.Builder(
                 pairFilters,
                 minSplitWidth,
+                0 /* minHeight */,
                 0 /* minSmallestWidth */
         )
                 .setFinishPrimaryWithSecondary(
@@ -333,6 +336,7 @@ public class SplitActivityBase extends AppCompatActivity
         rule = new SplitPairRule.Builder(
                 pairFilters,
                 minSplitWidth,
+                0 /* minHeight */,
                 0 /* minSmallestWidth */
         )
                 .setFinishPrimaryWithSecondary(SplitRule.FINISH_NEVER)

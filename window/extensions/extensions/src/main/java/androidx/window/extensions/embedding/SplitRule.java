@@ -22,6 +22,7 @@ import android.view.WindowMetrics;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.window.extensions.WindowExtensions;
 import androidx.window.extensions.embedding.SplitAttributes.SplitType;
@@ -85,7 +86,8 @@ public abstract class SplitRule extends EmbeddingRule {
     @interface SplitFinishBehavior {}
 
     SplitRule(@NonNull Predicate<WindowMetrics> parentWindowMetricsPredicate,
-            @NonNull SplitAttributes defaultSplitAttributes) {
+            @NonNull SplitAttributes defaultSplitAttributes, @Nullable String tag) {
+        super(tag);
         mParentWindowMetricsPredicate = parentWindowMetricsPredicate;
         mDefaultSplitAttributes = defaultSplitAttributes;
     }
@@ -140,20 +142,24 @@ public abstract class SplitRule extends EmbeddingRule {
         if (this == o) return true;
         if (!(o instanceof SplitRule)) return false;
         SplitRule that = (SplitRule) o;
-        return mDefaultSplitAttributes.equals(that.mDefaultSplitAttributes)
+        return super.equals(that)
+                && mDefaultSplitAttributes.equals(that.mDefaultSplitAttributes)
                 && mParentWindowMetricsPredicate.equals(that.mParentWindowMetricsPredicate);
     }
 
     @Override
     public int hashCode() {
-        return mParentWindowMetricsPredicate.hashCode() + 31 * Objects.hashCode(
-                mDefaultSplitAttributes);
+        int result = super.hashCode();
+        result = 31 * result + mParentWindowMetricsPredicate.hashCode();
+        result = 31 * result + Objects.hashCode(mDefaultSplitAttributes);
+        return result;
     }
 
     @NonNull
     @Override
     public String toString() {
         return "SplitRule{"
+                + "mTag=" + getTag()
                 + "mDefaultSplitAttributes=" + mDefaultSplitAttributes
                 + '}';
     }

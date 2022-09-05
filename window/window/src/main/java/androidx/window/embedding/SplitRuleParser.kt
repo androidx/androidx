@@ -35,6 +35,8 @@ import org.xmlpull.v1.XmlPullParser
  */
 @ExperimentalWindowApi
 internal class SplitRuleParser {
+    private val splitRuleConfigs = HashSet<EmbeddingRule>()
+    private val tags = ArrayList<String>()
 
     internal fun parseSplitRules(context: Context, staticRuleResourceId: Int): Set<EmbeddingRule>? {
         return parseSplitXml(context, staticRuleResourceId)
@@ -49,8 +51,6 @@ internal class SplitRuleParser {
             // Can't find the XML defining the split config
             return null
         }
-
-        val splitRuleConfigs = HashSet<EmbeddingRule>()
 
         val depth = parser.depth
         var type = parser.next()
@@ -68,14 +68,14 @@ internal class SplitRuleParser {
                 "SplitPairRule" -> {
                     val splitConfig = parseSplitPairRule(context, parser)
                     lastSplitPairConfig = splitConfig
-                    splitRuleConfigs.add(lastSplitPairConfig)
+                    addRule(lastSplitPairConfig)
                     lastSplitPlaceholderConfig = null
                     lastSplitActivityConfig = null
                 }
                 "SplitPlaceholderRule" -> {
                     val placeholderConfig = parseSplitPlaceholderRule(context, parser)
                     lastSplitPlaceholderConfig = placeholderConfig
-                    splitRuleConfigs.add(lastSplitPlaceholderConfig)
+                    addRule(lastSplitPlaceholderConfig)
                     lastSplitActivityConfig = null
                     lastSplitPairConfig = null
                 }
@@ -86,13 +86,13 @@ internal class SplitRuleParser {
                         )
                     }
                     val splitFilter = parseSplitPairFilter(context, parser)
-                    splitRuleConfigs.remove(lastSplitPairConfig)
+                    removeRule(lastSplitPairConfig)
                     lastSplitPairConfig += splitFilter
-                    splitRuleConfigs.add(lastSplitPairConfig)
+                    addRule(lastSplitPairConfig)
                 }
                 "ActivityRule" -> {
                     val activityConfig = parseSplitActivityRule(context, parser)
-                    splitRuleConfigs.add(activityConfig)
+                    addRule(activityConfig)
                     lastSplitPairConfig = null
                     lastSplitPlaceholderConfig = null
                     lastSplitActivityConfig = activityConfig
@@ -105,20 +105,39 @@ internal class SplitRuleParser {
                     }
                     val activityFilter = parseActivityFilter(context, parser)
                     if (lastSplitActivityConfig != null) {
-                        splitRuleConfigs.remove(lastSplitActivityConfig)
+                        removeRule(lastSplitActivityConfig)
                         lastSplitActivityConfig += activityFilter
-                        splitRuleConfigs.add(lastSplitActivityConfig)
+                        addRule(lastSplitActivityConfig)
                     } else if (lastSplitPlaceholderConfig != null) {
-                        splitRuleConfigs.remove(lastSplitPlaceholderConfig)
+                        removeRule(lastSplitPlaceholderConfig)
                         lastSplitPlaceholderConfig += activityFilter
-                        splitRuleConfigs.add(lastSplitPlaceholderConfig)
+                        addRule(lastSplitPlaceholderConfig)
                     }
                 }
             }
             type = parser.next()
         }
 
-        return splitRuleConfigs
+        val set = HashSet<EmbeddingRule>(splitRuleConfigs)
+        splitRuleConfigs.clear() // Clear the stored configs in case parser is invoked again.
+        return set
+    }
+
+    private fun addRule(rule: EmbeddingRule) {
+        val tag = rule.tag
+        if (tag in tags) {
+            throw IllegalArgumentException("Duplicated tag: $tag for $rule. " +
+                "Each tag registered to SplitController must be unique.")
+        }
+        splitRuleConfigs.add(rule)
+        if (tag != null) {
+            tags.add(tag)
+        }
+    }
+
+    private fun removeRule(rule: EmbeddingRule) {
+        splitRuleConfigs.remove(rule)
+        tags.remove(rule.tag)
     }
 
     private fun parseSplitPairRule(
@@ -131,14 +150,19 @@ internal class SplitRuleParser {
             0,
             0
         ).let { typedArray ->
+            val tag = typedArray.getString(R.styleable.SplitPairRule_tag)
             val ratio = typedArray.getFloat(R.styleable.SplitPairRule_splitRatio, 0.5f)
             val minWidth = typedArray.getDimension(
                 R.styleable.SplitPairRule_splitMinWidth,
-                defaultMinWidth(context.resources)
+                defaultMinDimension(context.resources)
+            ).toInt()
+            val minHeight = typedArray.getDimension(
+                R.styleable.SplitPairRule_splitMinHeight,
+                defaultMinDimension(context.resources)
             ).toInt()
             val minSmallestWidth = typedArray.getDimension(
                 R.styleable.SplitPairRule_splitMinSmallestWidth,
-                defaultMinWidth(context.resources)
+                defaultMinDimension(context.resources)
             ).toInt()
             val layoutDir = typedArray.getInt(
                 R.styleable.SplitPairRule_splitLayoutDirection,
@@ -158,11 +182,13 @@ internal class SplitRuleParser {
             val defaultAttrs = SplitAttributes.buildSplitAttributesFromValue(ratio, layoutDir)
 
             SplitPairRule(
+                tag,
                 emptySet(),
                 finishPrimaryWithSecondary,
                 finishSecondaryWithPrimary,
                 clearTop,
                 minWidth,
+                minHeight,
                 minSmallestWidth,
                 defaultAttrs,
             )
@@ -197,6 +223,7 @@ internal class SplitRuleParser {
             0,
             0
         ).let { typedArray ->
+            val tag = typedArray.getString(R.styleable.SplitPlaceholderRule_tag)
             val placeholderActivityIntentName = typedArray.getString(
                 R.styleable.SplitPlaceholderRule_placeholderActivityName
             )
@@ -217,11 +244,15 @@ internal class SplitRuleParser {
             val ratio = typedArray.getFloat(R.styleable.SplitPlaceholderRule_splitRatio, 0.5f)
             val minWidth = typedArray.getDimension(
                 R.styleable.SplitPlaceholderRule_splitMinWidth,
-                defaultMinWidth(context.resources)
+                defaultMinDimension(context.resources)
+            ).toInt()
+            val minHeight = typedArray.getDimension(
+                R.styleable.SplitPlaceholderRule_splitMinHeight,
+                defaultMinDimension(context.resources)
             ).toInt()
             val minSmallestWidth = typedArray.getDimension(
                 R.styleable.SplitPlaceholderRule_splitMinSmallestWidth,
-                defaultMinWidth(context.resources)
+                defaultMinDimension(context.resources)
             ).toInt()
             val layoutDir = typedArray.getInt(
                 R.styleable.SplitPlaceholderRule_splitLayoutDirection,
@@ -237,11 +268,13 @@ internal class SplitRuleParser {
             )
 
             SplitPlaceholderRule(
+                tag,
                 emptySet(),
                 Intent().setComponent(placeholderActivityClassName),
                 stickyPlaceholder,
                 finishPrimaryWithPlaceholder,
                 minWidth,
+                minHeight,
                 minSmallestWidth,
                 defaultAttrs,
             )
@@ -281,20 +314,23 @@ internal class SplitRuleParser {
     private fun parseSplitActivityRule(
         context: Context,
         parser: XmlResourceParser
-    ): ActivityRule {
-        val alwaysExpand: Boolean
+    ): ActivityRule =
         context.theme.obtainStyledAttributes(
             parser,
             R.styleable.ActivityRule,
             0,
             0
-        ).apply {
-            alwaysExpand = getBoolean(R.styleable.ActivityRule_alwaysExpand, false)
+        ).let { typedArray ->
+            val tag = typedArray.getString(R.styleable.ActivityRule_tag)
+            val alwaysExpand = typedArray.getBoolean(R.styleable.ActivityRule_alwaysExpand, false)
+            typedArray.recycle()
+
+            val builder = ActivityRule.Builder(emptySet()).setAlwaysExpand(alwaysExpand)
+            if (tag != null) {
+                builder.setTag(tag)
+            }
+            builder.build()
         }
-        return ActivityRule.Builder(emptySet())
-            .setAlwaysExpand(alwaysExpand)
-            .build()
-    }
 
     private fun parseActivityFilter(
         context: Context,
@@ -343,7 +379,7 @@ internal class SplitRuleParser {
         return ComponentName(pkgString, clsString)
     }
 
-    private fun defaultMinWidth(resources: Resources): Float {
+    private fun defaultMinDimension(resources: Resources): Float {
         // Get the screen's density scale
         val scale: Float = resources.displayMetrics.density
         // Convert the dps to pixels, based on density scale

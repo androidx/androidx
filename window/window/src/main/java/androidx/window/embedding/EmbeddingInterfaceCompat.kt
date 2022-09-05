@@ -36,4 +36,10 @@ internal interface EmbeddingInterfaceCompat {
     }
 
     fun isActivityEmbedded(activity: Activity): Boolean
+
+    fun setSplitAttributesCalculator(calculator: SplitAttributesCalculator)
+
+    fun clearSplitAttributesCalculator()
+
+    fun isSplitAttributesCalculatorSupported(): Boolean
 }

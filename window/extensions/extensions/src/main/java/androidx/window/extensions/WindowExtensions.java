@@ -65,7 +65,6 @@ public interface WindowExtensions {
     @RestrictTo(LIBRARY_GROUP)
     int VENDOR_API_LEVEL_1 = 1;
     // TODO(b/241323716) Removed after we have annotation to check API level
-    // TODO(b/240912390): refer to the real API in later CLs.
     /**
      * A vendor API level constant. It helps to unify the format of documenting {@code @since}
      * block.
@@ -74,7 +73,7 @@ public interface WindowExtensions {
      * <ul>
      *     <li>{@link SplitPlaceholderRule.Builder#setFinishPrimaryWithPlaceholder(int)}</li>
      *     <li>{@link androidx.window.extensions.embedding.SplitAttributes} APIs</li>
-     *     <li>{@code androidx.window.extensions.embedding.SplitAttributesCalculator} APIs</li>
+     *     <li>{@link androidx.window.extensions.embedding.SplitAttributesCalculator} APIs</li>
      * </ul>
      * </p>
      * @hide

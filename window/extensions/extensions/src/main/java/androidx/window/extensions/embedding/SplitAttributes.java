@@ -27,7 +27,6 @@ import androidx.window.extensions.layout.FoldingFeature;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
-// TODO(b/240912390): refer to the real API in later CLs.
 /**
  * Attributes to describe how the task bounds are split, which includes information on how the task
  * bounds are split between the activity containers:
@@ -41,8 +40,9 @@ import java.lang.annotation.RetentionPolicy;
  *   <li> Set the default {@code SplitAttributes} via
  *     {@link SplitPairRule.Builder#setDefaultSplitAttributes(SplitAttributes)} and
  *     {@link SplitPlaceholderRule.Builder#setDefaultSplitAttributes(SplitAttributes)} </li>
- *   <li>Used in `SplitAttributesCalculator.computeSplitAttributesForState` to customize the
- *     {@code SplitAttributes} for a given device and window state. </li>
+ *   <li> Used in {@link SplitAttributesCalculator#computeSplitAttributesForParams(
+ *     SplitAttributesCalculator.SplitAttributesCalculatorParams)} to customize the
+ *     {@link SplitAttributes} for a given device and window state. </li>
  * </ul>
  *
  * @see SplitAttributes#getSplitType()

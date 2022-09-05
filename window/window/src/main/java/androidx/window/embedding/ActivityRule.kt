@@ -44,8 +44,14 @@ class ActivityRule : EmbeddingRule {
     )
     constructor(
         filters: Set<ActivityFilter>,
-        alwaysExpand: Boolean = false
-    ) {
+        alwaysExpand: Boolean = false,
+    ) : this(tag = null, filters, alwaysExpand)
+
+    internal constructor(
+        tag: String? = null,
+        filters: Set<ActivityFilter>,
+        alwaysExpand: Boolean = false,
+    ) : super(tag) {
         this.filters = filters.toSet()
         this.alwaysExpand = alwaysExpand
     }
@@ -54,8 +60,9 @@ class ActivityRule : EmbeddingRule {
      * @param filters See [ActivityRule.filters].
      */
     class Builder(
-        private val filters: Set<ActivityFilter>
+        private val filters: Set<ActivityFilter>,
     ) {
+        private var tag: String? = null
         private var alwaysExpand: Boolean = false
 
         /**
@@ -65,8 +72,11 @@ class ActivityRule : EmbeddingRule {
         fun setAlwaysExpand(alwaysExpand: Boolean): Builder =
             apply { this.alwaysExpand = alwaysExpand }
 
-        @Suppress("DEPRECATION")
-        fun build() = ActivityRule(filters, alwaysExpand)
+        /** @see ActivityRule.tag */
+        fun setTag(tag: String): Builder =
+            apply { this.tag = tag }
+
+        fun build() = ActivityRule(tag, filters, alwaysExpand)
     }
 
     /**
@@ -77,17 +87,14 @@ class ActivityRule : EmbeddingRule {
         val newSet = mutableSetOf<ActivityFilter>()
         newSet.addAll(filters)
         newSet.add(filter)
-        @Suppress("DEPRECATION")
-        return ActivityRule(
-            newSet.toSet(),
-            alwaysExpand
-        )
+        return ActivityRule(tag, newSet.toSet(), alwaysExpand)
     }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is ActivityRule) return false
 
+        if (!super.equals(other)) return false
         if (filters != other.filters) return false
         if (alwaysExpand != other.alwaysExpand) return false
 
@@ -95,8 +102,16 @@ class ActivityRule : EmbeddingRule {
     }
 
     override fun hashCode(): Int {
-        var result = filters.hashCode()
+        var result = super.hashCode()
+        result = 31 * result + filters.hashCode()
         result = 31 * result + alwaysExpand.hashCode()
         return result
+    }
+
+    override fun toString(): String {
+        return "ActivityRule:{" +
+            "tag={$tag}," +
+            "filters={$filters}, " +
+            "alwaysExpand={$alwaysExpand}}"
     }
 }

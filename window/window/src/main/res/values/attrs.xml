@@ -25,6 +25,8 @@
     <attr name="splitRatio" format="float" />
     <!-- The smallest value of width of the parent window when the split should be used. -->
     <attr name="splitMinWidth" format="dimension" />
+    <!-- The smallest value of height of the parent window when the split should be used. -->
+    <attr name="splitMinHeight" format="dimension" />
     <!-- The smallest value of the smallest-width (sw) of the parent window in any rotation when
      the split should be used. -->
     <attr name="splitMinSmallestWidth" format="dimension" />
@@ -57,6 +59,12 @@
         <enum name="always" value="1" />
         <enum name="adjacent" value="2" />
     </attr>
+    <!-- An optional but unique string to identify a SplitPairRule, SplitPlaceholderRule or
+    ActivityRule. The suggested usage is to set the tag to be able to differentiate between
+    different rules in the callbacks. For example, it can be used to compute the right
+    SplitAttributes for the right split rule in
+    SplitAttributesCalculator#computeSplitAttributesForState.-->
+    <attr name="tag" format="string" />
 
     <!-- Split configuration rules for activity pairs. Must contain at least one SplitPairFilter.
     See androidx.window.embedding.SplitPairRule for complete documentation. -->
@@ -74,8 +82,10 @@
         <attr name="clearTop" format="boolean" />
         <attr name="splitRatio"/>
         <attr name="splitMinWidth"/>
+        <attr name="splitMinHeight"/>
         <attr name="splitMinSmallestWidth"/>
         <attr name="splitLayoutDirection"/>
+        <attr name="tag"/>
     </declare-styleable>
 
     <!-- Configuration rules for split placeholders. Must contain at least one ActivityFilter for
@@ -89,11 +99,13 @@
         <attr name="stickyPlaceholder" format="boolean" />
         <!-- When all activities are finished in the secondary container, the activity in the
          primary container that created the split should also be finished. Defaults to "always". -->
-        <attr name="finishPrimaryWithPlaceholder" />
+        <attr name="finishPrimaryWithPlaceholder"/>
         <attr name="splitRatio"/>
         <attr name="splitMinWidth"/>
+        <attr name="splitMinHeight"/>
         <attr name="splitMinSmallestWidth"/>
         <attr name="splitLayoutDirection"/>
+        <attr name="tag"/>
     </declare-styleable>
 
     <!-- Filter used to find if a pair of activities should be put in a split. -->
@@ -115,6 +127,7 @@
     <declare-styleable name="ActivityRule">
         <!-- Whether the activity should always be expanded on launch. -->
         <attr name="alwaysExpand" format="boolean" />
+        <attr name="tag"/>
     </declare-styleable>
 
     <!-- Filter for ActivityRule. -->
