@@ -141,6 +141,7 @@ dependencies {
     docs(project(":drawerlayout:drawerlayout"))
     docs(project(":dynamicanimation:dynamicanimation"))
     docs(project(":dynamicanimation:dynamicanimation-ktx"))
+    docs(project(":emoji2:emoji2-emojipicker"))
     docs(project(":emoji:emoji"))
     docs(project(":emoji:emoji-appcompat"))
     docs(project(":emoji:emoji-bundled"))
