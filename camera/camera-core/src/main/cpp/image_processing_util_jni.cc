@@ -240,30 +240,32 @@ JNIEXPORT jint Java_androidx_camera_core_ImageProcessingUtil_nativeConvertAndroi
         }
 
         // Convert yuv to rgb except the last line.
-        result = libyuv::Android420ToABGR(src_y_ptr + start_offset_y,
+        result = libyuv::Android420ToARGBMatrix(src_y_ptr + start_offset_y,
                                           src_stride_y,
-                                          src_u_ptr + start_offset_u,
-                                          src_stride_u,
                                           src_v_ptr + start_offset_v,
                                           src_stride_v,
+                                          src_u_ptr + start_offset_u,
+                                          src_stride_u,
                                           src_pixel_stride_uv,
                                           dst_ptr,
                                           dst_stride_y,
+                                          &libyuv::kYvuJPEGConstants,
                                           width,
                                           height - 1);
         if (result == 0) {
             // Convert the last row with (width - 1) pixels
             // since the last pixel's yuv data is missing.
-            result = libyuv::Android420ToABGR(
+            result = libyuv::Android420ToARGBMatrix(
                     src_y_ptr + start_offset_y + src_stride_y * (height - 1),
                     src_stride_y - 1,
-                    src_u_ptr + start_offset_u + src_stride_u * (height - 2) / 2,
-                    src_stride_u - 1,
                     src_v_ptr + start_offset_v + src_stride_v * (height - 2) / 2,
                     src_stride_v - 1,
+                    src_u_ptr + start_offset_u + src_stride_u * (height - 2) / 2,
+                    src_stride_u - 1,
                     src_pixel_stride_uv,
                     dst_ptr + dst_stride_y * (height - 1),
                     dst_stride_y,
+                    &libyuv::kYvuJPEGConstants,
                     width - 1,
                     1);
         }
@@ -285,17 +287,18 @@ JNIEXPORT jint Java_androidx_camera_core_ImageProcessingUtil_nativeConvertAndroi
             }
         }
     } else {
-        result = libyuv::Android420ToABGR(src_y_ptr + start_offset_y,
-                                          src_stride_y,
-                                          src_u_ptr + start_offset_u,
-                                          src_stride_u,
-                                          src_v_ptr + start_offset_v,
-                                          src_stride_v,
-                                          src_pixel_stride_uv,
-                                          dst_ptr,
-                                          dst_stride_y,
-                                          width,
-                                          height);
+        result = libyuv::Android420ToARGBMatrix(src_y_ptr + start_offset_y,
+                                                src_stride_y,
+                                                src_v_ptr + start_offset_v,
+                                                src_stride_v,
+                                                src_u_ptr + start_offset_u,
+                                                src_stride_u,
+                                                src_pixel_stride_uv,
+                                                dst_ptr,
+                                                dst_stride_y,
+                                                &libyuv::kYvuJPEGConstants,
+                                                width,
+                                                height);
     }
 
     // TODO(b/203141655): avoid unnecessary memory copy by merging libyuv API for rotation.
