@@ -19,7 +19,6 @@ package androidx.camera.core.imagecapture;
 import static androidx.camera.core.ImageCapture.ERROR_FILE_IO;
 
 import android.os.Build;
-import android.util.Size;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
@@ -45,9 +44,6 @@ final class ProcessingInput2Packet implements
     public Packet<ImageProxy> process(@NonNull ProcessingNode.InputPacket inputPacket)
             throws ImageCaptureException {
         ImageProxy image = inputPacket.getImageProxy();
-        int format = image.getFormat();
-        int width = image.getWidth();
-        int height = image.getHeight();
         ProcessingRequest request = inputPacket.getProcessingRequest();
 
         Exif exif;
@@ -65,8 +61,6 @@ final class ProcessingInput2Packet implements
         return Packet.of(
                 image,
                 exif,
-                format,
-                new Size(width, height),
                 request.getCropRect(),
                 request.getRotationDegrees(),
                 request.getSensorToBufferTransform());

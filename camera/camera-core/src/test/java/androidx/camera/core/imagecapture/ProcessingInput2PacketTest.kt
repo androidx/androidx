@@ -76,7 +76,7 @@ class ProcessingInput2PacketTest {
         val restoredJpeg = jpegImageToJpegByteArray(output.data)
         assertThat(getAverageDiff(jpegBytes, restoredJpeg)).isEqualTo(0)
         // Assert: the Exif is extracted correctly.
-        assertThat(output.exif.description).isEqualTo(EXIF_DESCRIPTION)
+        assertThat(output.exif!!.description).isEqualTo(EXIF_DESCRIPTION)
         // Assert: the metadata are correct.
         assertThat(output.cropRect).isEqualTo(CROP_RECT)
         assertThat(output.rotationDegrees).isEqualTo(ROTATION_DEGREES)
