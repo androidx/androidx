@@ -369,6 +369,7 @@
          <trusted-key id="bcc135fc7ed8214f823d73e97fe9900f412d622e" group="com.google.flatbuffers"/>
          <trusted-key id="bdb5fa4fe719d787fb3d3197f6d4a1d411e9d1ae" group="com.google.guava"/>
          <trusted-key id="be096e29edb8d141" group="net.sf.proguard"/>
+         <trusted-key id="be685132afd2740d9095f9040cc0b712fee75827" group="org.assertj"/>
          <trusted-key id="beabcfbee059e4e5" group="com.github.siom79.japicmp"/>
          <trusted-key id="bede11eaf1164480" group="org.hamcrest"/>
          <trusted-key id="bf984b4145ea13f7" group="com.squareup" name="javapoet"/>
