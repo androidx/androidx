@@ -281,18 +281,6 @@ public class LocalStorage {
     }
 
     /**
-     * @deprecated use {@link #createSearchSessionAsync}
-     * @param context The {@link SearchContext} contains all information to create a new
-     *                {@link AppSearchSession}
-     */
-    @NonNull
-    @Deprecated
-    public static ListenableFuture<AppSearchSession> createSearchSession(
-            @NonNull SearchContext context) {
-        return createSearchSessionAsync(context);
-    }
-
-    /**
      * Opens a new {@link GlobalSearchSession} on this storage.
      *
      * <p>This process requires a native search library. If it's not created, the initialization
@@ -310,18 +298,6 @@ public class LocalStorage {
                     context.mLogger);
             return instance.doCreateGlobalSearchSession(context);
         });
-    }
-
-    /**
-     * @deprecated use {@link #createGlobalSearchSessionAsync}
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @NonNull
-    @Deprecated
-    public static ListenableFuture<GlobalSearchSession> createGlobalSearchSession(
-            @NonNull GlobalSearchContext context) {
-        return createGlobalSearchSessionAsync(context);
     }
 
     /**
