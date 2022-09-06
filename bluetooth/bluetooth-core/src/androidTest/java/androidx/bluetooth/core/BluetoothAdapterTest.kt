@@ -64,9 +64,8 @@ class BluetoothAdapterTest {
     fun constructorFromBluetoothManager_validAddress() {
         if (!hasBluetooth)
             return
-        val fwkBluetoothAdapter =
-            BluetoothManager(ApplicationProvider.getApplicationContext()).getAdapter()
-        val bluetoothAdapter = BluetoothAdapter(fwkBluetoothAdapter)
+        val bluetoothAdapter =
+            BluetoothManager(ApplicationProvider.getApplicationContext()).getAdapter() ?: return
         assertTrue(BluetoothAdapter.checkBluetoothAddress(bluetoothAdapter.address))
     }
 
@@ -74,9 +73,8 @@ class BluetoothAdapterTest {
     fun checkAddressTest() {
         if (!hasBluetooth)
             return
-        val fwkBluetoothAdapter =
-            BluetoothManager(ApplicationProvider.getApplicationContext()).getAdapter()
-        val bluetoothAdapter = BluetoothAdapter(fwkBluetoothAdapter)
+        val bluetoothAdapter =
+            BluetoothManager(ApplicationProvider.getApplicationContext()).getAdapter() ?: return
 
         Assert.assertTrue(FwkBluetoothAdapter.checkBluetoothAddress(bluetoothAdapter.address))
         Assert.assertFalse(BluetoothAdapter.checkBluetoothAddress("hello a random string"))
@@ -87,9 +85,8 @@ class BluetoothAdapterTest {
     fun remoteDeviceTest() {
         if (!hasBluetooth)
             return
-        val fwkBluetoothAdapter =
-            BluetoothManager(ApplicationProvider.getApplicationContext()).getAdapter()
-        val bluetoothAdapter = BluetoothAdapter(fwkBluetoothAdapter)
+        val bluetoothAdapter =
+            BluetoothManager(ApplicationProvider.getApplicationContext()).getAdapter() ?: return
         // Check correct name
         val stringDevice = bluetoothAdapter.getRemoteDevice("00:01:02:03:04:05")
         val byteDevice = bluetoothAdapter.getRemoteDevice(ByteArray(6) {
@@ -109,11 +106,9 @@ class BluetoothAdapterTest {
         filter.priority = IntentFilter.SYSTEM_HIGH_PRIORITY
         context.registerReceiver(mAdapterNameChangeReceiver, filter)
 
-        val fwkBluetoothAdapter =
-            BluetoothManager(ApplicationProvider.getApplicationContext()).getAdapter()
-        val bluetoothAdapter = BluetoothAdapter(fwkBluetoothAdapter)
+        val bluetoothAdapter =
+            BluetoothManager(ApplicationProvider.getApplicationContext()).getAdapter() ?: return
         assertTrue("Bluetooth is not enabled", bluetoothAdapter.isEnabled)
-
         // Check correct name
         val testName = "Bluetooth:Test-name_?~"
         val originalName = bluetoothAdapter.name
@@ -133,7 +128,7 @@ class BluetoothAdapterTest {
             // Wait for the Adapter name to be changed
             conditionAdapterNameChanged.await(5000, TimeUnit.MILLISECONDS)
         } catch (e: InterruptedException) {
-            Log.e("BluetoothAdapterTest", "waitForAdapterNameChange: interrrupted")
+            Log.e("BluetoothAdapterTest", "waitForAdapterNameChange: interrupted")
         } finally {
             adapterNameChangedlock.unlock()
         }

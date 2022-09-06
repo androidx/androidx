@@ -20,7 +20,6 @@ import android.bluetooth.BluetoothAdapter as FwkBluetoothAdapter
 import android.bluetooth.BluetoothProfile as FwkBluetoothProfile
 import android.bluetooth.le.BluetoothLeAdvertiser as FwkBluetoothLeAdvertiser
 import android.bluetooth.le.BluetoothLeScanner as FwkBluetoothLeScanner
-import android.bluetooth.BluetoothDevice as FwkBluetoothDevice
 import android.bluetooth.BluetoothServerSocket
 import android.bluetooth.BluetoothStatusCodes
 import android.os.Build
@@ -341,18 +340,6 @@ class BluetoothAdapter internal constructor(private val fwkAdapter: FwkBluetooth
         }
     }
 
-    private val impl: BluetoothAdapterImpl =
-        if (Build.VERSION.SDK_INT < 26) {
-            // Min Sdk is 21
-            BluetoothAdapterImplBase()
-        } else if (Build.VERSION.SDK_INT < 29) {
-            BluetoothAdapterImplApi26()
-        } else if (Build.VERSION.SDK_INT < 33) {
-            BluetoothAdapterImplApi29()
-        } else {
-            BluetoothAdapterImplApi33()
-        }
-
     /**
      * Cancel the current device discovery process.
      * <p>Because discovery is a heavyweight procedure for the Bluetooth
@@ -495,7 +482,7 @@ class BluetoothAdapter internal constructor(private val fwkAdapter: FwkBluetooth
             "android.permission.BLUETOOTH_CONNECT"]
     )
     // TODO: Change to Library BluetoothDevice when available
-    val bondedDevices: Set<FwkBluetoothDevice>
+    val bondedDevices: Set<BluetoothDevice>
         get() = impl.bondedDevices
 
     /**
@@ -504,7 +491,6 @@ class BluetoothAdapter internal constructor(private val fwkAdapter: FwkBluetooth
      * @return the duration of the discoverable timeout or null if an error has occurred
      */
     @get:RequiresPermission("android.permission.BLUETOOTH_SCAN")
-    // TODO: Implement when sdk 33 is available
     // TODO: Implement DurationCompat
     val discoverableTimeout: Duration?
         get() = impl.discoverableTimeout
@@ -607,7 +593,7 @@ class BluetoothAdapter internal constructor(private val fwkAdapter: FwkBluetooth
      * @throws IllegalArgumentException if address is invalid
      */
     // TODO: Change to Library BluetoothDevice when available
-    fun getRemoteDevice(address: ByteArray): FwkBluetoothDevice {
+    fun getRemoteDevice(address: ByteArray): BluetoothDevice {
         return impl.getRemoteDevice(address)
     }
 
@@ -624,7 +610,7 @@ class BluetoothAdapter internal constructor(private val fwkAdapter: FwkBluetooth
      * @throws IllegalArgumentException if address is invalid
      */
     // TODO: Change to Library BluetoothDevice when available
-    fun getRemoteDevice(address: String): FwkBluetoothDevice {
+    fun getRemoteDevice(address: String): BluetoothDevice {
         return impl.getRemoteDevice(address)
     }
 
@@ -642,7 +628,7 @@ class BluetoothAdapter internal constructor(private val fwkAdapter: FwkBluetooth
      * @throws IllegalArgumentException if address is invalid
      */
     // TODO: Change to Library BluetoothDevice when available
-    fun getRemoteLeDevice(address: String, addressType: Int): FwkBluetoothDevice {
+    fun getRemoteLeDevice(address: String, addressType: Int): BluetoothDevice {
         return impl.getRemoteLeDevice(address, addressType)
     }
 
@@ -950,6 +936,18 @@ class BluetoothAdapter internal constructor(private val fwkAdapter: FwkBluetooth
         return impl.listenUsingRfcommWithServiceRecord(name, uuid)
     }
 
+    private val impl: BluetoothAdapterImpl =
+        if (Build.VERSION.SDK_INT < 26) {
+            // Min Sdk is 21
+            BluetoothAdapterImplBase()
+        } else if (Build.VERSION.SDK_INT < 29) {
+            BluetoothAdapterImplApi26()
+        } else if (Build.VERSION.SDK_INT < 33) {
+            BluetoothAdapterImplApi29()
+        } else {
+            BluetoothAdapterImplApi33()
+        }
+
     internal interface BluetoothAdapterImpl {
         fun startDiscovery(): Boolean
         fun cancelDiscovery(): Boolean
@@ -961,7 +959,7 @@ class BluetoothAdapter internal constructor(private val fwkAdapter: FwkBluetooth
 
         val bluetoothLeScanner: FwkBluetoothLeScanner?
 
-        val bondedDevices: Set<FwkBluetoothDevice>
+        val bondedDevices: Set<BluetoothDevice>
 
         val discoverableTimeout: Duration?
 
@@ -976,9 +974,9 @@ class BluetoothAdapter internal constructor(private val fwkAdapter: FwkBluetooth
 
         // TODO: implement getProfileProxy when library support Bluetooth Classic
 
-        fun getRemoteDevice(address: ByteArray): FwkBluetoothDevice
-        fun getRemoteDevice(address: String): FwkBluetoothDevice
-        fun getRemoteLeDevice(address: String, addressType: Int): FwkBluetoothDevice
+        fun getRemoteDevice(address: ByteArray): BluetoothDevice
+        fun getRemoteDevice(address: String): BluetoothDevice
+        fun getRemoteLeDevice(address: String, addressType: Int): BluetoothDevice
 
         val state: Int
 
@@ -1062,8 +1060,8 @@ class BluetoothAdapter internal constructor(private val fwkAdapter: FwkBluetooth
             anyOf = ["android.permission.BLUETOOTH",
                 "android.permission.BLUETOOTH_CONNECT"]
         )
-        override val bondedDevices: Set<FwkBluetoothDevice>
-            get() = fwkAdapter.bondedDevices
+        override val bondedDevices: Set<BluetoothDevice>
+            get() = fwkAdapter.bondedDevices.map { BluetoothDevice(it) }.toSet()
 
         @get:RequiresPermission("android.permission.BLUETOOTH_SCAN")
         override val discoverableTimeout: Duration?
@@ -1083,19 +1081,40 @@ class BluetoothAdapter internal constructor(private val fwkAdapter: FwkBluetooth
                 TODO("Add implementation for lower sdk version")
             }
 
+        /**
+         * Get the friendly Bluetooth name of the local Bluetooth adapter.
+         * <p>This name is visible to remote Bluetooth devices.
+         *
+         * @return the Bluetooth name, or null on error
+         */
         @get:RequiresPermission(
             anyOf = ["android.permission.BLUETOOTH_CONNECT",
                 "android.permission.BLUETOOTH"]
         )
         @set:RequiresPermission(
-        anyOf = ["android.permission.BLUETOOTH_CONNECT",
-        "android.permission.BLUETOOTH"]
+            anyOf = ["android.permission.BLUETOOTH_CONNECT",
+                "android.permission.BLUETOOTH"]
         )
         override var name: String
             get() = fwkAdapter.name
             set(value) {
                 fwkAdapter.name = value
             }
+
+        /**
+         * Set the friendly Bluetooth name of the local Bluetooth adapter.
+         * <p>This name is visible to remote Bluetooth devices.
+         * <p>Valid Bluetooth names are a maximum of 248 bytes using UTF-8
+         * encoding, although many remote devices can only display the first
+         * 40 characters, and some may be limited to just 20.
+         * <p>If Bluetooth state is not {@link #STATE_ON}, this API
+         * will return false. After turning on Bluetooth,
+         * wait for {@link #ACTION_STATE_CHANGED} with {@link #STATE_ON}
+         * to get the updated value.
+         *
+         * @param name a valid Bluetooth name
+         * @return true if the name was set, false otherwise
+         */
         @RequiresPermission(
             anyOf = ["android.permission.BLUETOOTH_CONNECT",
                 "android.permission.BLUETOOTH_ADMIN"]
@@ -1105,15 +1124,15 @@ class BluetoothAdapter internal constructor(private val fwkAdapter: FwkBluetooth
         }
 
         // TODO: Change to Library BluetoothDevice when available
-        override fun getRemoteDevice(address: ByteArray): FwkBluetoothDevice {
-            return fwkAdapter.getRemoteDevice(address)
+        override fun getRemoteDevice(address: ByteArray): BluetoothDevice {
+            return BluetoothDevice(fwkAdapter.getRemoteDevice(address))
         }
 
-        override fun getRemoteDevice(address: String): FwkBluetoothDevice {
-            return fwkAdapter.getRemoteDevice(address)
+        override fun getRemoteDevice(address: String): BluetoothDevice {
+            return BluetoothDevice(fwkAdapter.getRemoteDevice(address))
         }
 
-        override fun getRemoteLeDevice(address: String, addressType: Int): FwkBluetoothDevice {
+        override fun getRemoteLeDevice(address: String, addressType: Int): BluetoothDevice {
             TODO("Handle backward compatibility")
         }
 
@@ -1250,8 +1269,8 @@ class BluetoothAdapter internal constructor(private val fwkAdapter: FwkBluetooth
                 return fwkAdapter.discoverableTimeout
             }
 
-        override fun getRemoteLeDevice(address: String, addressType: Int): FwkBluetoothDevice {
-            return fwkAdapter.getRemoteLeDevice(address, addressType)
+        override fun getRemoteLeDevice(address: String, addressType: Int): BluetoothDevice {
+            return BluetoothDevice(fwkAdapter.getRemoteLeDevice(address, addressType))
         }
 
         override val isLeAudioBroadcastAssistantSupported: Int
