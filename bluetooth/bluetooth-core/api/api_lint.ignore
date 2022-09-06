@@ -1,0 +1,23 @@
+// Baseline format: 1.0
+ActionValue: androidx.bluetooth.core.BluetoothDevice#EXTRA_BOND_STATE:
+    Inconsistent extra value; expected `androidx.bluetooth.core.extra.BOND_STATE`, was `android.bluetooth.device.extra.BOND_STATE`
+ActionValue: androidx.bluetooth.core.BluetoothDevice#EXTRA_CLASS:
+    Inconsistent extra value; expected `androidx.bluetooth.core.extra.CLASS`, was `android.bluetooth.device.extra.CLASS`
+ActionValue: androidx.bluetooth.core.BluetoothDevice#EXTRA_DEVICE:
+    Inconsistent extra value; expected `androidx.bluetooth.core.extra.DEVICE`, was `android.bluetooth.device.extra.DEVICE`
+ActionValue: androidx.bluetooth.core.BluetoothDevice#EXTRA_IS_COORDINATED_SET_MEMBER:
+    Inconsistent extra value; expected `androidx.bluetooth.core.extra.IS_COORDINATED_SET_MEMBER`, was `android.bluetooth.extra.IS_COORDINATED_SET_MEMBER`
+ActionValue: androidx.bluetooth.core.BluetoothDevice#EXTRA_NAME:
+    Inconsistent extra value; expected `androidx.bluetooth.core.extra.NAME`, was `android.bluetooth.device.extra.NAME`
+ActionValue: androidx.bluetooth.core.BluetoothDevice#EXTRA_PAIRING_KEY:
+    Inconsistent extra value; expected `androidx.bluetooth.core.extra.PAIRING_KEY`, was `android.bluetooth.device.extra.PAIRING_KEY`
+ActionValue: androidx.bluetooth.core.BluetoothDevice#EXTRA_PAIRING_VARIANT:
+    Inconsistent extra value; expected `androidx.bluetooth.core.extra.PAIRING_VARIANT`, was `android.bluetooth.device.extra.PAIRING_VARIANT`
+ActionValue: androidx.bluetooth.core.BluetoothDevice#EXTRA_PREVIOUS_BOND_STATE:
+    Inconsistent extra value; expected `androidx.bluetooth.core.extra.PREVIOUS_BOND_STATE`, was `android.bluetooth.device.extra.PREVIOUS_BOND_STATE`
+ActionValue: androidx.bluetooth.core.BluetoothDevice#EXTRA_RSSI:
+    Inconsistent extra value; expected `androidx.bluetooth.core.extra.RSSI`, was `android.bluetooth.device.extra.RSSI`
+ActionValue: androidx.bluetooth.core.BluetoothDevice#EXTRA_TRANSPORT:
+    Inconsistent extra value; expected `androidx.bluetooth.core.extra.TRANSPORT`, was `android.bluetooth.device.extra.TRANSPORT`
+ActionValue: androidx.bluetooth.core.BluetoothDevice#EXTRA_UUID:
+    Inconsistent extra value; expected `androidx.bluetooth.core.extra.UUID`, was `android.bluetooth.device.extra.UUID`
