@@ -56,6 +56,17 @@ class ApiParser(private val resolver: Resolver, private val logger: KSPLogger) {
             logger.error("Only interfaces can be annotated with @PrivacySandboxService.")
             return setOf()
         }
+        if (interfacesWithServiceAnnotation.count() > 1) {
+            logger.error(
+                "Multiple interfaces annotated with @PrivacySandboxService are not supported " +
+                    "(${
+                        interfacesWithServiceAnnotation.joinToString {
+                            it.simpleName.getShortName()
+                        }
+                    })."
+            )
+            return setOf()
+        }
         return interfacesWithServiceAnnotation.map(this::parseInterface).toSet()
     }
 

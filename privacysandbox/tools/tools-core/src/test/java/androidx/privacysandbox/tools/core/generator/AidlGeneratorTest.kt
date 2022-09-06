@@ -72,7 +72,7 @@ class AidlGeneratorTest {
         val tmpDir = createTempDirectory("test")
         val aidlCompiler = AidlCompiler(aidlPath)
 
-        val javaGeneratedSources = AidlGenerator(aidlCompiler).generate(api, tmpDir)
+        val javaGeneratedSources = AidlGenerator.generate(aidlCompiler, api, tmpDir)
 
         // Check expected java sources were generated.
         assertThat(javaGeneratedSources.map { it.packageName to it.interfaceName })

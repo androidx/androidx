@@ -104,4 +104,32 @@ class ApiParserTest {
         checkSourceFails(source)
             .containsError("Only interfaces can be annotated with @PrivacySandboxService.")
     }
+
+    @Test
+    fun multipleServices_fails() {
+        val source =
+            Source.kotlin(
+                "com/mysdk/MySdk.kt",
+                """
+                    package com.mysdk
+                    import androidx.privacysandbox.tools.PrivacySandboxService
+                    @PrivacySandboxService
+                    interface MySdk
+                """
+            )
+        val source2 =
+            Source.kotlin(
+                "com/mysdk/MySdk2.kt",
+                """
+                    package com.mysdk
+                    import androidx.privacysandbox.tools.PrivacySandboxService
+                    @PrivacySandboxService
+                    interface MySdk2
+                """
+            )
+
+        checkSourceFails(source, source2)
+            .containsError("Multiple interfaces annotated with @PrivacySandboxService are not " +
+                "supported (MySdk, MySdk2).")
+    }
 }
