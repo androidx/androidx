@@ -16,8 +16,12 @@
 
 package androidx.camera.integration.extensions.util
 
+import android.util.Log
 import androidx.camera.integration.extensions.CameraExtensionsActivity
 import androidx.camera.integration.extensions.R
+import androidx.camera.integration.extensions.util.CameraXExtensionsTestUtil.relaunchCameraExtensionsActivity
+import androidx.camera.view.PreviewView
+import androidx.lifecycle.Lifecycle
 import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.IdlingRegistry
@@ -45,9 +49,8 @@ internal fun ActivityScenario<CameraExtensionsActivity>.waitForInitializationIdl
 /**
  * Waits until the PreviewView has become STREAMING state and its idling resource has become idle.
  */
-internal fun ActivityScenario<CameraExtensionsActivity>.waitForPreviewIdle() {
+internal fun ActivityScenario<CameraExtensionsActivity>.waitForPreviewViewStreaming() {
     val idlingResource = withActivity {
-        resetPreviewViewStreamingStateIdlingResource()
         previewViewStreamingStateIdlingResource
     }
     try {
@@ -57,6 +60,34 @@ internal fun ActivityScenario<CameraExtensionsActivity>.waitForPreviewIdle() {
             .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
     } finally { // Always releases the idling resource, in case of timeout exceptions.
         IdlingRegistry.getInstance().unregister(idlingResource)
+        var streamState: PreviewView.StreamState? = null
+        withActivity { streamState = currentStreamState }
+        Log.d(
+            "CameraExtensionsActivity",
+            "waitForPreviewIdle end in StreamState: ${streamState?.name}"
+        )
+    }
+}
+
+/**
+ * Waits until the PreviewView has become IDLE state and its idling resource has become idle.
+ */
+internal fun ActivityScenario<CameraExtensionsActivity>.waitForPreviewViewIdle() {
+    val idlingResource = withActivity {
+        previewViewIdleStateIdlingResource
+    }
+    try {
+        IdlingRegistry.getInstance().register(idlingResource)
+        // Waits for the previewViewIdleStateIdlingResource becoming idle
+        Espresso.onIdle()
+    } finally { // Always releases the idling resource, in case of timeout exceptions.
+        IdlingRegistry.getInstance().unregister(idlingResource)
+        var streamState: PreviewView.StreamState? = null
+        withActivity { streamState = currentStreamState }
+        Log.d(
+            "CameraExtensionsActivity",
+            "waitForPreviewViewIdle end in StreamState: ${streamState?.name}"
+        )
     }
 }
 
@@ -73,5 +104,32 @@ internal fun ActivityScenario<CameraExtensionsActivity>.takePictureAndWaitForIma
         Espresso.onView(ViewMatchers.withId(R.id.Picture)).perform(ViewActions.click())
     } finally { // Always releases the idling resource, in case of timeout exceptions.
         IdlingRegistry.getInstance().unregister(idlingResource)
+
+        withActivity {
+            // Idling resource will also become idle when an error occurs. Checks the last error
+            // message and throw an Exception to make the test failed if the error message is not
+            // null.
+            if (lastTakePictureErrorMessage != null) {
+                throw Exception(lastTakePictureErrorMessage)
+            }
+        }
     }
+}
+
+/**
+ * Pauses and resumes the activity. Returns the new activityScenario because the original activity
+ * might be destroyed and new one is created.
+ */
+internal fun ActivityScenario<CameraExtensionsActivity>.pauseAndResumeActivity(
+    cameraId: String,
+    extensionMode: Int
+): ActivityScenario<CameraExtensionsActivity> {
+    withActivity { resetPreviewViewIdleStateIdlingResource() }
+    moveToState(Lifecycle.State.CREATED)
+    waitForPreviewViewIdle()
+    withActivity { resetPreviewViewStreamingStateIdlingResource() }
+    // The original activity might be destroyed when re-launch the activity. Re-retrieve the
+    // returned activityScenario from relaunchCameraExtensionsActivity() to run the following test
+    // steps.
+    return relaunchCameraExtensionsActivity(cameraId, extensionMode)
 }
