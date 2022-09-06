@@ -32,7 +32,7 @@ import androidx.camera.camera2.pipe.integration.impl.ComboRequestListener
 import androidx.camera.camera2.pipe.integration.impl.UseCaseCamera
 import androidx.camera.camera2.pipe.integration.impl.UseCaseCameraImpl
 import androidx.camera.camera2.pipe.integration.impl.UseCaseCameraRequestControlImpl
-import androidx.camera.camera2.pipe.integration.impl.UseCaseThreads
+import androidx.camera.camera2.pipe.integration.impl.UseCaseSurfaceManager
 import androidx.camera.core.UseCase
 import androidx.camera.core.impl.DeferrableSurface
 import dagger.Module
@@ -76,14 +76,14 @@ class UseCaseCameraConfig(
         cameraConfig: CameraConfig,
         cameraPipe: CameraPipe,
         requestListener: ComboRequestListener,
-        threads: UseCaseThreads,
+        useCaseSurfaceManager: UseCaseSurfaceManager,
     ): UseCaseGraphConfig {
         val streamConfigMap = mutableMapOf<CameraStream.Config, DeferrableSurface>()
 
         // TODO: This may need to combine outputs that are (or will) share the same output
         //  imageReader or surface.
-        val adapter = SessionConfigAdapter(useCases, threads)
-        adapter.getValidSessionConfigOrNull()?.surfaces?.forEach {
+        val sessionConfigAdapter = SessionConfigAdapter(useCases)
+        sessionConfigAdapter.getValidSessionConfigOrNull()?.surfaces?.forEach {
             val outputConfig = CameraStream.Config.create(
                 size = it.prescribedSize,
                 format = StreamFormat(it.prescribedStreamFormat),
@@ -114,8 +114,8 @@ class UseCaseCameraConfig(
             "Prepare UseCaseCameraGraphConfig: $graph "
         }
 
-        if (adapter.isSessionConfigValid()) {
-            adapter.setupSurfaceAsync(graph, surfaceToStreamMap)
+        if (sessionConfigAdapter.isSessionConfigValid()) {
+            useCaseSurfaceManager.setupAsync(graph, sessionConfigAdapter, surfaceToStreamMap)
         } else {
             Log.debug {
                 "Unable to create capture session due to conflicting configurations"
