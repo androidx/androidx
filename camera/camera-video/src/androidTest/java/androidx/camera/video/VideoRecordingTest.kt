@@ -18,6 +18,7 @@ package androidx.camera.video
 
 import android.Manifest
 import android.content.Context
+import android.graphics.Rect
 import android.graphics.SurfaceTexture
 import android.media.MediaMetadataRetriever
 import android.net.Uri
@@ -35,6 +36,7 @@ import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.Preview
+import androidx.camera.core.impl.utils.TransformUtils.rectToSize
 import androidx.camera.core.impl.utils.TransformUtils.rotateSize
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.lifecycle.ProcessCameraProvider
@@ -283,18 +285,69 @@ class VideoRecordingTest(
             completeVideoRecording(videoCapture, file)
 
             // Verify.
+            val croppedSize = rectToSize(videoCapture.cropRect!!)
             val expectResolution = if (videoCapture.node != null) {
                 val relativeRotation =
                     cameraInfo.getSensorRotationDegrees(videoCapture.targetRotation)
-                rotateSize(targetResolution, relativeRotation)
+                rotateSize(croppedSize, relativeRotation)
             } else {
-                targetResolution
+                croppedSize
             }
             verifyVideoResolution(expectResolution, file)
 
             // Cleanup.
             file.delete()
         }
+    }
+
+    @Test
+    fun getCorrectResolution_when_setCropRect() {
+        assumeSuccessfulSurfaceProcessing()
+
+        // Arrange.
+        assumeTrue(QualitySelector.getSupportedQualities(cameraInfo).isNotEmpty())
+        val quality = Quality.LOWEST
+        val recorder = Recorder.Builder()
+            .setQualitySelector(QualitySelector.from(quality)).build()
+        val videoCapture = VideoCapture.withOutput(recorder)
+        // Arbitrary cropping
+        val targetResolution = QualitySelector.getResolution(cameraInfo, quality)!!
+        val cropRect = Rect(6, 6, targetResolution.width - 7, targetResolution.height - 7)
+        videoCapture.setViewPortCropRect(cropRect)
+
+        assumeTrue(
+            "The UseCase combination is not supported for quality setting: $quality",
+            camera.isUseCasesCombinationSupported(preview, videoCapture)
+        )
+
+        instrumentation.runOnMainSync {
+            cameraProvider.unbindAll()
+            cameraProvider.bindToLifecycle(
+                lifecycleOwner,
+                cameraSelector,
+                preview,
+                videoCapture
+            )
+        }
+
+        val file = File.createTempFile("video_", ".tmp").apply { deleteOnExit() }
+
+        latchForVideoSaved = CountDownLatch(1)
+        latchForVideoRecording = CountDownLatch(5)
+
+        // Act.
+        completeVideoRecording(videoCapture, file)
+
+        // Verify.
+        val expectResolution = rotateSize(
+            rectToSize(videoCapture.cropRect!!),
+            cameraInfo.getSensorRotationDegrees(videoCapture.targetRotation)
+        )
+
+        verifyVideoResolution(expectResolution, file)
+
+        // Cleanup.
+        file.delete()
     }
 
     @Test
@@ -839,6 +892,15 @@ class VideoRecordingTest(
                     surfaceTexture.release()
                 }
             }
+        )
+    }
+
+    /** Skips tests which will enable surface processing and encounter device specific issues. */
+    private fun assumeSuccessfulSurfaceProcessing() {
+        // Skip for b/253211491
+        assumeFalse(
+            "Skip tests for Cuttlefish API 30 eglCreateWindowSurface issue",
+            Build.MODEL.contains("Cuttlefish") && Build.VERSION.SDK_INT == 30
         )
     }
 

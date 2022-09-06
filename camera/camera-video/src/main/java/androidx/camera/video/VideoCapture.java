@@ -188,6 +188,8 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
     private SurfaceProcessorNode mNode;
     @Nullable
     private VideoEncoderInfo mVideoEncoderInfo;
+    @Nullable
+    private Rect mCropRect;
 
     /**
      * Create a VideoCapture associated with the given {@link VideoOutput}.
@@ -316,7 +318,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
 
         mStreamInfo = fetchObservableValue(getOutput().getStreamInfo(),
                 StreamInfo.STREAM_INFO_ANY_INACTIVE);
-        mNode = createNodeIfNeeded();
+        mNode = createNodeIfNeeded(finalSelectedResolution);
         mSessionConfigBuilder = createPipeline(cameraId, config, finalSelectedResolution);
         applyStreamInfoToSessionConfigBuilder(mSessionConfigBuilder, mStreamInfo);
         updateSessionConfig(mSessionConfigBuilder.build());
@@ -370,6 +372,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         }
 
         mVideoEncoderInfo = null;
+        mCropRect = null;
     }
 
     /**
@@ -466,11 +469,16 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         }
     }
 
-    @VisibleForTesting
     @NonNull
-    SettableSurface getCameraSettableSurface() {
+    private SettableSurface getCameraSettableSurface() {
         Preconditions.checkNotNull(mNode);
         return (SettableSurface) requireNonNull(mDeferrableSurface);
+    }
+
+    @VisibleForTesting
+    @Nullable
+    Rect getCropRect() {
+        return mCropRect;
     }
 
     /**
@@ -503,12 +511,12 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         //  for behavioral consistency.
         Range<Integer> targetFpsRange = requireNonNull(
                 config.getTargetFramerate(Defaults.DEFAULT_FPS_RANGE));
+        Rect cropRect = requireNonNull(getCropRect(resolution));
         Timebase timebase;
         if (mNode != null) {
             MediaSpec mediaSpec = requireNonNull(getMediaSpec());
-            Rect cropRect = requireNonNull(getCropRect(resolution));
             timebase = camera.getCameraInfoInternal().getTimebase();
-            cropRect = adjustCropRectIfNeeded(cropRect, resolution,
+            mCropRect = adjustCropRectIfNeeded(cropRect, resolution,
                     () -> getVideoEncoderInfo(config.getVideoEncoderInfoFinder(),
                             VideoCapabilities.from(camera.getCameraInfo()), timebase, mediaSpec,
                             resolution, targetFpsRange));
@@ -518,7 +526,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
                     ImageFormat.PRIVATE,
                     getSensorToBufferTransformMatrix(),
                     /*hasEmbeddedTransform=*/true,
-                    cropRect,
+                    mCropRect,
                     getRelativeRotation(camera),
                     /*mirroring=*/false);
             SurfaceEdge inputEdge = SurfaceEdge.create(singletonList(cameraSurface));
@@ -535,6 +543,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
             // CameraMetadata#SENSOR_INFO_TIMESTAMP_SOURCE_REALTIME. So the timebase is always
             // UPTIME when encoder surface is directly sent to camera.
             timebase = Timebase.UPTIME;
+            mCropRect = cropRect;
         }
 
         config.getVideoOutput().onSurfaceRequested(mSurfaceRequest, timebase);
@@ -708,8 +717,9 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
     }
 
     @Nullable
-    private SurfaceProcessorNode createNodeIfNeeded() {
-        if (mSurfaceProcessor != null || ENABLE_SURFACE_PROCESSING_BY_QUIRK) {
+    private SurfaceProcessorNode createNodeIfNeeded(@NonNull Size resolution) {
+        if (mSurfaceProcessor != null || ENABLE_SURFACE_PROCESSING_BY_QUIRK
+                || isCropNeeded(requireNonNull(getCropRect(resolution)), resolution)) {
             Logger.d(TAG, "Surface processing is enabled.");
             return new SurfaceProcessorNode(requireNonNull(getCamera()),
                     APPLY_CROP_ROTATE_AND_MIRRORING,
