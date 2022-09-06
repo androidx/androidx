@@ -223,12 +223,18 @@ public class ExerciseState private constructor(public val id: Int, public val na
         @JvmField
         public val ENDED: ExerciseState = ExerciseState(18, "ENDED")
 
+        /**
+         * The exercise is currently ending, with the reason specified by
+         * [ExerciseStateInfo.endReason].
+         */
+        @JvmField public val ENDING: ExerciseState = ExerciseState(19, "ENDING")
+
         private val RESUMING_STATES = setOf(USER_RESUMING, AUTO_RESUMING)
         private val PAUSED_STATES = setOf(USER_PAUSED, AUTO_PAUSED)
         private val ENDED_STATES =
             setOf(USER_ENDED, AUTO_ENDED, AUTO_ENDED_PERMISSION_LOST, TERMINATED, ENDED)
         private val ENDING_STATES =
-            setOf(USER_ENDING, AUTO_ENDING, AUTO_ENDING_PERMISSION_LOST, TERMINATING)
+            setOf(USER_ENDING, AUTO_ENDING, AUTO_ENDING_PERMISSION_LOST, TERMINATING, ENDING)
         private val OTHER_STATES =
             setOf(PREPARING, USER_STARTING, USER_PAUSING, AUTO_PAUSING, ACTIVE)
 
