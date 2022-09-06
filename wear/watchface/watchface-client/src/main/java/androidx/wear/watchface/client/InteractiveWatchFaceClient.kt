@@ -49,6 +49,7 @@ import androidx.wear.watchface.style.UserStyleData
 import androidx.wear.watchface.toApiFormat
 import java.time.Instant
 import java.util.concurrent.Executor
+import java.util.function.Consumer
 
 /**
  * Controls a stateful remote interactive watch face. Typically this will be used for the current
@@ -265,37 +266,23 @@ public interface InteractiveWatchFaceClient : AutoCloseable {
     public fun removeOnWatchFaceReadyListener(listener: OnWatchFaceReadyListener)
 
     /**
-     * Interface passed to [addOnWatchFaceReadyListener] which calls
-     * [OnWatchFaceColorsListener.onWatchFaceColors] initially with the current
-     * [Renderer.watchfaceColors] if known or `null` if not, and subsequently whenever the watch
-     * face's [Renderer.watchfaceColors] change.
-     */
-    public fun interface OnWatchFaceColorsListener {
-        /**
-         * Called initially with the current [Renderer.watchfaceColors] if known or `null` if not,
-         * and subsequently whenever the watch face's [Renderer.watchfaceColors] change.
-         */
-        public fun onWatchFaceColors(watchFaceColors: WatchFaceColors?)
-    }
-
-    /**
-     * Registers a [OnWatchFaceColorsListener] which gets called initially with the current
+     * Registers a [Consumer] which gets called initially with the current
      * [Renderer.watchfaceColors] if known or `null` if not, and subsequently whenever the watch
      * face's [Renderer.watchfaceColors] change.
      *
      * @param executor The [Executor] on which to run [listener].
-     * @param listener The [OnWatchFaceColorsListener] to run whenever the watch face's
+     * @param listener The [Consumer] to run whenever the watch face's
      * [Renderer.watchfaceColors] change.
      */
     public fun addOnWatchFaceColorsListener(
         executor: Executor,
-        listener: OnWatchFaceColorsListener
+        listener: Consumer<WatchFaceColors?>
     ) {}
 
     /**
      * Stops listening for events registered by [addOnWatchFaceColorsListener].
      */
-    public fun removeOnWatchFaceColorsListener(listener: OnWatchFaceColorsListener) {}
+    public fun removeOnWatchFaceColorsListener(listener: Consumer<WatchFaceColors?>) {}
 }
 
 /** Controls a stateful remote interactive watch face. */
@@ -312,7 +299,7 @@ internal class InteractiveWatchFaceClientImpl internal constructor(
     private val readyListeners =
         HashMap<InteractiveWatchFaceClient.OnWatchFaceReadyListener, Executor>()
     private val watchFaceColorsChangeListeners =
-        HashMap<InteractiveWatchFaceClient.OnWatchFaceColorsListener, Executor>()
+        HashMap<Consumer<WatchFaceColors?>, Executor>()
     private var watchfaceReadyListenerRegistered = false
     private var lastWatchFaceColors: WatchFaceColors? = null
     private var closed = false
@@ -325,8 +312,7 @@ internal class InteractiveWatchFaceClientImpl internal constructor(
         }
 
         override fun onWatchfaceColorsChanged(watchFaceColors: WatchFaceColorsWireFormat?) {
-            var listenerCopy:
-                HashMap<InteractiveWatchFaceClient.OnWatchFaceColorsListener, Executor>
+            var listenerCopy: HashMap<Consumer<WatchFaceColors?>, Executor>
 
             synchronized(lock) {
                 listenerCopy = HashMap(watchFaceColorsChangeListeners)
@@ -335,7 +321,7 @@ internal class InteractiveWatchFaceClientImpl internal constructor(
 
             for ((listener, executor) in listenerCopy) {
                 executor.execute {
-                    listener.onWatchFaceColors(lastWatchFaceColors)
+                    listener.accept(lastWatchFaceColors)
                 }
             }
         }
@@ -591,7 +577,7 @@ internal class InteractiveWatchFaceClientImpl internal constructor(
 
     override fun addOnWatchFaceColorsListener(
         executor: Executor,
-        listener: InteractiveWatchFaceClient.OnWatchFaceColorsListener
+        listener: Consumer<WatchFaceColors?>
     ) {
         val colors = synchronized(lock) {
             require(!watchFaceColorsChangeListeners.contains(listener)) {
@@ -603,11 +589,11 @@ internal class InteractiveWatchFaceClientImpl internal constructor(
             lastWatchFaceColors
         }
 
-        listener.onWatchFaceColors(colors)
+        listener.accept(colors)
     }
 
     override fun removeOnWatchFaceColorsListener(
-        listener: InteractiveWatchFaceClient.OnWatchFaceColorsListener
+        listener: Consumer<WatchFaceColors?>
     ) {
         synchronized(lock) {
             watchFaceColorsChangeListeners.remove(listener)
