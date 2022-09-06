@@ -37,6 +37,7 @@ import androidx.camera.core.impl.ImageReaderProxy;
 import androidx.camera.core.impl.SingleImageProxyBundle;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
+import androidx.camera.core.impl.utils.futures.FutureChain;
 import androidx.camera.core.impl.utils.futures.Futures;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -69,14 +70,10 @@ final class ProcessingSurface extends DeferrableSurface {
     @NonNull
     private final Size mResolution;
 
-    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    @GuardedBy("mLock")
-    final MetadataImageReader mInputImageReader;
+    private final MetadataImageReader mInputImageReader;
 
     // The Surface that is backed by mInputImageReader
-    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    @GuardedBy("mLock")
-    final Surface mInputSurface;
+    private final Surface mInputSurface;
 
     private final Handler mImageReaderHandler;
 
@@ -177,9 +174,11 @@ final class ProcessingSurface extends DeferrableSurface {
     @Override
     @NonNull
     public ListenableFuture<Surface> provideSurface() {
-        synchronized (mLock) {
-            return Futures.immediateFuture(mInputSurface);
-        }
+        // Before returning input surface to configure the capture session, ensures
+        // output surface is ready because output surface will be needed just before
+        // configuring capture session.
+        return  FutureChain.from(mOutputDeferrableSurface.getSurface())
+                .transform(outputSurface -> mInputSurface, CameraXExecutors.directExecutor());
     }
 
     /**
