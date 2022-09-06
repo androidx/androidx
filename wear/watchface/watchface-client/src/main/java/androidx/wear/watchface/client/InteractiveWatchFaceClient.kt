@@ -289,8 +289,7 @@ public interface InteractiveWatchFaceClient : AutoCloseable {
 internal class InteractiveWatchFaceClientImpl internal constructor(
     private val iInteractiveWatchFace: IInteractiveWatchFace,
     private val previewImageUpdateRequestedExecutor: Executor?,
-    private val previewImageUpdateRequestedListener:
-        WatchFaceControlClient.PreviewImageUpdateRequestedListener?
+    private val previewImageUpdateRequestedListener: Consumer<String>?
 ) : InteractiveWatchFaceClient {
 
     private val lock = Any()
@@ -328,7 +327,7 @@ internal class InteractiveWatchFaceClientImpl internal constructor(
 
         override fun onPreviewImageUpdateRequested(watchFaceId: String) {
             previewImageUpdateRequestedExecutor?.execute {
-                previewImageUpdateRequestedListener!!.onPreviewImageUpdateRequested(watchFaceId)
+                previewImageUpdateRequestedListener!!.accept(watchFaceId)
             }
         }
     }
