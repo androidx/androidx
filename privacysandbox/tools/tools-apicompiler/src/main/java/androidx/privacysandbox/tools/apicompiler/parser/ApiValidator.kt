@@ -87,9 +87,6 @@ class ApiValidator(private val logger: KSPLogger, private val resolver: Resolver
                 })."
             )
         }
-        if (!method.modifiers.contains(Modifier.SUSPEND)) {
-            logger.error("Error in $name: method should be a suspend function.")
-        }
     }
 
     fun validateParameter(method: KSFunctionDeclaration, parameter: KSValueParameter) {
