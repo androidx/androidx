@@ -22,7 +22,9 @@ import androidx.privacysandbox.tools.core.Method
 import androidx.privacysandbox.tools.core.Parameter
 import androidx.privacysandbox.tools.core.ParsedApi
 import androidx.privacysandbox.tools.core.Type
-import java.io.File
+import java.nio.file.Path
+import java.util.zip.ZipEntry
+import java.util.zip.ZipInputStream
 import kotlinx.metadata.Flag
 import kotlinx.metadata.KmClass
 import kotlinx.metadata.KmClassifier
@@ -43,21 +45,33 @@ internal object ApiStubParser {
     /**
      * Parses the API annotated by a Privacy Sandbox SDK from its compiled classes.
      *
-     * @param stubClassPath Set of compiled SDK classes. It's expected that at least one of those
-     *      files should be a valid Kotlin interface annotated with @PrivacySandboxService.
+     * @param sdkInterfaceDescriptors Path to SDK interface descriptors. This should be a jar
+     *      file with a set of compiled SDK classes and at least one of them should be a valid
+     *      Kotlin interface annotated with @PrivacySandboxService.
      */
-    internal fun parse(stubClassPath: Set<File>): ParsedApi {
-        val services = stubClassPath.asSequence()
-            .filter { it.extension == "class" }
-            .map { it.inputStream().use { inputStream -> toClassNode(inputStream.readBytes()) } }
-            .filter { it.visibleAnnotationsWithType<PrivacySandboxService>().isNotEmpty() }
-            .map(this::parseClass)
+    internal fun parse(sdkInterfaceDescriptors: Path): ParsedApi {
+        val services = unzipClasses(sdkInterfaceDescriptors)
+            .filter { it.isPrivacySandboxService }
+            .map(::parseClass)
             .toSet()
         if (services.isEmpty()) throw IllegalArgumentException(
             "Unable to find valid interfaces annotated with @PrivacySandboxService."
         )
         return ParsedApi(services)
     }
+
+    private fun unzipClasses(stubClassPath: Path): List<ClassNode> =
+        ZipInputStream(stubClassPath.toFile().inputStream()).use { zipInputStream ->
+            buildList {
+                var zipEntry: ZipEntry? = zipInputStream.nextEntry
+                while (zipEntry != null) {
+                    if (zipEntry.name.endsWith(".class")) {
+                        add(toClassNode(zipInputStream.readBytes()))
+                    }
+                    zipEntry = zipInputStream.nextEntry
+                }
+            }
+        }
 
     private fun toClassNode(classContents: ByteArray): ClassNode {
         val reader = ClassReader(classContents)
@@ -142,6 +156,10 @@ internal object ApiStubParser {
             )
         }
     }
+}
+
+val ClassNode.isPrivacySandboxService: Boolean get() {
+    return visibleAnnotationsWithType<PrivacySandboxService>().isNotEmpty()
 }
 
 inline fun <reified T> ClassNode.visibleAnnotationsWithType(): List<AnnotationNode> {

@@ -15,6 +15,7 @@
  */
 
 import androidx.build.LibraryType
+import androidx.build.RunApiTasks
 
 plugins {
     id("AndroidXPlugin")
@@ -26,6 +27,7 @@ dependencies {
     implementation(libs.asm)
     implementation(libs.asmCommons)
     implementation(libs.kotlinMetadataJvm)
+    implementation(libs.kotlinPoet)
     implementation project(path: ':privacysandbox:tools:tools')
     implementation project(path: ':privacysandbox:tools:tools-core')
 
@@ -41,4 +43,5 @@ androidx {
     mavenGroup = LibraryGroups.PRIVACYSANDBOX_TOOLS
     inceptionYear = "2022"
     description = "Generate sources for communication with SDKs in the Privacy Sandbox."
+    runApiTasks = new RunApiTasks.No("API still under active development.")
 }
