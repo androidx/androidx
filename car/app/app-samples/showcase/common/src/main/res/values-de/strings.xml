@@ -220,6 +220,8 @@
     <string name="clicked_row_prefix" msgid="9068303427922069941">"Angeklickte Zeile"</string>
     <string name="first_line_text" msgid="6648055806656590336">"Erste Textzeile"</string>
     <string name="second_line_text" msgid="38664490158836864">"Zweite Textzeile"</string>
+    <!-- no translation found for long_line_text (8082962600953333087) -->
+    <skip />
     <string name="title_prefix" msgid="3991742709199357049">"Titel"</string>
     <string name="list_template_demo_title" msgid="1740208242737246151">"Demo für Listenvorlage"</string>
     <string name="long_msg_template_demo_title" msgid="1793748562161438131">"Demo der langen Nachrichtenvorlage"</string>

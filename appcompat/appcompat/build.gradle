@@ -36,7 +36,7 @@ dependencies {
     // Due to experimental annotations used in core.
     compileOnly(libs.kotlinStdlib)
 
-    kapt("androidx.resourceinspection:resourceinspection-annotation:1.0.1")
+    kapt("androidx.resourceinspection:resourceinspection-processor:1.0.1")
 
     androidTestImplementation(libs.kotlinStdlib)
     androidTestImplementation(libs.testExtJunit)

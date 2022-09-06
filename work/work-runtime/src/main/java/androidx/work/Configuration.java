@@ -252,9 +252,7 @@ public final class Configuration {
     /**
      * @return the {@link InitializationExceptionHandler} that can be used to intercept
      * exceptions caused when trying to initialize {@link WorkManager}.
-     * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @Nullable
     public InitializationExceptionHandler getInitializationExceptionHandler() {
         return mExceptionHandler;
@@ -492,9 +490,7 @@ public final class Configuration {
          *
          * @param exceptionHandler The {@link InitializationExceptionHandler} instance.
          * @return This {@link Builder} instance
-         * @hide
          */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @NonNull
         public Builder setInitializationExceptionHandler(
                 @NonNull InitializationExceptionHandler exceptionHandler) {

@@ -16,17 +16,20 @@
 
 package androidx.test.uiautomator;
 
+import androidx.annotation.NonNull;
+
 import java.util.List;
 
 /** The Searchable interface represents an object that can be searched for matching UI elements. */
 interface Searchable {
 
     /** Returns whether there is a match for the given {@code selector} criteria. */
-    public boolean hasObject(BySelector selector);
+    boolean hasObject(@NonNull BySelector selector);
 
     /** Returns the first object to match the {@code selector} criteria. */
-    public UiObject2 findObject(BySelector selector);
+    UiObject2 findObject(@NonNull BySelector selector);
 
     /** Returns all objects that match the {@code selector} criteria. */
-    public List<UiObject2> findObjects(BySelector selector);
+    @NonNull
+    List<UiObject2> findObjects(@NonNull BySelector selector);
 }

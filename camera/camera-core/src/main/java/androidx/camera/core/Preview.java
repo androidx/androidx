@@ -16,6 +16,7 @@
 
 package androidx.camera.core;
 
+import static androidx.camera.core.SurfaceOutput.GlTransformOptions.USE_SURFACE_TEXTURE_TRANSFORM;
 import static androidx.camera.core.impl.ImageInputConfig.OPTION_INPUT_FORMAT;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_APP_TARGET_ROTATION;
 import static androidx.camera.core.impl.PreviewConfig.IMAGE_INFO_PROCESSOR;
@@ -312,7 +313,7 @@ public final class Preview extends UseCase {
         clearPipeline();
 
         // Create nodes and edges.
-        mNode = new SurfaceEffectNode(camera, /*applyGlTransform=*/false, mSurfaceEffect);
+        mNode = new SurfaceEffectNode(camera, USE_SURFACE_TEXTURE_TRANSFORM, mSurfaceEffect);
         SettableSurface cameraSurface = new SettableSurface(
                 SurfaceEffect.PREVIEW,
                 resolution,
@@ -327,6 +328,7 @@ public final class Preview extends UseCase {
         SettableSurface appSurface = outputEdge.getSurfaces().get(0);
 
         // Send the app Surface to the app.
+        mSessionDeferrableSurface = cameraSurface;
         mCurrentSurfaceRequest = appSurface.createSurfaceRequest(camera);
         if (sendSurfaceRequestIfReady()) {
             sendTransformationInfoIfReady();
@@ -335,7 +337,6 @@ public final class Preview extends UseCase {
         }
 
         // Send the camera Surface to the camera2.
-        mSessionDeferrableSurface = cameraSurface;
         SessionConfig.Builder sessionConfigBuilder = SessionConfig.Builder.createFrom(config);
         addCameraSurfaceAndErrorListener(sessionConfigBuilder, cameraId, config, resolution);
         return sessionConfigBuilder;
@@ -439,6 +440,9 @@ public final class Preview extends UseCase {
         Rect cropRect = getCropRect(mSurfaceSize);
         SurfaceRequest surfaceRequest = mCurrentSurfaceRequest;
         if (cameraInternal != null && surfaceProvider != null && cropRect != null) {
+            // TODO: when SurfaceEffectNode exists, use SettableSurface.setRotationDegrees(int)
+            //  instead. However, this requires PreviewView to rely on relative rotation but not
+            //  target rotation.
             surfaceRequest.updateTransformationInfo(SurfaceRequest.TransformationInfo.of(cropRect,
                     getRelativeRotation(cameraInternal), getAppTargetRotation()));
         }

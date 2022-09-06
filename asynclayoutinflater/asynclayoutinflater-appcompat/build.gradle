@@ -1,0 +1,25 @@
+import androidx.build.Publish
+
+plugins {
+    id("AndroidXPlugin")
+    id("com.android.library")
+}
+
+dependencies {
+    api("androidx.annotation:annotation:1.1.0")
+    api("androidx.core:core:1.1.0")
+    implementation(project(":appcompat:appcompat"))
+    implementation(project(":asynclayoutinflater:asynclayoutinflater"))
+}
+
+androidx {
+    name = "AsyncLayoutInflater integration for AppCompat"
+    publish = Publish.SNAPSHOT_AND_RELEASE
+    mavenGroup = LibraryGroups.ASYNCLAYOUTINFLATER
+    inceptionYear = "2022"
+    description = "A thread-safe LayoutInflater Factory that provides compatibility between AsyncLayoutInflater and AppCompat."
+}
+
+android {
+    namespace "androidx.asynclayoutinflater.appcompatfactory"
+}

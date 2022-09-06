@@ -17,13 +17,13 @@
 package androidx.wear.watchface.control
 
 import android.annotation.SuppressLint
-import android.util.Log
+import android.support.wearable.complications.ComplicationData
 import androidx.annotation.UiThread
+import androidx.annotation.VisibleForTesting
 import androidx.wear.watchface.utility.TraceEvent
 import androidx.wear.watchface.IndentingPrintWriter
 import androidx.wear.watchface.control.data.WallpaperInteractiveWatchFaceInstanceParams
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.CoroutineScope
 
 /** Keeps track of [InteractiveWatchFaceImpl]s. */
 internal class InteractiveInstanceManager {
@@ -56,15 +56,29 @@ internal class InteractiveInstanceManager {
         private var pendingWallpaperInteractiveWatchFaceInstance:
             PendingWallpaperInteractiveWatchFaceInstance? = null
 
-        @SuppressLint("SyntheticAccessor")
-        fun addInstance(impl: InteractiveWatchFaceImpl) {
-            synchronized(pendingWallpaperInteractiveWatchFaceInstanceLock) {
-                require(!instances.containsKey(impl.instanceId)) {
-                    "Already have an InteractiveWatchFaceImpl with id ${impl.instanceId}"
-                }
-                instances[impl.instanceId] = RefCountedInteractiveWatchFaceInstance(impl, 1)
-            }
+        @VisibleForTesting
+        fun getInstances() = synchronized(pendingWallpaperInteractiveWatchFaceInstanceLock) {
+            instances.map { it.key }
         }
+
+        @SuppressLint("SyntheticAccessor")
+        fun getOrCreateInstance(
+            instanceId: String,
+            uiThreadCoroutineScope: CoroutineScope,
+            initialComplicationsProvider: () -> HashMap<Int, ComplicationData>
+        ): InteractiveWatchFaceImpl =
+            synchronized(pendingWallpaperInteractiveWatchFaceInstanceLock) {
+                instances.computeIfAbsent(instanceId) {
+                    RefCountedInteractiveWatchFaceInstance(
+                        InteractiveWatchFaceImpl(
+                            instanceId,
+                            uiThreadCoroutineScope,
+                            initialComplicationsProvider()
+                        ),
+                        1
+                    )
+                }.impl
+            }
 
         @SuppressLint("SyntheticAccessor")
         fun getAndRetainInstance(instanceId: String): InteractiveWatchFaceImpl? {
@@ -80,18 +94,9 @@ internal class InteractiveInstanceManager {
             synchronized(pendingWallpaperInteractiveWatchFaceInstanceLock) {
                 instances[instanceId]?.let {
                     if (--it.refcount == 0) {
-                        it.impl.onDestroy()
                         instances.remove(instanceId)
                     }
                 }
-            }
-        }
-
-        @SuppressLint("SyntheticAccessor")
-        fun deleteInstance(instanceId: String) {
-            synchronized(pendingWallpaperInteractiveWatchFaceInstanceLock) {
-                instances[instanceId]?.impl?.onDestroy()
-                instances.remove(instanceId)
             }
         }
 
@@ -127,30 +132,8 @@ internal class InteractiveInstanceManager {
 
             // The system on reboot will use this to connect to an existing watch face, we need to
             // ensure there isn't a skew between the style the watch face actually has and what the
-            // system thinks we should have. Note runBlocking is safe here because we never await.
-            val engine = impl.engine!!
-            runBlocking {
-                withContext(engine.uiThreadCoroutineScope.coroutineContext) {
-                    try {
-                        if (engine.deferredWatchFaceImpl.isCompleted) {
-                            // setUserStyle awaits deferredWatchFaceImpl but it's completed.
-                            engine.setUserStyle(value.params.userStyle)
-                        } else {
-                            // Defer the UI update until deferredWatchFaceImpl is about to
-                            // complete.
-                            engine.pendingUserStyle = value.params.userStyle
-                        }
-                    } catch (e: Exception) {
-                        Log.e(
-                            TAG,
-                            "getExistingInstanceOrSetPendingWallpaperInteractive" +
-                                "WatchFaceInstance failed",
-                            e
-                        )
-                        throw e
-                    }
-                }
-            }
+            // system thinks we should have.
+            impl.updateStyle(value.params.userStyle)
             return impl
         }
 

@@ -31,13 +31,12 @@ public class DataTypeCondition<T : Number, D : DataType<T, out DataPoint<T>>>(
     public val comparisonType: ComparisonType,
 ) {
 
-    internal val proto: DataProto.DataTypeCondition by lazy {
+    internal val proto: DataProto.DataTypeCondition =
         DataProto.DataTypeCondition.newBuilder()
             .setDataType(dataType.proto)
             .setThreshold(dataType.toProtoFromValue(threshold))
             .setComparisonType(comparisonType.toProto())
             .build()
-    }
 
     override fun toString(): String =
         "DataTypeCondition(" +

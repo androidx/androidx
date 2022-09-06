@@ -334,6 +334,37 @@ public final class CustomTabsIntent {
             "androidx.browser.customtabs.extra.NAVIGATION_BAR_COLOR";
 
     /**
+     * Extra that, if set, makes the Custom Tab Activity's height to be x pixels, the Custom Tab
+     * will behave as a bottom sheet. x will be clamped between 50% and 100% of screen height.
+     * Bottom sheet does not take effect in landscape mode or in multi-window mode.
+     */
+    public static final String EXTRA_INITIAL_ACTIVITY_HEIGHT_PX =
+            "androidx.browser.customtabs.extra.INITIAL_ACTIVITY_HEIGHT_PX";
+
+    /**
+     * Extra that sets the toolbar's top corner radii in dp. This will only have
+     * effect if the custom tab is behaving as a bottom sheet. Currently, this is capped at 16dp.
+     */
+    public static final String EXTRA_TOOLBAR_CORNER_RADIUS_DP =
+            "androidx.browser.customtabs.extra.TOOLBAR_CORNER_RADIUS_DP";
+
+    /**
+     * Extra that specifies the position of the close button on the toolbar. Default is
+     * {@link #CLOSE_BUTTON_POSITION_DEFAULT}.
+     */
+    public static final String EXTRA_CLOSE_BUTTON_POSITION =
+            "androidx.browser.customtabs.extra.CLOSE_BUTTON_POSITION";
+
+    /** Same as {@link #CLOSE_BUTTON_POSITION_START}. */
+    public static final int CLOSE_BUTTON_POSITION_DEFAULT = 0;
+
+    /** Positions the close button at the start of the toolbar. */
+    public static final int CLOSE_BUTTON_POSITION_START = 1;
+
+    /** Positions the close button at the end of the toolbar. */
+    public static final int CLOSE_BUTTON_POSITION_END = 2;
+
+    /**
      * Extra that contains the color of the navigation bar divider.
      * See {@link Builder#setNavigationBarDividerColor}.
      */

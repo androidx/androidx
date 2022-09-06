@@ -16,6 +16,7 @@
 
 package androidx.camera.video;
 
+import static androidx.camera.core.SurfaceOutput.GlTransformOptions.APPLY_CROP_ROTATE_AND_MIRRORING;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_DEFAULT_RESOLUTION;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_MAX_RESOLUTION;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_SUPPORTED_RESOLUTIONS;
@@ -42,6 +43,7 @@ import android.graphics.ImageFormat;
 import android.graphics.Rect;
 import android.media.MediaCodec;
 import android.util.Pair;
+import android.util.Range;
 import android.util.Size;
 import android.view.Display;
 import android.view.Surface;
@@ -397,10 +399,23 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         SurfaceRequest surfaceRequest = mSurfaceRequest;
         Rect cropRect = getCropRect(resolution);
         if (cameraInternal != null && surfaceRequest != null && cropRect != null) {
-            surfaceRequest.updateTransformationInfo(SurfaceRequest.TransformationInfo.of(cropRect,
-                    mNode != null ? 0 : getRelativeRotation(cameraInternal),
-                    mNode != null ? Surface.ROTATION_0 : getTargetRotationInternal()));
+            int relativeRotation = getRelativeRotation(cameraInternal);
+            int targetRotation = getAppTargetRotation();
+            if (mNode != null) {
+                SettableSurface cameraSurface = getCameraSettableSurface();
+                cameraSurface.setRotationDegrees(relativeRotation);
+            } else {
+                surfaceRequest.updateTransformationInfo(
+                        SurfaceRequest.TransformationInfo.of(cropRect, relativeRotation,
+                                targetRotation));
+            }
         }
+    }
+
+    @NonNull
+    private SettableSurface getCameraSettableSurface() {
+        Preconditions.checkNotNull(mNode);
+        return (SettableSurface) requireNonNull(mDeferrableSurface);
     }
 
     /**
@@ -428,8 +443,13 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         Threads.checkMainThread();
         CameraInternal camera = Preconditions.checkNotNull(getCamera());
 
+        // TODO(b/229410005): The expected FPS range will need to come from the camera rather
+        //  than what is requested in the config. For now we use the default range of (30, 30)
+        //  for behavioral consistency.
+        Range<Integer> targetFpsRange = config.getTargetFramerate(Defaults.DEFAULT_FPS_RANGE);
         if (mSurfaceEffect != null) {
-            mNode = new SurfaceEffectNode(camera, /*applyGlTransform=*/true, mSurfaceEffect);
+            mNode = new SurfaceEffectNode(camera, APPLY_CROP_ROTATE_AND_MIRRORING,
+                    mSurfaceEffect);
             SettableSurface cameraSurface = new SettableSurface(
                     SurfaceEffect.VIDEO_CAPTURE,
                     resolution,
@@ -442,12 +462,13 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
             SurfaceEdge inputEdge = SurfaceEdge.create(singletonList(cameraSurface));
             SurfaceEdge outputEdge = mNode.transform(inputEdge);
             SettableSurface appSurface = outputEdge.getSurfaces().get(0);
-            mSurfaceRequest = appSurface.createSurfaceRequest(camera);
+            mSurfaceRequest = appSurface.createSurfaceRequest(camera, targetFpsRange);
             mDeferrableSurface = cameraSurface;
         } else {
-            mSurfaceRequest = new SurfaceRequest(resolution, camera, false);
+            mSurfaceRequest = new SurfaceRequest(resolution, camera, false, targetFpsRange);
             mDeferrableSurface = mSurfaceRequest.getDeferrableSurface();
         }
+
         config.getVideoOutput().onSurfaceRequested(mSurfaceRequest);
         sendTransformationInfoIfReady(resolution);
         // Since VideoCapture is in video module and can't be recognized by core module, use
@@ -515,6 +536,8 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         private static final VideoOutput DEFAULT_VIDEO_OUTPUT =
                 SurfaceRequest::willNotProvideSurface;
         private static final VideoCaptureConfig<?> DEFAULT_CONFIG;
+
+        static final Range<Integer> DEFAULT_FPS_RANGE = new Range<>(30, 30);
 
         static {
             Builder<?> builder = new Builder<>(DEFAULT_VIDEO_OUTPUT)

@@ -135,6 +135,7 @@ public class AsyncListenableCanvasRenderer2Test :
         )
 
         val deferredClient = handlerCoroutineScope.async {
+            @Suppress("deprecation")
             watchFaceControlClientService.getOrCreateInteractiveWatchFaceClient(
                 "testId",
                 DeviceConfig(

@@ -459,6 +459,33 @@ interface BooksDao {
     val allBooks: List<Book>
 
     @Upsert
+    fun upsertBooks(vararg books: Book)
+
+    @Upsert
+    suspend fun upsertBooksSuspend(vararg books: Book)
+
+    @Upsert
+    fun upsertBookPublisher(publisher: Publisher, book: Book)
+
+    @Upsert(entity = Book::class)
+    fun upsertMiniBook(miniBook: MiniBook)
+
+    @Upsert
+    fun upsertBookReturnLong(book: Book): Long
+
+    @Upsert
+    fun upsertBooksReturnLongList(vararg books: Book): List<Long>
+
+    @Upsert
+    fun upsertBooksReturnLongArray(vararg books: Book): Array<Long>
+
+    @Upsert
+    fun upsertBooksReturnLongArrayPrimitive(vararg books: Book): LongArray
+
+    @Upsert
+    fun upsertBooksReturnListenableFuture(vararg books: Book): ListenableFuture<List<Long>>
+
+    @Upsert
     fun upsertPublishers(vararg publishers: Publisher)
 
     @Upsert
@@ -480,10 +507,7 @@ interface BooksDao {
     fun upsertBookCompletable(book: Book): Completable
 
     @Upsert
-    fun upsertBook(book: Book)
-
-    @Upsert
-    fun upsertBooksWithReturns(books: List<Book>): Array<Long>
+    fun upsertListOfBooksReturnLongArray(books: List<Book>): Array<Long>
 
     @Query("SELECT * FROM book")
     fun getBooksFlowable(): Flowable<List<Book>>
@@ -493,4 +517,13 @@ interface BooksDao {
 
     @Insert
     fun addPublisherReturnArray(publishers: List<Publisher>): Array<Long>
+
+    @Upsert
+    suspend fun upsertBookSuspend(books: Book)
+
+    @Upsert
+    suspend fun upsertBookSuspendReturnId(book: Book): Long
+
+    @Upsert
+    suspend fun upsertBooksSuspendReturnIds(books: List<Book>): List<Long>
 }

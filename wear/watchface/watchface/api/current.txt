@@ -38,9 +38,9 @@ package androidx.wear.watchface {
     method public boolean getFixedComplicationDataSource();
     method public int getId();
     method public boolean getInitiallyEnabled();
-    method public Integer? getNameResourceId();
+    method @UiThread public Integer? getNameResourceId();
     method public androidx.wear.watchface.CanvasComplication getRenderer();
-    method public Integer? getScreenReaderNameResourceId();
+    method @UiThread public Integer? getScreenReaderNameResourceId();
     method @UiThread public java.util.List<androidx.wear.watchface.complications.data.ComplicationType> getSupportedTypes();
     method public androidx.wear.watchface.ComplicationTapFilter getTapFilter();
     method public boolean isActiveAt(java.time.Instant instant);
@@ -60,9 +60,9 @@ package androidx.wear.watchface {
     property public final boolean fixedComplicationDataSource;
     property public final int id;
     property public final boolean initiallyEnabled;
-    property public final Integer? nameResourceId;
+    property @UiThread public final Integer? nameResourceId;
     property public final androidx.wear.watchface.CanvasComplication renderer;
-    property public final Integer? screenReaderNameResourceId;
+    property @UiThread public final Integer? screenReaderNameResourceId;
     property @UiThread public final java.util.List<androidx.wear.watchface.complications.data.ComplicationType> supportedTypes;
     property public final androidx.wear.watchface.ComplicationTapFilter tapFilter;
     field public static final androidx.wear.watchface.ComplicationSlot.Companion Companion;
@@ -198,16 +198,17 @@ package androidx.wear.watchface {
     method public final androidx.wear.watchface.RenderParameters getRenderParameters();
     method public final android.graphics.Rect getScreenBounds();
     method public final android.view.SurfaceHolder getSurfaceHolder();
+    method public final androidx.wear.watchface.WatchFaceColors? getWatchfaceColors();
     method @UiThread public final void invalidate();
-    method @UiThread public final void notifyWatchfaceColorsChanged();
     method @UiThread public void onDestroy();
     method @UiThread public abstract void onDump(java.io.PrintWriter writer);
     method @UiThread protected void onRenderParametersChanged(androidx.wear.watchface.RenderParameters renderParameters);
     method public final void postInvalidate();
+    method public final void sendPreviewImageNeedsUpdateRequest();
     method public final void setAdditionalContentDescriptionLabels(java.util.Collection<kotlin.Pair<java.lang.Integer,androidx.wear.watchface.ContentDescriptionLabel>>);
     method public final void setInteractiveDrawModeUpdateDelayMillis(long);
+    method public final void setWatchfaceColors(androidx.wear.watchface.WatchFaceColors?);
     method @UiThread public boolean shouldAnimate();
-    method @UiThread public androidx.wear.watchface.Renderer.WatchfaceColors? watchfaceColors();
     property public final java.util.Collection<kotlin.Pair<java.lang.Integer,androidx.wear.watchface.ContentDescriptionLabel>> additionalContentDescriptionLabels;
     property public final float centerX;
     property public final float centerY;
@@ -215,6 +216,7 @@ package androidx.wear.watchface {
     property public final androidx.wear.watchface.RenderParameters renderParameters;
     property public final android.graphics.Rect screenBounds;
     property public final android.view.SurfaceHolder surfaceHolder;
+    property public final androidx.wear.watchface.WatchFaceColors? watchfaceColors;
   }
 
   @Deprecated public abstract static class Renderer.CanvasRenderer extends androidx.wear.watchface.Renderer {
@@ -277,16 +279,6 @@ package androidx.wear.watchface {
 
   public static interface Renderer.SharedAssets {
     method @UiThread public void onDestroy();
-  }
-
-  public static final class Renderer.WatchfaceColors {
-    ctor public Renderer.WatchfaceColors(android.graphics.Color primaryColor, android.graphics.Color secondaryColor, android.graphics.Color tertiaryColor);
-    method public android.graphics.Color getPrimaryColor();
-    method public android.graphics.Color getSecondaryColor();
-    method public android.graphics.Color getTertiaryColor();
-    property public final android.graphics.Color primaryColor;
-    property public final android.graphics.Color secondaryColor;
-    property public final android.graphics.Color tertiaryColor;
   }
 
   public final class RendererKt {
@@ -357,6 +349,19 @@ package androidx.wear.watchface {
 
   public static interface WatchFace.TapListener {
     method @UiThread public void onTapEvent(int tapType, androidx.wear.watchface.TapEvent tapEvent, androidx.wear.watchface.ComplicationSlot? complicationSlot);
+  }
+
+  public final class WatchFaceColors {
+    ctor public WatchFaceColors(android.graphics.Color primaryColor, android.graphics.Color secondaryColor, android.graphics.Color tertiaryColor);
+    method public android.graphics.Color getPrimaryColor();
+    method public android.graphics.Color getSecondaryColor();
+    method public android.graphics.Color getTertiaryColor();
+    property public final android.graphics.Color primaryColor;
+    property public final android.graphics.Color secondaryColor;
+    property public final android.graphics.Color tertiaryColor;
+  }
+
+  public final class WatchFaceColorsKt {
   }
 
   public final class WatchFaceKt {

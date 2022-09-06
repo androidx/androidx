@@ -19,6 +19,7 @@ import android.graphics.Canvas
 import android.graphics.Paint.FontMetricsInt
 import android.graphics.Path
 import android.graphics.RectF
+import android.os.Trace
 import android.text.BoringLayout
 import android.text.Layout
 import android.text.SpannableString
@@ -214,47 +215,52 @@ class TextLayout constructor(
             false
         }
 
-        val boringMetrics = layoutIntrinsics.boringMetrics
+        Trace.beginSection("TextLayout:initLayout")
+        try {
+            val boringMetrics = layoutIntrinsics.boringMetrics
 
-        val widthInt = ceil(width).toInt()
-        layout = if (boringMetrics != null && layoutIntrinsics.maxIntrinsicWidth <= width &&
-            !hasBaselineShiftSpans
-        ) {
-            isBoringLayout = true
-            BoringLayoutFactory.create(
-                text = charSequence,
-                paint = textPaint,
-                width = widthInt,
-                metrics = boringMetrics,
-                alignment = frameworkAlignment,
-                includePadding = includePadding,
-                useFallbackLineSpacing = fallbackLineSpacing,
-                ellipsize = ellipsize,
-                ellipsizedWidth = widthInt
-            )
-        } else {
-            isBoringLayout = false
-            StaticLayoutFactory.create(
-                text = charSequence,
-                start = 0,
-                end = charSequence.length,
-                paint = textPaint,
-                width = widthInt,
-                textDir = frameworkTextDir,
-                alignment = frameworkAlignment,
-                maxLines = maxLines,
-                ellipsize = ellipsize,
-                ellipsizedWidth = ceil(width).toInt(),
-                lineSpacingMultiplier = lineSpacingMultiplier,
-                lineSpacingExtra = lineSpacingExtra,
-                justificationMode = justificationMode,
-                includePadding = includePadding,
-                useFallbackLineSpacing = fallbackLineSpacing,
-                breakStrategy = breakStrategy,
-                hyphenationFrequency = hyphenationFrequency,
-                leftIndents = leftIndents,
-                rightIndents = rightIndents
-            )
+            val widthInt = ceil(width).toInt()
+            layout = if (boringMetrics != null && layoutIntrinsics.maxIntrinsicWidth <= width &&
+                !hasBaselineShiftSpans
+            ) {
+                isBoringLayout = true
+                BoringLayoutFactory.create(
+                    text = charSequence,
+                    paint = textPaint,
+                    width = widthInt,
+                    metrics = boringMetrics,
+                    alignment = frameworkAlignment,
+                    includePadding = includePadding,
+                    useFallbackLineSpacing = fallbackLineSpacing,
+                    ellipsize = ellipsize,
+                    ellipsizedWidth = widthInt
+                )
+            } else {
+                isBoringLayout = false
+                StaticLayoutFactory.create(
+                    text = charSequence,
+                    start = 0,
+                    end = charSequence.length,
+                    paint = textPaint,
+                    width = widthInt,
+                    textDir = frameworkTextDir,
+                    alignment = frameworkAlignment,
+                    maxLines = maxLines,
+                    ellipsize = ellipsize,
+                    ellipsizedWidth = ceil(width).toInt(),
+                    lineSpacingMultiplier = lineSpacingMultiplier,
+                    lineSpacingExtra = lineSpacingExtra,
+                    justificationMode = justificationMode,
+                    includePadding = includePadding,
+                    useFallbackLineSpacing = fallbackLineSpacing,
+                    breakStrategy = breakStrategy,
+                    hyphenationFrequency = hyphenationFrequency,
+                    leftIndents = leftIndents,
+                    rightIndents = rightIndents
+                )
+            }
+        } finally {
+            Trace.endSection()
         }
 
         /* When ellipsis is false:
@@ -975,4 +981,4 @@ private fun TextLayout.getLineHeightSpans(): Array<LineHeightStyleSpan> {
     return lineHeightStyleSpans
 }
 
-internal fun Layout.isLineEllipsized(lineIndex: Int) = this.getEllipsisStart(lineIndex) != 0
+internal fun Layout.isLineEllipsized(lineIndex: Int) = this.getEllipsisCount(lineIndex) > 0

@@ -20,6 +20,7 @@ import android.util.Range;
 import android.util.Rational;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.Logger;
 import androidx.camera.video.VideoSpec;
@@ -31,29 +32,39 @@ import androidx.camera.video.VideoSpec;
 public final class VideoConfigUtil {
     private static final String TAG = "VideoConfigUtil";
 
-    private static final int VIDEO_FRAME_RATE_FIXED_DEFAULT = 30;
-
     // Should not be instantiated.
     private VideoConfigUtil() {
     }
 
-    static int resolveFrameRate(@NonNull VideoSpec videoSpec) {
-        // TODO(b/177918193): We currently cannot communicate the frame rate to the camera,
-        //  so we only support 30fps. This should come from MediaSpec or use
-        //  CamcorderProfile.videoFrameRate if set to AUTO framerate.
-        Range<Integer> videoSpecFrameRateRange = videoSpec.getFrameRate();
-        int resolvedFrameRate = VIDEO_FRAME_RATE_FIXED_DEFAULT;
-        if (VideoSpec.FRAME_RATE_RANGE_AUTO.equals(videoSpecFrameRateRange)
-                || videoSpecFrameRateRange.contains(VIDEO_FRAME_RATE_FIXED_DEFAULT)) {
-            Logger.d(TAG, "Using single supported VIDEO frame rate: " + resolvedFrameRate);
+    static int resolveFrameRate(@NonNull Range<Integer> preferredRange,
+            int exactFrameRateHint, @Nullable Range<Integer> strictOperatingFpsRange) {
+        Range<Integer> refinedRange;
+        if (strictOperatingFpsRange != null) {
+            // We have a strict operating range. Our frame rate should always be in this
+            // range. Since we can only choose a single frame rate (which acts as a target for
+            // VBR), we can only fine tune our preferences within that range.
+            try {
+                // First, let's try to intersect with the preferred frame rate range since this
+                // could contain intent from the user.
+                refinedRange = strictOperatingFpsRange.intersect(preferredRange);
+            } catch (IllegalArgumentException ex) {
+                // Ranges are disjoint. Choose the closest extreme as our frame rate.
+                if (preferredRange.getUpper() < strictOperatingFpsRange.getLower()) {
+                    // Preferred range is below operating range.
+                    return strictOperatingFpsRange.getLower();
+                } else {
+                    // Preferred range is above operating range.
+                    return strictOperatingFpsRange.getUpper();
+                }
+            }
         } else {
-            Logger.w(TAG,
-                    "Requested frame rate range does not include single supported frame rate. "
-                            + "Ignoring range. [range: " + videoSpecFrameRateRange + " supported "
-                            + "frame rate: " + resolvedFrameRate + "]");
+            // We only have the preferred range as a hint since the operating range is null.
+            refinedRange = preferredRange;
         }
 
-        return resolvedFrameRate;
+        // Finally, try to apply the exact frame rate hint to the refined range since
+        // other settings may expect this number.
+        return refinedRange.clamp(exactFrameRateHint);
     }
 
     static int scaleAndClampBitrate(

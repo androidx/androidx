@@ -16,6 +16,7 @@
 
 package androidx.camera.core.processing;
 
+import static androidx.camera.core.impl.ImageOutputConfig.ROTATION_NOT_SPECIFIED;
 import static androidx.camera.core.impl.utils.Threads.checkMainThread;
 import static androidx.camera.core.impl.utils.executor.CameraXExecutors.directExecutor;
 import static androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor;
@@ -24,6 +25,7 @@ import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.media.ImageReader;
 import android.os.Build;
+import android.util.Range;
 import android.util.Size;
 import android.view.Surface;
 import android.view.SurfaceView;
@@ -36,7 +38,9 @@ import androidx.annotation.RequiresApi;
 import androidx.camera.core.CameraEffect;
 import androidx.camera.core.SurfaceEffect;
 import androidx.camera.core.SurfaceOutput;
+import androidx.camera.core.SurfaceOutput.GlTransformOptions;
 import androidx.camera.core.SurfaceRequest;
+import androidx.camera.core.SurfaceRequest.TransformationInfo;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.DeferrableSurface;
@@ -73,11 +77,12 @@ public class SettableSurface extends DeferrableSurface {
     private final Matrix mSensorToBufferTransform;
     private final boolean mHasEmbeddedTransform;
     private final Rect mCropRect;
-    private final int mRotationDegrees;
     private final boolean mMirroring;
     @CameraEffect.Targets
     private final int mTargets;
 
+    // Guarded by main thread.
+    private int mRotationDegrees;
     // Guarded by main thread.
     @Nullable
     private SurfaceOutputImpl mConsumerToNotify;
@@ -85,6 +90,9 @@ public class SettableSurface extends DeferrableSurface {
     private boolean mHasProvider = false;
     // Guarded by main thread.
     private boolean mHasConsumer = false;
+    // Guarded by main thread.
+    @Nullable
+    private SurfaceRequest mProviderSurfaceRequest;
 
     /**
      * Please see the getters to understand the parameters.
@@ -192,15 +200,39 @@ public class SettableSurface extends DeferrableSurface {
     @MainThread
     @NonNull
     public SurfaceRequest createSurfaceRequest(@NonNull CameraInternal cameraInternal) {
+        return createSurfaceRequest(cameraInternal, null);
+    }
+
+    /**
+     * Creates a {@link SurfaceRequest} that is linked to this {@link SettableSurface}.
+     *
+     * <p>The {@link SurfaceRequest} is for requesting a {@link Surface} from an external source
+     * such as {@code PreviewView} or {@code VideoCapture}. {@link SettableSurface} uses the
+     * {@link Surface} provided by {@link SurfaceRequest#provideSurface} as its source. For how
+     * the ref-counting works, please see the Javadoc of {@link #setProvider}.
+     *
+     * <p>It throws {@link IllegalStateException} if the current {@link SettableSurface}
+     * already has a provider.
+     *
+     * <p>This overload optionally allows allows specifying the expected frame rate range in which
+     * the surface should operate.
+     */
+    @MainThread
+    @NonNull
+    public SurfaceRequest createSurfaceRequest(@NonNull CameraInternal cameraInternal,
+            @Nullable Range<Integer> expectedFpsRange) {
         checkMainThread();
         // TODO(b/238230154) figure out how to support HDR.
-        SurfaceRequest surfaceRequest = new SurfaceRequest(getSize(), cameraInternal, true);
+        SurfaceRequest surfaceRequest = new SurfaceRequest(getSize(), cameraInternal, true,
+                expectedFpsRange);
         try {
             setProvider(surfaceRequest.getDeferrableSurface());
         } catch (SurfaceClosedException e) {
             // This should never happen. We just created the SurfaceRequest. It can't be closed.
             throw new AssertionError("Surface is somehow already closed", e);
         }
+        mProviderSurfaceRequest = surfaceRequest;
+        notifyTransformationInfoUpdate();
         return surfaceRequest;
     }
 
@@ -217,18 +249,17 @@ public class SettableSurface extends DeferrableSurface {
      * <p>Do not provide the {@link SurfaceOutput} to external target if the
      * {@link ListenableFuture} fails.
      *
-     * @param applyGlTransform whether the SurfaceOutput should apply the transform, which is
-     *                         calculated based on the input image buffer's attributes.
-     * @param resolution       resolution of input image buffer
-     * @param cropRect         crop rect of input image buffer
-     * @param rotationDegrees  expected rotation to the input image buffer
-     * @param mirroring        expected mirroring to the input image buffer
+     * @param glTransformOptions OpenGL transformation options for SurfaceOutput
+     * @param resolution         resolution of input image buffer
+     * @param cropRect           crop rect of input image buffer
+     * @param rotationDegrees    expected rotation to the input image buffer
+     * @param mirroring          expected mirroring to the input image buffer
      */
     @MainThread
     @NonNull
-    public ListenableFuture<SurfaceOutput> createSurfaceOutputFuture(boolean applyGlTransform,
-            @NonNull Size resolution, @NonNull Rect cropRect, int rotationDegrees,
-            boolean mirroring) {
+    public ListenableFuture<SurfaceOutput> createSurfaceOutputFuture(
+            @NonNull GlTransformOptions glTransformOptions, @NonNull Size resolution,
+            @NonNull Rect cropRect, int rotationDegrees, boolean mirroring) {
         checkMainThread();
         Preconditions.checkState(!mHasConsumer, "Consumer can only be linked once.");
         mHasConsumer = true;
@@ -241,7 +272,7 @@ public class SettableSurface extends DeferrableSurface {
                         return Futures.immediateFailedFuture(e);
                     }
                     SurfaceOutputImpl surfaceOutputImpl = new SurfaceOutputImpl(
-                            surface, getTargets(), getFormat(), getSize(), applyGlTransform,
+                            surface, getTargets(), getFormat(), getSize(), glTransformOptions,
                             resolution, cropRect, rotationDegrees, mirroring);
                     surfaceOutputImpl.getCloseFuture().addListener(this::decrementUseCount,
                             directExecutor());
@@ -336,6 +367,31 @@ public class SettableSurface extends DeferrableSurface {
      */
     public int getRotationDegrees() {
         return mRotationDegrees;
+    }
+
+    /**
+     * Sets the rotation degrees.
+     *
+     * <p>If the surface provider is created via {@link #createSurfaceRequest(CameraInternal)}, the
+     * returned SurfaceRequest will receive the rotation update by
+     * {@link SurfaceRequest.TransformationInfoListener}.
+     */
+    @MainThread
+    public void setRotationDegrees(int rotationDegrees) {
+        checkMainThread();
+        if (mRotationDegrees == rotationDegrees) {
+            return;
+        }
+        mRotationDegrees = rotationDegrees;
+        notifyTransformationInfoUpdate();
+    }
+
+    @MainThread
+    private void notifyTransformationInfoUpdate() {
+        if (mProviderSurfaceRequest != null) {
+            mProviderSurfaceRequest.updateTransformationInfo(
+                    TransformationInfo.of(mCropRect, mRotationDegrees, ROTATION_NOT_SPECIFIED));
+        }
     }
 
     /**

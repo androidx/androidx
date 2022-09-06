@@ -138,9 +138,9 @@ class StartupTimingMetricTest {
         validateStartup_fullyDrawn(100)
     }
 
-    private fun getApi31WarmMetrics(metric: Metric): IterationResult {
+    private fun getApi32WarmMetrics(metric: Metric): IterationResult {
         assumeTrue(isAbiSupported())
-        val traceFile = createTempFileFromAsset("api31_startup_warm", ".perfetto-trace")
+        val traceFile = createTempFileFromAsset("api32_startup_warm", ".perfetto-trace")
         val packageName = "androidx.benchmark.integration.macrobenchmark.target"
         metric.configure(packageName)
         return metric.getMetrics(
@@ -148,7 +148,7 @@ class StartupTimingMetricTest {
                 targetPackageName = "androidx.benchmark.integration.macrobenchmark.target",
                 testPackageName = "androidx.benchmark.integration.macrobenchmark.test",
                 startupMode = StartupMode.WARM,
-                apiLevel = 31
+                apiLevel = 32
             ),
             tracePath = traceFile.absolutePath
         )
@@ -187,29 +187,29 @@ class StartupTimingMetricTest {
     @MediumTest
     @Test
     fun fixedStartupTraceMetrics() {
-        val metrics = getApi31WarmMetrics(StartupTimingMetric())
+        val metrics = getApi32WarmMetrics(StartupTimingMetric())
 
         // check known values
         assertEquals(
             setOf("timeToInitialDisplayMs", "timeToFullDisplayMs"),
             metrics.singleMetrics.keys
         )
-        assertEquals(62.373965, metrics.singleMetrics["timeToInitialDisplayMs"]!!, 0.0001)
-        assertEquals(555.968701, metrics.singleMetrics["timeToFullDisplayMs"]!!, 0.0001)
-        assertEquals(186982050780778..186982606749479, metrics.timelineRangeNs)
+        assertEquals(154.629883, metrics.singleMetrics["timeToInitialDisplayMs"]!!, 0.0001)
+        assertEquals(659.641358, metrics.singleMetrics["timeToFullDisplayMs"]!!, 0.0001)
+        assertEquals(157479786572825..157480446214183, metrics.timelineRangeNs)
     }
 
     @SuppressLint("NewApi") // suppressed for StartupTimingLegacyMetric, since data is fixed
     @MediumTest
     @Test
     fun fixedStartupTraceMetrics_legacy() {
-        val metrics = getApi31WarmMetrics(StartupTimingLegacyMetric())
+        val metrics = getApi32WarmMetrics(StartupTimingLegacyMetric())
 
         // check known values
         assertEquals(setOf("startupMs", "fullyDrawnMs"), metrics.singleMetrics.keys)
-        assertEquals(64.748027, metrics.singleMetrics["startupMs"]!!, 0.0001)
-        assertEquals(543.742658, metrics.singleMetrics["fullyDrawnMs"]!!, 0.0001)
-        assertEquals(186982050780778..186982115528805, metrics.timelineRangeNs)
+        assertEquals(156.515747, metrics.singleMetrics["startupMs"]!!, 0.0001)
+        assertEquals(644.613729, metrics.singleMetrics["fullyDrawnMs"]!!, 0.0001)
+        assertEquals(157479786566030..157479943081777, metrics.timelineRangeNs)
     }
 }
 

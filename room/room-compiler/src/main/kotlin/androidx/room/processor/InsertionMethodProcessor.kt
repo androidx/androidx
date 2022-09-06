@@ -31,6 +31,7 @@ class InsertionMethodProcessor(
     val executableElement: XMethodElement
 ) {
     val context = baseContext.fork(executableElement)
+
     fun process(): InsertionMethod {
         val delegate = ShortcutMethodProcessor(context, containing, executableElement)
         val annotation = delegate.extractAnnotation(

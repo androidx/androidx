@@ -50,7 +50,7 @@ import androidx.health.connect.client.records.HeightRecord
 import androidx.health.connect.client.records.HipCircumferenceRecord
 import androidx.health.connect.client.records.HydrationRecord
 import androidx.health.connect.client.records.LeanBodyMassRecord
-import androidx.health.connect.client.records.MenstruationRecord
+import androidx.health.connect.client.records.MenstruationFlowRecord
 import androidx.health.connect.client.records.NutritionRecord
 import androidx.health.connect.client.records.OvulationTestRecord
 import androidx.health.connect.client.records.OxygenSaturationRecord
@@ -107,7 +107,7 @@ val RECORDS_TYPE_NAME_MAP: Map<String, KClass<out Record>> =
         "HipCircumference" to HipCircumferenceRecord::class,
         "Hydration" to HydrationRecord::class,
         "LeanBodyMass" to LeanBodyMassRecord::class,
-        "Menstruation" to MenstruationRecord::class,
+        "Menstruation" to MenstruationFlowRecord::class,
         "Nutrition" to NutritionRecord::class,
         "OvulationTest" to OvulationTestRecord::class,
         "OxygenSaturation" to OxygenSaturationRecord::class,

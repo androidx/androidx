@@ -17,6 +17,5 @@
 package androidx.test.uiautomator;
 
 /** A {@link SearchCondition} is a condition that is satisfied by searching for UI elements. */
-@SuppressWarnings("TypeNameShadowing")
-public abstract class SearchCondition<R> extends Condition<Searchable, R> {
+public abstract class SearchCondition<U> extends Condition<Searchable, U> {
 }

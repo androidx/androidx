@@ -18,21 +18,27 @@ package androidx.asynclayoutinflater.view;
 import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.asynclayoutinflater.appcompat.AsyncAppCompatFactory;
 import androidx.asynclayoutinflater.test.R;
 
 public class TestActivity extends AppCompatActivity {
 
     private AsyncLayoutInflater mAsyncLayoutInflater;
-    private AsyncLayoutInflater mAsyncLayoutInflaterBgCallback;
+    private AsyncLayoutInflater mAsyncLayoutInflaterAppCompat;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         setTheme(R.style.Theme_AppCompat);
         super.onCreate(savedInstanceState);
         mAsyncLayoutInflater = new AsyncLayoutInflater(this);
+        mAsyncLayoutInflaterAppCompat = new AsyncLayoutInflater(this, new AsyncAppCompatFactory());
     }
 
     public AsyncLayoutInflater getAsyncLayoutInflater() {
         return mAsyncLayoutInflater;
+    }
+
+    public AsyncLayoutInflater getAsyncLayoutInflaterAppCompat() {
+        return mAsyncLayoutInflaterAppCompat;
     }
 }

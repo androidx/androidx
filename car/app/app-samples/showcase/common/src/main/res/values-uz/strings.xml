@@ -220,6 +220,7 @@
     <string name="clicked_row_prefix" msgid="9068303427922069941">"Qator bosildi"</string>
     <string name="first_line_text" msgid="6648055806656590336">"Matnning birinchi qatori"</string>
     <string name="second_line_text" msgid="38664490158836864">"Matnning ikkinchi qatori"</string>
+    <string name="long_line_text" msgid="8082962600953333087">"Ushbu quyi matn cheklanmagan rejimda (masalan, avtoturargoh va cheklangan kam tezlik rejimlarida) toʻliq chiqishi mumkin. Lekin, cheklangan rejimda (avtomobilda) bu yozuv ikki qatorga ajratiladi. Sinov maqsadida, usbbu quyi matn juda ham uzun shaklda"</string>
     <string name="title_prefix" msgid="3991742709199357049">"Nomi"</string>
     <string name="list_template_demo_title" msgid="1740208242737246151">"Roʻyxat andozasi namoyishi"</string>
     <string name="long_msg_template_demo_title" msgid="1793748562161438131">"Uzun xabar andozasi namoyishi"</string>

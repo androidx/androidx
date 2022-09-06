@@ -34,10 +34,9 @@ class VideoEncoderConfigDefaultResolverTest {
     companion object {
         const val MIME_TYPE = "video/avc"
 
-        // TODO(b/177918193): We currently cannot communicate the frame rate to the camera,
-        //  so we only support 30fps. For now we want to ensure we only ever get an FPS of 30,
-        //  but this check can be removed once we can change frame rate.
-        const val FIXED_FRAME_RATE = 30
+        const val FRAME_RATE_30 = 30
+        const val FRAME_RATE_45 = 45
+        const val FRAME_RATE_60 = 60
     }
 
     private val defaultVideoSpec = VideoSpec.builder().build()
@@ -48,30 +47,47 @@ class VideoEncoderConfigDefaultResolverTest {
         val surfaceSize720p = CamcorderProfileUtil.RESOLUTION_720P
         val surfaceSize1080p = CamcorderProfileUtil.RESOLUTION_1080P
 
+        val expectedFrameRateRange = Range(FRAME_RATE_30, FRAME_RATE_30)
+
         val configSupplierCif =
-            VideoEncoderConfigDefaultResolver(MIME_TYPE, defaultVideoSpec, surfaceSizeCif)
+            VideoEncoderConfigDefaultResolver(
+                MIME_TYPE,
+                defaultVideoSpec,
+                surfaceSizeCif,
+                expectedFrameRateRange
+            )
         val configSupplier720p =
-            VideoEncoderConfigDefaultResolver(MIME_TYPE, defaultVideoSpec, surfaceSize720p)
+            VideoEncoderConfigDefaultResolver(
+                MIME_TYPE,
+                defaultVideoSpec,
+                surfaceSize720p,
+                expectedFrameRateRange
+            )
         val configSupplier1080p =
-            VideoEncoderConfigDefaultResolver(MIME_TYPE, defaultVideoSpec, surfaceSize1080p)
+            VideoEncoderConfigDefaultResolver(
+                MIME_TYPE,
+                defaultVideoSpec,
+                surfaceSize1080p,
+                expectedFrameRateRange
+            )
 
         val configCif = configSupplierCif.get()
         assertThat(configCif.mimeType).isEqualTo(MIME_TYPE)
         assertThat(configCif.bitrate).isGreaterThan(0)
         assertThat(configCif.resolution).isEqualTo(surfaceSizeCif)
-        assertThat(configCif.frameRate).isEqualTo(FIXED_FRAME_RATE)
+        assertThat(configCif.frameRate).isEqualTo(FRAME_RATE_30)
 
         val config720p = configSupplier720p.get()
         assertThat(config720p.mimeType).isEqualTo(MIME_TYPE)
         assertThat(config720p.bitrate).isGreaterThan(0)
         assertThat(config720p.resolution).isEqualTo(surfaceSize720p)
-        assertThat(config720p.frameRate).isEqualTo(FIXED_FRAME_RATE)
+        assertThat(config720p.frameRate).isEqualTo(FRAME_RATE_30)
 
         val config1080p = configSupplier1080p.get()
         assertThat(config1080p.mimeType).isEqualTo(MIME_TYPE)
         assertThat(config1080p.bitrate).isGreaterThan(0)
         assertThat(config1080p.resolution).isEqualTo(surfaceSize1080p)
-        assertThat(config1080p.frameRate).isEqualTo(FIXED_FRAME_RATE)
+        assertThat(config1080p.frameRate).isEqualTo(FRAME_RATE_30)
     }
 
     @Test
@@ -80,7 +96,12 @@ class VideoEncoderConfigDefaultResolverTest {
 
         // Get default bit rate for this size
         val defaultConfig =
-            VideoEncoderConfigDefaultResolver(MIME_TYPE, defaultVideoSpec, surfaceSize720p).get()
+            VideoEncoderConfigDefaultResolver(
+                MIME_TYPE,
+                defaultVideoSpec,
+                surfaceSize720p,
+                /*expectedFrameRateRange=*/null
+            ).get()
         val defaultBitrate = defaultConfig.bitrate
 
         // Create video spec with limit 20% higher than default.
@@ -96,7 +117,8 @@ class VideoEncoderConfigDefaultResolverTest {
             VideoEncoderConfigDefaultResolver(
                 MIME_TYPE,
                 higherVideoSpec,
-                surfaceSize720p
+                surfaceSize720p,
+                /*expectedFrameRateRange=*/null
             ).get().bitrate
         ).isEqualTo(higherBitrate)
 
@@ -104,29 +126,72 @@ class VideoEncoderConfigDefaultResolverTest {
             VideoEncoderConfigDefaultResolver(
                 MIME_TYPE,
                 lowerVideoSpec,
-                surfaceSize720p
+                surfaceSize720p,
+                /*expectedFrameRateRange=*/null
             ).get().bitrate
         ).isEqualTo(lowerBitrate)
     }
 
-    // TODO(b/177918193): We currently cannot communicate the frame rate to the camera,
-    //  so we only support 30fps. Ensure the encoder config always is 30 so the encoder
-    //  gets the correct frame rate.
-    //  This test can be removed once setting the frame rate is supported.
     @Test
-    fun frameRateIsAlways30() {
+    fun frameRateIsChosenFromVideoSpec_whenNoExpectedRangeProvided() {
         // Give a VideoSpec with a frame rate higher than 30
-        val videoSpec = VideoSpec.builder().setBitrate(Range(60, 60)).build()
+        val videoSpec =
+            VideoSpec.builder().setFrameRate(Range(FRAME_RATE_60, FRAME_RATE_60)).build()
         val size = CamcorderProfileUtil.RESOLUTION_1080P
 
         assertThat(
             VideoEncoderConfigDefaultResolver(
                 MIME_TYPE,
                 videoSpec,
-                size
+                size,
+                /*expectedFrameRateRange=*/null
             ).get().frameRate
         ).isEqualTo(
-            FIXED_FRAME_RATE
+            FRAME_RATE_60
         )
+    }
+
+    @Test
+    fun frameRateIsChosenFromExpectedRange_whenNoOverlapWithVideoSpec() {
+        // Give a VideoSpec with a frame rate higher than 30
+        val videoSpec =
+            VideoSpec.builder().setFrameRate(Range(FRAME_RATE_60, FRAME_RATE_60)).build()
+        val size = CamcorderProfileUtil.RESOLUTION_1080P
+
+        val expectedFrameRateRange = Range(FRAME_RATE_30, FRAME_RATE_30)
+
+        // Expected frame rate range takes precedence over VideoSpec
+        assertThat(
+            VideoEncoderConfigDefaultResolver(
+                MIME_TYPE,
+                videoSpec,
+                size,
+                expectedFrameRateRange
+            ).get().frameRate
+        ).isEqualTo(
+            FRAME_RATE_30
+        )
+    }
+
+    @Test
+    fun frameRateIsChosenFromOverlapOfExpectedRangeAndVideoSpec() {
+        // Give a VideoSpec with a frame rate higher than 30
+        val videoSpec =
+            VideoSpec.builder().setFrameRate(Range(FRAME_RATE_30, FRAME_RATE_45)).build()
+        val size = CamcorderProfileUtil.RESOLUTION_1080P
+
+        val expectedFrameRateRange = Range(FRAME_RATE_30, FRAME_RATE_60)
+
+        val intersection = expectedFrameRateRange.intersect(videoSpec.frameRate)
+
+        // Expected frame rate range takes precedence over VideoSpec
+        assertThat(
+            VideoEncoderConfigDefaultResolver(
+                MIME_TYPE,
+                videoSpec,
+                size,
+                expectedFrameRateRange
+            ).get().frameRate
+        ).isIn(com.google.common.collect.Range.closed(intersection.lower, intersection.upper))
     }
 }

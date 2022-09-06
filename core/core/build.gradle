@@ -18,6 +18,7 @@ dependencies {
     api("androidx.versionedparcelable:versionedparcelable:1.1.1")
     implementation("androidx.collection:collection:1.0.0")
     implementation("androidx.concurrent:concurrent-futures:1.0.0")
+    implementation("androidx.interpolator:interpolator:1.0.0")
 
     // Required for -Werror due to annotation-experimental use of Kotlin
     compileOnly(libs.kotlinStdlib)

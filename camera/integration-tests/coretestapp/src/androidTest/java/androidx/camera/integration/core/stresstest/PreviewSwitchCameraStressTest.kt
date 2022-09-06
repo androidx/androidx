@@ -53,6 +53,7 @@ class PreviewSwitchCameraStressTest constructor(cameraId: String) :
     @RepeatRule.Repeat(times = LARGE_STRESS_TEST_REPEAT_COUNT)
     fun switchCamera_checkPreviewInEachTime_withPreviewImageCaptureImageAnalysis() {
         val useCaseCombination = BIND_PREVIEW or BIND_IMAGE_CAPTURE or BIND_IMAGE_ANALYSIS
+        assumeBothLensFacingCamerasSupportUseCaseCombination(camera, useCaseCombination)
         switchCamera_checkOutput_repeatedly(
             cameraId,
             useCaseCombination,
@@ -115,6 +116,7 @@ class PreviewSwitchCameraStressTest constructor(cameraId: String) :
     @RepeatRule.Repeat(times = LARGE_STRESS_TEST_REPEAT_COUNT)
     fun checkPreview_afterSwitchCameraRepeatedly_withPreviewImageCaptureImageAnalysis() {
         val useCaseCombination = BIND_PREVIEW or BIND_IMAGE_CAPTURE or BIND_IMAGE_ANALYSIS
+        assumeBothLensFacingCamerasSupportUseCaseCombination(camera, useCaseCombination)
         switchCamera_repeatedly_thenCheckOutput(
             cameraId,
             useCaseCombination,

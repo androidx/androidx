@@ -220,6 +220,7 @@
     <string name="clicked_row_prefix" msgid="9068303427922069941">"클릭된 행"</string>
     <string name="first_line_text" msgid="6648055806656590336">"텍스트 첫 줄"</string>
     <string name="second_line_text" msgid="38664490158836864">"텍스트 두 번째 줄"</string>
+    <string name="long_line_text" msgid="8082962600953333087">"이 하위 텍스트는 제한 없는 모드(예: 주차 모드, 제한된 저속 모드)에서 완전히 표시됩니다. 하지만 제한된 모드(예: 운전 모드)에서는 잘려서 두 줄까지만 표시됩니다. 이 하위 텍스트는 테스트를 위해 아주 길게 작성되었습니다."</string>
     <string name="title_prefix" msgid="3991742709199357049">"제목"</string>
     <string name="list_template_demo_title" msgid="1740208242737246151">"목록 템플릿 데모"</string>
     <string name="long_msg_template_demo_title" msgid="1793748562161438131">"긴 메시지 템플릿 데모"</string>

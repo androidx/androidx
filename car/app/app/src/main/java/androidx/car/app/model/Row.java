@@ -25,11 +25,13 @@ import android.annotation.SuppressLint;
 import android.os.Looper;
 
 import androidx.annotation.IntDef;
+import androidx.annotation.IntRange;
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.annotations.CarProtocol;
+import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.constraints.ActionsConstraints;
 import androidx.car.app.model.constraints.CarIconConstraints;
@@ -109,7 +111,7 @@ public final class Row implements Item {
     @Keep
     private final List<Action> mActions;
     @Keep
-    private final int mDecoration;
+    private final int mNumericDecoration;
     @Keep
     @Nullable
     private final Toggle mToggle;
@@ -161,6 +163,7 @@ public final class Row implements Item {
      *
      * @see Builder#addAction(Action)
      */
+    @ExperimentalCarApi
     @NonNull
     public List<Action> getActions() {
         return mActions;
@@ -181,8 +184,10 @@ public final class Row implements Item {
      *
      * @see Builder#setNumericDecoration(int)
      */
+    @ExperimentalCarApi
+    @RequiresCarApi(6)
     public int getNumericDecoration() {
-        return mDecoration;
+        return mNumericDecoration;
     }
 
     /**
@@ -310,7 +315,7 @@ public final class Row implements Item {
         mTexts = CollectionUtils.unmodifiableCopy(builder.mTexts);
         mImage = builder.mImage;
         mActions = CollectionUtils.unmodifiableCopy(builder.mActions);
-        mDecoration = builder.mDecoration;
+        mNumericDecoration = builder.mDecoration;
         mToggle = builder.mToggle;
         mOnClickDelegate = builder.mOnClickDelegate;
         mMetadata = builder.mMetadata;
@@ -325,7 +330,7 @@ public final class Row implements Item {
         mTexts = Collections.emptyList();
         mImage = null;
         mActions = Collections.emptyList();
-        mDecoration = NO_DECORATION;
+        mNumericDecoration = NO_DECORATION;
         mToggle = null;
         mOnClickDelegate = null;
         mMetadata = EMPTY_METADATA;
@@ -343,7 +348,7 @@ public final class Row implements Item {
         @Nullable
         CarIcon mImage;
         final List<Action> mActions = new ArrayList<>();
-        int mDecoration;
+        int mDecoration = Row.NO_DECORATION;
         @Nullable
         Toggle mToggle;
         @Nullable
@@ -533,6 +538,7 @@ public final class Row implements Item {
          *                                  exceeds the maximum number of allowed actions or does
          *                                  not contain a valid {@link CarIcon}.
          */
+        @ExperimentalCarApi
         @NonNull
         public Builder addAction(@NonNull Action action) {
             List<Action> mActionsCopy = new ArrayList<>(mActions);
@@ -555,7 +561,10 @@ public final class Row implements Item {
          * {@link Row#NO_DECORATION}.
          * @throws IllegalArgumentException if {@code decoration} is invalid
          */
+        @ExperimentalCarApi
         @NonNull
+        @RequiresCarApi(6)
+        @IntRange(from = 0)
         public Builder setNumericDecoration(int decoration) {
             if (decoration < 0 && decoration != NO_DECORATION) {
                 throw new IllegalArgumentException(

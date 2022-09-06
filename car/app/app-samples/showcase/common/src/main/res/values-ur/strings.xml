@@ -222,6 +222,7 @@
     <string name="clicked_row_prefix" msgid="9068303427922069941">"کلک کی گئی قطار"</string>
     <string name="first_line_text" msgid="6648055806656590336">"ٹیکسٹ کی پہلی لائن"</string>
     <string name="second_line_text" msgid="38664490158836864">"ٹیکسٹ کی دوسری لائن"</string>
+    <string name="long_line_text" msgid="8082962600953333087">"یہ سب ٹیکسٹ غیر محدود کردہ وضع میں پوری طرح ڈسپلے ہو سکتا ہے (مثال کے طور پر، پارکنگ وضع، محدود کردہ کم رفتار وضع)۔ لیکن محدود کردہ وضع میں رہتے ہوئے، یہ صرف دو سطروں تک ہی کاٹا جائے گا (مثال، ڈرائیونگ موڈ)۔ ٹیسٹنگ کے مقاصد کیلئے، یہ سب ٹیکسٹ بہت بہت بہت بہت بہت لمبا ہے"</string>
     <string name="title_prefix" msgid="3991742709199357049">"عنوان"</string>
     <string name="list_template_demo_title" msgid="1740208242737246151">"فہرست کی تمثیل کا ڈیمو"</string>
     <string name="long_msg_template_demo_title" msgid="1793748562161438131">"طویل پیغام کی تمثیل کا ڈیمو"</string>

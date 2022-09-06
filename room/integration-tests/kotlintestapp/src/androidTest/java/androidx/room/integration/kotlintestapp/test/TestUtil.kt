@@ -16,15 +16,31 @@
 
 package androidx.room.integration.kotlintestapp.test
 
+import androidx.arch.core.executor.ArchTaskExecutor
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.Observer
 import androidx.room.integration.kotlintestapp.vo.Author
 import androidx.room.integration.kotlintestapp.vo.Book
 import androidx.room.integration.kotlintestapp.vo.BookAuthor
 import androidx.room.integration.kotlintestapp.vo.Lang
 import androidx.room.integration.kotlintestapp.vo.Publisher
+import java.util.concurrent.FutureTask
 
 class TestUtil {
 
     companion object {
+        fun observeOnMainThread(
+            liveData: LiveData<Book>,
+            provider: LifecycleOwner,
+            observer: Observer<Book>
+        ) {
+            val futureTask = FutureTask<Unit> {
+                liveData.observe(provider, observer)
+            }
+            ArchTaskExecutor.getInstance().executeOnMainThread(futureTask)
+            futureTask.get()
+        }
 
         val PUBLISHER = Publisher("ph1", "publisher 1")
         val PUBLISHER2 = Publisher("ph2", "publisher 2")

@@ -1,0 +1,72 @@
+/*
+ * Copyright 2022 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import androidx.build.KmpPlatformsKt
+import androidx.build.Publish
+import org.jetbrains.kotlin.konan.target.HostManager
+import org.jetbrains.kotlin.konan.target.KonanTarget
+
+plugins {
+    id("AndroidXPlugin")
+    alias(libs.plugins.kotlinBenchmark)
+}
+
+androidXMultiplatform {
+    jvm() // No-op target needed for CI to succeed, see b/243154573
+    ios()
+    mac()
+    linux()
+
+    sourceSets {
+        commonMain {
+            dependencies {
+                implementation(project(":collection:collection"))
+                implementation(libs.kotlinBenchmarkRuntime)
+                implementation(libs.kotlinTest)
+            }
+        }
+    }
+}
+
+benchmark {
+    configurations {
+        main {
+            iterations = 5
+            iterationTime = 300
+            iterationTimeUnit = "ms"
+        }
+    }
+
+    targets {
+        if (KmpPlatformsKt.enableLinux(project) && HostManager.hostIsLinux) {
+            register("linuxX64")
+        }
+
+        if (KmpPlatformsKt.enableMac(project)) {
+            if (HostManager.host == KonanTarget.MACOS_X64) {
+                register("macosX64")
+            }
+
+            if (HostManager.host == KonanTarget.MACOS_ARM64) {
+                register("macosArm64")
+            }
+        }
+    }
+}
+
+androidx {
+    publish = Publish.NONE
+}

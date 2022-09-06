@@ -70,6 +70,22 @@ public class MediatorLiveData<T> extends MutableLiveData<T> {
     private SafeIterableMap<LiveData<?>, Source<?>> mSources = new SafeIterableMap<>();
 
     /**
+     * Creates a MediatorLiveData with no value assigned to it.
+     */
+    public MediatorLiveData() {
+        super();
+    }
+
+    /**
+     * Creates a MediatorLiveData initialized with the given {@code value}.
+     *
+     * @param value initial value
+     */
+    public MediatorLiveData(T value) {
+        super(value);
+    }
+
+    /**
      * Starts to listen the given {@code source} LiveData, {@code onChanged} observer will be called
      * when {@code source} value was changed.
      * <p>

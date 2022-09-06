@@ -23,17 +23,26 @@ import androidx.navigation.safe.args.generator.models.Action
 import androidx.navigation.safe.args.generator.models.Argument
 import androidx.navigation.safe.args.generator.models.Destination
 import androidx.navigation.safe.args.generator.models.ResReference
+import androidx.room.compiler.processing.util.Source
+import androidx.room.compiler.processing.util.compiler.TestCompilationArguments
+import androidx.room.compiler.processing.util.compiler.compile
 import com.google.common.truth.StringSubject
 import com.google.common.truth.Truth.assertThat
 import com.squareup.javapoet.ClassName
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.TypeSpec
+import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.TemporaryFolder
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
 class KotlinNavWriterTest {
+    @field:Rule
+    @JvmField
+    val temporaryFolder = TemporaryFolder()
+
     private fun generateDirectionsCodeFile(
         destination: Destination,
         parentDirectionsFileList: List<KotlinCodeFile>,
@@ -62,6 +71,21 @@ class KotlinNavWriterTest {
     private fun StringSubject.parsesAs(fullClassName: String) =
         this.isEqualTo(loadSourceString(fullClassName, "expected/kotlin_nav_writer_test", "kt"))
 
+    private fun assertCompilesWithoutError(codeFile: KotlinCodeFile, packageName: String = "a.b") {
+        val compilation = compile(temporaryFolder.root,
+            arguments = TestCompilationArguments(
+                sources = listOf(
+                    Source.java(
+                        "$packageName.R",
+                        loadSourceString("$packageName.R", packageName.replace(".", "/"), "java")
+                    ),
+                    Source.kotlin(codeFile.fileName() + ".kt", codeFile.toString())
+                )
+            )
+        )
+        assertThat(compilation.success).isTrue()
+    }
+
     @Test
     fun testDirectionClassGeneration() {
         val action = Action(
@@ -89,6 +113,7 @@ class KotlinNavWriterTest {
         )
         val actual = generateDirectionsTypeSpec(action, false)
         assertThat(wrappedInnerClass(actual).toString()).parsesAs("a.b.Next")
+        assertCompilesWithoutError(wrappedInnerClass(actual))
     }
 
     @Test
@@ -110,6 +135,7 @@ class KotlinNavWriterTest {
 
         val actual = generateDirectionsCodeFile(dest, emptyList(), false)
         assertThat(actual.toString()).parsesAs("a.b.MainFragmentDirections")
+        assertCompilesWithoutError(actual)
     }
 
     @Test
@@ -149,6 +175,7 @@ class KotlinNavWriterTest {
 
         val actual = generateDirectionsCodeFile(dest, emptyList(), false)
         assertThat(actual.toString()).parsesAs("a.b.FunFragmentDirections")
+        assertCompilesWithoutError(actual, "fun.is.in")
     }
 
     @Test
@@ -182,6 +209,8 @@ class KotlinNavWriterTest {
                 "reallyreallyreallyreallyreallyreallyreallyreallyreallyreallyreally" +
                 "longpackage.LongPackageFragmentDirections"
         )
+        assertCompilesWithoutError(actual, "a.b.secondreallyreallyreallyreallyreallyreally" +
+            "reallyreallyreallyreallyreallyreallyreallyreallyreallyreallylongpackage")
     }
 
     @Test
@@ -223,6 +252,7 @@ class KotlinNavWriterTest {
 
         val actual = generateArgsCodeFile(dest, false)
         assertThat(actual.toString()).parsesAs("a.b.MainFragmentArgs")
+        assertCompilesWithoutError(actual)
     }
 
     @Test
@@ -235,7 +265,8 @@ class KotlinNavWriterTest {
                     "ReallyLongNameFragment"
             ),
             "fragment",
-            listOf(), listOf()
+            listOf(Argument("main", StringType)),
+            listOf()
         )
 
         val actual = generateArgsCodeFile(dest, false)
@@ -243,5 +274,7 @@ class KotlinNavWriterTest {
             "a.b.ReallyReallyReallyReallyReally" +
                 "ReallyReallyReallyReallyReallyReallyReallyReallyReallyLongNameMainFragmentArgs"
         )
+        assertCompilesWithoutError(actual, "a.b.secondreallyreallyreallyreallyreallyreally" +
+            "reallyreallyreallyreallyreallyreallyreallyreallyreallyreallylongpackage")
     }
 }

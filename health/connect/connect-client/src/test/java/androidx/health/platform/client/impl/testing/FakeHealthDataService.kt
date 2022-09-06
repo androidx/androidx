@@ -26,6 +26,7 @@ import androidx.health.platform.client.request.GetChangesRequest
 import androidx.health.platform.client.request.GetChangesTokenRequest
 import androidx.health.platform.client.request.ReadDataRangeRequest
 import androidx.health.platform.client.request.ReadDataRequest
+import androidx.health.platform.client.request.RegisterForDataNotificationsRequest
 import androidx.health.platform.client.request.RequestContext
 import androidx.health.platform.client.request.UpsertDataRequest
 import androidx.health.platform.client.response.AggregateDataResponse
@@ -44,8 +45,11 @@ import androidx.health.platform.client.service.IHealthDataService
 import androidx.health.platform.client.service.IInsertDataCallback
 import androidx.health.platform.client.service.IReadDataCallback
 import androidx.health.platform.client.service.IReadDataRangeCallback
+import androidx.health.platform.client.service.IRegisterForDataNotificationsCallback
 import androidx.health.platform.client.service.IRevokeAllPermissionsCallback
+import androidx.health.platform.client.service.IUnregisterFromDataNotificationsCallback
 import androidx.health.platform.client.service.IUpdateDataCallback
+import androidx.health.platform.client.request.UnregisterFromDataNotificationsRequest
 
 /** Fake {@link IHealthDataService} implementation for unit testing. */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -62,6 +66,8 @@ class FakeHealthDataService : IHealthDataService.Stub() {
     var lastAggregateRequest: AggregateDataRequest? = null
     var lastGetChangesTokenRequest: GetChangesTokenRequest? = null
     var lastGetChangesRequest: GetChangesRequest? = null
+    var lastRegisterForDataNotificationsRequest: RegisterForDataNotificationsRequest? = null
+    var lastUnregisterFromDataNotificationsRequest: UnregisterFromDataNotificationsRequest? = null
 
     /** State for returned responses. */
     var insertDataResponse: InsertDataResponse? = null
@@ -223,5 +229,31 @@ class FakeHealthDataService : IHealthDataService.Stub() {
             return@getChanges
         }
         callback.onSuccess(changesResponse)
+    }
+
+    override fun registerForDataNotifications(
+        context: RequestContext,
+        request: RegisterForDataNotificationsRequest,
+        callback: IRegisterForDataNotificationsCallback,
+    ) {
+        lastRegisterForDataNotificationsRequest = request
+        errorCode?.also {
+            callback.onError(ErrorStatus.create(errorCode = it))
+            return@registerForDataNotifications
+        }
+        callback.onSuccess()
+    }
+
+    override fun unregisterFromDataNotifications(
+        context: RequestContext,
+        request: UnregisterFromDataNotificationsRequest,
+        callback: IUnregisterFromDataNotificationsCallback,
+    ) {
+        lastUnregisterFromDataNotificationsRequest = request
+        errorCode?.also {
+            callback.onError(ErrorStatus.create(errorCode = it))
+            return@unregisterFromDataNotifications
+        }
+        callback.onSuccess()
     }
 }

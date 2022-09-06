@@ -27,8 +27,8 @@ limitations under the License.
     <string name="lb_control_display_rewind_multiplier" msgid="4597148235912710942">"%1$dX"</string>
     <string name="lb_playback_controls_play" msgid="7088090604803481121">"ప్లే చేయి"</string>
     <string name="lb_playback_controls_pause" msgid="917331776961802657">"పాజ్ చేయి"</string>
-    <string name="lb_playback_controls_fast_forward" msgid="740570111678243493">"వేగంగా ఫార్వార్డ్ చేయి"</string>
-    <string name="lb_playback_controls_fast_forward_multiplier" msgid="5734614175721471329">"%1$dX ఫాస్ట్ ఫార్వార్డ్ చేయి"</string>
+    <string name="lb_playback_controls_fast_forward" msgid="740570111678243493">"వేగంగా ఫార్వర్డ్ చేయి"</string>
+    <string name="lb_playback_controls_fast_forward_multiplier" msgid="5734614175721471329">"%1$dX ఫాస్ట్ ఫార్వర్డ్ చేయి"</string>
     <string name="lb_playback_controls_rewind" msgid="2866333981131020771">"రివైండ్ చేయి"</string>
     <string name="lb_playback_controls_rewind_multiplier" msgid="6038956370475252734">"%1$dX రివైండ్ చేయి"</string>
     <string name="lb_playback_controls_skip_next" msgid="8117512422682146745">"తదుపరి దానికి దాటవేయి"</string>

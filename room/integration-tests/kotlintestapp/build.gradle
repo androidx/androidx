@@ -112,6 +112,7 @@ dependencies {
     androidTestImplementation(project(":internal-testutils-common"))
     androidTestImplementation("androidx.arch.core:core-testing:2.0.1")
     androidTestImplementation("androidx.paging:paging-runtime:3.1.1")
+    androidTestImplementation(projectOrArtifact(":lifecycle:lifecycle-runtime-testing"))
     androidTestImplementation(libs.rxjava2)
     testImplementation(libs.mockitoCore)
 }
@@ -119,11 +120,4 @@ dependencies {
 // KSP does not support argument per flavor so we set it to global instead.
 ksp {
     arg("room.schemaLocation","$projectDir/schemas-ksp".toString())
-}
-
-// Allow usage of Kotlin's @OptIn.
-tasks.withType(KotlinCompile).configureEach {
-    kotlinOptions {
-        freeCompilerArgs += ["-opt-in=kotlin.RequiresOptIn"]
-    }
 }

@@ -200,6 +200,7 @@ abstract class ImageCaptureBaseTest<A : CameraActivity>(
             putExtra(CameraActivity.KEY_LENS_FACING, lensFacing)
             putExtra(CameraActivity.KEY_IMAGE_CAPTURE_MODE, captureMode)
             putExtra(CameraActivity.KEY_CAMERA_IMPLEMENTATION, cameraXConfig)
+            putExtra(CameraActivity.KEY_CAMERA_IMPLEMENTATION_NO_HISTORY, true)
         }
         return ActivityScenario.launch<A>(intent)
     }

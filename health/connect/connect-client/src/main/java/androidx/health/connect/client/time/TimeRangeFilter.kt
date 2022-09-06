@@ -30,7 +30,8 @@ import java.time.LocalDateTime
  * Time can be specified in one of the two ways:
  * - use [Instant] for a specific point in time such as "2021-01-03 at 10:00 UTC+1";
  * - use [LocalDateTime] for a user experienced time concept such as "2021-01-03 at 10 o'clock",
- * without knowing which time zone the user was at that time.
+ * without knowing which time zone the user was at that time. [Record] without specifying zoneOffset
+ * will assume the current system zone offset at query time.
  */
 class TimeRangeFilter
 internal constructor(

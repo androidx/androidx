@@ -291,7 +291,6 @@ tasks.withType(KotlinCompile).configureEach {
     kotlinOptions {
         freeCompilerArgs += [
                 "-Xjvm-default=all",
-                "-opt-in=kotlin.RequiresOptIn",
                 "-opt-in=kotlin.contracts.ExperimentalContracts",
                 "-opt-in=androidx.room.compiler.processing.ExperimentalProcessingApi"
         ]
@@ -309,7 +308,7 @@ tasks.withType(Test).configureEach {
 
 androidx {
     name = "Android Room Compiler"
-    type = LibraryType.COMPILER_PLUGIN
+    type = LibraryType.ANNOTATION_PROCESSOR
     mavenGroup = LibraryGroups.ROOM
     inceptionYear = "2017"
     description = "Android Room annotation processor"

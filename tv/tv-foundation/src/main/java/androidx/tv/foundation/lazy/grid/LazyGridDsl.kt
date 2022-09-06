@@ -47,7 +47,7 @@ import androidx.tv.foundation.PivotOffsets
  * e.g. with [Arrangement.Top] (top) 123### (bottom) becomes (top) 321### (bottom).
  * @param verticalArrangement The vertical arrangement of the layout's children
  * @param horizontalArrangement The horizontal arrangement of the layout's children
- * @param pivotOffsets offsets that are used when implementing Mario Scrolling
+ * @param pivotOffsets offsets that are used when implementing Scrolling with Offset
  * @param userScrollEnabled whether the scrolling via the user gestures or accessibility actions
  * is allowed. You can still scroll programmatically using the state even when it is disabled.
  * @param pivotOffsets offsets of child element within the parent and starting edge of the child
@@ -96,7 +96,7 @@ fun TvLazyVerticalGrid(
  * the first item is located at the end.
  * @param verticalArrangement The vertical arrangement of the layout's children
  * @param horizontalArrangement The horizontal arrangement of the layout's children
- * @param pivotOffsets offsets that are used when implementing Mario Scrolling
+ * @param pivotOffsets offsets that are used when implementing Scrolling with Offset
  * @param userScrollEnabled whether the scrolling via the user gestures or accessibility actions
  * is allowed. You can still scroll programmatically using the state even when it is disabled.
  * @param pivotOffsets offsets of child element within the parent and starting edge of the child

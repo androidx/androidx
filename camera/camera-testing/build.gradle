@@ -26,7 +26,7 @@ plugins {
 }
 
 dependencies {
-    implementation(libs.testCore)
+    implementation("androidx.test:core:1.4.0")
     implementation(libs.testRules)
     implementation(libs.testUiautomator)
     api("androidx.annotation:annotation:1.2.0")
@@ -73,13 +73,6 @@ android {
         }
     }
     namespace "androidx.camera.testing"
-}
-
-// Allow usage of Kotlin's @OptIn.
-tasks.withType(KotlinCompile).configureEach {
-    kotlinOptions {
-        freeCompilerArgs += ["-opt-in=kotlin.RequiresOptIn"]
-    }
 }
 
 androidx {

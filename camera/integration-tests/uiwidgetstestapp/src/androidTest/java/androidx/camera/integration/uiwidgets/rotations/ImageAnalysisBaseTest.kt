@@ -139,6 +139,7 @@ abstract class ImageAnalysisBaseTest<A : CameraActivity>(
             ).apply {
                 putExtra(CameraActivity.KEY_LENS_FACING, lensFacing)
                 putExtra(CameraActivity.KEY_CAMERA_IMPLEMENTATION, cameraXConfig)
+                putExtra(CameraActivity.KEY_CAMERA_IMPLEMENTATION_NO_HISTORY, true)
             }
             return ActivityScenario.launch<A>(intent)
         }

@@ -19,11 +19,14 @@ package androidx.wear.watchface.client
 import android.content.ComponentName
 import android.content.Context
 import androidx.concurrent.futures.ResolvableFuture
+import androidx.wear.watchface.Renderer
+import androidx.wear.watchface.client.WatchFaceControlClient.PreviewImageUpdateRequestedListener
 import androidx.wear.watchface.complications.data.ComplicationData
 import androidx.wear.watchface.utility.AsyncTraceEvent
 import androidx.wear.watchface.client.WatchFaceControlClient.ServiceNotBoundException
 import androidx.wear.watchface.style.UserStyleData
 import com.google.common.util.concurrent.ListenableFuture
+import java.util.concurrent.Executor
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Runnable
@@ -160,8 +163,17 @@ public open class ListenableWatchFaceControlClient(
      * this will be the [androidx.wear.watchface.style.UserStyleSchema]'s default).
      * @param slotIdToComplicationData The initial [androidx.wear.watchface.ComplicationSlot] data,
      * or `null` if unavailable.
+     * @return a [ListenableFuture] for the [InteractiveWatchFaceClient].
      */
     @Suppress("AsyncSuffixFuture")
+    @Deprecated(
+        "Use an overload that specifies PreviewImageUpdateRequestedListener",
+        ReplaceWith(
+            "listenableGetOrCreateInteractiveWatchFaceClient(" +
+                "String, DeviceConfig, WatchUiState, UserStyleData?, Map<Int, ComplicationData>?," +
+                " Executor, PreviewImageUpdateRequestedListener)"
+        )
+    )
     public open fun listenableGetOrCreateInteractiveWatchFaceClient(
         id: String,
         deviceConfig: DeviceConfig,
@@ -172,6 +184,7 @@ public open class ListenableWatchFaceControlClient(
         launchFutureCoroutine(
             "ListenableWatchFaceControlClient.listenableGetOrCreateInteractiveWatchFaceClient",
         ) {
+            @Suppress("Deprecation")
             watchFaceControlClient.getOrCreateInteractiveWatchFaceClient(
                 id,
                 deviceConfig,
@@ -181,6 +194,58 @@ public open class ListenableWatchFaceControlClient(
             )
         }
 
+    /**
+     * [ListenableFuture] wrapper around
+     * [WatchFaceControlClient.getOrCreateInteractiveWatchFaceClient].
+     * This is open to allow mocking.
+     *
+     * @param id The Id of the interactive instance to get or create.
+     * @param deviceConfig The [DeviceConfig] of the interactive instance (only used when creating)
+     * @param watchUiState The initial [WatchUiState] for the wearable.
+     * @param userStyle Optional [UserStyleData] to apply to the instance (whether or not it's
+     * created). If `null` then the pre-existing user style is preserved (if the instance is created
+     * this will be the [androidx.wear.watchface.style.UserStyleSchema]'s default).
+     * @param slotIdToComplicationData The initial [androidx.wear.watchface.ComplicationSlot] data,
+     * or `null` if unavailable.
+     * @param previewImageUpdateRequestedExecutor The [Executor] on which to run
+     * [previewImageUpdateRequestedListener] if the watch face calls
+     * [Renderer.sendPreviewImageNeedsUpdateRequest].
+     * @param previewImageUpdateRequestedListener The [PreviewImageUpdateRequestedListener]
+     * which is fired if the watch face calls [Renderer.sendPreviewImageNeedsUpdateRequest].
+     * @return a [ListenableFuture] for the [InteractiveWatchFaceClient].
+     */
+    @Suppress("AsyncSuffixFuture")
+    public open fun listenableGetOrCreateInteractiveWatchFaceClient(
+        id: String,
+        deviceConfig: DeviceConfig,
+        watchUiState: WatchUiState,
+        userStyle: UserStyleData?,
+        slotIdToComplicationData: Map<Int, ComplicationData>?,
+        previewImageUpdateRequestedExecutor: Executor,
+        previewImageUpdateRequestedListener: PreviewImageUpdateRequestedListener
+    ): ListenableFuture<InteractiveWatchFaceClient> =
+        launchFutureCoroutine(
+            "ListenableWatchFaceControlClient.listenableGetOrCreateInteractiveWatchFaceClient",
+        ) {
+            watchFaceControlClient.getOrCreateInteractiveWatchFaceClient(
+                id,
+                deviceConfig,
+                watchUiState,
+                userStyle,
+                slotIdToComplicationData,
+                previewImageUpdateRequestedExecutor,
+                previewImageUpdateRequestedListener
+            )
+        }
+
+    @Deprecated(
+        "Use an overload that specifies PreviewImageUpdateRequestedListener",
+        replaceWith = ReplaceWith(
+            "getOrCreateInteractiveWatchFaceClient(String, DeviceConfig, WatchUiState," +
+                " UserStyleData?, Map<Int, ComplicationData>?, Executor, " +
+                "PreviewImageUpdateRequestedListener)")
+    )
+    @Suppress("deprecation")
     override suspend fun getOrCreateInteractiveWatchFaceClient(
         id: String,
         deviceConfig: DeviceConfig,
@@ -194,6 +259,25 @@ public open class ListenableWatchFaceControlClient(
             watchUiState,
             userStyle,
             slotIdToComplicationData
+        )
+
+    override suspend fun getOrCreateInteractiveWatchFaceClient(
+        instanceId: String,
+        deviceConfig: DeviceConfig,
+        watchUiState: WatchUiState,
+        userStyle: UserStyleData?,
+        slotIdToComplicationData: Map<Int, ComplicationData>?,
+        previewImageUpdateRequestedExecutor: Executor,
+        previewImageUpdateRequestedListener: PreviewImageUpdateRequestedListener
+    ): InteractiveWatchFaceClient =
+        watchFaceControlClient.getOrCreateInteractiveWatchFaceClient(
+            instanceId,
+            deviceConfig,
+            watchUiState,
+            userStyle,
+            slotIdToComplicationData,
+            previewImageUpdateRequestedExecutor,
+            previewImageUpdateRequestedListener
         )
 
     override fun getEditorServiceClient(): EditorServiceClient =

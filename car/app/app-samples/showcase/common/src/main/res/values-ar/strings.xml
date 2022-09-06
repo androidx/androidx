@@ -220,6 +220,7 @@
     <string name="clicked_row_prefix" msgid="9068303427922069941">"الصف الذي تم النقر عليه"</string>
     <string name="first_line_text" msgid="6648055806656590336">"السطر الأول من النص"</string>
     <string name="second_line_text" msgid="38664490158836864">"السطر الثاني من النص"</string>
+    <string name="long_line_text" msgid="8082962600953333087">"يمكن عرض هذا النص بالكامل في وضع عدم تقييد المحتوى (على سبيل المثال، وضع إيقاف السيارة، ووضع السرعة المنخفضة المحدّدة). سيؤدي ذلك إلى انقسام النص على سطرين فقط أثناء وضع تقييد المحتوى (على سبيل المثال، وضع القيادة). ولأغراض الاختبار، فإن هذا النص الفرعي يصبح طويلاً للغاية."</string>
     <string name="title_prefix" msgid="3991742709199357049">"العنوان"</string>
     <string name="list_template_demo_title" msgid="1740208242737246151">"عرض تجريبي لقالب القائمة"</string>
     <string name="long_msg_template_demo_title" msgid="1793748562161438131">"إصدار تجريبي لنموذج الرسالة الطويلة"</string>

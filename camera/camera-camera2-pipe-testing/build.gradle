@@ -51,13 +51,6 @@ android {
     namespace "androidx.camera.camera2.pipe.testing"
 }
 
-// Allow usage of Kotlin's @OptIn.
-tasks.withType(KotlinCompile).configureEach {
-    kotlinOptions {
-        freeCompilerArgs += ["-opt-in=kotlin.RequiresOptIn"]
-    }
-}
-
 androidx {
     name = "Jetpack Camera Camera Pipe Testing Library"
     publish = Publish.SNAPSHOT_AND_RELEASE

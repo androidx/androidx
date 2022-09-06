@@ -11,6 +11,16 @@ ExecutorRegistration: androidx.paging.PagedList#addWeakCallback(androidx.paging.
     Registration methods should have overload that accepts delivery Executor: `addWeakCallback`
 
 
+KotlinDefaultParameterOrder: androidx.paging.Pager#Pager(androidx.paging.PagingConfig, Key, androidx.paging.RemoteMediator<Key,Value>, kotlin.jvm.functions.Function0<? extends androidx.paging.PagingSource<Key,Value>>) parameter #1:
+    Parameter `initialKey` has a default value and should come after all parameters without default values (except for a trailing lambda parameter)
+KotlinDefaultParameterOrder: androidx.paging.PagingDataTransforms#insertFooterItem(androidx.paging.PagingData<T>, androidx.paging.TerminalSeparatorType, T) parameter #1:
+    Parameter `terminalSeparatorType` has a default value and should come after all parameters without default values (except for a trailing lambda parameter)
+KotlinDefaultParameterOrder: androidx.paging.PagingDataTransforms#insertHeaderItem(androidx.paging.PagingData<T>, androidx.paging.TerminalSeparatorType, T) parameter #1:
+    Parameter `terminalSeparatorType` has a default value and should come after all parameters without default values (except for a trailing lambda parameter)
+KotlinDefaultParameterOrder: androidx.paging.PagingDataTransforms#insertSeparators(androidx.paging.PagingData<T>, androidx.paging.TerminalSeparatorType, java.util.concurrent.Executor, kotlin.jvm.functions.Function2<? super T,? super T,? extends R>) parameter #1:
+    Parameter `terminalSeparatorType` has a default value and should come after all parameters without default values (except for a trailing lambda parameter)
+
+
 MissingGetterMatchingBuilder: androidx.paging.PagedList.Builder#setBoundaryCallback(androidx.paging.PagedList.BoundaryCallback<Value>):
     androidx.paging.PagedList does not declare a `getBoundaryCallback()` method matching method androidx.paging.PagedList.Builder.setBoundaryCallback(androidx.paging.PagedList.BoundaryCallback<Value>)
 MissingGetterMatchingBuilder: androidx.paging.PagedList.Builder#setCoroutineScope(kotlinx.coroutines.CoroutineScope):

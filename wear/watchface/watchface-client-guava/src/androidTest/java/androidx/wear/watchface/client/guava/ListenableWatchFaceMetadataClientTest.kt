@@ -50,10 +50,6 @@ public class WatchFaceControlTestService : Service() {
         @SuppressLint("NewApi")
         override fun createServiceStub(): IWatchFaceInstanceServiceStub =
             IWatchFaceInstanceServiceStub(this@WatchFaceControlTestService, MainScope())
-
-        init {
-            setContext(ApplicationProvider.getApplicationContext<Context>())
-        }
     }
 
     @SuppressLint("NewApi")

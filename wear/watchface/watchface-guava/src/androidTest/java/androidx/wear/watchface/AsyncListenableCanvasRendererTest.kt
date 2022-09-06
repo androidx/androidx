@@ -108,6 +108,7 @@ public class AsyncListenableCanvasRendererTest : WatchFaceControlClientServiceTe
             TestAsyncCanvasRenderInitWatchFaceService(context, surfaceHolder, initFuture)
 
         val deferredClient = handlerCoroutineScope.async {
+            @Suppress("deprecation")
             watchFaceControlClientService.getOrCreateInteractiveWatchFaceClient(
                 "testId",
                 DeviceConfig(

@@ -31,14 +31,12 @@ import androidx.annotation.WorkerThread
 import androidx.wear.watchface.complications.ComplicationSlotBounds
 import androidx.wear.watchface.complications.data.ComplicationData
 import androidx.wear.watchface.complications.data.ComplicationType
-import androidx.wear.watchface.complications.data.NoDataComplicationData
 import androidx.wear.watchface.utility.TraceEvent
 import androidx.wear.watchface.control.data.IdTypeAndDefaultProviderPolicyWireFormat
 import androidx.wear.watchface.style.CurrentUserStyleRepository
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotsOption
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import java.time.Instant
 
@@ -104,7 +102,9 @@ public class ComplicationSlotsManager(
     private class InitialComplicationConfig(
         val complicationSlotBounds: ComplicationSlotBounds,
         val enabled: Boolean,
-        val accessibilityTraversalIndex: Int
+        val accessibilityTraversalIndex: Int,
+        val nameResourceId: Int?,
+        val screenReaderNameResourceId: Int?
     )
 
     // Copy of the original complication configs. This is necessary because the semantics of
@@ -117,7 +117,9 @@ public class ComplicationSlotsManager(
                 InitialComplicationConfig(
                     it.complicationSlotBounds,
                     it.enabled,
-                    it.accessibilityTraversalIndex
+                    it.accessibilityTraversalIndex,
+                    it.nameResourceId,
+                    it.screenReaderNameResourceId
                 )
             }
         )
@@ -211,6 +213,9 @@ public class ComplicationSlotsManager(
                 override?.enabled ?: initialConfig.enabled
             complication.accessibilityTraversalIndex =
                 override?.accessibilityTraversalIndex ?: initialConfig.accessibilityTraversalIndex
+            complication.nameResourceId = override?.nameResourceId ?: initialConfig.nameResourceId
+            complication.screenReaderNameResourceId =
+                override?.screenReaderNameResourceId ?: initialConfig.screenReaderNameResourceId
         }
         onComplicationsUpdated()
     }
@@ -240,7 +245,9 @@ public class ComplicationSlotsManager(
 
                 labelsDirty =
                     labelsDirty || complication.dataDirty || complication.complicationBoundsDirty ||
-                        complication.accessibilityTraversalIndexDirty
+                        complication.accessibilityTraversalIndexDirty ||
+                        complication.nameResourceIdDirty ||
+                        complication.screenReaderNameResourceIdDirty
 
                 if (complication.defaultDataSourcePolicyDirty ||
                     complication.defaultDataSourceTypeDirty
@@ -260,6 +267,8 @@ public class ComplicationSlotsManager(
                 complication.defaultDataSourcePolicyDirty = false
                 complication.defaultDataSourceTypeDirty = false
                 complication.accessibilityTraversalIndexDirty = false
+                complication.nameResourceIdDirty = false
+                complication.screenReaderNameResourceIdDirty = false
             }
 
             complication.enabledDirty = false
@@ -321,13 +330,6 @@ public class ComplicationSlotsManager(
             return
         }
         complication.setComplicationData(data, false, instant)
-    }
-
-    @UiThread
-    internal fun clearComplicationData() {
-        for ((_, complication) in complicationSlots) {
-            complication.setComplicationData(NoDataComplicationData(), false, Instant.EPOCH)
-        }
     }
 
     /**

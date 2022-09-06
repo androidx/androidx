@@ -21,9 +21,9 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
+import android.graphics.Point;
 import android.graphics.Rect;
 
-import androidx.test.filters.FlakyTest;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.uiautomator.UiObject;
 import androidx.test.uiautomator.UiObjectNotFoundException;
@@ -133,9 +133,9 @@ public class UiObjectTest extends BaseTest {
 
         // Note that the `swipeRegion` will always show the swipe direction, even if the swipe
         // action does not happen inside `swipeRegion`.
-        assertFalse(verySmallRegion.swipeUp(100));
+        assertFalse(verySmallRegion.swipeUp(10));
         assertEquals("no_swipe", swipeRegion.getText());
-        assertTrue(swipeRegion.swipeUp(100));
+        assertTrue(swipeRegion.swipeUp(10));
         assertTrue(expectedSwipeRegion.waitForExists(TIMEOUT_MS));
     }
 
@@ -152,13 +152,12 @@ public class UiObjectTest extends BaseTest {
                 new UiSelector().resourceId(TEST_APP + ":id"
                         + "/swipe_region").text("swipe_down"));
 
-        assertFalse(verySmallRegion.swipeDown(100));
+        assertFalse(verySmallRegion.swipeDown(10));
         assertEquals("no_swipe", swipeRegion.getText());
-        assertTrue(swipeRegion.swipeDown(100));
+        assertTrue(swipeRegion.swipeDown(10));
         assertTrue(expectedSwipeRegion.waitForExists(TIMEOUT_MS));
     }
 
-    @FlakyTest(bugId = 242761733)
     @Test
     public void testSwipeLeft() throws Exception {
         launchTestActivity(SwipeTestActivity.class);
@@ -172,9 +171,9 @@ public class UiObjectTest extends BaseTest {
                 new UiSelector().resourceId(TEST_APP + ":id"
                         + "/swipe_region").text("swipe_left"));
 
-        assertFalse(verySmallRegion.swipeLeft(100));
+        assertFalse(verySmallRegion.swipeLeft(10));
         assertEquals("no_swipe", swipeRegion.getText());
-        assertTrue(swipeRegion.swipeLeft(100));
+        assertTrue(swipeRegion.swipeLeft(10));
         assertTrue(expectedSwipeRegion.waitForExists(TIMEOUT_MS));
     }
 
@@ -191,9 +190,9 @@ public class UiObjectTest extends BaseTest {
                 new UiSelector().resourceId(TEST_APP + ":id"
                         + "/swipe_region").text("swipe_right"));
 
-        assertFalse(verySmallRegion.swipeRight(100));
+        assertFalse(verySmallRegion.swipeRight(10));
         assertEquals("no_swipe", swipeRegion.getText());
-        assertTrue(swipeRegion.swipeRight(100));
+        assertTrue(swipeRegion.swipeRight(10));
         assertTrue(expectedSwipeRegion.waitForExists(TIMEOUT_MS));
     }
 
@@ -678,10 +677,24 @@ public class UiObjectTest extends BaseTest {
         assertThrows(IllegalStateException.class, () -> smallArea.pinchIn(100, 10));
     }
 
-    /* TODO(b/241158642): Implement these tests, and the tests for exceptions of each tested method.
+    @Test
+    public void testPerformTwoPointerGesture_withZeroSteps() throws Exception {
+        // Note that most part of `performTwoPointerGesture` (and `performMultiPointerGesture`)
+        // has already been indirectly tested in other tests. This test only test the case when
+        // the `step` parameter is set to zero.
+        launchTestActivity(PointerGestureTestActivity.class);
 
-    public void testPerformTwoPointerGesture() {}
+        UiObject touchRegion = mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id"
+                + "/touch_region"));
 
-    public void testPerformMultiPointerGesture() {}
-    */
+        Rect visibleBounds = touchRegion.getVisibleBounds();
+        Point startPoint1 = new Point(visibleBounds.left + 50, visibleBounds.top + 50);
+        Point startPoint2 = new Point(visibleBounds.right - 50, visibleBounds.top + 50);
+        Point endPoint1 = new Point(visibleBounds.left + 50, visibleBounds.bottom - 50);
+        Point endPoint2 = new Point(visibleBounds.right - 50, visibleBounds.bottom - 50);
+
+        assertTrue(touchRegion.performTwoPointerGesture(startPoint1, startPoint2, endPoint1,
+                endPoint2, 0));
+        assertEquals("2 touch(es) received", touchRegion.getText());
+    }
 }

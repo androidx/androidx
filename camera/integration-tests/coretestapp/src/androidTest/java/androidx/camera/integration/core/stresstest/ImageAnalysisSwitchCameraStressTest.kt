@@ -22,6 +22,7 @@ import androidx.camera.integration.core.CameraXActivity.BIND_PREVIEW
 import androidx.camera.integration.core.CameraXActivity.BIND_VIDEO_CAPTURE
 import androidx.camera.integration.core.util.StressTestUtil.LARGE_STRESS_TEST_REPEAT_COUNT
 import androidx.camera.integration.core.util.StressTestUtil.VERIFICATION_TARGET_IMAGE_ANALYSIS
+import androidx.camera.integration.core.util.StressTestUtil.assumeCameraSupportUseCaseCombination
 import androidx.camera.testing.LabTestRule
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
@@ -41,6 +42,7 @@ class ImageAnalysisSwitchCameraStressTest constructor(cameraId: String) :
     @RepeatRule.Repeat(times = LARGE_STRESS_TEST_REPEAT_COUNT)
     fun switchCamera_checkImageAnalysisInEachTime_withPreviewImageCaptureImageAnalysis() {
         val useCaseCombination = BIND_PREVIEW or BIND_IMAGE_CAPTURE or BIND_IMAGE_ANALYSIS
+        assumeCameraSupportUseCaseCombination(camera, useCaseCombination)
         switchCamera_checkOutput_repeatedly(
             cameraId,
             useCaseCombination,
@@ -66,6 +68,7 @@ class ImageAnalysisSwitchCameraStressTest constructor(cameraId: String) :
     @RepeatRule.Repeat(times = LARGE_STRESS_TEST_REPEAT_COUNT)
     fun checkImageAnalysis_afterSwitchCameraRepeatedly_withPreviewImageCaptureImageAnalysis() {
         val useCaseCombination = BIND_PREVIEW or BIND_IMAGE_CAPTURE or BIND_IMAGE_ANALYSIS
+        assumeCameraSupportUseCaseCombination(camera, useCaseCombination)
         switchCamera_repeatedly_thenCheckOutput(
             cameraId,
             useCaseCombination,

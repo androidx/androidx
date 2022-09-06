@@ -27,6 +27,8 @@ import androidx.room.ext.L
 import androidx.room.ext.N
 import androidx.room.ext.T
 import androidx.room.ext.typeName
+import androidx.room.processor.Context
+import androidx.room.processor.ProcessorErrors
 import androidx.room.solver.CodeGenScope
 import androidx.room.vo.ShortcutQueryParameter
 import com.squareup.javapoet.ArrayTypeName
@@ -37,44 +39,85 @@ import com.squareup.javapoet.TypeName
 class InsertOrUpsertMethodAdapter private constructor(private val methodType: MethodType) {
     companion object {
         fun createInsert(
+            context: Context,
             returnType: XType,
             params: List<ShortcutQueryParameter>
         ): InsertOrUpsertMethodAdapter? {
-            val methodReturnType = getReturnType(returnType)
-            if (methodReturnType != null && isReturnValid(methodReturnType, params)) {
-                val methodType = InsertMethodType(methodReturnType)
-                return InsertOrUpsertMethodAdapter(methodType)
-            }
-            return null
+            return createMethod(
+                context,
+                returnType,
+                params,
+                ::InsertMethodType,
+                ProcessorErrors.INSERT_MULTI_PARAM_SINGLE_RETURN_MISMATCH,
+                ProcessorErrors.INSERT_SINGLE_PARAM_MULTI_RETURN_MISMATCH
+            )
         }
 
         fun createUpsert(
+            context: Context,
             returnType: XType,
             params: List<ShortcutQueryParameter>
         ): InsertOrUpsertMethodAdapter? {
+            return createMethod(
+                context,
+                returnType,
+                params,
+                ::UpsertMethodType,
+                ProcessorErrors.UPSERT_MULTI_PARAM_SINGLE_RETURN_MISMATCH,
+                ProcessorErrors.UPSERT_SINGLE_PARAM_MULTI_RETURN_MISMATCH
+            )
+        }
+
+        private fun createMethod(
+            context: Context,
+            returnType: XType,
+            params: List<ShortcutQueryParameter>,
+            methodTypeClass: (returnType: ReturnType) -> MethodType,
+            multiParamSingleReturnError: String,
+            singleParamMultiReturnError: String
+        ): InsertOrUpsertMethodAdapter? {
             val methodReturnType = getReturnType(returnType)
-            if (methodReturnType != null && isReturnValid(methodReturnType, params)) {
-                val methodType = UpsertMethodType(methodReturnType)
+            if (methodReturnType != null &&
+                isReturnValid(
+                    context,
+                    methodReturnType,
+                    params,
+                    multiParamSingleReturnError,
+                    singleParamMultiReturnError
+                )
+            ) {
+                val methodType = methodTypeClass(methodReturnType)
                 return InsertOrUpsertMethodAdapter(methodType)
             }
             return null
         }
 
         private fun isReturnValid(
+            context: Context,
             returnType: ReturnType,
-            params: List<ShortcutQueryParameter>
+            params: List<ShortcutQueryParameter>,
+            multiParamSingleReturnError: String,
+            singleParamMultiReturnError: String
         ): Boolean {
             if (params.isEmpty() || params.size > 1) {
                 return returnType == ReturnType.VOID ||
                     returnType == ReturnType.UNIT
             }
-            return if (params.first().isMultiple) {
-                returnType in MULTIPLE_ITEM_SET
+            if (params.first().isMultiple) {
+                val isValid = returnType in MULTIPLE_ITEM_SET
+                if (!isValid) {
+                    context.logger.e(multiParamSingleReturnError)
+                }
+                return isValid
             } else {
-                returnType == ReturnType.VOID ||
+                val isValid = (returnType == ReturnType.VOID ||
                     returnType == ReturnType.VOID_OBJECT ||
                     returnType == ReturnType.UNIT ||
-                    returnType == ReturnType.SINGLE_ID
+                    returnType == ReturnType.SINGLE_ID)
+                if (!isValid) {
+                    context.logger.e(singleParamMultiReturnError)
+                }
+                return isValid
             }
         }
 

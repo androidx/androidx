@@ -18,6 +18,19 @@ package androidx.room
 
 import android.database.sqlite.SQLiteConstraintException
 import androidx.annotation.RestrictTo
+import android.os.Build
+
+/**
+ * The ErrorCode defined by SQLite Library for SQLITE_CONSTRAINT_PRIMARYKEY error
+ * Only used by android of version newer than 19
+ */
+private const val ErrorCode = "1555"
+
+/**
+ * For android of version below and including 19, use error message instead of
+ * error code to check
+ */
+private const val ErrorMsg = "unique"
 
 /**
  * This class knows how to insert an entity. When the insertion fails
@@ -45,6 +58,7 @@ class EntityUpsertionAdapter<T>(
         try {
             insertionAdapter.insert(entity)
         } catch (ex: SQLiteConstraintException) {
+            checkUniquenessException(ex)
             updateAdapter.handle(entity)
         }
     }
@@ -61,6 +75,7 @@ class EntityUpsertionAdapter<T>(
             try {
                 insertionAdapter.insert(entity)
             } catch (ex: SQLiteConstraintException) {
+                checkUniquenessException(ex)
                 updateAdapter.handle(entity)
             }
         }
@@ -71,6 +86,7 @@ class EntityUpsertionAdapter<T>(
             try {
                 insertionAdapter.insert(entity)
             } catch (ex: SQLiteConstraintException) {
+                checkUniquenessException(ex)
                 updateAdapter.handle(entity)
             }
         }
@@ -88,8 +104,9 @@ class EntityUpsertionAdapter<T>(
         return try {
             insertionAdapter.insertAndReturnId(entity)
         } catch (ex: SQLiteConstraintException) {
+            checkUniquenessException(ex)
             updateAdapter.handle(entity)
-            return -1
+            -1
         }
     }
 
@@ -104,6 +121,7 @@ class EntityUpsertionAdapter<T>(
             try {
                 insertionAdapter.insertAndReturnId(entities[index])
             } catch (ex: SQLiteConstraintException) {
+                checkUniquenessException(ex)
                 updateAdapter.handle(entities[index])
                 -1
             }
@@ -117,6 +135,7 @@ class EntityUpsertionAdapter<T>(
             try {
                 insertionAdapter.insertAndReturnId(entity)
             } catch (ex: SQLiteConstraintException) {
+                checkUniquenessException(ex)
                 updateAdapter.handle(entity)
                 -1
             }
@@ -129,6 +148,7 @@ class EntityUpsertionAdapter<T>(
                 try {
                     add(insertionAdapter.insertAndReturnId(entity))
                 } catch (ex: SQLiteConstraintException) {
+                    checkUniquenessException(ex)
                     updateAdapter.handle(entity)
                     add(-1)
                 }
@@ -142,6 +162,7 @@ class EntityUpsertionAdapter<T>(
                 try {
                     add(insertionAdapter.insertAndReturnId(entity))
                 } catch (ex: SQLiteConstraintException) {
+                    checkUniquenessException(ex)
                     updateAdapter.handle(entity)
                     add(-1)
                 }
@@ -154,6 +175,7 @@ class EntityUpsertionAdapter<T>(
             try {
                 insertionAdapter.insertAndReturnId(entities[index])
             } catch (ex: SQLiteConstraintException) {
+                checkUniquenessException(ex)
                 updateAdapter.handle(entities[index])
                 -1
             }
@@ -167,8 +189,31 @@ class EntityUpsertionAdapter<T>(
             try {
                 insertionAdapter.insertAndReturnId(entity)
             } catch (ex: SQLiteConstraintException) {
+                checkUniquenessException(ex)
                 updateAdapter.handle(entity)
                 -1
+            }
+        }
+    }
+
+    /**
+     * Verify if the exception is caused by Uniqueness constraint (Primary Key Conflict).
+     * If yes, upsert should update the existing one. If not, upsert should re-throw the
+     * exception.
+     * For android of version newer than KITKAT(19), SQLite supports ErrorCode. Otherwise,
+     * check with Error Message.
+     *
+     * @param ex the exception thrown by the insert attempt
+     */
+    private fun checkUniquenessException(ex: SQLiteConstraintException) {
+        val message = ex.message ?: throw ex
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT) {
+            if (!message.contains(ErrorMsg, ignoreCase = true)) {
+                throw ex
+            }
+        } else {
+            if (!message.contains(ErrorCode, ignoreCase = true)) {
+                throw ex
             }
         }
     }

@@ -23,6 +23,8 @@ import android.os.Looper
 import android.util.Size
 import android.view.Surface
 import androidx.camera.core.SurfaceEffect
+import androidx.camera.core.SurfaceOutput.GlTransformOptions
+import androidx.camera.core.SurfaceOutput.GlTransformOptions.USE_SURFACE_TEXTURE_TRANSFORM
 import androidx.camera.core.impl.utils.TransformUtils.sizeToRect
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor
 import com.google.common.truth.Truth.assertThat
@@ -118,9 +120,10 @@ class SurfaceOutputImplTest {
     }
 
     @Test
-    fun updateMatrix_noApplyGlTransform_sameResult() {
+    fun updateMatrix_useSurfaceTextureTransform_sameResult() {
         // Arrange.
-        val surfaceOut = createFakeSurfaceOutputImpl(applyGlTransform = false)
+        val surfaceOut =
+            createFakeSurfaceOutputImpl(glTransformOptions = USE_SURFACE_TEXTURE_TRANSFORM)
 
         // Act.
         val input = floatArrayOf(1f, 1f, 1f, 1f, 2f, 2f, 2f, 2f, 3f, 3f, 3f, 3f, 4f, 4f, 4f, 4f)
@@ -131,18 +134,19 @@ class SurfaceOutputImplTest {
         assertThat(result).isEqualTo(input)
     }
 
-    private fun createFakeSurfaceOutputImpl(applyGlTransform: Boolean = false) =
-        SurfaceOutputImpl(
-            fakeSurface,
-            TARGET,
-            FORMAT,
-            OUTPUT_SIZE,
-            applyGlTransform,
-            INPUT_SIZE,
-            sizeToRect(INPUT_SIZE),
-            0,
-            false
-        ).apply {
-            surfaceOutputsToCleanup.add(this)
-        }
+    private fun createFakeSurfaceOutputImpl(
+        glTransformOptions: GlTransformOptions = USE_SURFACE_TEXTURE_TRANSFORM
+    ) = SurfaceOutputImpl(
+        fakeSurface,
+        TARGET,
+        FORMAT,
+        OUTPUT_SIZE,
+        glTransformOptions,
+        INPUT_SIZE,
+        sizeToRect(INPUT_SIZE),
+        /*rotationDegrees=*/0,
+        /*mirroring=*/false
+    ).apply {
+        surfaceOutputsToCleanup.add(this)
+    }
 }

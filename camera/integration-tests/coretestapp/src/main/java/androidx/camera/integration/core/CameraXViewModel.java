@@ -107,6 +107,12 @@ public class CameraXViewModel extends AndroidViewModel {
     @OptIn(markerClass = ExperimentalCameraProviderConfiguration.class)
     @MainThread
     static void configureCameraProvider(@NonNull String cameraImplementation) {
+        configureCameraProvider(cameraImplementation, false);
+    }
+
+    @OptIn(markerClass = ExperimentalCameraProviderConfiguration.class)
+    @MainThread
+    static void configureCameraProvider(@NonNull String cameraImplementation, boolean noHistory) {
         if (!cameraImplementation.equals(sConfiguredCameraXCameraImplementation)) {
             // Attempt to configure. This will throw an ISE if singleton is already configured.
             try {
@@ -127,7 +133,9 @@ public class CameraXViewModel extends AndroidViewModel {
                 }
 
                 Log.d(TAG, "ProcessCameraProvider initialized using " + cameraImplementation);
-                sConfiguredCameraXCameraImplementation = cameraImplementation;
+                if (!noHistory) {
+                    sConfiguredCameraXCameraImplementation = cameraImplementation;
+                }
             } catch (IllegalStateException e) {
                 throw new IllegalStateException("WARNING: CameraX is currently configured to use "
                         + sConfiguredCameraXCameraImplementation + " which is different "

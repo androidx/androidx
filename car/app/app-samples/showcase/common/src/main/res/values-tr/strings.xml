@@ -220,6 +220,7 @@
     <string name="clicked_row_prefix" msgid="9068303427922069941">"Tıklanan satır"</string>
     <string name="first_line_text" msgid="6648055806656590336">"Metnin ilk satırı"</string>
     <string name="second_line_text" msgid="38664490158836864">"Metnin ikinci satırı"</string>
+    <string name="long_line_text" msgid="8082962600953333087">"Bu alt metin, kısıtlanmamış modda (ör. park modu, kısıtlı düşük hız modu) tam olarak görüntülenebilir. Ancak kısıtlı modda (ör. sürüş modu) yalnızca iki satır olarak kısaltılır. Test edecek olursak, mesela bu alt metin çok çok çok çok çok uzun."</string>
     <string name="title_prefix" msgid="3991742709199357049">"Başlık"</string>
     <string name="list_template_demo_title" msgid="1740208242737246151">"Liste Şablonu Demosu"</string>
     <string name="long_msg_template_demo_title" msgid="1793748562161438131">"Uzun Mesaj Şablonu Demosu"</string>

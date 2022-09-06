@@ -91,7 +91,7 @@ public final class OnBackPressedDispatcher {
             if (shouldBeRegistered && !mBackInvokedCallbackRegistered) {
                 Api33Impl.registerOnBackInvokedCallback(
                         mInvokedDispatcher,
-                        OnBackInvokedDispatcher.PRIORITY_OVERLAY,
+                        OnBackInvokedDispatcher.PRIORITY_DEFAULT,
                         mOnBackInvokedCallback
                 );
                 mBackInvokedCallbackRegistered = true;

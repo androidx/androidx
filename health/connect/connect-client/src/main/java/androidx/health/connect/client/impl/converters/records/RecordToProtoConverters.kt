@@ -50,7 +50,7 @@ import androidx.health.connect.client.records.HeightRecord
 import androidx.health.connect.client.records.HipCircumferenceRecord
 import androidx.health.connect.client.records.HydrationRecord
 import androidx.health.connect.client.records.LeanBodyMassRecord
-import androidx.health.connect.client.records.MenstruationRecord
+import androidx.health.connect.client.records.MenstruationFlowRecord
 import androidx.health.connect.client.records.NutritionRecord
 import androidx.health.connect.client.records.OvulationTestRecord
 import androidx.health.connect.client.records.OxygenSaturationRecord
@@ -93,7 +93,7 @@ fun Record.toProto(): DataProto.DataPoint =
             instantaneousProto()
                 .setDataType(protoDataType("BloodGlucose"))
                 .apply {
-                    putValues("level", doubleVal(levelMillimolesPerLiter))
+                    putValues("level", doubleVal(level.inMillimolesPerLiter))
                     specimenSource?.let { putValues("specimenSource", enumVal(it)) }
                     mealType?.let { putValues("mealType", enumVal(it)) }
                     relationToMeal?.let { putValues("relationToMeal", enumVal(it)) }
@@ -214,7 +214,7 @@ fun Record.toProto(): DataProto.DataPoint =
                 .setDataType(protoDataType("LeanBodyMass"))
                 .apply { putValues("mass", doubleVal(mass.inKilograms)) }
                 .build()
-        is MenstruationRecord ->
+        is MenstruationFlowRecord ->
             instantaneousProto()
                 .setDataType(protoDataType("Menstruation"))
                 .apply { flow?.let { putValues("flow", enumVal(it)) } }

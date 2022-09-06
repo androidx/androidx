@@ -188,6 +188,18 @@ object ProcessorErrors {
 
     val CANNOT_FIND_UPSERT_RESULT_ADAPTER = "Not sure how to handle upsert method's return type."
 
+    val INSERT_MULTI_PARAM_SINGLE_RETURN_MISMATCH = "Insert method accepts multiple parameters " +
+        "but the return type is a single element. Try using a multiple element return type."
+
+    val UPSERT_MULTI_PARAM_SINGLE_RETURN_MISMATCH = "Upsert method accepts multiple parameters " +
+        "but the return type is a single element. Try using a multiple element return type."
+
+    val INSERT_SINGLE_PARAM_MULTI_RETURN_MISMATCH = "Insert method accepts a single parameter " +
+        "but the return type is a collection of elements. Try using a single element return type."
+
+    val UPSERT_SINGLE_PARAM_MULTI_RETURN_MISMATCH = "Upsert method accepts a single parameter " +
+        "but the return type is a collection of elements. Try using a single element return type."
+
     val UPDATE_MISSING_PARAMS = "Method annotated with" +
         " @Update but does not have any parameters to update."
 

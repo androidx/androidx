@@ -18,6 +18,8 @@ package androidx.test.uiautomator;
 
 import android.view.accessibility.AccessibilityEvent;
 
+import androidx.annotation.NonNull;
+
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -26,13 +28,17 @@ import java.util.regex.Pattern;
  */
 public class Until {
 
+    private Until() {
+    }
+
     // Search conditions
 
     /**
      * Returns a {@link SearchCondition} that is satisfied when no elements matching the selector
      * can be found.
      */
-    public static SearchCondition<Boolean> gone(final BySelector selector) {
+    @NonNull
+    public static SearchCondition<Boolean> gone(@NonNull BySelector selector) {
         return new SearchCondition<Boolean>() {
             @Override
             Boolean apply(Searchable container) {
@@ -45,7 +51,8 @@ public class Until {
      * Returns a {@link SearchCondition} that is satisfied when at least one element matching the
      * selector can be found.
      */
-    public static SearchCondition<Boolean> hasObject(final BySelector selector) {
+    @NonNull
+    public static SearchCondition<Boolean> hasObject(@NonNull BySelector selector) {
         return new SearchCondition<Boolean>() {
             @Override
             Boolean apply(Searchable container) {
@@ -58,7 +65,8 @@ public class Until {
      * Returns a {@link SearchCondition} that is satisfied when at least one element matching the
      * selector can be found. The condition will return the first matching element.
      */
-    public static SearchCondition<UiObject2> findObject(final BySelector selector) {
+    @NonNull
+    public static SearchCondition<UiObject2> findObject(@NonNull BySelector selector) {
         return new SearchCondition<UiObject2>() {
             @Override
             UiObject2 apply(Searchable container) {
@@ -71,7 +79,8 @@ public class Until {
      * Returns a {@link SearchCondition} that is satisfied when at least one element matching the
      * selector can be found. The condition will return all matching elements.
      */
-    public static SearchCondition<List<UiObject2>> findObjects(final BySelector selector) {
+    @NonNull
+    public static SearchCondition<List<UiObject2>> findObjects(@NonNull BySelector selector) {
         return new SearchCondition<List<UiObject2>>() {
             @Override
             List<UiObject2> apply(Searchable container) {
@@ -89,6 +98,7 @@ public class Until {
      *
      * @param isCheckable Whether the object should be checkable to satisfy this condition.
      */
+    @NonNull
     public static UiObject2Condition<Boolean> checkable(final boolean isCheckable) {
         return new UiObject2Condition<Boolean>() {
             @Override
@@ -103,6 +113,7 @@ public class Until {
      *
      * @param isChecked Whether the object should be checked to satisfy this condition.
      */
+    @NonNull
     public static UiObject2Condition<Boolean> checked(final boolean isChecked) {
         return new UiObject2Condition<Boolean>() {
             @Override
@@ -117,6 +128,7 @@ public class Until {
      *
      * @param isClickable Whether the object should be clickable to satisfy this condition.
      */
+    @NonNull
     public static UiObject2Condition<Boolean> clickable(final boolean isClickable) {
         return new UiObject2Condition<Boolean>() {
             @Override
@@ -131,6 +143,7 @@ public class Until {
      *
      * @param isEnabled Whether the object should be enabled to satisfy this condition.
      */
+    @NonNull
     public static UiObject2Condition<Boolean> enabled(final boolean isEnabled) {
         return new UiObject2Condition<Boolean>() {
             @Override
@@ -145,6 +158,7 @@ public class Until {
      *
      * @param isFocusable Whether the object should be focusable to satisfy this condition.
      */
+    @NonNull
     public static UiObject2Condition<Boolean> focusable(final boolean isFocusable) {
         return new UiObject2Condition<Boolean>() {
             @Override
@@ -159,6 +173,7 @@ public class Until {
      *
      * @param isFocused Whether the object should be focused to satisfy this condition.
      */
+    @NonNull
     public static UiObject2Condition<Boolean> focused(final boolean isFocused) {
         return new UiObject2Condition<Boolean>() {
             @Override
@@ -173,6 +188,7 @@ public class Until {
      *
      * @param isLongClickable Whether the object should be long clickable to satisfy this condition.
      */
+    @NonNull
     public static UiObject2Condition<Boolean> longClickable(final boolean isLongClickable) {
         return new UiObject2Condition<Boolean>() {
             @Override
@@ -187,6 +203,7 @@ public class Until {
      *
      * @param isScrollable Whether the object should be scrollable to satisfy this condition.
      */
+    @NonNull
     public static UiObject2Condition<Boolean> scrollable(final boolean isScrollable) {
         return new UiObject2Condition<Boolean>() {
             @Override
@@ -201,6 +218,7 @@ public class Until {
      *
      * @param isSelected Whether the object should be selected to satisfy this condition.
      */
+    @NonNull
     public static UiObject2Condition<Boolean> selected(final boolean isSelected) {
         return new UiObject2Condition<Boolean>() {
             @Override
@@ -214,7 +232,8 @@ public class Until {
      * Returns a condition that is satisfied when the object's content description matches the given
      * regex.
      */
-    public static UiObject2Condition<Boolean> descMatches(final Pattern regex) {
+    @NonNull
+    public static UiObject2Condition<Boolean> descMatches(@NonNull Pattern regex) {
         return new UiObject2Condition<Boolean>() {
             @Override
             Boolean apply(UiObject2 object) {
@@ -228,7 +247,8 @@ public class Until {
      * Returns a condition that is satisfied when the object's content description matches the given
      * regex.
      */
-    public static UiObject2Condition<Boolean> descMatches(String regex) {
+    @NonNull
+    public static UiObject2Condition<Boolean> descMatches(@NonNull String regex) {
         return descMatches(Pattern.compile(regex));
     }
 
@@ -236,7 +256,8 @@ public class Until {
      * Returns a condition that is satisfied when the object's content description exactly matches
      * the given string.
      */
-    public static UiObject2Condition<Boolean> descEquals(String contentDescription) {
+    @NonNull
+    public static UiObject2Condition<Boolean> descEquals(@NonNull String contentDescription) {
         return descMatches(Pattern.compile(Pattern.quote(contentDescription)));
     }
 
@@ -244,7 +265,8 @@ public class Until {
      * Returns a condition that is satisfied when the object's content description contains the
      * given string.
      */
-    public static UiObject2Condition<Boolean> descContains(String substring) {
+    @NonNull
+    public static UiObject2Condition<Boolean> descContains(@NonNull String substring) {
         return descMatches(Pattern.compile(String.format("^.*%s.*$", Pattern.quote(substring))));
     }
 
@@ -252,7 +274,8 @@ public class Until {
      * Returns a condition that is satisfied when the object's content description starts with the
      * given string.
      */
-    public static UiObject2Condition<Boolean> descStartsWith(String substring) {
+    @NonNull
+    public static UiObject2Condition<Boolean> descStartsWith(@NonNull String substring) {
         return descMatches(Pattern.compile(String.format("^%s.*$", Pattern.quote(substring))));
     }
 
@@ -260,14 +283,16 @@ public class Until {
      * Returns a condition that is satisfied when the object's content description ends with the
      * given string.
      */
-    public static UiObject2Condition<Boolean> descEndsWith(String substring) {
+    @NonNull
+    public static UiObject2Condition<Boolean> descEndsWith(@NonNull String substring) {
         return descMatches(Pattern.compile(String.format("^.*%s$", Pattern.quote(substring))));
     }
 
     /**
      * Returns a condition that is satisfied when the object's text value matches the given regex.
      */
-    public static UiObject2Condition<Boolean> textMatches(final Pattern regex) {
+    @NonNull
+    public static UiObject2Condition<Boolean> textMatches(@NonNull Pattern regex) {
         return new UiObject2Condition<Boolean>() {
             @Override
             Boolean apply(UiObject2 object) {
@@ -280,11 +305,17 @@ public class Until {
     /**
      * Returns a condition that is satisfied when the object's text value matches the given regex.
      */
-    public static UiObject2Condition<Boolean> textMatches(String regex) {
+    @NonNull
+    public static UiObject2Condition<Boolean> textMatches(@NonNull String regex) {
         return textMatches(Pattern.compile(regex));
     }
 
-    public static UiObject2Condition<Boolean> textNotEquals(final String text) {
+    /**
+     * Returns a condition that is satisfied when the object's text value does not match the
+     * given string.
+     */
+    @NonNull
+    public static UiObject2Condition<Boolean> textNotEquals(@NonNull String text) {
         return new UiObject2Condition<Boolean>() {
             @Override
             Boolean apply(UiObject2 object) {
@@ -297,14 +328,16 @@ public class Until {
      * Returns a condition that is satisfied when the object's text value exactly matches the given
      * string.
      */
-    public static UiObject2Condition<Boolean> textEquals(String text) {
+    @NonNull
+    public static UiObject2Condition<Boolean> textEquals(@NonNull String text) {
         return textMatches(Pattern.compile(Pattern.quote(text)));
     }
 
     /**
      * Returns a condition that is satisfied when the object's text value contains the given string.
      */
-    public static UiObject2Condition<Boolean> textContains(String substring) {
+    @NonNull
+    public static UiObject2Condition<Boolean> textContains(@NonNull String substring) {
         return textMatches(Pattern.compile(String.format("^.*%s.*$", Pattern.quote(substring))));
     }
 
@@ -312,7 +345,8 @@ public class Until {
      * Returns a condition that is satisfied when the object's text value starts with the given
      * string.
      */
-    public static UiObject2Condition<Boolean> textStartsWith(String substring) {
+    @NonNull
+    public static UiObject2Condition<Boolean> textStartsWith(@NonNull String substring) {
         return textMatches(Pattern.compile(String.format("^%s.*$", Pattern.quote(substring))));
     }
 
@@ -320,7 +354,8 @@ public class Until {
      * Returns a condition that is satisfied when the object's text value ends with the given
      * string.
      */
-    public static UiObject2Condition<Boolean> textEndsWith(String substring) {
+    @NonNull
+    public static UiObject2Condition<Boolean> textEndsWith(@NonNull String substring) {
         return textMatches(Pattern.compile(String.format("^.*%s$", Pattern.quote(substring))));
     }
 
@@ -328,6 +363,7 @@ public class Until {
     // Event conditions
 
     /** Returns a condition that depends on a new window having appeared. */
+    @NonNull
     public static EventCondition<Boolean> newWindow() {
         return new EventCondition<Boolean>() {
             private int mMask = AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED |
@@ -352,7 +388,8 @@ public class Until {
      *
      * @param direction The direction of the scroll.
      */
-    public static EventCondition<Boolean> scrollFinished(final Direction direction) {
+    @NonNull
+    public static EventCondition<Boolean> scrollFinished(@NonNull Direction direction) {
         return new EventCondition<Boolean>() {
             private Direction mDirection = direction;
             private Boolean mResult = null;

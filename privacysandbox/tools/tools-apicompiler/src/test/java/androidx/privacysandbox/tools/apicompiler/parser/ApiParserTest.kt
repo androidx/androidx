@@ -16,11 +16,11 @@
 
 package androidx.privacysandbox.tools.apicompiler.parser
 
-import androidx.privacysandbox.tools.apicompiler.model.AnnotatedInterface
-import androidx.privacysandbox.tools.apicompiler.model.Method
-import androidx.privacysandbox.tools.apicompiler.model.Parameter
-import androidx.privacysandbox.tools.apicompiler.model.ParsedApi
-import androidx.privacysandbox.tools.apicompiler.model.Type
+import androidx.privacysandbox.tools.core.AnnotatedInterface
+import androidx.privacysandbox.tools.core.Method
+import androidx.privacysandbox.tools.core.Parameter
+import androidx.privacysandbox.tools.core.ParsedApi
+import androidx.privacysandbox.tools.core.Type
 import androidx.privacysandbox.tools.apicompiler.util.checkSourceFails
 import androidx.privacysandbox.tools.apicompiler.util.parseSource
 import androidx.room.compiler.processing.util.Source
@@ -43,6 +43,7 @@ class ApiParserTest {
                     @PrivacySandboxService
                     interface MySdk {
                         fun doStuff(x: Int, y: Int): String
+                        fun doMoreStuff()
                     }
                 """
             )
@@ -59,19 +60,24 @@ class ApiParserTest {
                                     Parameter(
                                         name = "x",
                                         type = Type(
-                                            name = "Int",
+                                            name = "kotlin.Int",
                                         )
                                     ),
                                     Parameter(
                                         name = "y",
                                         type = Type(
-                                            name = "Int",
+                                            name = "kotlin.Int",
                                         )
                                     )
                                 ),
                                 returnType = Type(
-                                    name = "String",
+                                    name = "kotlin.String",
                                 )
+                            ),
+                            Method(
+                                name = "doMoreStuff",
+                                parameters = listOf(),
+                                returnType = Type("kotlin.Unit")
                             )
                         )
                     )

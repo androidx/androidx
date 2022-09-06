@@ -35,7 +35,7 @@ class CumulativeDataPoint<T : Number>(
     val end: Instant
 ) : DataPoint<T>(dataType) {
 
-    internal val proto: DataProto.AggregateDataPoint by lazy {
+    internal val proto: DataProto.AggregateDataPoint =
         DataProto.AggregateDataPoint.newBuilder()
             .setCumulativeDataPoint(
                 DataProto.AggregateDataPoint.CumulativeDataPoint.newBuilder()
@@ -44,7 +44,6 @@ class CumulativeDataPoint<T : Number>(
                     .setEndTimeEpochMs(end.toEpochMilli())
                     .setTotal(dataType.toProtoFromValue(total))
             ).build()
-    }
 
     internal companion object {
         @Suppress("UNCHECKED_CAST")

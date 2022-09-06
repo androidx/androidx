@@ -37,9 +37,12 @@ import androidx.health.platform.client.request.GetChangesRequest
 import androidx.health.platform.client.request.GetChangesTokenRequest
 import androidx.health.platform.client.request.ReadDataRangeRequest
 import androidx.health.platform.client.request.ReadDataRequest
+import androidx.health.platform.client.request.RegisterForDataNotificationsRequest
 import androidx.health.platform.client.request.RequestContext
+import androidx.health.platform.client.request.UnregisterFromDataNotificationsRequest
 import androidx.health.platform.client.request.UpsertDataRequest
 import androidx.health.platform.client.service.IHealthDataService
+import androidx.health.platform.client.service.IHealthDataService.MIN_API_VERSION
 import com.google.common.util.concurrent.ListenableFuture
 import java.util.concurrent.Executors
 
@@ -88,7 +91,7 @@ class ServiceBackedHealthDataClient(
     override fun getGrantedPermissions(
         permissions: Set<PermissionProto.Permission>,
     ): ListenableFuture<Set<PermissionProto.Permission>> {
-        return executeWithVersionCheck(IHealthDataService.MIN_API_VERSION) { service, resultFuture
+        return executeWithVersionCheck(MIN_API_VERSION) { service, resultFuture
             ->
             service.getGrantedPermissions(
                 requestContext,
@@ -99,7 +102,7 @@ class ServiceBackedHealthDataClient(
     }
 
     override fun revokeAllPermissions(): ListenableFuture<Unit> {
-        return executeWithVersionCheck(IHealthDataService.MIN_API_VERSION) { service, resultFuture
+        return executeWithVersionCheck(MIN_API_VERSION) { service, resultFuture
             ->
             service.revokeAllPermissions(requestContext, RevokeAllPermissionsCallback(resultFuture))
         }
@@ -109,7 +112,7 @@ class ServiceBackedHealthDataClient(
         dataCollection: List<DataProto.DataPoint>
     ): ListenableFuture<List<String>> {
         val request = UpsertDataRequest(dataCollection)
-        return executeWithVersionCheck(IHealthDataService.MIN_API_VERSION) { service, resultFuture
+        return executeWithVersionCheck(MIN_API_VERSION) { service, resultFuture
             ->
             service.insertData(requestContext, request, InsertDataCallback(resultFuture))
         }
@@ -117,7 +120,7 @@ class ServiceBackedHealthDataClient(
 
     override fun updateData(dataCollection: List<DataProto.DataPoint>): ListenableFuture<Unit> {
         val request = UpsertDataRequest(dataCollection)
-        return executeWithVersionCheck(IHealthDataService.MIN_API_VERSION) { service, resultFuture
+        return executeWithVersionCheck(MIN_API_VERSION) { service, resultFuture
             ->
             service.updateData(requestContext, request, UpdateDataCallback(resultFuture))
         }
@@ -128,7 +131,7 @@ class ServiceBackedHealthDataClient(
         clientIdsCollection: List<RequestProto.DataTypeIdPair>
     ): ListenableFuture<Unit> {
         val request = DeleteDataRequest(uidsCollection, clientIdsCollection)
-        return executeWithVersionCheck(IHealthDataService.MIN_API_VERSION) { service, resultFuture
+        return executeWithVersionCheck(MIN_API_VERSION) { service, resultFuture
             ->
             service.deleteData(requestContext, request, DeleteDataCallback(resultFuture))
         }
@@ -138,7 +141,7 @@ class ServiceBackedHealthDataClient(
         dataCollection: RequestProto.DeleteDataRangeRequest
     ): ListenableFuture<Unit> {
         val request = DeleteDataRangeRequest(dataCollection)
-        return executeWithVersionCheck(IHealthDataService.MIN_API_VERSION) { service, resultFuture
+        return executeWithVersionCheck(MIN_API_VERSION) { service, resultFuture
             ->
             service.deleteDataRange(requestContext, request, DeleteDataRangeCallback(resultFuture))
         }
@@ -148,7 +151,7 @@ class ServiceBackedHealthDataClient(
         dataCollection: RequestProto.ReadDataRequest
     ): ListenableFuture<DataProto.DataPoint> {
         val request = ReadDataRequest(dataCollection)
-        return executeWithVersionCheck(IHealthDataService.MIN_API_VERSION) { service, resultFuture
+        return executeWithVersionCheck(MIN_API_VERSION) { service, resultFuture
             ->
             service.readData(requestContext, request, ReadDataCallback(resultFuture))
         }
@@ -158,7 +161,7 @@ class ServiceBackedHealthDataClient(
         dataCollection: RequestProto.ReadDataRangeRequest
     ): ListenableFuture<ResponseProto.ReadDataRangeResponse> {
         val request = ReadDataRangeRequest(dataCollection)
-        return executeWithVersionCheck(IHealthDataService.MIN_API_VERSION) { service, resultFuture
+        return executeWithVersionCheck(MIN_API_VERSION) { service, resultFuture
             ->
             service.readDataRange(requestContext, request, ReadDataRangeCallback(resultFuture))
         }
@@ -167,7 +170,7 @@ class ServiceBackedHealthDataClient(
     override fun aggregate(
         request: RequestProto.AggregateDataRequest
     ): ListenableFuture<ResponseProto.AggregateDataResponse> {
-        return executeWithVersionCheck(IHealthDataService.MIN_API_VERSION) { service, resultFuture
+        return executeWithVersionCheck(MIN_API_VERSION) { service, resultFuture
             ->
             service.aggregate(
                 requestContext,
@@ -180,7 +183,7 @@ class ServiceBackedHealthDataClient(
     override fun getChangesToken(
         request: RequestProto.GetChangesTokenRequest
     ): ListenableFuture<ResponseProto.GetChangesTokenResponse> {
-        return executeWithVersionCheck(IHealthDataService.MIN_API_VERSION) { service, resultFuture
+        return executeWithVersionCheck(MIN_API_VERSION) { service, resultFuture
             ->
             service.getChangesToken(
                 requestContext,
@@ -193,7 +196,7 @@ class ServiceBackedHealthDataClient(
     override fun getChanges(
         request: RequestProto.GetChangesRequest
     ): ListenableFuture<ResponseProto.GetChangesResponse> {
-        return executeWithVersionCheck(IHealthDataService.MIN_API_VERSION) { service, resultFuture
+        return executeWithVersionCheck(MIN_API_VERSION) { service, resultFuture
             ->
             service.getChanges(
                 requestContext,
@@ -202,4 +205,26 @@ class ServiceBackedHealthDataClient(
             )
         }
     }
+
+    override fun registerForDataNotifications(
+        request: RequestProto.RegisterForDataNotificationsRequest,
+    ): ListenableFuture<Void> =
+        executeWithVersionCheck(/* minApiVersion = */ 2) { service, resultFuture ->
+            service.registerForDataNotifications(
+                requestContext,
+                RegisterForDataNotificationsRequest(request),
+                RegisterForDataNotificationsCallback(resultFuture),
+            )
+        }
+
+    override fun unregisterFromDataNotifications(
+        request: RequestProto.UnregisterFromDataNotificationsRequest,
+    ): ListenableFuture<Void> =
+        executeWithVersionCheck(/* minApiVersion = */ 2) { service, resultFuture ->
+            service.unregisterFromDataNotifications(
+                requestContext,
+                UnregisterFromDataNotificationsRequest(request),
+                UnregisterFromDataNotificationsCallback(resultFuture),
+            )
+        }
 }

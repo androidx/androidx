@@ -51,7 +51,7 @@ enum class ActivationSignal {
 class SignalGeneratorViewModel : ViewModel() {
 
     private var signalGenerationJob: Job? = null
-    private val audioGenerator = AudioGenerator()
+    private lateinit var audioGenerator: AudioGenerator
     private val cameraHelper = CameraHelper()
     private lateinit var audioManager: AudioManager
     private var originalVolume: Int = 0
@@ -73,12 +73,13 @@ class SignalGeneratorViewModel : ViewModel() {
         }
     }
 
-    suspend fun initialSignalGenerator(context: Context, beepFrequency: Int) {
+    suspend fun initialSignalGenerator(context: Context, beepFrequency: Int, beepEnabled: Boolean) {
         audioManager = context.getSystemService(AUDIO_SERVICE) as AudioManager
         saveOriginalVolume()
 
         withContext(Dispatchers.Default) {
-            audioGenerator.initAudioTrack(
+            audioGenerator = AudioGenerator(beepEnabled)
+            audioGenerator.initial(
                 context = context,
                 frequency = beepFrequency,
                 beepLengthInSec = ACTIVE_LENGTH_SEC,
