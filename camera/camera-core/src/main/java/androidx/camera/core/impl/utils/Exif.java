@@ -21,6 +21,7 @@ import android.location.Location;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.ImageProxy;
 import androidx.camera.core.Logger;
 import androidx.exifinterface.media.ExifInterface;
@@ -599,6 +600,12 @@ public final class Exif {
                 break;
         }
         mExifInterface.setAttribute(ExifInterface.TAG_ORIENTATION, String.valueOf(orientation));
+    }
+
+    @VisibleForTesting
+    @NonNull
+    public ExifInterface getExifInterface() {
+        return mExifInterface;
     }
 
     /** Attaches the current timestamp to the file. */

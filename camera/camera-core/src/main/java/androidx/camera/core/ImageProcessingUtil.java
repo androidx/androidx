@@ -30,6 +30,7 @@ import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.annotation.RestrictTo;
 import androidx.camera.core.impl.ImageOutputConfig;
 import androidx.camera.core.impl.ImageReaderProxy;
 import androidx.camera.core.internal.compat.ImageWriterCompat;
@@ -38,9 +39,14 @@ import androidx.core.util.Preconditions;
 import java.nio.ByteBuffer;
 import java.util.Locale;
 
-/** Utility class to convert an {@link Image} from YUV to RGB. */
+/**
+ * Utility class to convert an {@link Image} from YUV to RGB.
+ *
+ * @hide
+ */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-final class ImageProcessingUtil {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public final class ImageProcessingUtil {
 
     private static final String TAG = "ImageProcessingUtil";
     private static int sImageCount = 0;
