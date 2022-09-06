@@ -16,16 +16,15 @@
 
 package androidx.privacysandbox.tools.apigenerator.parser
 
+import androidx.privacysandbox.tools.apigenerator.compileIntoInterfaceDescriptorsJar
 import androidx.privacysandbox.tools.core.AnnotatedInterface
 import androidx.privacysandbox.tools.core.Method
 import androidx.privacysandbox.tools.core.Parameter
 import androidx.privacysandbox.tools.core.Type
 import androidx.room.compiler.processing.util.Source
-import androidx.room.compiler.processing.util.compiler.TestCompilationArguments
-import androidx.room.compiler.processing.util.compiler.compile
 import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
-import java.nio.file.Files
+import kotlin.io.path.name
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -187,13 +186,7 @@ class ApiStubParserTest {
     }
 
     private fun compileAndParseApi(vararg sources: Source): Set<AnnotatedInterface> {
-        val result = compile(
-            Files.createTempDirectory("test").toFile(), TestCompilationArguments(
-                sources = sources.asList(),
-            )
-        )
-        assertThat(result.success).isTrue()
-        val stubClassPath = result.outputClasspath.flatMap { it.walk() }.toSet()
-        return ApiStubParser.parse(stubClassPath).services
+        compileIntoInterfaceDescriptorsJar(*sources)
+        return ApiStubParser.parse(compileIntoInterfaceDescriptorsJar(*sources)).services
     }
 }
