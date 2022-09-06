@@ -24,6 +24,9 @@ package androidx.room {
     field public final java.util.List<java.lang.Object> typeConverters;
   }
 
+  public final class EntityUpsertionAdapterKt {
+  }
+
   @RequiresOptIn @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.CLASS, kotlin.annotation.AnnotationTarget.FUNCTION}) public @interface ExperimentalRoomApi {
   }
 

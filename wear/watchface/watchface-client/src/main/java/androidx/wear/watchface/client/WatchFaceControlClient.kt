@@ -25,6 +25,7 @@ import android.os.RemoteException
 import android.util.Log
 import androidx.annotation.Px
 import androidx.annotation.RestrictTo
+import androidx.wear.watchface.Renderer
 import androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy
 import androidx.wear.watchface.complications.data.ComplicationData
 import androidx.wear.watchface.complications.data.ComplicationType
@@ -42,6 +43,7 @@ import androidx.wear.watchface.data.IdAndComplicationDataWireFormat
 import androidx.wear.watchface.data.WatchUiState
 import androidx.wear.watchface.style.UserStyleData
 import androidx.wear.watchface.style.data.UserStyleWireFormat
+import java.util.concurrent.Executor
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
@@ -212,6 +214,14 @@ public interface WatchFaceControlClient : AutoCloseable {
      * @throws [ServiceStartFailureException] if the watchface dies during startup.
      */
     @Throws(RemoteException::class)
+    @Deprecated(
+        "Use an overload that specifies PreviewImageUpdateRequestedListener",
+        ReplaceWith(
+            "getOrCreateInteractiveWatchFaceClient(" +
+                "String, DeviceConfig, WatchUiState, UserStyleData?, Map<Int, ComplicationData>?," +
+                " Executor, PreviewImageUpdateRequestedListener)"
+        )
+    )
     public suspend fun getOrCreateInteractiveWatchFaceClient(
         id: String,
         deviceConfig: DeviceConfig,
@@ -219,6 +229,66 @@ public interface WatchFaceControlClient : AutoCloseable {
         userStyle: UserStyleData?,
         slotIdToComplicationData: Map<Int, ComplicationData>?
     ): InteractiveWatchFaceClient
+
+    /** Listener for observing calls to [Renderer.sendPreviewImageNeedsUpdateRequest]. */
+    public interface PreviewImageUpdateRequestedListener {
+        /**
+         * The watch face called [Renderer.sendPreviewImageNeedsUpdateRequest], indicating that it
+         * looks visually different. Schedule creation of a headless instance to render a new
+         * preview image for [instanceId]. This is likely an expensive operation and should be rate
+         * limited.
+         *
+         * @param instanceId The ID of the watch face (see id passed into
+         * getOrCreateInteractiveWatchFaceClient)) requesting the update. This will usually
+         * match the current watch face but it could also be from a previous watch face if
+         * [InteractiveWatchFaceClient.updateWatchFaceInstance] is called shortly after
+         * [Renderer.sendPreviewImageNeedsUpdateRequest].
+         */
+        public fun onPreviewImageUpdateRequested(instanceId: String)
+    }
+
+    /**
+     * Requests either an existing [InteractiveWatchFaceClient] with the specified [instanceId] or
+     * schedules creation of an [InteractiveWatchFaceClient] for the next time the
+     * WallpaperService creates an engine.
+     *
+     * NOTE that currently only one [InteractiveWatchFaceClient] per process can exist at a time.
+     *
+     * @param instanceId The ID for the requested [InteractiveWatchFaceClient], will be exposed to
+     * the watch face via [androidx.wear.watchface.WatchState.watchFaceInstanceId].
+     * @param deviceConfig The [DeviceConfig] for the wearable.
+     * @param watchUiState The initial [WatchUiState] for the wearable.
+     * @param userStyle Optional [UserStyleData] to apply to the instance (whether or not it's
+     * created). If `null` then the pre-existing user style is preserved (if the instance is created
+     * this will be the [androidx.wear.watchface.style.UserStyleSchema]'s default).
+     * @param slotIdToComplicationData The initial [androidx.wear.watchface.ComplicationSlot] data,
+     * or `null` if unavailable.
+     * @param previewImageUpdateRequestedExecutor The [Executor] on which to run
+     * [previewImageUpdateRequestedListener] if the watch face calls
+     * [Renderer.sendPreviewImageNeedsUpdateRequest].
+     * @param previewImageUpdateRequestedListener The [PreviewImageUpdateRequestedListener]
+     * which is fired if the watch face calls [Renderer.sendPreviewImageNeedsUpdateRequest].
+     *
+     * @return The [InteractiveWatchFaceClient], this should be closed when finished.
+     * @throws [ServiceStartFailureException] if the watchface dies during startup.
+     */
+    @Throws(RemoteException::class)
+    @Suppress("deprecation")
+    public suspend fun getOrCreateInteractiveWatchFaceClient(
+        instanceId: String,
+        deviceConfig: DeviceConfig,
+        watchUiState: androidx.wear.watchface.client.WatchUiState,
+        userStyle: UserStyleData?,
+        slotIdToComplicationData: Map<Int, ComplicationData>?,
+        previewImageUpdateRequestedExecutor: Executor,
+        previewImageUpdateRequestedListener: PreviewImageUpdateRequestedListener
+    ): InteractiveWatchFaceClient = getOrCreateInteractiveWatchFaceClient(
+        instanceId,
+        deviceConfig,
+        watchUiState,
+        userStyle,
+        slotIdToComplicationData
+    )
 
     @Throws(RemoteException::class)
     public fun getEditorServiceClient(): EditorServiceClient
@@ -296,7 +366,11 @@ internal class WatchFaceControlClientImpl internal constructor(
     override fun getInteractiveWatchFaceClientInstance(
         instanceId: String
     ) = service.getInteractiveWatchFaceInstance(instanceId)?.let {
-        InteractiveWatchFaceClientImpl(it)
+        InteractiveWatchFaceClientImpl(
+            it,
+            previewImageUpdateRequestedExecutor = null,
+            previewImageUpdateRequestedListener = null
+        )
     }
 
     @Deprecated(
@@ -350,12 +424,57 @@ internal class WatchFaceControlClientImpl internal constructor(
         }
     }
 
+    @Deprecated(
+        "Use an overload that specifies PreviewImageUpdateRequestedListener",
+        replaceWith = ReplaceWith(
+            "getOrCreateInteractiveWatchFaceClient(String, DeviceConfig, WatchUiState, " +
+                "UserStyleData?, Map<Int, ComplicationData>?, Executor, " +
+                "PreviewImageUpdateRequestedListener)")
+    )
     override suspend fun getOrCreateInteractiveWatchFaceClient(
         id: String,
         deviceConfig: DeviceConfig,
         watchUiState: androidx.wear.watchface.client.WatchUiState,
         userStyle: UserStyleData?,
         slotIdToComplicationData: Map<Int, ComplicationData>?
+    ): InteractiveWatchFaceClient = getOrCreateInteractiveWatchFaceClientImpl(
+        id,
+        deviceConfig,
+        watchUiState,
+        userStyle,
+        slotIdToComplicationData,
+        previewImageUpdateRequestedExecutor = null,
+        previewImageUpdateRequestedListener = null
+    )
+
+    override suspend fun getOrCreateInteractiveWatchFaceClient(
+        instanceId: String,
+        deviceConfig: DeviceConfig,
+        watchUiState: androidx.wear.watchface.client.WatchUiState,
+        userStyle: UserStyleData?,
+        slotIdToComplicationData: Map<Int, ComplicationData>?,
+        previewImageUpdateRequestedExecutor: Executor,
+        previewImageUpdateRequestedListener:
+            WatchFaceControlClient.PreviewImageUpdateRequestedListener
+    ): InteractiveWatchFaceClient = getOrCreateInteractiveWatchFaceClientImpl(
+        instanceId,
+        deviceConfig,
+        watchUiState,
+        userStyle,
+        slotIdToComplicationData,
+        previewImageUpdateRequestedExecutor,
+            previewImageUpdateRequestedListener
+    )
+
+    private suspend fun getOrCreateInteractiveWatchFaceClientImpl(
+        id: String,
+        deviceConfig: DeviceConfig,
+        watchUiState: androidx.wear.watchface.client.WatchUiState,
+        userStyle: UserStyleData?,
+        slotIdToComplicationData: Map<Int, ComplicationData>?,
+        previewImageUpdateRequestedExecutor: Executor?,
+        previewImageUpdateRequestedListener:
+            WatchFaceControlClient.PreviewImageUpdateRequestedListener?
     ): InteractiveWatchFaceClient {
         requireNotClosed()
         val traceEvent = AsyncTraceEvent(
@@ -404,7 +523,11 @@ internal class WatchFaceControlClientImpl internal constructor(
                         safeUnlinkToDeath(serviceBinder, deathObserver)
                         traceEvent.close()
                         continuation.resume(
-                            InteractiveWatchFaceClientImpl(iInteractiveWatchFace)
+                            InteractiveWatchFaceClientImpl(
+                                iInteractiveWatchFace,
+                                previewImageUpdateRequestedExecutor,
+                                previewImageUpdateRequestedListener
+                            )
                         )
                     }
 
@@ -422,7 +545,13 @@ internal class WatchFaceControlClientImpl internal constructor(
                 // There was an existing watchface.onInteractiveWatchFaceCreated
                 safeUnlinkToDeath(serviceBinder, deathObserver)
                 traceEvent.close()
-                continuation.resume(InteractiveWatchFaceClientImpl(it))
+                continuation.resume(
+                    InteractiveWatchFaceClientImpl(
+                        it,
+                        previewImageUpdateRequestedExecutor,
+                        previewImageUpdateRequestedListener
+                    )
+                )
             }
         }
     }

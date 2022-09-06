@@ -220,6 +220,7 @@
     <string name="clicked_row_prefix" msgid="9068303427922069941">"ಕ್ಲಿಕ್ ಮಾಡಿದ ಸಾಲು"</string>
     <string name="first_line_text" msgid="6648055806656590336">"ಪಠ್ಯದ ಮೊದಲನೇ ಸಾಲು"</string>
     <string name="second_line_text" msgid="38664490158836864">"ಪಠ್ಯದ ಎರಡನೇ ಸಾಲು"</string>
+    <string name="long_line_text" msgid="8082962600953333087">"ನಿರ್ಬಂಧಿತ ಮೋಡ್‌ನಲ್ಲಿ ಈ ಸಬ್‌ಟೆಕ್ಸ್ಟ್ ಸಂಪೂರ್ಣ ಡಿಸ್‌ಪ್ಲೇ ಆಗಬಲ್ಲದು (ಉದಾ. ಪಾರ್ಕಿಂಗ್ ಮೋಡ್, ನಿರ್ಬಂಧಿತ ಕಡಿಮೆ ವೇಗದ ಮೋಡ್). ಆದರೆ ನಿರ್ಬಂಧಿತ ಮೋಡ್‌ನಲ್ಲಿದ್ದಾಗ ಇದು ಕೇವಲ ಎರಡೇ ಸಾಲುಗಳಿಗೆ ಕಡಿತಗೊಳ್ಳುತ್ತದೆ (ಉದಾ. ಡ್ರೈವಿಂಗ್ ಮೋಡ್). ಪರೀಕ್ಷೆಯ ಉದ್ದೇಶಗಳಿಗಾಗಿ, ಈ ಸಬ್‌ಟೆಕ್ಸ್ಟ್ ಬಹಳ ಬಹಳ ಬಹಳ ಬಹಳ ಬಹಳ ಉದ್ದವಾಗಿದೆ"</string>
     <string name="title_prefix" msgid="3991742709199357049">"ಶೀರ್ಷಿಕೆ"</string>
     <string name="list_template_demo_title" msgid="1740208242737246151">"ಪಟ್ಟಿಯ ಟೆಂಪ್ಲೇಟ್ ಡೆಮೋ"</string>
     <string name="long_msg_template_demo_title" msgid="1793748562161438131">"ಉದ್ದವಾದ ಸಂದೇಶದ ಟೆಂಪ್ಲೇಟ್ ಡೆಮೋ"</string>

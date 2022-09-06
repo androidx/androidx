@@ -29,7 +29,7 @@ internal class JankStatsApi31Impl(
 ) : JankStatsApi26Impl(jankStats, view, window) {
 
     // Reuse the same frameData on every frame to avoid allocating per-frame objects
-    val frameData = FrameDataApi31(0, 0, 0, 0, false, stateInfo)
+    val frameData = FrameDataApi31(0, 0, 0, 0, 0, false, stateInfo)
 
     override fun getFrameData(
         startTime: Long,
@@ -45,12 +45,14 @@ internal class JankStatsApi31Impl(
         prevEnd = startTime + uiDuration
         metricsStateHolder.state?.getIntervalStates(startTime, prevEnd, stateInfo)
         val isJank = uiDuration > expectedDuration
-        val cpuDuration = uiDuration +
-            frameMetrics.getMetric(FrameMetrics.COMMAND_ISSUE_DURATION) +
+        val totalDuration = frameMetrics.getMetric(FrameMetrics.TOTAL_DURATION)
+        // SWAP is counted for both CPU and GPU metrics, so add it back in after subtracting GPU
+        val cpuDuration = totalDuration -
+            frameMetrics.getMetric(FrameMetrics.GPU_DURATION) +
             frameMetrics.getMetric(FrameMetrics.SWAP_BUFFERS_DURATION)
-        val overrun = frameMetrics.getMetric(FrameMetrics.TOTAL_DURATION) -
+        val overrun = totalDuration -
             frameMetrics.getMetric(FrameMetrics.DEADLINE)
-        frameData.update(startTime, uiDuration, cpuDuration, overrun, isJank)
+        frameData.update(startTime, uiDuration, cpuDuration, totalDuration, overrun, isJank)
         return frameData
     }
 

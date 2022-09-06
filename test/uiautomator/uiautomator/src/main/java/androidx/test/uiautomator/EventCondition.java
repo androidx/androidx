@@ -22,9 +22,8 @@ import android.view.accessibility.AccessibilityEvent;
  * An {@link EventCondition} is a condition which depends on an event or series of events having
  * occurred.
  */
-@SuppressWarnings("TypeNameShadowing")
-public abstract class EventCondition<R> extends Condition<AccessibilityEvent, Boolean> {
+public abstract class EventCondition<U> extends Condition<AccessibilityEvent, Boolean> {
 
     @SuppressWarnings("HiddenAbstractMethod")
-    abstract R getResult();
+    abstract U getResult();
 }

@@ -134,21 +134,6 @@ class ByMatcher {
      */
     private List<AccessibilityNodeInfo> findMatches(AccessibilityNodeInfo node,
             int index, int depth, SinglyLinkedList<PartialMatch> partialMatches) {
-        try {
-            return findMatchesRecursively(node, index, depth, partialMatches);
-        } catch (RuntimeException e) {
-            throw newRecursionError(node, e);
-        } catch (Error e) {
-            throw newRecursionError(node, e);
-        }
-    }
-
-    private IllegalStateException newRecursionError(AccessibilityNodeInfo node, Throwable t) {
-        return new IllegalStateException(String.format("Recursion error for node =%s", node), t);
-    }
-
-    private List<AccessibilityNodeInfo> findMatchesRecursively(AccessibilityNodeInfo node,
-            int index, int depth, SinglyLinkedList<PartialMatch> partialMatches) {
         List<AccessibilityNodeInfo> ret = new ArrayList<AccessibilityNodeInfo>();
 
         // Don't bother searching the subtree if it is not visible
@@ -182,7 +167,7 @@ class ByMatcher {
             }
 
             // Add any matches found under the child subtree
-            ret.addAll(findMatchesRecursively(child, i, depth + 1, partialMatches));
+            ret.addAll(findMatches(child, i, depth + 1, partialMatches));
 
             // We're done with the child
             child.recycle();

@@ -37,7 +37,7 @@ runs:
     # version in case it is not available.
     - name: "Install Cmake"
       shell: bash
-      run: echo "yes" | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --install "cmake;3.22.1" --channel=3
+      run: echo "yes" | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --install "cmake;3.22.1"
     - name: "Set environment variables"
       shell: bash
       run: |

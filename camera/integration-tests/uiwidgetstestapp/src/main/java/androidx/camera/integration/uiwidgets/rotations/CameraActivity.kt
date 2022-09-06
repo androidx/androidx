@@ -18,6 +18,7 @@ package androidx.camera.integration.uiwidgets.rotations
 
 import android.Manifest
 import android.content.ContentValues
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
@@ -122,6 +123,14 @@ open class CameraActivity : AppCompatActivity() {
                         "this would have resulted in unexpected behavior.", e
                 )
             }
+        }
+
+        if (intent.getBooleanExtra(KEY_CAMERA_IMPLEMENTATION_NO_HISTORY, false)) {
+            intent = Intent(intent).apply {
+                removeExtra(KEY_CAMERA_IMPLEMENTATION)
+                removeExtra(KEY_CAMERA_IMPLEMENTATION_NO_HISTORY)
+            }
+            cameraImpl = null
         }
 
         val cameraProcessFuture = ProcessCameraProvider.getInstance(this)
@@ -333,6 +342,7 @@ open class CameraActivity : AppCompatActivity() {
         const val KEY_LENS_FACING = "lens-facing"
         const val KEY_IMAGE_CAPTURE_MODE = "image-capture-mode"
         const val KEY_CAMERA_IMPLEMENTATION = "camera_implementation"
+        const val KEY_CAMERA_IMPLEMENTATION_NO_HISTORY = "camera_implementation_no_history"
         const val CAMERA2_IMPLEMENTATION_OPTION = "camera2"
         const val CAMERA_PIPE_IMPLEMENTATION_OPTION = "camera_pipe"
         const val IMAGE_CAPTURE_MODE_IN_MEMORY = 0

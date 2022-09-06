@@ -91,10 +91,3 @@ androidx {
     // Sidecar interface.
     failOnDeprecationWarnings = false
 }
-
-// Allow usage of Kotlin's @OptIn.
-tasks.withType(KotlinCompile).configureEach {
-    kotlinOptions {
-        freeCompilerArgs += ["-opt-in=kotlin.RequiresOptIn"]
-    }
-}

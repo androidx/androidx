@@ -1,9 +1,14 @@
 // Signature format: 4.0
 package androidx.asynclayoutinflater.view {
 
+  public interface AsyncLayoutFactory extends android.view.LayoutInflater.Factory2 {
+  }
+
   public final class AsyncLayoutInflater {
     ctor public AsyncLayoutInflater(android.content.Context);
+    ctor public AsyncLayoutInflater(android.content.Context, androidx.asynclayoutinflater.view.AsyncLayoutFactory);
     method @UiThread public void inflate(@LayoutRes int, android.view.ViewGroup?, androidx.asynclayoutinflater.view.AsyncLayoutInflater.OnInflateFinishedListener);
+    method @UiThread public void inflate(@LayoutRes int, android.view.ViewGroup?, java.util.concurrent.Executor?, androidx.asynclayoutinflater.view.AsyncLayoutInflater.OnInflateFinishedListener);
   }
 
   public static interface AsyncLayoutInflater.OnInflateFinishedListener {

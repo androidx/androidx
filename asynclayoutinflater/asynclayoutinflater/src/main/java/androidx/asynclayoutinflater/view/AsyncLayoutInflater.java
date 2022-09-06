@@ -77,6 +77,14 @@ public final class AsyncLayoutInflater {
         mInflateThread = InflateThread.getInstance();
     }
 
+    public AsyncLayoutInflater(@NonNull Context context,
+            @NonNull AsyncLayoutFactory asyncLayoutFactory) {
+        mInflater = new BasicInflater(context);
+        mInflater.setFactory2(asyncLayoutFactory);
+        mHandler = new Handler(Looper.myLooper(), mHandlerCallback);
+        mInflateThread = InflateThread.getInstance();
+    }
+
     /**
      * Triggers view inflation on background thread.
      */
@@ -84,6 +92,16 @@ public final class AsyncLayoutInflater {
     public void inflate(@LayoutRes int resid, @Nullable ViewGroup parent,
             @NonNull OnInflateFinishedListener callback) {
         inflateInternal(resid, parent, callback, mInflater, /* callbackExecutor= */ null);
+    }
+
+    /**
+     * Triggers inflation on a background thread. It triggers the
+     * {@link OnInflateFinishedListener} on the given executor instead of the main thread.
+     */
+    @UiThread
+    public void inflate(@LayoutRes int resid, @Nullable ViewGroup parent,
+            @Nullable Executor callbackExecutor, @NonNull OnInflateFinishedListener callback) {
+        inflateInternal(resid, parent, callback, mInflater, callbackExecutor);
     }
 
     private void inflateInternal(@LayoutRes int resid, @Nullable ViewGroup parent,

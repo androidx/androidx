@@ -44,7 +44,7 @@ public class ExerciseCapabilities(
     )
 
     /** @hide */
-    override val proto: DataProto.ExerciseCapabilities by lazy {
+    override val proto: DataProto.ExerciseCapabilities =
         DataProto.ExerciseCapabilities.newBuilder()
             .addAllTypeToCapabilities(
                 typeToCapabilities
@@ -57,7 +57,6 @@ public class ExerciseCapabilities(
                     .sortedBy { it.type.name } // Ensures equals() works correctly
             )
             .build()
-    }
 
     /** Set of supported [ExerciseType] s on this device. */
     public val supportedExerciseTypes: Set<ExerciseType>

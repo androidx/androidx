@@ -28,6 +28,7 @@ class UpsertionMethodProcessor(
     val executableElement: XMethodElement
 ) {
     val context = baseContext.fork(executableElement)
+
     fun process(): UpsertionMethod {
         val delegate = ShortcutMethodProcessor(context, containing, executableElement)
 
@@ -77,6 +78,7 @@ class UpsertionMethodProcessor(
         )
 
         val methodBinder = delegate.findUpsertMethodBinder(returnType, params)
+
         context.checker.check(
             methodBinder.adapter != null,
             executableElement,

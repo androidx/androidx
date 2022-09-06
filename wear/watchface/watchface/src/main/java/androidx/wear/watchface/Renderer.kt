@@ -42,6 +42,7 @@ import androidx.annotation.UiThread
 import androidx.annotation.WorkerThread
 import androidx.wear.watchface.utility.TraceEvent
 import androidx.wear.watchface.style.CurrentUserStyleRepository
+import androidx.wear.watchface.style.UserStyleSchema
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -160,6 +161,9 @@ internal fun verticalFlip(
  * is a memory barrier between construction and rendering so no special threading primitives are
  * required.
  *
+ * It is recommended to set [watchfaceColors] with representative [WatchFaceColors] this is used by
+ * compatible systems to influence the system's color scheme.
+ *
  * Please note [android.graphics.drawable.AnimatedImageDrawable] and similar classes which rely on
  * [android.graphics.drawable.Drawable.Callback] do not animate properly out of the box unless you
  * register an implementation with [android.graphics.drawable.Drawable.setCallback] that calls
@@ -187,7 +191,27 @@ public sealed class Renderer @WorkerThread constructor(
     @IntRange(from = 0, to = 60000)
     public var interactiveDrawModeUpdateDelayMillis: Long,
 ) {
+    private var pendingWatchFaceColors: WatchFaceColors? = null
+    private var pendingWatchFaceColorsSet = false
+
+    // Protected by lock
+    private var pendingSendPreviewImageNeedsUpdateRequest = false
+    private val lock = Any()
+
+    // Protected by lock. NB UI thread code doesn't need the lock.
     internal var watchFaceHostApi: WatchFaceHostApi? = null
+        set(value) {
+            val pendingSendPreviewImageNeedsUpdateRequestCopy = synchronized(lock) {
+                field = value
+                pendingSendPreviewImageNeedsUpdateRequest
+            }
+            if (pendingWatchFaceColorsSet) {
+                value?.onWatchFaceColorsChanged(pendingWatchFaceColors)
+            }
+            if (pendingSendPreviewImageNeedsUpdateRequestCopy) {
+                value?.sendPreviewImageNeedsUpdateRequest()
+            }
+        }
 
     internal companion object {
         internal class SharedAssetsHolder {
@@ -450,35 +474,25 @@ public sealed class Renderer @WorkerThread constructor(
     internal open suspend fun backgroundThreadInitInternal() {}
 
     /**
-     * Provides information about the colors of a watch face, exposing the three most
-     * representative colors. This may be used by the system to influence the colors used for the
-     * system ui.
-     */
-    public class WatchfaceColors(
-        val primaryColor: Color,
-        val secondaryColor: Color,
-        val tertiaryColor: Color
-    )
-
-    /**
-     * Called by the system when it needs to know what colors the watch face is using. Return `null`
-     * if no color information is available at the moment and subsequently call
-     * [notifyWatchfaceColorsChanged] when color information becomes available.
+     * Representative [WatchFaceColors] which are made available to system clients via
+     * [androidx.wear.watchface.client.InteractiveWatchFaceClient.OnWatchFaceColorsListener].
      *
-     * @return The [WatchfaceColors] for this watch face.
+     * Initially this value is `null` signifying that the colors are unknown. When possible the
+     * watchFace should assign `non null` [WatchFaceColors] and keep this updated when the colors
+     * change (e.g. due to a style change).
      */
-    @UiThread
-    public open fun watchfaceColors(): WatchfaceColors? = null
+    public var watchfaceColors: WatchFaceColors? = null
+       set(value) {
+           require(value != null) { "watchfaceColors must be non-null " }
 
-    /**
-     * Notifies the system that the watch face's colors have changed, this will trigger a call to
-     * [watchfaceColors]. Note the system automatically calls notifyColorsChanged when the style
-     * changes.
-     */
-    @UiThread
-    public fun notifyWatchfaceColorsChanged() {
-        watchFaceHostApi?.notifySystemThatColorsChanged()
-    }
+           val hostApi = watchFaceHostApi
+           if (hostApi == null) {
+               pendingWatchFaceColors = value
+               pendingWatchFaceColorsSet = true
+           } else {
+               hostApi.onWatchFaceColorsChanged(value)
+           }
+       }
 
     /**
      * Multiple [WatchFaceService] instances and hence Renderers can exist concurrently (e.g. a
@@ -498,6 +512,27 @@ public sealed class Renderer @WorkerThread constructor(
     }
 
     internal abstract fun renderBlackFrame()
+
+    /**
+     * Sends a request to the system asking it to update the preview image. This is useful for
+     * watch faces with configuration outside of the [UserStyleSchema] E.g. a watchface with a
+     * selectable background.
+     *
+     * The system may choose to rate limit this method for performance reasons and the system is
+     * free to schedule when the update occurs.
+     *
+     * Requires a compatible system to work (if the system is incompatible this does nothing).
+     * This can be called from any thread.
+     */
+    public fun sendPreviewImageNeedsUpdateRequest() {
+        synchronized(lock) {
+            if (watchFaceHostApi == null) {
+                pendingSendPreviewImageNeedsUpdateRequest = true
+            } else {
+                watchFaceHostApi!!.sendPreviewImageNeedsUpdateRequest()
+            }
+        }
+    }
 
     /**
      * Watch faces that require [Canvas] rendering should extend their [Renderer] from this class

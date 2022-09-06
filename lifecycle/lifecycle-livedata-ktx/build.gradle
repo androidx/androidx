@@ -24,13 +24,6 @@ plugins {
     id("org.jetbrains.kotlin.android")
 }
 
-// Allow usage of Kotlin's @OptIn.
-tasks.withType(KotlinCompile).configureEach {
-    kotlinOptions {
-        freeCompilerArgs += ["-opt-in=kotlin.RequiresOptIn"]
-    }
-}
-
 dependencies {
     api(project(":lifecycle:lifecycle-livedata"))
     api(project(":lifecycle:lifecycle-livedata-core-ktx"))
@@ -44,9 +37,14 @@ dependencies {
     androidTestImplementation(libs.truth)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.kotlinCoroutinesTest)
     androidTestImplementation(libs.kotlinCoroutinesAndroid)
+
+    constraints {
+        implementation(project(":lifecycle:lifecycle-livedata"))
+    }
 }
 
 androidx {

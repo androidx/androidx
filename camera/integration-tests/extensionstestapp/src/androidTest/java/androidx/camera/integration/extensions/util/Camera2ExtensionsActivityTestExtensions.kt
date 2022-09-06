@@ -27,8 +27,6 @@ import androidx.test.espresso.assertion.ViewAssertions
 import androidx.test.espresso.matcher.ViewMatchers
 import androidx.testutils.withActivity
 
-const val EXTENSIONS_TEST_APP_PACKAGE = "androidx.camera.integration.extensions"
-
 /**
  * Waits until the capture session has been configured and its idling resource has become idle.
  */

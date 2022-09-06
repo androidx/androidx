@@ -52,7 +52,6 @@ import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
-import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -634,8 +633,7 @@ class EGLManagerTest {
             }
         }
     }
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
-    @Ignore("b/242180917")
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun testEglDupNativeFenceFDANDROIDawaitForever() {
         testEGLManager {

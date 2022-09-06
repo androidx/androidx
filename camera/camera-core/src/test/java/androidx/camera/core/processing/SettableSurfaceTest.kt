@@ -26,7 +26,9 @@ import android.util.Size
 import android.view.Surface
 import androidx.camera.core.SurfaceEffect
 import androidx.camera.core.SurfaceOutput
+import androidx.camera.core.SurfaceOutput.GlTransformOptions.USE_SURFACE_TEXTURE_TRANSFORM
 import androidx.camera.core.SurfaceRequest
+import androidx.camera.core.SurfaceRequest.TransformationInfo
 import androidx.camera.core.SurfaceRequest.Result.RESULT_REQUEST_CANCELLED
 import androidx.camera.core.impl.DeferrableSurface.SurfaceClosedException
 import androidx.camera.core.impl.DeferrableSurface.SurfaceUnavailableException
@@ -259,8 +261,27 @@ class SettableSurfaceTest {
         shadowOf(getMainLooper()).idle()
     }
 
+    @Test
+    fun setRotationDegrees_sendTransformationInfoUpdate() {
+        // Arrange.
+        var transformationInfo: TransformationInfo? = null
+        val surfaceRequest = settableSurface.createSurfaceRequest(FakeCamera())
+        surfaceRequest.setTransformationInfoListener(mainThreadExecutor()) {
+            transformationInfo = it
+        }
+
+        // Act.
+        settableSurface.rotationDegrees = 90
+        shadowOf(getMainLooper()).idle()
+
+        // Assert.
+        assertThat(transformationInfo).isNotNull()
+        assertThat(transformationInfo!!.rotationDegrees).isEqualTo(90)
+    }
+
     private fun createSurfaceOutputFuture(settableSurface: SettableSurface) =
-        settableSurface.createSurfaceOutputFuture(/*applyGlTransform=*/false,
+        settableSurface.createSurfaceOutputFuture(
+            USE_SURFACE_TEXTURE_TRANSFORM,
             INPUT_SIZE,
             sizeToRect(INPUT_SIZE),
             /*rotationDegrees=*/0,

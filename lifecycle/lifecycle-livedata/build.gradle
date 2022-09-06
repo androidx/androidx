@@ -31,6 +31,15 @@ dependencies {
     testImplementation(libs.kotlinCoroutinesTest)
     testImplementation(libs.junit)
     testImplementation(libs.mockitoCore)
+    testImplementation(libs.truth)
+
+    constraints {
+        // this syntax is a temporary workout to allow project dependency on cross-project-set
+        // i.e. COMPOSE + MAIN project sets
+        // update syntax when b/239979823 is fixed
+        implementation("androidx.lifecycle:lifecycle-livedata-core:{androidx.LibraryVersions.LIFECYCLE}")
+        implementation(project(":lifecycle:lifecycle-livedata-ktx"))
+    }
 }
 
 androidx {

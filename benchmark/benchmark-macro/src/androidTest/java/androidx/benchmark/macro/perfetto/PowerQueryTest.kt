@@ -49,17 +49,17 @@ class PowerQueryTest {
                     powerUw = 80.940907,
                     components = listOf(
                         PowerQuery.ComponentMeasurement(
-                            name = "RailsCpuBig",
+                            name = "CpuBig",
                             energyUws = 31935.0,
                             powerUw = 6.621397
                         ),
                         PowerQuery.ComponentMeasurement(
-                            name = "RailsCpuLittle",
+                            name = "CpuLittle",
                             energyUws = 303264.0,
                             powerUw = 62.878706
                         ),
                         PowerQuery.ComponentMeasurement(
-                            name = "RailsCpuMid",
+                            name = "CpuMid",
                             energyUws = 55179.0,
                             powerUw = 11.440804
                         )
@@ -70,7 +70,7 @@ class PowerQueryTest {
                     powerUw = 208.777524,
                     components = listOf(
                         PowerQuery.ComponentMeasurement(
-                            name = "RailsDisplay",
+                            name = "Display",
                             energyUws = 1006934.0,
                             powerUw = 208.777524
                         )
@@ -81,7 +81,7 @@ class PowerQueryTest {
                     powerUw = 13.799502,
                     components = listOf(
                         PowerQuery.ComponentMeasurement(
-                            name = "RailsGpu",
+                            name = "Gpu",
                             energyUws = 66555.0,
                             powerUw = 13.799502
                         )
@@ -92,21 +92,21 @@ class PowerQueryTest {
                     powerUw = 73.69686899999999,
                     components = listOf(
                         PowerQuery.ComponentMeasurement(
-                            name = "RailsDdrA",
+                            name = "DdrA",
                             energyUws = 48458.0,
                             powerUw = 10.047273
                         ),
                         PowerQuery.ComponentMeasurement(
-                            name = "RailsDdrB",
+                            name = "DdrB",
                             energyUws = 54988.0,
                             powerUw = 11.401203
                         ),
                         PowerQuery.ComponentMeasurement(
-                            name = "RailsDdrC",
+                            name = "DdrC",
                             energyUws = 100082.0,
                             powerUw = 20.750985),
                         PowerQuery.ComponentMeasurement(
-                            name = "RailsMemoryInterface",
+                            name = "MemoryInterface",
                             energyUws = 151912.0,
                             powerUw = 31.497408
                         ),
@@ -117,7 +117,7 @@ class PowerQueryTest {
                     powerUw = 10.52768,
                     components = listOf(
                         PowerQuery.ComponentMeasurement(
-                            name = "RailsTpu",
+                            name = "Tpu",
                             energyUws = 50775.0,
                             powerUw = 10.52768
                         )
@@ -128,26 +128,26 @@ class PowerQueryTest {
                     powerUw = 123.74248399999999,
                     components = listOf(
                         PowerQuery.ComponentMeasurement(
-                            name = "RailsAocLogic",
+                            name = "AocLogic",
                             energyUws = 74972.0,
                             powerUw = 15.544682),
                         PowerQuery.ComponentMeasurement(
-                            name = "RailsAocMemory",
+                            name = "AocMemory",
                             energyUws = 19601.0,
                             powerUw = 4.064068
                         ),
                         PowerQuery.ComponentMeasurement(
-                            name = "RailsModem",
+                            name = "Modem",
                             energyUws = 8369.0,
                             powerUw = 1.735227
                         ),
                         PowerQuery.ComponentMeasurement(
-                            name = "RailsRadioFrontend",
+                            name = "RadioFrontend",
                             energyUws = 0.0,
                             powerUw = 0.0
                         ),
                         PowerQuery.ComponentMeasurement(
-                            name = "RailsWifiBt",
+                            name = "WifiBt",
                             energyUws = 493868.0,
                             powerUw = 102.398507
                         )
@@ -158,7 +158,7 @@ class PowerQueryTest {
                     powerUw = 25.454282,
                     components = listOf(
                         PowerQuery.ComponentMeasurement(
-                            name = "RailsSystemFabric",
+                            name = "SystemFabric",
                             energyUws = 122766.0,
                             powerUw = 25.454282
                         )

@@ -16,6 +16,7 @@
 
 package androidx.test.uiautomator;
 
+import android.annotation.SuppressLint;
 import android.app.Service;
 import android.graphics.Point;
 import android.graphics.Rect;
@@ -33,6 +34,7 @@ import android.view.accessibility.AccessibilityWindowInfo;
 
 import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
 import java.util.ArrayList;
@@ -154,8 +156,7 @@ public class UiObject2 implements Searchable {
      * @return The final result returned by the {@code condition}, or null if the {@code condition}
      * was not met before the {@code timeout}.
      */
-    @SuppressWarnings("TypeNameShadowing")
-    public <R> R wait(UiObject2Condition<R> condition, long timeout) {
+    public <U> U wait(@NonNull UiObject2Condition<U> condition, long timeout) {
         return mWaitMixin.wait(condition, timeout);
     }
 
@@ -167,14 +168,14 @@ public class UiObject2 implements Searchable {
      * @return The final result returned by the {@code condition}, or null if the {@code condition}
      * was not met before the {@code timeout}.
      */
-    @SuppressWarnings("TypeNameShadowing")
-    public <R> R wait(SearchCondition<R> condition, long timeout) {
+    public <U> U wait(@NonNull SearchCondition<U> condition, long timeout) {
         return mWaitMixin.wait(condition, timeout);
     }
 
     // Search functions
 
     /** Returns this object's parent, or null if it has no parent. */
+    @SuppressLint("UnknownNullness") // Avoid unnecessary null checks from nullable testing APIs.
     public UiObject2 getParent() {
         AccessibilityNodeInfo parent = getAccessibilityNodeInfo().getParent();
         return parent != null ? new UiObject2(getDevice(), mSelector, parent) : null;
@@ -186,13 +187,14 @@ public class UiObject2 implements Searchable {
     }
 
     /** Returns a collection of the child elements directly under this object. */
+    @NonNull
     public List<UiObject2> getChildren() {
         return findObjects(By.depth(1));
     }
 
     /** Returns whether there is a match for the given criteria under this object. */
     @Override
-    public boolean hasObject(BySelector selector) {
+    public boolean hasObject(@NonNull BySelector selector) {
         AccessibilityNodeInfo node =
                 ByMatcher.findMatch(getDevice(), selector, getAccessibilityNodeInfo());
         if (node != null) {
@@ -207,7 +209,8 @@ public class UiObject2 implements Searchable {
      * or null if no matching objects are found.
      */
     @Override
-    public UiObject2 findObject(BySelector selector) {
+    @SuppressLint("UnknownNullness") // Avoid unnecessary null checks from nullable testing APIs.
+    public UiObject2 findObject(@NonNull BySelector selector) {
         AccessibilityNodeInfo node =
                 ByMatcher.findMatch(getDevice(), selector, getAccessibilityNodeInfo());
         return node != null ? new UiObject2(getDevice(), selector, node) : null;
@@ -215,7 +218,8 @@ public class UiObject2 implements Searchable {
 
     /** Searches all elements under this object and returns all objects that match the criteria. */
     @Override
-    public List<UiObject2> findObjects(BySelector selector) {
+    @NonNull
+    public List<UiObject2> findObjects(@NonNull BySelector selector) {
         List<UiObject2> ret = new ArrayList<UiObject2>();
         for (AccessibilityNodeInfo node :
                 ByMatcher.findMatches(getDevice(), selector, getAccessibilityNodeInfo())) {
@@ -240,6 +244,7 @@ public class UiObject2 implements Searchable {
     }
 
     /** Returns the visible bounds of this object in screen coordinates. */
+    @NonNull
     public Rect getVisibleBounds() {
         return getVisibleBounds(getAccessibilityNodeInfo());
     }
@@ -270,24 +275,61 @@ public class UiObject2 implements Searchable {
         return false;
     }
 
-    /** Returns the visible bounds of an {@link AccessibilityNodeInfo}. */
-    @NonNull
-    private Rect getVisibleBounds(@NonNull AccessibilityNodeInfo node) {
-        DisplayManager displayManager =
-                (DisplayManager) mDevice.getInstrumentation().getContext().getSystemService(
-                        Service.DISPLAY_SERVICE);
-        Display display = displayManager.getDisplay(getDisplayId());
-        if (display != null) {
-            Point displaySize = new Point();
-            display.getRealSize(displaySize);
-            return AccessibilityNodeInfoHelper.getVisibleBoundsInScreen(
-                    node, displaySize.x, displaySize.y);
+    /** Returns the visible bounds of {@code node} in screen coordinates. */
+    @SuppressWarnings("RectIntersectReturnValueIgnored")
+    private Rect getVisibleBounds(AccessibilityNodeInfo node) {
+        // Get the object bounds in screen coordinates
+        Rect ret = new Rect();
+        node.getBoundsInScreen(ret);
+
+        // Trim any portion of the bounds that are not on the screen
+        final int displayId = getDisplayId();
+        if (displayId == Display.DEFAULT_DISPLAY) {
+            final Rect screen =
+                new Rect(0, 0, getDevice().getDisplayWidth(), getDevice().getDisplayHeight());
+            ret.intersect(screen);
+        } else {
+            final DisplayManager dm =
+                    (DisplayManager) mDevice.getInstrumentation().getContext().getSystemService(
+                            Service.DISPLAY_SERVICE);
+            final Display display = dm.getDisplay(getDisplayId());
+            if (display != null) {
+                final Point size = new Point();
+                display.getRealSize(size);
+                final Rect screen = new Rect(0, 0, size.x, size.y);
+                ret.intersect(screen);
+            }
         }
-        return AccessibilityNodeInfoHelper.getVisibleBoundsInScreen(
-                node, Integer.MAX_VALUE, Integer.MAX_VALUE);
+
+        // On platforms that give us access to the node's window
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            // Trim any portion of the bounds that are outside the window
+            Rect bounds = new Rect();
+            AccessibilityWindowInfo window = Api21Impl.getWindow(node);
+            if (window != null) {
+                Api21Impl.getBoundsInScreen(window, bounds);
+                ret.intersect(bounds);
+            }
+        }
+
+        // Find the visible bounds of our first scrollable ancestor
+        AccessibilityNodeInfo ancestor = null;
+        for (ancestor = node.getParent(); ancestor != null; ancestor = ancestor.getParent()) {
+            // If this ancestor is scrollable
+            if (ancestor.isScrollable()) {
+                // Trim any portion of the bounds that are hidden by the non-visible portion of our
+                // ancestor
+                Rect ancestorRect = getVisibleBounds(ancestor);
+                ret.intersect(ancestorRect);
+                break;
+            }
+        }
+
+        return ret;
     }
 
     /** Returns a point in the center of the visible bounds of this object. */
+    @NonNull
     public Point getVisibleCenter() {
         Rect bounds = getVisibleBounds();
         return new Point(bounds.centerX(), bounds.centerY());
@@ -297,30 +339,35 @@ public class UiObject2 implements Searchable {
      * Returns the class name of the underlying {@link android.view.View} represented by this
      * object.
      */
+    @SuppressLint("UnknownNullness") // Avoid unnecessary null checks from nullable testing APIs.
     public String getClassName() {
         CharSequence chars = getAccessibilityNodeInfo().getClassName();
         return chars != null ? chars.toString() : null;
     }
 
     /** Returns the content description for this object. */
+    @SuppressLint("UnknownNullness") // Avoid unnecessary null checks from nullable testing APIs.
     public String getContentDescription() {
         CharSequence chars = getAccessibilityNodeInfo().getContentDescription();
         return chars != null ? chars.toString() : null;
     }
 
     /** Returns the package name of the app that this object belongs to. */
+    @SuppressLint("UnknownNullness") // Avoid unnecessary null checks from nullable testing APIs.
     public String getApplicationPackage() {
         CharSequence chars = getAccessibilityNodeInfo().getPackageName();
         return chars != null ? chars.toString() : null;
     }
 
     /** Returns the fully qualified resource name for this object's id. */
+    @SuppressLint("UnknownNullness") // Avoid unnecessary null checks from nullable testing APIs.
     public String getResourceName() {
         CharSequence chars = getAccessibilityNodeInfo().getViewIdResourceName();
         return chars != null ? chars.toString() : null;
     }
 
     /** Returns the text value for this object. */
+    @SuppressLint("UnknownNullness") // Avoid unnecessary null checks from nullable testing APIs.
     public String getText() {
         CharSequence chars = getAccessibilityNodeInfo().getText();
         return chars != null ? chars.toString() : null;
@@ -391,7 +438,7 @@ public class UiObject2 implements Searchable {
      * @param point The point to click. Clipped to the visible bounds of this object with gesture
      *        margins removed.
      */
-    public void click(Point point) {
+    public void click(@NonNull Point point) {
         clipToGestureBounds(point);
         Log.v(TAG, String.format("click(point=%s)", point));
         mGestureController.performGesture(mGestures.click(point, getDisplayId()));
@@ -413,15 +460,14 @@ public class UiObject2 implements Searchable {
      *        margins removed.
      * @param duration The duration in milliseconds to press {@code point}.
      */
-    public void click(Point point, long duration) {
+    public void click(@NonNull Point point, long duration) {
         clipToGestureBounds(point);
         Log.v(TAG, String.format("click(point=%s,duration=%d)", point, duration));
         mGestureController.performGesture(mGestures.click(point, duration, getDisplayId()));
     }
 
     /** Clicks on this object, and waits for the given condition to become true. */
-    @SuppressWarnings("TypeNameShadowing")
-    public <R> R clickAndWait(EventCondition<R> condition, long timeout) {
+    public <U> U clickAndWait(@NonNull EventCondition<U> condition, long timeout) {
         Log.v(TAG, String.format("clickAndWait(center=%s,timeout=%d)",
                 getVisibleCenter(), timeout));
         return mGestureController.performGestureAndWait(condition, timeout,
@@ -437,8 +483,8 @@ public class UiObject2 implements Searchable {
      * @param condition The {@link EventCondition} to wait for.
      * @param timeout The duration in milliseconds waiting for {@code condition} before timed out.
      */
-    @SuppressWarnings("TypeNameShadowing")
-    public <R> R clickAndWait(Point point, EventCondition<R> condition, long timeout) {
+    public <U> U clickAndWait(@NonNull Point point, @NonNull EventCondition<U> condition,
+            long timeout) {
         clipToGestureBounds(point);
         Log.v(TAG, String.format("clickAndWait(point=%s,timeout=%d)", point, timeout));
         return mGestureController.performGestureAndWait(condition, timeout,
@@ -450,7 +496,7 @@ public class UiObject2 implements Searchable {
      *
      * @param dest The end point that this object should be dragged to.
      */
-    public void drag(Point dest) {
+    public void drag(@NonNull Point dest) {
         drag(dest, (int)(DEFAULT_DRAG_SPEED * mDisplayDensity));
     }
 
@@ -460,7 +506,7 @@ public class UiObject2 implements Searchable {
      * @param dest The end point that this object should be dragged to.
      * @param speed The speed at which to perform this gesture in pixels per second.
      */
-    public void drag(Point dest, int speed) {
+    public void drag(@NonNull Point dest, int speed) {
         if (speed < 0) {
             throw new IllegalArgumentException("Speed cannot be negative");
         }
@@ -541,7 +587,7 @@ public class UiObject2 implements Searchable {
      * @param direction The direction in which to swipe.
      * @param percent The length of the swipe as a percentage of this object's size.
      */
-    public void swipe(Direction direction, float percent) {
+    public void swipe(@NonNull Direction direction, float percent) {
         swipe(direction, percent, (int)(DEFAULT_SWIPE_SPEED * mDisplayDensity));
     }
 
@@ -552,7 +598,7 @@ public class UiObject2 implements Searchable {
      * @param percent The length of the swipe as a percentage of this object's size.
      * @param speed The speed at which to perform this gesture in pixels per second.
      */
-    public void swipe(Direction direction, float percent, int speed) {
+    public void swipe(@NonNull Direction direction, float percent, int speed) {
         if (percent < 0.0f || percent > 1.0f) {
             throw new IllegalArgumentException("Percent must be between 0.0f and 1.0f");
         }
@@ -573,7 +619,7 @@ public class UiObject2 implements Searchable {
      * @param percent The distance to scroll as a percentage of this object's visible size.
      * @return Whether the object can still scroll in the given direction.
      */
-    public boolean scroll(final Direction direction, final float percent) {
+    public boolean scroll(@NonNull Direction direction, final float percent) {
         return scroll(direction, percent, (int)(DEFAULT_SCROLL_SPEED * mDisplayDensity));
     }
 
@@ -585,7 +631,7 @@ public class UiObject2 implements Searchable {
      * @param speed The speed at which to perform this gesture in pixels per second.
      * @return Whether the object can still scroll in the given direction.
      */
-    public boolean scroll(Direction direction, float percent, final int speed) {
+    public boolean scroll(@NonNull Direction direction, float percent, final int speed) {
         if (percent < 0.0f) {
             throw new IllegalArgumentException("Percent must be greater than 0.0f");
         }
@@ -621,7 +667,7 @@ public class UiObject2 implements Searchable {
      * @param direction The direction in which to fling.
      * @return Whether the object can still scroll in the given direction.
      */
-    public boolean fling(final Direction direction) {
+    public boolean fling(@NonNull Direction direction) {
         return fling(direction, (int)(DEFAULT_FLING_SPEED * mDisplayDensity));
     }
 
@@ -632,7 +678,7 @@ public class UiObject2 implements Searchable {
      * @param speed The speed at which to perform this gesture in pixels per second.
      * @return Whether the object can still scroll in the given direction.
      */
-    public boolean fling(final Direction direction, final int speed) {
+    public boolean fling(@NonNull Direction direction, final int speed) {
         ViewConfiguration vc = ViewConfiguration.get(getDevice().getUiContext());
         if (speed < vc.getScaledMinimumFlingVelocity()) {
             throw new IllegalArgumentException("Speed is less than the minimum fling velocity");
@@ -656,7 +702,7 @@ public class UiObject2 implements Searchable {
      * Set the text content by sending individual key codes.
      * @hide
      */
-    public void legacySetText(String text) {
+    public void legacySetText(@Nullable String text) {
         AccessibilityNodeInfo node = getAccessibilityNodeInfo();
 
         // Per framework convention, setText(null) means clearing it
@@ -685,7 +731,7 @@ public class UiObject2 implements Searchable {
     }
 
     /** Sets the text content if this object is an editable field. */
-    public void setText(String text) {
+    public void setText(@Nullable String text) {
         AccessibilityNodeInfo node = getAccessibilityNodeInfo();
 
         // Per framework convention, setText(null) means clearing it
@@ -760,6 +806,12 @@ public class UiObject2 implements Searchable {
         @DoNotInline
         static AccessibilityWindowInfo getWindow(AccessibilityNodeInfo accessibilityNodeInfo) {
             return accessibilityNodeInfo.getWindow();
+        }
+
+        @DoNotInline
+        static void getBoundsInScreen(AccessibilityWindowInfo accessibilityWindowInfo,
+                Rect outBounds) {
+            accessibilityWindowInfo.getBoundsInScreen(outBounds);
         }
     }
 

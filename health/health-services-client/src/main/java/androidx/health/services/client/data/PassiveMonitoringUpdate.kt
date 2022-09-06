@@ -52,13 +52,12 @@ public class PassiveMonitoringUpdate(
     }
 
     /** @hide */
-    override val proto: PassiveMonitoringUpdateProto by lazy {
+    override val proto: PassiveMonitoringUpdateProto =
         PassiveMonitoringUpdateProto.newBuilder()
             .addAllDataPoints(dataPoints.sampleDataPoints.map { it.proto })
             .addAllDataPoints(dataPoints.intervalDataPoints.map { it.proto })
             .addAllUserActivityInfoUpdates(userActivityInfoUpdates.map { it.proto })
             .build()
-    }
 
     override fun toString(): String =
         "PassiveMonitoringUpdate(" +

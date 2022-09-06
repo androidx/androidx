@@ -48,6 +48,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.window.OnBackInvokedDispatcher;
 
 import androidx.activity.contextaware.ContextAware;
 import androidx.activity.contextaware.ContextAwareHelper;
@@ -61,6 +62,7 @@ import androidx.activity.result.IntentSenderRequest;
 import androidx.activity.result.contract.ActivityResultContract;
 import androidx.annotation.CallSuper;
 import androidx.annotation.ContentView;
+import androidx.annotation.DoNotInline;
 import androidx.annotation.LayoutRes;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
@@ -254,6 +256,7 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
     private final CopyOnWriteArrayList<Consumer<PictureInPictureModeChangedInfo>>
             mOnPictureInPictureModeChangedListeners = new CopyOnWriteArrayList<>();
 
+    private boolean mDispatchingOnMultiWindowModeChanged = false;
     private boolean mDispatchingOnPictureInPictureModeChanged = false;
 
     /**
@@ -360,7 +363,9 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
         super.onCreate(savedInstanceState);
         ReportFragment.injectIfNeededIn(this);
         if (BuildCompat.isAtLeastT()) {
-            mOnBackPressedDispatcher.setOnBackInvokedDispatcher(getOnBackInvokedDispatcher());
+            mOnBackPressedDispatcher.setOnBackInvokedDispatcher(
+                    Api33Impl.getOnBackInvokedDispatcher(this)
+            );
         }
         if (mContentLayoutId != 0) {
             setContentView(mContentLayoutId);
@@ -945,6 +950,9 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
         // We specifically do not call super.onMultiWindowModeChanged() to avoid
         // crashing when this method is manually called prior to API 24 (which is
         // when this method was added to the framework)
+        if (mDispatchingOnMultiWindowModeChanged) {
+            return;
+        }
         for (Consumer<MultiWindowModeChangedInfo> listener : mOnMultiWindowModeChangedListeners) {
             listener.accept(new MultiWindowModeChangedInfo(isInMultiWindowMode));
         }
@@ -961,9 +969,15 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
     @Override
     public void onMultiWindowModeChanged(boolean isInMultiWindowMode,
             @NonNull Configuration newConfig) {
-        // We specifically do not call super.onMultiWindowModeChanged() to avoid
-        // triggering the call to onMultiWindowModeChanged(boolean) which would
-        // send a second callback to listeners without the newConfig
+        mDispatchingOnMultiWindowModeChanged = true;
+        try {
+            // We can unconditionally call super.onMultiWindowModeChanged() here because this
+            // function is marked with RequiresApi, meaning we are always on an API level
+            // where this call is valid.
+            super.onMultiWindowModeChanged(isInMultiWindowMode, newConfig);
+        } finally {
+            mDispatchingOnMultiWindowModeChanged = false;
+        }
         for (Consumer<MultiWindowModeChangedInfo> listener : mOnMultiWindowModeChangedListeners) {
             listener.accept(new MultiWindowModeChangedInfo(isInMultiWindowMode, newConfig));
         }
@@ -1080,5 +1094,14 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
             view.cancelPendingInputEvents();
         }
 
+    }
+
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    static class Api33Impl {
+        private Api33Impl() { }
+        @DoNotInline
+        static OnBackInvokedDispatcher getOnBackInvokedDispatcher(Activity activity) {
+            return activity.getOnBackInvokedDispatcher();
+        }
     }
 }

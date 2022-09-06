@@ -126,7 +126,11 @@ class EncoderFinderTest(
             VideoSpec.builder().setQualitySelector(QualitySelector.from(quality)).build()
 
         val mediaFormat = VideoEncoderConfigCamcorderProfileResolver(
-            camcorderProfileVideoMime, videoSpec, resolution!!, camcorderProfile
+            camcorderProfileVideoMime,
+            videoSpec,
+            resolution!!,
+            camcorderProfile,
+            /*expectedFrameRateRange=*/null
         ).get().toMediaFormat()
 
         // Act.

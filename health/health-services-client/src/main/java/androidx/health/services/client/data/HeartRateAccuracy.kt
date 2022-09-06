@@ -100,11 +100,10 @@ public class HeartRateAccuracy(public val sensorStatus: SensorStatus) : DataPoin
     }
 
     /** @hide */
-    override val proto: DataProto.DataPointAccuracy by lazy {
+    override val proto: DataProto.DataPointAccuracy =
         DataProto.DataPointAccuracy.newBuilder()
             .setHrAccuracy(HrAccuracyProto.newBuilder().setSensorStatus(sensorStatus.toProto()))
             .build()
-    }
 
     override fun toString(): String = "HrAccuracy(sensorStatus=$sensorStatus)"
 

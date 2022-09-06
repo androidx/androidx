@@ -17,12 +17,13 @@ androidLintMinCompose = "30.0.0"
 androidxTestRunner = "1.4.0"
 androidxTestRules = "1.4.0"
 androidxTestMonitor = "1.5.0"
-androidxTestCore = "1.4.0"
+androidxTestCore = "1.5.0-alpha02"
 androidxTestExtJunit = "1.1.3"
 androidxTestExtTruth = "1.4.0"
 atomicFu = "0.17.0"
 autoService = "1.0-rc6"
 autoValue = "1.6.3"
+asm = "9.3"
 cmake = "3.22.1"
 dagger = "2.42"
 dexmaker = "2.28.3"
@@ -31,9 +32,9 @@ guavaJre = "31.1-jre"
 hilt = "2.42"
 incap = "0.2"
 kotlin = "1.7.10"
-kotlinBenchmark = "0.4.4"
+kotlinBenchmark = "0.4.5"
 kotlinNative = "1.7.10"
-kotlinCompileTesting = "1.4.1"
+kotlinCompileTesting = "1.4.9"
 kotlinCoroutines = "1.6.4"
 kotlinSerialization = "1.3.3"
 ksp = "1.7.10-1.0.6"
@@ -74,10 +75,12 @@ apacheAnt = { module = "org.apache.ant:ant", version = "1.10.11" }
 apacheCommonsCodec = { module = "commons-codec:commons-codec", version = "1.15" }
 apacheCommonIo = { module = "commons-io:commons-io", version = "2.4" }
 assertj = { module = "org.assertj:assertj-core", version = "3.11.1" }
+asm = { module = "org.ow2.asm:asm", version.ref = "asm"}
+asmCommons = { module = "org.ow2.asm:asm-commons", version.ref = "asm"}
 checkerframework = { module = "org.checkerframework:checker-qual", version = "2.5.3" }
 checkmark = { module = "net.saff.checkmark:checkmark", version = "0.1.6" }
 constraintLayout = { module = "androidx.constraintlayout:constraintlayout", version = "2.0.1"}
-dackka = { module = "com.google.devsite:dackka", version = "0.0.19" }
+dackka = { module = "com.google.devsite:dackka", version = "1.0.1" }
 dagger = { module = "com.google.dagger:dagger", version.ref = "dagger" }
 daggerCompiler = { module = "com.google.dagger:dagger-compiler", version.ref = "dagger" }
 dexmakerMockito = { module = "com.linkedin.dexmaker:dexmaker-mockito", version.ref = "dexmaker" }

@@ -17,33 +17,33 @@
 package androidx.camera.integration.extensions
 
 import android.content.Context
-import android.content.Intent
 import android.hardware.camera2.CameraCharacteristics
 import android.os.Build
 import androidx.camera.camera2.Camera2Config
 import androidx.camera.camera2.interop.Camera2CameraInfo
 import androidx.camera.core.CameraSelector
+import androidx.camera.core.impl.CaptureBundle
 import androidx.camera.core.impl.ImageCaptureConfig
 import androidx.camera.extensions.ExtensionsManager
 import androidx.camera.extensions.internal.ExtensionVersion
 import androidx.camera.extensions.internal.Version
-import androidx.camera.integration.extensions.IntentExtraKey.INTENT_EXTRA_KEY_CAMERA_ID
-import androidx.camera.integration.extensions.IntentExtraKey.INTENT_EXTRA_KEY_EXTENSION_MODE
-import androidx.camera.integration.extensions.util.ExtensionsTestUtil
+import androidx.camera.integration.extensions.util.CameraXExtensionsTestUtil
+import androidx.camera.integration.extensions.util.CameraXExtensionsTestUtil.launchCameraExtensionsActivity
+import androidx.camera.integration.extensions.util.HOME_TIMEOUT_MS
+import androidx.camera.integration.extensions.util.waitForPreviewIdle
 import androidx.camera.integration.extensions.utils.CameraSelectorUtil
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CameraUtil.PreTestCameraIdList
 import androidx.camera.testing.CoreAppTestUtil
 import androidx.camera.testing.fakes.FakeLifecycleOwner
-import androidx.camera.testing.waitForIdle
-import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
-import androidx.test.espresso.IdlingResource
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
+import androidx.test.uiautomator.UiDevice
+import androidx.testutils.withActivity
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.Dispatchers
@@ -56,8 +56,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
-
-private const val BASIC_SAMPLE_PACKAGE = "androidx.camera.integration.extensions"
 
 @SmallTest
 @RunWith(Parameterized::class)
@@ -79,11 +77,9 @@ class ImageCaptureExtenderValidationTest(
     private lateinit var baseCameraSelector: CameraSelector
     private lateinit var extensionCameraSelector: CameraSelector
 
-    private lateinit var activityScenario: ActivityScenario<CameraExtensionsActivity>
-
     @Before
     fun setUp(): Unit = runBlocking {
-        assumeTrue(ExtensionsTestUtil.isTargetDeviceAvailableForExtensions())
+        assumeTrue(CameraXExtensionsTestUtil.isTargetDeviceAvailableForExtensions())
         cameraProvider = ProcessCameraProvider.getInstance(context)[10000, TimeUnit.MILLISECONDS]
         extensionsManager = ExtensionsManager.getInstanceAsync(
             context,
@@ -107,27 +103,25 @@ class ImageCaptureExtenderValidationTest(
 
     @After
     fun cleanUp(): Unit = runBlocking {
-        if (::activityScenario.isInitialized) {
-            activityScenario.onActivity { it.finish() }
+        val cameraProvider =
+            ProcessCameraProvider.getInstance(context)[10000, TimeUnit.MILLISECONDS]
+        withContext(Dispatchers.Main) {
+            cameraProvider.unbindAll()
+            cameraProvider.shutdown()
         }
 
-        if (::cameraProvider.isInitialized) {
-            withContext(Dispatchers.Main) {
-                cameraProvider.unbindAll()
-                cameraProvider.shutdown()[10000, TimeUnit.MILLISECONDS]
-            }
-        }
-
-        if (::extensionsManager.isInitialized) {
-            extensionsManager.shutdown()[10000, TimeUnit.MILLISECONDS]
-        }
+        val extensionsManager = ExtensionsManager.getInstanceAsync(
+            context,
+            cameraProvider
+        )[10000, TimeUnit.MILLISECONDS]
+        extensionsManager.shutdown()
     }
 
     companion object {
         @JvmStatic
         @get:Parameterized.Parameters(name = "cameraId = {0}, extensionMode = {1}")
         val parameters: Collection<Array<Any>>
-            get() = ExtensionsTestUtil.getAllCameraIdExtensionModeCombinations()
+            get() = CameraXExtensionsTestUtil.getAllCameraIdExtensionModeCombinations()
     }
 
     @Test
@@ -138,7 +132,7 @@ class ImageCaptureExtenderValidationTest(
 
         // Creates the ImageCaptureExtenderImpl to retrieve the target format/resolutions pair list
         // from vendor library for the target effect mode.
-        val impl = ExtensionsTestUtil.createImageCaptureExtenderImpl(
+        val impl = CameraXExtensionsTestUtil.createImageCaptureExtenderImpl(
             extensionMode,
             cameraId,
             cameraCharacteristics
@@ -154,7 +148,7 @@ class ImageCaptureExtenderValidationTest(
     fun returnsNullFromOnPresetSession_whenAPILevelOlderThan28() {
         // Creates the ImageCaptureExtenderImpl to check that onPresetSession() returns null when
         // API level is older than 28.
-        val impl = ExtensionsTestUtil.createImageCaptureExtenderImpl(
+        val impl = CameraXExtensionsTestUtil.createImageCaptureExtenderImpl(
             extensionMode,
             cameraId,
             cameraCharacteristics
@@ -176,7 +170,7 @@ class ImageCaptureExtenderValidationTest(
         )
 
         // Calls bind to lifecycle to get the selected camera
-        var camera = withContext(Dispatchers.Main) {
+        val camera = withContext(Dispatchers.Main) {
             cameraProvider.bindToLifecycle(FakeLifecycleOwner(), extensionCameraSelector)
         }
 
@@ -184,7 +178,7 @@ class ImageCaptureExtenderValidationTest(
         val characteristics = Camera2CameraInfo.extractCameraCharacteristics(camera.cameraInfo)
 
         // Creates ImageCaptureExtenderImpl directly to retrieve the capture latency range info
-        val impl = ExtensionsTestUtil.createImageCaptureExtenderImpl(
+        val impl = CameraXExtensionsTestUtil.createImageCaptureExtenderImpl(
             extensionMode,
             cameraId,
             characteristics
@@ -203,56 +197,42 @@ class ImageCaptureExtenderValidationTest(
         // window before starting the test.
         CoreAppTestUtil.prepareDeviceUI(InstrumentationRegistry.getInstrumentation())
 
-        val intent = ApplicationProvider.getApplicationContext<Context>().packageManager
-            .getLaunchIntentForPackage(BASIC_SAMPLE_PACKAGE)?.apply {
-                putExtra(INTENT_EXTRA_KEY_CAMERA_ID, cameraId)
-                putExtra(INTENT_EXTRA_KEY_EXTENSION_MODE, extensionMode)
-                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation()).apply {
+            setOrientationNatural()
+        }
+
+        val activityScenario = launchCameraExtensionsActivity(cameraId, extensionMode)
+
+        with(activityScenario) {
+            use {
+                var captureBundle: CaptureBundle? = null
+                withActivity {
+                    // Retrieves the CaptureProcessor from ImageCapture's config
+                    val captureProcessor = imageCapture!!.currentConfig.retrieveOption(
+                        ImageCaptureConfig.OPTION_CAPTURE_PROCESSOR, null
+                    )
+
+                    assumeTrue(captureProcessor != null)
+
+                    // Retrieves the CaptureBundle from ImageCapture's config
+                    captureBundle = imageCapture!!.currentConfig.retrieveOption(
+                        ImageCaptureConfig.OPTION_CAPTURE_BUNDLE
+                    )
+                }
+
+                waitForPreviewIdle()
+
+                // Calls CaptureBundle#getCaptureStages() will call
+                // ImageCaptureExtenderImpl#getCaptureStages(). Checks the returned value is
+                // not empty.
+                assertThat(captureBundle!!.captureStages).isNotEmpty()
             }
-
-        activityScenario = ActivityScenario.launch(intent)
-        var initializationIdlingResource: IdlingResource? = null
-        var previewViewIdlingResource: IdlingResource? = null
-
-        activityScenario.onActivity {
-            initializationIdlingResource = it.initializationIdlingResource
-            previewViewIdlingResource = it.previewViewStreamingStateIdlingResource
         }
 
-        // Wait for CameraExtensionsActivity's initialization to be complete
-        initializationIdlingResource.waitForIdle()
-
-        activityScenario.onActivity {
-            assumeTrue(it.isExtensionModeSupported(cameraId, extensionMode))
-
-            // Retrieves the CaptureProcessor from ImageCapture's config
-            val captureProcessor =
-                it.imageCapture!!.currentConfig.retrieveOption(
-                    ImageCaptureConfig.OPTION_CAPTURE_PROCESSOR, null
-                )
-
-            // Only runs the test when CaptureProcessor is not null
-            assumeTrue(captureProcessor != null)
-        }
-
-        // Waits for preview view turned to STREAMING state to make sure that the capture session
-        // has been created and the capture stages can be retrieved from the vendor library
-        // successfully.
-        previewViewIdlingResource.waitForIdle()
-
-        activityScenario.onActivity {
-            // Checks that CameraExtensionsActivity's current extension mode is correct.
-            assertThat(it.currentExtensionMode).isEqualTo(extensionMode)
-
-            // Retrieves the CaptureBundle from ImageCapture's config
-            val captureBundle =
-                it.imageCapture!!.currentConfig.retrieveOption(
-                    ImageCaptureConfig.OPTION_CAPTURE_BUNDLE
-                )
-
-            // Calls CaptureBundle#getCaptureStages() will call
-            // ImageCaptureExtenderImpl#getCaptureStages(). Checks the returned value is not empty.
-            assertThat(captureBundle!!.captureStages).isNotEmpty()
-        }
+        // Unfreeze rotation so the device can choose the orientation via its own policy. Be nice
+        // to other tests :)
+        device.unfreezeRotation()
+        device.pressHome()
+        device.waitForIdle(HOME_TIMEOUT_MS)
     }
 }

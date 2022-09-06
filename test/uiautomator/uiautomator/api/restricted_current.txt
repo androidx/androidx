@@ -101,7 +101,7 @@ package androidx.test.uiautomator {
     enum_constant public static final androidx.test.uiautomator.Direction UP;
   }
 
-  public abstract class EventCondition<R> {
+  public abstract class EventCondition<U> {
     ctor public EventCondition();
   }
 
@@ -109,7 +109,7 @@ package androidx.test.uiautomator {
     method public void sendStatus(int, android.os.Bundle);
   }
 
-  public abstract class SearchCondition<R> {
+  public abstract class SearchCondition<U> {
     ctor public SearchCondition();
   }
 
@@ -143,32 +143,32 @@ package androidx.test.uiautomator {
     method public void clearLastTraversedText();
     method public boolean click(int, int);
     method public boolean drag(int, int, int, int, int);
-    method @Deprecated public void dumpWindowHierarchy(String!);
-    method public void dumpWindowHierarchy(java.io.File!) throws java.io.IOException;
-    method public void dumpWindowHierarchy(java.io.OutputStream!) throws java.io.IOException;
-    method public androidx.test.uiautomator.UiObject! findObject(androidx.test.uiautomator.UiSelector!);
-    method public androidx.test.uiautomator.UiObject2! findObject(androidx.test.uiautomator.BySelector!);
-    method public java.util.List<androidx.test.uiautomator.UiObject2!>! findObjects(androidx.test.uiautomator.BySelector!);
+    method @Deprecated public void dumpWindowHierarchy(String);
+    method public void dumpWindowHierarchy(java.io.File) throws java.io.IOException;
+    method public void dumpWindowHierarchy(java.io.OutputStream) throws java.io.IOException;
+    method public androidx.test.uiautomator.UiObject findObject(androidx.test.uiautomator.UiSelector);
+    method public androidx.test.uiautomator.UiObject2! findObject(androidx.test.uiautomator.BySelector);
+    method public java.util.List<androidx.test.uiautomator.UiObject2!> findObjects(androidx.test.uiautomator.BySelector);
     method public void freezeRotation() throws android.os.RemoteException;
     method @Deprecated public String! getCurrentActivityName();
     method public String! getCurrentPackageName();
     method public int getDisplayHeight();
     method public int getDisplayRotation();
-    method public android.graphics.Point! getDisplaySizeDp();
+    method public android.graphics.Point getDisplaySizeDp();
     method public int getDisplayWidth();
-    method @Deprecated public static androidx.test.uiautomator.UiDevice! getInstance();
-    method public static androidx.test.uiautomator.UiDevice! getInstance(android.app.Instrumentation!);
+    method @Deprecated public static androidx.test.uiautomator.UiDevice getInstance();
+    method public static androidx.test.uiautomator.UiDevice getInstance(android.app.Instrumentation);
     method public String! getLastTraversedText();
     method public String! getLauncherPackageName();
-    method public String! getProductName();
+    method public String getProductName();
     method public boolean hasAnyWatcherTriggered();
-    method public boolean hasObject(androidx.test.uiautomator.BySelector!);
-    method public boolean hasWatcherTriggered(String!);
+    method public boolean hasObject(androidx.test.uiautomator.BySelector);
+    method public boolean hasWatcherTriggered(String?);
     method public boolean isNaturalOrientation();
     method public boolean isScreenOn() throws android.os.RemoteException;
     method public boolean openNotification();
     method public boolean openQuickSettings();
-    method public <R> R! performActionAndWait(Runnable!, androidx.test.uiautomator.EventCondition<R!>!, long);
+    method public <U> U! performActionAndWait(Runnable, androidx.test.uiautomator.EventCondition<U!>, long);
     method public boolean pressBack();
     method public boolean pressDPadCenter();
     method public boolean pressDPadDown();
@@ -183,8 +183,8 @@ package androidx.test.uiautomator {
     method public boolean pressMenu();
     method public boolean pressRecentApps() throws android.os.RemoteException;
     method public boolean pressSearch();
-    method public void registerWatcher(String!, androidx.test.uiautomator.UiWatcher!);
-    method public void removeWatcher(String!);
+    method public void registerWatcher(String?, androidx.test.uiautomator.UiWatcher?);
+    method public void removeWatcher(String?);
     method public void resetWatcherTriggers();
     method public void runWatchers();
     method public void setCompressedLayoutHeirarchy(boolean);
@@ -193,14 +193,14 @@ package androidx.test.uiautomator {
     method public void setOrientationRight() throws android.os.RemoteException;
     method public void sleep() throws android.os.RemoteException;
     method public boolean swipe(int, int, int, int, int);
-    method public boolean swipe(android.graphics.Point![]!, int);
-    method public boolean takeScreenshot(java.io.File!);
-    method public boolean takeScreenshot(java.io.File!, float, int);
+    method public boolean swipe(android.graphics.Point![], int);
+    method public boolean takeScreenshot(java.io.File);
+    method public boolean takeScreenshot(java.io.File, float, int);
     method public void unfreezeRotation() throws android.os.RemoteException;
-    method public <R> R! wait(androidx.test.uiautomator.SearchCondition<R!>!, long);
+    method public <U> U! wait(androidx.test.uiautomator.SearchCondition<U!>, long);
     method public void waitForIdle();
     method public void waitForIdle(long);
-    method public boolean waitForWindowUpdate(String!, long);
+    method public boolean waitForWindowUpdate(String?, long);
     method public void wakeUp() throws android.os.RemoteException;
   }
 
@@ -212,20 +212,20 @@ package androidx.test.uiautomator {
     method public boolean clickAndWaitForNewWindow(long) throws androidx.test.uiautomator.UiObjectNotFoundException;
     method public boolean clickBottomRight() throws androidx.test.uiautomator.UiObjectNotFoundException;
     method public boolean clickTopLeft() throws androidx.test.uiautomator.UiObjectNotFoundException;
-    method public boolean dragTo(androidx.test.uiautomator.UiObject!, int) throws androidx.test.uiautomator.UiObjectNotFoundException;
+    method public boolean dragTo(androidx.test.uiautomator.UiObject, int) throws androidx.test.uiautomator.UiObjectNotFoundException;
     method public boolean dragTo(int, int, int) throws androidx.test.uiautomator.UiObjectNotFoundException;
     method public boolean exists();
-    method protected android.view.accessibility.AccessibilityNodeInfo! findAccessibilityNodeInfo(long);
-    method public android.graphics.Rect! getBounds() throws androidx.test.uiautomator.UiObjectNotFoundException;
-    method public androidx.test.uiautomator.UiObject! getChild(androidx.test.uiautomator.UiSelector!) throws androidx.test.uiautomator.UiObjectNotFoundException;
+    method protected android.view.accessibility.AccessibilityNodeInfo? findAccessibilityNodeInfo(long);
+    method public android.graphics.Rect getBounds() throws androidx.test.uiautomator.UiObjectNotFoundException;
+    method public androidx.test.uiautomator.UiObject getChild(androidx.test.uiautomator.UiSelector) throws androidx.test.uiautomator.UiObjectNotFoundException;
     method public int getChildCount() throws androidx.test.uiautomator.UiObjectNotFoundException;
-    method public String! getClassName() throws androidx.test.uiautomator.UiObjectNotFoundException;
-    method public String! getContentDescription() throws androidx.test.uiautomator.UiObjectNotFoundException;
-    method public androidx.test.uiautomator.UiObject! getFromParent(androidx.test.uiautomator.UiSelector!) throws androidx.test.uiautomator.UiObjectNotFoundException;
-    method public String! getPackageName() throws androidx.test.uiautomator.UiObjectNotFoundException;
-    method public final androidx.test.uiautomator.UiSelector! getSelector();
-    method public String! getText() throws androidx.test.uiautomator.UiObjectNotFoundException;
-    method public android.graphics.Rect! getVisibleBounds() throws androidx.test.uiautomator.UiObjectNotFoundException;
+    method public String getClassName() throws androidx.test.uiautomator.UiObjectNotFoundException;
+    method public String getContentDescription() throws androidx.test.uiautomator.UiObjectNotFoundException;
+    method public androidx.test.uiautomator.UiObject getFromParent(androidx.test.uiautomator.UiSelector) throws androidx.test.uiautomator.UiObjectNotFoundException;
+    method public String getPackageName() throws androidx.test.uiautomator.UiObjectNotFoundException;
+    method public final androidx.test.uiautomator.UiSelector getSelector();
+    method public String getText() throws androidx.test.uiautomator.UiObjectNotFoundException;
+    method public android.graphics.Rect getVisibleBounds() throws androidx.test.uiautomator.UiObjectNotFoundException;
     method public boolean isCheckable() throws androidx.test.uiautomator.UiObjectNotFoundException;
     method public boolean isChecked() throws androidx.test.uiautomator.UiObjectNotFoundException;
     method public boolean isClickable() throws androidx.test.uiautomator.UiObjectNotFoundException;
@@ -239,10 +239,10 @@ package androidx.test.uiautomator {
     method public boolean longClickBottomRight() throws androidx.test.uiautomator.UiObjectNotFoundException;
     method public boolean longClickTopLeft() throws androidx.test.uiautomator.UiObjectNotFoundException;
     method public boolean performMultiPointerGesture(android.view.MotionEvent.PointerCoords![]!...);
-    method public boolean performTwoPointerGesture(android.graphics.Point!, android.graphics.Point!, android.graphics.Point!, android.graphics.Point!, int);
+    method public boolean performTwoPointerGesture(android.graphics.Point, android.graphics.Point, android.graphics.Point, android.graphics.Point, int);
     method public boolean pinchIn(int, int) throws androidx.test.uiautomator.UiObjectNotFoundException;
     method public boolean pinchOut(int, int) throws androidx.test.uiautomator.UiObjectNotFoundException;
-    method public boolean setText(String!) throws androidx.test.uiautomator.UiObjectNotFoundException;
+    method public boolean setText(String?) throws androidx.test.uiautomator.UiObjectNotFoundException;
     method public boolean swipeDown(int) throws androidx.test.uiautomator.UiObjectNotFoundException;
     method public boolean swipeLeft(int) throws androidx.test.uiautomator.UiObjectNotFoundException;
     method public boolean swipeRight(int) throws androidx.test.uiautomator.UiObjectNotFoundException;
@@ -260,29 +260,29 @@ package androidx.test.uiautomator {
   public class UiObject2 {
     method public void clear();
     method public void click();
-    method public void click(android.graphics.Point!);
+    method public void click(android.graphics.Point);
     method public void click(long);
-    method public void click(android.graphics.Point!, long);
-    method public <R> R! clickAndWait(androidx.test.uiautomator.EventCondition<R!>!, long);
-    method public <R> R! clickAndWait(android.graphics.Point!, androidx.test.uiautomator.EventCondition<R!>!, long);
-    method public void drag(android.graphics.Point!);
-    method public void drag(android.graphics.Point!, int);
-    method public androidx.test.uiautomator.UiObject2! findObject(androidx.test.uiautomator.BySelector!);
-    method public java.util.List<androidx.test.uiautomator.UiObject2!>! findObjects(androidx.test.uiautomator.BySelector!);
-    method public boolean fling(androidx.test.uiautomator.Direction!);
-    method public boolean fling(androidx.test.uiautomator.Direction!, int);
+    method public void click(android.graphics.Point, long);
+    method public <U> U! clickAndWait(androidx.test.uiautomator.EventCondition<U!>, long);
+    method public <U> U! clickAndWait(android.graphics.Point, androidx.test.uiautomator.EventCondition<U!>, long);
+    method public void drag(android.graphics.Point);
+    method public void drag(android.graphics.Point, int);
+    method public androidx.test.uiautomator.UiObject2! findObject(androidx.test.uiautomator.BySelector);
+    method public java.util.List<androidx.test.uiautomator.UiObject2!> findObjects(androidx.test.uiautomator.BySelector);
+    method public boolean fling(androidx.test.uiautomator.Direction);
+    method public boolean fling(androidx.test.uiautomator.Direction, int);
     method public String! getApplicationPackage();
     method public int getChildCount();
-    method public java.util.List<androidx.test.uiautomator.UiObject2!>! getChildren();
+    method public java.util.List<androidx.test.uiautomator.UiObject2!> getChildren();
     method public String! getClassName();
     method public String! getContentDescription();
     method public int getDisplayId();
     method public androidx.test.uiautomator.UiObject2! getParent();
     method public String! getResourceName();
     method public String! getText();
-    method public android.graphics.Rect! getVisibleBounds();
-    method public android.graphics.Point! getVisibleCenter();
-    method public boolean hasObject(androidx.test.uiautomator.BySelector!);
+    method public android.graphics.Rect getVisibleBounds();
+    method public android.graphics.Point getVisibleCenter();
+    method public boolean hasObject(androidx.test.uiautomator.BySelector);
     method public boolean isCheckable();
     method public boolean isChecked();
     method public boolean isClickable();
@@ -298,18 +298,18 @@ package androidx.test.uiautomator {
     method public void pinchOpen(float);
     method public void pinchOpen(float, int);
     method public void recycle();
-    method public boolean scroll(androidx.test.uiautomator.Direction!, float);
-    method public boolean scroll(androidx.test.uiautomator.Direction!, float, int);
+    method public boolean scroll(androidx.test.uiautomator.Direction, float);
+    method public boolean scroll(androidx.test.uiautomator.Direction, float, int);
     method public void setGestureMargin(int);
     method public void setGestureMargins(int, int, int, int);
-    method public void setText(String!);
-    method public void swipe(androidx.test.uiautomator.Direction!, float);
-    method public void swipe(androidx.test.uiautomator.Direction!, float, int);
-    method public <R> R! wait(androidx.test.uiautomator.UiObject2Condition<R!>!, long);
-    method public <R> R! wait(androidx.test.uiautomator.SearchCondition<R!>!, long);
+    method public void setText(String?);
+    method public void swipe(androidx.test.uiautomator.Direction, float);
+    method public void swipe(androidx.test.uiautomator.Direction, float, int);
+    method public <U> U! wait(androidx.test.uiautomator.UiObject2Condition<U!>, long);
+    method public <U> U! wait(androidx.test.uiautomator.SearchCondition<U!>, long);
   }
 
-  public abstract class UiObject2Condition<R> {
+  public abstract class UiObject2Condition<U> {
     ctor public UiObject2Condition();
   }
 
@@ -350,35 +350,35 @@ package androidx.test.uiautomator {
 
   public class UiSelector {
     ctor public UiSelector();
-    method public androidx.test.uiautomator.UiSelector! checkable(boolean);
-    method public androidx.test.uiautomator.UiSelector! checked(boolean);
-    method public androidx.test.uiautomator.UiSelector! childSelector(androidx.test.uiautomator.UiSelector!);
-    method public androidx.test.uiautomator.UiSelector! className(String!);
-    method public <T> androidx.test.uiautomator.UiSelector! className(Class<T!>!);
-    method public androidx.test.uiautomator.UiSelector! classNameMatches(String!);
-    method public androidx.test.uiautomator.UiSelector! clickable(boolean);
-    method protected androidx.test.uiautomator.UiSelector! cloneSelector();
-    method public androidx.test.uiautomator.UiSelector! description(String!);
-    method public androidx.test.uiautomator.UiSelector! descriptionContains(String!);
-    method public androidx.test.uiautomator.UiSelector! descriptionMatches(String!);
-    method public androidx.test.uiautomator.UiSelector! descriptionStartsWith(String!);
-    method public androidx.test.uiautomator.UiSelector! enabled(boolean);
-    method public androidx.test.uiautomator.UiSelector! focusable(boolean);
-    method public androidx.test.uiautomator.UiSelector! focused(boolean);
-    method public androidx.test.uiautomator.UiSelector! fromParent(androidx.test.uiautomator.UiSelector!);
-    method public androidx.test.uiautomator.UiSelector! index(int);
-    method public androidx.test.uiautomator.UiSelector! instance(int);
-    method public androidx.test.uiautomator.UiSelector! longClickable(boolean);
-    method public androidx.test.uiautomator.UiSelector! packageName(String!);
-    method public androidx.test.uiautomator.UiSelector! packageNameMatches(String!);
-    method public androidx.test.uiautomator.UiSelector! resourceId(String!);
-    method public androidx.test.uiautomator.UiSelector! resourceIdMatches(String!);
-    method public androidx.test.uiautomator.UiSelector! scrollable(boolean);
-    method public androidx.test.uiautomator.UiSelector! selected(boolean);
-    method public androidx.test.uiautomator.UiSelector! text(String!);
-    method public androidx.test.uiautomator.UiSelector! textContains(String!);
-    method public androidx.test.uiautomator.UiSelector! textMatches(String!);
-    method public androidx.test.uiautomator.UiSelector! textStartsWith(String!);
+    method public androidx.test.uiautomator.UiSelector checkable(boolean);
+    method public androidx.test.uiautomator.UiSelector checked(boolean);
+    method public androidx.test.uiautomator.UiSelector childSelector(androidx.test.uiautomator.UiSelector);
+    method public androidx.test.uiautomator.UiSelector className(String);
+    method public <T> androidx.test.uiautomator.UiSelector className(Class<T!>);
+    method public androidx.test.uiautomator.UiSelector classNameMatches(String);
+    method public androidx.test.uiautomator.UiSelector clickable(boolean);
+    method protected androidx.test.uiautomator.UiSelector cloneSelector();
+    method public androidx.test.uiautomator.UiSelector description(String);
+    method public androidx.test.uiautomator.UiSelector descriptionContains(String);
+    method public androidx.test.uiautomator.UiSelector descriptionMatches(String);
+    method public androidx.test.uiautomator.UiSelector descriptionStartsWith(String);
+    method public androidx.test.uiautomator.UiSelector enabled(boolean);
+    method public androidx.test.uiautomator.UiSelector focusable(boolean);
+    method public androidx.test.uiautomator.UiSelector focused(boolean);
+    method public androidx.test.uiautomator.UiSelector fromParent(androidx.test.uiautomator.UiSelector);
+    method public androidx.test.uiautomator.UiSelector index(int);
+    method public androidx.test.uiautomator.UiSelector instance(int);
+    method public androidx.test.uiautomator.UiSelector longClickable(boolean);
+    method public androidx.test.uiautomator.UiSelector packageName(String);
+    method public androidx.test.uiautomator.UiSelector packageNameMatches(String);
+    method public androidx.test.uiautomator.UiSelector resourceId(String);
+    method public androidx.test.uiautomator.UiSelector resourceIdMatches(String);
+    method public androidx.test.uiautomator.UiSelector scrollable(boolean);
+    method public androidx.test.uiautomator.UiSelector selected(boolean);
+    method public androidx.test.uiautomator.UiSelector text(String);
+    method public androidx.test.uiautomator.UiSelector textContains(String);
+    method public androidx.test.uiautomator.UiSelector textMatches(String);
+    method public androidx.test.uiautomator.UiSelector textStartsWith(String);
   }
 
   public interface UiWatcher {
@@ -386,35 +386,34 @@ package androidx.test.uiautomator {
   }
 
   public class Until {
-    ctor public Until();
-    method public static androidx.test.uiautomator.UiObject2Condition<java.lang.Boolean!>! checkable(boolean);
-    method public static androidx.test.uiautomator.UiObject2Condition<java.lang.Boolean!>! checked(boolean);
-    method public static androidx.test.uiautomator.UiObject2Condition<java.lang.Boolean!>! clickable(boolean);
-    method public static androidx.test.uiautomator.UiObject2Condition<java.lang.Boolean!>! descContains(String!);
-    method public static androidx.test.uiautomator.UiObject2Condition<java.lang.Boolean!>! descEndsWith(String!);
-    method public static androidx.test.uiautomator.UiObject2Condition<java.lang.Boolean!>! descEquals(String!);
-    method public static androidx.test.uiautomator.UiObject2Condition<java.lang.Boolean!>! descMatches(java.util.regex.Pattern!);
-    method public static androidx.test.uiautomator.UiObject2Condition<java.lang.Boolean!>! descMatches(String!);
-    method public static androidx.test.uiautomator.UiObject2Condition<java.lang.Boolean!>! descStartsWith(String!);
-    method public static androidx.test.uiautomator.UiObject2Condition<java.lang.Boolean!>! enabled(boolean);
-    method public static androidx.test.uiautomator.SearchCondition<androidx.test.uiautomator.UiObject2!>! findObject(androidx.test.uiautomator.BySelector!);
-    method public static androidx.test.uiautomator.SearchCondition<java.util.List<androidx.test.uiautomator.UiObject2!>!>! findObjects(androidx.test.uiautomator.BySelector!);
-    method public static androidx.test.uiautomator.UiObject2Condition<java.lang.Boolean!>! focusable(boolean);
-    method public static androidx.test.uiautomator.UiObject2Condition<java.lang.Boolean!>! focused(boolean);
-    method public static androidx.test.uiautomator.SearchCondition<java.lang.Boolean!>! gone(androidx.test.uiautomator.BySelector!);
-    method public static androidx.test.uiautomator.SearchCondition<java.lang.Boolean!>! hasObject(androidx.test.uiautomator.BySelector!);
-    method public static androidx.test.uiautomator.UiObject2Condition<java.lang.Boolean!>! longClickable(boolean);
-    method public static androidx.test.uiautomator.EventCondition<java.lang.Boolean!>! newWindow();
-    method public static androidx.test.uiautomator.EventCondition<java.lang.Boolean!>! scrollFinished(androidx.test.uiautomator.Direction!);
-    method public static androidx.test.uiautomator.UiObject2Condition<java.lang.Boolean!>! scrollable(boolean);
-    method public static androidx.test.uiautomator.UiObject2Condition<java.lang.Boolean!>! selected(boolean);
-    method public static androidx.test.uiautomator.UiObject2Condition<java.lang.Boolean!>! textContains(String!);
-    method public static androidx.test.uiautomator.UiObject2Condition<java.lang.Boolean!>! textEndsWith(String!);
-    method public static androidx.test.uiautomator.UiObject2Condition<java.lang.Boolean!>! textEquals(String!);
-    method public static androidx.test.uiautomator.UiObject2Condition<java.lang.Boolean!>! textMatches(java.util.regex.Pattern!);
-    method public static androidx.test.uiautomator.UiObject2Condition<java.lang.Boolean!>! textMatches(String!);
-    method public static androidx.test.uiautomator.UiObject2Condition<java.lang.Boolean!>! textNotEquals(String!);
-    method public static androidx.test.uiautomator.UiObject2Condition<java.lang.Boolean!>! textStartsWith(String!);
+    method public static androidx.test.uiautomator.UiObject2Condition<java.lang.Boolean!> checkable(boolean);
+    method public static androidx.test.uiautomator.UiObject2Condition<java.lang.Boolean!> checked(boolean);
+    method public static androidx.test.uiautomator.UiObject2Condition<java.lang.Boolean!> clickable(boolean);
+    method public static androidx.test.uiautomator.UiObject2Condition<java.lang.Boolean!> descContains(String);
+    method public static androidx.test.uiautomator.UiObject2Condition<java.lang.Boolean!> descEndsWith(String);
+    method public static androidx.test.uiautomator.UiObject2Condition<java.lang.Boolean!> descEquals(String);
+    method public static androidx.test.uiautomator.UiObject2Condition<java.lang.Boolean!> descMatches(java.util.regex.Pattern);
+    method public static androidx.test.uiautomator.UiObject2Condition<java.lang.Boolean!> descMatches(String);
+    method public static androidx.test.uiautomator.UiObject2Condition<java.lang.Boolean!> descStartsWith(String);
+    method public static androidx.test.uiautomator.UiObject2Condition<java.lang.Boolean!> enabled(boolean);
+    method public static androidx.test.uiautomator.SearchCondition<androidx.test.uiautomator.UiObject2!> findObject(androidx.test.uiautomator.BySelector);
+    method public static androidx.test.uiautomator.SearchCondition<java.util.List<androidx.test.uiautomator.UiObject2!>!> findObjects(androidx.test.uiautomator.BySelector);
+    method public static androidx.test.uiautomator.UiObject2Condition<java.lang.Boolean!> focusable(boolean);
+    method public static androidx.test.uiautomator.UiObject2Condition<java.lang.Boolean!> focused(boolean);
+    method public static androidx.test.uiautomator.SearchCondition<java.lang.Boolean!> gone(androidx.test.uiautomator.BySelector);
+    method public static androidx.test.uiautomator.SearchCondition<java.lang.Boolean!> hasObject(androidx.test.uiautomator.BySelector);
+    method public static androidx.test.uiautomator.UiObject2Condition<java.lang.Boolean!> longClickable(boolean);
+    method public static androidx.test.uiautomator.EventCondition<java.lang.Boolean!> newWindow();
+    method public static androidx.test.uiautomator.EventCondition<java.lang.Boolean!> scrollFinished(androidx.test.uiautomator.Direction);
+    method public static androidx.test.uiautomator.UiObject2Condition<java.lang.Boolean!> scrollable(boolean);
+    method public static androidx.test.uiautomator.UiObject2Condition<java.lang.Boolean!> selected(boolean);
+    method public static androidx.test.uiautomator.UiObject2Condition<java.lang.Boolean!> textContains(String);
+    method public static androidx.test.uiautomator.UiObject2Condition<java.lang.Boolean!> textEndsWith(String);
+    method public static androidx.test.uiautomator.UiObject2Condition<java.lang.Boolean!> textEquals(String);
+    method public static androidx.test.uiautomator.UiObject2Condition<java.lang.Boolean!> textMatches(java.util.regex.Pattern);
+    method public static androidx.test.uiautomator.UiObject2Condition<java.lang.Boolean!> textMatches(String);
+    method public static androidx.test.uiautomator.UiObject2Condition<java.lang.Boolean!> textNotEquals(String);
+    method public static androidx.test.uiautomator.UiObject2Condition<java.lang.Boolean!> textStartsWith(String);
   }
 
 }

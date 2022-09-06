@@ -37,6 +37,7 @@ import androidx.wear.watchface.ComplicationSlotsManager
 import androidx.wear.watchface.DrawMode
 import androidx.wear.watchface.Renderer
 import androidx.wear.watchface.WatchFace
+import androidx.wear.watchface.WatchFaceColors
 import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.WatchFaceType
 import androidx.wear.watchface.WatchState
@@ -56,6 +57,9 @@ import java.nio.FloatBuffer
 import java.time.ZonedDateTime
 import kotlin.math.cos
 import kotlin.math.sin
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 /** Expected frame rate in interactive mode.  */
 private const val FPS: Long = 60
@@ -236,6 +240,28 @@ class ExampleOpenGLRenderer(
 
     private lateinit var complicationTriangles: Gles2TexturedTriangleList
     private lateinit var complicationHighlightTriangles: Gles2ColoredTriangleList
+
+    init {
+        CoroutineScope(Dispatchers.Main.immediate).launch {
+            currentUserStyleRepository.userStyle.collect { userStyle ->
+                watchfaceColors = when (userStyle[colorStyleSetting]!!.toString()) {
+                    "red_style" -> WatchFaceColors(
+                        Color.valueOf(0.5f, 0.2f, 0.2f, 1f),
+                        Color.valueOf(0.4f, 0.15f, 0.15f, 1f),
+                        Color.valueOf(0.1f, 0.1f, 0.1f, 1f)
+                    )
+
+                    "green_style" -> WatchFaceColors(
+                        Color.valueOf(0.2f, 0.5f, 0.2f, 1f),
+                        Color.valueOf(0.15f, 0.4f, 0.15f, 1f),
+                        Color.valueOf(0.1f, 0.1f, 0.1f, 1f)
+                    )
+
+                    else -> null
+                }
+            }
+        }
+    }
 
     override suspend fun onBackgroundThreadGlContextCreated() {
         // Create program for drawing triangles.
@@ -639,24 +665,6 @@ class ExampleOpenGLRenderer(
             coords[i + 1] = (sin * x + cos * y).toFloat()
             i += 3
         }
-    }
-
-    override fun watchfaceColors() = when (
-        currentUserStyleRepository.userStyle.value[colorStyleSetting]!!.toString()
-    ) {
-        "red_style" -> WatchfaceColors(
-            Color.valueOf(0.5f, 0.2f, 0.2f, 1f),
-            Color.valueOf(0.4f, 0.15f, 0.15f, 1f),
-            Color.valueOf(0.1f, 0.1f, 0.1f, 1f)
-        )
-
-        "green_style" -> WatchfaceColors(
-            Color.valueOf(0.2f, 0.5f, 0.2f, 1f),
-            Color.valueOf(0.15f, 0.4f, 0.15f, 1f),
-            Color.valueOf(0.1f, 0.1f, 0.1f, 1f)
-        )
-
-        else -> null
     }
 
     override fun render(zonedDateTime: ZonedDateTime) {

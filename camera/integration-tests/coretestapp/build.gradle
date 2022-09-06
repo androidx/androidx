@@ -82,6 +82,7 @@ dependencies {
     debugImplementation(libs.leakcanary)
     // Testing resource dependency for manifest
     debugImplementation(project(":camera:camera-testing"))
+    debugImplementation(libs.testCore)
 
     // Testing framework
     androidTestImplementation(libs.testCore)
@@ -104,11 +105,4 @@ dependencies {
 
     testImplementation(libs.junit)
     testImplementation(libs.truth)
-}
-
-// Allow usage of Kotlin's @OptIn.
-tasks.withType(KotlinCompile).configureEach {
-    kotlinOptions {
-        freeCompilerArgs += ["-opt-in=kotlin.RequiresOptIn"]
-    }
 }

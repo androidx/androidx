@@ -17,6 +17,7 @@
 package androidx.camera.integration.uiwidgets.viewpager
 
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.text.TextUtils
 import android.util.Log
@@ -44,6 +45,7 @@ class CameraFragment : Fragment() {
         fun newInstance() = CameraFragment()
         private const val TAG = "CameraFragment"
         const val KEY_CAMERA_IMPLEMENTATION = "camera_implementation"
+        const val KEY_CAMERA_IMPLEMENTATION_NO_HISTORY = "camera_implementation_no_history"
         const val CAMERA2_IMPLEMENTATION_OPTION = "camera2"
         const val CAMERA_PIPE_IMPLEMENTATION_OPTION = "camera_pipe"
         private var cameraImpl: String? = null
@@ -78,6 +80,17 @@ class CameraFragment : Fragment() {
                 )
             }
         }
+
+        activity?.intent?.let { intent ->
+            if (intent.getBooleanExtra(KEY_CAMERA_IMPLEMENTATION_NO_HISTORY, false)) {
+                activity?.intent = Intent(intent).apply {
+                    removeExtra(KEY_CAMERA_IMPLEMENTATION)
+                    removeExtra(KEY_CAMERA_IMPLEMENTATION_NO_HISTORY)
+                }
+                cameraImpl = null
+            }
+        }
+
         cameraProviderFuture = ProcessCameraProvider.getInstance(context)
     }
 

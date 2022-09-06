@@ -18,11 +18,10 @@
 package androidx.health.connect.client.impl.converters.request
 
 import androidx.annotation.RestrictTo
-import androidx.health.connect.client.impl.converters.datatype.toDataTypeName
+import androidx.health.connect.client.impl.converters.datatype.toDataType
 import androidx.health.connect.client.impl.converters.time.toProto
 import androidx.health.connect.client.records.Record
 import androidx.health.connect.client.time.TimeRangeFilter
-import androidx.health.platform.client.proto.DataProto
 import androidx.health.platform.client.proto.RequestProto
 import kotlin.reflect.KClass
 
@@ -36,6 +35,6 @@ fun toDeleteDataRangeRequestProto(
     timeRangeFilter: TimeRangeFilter
 ): RequestProto.DeleteDataRangeRequest =
     RequestProto.DeleteDataRangeRequest.newBuilder()
-        .addDataType(DataProto.DataType.newBuilder().setName(dataTypeKC.toDataTypeName()).build())
+        .addDataType(dataTypeKC.toDataType())
         .setTimeSpec(timeRangeFilter.toProto())
         .build()

@@ -16,7 +16,9 @@
 
 package androidx.camera.extensions.internal;
 
+import android.content.Context;
 import android.graphics.ImageFormat;
+import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CaptureResult;
 import android.hardware.camera2.TotalCaptureResult;
 import android.media.Image;
@@ -34,6 +36,7 @@ import androidx.camera.core.impl.CameraCaptureResult;
 import androidx.camera.core.impl.CameraCaptureResults;
 import androidx.camera.core.impl.CaptureProcessor;
 import androidx.camera.core.impl.ImageProxyBundle;
+import androidx.camera.extensions.impl.ExtenderStateListener;
 import androidx.camera.extensions.impl.PreviewImageProcessorImpl;
 import androidx.core.util.Preconditions;
 
@@ -46,9 +49,37 @@ import java.util.concurrent.ExecutionException;
  * A {@link CaptureProcessor} that calls a vendor provided preview processing implementation.
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-public final class AdaptingPreviewProcessor implements CaptureProcessor, CloseableProcessor {
+public final class AdaptingPreviewProcessor implements CaptureProcessor, VendorProcessor {
     private static final String TAG = "AdaptingPreviewProcesso";
     private final PreviewImageProcessorImpl mImpl;
+    private volatile Surface mSurface;
+    private volatile int mImageFormat;
+    private volatile Size mResolution;
+
+    /**
+     * Invoked after
+     * {@link ExtenderStateListener#onInit(String, CameraCharacteristics, Context)}()} to
+     * initialize the processor.
+     */
+    @Override
+    public void onInit() {
+        // Delay the onOutputSurface / onImageFormatUpdate/ onResolutionUpdate calls because on
+        // some OEM devices, these CaptureProcessImpl configuration should be performed only after
+        // onInit. Otherwise it will cause black preview issue.
+        if (!mAccessCounter.tryIncrement()) {
+            return;
+        }
+
+        try {
+            mImpl.onResolutionUpdate(mResolution);
+            mImpl.onOutputSurface(mSurface, mImageFormat);
+            // No input formats other than YUV_420_888 are allowed.
+            mImpl.onImageFormatUpdate(ImageFormat.YUV_420_888);
+        } finally {
+            mAccessCounter.decrement();
+        }
+    }
+
     private BlockingCloseAccessCounter mAccessCounter = new BlockingCloseAccessCounter();
 
     public AdaptingPreviewProcessor(@NonNull PreviewImageProcessorImpl impl) {
@@ -62,9 +93,8 @@ public final class AdaptingPreviewProcessor implements CaptureProcessor, Closeab
         }
 
         try {
-            mImpl.onOutputSurface(surface, imageFormat);
-            // No input formats other than YUV_420_888 are allowed.
-            mImpl.onImageFormatUpdate(ImageFormat.YUV_420_888);
+            mSurface = surface;
+            mImageFormat = imageFormat;
         } finally {
             mAccessCounter.decrement();
         }
@@ -125,7 +155,7 @@ public final class AdaptingPreviewProcessor implements CaptureProcessor, Closeab
         }
 
         try {
-            mImpl.onResolutionUpdate(size);
+            mResolution = size;
         } finally {
             mAccessCounter.decrement();
         }
@@ -134,5 +164,7 @@ public final class AdaptingPreviewProcessor implements CaptureProcessor, Closeab
     @Override
     public void close() {
         mAccessCounter.destroyAndWaitForZeroAccess();
+        mSurface = null;
+        mResolution = null;
     }
 }

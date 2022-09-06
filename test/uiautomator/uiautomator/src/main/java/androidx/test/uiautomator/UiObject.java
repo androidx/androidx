@@ -27,6 +27,7 @@ import android.view.MotionEvent.PointerCoords;
 import android.view.accessibility.AccessibilityNodeInfo;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 /**
  * A UiObject is a representation of a view. It is not in any way directly bound to a
@@ -104,6 +105,7 @@ public class UiObject {
      * @return {@link UiSelector}
      * @since API Level 16
      */
+    @NonNull
     public final UiSelector getSelector() {
         Tracer.trace();
         if (mUiSelector == null) {
@@ -143,7 +145,8 @@ public class UiObject {
      * @return a new UiObject representing the child view
      * @since API Level 16
      */
-    public UiObject getChild(UiSelector selector) throws UiObjectNotFoundException {
+    @NonNull
+    public UiObject getChild(@NonNull UiSelector selector) throws UiObjectNotFoundException {
         Tracer.trace(selector);
         return new UiObject(getSelector().childSelector(selector));
     }
@@ -157,7 +160,8 @@ public class UiObject {
      * @throws UiObjectNotFoundException
      * @since API Level 16
      */
-    public UiObject getFromParent(UiSelector selector) throws UiObjectNotFoundException {
+    @NonNull
+    public UiObject getFromParent(@NonNull UiSelector selector) throws UiObjectNotFoundException {
         Tracer.trace(selector);
         return new UiObject(getSelector().fromParent(selector));
     }
@@ -186,6 +190,7 @@ public class UiObject {
      * @return AccessibilityNodeInfo if found else null
      * @since API Level 16
      */
+    @Nullable
     protected AccessibilityNodeInfo findAccessibilityNodeInfo(long timeout) {
         AccessibilityNodeInfo node = null;
         long startMills = SystemClock.uptimeMillis();
@@ -218,7 +223,7 @@ public class UiObject {
      * @throws UiObjectNotFoundException
      * @since API Level 18
      */
-    public boolean dragTo(UiObject destObj, int steps) throws UiObjectNotFoundException {
+    public boolean dragTo(@NonNull UiObject destObj, int steps) throws UiObjectNotFoundException {
         Rect srcRect = getVisibleBounds();
         Rect dstRect = destObj.getVisibleBounds();
         return getInteractionController().swipe(srcRect.centerX(), srcRect.centerY(),
@@ -352,12 +357,56 @@ public class UiObject {
                 rect.centerY(), rect.right - SWIPE_MARGIN_LIMIT, rect.centerY(), steps);
     }
 
-    /** Returns the visible bounds of an {@link AccessibilityNodeInfo}. */
-    @NonNull
-    private Rect getVisibleBounds(@NonNull AccessibilityNodeInfo node) {
+    /**
+     * Finds the visible bounds of a partially visible UI element
+     *
+     * @param node
+     * @return null if node is null, else a Rect containing visible bounds
+     */
+    @SuppressWarnings("RectIntersectReturnValueIgnored")
+    private Rect getVisibleBounds(AccessibilityNodeInfo node) {
+        if (node == null) {
+            return null;
+        }
+
+        // targeted node's bounds
         int w = getDevice().getDisplayWidth();
         int h = getDevice().getDisplayHeight();
-        return AccessibilityNodeInfoHelper.getVisibleBoundsInScreen(node, w, h);
+        Rect nodeRect = AccessibilityNodeInfoHelper.getVisibleBoundsInScreen(node, w, h);
+
+        // is the targeted node within a scrollable container?
+        AccessibilityNodeInfo scrollableParentNode = getScrollableParent(node);
+        if(scrollableParentNode == null) {
+            // nothing to adjust for so return the node's Rect as is
+            return nodeRect;
+        }
+
+        // Scrollable parent's visible bounds
+        Rect parentRect = AccessibilityNodeInfoHelper
+                .getVisibleBoundsInScreen(scrollableParentNode, w, h);
+        // adjust for partial clipping of targeted by parent node if required
+        nodeRect.intersect(parentRect);
+        return nodeRect;
+    }
+
+    /**
+     * Walks up the layout hierarchy to find a scrollable parent. A scrollable parent
+     * indicates that this node might be in a container where it is partially
+     * visible due to scrolling. In this case, its clickable center might not be visible and
+     * the click coordinates should be adjusted.
+     *
+     * @param node
+     * @return The accessibility node info.
+     */
+    private AccessibilityNodeInfo getScrollableParent(AccessibilityNodeInfo node) {
+        AccessibilityNodeInfo parent = node;
+        while(parent != null) {
+            parent = parent.getParent();
+            if (parent != null && parent.isScrollable()) {
+                return parent;
+            }
+        }
+        return null;
     }
 
     /**
@@ -518,6 +567,7 @@ public class UiObject {
      * @throws UiObjectNotFoundException if no match could be found
      * @since API Level 16
      */
+    @NonNull
     public String getText() throws UiObjectNotFoundException {
         Tracer.trace();
         AccessibilityNodeInfo node = findAccessibilityNodeInfo(mConfig.getWaitForSelectorTimeout());
@@ -536,6 +586,7 @@ public class UiObject {
      * @throws UiObjectNotFoundException if no match was found
      * @since API Level 18
      */
+    @NonNull
     public String getClassName() throws UiObjectNotFoundException {
         Tracer.trace();
         AccessibilityNodeInfo node = findAccessibilityNodeInfo(mConfig.getWaitForSelectorTimeout());
@@ -554,6 +605,7 @@ public class UiObject {
      * @throws UiObjectNotFoundException
      * @since API Level 16
      */
+    @NonNull
     public String getContentDescription() throws UiObjectNotFoundException {
         Tracer.trace();
         AccessibilityNodeInfo node = findAccessibilityNodeInfo(mConfig.getWaitForSelectorTimeout());
@@ -567,8 +619,12 @@ public class UiObject {
      * Set the text content by sending individual key codes.
      * @hide
      */
-    public void legacySetText(String text) throws UiObjectNotFoundException {
-        Tracer.trace();
+    public void legacySetText(@Nullable String text) throws UiObjectNotFoundException {
+        // Per framework convention, setText(null) means clearing it.
+        if (text == null) {
+            text = "";
+        }
+        Tracer.trace(text);
         // long click left + center
         AccessibilityNodeInfo node = findAccessibilityNodeInfo(mConfig.getWaitForSelectorTimeout());
         if (node == null) {
@@ -613,7 +669,7 @@ public class UiObject {
      * @throws UiObjectNotFoundException
      * @since API Level 16
      */
-    public boolean setText(String text) throws UiObjectNotFoundException {
+    public boolean setText(@Nullable String text) throws UiObjectNotFoundException {
         // per framework convention, setText with null means clearing it
         if (text == null) {
             text = "";
@@ -828,6 +884,7 @@ public class UiObject {
      * @throws UiObjectNotFoundException
      * @since API Level 16
      */
+    @NonNull
     public String getPackageName() throws UiObjectNotFoundException {
         Tracer.trace();
         AccessibilityNodeInfo node = findAccessibilityNodeInfo(mConfig.getWaitForSelectorTimeout());
@@ -849,6 +906,7 @@ public class UiObject {
      *
      * @since API Level 17
      */
+    @NonNull
     public Rect getVisibleBounds() throws UiObjectNotFoundException {
         Tracer.trace();
         AccessibilityNodeInfo node = findAccessibilityNodeInfo(mConfig.getWaitForSelectorTimeout());
@@ -865,6 +923,7 @@ public class UiObject {
      * @throws UiObjectNotFoundException
      * @since API Level 16
      */
+    @NonNull
     public Rect getBounds() throws UiObjectNotFoundException {
         Tracer.trace();
         AccessibilityNodeInfo node = findAccessibilityNodeInfo(mConfig.getWaitForSelectorTimeout());
@@ -1038,8 +1097,8 @@ public class UiObject {
      *         <code>false</code> otherwise
      * @since API Level 18
      */
-    public boolean performTwoPointerGesture(Point startPoint1, Point startPoint2, Point endPoint1,
-            Point endPoint2, int steps) {
+    public boolean performTwoPointerGesture(@NonNull Point startPoint1, @NonNull Point startPoint2,
+            @NonNull Point endPoint1, @NonNull Point endPoint2, int steps) {
 
         // avoid a divide by zero
         if(steps == 0)
@@ -1122,7 +1181,7 @@ public class UiObject {
      *         <code>false</code> otherwise
      * @since API Level 18
      */
-    public boolean performMultiPointerGesture(PointerCoords[] ...touches) {
+    public boolean performMultiPointerGesture(@NonNull PointerCoords[]... touches) {
         return getInteractionController().performMultiPointerGesture(touches);
     }
 }

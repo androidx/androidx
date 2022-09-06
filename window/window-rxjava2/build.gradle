@@ -56,10 +56,3 @@ androidx {
     inceptionYear = "2021"
     description = "WindowManager RxJava 2"
 }
-
-// Allow usage of Kotlin's @OptIn.
-tasks.withType(KotlinCompile).configureEach {
-    kotlinOptions {
-        freeCompilerArgs += ["-opt-in=kotlin.RequiresOptIn"]
-    }
-}

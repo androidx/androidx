@@ -96,7 +96,7 @@ class ServiceBackedPassiveMonitoringClientTest {
         val config = PassiveListenerConfig(
             dataTypes = setOf(STEPS_DAILY, CALORIES_DAILY),
             shouldRequestUserActivityState = true,
-            passiveGoals = setOf(),
+            dailyGoals = setOf(),
             healthEventTypes = setOf()
         )
 
@@ -119,7 +119,7 @@ class ServiceBackedPassiveMonitoringClientTest {
         val config = PassiveListenerConfig(
             dataTypes = setOf(STEPS_DAILY),
             shouldRequestUserActivityState = true,
-            passiveGoals = setOf(),
+            dailyGoals = setOf(),
             healthEventTypes = setOf()
         )
         val callback = FakeCallback()
@@ -141,7 +141,7 @@ class ServiceBackedPassiveMonitoringClientTest {
         val config = PassiveListenerConfig(
             dataTypes = setOf(STEPS_DAILY),
             shouldRequestUserActivityState = true,
-            passiveGoals = setOf(),
+            dailyGoals = setOf(),
             healthEventTypes = setOf()
         )
         val callback = FakeCallback()
@@ -186,7 +186,7 @@ class ServiceBackedPassiveMonitoringClientTest {
         val config = PassiveListenerConfig(
             dataTypes = setOf(STEPS_DAILY),
             shouldRequestUserActivityState = false,
-            passiveGoals = setOf(
+            dailyGoals = setOf(
                 PassiveGoal(DataTypeCondition(STEPS_DAILY, 87, GREATER_THAN), ONCE)
             ),
             healthEventTypes = setOf()
@@ -227,7 +227,7 @@ class ServiceBackedPassiveMonitoringClientTest {
         val config = PassiveListenerConfig(
             dataTypes = setOf(),
             shouldRequestUserActivityState = false,
-            passiveGoals = setOf(),
+            dailyGoals = setOf(),
             healthEventTypes = setOf(FALL_DETECTED)
         )
         val callback = FakeCallback()
@@ -258,7 +258,7 @@ class ServiceBackedPassiveMonitoringClientTest {
         val config = PassiveListenerConfig(
             dataTypes = setOf(STEPS_DAILY),
             shouldRequestUserActivityState = false,
-            passiveGoals = setOf(
+            dailyGoals = setOf(
                 PassiveGoal(DataTypeCondition(STEPS_DAILY, 87, GREATER_THAN), ONCE)
             ),
             healthEventTypes = setOf()

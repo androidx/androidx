@@ -46,11 +46,11 @@ import androidx.health.connect.client.records.HeartRateVariabilitySdnnIndexRecor
 import androidx.health.connect.client.records.HeartRateVariabilitySdnnRecord
 import androidx.health.connect.client.records.HeartRateVariabilitySdsdRecord
 import androidx.health.connect.client.records.HeartRateVariabilityTinnRecord
+import androidx.health.connect.client.records.MenstruationFlowRecord
 import androidx.health.connect.client.records.HeightRecord
 import androidx.health.connect.client.records.HipCircumferenceRecord
 import androidx.health.connect.client.records.HydrationRecord
 import androidx.health.connect.client.records.LeanBodyMassRecord
-import androidx.health.connect.client.records.MenstruationRecord
 import androidx.health.connect.client.records.NutritionRecord
 import androidx.health.connect.client.records.OvulationTestRecord
 import androidx.health.connect.client.records.OxygenSaturationRecord
@@ -70,6 +70,7 @@ import androidx.health.connect.client.records.Vo2MaxRecord
 import androidx.health.connect.client.records.WaistCircumferenceRecord
 import androidx.health.connect.client.records.WeightRecord
 import androidx.health.connect.client.records.WheelchairPushesRecord
+import androidx.health.connect.client.units.BloodGlucose
 import androidx.health.connect.client.units.celsius
 import androidx.health.connect.client.units.grams
 import androidx.health.connect.client.units.kilocalories
@@ -105,7 +106,7 @@ fun toRecord(proto: DataProto.DataPoint): Record =
                 )
             "BloodGlucose" ->
                 BloodGlucoseRecord(
-                    levelMillimolesPerLiter = getDouble("level"),
+                    level = BloodGlucose.millimolesPerLiter(getDouble("level")),
                     specimenSource = getEnum("specimenSource"),
                     mealType = getEnum("mealType"),
                     relationToMeal = getEnum("relationToMeal"),
@@ -275,7 +276,7 @@ fun toRecord(proto: DataProto.DataPoint): Record =
                     metadata = metadata
                 )
             "Menstruation" ->
-                MenstruationRecord(
+                MenstruationFlowRecord(
                     flow = getEnum("flow"),
                     time = time,
                     zoneOffset = zoneOffset,

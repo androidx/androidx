@@ -20,8 +20,6 @@ import android.bluetooth.BluetoothGattService as FwkBluetoothGattService
 import android.os.Build
 import android.os.Bundle
 import androidx.annotation.RequiresApi
-import androidx.bluetooth.core.utils.Bundleable
-import androidx.bluetooth.core.utils.Utils
 import java.util.UUID
 
 /**
@@ -34,12 +32,12 @@ class BluetoothGattService internal constructor(service: FwkBluetoothGattService
         /**
          * Primary service
          */
-        val SERVICE_TYPE_PRIMARY = FwkBluetoothGattService.SERVICE_TYPE_PRIMARY
+        const val SERVICE_TYPE_PRIMARY = FwkBluetoothGattService.SERVICE_TYPE_PRIMARY
 
         /**
          * Secondary service (included by primary services)
          */
-        val SERVICE_TYPE_SECONDARY = FwkBluetoothGattService.SERVICE_TYPE_SECONDARY
+        const val SERVICE_TYPE_SECONDARY = FwkBluetoothGattService.SERVICE_TYPE_SECONDARY
         /**
          * A companion object to create [BluetoothGattService] from bundle
          */
@@ -193,7 +191,7 @@ class BluetoothGattService internal constructor(service: FwkBluetoothGattService
 
     private open class GattServiceImplApi21(
         final override val fwkService: FwkBluetoothGattService,
-        service: BluetoothGattService
+        private val service: BluetoothGattService
     ) : GattServiceImpl {
 
         companion object {
@@ -301,6 +299,7 @@ class BluetoothGattService internal constructor(service: FwkBluetoothGattService
         override fun addCharacteristic(characteristic: BluetoothGattCharacteristic): Boolean {
             return if (fwkService.addCharacteristic(characteristic.fwkCharacteristic)) {
                 _characteristics.add(characteristic)
+                characteristic.service = service
                 true
             } else {
                 false

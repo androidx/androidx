@@ -1,0 +1,49 @@
+import org.jetbrains.kotlin.gradle.plugin.mpp.BitcodeEmbeddingMode
+
+plugins {
+    id("AndroidXPlugin")
+}
+
+androidXMultiplatform {
+    // b/243154573
+    jvm()
+    ios {
+        binaries.framework {
+            baseName = "AndroidXDarwinBenchmarks"
+            // https://youtrack.jetbrains.com/issue/KT-48552
+            embedBitcode = BitcodeEmbeddingMode.DISABLE
+        }
+    }
+    sourceSets {
+        commonMain {
+            dependencies {
+                api(libs.kotlinStdlib)
+            }
+        }
+        commonTest {
+            dependencies {
+                implementation(libs.kotlinTest)
+                implementation(libs.kotlinTestAnnotationsCommon)
+            }
+        }
+        iosArm64Main {
+            dependsOn(commonMain)
+            dependencies {
+                api(project(":benchmark:benchmark-darwin-core"))
+            }
+        }
+        iosSimulatorArm64Main {
+            dependsOn(iosArm64Main)
+        }
+        iosX64Main {
+            dependsOn(iosArm64Main)
+        }
+    }
+}
+
+androidx {
+    name = "AndroidX Benchmarks - Darwin"
+    mavenGroup = LibraryGroups.BENCHMARK
+    inceptionYear = "2022"
+    description = "AndroidX Benchmarks - Darwin"
+}

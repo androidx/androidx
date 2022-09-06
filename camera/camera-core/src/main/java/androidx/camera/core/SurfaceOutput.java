@@ -85,6 +85,11 @@ public interface SurfaceOutput {
     int getFormat();
 
     /**
+     * Get the rotation degrees.
+     */
+    int getRotationDegrees();
+
+    /**
      * Call this method to mark the {@link Surface} as no longer in use.
      *
      * <p>After this is called, the implementation should stop writing to the {@link Surface}
@@ -171,5 +176,17 @@ public interface SurfaceOutput {
                 @NonNull SurfaceOutput surfaceOutput) {
             return new AutoValue_SurfaceOutput_Event(code, surfaceOutput);
         }
+    }
+
+    /** OpenGL transformation options for SurfaceOutput. */
+    enum GlTransformOptions {
+        /** Apply only the value of {@link SurfaceTexture#getTransformMatrix(float[])}. */
+        USE_SURFACE_TEXTURE_TRANSFORM,
+
+        /**
+         * Discard the value of {@link SurfaceTexture#getTransformMatrix(float[])} and calculate
+         * the transform based on crop rect, rotation degrees and mirroring.
+         */
+        APPLY_CROP_ROTATE_AND_MIRRORING,
     }
 }

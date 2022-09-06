@@ -41,6 +41,7 @@ import static androidx.car.app.hardware.climate.ClimateProfileRequest.FEATURE_HV
 import static androidx.car.app.hardware.climate.ClimateProfileRequest.FEATURE_HVAC_AUTO_RECIRCULATION;
 import static androidx.car.app.hardware.climate.ClimateProfileRequest.FEATURE_HVAC_DEFROSTER;
 import static androidx.car.app.hardware.climate.ClimateProfileRequest.FEATURE_HVAC_DUAL_MODE;
+import static androidx.car.app.hardware.climate.ClimateProfileRequest.FEATURE_HVAC_ELECTRIC_DEFROSTER;
 import static androidx.car.app.hardware.climate.ClimateProfileRequest.FEATURE_HVAC_MAX_AC;
 import static androidx.car.app.hardware.climate.ClimateProfileRequest.FEATURE_HVAC_MAX_DEFROSTER;
 import static androidx.car.app.hardware.climate.ClimateProfileRequest.FEATURE_HVAC_POWER;
@@ -49,6 +50,7 @@ import static androidx.car.app.hardware.climate.ClimateProfileRequest.FEATURE_SE
 import static androidx.car.app.hardware.climate.ClimateProfileRequest.FEATURE_SEAT_VENTILATION_LEVEL;
 import static androidx.car.app.hardware.climate.ClimateProfileRequest.FEATURE_STEERING_WHEEL_HEAT;
 import static androidx.car.app.hardware.common.CarValueUtils.getCarValue;
+import static androidx.car.app.hardware.common.PropertyUtils.getMinMaxProfileFloatMap;
 import static androidx.car.app.hardware.common.PropertyUtils.getMinMaxProfileIntegerMap;
 
 import static java.util.Objects.requireNonNull;
@@ -89,7 +91,11 @@ public class AutomotiveCarClimate implements CarClimate {
 
     @VisibleForTesting
     static final float DEFAULT_SAMPLE_RATE_HZ = 5f;
-    static final float DEFAULT_TEMPERATURE_INCREMENT = -1f;
+    @VisibleForTesting
+    static final int HVAC_ELECTRIC_DEFROSTER = 320865556;
+
+    // TODO(b/240347704): replace FEATURE_HVAC_ELECTRIC_DEFROSTER value with
+    //  HVAC_ELECTRIC_DEFROSTER_ON if it becomes available.
     static ImmutableBiMap<Integer, Integer> sFeatureToPropertyId =
             new ImmutableBiMap.Builder<Integer,
                     Integer>()
@@ -108,6 +114,7 @@ public class AutomotiveCarClimate implements CarClimate {
                     .put(FEATURE_HVAC_DUAL_MODE, HVAC_DUAL_ON)
                     .put(FEATURE_HVAC_DEFROSTER, HVAC_DEFROSTER)
                     .put(FEATURE_HVAC_MAX_DEFROSTER, HVAC_MAX_DEFROST_ON)
+                    .put(FEATURE_HVAC_ELECTRIC_DEFROSTER, HVAC_ELECTRIC_DEFROSTER)
                     .buildOrThrow();
 
     private final Map<CarClimateStateCallback, OnCarPropertyResponseListener> mListenerMap =
@@ -254,6 +261,10 @@ public class AutomotiveCarClimate implements CarClimate {
                             mCarClimateStateCallback.onMaxDefrosterStateAvailable(
                                     (CarValue<Boolean>) mCarValue);
                             break;
+                        case FEATURE_HVAC_ELECTRIC_DEFROSTER:
+                            mCarClimateStateCallback.onElectricDefrosterStateAvailable(
+                                    (CarValue<Boolean>) mCarValue);
+                            break;
                         default:
                             Log.e(LogTags.TAG_CAR_HARDWARE,
                                     "Invalid response callback in PropertyListener with "
@@ -300,56 +311,98 @@ public class AutomotiveCarClimate implements CarClimate {
                                         .build());
                         break;
                     case FEATURE_CABIN_TEMPERATURE:
+                        if ((carPropertyProfile.getCelsiusRange() == null
+                                || carPropertyProfile.getFahrenheitRange() == null)
+                                && (carPropertyProfile.getCarZoneSetsToMinMaxRange() == null)) {
+                            Log.e(LogTags.TAG_CAR_HARDWARE, "Failed to fetch cabin "
+                                    + "temperature value with profile: " + carPropertyProfile);
+                            break;
+                        }
+                        CabinTemperatureProfile.Builder cabinTemperatureProfileBuilder =
+                                new CabinTemperatureProfile.Builder();
+                        if (carPropertyProfile.getCelsiusRange() != null) {
+                            cabinTemperatureProfileBuilder.setSupportedMinMaxCelsiusRange(
+                                    carPropertyProfile.getCelsiusRange());
+                        }
+                        if (carPropertyProfile.getFahrenheitRange() != null) {
+                            cabinTemperatureProfileBuilder.setSupportedMinMaxFahrenheitRange(
+                                    carPropertyProfile.getFahrenheitRange());
+                        }
+                        if (carPropertyProfile.getCarZoneSetsToMinMaxRange() != null) {
+                            cabinTemperatureProfileBuilder
+                                    .setCarZoneSetsToCabinCelsiusTemperatureRanges(
+                                            getMinMaxProfileFloatMap(
+                                                    carPropertyProfile
+                                                            .getCarZoneSetsToMinMaxRange()));
+                        }
+                        if (carPropertyProfile.getCelsiusIncrement() != -1f) {
+                            cabinTemperatureProfileBuilder.setCelsiusSupportedIncrement(
+                                    carPropertyProfile.getCelsiusIncrement());
+                        }
+                        if (carPropertyProfile.getCelsiusIncrement() != -1f) {
+                            cabinTemperatureProfileBuilder.setFahrenheitSupportedIncrement(
+                                    carPropertyProfile.getFahrenheitIncrement());
+                        }
                         onCarClimateProfileCallback.onCabinTemperatureProfileAvailable(
-                                new CabinTemperatureProfile.Builder(
-                                        requireNonNull(carPropertyProfile.getCelsiusRange()),
-                                        requireNonNull(carPropertyProfile.getFahrenheitRange()),
-                                        (carPropertyProfile.getCelsiusIncrement() != null
-                                                ? carPropertyProfile.getCelsiusIncrement()
-                                                : DEFAULT_TEMPERATURE_INCREMENT),
-                                        (carPropertyProfile.getFahrenheitIncrement() != null
-                                                ? carPropertyProfile.getFahrenheitIncrement()
-                                                : DEFAULT_TEMPERATURE_INCREMENT))
-                                        .build()
-                        );
+                                cabinTemperatureProfileBuilder.build());
                         break;
                     case FEATURE_FAN_SPEED:
+                        if (carPropertyProfile.getCarZoneSetsToMinMaxRange() == null) {
+                            Log.e(LogTags.TAG_CAR_HARDWARE, "Failed to fetch fan speed value"
+                                    + " with profile: " + carPropertyProfile);
+                            break;
+                        }
                         onCarClimateProfileCallback.onFanSpeedLevelProfileAvailable(
                                 new FanSpeedLevelProfile.Builder(getMinMaxProfileIntegerMap(
-                                        requireNonNull(
-                                                carPropertyProfile.getCarZoneSetsToMinMaxRange())))
+                                        carPropertyProfile.getCarZoneSetsToMinMaxRange()))
                                         .build()
                         );
                         break;
                     case FEATURE_FAN_DIRECTION:
+                        if (carPropertyProfile.getHvacFanDirection() == null) {
+                            Log.e(LogTags.TAG_CAR_HARDWARE, "Failed to fetch direction value"
+                                    + " with profile: " + carPropertyProfile);
+                            break;
+                        }
                         onCarClimateProfileCallback.onFanDirectionProfileAvailable(
-                                new FanDirectionProfile.Builder(getMinMaxProfileIntegerMap(
-                                        requireNonNull(
-                                                carPropertyProfile.getCarZoneSetsToMinMaxRange())))
+                                new FanDirectionProfile.Builder(
+                                        carPropertyProfile.getHvacFanDirection())
                                         .build()
                         );
                         break;
                     case FEATURE_SEAT_TEMPERATURE_LEVEL:
+                        if (carPropertyProfile.getCarZoneSetsToMinMaxRange() == null) {
+                            Log.e(LogTags.TAG_CAR_HARDWARE, "Failed to fetch seat temperature"
+                                    + " value with profile: " + carPropertyProfile);
+                            break;
+                        }
                         onCarClimateProfileCallback.onSeatTemperatureLevelProfileAvailable(
                                 new SeatTemperatureProfile.Builder(getMinMaxProfileIntegerMap(
-                                        requireNonNull(
-                                                carPropertyProfile.getCarZoneSetsToMinMaxRange())))
+                                        carPropertyProfile.getCarZoneSetsToMinMaxRange()))
                                         .build()
                         );
                         break;
                     case FEATURE_SEAT_VENTILATION_LEVEL:
+                        if (carPropertyProfile.getCarZoneSetsToMinMaxRange() == null) {
+                            Log.e(LogTags.TAG_CAR_HARDWARE, "Failed to fetch seat ventilation"
+                                    + " value with profile: " + carPropertyProfile);
+                            break;
+                        }
                         onCarClimateProfileCallback.onSeatVentilationLevelProfileAvailable(
                                 new SeatVentilationProfile.Builder(getMinMaxProfileIntegerMap(
-                                        requireNonNull(
-                                                carPropertyProfile.getCarZoneSetsToMinMaxRange())))
+                                        carPropertyProfile.getCarZoneSetsToMinMaxRange()))
                                         .build()
                         );
                         break;
                     case FEATURE_STEERING_WHEEL_HEAT:
+                        if (carPropertyProfile.getCarZoneSetsToMinMaxRange() == null) {
+                            Log.e(LogTags.TAG_CAR_HARDWARE, "Failed to fetch steering wheel"
+                                    + " heat value with profile: " + carPropertyProfile);
+                            break;
+                        }
                         onCarClimateProfileCallback.onSteeringWheelHeatProfileAvailable(
                                 new SteeringWheelHeatProfile.Builder(getMinMaxProfileIntegerMap(
-                                        requireNonNull(
-                                                carPropertyProfile.getCarZoneSetsToMinMaxRange())))
+                                        carPropertyProfile.getCarZoneSetsToMinMaxRange()))
                                         .build()
                         );
                         break;
@@ -393,6 +446,12 @@ public class AutomotiveCarClimate implements CarClimate {
                     case FEATURE_HVAC_MAX_DEFROSTER:
                         onCarClimateProfileCallback.onMaxDefrosterProfileAvailable(
                                 new MaxDefrosterProfile.Builder(carPropertyProfile.getCarZones())
+                                        .build());
+                        break;
+                    case FEATURE_HVAC_ELECTRIC_DEFROSTER:
+                        onCarClimateProfileCallback.onElectricDefrosterProfileAvailable(
+                                new ElectricDefrosterProfile.Builder(
+                                        carPropertyProfile.getCarZones())
                                         .build());
                         break;
                     default:

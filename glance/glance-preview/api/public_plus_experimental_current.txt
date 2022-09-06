@@ -13,7 +13,7 @@ package androidx.glance.preview {
     method public abstract androidx.glance.preview.GlancePreview[] value();
   }
 
-  public final class Surfaces {
+  @androidx.glance.preview.ExperimentalGlancePreviewApi public final class Surfaces {
     field public static final String APP_WIDGET = "AppWidget";
     field public static final androidx.glance.preview.Surfaces INSTANCE;
     field public static final String TILE = "Tile";

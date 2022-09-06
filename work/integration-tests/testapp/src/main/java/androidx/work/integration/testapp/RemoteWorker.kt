@@ -22,6 +22,7 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import android.os.Build
+import android.os.Looper
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.concurrent.futures.CallbackToFutureAdapter
@@ -51,6 +52,10 @@ class RemoteWorker(private val context: Context, private val parameters: WorkerP
     override fun startRemoteWork(): ListenableFuture<Result> {
         return CallbackToFutureAdapter.getFuture { completer ->
             Log.d(TAG, "Starting Remote Worker.")
+            if (Looper.getMainLooper().thread != Thread.currentThread()) {
+                completer.set(Result.failure())
+                return@getFuture "startRemoteWork"
+            }
             val scope = CoroutineScope(Dispatchers.Default)
             job = scope.launch {
                 for (i in 1..10) {
@@ -65,6 +70,7 @@ class RemoteWorker(private val context: Context, private val parameters: WorkerP
                 Log.d(TAG, "Done.")
                 completer.set(Result.success())
             }
+            return@getFuture "startRemoteWork"
         }
     }
 

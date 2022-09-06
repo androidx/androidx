@@ -42,6 +42,15 @@ dependencies {
     androidTestImplementation(libs.truth)
 
     samples(projectOrArtifact(":lifecycle:lifecycle-runtime-compose:lifecycle-runtime-compose-samples"))
+
+    constraints {
+        // this syntax mirrors the temporary workaround in lifecycle-runtime
+        // dependency constraints which allows lifecycle-runtime to have a
+        // project constraint on compose, even though compose is not within
+        // the 'MAIN' project-set.
+        // update syntax when b/239979823 is fixed.
+        implementation("androidx.lifecycle:lifecycle-runtime:{androidx.LibraryVersions.LIFECYCLE}")
+    }
 }
 
 androidx {

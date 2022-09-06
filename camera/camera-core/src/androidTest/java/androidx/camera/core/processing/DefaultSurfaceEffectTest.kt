@@ -16,23 +16,17 @@
 
 package androidx.camera.core.processing
 
-import android.graphics.ImageFormat
 import android.graphics.Rect
-import android.graphics.SurfaceTexture
 import android.hardware.camera2.CameraDevice.TEMPLATE_PREVIEW
-import android.media.ImageReader
-import android.os.Build
-import android.os.Handler
-import android.os.HandlerThread
 import android.util.Size
 import android.view.Surface
 import androidx.camera.core.SurfaceEffect
+import androidx.camera.core.SurfaceOutput.GlTransformOptions.USE_SURFACE_TEXTURE_TRANSFORM
 import androidx.camera.core.SurfaceRequest
 import androidx.camera.core.impl.DeferrableSurface
 import androidx.camera.core.impl.ImageFormatConstants
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.testing.CameraUtil
-import androidx.camera.testing.GLUtil
 import androidx.camera.testing.HandlerUtil
 import androidx.camera.testing.fakes.FakeCamera
 import androidx.concurrent.futures.await
@@ -43,17 +37,8 @@ import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
 import java.util.Locale
 import java.util.concurrent.ExecutionException
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.android.asCoroutineDispatcher
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.flow.collectIndexed
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
 import org.junit.After
 import org.junit.Assert.fail
@@ -105,9 +90,7 @@ class DefaultSurfaceEffectTest {
 
     private lateinit var surfaceEffect: DefaultSurfaceEffect
     private lateinit var cameraDeviceHolder: CameraUtil.CameraDeviceHolder
-    private lateinit var handlerThread: HandlerThread
-    private lateinit var handler: Handler
-    private lateinit var dispatcher: CoroutineDispatcher
+    private lateinit var renderOutput: RenderOutput<*>
     private val inputSurfaceRequestsToClose = mutableListOf<SurfaceRequest>()
     private val fakeCamera = FakeCamera()
 
@@ -116,12 +99,12 @@ class DefaultSurfaceEffectTest {
         if (::cameraDeviceHolder.isInitialized) {
             CameraUtil.releaseCameraDevice(cameraDeviceHolder)
         }
+        if (::renderOutput.isInitialized) {
+            renderOutput.release()
+        }
         if (::surfaceEffect.isInitialized) {
             surfaceEffect.release()
             surfaceEffect.awaitReleased(10_000L)
-        }
-        if (::handlerThread.isInitialized) {
-            handlerThread.quitSafely()
         }
         for (surfaceRequest in inputSurfaceRequestsToClose) {
             surfaceRequest.deferrableSurface.close()
@@ -214,30 +197,33 @@ class DefaultSurfaceEffectTest {
         assertThat(surfaceOutput.isClosed).isTrue()
     }
 
+    @SdkSuppress(minSdkVersion = 23)
     @Test
     fun render(): Unit = runBlocking {
-        testRender()
+        testRender(OutputType.IMAGE_READER)
     }
 
+    @SdkSuppress(minSdkVersion = 21, maxSdkVersion = 22)
+    @Test
+    fun renderBelowApi23(): Unit = runBlocking {
+        testRender(OutputType.SURFACE_TEXTURE)
+    }
+
+    @SdkSuppress(minSdkVersion = 23)
     @Test
     fun renderByCustomShader(): Unit = runBlocking {
-        val shaderProvider = object : ShaderProvider {
-            override fun createFragmentShader(
-                samplerVarName: String,
-                fragCoordsVarName: String
-            ): String = getCustomFragmentShader(samplerVarName, fragCoordsVarName)
-        }
-        testRender(shaderProvider)
+        testRender(OutputType.IMAGE_READER, createCustomShaderProvider())
+    }
+
+    @SdkSuppress(minSdkVersion = 21, maxSdkVersion = 22)
+    @Test
+    fun renderByCustomShaderBelowApi23(): Unit = runBlocking {
+        testRender(OutputType.SURFACE_TEXTURE, createCustomShaderProvider())
     }
 
     @Test
     fun createByInvalidShaderString_throwException() {
-        val shaderProvider = object : ShaderProvider {
-            override fun createFragmentShader(
-                samplerVarName: String,
-                fragCoordsVarName: String
-            ) = "Invalid shader"
-        }
+        val shaderProvider = createCustomShaderProvider(shaderString = "Invalid shader")
         assertThrows(IllegalArgumentException::class.java) {
             createSurfaceEffect(shaderProvider)
         }
@@ -245,12 +231,8 @@ class DefaultSurfaceEffectTest {
 
     @Test
     fun createByFailedShaderProvider_throwException() {
-        val shaderProvider = object : ShaderProvider {
-            override fun createFragmentShader(
-                samplerVarName: String,
-                fragCoordsVarName: String
-            ) = throw RuntimeException("Failed Shader")
-        }
+        val shaderProvider =
+            createCustomShaderProvider(exceptionToThrow = RuntimeException("Failed Shader"))
         assertThrows(IllegalArgumentException::class.java) {
             createSurfaceEffect(shaderProvider)
         }
@@ -258,12 +240,7 @@ class DefaultSurfaceEffectTest {
 
     @Test
     fun createByIncorrectSamplerName_throwException() {
-        val shaderProvider = object : ShaderProvider {
-            override fun createFragmentShader(
-                samplerVarName: String,
-                fragCoordsVarName: String
-            ) = getCustomFragmentShader("_mySampler_", fragCoordsVarName)
-        }
+        val shaderProvider = createCustomShaderProvider(samplerVarName = "_mySampler_")
         assertThrows(IllegalArgumentException::class.java) {
             createSurfaceEffect(shaderProvider)
         }
@@ -271,32 +248,17 @@ class DefaultSurfaceEffectTest {
 
     @Test
     fun createByIncorrectFragCoordsName_throwException() {
-        val shaderProvider = object : ShaderProvider {
-            override fun createFragmentShader(
-                samplerVarName: String,
-                fragCoordsVarName: String
-            ) = getCustomFragmentShader(samplerVarName, "_myFragCoords_")
-        }
+        val shaderProvider = createCustomShaderProvider(fragCoordsVarName = "_myFragCoords_")
         assertThrows(IllegalArgumentException::class.java) {
             createSurfaceEffect(shaderProvider)
         }
     }
 
-    private suspend fun testRender(shaderProvider: ShaderProvider = ShaderProvider.DEFAULT) {
-        if (Build.VERSION.SDK_INT >= 23) {
-            // ImageReader support ImageFormat.PRIVATE from API 23
-            testRenderFromCameraToImageReader(shaderProvider)
-        } else {
-            // Render to SurfaceTexture surface as workaround
-            testRenderFromCameraToTextureSurface(shaderProvider)
-        }
-    }
-
-    private suspend fun testRenderFromCameraToImageReader(
+    private suspend fun testRender(
+        outputType: OutputType,
         shaderProvider: ShaderProvider = ShaderProvider.DEFAULT
     ) {
         createSurfaceEffect(shaderProvider)
-        prepareHandlerThread()
         // Prepare input
         val inputSurfaceRequest = createInputSurfaceRequest()
         surfaceEffect.onInputSurface(inputSurfaceRequest)
@@ -308,95 +270,12 @@ class DefaultSurfaceEffectTest {
         }, CameraXExecutors.directExecutor())
 
         // Prepare output
-        val imageReader = ImageReader.newInstance(
-            WIDTH,
-            HEIGHT,
-            ImageFormat.PRIVATE,
-            2
-        )
-        val scope = CoroutineScope(dispatcher)
-        val imageCollectJob = scope.launch {
-            callbackFlow {
-                val listener = ImageReader.OnImageAvailableListener {
-                    trySend(it.acquireLatestImage())
-                }
-                imageReader.setOnImageAvailableListener(listener, handler)
-                awaitClose { imageReader.close() }
-            }.collectIndexed { index, image ->
-                image.close()
-                if (index >= 4) {
-                    // stop the collect job
-                    scope.cancel()
-                }
-            }
-        }
-        val surfaceOutput = createSurfaceOutput(imageReader.surface)
+        renderOutput = RenderOutput.createRenderOutput(outputType)
+        val surfaceOutput = createSurfaceOutput(renderOutput.surface)
         surfaceEffect.onOutputSurface(surfaceOutput)
 
         // Assert.
-        withTimeoutOrNull(10_000L) {
-            imageCollectJob.join()
-            true
-        } ?: fail("Timed out to receive images")
-    }
-
-    private suspend fun testRenderFromCameraToTextureSurface(
-        shaderProvider: ShaderProvider = ShaderProvider.DEFAULT
-    ) {
-        createSurfaceEffect(shaderProvider)
-        prepareHandlerThread()
-        // Prepare input
-        val inputSurfaceRequest = createInputSurfaceRequest()
-        surfaceEffect.onInputSurface(inputSurfaceRequest)
-        val inputDeferrableSurface = inputSurfaceRequest.deferrableSurface
-        val inputSurface = inputDeferrableSurface.surface.await()
-        openCameraAndSetRepeating(inputSurface)
-        cameraDeviceHolder.closedFuture.addListener({
-            inputDeferrableSurface.close()
-        }, CameraXExecutors.directExecutor())
-
-        // Prepare output
-        lateinit var outputSurfaceTexture: SurfaceTexture
-        lateinit var outputSurface: Surface
-        withContext(dispatcher) {
-            outputSurfaceTexture = SurfaceTexture(GLUtil.getTexIdFromGLContext()).apply {
-                setDefaultBufferSize(WIDTH, HEIGHT)
-            }
-            outputSurface = Surface(outputSurfaceTexture)
-        }
-
-        val scope = CoroutineScope(dispatcher)
-        val imageCollectJob = scope.launch {
-            callbackFlow {
-                outputSurfaceTexture.setOnFrameAvailableListener({
-                    it.updateTexImage()
-                    trySend(Unit)
-                }, handler)
-                awaitClose {
-                    outputSurfaceTexture.release()
-                    outputSurface.release()
-                }
-            }.collectIndexed { index, _ ->
-                if (index >= 4) {
-                    // stop the collect job
-                    scope.cancel()
-                }
-            }
-        }
-        val surfaceOutput = createSurfaceOutput(outputSurface)
-        surfaceEffect.onOutputSurface(surfaceOutput)
-
-        // Assert.
-        withTimeoutOrNull(10_000L) {
-            imageCollectJob.join()
-            true
-        } ?: fail("Timed out to receive images")
-    }
-
-    private fun prepareHandlerThread() {
-        handlerThread = HandlerThread("Worker").apply { start() }
-        handler = Handler(handlerThread.looper)
-        dispatcher = handler.asCoroutineDispatcher()
+        assertThat(renderOutput.await(/*imageCount=*/5, /*timeoutInMs=*/10_000L)).isTrue()
     }
 
     private fun openCameraAndSetRepeating(surface: Surface) {
@@ -426,22 +305,34 @@ class DefaultSurfaceEffectTest {
             SurfaceEffect.PREVIEW,
             ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE,
             Size(WIDTH, HEIGHT),
-            /*applyGlTransform=*/false,
+            USE_SURFACE_TEXTURE_TRANSFORM,
             Size(WIDTH, HEIGHT),
             Rect(0, 0, WIDTH, HEIGHT),
             /*rotationDegrees=*/0,
             /*mirroring=*/false
         )
 
-    private fun getCustomFragmentShader(samplerVarName: String, fragCoordsVarName: String) =
-        String.format(
-            Locale.US,
-            CUSTOM_SHADER_FORMAT,
-            samplerVarName,
-            fragCoordsVarName,
-            samplerVarName,
-            fragCoordsVarName
-        )
+    private fun createCustomShaderProvider(
+        samplerVarName: String? = null,
+        fragCoordsVarName: String? = null,
+        shaderString: String? = null,
+        exceptionToThrow: Exception? = null,
+    ) = object : ShaderProvider {
+        override fun createFragmentShader(
+            correctSamplerVarName: String,
+            correctFragCoordsVarName: String
+        ): String {
+            exceptionToThrow?.let { throw it }
+            return shaderString ?: String.format(
+                Locale.US,
+                CUSTOM_SHADER_FORMAT,
+                samplerVarName ?: correctSamplerVarName,
+                fragCoordsVarName ?: correctFragCoordsVarName,
+                samplerVarName ?: correctSamplerVarName,
+                fragCoordsVarName ?: correctFragCoordsVarName
+            )
+        }
+    }
 
     private fun DefaultSurfaceEffect.idle() {
         HandlerUtil.waitForLooperToIdle(mGlHandler)

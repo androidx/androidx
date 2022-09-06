@@ -306,9 +306,11 @@ class ComponentActivityCallbacksTest {
     fun onMultiWindowModeChangedWithConfig() {
         with(ActivityScenario.launch(ComponentActivity::class.java)) {
             lateinit var receivedInfo: MultiWindowModeChangedInfo
+            var dispatchCount = 0
 
             val listener = Consumer<MultiWindowModeChangedInfo> { info ->
                 receivedInfo = info
+                dispatchCount++
             }
             lateinit var newConfig: Configuration
             withActivity {
@@ -319,6 +321,7 @@ class ComponentActivityCallbacksTest {
 
             assertThat(receivedInfo.isInMultiWindowMode).isTrue()
             assertThat(receivedInfo.newConfig).isSameInstanceAs(newConfig)
+            assertThat(dispatchCount).isEqualTo(1)
         }
     }
 

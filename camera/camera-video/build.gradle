@@ -96,10 +96,3 @@ androidx {
             "consistent and reliable camera foundation that enables great camera driven " +
             "experiences across all of Android."
 }
-
-// Allow usage of Kotlin's @OptIn.
-tasks.withType(KotlinCompile).configureEach {
-    kotlinOptions {
-        freeCompilerArgs += ["-opt-in=kotlin.RequiresOptIn"]
-    }
-}

@@ -19,12 +19,10 @@ package androidx.window.embedding {
 
   @androidx.window.core.ExperimentalWindowApi public final class ActivityFilter {
     ctor public ActivityFilter(android.content.ComponentName componentName, String? intentAction);
-    method public android.content.ComponentName getComponentName();
-    method public String? getIntentAction();
     method public boolean matchesActivity(android.app.Activity activity);
+    method public <T extends android.app.Activity> boolean matchesClassName(Class<T> clazz);
+    method public <T extends android.app.Activity> boolean matchesClassNameOrWildCard(Class<T>? clazz);
     method public boolean matchesIntent(android.content.Intent intent);
-    property public final android.content.ComponentName componentName;
-    property public final String? intentAction;
   }
 
   @androidx.window.core.ExperimentalWindowApi public final class ActivityRule extends androidx.window.embedding.EmbeddingRule {

@@ -19,6 +19,8 @@ package androidx.test.uiautomator;
 import android.util.SparseArray;
 import android.view.accessibility.AccessibilityNodeInfo;
 
+import androidx.annotation.NonNull;
+
 import java.util.regex.Pattern;
 
 /**
@@ -77,6 +79,7 @@ public class UiSelector {
     /**
      * @since API Level 17
      */
+    @NonNull
     protected UiSelector cloneSelector() {
         UiSelector ret = new UiSelector();
         ret.mSelectorAttributes = mSelectorAttributes.clone();
@@ -112,7 +115,8 @@ public class UiSelector {
      * @return UiSelector with the specified search criteria
      * @since API Level 16
      */
-    public UiSelector text(String text) {
+    @NonNull
+    public UiSelector text(@NonNull String text) {
         if (text == null) {
             throw new IllegalArgumentException("text cannot be null");
         }
@@ -130,7 +134,8 @@ public class UiSelector {
      * @return UiSelector with the specified search criteria
      * @since API Level 17
      */
-    public UiSelector textMatches(String regex) {
+    @NonNull
+    public UiSelector textMatches(@NonNull String regex) {
         if (regex == null) {
             throw new IllegalArgumentException("regex cannot be null");
         }
@@ -147,7 +152,8 @@ public class UiSelector {
      * @return UiSelector with the specified search criteria
      * @since API Level 16
      */
-    public UiSelector textStartsWith(String text) {
+    @NonNull
+    public UiSelector textStartsWith(@NonNull String text) {
         if (text == null) {
             throw new IllegalArgumentException("text cannot be null");
         }
@@ -164,7 +170,8 @@ public class UiSelector {
      * @return UiSelector with the specified search criteria
      * @since API Level 16
      */
-    public UiSelector textContains(String text) {
+    @NonNull
+    public UiSelector textContains(@NonNull String text) {
         if (text == null) {
             throw new IllegalArgumentException("text cannot be null");
         }
@@ -179,7 +186,8 @@ public class UiSelector {
      * @return UiSelector with the specified search criteria
      * @since API Level 16
      */
-    public UiSelector className(String className) {
+    @NonNull
+    public UiSelector className(@NonNull String className) {
         if (className == null) {
             throw new IllegalArgumentException("className cannot be null");
         }
@@ -194,7 +202,8 @@ public class UiSelector {
      * @return UiSelector with the specified search criteria
      * @since API Level 17
      */
-    public UiSelector classNameMatches(String regex) {
+    @NonNull
+    public UiSelector classNameMatches(@NonNull String regex) {
         if (regex == null) {
             throw new IllegalArgumentException("regex cannot be null");
         }
@@ -209,7 +218,8 @@ public class UiSelector {
      * @return UiSelector with the specified search criteria
      * @since API Level 17
      */
-    public <T> UiSelector className(Class<T> type) {
+    @NonNull
+    public <T> UiSelector className(@NonNull Class<T> type) {
         if (type == null) {
             throw new IllegalArgumentException("type cannot be null");
         }
@@ -233,7 +243,8 @@ public class UiSelector {
      * @return UiSelector with the specified search criteria
      * @since API Level 16
      */
-    public UiSelector description(String desc) {
+    @NonNull
+    public UiSelector description(@NonNull String desc) {
         if (desc == null) {
             throw new IllegalArgumentException("desc cannot be null");
         }
@@ -255,7 +266,8 @@ public class UiSelector {
      * @return UiSelector with the specified search criteria
      * @since API Level 17
      */
-    public UiSelector descriptionMatches(String regex) {
+    @NonNull
+    public UiSelector descriptionMatches(@NonNull String regex) {
         if (regex == null) {
             throw new IllegalArgumentException("regex cannot be null");
         }
@@ -279,7 +291,8 @@ public class UiSelector {
      * @return UiSelector with the specified search criteria
      * @since API Level 16
      */
-    public UiSelector descriptionStartsWith(String desc) {
+    @NonNull
+    public UiSelector descriptionStartsWith(@NonNull String desc) {
         if (desc == null) {
             throw new IllegalArgumentException("desc cannot be null");
         }
@@ -303,7 +316,8 @@ public class UiSelector {
      * @return UiSelector with the specified search criteria
      * @since API Level 16
      */
-    public UiSelector descriptionContains(String desc) {
+    @NonNull
+    public UiSelector descriptionContains(@NonNull String desc) {
         if (desc == null) {
             throw new IllegalArgumentException("desc cannot be null");
         }
@@ -317,7 +331,8 @@ public class UiSelector {
      * @return UiSelector with the specified search criteria
      * @since API Level 18
      */
-    public UiSelector resourceId(String id) {
+    @NonNull
+    public UiSelector resourceId(@NonNull String id) {
         if (id == null) {
             throw new IllegalArgumentException("id cannot be null");
         }
@@ -332,7 +347,8 @@ public class UiSelector {
      * @return UiSelector with the specified search criteria
      * @since API Level 18
      */
-    public UiSelector resourceIdMatches(String regex) {
+    @NonNull
+    public UiSelector resourceIdMatches(@NonNull String regex) {
         if (regex == null) {
             throw new IllegalArgumentException("regex cannot be null");
         }
@@ -353,6 +369,7 @@ public class UiSelector {
      * @return UiSelector with the specified search criteria
      * @since API Level 16
      */
+    @NonNull
     public UiSelector index(final int index) {
         return buildSelector(SELECTOR_INDEX, index);
     }
@@ -379,6 +396,7 @@ public class UiSelector {
      * @return UiSelector with the specified search criteria
      * @since API Level 16
      */
+    @NonNull
     public UiSelector instance(final int instance) {
         return buildSelector(SELECTOR_INSTANCE, instance);
     }
@@ -398,6 +416,7 @@ public class UiSelector {
      * @return UiSelector with the specified search criteria
      * @since API Level 16
      */
+    @NonNull
     public UiSelector enabled(boolean val) {
         return buildSelector(SELECTOR_ENABLED, val);
     }
@@ -417,6 +436,7 @@ public class UiSelector {
      * @return UiSelector with the specified search criteria
      * @since API Level 16
      */
+    @NonNull
     public UiSelector focused(boolean val) {
         return buildSelector(SELECTOR_FOCUSED, val);
     }
@@ -436,6 +456,7 @@ public class UiSelector {
      * @return UiSelector with the specified search criteria
      * @since API Level 16
      */
+    @NonNull
     public UiSelector focusable(boolean val) {
         return buildSelector(SELECTOR_FOCUSABLE, val);
     }
@@ -455,6 +476,7 @@ public class UiSelector {
      * @return UiSelector with the specified search criteria
      * @since API Level 16
      */
+    @NonNull
     public UiSelector scrollable(boolean val) {
         return buildSelector(SELECTOR_SCROLLABLE, val);
     }
@@ -475,6 +497,7 @@ public class UiSelector {
      * @return UiSelector with the specified search criteria
      * @since API Level 16
      */
+    @NonNull
     public UiSelector selected(boolean val) {
         return buildSelector(SELECTOR_SELECTED, val);
     }
@@ -495,6 +518,7 @@ public class UiSelector {
      * @return UiSelector with the specified search criteria
      * @since API Level 16
      */
+    @NonNull
     public UiSelector checked(boolean val) {
         return buildSelector(SELECTOR_CHECKED, val);
     }
@@ -514,6 +538,7 @@ public class UiSelector {
      * @return UiSelector with the specified search criteria
      * @since API Level 16
      */
+    @NonNull
     public UiSelector clickable(boolean val) {
         return buildSelector(SELECTOR_CLICKABLE, val);
     }
@@ -533,6 +558,7 @@ public class UiSelector {
      * @return UiSelector with the specified search criteria
      * @since API Level 18
      */
+    @NonNull
     public UiSelector checkable(boolean val) {
         return buildSelector(SELECTOR_CHECKABLE, val);
     }
@@ -552,6 +578,7 @@ public class UiSelector {
      * @return UiSelector with the specified search criteria
      * @since API Level 17
      */
+    @NonNull
     public UiSelector longClickable(boolean val) {
         return buildSelector(SELECTOR_LONG_CLICKABLE, val);
     }
@@ -566,7 +593,8 @@ public class UiSelector {
      * @return UiSelector with this added search criterion
      * @since API Level 16
      */
-    public UiSelector childSelector(UiSelector selector) {
+    @NonNull
+    public UiSelector childSelector(@NonNull UiSelector selector) {
         if (selector == null) {
             throw new IllegalArgumentException("selector cannot be null");
         }
@@ -592,7 +620,8 @@ public class UiSelector {
      * @return UiSelector with this added search criterion
      * @since API Level 16
      */
-    public UiSelector fromParent(UiSelector selector) {
+    @NonNull
+    public UiSelector fromParent(@NonNull UiSelector selector) {
         if (selector == null) {
             throw new IllegalArgumentException("selector cannot be null");
         }
@@ -607,7 +636,8 @@ public class UiSelector {
      * @return UiSelector with the specified search criteria
      * @since API Level 16
      */
-    public UiSelector packageName(String name) {
+    @NonNull
+    public UiSelector packageName(@NonNull String name) {
         if (name == null) {
             throw new IllegalArgumentException("name cannot be null");
         }
@@ -622,7 +652,8 @@ public class UiSelector {
      * @return UiSelector with the specified search criteria
      * @since API Level 17
      */
-    public UiSelector packageNameMatches(String regex) {
+    @NonNull
+    public UiSelector packageNameMatches(@NonNull String regex) {
         if (regex == null) {
             throw new IllegalArgumentException("regex cannot be null");
         }
@@ -958,113 +989,118 @@ public class UiSelector {
             }
             final int criterion = mSelectorAttributes.keyAt(i);
             switch (criterion) {
-            case SELECTOR_TEXT:
-                builder.append("TEXT=").append(mSelectorAttributes.valueAt(i));
-                break;
-            case SELECTOR_TEXT_REGEX:
-                builder.append("TEXT_REGEX=").append(mSelectorAttributes.valueAt(i));
-                break;
-            case SELECTOR_START_TEXT:
-                builder.append("START_TEXT=").append(mSelectorAttributes.valueAt(i));
-                break;
-            case SELECTOR_CONTAINS_TEXT:
-                builder.append("CONTAINS_TEXT=").append(mSelectorAttributes.valueAt(i));
-                break;
-            case SELECTOR_CLASS:
-                builder.append("CLASS=").append(mSelectorAttributes.valueAt(i));
-                break;
-            case SELECTOR_CLASS_REGEX:
-                builder.append("CLASS_REGEX=").append(mSelectorAttributes.valueAt(i));
-                break;
-            case SELECTOR_DESCRIPTION:
-                builder.append("DESCRIPTION=").append(mSelectorAttributes.valueAt(i));
-                break;
-            case SELECTOR_DESCRIPTION_REGEX:
-                builder.append("DESCRIPTION_REGEX=").append(mSelectorAttributes.valueAt(i));
-                break;
-            case SELECTOR_START_DESCRIPTION:
-                builder.append("START_DESCRIPTION=").append(mSelectorAttributes.valueAt(i));
-                break;
-            case SELECTOR_CONTAINS_DESCRIPTION:
-                builder.append("CONTAINS_DESCRIPTION=").append(mSelectorAttributes.valueAt(i));
-                break;
-            case SELECTOR_INDEX:
-                builder.append("INDEX=").append(mSelectorAttributes.valueAt(i));
-                break;
-            case SELECTOR_INSTANCE:
-                builder.append("INSTANCE=").append(mSelectorAttributes.valueAt(i));
-                break;
-            case SELECTOR_ENABLED:
-                builder.append("ENABLED=").append(mSelectorAttributes.valueAt(i));
-                break;
-            case SELECTOR_FOCUSED:
-                builder.append("FOCUSED=").append(mSelectorAttributes.valueAt(i));
-                break;
-            case SELECTOR_FOCUSABLE:
-                builder.append("FOCUSABLE=").append(mSelectorAttributes.valueAt(i));
-                break;
-            case SELECTOR_SCROLLABLE:
-                builder.append("SCROLLABLE=").append(mSelectorAttributes.valueAt(i));
-                break;
-            case SELECTOR_CLICKABLE:
-                builder.append("CLICKABLE=").append(mSelectorAttributes.valueAt(i));
-                break;
-            case SELECTOR_CHECKABLE:
-                builder.append("CHECKABLE=").append(mSelectorAttributes.valueAt(i));
-                break;
-            case SELECTOR_LONG_CLICKABLE:
-                builder.append("LONG_CLICKABLE=").append(mSelectorAttributes.valueAt(i));
-                break;
-            case SELECTOR_CHECKED:
-                builder.append("CHECKED=").append(mSelectorAttributes.valueAt(i));
-                break;
-            case SELECTOR_SELECTED:
-                builder.append("SELECTED=").append(mSelectorAttributes.valueAt(i));
-                break;
-            case SELECTOR_ID:
-                builder.append("ID=").append(mSelectorAttributes.valueAt(i));
-                break;
-            case SELECTOR_CHILD:
-                if (all)
-                    builder.append("CHILD=").append(mSelectorAttributes.valueAt(i));
-                else
-                    builder.append("CHILD[..]");
-                break;
-            case SELECTOR_PATTERN:
-                if (all)
-                    builder.append("PATTERN=").append(mSelectorAttributes.valueAt(i));
-                else
-                    builder.append("PATTERN[..]");
-                break;
-            case SELECTOR_CONTAINER:
-                if (all)
-                    builder.append("CONTAINER=").append(mSelectorAttributes.valueAt(i));
-                else
-                    builder.append("CONTAINER[..]");
-                break;
-            case SELECTOR_PARENT:
-                if (all)
-                    builder.append("PARENT=").append(mSelectorAttributes.valueAt(i));
-                else
-                    builder.append("PARENT[..]");
-                break;
-            case SELECTOR_COUNT:
-                builder.append("COUNT=").append(mSelectorAttributes.valueAt(i));
-                break;
-            case SELECTOR_PACKAGE_NAME:
-                builder.append("PACKAGE NAME=").append(mSelectorAttributes.valueAt(i));
-                break;
-            case SELECTOR_PACKAGE_NAME_REGEX:
-                builder.append("PACKAGE_NAME_REGEX=").append(mSelectorAttributes.valueAt(i));
-                break;
-            case SELECTOR_RESOURCE_ID:
-                builder.append("RESOURCE_ID=").append(mSelectorAttributes.valueAt(i));
-                break;
-            case SELECTOR_RESOURCE_ID_REGEX:
-                builder.append("RESOURCE_ID_REGEX=").append(mSelectorAttributes.valueAt(i));
-                break;
-            default:
-                builder.append("UNDEFINED="+criterion+" ").append(mSelectorAttributes.valueAt(i));
+                case SELECTOR_TEXT:
+                    builder.append("TEXT=").append(mSelectorAttributes.valueAt(i));
+                    break;
+                case SELECTOR_TEXT_REGEX:
+                    builder.append("TEXT_REGEX=").append(mSelectorAttributes.valueAt(i));
+                    break;
+                case SELECTOR_START_TEXT:
+                    builder.append("START_TEXT=").append(mSelectorAttributes.valueAt(i));
+                    break;
+                case SELECTOR_CONTAINS_TEXT:
+                    builder.append("CONTAINS_TEXT=").append(mSelectorAttributes.valueAt(i));
+                    break;
+                case SELECTOR_CLASS:
+                    builder.append("CLASS=").append(mSelectorAttributes.valueAt(i));
+                    break;
+                case SELECTOR_CLASS_REGEX:
+                    builder.append("CLASS_REGEX=").append(mSelectorAttributes.valueAt(i));
+                    break;
+                case SELECTOR_DESCRIPTION:
+                    builder.append("DESCRIPTION=").append(mSelectorAttributes.valueAt(i));
+                    break;
+                case SELECTOR_DESCRIPTION_REGEX:
+                    builder.append("DESCRIPTION_REGEX=").append(mSelectorAttributes.valueAt(i));
+                    break;
+                case SELECTOR_START_DESCRIPTION:
+                    builder.append("START_DESCRIPTION=").append(mSelectorAttributes.valueAt(i));
+                    break;
+                case SELECTOR_CONTAINS_DESCRIPTION:
+                    builder.append("CONTAINS_DESCRIPTION=").append(mSelectorAttributes.valueAt(i));
+                    break;
+                case SELECTOR_INDEX:
+                    builder.append("INDEX=").append(mSelectorAttributes.valueAt(i));
+                    break;
+                case SELECTOR_INSTANCE:
+                    builder.append("INSTANCE=").append(mSelectorAttributes.valueAt(i));
+                    break;
+                case SELECTOR_ENABLED:
+                    builder.append("ENABLED=").append(mSelectorAttributes.valueAt(i));
+                    break;
+                case SELECTOR_FOCUSED:
+                    builder.append("FOCUSED=").append(mSelectorAttributes.valueAt(i));
+                    break;
+                case SELECTOR_FOCUSABLE:
+                    builder.append("FOCUSABLE=").append(mSelectorAttributes.valueAt(i));
+                    break;
+                case SELECTOR_SCROLLABLE:
+                    builder.append("SCROLLABLE=").append(mSelectorAttributes.valueAt(i));
+                    break;
+                case SELECTOR_CLICKABLE:
+                    builder.append("CLICKABLE=").append(mSelectorAttributes.valueAt(i));
+                    break;
+                case SELECTOR_CHECKABLE:
+                    builder.append("CHECKABLE=").append(mSelectorAttributes.valueAt(i));
+                    break;
+                case SELECTOR_LONG_CLICKABLE:
+                    builder.append("LONG_CLICKABLE=").append(mSelectorAttributes.valueAt(i));
+                    break;
+                case SELECTOR_CHECKED:
+                    builder.append("CHECKED=").append(mSelectorAttributes.valueAt(i));
+                    break;
+                case SELECTOR_SELECTED:
+                    builder.append("SELECTED=").append(mSelectorAttributes.valueAt(i));
+                    break;
+                case SELECTOR_ID:
+                    builder.append("ID=").append(mSelectorAttributes.valueAt(i));
+                    break;
+                case SELECTOR_CHILD:
+                    if (all) {
+                        builder.append("CHILD=").append(mSelectorAttributes.valueAt(i));
+                    } else {
+                        builder.append("CHILD[..]");
+                    }
+                    break;
+                case SELECTOR_PATTERN:
+                    if (all) {
+                        builder.append("PATTERN=").append(mSelectorAttributes.valueAt(i));
+                    } else {
+                        builder.append("PATTERN[..]");
+                    }
+                    break;
+                case SELECTOR_CONTAINER:
+                    if (all) {
+                        builder.append("CONTAINER=").append(mSelectorAttributes.valueAt(i));
+                    } else {
+                        builder.append("CONTAINER[..]");
+                    }
+                    break;
+                case SELECTOR_PARENT:
+                    if (all) {
+                        builder.append("PARENT=").append(mSelectorAttributes.valueAt(i));
+                    } else {
+                        builder.append("PARENT[..]");
+                    }
+                    break;
+                case SELECTOR_COUNT:
+                    builder.append("COUNT=").append(mSelectorAttributes.valueAt(i));
+                    break;
+                case SELECTOR_PACKAGE_NAME:
+                    builder.append("PACKAGE_NAME=").append(mSelectorAttributes.valueAt(i));
+                    break;
+                case SELECTOR_PACKAGE_NAME_REGEX:
+                    builder.append("PACKAGE_NAME_REGEX=").append(mSelectorAttributes.valueAt(i));
+                    break;
+                case SELECTOR_RESOURCE_ID:
+                    builder.append("RESOURCE_ID=").append(mSelectorAttributes.valueAt(i));
+                    break;
+                case SELECTOR_RESOURCE_ID_REGEX:
+                    builder.append("RESOURCE_ID_REGEX=").append(mSelectorAttributes.valueAt(i));
+                    break;
+                default:
+                    builder.append("UNDEFINED=" + criterion + " ").append(
+                            mSelectorAttributes.valueAt(i));
             }
         }
         builder.append("]");

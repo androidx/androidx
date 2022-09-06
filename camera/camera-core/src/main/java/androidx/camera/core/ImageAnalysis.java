@@ -1046,6 +1046,9 @@ public final class ImageAnalysis extends UseCase {
         /**
          * Enable or disable output image rotation.
          *
+         * <p>On API 22 and below, this API has no effect. User needs to handle the image rotation
+         * based on the {@link ImageInfo#getRotationDegrees()}.
+         *
          * <p>{@link ImageAnalysis#setTargetRotation(int)} is to adjust the rotation
          * degree information returned by {@link ImageInfo#getRotationDegrees()} based on
          * sensor rotation and user still needs to rotate the output image to achieve the target
@@ -1061,7 +1064,11 @@ public final class ImageAnalysis extends UseCase {
          *
          * @param outputImageRotationEnabled flag to enable or disable.
          * @return The current Builder.
+         *
+         * @see
+         * <a href="https://developer.android.com/training/camerax/orientation-rotation#imageanalysis">ImageAnalysis</a>
          */
+        @RequiresApi(23)
         @NonNull
         public Builder setOutputImageRotationEnabled(boolean outputImageRotationEnabled) {
             getMutableConfig().insertOption(OPTION_OUTPUT_IMAGE_ROTATION_ENABLED,

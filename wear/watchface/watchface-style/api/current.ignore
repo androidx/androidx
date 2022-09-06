@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+RemovedMethod: androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotOverlay#ComplicationSlotOverlay(int, Boolean, androidx.wear.watchface.complications.ComplicationSlotBounds, Integer):
+    Removed constructor androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotOverlay(int,Boolean,androidx.wear.watchface.complications.ComplicationSlotBounds,Integer)

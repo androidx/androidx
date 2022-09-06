@@ -336,12 +336,12 @@ public class BoundingArc(val startAngle: Float, val totalAngle: Float, @Px val t
  * so the [ComplicationSlot] with the lowest id that intersects the coordinates, if any, is
  * selected.
  *
- * @param id The Watch Face's ID for the complication slot.
+ * @property id The Watch Face's ID for the complication slot.
  * @param accessibilityTraversalIndex Used to sort Complications when generating accessibility
  * content description labels.
- * @param boundsType The [ComplicationSlotBoundsType] of the complication slot.
+ * @property boundsType The [ComplicationSlotBoundsType] of the complication slot.
  * @param bounds The complication slot's [ComplicationSlotBounds].
- * @param canvasComplicationFactory The [CanvasComplicationFactory] used to generate a
+ * @property canvasComplicationFactory The [CanvasComplicationFactory] used to generate a
  * [CanvasComplication] for rendering the complication. The factory allows us to decouple
  * ComplicationSlot from potentially expensive asset loading.
  * @param supportedTypes The list of [ComplicationType]s accepted by this complication slot. Used
@@ -350,7 +350,7 @@ public class BoundingArc(val startAngle: Float, val totalAngle: Float, @Px val t
  * initial complication data source when the watch face is first installed.
  * @param defaultDataSourceType The default [ComplicationType] for the default complication data
  * source.
- * @param initiallyEnabled At creation a complication slot is either enabled or disabled. This
+ * @property initiallyEnabled At creation a complication slot is either enabled or disabled. This
  * can be overridden by a [ComplicationSlotsUserStyleSetting] (see
  * [ComplicationSlotOverlay.enabled]).
  * Editors need to know the initial state of a complication slot to predict the effects of making a
@@ -358,19 +358,11 @@ public class BoundingArc(val startAngle: Float, val totalAngle: Float, @Px val t
  * @param configExtras Extras to be merged into the Intent sent when invoking the complication data
  * source chooser activity. This features is intended for OEM watch faces where they have elements
  * that behave like a complication but are in fact entirely watch face specific.
- * @param fixedComplicationDataSource  Whether or not the complication data source is fixed (i.e.
+ * @property fixedComplicationDataSource  Whether or not the complication data source is fixed (i.e.
  * can't be changed by the user).  This is useful for watch faces built around specific
  * complications.
- * @param tapFilter The [ComplicationTapFilter] used to determine whether or not a tap hit the
+ * @property tapFilter The [ComplicationTapFilter] used to determine whether or not a tap hit the
  * complication slot.
- * @param nameResourceId The ID of string resource (or `null` if absent) to identify the
- * complication slot on screen in an editor. These strings should be short (perhaps 10 characters
- * max) E.g. complication slots named 'left' and 'right' might be shown by the editor in a list from
- * which the user selects a complication slot for editing.
- * @param screenReaderNameResourceId The ID of a string resource (or `null` if absent) for use by a
- * watch face editor to identify the complication slot in a screen reader. While similar to
- * [nameResourceId] this string can be longer and should be more descriptive. E.g. saying
- * 'left complication' rather than just 'left'.
  */
 public class ComplicationSlot
 @ComplicationExperimental internal constructor(
@@ -388,10 +380,8 @@ public class ComplicationSlot
     @get:JvmName("isFixedComplicationDataSource")
     public val fixedComplicationDataSource: Boolean,
     public val tapFilter: ComplicationTapFilter,
-    @get:Suppress("AutoBoxing")
-    public val nameResourceId: Int?,
-    @get:Suppress("AutoBoxing")
-    public val screenReaderNameResourceId: Int?,
+    nameResourceId: Int?,
+    screenReaderNameResourceId: Int?,
     // TODO(b/230364881): This should really be public but some metalava bug is preventing
     // @ComplicationExperimental from working on the getter so it's currently hidden.
     /** @hide */
@@ -927,6 +917,48 @@ public class ComplicationSlot
             }
             field = value
             accessibilityTraversalIndexDirty = true
+        }
+
+    internal var nameResourceIdDirty = true
+
+    /**
+     * The optional ID of string resource (or `null` if absent) to identify the complication slot on
+     * screen in an editor. These strings should be short (perhaps 10 characters max) E.g.
+     * complication slots named 'left' and 'right' might be shown by the editor in a list from which
+     * the user selects a complication slot for editing.
+     */
+    public var nameResourceId: Int? = nameResourceId
+        @Suppress("AutoBoxing")
+        @UiThread
+        get
+        @UiThread
+        internal set(value) {
+            if (field == value) {
+                return
+            }
+            field = value
+            nameResourceIdDirty = true
+        }
+
+    internal var screenReaderNameResourceIdDirty = true
+
+    /**
+     * The optional ID of a string resource (or `null` if absent) for use by a
+     * watch face editor to identify the complication slot in a screen reader. While similar to
+     * [nameResourceId] this string can be longer and should be more descriptive. E.g. saying
+     * 'left complication' rather than just 'left'.
+     */
+    public var screenReaderNameResourceId: Int? = screenReaderNameResourceId
+        @Suppress("AutoBoxing")
+        @UiThread
+        get
+        @UiThread
+        internal set(value) {
+            if (field == value) {
+                return
+            }
+            field = value
+            screenReaderNameResourceIdDirty = true
         }
 
     internal var dataDirty = true

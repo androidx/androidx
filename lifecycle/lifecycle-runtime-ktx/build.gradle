@@ -41,6 +41,10 @@ dependencies {
     androidTestImplementation(libs.kotlinCoroutinesTest)
 
     lintPublish(project(":lifecycle:lifecycle-runtime-ktx-lint"))
+
+    constraints {
+        implementation(project(":lifecycle:lifecycle-runtime"))
+    }
 }
 
 androidx {
@@ -53,11 +57,4 @@ androidx {
 
 android {
     namespace "androidx.lifecycle.ktx"
-}
-
-// Allow usage of Kotlin's @OptIn.
-tasks.withType(KotlinCompile).configureEach {
-    kotlinOptions {
-        freeCompilerArgs += ["-opt-in=kotlin.RequiresOptIn"]
-    }
 }

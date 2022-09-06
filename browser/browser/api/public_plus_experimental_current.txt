@@ -103,17 +103,22 @@ package androidx.browser.customtabs {
     method public void launchUrl(android.content.Context, android.net.Uri);
     method public static android.content.Intent setAlwaysUseBrowserUI(android.content.Intent?);
     method public static boolean shouldAlwaysUseBrowserUI(android.content.Intent);
+    field public static final int CLOSE_BUTTON_POSITION_DEFAULT = 0; // 0x0
+    field public static final int CLOSE_BUTTON_POSITION_END = 2; // 0x2
+    field public static final int CLOSE_BUTTON_POSITION_START = 1; // 0x1
     field public static final int COLOR_SCHEME_DARK = 2; // 0x2
     field public static final int COLOR_SCHEME_LIGHT = 1; // 0x1
     field public static final int COLOR_SCHEME_SYSTEM = 0; // 0x0
     field public static final String EXTRA_ACTION_BUTTON_BUNDLE = "android.support.customtabs.extra.ACTION_BUTTON_BUNDLE";
     field public static final String EXTRA_CLOSE_BUTTON_ICON = "android.support.customtabs.extra.CLOSE_BUTTON_ICON";
+    field public static final String EXTRA_CLOSE_BUTTON_POSITION = "androidx.browser.customtabs.extra.CLOSE_BUTTON_POSITION";
     field public static final String EXTRA_COLOR_SCHEME = "androidx.browser.customtabs.extra.COLOR_SCHEME";
     field public static final String EXTRA_COLOR_SCHEME_PARAMS = "androidx.browser.customtabs.extra.COLOR_SCHEME_PARAMS";
     field @Deprecated public static final String EXTRA_DEFAULT_SHARE_MENU_ITEM = "android.support.customtabs.extra.SHARE_MENU_ITEM";
     field public static final String EXTRA_ENABLE_INSTANT_APPS = "android.support.customtabs.extra.EXTRA_ENABLE_INSTANT_APPS";
     field public static final String EXTRA_ENABLE_URLBAR_HIDING = "android.support.customtabs.extra.ENABLE_URLBAR_HIDING";
     field public static final String EXTRA_EXIT_ANIMATION_BUNDLE = "android.support.customtabs.extra.EXIT_ANIMATION_BUNDLE";
+    field public static final String EXTRA_INITIAL_ACTIVITY_HEIGHT_PX = "androidx.browser.customtabs.extra.INITIAL_ACTIVITY_HEIGHT_PX";
     field public static final String EXTRA_MENU_ITEMS = "android.support.customtabs.extra.MENU_ITEMS";
     field public static final String EXTRA_NAVIGATION_BAR_COLOR = "androidx.browser.customtabs.extra.NAVIGATION_BAR_COLOR";
     field public static final String EXTRA_NAVIGATION_BAR_DIVIDER_COLOR = "androidx.browser.customtabs.extra.NAVIGATION_BAR_DIVIDER_COLOR";
@@ -127,6 +132,7 @@ package androidx.browser.customtabs {
     field public static final String EXTRA_TINT_ACTION_BUTTON = "android.support.customtabs.extra.TINT_ACTION_BUTTON";
     field public static final String EXTRA_TITLE_VISIBILITY_STATE = "android.support.customtabs.extra.TITLE_VISIBILITY";
     field public static final String EXTRA_TOOLBAR_COLOR = "android.support.customtabs.extra.TOOLBAR_COLOR";
+    field public static final String EXTRA_TOOLBAR_CORNER_RADIUS_DP = "androidx.browser.customtabs.extra.TOOLBAR_CORNER_RADIUS_DP";
     field public static final String EXTRA_TOOLBAR_ITEMS = "android.support.customtabs.extra.TOOLBAR_ITEMS";
     field public static final String KEY_DESCRIPTION = "android.support.customtabs.customaction.DESCRIPTION";
     field public static final String KEY_ICON = "android.support.customtabs.customaction.ICON";

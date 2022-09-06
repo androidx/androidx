@@ -54,6 +54,7 @@ class PreviewLifecycleStatusChangeStressTest constructor(cameraId: String) :
     @RepeatRule.Repeat(times = LARGE_STRESS_TEST_REPEAT_COUNT)
     fun pauseResumeActivity_checkPreviewInEachTime_withPreviewImageCaptureImageAnalysis() {
         val useCaseCombination = BIND_PREVIEW or BIND_IMAGE_CAPTURE or BIND_IMAGE_ANALYSIS
+        assumeCameraSupportUseCaseCombination(camera, useCaseCombination)
         pauseResumeActivity_checkOutput_repeatedly(
             cameraId,
             useCaseCombination,
@@ -116,6 +117,7 @@ class PreviewLifecycleStatusChangeStressTest constructor(cameraId: String) :
     @RepeatRule.Repeat(times = LARGE_STRESS_TEST_REPEAT_COUNT)
     fun checkPreview_afterPauseResumeRepeatedly_withPreviewImageCaptureImageAnalysis() {
         val useCaseCombination = BIND_PREVIEW or BIND_IMAGE_CAPTURE or BIND_IMAGE_ANALYSIS
+        assumeCameraSupportUseCaseCombination(camera, useCaseCombination)
         pauseResumeActivityRepeatedly_thenCheckOutput(
             cameraId,
             useCaseCombination,
