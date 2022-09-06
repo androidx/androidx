@@ -222,29 +222,6 @@ object CameraXExtensionsTestUtil {
         return activityScenario
     }
 
-    @JvmStatic
-    fun relaunchCameraExtensionsActivity(
-        cameraId: String,
-        extensionMode: Int,
-        deleteCapturedImages: Boolean = true,
-    ): ActivityScenario<CameraExtensionsActivity> {
-        val intent = ApplicationProvider.getApplicationContext<Context>().packageManager
-            .getLaunchIntentForPackage(BASIC_SAMPLE_PACKAGE)?.apply {
-                putExtra(IntentExtraKey.INTENT_EXTRA_KEY_CAMERA_ID, cameraId)
-                putExtra(IntentExtraKey.INTENT_EXTRA_KEY_EXTENSION_MODE, extensionMode)
-                putExtra(
-                    IntentExtraKey.INTENT_EXTRA_KEY_DELETE_CAPTURED_IMAGE,
-                    deleteCapturedImages
-                )
-                flags = Intent.FLAG_ACTIVITY_SINGLE_TOP
-            }
-
-        val activityScenario: ActivityScenario<CameraExtensionsActivity> =
-            ActivityScenario.launch(intent)
-
-        return activityScenario
-    }
-
     /**
      * Large stress test repeat count to run the test
      */
