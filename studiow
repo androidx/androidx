@@ -45,7 +45,7 @@ function usage() {
   echo
   echo
   echo " native"
-  echo "  Open the project subset for glance projects"
+  echo "  Open the project subset for native projects"
   echo
   echo " a, all"
   echo "  Open the project subset all"
