@@ -28,7 +28,7 @@ public class AutofixUnsafeConstructorQualifiedClass {
      * In the generated fix, the constructor call should not be `new DecoratedCustomViewStyle()`.
      */
     @RequiresApi(24)
-    public void callQualifiedConstructor() {
-        new Notification.DecoratedCustomViewStyle();
+    public Notification.DecoratedCustomViewStyle callQualifiedConstructor() {
+        return new Notification.DecoratedCustomViewStyle();
     }
 }
