@@ -118,26 +118,28 @@ public class PropertyManager {
 
         // register properties
         executor.execute(() -> {
-            for (PropertyIdAreaId propertyIdAndAreadId : propertyIdWithAreaIds) {
+            for (PropertyIdAreaId propertyIdAreaId : propertyIdWithAreaIds) {
                 try {
-                    mPropertyRequestProcessor.registerProperty(propertyIdAndAreadId.getPropertyId(),
+                    mPropertyRequestProcessor.registerProperty(propertyIdAreaId.getPropertyId(),
                             sampleRate);
+                    Log.i(LogTags.TAG_CAR_HARDWARE, "Registered property: "
+                            + propertyIdAreaId.getPropertyId());
                 } catch (IllegalArgumentException e) {
                     // the property is not implemented
                     Log.e(LogTags.TAG_CAR_HARDWARE,
                             "Failed to register for property: "
-                                    + propertyIdAndAreadId.getPropertyId(), e);
+                                    + propertyIdAreaId.getPropertyId(), e);
                     mPropertyProcessorCallback.onErrorEvent(
-                            CarInternalError.create(propertyIdAndAreadId.getPropertyId(),
-                                    propertyIdAndAreadId.getAreaId(),
+                            CarInternalError.create(propertyIdAreaId.getPropertyId(),
+                                    propertyIdAreaId.getAreaId(),
                                     CarValue.STATUS_UNIMPLEMENTED));
                 } catch (Exception e) {
                     Log.e(LogTags.TAG_CAR_HARDWARE,
                             "Failed to register for property: "
-                                    + propertyIdAndAreadId.getPropertyId(), e);
+                                    + propertyIdAreaId.getPropertyId(), e);
                     mPropertyProcessorCallback.onErrorEvent(
-                            CarInternalError.create(propertyIdAndAreadId.getPropertyId(),
-                                    propertyIdAndAreadId.getAreaId(), CarValue.STATUS_UNAVAILABLE));
+                            CarInternalError.create(propertyIdAreaId.getPropertyId(),
+                                    propertyIdAreaId.getAreaId(), CarValue.STATUS_UNAVAILABLE));
                 }
             }
         });
@@ -286,9 +288,13 @@ public class PropertyManager {
         @Override
         public void onChangeEvent(CarPropertyValue carPropertyValue) {
             synchronized (mLock) {
+                int propertyId = carPropertyValue.getPropertyId();
+                Log.i(LogTags.TAG_CAR_HARDWARE, "A change occurred in the value of property: "
+                        + carPropertyValue.toString());
                 // check timestamp
                 if (mListenerAndResponseCache.updateResponseIfNeeded(carPropertyValue)) {
-                    int propertyId = carPropertyValue.getPropertyId();
+                    Log.i(LogTags.TAG_CAR_HARDWARE, "Update needed for property: "
+                            + propertyId);
                     if (PropertyUtils.isOnChangeProperty(propertyId)) {
                         mScheduledExecutorService.execute(() -> dispatchResponsesWithoutDelay(
                                 PropertyIdAreaId.builder().setPropertyId(propertyId)

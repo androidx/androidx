@@ -282,11 +282,20 @@ final class PropertyRequestProcessor {
      * @throws IllegalArgumentException if a property is not implemented in the car
      */
     public void registerProperty(int propertyId, float sampleRate) {
+        Log.i(LogTags.TAG_CAR_HARDWARE,
+                "Attempting registration for the property: " + propertyId + " at sample rate: "
+                        + sampleRate);
         if (getPropertyConfig(propertyId) == null) {
             throw new IllegalArgumentException("Property is not implemented in the car: "
                     + propertyId);
         }
-        mCarPropertyManager.registerCallback(mPropertyEventCallback, propertyId, sampleRate);
+        boolean registerCallback =
+                mCarPropertyManager.registerCallback(mPropertyEventCallback,
+                        propertyId,
+                        sampleRate);
+        Log.i(LogTags.TAG_CAR_HARDWARE,
+                "Registration completed in CarPropertyManager with success status: "
+                        + registerCallback);
     }
 
     /**
