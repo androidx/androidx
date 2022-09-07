@@ -430,10 +430,7 @@ w: \$SUPPORT/compose/ui/ui/src/androidMain/kotlin/androidx/compose/ui/platform/A
 \(KonanProperies\) Downloading dependency: file:\.\./\.\./.*
 Please wait while Kotlin/Native compiler .* is being installed\.
 Unpack Kotlin/Native compiler to .*
-# Even though this log shows an http url, it is actually coming from konan prebuilts directory
-# In kotlin 1.7, we will be able to modify this URL hence this message will change to point
-# to the right location.
-Download https://download\.jetbrains\.com/kotlin/native/builds/.*
+Download file:\.\./\.\./.*
 Downloading native dependencies \(LLVM, sysroot etc\)\. This is a one\-time action performed only on the first run of the compiler\.
 Extracting dependency: .*\.konan/cache.*
 # New memory model does not work with compiler caches yet:
