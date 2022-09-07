@@ -16,6 +16,8 @@
 
 package androidx.camera.core.imagecapture;
 
+import static java.util.Objects.requireNonNull;
+
 import android.graphics.Bitmap;
 import android.graphics.ImageFormat;
 import android.os.Build;
@@ -46,7 +48,7 @@ class Bitmap2JpegBytes implements Processor<Bitmap2JpegBytes.In, Packet<byte[]>>
         packet.getData().compress(Bitmap.CompressFormat.JPEG, in.getJpegQuality(), outputStream);
         packet.getData().recycle();
         return Packet.of(outputStream.toByteArray(),
-                packet.getExif(),
+                requireNonNull(packet.getExif()),
                 ImageFormat.JPEG,
                 packet.getSize(),
                 packet.getCropRect(),
