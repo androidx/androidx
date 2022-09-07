@@ -28,19 +28,24 @@ import java.nio.file.Paths
 class AidlGenerator private constructor(
     private val aidlCompiler: AidlCompiler,
     private val api: ParsedApi,
-    private val workingDir: Path
+    private val workingDir: Path,
 ) {
+    init {
+        check(api.services.count() <= 1) { "Multiple services are not supported." }
+    }
+
     companion object {
         fun generate(
             aidlCompiler: AidlCompiler,
             api: ParsedApi,
-            workingDir: Path
+            workingDir: Path,
         ): List<GeneratedSource> {
             return AidlGenerator(aidlCompiler, api, workingDir).generate()
         }
     }
 
     private fun generate(): List<GeneratedSource> {
+        if (api.services.isEmpty()) return listOf()
         return compileAidlInterfaces(generateAidlInterfaces())
     }
 
@@ -73,41 +78,82 @@ class AidlGenerator private constructor(
         return javaSources
     }
 
-    private fun generateAidlContent() =
-        api.services.map { service ->
+    private fun generateAidlContent(): List<InMemorySource> {
+        // TODO: implement better tooling to generate AIDL (AidlPoet).
+        val transactionCallbacks = generateTransactionCallbacks()
+        val service =
             InMemorySource(
-                service.packageName,
-                aidlNameForInterface(service),
-                generateAidlService(service)
+                packageName(),
+                aidlNameForInterface(service()),
+                generateAidlService(transactionCallbacks)
             )
-        }
-
-    private fun generateAidlService(service: AnnotatedInterface): String {
-        val generatedMethods = service.methods.joinToString(
-            separator = "\n\t",
-            transform = ::generateAidlMethod
-        )
-        return """
-                package ${service.packageName};
-                oneway interface ${aidlNameForInterface(service)} {
-                    $generatedMethods
-                }
-            """.trimIndent()
+        return transactionCallbacks + generateICancellationSignal() + service
     }
 
-    private fun generateAidlMethod(method: Method) =
-        "void ${method.name}" +
-            "(${method.parameters.joinToString(transform = ::generateAidlParameter)});"
+    private fun generateAidlService(
+        transactionCallbacks: List<InMemorySource>
+    ): String {
+        val transactionCallbackImports =
+            transactionCallbacks.joinToString(separator = "\n|") {
+                "import ${it.packageName}.${it.interfaceName};"
+            }
+        val generatedMethods = service().methods.joinToString(
+            separator = "\n|    ", transform = ::generateAidlMethod
+        )
+        return """
+                |package ${packageName()};
+                |$transactionCallbackImports
+                |oneway interface ${aidlNameForInterface(service())} {
+                |    $generatedMethods
+                |}
+            """.trimMargin()
+    }
+
+    private fun generateAidlMethod(method: Method): String {
+        val parameters =
+            method.parameters.map(::generateAidlParameter) +
+                "${callbackNameForType(method.returnType)} transactionCallback"
+        return "void ${method.name}(${parameters.joinToString()});"
+    }
 
     private fun generateAidlParameter(parameter: Parameter) =
+        // TODO validate that parameter type is not Unit
         "${parameter.type.toAidlType()} ${parameter.name}"
 
-    private fun getAidlFile(rootPath: Path, aidlSource: InMemorySource) =
-        Paths.get(
-            rootPath.toString(),
-            *aidlSource.packageName.split(".").toTypedArray(),
-            aidlSource.interfaceName + ".aidl"
-        ).toFile()
+    private fun generateTransactionCallbacks(): List<InMemorySource> {
+        return service().methods.map(Method::returnType).toSet()
+            .map { generateTransactionCallback(it) }
+    }
+
+    private fun generateTransactionCallback(type: Type): InMemorySource {
+        val interfaceName = callbackNameForType(type)
+        return InMemorySource(
+            packageName = packageName(), interfaceName = interfaceName, fileContents = """
+                    package ${packageName()};
+                    import ${packageName()}.ICancellationSignal;
+                    oneway interface $interfaceName {
+                        void onCancellable(ICancellationSignal cancellationSignal);
+                        void onSuccess(${type.toAidlType()?.let { "$it result" } ?: ""});
+                        void onFailure(int errorCode, String errorMessage);
+                    }
+                """.trimIndent()
+        )
+    }
+
+    private fun generateICancellationSignal() = InMemorySource(
+        packageName = packageName(), interfaceName = "ICancellationSignal", fileContents = """
+                package ${packageName()};
+                oneway interface ICancellationSignal {
+                    void cancel();
+                }
+            """.trimIndent()
+    )
+
+    private fun getAidlFile(rootPath: Path, aidlSource: InMemorySource) = Paths.get(
+        rootPath.toString(),
+        *aidlSource.packageName.split(".").toTypedArray(),
+        aidlSource.interfaceName + ".aidl"
+    ).toFile()
 
     private fun getJavaFileForAidlFile(aidlFile: File): File {
         check(aidlFile.extension == "aidl") {
@@ -118,6 +164,13 @@ class AidlGenerator private constructor(
 
     private fun aidlNameForInterface(annotatedInterface: AnnotatedInterface) =
         "I${annotatedInterface.name}"
+
+    private fun callbackNameForType(type: Type) =
+        "I${type.name.split(".").last()}TransactionCallback"
+
+    private fun service() = api.services.first()
+
+    private fun packageName() = service().packageName
 }
 
 data class InMemorySource(
@@ -141,16 +194,16 @@ internal fun File.ensureDirectory() {
     }
 }
 
-internal fun Type.toAidlType() =
-    when (name) {
-        Boolean::class.qualifiedName -> "boolean"
-        Int::class.qualifiedName -> "int"
-        Long::class.qualifiedName -> "long"
-        Float::class.qualifiedName -> "float"
-        Double::class.qualifiedName -> "double"
-        String::class.qualifiedName -> "string"
-        Char::class.qualifiedName -> "char"
-        Short::class.qualifiedName -> "short"
-        Unit::class.qualifiedName -> "void"
-        else -> throw IllegalArgumentException("Unsupported type conversion ${this.name}")
-    }
+internal fun Type.toAidlType() = when (name) {
+    Boolean::class.qualifiedName -> "boolean"
+    Int::class.qualifiedName -> "int"
+    Long::class.qualifiedName -> "long"
+    Float::class.qualifiedName -> "float"
+    Double::class.qualifiedName -> "double"
+    String::class.qualifiedName -> "String"
+    Char::class.qualifiedName -> "char"
+    // TODO: AIDL doesn't support short, make sure it's handled correctly.
+    Short::class.qualifiedName -> "int"
+    Unit::class.qualifiedName -> null
+    else -> throw IllegalArgumentException("Unsupported type conversion ${this.name}")
+}
