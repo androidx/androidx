@@ -3229,7 +3229,6 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
 
     void performLowMemory() {
         onLowMemory();
-        mChildFragmentManager.dispatchLowMemory();
     }
 
     /*

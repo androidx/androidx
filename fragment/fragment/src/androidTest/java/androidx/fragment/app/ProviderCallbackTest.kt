@@ -16,6 +16,7 @@
 
 package androidx.fragment.app
 
+import android.content.ComponentCallbacks2
 import android.content.res.Configuration
 import androidx.fragment.app.test.FragmentTestActivity
 import androidx.fragment.test.R
@@ -161,12 +162,52 @@ class ProviderCallbackTest {
             assertThat(child.pictureModeChangedCount).isEqualTo(1)
         }
     }
+
+    @Suppress("DEPRECATION")
+    @Test
+    fun onLowMemory() {
+        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+            val fragment = CallbackFragment()
+
+            withActivity {
+                supportFragmentManager.beginTransaction()
+                    .replace(R.id.content, fragment)
+                    .commitNow()
+
+                onTrimMemory(ComponentCallbacks2.TRIM_MEMORY_COMPLETE)
+            }
+            assertThat(fragment.onLowMemoryCount).isEqualTo(1)
+        }
+    }
+
+    @Test
+    fun onLowMemoryNestedFragments() {
+        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+            val parent = StrictViewFragment(R.layout.fragment_container_view)
+            val child = CallbackFragment()
+
+            withActivity {
+                supportFragmentManager.beginTransaction()
+                    .replace(R.id.content, parent)
+                    .commitNow()
+
+                parent.childFragmentManager.beginTransaction()
+                    .replace(R.id.fragment_container_view, child)
+                    .commitNow()
+
+                onTrimMemory(ComponentCallbacks2.TRIM_MEMORY_COMPLETE)
+            }
+
+            assertThat(child.onLowMemoryCount).isEqualTo(1)
+        }
+    }
 }
 
 class CallbackFragment : StrictViewFragment() {
     var configChangedCount = 0
     var multiWindowChangedCount = 0
     var pictureModeChangedCount = 0
+    var onLowMemoryCount = 0
 
     override fun onConfigurationChanged(newConfig: Configuration) {
         configChangedCount++
@@ -178,5 +219,9 @@ class CallbackFragment : StrictViewFragment() {
 
     override fun onPictureInPictureModeChanged(isInPictureInPictureMode: Boolean) {
         pictureModeChangedCount++
+    }
+
+    override fun onLowMemory() {
+        onLowMemoryCount++
     }
 }
