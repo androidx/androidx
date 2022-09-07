@@ -20,12 +20,12 @@ import android.content.Context
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.test.core.app.ApplicationProvider
-import androidx.test.filters.LargeTest
+import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before
 import org.junit.Test
 
-@LargeTest
+@SmallTest
 class FrameworkSQLiteDatabaseTest {
     private val dbName = "test.db"
     private val context: Context = ApplicationProvider.getApplicationContext()
@@ -37,16 +37,14 @@ class FrameworkSQLiteDatabaseTest {
         allowDataLossOnRecovery = false
     )
 
-    @RequiresApi(Build.VERSION_CODES.JELLY_BEAN)
     @Before
     fun setup() {
         context.deleteDatabase(dbName)
-        openHelper.setWriteAheadLoggingEnabled(true)
     }
 
     @Test
     @RequiresApi(Build.VERSION_CODES.JELLY_BEAN)
-    fun testFrameWorkSQLiteDatabase_deleteWorks() {
+    fun testFrameWorkSQLiteDatabase_simpleDeleteWorks() {
         val db = openHelper.writableDatabase
         db.execSQL("create table user (idk int)")
 
@@ -65,6 +63,27 @@ class FrameworkSQLiteDatabaseTest {
         )
 
         db.query("select * from user").use {
+            assertThat(it.count).isEqualTo(0)
+        }
+    }
+
+    @Test
+    @RequiresApi(Build.VERSION_CODES.JELLY_BEAN)
+    fun testFrameWorkSQLiteDatabase_deleteWorksWithWhereClause() {
+        val db = openHelper.writableDatabase
+        db.execSQL("create table user (idk int)")
+
+        val statement = db
+            .compileStatement("insert into user (idk) values (1)")
+        statement.executeInsert() // This should succeed
+
+        db.query("select * from user where idk=1").use {
+            assertThat(it.count).isEqualTo(1)
+        }
+
+        db.delete("user", "idk = ?", arrayOf(1))
+
+        db.query("select * from user where idk=1").use {
             assertThat(it.count).isEqualTo(0)
         }
     }
