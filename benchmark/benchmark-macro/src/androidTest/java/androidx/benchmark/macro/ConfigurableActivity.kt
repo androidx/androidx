@@ -56,6 +56,16 @@ class ConfigurableActivity : ComponentActivity() {
                 view.postDelayed(runnable, reportFullyDrawnDelayMs)
             }
         }
+        // enable in-app navigation, which carries forward report fully drawn delay
+        view.setOnClickListener {
+            startActivity(
+                createIntent(
+                    text = INNER_ACTIVITY_TEXT,
+                    reportFullyDrawnDelayMs = reportFullyDrawnDelayMs
+                )
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+            )
+        }
     }
 
     companion object {
@@ -65,17 +75,18 @@ class ConfigurableActivity : ComponentActivity() {
         private const val EXTRA_SLEEP_DUR_MS: String = "SLEEP_DUR_MS"
         private const val EXTRA_REPORT_FULLY_DRAWN_DELAY_MS = "REPORT_FULLY_DRAWN_DELAY_MS"
         const val FULLY_DRAWN_TEXT = "FULLY DRAWN"
+        const val INNER_ACTIVITY_TEXT = "INNER ACTIVITY"
 
         fun createIntent(
             text: String,
             sleepDurMs: Long = 0,
-            reportFullyDrawnWithDelay: Long? = null
+            reportFullyDrawnDelayMs: Long? = null
         ): Intent {
             return Intent().apply {
                 action = ACTION
                 putExtra(EXTRA_TEXT, text)
                 putExtra(EXTRA_SLEEP_DUR_MS, sleepDurMs)
-                putExtra(EXTRA_REPORT_FULLY_DRAWN_DELAY_MS, reportFullyDrawnWithDelay)
+                putExtra(EXTRA_REPORT_FULLY_DRAWN_DELAY_MS, reportFullyDrawnDelayMs)
             }
         }
     }

@@ -43,7 +43,6 @@ class StartupTimingQueryTest {
             absoluteTracePath = traceFile.absolutePath,
             captureApiLevel = api,
             targetPackageName = "androidx.benchmark.integration.macrobenchmark.target",
-            testPackageName = "androidx.benchmark.integration.macrobenchmark.test",
             startupMode = startupMode
         )
 

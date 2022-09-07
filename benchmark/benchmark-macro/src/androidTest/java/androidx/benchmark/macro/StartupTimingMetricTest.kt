@@ -30,6 +30,7 @@ import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
+import androidx.test.uiautomator.UiObject2
 import androidx.test.uiautomator.Until
 import org.junit.Assume.assumeTrue
 import org.junit.Test
@@ -59,7 +60,7 @@ class StartupTimingMetricTest {
     // lack of profileable. Within our test process (other startup tests in this class), we use
     // reflection to force reportFullyDrawn() to be traced. See b/182386956
     @SdkSuppress(minSdkVersion = 29)
-    fun validateStartup() {
+    fun startup() {
         assumeTrue(isAbiSupported())
         val packageName = "androidx.benchmark.integration.macrobenchmark.target"
         val scope = MacrobenchmarkScope(packageName = packageName, launchWithClearTask = true)
@@ -82,26 +83,59 @@ class StartupTimingMetricTest {
         assertNotNull(iterationResult.timelineRangeNs)
     }
 
-    private fun validateStartup_fullyDrawn(delayMs: Long) {
+    /**
+     * Validate that reasonable startup and fully drawn metrics are extracted, either from
+     * startActivityAndWait, or from in-app Activity based navigation
+     */
+    private fun validateStartup_fullyDrawn(
+        delayMs: Long,
+        useInAppNav: Boolean = false
+    ) {
+        val awaitActivityText: (String) -> UiObject2 = { expectedText ->
+            UiDevice
+                .getInstance(InstrumentationRegistry.getInstrumentation())
+                .wait(Until.findObject(By.text(expectedText)), 3000)!!
+        }
         assumeTrue(isAbiSupported())
-        val scope = MacrobenchmarkScope(packageName = Packages.TEST, launchWithClearTask = true)
-        val iterationResult = measureStartup(Packages.TEST, StartupMode.WARM) {
-            // Simulate a warm start, since it's our own process
-            scope.pressHome()
-            scope.startActivityAndWait(
-                ConfigurableActivity.createIntent(
-                    text = "ORIGINAL TEXT",
-                    reportFullyDrawnWithDelay = delayMs
-                )
-            )
 
+        val scope = MacrobenchmarkScope(packageName = Packages.TEST, launchWithClearTask = true)
+        val launchIntent = ConfigurableActivity.createIntent(
+            text = "ORIGINAL TEXT",
+            reportFullyDrawnDelayMs = delayMs
+        )
+        // setup initial Activity if needed
+        if (useInAppNav) {
+            scope.startActivityAndWait(launchIntent)
             if (delayMs > 0) {
-                UiDevice
-                    .getInstance(InstrumentationRegistry.getInstrumentation())
-                    .wait(Until.findObject(By.text(ConfigurableActivity.FULLY_DRAWN_TEXT)), 3000)
+                awaitActivityText(ConfigurableActivity.FULLY_DRAWN_TEXT)
             }
         }
 
+        // measure the activity launch
+        val iterationResult = measureStartup(Packages.TEST, StartupMode.WARM) {
+            // Simulate a warm start, since it's our own process
+            if (useInAppNav) {
+                // click the textview, which triggers an activity launch
+                awaitActivityText(
+                    if (delayMs > 0) {
+                        ConfigurableActivity.FULLY_DRAWN_TEXT
+                    } else {
+                        "ORIGINAL TEXT"
+                    }
+                ).click()
+            } else {
+                scope.pressHome()
+                scope.startActivityAndWait(launchIntent)
+            }
+
+            if (delayMs > 0) {
+                awaitActivityText(ConfigurableActivity.FULLY_DRAWN_TEXT)
+            } else if (useInAppNav) {
+                awaitActivityText(ConfigurableActivity.INNER_ACTIVITY_TEXT)
+            }
+        }
+
+        // validate
         assertEquals(
             setOf("timeToInitialDisplayMs", "timeToFullDisplayMs"),
             iterationResult.singleMetrics.keys
@@ -128,14 +162,26 @@ class StartupTimingMetricTest {
 
     @LargeTest
     @Test
-    fun validateStartup_fullyDrawn_immediate() {
-        validateStartup_fullyDrawn(0)
+    fun startup_fullyDrawn_immediate() {
+        validateStartup_fullyDrawn(delayMs = 0)
     }
 
     @LargeTest
     @Test
-    fun validateStartup_fullyDrawn_delayed() {
-        validateStartup_fullyDrawn(100)
+    fun startup_fullyDrawn_delayed() {
+        validateStartup_fullyDrawn(delayMs = 100)
+    }
+
+    @LargeTest
+    @Test
+    fun startupInAppNav_immediate() {
+        validateStartup_fullyDrawn(delayMs = 0, useInAppNav = true)
+    }
+
+    @LargeTest
+    @Test
+    fun startupInAppNav_fullyDrawn() {
+        validateStartup_fullyDrawn(delayMs = 100, useInAppNav = true)
     }
 
     private fun getApi32WarmMetrics(metric: Metric): IterationResult {
