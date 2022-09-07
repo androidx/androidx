@@ -78,6 +78,15 @@ class CompilationResultSubject(private val result: TestCompilationResult) {
             .containsExactlyElementsIn(sourcePaths)
     }
 
+    fun generatesSourcesWithContents(vararg sources: Pair<String, String>) {
+        succeeds()
+        val contentsByFile = result.generatedSources.associate { it.relativePath to it.contents }
+        for ((file, content) in sources) {
+            assertWithMessage("File $file was not generated").that(contentsByFile).containsKey(file)
+            assertThat(contentsByFile[file]).isEqualTo(content)
+        }
+    }
+
     fun fails() {
         assertThat(result.success).isFalse()
     }

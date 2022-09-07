@@ -31,6 +31,7 @@ class SdkCodeGenerator(
 ) {
     fun generate() {
         generateAidlSources()
+        AbstractSdkProviderGenerator(codeGenerator, api).generate()
     }
 
     private fun generateAidlSources() {

@@ -48,17 +48,52 @@ class PrivacySandboxKspCompilerTest {
             compile(
                 Files.createTempDirectory("test").toFile(),
                 TestCompilationArguments(
-                    sources = listOf(source),
+                    sources = listOf(source) + getSyntheticAndroidClasses(),
                     symbolProcessorProviders = listOf(provider),
                     processorOptions = getProcessorOptions(),
                 )
             )
-        ).generatesExactlySources(
-            "com/mysdk/IMySdk.java",
-            "com/mysdk/ICancellationSignal.java",
-            "com/mysdk/IUnitTransactionCallback.java",
-            "com/mysdk/IStringTransactionCallback.java",
-        )
+        ).also {
+            it.generatesExactlySources(
+                "com/mysdk/IMySdk.java",
+                "com/mysdk/ICancellationSignal.java",
+                "com/mysdk/IUnitTransactionCallback.java",
+                "com/mysdk/IStringTransactionCallback.java",
+                "com/mysdk/AbstractSandboxedSdkProvider.kt",
+            )
+        }.also {
+            it.generatesSourcesWithContents(
+                "com/mysdk/AbstractSandboxedSdkProvider.kt" to """
+                    |package com.mysdk
+                    |
+                    |import android.app.sdksandbox.SandboxedSdk
+                    |import android.app.sdksandbox.SandboxedSdkContext
+                    |import android.app.sdksandbox.SandboxedSdkProvider
+                    |import android.content.Context
+                    |import android.os.Bundle
+                    |import android.view.View
+                    |import kotlin.Int
+                    |
+                    |public abstract class AbstractSandboxedSdkProvider : SandboxedSdkProvider() {
+                    |  public override fun onLoadSdk(params: Bundle): SandboxedSdk {
+                    |    TODO("Implement")
+                    |  }
+                    |
+                    |  public override fun getView(
+                    |    windowContext: Context,
+                    |    params: Bundle,
+                    |    width: Int,
+                    |    height: Int,
+                    |  ): View {
+                    |    TODO("Implement")
+                    |  }
+                    |
+                    |  public abstract fun createMySdk(sdkContext: SandboxedSdkContext): MySdk
+                    |}
+                    |
+                """.trimMargin()
+            )
+        }
     }
 
     @Test
@@ -82,7 +117,7 @@ class PrivacySandboxKspCompilerTest {
             compile(
                 Files.createTempDirectory("test").toFile(),
                 TestCompilationArguments(
-                    sources = listOf(source),
+                    sources = listOf(source) + getSyntheticAndroidClasses(),
                     symbolProcessorProviders = listOf(provider),
                     processorOptions = getProcessorOptions(),
                 )
@@ -94,5 +129,54 @@ class PrivacySandboxKspCompilerTest {
         mapOf(
             "aidl_compiler_path" to (System.getProperty("aidl_compiler_path")
                 ?: throw IllegalArgumentException("aidl_compiler_path flag not set."))
+        )
+
+    private fun getSyntheticAndroidClasses() =
+        listOf(
+            Source.java(
+                "android.app.sdksandbox.SandboxedSdk",
+                """
+                    package android.app.sdksandbox;
+                    public class SandboxedSdk {}
+                """.trimIndent()
+            ),
+            Source.java(
+                "android.app.sdksandbox.SandboxedSdkProvider",
+                """
+                    package android.app.sdksandbox;
+                    import android.content.Context;
+                    import android.os.Bundle;
+                    import android.view.View;
+                    public abstract class SandboxedSdkProvider {
+                        public abstract SandboxedSdk onLoadSdk(Bundle params) throws LoadSdkException;
+                        public abstract View getView(
+                                Context windowContext, Bundle params, int width, int height);
+                    }
+                """.trimIndent()
+            ),
+            Source.java(
+                "android.app.sdksandbox.LoadSdkException",
+                """
+                    package android.app.sdksandbox;
+                    import android.os.Parcel;
+                    import android.os.Parcelable;
+                    public final class LoadSdkException extends Exception implements Parcelable {
+                        @Override
+                        public int describeContents() {
+                            return 0;
+                        }
+                        @Override
+                        public void writeToParcel(Parcel destination, int flags) {
+                        }
+                    }
+                """.trimIndent()
+            ),
+            Source.java(
+                "android.app.sdksandbox.SandboxedSdkContext",
+                """
+                    package android.app.sdksandbox;
+                    public final class SandboxedSdkContext {}
+                """.trimIndent()
+            ),
         )
 }

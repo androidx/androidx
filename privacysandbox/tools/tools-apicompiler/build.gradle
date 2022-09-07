@@ -26,6 +26,7 @@ plugins {
 dependencies {
     api(libs.kotlinStdlib)
     implementation(libs.kspApi)
+    implementation(libs.kotlinPoet)
     implementation project(path: ':privacysandbox:tools:tools')
     implementation project(path: ':privacysandbox:tools:tools-core')
 
