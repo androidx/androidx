@@ -231,6 +231,7 @@ dependencies {
     docs(project(":paging:paging-rxjava2-ktx"))
     docs(project(":paging:paging-rxjava3"))
     samples(project(":paging:paging-samples"))
+    docs(project(":paging:paging-testing"))
     docs(project(":palette:palette"))
     docs(project(":palette:palette-ktx"))
     docs(project(":percentlayout:percentlayout"))
