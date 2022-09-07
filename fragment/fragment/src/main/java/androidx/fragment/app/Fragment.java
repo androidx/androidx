@@ -3217,7 +3217,6 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
 
     void performMultiWindowModeChanged(boolean isInMultiWindowMode) {
         onMultiWindowModeChanged(isInMultiWindowMode);
-        mChildFragmentManager.dispatchMultiWindowModeChanged(isInMultiWindowMode);
     }
 
     void performPictureInPictureModeChanged(boolean isInPictureInPictureMode) {

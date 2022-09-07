@@ -22,6 +22,7 @@ import androidx.fragment.test.R
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import androidx.test.filters.SdkSuppress
 import androidx.testutils.withActivity
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
@@ -75,12 +76,59 @@ class ProviderCallbackTest {
             assertThat(child.configChangedCount).isEqualTo(1)
         }
     }
+
+    @SdkSuppress(minSdkVersion = 26)
+    @Test
+    fun onMultiWindowModeChanged() {
+        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+            val fragment = CallbackFragment()
+
+            withActivity {
+                supportFragmentManager.beginTransaction()
+                    .replace(R.id.content, fragment)
+                    .commitNow()
+
+                val newConfig = Configuration(resources.configuration)
+                onMultiWindowModeChanged(true, newConfig)
+            }
+            assertThat(fragment.multiWindowChangedCount).isEqualTo(1)
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = 26)
+    @Test
+    fun onMultiWindowModeChangedNestedFragments() {
+        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+            val parent = StrictViewFragment(R.layout.fragment_container_view)
+            val child = CallbackFragment()
+
+            withActivity {
+                supportFragmentManager.beginTransaction()
+                    .replace(R.id.content, parent)
+                    .commitNow()
+
+                parent.childFragmentManager.beginTransaction()
+                    .replace(R.id.fragment_container_view, child)
+                    .commitNow()
+
+                val newConfig = Configuration(resources.configuration)
+                onMultiWindowModeChanged(true, newConfig)
+            }
+
+            assertThat(child.multiWindowChangedCount).isEqualTo(1)
+        }
+    }
 }
 
 class CallbackFragment : StrictViewFragment() {
     var configChangedCount = 0
+    var multiWindowChangedCount = 0
 
     override fun onConfigurationChanged(newConfig: Configuration) {
         configChangedCount++
+    }
+
+    override fun onMultiWindowModeChanged(isInMultiWindowMode: Boolean) {
+        multiWindowChangedCount++
     }
 }
