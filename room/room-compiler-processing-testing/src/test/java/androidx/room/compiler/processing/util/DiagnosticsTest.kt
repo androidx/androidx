@@ -190,6 +190,30 @@ class DiagnosticsTest internal constructor(
         cleanCompilationHasNoWarnings(source)
     }
 
+    @Test
+    fun diagnoticMessageCompareTrimmedLines() {
+        runTest { invocation ->
+            invocation.processingEnv.messager.run {
+                printMessage(Diagnostic.Kind.ERROR, "error: This is the first line\n" +
+                    "    This is the second line\n" +
+                    "    This is the third line")
+            }
+            invocation.assertCompilationResult {
+                hasError("error: This is the first line\n" +
+                    "      This is the second line\n" +
+                    "      This is the third line")
+
+                hasErrorContaining("   This is the second line  \n This is the third  ")
+
+                assertThat(
+                    runCatching { hasError("error: This is the \nfirst line" +
+                        "This is the \nsecond line" +
+                        "This is the third line") }.isFailure
+                ).isTrue()
+            }
+        }
+    }
+
     private fun cleanCompilationHasNoWarnings(
         vararg source: Source
     ) = cleanCompilationHasNoWarnings(options = emptyMap(), source = source)
