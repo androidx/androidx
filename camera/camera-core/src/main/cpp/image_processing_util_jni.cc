@@ -73,6 +73,35 @@ static libyuv::RotationMode get_rotation_mode(int rotation) {
     return mode;
 }
 
+// Helper function to convert Android420 to ABGR with options to choose full swing or studio swing.
+static int Android420ToABGR(const uint8_t* src_y,
+                            int src_stride_y,
+                            const uint8_t* src_u,
+                            int src_stride_u,
+                            const uint8_t* src_v,
+                            int src_stride_v,
+                            int src_pixel_stride_uv,
+                            uint8_t* dst_abgr,
+                            int dst_stride_abgr,
+                            bool is_full_swing,
+                            int width,
+                            int height) {
+    return Android420ToARGBMatrix(src_y,
+                                  src_stride_y,
+                                  src_v,
+                                  src_stride_v,
+                                  src_u,
+                                  src_stride_u,
+                                  src_pixel_stride_uv,
+                                  dst_abgr,
+                                  dst_stride_abgr,
+                                  is_full_swing
+                                      ? &libyuv::kYvuJPEGConstants : &libyuv::kYvuI601Constants,
+                                  width,
+                                  height);
+}
+
+
 extern "C" {
 JNIEXPORT jint Java_androidx_camera_core_ImageProcessingUtil_nativeShiftPixel(
         JNIEnv* env,
@@ -240,32 +269,32 @@ JNIEXPORT jint Java_androidx_camera_core_ImageProcessingUtil_nativeConvertAndroi
         }
 
         // Convert yuv to rgb except the last line.
-        result = libyuv::Android420ToARGBMatrix(src_y_ptr + start_offset_y,
-                                          src_stride_y,
-                                          src_v_ptr + start_offset_v,
-                                          src_stride_v,
-                                          src_u_ptr + start_offset_u,
-                                          src_stride_u,
-                                          src_pixel_stride_uv,
-                                          dst_ptr,
-                                          dst_stride_y,
-                                          &libyuv::kYvuJPEGConstants,
-                                          width,
-                                          height - 1);
+        result = Android420ToABGR(src_y_ptr + start_offset_y,
+                                  src_stride_y,
+                                  src_u_ptr + start_offset_u,
+                                  src_stride_u,
+                                  src_v_ptr + start_offset_v,
+                                  src_stride_v,
+                                  src_pixel_stride_uv,
+                                  dst_ptr,
+                                  dst_stride_y,
+                                  /* is_full_swing = */true,
+                                  width,
+                                  height - 1);
         if (result == 0) {
             // Convert the last row with (width - 1) pixels
             // since the last pixel's yuv data is missing.
-            result = libyuv::Android420ToARGBMatrix(
+            result = Android420ToABGR(
                     src_y_ptr + start_offset_y + src_stride_y * (height - 1),
                     src_stride_y - 1,
-                    src_v_ptr + start_offset_v + src_stride_v * (height - 2) / 2,
-                    src_stride_v - 1,
                     src_u_ptr + start_offset_u + src_stride_u * (height - 2) / 2,
                     src_stride_u - 1,
+                    src_v_ptr + start_offset_v + src_stride_v * (height - 2) / 2,
+                    src_stride_v - 1,
                     src_pixel_stride_uv,
                     dst_ptr + dst_stride_y * (height - 1),
                     dst_stride_y,
-                    &libyuv::kYvuJPEGConstants,
+                    /* is_full_swing = */true,
                     width - 1,
                     1);
         }
@@ -287,18 +316,18 @@ JNIEXPORT jint Java_androidx_camera_core_ImageProcessingUtil_nativeConvertAndroi
             }
         }
     } else {
-        result = libyuv::Android420ToARGBMatrix(src_y_ptr + start_offset_y,
-                                                src_stride_y,
-                                                src_v_ptr + start_offset_v,
-                                                src_stride_v,
-                                                src_u_ptr + start_offset_u,
-                                                src_stride_u,
-                                                src_pixel_stride_uv,
-                                                dst_ptr,
-                                                dst_stride_y,
-                                                &libyuv::kYvuJPEGConstants,
-                                                width,
-                                                height);
+        result = Android420ToABGR(src_y_ptr + start_offset_y,
+                                          src_stride_y,
+                                          src_u_ptr + start_offset_u,
+                                          src_stride_u,
+                                          src_v_ptr + start_offset_v,
+                                          src_stride_v,
+                                          src_pixel_stride_uv,
+                                          dst_ptr,
+                                          dst_stride_y,
+                                          /* is_full_swing = */true,
+                                          width,
+                                          height);
     }
 
     // TODO(b/203141655): avoid unnecessary memory copy by merging libyuv API for rotation.
