@@ -15,7 +15,6 @@
  */
 package androidx.health.connect.client.impl
 
-import androidx.activity.result.contract.ActivityResultContract
 import androidx.health.connect.client.HealthConnectClient
 import androidx.health.connect.client.HealthConnectClient.Companion.HEALTH_CONNECT_CLIENT_TAG
 import androidx.health.connect.client.PermissionController
@@ -38,7 +37,6 @@ import androidx.health.connect.client.impl.converters.request.toReadDataRequestP
 import androidx.health.connect.client.impl.converters.response.toChangesResponse
 import androidx.health.connect.client.impl.converters.response.toReadRecordsResponse
 import androidx.health.connect.client.permission.HealthPermission
-import androidx.health.connect.client.permission.createHealthDataRequestPermissions
 import androidx.health.connect.client.records.Record
 import androidx.health.connect.client.request.AggregateGroupByDurationRequest
 import androidx.health.connect.client.request.AggregateGroupByPeriodRequest
@@ -69,18 +67,15 @@ internal constructor(
     private val delegate: HealthDataAsyncClient,
 ) : HealthConnectClient, PermissionController {
 
-    override fun createRequestPermissionActivityContract():
-        ActivityResultContract<Set<HealthPermission>, Set<HealthPermission>> =
-        createHealthDataRequestPermissions(providerPackageName = providerPackageName)
-
     override suspend fun getGrantedPermissions(
         permissions: Set<HealthPermission>
     ): Set<HealthPermission> {
-        val grantedPermissions = delegate
-            .getGrantedPermissions(permissions.map { it.toProtoPermission() }.toSet())
-            .await()
-            .map { it.toJetpackPermission() }
-            .toSet()
+        val grantedPermissions =
+            delegate
+                .getGrantedPermissions(permissions.map { it.toProtoPermission() }.toSet())
+                .await()
+                .map { it.toJetpackPermission() }
+                .toSet()
         Logger.debug(
             HEALTH_CONNECT_CLIENT_TAG,
             "Granted ${grantedPermissions.size} out of ${permissions.size} permissions."
