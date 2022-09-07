@@ -17,6 +17,8 @@
 package androidx.camera.core.imagecapture
 
 import android.graphics.ImageFormat
+import android.graphics.Matrix
+import android.graphics.Rect
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageProxy
 import androidx.camera.core.impl.CaptureBundle
@@ -38,9 +40,14 @@ object Utils {
     internal const val EXIF_DESCRIPTION = "description"
     internal const val ROTATION_DEGREES = 180
     internal const val ALTITUDE = 0.1
+    internal val SENSOR_TO_BUFFER = Matrix().also { it.setScale(-1F, 1F, 320F, 240F) }
+    internal val CROP_RECT = Rect(0, 240, WIDTH, HEIGHT)
     internal val TEMP_FILE = File.createTempFile(
         "unit_test_" + UUID.randomUUID().toString(), ".temp"
     ).also { it.deleteOnExit() }
+    internal val OUTPUT_FILE_OPTIONS = ImageCapture.OutputFileOptions.Builder(
+        TEMP_FILE
+    ).build()
 
     /**
      * Creates an empty [ImageCaptureConfig] so [ImagePipeline] constructor won't crash.
