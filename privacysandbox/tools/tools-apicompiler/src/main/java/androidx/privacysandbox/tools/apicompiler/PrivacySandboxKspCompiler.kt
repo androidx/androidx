@@ -16,42 +16,52 @@
 
 package androidx.privacysandbox.tools.apicompiler
 
+import androidx.privacysandbox.tools.apicompiler.generator.SdkCodeGenerator
 import androidx.privacysandbox.tools.apicompiler.parser.ApiParser
 import com.google.devtools.ksp.processing.CodeGenerator
-import com.google.devtools.ksp.processing.Dependencies
 import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.processing.SymbolProcessor
 import com.google.devtools.ksp.processing.SymbolProcessorEnvironment
 import com.google.devtools.ksp.processing.SymbolProcessorProvider
 import com.google.devtools.ksp.symbol.KSAnnotated
+import java.nio.file.Paths
 
 class PrivacySandboxKspCompiler(
     private val logger: KSPLogger,
-    private val codeGenerator: CodeGenerator
+    private val codeGenerator: CodeGenerator,
+    private val options: Map<String, String>,
 ) :
     SymbolProcessor {
+    companion object {
+        const val AIDL_COMPILER_PATH_OPTIONS_KEY = "aidl_compiler_path"
+    }
+
     var invoked = false
 
     override fun process(resolver: Resolver): List<KSAnnotated> {
         if (invoked) {
             return emptyList()
         }
-        ApiParser(resolver, logger).parseApi()
-        // TODO: remove once actual conde generation is in place.
-        createTestFile()
         invoked = true
-        return emptyList()
-    }
+        val parsedApi = ApiParser(resolver, logger).parseApi()
 
-    private fun createTestFile() {
-        val testFile = codeGenerator.createNewFile(Dependencies(false), "", "TestFile", "txt")
-        testFile.write("TestFile".toByteArray())
+        val path = options[AIDL_COMPILER_PATH_OPTIONS_KEY]?.let(Paths::get)
+        if (path == null) {
+            logger.error("KSP argument '$AIDL_COMPILER_PATH_OPTIONS_KEY' was not set.")
+            return emptyList()
+        }
+        SdkCodeGenerator(codeGenerator, parsedApi, path).generate()
+        return emptyList()
     }
 
     class Provider : SymbolProcessorProvider {
         override fun create(environment: SymbolProcessorEnvironment): SymbolProcessor {
-            return PrivacySandboxKspCompiler(environment.logger, environment.codeGenerator)
+            return PrivacySandboxKspCompiler(
+                environment.logger,
+                environment.codeGenerator,
+                environment.options
+            )
         }
     }
 }

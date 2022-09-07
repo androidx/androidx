@@ -37,8 +37,8 @@ class PrivacySandboxKspCompilerTest {
                     import androidx.privacysandbox.tools.PrivacySandboxService
                     @PrivacySandboxService
                     interface MySdk {
-                        suspend fun doStuff(x: Int, y: Int): String
-                        suspend fun doMoreStuff()
+                        fun doStuff(x: Int, y: Int): String
+                        fun doMoreStuff()
                     }
                 """
             )
@@ -50,9 +50,15 @@ class PrivacySandboxKspCompilerTest {
                 TestCompilationArguments(
                     sources = listOf(source),
                     symbolProcessorProviders = listOf(provider),
+                    processorOptions = getProcessorOptions(),
                 )
             )
-        ).succeeds()
+        ).generatesExactlySources(
+            "com/mysdk/IMySdk.java",
+            "com/mysdk/ICancellationSignal.java",
+            "com/mysdk/IUnitTransactionCallback.java",
+            "com/mysdk/IStringTransactionCallback.java",
+        )
     }
 
     @Test
@@ -77,9 +83,16 @@ class PrivacySandboxKspCompilerTest {
                 Files.createTempDirectory("test").toFile(),
                 TestCompilationArguments(
                     sources = listOf(source),
-                    symbolProcessorProviders = listOf(provider)
+                    symbolProcessorProviders = listOf(provider),
+                    processorOptions = getProcessorOptions(),
                 )
             )
         ).fails()
     }
+
+    private fun getProcessorOptions() =
+        mapOf(
+            "aidl_compiler_path" to (System.getProperty("aidl_compiler_path")
+                ?: throw IllegalArgumentException("aidl_compiler_path flag not set."))
+        )
 }

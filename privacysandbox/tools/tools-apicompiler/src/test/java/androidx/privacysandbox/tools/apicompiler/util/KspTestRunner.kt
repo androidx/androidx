@@ -72,6 +72,12 @@ class CompilationResultSubject(private val result: TestCompilationResult) {
         assertWithMessage("UnexpectedErrors: ${getErrorMessages()}").that(result.success).isTrue()
     }
 
+    fun generatesExactlySources(vararg sourcePaths: String) {
+        succeeds()
+        assertThat(result.generatedSources.map(Source::relativePath))
+            .containsExactlyElementsIn(sourcePaths)
+    }
+
     fun fails() {
         assertThat(result.success).isFalse()
     }
