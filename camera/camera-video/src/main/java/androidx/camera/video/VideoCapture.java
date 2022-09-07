@@ -86,6 +86,7 @@ import androidx.camera.core.impl.Observable;
 import androidx.camera.core.impl.Observable.Observer;
 import androidx.camera.core.impl.OptionsBundle;
 import androidx.camera.core.impl.SessionConfig;
+import androidx.camera.core.impl.Timebase;
 import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.UseCaseConfigFactory;
 import androidx.camera.core.impl.utils.Threads;
@@ -167,7 +168,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
     @Nullable
     private SurfaceEffectNode mNode;
     @Nullable
-
     private VideoEncoderInfo mVideoEncoderInfo;
 
     /**
@@ -474,11 +474,14 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         //  for behavioral consistency.
         Range<Integer> targetFpsRange = requireNonNull(
                 config.getTargetFramerate(Defaults.DEFAULT_FPS_RANGE));
+        Timebase timebase;
         if (mSurfaceEffect != null) {
             MediaSpec mediaSpec = requireNonNull(getMediaSpec());
             Rect cropRect = requireNonNull(getCropRect(resolution));
+            timebase = camera.getCameraInfoInternal().getTimebase();
             cropRect = adjustCropRectIfNeeded(cropRect, resolution,
-                    () -> getVideoEncoderInfo(config.getVideoEncoderInfoFinder(), camera, mediaSpec,
+                    () -> getVideoEncoderInfo(config.getVideoEncoderInfoFinder(),
+                            VideoCapabilities.from(camera.getCameraInfo()), timebase, mediaSpec,
                             resolution, targetFpsRange));
             mNode = new SurfaceEffectNode(camera, APPLY_CROP_ROTATE_AND_MIRRORING, mSurfaceEffect);
             SettableSurface cameraSurface = new SettableSurface(
@@ -498,9 +501,15 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         } else {
             mSurfaceRequest = new SurfaceRequest(resolution, camera, false, targetFpsRange);
             mDeferrableSurface = mSurfaceRequest.getDeferrableSurface();
+            // When camera buffers from a REALTIME device are passed directly to a video encoder
+            // from the camera, automatic compensation is done to account for differing timebases
+            // of the audio and camera subsystems. See the document of
+            // CameraMetadata#SENSOR_INFO_TIMESTAMP_SOURCE_REALTIME. So the timebase is always
+            // UPTIME when encoder surface is directly sent to camera.
+            timebase = Timebase.UPTIME;
         }
 
-        config.getVideoOutput().onSurfaceRequested(mSurfaceRequest);
+        config.getVideoOutput().onSurfaceRequested(mSurfaceRequest, timebase);
         sendTransformationInfoIfReady(resolution);
         // Since VideoCapture is in video module and can't be recognized by core module, use
         // MediaCodec class instead.
@@ -844,7 +853,8 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
     @Nullable
     private VideoEncoderInfo getVideoEncoderInfo(
             @NonNull Function<VideoEncoderConfig, VideoEncoderInfo> videoEncoderInfoFinder,
-            @NonNull CameraInternal camera,
+            @NonNull VideoCapabilities videoCapabilities,
+            @NonNull Timebase timebase,
             @NonNull MediaSpec mediaSpec,
             @NonNull Size resolution,
             @NonNull Range<Integer> targetFps) {
@@ -856,19 +866,19 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         // Note: We should clear the cache if the MediaSpec changes at any time, especially when
         // the Encoder-related content in the VideoSpec changes. i.e. when we need to observe the
         // MediaSpec Observable.
-        return mVideoEncoderInfo = resolveVideoEncoderInfo(videoEncoderInfoFinder, camera,
-                mediaSpec, resolution, targetFps);
+        return mVideoEncoderInfo = resolveVideoEncoderInfo(videoEncoderInfoFinder,
+                videoCapabilities, timebase, mediaSpec, resolution, targetFps);
     }
 
     @Nullable
     private static VideoEncoderInfo resolveVideoEncoderInfo(
             @NonNull Function<VideoEncoderConfig, VideoEncoderInfo> videoEncoderInfoFinder,
-            @NonNull CameraInternal camera,
+            @NonNull VideoCapabilities videoCapabilities,
+            @NonNull Timebase timebase,
             @NonNull MediaSpec mediaSpec,
             @NonNull Size resolution,
             @NonNull Range<Integer> targetFps) {
         // Find the nearest CamcorderProfile
-        VideoCapabilities videoCapabilities = VideoCapabilities.from(camera.getCameraInfo());
         CamcorderProfileProxy camcorderProfileProxy =
                 videoCapabilities.findHighestSupportedCamcorderProfileFor(resolution);
 
@@ -876,6 +886,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         MimeInfo videoMimeInfo = resolveVideoMimeInfo(mediaSpec, camcorderProfileProxy);
         VideoEncoderConfig videoEncoderConfig = resolveVideoEncoderConfig(
                 videoMimeInfo,
+                timebase,
                 mediaSpec.getVideoSpec(),
                 resolution,
                 targetFps);

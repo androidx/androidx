@@ -33,9 +33,11 @@ import androidx.camera.core.impl.CameraFactory
 import androidx.camera.core.impl.ImageOutputConfig
 import androidx.camera.core.impl.MutableStateObservable
 import androidx.camera.core.impl.Observable
+import androidx.camera.core.impl.Timebase
 import androidx.camera.core.impl.utils.TransformUtils.rectToSize
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.core.internal.CameraUseCaseAdapter
+import androidx.camera.core.processing.SurfaceEffectInternal
 import androidx.camera.testing.CamcorderProfileUtil
 import androidx.camera.testing.CamcorderProfileUtil.PROFILE_1080P
 import androidx.camera.testing.CamcorderProfileUtil.PROFILE_2160P
@@ -59,10 +61,10 @@ import androidx.camera.video.impl.VideoCaptureConfig
 import androidx.camera.video.internal.encoder.FakeVideoEncoderInfo
 import androidx.camera.video.internal.encoder.VideoEncoderConfig
 import androidx.camera.video.internal.encoder.VideoEncoderInfo
-import androidx.core.util.Consumer
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
+import java.util.concurrent.TimeUnit
 import org.junit.After
 import org.junit.Assert.assertThrows
 import org.junit.Test
@@ -74,7 +76,6 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
-import java.util.concurrent.TimeUnit
 
 private val ANY_SIZE = Size(640, 480)
 private const val CAMERA_ID_0 = "0"
@@ -137,7 +138,9 @@ class VideoCaptureTest {
         createCameraUseCaseAdapter()
 
         var surfaceRequest: SurfaceRequest? = null
-        val videoOutput = createVideoOutput(surfaceRequestListener = { surfaceRequest = it })
+        val videoOutput = createVideoOutput(surfaceRequestListener = { request, _ ->
+            surfaceRequest = request
+        })
         val videoCapture = createVideoCapture(videoOutput)
 
         // Act.
@@ -145,6 +148,60 @@ class VideoCaptureTest {
 
         // Assert.
         assertThat(surfaceRequest).isNotNull()
+    }
+
+    @Test
+    fun addUseCases_cameraIsUptime_requestIsUptime() {
+        testTimebase(cameraTimebase = Timebase.UPTIME, expectedTimebase = Timebase.UPTIME)
+    }
+
+    @Test
+    fun addUseCases_cameraIsRealtime_requestIsUptime() {
+        testTimebase(cameraTimebase = Timebase.REALTIME, expectedTimebase = Timebase.UPTIME)
+    }
+
+    @Test
+    fun addUseCasesWithSurfaceEffect__cameraIsUptime_requestIsUptime() {
+        testTimebase(
+            effect = FakeSurfaceEffectInternal(CameraXExecutors.mainThreadExecutor()),
+            cameraTimebase = Timebase.UPTIME,
+            expectedTimebase = Timebase.UPTIME
+        )
+    }
+
+    @Test
+    fun addUseCasesWithSurfaceEffect__cameraIsRealtime_requestIsRealtime() {
+        testTimebase(
+            effect = FakeSurfaceEffectInternal(CameraXExecutors.mainThreadExecutor()),
+            cameraTimebase = Timebase.REALTIME,
+            expectedTimebase = Timebase.REALTIME
+        )
+    }
+
+    private fun testTimebase(
+        effect: SurfaceEffectInternal? = null,
+        cameraTimebase: Timebase,
+        expectedTimebase: Timebase
+    ) {
+        // Arrange.
+        setupCamera(timebase = cameraTimebase)
+        createCameraUseCaseAdapter()
+
+        var timebase: Timebase? = null
+        val videoOutput = createVideoOutput(surfaceRequestListener = { _, tb ->
+            timebase = tb
+        })
+        val videoCapture = VideoCapture.Builder(videoOutput)
+            .setSessionOptionUnpacker { _, _ -> }
+            .build()
+        effect?.let { videoCapture.setEffect(it) }
+
+        // Act.
+        addAndAttachUseCases(videoCapture)
+        shadowOf(Looper.getMainLooper()).idle()
+
+        // Assert.
+        assertThat(timebase).isEqualTo(expectedTimebase)
     }
 
     @Test
@@ -300,7 +357,7 @@ class VideoCaptureTest {
         createCameraUseCaseAdapter()
 
         var surfaceResult: SurfaceRequest.Result? = null
-        val videoOutput = createVideoOutput { surfaceRequest ->
+        val videoOutput = createVideoOutput { surfaceRequest, _ ->
             surfaceRequest.provideSurface(
                 mock(Surface::class.java),
                 CameraXExecutors.directExecutor()
@@ -343,8 +400,8 @@ class VideoCaptureTest {
         createCameraUseCaseAdapter()
         val listener = mock(SurfaceRequest.TransformationInfoListener::class.java)
         val videoOutput = createVideoOutput(
-            surfaceRequestListener = {
-                it.setTransformationInfoListener(
+            surfaceRequestListener = { surfaceRequest, _ ->
+                surfaceRequest.setTransformationInfoListener(
                     CameraXExecutors.directExecutor(),
                     listener
                 )
@@ -367,7 +424,7 @@ class VideoCaptureTest {
         createCameraUseCaseAdapter()
         var transformationInfo: SurfaceRequest.TransformationInfo? = null
         val videoOutput = createVideoOutput(
-            surfaceRequestListener = { surfaceRequest ->
+            surfaceRequestListener = { surfaceRequest, _ ->
                 surfaceRequest.setTransformationInfoListener(
                     CameraXExecutors.directExecutor()
                 ) {
@@ -431,7 +488,7 @@ class VideoCaptureTest {
         createCameraUseCaseAdapter()
         val effect = FakeSurfaceEffectInternal(CameraXExecutors.mainThreadExecutor(), false)
         var appSurfaceReadyToRelease = false
-        val videoOutput = createVideoOutput(surfaceRequestListener = { surfaceRequest ->
+        val videoOutput = createVideoOutput(surfaceRequestListener = { surfaceRequest, _ ->
             surfaceRequest.provideSurface(
                 mock(Surface::class.java),
                 CameraXExecutors.mainThreadExecutor()
@@ -555,7 +612,7 @@ class VideoCaptureTest {
             mediaSpec = MediaSpec.builder().configureVideo {
                 it.setQualitySelector(QualitySelector.from(quality))
             }.build(),
-            surfaceRequestListener = { surfaceRequest = it }
+            surfaceRequestListener = { request, _ -> surfaceRequest = request }
         )
         val videoCapture = createVideoCapture(
             videoOutput, videoEncoderInfoFinder = { videoEncoderInfo }
@@ -603,16 +660,18 @@ class VideoCaptureTest {
     private fun createVideoOutput(
         streamState: StreamState = StreamState.ACTIVE,
         mediaSpec: MediaSpec? = MediaSpec.builder().build(),
-        surfaceRequestListener: Consumer<SurfaceRequest> = Consumer { it.willNotProvideSurface() }
-    ): TestVideoOutput = TestVideoOutput(streamState, mediaSpec) {
-        surfaceRequestsToRelease.add(it)
-        surfaceRequestListener.accept(it)
+        surfaceRequestListener: (SurfaceRequest, Timebase) -> Unit = { surfaceRequest, _ ->
+            surfaceRequest.willNotProvideSurface()
+        }
+    ): TestVideoOutput = TestVideoOutput(streamState, mediaSpec) { surfaceRequest, timebase ->
+        surfaceRequestsToRelease.add(surfaceRequest)
+        surfaceRequestListener.invoke(surfaceRequest, timebase)
     }
 
     private class TestVideoOutput constructor(
         streamState: StreamState,
         mediaSpec: MediaSpec?,
-        val surfaceRequestCallback: Consumer<SurfaceRequest>
+        val surfaceRequestCallback: (SurfaceRequest, Timebase) -> Unit
     ) : VideoOutput {
 
         private val streamInfoObservable: MutableStateObservable<StreamInfo> =
@@ -627,7 +686,11 @@ class VideoCaptureTest {
             MutableStateObservable.withInitialState(mediaSpec)
 
         override fun onSurfaceRequested(surfaceRequest: SurfaceRequest) {
-            surfaceRequestCallback.accept(surfaceRequest)
+            surfaceRequestCallback.invoke(surfaceRequest, Timebase.UPTIME)
+        }
+
+        override fun onSurfaceRequested(surfaceRequest: SurfaceRequest, timebase: Timebase) {
+            surfaceRequestCallback.invoke(surfaceRequest, timebase)
         }
 
         override fun getStreamInfo(): Observable<StreamInfo> = streamInfoObservable
@@ -665,11 +728,13 @@ class VideoCaptureTest {
 
     private fun setupCamera(
         cameraId: String = CAMERA_ID_0,
-        vararg profiles: CamcorderProfileProxy = CAMERA_0_PROFILES
+        vararg profiles: CamcorderProfileProxy = CAMERA_0_PROFILES,
+        timebase: Timebase = Timebase.UPTIME,
     ) {
         val cameraInfo = FakeCameraInfoInternal(cameraId).apply {
             camcorderProfileProvider =
                 FakeCamcorderProfileProvider.Builder().addProfile(*profiles).build()
+            setTimebase(timebase)
         }
         val camera = FakeCamera(cameraId, null, cameraInfo)
 

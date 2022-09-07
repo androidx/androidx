@@ -17,6 +17,7 @@
 package androidx.camera.video.internal.encoder
 
 import android.media.MediaCodecInfo
+import androidx.camera.core.impl.Timebase
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
@@ -24,16 +25,19 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 
-private const val MIME_TYPE = "audio/mp4a-latm"
-private const val ENCODER_PROFILE = MediaCodecInfo.CodecProfileLevel.AACObjectLC
-private const val BIT_RATE = 64000
-private const val SAMPLE_RATE = 44100
-private const val CHANNEL_COUNT = 1
-
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 @SdkSuppress(minSdkVersion = 21)
-class AudioEncoderInfoTest {
+class AudioEncoderInfoImplTest {
+
+    companion object {
+        private const val MIME_TYPE = "audio/mp4a-latm"
+        private const val ENCODER_PROFILE = MediaCodecInfo.CodecProfileLevel.AACObjectLC
+        private const val BIT_RATE = 64000
+        private const val SAMPLE_RATE = 44100
+        private const val CHANNEL_COUNT = 1
+        private val TIMEBASE = Timebase.UPTIME
+    }
 
     private lateinit var encoderConfig: AudioEncoderConfig
 
@@ -41,6 +45,7 @@ class AudioEncoderInfoTest {
     fun setup() {
         encoderConfig = AudioEncoderConfig.builder()
             .setMimeType(MIME_TYPE)
+            .setInputTimebase(TIMEBASE)
             .setProfile(ENCODER_PROFILE)
             .setBitrate(BIT_RATE)
             .setSampleRate(SAMPLE_RATE)

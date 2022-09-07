@@ -25,6 +25,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.Logger;
 import androidx.camera.core.impl.CamcorderProfileProxy;
+import androidx.camera.core.impl.Timebase;
 import androidx.camera.video.MediaSpec;
 import androidx.camera.video.VideoSpec;
 import androidx.camera.video.internal.encoder.VideoEncoderConfig;
@@ -102,23 +103,24 @@ public final class VideoConfigUtil {
      *
      * @param videoMimeInfo          the video mime info.
      * @param videoSpec              the video spec.
+     * @param inputTimebase          the timebase of the input frame.
      * @param surfaceSize            the surface size.
      * @param expectedFrameRateRange the expected frame rate range. It could be null.
      * @return a VideoEncoderConfig.
      */
     @NonNull
     public static VideoEncoderConfig resolveVideoEncoderConfig(@NonNull MimeInfo videoMimeInfo,
-            @NonNull VideoSpec videoSpec, @NonNull Size surfaceSize,
-            @Nullable Range<Integer> expectedFrameRateRange) {
+            @NonNull Timebase inputTimebase, @NonNull VideoSpec videoSpec,
+            @NonNull Size surfaceSize, @Nullable Range<Integer> expectedFrameRateRange) {
         Supplier<VideoEncoderConfig> configSupplier;
         if (videoMimeInfo.getCompatibleCamcorderProfile() != null) {
             configSupplier = new VideoEncoderConfigCamcorderProfileResolver(
-                    videoMimeInfo.getMimeType(), videoSpec, surfaceSize,
+                    videoMimeInfo.getMimeType(), inputTimebase, videoSpec, surfaceSize,
                     videoMimeInfo.getCompatibleCamcorderProfile(),
                     expectedFrameRateRange);
         } else {
             configSupplier = new VideoEncoderConfigDefaultResolver(videoMimeInfo.getMimeType(),
-                    videoSpec, surfaceSize, expectedFrameRateRange);
+                    inputTimebase, videoSpec, surfaceSize, expectedFrameRateRange);
         }
 
         return configSupplier.get();

@@ -24,6 +24,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.Logger;
 import androidx.camera.core.impl.CamcorderProfileProxy;
+import androidx.camera.core.impl.Timebase;
 import androidx.camera.video.AudioSpec;
 import androidx.camera.video.MediaSpec;
 import androidx.camera.video.internal.AudioSource;
@@ -140,21 +141,23 @@ public final class AudioConfigUtil {
      * Resolves video related information into a {@link AudioEncoderConfig}.
      *
      * @param audioMimeInfo       the audio mime info.
+     * @param inputTimebase       the timebase of the input frame.
      * @param audioSourceSettings the audio source settings.
      * @param audioSpec           the audio spec.
      * @return a AudioEncoderConfig.
      */
     @NonNull
     public static AudioEncoderConfig resolveAudioEncoderConfig(@NonNull MimeInfo audioMimeInfo,
-            @NonNull AudioSource.Settings audioSourceSettings, @NonNull AudioSpec audioSpec) {
+            @NonNull Timebase inputTimebase, @NonNull AudioSource.Settings audioSourceSettings,
+            @NonNull AudioSpec audioSpec) {
         Supplier<AudioEncoderConfig> configSupplier;
         if (audioMimeInfo.getCompatibleCamcorderProfile() != null) {
             configSupplier = new AudioEncoderConfigCamcorderProfileResolver(
-                    audioMimeInfo.getMimeType(), audioMimeInfo.getProfile(), audioSpec,
-                    audioSourceSettings, audioMimeInfo.getCompatibleCamcorderProfile());
+                    audioMimeInfo.getMimeType(), audioMimeInfo.getProfile(), inputTimebase,
+                    audioSpec, audioSourceSettings, audioMimeInfo.getCompatibleCamcorderProfile());
         } else {
             configSupplier = new AudioEncoderConfigDefaultResolver(audioMimeInfo.getMimeType(),
-                    audioMimeInfo.getProfile(), audioSpec, audioSourceSettings);
+                    audioMimeInfo.getProfile(), inputTimebase, audioSpec, audioSourceSettings);
         }
 
         return configSupplier.get();

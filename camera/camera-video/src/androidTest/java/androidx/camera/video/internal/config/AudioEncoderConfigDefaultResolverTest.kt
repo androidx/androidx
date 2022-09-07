@@ -18,6 +18,7 @@ package androidx.camera.video.internal.config
 
 import android.media.MediaCodecInfo
 import android.util.Range
+import androidx.camera.core.impl.Timebase
 import androidx.camera.video.AudioSpec
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
@@ -34,6 +35,7 @@ class AudioEncoderConfigDefaultResolverTest {
     companion object {
         const val MIME_TYPE = "audio/mp4a-latm"
         const val ENCODER_PROFILE = MediaCodecInfo.CodecProfileLevel.AACObjectLC
+        val TIMEBASE = Timebase.UPTIME
     }
 
     private val defaultAudioSpec = AudioSpec.builder().build()
@@ -45,6 +47,7 @@ class AudioEncoderConfigDefaultResolverTest {
         val resolvedAudioConfig = AudioEncoderConfigDefaultResolver(
             MIME_TYPE,
             ENCODER_PROFILE,
+            TIMEBASE,
             defaultAudioSpec,
             defaultAudioSourceSettings
         ).get()
@@ -64,6 +67,7 @@ class AudioEncoderConfigDefaultResolverTest {
             AudioEncoderConfigDefaultResolver(
                 MIME_TYPE,
                 ENCODER_PROFILE,
+                TIMEBASE,
                 defaultAudioSpec,
                 defaultAudioSourceSettings
             ).get()
@@ -75,6 +79,7 @@ class AudioEncoderConfigDefaultResolverTest {
         val higherChannelCountConfig = AudioEncoderConfigDefaultResolver(
             MIME_TYPE,
             ENCODER_PROFILE,
+            TIMEBASE,
             defaultAudioSpec,
             higherChannelCountSourceSettings
         ).get()
@@ -89,6 +94,7 @@ class AudioEncoderConfigDefaultResolverTest {
             AudioEncoderConfigDefaultResolver(
                 MIME_TYPE,
                 ENCODER_PROFILE,
+                TIMEBASE,
                 defaultAudioSpec,
                 defaultAudioSourceSettings
             ).get()
@@ -100,6 +106,7 @@ class AudioEncoderConfigDefaultResolverTest {
         val higherSampleRateConfig = AudioEncoderConfigDefaultResolver(
             MIME_TYPE,
             ENCODER_PROFILE,
+            TIMEBASE,
             defaultAudioSpec,
             higherSampleRateSourceSettings
         ).get()
@@ -113,6 +120,7 @@ class AudioEncoderConfigDefaultResolverTest {
             AudioEncoderConfigDefaultResolver(
                 MIME_TYPE,
                 ENCODER_PROFILE,
+                TIMEBASE,
                 defaultAudioSpec,
                 defaultAudioSourceSettings
             ).get()
@@ -131,6 +139,7 @@ class AudioEncoderConfigDefaultResolverTest {
             AudioEncoderConfigDefaultResolver(
                 MIME_TYPE,
                 ENCODER_PROFILE,
+                TIMEBASE,
                 higherAudioSpec,
                 defaultAudioSourceSettings
             ).get().bitrate
@@ -140,6 +149,7 @@ class AudioEncoderConfigDefaultResolverTest {
             AudioEncoderConfigDefaultResolver(
                 MIME_TYPE,
                 ENCODER_PROFILE,
+                TIMEBASE,
                 lowerAudioSpec,
                 defaultAudioSourceSettings
             ).get().bitrate
