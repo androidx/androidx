@@ -20,7 +20,7 @@ import androidx.room.compiler.processing.util.Source
 import com.google.common.truth.Truth.assertThat
 import java.io.File
 import java.nio.file.Files
-import java.nio.file.Path
+import kotlin.io.path.Path
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -28,51 +28,56 @@ import org.junit.runners.JUnit4
 @RunWith(JUnit4::class)
 class PrivacySandboxApiGeneratorTest {
     @Test
-    fun annotatedInterface_isParsed() {
-        val source =
-            loadTestSource(inputTestDataDir, "com/mysdk/MySdk.kt")
-        val descriptors = compileIntoInterfaceDescriptorsJar(source)
+    fun testSandboxSdk_compilesAndGeneratesExpectedOutput() {
+        val descriptors =
+            compileIntoInterfaceDescriptorsJar(
+                *loadSourcesFromDirectory(inputTestDataDir).toTypedArray()
+            )
+        val aidlPath = System.getProperty("aidl_compiler_path")?.let(::Path)
+            ?: throw IllegalArgumentException("aidl_compiler_path flag not set.")
 
         val generator = PrivacySandboxApiGenerator()
 
         val outputDir = Files.createTempDirectory("output").also { it.toFile().deleteOnExit() }
-        generator.generate(descriptors, Path.of(""), outputDir)
+        generator.generate(descriptors, aidlPath, outputDir)
+        val outputSources = loadSourcesFromDirectory(outputDir.toFile())
 
-        assertOutputDirContainsSources(
-            outputDir, listOf(
-                loadTestSource(outputTestDataDir, "com/mysdk/MySdk.kt"),
-                loadTestSource(outputTestDataDir, "com/mysdk/MySdkImpl.kt"),
-            )
-        )
-    }
+        assertCompiles(outputSources)
 
-    private fun assertOutputDirContainsSources(outputDir: Path, expectedSources: List<Source>) {
-        val outputMap =
-            outputDir.toFile().walk().filter { it.isFile }.map {
-                outputDir.relativize(it.toPath()).toString() to it.readText()
-            }.toMap()
-        val expectedSourcesMap = expectedSources.associate { it.relativePath to it.contents }
-        assertCompiles(outputMap.map { (relativePath, contents) ->
-            Source.kotlin(
-                relativePath,
-                contents
+        val expectedSources = loadSourcesFromDirectory(outputTestDataDir)
+        assertThat(outputSources.map(Source::relativePath))
+            .containsExactlyElementsIn(
+                expectedSources.map(Source::relativePath) + listOf(
+                    "com/mysdk/ITestSandboxSdk.java",
+                    "com/mysdk/IUnitTransactionCallback.java",
+                    "com/mysdk/ICancellationSignal.java",
+                    "com/mysdk/IIntTransactionCallback.java",
+                    "com/mysdk/IFloatTransactionCallback.java",
+                    "com/mysdk/ICharTransactionCallback.java",
+                    "com/mysdk/IDoubleTransactionCallback.java",
+                    "com/mysdk/IBooleanTransactionCallback.java",
+                    "com/mysdk/IStringTransactionCallback.java",
+                    "com/mysdk/ILongTransactionCallback.java",
+                )
             )
-        })
-        // Not comparing the maps directly because the StringSubject error output is slightly
-        // better than the binary assertion provided by the MapSubject.
-        assertThat(outputMap.keys)
-            .containsExactlyElementsIn(expectedSourcesMap.keys)
-        for ((relativePath, sourceContent) in expectedSourcesMap) {
-            assertThat(outputMap[relativePath]).isEqualTo(sourceContent)
+
+        val outputSourceMap = outputSources.associateBy(Source::relativePath)
+        for (expected in expectedSources) {
+            assertThat(outputSourceMap[expected.relativePath]?.contents)
+                .isEqualTo(expected.contents)
         }
     }
 
-    private fun loadTestSource(rootDir: File, relativePath: String): Source {
-        val contents = rootDir.resolve(File(relativePath))
-        return Source.loadKotlinSource(contents, relativePath)
+    private fun loadSourcesFromDirectory(directory: File): List<Source> {
+        return directory.walk().filter { it.isFile }.map {
+            val relativePath = directory.toPath().relativize(it.toPath()).toString()
+            val qualifiedName = relativePath.removeSuffix(".${it.extension}").replace('/', '.')
+            Source.load(file = it, qName = qualifiedName, relativePath = relativePath)
+        }.toList()
     }
+
     companion object {
-        val inputTestDataDir = File("src/test/data/input-src")
-        val outputTestDataDir = File("src/test/data/output-src")
+        val inputTestDataDir = File("src/test/test-data/input")
+        val outputTestDataDir = File("src/test/test-data/output")
     }
 }
