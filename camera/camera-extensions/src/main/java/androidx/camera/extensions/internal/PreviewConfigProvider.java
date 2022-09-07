@@ -19,6 +19,7 @@ package androidx.camera.extensions.internal;
 import android.content.Context;
 import android.hardware.camera2.CameraCharacteristics;
 import android.os.Build;
+import android.os.SystemClock;
 import android.util.Pair;
 import android.util.Size;
 
@@ -143,9 +144,11 @@ public class PreviewConfigProvider implements ConfigProvider<PreviewConfig> {
         @NonNull
         private final Context mContext;
         @Nullable
-        final VendorProcessor mPreviewProcessor;
+        private final VendorProcessor mPreviewProcessor;
         @Nullable
         CameraInfo mCameraInfo;
+        private long mOnEnableSessionTimeStamp = 0;
+        private static final long MIN_DURATION_FOR_ENABLE_DISABLE_SESSION = 100L;
 
         @GuardedBy("mLock")
         final Object mLock = new Object();
@@ -183,10 +186,10 @@ public class PreviewConfigProvider implements ConfigProvider<PreviewConfig> {
             synchronized (mLock) {
                 Preconditions.checkNotNull(mCameraInfo,
                         "PreviewConfigProvider was not attached.");
-
                 String cameraId = Camera2CameraInfo.from(mCameraInfo).getCameraId();
                 CameraCharacteristics cameraCharacteristics =
                         Camera2CameraInfo.extractCameraCharacteristics(mCameraInfo);
+                Logger.d(TAG, "Preview onInit");
                 mImpl.onInit(cameraId, cameraCharacteristics, mContext);
                 if (mPreviewProcessor != null) {
                     mPreviewProcessor.onInit();
@@ -213,7 +216,9 @@ public class PreviewConfigProvider implements ConfigProvider<PreviewConfig> {
         @Nullable
         public CaptureConfig onEnableSession() {
             synchronized (mLock) {
+                Logger.d(TAG, "Preview onEnableSession");
                 CaptureStageImpl captureStageImpl = mImpl.onEnableSession();
+                mOnEnableSessionTimeStamp = SystemClock.elapsedRealtime();
                 if (captureStageImpl != null) {
                     return new AdaptingCaptureStage(captureStageImpl).getCaptureConfig();
                 }
@@ -227,6 +232,8 @@ public class PreviewConfigProvider implements ConfigProvider<PreviewConfig> {
         @Nullable
         public CaptureConfig onDisableSession() {
             synchronized (mLock) {
+                ensureMinDurationAfterOnEnableSession();
+                Logger.d(TAG, "Preview onDisableSession");
                 CaptureStageImpl captureStageImpl = mImpl.onDisableSession();
                 if (captureStageImpl != null) {
                     return new AdaptingCaptureStage(captureStageImpl).getCaptureConfig();
@@ -234,6 +241,26 @@ public class PreviewConfigProvider implements ConfigProvider<PreviewConfig> {
             }
 
             return null;
+        }
+
+        /**
+         * Ensures onDisableSession not invoked too soon after onDisableSession. OEMs usually
+         * releases resources at onDisableSession. Invoking onDisableSession too soon might cause
+         * some crash during the initialization triggered by onEnableSession or onInit.
+         */
+        private void ensureMinDurationAfterOnEnableSession() {
+            long timeAfterOnEnableSession =
+                    SystemClock.elapsedRealtime() - mOnEnableSessionTimeStamp;
+            if (timeAfterOnEnableSession < MIN_DURATION_FOR_ENABLE_DISABLE_SESSION) {
+                try {
+                    long timeToWait =
+                            MIN_DURATION_FOR_ENABLE_DISABLE_SESSION - timeAfterOnEnableSession;
+                    Logger.d(TAG, "onDisable too soon, wait " + timeToWait + " ms");
+                    Thread.sleep(timeToWait);
+                } catch (InterruptedException e) {
+                    Logger.e(TAG, "sleep interrupted");
+                }
+            }
         }
 
         // Invoked from camera thread
@@ -254,6 +281,7 @@ public class PreviewConfigProvider implements ConfigProvider<PreviewConfig> {
         @Override
         public void onDeInitSession() {
             synchronized (mLock) {
+                Logger.d(TAG, "Preview onDeInit");
                 if (mPreviewProcessor != null) {
                     mPreviewProcessor.onDeInit();
                 }
