@@ -91,8 +91,7 @@ public class AutomotiveCarClimate implements CarClimate {
 
     @VisibleForTesting
     static final float DEFAULT_SAMPLE_RATE_HZ = 5f;
-    @VisibleForTesting
-    static final int HVAC_ELECTRIC_DEFROSTER = 320865556;
+    public static final int HVAC_ELECTRIC_DEFROSTER_ON_PROPERTY_ID = 320865556;
 
     // TODO(b/240347704): replace FEATURE_HVAC_ELECTRIC_DEFROSTER value with
     //  HVAC_ELECTRIC_DEFROSTER_ON if it becomes available.
@@ -114,7 +113,7 @@ public class AutomotiveCarClimate implements CarClimate {
                     .put(FEATURE_HVAC_DUAL_MODE, HVAC_DUAL_ON)
                     .put(FEATURE_HVAC_DEFROSTER, HVAC_DEFROSTER)
                     .put(FEATURE_HVAC_MAX_DEFROSTER, HVAC_MAX_DEFROST_ON)
-                    .put(FEATURE_HVAC_ELECTRIC_DEFROSTER, HVAC_ELECTRIC_DEFROSTER)
+                    .put(FEATURE_HVAC_ELECTRIC_DEFROSTER, HVAC_ELECTRIC_DEFROSTER_ON_PROPERTY_ID)
                     .buildOrThrow();
 
     private final Map<CarClimateStateCallback, OnCarPropertyResponseListener> mListenerMap =
