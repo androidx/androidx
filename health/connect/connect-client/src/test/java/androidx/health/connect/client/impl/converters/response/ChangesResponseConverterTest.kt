@@ -79,7 +79,7 @@ class ChangesResponseConverterTest {
                     endZoneOffset = null,
                     metadata =
                         Metadata(
-                            uid = "uid",
+                            id = "uid",
                             lastModifiedTime = Instant.ofEpochMilli(9999L),
                             dataOrigin = DataOrigin(packageName = "pkg1"),
                             device = Device()
@@ -97,8 +97,7 @@ class ChangesResponseConverterTest {
 
         val changesResponse = toChangesResponse(proto)
         assertThat(changesResponse.changes).hasSize(1)
-        assertThat((changesResponse.changes[0] as? DeletionChange)?.uid)
-            .isEqualTo("deleteUid")
+        assertThat((changesResponse.changes[0] as? DeletionChange)?.recordId).isEqualTo("deleteUid")
     }
 
     @Test

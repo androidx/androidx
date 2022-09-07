@@ -235,7 +235,7 @@ class HealthConnectClientImplTest {
             )
         }
 
-        assertThat(response.recordUidsList).containsExactly("0")
+        assertThat(response.recordIdsList).containsExactly("0")
         assertThat(fakeAhpServiceStub.lastUpsertDataRequest?.dataPoints)
             .containsExactly(
                 DataProto.DataPoint.newBuilder()
@@ -263,7 +263,7 @@ class HealthConnectClientImplTest {
             )
         }
 
-        assertThat(response.recordUidsList).containsExactly("0")
+        assertThat(response.recordIdsList).containsExactly("0")
         assertThat(fakeAhpServiceStub.lastUpsertDataRequest?.dataPoints)
             .containsExactly(
                 DataProto.DataPoint.newBuilder()
@@ -293,7 +293,7 @@ class HealthConnectClientImplTest {
             )
         }
 
-        assertThat(response.recordUidsList).containsExactly("0")
+        assertThat(response.recordIdsList).containsExactly("0")
         assertThat(fakeAhpServiceStub.lastUpsertDataRequest?.dataPoints)
             .containsExactly(
                 DataProto.DataPoint.newBuilder()
@@ -328,7 +328,7 @@ class HealthConnectClientImplTest {
         val response = testBlocking {
             healthConnectClient.readRecord(
                 StepsRecord::class,
-                uid = "testUid",
+                recordId = "testUid",
             )
         }
 
@@ -352,7 +352,7 @@ class HealthConnectClientImplTest {
                     endZoneOffset = null,
                     metadata =
                         Metadata(
-                            uid = "testUid",
+                            id = "testUid",
                             device = Device(),
                         )
                 )
@@ -409,7 +409,7 @@ class HealthConnectClientImplTest {
                     endZoneOffset = null,
                     metadata =
                         Metadata(
-                            uid = "testUid",
+                            id = "testUid",
                             device = Device(),
                         )
                 )
@@ -472,7 +472,7 @@ class HealthConnectClientImplTest {
                         startZoneOffset = null,
                         endTime = Instant.ofEpochMilli(5678L),
                         endZoneOffset = null,
-                        metadata = Metadata(uid = "testUid")
+                        metadata = Metadata(id = "testUid")
                     )
                 )
             )
