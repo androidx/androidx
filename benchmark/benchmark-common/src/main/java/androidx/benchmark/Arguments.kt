@@ -39,10 +39,16 @@ internal var profilerOverride: Profiler? = null
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public object Arguments {
-
+object Arguments {
     // public properties are shared by micro + macro benchmarks
-    public val suppressedErrors: Set<String>
+    val suppressedErrors: Set<String>
+
+    /**
+     * Set to true to enable androidx.tracing.perfetto tracepoints (such as composition tracing)
+     *
+     * Currently internal/experimental
+     */
+    val fullTracingEnable: Boolean
 
     val enabledRules: Set<RuleType>
 
@@ -110,6 +116,9 @@ public object Arguments {
 
         iterations =
             arguments.getBenchmarkArgument("iterations")?.toInt()
+
+        fullTracingEnable =
+            (arguments.getBenchmarkArgument("fullTracing.enable")?.toBoolean() ?: false)
 
         // Transform comma-delimited list into set of suppressed errors
         // E.g. "DEBUGGABLE, UNLOCKED" -> setOf("DEBUGGABLE", "UNLOCKED")
