@@ -60,14 +60,23 @@ public class TestImageUtil {
      * Creates a {@link FakeImageProxy} from JPEG bytes.
      */
     @NonNull
-    public static FakeImageProxy createJpegFakeImageProxy(@NonNull byte[] jpegBytes) {
+    public static FakeImageProxy createJpegFakeImageProxy(@NonNull FakeImageInfo fakeImageInfo,
+            @NonNull byte[] jpegBytes) {
         Bitmap bitmap = decodeByteArray(jpegBytes, 0, jpegBytes.length);
-        FakeImageProxy image = new FakeImageProxy(new FakeImageInfo());
+        FakeImageProxy image = new FakeImageProxy(fakeImageInfo);
         image.setFormat(JPEG);
         image.setPlanes(new FakeJpegPlaneProxy[]{new FakeJpegPlaneProxy(jpegBytes)});
         image.setWidth(bitmap.getWidth());
         image.setHeight(bitmap.getHeight());
         return image;
+    }
+
+    /**
+     * Creates a {@link FakeImageProxy} from JPEG bytes.
+     */
+    @NonNull
+    public static FakeImageProxy createJpegFakeImageProxy(@NonNull byte[] jpegBytes) {
+        return createJpegFakeImageProxy(new FakeImageInfo(), jpegBytes);
     }
 
     /**
@@ -95,6 +104,15 @@ public class TestImageUtil {
         canvas.drawRect(centerX, centerY, width, height, createPaint(Color.YELLOW));
         canvas.drawRect(0, centerY, centerX, height, createPaint(Color.BLUE));
         return bitmap;
+    }
+
+    /**
+     * Calculates the average color difference between the 2 JPEG images.
+     */
+    public static int getAverageDiff(@NonNull byte[] jpeg1, @NonNull byte[] jpeg2) {
+        return getAverageDiff(
+                decodeByteArray(jpeg1, 0, jpeg1.length),
+                decodeByteArray(jpeg2, 0, jpeg2.length));
     }
 
     /**

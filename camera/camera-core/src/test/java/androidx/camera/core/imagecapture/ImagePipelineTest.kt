@@ -23,13 +23,16 @@ import android.os.Looper.getMainLooper
 import android.util.Size
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
+import androidx.camera.core.imagecapture.Utils.HEIGHT
+import androidx.camera.core.imagecapture.Utils.WIDTH
 import androidx.camera.core.impl.CaptureConfig.OPTION_ROTATION
 import androidx.camera.core.impl.ImageInputConfig
 import androidx.camera.core.impl.MutableOptionsBundle
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor
 import androidx.camera.core.internal.IoConfig.OPTION_IO_EXECUTOR
+import androidx.camera.testing.TestImageUtil.createJpegBytes
+import androidx.camera.testing.TestImageUtil.createJpegFakeImageProxy
 import androidx.camera.testing.fakes.FakeImageInfo
-import androidx.camera.testing.fakes.FakeImageProxy
 import com.google.common.truth.Truth.assertThat
 import org.junit.After
 import org.junit.Before
@@ -139,9 +142,11 @@ class ImagePipelineTest {
         val processingRequest = imagePipeline.createRequests(
             IN_MEMORY_REQUEST, CALLBACK
         ).second!!
-        val image = FakeImageProxy(FakeImageInfo().apply {
+        val jpegBytes = createJpegBytes(WIDTH, HEIGHT)
+        val imageInfo = FakeImageInfo().apply {
             this.setTag(processingRequest.tagBundleKey, processingRequest.stageIds.single())
-        })
+        }
+        val image = createJpegFakeImageProxy(imageInfo, jpegBytes)
 
         // Act: send processing request and the image.
         imagePipeline.postProcess(processingRequest)
