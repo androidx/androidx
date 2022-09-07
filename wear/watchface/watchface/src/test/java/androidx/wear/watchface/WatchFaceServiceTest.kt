@@ -5658,6 +5658,8 @@ public class WatchFaceServiceTest {
             }
 
             override fun onPreviewImageUpdateRequested(watchFaceId: String) {}
+
+            override fun onEngineDetached() {}
         }
 
         engineWrapper = testWatchFaceService.onCreateEngine() as WatchFaceService.EngineWrapper
@@ -5773,6 +5775,8 @@ public class WatchFaceServiceTest {
             override fun onPreviewImageUpdateRequested(watchFaceId: String) {
                 lastPreviewImageUpdateRequestedWatchFaceId = watchFaceId
             }
+
+            override fun onEngineDetached() {}
         }
 
         engineWrapper = testWatchFaceService.onCreateEngine() as WatchFaceService.EngineWrapper

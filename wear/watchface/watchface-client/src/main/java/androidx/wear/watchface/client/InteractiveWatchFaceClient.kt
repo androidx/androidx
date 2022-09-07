@@ -22,6 +22,7 @@ import android.os.HandlerThread
 import android.os.RemoteException
 import android.support.wearable.watchface.SharedMemoryImage
 import androidx.annotation.AnyThread
+import androidx.annotation.IntDef
 import androidx.annotation.Px
 import androidx.annotation.RequiresApi
 import androidx.wear.watchface.complications.data.ComplicationData
@@ -50,6 +51,34 @@ import androidx.wear.watchface.toApiFormat
 import java.time.Instant
 import java.util.concurrent.Executor
 import java.util.function.Consumer
+
+/** @hide */
+@IntDef(
+    value = [
+        DisconnectReason.BINDER_DIED,
+        DisconnectReason.ENGINE_DETACHED
+    ]
+)
+public annotation class DisconnectReason {
+    public companion object {
+        /**
+         * The underlying binder died, probably because the watch face was killed or crashed.
+         * Sometimes this is due to memory pressure and it's not the watch face's fault. Usually in
+         * response a new [InteractiveWatchFaceClient] should be created (see
+         * [WatchFaceControlClient.getOrCreateInteractiveWatchFaceClient]), however if this new
+         * client also disconnects due to [BINDER_DIED] within a few seconds the watchface is
+         * probably bad and it's recommended to switch to a safe system default watch face.
+         */
+        public const val BINDER_DIED: Int = 1
+
+        /**
+         * Wallpaper service detached from the engine, which is now defunct. The watch face itself
+         * has no control over this. Usually in response a new [InteractiveWatchFaceClient]
+         * should be created (see [WatchFaceControlClient.getOrCreateInteractiveWatchFaceClient]).
+         */
+        public const val ENGINE_DETACHED: Int = 2
+    }
+}
 
 /**
  * Controls a stateful remote interactive watch face. Typically this will be used for the current
@@ -216,7 +245,19 @@ public interface InteractiveWatchFaceClient : AutoCloseable {
          * The client disconnected, typically due to the server side crashing. Note this is not
          * called in response to [close] being called on [InteractiveWatchFaceClient].
          */
-        public fun onClientDisconnected()
+        @Deprecated(
+            "Deprecated, use an overload that passes the disconnectReason",
+            ReplaceWith("onClientDisconnected(Int)")
+        )
+        public fun onClientDisconnected() {}
+
+        /**
+         * The client disconnected, due to [disconnectReason].
+         */
+        public fun onClientDisconnected(@DisconnectReason disconnectReason: Int) {
+            @Suppress("DEPRECATION")
+            onClientDisconnected()
+        }
     }
 
     /** Registers a [ClientDisconnectListener]. */
@@ -301,6 +342,7 @@ internal class InteractiveWatchFaceClientImpl internal constructor(
         HashMap<Consumer<WatchFaceColors?>, Executor>()
     private var watchfaceReadyListenerRegistered = false
     private var lastWatchFaceColors: WatchFaceColors? = null
+    private var disconnectReason: Int? = null
     private var closed = false
 
     private val iWatchFaceListener = object : IWatchfaceListener.Stub() {
@@ -330,29 +372,38 @@ internal class InteractiveWatchFaceClientImpl internal constructor(
                 previewImageUpdateRequestedListener!!.accept(watchFaceId)
             }
         }
+
+        override fun onEngineDetached() {
+            sendDisconnectNotification(DisconnectReason.ENGINE_DETACHED)
+        }
     }
 
     init {
         iInteractiveWatchFace.asBinder().linkToDeath(
             {
-                var listenerCopy:
-                    HashMap<InteractiveWatchFaceClient.ClientDisconnectListener, Executor>
-
-                synchronized(lock) {
-                    listenerCopy = HashMap(disconnectListeners)
-                }
-
-                for ((listener, executor) in listenerCopy) {
-                    executor.execute {
-                        listener.onClientDisconnected()
-                    }
-                }
+                sendDisconnectNotification(DisconnectReason.BINDER_DIED)
             },
             0
         )
 
         if (iInteractiveWatchFace.apiVersion >= 6) {
             iInteractiveWatchFace.addWatchFaceListener(iWatchFaceListener)
+        }
+    }
+
+    internal fun sendDisconnectNotification(reason: Int) {
+        val listenersCopy = synchronized(lock) {
+            // Don't send more than one notification.
+            if (disconnectReason != null) {
+                return
+            }
+            disconnectReason = reason
+            HashMap(disconnectListeners)
+        }
+        for ((listener, executor) in listenersCopy) {
+            executor.execute {
+                listener.onClientDisconnected(reason)
+            }
         }
     }
 
@@ -483,11 +534,15 @@ internal class InteractiveWatchFaceClientImpl internal constructor(
         listener: InteractiveWatchFaceClient.ClientDisconnectListener,
         executor: Executor
     ) {
-        synchronized(lock) {
+        val disconnectReasonCopy = synchronized(lock) {
             require(!disconnectListeners.contains(listener)) {
                 "Don't call addClientDisconnectListener multiple times for the same listener"
             }
             disconnectListeners.put(listener, executor)
+            disconnectReason
+        }
+        disconnectReasonCopy?.let {
+            listener.onClientDisconnected(it)
         }
     }
 
