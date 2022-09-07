@@ -103,7 +103,7 @@ class AidlGenerator private constructor(
         return """
                 |package ${packageName()};
                 |$transactionCallbackImports
-                |oneway interface ${aidlNameForInterface(service())} {
+                |interface ${aidlNameForInterface(service())} {
                 |    $generatedMethods
                 |}
             """.trimMargin()
@@ -113,7 +113,8 @@ class AidlGenerator private constructor(
         val parameters =
             method.parameters.map(::generateAidlParameter) +
                 "${callbackNameForType(method.returnType)} transactionCallback"
-        return "void ${method.name}(${parameters.joinToString()});"
+        // TODO remove return type.
+        return "${method.returnType.toAidlType()} ${method.name}(${parameters.joinToString()});"
     }
 
     private fun generateAidlParameter(parameter: Parameter) =
@@ -127,13 +128,14 @@ class AidlGenerator private constructor(
 
     private fun generateTransactionCallback(type: Type): InMemorySource {
         val interfaceName = callbackNameForType(type)
+        val onSuccessParameter = type.toAidlType().let { if (it == "void") "" else "$it result" }
         return InMemorySource(
             packageName = packageName(), interfaceName = interfaceName, fileContents = """
                     package ${packageName()};
                     import ${packageName()}.ICancellationSignal;
                     oneway interface $interfaceName {
                         void onCancellable(ICancellationSignal cancellationSignal);
-                        void onSuccess(${type.toAidlType()?.let { "$it result" } ?: ""});
+                        void onSuccess($onSuccessParameter);
                         void onFailure(int errorCode, String errorMessage);
                     }
                 """.trimIndent()
@@ -204,6 +206,6 @@ internal fun Type.toAidlType() = when (name) {
     Char::class.qualifiedName -> "char"
     // TODO: AIDL doesn't support short, make sure it's handled correctly.
     Short::class.qualifiedName -> "int"
-    Unit::class.qualifiedName -> null
+    Unit::class.qualifiedName -> "void"
     else -> throw IllegalArgumentException("Unsupported type conversion ${this.name}")
 }
