@@ -118,11 +118,55 @@ class ProviderCallbackTest {
             assertThat(child.multiWindowChangedCount).isEqualTo(1)
         }
     }
+
+    @SdkSuppress(minSdkVersion = 26)
+    @Suppress("DEPRECATION")
+    @Test
+    fun onPictureInPictureModeChanged() {
+        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+            val fragment = CallbackFragment()
+
+            withActivity {
+                supportFragmentManager.beginTransaction()
+                    .replace(R.id.content, fragment)
+                    .commitNow()
+
+                val newConfig = Configuration(resources.configuration)
+                onPictureInPictureModeChanged(true, newConfig)
+            }
+            assertThat(fragment.pictureModeChangedCount).isEqualTo(1)
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = 26)
+    @Test
+    fun onPictureInPictureModeChangedNestedFragments() {
+        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+            val parent = StrictViewFragment(R.layout.fragment_container_view)
+            val child = CallbackFragment()
+
+            withActivity {
+                supportFragmentManager.beginTransaction()
+                    .replace(R.id.content, parent)
+                    .commitNow()
+
+                parent.childFragmentManager.beginTransaction()
+                    .replace(R.id.fragment_container_view, child)
+                    .commitNow()
+
+                val newConfig = Configuration(resources.configuration)
+                onPictureInPictureModeChanged(true, newConfig)
+            }
+
+            assertThat(child.pictureModeChangedCount).isEqualTo(1)
+        }
+    }
 }
 
 class CallbackFragment : StrictViewFragment() {
     var configChangedCount = 0
     var multiWindowChangedCount = 0
+    var pictureModeChangedCount = 0
 
     override fun onConfigurationChanged(newConfig: Configuration) {
         configChangedCount++
@@ -130,5 +174,9 @@ class CallbackFragment : StrictViewFragment() {
 
     override fun onMultiWindowModeChanged(isInMultiWindowMode: Boolean) {
         multiWindowChangedCount++
+    }
+
+    override fun onPictureInPictureModeChanged(isInPictureInPictureMode: Boolean) {
+        pictureModeChangedCount++
     }
 }

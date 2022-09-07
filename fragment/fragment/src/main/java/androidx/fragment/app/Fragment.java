@@ -3221,7 +3221,6 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
 
     void performPictureInPictureModeChanged(boolean isInPictureInPictureMode) {
         onPictureInPictureModeChanged(isInPictureInPictureMode);
-        mChildFragmentManager.dispatchPictureInPictureModeChanged(isInPictureInPictureMode);
     }
 
     void performConfigurationChanged(@NonNull Configuration newConfig) {
