@@ -34,11 +34,10 @@ public class ExerciseCapabilitiesResponse(
     public val exerciseCapabilities: ExerciseCapabilities,
 ) : ProtoParcelable<ResponsesProto.ExerciseCapabilitiesResponse>() {
 
-    override val proto: ResponsesProto.ExerciseCapabilitiesResponse by lazy {
+    override val proto: ResponsesProto.ExerciseCapabilitiesResponse =
         ResponsesProto.ExerciseCapabilitiesResponse.newBuilder()
             .setCapabilities(exerciseCapabilities.proto)
             .build()
-    }
 
     public companion object {
         @JvmField

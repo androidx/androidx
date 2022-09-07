@@ -33,11 +33,10 @@ public class MeasureCapabilitiesResponse(
     public val measureCapabilities: MeasureCapabilities,
 ) : ProtoParcelable<ResponsesProto.MeasureCapabilitiesResponse>() {
 
-    override val proto: ResponsesProto.MeasureCapabilitiesResponse by lazy {
+    override val proto: ResponsesProto.MeasureCapabilitiesResponse =
         ResponsesProto.MeasureCapabilitiesResponse.newBuilder()
             .setCapabilities(measureCapabilities.proto)
             .build()
-    }
 
     public companion object {
         @JvmField

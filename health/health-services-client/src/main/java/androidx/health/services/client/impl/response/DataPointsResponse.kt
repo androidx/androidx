@@ -31,7 +31,7 @@ internal class DataPointsResponse(public val dataPoints: List<DataPoint<*>>) :
         proto: ResponsesProto.DataPointsResponse
     ) : this(proto.dataPointsList.map { DataPoint.fromProto(it) })
 
-    override val proto: ResponsesProto.DataPointsResponse by lazy {
+    override val proto: ResponsesProto.DataPointsResponse =
         ResponsesProto.DataPointsResponse.newBuilder()
             .addAllDataPoints(
                 dataPoints
@@ -45,7 +45,6 @@ internal class DataPointsResponse(public val dataPoints: List<DataPoint<*>>) :
                     }
             )
             .build()
-    }
 
     public companion object {
         @JvmField
