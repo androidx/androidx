@@ -56,8 +56,6 @@ class Image2JpegBytesTest {
         val input = Packet.of(
             image,
             exif,
-            JPEG,
-            Size(WIDTH, HEIGHT),
             CROP_RECT,
             ROTATION_DEGREES,
             SENSOR_TO_BUFFER

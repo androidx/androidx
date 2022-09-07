@@ -18,7 +18,6 @@ package androidx.camera.core.imagecapture
 
 import android.graphics.ImageFormat.JPEG
 import android.os.Build
-import android.util.Size
 import androidx.camera.core.ImageProxy
 import androidx.camera.core.imagecapture.Utils.CROP_RECT
 import androidx.camera.core.imagecapture.Utils.HEIGHT
@@ -57,8 +56,6 @@ class JpegImage2ResultTest {
         val input = Packet.of(
             image,
             exif,
-            JPEG,
-            Size(WIDTH, HEIGHT),
             CROP_RECT,
             ROTATION_DEGREES,
             SENSOR_TO_BUFFER

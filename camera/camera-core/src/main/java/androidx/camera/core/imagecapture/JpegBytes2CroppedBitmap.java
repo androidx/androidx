@@ -17,14 +17,14 @@ package androidx.camera.core.imagecapture;
 
 import static androidx.camera.core.ImageCapture.ERROR_FILE_IO;
 
+import static java.util.Objects.requireNonNull;
+
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.BitmapRegionDecoder;
-import android.graphics.ImageFormat;
 import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.os.Build;
-import android.util.Size;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
@@ -47,9 +47,7 @@ final class JpegBytes2CroppedBitmap implements Processor<Packet<byte[]>, Packet<
         Bitmap bitmap = createCroppedBitmap(packet.getData(), cropRect);
         return Packet.of(
                 bitmap,
-                packet.getExif(),
-                ImageFormat.FLEX_RGBA_8888,
-                new Size(bitmap.getWidth(), bitmap.getHeight()),
+                requireNonNull(packet.getExif()),
                 new Rect(0, 0, bitmap.getWidth(), bitmap.getHeight()),
                 packet.getRotationDegrees(),
                 createSensorToBufferTransform(packet.getSensorToBufferTransform(), cropRect));

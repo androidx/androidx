@@ -26,6 +26,7 @@ import android.util.Size;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.camera.core.ImageInfo;
 import androidx.camera.core.ImageProxy;
 import androidx.camera.core.impl.utils.Exif;
 
@@ -68,8 +69,12 @@ public abstract class Packet<T> {
 
     /**
      * The Exif info extracted from JPEG bytes.
+     *
+     * @return null if {@link #getData()} is a non-JPEG {@link ImageProxy}. {@link Exif} does not
+     * work with non-JPEG format. In that case, the exif data can be obtained via
+     * {@link ImageInfo#populateExifData}.
      */
-    @NonNull
+    @Nullable
     public abstract Exif getExif();
 
     /**
@@ -114,10 +119,10 @@ public abstract class Packet<T> {
     public abstract Matrix getSensorToBufferTransform();
 
     /**
-     * Creates {@link Bitmap} {@link Packet}.
+     * Creates {@link Bitmap} based {@link Packet}.
      */
     @NonNull
-    public static Packet<Bitmap> of(@NonNull Bitmap data, @Nullable Exif exif,
+    public static Packet<Bitmap> of(@NonNull Bitmap data, @NonNull Exif exif,
             @NonNull Rect cropRect, int rotationDegrees, @NonNull Matrix sensorToBufferTransform) {
         return new AutoValue_Packet<>(data, exif, ImageFormat.FLEX_RGBA_8888,
                 new Size(data.getWidth(), data.getHeight()),
@@ -125,10 +130,21 @@ public abstract class Packet<T> {
     }
 
     /**
-     * Creates {@link Packet}.
+     * Creates {@link ImageProxy} based {@link Packet}.
      */
     @NonNull
-    public static <T> Packet<T> of(@NonNull T data, @NonNull Exif exif,
+    public static Packet<ImageProxy> of(@NonNull ImageProxy data, @Nullable Exif exif,
+            @NonNull Rect cropRect, int rotationDegrees, @NonNull Matrix sensorToBufferTransform) {
+        return new AutoValue_Packet<>(data, exif, data.getFormat(),
+                new Size(data.getWidth(), data.getHeight()), cropRect, rotationDegrees,
+                sensorToBufferTransform);
+    }
+
+    /**
+     * Creates byte array based {@link Packet}.
+     */
+    @NonNull
+    public static Packet<byte[]> of(@NonNull byte[] data, @NonNull Exif exif,
             int format, @NonNull Size size, @NonNull Rect cropRect,
             int rotationDegrees, @NonNull Matrix sensorToBufferTransform) {
         return new AutoValue_Packet<>(data, exif, format, size, cropRect,
