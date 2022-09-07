@@ -3227,7 +3227,6 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
 
     void performConfigurationChanged(@NonNull Configuration newConfig) {
         onConfigurationChanged(newConfig);
-        mChildFragmentManager.dispatchConfigurationChanged(newConfig);
     }
 
     void performLowMemory() {
