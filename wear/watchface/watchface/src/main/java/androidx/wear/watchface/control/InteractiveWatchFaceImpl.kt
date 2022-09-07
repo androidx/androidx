@@ -219,9 +219,14 @@ internal class InteractiveWatchFaceImpl(
     fun onDestroy() {
         // Note this is almost certainly called on the ui thread, from release() above.
         runBlocking {
-            withContext(uiThreadCoroutineScope.coroutineContext) {
-                Log.d(TAG, "onDestroy id $instanceId")
-                engine = null
+            try {
+                withContext(uiThreadCoroutineScope.coroutineContext) {
+                    Log.d(TAG, "onDestroy id $instanceId")
+                    engine?.onEngineDetached()
+                    engine = null
+                }
+            } catch (e: Exception) {
+                Log.w(TAG, "onDestroy failed to call onEngineDetached", e)
             }
         }
     }

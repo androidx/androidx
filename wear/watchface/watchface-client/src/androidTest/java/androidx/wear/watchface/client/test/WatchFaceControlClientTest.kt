@@ -65,6 +65,7 @@ import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.WatchFaceType
 import androidx.wear.watchface.WatchState
 import androidx.wear.watchface.client.DeviceConfig
+import androidx.wear.watchface.client.DisconnectReason
 import androidx.wear.watchface.client.HeadlessWatchFaceClient
 import androidx.wear.watchface.client.InteractiveWatchFaceClient
 import androidx.wear.watchface.client.WatchFaceControlClient
@@ -1880,6 +1881,46 @@ class WatchFaceControlClientTest {
         assertThat(lastPreviewImageUpdateRequestedId).isEqualTo("wfId-1")
 
         interactiveInstance.close()
+    }
+
+    @Test
+    fun engineDetached() {
+        val wallpaperService = TestComplicationProviderDefaultsWatchFaceService(
+            context,
+            surfaceHolder
+        )
+        val deferredInteractiveInstance = handlerCoroutineScope.async {
+            @Suppress("deprecation")
+            service.getOrCreateInteractiveWatchFaceClient(
+                "testId",
+                deviceConfig,
+                systemState,
+                null,
+                complications
+            )
+        }
+        // Create the engine which triggers construction of the interactive instance.
+        handler.post {
+            engine = wallpaperService.onCreateEngine() as WatchFaceService.EngineWrapper
+        }
+
+        // Wait for the instance to be created.
+        val interactiveInstance = awaitWithTimeout(deferredInteractiveInstance)
+
+        var lastDisconnectReason = 0
+        interactiveInstance.addClientDisconnectListener(
+            object : InteractiveWatchFaceClient.ClientDisconnectListener {
+                override fun onClientDisconnected(@DisconnectReason disconnectReason: Int) {
+                    lastDisconnectReason = disconnectReason
+                }
+            },
+            { it.run() }
+        )
+
+        // Simulate detach.
+        engine.onDestroy()
+
+        assertThat(lastDisconnectReason).isEqualTo(DisconnectReason.ENGINE_DETACHED)
     }
 }
 
