@@ -26,20 +26,22 @@ import androidx.camera.integration.extensions.util.CameraXExtensionsTestUtil.VER
 import androidx.camera.integration.extensions.util.CameraXExtensionsTestUtil.VERIFICATION_TARGET_PREVIEW
 import androidx.camera.integration.extensions.util.CameraXExtensionsTestUtil.launchCameraExtensionsActivity
 import androidx.camera.integration.extensions.util.HOME_TIMEOUT_MS
-import androidx.camera.integration.extensions.util.pauseAndResumeActivity
 import androidx.camera.integration.extensions.util.takePictureAndWaitForImageSavedIdle
+import androidx.camera.integration.extensions.util.waitForPreviewViewIdle
 import androidx.camera.integration.extensions.util.waitForPreviewViewStreaming
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CameraUtil.PreTestCameraIdList
 import androidx.camera.testing.CoreAppTestUtil
 import androidx.camera.testing.LabTestRule
+import androidx.lifecycle.Lifecycle
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.GrantPermissionRule
 import androidx.test.uiautomator.UiDevice
 import androidx.testutils.RepeatRule
+import androidx.testutils.withActivity
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
@@ -155,24 +157,30 @@ class LifecycleStatusChangeStressTest(
         verificationTarget: Int,
         repeatCount: Int = STRESS_TEST_OPERATION_REPEAT_COUNT
     ) {
-        var activityScenario = launchCameraExtensionsActivity(cameraId, extensionMode)
+        val activityScenario = launchCameraExtensionsActivity(cameraId, extensionMode)
 
-        try {
-            activityScenario.waitForPreviewViewStreaming()
+        with(activityScenario) {
+            use {
+                waitForPreviewViewStreaming()
 
-            repeat(repeatCount) {
-                activityScenario = activityScenario.pauseAndResumeActivity(cameraId, extensionMode)
-                if (verificationTarget.and(VERIFICATION_TARGET_PREVIEW) != 0) {
-                    activityScenario.waitForPreviewViewStreaming()
-                }
+                repeat(repeatCount) {
+                    withActivity {
+                        resetPreviewViewIdleStateIdlingResource()
+                        resetPreviewViewStreamingStateIdlingResource()
+                    }
+                    moveToState(Lifecycle.State.CREATED)
+                    waitForPreviewViewIdle()
+                    moveToState(Lifecycle.State.RESUMED)
 
-                if (verificationTarget.and(VERIFICATION_TARGET_IMAGE_CAPTURE) != 0) {
-                    activityScenario.takePictureAndWaitForImageSavedIdle()
+                    if (verificationTarget.and(VERIFICATION_TARGET_PREVIEW) != 0) {
+                        waitForPreviewViewStreaming()
+                    }
+
+                    if (verificationTarget.and(VERIFICATION_TARGET_IMAGE_CAPTURE) != 0) {
+                        takePictureAndWaitForImageSavedIdle()
+                    }
                 }
             }
-        } finally {
-            // Finish the activity
-            activityScenario.close()
         }
     }
 
@@ -194,17 +202,23 @@ class LifecycleStatusChangeStressTest(
         verificationTarget: Int,
         repeatCount: Int = STRESS_TEST_OPERATION_REPEAT_COUNT
     ) {
-        var activityScenario = launchCameraExtensionsActivity(cameraId, extensionMode)
-
-        activityScenario.waitForPreviewViewStreaming()
-
-        repeat(repeatCount) {
-            activityScenario = activityScenario.pauseAndResumeActivity(cameraId, extensionMode)
-            activityScenario.waitForPreviewViewStreaming()
-        }
+        val activityScenario = launchCameraExtensionsActivity(cameraId, extensionMode)
 
         with(activityScenario) {
             use {
+                waitForPreviewViewStreaming()
+
+                repeat(repeatCount) {
+                    withActivity {
+                        resetPreviewViewIdleStateIdlingResource()
+                        resetPreviewViewStreamingStateIdlingResource()
+                    }
+                    moveToState(Lifecycle.State.CREATED)
+                    waitForPreviewViewIdle()
+                    moveToState(Lifecycle.State.RESUMED)
+                    waitForPreviewViewStreaming()
+                }
+
                 if (verificationTarget.and(VERIFICATION_TARGET_PREVIEW) != 0) {
                     waitForPreviewViewStreaming()
                 }
