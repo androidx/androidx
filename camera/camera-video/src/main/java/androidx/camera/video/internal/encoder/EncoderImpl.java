@@ -40,6 +40,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.Logger;
+import androidx.camera.core.impl.Timebase;
 import androidx.camera.core.impl.annotation.ExecutedBy;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
@@ -50,8 +51,8 @@ import androidx.camera.video.internal.compat.quirk.CameraUseInconsistentTimebase
 import androidx.camera.video.internal.compat.quirk.DeviceQuirks;
 import androidx.camera.video.internal.compat.quirk.EncoderNotUsePersistentInputSurfaceQuirk;
 import androidx.camera.video.internal.compat.quirk.VideoEncoderSuspendDoesNotIncludeSuspendTimeQuirk;
-import androidx.camera.video.internal.workaround.CorrectVideoTimeByTimebase;
 import androidx.camera.video.internal.workaround.EncoderFinder;
+import androidx.camera.video.internal.workaround.VideoTimebaseConverter;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.concurrent.futures.CallbackToFutureAdapter.Completer;
 import androidx.core.util.Preconditions;
@@ -174,6 +175,8 @@ public class EncoderImpl implements Encoder {
      */
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     final Deque<Range<Long>> mActivePauseResumeTimeRanges = new ArrayDeque<>();
+    final Timebase mInputTimebase;
+    final TimeProvider mTimeProvider = new SystemTimeProvider();
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     @GuardedBy("mLock")
@@ -227,6 +230,8 @@ public class EncoderImpl implements Encoder {
             throw new InvalidConfigException("Unknown encoder config type");
         }
 
+        mInputTimebase = encoderConfig.getInputTimebase();
+        Logger.d(mTag, "mInputTimebase = " + mInputTimebase);
         mMediaFormat = encoderConfig.toMediaFormat();
         Logger.d(mTag, "mMediaFormat = " + mMediaFormat);
         mMediaCodec = mEncoderFinder.findEncoder(mMediaFormat);
@@ -967,8 +972,8 @@ public class EncoderImpl implements Encoder {
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    static long generatePresentationTimeUs() {
-        return TimeUnit.NANOSECONDS.toMicros(System.nanoTime());
+    long generatePresentationTimeUs() {
+        return mTimeProvider.uptimeUs();
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
@@ -985,7 +990,7 @@ public class EncoderImpl implements Encoder {
     @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     class MediaCodecCallback extends MediaCodec.Callback {
         @Nullable
-        private final CorrectVideoTimeByTimebase mCorrectVideoTimestamp;
+        private final VideoTimebaseConverter mVideoTimestampConverter;
 
         private boolean mHasSendStartCallback = false;
         private boolean mHasFirstData = false;
@@ -1001,11 +1006,16 @@ public class EncoderImpl implements Encoder {
         private boolean mIsKeyFrameRequired = false;
 
         MediaCodecCallback() {
-            if (mIsVideoEncoder
-                    && DeviceQuirks.get(CameraUseInconsistentTimebaseQuirk.class) != null) {
-                mCorrectVideoTimestamp = new CorrectVideoTimeByTimebase();
+            if (mIsVideoEncoder) {
+                Timebase inputTimebase;
+                if (DeviceQuirks.get(CameraUseInconsistentTimebaseQuirk.class) != null) {
+                    inputTimebase = null;
+                } else {
+                    inputTimebase = mInputTimebase;
+                }
+                mVideoTimestampConverter = new VideoTimebaseConverter(mTimeProvider, inputTimebase);
             } else {
-                mCorrectVideoTimestamp = null;
+                mVideoTimestampConverter = null;
             }
         }
 
@@ -1055,10 +1065,6 @@ public class EncoderImpl implements Encoder {
                             Logger.d(mTag, DebugUtils.readableBufferInfo(bufferInfo));
                         }
 
-                        if (mCorrectVideoTimestamp != null) {
-                            mCorrectVideoTimestamp.correctTimestamp(bufferInfo);
-                        }
-
                         // Handle start of stream
                         if (!mHasSendStartCallback) {
                             mHasSendStartCallback = true;
@@ -1069,7 +1075,7 @@ public class EncoderImpl implements Encoder {
                             }
                         }
 
-                        if (!checkBufferInfo(bufferInfo)) {
+                        if (checkBufferInfo(bufferInfo)) {
                             if (!mHasFirstData) {
                                 mHasFirstData = true;
                             }
@@ -1164,31 +1170,36 @@ public class EncoderImpl implements Encoder {
         /**
          * Checks the {@link android.media.MediaCodec.BufferInfo} and updates related states.
          *
-         * @return {@code true} if the buffer should be dropped, otherwise {@code false}.
+         * @return {@code true} if the buffer is valid, otherwise {@code false}.
          */
         @ExecutedBy("mEncoderExecutor")
         private boolean checkBufferInfo(@NonNull MediaCodec.BufferInfo bufferInfo) {
             if (mHasEndData) {
                 Logger.d(mTag, "Drop buffer by already reach end of stream.");
-                return true;
+                return false;
             }
 
             if (bufferInfo.size <= 0) {
                 Logger.d(mTag, "Drop buffer by invalid buffer size.");
-                return true;
+                return false;
             }
 
             // Sometimes the codec config data was notified by output callback, they should have
             // been sent out by onOutputFormatChanged(), so ignore it.
             if ((bufferInfo.flags & MediaCodec.BUFFER_FLAG_CODEC_CONFIG) != 0) {
                 Logger.d(mTag, "Drop buffer by codec config.");
-                return true;
+                return false;
+            }
+
+            if (mVideoTimestampConverter != null) {
+                bufferInfo.presentationTimeUs =
+                        mVideoTimestampConverter.convertToUptimeUs(bufferInfo.presentationTimeUs);
             }
 
             // MediaCodec may send out of order buffer
             if (bufferInfo.presentationTimeUs <= mLastPresentationTimeUs) {
                 Logger.d(mTag, "Drop buffer by out of order buffer from MediaCodec.");
-                return true;
+                return false;
             }
             mLastPresentationTimeUs = bufferInfo.presentationTimeUs;
 
@@ -1208,12 +1219,12 @@ public class EncoderImpl implements Encoder {
                     signalCodecStop();
                     mPendingCodecStop = false;
                 }
-                return true;
+                return false;
             }
 
             if (updatePauseRangeStateAndCheckIfBufferPaused(bufferInfo)) {
                 Logger.d(mTag, "Drop buffer by pause.");
-                return true;
+                return false;
             }
 
             // We should check if the adjusted time is valid. see b/189114207.
@@ -1222,7 +1233,7 @@ public class EncoderImpl implements Encoder {
                 if (mIsVideoEncoder && isKeyFrame(bufferInfo)) {
                     mIsKeyFrameRequired = true;
                 }
-                return true;
+                return false;
             }
 
             if (!mHasFirstData && !mIsKeyFrameRequired && mIsVideoEncoder) {
@@ -1233,12 +1244,12 @@ public class EncoderImpl implements Encoder {
                 if (!isKeyFrame(bufferInfo)) {
                     Logger.d(mTag, "Drop buffer by not a key frame.");
                     requestKeyFrameToMediaCodec();
-                    return true;
+                    return false;
                 }
                 mIsKeyFrameRequired = false;
             }
 
-            return false;
+            return true;
         }
 
         @ExecutedBy("mEncoderExecutor")
