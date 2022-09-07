@@ -25,13 +25,18 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.glance.Emittable
 import androidx.glance.GlanceModifier
+import androidx.glance.action.ActionModifier
+import androidx.glance.action.LambdaAction
+import androidx.glance.layout.EmittableBox
 import androidx.glance.state.GlanceStateDefinition
 import androidx.glance.state.PreferencesGlanceStateDefinition
 import androidx.glance.state.ConfigManager
 import androidx.glance.text.EmittableText
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
+import kotlin.test.assertFalse
 import kotlin.test.assertIs
+import kotlin.test.assertTrue
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -126,6 +131,57 @@ class AppWidgetSessionTest {
             this@runTest.launch { session.close() }
         }
         assertThat(testState.getValueCalls).containsExactly(id.toSessionKey())
+    }
+
+    @Test
+    fun processEvent_runLambda() = runTest {
+        var didRunFirst = false
+        var didRunSecond = false
+        session.processEmittableTree(context, RemoteViewsRoot(1).apply {
+            children += EmittableBox().apply {
+                modifier = GlanceModifier.then(ActionModifier(LambdaAction("123") {
+                    didRunFirst = true
+                }))
+            }
+            children += EmittableBox().apply {
+                modifier = GlanceModifier.then(ActionModifier(LambdaAction("123") {
+                    didRunSecond = true
+                }))
+            }
+        })
+        session.processEvent(context, AppWidgetSession.RunLambda("123+0"))
+        assertTrue(didRunFirst)
+        assertFalse(didRunSecond)
+
+        didRunFirst = false
+        session.processEvent(context, AppWidgetSession.RunLambda("123+1"))
+        assertTrue(didRunSecond)
+        assertFalse(didRunFirst)
+    }
+
+    @Test
+    fun runLambda() = runTest {
+        var didRunFirst = false
+        var didRunSecond = false
+        session.processEmittableTree(context, RemoteViewsRoot(1).apply {
+            children += EmittableBox().apply {
+                modifier = GlanceModifier.then(ActionModifier(LambdaAction("123") {
+                    didRunFirst = true
+                }))
+            }
+            children += EmittableBox().apply {
+                modifier = GlanceModifier.then(ActionModifier(LambdaAction("123") {
+                    didRunSecond = true
+                    this@runTest.launch { session.close() }
+                }))
+            }
+        })
+
+        session.runLambda("123+0")
+        session.runLambda("123+1")
+        session.receiveEvents(context) {}
+        assertTrue(didRunFirst)
+        assertTrue(didRunSecond)
     }
 
     private class SampleGlanceAppWidget(

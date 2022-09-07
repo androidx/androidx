@@ -34,6 +34,8 @@ import android.widget.LinearLayout
 import android.widget.RadioButton
 import android.widget.TextView
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
@@ -93,7 +95,9 @@ import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicReference
 import kotlin.test.assertIs
 import kotlin.test.assertNotNull
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertThrows
 import org.junit.Before
 import org.junit.Rule
@@ -101,10 +105,11 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @SdkSuppress(minSdkVersion = 29)
 @MediumTest
 @RunWith(Parameterized::class)
-class GlanceAppWidgetReceiverTest(useSessionManager: Boolean) {
+class GlanceAppWidgetReceiverTest(val useSessionManager: Boolean) {
     @get:Rule
     val mHostRule = AppWidgetHostRule(useSessionManager = useSessionManager)
 
@@ -553,7 +558,7 @@ class GlanceAppWidgetReceiverTest(useSessionManager: Boolean) {
     }
 
     @Test
-    fun updateAll() = runBlocking {
+    fun updateAll() = runTest {
         TestGlanceAppWidget.uiDefinition = {
             Text("text")
         }
@@ -566,7 +571,7 @@ class GlanceAppWidgetReceiverTest(useSessionManager: Boolean) {
     }
 
     @Test
-    fun updateIf() = runBlocking {
+    fun updateIf() = runTest {
         val didRun = AtomicBoolean(false)
         TestGlanceAppWidget.uiDefinition = {
             currentState<Preferences>()
@@ -854,7 +859,35 @@ class GlanceAppWidgetReceiverTest(useSessionManager: Boolean) {
     }
 
     @Test
-    fun unsetActionCallback() {
+    fun lambdaActionCallback() = runTest {
+        if (!useSessionManager) return@runTest
+        TestGlanceAppWidget.uiDefinition = {
+            val text = remember { mutableStateOf("initial") }
+            Button(
+                text = text.value,
+                onClick = {
+                    text.value = "clicked"
+                }
+            )
+        }
+
+        mHostRule.startHost()
+        var button: View? = null
+        mHostRule.onHostView { root ->
+            val text = checkNotNull(root.findChild<TextView> { it.text.toString() == "initial" })
+            button = text.parent as View
+        }
+        mHostRule.runAndWaitForUpdate {
+            button!!.performClick()
+        }
+
+        mHostRule.onHostView { root ->
+            checkNotNull(root.findChild<TextView> { it.text.toString() == "clicked" })
+        }
+    }
+
+    @Test
+    fun unsetActionCallback() = runTest {
         TestGlanceAppWidget.uiDefinition = {
             val enabled = currentState<Preferences>()[testBoolKey] ?: true
             Text(
@@ -879,13 +912,11 @@ class GlanceAppWidgetReceiverTest(useSessionManager: Boolean) {
             assertThat(view.hasOnClickListeners()).isTrue()
         }
 
-        runBlocking {
-            updateAppWidgetState(context, AppWidgetId(mHostRule.appWidgetId)) {
-                it[testBoolKey] = false
-            }
-            mHostRule.runAndWaitForUpdate {
-                TestGlanceAppWidget.update(context, AppWidgetId(mHostRule.appWidgetId))
-            }
+        updateAppWidgetState(context, AppWidgetId(mHostRule.appWidgetId)) {
+            it[testBoolKey] = false
+        }
+        mHostRule.runAndWaitForUpdate {
+            TestGlanceAppWidget.update(context, AppWidgetId(mHostRule.appWidgetId))
         }
 
         mHostRule.onHostView { root ->
@@ -898,7 +929,7 @@ class GlanceAppWidgetReceiverTest(useSessionManager: Boolean) {
     }
 
     @Test
-    fun unsetCompoundButtonActionCallback() {
+    fun unsetCompoundButtonActionCallback() = runTest {
         TestGlanceAppWidget.uiDefinition = {
             val enabled = currentState<Preferences>()[testBoolKey] ?: true
             CheckBox(
@@ -925,13 +956,11 @@ class GlanceAppWidgetReceiverTest(useSessionManager: Boolean) {
             "checkbox" to true
         )
 
-        runBlocking {
-            updateAppWidgetState(context, AppWidgetId(mHostRule.appWidgetId)) {
-                it[testBoolKey] = false
-            }
-            mHostRule.runAndWaitForUpdate {
-                TestGlanceAppWidget.update(context, AppWidgetId(mHostRule.appWidgetId))
-            }
+        updateAppWidgetState(context, AppWidgetId(mHostRule.appWidgetId)) {
+            it[testBoolKey] = false
+        }
+        mHostRule.runAndWaitForUpdate {
+            TestGlanceAppWidget.update(context, AppWidgetId(mHostRule.appWidgetId))
         }
 
         CompoundButtonActionTest.received.set(emptyList())

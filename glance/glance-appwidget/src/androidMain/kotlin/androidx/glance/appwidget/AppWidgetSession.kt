@@ -33,6 +33,7 @@ import androidx.glance.GlanceComposable
 import androidx.glance.LocalContext
 import androidx.glance.LocalGlanceId
 import androidx.glance.LocalState
+import androidx.glance.action.LambdaAction
 import androidx.glance.session.Session
 import androidx.glance.session.SetContentFn
 import androidx.glance.state.ConfigManager
@@ -69,6 +70,7 @@ internal class AppWidgetSession(
 
     private val glanceState = mutableStateOf(emptyPreferences(), neverEqualPolicy())
     private val options = mutableStateOf(Bundle(), neverEqualPolicy())
+    private var lambdas = mapOf<String, List<LambdaAction>>()
     @VisibleForTesting
     internal var lastRemoteViews: RemoteViews? = null
 
@@ -112,17 +114,23 @@ internal class AppWidgetSession(
     ) {
         root as RemoteViewsRoot
         val layoutConfig = LayoutConfiguration.load(context, id.appWidgetId)
+        val appWidgetManager = context.appWidgetManager
         try {
+            val receiver = requireNotNull(appWidgetManager.getAppWidgetInfo(id.appWidgetId)) {
+                "No app widget info for ${id.appWidgetId}"
+            }.provider
             normalizeCompositionTree(root)
+            lambdas = root.updateLambdaActionKeys()
             val rv = translateComposition(
                 context,
                 id.appWidgetId,
                 root,
                 layoutConfig,
                 layoutConfig.addLayout(root),
-                DpSize.Unspecified
+                DpSize.Unspecified,
+                receiver
             )
-            context.appWidgetManager.updateAppWidget(id.appWidgetId, rv)
+            appWidgetManager.updateAppWidget(id.appWidgetId, rv)
             lastRemoteViews = rv
         } catch (ex: CancellationException) {
             // Nothing to do
@@ -132,7 +140,7 @@ internal class AppWidgetSession(
             }
             logException(throwable)
             val rv = RemoteViews(context.packageName, widget.errorUiLayout)
-            context.appWidgetManager.updateAppWidget(id.appWidgetId, rv)
+            appWidgetManager.updateAppWidget(id.appWidgetId, rv)
             lastRemoteViews = rv
         } finally {
             layoutConfig.save()
@@ -156,6 +164,14 @@ internal class AppWidgetSession(
                 }
                 options.value = event.newOptions
             }
+            is RunLambda -> {
+                Log.i(TAG, "Received RunLambda(${event.key}) action for session($key)")
+                lambdas[event.key]?.map { it.block() }
+                    ?: Log.w(
+                        TAG,
+                        "Triggering Action(${event.key}) for session($key) failed"
+                    )
+            }
             else -> {
                 throw IllegalArgumentException(
                     "Sent unrecognized event type ${event.javaClass} to AppWidgetSession"
@@ -172,12 +188,17 @@ internal class AppWidgetSession(
         sendEvent(UpdateAppWidgetOptions(newOptions))
     }
 
+    suspend fun runLambda(key: String) {
+        sendEvent(RunLambda(key))
+    }
+
     // Action types that this session supports.
     @VisibleForTesting
     internal object UpdateGlanceState
-
     @VisibleForTesting
     internal class UpdateAppWidgetOptions(val newOptions: Bundle)
+    @VisibleForTesting
+    internal class RunLambda(val key: String)
 
     private val Context.appWidgetManager: AppWidgetManager
         get() = this.getSystemService(Context.APPWIDGET_SERVICE) as AppWidgetManager

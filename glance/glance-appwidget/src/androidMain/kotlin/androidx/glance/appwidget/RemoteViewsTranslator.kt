@@ -16,6 +16,7 @@
 
 package androidx.glance.appwidget
 
+import android.content.ComponentName
 import android.content.Context
 import android.os.Build
 import android.util.Log
@@ -67,6 +68,8 @@ internal fun translateComposition(
     layoutConfiguration: LayoutConfiguration?,
     rootViewIndex: Int,
     layoutSize: DpSize,
+    actionBroadcastReceiver: ComponentName? = null,
+
 ) =
     translateComposition(
         TranslationContext(
@@ -76,6 +79,7 @@ internal fun translateComposition(
             layoutConfiguration,
             itemPosition = -1,
             layoutSize = layoutSize,
+            actionBroadcastReceiver = actionBroadcastReceiver,
         ),
         element.children,
         rootViewIndex,
@@ -156,6 +160,7 @@ internal data class TranslationContext(
     val layoutCollectionItemId: Int = -1,
     val canUseSelectableGroup: Boolean = false,
     val actionTargetId: Int? = null,
+    val actionBroadcastReceiver: ComponentName? = null
 ) {
     fun nextViewId() = lastViewId.incrementAndGet()
 
