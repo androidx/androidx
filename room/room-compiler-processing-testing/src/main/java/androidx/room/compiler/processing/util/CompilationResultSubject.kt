@@ -29,6 +29,7 @@ import com.google.common.truth.Subject
 import com.google.common.truth.Subject.Factory
 import com.google.common.truth.Truth
 import com.google.testing.compile.Compilation
+import java.util.regex.Pattern
 import javax.tools.Diagnostic
 
 /**
@@ -203,6 +204,23 @@ class CompilationResultSubject internal constructor(
         }
 
     /**
+     * Asserts that compilation has a warning containing text that matches the given pattern.
+     *
+     * @see hasErrorContainingMatch
+     * @see hasNoteContainingMatch
+     */
+    fun hasWarningContainingMatch(expectedPattern: String): DiagnosticMessagesSubject {
+        shouldSucceed = false
+        return hasDiagnosticWithPattern(
+            kind = Diagnostic.Kind.WARNING,
+            expectedPattern = expectedPattern,
+            acceptPartialMatch = true
+        ) {
+            "expected warning containing pattern: $expectedPattern"
+        }
+    }
+
+    /**
      * Asserts that compilation has a note with the given text.
      *
      * @see hasError
@@ -231,6 +249,23 @@ class CompilationResultSubject internal constructor(
         ) {
             "expected note: $expected"
         }
+
+    /**
+     * Asserts that compilation has a note containing text that matches the given pattern.
+     *
+     * @see hasErrorContainingMatch
+     * @see hasWarningContainingMatch
+     */
+    fun hasNoteContainingMatch(expectedPattern: String): DiagnosticMessagesSubject {
+        shouldSucceed = false
+        return hasDiagnosticWithPattern(
+            kind = Diagnostic.Kind.NOTE,
+            expectedPattern = expectedPattern,
+            acceptPartialMatch = true
+        ) {
+            "expected note containing pattern: $expectedPattern"
+        }
+    }
 
     /**
      * Asserts that compilation has an error with the given text.
@@ -263,6 +298,23 @@ class CompilationResultSubject internal constructor(
             acceptPartialMatch = true
         ) {
             "expected error: $expected"
+        }
+    }
+
+    /**
+     * Asserts that compilation has an error containing text that matches the given pattern.
+     *
+     * @see hasWarningContainingMatch
+     * @see hasNoteContainingMatch
+     */
+    fun hasErrorContainingMatch(expectedPattern: String): DiagnosticMessagesSubject {
+        shouldSucceed = false
+        return hasDiagnosticWithPattern(
+            kind = Diagnostic.Kind.ERROR,
+            expectedPattern = expectedPattern,
+            acceptPartialMatch = true
+        ) {
+            "expected error containing pattern: $expectedPattern"
         }
     }
 
@@ -381,6 +433,28 @@ class CompilationResultSubject internal constructor(
                 it.msg.contains(expected)
             } else {
                 it.msg == expected
+            }
+        }
+        if (matches.isEmpty()) {
+            failWithActual(simpleFact(buildErrorMessage()))
+        }
+        return DiagnosticMessagesSubject.assertThat(matches)
+    }
+
+    private fun hasDiagnosticWithPattern(
+        kind: Diagnostic.Kind,
+        expectedPattern: String,
+        acceptPartialMatch: Boolean,
+        buildErrorMessage: () -> String
+    ): DiagnosticMessagesSubject {
+        val diagnostics = compilationResult.diagnosticsOfKind(kind)
+        val pattern = Pattern.compile(expectedPattern)
+        val matches = diagnostics.filter {
+            val matcher = pattern.matcher(it.msg)
+            if (acceptPartialMatch) {
+                matcher.find()
+            } else {
+                matcher.matches()
             }
         }
         if (matches.isEmpty()) {
