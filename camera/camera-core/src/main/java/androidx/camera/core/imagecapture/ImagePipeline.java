@@ -100,7 +100,6 @@ public class ImagePipeline {
     public SessionConfig.Builder createSessionConfigBuilder() {
         SessionConfig.Builder builder = SessionConfig.Builder.createFrom(mUseCaseConfig);
         builder.addNonRepeatingSurface(mPipelineIn.getSurface());
-        // TODO(b/242536140): enable ZSL.
         return builder;
     }
 

@@ -74,6 +74,7 @@ import androidx.annotation.IntRange;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
@@ -1889,6 +1890,7 @@ public final class ImageCapture extends UseCase {
      *
      * <p> This is the new {@link #createPipeline}.
      */
+    @OptIn(markerClass = ExperimentalZeroShutterLag.class)
     @MainThread
     private SessionConfig.Builder createPipelineWithNode(@NonNull String cameraId,
             @NonNull ImageCaptureConfig config, @NonNull Size resolution) {
@@ -1901,6 +1903,9 @@ public final class ImageCapture extends UseCase {
         mTakePictureManager = new TakePictureManager(mImageCaptureControl, mImagePipeline);
 
         SessionConfig.Builder sessionConfigBuilder = mImagePipeline.createSessionConfigBuilder();
+        if (Build.VERSION.SDK_INT >= 23 && getCaptureMode() == CAPTURE_MODE_ZERO_SHUTTER_LAG) {
+            getCameraControl().addZslConfig(sessionConfigBuilder);
+        }
         sessionConfigBuilder.addErrorListener((sessionConfig, error) -> {
             // TODO(b/143915543): Ensure this never gets called by a camera that is not attached
             //  to this use case so we don't need to do this check.
