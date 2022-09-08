@@ -50,7 +50,6 @@ gbash::init_google "$@"
 # frameworks/support.
 readonly javaLibraryDirsThatDontUseDackka=(
   "android/support/v4"
-  "androidx/ads"
   "androidx/appcompat"
   "androidx/camera"
   "androidx/car"
@@ -91,7 +90,6 @@ readonly javaLibraryDirsThatDontUseDackka=(
 )
 readonly kotlinLibraryDirsThatDontUseDackka=(
   "android/support/v4"
-  "androidx/ads"
   "androidx/appcompat"
   "androidx/benchmark"
   "androidx/camera"
