@@ -22,7 +22,7 @@ import androidx.health.platform.client.service.IUnregisterFromDataNotificationsC
 import com.google.common.util.concurrent.SettableFuture
 
 internal class UnregisterFromDataNotificationsCallback(
-    private val resultFuture: SettableFuture<Void>,
+    private val resultFuture: SettableFuture<Void?>,
 ) : IUnregisterFromDataNotificationsCallback.Stub() {
 
     override fun onSuccess() {
