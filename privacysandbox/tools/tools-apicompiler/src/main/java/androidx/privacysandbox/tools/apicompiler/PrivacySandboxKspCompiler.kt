@@ -44,13 +44,15 @@ class PrivacySandboxKspCompiler(
             return emptyList()
         }
         invoked = true
-        val parsedApi = ApiParser(resolver, logger).parseApi()
 
         val path = options[AIDL_COMPILER_PATH_OPTIONS_KEY]?.let(Paths::get)
         if (path == null) {
             logger.error("KSP argument '$AIDL_COMPILER_PATH_OPTIONS_KEY' was not set.")
             return emptyList()
         }
+
+        val parsedApi = ApiParser(resolver, logger).parseApi()
+
         SdkCodeGenerator(codeGenerator, parsedApi, path).generate()
         return emptyList()
     }
