@@ -26,7 +26,9 @@ import android.graphics.Point;
 import android.widget.TextView;
 
 import androidx.test.filters.LargeTest;
+import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.uiautomator.By;
+import androidx.test.uiautomator.UiDevice;
 import androidx.test.uiautomator.UiObject2;
 import androidx.test.uiautomator.Until;
 
@@ -110,19 +112,17 @@ public class UiDeviceTest extends BaseTest {
         assertNotNull(mDevice.findObject(By.res(TEST_APP, "nested_elements")));
     }
 
+    @Test
+    public void testGetInstance() {
+        assertEquals(mDevice, UiDevice.getInstance());
+    }
+
+    @Test
+    public void testGetInstance_withInstrumentation() {
+        assertEquals(mDevice, UiDevice.getInstance(InstrumentationRegistry.getInstrumentation()));
+    }
+
     /* TODO(b/235841020): Implement these tests, and the tests for exceptions of each tested method.
-
-    public void testGetInstance() {}
-
-    public void testGetInstance_withInstrumentation() {}
-
-    public void testGetDisplaySizeDp() {}
-
-    public void testGetProductName() {}
-
-    public void testGetLastTraversedText() {}
-
-    public void testClearLastTraversedText() {}
 
     public void testPressMenu() {}
 
