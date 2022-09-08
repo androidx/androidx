@@ -96,7 +96,7 @@ package androidx.health.services.client {
 package androidx.health.services.client.data {
 
   public final class AggregateDataType<T extends java.lang.Number, D extends androidx.health.services.client.data.DataPoint<T>> extends androidx.health.services.client.data.DataType<T,D> {
-    ctor public AggregateDataType(String name, androidx.health.services.client.data.DataType.TimeType timeType, kotlin.reflect.KClass<T> valueClass);
+    ctor public AggregateDataType(String name, androidx.health.services.client.data.DataType.TimeType timeType, Class<T> valueClass);
   }
 
   public interface Availability {
@@ -161,11 +161,11 @@ package androidx.health.services.client.data {
   }
 
   public abstract class DataType<T, D extends androidx.health.services.client.data.DataPoint<T>> {
-    ctor public DataType(String name, androidx.health.services.client.data.DataType.TimeType timeType, kotlin.reflect.KClass<T> valueClass, boolean isAggregate);
+    ctor public DataType(String name, androidx.health.services.client.data.DataType.TimeType timeType, Class<T> valueClass, boolean isAggregate);
     method public final String getName();
-    method public final kotlin.reflect.KClass<T> getValueClass();
+    method public final Class<T> getValueClass();
     property public final String name;
-    property public final kotlin.reflect.KClass<T> valueClass;
+    property public final Class<T> valueClass;
     field public static final androidx.health.services.client.data.DeltaDataType<java.lang.Double,androidx.health.services.client.data.SampleDataPoint<java.lang.Double>> ABSOLUTE_ELEVATION;
     field public static final androidx.health.services.client.data.AggregateDataType<java.lang.Double,androidx.health.services.client.data.StatisticalDataPoint<java.lang.Double>> ABSOLUTE_ELEVATION_STATS;
     field public static final androidx.health.services.client.data.AggregateDataType<java.lang.Long,androidx.health.services.client.data.CumulativeDataPoint<java.lang.Long>> ACTIVE_EXERCISE_DURATION_TOTAL;
@@ -271,7 +271,7 @@ package androidx.health.services.client.data {
   }
 
   public final class DeltaDataType<T, D extends androidx.health.services.client.data.DataPoint<T>> extends androidx.health.services.client.data.DataType<T,D> {
-    ctor public DeltaDataType(String name, androidx.health.services.client.data.DataType.TimeType timeType, kotlin.reflect.KClass<T> valueClass);
+    ctor public DeltaDataType(String name, androidx.health.services.client.data.DataType.TimeType timeType, Class<T> valueClass);
   }
 
   public final class ExerciseCapabilities extends androidx.health.services.client.data.ProtoParcelable<androidx.health.services.client.proto.DataProto.ExerciseCapabilities> {
