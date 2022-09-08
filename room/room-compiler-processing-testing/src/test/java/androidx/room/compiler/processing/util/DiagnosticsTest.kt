@@ -44,6 +44,12 @@ class DiagnosticsTest internal constructor(
                 hasNoteContaining("ote")
                 hasWarningContaining("arn")
                 hasErrorContaining("rror")
+                hasNoteContainingMatch("ote")
+                hasWarningContainingMatch("arn")
+                hasErrorContainingMatch("rror")
+                hasNoteContainingMatch("^note \\d$")
+                hasWarningContainingMatch("^warn \\d$")
+                hasErrorContainingMatch("^error \\d$")
                 // these should fail:
                 assertThat(
                     runCatching { hasNote("note") }.isFailure
@@ -62,6 +68,15 @@ class DiagnosticsTest internal constructor(
                 ).isTrue()
                 assertThat(
                     runCatching { hasErrorContaining("warning") }.isFailure
+                ).isTrue()
+                assertThat(
+                    runCatching { hasNoteContainingMatch("error %d") }.isFailure
+                ).isTrue()
+                assertThat(
+                    runCatching { hasWarningContainingMatch("note %d") }.isFailure
+                ).isTrue()
+                assertThat(
+                    runCatching { hasErrorContainingMatch("warning %d") }.isFailure
                 ).isTrue()
             }
         }
