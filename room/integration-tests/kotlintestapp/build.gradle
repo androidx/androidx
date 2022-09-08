@@ -114,6 +114,7 @@ dependencies {
     androidTestImplementation("androidx.paging:paging-runtime:3.1.1")
     androidTestImplementation(projectOrArtifact(":lifecycle:lifecycle-runtime-testing"))
     androidTestImplementation(libs.rxjava2)
+    androidTestImplementation(libs.kotlinCoroutinesTest)
     testImplementation(libs.mockitoCore)
 }
 
