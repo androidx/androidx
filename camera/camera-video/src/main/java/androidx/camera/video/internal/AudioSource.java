@@ -51,6 +51,8 @@ import androidx.camera.video.internal.compat.Api23Impl;
 import androidx.camera.video.internal.compat.Api24Impl;
 import androidx.camera.video.internal.compat.Api29Impl;
 import androidx.camera.video.internal.compat.Api31Impl;
+import androidx.camera.video.internal.compat.quirk.AudioTimestampFramePositionIncorrectQuirk;
+import androidx.camera.video.internal.compat.quirk.DeviceQuirks;
 import androidx.camera.video.internal.encoder.InputBuffer;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.util.Preconditions;
@@ -531,7 +533,7 @@ public final class AudioSource {
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     long generatePresentationTimeUs() {
         long presentationTimeUs = -1;
-        if (Build.VERSION.SDK_INT >= 24) {
+        if (Build.VERSION.SDK_INT >= 24 && !hasAudioTimestampQuirk()) {
             AudioTimestamp audioTimestamp = new AudioTimestamp();
             if (Api24Impl.getTimestamp(mAudioRecord, audioTimestamp,
                     AudioTimestamp.TIMEBASE_MONOTONIC) == AudioRecord.SUCCESS) {
@@ -545,6 +547,10 @@ public final class AudioSource {
             presentationTimeUs = TimeUnit.NANOSECONDS.toMicros(System.nanoTime());
         }
         return presentationTimeUs;
+    }
+
+    private static boolean hasAudioTimestampQuirk() {
+        return DeviceQuirks.get(AudioTimestampFramePositionIncorrectQuirk.class) != null;
     }
 
     private static long computeInterpolatedTimeUs(int sampleRate, long framePosition,
