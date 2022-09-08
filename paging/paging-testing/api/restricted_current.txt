@@ -3,8 +3,10 @@ package  {
 
   public final class TestPager<Key, Value> {
     ctor public TestPager(androidx.paging.PagingSource<Key,Value> pagingSource, androidx.paging.PagingConfig config);
+    method public suspend Object? append(kotlin.coroutines.Continuation<? super androidx.paging.PagingSource.LoadResult<Key,Value>>);
     method public suspend Object? getLastLoadedPage(kotlin.coroutines.Continuation<? super androidx.paging.PagingSource.LoadResult.Page<Key,Value>>);
     method public suspend Object? getPages(kotlin.coroutines.Continuation<? super java.util.List<? extends androidx.paging.PagingSource.LoadResult.Page<Key,Value>>>);
+    method public suspend Object? prepend(kotlin.coroutines.Continuation<? super androidx.paging.PagingSource.LoadResult<Key,Value>>);
     method public suspend Object? refresh(optional Key? initialKey, optional kotlin.coroutines.Continuation<? super androidx.paging.PagingSource.LoadResult<Key,Value>>);
   }
 

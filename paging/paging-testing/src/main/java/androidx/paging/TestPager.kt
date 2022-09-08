@@ -15,6 +15,9 @@
  */
 
 import androidx.paging.LoadType
+import androidx.paging.LoadType.APPEND
+import androidx.paging.LoadType.PREPEND
+import androidx.paging.LoadType.REFRESH
 import androidx.paging.PagingConfig
 import androidx.paging.PagingSource
 import androidx.paging.PagingSource.LoadParams
@@ -45,19 +48,17 @@ public class TestPager<Key : Any, Value : Any>(
 
     private val lock = Mutex()
 
-    private var nextKey: Key? = null
-    private var prevKey: Key? = null
     private val pages = ArrayDeque<LoadResult.Page<Key, Value>>()
 
-    // TODO add instruction that refresh() must be called before either append() or prepend()
     /**
      * Performs a load of [LoadType.REFRESH] on the PagingSource.
      *
      * If initialKey != null, refresh will start loading from the supplied key.
      *
      * Since Paging's first load is always of [LoadType.REFRESH], this method must be the very
-     * first load operation to be called on the TestPager. For example, you can call
-     * [getLastLoadedPage] before any load operations.
+     * first load operation to be called on the TestPager before either [append] or [prepend]
+     * can be called. However, other non-loading operations can still be invoked. For example,
+     * you can call [getLastLoadedPage] before any load operations.
      *
      * Returns the LoadResult upon refresh on the [PagingSource].
      *
@@ -70,22 +71,89 @@ public class TestPager<Key : Any, Value : Any>(
      * such as [getLastLoadedPage].
      */
     public suspend fun refresh(initialKey: Key? = null): LoadResult<Key, Value> {
-        ensureValidPagingSource()
         if (!hasRefreshed.compareAndSet(false, true)) {
             pagingSource.invalidate()
             throw IllegalStateException("TestPager does not support multi-generational access " +
                 "and refresh() can only be called once per TestPager. To start a new generation," +
                 "create a new TestPager with a new PagingSource.")
         }
+        return doInitialLoad(initialKey)
+    }
 
+    /**
+     * Performs a load of [LoadType.APPEND] on the PagingSource.
+     *
+     * Since Paging's first load is always of [LoadType.REFRESH], [refresh] must always be called
+     * first before this [append] is called.
+     *
+     * Returns the [LoadResult] from calling [PagingSource.load]. If the [LoadParams.key] is null,
+     * such as when there is no more data to append, this append will be no-op by returning null.
+     */
+    public suspend fun append(): LoadResult<Key, Value>? {
+        return doLoad(APPEND)
+    }
+
+    /**
+     * Performs a load of [LoadType.PREPEND] on the PagingSource.
+     *
+     * Since Paging's first load is always of [LoadType.REFRESH], [refresh] must always be called
+     * first before this [prepend] is called.
+     *
+     * Returns the [LoadResult] from calling [PagingSource.load]. If the [LoadParams.key] is null,
+     * such as when there is no more data to prepend, this prepend will be no-op by returning null.
+     */
+    public suspend fun prepend(): LoadResult<Key, Value>? {
+        return doLoad(PREPEND)
+    }
+
+    /**
+     * Helper to perform REFRESH loads.
+     */
+    private suspend fun doInitialLoad(initialKey: Key?): LoadResult<Key, Value> {
         return lock.withLock {
+            ensureValidPagingSource()
             pagingSource.load(
                 LoadParams.Refresh(initialKey, config.initialLoadSize, config.enablePlaceholders)
             ).also { result ->
                 if (result is LoadResult.Page) {
                     pages.addLast(result)
-                    nextKey = result.nextKey
-                    prevKey = result.prevKey
+                }
+            }
+        }
+    }
+
+    /**
+     * Helper to perform APPEND or PREPEND loads.
+     */
+    private suspend fun doLoad(loadType: LoadType): LoadResult<Key, Value>? {
+        return lock.withLock {
+            ensureValidPagingSource()
+            if (!hasRefreshed.get()) {
+                throw IllegalStateException("TestPager's first load operation must be a refresh. " +
+                    "Please call refresh() once before calling ${loadType.name.lowercase()}().")
+            }
+            when (loadType) {
+                REFRESH -> throw IllegalArgumentException(
+                    "For LoadType.REFRESH use doInitialLoad()"
+                )
+                APPEND -> {
+                    val key = pages.lastOrNull()?.nextKey ?: return null
+                    pagingSource.load(
+                        LoadParams.Append(key, config.pageSize, config.enablePlaceholders)
+                    ).also { result ->
+                        if (result is LoadResult.Page) {
+                            pages.addLast(result)
+                        }
+                    }
+                } PREPEND -> {
+                    val key = pages.firstOrNull()?.prevKey ?: return null
+                    pagingSource.load(
+                        LoadParams.Prepend(key, config.pageSize, config.enablePlaceholders)
+                    ).also { result ->
+                        if (result is LoadResult.Page) {
+                            pages.addFirst(result)
+                        }
+                    }
                 }
             }
         }
