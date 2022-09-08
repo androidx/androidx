@@ -16,8 +16,6 @@
 
 package androidx.camera.camera2.internal;
 
-import static androidx.camera.camera2.internal.SupportedSurfaceCombination.hasMatchingAspectRatio;
-
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -226,7 +224,7 @@ public final class SupportedSurfaceCombinationTest {
                 mContext, CAMERA_ID, mCameraManagerCompat, mMockCamcorderProfileHelper);
 
         List<SurfaceCombination> combinationList =
-                supportedSurfaceCombination.getLegacySupportedCombinationList();
+                GuaranteedConfigurationsUtil.getLegacySupportedCombinationList();
 
         for (SurfaceCombination combination : combinationList) {
             boolean isSupported =
@@ -243,7 +241,7 @@ public final class SupportedSurfaceCombinationTest {
                 mContext, CAMERA_ID, mCameraManagerCompat, mMockCamcorderProfileHelper);
 
         List<SurfaceCombination> combinationList =
-                supportedSurfaceCombination.getLegacySupportedCombinationList();
+                GuaranteedConfigurationsUtil.getLegacySupportedCombinationList();
 
         boolean isSupported =
                 isAllSubConfigListSupported(supportedSurfaceCombination, combinationList);
@@ -258,7 +256,7 @@ public final class SupportedSurfaceCombinationTest {
                 mContext, CAMERA_ID, mCameraManagerCompat, mMockCamcorderProfileHelper);
 
         List<SurfaceCombination> combinationList =
-                supportedSurfaceCombination.getLimitedSupportedCombinationList();
+                GuaranteedConfigurationsUtil.getLimitedSupportedCombinationList();
 
         for (SurfaceCombination combination : combinationList) {
             boolean isSupported =
@@ -275,7 +273,7 @@ public final class SupportedSurfaceCombinationTest {
                 mContext, CAMERA_ID, mCameraManagerCompat, mMockCamcorderProfileHelper);
 
         List<SurfaceCombination> combinationList =
-                supportedSurfaceCombination.getFullSupportedCombinationList();
+                GuaranteedConfigurationsUtil.getFullSupportedCombinationList();
 
         for (SurfaceCombination combination : combinationList) {
             boolean isSupported =
@@ -292,7 +290,7 @@ public final class SupportedSurfaceCombinationTest {
                 mContext, CAMERA_ID, mCameraManagerCompat, mMockCamcorderProfileHelper);
 
         List<SurfaceCombination> combinationList =
-                supportedSurfaceCombination.getLevel3SupportedCombinationList();
+                GuaranteedConfigurationsUtil.getLevel3SupportedCombinationList();
 
         for (SurfaceCombination combination : combinationList) {
             boolean isSupported =
@@ -309,7 +307,7 @@ public final class SupportedSurfaceCombinationTest {
                 mContext, CAMERA_ID, mCameraManagerCompat, mMockCamcorderProfileHelper);
 
         List<SurfaceCombination> combinationList =
-                supportedSurfaceCombination.getLimitedSupportedCombinationList();
+                GuaranteedConfigurationsUtil.getLimitedSupportedCombinationList();
 
         for (SurfaceCombination combination : combinationList) {
             boolean isSupported =
@@ -326,7 +324,7 @@ public final class SupportedSurfaceCombinationTest {
                 mContext, CAMERA_ID, mCameraManagerCompat, mMockCamcorderProfileHelper);
 
         List<SurfaceCombination> combinationList =
-                supportedSurfaceCombination.getLimitedSupportedCombinationList();
+                GuaranteedConfigurationsUtil.getLimitedSupportedCombinationList();
 
         boolean isSupported =
                 isAllSubConfigListSupported(supportedSurfaceCombination, combinationList);
@@ -341,7 +339,7 @@ public final class SupportedSurfaceCombinationTest {
                 mContext, CAMERA_ID, mCameraManagerCompat, mMockCamcorderProfileHelper);
 
         List<SurfaceCombination> combinationList =
-                supportedSurfaceCombination.getFullSupportedCombinationList();
+                GuaranteedConfigurationsUtil.getFullSupportedCombinationList();
 
         for (SurfaceCombination combination : combinationList) {
             boolean isSupported =
@@ -358,7 +356,7 @@ public final class SupportedSurfaceCombinationTest {
                 mContext, CAMERA_ID, mCameraManagerCompat, mMockCamcorderProfileHelper);
 
         List<SurfaceCombination> combinationList =
-                supportedSurfaceCombination.getLevel3SupportedCombinationList();
+                GuaranteedConfigurationsUtil.getLevel3SupportedCombinationList();
 
         for (SurfaceCombination combination : combinationList) {
             boolean isSupported =
@@ -375,7 +373,7 @@ public final class SupportedSurfaceCombinationTest {
                 mContext, CAMERA_ID, mCameraManagerCompat, mMockCamcorderProfileHelper);
 
         List<SurfaceCombination> combinationList =
-                supportedSurfaceCombination.getFullSupportedCombinationList();
+                GuaranteedConfigurationsUtil.getFullSupportedCombinationList();
 
         for (SurfaceCombination combination : combinationList) {
             boolean isSupported =
@@ -392,7 +390,7 @@ public final class SupportedSurfaceCombinationTest {
                 mContext, CAMERA_ID, mCameraManagerCompat, mMockCamcorderProfileHelper);
 
         List<SurfaceCombination> combinationList =
-                supportedSurfaceCombination.getFullSupportedCombinationList();
+                GuaranteedConfigurationsUtil.getFullSupportedCombinationList();
 
         boolean isSupported =
                 isAllSubConfigListSupported(supportedSurfaceCombination, combinationList);
@@ -407,7 +405,7 @@ public final class SupportedSurfaceCombinationTest {
                 mContext, CAMERA_ID, mCameraManagerCompat, mMockCamcorderProfileHelper);
 
         List<SurfaceCombination> combinationList =
-                supportedSurfaceCombination.getLevel3SupportedCombinationList();
+                GuaranteedConfigurationsUtil.getLevel3SupportedCombinationList();
 
         for (SurfaceCombination combination : combinationList) {
             boolean isSupported =
@@ -425,7 +423,7 @@ public final class SupportedSurfaceCombinationTest {
                 mContext, CAMERA_ID, mCameraManagerCompat, mMockCamcorderProfileHelper);
 
         List<SurfaceCombination> combinationList =
-                supportedSurfaceCombination.getLimitedSupportedCombinationList();
+                GuaranteedConfigurationsUtil.getLimitedSupportedCombinationList();
 
         for (SurfaceCombination combination : combinationList) {
             boolean isSupported =
@@ -443,7 +441,7 @@ public final class SupportedSurfaceCombinationTest {
                 mContext, CAMERA_ID, mCameraManagerCompat, mMockCamcorderProfileHelper);
 
         List<SurfaceCombination> combinationList =
-                supportedSurfaceCombination.getLegacySupportedCombinationList();
+                GuaranteedConfigurationsUtil.getLegacySupportedCombinationList();
 
         for (SurfaceCombination combination : combinationList) {
             boolean isSupported =
@@ -461,7 +459,7 @@ public final class SupportedSurfaceCombinationTest {
                 mContext, CAMERA_ID, mCameraManagerCompat, mMockCamcorderProfileHelper);
 
         List<SurfaceCombination> combinationList =
-                supportedSurfaceCombination.getFullSupportedCombinationList();
+                GuaranteedConfigurationsUtil.getFullSupportedCombinationList();
 
         for (SurfaceCombination combination : combinationList) {
             boolean isSupported =
@@ -479,7 +477,7 @@ public final class SupportedSurfaceCombinationTest {
                 mContext, CAMERA_ID, mCameraManagerCompat, mMockCamcorderProfileHelper);
 
         List<SurfaceCombination> combinationList =
-                supportedSurfaceCombination.getRAWSupportedCombinationList();
+                GuaranteedConfigurationsUtil.getRAWSupportedCombinationList();
 
         for (SurfaceCombination combination : combinationList) {
             boolean isSupported =
@@ -496,7 +494,7 @@ public final class SupportedSurfaceCombinationTest {
                 mContext, CAMERA_ID, mCameraManagerCompat, mMockCamcorderProfileHelper);
 
         List<SurfaceCombination> combinationList =
-                supportedSurfaceCombination.getLevel3SupportedCombinationList();
+                GuaranteedConfigurationsUtil.getLevel3SupportedCombinationList();
 
         for (SurfaceCombination combination : combinationList) {
             boolean isSupported =
@@ -513,7 +511,7 @@ public final class SupportedSurfaceCombinationTest {
                 mContext, CAMERA_ID, mCameraManagerCompat, mMockCamcorderProfileHelper);
 
         List<SurfaceCombination> combinationList =
-                supportedSurfaceCombination.getLevel3SupportedCombinationList();
+                GuaranteedConfigurationsUtil.getLevel3SupportedCombinationList();
 
         boolean isSupported =
                 isAllSubConfigListSupported(supportedSurfaceCombination, combinationList);
@@ -844,10 +842,10 @@ public final class SupportedSurfaceCombinationTest {
 
         androidx.camera.core.VideoCapture videoCapture =
                 new androidx.camera.core.VideoCapture.Builder()
-                // Override the default max resolution in VideoCapture
-                .setMaxResolution(mRecordSize)
-                .setSupportedResolutions(videoResolutionsPairs)
-                .build();
+                        // Override the default max resolution in VideoCapture
+                        .setMaxResolution(mRecordSize)
+                        .setSupportedResolutions(videoResolutionsPairs)
+                        .build();
         Preview preview = new Preview.Builder()
                 .setSupportedResolutions(previewResolutionsPairs)
                 .build();
@@ -905,8 +903,8 @@ public final class SupportedSurfaceCombinationTest {
                 .build();
         androidx.camera.core.VideoCapture videoCapture =
                 new androidx.camera.core.VideoCapture.Builder()
-                .setTargetAspectRatio(AspectRatio.RATIO_16_9)
-                .build();
+                        .setTargetAspectRatio(AspectRatio.RATIO_16_9)
+                        .build();
         Preview preview = new Preview.Builder()
                 .setTargetAspectRatio(AspectRatio.RATIO_16_9)
                 .build();
@@ -1104,44 +1102,6 @@ public final class SupportedSurfaceCombinationTest {
     }
 
     @Test
-    public void setTargetAspectRatioForMixedUseCases() throws CameraUnavailableException {
-        setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL);
-        SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
-                mContext, CAMERA_ID, mCameraManagerCompat, mMockCamcorderProfileHelper);
-
-        Preview preview = new Preview.Builder()
-                .setTargetAspectRatio(AspectRatio.RATIO_16_9)
-                .build();
-        ImageCapture imageCapture = new ImageCapture.Builder()
-                .setTargetAspectRatio(AspectRatio.RATIO_16_9)
-                .build();
-        ImageAnalysis imageAnalysis = new ImageAnalysis.Builder()
-                .setTargetAspectRatio(AspectRatio.RATIO_16_9)
-                .build();
-
-        List<UseCase> useCases = new ArrayList<>();
-        useCases.add(imageCapture);
-        useCases.add(preview);
-        useCases.add(imageAnalysis);
-        Map<UseCase, UseCaseConfig<?>> useCaseToConfigMap =
-                Configs.useCaseConfigMapWithDefaultSettingsFromUseCaseList(
-                        mCameraFactory.getCamera(CAMERA_ID).getCameraInfoInternal(),
-                        useCases,
-                        mUseCaseConfigFactory);
-        Map<UseCaseConfig<?>, Size> suggestedResolutionMap =
-                supportedSurfaceCombination.getSuggestedResolutions(Collections.emptyList(),
-                        new ArrayList<>(useCaseToConfigMap.values()));
-
-        Size previewSize = suggestedResolutionMap.get(useCaseToConfigMap.get(preview));
-        Size imageCaptureSize = suggestedResolutionMap.get(useCaseToConfigMap.get(imageCapture));
-        Size imageAnalysisSize = suggestedResolutionMap.get(useCaseToConfigMap.get(imageAnalysis));
-
-        assertThat(hasMatchingAspectRatio(previewSize, ASPECT_RATIO_16_9)).isTrue();
-        assertThat(hasMatchingAspectRatio(imageCaptureSize, ASPECT_RATIO_16_9)).isTrue();
-        assertThat(hasMatchingAspectRatio(imageAnalysisSize, ASPECT_RATIO_16_9)).isTrue();
-    }
-
-    @Test
     public void throwsWhenSetBothTargetResolutionAndAspectRatioForDifferentUseCases() {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY);
 
@@ -1198,8 +1158,8 @@ public final class SupportedSurfaceCombinationTest {
                 .build();
         androidx.camera.core.VideoCapture videoCapture =
                 new androidx.camera.core.VideoCapture.Builder()
-                .setSupportedResolutions(formatResolutionsPairList)
-                .build();
+                        .setSupportedResolutions(formatResolutionsPairList)
+                        .build();
         Preview preview = new Preview.Builder()
                 .setSupportedResolutions(formatResolutionsPairList)
                 .build();
@@ -1279,7 +1239,7 @@ public final class SupportedSurfaceCombinationTest {
                 supportedSurfaceCombination.transformSurfaceConfig(
                         ImageFormat.YUV_420_888, mAnalysisSize);
         SurfaceConfig expectedSurfaceConfig =
-                SurfaceConfig.create(ConfigType.YUV, ConfigSize.ANALYSIS);
+                SurfaceConfig.create(ConfigType.YUV, ConfigSize.VGA);
         assertThat(surfaceConfig).isEqualTo(expectedSurfaceConfig);
     }
 
@@ -1323,20 +1283,6 @@ public final class SupportedSurfaceCombinationTest {
     }
 
     @Test
-    public void transformSurfaceConfigWithYUVNotSupportSize() throws CameraUnavailableException {
-        setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY);
-        SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
-                mContext, CAMERA_ID, mCameraManagerCompat, mMockCamcorderProfileHelper);
-        SurfaceConfig surfaceConfig =
-                supportedSurfaceCombination.transformSurfaceConfig(
-                        ImageFormat.YUV_420_888,
-                        new Size(mMaximumSize.getWidth() + 1, mMaximumSize.getHeight() + 1));
-        SurfaceConfig expectedSurfaceConfig =
-                SurfaceConfig.create(ConfigType.YUV, ConfigSize.NOT_SUPPORT);
-        assertThat(surfaceConfig).isEqualTo(expectedSurfaceConfig);
-    }
-
-    @Test
     public void transformSurfaceConfigWithJPEGAnalysisSize() throws CameraUnavailableException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
@@ -1345,7 +1291,7 @@ public final class SupportedSurfaceCombinationTest {
                 supportedSurfaceCombination.transformSurfaceConfig(
                         ImageFormat.JPEG, mAnalysisSize);
         SurfaceConfig expectedSurfaceConfig =
-                SurfaceConfig.create(ConfigType.JPEG, ConfigSize.ANALYSIS);
+                SurfaceConfig.create(ConfigType.JPEG, ConfigSize.VGA);
         assertThat(surfaceConfig).isEqualTo(expectedSurfaceConfig);
     }
 
@@ -1385,20 +1331,6 @@ public final class SupportedSurfaceCombinationTest {
                         ImageFormat.JPEG, mMaximumSize);
         SurfaceConfig expectedSurfaceConfig =
                 SurfaceConfig.create(ConfigType.JPEG, ConfigSize.MAXIMUM);
-        assertThat(surfaceConfig).isEqualTo(expectedSurfaceConfig);
-    }
-
-    @Test
-    public void transformSurfaceConfigWithJPEGNotSupportSize() throws CameraUnavailableException {
-        setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY);
-        SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
-                mContext, CAMERA_ID, mCameraManagerCompat, mMockCamcorderProfileHelper);
-        SurfaceConfig surfaceConfig =
-                supportedSurfaceCombination.transformSurfaceConfig(
-                        ImageFormat.JPEG,
-                        new Size(mMaximumSize.getWidth() + 1, mMaximumSize.getHeight() + 1));
-        SurfaceConfig expectedSurfaceConfig =
-                SurfaceConfig.create(ConfigType.JPEG, ConfigSize.NOT_SUPPORT);
         assertThat(surfaceConfig).isEqualTo(expectedSurfaceConfig);
     }
 
@@ -2393,7 +2325,7 @@ public final class SupportedSurfaceCombinationTest {
 
         // Checks the determined RECORD size
         assertThat(
-                supportedSurfaceCombination.getSurfaceSizeDefinition().getRecordSize()).isEqualTo(
+                supportedSurfaceCombination.mSurfaceSizeDefinition.getRecordSize()).isEqualTo(
                 mLegacyVideoMaximumVideoSize);
     }
 
@@ -2642,7 +2574,7 @@ public final class SupportedSurfaceCombinationTest {
                 };
 
         CameraXConfig cameraXConfig = CameraXConfig.Builder.fromConfig(
-                Camera2Config.defaultConfig())
+                        Camera2Config.defaultConfig())
                 .setDeviceSurfaceManagerProvider(surfaceManagerProvider)
                 .setCameraFactoryProvider((ignored0, ignored1, ignored2) -> mCameraFactory)
                 .build();
