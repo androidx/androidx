@@ -122,6 +122,7 @@ dependencies {
     docs(project(":core:uwb:uwb"))
     docs(project(":core:uwb:uwb-rxjava3"))
     docs(project(":credentials:credentials"))
+    docs(project(":credentials:credentials-play-services-auth"))
     docs(project(":cursoradapter:cursoradapter"))
     docs(project(":customview:customview"))
     docs(project(":customview:customview-poolingcontainer"))
