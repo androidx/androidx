@@ -13,7 +13,7 @@ package androidx.fragment.app {
     method public boolean isCancelable();
     method public void onCancel(android.content.DialogInterface);
     method @MainThread public android.app.Dialog onCreateDialog(android.os.Bundle?);
-    method public void onDismiss(android.content.DialogInterface);
+    method @CallSuper public void onDismiss(android.content.DialogInterface);
     method public final android.app.Dialog requireDialog();
     method public void setCancelable(boolean);
     method public void setShowsDialog(boolean);
