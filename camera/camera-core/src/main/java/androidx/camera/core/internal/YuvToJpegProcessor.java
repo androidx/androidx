@@ -43,8 +43,6 @@ import androidx.core.util.Preconditions;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
-import java.io.EOFException;
-import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.util.List;
@@ -173,7 +171,7 @@ public class YuvToJpegProcessor implements CaptureProcessor {
             ByteBuffer jpegBuf = jpegImage.getPlanes()[0].getBuffer();
             int initialPos = jpegBuf.position();
             OutputStream os = new ExifOutputStream(new ByteBufferOutputStream(jpegBuf),
-                    getExifData(imageProxy, rotationDegrees));
+                    ExifData.create(imageProxy, rotationDegrees));
             yuvImage.compressToJpeg(imageRect, quality, os);
 
             // Input can now be closed.
@@ -302,56 +300,6 @@ public class YuvToJpegProcessor implements CaptureProcessor {
     public void onResolutionUpdate(@NonNull Size size) {
         synchronized (mLock) {
             mImageRect = new Rect(0, 0, size.getWidth(), size.getHeight());
-        }
-    }
-
-    @NonNull
-    private static ExifData getExifData(@NonNull ImageProxy imageProxy,
-            @ImageOutputConfig.RotationDegreesValue int rotationDegrees) {
-        ExifData.Builder builder = ExifData.builderForDevice();
-        imageProxy.getImageInfo().populateExifData(builder);
-
-        // Overwrites the orientation degrees value of the output image because the capture
-        // results might not have correct value when capturing image in YUV_420_888 format. See
-        // b/204375890.
-        builder.setOrientationDegrees(rotationDegrees);
-
-        return builder.setImageWidth(imageProxy.getWidth())
-                .setImageHeight(imageProxy.getHeight())
-                .build();
-    }
-
-    private static final class ByteBufferOutputStream extends OutputStream {
-
-        private final ByteBuffer mByteBuffer;
-
-        ByteBufferOutputStream(@NonNull ByteBuffer buf) {
-            mByteBuffer = buf;
-        }
-
-        @Override
-        public void write(int b) throws IOException {
-            if (!mByteBuffer.hasRemaining()) {
-                throw new EOFException("Output ByteBuffer has no bytes remaining.");
-            }
-
-            mByteBuffer.put((byte) b);
-        }
-
-        @Override
-        public void write(byte[] b, int off, int len) throws IOException {
-            if (b == null) {
-                throw new NullPointerException();
-            } else if ((off < 0) || (off > b.length) || (len < 0)
-                    || ((off + len) > b.length) || ((off + len) < 0)) {
-                throw new IndexOutOfBoundsException();
-            } else if (len == 0) {
-                return;
-            } else if (mByteBuffer.remaining() < len) {
-                throw new EOFException("Output ByteBuffer has insufficient bytes remaining.");
-            }
-
-            mByteBuffer.put(b, off, len);
         }
     }
 }
