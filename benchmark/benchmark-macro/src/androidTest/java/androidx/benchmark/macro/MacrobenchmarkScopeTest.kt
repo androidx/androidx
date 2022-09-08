@@ -202,10 +202,6 @@ class MacrobenchmarkScopeTest {
 
         if (pressHome) {
             assertTrue(secondFrameStats.lastFrameNs!! > initialFrameStats.lastFrameNs!!)
-            if (Build.VERSION.SDK_INT >= 29) {
-                // data not trustworthy before API 29
-                assertTrue(secondFrameStats.lastLaunchNs!! > initialFrameStats.lastLaunchNs!!)
-            }
         }
     }
 
