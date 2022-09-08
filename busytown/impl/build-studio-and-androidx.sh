@@ -95,6 +95,7 @@ export GRADLE_PLUGIN_REPO="$STUDIO_DIR/out/repo:$STUDIO_DIR/prebuilts/tools/comm
 export JAVA_HOME="$(pwd)/prebuilts/jdk/jdk11/$PREBUILT_JDK/"
 export JAVA_TOOLS_JAR="$(pwd)/prebuilts/jdk/jdk8/$PREBUILT_JDK/lib/tools.jar"
 export LINT_PRINT_STACKTRACE=true
+export USE_ANDROIDX_REMOTE_BUILD_CACHE=gcp
 
 function buildAndroidx() {
   RETURN_CODE=0
