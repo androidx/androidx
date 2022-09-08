@@ -50,8 +50,21 @@ import kotlinx.coroutines.launch
  */
 abstract class GlanceAppWidgetReceiver : AppWidgetProvider() {
 
-    private companion object {
+    companion object {
         private const val TAG = "GlanceAppWidgetReceiver"
+
+        /**
+         * Action for a broadcast intent that will try to update all instances of a Glance App
+         * Widget for debugging.
+         * <pre>
+         * adb shell am broadcast -a androidx.glance.appwidget.action.DEBUG_UPDATE -n APP/COMPONENT
+         * </pre>
+         * where APP/COMPONENT is the manifest component for the GlanceAppWidgetReceiver subclass.
+         * This only works if the Receiver is exported (or the target device has adb running as
+         * root), and has androidx.glance.appwidget.DEBUG_UPDATE in its intent-filter.
+         * This should only be done for debug builds and disabled for release.
+         */
+        const val ACTION_DEBUG_UPDATE = "androidx.glance.appwidget.action.DEBUG_UPDATE"
     }
 
     /**
@@ -110,8 +123,11 @@ abstract class GlanceAppWidgetReceiver : AppWidgetProvider() {
     }
 
     override fun onReceive(context: Context, intent: Intent) {
+        val forceUpdateAllWidgets = intent.action == Intent.ACTION_LOCALE_CHANGED ||
+            intent.action == ACTION_DEBUG_UPDATE
+
         runAndLogExceptions {
-            if (intent.action == Intent.ACTION_LOCALE_CHANGED) {
+            if (forceUpdateAllWidgets) {
                 val appWidgetManager = AppWidgetManager.getInstance(context)
                 val componentName =
                     ComponentName(context.packageName, checkNotNull(javaClass.canonicalName))

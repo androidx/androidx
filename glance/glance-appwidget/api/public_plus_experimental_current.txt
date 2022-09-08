@@ -85,6 +85,11 @@ package androidx.glance.appwidget {
     ctor public GlanceAppWidgetReceiver();
     method public abstract androidx.glance.appwidget.GlanceAppWidget getGlanceAppWidget();
     property public abstract androidx.glance.appwidget.GlanceAppWidget glanceAppWidget;
+    field public static final String ACTION_DEBUG_UPDATE = "androidx.glance.appwidget.action.DEBUG_UPDATE";
+    field public static final androidx.glance.appwidget.GlanceAppWidgetReceiver.Companion Companion;
+  }
+
+  public static final class GlanceAppWidgetReceiver.Companion {
   }
 
   public final class GlanceAppWidgetReceiverKt {
