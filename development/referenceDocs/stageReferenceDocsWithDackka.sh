@@ -263,7 +263,7 @@ printf "=================================================================== \n"
 printf "== Create (if needed) and sync g4 workspace \n"
 printf "=================================================================== \n"
 
-client="$(p4 g4d -f androidx-ref-docs-stage)"
+client="$(p4 g4d -f androidx-ref-docs-stage --multichange)"
 cd "$client"
 
 # Revert all local changes to prevent merge conflicts when syncing.
