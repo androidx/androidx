@@ -375,12 +375,14 @@ class CompilationResultSubject internal constructor(
         acceptPartialMatch: Boolean,
         buildErrorMessage: () -> String
     ): DiagnosticMessagesSubject {
+        fun String.trimLines() = lines().joinToString(System.lineSeparator()) { it.trim() }
+        val expectedTrimmed = expected.trimLines()
         val diagnostics = compilationResult.diagnosticsOfKind(kind)
         val matches = diagnostics.filter {
             if (acceptPartialMatch) {
-                it.msg.contains(expected)
+                it.msg.trimLines().contains(expectedTrimmed)
             } else {
-                it.msg == expected
+                it.msg.trimLines() == expectedTrimmed
             }
         }
         if (matches.isEmpty()) {
