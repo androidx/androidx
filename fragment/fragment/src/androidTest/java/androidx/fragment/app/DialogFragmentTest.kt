@@ -202,32 +202,6 @@ class DialogFragmentTest {
         fc.dispatchDestroy()
     }
 
-    @Test
-    fun testDismissDialogFragmentNoSuperCall() {
-        with(ActivityScenario.launch(EmptyFragmentTestActivity::class.java)) {
-            val fm = withActivity { supportFragmentManager }
-            val dialogFragment = TestDialogFragment()
-
-            dialogFragment.show(fm, null)
-            executePendingTransactions()
-
-            val dialog = dialogFragment.dialog
-            assertWithMessage("Dialog should be shown")
-                .that(dialog?.isShowing)
-                .isTrue()
-
-            dialogFragment.dismiss()
-            executePendingTransactions()
-
-            assertWithMessage("Ensure onDismiss was actually called")
-                .that(dialogFragment.onDismissedCalled)
-                .isTrue()
-            assertWithMessage("Dialog should be removed")
-                .that(dialog?.isShowing)
-                .isFalse()
-        }
-    }
-
     @UiThreadTest
     @Test
     fun testDialogFragmentInLayout() {
@@ -551,7 +525,6 @@ class DialogFragmentTest {
 
     class TestDialogFragment(val setShowsDialog: Boolean = false) : DialogFragment() {
         var onCancelCalled = false
-        var onDismissedCalled = false
 
         override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
             if (setShowsDialog) {
@@ -569,10 +542,6 @@ class DialogFragmentTest {
         override fun onCancel(dialog: DialogInterface) {
             super.onCancel(dialog)
             onCancelCalled = true
-        }
-
-        override fun onDismiss(dialog: DialogInterface) {
-            onDismissedCalled = true
         }
     }
 
