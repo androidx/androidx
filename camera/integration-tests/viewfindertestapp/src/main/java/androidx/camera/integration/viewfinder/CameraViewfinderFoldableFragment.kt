@@ -506,8 +506,8 @@ class CameraViewfinderFoldableFragment : Fragment(), View.OnClickListener,
             val uri = resolver.insert(contentUri, values)
             try {
                 val fos = resolver.openOutputStream(uri!!)
-                bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos)
-                fos!!.close()
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos!!)
+                fos.close()
                 showToast("Saved: $displayName")
             } catch (e: IOException) {
                 Log.e(
