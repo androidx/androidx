@@ -19,6 +19,7 @@ package androidx.wear.watchface.control
 import android.annotation.SuppressLint
 import android.util.Log
 import androidx.annotation.UiThread
+import androidx.annotation.VisibleForTesting
 import androidx.wear.watchface.utility.TraceEvent
 import androidx.wear.watchface.IndentingPrintWriter
 import androidx.wear.watchface.control.data.WallpaperInteractiveWatchFaceInstanceParams
@@ -55,6 +56,11 @@ internal class InteractiveInstanceManager {
         private val pendingWallpaperInteractiveWatchFaceInstanceLock = Any()
         private var pendingWallpaperInteractiveWatchFaceInstance:
             PendingWallpaperInteractiveWatchFaceInstance? = null
+
+        @VisibleForTesting
+        fun getInstances() = synchronized(pendingWallpaperInteractiveWatchFaceInstanceLock) {
+            instances.map { it.key }
+        }
 
         @SuppressLint("SyntheticAccessor")
         fun addInstance(impl: InteractiveWatchFaceImpl) {
