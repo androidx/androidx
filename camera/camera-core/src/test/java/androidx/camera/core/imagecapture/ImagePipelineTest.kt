@@ -20,14 +20,15 @@ import android.graphics.ImageFormat
 import android.hardware.camera2.CameraDevice
 import android.os.Build
 import android.os.Looper.getMainLooper
-import android.util.Size
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.imagecapture.Utils.HEIGHT
+import androidx.camera.core.imagecapture.Utils.ROTATION_DEGREES
+import androidx.camera.core.imagecapture.Utils.SIZE
 import androidx.camera.core.imagecapture.Utils.WIDTH
+import androidx.camera.core.imagecapture.Utils.injectRotationOptionQuirk
 import androidx.camera.core.impl.CaptureConfig.OPTION_ROTATION
 import androidx.camera.core.impl.ImageInputConfig
-import androidx.camera.core.impl.MutableOptionsBundle
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor
 import androidx.camera.core.internal.IoConfig.OPTION_IO_EXECUTOR
 import androidx.camera.testing.TestImageUtil.createJpegBytes
@@ -52,9 +53,7 @@ import org.robolectric.annotation.internal.DoNotInstrument
 class ImagePipelineTest {
 
     companion object {
-        private val SIZE = Size(640, 480)
         private const val TEMPLATE_TYPE = CameraDevice.TEMPLATE_STILL_CAPTURE
-        private const val ROTATION = 99
         private val IN_MEMORY_REQUEST =
             FakeTakePictureRequest(FakeTakePictureRequest.Type.IN_MEMORY)
         private val CALLBACK = FakeTakePictureCallback()
@@ -68,9 +67,6 @@ class ImagePipelineTest {
         // Create ImageCaptureConfig.
         val builder = ImageCapture.Builder().setCaptureOptionUnpacker { _, builder ->
             builder.templateType = TEMPLATE_TYPE
-            builder.implementationOptions = MutableOptionsBundle.create().apply {
-                this.insertOption(OPTION_ROTATION, ROTATION)
-            }
         }
         builder.mutableConfig.insertOption(OPTION_IO_EXECUTOR, mainThreadExecutor())
         builder.mutableConfig.insertOption(ImageInputConfig.OPTION_INPUT_FORMAT, ImageFormat.JPEG)
@@ -84,7 +80,7 @@ class ImagePipelineTest {
 
     @Test
     fun createRequests_verifyCameraRequest() {
-        // Assert.
+        // Arrange.
         val captureInput = imagePipeline.captureNode.inputEdge
 
         // Act: create requests
@@ -97,12 +93,26 @@ class ImagePipelineTest {
         assertThat(captureConfig.surfaces).containsExactly(captureInput.surface)
         assertThat(captureConfig.templateType).isEqualTo(TEMPLATE_TYPE)
         assertThat(captureConfig.implementationOptions.retrieveOption(OPTION_ROTATION))
-            .isEqualTo(ROTATION)
+            .isEqualTo(ROTATION_DEGREES)
 
         // Act: fail the camera request.
         cameraRequest.onCaptureFailure(FAILURE)
         // Assert: The failure is propagated.
         assertThat(CALLBACK.captureFailure).isEqualTo(FAILURE)
+    }
+
+    @Test
+    fun createCameraRequestWithRotationQuirk_rotationNotInCaptureConfig() {
+        // Arrange.
+        injectRotationOptionQuirk()
+
+        // Act: create requests
+        val result = imagePipeline.createRequests(IN_MEMORY_REQUEST, CALLBACK)
+        // Assert: CameraRequest is constructed correctly.
+        val cameraRequest = result.first!!
+        val captureConfig = cameraRequest.captureConfigs.single()
+        assertThat(captureConfig.implementationOptions.retrieveOption(OPTION_ROTATION, null))
+            .isNull()
     }
 
     @Test

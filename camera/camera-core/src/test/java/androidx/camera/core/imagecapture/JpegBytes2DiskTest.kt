@@ -85,10 +85,12 @@ class JpegBytes2DiskTest {
     fun saveToFile_verifySavedImageIsIdentical() {
         // Act.
         val path = saveFileAndGetPath()
-        // Assert.
+        // Assert: image is identical.
         val restoredBitmap = BitmapFactory.decodeFile(path)
         assertThat(getAverageDiff(restoredBitmap, createBitmap(WIDTH, HEIGHT))).isEqualTo(0)
-        assertThat(createFromFileString(path).rotation).isEqualTo(ROTATION_DEGREES)
+        // Assert: exif rotation matches the packet rotation.
+        val restoredExif = createFromFileString(path)
+        assertThat(restoredExif.rotation).isEqualTo(ROTATION_DEGREES)
     }
 
     @Test
@@ -101,7 +103,6 @@ class JpegBytes2DiskTest {
         // Assert.
         val restoredExif = createFromFileString(path)
         assertThat(restoredExif.description).isEqualTo(EXIF_DESCRIPTION)
-        assertThat(restoredExif.rotation).isEqualTo(ROTATION_DEGREES)
     }
 
     @Test

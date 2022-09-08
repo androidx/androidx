@@ -114,8 +114,14 @@ class JpegBytes2Disk implements Processor<JpegBytes2Disk.In, ImageCapture.Output
             // Create new exif based on the original exif.
             Exif exif = Exif.createFromFile(tempFile);
             originalExif.copyToCroppedImage(exif);
-            // TODO: handle the exif orientation quirk.
-            exif.rotate(rotationDegrees);
+
+            if (exif.getRotation() == 0 && rotationDegrees != 0) {
+                // When the HAL does not handle rotation, exif rotation is 0. In which case we
+                // apply the packet rotation.
+                // See: EXIF_ROTATION_AVAILABILITY
+                exif.rotate(rotationDegrees);
+            }
+
             // Overwrite exif based on metadata.
             ImageCapture.Metadata metadata = options.getMetadata();
             if (metadata.isReversedHorizontal()) {

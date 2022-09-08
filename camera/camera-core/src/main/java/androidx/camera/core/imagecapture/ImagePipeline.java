@@ -37,6 +37,7 @@ import androidx.camera.core.impl.CaptureStage;
 import androidx.camera.core.impl.ImageCaptureConfig;
 import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
+import androidx.camera.core.internal.compat.workaround.ExifRotationAvailability;
 import androidx.core.util.Pair;
 
 import java.util.ArrayList;
@@ -51,6 +52,8 @@ import java.util.List;
 @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 public class ImagePipeline {
 
+    static final ExifRotationAvailability EXIF_ROTATION_AVAILABILITY =
+            new ExifRotationAvailability();
     // Use case configs.
     @NonNull
     private final ImageCaptureConfig mUseCaseConfig;
@@ -188,9 +191,14 @@ public class ImagePipeline {
             builder.addSurface(mPipelineIn.getSurface());
 
             // Only sets the JPEG rotation and quality for JPEG format. Some devices do not
-            // handle these configs for non-JPEG images.See b/204375890.
+            // handle these configs for non-JPEG images. See b/204375890.
             if (mPipelineIn.getFormat() == ImageFormat.JPEG) {
-                // TODO(b/242536202): handle ExifRotationAvailability
+                if (EXIF_ROTATION_AVAILABILITY.isRotationOptionSupported()) {
+                    builder.addImplementationOption(CaptureConfig.OPTION_ROTATION,
+                            takePictureRequest.getRotationDegrees());
+                }
+
+                // TODO: use quality=100 if the image will be re-encoded at a lower quality later.
                 builder.addImplementationOption(CaptureConfig.OPTION_JPEG_QUALITY,
                         takePictureRequest.getJpegQuality());
             }
