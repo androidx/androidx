@@ -19,10 +19,10 @@ import androidx.health.connect.client.records.Record
 import androidx.health.connect.client.records.metadata.Metadata
 
 /**
- * A [Change] with [Metadata.uid] of deleted [Record]. For privacy, only unique identifiers of the
- * deletion are returned. Clients holding copies of data should keep a copy of [Metadata.uid] along
- * with its contents, if deletion propagation is desired.
+ * A [Change] with [Metadata.id] of deleted [Record]. For privacy, only unique identifiers of
+ * the deletion are returned. Clients holding copies of data should keep a copy of
+ * [Metadata.id] along with its contents, if deletion propagation is desired.
  *
- * @property uid [Metadata.uid] of deleted [Record].
+ * @property recordId [Metadata.id] of deleted [Record].
  */
-class DeletionChange internal constructor(public val uid: String) : Change
+class DeletionChange internal constructor(public val recordId: String) : Change

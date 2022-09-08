@@ -24,8 +24,8 @@ public class InsertRecordsResponse
 internal constructor(
     /*
      * Contains
-     * [androidx.health.connect.client.metadata.Metadata.uid] of inserted [Record] in same order as
+     * [androidx.health.connect.client.metadata.Metadata.recordId] of inserted [Record] in same order as
      * passed to [androidx.health.connect.client.HealthDataClient.insertRecords].
      */
-    val recordUidsList: List<String>
+    val recordIdsList: List<String>
 )
