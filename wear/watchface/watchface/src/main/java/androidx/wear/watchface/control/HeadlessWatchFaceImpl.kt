@@ -86,10 +86,10 @@ internal class HeadlessWatchFaceImpl(
         ) { it.previewReferenceInstant.toEpochMilli() } ?: 0
 
     override fun getComplicationState() =
-        WatchFaceService.awaitDeferredWatchFaceImplThenRunOnUiThreadBlocking(
+        WatchFaceService.awaitDeferredEarlyInitDetailsThenRunOnBinderThread(
             engine,
             "HeadlessWatchFaceImpl.getComplicationState"
-        ) { it.complicationSlotsManager.getComplicationsState(it.renderer.screenBounds) }
+        ) { it.complicationSlotsManager.getComplicationsState(it.surfaceHolder.surfaceFrame) }
 
     override fun renderComplicationToBitmap(params: ComplicationRenderParams) =
         WatchFaceService.awaitDeferredWatchFaceImplThenRunOnUiThreadBlocking(

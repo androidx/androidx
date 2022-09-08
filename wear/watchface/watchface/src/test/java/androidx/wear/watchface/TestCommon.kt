@@ -129,11 +129,6 @@ internal class TestWatchFaceService(
     ): WatchFace {
         renderer = rendererFactory(surfaceHolder, currentUserStyleRepository, watchState)
         val watchFace = WatchFace(watchFaceType, renderer!!)
-            .setSystemTimeProvider(object : WatchFace.SystemTimeProvider {
-                override fun getSystemTimeMillis() = mockSystemTimeMillis
-
-                override fun getSystemTimeZoneId() = mockZoneId
-            })
         tapListener?.let {
             watchFace.setTapListener(it)
         }
@@ -175,6 +170,12 @@ internal class TestWatchFaceService(
     }
 
     override fun isPreAndroidR() = preAndroidR
+
+    override fun getSystemTimeProvider() = object : SystemTimeProvider {
+        override fun getSystemTimeMillis() = mockSystemTimeMillis
+
+        override fun getSystemTimeZoneId() = mockZoneId
+    }
 }
 
 /**
