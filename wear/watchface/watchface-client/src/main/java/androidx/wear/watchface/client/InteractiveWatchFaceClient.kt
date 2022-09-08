@@ -55,21 +55,21 @@ import java.util.function.Consumer
 /** @hide */
 @IntDef(
     value = [
-        DisconnectReason.BINDER_DIED,
+        DisconnectReason.ENGINE_DIED,
         DisconnectReason.ENGINE_DETACHED
     ]
 )
 public annotation class DisconnectReason {
     public companion object {
         /**
-         * The underlying binder died, probably because the watch face was killed or crashed.
+         * The underlying engine died, probably because the watch face was killed or crashed.
          * Sometimes this is due to memory pressure and it's not the watch face's fault. Usually in
          * response a new [InteractiveWatchFaceClient] should be created (see
          * [WatchFaceControlClient.getOrCreateInteractiveWatchFaceClient]), however if this new
-         * client also disconnects due to [BINDER_DIED] within a few seconds the watchface is
+         * client also disconnects due to [ENGINE_DIED] within a few seconds the watchface is
          * probably bad and it's recommended to switch to a safe system default watch face.
          */
-        public const val BINDER_DIED: Int = 1
+        public const val ENGINE_DIED: Int = 1
 
         /**
          * Wallpaper service detached from the engine, which is now defunct. The watch face itself
@@ -381,7 +381,7 @@ internal class InteractiveWatchFaceClientImpl internal constructor(
     init {
         iInteractiveWatchFace.asBinder().linkToDeath(
             {
-                sendDisconnectNotification(DisconnectReason.BINDER_DIED)
+                sendDisconnectNotification(DisconnectReason.ENGINE_DIED)
             },
             0
         )
