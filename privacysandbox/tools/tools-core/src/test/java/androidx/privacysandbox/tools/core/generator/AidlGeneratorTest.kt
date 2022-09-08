@@ -128,8 +128,8 @@ class AidlGeneratorTest {
                 package com.mysdk;
                 import com.mysdk.IStringTransactionCallback;
                 import com.mysdk.IUnitTransactionCallback;
-                oneway interface IMySdk {
-                    void doStuff(boolean a, int b, long c, float d, double e, char f, int g, IStringTransactionCallback transactionCallback);
+                interface IMySdk {
+                    String doStuff(boolean a, int b, long c, float d, double e, char f, int g, IStringTransactionCallback transactionCallback);
                     void doMoreStuff(IUnitTransactionCallback transactionCallback);
                 }
             """.trimIndent(),

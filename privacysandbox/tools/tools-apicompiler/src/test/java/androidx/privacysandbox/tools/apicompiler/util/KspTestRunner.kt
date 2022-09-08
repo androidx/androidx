@@ -72,6 +72,21 @@ class CompilationResultSubject(private val result: TestCompilationResult) {
         assertWithMessage("UnexpectedErrors: ${getErrorMessages()}").that(result.success).isTrue()
     }
 
+    fun generatesExactlySources(vararg sourcePaths: String) {
+        succeeds()
+        assertThat(result.generatedSources.map(Source::relativePath))
+            .containsExactlyElementsIn(sourcePaths)
+    }
+
+    fun generatesSourcesWithContents(vararg sources: Pair<String, String>) {
+        succeeds()
+        val contentsByFile = result.generatedSources.associate { it.relativePath to it.contents }
+        for ((file, content) in sources) {
+            assertWithMessage("File $file was not generated").that(contentsByFile).containsKey(file)
+            assertThat(contentsByFile[file]).isEqualTo(content)
+        }
+    }
+
     fun fails() {
         assertThat(result.success).isFalse()
     }
