@@ -15,6 +15,8 @@
  */
 
 import androidx.build.LibraryType
+import androidx.build.SdkHelperKt
+import androidx.build.SupportConfig
 
 plugins {
     id("AndroidXPlugin")
@@ -24,12 +26,28 @@ plugins {
 dependencies {
     api(libs.kotlinStdlib)
     implementation(libs.kspApi)
+    implementation(libs.kotlinPoet)
     implementation project(path: ':privacysandbox:tools:tools')
     implementation project(path: ':privacysandbox:tools:tools-core')
 
     testImplementation(project(":room:room-compiler-processing-testing"))
     testImplementation(libs.junit)
     testImplementation(libs.truth)
+    // Include android jar for compilation of generated sources.
+    testImplementation(fileTree(
+            dir: "${SdkHelperKt.getSdkPath(project)}/platforms/$SupportConfig.COMPILE_SDK_VERSION/",
+            include: "android.jar"
+    ))
+    // Get AIDL compiler path and pass it to tests for code generation.
+    def aidlCompilerPath = "${SdkHelperKt.getSdkPath(project)}/build-tools/${SupportConfig.BUILD_TOOLS_VERSION}/aidl"
+    test {
+        inputs.files(aidlCompilerPath)
+                .withPropertyName("aidl_compiler_path")
+                .withPathSensitivity(PathSensitivity.NAME_ONLY)
+        doFirst {
+            systemProperty "aidl_compiler_path", aidlCompilerPath
+        }
+    }
 }
 
 androidx {
