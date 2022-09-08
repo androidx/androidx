@@ -22,7 +22,7 @@ import androidx.health.platform.client.service.IRegisterForDataNotificationsCall
 import com.google.common.util.concurrent.SettableFuture
 
 internal class RegisterForDataNotificationsCallback(
-    private val resultFuture: SettableFuture<Void>,
+    private val resultFuture: SettableFuture<Void?>,
 ) : IRegisterForDataNotificationsCallback.Stub() {
 
     override fun onSuccess() {
