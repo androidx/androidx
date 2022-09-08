@@ -189,7 +189,7 @@ internal class FrameworkSQLiteDatabase(
         val query = buildString {
             append("DELETE FROM ")
             append(table)
-            if (whereClause?.isEmpty() == true) {
+            if (!whereClause.isNullOrEmpty()) {
                 append(" WHERE ")
                 append(whereClause)
             }
