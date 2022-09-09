@@ -16,8 +16,9 @@
 
 package androidx.privacysandbox.tools.core
 
-public data class Method(
+data class Method(
     val name: String,
     val parameters: List<Parameter>,
     val returnType: Type,
+    val isSuspend: Boolean,
 )

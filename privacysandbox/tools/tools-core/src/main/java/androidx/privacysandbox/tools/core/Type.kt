@@ -16,6 +16,6 @@
 
 package androidx.privacysandbox.tools.core
 
-public data class Type(
+data class Type(
   val name: String,
 )

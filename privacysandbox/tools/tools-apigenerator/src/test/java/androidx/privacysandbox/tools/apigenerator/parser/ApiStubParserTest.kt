@@ -39,7 +39,7 @@ class ApiStubParserTest {
                     import androidx.privacysandbox.tools.PrivacySandboxService
                     @PrivacySandboxService
                     interface MySdk {
-                      fun doSomething(magicNumber: Int, awesomeString: String)
+                      suspend fun doSomething(magicNumber: Int, awesomeString: String)
                       fun returnMagicNumber(): Int
                     }
                 """
@@ -55,12 +55,14 @@ class ApiStubParserTest {
                                 Parameter("magicNumber", Type("kotlin.Int")),
                                 Parameter("awesomeString", Type("kotlin.String"))
                             ),
-                            returnType = Type("kotlin.Unit")
+                            returnType = Type("kotlin.Unit"),
+                            isSuspend = true,
                         ),
                         Method(
                             name = "returnMagicNumber",
                             parameters = listOf(),
-                            returnType = Type("kotlin.Int")
+                            returnType = Type("kotlin.Int"),
+                            isSuspend = false,
                         )
                     )
                 )

@@ -42,7 +42,7 @@ class ApiParserTest {
                     import androidx.privacysandbox.tools.PrivacySandboxService
                     @PrivacySandboxService
                     interface MySdk {
-                        fun doStuff(x: Int, y: Int): String
+                        suspend fun doStuff(x: Int, y: Int): String
                         fun doMoreStuff()
                     }
                 """
@@ -72,12 +72,14 @@ class ApiParserTest {
                                 ),
                                 returnType = Type(
                                     name = "kotlin.String",
-                                )
+                                ),
+                                isSuspend = true,
                             ),
                             Method(
                                 name = "doMoreStuff",
                                 parameters = listOf(),
-                                returnType = Type("kotlin.Unit")
+                                returnType = Type("kotlin.Unit"),
+                                isSuspend = false,
                             )
                         )
                     )
