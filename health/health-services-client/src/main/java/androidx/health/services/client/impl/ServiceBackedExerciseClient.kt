@@ -115,7 +115,7 @@ internal class ServiceBackedExerciseClient(
         service.endExercise(packageName, StatusCallback(resultFuture))
     }
 
-    override fun flushExerciseAsync(): ListenableFuture<Void> {
+    override fun flushAsync(): ListenableFuture<Void> {
         val request = FlushRequest(packageName)
         return execute { service, resultFuture ->
             service.flushExercise(request, StatusCallback(resultFuture))

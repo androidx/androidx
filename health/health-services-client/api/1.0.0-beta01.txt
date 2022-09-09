@@ -5,7 +5,7 @@ package androidx.health.services.client {
     method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void> addGoalToActiveExerciseAsync(androidx.health.services.client.data.ExerciseGoal<?> exerciseGoal);
     method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void> clearUpdateCallbackAsync(androidx.health.services.client.ExerciseUpdateCallback callback);
     method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void> endExerciseAsync();
-    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void> flushExerciseAsync();
+    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void> flushAsync();
     method public com.google.common.util.concurrent.ListenableFuture<androidx.health.services.client.data.ExerciseCapabilities> getCapabilitiesAsync();
     method public com.google.common.util.concurrent.ListenableFuture<androidx.health.services.client.data.ExerciseInfo> getCurrentExerciseInfoAsync();
     method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void> markLapAsync();
