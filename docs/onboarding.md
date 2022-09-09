@@ -7,8 +7,8 @@ make simple changes in Android Studio, and upload commits to Gerrit for review.
 
 This page does **not** cover best practices for the content of changes. Please
 see [Life of a Jetpack Feature](loaf.md) for details on developing and releasing
-a library, [API Guidelines](api_guidelines.md) for best practices regarding
-public APIs and an overview of the constraints placed on changes.
+a library, [API Guidelines](api_guidelines/index.md) for best practices
+regarding public APIs and an overview of the constraints placed on changes.
 
 ## Workstation setup {#setup}
 
