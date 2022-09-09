@@ -68,16 +68,17 @@ class PrivacySandboxKspCompilerTest {
                     |package com.mysdk
                     |
                     |import android.app.sdksandbox.SandboxedSdk
-                    |import android.app.sdksandbox.SandboxedSdkContext
                     |import android.app.sdksandbox.SandboxedSdkProvider
                     |import android.content.Context
                     |import android.os.Bundle
                     |import android.view.View
                     |import kotlin.Int
+                    |import kotlin.Unit
                     |
                     |public abstract class AbstractSandboxedSdkProvider : SandboxedSdkProvider() {
                     |  public override fun onLoadSdk(params: Bundle): SandboxedSdk {
-                    |    TODO("Implement")
+                    |    val sdk = createMySdk(getContext())
+                    |    return SandboxedSdk(MySdkStubDelegate(sdk))
                     |  }
                     |
                     |  public override fun getView(
@@ -89,7 +90,11 @@ class PrivacySandboxKspCompilerTest {
                     |    TODO("Implement")
                     |  }
                     |
-                    |  public abstract fun createMySdk(sdkContext: SandboxedSdkContext): MySdk
+                    |  public override fun onDataReceived(`data`: Bundle,
+                    |      callback: SandboxedSdkProvider.DataReceivedCallback): Unit {
+                    |  }
+                    |
+                    |  protected abstract fun createMySdk(context: Context): MySdk
                     |}
                     |
                 """.trimMargin(),
@@ -159,7 +164,10 @@ class PrivacySandboxKspCompilerTest {
                 "android.app.sdksandbox.SandboxedSdk",
                 """
                     package android.app.sdksandbox;
-                    public class SandboxedSdk {}
+                    import android.os.IBinder;
+                    public class SandboxedSdk {
+                        public SandboxedSdk(IBinder sdkInterface) {}
+                    }
                 """.trimIndent()
             ),
             Source.java(
@@ -173,6 +181,15 @@ class PrivacySandboxKspCompilerTest {
                         public abstract SandboxedSdk onLoadSdk(Bundle params) throws LoadSdkException;
                         public abstract View getView(
                                 Context windowContext, Bundle params, int width, int height);
+                        public final Context getContext() {
+                            return null;
+                        }
+                        public abstract void onDataReceived(
+                                Bundle data, DataReceivedCallback callback);
+                        public interface DataReceivedCallback {
+                            void onDataReceivedSuccess(Bundle params);
+                            void onDataReceivedError(String errorMessage);
+                        }
                     }
                 """.trimIndent()
             ),
