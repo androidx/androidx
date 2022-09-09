@@ -82,7 +82,6 @@ readonly javaLibraryDirsThatDontUseDackka=(
   "androidx/swiperefreshlayout"
   "androidx/textclassifier"
   "androidx/tracing"
-  "androidx/transition"
   "androidx/tvprovider"
   "androidx/webkit"
 )
@@ -122,7 +121,6 @@ readonly kotlinLibraryDirsThatDontUseDackka=(
   "androidx/swiperefreshlayout"
   "androidx/textclassifier"
   "androidx/tracing"
-  "androidx/transition"
   "androidx/tvprovider"
   "androidx/webkit"
 )
