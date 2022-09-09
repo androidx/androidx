@@ -53,9 +53,11 @@ internal class ClientProxyTypeGenerator(private val service: AnnotatedInterface)
 
             val parameterList = buildList {
                 addAll(method.parameters.map(Parameter::name))
-                add("null")
+                if (method.isSuspend)
+                    add("null")
             }
-            val returnsUnit = method.returnType.name == Unit::class.qualifiedName
+            val returnsUnit =
+                method.returnType.name == Unit::class.qualifiedName || method.isSuspend
             if (returnsUnit) {
                 addStatement(
                     "remote.${method.name}(${parameterList.joinToString()})"

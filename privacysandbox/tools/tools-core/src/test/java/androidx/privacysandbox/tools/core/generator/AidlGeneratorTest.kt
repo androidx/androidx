@@ -44,7 +44,7 @@ class AidlGeneratorTest {
                     packageName = "com.mysdk",
                     methods = listOf(
                         Method(
-                            name = "doStuff",
+                            name = "suspendMethodWithReturnValue",
                             parameters = listOf(
                                 Parameter(
                                     name = "a",
@@ -95,7 +95,23 @@ class AidlGeneratorTest {
                             isSuspend = true,
                         ),
                         Method(
-                            name = "doMoreStuff",
+                            name = "suspendMethodWithoutReturnValue",
+                            parameters = listOf(),
+                            returnType = Type(
+                                name = "kotlin.Unit",
+                            ),
+                            isSuspend = true,
+                        ),
+                        Method(
+                            name = "methodWithReturnValue",
+                            parameters = listOf(),
+                            returnType = Type(
+                                name = "kotlin.Int",
+                            ),
+                            isSuspend = false,
+                        ),
+                        Method(
+                            name = "methodWithoutReturnValue",
                             parameters = listOf(),
                             returnType = Type(
                                 name = "kotlin.Unit",
@@ -131,8 +147,10 @@ class AidlGeneratorTest {
                 import com.mysdk.IStringTransactionCallback;
                 import com.mysdk.IUnitTransactionCallback;
                 interface IMySdk {
-                    String doStuff(boolean a, int b, long c, float d, double e, char f, int g, IStringTransactionCallback transactionCallback);
-                    void doMoreStuff(IUnitTransactionCallback transactionCallback);
+                    int methodWithReturnValue();
+                    void methodWithoutReturnValue();
+                    void suspendMethodWithReturnValue(boolean a, int b, long c, float d, double e, char f, int g, IStringTransactionCallback transactionCallback);
+                    void suspendMethodWithoutReturnValue(IUnitTransactionCallback transactionCallback);
                 }
             """.trimIndent(),
             "ICancellationSignal.aidl" to """

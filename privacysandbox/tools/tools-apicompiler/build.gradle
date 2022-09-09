@@ -33,6 +33,7 @@ dependencies {
     testImplementation(project(":room:room-compiler-processing-testing"))
     testImplementation(libs.junit)
     testImplementation(libs.truth)
+    testImplementation(libs.kotlinCoroutinesCore)
     // Include android jar for compilation of generated sources.
     testImplementation(fileTree(
             dir: "${SdkHelperKt.getSdkPath(project)}/platforms/$SupportConfig.COMPILE_SDK_VERSION/",
