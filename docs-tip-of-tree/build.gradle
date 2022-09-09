@@ -158,7 +158,6 @@ dependencies {
     docs(project(":glance:glance-appwidget"))
     docs(project(":glance:glance-wear-tiles"))
     docs(project(":graphics:graphics-core"))
-    docs(project(":graphics:graphics-path"))
     docs(project(":gridlayout:gridlayout"))
     docs(project(":health:connect:connect-client"))
     samples(project(":health:connect:connect-client-samples"))
