@@ -84,7 +84,7 @@ class AidlGenerator private constructor(
         val service =
             InMemorySource(
                 packageName(),
-                aidlNameForInterface(service()),
+                service().aidlName(),
                 generateAidlService(transactionCallbacks)
             )
         return transactionCallbacks + generateICancellationSignal() + service
@@ -103,7 +103,7 @@ class AidlGenerator private constructor(
         return """
                 |package ${packageName()};
                 |$transactionCallbackImports
-                |interface ${aidlNameForInterface(service())} {
+                |interface ${service().aidlName()} {
                 |    $generatedMethods
                 |}
             """.trimMargin()
@@ -112,7 +112,7 @@ class AidlGenerator private constructor(
     private fun generateAidlMethod(method: Method): String {
         val parameters =
             method.parameters.map(::generateAidlParameter) +
-                "${callbackNameForType(method.returnType)} transactionCallback"
+                "${method.returnType.transactionCallbackName()} transactionCallback"
         // TODO remove return type.
         return "${method.returnType.toAidlType()} ${method.name}(${parameters.joinToString()});"
     }
@@ -127,7 +127,7 @@ class AidlGenerator private constructor(
     }
 
     private fun generateTransactionCallback(type: Type): InMemorySource {
-        val interfaceName = callbackNameForType(type)
+        val interfaceName = type.transactionCallbackName()
         val onSuccessParameter = type.toAidlType().let { if (it == "void") "" else "$it result" }
         return InMemorySource(
             packageName = packageName(), interfaceName = interfaceName, fileContents = """
@@ -164,12 +164,6 @@ class AidlGenerator private constructor(
         return aidlFile.resolveSibling("${aidlFile.nameWithoutExtension}.java")
     }
 
-    private fun aidlNameForInterface(annotatedInterface: AnnotatedInterface) =
-        "I${annotatedInterface.name}"
-
-    private fun callbackNameForType(type: Type) =
-        "I${type.name.split(".").last()}TransactionCallback"
-
     private fun service() = api.services.first()
 
     private fun packageName() = service().packageName
@@ -195,6 +189,10 @@ internal fun File.ensureDirectory() {
         "$this is not a directory"
     }
 }
+
+fun AnnotatedInterface.aidlName() = "I$name"
+
+fun Type.transactionCallbackName() = "I${name.split(".").last()}TransactionCallback"
 
 internal fun Type.toAidlType() = when (name) {
     Boolean::class.qualifiedName -> "boolean"

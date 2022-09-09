@@ -60,6 +60,7 @@ class PrivacySandboxKspCompilerTest {
                 "com/mysdk/IUnitTransactionCallback.java",
                 "com/mysdk/IStringTransactionCallback.java",
                 "com/mysdk/AbstractSandboxedSdkProvider.kt",
+                "com/mysdk/MySdkStubDelegate.kt",
             )
         }.also {
             it.generatesSourcesWithContents(
@@ -91,7 +92,28 @@ class PrivacySandboxKspCompilerTest {
                     |  public abstract fun createMySdk(sdkContext: SandboxedSdkContext): MySdk
                     |}
                     |
-                """.trimMargin()
+                """.trimMargin(),
+                "com/mysdk/MySdkStubDelegate.kt" to """
+                    |package com.mysdk
+                    |
+                    |import kotlin.Int
+                    |import kotlin.String
+                    |import kotlin.Unit
+                    |
+                    |public class MySdkStubDelegate internal constructor(
+                    |  private val `delegate`: MySdk,
+                    |) : IMySdk.Stub() {
+                    |  public override fun doStuff(
+                    |    x: Int,
+                    |    y: Int,
+                    |    transactionCallback: IStringTransactionCallback,
+                    |  ): String = delegate.doStuff(x, y)
+                    |
+                    |  public override fun doMoreStuff(transactionCallback: IUnitTransactionCallback): Unit =
+                    |      delegate.doMoreStuff()
+                    |}
+                    |
+                """.trimMargin(),
             )
         }
     }
