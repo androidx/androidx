@@ -69,7 +69,11 @@ class CompilationResultSubject(private val result: TestCompilationResult) {
     }
 
     fun succeeds() {
-        assertWithMessage("UnexpectedErrors: ${getErrorMessages()}").that(result.success).isTrue()
+        assertWithMessage(
+            "UnexpectedErrors:\n${getFullErrorMessages()?.joinToString("\n")}"
+        ).that(
+            result.success
+        ).isTrue()
     }
 
     fun generatesExactlySources(vararg sourcePaths: String) {
@@ -103,6 +107,16 @@ class CompilationResultSubject(private val result: TestCompilationResult) {
 
     private fun getErrorMessages() =
         result.diagnostics[Diagnostic.Kind.ERROR]?.map(DiagnosticMessage::msg)
+
+    private fun getFullErrorMessages() =
+        result.diagnostics[Diagnostic.Kind.ERROR]?.map(::toReadableMessage)
+
+    private fun toReadableMessage(message: DiagnosticMessage) = """
+            |Error: ${message.msg}
+            |Location: ${message.location?.source?.relativePath}:${message.location?.line}
+            |File:
+            |${message.location?.source?.contents}
+        """.trimMargin()
 }
 
 private class CapturingSymbolProcessor(private val logger: KSPLogger) : SymbolProcessor {

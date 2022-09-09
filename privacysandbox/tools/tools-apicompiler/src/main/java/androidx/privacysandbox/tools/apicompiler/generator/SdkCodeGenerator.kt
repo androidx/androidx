@@ -32,6 +32,7 @@ class SdkCodeGenerator(
     fun generate() {
         generateAidlSources()
         AbstractSdkProviderGenerator(codeGenerator, api).generate()
+        StubDelegatesGenerator(codeGenerator, api).generate()
     }
 
     private fun generateAidlSources() {
@@ -39,8 +40,8 @@ class SdkCodeGenerator(
         try {
             AidlGenerator.generate(AidlCompiler(aidlCompilerPath), api, workingDir)
                 .forEach { source ->
-                    // Sources created by the AIDL compiler have to be copied to files created through the
-                    // KSP APIs, so that they are included in downstream compilation.
+                    // Sources created by the AIDL compiler have to be copied to files created
+                    // through the KSP APIs, so that they are included in downstream compilation.
                     val kspGeneratedFile = codeGenerator.createNewFile(
                         Dependencies(false),
                         source.packageName,

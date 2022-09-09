@@ -25,7 +25,6 @@ import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.TypeSpec
-import java.io.OutputStream
 
 class AbstractSdkProviderGenerator(
     private val codeGenerator: CodeGenerator,
@@ -59,8 +58,6 @@ class AbstractSdkProviderGenerator(
             .build()
         codeGenerator.createNewFile(Dependencies(false), packageName, className).write(fileSpec)
     }
-
-    private fun OutputStream.write(spec: FileSpec) = bufferedWriter().use(spec::writeTo)
 
     private fun generateOnLoadSdkFunction(): FunSpec {
         return FunSpec.builder("onLoadSdk")
