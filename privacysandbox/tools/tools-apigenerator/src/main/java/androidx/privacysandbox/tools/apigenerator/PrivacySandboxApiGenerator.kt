@@ -17,19 +17,11 @@
 package androidx.privacysandbox.tools.apigenerator
 
 import androidx.privacysandbox.tools.apigenerator.parser.ApiStubParser
-import androidx.privacysandbox.tools.core.AnnotatedInterface
-import androidx.privacysandbox.tools.core.Method
-import androidx.privacysandbox.tools.core.Parameter
-import androidx.privacysandbox.tools.core.Type
-import com.squareup.kotlinpoet.ClassName
-import com.squareup.kotlinpoet.CodeBlock
-import com.squareup.kotlinpoet.FileSpec
-import com.squareup.kotlinpoet.FunSpec
-import com.squareup.kotlinpoet.KModifier
-import com.squareup.kotlinpoet.ParameterSpec
-import com.squareup.kotlinpoet.TypeName
-import com.squareup.kotlinpoet.TypeSpec
+import androidx.privacysandbox.tools.core.ParsedApi
+import androidx.privacysandbox.tools.core.generator.AidlCompiler
+import androidx.privacysandbox.tools.core.generator.AidlGenerator
 import java.io.File
+import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.io.path.exists
 import kotlin.io.path.isDirectory
@@ -47,8 +39,6 @@ class PrivacySandboxApiGenerator {
      * @param aidlCompiler AIDL compiler binary. It must target API 30 or above.
      * @param outputDirectory Output directory for the sources.
      */
-    // AIDL compiler parameter will be used once we start generating Binders.
-    @Suppress("UNUSED_PARAMETER")
     fun generate(
         sdkInterfaceDescriptors: Path,
         aidlCompiler: Path,
@@ -60,59 +50,28 @@ class PrivacySandboxApiGenerator {
 
         val output = outputDirectory.toFile()
         val sdkApi = ApiStubParser.parse(sdkInterfaceDescriptors)
+        generateBinders(sdkApi, AidlCompiler(aidlCompiler), output)
+
         sdkApi.services.forEach {
-            generateServiceInterface(it, output)
-            generateServiceImplementation(it, output)
+            ServiceInterfaceFileGenerator(it).generate().writeTo(output)
+            ServiceFactoryFileGenerator(it).generate().writeTo(output)
         }
     }
 
-    private fun generateServiceInterface(service: AnnotatedInterface, outputDir: File) {
-        val annotatedInterface =
-            TypeSpec.interfaceBuilder(ClassName(service.packageName, service.name))
-                .addFunctions(service.methods.map {
-                    it.poetSpec()
-                        .toBuilder().addModifiers(KModifier.ABSTRACT)
-                        .build()
-                })
-                .build()
-        FileSpec.get(service.packageName, annotatedInterface)
-            .toBuilder()
-            .addKotlinDefaultImports(includeJvm = false, includeJs = false)
-            .build()
-            .writeTo(outputDir)
-    }
-
-    private fun generateServiceImplementation(service: AnnotatedInterface, outputDir: File) {
-        val implementation =
-            TypeSpec.classBuilder(ClassName(service.packageName, "${service.name}Impl"))
-                .addSuperinterface(ClassName(service.packageName, service.name))
-                .addFunctions(service.methods.map {
-                    it.poetSpec()
-                        .toBuilder().addModifiers(KModifier.OVERRIDE)
-                        .addCode(CodeBlock.of("TODO()"))
-                        .build()
-                })
-                .build()
-        FileSpec.get(service.packageName, implementation)
-            .toBuilder()
-            .addKotlinDefaultImports(includeJvm = false, includeJs = false)
-            .build()
-            .writeTo(outputDir)
-    }
-
-    private fun Method.poetSpec(): FunSpec {
-        return FunSpec.builder(name)
-            .addParameters(parameters.map { it.poetSpec() })
-            .returns(returnType.poetSpec())
-            .build()
-    }
-
-    private fun Parameter.poetSpec(): ParameterSpec {
-        return ParameterSpec.builder(name, type.poetSpec()).build()
-    }
-
-    private fun Type.poetSpec(): TypeName {
-        val splits = name.split('.')
-        return ClassName(splits.dropLast(1).joinToString("."), splits.last())
+    private fun generateBinders(sdkApi: ParsedApi, aidlCompiler: AidlCompiler, output: File) {
+        val aidlWorkingDir = output.resolve("tmp-aidl").also { it.mkdir() }
+        try {
+            val generatedFiles =
+                AidlGenerator.generate(aidlCompiler, sdkApi, aidlWorkingDir.toPath())
+            generatedFiles.forEach {
+                val relativePath = aidlWorkingDir.toPath().relativize(it.file.toPath())
+                val source = it.file.toPath()
+                val dest = output.toPath().resolve(relativePath)
+                dest.toFile().parentFile.mkdirs()
+                Files.move(source, dest)
+            }
+        } finally {
+            aidlWorkingDir.deleteRecursively()
+        }
     }
 }
