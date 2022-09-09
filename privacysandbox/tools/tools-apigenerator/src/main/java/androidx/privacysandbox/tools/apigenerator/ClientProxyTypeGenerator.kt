@@ -29,9 +29,9 @@ import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.TypeSpec
 
 internal class ClientProxyTypeGenerator(private val service: AnnotatedInterface) {
-    private val className =
+    internal val className =
         ClassName(service.packageName, "${service.name}ClientProxy")
-    private val remoteBinderClassName =
+    internal val remoteBinderClassName =
         ClassName(service.packageName, "I${service.name}")
 
     fun generate(): TypeSpec = TypeSpec.classBuilder(className).build {
@@ -41,7 +41,7 @@ internal class ClientProxyTypeGenerator(private val service: AnnotatedInterface)
             listOf(
                 PropertySpec.builder("remote", remoteBinderClassName)
                     .addModifiers(KModifier.PRIVATE).build()
-            ), KModifier.PRIVATE
+            )
         )
         addFunctions(service.methods.map(::generateProxyMethodImplementation))
     }

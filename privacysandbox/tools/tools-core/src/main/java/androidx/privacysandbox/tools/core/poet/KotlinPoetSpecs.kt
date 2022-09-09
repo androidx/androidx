@@ -19,6 +19,7 @@ package androidx.privacysandbox.tools.core.poet
 import androidx.privacysandbox.tools.core.Parameter
 import androidx.privacysandbox.tools.core.Type
 import com.squareup.kotlinpoet.ClassName
+import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
@@ -63,6 +64,11 @@ public fun TypeSpec.Builder.primaryConstructor(
 
 /** Builds a [TypeSpec] using the given builder block. */
 public fun TypeSpec.Builder.build(block: TypeSpec.Builder.() -> Unit): TypeSpec {
+    block()
+    return build()
+}
+
+public fun CodeBlock.Builder.build(block: CodeBlock.Builder.() -> Unit): CodeBlock {
     block()
     return build()
 }
