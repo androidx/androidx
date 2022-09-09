@@ -34,7 +34,7 @@ class ApiStubParserTest {
     @Test
     fun annotatedInterface_isParsed() {
         val source = Source.kotlin(
-            "com/mysdk/MySdk.kt", """
+            "com/mysdk/TestSandboxSdk.kt", """
                     package com.mysdk
                     import androidx.privacysandbox.tools.PrivacySandboxService
                     @PrivacySandboxService
@@ -71,7 +71,7 @@ class ApiStubParserTest {
     fun nonAnnotatedClasses_areSafelyIgnored() {
         val interfaces = compileAndParseApi(
             Source.kotlin(
-                "com/mysdk/MySdk.kt", """
+                "com/mysdk/TestSandboxSdk.kt", """
                     package com.mysdk
                     import androidx.privacysandbox.tools.PrivacySandboxService
                     @PrivacySandboxService
@@ -101,7 +101,7 @@ class ApiStubParserTest {
     @Test
     fun annotatedInterfaceWithEmptyPackageName_isHandledSafely() {
         val source = Source.kotlin(
-            "MySdk.kt", """
+            "TestSandboxSdk.kt", """
                     import androidx.privacysandbox.tools.PrivacySandboxService
                     @PrivacySandboxService
                     interface MySdk
@@ -132,7 +132,7 @@ class ApiStubParserTest {
     @Test
     fun annotatedKotlinClass_throws() {
         val source = Source.kotlin(
-            "com/mysdk/MySdk.kt", """
+            "com/mysdk/TestSandboxSdk.kt", """
                     package com.mysdk
                     import androidx.privacysandbox.tools.PrivacySandboxService
                     @PrivacySandboxService
@@ -172,7 +172,7 @@ class ApiStubParserTest {
     @Test
     fun missingAnnotatedInterface_throws() {
         val source = Source.kotlin(
-            "com/mysdk/MySdk.kt", """
+            "com/mysdk/TestSandboxSdk.kt", """
                     package com.mysdk
                     interface MySdk
                 """
