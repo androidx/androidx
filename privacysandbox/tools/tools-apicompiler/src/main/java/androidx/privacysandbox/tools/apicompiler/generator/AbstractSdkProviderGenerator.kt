@@ -33,6 +33,8 @@ class AbstractSdkProviderGenerator(
     companion object {
         private val SANDBOXED_SDK_PROVIDER_CLASS =
             ClassName("android.app.sdksandbox", "SandboxedSdkProvider")
+        private val DATA_RECEIVED_CALLBACK_CLASS =
+            ClassName("android.app.sdksandbox", "SandboxedSdkProvider", "DataReceivedCallback")
         private val SANDBOXED_SDK_CLASS =
             ClassName("android.app.sdksandbox", "SandboxedSdk")
         private val SANDBOXED_SDK_CONTEXT_CLASS =
@@ -43,7 +45,7 @@ class AbstractSdkProviderGenerator(
     }
 
     fun generate() {
-        val packageName = api.services.first().packageName
+        val packageName = service().packageName
         val className = "AbstractSandboxedSdkProvider"
         val classSpec =
             TypeSpec.classBuilder(className)
@@ -51,7 +53,8 @@ class AbstractSdkProviderGenerator(
                 .addModifiers(KModifier.ABSTRACT)
                 .addFunction(generateOnLoadSdkFunction())
                 .addFunction(generateGetViewFunction())
-                .addFunction(generateCreateServiceFunction(api.services.first()))
+                .addFunction(generateOnDataReceivedFunction())
+                .addFunction(generateCreateServiceFunction(service()))
 
         val fileSpec = FileSpec.builder(packageName, className)
             .addType(classSpec.build())
@@ -64,7 +67,11 @@ class AbstractSdkProviderGenerator(
             .addModifiers(KModifier.OVERRIDE)
             .addParameter("params", BUNDLE_CLASS)
             .returns(SANDBOXED_SDK_CLASS)
-            .addStatement("TODO(\"Implement\")")
+            .addStatement("val sdk = ${getCreateServiceFunctionName(service())}(getContext())")
+            .addStatement(
+                "return ${SANDBOXED_SDK_CLASS.simpleName}" +
+                    "(${service().stubDelegateName()}(sdk))"
+            )
             .build()
     }
 
@@ -81,12 +88,24 @@ class AbstractSdkProviderGenerator(
     }
 
     private fun generateCreateServiceFunction(service: AnnotatedInterface): FunSpec {
-        return FunSpec.builder("create${service.name}")
-            .addModifiers(KModifier.ABSTRACT)
-            .addParameter("sdkContext", SANDBOXED_SDK_CONTEXT_CLASS)
+        return FunSpec.builder(getCreateServiceFunctionName(service))
+            .addModifiers(KModifier.ABSTRACT, KModifier.PROTECTED)
+            .addParameter("context", CONTEXT_CLASS)
             .returns(service.toPoetClassName())
             .build()
     }
+
+    private fun generateOnDataReceivedFunction(): FunSpec {
+        return FunSpec.builder("onDataReceived")
+            .addModifiers(KModifier.OVERRIDE)
+            .addParameter("data", BUNDLE_CLASS)
+            .addParameter("callback", DATA_RECEIVED_CALLBACK_CLASS)
+            .build()
+    }
+
+    private fun service() = api.services.first()
+
+    private fun getCreateServiceFunctionName(service: AnnotatedInterface) = "create${service.name}"
 
     private fun AnnotatedInterface.toPoetClassName() = ClassName(packageName, name)
 }
