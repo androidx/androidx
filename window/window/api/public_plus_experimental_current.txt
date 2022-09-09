@@ -58,7 +58,6 @@ package androidx.window.embedding {
   }
 
   @androidx.window.core.ExperimentalWindowApi public final class ActivityRule extends androidx.window.embedding.EmbeddingRule {
-    ctor @Deprecated public ActivityRule(java.util.Set<androidx.window.embedding.ActivityFilter> filters, optional boolean alwaysExpand);
     method public boolean getAlwaysExpand();
     method public java.util.Set<androidx.window.embedding.ActivityFilter> getFilters();
     property public final boolean alwaysExpand;
