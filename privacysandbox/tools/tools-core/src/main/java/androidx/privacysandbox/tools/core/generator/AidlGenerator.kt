@@ -94,12 +94,11 @@ class AidlGenerator private constructor(
         transactionCallbacks: List<InMemorySource>
     ): String {
         val transactionCallbackImports =
-            transactionCallbacks.joinToString(separator = "\n|") {
+            transactionCallbacks.map {
                 "import ${it.packageName}.${it.interfaceName};"
-            }
-        val generatedMethods = service().methods.joinToString(
-            separator = "\n|    ", transform = ::generateAidlMethod
-        )
+            }.sorted().joinToString(separator = "\n|")
+        val generatedMethods = service().methods.map(::generateAidlMethod).sorted()
+            .joinToString("\n|    ")
         return """
                 |package ${packageName()};
                 |$transactionCallbackImports

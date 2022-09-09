@@ -31,6 +31,7 @@ import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.KSName
 import com.google.devtools.ksp.symbol.KSType
 import com.google.devtools.ksp.symbol.KSValueParameter
+import com.google.devtools.ksp.symbol.Modifier
 
 /** Convenience extension to get the full qualifier + name from a [KSName]. */
 internal fun KSName.getFullName(): String {
@@ -89,6 +90,7 @@ class ApiParser(private val resolver: Resolver, private val logger: KSPLogger) {
             parameters = getAllParameters(method),
             // TODO: returnType "Can be null if an error occurred during resolution".
             returnType = parseType(method, method.returnType!!.resolve()),
+            isSuspend = method.modifiers.contains(Modifier.SUSPEND)
         )
     }
 
