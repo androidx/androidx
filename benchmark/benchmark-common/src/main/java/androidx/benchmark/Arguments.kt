@@ -62,11 +62,11 @@ object Arguments {
     val killProcessDelayMillis: Long
     val enableStartupProfiles: Boolean
     val strictStartupProfiles: Boolean
+    val dryRunMode: Boolean
 
     // internal properties are microbenchmark only
     internal val outputEnable: Boolean
     internal val startupMode: Boolean
-    internal val dryRunMode: Boolean
     internal val iterations: Int?
     private val _profiler: Profiler?
     internal val profiler: Profiler?
@@ -141,8 +141,9 @@ object Arguments {
             }
             .toSet()
 
+        // compilation defaults to disabled if dryRunMode is on
         enableCompilation =
-            arguments.getBenchmarkArgument("compilation.enabled")?.toBoolean() ?: true
+            arguments.getBenchmarkArgument("compilation.enabled")?.toBoolean() ?: !dryRunMode
 
         _profiler = arguments.getProfiler(outputEnable)
         profilerSampleFrequency =
