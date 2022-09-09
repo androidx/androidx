@@ -282,7 +282,6 @@ public class StartupTimingMetric : Metric() {
             absoluteTracePath = tracePath,
             captureApiLevel = captureInfo.apiLevel,
             targetPackageName = captureInfo.targetPackageName,
-            testPackageName = captureInfo.testPackageName,
 
             // Pick an arbitrary startup mode if unspecified. In the future, consider throwing an
             // error if startup mode not defined
