@@ -17,7 +17,7 @@
 package androidx.privacysandbox.tools.core
 
 /** Result of parsing a Kotlin interface. */
-public data class AnnotatedInterface(
+data class AnnotatedInterface(
     val name: String,
     val packageName: String,
     val methods: List<Method> = emptyList(),

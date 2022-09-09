@@ -145,6 +145,7 @@ internal object ApiStubParser {
             function.name,
             function.valueParameters.map { Parameter(it.name, parseType(it.type)) },
             parseType(function.returnType),
+            Flag.Function.IS_SUSPEND(function.flags)
         )
     }
 

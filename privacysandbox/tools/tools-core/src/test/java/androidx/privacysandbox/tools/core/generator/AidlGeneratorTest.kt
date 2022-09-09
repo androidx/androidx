@@ -91,14 +91,16 @@ class AidlGeneratorTest {
                             ),
                             returnType = Type(
                                 name = "kotlin.String",
-                            )
+                            ),
+                            isSuspend = true,
                         ),
                         Method(
                             name = "doMoreStuff",
                             parameters = listOf(),
                             returnType = Type(
                                 name = "kotlin.Unit",
-                            )
+                            ),
+                            isSuspend = false,
                         )
                     )
                 )
