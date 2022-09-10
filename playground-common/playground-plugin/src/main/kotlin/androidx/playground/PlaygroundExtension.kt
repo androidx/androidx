@@ -161,7 +161,6 @@ open class PlaygroundExtension @Inject constructor(
         if (name == ":compose:lint:common") return true
         if (name == ":compose:lint:internal-lint-checks") return true
         if (name == ":compose:test-utils") return true
-        if (name == ":compose:benchmark-utils") return true
         if (name == ":compose:lint:common-test") return true
         if (name == ":test:screenshot:screenshot") return true
         if (name == ":test:screenshot:screenshot-proto") return true
