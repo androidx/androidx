@@ -18,6 +18,7 @@
 
 package androidx.build.lint
 
+import androidx.build.lint.Stubs.Companion.DoNotInline
 import androidx.build.lint.Stubs.Companion.RequiresApi
 import androidx.build.lint.Stubs.Companion.IntRange
 import org.junit.Ignore
@@ -345,6 +346,48 @@ Fix for src/androidx/AutofixUnsafeReferenceWithExistingClassJava.java line 36: E
         /* ktlint-enable max-line-length */
 
         check(*input).expectFixDiffs(expectedFix)
+    }
+
+    @Test
+    fun `Auto-fix unsafe reference in Java source when the fix code already exists`() {
+        val input = arrayOf(
+            javaSample("androidx.AutofixUnsafeReferenceWithExistingFix"),
+            RequiresApi,
+            DoNotInline
+        )
+
+        /* ktlint-disable max-line-length */
+        val expected = """
+src/androidx/AutofixUnsafeReferenceWithExistingFix.java:37: Error: This call references a method added in API level 21; however, the containing class androidx.AutofixUnsafeReferenceWithExistingFix is reachable from earlier API levels and will fail run-time class verification. [ClassVerificationFailure]
+        view.setBackgroundTintList(new ColorStateList(null, null));
+             ~~~~~~~~~~~~~~~~~~~~~
+src/androidx/AutofixUnsafeReferenceWithExistingFix.java:45: Error: This call references a method added in API level 21; however, the containing class androidx.AutofixUnsafeReferenceWithExistingFix is reachable from earlier API levels and will fail run-time class verification. [ClassVerificationFailure]
+        drawable.getOutline(null);
+                 ~~~~~~~~~~
+2 errors, 0 warnings
+        """
+
+        val expectedFix = """
+Fix for src/androidx/AutofixUnsafeReferenceWithExistingFix.java line 37: Extract to static inner class:
+@@ -37 +37
+-         view.setBackgroundTintList(new ColorStateList(null, null));
++         Api21Impl.setBackgroundTintList(view, new ColorStateList(null, null));
+Fix for src/androidx/AutofixUnsafeReferenceWithExistingFix.java line 45: Extract to static inner class:
+@@ -45 +45
+-         drawable.getOutline(null);
++         Api21Impl.getOutline(drawable, null);
+@@ -58 +58
+-     }
++     @annotation.DoNotInline
++ static void getOutline(Drawable drawable, android.graphics.Outline outline) {
++     drawable.getOutline(outline);
+@@ -60 +62
++ }
++ }
+        """
+        /* ktlint-enable max-line-length */
+
+        check(*input).expect(expected).expectFixDiffs(expectedFix)
     }
 
     @Ignore("Ignored until the fix for b/241573146 is in the current version of studio")
