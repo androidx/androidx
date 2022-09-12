@@ -22,8 +22,10 @@ import androidx.health.platform.client.request.DeleteDataRangeRequest;
 import androidx.health.platform.client.request.GetChangesTokenRequest;
 import androidx.health.platform.client.request.GetChangesRequest;
 import androidx.health.platform.client.request.UpsertDataRequest;
+import androidx.health.platform.client.request.UpsertExerciseRouteRequest;
 import androidx.health.platform.client.request.ReadDataRequest;
 import androidx.health.platform.client.request.ReadDataRangeRequest;
+import androidx.health.platform.client.request.ReadExerciseRouteRequest;
 import androidx.health.platform.client.request.RegisterForDataNotificationsRequest;
 import androidx.health.platform.client.request.RequestContext;
 import androidx.health.platform.client.request.UnregisterFromDataNotificationsRequest;
@@ -34,8 +36,10 @@ import androidx.health.platform.client.service.IDeleteDataCallback;
 import androidx.health.platform.client.service.IDeleteDataRangeCallback;
 import androidx.health.platform.client.service.IReadDataRangeCallback;
 import androidx.health.platform.client.service.IUpdateDataCallback;
+import androidx.health.platform.client.service.IUpsertExerciseRouteCallback;
 import androidx.health.platform.client.service.IInsertDataCallback;
 import androidx.health.platform.client.service.IReadDataCallback;
+import androidx.health.platform.client.service.IReadExerciseRouteCallback;
 import androidx.health.platform.client.service.IRevokeAllPermissionsCallback;
 import androidx.health.platform.client.service.IAggregateDataCallback;
 import androidx.health.platform.client.service.IRegisterForDataNotificationsCallback;
@@ -46,11 +50,11 @@ interface IHealthDataService {
    * API version of the AIDL interface. Should be incremented every time a new
    * method is added.
    */
-  const int CURRENT_API_VERSION = 2;
+  const int CURRENT_API_VERSION = 3;
 
   const int MIN_API_VERSION = 1;
 
-  // Next Id: 20
+  // Next Id: 22
 
   /**
    * Returns version of this AIDL interface.
@@ -85,4 +89,9 @@ interface IHealthDataService {
   void registerForDataNotifications(in RequestContext context, in RegisterForDataNotificationsRequest request, in IRegisterForDataNotificationsCallback callback) = 18;
 
   void unregisterFromDataNotifications(in RequestContext context, in UnregisterFromDataNotificationsRequest request, in IUnregisterFromDataNotificationsCallback callback) = 19;
+
+  void upsertExerciseRoute(in RequestContext context, in UpsertExerciseRouteRequest request, in IUpsertExerciseRouteCallback callback) = 20;
+
+  void readExerciseRoute(in RequestContext context, in ReadExerciseRouteRequest request, in IReadExerciseRouteCallback callback) = 21;
+
 }
