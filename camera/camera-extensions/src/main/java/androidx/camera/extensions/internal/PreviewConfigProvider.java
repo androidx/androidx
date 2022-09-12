@@ -19,7 +19,6 @@ package androidx.camera.extensions.internal;
 import android.content.Context;
 import android.hardware.camera2.CameraCharacteristics;
 import android.os.Build;
-import android.os.SystemClock;
 import android.util.Pair;
 import android.util.Size;
 
@@ -147,9 +146,6 @@ public class PreviewConfigProvider implements ConfigProvider<PreviewConfig> {
         private final VendorProcessor mPreviewProcessor;
         @Nullable
         CameraInfo mCameraInfo;
-        private long mOnEnableSessionTimeStamp = 0;
-        private static final long MIN_DURATION_FOR_ENABLE_DISABLE_SESSION = 100L;
-
         @GuardedBy("mLock")
         final Object mLock = new Object();
 
@@ -218,7 +214,6 @@ public class PreviewConfigProvider implements ConfigProvider<PreviewConfig> {
             synchronized (mLock) {
                 Logger.d(TAG, "Preview onEnableSession");
                 CaptureStageImpl captureStageImpl = mImpl.onEnableSession();
-                mOnEnableSessionTimeStamp = SystemClock.elapsedRealtime();
                 if (captureStageImpl != null) {
                     return new AdaptingCaptureStage(captureStageImpl).getCaptureConfig();
                 }
@@ -232,7 +227,6 @@ public class PreviewConfigProvider implements ConfigProvider<PreviewConfig> {
         @Nullable
         public CaptureConfig onDisableSession() {
             synchronized (mLock) {
-                ensureMinDurationAfterOnEnableSession();
                 Logger.d(TAG, "Preview onDisableSession");
                 CaptureStageImpl captureStageImpl = mImpl.onDisableSession();
                 if (captureStageImpl != null) {
@@ -241,26 +235,6 @@ public class PreviewConfigProvider implements ConfigProvider<PreviewConfig> {
             }
 
             return null;
-        }
-
-        /**
-         * Ensures onDisableSession not invoked too soon after onDisableSession. OEMs usually
-         * releases resources at onDisableSession. Invoking onDisableSession too soon might cause
-         * some crash during the initialization triggered by onEnableSession or onInit.
-         */
-        private void ensureMinDurationAfterOnEnableSession() {
-            long timeAfterOnEnableSession =
-                    SystemClock.elapsedRealtime() - mOnEnableSessionTimeStamp;
-            if (timeAfterOnEnableSession < MIN_DURATION_FOR_ENABLE_DISABLE_SESSION) {
-                try {
-                    long timeToWait =
-                            MIN_DURATION_FOR_ENABLE_DISABLE_SESSION - timeAfterOnEnableSession;
-                    Logger.d(TAG, "onDisable too soon, wait " + timeToWait + " ms");
-                    Thread.sleep(timeToWait);
-                } catch (InterruptedException e) {
-                    Logger.e(TAG, "sleep interrupted");
-                }
-            }
         }
 
         // Invoked from camera thread
