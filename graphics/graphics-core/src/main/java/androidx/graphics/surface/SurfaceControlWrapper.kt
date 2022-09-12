@@ -28,6 +28,7 @@ import java.util.concurrent.Executor
 
 internal class JniBindings {
     companion object {
+        private external fun nLoadLibrary()
         external fun nCreate(surfaceControl: Long, debugName: String): Long
         external fun nCreateFromSurface(surface: Surface, debugName: String): Long
         external fun nRelease(surfaceControl: Long)
@@ -92,8 +93,25 @@ internal class JniBindings {
             alpha: Float
         )
 
+        external fun nSetCrop(
+            surfaceTransaction: Long,
+            surfaceControl: Long,
+            left: Int,
+            top: Int,
+            right: Int,
+            bottom: Int
+        )
+
+        external fun nSetPosition(
+            surfaceTransaction: Long,
+            surfaceControl: Long,
+            x: Float,
+            y: Float
+        )
+
         init {
             System.loadLibrary("graphics-core")
+            nLoadLibrary()
         }
     }
 }
@@ -397,6 +415,69 @@ internal class SurfaceControlWrapper internal constructor(
                     alpha
                 )
             }
+            return this
+        }
+
+        /**
+         * Bounds the surface and its children to the bounds specified. Size of the surface
+         * will be ignored and only the crop and buffer size will be used to determine the
+         * bounds of the surface. If no crop is specified and the surface has no buffer,
+         * the surface bounds is only constrained by the size of its parent bounds.
+         *
+         * @param surfaceControl The [SurfaceControlWrapper] to apply the crop to. This value
+         * cannot be null.
+         *
+         * @param crop Bounds of the crop to apply. This value can be null. A null value will remove
+         * the crop and bounds are determined via bounds of the parent surface.
+         *
+         * @throws IllegalArgumentException if crop is not a valid rectangle.
+         */
+        @RequiresApi(Build.VERSION_CODES.S)
+        fun setCrop(surfaceControl: SurfaceControlWrapper, crop: Rect?): Transaction {
+            require((crop == null) || (crop.width() >= 0 && crop.height() >= 0)) {
+                throw IllegalArgumentException("width and height must be non-negative")
+            }
+            if (crop == null) {
+                JniBindings.nSetCrop(
+                    mNativeSurfaceTransaction,
+                    surfaceControl.mNativeSurfaceControl,
+                    0,
+                    0,
+                    0,
+                    0
+                )
+            } else {
+                JniBindings.nSetCrop(
+                    mNativeSurfaceTransaction,
+                    surfaceControl.mNativeSurfaceControl,
+                    crop.left,
+                    crop.top,
+                    crop.right,
+                    crop.bottom
+                )
+            }
+
+            return this
+        }
+
+        /**
+         * Sets the SurfaceControl to the specified position relative to the parent SurfaceControl
+         *
+         * @param surfaceControl The [SurfaceControlWrapper] to change position. This value cannot
+         * be null
+         *
+         * @param x the X position
+         *
+         * @param y the Y position
+         */
+        @RequiresApi(Build.VERSION_CODES.S)
+        fun setPosition(surfaceControl: SurfaceControlWrapper, x: Float, y: Float): Transaction {
+            JniBindings.nSetPosition(
+                mNativeSurfaceTransaction,
+                surfaceControl.mNativeSurfaceControl,
+                x,
+                y
+            )
             return this
         }
 

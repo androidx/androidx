@@ -18,6 +18,7 @@ package androidx.graphics.surface
 
 import android.app.Instrumentation
 import android.graphics.Bitmap
+import android.graphics.Color
 import android.hardware.HardwareBuffer
 import android.os.SystemClock
 import androidx.test.filters.SdkSuppress
@@ -41,6 +42,89 @@ internal class SurfaceControlUtils {
                 }
             }
             Assert.assertTrue(success)
+        }
+
+        fun checkNullCrop(
+            bitmap: Bitmap,
+            coord: IntArray
+        ): Boolean {
+            // check top left
+            return Color.RED ==
+                bitmap.getPixel(coord[0], coord[1]) &&
+                // check top right
+                Color.RED ==
+                bitmap.getPixel(
+                    coord[0] + SurfaceControlWrapperTestActivity.DEFAULT_WIDTH - 1,
+                    coord[1]
+                ) &&
+                // check  bottom right
+                Color.RED ==
+                bitmap.getPixel(
+                    coord[0] + SurfaceControlWrapperTestActivity.DEFAULT_WIDTH - 1,
+                    coord[1] + SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT - 1
+                ) &&
+                // check bottom left
+                Color.RED ==
+                bitmap.getPixel(
+                    coord[0],
+                    coord[1] + SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT - 1
+                ) &&
+                // check center
+                Color.RED ==
+                bitmap.getPixel(
+                    coord[0] + SurfaceControlWrapperTestActivity.DEFAULT_WIDTH / 2,
+                    coord[1] + SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT / 2
+                )
+        }
+
+        fun checkStandardCrop(
+            bitmap: Bitmap,
+            coord: IntArray
+        ): Boolean {
+            // check left crop
+            return Color.BLACK ==
+                bitmap.getPixel(
+                    coord[0] + 19,
+                    coord[1] + SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT / 2
+                ) &&
+                Color.RED ==
+                bitmap.getPixel(
+                    coord[0] + 20,
+                    coord[1] + SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT / 2
+                ) &&
+                // check top crop
+                Color.BLACK ==
+                bitmap.getPixel(
+                    coord[0] + SurfaceControlWrapperTestActivity.DEFAULT_WIDTH / 2,
+                    coord[1] + 29
+                ) &&
+                Color.RED ==
+                bitmap.getPixel(
+                    coord[0] + SurfaceControlWrapperTestActivity.DEFAULT_WIDTH / 2,
+                    coord[1] + 30
+                ) &&
+                // check right crop
+                Color.BLACK ==
+                bitmap.getPixel(
+                    coord[0] + SurfaceControlWrapperTestActivity.DEFAULT_WIDTH - 10,
+                    coord[1] + SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT / 2
+                ) &&
+                Color.RED ==
+                bitmap.getPixel(
+                    coord[0] + SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT - 11,
+                    coord[1] + SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT / 2
+                ) &&
+                // check bottom crop
+                Color.BLACK ==
+                bitmap.getPixel(
+                    coord[0] + SurfaceControlWrapperTestActivity.DEFAULT_WIDTH / 2,
+                    coord[1] + SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT - 40
+                ) &&
+                Color.RED ==
+                bitmap.getPixel(
+                    coord[0] + SurfaceControlWrapperTestActivity.DEFAULT_WIDTH / 2,
+                    coord[1] + SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT - 41
+                )
         }
 
         fun getScreenshot(instrumentation: Instrumentation): Bitmap {

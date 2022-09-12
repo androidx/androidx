@@ -16,6 +16,7 @@
 
 package androidx.graphics.surface
 
+import android.graphics.Rect
 import android.graphics.Region
 import android.hardware.HardwareBuffer
 import android.os.Build
@@ -222,6 +223,40 @@ internal interface SurfaceControlImpl {
         fun setAlpha(
             surfaceControl: SurfaceControlImpl,
             alpha: Float
+        ): Transaction
+
+        /**
+         * Bounds the surface and its children to the bounds specified. Size of the surface
+         * will be ignored and only the crop and buffer size will be used to determine the
+         * bounds of the surface. If no crop is specified and the surface has no buffer,
+         * the surface bounds is only constrained by the size of its parent bounds.
+         *
+         * @param surfaceControl The [SurfaceControlImpl] to apply the crop to. This value
+         * cannot be null.
+         *
+         * @param crop Bounds of the crop to apply. This value can be null.
+         *
+         * @throws IllegalArgumentException if crop is not a valid rectangle.
+         */
+        fun setCrop(
+            surfaceControl: SurfaceControlImpl,
+            crop: Rect?
+        ): Transaction
+
+        /**
+         * Sets the SurfaceControl to the specified position relative to the parent SurfaceControl
+         *
+         * @param surfaceControl The [SurfaceControlImpl] to change position. This value cannot
+         * be null
+         *
+         * @param x the X position
+         *
+         * @param y the Y position
+         */
+        fun setPosition(
+            surfaceControl: SurfaceControlImpl,
+            x: Float,
+            y: Float
         ): Transaction
 
         /**

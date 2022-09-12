@@ -16,6 +16,7 @@
 
 package androidx.graphics.surface
 
+import android.graphics.Rect
 import android.graphics.Region
 import android.hardware.HardwareBuffer
 import android.hardware.SyncFence
@@ -197,6 +198,29 @@ internal class SurfaceControlV33 internal constructor(
             alpha: Float
         ): SurfaceControlImpl.Transaction {
             mTransaction.setAlpha(surfaceControl.asFrameworkSurfaceControl(), alpha)
+            return this
+        }
+
+        /**
+         * See [SurfaceControlImpl.Transaction.setCrop]
+         */
+        override fun setCrop(
+            surfaceControl: SurfaceControlImpl,
+            crop: Rect?
+        ): SurfaceControlImpl.Transaction {
+            mTransaction.setCrop(surfaceControl.asFrameworkSurfaceControl(), crop)
+            return this
+        }
+
+        /**
+         * See [SurfaceControlImpl.Transaction.setPosition]
+         */
+        override fun setPosition(
+            surfaceControl: SurfaceControlImpl,
+            x: Float,
+            y: Float
+        ): SurfaceControlImpl.Transaction {
+            mTransaction.setPosition(surfaceControl.asFrameworkSurfaceControl(), x, y)
             return this
         }
 

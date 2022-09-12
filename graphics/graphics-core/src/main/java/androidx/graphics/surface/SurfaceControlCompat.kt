@@ -16,6 +16,7 @@
 
 package androidx.graphics.surface
 
+import android.graphics.Rect
 import android.graphics.Region
 import android.hardware.HardwareBuffer
 import android.os.Build
@@ -292,7 +293,7 @@ class SurfaceControlCompat internal constructor(
          * sent buffer. This can be used to reduce the amount of recomposition that needs to
          * happen when only a small region of the buffer is being updated, such as for a small
          * blinking cursor or a loading indicator.
-         * @param surfaceControl Target [SurfaceControlImpl] to set damage region of.
+         * @param surfaceControl Target [SurfaceControlCompat] to set damage region of.
          * @param region The region to be set. If null, the entire buffer is assumed dirty. This is
          * equivalent to not setting a damage region at all.
          */
@@ -307,7 +308,7 @@ class SurfaceControlCompat internal constructor(
         /**
          * Set the alpha for a given surface. If the alpha is non-zero the SurfaceControl will
          * be blended with the Surfaces under it according to the specified ratio.
-         * @param surfaceControl Target [SurfaceControlImpl] to set the alpha of.
+         * @param surfaceControl Target [SurfaceControlCompat] to set the alpha of.
          * @param alpha The alpha to set. Value is between 0.0 and 1.0 inclusive.
          */
         fun setAlpha(
@@ -315,6 +316,46 @@ class SurfaceControlCompat internal constructor(
             alpha: Float
         ): Transaction {
             mImpl.setAlpha(surfaceControl.scImpl, alpha)
+            return this
+        }
+
+        /**
+         * Bounds the surface and its children to the bounds specified. Size of the surface
+         * will be ignored and only the crop and buffer size will be used to determine the
+         * bounds of the surface. If no crop is specified and the surface has no buffer,
+         * the surface bounds is only constrained by the size of its parent bounds.
+         *
+         * @param surfaceControl The [SurfaceControlCompat] to apply the crop to. This value
+         * cannot be null.
+         *
+         * @param crop Bounds of the crop to apply. This value can be null.
+         *
+         * @throws IllegalArgumentException if crop is not a valid rectangle.
+         */
+        fun setCrop(
+            surfaceControl: SurfaceControlCompat,
+            crop: Rect?
+        ): Transaction {
+            mImpl.setCrop(surfaceControl.scImpl, crop)
+            return this
+        }
+
+        /**
+         * Sets the SurfaceControl to the specified position relative to the parent SurfaceControl
+         *
+         * @param surfaceControl The [SurfaceControlCompat] to change position. This value cannot
+         * be null
+         *
+         * @param x the X position
+         *
+         * @param y the Y position
+         */
+        fun setPosition(
+            surfaceControl: SurfaceControlCompat,
+            x: Float,
+            y: Float
+        ): Transaction {
+            mImpl.setPosition(surfaceControl.scImpl, x, y)
             return this
         }
 
