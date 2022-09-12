@@ -72,8 +72,6 @@ readonly javaLibraryDirsThatDontUseDackka=(
   "androidx/recommendation"
   "androidx/recyclerview"
   "androidx/startup"
-  "androidx/swiperefreshlayout"
-  "androidx/tvprovider"
 )
 readonly kotlinLibraryDirsThatDontUseDackka=(
   "androidx/benchmark"
@@ -101,8 +99,6 @@ readonly kotlinLibraryDirsThatDontUseDackka=(
   "androidx/recommendation"
   "androidx/recyclerview"
   "androidx/startup"
-  "androidx/swiperefreshlayout"
-  "androidx/tvprovider"
 )
 
 # Change directory to this script's location and store the directory
