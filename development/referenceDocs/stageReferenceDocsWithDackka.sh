@@ -79,7 +79,6 @@ readonly javaLibraryDirsThatDontUseDackka=(
   "androidx/swiperefreshlayout"
   "androidx/textclassifier"
   "androidx/tvprovider"
-  "androidx/webkit"
 )
 readonly kotlinLibraryDirsThatDontUseDackka=(
   "androidx/benchmark"
@@ -114,7 +113,6 @@ readonly kotlinLibraryDirsThatDontUseDackka=(
   "androidx/swiperefreshlayout"
   "androidx/textclassifier"
   "androidx/tvprovider"
-  "androidx/webkit"
 )
 
 # Change directory to this script's location and store the directory
