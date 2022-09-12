@@ -29,11 +29,14 @@ import androidx.glance.background
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.Column
 import androidx.glance.layout.fillMaxSize
+import androidx.glance.template.HeaderBlock
+import androidx.glance.template.ImageBlock
 import androidx.glance.template.LocalTemplateMode
 import androidx.glance.template.SingleEntityTemplateData
 import androidx.glance.template.TemplateImageWithDescription
 import androidx.glance.template.TemplateMode
 import androidx.glance.template.TemplateText
+import androidx.glance.template.TextBlock
 import androidx.glance.template.TextType
 import androidx.glance.text.Text
 import androidx.glance.text.TextAlign
@@ -53,18 +56,28 @@ class DemoOverrideWidget : GlanceTemplateAppWidget() {
         } else {
             SingleEntityTemplate(
                 SingleEntityTemplateData(
-                    header = TemplateText("Single Entity Demo", TextType.Title),
-                    headerIcon = TemplateImageWithDescription(
-                        ImageProvider(R.drawable.compose),
-                        "icon"
+                    headerBlock = HeaderBlock(
+                        text = TemplateText("Single Entity Demo", TextType.Title),
+                        icon = TemplateImageWithDescription(
+                            ImageProvider(R.drawable.compose),
+                            "icon"
+                        ),
                     ),
-                    text1 = TemplateText("title", TextType.Title),
-                    text2 = TemplateText("Subtitle", TextType.Label),
-                    text3 = TemplateText(
-                        "Body Lorem ipsum dolor sit amet, consectetur adipiscing",
-                        TextType.Label
+                    textBlock = TextBlock(
+                        text1 = TemplateText("title", TextType.Title),
+                        text2 = TemplateText("Subtitle", TextType.Label),
+                        text3 = TemplateText(
+                            "Body Lorem ipsum dolor sit amet, consectetur adipiscing",
+                            TextType.Label
+                        ),
+                        priority = 0,
                     ),
-                    image = TemplateImageWithDescription(ImageProvider(R.drawable.compose), "image")
+                    imageBlock = ImageBlock(
+                        images = listOf(
+                            TemplateImageWithDescription(ImageProvider(R.drawable.compose), "image")
+                        ),
+                        priority = 1,
+                    ),
                 )
             )
         }
