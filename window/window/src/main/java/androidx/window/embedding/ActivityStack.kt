@@ -52,19 +52,19 @@ class ActivityStack(
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (other !is ActivityStack) return false
+        if (javaClass != other?.javaClass) return false
 
-        return activities == other.activities && isEmpty == other.isEmpty
+        other as ActivityStack
+
+        if (activities != other.activities) return false
+        if (isEmpty != other.isEmpty) return false
+
+        return true
     }
 
     override fun hashCode(): Int {
-        var result =
-            if (isEmpty) {
-                1
-            } else {
-                0
-            }
-        result = 31 * result + activities.hashCode()
+        var result = activities.hashCode()
+        result = 31 * result + isEmpty.hashCode()
         return result
     }
 
