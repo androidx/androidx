@@ -6,15 +6,19 @@ plugins {
 }
 
 androidXMultiplatform {
-    def xcf = new XCFrameworkConfig(project, "AndroidXDarwinBenchmarks")
+
+    def xcf = new XCFrameworkConfig(project, "AndroidXDarwinSampleBenchmarks")
+
     ios {
         binaries.framework {
-            baseName = "AndroidXDarwinBenchmarks"
+            baseName = "AndroidXDarwinSampleBenchmarks"
             // https://youtrack.jetbrains.com/issue/KT-48552
             embedBitcode = BitcodeEmbeddingMode.DISABLE
+            export(project(":benchmark:benchmark-darwin"))
             xcf.add(it)
         }
     }
+
     sourceSets {
         commonMain {
             dependencies {
@@ -30,7 +34,7 @@ androidXMultiplatform {
         iosArm64Main {
             dependsOn(commonMain)
             dependencies {
-                api(project(":benchmark:benchmark-darwin-core"))
+                api(project(":benchmark:benchmark-darwin"))
             }
         }
         iosSimulatorArm64Main {
@@ -43,8 +47,8 @@ androidXMultiplatform {
 }
 
 androidx {
-    name = "AndroidX Benchmarks - Darwin"
+    name = "AndroidX Benchmarks - Darwin Samples"
     mavenGroup = LibraryGroups.BENCHMARK
     inceptionYear = "2022"
-    description = "AndroidX Benchmarks - Darwin"
+    description = "AndroidX Benchmarks - Darwin Samples"
 }

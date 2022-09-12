@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
-package androidx.benchmark.darwin
+import SwiftUI
 
-/**
- * Returns a [List] of [TestCase]s to run for benchmarks.
- */
-object TestCases {
-    private val testCases = mutableSetOf<TestCase>()
-    fun benchmarkTests(): List<TestCase> {
-        return testCases.toList()
-    }
+struct ContentView: View {
+  let greet = "Hello Benchmarking"
 
-    fun addBenchmarkTest(testCase: TestCase) {
-        testCases += testCase
-    }
+  var body: some View {
+    Text(greet)
+  }
+}
+
+struct ContentView_Previews: PreviewProvider {
+  static var previews: some View {
+    ContentView()
+  }
 }
