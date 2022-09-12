@@ -482,6 +482,12 @@ package androidx.wear.compose.material {
     property public abstract androidx.compose.animation.core.Easing scaleInterpolator;
   }
 
+  public final class ScrollAwayKt {
+    method public static androidx.compose.ui.Modifier scrollAway(androidx.compose.ui.Modifier, androidx.compose.foundation.ScrollState scrollState, optional int offset);
+    method public static androidx.compose.ui.Modifier scrollAway(androidx.compose.ui.Modifier, androidx.compose.foundation.lazy.LazyListState scrollState, optional int itemIndex, optional int offset);
+    method public static androidx.compose.ui.Modifier scrollAway(androidx.compose.ui.Modifier, androidx.wear.compose.material.ScalingLazyListState scrollState, optional int itemIndex, optional int offset);
+  }
+
   @androidx.compose.runtime.Immutable public final class Shapes {
     ctor public Shapes(optional androidx.compose.foundation.shape.CornerBasedShape small, optional androidx.compose.foundation.shape.CornerBasedShape medium, optional androidx.compose.foundation.shape.CornerBasedShape large);
     method public androidx.wear.compose.material.Shapes copy(optional androidx.compose.foundation.shape.CornerBasedShape small, optional androidx.compose.foundation.shape.CornerBasedShape medium, optional androidx.compose.foundation.shape.CornerBasedShape large);
