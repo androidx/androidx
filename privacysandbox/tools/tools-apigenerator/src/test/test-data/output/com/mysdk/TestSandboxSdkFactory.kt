@@ -1,6 +1,34 @@
 package com.mysdk
 
-private class TestSandboxSdkClientProxy private constructor(
+import android.app.sdksandbox.LoadSdkException
+import android.app.sdksandbox.SandboxedSdk
+import android.app.sdksandbox.SdkSandboxManager
+import android.content.Context
+import android.os.Bundle
+import android.os.OutcomeReceiver
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
+import kotlinx.coroutines.suspendCancellableCoroutine
+
+public suspend fun createTestSandboxSdk(context: Context): TestSandboxSdk =
+    suspendCancellableCoroutine {
+  val sdkSandboxManager = context.getSystemService(SdkSandboxManager::class.java)
+  sdkSandboxManager.loadSdk(
+      "com.mysdk",
+      Bundle.EMPTY,
+      { obj: Runnable -> obj.run() },
+      object : OutcomeReceiver<SandboxedSdk, LoadSdkException> {
+          override fun onResult(result: SandboxedSdk) {
+              it.resume(TestSandboxSdkClientProxy(
+                  ITestSandboxSdk.Stub.asInterface(result.getInterface())))
+          }
+
+          override fun onError(error: LoadSdkException) {
+              it.resumeWithException(error)
+          }
+      })}
+
+private class TestSandboxSdkClientProxy(
   private val remote: ITestSandboxSdk,
 ) : TestSandboxSdk {
   public override fun echoBoolean(input: Boolean) = remote.echoBoolean(input, null)!!
