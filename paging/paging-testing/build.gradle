@@ -25,6 +25,13 @@ plugins {
 
 dependencies {
     api(libs.kotlinStdlib)
+    implementation(project(":paging:paging-common"))
+
+    testImplementation(libs.junit)
+    testImplementation(libs.kotlinCoroutinesTest)
+    testImplementation(project(":internal-testutils-paging"))
+    testImplementation(libs.kotlinTest)
+    testImplementation(libs.truth)
 }
 
 androidx {
