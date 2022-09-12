@@ -45,7 +45,7 @@ fun compileAll(sources: List<Source>): TestCompilationResult {
     val tempDir = createTempDirectory("compile").toFile().also { it.deleteOnExit() }
     return compile(
         tempDir, TestCompilationArguments(
-            sources = sources,
+            sources = sources + syntheticPrivacySandboxSources,
         )
     )
 }
@@ -70,3 +70,43 @@ fun compileIntoInterfaceDescriptorsJar(vararg sources: Source): Path {
 
     return sdkInterfaceDescriptors.toPath()
 }
+
+// PrivacySandbox platform APIs are not available in AndroidX prebuilts nor are they stable, so
+// while that's the case we use fake stubs to run our compilation tests.
+private val syntheticPrivacySandboxSources = listOf(
+    Source.java(
+        "android.app.sdksandbox.SdkSandboxManager", """
+        |package android.app.sdksandbox;
+        |
+        |import android.os.Bundle;
+        |import android.os.OutcomeReceiver;
+        |import java.util.concurrent.Executor;
+        |
+        |public final class SdkSandboxManager {
+        |    public void loadSdk(
+        |        String sdkName,
+        |        Bundle params,
+        |        Executor executor,
+        |        OutcomeReceiver<SandboxedSdk, LoadSdkException> receiver) {}
+        |}
+        |""".trimMargin()
+    ),
+    Source.java(
+        "android.app.sdksandbox.SandboxedSdk", """
+        |package android.app.sdksandbox;
+        |
+        |import android.os.IBinder;
+        |
+        |public final class SandboxedSdk {
+        |    public IBinder getInterface() { return null; }
+        |}
+        |""".trimMargin()
+    ),
+    Source.java(
+        "android.app.sdksandbox.LoadSdkException", """
+        |package android.app.sdksandbox;
+        |
+        |public final class LoadSdkException extends Exception {}
+        |""".trimMargin()
+    ),
+)

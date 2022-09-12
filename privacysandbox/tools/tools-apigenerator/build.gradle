@@ -35,6 +35,7 @@ dependencies {
 
     testImplementation(project(":room:room-compiler-processing-testing"))
     testImplementation(project(":internal-testutils-truth"))
+    testImplementation(libs.kotlinCoroutinesCore)
     testImplementation(libs.junit)
     testImplementation(libs.truth)
 
