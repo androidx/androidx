@@ -155,7 +155,7 @@ private fun macrobenchmark(
             it.configure(packageName)
         }
         val measurements = PerfettoTraceProcessor.runServer {
-            List(iterations) { iteration ->
+            List(if (Arguments.dryRunMode) 1 else iterations) { iteration ->
                 // Wake the device to ensure it stays awake with large iteration count
                 userspaceTrace("wake device") {
                     scope.device.wakeUp()
