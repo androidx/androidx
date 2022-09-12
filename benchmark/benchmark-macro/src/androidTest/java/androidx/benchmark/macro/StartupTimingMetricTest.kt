@@ -21,6 +21,7 @@ import android.content.Intent
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.benchmark.Outputs
+import androidx.benchmark.macro.perfetto.PerfettoTraceProcessor
 import androidx.benchmark.perfetto.PerfettoCaptureWrapper
 import androidx.benchmark.perfetto.PerfettoHelper.Companion.isAbiSupported
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -32,13 +33,13 @@ import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiObject2
 import androidx.test.uiautomator.Until
-import org.junit.Assume.assumeTrue
-import org.junit.Test
-import org.junit.runner.RunWith
 import java.io.File
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
+import org.junit.Assume.assumeTrue
+import org.junit.Test
+import org.junit.runner.RunWith
 
 @SdkSuppress(minSdkVersion = 23)
 @RunWith(AndroidJUnit4::class)
@@ -188,16 +189,19 @@ class StartupTimingMetricTest {
         assumeTrue(isAbiSupported())
         val traceFile = createTempFileFromAsset("api32_startup_warm", ".perfetto-trace")
         val packageName = "androidx.benchmark.integration.macrobenchmark.target"
+
         metric.configure(packageName)
-        return metric.getMetrics(
-            captureInfo = Metric.CaptureInfo(
-                targetPackageName = "androidx.benchmark.integration.macrobenchmark.target",
-                testPackageName = "androidx.benchmark.integration.macrobenchmark.test",
-                startupMode = StartupMode.WARM,
-                apiLevel = 32
-            ),
-            tracePath = traceFile.absolutePath
-        )
+        return PerfettoTraceProcessor.runServer(traceFile.absolutePath) {
+            metric.getMetrics(
+                captureInfo = Metric.CaptureInfo(
+                    targetPackageName = "androidx.benchmark.integration.macrobenchmark.target",
+                    testPackageName = "androidx.benchmark.integration.macrobenchmark.test",
+                    startupMode = StartupMode.WARM,
+                    apiLevel = 32
+                ),
+                perfettoTraceProcessor = this
+            )
+        }
     }
 
     @MediumTest
@@ -210,15 +214,18 @@ class StartupTimingMetricTest {
         )
         val metric = StartupTimingMetric()
         metric.configure(Packages.TEST)
-        val metrics = metric.getMetrics(
-            captureInfo = Metric.CaptureInfo(
-                targetPackageName = Packages.TEST,
-                testPackageName = Packages.TEST,
-                startupMode = StartupMode.WARM,
-                apiLevel = 24
-            ),
-            tracePath = traceFile.absolutePath
-        )
+
+        val metrics = PerfettoTraceProcessor.runServer(traceFile.absolutePath) {
+            metric.getMetrics(
+                captureInfo = Metric.CaptureInfo(
+                    targetPackageName = Packages.TEST,
+                    testPackageName = Packages.TEST,
+                    startupMode = StartupMode.WARM,
+                    apiLevel = 24
+                ),
+                perfettoTraceProcessor = this
+            )
+        }
 
         // check known values
         assertEquals(
@@ -278,15 +285,18 @@ internal fun measureStartup(
         },
         block = measureBlock
     )!!
-    return metric.getMetrics(
-        captureInfo = Metric.CaptureInfo(
-            targetPackageName = packageName,
-            testPackageName = Packages.TEST,
-            startupMode = startupMode,
-            apiLevel = Build.VERSION.SDK_INT
-        ),
-        tracePath = tracePath
-    )
+
+    return PerfettoTraceProcessor.runServer(tracePath) {
+        metric.getMetrics(
+            captureInfo = Metric.CaptureInfo(
+                targetPackageName = packageName,
+                testPackageName = Packages.TEST,
+                startupMode = startupMode,
+                apiLevel = Build.VERSION.SDK_INT
+            ),
+            perfettoTraceProcessor = this
+        )
+    }
 }
 
 @Suppress("SameParameterValue")

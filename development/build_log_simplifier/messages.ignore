@@ -489,3 +489,5 @@ To see more detail about a task, run gradlew help \-\-task <task>
 To see a list of command\-line options, run gradlew \-\-help
 For more detail on using Gradle, see https://docs\.gradle\.org/[0-9]+\.[0-9]+/userguide/command_line_interface\.html
 For troubleshooting, visit https://help\.gradle\.org
+# > Task :graphics:graphics-path:compileDebugKotlin
+w\: \$SUPPORT\/graphics\/graphics\-path\/src\/main\/java\/androidx\/graphics\/path\/Paths\.kt\: \([0-9]+\, [0-9]+\)\: Extension is shadowed by a member\: public open fun iterator\(\)\: PathIterator

@@ -22,12 +22,12 @@ import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.benchmark.Shell
 import androidx.benchmark.macro.BatteryCharge.hasMinimumCharge
+import androidx.benchmark.macro.PowerMetric.Type
 import androidx.benchmark.macro.PowerRail.hasMetrics
 import androidx.benchmark.macro.perfetto.AudioUnderrunQuery
 import androidx.benchmark.macro.perfetto.BatteryDischargeQuery
 import androidx.benchmark.macro.perfetto.FrameTimingQuery
 import androidx.benchmark.macro.perfetto.FrameTimingQuery.SubMetric
-import androidx.benchmark.macro.perfetto.PerfettoResultsParser.parseStartupResult
 import androidx.benchmark.macro.perfetto.PerfettoTraceProcessor
 import androidx.benchmark.macro.perfetto.PowerQuery
 import androidx.benchmark.macro.perfetto.Slice
@@ -45,13 +45,17 @@ public sealed class Metric {
     internal abstract fun start()
 
     internal abstract fun stop()
+
     /**
      * After stopping, collect metrics
      *
      * TODO: takes package for package level filtering, but probably want a
      *  general config object coming into [start].
      */
-    internal abstract fun getMetrics(captureInfo: CaptureInfo, tracePath: String): IterationResult
+    internal abstract fun getMetrics(
+        captureInfo: CaptureInfo,
+        perfettoTraceProcessor: PerfettoTraceProcessor
+    ): IterationResult
 
     internal data class CaptureInfo(
         val apiLevel: Int,
@@ -93,8 +97,11 @@ public class AudioUnderrunMetric : Metric() {
     internal override fun stop() {
     }
 
-    internal override fun getMetrics(captureInfo: CaptureInfo, tracePath: String): IterationResult {
-        val subMetrics = AudioUnderrunQuery.getSubMetrics(tracePath)
+    internal override fun getMetrics(
+        captureInfo: CaptureInfo,
+        perfettoTraceProcessor: PerfettoTraceProcessor
+    ): IterationResult {
+        val subMetrics = AudioUnderrunQuery.getSubMetrics(perfettoTraceProcessor)
 
         return IterationResult(
             singleMetrics = mapOf(
@@ -188,7 +195,10 @@ public class FrameTimingGfxInfoMetric : Metric() {
         "totalFrameCount"
     )
 
-    internal override fun getMetrics(captureInfo: CaptureInfo, tracePath: String) = IterationResult(
+    internal override fun getMetrics(
+        captureInfo: CaptureInfo,
+        perfettoTraceProcessor: PerfettoTraceProcessor
+    ) = IterationResult(
         singleMetrics = helper.metrics
             .map {
                 val prefix = "gfxinfo_${packageName}_"
@@ -227,9 +237,12 @@ public class FrameTimingMetric : Metric() {
     internal override fun stop() {}
 
     @SuppressLint("SyntheticAccessor")
-    internal override fun getMetrics(captureInfo: CaptureInfo, tracePath: String): IterationResult {
+    internal override fun getMetrics(
+        captureInfo: CaptureInfo,
+        perfettoTraceProcessor: PerfettoTraceProcessor
+    ): IterationResult {
         val subMetricsMsMap = FrameTimingQuery.getFrameSubMetrics(
-            absoluteTracePath = tracePath,
+            perfettoTraceProcessor = perfettoTraceProcessor,
             captureApiLevel = Build.VERSION.SDK_INT,
             packageName = captureInfo.targetPackageName
         )
@@ -277,9 +290,12 @@ public class StartupTimingMetric : Metric() {
     }
 
     @SuppressLint("SyntheticAccessor")
-    internal override fun getMetrics(captureInfo: CaptureInfo, tracePath: String): IterationResult {
+    internal override fun getMetrics(
+        captureInfo: CaptureInfo,
+        perfettoTraceProcessor: PerfettoTraceProcessor
+    ): IterationResult {
         return StartupTimingQuery.getFrameSubMetrics(
-            absoluteTracePath = tracePath,
+            perfettoTraceProcessor = perfettoTraceProcessor,
             captureApiLevel = captureInfo.apiLevel,
             targetPackageName = captureInfo.targetPackageName,
 
@@ -316,9 +332,43 @@ public class StartupTimingLegacyMetric : Metric() {
     internal override fun stop() {
     }
 
-    internal override fun getMetrics(captureInfo: CaptureInfo, tracePath: String): IterationResult {
-        val json = PerfettoTraceProcessor.getJsonMetrics(tracePath, "android_startup")
-        return parseStartupResult(json, captureInfo.targetPackageName)
+    internal override fun getMetrics(
+        captureInfo: CaptureInfo,
+        perfettoTraceProcessor: PerfettoTraceProcessor
+    ): IterationResult {
+
+        // Acquires perfetto metrics
+        val traceMetrics = perfettoTraceProcessor.getTraceMetrics("android_startup")
+        val androidStartup = traceMetrics.android_startup
+            ?: throw IllegalStateException("No android_startup metric found.")
+        val appStartup =
+            androidStartup.startup.first { it.package_name == captureInfo.targetPackageName }
+
+        // Extract app startup
+        val metricMap = mutableMapOf<String, Double>()
+
+        val durMs = appStartup.to_first_frame?.dur_ms
+        if (durMs != null) {
+            metricMap["startupMs"] = durMs
+        }
+
+        val fullyDrawnMs = appStartup.report_fully_drawn?.dur_ms
+        if (fullyDrawnMs != null) {
+            metricMap["fullyDrawnMs"] = fullyDrawnMs
+        }
+
+        val timelineStart = appStartup.event_timestamps?.intent_received
+        val timelineEnd = appStartup.event_timestamps?.first_frame
+
+        return IterationResult(
+            singleMetrics = metricMap,
+            sampledMetrics = emptyMap(),
+            timelineRangeNs = if (timelineStart != null && timelineEnd != null) {
+                timelineStart..timelineEnd
+            } else {
+                null
+            }
+        )
     }
 }
 
@@ -346,8 +396,11 @@ public class TraceSectionMetric(
     }
 
     @SuppressLint("SyntheticAccessor")
-    internal override fun getMetrics(captureInfo: CaptureInfo, tracePath: String): IterationResult {
-        val slice = PerfettoTraceProcessor.querySlices(tracePath, sectionName).firstOrNull()
+    internal override fun getMetrics(
+        captureInfo: CaptureInfo,
+        perfettoTraceProcessor: PerfettoTraceProcessor
+    ): IterationResult {
+        val slice = perfettoTraceProcessor.querySlices(sectionName).firstOrNull()
         return if (slice == null) {
             IterationResult.EMPTY
         } else IterationResult(
@@ -359,6 +412,7 @@ public class TraceSectionMetric(
         )
     }
 }
+
 /**
  * Captures the change of power, energy or battery charge metrics over time for specified duration.
  * A configurable output of power, energy, subsystems, and battery charge will be generated.
@@ -449,9 +503,11 @@ public class PowerMetric(
         class Power(
             powerCategories: Map<PowerCategory, PowerCategoryDisplayLevel> = emptyMap()
         ) : Type(powerCategories)
+
         class Energy(
             energyCategories: Map<PowerCategory, PowerCategoryDisplayLevel> = emptyMap()
         ) : Type(energyCategories)
+
         class Battery : Type()
     }
 
@@ -475,21 +531,30 @@ public class PowerMetric(
         }
     }
 
-    internal override fun getMetrics(captureInfo: CaptureInfo, tracePath: String): IterationResult {
+    internal override fun getMetrics(
+        captureInfo: CaptureInfo,
+        perfettoTraceProcessor: PerfettoTraceProcessor
+    ): IterationResult {
         // collect metrics between trace point flags
-        val slice = PerfettoTraceProcessor.querySlices(tracePath, MEASURE_BLOCK_SECTION_NAME)
+        val slice = perfettoTraceProcessor.querySlices(MEASURE_BLOCK_SECTION_NAME)
             .firstOrNull()
             ?: return IterationResult.EMPTY
 
         if (type is Type.Battery) {
-            return getBatteryDischargeMetrics(tracePath, slice)
+            return getBatteryDischargeMetrics(perfettoTraceProcessor, slice)
         }
 
-        return getPowerMetrics(tracePath, slice)
+        return getPowerMetrics(perfettoTraceProcessor, slice)
     }
 
-    private fun getBatteryDischargeMetrics(tracePath: String, slice: Slice): IterationResult {
-        val metrics = BatteryDischargeQuery.getBatteryDischargeMetrics(tracePath, slice)
+    private fun getBatteryDischargeMetrics(
+        perfettoTraceProcessor: PerfettoTraceProcessor,
+        slice: Slice
+    ): IterationResult {
+        val metrics = BatteryDischargeQuery.getBatteryDischargeMetrics(
+            perfettoTraceProcessor,
+            slice
+        )
 
         val metricMap: Map<String, Double> = metrics.associate { measurement ->
             getLabel(measurement.name) to measurement.chargeMah
@@ -497,24 +562,30 @@ public class PowerMetric(
 
         return IterationResult(
             singleMetrics = metricMap,
-            sampledMetrics = emptyMap())
+            sampledMetrics = emptyMap()
+        )
     }
 
-    private fun getPowerMetrics(tracePath: String, slice: Slice): IterationResult {
-        val metrics = PowerQuery.getPowerMetrics(tracePath, slice)
+    private fun getPowerMetrics(
+        perfettoTraceProcessor: PerfettoTraceProcessor,
+        slice: Slice
+    ): IterationResult {
+        val metrics = PowerQuery.getPowerMetrics(perfettoTraceProcessor, slice)
 
         val metricMap: Map<String, Double> = getSpecifiedMetrics(metrics)
         if (metricMap.isEmpty()) {
             return IterationResult(
                 singleMetrics = emptyMap(),
-                sampledMetrics = emptyMap())
+                sampledMetrics = emptyMap()
+            )
         }
 
         val extraMetrics: Map<String, Double> = getTotalAndUnselectedMetrics(metrics)
 
         return IterationResult(
             singleMetrics = metricMap + extraMetrics,
-            sampledMetrics = emptyMap())
+            sampledMetrics = emptyMap()
+        )
     }
 
     private fun getLabel(metricName: String, displayType: String = ""): String {
@@ -531,14 +602,14 @@ public class PowerMetric(
         return mapOf(
             getLabel("Total") to
                 metrics.values.fold(0.0) { total, next ->
-                total + next.getValue(type)
-            },
+                    total + next.getValue(type)
+                },
             getLabel("Unselected") to
                 metrics.filter { (category, _) ->
-                !type.categories.containsKey(category)
-            }.values.fold(0.0) { total, next ->
-                total + next.getValue(type)
-            }
+                    !type.categories.containsKey(category)
+                }.values.fold(0.0) { total, next ->
+                    total + next.getValue(type)
+                }
         ).filter { (_, measurement) ->
             measurement != 0.0
         }

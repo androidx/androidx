@@ -16,69 +16,150 @@
 
 package androidx.benchmark.macro.perfetto
 
-import android.util.Log
 import androidx.annotation.RestrictTo
-import androidx.benchmark.Outputs
-import androidx.benchmark.Shell
+import androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP
+import androidx.benchmark.macro.perfetto.server.PerfettoHttpServer
+import androidx.benchmark.macro.perfetto.server.QueryResultIterator
 import androidx.benchmark.perfetto.PerfettoHelper
 import androidx.benchmark.userspaceTrace
-import org.jetbrains.annotations.TestOnly
 import java.io.File
-
-import androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX
+import org.jetbrains.annotations.TestOnly
+import perfetto.protos.TraceMetrics
 
 /**
  * Enables parsing perfetto traces on-device
  */
-@RestrictTo(LIBRARY_GROUP_PREFIX) // for internal benchmarking only
-object PerfettoTraceProcessor {
-    private const val TAG = "PerfettoTraceProcessor"
+@RestrictTo(LIBRARY_GROUP) // for internal benchmarking only
+class PerfettoTraceProcessor(httpServerPort: Int = DEFAULT_HTTP_SERVER_PORT) {
 
-    /**
-     * The actual [File] path to the `trace_processor_shell`.
-     *
-     * Lazily copies the `trace_processor_shell` and enables parsing of the perfetto trace files.
-     */
-    @get:TestOnly
-    val shellPath: String by lazy {
-        // Checks for ABI support
-        PerfettoHelper.createExecutable("trace_processor_shell")
+    companion object {
+        private const val TAG = "PerfettoTraceProcessor"
+        private const val DEFAULT_HTTP_SERVER_PORT = 9001
+
+        /**
+         * The actual [File] path to the `trace_processor_shell`.
+         *
+         * Lazily copies the `trace_processor_shell` and enables parsing of the perfetto trace files.
+         */
+        @get:TestOnly
+        val shellPath: String by lazy {
+            // Checks for ABI support
+            PerfettoHelper.createExecutable("trace_processor_shell")
+        }
+
+        /**
+         * Starts a perfetto trace processor shell server in http mode, loads a trace and executes
+         * the given block. It stops the server after the block is complete
+         */
+        fun <T> runServer(
+            absoluteTracePath: String? = null,
+            httpServerPort: Int = DEFAULT_HTTP_SERVER_PORT,
+            block: PerfettoTraceProcessor.() -> T
+        ): T = userspaceTrace("PerfettoTraceProcessor#runServer") {
+            var perfettoTraceProcessor: PerfettoTraceProcessor? = null
+            try {
+
+                // Initializes the server process
+                perfettoTraceProcessor = PerfettoTraceProcessor(httpServerPort).startServer()
+
+                // Loads a trace if required
+                if (absoluteTracePath != null) {
+                    perfettoTraceProcessor.loadTrace(absoluteTracePath)
+                }
+
+                // Executes the query block
+                return@userspaceTrace userspaceTrace("PerfettoTraceProcessor#runServer#block") {
+                    block(perfettoTraceProcessor)
+                }
+            } finally {
+                perfettoTraceProcessor?.stopServer()
+            }
+        }
     }
 
-    private fun validateTracePath(absoluteTracePath: String) {
+    private val perfettoHttpServer: PerfettoHttpServer = PerfettoHttpServer(httpServerPort)
+    private var traceLoaded = false
+
+    private fun startServer(): PerfettoTraceProcessor =
+        userspaceTrace("PerfettoTraceProcessor#startServer") {
+            perfettoHttpServer.startServer()
+            return@userspaceTrace this
+        }
+
+    private fun stopServer() = userspaceTrace("PerfettoTraceProcessor#stopServer") {
+        perfettoHttpServer.stopServer()
+    }
+
+    /**
+     * Loads a trace in the current instance of the trace processor, clearing any previous loaded
+     * trace if existing.
+     */
+    fun loadTrace(absoluteTracePath: String) = userspaceTrace("PerfettoTraceProcessor#loadTrace") {
         require(!absoluteTracePath.contains(" ")) {
             "Trace path must not contain spaces: $absoluteTracePath"
         }
+
+        val traceFile = File(absoluteTracePath)
+        require(traceFile.exists() && traceFile.isFile) {
+            "Trace path must exist and not be a directory: $absoluteTracePath"
+        }
+
+        // In case a previous trace was loaded, ensures to clear
+        if (traceLoaded) {
+            clearTrace()
+        }
+        traceLoaded = false
+
+        val parseResult = perfettoHttpServer.parse(traceFile.readBytes())
+        if (parseResult.error != null) {
+            throw IllegalStateException(parseResult.error)
+        }
+
+        // Notifies the server that it won't receive any more trace parts
+        perfettoHttpServer.notifyEof()
+
+        traceLoaded = true
     }
 
     /**
-     * Returns a json string containing the requested metric computed by trace_shell_processor on
-     * the given perfetto trace.
-     *
-     * @throws IllegalStateException if the returned json is empty as result of an invalid trace.
+     * Clears the current loaded trace.
      */
-    fun getJsonMetrics(absoluteTracePath: String, metric: String): String {
-        validateTracePath(absoluteTracePath)
-        require(!metric.contains(" ")) {
-            "Metric must not contain spaces: $metric"
-        }
-
-        val command = "$shellPath --run-metric $metric $absoluteTracePath --metrics-output=json"
-        Log.d(TAG, "Executing command $command")
-
-        val json = userspaceTrace("trace_processor_shell") {
-            Shell.executeCommand(command)
-                .trim() // trim to enable empty check below
-        }
-        Log.d(TAG, "Trace Processor result: \n\n $json")
-        if (json.isEmpty()) {
-            throw IllegalStateException(
-                "Empty json result from Trace Processor - " +
-                    "possibly malformed command? Command: $command"
-            )
-        }
-        return json
+    private fun clearTrace() = userspaceTrace("PerfettoTraceProcessor#clearTrace") {
+        perfettoHttpServer.restoreInitialTables()
     }
+
+    /**
+     * Computes the given metric on the previously loaded trace.
+     */
+    fun getTraceMetrics(metric: String): TraceMetrics =
+        userspaceTrace("PerfettoTraceProcessor#getTraceMetrics $metric") {
+            require(!metric.contains(" ")) {
+                "Metric must not contain spaces: $metric"
+            }
+            require(perfettoHttpServer.isRunning()) {
+                "Perfetto trace_shell_process is not running."
+            }
+
+            // Compute metrics
+            val computeResult = perfettoHttpServer.computeMetric(listOf(metric))
+            if (computeResult.error != null) {
+                throw IllegalStateException(computeResult.error)
+            }
+
+            // Decode and return trace metrics
+            return@userspaceTrace TraceMetrics.ADAPTER.decode(computeResult.metrics!!)
+        }
+
+    /**
+     * Computes the given query on the previously loaded trace.
+     */
+    fun rawQuery(query: String): QueryResultIterator =
+        userspaceTrace("PerfettoTraceProcessor#rawQuery $query".take(127)) {
+            require(perfettoHttpServer.isRunning()) {
+                "Perfetto trace_shell_process is not running."
+            }
+            return@userspaceTrace perfettoHttpServer.executeQuery(query)
+        }
 
     /**
      * Query a trace for a list of slices - name, timestamp, and duration.
@@ -86,49 +167,30 @@ object PerfettoTraceProcessor {
      * Note that sliceNames may include wildcard matches, such as `foo%`
      */
     internal fun querySlices(
-        absoluteTracePath: String,
         vararg sliceNames: String
     ): List<Slice> {
+        require(perfettoHttpServer.isRunning()) { "Perfetto trace_shell_process is not running." }
+
         val whereClause = sliceNames
             .joinToString(separator = " OR ") {
                 "slice.name LIKE \"$it\""
             }
 
-        return Slice.parseListFromQueryResult(
-            queryResult = rawQuery(
-                absoluteTracePath = absoluteTracePath,
-                query = """
+        val queryResultIterator = rawQuery(
+            query = """
                 SELECT slice.name,ts,dur
                 FROM slice
                 WHERE $whereClause
             """.trimMargin()
-            )
         )
+
+        return queryResultIterator.toSlices()
     }
+}
 
-    fun rawQuery(
-        absoluteTracePath: String,
-        query: String
-    ): String {
-        validateTracePath(absoluteTracePath)
-
-        val queryFile = File(Outputs.dirUsableByAppAndShell, "trace_processor_query.sql")
-        try {
-            queryFile.writeText(query)
-
-            val command = "$shellPath --query-file ${queryFile.absolutePath} $absoluteTracePath"
-            return userspaceTrace("trace_processor_shell") {
-                Shell.executeCommand(command)
-            }
-        } finally {
-            queryFile.delete()
-        }
-    }
-
-    /**
-     * Helper for fuzzy matching process name to package
-     */
-    internal fun processNameLikePkg(pkg: String): String {
-        return """(process.name LIKE "$pkg" OR process.name LIKE "$pkg:%")"""
-    }
+/**
+ * Helper for fuzzy matching process name to package
+ */
+internal fun processNameLikePkg(pkg: String): String {
+    return """(process.name LIKE "$pkg" OR process.name LIKE "$pkg:%")"""
 }
