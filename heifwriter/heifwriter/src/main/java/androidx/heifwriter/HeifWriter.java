@@ -46,35 +46,36 @@ import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * This class writes one or more still images (of the same dimensions) into
+ * Writes one or more still images (of the same dimensions) into
  * a heif file.
  *
- * It currently supports three input modes: {@link #INPUT_MODE_BUFFER},
+ * <p>This class currently supports three input modes: {@link #INPUT_MODE_BUFFER},
  * {@link #INPUT_MODE_SURFACE}, or {@link #INPUT_MODE_BITMAP}.
  *
- * The general sequence (in pseudo-code) to write a heif file using this class is as follows:
+ * <p>The general sequence (in pseudo-code) to write a heif file using this class is as follows:
  *
- * 1) Construct the writer:
- * HeifWriter heifwriter = new HeifWriter(...);
+ * <p>1) Construct the writer:<br>
+ * <code>HeifWriter heifwriter = new HeifWriter(...);</code>
  *
- * 2) If using surface input mode, obtain the input surface:
- * Surface surface = heifwriter.getInputSurface();
+ * <p>2) If using surface input mode, obtain the input surface:<br>
+ * <code>Surface surface = heifwriter.getInputSurface();</code>
  *
- * 3) Call start:
- * heifwriter.start();
+ * <p>3) Call <code>start</code>:<br>
+ * <code>heifwriter.start();</code>
  *
- * 4) Depending on the chosen input mode, add one or more images using one of these methods:
- * heifwriter.addYuvBuffer(...);   Or
- * heifwriter.addBitmap(...);   Or
+ * <p>4) Depending on the chosen input mode, add one or more images using one of these methods:<br>
+ * <code>heifwriter.addYuvBuffer(...);</code>   Or<br>
+ * <code>heifwriter.addBitmap(...);</code>   Or<br>
+ *
  * render to the previously obtained surface
  *
- * 5) Call stop:
- * heifwriter.stop(...);
+ * <p>5) Call <code>stop</code>:<br>
+ * <code>heifwriter.stop(...);</code>
  *
- * 6) Close the writer:
- * heifwriter.close();
+ * <p>6) Close the writer:<br>
+ * <code>heifwriter.close();</code>
  *
- * Please refer to the documentations on individual methods for the exact usage.
+ * <p>Please refer to the documentations on individual methods for the exact usage.
  */
 public final class HeifWriter implements AutoCloseable {
     private static final String TAG = "HeifWriter";

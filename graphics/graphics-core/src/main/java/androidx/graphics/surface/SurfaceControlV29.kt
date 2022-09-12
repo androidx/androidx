@@ -128,23 +128,6 @@ internal class SurfaceControlV29 internal constructor(
         }
 
         /**
-         * See [SurfaceControlWrapper.Transaction.reparent]
-         */
-        override fun reparent(
-            surfaceControl: SurfaceControlImpl,
-            surfaceView: SurfaceView
-        ): SurfaceControlImpl.Transaction {
-            transaction.reparent(
-                surfaceControl.asWrapperSurfaceControl(),
-                SurfaceControlWrapper.Builder()
-                    .setParent(surfaceView.holder.surface)
-                    .setDebugName(surfaceView.toString())
-                    .build()
-            )
-            return this
-        }
-
-        /**
          * See [SurfaceControlWrapper.Transaction.setBuffer]
          */
         override fun setBuffer(

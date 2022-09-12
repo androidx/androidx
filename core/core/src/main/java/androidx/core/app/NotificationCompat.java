@@ -56,6 +56,7 @@ import android.widget.RemoteViews;
 import androidx.annotation.ColorInt;
 import androidx.annotation.DimenRes;
 import androidx.annotation.Dimension;
+import androidx.annotation.DoNotInline;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -1035,7 +1036,7 @@ public class NotificationCompat {
 
             // Avoid the setter which requires wrapping/unwrapping IconCompat and extra null checks
             if (Build.VERSION.SDK_INT >= 23) {
-                this.mSmallIcon = notification.getSmallIcon();
+                this.mSmallIcon = Api23Impl.getSmallIcon(notification);
             }
 
             // Add actions from the notification.
@@ -1542,10 +1543,11 @@ public class NotificationCompat {
             mNotification.sound = sound;
             mNotification.audioStreamType = Notification.STREAM_DEFAULT;
             if (Build.VERSION.SDK_INT >= 21) {
-                mNotification.audioAttributes = new AudioAttributes.Builder()
-                        .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-                        .setUsage(AudioAttributes.USAGE_NOTIFICATION)
-                        .build();
+                AudioAttributes.Builder builder = Api21Impl.createBuilder();
+                builder = Api21Impl.setContentType(builder,
+                        AudioAttributes.CONTENT_TYPE_SONIFICATION);
+                builder = Api21Impl.setUsage(builder, AudioAttributes.USAGE_NOTIFICATION);
+                mNotification.audioAttributes = Api21Impl.build(builder);
             }
             return this;
         }
@@ -1571,10 +1573,11 @@ public class NotificationCompat {
             mNotification.sound = sound;
             mNotification.audioStreamType = streamType;
             if (Build.VERSION.SDK_INT >= 21) {
-                mNotification.audioAttributes = new AudioAttributes.Builder()
-                        .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-                        .setLegacyStreamType(streamType)
-                        .build();
+                AudioAttributes.Builder builder = Api21Impl.createBuilder();
+                builder = Api21Impl.setContentType(builder,
+                        AudioAttributes.CONTENT_TYPE_SONIFICATION);
+                builder = Api21Impl.setLegacyStreamType(builder, streamType);
+                mNotification.audioAttributes = Api21Impl.build(builder);
             }
             return this;
         }
@@ -2122,8 +2125,8 @@ public class NotificationCompat {
             Notification notification = compatBuilder.build();
             if (Build.VERSION.SDK_INT >= 24) {
                 // On N and newer, do some magic and delegate to the Platform's implementation
-                return Notification.Builder.recoverBuilder(mContext, notification)
-                        .createContentView();
+                return Api24Impl.createContentView(Api24Impl.recoverBuilder(mContext,
+                        notification));
             } else {
                 // Before N, delegate to the deprecated field on the built notification
                 return notification.contentView;
@@ -2156,8 +2159,8 @@ public class NotificationCompat {
             Notification notification = compatBuilder.build();
             if (Build.VERSION.SDK_INT >= 24) {
                 // On N and newer, do some magic and delegate to the Platform's implementation
-                return Notification.Builder.recoverBuilder(mContext, notification)
-                        .createBigContentView();
+                return Api24Impl.createBigContentView(Api24Impl.recoverBuilder(mContext,
+                        notification));
             } else {
                 // Before N, delegate to the deprecated field on the built notification
                 return notification.bigContentView;
@@ -2190,9 +2193,8 @@ public class NotificationCompat {
             Notification notification = compatBuilder.build();
             if (Build.VERSION.SDK_INT >= 24) {
                 // On N and newer, do some magic and delegate to the Platform's implementation
-                Notification.Builder platformBuilder =
-                        Notification.Builder.recoverBuilder(mContext, notification);
-                return platformBuilder.createHeadsUpContentView();
+                return Api24Impl.createHeadsUpContentView(Api24Impl.recoverBuilder(mContext,
+                        notification));
             } else {
                 // Before N, delegate to the deprecated field on the built notification
                 return notification.headsUpContentView;
@@ -2529,6 +2531,88 @@ public class NotificationCompat {
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         public @Nullable BubbleMetadata getBubbleMetadata() {
             return mBubbleMetadata;
+        }
+
+        /**
+         * A class for wrapping calls to {@link Notification.Builder} methods which
+         * were added in API 21; these calls must be wrapped to avoid performance issues.
+         * See the UnsafeNewApiCall lint rule for more details.
+         */
+        @RequiresApi(21)
+        static class Api21Impl {
+            private Api21Impl() { }
+
+            @DoNotInline
+            static AudioAttributes.Builder createBuilder() {
+                return new AudioAttributes.Builder();
+            }
+
+            @DoNotInline
+            static AudioAttributes.Builder setContentType(AudioAttributes.Builder builder,
+                    int contentType) {
+                return builder.setContentType(contentType);
+            }
+
+            @DoNotInline
+            static AudioAttributes.Builder setUsage(AudioAttributes.Builder builder, int usage) {
+                return builder.setUsage(usage);
+            }
+
+            @DoNotInline
+            static AudioAttributes.Builder setLegacyStreamType(AudioAttributes.Builder builder,
+                    int streamType) {
+                return builder.setLegacyStreamType(streamType);
+            }
+
+            @DoNotInline
+            static AudioAttributes build(AudioAttributes.Builder builder) {
+                return builder.build();
+            }
+        }
+
+        /**
+         * A class for wrapping calls to {@link Notification.Builder} methods which
+         * were added in API 23; these calls must be wrapped to avoid performance issues.
+         * See the UnsafeNewApiCall lint rule for more details.
+         */
+        @RequiresApi(23)
+        static class Api23Impl {
+            private Api23Impl() { }
+
+            @DoNotInline
+            static Icon getSmallIcon(Notification notification) {
+                return notification.getSmallIcon();
+            }
+        }
+
+        /**
+         * A class for wrapping calls to {@link Notification.Builder} methods which
+         * were added in API 24; these calls must be wrapped to avoid performance issues.
+         * See the UnsafeNewApiCall lint rule for more details.
+         */
+        @RequiresApi(24)
+        static class Api24Impl {
+            private Api24Impl() { }
+
+            @DoNotInline
+            static Notification.Builder recoverBuilder(Context context, Notification n) {
+                return Notification.Builder.recoverBuilder(context, n);
+            }
+
+            @DoNotInline
+            static RemoteViews createContentView(Notification.Builder builder) {
+                return builder.createContentView();
+            }
+
+            @DoNotInline
+            static RemoteViews createHeadsUpContentView(Notification.Builder builder) {
+                return builder.createHeadsUpContentView();
+            }
+
+            @DoNotInline
+            static RemoteViews createBigContentView(Notification.Builder builder) {
+                return builder.createHeadsUpContentView();
+            }
         }
     }
 

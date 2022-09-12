@@ -144,8 +144,6 @@ public class ImageCaptureConfigProvider implements ConfigProvider<ImageCaptureCo
         private VendorProcessor mVendorCaptureProcessor;
         @Nullable
         private volatile CameraInfo mCameraInfo;
-
-
         ImageCaptureEventAdapter(@NonNull ImageCaptureExtenderImpl impl,
                 @NonNull Context context,
                 @Nullable VendorProcessor vendorCaptureProcessor) {
@@ -153,7 +151,6 @@ public class ImageCaptureConfigProvider implements ConfigProvider<ImageCaptureCo
             mContext = context;
             mVendorCaptureProcessor = vendorCaptureProcessor;
         }
-
 
         // Invoked from main thread
         @Override
@@ -176,6 +173,7 @@ public class ImageCaptureConfigProvider implements ConfigProvider<ImageCaptureCo
             String cameraId = Camera2CameraInfo.from(mCameraInfo).getCameraId();
             CameraCharacteristics cameraCharacteristics =
                     Camera2CameraInfo.extractCameraCharacteristics(mCameraInfo);
+            Logger.d(TAG, "ImageCapture onInit");
             mImpl.onInit(cameraId, cameraCharacteristics, mContext);
 
             if (mVendorCaptureProcessor != null) {
@@ -201,6 +199,7 @@ public class ImageCaptureConfigProvider implements ConfigProvider<ImageCaptureCo
         @Override
         @Nullable
         public CaptureConfig onEnableSession() {
+            Logger.d(TAG, "ImageCapture onEnableSession");
             CaptureStageImpl captureStageImpl = mImpl.onEnableSession();
             if (captureStageImpl != null) {
                 return new AdaptingCaptureStage(captureStageImpl).getCaptureConfig();
@@ -213,6 +212,7 @@ public class ImageCaptureConfigProvider implements ConfigProvider<ImageCaptureCo
         @Override
         @Nullable
         public CaptureConfig onDisableSession() {
+            Logger.d(TAG, "ImageCapture onDisableSession");
             CaptureStageImpl captureStageImpl = mImpl.onDisableSession();
             if (captureStageImpl != null) {
                 return new AdaptingCaptureStage(captureStageImpl).getCaptureConfig();
@@ -240,6 +240,9 @@ public class ImageCaptureConfigProvider implements ConfigProvider<ImageCaptureCo
         // Invoked from camera thread
         @Override
         public void onDeInitSession() {
+            if (mVendorCaptureProcessor != null) {
+                mVendorCaptureProcessor.onDeInit();
+            }
             mImpl.onDeInit();
         }
     }

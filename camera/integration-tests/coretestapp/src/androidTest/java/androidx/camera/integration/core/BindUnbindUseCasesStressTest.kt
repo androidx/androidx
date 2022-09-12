@@ -197,7 +197,7 @@ class BindUnbindUseCasesStressTest(
     @RepeatRule.Repeat(times = STRESS_TEST_REPEAT_COUNT)
     fun bindUnbindUseCases_checkPreviewInEachTime_withPreviewImageCaptureImageAnalysis():
         Unit = runBlocking {
-        val imageAnalysis = ImageAnalysis.Builder().build()
+        val imageAnalysis = createImageAnalysis()
         assumeTrue(camera.isUseCasesCombinationSupported(preview, imageCapture, imageAnalysis))
         bindUseCases_checkOutput_thenUnbindAll_repeatedly(
             preview,
@@ -212,7 +212,7 @@ class BindUnbindUseCasesStressTest(
     @RepeatRule.Repeat(times = STRESS_TEST_REPEAT_COUNT)
     fun bindUnbindUseCases_checkImageCaptureInEachTime_withPreviewImageCaptureImageAnalysis():
         Unit = runBlocking {
-        val imageAnalysis = ImageAnalysis.Builder().build()
+        val imageAnalysis = createImageAnalysis()
         assumeTrue(camera.isUseCasesCombinationSupported(preview, imageCapture, imageAnalysis))
         bindUseCases_checkOutput_thenUnbindAll_repeatedly(
             preview,
@@ -227,7 +227,7 @@ class BindUnbindUseCasesStressTest(
     @RepeatRule.Repeat(times = STRESS_TEST_REPEAT_COUNT)
     fun bindUnbindUseCases_checkImageAnalysisInEachTime_withPreviewImageCaptureImageAnalysis():
         Unit = runBlocking {
-        val imageAnalysis = ImageAnalysis.Builder().build()
+        val imageAnalysis = createImageAnalysis()
         assumeTrue(camera.isUseCasesCombinationSupported(preview, imageCapture, imageAnalysis))
         bindUseCases_checkOutput_thenUnbindAll_repeatedly(
             preview,
@@ -314,7 +314,7 @@ class BindUnbindUseCasesStressTest(
     fun bindUnbindUseCases_checkPreviewInEachTime_withPreviewVideoCaptureImageAnalysis():
         Unit = runBlocking {
         val videoCapture = VideoCapture.withOutput(Recorder.Builder().build())
-        val imageAnalysis = ImageAnalysis.Builder().build()
+        val imageAnalysis = createImageAnalysis()
         assumeTrue(camera.isUseCasesCombinationSupported(preview, videoCapture, imageAnalysis))
         bindUseCases_checkOutput_thenUnbindAll_repeatedly(
             preview,
@@ -330,7 +330,7 @@ class BindUnbindUseCasesStressTest(
     fun bindUnbindUseCases_checkVideoCaptureInEachTime_withPreviewVideoCaptureImageAnalysis():
         Unit = runBlocking {
         val videoCapture = VideoCapture.withOutput(Recorder.Builder().build())
-        val imageAnalysis = ImageAnalysis.Builder().build()
+        val imageAnalysis = createImageAnalysis()
         assumeTrue(camera.isUseCasesCombinationSupported(preview, videoCapture, imageAnalysis))
         bindUseCases_checkOutput_thenUnbindAll_repeatedly(
             preview,
@@ -346,7 +346,7 @@ class BindUnbindUseCasesStressTest(
     fun bindUnbindUseCases_checkImageAnalysisInEachTime_withPreviewVideoCaptureImageAnalysis():
         Unit = runBlocking {
         val videoCapture = VideoCapture.withOutput(Recorder.Builder().build())
-        val imageAnalysis = ImageAnalysis.Builder().build()
+        val imageAnalysis = createImageAnalysis()
         assumeTrue(camera.isUseCasesCombinationSupported(preview, videoCapture, imageAnalysis))
         bindUseCases_checkOutput_thenUnbindAll_repeatedly(
             preview,
@@ -485,7 +485,7 @@ class BindUnbindUseCasesStressTest(
     @RepeatRule.Repeat(times = STRESS_TEST_REPEAT_COUNT)
     fun checkPreview_afterBindUnbindUseCasesRepeatedly_withPreviewImageCaptureImageAnalysis():
         Unit = runBlocking {
-        val imageAnalysis = ImageAnalysis.Builder().build()
+        val imageAnalysis = createImageAnalysis()
         assumeTrue(camera.isUseCasesCombinationSupported(preview, imageCapture, imageAnalysis))
         bindUseCases_unbindAll_repeatedly_thenCheckOutput(
             preview,
@@ -500,7 +500,7 @@ class BindUnbindUseCasesStressTest(
     @RepeatRule.Repeat(times = STRESS_TEST_REPEAT_COUNT)
     fun checkImageCapture_afterBindUnbindUseCasesRepeatedly_withPreviewImageCaptureImageAnalysis():
         Unit = runBlocking {
-        val imageAnalysis = ImageAnalysis.Builder().build()
+        val imageAnalysis = createImageAnalysis()
         assumeTrue(camera.isUseCasesCombinationSupported(preview, imageCapture, imageAnalysis))
         bindUseCases_unbindAll_repeatedly_thenCheckOutput(
             preview,
@@ -515,7 +515,7 @@ class BindUnbindUseCasesStressTest(
     @RepeatRule.Repeat(times = STRESS_TEST_REPEAT_COUNT)
     fun checkImageAnalysis_afterBindUnbindUseCasesRepeatedly_withPreviewImageCaptureImageAnalysis():
         Unit = runBlocking {
-        val imageAnalysis = ImageAnalysis.Builder().build()
+        val imageAnalysis = createImageAnalysis()
         assumeTrue(camera.isUseCasesCombinationSupported(preview, imageCapture, imageAnalysis))
         bindUseCases_unbindAll_repeatedly_thenCheckOutput(
             preview,
@@ -602,7 +602,7 @@ class BindUnbindUseCasesStressTest(
     fun checkPreview_afterBindUnbindUseCasesRepeatedly_withPreviewVideoCaptureImageAnalysis():
         Unit = runBlocking {
         val videoCapture = VideoCapture.withOutput(Recorder.Builder().build())
-        val imageAnalysis = ImageAnalysis.Builder().build()
+        val imageAnalysis = createImageAnalysis()
         assumeTrue(camera.isUseCasesCombinationSupported(preview, videoCapture, imageAnalysis))
         bindUseCases_unbindAll_repeatedly_thenCheckOutput(
             preview,
@@ -618,7 +618,7 @@ class BindUnbindUseCasesStressTest(
     fun checkVideoCapture_afterBindUnbindUseCasesRepeatedly_withPreviewVideoCaptureImageAnalysis():
         Unit = runBlocking {
         val videoCapture = VideoCapture.withOutput(Recorder.Builder().build())
-        val imageAnalysis = ImageAnalysis.Builder().build()
+        val imageAnalysis = createImageAnalysis()
         assumeTrue(camera.isUseCasesCombinationSupported(preview, videoCapture, imageAnalysis))
         bindUseCases_unbindAll_repeatedly_thenCheckOutput(
             preview,
@@ -634,7 +634,7 @@ class BindUnbindUseCasesStressTest(
     fun checkImageAnalysis_afterBindUnbindUseCasesRepeatedly_withPreviewVideoCaptureImageAnalysis():
         Unit = runBlocking {
         val videoCapture = VideoCapture.withOutput(Recorder.Builder().build())
-        val imageAnalysis = ImageAnalysis.Builder().build()
+        val imageAnalysis = createImageAnalysis()
         assumeTrue(camera.isUseCasesCombinationSupported(preview, videoCapture, imageAnalysis))
         bindUseCases_unbindAll_repeatedly_thenCheckOutput(
             preview,
@@ -643,6 +643,11 @@ class BindUnbindUseCasesStressTest(
             verificationTarget = VERIFICATION_TARGET_IMAGE_ANALYSIS
         )
     }
+
+    private fun createImageAnalysis() =
+        ImageAnalysis.Builder().build().also {
+            it.setAnalyzer(CameraXExecutors.directExecutor()) { image -> image.close() }
+        }
 
     /**
      * Repeatedly binds use cases and unbind all, then checks the input use cases' capture

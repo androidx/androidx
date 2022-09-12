@@ -19,6 +19,7 @@ package androidx.camera.core.imagecapture
 import android.graphics.Matrix
 import android.graphics.Rect
 import androidx.camera.core.ImageCapture
+import androidx.camera.core.imagecapture.Utils.CROP_RECT
 import androidx.camera.core.impl.CaptureBundle
 
 /**
@@ -44,7 +45,7 @@ internal class FakeProcessingRequest(
     constructor(captureBundle: CaptureBundle, callback: TakePictureCallback) : this(
         null,
         captureBundle,
-        Rect(0, 0, 0, 0),
+        CROP_RECT,
         0,
         100,
         Matrix(), callback

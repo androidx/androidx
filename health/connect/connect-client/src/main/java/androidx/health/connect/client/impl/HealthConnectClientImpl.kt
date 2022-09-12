@@ -15,7 +15,6 @@
  */
 package androidx.health.connect.client.impl
 
-import androidx.activity.result.contract.ActivityResultContract
 import androidx.health.connect.client.HealthConnectClient
 import androidx.health.connect.client.HealthConnectClient.Companion.HEALTH_CONNECT_CLIENT_TAG
 import androidx.health.connect.client.PermissionController
@@ -38,7 +37,6 @@ import androidx.health.connect.client.impl.converters.request.toReadDataRequestP
 import androidx.health.connect.client.impl.converters.response.toChangesResponse
 import androidx.health.connect.client.impl.converters.response.toReadRecordsResponse
 import androidx.health.connect.client.permission.HealthPermission
-import androidx.health.connect.client.permission.createHealthDataRequestPermissions
 import androidx.health.connect.client.records.Record
 import androidx.health.connect.client.request.AggregateGroupByDurationRequest
 import androidx.health.connect.client.request.AggregateGroupByPeriodRequest
@@ -69,18 +67,15 @@ internal constructor(
     private val delegate: HealthDataAsyncClient,
 ) : HealthConnectClient, PermissionController {
 
-    override fun createRequestPermissionActivityContract():
-        ActivityResultContract<Set<HealthPermission>, Set<HealthPermission>> =
-        createHealthDataRequestPermissions(providerPackageName = providerPackageName)
-
     override suspend fun getGrantedPermissions(
         permissions: Set<HealthPermission>
     ): Set<HealthPermission> {
-        val grantedPermissions = delegate
-            .getGrantedPermissions(permissions.map { it.toProtoPermission() }.toSet())
-            .await()
-            .map { it.toJetpackPermission() }
-            .toSet()
+        val grantedPermissions =
+            delegate
+                .getGrantedPermissions(permissions.map { it.toProtoPermission() }.toSet())
+                .await()
+                .map { it.toJetpackPermission() }
+                .toSet()
         Logger.debug(
             HEALTH_CONNECT_CLIENT_TAG,
             "Granted ${grantedPermissions.size} out of ${permissions.size} permissions."
@@ -99,7 +94,7 @@ internal constructor(
     override suspend fun insertRecords(records: List<Record>): InsertRecordsResponse {
         val uidList = delegate.insertData(records.map { it.toProto() }).await()
         Logger.debug(HEALTH_CONNECT_CLIENT_TAG, "${records.size} records inserted.")
-        return InsertRecordsResponse(recordUidsList = uidList)
+        return InsertRecordsResponse(recordIdsList = uidList)
     }
 
     override suspend fun updateRecords(records: List<Record>) {
@@ -109,18 +104,18 @@ internal constructor(
 
     override suspend fun deleteRecords(
         recordType: KClass<out Record>,
-        uidsList: List<String>,
+        recordIdsList: List<String>,
         clientRecordIdsList: List<String>,
     ) {
         delegate
             .deleteData(
-                toDataTypeIdPairProtoList(recordType, uidsList),
+                toDataTypeIdPairProtoList(recordType, recordIdsList),
                 toDataTypeIdPairProtoList(recordType, clientRecordIdsList)
             )
             .await()
         Logger.debug(
             HEALTH_CONNECT_CLIENT_TAG,
-            "${uidsList.size + clientRecordIdsList.size} records deleted."
+            "${recordIdsList.size + clientRecordIdsList.size} records deleted."
         )
     }
 
@@ -135,11 +130,11 @@ internal constructor(
     @Suppress("UNCHECKED_CAST") // Safe to cast as the type should match
     override suspend fun <T : Record> readRecord(
         recordType: KClass<T>,
-        uid: String,
+        recordId: String,
     ): ReadRecordResponse<T> {
-        val proto = delegate.readData(toReadDataRequestProto(recordType, uid)).await()
+        val proto = delegate.readData(toReadDataRequestProto(recordType, recordId)).await()
         val response = ReadRecordResponse(toRecord(proto) as T)
-        Logger.debug(HEALTH_CONNECT_CLIENT_TAG, "Reading record of $uid successful.")
+        Logger.debug(HEALTH_CONNECT_CLIENT_TAG, "Reading record of $recordId successful.")
         return response
     }
 
@@ -226,12 +221,15 @@ internal constructor(
         notificationIntentAction: String,
         recordTypes: Iterable<KClass<out Record>>,
     ) {
-        delegate.registerForDataNotifications(
-            request = RequestProto.RegisterForDataNotificationsRequest.newBuilder()
-                .setNotificationIntentAction(notificationIntentAction)
-                .addAllDataTypes(recordTypes.map { it.toDataType() })
-                .build(),
-        ).await()
+        delegate
+            .registerForDataNotifications(
+                request =
+                    RequestProto.RegisterForDataNotificationsRequest.newBuilder()
+                        .setNotificationIntentAction(notificationIntentAction)
+                        .addAllDataTypes(recordTypes.map { it.toDataType() })
+                        .build(),
+            )
+            .await()
 
         Logger.debug(
             HEALTH_CONNECT_CLIENT_TAG,
@@ -240,11 +238,14 @@ internal constructor(
     }
 
     override suspend fun unregisterFromDataNotifications(notificationIntentAction: String) {
-        delegate.unregisterFromDataNotifications(
-            request = RequestProto.UnregisterFromDataNotificationsRequest.newBuilder()
-                .setNotificationIntentAction(notificationIntentAction)
-                .build(),
-        ).await()
+        delegate
+            .unregisterFromDataNotifications(
+                request =
+                    RequestProto.UnregisterFromDataNotificationsRequest.newBuilder()
+                        .setNotificationIntentAction(notificationIntentAction)
+                        .build(),
+            )
+            .await()
 
         Logger.debug(
             HEALTH_CONNECT_CLIENT_TAG,

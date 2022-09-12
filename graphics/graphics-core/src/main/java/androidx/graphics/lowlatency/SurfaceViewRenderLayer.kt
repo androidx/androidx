@@ -46,7 +46,7 @@ internal class SurfaceViewRenderLayer<T>(
         child: SurfaceControlCompat,
         transaction: SurfaceControlCompat.Transaction
     ) {
-        transaction.reparent(child, surfaceView)
+        transaction.reparent(child, mParentSurfaceControl)
     }
 
     override fun setParent(builder: SurfaceControlCompat.Builder) {

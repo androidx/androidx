@@ -22,6 +22,7 @@ import android.os.HandlerThread
 import android.os.RemoteException
 import android.support.wearable.watchface.SharedMemoryImage
 import androidx.annotation.AnyThread
+import androidx.annotation.IntDef
 import androidx.annotation.Px
 import androidx.annotation.RequiresApi
 import androidx.wear.watchface.complications.data.ComplicationData
@@ -49,6 +50,35 @@ import androidx.wear.watchface.style.UserStyleData
 import androidx.wear.watchface.toApiFormat
 import java.time.Instant
 import java.util.concurrent.Executor
+import java.util.function.Consumer
+
+/** @hide */
+@IntDef(
+    value = [
+        DisconnectReason.ENGINE_DIED,
+        DisconnectReason.ENGINE_DETACHED
+    ]
+)
+public annotation class DisconnectReason {
+    public companion object {
+        /**
+         * The underlying engine died, probably because the watch face was killed or crashed.
+         * Sometimes this is due to memory pressure and it's not the watch face's fault. Usually in
+         * response a new [InteractiveWatchFaceClient] should be created (see
+         * [WatchFaceControlClient.getOrCreateInteractiveWatchFaceClient]), however if this new
+         * client also disconnects due to [ENGINE_DIED] within a few seconds the watchface is
+         * probably bad and it's recommended to switch to a safe system default watch face.
+         */
+        public const val ENGINE_DIED: Int = 1
+
+        /**
+         * Wallpaper service detached from the engine, which is now defunct. The watch face itself
+         * has no control over this. Usually in response a new [InteractiveWatchFaceClient]
+         * should be created (see [WatchFaceControlClient.getOrCreateInteractiveWatchFaceClient]).
+         */
+        public const val ENGINE_DETACHED: Int = 2
+    }
+}
 
 /**
  * Controls a stateful remote interactive watch face. Typically this will be used for the current
@@ -215,7 +245,19 @@ public interface InteractiveWatchFaceClient : AutoCloseable {
          * The client disconnected, typically due to the server side crashing. Note this is not
          * called in response to [close] being called on [InteractiveWatchFaceClient].
          */
-        public fun onClientDisconnected()
+        @Deprecated(
+            "Deprecated, use an overload that passes the disconnectReason",
+            ReplaceWith("onClientDisconnected(Int)")
+        )
+        public fun onClientDisconnected() {}
+
+        /**
+         * The client disconnected, due to [disconnectReason].
+         */
+        public fun onClientDisconnected(@DisconnectReason disconnectReason: Int) {
+            @Suppress("DEPRECATION")
+            onClientDisconnected()
+        }
     }
 
     /** Registers a [ClientDisconnectListener]. */
@@ -242,13 +284,7 @@ public interface InteractiveWatchFaceClient : AutoCloseable {
          * Called when the watchface is ready to render.
          *
          * Note in the event of the watch face disconnecting (e.g. due to a crash) this callback
-         * may never fire. Use [ClientDisconnectListener] to observe disconnects.
-         *
-         * Note if the watch face process gets killed it'll automatically restart leading to
-         * additional notifications. Clients can observe disconnection via
-         * [ClientDisconnectListener]. In addition sometimes after restart WallpaperService will
-         * create two engines, the first of which gets detached leading to two notifications.
-         * Currently there isn't a way of observing the detached state however this will be brief.
+         * will never fire. Use [ClientDisconnectListener] to observe disconnects.
          */
         public fun onWatchFaceReady()
     }
@@ -271,45 +307,30 @@ public interface InteractiveWatchFaceClient : AutoCloseable {
     public fun removeOnWatchFaceReadyListener(listener: OnWatchFaceReadyListener)
 
     /**
-     * Interface passed to [addOnWatchFaceReadyListener] which calls
-     * [OnWatchFaceColorsListener.onWatchFaceColors] initially with the current
-     * [Renderer.watchfaceColors] if known or `null` if not, and subsequently whenever the watch
-     * face's [Renderer.watchfaceColors] change.
-     */
-    public fun interface OnWatchFaceColorsListener {
-        /**
-         * Called initially with the current [Renderer.watchfaceColors] if known or `null` if not,
-         * and subsequently whenever the watch face's [Renderer.watchfaceColors] change.
-         */
-        public fun onWatchFaceColors(watchFaceColors: WatchFaceColors?)
-    }
-
-    /**
-     * Registers a [OnWatchFaceColorsListener] which gets called initially with the current
+     * Registers a [Consumer] which gets called initially with the current
      * [Renderer.watchfaceColors] if known or `null` if not, and subsequently whenever the watch
      * face's [Renderer.watchfaceColors] change.
      *
      * @param executor The [Executor] on which to run [listener].
-     * @param listener The [OnWatchFaceColorsListener] to run whenever the watch face's
+     * @param listener The [Consumer] to run whenever the watch face's
      * [Renderer.watchfaceColors] change.
      */
     public fun addOnWatchFaceColorsListener(
         executor: Executor,
-        listener: OnWatchFaceColorsListener
+        listener: Consumer<WatchFaceColors?>
     ) {}
 
     /**
      * Stops listening for events registered by [addOnWatchFaceColorsListener].
      */
-    public fun removeOnWatchFaceColorsListener(listener: OnWatchFaceColorsListener) {}
+    public fun removeOnWatchFaceColorsListener(listener: Consumer<WatchFaceColors?>) {}
 }
 
 /** Controls a stateful remote interactive watch face. */
 internal class InteractiveWatchFaceClientImpl internal constructor(
     private val iInteractiveWatchFace: IInteractiveWatchFace,
     private val previewImageUpdateRequestedExecutor: Executor?,
-    private val previewImageUpdateRequestedListener:
-        WatchFaceControlClient.PreviewImageUpdateRequestedListener?
+    private val previewImageUpdateRequestedListener: Consumer<String>?
 ) : InteractiveWatchFaceClient {
 
     private val lock = Any()
@@ -318,9 +339,10 @@ internal class InteractiveWatchFaceClientImpl internal constructor(
     private val readyListeners =
         HashMap<InteractiveWatchFaceClient.OnWatchFaceReadyListener, Executor>()
     private val watchFaceColorsChangeListeners =
-        HashMap<InteractiveWatchFaceClient.OnWatchFaceColorsListener, Executor>()
+        HashMap<Consumer<WatchFaceColors?>, Executor>()
     private var watchfaceReadyListenerRegistered = false
     private var lastWatchFaceColors: WatchFaceColors? = null
+    private var disconnectReason: Int? = null
     private var closed = false
 
     private val iWatchFaceListener = object : IWatchfaceListener.Stub() {
@@ -331,8 +353,7 @@ internal class InteractiveWatchFaceClientImpl internal constructor(
         }
 
         override fun onWatchfaceColorsChanged(watchFaceColors: WatchFaceColorsWireFormat?) {
-            var listenerCopy:
-                HashMap<InteractiveWatchFaceClient.OnWatchFaceColorsListener, Executor>
+            var listenerCopy: HashMap<Consumer<WatchFaceColors?>, Executor>
 
             synchronized(lock) {
                 listenerCopy = HashMap(watchFaceColorsChangeListeners)
@@ -341,39 +362,48 @@ internal class InteractiveWatchFaceClientImpl internal constructor(
 
             for ((listener, executor) in listenerCopy) {
                 executor.execute {
-                    listener.onWatchFaceColors(lastWatchFaceColors)
+                    listener.accept(lastWatchFaceColors)
                 }
             }
         }
 
         override fun onPreviewImageUpdateRequested(watchFaceId: String) {
             previewImageUpdateRequestedExecutor?.execute {
-                previewImageUpdateRequestedListener!!.onPreviewImageUpdateRequested(watchFaceId)
+                previewImageUpdateRequestedListener!!.accept(watchFaceId)
             }
+        }
+
+        override fun onEngineDetached() {
+            sendDisconnectNotification(DisconnectReason.ENGINE_DETACHED)
         }
     }
 
     init {
         iInteractiveWatchFace.asBinder().linkToDeath(
             {
-                var listenerCopy:
-                    HashMap<InteractiveWatchFaceClient.ClientDisconnectListener, Executor>
-
-                synchronized(lock) {
-                    listenerCopy = HashMap(disconnectListeners)
-                }
-
-                for ((listener, executor) in listenerCopy) {
-                    executor.execute {
-                        listener.onClientDisconnected()
-                    }
-                }
+                sendDisconnectNotification(DisconnectReason.ENGINE_DIED)
             },
             0
         )
 
         if (iInteractiveWatchFace.apiVersion >= 6) {
             iInteractiveWatchFace.addWatchFaceListener(iWatchFaceListener)
+        }
+    }
+
+    internal fun sendDisconnectNotification(reason: Int) {
+        val listenersCopy = synchronized(lock) {
+            // Don't send more than one notification.
+            if (disconnectReason != null) {
+                return
+            }
+            disconnectReason = reason
+            HashMap(disconnectListeners)
+        }
+        for ((listener, executor) in listenersCopy) {
+            executor.execute {
+                listener.onClientDisconnected(reason)
+            }
         }
     }
 
@@ -504,11 +534,15 @@ internal class InteractiveWatchFaceClientImpl internal constructor(
         listener: InteractiveWatchFaceClient.ClientDisconnectListener,
         executor: Executor
     ) {
-        synchronized(lock) {
+        val disconnectReasonCopy = synchronized(lock) {
             require(!disconnectListeners.contains(listener)) {
                 "Don't call addClientDisconnectListener multiple times for the same listener"
             }
             disconnectListeners.put(listener, executor)
+            disconnectReason
+        }
+        disconnectReasonCopy?.let {
+            listener.onClientDisconnected(it)
         }
     }
 
@@ -597,7 +631,7 @@ internal class InteractiveWatchFaceClientImpl internal constructor(
 
     override fun addOnWatchFaceColorsListener(
         executor: Executor,
-        listener: InteractiveWatchFaceClient.OnWatchFaceColorsListener
+        listener: Consumer<WatchFaceColors?>
     ) {
         val colors = synchronized(lock) {
             require(!watchFaceColorsChangeListeners.contains(listener)) {
@@ -609,11 +643,11 @@ internal class InteractiveWatchFaceClientImpl internal constructor(
             lastWatchFaceColors
         }
 
-        listener.onWatchFaceColors(colors)
+        listener.accept(colors)
     }
 
     override fun removeOnWatchFaceColorsListener(
-        listener: InteractiveWatchFaceClient.OnWatchFaceColorsListener
+        listener: Consumer<WatchFaceColors?>
     ) {
         synchronized(lock) {
             watchFaceColorsChangeListeners.remove(listener)

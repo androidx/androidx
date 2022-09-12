@@ -21,6 +21,7 @@ package androidx.camera.camera2.pipe.compat
 import android.view.Surface
 import androidx.annotation.GuardedBy
 import androidx.annotation.RequiresApi
+import androidx.camera.camera2.pipe.CameraSurfaceManager
 import androidx.camera.camera2.pipe.RequestProcessor
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.core.Debug
@@ -30,6 +31,7 @@ import androidx.camera.camera2.pipe.core.Timestamps
 import androidx.camera.camera2.pipe.core.Timestamps.formatMs
 import androidx.camera.camera2.pipe.graph.GraphListener
 import androidx.camera.camera2.pipe.graph.StreamGraphImpl
+import java.io.Closeable
 import java.util.Collections.synchronizedMap
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CoroutineScope
@@ -49,6 +51,7 @@ internal class VirtualSessionState(
     private val graphListener: GraphListener,
     private val captureSessionFactory: CaptureSessionFactory,
     private val requestProcessorFactory: Camera2RequestProcessorFactory,
+    private val cameraSurfaceManager: CameraSurfaceManager,
     private val scope: CoroutineScope
 ) : CameraCaptureSessionWrapper.StateCallback, StreamGraphImpl.SurfaceListener {
     private val debugId = virtualSessionDebugIds.incrementAndGet()
@@ -95,12 +98,17 @@ internal class VirtualSessionState(
 
     @GuardedBy("lock")
     private var _surfaceMap: Map<StreamId, Surface>? = null
+
+    @GuardedBy("lock")
+    private val _surfaceTokenMap: MutableMap<Surface, Closeable> = mutableMapOf()
+
     override fun onSurfaceMapUpdated(surfaces: Map<StreamId, Surface>) {
         synchronized(lock) {
             if (state == State.CLOSING || state == State.CLOSED) {
                 return@synchronized
             }
 
+            updateTrackedSurfaces(_surfaceMap ?: emptyMap(), surfaces)
             _surfaceMap = surfaces
 
             val pendingOutputs = pendingOutputMap
@@ -223,10 +231,12 @@ internal class VirtualSessionState(
             graphListener.onGraphStopped(captureSession.processor)
         }
 
-        synchronized(this) {
+        val tokenToClose = synchronized(lock) {
             _cameraDevice = null
             state = State.CLOSED
+            _surfaceTokenMap.values
         }
+        tokenToClose.forEach { it.close() }
     }
 
     /**
@@ -263,10 +273,12 @@ internal class VirtualSessionState(
             Debug.traceStop()
         }
 
-        synchronized(this) {
+        val tokenToClose = synchronized(lock) {
             _cameraDevice = null
             state = State.CLOSED
+            _surfaceTokenMap.values
         }
+        tokenToClose.forEach { it.close() }
     }
 
     private fun finalizeOutputsIfAvailable(retryAllowed: Boolean = true) {
@@ -377,6 +389,28 @@ internal class VirtualSessionState(
         // happens, we need to invoke configure here to make sure the session ends up in a valid
         // state.
         configure(session = null)
+    }
+
+    private fun updateTrackedSurfaces(
+        oldSurfaceMap: Map<StreamId, Surface>,
+        newSurfaceMap: Map<StreamId, Surface>
+    ) {
+        val oldSurfaces = oldSurfaceMap.values.toSet()
+        val newSurfaces = newSurfaceMap.values.toSet()
+
+        // Close the Surfaces that were removed (unset).
+        val removedSurfaces = oldSurfaces - newSurfaces
+        for (surface in removedSurfaces) {
+            val surfaceToken = _surfaceTokenMap.remove(surface)?.also { it.close() }
+            checkNotNull(surfaceToken) { "Surface $surface doesn't have a matching surface token!" }
+        }
+
+        // Register new Surfaces.
+        val addedSurfaces = newSurfaces - oldSurfaces
+        for (surface in addedSurfaces) {
+            val surfaceToken = cameraSurfaceManager.registerSurface(surface)
+            _surfaceTokenMap[surface] = surfaceToken
+        }
     }
 
     override fun toString(): String = "VirtualSessionState-$debugId"

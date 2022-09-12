@@ -96,13 +96,22 @@ internal object ThreadPriority {
      * so setting JIT / benchmark thread priorities are best-effort for now
      */
     private fun setThreadPriority(label: String, tid: Int, priority: Int): Boolean {
-        val previousPriority = Process.getThreadPriority(tid)
+
+        // Tries to acquire the thread priority
+        val previousPriority = try {
+            Process.getThreadPriority(tid)
+        } catch (e: IllegalArgumentException) {
+            return false
+        }
+
+        // Tries to set the thread priority
         try {
             Process.setThreadPriority(tid, priority)
         } catch (e: SecurityException) {
             return false
         }
 
+        // Checks and returns whether the priority changed
         val newPriority = Process.getThreadPriority(tid)
         if (newPriority != previousPriority) {
             Log.d(

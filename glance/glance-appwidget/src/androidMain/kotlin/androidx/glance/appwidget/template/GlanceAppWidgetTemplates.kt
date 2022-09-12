@@ -239,6 +239,47 @@ internal fun ActionBlockTemplate(actionBlock: ActionBlock?) {
     }
 }
 
+/**
+ * Displays an entity of a block of texts from a [TextBlock] and an image from an [ImageBlock]
+ * ordered by priority of the blocks with the default to the [TextBlock] being ahead of the
+ * [ImageBlock] if they have the same priority.
+ *
+ * @param textBlock The [TextBlock]  for an entity.
+ * @param imageBlock The [ImageBlock] for an entity.
+ * @param modifier The modifier for the textBlock in relation to the imageBlock.
+ */
+@Composable
+internal fun TextAndImageBlockTemplate(
+    textBlock: TextBlock,
+    imageBlock: ImageBlock? = null,
+    modifier: GlanceModifier = GlanceModifier
+) {
+    if (imageBlock == null || imageBlock.images.isEmpty()) {
+        TextBlockTemplate(textBlock)
+    } else {
+        // Show first block by lower numbered priority
+        if (textBlock.priority <= imageBlock.priority) {
+            Column(
+                modifier = modifier,
+                verticalAlignment = Alignment.Vertical.CenterVertically
+            ) {
+                TextBlockTemplate(textBlock)
+            }
+            Spacer(modifier = GlanceModifier.width(16.dp))
+            SingleImageBlockTemplate(imageBlock)
+        } else {
+            SingleImageBlockTemplate(imageBlock)
+            Spacer(modifier = GlanceModifier.width(16.dp))
+            Column(
+                modifier = modifier,
+                verticalAlignment = Alignment.Vertical.CenterVertically
+            ) {
+                TextBlockTemplate(textBlock)
+            }
+        }
+    }
+}
+
 private enum class DisplaySize {
     Small,
     Medium,

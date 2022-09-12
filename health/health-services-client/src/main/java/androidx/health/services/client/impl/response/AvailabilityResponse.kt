@@ -39,12 +39,11 @@ internal class AvailabilityResponse(
     public val availability: Availability,
 ) : ProtoParcelable<ResponsesProto.AvailabilityResponse>() {
 
-    override val proto: ResponsesProto.AvailabilityResponse by lazy {
+    override val proto: ResponsesProto.AvailabilityResponse =
         ResponsesProto.AvailabilityResponse.newBuilder()
             .setDataType(dataType.proto)
             .setAvailability(availability.toProto())
             .build()
-    }
 
     public companion object {
         @JvmField

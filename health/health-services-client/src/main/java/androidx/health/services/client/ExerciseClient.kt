@@ -148,7 +148,7 @@ public interface ExerciseClient {
      * @return a [ListenableFuture] that completes once the flush has been completed or fails if the
      * calling application does not own the active exercise.
      */
-    public fun flushExerciseAsync(): ListenableFuture<Void>
+    public fun flushAsync(): ListenableFuture<Void>
 
     /**
      * Ends the current lap, calls [ExerciseUpdateCallback.onLapSummaryReceived] with data spanning

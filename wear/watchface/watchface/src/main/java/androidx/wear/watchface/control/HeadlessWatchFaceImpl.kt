@@ -77,49 +77,43 @@ internal class HeadlessWatchFaceImpl(
         WatchFaceService.awaitDeferredWatchFaceImplThenRunOnUiThreadBlocking(
             engine,
             "HeadlessWatchFaceImpl.renderWatchFaceToBitmap"
-        ) { watchFaceImpl -> watchFaceImpl.renderWatchFaceToBitmap(params) }
+        ) { it.renderWatchFaceToBitmap(params) }
 
     override fun getPreviewReferenceTimeMillis() =
         WatchFaceService.awaitDeferredWatchFaceImplThenRunOnUiThreadBlocking(
             engine,
             "HeadlessWatchFaceImpl.getPreviewReferenceTimeMillis"
-        ) { watchFaceImpl -> watchFaceImpl.previewReferenceInstant.toEpochMilli() } ?: 0
+        ) { it.previewReferenceInstant.toEpochMilli() } ?: 0
 
     override fun getComplicationState() =
-        WatchFaceService.awaitDeferredWatchFaceImplThenRunOnUiThreadBlocking(
+        WatchFaceService.awaitDeferredEarlyInitDetailsThenRunOnBinderThread(
             engine,
             "HeadlessWatchFaceImpl.getComplicationState"
-        ) { watchFaceImpl -> watchFaceImpl.getComplicationState() }
+        ) { it.complicationSlotsManager.getComplicationsState(it.surfaceHolder.surfaceFrame) }
 
     override fun renderComplicationToBitmap(params: ComplicationRenderParams) =
         WatchFaceService.awaitDeferredWatchFaceImplThenRunOnUiThreadBlocking(
             engine,
             "HeadlessWatchFaceImpl.renderComplicationToBitmap"
-        ) { watchFaceImpl -> watchFaceImpl.renderComplicationToBitmap(params) }
+        ) { it.renderComplicationToBitmap(params) }
 
     override fun getUserStyleSchema() =
-        WatchFaceService.awaitDeferredWatchFaceAndComplicationManagerThenRunOnBinderThread(
+        WatchFaceService.awaitDeferredEarlyInitDetailsThenRunOnBinderThread(
             engine,
             "HeadlessWatchFaceImpl.getUserStyleSchema"
-        ) { watchFaceInitDetails ->
-            watchFaceInitDetails.userStyleRepository.schema.toWireFormat()
-        }
+        ) { it.userStyleRepository.schema.toWireFormat() }
 
     override fun computeUserStyleSchemaDigestHash() =
-        WatchFaceService.awaitDeferredWatchFaceAndComplicationManagerThenRunOnBinderThread(
+        WatchFaceService.awaitDeferredEarlyInitDetailsThenRunOnBinderThread(
             engine,
             "HeadlessWatchFaceImpl.computeUserStyleSchemaDigestHash"
-        ) { watchFaceInitDetails ->
-            watchFaceInitDetails.userStyleRepository.schema.getDigestHash()
-        }
+        ) { it.userStyleRepository.schema.getDigestHash() }
 
     override fun getUserStyleFlavors() =
-        WatchFaceService.awaitDeferredWatchFaceAndComplicationManagerThenRunOnBinderThread(
+        WatchFaceService.awaitDeferredEarlyInitDetailsThenRunOnBinderThread(
             engine,
             "HeadlessWatchFaceImpl.getUserStyleFlavors"
-        ) { watchFaceInitDetails ->
-            watchFaceInitDetails.userStyleFlavors.toWireFormat()
-        }
+        ) { it.userStyleFlavors.toWireFormat() }
 
     override fun release() {
         TraceEvent("HeadlessWatchFaceImpl.release").use {

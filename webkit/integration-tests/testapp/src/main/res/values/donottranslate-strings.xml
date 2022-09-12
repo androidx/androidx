@@ -98,4 +98,7 @@
     <string name="requested_with_no_header">No Header</string>
     <string name="requested_with_app_package_name">App Package Name</string>
 
+    <!-- Process Global Config -->
+    <string name="process_global_config_activity_title">Process Global Config</string>
+
 </resources>

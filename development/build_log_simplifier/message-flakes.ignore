@@ -145,5 +145,5 @@ Using custom version .* of Lint due to LINT_VERSION being set\.
 Using custom version .* of metalava due to METALAVA_VERSION being set\.
 Publishing build scan\.\.\.
 https://ge\.androidx\.dev/s/.*
-# support-v7-demos:compileReleaseJavaWithJavac
+# androidx-demos:compileReleaseJavaWithJavac
 Note: \$SUPPORT/samples/Support[0-9]+Demos/src/main/java/com/example/android/supportv[0-9]+/util/DiffUtilActivity\.java uses unchecked or unsafe operations\.

@@ -78,7 +78,7 @@ interface UseCaseCamera {
 class UseCaseCameraImpl @Inject constructor(
     private val useCaseGraphConfig: UseCaseGraphConfig,
     private val useCases: java.util.ArrayList<UseCase>,
-    private val threads: UseCaseThreads,
+    private val useCaseSurfaceManager: UseCaseSurfaceManager,
     override val requestControl: UseCaseCameraRequestControl,
 ) : UseCaseCamera {
     private val debugId = useCaseCameraIds.incrementAndGet()
@@ -88,7 +88,7 @@ class UseCaseCameraImpl @Inject constructor(
             field = value
             // Note: This may be called with the same set of values that was previously set. This
             // is used as a signal to indicate the properties of the UseCase may have changed.
-            SessionConfigAdapter(value, threads).getValidSessionConfigOrNull()?.let {
+            SessionConfigAdapter(value).getValidSessionConfigOrNull()?.let {
                 requestControl.setSessionConfigAsync(it)
             } ?: run {
                 debug { "Unable to reset the session due to invalid config" }
@@ -106,6 +106,7 @@ class UseCaseCameraImpl @Inject constructor(
 
     override fun close() {
         debug { "Closing $this" }
+        useCaseSurfaceManager.stop()
         useCaseGraphConfig.graph.close()
     }
 

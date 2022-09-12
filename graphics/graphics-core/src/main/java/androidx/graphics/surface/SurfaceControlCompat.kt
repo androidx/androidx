@@ -200,20 +200,6 @@ class SurfaceControlCompat internal constructor(
         }
 
         /**
-         * Re-parents a given [SurfaceControlCompat] to be a child of the [Surface] associated with
-         * the provided [SurfaceView]. Children inherit transform
-         * (position, scaling) crop, visibility, and Z-ordering from their parents, as if the
-         * children were pixels within the parent [Surface].
-         * @param surfaceControl Target [SurfaceControlCompat] instance to reparent
-         * @param surfaceView [SurfaceView] instance that acts as the new parent of the provided
-         * [SurfaceControlCompat] instance.
-         */
-        fun reparent(surfaceControl: SurfaceControlCompat, surfaceView: SurfaceView): Transaction {
-            mImpl.reparent(surfaceControl.scImpl, surfaceView)
-            return this
-        }
-
-        /**
          * Re-parents a given [SurfaceControlCompat] to be a child of the [AttachedSurfaceControl].
          * Children inherit transform (position, scaling) crop, visibility, and Z-ordering from
          * their parents, as if the children were pixels within the parent [Surface].

@@ -44,7 +44,7 @@ public final class TaskRestrictionDemoScreen extends Screen {
     private boolean mIsBackOperation = false;
     private boolean mFirstToggleState = false;
     private boolean mSecondToggleState = false;
-    private boolean mSecondToggleEnabled = true;
+    private boolean mSecondToggleEnabled = false;
     private int mImageType = Row.IMAGE_TYPE_ICON;
 
     public TaskRestrictionDemoScreen(int step, @NonNull CarContext carContext) {

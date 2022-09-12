@@ -16,9 +16,9 @@
 
 package androidx.bluetooth.core
 
-import android.bluetooth.BluetoothGattDescriptor as FwkBluetoothGattDescriptor
 import android.os.Build
 import android.os.Bundle
+import android.bluetooth.BluetoothGattDescriptor as FwkBluetoothGattDescriptor
 import androidx.annotation.RequiresApi
 import java.util.UUID
 
@@ -168,15 +168,16 @@ class BluetoothGattDescriptor internal constructor(
                             throw IllegalArgumentException("Bundle doesn't include permission")
                         }
 
-                        val descriptor = FwkBluetoothGattDescriptor::class.java.getConstructor(
-                            UUID::class.java,
-                            Integer.TYPE,
-                            Integer.TYPE
-                        ).newInstance(
-                            UUID.fromString(uuid),
-                            instanceId,
-                            permissions
-                        )
+                        val descriptorWithoutInstanceId =
+                            FwkBluetoothGattDescriptor(UUID.fromString(uuid), permissions)
+                        val descriptor: FwkBluetoothGattDescriptor = descriptorWithoutInstanceId
+                            .runCatching {
+                                this::class.java.getDeclaredField("mInstance").let {
+                                    it.isAccessible = true
+                                    it.setInt(this, instanceId)
+                                    this
+                                }
+                            }.getOrDefault(descriptorWithoutInstanceId)
 
                         return BluetoothGattDescriptor(descriptor)
                     }
@@ -193,8 +194,10 @@ class BluetoothGattDescriptor internal constructor(
             val bundle = Bundle()
             bundle.putString(keyForField(FIELD_FWK_DESCRIPTOR_UUID), uuid.toString())
             bundle.putInt(keyForField(FIELD_FWK_DESCRIPTOR_PERMISSIONS), permissions)
-            val instanceId: Int =
-                fwkDescriptor.javaClass.getDeclaredField("mInstance").getInt(fwkDescriptor)
+            val instanceId = fwkDescriptor.javaClass.getDeclaredField("mInstance").runCatching {
+                this.isAccessible = true
+                this.getInt(fwkDescriptor)
+            }.getOrDefault(0) // constructor will set instanceId to 0 by default
             bundle.putInt(keyForField(FIELD_FWK_DESCRIPTOR_INSTANCE), instanceId)
             return bundle
         }

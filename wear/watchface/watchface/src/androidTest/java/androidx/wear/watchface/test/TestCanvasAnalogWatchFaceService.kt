@@ -75,11 +75,7 @@ internal class TestCanvasAnalogWatchFaceService(
             watchState,
             complicationSlotsManager,
             currentUserStyleRepository
-        ).setSystemTimeProvider(object : WatchFace.SystemTimeProvider {
-            override fun getSystemTimeMillis() = mockSystemTimeMillis
-
-            override fun getSystemTimeZoneId() = mockZoneId
-        })
+        )
     }
 
     override fun getMutableWatchState() = mutableWatchState
@@ -117,5 +113,11 @@ internal class TestCanvasAnalogWatchFaceService(
 
     override fun onInvalidate() {
         onInvalidateCountDownLatch?.countDown()
+    }
+
+    override fun getSystemTimeProvider() = object : SystemTimeProvider {
+        override fun getSystemTimeMillis() = mockSystemTimeMillis
+
+        override fun getSystemTimeZoneId() = mockZoneId
     }
 }

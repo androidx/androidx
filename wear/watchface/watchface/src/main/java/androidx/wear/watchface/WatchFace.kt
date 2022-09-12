@@ -43,14 +43,10 @@ import androidx.annotation.UiThread
 import androidx.annotation.VisibleForTesting
 import androidx.wear.watchface.complications.SystemDataSources
 import androidx.wear.watchface.complications.data.ComplicationData
-import androidx.wear.watchface.complications.data.ComplicationExperimental
-import androidx.wear.watchface.complications.data.ComplicationType
 import androidx.wear.watchface.complications.data.toApiComplicationData
 import androidx.wear.watchface.control.data.ComplicationRenderParams
 import androidx.wear.watchface.control.data.HeadlessWatchFaceInstanceParams
 import androidx.wear.watchface.control.data.WatchFaceRenderParams
-import androidx.wear.watchface.data.ComplicationStateWireFormat
-import androidx.wear.watchface.data.IdAndComplicationStateWireFormat
 import androidx.wear.watchface.style.CurrentUserStyleRepository
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleData
@@ -274,19 +270,6 @@ public class WatchFace(
         public fun onComplicationSlotConfigExtrasChanged()
     }
 
-    /**
-     * Interface for getting the current system time.
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public interface SystemTimeProvider {
-        /** Returns the current system time in milliseconds. */
-        public fun getSystemTimeMillis(): Long
-
-        /** Returns the current system [ZoneId]. */
-        public fun getSystemTimeZoneId(): ZoneId
-    }
-
     /** Listens for taps on the watchface. */
     public interface TapListener {
         /**
@@ -464,12 +447,6 @@ public class WatchFace(
     public var overridePreviewReferenceInstant: Instant? = null
         private set
 
-    internal var systemTimeProvider: SystemTimeProvider = object : SystemTimeProvider {
-        override fun getSystemTimeMillis() = System.currentTimeMillis()
-
-        override fun getSystemTimeZoneId() = ZoneId.systemDefault()
-    }
-
     /**
      * Overrides the reference time for editor preview images.
      *
@@ -485,12 +462,6 @@ public class WatchFace(
     @SuppressWarnings("ExecutorRegistration")
     public fun setTapListener(tapListener: TapListener?): WatchFace = apply {
         this.tapListener = tapListener
-    }
-
-    /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public fun setSystemTimeProvider(systemTimeProvider: SystemTimeProvider): WatchFace = apply {
-        this.systemTimeProvider = systemTimeProvider
     }
 
     /**
@@ -620,7 +591,7 @@ public class WatchFaceImpl @UiThread constructor(
                 ),
         )
 
-    internal val systemTimeProvider = watchface.systemTimeProvider
+    internal val systemTimeProvider = watchFaceHostApi.systemTimeProvider
     private val legacyWatchFaceStyle = watchface.legacyWatchFaceStyle
     internal val renderer = watchface.renderer
     private val tapListener = watchface.tapListener
@@ -1073,19 +1044,6 @@ public class WatchFaceImpl @UiThread constructor(
     }
 
     /**
-     * Called when new complication data is received.
-     *
-     * @param complicationSlotId The id of the [ComplicationSlot] that the data relates to.
-     * @param data The [ComplicationData] that should be displayed in the complication.
-     */
-    @UiThread
-    internal fun onComplicationSlotDataUpdate(complicationSlotId: Int, data: ComplicationData) {
-        complicationSlotsManager.onComplicationDataUpdate(complicationSlotId, data, getNow())
-        watchFaceHostApi.invalidate()
-        watchFaceHostApi.scheduleWriteComplicationDataCache()
-    }
-
-    /**
      * Called when a tap or touch related event occurs. Detects taps on [ComplicationSlot]s and
      * triggers the associated action.
      *
@@ -1122,38 +1080,6 @@ public class WatchFaceImpl @UiThread constructor(
             }
             else -> lastTappedComplicationId = null
         }
-    }
-
-    @OptIn(ComplicationExperimental::class)
-    @UiThread
-    internal fun getComplicationState() = complicationSlotsManager.complicationSlots.map {
-        val systemDataSourceFallbackDefaultType =
-            it.value.defaultDataSourcePolicy.systemDataSourceFallbackDefaultType
-                .toWireComplicationType()
-        IdAndComplicationStateWireFormat(
-            it.key,
-            ComplicationStateWireFormat(
-                it.value.computeBounds(renderer.screenBounds, applyMargins = false),
-                it.value.computeBounds(renderer.screenBounds, applyMargins = true),
-                it.value.boundsType,
-                ComplicationType.toWireTypes(it.value.supportedTypes),
-                it.value.defaultDataSourcePolicy.dataSourcesAsList(),
-                it.value.defaultDataSourcePolicy.systemDataSourceFallback,
-                systemDataSourceFallbackDefaultType,
-                it.value.defaultDataSourcePolicy.primaryDataSourceDefaultType
-                    ?.toWireComplicationType() ?: systemDataSourceFallbackDefaultType,
-                it.value.defaultDataSourcePolicy.secondaryDataSourceDefaultType
-                    ?.toWireComplicationType() ?: systemDataSourceFallbackDefaultType,
-                it.value.enabled,
-                it.value.initiallyEnabled,
-                it.value.renderer.getData().type.toWireComplicationType(),
-                it.value.fixedComplicationDataSource,
-                it.value.configExtras,
-                it.value.nameResourceId,
-                it.value.screenReaderNameResourceId,
-                it.value.boundingArc?.toWireFormat()
-            )
-        )
     }
 
     @UiThread

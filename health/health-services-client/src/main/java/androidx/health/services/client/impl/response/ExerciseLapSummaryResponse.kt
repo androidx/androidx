@@ -31,11 +31,10 @@ import androidx.health.services.client.proto.ResponsesProto
 public class ExerciseLapSummaryResponse(public val exerciseLapSummary: ExerciseLapSummary) :
     ProtoParcelable<ResponsesProto.ExerciseLapSummaryResponse>() {
 
-    override val proto: ResponsesProto.ExerciseLapSummaryResponse by lazy {
+    override val proto: ResponsesProto.ExerciseLapSummaryResponse =
         ResponsesProto.ExerciseLapSummaryResponse.newBuilder()
             .setLapSummary(exerciseLapSummary.proto)
             .build()
-    }
 
     public companion object {
         @JvmField

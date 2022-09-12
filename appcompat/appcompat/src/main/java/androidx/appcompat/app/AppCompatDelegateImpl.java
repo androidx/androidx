@@ -2607,7 +2607,13 @@ class AppCompatDelegateImpl extends AppCompatDelegate
             // one from the requested locales.
             if (requestedLocales.isEmpty()) {
                 localesToBeApplied = LocaleListCompat.getEmptyLocaleList();
+            } else if (Build.VERSION.SDK_INT >= 21) {
+                localesToBeApplied =
+                        LocaleListCompat.forLanguageTags(Api21Impl.toLanguageTag(
+                                requestedLocales.get(0)));
             } else {
+                // The method Locale.forLanguageTag() was introduced in API level 21,
+                // using Locale.toString() method for APIs below that.
                 localesToBeApplied =
                         LocaleListCompat.forLanguageTags(requestedLocales.get(0).toString());
             }
@@ -2862,7 +2868,7 @@ class AppCompatDelegateImpl extends AppCompatDelegate
             }
         }
 
-        if (handled && newLocales != null) {
+        if (newLocales != null) {
             // LocaleListCompat's default locales are updated here using the configuration
             // locales to keep default locales in sync with application locales and also to cover
             // the case where framework re-adjusts input locales by bringing forward the most

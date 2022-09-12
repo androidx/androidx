@@ -110,11 +110,13 @@ internal class TestAsyncCanvasRenderWithSharedAssetsTestWatchFaceService(
                 // NOP
             }
         }
-    ).setSystemTimeProvider(object : WatchFace.SystemTimeProvider {
+    )
+
+    override fun getSystemTimeProvider() = object : SystemTimeProvider {
         override fun getSystemTimeMillis() = 123456789L
 
         override fun getSystemTimeZoneId() = ZoneId.of("UTC")
-    })
+    }
 }
 
 @MediumTest

@@ -26,7 +26,7 @@ import androidx.camera.integration.extensions.util.CameraXExtensionsTestUtil.STR
 import androidx.camera.integration.extensions.util.CameraXExtensionsTestUtil.launchCameraExtensionsActivity
 import androidx.camera.integration.extensions.util.HOME_TIMEOUT_MS
 import androidx.camera.integration.extensions.util.takePictureAndWaitForImageSavedIdle
-import androidx.camera.integration.extensions.util.waitForPreviewIdle
+import androidx.camera.integration.extensions.util.waitForPreviewViewStreaming
 import androidx.camera.integration.extensions.utils.ExtensionModeUtil
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.CameraUtil
@@ -69,6 +69,12 @@ class SwitchCameraStressTest(private val extensionMode: Int) {
     @get:Rule
     val storagePermissionRule =
         GrantPermissionRule.grant(Manifest.permission.WRITE_EXTERNAL_STORAGE)!!
+
+    @get:Rule
+    val labTest: LabTestRule = LabTestRule()
+
+    @get:Rule
+    val repeatRule = RepeatRule()
 
     private val context = ApplicationProvider.getApplicationContext<Context>()
 
@@ -167,7 +173,7 @@ class SwitchCameraStressTest(private val extensionMode: Int) {
                     }
 
                     // Waits for preview view turned to STREAMING state after switching camera
-                    waitForPreviewIdle()
+                    waitForPreviewViewStreaming()
                 }
             }
         }

@@ -33,8 +33,10 @@ public class AutofixUnsafeMethodWithQualifiedClass {
      * In the generated fix, all three types should appear as qualified class names.
      */
     @RequiresApi(19)
-    public void unsafeReferenceWithQualifiedClasses(PrintAttributes.Builder builder,
-            PrintAttributes.MediaSize mediaSize) {
-        builder.setMediaSize(mediaSize);
+    public PrintAttributes.Builder unsafeReferenceWithQualifiedClasses(
+            PrintAttributes.Builder builder,
+            PrintAttributes.MediaSize mediaSize
+    ) {
+        return builder.setMediaSize(mediaSize);
     }
 }

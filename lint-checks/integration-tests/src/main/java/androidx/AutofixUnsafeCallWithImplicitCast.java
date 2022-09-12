@@ -16,6 +16,7 @@
 
 package androidx;
 
+import android.app.Notification;
 import android.graphics.drawable.AdaptiveIconDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.Icon;
@@ -57,5 +58,20 @@ public abstract class AutofixUnsafeCallWithImplicitCast {
     @RequiresApi(26)
     public Icon methodReturnsIconAsIcon() {
         return Icon.createWithAdaptiveBitmap(null);
+    }
+
+    /**
+     * This uses the constructed value as Notification.Style in a method call.
+     */
+    @RequiresApi(24)
+    public void methodUsesStyleAsParam() {
+        useStyle(new Notification.DecoratedCustomViewStyle());
+    }
+
+    /**
+     * This is here so there's a method to use the DecoratedCustomViewStyle as a Style.
+     */
+    static boolean useStyle(Notification.Style style) {
+        return false;
     }
 }

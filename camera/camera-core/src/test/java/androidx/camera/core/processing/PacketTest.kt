@@ -22,7 +22,8 @@ import android.graphics.Matrix
 import android.graphics.Rect
 import android.os.Build
 import android.util.Size
-import androidx.camera.testing.fakes.FakeCameraCaptureResult
+import androidx.camera.testing.ExifUtil.createExif
+import androidx.camera.testing.TestImageUtil.createJpegBytes
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -46,8 +47,13 @@ class PacketTest {
         val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
 
         // Act.
-        val bitmapPacket =
-            Packet.of(bitmap, null, FakeCameraCaptureResult(), Rect(0, 0, 100, 200), 0, Matrix())
+        val bitmapPacket = Packet.of(
+            bitmap,
+            createExif(createJpegBytes(40, 30)),
+            Rect(0, 0, 100, 200),
+            0,
+            Matrix()
+        )
 
         // Assert.
         assertThat(bitmapPacket.size).isEqualTo(Size(100, 200))

@@ -334,8 +334,8 @@ public class AutomotiveCarClimateTest {
         carZones.add(Collections.singleton(FRONT_RIGHT_ZONE));
         List<Integer> propertyIds = Collections.singletonList(HVAC_TEMPERATURE_SET);
         Map<Set<CarZone>, Pair<Object, Object>> requestMinMaxValueMap = new HashMap<>();
-        requestMinMaxValueMap.put(Collections.singleton(FRONT_LEFT_ZONE), new Pair<>(16, 32));
-        requestMinMaxValueMap.put(Collections.singleton(FRONT_RIGHT_ZONE), new Pair<>(16, 32));
+        requestMinMaxValueMap.put(Collections.singleton(FRONT_LEFT_ZONE), new Pair<>(16f, 32f));
+        requestMinMaxValueMap.put(Collections.singleton(FRONT_RIGHT_ZONE), new Pair<>(16f, 32f));
         mCarPropertyProfiles.add(CarPropertyProfile.builder().setPropertyId(HVAC_TEMPERATURE_SET)
                 .setCelsiusRange(null)
                 .setFahrenheitRange(null)

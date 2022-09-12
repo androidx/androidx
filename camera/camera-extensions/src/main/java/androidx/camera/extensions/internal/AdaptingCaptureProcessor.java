@@ -25,6 +25,7 @@ import android.util.Pair;
 import android.util.Size;
 import android.view.Surface;
 
+import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -60,6 +61,11 @@ public final class AdaptingCaptureProcessor implements CaptureProcessor, VendorP
     private volatile int mImageFormat;
     private volatile Size mResolution;
 
+    private final Object mLock = new Object();
+
+    @GuardedBy("mLock")
+    private boolean mActive = false;
+
     private BlockingCloseAccessCounter mAccessCounter = new BlockingCloseAccessCounter();
 
     public AdaptingCaptureProcessor(@NonNull CaptureProcessorImpl impl) {
@@ -87,6 +93,17 @@ public final class AdaptingCaptureProcessor implements CaptureProcessor, VendorP
         } finally {
             mAccessCounter.decrement();
         }
+
+        synchronized (mLock) {
+            mActive = true;
+        }
+    }
+
+    @Override
+    public void onDeInit() {
+        synchronized (mLock) {
+            mActive = false;
+        }
     }
 
     @Override
@@ -110,54 +127,60 @@ public final class AdaptingCaptureProcessor implements CaptureProcessor, VendorP
     @Override
     @ExperimentalGetImage
     public void process(@NonNull ImageProxyBundle bundle) {
-        List<Integer> ids = bundle.getCaptureIds();
-
-        Map<Integer, Pair<Image, TotalCaptureResult>> bundleMap = new HashMap<>();
-
-        for (Integer id : ids) {
-            ListenableFuture<ImageProxy> imageProxyListenableFuture = bundle.getImageProxy(id);
-            try {
-                ImageProxy imageProxy = imageProxyListenableFuture.get(5, TimeUnit.SECONDS);
-                Image image = imageProxy.getImage();
-                if (image == null) {
-                    return;
-                }
-
-                ImageInfo imageInfo = imageProxy.getImageInfo();
-
-                CameraCaptureResult result =
-                        CameraCaptureResults.retrieveCameraCaptureResult(imageInfo);
-                if (result == null) {
-                    return;
-                }
-
-                CaptureResult captureResult =
-                        Camera2CameraCaptureResultConverter.getCaptureResult(result);
-                if (captureResult == null) {
-                    return;
-                }
-
-                TotalCaptureResult totalCaptureResult = (TotalCaptureResult) captureResult;
-                if (totalCaptureResult == null) {
-                    return;
-                }
-
-                Pair<Image, TotalCaptureResult> imageCapturePair = new Pair<>(imageProxy.getImage(),
-                        totalCaptureResult);
-                bundleMap.put(id, imageCapturePair);
-            } catch (TimeoutException | ExecutionException | InterruptedException e) {
+        synchronized (mLock) {
+            if (!mActive) {
                 return;
             }
-        }
 
-        if (!mAccessCounter.tryIncrement()) {
-            return;
-        }
+            List<Integer> ids = bundle.getCaptureIds();
 
-        try {
-            mImpl.process(bundleMap);
-        } finally {
-            mAccessCounter.decrement();
+            Map<Integer, Pair<Image, TotalCaptureResult>> bundleMap = new HashMap<>();
+
+            for (Integer id : ids) {
+                ListenableFuture<ImageProxy> imageProxyListenableFuture = bundle.getImageProxy(id);
+                try {
+                    ImageProxy imageProxy = imageProxyListenableFuture.get(5, TimeUnit.SECONDS);
+                    Image image = imageProxy.getImage();
+                    if (image == null) {
+                        return;
+                    }
+
+                    ImageInfo imageInfo = imageProxy.getImageInfo();
+
+                    CameraCaptureResult result =
+                            CameraCaptureResults.retrieveCameraCaptureResult(imageInfo);
+                    if (result == null) {
+                        return;
+                    }
+
+                    CaptureResult captureResult =
+                            Camera2CameraCaptureResultConverter.getCaptureResult(result);
+                    if (captureResult == null) {
+                        return;
+                    }
+
+                    TotalCaptureResult totalCaptureResult = (TotalCaptureResult) captureResult;
+                    if (totalCaptureResult == null) {
+                        return;
+                    }
+
+                    Pair<Image, TotalCaptureResult> imageCapturePair = new Pair<>(
+                            imageProxy.getImage(), totalCaptureResult);
+                    bundleMap.put(id, imageCapturePair);
+                } catch (TimeoutException | ExecutionException | InterruptedException e) {
+                    return;
+                }
+            }
+
+            if (!mAccessCounter.tryIncrement()) {
+                return;
+            }
+
+            try {
+                mImpl.process(bundleMap);
+            } finally {
+                mAccessCounter.decrement();
+            }
         }
     }
 }

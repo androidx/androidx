@@ -36,12 +36,12 @@ class BatteryDischargeQueryTest {
         assumeTrue(isAbiSupported())
 
         val traceFile = createTempFileFromAsset("api31_battery_discharge", ".perfetto-trace")
-        val slice = PerfettoTraceProcessor.querySlices(
-            traceFile.absolutePath, PowerMetric.MEASURE_BLOCK_SECTION_NAME
-        ).first()
-        val actualMetrics = BatteryDischargeQuery.getBatteryDischargeMetrics(
-            traceFile.absolutePath, slice
-        )
+
+        val actualMetrics = PerfettoTraceProcessor.runServer(traceFile.absolutePath) {
+            val slice = querySlices(PowerMetric.MEASURE_BLOCK_SECTION_NAME).first()
+            BatteryDischargeQuery.getBatteryDischargeMetrics(this, slice)
+        }
+
         assertEquals(listOf(
             BatteryDischargeQuery.BatteryDischargeMeasurement(
                 name = "Start",

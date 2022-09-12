@@ -33,12 +33,11 @@ public class MeasureRegistrationRequest(
     public val dataType: DataType<*, *>,
 ) : ProtoParcelable<RequestsProto.MeasureRegistrationRequest>() {
 
-    override val proto: RequestsProto.MeasureRegistrationRequest by lazy {
+    override val proto: RequestsProto.MeasureRegistrationRequest =
         RequestsProto.MeasureRegistrationRequest.newBuilder()
             .setPackageName(packageName)
             .setDataType(dataType.proto)
             .build()
-    }
 
     public companion object {
         @JvmField

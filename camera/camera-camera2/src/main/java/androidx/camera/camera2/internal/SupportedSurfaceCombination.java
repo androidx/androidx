@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 The Android Open Source Project
+ * Copyright 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,9 @@
  */
 
 package androidx.camera.camera2.internal;
+
+import static androidx.camera.core.internal.utils.SizeUtil.VGA_SIZE;
+import static androidx.camera.core.internal.utils.SizeUtil.getArea;
 
 import android.content.Context;
 import android.graphics.ImageFormat;
@@ -48,18 +51,16 @@ import androidx.camera.core.impl.ImageFormatConstants;
 import androidx.camera.core.impl.ImageOutputConfig;
 import androidx.camera.core.impl.SurfaceCombination;
 import androidx.camera.core.impl.SurfaceConfig;
-import androidx.camera.core.impl.SurfaceConfig.ConfigSize;
-import androidx.camera.core.impl.SurfaceConfig.ConfigType;
 import androidx.camera.core.impl.SurfaceSizeDefinition;
 import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.utils.CameraOrientationUtil;
 import androidx.camera.core.impl.utils.CompareSizesByArea;
+import androidx.camera.core.internal.utils.AspectRatioUtil;
 import androidx.core.util.Preconditions;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -76,11 +77,9 @@ import java.util.Map;
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 final class SupportedSurfaceCombination {
     private static final String TAG = "SupportedSurfaceCombination";
-    private static final Size DEFAULT_SIZE = new Size(640, 480);
     private static final Size ZERO_SIZE = new Size(0, 0);
     private static final Size QUALITY_1080P_SIZE = new Size(1920, 1080);
     private static final Size QUALITY_480P_SIZE = new Size(720, 480);
-    private static final int ALIGN16 = 16;
     private static final Rational ASPECT_RATIO_4_3 = new Rational(4, 3);
     private static final Rational ASPECT_RATIO_3_4 = new Rational(3, 4);
     private static final Rational ASPECT_RATIO_16_9 = new Rational(16, 9);
@@ -98,7 +97,8 @@ final class SupportedSurfaceCombination {
     private final Map<Integer, List<Size>> mExcludedSizeListCache = new HashMap<>();
     private boolean mIsRawSupported = false;
     private boolean mIsBurstCaptureSupported = false;
-    private SurfaceSizeDefinition mSurfaceSizeDefinition;
+    @VisibleForTesting
+    SurfaceSizeDefinition mSurfaceSizeDefinition;
     private Map<Integer, Size[]> mOutputSizesCache = new HashMap<>();
     @NonNull
     private final DisplayInfoManager mDisplayInfoManager;
@@ -125,6 +125,21 @@ final class SupportedSurfaceCombination {
         } catch (CameraAccessExceptionCompat e) {
             throw CameraUnavailableExceptionHelper.createFrom(e);
         }
+
+        int[] availableCapabilities =
+                mCharacteristics.get(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES);
+
+        if (availableCapabilities != null) {
+            for (int capability : availableCapabilities) {
+                if (capability == CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_RAW) {
+                    mIsRawSupported = true;
+                } else if (capability
+                        == CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_BURST_CAPTURE) {
+                    mIsBurstCaptureSupported = true;
+                }
+            }
+        }
+
         generateSupportedCombinationList();
         generateSurfaceSizeDefinition();
         checkCustomization();
@@ -171,29 +186,7 @@ final class SupportedSurfaceCombination {
      * @return new {@link SurfaceConfig} object
      */
     SurfaceConfig transformSurfaceConfig(int imageFormat, Size size) {
-        ConfigType configType = getConfigType(imageFormat);
-        ConfigSize configSize = ConfigSize.NOT_SUPPORT;
-
-        Size maxSize = fetchMaxSize(imageFormat);
-
-        // Compare with surface size definition to determine the surface configuration size
-        if (size.getWidth() * size.getHeight()
-                <= mSurfaceSizeDefinition.getAnalysisSize().getWidth()
-                * mSurfaceSizeDefinition.getAnalysisSize().getHeight()) {
-            configSize = ConfigSize.ANALYSIS;
-        } else if (size.getWidth() * size.getHeight()
-                <= mSurfaceSizeDefinition.getPreviewSize().getWidth()
-                * mSurfaceSizeDefinition.getPreviewSize().getHeight()) {
-            configSize = ConfigSize.PREVIEW;
-        } else if (size.getWidth() * size.getHeight()
-                <= mSurfaceSizeDefinition.getRecordSize().getWidth()
-                * mSurfaceSizeDefinition.getRecordSize().getHeight()) {
-            configSize = ConfigSize.RECORD;
-        } else if (size.getWidth() * size.getHeight() <= maxSize.getWidth() * maxSize.getHeight()) {
-            configSize = ConfigSize.MAXIMUM;
-        }
-
-        return SurfaceConfig.create(configType, configSize);
+        return SurfaceConfig.transformSurfaceConfig(imageFormat, size, mSurfaceSizeDefinition);
     }
 
     /**
@@ -222,8 +215,9 @@ final class SupportedSurfaceCombination {
         // supported combination first
         for (UseCaseConfig<?> useCaseConfig : newUseCaseConfigs) {
             surfaceConfigs.add(
-                    transformSurfaceConfig(useCaseConfig.getInputFormat(),
-                            new Size(640, 480)));
+                    SurfaceConfig.transformSurfaceConfig(useCaseConfig.getInputFormat(),
+                            new Size(640, 480),
+                            mSurfaceSizeDefinition));
         }
 
         if (!checkSupported(surfaceConfigs)) {
@@ -235,7 +229,9 @@ final class SupportedSurfaceCombination {
         }
 
         // Get the index order list by the use case priority for finding stream configuration
-        List<Integer> useCasesPriorityOrder = getUseCasesPriorityOrder(newUseCaseConfigs);
+        List<Integer> useCasesPriorityOrder =
+                getUseCasesPriorityOrder(
+                        newUseCaseConfigs);
         List<List<Size>> supportedOutputSizesList = new ArrayList<>();
 
         // Collect supported output sizes for all use cases
@@ -247,7 +243,8 @@ final class SupportedSurfaceCombination {
 
         // Get all possible size arrangements
         List<List<Size>> allPossibleSizeArrangements =
-                getAllPossibleSizeArrangements(supportedOutputSizesList);
+                getAllPossibleSizeArrangements(
+                        supportedOutputSizesList);
 
         Map<UseCaseConfig<?>, Size> suggestedResolutionsMap = null;
         // Transform use cases to SurfaceConfig list and find the first (best) workable combination
@@ -263,7 +260,9 @@ final class SupportedSurfaceCombination {
                 Size size = possibleSizeList.get(i);
                 UseCaseConfig<?> newUseCase =
                         newUseCaseConfigs.get(useCasesPriorityOrder.get(i));
-                surfaceConfigList.add(transformSurfaceConfig(newUseCase.getInputFormat(), size));
+                surfaceConfigList.add(
+                        SurfaceConfig.transformSurfaceConfig(newUseCase.getInputFormat(), size,
+                                mSurfaceSizeDefinition));
             }
 
             // Check whether the SurfaceConfig combination can be supported
@@ -336,11 +335,6 @@ final class SupportedSurfaceCombination {
         return outputRatio;
     }
 
-    @VisibleForTesting
-    SurfaceSizeDefinition getSurfaceSizeDefinition() {
-        return mSurfaceSizeDefinition;
-    }
-
     private Size fetchMaxSize(int imageFormat) {
         Size size = mMaxSizeCache.get(imageFormat);
         if (size != null) {
@@ -409,8 +403,8 @@ final class SupportedSurfaceCombination {
         Arrays.sort(outputSizes, new CompareSizesByArea(true));
 
         Size targetSize = getTargetSize(imageOutputConfig);
-        Size minSize = DEFAULT_SIZE;
-        int defaultSizeArea = getArea(DEFAULT_SIZE);
+        Size minSize = VGA_SIZE;
+        int defaultSizeArea = getArea(VGA_SIZE);
         int maxSizeArea = getArea(maxSize);
         // When maxSize is smaller than 640x480, set minSize as 0x0. It means the min size bound
         // will be ignored. Otherwise, set the minimal size according to min(DEFAULT_SIZE,
@@ -472,7 +466,7 @@ final class SupportedSurfaceCombination {
             // Sort the aspect ratio key set by the target aspect ratio.
             List<Rational> aspectRatios = new ArrayList<>(aspectRatioSizeListMap.keySet());
             Collections.sort(aspectRatios,
-                    new CompareAspectRatiosByDistanceToTargetRatio(aspectRatio));
+                    new AspectRatioUtil.CompareAspectRatiosByDistanceToTargetRatio(aspectRatio));
 
             // Put available sizes into final result list by aspect ratio distance to target ratio.
             for (Rational rational : aspectRatios) {
@@ -487,33 +481,10 @@ final class SupportedSurfaceCombination {
         }
 
         supportedResolutions = mResolutionCorrector.insertOrPrioritize(
-                getConfigType(config.getInputFormat()),
+                SurfaceConfig.getConfigType(config.getInputFormat()),
                 supportedResolutions);
 
         return supportedResolutions;
-    }
-
-
-    /**
-     * Gets {@link ConfigType} from image format.
-     *
-     * <p> PRIV refers to any target whose available sizes are found using
-     * StreamConfigurationMap.getOutputSizes(Class) with no direct application-visible format,
-     * YUV refers to a target Surface using the ImageFormat.YUV_420_888 format, JPEG refers to
-     * the ImageFormat.JPEG format, and RAW refers to the ImageFormat.RAW_SENSOR format.
-     */
-    @NonNull
-    private SurfaceConfig.ConfigType getConfigType(int imageFormat) {
-
-        if (imageFormat == ImageFormat.YUV_420_888) {
-            return SurfaceConfig.ConfigType.YUV;
-        } else if (imageFormat == ImageFormat.JPEG) {
-            return SurfaceConfig.ConfigType.JPEG;
-        } else if (imageFormat == ImageFormat.RAW_SENSOR) {
-            return SurfaceConfig.ConfigType.RAW;
-        } else {
-            return SurfaceConfig.ConfigType.PRIV;
-        }
     }
 
     @Nullable
@@ -568,64 +539,6 @@ final class SupportedSurfaceCombination {
                 : true;
     }
 
-    static boolean hasMatchingAspectRatio(Size resolution, Rational aspectRatio) {
-        boolean isMatch = false;
-        if (aspectRatio == null) {
-            isMatch = false;
-        } else if (aspectRatio.equals(
-                new Rational(resolution.getWidth(), resolution.getHeight()))) {
-            isMatch = true;
-        } else if (getArea(resolution) >= getArea(DEFAULT_SIZE)) {
-            // Only do mod 16 calculation if the size is equal to or larger than 640x480. It is
-            // because the aspect ratio will be affected critically by mod 16 calculation if the
-            // size is small. It may result in unexpected outcome such like 256x144 will be
-            // considered as 18.5:9.
-            isMatch = isPossibleMod16FromAspectRatio(resolution, aspectRatio);
-        }
-        return isMatch;
-    }
-
-    /**
-     * For codec performance improvement, OEMs may make the supported sizes to be mod16 alignment
-     * . It means that the width or height of the supported size will be multiple of 16. The
-     * result number after applying mod16 alignment can be the larger or smaller number that is
-     * multiple of 16 and is closest to the original number. For example, a standard 16:9
-     * supported size is 1920x1080. It may become 1920x1088 on some devices because 1088 is
-     * multiple of 16. This function uses the target aspect ratio to calculate the possible
-     * original width or height inversely. And then, checks whether the possibly original width or
-     * height is in the range that the mod16 aligned height or width can support.
-     */
-    private static boolean isPossibleMod16FromAspectRatio(Size resolution, Rational aspectRatio) {
-        int width = resolution.getWidth();
-        int height = resolution.getHeight();
-
-        Rational invAspectRatio = new Rational(/* numerator= */aspectRatio.getDenominator(),
-                /* denominator= */aspectRatio.getNumerator());
-        if (width % 16 == 0 && height % 16 == 0) {
-            return ratioIntersectsMod16Segment(Math.max(0, height - ALIGN16), width, aspectRatio)
-                    || ratioIntersectsMod16Segment(Math.max(0, width - ALIGN16), height,
-                    invAspectRatio);
-        } else if (width % 16 == 0) {
-            return ratioIntersectsMod16Segment(height, width, aspectRatio);
-        } else if (height % 16 == 0) {
-            return ratioIntersectsMod16Segment(width, height, invAspectRatio);
-        }
-        return false;
-    }
-
-    private static int getArea(Size size) {
-        return size.getWidth() * size.getHeight();
-    }
-
-    private static boolean ratioIntersectsMod16Segment(int height, int mod16Width,
-            Rational aspectRatio) {
-        Preconditions.checkArgument(mod16Width % 16 == 0);
-        double aspectRatioWidth =
-                height * aspectRatio.getNumerator() / (double) aspectRatio.getDenominator();
-        return aspectRatioWidth > Math.max(0, mod16Width - ALIGN16) && aspectRatioWidth < (
-                mod16Width + ALIGN16);
-    }
-
     private Map<Rational, List<Size>> groupSizesByAspectRatio(List<Size> sizes) {
         Map<Rational, List<Size>> aspectRatioSizeListMap = new HashMap<>();
 
@@ -642,7 +555,7 @@ final class SupportedSurfaceCombination {
             for (Rational key : aspectRatioSizeListMap.keySet()) {
                 // Put the size into all groups that is matched in mod16 condition since a size
                 // may match multiple aspect ratio in mod16 algorithm.
-                if (hasMatchingAspectRatio(outputSize, key)) {
+                if (AspectRatioUtil.hasMatchingAspectRatio(outputSize, key)) {
                     matchedKey = key;
 
                     List<Size> sizeList = aspectRatioSizeListMap.get(matchedKey);
@@ -854,371 +767,10 @@ final class SupportedSurfaceCombination {
         return Collections.max(Arrays.asList(outputSizes), new CompareSizesByArea());
     }
 
-    List<SurfaceCombination> getLegacySupportedCombinationList() {
-        List<SurfaceCombination> combinationList = new ArrayList<>();
-
-        // (PRIV, MAXIMUM)
-        SurfaceCombination surfaceCombination1 = new SurfaceCombination();
-        surfaceCombination1.addSurfaceConfig(
-                SurfaceConfig.create(ConfigType.PRIV, ConfigSize.MAXIMUM));
-        combinationList.add(surfaceCombination1);
-
-        // (JPEG, MAXIMUM)
-        SurfaceCombination surfaceCombination2 = new SurfaceCombination();
-        surfaceCombination2.addSurfaceConfig(
-                SurfaceConfig.create(ConfigType.JPEG, ConfigSize.MAXIMUM));
-        combinationList.add(surfaceCombination2);
-
-        // (YUV, MAXIMUM)
-        SurfaceCombination surfaceCombination3 = new SurfaceCombination();
-        surfaceCombination3.addSurfaceConfig(
-                SurfaceConfig.create(ConfigType.YUV, ConfigSize.MAXIMUM));
-        combinationList.add(surfaceCombination3);
-
-        // Below two combinations are all supported in the combination
-        // (PRIV, PREVIEW) + (JPEG, MAXIMUM)
-        SurfaceCombination surfaceCombination4 = new SurfaceCombination();
-        surfaceCombination4.addSurfaceConfig(
-                SurfaceConfig.create(ConfigType.PRIV, ConfigSize.PREVIEW));
-        surfaceCombination4.addSurfaceConfig(
-                SurfaceConfig.create(ConfigType.JPEG, ConfigSize.MAXIMUM));
-        combinationList.add(surfaceCombination4);
-
-        // (YUV, PREVIEW) + (JPEG, MAXIMUM)
-        SurfaceCombination surfaceCombination5 = new SurfaceCombination();
-        surfaceCombination5.addSurfaceConfig(
-                SurfaceConfig.create(ConfigType.YUV, ConfigSize.PREVIEW));
-        surfaceCombination5.addSurfaceConfig(
-                SurfaceConfig.create(ConfigType.JPEG, ConfigSize.MAXIMUM));
-        combinationList.add(surfaceCombination5);
-
-        // (PRIV, PREVIEW) + (PRIV, PREVIEW)
-        SurfaceCombination surfaceCombination6 = new SurfaceCombination();
-        surfaceCombination6.addSurfaceConfig(
-                SurfaceConfig.create(ConfigType.PRIV, ConfigSize.PREVIEW));
-        surfaceCombination6.addSurfaceConfig(
-                SurfaceConfig.create(ConfigType.PRIV, ConfigSize.PREVIEW));
-        combinationList.add(surfaceCombination6);
-
-        // (PRIV, PREVIEW) + (YUV, PREVIEW)
-        SurfaceCombination surfaceCombination7 = new SurfaceCombination();
-        surfaceCombination7.addSurfaceConfig(
-                SurfaceConfig.create(ConfigType.PRIV, ConfigSize.PREVIEW));
-        surfaceCombination7.addSurfaceConfig(
-                SurfaceConfig.create(ConfigType.YUV, ConfigSize.PREVIEW));
-        combinationList.add(surfaceCombination7);
-
-        // (PRIV, PREVIEW) + (PRIV, PREVIEW) + (JPEG, MAXIMUM)
-        SurfaceCombination surfaceCombination8 = new SurfaceCombination();
-        surfaceCombination8.addSurfaceConfig(
-                SurfaceConfig.create(ConfigType.PRIV, ConfigSize.PREVIEW));
-        surfaceCombination8.addSurfaceConfig(
-                SurfaceConfig.create(ConfigType.YUV, ConfigSize.PREVIEW));
-        surfaceCombination8.addSurfaceConfig(
-                SurfaceConfig.create(ConfigType.JPEG, ConfigSize.MAXIMUM));
-        combinationList.add(surfaceCombination8);
-
-        return combinationList;
-    }
-
-    List<SurfaceCombination> getLimitedSupportedCombinationList() {
-        List<SurfaceCombination> combinationList = new ArrayList<>();
-
-        // (PRIV, PREVIEW) + (PRIV, RECORD)
-        SurfaceCombination surfaceCombination1 = new SurfaceCombination();
-        surfaceCombination1.addSurfaceConfig(
-                SurfaceConfig.create(ConfigType.PRIV, ConfigSize.PREVIEW));
-        surfaceCombination1.addSurfaceConfig(
-                SurfaceConfig.create(ConfigType.PRIV, ConfigSize.RECORD));
-        combinationList.add(surfaceCombination1);
-
-        // (PRIV, PREVIEW) + (YUV, RECORD)
-        SurfaceCombination surfaceCombination2 = new SurfaceCombination();
-        surfaceCombination2.addSurfaceConfig(
-                SurfaceConfig.create(ConfigType.PRIV, ConfigSize.PREVIEW));
-        surfaceCombination2.addSurfaceConfig(
-                SurfaceConfig.create(ConfigType.YUV, ConfigSize.RECORD));
-        combinationList.add(surfaceCombination2);
-
-        // (YUV, PREVIEW) + (YUV, RECORD)
-        SurfaceCombination surfaceCombination3 = new SurfaceCombination();
-        surfaceCombination3.addSurfaceConfig(
-                SurfaceConfig.create(ConfigType.YUV, ConfigSize.PREVIEW));
-        surfaceCombination3.addSurfaceConfig(
-                SurfaceConfig.create(ConfigType.YUV, ConfigSize.RECORD));
-        combinationList.add(surfaceCombination3);
-
-        // (PRIV, PREVIEW) + (PRIV, RECORD) + (JPEG, RECORD)
-        SurfaceCombination surfaceCombination4 = new SurfaceCombination();
-        surfaceCombination4.addSurfaceConfig(
-                SurfaceConfig.create(ConfigType.PRIV, ConfigSize.PREVIEW));
-        surfaceCombination4.addSurfaceConfig(
-                SurfaceConfig.create(ConfigType.PRIV, ConfigSize.RECORD));
-        surfaceCombination4.addSurfaceConfig(
-                SurfaceConfig.create(ConfigType.JPEG, ConfigSize.RECORD));
-        combinationList.add(surfaceCombination4);
-
-        // (PRIV, PREVIEW) + (YUV, RECORD) + (JPEG, RECORD)
-        SurfaceCombination surfaceCombination5 = new SurfaceCombination();
-        surfaceCombination5.addSurfaceConfig(
-                SurfaceConfig.create(ConfigType.PRIV, ConfigSize.PREVIEW));
-        surfaceCombination5.addSurfaceConfig(
-                SurfaceConfig.create(ConfigType.YUV, ConfigSize.RECORD));
-        surfaceCombination5.addSurfaceConfig(
-                SurfaceConfig.create(ConfigType.JPEG, ConfigSize.RECORD));
-        combinationList.add(surfaceCombination5);
-
-        // (YUV, PREVIEW) + (YUV, PREVIEW) + (JPEG, MAXIMUM)
-        SurfaceCombination surfaceCombination6 = new SurfaceCombination();
-        surfaceCombination6.addSurfaceConfig(
-                SurfaceConfig.create(ConfigType.YUV, ConfigSize.PREVIEW));
-        surfaceCombination6.addSurfaceConfig(
-                SurfaceConfig.create(ConfigType.YUV, ConfigSize.PREVIEW));
-        surfaceCombination6.addSurfaceConfig(
-                SurfaceConfig.create(ConfigType.JPEG, ConfigSize.MAXIMUM));
-        combinationList.add(surfaceCombination6);
-
-        return combinationList;
-    }
-
-    List<SurfaceCombination> getFullSupportedCombinationList() {
-        List<SurfaceCombination> combinationList = new ArrayList<>();
-
-        // (PRIV, PREVIEW) + (PRIV, MAXIMUM)
-        SurfaceCombination surfaceCombination1 = new SurfaceCombination();
-        surfaceCombination1.addSurfaceConfig(
-                SurfaceConfig.create(ConfigType.PRIV, ConfigSize.PREVIEW));
-        surfaceCombination1.addSurfaceConfig(
-                SurfaceConfig.create(ConfigType.PRIV, ConfigSize.MAXIMUM));
-        combinationList.add(surfaceCombination1);
-
-        // (PRIV, PREVIEW) + (YUV, MAXIMUM)
-        SurfaceCombination surfaceCombination2 = new SurfaceCombination();
-        surfaceCombination2.addSurfaceConfig(
-                SurfaceConfig.create(ConfigType.PRIV, ConfigSize.PREVIEW));
-        surfaceCombination2.addSurfaceConfig(
-                SurfaceConfig.create(ConfigType.YUV, ConfigSize.MAXIMUM));
-        combinationList.add(surfaceCombination2);
-
-        // (YUV, PREVIEW) + (YUV, MAXIMUM)
-        SurfaceCombination surfaceCombination3 = new SurfaceCombination();
-        surfaceCombination3.addSurfaceConfig(
-                SurfaceConfig.create(ConfigType.YUV, ConfigSize.PREVIEW));
-        surfaceCombination3.addSurfaceConfig(
-                SurfaceConfig.create(ConfigType.YUV, ConfigSize.MAXIMUM));
-        combinationList.add(surfaceCombination3);
-
-        // (PRIV, PREVIEW) + (PRIV, PREVIEW) + (JPEG, MAXIMUM)
-        SurfaceCombination surfaceCombination4 = new SurfaceCombination();
-        surfaceCombination4.addSurfaceConfig(
-                SurfaceConfig.create(ConfigType.PRIV, ConfigSize.PREVIEW));
-        surfaceCombination4.addSurfaceConfig(
-                SurfaceConfig.create(ConfigType.PRIV, ConfigSize.PREVIEW));
-        surfaceCombination4.addSurfaceConfig(
-                SurfaceConfig.create(ConfigType.JPEG, ConfigSize.MAXIMUM));
-        combinationList.add(surfaceCombination4);
-
-        // (YUV, ANALYSIS) + (PRIV, PREVIEW) + (YUV, MAXIMUM)
-        SurfaceCombination surfaceCombination5 = new SurfaceCombination();
-        surfaceCombination5.addSurfaceConfig(
-                SurfaceConfig.create(ConfigType.YUV, ConfigSize.ANALYSIS));
-        surfaceCombination5.addSurfaceConfig(
-                SurfaceConfig.create(ConfigType.PRIV, ConfigSize.PREVIEW));
-        surfaceCombination5.addSurfaceConfig(
-                SurfaceConfig.create(ConfigType.YUV, ConfigSize.MAXIMUM));
-        combinationList.add(surfaceCombination5);
-
-        // (YUV, ANALYSIS) + (YUV, PREVIEW) + (YUV, MAXIMUM)
-        SurfaceCombination surfaceCombination6 = new SurfaceCombination();
-        surfaceCombination6.addSurfaceConfig(
-                SurfaceConfig.create(ConfigType.YUV, ConfigSize.ANALYSIS));
-        surfaceCombination6.addSurfaceConfig(
-                SurfaceConfig.create(ConfigType.YUV, ConfigSize.PREVIEW));
-        surfaceCombination6.addSurfaceConfig(
-                SurfaceConfig.create(ConfigType.YUV, ConfigSize.MAXIMUM));
-        combinationList.add(surfaceCombination6);
-
-        return combinationList;
-    }
-
-    List<SurfaceCombination> getRAWSupportedCombinationList() {
-        List<SurfaceCombination> combinationList = new ArrayList<>();
-
-        // (RAW, MAXIMUM)
-        SurfaceCombination surfaceCombination1 = new SurfaceCombination();
-        surfaceCombination1.addSurfaceConfig(
-                SurfaceConfig.create(ConfigType.RAW, ConfigSize.MAXIMUM));
-        combinationList.add(surfaceCombination1);
-
-        // (PRIV, PREVIEW) + (RAW, MAXIMUM)
-        SurfaceCombination surfaceCombination2 = new SurfaceCombination();
-        surfaceCombination2.addSurfaceConfig(
-                SurfaceConfig.create(ConfigType.PRIV, ConfigSize.PREVIEW));
-        surfaceCombination2.addSurfaceConfig(
-                SurfaceConfig.create(ConfigType.RAW, ConfigSize.MAXIMUM));
-        combinationList.add(surfaceCombination2);
-
-        // (YUV, PREVIEW) + (RAW, MAXIMUM)
-        SurfaceCombination surfaceCombination3 = new SurfaceCombination();
-        surfaceCombination3.addSurfaceConfig(
-                SurfaceConfig.create(ConfigType.YUV, ConfigSize.PREVIEW));
-        surfaceCombination3.addSurfaceConfig(
-                SurfaceConfig.create(ConfigType.RAW, ConfigSize.MAXIMUM));
-        combinationList.add(surfaceCombination3);
-
-        // (PRIV, PREVIEW) + (PRIV, PREVIEW) + (RAW, MAXIMUM)
-        SurfaceCombination surfaceCombination4 = new SurfaceCombination();
-        surfaceCombination4.addSurfaceConfig(
-                SurfaceConfig.create(ConfigType.PRIV, ConfigSize.PREVIEW));
-        surfaceCombination4.addSurfaceConfig(
-                SurfaceConfig.create(ConfigType.PRIV, ConfigSize.PREVIEW));
-        surfaceCombination4.addSurfaceConfig(
-                SurfaceConfig.create(ConfigType.RAW, ConfigSize.MAXIMUM));
-        combinationList.add(surfaceCombination4);
-
-        // (PRIV, PREVIEW) + (YUV, PREVIEW) + (RAW, MAXIMUM)
-        SurfaceCombination surfaceCombination5 = new SurfaceCombination();
-        surfaceCombination5.addSurfaceConfig(
-                SurfaceConfig.create(ConfigType.PRIV, ConfigSize.PREVIEW));
-        surfaceCombination5.addSurfaceConfig(
-                SurfaceConfig.create(ConfigType.YUV, ConfigSize.PREVIEW));
-        surfaceCombination5.addSurfaceConfig(
-                SurfaceConfig.create(ConfigType.RAW, ConfigSize.MAXIMUM));
-        combinationList.add(surfaceCombination5);
-
-        // (YUV, PREVIEW) + (YUV, PREVIEW) + (RAW, MAXIMUM)
-        SurfaceCombination surfaceCombination6 = new SurfaceCombination();
-        surfaceCombination6.addSurfaceConfig(
-                SurfaceConfig.create(ConfigType.YUV, ConfigSize.PREVIEW));
-        surfaceCombination6.addSurfaceConfig(
-                SurfaceConfig.create(ConfigType.YUV, ConfigSize.PREVIEW));
-        surfaceCombination6.addSurfaceConfig(
-                SurfaceConfig.create(ConfigType.RAW, ConfigSize.MAXIMUM));
-        combinationList.add(surfaceCombination6);
-
-        // (PRIV, PREVIEW) + (JPEG, MAXIMUM) + (RAW, MAXIMUM)
-        SurfaceCombination surfaceCombination7 = new SurfaceCombination();
-        surfaceCombination7.addSurfaceConfig(
-                SurfaceConfig.create(ConfigType.PRIV, ConfigSize.PREVIEW));
-        surfaceCombination7.addSurfaceConfig(
-                SurfaceConfig.create(ConfigType.JPEG, ConfigSize.MAXIMUM));
-        surfaceCombination7.addSurfaceConfig(
-                SurfaceConfig.create(ConfigType.RAW, ConfigSize.MAXIMUM));
-        combinationList.add(surfaceCombination7);
-
-        // (YUV, PREVIEW) + (JPEG, MAXIMUM) + (RAW, MAXIMUM)
-        SurfaceCombination surfaceCombination8 = new SurfaceCombination();
-        surfaceCombination8.addSurfaceConfig(
-                SurfaceConfig.create(ConfigType.YUV, ConfigSize.PREVIEW));
-        surfaceCombination8.addSurfaceConfig(
-                SurfaceConfig.create(ConfigType.JPEG, ConfigSize.MAXIMUM));
-        surfaceCombination8.addSurfaceConfig(
-                SurfaceConfig.create(ConfigType.RAW, ConfigSize.MAXIMUM));
-        combinationList.add(surfaceCombination8);
-
-        return combinationList;
-    }
-
-    List<SurfaceCombination> getBurstSupportedCombinationList() {
-        List<SurfaceCombination> combinationList = new ArrayList<>();
-
-        // (PRIV, PREVIEW) + (PRIV, MAXIMUM)
-        SurfaceCombination surfaceCombination1 = new SurfaceCombination();
-        surfaceCombination1.addSurfaceConfig(
-                SurfaceConfig.create(ConfigType.PRIV, ConfigSize.PREVIEW));
-        surfaceCombination1.addSurfaceConfig(
-                SurfaceConfig.create(ConfigType.PRIV, ConfigSize.MAXIMUM));
-        combinationList.add(surfaceCombination1);
-
-        // (PRIV, PREVIEW) + (YUV, MAXIMUM)
-        SurfaceCombination surfaceCombination2 = new SurfaceCombination();
-        surfaceCombination2.addSurfaceConfig(
-                SurfaceConfig.create(ConfigType.PRIV, ConfigSize.PREVIEW));
-        surfaceCombination2.addSurfaceConfig(
-                SurfaceConfig.create(ConfigType.YUV, ConfigSize.MAXIMUM));
-        combinationList.add(surfaceCombination2);
-
-        // (YUV, PREVIEW) + (YUV, MAXIMUM)
-        SurfaceCombination surfaceCombination3 = new SurfaceCombination();
-        surfaceCombination3.addSurfaceConfig(
-                SurfaceConfig.create(ConfigType.YUV, ConfigSize.PREVIEW));
-        surfaceCombination3.addSurfaceConfig(
-                SurfaceConfig.create(ConfigType.YUV, ConfigSize.MAXIMUM));
-        combinationList.add(surfaceCombination3);
-
-        return combinationList;
-    }
-
-    List<SurfaceCombination> getLevel3SupportedCombinationList() {
-        List<SurfaceCombination> combinationList = new ArrayList<>();
-
-        // (PRIV, PREVIEW) + (PRIV, ANALYSIS) + (YUV, MAXIMUM) + (RAW, MAXIMUM)
-        SurfaceCombination surfaceCombination1 = new SurfaceCombination();
-        surfaceCombination1.addSurfaceConfig(
-                SurfaceConfig.create(ConfigType.PRIV, ConfigSize.PREVIEW));
-        surfaceCombination1.addSurfaceConfig(
-                SurfaceConfig.create(ConfigType.PRIV, ConfigSize.ANALYSIS));
-        surfaceCombination1.addSurfaceConfig(
-                SurfaceConfig.create(ConfigType.YUV, ConfigSize.MAXIMUM));
-        surfaceCombination1.addSurfaceConfig(
-                SurfaceConfig.create(ConfigType.RAW, ConfigSize.MAXIMUM));
-        combinationList.add(surfaceCombination1);
-
-        // (PRIV, PREVIEW) + (PRIV, ANALYSIS) + (JPEG, MAXIMUM) + (RAW, MAXIMUM)
-        SurfaceCombination surfaceCombination2 = new SurfaceCombination();
-        surfaceCombination2.addSurfaceConfig(
-                SurfaceConfig.create(ConfigType.PRIV, ConfigSize.PREVIEW));
-        surfaceCombination2.addSurfaceConfig(
-                SurfaceConfig.create(ConfigType.PRIV, ConfigSize.ANALYSIS));
-        surfaceCombination2.addSurfaceConfig(
-                SurfaceConfig.create(ConfigType.JPEG, ConfigSize.MAXIMUM));
-        surfaceCombination2.addSurfaceConfig(
-                SurfaceConfig.create(ConfigType.RAW, ConfigSize.MAXIMUM));
-        combinationList.add(surfaceCombination2);
-
-        return combinationList;
-    }
-
     private void generateSupportedCombinationList() {
-        mSurfaceCombinations.addAll(getLegacySupportedCombinationList());
-
-        if (mHardwareLevel == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED
-                || mHardwareLevel == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL
-                || mHardwareLevel == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_3) {
-            mSurfaceCombinations.addAll(getLimitedSupportedCombinationList());
-        }
-
-        if (mHardwareLevel == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL
-                || mHardwareLevel == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_3) {
-            mSurfaceCombinations.addAll(getFullSupportedCombinationList());
-        }
-
-        int[] availableCapabilities =
-                mCharacteristics.get(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES);
-
-        if (availableCapabilities != null) {
-            for (int capability : availableCapabilities) {
-                if (capability == CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_RAW) {
-                    mIsRawSupported = true;
-                } else if (capability
-                        == CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_BURST_CAPTURE) {
-                    mIsBurstCaptureSupported = true;
-                }
-            }
-        }
-
-        if (mIsRawSupported) {
-            mSurfaceCombinations.addAll(getRAWSupportedCombinationList());
-        }
-
-        if (mIsBurstCaptureSupported
-                && mHardwareLevel == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED) {
-            mSurfaceCombinations.addAll(getBurstSupportedCombinationList());
-        }
-
-        if (mHardwareLevel == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_3) {
-            mSurfaceCombinations.addAll(getLevel3SupportedCombinationList());
-        }
+        mSurfaceCombinations.addAll(
+                GuaranteedConfigurationsUtil.generateSupportedCombinationList(mHardwareLevel,
+                        mIsRawSupported, mIsBurstCaptureSupported));
 
         mSurfaceCombinations.addAll(
                 mExtraSupportedSurfaceCombinationsContainer.get(mCameraId, mHardwareLevel));
@@ -1359,28 +911,5 @@ final class SupportedSurfaceCombination {
         }
 
         return excludedSizes;
-    }
-
-    /** Comparator based on how close they are to the target aspect ratio. */
-    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-    static final class CompareAspectRatiosByDistanceToTargetRatio implements Comparator<Rational> {
-        private Rational mTargetRatio;
-
-        CompareAspectRatiosByDistanceToTargetRatio(Rational targetRatio) {
-            mTargetRatio = targetRatio;
-        }
-
-        @Override
-        public int compare(Rational lhs, Rational rhs) {
-            if (lhs.equals(rhs)) {
-                return 0;
-            }
-
-            final Float lhsRatioDelta = Math.abs(lhs.floatValue() - mTargetRatio.floatValue());
-            final Float rhsRatioDelta = Math.abs(rhs.floatValue() - mTargetRatio.floatValue());
-
-            int result = (int) Math.signum(lhsRatioDelta - rhsRatioDelta);
-            return result;
-        }
     }
 }

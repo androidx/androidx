@@ -25,10 +25,10 @@ import androidx.health.connect.client.permission.HealthPermission
 import androidx.health.connect.client.records.StepsRecord
 
 @Sampled
-fun RequestPermission(activity: ActivityResultCaller, permissionController: PermissionController) {
+fun RequestPermission(activity: ActivityResultCaller) {
     val requestPermission =
         activity.registerForActivityResult(
-            permissionController.createRequestPermissionActivityContract()
+            PermissionController.createRequestPermissionResultContract()
         ) { grantedPermissions ->
             if (
                 grantedPermissions.contains(
