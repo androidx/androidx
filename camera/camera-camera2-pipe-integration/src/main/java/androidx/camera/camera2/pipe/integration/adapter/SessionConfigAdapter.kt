@@ -18,25 +18,14 @@
 
 package androidx.camera.camera2.pipe.integration.adapter
 
-import android.view.Surface
 import androidx.annotation.RequiresApi
-import androidx.camera.camera2.pipe.CameraGraph
-import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.core.Log.debug
-import androidx.camera.camera2.pipe.integration.impl.UseCaseThreads
 import androidx.camera.core.UseCase
 import androidx.camera.core.impl.DeferrableSurface
 import androidx.camera.core.impl.SessionConfig
-import androidx.camera.core.impl.utils.futures.Futures
-import androidx.concurrent.futures.await
-import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.isActive
-import kotlinx.coroutines.withContext
-import kotlinx.coroutines.withTimeoutOrNull
-
-private const val TIMEOUT_GET_SURFACE_IN_MS = 5_000L
+import kotlinx.coroutines.launch
 
 /**
  * Aggregate the SessionConfig from a List of [UseCase]s, and provide a validated SessionConfig for
@@ -44,7 +33,6 @@ private const val TIMEOUT_GET_SURFACE_IN_MS = 5_000L
  */
 class SessionConfigAdapter(
     private val useCases: Collection<UseCase>,
-    private val threads: UseCaseThreads,
 ) {
     private val validatingBuilder: SessionConfig.ValidatingBuilder by lazy {
         val validatingBuilder = SessionConfig.ValidatingBuilder()
@@ -54,14 +42,16 @@ class SessionConfigAdapter(
         validatingBuilder
     }
 
-    private val deferrableSurfaces: List<DeferrableSurface> by lazy {
-        sessionConfig.surfaces
-    }
-
     private val sessionConfig: SessionConfig by lazy {
         check(validatingBuilder.isValid)
 
         validatingBuilder.build()
+    }
+
+    val deferrableSurfaces: List<DeferrableSurface> by lazy {
+        check(validatingBuilder.isValid)
+
+        sessionConfig.surfaces
     }
 
     fun getValidSessionConfigOrNull(): SessionConfig? {
@@ -72,68 +62,24 @@ class SessionConfigAdapter(
         return validatingBuilder.isValid
     }
 
-    fun setupSurfaceAsync(
-        graph: CameraGraph,
-        surfaceToStreamMap: Map<DeferrableSurface, StreamId>
-    ): Deferred<Unit> =
-        threads.scope.async {
-            val surfaces = getSurfaces(deferrableSurfaces)
+    fun reportSurfaceInvalid(deferrableSurface: DeferrableSurface) {
+        debug { "Unavailable $deferrableSurface, notify SessionConfig invalid" }
 
-            if (!isActive) return@async
+        // Only report error to one SessionConfig, CameraInternal#onUseCaseReset()
+        // will handle the other failed Surfaces if there are any.
+        val sessionConfig = useCases.firstOrNull { useCase ->
+            useCase.sessionConfig.surfaces.contains(deferrableSurface)
+        }?.sessionConfig
 
-            if (surfaces.isEmpty()) {
-                debug { "Surface list is empty" }
-                return@async
-            }
-
-            if (areSurfacesValid(surfaces)) {
-                surfaceToStreamMap.forEach {
-                    val stream = it.value
-                    val surface = surfaces[deferrableSurfaces.indexOf(it.key)]
-                    debug { "Configured $surface for $stream" }
-                    graph.setSurface(
-                        stream = stream,
-                        surface = surface
-                    )
-                }
-            } else {
-                debug { "Surface contains failed, notify SessionConfig invalid" }
-
-                // Only handle the first failed Surface since subsequent calls to
-                // CameraInternal#onUseCaseReset() will handle the other failed Surfaces if there
-                // are any.
-                val deferrableSurface = deferrableSurfaces[surfaces.indexOf(null)]
-                val sessionConfig =
-                    useCases.firstOrNull { useCase ->
-                        useCase.sessionConfig.surfaces.contains(deferrableSurface)
-                    }?.sessionConfig
-
-                withContext(Dispatchers.Main) {
-                    // The error listener is used to notify the UseCase to recreate the pipeline,
-                    // and the create pipeline task would be executed on the main thread.
-                    sessionConfig?.errorListeners?.forEach {
-                        it.onError(
-                            sessionConfig,
-                            SessionConfig.SessionError.SESSION_ERROR_SURFACE_NEEDS_RESET
-                        )
-                    }
-                }
+        CoroutineScope(Dispatchers.Main.immediate).launch {
+            // The error listener is used to notify the UseCase to recreate the pipeline,
+            // and the create pipeline task would be executed on the main thread.
+            sessionConfig?.errorListeners?.forEach {
+                it.onError(
+                    sessionConfig,
+                    SessionConfig.SessionError.SESSION_ERROR_SURFACE_NEEDS_RESET
+                )
             }
         }
-
-    private suspend fun getSurfaces(deferrableSurfaces: List<DeferrableSurface>): List<Surface?> {
-        return withTimeoutOrNull(timeMillis = TIMEOUT_GET_SURFACE_IN_MS) {
-            Futures.successfulAsList(
-                deferrableSurfaces.map {
-                    it.surface
-                }
-            ).await()
-        }.orEmpty()
-    }
-
-    private fun areSurfacesValid(surfaces: List<Surface?>): Boolean {
-        // If a Surface in configuredSurfaces is null it means the
-        // Surface was not retrieved from the ListenableFuture.
-        return surfaces.isNotEmpty() && !surfaces.contains(null)
     }
 }

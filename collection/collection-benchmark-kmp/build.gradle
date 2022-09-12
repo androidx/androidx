@@ -25,7 +25,6 @@ plugins {
 }
 
 androidXMultiplatform {
-    jvm() // No-op target needed for CI to succeed, see b/243154573
     ios()
     mac()
     linux()

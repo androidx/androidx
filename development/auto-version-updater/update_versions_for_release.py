@@ -42,7 +42,8 @@ parser = argparse.ArgumentParser(
         This script takes in a the release date as millisecond since the epoch,
         which is the unique id for the release in Jetpad.  It queries the
         Jetpad db, then creates an output json file with the release information.
-        Finally, updates LibraryVersions.kt and runs updateApi."""))
+        Finally, updates LibraryVersions.kt, runs updateApi, and runs 
+        ignoreApiChanges."""))
 parser.add_argument(
     'date',
     help='Milliseconds since epoch')
@@ -72,13 +73,13 @@ def ask_yes_or_no(question):
 
 
 def run_update_api():
-    """Runs updateApi from the frameworks/support root.
+    """Runs updateApi ignoreApiChanges from the frameworks/support root.
     """
-    gradle_cmd = "cd " + FRAMEWORKS_SUPPORT_FP + " && ./gradlew updateApi"
+    gradle_cmd = "cd " + FRAMEWORKS_SUPPORT_FP + " && ./gradlew updateApi ignoreApiChanges"
     try:
         subprocess.check_output(gradle_cmd, stderr=subprocess.STDOUT, shell=True)
     except subprocess.CalledProcessError:
-        print_e('FAIL: Unable run updateApi with command: %s' % gradle_cmd)
+        print_e('FAIL: Unable run `updateApi ignoreApiChanges` with command: %s' % gradle_cmd)
         return None
     return True
 
@@ -472,8 +473,8 @@ def main(args):
         print("The following libraries were not updated:")
         for library in non_updated_libraries:
             print("\t", library)
-    print("Updated library versions. \nRunning updateApi for the new "
-          "versions, this may take a minute...", end='')
+    print("Updated library versions. \nRunning `updateApi ignoreApiChanges` "
+          "for the new versions, this may take a minute...", end='')
     if run_update_api():
         print("done.")
     else:

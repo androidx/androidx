@@ -79,7 +79,7 @@ internal fun SeriesValueOrBuilder.getEnum(key: String): String? = valuesMap[key]
 internal val DataProto.DataPoint.metadata: Metadata
     get() =
         Metadata(
-            uid = if (hasUid()) uid else Metadata.EMPTY_UID,
+            id = if (hasUid()) uid else Metadata.EMPTY_ID,
             dataOrigin = DataOrigin(dataOrigin.applicationId),
             lastModifiedTime = Instant.ofEpochMilli(updateTimeMillis),
             clientRecordId = if (hasClientId()) clientId else null,

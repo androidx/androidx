@@ -223,6 +223,11 @@ object CameraXExtensionsTestUtil {
     }
 
     /**
+     * Large stress test repeat count to run the test
+     */
+    const val LARGE_STRESS_TEST_REPEAT_COUNT = 1
+
+    /**
      * Stress test repeat count to run the test
      */
     const val STRESS_TEST_REPEAT_COUNT = 2

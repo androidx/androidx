@@ -20,9 +20,6 @@ androidXMultiplatform {
         }
     }
 
-    // b/243154573
-    jvm()
-
     ios {
         compilations.main {
             cinterops {

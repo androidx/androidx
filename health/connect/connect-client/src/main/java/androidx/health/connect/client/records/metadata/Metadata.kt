@@ -15,8 +15,8 @@
  */
 package androidx.health.connect.client.records.metadata
 
-import java.time.Instant
 import androidx.health.connect.client.records.Record
+import java.time.Instant
 
 /** Set of shared metadata fields for [Record]. */
 @SuppressWarnings("NewApi") // Temporary until we can enable java8 desugaring effectively.
@@ -26,7 +26,7 @@ public class Metadata(
      * When [Record] is created before insertion, this takes a sentinel value, any assigned value
      * will be ignored.
      */
-    public val uid: String = EMPTY_UID,
+    public val id: String = EMPTY_ID,
 
     /**
      * Where the data comes from, such as application information originally generated this data.
@@ -36,9 +36,9 @@ public class Metadata(
     public val dataOrigin: DataOrigin = DataOrigin(""),
 
     /**
-     * Automatically populated to when data was last modified (or originally created).
-     * When [Record] is created before inserted, this contains a sentinel value, any assigned value
-     * will be ignored.
+     * Automatically populated to when data was last modified (or originally created). When [Record]
+     * is created before inserted, this contains a sentinel value, any assigned value will be
+     * ignored.
      */
     public val lastModifiedTime: Instant = Instant.EPOCH,
 
@@ -71,7 +71,7 @@ public class Metadata(
         if (this === other) return true
         if (other !is Metadata) return false
 
-        if (uid != other.uid) return false
+        if (id != other.id) return false
         if (dataOrigin != other.dataOrigin) return false
         if (lastModifiedTime != other.lastModifiedTime) return false
         if (clientRecordId != other.clientRecordId) return false
@@ -82,7 +82,7 @@ public class Metadata(
     }
 
     override fun hashCode(): Int {
-        var result = uid.hashCode()
+        var result = id.hashCode()
         result = 31 * result + dataOrigin.hashCode()
         result = 31 * result + lastModifiedTime.hashCode()
         result = 31 * result + (clientRecordId?.hashCode() ?: 0)
@@ -92,7 +92,7 @@ public class Metadata(
     }
 
     internal companion object {
-        internal const val EMPTY_UID: String = ""
+        internal const val EMPTY_ID: String = ""
 
         /** A default instance of metadata with no fields initialised. */
         @JvmField internal val EMPTY = Metadata()

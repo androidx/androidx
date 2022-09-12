@@ -483,10 +483,10 @@ public final class PropertyUtils {
                 carZoneSetsToFloatValues = new HashMap<>();
         for (Map.Entry<Set<CarZone>, ? extends Pair<?, ?>> entry : requireNonNull(minMaxRange
                 .entrySet())) {
-            int min = (Integer) entry.getValue().first;
-            int max = (Integer) entry.getValue().second;
+            float min = (Float) entry.getValue().first;
+            float max = (Float) entry.getValue().second;
             carZoneSetsToFloatValues.put(entry.getKey(),
-                    new Pair<>((float) min, (float) max));
+                    new Pair<>(min, max));
         }
         return carZoneSetsToFloatValues;
     }

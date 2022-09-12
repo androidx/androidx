@@ -44,6 +44,12 @@ class DiagnosticsTest internal constructor(
                 hasNoteContaining("ote")
                 hasWarningContaining("arn")
                 hasErrorContaining("rror")
+                hasNoteContainingMatch("ote")
+                hasWarningContainingMatch("arn")
+                hasErrorContainingMatch("rror")
+                hasNoteContainingMatch("^note \\d$")
+                hasWarningContainingMatch("^warn \\d$")
+                hasErrorContainingMatch("^error \\d$")
                 // these should fail:
                 assertThat(
                     runCatching { hasNote("note") }.isFailure
@@ -62,6 +68,15 @@ class DiagnosticsTest internal constructor(
                 ).isTrue()
                 assertThat(
                     runCatching { hasErrorContaining("warning") }.isFailure
+                ).isTrue()
+                assertThat(
+                    runCatching { hasNoteContainingMatch("error %d") }.isFailure
+                ).isTrue()
+                assertThat(
+                    runCatching { hasWarningContainingMatch("note %d") }.isFailure
+                ).isTrue()
+                assertThat(
+                    runCatching { hasErrorContainingMatch("warning %d") }.isFailure
                 ).isTrue()
             }
         }
@@ -188,6 +203,30 @@ class DiagnosticsTest internal constructor(
             """.trimIndent()
         )
         cleanCompilationHasNoWarnings(source)
+    }
+
+    @Test
+    fun diagnoticMessageCompareTrimmedLines() {
+        runTest { invocation ->
+            invocation.processingEnv.messager.run {
+                printMessage(Diagnostic.Kind.ERROR, "error: This is the first line\n" +
+                    "    This is the second line\n" +
+                    "    This is the third line")
+            }
+            invocation.assertCompilationResult {
+                hasError("error: This is the first line\n" +
+                    "      This is the second line\n" +
+                    "      This is the third line")
+
+                hasErrorContaining("   This is the second line  \n This is the third  ")
+
+                assertThat(
+                    runCatching { hasError("error: This is the \nfirst line" +
+                        "This is the \nsecond line" +
+                        "This is the third line") }.isFailure
+                ).isTrue()
+            }
+        }
     }
 
     private fun cleanCompilationHasNoWarnings(

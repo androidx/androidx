@@ -17,6 +17,7 @@
 package androidx.camera.extensions.internal;
 
 import androidx.annotation.RequiresApi;
+import androidx.camera.extensions.impl.ExtenderStateListener;
 
 /**
  * A processor that is used for invoking vendor extensions. {@link #onInit()} will be invoked
@@ -27,10 +28,18 @@ import androidx.annotation.RequiresApi;
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public interface VendorProcessor {
     /**
-     * Initialize the processor after
-     * {@link androidx.camera.extensions.impl.ExtenderStateListener#onInit}.
+     * Initialize the processor after {@link ExtenderStateListener#onInit}.
+     *
+     * <p>The subclass can start to handle the incoming images after this function is called.
      */
     default void onInit() {}
+
+    /**
+     * De-initialize the processor before {@link ExtenderStateListener#onDeInit}.
+     *
+     * <p>The subclass will stop to handle the incoming images after this function is called.
+     */
+    default void onDeInit() {}
 
     /**
      * Close the processor.

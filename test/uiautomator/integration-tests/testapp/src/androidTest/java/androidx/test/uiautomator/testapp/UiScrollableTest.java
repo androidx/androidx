@@ -28,9 +28,32 @@ import androidx.test.uiautomator.UiObjectNotFoundException;
 import androidx.test.uiautomator.UiScrollable;
 import androidx.test.uiautomator.UiSelector;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 public class UiScrollableTest extends BaseTest {
+
+    private int mDefaultMaxSearchSwipes = 0;
+
+    private double mDefaultSwipeDeadZonePercentage = 0.0;
+
+    @Before
+    public void setUp() throws Exception {
+        super.setUp();
+
+        mDefaultMaxSearchSwipes = new UiScrollable(new UiSelector()).getMaxSearchSwipes();
+        mDefaultSwipeDeadZonePercentage =
+                new UiScrollable(new UiSelector()).getSwipeDeadZonePercentage();
+    }
+
+    @After
+    public void tearDown() {
+        new UiScrollable(new UiSelector()).setMaxSearchSwipes(mDefaultMaxSearchSwipes);
+        new UiScrollable(new UiSelector()).setSwipeDeadZonePercentage(
+                mDefaultSwipeDeadZonePercentage);
+    }
+
     @Test
     public void testGetChildByDescription() throws Exception {
         launchTestActivity(VerticalScrollTestActivity.class);

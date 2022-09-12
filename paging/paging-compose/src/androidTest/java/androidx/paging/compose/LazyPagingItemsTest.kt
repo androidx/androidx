@@ -42,6 +42,8 @@ import androidx.paging.TestPagingSource
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.isActive
+import org.junit.Assert.assertFalse
 import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
@@ -625,25 +627,25 @@ class LazyPagingItemsTest {
         }
 
         val context = TestDispatcher()
-
         lateinit var lazyPagingItems: LazyPagingItems<Int>
         rule.setContent {
             assertThat(context.queue).isEmpty()
             lazyPagingItems = pager.flow.collectAsLazyPagingItems(context)
         }
 
-        rule.waitForIdle()
-        // LaunchedEffect queued on custom context
-        assertThat(context.queue).isNotEmpty()
-        assertThat(lazyPagingItems.itemSnapshotList).isEmpty()
+        rule.runOnIdle {
+            assertFalse(context.isActive)
+            // collection should not have started yet
+            assertThat(lazyPagingItems.itemSnapshotList).isEmpty()
+        }
+
+        // start LaunchedEffects
         context.executeAll()
 
-        rule.waitForIdle()
-        // collection queued on custom context
-        assertThat(context.queue).isNotEmpty()
-        assertThat(lazyPagingItems.itemSnapshotList).isEmpty()
-        context.executeAll()
-
+        rule.runOnIdle {
+            // continue with pagingDataDiffer collections
+            context.executeAll()
+        }
         rule.waitUntil {
             lazyPagingItems.itemCount == items.size
         }

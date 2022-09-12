@@ -126,17 +126,6 @@ internal interface SurfaceControlImpl {
         ): Transaction
 
         /**
-         * Re-parents a given [SurfaceControlImpl] to be a child of the [Surface] associated with
-         * the provided [SurfaceView]. Children inherit transform
-         * (position, scaling) crop, visibility, and Z-ordering from their parents, as if the
-         * children were pixels within the parent [Surface].
-         * @param surfaceControl Target [SurfaceControlImpl] instance to reparent
-         * @param surfaceView [SurfaceView] instance that acts as the new parent of the provided
-         * [SurfaceControlImpl] instance.
-         */
-        fun reparent(surfaceControl: SurfaceControlImpl, surfaceView: SurfaceView): Transaction
-
-        /**
          * Re-parents a given [SurfaceControlImpl] to be a child of the [AttachedSurfaceControl].
          * Children inherit transform (position, scaling) crop, visibility, and Z-ordering from
          * their parents, as if the children were pixels within the parent [Surface].

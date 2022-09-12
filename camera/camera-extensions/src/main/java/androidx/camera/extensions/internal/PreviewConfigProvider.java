@@ -143,11 +143,9 @@ public class PreviewConfigProvider implements ConfigProvider<PreviewConfig> {
         @NonNull
         private final Context mContext;
         @Nullable
-        final VendorProcessor mPreviewProcessor;
+        private final VendorProcessor mPreviewProcessor;
         @Nullable
         CameraInfo mCameraInfo;
-
-        // Once the adapter has set mActive to false a new instance needs to be created
         @GuardedBy("mLock")
         final Object mLock = new Object();
 
@@ -184,12 +182,14 @@ public class PreviewConfigProvider implements ConfigProvider<PreviewConfig> {
             synchronized (mLock) {
                 Preconditions.checkNotNull(mCameraInfo,
                         "PreviewConfigProvider was not attached.");
-
                 String cameraId = Camera2CameraInfo.from(mCameraInfo).getCameraId();
                 CameraCharacteristics cameraCharacteristics =
                         Camera2CameraInfo.extractCameraCharacteristics(mCameraInfo);
+                Logger.d(TAG, "Preview onInit");
                 mImpl.onInit(cameraId, cameraCharacteristics, mContext);
-                mPreviewProcessor.onInit();
+                if (mPreviewProcessor != null) {
+                    mPreviewProcessor.onInit();
+                }
                 CaptureStageImpl captureStageImpl = mImpl.onPresetSession();
                 if (captureStageImpl != null) {
                     if (Build.VERSION.SDK_INT >= 28) {
@@ -212,6 +212,7 @@ public class PreviewConfigProvider implements ConfigProvider<PreviewConfig> {
         @Nullable
         public CaptureConfig onEnableSession() {
             synchronized (mLock) {
+                Logger.d(TAG, "Preview onEnableSession");
                 CaptureStageImpl captureStageImpl = mImpl.onEnableSession();
                 if (captureStageImpl != null) {
                     return new AdaptingCaptureStage(captureStageImpl).getCaptureConfig();
@@ -226,6 +227,7 @@ public class PreviewConfigProvider implements ConfigProvider<PreviewConfig> {
         @Nullable
         public CaptureConfig onDisableSession() {
             synchronized (mLock) {
+                Logger.d(TAG, "Preview onDisableSession");
                 CaptureStageImpl captureStageImpl = mImpl.onDisableSession();
                 if (captureStageImpl != null) {
                     return new AdaptingCaptureStage(captureStageImpl).getCaptureConfig();
@@ -253,6 +255,10 @@ public class PreviewConfigProvider implements ConfigProvider<PreviewConfig> {
         @Override
         public void onDeInitSession() {
             synchronized (mLock) {
+                Logger.d(TAG, "Preview onDeInit");
+                if (mPreviewProcessor != null) {
+                    mPreviewProcessor.onDeInit();
+                }
                 mImpl.onDeInit();
             }
         }

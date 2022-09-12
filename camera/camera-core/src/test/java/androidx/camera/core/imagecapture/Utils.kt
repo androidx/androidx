@@ -17,6 +17,10 @@
 package androidx.camera.core.imagecapture
 
 import android.graphics.ImageFormat
+import android.graphics.Matrix
+import android.graphics.Rect
+import android.os.Build
+import android.util.Size
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageProxy
 import androidx.camera.core.impl.CaptureBundle
@@ -25,11 +29,51 @@ import androidx.camera.core.impl.ImageInputConfig
 import androidx.camera.testing.fakes.FakeCaptureStage
 import androidx.camera.testing.fakes.FakeImageInfo
 import androidx.camera.testing.fakes.FakeImageProxy
+import java.io.File
+import java.util.UUID
+import org.robolectric.util.ReflectionHelpers.setStaticField
 
 /**
  * Utility methods for testing image capture.
  */
 object Utils {
+
+    internal const val WIDTH = 640
+    internal const val HEIGHT = 480
+    internal const val EXIF_DESCRIPTION = "description"
+    internal const val ROTATION_DEGREES = 180
+    internal const val ALTITUDE = 0.1
+    internal val SENSOR_TO_BUFFER = Matrix().also { it.setScale(-1F, 1F, 320F, 240F) }
+    internal val SIZE = Size(WIDTH, HEIGHT)
+    internal val CROP_RECT = Rect(0, 240, WIDTH, HEIGHT)
+    internal val TEMP_FILE = File.createTempFile(
+        "unit_test_" + UUID.randomUUID().toString(), ".temp"
+    ).also { it.deleteOnExit() }
+    internal val OUTPUT_FILE_OPTIONS = ImageCapture.OutputFileOptions.Builder(
+        TEMP_FILE
+    ).build()
+
+    internal fun createProcessingRequest(
+        takePictureCallback: TakePictureCallback = FakeTakePictureCallback()
+    ): ProcessingRequest {
+        return ProcessingRequest(
+            { listOf() },
+            OUTPUT_FILE_OPTIONS,
+            CROP_RECT,
+            ROTATION_DEGREES,
+            /*jpegQuality=*/100,
+            SENSOR_TO_BUFFER,
+            takePictureCallback
+        )
+    }
+
+    /**
+     * Inject a ImageCaptureRotationOptionQuirk.
+     */
+    fun injectRotationOptionQuirk() {
+        setStaticField(Build::class.java, "BRAND", "HUAWEI")
+        setStaticField(Build::class.java, "MODEL", "SNE-LX1")
+    }
 
     /**
      * Creates an empty [ImageCaptureConfig] so [ImagePipeline] constructor won't crash.

@@ -26,12 +26,12 @@ import androidx.wear.watchface.data.WatchFaceColorsWireFormat;
 interface IWatchfaceListener {
     // IMPORTANT NOTE: All methods must be given an explicit transaction id that must never change
     // in the future to remain binary backwards compatible.
-    // Next Id: 5
+    // Next Id: 6
 
     /**
      * API version number. This should be incremented every time a new method is added.
      */
-    const int API_VERSION = 1;
+    const int API_VERSION = 2;
 
     /**
      * Returns the version number for this API which the client can use to determine which methods
@@ -61,4 +61,12 @@ interface IWatchfaceListener {
      * @since API version 1.
      */
     oneway void onPreviewImageUpdateRequested(in String watchFaceId) = 4;
+
+    /**
+     * Signals that the watch face engine has detached meaning this instance is defunct and should
+     * be closed.
+     *
+     * @since API version 2.
+     */
+    oneway void onEngineDetached() = 5;
 }

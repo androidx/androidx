@@ -112,13 +112,6 @@ class ApiValidatorTest {
     }
 
     @Test
-    fun nonSuspendMethod_fails() {
-        checkSourceFails(serviceMethod("fun foo()")).containsExactlyErrors(
-            "Error in com.mysdk.MySdk.foo: method should be a suspend function."
-        )
-    }
-
-    @Test
     fun parameterWitDefaultValue_fails() {
         checkSourceFails(serviceMethod("suspend fun foo(x: Int = 5)")).containsExactlyErrors(
             "Error in com.mysdk.MySdk.foo: parameters cannot have default values."

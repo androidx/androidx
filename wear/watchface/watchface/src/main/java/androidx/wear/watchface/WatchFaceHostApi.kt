@@ -33,6 +33,9 @@ import kotlinx.coroutines.CoroutineScope
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface WatchFaceHostApi {
+    /** The [WatchFaceService.SystemTimeProvider]. */
+    public val systemTimeProvider: WatchFaceService.SystemTimeProvider
+
     /** Returns the watch face's [Context]. */
     public fun getContext(): Context
 

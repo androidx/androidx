@@ -277,14 +277,76 @@ class GLFrontBufferedRendererTest {
         )
     }
 
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
+    fun testRenderFrontBufferSeveralTimes() {
+        if (!deviceSupportsNativeAndroidFence()) {
+            // If the Android device does not support the corresponding extensions to create
+            // a file descriptor from an EGLSync object then skip the test
+            Log.w(TAG, "Skipping testDoubleBufferedLayerRender, no native android fence support")
+            return
+        }
+
+        val callbacks = object : GLFrontBufferedRenderer.Callback<Any> {
+
+            var red = 1f
+            var blue = 0f
+
+            override fun onDrawFrontBufferedLayer(eglManager: EGLManager, param: Any) {
+                GLES20.glViewport(
+                    0,
+                    0,
+                    FrontBufferedRendererTestActivity.WIDTH,
+                    FrontBufferedRendererTestActivity.HEIGHT
+                )
+                GLES20.glClearColor(red, 0.0f, blue, 1.0f)
+                GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
+                val tmp = red
+                red = blue
+                blue = tmp
+            }
+
+            override fun onDrawDoubleBufferedLayer(
+                eglManager: EGLManager,
+                params: Collection<Any>
+            ) {
+                GLES20.glViewport(
+                    0,
+                    0,
+                    FrontBufferedRendererTestActivity.WIDTH,
+                    FrontBufferedRendererTestActivity.HEIGHT
+                )
+                GLES20.glClearColor(0.0f, 0.0f, 1.0f, 1.0f)
+                GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
+            }
+        }
+        var renderer: GLFrontBufferedRenderer<Any>? = null
+        try {
+            val scenario = ActivityScenario.launch(FrontBufferedRendererTestActivity::class.java)
+                .moveToState(Lifecycle.State.CREATED)
+                .onActivity {
+                    renderer = GLFrontBufferedRenderer(it.getSurfaceView(), callbacks)
+                }
+
+            scenario.moveToState(Lifecycle.State.RESUMED).onActivity {
+                val param = Any()
+                repeat(4000) {
+                    renderer?.renderFrontBufferedLayer(param)
+                }
+            }
+        } finally {
+            renderer.blockingRelease(10000)
+        }
+    }
+
     @RequiresApi(Build.VERSION_CODES.Q)
-    private fun GLFrontBufferedRenderer<*>?.blockingRelease() {
+    private fun GLFrontBufferedRenderer<*>?.blockingRelease(timeoutMillis: Long = 3000) {
         if (this != null) {
             val destroyLatch = CountDownLatch(1)
             release(false) {
                 destroyLatch.countDown()
             }
-            assertTrue(destroyLatch.await(3000, TimeUnit.MILLISECONDS))
+            assertTrue(destroyLatch.await(timeoutMillis, TimeUnit.MILLISECONDS))
         } else {
             fail("GLFrontBufferedRenderer is not initialized")
         }

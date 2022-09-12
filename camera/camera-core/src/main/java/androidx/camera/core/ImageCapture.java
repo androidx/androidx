@@ -1483,8 +1483,11 @@ public final class ImageCapture extends UseCase {
         @Override
         public void onImageClose(@NonNull ImageProxy image) {
             synchronized (mLock) {
+                // TODO: mLock can be removed if all methods and callbacks in
+                //  ImageCaptureRequestProcessor are used in the main thread.
+                //  Side note: TakePictureManager already handles the requests in the main thread.
                 mOutstandingImages--;
-                processNextRequest();
+                CameraXExecutors.mainThreadExecutor().execute(this::processNextRequest);
             }
         }
 
@@ -1546,7 +1549,7 @@ public final class ImageCapture extends UseCase {
                             processNextRequest();
                         }
                     }
-                }, CameraXExecutors.directExecutor());
+                }, CameraXExecutors.mainThreadExecutor());
             }
         }
 
@@ -2155,28 +2158,48 @@ public final class ImageCapture extends UseCase {
             mMetadata = metadata == null ? new Metadata() : metadata;
         }
 
+        /**
+         * @hide
+         */
         @Nullable
-        File getFile() {
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        public File getFile() {
             return mFile;
         }
 
+        /**
+         * @hide
+         */
         @Nullable
-        ContentResolver getContentResolver() {
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        public ContentResolver getContentResolver() {
             return mContentResolver;
         }
 
+        /**
+         * @hide
+         */
         @Nullable
-        Uri getSaveCollection() {
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        public Uri getSaveCollection() {
             return mSaveCollection;
         }
 
+        /**
+         * @hide
+         */
         @Nullable
-        ContentValues getContentValues() {
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        public ContentValues getContentValues() {
             return mContentValues;
         }
 
+        /**
+         * @hide
+         */
         @Nullable
-        OutputStream getOutputStream() {
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        public OutputStream getOutputStream() {
             return mOutputStream;
         }
 

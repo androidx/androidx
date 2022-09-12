@@ -98,7 +98,7 @@ class UseCaseCameraTest {
         }
         val useCaseCamera = UseCaseCameraImpl(
             fakeUseCaseGraphConfig, arrayListOf(fakeUseCase),
-            useCaseThreads, requestControl
+            UseCaseSurfaceManager(useCaseThreads), requestControl
         ).also {
             it.runningUseCases = setOf(fakeUseCase)
         }

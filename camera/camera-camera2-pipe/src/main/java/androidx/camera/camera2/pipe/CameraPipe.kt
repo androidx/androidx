@@ -71,6 +71,13 @@ public class CameraPipe(config: Config) {
     }
 
     /**
+     * This returns [CameraSurfaceManager] which tracks the lifetime of Surfaces in CameraPipe.
+     */
+    public fun cameraSurfaceManager(): CameraSurfaceManager {
+        return component.cameraSurfaceManager()
+    }
+
+    /**
      * Application level configuration for [CameraPipe]. Nullable values are optional and
      * reasonable defaults will be provided if values are not specified.
      */

@@ -25,6 +25,7 @@ import android.media.Image;
 import android.util.Size;
 import android.view.Surface;
 
+import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.impl.Camera2CameraCaptureResultConverter;
@@ -56,6 +57,11 @@ public final class AdaptingPreviewProcessor implements CaptureProcessor, VendorP
     private volatile int mImageFormat;
     private volatile Size mResolution;
 
+    private final Object mLock = new Object();
+
+    @GuardedBy("mLock")
+    private boolean mActive = false;
+
     /**
      * Invoked after
      * {@link ExtenderStateListener#onInit(String, CameraCharacteristics, Context)}()} to
@@ -77,6 +83,10 @@ public final class AdaptingPreviewProcessor implements CaptureProcessor, VendorP
             mImpl.onImageFormatUpdate(ImageFormat.YUV_420_888);
         } finally {
             mAccessCounter.decrement();
+        }
+
+        synchronized (mLock) {
+            mActive = true;
         }
     }
 
@@ -100,51 +110,56 @@ public final class AdaptingPreviewProcessor implements CaptureProcessor, VendorP
         }
     }
 
-    @Override
     @ExperimentalGetImage
+    @Override
     public void process(@NonNull ImageProxyBundle bundle) {
-        List<Integer> ids = bundle.getCaptureIds();
-        Preconditions.checkArgument(ids.size() == 1,
-                "Processing preview bundle must be 1, but found " + ids.size());
+        synchronized (mLock) {
+            if (!mActive) {
+                return;
+            }
 
-        ListenableFuture<ImageProxy> imageProxyListenableFuture = bundle.getImageProxy(
-                ids.get(0));
-        Preconditions.checkArgument(imageProxyListenableFuture.isDone());
+            List<Integer> ids = bundle.getCaptureIds();
+            Preconditions.checkArgument(ids.size() == 1,
+                    "Processing preview bundle must be 1, but found " + ids.size());
 
-        ImageProxy imageProxy;
-        try {
+            ListenableFuture<ImageProxy> imageProxyListenableFuture = bundle.getImageProxy(
+                    ids.get(0));
+            Preconditions.checkArgument(imageProxyListenableFuture.isDone());
 
-            imageProxy = imageProxyListenableFuture.get();
-        } catch (ExecutionException | InterruptedException e) {
-            Logger.e(TAG, "Unable to retrieve ImageProxy from bundle");
-            return;
-        }
+            ImageProxy imageProxy;
+            try {
+                imageProxy = imageProxyListenableFuture.get();
+            } catch (ExecutionException | InterruptedException e) {
+                Logger.e(TAG, "Unable to retrieve ImageProxy from bundle");
+                return;
+            }
 
-        Image image = imageProxy.getImage();
+            Image image = imageProxy.getImage();
 
-        ImageInfo imageInfo = imageProxy.getImageInfo();
-        CameraCaptureResult result =
-                CameraCaptureResults.retrieveCameraCaptureResult(imageInfo);
-        CaptureResult captureResult =
-                Camera2CameraCaptureResultConverter.getCaptureResult(result);
+            ImageInfo imageInfo = imageProxy.getImageInfo();
+            CameraCaptureResult result =
+                    CameraCaptureResults.retrieveCameraCaptureResult(imageInfo);
+            CaptureResult captureResult =
+                    Camera2CameraCaptureResultConverter.getCaptureResult(result);
 
-        TotalCaptureResult totalCaptureResult = null;
-        if (captureResult instanceof TotalCaptureResult) {
-            totalCaptureResult = (TotalCaptureResult) captureResult;
-        }
+            TotalCaptureResult totalCaptureResult = null;
+            if (captureResult instanceof TotalCaptureResult) {
+                totalCaptureResult = (TotalCaptureResult) captureResult;
+            }
 
-        if (image == null) {
-            return;
-        }
+            if (image == null) {
+                return;
+            }
 
-        if (!mAccessCounter.tryIncrement()) {
-            return;
-        }
+            if (!mAccessCounter.tryIncrement()) {
+                return;
+            }
 
-        try {
-            mImpl.process(image, totalCaptureResult);
-        } finally {
-            mAccessCounter.decrement();
+            try {
+                mImpl.process(image, totalCaptureResult);
+            } finally {
+                mAccessCounter.decrement();
+            }
         }
     }
 
@@ -158,6 +173,13 @@ public final class AdaptingPreviewProcessor implements CaptureProcessor, VendorP
             mResolution = size;
         } finally {
             mAccessCounter.decrement();
+        }
+    }
+
+    @Override
+    public void onDeInit() {
+        synchronized (mLock) {
+            mActive = false;
         }
     }
 

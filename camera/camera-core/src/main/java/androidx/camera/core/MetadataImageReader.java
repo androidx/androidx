@@ -255,6 +255,7 @@ public class MetadataImageReader implements ImageReaderProxy,
     @Override
     public void clearOnImageAvailableListener() {
         synchronized (mLock) {
+            mImageReaderProxy.clearOnImageAvailableListener();
             mListener = null;
             mExecutor = null;
         }

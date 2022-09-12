@@ -264,6 +264,9 @@ class ImageCaptureTest {
         // Act.
         requestProcessor.sendRequest(request)
 
+        // Ensure tasks are posted to the processing executor
+        shadowOf(getMainLooper()).idle()
+
         // Assert.
         verify(request).dispatchImage(any())
     }
@@ -277,6 +280,9 @@ class ImageCaptureTest {
 
             // Act.
             requestProcessor.sendRequest(request)
+
+            // Ensure tasks are posted to the processing executor
+            shadowOf(getMainLooper()).idle()
 
             // Assert.
             verify(request).dispatchImage(any())
@@ -297,6 +303,9 @@ class ImageCaptureTest {
         requestProcessor.sendRequest(request0)
         requestProcessor.sendRequest(request1)
 
+        // Ensure tasks are posted to the processing executor
+        shadowOf(getMainLooper()).idle()
+
         // Assert.
         // Has processing request but not complete.
         assertThat(captorFutureRef.get()).isNotNull()
@@ -307,6 +316,9 @@ class ImageCaptureTest {
         // Complete request0.
         captorFutureRef.getAndSet(null)!!.set(mock(ImageProxy::class.java))
 
+        // Ensure tasks are posted to the processing executor
+        shadowOf(getMainLooper()).idle()
+
         // Assert.
         // request0 is complete and request1 is in processing.
         verify(request0).dispatchImage(any())
@@ -316,6 +328,9 @@ class ImageCaptureTest {
         // Act.
         // Complete request1.
         captorFutureRef.getAndSet(null)!!.set(mock(ImageProxy::class.java))
+
+        // Ensure tasks are posted to the processing executor
+        shadowOf(getMainLooper()).idle()
 
         // Assert.
         verify(request1).dispatchImage(any())
@@ -332,6 +347,9 @@ class ImageCaptureTest {
             val request = createImageCaptureRequest()
             requestProcessor.sendRequest(request)
 
+            // Ensure tasks are posted to the processing executor
+            shadowOf(getMainLooper()).idle()
+
             // Save the dispatched images.
             val captor = ArgumentCaptor.forClass(ImageProxy::class.java)
             verify(request).dispatchImage(captor.capture())
@@ -344,12 +362,18 @@ class ImageCaptureTest {
         val request = createImageCaptureRequest()
         requestProcessor.sendRequest(request)
 
+        // Ensure tasks are posted to the processing executor
+        shadowOf(getMainLooper()).idle()
+
         // Assert.
         verify(request, never()).dispatchImage(any())
 
         // Act.
         // Close one image to trigger next processing.
         images.poll()!!.close()
+
+        // Ensure tasks are posted to the processing executor
+        shadowOf(getMainLooper()).idle()
 
         // Assert.
         // It should trigger next processing.
@@ -370,12 +394,18 @@ class ImageCaptureTest {
             val request = createImageCaptureRequest()
             requestList.add(request)
             requestProcessor.sendRequest(request)
+
+            // Ensure tasks are posted to the processing executor
+            shadowOf(getMainLooper()).idle()
         }
 
         // Act.
         val errorMsg = "Cancel request."
         val throwable = RuntimeException(errorMsg)
         requestProcessor.cancelRequests(throwable)
+
+        // Ensure tasks are posted to the processing executor
+        shadowOf(getMainLooper()).idle()
 
         // Assert.
         for (request in requestList) {
@@ -396,6 +426,9 @@ class ImageCaptureTest {
 
         // Act.
         requestProcessor.sendRequest(request)
+
+        // Ensure tasks are posted to the processing executor
+        shadowOf(getMainLooper()).idle()
 
         // Verify.
         verify(request).notifyCallbackError(anyInt(), eq(errorMsg), eq(throwable))

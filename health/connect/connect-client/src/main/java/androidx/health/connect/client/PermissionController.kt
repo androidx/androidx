@@ -16,19 +16,12 @@
 package androidx.health.connect.client
 
 import androidx.activity.result.contract.ActivityResultContract
+import androidx.health.connect.client.HealthConnectClient.Companion.DEFAULT_PROVIDER_PACKAGE_NAME
+import androidx.health.connect.client.permission.HealthDataRequestPermissions
 import androidx.health.connect.client.permission.HealthPermission
 
 /** Interface for operations related to permissions. */
 interface PermissionController {
-
-    /**
-     * Creates an [ActivityResultContract] to request Health permissions.
-     *
-     * @see androidx.activity.ComponentActivity.registerForActivityResult
-     * @sample androidx.health.connect.client.samples.RequestPermission
-     */
-    fun createRequestPermissionActivityContract():
-        ActivityResultContract<Set<HealthPermission>, Set<HealthPermission>>
 
     /**
      * Returns a set of [HealthPermission] granted by the user to the calling app, out of the input
@@ -51,4 +44,23 @@ interface PermissionController {
      * @throws IllegalStateException If service is not available.
      */
     suspend fun revokeAllPermissions()
+
+    companion object {
+        /**
+         * Creates an [ActivityResultContract] to request Health permissions.
+         *
+         * @param providerPackageName Optional provider package name to request health permissions
+         * from.
+         *
+         * @see androidx.activity.ComponentActivity.registerForActivityResult
+         * @sample androidx.health.connect.client.samples.RequestPermission
+         */
+        @JvmStatic
+        @JvmOverloads
+        fun createRequestPermissionResultContract(
+            providerPackageName: String = DEFAULT_PROVIDER_PACKAGE_NAME
+        ): ActivityResultContract<Set<HealthPermission>, Set<HealthPermission>> {
+            return HealthDataRequestPermissions(providerPackageName = providerPackageName)
+        }
+    }
 }

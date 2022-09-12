@@ -24,7 +24,7 @@ import androidx.camera.integration.extensions.util.CameraXExtensionsTestUtil
 import androidx.camera.integration.extensions.util.CameraXExtensionsTestUtil.assumeExtensionModeSupported
 import androidx.camera.integration.extensions.util.CameraXExtensionsTestUtil.launchCameraExtensionsActivity
 import androidx.camera.integration.extensions.util.HOME_TIMEOUT_MS
-import androidx.camera.integration.extensions.util.waitForPreviewIdle
+import androidx.camera.integration.extensions.util.waitForPreviewViewStreaming
 import androidx.camera.integration.extensions.utils.CameraSelectorUtil
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.CameraUtil
@@ -124,7 +124,7 @@ class PreviewTest(private val cameraId: String, private val extensionMode: Int) 
 
         with(activityScenario) {
             use {
-                waitForPreviewIdle()
+                waitForPreviewViewStreaming()
             }
         }
     }
@@ -151,11 +151,12 @@ class PreviewTest(private val cameraId: String, private val extensionMode: Int) 
 
         with(activityScenario) {
             use {
-                waitForPreviewIdle()
+                waitForPreviewViewStreaming()
                 withActivity {
+                    resetPreviewViewStreamingStateIdlingResource()
                     switchCameras()
                 }
-                waitForPreviewIdle()
+                waitForPreviewViewStreaming()
             }
         }
     }

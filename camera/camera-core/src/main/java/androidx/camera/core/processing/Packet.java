@@ -26,9 +26,8 @@ import android.util.Size;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.camera.core.ImageInfo;
 import androidx.camera.core.ImageProxy;
-import androidx.camera.core.impl.CameraCaptureResult;
-import androidx.camera.core.impl.ImageReaderProxy;
 import androidx.camera.core.impl.utils.Exif;
 
 import com.google.auto.value.AutoValue;
@@ -70,23 +69,20 @@ public abstract class Packet<T> {
 
     /**
      * The Exif info extracted from JPEG bytes.
+     *
+     * @return null if {@link #getData()} is a non-JPEG {@link ImageProxy}. {@link Exif} does not
+     * work with non-JPEG format. In that case, the exif data can be obtained via
+     * {@link ImageInfo#populateExifData}.
      */
     @Nullable
     public abstract Exif getExif();
 
     /**
-     * The {@link CameraCaptureResult} returned from {@link ImageReaderProxy}.
-     *
-     * <p>This value can be used to generate the Exif info in the image doesn't contain Exif info
-     * itself.
-     */
-    @NonNull
-    public abstract CameraCaptureResult getCameraCaptureResult();
-
-    /**
      * Gets the format of the image.
      *
      * <p>This value must match the format of the image in {@link #getData()}.
+     *
+     * <p>For {@link Bitmap} type, the value is {@link ImageFormat#FLEX_RGBA_8888}.
      */
     public abstract int getFormat();
 
@@ -123,26 +119,35 @@ public abstract class Packet<T> {
     public abstract Matrix getSensorToBufferTransform();
 
     /**
-     * Creates {@link Bitmap} {@link Packet}.
+     * Creates {@link Bitmap} based {@link Packet}.
      */
     @NonNull
-    public static Packet<Bitmap> of(@NonNull Bitmap data, @Nullable Exif exif,
-            @NonNull CameraCaptureResult cameraCaptureResult, @NonNull Rect cropRect,
-            int rotationDegrees, @NonNull Matrix sensorToBufferTransform) {
-        return new AutoValue_Packet<>(data, exif, cameraCaptureResult,
-                ImageFormat.FLEX_RGBA_8888, new Size(data.getWidth(), data.getHeight()),
+    public static Packet<Bitmap> of(@NonNull Bitmap data, @NonNull Exif exif,
+            @NonNull Rect cropRect, int rotationDegrees, @NonNull Matrix sensorToBufferTransform) {
+        return new AutoValue_Packet<>(data, exif, ImageFormat.FLEX_RGBA_8888,
+                new Size(data.getWidth(), data.getHeight()),
                 cropRect, rotationDegrees, sensorToBufferTransform);
     }
 
     /**
-     * Creates {@link Packet}.
+     * Creates {@link ImageProxy} based {@link Packet}.
      */
     @NonNull
-    public static <T> Packet<T> of(@NonNull T data, @Nullable Exif exif,
-            @NonNull CameraCaptureResult cameraCaptureResult,
+    public static Packet<ImageProxy> of(@NonNull ImageProxy data, @Nullable Exif exif,
+            @NonNull Rect cropRect, int rotationDegrees, @NonNull Matrix sensorToBufferTransform) {
+        return new AutoValue_Packet<>(data, exif, data.getFormat(),
+                new Size(data.getWidth(), data.getHeight()), cropRect, rotationDegrees,
+                sensorToBufferTransform);
+    }
+
+    /**
+     * Creates byte array based {@link Packet}.
+     */
+    @NonNull
+    public static Packet<byte[]> of(@NonNull byte[] data, @NonNull Exif exif,
             int format, @NonNull Size size, @NonNull Rect cropRect,
             int rotationDegrees, @NonNull Matrix sensorToBufferTransform) {
-        return new AutoValue_Packet<>(data, exif, cameraCaptureResult, format, size, cropRect,
+        return new AutoValue_Packet<>(data, exif, format, size, cropRect,
                 rotationDegrees, sensorToBufferTransform);
     }
 }

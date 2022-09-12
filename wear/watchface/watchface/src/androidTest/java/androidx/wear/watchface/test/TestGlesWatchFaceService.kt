@@ -72,11 +72,7 @@ internal class TestGlesWatchFaceService(
             watchState,
             complicationSlotsManager,
             currentUserStyleRepository
-        ).setSystemTimeProvider(object : WatchFace.SystemTimeProvider {
-            override fun getSystemTimeMillis() = mockSystemTimeMillis
-
-            override fun getSystemTimeZoneId() = mockZoneId
-        })
+        )
     }
 
     override fun getMutableWatchState() = mutableWatchState
@@ -109,4 +105,10 @@ internal class TestGlesWatchFaceService(
         fileName: String,
         byteArray: ByteArray
     ) {}
+
+    override fun getSystemTimeProvider() = object : SystemTimeProvider {
+        override fun getSystemTimeMillis() = mockSystemTimeMillis
+
+        override fun getSystemTimeZoneId() = mockZoneId
+    }
 }

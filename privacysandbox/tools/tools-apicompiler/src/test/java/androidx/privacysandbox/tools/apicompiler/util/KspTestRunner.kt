@@ -24,6 +24,7 @@ import androidx.room.compiler.processing.util.compiler.TestCompilationArguments
 import androidx.room.compiler.processing.util.compiler.TestCompilationResult
 import androidx.room.compiler.processing.util.compiler.compile
 import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.processing.SymbolProcessor
@@ -49,12 +50,12 @@ fun parseSource(source: Source): ParsedApi {
     return provider.processor.capture!!
 }
 
-fun checkSourceFails(source: Source): CompilationResultSubject {
+fun checkSourceFails(vararg sources: Source): CompilationResultSubject {
     val provider = CapturingSymbolProcessor.Provider()
     val result = compile(
         Files.createTempDirectory("test").toFile(),
         TestCompilationArguments(
-            sources = listOf(source),
+            sources = sources.asList(),
             symbolProcessorProviders = listOf(provider)
         )
     )
@@ -63,6 +64,37 @@ fun checkSourceFails(source: Source): CompilationResultSubject {
 }
 
 class CompilationResultSubject(private val result: TestCompilationResult) {
+    companion object {
+        fun assertThat(result: TestCompilationResult) = CompilationResultSubject(result)
+    }
+
+    fun succeeds() {
+        assertWithMessage(
+            "UnexpectedErrors:\n${getFullErrorMessages()?.joinToString("\n")}"
+        ).that(
+            result.success
+        ).isTrue()
+    }
+
+    fun generatesExactlySources(vararg sourcePaths: String) {
+        succeeds()
+        assertThat(result.generatedSources.map(Source::relativePath))
+            .containsExactlyElementsIn(sourcePaths)
+    }
+
+    fun generatesSourcesWithContents(vararg sources: Pair<String, String>) {
+        succeeds()
+        val contentsByFile = result.generatedSources.associate { it.relativePath to it.contents }
+        for ((file, content) in sources) {
+            assertWithMessage("File $file was not generated").that(contentsByFile).containsKey(file)
+            assertThat(contentsByFile[file]).isEqualTo(content)
+        }
+    }
+
+    fun fails() {
+        assertThat(result.success).isFalse()
+    }
+
     fun containsError(error: String) {
         assertThat(getErrorMessages())
             .contains(error)
@@ -75,6 +107,16 @@ class CompilationResultSubject(private val result: TestCompilationResult) {
 
     private fun getErrorMessages() =
         result.diagnostics[Diagnostic.Kind.ERROR]?.map(DiagnosticMessage::msg)
+
+    private fun getFullErrorMessages() =
+        result.diagnostics[Diagnostic.Kind.ERROR]?.map(::toReadableMessage)
+
+    private fun toReadableMessage(message: DiagnosticMessage) = """
+            |Error: ${message.msg}
+            |Location: ${message.location?.source?.relativePath}:${message.location?.line}
+            |File:
+            |${message.location?.source?.contents}
+        """.trimMargin()
 }
 
 private class CapturingSymbolProcessor(private val logger: KSPLogger) : SymbolProcessor {

@@ -27,21 +27,25 @@ import androidx.camera.integration.extensions.util.CameraXExtensionsTestUtil.VER
 import androidx.camera.integration.extensions.util.CameraXExtensionsTestUtil.launchCameraExtensionsActivity
 import androidx.camera.integration.extensions.util.HOME_TIMEOUT_MS
 import androidx.camera.integration.extensions.util.takePictureAndWaitForImageSavedIdle
-import androidx.camera.integration.extensions.util.waitForPreviewIdle
+import androidx.camera.integration.extensions.util.waitForPreviewViewIdle
+import androidx.camera.integration.extensions.util.waitForPreviewViewStreaming
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CameraUtil.PreTestCameraIdList
 import androidx.camera.testing.CoreAppTestUtil
 import androidx.camera.testing.LabTestRule
-import androidx.lifecycle.Lifecycle.State.CREATED
-import androidx.lifecycle.Lifecycle.State.RESUMED
+import androidx.lifecycle.Lifecycle
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.GrantPermissionRule
 import androidx.test.uiautomator.UiDevice
 import androidx.testutils.RepeatRule
+import androidx.testutils.withActivity
 import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import org.junit.After
 import org.junit.Assume.assumeTrue
 import org.junit.Before
@@ -70,6 +74,12 @@ class LifecycleStatusChangeStressTest(
     @get:Rule
     val storagePermissionRule =
         GrantPermissionRule.grant(Manifest.permission.WRITE_EXTERNAL_STORAGE)!!
+
+    @get:Rule
+    val labTest: LabTestRule = LabTestRule()
+
+    @get:Rule
+    val repeatRule = RepeatRule()
 
     private val context = ApplicationProvider.getApplicationContext<Context>()
 
@@ -109,10 +119,12 @@ class LifecycleStatusChangeStressTest(
     }
 
     @After
-    fun tearDown() {
+    fun tearDown(): Unit = runBlocking {
         val cameraProvider =
             ProcessCameraProvider.getInstance(context)[10000, TimeUnit.MILLISECONDS]
-        cameraProvider.shutdown()
+        withContext(Dispatchers.Main) {
+            cameraProvider.shutdown()
+        }
 
         val extensionsManager = ExtensionsManager.getInstanceAsync(
             context,
@@ -129,14 +141,14 @@ class LifecycleStatusChangeStressTest(
 
     @LabTestRule.LabTestOnly
     @Test
-    @RepeatRule.Repeat(times = CameraXExtensionsTestUtil.STRESS_TEST_REPEAT_COUNT)
+    @RepeatRule.Repeat(times = CameraXExtensionsTestUtil.LARGE_STRESS_TEST_REPEAT_COUNT)
     fun pauseResumeActivity_checkPreviewInEachTime() {
         pauseResumeActivity_checkOutput_repeatedly(VERIFICATION_TARGET_PREVIEW)
     }
 
     @LabTestRule.LabTestOnly
     @Test
-    @RepeatRule.Repeat(times = CameraXExtensionsTestUtil.STRESS_TEST_REPEAT_COUNT)
+    @RepeatRule.Repeat(times = CameraXExtensionsTestUtil.LARGE_STRESS_TEST_REPEAT_COUNT)
     fun pauseResumeActivity_checkImageCaptureInEachTime() {
         pauseResumeActivity_checkOutput_repeatedly(VERIFICATION_TARGET_IMAGE_CAPTURE)
     }
@@ -149,12 +161,19 @@ class LifecycleStatusChangeStressTest(
 
         with(activityScenario) {
             use {
+                waitForPreviewViewStreaming()
+
                 repeat(repeatCount) {
-                    moveToState(CREATED)
-                    moveToState(RESUMED)
+                    withActivity {
+                        resetPreviewViewIdleStateIdlingResource()
+                        resetPreviewViewStreamingStateIdlingResource()
+                    }
+                    moveToState(Lifecycle.State.CREATED)
+                    waitForPreviewViewIdle()
+                    moveToState(Lifecycle.State.RESUMED)
 
                     if (verificationTarget.and(VERIFICATION_TARGET_PREVIEW) != 0) {
-                        waitForPreviewIdle()
+                        waitForPreviewViewStreaming()
                     }
 
                     if (verificationTarget.and(VERIFICATION_TARGET_IMAGE_CAPTURE) != 0) {
@@ -167,14 +186,14 @@ class LifecycleStatusChangeStressTest(
 
     @LabTestRule.LabTestOnly
     @Test
-    @RepeatRule.Repeat(times = CameraXExtensionsTestUtil.STRESS_TEST_REPEAT_COUNT)
+    @RepeatRule.Repeat(times = CameraXExtensionsTestUtil.LARGE_STRESS_TEST_REPEAT_COUNT)
     fun checkPreview_afterPauseResumeActivityRepeatedly() {
         pauseResumeActivityRepeatedly_thenCheckOutput(VERIFICATION_TARGET_PREVIEW)
     }
 
     @LabTestRule.LabTestOnly
     @Test
-    @RepeatRule.Repeat(times = CameraXExtensionsTestUtil.STRESS_TEST_REPEAT_COUNT)
+    @RepeatRule.Repeat(times = CameraXExtensionsTestUtil.LARGE_STRESS_TEST_REPEAT_COUNT)
     fun checkImageCapture_afterPauseResumeActivityRepeatedly() {
         pauseResumeActivityRepeatedly_thenCheckOutput(VERIFICATION_TARGET_IMAGE_CAPTURE)
     }
@@ -187,13 +206,21 @@ class LifecycleStatusChangeStressTest(
 
         with(activityScenario) {
             use {
+                waitForPreviewViewStreaming()
+
                 repeat(repeatCount) {
-                    moveToState(CREATED)
-                    moveToState(RESUMED)
+                    withActivity {
+                        resetPreviewViewIdleStateIdlingResource()
+                        resetPreviewViewStreamingStateIdlingResource()
+                    }
+                    moveToState(Lifecycle.State.CREATED)
+                    waitForPreviewViewIdle()
+                    moveToState(Lifecycle.State.RESUMED)
+                    waitForPreviewViewStreaming()
                 }
 
                 if (verificationTarget.and(VERIFICATION_TARGET_PREVIEW) != 0) {
-                    waitForPreviewIdle()
+                    waitForPreviewViewStreaming()
                 }
 
                 if (verificationTarget.and(VERIFICATION_TARGET_IMAGE_CAPTURE) != 0) {

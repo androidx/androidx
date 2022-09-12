@@ -155,20 +155,6 @@ internal class SurfaceControlV33 internal constructor(
          */
         override fun reparent(
             surfaceControl: SurfaceControlImpl,
-            surfaceView: SurfaceView
-        ): SurfaceControlImpl.Transaction {
-            mTransaction.reparent(
-                surfaceControl.asFrameworkSurfaceControl(),
-                surfaceView.surfaceControl
-            )
-            return this
-        }
-
-        /**
-         * See [SurfaceControlImpl.Transaction.reparent]
-         */
-        override fun reparent(
-            surfaceControl: SurfaceControlImpl,
             attachedSurfaceControl: AttachedSurfaceControl
         ): SurfaceControlImpl.Transaction {
             val reparentTransaction = attachedSurfaceControl
