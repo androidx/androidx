@@ -18,7 +18,6 @@ package androidx.benchmark.macro.perfetto
 
 import android.util.Log
 import androidx.benchmark.macro.StartupMode
-import androidx.benchmark.macro.perfetto.PerfettoTraceProcessor.processNameLikePkg
 
 internal object StartupTimingQuery {
 
@@ -103,18 +102,17 @@ internal object StartupTimingQuery {
     }
 
     fun getFrameSubMetrics(
-        absoluteTracePath: String,
+        perfettoTraceProcessor: PerfettoTraceProcessor,
         captureApiLevel: Int,
         targetPackageName: String,
         startupMode: StartupMode
     ): SubMetrics? {
-        val queryResult = PerfettoTraceProcessor.rawQuery(
-            absoluteTracePath = absoluteTracePath,
+        val queryResultIterator = perfettoTraceProcessor.rawQuery(
             query = getFullQuery(
                 targetPackageName = targetPackageName
             )
         )
-        val slices = Slice.parseListFromQueryResult(queryResult)
+        val slices = queryResultIterator.toSlices()
 
         val groupedData = slices
             .filter { it.dur > 0 } // drop non-terminated slices

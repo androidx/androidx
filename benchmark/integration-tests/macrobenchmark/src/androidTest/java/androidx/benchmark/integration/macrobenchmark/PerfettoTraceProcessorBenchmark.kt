@@ -70,23 +70,32 @@ class PerfettoTraceProcessorBenchmark {
         runProcessQuery()
     }
 
-    private fun benchmarkWithTrace(block: () -> (Unit)) = benchmarkRule.measureRepeated(
-        packageName = PACKAGE_NAME,
-        metrics = listOf(TraceSectionMetric("perfettoTraceProcessor")),
-        iterations = 5,
-    ) {
-        trace("perfettoTraceProcessor", block)
+    private fun benchmarkWithTrace(block: PerfettoTraceProcessor.() -> Unit) =
+        benchmarkRule.measureRepeated(
+            packageName = PACKAGE_NAME,
+            metrics = listOf(TraceSectionMetric("PerfettoTraceProcessorBenchmark")),
+            iterations = 5,
+        ) {
+            trace("PerfettoTraceProcessorBenchmark") {
+
+                // This will run perfetto trace processor http server on the specified port 10555.
+                // Note that this is an arbitrary number and the default cannot be used because
+                // the macrobenchmark instance of the server is running at the same time.
+                PerfettoTraceProcessor.runServer(
+                    httpServerPort = 10555,
+                    absoluteTracePath = traceFile.absolutePath,
+                    block = block
+                )
+            }
+        }
+
+    private fun PerfettoTraceProcessor.runComputeStartupMetric() {
+        getTraceMetrics("android_startup")
     }
 
-    private fun runComputeStartupMetric() {
-        PerfettoTraceProcessor.getJsonMetrics(
-            traceFile.absolutePath, "android_startup"
-        )
-    }
-
-    private fun runSlicesQuery() {
-        PerfettoTraceProcessor.rawQuery(
-            traceFile.absolutePath, """
+    private fun PerfettoTraceProcessor.runSlicesQuery() {
+        rawQuery(
+            """
                 SELECT slice.name, slice.ts, slice.dur, thread_track.id, thread_track.name
                 FROM slice
                 INNER JOIN thread_track on slice.track_id = thread_track.id
@@ -96,9 +105,9 @@ class PerfettoTraceProcessorBenchmark {
         )
     }
 
-    private fun runCounterQuery() {
-        PerfettoTraceProcessor.rawQuery(
-            traceFile.absolutePath, """
+    private fun PerfettoTraceProcessor.runCounterQuery() {
+        rawQuery(
+            """
                 SELECT track.name, counter.value, counter.ts
                 FROM track
                 JOIN counter ON track.id = counter.track_id
@@ -106,9 +115,9 @@ class PerfettoTraceProcessorBenchmark {
         )
     }
 
-    private fun runProcessQuery() {
-        PerfettoTraceProcessor.rawQuery(
-            traceFile.absolutePath, """
+    private fun PerfettoTraceProcessor.runProcessQuery() {
+        rawQuery(
+            """
                 SELECT upid
                 FROM counter
                 JOIN process_counter_track ON process_counter_track.id = counter.track_id

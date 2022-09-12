@@ -18,6 +18,7 @@ package androidx.benchmark
 
 import android.os.Build
 import android.os.Looper
+import android.os.ParcelFileDescriptor
 import android.os.ParcelFileDescriptor.AutoCloseInputStream
 import android.os.SystemClock
 import android.util.Log
@@ -25,6 +26,7 @@ import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.tracing.trace
+import java.io.Closeable
 import java.io.File
 import java.io.InputStream
 import java.nio.charset.Charset
@@ -186,7 +188,11 @@ object Shell {
      */
     @RequiresApi(21)
     fun executeScript(script: String, stdin: String? = null): String {
-        return ShellImpl.executeScript(script, stdin, false).first
+        return ShellImpl
+            .createShellScript(script, stdin, false)
+            .start()
+            .getOutputAndClose()
+            .stdout
     }
 
     data class Output(val stdout: String, val stderr: String)
@@ -212,13 +218,33 @@ object Shell {
         script: String,
         stdin: String? = null
     ): Output {
-        return ShellImpl.executeScript(
-            script = script,
-            stdin = stdin,
-            includeStderr = true
-        ).run {
-            Output(first, second!!)
-        }
+        return ShellImpl
+            .createShellScript(script = script, stdin = stdin, includeStderr = true)
+            .start()
+            .getOutputAndClose()
+    }
+
+    /**
+     * Creates a executable shell script that can be started. Similar to [executeScriptWithStderr]
+     * but allows deferring and caching script execution.
+     *
+     * @param script Script content to run
+     * @param stdin String to pass in as stdin to first command in script
+     *
+     * @return ShellScript that can be started.
+     */
+    @RequiresApi(21)
+    fun createShellScript(
+        script: String,
+        stdin: String? = null,
+        includeStderr: Boolean = true
+    ): ShellScript {
+        return ShellImpl
+            .createShellScript(
+                script = script,
+                stdin = stdin,
+                includeStderr = includeStderr
+            )
     }
 
     @RequiresApi(21)
@@ -400,11 +426,11 @@ private object ShellImpl {
         // These variables are used in executeCommand and executeScript, so we keep them as var
         // instead of val and use a separate initializer
         isSessionRooted = executeCommand("id").contains("uid=0(root)")
-        isSuAvailable = executeScript(
+        isSuAvailable = createShellScript(
             "su root id",
             null,
             false
-        ).first.contains("uid=0(root)")
+        ).start().getOutputAndClose().stdout.contains("uid=0(root)")
     }
 
     /**
@@ -412,23 +438,26 @@ private object ShellImpl {
      * to avoid the UiAutomator dependency, and add tracing
      */
     fun executeCommand(cmd: String): String = trace("executeCommand $cmd".take(127)) {
-        val parcelFileDescriptor = uiAutomation.executeShellCommand(
-            if (!isSessionRooted && isSuAvailable) {
-                "su root $cmd"
-            } else {
-                cmd
-            }
-        )
-        AutoCloseInputStream(parcelFileDescriptor).use { inputStream ->
-            return@trace inputStream.readBytes().toString(Charset.defaultCharset())
-        }
+        return@trace executeCommandNonBlocking(cmd).fullyReadInputStream()
     }
 
-    fun executeScript(
+    fun executeCommandNonBlocking(cmd: String): ParcelFileDescriptor =
+        trace("executeCommandNonBlocking $cmd".take(127)) {
+            return@trace uiAutomation.executeShellCommand(
+                if (!isSessionRooted && isSuAvailable) {
+                    "su root $cmd"
+                } else {
+                    cmd
+                }
+            )
+        }
+
+    fun createShellScript(
         script: String,
         stdin: String?,
         includeStderr: Boolean
-    ): Pair<String, String?> = trace("executeScript $script".take(127)) {
+    ): ShellScript = trace("createShellScript $script".take(127)) {
+
         // dirUsableByAppAndShell is writable, but we can't execute there (as of Q),
         // so we copy to /data/local/tmp
         val externalDir = Outputs.dirUsableByAppAndShell
@@ -448,6 +477,8 @@ private object ShellImpl {
             null
         }
 
+        var shellScript: ShellScript? = null
+
         try {
             var scriptText: String = script
             if (stdinFile != null) {
@@ -464,19 +495,123 @@ private object ShellImpl {
             executeCommand("cp ${writableScriptFile.absolutePath} $runnableScriptPath")
             Shell.chmodExecutable(runnableScriptPath)
 
-            val stdout = executeCommand(runnableScriptPath)
-            val stderr = stderrPath?.run { executeCommand("cat $stderrPath") }
+            shellScript = ShellScript(
+                stdinFile = stdinFile,
+                writableScriptFile = writableScriptFile,
+                stderrPath = stderrPath,
+                runnableScriptPath = runnableScriptPath
+            )
 
-            return@trace Pair(stdout, stderr)
-        } finally {
-            stdinFile?.delete()
-            writableScriptFile.delete()
-
-            if (stderrPath != null) {
-                executeCommand("rm $stderrPath $runnableScriptPath")
-            } else {
-                executeCommand("rm $runnableScriptPath")
-            }
+            return@trace shellScript
+        } catch (e: Exception) {
+            shellScript?.cleanUp()
+            throw Exception("Can't create shell script", e)
         }
+    }
+}
+
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@RequiresApi(Build.VERSION_CODES.LOLLIPOP)
+class ShellScript internal constructor(
+    private val stdinFile: File?,
+    private val writableScriptFile: File,
+    private val stderrPath: String?,
+    private val runnableScriptPath: String
+) {
+
+    private var cleanedUp: Boolean = false
+
+    /**
+     * Starts the shell script previously created.
+     *
+     * @param params a vararg string of parameters to be passed to the script.
+     *
+     * @return a [StartedShellScript] that contains streams to read output streams.
+     */
+    fun start(vararg params: String): StartedShellScript = trace("ShellScript#start") {
+        val cmd = "$runnableScriptPath ${params.joinToString(" ")}"
+        val stdoutDescriptor = ShellImpl.executeCommandNonBlocking(cmd)
+        val stderrDescriptor = stderrPath?.run {
+            ShellImpl.executeCommandNonBlocking(
+                "cat $stderrPath"
+            )
+        }
+
+        return@trace StartedShellScript(
+            stdoutDescriptor = stdoutDescriptor,
+            stderrDescriptor = stderrDescriptor,
+            cleanUpBlock = ::cleanUp
+        )
+    }
+
+    /**
+     * Manually clean up the shell script from the temp folder.
+     */
+    fun cleanUp() = trace("ShellScript#cleanUp") {
+        if (cleanedUp) {
+            return@trace
+        }
+        stdinFile?.delete()
+        writableScriptFile.delete()
+        if (stderrPath != null) {
+            ShellImpl.executeCommand("rm $stderrPath $runnableScriptPath")
+        } else {
+            ShellImpl.executeCommand("rm $runnableScriptPath")
+        }
+        cleanedUp = true
+    }
+}
+
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@RequiresApi(Build.VERSION_CODES.LOLLIPOP)
+class StartedShellScript internal constructor(
+    private val stdoutDescriptor: ParcelFileDescriptor,
+    private val stderrDescriptor: ParcelFileDescriptor?,
+    private val cleanUpBlock: () -> Unit
+) : Closeable {
+
+    /**
+     * Returns a [Sequence] of [String] containing the lines written by the process to stdOut.
+     */
+    fun stdOutLineSequence(): Sequence<String> =
+        AutoCloseInputStream(stdoutDescriptor).bufferedReader().lineSequence()
+
+    /**
+     * Returns a [Sequence] of [String] containing the lines written by the process to stdErr.
+     * Note that if stdErr wasn't required when creating the process it simply returns an
+     * empty string.
+     */
+    fun stdErrLineSequence(): Sequence<String> = if (stderrDescriptor != null) {
+        AutoCloseInputStream(stderrDescriptor).bufferedReader().lineSequence()
+    } else {
+        "".lineSequence()
+    }
+
+    /**
+     * Cleans up this shell script.
+     */
+    override fun close() = cleanUpBlock()
+
+    /**
+     * Returns true whether this shell script has generated any stdErr output.
+     */
+    fun hasStdError(): Boolean = stdErrLineSequence().elementAtOrElse(0) { "" }.isNotBlank()
+
+    /**
+     * Reads the full process output and cleans up the generated script
+     */
+    fun getOutputAndClose(): Shell.Output {
+        val output = Shell.Output(
+            stdout = stdoutDescriptor.fullyReadInputStream(),
+            stderr = stderrDescriptor?.fullyReadInputStream() ?: ""
+        )
+        close()
+        return output
+    }
+}
+
+internal fun ParcelFileDescriptor.fullyReadInputStream(): String {
+    AutoCloseInputStream(this).use { inputStream ->
+        return inputStream.readBytes().toString(Charset.defaultCharset())
     }
 }
