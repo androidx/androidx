@@ -383,6 +383,7 @@ includeProject(":benchmark:benchmark-benchmark", "benchmark/benchmark", [BuildTy
 includeProject(":benchmark:benchmark-common")
 includeProject(":benchmark:benchmark-darwin", [BuildType.KMP])
 includeProject(":benchmark:benchmark-darwin-core", [BuildType.KMP])
+includeProject(":benchmark:benchmark-darwin-samples", [BuildType.KMP])
 includeProject(":benchmark:benchmark-gradle-plugin", "benchmark/gradle-plugin", [BuildType.MAIN])
 includeProject(":benchmark:benchmark-junit4")
 includeProject(":benchmark:benchmark-macro", [BuildType.MAIN, BuildType.COMPOSE])

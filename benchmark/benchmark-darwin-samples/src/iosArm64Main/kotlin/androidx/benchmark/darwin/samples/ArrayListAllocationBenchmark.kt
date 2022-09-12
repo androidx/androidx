@@ -14,24 +14,21 @@
  * limitations under the License.
  */
 
-package androidx.benchmark.darwin.tests
+package androidx.benchmark.darwin.samples
 
 import androidx.benchmark.darwin.TestCase
 import androidx.benchmark.darwin.TestCaseContext
-import androidx.benchmark.darwin.TestCases
-import platform.Foundation.NSLog
 import platform.XCTest.XCTMeasureOptions
-import platform.posix.sleep
 
-class SleepTestCase : TestCase() {
+class ArrayListAllocationBenchmark : TestCase() {
     override fun setUp() {
-        NSLog("%s", "Hello Benchmarks !")
+        // does nothing
     }
 
     override fun benchmark(context: TestCaseContext) {
         val options = XCTMeasureOptions.defaultOptions()
-        // A single iteration
-        options.iterationCount = 1.toULong()
+        // 5 Iterations
+        options.iterationCount = 5.toULong()
         context.measureWithMetrics(
             listOf(
                 platform.XCTest.XCTCPUMetric(),
@@ -40,20 +37,19 @@ class SleepTestCase : TestCase() {
             ),
             options
         ) {
-            repeat(3) {
-                NSLog("%s", "Sleeping for 1 second")
-                sleep(1)
+            // Do something a bit expensive
+            repeat(1000) {
+                ArrayList<Float>(SIZE)
             }
         }
     }
 
     override fun testDescription(): String {
-        return "A test that sleeps for 3 seconds"
+        return "Allocate an ArrayList of size $SIZE"
     }
 
     companion object {
-        fun addBenchmarkTest() {
-            TestCases.addBenchmarkTest(SleepTestCase())
-        }
+        // The initial capacity of the allocation
+        private const val SIZE = 1000
     }
 }

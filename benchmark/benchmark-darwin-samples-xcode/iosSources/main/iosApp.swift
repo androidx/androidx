@@ -14,9 +14,13 @@
  * limitations under the License.
  */
 
-package androidx.benchmark.darwin
+import SwiftUI
 
-/**
- * Test measurement options that control how many iterations to run.
- */
-actual data class MeasureOptions(actual var iterationCount: ULong)
+@main
+struct iOSApp: App {
+  var body: some Scene {
+    WindowGroup {
+      ContentView()
+    }
+  }
+}
