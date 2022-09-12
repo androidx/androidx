@@ -100,7 +100,7 @@ public class TransformUtils {
     /**
      * Rotates a {@link Size} according to the rotation degrees.
      *
-     * @param size the size to rotate
+     * @param size            the size to rotate
      * @param rotationDegrees the rotation degrees
      * @return rotated size
      * @throws IllegalArgumentException if the rotation degrees is not a multiple of 90
@@ -278,6 +278,18 @@ public class TransformUtils {
     @NonNull
     public static Matrix getNormalizedToBuffer(@NonNull Rect viewPortRect) {
         return getNormalizedToBuffer(new RectF(viewPortRect));
+    }
+
+    /**
+     * Updates sensor to buffer transform based on crop rect.
+     */
+    @NonNull
+    public static Matrix updateSensorToBufferTransform(
+            @NonNull Matrix original,
+            @NonNull Rect cropRect) {
+        Matrix matrix = new Matrix(original);
+        matrix.postTranslate(-cropRect.left, -cropRect.top);
+        return matrix;
     }
 
     /**
