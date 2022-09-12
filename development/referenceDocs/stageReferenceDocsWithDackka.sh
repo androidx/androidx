@@ -77,7 +77,6 @@ readonly javaLibraryDirsThatDontUseDackka=(
   "androidx/sqlite"
   "androidx/startup"
   "androidx/swiperefreshlayout"
-  "androidx/textclassifier"
   "androidx/tvprovider"
   "androidx/webkit"
 )
@@ -112,7 +111,6 @@ readonly kotlinLibraryDirsThatDontUseDackka=(
   "androidx/sqlite"
   "androidx/startup"
   "androidx/swiperefreshlayout"
-  "androidx/textclassifier"
   "androidx/tvprovider"
   "androidx/webkit"
 )
