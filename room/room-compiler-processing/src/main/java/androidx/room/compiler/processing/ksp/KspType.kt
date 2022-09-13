@@ -22,6 +22,7 @@ import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.isArray
 import androidx.room.compiler.processing.tryBox
 import androidx.room.compiler.processing.tryUnbox
+import com.google.devtools.ksp.KspExperimental
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSType
 import com.google.devtools.ksp.symbol.KSTypeReference
@@ -103,9 +104,14 @@ internal abstract class KspType(
         }
     }
 
+    @OptIn(KspExperimental::class)
     override val typeArguments: List<XType> by lazy {
-        ksType.arguments.mapIndexed { index, arg ->
-            env.wrap(ksType.declaration.typeParameters[index], arg)
+        if (env.resolver.isJavaRawType(ksType)) {
+            emptyList()
+        } else {
+            ksType.arguments.mapIndexed { index, arg ->
+                env.wrap(ksType.declaration.typeParameters[index], arg)
+            }
         }
     }
 
