@@ -67,6 +67,7 @@ dependencies {
     testImplementation(project(":internal-testutils-ktx"))
     testImplementation(project(":internal-testutils-truth"))
     testImplementation("androidx.lifecycle:lifecycle-runtime-testing:2.3.1")
+    testImplementation(project(":camera:camera-video"))
 
     androidTestImplementation(libs.multidex)
     androidTestImplementation(libs.testExtJunit)
