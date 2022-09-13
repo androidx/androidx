@@ -336,8 +336,8 @@ class PreviewTest {
         }
         shadowOf(getMainLooper()).idle()
 
-        // Assert: received SurfaceRequest is the pending SurfaceRequest.
-        assertThat(receivedSurfaceRequest).isSameInstanceAs(pendingSurfaceRequest)
+        // Assert: received SurfaceRequest is not the pending SurfaceRequest.
+        assertThat(receivedSurfaceRequest).isNotSameInstanceAs(pendingSurfaceRequest)
         assertThat(receivedTransformationInfo).isNotNull()
 
         // Act: set a different SurfaceProvider.
@@ -439,6 +439,7 @@ class PreviewTest {
             .setTargetRotation(Surface.ROTATION_0)
             .build()
         preview.effect = surfaceEffect
+        preview.setSurfaceProvider(CameraXExecutors.directExecutor()) {}
         val previewConfig = PreviewConfig(
             cameraXConfig.getUseCaseConfigFactoryProvider(null)!!.newInstance(context).getConfig(
                 UseCaseConfigFactory.CaptureType.PREVIEW,
