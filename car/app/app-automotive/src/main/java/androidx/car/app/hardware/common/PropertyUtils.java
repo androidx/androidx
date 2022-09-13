@@ -17,6 +17,7 @@
 package androidx.car.app.hardware.common;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
+import static androidx.car.app.hardware.climate.AutomotiveCarClimate.HVAC_ELECTRIC_DEFROSTER_ON_PROPERTY_ID;
 import static androidx.car.app.hardware.common.CarUnit.IMPERIAL_GALLON;
 import static androidx.car.app.hardware.common.CarUnit.LITER;
 import static androidx.car.app.hardware.common.CarUnit.MILLILITER;
@@ -131,6 +132,7 @@ public final class PropertyUtils {
             append(VehiclePropertyIds.HVAC_DUAL_ON, CAR_PERMISSION_CLIMATE_CONTROL);
             append(VehiclePropertyIds.HVAC_DEFROSTER, CAR_PERMISSION_CLIMATE_CONTROL);
             append(VehiclePropertyIds.HVAC_MAX_DEFROST_ON, CAR_PERMISSION_CLIMATE_CONTROL);
+            append(HVAC_ELECTRIC_DEFROSTER_ON_PROPERTY_ID, CAR_PERMISSION_CLIMATE_CONTROL);
         }
     };
 
@@ -191,6 +193,7 @@ public final class PropertyUtils {
             append(VehiclePropertyIds.HVAC_DUAL_ON, CAR_PERMISSION_CLIMATE_CONTROL);
             append(VehiclePropertyIds.HVAC_DEFROSTER, CAR_PERMISSION_CLIMATE_CONTROL);
             append(VehiclePropertyIds.HVAC_MAX_DEFROST_ON, CAR_PERMISSION_CLIMATE_CONTROL);
+            append(HVAC_ELECTRIC_DEFROSTER_ON_PROPERTY_ID, CAR_PERMISSION_CLIMATE_CONTROL);
         }
     };
     private static final Set<Integer> ON_CHANGE_PROPERTIES =
