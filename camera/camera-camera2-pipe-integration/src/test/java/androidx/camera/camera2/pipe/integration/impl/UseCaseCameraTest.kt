@@ -18,6 +18,7 @@ package androidx.camera.camera2.pipe.integration.impl
 
 import android.hardware.camera2.CameraDevice
 import android.os.Build
+import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.integration.adapter.CaptureConfigAdapter
 import androidx.camera.camera2.pipe.integration.adapter.RobolectricCameraPipeTestRunner
@@ -30,6 +31,7 @@ import androidx.camera.core.impl.DeferrableSurface
 import androidx.camera.core.impl.SessionConfig
 import androidx.camera.testing.fakes.FakeUseCase
 import androidx.camera.testing.fakes.FakeUseCaseConfig
+import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.CoroutineScope
@@ -97,8 +99,13 @@ class UseCaseCameraTest {
             )
         }
         val useCaseCamera = UseCaseCameraImpl(
-            fakeUseCaseGraphConfig, arrayListOf(fakeUseCase),
-            UseCaseSurfaceManager(useCaseThreads), requestControl
+            useCaseGraphConfig = fakeUseCaseGraphConfig,
+            useCases = arrayListOf(fakeUseCase),
+            useCaseSurfaceManager = UseCaseSurfaceManager(
+                useCaseThreads,
+                CameraPipe(CameraPipe.Config(ApplicationProvider.getApplicationContext()))
+            ),
+            requestControl = requestControl
         ).also {
             it.runningUseCases = setOf(fakeUseCase)
         }

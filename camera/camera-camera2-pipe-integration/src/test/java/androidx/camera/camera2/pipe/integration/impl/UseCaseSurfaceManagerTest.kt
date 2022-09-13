@@ -19,6 +19,7 @@ package androidx.camera.camera2.pipe.integration.impl
 import android.hardware.camera2.CameraDevice
 import android.os.Build
 import android.view.Surface
+import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.integration.adapter.FakeTestUseCase
 import androidx.camera.camera2.pipe.integration.adapter.RobolectricCameraPipeTestRunner
@@ -29,6 +30,7 @@ import androidx.camera.camera2.pipe.integration.testing.FakeCameraGraph
 import androidx.camera.core.impl.DeferrableSurface
 import androidx.camera.core.impl.SessionConfig
 import androidx.camera.testing.fakes.FakeUseCaseConfig
+import androidx.test.core.app.ApplicationProvider
 import androidx.testutils.MainDispatcherRule
 import com.google.common.truth.Truth.assertThat
 import com.google.common.util.concurrent.ListenableFuture
@@ -111,6 +113,7 @@ class UseCaseSurfaceManagerTest {
         // Act
         UseCaseSurfaceManager(
             useCaseThreads,
+            CameraPipe(CameraPipe.Config(ApplicationProvider.getApplicationContext())),
         ).setupAsync(
             graph = fakeGraph,
             sessionConfigAdapter = SessionConfigAdapter(
@@ -162,6 +165,7 @@ class UseCaseSurfaceManagerTest {
         // Act
         UseCaseSurfaceManager(
             useCaseThreads,
+            CameraPipe(CameraPipe.Config(ApplicationProvider.getApplicationContext())),
         ).setupAsync(
             graph = fakeGraph,
             sessionConfigAdapter = SessionConfigAdapter(
@@ -219,6 +223,7 @@ class UseCaseSurfaceManagerTest {
         // Act
         UseCaseSurfaceManager(
             useCaseThreads,
+            CameraPipe(CameraPipe.Config(ApplicationProvider.getApplicationContext())),
         ).setupAsync(
             graph = fakeGraph,
             sessionConfigAdapter = SessionConfigAdapter(
@@ -278,6 +283,7 @@ class UseCaseSurfaceManagerTest {
         )
         val useCaseSurfaceManager = UseCaseSurfaceManager(
             useCaseThreads,
+            CameraPipe(CameraPipe.Config(ApplicationProvider.getApplicationContext())),
         )
         val deferred = useCaseSurfaceManager.setupAsync(
             graph = fakeGraph,
@@ -290,7 +296,7 @@ class UseCaseSurfaceManagerTest {
         neverCompleteDeferrableSurface.provideSurfaceIsCalledDeferred.await()
 
         // Act.
-        useCaseSurfaceManager.stop()
+        useCaseSurfaceManager.stopAsync()
 
         // Assert, verify no further error/setSurface for the stopped case.
         assertThat(deferred.isCancelled).isTrue()
