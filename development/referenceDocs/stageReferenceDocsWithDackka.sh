@@ -73,7 +73,6 @@ readonly javaLibraryDirsThatDontUseDackka=(
   "androidx/recyclerview"
   "androidx/startup"
   "androidx/swiperefreshlayout"
-  "androidx/textclassifier"
   "androidx/tvprovider"
 )
 readonly kotlinLibraryDirsThatDontUseDackka=(
@@ -103,7 +102,6 @@ readonly kotlinLibraryDirsThatDontUseDackka=(
   "androidx/recyclerview"
   "androidx/startup"
   "androidx/swiperefreshlayout"
-  "androidx/textclassifier"
   "androidx/tvprovider"
 )
 
