@@ -55,7 +55,11 @@ class AccessibilityRenderExtensionTest {
   @Test
   fun `verify changing view hierarchy order doesn't change accessibility colors`() {
     val view = buildView(paparazzi.context).apply {
-      addView(View(context).apply { contentDescription = "Empty View" }, 0, LinearLayout.LayoutParams(0, 0))
+      addView(
+        View(context).apply { contentDescription = "Empty View" },
+        0,
+        LinearLayout.LayoutParams(0, 0)
+      )
     }
     paparazzi.snapshot(view, name = "accessibility-new-view")
   }

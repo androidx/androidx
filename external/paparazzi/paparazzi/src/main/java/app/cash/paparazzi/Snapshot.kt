@@ -37,5 +37,6 @@ internal fun Snapshot.toFileName(
   } else {
     ""
   }
-  return "${testName.packageName}${delimiter}${testName.className}${delimiter}${testName.methodName}$formattedLabel.$extension"
+  return "${testName.packageName}${delimiter}${testName.className}" +
+      "${delimiter}${testName.methodName}$formattedLabel.$extension"
 }

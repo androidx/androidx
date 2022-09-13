@@ -103,7 +103,7 @@ data class DeviceConfig(
         countryCodeQualifier = CountryCodeQualifier()
         layoutDirectionQualifier = LayoutDirectionQualifier(layoutDirection)
         networkCodeQualifier = NetworkCodeQualifier()
-        localeQualifier = if (locale != null) LocaleQualifier.getQualifier(locale) else LocaleQualifier(LocaleQualifier.FAKE_VALUE)
+        localeQualifier = LocaleQualifier.getQualifier(locale ?: LocaleQualifier.FAKE_VALUE)
         versionQualifier = VersionQualifier()
       }
 

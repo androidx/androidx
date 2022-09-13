@@ -576,12 +576,14 @@ class Paparazzi @JvmOverloads constructor(
       .set(dispatcher, false)
   }
 
-  private class PaparazziComposeOwner private constructor() : LifecycleOwner, SavedStateRegistryOwner {
+  private class PaparazziComposeOwner private constructor() :
+    LifecycleOwner, SavedStateRegistryOwner {
     private val lifecycleRegistry: LifecycleRegistry = LifecycleRegistry(this)
     private val savedStateRegistryController = SavedStateRegistryController.create(this)
 
     override fun getLifecycle(): Lifecycle = lifecycleRegistry
-    override val savedStateRegistry: SavedStateRegistry = savedStateRegistryController.savedStateRegistry
+    override val savedStateRegistry: SavedStateRegistry =
+      savedStateRegistryController.savedStateRegistry
 
     companion object {
       fun register(view: View) {
