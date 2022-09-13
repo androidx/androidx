@@ -128,13 +128,13 @@ public final class ActionsConstraints {
                     .build();
 
     /**
-     * Constraints for additional row actions. Only allows custom and back actions.
+     * Constraints for additional row actions. Only allows custom actions.
      */
     @NonNull
     public static final ActionsConstraints ACTIONS_CONSTRAINTS_ROW =
             new ActionsConstraints.Builder()
                     .setMaxActions(2)
-                    .addDisallowedActionType(Action.TYPE_APP_ICON)
+                    .addAllowedActionType(Action.TYPE_CUSTOM)
                     .setRequireActionIcons(true)
                     .setOnClickListenerAllowed(true)
                     .build();
@@ -147,6 +147,7 @@ public final class ActionsConstraints {
     private final CarTextConstraints mTitleTextConstraints;
     private final Set<Integer> mRequiredActionTypes;
     private final Set<Integer> mDisallowedActionTypes;
+    private final Set<Integer> mAllowedActionTypes;
 
     ActionsConstraints(Builder builder) {
         mMaxActions = builder.mMaxActions;
@@ -156,6 +157,7 @@ public final class ActionsConstraints {
         mRequireActionIcons = builder.mRequireActionIcons;
         mOnClickListenerAllowed = builder.mOnClickListenerAllowed;
         mRequiredActionTypes = new HashSet<>(builder.mRequiredActionTypes);
+        mAllowedActionTypes = new HashSet<>(builder.mAllowedActionTypes);
 
         Set<Integer> disallowedActionTypes = new HashSet<>(builder.mDisallowedActionTypes);
         disallowedActionTypes.retainAll(mRequiredActionTypes);
@@ -163,6 +165,12 @@ public final class ActionsConstraints {
             throw new IllegalArgumentException(
                     "Disallowed action types cannot also be in the required set");
         }
+
+        if (!builder.mDisallowedActionTypes.isEmpty() && !mAllowedActionTypes.isEmpty()) {
+            throw new IllegalArgumentException(
+                    "Both disallowed and allowed action type set cannot be defined.");
+        }
+
         mDisallowedActionTypes = new HashSet<>(builder.mDisallowedActionTypes);
 
         if (mRequiredActionTypes.size() > mMaxActions) {
@@ -204,6 +212,12 @@ public final class ActionsConstraints {
         return mDisallowedActionTypes;
     }
 
+    /** Adds the set of allowed action types. */
+    @NonNull
+    public Set<Integer> getAllowedActionTypes() {
+        return mAllowedActionTypes;
+    }
+
     /**
      * If {@code true}, all non-standard actions must have an
      * {@link androidx.car.app.model.CarIcon}.
@@ -222,8 +236,9 @@ public final class ActionsConstraints {
      *
      * @throws IllegalArgumentException if the actions has more actions than allowed, if it has
      *                                  more actions with custom titles than allowed, if the
-     *                                  actions do not contain all required types, or if the
-     *                                  actions contain any disallowed types
+     *                                  actions do not contain all required types, if the
+     *                                  actions contain any disallowed types, or if the actions
+     *                                  contain any types not in the allowed set.
      */
     public void validateOrThrow(@NonNull List<Action> actions) {
         int maxAllowedActions = mMaxActions;
@@ -236,9 +251,16 @@ public final class ActionsConstraints {
                         : new HashSet<>(mRequiredActionTypes);
 
         for (Action action : actions) {
-            if (mDisallowedActionTypes.contains(action.getType())) {
+            if (!mDisallowedActionTypes.isEmpty()
+                    && mDisallowedActionTypes.contains(action.getType())) {
                 throw new IllegalArgumentException(
                         Action.typeToString(action.getType()) + " is disallowed");
+            }
+
+            if (!mAllowedActionTypes.isEmpty()
+                    && !mAllowedActionTypes.contains(action.getType())) {
+                throw new IllegalArgumentException(
+                        Action.typeToString(action.getType()) + " is not allowed");
             }
 
             requiredTypes.remove(action.getType());
@@ -274,7 +296,9 @@ public final class ActionsConstraints {
                         + "disallowed");
             }
 
-            if (!mOnClickListenerAllowed && action.getOnClickDelegate() != null) {
+            if (!mOnClickListenerAllowed
+                    && action.getOnClickDelegate() != null
+                    && !action.isStandard()) {
                 throw new IllegalArgumentException("Setting a click listener for a custom action "
                         + "is disallowed");
             }
@@ -297,6 +321,7 @@ public final class ActionsConstraints {
     public static final class Builder {
         final Set<Integer> mRequiredActionTypes = new HashSet<>();
         final Set<Integer> mDisallowedActionTypes = new HashSet<>();
+        final Set<Integer> mAllowedActionTypes = new HashSet<>();
         int mMaxActions = Integer.MAX_VALUE;
         int mMaxPrimaryActions = 0;
         int mMaxCustomTitles;
@@ -322,6 +347,7 @@ public final class ActionsConstraints {
             mTitleTextConstraints = constraints.getTitleTextConstraints();
             mRequiredActionTypes.addAll(constraints.getRequiredActionTypes());
             mDisallowedActionTypes.addAll(constraints.getDisallowedActionTypes());
+            mAllowedActionTypes.addAll(constraints.getAllowedActionTypes());
             mRequireActionIcons = constraints.areActionIconsRequired();
             mOnClickListenerAllowed = constraints.isOnClickListenerAllowed();
         }
@@ -385,6 +411,13 @@ public final class ActionsConstraints {
         @NonNull
         public Builder addDisallowedActionType(@ActionType int actionType) {
             mDisallowedActionTypes.add(actionType);
+            return this;
+        }
+
+        /** Adds an action type to the set of allowed types */
+        @NonNull
+        public Builder addAllowedActionType(@ActionType int actionType) {
+            mAllowedActionTypes.add(actionType);
             return this;
         }
 
