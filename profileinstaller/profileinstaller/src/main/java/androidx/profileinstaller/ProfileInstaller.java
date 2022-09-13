@@ -388,8 +388,9 @@ public class ProfileInstaller {
      * @param filesDir for noting successful installation
      * @param apkName The apk file name the profile is targeting
      * @param diagnostics The diagnostics callback to pass diagnostics to
+     * @return True whether the operation was successful, false otherwise
      */
-    private static void transcodeAndWrite(
+    private static boolean transcodeAndWrite(
             @NonNull AssetManager assets,
             @NonNull String packageName,
             @NonNull PackageInfo packageInfo,
@@ -400,7 +401,7 @@ public class ProfileInstaller {
     ) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
             result(executor, diagnostics, ProfileInstaller.RESULT_UNSUPPORTED_ART_VERSION, null);
-            return;
+            return false;
         }
         File curProfile = new File(new File(PROFILE_BASE_DIR, packageName), PROFILE_FILE);
 
@@ -408,7 +409,7 @@ public class ProfileInstaller {
                 diagnostics, apkName, PROFILE_SOURCE_LOCATION, PROFILE_META_LOCATION, curProfile);
 
         if (!deviceProfileWriter.deviceAllowsProfileInstallerAotWrites()) {
-            return; /* nothing else to do here */
+            return false; /* nothing else to do here */
         }
 
         boolean success = deviceProfileWriter.read()
@@ -418,6 +419,7 @@ public class ProfileInstaller {
         if (success) {
             noteProfileWrittenFor(packageInfo, filesDir);
         }
+        return success;
     }
 
     /**
@@ -531,16 +533,23 @@ public class ProfileInstaller {
             packageInfo = packageManager.getPackageInfo(packageName, 0);
         } catch (PackageManager.NameNotFoundException e) {
             diagnostics.onResultReceived(RESULT_IO_EXCEPTION, e);
+
+            // Calls the verification. Note that in this case since the force install failed we
+            // don't need to report it to the ProfileVerifier.
+            ProfileVerifier.writeProfileVerification(context, false);
             return;
         }
         File filesDir = context.getFilesDir();
         if (forceWriteProfile
                 || !hasAlreadyWrittenProfileForThisInstall(packageInfo, filesDir, diagnostics)) {
             Log.d(TAG, "Installing profile for " + context.getPackageName());
-            transcodeAndWrite(assetManager, packageName, packageInfo, filesDir, apkName, executor,
-                    diagnostics);
+            boolean profileWritten = transcodeAndWrite(assetManager, packageName, packageInfo,
+                    filesDir, apkName, executor, diagnostics);
+            ProfileVerifier.writeProfileVerification(
+                    context, profileWritten && forceWriteProfile);
         } else {
             Log.d(TAG, "Skipping profile installation for " + context.getPackageName());
+            ProfileVerifier.writeProfileVerification(context, false);
         }
     }
 
