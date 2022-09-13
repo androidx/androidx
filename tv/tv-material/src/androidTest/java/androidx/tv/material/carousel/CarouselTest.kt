@@ -61,6 +61,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onParent
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.unit.dp
+import androidx.test.filters.FlakyTest
 import androidx.tv.material.ExperimentalTvMaterialApi
 import org.junit.Rule
 import org.junit.Test
@@ -312,6 +313,7 @@ class CarouselTest {
         rule.onNodeWithText("PLAY").assertIsDisplayed()
     }
 
+    @FlakyTest(bugId = 246336782)
     @Test
     fun carousel_withAnimatedContent_successfulFocusIn() {
         rule.setContent {
