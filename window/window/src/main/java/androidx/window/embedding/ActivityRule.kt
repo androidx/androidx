@@ -23,38 +23,21 @@ import androidx.window.core.ExperimentalWindowApi
  * [SplitPairRule].
  */
 @ExperimentalWindowApi
-class ActivityRule : EmbeddingRule {
-
+class ActivityRule internal constructor(
+    tag: String?,
     /**
      * Filters used to choose when to apply this rule. The rule may be used if any one of the
      * provided filters matches.
      */
-    val filters: Set<ActivityFilter>
+    val filters: Set<ActivityFilter>,
     /**
      * Whether the activity should always be expanded on launch. Some activities are supposed to
      * expand to the full task bounds, independent of the state of the split. An example is an
      * activity that blocks all user interactions, like a warning dialog.
      */
-    val alwaysExpand: Boolean
+    val alwaysExpand: Boolean = false
+) : EmbeddingRule(tag) {
 
-    // TODO(b/229656253): Reduce visibility to remove from public API.
-    @Deprecated(
-        message = "Visibility of the constructor will be reduced.",
-        replaceWith = ReplaceWith("androidx.window.embedding.ActivityRule.Builder")
-    )
-    constructor(
-        filters: Set<ActivityFilter>,
-        alwaysExpand: Boolean = false,
-    ) : this(tag = null, filters, alwaysExpand)
-
-    internal constructor(
-        tag: String? = null,
-        filters: Set<ActivityFilter>,
-        alwaysExpand: Boolean = false,
-    ) : super(tag) {
-        this.filters = filters.toSet()
-        this.alwaysExpand = alwaysExpand
-    }
     /**
      * Builder for [ActivityRule].
      * @param filters See [ActivityRule.filters].
@@ -84,10 +67,7 @@ class ActivityRule : EmbeddingRule {
      * @see filters
      */
     internal operator fun plus(filter: ActivityFilter): ActivityRule {
-        val newSet = mutableSetOf<ActivityFilter>()
-        newSet.addAll(filters)
-        newSet.add(filter)
-        return ActivityRule(tag, newSet.toSet(), alwaysExpand)
+        return ActivityRule(tag, filters + filter, alwaysExpand)
     }
 
     override fun equals(other: Any?): Boolean {
