@@ -51,6 +51,7 @@ class XTypeTest {
             import java.util.Set;
             class Parent<InputStreamType extends InputStream> {
                 public void wildcardParam(Set<?> param1) {}
+                public void rawTypeParam(Set param1) {}
             }
             """.trimIndent()
         )
@@ -91,6 +92,10 @@ class XTypeTest {
                     .isEqualTo(
                         it.processingEnv.requireType(Set::class).rawType
                     )
+            }
+            type.typeElement!!.getMethodByJvmName("rawTypeParam").let { method ->
+                val rawTypeParam = method.parameters.first()
+                assertThat(rawTypeParam.type.typeArguments).isEmpty()
             }
         }
     }
