@@ -38,7 +38,6 @@ dependencies {
     api("androidx.datastore:datastore-preferences:1.0.0")
 
     implementation("androidx.annotation:annotation:1.1.0")
-    implementation("com.google.android.material:material:1.6.0")
     implementation(libs.kotlinStdlib)
     implementation(project(":compose:runtime:runtime"))
 
@@ -56,6 +55,7 @@ dependencies {
     testImplementation("androidx.datastore:datastore-core:1.0.0")
     testImplementation("androidx.datastore:datastore-preferences-core:1.0.0")
     testImplementation("androidx.datastore:datastore-preferences:1.0.0-rc02")
+    testImplementation("com.google.android.material:material:1.6.0")
 }
 
 android {
