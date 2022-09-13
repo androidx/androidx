@@ -1942,6 +1942,7 @@ public final class ImageCapture extends UseCase {
                 getSensorToBufferTransformMatrix(),
                 getRelativeRotation(requireNonNull(getCamera())),
                 getJpegQualityInternal(),
+                getCaptureMode(),
                 mSessionConfigBuilder.getSingleCameraCaptureCallbacks()));
     }
 

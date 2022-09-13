@@ -26,6 +26,7 @@ import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+import androidx.annotation.VisibleForTesting;
 import androidx.annotation.WorkerThread;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCaptureException;
@@ -116,13 +117,14 @@ public class ProcessingNode implements Node<ProcessingNode.In, Void> {
             throws ImageCaptureException {
         ProcessingRequest request = inputPacket.getProcessingRequest();
         Packet<ImageProxy> originalImage = mInput2Packet.process(inputPacket);
-        Packet<byte[]> originalJpeg = mImage2JpegBytes.process(originalImage);
-        // TODO: only crop if crop rect != image rect
-        Packet<Bitmap> croppedBitmap = mJpegBytes2CroppedBitmap.process(originalJpeg);
-        Packet<byte[]> finalJpeg = mBitmap2JpegBytes.process(
-                Bitmap2JpegBytes.In.of(croppedBitmap, request.getJpegQuality()));
+        Packet<byte[]> jpegBytes = mImage2JpegBytes.process(originalImage);
+        if (jpegBytes.hasCropping()) {
+            Packet<Bitmap> croppedBitmap = mJpegBytes2CroppedBitmap.process(jpegBytes);
+            jpegBytes = mBitmap2JpegBytes.process(
+                    Bitmap2JpegBytes.In.of(croppedBitmap, request.getJpegQuality()));
+        }
         return mJpegBytes2Disk.process(
-                JpegBytes2Disk.In.of(finalJpeg, requireNonNull(request.getOutputFileOptions())));
+                JpegBytes2Disk.In.of(jpegBytes, requireNonNull(request.getOutputFileOptions())));
     }
 
     @NonNull
@@ -178,5 +180,11 @@ public class ProcessingNode implements Node<ProcessingNode.In, Void> {
         static In of(int format) {
             return new AutoValue_ProcessingNode_In(new Edge<>(), format);
         }
+    }
+
+    @VisibleForTesting
+    void injectJpegBytes2CroppedBitmapForTesting(
+            @NonNull Processor<Packet<byte[]>, Packet<Bitmap>> processor) {
+        mJpegBytes2CroppedBitmap = processor;
     }
 }

@@ -43,9 +43,11 @@ object Utils {
     internal const val EXIF_DESCRIPTION = "description"
     internal const val ROTATION_DEGREES = 180
     internal const val ALTITUDE = 0.1
+    internal const val JPEG_QUALITY = 90
     internal val SENSOR_TO_BUFFER = Matrix().also { it.setScale(-1F, 1F, 320F, 240F) }
     internal val SIZE = Size(WIDTH, HEIGHT)
     internal val CROP_RECT = Rect(0, 240, WIDTH, HEIGHT)
+    internal val FULL_RECT = Rect(0, 0, WIDTH, HEIGHT)
     internal val TEMP_FILE = File.createTempFile(
         "unit_test_" + UUID.randomUUID().toString(), ".temp"
     ).also { it.deleteOnExit() }
