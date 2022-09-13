@@ -198,19 +198,36 @@ public class RowTest {
 
     @Test
     public void addAction() {
+        CarIcon icon = TestUtils.getTestCarIcon(ApplicationProvider.getApplicationContext(),
+                "ic_test_1");
+        Action customAction = new Action.Builder().setIcon(icon).build();
         Row row = new Row.Builder()
                 .setTitle("Title")
-                .addAction(Action.PAN)
-                .addAction(Action.BACK)
+                .addAction(customAction)
+                .addAction(customAction)
                 .build();
-        assertThat(row.getActions()).containsExactly(Action.PAN, Action.BACK);
+        assertThat(row.getActions()).containsExactly(customAction, customAction);
     }
 
     @Test
-    public void addAction_invalidActionType_throws() {
+    public void addAction_appIconInvalid_throws() {
         assertThrows(
                 IllegalArgumentException.class,
                 () -> new Row.Builder().setTitle("Title").addAction(Action.APP_ICON).build());
+    }
+
+    @Test
+    public void addAction_backInvalid_throws() {
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new Row.Builder().setTitle("Title").addAction(Action.BACK).build());
+    }
+
+    @Test
+    public void addAction_panInvalid_throws() {
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new Row.Builder().setTitle("Title").addAction(Action.PAN).build());
     }
 
     @Test
@@ -222,8 +239,8 @@ public class RowTest {
         assertThrows(
                 IllegalArgumentException.class,
                 () -> new Row.Builder().setTitle("Title")
-                        .addAction(Action.BACK)
-                        .addAction(Action.PAN)
+                        .addAction(customAction)
+                        .addAction(customAction)
                         .addAction(customAction)
                         .build());
     }
