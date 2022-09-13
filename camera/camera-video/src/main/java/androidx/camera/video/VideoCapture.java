@@ -45,6 +45,7 @@ import static java.util.Objects.requireNonNull;
 
 import android.graphics.ImageFormat;
 import android.graphics.Rect;
+import android.hardware.camera2.CameraDevice;
 import android.media.MediaCodec;
 import android.util.Pair;
 import android.util.Range;
@@ -98,6 +99,8 @@ import androidx.camera.core.processing.SurfaceEffectInternal;
 import androidx.camera.core.processing.SurfaceEffectNode;
 import androidx.camera.video.StreamInfo.StreamState;
 import androidx.camera.video.impl.VideoCaptureConfig;
+import androidx.camera.video.internal.compat.quirk.DeviceQuirks;
+import androidx.camera.video.internal.compat.quirk.PreviewStretchWhenVideoCaptureIsBoundQuirk;
 import androidx.camera.video.internal.config.MimeInfo;
 import androidx.camera.video.internal.encoder.InvalidConfigException;
 import androidx.camera.video.internal.encoder.VideoEncoderConfig;
@@ -144,6 +147,8 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
     private static final String SURFACE_UPDATE_KEY =
             "androidx.camera.video.VideoCapture.streamUpdate";
     private static final Defaults DEFAULT_CONFIG = new Defaults();
+    private static final boolean HAS_PREVIEW_STRETCH_QUIRK =
+            DeviceQuirks.get(PreviewStretchWhenVideoCaptureIsBoundQuirk.class) != null;
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     DeferrableSurface mDeferrableSurface;
@@ -504,6 +509,9 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         SessionConfig.Builder sessionConfigBuilder = SessionConfig.Builder.createFrom(config);
         sessionConfigBuilder.addErrorListener(
                 (sessionConfig, error) -> resetPipeline(cameraId, config, resolution));
+        if (HAS_PREVIEW_STRETCH_QUIRK) {
+            sessionConfigBuilder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
+        }
 
         return sessionConfigBuilder;
     }
@@ -737,6 +745,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         Logger.d(TAG, "candidatesList = " + candidatesList);
 
         // Find the smallest change in dimensions.
+        //noinspection ComparatorCombinators - Suggestion by Comparator.comparingInt is for API24+
         Collections.sort(candidatesList,
                 (s1, s2) -> (Math.abs(s1.getWidth() - cropRect.width()) + Math.abs(
                         s1.getHeight() - cropRect.height()))
