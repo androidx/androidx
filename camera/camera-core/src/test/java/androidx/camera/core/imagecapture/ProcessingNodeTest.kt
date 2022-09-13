@@ -26,6 +26,9 @@ import android.os.Looper.getMainLooper
 import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.imagecapture.Utils.EXIF_DESCRIPTION
 import androidx.camera.core.imagecapture.Utils.HEIGHT
+import androidx.camera.core.imagecapture.Utils.OUTPUT_FILE_OPTIONS
+import androidx.camera.core.imagecapture.Utils.ROTATION_DEGREES
+import androidx.camera.core.imagecapture.Utils.SENSOR_TO_BUFFER
 import androidx.camera.core.imagecapture.Utils.WIDTH
 import androidx.camera.core.imagecapture.Utils.createCaptureBundle
 import androidx.camera.core.imagecapture.Utils.createProcessingRequest
@@ -33,6 +36,7 @@ import androidx.camera.core.impl.utils.Exif.createFromFileString
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor
 import androidx.camera.core.internal.utils.ImageUtil
 import androidx.camera.testing.ExifUtil.updateExif
+import androidx.camera.testing.TestImageUtil.createBitmap
 import androidx.camera.testing.TestImageUtil.createJpegBytes
 import androidx.camera.testing.TestImageUtil.createJpegFakeImageProxy
 import androidx.camera.testing.TestImageUtil.getAverageDiff
@@ -63,6 +67,40 @@ class ProcessingNodeTest {
     fun setUp() {
         processingNodeIn = ProcessingNode.In.of(ImageFormat.JPEG)
         node.transform(processingNodeIn)
+    }
+
+    @Test
+    fun cropRectEqualsImageRect_croppingNotInvoked() {
+        // Arrange: create a request with no cropping
+        val callback = FakeTakePictureCallback()
+        val request = ProcessingRequest(
+            { listOf() },
+            OUTPUT_FILE_OPTIONS,
+            Rect(0, 0, WIDTH, HEIGHT),
+            ROTATION_DEGREES,
+            /*jpegQuality=*/100,
+            SENSOR_TO_BUFFER,
+            callback
+        )
+        val jpegBytes = createJpegBytes(WIDTH, HEIGHT)
+        val image = createJpegFakeImageProxy(jpegBytes)
+        // Track if cropping is invoked.
+        var croppingInvoked = false
+        node.injectJpegBytes2CroppedBitmapForTesting {
+            croppingInvoked = true
+            JpegBytes2CroppedBitmap().process(it)
+        }
+
+        // Act.
+        processingNodeIn.edge.accept(ProcessingNode.InputPacket.of(request, image))
+        shadowOf(getMainLooper()).idle()
+        val filePath = callback.onDiskResult!!.savedUri!!.path!!
+
+        // Assert: restored image is not cropped.
+        val restoredBitmap = BitmapFactory.decodeFile(filePath)
+        assertThat(getAverageDiff(createBitmap(WIDTH, HEIGHT), restoredBitmap)).isEqualTo(0)
+        // Assert: cropping was not invoked.
+        assertThat(croppingInvoked).isFalse()
     }
 
     @Test

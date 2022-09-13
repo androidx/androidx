@@ -29,6 +29,7 @@ import androidx.annotation.RequiresApi;
 import androidx.camera.core.ImageInfo;
 import androidx.camera.core.ImageProxy;
 import androidx.camera.core.impl.utils.Exif;
+import androidx.camera.core.impl.utils.TransformUtils;
 
 import com.google.auto.value.AutoValue;
 
@@ -117,6 +118,13 @@ public abstract class Packet<T> {
      */
     @NonNull
     public abstract Matrix getSensorToBufferTransform();
+
+    /**
+     * Returns true if the {@link Packet} needs cropping.
+     */
+    public boolean hasCropping() {
+        return TransformUtils.hasCropping(getCropRect(), getSize());
+    }
 
     /**
      * Creates {@link Bitmap} based {@link Packet}.

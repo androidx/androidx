@@ -105,6 +105,16 @@ public abstract class TakePictureRequest {
     abstract int getJpegQuality();
 
     /**
+     * Gets the capture mode of the request.
+     *
+     * <p>When there are software JPEG encoding/decoding, the value of {@link #getJpegQuality()}
+     * is used for the software encoding. The capture mode value is for calculating the JPEG
+     * quality for camera hardware encoding.
+     */
+    @ImageCapture.CaptureMode
+    abstract int getCaptureMode();
+
+    /**
      * Gets the {@link CameraCaptureCallback}s set on the {@link SessionConfig}.
      *
      * <p>This is for calling back to Camera2InterOp. See: aosp/947197.
@@ -157,6 +167,7 @@ public abstract class TakePictureRequest {
             @NonNull Matrix sensorToBufferTransform,
             int rotationDegrees,
             int jpegQuality,
+            @ImageCapture.CaptureMode int captureMode,
             @NonNull List<CameraCaptureCallback> sessionConfigCameraCaptureCallbacks) {
         checkArgument((onDiskCallback == null) == (outputFileOptions == null),
                 "onDiskCallback and outputFileOptions should be both null or both non-null.");
@@ -164,6 +175,6 @@ public abstract class TakePictureRequest {
                 "One and only one on-disk or in-memory callback should be present.");
         return new AutoValue_TakePictureRequest(appExecutor, inMemoryCallback,
                 onDiskCallback, outputFileOptions, cropRect, sensorToBufferTransform,
-                rotationDegrees, jpegQuality, sessionConfigCameraCaptureCallbacks);
+                rotationDegrees, jpegQuality, captureMode, sessionConfigCameraCaptureCallbacks);
     }
 }

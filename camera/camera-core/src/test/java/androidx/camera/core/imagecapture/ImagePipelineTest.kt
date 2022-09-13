@@ -17,16 +17,26 @@
 package androidx.camera.core.imagecapture
 
 import android.graphics.ImageFormat
+import android.graphics.Rect
 import android.hardware.camera2.CameraDevice
 import android.os.Build
 import android.os.Looper.getMainLooper
 import androidx.camera.core.ImageCapture
+import androidx.camera.core.ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY
+import androidx.camera.core.ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY
+import androidx.camera.core.ImageCapture.CaptureMode
 import androidx.camera.core.ImageCaptureException
+import androidx.camera.core.imagecapture.Utils.CROP_RECT
+import androidx.camera.core.imagecapture.Utils.FULL_RECT
 import androidx.camera.core.imagecapture.Utils.HEIGHT
+import androidx.camera.core.imagecapture.Utils.JPEG_QUALITY
+import androidx.camera.core.imagecapture.Utils.OUTPUT_FILE_OPTIONS
 import androidx.camera.core.imagecapture.Utils.ROTATION_DEGREES
+import androidx.camera.core.imagecapture.Utils.SENSOR_TO_BUFFER
 import androidx.camera.core.imagecapture.Utils.SIZE
 import androidx.camera.core.imagecapture.Utils.WIDTH
 import androidx.camera.core.imagecapture.Utils.injectRotationOptionQuirk
+import androidx.camera.core.impl.CaptureConfig
 import androidx.camera.core.impl.CaptureConfig.OPTION_ROTATION
 import androidx.camera.core.impl.ImageInputConfig
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor
@@ -92,6 +102,9 @@ class ImagePipelineTest {
             .containsExactly(captureInput.cameraCaptureCallback)
         assertThat(captureConfig.surfaces).containsExactly(captureInput.surface)
         assertThat(captureConfig.templateType).isEqualTo(TEMPLATE_TYPE)
+        val jpegQuality = captureConfig.implementationOptions
+            .retrieveOption(CaptureConfig.OPTION_JPEG_QUALITY)
+        assertThat(jpegQuality).isEqualTo(JPEG_QUALITY)
         assertThat(captureConfig.implementationOptions.retrieveOption(OPTION_ROTATION))
             .isEqualTo(ROTATION_DEGREES)
 
@@ -131,6 +144,76 @@ class ImagePipelineTest {
         processingRequest.onProcessFailure(FAILURE)
         // Assert: The failure is propagated.
         assertThat(CALLBACK.processFailure).isEqualTo(FAILURE)
+    }
+
+    @Test
+    fun createRequestWithCroppingAndMaxQuality_cameraRequestJpegQualityIs100() {
+        assertThat(
+            getCameraRequestJpegQuality(
+                CROP_RECT,
+                CAPTURE_MODE_MAXIMIZE_QUALITY
+            )
+        ).isEqualTo(
+            100
+        )
+    }
+
+    @Test
+    fun createRequestWithCroppingAndMinLatency_cameraRequestJpegQualityIsOriginal() {
+        assertThat(
+            getCameraRequestJpegQuality(
+                CROP_RECT,
+                CAPTURE_MODE_MINIMIZE_LATENCY
+            )
+        ).isEqualTo(
+            JPEG_QUALITY
+        )
+    }
+
+    @Test
+    fun createRequestWithoutCroppingAndMaxQuality_cameraRequestJpegQualityIsOriginal() {
+        assertThat(
+            getCameraRequestJpegQuality(
+                FULL_RECT,
+                CAPTURE_MODE_MAXIMIZE_QUALITY
+            )
+        ).isEqualTo(
+            JPEG_QUALITY
+        )
+    }
+
+    private fun getCameraRequestJpegQuality(
+        cropRect: Rect,
+        @CaptureMode captureMode: Int
+    ): Int {
+        // Arrange: TakePictureRequest with cropping
+        val request = TakePictureRequest.of(
+            mainThreadExecutor(), null,
+            object : ImageCapture.OnImageSavedCallback {
+                override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
+                }
+
+                override fun onError(exception: ImageCaptureException) {
+                }
+            },
+            OUTPUT_FILE_OPTIONS,
+            cropRect,
+            SENSOR_TO_BUFFER,
+            ROTATION_DEGREES,
+            JPEG_QUALITY,
+            captureMode,
+            listOf()
+        )
+
+        // Act: create camera request.
+        val result = imagePipeline.createRequests(request, CALLBACK)
+
+        // Get JPEG quality and return.
+        val cameraRequest = result.first!!
+        val captureConfig = cameraRequest.captureConfigs.single()
+        return captureConfig.implementationOptions.retrieveOption(
+            CaptureConfig.OPTION_JPEG_QUALITY
+        )!!
     }
 
     @Test

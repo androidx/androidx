@@ -71,6 +71,14 @@ public class TransformUtils {
     }
 
     /**
+     * Returns true if the crop rect does not match the size.
+     */
+    public static boolean hasCropping(@NonNull Rect cropRect, @NonNull Size size) {
+        return cropRect.left != 0 || cropRect.top != 0 || cropRect.width() != size.getWidth()
+                || cropRect.height() != size.getHeight();
+    }
+
+    /**
      * Transforms size to a {@link RectF} with zero left and top.
      */
     @NonNull
