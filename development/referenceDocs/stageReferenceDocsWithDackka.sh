@@ -61,7 +61,6 @@ readonly javaLibraryDirsThatDontUseDackka=(
   "androidx/exifinterface"
   "androidx/gridlayout"
   "androidx/heifwriter"
-  "androidx/hilt"
   "androidx/leanback"
   "androidx/media"
   "androidx/media2"
@@ -71,7 +70,6 @@ readonly javaLibraryDirsThatDontUseDackka=(
   "androidx/profileinstaller"
   "androidx/recommendation"
   "androidx/recyclerview"
-  "androidx/startup"
 )
 readonly kotlinLibraryDirsThatDontUseDackka=(
   "androidx/benchmark"
@@ -88,7 +86,6 @@ readonly kotlinLibraryDirsThatDontUseDackka=(
   "androidx/glance"
   "androidx/gridlayout"
   "androidx/heifwriter"
-  "androidx/hilt"
   "androidx/leanback"
   "androidx/media"
   "androidx/media2"
@@ -98,7 +95,6 @@ readonly kotlinLibraryDirsThatDontUseDackka=(
   "androidx/profileinstaller"
   "androidx/recommendation"
   "androidx/recyclerview"
-  "androidx/startup"
 )
 
 # Change directory to this script's location and store the directory
