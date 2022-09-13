@@ -604,10 +604,11 @@ version -- we record three different types of API surfaces.
 *   `<version>.txt`: Public API surface, tracked for compatibility
 *   `restricted_<version>.txt`: `@RestrictTo` API surface, tracked for
     compatibility where necessary (see
-    [Restricted APIs](api_guidelines.md#restricted-api))
+    [Restricted APIs](api_guidelines/index.md#restricted-api))
 *   `public_plus_experimental_<version>.txt`: Public API surface plus
     `@RequiresOptIn` experimental API surfaces used for documentation (see
-    [Experimental APIs](api_guidelines.md#experimental-api)) and API review
+    [Experimental APIs](api_guidelines/index.md#experimental-api)) and API
+    review
 
 ### Release notes & the `Relnote:` tag {#relnote}
 
