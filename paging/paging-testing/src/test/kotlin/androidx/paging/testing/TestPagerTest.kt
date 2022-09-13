@@ -18,12 +18,14 @@ package androidx.paging.testing
 
 import androidx.paging.PagingConfig
 import androidx.paging.PagingSource.LoadResult
+import androidx.paging.PagingState
 import androidx.paging.TestPagingSource
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertFailsWith
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -162,16 +164,39 @@ class TestPagerTest {
             assertThat(pages).hasSize(1)
             assertThat(pages).containsExactlyElementsIn(
                 listOf(
-                    LoadResult.Page(
-                        data = listOf(0, 1, 2, 3, 4),
-                        prevKey = null,
-                        nextKey = 5,
-                        itemsBefore = 0,
-                        itemsAfter = 95
-                    )
+                    listOf(0, 1, 2, 3, 4).asPage()
                 )
             ).inOrder()
         }
+    }
+
+    @Test
+    fun getPages_multiplePages() = runTest {
+        val source = TestPagingSource()
+        val pager = TestPager(source, CONFIG)
+
+        pager.run {
+            refresh(20)
+            prepend()
+        }
+        assertThat(pager.getPages()).containsExactlyElementsIn(
+            listOf(
+                // prepend
+                listOf(17, 18, 19).asPage(),
+                // refresh
+                listOf(20, 21, 22, 23, 24).asPage(),
+            )
+        ).inOrder()
+    }
+
+    @Test
+    fun getPages_fromEmptyList() = runTest {
+        val source = TestPagingSource()
+        val pager = TestPager(source, CONFIG)
+        val pages = pager.run {
+            getPages()
+        }
+        assertThat(pages).isEmpty()
     }
 
     @Test
@@ -189,23 +214,52 @@ class TestPagerTest {
             }
             assertThat(pages).containsExactlyElementsIn(
                 listOf(
-                    LoadResult.Page(
-                        data = listOf(0, 1, 2, 3, 4),
-                        prevKey = null,
-                        nextKey = 5,
-                        itemsBefore = 0,
-                        itemsAfter = 95
-                    ),
-                    LoadResult.Page(
-                        data = listOf(5, 6, 7),
-                        prevKey = 4,
-                        nextKey = 8,
-                        itemsBefore = 5,
-                        itemsAfter = 92
-                    )
+                    listOf(0, 1, 2, 3, 4).asPage(),
+                    listOf(5, 6, 7).asPage()
                 )
             ).inOrder()
         }
+    }
+
+    @Test
+    fun getPages_multiThread() = runTest {
+        val source = TestPagingSource()
+        val pager = TestPager(source, CONFIG)
+
+        var pages: List<LoadResult.Page<Int, Int>>? = null
+        val job = launch {
+            pager.run {
+                refresh(20) // first
+                pages = getPages() // third
+                prepend() // fifth
+            }
+        }
+        job.start()
+        assertTrue(job.isActive)
+        val pages2 = pager.run {
+            delay(200) // let launch start first
+            append() // second
+            prepend() // fourth
+            getPages() // sixth
+        }
+
+        advanceUntilIdle()
+        assertThat(pages).containsExactlyElementsIn(
+            listOf(
+                // should contain first and second load
+                listOf(20, 21, 22, 23, 24).asPage(), // refresh
+                listOf(25, 26, 27).asPage(), // append
+            )
+        ).inOrder()
+        assertThat(pages2).containsExactlyElementsIn(
+            // should contain all loads
+            listOf(
+                listOf(14, 15, 16).asPage(),
+                listOf(17, 18, 19).asPage(),
+                listOf(20, 21, 22, 23, 24).asPage(),
+                listOf(25, 26, 27).asPage(),
+            )
+        ).inOrder()
     }
 
     @Test
@@ -265,20 +319,8 @@ class TestPagerTest {
         assertThat(result.data).containsExactlyElementsIn(listOf(5, 6, 7)).inOrder()
         assertThat(pager.getPages()).containsExactlyElementsIn(
             listOf(
-                LoadResult.Page(
-                    data = listOf(0, 1, 2, 3, 4),
-                    prevKey = null,
-                    nextKey = 5,
-                    itemsBefore = 0,
-                    itemsAfter = 95
-                ),
-                LoadResult.Page(
-                    data = listOf(5, 6, 7),
-                    prevKey = 4,
-                    nextKey = 8,
-                    itemsBefore = 5,
-                    itemsAfter = 92
-                )
+                listOf(0, 1, 2, 3, 4).asPage(),
+                listOf(5, 6, 7).asPage()
             )
         ).inOrder()
     }
@@ -298,21 +340,9 @@ class TestPagerTest {
         assertThat(pager.getPages()).containsExactlyElementsIn(
             listOf(
                 // prepend
-                LoadResult.Page(
-                    data = listOf(27, 28, 29),
-                    prevKey = 26,
-                    nextKey = 30,
-                    itemsBefore = 27,
-                    itemsAfter = 70
-                ),
+                listOf(27, 28, 29).asPage(),
                 // refresh
-                LoadResult.Page(
-                    data = listOf(30, 31, 32, 33, 34),
-                    prevKey = 29,
-                    nextKey = 35,
-                    itemsBefore = 30,
-                    itemsAfter = 65
-                ),
+                listOf(30, 31, 32, 33, 34).asPage()
             )
         ).inOrder()
     }
@@ -380,27 +410,9 @@ class TestPagerTest {
 
         assertThat(pager.getPages()).containsExactlyElementsIn(
             listOf(
-                LoadResult.Page(
-                    data = listOf(20, 21, 22, 23, 24),
-                    prevKey = 19,
-                    nextKey = 25,
-                    itemsBefore = 20,
-                    itemsAfter = 75
-                ),
-                LoadResult.Page(
-                    data = listOf(25, 26, 27),
-                    prevKey = 24,
-                    nextKey = 28,
-                    itemsBefore = 25,
-                    itemsAfter = 72
-                ),
-                LoadResult.Page(
-                    data = listOf(28, 29, 30),
-                    prevKey = 27,
-                    nextKey = 31,
-                    itemsBefore = 28,
-                    itemsAfter = 69
-                )
+                listOf(20, 21, 22, 23, 24).asPage(),
+                listOf(25, 26, 27).asPage(),
+                listOf(28, 29, 30).asPage()
             )
         ).inOrder()
     }
@@ -420,29 +432,11 @@ class TestPagerTest {
         assertThat(pager.getPages()).containsExactlyElementsIn(
             listOf(
                 // 2nd prepend
-                LoadResult.Page(
-                    data = listOf(14, 15, 16),
-                    prevKey = 13,
-                    nextKey = 17,
-                    itemsBefore = 14,
-                    itemsAfter = 83
-                ),
+                listOf(14, 15, 16).asPage(),
                 // 1st prepend
-                LoadResult.Page(
-                    data = listOf(17, 18, 19),
-                    prevKey = 16,
-                    nextKey = 20,
-                    itemsBefore = 17,
-                    itemsAfter = 80
-                ),
+                listOf(17, 18, 19).asPage(),
                 // refresh
-                LoadResult.Page(
-                    data = listOf(20, 21, 22, 23, 24),
-                    prevKey = 19,
-                    nextKey = 25,
-                    itemsBefore = 20,
-                    itemsAfter = 75
-                ),
+                listOf(20, 21, 22, 23, 24).asPage(),
             )
         ).inOrder()
     }
@@ -461,29 +455,11 @@ class TestPagerTest {
         assertThat(pager.getPages()).containsExactlyElementsIn(
             listOf(
                 // prepend
-                LoadResult.Page(
-                    data = listOf(17, 18, 19),
-                    prevKey = 16,
-                    nextKey = 20,
-                    itemsBefore = 17,
-                    itemsAfter = 80
-                ),
+                listOf(17, 18, 19).asPage(),
                 // refresh
-                LoadResult.Page(
-                    data = listOf(20, 21, 22, 23, 24),
-                    prevKey = 19,
-                    nextKey = 25,
-                    itemsBefore = 20,
-                    itemsAfter = 75
-                ),
+                listOf(20, 21, 22, 23, 24).asPage(),
                 // append
-                LoadResult.Page(
-                    data = listOf(25, 26, 27),
-                    prevKey = 24,
-                    nextKey = 28,
-                    itemsBefore = 25,
-                    itemsAfter = 72
-                ),
+                listOf(25, 26, 27).asPage(),
             )
         ).inOrder()
     }
@@ -502,29 +478,11 @@ class TestPagerTest {
         assertThat(pager.getPages()).containsExactlyElementsIn(
             listOf(
                 // prepend
-                LoadResult.Page(
-                    data = listOf(17, 18, 19),
-                    prevKey = 16,
-                    nextKey = 20,
-                    itemsBefore = 17,
-                    itemsAfter = 80
-                ),
+                listOf(17, 18, 19).asPage(),
                 // refresh
-                LoadResult.Page(
-                    data = listOf(20, 21, 22, 23, 24),
-                    prevKey = 19,
-                    nextKey = 25,
-                    itemsBefore = 20,
-                    itemsAfter = 75
-                ),
+                listOf(20, 21, 22, 23, 24).asPage(),
                 // append
-                LoadResult.Page(
-                    data = listOf(25, 26, 27),
-                    prevKey = 24,
-                    nextKey = 28,
-                    itemsBefore = 25,
-                    itemsAfter = 72
-                ),
+                listOf(25, 26, 27).asPage(),
             )
         ).inOrder()
     }
@@ -554,50 +512,17 @@ class TestPagerTest {
             prepend().also { loadOrder.add(4) } // fourth load
         }
 
-        job.invokeOnCompletion {
-            launch {
-                assertThat(loadOrder).containsExactlyElementsIn(listOf(1, 2, 3, 4, 5)).inOrder()
-                assertThat(pager.getPages()).containsExactlyElementsIn(
-                    listOf(
-                        LoadResult.Page(
-                            data = listOf(14, 15, 16),
-                            prevKey = 13,
-                            nextKey = 17,
-                            itemsBefore = 14,
-                            itemsAfter = 83
-                        ),
-                        LoadResult.Page(
-                            data = listOf(17, 18, 19),
-                            prevKey = 16,
-                            nextKey = 20,
-                            itemsBefore = 17,
-                            itemsAfter = 80
-                        ),
-                        LoadResult.Page(
-                            data = listOf(20, 21, 22, 23, 24),
-                            prevKey = 19,
-                            nextKey = 25,
-                            itemsBefore = 20,
-                            itemsAfter = 75
-                        ),
-                        LoadResult.Page(
-                            data = listOf(25, 26, 27),
-                            prevKey = 24,
-                            nextKey = 28,
-                            itemsBefore = 25,
-                            itemsAfter = 72
-                        ),
-                        LoadResult.Page(
-                            data = listOf(28, 29, 30),
-                            prevKey = 27,
-                            nextKey = 31,
-                            itemsBefore = 28,
-                            itemsAfter = 69
-                        ),
-                    )
-                ).inOrder()
-            }
-        }
+        advanceUntilIdle()
+        assertThat(loadOrder).containsExactlyElementsIn(listOf(1, 2, 3, 4, 5)).inOrder()
+        assertThat(pager.getPages()).containsExactlyElementsIn(
+            listOf(
+                listOf(14, 15, 16).asPage(),
+                listOf(17, 18, 19).asPage(),
+                listOf(20, 21, 22, 23, 24).asPage(),
+                listOf(25, 26, 27).asPage(),
+                listOf(28, 29, 30).asPage(),
+            )
+        ).inOrder()
     }
 
     @Test
@@ -630,59 +555,171 @@ class TestPagerTest {
             getPages().also { loadOrder.add(6) }
         }
 
-        job.invokeOnCompletion {
-            launch {
-                assertThat(loadOrder).containsExactlyElementsIn(
-                    listOf(1, 2, 3, 4, 5, 6, 7)
-                ).inOrder()
-                assertThat(lastLoadedPage).isEqualTo(
-                    LoadResult.Page(
-                        data = listOf(25, 26, 27),
-                        prevKey = 24,
-                        nextKey = 28,
-                        itemsBefore = 25,
-                        itemsAfter = 72
-                    ),
-                )
-                // should not contain the second prepend, with a total of 4 pages
-                assertThat(pages).containsExactlyElementsIn(
-                    listOf(
-                        LoadResult.Page( // first prepend
-                            data = listOf(17, 18, 19),
-                            prevKey = 16,
-                            nextKey = 20,
-                            itemsBefore = 17,
-                            itemsAfter = 80
-                        ),
-                        LoadResult.Page( // refresh
-                            data = listOf(20, 21, 22, 23, 24),
-                            prevKey = 19,
-                            nextKey = 25,
-                            itemsBefore = 20,
-                            itemsAfter = 75
-                        ),
-                        LoadResult.Page( // first append
-                            data = listOf(25, 26, 27),
-                            prevKey = 24,
-                            nextKey = 28,
-                            itemsBefore = 25,
-                            itemsAfter = 72
-                        ),
-                        LoadResult.Page( // second append
-                            data = listOf(28, 29, 30),
-                            prevKey = 27,
-                            nextKey = 31,
-                            itemsBefore = 28,
-                            itemsAfter = 69
-                        ),
-                    )
-                ).inOrder()
-            }
+        advanceUntilIdle()
+        assertThat(loadOrder).containsExactlyElementsIn(
+            listOf(1, 2, 3, 4, 5, 6, 7)
+        ).inOrder()
+        assertThat(lastLoadedPage).isEqualTo(
+            listOf(25, 26, 27).asPage(),
+        )
+        // should not contain the second prepend, with a total of 4 pages
+        assertThat(pages).containsExactlyElementsIn(
+            listOf(
+                listOf(17, 18, 19).asPage(), // first prepend
+                listOf(20, 21, 22, 23, 24).asPage(), // refresh
+                listOf(25, 26, 27).asPage(), // first append
+                listOf(28, 29, 30).asPage(), // second append
+            )
+        ).inOrder()
+    }
+
+    @Test
+    fun getPagingStateWithAnchorPosition_placeHoldersEnabled() = runTest {
+        val source = TestPagingSource()
+        val pager = TestPager(source, CONFIG)
+
+        val state = pager.run {
+            refresh(20)
+            prepend()
+            append()
+            getPagingState(7)
         }
+        assertThat(state).isEqualTo(
+            PagingState(
+                pages = listOf(
+                    listOf(17, 18, 19).asPage(),
+                    // refresh
+                    listOf(20, 21, 22, 23, 24).asPage(),
+                    // append
+                    listOf(25, 26, 27).asPage(),
+                ),
+                anchorPosition = 7,
+                config = CONFIG,
+                leadingPlaceholderCount = 17
+            )
+        )
+    }
+
+    @Test
+    fun getPagingStateWithAnchorPosition_placeHoldersDisabled() = runTest {
+        val source = TestPagingSource(placeholdersEnabled = false)
+        val config = PagingConfig(
+            pageSize = 3,
+            initialLoadSize = 5,
+            enablePlaceholders = false
+        )
+        val pager = TestPager(source, config)
+
+        val state = pager.run {
+            refresh(20)
+            prepend()
+            append()
+            getPagingState(7)
+        }
+        assertThat(state).isEqualTo(
+            PagingState(
+                pages = listOf(
+                    listOf(17, 18, 19).asPage(placeholdersEnabled = false),
+                    // refresh
+                    listOf(20, 21, 22, 23, 24).asPage(placeholdersEnabled = false),
+                    // append
+                    listOf(25, 26, 27).asPage(placeholdersEnabled = false),
+                ),
+                anchorPosition = 7,
+                config = config,
+                leadingPlaceholderCount = 0
+            )
+        )
+    }
+
+    @Test
+    fun getPagingStateWithAnchorPosition_indexOutOfBoundsWithPlaceholders() = runTest {
+        val source = TestPagingSource()
+        val pager = TestPager(source, CONFIG)
+
+        val msg = assertFailsWith<IllegalStateException> {
+            pager.run {
+                refresh()
+                append()
+                getPagingState(-1)
+            }
+        }.localizedMessage
+        assertThat(msg).isEqualTo(
+            "anchorPosition -1 is out of bounds between [0..${ITEM_COUNT - 1}]. Please " +
+                "provide a valid anchorPosition."
+        )
+
+        val msg2 = assertFailsWith<IllegalStateException> {
+            pager.run {
+                getPagingState(ITEM_COUNT)
+            }
+        }.localizedMessage
+        assertThat(msg2).isEqualTo(
+            "anchorPosition $ITEM_COUNT is out of bounds between [0..${ITEM_COUNT - 1}]. " +
+                "Please provide a valid anchorPosition."
+        )
+    }
+
+    @Test
+    fun getPagingStateWithAnchorPosition_indexOutOfBoundsWithoutPlaceholders() = runTest {
+        val source = TestPagingSource()
+        val pager = TestPager(
+            source,
+            PagingConfig(
+                pageSize = 3,
+                initialLoadSize = 5,
+                enablePlaceholders = false
+            )
+        )
+
+        val msg = assertFailsWith<IllegalStateException> {
+            pager.run {
+                refresh()
+                append()
+                getPagingState(-1)
+            }
+        }.localizedMessage
+        assertThat(msg).isEqualTo(
+            "anchorPosition -1 is out of bounds between [0..7]. Please " +
+                "provide a valid anchorPosition."
+        )
+
+        // total loaded items = 8, anchorPos with index 8 should be out of bounds
+        val msg2 = assertFailsWith<IllegalStateException> {
+            pager.run {
+                getPagingState(8)
+            }
+        }.localizedMessage
+        assertThat(msg2).isEqualTo(
+            "anchorPosition 8 is out of bounds between [0..7]. Please " +
+        "provide a valid anchorPosition."
+        )
     }
 
     private val CONFIG = PagingConfig(
         pageSize = 3,
         initialLoadSize = 5,
     )
+
+    private fun List<Int>.asPage(placeholdersEnabled: Boolean = true): LoadResult.Page<Int, Int> {
+        val itemsBefore = if (placeholdersEnabled) {
+            if (first() == 0) 0 else first()
+        } else {
+            Int.MIN_VALUE
+        }
+        val itemsAfter = if (placeholdersEnabled) {
+            if (last() == ITEM_COUNT - 1) 0 else ITEM_COUNT - 1 - last()
+        } else {
+            Int.MIN_VALUE
+        }
+        return LoadResult.Page(
+            data = this,
+            prevKey = if (first() == 0) null else first() - 1,
+            nextKey = if (last() == ITEM_COUNT - 1) null else last() + 1,
+            itemsBefore = itemsBefore,
+            itemsAfter = itemsAfter
+        )
+    }
+
+    private val ITEM_COUNT = 100
 }

@@ -25,6 +25,8 @@ import androidx.paging.PagingSource
 import androidx.paging.PagingSource.LoadParams
 import androidx.paging.PagingSource.LoadResult
 import androidx.paging.Pager
+import androidx.paging.PagingSource.LoadResult.Page.Companion.COUNT_UNDEFINED
+import androidx.paging.PagingState
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -178,6 +180,93 @@ public class TestPager<Key : Any, Value : Any>(
     public suspend fun getPages(): List<LoadResult.Page<Key, Value>> {
         return lock.withLock {
             pages.toList()
+        }
+    }
+
+    /**
+     * Returns a [PagingState] to generate a [LoadParams.key] by supplying it to
+     * [PagingSource.getRefreshKey]. The key returned from [PagingSource.getRefreshKey]
+     * should be used as the [LoadParams.Refresh.key] when calling [refresh] on a new generation of
+     * TestPager.
+     *
+     * The anchorPosition must be within index of loaded items, which can include
+     * placeholders if [PagingConfig.enablePlaceholders] is true. For example:
+     * - No placeholders: If 40 items have been loaded so far , anchorPosition must be
+     * in [0 .. 39].
+     * - With placeholders: If there are a total of 100 loadable items, the anchorPosition
+     * must be in [0..99].
+     *
+     * The [anchorPosition] should be the index that the user has hypothetically
+     * scrolled to on the UI. Since the [PagingState.anchorPosition] in Paging can be based
+     * on any item or placeholder currently visible on the screen, the actual
+     * value of [PagingState.anchorPosition] may not exactly match the [anchorPosition] passed
+     * to this function even if viewing the same page of data.
+     *
+     * @param anchorPosition the index representing the last accessed item within the
+     * items presented on the UI, which may be a placeholder if
+     * [PagingConfig.enablePlaceholders] is true.
+     *
+     * @throws IllegalStateException if anchorPosition is out of bounds
+     */
+    public suspend fun getPagingState(anchorPosition: Int): PagingState<Key, Value> {
+        lock.withLock {
+            checkWithinBoundary(anchorPosition)
+            return PagingState(
+                pages = pages.toList(),
+                anchorPosition = anchorPosition,
+                config = config,
+                leadingPlaceholderCount = getLeadingPlaceholderCount()
+            )
+        }
+    }
+
+    /**
+     * Ensures the anchorPosition is within boundary of loaded data.
+     *
+     * If placeholders are enabled, the provided anchorPosition must be within boundaries of
+     * [0 .. itemCount - 1], which includes placeholders before and after loaded data.
+     *
+     * If placeholders are disabled, the provided anchorPosition must be within boundaries of
+     * [0 .. loaded data size - 1].
+     *
+     * @throws IllegalStateException if anchorPosition is out of bounds
+     */
+    private fun checkWithinBoundary(anchorPosition: Int) {
+        val loadedSize = pages.fold(0) { acc, page ->
+            acc + page.data.size
+        }
+        val maxBoundary = if (config.enablePlaceholders) {
+            (pages.firstOrNull()?.itemsBefore ?: 0) + loadedSize +
+                (pages.lastOrNull()?.itemsAfter ?: 0) - 1
+        } else {
+            loadedSize - 1
+        }
+        check(anchorPosition in 0..maxBoundary) {
+            "anchorPosition $anchorPosition is out of bounds between [0..$maxBoundary]. Please " +
+                "provide a valid anchorPosition."
+        }
+    }
+
+    // Number of placeholders before the first loaded item if placeholders are enabled, otherwise 0.
+    private fun getLeadingPlaceholderCount(): Int {
+        return if (config.enablePlaceholders) {
+            // itemsBefore represents placeholders before first loaded item, and can be
+            // one of three.
+            // 1. valid int if implemented
+            // 2. null if pages empty
+            // 3. COUNT_UNDEFINED if not implemented
+            val itemsBefore: Int? = pages.firstOrNull()?.itemsBefore
+            // finalItemsBefore is `null` if it is either case 2. or 3.
+            val finalItemsBefore = if (itemsBefore == null || itemsBefore == COUNT_UNDEFINED) {
+                null
+            } else {
+                itemsBefore
+            }
+            // This will ultimately return 0 if user didn't implement itemsBefore or if pages
+            // are empty, i.e. user called getPagingState before any loads.
+            finalItemsBefore ?: 0
+        } else {
+            0
         }
     }
 
