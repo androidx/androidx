@@ -72,9 +72,9 @@ package androidx.wear.watchface.style {
     method public operator androidx.wear.watchface.style.UserStyleSetting? get(androidx.wear.watchface.style.UserStyleSetting.Id settingId);
     method public byte[] getDigestHash();
     method public java.util.List<androidx.wear.watchface.style.UserStyleSetting> getRootUserStyleSettings();
-    method public java.util.List<androidx.wear.watchface.style.UserStyleSetting> getUserStyleSettings();
+    method @Deprecated public java.util.List<androidx.wear.watchface.style.UserStyleSetting> getUserStyleSettings();
     property public final java.util.List<androidx.wear.watchface.style.UserStyleSetting> rootUserStyleSettings;
-    property public final java.util.List<androidx.wear.watchface.style.UserStyleSetting> userStyleSettings;
+    property @Deprecated public final java.util.List<androidx.wear.watchface.style.UserStyleSetting> userStyleSettings;
   }
 
   public abstract sealed class UserStyleSetting {

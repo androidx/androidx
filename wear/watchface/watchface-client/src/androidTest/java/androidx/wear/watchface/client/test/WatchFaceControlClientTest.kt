@@ -498,6 +498,7 @@ class WatchFaceControlClientTest {
     }
 
     @Test
+    @Suppress("Deprecation") // userStyleSettings
     fun specifiedComplicationSlotNamesThroughComplicationSlotOption() {
         val wallpaperService = TestComplicationStyleUpdateWatchFaceService(
             context,
@@ -549,6 +550,7 @@ class WatchFaceControlClientTest {
     }
 
     @Test
+    @Suppress("Deprecation") // userStyleSettings
     fun headlessUserStyleSchema() {
         val headlessInstance = service.createHeadlessWatchFaceClient(
             "id",
@@ -601,6 +603,7 @@ class WatchFaceControlClientTest {
     }
 
     @Test
+    @Suppress("Deprecation") // userStyleSettings
     fun headlessToBundleAndCreateFromBundle() {
         val headlessInstance = HeadlessWatchFaceClient.createFromBundle(
             service.createHeadlessWatchFaceClient(

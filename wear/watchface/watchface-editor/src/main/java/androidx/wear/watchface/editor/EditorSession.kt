@@ -862,6 +862,7 @@ internal class OnWatchFaceEditorSessionImpl(
         }
     } as MutableStateFlow<UserStyle>
 
+    @Suppress("Deprecation") // userStyleSettings
     internal fun validateAndUpdateUserStyle(userStyle: UserStyle) {
         for (userStyleSetting in userStyle.keys) {
             require(userStyleSchema.userStyleSettings.contains(userStyleSetting)) {

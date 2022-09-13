@@ -73,6 +73,7 @@ public class ListenableWatchFaceControlClientTest {
     }
 
     @Test
+    @Suppress("Deprecation") // userStyleSettings
     public fun headlessSchemaSettingIds() {
         val client = ListenableWatchFaceControlClient.createWatchFaceControlClient(
             context,
@@ -130,6 +131,7 @@ public class ListenableWatchFaceControlClientTest {
     }
 
     @Test
+    @Suppress("Deprecation") // userStyleSettings
     public fun listenableGetOrCreateWallpaperServiceBackedInteractiveWatchFaceWcsClient() {
         val client = ListenableWatchFaceControlClient.createWatchFaceControlClient(
             context,

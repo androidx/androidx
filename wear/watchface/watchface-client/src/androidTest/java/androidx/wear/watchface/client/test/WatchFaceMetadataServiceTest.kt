@@ -81,6 +81,7 @@ public class WatchFaceMetadataServiceTest {
     }
 
     @Test
+    @Suppress("Deprecation") // userStyleSettings
     public fun userStyleSchema() {
         val client = createWatchFaceMetadataClient(exampleWatchFaceComponentName)
         val schema = client.getUserStyleSchema()
@@ -106,6 +107,7 @@ public class WatchFaceMetadataServiceTest {
     }
 
     @Test
+    @Suppress("Deprecation") // userStyleSettings
     public fun userStyleSchema_oldApi() {
         WatchFaceControlTestService.apiVersionOverride = 1
         val client = createWatchFaceMetadataClient(exampleWatchFaceComponentName)
@@ -193,6 +195,7 @@ public class WatchFaceMetadataServiceTest {
     }
 
     @Test
+    @Suppress("Deprecation") // userStyleSettings
     public fun userStyleSchema_static_metadata() {
         runBlocking {
             val client = WatchFaceMetadataClient.createImpl(
