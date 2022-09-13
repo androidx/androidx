@@ -102,6 +102,7 @@ abstract class InMemoryParser : KXmlParser() {
 
   private fun onNextFromStartDocument() {
     val rootTag = rootTag()
+    @Suppress("SENSELESS_COMPARISON")
     parsingState = if (rootTag != null) {
       push(rootTag)
       START_TAG

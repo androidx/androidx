@@ -186,7 +186,9 @@ class Paparazzi @JvmOverloads constructor(
     renderer.dumpDelegates()
   }
 
-  fun <V : View> inflate(@LayoutRes layoutId: Int): V = layoutInflater.inflate(layoutId, null) as V
+  @Suppress("UNCHECKED_CAST")
+  fun <V : View> inflate(@LayoutRes layoutId: Int): V =
+    layoutInflater.inflate(layoutId, null) as V
 
   fun snapshot(name: String? = null, composable: @Composable () -> Unit) {
     val hostView = ComposeView(context)

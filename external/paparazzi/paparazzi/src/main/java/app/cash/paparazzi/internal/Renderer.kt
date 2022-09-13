@@ -21,9 +21,6 @@ import app.cash.paparazzi.Environment
 import app.cash.paparazzi.Flags
 import app.cash.paparazzi.internal.parsers.LayoutPullParser
 import com.android.ide.common.rendering.api.SessionParams
-import com.android.ide.common.resources.deprecated.FrameworkResources
-import com.android.ide.common.resources.deprecated.ResourceItem
-import com.android.ide.common.resources.deprecated.ResourceRepository
 import com.android.io.FolderWrapper
 import com.android.layoutlib.bridge.Bridge
 import com.android.layoutlib.bridge.android.RenderParamsFlags
@@ -47,14 +44,24 @@ internal class Renderer(
   /** Initialize the bridge and the resource maps. */
   fun prepare(): SessionParamsBuilder {
     val platformDataResDir = File("${environment.platformDir}/data/res")
-    val frameworkResources = FrameworkResources(FolderWrapper(platformDataResDir)).apply {
+
+    @Suppress("DEPRECATION")
+    val frameworkResources = com.android.ide.common.resources.deprecated.FrameworkResources(
+      FolderWrapper(platformDataResDir)
+    ).apply {
       loadResources()
       loadPublicResources(logger)
     }
 
-    val projectResources = object : ResourceRepository(FolderWrapper(environment.resDir), false) {
-      override fun createResourceItem(name: String): ResourceItem {
-        return ResourceItem(name)
+    @Suppress("DEPRECATION")
+    val projectResources = object : com.android.ide.common.resources.deprecated.ResourceRepository(
+      FolderWrapper(environment.resDir),
+      false
+    ) {
+      override fun createResourceItem(
+        name: String
+      ): com.android.ide.common.resources.deprecated.ResourceItem {
+        return com.android.ide.common.resources.deprecated.ResourceItem(name)
       }
     }
     projectResources.loadResources()
@@ -106,7 +113,7 @@ internal class Renderer(
   }
 
   private fun getNativeLibDir(): String {
-    val osName = System.getProperty("os.name").toLowerCase(Locale.US)
+    val osName = System.getProperty("os.name").lowercase(Locale.US)
     val osLabel = when {
       osName.startsWith("windows") -> "win"
       osName.startsWith("mac") -> {

@@ -173,6 +173,7 @@ internal class PaparazziCallback(
 
   override fun createXmlParser(): XmlPullParser = KXmlParser()
 
+  @Suppress("UNCHECKED_CAST")
   override fun <T> getFlag(key: Key<T>?): T? {
     return when (key) {
       RenderParamsFlags.FLAG_KEY_APPLICATION_PACKAGE -> packageName as T

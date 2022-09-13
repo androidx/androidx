@@ -33,7 +33,7 @@ internal fun Snapshot.toFileName(
   extension: String
 ): String {
   val formattedLabel = if (name != null) {
-    "$delimiter${name.toLowerCase(Locale.US).replace("\\s".toRegex(), delimiter)}"
+    "$delimiter${name.lowercase(Locale.US).replace("\\s".toRegex(), delimiter)}"
   } else {
     ""
   }

@@ -73,6 +73,7 @@ internal class LayoutPullParser : InMemoryParser, AaptAttrParser, ILayoutPullPar
 
   override fun rootTag() = root
 
+  @Suppress("SENSELESS_COMPARISON")
   override fun getViewCookie(): Any? {
     // TODO: Implement this properly.
     val name = super.getName() ?: return null
@@ -140,13 +141,13 @@ internal class LayoutPullParser : InMemoryParser, AaptAttrParser, ILayoutPullPar
      * @param layoutPath Must start with '/' and be relative to test resources.
      */
     fun createFromPath(layoutPath: String): LayoutPullParser {
-      var layoutPath = layoutPath
+      @Suppress("NAME_SHADOWING") var layoutPath = layoutPath
       if (layoutPath.startsWith("/")) {
         layoutPath = layoutPath.substring(1)
       }
 
       return LayoutPullParser(
-        LayoutPullParser::class.java.classLoader.getResourceAsStream(layoutPath)
+        LayoutPullParser::class.java.classLoader!!.getResourceAsStream(layoutPath)
       )
     }
 

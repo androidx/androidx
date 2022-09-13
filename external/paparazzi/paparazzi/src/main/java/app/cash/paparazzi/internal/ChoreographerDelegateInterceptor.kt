@@ -7,6 +7,6 @@ object ChoreographerDelegateInterceptor {
   @Suppress("unused")
   @JvmStatic
   fun intercept(
-    choreographer: Choreographer
+    @Suppress("UNUSED_PARAMETER") choreographer: Choreographer
   ): Long = System_Delegate.nanoTime()
 }

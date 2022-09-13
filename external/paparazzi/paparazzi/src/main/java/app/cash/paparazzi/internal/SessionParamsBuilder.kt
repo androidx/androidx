@@ -27,7 +27,6 @@ import com.android.ide.common.rendering.api.SessionParams.Key
 import com.android.ide.common.rendering.api.SessionParams.RenderingMode
 import com.android.ide.common.resources.ResourceResolver
 import com.android.ide.common.resources.ResourceValueMap
-import com.android.ide.common.resources.deprecated.ResourceRepository
 import com.android.layoutlib.bridge.Bridge
 import com.android.resources.LayoutDirection
 import com.android.resources.ResourceType
@@ -36,9 +35,11 @@ import com.android.resources.ResourceType
 internal data class SessionParamsBuilder(
   private val layoutlibCallback: PaparazziCallback,
   private val logger: PaparazziLogger,
-  private val frameworkResources: ResourceRepository,
+  @Suppress("DEPRECATION")
+  private val frameworkResources: com.android.ide.common.resources.deprecated.ResourceRepository,
   private val assetRepository: AssetRepository,
-  private val projectResources: ResourceRepository,
+  @Suppress("DEPRECATION")
+  private val projectResources: com.android.ide.common.resources.deprecated.ResourceRepository,
   private val deviceConfig: DeviceConfig = DeviceConfig.NEXUS_5,
   private val renderingMode: RenderingMode = RenderingMode.NORMAL,
   private val targetSdk: Int = 22,
@@ -75,6 +76,8 @@ internal data class SessionParamsBuilder(
     require(themeName != null)
 
     val folderConfiguration = deviceConfig.folderConfiguration
+
+    @Suppress("DEPRECATION")
     val resourceResolver = ResourceResolver.create(
       mapOf<ResourceNamespace, Map<ResourceType, ResourceValueMap>>(
         ResourceNamespace.ANDROID to frameworkResources.getConfiguredResources(
@@ -111,6 +114,7 @@ internal data class SessionParamsBuilder(
     result.setRtlSupport(true)
 
     for ((key, value) in flags) {
+      @Suppress("UNCHECKED_CAST")
       result.setFlag(key as Key<Any>, value)
     }
     result.setAssetRepository(assetRepository)

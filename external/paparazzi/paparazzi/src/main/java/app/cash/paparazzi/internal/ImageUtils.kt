@@ -101,7 +101,7 @@ internal object ImageUtils {
     image: BufferedImage,
     maxPercentDifferent: Double
   ) {
-    var goldenImage = goldenImage
+    @Suppress("NAME_SHADOWING") var goldenImage = goldenImage
     if (goldenImage.type != TYPE_INT_ARGB) {
       val temp = BufferedImage(
         goldenImage.width,
@@ -224,7 +224,7 @@ internal object ImageUtils {
     xScale: Double,
     yScale: Double
   ): BufferedImage {
-    var source = source
+    @Suppress("NAME_SHADOWING") var source = source
 
     var sourceWidth = source.width
     var sourceHeight = source.height
@@ -332,7 +332,7 @@ internal object ImageUtils {
     initialMessage: String,
     relativePath: String
   ): String {
-    var initialMessage = initialMessage
+    @Suppress("NAME_SHADOWING") var initialMessage = initialMessage
     val output = File(
       failureDir,
       getName(relativePath)

@@ -24,6 +24,7 @@ internal object Gc {
     var obj: Any? = Any()
     val ref = WeakReference<Any>(obj)
 
+    @Suppress("UNUSED_VAlUE")
     obj = null
     while (ref.get() != null) {
       System.gc()

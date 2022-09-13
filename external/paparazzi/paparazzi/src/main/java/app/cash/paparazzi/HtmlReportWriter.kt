@@ -290,5 +290,5 @@ internal val filenameSafeChars = CharMatcher.inRange('a', 'z')
   .or(CharMatcher.anyOf("_-.~@^()[]{}:;,"))
 
 internal fun String.sanitizeForFilename(): String? {
-  return filenameSafeChars.negate().replaceFrom(toLowerCase(Locale.US), '_')
+  return filenameSafeChars.negate().replaceFrom(lowercase(Locale.US), '_')
 }
