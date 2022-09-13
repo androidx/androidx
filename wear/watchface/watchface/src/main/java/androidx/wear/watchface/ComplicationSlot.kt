@@ -35,6 +35,7 @@ import androidx.wear.watchface.complications.data.ComplicationType
 import androidx.wear.watchface.complications.data.EmptyComplicationData
 import androidx.wear.watchface.complications.data.NoDataComplicationData
 import androidx.wear.watchface.RenderParameters.HighlightedElement
+import androidx.wear.watchface.complications.data.ComplicationDisplayPolicies
 import androidx.wear.watchface.complications.data.ComplicationExperimental
 import androidx.wear.watchface.complications.data.toApiComplicationData
 import androidx.wear.watchface.data.BoundingArcWireFormat
@@ -482,6 +483,8 @@ public class ComplicationSlot
         private const val MAX_COMPLICATION_HISTORY_ENTRIES = 50
 
         internal val unitSquare = RectF(0f, 0f, 1f, 1f)
+
+        internal val screenLockedFallback = NoDataComplicationData()
 
         /**
          * Constructs a [Builder] for a complication with bounds type
@@ -1025,6 +1028,15 @@ public class ComplicationSlot
                     }
                 }
             }
+        }
+
+        // If the screen is locked and our policy is to not display it when locked then select
+        // screenLockedFallback instead.
+        if ((best.displayPolicy and
+                ComplicationDisplayPolicies.DO_NOT_SHOW_WHEN_DEVICE_LOCKED) != 0 &&
+            complicationSlotsManager.watchState.isLocked.value
+        ) {
+            best = screenLockedFallback // This is NoDataComplicationData.
         }
 
         if (forceUpdate || complicationData.value != best) {

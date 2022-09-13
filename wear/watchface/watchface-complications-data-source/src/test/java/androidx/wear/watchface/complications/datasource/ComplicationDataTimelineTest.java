@@ -138,8 +138,9 @@ public class ComplicationDataTimelineTest {
                         + "tapAction=null, validTimeRange=TimeRange("
                         + "startDateTimeMillis=-1000000000-01-01T00:00:00Z, "
                         + "endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z), "
-                        + "dataSource=null), timelineEntries=[TimelineEntry(validity=TimeInterval("
-                        + "start=1970-01-02T03:46:40Z, end=1970-01-03T07:33:20Z), "
+                        + "dataSource=null, persistencePolicy=0, displayPolicy=0), "
+                        + "timelineEntries=[TimelineEntry(validity"
+                        + "=TimeInterval(start=1970-01-02T03:46:40Z, end=1970-01-03T07:33:20Z), "
                         + "complicationData=ShortTextComplicationData(text=ComplicationText{"
                         + "mSurroundingText=Updated, mTimeDependentText=null}, title=null, "
                         + "monochromaticImage=null, smallImage=null, contentDescription="
@@ -147,7 +148,7 @@ public class ComplicationDataTimelineTest {
                         + "tapActionLostDueToSerialization=false, tapAction=null, validTimeRange="
                         + "TimeRange(startDateTimeMillis=-1000000000-01-01T00:00:00Z, "
                         + "endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z), "
-                        + "dataSource=null))])"
+                        + "dataSource=null, persistencePolicy=0, displayPolicy=0))])"
         );
     }
 

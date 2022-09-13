@@ -16,7 +16,9 @@
 
 package androidx.wear.watchface
 
+import android.app.KeyguardManager
 import android.content.ContentResolver
+import android.content.Context
 import android.content.Intent
 import android.provider.Settings
 import androidx.annotation.RestrictTo
@@ -104,6 +106,12 @@ public class BroadcastsObserver(
     }
 
     override fun onActionScreenOff() {
+        val keyguardManager =
+            watchFaceHostApi.getContext().getSystemService(Context.KEYGUARD_SERVICE)
+                as KeyguardManager
+
+        (watchState.isLocked as MutableStateFlow).value = keyguardManager.isDeviceLocked
+
         // Before SysUI has connected, we use ActionScreenOn/ActionScreenOff as a trigger to query
         // AMBIENT_ENABLED_PATH in order to determine if the device os ambient or not.
         if (sysUiHasSentWatchUiState) {
@@ -124,6 +132,8 @@ public class BroadcastsObserver(
     }
 
     override fun onActionScreenOn() {
+        (watchState.isLocked as MutableStateFlow).value = false
+
         // Before SysUI has connected, we use ActionScreenOn/ActionScreenOff as a trigger to query
         // AMBIENT_ENABLED_PATH in order to determine if the device os ambient or not.
         if (sysUiHasSentWatchUiState) {

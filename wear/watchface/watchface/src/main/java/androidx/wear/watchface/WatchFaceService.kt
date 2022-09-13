@@ -16,6 +16,7 @@
 
 package androidx.wear.watchface
 
+import android.app.KeyguardManager
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -54,9 +55,11 @@ import androidx.annotation.VisibleForTesting
 import androidx.annotation.WorkerThread
 import androidx.versionedparcelable.ParcelUtils
 import androidx.wear.watchface.complications.SystemDataSources.DataSourceId
+import androidx.wear.watchface.complications.data.ComplicationPersistencePolicies
 import androidx.wear.watchface.complications.data.ComplicationData
 import androidx.wear.watchface.complications.data.ComplicationExperimental
 import androidx.wear.watchface.complications.data.ComplicationType
+import androidx.wear.watchface.complications.data.NoDataComplicationData
 import androidx.wear.watchface.complications.data.toApiComplicationData
 import androidx.wear.watchface.complications.data.toWireTypes
 import androidx.wear.watchface.control.HeadlessWatchFaceImpl
@@ -334,6 +337,7 @@ public abstract class WatchFaceService : WallpaperService() {
         /** The maximum reasonable wire size for an Icon in a [UserStyleSchema] in pixels. */
         @Px
         internal const val MAX_REASONABLE_SCHEMA_ICON_WIDTH = 400
+
         @Px
         internal const val MAX_REASONABLE_SCHEMA_ICON_HEIGHT = 400
 
@@ -806,7 +810,13 @@ public abstract class WatchFaceService : WallpaperService() {
             for (slot in complicationSlotsManager.complicationSlots) {
                 objectOutputStream.writeInt(slot.key)
                 objectOutputStream.writeObject(
-                    slot.value.complicationData.value.asWireComplicationData()
+                    if ((slot.value.complicationData.value.persistencePolicy and
+                            ComplicationPersistencePolicies.DO_NOT_PERSIST) != 0
+                    ) {
+                        NoDataComplicationData().asWireComplicationData()
+                    } else {
+                        slot.value.complicationData.value.asWireComplicationData()
+                    }
                 )
             }
             objectOutputStream.close()
@@ -1167,6 +1177,8 @@ public abstract class WatchFaceService : WallpaperService() {
             // assume we're not in ambient mode which should be correct most of the time.
             isAmbient.value = false
             isHeadless = headless
+            isLocked.value =
+                (getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager).isDeviceLocked
         }
 
         /**
