@@ -106,7 +106,7 @@ class UseCaseCameraImpl @Inject constructor(
 
     override fun close() {
         debug { "Closing $this" }
-        useCaseSurfaceManager.stop()
+        useCaseSurfaceManager.stopAsync()
         useCaseGraphConfig.graph.close()
     }
 
