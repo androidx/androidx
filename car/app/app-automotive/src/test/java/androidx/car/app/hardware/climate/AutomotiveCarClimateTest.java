@@ -33,7 +33,7 @@ import static android.car.VehiclePropertyIds.HVAC_STEERING_WHEEL_HEAT;
 import static android.car.VehiclePropertyIds.HVAC_TEMPERATURE_SET;
 
 import static androidx.car.app.hardware.climate.AutomotiveCarClimate.DEFAULT_SAMPLE_RATE_HZ;
-import static androidx.car.app.hardware.climate.AutomotiveCarClimate.HVAC_ELECTRIC_DEFROSTER;
+import static androidx.car.app.hardware.climate.AutomotiveCarClimate.HVAC_ELECTRIC_DEFROSTER_ON_PROPERTY_ID;
 import static androidx.car.app.hardware.climate.ClimateProfileRequest.FEATURE_CABIN_TEMPERATURE;
 import static androidx.car.app.hardware.climate.ClimateProfileRequest.FEATURE_FAN_DIRECTION;
 import static androidx.car.app.hardware.climate.ClimateProfileRequest.FEATURE_FAN_SPEED;
@@ -205,15 +205,17 @@ public class AutomotiveCarClimateTest {
         mAutomotiveCarClimate.registerClimateStateCallback(mExecutor, builder.build(), listener);
 
         Map<Integer, List<CarZone>> propertyIdsWithCarZones =
-                ImmutableMap.<Integer, List<CarZone>>builder().put(HVAC_ELECTRIC_DEFROSTER,
-                        Collections.singletonList(mCarZone)).buildKeepingLast();
+                ImmutableMap.<Integer, List<CarZone>>builder()
+                .put(HVAC_ELECTRIC_DEFROSTER_ON_PROPERTY_ID, Collections.singletonList(mCarZone))
+                .buildKeepingLast();
 
         ArgumentCaptor<OnCarPropertyResponseListener> captor = ArgumentCaptor.forClass(
                 OnCarPropertyResponseListener.class);
         verify(mPropertyManager).submitRegisterListenerRequest(eq(propertyIdsWithCarZones),
                 eq(DEFAULT_SAMPLE_RATE_HZ), captor.capture(), eq(mExecutor));
 
-        mResponse.add(CarPropertyResponse.builder().setPropertyId(HVAC_ELECTRIC_DEFROSTER)
+        mResponse.add(CarPropertyResponse.builder().setPropertyId(
+                HVAC_ELECTRIC_DEFROSTER_ON_PROPERTY_ID)
                 .setCarZones(Collections.singletonList(mCarZone)).setValue(true).setStatus(
                 STATUS_SUCCESS).build());
 
@@ -886,8 +888,10 @@ public class AutomotiveCarClimateTest {
         List<Set<CarZone>> carZones = new ArrayList<>();
         carZones.add(Collections.singleton(FRONT_LEFT_ZONE));
         carZones.add(Collections.singleton(FRONT_RIGHT_ZONE));
-        List<Integer> propertyIds = Collections.singletonList(HVAC_ELECTRIC_DEFROSTER);
-        mCarPropertyProfiles.add(CarPropertyProfile.builder().setPropertyId(HVAC_ELECTRIC_DEFROSTER)
+        List<Integer> propertyIds = Collections.singletonList(
+                HVAC_ELECTRIC_DEFROSTER_ON_PROPERTY_ID);
+        mCarPropertyProfiles.add(CarPropertyProfile.builder().setPropertyId(
+                HVAC_ELECTRIC_DEFROSTER_ON_PROPERTY_ID)
                 .setCarZones(carZones).setStatus(STATUS_SUCCESS).build());
         ListenableFuture<List<CarPropertyProfile<?>>> listenableCarPropertyProfile =
                 Futures.immediateFuture(mCarPropertyProfiles);
