@@ -24,6 +24,7 @@ import android.view.AttachedSurfaceControl
 import android.view.Surface
 import android.view.SurfaceControl
 import android.view.SurfaceView
+import androidx.annotation.IntDef
 import androidx.annotation.RequiresApi
 import androidx.graphics.lowlatency.SyncFenceCompat
 import java.util.concurrent.Executor
@@ -46,6 +47,51 @@ import java.util.concurrent.Executor
 class SurfaceControlCompat internal constructor(
     internal val scImpl: SurfaceControlImpl
 ) {
+
+    /**
+     * Constants for [Transaction.setBufferTransform].
+     *
+     * Various transformations that can be applied to a buffer.
+     */
+    companion object {
+        @Suppress("AcronymName")
+        @IntDef(
+            value = [BUFFER_TRANSFORM_IDENTITY, BUFFER_TRANSFORM_MIRROR_HORIZONTAL,
+                BUFFER_TRANSFORM_MIRROR_VERTICAL, BUFFER_TRANSFORM_ROTATE_180,
+                BUFFER_TRANSFORM_ROTATE_90, BUFFER_TRANSFORM_ROTATE_270]
+        )
+        private annotation class BufferTransform
+
+        /**
+         * The identity transformation. Maps a coordinate (x, y) onto itself.
+         */
+        const val BUFFER_TRANSFORM_IDENTITY = 0
+
+        /**
+         * Mirrors the buffer horizontally. Maps a point (x, y) to (-x, y)
+         */
+        const val BUFFER_TRANSFORM_MIRROR_HORIZONTAL = 1
+
+        /**
+         * Mirrors the buffer vertically. Maps a point (x, y) to (x, -y)
+         */
+        const val BUFFER_TRANSFORM_MIRROR_VERTICAL = 2
+
+        /**
+         * Rotates the buffer 180 degrees clockwise. Maps a point (x, y) to (-x, -y)
+         */
+        const val BUFFER_TRANSFORM_ROTATE_180 = 3
+
+        /**
+         * Rotates the buffer 90 degrees clockwise. Maps a point (x, y) to (-y, x)
+         */
+        const val BUFFER_TRANSFORM_ROTATE_90 = 4
+
+        /**
+         * Rotates the buffer 270 degrees clockwise. Maps a point (x, y) to (y, -x)
+         */
+        const val BUFFER_TRANSFORM_ROTATE_270 = 7
+    }
 
     /**
      * Check whether this instance points to a valid layer with the system-compositor.
@@ -356,6 +402,51 @@ class SurfaceControlCompat internal constructor(
             y: Float
         ): Transaction {
             mImpl.setPosition(surfaceControl.scImpl, x, y)
+            return this
+        }
+
+        /**
+         * Sets the SurfaceControl to the specified scale with (0, 0) as the
+         * center point of the scale.
+         *
+         * @param surfaceControl The [SurfaceControlCompat] to change scale. This value cannot
+         * be null.
+         *
+         * @param scaleX the X scale
+         *
+         * @param scaleY the Y scale
+         */
+        fun setScale(
+            surfaceControl: SurfaceControlCompat,
+            scaleX: Float,
+            scaleY: Float
+        ): Transaction {
+            mImpl.setScale(surfaceControl.scImpl, scaleX, scaleY)
+            return this
+        }
+
+        /**
+         * Sets the buffer transform that should be applied to the current buffer
+         *
+         * @param surfaceControl the [SurfaceControlCompat] to update. This value cannot be null.
+         *
+         * @param transformation The transform to apply to the buffer. Value is
+         * [SurfaceControlCompat.BUFFER_TRANSFORM_IDENTITY],
+         * [SurfaceControlCompat.BUFFER_TRANSFORM_MIRROR_HORIZONTAL],
+         * [SurfaceControlCompat.BUFFER_TRANSFORM_MIRROR_VERTICAL],
+         * [SurfaceControlCompat.BUFFER_TRANSFORM_ROTATE_90],
+         * [SurfaceControlCompat.BUFFER_TRANSFORM_ROTATE_180],
+         * [SurfaceControlCompat.BUFFER_TRANSFORM_ROTATE_270],
+         * [SurfaceControlCompat.BUFFER_TRANSFORM_MIRROR_HORIZONTAL] |
+         * [SurfaceControlCompat.BUFFER_TRANSFORM_ROTATE_90], or
+         * [SurfaceControlCompat.BUFFER_TRANSFORM_MIRROR_VERTICAL] |
+         * [SurfaceControlCompat.BUFFER_TRANSFORM_ROTATE_90]
+         */
+        fun setBufferTransform(
+            surfaceControl: SurfaceControlCompat,
+            @BufferTransform transformation: Int
+        ): Transaction {
+            mImpl.setBufferTransform(surfaceControl.scImpl, transformation)
             return this
         }
 

@@ -136,8 +136,33 @@ internal class SurfaceControlUtils {
         fun getSolidBuffer(width: Int, height: Int, color: Int): HardwareBuffer {
             return nGetSolidBuffer(width, height, color)
         }
+        fun getQuadrantBuffer(
+            width: Int,
+            height: Int,
+            colorTopLeft: Int,
+            colorTopRight: Int,
+            colorBottomRight: Int,
+            colorBottomLeft: Int
+        ): HardwareBuffer {
+            return nGetQuadrantBuffer(
+                width,
+                height,
+                colorTopLeft,
+                colorTopRight,
+                colorBottomRight,
+                colorBottomLeft
+            )
+        }
 
         private external fun nGetSolidBuffer(width: Int, height: Int, color: Int): HardwareBuffer
+        private external fun nGetQuadrantBuffer(
+            width: Int,
+            height: Int,
+            colorTopLeft: Int,
+            colorTopRight: Int,
+            colorBottomRight: Int,
+            colorBottomLeft: Int
+        ): HardwareBuffer
 
         init {
             System.loadLibrary("sc-compat-test")

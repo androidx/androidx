@@ -218,6 +218,13 @@ package androidx.graphics.surface {
   @RequiresApi(android.os.Build.VERSION_CODES.Q) public final class SurfaceControlCompat {
     method public boolean isValid();
     method public void release();
+    field public static final int BUFFER_TRANSFORM_IDENTITY = 0; // 0x0
+    field public static final int BUFFER_TRANSFORM_MIRROR_HORIZONTAL = 1; // 0x1
+    field public static final int BUFFER_TRANSFORM_MIRROR_VERTICAL = 2; // 0x2
+    field public static final int BUFFER_TRANSFORM_ROTATE_180 = 3; // 0x3
+    field public static final int BUFFER_TRANSFORM_ROTATE_270 = 7; // 0x7
+    field public static final int BUFFER_TRANSFORM_ROTATE_90 = 4; // 0x4
+    field public static final androidx.graphics.surface.SurfaceControlCompat.Companion Companion;
   }
 
   public static final class SurfaceControlCompat.Builder {
@@ -225,6 +232,9 @@ package androidx.graphics.surface {
     method public androidx.graphics.surface.SurfaceControlCompat build();
     method public androidx.graphics.surface.SurfaceControlCompat.Builder setName(String name);
     method public androidx.graphics.surface.SurfaceControlCompat.Builder setParent(android.view.SurfaceView surfaceView);
+  }
+
+  public static final class SurfaceControlCompat.Companion {
   }
 
   public static final class SurfaceControlCompat.Transaction implements java.lang.AutoCloseable {
@@ -239,11 +249,13 @@ package androidx.graphics.surface {
     method public androidx.graphics.surface.SurfaceControlCompat.Transaction setBuffer(androidx.graphics.surface.SurfaceControlCompat surfaceControl, android.hardware.HardwareBuffer buffer, optional androidx.graphics.lowlatency.SyncFenceCompat? fence, optional kotlin.jvm.functions.Function0<kotlin.Unit>? releaseCallback);
     method public androidx.graphics.surface.SurfaceControlCompat.Transaction setBuffer(androidx.graphics.surface.SurfaceControlCompat surfaceControl, android.hardware.HardwareBuffer buffer, optional androidx.graphics.lowlatency.SyncFenceCompat? fence);
     method public androidx.graphics.surface.SurfaceControlCompat.Transaction setBuffer(androidx.graphics.surface.SurfaceControlCompat surfaceControl, android.hardware.HardwareBuffer buffer);
+    method public androidx.graphics.surface.SurfaceControlCompat.Transaction setBufferTransform(androidx.graphics.surface.SurfaceControlCompat surfaceControl, int transformation);
     method public androidx.graphics.surface.SurfaceControlCompat.Transaction setCrop(androidx.graphics.surface.SurfaceControlCompat surfaceControl, android.graphics.Rect? crop);
     method public androidx.graphics.surface.SurfaceControlCompat.Transaction setDamageRegion(androidx.graphics.surface.SurfaceControlCompat surfaceControl, android.graphics.Region? region);
     method public androidx.graphics.surface.SurfaceControlCompat.Transaction setLayer(androidx.graphics.surface.SurfaceControlCompat surfaceControl, int z);
     method public androidx.graphics.surface.SurfaceControlCompat.Transaction setOpaque(androidx.graphics.surface.SurfaceControlCompat surfaceControl, boolean isOpaque);
     method public androidx.graphics.surface.SurfaceControlCompat.Transaction setPosition(androidx.graphics.surface.SurfaceControlCompat surfaceControl, float x, float y);
+    method public androidx.graphics.surface.SurfaceControlCompat.Transaction setScale(androidx.graphics.surface.SurfaceControlCompat surfaceControl, float scaleX, float scaleY);
     method public androidx.graphics.surface.SurfaceControlCompat.Transaction setVisibility(androidx.graphics.surface.SurfaceControlCompat surfaceControl, boolean visible);
   }
 

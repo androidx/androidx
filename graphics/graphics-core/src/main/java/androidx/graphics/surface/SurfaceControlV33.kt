@@ -225,6 +225,32 @@ internal class SurfaceControlV33 internal constructor(
         }
 
         /**
+         * See [SurfaceControlImpl.Transaction.setScale]
+         */
+        override fun setScale(
+            surfaceControl: SurfaceControlImpl,
+            scaleX: Float,
+            scaleY: Float
+        ): SurfaceControlImpl.Transaction {
+            mTransaction.setScale(surfaceControl.asFrameworkSurfaceControl(), scaleX, scaleY)
+            return this
+        }
+
+        /**
+         * See [SurfaceControlImpl.Transaction.setBufferTransform]
+         */
+        override fun setBufferTransform(
+            surfaceControl: SurfaceControlImpl,
+            transformation: Int
+        ): SurfaceControlImpl.Transaction {
+            mTransaction.setBufferTransform(
+                surfaceControl.asFrameworkSurfaceControl(),
+                transformation
+            )
+            return this
+        }
+
+        /**
          * See [SurfaceControlImpl.Transaction.commit]
          */
         override fun commit() {

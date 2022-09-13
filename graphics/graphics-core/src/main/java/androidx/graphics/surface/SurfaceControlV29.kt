@@ -248,6 +248,31 @@ internal class SurfaceControlV29 internal constructor(
         }
 
         /**
+         * See [SurfaceControlWrapper.Transaction.setScale]
+         */
+        @RequiresApi(Build.VERSION_CODES.S)
+        override fun setScale(
+            surfaceControl: SurfaceControlImpl,
+            scaleX: Float,
+            scaleY: Float
+        ): SurfaceControlImpl.Transaction {
+            transaction.setScale(surfaceControl.asWrapperSurfaceControl(), scaleX, scaleY)
+            return this
+        }
+
+        /**
+         * See [SurfaceControlWrapper.Transaction.setBufferTransform]
+         */
+        @RequiresApi(Build.VERSION_CODES.S)
+        override fun setBufferTransform(
+            surfaceControl: SurfaceControlImpl,
+            transformation: Int
+        ): Transaction {
+            transaction.setBufferTransform(surfaceControl.asWrapperSurfaceControl(), transformation)
+            return this
+        }
+
+        /**
          * See [SurfaceControlWrapper.Transaction.close]
          */
         override fun close() {

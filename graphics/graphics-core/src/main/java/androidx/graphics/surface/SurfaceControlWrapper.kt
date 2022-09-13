@@ -109,6 +109,19 @@ internal class JniBindings {
             y: Float
         )
 
+        external fun nSetScale(
+            surfaceTransaction: Long,
+            surfaceControl: Long,
+            scaleX: Float,
+            scaleY: Float
+        )
+
+        external fun nSetBufferTransform(
+            surfaceTransaction: Long,
+            surfaceControl: Long,
+            transformation: Int
+        )
+
         init {
             System.loadLibrary("graphics-core")
             nLoadLibrary()
@@ -477,6 +490,62 @@ internal class SurfaceControlWrapper internal constructor(
                 surfaceControl.mNativeSurfaceControl,
                 x,
                 y
+            )
+            return this
+        }
+
+        /**
+         * Sets the SurfaceControl to the specified scale with (0, 0) as the
+         * center point of the scale.
+         *
+         * @param surfaceControl The [SurfaceControlWrapper] to change scale. This value cannot
+         * be null.
+         *
+         * @param scaleX the X scale
+         *
+         * @param scaleY the Y scale
+         */
+        @RequiresApi(Build.VERSION_CODES.S)
+        fun setScale(
+            surfaceControl: SurfaceControlWrapper,
+            scaleX: Float,
+            scaleY: Float
+        ): Transaction {
+            JniBindings.nSetScale(
+                mNativeSurfaceTransaction,
+                surfaceControl.mNativeSurfaceControl,
+                scaleX,
+                scaleY
+            )
+            return this
+        }
+
+        /**
+         * Sets the buffer transform that should be applied to the current buffer
+         *
+         * @param surfaceControl the [SurfaceControlWrapper] to update. This value cannot be null.
+         *
+         * @param transformation The transform to apply to the buffer. Value is
+         * [SurfaceControlCompat.BUFFER_TRANSFORM_IDENTITY],
+         * [SurfaceControlCompat.BUFFER_TRANSFORM_MIRROR_HORIZONTAL],
+         * [SurfaceControlCompat.BUFFER_TRANSFORM_MIRROR_VERTICAL],
+         * [SurfaceControlCompat.BUFFER_TRANSFORM_ROTATE_90],
+         * [SurfaceControlCompat.BUFFER_TRANSFORM_ROTATE_180],
+         * [SurfaceControlCompat.BUFFER_TRANSFORM_ROTATE_270],
+         * [SurfaceControlCompat.BUFFER_TRANSFORM_MIRROR_HORIZONTAL] |
+         * [SurfaceControlCompat.BUFFER_TRANSFORM_ROTATE_90], or
+         * [SurfaceControlCompat.BUFFER_TRANSFORM_MIRROR_VERTICAL] |
+         * [SurfaceControlCompat.BUFFER_TRANSFORM_ROTATE_90]
+         */
+        @RequiresApi(Build.VERSION_CODES.S)
+        fun setBufferTransform(
+            surfaceControl: SurfaceControlWrapper,
+            transformation: Int
+        ): Transaction {
+            JniBindings.nSetBufferTransform(
+                mNativeSurfaceTransaction,
+                surfaceControl.mNativeSurfaceControl,
+                transformation
             )
             return this
         }

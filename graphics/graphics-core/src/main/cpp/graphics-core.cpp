@@ -134,7 +134,7 @@ Java_androidx_graphics_surface_JniBindings_00024Companion_nTransactionReparent(
         JNIEnv *env, jobject thiz,
         jlong surfaceTransaction, jlong surfaceControl, jlong newParent) {
     if (android_get_device_api_level() >= 29) {
-        auto parent = (newParent!=0L) ? reinterpret_cast<ASurfaceControl *>(newParent) : nullptr;
+        auto parent = (newParent != 0L) ? reinterpret_cast<ASurfaceControl *>(newParent) : nullptr;
         ASurfaceTransaction_reparent(reinterpret_cast<ASurfaceTransaction *>(surfaceTransaction),
                                      reinterpret_cast<ASurfaceControl *>(surfaceControl),
                                      parent);
@@ -235,7 +235,8 @@ void setupTransactionCompletedListenerClassInfo(JNIEnv *env) {
         //setup transactionCompleteListenerClassInfo for test usage
         jclass transactionCompletedListenerClazz =
                 env->FindClass(
-                "androidx/graphics/surface/SurfaceControlCompat$TransactionCompletedListener");
+                        "androidx/graphics/surface/"
+                        "SurfaceControlCompat$TransactionCompletedListener");
         gTransactionCompletedListenerClassInfo.clazz =
                 static_cast<jclass>(env->NewGlobalRef(transactionCompletedListenerClazz));
         gTransactionCompletedListenerClassInfo.onComplete =
@@ -253,7 +254,8 @@ void setupTransactionCommittedListenerClassInfo(JNIEnv *env) {
         //setup transactionCommittedListenerClassInfo for test usage
         jclass transactionCommittedListenerClazz =
                 env->FindClass(
-                "androidx/graphics/surface/SurfaceControlCompat$TransactionCommittedListener");
+                        "androidx/graphics/surface/"
+                        "SurfaceControlCompat$TransactionCommittedListener");
         gTransactionCommittedListenerClassInfo.clazz =
                 static_cast<jclass>(env->NewGlobalRef(transactionCommittedListenerClazz));
         gTransactionCommittedListenerClassInfo.onCommit =
@@ -343,7 +345,7 @@ extern "C"
 JNIEXPORT void JNICALL
 Java_androidx_graphics_surface_JniBindings_00024Companion_nSetZOrder(
         JNIEnv *env, jobject thiz,
-        jlong surfaceTransaction, jlong surfaceControl, jint z_order)  {
+        jlong surfaceTransaction, jlong surfaceControl, jint z_order) {
     if (android_get_device_api_level() >= 29) {
         auto st = reinterpret_cast<ASurfaceTransaction *>(surfaceTransaction);
         auto sc = reinterpret_cast<ASurfaceControl *>(surfaceControl);
@@ -365,12 +367,12 @@ JNIEXPORT void JNICALL
 Java_androidx_graphics_surface_JniBindings_00024Companion_nSetDamageRegion(
         JNIEnv *env, jobject thiz,
         jlong surfaceTransaction, jlong surfaceControl,
-        jobject rect)  {
+        jobject rect) {
     if (android_get_device_api_level() >= 29) {
         auto st = reinterpret_cast<ASurfaceTransaction *>(surfaceTransaction);
         auto sc = reinterpret_cast<ASurfaceControl *>(surfaceControl);
 
-        if(rect == nullptr) {
+        if (rect == nullptr) {
             ASurfaceTransaction_setDamageRegion(st, sc, nullptr, 0);
             return;
         }
@@ -385,7 +387,7 @@ extern "C"
 JNIEXPORT void JNICALL
 Java_androidx_graphics_surface_JniBindings_00024Companion_nSetDesiredPresentTime(
         JNIEnv *env, jobject thiz,
-        jlong surfaceTransaction, int64_t desiredPresentTimeNano)  {
+        jlong surfaceTransaction, int64_t desiredPresentTimeNano) {
     if (android_get_device_api_level() >= 29) {
         ASurfaceTransaction_setDesiredPresentTime(
                 reinterpret_cast<ASurfaceTransaction *>(surfaceTransaction),
@@ -410,7 +412,7 @@ extern "C"
 JNIEXPORT void JNICALL
 Java_androidx_graphics_surface_JniBindings_00024Companion_nSetBufferAlpha(
         JNIEnv *env, jobject thiz,
-        jlong surfaceTransaction, jlong surfaceControl, jfloat alpha)  {
+        jlong surfaceTransaction, jlong surfaceControl, jfloat alpha) {
     if (android_get_device_api_level() >= 29) {
         ASurfaceTransaction_setBufferAlpha(
                 reinterpret_cast<ASurfaceTransaction *>(surfaceTransaction),
@@ -446,4 +448,29 @@ Java_androidx_graphics_surface_JniBindings_00024Companion_nSetPosition(JNIEnv *e
     auto st = reinterpret_cast<ASurfaceTransaction *>(surfaceTransaction);
     auto sc = reinterpret_cast<ASurfaceControl *>(surfaceControl);
     ASurfaceTransaction_setPosition(st, sc, x, y);
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_androidx_graphics_surface_JniBindings_00024Companion_nSetScale(JNIEnv *env, jobject thiz,
+                                                                    jlong surfaceTransaction,
+                                                                    jlong surfaceControl,
+                                                                    jfloat scale_x,
+                                                                    jfloat scale_y) {
+    auto st = reinterpret_cast<ASurfaceTransaction *>(surfaceTransaction);
+    auto sc = reinterpret_cast<ASurfaceControl *>(surfaceControl);
+    ASurfaceTransaction_setScale(st, sc, scale_x, scale_y);
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_androidx_graphics_surface_JniBindings_00024Companion_nSetBufferTransform(JNIEnv *env,
+                                                                              jobject thiz,
+                                                                              jlong
+                                                                              surfaceTransaction,
+                                                                              jlong surfaceControl,
+                                                                              jint transformation) {
+    auto st = reinterpret_cast<ASurfaceTransaction *>(surfaceTransaction);
+    auto sc = reinterpret_cast<ASurfaceControl *>(surfaceControl);
+    ASurfaceTransaction_setBufferTransform(st, sc, transformation);
 }
