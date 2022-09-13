@@ -90,6 +90,18 @@ public class SplitAttributes {
             return mDescription;
         }
 
+        @SuppressLint("Range") // The range is covered.
+        @NonNull
+        static SplitType createSplitTypeFromLegacySplitRatio(
+                @FloatRange(from = 0.0, to = 1.0) float splitRatio) {
+            // Treat 0.0 and 1.0 as ExpandContainerSplitType because it means the parent container
+            // is filled with secondary or primary container.
+            if (splitRatio == 0.0 || splitRatio == 1.0) {
+                return new ExpandContainersSplitType();
+            }
+            return new RatioSplitType(splitRatio);
+        }
+
         /**
          * Defines what activity container should be given to the primary part of the task
          * bounds. Values in range (0.0, 1.0) define the size of the primary container of the

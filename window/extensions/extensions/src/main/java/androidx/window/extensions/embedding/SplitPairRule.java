@@ -16,6 +16,8 @@
 
 package androidx.window.extensions.embedding;
 
+import static androidx.window.extensions.embedding.SplitAttributes.SplitType.createSplitTypeFromLegacySplitRatio;
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
@@ -23,6 +25,7 @@ import android.os.Build;
 import android.util.Pair;
 import android.view.WindowMetrics;
 
+import androidx.annotation.FloatRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -119,6 +122,7 @@ public class SplitPairRule extends SplitRule {
         @NonNull
         private final Predicate<WindowMetrics> mParentWindowMetricsPredicate;
         // Keep for backward compatibility
+        @FloatRange(from = 0.0, to = 1.0)
         private float mSplitRatio;
         // Keep for backward compatibility
         @SplitAttributes.LayoutDir
@@ -144,11 +148,14 @@ public class SplitPairRule extends SplitRule {
          * @deprecated Use {@link #setDefaultSplitAttributes(SplitAttributes)} starting with
          * {@link WindowExtensions#VENDOR_API_LEVEL_2}. Only used if
          * {@link #setDefaultSplitAttributes(SplitAttributes)} can't be called on
-         * {@link WindowExtensions#VENDOR_API_LEVEL_1}.
+         * {@link WindowExtensions#VENDOR_API_LEVEL_1}. {@code splitRatio} will be translated to
+         * {@link SplitAttributes.SplitType.ExpandContainersSplitType} for value {@code 0.0} and
+         * {@code 1.0}, and {@link SplitAttributes.SplitType.RatioSplitType} for value with range
+         * (0.0, 1.0).
          */
         @Deprecated
         @NonNull
-        public Builder setSplitRatio(float splitRatio) {
+        public Builder setSplitRatio(@FloatRange(from = 0.0, to = 1.0) float splitRatio) {
             mSplitRatio = splitRatio;
             return this;
         }
@@ -233,7 +240,7 @@ public class SplitPairRule extends SplitRule {
             mDefaultSplitAttributes = (mDefaultSplitAttributes != null)
                     ? mDefaultSplitAttributes
                     : new SplitAttributes.Builder()
-                            .setSplitType(new SplitAttributes.SplitType.RatioSplitType(mSplitRatio))
+                            .setSplitType(createSplitTypeFromLegacySplitRatio(mSplitRatio))
                             .setLayoutDirection(mLayoutDirection)
                             .build();
             return new SplitPairRule(mDefaultSplitAttributes,

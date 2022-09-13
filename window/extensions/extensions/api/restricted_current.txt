@@ -141,7 +141,7 @@ package androidx.window.extensions.embedding {
     method public androidx.window.extensions.embedding.SplitPairRule.Builder setShouldClearTop(boolean);
     method @Deprecated public androidx.window.extensions.embedding.SplitPairRule.Builder setShouldFinishPrimaryWithSecondary(boolean);
     method @Deprecated public androidx.window.extensions.embedding.SplitPairRule.Builder setShouldFinishSecondaryWithPrimary(boolean);
-    method @Deprecated public androidx.window.extensions.embedding.SplitPairRule.Builder setSplitRatio(float);
+    method @Deprecated public androidx.window.extensions.embedding.SplitPairRule.Builder setSplitRatio(@FloatRange(from=0.0, to=1.0) float);
     method public androidx.window.extensions.embedding.SplitPairRule.Builder setTag(String);
   }
 
@@ -161,7 +161,7 @@ package androidx.window.extensions.embedding {
     method public androidx.window.extensions.embedding.SplitPlaceholderRule.Builder setFinishPrimaryWithPlaceholder(int);
     method @Deprecated public androidx.window.extensions.embedding.SplitPlaceholderRule.Builder setFinishPrimaryWithSecondary(int);
     method @Deprecated public androidx.window.extensions.embedding.SplitPlaceholderRule.Builder setLayoutDirection(int);
-    method @Deprecated public androidx.window.extensions.embedding.SplitPlaceholderRule.Builder setSplitRatio(float);
+    method @Deprecated public androidx.window.extensions.embedding.SplitPlaceholderRule.Builder setSplitRatio(@FloatRange(from=0.0, to=1.0) float);
     method public androidx.window.extensions.embedding.SplitPlaceholderRule.Builder setSticky(boolean);
     method public androidx.window.extensions.embedding.SplitPlaceholderRule.Builder setTag(String);
   }

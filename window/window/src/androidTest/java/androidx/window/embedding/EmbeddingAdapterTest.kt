@@ -20,13 +20,12 @@ import androidx.window.extensions.embedding.ActivityStack as OEMActivityStack
 import androidx.window.extensions.embedding.SplitAttributes as OEMSplitAttributes
 import androidx.window.extensions.embedding.SplitInfo as OEMSplitInfo
 import android.app.Activity
-import androidx.window.core.ExtensionsUtil
+import androidx.window.WindowTestUtils
 import androidx.window.core.PredicateAdapter
 import androidx.window.embedding.SplitAttributes.SplitType
 import androidx.window.extensions.WindowExtensions
 import com.nhaarman.mockitokotlin2.doReturn
 import org.junit.Assert.assertEquals
-import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Test
 import org.mockito.Mockito.mock
@@ -44,7 +43,7 @@ class EmbeddingAdapterTest {
 
     @Test
     fun testTranslateSplitInfoWithDefaultAttrs() {
-        assumeTrue(ExtensionsUtil.safeVendorApiLevel >= WindowExtensions.VENDOR_API_LEVEL_2)
+        WindowTestUtils.assumeAtLeastVendorApiLevel(WindowExtensions.VENDOR_API_LEVEL_2)
 
         val oemSplitInfo = OEMSplitInfo(
             OEMActivityStack(ArrayList(), true),
@@ -64,7 +63,7 @@ class EmbeddingAdapterTest {
 
     @Test
     fun testTranslateSplitInfoWithExpandingContainers() {
-        assumeTrue(ExtensionsUtil.safeVendorApiLevel >= WindowExtensions.VENDOR_API_LEVEL_2)
+        WindowTestUtils.assumeAtLeastVendorApiLevel(WindowExtensions.VENDOR_API_LEVEL_2)
 
         val oemSplitInfo = OEMSplitInfo(
             OEMActivityStack(ArrayList(), true),
@@ -87,7 +86,7 @@ class EmbeddingAdapterTest {
     @Suppress("DEPRECATION")
     @Test
     fun testTranslateSplitInfoWithApiLevel1() {
-        assumeTrue(ExtensionsUtil.safeVendorApiLevel == WindowExtensions.VENDOR_API_LEVEL_1)
+        WindowTestUtils.assumeBeforeVendorApiLevel(WindowExtensions.VENDOR_API_LEVEL_2)
 
         val activityStack = OEMActivityStack(ArrayList<Activity>(), true)
         val expectedSplitRatio = 0.3f
@@ -110,7 +109,7 @@ class EmbeddingAdapterTest {
 
     @Test
     fun testTranslateSplitInfoWithApiLevel2() {
-        assumeTrue(ExtensionsUtil.safeVendorApiLevel >= WindowExtensions.VENDOR_API_LEVEL_2)
+        WindowTestUtils.assumeAtLeastVendorApiLevel(WindowExtensions.VENDOR_API_LEVEL_2)
 
         val oemSplitInfo = OEMSplitInfo(
             OEMActivityStack(ArrayList<Activity>(), true),
