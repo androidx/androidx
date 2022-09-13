@@ -124,7 +124,7 @@ public class CameraXViewModel extends AndroidViewModel {
                         ProcessCameraProvider.configureInstance(Camera2Config.defaultConfig());
                     } else if (cameraImplementation.equals(CAMERA_PIPE_IMPLEMENTATION_OPTION)) {
                         ProcessCameraProvider.configureInstance(
-                                CameraPipeConfig.INSTANCE.defaultConfig());
+                                CameraPipeConfig.defaultConfig());
                     } else {
                         throw new IllegalArgumentException("Failed to configure the CameraProvider "
                                 + "using unknown " + cameraImplementation
