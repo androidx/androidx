@@ -134,6 +134,7 @@ public class WebSettingsCompatForceDarkTest extends
      * i.e. web contents are darkened only by web theme.
      */
     @SuppressWarnings("deprecation")
+    @FlakyTest(bugId = 240432254)
     @Test
     public void testForceDark_webThemeDarkeningOnly() {
         WebkitUtils.checkFeature(WebViewFeature.FORCE_DARK);
