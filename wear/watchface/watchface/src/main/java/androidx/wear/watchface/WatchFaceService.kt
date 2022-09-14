@@ -1457,6 +1457,11 @@ public abstract class WatchFaceService : WallpaperService() {
             // list. NB we can't actually serialise complications anyway so that's just as well...
             params.idAndComplicationDataWireFormats = emptyList()
 
+            // Let wallpaper manager know the wallpaper has changed.
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
+                NotifyColorsChangedHelper.notifyColorsChanged(this)
+            }
+
             backgroundThreadCoroutineScope.launch {
                 writeDirectBootPrefs(_context, DIRECT_BOOT_PREFS, params)
             }
@@ -2711,6 +2716,13 @@ public abstract class WatchFaceService : WallpaperService() {
         @Px
         fun extractFromWindowInsets(insets: WindowInsets?) =
             insets?.getInsets(WindowInsets.Type.systemBars())?.bottom ?: 0
+    }
+
+    @RequiresApi(27)
+    private object NotifyColorsChangedHelper {
+        fun notifyColorsChanged(engine: Engine) {
+            engine.notifyColorsChanged()
+        }
     }
 }
 
