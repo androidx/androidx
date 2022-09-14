@@ -19,8 +19,8 @@ package androidx.glance.appwidget.template
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
 import androidx.glance.GlanceModifier
-import androidx.glance.Image
 import androidx.glance.LocalSize
+import androidx.glance.appwidget.cornerRadius
 import androidx.glance.background
 import androidx.glance.layout.Column
 import androidx.glance.layout.ContentScale
@@ -57,81 +57,60 @@ fun SingleEntityTemplate(data: SingleEntityTemplateData) {
 
 @Composable
 private fun WidgetLayoutCollapsed(data: SingleEntityTemplateData) {
-    var modifier = GlanceModifier
-        .fillMaxSize().padding(16.dp).background(LocalTemplateColors.current.surface)
-
-    data.image?.let { image ->
-        modifier = modifier.background(image.image, ContentScale.Crop)
-    }
-    Column(modifier = modifier) {
-        data.headerIcon?.let { AppWidgetTemplateHeader(it, data.header) }
+    Column(modifier = createTopLevelModifier(data, true)) {
+        HeaderBlockTemplate(data.headerBlock)
         Spacer(modifier = GlanceModifier.defaultWeight())
-        AppWidgetTextSection(textList(data.text1, data.text2))
+        data.textBlock?.let { AppWidgetTextSection(textList(it.text1, it.text2)) }
     }
 }
 
 @Composable
 private fun WidgetLayoutVertical(data: SingleEntityTemplateData) {
 
-    Column(modifier = GlanceModifier
-        .fillMaxSize()
-        .padding(16.dp)
-        .background(LocalTemplateColors.current.surface)) {
-        data.headerIcon?.let { AppWidgetTemplateHeader(it, data.header) }
-        Spacer(modifier = GlanceModifier.height(16.dp))
-        data.image?.let { image ->
-            Image(
-                provider = image.image,
-                contentDescription = image.description,
-                modifier = GlanceModifier.fillMaxWidth().defaultWeight(),
-                contentScale = ContentScale.Crop
-            )
+    Column(modifier = createTopLevelModifier(data)) {
+        data.headerBlock?.let {
+            HeaderBlockTemplate(data.headerBlock)
+            Spacer(modifier = GlanceModifier.height(16.dp))
+        }
+
+        data.imageBlock?.let {
+            SingleImageBlockTemplate(it, GlanceModifier.fillMaxWidth().defaultWeight())
             Spacer(modifier = GlanceModifier.height(16.dp))
         }
         Row(modifier = GlanceModifier.fillMaxWidth()) {
-            AppWidgetTextSection(textList(data.text1, data.text2))
+            data.textBlock?.let { AppWidgetTextSection(textList(it.text1, it.text2)) }
             Spacer(modifier = GlanceModifier.defaultWeight())
-            data.button?.let { button -> AppWidgetTemplateButton(button) }
+            data.actionBlock?.let { ActionBlockTemplate(it) }
         }
     }
 }
 
 @Composable
 private fun WidgetLayoutHorizontal(data: SingleEntityTemplateData) {
-    Row(modifier = GlanceModifier
-        .fillMaxSize()
-        .padding(16.dp)
-        .background(LocalTemplateColors.current.surface)) {
-
+    Row(modifier = createTopLevelModifier(data)) {
         Column(
-            modifier =
-            GlanceModifier.defaultWeight().fillMaxHeight()
+            modifier = GlanceModifier.defaultWeight().fillMaxHeight()
         ) {
-            data.headerIcon?.let { AppWidgetTemplateHeader(it, data.header) }
-            Spacer(modifier = GlanceModifier.height(16.dp))
+            data.headerBlock?.let {
+                HeaderBlockTemplate(data.headerBlock)
+                Spacer(modifier = GlanceModifier.height(16.dp))
+            }
             Spacer(modifier = GlanceModifier.defaultWeight())
 
             // TODO: Extract small height as template constant
-            val body =
-                if (LocalSize.current.height > 240.dp) {
-                    data.text3
-                } else {
-                    null
-                }
-            AppWidgetTextSection(textList(data.text1, data.text2, body))
-            data.button?.let { button ->
+            data.textBlock?.let {
+                val body = if (LocalSize.current.height > 240.dp) it.text3 else null
+                AppWidgetTextSection(textList(it.text1, it.text2, body))
+            }
+            data.actionBlock?.let {
                 Spacer(modifier = GlanceModifier.height(16.dp))
-                AppWidgetTemplateButton(button)
+                ActionBlockTemplate(it)
             }
         }
-        data.image?.let { image ->
+
+        data.imageBlock?.let {
             Spacer(modifier = GlanceModifier.width(16.dp))
-            Image(
-                provider = image.image,
-                contentDescription = image.description,
-                modifier = GlanceModifier.fillMaxHeight().defaultWeight(),
-                contentScale = ContentScale.Crop
-            )
+            SingleImageBlockTemplate(it, GlanceModifier.fillMaxHeight().defaultWeight())
         }
     }
 }
@@ -147,4 +126,20 @@ private fun textList(
     body?.let { result.add(TemplateText(it.text, TextType.Body)) }
 
     return result
+}
+
+@Composable
+private fun createTopLevelModifier(
+    data: SingleEntityTemplateData,
+    isImmersive: Boolean = false
+): GlanceModifier {
+    var modifier = GlanceModifier
+        .fillMaxSize().padding(16.dp).cornerRadius(16.dp)
+        .background(LocalTemplateColors.current.primaryContainer)
+    if (isImmersive && data.imageBlock?.images?.isNotEmpty() == true) {
+        val mainImage = data.imageBlock!!.images[0]
+        modifier = modifier.background(mainImage.image, ContentScale.Crop)
+    }
+
+    return modifier
 }
