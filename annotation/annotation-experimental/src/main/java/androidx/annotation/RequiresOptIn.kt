@@ -27,43 +27,47 @@ import kotlin.annotation.Target
  * by using [OptIn] or by being annotated with that marker themselves, effectively causing
  * further propagation of that opt-in aspect.
  *
- * Marker example:
+ * ```
+ * // Marker definition
  *
- *     @Retention(CLASS)
- *     @Target({TYPE, METHOD, CONSTRUCTOR, FIELD, PACKAGE})
- *     @RequiresOptIn(level = Level.ERROR)
- *     public @interface ExperimentalDateTime {}
+ * @Retention(CLASS)
+ * @Target({TYPE, METHOD, CONSTRUCTOR, FIELD, PACKAGE})
+ * @RequiresOptIn(level = Level.ERROR)
+ * public @interface ExperimentalDateTime {}
  *
- *     @ExperimentalDateTime
- *     public class DateProvider {
- *       // ...
- *     }
+ * @ExperimentalDateTime
+ * public class DateProvider {
+ *   // ...
+ * }
  *
- * Client example:
+ * // Client code
  *
- *     int getYear() {
- *       DateProvider provider; // Error: DateProvider is experimental
- *       // ...
- *     }
+ * int getYear() {
+ *   DateProvider provider; // Error: DateProvider is experimental
+ *   // ...
+ * }
  *
- *     @ExperimentalDateTime
- *     Date getDate() {
- *       DateProvider provider; // OK: the function is marked as experimental
- *       // ...
- *     }
+ * @ExperimentalDateTime
+ * Date getDate() {
+ *   DateProvider provider; // OK: the function is marked as experimental
+ *   // ...
+ * }
  *
- *     void displayDate() {
- *       System.out.println(getDate()); // Error: getDate() is experimental, acceptance is required
- *     }
+ * void displayDate() {
+ *   System.out.println(getDate()); // Error: getDate() is experimental, acceptance is required
+ * }
+ * ```
  *
  * To configure project-wide opt-in, specify the `opt-in` option value in `lint.xml` as a
  * comma-delimited list of opted-in annotations:
  *
- *     <lint>
- *       <issue id="$issueId">
- *         <option name="opt-in" value="com.foo.ExperimentalBarAnnotation" />
- *       </issue>
- *     </lint>
+ * ```
+ * <lint>
+ *   <issue id="$issueId">
+ *     <option name="opt-in" value="com.foo.ExperimentalBarAnnotation" />
+ *   </issue>
+ * </lint>
+ * ```
  */
 @Retention(AnnotationRetention.BINARY)
 @Target(AnnotationTarget.ANNOTATION_CLASS)
