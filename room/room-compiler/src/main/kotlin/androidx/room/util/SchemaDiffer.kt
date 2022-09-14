@@ -33,10 +33,9 @@ import androidx.room.processor.ProcessorErrors.tableWithConflictingPrefixFound
 import androidx.room.vo.AutoMigration
 
 /**
- * This exception should be thrown to abandon processing an @AutoMigration.
+ * This RuntimeException should be thrown to abandon processing an @AutoMigration.
  *
  * @param errorMessage Error message to be thrown with the exception
- * @return RuntimeException with the provided error message
  */
 class DiffException(val errorMessage: String) : RuntimeException(errorMessage)
 
