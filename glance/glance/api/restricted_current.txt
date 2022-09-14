@@ -552,23 +552,17 @@ package androidx.glance.template {
   }
 
   public final class SingleEntityTemplateData {
-    ctor public SingleEntityTemplateData(optional boolean displayHeader, optional androidx.glance.template.TemplateImageWithDescription? headerIcon, optional androidx.glance.template.TemplateText? header, optional androidx.glance.template.TemplateText? text1, optional androidx.glance.template.TemplateText? text2, optional androidx.glance.template.TemplateText? text3, optional androidx.glance.template.TemplateButton? button, optional androidx.glance.template.TemplateImageWithDescription? image);
-    method public androidx.glance.template.TemplateButton? getButton();
+    ctor public SingleEntityTemplateData(optional boolean displayHeader, optional androidx.glance.template.HeaderBlock? headerBlock, optional androidx.glance.template.TextBlock? textBlock, optional androidx.glance.template.ImageBlock? imageBlock, optional androidx.glance.template.ActionBlock? actionBlock);
+    method public androidx.glance.template.ActionBlock? getActionBlock();
     method public boolean getDisplayHeader();
-    method public androidx.glance.template.TemplateText? getHeader();
-    method public androidx.glance.template.TemplateImageWithDescription? getHeaderIcon();
-    method public androidx.glance.template.TemplateImageWithDescription? getImage();
-    method public androidx.glance.template.TemplateText? getText1();
-    method public androidx.glance.template.TemplateText? getText2();
-    method public androidx.glance.template.TemplateText? getText3();
-    property public final androidx.glance.template.TemplateButton? button;
+    method public androidx.glance.template.HeaderBlock? getHeaderBlock();
+    method public androidx.glance.template.ImageBlock? getImageBlock();
+    method public androidx.glance.template.TextBlock? getTextBlock();
+    property public final androidx.glance.template.ActionBlock? actionBlock;
     property public final boolean displayHeader;
-    property public final androidx.glance.template.TemplateText? header;
-    property public final androidx.glance.template.TemplateImageWithDescription? headerIcon;
-    property public final androidx.glance.template.TemplateImageWithDescription? image;
-    property public final androidx.glance.template.TemplateText? text1;
-    property public final androidx.glance.template.TemplateText? text2;
-    property public final androidx.glance.template.TemplateText? text3;
+    property public final androidx.glance.template.HeaderBlock? headerBlock;
+    property public final androidx.glance.template.ImageBlock? imageBlock;
+    property public final androidx.glance.template.TextBlock? textBlock;
   }
 
   public abstract sealed class TemplateButton {

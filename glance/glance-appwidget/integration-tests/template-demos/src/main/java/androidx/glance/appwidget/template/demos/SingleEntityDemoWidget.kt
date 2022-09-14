@@ -32,10 +32,14 @@ import androidx.glance.appwidget.state.updateAppWidgetState
 import androidx.glance.appwidget.template.GlanceTemplateAppWidget
 import androidx.glance.appwidget.template.SingleEntityTemplate
 import androidx.glance.currentState
+import androidx.glance.template.ActionBlock
+import androidx.glance.template.HeaderBlock
+import androidx.glance.template.ImageBlock
 import androidx.glance.template.SingleEntityTemplateData
 import androidx.glance.template.TemplateImageWithDescription
 import androidx.glance.template.TemplateText
 import androidx.glance.template.TemplateTextButton
+import androidx.glance.template.TextBlock
 import androidx.glance.template.TextType
 
 /**
@@ -48,27 +52,41 @@ class SingleEntityDemoWidget : GlanceTemplateAppWidget() {
     override fun TemplateContent() {
         SingleEntityTemplate(
             SingleEntityTemplateData(
-                header = TemplateText("Single Entity Demo", TextType.Title),
-                headerIcon = TemplateImageWithDescription(
-                    ImageProvider(R.drawable.compose),
-                    "Header icon"
+                headerBlock = HeaderBlock(
+                    text = TemplateText("Single Entity Demo", TextType.Title),
+                    icon = TemplateImageWithDescription(
+                        ImageProvider(R.drawable.compose),
+                        "Header icon"
+                    ),
                 ),
-                text1 = TemplateText(
-                    getTitle(currentState<Preferences>()[ToggleKey] == true), TextType.Title
+                textBlock = TextBlock(
+                    text1 = TemplateText(
+                        getTitle(currentState<Preferences>()[ToggleKey] == true), TextType.Title
+                    ),
+                    text2 = TemplateText("Subtitle", TextType.Label),
+                    text3 = TemplateText(
+                        "Body Lorem ipsum dolor sit amet, consectetur adipiscing elit",
+                        TextType.Body
+                    ),
+                    priority = 0,
                 ),
-                text2 = TemplateText("Subtitle", TextType.Label),
-                text3 = TemplateText(
-                    "Body Lorem ipsum dolor sit amet, consectetur adipiscing elit",
-                    TextType.Body
+                imageBlock = ImageBlock(
+                    images = listOf(
+                        TemplateImageWithDescription(
+                            ImageProvider(R.drawable.compose),
+                            "Compose image"
+                        )
+                    ),
+                    priority = 1,
                 ),
-                button = TemplateTextButton(
-                    actionRunCallback<SEButtonAction>(),
-                    "Toggle title"
+                actionBlock = ActionBlock(
+                    actionButtons = listOf(
+                        TemplateTextButton(
+                            actionRunCallback<SEButtonAction>(),
+                            "Toggle title"
+                        ),
+                    ),
                 ),
-                image = TemplateImageWithDescription(
-                    ImageProvider(R.drawable.compose),
-                    "Compose image"
-                )
             )
         )
     }
