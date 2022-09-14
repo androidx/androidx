@@ -21,6 +21,8 @@ import TestPager
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertFailsWith
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -32,13 +34,13 @@ import org.junit.runners.JUnit4
 class TestPagerTest {
 
     @Test
-    fun refresh_returnPage() {
+    fun refresh_nullKey() {
         val source = TestPagingSource()
         val pager = TestPager(source, CONFIG)
 
         runTest {
             val result = pager.run {
-                refresh()
+                refresh(null)
             } as LoadResult.Page
 
             assertThat(result.data).containsExactlyElementsIn(listOf(0, 1, 2, 3, 4)).inOrder()
@@ -114,7 +116,7 @@ class TestPagerTest {
     }
 
     @Test
-    fun refresh_getlastPage() {
+    fun refresh_getLastLoadedPage() {
         val source = TestPagingSource()
         val pager = TestPager(source, CONFIG)
 
@@ -125,6 +127,24 @@ class TestPagerTest {
             }
             assertThat(page).isNotNull()
             assertThat(page?.data).containsExactlyElementsIn(listOf(0, 1, 2, 3, 4)).inOrder()
+        }
+    }
+
+    @Test
+    fun getLastLoadedPage_afterInvalidPagingSource() {
+        val source = TestPagingSource()
+        val pager = TestPager(source, CONFIG)
+
+        runTest {
+            val page = pager.run {
+                refresh()
+                append() // page should be this appended page
+                source.invalidate()
+                assertTrue(source.invalid)
+                getLastLoadedPage()
+            }
+            assertThat(page).isNotNull()
+            assertThat(page?.data).containsExactlyElementsIn(listOf(5, 6, 7)).inOrder()
         }
     }
 
@@ -147,6 +167,40 @@ class TestPagerTest {
                         nextKey = 5,
                         itemsBefore = 0,
                         itemsAfter = 95
+                    )
+                )
+            ).inOrder()
+        }
+    }
+
+    @Test
+    fun getPages_afterInvalidPagingSource() {
+        val source = TestPagingSource()
+        val pager = TestPager(source, CONFIG)
+
+        runTest {
+            val pages = pager.run {
+                refresh()
+                append()
+                source.invalidate()
+                assertTrue(source.invalid)
+                getPages()
+            }
+            assertThat(pages).containsExactlyElementsIn(
+                listOf(
+                    LoadResult.Page(
+                        data = listOf(0, 1, 2, 3, 4),
+                        prevKey = null,
+                        nextKey = 5,
+                        itemsBefore = 0,
+                        itemsAfter = 95
+                    ),
+                    LoadResult.Page(
+                        data = listOf(5, 6, 7),
+                        prevKey = 4,
+                        nextKey = 8,
+                        itemsBefore = 5,
+                        itemsAfter = 92
                     )
                 )
             ).inOrder()
@@ -195,6 +249,435 @@ class TestPagerTest {
         } as LoadResult.Page
 
         assertThat(result2.data).containsExactlyElementsIn(listOf(0, 1, 2, 3, 4)).inOrder()
+    }
+
+    @Test
+    fun simpleAppend() = runTest {
+        val source = TestPagingSource()
+        val pager = TestPager(source, CONFIG)
+
+        val result = pager.run {
+            refresh(null)
+            append()
+        } as LoadResult.Page
+
+        assertThat(result.data).containsExactlyElementsIn(listOf(5, 6, 7)).inOrder()
+        assertThat(pager.getPages()).containsExactlyElementsIn(
+            listOf(
+                LoadResult.Page(
+                    data = listOf(0, 1, 2, 3, 4),
+                    prevKey = null,
+                    nextKey = 5,
+                    itemsBefore = 0,
+                    itemsAfter = 95
+                ),
+                LoadResult.Page(
+                    data = listOf(5, 6, 7),
+                    prevKey = 4,
+                    nextKey = 8,
+                    itemsBefore = 5,
+                    itemsAfter = 92
+                )
+            )
+        ).inOrder()
+    }
+
+    @Test
+    fun simplePrepend() = runTest {
+        val source = TestPagingSource()
+        val pager = TestPager(source, CONFIG)
+
+        val result = pager.run {
+            refresh(30)
+            prepend()
+        } as LoadResult.Page
+
+        assertThat(result.data).containsExactlyElementsIn(listOf(27, 28, 29)).inOrder()
+        // prepended pages should be inserted before refresh
+        assertThat(pager.getPages()).containsExactlyElementsIn(
+            listOf(
+                // prepend
+                LoadResult.Page(
+                    data = listOf(27, 28, 29),
+                    prevKey = 26,
+                    nextKey = 30,
+                    itemsBefore = 27,
+                    itemsAfter = 70
+                ),
+                // refresh
+                LoadResult.Page(
+                    data = listOf(30, 31, 32, 33, 34),
+                    prevKey = 29,
+                    nextKey = 35,
+                    itemsBefore = 30,
+                    itemsAfter = 65
+                ),
+            )
+        ).inOrder()
+    }
+
+    @Test
+    fun append_beforeRefresh_throws() = runTest {
+        val source = TestPagingSource()
+        val pager = TestPager(source, CONFIG)
+        assertFailsWith<IllegalStateException> {
+            pager.run {
+                append()
+            }
+        }
+    }
+
+    @Test
+    fun prepend_beforeRefresh_throws() = runTest {
+        val source = TestPagingSource()
+        val pager = TestPager(source, CONFIG)
+        assertFailsWith<IllegalStateException> {
+            pager.run {
+                prepend()
+            }
+        }
+    }
+
+    @Test
+    fun append_invalidPagingSource() = runTest {
+        val source = TestPagingSource()
+        val pager = TestPager(source, CONFIG)
+
+        assertFailsWith<IllegalStateException> {
+            pager.run {
+                refresh()
+                source.invalidate()
+                append()
+            }
+        }
+    }
+
+    @Test
+    fun prepend_invalidPagingSource() = runTest {
+        val source = TestPagingSource()
+        val pager = TestPager(source, CONFIG)
+
+        assertFailsWith<IllegalStateException> {
+            pager.run {
+                refresh()
+                source.invalidate()
+                prepend()
+            }
+        }
+    }
+
+    @Test
+    fun consecutive_append() = runTest {
+        val source = TestPagingSource()
+        val pager = TestPager(source, CONFIG)
+
+        pager.run {
+            refresh(20)
+            append()
+            append()
+        } as LoadResult.Page
+
+        assertThat(pager.getPages()).containsExactlyElementsIn(
+            listOf(
+                LoadResult.Page(
+                    data = listOf(20, 21, 22, 23, 24),
+                    prevKey = 19,
+                    nextKey = 25,
+                    itemsBefore = 20,
+                    itemsAfter = 75
+                ),
+                LoadResult.Page(
+                    data = listOf(25, 26, 27),
+                    prevKey = 24,
+                    nextKey = 28,
+                    itemsBefore = 25,
+                    itemsAfter = 72
+                ),
+                LoadResult.Page(
+                    data = listOf(28, 29, 30),
+                    prevKey = 27,
+                    nextKey = 31,
+                    itemsBefore = 28,
+                    itemsAfter = 69
+                )
+            )
+        ).inOrder()
+    }
+
+    @Test
+    fun consecutive_prepend() = runTest {
+        val source = TestPagingSource()
+        val pager = TestPager(source, CONFIG)
+
+        pager.run {
+            refresh(20)
+            prepend()
+            prepend()
+        } as LoadResult.Page
+
+        // prepended pages should be ordered before the refresh
+        assertThat(pager.getPages()).containsExactlyElementsIn(
+            listOf(
+                // 2nd prepend
+                LoadResult.Page(
+                    data = listOf(14, 15, 16),
+                    prevKey = 13,
+                    nextKey = 17,
+                    itemsBefore = 14,
+                    itemsAfter = 83
+                ),
+                // 1st prepend
+                LoadResult.Page(
+                    data = listOf(17, 18, 19),
+                    prevKey = 16,
+                    nextKey = 20,
+                    itemsBefore = 17,
+                    itemsAfter = 80
+                ),
+                // refresh
+                LoadResult.Page(
+                    data = listOf(20, 21, 22, 23, 24),
+                    prevKey = 19,
+                    nextKey = 25,
+                    itemsBefore = 20,
+                    itemsAfter = 75
+                ),
+            )
+        ).inOrder()
+    }
+
+    @Test
+    fun append_then_prepend() = runTest {
+        val source = TestPagingSource()
+        val pager = TestPager(source, CONFIG)
+
+        pager.run {
+            refresh(20)
+            append()
+            prepend()
+        } as LoadResult.Page
+
+        assertThat(pager.getPages()).containsExactlyElementsIn(
+            listOf(
+                // prepend
+                LoadResult.Page(
+                    data = listOf(17, 18, 19),
+                    prevKey = 16,
+                    nextKey = 20,
+                    itemsBefore = 17,
+                    itemsAfter = 80
+                ),
+                // refresh
+                LoadResult.Page(
+                    data = listOf(20, 21, 22, 23, 24),
+                    prevKey = 19,
+                    nextKey = 25,
+                    itemsBefore = 20,
+                    itemsAfter = 75
+                ),
+                // append
+                LoadResult.Page(
+                    data = listOf(25, 26, 27),
+                    prevKey = 24,
+                    nextKey = 28,
+                    itemsBefore = 25,
+                    itemsAfter = 72
+                ),
+            )
+        ).inOrder()
+    }
+
+    @Test
+    fun prepend_then_append() = runTest {
+        val source = TestPagingSource()
+        val pager = TestPager(source, CONFIG)
+
+        pager.run {
+            refresh(20)
+            prepend()
+            append()
+        } as LoadResult.Page
+
+        assertThat(pager.getPages()).containsExactlyElementsIn(
+            listOf(
+                // prepend
+                LoadResult.Page(
+                    data = listOf(17, 18, 19),
+                    prevKey = 16,
+                    nextKey = 20,
+                    itemsBefore = 17,
+                    itemsAfter = 80
+                ),
+                // refresh
+                LoadResult.Page(
+                    data = listOf(20, 21, 22, 23, 24),
+                    prevKey = 19,
+                    nextKey = 25,
+                    itemsBefore = 20,
+                    itemsAfter = 75
+                ),
+                // append
+                LoadResult.Page(
+                    data = listOf(25, 26, 27),
+                    prevKey = 24,
+                    nextKey = 28,
+                    itemsBefore = 25,
+                    itemsAfter = 72
+                ),
+            )
+        ).inOrder()
+    }
+
+    @Test
+    fun multiThread_loads() = runTest {
+        val source = TestPagingSource()
+        val pager = TestPager(source, CONFIG)
+        // load operations upon completion add an int to the list.
+        // after all loads complete, we assert the order that the ints were added.
+        val loadOrder = mutableListOf<Int>()
+
+        val job = launch {
+            pager.run {
+                refresh(20).also { loadOrder.add(1) } // first load
+                prepend().also { loadOrder.add(3) } // third load
+                append().also { loadOrder.add(5) } // fifth load
+            }
+        }
+        job.start()
+        assertTrue(job.isActive)
+
+        pager.run {
+            // give some time for job to start
+            delay(200)
+            append().also { loadOrder.add(2) } // second load
+            prepend().also { loadOrder.add(4) } // fourth load
+        }
+
+        job.invokeOnCompletion {
+            launch {
+                assertThat(loadOrder).containsExactlyElementsIn(listOf(1, 2, 3, 4, 5)).inOrder()
+                assertThat(pager.getPages()).containsExactlyElementsIn(
+                    listOf(
+                        LoadResult.Page(
+                            data = listOf(14, 15, 16),
+                            prevKey = 13,
+                            nextKey = 17,
+                            itemsBefore = 14,
+                            itemsAfter = 83
+                        ),
+                        LoadResult.Page(
+                            data = listOf(17, 18, 19),
+                            prevKey = 16,
+                            nextKey = 20,
+                            itemsBefore = 17,
+                            itemsAfter = 80
+                        ),
+                        LoadResult.Page(
+                            data = listOf(20, 21, 22, 23, 24),
+                            prevKey = 19,
+                            nextKey = 25,
+                            itemsBefore = 20,
+                            itemsAfter = 75
+                        ),
+                        LoadResult.Page(
+                            data = listOf(25, 26, 27),
+                            prevKey = 24,
+                            nextKey = 28,
+                            itemsBefore = 25,
+                            itemsAfter = 72
+                        ),
+                        LoadResult.Page(
+                            data = listOf(28, 29, 30),
+                            prevKey = 27,
+                            nextKey = 31,
+                            itemsBefore = 28,
+                            itemsAfter = 69
+                        ),
+                    )
+                ).inOrder()
+            }
+        }
+    }
+
+    @Test
+    fun multiThread_operations() = runTest {
+        val source = TestPagingSource()
+        val pager = TestPager(source, CONFIG)
+        // operations upon completion add an int to the list.
+        // after all operations complete, we assert the order that the ints were added.
+        val loadOrder = mutableListOf<Int>()
+
+        var lastLoadedPage: LoadResult.Page<Int, Int>? = null
+        val job = launch {
+            pager.run {
+                refresh(20).also { loadOrder.add(1) } // first operation
+                // third operation, should return first appended page
+                lastLoadedPage = getLastLoadedPage().also { loadOrder.add(3) }
+                append().also { loadOrder.add(5) } // fifth operation
+                prepend().also { loadOrder.add(7) } // last operation
+            }
+        }
+        job.start()
+        assertTrue(job.isActive)
+
+        val pages = pager.run {
+            // give some time for job to start first
+            delay(200)
+            append().also { loadOrder.add(2) } // second operation
+            prepend().also { loadOrder.add(4) } // fourth operation
+            // sixth operation, should return 4 pages
+            getPages().also { loadOrder.add(6) }
+        }
+
+        job.invokeOnCompletion {
+            launch {
+                assertThat(loadOrder).containsExactlyElementsIn(
+                    listOf(1, 2, 3, 4, 5, 6, 7)
+                ).inOrder()
+                assertThat(lastLoadedPage).isEqualTo(
+                    LoadResult.Page(
+                        data = listOf(25, 26, 27),
+                        prevKey = 24,
+                        nextKey = 28,
+                        itemsBefore = 25,
+                        itemsAfter = 72
+                    ),
+                )
+                // should not contain the second prepend, with a total of 4 pages
+                assertThat(pages).containsExactlyElementsIn(
+                    listOf(
+                        LoadResult.Page( // first prepend
+                            data = listOf(17, 18, 19),
+                            prevKey = 16,
+                            nextKey = 20,
+                            itemsBefore = 17,
+                            itemsAfter = 80
+                        ),
+                        LoadResult.Page( // refresh
+                            data = listOf(20, 21, 22, 23, 24),
+                            prevKey = 19,
+                            nextKey = 25,
+                            itemsBefore = 20,
+                            itemsAfter = 75
+                        ),
+                        LoadResult.Page( // first append
+                            data = listOf(25, 26, 27),
+                            prevKey = 24,
+                            nextKey = 28,
+                            itemsBefore = 25,
+                            itemsAfter = 72
+                        ),
+                        LoadResult.Page( // second append
+                            data = listOf(28, 29, 30),
+                            prevKey = 27,
+                            nextKey = 31,
+                            itemsBefore = 28,
+                            itemsAfter = 69
+                        ),
+                    )
+                ).inOrder()
+            }
+        }
     }
 
     private val CONFIG = PagingConfig(
