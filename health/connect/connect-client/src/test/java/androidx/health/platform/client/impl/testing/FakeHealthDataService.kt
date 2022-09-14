@@ -29,6 +29,7 @@ import androidx.health.platform.client.request.ReadDataRequest
 import androidx.health.platform.client.request.ReadExerciseRouteRequest
 import androidx.health.platform.client.request.RegisterForDataNotificationsRequest
 import androidx.health.platform.client.request.RequestContext
+import androidx.health.platform.client.request.UnregisterFromDataNotificationsRequest
 import androidx.health.platform.client.request.UpsertDataRequest
 import androidx.health.platform.client.request.UpsertExerciseRouteRequest
 import androidx.health.platform.client.response.AggregateDataResponse
@@ -54,7 +55,6 @@ import androidx.health.platform.client.service.IRevokeAllPermissionsCallback
 import androidx.health.platform.client.service.IUnregisterFromDataNotificationsCallback
 import androidx.health.platform.client.service.IUpdateDataCallback
 import androidx.health.platform.client.service.IUpsertExerciseRouteCallback
-import androidx.health.platform.client.request.UnregisterFromDataNotificationsRequest
 
 /** Fake {@link IHealthDataService} implementation for unit testing. */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -63,6 +63,7 @@ class FakeHealthDataService : IHealthDataService.Stub() {
     val grantedPermissions: MutableSet<Permission> = mutableSetOf()
 
     /** State retaining last requested parameters. */
+    var lastRequestContext: RequestContext? = null
     var lastUpsertDataRequest: UpsertDataRequest? = null
     var lastUpsertExerciseRouteRequest: UpsertExerciseRouteRequest? = null
     var lastReadDataRequest: ReadDataRequest? = null
@@ -97,6 +98,7 @@ class FakeHealthDataService : IHealthDataService.Stub() {
         permissions: List<Permission>,
         callback: IGetGrantedPermissionsCallback,
     ) {
+        lastRequestContext = context
         errorCode?.let {
             callback.onError(ErrorStatus.create(it, "" + it))
             return@getGrantedPermissions
@@ -110,6 +112,7 @@ class FakeHealthDataService : IHealthDataService.Stub() {
         context: RequestContext,
         callback: IRevokeAllPermissionsCallback,
     ) {
+        lastRequestContext = context
         errorCode?.let {
             callback.onError(ErrorStatus.create(it, "" + it))
             return@revokeAllPermissions
@@ -127,6 +130,7 @@ class FakeHealthDataService : IHealthDataService.Stub() {
         request: UpsertDataRequest,
         callback: IInsertDataCallback,
     ) {
+        lastRequestContext = context
         lastUpsertDataRequest = request
         errorCode?.let {
             callback.onError(ErrorStatus.create(it, "" + it))
@@ -140,6 +144,7 @@ class FakeHealthDataService : IHealthDataService.Stub() {
         request: UpsertDataRequest,
         callback: IUpdateDataCallback,
     ) {
+        lastRequestContext = context
         lastUpsertDataRequest = request
         errorCode?.let {
             callback.onError(ErrorStatus.create(it, "" + it))
@@ -153,6 +158,7 @@ class FakeHealthDataService : IHealthDataService.Stub() {
         request: DeleteDataRequest,
         callback: IDeleteDataCallback,
     ) {
+        lastRequestContext = context
         lastDeleteDataRequest = request
         errorCode?.let {
             callback.onError(ErrorStatus.create(it, "" + it))
@@ -166,6 +172,7 @@ class FakeHealthDataService : IHealthDataService.Stub() {
         request: DeleteDataRangeRequest,
         callback: IDeleteDataRangeCallback,
     ) {
+        lastRequestContext = context
         lastDeleteDataRangeRequest = request
         errorCode?.let {
             callback.onError(ErrorStatus.create(it, "" + it))
@@ -179,6 +186,7 @@ class FakeHealthDataService : IHealthDataService.Stub() {
         request: ReadDataRequest,
         callback: IReadDataCallback,
     ) {
+        lastRequestContext = context
         lastReadDataRequest = request
         errorCode?.let {
             callback.onError(ErrorStatus.create(it, "" + it))
@@ -192,6 +200,7 @@ class FakeHealthDataService : IHealthDataService.Stub() {
         request: ReadDataRangeRequest,
         callback: IReadDataRangeCallback,
     ) {
+        lastRequestContext = context
         lastReadDataRangeRequest = request
         errorCode?.let {
             callback.onError(ErrorStatus.create(it, "" + it))
@@ -205,6 +214,7 @@ class FakeHealthDataService : IHealthDataService.Stub() {
         request: AggregateDataRequest,
         callback: IAggregateDataCallback,
     ) {
+        lastRequestContext = context
         lastAggregateRequest = request
         errorCode?.let {
             callback.onError(ErrorStatus.create(it, "" + it))
@@ -218,6 +228,7 @@ class FakeHealthDataService : IHealthDataService.Stub() {
         request: GetChangesTokenRequest,
         callback: IGetChangesTokenCallback,
     ) {
+        lastRequestContext = context
         lastGetChangesTokenRequest = request
         errorCode?.let {
             callback.onError(ErrorStatus.create(it, "" + it))
@@ -231,6 +242,7 @@ class FakeHealthDataService : IHealthDataService.Stub() {
         request: GetChangesRequest,
         callback: IGetChangesCallback,
     ) {
+        lastRequestContext = context
         lastGetChangesRequest = request
         errorCode?.let {
             callback.onError(ErrorStatus.create(it, "" + it))
@@ -244,6 +256,7 @@ class FakeHealthDataService : IHealthDataService.Stub() {
         request: RegisterForDataNotificationsRequest,
         callback: IRegisterForDataNotificationsCallback,
     ) {
+        lastRequestContext = context
         lastRegisterForDataNotificationsRequest = request
         errorCode?.also {
             callback.onError(ErrorStatus.create(errorCode = it))
@@ -257,6 +270,7 @@ class FakeHealthDataService : IHealthDataService.Stub() {
         request: UnregisterFromDataNotificationsRequest,
         callback: IUnregisterFromDataNotificationsCallback,
     ) {
+        lastRequestContext = context
         lastUnregisterFromDataNotificationsRequest = request
         errorCode?.also {
             callback.onError(ErrorStatus.create(errorCode = it))
@@ -269,7 +283,7 @@ class FakeHealthDataService : IHealthDataService.Stub() {
         context: RequestContext,
         request: UpsertExerciseRouteRequest,
         callback: IUpsertExerciseRouteCallback,
-     ) {
+    ) {
         lastUpsertExerciseRouteRequest = request
         errorCode?.let {
             callback.onError(ErrorStatus.create(it, "" + it))
