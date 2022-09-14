@@ -56,7 +56,7 @@ fun SampleImmersiveList() {
     ImmersiveList(
         modifier = Modifier
             .height(130.dp)
-            .width(950.dp)
+            .fillMaxWidth()
             .border(1.dp, Color.Black),
         background = { index, _ ->
             AnimatedContent(targetState = index) { SampleBackground(it) } },
