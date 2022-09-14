@@ -292,15 +292,20 @@ class SchemaDiffer(
         // table as a complex change and include the renamed column.
         val renamedToColumn = isColumnRenamed(fromColumn.columnName, fromTable.tableName)
         if (renamedToColumn != null) {
-            val renamedColumnsMap = mutableMapOf(
-                renamedToColumn.newColumnName to fromColumn.columnName
-            )
             // Make sure there are no conflicts in the new version of the table with the
             // temporary new table name
             if (toSchemaBundle.entitiesByTableName.containsKey(toTable.newTableName)) {
                 diffError(tableWithConflictingPrefixFound(toTable.newTableName))
             }
             renamedTables.remove(fromTable.tableName)
+
+            // If the table is already marked as a complex change, then we want to add a new entry
+            // to it's renamedColumnMap
+            val renamedColumnsMap = complexChangedTables[fromTable.tableName]?.renamedColumnsMap
+                ?: mutableMapOf()
+
+            renamedColumnsMap[renamedToColumn.newColumnName] = fromColumn.columnName
+
             complexChangedTables[fromTable.tableName] =
                 AutoMigration.ComplexChangedTable(
                     tableName = fromTable.tableName,
