@@ -283,6 +283,8 @@ interface HealthConnectClient {
      * registered, either in the `AndroidManifest.xml` file or at runtime. The registered
      * `BroadcastReceiver` must have an [IntentFilter][android.content.IntentFilter] specified with
      * the same action as in [notificationIntentAction] argument.
+     * [DataNotification][androidx.health.connect.client.datanotification.DataNotification] can be
+     * used to extract data from the received [Intent].
      *
      * @param notificationIntentAction an action to be used for broadcast messages.
      * @param recordTypes specifies [Record] types of interest.
@@ -293,6 +295,7 @@ interface HealthConnectClient {
      * @throws IllegalStateException If service is not available.
      *
      * @see unregisterFromDataNotifications
+     * @see androidx.health.connect.client.datanotification.DataNotification
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY) // Not yet ready for public
     suspend fun registerForDataNotifications(
