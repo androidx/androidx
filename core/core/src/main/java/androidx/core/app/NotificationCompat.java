@@ -5268,8 +5268,8 @@ public class NotificationCompat {
             @NonNull
             public static Builder fromAndroidAction(@NonNull Notification.Action action) {
                 final Builder builder;
-                if (Build.VERSION.SDK_INT >= 23 && action.getIcon() != null) {
-                    IconCompat iconCompat = IconCompat.createFromIcon(action.getIcon());
+                if (Build.VERSION.SDK_INT >= 23 && Api23Impl.getIcon(action) != null) {
+                    IconCompat iconCompat = IconCompat.createFromIcon(Api23Impl.getIcon(action));
                     builder = new NotificationCompat.Action.Builder(iconCompat, action.title,
                             action.actionIntent);
                 } else {
@@ -5277,7 +5277,7 @@ public class NotificationCompat {
                             action.actionIntent);
                 }
                 if (Build.VERSION.SDK_INT >= 20) {
-                    android.app.RemoteInput[] remoteInputs = action.getRemoteInputs();
+                    android.app.RemoteInput[] remoteInputs = Api20Impl.getRemoteInputs(action);
                     if (remoteInputs != null && remoteInputs.length != 0) {
                         for (android.app.RemoteInput remoteInput : remoteInputs) {
                             builder.addRemoteInput(RemoteInput.fromPlatform(remoteInput));
@@ -5285,16 +5285,16 @@ public class NotificationCompat {
                     }
                 }
                 if (Build.VERSION.SDK_INT >= 24) {
-                    builder.mAllowGeneratedReplies = action.getAllowGeneratedReplies();
+                    builder.mAllowGeneratedReplies = Api24Impl.getAllowGeneratedReplies(action);
                 }
                 if (Build.VERSION.SDK_INT >= 28) {
-                    builder.setSemanticAction(action.getSemanticAction());
+                    builder.setSemanticAction(Api28Impl.getSemanticAction(action));
                 }
                 if (Build.VERSION.SDK_INT >= 29) {
-                    builder.setContextual(action.isContextual());
+                    builder.setContextual(Api29Impl.isContextual(action));
                 }
                 if (Build.VERSION.SDK_INT >= 31) {
-                    builder.setAuthenticationRequired(action.isAuthenticationRequired());
+                    builder.setAuthenticationRequired(Api31Impl.isAuthenticationRequired(action));
                 }
                 return builder;
             }
@@ -5518,6 +5518,98 @@ public class NotificationCompat {
                         dataOnlyInputsArr, mAllowGeneratedReplies, mSemanticAction,
                         mShowsUserInterface, mIsContextual, mAuthenticationRequired);
             }
+
+            /**
+             * A class for wrapping calls to {@link Notification.Action.Builder} methods which
+             * were added in API 20; these calls must be wrapped to avoid performance issues.
+             * See the UnsafeNewApiCall lint rule for more details.
+             */
+            @RequiresApi(20)
+            static class Api20Impl {
+                private Api20Impl() { }
+
+                @DoNotInline
+                static android.app.RemoteInput[] getRemoteInputs(Notification.Action action) {
+                    return action.getRemoteInputs();
+                }
+
+            }
+
+            /**
+             * A class for wrapping calls to {@link Notification.Action.Builder} methods which
+             * were added in API 23; these calls must be wrapped to avoid performance issues.
+             * See the UnsafeNewApiCall lint rule for more details.
+             */
+            @RequiresApi(23)
+            static class Api23Impl {
+                private Api23Impl() { }
+
+                @DoNotInline
+                static Icon getIcon(Notification.Action action) {
+                    return action.getIcon();
+                }
+            }
+
+            /**
+             * A class for wrapping calls to {@link Notification.Action.Builder} methods which
+             * were added in API 24; these calls must be wrapped to avoid performance issues.
+             * See the UnsafeNewApiCall lint rule for more details.
+             */
+            @RequiresApi(24)
+            static class Api24Impl {
+                private Api24Impl() { }
+
+                @DoNotInline
+                static boolean getAllowGeneratedReplies(Notification.Action action) {
+                    return action.getAllowGeneratedReplies();
+                }
+            }
+
+            /**
+             * A class for wrapping calls to {@link Notification.Action.Builder} methods which
+             * were added in API 28; these calls must be wrapped to avoid performance issues.
+             * See the UnsafeNewApiCall lint rule for more details.
+             */
+            @RequiresApi(28)
+            static class Api28Impl {
+                private Api28Impl() { }
+
+                @DoNotInline
+                static int getSemanticAction(Notification.Action action) {
+                    return action.getSemanticAction();
+                }
+            }
+
+            /**
+             * A class for wrapping calls to {@link Notification.Action.Builder} methods which
+             * were added in API 29; these calls must be wrapped to avoid performance issues.
+             * See the UnsafeNewApiCall lint rule for more details.
+             */
+            @RequiresApi(29)
+            static class Api29Impl {
+                private Api29Impl() { }
+
+                @DoNotInline
+                static boolean isContextual(Notification.Action action) {
+                    return action.isContextual();
+                }
+            }
+
+            /**
+             * A class for wrapping calls to {@link Notification.Action.Builder} methods which
+             * were added in API 31; these calls must be wrapped to avoid performance issues.
+             * See the UnsafeNewApiCall lint rule for more details.
+             */
+            @RequiresApi(31)
+            static class Api31Impl {
+                private Api31Impl() { }
+
+                @DoNotInline
+                static boolean isAuthenticationRequired(Notification.Action action) {
+                    return action.isAuthenticationRequired();
+                }
+            }
+
         }
 
 
@@ -6145,7 +6237,7 @@ public class NotificationCompat {
             Notification.Action.Builder actionBuilder;
             if (Build.VERSION.SDK_INT >= 23) {
                 IconCompat iconCompat = actionCompat.getIconCompat();
-                actionBuilder = new Notification.Action.Builder(
+                actionBuilder = Api23Impl.createBuilder(
                         iconCompat == null ? null : iconCompat.toIcon(), actionCompat.getTitle(),
                         actionCompat.getActionIntent());
             } else {
@@ -6154,8 +6246,8 @@ public class NotificationCompat {
                 if (icon != null && icon.getType() == IconCompat.TYPE_RESOURCE) {
                     iconResId = icon.getResId();
                 }
-                actionBuilder = new Notification.Action.Builder(
-                        iconResId, actionCompat.getTitle(), actionCompat.getActionIntent());
+                actionBuilder = Api20Impl.createBuilder(iconResId, actionCompat.getTitle(),
+                        actionCompat.getActionIntent());
             }
             Bundle actionExtras;
             if (actionCompat.getExtras() != null) {
@@ -6166,20 +6258,22 @@ public class NotificationCompat {
             actionExtras.putBoolean(NotificationCompatJellybean.EXTRA_ALLOW_GENERATED_REPLIES,
                     actionCompat.getAllowGeneratedReplies());
             if (Build.VERSION.SDK_INT >= 24) {
-                actionBuilder.setAllowGeneratedReplies(actionCompat.getAllowGeneratedReplies());
+                Api24Impl.setAllowGeneratedReplies(actionBuilder,
+                        actionCompat.getAllowGeneratedReplies());
             }
             if (Build.VERSION.SDK_INT >= 31) {
-                actionBuilder.setAuthenticationRequired(actionCompat.isAuthenticationRequired());
+                Api31Impl.setAuthenticationRequired(actionBuilder,
+                        actionCompat.isAuthenticationRequired());
             }
-            actionBuilder.addExtras(actionExtras);
+            Api20Impl.addExtras(actionBuilder, actionExtras);
             RemoteInput[] remoteInputCompats = actionCompat.getRemoteInputs();
             if (remoteInputCompats != null) {
                 android.app.RemoteInput[] remoteInputs = RemoteInput.fromCompat(remoteInputCompats);
                 for (android.app.RemoteInput remoteInput : remoteInputs) {
-                    actionBuilder.addRemoteInput(remoteInput);
+                    Api20Impl.addRemoteInput(actionBuilder, remoteInput);
                 }
             }
-            return actionBuilder.build();
+            return Api20Impl.build(actionBuilder);
         }
 
         @Override
@@ -6802,6 +6896,87 @@ public class NotificationCompat {
                 mFlags |= mask;
             } else {
                 mFlags &= ~mask;
+            }
+        }
+
+        /**
+         * A class for wrapping calls to {@link Notification.WearableExtender} methods which
+         * were added in API 20; these calls must be wrapped to avoid performance issues.
+         * See the UnsafeNewApiCall lint rule for more details.
+         */
+        @RequiresApi(20)
+        static class Api20Impl {
+            private Api20Impl() { }
+
+            @DoNotInline
+            static Notification.Action.Builder createBuilder(int icon, CharSequence title,
+                    PendingIntent intent) {
+                return new Notification.Action.Builder(icon, title, intent);
+            }
+
+            @DoNotInline
+            static Notification.Action.Builder addExtras(Notification.Action.Builder builder,
+                    Bundle extras) {
+                return builder.addExtras(extras);
+            }
+
+            @DoNotInline
+            static Notification.Action.Builder addRemoteInput(Notification.Action.Builder builder,
+                    android.app.RemoteInput remoteInput) {
+                return builder.addRemoteInput(remoteInput);
+            }
+
+            @DoNotInline
+            static Notification.Action build(Notification.Action.Builder builder) {
+                return builder.build();
+            }
+        }
+
+        /**
+         * A class for wrapping calls to {@link Notification.WearableExtender} methods which
+         * were added in API 23; these calls must be wrapped to avoid performance issues.
+         * See the UnsafeNewApiCall lint rule for more details.
+         */
+        @RequiresApi(23)
+        static class Api23Impl {
+            private Api23Impl() { }
+
+            @DoNotInline
+            static Notification.Action.Builder createBuilder(Icon icon, CharSequence title,
+                    PendingIntent intent) {
+                return new Notification.Action.Builder(icon, title, intent);
+            }
+        }
+
+        /**
+         * A class for wrapping calls to {@link Notification.WearableExtender} methods which
+         * were added in API 24; these calls must be wrapped to avoid performance issues.
+         * See the UnsafeNewApiCall lint rule for more details.
+         */
+        @RequiresApi(24)
+        static class Api24Impl {
+            private Api24Impl() { }
+
+            @DoNotInline
+            static Notification.Action.Builder setAllowGeneratedReplies(
+                    Notification.Action.Builder builder, boolean allowGeneratedReplies) {
+                return builder.setAllowGeneratedReplies(allowGeneratedReplies);
+            }
+        }
+
+        /**
+         * A class for wrapping calls to {@link Notification.WearableExtender} methods which
+         * were added in API 31; these calls must be wrapped to avoid performance issues.
+         * See the UnsafeNewApiCall lint rule for more details.
+         */
+        @RequiresApi(31)
+        static class Api31Impl {
+            private Api31Impl() { }
+
+            @DoNotInline
+            static Notification.Action.Builder setAuthenticationRequired(
+                    Notification.Action.Builder builder, boolean authenticationRequired) {
+                return builder.setAuthenticationRequired(authenticationRequired);
             }
         }
     }
