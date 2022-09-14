@@ -16,10 +16,12 @@
 
 package androidx.wear.watchface.complications.data
 
+import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.drawable.Icon
 import android.os.Build
@@ -1142,6 +1144,36 @@ public class AsWireComplicationDataTest {
                 "TimeRange(startDateTimeMillis=-1000000000-01-01T00:00:00Z, endDateTimeMillis=" +
                 "+1000000000-12-31T23:59:59.999999999Z), dataSource=ComponentInfo{com.pkg_a/com.a})"
         )
+    }
+
+    @RequiresApi(Build.VERSION_CODES.P)
+    @Test
+    public fun smallImageComplicationData_with_BitmapIcon() {
+        val bitmapIcon =
+            Icon.createWithBitmap(Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888))
+        val image = SmallImage.Builder(bitmapIcon, SmallImageType.PHOTO).build()
+        val data = SmallImageComplicationData.Builder(
+            image, "content description".complicationText
+        ).setDataSource(dataSourceA).build()
+        ParcelableSubject.assertThat(data.asWireComplicationData())
+            .hasSameSerializationAs(
+                WireComplicationDataBuilder(WireComplicationData.TYPE_SMALL_IMAGE)
+                    .setSmallImage(bitmapIcon)
+                    .setSmallImageStyle(WireComplicationData.IMAGE_STYLE_PHOTO)
+                    .setContentDescription(WireComplicationText.plainText("content description"))
+                    .setDataSource(dataSourceA)
+                    .build()
+            )
+        testRoundTripConversions(data)
+        val deserialized = serializeAndDeserialize(data) as SmallImageComplicationData
+
+        assertThat(deserialized.smallImage.image.type).isEqualTo(Icon.TYPE_BITMAP)
+        val getBitmap = deserialized.smallImage.image.javaClass.getDeclaredMethod("getBitmap")
+        @SuppressLint("BanUncheckedReflection")
+        val bitmap = getBitmap.invoke(deserialized.smallImage.image) as Bitmap
+
+        assertThat(bitmap.width).isEqualTo(100)
+        assertThat(bitmap.height).isEqualTo(100)
     }
 
     @RequiresApi(Build.VERSION_CODES.P)

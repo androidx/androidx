@@ -536,7 +536,7 @@ public final class ComplicationData implements Parcelable, Serializable {
 
     @RequiresApi(api = Build.VERSION_CODES.P)
     private static class SerializedForm implements Serializable {
-        private static final int VERSION_NUMBER = 15;
+        private static final int VERSION_NUMBER = 16;
 
         @NonNull
         ComplicationData mComplicationData;
