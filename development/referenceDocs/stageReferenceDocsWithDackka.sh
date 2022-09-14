@@ -62,8 +62,6 @@ readonly javaLibraryDirsThatDontUseDackka=(
   "androidx/leanback"
   "androidx/media"
   "androidx/media2"
-  "androidx/mediarouter"
-  "androidx/recyclerview"
 )
 readonly kotlinLibraryDirsThatDontUseDackka=(
   "androidx/benchmark"
@@ -81,8 +79,6 @@ readonly kotlinLibraryDirsThatDontUseDackka=(
   "androidx/leanback"
   "androidx/media"
   "androidx/media2"
-  "androidx/mediarouter"
-  "androidx/recyclerview"
 )
 
 # Change directory to this script's location and store the directory
