@@ -88,9 +88,8 @@ internal class FrameworkSQLiteOpenHelper @JvmOverloads constructor(
     // because context.getNoBackupFilesDir() does File I/O :(
     private val delegate: OpenHelper by lazyDelegate
 
-    override fun getDatabaseName(): String? {
-        return name
-    }
+    override val databaseName: String?
+        get() = name
 
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
     override fun setWriteAheadLoggingEnabled(enabled: Boolean) {
@@ -101,13 +100,11 @@ internal class FrameworkSQLiteOpenHelper @JvmOverloads constructor(
         writeAheadLoggingEnabled = enabled
     }
 
-    override fun getWritableDatabase(): SupportSQLiteDatabase {
-        return delegate.getSupportDatabase(true)
-    }
+    override val writableDatabase: SupportSQLiteDatabase
+        get() = delegate.getSupportDatabase(true)
 
-    override fun getReadableDatabase(): SupportSQLiteDatabase {
-        return delegate.getSupportDatabase(false)
-    }
+    override val readableDatabase: SupportSQLiteDatabase
+        get() = delegate.getSupportDatabase(false)
 
     override fun close() {
         if (lazyDelegate.isInitialized()) {
