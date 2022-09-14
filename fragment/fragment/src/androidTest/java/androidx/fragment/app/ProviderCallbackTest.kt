@@ -78,6 +78,40 @@ class ProviderCallbackTest {
         }
     }
 
+    @Test
+    fun onConfigurationChangedNestedFragmentsOnBackStack() {
+        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+            val parent = StrictViewFragment(R.layout.fragment_container_view)
+            val child = CallbackFragment()
+            val replacementChild = CallbackFragment()
+
+            withActivity {
+                supportFragmentManager.beginTransaction()
+                    .replace(R.id.content, parent)
+                    .setReorderingAllowed(true)
+                    .commitNow()
+
+                parent.childFragmentManager.beginTransaction()
+                    .replace(R.id.fragment_container_view, child)
+                    .setReorderingAllowed(true)
+                    .commitNow()
+
+                supportFragmentManager.beginTransaction()
+                    .replace(R.id.content, replacementChild)
+                    .setReorderingAllowed(true)
+                    .addToBackStack(null)
+                    .commit()
+                supportFragmentManager.executePendingTransactions()
+
+                val newConfig = Configuration(resources.configuration)
+                onConfigurationChanged(newConfig)
+            }
+
+            assertThat(child.configChangedCount).isEqualTo(0)
+            assertThat(replacementChild.configChangedCount).isEqualTo(1)
+        }
+    }
+
     @SdkSuppress(minSdkVersion = 26)
     @Test
     fun onMultiWindowModeChanged() {
