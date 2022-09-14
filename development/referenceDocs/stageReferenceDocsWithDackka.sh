@@ -49,8 +49,6 @@ gbash::init_google "$@"
 # Each directory's spelling must match the library's directory in
 # frameworks/support.
 readonly javaLibraryDirsThatDontUseDackka=(
-  "androidx/camera"
-  "androidx/car"
   "androidx/datastore"
   "androidx/documentfile"
   "androidx/draganddrop"
@@ -67,8 +65,6 @@ readonly javaLibraryDirsThatDontUseDackka=(
 )
 readonly kotlinLibraryDirsThatDontUseDackka=(
   "androidx/benchmark"
-  "androidx/camera"
-  "androidx/car"
   "androidx/datastore"
   "androidx/documentfile"
   "androidx/dynamicanimation"
