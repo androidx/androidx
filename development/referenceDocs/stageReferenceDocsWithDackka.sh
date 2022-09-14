@@ -63,8 +63,6 @@ readonly javaLibraryDirsThatDontUseDackka=(
   "androidx/media"
   "androidx/media2"
   "androidx/mediarouter"
-  "androidx/profileinstaller"
-  "androidx/recommendation"
   "androidx/recyclerview"
 )
 readonly kotlinLibraryDirsThatDontUseDackka=(
@@ -84,8 +82,6 @@ readonly kotlinLibraryDirsThatDontUseDackka=(
   "androidx/media"
   "androidx/media2"
   "androidx/mediarouter"
-  "androidx/profileinstaller"
-  "androidx/recommendation"
   "androidx/recyclerview"
 )
 
