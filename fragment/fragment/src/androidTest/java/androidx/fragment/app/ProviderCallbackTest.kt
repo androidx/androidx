@@ -155,6 +155,41 @@ class ProviderCallbackTest {
     }
 
     @SdkSuppress(minSdkVersion = 26)
+    @Test
+    fun onMultiWindowModeChangedNestedFragmentsOnBackStack() {
+        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+            val parent = StrictViewFragment(R.layout.fragment_container_view)
+            val child = CallbackFragment()
+            val replacementChild = CallbackFragment()
+
+            withActivity {
+                supportFragmentManager.beginTransaction()
+                    .replace(R.id.content, parent)
+                    .setReorderingAllowed(true)
+                    .commitNow()
+
+                parent.childFragmentManager.beginTransaction()
+                    .replace(R.id.fragment_container_view, child)
+                    .setReorderingAllowed(true)
+                    .commitNow()
+
+                supportFragmentManager.beginTransaction()
+                    .replace(R.id.content, replacementChild)
+                    .setReorderingAllowed(true)
+                    .addToBackStack(null)
+                    .commit()
+                supportFragmentManager.executePendingTransactions()
+
+                val newConfig = Configuration(resources.configuration)
+                onMultiWindowModeChanged(true, newConfig)
+            }
+
+            assertThat(child.multiWindowChangedCount).isEqualTo(0)
+            assertThat(replacementChild.multiWindowChangedCount).isEqualTo(1)
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = 26)
     @Suppress("DEPRECATION")
     @Test
     fun onPictureInPictureModeChanged() {
@@ -197,6 +232,41 @@ class ProviderCallbackTest {
         }
     }
 
+    @SdkSuppress(minSdkVersion = 26)
+    @Test
+    fun onPictureInPictureModeChangedNestedFragmentsOnBackStack() {
+        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+            val parent = StrictViewFragment(R.layout.fragment_container_view)
+            val child = CallbackFragment()
+            val replacementChild = CallbackFragment()
+
+            withActivity {
+                supportFragmentManager.beginTransaction()
+                    .replace(R.id.content, parent)
+                    .setReorderingAllowed(true)
+                    .commitNow()
+
+                parent.childFragmentManager.beginTransaction()
+                    .replace(R.id.fragment_container_view, child)
+                    .setReorderingAllowed(true)
+                    .commitNow()
+
+                supportFragmentManager.beginTransaction()
+                    .replace(R.id.content, replacementChild)
+                    .setReorderingAllowed(true)
+                    .addToBackStack(null)
+                    .commit()
+                supportFragmentManager.executePendingTransactions()
+
+                val newConfig = Configuration(resources.configuration)
+                onPictureInPictureModeChanged(true, newConfig)
+            }
+
+            assertThat(child.pictureModeChangedCount).isEqualTo(0)
+            assertThat(replacementChild.pictureModeChangedCount).isEqualTo(1)
+        }
+    }
+
     @Suppress("DEPRECATION")
     @Test
     fun onLowMemory() {
@@ -233,6 +303,39 @@ class ProviderCallbackTest {
             }
 
             assertThat(child.onLowMemoryCount).isEqualTo(1)
+        }
+    }
+
+    @Test
+    fun onLowMemoryNestedFragmentsOnBackStack() {
+        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+            val parent = StrictViewFragment(R.layout.fragment_container_view)
+            val child = CallbackFragment()
+            val replacementChild = CallbackFragment()
+
+            withActivity {
+                supportFragmentManager.beginTransaction()
+                    .replace(R.id.content, parent)
+                    .setReorderingAllowed(true)
+                    .commitNow()
+
+                parent.childFragmentManager.beginTransaction()
+                    .replace(R.id.fragment_container_view, child)
+                    .setReorderingAllowed(true)
+                    .commitNow()
+
+                supportFragmentManager.beginTransaction()
+                    .replace(R.id.content, replacementChild)
+                    .setReorderingAllowed(true)
+                    .addToBackStack(null)
+                    .commit()
+                supportFragmentManager.executePendingTransactions()
+
+                onTrimMemory(ComponentCallbacks2.TRIM_MEMORY_COMPLETE)
+            }
+
+            assertThat(child.onLowMemoryCount).isEqualTo(0)
+            assertThat(replacementChild.onLowMemoryCount).isEqualTo(1)
         }
     }
 }
