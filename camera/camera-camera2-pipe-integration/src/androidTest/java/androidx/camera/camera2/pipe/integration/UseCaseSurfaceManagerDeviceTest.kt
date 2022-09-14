@@ -46,7 +46,6 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.IdlingResource
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.FlakyTest
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
@@ -149,7 +148,6 @@ class UseCaseSurfaceManagerDeviceTest {
         assertThat(cameraClosedUsageCount).isEqualTo(0)
     }
 
-    @FlakyTest(bugId = 246598371)
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.M)
     fun disconnectOpenedCameraGraph_deferrableSurfaceUsageCountTest() = runBlocking {
