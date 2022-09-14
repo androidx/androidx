@@ -15,8 +15,8 @@
  */
 package androidx.activity.compose
 
-import androidx.activity.FullyLoadedReporter
-import androidx.activity.FullyLoadedReporterOwner
+import androidx.activity.FullyDrawnReporter
+import androidx.activity.FullyDrawnReporterOwner
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -35,16 +35,16 @@ import org.junit.runner.RunWith
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-class ReportLoadedTest {
+class ReportDrawnTest {
     @get:Rule
     val rule = createAndroidComposeRule<TestActivity>()
 
     @Test
-    fun testReportFullyLoadedWhen() {
+    fun testReportFullyDrawnWhen() {
         var ready by mutableStateOf(false)
         var readyChecks = 0
         rule.setContent {
-            ReportLoadedWhen {
+            ReportDrawnWhen {
                 readyChecks++
                 ready
             }
@@ -74,13 +74,13 @@ class ReportLoadedTest {
     }
 
     @Test
-    fun testReportFullyLoadedAfter() {
+    fun testReportFullyDrawnAfter() {
         val recomposeInt = mutableStateOf(0)
         val mutex = Mutex(locked = true)
         var lockChecks = 0
         rule.setContent {
             recomposeInt.value
-            ReportLoadedAfter {
+            ReportDrawnAfter {
                 lockChecks++
                 mutex.withLock { }
             }
@@ -110,14 +110,14 @@ class ReportLoadedTest {
     }
 
     @Test
-    fun waitUntilTwoAreLoaded() {
+    fun waitUntilTwoAreDrawn() {
         val mutex = Mutex(locked = true)
         var conditionReady by mutableStateOf(false)
         rule.setContent {
-            ReportLoadedWhen {
+            ReportDrawnWhen {
                 conditionReady
             }
-            ReportLoadedAfter {
+            ReportDrawnAfter {
                 mutex.withLock { }
             }
         }
@@ -141,14 +141,14 @@ class ReportLoadedTest {
 
     // same as above, but the order is swapped
     @Test
-    fun waitUntilTwoAreLoaded2() {
+    fun waitUntilTwoAreDrawn2() {
         val mutex = Mutex(locked = true)
         var conditionReady by mutableStateOf(false)
         rule.setContent {
-            ReportLoadedWhen {
+            ReportDrawnWhen {
                 conditionReady
             }
-            ReportLoadedAfter {
+            ReportDrawnAfter {
                 mutex.withLock { }
             }
         }
@@ -178,7 +178,7 @@ class ReportLoadedTest {
             AndroidView(factory = { context ->
                 ComposeView(context).apply {
                     setContent {
-                        ReportLoadedWhen {
+                        ReportDrawnWhen {
                             conditionReady
                         }
                     }
@@ -187,7 +187,7 @@ class ReportLoadedTest {
             AndroidView(factory = { context ->
                 ComposeView(context).apply {
                     setContent {
-                        ReportLoadedAfter {
+                        ReportDrawnAfter {
                             mutex.withLock { }
                         }
                     }
@@ -217,11 +217,11 @@ class ReportLoadedTest {
         var useCondition2 by mutableStateOf(true)
 
         rule.setContent {
-            ReportLoadedWhen {
+            ReportDrawnWhen {
                 condition1
             }
             if (useCondition2) {
-                ReportLoadedWhen {
+                ReportDrawnWhen {
                     condition2
                 }
             }
@@ -240,19 +240,19 @@ class ReportLoadedTest {
     }
 
     @Test
-    fun provideFullyLoadedReporter() {
-        val fullyLoadedReporterOwner = object : FullyLoadedReporterOwner {
-            override val fullyLoadedReporter: FullyLoadedReporter
-                get() = rule.activity.fullyLoadedReporter
+    fun provideFullyDrawnReporter() {
+        val fullyDrawnReporterOwner = object : FullyDrawnReporterOwner {
+            override val fullyDrawnReporter: FullyDrawnReporter
+                get() = rule.activity.fullyDrawnReporter
         }
-        lateinit var localValue: FullyLoadedReporterOwner
+        lateinit var localValue: FullyDrawnReporterOwner
         rule.setContent {
             CompositionLocalProvider(
-                LocalFullyLoadedReporterOwner provides fullyLoadedReporterOwner
+                LocalFullyDrawnReporterOwner provides fullyDrawnReporterOwner
             ) {
-                localValue = LocalFullyLoadedReporterOwner.current!!
+                localValue = LocalFullyDrawnReporterOwner.current!!
             }
         }
-        assertThat(localValue).isSameInstanceAs(fullyLoadedReporterOwner)
+        assertThat(localValue).isSameInstanceAs(fullyDrawnReporterOwner)
     }
 }

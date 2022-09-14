@@ -16,13 +16,13 @@
 package androidx.activity
 
 /**
- * A class that has a [FullyLoadedReporter] that allows you to have separate parts of the
+ * A class that has a [FullyDrawnReporter] that allows you to have separate parts of the
  * UI independently register when they have been fully loaded.
  */
-interface FullyLoadedReporterOwner {
+interface FullyDrawnReporterOwner {
     /**
-     * Retrieve the [FullyLoadedReporter] that should handle the independent parts of the UI
-     * that separately report that they are fully loaded.
+     * Retrieve the [FullyDrawnReporter] that should handle the independent parts of the UI
+     * that separately report that they are fully drawn.
      */
-    val fullyLoadedReporter: FullyLoadedReporter
+    val fullyDrawnReporter: FullyDrawnReporter
 }
