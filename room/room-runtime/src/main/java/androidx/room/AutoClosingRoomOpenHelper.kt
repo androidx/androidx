@@ -51,21 +51,21 @@ internal class AutoClosingRoomOpenHelper(
         )
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.N)
-    override fun getWritableDatabase(): SupportSQLiteDatabase {
-        // Note we don't differentiate between writable db and readable db
-        // We try to open the db so the open callbacks run
-        autoClosingDb.pokeOpen()
-        return autoClosingDb
-    }
+    @get:RequiresApi(api = Build.VERSION_CODES.N)
+    override val writableDatabase: SupportSQLiteDatabase
+        get() {
+            autoClosingDb.pokeOpen()
+            return autoClosingDb
+        }
 
-    @RequiresApi(api = Build.VERSION_CODES.N)
-    override fun getReadableDatabase(): SupportSQLiteDatabase {
-        // Note we don't differentiate between writable db and readable db
-        // We try to open the db so the open callbacks run
-        autoClosingDb.pokeOpen()
-        return autoClosingDb
-    }
+    @get:RequiresApi(api = Build.VERSION_CODES.N)
+    override val readableDatabase: SupportSQLiteDatabase
+        get() {
+            // Note we don't differentiate between writable db and readable db
+            // We try to open the db so the open callbacks run
+            autoClosingDb.pokeOpen()
+            return autoClosingDb
+        }
 
     override fun close() {
         autoClosingDb.close()
