@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.text.android
 
+import android.graphics.text.LineBreakConfig
 import android.graphics.text.LineBreaker
 import android.text.Layout
 import android.text.Layout.Alignment
@@ -79,6 +80,30 @@ object LayoutCompat {
     )
     internal annotation class BreakStrategy
 
+    const val LINE_BREAK_STYLE_NONE = LineBreakConfig.LINE_BREAK_STYLE_NONE
+    const val LINE_BREAK_STYLE_LOOSE = LineBreakConfig.LINE_BREAK_STYLE_LOOSE
+    const val LINE_BREAK_STYLE_NORMAL = LineBreakConfig.LINE_BREAK_STYLE_NORMAL
+    const val LINE_BREAK_STYLE_STRICT = LineBreakConfig.LINE_BREAK_STYLE_STRICT
+
+    @Retention(AnnotationRetention.SOURCE)
+    @IntDef(
+        LINE_BREAK_STYLE_NONE,
+        LINE_BREAK_STYLE_LOOSE,
+        LINE_BREAK_STYLE_NORMAL,
+        LINE_BREAK_STYLE_STRICT
+    )
+    internal annotation class LineBreakStyle
+
+    const val LINE_BREAK_WORD_STYLE_NONE = LineBreakConfig.LINE_BREAK_WORD_STYLE_NONE
+    const val LINE_BREAK_WORD_STYLE_PHRASE = LineBreakConfig.LINE_BREAK_WORD_STYLE_PHRASE
+
+    @Retention(AnnotationRetention.SOURCE)
+    @IntDef(
+        LINE_BREAK_WORD_STYLE_NONE,
+        LINE_BREAK_WORD_STYLE_PHRASE
+    )
+    internal annotation class LineBreakWordStyle
+
     const val TEXT_DIRECTION_LTR = 0
     const val TEXT_DIRECTION_RTL = 1
     const val TEXT_DIRECTION_FIRST_STRONG_LTR = 2
@@ -110,6 +135,10 @@ object LayoutCompat {
     internal const val DEFAULT_MAX_LINES = Integer.MAX_VALUE
 
     internal const val DEFAULT_BREAK_STRATEGY = BREAK_STRATEGY_SIMPLE
+
+    internal const val DEFAULT_LINE_BREAK_STYLE = LINE_BREAK_STYLE_NONE
+
+    internal const val DEFAULT_LINE_BREAK_WORD_STYLE = LINE_BREAK_WORD_STYLE_NONE
 
     internal const val DEFAULT_HYPHENATION_FREQUENCY = HYPHENATION_FREQUENCY_NONE
 
