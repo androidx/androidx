@@ -32,6 +32,7 @@ import androidx.camera.core.impl.MutableOptionsBundle;
 import androidx.camera.core.impl.OptionsBundle;
 import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.UseCaseConfig;
+import androidx.camera.core.impl.UseCaseConfigFactory.CaptureType;
 
 import java.util.List;
 import java.util.UUID;
@@ -65,15 +66,24 @@ public class FakeUseCaseConfig implements UseCaseConfig<FakeUseCase>, ImageOutpu
             ImageOutputConfig.Builder<FakeUseCaseConfig.Builder> {
 
         private final MutableOptionsBundle mOptionsBundle;
+        private final CaptureType mCaptureType;
 
         public Builder() {
-            mOptionsBundle = MutableOptionsBundle.create();
-            setTargetClass(FakeUseCase.class);
+            this(MutableOptionsBundle.create(), CaptureType.PREVIEW);
         }
 
         public Builder(@NonNull Config config) {
+            this(config, CaptureType.PREVIEW);
+        }
+
+        public Builder(@NonNull CaptureType captureType) {
+            this(MutableOptionsBundle.create(), captureType);
+        }
+
+        public Builder(@NonNull Config config, @NonNull CaptureType captureType) {
             mOptionsBundle = MutableOptionsBundle.from(config);
             setTargetClass(FakeUseCase.class);
+            mCaptureType = captureType;
         }
 
         @Override
@@ -91,7 +101,7 @@ public class FakeUseCaseConfig implements UseCaseConfig<FakeUseCase>, ImageOutpu
         @Override
         @NonNull
         public FakeUseCase build() {
-            return new FakeUseCase(getUseCaseConfig());
+            return new FakeUseCase(getUseCaseConfig(), mCaptureType);
         }
 
         // Implementations of TargetConfig.Builder default methods
