@@ -118,6 +118,31 @@ val WearMaterialDemos = DemoCategory(
     "Material",
     listOf(
         DemoCategory(
+            "ScrollAway",
+            listOf(
+                ComposableDemo("Column") { ScrollAwayColumnDemo() },
+                ComposableDemo("Column (delay)") { ScrollAwayColumnDelayDemo() },
+                ComposableDemo("Lazy Column") { ScrollAwayLazyColumnDemo() },
+                ComposableDemo("Lazy Column offset<0") { ScrollAwayLazyColumnDemo2() },
+                ComposableDemo("Lazy Column offset>0") { ScrollAwayLazyColumnDelayDemo() },
+                ComposableDemo("SLC Cards") {
+                    ScrollAwayScalingLazyColumnCardDemo()
+                },
+                ComposableDemo("SLC Cards offset<0") {
+                    ScrollAwayScalingLazyColumnCardDemo2()
+                },
+                ComposableDemo("SLC Cards offset>0") {
+                    ScrollAwayScalingLazyColumnCardDemoMismatch()
+                },
+                ComposableDemo("SLC Chips") {
+                    ScrollAwayScalingLazyColumnChipDemo()
+                },
+                ComposableDemo("SLC Chips offset<0") {
+                    ScrollAwayScalingLazyColumnChipDemo2()
+                },
+            )
+        ),
+        DemoCategory(
             "Picker",
             if (Build.VERSION.SDK_INT > 25) {
                 listOf(
