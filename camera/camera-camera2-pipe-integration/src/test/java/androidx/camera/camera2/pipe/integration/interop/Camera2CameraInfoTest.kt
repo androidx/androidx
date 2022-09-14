@@ -130,7 +130,7 @@ class Camera2CameraInfoTest {
                 throw NotImplementedError("Not used in testing")
             }
 
-            override fun getLensFacing(): Int? {
+            override fun getLensFacing(): Int {
                 throw NotImplementedError("Not used in testing")
             }
 

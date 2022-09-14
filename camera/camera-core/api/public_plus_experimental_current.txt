@@ -41,6 +41,7 @@ package androidx.camera.core {
     method public androidx.camera.core.CameraSelector getCameraSelector();
     method public androidx.lifecycle.LiveData<androidx.camera.core.CameraState!> getCameraState();
     method public androidx.camera.core.ExposureState getExposureState();
+    method public default int getLensFacing();
     method public int getSensorRotationDegrees();
     method public int getSensorRotationDegrees(int);
     method public androidx.lifecycle.LiveData<java.lang.Integer!> getTorchState();
@@ -63,7 +64,9 @@ package androidx.camera.core {
     field public static final androidx.camera.core.CameraSelector DEFAULT_BACK_CAMERA;
     field public static final androidx.camera.core.CameraSelector DEFAULT_FRONT_CAMERA;
     field public static final int LENS_FACING_BACK = 1; // 0x1
+    field @androidx.camera.core.ExperimentalLensFacing public static final int LENS_FACING_EXTERNAL = 2; // 0x2
     field public static final int LENS_FACING_FRONT = 0; // 0x0
+    field public static final int LENS_FACING_UNKNOWN = -1; // 0xffffffff
   }
 
   public static final class CameraSelector.Builder {
@@ -150,6 +153,9 @@ package androidx.camera.core {
   }
 
   @RequiresApi(21) @RequiresOptIn @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface ExperimentalGetImage {
+  }
+
+  @RequiresOptIn @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface ExperimentalLensFacing {
   }
 
   @RequiresOptIn @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface ExperimentalUseCaseApi {

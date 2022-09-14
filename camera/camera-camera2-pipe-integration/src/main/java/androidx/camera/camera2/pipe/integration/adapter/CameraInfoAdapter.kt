@@ -75,8 +75,20 @@ class CameraInfoAdapter @Inject constructor(
     }
 
     override fun getCameraId(): String = cameraConfig.cameraId.value
-    override fun getLensFacing(): Int? =
-        cameraProperties.metadata[CameraCharacteristics.LENS_FACING]
+    override fun getLensFacing(): Int =
+        getCameraSelectorLensFacing(cameraProperties.metadata[CameraCharacteristics.LENS_FACING]!!)
+
+    @CameraSelector.LensFacing
+    private fun getCameraSelectorLensFacing(lensFacingInt: Int): Int {
+        return when (lensFacingInt) {
+            CameraCharacteristics.LENS_FACING_FRONT -> CameraSelector.LENS_FACING_FRONT
+            CameraCharacteristics.LENS_FACING_BACK -> CameraSelector.LENS_FACING_BACK
+            CameraCharacteristics.LENS_FACING_EXTERNAL -> CameraSelector.LENS_FACING_EXTERNAL
+            else -> throw IllegalArgumentException(
+                "The specified lens facing integer $lensFacingInt can not be recognized."
+            )
+        }
+    }
 
     override fun getSensorRotationDegrees(): Int = getSensorRotationDegrees(Surface.ROTATION_0)
     override fun hasFlashUnit(): Boolean =
@@ -91,8 +103,7 @@ class CameraInfoAdapter @Inject constructor(
         // This may not be the case for all devices, so in the future we may need to handle that
         // scenario.
         val lensFacing = lensFacing
-        val isOppositeFacingScreen =
-            lensFacing != null && CameraSelector.LENS_FACING_BACK == lensFacing
+        val isOppositeFacingScreen = CameraSelector.LENS_FACING_BACK == lensFacing
         return CameraOrientationUtil.getRelativeImageRotation(
             relativeRotationDegrees,
             sensorOrientation,

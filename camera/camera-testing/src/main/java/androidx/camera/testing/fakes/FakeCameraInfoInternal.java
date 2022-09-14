@@ -22,7 +22,6 @@ import android.util.Size;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraState;
@@ -99,10 +98,8 @@ public final class FakeCameraInfoInternal implements CameraInfoInternal {
         mZoomLiveData = new MutableLiveData<>(ImmutableZoomState.create(1.0f, 4.0f, 1.0f, 0.0f));
     }
 
-    @SuppressWarnings("ConstantConditions") // Super method is nullable.
-    @Nullable
     @Override
-    public Integer getLensFacing() {
+    public int getLensFacing() {
         return mLensFacing;
     }
 
