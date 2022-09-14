@@ -23,6 +23,8 @@ plugins {
     id("kotlin")
 }
 
+androidx.enableAarAsJarForJvmTest()
+
 dependencies {
     implementation(libs.xpp3)
     implementation(libs.xmlpull)
@@ -40,22 +42,8 @@ dependencies {
             dir: "${SdkHelperKt.getSdkPath(project)}/platforms/$SupportConfig.COMPILE_SDK_VERSION/",
             include : "android.jar"
     ))
-    testImplementation(fileTree(
-            dir: provider {
-                // Wrapping in a provider as a workaround as we access buildDir before this project is configured
-                // Replace with AGP API once it is added b/228109260
-                "${new File(project(":navigation:navigation-common").buildDir, "libJar")}"
-            },
-            include : "*.jar"
-    ))
-    testImplementation(fileTree(
-            dir: provider {
-                // Wrapping in a provider as a workaround as we access buildDir before this project is configured
-                // Replace with AGP API once it is added b/228109260
-                "${new File(project(":lifecycle:lifecycle-viewmodel-savedstate").buildDir, "libJar")}"
-            },
-            include : "*.jar"
-    ))
+    testAarAsJar(project(":navigation:navigation-common"))
+    testAarAsJar(project(":lifecycle:lifecycle-viewmodel-savedstate"))
 }
 
 tasks.findByName("test").doFirst {
@@ -65,9 +53,6 @@ tasks.findByName("test").doFirst {
     def androidJar = classpath.find { it.name == "android.jar" }
     it.classpath = files(classpath.minus(androidJar).plus(androidJar))
 }
-
-tasks.findByName("compileKotlin").dependsOn(":navigation:navigation-common:jarRelease")
-tasks.findByName("compileKotlin").dependsOn(":lifecycle:lifecycle-viewmodel-savedstate:jarRelease")
 
 androidx {
     name = "Android Navigation TypeSafe Arguments Generator"

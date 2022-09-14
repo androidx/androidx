@@ -50,17 +50,6 @@ dependencies {
     androidTestImplementation(libs.protobufLite)
 }
 
-// Create a jar for use by appsearch-compiler:test
-android.libraryVariants.all { variant ->
-    def name = variant.name
-    def suffix = name.capitalize()
-    project.tasks.create(name: "jar${suffix}", type: Jar) {
-        dependsOn variant.javaCompileProvider.get()
-        from variant.javaCompileProvider.get().destinationDirectory
-        destinationDirectory.set(new File(project.buildDir, "libJar"))
-    }
-}
-
 androidx {
     name = 'AndroidX AppSearch'
     publish = Publish.SNAPSHOT_AND_RELEASE

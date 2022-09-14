@@ -21,6 +21,8 @@ plugins {
     id('java-library')
 }
 
+androidx.enableAarAsJarForJvmTest()
+
 dependencies {
     api('androidx.annotation:annotation:1.1.0')
     api(libs.jsr250)
@@ -30,18 +32,9 @@ dependencies {
     implementation(libs.javapoet)
 
     // For testing, add in the compiled classes from appsearch to get access to annotations.
-    testImplementation fileTree(
-            dir: provider {
-                // Wrapping in a provider as a workaround as we access buildDir before this project is configured
-                // Replace with AGP API once it is added b/228109260
-                "${new File(project(":appsearch:appsearch").buildDir, "libJar")}"
-            },
-            include : "*.jar"
-    )
+    testAarAsJar(project(":appsearch:appsearch"))
     testImplementation(libs.googleCompileTesting)
 }
-
-tasks.findByName('compileJava').dependsOn(":appsearch:appsearch:jarRelease")
 
 androidx {
     name = 'AndroidX AppSearch Compiler'
