@@ -2982,11 +2982,11 @@ public class NotificationCompat {
                     // need to shrink all the type to make sure everything fits
                     final float subTextSize = res.getDimensionPixelSize(
                             R.dimen.notification_subtext_size);
-                    contentView.setTextViewTextSize(R.id.text, TypedValue.COMPLEX_UNIT_PX,
-                            subTextSize);
+                    Api16Impl.setTextViewTextSize(contentView, R.id.text,
+                            TypedValue.COMPLEX_UNIT_PX, subTextSize);
                 }
                 // vertical centering
-                contentView.setViewPadding(R.id.line1, 0, 0, 0, 0);
+                Api16Impl.setViewPadding(contentView, R.id.line1, 0, 0, 0, 0);
             }
 
             if (mBuilder.getWhenIfShowing() != 0) {
@@ -2997,7 +2997,7 @@ public class NotificationCompat {
                                     + (SystemClock.elapsedRealtime() - System.currentTimeMillis()));
                     contentView.setBoolean(R.id.chronometer, "setStarted", true);
                     if (mBuilder.mChronometerCountDown && Build.VERSION.SDK_INT >= 24) {
-                        contentView.setChronometerCountDown(R.id.chronometer,
+                        Api24Impl.setChronometerCountDown(contentView, R.id.chronometer,
                                 mBuilder.mChronometerCountDown);
                     }
                 } else {
@@ -3078,8 +3078,8 @@ public class NotificationCompat {
             outerView.setViewVisibility(R.id.notification_main_column, View.VISIBLE);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 // Adjust padding depending on font size.
-                outerView.setViewPadding(R.id.notification_main_column_container,
-                        0, calculateTopPadding(), 0, 0);
+                Api16Impl.setViewPadding(outerView, R.id.notification_main_column_container, 0,
+                        calculateTopPadding(), 0, 0);
             }
         }
 
@@ -3104,6 +3104,45 @@ public class NotificationCompat {
 
         private static float constrain(float amount, float low, float high) {
             return amount < low ? low : (amount > high ? high : amount);
+        }
+
+        /**
+         * A class for wrapping calls to {@link NotificationCompat.Style} methods which
+         * were added in API 16; these calls must be wrapped to avoid performance issues.
+         * See the UnsafeNewApiCall lint rule for more details.
+         */
+        @RequiresApi(16)
+        static class Api16Impl {
+            private Api16Impl() { }
+
+            @DoNotInline
+            static void setTextViewTextSize(RemoteViews remoteViews, int viewId, int units,
+                    float size) {
+                remoteViews.setTextViewTextSize(viewId, units, size);
+            }
+
+            @DoNotInline
+            static void setViewPadding(RemoteViews remoteViews, int viewId, int left, int top,
+                    int right, int bottom) {
+                remoteViews.setViewPadding(viewId, left, top, right, bottom);
+            }
+        }
+
+        /**
+         * A class for wrapping calls to {@link NotificationCompat.Style} methods which
+         * were added in API 24; these calls must be wrapped to avoid performance issues.
+         * See the UnsafeNewApiCall lint rule for more details.
+         */
+        @RequiresApi(24)
+        static class Api24Impl {
+            private Api24Impl() { }
+
+            @DoNotInline
+            static void setChronometerCountDown(RemoteViews remoteViews, int viewId,
+                    boolean isCountDown) {
+                remoteViews.setChronometerCountDown(viewId, isCountDown);
+            }
+
         }
     }
 
@@ -3231,8 +3270,10 @@ public class NotificationCompat {
         public void apply(NotificationBuilderWithBuilderAccessor builder) {
             if (Build.VERSION.SDK_INT >= 16) {
                 Notification.BigPictureStyle style =
-                        new Notification.BigPictureStyle(builder.getBuilder())
-                                .setBigContentTitle(mBigContentTitle);
+                        Api16Impl.setBigContentTitle(
+                                Api16Impl.createBigPictureStyle(builder.getBuilder()),
+                                mBigContentTitle
+                        );
                 if (mPictureIcon != null) {
                     // Attempts to set the icon for BigPictureStyle; prefers using data as Icon,
                     // with a fallback to store the Bitmap if Icon is not supported directly.
@@ -3243,7 +3284,7 @@ public class NotificationCompat {
                         }
                         Api31Impl.setBigPicture(style, mPictureIcon.toIcon(context));
                     } else if (mPictureIcon.getType() == IconCompat.TYPE_BITMAP) {
-                        style = style.bigPicture(mPictureIcon.getBitmap());
+                        style = Api16Impl.bigPicture(style, mPictureIcon.getBitmap());
                     }
                 }
                 // Attempts to set the big large icon for BigPictureStyle.
@@ -3348,6 +3389,18 @@ public class NotificationCompat {
             private Api16Impl() {
             }
 
+            @DoNotInline
+            static Notification.BigPictureStyle bigPicture(
+                    Notification.BigPictureStyle bigPictureStyle, Bitmap b) {
+                return bigPictureStyle.bigPicture(b);
+            }
+
+            @DoNotInline
+            static Notification.BigPictureStyle createBigPictureStyle(
+                    Notification.Builder builder) {
+                return new Notification.BigPictureStyle(builder);
+            }
+
             /**
              * Calls {@link Notification.BigPictureStyle#bigLargeIcon(Bitmap)}
              */
@@ -3362,6 +3415,12 @@ public class NotificationCompat {
             @RequiresApi(16)
             static void setSummaryText(Notification.BigPictureStyle style, CharSequence text) {
                 style.setSummaryText(text);
+            }
+
+            @DoNotInline
+            static Notification.BigPictureStyle setBigContentTitle(
+                    Notification.BigPictureStyle bigPictureStyle, CharSequence title) {
+                return bigPictureStyle.setBigContentTitle(title);
             }
         }
 
@@ -3502,11 +3561,11 @@ public class NotificationCompat {
         public void apply(NotificationBuilderWithBuilderAccessor builder) {
             if (Build.VERSION.SDK_INT >= 16) {
                 Notification.BigTextStyle style =
-                        new Notification.BigTextStyle(builder.getBuilder())
-                                .setBigContentTitle(mBigContentTitle)
-                                .bigText(mBigText);
+                        Api16Impl.createBigTextStyle(builder.getBuilder());
+                style = Api16Impl.setBigContentTitle(style, mBigContentTitle);
+                style = Api16Impl.bigText(style, mBigText);
                 if (mSummaryTextSet) {
-                    style.setSummaryText(mSummaryText);
+                    Api16Impl.setSummaryText(style, mSummaryText);
                 }
             }
         }
@@ -3546,6 +3605,40 @@ public class NotificationCompat {
         protected void clearCompatExtraKeys(@NonNull Bundle extras) {
             super.clearCompatExtraKeys(extras);
             extras.remove(EXTRA_BIG_TEXT);
+        }
+
+        /**
+         * A class for wrapping calls to {@link Notification.BigTextStyle} methods which
+         * were added in API 16; these calls must be wrapped to avoid performance issues.
+         * See the UnsafeNewApiCall lint rule for more details.
+         */
+        @RequiresApi(16)
+        static class Api16Impl {
+            private Api16Impl() {
+            }
+
+            @DoNotInline
+            static Notification.BigTextStyle createBigTextStyle(Notification.Builder builder) {
+                return new Notification.BigTextStyle(builder);
+            }
+
+            @DoNotInline
+            static Notification.BigTextStyle setBigContentTitle(
+                    Notification.BigTextStyle bigTextStyle, CharSequence title) {
+                return bigTextStyle.setBigContentTitle(title);
+            }
+
+            @DoNotInline
+            static Notification.BigTextStyle bigText(
+                    Notification.BigTextStyle bigTextStyle, CharSequence bigText) {
+                return bigTextStyle.bigText(bigText);
+            }
+
+            @DoNotInline
+            static Notification.BigTextStyle setSummaryText(Notification.BigTextStyle bigTextStyle,
+                    CharSequence cs) {
+                return bigTextStyle.setSummaryText(cs);
+            }
         }
     }
 
@@ -3820,7 +3913,7 @@ public class NotificationCompat {
         /**
          * Retrieves a {@link MessagingStyle} from a {@link Notification}, enabling an application
          * that has set a {@link MessagingStyle} using {@link NotificationCompat} or
-         * {@link android.app.Notification.Builder} to send messaging information to another
+         * {@link Notification.Builder} to send messaging information to another
          * application using {@link NotificationCompat}, regardless of the API level of the system.
          *
          * @return {@code null} if there is no {@link MessagingStyle} set, or if the SDK version is
@@ -3829,7 +3922,7 @@ public class NotificationCompat {
         @Nullable
         public static MessagingStyle extractMessagingStyleFromNotification(
                 @NonNull Notification notification) {
-            Style style = NotificationCompat.Style.extractStyleFromNotification(notification);
+            Style style = Style.extractStyleFromNotification(notification);
             if (style instanceof MessagingStyle) {
                 return (MessagingStyle) style;
             }
@@ -3859,20 +3952,24 @@ public class NotificationCompat {
             setGroupConversation(isGroupConversation());
 
             if (Build.VERSION.SDK_INT >= 24) {
-                Notification.MessagingStyle frameworkStyle;
+                Object frameworkStyle;
                 if (Build.VERSION.SDK_INT >= 28) {
-                    frameworkStyle = new Notification.MessagingStyle(mUser.toAndroidPerson());
+                    frameworkStyle = Api28Impl.createMessagingStyle(mUser.toAndroidPerson());
                 } else {
-                    frameworkStyle = new Notification.MessagingStyle(mUser.getName());
+                    frameworkStyle =
+                            Api24Impl.createMessagingStyle(
+                                    mUser.getName());
                 }
 
-                for (MessagingStyle.Message message : mMessages) {
-                    frameworkStyle.addMessage(message.toAndroidMessage());
+                for (Message message : mMessages) {
+                    Api24Impl.addMessage((Notification.MessagingStyle) frameworkStyle,
+                            message.toAndroidMessage());
                 }
 
                 if (Build.VERSION.SDK_INT >= 26) {
-                    for (MessagingStyle.Message historicMessage : mHistoricMessages) {
-                        frameworkStyle.addHistoricMessage(historicMessage.toAndroidMessage());
+                    for (Message historicMessage : mHistoricMessages) {
+                        Api26Impl.addHistoricMessage((Notification.MessagingStyle) frameworkStyle,
+                                historicMessage.toAndroidMessage());
                     }
                 }
 
@@ -3884,17 +3981,20 @@ public class NotificationCompat {
                 // Notification content title so Android won't think it's a group conversation.
                 if (mIsGroupConversation || Build.VERSION.SDK_INT >= 28) {
                     // If group or non-legacy, set MessagingStyle#mConversationTitle.
-                    frameworkStyle.setConversationTitle(mConversationTitle);
+                    Api24Impl.setConversationTitle((Notification.MessagingStyle) frameworkStyle,
+                            mConversationTitle);
                 }
 
                 // For SDK >= 28, we can simply denote the group conversation status regardless of
                 // if we set the conversation title or not.
                 if (Build.VERSION.SDK_INT >= 28) {
-                    frameworkStyle.setGroupConversation(mIsGroupConversation);
+                    Api28Impl.setGroupConversation((Notification.MessagingStyle) frameworkStyle,
+                            mIsGroupConversation);
                 }
-                frameworkStyle.setBuilder(builder.getBuilder());
+                Api16Impl.setBuilder((Notification.MessagingStyle) frameworkStyle,
+                        builder.getBuilder());
             } else {
-                MessagingStyle.Message latestIncomingMessage = findLatestIncomingMessage();
+                Message latestIncomingMessage = findLatestIncomingMessage();
                 // Set the title
                 if (mConversationTitle != null && mIsGroupConversation) {
                     builder.getBuilder().setContentTitle(mConversationTitle);
@@ -3917,7 +4017,7 @@ public class NotificationCompat {
                     boolean showNames = mConversationTitle != null
                             || hasMessagesWithoutSender();
                     for (int i = mMessages.size() - 1; i >= 0; i--) {
-                        MessagingStyle.Message message = mMessages.get(i);
+                        Message message = mMessages.get(i);
                         CharSequence line;
                         line = showNames ? makeMessageLine(message) : message.getText();
                         if (i != mMessages.size() - 1) {
@@ -3925,17 +4025,18 @@ public class NotificationCompat {
                         }
                         completeMessage.insert(0, line);
                     }
-                    new Notification.BigTextStyle(builder.getBuilder())
-                            .setBigContentTitle(null)
-                            .bigText(completeMessage);
+                    Notification.BigTextStyle style =
+                            Api16Impl.createBigTextStyle(builder.getBuilder());
+                    style = Api16Impl.setBigContentTitle(style, null);
+                    Api16Impl.bigText(style, completeMessage);
                 }
             }
         }
 
         @Nullable
-        private MessagingStyle.Message findLatestIncomingMessage() {
+        private Message findLatestIncomingMessage() {
             for (int i = mMessages.size() - 1; i >= 0; i--) {
-                MessagingStyle.Message message = mMessages.get(i);
+                Message message = mMessages.get(i);
                 // Incoming messages have a non-empty sender.
                 if (message.getPerson() != null
                         && !TextUtils.isEmpty(message.getPerson().getName())) {
@@ -3951,7 +4052,7 @@ public class NotificationCompat {
 
         private boolean hasMessagesWithoutSender() {
             for (int i = mMessages.size() - 1; i >= 0; i--) {
-                MessagingStyle.Message message = mMessages.get(i);
+                Message message = mMessages.get(i);
                 if (message.getPerson() != null && message.getPerson().getName() == null) {
                     return true;
                 }
@@ -3959,7 +4060,7 @@ public class NotificationCompat {
             return false;
         }
 
-        private CharSequence makeMessageLine(@NonNull MessagingStyle.Message message) {
+        private CharSequence makeMessageLine(@NonNull Message message) {
             BidiFormatter bidi = BidiFormatter.getInstance();
             SpannableStringBuilder sb = new SpannableStringBuilder();
             final boolean afterLollipop = Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP;
@@ -4304,7 +4405,7 @@ public class NotificationCompat {
 
             /**
              * Converts this compat {@link Message} to the base Android framework
-             * {@link android.app.Notification.MessagingStyle.Message}.
+             * {@link Notification.MessagingStyle.Message}.
              * @hide
              */
             @RestrictTo(LIBRARY_GROUP_PREFIX)
@@ -4315,19 +4416,159 @@ public class NotificationCompat {
                 Person person = getPerson();
                 // Use Person for P and above
                 if (Build.VERSION.SDK_INT >= 28) {
-                    frameworkMessage = new Notification.MessagingStyle.Message(
-                            getText(), getTimestamp(),
+                    frameworkMessage = Api28Impl.createMessage(getText(), getTimestamp(),
                             person == null ? null : person.toAndroidPerson());
                 } else {
-                    frameworkMessage = new Notification.MessagingStyle.Message(
-                            getText(), getTimestamp(),
+                    frameworkMessage = Api24Impl.createMessage(getText(), getTimestamp(),
                             person == null ? null : person.getName());
                 }
 
                 if (getDataMimeType() != null) {
-                    frameworkMessage.setData(getDataMimeType(), getDataUri());
+                    Api24Impl.setData(frameworkMessage, getDataMimeType(), getDataUri());
                 }
                 return frameworkMessage;
+            }
+
+            /**
+             * A class for wrapping calls to {@link Notification.MessagingStyle.Message} methods
+             * which were added in API 24; these calls must be wrapped to avoid performance issues.
+             * See the UnsafeNewApiCall lint rule for more details.
+             */
+            @RequiresApi(24)
+            static class Api24Impl {
+                private Api24Impl() {
+                    // This class is not instantiable.
+                }
+
+                @DoNotInline
+                static Notification.MessagingStyle.Message createMessage(CharSequence text,
+                        long timestamp, CharSequence sender) {
+                    return new Notification.MessagingStyle.Message(text, timestamp, sender);
+                }
+
+                @DoNotInline
+                static Notification.MessagingStyle.Message setData(
+                        Notification.MessagingStyle.Message message, String dataMimeType,
+                        Uri dataUri) {
+                    return message.setData(dataMimeType, dataUri);
+                }
+            }
+
+            /**
+             * A class for wrapping calls to {@link Notification.MessagingStyle.Message} methods
+             * which were added in API 28; these calls must be wrapped to avoid performance issues.
+             * See the UnsafeNewApiCall lint rule for more details.
+             */
+            @RequiresApi(28)
+            static class Api28Impl {
+                private Api28Impl() {
+                    // This class is not instantiable.
+                }
+
+                @DoNotInline
+                static Notification.MessagingStyle.Message createMessage(CharSequence text,
+                        long timestamp, android.app.Person sender) {
+                    return new Notification.MessagingStyle.Message(text, timestamp, sender);
+                }
+            }
+        }
+
+        /**
+         * A class for wrapping calls to {@link Notification.MessagingStyle} methods which
+         * were added in API 16; these calls must be wrapped to avoid performance issues.
+         * See the UnsafeNewApiCall lint rule for more details.
+         */
+        @RequiresApi(16)
+        static class Api16Impl {
+            private Api16Impl() { }
+
+            @DoNotInline
+            static void setBuilder(Notification.Style style, Notification.Builder builder) {
+                style.setBuilder(builder);
+            }
+
+            @DoNotInline
+            static Notification.BigTextStyle createBigTextStyle(Notification.Builder builder) {
+                return new Notification.BigTextStyle(builder);
+            }
+
+            @DoNotInline
+            static Notification.BigTextStyle setBigContentTitle(
+                    Notification.BigTextStyle bigTextStyle, CharSequence title) {
+                return bigTextStyle.setBigContentTitle(title);
+            }
+
+            @DoNotInline
+            static Notification.BigTextStyle bigText(
+                    Notification.BigTextStyle bigTextStyle, CharSequence cs) {
+                return bigTextStyle.bigText(cs);
+            }
+        }
+
+        /**
+         * A class for wrapping calls to {@link Notification.MessagingStyle} methods which
+         * were added in API 24; these calls must be wrapped to avoid performance issues.
+         * See the UnsafeNewApiCall lint rule for more details.
+         */
+        @RequiresApi(24)
+        static class Api24Impl {
+            private Api24Impl() { }
+
+            @DoNotInline
+            static Notification.MessagingStyle createMessagingStyle(CharSequence userDisplayName) {
+                return new Notification.MessagingStyle(userDisplayName);
+            }
+
+            @DoNotInline
+            static Notification.MessagingStyle addMessage(
+                    Notification.MessagingStyle messagingStyle,
+                    Notification.MessagingStyle.Message message) {
+                return messagingStyle.addMessage(message);
+            }
+
+            @DoNotInline
+            static Notification.MessagingStyle setConversationTitle(
+                    Notification.MessagingStyle messagingStyle, CharSequence conversationTitle) {
+                return messagingStyle.setConversationTitle(conversationTitle);
+            }
+        }
+
+        /**
+         * A class for wrapping calls to {@link Notification.MessagingStyle} methods which
+         * were added in API 26; these calls must be wrapped to avoid performance issues.
+         * See the UnsafeNewApiCall lint rule for more details.
+         */
+        @RequiresApi(26)
+        static class Api26Impl {
+            private Api26Impl() { }
+
+            @DoNotInline
+            static Notification.MessagingStyle addHistoricMessage(
+                    Notification.MessagingStyle messagingStyle,
+                    Notification.MessagingStyle.Message message) {
+                return messagingStyle.addHistoricMessage(message);
+            }
+
+        }
+
+        /**
+         * A class for wrapping calls to {@link Notification.MessagingStyle} methods which
+         * were added in API 28; these calls must be wrapped to avoid performance issues.
+         * See the UnsafeNewApiCall lint rule for more details.
+         */
+        @RequiresApi(28)
+        static class Api28Impl {
+            private Api28Impl() { }
+
+            @DoNotInline
+            static Notification.MessagingStyle createMessagingStyle(android.app.Person user) {
+                return new Notification.MessagingStyle(user);
+            }
+
+            @DoNotInline
+            static Notification.MessagingStyle setGroupConversation(
+                    Notification.MessagingStyle messagingStyle, boolean isGroupConversation) {
+                return messagingStyle.setGroupConversation(isGroupConversation);
             }
         }
     }
@@ -4415,14 +4656,13 @@ public class NotificationCompat {
         @Override
         public void apply(NotificationBuilderWithBuilderAccessor builder) {
             if (Build.VERSION.SDK_INT >= 16) {
-                Notification.InboxStyle style =
-                        new Notification.InboxStyle(builder.getBuilder())
-                                .setBigContentTitle(mBigContentTitle);
+                Notification.InboxStyle style = Api16Impl.createInboxStyle(builder.getBuilder());
+                style = Api16Impl.setBigContentTitle(style, mBigContentTitle);
                 if (mSummaryTextSet) {
-                    style.setSummaryText(mSummaryText);
+                    Api16Impl.setSummaryText(style, mSummaryText);
                 }
                 for (CharSequence text: mTexts) {
-                    style.addLine(text);
+                    Api16Impl.addLine(style, text);
                 }
             }
         }
@@ -4450,6 +4690,39 @@ public class NotificationCompat {
             super.clearCompatExtraKeys(extras);
             extras.remove(EXTRA_TEXT_LINES);
         }
+
+        /**
+         * A class for wrapping calls to {@link Notification.InboxStyle} methods which
+         * were added in API 16; these calls must be wrapped to avoid performance issues.
+         * See the UnsafeNewApiCall lint rule for more details.
+         */
+        @RequiresApi(16)
+        static class Api16Impl {
+            private Api16Impl() { }
+
+            @DoNotInline
+            static Notification.InboxStyle createInboxStyle(Notification.Builder builder) {
+                return new Notification.InboxStyle(builder);
+            }
+
+            @DoNotInline
+            static Notification.InboxStyle setBigContentTitle(Notification.InboxStyle inboxStyle,
+                    CharSequence title) {
+                return inboxStyle.setBigContentTitle(title);
+            }
+
+            @DoNotInline
+            static Notification.InboxStyle setSummaryText(Notification.InboxStyle inboxStyle,
+                    CharSequence cs) {
+                return inboxStyle.setSummaryText(cs);
+            }
+
+            @DoNotInline
+            static Notification.InboxStyle addLine(Notification.InboxStyle inboxStyle,
+                    CharSequence cs) {
+                return inboxStyle.addLine(cs);
+            }
+        }
     }
 
     /**
@@ -4459,13 +4732,13 @@ public class NotificationCompat {
      * style and still obtain system decorations like the notification header with the expand
      * affordance and actions.
      *
-     * <p>Use {@link NotificationCompat.Builder#setCustomContentView(RemoteViews)},
-     * {@link NotificationCompat.Builder#setCustomBigContentView(RemoteViews)} and
-     * {@link NotificationCompat.Builder#setCustomHeadsUpContentView(RemoteViews)} to set the
+     * <p>Use {@link Builder#setCustomContentView(RemoteViews)},
+     * {@link Builder#setCustomBigContentView(RemoteViews)} and
+     * {@link Builder#setCustomHeadsUpContentView(RemoteViews)} to set the
      * corresponding custom views to display.
      *
      * <p>To use this style with your Notification, feed it to
-     * {@link NotificationCompat.Builder#setStyle(Style)} like so:
+     * {@link Builder#setStyle(Style)} like so:
      * <pre class="prettyprint">
      * Notification noti = new NotificationCompat.Builder()
      *     .setSmallIcon(R.drawable.ic_stat_player)
@@ -4476,8 +4749,8 @@ public class NotificationCompat {
      * </pre>
      *
      * <p>If you are using this style, consider using the corresponding styles like
-     * {@link androidx.core.R.style#TextAppearance_Compat_Notification} or
-     * {@link androidx.core.R.style#TextAppearance_Compat_Notification_Title} in
+     * {@link R.style#TextAppearance_Compat_Notification} or
+     * {@link R.style#TextAppearance_Compat_Notification_Title} in
      * your custom views in order to get the correct styling on each platform version.
      */
     public static class DecoratedCustomViewStyle extends Style {
@@ -4516,7 +4789,9 @@ public class NotificationCompat {
         @Override
         public void apply(NotificationBuilderWithBuilderAccessor builder) {
             if (Build.VERSION.SDK_INT >= 24) {
-                builder.getBuilder().setStyle(new Notification.DecoratedCustomViewStyle());
+                Api16Impl.setStyle(builder.getBuilder(),
+                        Api24Impl.createDecoratedCustomViewStyle());
+
             }
         }
 
@@ -4585,7 +4860,7 @@ public class NotificationCompat {
 
             // In the UI contextual actions appear separately from the standard actions, so we
             // filter them out here.
-            List<NotificationCompat.Action> nonContextualActions =
+            List<Action> nonContextualActions =
                     getNonContextualActions(mBuilder.mActions);
 
             if (showActions && nonContextualActions != null) {
@@ -4606,11 +4881,11 @@ public class NotificationCompat {
             return remoteViews;
         }
 
-        private static List<NotificationCompat.Action> getNonContextualActions(
-                List<NotificationCompat.Action> actions) {
+        private static List<Action> getNonContextualActions(
+                List<Action> actions) {
             if (actions == null) return null;
-            List<NotificationCompat.Action> nonContextualActions = new ArrayList<>();
-            for (NotificationCompat.Action action : actions) {
+            List<Action> nonContextualActions = new ArrayList<>();
+            for (Action action : actions) {
                 if (!action.isContextual()) {
                     nonContextualActions.add(action);
                 }
@@ -4618,7 +4893,7 @@ public class NotificationCompat {
             return nonContextualActions;
         }
 
-        private RemoteViews generateActionButton(NotificationCompat.Action action) {
+        private RemoteViews generateActionButton(Action action) {
             final boolean tombstone = (action.actionIntent == null);
             RemoteViews button = new RemoteViews(mBuilder.mContext.getPackageName(),
                     tombstone ? R.layout.notification_action_tombstone
@@ -4634,9 +4909,62 @@ public class NotificationCompat {
                 button.setOnClickPendingIntent(R.id.action_container, action.actionIntent);
             }
             if (Build.VERSION.SDK_INT >= 15) {
-                button.setContentDescription(R.id.action_container, action.title);
+                Api15Impl.setContentDescription(button, R.id.action_container, action.title);
             }
             return button;
+        }
+
+        /**
+         * A class for wrapping calls to {@link Notification.DecoratedCustomViewStyle} methods which
+         * were added in API 15; these calls must be wrapped to avoid performance issues.
+         * See the UnsafeNewApiCall lint rule for more details.
+         */
+        @RequiresApi(15)
+        static class Api15Impl {
+            private Api15Impl() { }
+
+            @DoNotInline
+            static void setContentDescription(RemoteViews remoteViews, int viewId,
+                    CharSequence contentDescription) {
+                remoteViews.setContentDescription(viewId, contentDescription);
+            }
+        }
+
+        /**
+         * A class for wrapping calls to {@link Notification.DecoratedCustomViewStyle} methods which
+         * were added in API 16; these calls must be wrapped to avoid performance issues.
+         * See the UnsafeNewApiCall lint rule for more details.
+         * Note that the runtime converts NewApi classes to Object during init, but only for
+         * initialized classes; if setStyle is passed style objects from newer API versions, if
+         * the type of those objects will be unknown, and a VerifyError will occur. To prevent
+         * this, we explicitly cast the provided style Object to Notification.Style.
+         */
+        @RequiresApi(16)
+        static class Api16Impl {
+            private Api16Impl() { }
+
+            @DoNotInline
+            static Notification.Builder setStyle(Notification.Builder builder,
+                    Object style) {
+                return builder.setStyle((Notification.Style) style);
+            }
+
+        }
+
+        /**
+         * A class for wrapping calls to {@link Notification.DecoratedCustomViewStyle} methods which
+         * were added in API 24; these calls must be wrapped to avoid performance issues.
+         * See the UnsafeNewApiCall lint rule for more details.
+         */
+        @RequiresApi(24)
+        static class Api24Impl {
+            private Api24Impl() { }
+
+            @DoNotInline
+            static Notification.DecoratedCustomViewStyle createDecoratedCustomViewStyle() {
+                return new Notification.DecoratedCustomViewStyle();
+            }
+
         }
     }
 
