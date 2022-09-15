@@ -37,6 +37,7 @@ import androidx.camera.core.impl.CamcorderProfileProvider
 import androidx.camera.core.impl.CameraCaptureCallback
 import androidx.camera.core.impl.CameraInfoInternal
 import androidx.camera.core.impl.Quirks
+import androidx.camera.core.impl.Timebase
 import androidx.camera.core.impl.utils.CameraOrientationUtil
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -110,6 +111,11 @@ class CameraInfoAdapter @Inject constructor(
             camcorderProfileProviderAdapter = CamcorderProfileProviderAdapter(cameraId)
         }
         return camcorderProfileProviderAdapter
+    }
+
+    override fun getTimebase(): Timebase {
+        Log.warn { "TODO: getTimebase are not yet supported." }
+        return Timebase.UPTIME
     }
 
     override fun toString(): String = "CameraInfoAdapter<$cameraConfig.cameraId>"
