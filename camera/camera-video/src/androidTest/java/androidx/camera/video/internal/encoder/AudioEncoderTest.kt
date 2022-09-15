@@ -106,6 +106,11 @@ class AudioEncoderTest {
     }
 
     @Test
+    fun canGetEncoderInfo() {
+        assertThat(encoder.encoderInfo).isNotNull()
+    }
+
+    @Test
     fun discardInputBufferBeforeStart() {
         // Arrange.
         fakeAudioLoop.start()
