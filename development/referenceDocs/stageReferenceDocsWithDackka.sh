@@ -62,7 +62,6 @@ readonly kotlinLibraryDirsThatDontUseDackka=(
   "androidx/draganddrop"
   "androidx/enterprise"
   "androidx/exifinterface"
-  "androidx/glance"
   "androidx/gridlayout"
 )
 
