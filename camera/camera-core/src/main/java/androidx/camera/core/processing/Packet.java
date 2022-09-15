@@ -16,6 +16,10 @@
 
 package androidx.camera.core.processing;
 
+import static android.graphics.ImageFormat.JPEG;
+
+import static androidx.core.util.Preconditions.checkNotNull;
+
 import android.graphics.Bitmap;
 import android.graphics.ImageFormat;
 import android.graphics.Matrix;
@@ -143,6 +147,9 @@ public abstract class Packet<T> {
     @NonNull
     public static Packet<ImageProxy> of(@NonNull ImageProxy data, @Nullable Exif exif,
             @NonNull Rect cropRect, int rotationDegrees, @NonNull Matrix sensorToBufferTransform) {
+        if (data.getFormat() == JPEG) {
+            checkNotNull(exif, "JPEG image must have Exif.");
+        }
         return new AutoValue_Packet<>(data, exif, data.getFormat(),
                 new Size(data.getWidth(), data.getHeight()), cropRect, rotationDegrees,
                 sensorToBufferTransform);

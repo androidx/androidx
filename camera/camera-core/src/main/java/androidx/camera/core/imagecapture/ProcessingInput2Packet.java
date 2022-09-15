@@ -20,9 +20,11 @@ import static android.graphics.ImageFormat.JPEG;
 
 import static androidx.camera.core.ImageCapture.ERROR_FILE_IO;
 import static androidx.camera.core.imagecapture.ImagePipeline.EXIF_ROTATION_AVAILABILITY;
+import static androidx.camera.core.impl.utils.Exif.createFromImageProxy;
 import static androidx.camera.core.impl.utils.TransformUtils.getRectToRect;
 import static androidx.camera.core.impl.utils.TransformUtils.is90or270;
 import static androidx.camera.core.impl.utils.TransformUtils.within360;
+import static androidx.core.util.Preconditions.checkNotNull;
 import static androidx.core.util.Preconditions.checkState;
 
 import android.graphics.Matrix;
@@ -58,19 +60,16 @@ final class ProcessingInput2Packet implements
         ImageProxy image = inputPacket.getImageProxy();
         ProcessingRequest request = inputPacket.getProcessingRequest();
 
-        Exif exif;
+        // Extracts Exif data from JPEG.
+        Exif exif = null;
         if (image.getFormat() == JPEG) {
-            // Extracts Exif data from JPEG.
             try {
-                exif = Exif.createFromImageProxy(image);
+                exif = createFromImageProxy(image);
                 // Rewind the buffer after reading.
                 image.getPlanes()[0].getBuffer().rewind();
             } catch (IOException e) {
                 throw new ImageCaptureException(ERROR_FILE_IO, "Failed to extract EXIF data.", e);
             }
-        } else {
-            // TODO: handle YUV image.
-            throw new UnsupportedOperationException();
         }
 
         // Default metadata based on UseCase config.
@@ -80,6 +79,7 @@ final class ProcessingInput2Packet implements
 
         // Update metadata if the rotation is sent to the HAL.
         if (EXIF_ROTATION_AVAILABILITY.shouldUseExifOrientation(image)) {
+            checkNotNull(exif, "The image must have JPEG exif.");
             // If the image's size does not match the Exif size, it might be a vendor bug.
             // Consider adding it to ImageCaptureRotationOptionQuirk.
             checkState(isSizeMatch(exif, image), "Exif size does not match image size.");
