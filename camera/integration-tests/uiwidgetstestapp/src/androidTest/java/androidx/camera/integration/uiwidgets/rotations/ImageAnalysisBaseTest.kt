@@ -54,7 +54,6 @@ abstract class ImageAnalysisBaseTest<A : CameraActivity>(
     @get:Rule
     val cameraPipeConfigTestRule = CameraPipeConfigTestRule(
         active = cameraXConfig == CameraActivity.CAMERA_PIPE_IMPLEMENTATION_OPTION,
-        forAllTests = true,
     )
 
     @get:Rule

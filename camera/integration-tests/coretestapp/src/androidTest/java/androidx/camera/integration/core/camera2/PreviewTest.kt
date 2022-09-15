@@ -31,6 +31,7 @@ import androidx.camera.core.UseCase
 import androidx.camera.core.impl.ImageOutputConfig
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.core.internal.CameraUseCaseAdapter
+import androidx.camera.testing.CameraPipeConfigTestRule
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CameraUtil.PreTestCameraIdList
 import androidx.camera.testing.CameraXUtil
@@ -69,6 +70,11 @@ class PreviewTest(
     private val implName: String,
     private val cameraConfig: CameraXConfig
 ) {
+    @get:Rule
+    val cameraPipeConfigTestRule = CameraPipeConfigTestRule(
+        active = implName == CameraPipeConfig::class.simpleName,
+    )
+
     @get:Rule
     val cameraRule = CameraUtil.grantCameraPermissionAndPreTest(
         PreTestCameraIdList(cameraConfig)
