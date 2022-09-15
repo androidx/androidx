@@ -35,6 +35,7 @@ dependencies {
 
         implementation(libs.kotlinStdlib)
         implementation(project(":compose:foundation:foundation-layout"))
+        implementation(project(":compose:ui:ui-util"))
         implementation("androidx.profileinstaller:profileinstaller:1.2.0")
 
         testImplementation(libs.testRules)
@@ -70,6 +71,7 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
 
                 implementation(libs.kotlinStdlib)
                 implementation(project(":compose:foundation:foundation-layout"))
+                implementation(project(":compose:ui:ui-util"))
             }
             jvmMain.dependencies {
                 implementation(libs.kotlinStdlib)
