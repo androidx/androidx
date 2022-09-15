@@ -19,6 +19,7 @@ package androidx.camera.video.internal.encoder
 import android.media.MediaCodecInfo
 import android.media.MediaFormat
 import android.util.Size
+import androidx.camera.core.impl.Timebase
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
@@ -26,17 +27,20 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 
-private const val MIME_TYPE = MediaFormat.MIMETYPE_VIDEO_AVC
-private const val BIT_RATE = 10 * 1024 * 1024 // 10M
-private const val FRAME_RATE = 30
-private const val I_FRAME_INTERVAL = 1
-private const val WIDTH = 640
-private const val HEIGHT = 480
-
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 @SdkSuppress(minSdkVersion = 21)
-class VideoEncoderInfoTest {
+class VideoEncoderInfoImplTest {
+
+    companion object {
+        private const val MIME_TYPE = MediaFormat.MIMETYPE_VIDEO_AVC
+        private const val BIT_RATE = 10 * 1024 * 1024 // 10M
+        private const val FRAME_RATE = 30
+        private const val I_FRAME_INTERVAL = 1
+        private const val WIDTH = 640
+        private const val HEIGHT = 480
+        private val TIMEBASE = Timebase.UPTIME
+    }
 
     private lateinit var encoderConfig: VideoEncoderConfig
 
@@ -49,6 +53,7 @@ class VideoEncoderInfoTest {
             .setIFrameInterval(I_FRAME_INTERVAL)
             .setMimeType(MIME_TYPE)
             .setResolution(Size(WIDTH, HEIGHT))
+            .setInputTimebase(TIMEBASE)
             .build()
     }
 

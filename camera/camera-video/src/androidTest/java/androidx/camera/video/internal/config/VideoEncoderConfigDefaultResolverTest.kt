@@ -17,6 +17,7 @@
 package androidx.camera.video.internal.config
 
 import android.util.Range
+import androidx.camera.core.impl.Timebase
 import androidx.camera.testing.CamcorderProfileUtil
 import androidx.camera.video.VideoSpec
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -33,7 +34,7 @@ class VideoEncoderConfigDefaultResolverTest {
 
     companion object {
         const val MIME_TYPE = "video/avc"
-
+        val TIMEBASE = Timebase.UPTIME
         const val FRAME_RATE_30 = 30
         const val FRAME_RATE_45 = 45
         const val FRAME_RATE_60 = 60
@@ -52,6 +53,7 @@ class VideoEncoderConfigDefaultResolverTest {
         val configSupplierCif =
             VideoEncoderConfigDefaultResolver(
                 MIME_TYPE,
+                TIMEBASE,
                 defaultVideoSpec,
                 surfaceSizeCif,
                 expectedFrameRateRange
@@ -59,6 +61,7 @@ class VideoEncoderConfigDefaultResolverTest {
         val configSupplier720p =
             VideoEncoderConfigDefaultResolver(
                 MIME_TYPE,
+                TIMEBASE,
                 defaultVideoSpec,
                 surfaceSize720p,
                 expectedFrameRateRange
@@ -66,6 +69,7 @@ class VideoEncoderConfigDefaultResolverTest {
         val configSupplier1080p =
             VideoEncoderConfigDefaultResolver(
                 MIME_TYPE,
+                TIMEBASE,
                 defaultVideoSpec,
                 surfaceSize1080p,
                 expectedFrameRateRange
@@ -98,6 +102,7 @@ class VideoEncoderConfigDefaultResolverTest {
         val defaultConfig =
             VideoEncoderConfigDefaultResolver(
                 MIME_TYPE,
+                TIMEBASE,
                 defaultVideoSpec,
                 surfaceSize720p,
                 /*expectedFrameRateRange=*/null
@@ -116,6 +121,7 @@ class VideoEncoderConfigDefaultResolverTest {
         assertThat(
             VideoEncoderConfigDefaultResolver(
                 MIME_TYPE,
+                TIMEBASE,
                 higherVideoSpec,
                 surfaceSize720p,
                 /*expectedFrameRateRange=*/null
@@ -125,6 +131,7 @@ class VideoEncoderConfigDefaultResolverTest {
         assertThat(
             VideoEncoderConfigDefaultResolver(
                 MIME_TYPE,
+                TIMEBASE,
                 lowerVideoSpec,
                 surfaceSize720p,
                 /*expectedFrameRateRange=*/null
@@ -142,6 +149,7 @@ class VideoEncoderConfigDefaultResolverTest {
         assertThat(
             VideoEncoderConfigDefaultResolver(
                 MIME_TYPE,
+                TIMEBASE,
                 videoSpec,
                 size,
                 /*expectedFrameRateRange=*/null
@@ -164,6 +172,7 @@ class VideoEncoderConfigDefaultResolverTest {
         assertThat(
             VideoEncoderConfigDefaultResolver(
                 MIME_TYPE,
+                TIMEBASE,
                 videoSpec,
                 size,
                 expectedFrameRateRange
@@ -188,6 +197,7 @@ class VideoEncoderConfigDefaultResolverTest {
         assertThat(
             VideoEncoderConfigDefaultResolver(
                 MIME_TYPE,
+                TIMEBASE,
                 videoSpec,
                 size,
                 expectedFrameRateRange

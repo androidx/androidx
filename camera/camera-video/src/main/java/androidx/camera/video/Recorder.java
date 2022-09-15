@@ -62,6 +62,7 @@ import androidx.camera.core.impl.CamcorderProfileProxy;
 import androidx.camera.core.impl.MutableStateObservable;
 import androidx.camera.core.impl.Observable;
 import androidx.camera.core.impl.StateObservable;
+import androidx.camera.core.impl.Timebase;
 import androidx.camera.core.impl.annotation.ExecutedBy;
 import androidx.camera.core.impl.utils.CloseGuardHelper;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
@@ -341,6 +342,8 @@ public final class Recorder implements VideoOutput {
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     SurfaceRequest mSurfaceRequest;
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    Timebase mVideoSourceTimebase;
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     Surface mLatestSurface = null;
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     Surface mActiveSurface = null;
@@ -413,6 +416,13 @@ public final class Recorder implements VideoOutput {
 
     @Override
     public void onSurfaceRequested(@NonNull SurfaceRequest request) {
+        onSurfaceRequested(request, Timebase.UPTIME);
+    }
+
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @Override
+    public void onSurfaceRequested(@NonNull SurfaceRequest request, @NonNull Timebase timebase) {
         synchronized (mLock) {
             Logger.d(TAG, "Surface is requested in state: " + mState + ", Current surface: "
                     + mStreamId);
@@ -427,7 +437,8 @@ public final class Recorder implements VideoOutput {
                     // Fall-through
                 case INITIALIZING:
                     mSequentialExecutor.execute(
-                            () -> initializeInternal(mSurfaceRequest = request));
+                            () -> initializeInternal(mSurfaceRequest = request,
+                                    mVideoSourceTimebase = timebase));
                     break;
                 case IDLING:
                     // Fall-through
@@ -444,7 +455,8 @@ public final class Recorder implements VideoOutput {
                             // If the surface request is already complete, this is a no-op.
                             mSurfaceRequest.willNotProvideSurface();
                         }
-                        initializeInternal(mSurfaceRequest = request);
+                        initializeInternal(mSurfaceRequest = request,
+                                mVideoSourceTimebase = timebase);
                     });
                     break;
             }
@@ -695,7 +707,7 @@ public final class Recorder implements VideoOutput {
                                             "surface request is required to retry "
                                                     + "initialization.");
                                 }
-                                initializeInternal(mSurfaceRequest);
+                                initializeInternal(mSurfaceRequest, mVideoSourceTimebase);
                             });
                         } else {
                             setState(State.PENDING_RECORDING);
@@ -986,7 +998,8 @@ public final class Recorder implements VideoOutput {
     }
 
     @ExecutedBy("mSequentialExecutor")
-    private void initializeInternal(@NonNull SurfaceRequest surfaceRequest) {
+    private void initializeInternal(@NonNull SurfaceRequest surfaceRequest,
+            @NonNull Timebase videoSourceTimebase) {
         if (mLatestSurface != null) {
             // There's a valid surface. Provide it directly.
             mActiveSurface = mLatestSurface;
@@ -1003,7 +1016,7 @@ public final class Recorder implements VideoOutput {
                     VideoCapabilities.from(surfaceRequest.getCamera().getCameraInfo());
             mResolvedCamcorderProfile = capabilities.findHighestSupportedCamcorderProfileFor(
                     surfaceSize);
-            setupVideo(surfaceRequest);
+            setupVideo(surfaceRequest, videoSourceTimebase);
         }
     }
 
@@ -1106,6 +1119,7 @@ public final class Recorder implements VideoOutput {
         MediaSpec mediaSpec = getObservableData(mMediaSpec);
         // Resolve the audio mime info
         MimeInfo audioMimeInfo = resolveAudioMimeInfo(mediaSpec, mResolvedCamcorderProfile);
+        Timebase audioSourceTimebase = Timebase.UPTIME;
 
         // Select and create the audio source
         AudioSource.Settings audioSourceSettings =
@@ -1114,6 +1128,8 @@ public final class Recorder implements VideoOutput {
             if (mAudioSource != null) {
                 releaseCurrentAudioSource();
             }
+            // TODO: set audioSourceTimebase to AudioSource. Currently AudioSource hard code
+            //  AudioTimestamp.TIMEBASE_MONOTONIC.
             mAudioSource = setupAudioSource(recordingToStart, audioSourceSettings);
             Logger.d(TAG, String.format("Set up new audio source: 0x%x", mAudioSource.hashCode()));
         } catch (AudioSourceAccessException e) {
@@ -1122,7 +1138,7 @@ public final class Recorder implements VideoOutput {
 
         // Select and create the audio encoder
         AudioEncoderConfig audioEncoderConfig = resolveAudioEncoderConfig(audioMimeInfo,
-                audioSourceSettings, mediaSpec.getAudioSpec());
+                audioSourceTimebase, audioSourceSettings, mediaSpec.getAudioSpec());
         try {
             mAudioEncoder = mAudioEncoderFactory.createEncoder(mExecutor, audioEncoderConfig);
         } catch (InvalidConfigException e) {
@@ -1165,7 +1181,7 @@ public final class Recorder implements VideoOutput {
             }
 
             @Override
-            public void onFailure(Throwable t) {
+            public void onFailure(@NonNull Throwable t) {
                 Logger.d(TAG, String.format("An error occurred while attempting to "
                         + "release audio source: 0x%x", audioSource.hashCode()));
             }
@@ -1173,7 +1189,7 @@ public final class Recorder implements VideoOutput {
     }
 
     @ExecutedBy("mSequentialExecutor")
-    private void setupVideo(@NonNull SurfaceRequest surfaceRequest) {
+    private void setupVideo(@NonNull SurfaceRequest surfaceRequest, @NonNull Timebase timebase) {
         MediaSpec mediaSpec = getObservableData(mMediaSpec);
         MimeInfo videoMimeInfo = resolveVideoMimeInfo(mediaSpec, mResolvedCamcorderProfile);
 
@@ -1182,6 +1198,7 @@ public final class Recorder implements VideoOutput {
         // The expected frame rate from the camera is passed on here from the SurfaceRequest.
         VideoEncoderConfig config = resolveVideoEncoderConfig(
                 videoMimeInfo,
+                timebase,
                 mediaSpec.getVideoSpec(),
                 surfaceRequest.getResolution(),
                 surfaceRequest.getExpectedFrameRate());

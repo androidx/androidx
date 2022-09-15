@@ -25,6 +25,7 @@ import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.SurfaceRequest;
 import androidx.camera.core.impl.ConstantObservable;
 import androidx.camera.core.impl.Observable;
+import androidx.camera.core.impl.Timebase;
 import androidx.core.util.Consumer;
 
 import java.util.concurrent.Executor;
@@ -89,6 +90,17 @@ public interface VideoOutput {
      *                surface and methods for completing the request.
      */
     void onSurfaceRequested(@NonNull SurfaceRequest request);
+
+    /**
+     * Called when a new {@link Surface} has been requested by a video frame producer.
+     *
+     * @param timebase the video source timebase
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY)
+    default void onSurfaceRequested(@NonNull SurfaceRequest request, @NonNull Timebase timebase) {
+        onSurfaceRequested(request);
+    }
 
     /**
      * Returns an observable {@link StreamInfo} which contains the information of the
