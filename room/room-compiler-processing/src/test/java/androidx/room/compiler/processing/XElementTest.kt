@@ -712,7 +712,10 @@ class XElementTest {
                     assertThat(fields.map { it.name }).containsExactly(
                         "property",
                         "companionObjectProperty",
-                        "companionObjectPropertyJvmStatic"
+                        "companionObjectPropertyJvmStatic",
+                        "companionObjectPropertyJvmField",
+                        "companionObjectPropertyLateinit",
+                        "companionObjectPropertyConst"
                     )
                     fields.forEach {
                         if (it.name.startsWith("companion")) {
@@ -726,7 +729,10 @@ class XElementTest {
                         "Companion",
                         "property",
                         "companionObjectProperty",
-                        "companionObjectPropertyJvmStatic"
+                        "companionObjectPropertyJvmStatic",
+                        "companionObjectPropertyJvmField",
+                        "companionObjectPropertyLateinit",
+                        "companionObjectPropertyConst"
                     )
                     fields.forEach {
                         assertThat(it.enclosingElement).isEqualTo(enclosingElement)
@@ -753,7 +759,10 @@ class XElementTest {
                 if (invocation.isKsp) {
                     assertThat(fields.map { it.name }).containsExactly(
                         "companionObjectProperty",
-                        "companionObjectPropertyJvmStatic"
+                        "companionObjectPropertyJvmStatic",
+                        "companionObjectPropertyJvmField",
+                        "companionObjectPropertyLateinit",
+                        "companionObjectPropertyConst"
                     )
                     fields.forEach {
                         assertThat(it.enclosingElement).isEqualTo(companionObj)
@@ -770,15 +779,20 @@ class XElementTest {
 
                 if (invocation.isKsp) {
                     assertThat(methods.map { it.name }).containsExactly(
+                        "getCompanionObjectProperty",
+                        "getCompanionObjectPropertyJvmStatic",
+                        "getCompanionObjectPropertyLateinit",
+                        "setCompanionObjectPropertyLateinit",
                         "companionObjectFunction",
                         "companionObjectFunctionJvmStatic",
-                        "getCompanionObjectPropertyJvmStatic"
                     )
                 } else {
                     if (precompiled) {
                         assertThat(methods.map { it.name }).containsExactly(
                             "getCompanionObjectProperty",
                             "getCompanionObjectPropertyJvmStatic",
+                            "getCompanionObjectPropertyLateinit",
+                            "setCompanionObjectPropertyLateinit",
                             "companionObjectFunction",
                             "companionObjectFunctionJvmStatic"
                         )
@@ -787,6 +801,8 @@ class XElementTest {
                             "getCompanionObjectProperty",
                             "getCompanionObjectPropertyJvmStatic",
                             "getCompanionObjectPropertyJvmStatic\$annotations",
+                            "getCompanionObjectPropertyLateinit",
+                            "setCompanionObjectPropertyLateinit",
                             "companionObjectFunction",
                             "companionObjectFunctionJvmStatic"
                         )
@@ -990,6 +1006,9 @@ class XElementTest {
                 val companionObjectProperty: String = "hello"
                 @JvmStatic
                 val companionObjectPropertyJvmStatic: String = "hello"
+                @JvmField val companionObjectPropertyJvmField: String = "hello"
+                lateinit var companionObjectPropertyLateinit: String
+                const val companionObjectPropertyConst: String = "hello"
                 fun companionObjectFunction(companionFunctionParam: String) {}
                 @JvmStatic
                 fun companionObjectFunctionJvmStatic(companionFunctionParam: String) {}
