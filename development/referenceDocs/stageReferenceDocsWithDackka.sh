@@ -56,8 +56,6 @@ readonly javaLibraryDirsThatDontUseDackka=(
   "androidx/enterprise"
   "androidx/exifinterface"
   "androidx/gridlayout"
-  "androidx/heifwriter"
-  "androidx/leanback"
 )
 readonly kotlinLibraryDirsThatDontUseDackka=(
   "androidx/benchmark"
@@ -69,8 +67,6 @@ readonly kotlinLibraryDirsThatDontUseDackka=(
   "androidx/exifinterface"
   "androidx/glance"
   "androidx/gridlayout"
-  "androidx/heifwriter"
-  "androidx/leanback"
 )
 
 # Change directory to this script's location and store the directory
