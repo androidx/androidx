@@ -36,18 +36,6 @@ dependencies {
     annotationProcessor(libs.hiltCompiler)
 }
 
-android.libraryVariants.all { variant ->
-    def name = variant.name
-    def suffix = name.capitalize()
-
-    // Create jar<variant> task for testImplementation in hilt-compiler.
-    project.tasks.register("jar${suffix}", Jar).configure {
-        dependsOn(variant.javaCompileProvider)
-        from(variant.javaCompileProvider.map { task -> task.destinationDir})
-        destinationDirectory.fileValue(new File(project.buildDir, "libJar"))
-    }
-}
-
 androidx {
     name = "Android Lifecycle WorkManager Hilt Extension"
     publish = Publish.SNAPSHOT_AND_RELEASE

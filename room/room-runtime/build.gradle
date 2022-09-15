@@ -69,18 +69,6 @@ dependencies {
 
 }
 
-android.libraryVariants.all { variant ->
-    def name = variant.name
-    def suffix = name.capitalize()
-
-    // Create jar<variant> task for testImplementation in room-compiler.
-    project.tasks.create(name: "jar${suffix}", type: Jar){
-        dependsOn(variant.javaCompileProvider.get())
-        from(variant.javaCompileProvider.get().destinationDir)
-        destinationDirectory.fileValue(new File(project.buildDir, "libJar"))
-    }
-}
-
 androidx {
     name = "Android Room-Runtime"
     publish = Publish.SNAPSHOT_AND_RELEASE
