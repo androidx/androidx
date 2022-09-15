@@ -6927,14 +6927,14 @@ public class NotificationCompat {
             }
 
             RemoteInput remoteInputCompat = remoteInput != null
-                    ? new RemoteInput(remoteInput.getResultKey(),
-                    remoteInput.getLabel(),
-                    remoteInput.getChoices(),
-                    remoteInput.getAllowFreeFormInput(),
+                    ? new RemoteInput(Api20Impl.getResultKey(remoteInput),
+                    Api20Impl.getLabel(remoteInput),
+                    Api20Impl.getChoices(remoteInput),
+                    Api20Impl.getAllowFreeFormInput(remoteInput),
                     Build.VERSION.SDK_INT >= 29
-                            ? remoteInput.getEditChoicesBeforeSending()
+                            ? Api29Impl.getEditChoicesBeforeSending(remoteInput)
                             : RemoteInput.EDIT_CHOICES_BEFORE_SENDING_AUTO,
-                    remoteInput.getExtras(),
+                    Api20Impl.getExtras(remoteInput),
                     null /* allowedDataTypes */)
                     : null;
 
@@ -6960,12 +6960,12 @@ public class NotificationCompat {
             RemoteInput remoteInputCompat = uc.getRemoteInput();
             if (remoteInputCompat != null) {
                 android.app.RemoteInput remoteInput =
-                        new android.app.RemoteInput.Builder(remoteInputCompat.getResultKey())
+                        Api20Impl.build(new android.app.RemoteInput.Builder(
+                                remoteInputCompat.getResultKey())
                                 .setLabel(remoteInputCompat.getLabel())
                                 .setChoices(remoteInputCompat.getChoices())
                                 .setAllowFreeFormInput(remoteInputCompat.getAllowFreeFormInput())
-                                .addExtras(remoteInputCompat.getExtras())
-                                .build();
+                                .addExtras(remoteInputCompat.getExtras()));
                 b.putParcelable(KEY_REMOTE_INPUT, remoteInput);
             }
             b.putParcelable(KEY_ON_REPLY, uc.getReplyPendingIntent());
@@ -7254,6 +7254,64 @@ public class NotificationCompat {
                             mReadPendingIntent, participants, mLatestTimestamp);
                 }
             }
+        }
+
+        /**
+         * A class for wrapping calls to {@link Notification.CarExtender} methods which
+         * were added in API 20; these calls must be wrapped to avoid performance issues.
+         * See the UnsafeNewApiCall lint rule for more details.
+         */
+        @RequiresApi(20)
+        static class Api20Impl {
+            private Api20Impl() {
+                // This class is not instantiable.
+            }
+
+            @DoNotInline
+            static android.app.RemoteInput build(android.app.RemoteInput.Builder builder) {
+                return builder.build();
+            }
+
+            @DoNotInline
+            static String getResultKey(android.app.RemoteInput remoteInput) {
+                return remoteInput.getResultKey();
+            }
+
+            @DoNotInline
+            static CharSequence[] getChoices(android.app.RemoteInput remoteInput) {
+                return remoteInput.getChoices();
+            }
+
+            @DoNotInline
+            static CharSequence getLabel(android.app.RemoteInput remoteInput) {
+                return remoteInput.getLabel();
+            }
+
+            @DoNotInline
+            static boolean getAllowFreeFormInput(android.app.RemoteInput remoteInput) {
+                return remoteInput.getAllowFreeFormInput();
+            }
+
+            @DoNotInline
+            static Bundle getExtras(android.app.RemoteInput remoteInput) {
+                return remoteInput.getExtras();
+            }
+        }
+
+        /**
+         * A class for wrapping calls to {@link Notification.CarExtender} methods which
+         * were added in API 29; these calls must be wrapped to avoid performance issues.
+         * See the UnsafeNewApiCall lint rule for more details.
+         */
+        @RequiresApi(29)
+        static class Api29Impl {
+            private Api29Impl() { }
+
+            @DoNotInline
+            static int getEditChoicesBeforeSending(android.app.RemoteInput remoteInput) {
+                return remoteInput.getEditChoicesBeforeSending();
+            }
+
         }
     }
 
@@ -7943,7 +8001,7 @@ public class NotificationCompat {
      */
     public static @Nullable BubbleMetadata getBubbleMetadata(@NonNull Notification notification) {
         if (Build.VERSION.SDK_INT >= 29) {
-            return BubbleMetadata.fromPlatform(notification.getBubbleMetadata());
+            return BubbleMetadata.fromPlatform(Api29Impl.getBubbleMetadata(notification));
         } else {
             return null;
         }
@@ -7953,7 +8011,7 @@ public class NotificationCompat {
     @RequiresApi(20)
     static @NonNull Action getActionCompatFromAction(@NonNull Notification.Action action) {
         final RemoteInput[] remoteInputs;
-        final android.app.RemoteInput[] srcArray = action.getRemoteInputs();
+        final android.app.RemoteInput[] srcArray = Api20Impl.getRemoteInputs(action);
         if (srcArray == null) {
             remoteInputs = null;
         } else {
@@ -7961,59 +8019,62 @@ public class NotificationCompat {
             for (int i = 0; i < srcArray.length; i++) {
                 android.app.RemoteInput src = srcArray[i];
                 remoteInputs[i] = new RemoteInput(
-                        src.getResultKey(),
-                        src.getLabel(),
-                        src.getChoices(),
-                        src.getAllowFreeFormInput(),
+                        Api20Impl.getResultKey(src),
+                        Api20Impl.getLabel(src),
+                        Api20Impl.getChoices(src),
+                        Api20Impl.getAllowFreeFormInput(src),
                         Build.VERSION.SDK_INT >= 29
-                                ? src.getEditChoicesBeforeSending()
+                                ? Api29Impl.getEditChoicesBeforeSending(src)
                                 : RemoteInput.EDIT_CHOICES_BEFORE_SENDING_AUTO,
-                        src.getExtras(),
+                        Api20Impl.getExtras(src),
                         null);
             }
         }
 
         final boolean allowGeneratedReplies;
         if (Build.VERSION.SDK_INT >= 24) {
-            allowGeneratedReplies = action.getExtras().getBoolean(
+            allowGeneratedReplies = Api20Impl.getExtras(action).getBoolean(
                     NotificationCompatJellybean.EXTRA_ALLOW_GENERATED_REPLIES)
-                    || action.getAllowGeneratedReplies();
+                    || Api24Impl.getAllowGeneratedReplies(action);
         } else {
-            allowGeneratedReplies = action.getExtras().getBoolean(
+            allowGeneratedReplies = Api20Impl.getExtras(action).getBoolean(
                     NotificationCompatJellybean.EXTRA_ALLOW_GENERATED_REPLIES);
         }
 
         final boolean showsUserInterface =
-                action.getExtras().getBoolean(Action.EXTRA_SHOWS_USER_INTERFACE, true);
+                Api20Impl.getExtras(action).getBoolean(Action.EXTRA_SHOWS_USER_INTERFACE, true);
 
         final @Action.SemanticAction int semanticAction;
         if (Build.VERSION.SDK_INT >= 28) {
-            semanticAction = action.getSemanticAction();
+            semanticAction = Api28Impl.getSemanticAction(action);
         } else {
-            semanticAction = action.getExtras().getInt(
+            semanticAction = Api20Impl.getExtras(action).getInt(
                     Action.EXTRA_SEMANTIC_ACTION, Action.SEMANTIC_ACTION_NONE);
         }
 
-        final boolean isContextual = Build.VERSION.SDK_INT >= 29 ? action.isContextual() : false;
+        final boolean isContextual = Build.VERSION.SDK_INT >= 29 ? Api29Impl.isContextual(action)
+                : false;
 
         final boolean authRequired =
-                Build.VERSION.SDK_INT >= 31 ? action.isAuthenticationRequired() : false;
+                Build.VERSION.SDK_INT >= 31 ? Api31Impl.isAuthenticationRequired(action) : false;
 
         if (Build.VERSION.SDK_INT >= 23) {
-            if (action.getIcon() == null && action.icon != 0) {
+            if (Api23Impl.getIcon(action) == null && action.icon != 0) {
                 return new Action(action.icon, action.title, action.actionIntent,
-                        action.getExtras(), remoteInputs, null, allowGeneratedReplies,
-                        semanticAction, showsUserInterface, isContextual, authRequired);
+                        Api20Impl.getExtras(action), remoteInputs, null,
+                        allowGeneratedReplies, semanticAction, showsUserInterface, isContextual,
+                        authRequired);
             }
-            IconCompat icon = action.getIcon() == null
-                    ? null : IconCompat.createFromIconOrNullIfZeroResId(action.getIcon());
-            return new Action(icon, action.title, action.actionIntent, action.getExtras(),
-                    remoteInputs, null, allowGeneratedReplies, semanticAction, showsUserInterface,
-                    isContextual, authRequired);
+            IconCompat icon = Api23Impl.getIcon(action) == null
+                    ? null : IconCompat.createFromIconOrNullIfZeroResId(Api23Impl.getIcon(action));
+            return new Action(icon, action.title, action.actionIntent, Api20Impl.getExtras(action),
+                    remoteInputs, null, allowGeneratedReplies, semanticAction,
+                    showsUserInterface, isContextual, authRequired);
         } else {
-            return new Action(action.icon, action.title, action.actionIntent, action.getExtras(),
-                    remoteInputs, null, allowGeneratedReplies, semanticAction, showsUserInterface,
-                    isContextual, authRequired);
+            return new Action(action.icon, action.title, action.actionIntent,
+                    Api20Impl.getExtras(action),
+                    remoteInputs, null, allowGeneratedReplies, semanticAction,
+                    showsUserInterface, isContextual, authRequired);
         }
     }
 
@@ -8128,7 +8189,7 @@ public class NotificationCompat {
      */
     public static @Nullable String getGroup(@NonNull Notification notification) {
         if (Build.VERSION.SDK_INT >= 20) {
-            return notification.getGroup();
+            return Api20Impl.getGroup(notification);
         } else if (Build.VERSION.SDK_INT >= 19) {
             return notification.extras.getString(NotificationCompatExtras.EXTRA_GROUP_KEY);
         } else if (Build.VERSION.SDK_INT >= 16) {
@@ -8236,7 +8297,7 @@ public class NotificationCompat {
      */
     public static @Nullable String getSortKey(@NonNull Notification notification) {
         if (Build.VERSION.SDK_INT >= 20) {
-            return notification.getSortKey();
+            return Api20Impl.getSortKey(notification);
         } else if (Build.VERSION.SDK_INT >= 19) {
             return notification.extras.getString(NotificationCompatExtras.EXTRA_SORT_KEY);
         } else if (Build.VERSION.SDK_INT >= 16) {
@@ -8252,7 +8313,7 @@ public class NotificationCompat {
      */
     public static @Nullable String getChannelId(@NonNull Notification notification) {
         if (Build.VERSION.SDK_INT >= 26) {
-            return notification.getChannelId();
+            return Api26Impl.getChannelId(notification);
         } else {
             return null;
         }
@@ -8264,7 +8325,7 @@ public class NotificationCompat {
      */
     public static long getTimeoutAfter(@NonNull Notification notification) {
         if (Build.VERSION.SDK_INT >= 26) {
-            return notification.getTimeoutAfter();
+            return Api26Impl.getTimeoutAfter(notification);
         } else {
             return 0;
         }
@@ -8277,19 +8338,19 @@ public class NotificationCompat {
      */
     public static int getBadgeIconType(@NonNull Notification notification) {
         if (Build.VERSION.SDK_INT >= 26) {
-            return notification.getBadgeIconType();
+            return Api26Impl.getBadgeIconType(notification);
         } else {
             return BADGE_ICON_NONE;
         }
     }
 
     /**
-     * Returns the {@link androidx.core.content.pm.ShortcutInfoCompat#getId() id} that this
+     * Returns the {@link ShortcutInfoCompat#getId() id} that this
      * notification supersedes, if any.
      */
     public static @Nullable String getShortcutId(@NonNull Notification notification) {
         if (Build.VERSION.SDK_INT >= 26) {
-            return notification.getShortcutId();
+            return Api26Impl.getShortcutId(notification);
         } else {
             return null;
         }
@@ -8300,7 +8361,7 @@ public class NotificationCompat {
      */
     public static @Nullable CharSequence getSettingsText(@NonNull Notification notification) {
         if (Build.VERSION.SDK_INT >= 26) {
-            return notification.getSettingsText();
+            return Api26Impl.getSettingsText(notification);
         } else {
             return null;
         }
@@ -8316,7 +8377,7 @@ public class NotificationCompat {
     @Nullable
     public static LocusIdCompat getLocusId(@NonNull Notification notification) {
         if (Build.VERSION.SDK_INT >= 29) {
-            LocusId locusId = notification.getLocusId();
+            LocusId locusId = Api29Impl.getLocusId(notification);
             return locusId == null ? null : LocusIdCompat.toLocusIdCompat(locusId);
         } else {
             return null;
@@ -8331,7 +8392,7 @@ public class NotificationCompat {
     @GroupAlertBehavior
     public static int getGroupAlertBehavior(@NonNull Notification notification) {
         if (Build.VERSION.SDK_INT >= 26) {
-            return notification.getGroupAlertBehavior();
+            return Api26Impl.getGroupAlertBehavior(notification);
         } else {
             return GROUP_ALERT_ALL;
         }
@@ -8344,7 +8405,7 @@ public class NotificationCompat {
     public static boolean getAllowSystemGeneratedContextualActions(
             @NonNull Notification notification) {
         if (Build.VERSION.SDK_INT >= 29) {
-            return notification.getAllowSystemGeneratedContextualActions();
+            return Api29Impl.getAllowSystemGeneratedContextualActions(notification);
         } else {
             return false;
         }
@@ -8354,5 +8415,197 @@ public class NotificationCompat {
     @Deprecated
     @SuppressWarnings("PrivateConstructorForUtilityClass")
     public NotificationCompat() {
+    }
+
+    /**
+     * A class for wrapping calls to {@link Notification} methods which
+     * were added in API 20; these calls must be wrapped to avoid performance issues.
+     * See the UnsafeNewApiCall lint rule for more details.
+     */
+    @RequiresApi(20)
+    static class Api20Impl {
+        private Api20Impl() { }
+
+        @DoNotInline
+        static boolean getAllowFreeFormInput(android.app.RemoteInput remoteInput) {
+            return remoteInput.getAllowFreeFormInput();
+        }
+
+        @DoNotInline
+        static CharSequence[] getChoices(android.app.RemoteInput remoteInput) {
+            return remoteInput.getChoices();
+        }
+
+        @DoNotInline
+        static CharSequence getLabel(android.app.RemoteInput remoteInput) {
+            return remoteInput.getLabel();
+        }
+
+        @DoNotInline
+        static String getResultKey(android.app.RemoteInput remoteInput) {
+            return remoteInput.getResultKey();
+        }
+
+        @DoNotInline
+        static android.app.RemoteInput[] getRemoteInputs(Notification.Action action) {
+            return action.getRemoteInputs();
+        }
+
+        @DoNotInline
+        static String getSortKey(Notification notification) {
+            return notification.getSortKey();
+        }
+
+        @DoNotInline
+        static String getGroup(Notification notification) {
+            return notification.getGroup();
+        }
+
+        @DoNotInline
+        static Bundle getExtras(Notification.Action action) {
+            return action.getExtras();
+        }
+
+        @DoNotInline
+        static Bundle getExtras(android.app.RemoteInput remoteInput) {
+            return remoteInput.getExtras();
+        }
+    }
+
+    /**
+     * A class for wrapping calls to {@link Notification} methods which
+     * were added in API 23; these calls must be wrapped to avoid performance issues.
+     * See the UnsafeNewApiCall lint rule for more details.
+     */
+    @RequiresApi(23)
+    static class Api23Impl {
+        private Api23Impl() { }
+
+        @DoNotInline
+        static Icon getIcon(Notification.Action action) {
+            return action.getIcon();
+        }
+    }
+
+    /**
+     * A class for wrapping calls to {@link Notification} methods which
+     * were added in API 24; these calls must be wrapped to avoid performance issues.
+     * See the UnsafeNewApiCall lint rule for more details.
+     */
+    @RequiresApi(24)
+    static class Api24Impl {
+        private Api24Impl() { }
+
+        @DoNotInline
+        static boolean getAllowGeneratedReplies(Notification.Action action) {
+            return action.getAllowGeneratedReplies();
+        }
+
+    }
+
+    /**
+     * A class for wrapping calls to {@link Notification} methods which
+     * were added in API 26; these calls must be wrapped to avoid performance issues.
+     * See the UnsafeNewApiCall lint rule for more details.
+     */
+    @RequiresApi(26)
+    static class Api26Impl {
+        private Api26Impl() { }
+
+        @DoNotInline
+        static int getGroupAlertBehavior(Notification notification) {
+            return notification.getGroupAlertBehavior();
+        }
+
+        @DoNotInline
+        static CharSequence getSettingsText(Notification notification) {
+            return notification.getSettingsText();
+        }
+
+        @DoNotInline
+        static String getShortcutId(Notification notification) {
+            return notification.getShortcutId();
+        }
+
+        @DoNotInline
+        static int getBadgeIconType(Notification notification) {
+            return notification.getBadgeIconType();
+        }
+
+        @DoNotInline
+        static long getTimeoutAfter(Notification notification) {
+            return notification.getTimeoutAfter();
+        }
+
+        @DoNotInline
+        static String getChannelId(Notification notification) {
+            return notification.getChannelId();
+        }
+    }
+
+    /**
+     * A class for wrapping calls to {@link Notification} methods which
+     * were added in API 28; these calls must be wrapped to avoid performance issues.
+     * See the UnsafeNewApiCall lint rule for more details.
+     */
+    @RequiresApi(28)
+    static class Api28Impl {
+        private Api28Impl() { }
+
+        @DoNotInline
+        static int getSemanticAction(Notification.Action action) {
+            return action.getSemanticAction();
+        }
+    }
+
+    /**
+     * A class for wrapping calls to {@link Notification} methods which
+     * were added in API 29; these calls must be wrapped to avoid performance issues.
+     * See the UnsafeNewApiCall lint rule for more details.
+     */
+    @RequiresApi(29)
+    static class Api29Impl {
+        private Api29Impl() { }
+
+        @DoNotInline
+        static boolean getAllowSystemGeneratedContextualActions(Notification notification) {
+            return notification.getAllowSystemGeneratedContextualActions();
+        }
+
+        @DoNotInline
+        static LocusId getLocusId(Notification notification) {
+            return notification.getLocusId();
+        }
+
+        @DoNotInline
+        static boolean isContextual(Notification.Action action) {
+            return action.isContextual();
+        }
+
+        @DoNotInline
+        static int getEditChoicesBeforeSending(android.app.RemoteInput remoteInput) {
+            return remoteInput.getEditChoicesBeforeSending();
+        }
+
+        @DoNotInline
+        static Notification.BubbleMetadata getBubbleMetadata(Notification notification) {
+            return notification.getBubbleMetadata();
+        }
+    }
+
+    /**
+     * A class for wrapping calls to {@link Notification} methods which
+     * were added in API 31; these calls must be wrapped to avoid performance issues.
+     * See the UnsafeNewApiCall lint rule for more details.
+     */
+    @RequiresApi(31)
+    static class Api31Impl {
+        private Api31Impl() { }
+
+        @DoNotInline
+        static boolean isAuthenticationRequired(Notification.Action action) {
+            return action.isAuthenticationRequired();
+        }
+
     }
 }
