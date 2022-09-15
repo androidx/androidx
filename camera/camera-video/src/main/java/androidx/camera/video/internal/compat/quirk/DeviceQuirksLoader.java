@@ -77,6 +77,9 @@ public class DeviceQuirksLoader {
         if (NegativeLatLongSavesIncorrectlyQuirk.load()) {
             quirks.add(new NegativeLatLongSavesIncorrectlyQuirk());
         }
+        if (PreviewStretchWhenVideoCaptureIsBoundQuirk.load()) {
+            quirks.add(new PreviewStretchWhenVideoCaptureIsBoundQuirk());
+        }
 
         return quirks;
     }
