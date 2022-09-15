@@ -42,7 +42,7 @@ open class CaptureRequestOptions(private val config: Config) : ReadableConfig {
      * Returns a value for the given [CaptureRequest.Key] or null if it hasn't been set.
      *
      * @param key            The key to retrieve.
-     * @param <ValueT>       The type of the value.
+     * @param ValueT         The type of the value.
      * @return The stored value or null if the value does not exist in this
      * configuration.
      */
@@ -58,7 +58,7 @@ open class CaptureRequestOptions(private val config: Config) : ReadableConfig {
      *
      * @param key            The key to retrieve.
      * @param valueIfMissing The value to return if this configuration option has not been set.
-     * @param <ValueT>       The type of the value.
+     * @param ValueT         The type of the value.
      * @return The stored value or `valueIfMissing` if the value does not exist in this
      * configuration.
      *
