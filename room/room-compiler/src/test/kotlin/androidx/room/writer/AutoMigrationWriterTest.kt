@@ -18,7 +18,14 @@ package androidx.room.writer
 
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.runProcessorTest
+import androidx.room.migration.bundle.DatabaseBundle
+import androidx.room.migration.bundle.EntityBundle
 import androidx.room.migration.bundle.FieldBundle
+import androidx.room.migration.bundle.PrimaryKeyBundle
+import androidx.room.migration.bundle.SchemaBundle
+import androidx.room.migration.bundle.TABLE_NAME_PLACEHOLDER
+import androidx.room.processor.AutoMigrationProcessor
+import androidx.room.testing.context
 import androidx.room.util.SchemaDiffResult
 import androidx.room.vo.AutoMigration
 import loadTestSource
@@ -143,8 +150,7 @@ class AutoMigrationWriterTest {
             AutoMigrationWriter(
                 invocation.processingEnv.requireTypeElement("foo.bar.MyDatabase"),
                 autoMigrationResultWithNewAddedColumn
-            )
-                .write(invocation.processingEnv)
+            ).write(invocation.processingEnv)
 
             invocation.assertCompilationResult {
                 generatedSource(
@@ -156,4 +162,143 @@ class AutoMigrationWriterTest {
             }
         }
     }
+
+    @Test
+    fun testRenameTwoColumnsOnComplexChangedTable() {
+        val source = Source.java(
+            "foo.bar.MyAutoMigration",
+            """
+            package foo.bar;
+            import androidx.room.*;
+            import androidx.room.migration.AutoMigrationSpec;
+            @RenameTable(fromTableName = "Song", toTableName = "SongTable")
+            @RenameColumn(tableName = "Song", fromColumnName = "title", toColumnName = "songTitle")
+            @RenameColumn(tableName = "Song", fromColumnName = "length", toColumnName = "songLength")
+            class MyAutoMigration implements AutoMigrationSpec { }
+            """.trimIndent()
+        )
+
+        runProcessorTest(listOf(source, databaseSource)) { invocation ->
+            val autoMigrationResult = AutoMigrationProcessor(
+                context = invocation.context,
+                spec = invocation.processingEnv.requireType(
+                    "foo.bar.MyAutoMigration"
+                ),
+                fromSchemaBundle = fromSchemaBundle.database,
+                toSchemaBundle = toSchemaBundleRenamedTable2RenamedColumns.database
+            ).process()
+
+            AutoMigrationWriter(
+                invocation.processingEnv.requireTypeElement("foo.bar.MyDatabase"),
+                autoMigrationResult!!
+            ).write(invocation.processingEnv)
+
+            invocation.assertCompilationResult {
+                generatedSource(
+                    loadTestSource(
+                        "autoMigrationWriter/output/ValidMultiColumnRename.java",
+                        "foo.bar.MyDatabase_AutoMigration_1_2_Impl"
+                    )
+                )
+            }
+        }
+    }
+
+    /**
+     * Schemas for processor testing.
+     */
+    private val fromSchemaBundle = SchemaBundle(
+        1,
+        DatabaseBundle(
+            1,
+            "",
+            mutableListOf(
+                EntityBundle(
+                    "Song",
+                    "CREATE TABLE IF NOT EXISTS `$TABLE_NAME_PLACEHOLDER` (`id` " +
+                        "INTEGER NOT NULL, " +
+                        "`title` TEXT NOT NULL, `length` INTEGER NOT NULL, PRIMARY KEY(`id`))",
+                    listOf(
+                        FieldBundle(
+                            "id",
+                            "id",
+                            "INTEGER",
+                            true,
+                            "1"
+                        ),
+                        FieldBundle(
+                            "title",
+                            "title",
+                            "TEXT",
+                            true,
+                            ""
+                        ),
+                        FieldBundle(
+                            "length",
+                            "length",
+                            "INTEGER",
+                            true,
+                            "1"
+                        )
+                    ),
+                    PrimaryKeyBundle(
+                        false,
+                        mutableListOf("id")
+                    ),
+                    mutableListOf(),
+                    mutableListOf()
+                )
+            ),
+            mutableListOf(),
+            mutableListOf()
+        )
+    )
+
+    private val toSchemaBundleRenamedTable2RenamedColumns = SchemaBundle(
+        2,
+        DatabaseBundle(
+            2,
+            "",
+            mutableListOf(
+                EntityBundle(
+                    "SongTable",
+                    "CREATE TABLE IF NOT EXISTS `$TABLE_NAME_PLACEHOLDER` (`id` " +
+                        "INTEGER NOT NULL, " +
+                        "`songTitle` TEXT NOT NULL, `songLength` " +
+                        "INTEGER NOT NULL, PRIMARY KEY(`id`))",
+                    listOf(
+                        FieldBundle(
+                            "id",
+                            "id",
+                            "INTEGER",
+                            true,
+                            "1"
+                        ),
+                        FieldBundle(
+                            "songTitle",
+                            "songTitle",
+                            "TEXT",
+                            true,
+                            ""
+                        ),
+                        FieldBundle(
+                            "songLength",
+                            "songLength",
+                            "INTEGER",
+                            true,
+                            "1"
+                        )
+                    ),
+                    PrimaryKeyBundle(
+                        false,
+                        mutableListOf("id")
+                    ),
+                    mutableListOf(),
+                    mutableListOf()
+                )
+            ),
+            mutableListOf(),
+            mutableListOf()
+        )
+    )
 }
