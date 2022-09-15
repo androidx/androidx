@@ -30,6 +30,13 @@ dependencies {
     api(project(":window:window"))
     implementation("androidx.core:core:1.3.2")
 
+    testImplementation(libs.testCore)
+    testImplementation(libs.testRunner)
+    testImplementation(libs.junit)
+    testImplementation(libs.mockitoCore)
+    testImplementation(libs.mockitoKotlin)
+    testImplementation(libs.kotlinCoroutinesTest)
+
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.testRules)
