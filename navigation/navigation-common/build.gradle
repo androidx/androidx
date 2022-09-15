@@ -15,7 +15,6 @@
  */
 
 import androidx.build.Publish
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
@@ -58,19 +57,6 @@ dependencies {
     androidTestImplementation(libs.kotlinStdlib)
 
     lintPublish(project(':navigation:navigation-common-lint'))
-}
-
-//used by testImplementation safe-args-generator
-android.libraryVariants.all { variant ->
-    def name = variant.name
-    def suffix = name.capitalize()
-    project.tasks.register("jar${suffix}", Copy).configure {
-        dependsOn("assemble$suffix")
-        from(zipTree("${project.buildDir}/outputs/aar/navigation-common-${name}.aar")) {
-            include("classes.jar")
-        }
-        destinationDir(new File(project.buildDir, "libJar"))
-    }
 }
 
 androidx {

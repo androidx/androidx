@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-
 import androidx.build.Publish
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
@@ -58,19 +56,6 @@ dependencies {
         // i.e. COMPOSE + MAIN project sets
         // update syntax when b/239979823 is fixed
         implementation("androidx.lifecycle:lifecycle-viewmodel-compose:{androidx.LibraryVersions.LIFECYCLE}")
-    }
-}
-
-//used by testImplementation safe-args-generator
-android.libraryVariants.all { variant ->
-    def name = variant.name
-    def suffix = name.capitalize()
-    project.tasks.register("jar${suffix}", Copy).configure {
-        dependsOn ("assemble$suffix")
-        from(zipTree("${project.buildDir}/outputs/aar/lifecycle-viewmodel-savedstate-${name}.aar")) {
-            include "classes.jar"
-        }
-        destinationDir new File(project.buildDir, "libJar")
     }
 }
 
