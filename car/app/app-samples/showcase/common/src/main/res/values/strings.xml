@@ -113,7 +113,7 @@
   <string name="example_2_text">This text has a green color</string>
   <string name="example_3_text">This text has a blue color</string>
   <string name="example_4_text">This text has a yellow color</string>
-  <string name="example_5_text">This text uses the primary colo</string>
+  <string name="example_5_text">This text uses the primary color</string>
   <string name="example_6_text">This text uses the secondary color</string>
   <string name="color_demo">Color Demo</string>
 
@@ -433,4 +433,10 @@
   <string name="location_9_address" translatable="false">111 Waverly Way, Kirkland, WA 98033</string>
   <string name="location_description_text_label">Text label</string>
   <string name="location_phone_not_available" translatable="false">n/a</string>
+    <string name="parking_vs_driving_demo_title">Parking Vs Driving Demo</string>
+  <string name="latest_feature_details">Cluster Displays in cars!</string>
+  <string name="latest_feature_title">Latest Features</string>
+  <string name="loading_toggle_enabled">Loading enabled</string>
+  <string name="loading_toggle_disabled">Loading disabled</string>
+  <string name="loading_screen">Loading screen</string>
 </resources>
