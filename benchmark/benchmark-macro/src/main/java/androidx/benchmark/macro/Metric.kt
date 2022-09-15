@@ -33,7 +33,6 @@ import androidx.benchmark.macro.perfetto.PowerQuery
 import androidx.benchmark.macro.perfetto.Slice
 import androidx.benchmark.macro.perfetto.StartupTimingQuery
 import androidx.benchmark.macro.perfetto.camelCase
-import androidx.test.platform.app.InstrumentationRegistry
 
 /**
  * Metric interface.
@@ -112,109 +111,6 @@ public class AudioUnderrunMetric : Metric() {
             timelineRangeNs = null
         )
     }
-}
-
-/**
- * Legacy version of FrameTimingMetric, based on 'dumpsys gfxinfo' instead of trace data.
- *
- * Temporary - to be removed after transition to FrameTimingMetric
- */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-public class FrameTimingGfxInfoMetric : Metric() {
-    private lateinit var packageName: String
-    private val helper = JankCollectionHelper()
-
-    internal override fun configure(packageName: String) {
-        this.packageName = packageName
-        helper.addTrackedPackages(packageName)
-    }
-
-    internal override fun start() {
-        try {
-            helper.startCollecting()
-        } catch (exception: RuntimeException) {
-            // Ignore the exception that might result from trying to clear GfxInfo
-            // The current implementation of JankCollectionHelper throws a RuntimeException
-            // when that happens. This is safe to ignore because the app being benchmarked
-            // is not showing any UI when this happens typically.
-
-            // Once the MacroBenchmarkRule has the ability to setup the app in the right state via
-            // a designated setup block, we can get rid of this.
-            val instrumentation = InstrumentationRegistry.getInstrumentation()
-            if (instrumentation != null) {
-                if (!Shell.isPackageAlive(packageName)) {
-                    error(exception.message ?: "Assertion error, $packageName not running")
-                }
-            }
-        }
-    }
-
-    internal override fun stop() {
-        helper.stopCollecting()
-    }
-
-    /**
-     * Used to convert keys from platform to JSON format.
-     *
-     * This both converts `snake_case_format` to `camelCaseFormat`, and renames for clarity.
-     *
-     * Note that these will still output to inst results in snake_case, with `MetricNameUtils`
-     * via [androidx.benchmark.MetricResult.putInBundle].
-     */
-    private val keyRenameMap = mapOf(
-        "frame_render_time_percentile_50" to "frameTime50thPercentileMs",
-        "frame_render_time_percentile_90" to "frameTime90thPercentileMs",
-        "frame_render_time_percentile_95" to "frameTime95thPercentileMs",
-        "frame_render_time_percentile_99" to "frameTime99thPercentileMs",
-        "gpu_frame_render_time_percentile_50" to "gpuFrameTime50thPercentileMs",
-        "gpu_frame_render_time_percentile_90" to "gpuFrameTime90thPercentileMs",
-        "gpu_frame_render_time_percentile_95" to "gpuFrameTime95thPercentileMs",
-        "gpu_frame_render_time_percentile_99" to "gpuFrameTime99thPercentileMs",
-        "missed_vsync" to "vsyncMissedFrameCount",
-        "deadline_missed" to "deadlineMissedFrameCount",
-        "deadline_missed_legacy" to "deadlineMissedFrameCountLegacy",
-        "janky_frames_count" to "jankyFrameCount",
-        "janky_frames_legacy_count" to "jankyFrameCountLegacy",
-        "high_input_latency" to "highInputLatencyFrameCount",
-        "slow_ui_thread" to "slowUiThreadFrameCount",
-        "slow_bmp_upload" to "slowBitmapUploadFrameCount",
-        "slow_issue_draw_cmds" to "slowIssueDrawCommandsFrameCount",
-        "total_frames" to "totalFrameCount",
-        "janky_frames_percent" to "jankyFramePercent",
-        "janky_frames_legacy_percent" to "jankyFramePercentLegacy"
-    )
-
-    /**
-     * Filters output to only frameTimeXXthPercentileMs and totalFrameCount
-     */
-    private val keyAllowList = setOf(
-        "frameTime50thPercentileMs",
-        "frameTime90thPercentileMs",
-        "frameTime95thPercentileMs",
-        "frameTime99thPercentileMs",
-        "totalFrameCount"
-    )
-
-    internal override fun getMetrics(
-        captureInfo: CaptureInfo,
-        perfettoTraceProcessor: PerfettoTraceProcessor
-    ) = IterationResult(
-        singleMetrics = helper.metrics
-            .map {
-                val prefix = "gfxinfo_${packageName}_"
-                val keyWithoutPrefix = it.key.removePrefix(prefix)
-
-                if (keyWithoutPrefix != it.key && keyRenameMap.containsKey(keyWithoutPrefix)) {
-                    keyRenameMap[keyWithoutPrefix]!! to it.value
-                } else {
-                    throw IllegalStateException("Unexpected key ${it.key}")
-                }
-            }
-            .toMap()
-            .filterKeys { keyAllowList.contains(it) },
-        sampledMetrics = emptyMap(),
-        timelineRangeNs = null
-    )
 }
 
 /**
