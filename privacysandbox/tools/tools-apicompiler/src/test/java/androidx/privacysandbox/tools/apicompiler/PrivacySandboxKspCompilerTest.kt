@@ -77,7 +77,7 @@ class PrivacySandboxKspCompilerTest {
                     |
                     |public abstract class AbstractSandboxedSdkProvider : SandboxedSdkProvider() {
                     |  public override fun onLoadSdk(params: Bundle): SandboxedSdk {
-                    |    val sdk = createMySdk(getContext())
+                    |    val sdk = createMySdk(context!!)
                     |    return SandboxedSdk(MySdkStubDelegate(sdk))
                     |  }
                     |

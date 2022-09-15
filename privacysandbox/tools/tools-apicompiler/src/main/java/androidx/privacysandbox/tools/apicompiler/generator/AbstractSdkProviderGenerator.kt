@@ -67,7 +67,7 @@ class AbstractSdkProviderGenerator(
             .addModifiers(KModifier.OVERRIDE)
             .addParameter("params", BUNDLE_CLASS)
             .returns(SANDBOXED_SDK_CLASS)
-            .addStatement("val sdk = ${getCreateServiceFunctionName(service())}(getContext())")
+            .addStatement("val sdk = ${getCreateServiceFunctionName(service())}(context!!)")
             .addStatement(
                 "return ${SANDBOXED_SDK_CLASS.simpleName}" +
                     "(${service().stubDelegateName()}(sdk))"
