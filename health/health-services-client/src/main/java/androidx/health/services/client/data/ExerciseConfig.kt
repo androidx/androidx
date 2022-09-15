@@ -171,7 +171,7 @@ class ExerciseConfig(
 
         /** Sets the swimming pool length (in m). */
         @Suppress("MissingGetterMatchingBuilder")
-        public fun setSwimmingPoolLength(swimmingPoolLength: Float): Builder {
+        public fun setSwimmingPoolLengthMeters(swimmingPoolLength: Float): Builder {
           this.swimmingPoolLength = swimmingPoolLength
           return this
         }
