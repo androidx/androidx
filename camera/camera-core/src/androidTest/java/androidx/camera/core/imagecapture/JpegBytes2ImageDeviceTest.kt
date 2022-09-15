@@ -17,63 +17,62 @@
 package androidx.camera.core.imagecapture
 
 import android.graphics.ImageFormat.JPEG
-import android.os.Build
-import android.util.Size
+import android.graphics.Matrix
 import androidx.camera.core.imagecapture.Utils.CROP_RECT
 import androidx.camera.core.imagecapture.Utils.HEIGHT
 import androidx.camera.core.imagecapture.Utils.ROTATION_DEGREES
-import androidx.camera.core.imagecapture.Utils.SENSOR_TO_BUFFER
+import androidx.camera.core.imagecapture.Utils.SIZE
 import androidx.camera.core.imagecapture.Utils.WIDTH
+import androidx.camera.core.internal.utils.ImageUtil.jpegImageToJpegByteArray
 import androidx.camera.core.processing.Packet
 import androidx.camera.testing.ExifUtil.createExif
+import androidx.camera.testing.ExifUtil.updateExif
 import androidx.camera.testing.TestImageUtil.createJpegBytes
-import androidx.camera.testing.TestImageUtil.createJpegFakeImageProxy
 import androidx.camera.testing.TestImageUtil.getAverageDiff
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.SdkSuppress
+import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.robolectric.RobolectricTestRunner
-import org.robolectric.annotation.Config
-import org.robolectric.annotation.internal.DoNotInstrument
 
 /**
- * Unit tests for [Image2JpegBytes]
+ * Instrumented tests for [JpegBytes2Image].
  */
-@RunWith(RobolectricTestRunner::class)
-@DoNotInstrument
-@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
-class Image2JpegBytesTest {
+@SmallTest
+@RunWith(AndroidJUnit4::class)
+@SdkSuppress(minSdkVersion = 21)
+class JpegBytes2ImageDeviceTest {
 
-    private val processor = Image2JpegBytes()
+    private val processor = JpegBytes2Image()
 
     @Test
-    fun processJpegImage_assertOutput() {
-        // Arrange: create input
-        val jpegBytes = createJpegBytes(WIDTH, HEIGHT)
+    fun processInput_assertOutput() {
+        val jpegBytes = updateExif(createJpegBytes(WIDTH, HEIGHT)) {
+            it.description = "description"
+        }
         val exif = createExif(jpegBytes)
-        val image = createJpegFakeImageProxy(jpegBytes)
+        val matrix = Matrix()
         val input = Packet.of(
-            image,
+            jpegBytes,
             exif,
+            JPEG,
+            SIZE,
             CROP_RECT,
             ROTATION_DEGREES,
-            SENSOR_TO_BUFFER
+            matrix
         )
-
         // Act.
-        val output = processor.process(Image2JpegBytes.In.of(input, 100))
+        val output = processor.process(input)
 
-        // Assert: the image is the same.
-        assertThat(getAverageDiff(jpegBytes, output.data)).isEqualTo(0)
-        // Assert: the Exif is extracted correctly.
+        // Assert.
+        val restoredJpeg = jpegImageToJpegByteArray(output.data)
+        assertThat(getAverageDiff(jpegBytes, restoredJpeg)).isEqualTo(0)
         assertThat(output.exif).isEqualTo(exif)
-        // Assert: the image is closed.
-        assertThat(image.isClosed).isTrue()
-        // Assert: metadata is correct.
+        assertThat(output.format).isEqualTo(JPEG)
+        assertThat(output.size).isEqualTo(SIZE)
         assertThat(output.cropRect).isEqualTo(CROP_RECT)
         assertThat(output.rotationDegrees).isEqualTo(ROTATION_DEGREES)
-        assertThat(output.format).isEqualTo(JPEG)
-        assertThat(output.size).isEqualTo(Size(WIDTH, HEIGHT))
-        assertThat(output.sensorToBufferTransform).isEqualTo(SENSOR_TO_BUFFER)
+        assertThat(output.sensorToBufferTransform).isEqualTo(matrix)
     }
 }

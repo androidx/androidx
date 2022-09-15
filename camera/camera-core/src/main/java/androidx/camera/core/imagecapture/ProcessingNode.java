@@ -16,6 +16,8 @@
 
 package androidx.camera.core.imagecapture;
 
+import static android.graphics.ImageFormat.YUV_420_888;
+
 import static androidx.camera.core.ImageCapture.ERROR_UNKNOWN;
 import static androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor;
 
@@ -54,11 +56,12 @@ public class ProcessingNode implements Node<ProcessingNode.In, Void> {
     private final Executor mBlockingExecutor;
 
     private Processor<InputPacket, Packet<ImageProxy>> mInput2Packet;
-    private Processor<Packet<ImageProxy>, Packet<byte[]>> mImage2JpegBytes;
+    private Processor<Image2JpegBytes.In, Packet<byte[]>> mImage2JpegBytes;
     private Processor<Bitmap2JpegBytes.In, Packet<byte[]>> mBitmap2JpegBytes;
     private Processor<JpegBytes2Disk.In, ImageCapture.OutputFileResults> mJpegBytes2Disk;
     private Processor<Packet<byte[]>, Packet<Bitmap>> mJpegBytes2CroppedBitmap;
     private Processor<Packet<ImageProxy>, ImageProxy> mJpegImage2Result;
+    private Processor<Packet<byte[]>, Packet<ImageProxy>> mJpegBytes2Image;
 
     /**
      * @param blockingExecutor a executor that can be blocked by long running tasks. e.g.
@@ -81,6 +84,9 @@ public class ProcessingNode implements Node<ProcessingNode.In, Void> {
         mBitmap2JpegBytes = new Bitmap2JpegBytes();
         mJpegBytes2Disk = new JpegBytes2Disk();
         mJpegImage2Result = new JpegImage2Result();
+        if (inputEdge.getFormat() == YUV_420_888) {
+            mJpegBytes2Image = new JpegBytes2Image();
+        }
         // No output. The request callback will be invoked to deliver the final result.
         return null;
     }
@@ -117,7 +123,8 @@ public class ProcessingNode implements Node<ProcessingNode.In, Void> {
             throws ImageCaptureException {
         ProcessingRequest request = inputPacket.getProcessingRequest();
         Packet<ImageProxy> originalImage = mInput2Packet.process(inputPacket);
-        Packet<byte[]> jpegBytes = mImage2JpegBytes.process(originalImage);
+        Packet<byte[]> jpegBytes =  mImage2JpegBytes.process(
+                Image2JpegBytes.In.of(originalImage, request.getJpegQuality()));
         if (jpegBytes.hasCropping()) {
             Packet<Bitmap> croppedBitmap = mJpegBytes2CroppedBitmap.process(jpegBytes);
             jpegBytes = mBitmap2JpegBytes.process(
@@ -131,8 +138,14 @@ public class ProcessingNode implements Node<ProcessingNode.In, Void> {
     @WorkerThread
     ImageProxy processInMemoryCapture(@NonNull InputPacket inputPacket)
             throws ImageCaptureException {
-        Packet<ImageProxy> originalImage = mInput2Packet.process(inputPacket);
-        return mJpegImage2Result.process(originalImage);
+        ProcessingRequest request = inputPacket.getProcessingRequest();
+        Packet<ImageProxy> image = mInput2Packet.process(inputPacket);
+        if (image.getFormat() == YUV_420_888) {
+            Packet<byte[]> jpegPacket = mImage2JpegBytes.process(
+                    Image2JpegBytes.In.of(image, request.getJpegQuality()));
+            image = mJpegBytes2Image.process(jpegPacket);
+        }
+        return mJpegImage2Result.process(image);
     }
 
     /**

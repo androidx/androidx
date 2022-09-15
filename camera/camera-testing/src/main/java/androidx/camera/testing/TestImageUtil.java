@@ -18,7 +18,9 @@ package androidx.camera.testing;
 
 import static android.graphics.BitmapFactory.decodeByteArray;
 import static android.graphics.ImageFormat.JPEG;
+import static android.graphics.ImageFormat.YUV_420_888;
 
+import static androidx.camera.testing.ImageProxyUtil.createYUV420ImagePlanes;
 import static androidx.core.util.Preconditions.checkState;
 
 import android.graphics.Bitmap;
@@ -54,6 +56,23 @@ import java.io.ByteArrayOutputStream;
 public class TestImageUtil {
 
     private TestImageUtil() {
+    }
+
+
+    /**
+     * Creates a [FakeImageProxy] with YUV format.
+     *
+     * TODO(b/245940015): fix the content of the image to match the value of {@link #createBitmap}.
+     */
+    @NonNull
+    public static FakeImageProxy createYuvFakeImageProxy(@NonNull FakeImageInfo imageInfo,
+            int width, int height) {
+        FakeImageProxy image = new FakeImageProxy(imageInfo);
+        image.setFormat(YUV_420_888);
+        image.setPlanes(createYUV420ImagePlanes(width, height, 1, 1, false, false));
+        image.setWidth(width);
+        image.setHeight(height);
+        return image;
     }
 
     /**
