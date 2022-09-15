@@ -29,12 +29,16 @@ import static androidx.camera.core.impl.UseCaseConfig.OPTION_DEFAULT_SESSION_CON
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_SESSION_CONFIG_UNPACKER;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_SURFACE_OCCUPANCY_PRIORITY;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_ZSL_DISABLED;
+import static androidx.camera.core.impl.utils.TransformUtils.rectToString;
 import static androidx.camera.core.internal.TargetConfig.OPTION_TARGET_CLASS;
 import static androidx.camera.core.internal.TargetConfig.OPTION_TARGET_NAME;
 import static androidx.camera.core.internal.ThreadConfig.OPTION_BACKGROUND_EXECUTOR;
 import static androidx.camera.core.internal.UseCaseEventConfig.OPTION_USE_CASE_EVENT_CALLBACK;
 import static androidx.camera.video.StreamInfo.STREAM_ID_ERROR;
+import static androidx.camera.video.impl.VideoCaptureConfig.OPTION_VIDEO_ENCODER_INFO_FINDER;
 import static androidx.camera.video.impl.VideoCaptureConfig.OPTION_VIDEO_OUTPUT;
+import static androidx.camera.video.internal.config.VideoConfigUtil.resolveVideoEncoderConfig;
+import static androidx.camera.video.internal.config.VideoConfigUtil.resolveVideoMimeInfo;
 
 import static java.util.Collections.singletonList;
 import static java.util.Objects.requireNonNull;
@@ -55,6 +59,7 @@ import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.annotation.VisibleForTesting;
+import androidx.arch.core.util.Function;
 import androidx.camera.core.AspectRatio;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ImageCapture;
@@ -63,6 +68,7 @@ import androidx.camera.core.SurfaceEffect;
 import androidx.camera.core.SurfaceRequest;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.ViewPort;
+import androidx.camera.core.impl.CamcorderProfileProxy;
 import androidx.camera.core.impl.CameraCaptureCallback;
 import androidx.camera.core.impl.CameraCaptureResult;
 import androidx.camera.core.impl.CameraInfoInternal;
@@ -92,15 +98,24 @@ import androidx.camera.core.processing.SurfaceEffectInternal;
 import androidx.camera.core.processing.SurfaceEffectNode;
 import androidx.camera.video.StreamInfo.StreamState;
 import androidx.camera.video.impl.VideoCaptureConfig;
+import androidx.camera.video.internal.config.MimeInfo;
+import androidx.camera.video.internal.encoder.InvalidConfigException;
+import androidx.camera.video.internal.encoder.VideoEncoderConfig;
+import androidx.camera.video.internal.encoder.VideoEncoderInfo;
+import androidx.camera.video.internal.encoder.VideoEncoderInfoImpl;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.util.Preconditions;
+import androidx.core.util.Supplier;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
@@ -146,6 +161,9 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
     private SurfaceEffectInternal mSurfaceEffect;
     @Nullable
     private SurfaceEffectNode mNode;
+    @Nullable
+
+    private VideoEncoderInfo mVideoEncoderInfo;
 
     /**
      * Create a VideoCapture associated with the given {@link VideoOutput}.
@@ -316,6 +334,8 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
     @Override
     public void onDetached() {
         clearPipeline();
+
+        mVideoEncoderInfo = null;
     }
 
     /**
@@ -412,8 +432,9 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         }
     }
 
+    @VisibleForTesting
     @NonNull
-    private SettableSurface getCameraSettableSurface() {
+    SettableSurface getCameraSettableSurface() {
         Preconditions.checkNotNull(mNode);
         return (SettableSurface) requireNonNull(mDeferrableSurface);
     }
@@ -446,17 +467,22 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         // TODO(b/229410005): The expected FPS range will need to come from the camera rather
         //  than what is requested in the config. For now we use the default range of (30, 30)
         //  for behavioral consistency.
-        Range<Integer> targetFpsRange = config.getTargetFramerate(Defaults.DEFAULT_FPS_RANGE);
+        Range<Integer> targetFpsRange = requireNonNull(
+                config.getTargetFramerate(Defaults.DEFAULT_FPS_RANGE));
         if (mSurfaceEffect != null) {
-            mNode = new SurfaceEffectNode(camera, APPLY_CROP_ROTATE_AND_MIRRORING,
-                    mSurfaceEffect);
+            MediaSpec mediaSpec = requireNonNull(getMediaSpec());
+            Rect cropRect = requireNonNull(getCropRect(resolution));
+            cropRect = adjustCropRectIfNeeded(cropRect, resolution,
+                    () -> getVideoEncoderInfo(config.getVideoEncoderInfoFinder(), camera, mediaSpec,
+                            resolution, targetFpsRange));
+            mNode = new SurfaceEffectNode(camera, APPLY_CROP_ROTATE_AND_MIRRORING, mSurfaceEffect);
             SettableSurface cameraSurface = new SettableSurface(
                     SurfaceEffect.VIDEO_CAPTURE,
                     resolution,
                     ImageFormat.PRIVATE,
                     getSensorToBufferTransformMatrix(),
                     /*hasEmbeddedTransform=*/true,
-                    requireNonNull(getCropRect(resolution)),
+                    cropRect,
                     getRelativeRotation(camera),
                     /*mirroring=*/false);
             SurfaceEdge inputEdge = SurfaceEdge.create(singletonList(cameraSurface));
@@ -537,11 +563,22 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
                 SurfaceRequest::willNotProvideSurface;
         private static final VideoCaptureConfig<?> DEFAULT_CONFIG;
 
+        private static final Function<VideoEncoderConfig, VideoEncoderInfo>
+                DEFAULT_VIDEO_ENCODER_INFO_FINDER = encoderInfo -> {
+                    try {
+                        return VideoEncoderInfoImpl.from(encoderInfo);
+                    } catch (InvalidConfigException e) {
+                        Logger.w(TAG, "Unable to find VideoEncoderInfo", e);
+                        return null;
+                    }
+                };
+
         static final Range<Integer> DEFAULT_FPS_RANGE = new Range<>(30, 30);
 
         static {
             Builder<?> builder = new Builder<>(DEFAULT_VIDEO_OUTPUT)
-                    .setSurfaceOccupancyPriority(DEFAULT_SURFACE_OCCUPANCY_PRIORITY);
+                    .setSurfaceOccupancyPriority(DEFAULT_SURFACE_OCCUPANCY_PRIORITY)
+                    .setVideoEncoderInfoFinder(DEFAULT_VIDEO_ENCODER_INFO_FINDER);
 
             DEFAULT_CONFIG = builder.getUseCaseConfig();
         }
@@ -627,6 +664,214 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         } // Don't attach surface when stream is invalid.
 
         setupSurfaceUpdateNotifier(sessionConfigBuilder, isStreamActive);
+    }
+
+    @MainThread
+    @NonNull
+    private Rect adjustCropRectIfNeeded(@NonNull Rect cropRect, @NonNull Size resolution,
+            @NonNull Supplier<VideoEncoderInfo> videoEncoderInfoFinder) {
+        if (!isCropNeeded(cropRect, resolution)) {
+            return cropRect;
+        }
+        VideoEncoderInfo videoEncoderInfo = videoEncoderInfoFinder.get();
+        if (videoEncoderInfo == null) {
+            Logger.w(TAG, "Crop is needed but can't find the encoder info to adjust the cropRect");
+            return cropRect;
+        }
+        return adjustCropRectToValidSize(cropRect, resolution, videoEncoderInfo);
+    }
+
+    /**
+     * This method resizes the crop rectangle to a valid size.
+     *
+     * <p>The valid size must fulfill
+     * <ul>
+     * <li>The multiple of VideoEncoderInfo.getWidthAlignment()/getHeightAlignment() alignment</li>
+     * <li>In the scope of Surface resolution and VideoEncoderInfo.getSupportedWidths()
+     * /getSupportedHeights().</li>
+     * </ul>
+     *
+     * <p>When the size is not a multiple of the alignment, it seeks to shrink or enlarge the size
+     * with the smallest amount of change and ensures that the size is within the surface
+     * resolution and supported widths and heights. The new cropping rectangle position (left,
+     * right, top, and bottom) is then calculated by extending or indenting from the center of
+     * the original cropping rectangle.
+     */
+    @NonNull
+    private static Rect adjustCropRectToValidSize(@NonNull Rect cropRect, @NonNull Size resolution,
+            @NonNull VideoEncoderInfo videoEncoderInfo) {
+        Logger.d(TAG, String.format("Adjust cropRect %s by width/height alignment %d/%d and "
+                        + "supported widths %s / supported heights %s",
+                rectToString(cropRect),
+                videoEncoderInfo.getWidthAlignment(),
+                videoEncoderInfo.getHeightAlignment(),
+                videoEncoderInfo.getSupportedWidths(),
+                videoEncoderInfo.getSupportedHeights()
+        ));
+
+        // Construct all up/down alignment combinations.
+        int widthAlignment = videoEncoderInfo.getWidthAlignment();
+        int heightAlignment = videoEncoderInfo.getHeightAlignment();
+        Range<Integer> supportedWidths = videoEncoderInfo.getSupportedWidths();
+        Range<Integer> supportedHeights = videoEncoderInfo.getSupportedHeights();
+        int widthAlignedDown = alignDown(cropRect.width(), widthAlignment, supportedWidths);
+        int widthAlignedUp = alignUp(cropRect.width(), widthAlignment, supportedWidths);
+        int heightAlignedDown = alignDown(cropRect.height(), heightAlignment, supportedHeights);
+        int heightAlignedUp = alignUp(cropRect.height(), heightAlignment, supportedHeights);
+
+        // Use Set to filter out duplicates.
+        Set<Size> candidateSet = new HashSet<>();
+        addBySupportedSize(candidateSet, widthAlignedDown, heightAlignedDown, resolution,
+                videoEncoderInfo);
+        addBySupportedSize(candidateSet, widthAlignedDown, heightAlignedUp, resolution,
+                videoEncoderInfo);
+        addBySupportedSize(candidateSet, widthAlignedUp, heightAlignedDown, resolution,
+                videoEncoderInfo);
+        addBySupportedSize(candidateSet, widthAlignedUp, heightAlignedUp, resolution,
+                videoEncoderInfo);
+        if (candidateSet.isEmpty()) {
+            Logger.w(TAG, "Can't find valid cropped size");
+            return cropRect;
+        }
+        List<Size> candidatesList = new ArrayList<>(candidateSet);
+        Logger.d(TAG, "candidatesList = " + candidatesList);
+
+        // Find the smallest change in dimensions.
+        Collections.sort(candidatesList,
+                (s1, s2) -> (Math.abs(s1.getWidth() - cropRect.width()) + Math.abs(
+                        s1.getHeight() - cropRect.height()))
+                        - (Math.abs(s2.getWidth() - cropRect.width()) + Math.abs(
+                        s2.getHeight() - cropRect.height())));
+        Logger.d(TAG, "sorted candidatesList = " + candidatesList);
+        Size newSize = candidatesList.get(0);
+        int newWidth = newSize.getWidth();
+        int newHeight = newSize.getHeight();
+
+        if (newWidth == cropRect.width() && newHeight == cropRect.height()) {
+            Logger.d(TAG, "No need to adjust cropRect because crop size is valid.");
+            return cropRect;
+        }
+
+        // New width/height should be multiple of 2 since VideoCapabilities.get*Alignment()
+        // returns power of 2. This ensures width/2 and height/2 are not rounded off.
+        // New width/height smaller than resolution ensures calculated cropRect never exceeds
+        // the resolution.
+        Preconditions.checkState(newWidth % 2 == 0 && newHeight % 2 == 0
+                && newWidth <= resolution.getWidth() && newHeight <= resolution.getHeight());
+        Rect newCropRect = new Rect(cropRect);
+        if (newWidth != cropRect.width()) {
+            // Note: When the width/height of cropRect is odd number, Rect.centerX/Y() will be
+            // offset to the left/top by 0.5.
+            newCropRect.left = Math.max(0, cropRect.centerX() - newWidth / 2);
+            newCropRect.right = newCropRect.left + newWidth;
+            if (newCropRect.right > resolution.getWidth()) {
+                newCropRect.right = resolution.getWidth();
+                newCropRect.left = newCropRect.right - newWidth;
+            }
+        }
+        if (newHeight != cropRect.height()) {
+            newCropRect.top = Math.max(0, cropRect.centerY() - newHeight / 2);
+            newCropRect.bottom = newCropRect.top + newHeight;
+            if (newCropRect.bottom > resolution.getHeight()) {
+                newCropRect.bottom = resolution.getHeight();
+                newCropRect.top = newCropRect.bottom - newHeight;
+            }
+        }
+        Logger.d(TAG, String.format("Adjust cropRect from %s to %s", rectToString(cropRect),
+                rectToString(newCropRect)));
+        return newCropRect;
+    }
+
+    private static void addBySupportedSize(@NonNull Set<Size> candidates, int width, int height,
+            @NonNull Size resolution, @NonNull VideoEncoderInfo videoEncoderInfo) {
+        if (width > resolution.getWidth() || height > resolution.getHeight()) {
+            return;
+        }
+        try {
+            Range<Integer> supportedHeights = videoEncoderInfo.getSupportedHeightsFor(width);
+            candidates.add(new Size(width, supportedHeights.clamp(height)));
+        } catch (IllegalArgumentException e) {
+            Logger.w(TAG, "No supportedHeights for width: " + width, e);
+        }
+        try {
+            Range<Integer> supportedWidths = videoEncoderInfo.getSupportedWidthsFor(height);
+            candidates.add(new Size(supportedWidths.clamp(width), height));
+        } catch (IllegalArgumentException e) {
+            Logger.w(TAG, "No supportedWidths for height: " + height, e);
+        }
+    }
+
+    private static boolean isCropNeeded(@NonNull Rect cropRect, @NonNull Size resolution) {
+        return resolution.getWidth() != cropRect.width()
+                || resolution.getHeight() != cropRect.height();
+    }
+
+    private static int alignDown(int length, int alignment,
+            @NonNull Range<Integer> supportedLength) {
+        return align(true, length, alignment, supportedLength);
+    }
+
+    private static int alignUp(int length, int alignment,
+            @NonNull Range<Integer> supportedRange) {
+        return align(false, length, alignment, supportedRange);
+    }
+
+    private static int align(boolean alignDown, int length, int alignment,
+            @NonNull Range<Integer> supportedRange) {
+        int remainder = length % alignment;
+        int newLength;
+        if (remainder == 0) {
+            newLength = length;
+        } else if (alignDown) {
+            newLength = length - remainder;
+        } else {
+            newLength = length + (alignment - remainder);
+        }
+        // Clamp new length by supportedRange, which is supposed to be valid length.
+        return supportedRange.clamp(newLength);
+    }
+
+    @MainThread
+    @Nullable
+    private VideoEncoderInfo getVideoEncoderInfo(
+            @NonNull Function<VideoEncoderConfig, VideoEncoderInfo> videoEncoderInfoFinder,
+            @NonNull CameraInternal camera,
+            @NonNull MediaSpec mediaSpec,
+            @NonNull Size resolution,
+            @NonNull Range<Integer> targetFps) {
+        if (mVideoEncoderInfo != null) {
+            return mVideoEncoderInfo;
+        }
+        // Cache the VideoEncoderInfo as it should be the same when recreating the pipeline.
+        // This avoids recreating the MediaCodec instance to get encoder information.
+        // Note: We should clear the cache if the MediaSpec changes at any time, especially when
+        // the Encoder-related content in the VideoSpec changes. i.e. when we need to observe the
+        // MediaSpec Observable.
+        return mVideoEncoderInfo = resolveVideoEncoderInfo(videoEncoderInfoFinder, camera,
+                mediaSpec, resolution, targetFps);
+    }
+
+    @Nullable
+    private static VideoEncoderInfo resolveVideoEncoderInfo(
+            @NonNull Function<VideoEncoderConfig, VideoEncoderInfo> videoEncoderInfoFinder,
+            @NonNull CameraInternal camera,
+            @NonNull MediaSpec mediaSpec,
+            @NonNull Size resolution,
+            @NonNull Range<Integer> targetFps) {
+        // Find the nearest CamcorderProfile
+        VideoCapabilities videoCapabilities = VideoCapabilities.from(camera.getCameraInfo());
+        CamcorderProfileProxy camcorderProfileProxy =
+                videoCapabilities.findHighestSupportedCamcorderProfileFor(resolution);
+
+        // Resolve the VideoEncoderConfig
+        MimeInfo videoMimeInfo = resolveVideoMimeInfo(mediaSpec, camcorderProfileProxy);
+        VideoEncoderConfig videoEncoderConfig = resolveVideoEncoderConfig(
+                videoMimeInfo,
+                mediaSpec.getVideoSpec(),
+                resolution,
+                targetFps);
+
+        return videoEncoderInfoFinder.apply(videoEncoderConfig);
     }
 
     @MainThread
@@ -912,6 +1157,14 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         @Override
         public VideoCaptureConfig<T> getUseCaseConfig() {
             return new VideoCaptureConfig<>(OptionsBundle.from(mMutableConfig));
+        }
+
+        @NonNull
+        Builder<T> setVideoEncoderInfoFinder(
+                @NonNull Function<VideoEncoderConfig, VideoEncoderInfo> videoEncoderInfoFinder) {
+            getMutableConfig().insertOption(OPTION_VIDEO_ENCODER_INFO_FINDER,
+                    videoEncoderInfoFinder);
+            return this;
         }
 
         /**
