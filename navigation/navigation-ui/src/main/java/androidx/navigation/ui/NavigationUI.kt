@@ -205,9 +205,8 @@ public object NavigationUI {
     ): Boolean {
         val openableLayout = configuration.openableLayout
         val currentDestination = navController.currentDestination
-        val topLevelDestinations = configuration.topLevelDestinations
         return if (openableLayout != null && currentDestination != null &&
-            currentDestination.matchDestinations(topLevelDestinations)
+            configuration.isTopLevelDestination(currentDestination)
         ) {
             openableLayout.open()
             true
@@ -708,13 +707,4 @@ public object NavigationUI {
     @JvmStatic
     internal fun NavDestination.matchDestination(@IdRes destId: Int): Boolean =
         hierarchy.any { it.id == destId }
-
-    /**
-     * Determines whether the given `destinationIds` match the NavDestination. This
-     * handles both the default case (the destination's id is in the given ids) and the nested
-     * case where the given ids is a parent/grandparent/etc of the destination.
-     */
-    @JvmStatic
-    internal fun NavDestination.matchDestinations(destinationIds: Set<Int?>): Boolean =
-        hierarchy.any { destinationIds.contains(it.id) }
 }
