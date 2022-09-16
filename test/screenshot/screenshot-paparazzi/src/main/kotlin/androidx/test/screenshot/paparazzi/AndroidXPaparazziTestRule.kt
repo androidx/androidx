@@ -40,7 +40,6 @@ fun AndroidXPaparazziTestRule(
         assetsDir = systemProperty("assetsDir").toFile().path,
         packageName = systemProperty("packageName"),
         compileSdkVersion = systemProperty("compileSdkVersion").toInt(),
-        platformDataDir = systemProperty("platformDataDir").toFile().path,
         resourcePackageNames = systemProperty("resourcePackageNames").split(","),
         appTestDir = System.getProperty("user.dir")!!
     ),

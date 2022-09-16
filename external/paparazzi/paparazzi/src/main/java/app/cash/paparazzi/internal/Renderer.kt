@@ -81,7 +81,7 @@ internal class Renderer(
     val platformDataDir = File(platformDataRoot, "data")
     val fontLocation = File(platformDataDir, "fonts")
     val nativeLibLocation = File(platformDataDir, getNativeLibDir())
-    val icuLocation = File(platformDataDir, "icu" + File.separator + "icudt68l.dat")
+    val icuLocation = File(platformDataDir, "icu" + File.separator + "icudt70l.dat")
     val buildProp = File(environment.platformDir, "build.prop")
     val attrs = File(platformDataResDir, "values" + File.separator + "attrs.xml")
     val systemProperties = DeviceConfig.loadProperties(buildProp) + mapOf(
