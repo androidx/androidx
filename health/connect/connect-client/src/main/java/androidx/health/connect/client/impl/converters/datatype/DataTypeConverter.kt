@@ -35,3 +35,6 @@ fun KClass<out Record>.toDataType(): DataType =
 
 fun String.toDataTypeKClass(): KClass<out Record> =
     RECORDS_TYPE_NAME_MAP[this] ?: throw UnsupportedOperationException("Not supported yet: $this")
+
+fun DataType.toDataTypeKClass(): KClass<out Record> =
+    name.toDataTypeKClass()
