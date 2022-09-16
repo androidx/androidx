@@ -46,6 +46,9 @@ object Arguments {
     /**
      * Set to true to enable androidx.tracing.perfetto tracepoints (such as composition tracing)
      *
+     * Note this only affects Macrobenchmarks currently, and only when StartupMode.COLD is not used,
+     * since enabling the tracepoints wakes the target process
+     *
      * Currently internal/experimental
      */
     val fullTracingEnable: Boolean

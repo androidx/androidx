@@ -20,7 +20,6 @@ import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
-import androidx.benchmark.Arguments
 import androidx.benchmark.Outputs
 import androidx.benchmark.Outputs.dateToFileName
 import androidx.benchmark.PropOverride
@@ -41,20 +40,22 @@ class PerfettoCaptureWrapper {
     }
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
-    private fun start(packages: List<String>): Boolean {
+    private fun start(
+        appTagPackages: List<String>,
+        userspaceTracingPackage: String?
+    ): Boolean {
         capture?.apply {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 Log.d(PerfettoHelper.LOG_TAG, "Recording perfetto trace")
-                if (Arguments.fullTracingEnable &&
-                    packages.isNotEmpty() &&
+                if (userspaceTracingPackage != null &&
                     Build.VERSION.SDK_INT >= Build.VERSION_CODES.R
                 ) {
                     enableAndroidxTracingPerfetto(
-                        targetPackage = packages.first(),
+                        targetPackage = userspaceTracingPackage,
                         provideBinariesIfMissing = true
                     )
                 }
-                start(packages)
+                start(appTagPackages)
             }
         }
 
@@ -80,7 +81,8 @@ class PerfettoCaptureWrapper {
 
     fun record(
         benchmarkName: String,
-        packages: List<String>,
+        appTagPackages: List<String>,
+        userspaceTracingPackage: String?,
         iteration: Int? = null,
         block: () -> Unit
     ): String? {
@@ -97,7 +99,7 @@ class PerfettoCaptureWrapper {
         } else null
         try {
             propOverride?.forceValue()
-            start(packages)
+            start(appTagPackages, userspaceTracingPackage)
             val path: String
             try {
                 block()

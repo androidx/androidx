@@ -111,6 +111,7 @@ private fun macrobenchmark(
     iterations: Int,
     launchWithClearTask: Boolean,
     startupModeMetricHint: StartupMode?,
+    userspaceTracingPackage: String?,
     setupBlock: MacrobenchmarkScope.() -> Unit,
     measureBlock: MacrobenchmarkScope.() -> Unit
 ) {
@@ -180,11 +181,12 @@ private fun macrobenchmark(
                      *
                      * @see androidx.benchmark.macro.perfetto.ForceTracing
                      */
-                    packages = if (Build.VERSION.SDK_INT >= 24) {
+                    appTagPackages = if (Build.VERSION.SDK_INT >= 24) {
                         listOf(packageName, macrobenchPackageName)
                     } else {
                         listOf(packageName)
-                    }
+                    },
+                    userspaceTracingPackage = userspaceTracingPackage
                 ) {
                     try {
                         trace("start metrics") {
@@ -312,6 +314,13 @@ fun macrobenchmarkWithStartupMode(
     setupBlock: MacrobenchmarkScope.() -> Unit,
     measureBlock: MacrobenchmarkScope.() -> Unit
 ) {
+    val userspaceTracingPackage = if (Arguments.fullTracingEnable &&
+        startupMode != StartupMode.COLD // can't use with COLD, since the broadcast wakes up target
+    ) {
+        packageName
+    } else {
+        null
+    }
     macrobenchmark(
         uniqueName = uniqueName,
         className = className,
@@ -321,6 +330,7 @@ fun macrobenchmarkWithStartupMode(
         compilationMode = compilationMode,
         iterations = iterations,
         startupModeMetricHint = startupMode,
+        userspaceTracingPackage = userspaceTracingPackage,
         setupBlock = {
             if (startupMode == StartupMode.COLD) {
                 killProcess()
