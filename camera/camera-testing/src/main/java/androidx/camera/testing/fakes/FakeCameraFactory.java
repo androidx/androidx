@@ -55,6 +55,9 @@ public final class FakeCameraFactory implements CameraFactory {
     @Nullable
     private final CameraSelector mAvailableCamerasSelector;
 
+    @Nullable
+    private Object mCameraManager = null;
+
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     final Map<String, Pair<Integer, Callable<CameraInternal>>> mCameraMap = new HashMap<>();
 
@@ -167,9 +170,13 @@ public final class FakeCameraFactory implements CameraFactory {
         return filteredCameraIds;
     }
 
+    public void setCameraManager(@Nullable Object cameraManager) {
+        mCameraManager = cameraManager;
+    }
+
     @Nullable
     @Override
     public Object getCameraManager() {
-        return null;
+        return mCameraManager;
     }
 }

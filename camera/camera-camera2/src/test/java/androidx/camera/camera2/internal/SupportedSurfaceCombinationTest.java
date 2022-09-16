@@ -2567,7 +2567,7 @@ public final class SupportedSurfaceCombinationTest {
                     try {
                         return new Camera2DeviceSurfaceManager(context,
                                 mMockCamcorderProfileHelper,
-                                (CameraManagerCompat) cameraManager, availableCameraIds);
+                                CameraManagerCompat.from(mContext), availableCameraIds);
                     } catch (CameraUnavailableException e) {
                         throw new InitializationException(e);
                     }
