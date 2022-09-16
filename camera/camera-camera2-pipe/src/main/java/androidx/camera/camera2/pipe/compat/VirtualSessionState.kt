@@ -136,14 +136,14 @@ internal class VirtualSessionState(
     override fun onClosed(session: CameraCaptureSessionWrapper) {
         Log.debug { "$this Closed" }
         Debug.traceStart { "$this#onClosed" }
-        shutdown()
+        disconnect()
         Debug.traceStop()
     }
 
     override fun onConfigureFailed(session: CameraCaptureSessionWrapper) {
         Log.warn { "Failed to configure $this" }
         Debug.traceStart { "$this#onConfigureFailed" }
-        shutdown()
+        disconnect()
         Debug.traceStop()
     }
 
