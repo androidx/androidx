@@ -1,5 +1,5 @@
 // Signature format: 4.0
-package  {
+package androidx.paging.testing {
 
   public final class TestPager<Key, Value> {
     ctor public TestPager(androidx.paging.PagingSource<Key,Value> pagingSource, androidx.paging.PagingConfig config);
