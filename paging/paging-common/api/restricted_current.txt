@@ -379,7 +379,7 @@ package androidx.paging {
     ctor public PagingSource.LoadResult.Invalid();
   }
 
-  public static final class PagingSource.LoadResult.Page<Key, Value> extends androidx.paging.PagingSource.LoadResult<Key,Value> {
+  public static final class PagingSource.LoadResult.Page<Key, Value> extends androidx.paging.PagingSource.LoadResult<Key,Value> implements java.lang.Iterable<Value> kotlin.jvm.internal.markers.KMappedMarker {
     ctor public PagingSource.LoadResult.Page(java.util.List<? extends Value> data, Key? prevKey, Key? nextKey, optional @IntRange(from=androidx.paging.PagingSource.LoadResult.Page.COUNT_UNDEFINED.toLong()) int itemsBefore, optional @IntRange(from=androidx.paging.PagingSource.LoadResult.Page.COUNT_UNDEFINED.toLong()) int itemsAfter);
     ctor public PagingSource.LoadResult.Page(java.util.List<? extends Value> data, Key? prevKey, Key? nextKey);
     method public java.util.List<Value> component1();
@@ -393,6 +393,7 @@ package androidx.paging {
     method public int getItemsBefore();
     method public Key? getNextKey();
     method public Key? getPrevKey();
+    method public java.util.Iterator<Value> iterator();
     property public final java.util.List<Value> data;
     property public final int itemsAfter;
     property public final int itemsBefore;
