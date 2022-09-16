@@ -86,11 +86,9 @@ class VideoCaptureDeviceTest(
     private val cameraConfig: CameraXConfig
 ) {
 
-    // TODO(b/241296464): remove this rule after fixed
     @get:Rule
     val cameraPipeConfigTestRule = CameraPipeConfigTestRule(
         active = implName == CameraPipeConfig::class.simpleName,
-        forAllTests = true,
     )
 
     @get:Rule
@@ -204,7 +202,6 @@ class VideoCaptureDeviceTest(
         } ?: fail("Timed out waiting for 5 frame updates. Waited $timeout.")
     }
 
-    @CameraPipeConfigTestRule.CameraPipeExperimental
     @Test
     fun addUseCases_setSupportedQuality_getCorrectResolution() = runBlocking {
         assumeTrue(QualitySelector.getSupportedQualities(cameraInfo).isNotEmpty())
