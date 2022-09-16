@@ -16,7 +16,14 @@
 
 package androidx.camera.camera2.internal;
 
-import static androidx.camera.core.internal.utils.SizeUtil.VGA_SIZE;
+import static androidx.camera.core.impl.utils.AspectRatioUtil.ASPECT_RATIO_16_9;
+import static androidx.camera.core.impl.utils.AspectRatioUtil.ASPECT_RATIO_3_4;
+import static androidx.camera.core.impl.utils.AspectRatioUtil.ASPECT_RATIO_4_3;
+import static androidx.camera.core.impl.utils.AspectRatioUtil.ASPECT_RATIO_9_16;
+import static androidx.camera.core.internal.utils.SizeUtil.RESOLUTION_1080P;
+import static androidx.camera.core.internal.utils.SizeUtil.RESOLUTION_480P;
+import static androidx.camera.core.internal.utils.SizeUtil.RESOLUTION_VGA;
+import static androidx.camera.core.internal.utils.SizeUtil.RESOLUTION_ZERO;
 import static androidx.camera.core.internal.utils.SizeUtil.getArea;
 
 import android.content.Context;
@@ -53,9 +60,9 @@ import androidx.camera.core.impl.SurfaceCombination;
 import androidx.camera.core.impl.SurfaceConfig;
 import androidx.camera.core.impl.SurfaceSizeDefinition;
 import androidx.camera.core.impl.UseCaseConfig;
+import androidx.camera.core.impl.utils.AspectRatioUtil;
 import androidx.camera.core.impl.utils.CameraOrientationUtil;
 import androidx.camera.core.impl.utils.CompareSizesByArea;
-import androidx.camera.core.internal.utils.AspectRatioUtil;
 import androidx.core.util.Preconditions;
 
 import java.util.ArrayList;
@@ -77,13 +84,6 @@ import java.util.Map;
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 final class SupportedSurfaceCombination {
     private static final String TAG = "SupportedSurfaceCombination";
-    private static final Size ZERO_SIZE = new Size(0, 0);
-    private static final Size QUALITY_1080P_SIZE = new Size(1920, 1080);
-    private static final Size QUALITY_480P_SIZE = new Size(720, 480);
-    private static final Rational ASPECT_RATIO_4_3 = new Rational(4, 3);
-    private static final Rational ASPECT_RATIO_3_4 = new Rational(3, 4);
-    private static final Rational ASPECT_RATIO_16_9 = new Rational(16, 9);
-    private static final Rational ASPECT_RATIO_9_16 = new Rational(9, 16);
     private final List<SurfaceCombination> mSurfaceCombinations = new ArrayList<>();
     private final Map<Integer, Size> mMaxSizeCache = new HashMap<>();
     private final String mCameraId;
@@ -403,14 +403,14 @@ final class SupportedSurfaceCombination {
         Arrays.sort(outputSizes, new CompareSizesByArea(true));
 
         Size targetSize = getTargetSize(imageOutputConfig);
-        Size minSize = VGA_SIZE;
-        int defaultSizeArea = getArea(VGA_SIZE);
+        Size minSize = RESOLUTION_VGA;
+        int defaultSizeArea = getArea(RESOLUTION_VGA);
         int maxSizeArea = getArea(maxSize);
         // When maxSize is smaller than 640x480, set minSize as 0x0. It means the min size bound
         // will be ignored. Otherwise, set the minimal size according to min(DEFAULT_SIZE,
         // TARGET_RESOLUTION).
         if (maxSizeArea < defaultSizeArea) {
-            minSize = ZERO_SIZE;
+            minSize = RESOLUTION_ZERO;
         } else if (targetSize != null && getArea(targetSize) < defaultSizeArea) {
             minSize = targetSize;
         }
@@ -851,20 +851,20 @@ final class SupportedSurfaceCombination {
         Size[] videoSizeArr = map.getOutputSizes(MediaRecorder.class);
 
         if (videoSizeArr == null) {
-            return QUALITY_480P_SIZE;
+            return RESOLUTION_480P;
         }
 
         Arrays.sort(videoSizeArr, new CompareSizesByArea(true));
 
         for (Size size : videoSizeArr) {
             // Returns the largest supported size under 1080P
-            if (size.getWidth() <= QUALITY_1080P_SIZE.getWidth()
-                    && size.getHeight() <= QUALITY_1080P_SIZE.getHeight()) {
+            if (size.getWidth() <= RESOLUTION_1080P.getWidth()
+                    && size.getHeight() <= RESOLUTION_1080P.getHeight()) {
                 return size;
             }
         }
 
-        return QUALITY_480P_SIZE;
+        return RESOLUTION_480P;
     }
 
     /**
@@ -875,7 +875,7 @@ final class SupportedSurfaceCombination {
      */
     @NonNull
     private Size getRecordSizeByHasProfile(int cameraId) {
-        Size recordSize = QUALITY_480P_SIZE;
+        Size recordSize = RESOLUTION_480P;
         CamcorderProfile profile = null;
 
         // Check whether 4KDCI, 2160P, 2K, 1080P, 720P, 480P (sorted by size) are supported by

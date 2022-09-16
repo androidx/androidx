@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.camera.core.internal.utils;
+package androidx.camera.core.impl.utils;
 
 import static androidx.camera.core.internal.utils.SizeUtil.getArea;
 
@@ -24,6 +24,7 @@ import android.util.Size;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.camera.core.internal.utils.SizeUtil;
 import androidx.core.util.Preconditions;
 
 import java.util.Comparator;
@@ -33,9 +34,14 @@ import java.util.Comparator;
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class AspectRatioUtil {
+    public static final Rational ASPECT_RATIO_4_3 = new Rational(4, 3);
+    public static final Rational ASPECT_RATIO_3_4 = new Rational(3, 4);
+    public static final Rational ASPECT_RATIO_16_9 = new Rational(16, 9);
+    public static final Rational ASPECT_RATIO_9_16 = new Rational(9, 16);
     private static final int ALIGN16 = 16;
 
-    private AspectRatioUtil() {}
+    private AspectRatioUtil() {
+    }
 
     /**
      * Returns true if the supplied resolution is a mod16 matching with the supplied aspect ratio.
@@ -48,7 +54,7 @@ public final class AspectRatioUtil {
         } else if (aspectRatio.equals(
                 new Rational(resolution.getWidth(), resolution.getHeight()))) {
             isMatch = true;
-        } else if (getArea(resolution) >= getArea(SizeUtil.VGA_SIZE)) {
+        } else if (getArea(resolution) >= getArea(SizeUtil.RESOLUTION_VGA)) {
             // Only do mod 16 calculation if the size is equal to or larger than 640x480. It is
             // because the aspect ratio will be affected critically by mod 16 calculation if the
             // size is small. It may result in unexpected outcome such like 256x144 will be
