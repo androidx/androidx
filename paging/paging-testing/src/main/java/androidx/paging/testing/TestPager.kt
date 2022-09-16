@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+package androidx.paging.testing
+
 import androidx.paging.LoadType
 import androidx.paging.LoadType.APPEND
 import androidx.paging.LoadType.PREPEND

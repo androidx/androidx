@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-package androidx.paging
+package androidx.paging.testing
 
+import androidx.paging.PagingConfig
 import androidx.paging.PagingSource.LoadResult
-import TestPager
+import androidx.paging.TestPagingSource
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertFailsWith
 import kotlinx.coroutines.ExperimentalCoroutinesApi
