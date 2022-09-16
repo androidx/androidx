@@ -51,14 +51,10 @@ gbash::init_google "$@"
 readonly javaLibraryDirsThatDontUseDackka=(
   "androidx/draganddrop"
   "androidx/dynamicanimation"
-  "androidx/enterprise"
-  "androidx/exifinterface"
 )
 readonly kotlinLibraryDirsThatDontUseDackka=(
   "androidx/dynamicanimation"
   "androidx/draganddrop"
-  "androidx/enterprise"
-  "androidx/exifinterface"
 )
 
 # Change directory to this script's location and store the directory
