@@ -16,11 +16,14 @@
 
 package androidx.tv.material.carousel
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.with
 import androidx.compose.foundation.background
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
@@ -49,7 +52,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
 import androidx.tv.material.ExperimentalTvMaterialApi
-import androidx.tv.material.pager.Pager
 import java.lang.Math.floorMod
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
@@ -69,7 +71,7 @@ import kotlinx.coroutines.yield
  */
 
 @Suppress("IllegalExperimentalApiUsage")
-@OptIn(ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalComposeUiApi::class, ExperimentalAnimationApi::class)
 @ExperimentalTvMaterialApi
 @Composable
 fun Carousel(
@@ -82,7 +84,9 @@ fun Carousel(
     carouselIndicator:
     @Composable BoxScope.() -> Unit = {
         CarouselDefaults.Indicator(
-            modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp),
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(16.dp),
             carouselState = carouselState,
             slideCount = slideCount)
     },
@@ -105,13 +109,10 @@ fun Carousel(
             }
         }
         .focusable()) {
-        Pager(
-            enterTransition = enterTransition,
-            exitTransition = exitTransition,
-            currentSlide = carouselState.slideIndex,
-            slideCount = slideCount
+        AnimatedContent(
+            targetState = carouselState.slideIndex,
+            transitionSpec = { enterTransition.with(exitTransition) }
         ) { content.invoke(it) }
-
         this.carouselIndicator()
     }
 }
