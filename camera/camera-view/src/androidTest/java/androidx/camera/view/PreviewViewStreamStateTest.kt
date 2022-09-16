@@ -76,7 +76,6 @@ class PreviewViewStreamStateTest(
     @get:Rule
     val cameraPipeConfigTestRule = CameraPipeConfigTestRule(
         active = implName == CameraPipeConfig::class.simpleName,
-        forAllTests = true,
     )
 
     @Before

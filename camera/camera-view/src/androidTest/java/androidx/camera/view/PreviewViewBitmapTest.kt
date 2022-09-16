@@ -67,7 +67,6 @@ class PreviewViewBitmapTest(
     @get:Rule
     val cameraPipeConfigTestRule = CameraPipeConfigTestRule(
         active = implName == CameraPipeConfig::class.simpleName,
-        forAllTests = true,
     )
 
     private var cameraProvider: ProcessCameraProvider? = null

@@ -39,6 +39,7 @@ import androidx.camera.core.Preview
 import androidx.camera.core.impl.utils.CameraOrientationUtil
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.camera.testing.CameraPipeConfigTestRule
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.SurfaceTextureProvider
 import androidx.camera.testing.fakes.FakeLifecycleOwner
@@ -80,6 +81,11 @@ class VideoRecordingTest(
     private var cameraSelector: CameraSelector,
     private val cameraConfig: CameraXConfig
 ) {
+
+    @get:Rule
+    val cameraPipeConfigTestRule = CameraPipeConfigTestRule(
+        active = implName == CameraPipeConfig::class.simpleName,
+    )
 
     @get:Rule
     val cameraRule = CameraUtil.grantCameraPermissionAndPreTest(

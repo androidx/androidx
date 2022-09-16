@@ -69,7 +69,6 @@ class TakePictureTest(
     @get:Rule
     val cameraPipeConfigTestRule = CameraPipeConfigTestRule(
         active = implName == CameraPipeConfig::class.simpleName,
-        forAllTests = true,
     )
 
     private val launchIntent = Intent(
