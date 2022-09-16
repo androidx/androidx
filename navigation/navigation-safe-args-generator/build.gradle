@@ -23,7 +23,7 @@ plugins {
     id("kotlin")
 }
 
-androidx.enableAarAsJarForJvmTest()
+androidx.configureAarAsJarForConfiguration("testImplementation")
 
 dependencies {
     implementation(libs.xpp3)
@@ -42,8 +42,8 @@ dependencies {
             dir: "${SdkHelperKt.getSdkPath(project)}/platforms/$SupportConfig.COMPILE_SDK_VERSION/",
             include : "android.jar"
     ))
-    testAarAsJar(project(":navigation:navigation-common"))
-    testAarAsJar(project(":lifecycle:lifecycle-viewmodel-savedstate"))
+    testImplementationAarAsJar(project(":navigation:navigation-common"))
+    testImplementationAarAsJar(project(":lifecycle:lifecycle-viewmodel-savedstate"))
 }
 
 tasks.findByName("test").doFirst {
