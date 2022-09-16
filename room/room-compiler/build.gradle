@@ -84,7 +84,7 @@ configurations {
     }
 }
 
-androidx.enableAarAsJarForJvmTest()
+androidx.configureAarAsJarForConfiguration("testImplementation")
 
 dependencies {
     implementation(project(":room:room-common"))
@@ -115,8 +115,8 @@ dependencies {
             dir: "${SdkHelperKt.getSdkPath(project)}/platforms/$SupportConfig.COMPILE_SDK_VERSION/",
             include : "android.jar"
     ))
-    testAarAsJar(project(":room:room-runtime"))
-    testAarAsJar(project(":sqlite:sqlite"))
+    testImplementationAarAsJar(project(":room:room-runtime"))
+    testImplementationAarAsJar(project(":sqlite:sqlite"))
     testImplementation(project(":internal-testutils-common"))
 }
 

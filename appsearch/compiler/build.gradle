@@ -21,7 +21,7 @@ plugins {
     id('java-library')
 }
 
-androidx.enableAarAsJarForJvmTest()
+androidx.configureAarAsJarForConfiguration("testImplementation")
 
 dependencies {
     api('androidx.annotation:annotation:1.1.0')
@@ -32,7 +32,7 @@ dependencies {
     implementation(libs.javapoet)
 
     // For testing, add in the compiled classes from appsearch to get access to annotations.
-    testAarAsJar(project(":appsearch:appsearch"))
+    testImplementationAarAsJar(project(":appsearch:appsearch"))
     testImplementation(libs.googleCompileTesting)
 }
 

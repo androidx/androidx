@@ -24,7 +24,7 @@ plugins {
     id("kotlin-kapt")
 }
 
-androidx.enableAarAsJarForJvmTest()
+androidx.configureAarAsJarForConfiguration("testImplementation")
 
 dependencies {
     implementation(libs.kotlinStdlib)
@@ -40,7 +40,7 @@ dependencies {
     testImplementation(libs.truth)
     testImplementation(libs.googleCompileTesting)
     testImplementation(libs.hiltCore)
-    testAarAsJar(project(":hilt:hilt-work"))
+    testImplementationAarAsJar(project(":hilt:hilt-work"))
     testImplementation(fileTree(
             dir: "${SdkHelperKt.getSdkPath(project)}/platforms/$SupportConfig.COMPILE_SDK_VERSION/",
             include : "android.jar"))
