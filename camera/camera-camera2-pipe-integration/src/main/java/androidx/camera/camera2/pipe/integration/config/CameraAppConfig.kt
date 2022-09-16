@@ -20,6 +20,7 @@ package androidx.camera.camera2.pipe.integration.config
 
 import android.content.Context
 import androidx.annotation.RequiresApi
+import androidx.camera.camera2.pipe.CameraDevices
 import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.core.impl.CameraFactory
 import androidx.camera.core.impl.CameraThreadConfig
@@ -38,6 +39,11 @@ abstract class CameraAppModule {
         @Provides
         fun provideCameraPipe(context: Context): CameraPipe {
             return CameraPipe(CameraPipe.Config(appContext = context.applicationContext))
+        }
+
+        @Provides
+        fun provideCameraDevices(cameraPipe: CameraPipe): CameraDevices {
+            return cameraPipe.cameras()
         }
     }
 }
@@ -66,6 +72,7 @@ class CameraAppConfig(
 interface CameraAppComponent {
     fun cameraBuilder(): CameraComponent.Builder
     fun getCameraPipe(): CameraPipe
+    fun getCameraDevices(): CameraDevices
 
     @Component.Builder
     interface Builder {

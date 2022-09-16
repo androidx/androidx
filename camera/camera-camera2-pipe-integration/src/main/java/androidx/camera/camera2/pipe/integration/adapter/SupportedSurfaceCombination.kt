@@ -82,7 +82,7 @@ class SupportedSurfaceCombination(
     private val outputSizesCache: MutableMap<Int, Array<Size>> = HashMap()
     private var isRawSupported = false
     private var isBurstCaptureSupported = false
-    private lateinit var surfaceSizeDefinition: SurfaceSizeDefinition
+    internal lateinit var surfaceSizeDefinition: SurfaceSizeDefinition
     private val displayManager: DisplayManager =
         (context.getSystemService(Context.DISPLAY_SERVICE) as DisplayManager)
 
@@ -459,7 +459,7 @@ class SupportedSurfaceCombination(
      * @param imageFormat the image format info
      * @return the max supported output size for the image format
      */
-    private fun getMaxOutputSizeByFormat(imageFormat: Int): Size {
+    internal fun getMaxOutputSizeByFormat(imageFormat: Int): Size {
         val outputSizes = getAllOutputSizesByFormat(imageFormat)
         return Collections.max(listOf(*outputSizes), CompareSizesByArea())
     }
@@ -690,7 +690,7 @@ class SupportedSurfaceCombination(
     /**
      * Obtains the supported sizes for a given user case.
      */
-    private fun getSupportedOutputSizes(config: UseCaseConfig<*>): List<Size> {
+    internal fun getSupportedOutputSizes(config: UseCaseConfig<*>): List<Size> {
         val imageFormat = config.inputFormat
         val imageOutputConfig = config as ImageOutputConfig
         var outputSizes: Array<Size>? =

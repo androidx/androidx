@@ -49,7 +49,7 @@ class CameraSurfaceAdapter(
     init {
         debug { "AvailableCameraIds = $availableCameraIds" }
         debug { "Created StreamConfigurationMap from $context" }
-        initSupportedSurfaceCombinationMap(context, component.getCameraPipe(), availableCameraIds)
+        initSupportedSurfaceCombinationMap(context, availableCameraIds)
     }
 
     /**
@@ -57,7 +57,6 @@ class CameraSurfaceAdapter(
      */
     private fun initSupportedSurfaceCombinationMap(
         context: Context,
-        cameraPipe: CameraPipe,
         availableCameraIds: Set<String>
     ) {
         Preconditions.checkNotNull(context)
@@ -65,7 +64,7 @@ class CameraSurfaceAdapter(
             supportedSurfaceCombinationMap[cameraId] =
                 SupportedSurfaceCombination(
                     context,
-                    runBlocking { cameraPipe.cameras().awaitMetadata(CameraId(cameraId)) },
+                    runBlocking { component.getCameraDevices().awaitMetadata(CameraId(cameraId)) },
                     cameraId,
                     CamcorderProfileProviderAdapter(cameraId)
                 )
