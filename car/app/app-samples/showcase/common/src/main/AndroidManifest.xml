@@ -17,9 +17,24 @@
 <manifest
     xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!-- For accessing current location in PlaceListMapTemplate -->
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <permission-group android:name="android.permission-group.SHOWCASE"
+        android:label="@string/perm_group"
+        android:description="@string/perm_group_description" />
+
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"
+        android:permissionGroup="android.permission-group.SHOWCASE"
+        android:label="@string/perm_fine_location"
+        android:description="@string/perm_fine_location_desc" />
+
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"
+        android:permissionGroup="android.permission-group.SHOWCASE"
+        android:label="@string/perm_coarse_location"
+        android:description="@string/perm_coarse_location_desc" />
+
+    <uses-permission android:name="android.permission.RECORD_AUDIO"
+        android:permissionGroup="android.permission-group.SHOWCASE"
+        android:label="@string/perm_record_audio"
+        android:description="@string/perm_record_audio_desc" />
 
     <application
         android:supportsRtl="true">
