@@ -635,6 +635,8 @@ includeProject(":emoji2:integration-tests:init-enabled-macrobenchmark-target", [
 includeProject(":enterprise:enterprise-feedback", [BuildType.MAIN])
 includeProject(":enterprise:enterprise-feedback-testing", [BuildType.MAIN])
 includeProject(":exifinterface:exifinterface", [BuildType.MAIN])
+includeProject(":external:paparazzi:paparazzi", [BuildType.MAIN])
+includeProject(":external:paparazzi:paparazzi-agent", [BuildType.MAIN])
 includeProject(":fakeannotations", [BuildType.MAIN])
 includeProject(":fragment:fragment", [BuildType.MAIN, BuildType.FLAN, BuildType.WEAR])
 includeProject(":fragment:fragment-ktx", [BuildType.MAIN, BuildType.FLAN])
