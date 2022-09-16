@@ -27,6 +27,8 @@ dependencies {
     implementation(libs.kotlinStdlib)
     testImplementation(libs.junit)
     testImplementation(libs.mockitoCore)
+    testImplementation(libs.kotlinTest)
+    testImplementation(libs.truth)
 }
 
 android {

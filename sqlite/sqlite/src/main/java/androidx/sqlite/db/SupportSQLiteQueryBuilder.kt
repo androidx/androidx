@@ -118,7 +118,7 @@ class SupportSQLiteQueryBuilder private constructor(private val table: String) {
      * @return a new query
      */
     fun create(): SupportSQLiteQuery {
-        require(groupBy?.isNotEmpty() == true || having?.isEmpty() == true) {
+        require(!groupBy.isNullOrEmpty() || having.isNullOrEmpty()) {
             "HAVING clauses are only permitted when using a groupBy clause"
         }
         val query = buildString(120) {
@@ -129,9 +129,9 @@ class SupportSQLiteQueryBuilder private constructor(private val table: String) {
             if (columns?.size != 0) {
                 appendColumns(columns!!)
             } else {
-                append(" * ")
+                append("* ")
             }
-            append(" FROM ")
+            append("FROM ")
             append(table)
             appendClause(" WHERE ", selection)
             appendClause(" GROUP BY ", groupBy)
