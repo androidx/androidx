@@ -9,9 +9,9 @@ package androidx.tv.material.carousel {
 
 }
 
-package androidx.tv.material.pager {
+package androidx.tv.material.immersivelist {
 
-  public final class PagerKt {
+  public final class ImmersiveListKt {
   }
 
 }

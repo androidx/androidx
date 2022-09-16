@@ -24,27 +24,17 @@ import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.focusable
 import androidx.compose.foundation.horizontalScroll
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -59,7 +49,6 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.Cyan
 import androidx.compose.ui.graphics.Color.Companion.Gray
-import androidx.compose.ui.graphics.Color.Companion.Red
 import androidx.compose.ui.graphics.Color.Companion.Yellow
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -72,19 +61,11 @@ import androidx.tv.material.carousel.CarouselState
 @Composable
 fun FeaturedCarousel() {
     val carouselState = remember { CarouselState(0) }
-    LazyColumn {
-        item {
-            Carousel(
-                modifier = Modifier
-                    .height(400.dp)
-                    .width(950.dp),
-                carouselState = carouselState,
-                slideCount = 3
-            ) { SampleFrame(it) }
-        }
-
-        items(7) { SampleLazyRow() }
-    }
+    Carousel(
+        modifier = Modifier.height(130.dp).width(950.dp).border(1.dp, Color.Black),
+        carouselState = carouselState,
+        slideCount = mediaItems.size
+    ) { SampleFrame(it) }
 }
 
 @OptIn(ExperimentalTvMaterialApi::class)
@@ -159,61 +140,6 @@ fun SampleButton(text: String) {
                 }
             }) {
         Text(text = text)
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun SampleLazyRow() {
-    LazyRow(
-        state = rememberLazyListState(),
-        contentPadding = PaddingValues(2.dp),
-        horizontalArrangement = Arrangement.spacedBy(4.dp),
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(100.dp)) {
-        items((1..10).map { it.toString() }) {
-            var cardScale by remember { mutableStateOf(0.5f) }
-            val borderGlowColorTransition = rememberInfiniteTransition()
-            var initialValue by remember { mutableStateOf(Color.Transparent) }
-            val glowingColor by borderGlowColorTransition.animateColor(
-                initialValue = initialValue,
-                targetValue = Color.Transparent,
-                animationSpec = infiniteRepeatable(
-                    animation = tween(1000, easing = LinearEasing),
-                    repeatMode = RepeatMode.Reverse
-                )
-            )
-
-            Card(
-                modifier = Modifier
-                    .width(100.dp)
-                    .height(100.dp)
-                    .scale(cardScale)
-                    .border(2.dp, glowingColor, RoundedCornerShape(12.dp))
-                    .onFocusChanged { focusState ->
-                        if (focusState.isFocused) {
-                            cardScale = 1.0f
-                            initialValue = Color.White
-                        } else {
-                            cardScale = 0.5f
-                            initialValue = Color.Transparent
-                        }
-                    }
-                    .focusable()
-            ) {
-                Text(
-                    text = it,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(100.dp)
-                        .padding(12.dp),
-                    color = Red,
-                    fontWeight = FontWeight.Bold
-
-                )
-            }
-        }
     }
 }
 
