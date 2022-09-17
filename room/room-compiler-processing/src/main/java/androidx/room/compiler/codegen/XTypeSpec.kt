@@ -19,25 +19,20 @@ package androidx.room.compiler.codegen
 import androidx.room.compiler.codegen.java.JavaTypeSpec
 import androidx.room.compiler.codegen.kotlin.KotlinTypeSpec
 import androidx.room.compiler.processing.XElement
-import androidx.room.compiler.processing.XNullability
 import androidx.room.compiler.processing.addOriginatingElement
-import com.squareup.kotlinpoet.javapoet.JClassName
-import com.squareup.kotlinpoet.javapoet.JTypeName
-import com.squareup.kotlinpoet.javapoet.toKClassName
 
 interface XTypeSpec : TargetLanguage {
 
-    val className: JClassName
+    val className: XClassName
 
     interface Builder : TargetLanguage {
-        fun superclass(typeName: JTypeName): Builder
+        fun superclass(typeName: XTypeName): Builder
         fun addAnnotation(annotation: XAnnotationSpec)
 
         // TODO(b/247241418): Maybe make a XPropertySpec ?
         fun addProperty(
-            typeName: JTypeName,
+            typeName: XTypeName,
             name: String,
-            nullability: XNullability,
             visibility: VisibilityModifier,
             isMutable: Boolean = false,
             initExpr: XCodeBlock? = null,
@@ -67,15 +62,15 @@ interface XTypeSpec : TargetLanguage {
     }
 
     companion object {
-        fun classBuilder(language: CodeLanguage, className: JClassName): Builder {
+        fun classBuilder(language: CodeLanguage, className: XClassName): Builder {
             return when (language) {
                 CodeLanguage.JAVA -> JavaTypeSpec.Builder(
                     className = className,
-                    actual = com.squareup.javapoet.TypeSpec.classBuilder(className)
+                    actual = com.squareup.javapoet.TypeSpec.classBuilder(className.java)
                 )
                 CodeLanguage.KOTLIN -> KotlinTypeSpec.Builder(
                     className = className,
-                    actual = com.squareup.kotlinpoet.TypeSpec.classBuilder(className.toKClassName())
+                    actual = com.squareup.kotlinpoet.TypeSpec.classBuilder(className.kotlin)
                 )
             }
         }

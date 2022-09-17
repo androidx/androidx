@@ -16,29 +16,28 @@
 
 package androidx.room.compiler.codegen.kotlin
 
+import androidx.room.compiler.codegen.KTypeSpecBuilder
 import androidx.room.compiler.codegen.VisibilityModifier
 import androidx.room.compiler.codegen.XAnnotationSpec
+import androidx.room.compiler.codegen.XClassName
 import androidx.room.compiler.codegen.XCodeBlock
 import androidx.room.compiler.codegen.XFunSpec
+import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.codegen.XTypeSpec
-import androidx.room.compiler.codegen.toKTypeName
-import androidx.room.compiler.processing.XNullability
 import com.squareup.kotlinpoet.PropertySpec
-import com.squareup.kotlinpoet.javapoet.JClassName
-import com.squareup.kotlinpoet.javapoet.JTypeName
-import com.squareup.kotlinpoet.javapoet.toKTypeName
+import com.squareup.kotlinpoet.javapoet.KTypeSpec
 
 internal class KotlinTypeSpec(
-    override val className: JClassName,
-    internal val actual: com.squareup.kotlinpoet.TypeSpec
+    override val className: XClassName,
+    internal val actual: KTypeSpec
 ) : KotlinLang(), XTypeSpec {
 
     internal class Builder(
-        private val className: JClassName,
-        internal val actual: com.squareup.kotlinpoet.TypeSpec.Builder
+        private val className: XClassName,
+        internal val actual: KTypeSpecBuilder
     ) : KotlinLang(), XTypeSpec.Builder {
-        override fun superclass(typeName: JTypeName) = apply {
-            actual.superclass(typeName.toKTypeName())
+        override fun superclass(typeName: XTypeName) = apply {
+            actual.superclass(typeName.kotlin)
         }
 
         override fun addAnnotation(annotation: XAnnotationSpec) {
@@ -47,16 +46,15 @@ internal class KotlinTypeSpec(
         }
 
         override fun addProperty(
-            typeName: JTypeName,
+            typeName: XTypeName,
             name: String,
-            nullability: XNullability,
             visibility: VisibilityModifier,
             isMutable: Boolean,
             initExpr: XCodeBlock?,
             annotations: List<XAnnotationSpec>
         ) = apply {
             actual.addProperty(
-                PropertySpec.builder(name, typeName.toKTypeName(nullability)).apply {
+                PropertySpec.builder(name, typeName.kotlin).apply {
                     mutable(isMutable)
                     addModifiers(visibility.toKotlinVisibilityModifier())
                     initExpr?.let {

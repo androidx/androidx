@@ -16,6 +16,7 @@
 
 package androidx.room.compiler.processing
 
+import androidx.room.compiler.codegen.XClassName
 import com.squareup.javapoet.ClassName
 
 interface XTypeElement : XHasModifiers, XParameterizable, XElement, XMemberContainer {
@@ -64,7 +65,20 @@ interface XTypeElement : XHasModifiers, XParameterizable, XElement, XMemberConta
     /**
      * Javapoet [ClassName] of the type.
      */
+    // TODO(b/247248619): Deprecate when more progress is made, otherwise -werror fails the build.
+    // @Deprecated(
+    //     message = "Use asClassName().toJavaPoet() to be clear the name is for JavaPoet.",
+    //     replaceWith = ReplaceWith(
+    //         expression = "asClassName().toJavaPoet()",
+    //         imports = ["androidx.room.compiler.codegen.toJavaPoet"]
+    //     )
+    // )
     override val className: ClassName
+
+    /**
+     * Gets the [XClassName] of the type element.
+     */
+    fun asClassName(): XClassName
 
     /**
      * The [XTypeElement] that contains this [XTypeElement] if it is an inner class/interface.

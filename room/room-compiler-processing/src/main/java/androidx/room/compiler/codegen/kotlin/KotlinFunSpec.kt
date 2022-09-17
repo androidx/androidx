@@ -20,20 +20,18 @@ import androidx.room.compiler.codegen.VisibilityModifier
 import androidx.room.compiler.codegen.XAnnotationSpec
 import androidx.room.compiler.codegen.XCodeBlock
 import androidx.room.compiler.codegen.XFunSpec
-import androidx.room.compiler.codegen.toKTypeName
-import androidx.room.compiler.processing.KnownTypeNames.KOTLIN_UNIT
-import androidx.room.compiler.processing.XNullability
+import androidx.room.compiler.codegen.XTypeName
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.ParameterSpec
-import com.squareup.kotlinpoet.javapoet.JTypeName
+import com.squareup.kotlinpoet.UNIT
 
 internal class KotlinFunSpec(
     internal val actual: FunSpec
 ) : KotlinLang(), XFunSpec {
 
     internal class Builder(
-        internal val actual: com.squareup.kotlinpoet.FunSpec.Builder
+        internal val actual: FunSpec.Builder
     ) : KotlinLang(), XFunSpec.Builder {
 
         override fun addCode(code: XCodeBlock) = apply {
@@ -42,13 +40,12 @@ internal class KotlinFunSpec(
         }
 
         override fun addParameter(
-            typeName: JTypeName,
+            typeName: XTypeName,
             name: String,
-            nullability: XNullability,
             annotations: List<XAnnotationSpec>
         ) = apply {
             actual.addParameter(
-                ParameterSpec.builder(name, typeName.toKTypeName(nullability)).apply {
+                ParameterSpec.builder(name, typeName.kotlin).apply {
                     // TODO(b/247247439): Add other annotations
                 }.build()
             )
@@ -63,11 +60,11 @@ internal class KotlinFunSpec(
             )
         }
 
-        override fun returns(typeName: JTypeName, nullability: XNullability) = apply {
-            if (typeName == com.squareup.javapoet.TypeName.VOID || typeName == KOTLIN_UNIT) {
+        override fun returns(typeName: XTypeName) = apply {
+            if (typeName.kotlin == UNIT) {
                 return@apply
             }
-            actual.returns(typeName.toKTypeName(nullability))
+            actual.returns(typeName.kotlin)
         }
 
         override fun build() = KotlinFunSpec(actual.build())

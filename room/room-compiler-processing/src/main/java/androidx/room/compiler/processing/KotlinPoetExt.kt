@@ -17,6 +17,10 @@
 package androidx.room.compiler.processing
 
 import com.squareup.kotlinpoet.OriginatingElementsHolder
+import com.squareup.kotlinpoet.javapoet.KClassName
+
+internal val KOTLIN_NONE_TYPE_NAME: KClassName =
+    KClassName("androidx.room.compiler.processing.error", "NotAType")
 
 /**
  * Adds the given element as an originating element for compilation.

@@ -16,7 +16,7 @@
 
 package androidx.room.compiler.processing
 
-import androidx.room.compiler.processing.ksp.ERROR_TYPE_NAME
+import androidx.room.compiler.processing.ksp.ERROR_JTYPE_NAME
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
 import androidx.room.compiler.processing.util.className
@@ -121,7 +121,7 @@ class XTypeTest {
             val errorTypeName = if (it.isKsp) {
                 // in ksp, we lose the name when resolving the type.
                 // b/175246617
-                ERROR_TYPE_NAME
+                ERROR_JTYPE_NAME
             } else {
                 ClassName.get("", "NotExistingType")
             }
