@@ -170,6 +170,7 @@ material = { module = "com.google.android.material:material", version = "1.2.1" 
 metalava = { module = "com.android.tools.metalava:metalava", version.ref = "metalava" }
 mlkitBarcode = { module = "com.google.mlkit:barcode-scanning", version = "17.0.2" }
 mockitoCore = { module = "org.mockito:mockito-core", version.ref = "mockito" }
+mockitoCore4 = { module = "org.mockito:mockito-core", version = "4.8.0" }
 mockitoAndroid = { module = "org.mockito:mockito-android", version.ref = "mockito" }
 mockitoKotlin = { module = "com.nhaarman.mockitokotlin2:mockito-kotlin", version = "2.1.0" }
 mockitoKotlin4 = { module = "org.mockito.kotlin:mockito-kotlin", version = "4.0.0" }
