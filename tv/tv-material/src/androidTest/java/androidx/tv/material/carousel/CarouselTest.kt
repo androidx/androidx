@@ -38,6 +38,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -50,6 +51,8 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.key.NativeKeyEvent
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.assertIsDisplayed
@@ -60,8 +63,10 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onParent
 import androidx.compose.ui.test.performSemanticsAction
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.test.filters.FlakyTest
+import androidx.test.platform.app.InstrumentationRegistry
 import androidx.tv.material.ExperimentalTvMaterialApi
 import org.junit.Rule
 import org.junit.Test
@@ -333,13 +338,92 @@ class CarouselTest {
         rule.onNodeWithText("PLAY").assertIsFocused()
     }
 
+    @Test
+    fun carousel_manualScrolling_ltr() {
+        rule.setContent {
+            Content {
+                TestButton("Button ${it + 1}")
+            }
+        }
+
+        // Assert that slide 1 is in view
+        rule.onNodeWithText("Button 1").assertIsDisplayed()
+
+        // advance time
+        rule.mainClock.advanceTimeBy(delayBetweenSlides)
+        rule.mainClock.advanceTimeBy(animationTime)
+
+        // go right once
+        performKeyPress(NativeKeyEvent.KEYCODE_DPAD_RIGHT)
+
+        // Wait for slide to load
+        rule.mainClock.advanceTimeBy(animationTime)
+
+        // Assert that slide 2 is in view
+        rule.onNodeWithText("Button 2").assertIsDisplayed()
+
+        // go left once
+        performKeyPress(NativeKeyEvent.KEYCODE_DPAD_LEFT)
+
+        // Wait for slide to load
+        rule.mainClock.advanceTimeBy(delayBetweenSlides)
+        rule.mainClock.advanceTimeBy(animationTime)
+
+        // Assert that slide 1 is in view
+        rule.onNodeWithText("Button 1").assertIsDisplayed()
+    }
+
+    @Test
+    fun carousel_manualScrolling_rtl() {
+        rule.setContent {
+            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+                Content {
+                    TestButton("Button ${it + 1}")
+                }
+            }
+        }
+
+        // Assert that slide 1 is in view
+        rule.onNodeWithText("Button 1").assertIsDisplayed()
+
+        // advance time
+        rule.mainClock.advanceTimeBy(delayBetweenSlides)
+        rule.mainClock.advanceTimeBy(animationTime)
+
+        // go right once
+        performKeyPress(NativeKeyEvent.KEYCODE_DPAD_RIGHT)
+
+        // Wait for slide to load
+        rule.mainClock.advanceTimeBy(animationTime)
+
+        // Assert that slide 2 is in view
+        rule.onNodeWithText("Button 2").assertIsDisplayed()
+
+        // go left once
+        performKeyPress(NativeKeyEvent.KEYCODE_DPAD_LEFT)
+
+        // Wait for slide to load
+        rule.mainClock.advanceTimeBy(delayBetweenSlides)
+        rule.mainClock.advanceTimeBy(animationTime)
+
+        // Assert that slide 1 is in view
+        rule.onNodeWithText("Button 1").assertIsDisplayed()
+    }
+
+    private fun performKeyPress(keyCode: Int, count: Int = 1) {
+        for (i in 1..count) {
+            InstrumentationRegistry
+                .getInstrumentation()
+                .sendKeyDownUpSync(keyCode)
+        }
+    }
+
     @Composable
     fun Content(
         carouselState: CarouselState = remember { CarouselState() },
-        content: @Composable (index: Int) -> Unit = { BasicText(text = "Text ${it + 1}")
-        }
+        slideCount: Int = 3,
+        content: @Composable (index: Int) -> Unit = { BasicText(text = "Text ${it + 1}") }
     ) {
-        val slideCount = 3
         LazyColumn {
             item {
                 Carousel(
@@ -475,7 +559,7 @@ class CarouselTest {
     }
 
     @Test
-    fun carousel_zeroSlideCount_drawsSomething() {
+    fun carousel_zeroSlideCount_doesntCrash() {
         val testTag = "emptyCarousel"
         rule.setContent {
             Carousel(slideCount = 0, modifier = Modifier.testTag(testTag)) {}
