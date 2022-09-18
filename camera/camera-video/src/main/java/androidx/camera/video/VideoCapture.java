@@ -298,6 +298,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
 
         mStreamInfo = fetchObservableValue(getOutput().getStreamInfo(),
                 StreamInfo.STREAM_INFO_ANY_INACTIVE);
+        mNode = createNodeIfNeeded();
         mSessionConfigBuilder = createPipeline(cameraId, config, finalSelectedResolution);
         applyStreamInfoToSessionConfigBuilder(mSessionConfigBuilder, mStreamInfo);
         updateSessionConfig(mSessionConfigBuilder.build());
@@ -323,6 +324,11 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
     /**
      * Sets a {@link SurfaceEffectInternal}.
      *
+     * <p>The effect is used to setup post-processing pipeline.
+     *
+     * <p>Note: the value will only be used when VideoCapture is bound. Calling this method after
+     * VideoCapture is bound takes no effect until VideoCapture is rebound.
+     *
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -339,6 +345,11 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
     @Override
     public void onDetached() {
         clearPipeline();
+
+        if (mNode != null) {
+            mNode.release();
+            mNode = null;
+        }
 
         mVideoEncoderInfo = null;
     }
@@ -475,7 +486,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         Range<Integer> targetFpsRange = requireNonNull(
                 config.getTargetFramerate(Defaults.DEFAULT_FPS_RANGE));
         Timebase timebase;
-        if (mSurfaceEffect != null) {
+        if (mNode != null) {
             MediaSpec mediaSpec = requireNonNull(getMediaSpec());
             Rect cropRect = requireNonNull(getCropRect(resolution));
             timebase = camera.getCameraInfoInternal().getTimebase();
@@ -483,7 +494,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
                     () -> getVideoEncoderInfo(config.getVideoEncoderInfoFinder(),
                             VideoCapabilities.from(camera.getCameraInfo()), timebase, mediaSpec,
                             resolution, targetFpsRange));
-            mNode = new SurfaceEffectNode(camera, APPLY_CROP_ROTATE_AND_MIRRORING, mSurfaceEffect);
             SettableSurface cameraSurface = new SettableSurface(
                     SurfaceEffect.VIDEO_CAPTURE,
                     resolution,
@@ -535,10 +545,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         if (mDeferrableSurface != null) {
             mDeferrableSurface.close();
             mDeferrableSurface = null;
-        }
-        if (mNode != null) {
-            mNode.release();
-            mNode = null;
         }
 
         mSurfaceRequest = null;
@@ -681,6 +687,22 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         } // Don't attach surface when stream is invalid.
 
         setupSurfaceUpdateNotifier(sessionConfigBuilder, isStreamActive);
+    }
+
+    @Nullable
+    private SurfaceEffectNode createNodeIfNeeded() {
+        if (mSurfaceEffect != null) {
+            Logger.d(TAG, "SurfaceEffect is enabled.");
+            return new SurfaceEffectNode(requireNonNull(getCamera()),
+                    APPLY_CROP_ROTATE_AND_MIRRORING, mSurfaceEffect);
+        }
+        return null;
+    }
+
+    @VisibleForTesting
+    @Nullable
+    SurfaceEffectNode getNode() {
+        return mNode;
     }
 
     @MainThread
