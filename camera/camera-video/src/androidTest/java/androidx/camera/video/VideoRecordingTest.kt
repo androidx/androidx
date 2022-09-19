@@ -29,14 +29,13 @@ import androidx.camera.camera2.Camera2Config
 import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraInfo
-import androidx.camera.core.CameraXConfig
 import androidx.camera.core.CameraSelector
+import androidx.camera.core.CameraXConfig
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
-import androidx.camera.core.ImageProxy
 import androidx.camera.core.Preview
-import androidx.camera.core.impl.utils.CameraOrientationUtil
+import androidx.camera.core.impl.utils.TransformUtils.rotateSize
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.CameraPipeConfigTestRule
@@ -229,12 +228,13 @@ class VideoRecordingTest(
         completeVideoRecording(videoCapture, file)
 
         // Verify.
-        verifyMetadataRotation(targetRotation, file)
+        val expectedRotation = if (videoCapture.node != null) 0
+        else cameraInfo.getSensorRotationDegrees(targetRotation)
+        verifyMetadataRotation(expectedRotation, file)
+
         // Cleanup.
         file.delete()
     }
-
-    // TODO: Add other metadata info check, e.g. location, after Recorder add more metadata.
 
     @Test
     fun getCorrectResolution_when_setSupportedQuality() {
@@ -282,7 +282,14 @@ class VideoRecordingTest(
             completeVideoRecording(videoCapture, file)
 
             // Verify.
-            verifyVideoResolution(targetResolution, file)
+            val expectResolution = if (videoCapture.node != null) {
+                val relativeRotation =
+                    cameraInfo.getSensorRotationDegrees(videoCapture.targetRotation)
+                rotateSize(targetResolution, relativeRotation)
+            } else {
+                targetResolution
+            }
+            verifyVideoResolution(expectResolution, file)
 
             // Cleanup.
             file.delete()
@@ -390,7 +397,7 @@ class VideoRecordingTest(
         latchForVideoSaved = CountDownLatch(1)
         latchForVideoRecording = CountDownLatch(5)
         val latchForImageAnalysis = CountDownLatch(5)
-        analysis.setAnalyzer(CameraXExecutors.directExecutor()) { it: ImageProxy ->
+        analysis.setAnalyzer(CameraXExecutors.directExecutor()) {
             latchForImageAnalysis.countDown()
             it.close()
         }
@@ -773,61 +780,47 @@ class VideoRecordingTest(
         savedCallback.verifyCaptureResult()
     }
 
-    private fun verifyMetadataRotation(targetRotation: Int, file: File) {
-        // Whether the camera lens and display are facing opposite directions.
-        val isOpposite = cameraSelector.lensFacing == CameraSelector.LENS_FACING_BACK
-        val relativeRotation = CameraOrientationUtil.getRelativeImageRotation(
-            CameraOrientationUtil.surfaceRotationToDegrees(targetRotation),
-            CameraUtil.getSensorOrientation(cameraSelector.lensFacing!!)!!,
-            isOpposite
-        )
-        val videoRotation = getRotationInMetadata(Uri.fromFile(file))
+    private fun verifyMetadataRotation(expectedRotation: Int, file: File) {
+        MediaMetadataRetriever().useAndRelease {
+            it.setDataSource(context, Uri.fromFile(file))
+            val videoRotation =
+                it.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_ROTATION)!!.toInt()
 
-        // Checks the rotation from video file's metadata is matched with the relative rotation.
-        assertWithMessage(
-            TAG + ", $targetRotation rotation test failure:" +
-                ", videoRotation: $videoRotation" +
-                ", relativeRotation: $relativeRotation"
-        ).that(videoRotation).isEqualTo(relativeRotation)
+            // Checks the rotation from video file's metadata is matched with the relative rotation.
+            assertWithMessage(
+                TAG + ", rotation test failure: " +
+                    "videoRotation: $videoRotation" +
+                    ", expectedRotation: $expectedRotation"
+            ).that(videoRotation).isEqualTo(expectedRotation)
+        }
     }
 
-    private fun verifyVideoResolution(targetResolution: Size, file: File) {
-        val mediaRetriever = MediaMetadataRetriever()
-        lateinit var resolution: Size
-        mediaRetriever.apply {
-            setDataSource(context, Uri.fromFile(file))
-            val height = extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT)!!
+    private fun verifyVideoResolution(expectedResolution: Size, file: File) {
+        MediaMetadataRetriever().useAndRelease {
+            it.setDataSource(context, Uri.fromFile(file))
+            val height = it.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT)!!
                 .toInt()
-            val width = extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH)!!
+            val width = it.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH)!!
                 .toInt()
-            resolution = Size(width, height)
-        }
+            val resolution = Size(width, height)
 
-        // Compare with the resolution of video and the targetResolution in QualitySelector
-        assertWithMessage(
-            TAG + ", verifyVideoResolution failure:" +
-                ", videoResolution: $resolution" +
-                ", targetResolution: $targetResolution"
-        ).that(resolution).isEqualTo(targetResolution)
+            // Compare with the resolution of video and the targetResolution in QualitySelector
+            assertWithMessage(
+                TAG + ", verifyVideoResolution failure:" +
+                    ", videoResolution: $resolution" +
+                    ", expectedResolution: $expectedResolution"
+            ).that(resolution).isEqualTo(expectedResolution)
+        }
     }
 
     private fun verifyRecordingResult(file: File, hasAudio: Boolean = false) {
-        val mediaRetriever = MediaMetadataRetriever()
-        mediaRetriever.apply {
-            setDataSource(context, Uri.fromFile(file))
-            val video = extractMetadata(MediaMetadataRetriever.METADATA_KEY_HAS_VIDEO)
-            val audio = extractMetadata(MediaMetadataRetriever.METADATA_KEY_HAS_AUDIO)
+        MediaMetadataRetriever().useAndRelease {
+            it.setDataSource(context, Uri.fromFile(file))
+            val video = it.extractMetadata(MediaMetadataRetriever.METADATA_KEY_HAS_VIDEO)
+            val audio = it.extractMetadata(MediaMetadataRetriever.METADATA_KEY_HAS_AUDIO)
 
             assertThat(video).isEqualTo("yes")
             assertThat(audio).isEqualTo(if (hasAudio) "yes" else null)
-        }
-    }
-
-    private fun getRotationInMetadata(uri: Uri): Int {
-        val mediaRetriever = MediaMetadataRetriever()
-        return mediaRetriever.let {
-            it.setDataSource(context, uri)
-            it.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_ROTATION)?.toInt()!!
         }
     }
 
@@ -869,5 +862,13 @@ class VideoRecordingTest(
         fun verifyCaptureResult() {
             assertThat(latch.await(10, TimeUnit.SECONDS)).isTrue()
         }
+    }
+}
+
+private fun MediaMetadataRetriever.useAndRelease(block: (MediaMetadataRetriever) -> Unit) {
+    try {
+        block(this)
+    } finally {
+        release()
     }
 }
