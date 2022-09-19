@@ -26,6 +26,8 @@ import androidx.camera.core.ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY
 import androidx.camera.core.ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY
 import androidx.camera.core.ImageCapture.CaptureMode
 import androidx.camera.core.ImageCaptureException
+import androidx.camera.core.imagecapture.ImagePipeline.JPEG_QUALITY_MAX_QUALITY
+import androidx.camera.core.imagecapture.ImagePipeline.JPEG_QUALITY_MIN_LATENCY
 import androidx.camera.core.imagecapture.Utils.CROP_RECT
 import androidx.camera.core.imagecapture.Utils.FULL_RECT
 import androidx.camera.core.imagecapture.Utils.HEIGHT
@@ -147,26 +149,26 @@ class ImagePipelineTest {
     }
 
     @Test
-    fun createRequestWithCroppingAndMaxQuality_cameraRequestJpegQualityIs100() {
+    fun createRequestWithCroppingAndMaxQuality_cameraRequestJpegQualityIsMaxQuality() {
         assertThat(
             getCameraRequestJpegQuality(
                 CROP_RECT,
                 CAPTURE_MODE_MAXIMIZE_QUALITY
             )
         ).isEqualTo(
-            100
+            JPEG_QUALITY_MAX_QUALITY
         )
     }
 
     @Test
-    fun createRequestWithCroppingAndMinLatency_cameraRequestJpegQualityIsOriginal() {
+    fun createRequestWithCroppingAndMinLatency_cameraRequestJpegQualityIsMinLatency() {
         assertThat(
             getCameraRequestJpegQuality(
                 CROP_RECT,
                 CAPTURE_MODE_MINIMIZE_LATENCY
             )
         ).isEqualTo(
-            JPEG_QUALITY
+            JPEG_QUALITY_MIN_LATENCY
         )
     }
 

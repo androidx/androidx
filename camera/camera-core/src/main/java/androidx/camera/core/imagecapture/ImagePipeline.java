@@ -53,6 +53,9 @@ import java.util.List;
 @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 public class ImagePipeline {
 
+    static final byte JPEG_QUALITY_MAX_QUALITY = 100;
+    static final byte JPEG_QUALITY_MIN_LATENCY = 95;
+
     static final ExifRotationAvailability EXIF_ROTATION_AVAILABILITY =
             new ExifRotationAvailability();
     // Use case configs.
@@ -225,14 +228,17 @@ public class ImagePipeline {
     int getCameraRequestJpegQuality(@NonNull TakePictureRequest request) {
         boolean isOnDisk = request.getOnDiskCallback() != null;
         boolean hasCropping = hasCropping(request.getCropRect(), mPipelineIn.getSize());
-        boolean isMaxQuality =
-                request.getCaptureMode() == ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY;
-        if (isOnDisk && hasCropping && isMaxQuality) {
+        if (isOnDisk && hasCropping) {
             // For saving to disk, the image is decoded to Bitmap, cropped and encoded to JPEG
-            // again. In that case, use 100 to avoid compression quality loss. The trade-off of
-            // using a high quality is poorer performance. So we only do that if the capture mode
-            // is CAPTURE_MODE_MAXIMIZE_QUALITY.
-            return 100;
+            // again. In that case, use a high JPEG quality for the hardware compression to avoid
+            // quality loss.
+            if (request.getCaptureMode() == ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY) {
+                // The trade-off of using a high quality is poorer performance. So we only do
+                // that if the capture mode is CAPTURE_MODE_MAXIMIZE_QUALITY.
+                return JPEG_QUALITY_MAX_QUALITY;
+            } else {
+                return JPEG_QUALITY_MIN_LATENCY;
+            }
         }
         return request.getJpegQuality();
     }
