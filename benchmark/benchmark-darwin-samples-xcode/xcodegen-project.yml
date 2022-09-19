@@ -19,13 +19,13 @@ targets:
           settingsTarget: testapp-ios
           script: |
             cd ${PROJECT_DIR}/../..
-            ANDROIDX_PROJECTS=KMP ./gradlew :benchmark:benchmark-darwin-samples:assembleAndroidXDarwinSampleBenchmarksDebugXCFramework \
+            ANDROIDX_PROJECTS=KMP ./gradlew :benchmark:benchmark-darwin-samples:assembleAndroidXDarwinSampleBenchmarksReleaseXCFramework \
                 --no-configuration-cache < /dev/null
           outputFiles:
-            - "${PROJECT_DIR}/../../../../out/androidx/benchmark/benchmark-darwin-samples/build/XCFrameworks/debug/AndroidXDarwinSampleBenchmarks.xcframework"
+            - "${PROJECT_DIR}/../../../../out/androidx/benchmark/benchmark-darwin-samples/build/XCFrameworks/release/AndroidXDarwinSampleBenchmarks.xcframework"
       gatherCoverageData: false
     dependencies:
-      - framework: "${PROJECT_DIR}/../../../../out/androidx/benchmark/benchmark-darwin-samples/build/XCFrameworks/debug/AndroidXDarwinSampleBenchmarks.xcframework"
+      - framework: "${PROJECT_DIR}/../../../../out/androidx/benchmark/benchmark-darwin-samples/build/XCFrameworks/release/AndroidXDarwinSampleBenchmarks.xcframework"
     settings:
       PRODUCT_NAME: testapp-ios
 
