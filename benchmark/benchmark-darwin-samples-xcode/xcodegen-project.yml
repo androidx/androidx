@@ -13,7 +13,19 @@ targets:
     scheme:
       testTargets:
         - testapp-ios-benchmarks
+      preActions:
+        - name: build AndroidXDarwinSampleBenchmarks.xcframework
+          basedOnDependencyAnalysis: false
+          settingsTarget: testapp-ios
+          script: |
+            cd ${PROJECT_DIR}/../..
+            ANDROIDX_PROJECTS=KMP ./gradlew :benchmark:benchmark-darwin-samples:assembleAndroidXDarwinSampleBenchmarksDebugXCFramework \
+                --no-configuration-cache < /dev/null
+          outputFiles:
+            - "${PROJECT_DIR}/../../../../out/androidx/benchmark/benchmark-darwin-samples/build/XCFrameworks/debug/AndroidXDarwinSampleBenchmarks.xcframework"
       gatherCoverageData: false
+    dependencies:
+      - framework: "${PROJECT_DIR}/../../../../out/androidx/benchmark/benchmark-darwin-samples/build/XCFrameworks/debug/AndroidXDarwinSampleBenchmarks.xcframework"
     settings:
       PRODUCT_NAME: testapp-ios
 
@@ -25,19 +37,7 @@ targets:
     sources:
       - path: 'iosAppUnitTests/main'
     scheme:
-      preActions:
-        - name: build AndroidXDarwinSampleBenchmarks.xcframework
-          basedOnDependencyAnalysis: false
-          settingsTarget: testapp-ios
-          script: |
-            cd ${PROJECT_DIR}/../..
-            ./gradlew :benchmark:benchmark-darwin-samples:assembleAndroidXDarwinSampleBenchmarksDebugXCFramework \
-                --no-configuration-cache                         \
-                -Pandroidx.enabled.kmp.target.platforms="+MAC"
-          outputFiles:
-            - "${PROJECT_DIR}/../../../../out/androidx/benchmark/benchmark-darwin-samples/build/XCFrameworks/debug/AndroidXDarwinSampleBenchmarks.xcframework"
-    dependencies:
-      - framework: "${PROJECT_DIR}/../../../../out/androidx/benchmark/benchmark-darwin-samples/build/XCFrameworks/debug/AndroidXDarwinSampleBenchmarks.xcframework"
+      gatherCoverageData: false
     settings:
       PRODUCT_NAME: testapp-ios-benchmarks
 
