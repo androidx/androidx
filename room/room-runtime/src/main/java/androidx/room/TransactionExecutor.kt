@@ -15,7 +15,6 @@
  */
 package androidx.room
 
-import android.annotation.SuppressLint
 import java.util.ArrayDeque
 import java.util.concurrent.Executor
 
@@ -45,8 +44,6 @@ internal class TransactionExecutor(private val executor: Executor) : Executor {
         }
     }
 
-    @SuppressLint("BanSynchronizedMethods")
-    @Synchronized
     fun scheduleNext() {
         synchronized(syncLock) {
             if (tasks.poll().also { active = it } != null) {
