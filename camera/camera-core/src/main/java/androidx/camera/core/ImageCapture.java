@@ -44,6 +44,9 @@ import static androidx.camera.core.impl.ImageInputConfig.OPTION_INPUT_FORMAT;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_CAMERA_SELECTOR;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_ZSL_DISABLED;
 import static androidx.camera.core.impl.utils.Threads.checkMainThread;
+import static androidx.camera.core.impl.utils.TransformUtils.is90or270;
+import static androidx.camera.core.internal.utils.ImageUtil.computeCropRectFromAspectRatio;
+import static androidx.camera.core.internal.utils.ImageUtil.isAspectRatioValid;
 import static androidx.core.util.Preconditions.checkNotNull;
 import static androidx.core.util.Preconditions.checkState;
 
@@ -1938,12 +1941,33 @@ public final class ImageCapture extends UseCase {
                 inMemoryCallback,
                 onDiskCallback,
                 outputFileOptions,
-                requireNonNull(getViewPortCropRect()),
+                getTakePictureCropRect(),
                 getSensorToBufferTransformMatrix(),
                 getRelativeRotation(requireNonNull(getCamera())),
                 getJpegQualityInternal(),
                 getCaptureMode(),
                 mSessionConfigBuilder.getSingleCameraCaptureCallbacks()));
+    }
+
+    /**
+     * Calculates a snapshot of crop rect when app calls {@link #takePicture}.
+     */
+    @NonNull
+    private Rect getTakePictureCropRect() {
+        Rect rect = getViewPortCropRect();
+        Size resolution = requireNonNull(getAttachedSurfaceResolution());
+        if (rect != null) {
+            return rect;
+        } else if (isAspectRatioValid(mCropAspectRatio)) {
+            int rotationDegrees = getRelativeRotation(requireNonNull(getCamera()));
+            Rational rotatedAspectRatio = new Rational(
+                    /* numerator= */ mCropAspectRatio.getDenominator(),
+                    /* denominator= */ mCropAspectRatio.getNumerator());
+            Rational sensorCropRatio = is90or270(rotationDegrees)
+                    ? rotatedAspectRatio : mCropAspectRatio;
+            return requireNonNull(computeCropRectFromAspectRatio(resolution, sensorCropRatio));
+        }
+        return new Rect(0, 0, resolution.getWidth(), resolution.getHeight());
     }
 
     /**
