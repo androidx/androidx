@@ -199,10 +199,14 @@ public class TakePictureManager {
 
             @Override
             public void onFailure(@NonNull Throwable throwable) {
-                cameraRequest.onCaptureFailure(new ImageCaptureException(
-                        ERROR_CAPTURE_FAILED,
-                        "Failed to submit capture request",
-                        throwable));
+                if (throwable instanceof ImageCaptureException) {
+                    cameraRequest.onCaptureFailure((ImageCaptureException) throwable);
+                } else {
+                    cameraRequest.onCaptureFailure(new ImageCaptureException(
+                            ERROR_CAPTURE_FAILED,
+                            "Failed to submit capture request",
+                            throwable));
+                }
                 mImageCaptureControl.unlockFlashMode();
             }
         }, mainThreadExecutor());
