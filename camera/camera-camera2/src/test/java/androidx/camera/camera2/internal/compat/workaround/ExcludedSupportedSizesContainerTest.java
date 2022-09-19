@@ -49,30 +49,53 @@ public class ExcludedSupportedSizesContainerTest {
 
     private static final Size SIZE_4000_3000 = new Size(4000, 3000);
     private static final Size SIZE_4160_3120 = new Size(4160, 3120);
+    private static final Size SIZE_1920_1080 = new Size(1920, 1080);
     private static final Size SIZE_720_720 = new Size(720, 720);
     private static final Size SIZE_400_400 = new Size(400, 400);
 
     @ParameterizedRobolectricTestRunner.Parameters
     public static Collection<Object[]> data() {
         final List<Object[]> data = new ArrayList<>();
-        data.add(new Object[]{
-                new Config("OnePlus", "OnePlus6", "0", JPEG, SIZE_4000_3000, SIZE_4160_3120)});
-        data.add(new Object[]{new Config("OnePlus", "OnePlus6", "1", JPEG)});
-        data.add(new Object[]{new Config("OnePlus", "OnePlus6", "0", PRIVATE)});
-        data.add(new Object[]{
-                new Config("OnePlus", "OnePlus6T", "0", JPEG, SIZE_4000_3000, SIZE_4160_3120)});
-        data.add(new Object[]{new Config("OnePlus", "OnePlus6T", "1", JPEG)});
-        data.add(new Object[]{new Config("OnePlus", "OnePlus6T", "0", PRIVATE)});
-        data.add(new Object[]{new Config("OnePlus", "OnePlus3", "0", JPEG)});
-        data.add(new Object[]{new Config(null, null, "0", JPEG)});
+        data.add(new Object[]{new Config("OnePlus", "OnePlus6", "0", JPEG, null, SIZE_4000_3000,
+                SIZE_4160_3120)});
+        data.add(new Object[]{new Config("OnePlus", "OnePlus6", "1", JPEG, null)});
+        data.add(new Object[]{new Config("OnePlus", "OnePlus6", "0", PRIVATE, null)});
+        data.add(new Object[]{new Config("OnePlus", "OnePlus6T", "0", JPEG, null, SIZE_4000_3000,
+                SIZE_4160_3120)});
+        data.add(new Object[]{new Config("OnePlus", "OnePlus6T", "1", JPEG, null)});
+        data.add(new Object[]{new Config("OnePlus", "OnePlus6T", "0", PRIVATE, null)});
+        data.add(new Object[]{new Config("OnePlus", "OnePlus3", "0", JPEG, null)});
+        data.add(new Object[]{new Config(null, null, "0", JPEG, null)});
         // Huawei P20 Lite
         data.add(new Object[]{
-                new Config("HUAWEI", "HWANE", "0", PRIVATE, SIZE_720_720, SIZE_400_400)});
-        data.add(new Object[]{new Config("HUAWEI", "HWANE", "1", PRIVATE)});
+                new Config("HUAWEI", "HWANE", "0", PRIVATE, null, SIZE_720_720, SIZE_400_400)});
+        data.add(new Object[]{new Config("HUAWEI", "HWANE", "1", PRIVATE, null)});
         data.add(new Object[]{
-                new Config("HUAWEI", "HWANE", "0", YUV_420_888, SIZE_720_720, SIZE_400_400)});
-        data.add(new Object[]{new Config("HUAWEI", "HWANE", "1", YUV_420_888)});
-        data.add(new Object[]{new Config("HUAWEI", "HWANE", "0", JPEG)});
+                new Config("HUAWEI", "HWANE", "0", YUV_420_888, null, SIZE_720_720, SIZE_400_400)});
+        data.add(new Object[]{new Config("HUAWEI", "HWANE", "1", YUV_420_888, null)});
+        data.add(new Object[]{new Config("HUAWEI", "HWANE", "0", JPEG, null)});
+        // Samsung J7 Prime (SM-G610M)
+        data.add(new Object[]{
+                new Config("SAMSUNG", "ON7XELTE", "0", PRIVATE, () -> Build.VERSION.SDK_INT >= 27,
+                        SIZE_1920_1080)});
+        data.add(new Object[]{
+                new Config("SAMSUNG", "ON7XELTE", "0", JPEG, () -> Build.VERSION.SDK_INT >= 27)});
+        data.add(new Object[]{
+                new Config("SAMSUNG", "ON7XELTE", "1", PRIVATE, () -> Build.VERSION.SDK_INT >= 27,
+                        SIZE_1920_1080)});
+        data.add(new Object[]{new Config("SAMSUNG", "ON7XELTE", "1", YUV_420_888,
+                () -> Build.VERSION.SDK_INT >= 27)});
+        // Samsung J7 (SM-J710MN)
+        data.add(new Object[]{
+                new Config("SAMSUNG", "J7XELTE", "0", PRIVATE, () -> Build.VERSION.SDK_INT >= 27,
+                        SIZE_1920_1080)});
+        data.add(new Object[]{
+                new Config("SAMSUNG", "J7XELTE", "0", JPEG, () -> Build.VERSION.SDK_INT >= 27)});
+        data.add(new Object[]{
+                new Config("SAMSUNG", "J7XELTE", "1", PRIVATE, () -> Build.VERSION.SDK_INT >= 27,
+                        SIZE_1920_1080)});
+        data.add(new Object[]{new Config("SAMSUNG", "J7XELTE", "1", YUV_420_888,
+                () -> Build.VERSION.SDK_INT >= 27)});
         return data;
     }
 
@@ -98,7 +121,11 @@ public class ExcludedSupportedSizesContainerTest {
         // Get sizes to exclude
         final List<Size> excludedSizes = excludedSupportedSizesContainer.get(mConfig.mImageFormat);
 
-        assertThat(excludedSizes).containsExactly((Object[]) mConfig.mExcludedSizes);
+        if (mConfig.mApiLevelChecker == null || mConfig.mApiLevelChecker.isApiLevelContained()) {
+            assertThat(excludedSizes).containsExactly((Object[]) mConfig.mExcludedSizes);
+        } else {
+            assertThat(excludedSizes).isEmpty();
+        }
     }
 
     static class Config {
@@ -109,16 +136,24 @@ public class ExcludedSupportedSizesContainerTest {
         @NonNull
         final String mCameraId;
         final int mImageFormat;
+        @Nullable
+        final ApiLevelChecker mApiLevelChecker;
         @NonNull
         final Size[] mExcludedSizes;
 
-        Config(@Nullable String brand, @Nullable String device,
-                @NonNull String cameraId, int imageFormat, @NonNull Size... excludedSizes) {
+        Config(@Nullable String brand, @Nullable String device, @NonNull String cameraId,
+                int imageFormat, @Nullable ApiLevelChecker apiLevelChecker,
+                @NonNull Size... excludedSizes) {
             mBrand = brand;
             mDevice = device;
             mCameraId = cameraId;
             mImageFormat = imageFormat;
+            mApiLevelChecker = apiLevelChecker;
             mExcludedSizes = excludedSizes;
         }
+    }
+
+    private interface ApiLevelChecker {
+        boolean isApiLevelContained();
     }
 }
