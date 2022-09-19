@@ -80,6 +80,12 @@ dependencies {
     samples(project(":window:window-samples"))
 }
 
+tasks.withType(KotlinCompile).configureEach {
+    kotlinOptions {
+        freeCompilerArgs += ["-Xjvm-default=all"]
+    }
+}
+
 androidx {
     name = "Jetpack WindowManager Library"
     publish = Publish.SNAPSHOT_AND_RELEASE
