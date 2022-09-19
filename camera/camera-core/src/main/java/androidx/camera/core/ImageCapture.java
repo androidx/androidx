@@ -1933,6 +1933,11 @@ public final class ImageCapture extends UseCase {
             @Nullable OutputFileOptions outputFileOptions) {
         checkMainThread();
         Log.d(TAG, "takePictureWithNode");
+        CameraInternal camera = getCamera();
+        if (camera == null) {
+            sendInvalidCameraError(executor, inMemoryCallback, onDiskCallback);
+            return;
+        }
         mTakePictureManager.offerRequest(TakePictureRequest.of(
                 executor,
                 inMemoryCallback,
@@ -1940,10 +1945,24 @@ public final class ImageCapture extends UseCase {
                 outputFileOptions,
                 requireNonNull(getViewPortCropRect()),
                 getSensorToBufferTransformMatrix(),
-                getRelativeRotation(requireNonNull(getCamera())),
+                getRelativeRotation(camera),
                 getJpegQualityInternal(),
                 getCaptureMode(),
                 mSessionConfigBuilder.getSingleCameraCaptureCallbacks()));
+    }
+
+    private void sendInvalidCameraError(@NonNull Executor executor,
+            @Nullable OnImageCapturedCallback inMemoryCallback,
+            @Nullable ImageCapture.OnImageSavedCallback onDiskCallback) {
+        ImageCaptureException exception = new ImageCaptureException(ERROR_INVALID_CAMERA,
+                "Not bound to a valid Camera [" + ImageCapture.this + "]", null);
+        if (inMemoryCallback != null) {
+            inMemoryCallback.onError(exception);
+        } else if (onDiskCallback != null) {
+            onDiskCallback.onError(exception);
+        } else {
+            throw new IllegalArgumentException("Must have either in-memory or on-disk callback.");
+        }
     }
 
     /**
