@@ -436,7 +436,8 @@ internal class GraphProcessorImpl @Inject constructor(
                 Debug.traceStop()
                 synchronized(lock) {
                     if (submitted) {
-                        check(submitQueue.removeAt(0) === burst)
+                        // submitQueue can potentially be cleared by abort() before entering here.
+                        check(submitQueue.isEmpty() || submitQueue.removeAt(0) === burst)
 
                         val nullableBurst = submitQueue.firstOrNull()
                         if (nullableBurst == null) {
