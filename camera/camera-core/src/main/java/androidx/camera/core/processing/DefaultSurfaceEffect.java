@@ -64,6 +64,11 @@ public class DefaultSurfaceEffect implements SurfaceEffectInternal,
     // Only access this on GL thread.
     private int mInputSurfaceCount = 0;
 
+    /** Constructs DefaultSurfaceEffect */
+    public DefaultSurfaceEffect() {
+        this(ShaderProvider.DEFAULT);
+    }
+
     /**
      * Constructs DefaultSurfaceEffect
      *
