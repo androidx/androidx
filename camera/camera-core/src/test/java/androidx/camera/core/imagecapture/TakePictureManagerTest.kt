@@ -19,6 +19,8 @@ package androidx.camera.core.imagecapture
 import android.os.Build
 import android.os.Looper.getMainLooper
 import androidx.camera.core.ImageCapture
+import androidx.camera.core.ImageCapture.ERROR_CAMERA_CLOSED
+import androidx.camera.core.ImageCapture.ERROR_CAPTURE_FAILED
 import androidx.camera.core.ImageCapture.OutputFileResults
 import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.impl.CaptureConfig
@@ -112,7 +114,23 @@ class TakePictureManagerTest {
     }
 
     @Test
-    fun submitRequestFails_appGetsErrorCallback() {
+    fun submitRequestFailsWithImageCaptureException_appGetsTheSameException() {
+        // Arrange: configure ImageCaptureControl to always fail.
+        val request = FakeTakePictureRequest(FakeTakePictureRequest.Type.IN_MEMORY)
+        val cause = ImageCaptureException(ERROR_CAMERA_CLOSED, "", null)
+        imageCaptureControl.response = Futures.immediateFailedFuture(cause)
+
+        // Act.
+        takePictureManager.offerRequest(request)
+        shadowOf(getMainLooper()).idle()
+
+        // Assert.
+        assertThat(request.exceptionReceived!!).isEqualTo(cause)
+        assertThat(takePictureManager.hasInFlightRequest()).isFalse()
+    }
+
+    @Test
+    fun submitRequestFailsWithGenericException_appGetsWrappedException() {
         // Arrange: configure ImageCaptureControl to always fail.
         val request = FakeTakePictureRequest(FakeTakePictureRequest.Type.IN_MEMORY)
         val cause = Exception()
@@ -123,6 +141,7 @@ class TakePictureManagerTest {
         shadowOf(getMainLooper()).idle()
 
         // Assert.
+        assertThat(request.exceptionReceived!!.imageCaptureError).isEqualTo(ERROR_CAPTURE_FAILED)
         assertThat(request.exceptionReceived!!.cause).isEqualTo(cause)
         assertThat(takePictureManager.hasInFlightRequest()).isFalse()
     }
