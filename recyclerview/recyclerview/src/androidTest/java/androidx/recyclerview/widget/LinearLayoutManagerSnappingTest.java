@@ -26,6 +26,7 @@ import android.view.View;
 import androidx.annotation.Nullable;
 import androidx.test.filters.LargeTest;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -101,6 +102,7 @@ public class LinearLayoutManagerSnappingTest extends BaseLinearLayoutManagerTest
         mLayoutManager.assertNoCallbacks("There should be no callbacks after some time", 3);
     }
 
+    @Ignore("b/243183159")
     @Test
     public void snapOnScrollSameView() throws Throwable {
         final Config config = (Config) mConfig.clone();
@@ -123,6 +125,7 @@ public class LinearLayoutManagerSnappingTest extends BaseLinearLayoutManagerTest
         assertCenterAligned(viewAfterFling);
     }
 
+    @Ignore("b/243183159")
     @Test
     public void snapOnScrollNextView() throws Throwable {
         final Config config = (Config) mConfig.clone();
@@ -145,6 +148,7 @@ public class LinearLayoutManagerSnappingTest extends BaseLinearLayoutManagerTest
         assertCenterAligned(viewAfterFling);
     }
 
+    @Ignore("b/243183159")
     @Test
     public void snapOnFlingSameView() throws Throwable {
         final Config config = (Config) mConfig.clone();
@@ -170,6 +174,7 @@ public class LinearLayoutManagerSnappingTest extends BaseLinearLayoutManagerTest
         assertCenterAligned(viewAfterFling);
     }
 
+    @Ignore("b/243183159")
     @Test
     public void snapOnFlingNextView() throws Throwable {
         final Config config = (Config) mConfig.clone();
