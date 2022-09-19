@@ -81,7 +81,6 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
@@ -531,7 +530,6 @@ public final class Camera2CameraImplTest {
     }
 
     @Test
-    @Ignore("b/239752223")
     public void cameraTransitionsThroughPendingState_whenNoCamerasAvailable() {
         @SuppressWarnings("unchecked") // Cannot mock generic type inline
         Observable.Observer<CameraInternal.State> mockObserver =
@@ -575,7 +573,6 @@ public final class Camera2CameraImplTest {
 
     @SuppressWarnings("unchecked")
     @Test
-    @Ignore("b/239752223")
     public void openNewCaptureSessionImmediateBeforePreviousCaptureSessionClosed()
             throws InterruptedException {
         mCamera2CameraImpl.open();

@@ -22,7 +22,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 import android.util.Pair;
 
@@ -113,7 +113,7 @@ public class SafeCloseImageReaderProxyTest {
                 mTag)), 1);
 
         // Assert
-        verifyZeroInteractions(onImageAvailableListener);
+        verifyNoMoreInteractions(onImageAvailableListener);
     }
 
     @Test
@@ -138,7 +138,7 @@ public class SafeCloseImageReaderProxyTest {
                 mTag)), 1);
 
         // Assert
-        verifyZeroInteractions(onImageAvailableListener);
+        verifyNoMoreInteractions(onImageAvailableListener);
     }
 
     @Test
