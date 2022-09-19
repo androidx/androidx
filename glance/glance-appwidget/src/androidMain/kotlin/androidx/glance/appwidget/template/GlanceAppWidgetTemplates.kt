@@ -92,6 +92,9 @@ internal fun AppWidgetTemplateHeader(
             )
         }
         actionButton?.let {
+            if (headerIcon != null || header != null) {
+                Spacer(modifier = GlanceModifier.width(8.dp))
+            }
             AppWidgetTemplateButton(
                 actionButton,
                 GlanceModifier.height(48.dp).width(48.dp)
@@ -229,6 +232,8 @@ internal fun HeaderBlockTemplate(headerBlock: HeaderBlock?) {
 @Composable
 internal fun ActionBlockTemplate(actionBlock: ActionBlock?) {
     if (actionBlock?.actionButtons?.isNotEmpty() == true) {
+        // TODO(b/247613894): Leading space here is error prone, space is usually added at a higher
+        //  level depending on context. Adding space here may lead to double spacing
         Spacer(modifier = GlanceModifier.height(16.dp))
         Row {
             actionBlock.actionButtons.forEach { button ->
