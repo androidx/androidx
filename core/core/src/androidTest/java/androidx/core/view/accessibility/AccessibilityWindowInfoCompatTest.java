@@ -42,7 +42,7 @@ public class AccessibilityWindowInfoCompatTest {
         return AccessibilityWindowInfoCompat.wrapNonNullInstance(accessibilityWindowInfo);
     }
 
-    @TargetApi(30)
+    @SdkSuppress(minSdkVersion = 30)
     @SmallTest
     @Test
     public void testConstructor() {
