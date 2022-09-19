@@ -38,7 +38,7 @@ dependencies {
     testImplementation(libs.junit)
     testImplementation(libs.truth)
     testImplementation(libs.robolectric)
-    testImplementation(libs.mockitoCore)
+    testImplementation(libs.mockitoCore4)
     testImplementation(libs.kotlinCoroutinesTest)
     testImplementation("androidx.annotation:annotation-experimental:1.1.0")
     testImplementation("androidx.concurrent:concurrent-futures-ktx:1.1.0")
@@ -56,7 +56,7 @@ dependencies {
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.truth)
     androidTestImplementation(libs.testUiautomator)
-    androidTestImplementation(libs.mockitoCore, excludes.bytebuddy) // DexMaker has it's own MockMaker
+    androidTestImplementation(libs.mockitoCore4, excludes.bytebuddy) // DexMaker has it's own MockMaker
     androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy) // DexMaker has it's own MockMaker
     androidTestImplementation("androidx.appcompat:appcompat:1.1.0")
     androidTestImplementation(project(":camera:camera-testing"))
