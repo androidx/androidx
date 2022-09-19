@@ -80,6 +80,9 @@ public class DeviceQuirksLoader {
         if (PreviewStretchWhenVideoCaptureIsBoundQuirk.load()) {
             quirks.add(new PreviewStretchWhenVideoCaptureIsBoundQuirk());
         }
+        if (AudioTimestampFramePositionIncorrectQuirk.load()) {
+            quirks.add(new AudioTimestampFramePositionIncorrectQuirk());
+        }
 
         return quirks;
     }
