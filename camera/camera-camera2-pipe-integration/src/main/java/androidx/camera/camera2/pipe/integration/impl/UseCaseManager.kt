@@ -26,6 +26,8 @@ import androidx.camera.camera2.pipe.integration.config.UseCaseCameraConfig
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.UseCase
 import javax.inject.Inject
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.joinAll
 
 /**
  * This class keeps track of the currently attached and active [UseCase]'s for a specific camera.
@@ -76,6 +78,8 @@ class UseCaseManager @Inject constructor(
     private var _activeComponent: UseCaseCameraComponent? = null
     val camera: UseCaseCamera?
         get() = _activeComponent?.getUseCaseCamera()
+
+    private val closingCameraJobs = mutableListOf<Job>()
 
     /**
      * This attaches the specified [useCases] to the current set of attached use cases. When any
@@ -176,6 +180,17 @@ class UseCaseManager @Inject constructor(
         }
     }
 
+    suspend fun close() {
+        val closingJobs = synchronized(lock) {
+            if (attachedUseCases.isNotEmpty()) {
+                detach(attachedUseCases.toList())
+            }
+            meteringRepeating.onDetached()
+            closingCameraJobs.toList()
+        }
+        closingJobs.joinAll()
+    }
+
     override fun toString(): String = "UseCaseManager<${cameraConfig.cameraId}>"
 
     @GuardedBy("lock")
@@ -195,7 +210,12 @@ class UseCaseManager @Inject constructor(
         // Close prior camera graph
         camera.let {
             _activeComponent = null
-            it?.close()
+            it?.close()?.let { closingJob ->
+                closingCameraJobs.add(closingJob)
+                closingJob.invokeOnCompletion {
+                    closingCameraJobs.remove(closingJob)
+                }
+            }
         }
 
         // Update list of active useCases
