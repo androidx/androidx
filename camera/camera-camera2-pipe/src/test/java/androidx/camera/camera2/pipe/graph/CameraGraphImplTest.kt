@@ -16,147 +16,189 @@
 
 package androidx.camera.camera2.pipe.graph
 
+import android.content.Context
 import android.hardware.camera2.CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL
 import android.hardware.camera2.CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL
 import android.os.Build
+import androidx.camera.camera2.pipe.CameraBackendFactory
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.Request
-import androidx.camera.camera2.pipe.testing.FakeCameraController
+import androidx.camera.camera2.pipe.internal.CameraBackendsImpl
+import androidx.camera.camera2.pipe.testing.FakeCameraBackend
+import androidx.camera.camera2.pipe.testing.CameraControllerSimulator
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
 import androidx.camera.camera2.pipe.testing.FakeGraphProcessor
+import androidx.camera.camera2.pipe.testing.FakeThreads
 import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
-import androidx.camera.camera2.pipe.testing.RobolectricCameras
+import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
-import kotlinx.coroutines.runBlocking
-import org.junit.Before
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.runTest
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(RobolectricCameraPipeTestRunner::class)
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 internal class CameraGraphImplTest {
-    private val fakeCameraId = RobolectricCameras.create()
-    private val fakeMetadata = FakeCameraMetadata(
+    private val context = ApplicationProvider.getApplicationContext() as Context
+    private val metadata = FakeCameraMetadata(
         mapOf(INFO_SUPPORTED_HARDWARE_LEVEL to INFO_SUPPORTED_HARDWARE_LEVEL_FULL),
-        cameraId = fakeCameraId
     )
     private val fakeGraphProcessor = FakeGraphProcessor()
-    private val fakeCameraController = FakeCameraController()
-    private lateinit var impl: CameraGraphImpl
+    private lateinit var cameraController: CameraControllerSimulator
 
-    @Before
-    fun setUp() {
-        val config = CameraGraph.Config(
-            camera = fakeCameraId,
+    private fun initializeCameraGraphImpl(scope: TestScope): CameraGraphImpl {
+        val graphConfig = CameraGraph.Config(
+            camera = metadata.camera,
             streams = listOf(),
         )
-        val streamGraph = StreamGraphImpl(
-            fakeMetadata,
-            config
+        val threads = FakeThreads.fromTestScope(scope)
+        val backend = FakeCameraBackend(
+            fakeCameras = mapOf(metadata.camera to metadata)
         )
-        val surfaceGraph = SurfaceGraph(streamGraph, fakeCameraController)
-
-        impl = CameraGraphImpl(
-            config,
-            fakeMetadata,
+        val backends = CameraBackendsImpl(
+            defaultBackendId = backend.id,
+            cameraBackends = mapOf(backend.id to CameraBackendFactory { backend }),
+            context,
+            threads
+        )
+        val cameraContext = CameraBackendsImpl.CameraBackendContext(
+            context,
+            threads,
+            backends
+        )
+        val streamGraph = StreamGraphImpl(
+            metadata,
+            graphConfig
+        )
+        cameraController = CameraControllerSimulator(
+            cameraContext,
+            graphConfig,
+            fakeGraphProcessor,
+            streamGraph
+        )
+        val surfaceGraph = SurfaceGraph(streamGraph, cameraController)
+        return CameraGraphImpl(
+            graphConfig,
+            metadata,
             fakeGraphProcessor,
             streamGraph,
             surfaceGraph,
-            fakeCameraController,
+            cameraController,
             GraphState3A(),
             Listener3A()
         )
     }
 
     @Test
-    fun createCameraGraphImpl() {
-        assertThat(impl).isNotNull()
+    fun createCameraGraphImpl() = runTest {
+        val cameraGraphImpl = initializeCameraGraphImpl(this)
+        assertThat(cameraGraphImpl).isNotNull()
     }
 
     @Test
-    fun testAcquireSession() = runBlocking {
-        val session = impl.acquireSession()
+    fun testAcquireSession() = runTest {
+        val cameraGraphImpl = initializeCameraGraphImpl(this)
+        val session = cameraGraphImpl.acquireSession()
         assertThat(session).isNotNull()
     }
 
     @Test
-    fun testAcquireSessionOrNull() {
-        val session = impl.acquireSessionOrNull()
+    fun testAcquireSessionOrNull() = runTest {
+        val cameraGraphImpl = initializeCameraGraphImpl(this)
+        val session = cameraGraphImpl.acquireSessionOrNull()
         assertThat(session).isNotNull()
     }
 
     @Test
-    fun testAcquireSessionOrNullAfterAcquireSession() = runBlocking {
-        val session = impl.acquireSession()
+    fun testAcquireSessionOrNullAfterAcquireSession() = runTest {
+        val cameraGraphImpl = initializeCameraGraphImpl(this)
+        val session = cameraGraphImpl.acquireSession()
         assertThat(session).isNotNull()
 
         // Since a session is already active, an attempt to acquire another session will fail.
-        val session1 = impl.acquireSessionOrNull()
+        val session1 = cameraGraphImpl.acquireSessionOrNull()
         assertThat(session1).isNull()
 
         // Closing an active session should allow a new session instance to be created.
         session.close()
 
-        val session2 = impl.acquireSessionOrNull()
+        val session2 = cameraGraphImpl.acquireSessionOrNull()
         assertThat(session2).isNotNull()
     }
 
     @Test
-    fun sessionSubmitsRequestsToGraphProcessor() {
-        val session = checkNotNull(impl.acquireSessionOrNull())
+    fun sessionSubmitsRequestsToGraphProcessor() = runTest {
+        val cameraGraphImpl = initializeCameraGraphImpl(this)
+        val session = checkNotNull(cameraGraphImpl.acquireSessionOrNull())
         val request = Request(listOf())
         session.submit(request)
+        advanceUntilIdle()
 
         assertThat(fakeGraphProcessor.requestQueue).contains(listOf(request))
     }
 
     @Test
-    fun sessionSetsRepeatingRequestOnGraphProcessor() {
-        val session = checkNotNull(impl.acquireSessionOrNull())
+    fun sessionSetsRepeatingRequestOnGraphProcessor() = runTest {
+        val cameraGraphImpl = initializeCameraGraphImpl(this)
+        val session = checkNotNull(cameraGraphImpl.acquireSessionOrNull())
         val request = Request(listOf())
         session.startRepeating(request)
+        advanceUntilIdle()
 
         assertThat(fakeGraphProcessor.repeatingRequest).isSameInstanceAs(request)
     }
 
     @Test
-    fun sessionAbortsRequestOnGraphProcessor() {
-        val session = checkNotNull(impl.acquireSessionOrNull())
+    fun sessionAbortsRequestOnGraphProcessor() = runTest {
+        val cameraGraphImpl = initializeCameraGraphImpl(this)
+        val session = checkNotNull(cameraGraphImpl.acquireSessionOrNull())
         val request = Request(listOf())
         session.submit(request)
         session.abort()
+        advanceUntilIdle()
 
         assertThat(fakeGraphProcessor.requestQueue).isEmpty()
     }
 
     @Test
-    fun closingSessionDoesNotCloseGraphProcessor() {
-        val session = impl.acquireSessionOrNull()
+    fun closingSessionDoesNotCloseGraphProcessor() = runTest {
+        val cameraGraphImpl = initializeCameraGraphImpl(this)
+        val session = cameraGraphImpl.acquireSessionOrNull()
         checkNotNull(session).close()
+        advanceUntilIdle()
 
         assertThat(fakeGraphProcessor.closed).isFalse()
     }
 
     @Test
-    fun closingCameraGraphClosesGraphProcessor() {
-        impl.close()
+    fun closingCameraGraphClosesGraphProcessor() = runTest {
+        val cameraGraphImpl = initializeCameraGraphImpl(this)
+        cameraGraphImpl.close()
         assertThat(fakeGraphProcessor.closed).isTrue()
     }
 
     @Test
-    fun stoppingCameraGraphStopsGraphProcessor() {
-        assertThat(fakeCameraController.active).isFalse()
-        impl.start()
-        assertThat(fakeCameraController.active).isTrue()
-        impl.stop()
-        assertThat(fakeCameraController.active).isFalse()
-        impl.start()
-        assertThat(fakeCameraController.active).isTrue()
-        impl.close()
+    fun stoppingCameraGraphStopsGraphProcessor() = runTest {
+        val cameraGraph = initializeCameraGraphImpl(this)
+
+        assertThat(cameraController.started).isFalse()
+        assertThat(fakeGraphProcessor.closed).isFalse()
+        cameraGraph.start()
+        assertThat(cameraController.started).isTrue()
+        cameraGraph.stop()
+        assertThat(cameraController.started).isFalse()
+        assertThat(fakeGraphProcessor.closed).isFalse()
+        cameraGraph.start()
+        assertThat(cameraController.started).isTrue()
+        cameraGraph.close()
+        assertThat(cameraController.started).isFalse()
         assertThat(fakeGraphProcessor.closed).isTrue()
-        assertThat(fakeCameraController.active).isFalse()
     }
 }

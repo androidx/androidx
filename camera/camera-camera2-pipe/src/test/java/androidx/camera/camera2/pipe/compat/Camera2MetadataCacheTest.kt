@@ -24,17 +24,20 @@ import androidx.camera.camera2.pipe.testing.FakeThreads
 import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
 import androidx.camera.camera2.pipe.testing.RobolectricCameras
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.runTest
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(RobolectricCameraPipeTestRunner::class)
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 internal class Camera2MetadataCacheTest {
     @Test
-    fun metadataIsCachedAndShimmed() {
+    fun metadataIsCachedAndShimmed() = runTest {
         val camera0 = RobolectricCameras.create(
             mapOf(
                 CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL to CameraCharacteristics
@@ -57,7 +60,7 @@ internal class Camera2MetadataCacheTest {
 
         val cache = Camera2MetadataCache(
             RobolectricCameras.application,
-            FakeThreads.forTests,
+            FakeThreads.fromTestScope(this),
             Permissions(RobolectricCameras.application),
             CameraPipe.CameraMetadataConfig()
         )

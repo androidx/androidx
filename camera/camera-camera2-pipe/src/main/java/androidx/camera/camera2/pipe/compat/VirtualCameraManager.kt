@@ -146,7 +146,7 @@ internal class VirtualCameraManager @Inject constructor(
 
             // Sanity Check: If the camera we are attempting to open is now closed or disconnected,
             // skip this virtual camera request.
-            if (request.virtualCamera.state.value !is CameraStateUnopened) {
+            if (request.virtualCamera.value !is CameraStateUnopened) {
                 requests.remove(request)
                 continue
             }

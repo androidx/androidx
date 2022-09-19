@@ -22,7 +22,6 @@ import android.view.Surface
 import androidx.annotation.GuardedBy
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraSurfaceManager
-import androidx.camera.camera2.pipe.RequestProcessor
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.core.Debug
 import androidx.camera.camera2.pipe.core.Log
@@ -30,7 +29,7 @@ import androidx.camera.camera2.pipe.core.TimestampNs
 import androidx.camera.camera2.pipe.core.Timestamps
 import androidx.camera.camera2.pipe.core.Timestamps.formatMs
 import androidx.camera.camera2.pipe.graph.GraphListener
-import androidx.camera.camera2.pipe.graph.StreamGraphImpl
+import androidx.camera.camera2.pipe.graph.GraphRequestProcessor
 import java.io.Closeable
 import java.util.Collections.synchronizedMap
 import kotlinx.atomicfu.atomic
@@ -50,10 +49,10 @@ internal val virtualSessionDebugIds = atomic(0)
 internal class VirtualSessionState(
     private val graphListener: GraphListener,
     private val captureSessionFactory: CaptureSessionFactory,
-    private val requestProcessorFactory: Camera2RequestProcessorFactory,
+    private val captureSequenceProcessorFactory: Camera2CaptureSequenceProcessorFactory,
     private val cameraSurfaceManager: CameraSurfaceManager,
     private val scope: CoroutineScope
-) : CameraCaptureSessionWrapper.StateCallback, StreamGraphImpl.SurfaceListener {
+) : CameraCaptureSessionWrapper.StateCallback {
     private val debugId = virtualSessionDebugIds.incrementAndGet()
     private val lock = Any()
 
@@ -101,8 +100,7 @@ internal class VirtualSessionState(
 
     @GuardedBy("lock")
     private val _surfaceTokenMap: MutableMap<Surface, Closeable> = mutableMapOf()
-
-    override fun onSurfaceMapUpdated(surfaces: Map<StreamId, Surface>) {
+    fun configureSurfaceMap(surfaces: Map<StreamId, Surface>) {
         synchronized(lock) {
             if (state == State.CLOSING || state == State.CLOSED) {
                 return@synchronized
@@ -178,7 +176,9 @@ internal class VirtualSessionState(
             if (cameraCaptureSession == null && session != null) {
                 captureSession = ConfiguredCameraCaptureSession(
                     session,
-                    requestProcessorFactory.create(session, activeSurfaceMap)
+                    GraphRequestProcessor.from(
+
+                        captureSequenceProcessorFactory.create(session, activeSurfaceMap))
                 )
                 cameraCaptureSession = captureSession
             } else {
@@ -206,7 +206,7 @@ internal class VirtualSessionState(
                     "Configured $this in ${duration.formatMs()}"
                 }
 
-                graphListener.onGraphStarted(it.processor)
+                graphListener.onGraphModified(it.processor)
             }
         }
     }
@@ -321,7 +321,7 @@ internal class VirtualSessionState(
             }
 
             if (tryResubmit && retryAllowed) {
-                graphListener.onGraphUpdated(captureSession.processor)
+                graphListener.onGraphModified(captureSession.processor)
             }
             Debug.traceStop()
         }
@@ -417,6 +417,6 @@ internal class VirtualSessionState(
 
     private data class ConfiguredCameraCaptureSession(
         val session: CameraCaptureSessionWrapper,
-        val processor: RequestProcessor
+        val processor: GraphRequestProcessor
     )
 }

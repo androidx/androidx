@@ -19,9 +19,9 @@ package androidx.camera.camera2.pipe.graph
 import android.graphics.SurfaceTexture
 import android.os.Build
 import android.view.Surface
-import androidx.camera.camera2.pipe.testing.FakeCameraController
-import androidx.camera.camera2.pipe.testing.FakeCameraGraphConfig
+import androidx.camera.camera2.pipe.testing.FakeGraphConfigs
 import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
+import androidx.camera.camera2.pipe.testing.FakeCameraController
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -32,7 +32,7 @@ import org.robolectric.annotation.internal.DoNotInstrument
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 class SurfaceGraphTest {
-    private val config = FakeCameraGraphConfig()
+    private val config = FakeGraphConfigs
 
     private val streamMap = StreamGraphImpl(config.fakeMetadata, config.graphConfig)
     private val controller = FakeCameraController()
