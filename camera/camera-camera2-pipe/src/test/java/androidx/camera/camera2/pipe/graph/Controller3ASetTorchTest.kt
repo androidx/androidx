@@ -32,6 +32,7 @@ import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
+import org.junit.After
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
@@ -50,6 +51,11 @@ internal class Controller3ASetTorchTest {
         graphState3A,
         listener3A
     )
+
+    @After
+    fun teardown() {
+        graphTestContext.close()
+    }
 
     @Test
     fun testSetTorchOn() = runTest {

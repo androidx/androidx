@@ -38,6 +38,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
+import org.junit.After
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
@@ -59,6 +60,11 @@ internal class Controller3ALock3ATest {
         ),
     )
     private val controller3A = Controller3A(graphProcessor, fakeMetadata, graphState3A, listener3A)
+
+    @After
+    fun teardown() {
+        graphTestContext.close()
+    }
 
     @Test
     fun testAfImmediateAeImmediate() = runTest {

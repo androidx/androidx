@@ -33,6 +33,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
+import org.junit.After
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
@@ -52,6 +53,11 @@ class Controller3AForCaptureTest {
         graphState3A,
         listener3A
     )
+
+    @After
+    fun teardown() {
+        graphTestContext.close()
+    }
 
     @Test
     fun testLock3AForCapture() = runTest {
