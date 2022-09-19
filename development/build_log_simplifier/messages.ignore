@@ -456,8 +456,9 @@ Set 'kapt\.include\.compile\.classpath=false' to disable discovery\.
 Run the build with '\-\-info' for more details\.
 # > Task :health:health-connect-client:testDebugUnitTest
 WARNING: An illegal reflective access operation has occurred
-WARNING: Illegal reflective access by org\.robolectric\.util\.ReflectionHelpers\$[0-9]+ \(file:\$CHECKOUT/prebuilts/androidx/external/org/robolectric/shadowapi/[0-9]+\.[0-9]+\.[0-9]+/shadowapi\-[0-9]+\.[0-9]+\.[0-9]+\.jar\) to field java\.io\.FileDescriptor\.fd
-WARNING: Please consider reporting this to the maintainers of org\.robolectric\.util\.ReflectionHelpers\$[0-9]+
+WARNING: Illegal reflective access by org\.robolectric\.util\.ReflectionHelpers\$[0-9]+ \(file:\$CHECKOUT/prebuilts/androidx/external/org/robolectric/shadowapi/.*/shadowapi\-.*\.jar\) to field java\.io\.FileDescriptor\.fd
+WARNING: Illegal reflective access by org\.robolectric\.util\.ReflectionHelpers \(file:\$CHECKOUT/prebuilts/androidx/external/org/robolectric/shadowapi/.*/shadowapi\-.*\.jar\) to method java\.lang\.Class\.getDeclaredFields0\(boolean\)
+WARNING: Please consider reporting this to the maintainers of org\.robolectric\.util\.ReflectionHelpers.*
 WARNING: Use \-\-illegal\-access=warn to enable warnings of further illegal reflective access operations
 WARNING: All illegal access operations will be denied in a future release
 # > Task :room:room-compiler-processing-testing:test

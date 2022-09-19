@@ -196,7 +196,7 @@ protobufLite = { module = "com.google.protobuf:protobuf-javalite", version.ref =
 reactiveStreams = { module = "org.reactivestreams:reactive-streams", version = "1.0.0" }
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
 retrofitConverterWire = { module = "com.squareup.retrofit2:converter-wire", version.ref = "retrofit" }
-robolectric = { module = "org.robolectric:robolectric", version = "4.8.1" }
+robolectric = { module = "org.robolectric:robolectric", version = "4.9-alpha-1" }
 rxjava2 = { module = "io.reactivex.rxjava2:rxjava", version = "2.2.9" }
 rxjava3 = { module = "io.reactivex.rxjava3:rxjava", version = "3.0.0" }
 shadow = { module = "gradle.plugin.com.github.johnrengelman:shadow", version = "7.1.1" }
