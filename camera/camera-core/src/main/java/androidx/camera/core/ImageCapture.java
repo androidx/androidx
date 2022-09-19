@@ -2001,7 +2001,7 @@ public final class ImageCapture extends UseCase {
         checkMainThread();
         mImagePipeline.close();
         mImagePipeline = null;
-        mTakePictureManager.cancelUnsentRequests();
+        mTakePictureManager.abortRequests();
         mTakePictureManager = null;
     }
 

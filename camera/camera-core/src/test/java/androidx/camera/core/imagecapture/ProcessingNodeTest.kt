@@ -70,6 +70,31 @@ class ProcessingNodeTest {
     }
 
     @Test
+    fun processAbortedRequest_noOps() {
+        // Arrange: create a request with aborted callback.
+        val callback = FakeTakePictureCallback()
+        callback.aborted = true
+        val request = ProcessingRequest(
+            { listOf() },
+            OUTPUT_FILE_OPTIONS,
+            Rect(0, 0, WIDTH, HEIGHT),
+            ROTATION_DEGREES,
+            /*jpegQuality=*/100,
+            SENSOR_TO_BUFFER,
+            callback
+        )
+
+        // Act: process the request.
+        val jpegBytes = createJpegBytes(WIDTH, HEIGHT)
+        val image = createJpegFakeImageProxy(jpegBytes)
+        processingNodeIn.edge.accept(ProcessingNode.InputPacket.of(request, image))
+        shadowOf(getMainLooper()).idle()
+
+        // Assert: the image is not saved.
+        assertThat(callback.onDiskResult).isNull()
+    }
+
+    @Test
     fun cropRectEqualsImageRect_croppingNotInvoked() {
         // Arrange: create a request with no cropping
         val callback = FakeTakePictureCallback()
