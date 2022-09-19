@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!--
+<?xml version="1.0" encoding="UTF-8"?><!--
   Copyright 2022 The Android Open Source Project
 
   Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,11 +15,28 @@
   -->
 
 <resources>
+
     <array name="emoji_by_category_raw_resources">
         <item>@raw/emoji_category_emotions</item>
+        <item>@raw/emoji_category_people</item>
+        <item>@raw/emoji_category_animals_nature</item>
+        <item>@raw/emoji_category_food_drink</item>
+        <item>@raw/emoji_category_travel_places</item>
+        <item>@raw/emoji_category_activity</item>
+        <item>@raw/emoji_category_objects</item>
+        <item>@raw/emoji_category_symbols</item>
+        <item>@raw/emoji_category_flags</item>
     </array>
 
     <string-array name="category_names">
         <item>@string/emoji_category_emotions</item>
+        <item>@string/emoji_category_people</item>
+        <item>@string/emoji_category_animals_nature</item>
+        <item>@string/emoji_category_food_drink</item>
+        <item>@string/emoji_category_travel_places</item>
+        <item>@string/emoji_category_activity</item>
+        <item>@string/emoji_category_objects</item>
+        <item>@string/emoji_category_symbols</item>
+        <item>@string/emoji_category_flags</item>
     </string-array>
 </resources>
