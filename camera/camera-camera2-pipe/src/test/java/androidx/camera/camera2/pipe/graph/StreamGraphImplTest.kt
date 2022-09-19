@@ -23,7 +23,7 @@ import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraStream
 import androidx.camera.camera2.pipe.OutputStream
 import androidx.camera.camera2.pipe.StreamFormat
-import androidx.camera.camera2.pipe.testing.FakeCameraGraphConfig
+import androidx.camera.camera2.pipe.testing.FakeGraphConfigs
 import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
@@ -35,7 +35,7 @@ import org.robolectric.annotation.internal.DoNotInstrument
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 internal class StreamGraphImplTest {
-    private val config = FakeCameraGraphConfig()
+    private val config = FakeGraphConfigs
 
     @Test
     fun testPrecomputedTestData() {

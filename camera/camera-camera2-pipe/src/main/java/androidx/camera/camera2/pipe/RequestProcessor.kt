@@ -34,6 +34,7 @@ import androidx.annotation.RequiresApi
  * - Callbacks are expected to be invoked at *very* high frequency.
  * - One RequestProcessor instance per CameraCaptureSession
  */
+@Deprecated("Use CaptureSequence and CaptureSequenceProcessor instead.")
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 interface RequestProcessor {
 

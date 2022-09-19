@@ -30,6 +30,9 @@ import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.RequestMetadata
 import androidx.camera.camera2.pipe.RequestNumber
 import androidx.camera.camera2.pipe.StreamId
+import androidx.camera.camera2.pipe.CaptureSequence
+import androidx.camera.camera2.pipe.CaptureSequences.invokeOnRequest
+import androidx.camera.camera2.pipe.CaptureSequences.invokeOnRequests
 
 /**
  * This class responds to events from a set of one or more requests. It uses the tag field on
@@ -38,18 +41,20 @@ import androidx.camera.camera2.pipe.StreamId
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 internal class Camera2CaptureSequence(
-    private val internalListeners: List<Request.Listener>,
-    private val requests: Map<RequestNumber, RequestInfo>,
-    private val captureRequests: List<CaptureRequest>,
+    override val cameraId: CameraId,
+    override val repeating: Boolean,
+    override val captureRequestList: List<CaptureRequest>,
+    override val captureMetadataList: List<RequestMetadata>,
+    override val listeners: List<Request.Listener>,
+    override val sequenceListener: CaptureSequence.CaptureSequenceListener,
+    private val requestNumberMap: Map<RequestNumber, RequestMetadata>,
     private val surfaceMap: Map<Surface, StreamId>,
-    private val inFlightRequests: MutableList<Camera2CaptureSequence>,
-    private val camera: CameraId
-) : CameraCaptureSession.CaptureCallback() {
-    private val debugId = requestSequenceDebugIds.incrementAndGet()
+) : CameraCaptureSession.CaptureCallback(), CaptureSequence<CaptureRequest> {
+    private val debugId = captureSequenceDebugIds.incrementAndGet()
 
     @Volatile
     private var _sequenceNumber: Int? = null
-    var sequenceNumber: Int
+    override var sequenceNumber: Int
         get() {
             if (_sequenceNumber == null) {
                 // If the sequence id has not been submitted, it means the call to capture or
@@ -84,7 +89,7 @@ internal class Camera2CaptureSequence(
 
         // Load the request and throw if we are not able to find an associated request. Under
         // normal circumstances this should never happen.
-        val request = readRequest(requestNumber)
+        val request = readRequestMetadata(requestNumber)
 
         invokeOnRequest(request) {
             it.onStarted(
@@ -102,11 +107,11 @@ internal class Camera2CaptureSequence(
     ) {
         val requestNumber = readRequestNumber(captureRequest)
         val frameNumber = FrameNumber(partialCaptureResult.frameNumber)
-        val frameMetadata = AndroidFrameMetadata(partialCaptureResult, camera)
+        val frameMetadata = AndroidFrameMetadata(partialCaptureResult, cameraId)
 
         // Load the request and throw if we are not able to find an associated request. Under
         // normal circumstances this should never happen.
-        val request = readRequest(requestNumber)
+        val request = readRequestMetadata(requestNumber)
 
         invokeOnRequest(request) {
             it.onPartialCaptureResult(
@@ -122,21 +127,18 @@ internal class Camera2CaptureSequence(
         captureRequest: CaptureRequest,
         captureResult: TotalCaptureResult
     ) {
-        // Remove this request from the set of requests that are currently tracked.
-        synchronized(inFlightRequests) {
-            inFlightRequests.remove(this)
-        }
+        sequenceListener.onCaptureSequenceComplete(this)
 
         val requestNumber = readRequestNumber(captureRequest)
         val frameNumber = FrameNumber(captureResult.frameNumber)
 
         // Load the request and throw if we are not able to find an associated request. Under
         // normal circumstances this should never happen.
-        val request = readRequest(requestNumber)
+        val request = readRequestMetadata(requestNumber)
 
         val frameInfo = AndroidFrameInfo(
             captureResult,
-            camera,
+            cameraId,
             request
         )
 
@@ -164,17 +166,14 @@ internal class Camera2CaptureSequence(
         captureRequest: CaptureRequest,
         captureFailure: CaptureFailure
     ) {
-        // Remove this request from the set of requests that are currently tracked.
-        synchronized(inFlightRequests) {
-            inFlightRequests.remove(this)
-        }
+        sequenceListener.onCaptureSequenceComplete(this)
 
         val requestNumber = readRequestNumber(captureRequest)
         val frameNumber = FrameNumber(captureFailure.frameNumber)
 
         // Load the request and throw if we are not able to find an associated request. Under
         // normal circumstances this should never happen.
-        val request = readRequest(requestNumber)
+        val request = readRequestMetadata(requestNumber)
 
         invokeOnRequest(request) {
             it.onFailed(
@@ -199,7 +198,7 @@ internal class Camera2CaptureSequence(
 
         // Load the request and throw if we are not able to find an associated request. Under
         // normal circumstances this should never happen.
-        val request = readRequest(requestNumber)
+        val request = readRequestMetadata(requestNumber)
 
         invokeOnRequest(request) {
             it.onBufferLost(
@@ -210,38 +209,16 @@ internal class Camera2CaptureSequence(
         }
     }
 
-    /**
-     * Custom implementation that informs all listeners that the request had not completed when
-     * abort was called.
-     */
-    fun invokeOnAborted() {
-        invokeOnRequests { request, _, listener ->
-            listener.onAborted(request.request)
-        }
-    }
-
-    fun invokeOnRequestSequenceCreated() {
-        invokeOnRequests { request, _, listener ->
-            listener.onRequestSequenceCreated(request)
-        }
-    }
-
-    fun invokeOnRequestSequenceSubmitted() {
-        invokeOnRequests { request, _, listener ->
-            listener.onRequestSequenceSubmitted(request)
-        }
-    }
-
     override fun onCaptureSequenceCompleted(
         captureSession: CameraCaptureSession,
         captureSequenceId: Int,
         captureFrameNumber: Long
     ) {
+        sequenceListener.onCaptureSequenceComplete(this)
+
         check(sequenceNumber == captureSequenceId) {
-            "Complete was invoked on $sequenceNumber, but the sequence was not fully submitted!"
-        }
-        synchronized(inFlightRequests) {
-            inFlightRequests.remove(this)
+            "onCaptureSequenceCompleted was invoked on $sequenceNumber, but expected " +
+                "$captureSequenceId!"
         }
 
         val frameNumber = FrameNumber(captureFrameNumber)
@@ -254,13 +231,11 @@ internal class Camera2CaptureSequence(
         captureSession: CameraCaptureSession,
         captureSequenceId: Int
     ) {
-        check(sequenceNumber == captureSequenceId) {
-            "Abort was invoked on $sequenceNumber, but the sequence was not fully submitted!"
-        }
+        sequenceListener.onCaptureSequenceComplete(this)
 
-        // Remove this request from the set of requests that are currently tracked.
-        synchronized(inFlightRequests) {
-            inFlightRequests.remove(this)
+        check(sequenceNumber == captureSequenceId) {
+            "onCaptureSequenceAborted was invoked on $sequenceNumber, but expected " +
+                "$captureSequenceId!"
         }
 
         invokeOnRequests { request, _, listener ->
@@ -271,52 +246,11 @@ internal class Camera2CaptureSequence(
     private fun readRequestNumber(request: CaptureRequest): RequestNumber =
         checkNotNull(request.tag as RequestNumber)
 
-    private fun readRequest(requestNumber: RequestNumber): RequestInfo {
-        return checkNotNull(requests[requestNumber]) {
+    private fun readRequestMetadata(requestNumber: RequestNumber): RequestMetadata {
+        return checkNotNull(requestNumberMap[requestNumber]) {
             "Unable to find the request for $requestNumber!"
         }
     }
 
-    private inline fun invokeOnRequests(
-        crossinline fn: (RequestMetadata, Int, Request.Listener) -> Any
-    ) {
-
-        // Always invoke the internal listener first on all of the internal listeners for the
-        // entire sequence before invoking the listeners specified in the specific requests
-        for (i in captureRequests.indices) {
-            val requestNumber = readRequestNumber(captureRequests[i])
-            val request = checkNotNull(requests[requestNumber])
-
-            for (listenerIndex in internalListeners.indices) {
-                fn(request, i, internalListeners[listenerIndex])
-            }
-        }
-
-        for (i in captureRequests.indices) {
-            val requestNumber = readRequestNumber(captureRequests[i])
-            val request = checkNotNull(requests[requestNumber])
-
-            for (listenerIndex in request.request.listeners.indices) {
-                fn(request, i, request.request.listeners[listenerIndex])
-            }
-        }
-    }
-
-    private inline fun invokeOnRequest(
-        request: RequestInfo,
-        crossinline fn: (Request.Listener) -> Any
-    ) {
-        // Always invoke the internal listener first so that internal state can be updated before
-        // other listeners ask for it.
-        for (i in internalListeners.indices) {
-            fn(internalListeners[i])
-        }
-
-        // Invoke the listeners that were defined on this request.
-        for (i in request.request.listeners.indices) {
-            fn(request.request.listeners[i])
-        }
-    }
-
-    override fun toString(): String = "CaptureSequence-$debugId"
+    override fun toString(): String = "Camera2CaptureSequence-$debugId"
 }

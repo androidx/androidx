@@ -16,43 +16,135 @@
 
 package androidx.camera.camera2.pipe.testing
 
+import android.content.Context
+import android.graphics.SurfaceTexture
 import android.hardware.camera2.CaptureFailure
 import android.hardware.camera2.CaptureResult
+import android.view.Surface
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.CameraPipe
+import androidx.camera.camera2.pipe.CameraPipe.CameraBackendConfig
 import androidx.camera.camera2.pipe.CameraTimestamp
 import androidx.camera.camera2.pipe.FrameMetadata
 import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.Metadata
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.StreamId
+import androidx.camera.camera2.pipe.CaptureSequences.invokeOnRequest
 import kotlinx.atomicfu.atomic
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.withTimeout
+import kotlinx.coroutines.test.TestScope
 
-/** Simulator for observing and responding to interactions with the a [CameraGraph]. */
+/**
+ * This class creates a [CameraPipe] and [CameraGraph] instance using a [FakeCameraBackend].
+ *
+ * The CameraGraphSimulator is primarily intended to be used within a Kotlin `runTest` block, and
+ * must be created with a coroutine scope by invoking [CameraGraphSimulator.create] and passing the
+ * coroutine scope. This ensures that the created objects, dispatchers, and scopes correctly inherit
+ * from the parent [TestScope].
+ *
+ * The simulator does not make (many) assumptions about how the simulator will be used, and for this
+ * reason it does not automatically put the underlying graph into a "started" state. In most cases,
+ * the test will need start the [CameraGraph], [simulateCameraStarted], and either configure
+ * surfaces for the [CameraGraph] or call [simulateFakeSurfaceConfiguration] to put the graph into a
+ * state where it is able to send and simulate interactions with the camera. This mirrors the normal
+ * lifecycle of a [CameraGraph].
+ */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-class CameraGraphSimulator(
-    private val config: CameraGraph.Config,
-    cameraMetadata: CameraMetadata
+class CameraGraphSimulator private constructor(
+    val context: Context,
+    val cameraMetadata: CameraMetadata,
+    val graphConfig: CameraGraph.Config,
+    val cameraGraph: CameraGraph,
+    private val cameraController: CameraControllerSimulator
 ) {
-    init {
-        check(config.camera == cameraMetadata.camera)
+    companion object {
+        /**
+         * Create a CameraGraphSimulator using the current [TestScope] provided by a Kotlin
+         * `runTest` block. This will create the [CameraPipe] and [CameraGraph] using the parent
+         * test scope, which helps ensure all long running operations are wrapped up by the time
+         * the test completes and allows the test to provide more fine grained control over the
+         * interactions.
+         */
+        @OptIn(ExperimentalCoroutinesApi::class)
+        fun create(
+            scope: TestScope,
+            context: Context,
+            cameraMetadata: CameraMetadata,
+            graphConfig: CameraGraph.Config
+        ): CameraGraphSimulator {
+            val fakeCameraBackend = FakeCameraBackend(
+                fakeCameras = mapOf(cameraMetadata.camera to cameraMetadata)
+            )
+            val cameraPipe = CameraPipe(
+                CameraPipe.Config(
+                    context,
+                    cameraBackendConfig = CameraBackendConfig(
+                        internalBackend = fakeCameraBackend
+                    ),
+                    threadConfig = CameraPipe.ThreadConfig(
+                        testOnlyDispatcher = StandardTestDispatcher(scope.testScheduler),
+                        testOnlyScope = scope,
+                    )
+                )
+            )
+            val cameraGraph = cameraPipe.create(graphConfig)
+            val cameraController = checkNotNull(fakeCameraBackend.cameraControllers.lastOrNull()) {
+                "Expected cameraPipe.create to create a CameraController instance from " +
+                    "$fakeCameraBackend as part of its initialization."
+            }
+            return CameraGraphSimulator(
+                context,
+                cameraMetadata,
+                graphConfig,
+                cameraGraph,
+                cameraController
+            )
+        }
     }
 
-    private val fakeRequestProcessor = FakeRequestProcessor()
-    private val cameraPipe = CameraPipe.External()
-    public val cameraGraph = cameraPipe.create(
-        config,
-        cameraMetadata,
-        fakeRequestProcessor
-    )
+    init {
+        check(graphConfig.camera == cameraMetadata.camera) {
+            "CameraGraphSimulator must be creating with a camera id that matches the provided " +
+                "cameraMetadata! Received ${graphConfig.camera}, but expected " +
+                "${cameraMetadata.camera}"
+        }
+    }
 
-    private var frameClockNanos = atomic(0L)
-    private var frameCounter = atomic(0L)
+    private val surfaceTextureNames = atomic(0)
+    private val frameClockNanos = atomic(0L)
+    private val frameCounter = atomic(0L)
     private val pendingFrameQueue = mutableListOf<FrameSimulator>()
+
+    fun simulateCameraStarted() {
+        cameraController.simulateCameraStarted()
+    }
+
+    fun simulateCameraStopped() {
+        cameraController.simulateCameraStopped()
+    }
+
+    fun simulateCameraModified() {
+        cameraController.simulateCameraModified()
+    }
+
+    fun simulateFakeSurfaceConfiguration() {
+        for (stream in cameraGraph.streams.streams) {
+            // Pick an output -- most will only have one.
+            val output = stream.outputs.first()
+            val surface = Surface(
+                SurfaceTexture(surfaceTextureNames.getAndIncrement()).also {
+                    it.setDefaultBufferSize(output.size.width, output.size.height)
+                }
+            )
+            cameraGraph.setSurface(stream.id, surface)
+        }
+    }
 
     suspend fun simulateNextFrame(
         advanceClockByNanos: Long = 33_366_666 // (2_000_000_000 / (60  / 1.001))
@@ -62,15 +154,20 @@ class CameraGraphSimulator(
     }
 
     private suspend fun generateNextFrame(): FrameSimulator {
+        val captureSequenceProcessor = cameraController.currentCaptureSequenceProcessor
+        check(captureSequenceProcessor != null) {
+            "simulateCameraStarted() must be called before frames can be created!"
+        }
+
         // This checks the pending frame queue and polls for the next request. If no request is
         // available it will suspend until the next interaction with the request processor.
         if (pendingFrameQueue.isEmpty()) {
             val requestSequence =
-                withTimeout(timeMillis = 250) { fakeRequestProcessor.nextRequestSequence() }
+                withTimeout(timeMillis = 250) { captureSequenceProcessor.nextRequestSequence() }
 
             // Each sequence is processed as a group, and if a sequence contains multiple requests
             // the list of requests is processed in order before polling the next sequence.
-            for (request in requestSequence.requests) {
+            for (request in requestSequence.captureRequestList) {
                 pendingFrameQueue.add(FrameSimulator(request, requestSequence))
             }
         }
@@ -86,10 +183,9 @@ class CameraGraphSimulator(
      */
     inner class FrameSimulator internal constructor(
         val request: Request,
-        val requestSequence: FakeRequestProcessor.RequestSequence,
+        val requestSequence: FakeCaptureSequence,
     ) {
         private val requestMetadata = requestSequence.requestMetadata[request]!!
-        private val requestListeners = requestSequence.requestListeners[request]!!
 
         val frameNumber: FrameNumber = FrameNumber(frameCounter.incrementAndGet())
         var timestampNanos: Long? = null
@@ -97,8 +193,8 @@ class CameraGraphSimulator(
         fun simulateStarted(timestampNanos: Long) {
             this.timestampNanos = timestampNanos
 
-            for (listener in requestListeners) {
-                listener.onStarted(requestMetadata, frameNumber, CameraTimestamp(timestampNanos))
+            requestSequence.invokeOnRequest(requestMetadata) {
+                it.onStarted(requestMetadata, frameNumber, CameraTimestamp(timestampNanos))
             }
         }
 
@@ -113,8 +209,8 @@ class CameraGraphSimulator(
                 extraMetadata = extraMetadata
             )
 
-            for (listener in requestListeners) {
-                listener.onPartialCaptureResult(requestMetadata, frameNumber, metadata)
+            requestSequence.invokeOnRequest(requestMetadata) {
+                it.onPartialCaptureResult(requestMetadata, frameNumber, metadata)
             }
         }
 
@@ -134,8 +230,8 @@ class CameraGraphSimulator(
                 createFakePhysicalMetadata(physicalResultMetadata)
             )
 
-            for (listener in requestListeners) {
-                listener.onTotalCaptureResult(requestMetadata, frameNumber, frameInfo)
+            requestSequence.invokeOnRequest(requestMetadata) {
+                it.onTotalCaptureResult(requestMetadata, frameNumber, frameInfo)
             }
         }
 
@@ -155,26 +251,26 @@ class CameraGraphSimulator(
                 createFakePhysicalMetadata(physicalResultMetadata)
             )
 
-            for (listener in requestListeners) {
-                listener.onComplete(requestMetadata, frameNumber, frameInfo)
+            requestSequence.invokeOnRequest(requestMetadata) {
+                it.onComplete(requestMetadata, frameNumber, frameInfo)
             }
         }
 
         fun simulateFailure(captureFailure: CaptureFailure) {
-            for (listener in requestListeners) {
-                listener.onFailed(requestMetadata, frameNumber, captureFailure)
+            requestSequence.invokeOnRequest(requestMetadata) {
+                it.onFailed(requestMetadata, frameNumber, captureFailure)
             }
         }
 
         fun simulateBufferLoss(streamId: StreamId) {
-            for (listener in requestListeners) {
-                listener.onBufferLost(requestMetadata, frameNumber, streamId)
+            requestSequence.invokeOnRequest(requestMetadata) {
+                it.onBufferLost(requestMetadata, frameNumber, streamId)
             }
         }
 
         fun simulateAbort() {
-            for (listener in requestListeners) {
-                listener.onAborted(request)
+            requestSequence.invokeOnRequest(requestMetadata) {
+                it.onAborted(request)
             }
         }
 
@@ -193,7 +289,7 @@ class CameraGraphSimulator(
             extraResultMetadata: Map<Metadata.Key<*>, Any?> = emptyMap(),
             extraMetadata: Map<*, Any?> = emptyMap<Any, Any>(),
         ): FakeFrameMetadata = FakeFrameMetadata(
-            camera = config.camera,
+            camera = cameraMetadata.camera,
             frameNumber = frameNumber,
             resultMetadata = resultMetadata.toMap(),
             extraResultMetadata = extraResultMetadata.toMap(),

@@ -18,54 +18,54 @@
 
 package androidx.camera.camera2.pipe.compat
 
-import android.hardware.camera2.CameraAccessException
+import android.hardware.camera2.CameraCaptureSession
 import android.hardware.camera2.CaptureRequest
 import android.util.ArrayMap
 import android.view.Surface
-import androidx.annotation.GuardedBy
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraGraph
+import androidx.camera.camera2.pipe.CaptureSequence
+import androidx.camera.camera2.pipe.CaptureSequenceProcessor
 import androidx.camera.camera2.pipe.Metadata
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.RequestMetadata
 import androidx.camera.camera2.pipe.RequestNumber
-import androidx.camera.camera2.pipe.RequestProcessor
 import androidx.camera.camera2.pipe.RequestTemplate
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.core.Threads
 import androidx.camera.camera2.pipe.writeParameters
-import java.util.Collections.singletonList
-import java.util.Collections.singletonMap
 import javax.inject.Inject
 import kotlinx.atomicfu.atomic
 
-internal interface Camera2RequestProcessorFactory {
+internal interface Camera2CaptureSequenceProcessorFactory {
     fun create(
         session: CameraCaptureSessionWrapper,
         surfaceMap: Map<StreamId, Surface>
-    ): RequestProcessor
+    ): CaptureSequenceProcessor<*, *>
 }
 
-internal class StandardCamera2RequestProcessorFactory @Inject constructor(
+internal class StandardCamera2CaptureSequenceProcessorFactory @Inject constructor(
     private val threads: Threads,
     private val graphConfig: CameraGraph.Config,
-) : Camera2RequestProcessorFactory {
+) : Camera2CaptureSequenceProcessorFactory {
+    @Suppress("UNCHECKED_CAST")
     override fun create(
         session: CameraCaptureSessionWrapper,
         surfaceMap: Map<StreamId, Surface>
-    ): RequestProcessor =
+    ): CaptureSequenceProcessor<*, CaptureSequence<Any>> {
         @Suppress("SyntheticAccessor")
-        Camera2RequestProcessor(
+        return Camera2CaptureSequenceProcessor(
             session,
             threads,
             graphConfig.defaultTemplate,
             surfaceMap
-        )
+        ) as CaptureSequenceProcessor<Any, CaptureSequence<Any>>
+    }
 }
 
-internal val requestProcessorDebugIds = atomic(0)
-internal val requestSequenceDebugIds = atomic(0L)
+internal val captureSequenceProcessorDebugIds = atomic(0)
+internal val captureSequenceDebugIds = atomic(0L)
 internal val requestTags = atomic(0L)
 internal fun nextRequestTag(): RequestNumber = RequestNumber(requestTags.incrementAndGet())
 
@@ -75,96 +75,27 @@ private const val REQUIRE_SURFACE_FOR_ALL_STREAMS = false
  * This class is designed to synchronously handle interactions with a [CameraCaptureSessionWrapper].
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-internal class Camera2RequestProcessor(
+internal class Camera2CaptureSequenceProcessor(
     private val session: CameraCaptureSessionWrapper,
     private val threads: Threads,
     private val template: RequestTemplate,
     private val surfaceMap: Map<StreamId, Surface>
-) : RequestProcessor {
-
-    @GuardedBy("inFlightRequests")
-    private val inFlightRequests = mutableListOf<Camera2CaptureSequence>()
-    private val debugId = requestProcessorDebugIds.incrementAndGet()
-    private val closed = atomic(false)
-
-    override fun submit(
-        request: Request,
-        defaultParameters: Map<*, Any?>,
-        requiredParameters: Map<*, Any?>,
-        defaultListeners: List<Request.Listener>
-    ): Boolean {
-        return configureAndCapture(
-            singletonList(request),
-            defaultParameters,
-            requiredParameters,
-            defaultListeners,
-            isRepeating = false
-        )
-    }
-
-    override fun submit(
+) : CaptureSequenceProcessor<CaptureRequest, Camera2CaptureSequence> {
+    private val debugId = captureSequenceProcessorDebugIds.incrementAndGet()
+    override fun build(
+        isRepeating: Boolean,
         requests: List<Request>,
         defaultParameters: Map<*, Any?>,
         requiredParameters: Map<*, Any?>,
-        defaultListeners: List<Request.Listener>
-    ): Boolean {
-        return configureAndCapture(
-            requests,
-            defaultParameters,
-            requiredParameters,
-            defaultListeners,
-            isRepeating = false
-        )
-    }
-
-    override fun startRepeating(
-        request: Request,
-        defaultParameters: Map<*, Any?>,
-        requiredParameters: Map<*, Any?>,
-        defaultListeners: List<Request.Listener>
-    ): Boolean {
-        return configureAndCapture(
-            singletonList(request),
-            defaultParameters,
-            requiredParameters,
-            defaultListeners,
-            isRepeating = true
-        )
-    }
-
-    override fun abortCaptures() {
-        val requestsToAbort = synchronized(inFlightRequests) {
-            val copy = inFlightRequests.toList()
-            inFlightRequests.clear()
-            copy
+        listeners: List<Request.Listener>,
+        sequenceListener: CaptureSequence.CaptureSequenceListener
+    ): Camera2CaptureSequence? {
+        check(requests.isNotEmpty()) {
+            "build(...) should never be called with an empty request list!"
         }
-        for (sequence in requestsToAbort) {
-            sequence.invokeOnAborted()
-        }
-        session.abortCaptures()
-    }
+        val requestMap = ArrayMap<RequestNumber, Camera2RequestMetadata>(requests.size)
+        val requestList = ArrayList<Camera2RequestMetadata>(requests.size)
 
-    override fun stopRepeating() {
-        session.stopRepeating()
-    }
-
-    override fun close() {
-        closed.compareAndSet(expect = false, update = true)
-    }
-
-    private fun configureAndCapture(
-        requests: List<Request>,
-        defaultParameters: Map<*, Any?>,
-        requiredParameters: Map<*, Any?>,
-        defaultListeners: List<Request.Listener>,
-        isRepeating: Boolean
-    ): Boolean {
-        // Reject incoming requests if this instance has been stopped or closed.
-        if (closed.value) {
-            return false
-        }
-
-        val requestMap = ArrayMap<RequestNumber, RequestInfo>(requests.size)
         val captureRequests = ArrayList<CaptureRequest>(requests.size)
 
         val surfaceToStreamMap = ArrayMap<Surface, StreamId>()
@@ -199,7 +130,7 @@ internal class Camera2RequestProcessor(
                     // Surface object for this request. If this condition is violated, then we
                     // return false because we cannot submit these request(s) until there is a valid
                     // StreamId -> Surface mapping for all streams.
-                    return false
+                    return null
                 }
             }
 
@@ -207,7 +138,7 @@ internal class Camera2RequestProcessor(
             // submit it.
             if (!hasSurface) {
                 Log.info { "  Failed to bind any surfaces for $request!" }
-                return false
+                return null
             }
 
             // Create the request builder. There is a risk this will throw an exception or return null
@@ -218,7 +149,7 @@ internal class Camera2RequestProcessor(
                 requestBuilder = session.device.createCaptureRequest(requestTemplate)
             } catch (exception: ObjectUnavailableException) {
                 Log.info { "  Failed to create a CaptureRequest.Builder from $requestTemplate!" }
-                return false
+                return null
             }
 
             // Apply the output surfaces to the requestBuilder
@@ -263,7 +194,7 @@ internal class Camera2RequestProcessor(
             captureRequests.add(captureRequest)
 
             @Suppress("SyntheticAccessor")
-            requestMap[requestTag] = RequestInfo(
+            val metadata = Camera2RequestMetadata(
                 captureRequest,
                 defaultParameters,
                 requiredParameters,
@@ -273,94 +204,72 @@ internal class Camera2RequestProcessor(
                 request,
                 requestTag
             )
+            requestMap[requestTag] = metadata
+            requestList.add(metadata)
         }
 
         // Create the captureSequence listener
         @Suppress("SyntheticAccessor")
-        val captureSequence = Camera2CaptureSequence(
-            defaultListeners,
-            if (requests.size == 1) {
-                singletonMap(requestMap.keyAt(0), requestMap.valueAt(0))
-            } else {
-                requestMap
-            },
+        return Camera2CaptureSequence(
+            session.device.cameraId,
+            isRepeating,
             captureRequests,
-            surfaceToStreamMap,
-            inFlightRequests,
-            session.device.cameraId
+            requestList,
+            listeners,
+            sequenceListener,
+            requestMap,
+            surfaceToStreamMap
         )
+    }
 
-        // Non-repeating requests must always be aware of abort calls.
-        if (!isRepeating) {
-            synchronized(inFlightRequests) {
-                inFlightRequests.add(captureSequence)
+    override fun submit(captureSequence: Camera2CaptureSequence): Int {
+        val captureCallback = captureSequence as CameraCaptureSession.CaptureCallback
+        // TODO: Update these calls to use executors on newer versions of the OS
+        return if (captureSequence.captureRequestList.size == 1) {
+            if (captureSequence.repeating) {
+                session.setRepeatingRequest(
+                    captureSequence.captureRequestList[0],
+                    captureCallback,
+                    threads.camera2Handler
+                )
+            } else {
+                session.capture(
+                    captureSequence.captureRequestList[0],
+                    captureSequence,
+                    threads.camera2Handler
+                )
             }
-        }
-
-        var captured = false
-        return try {
-            Log.debug { "Submitting $captureSequence" }
-            capture(captureRequests, captureSequence, isRepeating)
-            captured = true
-            Log.debug { "Submitted $captureSequence" }
-            true
-        } catch (closedException: ObjectUnavailableException) {
-            false
-        } catch (accessException: CameraAccessException) {
-            false
-        } finally {
-            // If ANY unhandled exception occurs, don't throw, but make sure we remove it from the
-            // list of in-flight requests.
-            if (!captured && !isRepeating) {
-                captureSequence.invokeOnAborted()
+        } else {
+            if (captureSequence.repeating) {
+                session.setRepeatingBurst(
+                    captureSequence.captureRequestList,
+                    captureSequence,
+                    threads.camera2Handler
+                )
+            } else {
+                session.captureBurst(
+                    captureSequence.captureRequestList,
+                    captureSequence,
+                    threads.camera2Handler
+                )
             }
         }
     }
 
-    private fun capture(
-        captureRequests: List<CaptureRequest>,
-        captureSequence: Camera2CaptureSequence,
-        isRepeating: Boolean
-    ) {
-        captureSequence.invokeOnRequestSequenceCreated()
+    override fun abortCaptures() {
+        session.abortCaptures()
+    }
 
-        // NOTE: This is a funny synchronization call. The purpose is to avoid a rare but possible
-        // situation where calling capture causes one of the callback methods to be invoked before
-        // sequenceNumber has been set on the callback. Both this call and the synchronized
-        // behavior on the CaptureSequence listener have been designed to minimize the number of
-        // synchronized calls.
-        synchronized(lock = captureSequence) {
-            // TODO: Update these calls to use executors on newer versions of the OS
-            val sequenceNumber: Int = if (captureRequests.size == 1) {
-                if (isRepeating) {
-                    session.setRepeatingRequest(
-                        captureRequests[0],
-                        captureSequence,
-                        threads.camera2Handler
-                    )
-                } else {
-                    session.capture(captureRequests[0], captureSequence, threads.camera2Handler)
-                }
-            } else {
-                if (isRepeating) {
-                    session.setRepeatingBurst(
-                        captureRequests,
-                        captureSequence,
-                        threads.camera2Handler
-                    )
-                } else {
-                    session.captureBurst(captureRequests, captureSequence, threads.camera2Handler)
-                }
-            }
-            captureSequence.sequenceNumber = sequenceNumber
-        }
+    override fun stopRepeating() {
+        session.stopRepeating()
+    }
 
-        // Invoke callbacks without holding a lock.
-        captureSequence.invokeOnRequestSequenceSubmitted()
+    override fun close() {
+        // Close should not shut down
     }
 
     override fun toString(): String {
-        return "RequestProcessor-$debugId"
+        return "Camera2RequestProcessor-$debugId"
     }
 }
 
@@ -369,7 +278,7 @@ internal class Camera2RequestProcessor(
  */
 @RequiresApi(21)
 @Suppress("SyntheticAccessor") // Using an inline class generates a synthetic constructor
-internal class RequestInfo(
+internal class Camera2RequestMetadata(
     private val captureRequest: CaptureRequest,
     private val defaultParameters: Map<*, Any?>,
     private val requiredParameters: Map<*, Any?>,

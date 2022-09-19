@@ -17,6 +17,7 @@
 package androidx.camera.camera2.pipe.testing
 
 import android.hardware.camera2.CameraCharacteristics
+import android.hardware.camera2.CaptureRequest
 import android.util.Size
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraId
@@ -28,16 +29,33 @@ import androidx.camera.camera2.pipe.StreamFormat
  * Fake CameraGraph configuration that can be used for more complicated tests that need a realistic
  * configuration for tests.
  */
-internal class FakeCameraGraphConfig {
+internal object FakeGraphConfigs {
     private val camera1 = CameraId("TestCamera-1")
     private val camera2 = CameraId("TestCamera-2")
 
     val fakeMetadata = FakeCameraMetadata(
         mapOf(
             CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL to
-                CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL
+                CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL,
+            CameraCharacteristics.LENS_FACING to
+                CameraCharacteristics.LENS_FACING_BACK
         ),
         cameraId = camera1
+    )
+    val fakeMetadata2 = FakeCameraMetadata(
+        mapOf(
+            CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL to
+                CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL,
+            CameraCharacteristics.LENS_FACING to
+                CameraCharacteristics.LENS_FACING_FRONT
+        ),
+        cameraId = camera2
+    )
+    val fakeCameraBackend = FakeCameraBackend(
+        mapOf(
+            fakeMetadata.camera to fakeMetadata,
+            fakeMetadata2.camera to fakeMetadata2
+        )
     )
 
     val streamConfig1 = CameraStream.Config.create(
@@ -72,6 +90,12 @@ internal class FakeCameraGraphConfig {
             sharedStreamConfig1,
             sharedStreamConfig2
         ),
-        streamSharingGroups = listOf(listOf(streamConfig1, streamConfig2))
+        streamSharingGroups = listOf(listOf(streamConfig1, streamConfig2)),
+        defaultParameters = mapOf(
+            CaptureRequest.JPEG_THUMBNAIL_QUALITY to 24
+        ),
+        requiredParameters = mapOf(
+            CaptureRequest.JPEG_THUMBNAIL_QUALITY to 42
+        )
     )
 }

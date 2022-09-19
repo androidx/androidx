@@ -21,32 +21,28 @@ import android.hardware.camera2.CaptureResult
 import android.os.Build
 import androidx.camera.camera2.pipe.AeMode
 import androidx.camera.camera2.pipe.FrameNumber
-import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.RequestNumber
 import androidx.camera.camera2.pipe.Result3A
-import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.TorchState
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
 import androidx.camera.camera2.pipe.testing.FakeFrameMetadata
-import androidx.camera.camera2.pipe.testing.FakeGraphProcessor
 import androidx.camera.camera2.pipe.testing.FakeRequestMetadata
-import androidx.camera.camera2.pipe.testing.FakeRequestProcessor
 import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
 import com.google.common.truth.Truth.assertThat
-import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(RobolectricCameraPipeTestRunner::class)
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 internal class Controller3ASetTorchTest {
-    private val graphState3A = GraphState3A()
-    private val graphProcessor = FakeGraphProcessor(graphState3A = graphState3A)
-    private val requestProcessor = FakeRequestProcessor()
+    private val graphTestContext = GraphTestContext()
+    private val graphState3A = graphTestContext.graphProcessor.graphState3A
+    private val graphProcessor = graphTestContext.graphProcessor
     private val listener3A = Listener3A()
     private val controller3A = Controller3A(
         graphProcessor,
@@ -55,17 +51,14 @@ internal class Controller3ASetTorchTest {
         listener3A
     )
 
-    @OptIn(DelicateCoroutinesApi::class)
     @Test
-    fun testSetTorchOn() = runBlocking {
-        initGraphProcessor()
-
+    fun testSetTorchOn() = runTest {
         val result = controller3A.setTorch(TorchState.ON)
         assertThat(graphState3A.aeMode!!.value).isEqualTo(CaptureRequest.CONTROL_AE_MODE_ON)
         assertThat(graphState3A.flashMode!!.value).isEqualTo(CaptureRequest.FLASH_MODE_TORCH)
         assertThat(result.isCompleted).isFalse()
 
-        GlobalScope.launch {
+        launch {
             listener3A.onRequestSequenceCreated(
                 FakeRequestMetadata(
                     requestNumber = RequestNumber(1)
@@ -88,17 +81,14 @@ internal class Controller3ASetTorchTest {
         assertThat(result3A.status).isEqualTo(Result3A.Status.OK)
     }
 
-    @OptIn(DelicateCoroutinesApi::class)
     @Test
-    fun testSetTorchOff() = runBlocking {
-        initGraphProcessor()
-
+    fun testSetTorchOff() = runTest {
         val result = controller3A.setTorch(TorchState.OFF)
         assertThat(graphState3A.aeMode!!.value).isEqualTo(CaptureRequest.CONTROL_AE_MODE_ON)
         assertThat(graphState3A.flashMode!!.value).isEqualTo(CaptureRequest.FLASH_MODE_OFF)
         assertThat(result.isCompleted).isFalse()
 
-        GlobalScope.launch {
+        launch {
             listener3A.onRequestSequenceCreated(
                 FakeRequestMetadata(
                     requestNumber = RequestNumber(1)
@@ -121,11 +111,8 @@ internal class Controller3ASetTorchTest {
         assertThat(result3A.status).isEqualTo(Result3A.Status.OK)
     }
 
-    @OptIn(DelicateCoroutinesApi::class)
     @Test
-    fun testSetTorchDoesNotChangeAeModeIfNotNeeded() = runBlocking {
-        initGraphProcessor()
-
+    fun testSetTorchDoesNotChangeAeModeIfNotNeeded() = runTest {
         graphState3A.update(aeMode = AeMode.OFF)
 
         val result = controller3A.setTorch(TorchState.ON)
@@ -135,7 +122,7 @@ internal class Controller3ASetTorchTest {
         )
         assertThat(result.isCompleted).isFalse()
 
-        GlobalScope.launch {
+        launch {
             listener3A.onRequestSequenceCreated(
                 FakeRequestMetadata(
                     requestNumber = RequestNumber(1)
@@ -156,10 +143,5 @@ internal class Controller3ASetTorchTest {
         val result3A = result.await()
         assertThat(result3A.frameMetadata!!.frameNumber.value).isEqualTo(101L)
         assertThat(result3A.status).isEqualTo(Result3A.Status.OK)
-    }
-
-    private fun initGraphProcessor() {
-        graphProcessor.onGraphStarted(requestProcessor)
-        graphProcessor.startRepeating(Request(streams = listOf(StreamId(1))))
     }
 }
