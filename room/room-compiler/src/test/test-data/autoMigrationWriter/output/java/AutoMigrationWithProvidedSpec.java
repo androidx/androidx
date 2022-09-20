@@ -11,14 +11,15 @@ import javax.annotation.processing.Generated;
 @Generated("androidx.room.RoomProcessor")
 @SuppressWarnings({"unchecked", "deprecation"})
 class MyDatabase_AutoMigration_1_2_Impl extends Migration {
-    private final AutoMigrationSpec callback = new ValidAutoMigrationWithoutDefault();
+    private final AutoMigrationSpec callback;
 
-    public MyDatabase_AutoMigration_1_2_Impl() {
+    public MyDatabase_AutoMigration_1_2_Impl(@NonNull final AutoMigrationSpec callback) {
         super(1, 2);
+        this.callback = callback;
     }
 
     @Override
-    public void migrate(@NonNull SupportSQLiteDatabase database) {
+    public void migrate(@NonNull final SupportSQLiteDatabase database) {
         database.execSQL("ALTER TABLE `Song` ADD COLUMN `artistId` INTEGER DEFAULT NULL");
         callback.onPostMigrate(database);
     }
