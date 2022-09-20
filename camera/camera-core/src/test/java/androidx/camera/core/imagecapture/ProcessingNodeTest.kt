@@ -88,7 +88,7 @@ class ProcessingNodeTest {
         var croppingInvoked = false
         node.injectJpegBytes2CroppedBitmapForTesting {
             croppingInvoked = true
-            JpegBytes2CroppedBitmap().process(it)
+            JpegBytes2CroppedBitmap().apply(it)
         }
 
         // Act.

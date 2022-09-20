@@ -32,8 +32,8 @@ import androidx.annotation.RequiresApi;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCaptureException;
 import androidx.camera.core.impl.utils.Exif;
+import androidx.camera.core.processing.Operation;
 import androidx.camera.core.processing.Packet;
-import androidx.camera.core.processing.Processor;
 
 import com.google.auto.value.AutoValue;
 
@@ -50,7 +50,7 @@ import java.util.UUID;
  * Saves JPEG bytes to disk.
  */
 @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-class JpegBytes2Disk implements Processor<JpegBytes2Disk.In, ImageCapture.OutputFileResults> {
+class JpegBytes2Disk implements Operation<JpegBytes2Disk.In, ImageCapture.OutputFileResults> {
 
     private static final String TEMP_FILE_PREFIX = "CameraX";
     private static final String TEMP_FILE_SUFFIX = ".tmp";
@@ -60,7 +60,7 @@ class JpegBytes2Disk implements Processor<JpegBytes2Disk.In, ImageCapture.Output
 
     @NonNull
     @Override
-    public ImageCapture.OutputFileResults process(@NonNull In in) throws ImageCaptureException {
+    public ImageCapture.OutputFileResults apply(@NonNull In in) throws ImageCaptureException {
         Packet<byte[]> packet = in.getPacket();
         ImageCapture.OutputFileOptions options = in.getOutputFileOptions();
         File tempFile = createTempFile(options);

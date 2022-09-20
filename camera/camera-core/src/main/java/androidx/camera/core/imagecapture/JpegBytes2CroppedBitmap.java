@@ -29,8 +29,8 @@ import android.os.Build;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.ImageCaptureException;
+import androidx.camera.core.processing.Operation;
 import androidx.camera.core.processing.Packet;
-import androidx.camera.core.processing.Processor;
 
 import java.io.IOException;
 
@@ -38,11 +38,11 @@ import java.io.IOException;
  * Processes a JPEG image and produces a cropped {@link Bitmap} output.
  */
 @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-final class JpegBytes2CroppedBitmap implements Processor<Packet<byte[]>, Packet<Bitmap>> {
+final class JpegBytes2CroppedBitmap implements Operation<Packet<byte[]>, Packet<Bitmap>> {
 
     @NonNull
     @Override
-    public Packet<Bitmap> process(@NonNull Packet<byte[]> packet) throws ImageCaptureException {
+    public Packet<Bitmap> apply(@NonNull Packet<byte[]> packet) throws ImageCaptureException {
         Rect cropRect = packet.getCropRect();
         Bitmap bitmap = createCroppedBitmap(packet.getData(), cropRect);
         return Packet.of(

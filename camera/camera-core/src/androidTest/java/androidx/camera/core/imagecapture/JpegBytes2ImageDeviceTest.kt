@@ -44,7 +44,7 @@ import org.junit.runner.RunWith
 @SdkSuppress(minSdkVersion = 21)
 class JpegBytes2ImageDeviceTest {
 
-    private val processor = JpegBytes2Image()
+    private val operation = JpegBytes2Image()
 
     @Test
     fun processInput_assertOutput() {
@@ -63,7 +63,7 @@ class JpegBytes2ImageDeviceTest {
             matrix
         )
         // Act.
-        val output = processor.process(input)
+        val output = operation.apply(input)
 
         // Assert.
         val restoredJpeg = jpegImageToJpegByteArray(output.data)

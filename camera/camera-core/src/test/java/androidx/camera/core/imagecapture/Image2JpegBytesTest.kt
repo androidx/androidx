@@ -44,7 +44,7 @@ import org.robolectric.annotation.internal.DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 class Image2JpegBytesTest {
 
-    private val processor = Image2JpegBytes()
+    private val operation = Image2JpegBytes()
 
     @Test
     fun processJpegImage_assertOutput() {
@@ -61,7 +61,7 @@ class Image2JpegBytesTest {
         )
 
         // Act.
-        val output = processor.process(Image2JpegBytes.In.of(input, 100))
+        val output = operation.apply(Image2JpegBytes.In.of(input, 100))
 
         // Assert: the image is the same.
         assertThat(getAverageDiff(jpegBytes, output.data)).isEqualTo(0)

@@ -44,7 +44,7 @@ import org.robolectric.annotation.internal.DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 class JpegBytes2CroppedBitmapTest {
 
-    private val processor = JpegBytes2CroppedBitmap()
+    private val operation = JpegBytes2CroppedBitmap()
 
     @Test
     fun process_verifyOutput() {
@@ -64,7 +64,7 @@ class JpegBytes2CroppedBitmapTest {
         )
 
         // Act.
-        val output = processor.process(input)
+        val output = operation.apply(input)
 
         // Assert: only the yellow and blue blocks exist after the cropping.
         assertThat(getAverageDiff(output.data, Rect(0, 0, 320, 240), YELLOW)).isEqualTo(0)

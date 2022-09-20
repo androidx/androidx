@@ -44,7 +44,7 @@ import org.junit.runner.RunWith
 @SdkSuppress(minSdkVersion = 21)
 class Image2JpegBytesDeviceTest {
 
-    private val processor = Image2JpegBytes()
+    private val operation = Image2JpegBytes()
 
     @Test
     fun processYuvImage_assertOutput() {
@@ -63,7 +63,7 @@ class Image2JpegBytesDeviceTest {
         )
 
         // Act.
-        val output = processor.process(Image2JpegBytes.In.of(input, 100))
+        val output = operation.apply(Image2JpegBytes.In.of(input, 100))
 
         // Assert: the image is the same.
         // TODO(b/245940015): verify the content of the restored image.
