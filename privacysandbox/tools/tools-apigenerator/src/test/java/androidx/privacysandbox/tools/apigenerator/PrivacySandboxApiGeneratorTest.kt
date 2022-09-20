@@ -49,15 +49,7 @@ class PrivacySandboxApiGeneratorTest {
             .containsExactlyElementsIn(
                 expectedSources.map(Source::relativePath) + listOf(
                     "com/mysdk/ITestSandboxSdk.java",
-                    "com/mysdk/IUnitTransactionCallback.java",
                     "com/mysdk/ICancellationSignal.java",
-                    "com/mysdk/IIntTransactionCallback.java",
-                    "com/mysdk/IFloatTransactionCallback.java",
-                    "com/mysdk/ICharTransactionCallback.java",
-                    "com/mysdk/IDoubleTransactionCallback.java",
-                    "com/mysdk/IBooleanTransactionCallback.java",
-                    "com/mysdk/IStringTransactionCallback.java",
-                    "com/mysdk/ILongTransactionCallback.java",
                 )
             )
 

@@ -31,22 +31,22 @@ public suspend fun createTestSandboxSdk(context: Context): TestSandboxSdk =
 private class TestSandboxSdkClientProxy(
   private val remote: ITestSandboxSdk,
 ) : TestSandboxSdk {
-  public override fun echoBoolean(input: Boolean) = remote.echoBoolean(input, null)!!
+  public override fun echoBoolean(input: Boolean) = remote.echoBoolean(input)!!
 
-  public override fun echoChar(input: Char) = remote.echoChar(input, null)!!
+  public override fun echoChar(input: Char) = remote.echoChar(input)!!
 
-  public override fun echoDouble(input: Double) = remote.echoDouble(input, null)!!
+  public override fun echoDouble(input: Double) = remote.echoDouble(input)!!
 
-  public override fun echoFloat(input: Float) = remote.echoFloat(input, null)!!
+  public override fun echoFloat(input: Float) = remote.echoFloat(input)!!
 
-  public override fun echoInt(input: Int) = remote.echoInt(input, null)!!
+  public override fun echoInt(input: Int) = remote.echoInt(input)!!
 
-  public override fun echoLong(input: Long) = remote.echoLong(input, null)!!
+  public override fun echoLong(input: Long) = remote.echoLong(input)!!
 
-  public override fun echoString(input: String) = remote.echoString(input, null)!!
+  public override fun echoString(input: String) = remote.echoString(input)!!
 
   public override fun receiveAndReturnNothing(): Unit {
-    remote.receiveAndReturnNothing(null)
+    remote.receiveAndReturnNothing()
   }
 
   public override fun receiveMultipleArguments(
@@ -54,6 +54,6 @@ private class TestSandboxSdkClientProxy(
     second: String,
     third: Long,
   ): Unit {
-    remote.receiveMultipleArguments(first, second, third, null)
+    remote.receiveMultipleArguments(first, second, third)
   }
 }
