@@ -122,7 +122,8 @@ public class SplashScreenViewProvider internal constructor(ctx: Activity) {
 
         override val splashScreenView get() = platformView
 
-        override val iconView get() = platformView.iconView!!
+        override val iconView: View
+            get() = if (platformView.iconView != null) platformView.iconView!! else View(activity)
 
         override val iconAnimationStartMillis: Long
             get() = platformView.iconAnimationStart?.toEpochMilli() ?: 0
