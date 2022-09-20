@@ -206,7 +206,7 @@ internal class VirtualSessionState(
                     "Configured $this in ${duration.formatMs()}"
                 }
 
-                graphListener.onGraphModified(it.processor)
+                graphListener.onGraphStarted(it.processor)
             }
         }
     }
