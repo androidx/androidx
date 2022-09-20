@@ -42,7 +42,7 @@ class Camera2Interop private constructor() {
     /**
      * Extends a [ExtendableBuilder] to add Camera2 options.
      *
-     * @param <T> the type being built by the extendable builder.
+     * @param T the type being built by the extendable builder.
      * @property baseBuilder The builder being extended.
      * @constructor Creates an Extender that can be used to add Camera2 options to another Builder.
      */
@@ -56,7 +56,7 @@ class Camera2Interop private constructor() {
          *
          * @param key      The [CaptureRequest.Key] which will be set.
          * @param value    The value for the key.
-         * @param <ValueT> The type of the value.
+         * @param ValueT   The type of the value.
          * @return The current Extender.
          */
         fun <ValueT> setCaptureRequestOption(
