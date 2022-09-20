@@ -113,6 +113,8 @@
     <string name="finish_app_msg" msgid="8354334557053141891">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‏‏‏‏‏‎‎‏‏‏‏‏‏‎‎‎‎‏‎‎‎‏‏‏‏‎‎‎‎‎‏‎‎‎‎‏‏‎‏‏‏‏‏‏‎‏‏‎‎‎‏‎‎‎‎‏‏‏‎‎‎‎‎‏‏‎This will finish the app, and when you return it will pre-seed a permission screen‎‏‎‎‏‎"</string>
     <string name="finish_app_title" msgid="9013328479438745074">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‏‏‏‏‏‏‏‎‏‎‎‎‏‎‏‎‏‏‏‎‎‎‏‏‎‎‏‏‏‏‏‏‏‎‏‎‏‎‏‎‎‏‏‎‏‏‎‏‏‏‎‏‎‏‏‎‏‏‏‏‏‎‎‏‎‎Finish App Demo‎‏‎‎‏‎"</string>
     <string name="finish_app_demo_title" msgid="8223819062053448384">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‏‏‏‏‏‎‎‏‎‎‎‏‎‎‎‎‎‏‏‎‏‏‏‏‏‏‏‎‏‏‏‎‏‏‎‎‎‎‎‏‎‏‏‎‎‏‎‎‎‎‎‏‎‏‎‏‎‏‏‎‎‎‎‎‎‎Pre-seed the Permission Screen on next run Demo‎‏‎‎‏‎"</string>
+    <string name="preseed_permission_app_title" msgid="182847662545676962">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‎‏‎‏‎‏‎‎‎‏‎‎‏‏‎‎‏‏‎‏‎‏‏‏‏‏‎‏‎‏‏‏‏‎‏‏‎‎‎‎‎‏‎‏‏‏‎‏‎‏‎‏‎‏‎‏‎‎‎‏‎‎Pre-seed permission App Demo‎‏‎‎‏‎"</string>
+    <string name="preseed_permission_demo_title" msgid="5476541421753978071">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‏‏‏‎‎‏‏‎‎‎‎‎‎‎‎‎‎‏‎‎‏‎‏‎‏‎‏‏‎‏‎‎‎‎‎‏‏‏‎‎‏‎‏‎‏‏‎‏‏‏‏‎‎‏‏‎‎‏‏‎‏‎‏‏‏‎Pre-seed the Permission Screen on next run Demo‎‏‎‎‏‎"</string>
     <string name="loading_demo_title" msgid="1086529475809143517">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‎‎‏‏‏‏‎‎‎‏‎‏‎‎‎‎‏‎‎‎‎‎‏‏‎‎‏‏‎‏‎‎‏‏‎‎‏‏‏‎‎‏‏‎‎‎‎‏‏‎‏‎‏‎‏‏‎‏‏‏‎‏‎Loading Demo‎‏‎‎‏‎"</string>
     <string name="loading_demo_row_title" msgid="8933049915126088142">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‏‏‏‏‏‏‎‏‏‏‏‏‏‏‎‎‎‏‎‎‏‎‎‎‏‏‎‎‏‎‎‎‏‏‎‎‎‎‏‏‏‏‏‏‎‏‏‎‎‏‎‎‎‎‎‎‏‏‏‎‎‏‏‏‎‎Loading Complete!‎‏‎‎‏‎"</string>
     <string name="pop_to_root" msgid="2078277386355064198">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‎‏‏‏‏‎‎‏‏‎‏‎‏‏‏‏‎‎‎‎‏‏‎‎‏‎‎‎‏‎‏‏‎‎‎‏‏‏‎‎‏‏‎‏‎‏‏‏‎‏‏‏‏‎‏‏‎‎‎‎‏‏‎‎Pop to root‎‏‎‎‏‎"</string>
@@ -302,6 +304,17 @@
     <string name="toggle_test_disabled" msgid="8366040658408451664">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‏‏‏‏‏‎‏‎‎‎‎‎‏‏‎‏‎‎‎‏‎‎‏‎‏‏‎‏‎‎‏‏‏‎‏‎‏‎‏‎‎‏‏‏‎‏‎‎‏‎‎‏‎‏‏‏‎‎‏‎‏‎‎‎‎‎Toggle Test Disabled‎‏‎‎‏‎"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‏‏‏‎‏‎‏‎‎‎‏‎‏‎‏‏‎‎‏‏‏‎‎‎‏‎‎‎‎‎‏‎‎‎‏‎‎‎‎‎‎‎‏‎‏‎‎‎‏‎‎‎‏‏‎‏‏‎‎‏‏‎‎‏‎‎Misc Templates Demos‎‏‎‎‏‎"</string>
     <string name="showcase_demos_title" msgid="1542092687878113304">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‎‏‏‎‏‎‏‎‏‏‎‎‏‏‎‏‎‎‏‏‏‎‏‎‎‏‎‎‎‎‏‎‎‎‏‎‏‏‏‏‎‏‏‎‎‏‏‏‏‎‎‏‎‎‎‎‎‎‏‏‎‎‎‎Showcase Demos‎‏‎‎‏‎"</string>
+    <string name="voice_access_demo_title" msgid="3825223890895361496">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‏‎‏‏‎‏‎‏‎‎‎‏‎‏‎‏‏‏‏‎‏‏‎‎‏‏‎‏‏‏‎‎‏‎‏‎‎‎‏‏‎‎‏‎‎‏‏‏‏‏‎‏‎‏‎‏‏‏‎‏‏‎‎‎‎Voice Access Demo Screen‎‏‎‎‏‎"</string>
+    <string name="user_interactions_demo_title" msgid="1356952319161314986">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‎‏‏‎‎‏‎‏‏‎‏‎‏‎‎‏‏‎‏‏‏‎‎‏‏‏‏‎‎‎‏‏‏‏‎‎‎‎‎‏‏‎‎‎‎‎‎‏‎‏‎‏‏‏‎‏‎‏‎‏‎‏‎‎User Interactions‎‏‎‎‏‎"</string>
+    <string name="request_permission_menu_demo_title" msgid="4796486779527427017">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‏‏‏‎‎‎‎‏‎‏‎‎‏‎‎‎‎‏‎‎‎‏‎‏‏‎‏‎‏‎‎‎‎‎‎‏‎‎‏‏‏‏‎‎‏‎‏‏‎‏‏‏‏‎‎‏‏‏‏‎‎‏‎‎‏‎Request Permissions Demos‎‏‎‎‏‎"</string>
+    <string name="perm_group" msgid="3834918337351876270">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‏‎‏‏‎‏‎‏‎‎‏‏‏‎‎‎‎‏‎‏‏‏‎‏‏‏‏‎‏‎‎‎‏‏‎‏‏‎‎‎‎‏‏‏‏‏‎‏‎‏‏‏‏‏‏‎‏‎‏‎‏‏‏‎‎Permission Group‎‏‎‎‏‎"</string>
+    <string name="perm_group_description" msgid="7348847631139139024">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‏‏‏‏‎‎‏‎‏‏‏‏‏‏‏‎‎‎‏‎‏‏‎‎‏‏‏‏‏‏‏‎‎‎‎‎‏‎‎‏‎‏‎‎‎‎‏‎‎‏‏‏‎‏‏‎‏‏‏‎‏‎‎‎‎‎Permission Group for Showcase App‎‏‎‎‏‎"</string>
+    <string name="perm_fine_location" msgid="5438874642600304118">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‏‏‏‎‎‏‎‏‏‎‏‏‏‏‎‏‎‏‏‎‎‎‎‏‏‏‎‏‎‏‎‏‏‏‏‎‎‏‎‏‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‎‏‏‏‏‏‎‏‏‎‎Access to Fine Location‎‏‎‎‏‎"</string>
+    <string name="perm_fine_location_desc" msgid="3549183883787912516">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‏‎‏‏‎‎‎‏‎‏‎‎‎‎‎‏‎‎‏‏‏‎‏‏‏‏‏‏‎‎‎‎‎‎‎‏‏‎‏‏‏‎‏‏‏‎‎‎‎‏‎‎‎‏‎‏‎‏‎‎‎‏‎‎‎Permission for Access to Fine Location‎‏‎‎‏‎"</string>
+    <string name="perm_coarse_location" msgid="6140337431619481015">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‏‏‏‎‏‎‏‎‏‎‎‏‏‎‏‏‎‏‏‎‏‏‏‎‎‎‏‎‏‏‏‎‎‎‏‏‏‎‏‎‎‏‎‏‏‎‏‏‎‏‎‏‎‏‏‎‏‏‎‏‏‎‏‏‏‎Access to Coarse Location‎‏‎‎‏‎"</string>
+    <string name="perm_coarse_location_desc" msgid="6074759942301565943">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‏‏‏‎‏‎‏‎‎‎‏‎‎‏‏‎‏‏‏‏‎‎‎‎‏‏‏‏‏‏‎‏‏‎‏‏‎‏‎‎‎‏‎‏‎‏‎‎‎‎‏‎‎‎‎‏‏‏‏‏‏‎‏‏‏‎Permission for Access to Coarse Location‎‏‎‎‏‎"</string>
+    <string name="perm_record_audio" msgid="2758340693260523493">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‏‎‏‎‎‏‏‎‎‏‎‎‎‏‏‏‏‎‎‏‏‎‎‎‎‎‏‏‏‏‏‏‎‎‎‎‎‏‏‏‎‏‎‎‏‏‎‎‎‏‎‏‎‏‏‏‏‏‏‎‎‏‎‏‎Access to Record Audio‎‏‎‎‏‎"</string>
+    <string name="perm_record_audio_desc" msgid="8038648467605928912">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‏‏‏‏‎‏‏‏‏‏‎‎‎‏‏‏‏‎‎‎‎‎‏‎‎‎‎‏‏‎‎‎‎‏‏‎‏‎‎‎‏‏‏‏‎‎‎‏‏‏‎‏‏‏‎‏‏‏‏‎‏‎‎‎‎‎Permission for Access to Record Audio‎‏‎‎‏‎"</string>
     <string name="location_1_description" msgid="4801052291684791371">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‏‏‏‎‎‎‎‏‎‏‎‏‎‎‎‎‎‏‏‎‎‎‎‏‏‏‎‎‏‏‏‏‏‎‏‎‎‏‎‎‏‏‏‏‏‎‎‏‎‎‏‏‏‎‏‎‎‎‏‎‎‏‎‏‏‎Tinted resource vector‎‏‎‎‏‎"</string>
     <string name="location_2_description" msgid="3331356135359047166">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‏‎‏‎‏‏‏‎‎‎‏‏‏‎‏‏‎‏‎‏‏‎‏‎‏‏‎‎‎‎‎‏‎‎‏‏‏‏‎‎‎‏‏‎‎‏‎‎‏‏‏‎‎‏‎‏‏‏‏‏‏‏‏‎‎Image resource bitmap‎‏‎‎‏‎"</string>
     <string name="location_3_description" msgid="3982142774088944850">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‏‎‏‏‎‏‏‏‎‏‎‎‎‎‏‏‎‏‏‎‏‎‎‏‏‏‎‎‎‎‎‏‎‎‏‏‎‏‏‎‎‏‏‏‎‏‎‏‏‏‎‎‏‏‎‎‏‏‎‏‎‎‏‎‎Colored text marker‎‏‎‎‏‎"</string>
