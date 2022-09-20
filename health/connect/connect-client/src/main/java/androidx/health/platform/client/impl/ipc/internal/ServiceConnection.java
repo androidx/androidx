@@ -277,7 +277,6 @@ public class ServiceConnection implements android.content.ServiceConnection {
             boolean removed = mOperationQueue.remove(operation);
             if (removed) {
                 operation.setException(throwable);
-                execute(operation);
             }
         }
     }
