@@ -32,10 +32,6 @@ android {
     aaptOptions {
         additionalParameters("--no-version-vectors")
     }
-
-    buildTypes.all {
-        consumerProguardFiles("proguard-rules.pro")
-    }
     namespace "androidx.vectordrawable.seekable"
 }
 
