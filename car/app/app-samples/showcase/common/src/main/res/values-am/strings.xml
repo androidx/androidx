@@ -113,6 +113,10 @@
     <string name="finish_app_msg" msgid="8354334557053141891">"ይሄ መተግበሪያውን ያጠናቅቀዋል፣ እና እርስዎ ሲመለሱ የፈቃድ ማያ ገጽን አስቀድመው ይደግፉ"</string>
     <string name="finish_app_title" msgid="9013328479438745074">"የመተግበሪያ ማሳያ ይጨርሱ"</string>
     <string name="finish_app_demo_title" msgid="8223819062053448384">"በሚቀጥለው አሂድ ቅንጭብ ማሳያ ላይ የፈቃድ ማሳያ ቀድመው ይልቀቁ"</string>
+    <!-- no translation found for preseed_permission_app_title (182847662545676962) -->
+    <skip />
+    <!-- no translation found for preseed_permission_demo_title (5476541421753978071) -->
+    <skip />
     <string name="loading_demo_title" msgid="1086529475809143517">"ቅንጭብ ማሳያን በመጫን ላይ"</string>
     <string name="loading_demo_row_title" msgid="8933049915126088142">"መጫን ተጠናቅቋል!"</string>
     <string name="pop_to_root" msgid="2078277386355064198">"ወደ ስሩ ፖፕ"</string>
@@ -302,6 +306,28 @@
     <string name="toggle_test_disabled" msgid="8366040658408451664">"የመቀያየር ሙከራ ተሰናክሏል"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"የተለያዩ ቅንብር ደንቦች ቅንጭብ ማሳያዎች"</string>
     <string name="showcase_demos_title" msgid="1542092687878113304">"የመሳያ ቅንጭብ ማሳያ"</string>
+    <!-- no translation found for voice_access_demo_title (3825223890895361496) -->
+    <skip />
+    <!-- no translation found for user_interactions_demo_title (1356952319161314986) -->
+    <skip />
+    <!-- no translation found for request_permission_menu_demo_title (4796486779527427017) -->
+    <skip />
+    <!-- no translation found for perm_group (3834918337351876270) -->
+    <skip />
+    <!-- no translation found for perm_group_description (7348847631139139024) -->
+    <skip />
+    <!-- no translation found for perm_fine_location (5438874642600304118) -->
+    <skip />
+    <!-- no translation found for perm_fine_location_desc (3549183883787912516) -->
+    <skip />
+    <!-- no translation found for perm_coarse_location (6140337431619481015) -->
+    <skip />
+    <!-- no translation found for perm_coarse_location_desc (6074759942301565943) -->
+    <skip />
+    <!-- no translation found for perm_record_audio (2758340693260523493) -->
+    <skip />
+    <!-- no translation found for perm_record_audio_desc (8038648467605928912) -->
+    <skip />
     <string name="location_1_description" msgid="4801052291684791371">"የተቀለመ ንብረት ቬክተር"</string>
     <string name="location_2_description" msgid="3331356135359047166">"የምስል ንብረት ቢትማፕ"</string>
     <string name="location_3_description" msgid="3982142774088944850">"ባለቀለም የጽሑፍ ምልክት ማድረጊያ"</string>
