@@ -59,12 +59,46 @@ class StubDelegatesGenerator(
 
         val fileSpec = FileSpec.builder(service.packageName, className)
             .addType(classSpec.build())
+            .apply {
+                if (service.methods.any(Method::isSuspend)) {
+                    addImport("kotlinx.coroutines", "CoroutineScope")
+                    addImport("kotlinx.coroutines", "Dispatchers")
+                    addImport("kotlinx.coroutines", "GlobalScope")
+                    addImport("kotlinx.coroutines", "launch")
+                }
+            }
             .build()
         codeGenerator.createNewFile(Dependencies(false), service.packageName, className)
             .write(fileSpec)
     }
 
     private fun toFunSpec(method: Method): FunSpec {
+        if (method.isSuspend) return toSuspendFunSpec(method)
+        return toNonSuspendFunSpec(method)
+    }
+
+    private fun toSuspendFunSpec(method: Method): FunSpec {
+        val resultStatement =
+            "delegate.${method.name}(${method.parameters.joinToString(", ") { it.name }})"
+        return FunSpec.builder(method.name)
+            .addModifiers(KModifier.OVERRIDE)
+            .addParameters(getParameters(method))
+            .addStatement("val job = GlobalScope.launch(Dispatchers.Main) {")
+            .addStatement("  try {")
+            .addStatement("    val result = $resultStatement")
+            .addStatement("    transactionCallback.onSuccess(result)")
+            .addStatement("  } catch (t: Throwable) {")
+            .addStatement("    transactionCallback.onFailure(404, t.message)")
+            .addStatement("  }")
+            .addStatement("}")
+            // TODO: generate transport cancellation callback, then:
+            //  .addStatement("val cancellationSignal =
+            //     TransportCancellationCallback(){ job.cancel() }")
+            //  .addStatement("transactionCallback.onCancellable(cancellationSignal)")
+            .build()
+    }
+
+    private fun toNonSuspendFunSpec(method: Method): FunSpec {
         val returnStatement =
             "return delegate.${method.name}(${method.parameters.joinToString(", ") { it.name }})"
         return FunSpec.builder(method.name)
@@ -75,15 +109,21 @@ class StubDelegatesGenerator(
             .build()
     }
 
-    private fun getParameters(method: Method) = listOf(
-        *method.parameters.map { parameter ->
+    private fun getParameters(method: Method) = buildList {
+        addAll(method.parameters.map { parameter ->
             ParameterSpec(parameter.name, parameter.type.specClassName())
-        }.toTypedArray(),
-        ParameterSpec(
-            "transactionCallback",
-            ClassName(api.services.first().packageName, method.returnType.transactionCallbackName())
-        )
-    )
+        })
+        if (method.isSuspend)
+            add(
+                ParameterSpec(
+                    "transactionCallback",
+                    ClassName(
+                        api.services.first().packageName,
+                        method.returnType.transactionCallbackName()
+                    )
+                )
+            )
+    }
 }
 
 internal fun AnnotatedInterface.stubDelegateName() = "${name}StubDelegate"

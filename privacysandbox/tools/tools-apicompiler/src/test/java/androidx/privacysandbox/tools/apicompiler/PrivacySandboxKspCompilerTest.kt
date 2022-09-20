@@ -37,7 +37,7 @@ class PrivacySandboxKspCompilerTest {
                     import androidx.privacysandbox.tools.PrivacySandboxService
                     @PrivacySandboxService
                     interface MySdk {
-                        fun doStuff(x: Int, y: Int): String
+                        suspend fun doStuff(x: Int, y: Int): String
                         fun doMoreStuff()
                     }
                 """
@@ -57,7 +57,6 @@ class PrivacySandboxKspCompilerTest {
             it.generatesExactlySources(
                 "com/mysdk/IMySdk.java",
                 "com/mysdk/ICancellationSignal.java",
-                "com/mysdk/IUnitTransactionCallback.java",
                 "com/mysdk/IStringTransactionCallback.java",
                 "com/mysdk/AbstractSandboxedSdkProvider.kt",
                 "com/mysdk/MySdkStubDelegate.kt",
@@ -102,8 +101,11 @@ class PrivacySandboxKspCompilerTest {
                     |package com.mysdk
                     |
                     |import kotlin.Int
-                    |import kotlin.String
                     |import kotlin.Unit
+                    |import kotlinx.coroutines.CoroutineScope
+                    |import kotlinx.coroutines.Dispatchers
+                    |import kotlinx.coroutines.GlobalScope
+                    |import kotlinx.coroutines.launch
                     |
                     |public class MySdkStubDelegate internal constructor(
                     |  private val `delegate`: MySdk,
@@ -112,10 +114,18 @@ class PrivacySandboxKspCompilerTest {
                     |    x: Int,
                     |    y: Int,
                     |    transactionCallback: IStringTransactionCallback,
-                    |  ): String = delegate.doStuff(x, y)
+                    |  ): Unit {
+                    |    val job = GlobalScope.launch(Dispatchers.Main) {
+                    |      try {
+                    |        val result = delegate.doStuff(x, y)
+                    |        transactionCallback.onSuccess(result)
+                    |      } catch (t: Throwable) {
+                    |        transactionCallback.onFailure(404, t.message)
+                    |      }
+                    |    }
+                    |  }
                     |
-                    |  public override fun doMoreStuff(transactionCallback: IUnitTransactionCallback): Unit =
-                    |      delegate.doMoreStuff()
+                    |  public override fun doMoreStuff(): Unit = delegate.doMoreStuff()
                     |}
                     |
                 """.trimMargin(),

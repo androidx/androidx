@@ -109,11 +109,15 @@ class AidlGenerator private constructor(
     }
 
     private fun generateAidlMethod(method: Method): String {
-        val parameters =
-            method.parameters.map(::generateAidlParameter) +
-                "${method.returnType.transactionCallbackName()} transactionCallback"
+        val parameters = buildList {
+            addAll(method.parameters.map(::generateAidlParameter))
+            if (method.isSuspend) {
+                add("${method.returnType.transactionCallbackName()} transactionCallback")
+            }
+        }
         // TODO remove return type.
-        return "${method.returnType.toAidlType()} ${method.name}(${parameters.joinToString()});"
+        val returnType = if (method.isSuspend) "void" else method.returnType.toAidlType()
+        return "$returnType ${method.name}(${parameters.joinToString()});"
     }
 
     private fun generateAidlParameter(parameter: Parameter) =
@@ -121,7 +125,7 @@ class AidlGenerator private constructor(
         "${parameter.type.toAidlType()} ${parameter.name}"
 
     private fun generateTransactionCallbacks(): List<InMemorySource> {
-        return service().methods.map(Method::returnType).toSet()
+        return service().methods.filter(Method::isSuspend).map(Method::returnType).toSet()
             .map { generateTransactionCallback(it) }
     }
 
