@@ -37,6 +37,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withTimeoutOrNull
+import org.junit.After
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
@@ -65,6 +66,11 @@ internal class GraphProcessorTest {
 
     private val requestListener2 = FakeRequestListener()
     private val request2 = Request(listOf(StreamId(0)), listeners = listOf(requestListener2))
+
+    @After
+    fun teardown() {
+        surfaceMap[streamId]?.release()
+    }
 
     @Test
     fun graphProcessorSubmitsRequests() = runTest {
