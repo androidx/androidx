@@ -19,6 +19,7 @@ package androidx.privacysandbox.tools.apicompiler.generator
 import androidx.privacysandbox.tools.core.AnnotatedInterface
 import androidx.privacysandbox.tools.core.Method
 import androidx.privacysandbox.tools.core.ParsedApi
+import androidx.privacysandbox.tools.core.generator.AidlGenerator
 import androidx.privacysandbox.tools.core.generator.aidlName
 import androidx.privacysandbox.tools.core.generator.transactionCallbackName
 import com.google.devtools.ksp.processing.CodeGenerator
@@ -27,17 +28,23 @@ import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
+import com.squareup.kotlinpoet.LambdaTypeName
 import com.squareup.kotlinpoet.ParameterSpec
 import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.TypeSpec
+import com.squareup.kotlinpoet.asTypeName
 
 class StubDelegatesGenerator(
     private val codeGenerator: CodeGenerator,
     private val api: ParsedApi,
 ) {
+    companion object {
+        private val ATOMIC_BOOLEAN_CLASS = ClassName("java.util.concurrent.atomic", "AtomicBoolean")
+    }
 
     fun generate() {
         api.services.forEach(::generateServiceStubDelegate)
+        generateTransportCancellationCallback()
     }
 
     private fun generateServiceStubDelegate(service: AnnotatedInterface) {
@@ -91,10 +98,10 @@ class StubDelegatesGenerator(
             .addStatement("    transactionCallback.onFailure(404, t.message)")
             .addStatement("  }")
             .addStatement("}")
-            // TODO: generate transport cancellation callback, then:
-            //  .addStatement("val cancellationSignal =
-            //     TransportCancellationCallback(){ job.cancel() }")
-            //  .addStatement("transactionCallback.onCancellable(cancellationSignal)")
+            .addStatement(
+                "val cancellationSignal = TransportCancellationCallback(){ job.cancel() }"
+            )
+            .addStatement("transactionCallback.onCancellable(cancellationSignal)")
             .build()
     }
 
@@ -123,6 +130,45 @@ class StubDelegatesGenerator(
                     )
                 )
             )
+    }
+
+    private fun generateTransportCancellationCallback() {
+        val packageName = api.services.first().packageName
+        val className = "TransportCancellationCallback"
+        val cancellationSignalStubName =
+            ClassName(packageName, AidlGenerator.cancellationSignalName, "Stub")
+
+        val classSpec =
+            TypeSpec.classBuilder(className)
+                .superclass(cancellationSignalStubName)
+                .addModifiers(KModifier.INTERNAL)
+                .primaryConstructor(
+                    PropertySpec.builder(
+                        "onCancel",
+                        LambdaTypeName.get(returnType = Unit::class.asTypeName()),
+                    ).addModifiers(KModifier.PRIVATE).build()
+                )
+                .addProperty(
+                    PropertySpec.builder(
+                        "hasCancelled",
+                        ATOMIC_BOOLEAN_CLASS,
+                        KModifier.PRIVATE
+                    ).initializer("${ATOMIC_BOOLEAN_CLASS.simpleName}(false)").build()
+                )
+                .addFunction(
+                    FunSpec.builder("cancel")
+                        .addModifiers(KModifier.OVERRIDE)
+                        .addStatement("if (hasCancelled.compareAndSet(false, true)) {")
+                        .addStatement("  onCancel()")
+                        .addStatement("}")
+                        .build()
+                )
+
+        val fileSpec = FileSpec.builder(packageName, className)
+            .addType(classSpec.build())
+            .build()
+        codeGenerator.createNewFile(Dependencies(false), packageName, className)
+            .write(fileSpec)
     }
 }
 
