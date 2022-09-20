@@ -83,6 +83,7 @@ import com.google.common.truth.Truth.assertWithMessage
 import java.util.concurrent.CountDownLatch
 import kotlin.math.roundToInt
 import kotlinx.coroutines.runBlocking
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
@@ -580,6 +581,7 @@ class LazyListTest(orientation: Orientation) : BaseLazyListTestWithOrientation(o
             .assertHeightIsEqualTo(75.dp)
     }
 
+    @Ignore("b/247807812")
     @Test
     fun itemFillingParentSizeParentResized() {
         var parentSize by mutableStateOf(100.dp)
@@ -1582,6 +1584,7 @@ class LazyListTest(orientation: Orientation) : BaseLazyListTestWithOrientation(o
         rule.onNodeWithTag("3").assertIsDisplayed()
     }
 
+    @Ignore("b/247808451")
     @Test
     fun recomposingWithNewComposedModifierObjectIsNotCausingRemeasure() {
         var remeasureCount = 0
