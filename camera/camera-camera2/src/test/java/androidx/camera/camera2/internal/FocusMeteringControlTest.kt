@@ -35,16 +35,16 @@ import androidx.camera.camera2.internal.compat.quirk.AfRegionFlipHorizontallyQui
 import androidx.camera.core.CameraControl
 import androidx.camera.core.FocusMeteringAction
 import androidx.camera.core.FocusMeteringResult
-import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.MeteringPointFactory
 import androidx.camera.core.SurfaceOrientedMeteringPointFactory
+import androidx.camera.core.UseCase
 import androidx.camera.core.impl.CameraControlInternal.ControlUpdateCallback
 import androidx.camera.core.impl.CaptureConfig
 import androidx.camera.core.impl.Quirks
 import androidx.camera.core.impl.TagBundle
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.test.core.app.ApplicationProvider
-import androidx.test.filters.LargeTest
+import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
 import com.google.common.util.concurrent.ListenableFuture
 import java.util.concurrent.ExecutionException
@@ -99,11 +99,9 @@ private val M_RECT_3 = Rect(
 
 private val PREVIEW_ASPECT_RATIO_4_X_3 = Rational(4, 3)
 
-private const val AUTO_FOCUS_TIMEOUT_DURATION: Long = 5000 // ms
-
 @RunWith(ParameterizedRobolectricTestRunner::class)
 @DoNotInstrument
-@Config(minSdk = Build.VERSION_CODES.LOLLIPOP, instrumentedPackages = ["androidx.camera.core"])
+@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 class FocusMeteringControlTest(private val template: Int) {
     companion object {
         @JvmStatic
@@ -514,11 +512,11 @@ class FocusMeteringControlTest(private val template: Int) {
     @Test
     fun customFovAdjusted() {
         // 16:9 to 4:3
-        val imageAnalysis = Mockito.mock(ImageAnalysis::class.java)
-        Mockito.`when`(imageAnalysis.attachedSurfaceResolution).thenReturn(
+        val useCase = Mockito.mock(UseCase::class.java)
+        Mockito.`when`(useCase.attachedSurfaceResolution).thenReturn(
             Size(1920, 1080)
         )
-        val factory = SurfaceOrientedMeteringPointFactory(1.0f, 1.0f, imageAnalysis)
+        val factory = SurfaceOrientedMeteringPointFactory(1.0f, 1.0f, useCase)
         val point = factory.createPoint(0f, 0f)
         focusMeteringControl.setPreviewAspectRatio(PREVIEW_ASPECT_RATIO_4_X_3)
         focusMeteringControl.startFocusAndMetering(FocusMeteringAction.Builder(point).build())
@@ -621,84 +619,85 @@ class FocusMeteringControlTest(private val template: Int) {
         verify(camera2CameraControlImpl, Mockito.times(1)).updateSessionConfigSynchronous()
     }
 
-    @LargeTest
+    @MediumTest
     @Test
-    fun defaultAutoCancelDuration_completeWithIsFocusSuccessfulFalse() {
+    fun autoCancelDuration_completeWithIsFocusSuccessfulFalse() {
         focusMeteringControl = spy(focusMeteringControl)
+        val autoCancelTimeOutDuration: Long = 500
         val action = FocusMeteringAction.Builder(point1)
+            .setAutoCancelDuration(autoCancelTimeOutDuration, TimeUnit.MILLISECONDS)
             .build()
-        focusMeteringControl.startFocusAndMetering(action)
+        focusMeteringControl.startFocusAndMetering(action, autoCancelTimeOutDuration)
 
         // This is necessary for running delayed task in robolectric.
         ShadowLooper.runUiThreadTasksIncludingDelayedTasks()
-        Thread.sleep(AUTO_FOCUS_TIMEOUT_DURATION)
-        verify(focusMeteringControl, timeout(AUTO_FOCUS_TIMEOUT_DURATION))
+        verify(focusMeteringControl, timeout(autoCancelTimeOutDuration))
             .completeActionFuture(false)
-        verify(focusMeteringControl, timeout(AUTO_FOCUS_TIMEOUT_DURATION))
+        verify(focusMeteringControl, timeout(autoCancelTimeOutDuration))
             .cancelFocusAndMeteringWithoutAsyncResult()
     }
 
-    @LargeTest
+    @MediumTest
     @Test
-    fun shorterAutoCancelDuration_cancelIsCalled_completeActionFutureIsNotCalled() {
-        focusMeteringControl = spy(focusMeteringControl)
-        val autoCancelDuration: Long = 500
-        val action = FocusMeteringAction.Builder(point1)
-            .setAutoCancelDuration(autoCancelDuration, TimeUnit.MILLISECONDS)
-            .build()
-        focusMeteringControl.startFocusAndMetering(action)
+    fun shorterAutoCancelDuration_cancelIsCalled_completeActionFutureIsNotCalled(): Unit =
+        runBlocking {
+            focusMeteringControl = spy(focusMeteringControl)
+            val autoCancelDuration: Long = 500
+            val action = FocusMeteringAction.Builder(point1)
+                .setAutoCancelDuration(autoCancelDuration, TimeUnit.MILLISECONDS)
+                .build()
+            val autoFocusTimeoutDuration: Long = 1000
+            focusMeteringControl.startFocusAndMetering(action, autoFocusTimeoutDuration)
 
-        // This is necessary for running delayed task in robolectric.
-        ShadowLooper.runUiThreadTasksIncludingDelayedTasks()
-        Thread.sleep(action.autoCancelDurationInMillis)
-        verify(focusMeteringControl, timeout(action.autoCancelDurationInMillis))
-            .cancelFocusAndMeteringWithoutAsyncResult()
-        val remainingDuration = AUTO_FOCUS_TIMEOUT_DURATION - action.autoCancelDurationInMillis
-        Thread.sleep(remainingDuration)
-        verify(focusMeteringControl, never()).completeActionFuture(anyBoolean())
-    }
+            // This is necessary for running delayed task in robolectric.
+            ShadowLooper.runUiThreadTasksIncludingDelayedTasks()
+            verify(focusMeteringControl, timeout(action.autoCancelDurationInMillis))
+                .cancelFocusAndMeteringWithoutAsyncResult()
+            val remainingDuration = autoFocusTimeoutDuration - action.autoCancelDurationInMillis
+            delay(remainingDuration)
+            verify(focusMeteringControl, never()).completeActionFuture(anyBoolean())
+        }
 
-    @LargeTest
+    @MediumTest
     @Test
     fun longerAutoCancelDuration_cancelIsCalled_afterCompleteWithIsFocusSuccessfulFalse() {
         focusMeteringControl = spy(focusMeteringControl)
-        val autoCancelDuration: Long = 8000 // Default timeout duration is 5000ms
+        val autoCancelDuration: Long = 1000
         val action = FocusMeteringAction.Builder(point1)
             .setAutoCancelDuration(autoCancelDuration, TimeUnit.MILLISECONDS)
             .build()
-        focusMeteringControl.startFocusAndMetering(action)
+        val autoFocusTimeoutDuration: Long = 500
+        focusMeteringControl.startFocusAndMetering(action, autoFocusTimeoutDuration)
 
         // This is necessary for running delayed task in robolectric.
         ShadowLooper.runUiThreadTasksIncludingDelayedTasks()
-        Thread.sleep(AUTO_FOCUS_TIMEOUT_DURATION)
-        verify(focusMeteringControl, timeout(AUTO_FOCUS_TIMEOUT_DURATION))
+        verify(focusMeteringControl, timeout(autoFocusTimeoutDuration))
             .completeActionFuture(false)
-        val remainingDuration = autoCancelDuration - AUTO_FOCUS_TIMEOUT_DURATION
-        Thread.sleep(remainingDuration)
+        val remainingDuration = autoCancelDuration - autoFocusTimeoutDuration
         // cancelFocusAndMeteringWithoutAsyncResult will be called finally
         verify(focusMeteringControl, timeout(remainingDuration))
             .cancelFocusAndMeteringWithoutAsyncResult()
     }
 
-    @LargeTest
+    @MediumTest
     @Test
-    fun autoCancelDurationDisabled_completeAfterAutoFocusTimeoutDuration() {
+    fun autoCancelDurationDisabled_completeAfterAutoFocusTimeoutDuration(): Unit = runBlocking {
         focusMeteringControl = spy(focusMeteringControl)
         val autoCancelDuration: Long = 500
         val action = FocusMeteringAction.Builder(point1)
             .setAutoCancelDuration(autoCancelDuration, TimeUnit.MILLISECONDS)
             .disableAutoCancel()
             .build()
-        focusMeteringControl.startFocusAndMetering(action)
+        val autoFocusTimeoutTestDuration: Long = 1000
+        focusMeteringControl.startFocusAndMetering(action, autoFocusTimeoutTestDuration)
 
         // This is necessary for running delayed task in robolectric.
         ShadowLooper.runUiThreadTasksIncludingDelayedTasks()
-        Thread.sleep(autoCancelDuration)
+        delay(autoCancelDuration)
         // cancelFocusAndMeteringWithoutAsyncResult won't be called
         verify(focusMeteringControl, never())
             .cancelFocusAndMeteringWithoutAsyncResult()
-        val remainingDuration = AUTO_FOCUS_TIMEOUT_DURATION - autoCancelDuration
-        Thread.sleep(remainingDuration)
+        val remainingDuration = autoFocusTimeoutTestDuration - autoCancelDuration
         // Completes with isFocusSuccessful false finally
         verify(focusMeteringControl, timeout(remainingDuration))
             .completeActionFuture(false)
@@ -1198,7 +1197,7 @@ class FocusMeteringControlTest(private val template: Int) {
         assertFutureComplete(cancelResult)
     }
 
-    @LargeTest
+    @MediumTest
     @Test
     fun cancelFocusAndMetering_autoCancelIsDisabled(): Unit = runBlocking {
         focusMeteringControl = spy(focusMeteringControl)
@@ -1206,7 +1205,8 @@ class FocusMeteringControlTest(private val template: Int) {
         val action = FocusMeteringAction.Builder(point1)
             .setAutoCancelDuration(autoCancelDuration, TimeUnit.MILLISECONDS)
             .build()
-        focusMeteringControl.startFocusAndMetering(action)
+        val autoFocusTimeoutDuration: Long = 1000
+        focusMeteringControl.startFocusAndMetering(action, autoFocusTimeoutDuration)
         focusMeteringControl.cancelFocusAndMetering()
         reset(focusMeteringControl)
 
@@ -1219,7 +1219,7 @@ class FocusMeteringControlTest(private val template: Int) {
 
         // completeActionFuture won't be called in autoFocusTimeoutDuration after canceling
         // the focus and metering action.
-        delay(AUTO_FOCUS_TIMEOUT_DURATION)
+        delay(autoFocusTimeoutDuration)
         verify(focusMeteringControl, never()).completeActionFuture(anyBoolean())
     }
 
