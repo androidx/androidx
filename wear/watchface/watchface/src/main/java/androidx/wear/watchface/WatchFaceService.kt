@@ -1117,6 +1117,7 @@ public abstract class WatchFaceService : WallpaperService() {
 
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @OptIn(WatchFaceExperimental::class)
     public inner class EngineWrapper(
         private val uiThreadHandler: Handler,
         private val backgroundThreadHandler: Handler,

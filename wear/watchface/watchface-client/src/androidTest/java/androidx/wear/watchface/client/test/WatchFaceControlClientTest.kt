@@ -61,6 +61,7 @@ import androidx.wear.watchface.RenderParameters
 import androidx.wear.watchface.Renderer
 import androidx.wear.watchface.WatchFace
 import androidx.wear.watchface.WatchFaceColors
+import androidx.wear.watchface.WatchFaceExperimental
 import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.WatchFaceType
 import androidx.wear.watchface.WatchState
@@ -68,6 +69,7 @@ import androidx.wear.watchface.client.DeviceConfig
 import androidx.wear.watchface.client.DisconnectReason
 import androidx.wear.watchface.client.HeadlessWatchFaceClient
 import androidx.wear.watchface.client.InteractiveWatchFaceClient
+import androidx.wear.watchface.client.WatchFaceClientExperimental
 import androidx.wear.watchface.client.WatchFaceControlClient
 import androidx.wear.watchface.client.WatchUiState
 import androidx.wear.watchface.complications.data.ComplicationData
@@ -1766,6 +1768,7 @@ class WatchFaceControlClientTest {
         )
     }
 
+    @OptIn(WatchFaceClientExperimental::class, WatchFaceExperimental::class)
     @Test
     fun watchFaceColors() {
         val deferredInteractiveInstance = handlerCoroutineScope.async {

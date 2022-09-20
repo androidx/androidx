@@ -5599,6 +5599,7 @@ public class WatchFaceServiceTest {
         InteractiveInstanceManager.releaseInstance(NEW_ID)
     }
 
+    @OptIn(WatchFaceExperimental::class)
     @Test
     @RequiresApi(27)
     public fun onComputeColors() {
