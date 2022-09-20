@@ -22,8 +22,9 @@ import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.testing.FakeCaptureSequenceProcessor
 import androidx.camera.camera2.pipe.testing.FakeGraphProcessor
+import java.io.Closeable
 
-internal class GraphTestContext {
+internal class GraphTestContext : Closeable {
     val streamId = StreamId(0)
     val surfaceMap = mapOf(streamId to Surface(SurfaceTexture(1)))
     val captureSequenceProcessor = FakeCaptureSequenceProcessor()
@@ -34,5 +35,9 @@ internal class GraphTestContext {
         captureSequenceProcessor.surfaceMap = surfaceMap
         graphProcessor.onGraphStarted(graphRequestProcessor)
         graphProcessor.startRepeating(Request(streams = listOf(streamId)))
+    }
+
+    override fun close() {
+        surfaceMap[streamId]?.release()
     }
 }

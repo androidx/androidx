@@ -19,10 +19,11 @@ package androidx.camera.camera2.pipe.graph
 import android.graphics.SurfaceTexture
 import android.os.Build
 import android.view.Surface
+import androidx.camera.camera2.pipe.testing.FakeCameraController
 import androidx.camera.camera2.pipe.testing.FakeGraphConfigs
 import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
-import androidx.camera.camera2.pipe.testing.FakeCameraController
 import com.google.common.truth.Truth.assertThat
+import org.junit.After
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
@@ -49,6 +50,15 @@ class SurfaceGraphTest {
     private val fakeSurface3 = Surface(SurfaceTexture(3))
     private val fakeSurface4 = Surface(SurfaceTexture(4))
     private val fakeSurface5 = Surface(SurfaceTexture(5))
+
+    @After
+    fun teardown() {
+        fakeSurface1.release()
+        fakeSurface2.release()
+        fakeSurface3.release()
+        fakeSurface4.release()
+        fakeSurface5.release()
+    }
 
     @Test
     fun outputSurfacesArePassedToControllerImmediately() {
@@ -104,5 +114,8 @@ class SurfaceGraphTest {
         assertThat(controller.surfaceMap?.get(stream3.id)).isEqualTo(fakeSurface3)
         assertThat(controller.surfaceMap?.get(stream4.id)).isEqualTo(fakeSurface4)
         assertThat(controller.surfaceMap?.get(stream5.id)).isEqualTo(fakeSurface5)
+
+        fakeSurface1A.release()
+        fakeSurface1B.release()
     }
 }

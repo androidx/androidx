@@ -33,6 +33,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
+import org.junit.After
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
@@ -58,6 +59,11 @@ internal class Controller3AUnlock3ATest {
         graphState3A,
         listener3A
     )
+
+    @After
+    fun teardown() {
+        graphTestContext.close()
+    }
 
     @Test
     fun testUnlockAe() = runTest {
