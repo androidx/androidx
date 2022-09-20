@@ -99,9 +99,6 @@ android {
     defaultConfig {
         minSdkVersion 25
     }
-    buildTypes.all {
-        consumerProguardFiles "proguard-rules.pro"
-    }
     // Use Robolectric 4.+
     testOptions.unitTests.includeAndroidResources = true
     sourceSets.androidTest.assets.srcDirs +=
