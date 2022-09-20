@@ -42,6 +42,8 @@ class AidlGenerator private constructor(
         ): List<GeneratedSource> {
             return AidlGenerator(aidlCompiler, api, workingDir).generate()
         }
+
+        const val cancellationSignalName = "ICancellationSignal"
     }
 
     private fun generate(): List<GeneratedSource> {
@@ -135,9 +137,9 @@ class AidlGenerator private constructor(
         return InMemorySource(
             packageName = packageName(), interfaceName = interfaceName, fileContents = """
                     package ${packageName()};
-                    import ${packageName()}.ICancellationSignal;
+                    import ${packageName()}.$cancellationSignalName;
                     oneway interface $interfaceName {
-                        void onCancellable(ICancellationSignal cancellationSignal);
+                        void onCancellable($cancellationSignalName cancellationSignal);
                         void onSuccess($onSuccessParameter);
                         void onFailure(int errorCode, String errorMessage);
                     }
@@ -146,9 +148,9 @@ class AidlGenerator private constructor(
     }
 
     private fun generateICancellationSignal() = InMemorySource(
-        packageName = packageName(), interfaceName = "ICancellationSignal", fileContents = """
+        packageName = packageName(), interfaceName = "$cancellationSignalName", fileContents = """
                 package ${packageName()};
-                oneway interface ICancellationSignal {
+                oneway interface $cancellationSignalName {
                     void cancel();
                 }
             """.trimIndent()
