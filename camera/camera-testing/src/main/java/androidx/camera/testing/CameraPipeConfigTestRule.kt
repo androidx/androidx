@@ -58,6 +58,11 @@ class CameraPipeConfigTestRule(
 
             override fun evaluate() {
                 if (active) {
+                    if (!Log.isLoggable(CAMERA_PIPE_MH_FLAG, Log.DEBUG)) {
+                        throw AssumptionViolatedException(
+                            "Ignore Camera-pipe tests since there's no debug flag"
+                        )
+                    }
                     try {
                         log("started: ${description.displayName}")
                         logUncaughtExceptions()
@@ -97,6 +102,7 @@ class CameraPipeConfigTestRule(
 
     companion object {
         private const val CAMERA_PIPE_TEST_FLAG = "CAMERA_PIPE_TESTING"
+        private const val CAMERA_PIPE_MH_FLAG = "CameraPipeMH"
         private const val LOG_TAG = "CameraPipeTest"
         fun log(message: String, throwable: Throwable? = null) {
             if (throwable != null) {
