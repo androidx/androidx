@@ -63,6 +63,7 @@ import kotlinx.coroutines.withTimeout
 import org.junit.After
 import org.junit.Assume.assumeTrue
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -119,6 +120,7 @@ class UseCaseSurfaceManagerDeviceTest {
         }
     }
 
+    @Ignore("b/246533289")
     @Test
     fun openCloseCameraGraph_deferrableSurfaceUsageCountTest() = runBlocking {
         // Arrange.
