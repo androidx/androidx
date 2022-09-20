@@ -71,6 +71,12 @@ package androidx.wear.watchface.client {
   public final class DeviceConfigKt {
   }
 
+  public final class DisconnectReasons {
+    field public static final int ENGINE_DETACHED = 2; // 0x2
+    field public static final int ENGINE_DIED = 1; // 0x1
+    field public static final androidx.wear.watchface.client.DisconnectReasons INSTANCE;
+  }
+
   public interface EditorListener {
     method public void onEditorStateChanged(androidx.wear.watchface.client.EditorState editorState);
   }
