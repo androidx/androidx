@@ -49,14 +49,12 @@ import androidx.glance.template.TextBlock
 import androidx.glance.template.TextType
 
 /**
- * List demo with list items in full details and list header with action button using data and list
+ * List demo with list items in full details and list item action button using data and list
  * template from [BaseListDemoWidget].
  */
 class FullHeaderActionListDemoWidget : BaseListDemoWidget() {
     @Composable
-    override fun TemplateContent() = ListTemplateContent(ListStyle.Full, true, true, 1)
-
-    override fun headerButtonAction(): Action = actionRunCallback<ListAddButtonAction>()
+    override fun TemplateContent() = ListTemplateContent(ListStyle.Full, true)
 
     override fun itemSelectAction(params: ActionParameters): Action =
         actionRunCallback<ListTemplateItemAction>(params)
@@ -111,11 +109,6 @@ class BriefListReceiver : GlanceAppWidgetReceiver() {
  */
 abstract class BaseListDemoWidget : GlanceTemplateAppWidget() {
     /**
-     * Defines the handling of header button action.
-     */
-    open fun headerButtonAction(): Action = actionRunCallback<DefaultNoopAction>()
-
-    /**
      * Defines the handling of item select action.
      *
      * @param params action parameters for selection index
@@ -128,15 +121,13 @@ abstract class BaseListDemoWidget : GlanceTemplateAppWidget() {
      *
      * @param listStyle styling the list by [ListStyle] based data details
      * @param initialNumItems initial number of list items to generate in the demo
-     * @param showHeaderAction whether to show list header action button
      * @param showHeader whether to show list header as a whole
      */
     @Composable
     internal fun ListTemplateContent(
         listStyle: ListStyle,
         showHeader: Boolean = false,
-        showHeaderAction: Boolean = false,
-        initialNumItems: Int = 3,
+        initialNumItems: Int = MAX_ITEMS,
     ) {
         val state = currentState<Preferences>()
         val content = mutableListOf<ListTemplateItem>()
@@ -192,17 +183,6 @@ abstract class BaseListDemoWidget : GlanceTemplateAppWidget() {
                         ImageProvider(R.drawable.ic_widget),
                         "Logo"
                     ),
-                    actionBlock = if (showHeaderAction) ActionBlock(
-                        actionButtons = listOf(
-                            TemplateImageButton(
-                                headerButtonAction(),
-                                TemplateImageWithDescription(
-                                    ImageProvider(R.drawable.ic_add),
-                                    "Add item"
-                                )
-                            ),
-                        ),
-                    ) else null,
                 ) else null,
                 listContent = content,
                 listStyle = listStyle
@@ -217,26 +197,6 @@ class DefaultNoopAction : ActionCallback {
         glanceId: GlanceId,
         parameters: ActionParameters
     ) {
-    }
-}
-
-class ListAddButtonAction : ActionCallback {
-    override suspend fun onAction(
-        context: Context,
-        glanceId: GlanceId,
-        parameters: ActionParameters
-    ) {
-        updateAppWidgetState(context, glanceId) { prefs ->
-            var count = prefs[CountKey] ?: 1
-            if (count >= MAX_ITEMS) {
-                count = 0
-                if (prefs[ItemClickedKey] != 1) {
-                    prefs.minusAssign(ItemClickedKey)
-                }
-            }
-            prefs[CountKey] = ++count
-        }
-        FullHeaderActionListDemoWidget().update(context, glanceId)
     }
 }
 
