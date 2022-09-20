@@ -83,23 +83,38 @@ internal class FrameworkSQLiteDatabase(
         return delegate.inTransaction()
     }
 
-    override fun isDbLockedByCurrentThread(): Boolean {
-        return delegate.isDbLockedByCurrentThread
-    }
+    override val isDbLockedByCurrentThread: Boolean
+        get() = delegate.isDbLockedByCurrentThread
 
     override fun yieldIfContendedSafely(): Boolean {
         return delegate.yieldIfContendedSafely()
     }
 
-    override fun yieldIfContendedSafely(sleepAfterYieldDelay: Long): Boolean {
-        return delegate.yieldIfContendedSafely(sleepAfterYieldDelay)
+    override fun yieldIfContendedSafely(sleepAfterYieldDelayMillis: Long): Boolean {
+        return delegate.yieldIfContendedSafely(sleepAfterYieldDelayMillis)
     }
 
-    override fun isExecPerConnectionSQLSupported(): Boolean {
-        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.R
+    override var version: Int
+        get() = delegate.version
+        set(value) {
+            delegate.version = value
+        }
+
+    override var maximumSize: Long
+        get() = delegate.maximumSize
+        set(numBytes) {
+            delegate.maximumSize = numBytes
+        }
+
+    override fun setMaximumSize(numBytes: Long): Long {
+        delegate.maximumSize = numBytes
+        return delegate.maximumSize
     }
 
-    override fun execPerConnectionSQL(sql: String, bindArgs: Array<Any>?) {
+    override val isExecPerConnectionSQLSupported: Boolean
+        get() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.R
+
+    override fun execPerConnectionSQL(sql: String, bindArgs: Array<Any?>?) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             Api30Impl.execPerConnectionSQL(delegate, sql, bindArgs)
         } else {
@@ -110,29 +125,11 @@ internal class FrameworkSQLiteDatabase(
         }
     }
 
-    override fun getVersion(): Int {
-        return delegate.version
-    }
-
-    override fun setVersion(version: Int) {
-        delegate.version = version
-    }
-
-    override fun getMaximumSize(): Long {
-        return delegate.maximumSize
-    }
-
-    override fun setMaximumSize(numBytes: Long): Long {
-        return delegate.setMaximumSize(numBytes)
-    }
-
-    override fun getPageSize(): Long {
-        return delegate.pageSize
-    }
-
-    override fun setPageSize(numBytes: Long) {
-        delegate.pageSize = numBytes
-    }
+    override var pageSize: Long
+        get() = delegate.pageSize
+        set(numBytes) {
+            delegate.pageSize = numBytes
+        }
 
     override fun query(query: String): Cursor {
         return query(SimpleSQLiteQuery(query))
@@ -142,41 +139,41 @@ internal class FrameworkSQLiteDatabase(
         return query(SimpleSQLiteQuery(query, bindArgs))
     }
 
-    override fun query(supportQuery: SupportSQLiteQuery): Cursor {
+    override fun query(query: SupportSQLiteQuery): Cursor {
         val cursorFactory = {
                 _: SQLiteDatabase?,
                 masterQuery: SQLiteCursorDriver?,
                 editTable: String?,
-                query: SQLiteQuery? ->
-            supportQuery.bindTo(
+                sqLiteQuery: SQLiteQuery? ->
+            query.bindTo(
                 FrameworkSQLiteProgram(
-                    query!!
+                    sqLiteQuery!!
                 )
             )
-            SQLiteCursor(masterQuery, editTable, query)
+            SQLiteCursor(masterQuery, editTable, sqLiteQuery)
         }
 
         return delegate.rawQueryWithFactory(
-            cursorFactory, supportQuery.sql, EMPTY_STRING_ARRAY, null)
+            cursorFactory, query.sql, EMPTY_STRING_ARRAY, null)
     }
 
     @RequiresApi(16)
     override fun query(
-        supportQuery: SupportSQLiteQuery,
+        query: SupportSQLiteQuery,
         cancellationSignal: CancellationSignal?
     ): Cursor {
-        return SupportSQLiteCompat.Api16Impl.rawQueryWithFactory(delegate, supportQuery.sql,
+        return SupportSQLiteCompat.Api16Impl.rawQueryWithFactory(delegate, query.sql,
             EMPTY_STRING_ARRAY, null, cancellationSignal!!
         ) { _: SQLiteDatabase?,
             masterQuery: SQLiteCursorDriver?,
             editTable: String?,
-            query: SQLiteQuery? ->
-            supportQuery.bindTo(
+            sqLiteQuery: SQLiteQuery? ->
+            query.bindTo(
                 FrameworkSQLiteProgram(
-                    query!!
+                    sqLiteQuery!!
                 )
             )
-            SQLiteCursor(masterQuery, editTable, query)
+            SQLiteCursor(masterQuery, editTable, sqLiteQuery)
         }
     }
 
@@ -204,7 +201,7 @@ internal class FrameworkSQLiteDatabase(
         conflictAlgorithm: Int,
         values: ContentValues,
         whereClause: String?,
-        whereArgs: Array<Any>?
+        whereArgs: Array<Any?>?
     ): Int {
         // taken from SQLiteDatabase class.
         require(values.size() != 0) { "Empty values" }
@@ -250,25 +247,22 @@ internal class FrameworkSQLiteDatabase(
     }
 
     @Throws(SQLException::class)
-    override fun execSQL(sql: String, bindArgs: Array<Any>) {
+    override fun execSQL(sql: String, bindArgs: Array<Any?>) {
         delegate.execSQL(sql, bindArgs)
     }
 
-    override fun isReadOnly(): Boolean {
-        return delegate.isReadOnly
-    }
+    override val isReadOnly: Boolean
+        get() = delegate.isReadOnly
 
-    override fun isOpen(): Boolean {
-        return delegate.isOpen
-    }
+    override val isOpen: Boolean
+        get() = delegate.isOpen
 
     override fun needUpgrade(newVersion: Int): Boolean {
         return delegate.needUpgrade(newVersion)
     }
 
-    override fun getPath(): String? {
-        return delegate.path
-    }
+    override val path: String?
+        get() = delegate.path
 
     override fun setLocale(locale: Locale) {
         delegate.setLocale(locale)
@@ -279,8 +273,8 @@ internal class FrameworkSQLiteDatabase(
     }
 
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
-    override fun setForeignKeyConstraintsEnabled(enable: Boolean) {
-        SupportSQLiteCompat.Api16Impl.setForeignKeyConstraintsEnabled(delegate, enable)
+    override fun setForeignKeyConstraintsEnabled(enabled: Boolean) {
+        SupportSQLiteCompat.Api16Impl.setForeignKeyConstraintsEnabled(delegate, enabled)
     }
 
     override fun enableWriteAheadLogging(): Boolean {
@@ -292,18 +286,14 @@ internal class FrameworkSQLiteDatabase(
         SupportSQLiteCompat.Api16Impl.disableWriteAheadLogging(delegate)
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
-    override fun isWriteAheadLoggingEnabled(): Boolean {
-        return SupportSQLiteCompat.Api16Impl.isWriteAheadLoggingEnabled(delegate)
-    }
+    @get:RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
+    override val isWriteAheadLoggingEnabled: Boolean
+        get() = SupportSQLiteCompat.Api16Impl.isWriteAheadLoggingEnabled(delegate)
 
-    override fun getAttachedDbs(): List<Pair<String, String>>? {
-        return delegate.attachedDbs
-    }
+    override val attachedDbs: List<Pair<String, String>>? = delegate.attachedDbs
 
-    override fun isDatabaseIntegrityOk(): Boolean {
-        return delegate.isDatabaseIntegrityOk
-    }
+    override val isDatabaseIntegrityOk: Boolean
+        get() = delegate.isDatabaseIntegrityOk
 
     @Throws(IOException::class)
     override fun close() {
@@ -323,7 +313,7 @@ internal class FrameworkSQLiteDatabase(
         fun execPerConnectionSQL(
             sQLiteDatabase: SQLiteDatabase,
             sql: String,
-            bindArgs: Array<Any>?
+            bindArgs: Array<Any?>?
         ) {
             sQLiteDatabase.execPerConnectionSQL(sql, bindArgs)
         }
