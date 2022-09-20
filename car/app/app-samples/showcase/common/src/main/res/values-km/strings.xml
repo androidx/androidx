@@ -113,6 +113,10 @@
     <string name="finish_app_msg" msgid="8354334557053141891">"ការធ្វើបែបនេះនឹងបញ្ចប់កម្មវិធី ហើយនៅពេលអ្នកត្រឡប់មកវិញ វានឹងបញ្ចូលអេក្រង់ការអនុញ្ញាតជាមុន"</string>
     <string name="finish_app_title" msgid="9013328479438745074">"បញ្ចប់គំរូ​បង្ហាញកម្មវិធី"</string>
     <string name="finish_app_demo_title" msgid="8223819062053448384">"បញ្ចូល​អេក្រង់​ការអនុញ្ញាត​ជាមុន​នៅលើគំរូបង្ហាញ​ដែលដំណើរការបន្ទាប់"</string>
+    <!-- no translation found for preseed_permission_app_title (182847662545676962) -->
+    <skip />
+    <!-- no translation found for preseed_permission_demo_title (5476541421753978071) -->
+    <skip />
     <string name="loading_demo_title" msgid="1086529475809143517">"កំពុងផ្ទុក​គំរូបង្ហាញ"</string>
     <string name="loading_demo_row_title" msgid="8933049915126088142">"ការផ្ទុក​បានបញ្ចប់!"</string>
     <string name="pop_to_root" msgid="2078277386355064198">"ទៅកាន់ប្រភពដើម"</string>
@@ -302,6 +306,28 @@
     <string name="toggle_test_disabled" msgid="8366040658408451664">"បានបិទការធ្វើតេស្ត​ប៊ូតុងបិទ/បើក"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"គំរូបង្ហាញនៃ​ទម្រង់គំរូផ្សេងៗ"</string>
     <string name="showcase_demos_title" msgid="1542092687878113304">"គំរូបង្ហាញអំពីការតាំងរំលេច"</string>
+    <!-- no translation found for voice_access_demo_title (3825223890895361496) -->
+    <skip />
+    <!-- no translation found for user_interactions_demo_title (1356952319161314986) -->
+    <skip />
+    <!-- no translation found for request_permission_menu_demo_title (4796486779527427017) -->
+    <skip />
+    <!-- no translation found for perm_group (3834918337351876270) -->
+    <skip />
+    <!-- no translation found for perm_group_description (7348847631139139024) -->
+    <skip />
+    <!-- no translation found for perm_fine_location (5438874642600304118) -->
+    <skip />
+    <!-- no translation found for perm_fine_location_desc (3549183883787912516) -->
+    <skip />
+    <!-- no translation found for perm_coarse_location (6140337431619481015) -->
+    <skip />
+    <!-- no translation found for perm_coarse_location_desc (6074759942301565943) -->
+    <skip />
+    <!-- no translation found for perm_record_audio (2758340693260523493) -->
+    <skip />
+    <!-- no translation found for perm_record_audio_desc (8038648467605928912) -->
+    <skip />
     <string name="location_1_description" msgid="4801052291684791371">"វ៉ិចទ័រធនធាន​ពណ៌ព្រឿងៗ"</string>
     <string name="location_2_description" msgid="3331356135359047166">"ប៊ីតម៉ាប​ធនធានរូបភាព"</string>
     <string name="location_3_description" msgid="3982142774088944850">"សញ្ញាសម្គាល់ជាអក្សរ​ដែលមានពណ៌"</string>
