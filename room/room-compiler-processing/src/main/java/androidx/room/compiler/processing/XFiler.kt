@@ -16,6 +16,10 @@
 
 package androidx.room.compiler.processing
 
+import androidx.room.compiler.codegen.CodeLanguage
+import androidx.room.compiler.codegen.XTypeSpec
+import androidx.room.compiler.codegen.java.JavaTypeSpec
+import androidx.room.compiler.codegen.kotlin.KotlinTypeSpec
 import com.squareup.javapoet.JavaFile
 import com.squareup.kotlinpoet.FileSpec
 
@@ -46,4 +50,23 @@ fun JavaFile.writeTo(generator: XFiler, mode: XFiler.Mode = XFiler.Mode.Isolatin
 
 fun FileSpec.writeTo(generator: XFiler, mode: XFiler.Mode = XFiler.Mode.Isolating) {
     generator.write(this, mode)
+}
+
+fun XTypeSpec.writeTo(generator: XFiler, mode: XFiler.Mode = XFiler.Mode.Isolating) {
+    require(this.className.simpleNames().size == 1) { "XTypeSpec must be a top-level class." }
+    when (this.language) {
+        CodeLanguage.JAVA -> {
+            check(this is JavaTypeSpec)
+            JavaFile.builder(this.className.packageName(), this.actual)
+                .build()
+                .writeTo(generator, mode)
+        }
+        CodeLanguage.KOTLIN -> {
+            check(this is KotlinTypeSpec)
+            FileSpec.builder(this.className.packageName(), this.className.simpleName())
+                .addType(this.actual)
+                .build()
+                .writeTo(generator, mode)
+        }
+    }
 }

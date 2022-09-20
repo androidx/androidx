@@ -50,7 +50,8 @@ tasks.withType(KotlinCompile).configureEach {
         freeCompilerArgs += [
                 "-Xjvm-default=all",
                 "-opt-in=kotlin.contracts.ExperimentalContracts",
-                "-opt-in=androidx.room.compiler.processing.ExperimentalProcessingApi"
+                "-opt-in=androidx.room.compiler.processing.ExperimentalProcessingApi",
+                "-opt-in=com.squareup.kotlinpoet.javapoet.KotlinPoetJavaPoetPreview"
         ]
     }
 }

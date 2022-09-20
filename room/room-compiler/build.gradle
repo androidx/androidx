@@ -94,6 +94,8 @@ dependencies {
     implementation(libs.autoCommon)
     implementation(libs.autoValueAnnotations)
     implementation(libs.javapoet)
+    implementation(libs.kotlinPoet)
+    implementation(libs.kotlinPoetJavaPoet)
     implementation(libs.kspApi)
     shadowed(libs.antlr4)
     implementation(libs.sqliteJdbc)
@@ -278,7 +280,8 @@ tasks.withType(KotlinCompile).configureEach {
         freeCompilerArgs += [
                 "-Xjvm-default=all",
                 "-opt-in=kotlin.contracts.ExperimentalContracts",
-                "-opt-in=androidx.room.compiler.processing.ExperimentalProcessingApi"
+                "-opt-in=androidx.room.compiler.processing.ExperimentalProcessingApi",
+                "-opt-in=com.squareup.kotlinpoet.javapoet.KotlinPoetJavaPoetPreview"
         ]
     }
 }

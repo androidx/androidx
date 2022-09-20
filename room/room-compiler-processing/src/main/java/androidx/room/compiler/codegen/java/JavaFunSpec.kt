@@ -1,0 +1,102 @@
+/*
+ * Copyright 2022 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package androidx.room.compiler.codegen.java
+
+import androidx.room.compiler.codegen.L
+import androidx.room.compiler.codegen.NONNULL_ANNOTATION
+import androidx.room.compiler.codegen.NULLABLE_ANNOTATION
+import androidx.room.compiler.codegen.VisibilityModifier
+import androidx.room.compiler.codegen.XAnnotationSpec
+import androidx.room.compiler.codegen.XCodeBlock
+import androidx.room.compiler.codegen.XFunSpec
+import androidx.room.compiler.processing.KnownTypeNames.KOTLIN_UNIT
+import androidx.room.compiler.processing.XNullability
+import com.squareup.javapoet.CodeBlock
+import com.squareup.javapoet.MethodSpec
+import com.squareup.javapoet.ParameterSpec
+import com.squareup.kotlinpoet.javapoet.JTypeName
+import javax.lang.model.element.Modifier
+
+internal class JavaFunSpec(
+    internal val actual: MethodSpec
+) : JavaLang(), XFunSpec {
+
+    internal class Builder(
+        internal val actual: com.squareup.javapoet.MethodSpec.Builder
+    ) : JavaLang(), XFunSpec.Builder {
+
+        override fun addCode(code: XCodeBlock) = apply {
+            require(code is JavaCodeBlock)
+            actual.addCode(code.actual)
+        }
+
+        override fun addParameter(
+            typeName: JTypeName,
+            name: String,
+            nullability: XNullability,
+            annotations: List<XAnnotationSpec>
+        ) = apply {
+            actual.addParameter(
+                ParameterSpec.builder(typeName, name, Modifier.FINAL)
+                    .apply {
+                        if (nullability == XNullability.NULLABLE) {
+                            addAnnotation(NULLABLE_ANNOTATION)
+                        } else if (nullability == XNullability.NONNULL) {
+                            addAnnotation(NONNULL_ANNOTATION)
+                        }
+                    }.build()
+            )
+            // TODO(b/247247439): Add other annotations
+        }
+
+        override fun callSuperConstructor(vararg args: XCodeBlock) = apply {
+            actual.addStatement(
+                "super($L)",
+                CodeBlock.join(
+                    args.map {
+                        check(it is JavaCodeBlock)
+                        it.actual
+                    },
+                    ", "
+                )
+            )
+        }
+
+        override fun returns(typeName: JTypeName, nullability: XNullability) = apply {
+            if (typeName == com.squareup.javapoet.TypeName.VOID || typeName == KOTLIN_UNIT) {
+                return@apply
+            }
+            // TODO(b/247242374) Add nullability annotations for non-private methods
+            if (!actual.modifiers.contains(Modifier.PRIVATE)) {
+                if (nullability == XNullability.NULLABLE) {
+                    actual.addAnnotation(NULLABLE_ANNOTATION)
+                } else if (nullability == XNullability.NONNULL) {
+                    actual.addAnnotation(NONNULL_ANNOTATION)
+                }
+            }
+            actual.returns(typeName)
+        }
+
+        override fun build() = JavaFunSpec(actual.build())
+    }
+}
+
+internal fun VisibilityModifier.toJavaVisibilityModifier() = when (this) {
+    VisibilityModifier.PUBLIC -> Modifier.PUBLIC
+    VisibilityModifier.PROTECTED -> Modifier.PROTECTED
+    VisibilityModifier.PRIVATE -> Modifier.PRIVATE
+}
