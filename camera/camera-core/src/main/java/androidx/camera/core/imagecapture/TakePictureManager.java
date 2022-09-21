@@ -34,10 +34,8 @@ import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCaptureException;
-import androidx.camera.core.ImageProxy;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.Futures;
-import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.util.Pair;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -215,105 +213,5 @@ public class TakePictureManager {
     @VisibleForTesting
     boolean hasInFlightRequest() {
         return mInFlightRequest != null;
-    }
-
-    /**
-     * A wrapper of a {@link TakePictureRequest} and its {@link TakePictureCallback}.
-     *
-     * <p>This is the connection between the internal callback and the app callback. This
-     * connection allows us to manipulate the propagation of the callback. For example, failures
-     * might be retried before sent to the app.
-     */
-    private static class RequestWithCallback implements TakePictureCallback {
-
-        private final TakePictureRequest mTakePictureRequest;
-        private final ListenableFuture<Void> mCaptureFuture;
-        private CallbackToFutureAdapter.Completer<Void> mCaptureCompleter;
-        // Tombstone flag that indicates that this callback should not be invoked anymore.
-        private boolean mIsComplete = false;
-
-        RequestWithCallback(@NonNull TakePictureRequest takePictureRequest) {
-            mTakePictureRequest = takePictureRequest;
-            mCaptureFuture = CallbackToFutureAdapter.getFuture(
-                    completer -> {
-                        mCaptureCompleter = completer;
-                        return "CaptureCompleteFuture";
-                    });
-        }
-
-        @MainThread
-        @Override
-        public void onImageCaptured() {
-            checkMainThread();
-            mCaptureCompleter.set(null);
-            // TODO: send early callback to app.
-        }
-
-        @MainThread
-        @Override
-        public void onFinalResult(@NonNull ImageCapture.OutputFileResults outputFileResults) {
-            checkMainThread();
-            checkOnImageCaptured();
-            markComplete();
-            mTakePictureRequest.onResult(outputFileResults);
-        }
-
-        @MainThread
-        @Override
-        public void onFinalResult(@NonNull ImageProxy imageProxy) {
-            checkMainThread();
-            checkOnImageCaptured();
-            markComplete();
-            mTakePictureRequest.onResult(imageProxy);
-        }
-
-
-        @MainThread
-        @Override
-        public void onProcessFailure(@NonNull ImageCaptureException imageCaptureException) {
-            checkMainThread();
-            checkOnImageCaptured();
-            markComplete();
-            onFailure(imageCaptureException);
-        }
-
-        @MainThread
-        @Override
-        public void onCaptureFailure(@NonNull ImageCaptureException imageCaptureException) {
-            checkMainThread();
-            markComplete();
-            mCaptureCompleter.set(null);
-
-            // TODO(b/242683221): Add retry logic.
-            onFailure(imageCaptureException);
-        }
-
-        /**
-         * Gets a {@link ListenableFuture} that finishes when the capture is completed by camera.
-         *
-         * <p>Send the next request after this one completes.
-         */
-        @MainThread
-        @NonNull
-        ListenableFuture<Void> getCaptureFuture() {
-            checkMainThread();
-            return mCaptureFuture;
-        }
-
-        private void checkOnImageCaptured() {
-            checkState(mCaptureFuture.isDone(),
-                    "onImageCaptured() must be called before onFinalResult()");
-        }
-
-        private void markComplete() {
-            checkState(!mIsComplete, "The callback can only complete once.");
-            mIsComplete = true;
-        }
-
-        @MainThread
-        private void onFailure(@NonNull ImageCaptureException imageCaptureException) {
-            checkMainThread();
-            mTakePictureRequest.onError(imageCaptureException);
-        }
     }
 }
