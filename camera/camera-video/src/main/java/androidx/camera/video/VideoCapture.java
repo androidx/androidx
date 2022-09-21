@@ -110,6 +110,7 @@ import androidx.camera.video.internal.encoder.InvalidConfigException;
 import androidx.camera.video.internal.encoder.VideoEncoderConfig;
 import androidx.camera.video.internal.encoder.VideoEncoderInfo;
 import androidx.camera.video.internal.encoder.VideoEncoderInfoImpl;
+import androidx.camera.video.internal.workaround.VideoEncoderInfoWrapper;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.util.Preconditions;
 import androidx.core.util.Supplier;
@@ -890,13 +891,21 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         if (mVideoEncoderInfo != null) {
             return mVideoEncoderInfo;
         }
+
+        VideoEncoderInfo videoEncoderInfo = resolveVideoEncoderInfo(videoEncoderInfoFinder,
+                videoCapabilities, timebase, mediaSpec, resolution, targetFps);
+        if (videoEncoderInfo == null) {
+            return null;
+        }
+
+        videoEncoderInfo = VideoEncoderInfoWrapper.from(videoEncoderInfo, resolution);
+
         // Cache the VideoEncoderInfo as it should be the same when recreating the pipeline.
         // This avoids recreating the MediaCodec instance to get encoder information.
         // Note: We should clear the cache if the MediaSpec changes at any time, especially when
         // the Encoder-related content in the VideoSpec changes. i.e. when we need to observe the
         // MediaSpec Observable.
-        return mVideoEncoderInfo = resolveVideoEncoderInfo(videoEncoderInfoFinder,
-                videoCapabilities, timebase, mediaSpec, resolution, targetFps);
+        return mVideoEncoderInfo = videoEncoderInfo;
     }
 
     @Nullable
