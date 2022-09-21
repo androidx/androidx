@@ -39,6 +39,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -278,6 +279,7 @@ class GLFrontBufferedRendererTest {
     }
 
     @Test
+    @Ignore("b/244755709")
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     fun testRenderFrontBufferSeveralTimes() {
         if (!deviceSupportsNativeAndroidFence()) {
