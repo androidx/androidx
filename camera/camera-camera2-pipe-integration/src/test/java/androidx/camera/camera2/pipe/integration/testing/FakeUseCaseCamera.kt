@@ -32,7 +32,6 @@ import androidx.camera.core.impl.Config
 import androidx.camera.core.impl.SessionConfig
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.Job
 
 class FakeUseCaseCameraComponentBuilder : UseCaseCameraComponent.Builder {
     private var config: UseCaseCameraConfig = UseCaseCameraConfig(emptyList())
@@ -135,7 +134,6 @@ class FakeUseCaseCamera(
         return CompletableDeferred(Result3A(status = Result3A.Status.OK))
     }
 
-    override fun close(): Job {
-        return CompletableDeferred(Unit)
+    override fun close() {
     }
 }

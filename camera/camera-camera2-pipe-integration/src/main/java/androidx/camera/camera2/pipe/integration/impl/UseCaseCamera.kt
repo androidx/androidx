@@ -36,8 +36,6 @@ import dagger.Module
 import javax.inject.Inject
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
 
 internal val useCaseCameraIds = atomic(0)
 internal val defaultOptionPriority = Config.OptionPriority.OPTIONAL
@@ -70,7 +68,7 @@ interface UseCaseCamera {
     ): Deferred<Result3A>
 
     // Lifecycle
-    fun close(): Job
+    fun close()
 }
 
 /**
@@ -81,7 +79,6 @@ class UseCaseCameraImpl @Inject constructor(
     private val useCaseGraphConfig: UseCaseGraphConfig,
     private val useCases: java.util.ArrayList<UseCase>,
     private val useCaseSurfaceManager: UseCaseSurfaceManager,
-    private val threads: UseCaseThreads,
     override val requestControl: UseCaseCameraRequestControl,
 ) : UseCaseCamera {
     private val debugId = useCaseCameraIds.incrementAndGet()
@@ -107,12 +104,10 @@ class UseCaseCameraImpl @Inject constructor(
         debug { "Configured $this for $useCases" }
     }
 
-    override fun close(): Job {
-        return threads.scope.launch {
-            debug { "Closing $this" }
-            useCaseGraphConfig.graph.close()
-            useCaseSurfaceManager.stopAsync().await()
-        }
+    override fun close() {
+        debug { "Closing $this" }
+        useCaseSurfaceManager.stopAsync()
+        useCaseGraphConfig.graph.close()
     }
 
     override suspend fun startFocusAndMeteringAsync(
