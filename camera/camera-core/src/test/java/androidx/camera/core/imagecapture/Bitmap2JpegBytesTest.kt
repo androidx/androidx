@@ -42,7 +42,7 @@ import org.robolectric.annotation.internal.DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 class Bitmap2JpegBytesTest {
 
-    private val processor = Bitmap2JpegBytes()
+    private val operation = Bitmap2JpegBytes()
 
     @Test
     fun process_verifyOutput() {
@@ -58,7 +58,7 @@ class Bitmap2JpegBytesTest {
         val input = Bitmap2JpegBytes.In.of(inputPacket, 100)
 
         // Act.
-        val output = processor.process(input)
+        val output = operation.apply(input)
 
         // Assert
         val restoredBitmap = decodeByteArray(output.data, 0, output.data.size)

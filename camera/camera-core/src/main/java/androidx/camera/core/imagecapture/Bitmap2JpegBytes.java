@@ -25,8 +25,8 @@ import android.os.Build;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.ImageCaptureException;
+import androidx.camera.core.processing.Operation;
 import androidx.camera.core.processing.Packet;
-import androidx.camera.core.processing.Processor;
 
 import com.google.auto.value.AutoValue;
 
@@ -38,11 +38,11 @@ import java.io.ByteArrayOutputStream;
  * <p>The {@link Bitmap} will be recycled and should not be used after the processing.
  */
 @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-class Bitmap2JpegBytes implements Processor<Bitmap2JpegBytes.In, Packet<byte[]>> {
+class Bitmap2JpegBytes implements Operation<Bitmap2JpegBytes.In, Packet<byte[]>> {
 
     @NonNull
     @Override
-    public Packet<byte[]> process(@NonNull In in) throws ImageCaptureException {
+    public Packet<byte[]> apply(@NonNull In in) throws ImageCaptureException {
         Packet<Bitmap> packet = in.getPacket();
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         packet.getData().compress(Bitmap.CompressFormat.JPEG, in.getJpegQuality(), outputStream);

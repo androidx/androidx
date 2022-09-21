@@ -39,8 +39,8 @@ import androidx.annotation.RequiresApi;
 import androidx.camera.core.ImageCaptureException;
 import androidx.camera.core.ImageProxy;
 import androidx.camera.core.impl.utils.Exif;
+import androidx.camera.core.processing.Operation;
 import androidx.camera.core.processing.Packet;
-import androidx.camera.core.processing.Processor;
 
 import java.io.IOException;
 
@@ -51,11 +51,11 @@ import java.io.IOException;
  */
 @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 final class ProcessingInput2Packet implements
-        Processor<ProcessingNode.InputPacket, Packet<ImageProxy>> {
+        Operation<ProcessingNode.InputPacket, Packet<ImageProxy>> {
 
     @NonNull
     @Override
-    public Packet<ImageProxy> process(@NonNull ProcessingNode.InputPacket inputPacket)
+    public Packet<ImageProxy> apply(@NonNull ProcessingNode.InputPacket inputPacket)
             throws ImageCaptureException {
         ImageProxy image = inputPacket.getImageProxy();
         ProcessingRequest request = inputPacket.getProcessingRequest();

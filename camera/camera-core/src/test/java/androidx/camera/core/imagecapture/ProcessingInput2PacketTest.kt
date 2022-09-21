@@ -53,7 +53,7 @@ import org.robolectric.annotation.internal.DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 class ProcessingInput2PacketTest {
 
-    private val processor = ProcessingInput2Packet()
+    private val operation = ProcessingInput2Packet()
 
     @Test
     fun processYuvInput_exifIsNull() {
@@ -63,7 +63,7 @@ class ProcessingInput2PacketTest {
         val input = ProcessingNode.InputPacket.of(processingRequest, image)
 
         // Act.
-        val output = processor.process(input)
+        val output = operation.apply(input)
 
         // Assert.
         assertThat(output.exif).isNull()
@@ -86,7 +86,7 @@ class ProcessingInput2PacketTest {
         val input = ProcessingNode.InputPacket.of(processingRequest, image)
 
         // Act.
-        val output = processor.process(input)
+        val output = operation.apply(input)
 
         // Assert.
         assertThat(output.format).isEqualTo(ImageFormat.JPEG)
@@ -117,7 +117,7 @@ class ProcessingInput2PacketTest {
         val input = ProcessingNode.InputPacket.of(processingRequest, image)
 
         // Act.
-        val output = processor.process(input)
+        val output = operation.apply(input)
 
         // Assert: the metadata are based on exif and Packet.
         // Rotation is 0 because exif rotation is 0
@@ -144,7 +144,7 @@ class ProcessingInput2PacketTest {
         val input = ProcessingNode.InputPacket.of(processingRequest, image)
 
         // Act.
-        val output = processor.process(input)
+        val output = operation.apply(input)
 
         // Assert: the metadata are based on Packet only.
         assertThat(output.cropRect).isEqualTo(CROP_RECT)

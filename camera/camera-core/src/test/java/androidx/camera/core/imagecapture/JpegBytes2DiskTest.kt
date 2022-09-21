@@ -56,7 +56,7 @@ import org.robolectric.annotation.internal.DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 class JpegBytes2DiskTest {
 
-    private val processor = JpegBytes2Disk()
+    private val operation = JpegBytes2Disk()
 
     @Test
     fun saveToOutputStream_verifySavedImageIsIdentical() {
@@ -74,7 +74,7 @@ class JpegBytes2DiskTest {
         // Act: save to a OutputStream.
         FileOutputStream(TEMP_FILE).use {
             val input = JpegBytes2Disk.In.of(inputPacket, OutputFileOptions.Builder(it).build())
-            processor.process(input)
+            operation.apply(input)
         }
         // Assert.
         val restoredBitmap = BitmapFactory.decodeFile(TEMP_FILE.path)
@@ -157,6 +157,6 @@ class JpegBytes2DiskTest {
         )
         val options = OutputFileOptions.Builder(TEMP_FILE).setMetadata(metadata).build()
         val input = JpegBytes2Disk.In.of(inputPacket, options)
-        return processor.process(input).savedUri!!.path!!
+        return operation.apply(input).savedUri!!.path!!
     }
 }

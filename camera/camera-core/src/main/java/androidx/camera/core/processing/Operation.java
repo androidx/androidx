@@ -22,10 +22,10 @@ import androidx.camera.core.ImageCaptureException;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 
 /**
- * Class for processing a single image frame.
+ * Operation that turns a single input image frame {@link I} to a output {@link O}.
  *
- * <p>Both {@link I} and {@link O} contain one or many camera frames and their metadata such as
- * dimension, format and Exif.
+ * <p>Both the input {@link I} and the output {@link O} contain one or many camera frames and their
+ * metadata such as dimension, format and Exif.
  *
  * <p>This is a syntax sugar for the {@link Node} class. The purpose is for building a pipeline
  * intuitively without using {@link Node}'s publisher/subscriber model.
@@ -33,7 +33,7 @@ import androidx.camera.core.impl.utils.executor.CameraXExecutors;
  * @param <I> input image frame
  * @param <O> output image frame.
  */
-public interface Processor<I, O> {
+public interface Operation<I, O> {
 
     /**
      * Processes an input frame and produces an output frame.
@@ -44,5 +44,5 @@ public interface Processor<I, O> {
      */
     @NonNull
     @WorkerThread
-    O process(@NonNull I i) throws ImageCaptureException;
+    O apply(@NonNull I i) throws ImageCaptureException;
 }
