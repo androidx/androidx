@@ -65,7 +65,7 @@ import androidx.camera.core.AspectRatio;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.Logger;
-import androidx.camera.core.SurfaceEffect;
+import androidx.camera.core.SurfaceProcessor;
 import androidx.camera.core.SurfaceRequest;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.ViewPort;
@@ -94,11 +94,11 @@ import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.camera.core.internal.ThreadConfig;
-import androidx.camera.core.processing.DefaultSurfaceEffect;
+import androidx.camera.core.processing.DefaultSurfaceProcessor;
 import androidx.camera.core.processing.SettableSurface;
 import androidx.camera.core.processing.SurfaceEdge;
-import androidx.camera.core.processing.SurfaceEffectInternal;
-import androidx.camera.core.processing.SurfaceEffectNode;
+import androidx.camera.core.processing.SurfaceProcessorInternal;
+import androidx.camera.core.processing.SurfaceProcessorNode;
 import androidx.camera.video.StreamInfo.StreamState;
 import androidx.camera.video.impl.VideoCaptureConfig;
 import androidx.camera.video.internal.compat.quirk.DeviceQuirks;
@@ -158,22 +158,22 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
     private static final boolean HAS_IMAGE_CAPTURE_QUIRK =
             DeviceQuirks.get(ImageCaptureFailedWhenVideoCaptureIsBoundQuirk.class) != null;
 
-    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    @SuppressWarnings("WeakerAccess") // Synthetic access
     DeferrableSurface mDeferrableSurface;
-    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    @SuppressWarnings("WeakerAccess") // Synthetic access
     StreamInfo mStreamInfo = StreamInfo.STREAM_INFO_ANY_INACTIVE;
-    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    @SuppressWarnings("WeakerAccess") // Synthetic access
     @NonNull
     SessionConfig.Builder mSessionConfigBuilder = new SessionConfig.Builder();
-    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    @SuppressWarnings("WeakerAccess") // Synthetic access
     ListenableFuture<Void> mSurfaceUpdateFuture = null;
     private SurfaceRequest mSurfaceRequest;
-    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    @SuppressWarnings("WeakerAccess") // Synthetic access
     VideoOutput.SourceState mSourceState = VideoOutput.SourceState.INACTIVE;
     @Nullable
-    private SurfaceEffectInternal mSurfaceEffect;
+    private SurfaceProcessorInternal mSurfaceProcessor;
     @Nullable
-    private SurfaceEffectNode mNode;
+    private SurfaceProcessorNode mNode;
     @Nullable
     private VideoEncoderInfo mVideoEncoderInfo;
 
@@ -217,7 +217,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
      * has been attached to a camera.
      *
      * @return The rotation of the intended target.
-     *
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -329,9 +328,9 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
     }
 
     /**
-     * Sets a {@link SurfaceEffectInternal}.
+     * Sets a {@link SurfaceProcessorInternal}.
      *
-     * <p>The effect is used to setup post-processing pipeline.
+     * <p>The processor is used to setup post-processing pipeline.
      *
      * <p>Note: the value will only be used when VideoCapture is bound. Calling this method after
      * VideoCapture is bound takes no effect until VideoCapture is rebound.
@@ -339,8 +338,8 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
-    public void setEffect(@Nullable SurfaceEffectInternal surfaceEffect) {
-        mSurfaceEffect = surfaceEffect;
+    public void setProcessor(@Nullable SurfaceProcessorInternal surfaceProcessor) {
+        mSurfaceProcessor = surfaceProcessor;
     }
 
     /**
@@ -502,7 +501,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
                             VideoCapabilities.from(camera.getCameraInfo()), timebase, mediaSpec,
                             resolution, targetFpsRange));
             SettableSurface cameraSurface = new SettableSurface(
-                    SurfaceEffect.VIDEO_CAPTURE,
+                    SurfaceProcessor.VIDEO_CAPTURE,
                     resolution,
                     ImageFormat.PRIVATE,
                     getSensorToBufferTransformMatrix(),
@@ -697,19 +696,19 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
     }
 
     @Nullable
-    private SurfaceEffectNode createNodeIfNeeded() {
-        if (mSurfaceEffect != null || HAS_PREVIEW_DELAY_QUIRK || HAS_IMAGE_CAPTURE_QUIRK) {
+    private SurfaceProcessorNode createNodeIfNeeded() {
+        if (mSurfaceProcessor != null || HAS_PREVIEW_DELAY_QUIRK || HAS_IMAGE_CAPTURE_QUIRK) {
             Logger.d(TAG, "SurfaceEffect is enabled.");
-            return new SurfaceEffectNode(requireNonNull(getCamera()),
+            return new SurfaceProcessorNode(requireNonNull(getCamera()),
                     APPLY_CROP_ROTATE_AND_MIRRORING,
-                    mSurfaceEffect != null ? mSurfaceEffect : new DefaultSurfaceEffect());
+                    mSurfaceProcessor != null ? mSurfaceProcessor : new DefaultSurfaceProcessor());
         }
         return null;
     }
 
     @VisibleForTesting
     @Nullable
-    SurfaceEffectNode getNode() {
+    SurfaceProcessorNode getNode() {
         return mNode;
     }
 
@@ -1002,7 +1001,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
      * by the {@link QualitySelector} in VideoOutput.
      *
      * @throws IllegalArgumentException if not able to find a resolution by the QualitySelector
-     * in VideoOutput.
+     *                                  in VideoOutput.
      */
     private void updateSupportedResolutionsByQuality(@NonNull CameraInfoInternal cameraInfo,
             @NonNull UseCaseConfig.Builder<?, ?, ?> builder) throws IllegalArgumentException {
@@ -1088,9 +1087,9 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
      * will never return a {@code null} value. The observable could contain exact {@code null}
      * value.
      *
-     * @param observable the observable
+     * @param observable     the observable
      * @param valueIfMissing if the observable doesn't contain value.
-     * @param <T> the value type
+     * @param <T>            the value type
      * @return the snapshot value of the given {@link Observable}.
      */
     @Nullable

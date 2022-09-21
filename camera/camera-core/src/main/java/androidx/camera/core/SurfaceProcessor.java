@@ -34,7 +34,7 @@ import androidx.core.util.Consumer;
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public interface SurfaceEffect extends CameraEffect {
+public interface SurfaceProcessor extends CameraEffect {
 
     /**
      * Bitmask option to indicate that CameraX applies this effect to {@link Preview}.

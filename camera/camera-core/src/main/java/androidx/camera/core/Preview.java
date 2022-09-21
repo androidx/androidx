@@ -95,8 +95,8 @@ import androidx.camera.core.internal.ThreadConfig;
 import androidx.camera.core.processing.Node;
 import androidx.camera.core.processing.SettableSurface;
 import androidx.camera.core.processing.SurfaceEdge;
-import androidx.camera.core.processing.SurfaceEffectInternal;
-import androidx.camera.core.processing.SurfaceEffectNode;
+import androidx.camera.core.processing.SurfaceProcessorInternal;
+import androidx.camera.core.processing.SurfaceProcessorNode;
 import androidx.core.util.Consumer;
 import androidx.core.util.Preconditions;
 import androidx.lifecycle.LifecycleOwner;
@@ -194,10 +194,10 @@ public final class Preview extends UseCase {
     private Size mSurfaceSize;
 
     @Nullable
-    private SurfaceEffectInternal mSurfaceEffect;
+    private SurfaceProcessorInternal mSurfaceProcessor;
 
     @Nullable
-    private SurfaceEffectNode mNode;
+    private SurfaceProcessorNode mNode;
 
     /**
      * Creates a new preview use case from the given configuration.
@@ -214,9 +214,9 @@ public final class Preview extends UseCase {
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     SessionConfig.Builder createPipeline(@NonNull String cameraId, @NonNull PreviewConfig config,
             @NonNull Size resolution) {
-        // Build pipeline with node if effect is set. Eventually we will move all the code to
+        // Build pipeline with node if processor is set. Eventually we will move all the code to
         // createPipelineWithNode.
-        if (mSurfaceEffect != null) {
+        if (mSurfaceProcessor != null) {
             return createPipelineWithNode(cameraId, config, resolution);
         }
 
@@ -303,16 +303,16 @@ public final class Preview extends UseCase {
             @NonNull Size resolution) {
         // Check arguments
         Threads.checkMainThread();
-        Preconditions.checkNotNull(mSurfaceEffect);
+        Preconditions.checkNotNull(mSurfaceProcessor);
         CameraInternal camera = getCamera();
         Preconditions.checkNotNull(camera);
 
         clearPipeline();
 
         // Create nodes and edges.
-        mNode = new SurfaceEffectNode(camera, USE_SURFACE_TEXTURE_TRANSFORM, mSurfaceEffect);
+        mNode = new SurfaceProcessorNode(camera, USE_SURFACE_TEXTURE_TRANSFORM, mSurfaceProcessor);
         SettableSurface cameraSurface = new SettableSurface(
-                SurfaceEffect.PREVIEW,
+                SurfaceProcessor.PREVIEW,
                 resolution,
                 ImageFormat.PRIVATE,
                 new Matrix(),
@@ -339,7 +339,7 @@ public final class Preview extends UseCase {
     }
 
     /**
-     * Sets a {@link SurfaceEffectInternal}.
+     * Sets a {@link SurfaceProcessorInternal}.
      *
      * <p>Internal API invoked by {@link CameraUseCaseAdapter}. {@link #createPipeline} uses the
      * value to setup post-processing pipeline.
@@ -347,20 +347,20 @@ public final class Preview extends UseCase {
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
-    public void setEffect(@Nullable SurfaceEffectInternal surfaceEffect) {
-        mSurfaceEffect = surfaceEffect;
+    public void setProcessor(@Nullable SurfaceProcessorInternal surfaceProcessor) {
+        mSurfaceProcessor = surfaceProcessor;
     }
 
     /**
-     * Gets the {@link SurfaceEffectInternal} for testing.
+     * Gets the {@link SurfaceProcessorInternal} for testing.
      *
      * @hide
      */
     @Nullable
     @VisibleForTesting
     @RestrictTo(Scope.LIBRARY_GROUP)
-    public SurfaceEffectInternal getEffect() {
-        return mSurfaceEffect;
+    public SurfaceProcessorInternal getProcessor() {
+        return mSurfaceProcessor;
     }
 
     /**
@@ -372,7 +372,7 @@ public final class Preview extends UseCase {
             cameraSurface.close();
             mSessionDeferrableSurface = null;
         }
-        SurfaceEffectNode node = mNode;
+        SurfaceProcessorNode node = mNode;
         if (node != null) {
             node.release();
             mNode = null;
@@ -390,7 +390,7 @@ public final class Preview extends UseCase {
 
         // Not to add deferrable surface if the surface provider is not set, as that means the
         // surface will never be provided. For simplicity, the same rule also applies to
-        // SurfaceEffectNode and CaptureProcessor cases, since no surface provider also means no
+        // SurfaceProcessorNode and CaptureProcessor cases, since no surface provider also means no
         // output target for these two cases.
         if (mSurfaceProvider != null) {
             sessionConfigBuilder.addSurface(mSessionDeferrableSurface);
@@ -447,7 +447,7 @@ public final class Preview extends UseCase {
         SurfaceRequest surfaceRequest = mCurrentSurfaceRequest;
         if (cameraInternal != null && surfaceProvider != null && cropRect != null
                 && surfaceRequest != null) {
-            // TODO: when SurfaceEffectNode exists, use SettableSurface.setRotationDegrees(int)
+            // TODO: when SurfaceProcessorNode exists, use SettableSurface.setRotationDegrees(int)
             //  instead. However, this requires PreviewView to rely on relative rotation but not
             //  target rotation.
             surfaceRequest.updateTransformationInfo(SurfaceRequest.TransformationInfo.of(cropRect,

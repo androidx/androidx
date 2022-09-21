@@ -25,8 +25,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
 import androidx.annotation.WorkerThread;
-import androidx.camera.core.SurfaceEffect;
 import androidx.camera.core.SurfaceOutput;
+import androidx.camera.core.SurfaceProcessor;
 import androidx.camera.core.SurfaceRequest;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
@@ -40,13 +40,13 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * A default implementation of {@link SurfaceEffect}.
+ * A default implementation of {@link SurfaceProcessor}.
  *
  * <p> This implementation simply copies the frame from the source to the destination with the
  * transformation defined in {@link SurfaceOutput#updateTransformMatrix}.
  */
 @RequiresApi(21)
-public class DefaultSurfaceEffect implements SurfaceEffectInternal,
+public class DefaultSurfaceProcessor implements SurfaceProcessorInternal,
         SurfaceTexture.OnFrameAvailableListener {
     private final OpenGlRenderer mGlRenderer;
     @VisibleForTesting
@@ -64,18 +64,18 @@ public class DefaultSurfaceEffect implements SurfaceEffectInternal,
     // Only access this on GL thread.
     private int mInputSurfaceCount = 0;
 
-    /** Constructs DefaultSurfaceEffect */
-    public DefaultSurfaceEffect() {
+    /** Constructs {@link DefaultSurfaceProcessor} with default shaders. */
+    public DefaultSurfaceProcessor() {
         this(ShaderProvider.DEFAULT);
     }
 
     /**
-     * Constructs DefaultSurfaceEffect
+     * Constructs {@link DefaultSurfaceProcessor} with custom shaders.
      *
      * @param shaderProvider custom shader provider for OpenGL rendering.
      * @throws IllegalArgumentException if the shaderProvider provides invalid shader.
      */
-    public DefaultSurfaceEffect(@NonNull ShaderProvider shaderProvider) {
+    public DefaultSurfaceProcessor(@NonNull ShaderProvider shaderProvider) {
         mGlThread = new HandlerThread("GL Thread");
         mGlThread.start();
         mGlHandler = new Handler(mGlThread.getLooper());
@@ -133,7 +133,7 @@ public class DefaultSurfaceEffect implements SurfaceEffectInternal,
     }
 
     /**
-     * Release the DefaultSurfaceEffect
+     * Release the {@link DefaultSurfaceProcessor}.
      */
     @Override
     public void release() {
@@ -199,7 +199,7 @@ public class DefaultSurfaceEffect implements SurfaceEffectInternal,
             if (cause instanceof RuntimeException) {
                 throw (RuntimeException) cause;
             } else {
-                throw new IllegalStateException("Failed to create DefaultSurfaceEffect", cause);
+                throw new IllegalStateException("Failed to create DefaultSurfaceProcessor", cause);
             }
         }
     }

@@ -60,7 +60,7 @@ import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCaptureException;
 import androidx.camera.core.ImageProxy;
 import androidx.camera.core.Logger;
-import androidx.camera.core.SurfaceEffect;
+import androidx.camera.core.SurfaceProcessor;
 import androidx.camera.core.ZoomState;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.Futures;
@@ -126,7 +126,7 @@ public class CameraControllerFragment extends Fragment {
     private ImageAnalysis.Analyzer mWrappedAnalyzer;
 
     @VisibleForTesting
-    ToneMappingSurfaceEffect mSurfaceEffect;
+    ToneMappingSurfaceProcessor mSurfaceProcessor;
 
     private final ImageAnalysis.Analyzer mAnalyzer = image -> {
         byte[] bytes = new byte[image.getPlanes()[0].getBuffer().remaining()];
@@ -182,7 +182,7 @@ public class CameraControllerFragment extends Fragment {
         });
 
         // Set up post-processing effects.
-        mSurfaceEffect = new ToneMappingSurfaceEffect();
+        mSurfaceProcessor = new ToneMappingSurfaceProcessor();
         mEffectToggle = view.findViewById(R.id.effect_toggle);
         mEffectToggle.setOnCheckedChangeListener((compoundButton, isChecked) -> onEffectsToggled());
         onEffectsToggled();
@@ -352,15 +352,15 @@ public class CameraControllerFragment extends Fragment {
             mExecutorService.shutdown();
         }
         mRotationProvider.removeListener(mRotationListener);
-        mSurfaceEffect.release();
+        mSurfaceProcessor.release();
     }
 
     private void onEffectsToggled() {
         if (mEffectToggle.isChecked()) {
             mCameraController.setEffectBundle(new EffectBundle.Builder(mainThreadExecutor())
-                    .addEffect(SurfaceEffect.PREVIEW, mSurfaceEffect)
+                    .addEffect(SurfaceProcessor.PREVIEW, mSurfaceProcessor)
                     .build());
-        } else if (mSurfaceEffect != null) {
+        } else if (mSurfaceProcessor != null) {
             mCameraController.setEffectBundle(null);
         }
     }

@@ -36,9 +36,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.CameraEffect;
-import androidx.camera.core.SurfaceEffect;
 import androidx.camera.core.SurfaceOutput;
 import androidx.camera.core.SurfaceOutput.GlTransformOptions;
+import androidx.camera.core.SurfaceProcessor;
 import androidx.camera.core.SurfaceRequest;
 import androidx.camera.core.SurfaceRequest.TransformationInfo;
 import androidx.camera.core.UseCase;
@@ -61,7 +61,7 @@ import com.google.common.util.concurrent.ListenableFuture;
  * an external surface consumer:
  * <pre>
  * {@code PreviewView}(surface provider) <--> {@link SurfaceRequest} <--> {@link SettableSurface}
- *     <--> {@link SurfaceOutput} --> {@link SurfaceEffect}(surface consumer)
+ *     <--> {@link SurfaceOutput} --> {@link SurfaceProcessor}(surface consumer)
  * </pre>
  *
  * <p>For the full workflow, please see {@code SettableSurfaceTest
@@ -240,7 +240,7 @@ public class SettableSurface extends DeferrableSurface {
      * Creates a {@link SurfaceOutput} that is linked to this {@link SettableSurface}.
      *
      * <p>The {@link SurfaceOutput} is for providing a surface to an external target such
-     * as {@link SurfaceEffect}.
+     * as {@link SurfaceProcessor}.
      *
      * <p>This method returns a {@link ListenableFuture} that completes when the
      * {@link SettableSurface#getSurface()} completes. The {@link SurfaceOutput} contains the
