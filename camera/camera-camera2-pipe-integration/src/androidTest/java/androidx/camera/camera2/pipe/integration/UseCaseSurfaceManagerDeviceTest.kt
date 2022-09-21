@@ -106,14 +106,14 @@ class UseCaseSurfaceManagerDeviceTest {
     }
 
     @After
-    fun tearDown() = runBlocking {
-        if (::testSessionParameters.isInitialized) {
+    fun tearDown() {
+        if (this::testSessionParameters.isInitialized) {
             testSessionParameters.cleanup()
         }
-        if (::testUseCaseCamera.isInitialized) {
-            testUseCaseCamera.close().join()
+        if (this::testUseCaseCamera.isInitialized) {
+            testUseCaseCamera.close()
         }
-        if (::cameraHolder.isInitialized) {
+        if (this::cameraHolder.isInitialized) {
             CameraUtil.releaseCameraDevice(cameraHolder)
             cameraHolder.closedFuture.get(3, TimeUnit.SECONDS)
         }

@@ -45,8 +45,6 @@ import androidx.camera.camera2.pipe.integration.impl.UseCaseThreads
 import androidx.camera.core.UseCase
 import androidx.camera.core.impl.Config
 import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
 
 /**
  * Open a [CameraGraph] for the desired [cameraId] and [useCases]
@@ -124,10 +122,8 @@ class TestUseCaseCamera(
         throw NotImplementedError("Not implemented")
     }
 
-    override fun close(): Job {
-        return threads.scope.launch {
-            useCaseCameraGraphConfig.graph.close()
-            useCaseSurfaceManager.stopAsync().await()
-        }
+    override fun close() {
+        useCaseSurfaceManager.stopAsync()
+        useCaseCameraGraphConfig.graph.close()
     }
 }
