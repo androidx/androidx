@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package androidx.privacysandbox.tools.core
+package androidx.privacysandbox.tools.core.model
 
-data class Method(
-    val name: String,
-    val parameters: List<Parameter>,
-    val returnType: Type,
-    val isSuspend: Boolean,
-)
+fun ParsedApi.getOnlyService(): AnnotatedInterface {
+    check(services.size == 1) {
+        "Expected to find one annotated service, but found ${services.size}."
+    }
+    return services.first()
+}

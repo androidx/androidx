@@ -16,12 +16,12 @@
 
 package androidx.privacysandbox.tools.apigenerator
 
-import androidx.privacysandbox.tools.core.AnnotatedInterface
-import androidx.privacysandbox.tools.core.Method
-import androidx.privacysandbox.tools.core.Parameter
-import androidx.privacysandbox.tools.core.poet.build
-import androidx.privacysandbox.tools.core.poet.poetSpec
-import androidx.privacysandbox.tools.core.poet.primaryConstructor
+import androidx.privacysandbox.tools.core.model.AnnotatedInterface
+import androidx.privacysandbox.tools.core.model.Method
+import androidx.privacysandbox.tools.core.model.Parameter
+import androidx.privacysandbox.tools.core.generator.build
+import androidx.privacysandbox.tools.core.generator.poetSpec
+import androidx.privacysandbox.tools.core.generator.primaryConstructor
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier

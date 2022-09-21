@@ -156,6 +156,22 @@ class PrivacySandboxKspCompilerTest {
     }
 
     @Test
+    fun compileEmpty_ok() {
+        val provider = PrivacySandboxKspCompiler.Provider()
+        // Check that compilation is successful
+        assertThat(
+            compile(
+                Files.createTempDirectory("test").toFile(),
+                TestCompilationArguments(
+                    sources = emptyList(),
+                    symbolProcessorProviders = listOf(provider),
+                    processorOptions = getProcessorOptions(),
+                )
+            )
+        ).generatesExactlySources()
+    }
+
+    @Test
     fun compileInvalidServiceInterface_fails() {
         val source =
             Source.kotlin(

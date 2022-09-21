@@ -14,8 +14,11 @@
  * limitations under the License.
  */
 
-package androidx.privacysandbox.tools.core
+package androidx.privacysandbox.tools.core.model
 
-data class Type(
-  val name: String,
+/** Result of parsing a Kotlin interface. */
+data class AnnotatedInterface(
+    val name: String,
+    val packageName: String,
+    val methods: List<Method> = emptyList(),
 )
