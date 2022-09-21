@@ -43,8 +43,8 @@ import androidx.camera.core.impl.utils.Exif;
 import androidx.camera.core.impl.utils.ExifData;
 import androidx.camera.core.impl.utils.ExifOutputStream;
 import androidx.camera.core.internal.ByteBufferOutputStream;
+import androidx.camera.core.processing.Operation;
 import androidx.camera.core.processing.Packet;
-import androidx.camera.core.processing.Processor;
 
 import com.google.auto.value.AutoValue;
 
@@ -57,11 +57,11 @@ import java.nio.ByteBuffer;
  * Converts a {@link ImageProxy} to JPEG bytes.
  */
 @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-final class Image2JpegBytes implements Processor<Image2JpegBytes.In, Packet<byte[]>> {
+final class Image2JpegBytes implements Operation<Image2JpegBytes.In, Packet<byte[]>> {
 
     @NonNull
     @Override
-    public Packet<byte[]> process(@NonNull Image2JpegBytes.In input) throws ImageCaptureException {
+    public Packet<byte[]> apply(@NonNull Image2JpegBytes.In input) throws ImageCaptureException {
         try {
             int imageFormat = input.getPacket().getFormat();
             switch (imageFormat) {
