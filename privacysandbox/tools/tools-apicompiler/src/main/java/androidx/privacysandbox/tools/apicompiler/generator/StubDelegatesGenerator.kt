@@ -16,12 +16,13 @@
 
 package androidx.privacysandbox.tools.apicompiler.generator
 
-import androidx.privacysandbox.tools.core.AnnotatedInterface
-import androidx.privacysandbox.tools.core.Method
-import androidx.privacysandbox.tools.core.ParsedApi
+import androidx.privacysandbox.tools.core.model.AnnotatedInterface
+import androidx.privacysandbox.tools.core.model.Method
+import androidx.privacysandbox.tools.core.model.ParsedApi
 import androidx.privacysandbox.tools.core.generator.AidlGenerator
 import androidx.privacysandbox.tools.core.generator.aidlName
 import androidx.privacysandbox.tools.core.generator.transactionCallbackName
+import androidx.privacysandbox.tools.core.model.getOnlyService
 import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.Dependencies
 import com.squareup.kotlinpoet.ClassName
@@ -43,6 +44,9 @@ class StubDelegatesGenerator(
     }
 
     fun generate() {
+        if (api.services.isEmpty()) {
+            return
+        }
         api.services.forEach(::generateServiceStubDelegate)
         generateTransportCancellationCallback()
     }
@@ -125,7 +129,7 @@ class StubDelegatesGenerator(
                 ParameterSpec(
                     "transactionCallback",
                     ClassName(
-                        api.services.first().packageName,
+                        api.getOnlyService().packageName,
                         method.returnType.transactionCallbackName()
                     )
                 )
@@ -133,7 +137,7 @@ class StubDelegatesGenerator(
     }
 
     private fun generateTransportCancellationCallback() {
-        val packageName = api.services.first().packageName
+        val packageName = api.getOnlyService().packageName
         val className = "TransportCancellationCallback"
         val cancellationSignalStubName =
             ClassName(packageName, AidlGenerator.cancellationSignalName, "Stub")

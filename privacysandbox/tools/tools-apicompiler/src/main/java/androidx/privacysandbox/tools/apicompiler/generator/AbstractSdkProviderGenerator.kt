@@ -16,8 +16,9 @@
 
 package androidx.privacysandbox.tools.apicompiler.generator
 
-import androidx.privacysandbox.tools.core.AnnotatedInterface
-import androidx.privacysandbox.tools.core.ParsedApi
+import androidx.privacysandbox.tools.core.model.AnnotatedInterface
+import androidx.privacysandbox.tools.core.model.ParsedApi
+import androidx.privacysandbox.tools.core.model.getOnlyService
 import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.Dependencies
 import com.squareup.kotlinpoet.ClassName
@@ -37,15 +38,16 @@ class AbstractSdkProviderGenerator(
             ClassName("android.app.sdksandbox", "SandboxedSdkProvider", "DataReceivedCallback")
         private val SANDBOXED_SDK_CLASS =
             ClassName("android.app.sdksandbox", "SandboxedSdk")
-        private val SANDBOXED_SDK_CONTEXT_CLASS =
-            ClassName("android.app.sdksandbox", "SandboxedSdkContext")
         private val CONTEXT_CLASS = ClassName("android.content", "Context")
         private val BUNDLE_CLASS = ClassName("android.os", "Bundle")
         private val VIEW_CLASS = ClassName("android.view", "View")
     }
 
     fun generate() {
-        val packageName = service().packageName
+        if (api.services.isEmpty()) {
+            return
+        }
+        val packageName = api.getOnlyService().packageName
         val className = "AbstractSandboxedSdkProvider"
         val classSpec =
             TypeSpec.classBuilder(className)
@@ -54,7 +56,7 @@ class AbstractSdkProviderGenerator(
                 .addFunction(generateOnLoadSdkFunction())
                 .addFunction(generateGetViewFunction())
                 .addFunction(generateOnDataReceivedFunction())
-                .addFunction(generateCreateServiceFunction(service()))
+                .addFunction(generateCreateServiceFunction(api.getOnlyService()))
 
         val fileSpec = FileSpec.builder(packageName, className)
             .addType(classSpec.build())
@@ -67,10 +69,12 @@ class AbstractSdkProviderGenerator(
             .addModifiers(KModifier.OVERRIDE)
             .addParameter("params", BUNDLE_CLASS)
             .returns(SANDBOXED_SDK_CLASS)
-            .addStatement("val sdk = ${getCreateServiceFunctionName(service())}(context!!)")
+            .addStatement(
+                "val sdk = ${getCreateServiceFunctionName(api.getOnlyService())}(context!!)"
+            )
             .addStatement(
                 "return ${SANDBOXED_SDK_CLASS.simpleName}" +
-                    "(${service().stubDelegateName()}(sdk))"
+                    "(${api.getOnlyService().stubDelegateName()}(sdk))"
             )
             .build()
     }
@@ -102,8 +106,6 @@ class AbstractSdkProviderGenerator(
             .addParameter("callback", DATA_RECEIVED_CALLBACK_CLASS)
             .build()
     }
-
-    private fun service() = api.services.first()
 
     private fun getCreateServiceFunctionName(service: AnnotatedInterface) = "create${service.name}"
 
