@@ -264,17 +264,14 @@ class ActionBlock(
  *
  * @param text The header text.
  * @param icon The header image icon.
- * @param actionBlock The header action buttons.
  */
 class HeaderBlock(
     val text: TemplateText,
     val icon: TemplateImageWithDescription? = null,
-    val actionBlock: ActionBlock? = null,
 ) {
     override fun hashCode(): Int {
         var result = text.hashCode()
         result = 31 * result + (icon?.hashCode() ?: 0)
-        result = 31 * result + (actionBlock?.hashCode() ?: 0)
         return result
     }
 
@@ -286,7 +283,6 @@ class HeaderBlock(
 
         if (text != other.text) return false
         if (icon != other.icon) return false
-        if (actionBlock != other.actionBlock) return false
 
         return true
     }

@@ -486,11 +486,9 @@ package androidx.glance.template {
   }
 
   public final class HeaderBlock {
-    ctor public HeaderBlock(androidx.glance.template.TemplateText text, optional androidx.glance.template.TemplateImageWithDescription? icon, optional androidx.glance.template.ActionBlock? actionBlock);
-    method public androidx.glance.template.ActionBlock? getActionBlock();
+    ctor public HeaderBlock(androidx.glance.template.TemplateText text, optional androidx.glance.template.TemplateImageWithDescription? icon);
     method public androidx.glance.template.TemplateImageWithDescription? getIcon();
     method public androidx.glance.template.TemplateText getText();
-    property public final androidx.glance.template.ActionBlock? actionBlock;
     property public final androidx.glance.template.TemplateImageWithDescription? icon;
     property public final androidx.glance.template.TemplateText text;
   }
