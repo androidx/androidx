@@ -635,7 +635,6 @@ includeProject(":emoji2:integration-tests:init-enabled-macrobenchmark-target", [
 includeProject(":enterprise:enterprise-feedback", [BuildType.MAIN])
 includeProject(":enterprise:enterprise-feedback-testing", [BuildType.MAIN])
 includeProject(":exifinterface:exifinterface", [BuildType.MAIN])
-includeProject(":fakeannotations", [BuildType.MAIN])
 includeProject(":fragment:fragment", [BuildType.MAIN, BuildType.FLAN, BuildType.WEAR])
 includeProject(":fragment:fragment-ktx", [BuildType.MAIN, BuildType.FLAN])
 includeProject(":fragment:fragment-lint", [BuildType.MAIN, BuildType.FLAN, BuildType.WEAR])
@@ -1016,7 +1015,6 @@ includeProject(":media2:media2-session:version-compat-tests:common", [BuildType.
 //
 /////////////////////////////
 
-apply(from: "include-composite-deps.gradle")
 File externalRoot = new File(rootDir, "../../external")
 
 includeProject(":icing", new File(externalRoot, "icing"), [BuildType.MAIN])
@@ -1036,4 +1034,5 @@ if (isAllProjects()) {
 // for each size and test runner is happy when there is nothing to test.
 includeProject(":placeholder-tests")
 
-includeProject(":fakeannotations")
+// Workaround for b/203825166
+includeBuild("placeholder")
