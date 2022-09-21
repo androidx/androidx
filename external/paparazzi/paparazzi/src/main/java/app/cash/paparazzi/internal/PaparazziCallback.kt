@@ -43,7 +43,6 @@ import java.lang.reflect.Modifier
 
 internal class PaparazziCallback(
   private val logger: PaparazziLogger,
-  private val packageName: String,
   private val resourcePackageNames: List<String>
 ) : LayoutlibCallback() {
   private val projectResources = mutableMapOf<Int, ResourceReference>()
@@ -52,8 +51,6 @@ internal class PaparazziCallback(
   private val aaptDeclaredResources = mutableMapOf<String, TagSnapshot>()
 
   private var adaptiveIconMaskPath: String? = null
-  private var highQualityShadow = false
-  private var enableShadow = true
   private val loadedClasses = mutableMapOf<String, Class<*>>()
 
   @Throws(ClassNotFoundException::class)
@@ -176,24 +173,13 @@ internal class PaparazziCallback(
   @Suppress("UNCHECKED_CAST")
   override fun <T> getFlag(key: Key<T>?): T? {
     return when (key) {
-      RenderParamsFlags.FLAG_KEY_APPLICATION_PACKAGE -> packageName as T
       RenderParamsFlags.FLAG_KEY_ADAPTIVE_ICON_MASK_PATH -> adaptiveIconMaskPath as T?
-      RenderParamsFlags.FLAG_RENDER_HIGH_QUALITY_SHADOW -> highQualityShadow as T
-      RenderParamsFlags.FLAG_ENABLE_SHADOW -> enableShadow as T
       else -> null
     }
   }
 
   fun setAdaptiveIconMaskPath(adaptiveIconMaskPath: String) {
     this.adaptiveIconMaskPath = adaptiveIconMaskPath
-  }
-
-  fun setHighQualityShadow(highQualityShadow: Boolean) {
-    this.highQualityShadow = highQualityShadow
-  }
-
-  fun setEnableShadow(enableShadow: Boolean) {
-    this.enableShadow = enableShadow
   }
 
   override fun findClass(name: String): Class<*> {
