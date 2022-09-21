@@ -467,6 +467,7 @@ public abstract class WatchFaceService : WallpaperService() {
      * to [createComplicationSlotsManager] and [createWatchFace].
      */
     @WorkerThread
+    @Suppress("Deprecation") // userStyleSettings
     protected open fun createUserStyleSchema(): UserStyleSchema =
         UserStyleSchema(
             xmlSchemaAndComplicationSlotsDefinition.schema?.userStyleSettings ?: emptyList()
@@ -2440,6 +2441,7 @@ public abstract class WatchFaceService : WallpaperService() {
             "WatchFaceService.validateSchemaWireSize"
         ).use {
             var estimatedBytes = 0
+            @Suppress("Deprecation") // userStyleSettings
             for (styleSetting in schema.userStyleSettings) {
                 estimatedBytes += styleSetting.estimateWireSizeInBytesAndValidateIconDimensions(
                     _context,
