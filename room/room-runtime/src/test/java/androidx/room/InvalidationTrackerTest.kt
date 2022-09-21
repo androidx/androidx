@@ -41,10 +41,11 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.anyInt
+import org.mockito.kotlin.KArgumentCaptor
 import org.mockito.kotlin.any
 import org.mockito.kotlin.argThat
+import org.mockito.kotlin.argumentCaptor
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.doThrow
 import org.mockito.kotlin.eq
@@ -254,10 +255,9 @@ class InvalidationTrackerTest {
     fun createTriggerOnShadowTable() {
         val observer = LatchObserver(1, "C")
         val triggers = arrayOf("UPDATE", "DELETE", "INSERT")
-        var sqlArgCaptor: ArgumentCaptor<String>
         var sqlCaptorValues: List<String>
         mTracker.addObserver(observer)
-        sqlArgCaptor = ArgumentCaptor.forClass(String::class.java)
+        var sqlArgCaptor: KArgumentCaptor<String> = argumentCaptor()
         verify(mSqliteDb, times(4)).execSQL(sqlArgCaptor.capture())
         sqlCaptorValues = sqlArgCaptor.allValues
         assertThat(sqlCaptorValues[0])
@@ -274,7 +274,7 @@ class InvalidationTrackerTest {
         }
         reset(mSqliteDb)
         mTracker.removeObserver(observer)
-        sqlArgCaptor = ArgumentCaptor.forClass(String::class.java)
+        sqlArgCaptor = argumentCaptor()
         verify(mSqliteDb, times(3)).execSQL(sqlArgCaptor.capture())
         sqlCaptorValues = sqlArgCaptor.allValues
         for (i in triggers.indices) {
