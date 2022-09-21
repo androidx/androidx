@@ -513,8 +513,6 @@ public sealed class UserStyleSetting private constructor(
      */
     public abstract class Option internal constructor(
         public val id: Id,
-        @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-        @get:ExperimentalHierarchicalStyle
         public val childSettings: Collection<UserStyleSetting>
     ) {
         /**
@@ -524,7 +522,6 @@ public sealed class UserStyleSetting private constructor(
         constructor(id: Id) : this(id, emptyList())
 
         init {
-            @OptIn(ExperimentalHierarchicalStyle::class)
             for (child in childSettings) {
                 child.hasParent = true
             }
@@ -2168,7 +2165,6 @@ public sealed class UserStyleSetting private constructor(
              * sent to the companion and its contents may be used in preference to other fields by
              * an on watch face editor.
              */
-            @ExperimentalHierarchicalStyle
             constructor(
                 id: Id,
                 resources: Resources,

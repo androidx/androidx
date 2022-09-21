@@ -67,6 +67,7 @@ public class ListenableWatchFaceMetadataClientTest {
     private val context = ApplicationProvider.getApplicationContext<Context>()
 
     @Test
+    @Suppress("Deprecation") // userStyleSettings
     public fun getSchema() {
         val listenableFuture =
             ListenableWatchFaceMetadataClient.createImpl(

@@ -750,6 +750,7 @@ public class EditorSessionTest {
     }
 
     @Test
+    @Suppress("Deprecation") // userStyleSettings
     public fun userStyleSchema() {
         val scenario = createOnWatchFaceEditingTestActivity(
             listOf(colorStyleSetting, watchHandStyleSetting),
@@ -1585,7 +1586,7 @@ public class EditorSessionTest {
         }
     }
 
-    @Suppress("NewApi") // result.watchFaceId
+    @Suppress("NewApi", "Deprecation") // result.watchFaceId,  deprecation: userStyleSettings
     @Test
     public fun userStyleAndComplicationPreviewDataInEditorObserver() {
         val scenario = createOnWatchFaceEditingTestActivity(
@@ -1761,6 +1762,7 @@ public class EditorSessionTest {
     }
 
     @Test
+    @Suppress("Deprecation") // userStyleSettings
     public fun commit_headless() {
         val scenario = createOnWatchFaceEditingTestActivity(
             listOf(colorStyleSetting, watchHandStyleSetting),
@@ -1812,6 +1814,7 @@ public class EditorSessionTest {
     }
 
     @SuppressLint("NewApi")
+    @Suppress("Deprecation") // userStyleSettings
     @Test
     public fun commitWithPreviewImage() {
         val scenario = createOnWatchFaceEditingTestActivity(
@@ -1857,6 +1860,7 @@ public class EditorSessionTest {
     }
 
     @Test
+    @Suppress("Deprecation") // userStyleSettings
     public fun doNotCommit() {
         val scenario = createOnWatchFaceEditingTestActivity(
             listOf(colorStyleSetting, watchHandStyleSetting),
@@ -1909,6 +1913,7 @@ public class EditorSessionTest {
     }
 
     @Test
+    @Suppress("Deprecation") // userStyleSettings
     public fun commitChanges_preRFlow() {
         val scenario = createOnWatchFaceEditingTestActivity(
             listOf(colorStyleSetting, watchHandStyleSetting),
@@ -2009,6 +2014,7 @@ public class EditorSessionTest {
     }
 
     @Test
+    @Suppress("Deprecation") // userStyleSettings
     public fun forceCloseEditorSession() {
         val scenario = createOnWatchFaceEditingTestActivity(
             listOf(colorStyleSetting, watchHandStyleSetting),

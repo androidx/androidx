@@ -31,7 +31,6 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
 import androidx.versionedparcelable.ParcelUtils
 import androidx.wear.watchface.editor.samples.R
-import androidx.wear.watchface.style.ExperimentalHierarchicalStyle
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleData
 import androidx.wear.watchface.style.UserStyleSchema
@@ -219,7 +218,6 @@ internal class StyleConfigFragment : Fragment(), ClickListener {
         }.toUserStyle()
     }
 
-    @OptIn(ExperimentalHierarchicalStyle::class)
     override fun onItemClick(userStyleOption: UserStyleSetting.Option) {
         setUserStyleOption(userStyleOption)
         if (userStyleOption.childSettings.isEmpty()) {

@@ -219,6 +219,7 @@ public class XmlDefinedUserStyleSchemaAndComplicationSlotsTest {
     }
 
     @Test
+    @Suppress("Deprecation") // userStyleSettings
     public fun staticSchemaAndComplicationsRead() {
         val service = TestXmlWatchFaceService(
             ApplicationProvider.getApplicationContext<Context>(),
