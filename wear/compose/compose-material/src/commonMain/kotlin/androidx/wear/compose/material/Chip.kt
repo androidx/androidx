@@ -373,7 +373,7 @@ public fun Chip(
     contentPadding: PaddingValues = ChipDefaults.ContentPadding,
     shape: Shape = MaterialTheme.shapes.small,
     border: ChipBorder = ChipDefaults.chipBorder()
-    ) {
+) {
     Chip(
         onClick = onClick,
         colors = colors,
@@ -1273,13 +1273,46 @@ public object ChipDefaults {
         disabledSecondaryContentColor = disabledSecondaryContentColor,
         disabledIconColor = disabledIconColor
     )
+
+    /**
+     * Creates a [ChipColors] where all of the values are explicitly defined.
+     *
+     * @param backgroundPainter The background painter of this [Chip] when enabled
+     * @param contentColor The content color of this [Chip] when enabled
+     * @param secondaryContentColor The content color of this [Chip] when enabled
+     * @param iconColor The content color of this [Chip] when enabled
+     * @param disabledBackgroundPainter The background painter of this [Chip] when not enabled
+     * @param disabledContentColor The content color of this [Chip] when not enabled
+     * @param disabledSecondaryContentColor The content color of this [Chip] when not enabled
+     * @param disabledIconColor The content color of this [Chip] when not enabled
+     */
+    @ExperimentalWearMaterialApi
+    public fun chipColors(
+        backgroundPainter: Painter,
+        contentColor: Color,
+        secondaryContentColor: Color,
+        iconColor: Color,
+        disabledBackgroundPainter: Painter,
+        disabledContentColor: Color,
+        disabledSecondaryContentColor: Color,
+        disabledIconColor: Color,
+    ): ChipColors = DefaultChipColors(
+        backgroundPainter = backgroundPainter,
+        contentColor = contentColor,
+        secondaryContentColor = secondaryContentColor,
+        iconColor = iconColor,
+        disabledBackgroundPainter = disabledBackgroundPainter,
+        disabledContentColor = disabledContentColor,
+        disabledSecondaryContentColor = disabledSecondaryContentColor,
+        disabledIconColor = disabledIconColor
+    )
 }
 
 /**
  * Default [ChipColors] implementation.
  */
 @Immutable
-private class DefaultChipColors(
+internal class DefaultChipColors(
     private val backgroundPainter: Painter,
     private val contentColor: Color,
     private val secondaryContentColor: Color,
