@@ -222,18 +222,7 @@ public final class MediaControllerCompat {
      * @param session The session to be controlled.
      */
     public MediaControllerCompat(Context context, @NonNull MediaSessionCompat session) {
-        if (session == null) {
-            throw new IllegalArgumentException("session must not be null");
-        }
-        mToken = session.getSessionToken();
-
-        if (Build.VERSION.SDK_INT >= 29) {
-            mImpl = new MediaControllerImplApi29(context, mToken);
-        } else if (Build.VERSION.SDK_INT >= 21) {
-            mImpl = new MediaControllerImplApi21(context, mToken);
-        } else {
-            mImpl = new MediaControllerImplBase(mToken);
-        }
+        this(context, session.getSessionToken());
     }
 
     /**
@@ -248,7 +237,9 @@ public final class MediaControllerCompat {
         }
         mToken = sessionToken;
 
-        if (android.os.Build.VERSION.SDK_INT >= 21) {
+        if (Build.VERSION.SDK_INT >= 29) {
+            mImpl = new MediaControllerImplApi29(context, sessionToken);
+        } else if (Build.VERSION.SDK_INT >= 21) {
             mImpl = new MediaControllerImplApi21(context, sessionToken);
         } else {
             mImpl = new MediaControllerImplBase(sessionToken);
