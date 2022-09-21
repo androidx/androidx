@@ -113,6 +113,12 @@ If you see an error message `No module named 'toml'` try the following steps.
     *   virtualenv will automatically .gitignore itself, but you may want to to
         remove it anyway.
 
+Note: if the module you are creating is an application (not a library), such as
+you might want for integration-tests, edit the project's `build.gradle` file and
+replace the plugin `id("com.android.library")` with
+`id("com.android.application")`. This allows you to run activities in that
+module from within Android Studio.
+
 #### Common sub-feature names {#module-naming-subfeature}
 
 *   `-testing` for an artifact intended to be used while testing usages of your
