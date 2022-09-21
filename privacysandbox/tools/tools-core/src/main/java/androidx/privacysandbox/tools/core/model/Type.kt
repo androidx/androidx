@@ -14,11 +14,8 @@
  * limitations under the License.
  */
 
-package androidx.privacysandbox.tools.core
+package androidx.privacysandbox.tools.core.model
 
-data class Method(
-    val name: String,
-    val parameters: List<Parameter>,
-    val returnType: Type,
-    val isSuspend: Boolean,
+data class Type(
+  val name: String,
 )

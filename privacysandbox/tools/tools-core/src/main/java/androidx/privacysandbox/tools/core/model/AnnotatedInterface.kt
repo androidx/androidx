@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.privacysandbox.tools.core
+package androidx.privacysandbox.tools.core.model
 
 /** Result of parsing a Kotlin interface. */
 data class AnnotatedInterface(

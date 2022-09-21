@@ -16,11 +16,11 @@
 
 package androidx.privacysandbox.tools.core.generator
 
-import androidx.privacysandbox.tools.core.AnnotatedInterface
-import androidx.privacysandbox.tools.core.Method
-import androidx.privacysandbox.tools.core.Parameter
-import androidx.privacysandbox.tools.core.ParsedApi
-import androidx.privacysandbox.tools.core.Type
+import androidx.privacysandbox.tools.core.model.AnnotatedInterface
+import androidx.privacysandbox.tools.core.model.Method
+import androidx.privacysandbox.tools.core.model.Parameter
+import androidx.privacysandbox.tools.core.model.ParsedApi
+import androidx.privacysandbox.tools.core.model.Type
 import java.io.File
 import java.nio.file.Path
 import java.nio.file.Paths

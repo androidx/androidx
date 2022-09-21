@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package androidx.privacysandbox.tools.core.poet
+package androidx.privacysandbox.tools.core.generator
 
-import androidx.privacysandbox.tools.core.Parameter
-import androidx.privacysandbox.tools.core.Type
+import androidx.privacysandbox.tools.core.model.Parameter
+import androidx.privacysandbox.tools.core.model.Type
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.FileSpec
