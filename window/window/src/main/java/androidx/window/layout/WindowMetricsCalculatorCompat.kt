@@ -27,13 +27,14 @@ import android.util.Log
 import android.view.Display
 import android.view.DisplayCutout
 import androidx.annotation.RequiresApi
+import androidx.annotation.UiContext
 import androidx.annotation.VisibleForTesting
 import androidx.core.view.WindowInsetsCompat
 import androidx.window.core.Bounds
-import androidx.window.layout.ActivityCompatHelperApi24.isInMultiWindowMode
-import androidx.window.layout.ActivityCompatHelperApi30.currentWindowBounds
-import androidx.window.layout.ActivityCompatHelperApi30.currentWindowInsets
-import androidx.window.layout.ActivityCompatHelperApi30.maximumWindowBounds
+import androidx.window.layout.ContextCompatHelperApi24.isInMultiWindowMode
+import androidx.window.layout.ContextCompatHelperApi30.currentWindowBounds
+import androidx.window.layout.ContextCompatHelperApi30.currentWindowInsets
+import androidx.window.layout.ContextCompatHelperApi30.maximumWindowBounds
 import androidx.window.layout.DisplayCompatHelperApi17.getRealSize
 import androidx.window.layout.DisplayCompatHelperApi28.safeInsetBottom
 import androidx.window.layout.DisplayCompatHelperApi28.safeInsetLeft
@@ -47,6 +48,17 @@ import java.lang.reflect.InvocationTargetException
 internal object WindowMetricsCalculatorCompat : WindowMetricsCalculator {
 
     private val TAG: String = WindowMetricsCalculatorCompat::class.java.simpleName
+
+    /**
+     * Computes the current [WindowMetrics] for a given [Context]. The context can be either a
+     * an [Activity] or a Context created with [Context#createWindowContext]
+     * @see WindowMetricsCalculator.computeCurrentWindowMetrics
+     */
+    @RequiresApi(VERSION_CODES.R)
+    fun computeCurrentWindowMetrics(@UiContext context: Context): WindowMetrics {
+        val bounds = currentWindowBounds(context)
+        return WindowMetrics(bounds)
+    }
 
     /**
      * Computes the current [WindowMetrics] for a given [Activity]

@@ -196,6 +196,7 @@ package androidx.window.extensions.layout {
 
   public interface WindowLayoutComponent {
     method public void addWindowLayoutInfoListener(android.app.Activity, java.util.function.Consumer<androidx.window.extensions.layout.WindowLayoutInfo!>);
+    method public default void addWindowLayoutInfoListener(@UiContext android.content.Context, java.util.function.Consumer<androidx.window.extensions.layout.WindowLayoutInfo!>);
     method public void removeWindowLayoutInfoListener(java.util.function.Consumer<androidx.window.extensions.layout.WindowLayoutInfo!>);
   }
 

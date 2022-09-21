@@ -31,8 +31,12 @@ import androidx.window.layout.WindowMetricsCalculatorCompat.computeCurrentWindow
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
+import org.junit.Assume.assumeTrue
 import org.junit.Rule
 import org.junit.Test
+import android.os.Build
+import androidx.annotation.RequiresApi
+import androidx.window.WindowTestUtils
 
 class ExtensionsWindowLayoutInfoAdapterTest {
 
@@ -68,6 +72,25 @@ class ExtensionsWindowLayoutInfoAdapterTest {
             val actual = ExtensionsWindowLayoutInfoAdapter.translate(activity, oemInfo)
 
             assertEquals(expected, actual)
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.S)
+    @Test
+    fun testTranslate_windowLayoutInfoFromContext() {
+        assumeTrue(Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
+        activityScenario.scenario.onActivity { activity ->
+            val bounds = computeCurrentWindowMetrics(activity).bounds
+            val featureBounds = Rect(0, bounds.centerY(), bounds.width(), bounds.centerY())
+            val oemFeature = OEMFoldingFeature(featureBounds, TYPE_HINGE, STATE_HALF_OPENED)
+            val oemInfo = OEMWindowLayoutInfo(listOf(oemFeature))
+            val localFeature = HardwareFoldingFeature(Bounds(featureBounds), HINGE, HALF_OPENED)
+            val expected = WindowLayoutInfo(listOf(localFeature))
+
+            val windowContext = WindowTestUtils.createOverlayWindowContext()
+
+            val fromContext = ExtensionsWindowLayoutInfoAdapter.translate(windowContext, oemInfo)
+            assertEquals(expected, fromContext)
         }
     }
 

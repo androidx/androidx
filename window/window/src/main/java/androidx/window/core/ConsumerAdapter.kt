@@ -18,6 +18,7 @@ package androidx.window.core
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.Context
 import androidx.annotation.CheckResult
 import java.lang.reflect.InvocationHandler
 import java.lang.reflect.Method
@@ -95,6 +96,26 @@ internal class ConsumerAdapter(
         val javaConsumer = buildConsumer(clazz, consumer)
         obj.javaClass.getMethod(addMethodName, unsafeConsumerClass())
             .invoke(obj, javaConsumer)
+        val removeMethod = obj.javaClass.getMethod(removeMethodName, unsafeConsumerClass())
+        return object : Subscription {
+            override fun dispose() {
+                removeMethod.invoke(obj, javaConsumer)
+            }
+        }
+    }
+
+    @CheckResult
+    fun <T : Any> createSubscription(
+        obj: Any,
+        clazz: KClass<T>,
+        addMethodName: String,
+        removeMethodName: String,
+        context: Context,
+        consumer: (T) -> Unit
+    ): Subscription {
+        val javaConsumer = buildConsumer(clazz, consumer)
+        obj.javaClass.getMethod(addMethodName, Context::class.java, unsafeConsumerClass())
+            .invoke(obj, context, javaConsumer)
         val removeMethod = obj.javaClass.getMethod(removeMethodName, unsafeConsumerClass())
         return object : Subscription {
             override fun dispose() {

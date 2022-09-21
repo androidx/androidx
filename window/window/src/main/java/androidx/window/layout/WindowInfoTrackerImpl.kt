@@ -18,6 +18,7 @@ package androidx.window.layout
 
 import android.app.Activity
 import android.content.Context
+import androidx.annotation.UiContext
 import androidx.core.util.Consumer
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
@@ -25,7 +26,7 @@ import kotlinx.coroutines.flow.callbackFlow
 
 /**
  * An implementation of [WindowInfoTracker] that provides the [WindowLayoutInfo] and
- * [WindowMetrics] for the given [Activity].
+ * [WindowMetrics] for the given [Activity] or [UiContext].
  *
  * @param windowMetricsCalculator a helper to calculate the [WindowMetrics] for the [Activity].
  * @param windowBackend a helper to provide the [WindowLayoutInfo].
@@ -36,9 +37,21 @@ internal class WindowInfoTrackerImpl(
 ) : WindowInfoTracker {
 
     /**
-     * A [Flow] of window layout changes in the current visual [Context].
-     *
-     * @see Activity.onAttachedToWindow
+     * A [Flow] of window layout changes in the current visual [UiContext]. A context has to be
+     * either an [Activity] or created with [Context#createWindowContext].
+     */
+    override fun windowLayoutInfo(@UiContext context: Context): Flow<WindowLayoutInfo> {
+        return callbackFlow {
+            val listener = Consumer { info: WindowLayoutInfo -> trySend(info) }
+            windowBackend.registerLayoutChangeCallback(context, Runnable::run, listener)
+            awaitClose {
+                windowBackend.unregisterLayoutChangeCallback(listener)
+            }
+        }
+    }
+
+    /**
+     * A [Flow] of window layout changes in the current visual [Activity].
      */
     override fun windowLayoutInfo(activity: Activity): Flow<WindowLayoutInfo> {
         return callbackFlow {

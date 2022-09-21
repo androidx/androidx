@@ -25,6 +25,9 @@ import androidx.window.layout.HardwareFoldingFeature.Type.Companion.HINGE
 import androidx.window.layout.WindowMetricsCalculatorCompat.computeCurrentWindowMetrics
 import androidx.window.extensions.layout.FoldingFeature as OEMFoldingFeature
 import androidx.window.extensions.layout.WindowLayoutInfo as OEMWindowLayoutInfo
+import android.content.Context
+import android.os.Build
+import androidx.annotation.UiContext
 
 internal object ExtensionsWindowLayoutInfoAdapter {
 
@@ -51,16 +54,24 @@ internal object ExtensionsWindowLayoutInfoAdapter {
     }
 
     internal fun translate(
-        activity: Activity,
+        @UiContext context: Context,
         info: OEMWindowLayoutInfo,
     ): WindowLayoutInfo {
-        val windowMetrics = computeCurrentWindowMetrics(activity)
-        return translate(windowMetrics, info)
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            translate(computeCurrentWindowMetrics(context), info)
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && (context is Activity)) {
+            translate(computeCurrentWindowMetrics(context), info)
+        } else {
+            throw UnsupportedOperationException(
+                "Display Features are only supported after Q. Display features for non-Activity " +
+                    "contexts are not expected to be reported on devices running Q."
+            )
+        }
     }
 
     internal fun translate(
         windowMetrics: WindowMetrics,
-        info: OEMWindowLayoutInfo,
+        info: OEMWindowLayoutInfo
     ): WindowLayoutInfo {
         val features = info.displayFeatures.mapNotNull { feature ->
             when (feature) {
@@ -74,11 +85,10 @@ internal object ExtensionsWindowLayoutInfoAdapter {
     /**
      * Checks the bounds for a [FoldingFeature] within a given [WindowMetrics]. Validates the
      * following:
-     * - [Bounds] are not `0`
-     * - [Bounds] are either full width or full height
-     * - [Bounds] do not take up the entire [windowMetrics]
-     *
-     * @param windowMetrics housing the [FoldingFeature].
+     *  - [Bounds] are not `0`
+     *  - [Bounds] are either full width or full height
+     *  - [Bounds] do not take up the entire [windowMetrics]
+     * @param windowBounds Extracted from a [UiContext] housing the [FoldingFeature].
      * @param bounds the bounds of a [FoldingFeature]
      * @return true if the bounds are valid for the [WindowMetrics], false otherwise.
      */
