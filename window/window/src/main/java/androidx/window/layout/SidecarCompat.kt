@@ -57,7 +57,7 @@ internal class SidecarCompat @VisibleForTesting constructor(
     // Map of activities registered to their component callbacks so we can keep track and
     // remove when the activity is unregistered
     private val componentCallbackMap = mutableMapOf<Activity, ComponentCallbacks>()
-    private var extensionCallback: ExtensionCallbackInterface? = null
+    private var extensionCallback: DistinctElementCallback? = null
 
     constructor(context: Context) : this(
         getSidecarCompat(context),
@@ -139,6 +139,7 @@ internal class SidecarCompat @VisibleForTesting constructor(
         val windowToken = getActivityWindowToken(activity) ?: return
         sidecar?.onWindowLayoutChangeListenerRemoved(windowToken)
         unregisterComponentCallback(activity)
+        extensionCallback?.clearWindowLayoutInfo(activity)
         val isLast = windowListenerRegisteredContexts.size == 1
         windowListenerRegisteredContexts.remove(windowToken)
         if (isLast) {
@@ -395,6 +396,12 @@ internal class SidecarCompat @VisibleForTesting constructor(
                 activityWindowLayoutInfo.put(activity, newLayout)
             }
             callbackInterface.onWindowLayoutChanged(activity, newLayout)
+        }
+
+        fun clearWindowLayoutInfo(activity: Activity) {
+            lock.withLock {
+                activityWindowLayoutInfo[activity] = null
+            }
         }
     }
 
