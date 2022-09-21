@@ -21,6 +21,7 @@ import androidx.privacysandbox.tools.core.model.Method
 import androidx.privacysandbox.tools.core.model.Parameter
 import androidx.privacysandbox.tools.core.model.ParsedApi
 import androidx.privacysandbox.tools.core.model.Type
+import androidx.privacysandbox.tools.core.model.getOnlyService
 import java.io.File
 import java.nio.file.Path
 import java.nio.file.Paths
@@ -86,7 +87,7 @@ class AidlGenerator private constructor(
         val service =
             InMemorySource(
                 packageName(),
-                service().aidlName(),
+                api.getOnlyService().aidlName(),
                 generateAidlService(transactionCallbacks)
             )
         return transactionCallbacks + generateICancellationSignal() + service
@@ -99,12 +100,12 @@ class AidlGenerator private constructor(
             transactionCallbacks.map {
                 "import ${it.packageName}.${it.interfaceName};"
             }.sorted().joinToString(separator = "\n|")
-        val generatedMethods = service().methods.map(::generateAidlMethod).sorted()
+        val generatedMethods = api.getOnlyService().methods.map(::generateAidlMethod).sorted()
             .joinToString("\n|    ")
         return """
                 |package ${packageName()};
                 |$transactionCallbackImports
-                |interface ${service().aidlName()} {
+                |interface ${api.getOnlyService().aidlName()} {
                 |    $generatedMethods
                 |}
             """.trimMargin()
@@ -127,7 +128,8 @@ class AidlGenerator private constructor(
         "${parameter.type.toAidlType()} ${parameter.name}"
 
     private fun generateTransactionCallbacks(): List<InMemorySource> {
-        return service().methods.filter(Method::isSuspend).map(Method::returnType).toSet()
+        return api.getOnlyService().methods.filter(Method::isSuspend)
+            .map(Method::returnType).toSet()
             .map { generateTransactionCallback(it) }
     }
 
@@ -169,9 +171,7 @@ class AidlGenerator private constructor(
         return aidlFile.resolveSibling("${aidlFile.nameWithoutExtension}.java")
     }
 
-    private fun service() = api.services.first()
-
-    private fun packageName() = service().packageName
+    private fun packageName() = api.getOnlyService().packageName
 }
 
 data class InMemorySource(
