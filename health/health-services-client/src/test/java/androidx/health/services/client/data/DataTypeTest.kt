@@ -157,12 +157,12 @@ internal class DataTypeTest {
         val item2 = list[1]
         assertThat(item1.name).isEqualTo("new")
         assertThat(item1.timeType).isEqualTo(UNKNOWN)
-        assertThat(item1.valueClass).isEqualTo(ByteArray::class)
+        assertThat(item1.valueClass.kotlin).isEqualTo(ByteArray::class)
         assertThat(item1::class).isEqualTo(DeltaDataType::class)
         assertThat(item1.isAggregate).isFalse()
         assertThat(item2.name).isEqualTo("new")
         assertThat(item2.timeType).isEqualTo(UNKNOWN)
-        assertThat(item2.valueClass).isEqualTo(ByteArray::class)
+        assertThat(item2.valueClass.kotlin).isEqualTo(ByteArray::class)
         assertThat(item2::class).isEqualTo(AggregateDataType::class)
         assertThat(item2.isAggregate).isTrue()
     }
