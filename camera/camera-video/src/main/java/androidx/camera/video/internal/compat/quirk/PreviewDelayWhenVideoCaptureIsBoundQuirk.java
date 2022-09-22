@@ -38,6 +38,7 @@ public class PreviewDelayWhenVideoCaptureIsBoundQuirk implements Quirk {
 
     private static final Set<String> HUAWEI_DEVICE_LIST = new HashSet<>(Arrays.asList(
             "HWELE",  // P30
+            "HW-02L", // P30 Pro
             "HWVOG",  // P30 Pro
             "HWYAL",  // Nova 5T
             "HWLYA",  // Mate 20 Pro
@@ -45,8 +46,13 @@ public class PreviewDelayWhenVideoCaptureIsBoundQuirk implements Quirk {
             "HWPAR"   // Nova 3
     ));
 
+    private static final Set<String> HUAWEI_MODEL_LIST = new HashSet<>(Arrays.asList(
+            "ELS-AN00", "ELS-TN00", "ELS-NX9", "ELS-N04"  // P40 Pro
+    ));
+
     static boolean load() {
         return "Huawei".equalsIgnoreCase(Build.MANUFACTURER)
-                && HUAWEI_DEVICE_LIST.contains(Build.DEVICE.toUpperCase(Locale.US));
+                && (HUAWEI_DEVICE_LIST.contains(Build.DEVICE.toUpperCase(Locale.US))
+                || HUAWEI_MODEL_LIST.contains(Build.MODEL.toUpperCase(Locale.US)));
     }
 }
