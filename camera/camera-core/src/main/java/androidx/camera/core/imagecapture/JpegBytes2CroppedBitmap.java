@@ -16,21 +16,21 @@
 package androidx.camera.core.imagecapture;
 
 import static androidx.camera.core.ImageCapture.ERROR_FILE_IO;
+import static androidx.camera.core.impl.utils.TransformUtils.updateSensorToBufferTransform;
 
 import static java.util.Objects.requireNonNull;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.BitmapRegionDecoder;
-import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.ImageCaptureException;
+import androidx.camera.core.processing.Operation;
 import androidx.camera.core.processing.Packet;
-import androidx.camera.core.processing.Processor;
 
 import java.io.IOException;
 
@@ -38,11 +38,11 @@ import java.io.IOException;
  * Processes a JPEG image and produces a cropped {@link Bitmap} output.
  */
 @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-final class JpegBytes2CroppedBitmap implements Processor<Packet<byte[]>, Packet<Bitmap>> {
+final class JpegBytes2CroppedBitmap implements Operation<Packet<byte[]>, Packet<Bitmap>> {
 
     @NonNull
     @Override
-    public Packet<Bitmap> process(@NonNull Packet<byte[]> packet) throws ImageCaptureException {
+    public Packet<Bitmap> apply(@NonNull Packet<byte[]> packet) throws ImageCaptureException {
         Rect cropRect = packet.getCropRect();
         Bitmap bitmap = createCroppedBitmap(packet.getData(), cropRect);
         return Packet.of(
@@ -50,7 +50,7 @@ final class JpegBytes2CroppedBitmap implements Processor<Packet<byte[]>, Packet<
                 requireNonNull(packet.getExif()),
                 new Rect(0, 0, bitmap.getWidth(), bitmap.getHeight()),
                 packet.getRotationDegrees(),
-                createSensorToBufferTransform(packet.getSensorToBufferTransform(), cropRect));
+                updateSensorToBufferTransform(packet.getSensorToBufferTransform(), cropRect));
     }
 
     @NonNull
@@ -65,14 +65,5 @@ final class JpegBytes2CroppedBitmap implements Processor<Packet<byte[]>, Packet<
             throw new ImageCaptureException(ERROR_FILE_IO, "Failed to decode JPEG.", e);
         }
         return decoder.decodeRegion(cropRect, new BitmapFactory.Options());
-    }
-
-    @NonNull
-    private Matrix createSensorToBufferTransform(
-            @NonNull Matrix original,
-            @NonNull Rect cropRect) {
-        Matrix matrix = new Matrix(original);
-        matrix.postTranslate(-cropRect.left, -cropRect.top);
-        return matrix;
     }
 }

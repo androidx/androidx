@@ -79,6 +79,7 @@ private fun WidgetLayoutExpanded(data: ListTemplateData) {
     Column(modifier = createTopLevelModifier()) {
         if (data.listStyle == ListStyle.Full) {
             HeaderBlockTemplate(data.headerBlock)
+            // TODO(b/247613894): Do not add this spacing if header block is empty
             Spacer(modifier = GlanceModifier.height(16.dp))
         }
         LazyColumn {

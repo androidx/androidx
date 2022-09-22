@@ -192,8 +192,23 @@ internal sealed class KspTypeElement(
     }
 
     private val syntheticGetterSetterMethods: List<XMethodElement> by lazy {
-        _declaredProperties.flatMap { field ->
-            field.syntheticAccessors
+        if (declaration.isCompanionObject) {
+            _declaredProperties.flatMap { field ->
+                field.syntheticAccessors
+            }
+        } else {
+            _declaredProperties.flatMap { field ->
+                // static fields are the properties that are coming from the
+                // companion. Whether we'll generate method for it or not depends on
+                // the JVMStatic annotation
+                if (field.isStatic() && !field.declaration.hasJvmStaticAnnotation()) {
+                    field.syntheticAccessors.filter {
+                        it.accessor.hasJvmStaticAnnotation()
+                    }
+                } else {
+                    field.syntheticAccessors
+                }
+            }
         }.filterMethodsByConfig(env)
     }
 

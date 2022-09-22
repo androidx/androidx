@@ -205,7 +205,8 @@ class UseCaseManager @Inject constructor(
     }
 
     private fun shouldAddRepeatingUseCase(runningUseCases: Set<UseCase>): Boolean {
-        return runningUseCases.only { it is ImageCapture }
+        return !attachedUseCases.contains(meteringRepeating) &&
+            runningUseCases.only { it is ImageCapture }
     }
 
     private fun addRepeatingUseCase() {

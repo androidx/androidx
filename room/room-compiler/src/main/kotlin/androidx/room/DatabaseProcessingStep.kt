@@ -129,7 +129,8 @@ class DatabaseProcessingStep : XProcessingStep {
                 }
             }
             db.autoMigrations.forEach { autoMigration ->
-                AutoMigrationWriter(db.element, autoMigration).write(context.processingEnv)
+                AutoMigrationWriter(db.element, autoMigration, context.codeLanguage)
+                    .write(context.processingEnv)
             }
         }
 

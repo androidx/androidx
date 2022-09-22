@@ -46,15 +46,30 @@ import org.junit.runners.model.Statement
  * ```
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-public class PerfettoRule : TestRule {
+public class PerfettoRule(
+    /**
+     * Pass false to disable android.os.Trace API tracing in this process
+     *
+     * Defaults to true.
+     */
+    val enableAppTagTracing: Boolean = true,
+    /**
+     * Pass true to enable userspace tracing (androidx.tracing.tracing-perfetto APIs)
+     *
+     * Defaults to false.
+     */
+    val enableUserspaceTracing: Boolean = false
+) : TestRule {
     override fun apply(
         base: Statement,
         description: Description
     ): Statement = object : Statement() {
         override fun evaluate() {
+            val thisPackage = InstrumentationRegistry.getInstrumentation().context.packageName
             PerfettoCaptureWrapper().record(
                 benchmarkName = "${description.className}_${description.methodName}",
-                packages = listOf(InstrumentationRegistry.getInstrumentation().context.packageName)
+                appTagPackages = if (enableAppTagTracing) listOf(thisPackage) else emptyList(),
+                userspaceTracingPackage = if (enableUserspaceTracing) thisPackage else null
             ) {
                 base.evaluate()
             }

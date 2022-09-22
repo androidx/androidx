@@ -24,8 +24,8 @@ import androidx.camera.camera2.pipe.CameraController
 import androidx.camera.camera2.pipe.compat.Camera2Backend
 import androidx.camera.camera2.pipe.compat.Camera2CameraController
 import androidx.camera.camera2.pipe.compat.Camera2CaptureSessionsModule
-import androidx.camera.camera2.pipe.compat.Camera2RequestProcessorFactory
-import androidx.camera.camera2.pipe.compat.StandardCamera2RequestProcessorFactory
+import androidx.camera.camera2.pipe.compat.Camera2CaptureSequenceProcessorFactory
+import androidx.camera.camera2.pipe.compat.StandardCamera2CaptureSequenceProcessorFactory
 import androidx.camera.camera2.pipe.core.Threads
 import androidx.camera.camera2.pipe.graph.GraphListener
 import androidx.camera.camera2.pipe.graph.StreamGraphImpl
@@ -95,8 +95,8 @@ internal class Camera2ControllerConfig(
 internal abstract class Camera2ControllerModule {
     @Binds
     abstract fun bindCamera2RequestProcessorFactory(
-        factoryStandard: StandardCamera2RequestProcessorFactory
-    ): Camera2RequestProcessorFactory
+        factoryStandard: StandardCamera2CaptureSequenceProcessorFactory
+    ): Camera2CaptureSequenceProcessorFactory
 
     @Binds
     abstract fun bindCameraController(

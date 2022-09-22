@@ -42,4 +42,7 @@ android {
         minSdkVersion 26
     }
     namespace "androidx.sqlite.inspection.roomtestapp"
+    kotlinOptions {
+        freeCompilerArgs += ["-Xjvm-default=all"]
+    }
 }

@@ -115,10 +115,8 @@ class AndroidXRootPluginTest {
         val docsPublicBuildGradle =
             """|plugins {
                |  id("com.android.library")
+               |  id("AndroidXDocsImplPlugin")
                |}
-               |
-               |// b/233089408: would prefer to use plugins { id } syntax, but work around.
-               |apply plugin: androidx.build.docs.AndroidXDocsImplPlugin
                |
                |repositories {
                |  mavenLocal()

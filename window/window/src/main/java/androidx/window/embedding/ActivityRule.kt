@@ -23,32 +23,20 @@ import androidx.window.core.ExperimentalWindowApi
  * [SplitPairRule].
  */
 @ExperimentalWindowApi
-class ActivityRule : EmbeddingRule {
-
+class ActivityRule internal constructor(
     /**
      * Filters used to choose when to apply this rule. The rule may be used if any one of the
      * provided filters matches.
      */
-    val filters: Set<ActivityFilter>
+    val filters: Set<ActivityFilter>,
     /**
      * Whether the activity should always be expanded on launch. Some activities are supposed to
      * expand to the full task bounds, independent of the state of the split. An example is an
      * activity that blocks all user interactions, like a warning dialog.
      */
-    val alwaysExpand: Boolean
+    val alwaysExpand: Boolean = false
+) : EmbeddingRule() {
 
-    // TODO(b/229656253): Reduce visibility to remove from public API.
-    @Deprecated(
-        message = "Visibility of the constructor will be reduced.",
-        replaceWith = ReplaceWith("androidx.window.embedding.ActivityRule.Builder")
-    )
-    constructor(
-        filters: Set<ActivityFilter>,
-        alwaysExpand: Boolean = false
-    ) {
-        this.filters = filters.toSet()
-        this.alwaysExpand = alwaysExpand
-    }
     /**
      * Builder for [ActivityRule].
      * @param filters See [ActivityRule.filters].
@@ -65,7 +53,6 @@ class ActivityRule : EmbeddingRule {
         fun setAlwaysExpand(alwaysExpand: Boolean): Builder =
             apply { this.alwaysExpand = alwaysExpand }
 
-        @Suppress("DEPRECATION")
         fun build() = ActivityRule(filters, alwaysExpand)
     }
 
@@ -74,12 +61,8 @@ class ActivityRule : EmbeddingRule {
      * @see filters
      */
     internal operator fun plus(filter: ActivityFilter): ActivityRule {
-        val newSet = mutableSetOf<ActivityFilter>()
-        newSet.addAll(filters)
-        newSet.add(filter)
-        @Suppress("DEPRECATION")
         return ActivityRule(
-            newSet.toSet(),
+            filters + filter,
             alwaysExpand
         )
     }

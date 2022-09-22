@@ -467,6 +467,7 @@ public abstract class WatchFaceService : WallpaperService() {
      * to [createComplicationSlotsManager] and [createWatchFace].
      */
     @WorkerThread
+    @Suppress("Deprecation") // userStyleSettings
     protected open fun createUserStyleSchema(): UserStyleSchema =
         UserStyleSchema(
             xmlSchemaAndComplicationSlotsDefinition.schema?.userStyleSettings ?: emptyList()
@@ -1117,6 +1118,7 @@ public abstract class WatchFaceService : WallpaperService() {
 
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @OptIn(WatchFaceExperimental::class)
     public inner class EngineWrapper(
         private val uiThreadHandler: Handler,
         private val backgroundThreadHandler: Handler,
@@ -1456,6 +1458,11 @@ public abstract class WatchFaceService : WallpaperService() {
             // We don't want to display complications in direct boot mode so replace with an empty
             // list. NB we can't actually serialise complications anyway so that's just as well...
             params.idAndComplicationDataWireFormats = emptyList()
+
+            // Let wallpaper manager know the wallpaper has changed.
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
+                NotifyColorsChangedHelper.notifyColorsChanged(this)
+            }
 
             backgroundThreadCoroutineScope.launch {
                 writeDirectBootPrefs(_context, DIRECT_BOOT_PREFS, params)
@@ -1914,6 +1921,7 @@ public abstract class WatchFaceService : WallpaperService() {
             mutableWatchState.watchFaceInstanceId.value = sanitizeWatchFaceId(params.instanceId)
             val watchState = mutableWatchState.asWatchState()
 
+            interactiveInstanceId = mutableWatchState.watchFaceInstanceId.value
             createWatchFaceInternal(
                 watchState,
                 fakeSurfaceHolder,
@@ -1955,6 +1963,7 @@ public abstract class WatchFaceService : WallpaperService() {
                 pendingInitialComplications = readComplicationDataCache(_context, params.instanceId)
             }
 
+            interactiveInstanceId = params.instanceId
             createWatchFaceInternal(
                 watchState,
                 getWallpaperSurfaceHolderOverride(),
@@ -1963,7 +1972,6 @@ public abstract class WatchFaceService : WallpaperService() {
 
             val instance = InteractiveWatchFaceImpl(this, params.instanceId)
             InteractiveInstanceManager.addInstance(instance)
-            interactiveInstanceId = params.instanceId
             return instance
         }
 
@@ -2434,6 +2442,7 @@ public abstract class WatchFaceService : WallpaperService() {
             "WatchFaceService.validateSchemaWireSize"
         ).use {
             var estimatedBytes = 0
+            @Suppress("Deprecation") // userStyleSettings
             for (styleSetting in schema.userStyleSettings) {
                 estimatedBytes += styleSetting.estimateWireSizeInBytesAndValidateIconDimensions(
                     _context,
@@ -2711,6 +2720,13 @@ public abstract class WatchFaceService : WallpaperService() {
         @Px
         fun extractFromWindowInsets(insets: WindowInsets?) =
             insets?.getInsets(WindowInsets.Type.systemBars())?.bottom ?: 0
+    }
+
+    @RequiresApi(27)
+    private object NotifyColorsChangedHelper {
+        fun notifyColorsChanged(engine: Engine) {
+            engine.notifyColorsChanged()
+        }
     }
 }
 

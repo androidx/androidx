@@ -41,6 +41,7 @@ dependencies {
     implementation("androidx.compose.ui:ui-text:$composeVersion")
     implementation("androidx.compose.ui:ui-util:$composeVersion")
     implementation("androidx.profileinstaller:profileinstaller:1.2.0")
+    implementation(project(":tv:tv-foundation"))
 
     androidTestImplementation(libs.truth)
 

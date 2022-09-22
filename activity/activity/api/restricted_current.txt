@@ -1,7 +1,7 @@
 // Signature format: 4.0
 package androidx.activity {
 
-  public class ComponentActivity extends androidx.core.app.ComponentActivity implements androidx.activity.result.ActivityResultCaller androidx.activity.result.ActivityResultRegistryOwner androidx.activity.contextaware.ContextAware androidx.lifecycle.HasDefaultViewModelProviderFactory androidx.lifecycle.LifecycleOwner androidx.core.view.MenuHost androidx.activity.OnBackPressedDispatcherOwner androidx.core.content.OnConfigurationChangedProvider androidx.core.app.OnMultiWindowModeChangedProvider androidx.core.app.OnNewIntentProvider androidx.core.app.OnPictureInPictureModeChangedProvider androidx.core.content.OnTrimMemoryProvider androidx.savedstate.SavedStateRegistryOwner androidx.lifecycle.ViewModelStoreOwner {
+  public class ComponentActivity extends androidx.core.app.ComponentActivity implements androidx.activity.result.ActivityResultCaller androidx.activity.result.ActivityResultRegistryOwner androidx.activity.contextaware.ContextAware androidx.activity.FullyLoadedReporterOwner androidx.lifecycle.HasDefaultViewModelProviderFactory androidx.lifecycle.LifecycleOwner androidx.core.view.MenuHost androidx.activity.OnBackPressedDispatcherOwner androidx.core.content.OnConfigurationChangedProvider androidx.core.app.OnMultiWindowModeChangedProvider androidx.core.app.OnNewIntentProvider androidx.core.app.OnPictureInPictureModeChangedProvider androidx.core.content.OnTrimMemoryProvider androidx.savedstate.SavedStateRegistryOwner androidx.lifecycle.ViewModelStoreOwner {
     ctor public ComponentActivity();
     ctor @ContentView public ComponentActivity(@LayoutRes int);
     method public void addMenuProvider(androidx.core.view.MenuProvider);
@@ -15,6 +15,7 @@ package androidx.activity {
     method public final void addOnTrimMemoryListener(androidx.core.util.Consumer<java.lang.Integer!>);
     method public final androidx.activity.result.ActivityResultRegistry getActivityResultRegistry();
     method public androidx.lifecycle.ViewModelProvider.Factory getDefaultViewModelProviderFactory();
+    method public androidx.activity.FullyLoadedReporter getFullyLoadedReporter();
     method @Deprecated public Object? getLastCustomNonConfigurationInstance();
     method public final androidx.activity.OnBackPressedDispatcher getOnBackPressedDispatcher();
     method public final androidx.savedstate.SavedStateRegistry getSavedStateRegistry();
@@ -51,6 +52,25 @@ package androidx.activity {
     method @CallSuper public void onBackPressed();
   }
 
+  public final class FullyLoadedReporter {
+    ctor public FullyLoadedReporter(java.util.concurrent.Executor executor, kotlin.jvm.functions.Function0<kotlin.Unit> reportFullyDrawn);
+    method public void addOnReportLoadedListener(kotlin.jvm.functions.Function0<kotlin.Unit> callback);
+    method public void addReporter();
+    method public boolean isFullyDrawnReported();
+    method public void removeOnReportLoadedListener(kotlin.jvm.functions.Function0<kotlin.Unit> callback);
+    method public void removeReporter();
+    property public final boolean isFullyDrawnReported;
+  }
+
+  public final class FullyLoadedReporterKt {
+    method public static suspend inline Object? reportWhenComplete(androidx.activity.FullyLoadedReporter, kotlin.jvm.functions.Function1<? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?> reporter, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+  }
+
+  public interface FullyLoadedReporterOwner {
+    method public androidx.activity.FullyLoadedReporter getFullyLoadedReporter();
+    property public abstract androidx.activity.FullyLoadedReporter fullyLoadedReporter;
+  }
+
   public abstract class OnBackPressedCallback {
     ctor public OnBackPressedCallback(boolean);
     method @MainThread public abstract void handleOnBackPressed();
@@ -71,6 +91,11 @@ package androidx.activity {
 
   public interface OnBackPressedDispatcherOwner extends androidx.lifecycle.LifecycleOwner {
     method public androidx.activity.OnBackPressedDispatcher getOnBackPressedDispatcher();
+  }
+
+  public final class ViewTreeFullyLoadedReporterOwner {
+    method public static androidx.activity.FullyLoadedReporterOwner? get(android.view.View);
+    method public static void set(android.view.View, androidx.activity.FullyLoadedReporterOwner fullyLoadedReporterOwner);
   }
 
   public final class ViewTreeOnBackPressedDispatcherOwner {

@@ -16,6 +16,9 @@
 
 package androidx.browser.customtabs;
 
+import static androidx.annotation.Dimension.DP;
+import static androidx.annotation.Dimension.PX;
+
 import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -31,6 +34,7 @@ import android.widget.RemoteViews;
 
 import androidx.annotation.AnimRes;
 import androidx.annotation.ColorInt;
+import androidx.annotation.Dimension;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -342,6 +346,47 @@ public final class CustomTabsIntent {
             "androidx.browser.customtabs.extra.INITIAL_ACTIVITY_HEIGHT_PX";
 
     /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @IntDef({ACTIVITY_HEIGHT_DEFAULT, ACTIVITY_HEIGHT_ADJUSTABLE, ACTIVITY_HEIGHT_FIXED})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface ActivityResizeBehavior {
+    }
+
+    /**
+     * Applies the default resize behavior for the Custom Tab Activity when it behaves as a
+     * bottom sheet.
+     */
+    public static final int ACTIVITY_HEIGHT_DEFAULT = 0;
+
+    /**
+     * The Custom Tab Activity, when it behaves as a bottom sheet, can be manually resized by the
+     * user.
+     */
+    public static final int ACTIVITY_HEIGHT_ADJUSTABLE = 1;
+
+    /**
+     * The Custom Tab Activity, when it behaves as a bottom sheet, cannot be manually resized by
+     * the user.
+     */
+    public static final int ACTIVITY_HEIGHT_FIXED = 2;
+
+    /**
+     * Maximum value for the ACTIVITY_HEIGHT_* configuration options. For validation purposes only.
+     */
+    private static final int ACTIVITY_HEIGHT_MAX = 2;
+
+    /**
+     * Extra that, if set in combination with
+     * {@link CustomTabsIntent#EXTRA_INITIAL_ACTIVITY_HEIGHT_PX}, defines the resize behavior of
+     * the Custom Tab Activity when it behaves as a bottom sheet.
+     * Default is {@link CustomTabsIntent#ACTIVITY_HEIGHT_DEFAULT}.
+     */
+    public static final String EXTRA_ACTIVITY_RESIZE_BEHAVIOR =
+            "androidx.browser.customtabs.extra.ACTIVITY_RESIZE_BEHAVIOR";
+
+    /**
      * Extra that sets the toolbar's top corner radii in dp. This will only have
      * effect if the custom tab is behaving as a bottom sheet. Currently, this is capped at 16dp.
      */
@@ -349,11 +394,13 @@ public final class CustomTabsIntent {
             "androidx.browser.customtabs.extra.TOOLBAR_CORNER_RADIUS_DP";
 
     /**
-     * Extra that specifies the position of the close button on the toolbar. Default is
-     * {@link #CLOSE_BUTTON_POSITION_DEFAULT}.
+     * @hide
      */
-    public static final String EXTRA_CLOSE_BUTTON_POSITION =
-            "androidx.browser.customtabs.extra.CLOSE_BUTTON_POSITION";
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @IntDef({CLOSE_BUTTON_POSITION_DEFAULT, CLOSE_BUTTON_POSITION_START, CLOSE_BUTTON_POSITION_END})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface CloseButtonPosition {
+    }
 
     /** Same as {@link #CLOSE_BUTTON_POSITION_START}. */
     public static final int CLOSE_BUTTON_POSITION_DEFAULT = 0;
@@ -363,6 +410,19 @@ public final class CustomTabsIntent {
 
     /** Positions the close button at the end of the toolbar. */
     public static final int CLOSE_BUTTON_POSITION_END = 2;
+
+    /**
+     * Maximum value for the CLOSE_BUTTON_POSITION_* configuration options. For validation purposes
+     * only.
+     */
+    private static final int CLOSE_BUTTON_POSITION_MAX = 2;
+
+    /**
+     * Extra that specifies the position of the close button on the toolbar. Default is
+     * {@link #CLOSE_BUTTON_POSITION_DEFAULT}.
+     */
+    public static final String EXTRA_CLOSE_BUTTON_POSITION =
+            "androidx.browser.customtabs.extra.CLOSE_BUTTON_POSITION";
 
     /**
      * Extra that contains the color of the navigation bar divider.
@@ -386,6 +446,11 @@ public final class CustomTabsIntent {
      * The maximum allowed number of toolbar items.
      */
     private static final int MAX_TOOLBAR_ITEMS = 5;
+
+    /**
+     * The maximum toolbar corner radius in dp.
+     */
+    private static final int MAX_TOOLBAR_CORNER_RADIUS_DP = 16;
 
     /**
      * An {@link Intent} used to start the Custom Tabs Activity.
@@ -900,6 +965,80 @@ public final class CustomTabsIntent {
         }
 
         /**
+         * Sets the Custom Tab Activity's initial height in pixels and the desired resize behavior.
+         * The Custom Tab will behave as a bottom sheet.
+         *
+         * @param initialHeightPx The Custom Tab Activity's initial height in pixels.
+         * @param activityResizeBehavior Desired height behavior.
+         * @see CustomTabsIntent#EXTRA_INITIAL_ACTIVITY_HEIGHT_PX
+         * @see CustomTabsIntent#EXTRA_ACTIVITY_RESIZE_BEHAVIOR
+         * @see CustomTabsIntent#ACTIVITY_HEIGHT_DEFAULT
+         * @see CustomTabsIntent#ACTIVITY_HEIGHT_ADJUSTABLE
+         * @see CustomTabsIntent#ACTIVITY_HEIGHT_FIXED
+         */
+        @NonNull
+        public Builder setInitialActivityHeightPx(@Dimension(unit = PX) int initialHeightPx,
+                @ActivityResizeBehavior int activityResizeBehavior) {
+            if (initialHeightPx <= 0) {
+                throw new IllegalArgumentException("Invalid value for the initialHeightPx "
+                        + "argument");
+            }
+            if (activityResizeBehavior < 0 || activityResizeBehavior > ACTIVITY_HEIGHT_MAX) {
+                throw new IllegalArgumentException("Invalid value for the activityResizeBehavior "
+                        + "argument");
+            }
+
+            mIntent.putExtra(EXTRA_INITIAL_ACTIVITY_HEIGHT_PX, initialHeightPx);
+            mIntent.putExtra(EXTRA_ACTIVITY_RESIZE_BEHAVIOR, activityResizeBehavior);
+            return this;
+        }
+
+        /**
+         * Sets the Custom Tab Activity's initial height in pixels with default resize behavior.
+         * The Custom Tab will behave as a bottom sheet.
+         *
+         * @see CustomTabsIntent.Builder#setInitialActivityHeightPx(int, int)
+         */
+        @NonNull
+        public Builder setInitialActivityHeightPx(@Dimension(unit = PX) int initialHeightPx) {
+            return setInitialActivityHeightPx(initialHeightPx, ACTIVITY_HEIGHT_DEFAULT);
+        }
+
+        /**
+         * Sets the toolbar's top corner radii in dp.
+         *
+         * @param cornerRadiusDp The toolbar's top corner radii in dp.
+         * @see CustomTabsIntent#EXTRA_TOOLBAR_CORNER_RADIUS_DP
+         */
+        @NonNull
+        public Builder setToolbarCornerRadiusDp(@Dimension(unit = DP) int cornerRadiusDp) {
+            if (cornerRadiusDp < 0 || cornerRadiusDp > MAX_TOOLBAR_CORNER_RADIUS_DP) {
+                throw new IllegalArgumentException("Invalid value for the cornerRadiusDp argument");
+            }
+
+            mIntent.putExtra(EXTRA_TOOLBAR_CORNER_RADIUS_DP, cornerRadiusDp);
+            return this;
+        }
+
+        /**
+         * Sets the position of the close button.
+         *
+         * @param position The desired position.
+         * @see CustomTabsIntent#CLOSE_BUTTON_POSITION_DEFAULT
+         * @see CustomTabsIntent#CLOSE_BUTTON_POSITION_START
+         * @see CustomTabsIntent#CLOSE_BUTTON_POSITION_END
+         */
+        @NonNull
+        public Builder setCloseButtonPosition(@CloseButtonPosition int position) {
+            if (position < 0 || position > CLOSE_BUTTON_POSITION_MAX) {
+                throw new IllegalArgumentException("Invalid value for the position argument");
+            }
+
+            mIntent.putExtra(EXTRA_CLOSE_BUTTON_POSITION, position);
+            return this;
+        }
+
+        /**
          * Combines all the options that have been set and returns a new {@link CustomTabsIntent}
          * object.
          */
@@ -1005,5 +1144,60 @@ public final class CustomTabsIntent {
             }
         }
         return defaults;
+    }
+
+    /**
+     * Gets the Custom Tab Activity's resize behavior.
+     *
+     * @param intent Intent to retrieve the resize behavior from.
+     * @return The resize behavior. If {@link CustomTabsIntent#EXTRA_INITIAL_ACTIVITY_HEIGHT_PX}
+     *         is not set as part of the same intent, the value has no effect.
+     * @see CustomTabsIntent#EXTRA_ACTIVITY_RESIZE_BEHAVIOR
+     * @see CustomTabsIntent#ACTIVITY_HEIGHT_DEFAULT
+     * @see CustomTabsIntent#ACTIVITY_HEIGHT_ADJUSTABLE
+     * @see CustomTabsIntent#ACTIVITY_HEIGHT_FIXED
+     */
+    @ActivityResizeBehavior
+    public static int getActivityResizeBehavior(@NonNull Intent intent) {
+        return intent.getIntExtra(EXTRA_ACTIVITY_RESIZE_BEHAVIOR,
+                CustomTabsIntent.ACTIVITY_HEIGHT_DEFAULT);
+    }
+
+    /**
+     * Gets the Custom Tab Activity's initial height.
+     *
+     * @param intent Intent to retrieve the initial Custom Tab Activity's height from.
+     * @return The initial Custom Tab Activity's height or 0 if it is not set.
+     * @see CustomTabsIntent#EXTRA_INITIAL_ACTIVITY_HEIGHT_PX
+     */
+    @Dimension(unit = PX)
+    public static int getInitialActivityHeightPx(@NonNull Intent intent) {
+        return intent.getIntExtra(EXTRA_INITIAL_ACTIVITY_HEIGHT_PX, 0);
+    }
+
+    /**
+     * Gets the toolbar's top corner radii in dp.
+     *
+     * @param intent Intent to retrieve the toolbar's top corner radii from.
+     * @return The toolbar's top corner radii in dp.
+     * @see CustomTabsIntent#EXTRA_TOOLBAR_CORNER_RADIUS_DP
+     */
+    @Dimension(unit = DP)
+    public static int getToolbarCornerRadiusDp(@NonNull Intent intent) {
+        return intent.getIntExtra(EXTRA_TOOLBAR_CORNER_RADIUS_DP, MAX_TOOLBAR_CORNER_RADIUS_DP);
+    }
+
+    /**
+     * Gets the position of the close button.
+     * @param intent Intent to retrieve the position of the close button from.
+     * @return The position of the close button, or the default position if the extra is not set.
+     * @see CustomTabsIntent#EXTRA_CLOSE_BUTTON_POSITION
+     * @see CustomTabsIntent#CLOSE_BUTTON_POSITION_DEFAULT
+     * @see CustomTabsIntent#CLOSE_BUTTON_POSITION_START
+     * @see CustomTabsIntent#CLOSE_BUTTON_POSITION_END
+     */
+    @CloseButtonPosition
+    public static int getCloseButtonPosition(@NonNull Intent intent) {
+        return intent.getIntExtra(EXTRA_CLOSE_BUTTON_POSITION, CLOSE_BUTTON_POSITION_DEFAULT);
     }
 }

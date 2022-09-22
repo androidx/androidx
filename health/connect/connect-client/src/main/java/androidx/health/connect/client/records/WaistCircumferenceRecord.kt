@@ -20,7 +20,11 @@ import androidx.health.connect.client.units.Length
 import java.time.Instant
 import java.time.ZoneOffset
 
-/** Captures that user's waist circumference in. */
+/**
+ * Captures the user's waist circumference.
+ *
+ * See [Length] for supported units.
+ */
 public class WaistCircumferenceRecord(
     /** Circumference in [Length] unit. Required field. Valid range: 0-10 meters. */
     public val circumference: Length,

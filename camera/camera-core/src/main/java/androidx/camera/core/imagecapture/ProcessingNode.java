@@ -16,6 +16,8 @@
 
 package androidx.camera.core.imagecapture;
 
+import static android.graphics.ImageFormat.YUV_420_888;
+
 import static androidx.camera.core.ImageCapture.ERROR_UNKNOWN;
 import static androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor;
 
@@ -26,6 +28,7 @@ import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+import androidx.annotation.VisibleForTesting;
 import androidx.annotation.WorkerThread;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCaptureException;
@@ -33,8 +36,8 @@ import androidx.camera.core.ImageProxy;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.processing.Edge;
 import androidx.camera.core.processing.Node;
+import androidx.camera.core.processing.Operation;
 import androidx.camera.core.processing.Packet;
-import androidx.camera.core.processing.Processor;
 
 import com.google.auto.value.AutoValue;
 
@@ -52,12 +55,13 @@ public class ProcessingNode implements Node<ProcessingNode.In, Void> {
     @NonNull
     private final Executor mBlockingExecutor;
 
-    private Processor<InputPacket, Packet<ImageProxy>> mInput2Packet;
-    private Processor<Packet<ImageProxy>, Packet<byte[]>> mImage2JpegBytes;
-    private Processor<Bitmap2JpegBytes.In, Packet<byte[]>> mBitmap2JpegBytes;
-    private Processor<JpegBytes2Disk.In, ImageCapture.OutputFileResults> mJpegBytes2Disk;
-    private Processor<Packet<byte[]>, Packet<Bitmap>> mJpegBytes2CroppedBitmap;
-    private Processor<Packet<ImageProxy>, ImageProxy> mJpegImage2Result;
+    private Operation<InputPacket, Packet<ImageProxy>> mInput2Packet;
+    private Operation<Image2JpegBytes.In, Packet<byte[]>> mImage2JpegBytes;
+    private Operation<Bitmap2JpegBytes.In, Packet<byte[]>> mBitmap2JpegBytes;
+    private Operation<JpegBytes2Disk.In, ImageCapture.OutputFileResults> mJpegBytes2Disk;
+    private Operation<Packet<byte[]>, Packet<Bitmap>> mJpegBytes2CroppedBitmap;
+    private Operation<Packet<ImageProxy>, ImageProxy> mJpegImage2Result;
+    private Operation<Packet<byte[]>, Packet<ImageProxy>> mJpegBytes2Image;
 
     /**
      * @param blockingExecutor a executor that can be blocked by long running tasks. e.g.
@@ -80,6 +84,9 @@ public class ProcessingNode implements Node<ProcessingNode.In, Void> {
         mBitmap2JpegBytes = new Bitmap2JpegBytes();
         mJpegBytes2Disk = new JpegBytes2Disk();
         mJpegImage2Result = new JpegImage2Result();
+        if (inputEdge.getFormat() == YUV_420_888) {
+            mJpegBytes2Image = new JpegBytes2Image();
+        }
         // No output. The request callback will be invoked to deliver the final result.
         return null;
     }
@@ -115,22 +122,30 @@ public class ProcessingNode implements Node<ProcessingNode.In, Void> {
     ImageCapture.OutputFileResults processOnDiskCapture(@NonNull InputPacket inputPacket)
             throws ImageCaptureException {
         ProcessingRequest request = inputPacket.getProcessingRequest();
-        Packet<ImageProxy> originalImage = mInput2Packet.process(inputPacket);
-        Packet<byte[]> originalJpeg = mImage2JpegBytes.process(originalImage);
-        // TODO: only crop if crop rect != image rect
-        Packet<Bitmap> croppedBitmap = mJpegBytes2CroppedBitmap.process(originalJpeg);
-        Packet<byte[]> finalJpeg = mBitmap2JpegBytes.process(
-                Bitmap2JpegBytes.In.of(croppedBitmap, request.getJpegQuality()));
-        return mJpegBytes2Disk.process(
-                JpegBytes2Disk.In.of(finalJpeg, requireNonNull(request.getOutputFileOptions())));
+        Packet<ImageProxy> originalImage = mInput2Packet.apply(inputPacket);
+        Packet<byte[]> jpegBytes =  mImage2JpegBytes.apply(
+                Image2JpegBytes.In.of(originalImage, request.getJpegQuality()));
+        if (jpegBytes.hasCropping()) {
+            Packet<Bitmap> croppedBitmap = mJpegBytes2CroppedBitmap.apply(jpegBytes);
+            jpegBytes = mBitmap2JpegBytes.apply(
+                    Bitmap2JpegBytes.In.of(croppedBitmap, request.getJpegQuality()));
+        }
+        return mJpegBytes2Disk.apply(
+                JpegBytes2Disk.In.of(jpegBytes, requireNonNull(request.getOutputFileOptions())));
     }
 
     @NonNull
     @WorkerThread
     ImageProxy processInMemoryCapture(@NonNull InputPacket inputPacket)
             throws ImageCaptureException {
-        Packet<ImageProxy> originalImage = mInput2Packet.process(inputPacket);
-        return mJpegImage2Result.process(originalImage);
+        ProcessingRequest request = inputPacket.getProcessingRequest();
+        Packet<ImageProxy> image = mInput2Packet.apply(inputPacket);
+        if (image.getFormat() == YUV_420_888) {
+            Packet<byte[]> jpegPacket = mImage2JpegBytes.apply(
+                    Image2JpegBytes.In.of(image, request.getJpegQuality()));
+            image = mJpegBytes2Image.apply(jpegPacket);
+        }
+        return mJpegImage2Result.apply(image);
     }
 
     /**
@@ -178,5 +193,11 @@ public class ProcessingNode implements Node<ProcessingNode.In, Void> {
         static In of(int format) {
             return new AutoValue_ProcessingNode_In(new Edge<>(), format);
         }
+    }
+
+    @VisibleForTesting
+    void injectJpegBytes2CroppedBitmapForTesting(
+            @NonNull Operation<Packet<byte[]>, Packet<Bitmap>> operation) {
+        mJpegBytes2CroppedBitmap = operation;
     }
 }

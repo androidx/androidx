@@ -40,8 +40,8 @@ import org.junit.runner.RunWith
 class UserStyleSchemaInflateTest {
     private val context = ApplicationProvider.getApplicationContext<Context>()
 
-    @OptIn(ExperimentalHierarchicalStyle::class)
     @Test
+    @Suppress("Deprecation") // userStyleSettings
     public fun test_inflate_list_schema() {
         val parser = context.resources.getXml(R.xml.list_schema)
 
@@ -128,6 +128,7 @@ class UserStyleSchemaInflateTest {
     }
 
     @Test
+    @Suppress("Deprecation") // userStyleSettings
     public fun test_inflate_mixed_schema() {
         val parser = context.resources.getXml(R.xml.mixed_schema)
 
@@ -248,6 +249,7 @@ class UserStyleSchemaInflateTest {
     }
 
     @Test
+    @Suppress("Deprecation") // userStyleSettings
     public fun test_inflate_schema_with_parent() {
         val parser1 = context.resources.getXml(R.xml.schema_with_parent_1)
         val parser2 = context.resources.getXml(R.xml.schema_with_parent_2)

@@ -165,6 +165,35 @@ public final class VideoCapabilities {
     }
 
     /**
+     * Finds the supported CamcorderProfileProxy with the resolution nearest to the given
+     * {@link Size}.
+     *
+     * <p>The supported CamcorderProfileProxy means the corresponding {@link Quality} is also
+     * supported. If the size aligns exactly with the pixel count of a CamcorderProfileProxy, that
+     * CamcorderProfileProxy will be selected. If the size falls between two
+     * CamcorderProfileProxy, the higher resolution will always be selected. Otherwise, the
+     * nearest CamcorderProfileProxy will be selected, whether that CamcorderProfileProxy's
+     * resolution is above or below the given size.
+     *
+     * @see #findHighestSupportedQualityFor(Size)
+     */
+    @Nullable
+    public CamcorderProfileProxy findHighestSupportedCamcorderProfileFor(@NonNull Size size) {
+        CamcorderProfileProxy camcorderProfile = null;
+        Quality highestSupportedQuality = findHighestSupportedQualityFor(size);
+        Logger.d(TAG,
+                "Using supported quality of " + highestSupportedQuality + " for size " + size);
+        if (highestSupportedQuality != Quality.NONE) {
+            camcorderProfile = getProfile(highestSupportedQuality);
+            if (camcorderProfile == null) {
+                throw new AssertionError("Camera advertised available quality but did not "
+                        + "produce CamcorderProfile for advertised quality.");
+            }
+        }
+        return camcorderProfile;
+    }
+
+    /**
      * Finds the nearest quality by number of pixels to the given {@link Size}.
      *
      * <p>If the size aligns exactly with the pixel count of a supported quality, that quality

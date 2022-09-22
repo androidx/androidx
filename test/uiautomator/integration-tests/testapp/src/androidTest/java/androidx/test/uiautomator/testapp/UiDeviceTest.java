@@ -23,10 +23,13 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import android.graphics.Point;
+import android.view.KeyEvent;
 import android.widget.TextView;
 
 import androidx.test.filters.LargeTest;
+import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.uiautomator.By;
+import androidx.test.uiautomator.UiDevice;
 import androidx.test.uiautomator.UiObject2;
 import androidx.test.uiautomator.Until;
 
@@ -110,45 +113,126 @@ public class UiDeviceTest extends BaseTest {
         assertNotNull(mDevice.findObject(By.res(TEST_APP, "nested_elements")));
     }
 
+    @Test
+    public void testGetInstance() {
+        assertEquals(mDevice, UiDevice.getInstance());
+    }
+
+    @Test
+    public void testGetInstance_withInstrumentation() {
+        assertEquals(mDevice, UiDevice.getInstance(InstrumentationRegistry.getInstrumentation()));
+    }
+
+    @Test
+    public void testPressMenu() {
+        launchTestActivity(KeycodeTestActivity.class);
+
+        UiObject2 textView = mDevice.findObject(By.res(TEST_APP, "text_view"));
+        mDevice.pressMenu();
+        assertEquals("keycode menu pressed", textView.getText());
+    }
+
+    @Test
+    public void testPressBack() {
+        launchTestActivity(KeycodeTestActivity.class);
+
+        UiObject2 textView = mDevice.findObject(By.res(TEST_APP, "text_view"));
+        mDevice.pressBack();
+        assertEquals("keycode back pressed", textView.getText());
+    }
+
+    @Test
+    public void testPressSearch() {
+        launchTestActivity(KeycodeTestActivity.class);
+
+        UiObject2 textView = mDevice.findObject(By.res(TEST_APP, "text_view"));
+        mDevice.pressSearch();
+        assertEquals("keycode search pressed", textView.getText());
+    }
+
+    @Test
+    public void testPressDPadCenter() {
+        launchTestActivity(KeycodeTestActivity.class);
+
+        UiObject2 textView = mDevice.findObject(By.res(TEST_APP, "text_view"));
+        mDevice.pressDPadCenter();
+        assertEquals("keycode dpad center pressed", textView.getText());
+    }
+
+    @Test
+    public void testPressDPadDown() {
+        launchTestActivity(KeycodeTestActivity.class);
+
+        UiObject2 textView = mDevice.findObject(By.res(TEST_APP, "text_view"));
+        mDevice.pressDPadDown();
+        assertEquals("keycode dpad down pressed", textView.getText());
+    }
+
+    @Test
+    public void testPressDPadUp() {
+        launchTestActivity(KeycodeTestActivity.class);
+
+        UiObject2 textView = mDevice.findObject(By.res(TEST_APP, "text_view"));
+        mDevice.pressDPadUp();
+        assertEquals("keycode dpad up pressed", textView.getText());
+    }
+
+    @Test
+    public void testPressDPadLeft() {
+        launchTestActivity(KeycodeTestActivity.class);
+
+        UiObject2 textView = mDevice.findObject(By.res(TEST_APP, "text_view"));
+        mDevice.pressDPadLeft();
+        assertEquals("keycode dpad left pressed", textView.getText());
+    }
+
+    @Test
+    public void testPressDPadRight() {
+        launchTestActivity(KeycodeTestActivity.class);
+
+        UiObject2 textView = mDevice.findObject(By.res(TEST_APP, "text_view"));
+        mDevice.pressDPadRight();
+        assertEquals("keycode dpad right pressed", textView.getText());
+    }
+
+    @Test
+    public void testPressDelete() {
+        launchTestActivity(KeycodeTestActivity.class);
+
+        UiObject2 textView = mDevice.findObject(By.res(TEST_APP, "text_view"));
+        mDevice.pressDelete();
+        assertEquals("keycode delete pressed", textView.getText());
+    }
+
+    @Test
+    public void testPressEnter() {
+        launchTestActivity(KeycodeTestActivity.class);
+
+        UiObject2 textView = mDevice.findObject(By.res(TEST_APP, "text_view"));
+        mDevice.pressEnter();
+        assertEquals("keycode enter pressed", textView.getText());
+    }
+
+    @Test
+    public void testPressKeyCode() {
+        launchTestActivity(KeycodeTestActivity.class);
+
+        UiObject2 textView = mDevice.findObject(By.res(TEST_APP, "text_view"));
+        mDevice.pressKeyCode(KeyEvent.KEYCODE_0);
+        assertEquals("keycode 0 pressed", textView.getText());
+    }
+
+    @Test
+    public void testPressKeyCode_withMetaState() {
+        launchTestActivity(KeycodeTestActivity.class);
+
+        UiObject2 textView = mDevice.findObject(By.res(TEST_APP, "text_view"));
+        mDevice.pressKeyCode(KeyEvent.KEYCODE_Z,
+                KeyEvent.META_SHIFT_LEFT_ON | KeyEvent.META_SHIFT_ON);
+        assertEquals("keycode Z pressed with meta shift left on", textView.getText());
+    }
+
     /* TODO(b/235841020): Implement these tests, and the tests for exceptions of each tested method.
-
-    public void testGetInstance() {}
-
-    public void testGetInstance_withInstrumentation() {}
-
-    public void testGetDisplaySizeDp() {}
-
-    public void testGetProductName() {}
-
-    public void testGetLastTraversedText() {}
-
-    public void testClearLastTraversedText() {}
-
-    public void testPressMenu() {}
-
-    public void testPressBack() {}
-
-    public void testPressHome() {}
-
-    public void testPressSearch() {}
-
-    public void testPressDPadCenter() {}
-
-    public void testPressDPadDown() {}
-
-    public void testPressDPadUp() {}
-
-    public void testPressDPadLeft() {}
-
-    public void testPressDPadRight() {}
-
-    public void testPressDelete() {}
-
-    public void testPressEnter() {}
-
-    public void testPressKeyCode() {}
-
-    public void testPressKeyCode_withMetaState() {}
 
     public void testPressRecentApps() {}
 

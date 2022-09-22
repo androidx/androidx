@@ -67,6 +67,26 @@ public class ActionsConstraintsTest {
     }
 
     @Test
+    public void create_allowedAlsoDisallowed() {
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new ActionsConstraints.Builder()
+                        .addAllowedActionType(Action.TYPE_BACK)
+                        .addDisallowedActionType(Action.TYPE_BACK)
+                        .build());
+    }
+
+    @Test
+    public void create_allowedAndDisallowedSet() {
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new ActionsConstraints.Builder()
+                        .addAllowedActionType(Action.TYPE_PAN)
+                        .addDisallowedActionType(Action.TYPE_BACK)
+                        .build());
+    }
+
+    @Test
     public void createConstraints() {
         ActionsConstraints constraints =
                 new ActionsConstraints.Builder()
@@ -150,6 +170,24 @@ public class ActionsConstraintsTest {
                                 .addAction(actionWithIcon)
                                 .build()
                                 .getActions()));
+
+        // Positive case: OnClickListener disallowed only for custom action types and passes for
+        // standard action types like the back action.
+        constraintsNoOnClick.validateOrThrow(
+                new ActionStrip.Builder().addAction(Action.BACK).build().getActions());
+
+        ActionsConstraints constraintsAllowPan =
+                new ActionsConstraints.Builder().addAllowedActionType(Action.TYPE_PAN).build();
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> constraintsAllowPan.validateOrThrow(
+                        new ActionStrip.Builder()
+                                .addAction(Action.BACK)
+                                .build()
+                                .getActions()));
+        //Positive case: Only allows pan action types
+        constraintsAllowPan.validateOrThrow(
+                new ActionStrip.Builder().addAction(Action.PAN).build().getActions());
     }
 
     @Test

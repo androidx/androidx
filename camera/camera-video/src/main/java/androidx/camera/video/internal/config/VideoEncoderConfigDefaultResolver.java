@@ -23,6 +23,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.Logger;
+import androidx.camera.core.impl.Timebase;
 import androidx.camera.video.VideoSpec;
 import androidx.camera.video.internal.encoder.VideoEncoderConfig;
 import androidx.core.util.Supplier;
@@ -45,6 +46,8 @@ public class VideoEncoderConfigDefaultResolver implements Supplier<VideoEncoderC
     private static final Range<Integer> VALID_FRAME_RATE_RANGE = new Range<>(1, 60);
 
     private final String mMimeType;
+
+    private final Timebase mInputTimebase;
     private final VideoSpec mVideoSpec;
     private final Size mSurfaceSize;
     @Nullable
@@ -53,15 +56,17 @@ public class VideoEncoderConfigDefaultResolver implements Supplier<VideoEncoderC
     /**
      * Constructor for a VideoEncoderConfigDefaultResolver.
      *
-     * @param mimeType    The mime type for the video encoder
-     * @param videoSpec   The {@link VideoSpec} which defines the settings that should be used with
-     *                    the video encoder.
-     * @param surfaceSize The size of the surface required by the camera for the video encoder.
+     * @param mimeType      The mime type for the video encoder
+     * @param inputTimebase The time base of the input frame.
+     * @param videoSpec     The {@link VideoSpec} which defines the settings that should be used
+     *                      with the video encoder.
+     * @param surfaceSize   The size of the surface required by the camera for the video encoder.
      */
     public VideoEncoderConfigDefaultResolver(@NonNull String mimeType,
-            @NonNull VideoSpec videoSpec, @NonNull Size surfaceSize,
-            @Nullable Range<Integer> expectedFrameRateRange) {
+            @NonNull Timebase inputTimebase, @NonNull VideoSpec videoSpec,
+            @NonNull Size surfaceSize, @Nullable Range<Integer> expectedFrameRateRange) {
         mMimeType = mimeType;
+        mInputTimebase = inputTimebase;
         mVideoSpec = videoSpec;
         mSurfaceSize = surfaceSize;
         mExpectedFrameRateRange = expectedFrameRateRange;
@@ -85,6 +90,7 @@ public class VideoEncoderConfigDefaultResolver implements Supplier<VideoEncoderC
 
         return VideoEncoderConfig.builder()
                 .setMimeType(mMimeType)
+                .setInputTimebase(mInputTimebase)
                 .setResolution(mSurfaceSize)
                 .setBitrate(resolvedBitrate)
                 .setFrameRate(resolvedFrameRate)

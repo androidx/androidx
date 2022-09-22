@@ -447,18 +447,27 @@ public abstract class FragmentManager implements FragmentResultOwner {
             new CopyOnWriteArrayList<>();
 
     private final Consumer<Configuration> mOnConfigurationChangedListener = newConfig -> {
-        dispatchConfigurationChanged(newConfig);
+        if (isParentAdded()) {
+            dispatchConfigurationChanged(newConfig);
+        }
     };
     private final Consumer<Integer> mOnTrimMemoryListener = level -> {
-        if (level == ComponentCallbacks2.TRIM_MEMORY_COMPLETE) {
+        if (isParentAdded() && level == ComponentCallbacks2.TRIM_MEMORY_COMPLETE) {
             dispatchLowMemory();
         }
     };
     private final Consumer<MultiWindowModeChangedInfo> mOnMultiWindowModeChangedListener =
-            info -> dispatchMultiWindowModeChanged(info.isInMultiWindowMode());
+            info -> {
+                if (isParentAdded()) {
+                    dispatchMultiWindowModeChanged(info.isInMultiWindowMode());
+                }
+            };
     private final Consumer<PictureInPictureModeChangedInfo>
-            mOnPictureInPictureModeChangedListener = info -> dispatchPictureInPictureModeChanged(
-                    info.isInPictureInPictureMode());
+            mOnPictureInPictureModeChangedListener = info -> {
+                if (isParentAdded()) {
+                    dispatchPictureInPictureModeChanged(info.isInPictureInPictureMode());
+                }
+            };
 
     private final MenuProvider mMenuProvider = new MenuProvider() {
         @Override
@@ -3314,6 +3323,14 @@ public abstract class FragmentManager implements FragmentResultOwner {
         if (f.mAdded && isMenuAvailable(f)) {
             mNeedMenuInvalidate = true;
         }
+    }
+
+    private boolean isParentAdded() {
+        // The root fragment manager is always considered added
+        if (mParent == null) {
+            return true;
+        }
+        return mParent.isAdded() && mParent.getParentFragmentManager().isParentAdded();
     }
 
     static int reverseTransit(int transit) {

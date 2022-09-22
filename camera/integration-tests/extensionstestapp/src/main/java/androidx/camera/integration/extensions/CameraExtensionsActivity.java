@@ -81,6 +81,7 @@ import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.math.MathUtils;
+import androidx.lifecycle.Lifecycle;
 import androidx.test.espresso.idling.CountingIdlingResource;
 
 import com.google.common.base.Preconditions;
@@ -497,6 +498,13 @@ public class CameraExtensionsActivity extends AppCompatActivity
                 new FutureCallback<ExtensionsManager>() {
                     @Override
                     public void onSuccess(@Nullable ExtensionsManager extensionsManager) {
+                        // There might be timing issue that the activity has been destroyed when
+                        // the onSuccess callback is received. Skips the afterward flow when the
+                        // situation happens.
+                        if (CameraExtensionsActivity.this.getLifecycle().getCurrentState()
+                                == Lifecycle.State.DESTROYED) {
+                            return;
+                        }
                         mExtensionsManager = extensionsManager;
                         if (!bindUseCasesWithCurrentExtensionMode()) {
                             bindUseCasesWithNextExtensionMode();

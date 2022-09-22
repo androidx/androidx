@@ -16,11 +16,14 @@
 
 package androidx.tv.material.carousel
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.with
 import androidx.compose.foundation.background
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
@@ -43,13 +46,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.FocusState
+import androidx.compose.ui.focus.focusProperties
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.onPlaced
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.tv.material.ExperimentalTvMaterialApi
-import androidx.tv.material.pager.Pager
 import java.lang.Math.floorMod
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
@@ -69,7 +77,7 @@ import kotlinx.coroutines.yield
  */
 
 @Suppress("IllegalExperimentalApiUsage")
-@OptIn(ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalComposeUiApi::class, ExperimentalAnimationApi::class)
 @ExperimentalTvMaterialApi
 @Composable
 fun Carousel(
@@ -82,7 +90,9 @@ fun Carousel(
     carouselIndicator:
     @Composable BoxScope.() -> Unit = {
         CarouselDefaults.Indicator(
-            modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp),
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(16.dp),
             carouselState = carouselState,
             slideCount = slideCount)
     },
@@ -91,27 +101,83 @@ fun Carousel(
     CarouselStateUpdater(carouselState, slideCount)
     var focusState: FocusState? by remember { mutableStateOf(null) }
     val focusManager = LocalFocusManager.current
+    val isLtr = LocalLayoutDirection.current == LayoutDirection.Ltr
+    val focusRequester = remember { FocusRequester() }
+    var isAutoScrollActive by remember { mutableStateOf(false) }
 
     AutoScrollSideEffect(
         timeToDisplaySlideMillis,
         slideCount,
         carouselState,
-        focusState)
+        focusState,
+        onAutoScrollChange = { isAutoScrollActive = it })
     Box(modifier = modifier
+        .focusRequester(focusRequester)
         .onFocusChanged {
             focusState = it
-            if (it.isFocused) {
+            if (it.isFocused && isAutoScrollActive) {
                 focusManager.moveFocus(FocusDirection.Enter)
             }
         }
+        .focusProperties {
+            exit = {
+                val showPreviousSlideAndGetFocusRequester = {
+                    if (carouselState
+                            .isFirstSlide()
+                            .not()
+                    ) {
+                        carouselState.moveToPreviousSlide(slideCount)
+                        focusRequester
+                    } else {
+                        FocusRequester.Default
+                    }
+                }
+                val showNextSlideAndGetFocusRequester = {
+                    if (carouselState
+                            .isLastSlide(slideCount)
+                            .not()
+                    ) {
+                        carouselState.moveToNextSlide(slideCount)
+                        focusRequester
+                    } else {
+                        FocusRequester.Default
+                    }
+                }
+                when (it) {
+                    FocusDirection.Left -> {
+                        if (isLtr) {
+                            showPreviousSlideAndGetFocusRequester()
+                        } else {
+                            showNextSlideAndGetFocusRequester()
+                        }
+                    }
+                    FocusDirection.Right -> {
+                        if (isLtr) {
+                            showNextSlideAndGetFocusRequester()
+                        } else {
+                            showPreviousSlideAndGetFocusRequester()
+                        }
+                    }
+                    else -> FocusRequester.Default
+                }
+            }
+        }
         .focusable()) {
-        Pager(
-            enterTransition = enterTransition,
-            exitTransition = exitTransition,
-            currentSlide = carouselState.slideIndex,
-            slideCount = slideCount
-        ) { content.invoke(it) }
-
+        AnimatedContent(
+            targetState = carouselState.slideIndex,
+            transitionSpec = { enterTransition.with(exitTransition) }
+        ) {
+            Box(
+                modifier = Modifier
+                    .onPlaced {
+                        if (isAutoScrollActive.not()) {
+                            focusManager.moveFocus(FocusDirection.Enter)
+                        }
+                    }
+            ) {
+                content.invoke(it)
+            }
+        }
         this.carouselIndicator()
     }
 }
@@ -122,14 +188,16 @@ private fun AutoScrollSideEffect(
     timeToDisplaySlideMillis: Long,
     slideCount: Int,
     carouselState: CarouselState,
-    focusState: FocusState?
+    focusState: FocusState?,
+    onAutoScrollChange: (isAutoScrollActive: Boolean) -> Unit = {},
 ) {
     val currentTimeToDisplaySlideMillis by rememberUpdatedState(timeToDisplaySlideMillis)
     val currentSlideCount by rememberUpdatedState(slideCount)
     val carouselIsFocused = focusState?.isFocused ?: false
     val carouselHasFocus = focusState?.hasFocus ?: false
+    val doAutoScroll = (carouselIsFocused || carouselHasFocus).not()
 
-    if (!(carouselIsFocused || carouselHasFocus)) {
+    if (doAutoScroll) {
         LaunchedEffect(carouselState) {
             while (true) {
                 yield()
@@ -138,10 +206,11 @@ private fun AutoScrollSideEffect(
                     snapshotFlow { carouselState.activePauseHandlesCount }
                         .first { pauseHandleCount -> pauseHandleCount == 0 }
                 }
-                carouselState.nextSlide(currentSlideCount)
+                carouselState.moveToNextSlide(currentSlideCount)
             }
         }
     }
+    onAutoScrollChange(doAutoScroll)
 }
 
 @OptIn(ExperimentalTvMaterialApi::class)
@@ -185,10 +254,24 @@ class CarouselState(initialSlideIndex: Int = 0) {
         return ScrollPauseHandleImpl(this)
     }
 
-    internal fun nextSlide(slideCount: Int) {
-        if (slideCount != 0) {
-            slideIndex = floorMod(slideIndex + 1, slideCount)
-        }
+    internal fun isFirstSlide() = slideIndex == 0
+
+    internal fun isLastSlide(slideCount: Int) = slideIndex == slideCount - 1
+
+    internal fun moveToPreviousSlide(slideCount: Int) {
+        // No slides available for carousel
+        if (slideCount == 0) return
+
+        // Go to previous slide
+        slideIndex = floorMod(slideIndex - 1, slideCount)
+    }
+
+    internal fun moveToNextSlide(slideCount: Int) {
+        // No slides available for carousel
+        if (slideCount == 0) return
+
+        // Go to next slide
+        slideIndex = floorMod(slideIndex + 1, slideCount)
     }
 }
 

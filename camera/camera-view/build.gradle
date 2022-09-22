@@ -40,7 +40,7 @@ dependencies {
     annotationProcessor(libs.autoValue)
 
     testImplementation(libs.testRunner)
-    testImplementation(libs.mockitoCore)
+    testImplementation(libs.mockitoCore4)
     testImplementation(libs.robolectric)
     testImplementation(libs.kotlinStdlib)
     testImplementation(libs.truth)
@@ -50,7 +50,7 @@ dependencies {
     testImplementation(project(":camera:camera-testing"))
 
     androidTestImplementation(libs.multidex)
-    androidTestImplementation(libs.mockitoCore)
+    androidTestImplementation(libs.mockitoCore4)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)
@@ -61,7 +61,7 @@ dependencies {
     androidTestImplementation(project(":camera:camera-camera2"))
     androidTestImplementation(project(":camera:camera-testing"))
     androidTestImplementation(project(":camera:camera-camera2-pipe-integration"))
-    androidTestImplementation(libs.mockitoCore, excludes.bytebuddy) // DexMaker has it's own MockMaker
+    androidTestImplementation(libs.mockitoCore4, excludes.bytebuddy) // DexMaker has it's own MockMaker
     androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy) // DexMaker has it's own MockMaker
     androidTestImplementation("androidx.test.espresso:espresso-core:3.3.0")
 }

@@ -17,7 +17,6 @@
 package androidx.build
 
 import java.io.File
-import org.gradle.api.GradleException
 
 /**
  * The self-built jars that we need to successfully apply the plugin
@@ -34,14 +33,6 @@ class BuildJars(private val outBuildSrcPath: String) {
     private val jetpadIntegrationJar = findJar("jetpad-integration")
 
     fun classpathEntries(): String {
-        // b/239026887: Sometimes, we suspect, the jars are still being written when we run our
-        //              first test.  Hopefully, b/239066130 will allow us to drop these checks
-
-        waitForFileToExist(privateJar)
-        waitForFileToExist(pluginsJar)
-        waitForFileToExist(publicJar)
-        waitForFileToExist(jetpadIntegrationJar)
-
         return """|// Needed for androidx extension
                   |classpath(project.files("${privateJar.path}"))
                   |
@@ -54,20 +45,5 @@ class BuildJars(private val outBuildSrcPath: String) {
                   |// Needed for androidx/build/jetpad/LibraryBuildInfoFile
                   |classpath(project.files("${jetpadIntegrationJar.path}"))
                   |""".trimMargin()
-    }
-
-    private fun waitForFileToExist(
-        file: File,
-        millisToWait: Long = 5000,
-        waitStepMillis: Long = 50
-    ) {
-        val startStamp = System.currentTimeMillis()
-        val deadline = startStamp + millisToWait
-        while (!file.exists()) {
-            if (System.currentTimeMillis() > deadline) {
-                throw GradleException("${file.path} not found (even after $millisToWait ms)")
-            }
-            Thread.sleep(waitStepMillis)
-        }
     }
 }

@@ -32,25 +32,25 @@ import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
 import androidx.camera.camera2.pipe.testing.FakeFrameMetadata
 import androidx.camera.camera2.pipe.testing.FakeGraphProcessor
 import androidx.camera.camera2.pipe.testing.FakeRequestMetadata
-import androidx.camera.camera2.pipe.testing.FakeRequestProcessor
+import androidx.camera.camera2.pipe.testing.FakeCaptureSequenceProcessor
 import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(RobolectricCameraPipeTestRunner::class)
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 internal class Controller3AUpdate3ATest {
     private val graphState3A = GraphState3A()
     private val graphProcessor = FakeGraphProcessor(graphState3A = graphState3A)
-    private val requestProcessor = FakeRequestProcessor()
+    private val fakeCaptureSequenceProcessor = FakeCaptureSequenceProcessor()
+    private val fakeGraphRequestProcessor = GraphRequestProcessor.from(fakeCaptureSequenceProcessor)
     private val listener3A = Listener3A()
     private val controller3A = Controller3A(
         graphProcessor,
@@ -80,13 +80,12 @@ internal class Controller3AUpdate3ATest {
         assertThat(result.getCompletionExceptionOrNull() is CancellationException)
     }
 
-    @OptIn(DelicateCoroutinesApi::class)
     @Test
-    fun testAfModeUpdate(): Unit = runBlocking {
+    fun testAfModeUpdate() = runTest {
         initGraphProcessor()
 
         val result = controller3A.update3A(afMode = AfMode.OFF)
-        GlobalScope.launch {
+        launch {
             listener3A.onRequestSequenceCreated(
                 FakeRequestMetadata(
                     requestNumber = RequestNumber(1)
@@ -108,13 +107,12 @@ internal class Controller3AUpdate3ATest {
         assertThat(result3A.status).isEqualTo(Result3A.Status.OK)
     }
 
-    @OptIn(DelicateCoroutinesApi::class)
     @Test
-    fun testAeModeUpdate(): Unit = runBlocking {
+    fun testAeModeUpdate() = runTest {
         initGraphProcessor()
 
         val result = controller3A.update3A(aeMode = AeMode.ON_ALWAYS_FLASH)
-        GlobalScope.launch {
+        launch {
             listener3A.onRequestSequenceCreated(
                 FakeRequestMetadata(
                     requestNumber = RequestNumber(1)
@@ -137,13 +135,12 @@ internal class Controller3AUpdate3ATest {
         assertThat(result3A.status).isEqualTo(Result3A.Status.OK)
     }
 
-    @OptIn(DelicateCoroutinesApi::class)
     @Test
-    fun testAwbModeUpdate(): Unit = runBlocking {
+    fun testAwbModeUpdate() = runTest {
         initGraphProcessor()
 
         val result = controller3A.update3A(awbMode = AwbMode.CLOUDY_DAYLIGHT)
-        GlobalScope.launch {
+        launch {
             listener3A.onRequestSequenceCreated(
                 FakeRequestMetadata(
                     requestNumber = RequestNumber(1)
@@ -166,13 +163,12 @@ internal class Controller3AUpdate3ATest {
         assertThat(result3A.status).isEqualTo(Result3A.Status.OK)
     }
 
-    @OptIn(DelicateCoroutinesApi::class)
     @Test
-    fun testAfRegionsUpdate(): Unit = runBlocking {
+    fun testAfRegionsUpdate() = runTest {
         initGraphProcessor()
 
         val result = controller3A.update3A(afRegions = listOf(MeteringRectangle(1, 1, 100, 100, 2)))
-        GlobalScope.launch {
+        launch {
             listener3A.onRequestSequenceCreated(
                 FakeRequestMetadata(
                     requestNumber = RequestNumber(1)
@@ -195,13 +191,12 @@ internal class Controller3AUpdate3ATest {
         assertThat(result3A.status).isEqualTo(Result3A.Status.OK)
     }
 
-    @OptIn(DelicateCoroutinesApi::class)
     @Test
-    fun testAeRegionsUpdate(): Unit = runBlocking {
+    fun testAeRegionsUpdate() = runTest {
         initGraphProcessor()
 
         val result = controller3A.update3A(aeRegions = listOf(MeteringRectangle(1, 1, 100, 100, 2)))
-        GlobalScope.launch {
+        launch {
             listener3A.onRequestSequenceCreated(
                 FakeRequestMetadata(
                     requestNumber = RequestNumber(1)
@@ -224,9 +219,8 @@ internal class Controller3AUpdate3ATest {
         assertThat(result3A.status).isEqualTo(Result3A.Status.OK)
     }
 
-    @OptIn(DelicateCoroutinesApi::class)
     @Test
-    fun testAwbRegionsUpdate(): Unit = runBlocking {
+    fun testAwbRegionsUpdate() = runTest {
         initGraphProcessor()
 
         val result = controller3A.update3A(
@@ -234,7 +228,7 @@ internal class Controller3AUpdate3ATest {
                 MeteringRectangle(1, 1, 100, 100, 2)
             )
         )
-        GlobalScope.launch {
+        launch {
             listener3A.onRequestSequenceCreated(
                 FakeRequestMetadata(
                     requestNumber = RequestNumber(1)
@@ -258,7 +252,7 @@ internal class Controller3AUpdate3ATest {
     }
 
     private fun initGraphProcessor() {
-        graphProcessor.onGraphStarted(requestProcessor)
+        graphProcessor.onGraphStarted(fakeGraphRequestProcessor)
         graphProcessor.startRepeating(Request(streams = listOf(StreamId(1))))
     }
 }

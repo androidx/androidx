@@ -26,6 +26,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.core.util.Preconditions;
 
+import java.util.Locale;
+
 /**
  * Utility class for transform.
  *
@@ -53,6 +55,11 @@ public class TransformUtils {
         return new Size(rect.width(), rect.height());
     }
 
+    /** Returns a formatted string for a Rect. */
+    @NonNull
+    public static String rectToString(@NonNull Rect rect) {
+        return String.format(Locale.US, "%s(%dx%d)", rect, rect.width(), rect.height());
+    }
 
     /**
      * Transforms size to a {@link Rect} with zero left and top.
@@ -68,6 +75,14 @@ public class TransformUtils {
     @NonNull
     public static Rect sizeToRect(@NonNull Size size, int left, int top) {
         return new Rect(left, top, left + size.getWidth(), top + size.getHeight());
+    }
+
+    /**
+     * Returns true if the crop rect does not match the size.
+     */
+    public static boolean hasCropping(@NonNull Rect cropRect, @NonNull Size size) {
+        return cropRect.left != 0 || cropRect.top != 0 || cropRect.width() != size.getWidth()
+                || cropRect.height() != size.getHeight();
     }
 
     /**
@@ -100,7 +115,7 @@ public class TransformUtils {
     /**
      * Rotates a {@link Size} according to the rotation degrees.
      *
-     * @param size the size to rotate
+     * @param size            the size to rotate
      * @param rotationDegrees the rotation degrees
      * @return rotated size
      * @throws IllegalArgumentException if the rotation degrees is not a multiple of 90
@@ -278,6 +293,18 @@ public class TransformUtils {
     @NonNull
     public static Matrix getNormalizedToBuffer(@NonNull Rect viewPortRect) {
         return getNormalizedToBuffer(new RectF(viewPortRect));
+    }
+
+    /**
+     * Updates sensor to buffer transform based on crop rect.
+     */
+    @NonNull
+    public static Matrix updateSensorToBufferTransform(
+            @NonNull Matrix original,
+            @NonNull Rect cropRect) {
+        Matrix matrix = new Matrix(original);
+        matrix.postTranslate(-cropRect.left, -cropRect.top);
+        return matrix;
     }
 
     /**

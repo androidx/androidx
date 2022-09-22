@@ -19,8 +19,11 @@
 package androidx.camera.camera2.pipe.integration.impl
 
 import android.view.Surface
+import androidx.annotation.GuardedBy
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraGraph
+import androidx.camera.camera2.pipe.CameraPipe
+import androidx.camera.camera2.pipe.CameraSurfaceManager
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.integration.adapter.SessionConfigAdapter
@@ -29,6 +32,7 @@ import androidx.camera.core.impl.DeferrableSurface
 import androidx.camera.core.impl.utils.futures.Futures
 import androidx.concurrent.futures.await
 import javax.inject.Inject
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
 import kotlinx.coroutines.isActive
@@ -37,14 +41,26 @@ import kotlinx.coroutines.withTimeoutOrNull
 private const val TIMEOUT_GET_SURFACE_IN_MS = 5_000L
 
 /**
- * Configure the [DeferrableSurface]s to the [CameraGraph].
+ * Configure the [DeferrableSurface]s to the [CameraGraph] and monitor the usage.
  */
 @UseCaseCameraScope
 class UseCaseSurfaceManager @Inject constructor(
     private val threads: UseCaseThreads,
-) {
+    private val cameraPipe: CameraPipe,
+) : CameraSurfaceManager.SurfaceListener {
+
+    private val lock = Any()
+
+    @GuardedBy("lock")
+    private val activeSurfaceMap = mutableMapOf<Surface, DeferrableSurface>()
+
+    @GuardedBy("lock")
+    private var configuredSurfaceMap: Map<Surface, DeferrableSurface>? = null
 
     private var setupSurfaceDeferred: Deferred<Unit>? = null
+
+    @GuardedBy("lock")
+    private var stopDeferred: CompletableDeferred<Unit>? = null
 
     /**
      * Async set up the Surfaces to the [CameraGraph]
@@ -55,7 +71,10 @@ class UseCaseSurfaceManager @Inject constructor(
         surfaceToStreamMap: Map<DeferrableSurface, StreamId>,
         timeoutMillis: Long = TIMEOUT_GET_SURFACE_IN_MS,
     ): Deferred<Unit> {
-        setupSurfaceDeferred = threads.scope.async {
+        check(setupSurfaceDeferred == null)
+        check(synchronized(lock) { stopDeferred == null && configuredSurfaceMap == null })
+
+        return threads.scope.async {
             check(sessionConfigAdapter.isSessionConfigValid())
 
             val deferrableSurfaces = sessionConfigAdapter.deferrableSurfaces
@@ -70,6 +89,13 @@ class UseCaseSurfaceManager @Inject constructor(
             }
 
             if (areSurfacesValid(surfaces)) {
+                synchronized(lock) {
+                    configuredSurfaceMap = deferrableSurfaces.associateBy { deferrableSurface ->
+                        surfaces[deferrableSurfaces.indexOf(deferrableSurface)]!!
+                    }
+                    setSurfaceListener()
+                }
+
                 surfaceToStreamMap.forEach {
                     val stream = it.value
                     val surface = surfaces[deferrableSurfaces.indexOf(it.key)]
@@ -86,16 +112,65 @@ class UseCaseSurfaceManager @Inject constructor(
                     deferrableSurfaces[surfaces.indexOf(null)]
                 )
             }
+        }.also { completeDeferred ->
+            setupSurfaceDeferred = completeDeferred
+            completeDeferred.invokeOnCompletion {
+                setupSurfaceDeferred = null
+            }
         }
-
-        return setupSurfaceDeferred!!
     }
 
     /**
-     * Cancel the Surface set up.
+     * Cancel the Surface set up and stop the monitoring of Surface usage.
      */
-    fun stop() {
+    fun stopAsync(): Deferred<Unit> {
         setupSurfaceDeferred?.cancel()
+
+        return synchronized(lock) {
+            configuredSurfaceMap = null
+            stopDeferred = stopDeferred ?: CompletableDeferred<Unit>().apply {
+                invokeOnCompletion { synchronized(lock) { stopDeferred = null } }
+            }
+            stopDeferred!!
+        }.also {
+            tryClearSurfaceListener()
+        }
+    }
+
+    override fun onSurfaceActive(surface: Surface) {
+        synchronized(lock) {
+            configuredSurfaceMap?.get(surface)?.let {
+                if (!activeSurfaceMap.containsKey(surface)) {
+                    Log.debug { "SurfaceActive $it in ${this@UseCaseSurfaceManager}" }
+                    activeSurfaceMap[surface] = it
+                    it.incrementUseCount()
+                }
+            }
+        }
+    }
+
+    override fun onSurfaceInactive(surface: Surface) {
+        synchronized(lock) {
+            activeSurfaceMap.remove(surface)?.let {
+                Log.debug { "SurfaceInactive $it in ${this@UseCaseSurfaceManager}" }
+                it.decrementUseCount()
+                tryClearSurfaceListener()
+            }
+        }
+    }
+
+    private fun setSurfaceListener() {
+        cameraPipe.cameraSurfaceManager().addListener(this)
+    }
+
+    private fun tryClearSurfaceListener() {
+        synchronized(lock) {
+            if (activeSurfaceMap.isEmpty() && configuredSurfaceMap == null) {
+                Log.debug { "${this@UseCaseSurfaceManager} remove surface listener" }
+                cameraPipe.cameraSurfaceManager().removeListener(this)
+                stopDeferred?.complete(Unit)
+            }
+        }
     }
 
     private suspend fun getSurfaces(

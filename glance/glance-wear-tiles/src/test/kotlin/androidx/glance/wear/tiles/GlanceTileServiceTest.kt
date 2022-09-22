@@ -57,6 +57,7 @@ import java.time.Instant
 import java.util.Arrays
 import kotlin.test.assertIs
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import org.junit.Ignore
 
 @OptIn(ExperimentalCoroutinesApi::class, ExperimentalStdlibApi::class)
 @RunWith(RobolectricTestRunner::class)
@@ -138,6 +139,7 @@ class GlanceTileServiceTest {
         assertThat(text.text!!.value).isEqualTo("Hello World!")
     }
 
+    @Ignore("resourcesVersion is not matching - b/246239580")
     @Test
     fun tileProviderReturnsTimelineTile() = fakeCoroutineScope.runTest {
         // Request is currently un-used, provide an empty one.

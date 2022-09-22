@@ -32,6 +32,7 @@ import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.ImageProxy
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.camera.testing.CameraPipeConfigTestRule
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.SurfaceTextureProvider
 import androidx.camera.testing.fakes.FakeLifecycleOwner
@@ -63,6 +64,11 @@ class UseCaseCombinationTest(
     private val implName: String,
     private val cameraConfig: CameraXConfig
 ) {
+
+    @get:Rule
+    val cameraPipeConfigTestRule = CameraPipeConfigTestRule(
+        active = implName == CameraPipeConfig::class.simpleName,
+    )
 
     @get:Rule
     val cameraRule = CameraUtil.grantCameraPermissionAndPreTest(
@@ -110,8 +116,6 @@ class UseCaseCombinationTest(
     /** Test Combination: Preview + ImageCapture */
     @Test
     fun previewCombinesImageCapture(): Unit = runBlocking {
-        skipTestOnCameraPipeConfig()
-
         // Arrange.
         val previewMonitor = PreviewMonitor()
         val preview = initPreview(previewMonitor)
@@ -136,11 +140,35 @@ class UseCaseCombinationTest(
         previewMonitor.waitForStream()
     }
 
+    /** Test Combination: Preview (no surface provider) + ImageCapture */
+    @Test
+    fun previewCombinesImageCapture_withNoSurfaceProvider(): Unit = runBlocking {
+        // Arrange.
+        val previewMonitor = PreviewMonitor()
+        val preview = initPreview(previewMonitor)
+        val imageCapture = initImageCapture()
+
+        assertThat(camera.isUseCasesCombinationSupported(preview, imageCapture)).isTrue()
+
+        // TODO(b/160249108) move off of main thread once UseCases can be attached on any thread
+        // Act.
+        withContext(Dispatchers.Main) {
+            cameraProvider.bindToLifecycle(
+                fakeLifecycleOwner,
+                DEFAULT_SELECTOR,
+                preview,
+                imageCapture
+            )
+        }
+
+        // Assert.
+        imageCapture.waitForCapturing()
+        previewMonitor.waitForStreamIdle()
+    }
+
     /** Test Combination: Preview + ImageAnalysis */
     @Test
     fun previewCombinesImageAnalysis(): Unit = runBlocking {
-        skipTestOnCameraPipeConfig()
-
         // Arrange.
         val previewMonitor = PreviewMonitor()
         val preview = initPreview(previewMonitor)
@@ -166,11 +194,36 @@ class UseCaseCombinationTest(
         imageAnalysisMonitor.waitForImageAnalysis()
     }
 
+    /** Test Combination: Preview (no surface provider) + ImageAnalysis */
+    @Test
+    fun previewCombinesImageAnalysis_withNoSurfaceProvider(): Unit = runBlocking {
+        // Arrange.
+        val previewMonitor = PreviewMonitor()
+        val preview = initPreview(previewMonitor)
+        val imageAnalysisMonitor = AnalysisMonitor()
+        val imageAnalysis = initImageAnalysis(imageAnalysisMonitor)
+
+        assertThat(camera.isUseCasesCombinationSupported(preview, imageAnalysis)).isTrue()
+
+        // TODO(b/160249108) move off of main thread once UseCases can be attached on any thread
+        // Act.
+        withContext(Dispatchers.Main) {
+            cameraProvider.bindToLifecycle(
+                fakeLifecycleOwner,
+                DEFAULT_SELECTOR,
+                preview,
+                imageAnalysis
+            )
+        }
+
+        // Assert.
+        previewMonitor.waitForStreamIdle()
+        imageAnalysisMonitor.waitForImageAnalysis()
+    }
+
     /** Test Combination: Preview + ImageAnalysis + ImageCapture  */
     @Test
     fun previewCombinesImageAnalysisAndImageCapture(): Unit = runBlocking {
-        skipTestOnCameraPipeConfig()
-
         // Arrange.
         val previewMonitor = PreviewMonitor()
         val preview = initPreview(previewMonitor)
@@ -201,8 +254,6 @@ class UseCaseCombinationTest(
 
     @Test
     fun sequentialBindTwoUseCases(): Unit = runBlocking {
-        skipTestOnCameraPipeConfig()
-
         // Arrange.
         val previewMonitor = PreviewMonitor()
         val preview = initPreview(previewMonitor)
@@ -237,8 +288,6 @@ class UseCaseCombinationTest(
 
     @Test
     fun sequentialBindThreeUseCases(): Unit = runBlocking {
-        skipTestOnCameraPipeConfig()
-
         // Arrange.
         val previewMonitor = PreviewMonitor()
         val preview = initPreview(previewMonitor)
@@ -287,8 +336,6 @@ class UseCaseCombinationTest(
 
     @Test
     fun unbindImageAnalysis_captureAndPreviewStillWorking(): Unit = runBlocking {
-        skipTestOnCameraPipeConfig()
-
         // Arrange.
         val previewMonitor = PreviewMonitor()
         val preview = initPreview(previewMonitor)
@@ -324,8 +371,6 @@ class UseCaseCombinationTest(
 
     @Test
     fun unbindPreview_captureAndAnalysisStillWorking(): Unit = runBlocking {
-        skipTestOnCameraPipeConfig()
-
         // Arrange.
         val previewMonitor = PreviewMonitor()
         val preview = initPreview(previewMonitor)
@@ -362,8 +407,6 @@ class UseCaseCombinationTest(
 
     @Test
     fun unbindImageCapture_previewAndAnalysisStillWorking(): Unit = runBlocking {
-        skipTestOnCameraPipeConfig()
-
         // Arrange.
         val previewMonitor = PreviewMonitor()
         val preview = initPreview(previewMonitor)
@@ -418,15 +461,6 @@ class UseCaseCombinationTest(
 
     private fun initImageCapture(): ImageCapture {
         return ImageCapture.Builder().build()
-    }
-
-    // TODO(b/187015621): Remove when DeferrableSurface reference count support is added to
-    //  Camera-pipe-integration
-    private fun skipTestOnCameraPipeConfig() {
-        Assume.assumeFalse(
-            "DeferrableSurface ref count isn't supported on Camera-pipe-integration (b/187015621)",
-            implName == CameraPipeConfig::class.simpleName
-        )
     }
 
     private fun ImageCapture.waitForCapturing(timeMillis: Long = 5000) {

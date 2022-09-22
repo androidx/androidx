@@ -155,6 +155,7 @@ public class ComplicationSlotsManager(
     /** @hide */
     @WorkerThread
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @Suppress("Deprecation") // userStyleSettings
     public fun listenForStyleChanges(coroutineScope: CoroutineScope) {
         val complicationsStyleCategory =
             currentUserStyleRepository.schema.userStyleSettings.firstOrNull {

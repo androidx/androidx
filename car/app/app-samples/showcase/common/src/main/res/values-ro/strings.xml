@@ -20,17 +20,17 @@
     <string name="back_caps_action_title" msgid="6392829425035919422">"ÎNAPOI"</string>
     <string name="home_caps_action_title" msgid="4853167242566949502">"ECRAN DE PORNIRE"</string>
     <string name="exit_action_title" msgid="9086586388884500731">"Ieșiți"</string>
-    <string name="refresh_action_title" msgid="3674260822403151377">"Actualizați"</string>
-    <string name="close_action_title" msgid="2661907510124308560">"Închideți"</string>
+    <string name="refresh_action_title" msgid="3674260822403151377">"Actualizează"</string>
+    <string name="close_action_title" msgid="2661907510124308560">"Închide"</string>
     <string name="grant_access_action_title" msgid="4033140828804350723">"Acordați accesul"</string>
     <string name="enable_location_action_title" msgid="8181862247222797044">"Activați locația"</string>
-    <string name="cancel_action_title" msgid="1149738685397349236">"Anulați"</string>
-    <string name="stop_action_title" msgid="1187619482795416314">"Opriți"</string>
+    <string name="cancel_action_title" msgid="1149738685397349236">"Anulează"</string>
+    <string name="stop_action_title" msgid="1187619482795416314">"Oprește"</string>
     <string name="more_action_title" msgid="1039516575011403837">"Mai mult"</string>
     <string name="call_action_title" msgid="6218977436905001611">"Apelați"</string>
     <string name="primary_action_title" msgid="7042003552215710683">"Principal"</string>
     <string name="options_action_title" msgid="1168121856107932984">"Opțiuni"</string>
-    <string name="search_action_title" msgid="3483459674263446335">"Căutați"</string>
+    <string name="search_action_title" msgid="3483459674263446335">"Caută"</string>
     <string name="checked_action_title" msgid="906023941445896399">"Bifat"</string>
     <string name="unchecked_action_title" msgid="802503415474307811">"Debifat"</string>
     <string name="on_action_title" msgid="4129601573763429611">"Activat"</string>
@@ -41,8 +41,8 @@
     <string name="ok_action_title" msgid="7128494973966098611">"OK"</string>
     <string name="throw_action_title" msgid="7163710562670220163">"Întrerupeți"</string>
     <string name="commute_action_title" msgid="2585755255290185096">"Navetă"</string>
-    <string name="sign_out_action_title" msgid="1653943000866713010">"Deconectați-vă"</string>
-    <string name="try_anyway_action_title" msgid="7384500054249311718">"Încercați oricum"</string>
+    <string name="sign_out_action_title" msgid="1653943000866713010">"Deconectează-te"</string>
+    <string name="try_anyway_action_title" msgid="7384500054249311718">"Încearcă oricum"</string>
     <string name="yes_action_title" msgid="5507096013762092189">"Da"</string>
     <string name="no_action_title" msgid="1452124604210014010">"Nu"</string>
     <string name="disable_all_rows" msgid="3003225080532928046">"Dezactivați toate rândurile"</string>
@@ -113,6 +113,10 @@
     <string name="finish_app_msg" msgid="8354334557053141891">"Astfel, aplicația se va încheia și, când reveniți, va pregăti un ecran pentru permisiuni"</string>
     <string name="finish_app_title" msgid="9013328479438745074">"Finalizați demonstrația aplicației"</string>
     <string name="finish_app_demo_title" msgid="8223819062053448384">"Pregătiți ecranul pentru permisiuni la următoarea rulare a demonstrației"</string>
+    <!-- no translation found for preseed_permission_app_title (182847662545676962) -->
+    <skip />
+    <!-- no translation found for preseed_permission_demo_title (5476541421753978071) -->
+    <skip />
     <string name="loading_demo_title" msgid="1086529475809143517">"Se încarcă demonstrația"</string>
     <string name="loading_demo_row_title" msgid="8933049915126088142">"Încărcarea s-a finalizat!"</string>
     <string name="pop_to_root" msgid="2078277386355064198">"Accesați ecranul rădăcină"</string>
@@ -132,12 +136,12 @@
     <string name="reservation_cancelled_msg" msgid="6334213670275547875">"Rezervare anulată"</string>
     <string name="result_demo_title" msgid="3900525190662148290">"Demonstrație pentru rezultat"</string>
     <string name="not_started_for_result_msg" msgid="7498800528148447270">"Aplicația nu a fost pornită pentru rezultat"</string>
-    <string name="started_for_result_msg" msgid="4225260243713833974">"S-a solicitat rezultatul în această aplicație din %s. Selectați rezultatul pentru a-l trimite înapoi apelantului"</string>
+    <string name="started_for_result_msg" msgid="4225260243713833974">"S-a solicitat rezultatul în această aplicație din %s. Selectează rezultatul pentru a-l trimite înapoi apelantului"</string>
     <string name="arrived_exclamation_msg" msgid="9132265698563096988">"Ați sosit!"</string>
     <string name="travel_est_trip_text" msgid="5134365408383171144">"Luați-o pe Alice din drum"</string>
-    <string name="send_notification_title" msgid="4731688444696028193">"Trimiteți o notificare"</string>
+    <string name="send_notification_title" msgid="4731688444696028193">"Trimite o notificare"</string>
     <string name="start_notifications_title" msgid="8699668027543530460">"Activați notificările"</string>
-    <string name="stop_notifications_title" msgid="3703892710275206239">"Opriți notificările"</string>
+    <string name="stop_notifications_title" msgid="3703892710275206239">"Oprește notificările"</string>
     <string name="notification_title" msgid="5507590705935298176">"Notificare"</string>
     <string name="importance_title" msgid="9034862997821839831">"Importanță"</string>
     <string name="category_title" msgid="4783851267093259949">"Categorie"</string>
@@ -155,7 +159,7 @@
     <string name="map_template_pane_demo_title" msgid="4849450903277412004">"Demonstrație cu șablon pentru hartă și panou"</string>
     <string name="map_template_list_demo_title" msgid="1473810899303903185">"Demonstrație cu șablon pentru hartă și listă"</string>
     <string name="start_notification_title" msgid="2208831088632818681">"Activați notificarea"</string>
-    <string name="stop_notification_title" msgid="3709643750540881176">"Opriți notificarea"</string>
+    <string name="stop_notification_title" msgid="3709643750540881176">"Oprește notificarea"</string>
     <string name="nav_notification_demo_title" msgid="4448683262984308442">"Demonstrație cu notificări privind navigarea"</string>
     <string name="go_straight" msgid="2301747728609198718">"Mergeți drept înainte"</string>
     <string name="turn_right" msgid="4710562732720109969">"Virați la dreapta"</string>
@@ -227,12 +231,12 @@
     <string name="long_msg_template_not_supported_text" msgid="3641559637317672505">"Gazda nu acceptă șablonul pentru mesaj lung"</string>
     <string name="long_msg_template_not_supported_title" msgid="8600719470226274925">"Gazdă incompatibilă"</string>
     <string name="msg_template_demo_title" msgid="3895210951340409473">"Demonstrație cu șablon pentru mesaj"</string>
-    <string name="msg_template_demo_text" msgid="2275291617716161409">"Introduceți mesajul aici.\nMai mult text pe al doilea rând."</string>
+    <string name="msg_template_demo_text" msgid="2275291617716161409">"Introdu mesajul aici.\nMai mult text pe al doilea rând."</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"Demonstrație cu șablonul pentru panou"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"Demonstrație cu șablon pentru lista de locații"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"Răsfoiți locații"</string>
     <string name="search_template_demo_title" msgid="1770474418958318114">"Demonstrație cu șablon pentru căutare"</string>
-    <string name="search_hint" msgid="978495498991026792">"Căutați aici"</string>
+    <string name="search_hint" msgid="978495498991026792">"Caută aici"</string>
     <string name="additional_text" msgid="8410289578276941586">"Consultați Termenii și condițiile noastre"</string>
     <string name="google_sign_in" msgid="6556259799319701727">"Conectare cu Google"</string>
     <string name="use_pin" msgid="7850893299484337431">"Folosiți PIN-ul"</string>
@@ -241,13 +245,13 @@
     <string name="sign_in_template_not_supported_title" msgid="4892883228898541764">"Gazdă incompatibilă"</string>
     <string name="email_hint" msgid="7205549445477319606">"E-mail"</string>
     <string name="sign_in_title" msgid="4551967308262681703">"Conectează-te"</string>
-    <string name="sign_in_instructions" msgid="9044850228284294762">"Introduceți datele de conectare"</string>
+    <string name="sign_in_instructions" msgid="9044850228284294762">"Introdu datele de conectare"</string>
     <string name="invalid_email_error_msg" msgid="5261362663718987167">"Numele utilizatorului trebuie să fie o adresă de e-mail validă"</string>
     <string name="invalid_length_error_msg" msgid="8238905276326976425">"Numele utilizatorului trebuie să aibă minimum %s caractere"</string>
     <string name="invalid_password_error_msg" msgid="1090359893902674610">"Parolă nevalidă"</string>
     <string name="password_hint" msgid="2869107073860012864">"parolă"</string>
     <string name="password_sign_in_instruction_prefix" msgid="9105788349198243508">"Nume de utilizator"</string>
-    <string name="pin_sign_in_instruction" msgid="2288691296234360441">"Introduceți acest cod PIN pe telefon"</string>
+    <string name="pin_sign_in_instruction" msgid="2288691296234360441">"Introdu acest cod PIN pe telefon"</string>
     <string name="qr_code_sign_in_title" msgid="8137070561006464518">"Scanați codul QR pentru a vă conecta"</string>
     <string name="sign_in_with_google_title" msgid="8043752000786977249">"Conectează-te cu Google"</string>
     <string name="provider_sign_in_instruction" msgid="7586815688292506743">"Folosiți acest buton pentru a finaliza conectarea cu Google"</string>
@@ -302,6 +306,28 @@
     <string name="toggle_test_disabled" msgid="8366040658408451664">"Testul de comutare este dezactivat"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"Demonstrații diverse cu șabloane"</string>
     <string name="showcase_demos_title" msgid="1542092687878113304">"Demonstrații pentru Showcase"</string>
+    <!-- no translation found for voice_access_demo_title (3825223890895361496) -->
+    <skip />
+    <!-- no translation found for user_interactions_demo_title (1356952319161314986) -->
+    <skip />
+    <!-- no translation found for request_permission_menu_demo_title (4796486779527427017) -->
+    <skip />
+    <!-- no translation found for perm_group (3834918337351876270) -->
+    <skip />
+    <!-- no translation found for perm_group_description (7348847631139139024) -->
+    <skip />
+    <!-- no translation found for perm_fine_location (5438874642600304118) -->
+    <skip />
+    <!-- no translation found for perm_fine_location_desc (3549183883787912516) -->
+    <skip />
+    <!-- no translation found for perm_coarse_location (6140337431619481015) -->
+    <skip />
+    <!-- no translation found for perm_coarse_location_desc (6074759942301565943) -->
+    <skip />
+    <!-- no translation found for perm_record_audio (2758340693260523493) -->
+    <skip />
+    <!-- no translation found for perm_record_audio_desc (8038648467605928912) -->
+    <skip />
     <string name="location_1_description" msgid="4801052291684791371">"Vector de resursă colorat"</string>
     <string name="location_2_description" msgid="3331356135359047166">"Bitmap cu resursele imaginii"</string>
     <string name="location_3_description" msgid="3982142774088944850">"Marcator de text colorat"</string>

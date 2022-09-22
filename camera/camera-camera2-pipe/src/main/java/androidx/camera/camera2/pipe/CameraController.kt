@@ -30,7 +30,7 @@ import androidx.camera.camera2.pipe.graph.GraphListener
  * [GraphListener.onGraphStopped] should be invoked. If the state of the camera changes in any way
  * where a previously submitted request that was previously reject that might now be succeed (such
  * as configuring surfaces such that new surfaces would now be accepted)
- * [GraphListener.onGraphUpdated] should be invoked.
+ * [GraphListener.onGraphModified] should be invoked.
  *
  * Once [close] is invoked, this instance should not respond to any additional events.
  */

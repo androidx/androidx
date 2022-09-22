@@ -22,7 +22,7 @@ import androidx.work.impl.model.WorkSpec
 /**
  * A controller for a particular constraint.
  *
- * @param <T> the constraint data type managed by this controller.
+ * @param T the constraint data type managed by this controller.
  */
 abstract class ConstraintController<T> internal constructor(
     private val tracker: ConstraintTracker<T>
