@@ -96,6 +96,8 @@ class AppWidgetHostRule(
 
     val appWidgetId: Int get() = mAppWidgetId
 
+    val device: UiDevice get() = mUiDevice
+
     override fun apply(base: Statement, description: Description) = object : Statement() {
 
         override fun evaluate() {
