@@ -16,13 +16,12 @@
 package androidx.annotation
 
 /**
- * Denotes that the annotated element should be a float or double in the given range
- *
+ * Denotes that the annotated element should be an int or long in the given range.
  *
  * Example:
  * ```
- * @FloatRange(from=0.0,to=1.0)
- * public float getAlpha() {
+ * @IntRange(from=0,to=255)
+ * public int getAlpha() {
  *     ...
  * }
  * ```
@@ -38,19 +37,9 @@ package androidx.annotation
     AnnotationTarget.LOCAL_VARIABLE,
     AnnotationTarget.ANNOTATION_CLASS
 )
-public annotation class FloatRange(
-    /**
-     * Smallest value. Whether it is inclusive or not is determined
-     * by [.fromInclusive]
-     */
-    val from: Double = java.lang.Double.NEGATIVE_INFINITY,
-    /**
-     * Largest value. Whether it is inclusive or not is determined
-     * by [.toInclusive]
-     */
-    val to: Double = java.lang.Double.POSITIVE_INFINITY,
-    /** Whether the from value is included in the range  */
-    val fromInclusive: Boolean = true,
-    /** Whether the to value is included in the range  */
-    val toInclusive: Boolean = true
+public annotation class IntRange(
+    /** Smallest value, inclusive  */
+    val from: Long = Long.MIN_VALUE,
+    /** Largest value, inclusive  */
+    val to: Long = Long.MAX_VALUE
 )

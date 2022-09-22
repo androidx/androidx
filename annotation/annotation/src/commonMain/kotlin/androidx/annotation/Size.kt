@@ -16,12 +16,13 @@
 package androidx.annotation
 
 /**
- * Denotes that the annotated element should be an int or long in the given range.
+ * Denotes that the annotated element should have a given size or length.
+ * Note that "-1" means "unset". Typically used with a parameter or
+ * return value of type array or collection.
  *
  * Example:
  * ```
- * @IntRange(from=0,to=255)
- * public int getAlpha() {
+ * public void getLocationInWindow(@Size(2) int[] location) {
  *     ...
  * }
  * ```
@@ -29,17 +30,21 @@ package androidx.annotation
 @MustBeDocumented
 @Retention(AnnotationRetention.BINARY)
 @Target(
+    AnnotationTarget.VALUE_PARAMETER,
+    AnnotationTarget.LOCAL_VARIABLE,
     AnnotationTarget.FUNCTION,
     AnnotationTarget.PROPERTY_GETTER,
     AnnotationTarget.PROPERTY_SETTER,
-    AnnotationTarget.VALUE_PARAMETER,
     AnnotationTarget.FIELD,
-    AnnotationTarget.LOCAL_VARIABLE,
     AnnotationTarget.ANNOTATION_CLASS
 )
-public annotation class IntRange(
-    /** Smallest value, inclusive  */
-    val from: Long = java.lang.Long.MIN_VALUE,
-    /** Largest value, inclusive  */
-    val to: Long = java.lang.Long.MAX_VALUE
+public annotation class Size(
+    /** An exact size (or -1 if not specified)  */
+    val value: Long = -1,
+    /** A minimum size, inclusive  */
+    val min: Long = Long.MIN_VALUE,
+    /** A maximum size, inclusive  */
+    val max: Long = Long.MAX_VALUE,
+    /** The size must be a multiple of this factor  */
+    val multiple: Long = 1
 )

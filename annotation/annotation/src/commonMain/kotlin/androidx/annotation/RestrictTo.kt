@@ -17,12 +17,6 @@
 package androidx.annotation
 
 import androidx.annotation.RestrictTo.Scope
-import java.lang.annotation.ElementType.ANNOTATION_TYPE
-import java.lang.annotation.ElementType.CONSTRUCTOR
-import java.lang.annotation.ElementType.FIELD
-import java.lang.annotation.ElementType.METHOD
-import java.lang.annotation.ElementType.PACKAGE
-import java.lang.annotation.ElementType.TYPE
 
 /**
  * Denotes that the annotated element should only be accessed from within a
@@ -46,7 +40,7 @@ import java.lang.annotation.ElementType.TYPE
  * ```
  */
 @MustBeDocumented
-@kotlin.annotation.Retention(AnnotationRetention.BINARY)
+@Retention(AnnotationRetention.BINARY)
 @Target(
     AnnotationTarget.ANNOTATION_CLASS,
     AnnotationTarget.CLASS,
@@ -57,13 +51,7 @@ import java.lang.annotation.ElementType.TYPE
     AnnotationTarget.FIELD,
     AnnotationTarget.FILE
 )
-// Needed due to Kotlin's lack of PACKAGE annotation target
-// https://youtrack.jetbrains.com/issue/KT-45921
-@Suppress("DEPRECATED_JAVA_ANNOTATION")
-@java.lang.annotation.Target(
-    ANNOTATION_TYPE, TYPE, METHOD, CONSTRUCTOR, FIELD, PACKAGE
-)
-public annotation class RestrictTo(
+public expect annotation class RestrictTo(
     /**
      * The scope to which usage should be restricted.
      */
