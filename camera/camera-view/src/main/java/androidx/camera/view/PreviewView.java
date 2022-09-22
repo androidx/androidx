@@ -209,9 +209,17 @@ public final class PreviewView extends FrameLayout {
                                 "Preview transformation info updated. " + transformationInfo);
                         // TODO(b/159127402): maybe switch to COMPATIBLE mode if target
                         //  rotation is not display rotation.
-                        boolean isFrontCamera =
-                                camera.getCameraInfoInternal().getLensFacing()
-                                        == CameraSelector.LENS_FACING_FRONT;
+                        Integer lensFacing = camera.getCameraInfoInternal().getLensFacing();
+                        boolean isFrontCamera;
+                        if (lensFacing == null) {
+                            // TODO(b/122975195): If the lens facing is null, it's probably an
+                            //  external camera. We treat it as like a front camera with
+                            //  unverified behaviors. Will have to define this later.
+                            Logger.w(TAG, "The lens facing is null, probably an external.");
+                            isFrontCamera = true;
+                        } else {
+                            isFrontCamera = lensFacing == CameraSelector.LENS_FACING_FRONT;
+                        }
                         mPreviewTransform.setTransformationInfo(transformationInfo,
                                 surfaceRequest.getResolution(), isFrontCamera);
 

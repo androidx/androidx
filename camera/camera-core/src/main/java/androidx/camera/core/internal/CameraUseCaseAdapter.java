@@ -470,8 +470,17 @@ public final class CameraUseCaseAdapter implements Camera {
             @NonNull Collection<UseCase> useCases) {
         synchronized (mLock) {
             if (mViewPort != null) {
-                boolean isFrontCamera = mCameraInternal.getCameraInfoInternal().getLensFacing()
-                        == CameraSelector.LENS_FACING_FRONT;
+                Integer lensFacing = mCameraInternal.getCameraInfoInternal().getLensFacing();
+                boolean isFrontCamera;
+                if (lensFacing == null) {
+                    // TODO(b/122975195): If the lens facing is null, it's probably an external
+                    //  camera. We treat it as like a front camera with unverified behaviors. Will
+                    //  have to define this later.
+                    Logger.w(TAG, "The lens facing is null, probably an external.");
+                    isFrontCamera = true;
+                } else {
+                    isFrontCamera = lensFacing == CameraSelector.LENS_FACING_FRONT;
+                }
                 // Calculate crop rect if view port is provided.
                 Map<UseCase, Rect> cropRectMap = ViewPorts.calculateViewPortRects(
                         mCameraInternal.getCameraControlInternal().getSensorRect(),
