@@ -102,6 +102,7 @@ import androidx.camera.core.processing.SurfaceEffectNode;
 import androidx.camera.video.StreamInfo.StreamState;
 import androidx.camera.video.impl.VideoCaptureConfig;
 import androidx.camera.video.internal.compat.quirk.DeviceQuirks;
+import androidx.camera.video.internal.compat.quirk.ImageCaptureFailedWhenVideoCaptureIsBoundQuirk;
 import androidx.camera.video.internal.compat.quirk.PreviewDelayWhenVideoCaptureIsBoundQuirk;
 import androidx.camera.video.internal.compat.quirk.PreviewStretchWhenVideoCaptureIsBoundQuirk;
 import androidx.camera.video.internal.config.MimeInfo;
@@ -154,6 +155,8 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
             DeviceQuirks.get(PreviewStretchWhenVideoCaptureIsBoundQuirk.class) != null;
     private static final boolean HAS_PREVIEW_DELAY_QUIRK =
             DeviceQuirks.get(PreviewDelayWhenVideoCaptureIsBoundQuirk.class) != null;
+    private static final boolean HAS_IMAGE_CAPTURE_QUIRK =
+            DeviceQuirks.get(ImageCaptureFailedWhenVideoCaptureIsBoundQuirk.class) != null;
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     DeferrableSurface mDeferrableSurface;
@@ -532,7 +535,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         SessionConfig.Builder sessionConfigBuilder = SessionConfig.Builder.createFrom(config);
         sessionConfigBuilder.addErrorListener(
                 (sessionConfig, error) -> resetPipeline(cameraId, config, resolution));
-        if (HAS_PREVIEW_STRETCH_QUIRK || HAS_PREVIEW_DELAY_QUIRK) {
+        if (HAS_PREVIEW_STRETCH_QUIRK || HAS_PREVIEW_DELAY_QUIRK || HAS_IMAGE_CAPTURE_QUIRK) {
             sessionConfigBuilder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
         }
 
@@ -695,7 +698,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
 
     @Nullable
     private SurfaceEffectNode createNodeIfNeeded() {
-        if (mSurfaceEffect != null || HAS_PREVIEW_DELAY_QUIRK) {
+        if (mSurfaceEffect != null || HAS_PREVIEW_DELAY_QUIRK || HAS_IMAGE_CAPTURE_QUIRK) {
             Logger.d(TAG, "SurfaceEffect is enabled.");
             return new SurfaceEffectNode(requireNonNull(getCamera()),
                     APPLY_CROP_ROTATE_AND_MIRRORING,
