@@ -3146,10 +3146,6 @@ public final class ImageCapture extends UseCase {
         /**
          * Sets the resolution selector to select the preferred supported resolution.
          *
-         * <p>CameraX will select a supported resolution for the {@link ImageCapture} according to
-         * the target resolution, aspect ratio, max resolution or high resolution enabled
-         * settings of the resolution selector.
-         *
          * <p>If no resolution selector is set, the largest available resolution will be selected
          * to use. Usually, users will intend to get the largest still image that the camera
          * device can support. Unlike {@link Builder#setTargetResolution(Size)},

@@ -17,125 +17,122 @@
 package androidx.camera.core;
 
 import android.util.Size;
-import android.view.Surface;
+import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
+import androidx.camera.core.impl.SizeCoordinate;
 
 /**
  * A set of requirements and priorities used to select a resolution for the use case.
  *
- * <p>The resolution size or the aspect ratio parameters being set in this
- * {@link ResolutionSelector} is used to find the surface size in the camera sensor's natural
- * orientation (landscape) from the supported resolution list. In camera2 implementation, this
- * supported resolution list can be retrieved from
- * {@link android.hardware.camera2.params.StreamConfigurationMap#getOutputSizes(int)}. The
- * {@link android.hardware.camera2.params.StreamConfigurationMap} can be retrieved from interop
- * class
- * {@link androidx.camera.camera2.interop.Camera2CameraInfo#getCameraCharacteristic(CameraCharacteristics.Key)}.
+ * <p>The resolution selection mechanism is determined by the following three steps:
+ * <ol>
+ *     <li> Collect supported output sizes to the candidate resolution list
+ *     <li> Determine the selecting priority of the candidate resolution list by the preference
+ *     settings
+ *     <li> Consider all the resolution selector settings of bound use cases to find the best
+ *     resolution for each use case
+ * </ol>
  *
- * <p>When the target aspect ratio is set, the resolutions of the specified aspect ratio will be
- * selected in priority. If no resolution matches the aspect ratio, the resolution of the aspect
- * ratio which is closest to the specified target aspect ratio will be selected in priority.
+ * <p>For the first step, all supported resolution output sizes are put into the candidate
+ * resolution list as the base in the beginning.
  *
- * <p>When the target resolution is set, the target resolution attempts to establish a minimum
- * bound for the image resolution. If no resolution exists that is equal to or larger than the
- * target resolution, the nearest available resolution smaller than the target resolution will be
- * chosen. Resolutions with the same aspect ratio of the provided size will be considered in
- * higher priority before resolutions of different aspect ratios.
+ * <p>ResolutionSelector provides the following two functions for applications to adjust the
+ * conditions of the candidate resolutions.
+ * <ul>
+ *     <li> {@link Builder#setMaxResolution(Size)}
+ *     <li> {@link Builder#setHighResolutionEnabled(boolean)}
+ * </ul>
  *
- * <p>When the max resolution is set, the resolutions that either width or height exceed the
- * specified max resolution will be filtered out to be prevented from selecting.
+ * <p>For the second step, ResolutionSelector provides the following three functions for
+ * applications to determine which resolution has higher priority to be selected.
+ * <ul>
+ *     <li> {@link Builder#setPreferredResolution(Size)}
+ *     <li> {@link Builder#setPreferredResolutionByViewSize(Size)}
+ *     <li> {@link Builder#setPreferredAspectRatio(int)}
+ * </ul>
  *
- * <p>When the high resolution support is enabled, the resolutions retrieved from
- * {@link android.hardware.camera2.params.StreamConfigurationMap#getHighResolutionOutputSizes(int)}
- * can be selected. This is typically used to take high resolution still images. Please note that
- * enabling high resolutions might cause the entire capture session to not meet the 20 fps frame
- * rate.
+ * <p>The resolution that exactly matches the preferred resolution is selected in first priority.
+ * If the resolution can't be found, CameraX falls back to use the sizes of the preferred aspect
+ * ratio. In this case, the preferred resolution is treated as the minimal bounding size to find
+ * the best resolution.
  *
- * <p>According to the camera device's hardware level and the bound use cases combination,
- * CameraX will select the best resolution for the use case by the all conditions. Applications
- * can know which resolution is finally selected to use by the use case's
- * <code>getResolutionInfo()</code> function. For more details see the guaranteed supported
- * configurations tables in {@link android.hardware.camera2.CameraDevice}'s
- * <a href="https://developer.android.com/reference/android/hardware/camera2/CameraDevice#regular-capture">Regular capture</a> section.
+ * <p>Different types of use cases might have their own additional conditions. Please see the use
+ * case config builders’ {@code setResolutionSelector()} function to know the condition details
+ * for each type of use case.
  *
- * <p>This {@link ResolutionSelector} determines the size of the {@link Surface} to get the camera
- * output for the use case. However, the actual output that the user sees will be adjusted by the
- * camera sensor orientation and the display orientation so that the user gets the upright image
- * properly. For example, when setting the target resolution size to <code>(1920, 1080)</code> in
- * a camera sensor that has sensor rotation 90 degrees and the device is in natural portrait
- * orientation ({@link Surface#ROTATION_0}), the output images will be transformed properly to be
- * displayed correctly in preview which has the aspect ratio of 9:16.
- *
- * <p>The existing setTargetResolution and setTargetAspectRatio APIs in
- * Preview/ImageCapture/ImageAnalysis's Builder are deprecated and are not compatible with
- * {@link ResolutionSelector}. Calling any of these APIs together with {@link ResolutionSelector}
- * will throw an {@link IllegalArgumentException}.
+ * <p>For the third step, CameraX selects the final resolution for the use case based on the
+ * camera device's hardware level, capabilities and the bound use case combination. Applications
+ * can check which resolution is finally selected by using the use case's {@code
+ * getResolutionInfo()} function.
  *
  * @hide
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public final class ResolutionSelector {
-
-    private static final int ASPECT_RATIO_UNKNOWN = -1;
-    private final int mTargetAspectRatio;
+public class ResolutionSelector {
     @Nullable
-    private final Size mTargetResolution;
+    private final Size mPreferredResolution;
+
+    private final SizeCoordinate mSizeCoordinate;
+
+    private final int mPreferredAspectRatio;
+
     @Nullable
     private final Size mMaxResolution;
+
     private final boolean mIsHighResolutionEnabled;
 
-    ResolutionSelector(int targetAspectRatio, @Nullable Size targetResolution,
-            @Nullable Size maxResolution, boolean isHighResolutionEnabled) {
-        mTargetAspectRatio = targetAspectRatio;
-        mTargetResolution = targetResolution;
+    ResolutionSelector(int preferredAspectRatio,
+            @Nullable Size preferredResolution,
+            @NonNull SizeCoordinate sizeCoordinate,
+            @Nullable Size maxResolution,
+            boolean isHighResolutionEnabled) {
+        mPreferredAspectRatio = preferredAspectRatio;
+        mPreferredResolution = preferredResolution;
+        mSizeCoordinate = sizeCoordinate;
         mMaxResolution = maxResolution;
         mIsHighResolutionEnabled = isHighResolutionEnabled;
     }
 
     /**
-     * Returns whether a target aspect ratio is set in the {@link ResolutionSelector}.
+     * Retrieves the preferred aspect ratio in the ResolutionSelector.
      *
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public boolean hasTargetAspectRatio() {
-        return mTargetAspectRatio != ASPECT_RATIO_UNKNOWN;
-    }
-
-    /**
-     * Retrieves the target aspect ratio setting in the {@link ResolutionSelector}.
-     *
-     * @throws IllegalArgumentException when no target aspect ratio is set.
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @AspectRatio.Ratio
-    public int getTargetAspectRatio() {
-        if (mTargetAspectRatio == ASPECT_RATIO_UNKNOWN) {
-            throw new IllegalArgumentException("No target aspect ratio is set!!");
-        }
-
-        return mTargetAspectRatio;
+    public int getPreferredAspectRatio() {
+        return mPreferredAspectRatio;
     }
 
     /**
-     * Retrieves the target resolution setting in the {@link ResolutionSelector}.
+     * Retrieves the preferred resolution in the ResolutionSelector.
      *
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @Nullable
-    public Size getTargetResolution() {
-        return mTargetResolution;
+    public Size getPreferredResolution() {
+        return mPreferredResolution;
     }
 
     /**
-     * Returns the max resolution setting in the {@link ResolutionSelector}.
+     * Retrieves the size coordinate of the preferred resolution in the ResolutionSelector.
+     *
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @NonNull
+    public SizeCoordinate getSizeCoordinate() {
+        return mSizeCoordinate;
+    }
+
+    /**
+     * Returns the max resolution in the ResolutionSelector.
      *
      * @hide
      */
@@ -146,7 +143,7 @@ public final class ResolutionSelector {
     }
 
     /**
-     * Returns whether high resolutions are allowed to be selected.
+     * Returns {@code true} if high resolutions are allowed to be selected, otherwise {@code false}.
      *
      * @hide
      */
@@ -159,33 +156,35 @@ public final class ResolutionSelector {
      * Builder for a {@link ResolutionSelector}.
      */
     public static final class Builder {
-        private int mTargetAspectRatio = ASPECT_RATIO_UNKNOWN;
+        @AspectRatio.Ratio
+        private int mPreferredAspectRatio = AspectRatio.RATIO_4_3;
         @Nullable
-        private Size mTargetResolution = null;
+        private Size mPreferredResolution = null;
+        @NonNull
+        private SizeCoordinate mSizeCoordinate = SizeCoordinate.CAMERA_SENSOR;
         @Nullable
         private Size mMaxResolution = null;
         private boolean mIsHighResolutionEnabled = false;
 
         /**
-         * Creates a new {@link Builder} object.
+         * Creates a new Builder object.
          */
         public Builder() {
         }
 
         private Builder(@NonNull ResolutionSelector selector) {
-            if (selector.hasTargetAspectRatio()) {
-                mTargetAspectRatio = selector.getTargetAspectRatio();
-            }
-            mTargetResolution = selector.getTargetResolution();
+            mPreferredAspectRatio = selector.getPreferredAspectRatio();
+            mPreferredResolution = selector.getPreferredResolution();
+            mSizeCoordinate = selector.getSizeCoordinate();
             mMaxResolution = selector.getMaxResolution();
             mIsHighResolutionEnabled = selector.isHighResolutionEnabled();
         }
 
         /**
-         * Generates a {@link Builder} from another {@link ResolutionSelector} object.
+         * Generates a Builder from another {@link ResolutionSelector} object.
          *
-         * @param selector An existing {@link ResolutionSelector}.
-         * @return The new {@link Builder}.
+         * @param selector an existing {@link ResolutionSelector}.
+         * @return the new Builder.
          */
         @NonNull
         public static Builder fromSelector(@NonNull ResolutionSelector selector) {
@@ -193,71 +192,120 @@ public final class ResolutionSelector {
         }
 
         /**
-         * Sets the target aspect ratio that the output images are expected to have.
+         * Sets the preferred aspect ratio that the output images are expected to have.
          *
-         * <p>The input aspect ratio parameter being set in this {@link ResolutionSelector} is
-         * used to find the surface size in the camera sensor's natural orientation (landscape)
-         * from the supported resolution list.
+         * <p>The aspect ratio is the ratio of width to height in the camera sensor's natural
+         * orientation. If set, CameraX finds the sizes that match the aspect ratio with priority
+         * . Among the sizes that match the aspect ratio, the larger the size, the higher the
+         * priority.
          *
-         * <p>It is not allowed to set both target aspect ratio and target resolution on the same
-         * use case. Attempting so will throw an IllegalArgumentException when calling the
-         * {@link #build()} function.
+         * <p>If CameraX can't find any available sizes that match the preferred aspect ratio,
+         * CameraX falls back to select the sizes with the nearest aspect ratio that can contain
+         * the full field of view of the sizes with preferred aspect ratio.
          *
-         * <p>About the usage example, if the device has a <code>16:9</code> display and wants to
-         * capture images matching the display aspect ratio, a {@link ResolutionSelector} created
-         * with {@link AspectRatio.Ratio#RATIO_16_9} target aspect ratio setting can be used. If
-         * no target aspect ratio and resolution is set for the use case,
-         * {@link AspectRatio.Ratio#RATIO_4_3} target aspect ratio is set by default. Usually,
-         * the camera sensor is in size of <code>4:3</code> aspect ratio and output images of
-         * <code>4:3</code> aspect ratio will have the full FOV of the camera device.
+         * <p>If preferred aspect ratio is not set, the default aspect ratio is
+         * {@link AspectRatio#RATIO_4_3}, which usually has largest field of view because most
+         * camera sensor are {@code 4:3}.
          *
-         * <p>The target aspect ratio is used as a hint when determining the resulting output aspect
-         * ratio which may differ from the request, possibly due to device constraints. Application
-         * code should check the resulting output's resolution and the resulting aspect ratio may
-         * not be exactly as requested.
+         * <p>This API is useful for apps that want to capture images matching the {@code 16:9}
+         * display aspect ratio. Apps can set preferred aspect ratio as
+         * {@link AspectRatio#RATIO_16_9} to achieve this.
          *
-         * @param targetAspectRatio A {@link AspectRatio} representing the ratio of the target's
-         *                          width and height.
+         * <p>The actual aspect ratio of the output may differ from the specified preferred
+         * aspect ratio value. Application code should check the resulting output's resolution.
+         *
+         * @param preferredAspectRatio the aspect ratio you prefer to use.
+         * @return the current Builder.
          */
         @NonNull
-        public Builder setTargetAspectRatio(@AspectRatio.Ratio int targetAspectRatio) {
-            mTargetAspectRatio = targetAspectRatio;
+        public Builder setPreferredAspectRatio(@AspectRatio.Ratio int preferredAspectRatio) {
+            mPreferredAspectRatio = preferredAspectRatio;
             return this;
         }
 
         /**
-         * Sets the target resolution that the output images are expected to have.
+         * Sets the preferred resolution you expect to select. The resolution is expressed in the
+         * camera sensor's natural orientation (landscape), which means you can set the size
+         * retrieved from
+         * {@link android.hardware.camera2.params.StreamConfigurationMap#getOutputSizes} directly.
          *
-         * <p>The input resolution parameter being set in this {@link ResolutionSelector} is used
-         * to find the surface size in the camera sensor's natural orientation (landscape) from
-         * the supported resolution list.
+         * <p>Once the preferred resolution is set, CameraX finds exactly matched size first
+         * regardless of the preferred aspect ratio. This API is useful for apps that want to
+         * select an exact size retrieved from
+         * {@link android.hardware.camera2.params.StreamConfigurationMap#getOutputSizes}.
          *
-         * <p>It is not allowed to set both target resolution and target aspect ratio on the same
-         * use case. Attempting so will throw an IllegalArgumentException when calling the
-         * {@link #build()} function.
+         * <p>If CameraX can't find the size that matches the preferred resolution, it attempts
+         * to establish a minimal bound for the given resolution. The actual resolution is the
+         * closest available resolution that is not smaller than the preferred resolution.
+         * However, if no resolution exists that is equal to or larger than the preferred
+         * resolution, the nearest available resolution smaller than the preferred resolution is
+         * chosen.
          *
-         * <p>About the usage example, if applications have a 1080p (1920x1080) display but only
-         * need a <code>640x480</code> preview for some specific performance or design concern, a
-         * {@link ResolutionSelector} created with <code>640x480</code> target resolution setting
-         * can be used. If no target resolution and aspect ratio is set, each type of use case
-         * has its own default value. {@link ImageCapture} will try to capture the largest image
-         * as it can. {@link ImageAnalysis} will capture <code>640x480</code> size of images for
-         * analyzing by default. {@link Preview} will select a resolution under the device's
-         * screen resolution or 1080p (1920x1080), whichever is smaller.
+         * <p>When the preferred resolution is used as a minimal bound, CameraX also considers
+         * the preferred aspect ratio to find the sizes that either match it or are close to it.
+         * Using preferred resolution as the minimal bound is useful for apps that want to shrink
+         * the size for the surface. For example, for apps that just show the camera preview in a
+         * small view, apps can specify a size smaller than display size. CameraX can effectively
+         * select a smaller size for better efficiency.
          *
-         * <p>The target resolution attempts to establish a minimum bound for the image
-         * resolution. The actual image resolution will be the closest available resolution in
-         * size that is not smaller than the target resolution, as determined by the Camera
-         * implementation. However, if no resolution exists that is equal to or larger than the
-         * target resolution, the nearest available resolution smaller than the target resolution
-         * will be chosen. Resolutions with the same aspect ratio of the provided {@link Size}
-         * will be considered in higher priority before resolutions of different aspect ratios.
+         * <p>If both {@link Builder#setPreferredResolution(Size)} and
+         * {@link Builder#setPreferredResolutionByViewSize(Size)} are invoked, which one set
+         * later overrides the one set before.
          *
-         * @param targetResolution The target resolution to choose from supported output sizes list.
+         * @param preferredResolution the preferred resolution expressed in the orientation of
+         *                            the device camera sensor coordinate to choose the preferred
+         *                            resolution from supported output sizes list.
+         * @return the current Builder.
          */
         @NonNull
-        public Builder setTargetResolution(@NonNull Size targetResolution) {
-            mTargetResolution = targetResolution;
+        public Builder setPreferredResolution(@NonNull Size preferredResolution) {
+            mPreferredResolution = preferredResolution;
+            mSizeCoordinate = SizeCoordinate.CAMERA_SENSOR;
+            return this;
+        }
+
+        /**
+         * Sets the preferred resolution you expect to select. The resolution is expressed in the
+         * Android {@link View} coordinate system.
+         *
+         * <p>For phone devices, the sensor coordinate orientation usually has 90 degrees
+         * difference from the phone device display’s natural orientation. Depending on the
+         * display rotation value when the use case is bound, CameraX transforms the input
+         * resolution into the camera sensor's natural orientation to find the best suitable
+         * resolution.
+         *
+         * <p>Once the preferred resolution is set, CameraX finds the size that exactly matches
+         * the preferred resolution first regardless of the preferred aspect ratio.
+         *
+         * <p>If CameraX can't find the size that matches the preferred resolution, it attempts
+         * to establish a minimal bound for the given resolution. The actual resolution is the
+         * closest available resolution that is not smaller than the preferred resolution.
+         * However, if no resolution exists that is equal to or larger than the preferred
+         * resolution, the nearest available resolution smaller than the preferred resolution is
+         * chosen.
+         *
+         * <p>When the preferred resolution is used as a minimal bound, CameraX also considers
+         * the preferred aspect ratio to find the sizes that either match it or are close to it.
+         * Using Android {@link View} size as preferred resolution is useful for apps that want
+         * to shrink the size for the surface. For example, for apps that just show the camera
+         * preview in a small view, apps can specify the small size of Android {@link View}.
+         * CameraX can effectively select a smaller size for better efficiency.
+         *
+         * <p>If both {@link Builder#setPreferredResolution(Size)} and
+         * {@link Builder#setPreferredResolutionByViewSize(Size)} are invoked, the later setting
+         * overrides the former one.
+         *
+         * @param preferredResolutionByViewSize the preferred resolution expressed in the
+         *                                      orientation of the app layout's Android
+         *                                      {@link View} to choose the preferred resolution
+         *                                      from supported output sizes list.
+         * @return the current Builder.
+         */
+        @NonNull
+        public Builder setPreferredResolutionByViewSize(
+                @NonNull Size preferredResolutionByViewSize) {
+            mPreferredResolution = preferredResolutionByViewSize;
+            mSizeCoordinate = SizeCoordinate.ANDROID_VIEW;
             return this;
         }
 
@@ -270,26 +318,16 @@ public final class ResolutionSelector {
          * <p>The resolution should be expressed in the camera sensor's natural orientation
          * (landscape).
          *
-         * <p>About the usage example, if applications want to select a resolution smaller than a
-         * specific resolution to have better performance, a {@link ResolutionSelector} which
-         * sets this specific resolution as the max resolution can be used. Or, if applications
-         * want to select a larger resolution for a {@link Preview} which has the default max
-         * resolution setting of the small one of device's screen size and 1080p (1920x1080), a
-         * {@link ResolutionSelector} created with max resolution setting can also be used.
+         * <p>For example, if applications want to select a resolution smaller than a specific
+         * resolution to have better performance, a {@link ResolutionSelector} which sets this
+         * specific resolution as the max resolution can be used. Or, if applications want to
+         * select a larger resolution for a {@link Preview} which has the default max resolution
+         * of the small one of device's screen size and 1080p (1920x1080), use a
+         * {@link ResolutionSelector} with max resolution.
          *
-         * <p>When using the <code>camera-camera2</code> CameraX implementation, which resolution
-         * will be finally selected will depend on the camera device's hardware level and the
-         * bound use cases combination. The device hardware level information can be retrieved by
-         * {@link android.hardware.camera2.CameraCharacteristics#INFO_SUPPORTED_HARDWARE_LEVEL}
-         * from the interop class
-         * {@link androidx.camera.camera2.interop.Camera2CameraInfo#getCameraCharacteristic(CameraCharacteristics.Key)}.
-         * For more details see the
-         * <a href="https://developer.android.com/reference/android/hardware/camera2/CameraDevice#regular-capture">Regular capture</a>
-         * section in {@link android.hardware.camera2.CameraDevice}.
-         *
-         * @param resolution The max resolution limitation to choose from supported output sizes
+         * @param resolution the max resolution limitation to choose from supported output sizes
          *                   list.
-         * @return The current {@link Builder}.
+         * @return the current Builder.
          */
         @NonNull
         public Builder setMaxResolution(@NonNull Size resolution) {
@@ -300,10 +338,18 @@ public final class ResolutionSelector {
         /**
          * Sets whether high resolutions are allowed to be selected for the use cases.
          *
-         * <p> Calling this function will allow the use case to select the high resolution output
+         * <p>Calling this function allows the use case to select the high resolution output
          * sizes if it is supported for the camera device.
          *
-         * <p>When using the <code>camera-camera2</code> CameraX implementation, the supported
+         * <p>When high resolution is enabled, if an {@link ImageCapture} with
+         * {@link ImageCapture#CAPTURE_MODE_ZERO_SHUTTER_LAG} mode is bound, the
+         * {@link ImageCapture#CAPTURE_MODE_ZERO_SHUTTER_LAG} mode is forced disabled.
+         *
+         * <p>When using the {@code camera-extensions} to enable an extension mode, even if high
+         * resolution is enabled, the supported high resolution output sizes are still excluded
+         * from the candidate resolution list.
+         *
+         * <p>When using the {@code camera-camera2} CameraX implementation, the supported
          * high resolutions are retrieved from
          * {@link android.hardware.camera2.params.StreamConfigurationMap#getHighResolutionOutputSizes(int)}.
          * Be noticed that the high resolution sizes might cause the entire capture session to
@@ -315,21 +361,11 @@ public final class ResolutionSelector {
          * capability. For devices without
          * {@link android.hardware.camera2.CameraCharacteristics#REQUEST_AVAILABLE_CAPABILITIES_BURST_CAPTURE}
          * capability, all resolutions can be retrieved from
-         * {@link android.hardware.camera2.params.StreamConfigurationMap#getOutputSizes(int)}, but
-         * it is not guaranteed to meet >= 20 fps for any resolution in the list.
+         * {@link android.hardware.camera2.params.StreamConfigurationMap#getOutputSizes(int)},
+         * but it is not guaranteed to meet >= 20 fps for any resolution in the list.
          *
-         * <p>Which resolution will be finally selected will depend on the camera device's
-         * hardware level and the bound use cases combination. The device hardware level
-         * information can be retrieved by
-         * {@link android.hardware.camera2.CameraCharacteristics#INFO_SUPPORTED_HARDWARE_LEVEL}
-         * from the interop class
-         * {@link androidx.camera.camera2.interop.Camera2CameraInfo#getCameraCharacteristic(CameraCharacteristics.Key)}.
-         * For more details see the
-         * <a href="https://developer.android.com/reference/android/hardware/camera2/CameraDevice#regular-capture">Regular capture</a>
-         * section in {@link android.hardware.camera2.CameraDevice}.
-         *
-         * @param enabled True to allow to select high resolution for the use case.
-         * @return The current {@link Builder}.
+         * @param enabled {@code true} to allow to select high resolution for the use case.
+         * @return the current Builder.
          */
         @NonNull
         public Builder setHighResolutionEnabled(boolean enabled) {
@@ -341,18 +377,11 @@ public final class ResolutionSelector {
          * Builds the {@link ResolutionSelector}.
          *
          * @return the {@link ResolutionSelector} built with the specified resolution settings.
-         * @throws IllegalArgumentException when both target aspect and resolution are set at the
-         * same time.
          */
         @NonNull
         public ResolutionSelector build() {
-            if (mTargetAspectRatio != ASPECT_RATIO_UNKNOWN && mTargetResolution != null) {
-                throw new IllegalArgumentException("Cannot use both setTargetResolution and "
-                        + "setTargetAspectRatio at the same time.");
-            }
-
-            return new ResolutionSelector(mTargetAspectRatio, mTargetResolution, mMaxResolution,
-                    mIsHighResolutionEnabled);
+            return new ResolutionSelector(mPreferredAspectRatio, mPreferredResolution,
+                    mSizeCoordinate, mMaxResolution, mIsHighResolutionEnabled);
         }
     }
 }

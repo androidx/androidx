@@ -1079,18 +1079,15 @@ public final class Preview extends UseCase {
         /**
          * Sets the resolution selector to select the preferred supported resolution.
          *
-         * <p>CameraX will select a supported resolution for the {@link Preview} according to
-         * the target resolution, aspect ratio, max resolution or high resolution enabled
-         * settings of the resolution selector.
-         *
-         * <p>The selected resolution will be limited by the <code>PREVIEW</code> size which is
-         * defined as the best size match to the device's screen resolution, or to 1080p
-         * (1920x1080), whichever is smaller. See the
+         * <p>When using the {@code camera-camera2} CameraX implementation, the selected
+         * resolution will be limited by the {@code PREVIEW} size which is defined as the best
+         * size match to the device's screen resolution, or to 1080p (1920x1080), whichever is
+         * smaller. See the
          * <a href="https://developer.android.com/reference/android/hardware/camera2/CameraDevice#regular-capture">Regular capture</a>
          * section in {@link android.hardware.camera2.CameraDevice}'. If the
-         * {@link ResolutionSelector} contains the max resolution setting larger than the
-         * <code>PREVIEW</code> size, a size larger than the device's screen resolution or 1080p
-         * can be selected to use for {@link Preview}.
+         * {@link ResolutionSelector} contains the max resolution setting larger than the {@code
+         * PREVIEW} size, a size larger than the device's screen resolution or 1080p can be
+         * selected to use for {@link Preview}.
          *
          * <p>Note that due to compatibility reasons, CameraX may select a resolution that is
          * larger than the default screen resolution on certain devices.
