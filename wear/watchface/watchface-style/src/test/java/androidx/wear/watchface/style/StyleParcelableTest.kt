@@ -105,7 +105,7 @@ public class StyleParcelableTest {
             )
         parcel.recycle()
 
-        assert(unparceled is ListUserStyleSetting)
+        assertThat(unparceled is ListUserStyleSetting).isTrue()
 
         assertThat(unparceled.id.value).isEqualTo("id")
         assertThat(unparceled.displayName).isEqualTo("displayName")
@@ -203,7 +203,7 @@ public class StyleParcelableTest {
             UserStyleSchema(UserStyleSchemaWireFormat.CREATOR.createFromParcel(parcel))
         parcel.recycle()
 
-        assert(schema.userStyleSettings[0] is ListUserStyleSetting)
+        assertThat(schema.userStyleSettings[0] is ListUserStyleSetting).isTrue()
         assertThat(schema.userStyleSettings[0].id.value).isEqualTo("id1")
         assertThat(schema.userStyleSettings[0].displayName).isEqualTo("displayName1")
         assertThat(schema.userStyleSettings[0].description).isEqualTo("description1")
@@ -227,7 +227,7 @@ public class StyleParcelableTest {
         assertThat(optionArray1[1].icon!!.uri.toString()).isEqualTo("icon2")
         assertThat(optionArray1[1].watchFaceEditorData!!.icon!!.uri.toString()).isEqualTo("wfIcon2")
 
-        assert(schema.userStyleSettings[1] is ListUserStyleSetting)
+        assertThat(schema.userStyleSettings[2] is BooleanUserStyleSetting).isTrue()
         assertThat(schema.userStyleSettings[1].id.value).isEqualTo("id2")
         assertThat(schema.userStyleSettings[1].displayName).isEqualTo("displayName2")
         assertThat(schema.userStyleSettings[1].description).isEqualTo("description2")
@@ -251,7 +251,7 @@ public class StyleParcelableTest {
         assertThat(optionArray2[1].icon!!.uri.toString()).isEqualTo("icon4")
         assertThat(optionArray2[1].watchFaceEditorData!!.icon!!.uri.toString()).isEqualTo("wfIcon4")
 
-        assert(schema.userStyleSettings[2] is BooleanUserStyleSetting)
+        assertThat(schema.userStyleSettings[2] is BooleanUserStyleSetting).isTrue()
         assertThat(schema.userStyleSettings[2].id.value).isEqualTo("id3")
         assertThat(schema.userStyleSettings[2].displayName).isEqualTo("displayName3")
         assertThat(schema.userStyleSettings[2].description).isEqualTo("description3")
@@ -262,7 +262,7 @@ public class StyleParcelableTest {
             WatchFaceLayer.BASE
         )
 
-        assert(schema.userStyleSettings[3] is CustomValueUserStyleSetting)
+        assertThat(schema.userStyleSettings[3] is CustomValueUserStyleSetting).isTrue()
         assertThat(schema.userStyleSettings[3].defaultOption.id.value.decodeToString())
             .isEqualTo("default")
         assertThat(schema.userStyleSettings[3].affectedWatchFaceLayers.size).isEqualTo(1)
@@ -630,7 +630,7 @@ public class StyleParcelableTest {
             )
         parcel.recycle()
 
-        assert(unparceled is ComplicationSlotsUserStyleSetting)
+        assertThat(unparceled is ComplicationSlotsUserStyleSetting).isTrue()
         assertThat(unparceled.id.value).isEqualTo("complications_style_setting")
 
         val options = unparceled.options.filterIsInstance<
