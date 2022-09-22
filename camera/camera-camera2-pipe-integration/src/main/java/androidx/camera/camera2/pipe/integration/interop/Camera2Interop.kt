@@ -46,6 +46,7 @@ class Camera2Interop private constructor() {
      * @property baseBuilder The builder being extended.
      * @constructor Creates an Extender that can be used to add Camera2 options to another Builder.
      */
+    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     class Extender<T> (private var baseBuilder: ExtendableBuilder<T>) {
 
         /**
@@ -173,6 +174,32 @@ class Camera2Interop private constructor() {
                 captureCallback
             )
             return this
+        }
+
+        /**
+         * Set the ID of the physical camera to get output from.
+         *
+         * In the case one logical camera is made up of multiple physical cameras, this call
+         * forces the physical camera with the specified camera ID to produce image.
+         *
+         * The valid physical camera IDs can be queried by `CameraCharacteristics
+         * .getPhysicalCameraIds` on API &gt;= 28. Passing in an invalid physical camera ID will
+         * be ignored.
+         *
+         * On API &lt;= 27, the physical camera ID will be ignored since logical camera is not
+         * supported on these API levels.
+         *
+         * Currently it doesn't support binding use cases with different physical camera IDs. If
+         * use cases with different physical camera IDs are bound at the same time, an
+         * [IllegalArgumentException] will be thrown.
+         *
+         * @param cameraId The desired camera ID.
+         * @return The current Extender.
+         */
+
+        @RequiresApi(28)
+        fun setPhysicalCameraId(@Suppress("UNUSED_PARAMETER") cameraId: String): Extender<T> {
+            TODO()
         }
     }
 }

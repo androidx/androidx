@@ -107,7 +107,7 @@ public class MainActivity extends AppCompatActivity {
                     sCameraImplementationType = cameraImplementation;
                 } else if (cameraImplementation.equals(CAMERA_PIPE_IMPLEMENTATION_OPTION)) {
                     ProcessCameraProvider.configureInstance(
-                            CameraPipeConfig.INSTANCE.defaultConfig());
+                            CameraPipeConfig.defaultConfig());
                     sCameraImplementationType = cameraImplementation;
                 } else {
                     throw new IllegalArgumentException("Failed to configure the CameraProvider "
