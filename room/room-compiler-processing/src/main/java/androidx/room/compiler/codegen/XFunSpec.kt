@@ -20,20 +20,17 @@ import androidx.room.compiler.codegen.java.JavaFunSpec
 import androidx.room.compiler.codegen.java.toJavaVisibilityModifier
 import androidx.room.compiler.codegen.kotlin.KotlinFunSpec
 import androidx.room.compiler.codegen.kotlin.toKotlinVisibilityModifier
-import androidx.room.compiler.processing.XNullability
 import com.squareup.javapoet.MethodSpec
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
-import com.squareup.kotlinpoet.javapoet.JTypeName
 
 interface XFunSpec : TargetLanguage {
 
     interface Builder : TargetLanguage {
         // TODO(b/247247442): Maybe make a XParameterSpec ?
         fun addParameter(
-            typeName: JTypeName,
+            typeName: XTypeName,
             name: String,
-            nullability: XNullability,
             annotations: List<XAnnotationSpec> = emptyList()
         ): Builder
 
@@ -43,10 +40,7 @@ interface XFunSpec : TargetLanguage {
 
         fun callSuperConstructor(vararg args: XCodeBlock): Builder
 
-        fun returns(
-            typeName: JTypeName,
-            nullability: XNullability,
-        ): Builder
+        fun returns(typeName: XTypeName): Builder
 
         fun build(): XFunSpec
 

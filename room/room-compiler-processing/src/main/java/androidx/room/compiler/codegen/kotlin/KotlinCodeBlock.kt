@@ -17,20 +17,21 @@
 package androidx.room.compiler.codegen.kotlin
 
 import androidx.room.compiler.codegen.CodeLanguage
+import androidx.room.compiler.codegen.KCodeBlock
+import androidx.room.compiler.codegen.KCodeBlockBuilder
 import androidx.room.compiler.codegen.TargetLanguage
 import androidx.room.compiler.codegen.XCodeBlock
 import androidx.room.compiler.codegen.XFunSpec
+import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.codegen.XTypeSpec
-import com.squareup.kotlinpoet.javapoet.JTypeName
-import com.squareup.kotlinpoet.javapoet.toKTypeName
 
 internal class KotlinCodeBlock(
-    internal val actual: com.squareup.kotlinpoet.CodeBlock
+    internal val actual: KCodeBlock
 ) : KotlinLang(), XCodeBlock {
 
     internal class Builder : KotlinLang(), XCodeBlock.Builder {
 
-        internal val actual = com.squareup.kotlinpoet.CodeBlock.Builder()
+        internal val actual = KCodeBlockBuilder()
 
         override fun add(code: XCodeBlock) = apply {
             require(code is KotlinCodeBlock)
@@ -51,7 +52,7 @@ internal class KotlinCodeBlock(
 
         override fun addLocalVariable(
             name: String,
-            type: JTypeName,
+            type: XTypeName,
             isMutable: Boolean,
             assignExpr: XCodeBlock
         ) = apply {
@@ -59,7 +60,7 @@ internal class KotlinCodeBlock(
             val varOrVal = if (isMutable) "var" else "val"
             actual.addStatement(
                 "$varOrVal %L: %T = %L",
-                type.toKTypeName(),
+                type.kotlin,
                 name,
                 assignExpr.actual
             )
@@ -74,13 +75,11 @@ internal class KotlinCodeBlock(
         private fun processArgs(args: Array<out Any?>): Array<Any?> {
             return Array(args.size) { index ->
                 val arg = args[index]
-                if (arg is JTypeName) {
-                    return@Array arg.toKTypeName()
-                }
                 if (arg is TargetLanguage) {
                     check(arg.language == CodeLanguage.KOTLIN) { "$arg is not KotlinCode" }
                 }
                 when (arg) {
+                    is XTypeName -> arg.kotlin
                     is XTypeSpec -> (arg as KotlinTypeSpec).actual
                     is XFunSpec -> (arg as KotlinFunSpec).actual
                     is XCodeBlock -> (arg as KotlinCodeBlock).actual

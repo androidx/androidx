@@ -16,12 +16,15 @@
 
 package androidx.room.compiler.processing.javac
 
+import androidx.room.compiler.codegen.XClassName
+import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.processing.XEnumEntry
 import androidx.room.compiler.processing.XEnumTypeElement
 import androidx.room.compiler.processing.XFieldElement
 import androidx.room.compiler.processing.XHasModifiers
-import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XMemberContainer
+import androidx.room.compiler.processing.XMethodElement
+import androidx.room.compiler.processing.XNullability
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.XTypeParameterElement
@@ -34,6 +37,7 @@ import com.google.auto.common.MoreElements
 import com.google.auto.common.MoreTypes
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.TypeName
+import com.squareup.kotlinpoet.javapoet.JClassName
 import javax.lang.model.element.ElementKind
 import javax.lang.model.element.TypeElement
 import javax.lang.model.type.TypeKind
@@ -60,8 +64,17 @@ internal sealed class JavacTypeElement(
     }
 
     override val className: ClassName by lazy {
-        ClassName.get(element)
+        xClassName.java
     }
+
+    private val xClassName: XClassName by lazy {
+        XClassName(
+            JClassName.get(element),
+            XTypeName.UNAVAILABLE_KTYPE_NAME,
+            XNullability.NONNULL
+        )
+    }
+    override fun asClassName() = xClassName
 
     override val enclosingElement: XMemberContainer? by lazy {
         enclosingTypeElement

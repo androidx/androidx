@@ -24,7 +24,7 @@ import androidx.room.compiler.codegen.XFunSpec
 import androidx.room.compiler.codegen.XFunSpec.Builder.Companion.addStatement
 import androidx.room.compiler.codegen.XTypeSpec
 import androidx.room.compiler.codegen.addOriginatingElement
-import androidx.room.compiler.processing.XNullability
+import androidx.room.compiler.codegen.toXClassName
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.ext.RoomTypeNames
 import androidx.room.ext.SupportDbTypeNames
@@ -32,7 +32,6 @@ import androidx.room.ext.T
 import androidx.room.migration.bundle.EntityBundle
 import androidx.room.migration.bundle.FtsEntityBundle
 import androidx.room.vo.AutoMigration
-import com.squareup.javapoet.TypeName
 import com.squareup.kotlinpoet.javapoet.toKClassName
 
 /**
@@ -42,7 +41,7 @@ class AutoMigrationWriter(
     private val dbElement: XTypeElement,
     val autoMigration: AutoMigration,
     private val codeLanguage: CodeLanguage
-) : TypeWriter(autoMigration.getImplTypeName(dbElement.className)) {
+) : TypeWriter(autoMigration.getImplTypeName(dbElement.asClassName())) {
     private val addedColumns = autoMigration.schemaDiff.addedColumns
     private val addedTables = autoMigration.schemaDiff.addedTables
     private val renamedTables = autoMigration.schemaDiff.renamedTables
@@ -52,17 +51,16 @@ class AutoMigrationWriter(
     override fun createTypeSpecBuilder(): XTypeSpec.Builder {
         val builder = XTypeSpec.classBuilder(
             codeLanguage,
-            autoMigration.getImplTypeName(dbElement.className)
+            autoMigration.getImplTypeName(dbElement.asClassName())
         )
         builder.apply {
             addOriginatingElement(dbElement)
-            superclass(RoomTypeNames.MIGRATION)
+            superclass(RoomTypeNames.MIGRATION.toXClassName())
 
             if (autoMigration.specClassName != null) {
                 builder.addProperty(
-                    typeName = RoomTypeNames.AUTO_MIGRATION_SPEC,
+                    typeName = RoomTypeNames.AUTO_MIGRATION_SPEC.toXClassName(),
                     name = "callback",
-                    nullability = XNullability.NONNULL,
                     visibility = VisibilityModifier.PRIVATE,
                     initExpr = if (!autoMigration.isSpecProvided) {
                         XCodeBlock.builder(codeLanguage).apply(
@@ -97,9 +95,8 @@ class AutoMigrationWriter(
             )
             if (autoMigration.isSpecProvided) {
                 addParameter(
-                    typeName = RoomTypeNames.AUTO_MIGRATION_SPEC,
+                    typeName = RoomTypeNames.AUTO_MIGRATION_SPEC.toXClassName(),
                     name = "callback",
-                    nullability = XNullability.NONNULL
                 )
                 addStatement("this.callback = callback")
             }
@@ -114,11 +111,9 @@ class AutoMigrationWriter(
             isOverridden = true,
         ).apply {
                 addParameter(
-                    typeName = SupportDbTypeNames.DB,
+                    typeName = SupportDbTypeNames.DB.toXClassName(),
                     name = "database",
-                    nullability = XNullability.NONNULL
                 )
-                returns(TypeName.VOID, XNullability.NONNULL)
                 addMigrationStatements(this)
                 if (autoMigration.specClassName != null) {
                     addStatement("callback.onPostMigrate(database)")

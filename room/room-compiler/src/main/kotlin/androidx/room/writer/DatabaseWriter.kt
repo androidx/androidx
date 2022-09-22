@@ -17,6 +17,8 @@
 package androidx.room.writer
 
 import androidx.annotation.NonNull
+import androidx.room.compiler.codegen.toJavaPoet
+import androidx.room.compiler.codegen.toXClassName
 import androidx.room.compiler.processing.MethodSpecHelper
 import androidx.room.compiler.processing.addOriginatingElement
 import androidx.room.ext.AndroidTypeNames
@@ -368,15 +370,16 @@ class DatabaseWriter(val database: Database) : ClassWriter(database.implTypeName
 
             returns(ParameterizedTypeName.get(CommonTypeNames.LIST, RoomTypeNames.MIGRATION))
             val autoMigrationsList = database.autoMigrations.map { autoMigrationResult ->
-                val implTypeName = autoMigrationResult.getImplTypeName(database.typeName)
+                val implTypeName =
+                    autoMigrationResult.getImplTypeName(database.typeName.toXClassName())
                 if (autoMigrationResult.isSpecProvided) {
                     CodeBlock.of(
                         "new $T(autoMigrationSpecsMap.get($T.class))",
-                        implTypeName,
+                        implTypeName.toJavaPoet(),
                         autoMigrationResult.specClassName
                     )
                 } else {
-                    CodeBlock.of("new $T()", implTypeName)
+                    CodeBlock.of("new $T()", implTypeName.toJavaPoet())
                 }
             }
             addStatement(

@@ -16,6 +16,7 @@
 
 package androidx.room.compiler.processing.ksp
 
+import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.processing.XEquality
 import androidx.room.compiler.processing.XNullability
 import androidx.room.compiler.processing.XType
@@ -28,6 +29,8 @@ import com.google.devtools.ksp.symbol.KSType
 import com.google.devtools.ksp.symbol.KSTypeReference
 import com.google.devtools.ksp.symbol.Nullability
 import com.squareup.javapoet.TypeName
+import com.squareup.kotlinpoet.javapoet.JTypeName
+import com.squareup.kotlinpoet.javapoet.KTypeName
 import kotlin.reflect.KClass
 
 /**
@@ -51,11 +54,21 @@ internal abstract class KspType(
     }
 
     final override val typeName: TypeName by lazy {
-        jvmWildcardType?.typeName ?: resolveTypeName()
+        xTypeName.java
     }
 
+    private val xTypeName: XTypeName by lazy {
+        XTypeName(
+            jvmWildcardType?.typeName ?: resolveJTypeName(),
+            resolveKTypeName(),
+            nullability
+        )
+    }
+
+    override fun asTypeName() = xTypeName
+
     /**
-     * A Kotlin type might have a sligtly different type in JVM due to wildcards.
+     * A Kotlin type might have a slightly different type in JVM due to wildcards.
      * This fields holds onto that value which will be used when creating JVM types.
      */
     private val jvmWildcardType by lazy {
@@ -65,7 +78,9 @@ internal abstract class KspType(
     val jvmWildcardTypeOrSelf
         get() = jvmWildcardType ?: this
 
-    protected abstract fun resolveTypeName(): TypeName
+    protected abstract fun resolveJTypeName(): JTypeName
+
+    protected abstract fun resolveKTypeName(): KTypeName
 
     override val nullability by lazy {
         when (ksType.nullability) {

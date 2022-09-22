@@ -17,19 +17,19 @@
 package androidx.room.writer
 
 import androidx.room.RoomProcessor
+import androidx.room.compiler.codegen.XClassName
 import androidx.room.compiler.codegen.XTypeSpec
 import androidx.room.compiler.codegen.XTypeSpec.Builder.Companion.apply
 import androidx.room.compiler.processing.XProcessingEnv
 import androidx.room.compiler.processing.writeTo
 import androidx.room.ext.S
-import com.squareup.kotlinpoet.javapoet.JClassName
 import com.squareup.kotlinpoet.javapoet.toKClassName
 import kotlin.reflect.KClass
 
 /**
  * Base class for all writers that can produce a class.
  */
-abstract class TypeWriter(private val className: JClassName) {
+abstract class TypeWriter(private val className: XClassName) {
     private val metadata = mutableMapOf<KClass<*>, Any>()
 
     abstract fun createTypeSpecBuilder(): XTypeSpec.Builder
