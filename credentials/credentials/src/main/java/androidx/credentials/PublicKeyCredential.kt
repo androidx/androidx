@@ -1,0 +1,39 @@
+/*
+ * Copyright 2022 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package androidx.credentials
+
+/**
+ * Represents the user's passkey credential granted by the user for app sign-in.
+ *
+ * @property authenticationResponseJson the public key credential authentication response in
+ * JSON format that follows the standard webauthn json format shown at
+ * [this w3c link](https://w3c.github.io/webauthn/#dictdef-authenticationresponsejson)
+ * @throws NullPointerException If [authenticationResponseJson] is null. This is handled by the
+ * kotlin runtime
+ * @throws IllegalArgumentException If [authenticationResponseJson] is empty
+ *
+ * @hide
+ */
+class PublicKeyCredential constructor(
+    val authenticationResponseJson: String
+) : Credential() {
+
+    init {
+        require(authenticationResponseJson.isNotEmpty()) {
+            "authentication response JSON must not be empty" }
+    }
+}
