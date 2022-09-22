@@ -55,4 +55,36 @@ class CredentialManagerTest {
             credentialManager.executeGetCredential(request)
         }
     }
+
+    @Test
+    fun testCreateCredentialAsyc() {
+        assertThrows<UnsupportedOperationException> {
+            credentialManager.executeCreateCredentialAsync(
+                request = CreatePasswordRequest("test-user-id", "test-password"),
+                activity = null,
+                cancellationSignal = null,
+                executor = Runnable::run,
+                callback = object : CredentialManagerCallback<CreateCredentialResponse> {
+                    override fun onResult(result: CreateCredentialResponse) {}
+                }
+            )
+        }
+    }
+
+    @Test
+    fun testGetCredentialAsyc() {
+        assertThrows<UnsupportedOperationException> {
+            credentialManager.executeGetCredentialAsync(
+                request = GetCredentialRequest.Builder()
+                    .addGetCredentialOption(GetPasswordOption())
+                    .build(),
+                activity = null,
+                cancellationSignal = null,
+                executor = Runnable::run,
+                callback = object : CredentialManagerCallback<GetCredentialResponse> {
+                    override fun onResult(result: GetCredentialResponse) {}
+                }
+            )
+        }
+    }
 }
