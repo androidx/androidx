@@ -30,6 +30,7 @@ dependencies {
     implementation project(path: ':privacysandbox:tools:tools')
     implementation project(path: ':privacysandbox:tools:tools-core')
 
+    testImplementation(project(":privacysandbox:tools:tools-testing"))
     testImplementation(project(":room:room-compiler-processing-testing"))
     testImplementation(libs.junit)
     testImplementation(libs.truth)

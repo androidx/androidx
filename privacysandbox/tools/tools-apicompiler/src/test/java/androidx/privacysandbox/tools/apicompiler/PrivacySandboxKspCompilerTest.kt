@@ -17,9 +17,11 @@
 package androidx.privacysandbox.tools.apicompiler
 
 import androidx.privacysandbox.tools.apicompiler.util.CompilationResultSubject.Companion.assertThat
+import androidx.privacysandbox.tools.testing.loadSourcesFromDirectory
 import androidx.room.compiler.processing.util.compiler.TestCompilationArguments
 import androidx.room.compiler.processing.util.compiler.compile
 import androidx.room.compiler.processing.util.Source
+import java.io.File
 import java.nio.file.Files
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -29,26 +31,17 @@ import org.junit.runners.JUnit4
 class PrivacySandboxKspCompilerTest {
     @Test
     fun compileServiceInterface_ok() {
-        val source =
-            Source.kotlin(
-                "com/mysdk/MySdk.kt",
-                """
-                    package com.mysdk
-                    import androidx.privacysandbox.tools.PrivacySandboxService
-                    @PrivacySandboxService
-                    interface MySdk {
-                        suspend fun doStuff(x: Int, y: Int): String
-                        fun doMoreStuff()
-                    }
-                """
-            )
+        val inputTestDataDir = File("src/test/test-data/testinterface/input")
+        val outputTestDataDir = File("src/test/test-data/testinterface/output")
+        val sources = loadSourcesFromDirectory(inputTestDataDir)
+        val expectedOutput = loadSourcesFromDirectory(outputTestDataDir)
         val provider = PrivacySandboxKspCompiler.Provider()
         // Check that compilation is successful
         assertThat(
             compile(
                 Files.createTempDirectory("test").toFile(),
                 TestCompilationArguments(
-                    sources = listOf(source) + getSyntheticAndroidClasses(),
+                    sources = sources + getSyntheticAndroidClasses(),
                     symbolProcessorProviders = listOf(provider),
                     processorOptions = getProcessorOptions(),
                 )
@@ -63,95 +56,7 @@ class PrivacySandboxKspCompilerTest {
                 "com/mysdk/TransportCancellationCallback.kt",
             )
         }.also {
-            it.generatesSourcesWithContents(
-                "com/mysdk/AbstractSandboxedSdkProvider.kt" to """
-                    |package com.mysdk
-                    |
-                    |import android.app.sdksandbox.SandboxedSdk
-                    |import android.app.sdksandbox.SandboxedSdkProvider
-                    |import android.content.Context
-                    |import android.os.Bundle
-                    |import android.view.View
-                    |import kotlin.Int
-                    |import kotlin.Unit
-                    |
-                    |public abstract class AbstractSandboxedSdkProvider : SandboxedSdkProvider() {
-                    |  public override fun onLoadSdk(params: Bundle): SandboxedSdk {
-                    |    val sdk = createMySdk(context!!)
-                    |    return SandboxedSdk(MySdkStubDelegate(sdk))
-                    |  }
-                    |
-                    |  public override fun getView(
-                    |    windowContext: Context,
-                    |    params: Bundle,
-                    |    width: Int,
-                    |    height: Int,
-                    |  ): View {
-                    |    TODO("Implement")
-                    |  }
-                    |
-                    |  public override fun onDataReceived(`data`: Bundle,
-                    |      callback: SandboxedSdkProvider.DataReceivedCallback): Unit {
-                    |  }
-                    |
-                    |  protected abstract fun createMySdk(context: Context): MySdk
-                    |}
-                    |
-                """.trimMargin(),
-                "com/mysdk/MySdkStubDelegate.kt" to """
-                    |package com.mysdk
-                    |
-                    |import kotlin.Int
-                    |import kotlin.Unit
-                    |import kotlinx.coroutines.CoroutineScope
-                    |import kotlinx.coroutines.Dispatchers
-                    |import kotlinx.coroutines.GlobalScope
-                    |import kotlinx.coroutines.launch
-                    |
-                    |public class MySdkStubDelegate internal constructor(
-                    |  private val `delegate`: MySdk,
-                    |) : IMySdk.Stub() {
-                    |  public override fun doStuff(
-                    |    x: Int,
-                    |    y: Int,
-                    |    transactionCallback: IStringTransactionCallback,
-                    |  ): Unit {
-                    |    val job = GlobalScope.launch(Dispatchers.Main) {
-                    |      try {
-                    |        val result = delegate.doStuff(x, y)
-                    |        transactionCallback.onSuccess(result)
-                    |      } catch (t: Throwable) {
-                    |        transactionCallback.onFailure(404, t.message)
-                    |      }
-                    |    }
-                    |    val cancellationSignal = TransportCancellationCallback(){ job.cancel() }
-                    |    transactionCallback.onCancellable(cancellationSignal)
-                    |  }
-                    |
-                    |  public override fun doMoreStuff(): Unit = delegate.doMoreStuff()
-                    |}
-                    |
-                """.trimMargin(),
-                "com/mysdk/TransportCancellationCallback.kt" to """
-                    |package com.mysdk
-                    |
-                    |import java.util.concurrent.atomic.AtomicBoolean
-                    |import kotlin.Unit
-                    |
-                    |internal class TransportCancellationCallback internal constructor(
-                    |  private val onCancel: () -> Unit,
-                    |) : ICancellationSignal.Stub() {
-                    |  private val hasCancelled: AtomicBoolean = AtomicBoolean(false)
-                    |
-                    |  public override fun cancel(): Unit {
-                    |    if (hasCancelled.compareAndSet(false, true)) {
-                    |      onCancel()
-                    |    }
-                    |  }
-                    |}
-                    |
-                """.trimMargin(),
-            )
+            it.generatesSourcesWithContents(expectedOutput)
         }
     }
 

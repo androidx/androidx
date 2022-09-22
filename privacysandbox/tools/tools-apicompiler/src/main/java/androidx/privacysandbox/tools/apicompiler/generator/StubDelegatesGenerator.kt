@@ -103,7 +103,7 @@ class StubDelegatesGenerator(
             .addStatement("  }")
             .addStatement("}")
             .addStatement(
-                "val cancellationSignal = TransportCancellationCallback(){ job.cancel() }"
+                "val cancellationSignal = TransportCancellationCallback() { job.cancel() }"
             )
             .addStatement("transactionCallback.onCancellable(cancellationSignal)")
             .build()
