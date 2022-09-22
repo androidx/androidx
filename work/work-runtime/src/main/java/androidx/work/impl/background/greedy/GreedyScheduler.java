@@ -124,6 +124,11 @@ public class GreedyScheduler implements Scheduler, WorkConstraintsCallback, Exec
         Set<String> constrainedWorkSpecIds = new HashSet<>();
 
         for (WorkSpec workSpec : workSpecs) {
+            // it doesn't help against races, but reduces useless load in the system
+            WorkGenerationalId id = generationalId(workSpec);
+            if (mStartStopTokens.contains(id)) {
+                continue;
+            }
             long nextRunTime = workSpec.calculateNextRunTime();
             long now = System.currentTimeMillis();
             if (workSpec.state == WorkInfo.State.ENQUEUED) {
@@ -146,8 +151,11 @@ public class GreedyScheduler implements Scheduler, WorkConstraintsCallback, Exec
                         constrainedWorkSpecIds.add(workSpec.id);
                     }
                 } else {
-                    Logger.get().debug(TAG, "Starting work for " + workSpec.id);
-                    mWorkManagerImpl.startWork(mStartStopTokens.tokenFor(workSpec));
+                    // it doesn't help against races, but reduces useless load in the system
+                    if (!mStartStopTokens.contains(generationalId(workSpec))) {
+                        Logger.get().debug(TAG, "Starting work for " + workSpec.id);
+                        mWorkManagerImpl.startWork(mStartStopTokens.tokenFor(workSpec));
+                    }
                 }
             }
         }
@@ -195,8 +203,11 @@ public class GreedyScheduler implements Scheduler, WorkConstraintsCallback, Exec
     public void onAllConstraintsMet(@NonNull List<WorkSpec> workSpecs) {
         for (WorkSpec workSpec : workSpecs) {
             WorkGenerationalId id = generationalId(workSpec);
-            Logger.get().debug(TAG, "Constraints met: Scheduling work ID " + id);
-            mWorkManagerImpl.startWork(mStartStopTokens.tokenFor(id));
+            // it doesn't help against races, but reduces useless load in the system
+            if (!mStartStopTokens.contains(id)) {
+                Logger.get().debug(TAG, "Constraints met: Scheduling work ID " + id);
+                mWorkManagerImpl.startWork(mStartStopTokens.tokenFor(id));
+            }
         }
     }
 

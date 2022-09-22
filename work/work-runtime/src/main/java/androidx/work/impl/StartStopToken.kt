@@ -37,8 +37,7 @@ class StartStopTokens {
 
     fun tokenFor(id: WorkGenerationalId): StartStopToken {
         return synchronized(lock) {
-            val startStopToken = StartStopToken(id)
-            runs.getOrPut(id) { startStopToken }
+            runs.getOrPut(id) { StartStopToken(id) }
         }
     }
 
@@ -54,6 +53,10 @@ class StartStopTokens {
             toRemove.keys.forEach { runs.remove(it) }
             toRemove.values.toList()
         }
+    }
+
+    fun contains(id: WorkGenerationalId): Boolean {
+        return synchronized(lock) { runs.contains(id) }
     }
 
     fun tokenFor(spec: WorkSpec) = tokenFor(spec.generationalId())
