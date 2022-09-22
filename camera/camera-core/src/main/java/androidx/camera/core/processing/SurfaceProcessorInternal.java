@@ -16,23 +16,23 @@
 
 package androidx.camera.core.processing;
 
-import androidx.camera.core.SurfaceEffect;
+import androidx.camera.core.SurfaceProcessor;
 
 /**
- * An internal {@link SurfaceEffect} that is releasable.
+ * An internal {@link SurfaceProcessor} that is releasable.
  *
  * <p>Note: the implementation of this interface must be thread-safe. e.g. methods can be
  * safely invoked on any thread.
  */
-public interface SurfaceEffectInternal extends SurfaceEffect {
+public interface SurfaceProcessorInternal extends SurfaceProcessor {
 
     /**
-     * Releases all the resources allocated by the effect.
+     * Releases all the resources allocated by the processor.
      *
-     * <p>An effect created by CameraX should be released by CameraX when it's no longer needed.
-     * On the other hand, an external effect should not be released by CameraX, because CameraX
-     * not does know if the effect will be needed again. In that case, the app is responsible for
-     * releasing the effect. It should be able to keep the effect alive across multiple
+     * <p>An processor created by CameraX should be released by CameraX when it's no longer needed.
+     * On the other hand, an external processor should not be released by CameraX, because CameraX
+     * not does know if the processor will be needed again. In that case, the app is responsible for
+     * releasing the processor. It should be able to keep the processor alive across multiple
      * attach/detach cycles if it's necessary.
      *
      * @see Node#release()

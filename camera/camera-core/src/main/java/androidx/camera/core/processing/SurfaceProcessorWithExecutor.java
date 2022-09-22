@@ -20,38 +20,39 @@ import static androidx.core.util.Preconditions.checkState;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.VisibleForTesting;
-import androidx.camera.core.SurfaceEffect;
 import androidx.camera.core.SurfaceOutput;
+import androidx.camera.core.SurfaceProcessor;
 import androidx.camera.core.SurfaceRequest;
 
 import java.util.concurrent.Executor;
 
 /**
- * A wrapper of a pair of {@link SurfaceEffect} and {@link Executor}.
+ * A wrapper of a pair of {@link SurfaceProcessor} and {@link Executor}.
  *
- * <p> Wraps the external {@link SurfaceEffect} and {@link Executor} provided by the app. It
- * makes sure that CameraX always invoke the {@link SurfaceEffect} on the correct {@link Executor}.
+ * <p> Wraps the external {@link SurfaceProcessor} and {@link Executor} provided by the app. It
+ * makes sure that CameraX always invoke the {@link SurfaceProcessor} on the correct
+ * {@link Executor}.
  */
-public class SurfaceEffectWithExecutor implements SurfaceEffectInternal {
+public class SurfaceProcessorWithExecutor implements SurfaceProcessorInternal {
 
     @NonNull
-    private final SurfaceEffect mSurfaceEffect;
+    private final SurfaceProcessor mSurfaceProcessor;
     @NonNull
     private final Executor mExecutor;
 
-    public SurfaceEffectWithExecutor(
-            @NonNull SurfaceEffect surfaceEffect,
+    public SurfaceProcessorWithExecutor(
+            @NonNull SurfaceProcessor surfaceProcessor,
             @NonNull Executor executor) {
-        checkState(!(surfaceEffect instanceof SurfaceEffectInternal),
-                "SurfaceEffectInternal should always be thread safe. Do not wrap.");
-        mSurfaceEffect = surfaceEffect;
+        checkState(!(surfaceProcessor instanceof SurfaceProcessorInternal),
+                "SurfaceProcessorInternal should always be thread safe. Do not wrap.");
+        mSurfaceProcessor = surfaceProcessor;
         mExecutor = executor;
     }
 
     @NonNull
     @VisibleForTesting
-    public SurfaceEffect getSurfaceEffect() {
-        return mSurfaceEffect;
+    public SurfaceProcessor getProcessor() {
+        return mSurfaceProcessor;
     }
 
     @NonNull
@@ -62,16 +63,16 @@ public class SurfaceEffectWithExecutor implements SurfaceEffectInternal {
 
     @Override
     public void onInputSurface(@NonNull SurfaceRequest request) {
-        mExecutor.execute(() -> mSurfaceEffect.onInputSurface(request));
+        mExecutor.execute(() -> mSurfaceProcessor.onInputSurface(request));
     }
 
     @Override
     public void onOutputSurface(@NonNull SurfaceOutput surfaceOutput) {
-        mExecutor.execute(() -> mSurfaceEffect.onOutputSurface(surfaceOutput));
+        mExecutor.execute(() -> mSurfaceProcessor.onOutputSurface(surfaceOutput));
     }
 
     @Override
     public void release() {
-        // No-op. External SurfaceEffect should not be released by CameraX.
+        // No-op. External SurfaceProcessor should not be released by CameraX.
     }
 }

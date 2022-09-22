@@ -24,12 +24,12 @@ import android.os.Build
 import android.os.Looper.getMainLooper
 import android.util.Size
 import android.view.Surface
-import androidx.camera.core.SurfaceEffect
 import androidx.camera.core.SurfaceOutput
 import androidx.camera.core.SurfaceOutput.GlTransformOptions.USE_SURFACE_TEXTURE_TRANSFORM
+import androidx.camera.core.SurfaceProcessor
 import androidx.camera.core.SurfaceRequest
-import androidx.camera.core.SurfaceRequest.TransformationInfo
 import androidx.camera.core.SurfaceRequest.Result.RESULT_REQUEST_CANCELLED
+import androidx.camera.core.SurfaceRequest.TransformationInfo
 import androidx.camera.core.impl.DeferrableSurface.SurfaceClosedException
 import androidx.camera.core.impl.DeferrableSurface.SurfaceUnavailableException
 import androidx.camera.core.impl.ImmediateSurface
@@ -70,7 +70,7 @@ class SettableSurfaceTest {
     @Before
     fun setUp() {
         settableSurface = SettableSurface(
-            SurfaceEffect.PREVIEW, Size(640, 480), ImageFormat.PRIVATE,
+            SurfaceProcessor.PREVIEW, Size(640, 480), ImageFormat.PRIVATE,
             Matrix(), true, Rect(), 0, false
         )
         fakeSurfaceTexture = SurfaceTexture(0)

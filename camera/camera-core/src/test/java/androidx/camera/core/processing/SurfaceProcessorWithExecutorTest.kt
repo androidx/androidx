@@ -21,13 +21,13 @@ import android.os.Handler
 import android.os.HandlerThread
 import android.os.Looper.getMainLooper
 import android.util.Size
-import androidx.camera.core.SurfaceEffect
 import androidx.camera.core.SurfaceOutput
+import androidx.camera.core.SurfaceProcessor
 import androidx.camera.core.SurfaceRequest
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor
 import androidx.camera.testing.fakes.FakeCamera
-import androidx.camera.testing.fakes.FakeSurfaceEffectInternal
+import androidx.camera.testing.fakes.FakeSurfaceProcessorInternal
 import com.google.common.truth.Truth.assertThat
 import java.lang.Thread.currentThread
 import java.util.concurrent.Executor
@@ -42,12 +42,12 @@ import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
 
 /**
- * Unit tests for [SurfaceEffectWithExecutor].
+ * Unit tests for [SurfaceProcessorWithExecutor].
  */
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
-class SurfaceEffectWithExecutorTest {
+class SurfaceProcessorWithExecutorTest {
 
     companion object {
         private val SIZE = Size(640, 480)
@@ -69,30 +69,32 @@ class SurfaceEffectWithExecutorTest {
     }
 
     @Test(expected = IllegalStateException::class)
-    fun initWithSurfaceEffectInternal_throwsException() {
-        SurfaceEffectWithExecutor(
-            FakeSurfaceEffectInternal(mainThreadExecutor()),
+    fun initWithSurfaceProcessorInternal_throwsException() {
+        SurfaceProcessorWithExecutor(
+            FakeSurfaceProcessorInternal(mainThreadExecutor()),
             mainThreadExecutor()
         )
     }
 
     @Test
-    fun invokeEffect_invokedOnEffectExecutor() {
+    fun invokeProcessor_invokedOnProcessorExecutor() {
         // Arrange: track which thread the methods are invoked on.
         var onInputSurfaceInvokedThread: Thread? = null
         var onOutputSurfaceInvokedThread: Thread? = null
-        val effectWithExecutor = SurfaceEffectWithExecutor(object : SurfaceEffect {
-            override fun onInputSurface(request: SurfaceRequest) {
-                onInputSurfaceInvokedThread = currentThread()
-            }
+        val processorWithExecutor =
+            SurfaceProcessorWithExecutor(object :
+                SurfaceProcessor {
+                override fun onInputSurface(request: SurfaceRequest) {
+                    onInputSurfaceInvokedThread = currentThread()
+                }
 
-            override fun onOutputSurface(surfaceOutput: SurfaceOutput) {
-                onOutputSurfaceInvokedThread = currentThread()
-            }
-        }, executor)
+                override fun onOutputSurface(surfaceOutput: SurfaceOutput) {
+                    onOutputSurfaceInvokedThread = currentThread()
+                }
+            }, executor)
         // Act: invoke methods.
-        effectWithExecutor.onInputSurface(SurfaceRequest(SIZE, FakeCamera(), false))
-        effectWithExecutor.onOutputSurface(mock(SurfaceOutput::class.java))
+        processorWithExecutor.onInputSurface(SurfaceRequest(SIZE, FakeCamera(), false))
+        processorWithExecutor.onOutputSurface(mock(SurfaceOutput::class.java))
         shadowOf(getMainLooper()).idle()
         shadowOf(executorThread.looper).idle()
         // Assert: it's the executor thread.

@@ -29,9 +29,9 @@ import androidx.test.filters.SmallTest
 import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
+import java.io.File
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.io.File
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)

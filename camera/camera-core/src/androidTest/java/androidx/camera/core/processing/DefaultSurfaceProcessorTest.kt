@@ -20,8 +20,8 @@ import android.graphics.Rect
 import android.hardware.camera2.CameraDevice.TEMPLATE_PREVIEW
 import android.util.Size
 import android.view.Surface
-import androidx.camera.core.SurfaceEffect
 import androidx.camera.core.SurfaceOutput.GlTransformOptions.USE_SURFACE_TEXTURE_TRANSFORM
+import androidx.camera.core.SurfaceProcessor
 import androidx.camera.core.SurfaceRequest
 import androidx.camera.core.impl.DeferrableSurface
 import androidx.camera.core.impl.ImageFormatConstants
@@ -51,7 +51,7 @@ import org.mockito.Mockito.mock
 @RunWith(AndroidJUnit4::class)
 @LargeTest
 @SdkSuppress(minSdkVersion = 21)
-class DefaultSurfaceEffectTest {
+class DefaultSurfaceProcessorTest {
 
     companion object {
         private const val WIDTH = 640
@@ -88,7 +88,7 @@ class DefaultSurfaceEffectTest {
     @get:Rule
     val useCamera = CameraUtil.grantCameraPermissionAndPreTest(testCameraRule, testCameraIdListRule)
 
-    private lateinit var surfaceEffect: DefaultSurfaceEffect
+    private lateinit var surfaceProcessor: DefaultSurfaceProcessor
     private lateinit var cameraDeviceHolder: CameraUtil.CameraDeviceHolder
     private lateinit var renderOutput: RenderOutput<*>
     private val inputSurfaceRequestsToClose = mutableListOf<SurfaceRequest>()
@@ -102,9 +102,9 @@ class DefaultSurfaceEffectTest {
         if (::renderOutput.isInitialized) {
             renderOutput.release()
         }
-        if (::surfaceEffect.isInitialized) {
-            surfaceEffect.release()
-            surfaceEffect.awaitReleased(10_000L)
+        if (::surfaceProcessor.isInitialized) {
+            surfaceProcessor.release()
+            surfaceProcessor.awaitReleased(10_000L)
         }
         for (surfaceRequest in inputSurfaceRequestsToClose) {
             surfaceRequest.deferrableSurface.close()
@@ -114,18 +114,18 @@ class DefaultSurfaceEffectTest {
     @Test
     fun release_closeAllSurfaceOutputs(): Unit = runBlocking {
         // Arrange.
-        createSurfaceEffect()
+        createSurfaceProcessor()
         val surfaceOutput1 = createSurfaceOutput()
-        surfaceEffect.onOutputSurface(surfaceOutput1)
+        surfaceProcessor.onOutputSurface(surfaceOutput1)
 
         val surfaceOutput2 = createSurfaceOutput()
-        surfaceEffect.onOutputSurface(surfaceOutput2)
+        surfaceProcessor.onOutputSurface(surfaceOutput2)
 
-        surfaceEffect.idle()
+        surfaceProcessor.idle()
 
         // Act.
-        surfaceEffect.release()
-        surfaceEffect.awaitReleased(5000)
+        surfaceProcessor.release()
+        surfaceProcessor.awaitReleased(5000)
 
         // Assert.
         assertThat(surfaceOutput1.isClosed).isTrue()
@@ -135,12 +135,12 @@ class DefaultSurfaceEffectTest {
     @Test
     fun callOnInputSurfaceAfterReleased_willNotProvideSurface() {
         // Arrange.
-        createSurfaceEffect()
+        createSurfaceProcessor()
         val surfaceRequest = createInputSurfaceRequest()
 
         // Act.
-        surfaceEffect.release()
-        surfaceEffect.onInputSurface(surfaceRequest)
+        surfaceProcessor.release()
+        surfaceProcessor.onInputSurface(surfaceRequest)
 
         // Assert.
         try {
@@ -154,13 +154,13 @@ class DefaultSurfaceEffectTest {
     @Test
     fun callOnOutputSurfaceAfterReleased_closeSurfaceOutput(): Unit = runBlocking {
         // Arrange.
-        createSurfaceEffect()
+        createSurfaceProcessor()
         val surfaceOutput = createSurfaceOutput()
 
         // Act.
-        surfaceEffect.release()
-        surfaceEffect.awaitReleased()
-        surfaceEffect.onOutputSurface(surfaceOutput)
+        surfaceProcessor.release()
+        surfaceProcessor.awaitReleased()
+        surfaceProcessor.onOutputSurface(surfaceOutput)
 
         // Assert.
         assertThat(surfaceOutput.isClosed).isTrue()
@@ -169,14 +169,14 @@ class DefaultSurfaceEffectTest {
     @Test
     fun requestCloseAfterOnOutputSurface_closeSurfaceOutput() {
         // Arrange.
-        createSurfaceEffect()
+        createSurfaceProcessor()
         val surfaceOutput = createSurfaceOutput()
 
         // Act.
-        surfaceEffect.onOutputSurface(surfaceOutput)
-        surfaceEffect.idle()
+        surfaceProcessor.onOutputSurface(surfaceOutput)
+        surfaceProcessor.idle()
         surfaceOutput.requestClose()
-        surfaceEffect.idle()
+        surfaceProcessor.idle()
 
         // Assert.
         assertThat(surfaceOutput.isClosed).isTrue()
@@ -185,13 +185,13 @@ class DefaultSurfaceEffectTest {
     @Test
     fun requestCloseBeforeOnOutputSurface_closeSurfaceOutput() {
         // Arrange.
-        createSurfaceEffect()
+        createSurfaceProcessor()
         val surfaceOutput = createSurfaceOutput()
 
         // Act.
         surfaceOutput.requestClose()
-        surfaceEffect.onOutputSurface(surfaceOutput)
-        surfaceEffect.idle()
+        surfaceProcessor.onOutputSurface(surfaceOutput)
+        surfaceProcessor.idle()
 
         // Assert.
         assertThat(surfaceOutput.isClosed).isTrue()
@@ -225,7 +225,7 @@ class DefaultSurfaceEffectTest {
     fun createByInvalidShaderString_throwException() {
         val shaderProvider = createCustomShaderProvider(shaderString = "Invalid shader")
         assertThrows(IllegalArgumentException::class.java) {
-            createSurfaceEffect(shaderProvider)
+            createSurfaceProcessor(shaderProvider)
         }
     }
 
@@ -234,7 +234,7 @@ class DefaultSurfaceEffectTest {
         val shaderProvider =
             createCustomShaderProvider(exceptionToThrow = RuntimeException("Failed Shader"))
         assertThrows(IllegalArgumentException::class.java) {
-            createSurfaceEffect(shaderProvider)
+            createSurfaceProcessor(shaderProvider)
         }
     }
 
@@ -242,7 +242,7 @@ class DefaultSurfaceEffectTest {
     fun createByIncorrectSamplerName_throwException() {
         val shaderProvider = createCustomShaderProvider(samplerVarName = "_mySampler_")
         assertThrows(IllegalArgumentException::class.java) {
-            createSurfaceEffect(shaderProvider)
+            createSurfaceProcessor(shaderProvider)
         }
     }
 
@@ -250,7 +250,7 @@ class DefaultSurfaceEffectTest {
     fun createByIncorrectFragCoordsName_throwException() {
         val shaderProvider = createCustomShaderProvider(fragCoordsVarName = "_myFragCoords_")
         assertThrows(IllegalArgumentException::class.java) {
-            createSurfaceEffect(shaderProvider)
+            createSurfaceProcessor(shaderProvider)
         }
     }
 
@@ -258,10 +258,10 @@ class DefaultSurfaceEffectTest {
         outputType: OutputType,
         shaderProvider: ShaderProvider = ShaderProvider.DEFAULT
     ) {
-        createSurfaceEffect(shaderProvider)
+        createSurfaceProcessor(shaderProvider)
         // Prepare input
         val inputSurfaceRequest = createInputSurfaceRequest()
-        surfaceEffect.onInputSurface(inputSurfaceRequest)
+        surfaceProcessor.onInputSurface(inputSurfaceRequest)
         val inputDeferrableSurface = inputSurfaceRequest.deferrableSurface
         val inputSurface = inputDeferrableSurface.surface.await()
         openCameraAndSetRepeating(inputSurface)
@@ -272,7 +272,7 @@ class DefaultSurfaceEffectTest {
         // Prepare output
         renderOutput = RenderOutput.createRenderOutput(outputType)
         val surfaceOutput = createSurfaceOutput(renderOutput.surface)
-        surfaceEffect.onOutputSurface(surfaceOutput)
+        surfaceProcessor.onOutputSurface(surfaceOutput)
 
         // Assert.
         assertThat(renderOutput.await(/*imageCount=*/5, /*timeoutInMs=*/10_000L)).isTrue()
@@ -289,8 +289,10 @@ class DefaultSurfaceEffectTest {
         )
     }
 
-    private fun createSurfaceEffect(shaderProvider: ShaderProvider = ShaderProvider.DEFAULT) {
-        surfaceEffect = DefaultSurfaceEffect(shaderProvider)
+    private fun createSurfaceProcessor(shaderProvider: ShaderProvider = ShaderProvider.DEFAULT) {
+        surfaceProcessor = DefaultSurfaceProcessor(
+            shaderProvider
+        )
     }
 
     private fun createInputSurfaceRequest(): SurfaceRequest {
@@ -302,7 +304,7 @@ class DefaultSurfaceEffectTest {
     private fun createSurfaceOutput(surface: Surface = mock(Surface::class.java)) =
         SurfaceOutputImpl(
             surface,
-            SurfaceEffect.PREVIEW,
+            SurfaceProcessor.PREVIEW,
             ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE,
             Size(WIDTH, HEIGHT),
             USE_SURFACE_TEXTURE_TRANSFORM,
@@ -334,11 +336,11 @@ class DefaultSurfaceEffectTest {
         }
     }
 
-    private fun DefaultSurfaceEffect.idle() {
+    private fun DefaultSurfaceProcessor.idle() {
         HandlerUtil.waitForLooperToIdle(mGlHandler)
     }
 
-    private suspend fun DefaultSurfaceEffect.awaitReleased(timeoutMs: Long = 5000L) {
+    private suspend fun DefaultSurfaceProcessor.awaitReleased(timeoutMs: Long = 5000L) {
         withTimeoutOrNull(timeoutMs) {
             while (true) {
                 delay(500L)

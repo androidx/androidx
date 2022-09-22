@@ -22,8 +22,8 @@ import android.os.Handler
 import android.os.Looper
 import android.view.Surface
 import androidx.annotation.VisibleForTesting
-import androidx.camera.core.SurfaceEffect
 import androidx.camera.core.SurfaceOutput
+import androidx.camera.core.SurfaceProcessor
 import androidx.camera.core.SurfaceRequest
 import androidx.camera.core.impl.utils.Threads.checkMainThread
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor
@@ -31,11 +31,11 @@ import androidx.camera.core.processing.OpenGlRenderer
 import androidx.camera.core.processing.ShaderProvider
 
 /**
- * A effect that applies tone mapping on camera output.
+ * A processor that applies tone mapping on camera output.
  *
  * <p>The thread safety is guaranteed by using the main thread.
  */
-class ToneMappingSurfaceEffect : SurfaceEffect, OnFrameAvailableListener {
+class ToneMappingSurfaceProcessor : SurfaceProcessor, OnFrameAvailableListener {
 
     companion object {
         // A fragment shader that applies a yellow hue.

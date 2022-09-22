@@ -39,7 +39,7 @@ public interface CameraEffect {
      */
     @Retention(RetentionPolicy.SOURCE)
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    @IntDef(flag = true, value = {SurfaceEffect.PREVIEW, SurfaceEffect.VIDEO_CAPTURE,
+    @IntDef(flag = true, value = {SurfaceProcessor.PREVIEW, SurfaceProcessor.VIDEO_CAPTURE,
             ImageEffect.IMAGE_CAPTURE})
     @interface Targets {
     }

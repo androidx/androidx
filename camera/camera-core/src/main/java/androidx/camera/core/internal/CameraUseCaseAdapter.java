@@ -37,7 +37,7 @@ import androidx.camera.core.EffectBundle;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.Logger;
 import androidx.camera.core.Preview;
-import androidx.camera.core.SurfaceEffect;
+import androidx.camera.core.SurfaceProcessor;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.ViewPort;
 import androidx.camera.core.impl.AttachedSurfaceInfo;
@@ -52,8 +52,8 @@ import androidx.camera.core.impl.SurfaceConfig;
 import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.UseCaseConfigFactory;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
-import androidx.camera.core.processing.SurfaceEffectInternal;
-import androidx.camera.core.processing.SurfaceEffectWithExecutor;
+import androidx.camera.core.processing.SurfaceProcessorInternal;
+import androidx.camera.core.processing.SurfaceProcessorWithExecutor;
 import androidx.core.util.Preconditions;
 
 import java.util.ArrayList;
@@ -451,17 +451,18 @@ public final class CameraUseCaseAdapter implements Camera {
             for (Map.Entry<Integer, CameraEffect> entry : effectBundle.getEffects().entrySet()) {
                 CameraEffect effect = entry.getValue();
                 int targets = entry.getKey();
-                if (effect instanceof SurfaceEffect) {
-                    effectsWithExecutors.put(targets, new SurfaceEffectWithExecutor(
-                            (SurfaceEffect) effect, executor));
+                if (effect instanceof SurfaceProcessor) {
+                    effectsWithExecutors.put(targets, new SurfaceProcessorWithExecutor(
+                            (SurfaceProcessor) effect, executor));
                 }
             }
         }
         // Set effects on the UseCases. This also removes existing effects if necessary.
         for (UseCase useCase : useCases) {
             if (useCase instanceof Preview) {
-                ((Preview) useCase).setEffect(
-                        (SurfaceEffectInternal) effectsWithExecutors.get(SurfaceEffect.PREVIEW));
+                ((Preview) useCase).setProcessor(
+                        (SurfaceProcessorInternal) effectsWithExecutors.get(
+                                SurfaceProcessor.PREVIEW));
             }
         }
     }

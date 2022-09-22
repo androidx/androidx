@@ -16,7 +16,7 @@
 
 package androidx.camera.core;
 
-import static androidx.camera.core.SurfaceEffect.PREVIEW;
+import static androidx.camera.core.SurfaceProcessor.PREVIEW;
 import static androidx.core.util.Preconditions.checkArgument;
 
 import androidx.annotation.NonNull;
@@ -81,7 +81,7 @@ public class EffectBundle {
          * Adds a {@link CameraEffect} with its targets.
          *
          * @param targets      on which the effect will be applied. CameraX only supports
-         *                     {@link SurfaceEffect#PREVIEW} for now.
+         *                     {@link SurfaceProcessor#PREVIEW} for now.
          * @param cameraEffect the effect implementation.
          * @throws IllegalArgumentException if the configuration is illegal.
          */
@@ -91,11 +91,11 @@ public class EffectBundle {
                 @NonNull CameraEffect cameraEffect) {
             checkArgument(!mEffects.containsKey(targets), "The target already has an effect");
             checkArgument(targets == PREVIEW, "Only allows PREVIEW target.");
-            if (cameraEffect instanceof SurfaceEffect) {
+            if (cameraEffect instanceof SurfaceProcessor) {
                 mEffects.put(targets, cameraEffect);
             } else {
                 throw new UnsupportedOperationException(
-                        "CameraX only supports SurfaceEffect for now.");
+                        "CameraX only supports SurfaceProcessor for now.");
             }
             return this;
         }

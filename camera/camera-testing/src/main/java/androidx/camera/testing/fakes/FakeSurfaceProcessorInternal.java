@@ -20,29 +20,31 @@ import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
-import androidx.camera.core.processing.SurfaceEffectInternal;
+import androidx.camera.core.processing.SurfaceProcessorInternal;
 
 import java.util.concurrent.Executor;
 
 /**
- * Fake {@link SurfaceEffectInternal} used in tests.
+ * Fake {@link SurfaceProcessorInternal} used in tests.
  */
 @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-public class FakeSurfaceEffectInternal extends FakeSurfaceEffect implements SurfaceEffectInternal {
+public class FakeSurfaceProcessorInternal extends FakeSurfaceProcessor implements
+        SurfaceProcessorInternal {
 
     private boolean mIsReleased;
 
     /**
      * {@inheritDoc}
      */
-    public FakeSurfaceEffectInternal(@NonNull Executor executor) {
+    public FakeSurfaceProcessorInternal(@NonNull Executor executor) {
         this(executor, true);
     }
 
     /**
      * {@inheritDoc}
      */
-    public FakeSurfaceEffectInternal(@NonNull Executor executor, boolean autoCloseSurfaceOutput) {
+    public FakeSurfaceProcessorInternal(@NonNull Executor executor,
+            boolean autoCloseSurfaceOutput) {
         super(executor, autoCloseSurfaceOutput);
         mIsReleased = false;
     }

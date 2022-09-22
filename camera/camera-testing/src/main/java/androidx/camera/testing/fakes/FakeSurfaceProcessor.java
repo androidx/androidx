@@ -23,18 +23,18 @@ import android.view.Surface;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
-import androidx.camera.core.SurfaceEffect;
 import androidx.camera.core.SurfaceOutput;
+import androidx.camera.core.SurfaceProcessor;
 import androidx.camera.core.SurfaceRequest;
 import androidx.camera.core.impl.DeferrableSurface;
 
 import java.util.concurrent.Executor;
 
 /**
- * Fake {@link SurfaceEffect} used in tests.
+ * Fake {@link SurfaceProcessor} used in tests.
  */
 @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-public class FakeSurfaceEffect implements SurfaceEffect {
+public class FakeSurfaceProcessor implements SurfaceProcessor {
 
     final SurfaceTexture mSurfaceTexture;
     final Surface mInputSurface;
@@ -52,9 +52,9 @@ public class FakeSurfaceEffect implements SurfaceEffect {
     Surface mOutputSurface;
 
     /**
-     * Creates a {@link SurfaceEffect} that closes the {@link SurfaceOutput} automatically.
+     * Creates a {@link SurfaceProcessor} that closes the {@link SurfaceOutput} automatically.
      */
-    public FakeSurfaceEffect(@NonNull Executor executor) {
+    public FakeSurfaceProcessor(@NonNull Executor executor) {
         this(executor, true);
     }
 
@@ -65,7 +65,7 @@ public class FakeSurfaceEffect implements SurfaceEffect {
      *                               {@link SurfaceOutput#close()} to avoid the "Completer GCed"
      *                               error in {@link DeferrableSurface}.
      */
-    FakeSurfaceEffect(@NonNull Executor executor, boolean autoCloseSurfaceOutput) {
+    FakeSurfaceProcessor(@NonNull Executor executor, boolean autoCloseSurfaceOutput) {
         mSurfaceTexture = new SurfaceTexture(0);
         mInputSurface = new Surface(mSurfaceTexture);
         mExecutor = executor;

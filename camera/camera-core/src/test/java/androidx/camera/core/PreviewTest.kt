@@ -35,14 +35,14 @@ import androidx.camera.core.impl.UseCaseConfigFactory
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor
 import androidx.camera.core.internal.CameraUseCaseAdapter
-import androidx.camera.core.processing.SurfaceEffectInternal
+import androidx.camera.core.processing.SurfaceProcessorInternal
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CameraXUtil
 import androidx.camera.testing.fakes.FakeAppConfig
 import androidx.camera.testing.fakes.FakeCamera
 import androidx.camera.testing.fakes.FakeCameraDeviceSurfaceManager
 import androidx.camera.testing.fakes.FakeCameraFactory
-import androidx.camera.testing.fakes.FakeSurfaceEffectInternal
+import androidx.camera.testing.fakes.FakeSurfaceProcessorInternal
 import androidx.camera.testing.fakes.FakeUseCase
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
@@ -217,10 +217,13 @@ class PreviewTest {
     @Test
     fun bindAndUnbindPreview_surfacesPropagated() {
         // Arrange.
-        val effect = FakeSurfaceEffectInternal(mainThreadExecutor(), false)
+        val processor = FakeSurfaceProcessorInternal(
+            mainThreadExecutor(),
+            false
+        )
 
         // Act: create pipeline in Preview and provide Surface.
-        val preview = createPreviewPipelineAndAttachEffect(effect)
+        val preview = createPreviewPipelineAndAttachProcessor(processor)
         val surfaceRequest = preview.mCurrentSurfaceRequest!!
         var appSurfaceReadyToRelease = false
         surfaceRequest.provideSurface(appSurface, mainThreadExecutor()) {
@@ -229,26 +232,27 @@ class PreviewTest {
         shadowOf(getMainLooper()).idle()
 
         // Assert: surfaceOutput received.
-        assertThat(effect.surfaceOutput).isNotNull()
-        assertThat(effect.isReleased).isFalse()
-        assertThat(effect.isOutputSurfaceRequestedToClose).isFalse()
-        assertThat(effect.isInputSurfaceReleased).isFalse()
+        assertThat(processor.surfaceOutput).isNotNull()
+        assertThat(processor.isReleased).isFalse()
+        assertThat(processor.isOutputSurfaceRequestedToClose).isFalse()
+        assertThat(processor.isInputSurfaceReleased).isFalse()
         assertThat(appSurfaceReadyToRelease).isFalse()
-        // effect surface is provided to camera.
-        assertThat(preview.sessionConfig.surfaces[0].surface.get()).isEqualTo(effect.inputSurface)
+        // processor surface is provided to camera.
+        assertThat(preview.sessionConfig.surfaces[0].surface.get())
+            .isEqualTo(processor.inputSurface)
 
         // Act: unbind Preview.
         preview.onDetached()
         shadowOf(getMainLooper()).idle()
 
-        // Assert: effect and effect surface is released.
-        assertThat(effect.isReleased).isTrue()
-        assertThat(effect.isOutputSurfaceRequestedToClose).isTrue()
-        assertThat(effect.isInputSurfaceReleased).isTrue()
+        // Assert: processor and processor surface is released.
+        assertThat(processor.isReleased).isTrue()
+        assertThat(processor.isOutputSurfaceRequestedToClose).isTrue()
+        assertThat(processor.isInputSurfaceReleased).isTrue()
         assertThat(appSurfaceReadyToRelease).isFalse()
 
         // Act: close SurfaceOutput
-        effect.surfaceOutput!!.close()
+        processor.surfaceOutput!!.close()
         shadowOf(getMainLooper()).idle()
         assertThat(appSurfaceReadyToRelease).isTrue()
     }
@@ -256,8 +260,10 @@ class PreviewTest {
     @Test
     fun invokedErrorListener_recreatePipeline() {
         // Arrange: create pipeline and get a reference of the SessionConfig.
-        val effect = FakeSurfaceEffectInternal(mainThreadExecutor())
-        val preview = createPreviewPipelineAndAttachEffect(effect)
+        val processor = FakeSurfaceProcessorInternal(
+            mainThreadExecutor()
+        )
+        val preview = createPreviewPipelineAndAttachProcessor(processor)
         val originalSessionConfig = preview.sessionConfig
 
         // Act: invoke the error listener.
@@ -432,13 +438,13 @@ class PreviewTest {
         return Pair(surfaceRequest!!, transformationInfo!!)
     }
 
-    private fun createPreviewPipelineAndAttachEffect(
-        surfaceEffect: SurfaceEffectInternal?
+    private fun createPreviewPipelineAndAttachProcessor(
+        surfaceProcessor: SurfaceProcessorInternal?
     ): Preview {
         val preview = Preview.Builder()
             .setTargetRotation(Surface.ROTATION_0)
             .build()
-        preview.effect = surfaceEffect
+        preview.processor = surfaceProcessor
         preview.setSurfaceProvider(CameraXExecutors.directExecutor()) {}
         val previewConfig = PreviewConfig(
             cameraXConfig.getUseCaseConfigFactoryProvider(null)!!.newInstance(context).getConfig(
