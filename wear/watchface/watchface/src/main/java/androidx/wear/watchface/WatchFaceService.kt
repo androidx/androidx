@@ -1921,6 +1921,7 @@ public abstract class WatchFaceService : WallpaperService() {
             mutableWatchState.watchFaceInstanceId.value = sanitizeWatchFaceId(params.instanceId)
             val watchState = mutableWatchState.asWatchState()
 
+            interactiveInstanceId = mutableWatchState.watchFaceInstanceId.value
             createWatchFaceInternal(
                 watchState,
                 fakeSurfaceHolder,
@@ -1962,6 +1963,7 @@ public abstract class WatchFaceService : WallpaperService() {
                 pendingInitialComplications = readComplicationDataCache(_context, params.instanceId)
             }
 
+            interactiveInstanceId = params.instanceId
             createWatchFaceInternal(
                 watchState,
                 getWallpaperSurfaceHolderOverride(),
@@ -1970,7 +1972,6 @@ public abstract class WatchFaceService : WallpaperService() {
 
             val instance = InteractiveWatchFaceImpl(this, params.instanceId)
             InteractiveInstanceManager.addInstance(instance)
-            interactiveInstanceId = params.instanceId
             return instance
         }
 
