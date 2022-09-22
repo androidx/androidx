@@ -16,6 +16,7 @@
 
 package androidx.benchmark.macro
 
+import android.content.pm.ApplicationInfo
 import android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE
 import android.content.pm.PackageManager
 import android.os.Build
@@ -39,18 +40,24 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.tracing.trace
 import java.io.File
 
+/**
+ * Get package ApplicationInfo, throw if not found
+ */
 @Suppress("DEPRECATION")
-internal fun checkErrors(packageName: String): ConfigurationError.SuppressionState? {
+internal fun getInstalledPackageInfo(packageName: String): ApplicationInfo {
     val pm = InstrumentationRegistry.getInstrumentation().context.packageManager
-
-    val applicationInfo = try {
-        pm.getApplicationInfo(packageName, 0)
+    try {
+        return pm.getApplicationInfo(packageName, 0)
     } catch (notFoundException: PackageManager.NameNotFoundException) {
         throw AssertionError(
             "Unable to find target package $packageName, is it installed?",
             notFoundException
         )
     }
+}
+
+internal fun checkErrors(packageName: String): ConfigurationError.SuppressionState? {
+    val applicationInfo = getInstalledPackageInfo(packageName)
 
     val errorNotProfileable = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
         applicationInfo.isNotProfileableByShell()
