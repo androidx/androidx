@@ -34,6 +34,7 @@ import androidx.work.impl.WorkManagerImpl
 import androidx.work.impl.background.greedy.GreedyScheduler
 import androidx.work.impl.constraints.trackers.Trackers
 import androidx.work.impl.testutils.TestConstraintTracker
+import androidx.work.impl.testutils.TrackingWorkerFactory
 import androidx.work.impl.utils.taskexecutor.TaskExecutor
 import androidx.work.impl.utils.taskexecutor.WorkManagerTaskExecutor
 import androidx.work.impl.workers.ARGUMENT_CLASS_NAME
@@ -47,11 +48,6 @@ import java.util.concurrent.CountDownLatch
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -59,7 +55,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class WorkUpdateTest {
     val context = ApplicationProvider.getApplicationContext<Context>()
-    val workerFactory = TestWorkerFactory()
+    val workerFactory = TrackingWorkerFactory()
     val configuration = Configuration.Builder().setWorkerFactory(workerFactory).build()
     val executor = Executors.newSingleThreadExecutor()
     val taskExecutor = WorkManagerTaskExecutor(executor)
@@ -74,7 +70,7 @@ class WorkUpdateTest {
     // ugly, ugly hack because of circular dependency:
     // Schedulers need WorkManager, WorkManager needs schedulers
     val schedulers = mutableListOf<Scheduler>()
-    val processor = Processor(context, configuration, taskExecutor, db, schedulers)
+    val processor = Processor(context, configuration, taskExecutor, db)
     val workManager = WorkManagerImpl(
         context, configuration, taskExecutor, db, schedulers, processor, trackers
     )
@@ -554,36 +550,5 @@ class ProgressWorker(context: Context, workerParams: WorkerParameters) :
     override fun onStopped() {
         super.onStopped()
         latch.countDown()
-    }
-}
-
-class TestWorkerFactory : WorkerFactory() {
-    private val factory = object : WorkerFactory() {
-        override fun createWorker(
-            appContext: Context,
-            workerClassName: String,
-            workerParameters: WorkerParameters
-        ): ListenableWorker? = null
-    }
-    val createdWorkers = MutableStateFlow<Map<UUID, ListenableWorker>>(emptyMap())
-
-    override fun createWorker(
-        appContext: Context,
-        workerClassName: String,
-        workerParameters: WorkerParameters
-    ): ListenableWorker {
-        return factory.createWorkerWithDefaultFallback(
-            appContext,
-            workerClassName,
-            workerParameters
-        )!!.also {
-            createdWorkers.value = createdWorkers.value + (it.id to it)
-        }
-    }
-
-    fun awaitWorker(id: UUID): ListenableWorker {
-        return runBlocking {
-            createdWorkers.map { it[id] }.filterNotNull().first()
-        }
     }
 }
