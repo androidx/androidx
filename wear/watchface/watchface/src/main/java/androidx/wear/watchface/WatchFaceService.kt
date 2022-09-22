@@ -1338,6 +1338,10 @@ public abstract class WatchFaceService : WallpaperService() {
                     } catch (e: Exception) {
                         InteractiveInstanceManager
                             .takePendingWallpaperInteractiveWatchFaceInstance()?.let {
+                                Log.e(
+                                    TAG,
+                                    "takePendingWallpaperInteractiveWatchFaceInstance failed"
+                                )
                                 it.callback.onInteractiveWatchFaceCrashed(
                                     CrashInfoParcel(e)
                                 )
@@ -1360,6 +1364,7 @@ public abstract class WatchFaceService : WallpaperService() {
                     pendingWallpaperInstance.callback.onInteractiveWatchFaceCreated(instance)
                     instance
                 } catch (e: Exception) {
+                    Log.e(TAG, "createInteractiveInstance failed")
                     pendingWallpaperInstance.callback.onInteractiveWatchFaceCrashed(
                         CrashInfoParcel(e)
                     )
