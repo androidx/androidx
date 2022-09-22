@@ -18,8 +18,10 @@ package androidx.health.connect.client.datanotification
 
 import android.content.Intent
 import androidx.annotation.RestrictTo
-import androidx.health.connect.client.impl.converters.datatype.getRecordType
+import androidx.health.connect.client.impl.converters.datatype.toDataTypeKClass
 import androidx.health.connect.client.records.Record
+import androidx.health.platform.client.proto.DataProto.DataType
+import androidx.health.platform.client.proto.getProtoMessages
 import kotlin.reflect.KClass
 
 /**
@@ -34,7 +36,7 @@ class DataNotification private constructor(
 ) {
 
     companion object {
-        private const val EXTRA_DATA_TYPE_IDS = "com.google.android.healthdata.extra.DATA_TYPE_IDS"
+        private const val EXTRA_DATA_TYPES = "com.google.android.healthdata.extra.DATA_TYPES"
 
         /**
          * Extracts the notification data from the given [intent]. The [Intent] is usually received
@@ -48,10 +50,12 @@ class DataNotification private constructor(
          */
         @JvmStatic
         fun from(intent: Intent): DataNotification? {
-            val dataTypeIds = intent.getIntArrayExtra(EXTRA_DATA_TYPE_IDS) ?: return null
+            val dataTypes =
+                intent.getProtoMessages(name = EXTRA_DATA_TYPES, parser = DataType::parseFrom)
+                    ?: return null
 
             return DataNotification(
-                dataTypes = dataTypeIds.mapTo(HashSet(), ::getRecordType),
+                dataTypes = dataTypes.mapTo(HashSet(), DataType::toDataTypeKClass),
             )
         }
     }
