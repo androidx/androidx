@@ -670,7 +670,7 @@ public class EditorSessionTest {
         lateinit var activity: OnWatchFaceEditingTestActivity
         scenario.onActivity { activity = it }
         activity.creationLatch.await(EDITING_SESSION_TIMEOUT.toMillis() + 500, MILLISECONDS)
-        assert(activity.onCreateException is TimeoutCancellationException)
+        assertThat(activity.onCreateException is TimeoutCancellationException).isTrue()
     }
 
     @Test
