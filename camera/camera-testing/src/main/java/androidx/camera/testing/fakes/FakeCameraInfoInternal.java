@@ -114,7 +114,9 @@ public final class FakeCameraInfoInternal implements CameraInfoInternal {
         // Currently this assumes that a back-facing camera is always opposite to the screen.
         // This may not be the case for all devices, so in the future we may need to handle that
         // scenario.
-        boolean isOppositeFacingScreen = (CameraSelector.LENS_FACING_BACK == getLensFacing());
+        Integer lensFacing = getLensFacing();
+        boolean isOppositeFacingScreen =
+                lensFacing != null && (CameraSelector.LENS_FACING_BACK == getLensFacing());
         return CameraOrientationUtil.getRelativeImageRotation(
                 relativeRotationDegrees,
                 mSensorRotation,
