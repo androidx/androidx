@@ -19,6 +19,7 @@ package androidx.car.app.sample.showcase.common.common;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 
+import android.content.res.TypedArray;
 import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.text.SpannableString;
@@ -83,6 +84,14 @@ public class SamplePlaces {
     private static List<PlaceInfo> getSamplePlaces(@NonNull CarContext carContext) {
         List<PlaceInfo> places = new ArrayList<>();
 
+        TypedArray typedArray =
+                carContext.obtainStyledAttributes(R.style.CarAppTheme, R.styleable.ShowcaseTheme);
+        CarColor iconTintColor =
+                CarColor.createCustom(
+                        typedArray.getColor(R.styleable.ShowcaseTheme_markerIconTintColor, -1),
+                        typedArray.getColor(R.styleable.ShowcaseTheme_markerIconTintColorDark, -1));
+
+
         Location location1 = new Location(SamplePlaces.class.getSimpleName());
         location1.setLatitude(47.6696482);
         location1.setLongitude(-122.19950278);
@@ -99,7 +108,7 @@ public class SamplePlaces {
                                                 IconCompat.createWithResource(
                                                         carContext,
                                                         R.drawable.ic_commute_24px))
-                                                .setTint(CarColor.BLUE)
+                                                .setTint(iconTintColor)
                                                 .build(),
                                         PlaceMarker.TYPE_ICON)
                                 .build()));

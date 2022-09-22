@@ -17,5 +17,7 @@
 <resources>
   <declare-styleable name="ShowcaseTheme">
     <attr name="themedIconColor" format="color"/>
+    <attr name="markerIconTintColor" format="color"/>
+    <attr name="markerIconTintColorDark" format="color"/>
   </declare-styleable>
 </resources>
