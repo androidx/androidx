@@ -18,6 +18,8 @@ package androidx.health.platform.client.utils
 
 import android.content.Intent
 import android.os.Parcel
+import androidx.health.connect.client.impl.converters.records.protoDataType
+import androidx.health.platform.client.proto.DataProto.DataType
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -29,10 +31,12 @@ class IntentExtTest {
     @Test
     fun byteArrays_notEmpty() {
         val originalArrays = List(1024) { ByteArray(it, Int::toByte) }
-        var intent = Intent()
-        intent.putByteArraysExtra("key", originalArrays)
-        intent = intent.serializeDeserialize()
-        val deserializedArrays = intent.getByteArraysExtra("key")
+
+        val deserializedArrays =
+            Intent()
+                .putByteArraysExtra("key", originalArrays)
+                .serializeDeserialize()
+                .getByteArraysExtra("key")
 
         assertThat(deserializedArrays?.map(ByteArray::toList))
             .containsExactlyElementsIn(originalArrays.map(ByteArray::toList))
@@ -40,11 +44,11 @@ class IntentExtTest {
 
     @Test
     fun byteArrays_empty() {
-        val originalArrays = emptyList<ByteArray>()
-        var intent = Intent()
-        intent.putByteArraysExtra("key", originalArrays)
-        intent = intent.serializeDeserialize()
-        val deserializedArrays = intent.getByteArraysExtra("key")
+        val deserializedArrays =
+            Intent()
+                .putByteArraysExtra("key", emptyList())
+                .serializeDeserialize()
+                .getByteArraysExtra("key")
 
         assertThat(deserializedArrays).isEmpty()
     }
@@ -52,6 +56,37 @@ class IntentExtTest {
     @Test
     fun byteArrays_null() {
         val deserializedArrays = Intent().getByteArraysExtra("key")
+
+        assertThat(deserializedArrays).isNull()
+    }
+
+    @Test
+    fun protoMessages_notEmpty() {
+        val originalMessages = List(128) { protoDataType("STEPS") }
+
+        val deserializedMessages =
+            Intent()
+                .putProtoMessages("key", originalMessages)
+                .serializeDeserialize()
+                .getProtoMessages("key", DataType::parseFrom)
+
+        assertThat(deserializedMessages).containsExactlyElementsIn(originalMessages)
+    }
+
+    @Test
+    fun protoMessages_empty() {
+        val deserializedMessages =
+            Intent()
+                .putProtoMessages("key", emptyList())
+                .serializeDeserialize()
+                .getProtoMessages("key", DataType::parseFrom)
+
+        assertThat(deserializedMessages).isEmpty()
+    }
+
+    @Test
+    fun protoMessages_null() {
+        val deserializedArrays = Intent().getProtoMessages("key", DataType::parseFrom)
 
         assertThat(deserializedArrays).isNull()
     }
