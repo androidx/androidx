@@ -96,8 +96,11 @@ public class ExcludedSupportedSizesQuirk implements Quirk {
         if (isHuaweiP20Lite()) {
             return getHuaweiP20LiteExcludedSizes(cameraId, imageFormat);
         }
-        if (isSamsungJ7PrimeApi27Above() || isSamsungJ7Api27Above()) {
-            return getSamsungJ7PrimeApi27AboveExcludedSizes(imageFormat);
+        if (isSamsungJ7PrimeApi27Above()) {
+            return getSamsungJ7PrimeApi27AboveExcludedSizes(cameraId, imageFormat);
+        }
+        if (isSamsungJ7Api27Above()) {
+            return getSamsungJ7Api27AboveExcludedSizes(cameraId, imageFormat);
         }
         Logger.w(TAG, "Cannot retrieve list of supported sizes to exclude on this device.");
         return Collections.emptyList();
@@ -136,11 +139,83 @@ public class ExcludedSupportedSizesQuirk implements Quirk {
     }
 
     @NonNull
-    private List<Size> getSamsungJ7PrimeApi27AboveExcludedSizes(int imageFormat) {
+    private List<Size> getSamsungJ7PrimeApi27AboveExcludedSizes(@NonNull String cameraId,
+            int imageFormat) {
         final List<Size> sizes = new ArrayList<>();
-        if (imageFormat == ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE) {
-            sizes.add(new Size(1920, 1080));
+
+        if (cameraId.equals("0")) {
+            switch (imageFormat) {
+                case ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE:
+                    sizes.add(new Size(4128, 3096));
+                    sizes.add(new Size(4128, 2322));
+                    sizes.add(new Size(3088, 3088));
+                    sizes.add(new Size(3264, 2448));
+                    sizes.add(new Size(3264, 1836));
+                    sizes.add(new Size(2048, 1536));
+                    sizes.add(new Size(2048, 1152));
+                    sizes.add(new Size(1920, 1080));
+                    break;
+                case ImageFormat.YUV_420_888:
+                    sizes.add(new Size(4128, 2322));
+                    sizes.add(new Size(3088, 3088));
+                    sizes.add(new Size(3264, 2448));
+                    sizes.add(new Size(3264, 1836));
+                    sizes.add(new Size(2048, 1536));
+                    sizes.add(new Size(2048, 1152));
+                    sizes.add(new Size(1920, 1080));
+                    break;
+            }
+        } else if (cameraId.equals("1")) {
+            if (imageFormat == ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE
+                    || imageFormat == ImageFormat.YUV_420_888) {
+                sizes.add(new Size(3264, 2448));
+                sizes.add(new Size(3264, 1836));
+                sizes.add(new Size(2448, 2448));
+                sizes.add(new Size(1920, 1920));
+                sizes.add(new Size(2048, 1536));
+                sizes.add(new Size(2048, 1152));
+                sizes.add(new Size(1920, 1080));
+            }
         }
+
+        return sizes;
+    }
+
+    @NonNull
+    private List<Size> getSamsungJ7Api27AboveExcludedSizes(@NonNull String cameraId,
+            int imageFormat) {
+        final List<Size> sizes = new ArrayList<>();
+
+        if (cameraId.equals("0")) {
+            switch (imageFormat) {
+                case ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE:
+                    sizes.add(new Size(4128, 3096));
+                    sizes.add(new Size(4128, 2322));
+                    sizes.add(new Size(3088, 3088));
+                    sizes.add(new Size(3264, 2448));
+                    sizes.add(new Size(3264, 1836));
+                    sizes.add(new Size(2048, 1536));
+                    sizes.add(new Size(2048, 1152));
+                    sizes.add(new Size(1920, 1080));
+                    break;
+                case ImageFormat.YUV_420_888:
+                    sizes.add(new Size(2048, 1536));
+                    sizes.add(new Size(2048, 1152));
+                    sizes.add(new Size(1920, 1080));
+                    break;
+            }
+        } else if (cameraId.equals("1")) {
+            if (imageFormat == ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE
+                    || imageFormat == ImageFormat.YUV_420_888) {
+                sizes.add(new Size(2576, 1932));
+                sizes.add(new Size(2560, 1440));
+                sizes.add(new Size(1920, 1920));
+                sizes.add(new Size(2048, 1536));
+                sizes.add(new Size(2048, 1152));
+                sizes.add(new Size(1920, 1080));
+            }
+        }
+
         return sizes;
     }
 }
