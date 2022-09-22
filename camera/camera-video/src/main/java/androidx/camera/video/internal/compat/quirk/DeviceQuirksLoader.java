@@ -86,6 +86,9 @@ public class DeviceQuirksLoader {
         if (AudioTimestampFramePositionIncorrectQuirk.load()) {
             quirks.add(new AudioTimestampFramePositionIncorrectQuirk());
         }
+        if (ImageCaptureFailedWhenVideoCaptureIsBoundQuirk.load()) {
+            quirks.add(new ImageCaptureFailedWhenVideoCaptureIsBoundQuirk());
+        }
 
         return quirks;
     }
