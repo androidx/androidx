@@ -109,7 +109,7 @@ public final class UseCaseGroup {
         /**
          * Sets the {@link EffectBundle} for the {@link UseCase}s.
          *
-         * <p>Once set, CameraX will use the {@link SurfaceEffect}s to process the outputs of
+         * <p>Once set, CameraX will use the {@link SurfaceProcessor}s to process the outputs of
          * the {@link UseCase}s.
          *
          * @hide

@@ -17,9 +17,9 @@
 package androidx.camera.core
 
 import android.os.Build
-import androidx.camera.core.SurfaceEffect.PREVIEW
+import androidx.camera.core.SurfaceProcessor.PREVIEW
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor
-import androidx.camera.testing.fakes.FakeSurfaceEffect
+import androidx.camera.testing.fakes.FakeSurfaceProcessor
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -42,21 +42,24 @@ class EffectBundleTest {
 
     @Test(expected = IllegalArgumentException::class)
     fun addMoreThanOnePreviewEffect_throwsException() {
-        val surfaceEffect = FakeSurfaceEffect(mainThreadExecutor())
+        val surfaceProcessor = FakeSurfaceProcessor(mainThreadExecutor())
         EffectBundle.Builder(mainThreadExecutor())
-            .addEffect(PREVIEW, surfaceEffect)
-            .addEffect(PREVIEW, surfaceEffect)
+            .addEffect(PREVIEW, surfaceProcessor)
+            .addEffect(PREVIEW, surfaceProcessor)
     }
 
     @Test
     fun addPreviewEffect_hasPreviewEffect() {
         // Arrange.
-        val surfaceEffect = FakeSurfaceEffect(mainThreadExecutor())
+        val surfaceProcessor =
+            FakeSurfaceProcessor(mainThreadExecutor())
         // Act.
         val effectBundle = EffectBundle.Builder(mainThreadExecutor())
-            .addEffect(PREVIEW, surfaceEffect)
+            .addEffect(PREVIEW, surfaceProcessor)
             .build()
         // Assert.
-        assertThat(effectBundle.effects.values.first() as SurfaceEffect).isEqualTo(surfaceEffect)
+        assertThat(effectBundle.effects.values.first() as SurfaceProcessor).isEqualTo(
+            surfaceProcessor
+        )
     }
 }

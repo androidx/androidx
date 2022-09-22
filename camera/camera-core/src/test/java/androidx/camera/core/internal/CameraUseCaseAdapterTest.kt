@@ -25,7 +25,7 @@ import android.view.Surface
 import androidx.camera.core.EffectBundle
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.Preview
-import androidx.camera.core.SurfaceEffect.PREVIEW
+import androidx.camera.core.SurfaceProcessor.PREVIEW
 import androidx.camera.core.UseCase
 import androidx.camera.core.ViewPort
 import androidx.camera.core.impl.CameraConfig
@@ -36,10 +36,10 @@ import androidx.camera.core.impl.MutableOptionsBundle
 import androidx.camera.core.impl.OptionsBundle
 import androidx.camera.core.impl.UseCaseConfigFactory
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor
-import androidx.camera.core.processing.SurfaceEffectWithExecutor
+import androidx.camera.core.processing.SurfaceProcessorWithExecutor
 import androidx.camera.testing.fakes.FakeCamera
 import androidx.camera.testing.fakes.FakeCameraDeviceSurfaceManager
-import androidx.camera.testing.fakes.FakeSurfaceEffect
+import androidx.camera.testing.fakes.FakeSurfaceProcessor
 import androidx.camera.testing.fakes.FakeUseCase
 import androidx.camera.testing.fakes.FakeUseCaseConfig
 import androidx.camera.testing.fakes.FakeUseCaseConfigFactory
@@ -69,7 +69,7 @@ private const val CAMERA_ID = "0"
 @org.robolectric.annotation.Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 class CameraUseCaseAdapterTest {
 
-    private lateinit var surfaceEffect: FakeSurfaceEffect
+    private lateinit var surfaceProcessor: FakeSurfaceProcessor
     private lateinit var effectBundle: EffectBundle
     private lateinit var executor: ExecutorService
 
@@ -84,14 +84,14 @@ class CameraUseCaseAdapterTest {
         fakeCamera = FakeCamera(CAMERA_ID)
         useCaseConfigFactory = FakeUseCaseConfigFactory()
         fakeCameraSet.add(fakeCamera)
-        surfaceEffect = FakeSurfaceEffect(mainThreadExecutor())
+        surfaceProcessor = FakeSurfaceProcessor(mainThreadExecutor())
         executor = Executors.newSingleThreadExecutor()
-        effectBundle = EffectBundle.Builder(executor).addEffect(PREVIEW, surfaceEffect).build()
+        effectBundle = EffectBundle.Builder(executor).addEffect(PREVIEW, surfaceProcessor).build()
     }
 
     @After
     fun tearDown() {
-        surfaceEffect.cleanUp()
+        surfaceProcessor.cleanUp()
         executor.shutdown()
     }
 
@@ -619,14 +619,14 @@ class CameraUseCaseAdapterTest {
         val preview = Preview.Builder().setSessionOptionUnpacker { _, _ -> }.build()
         // Act: update use cases with effects bundle
         CameraUseCaseAdapter.updateEffects(effectBundle, listOf(preview))
-        // Assert: preview has effect wrapped with the right executor.
-        val previewEffect = preview.effect as SurfaceEffectWithExecutor
-        assertThat(previewEffect.surfaceEffect).isEqualTo(surfaceEffect)
-        assertThat(previewEffect.executor).isEqualTo(executor)
+        // Assert: preview has processor wrapped with the right executor.
+        val previewProcessor = preview.processor as SurfaceProcessorWithExecutor
+        assertThat(previewProcessor.processor).isEqualTo(surfaceProcessor)
+        assertThat(previewProcessor.executor).isEqualTo(executor)
         // Act: update again with null effects bundle
         CameraUseCaseAdapter.updateEffects(null, listOf(preview))
-        // Assert: preview no longer has effects.
-        assertThat(preview.effect).isNull()
+        // Assert: preview no longer has processors.
+        assertThat(preview.processor).isNull()
     }
 
     private fun createCoexistingRequiredRuleCameraConfig(): CameraConfig {

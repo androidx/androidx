@@ -35,9 +35,9 @@ import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
-import androidx.camera.core.SurfaceEffect;
 import androidx.camera.core.SurfaceOutput;
 import androidx.camera.core.SurfaceOutput.GlTransformOptions;
+import androidx.camera.core.SurfaceProcessor;
 import androidx.camera.core.SurfaceRequest;
 import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.utils.Threads;
@@ -46,11 +46,11 @@ import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.core.util.Preconditions;
 
 /**
- * A {@link Node} implementation that wraps around the public {@link SurfaceEffect} interface.
+ * A {@link Node} implementation that wraps around the public {@link SurfaceProcessor} interface.
  *
  * <p>Responsibilities:
  * <ul>
- * <li>Calculating transformation and passing it to the {@link SurfaceEffect}.
+ * <li>Calculating transformation and passing it to the {@link SurfaceProcessor}.
  * <li>Tracking the state of previously calculate specification and only recreate the pipeline
  * when necessary.
  * </ul>
@@ -58,11 +58,11 @@ import androidx.core.util.Preconditions;
 @RequiresApi(api = 21)
 // TODO(b/233627260): remove once implemented.
 @SuppressWarnings("UnusedVariable")
-public class SurfaceEffectNode implements Node<SurfaceEdge, SurfaceEdge> {
+public class SurfaceProcessorNode implements Node<SurfaceEdge, SurfaceEdge> {
 
     private final GlTransformOptions mGlTransformOptions;
     @NonNull
-    final SurfaceEffectInternal mSurfaceEffect;
+    final SurfaceProcessorInternal mSurfaceProcessor;
     @NonNull
     final CameraInternal mCameraInternal;
     // Guarded by main thread.
@@ -72,18 +72,18 @@ public class SurfaceEffectNode implements Node<SurfaceEdge, SurfaceEdge> {
     private SurfaceEdge mInputEdge;
 
     /**
-     * Constructs the surface effect node
+     * Constructs the {@link SurfaceProcessorNode}.
      *
      * @param cameraInternal     the associated camera instance.
      * @param glTransformOptions the OpenGL transformation options.
-     * @param surfaceEffect      the interface to wrap around.
+     * @param surfaceProcessor   the interface to wrap around.
      */
-    public SurfaceEffectNode(@NonNull CameraInternal cameraInternal,
+    public SurfaceProcessorNode(@NonNull CameraInternal cameraInternal,
             @NonNull GlTransformOptions glTransformOptions,
-            @NonNull SurfaceEffectInternal surfaceEffect) {
+            @NonNull SurfaceProcessorInternal surfaceProcessor) {
         mCameraInternal = cameraInternal;
         mGlTransformOptions = glTransformOptions;
-        mSurfaceEffect = surfaceEffect;
+        mSurfaceProcessor = surfaceProcessor;
     }
 
     /**
@@ -99,7 +99,7 @@ public class SurfaceEffectNode implements Node<SurfaceEdge, SurfaceEdge> {
         mInputEdge = inputEdge;
         SettableSurface inputSurface = inputEdge.getSurfaces().get(0);
         SettableSurface outputSurface = createOutputSurface(inputSurface);
-        sendSurfacesToEffectWhenReady(inputSurface, outputSurface);
+        sendSurfacesToProcessorWhenReady(inputSurface, outputSurface);
         mOutputEdge = SurfaceEdge.create(singletonList(outputSurface));
         return mOutputEdge;
     }
@@ -156,7 +156,7 @@ public class SurfaceEffectNode implements Node<SurfaceEdge, SurfaceEdge> {
         return outputSurface;
     }
 
-    private void sendSurfacesToEffectWhenReady(@NonNull SettableSurface input,
+    private void sendSurfacesToProcessorWhenReady(@NonNull SettableSurface input,
             @NonNull SettableSurface output) {
         SurfaceRequest surfaceRequest = input.createSurfaceRequest(mCameraInternal);
         Futures.addCallback(output.createSurfaceOutputFuture(mGlTransformOptions,
@@ -166,16 +166,16 @@ public class SurfaceEffectNode implements Node<SurfaceEdge, SurfaceEdge> {
                     @Override
                     public void onSuccess(@Nullable SurfaceOutput surfaceOutput) {
                         Preconditions.checkNotNull(surfaceOutput);
-                        mSurfaceEffect.onOutputSurface(surfaceOutput);
-                        mSurfaceEffect.onInputSurface(surfaceRequest);
+                        mSurfaceProcessor.onOutputSurface(surfaceOutput);
+                        mSurfaceProcessor.onInputSurface(surfaceRequest);
                         setupSurfaceUpdatePipeline(input, surfaceRequest, output, surfaceOutput);
                     }
 
                     @Override
                     public void onFailure(@NonNull Throwable t) {
-                        // Do not send surfaces to effect if the downstream provider (e.g. the app)
-                        // fails to provide a Surface. Instead, notify the consumer that the
-                        // Surface will not be provided.
+                        // Do not send surfaces to the processor if the downstream provider (e.g.
+                        // the app) fails to provide a Surface. Instead, notify the consumer that
+                        // the Surface will not be provided.
                         surfaceRequest.willNotProvideSurface();
                     }
                 }, mainThreadExecutor());
@@ -201,11 +201,11 @@ public class SurfaceEffectNode implements Node<SurfaceEdge, SurfaceEdge> {
      */
     @Override
     public void release() {
-        mSurfaceEffect.release();
+        mSurfaceProcessor.release();
         mainThreadExecutor().execute(() -> {
             if (mOutputEdge != null) {
                 for (SettableSurface surface : mOutputEdge.getSurfaces()) {
-                    // The output DeferrableSurface will later be terminated by the effect.
+                    // The output DeferrableSurface will later be terminated by the processor.
                     surface.close();
                 }
             }

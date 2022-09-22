@@ -36,8 +36,8 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.camera.core.Logger;
-import androidx.camera.core.SurfaceEffect;
 import androidx.camera.core.SurfaceOutput;
+import androidx.camera.core.SurfaceProcessor;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.util.Consumer;
 
@@ -144,7 +144,7 @@ final class SurfaceOutputImpl implements SurfaceOutput {
     }
 
     /**
-     * Asks the {@link SurfaceEffect} implementation to stopping writing to the {@link Surface}.
+     * Asks the {@link SurfaceProcessor} implementation to stopping writing to the {@link Surface}.
      */
     public void requestClose() {
         AtomicReference<Consumer<Event>> eventListenerRef = new AtomicReference<>();
@@ -168,7 +168,7 @@ final class SurfaceOutputImpl implements SurfaceOutput {
                 // The executor might be invoked after the SurfaceOutputImpl is closed. This
                 // happens if the #close() is called after the synchronized block above but
                 // before the line below.
-                Logger.d(TAG, "Effect executor closed. Close request not posted.", e);
+                Logger.d(TAG, "Processor executor closed. Close request not posted.", e);
             }
         }
     }
@@ -207,7 +207,7 @@ final class SurfaceOutputImpl implements SurfaceOutput {
     }
 
     /**
-     * This method can be invoked by the effect implementation on any thread.
+     * This method can be invoked by the processor implementation on any thread.
      *
      * @inheritDoc
      */
@@ -243,7 +243,7 @@ final class SurfaceOutputImpl implements SurfaceOutput {
     }
 
     /**
-     * This method can be invoked by the effect implementation on any thread.
+     * This method can be invoked by the processor implementation on any thread.
      */
     @AnyThread
     @Override

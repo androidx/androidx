@@ -23,10 +23,10 @@ import android.os.Build
 import android.os.Looper.getMainLooper
 import android.util.Size
 import android.view.Surface
-import androidx.camera.core.SurfaceEffect.PREVIEW
 import androidx.camera.core.SurfaceOutput.GlTransformOptions
 import androidx.camera.core.SurfaceOutput.GlTransformOptions.APPLY_CROP_ROTATE_AND_MIRRORING
 import androidx.camera.core.SurfaceOutput.GlTransformOptions.USE_SURFACE_TEXTURE_TRANSFORM
+import androidx.camera.core.SurfaceProcessor.PREVIEW
 import androidx.camera.core.SurfaceRequest
 import androidx.camera.core.SurfaceRequest.TransformationInfo
 import androidx.camera.core.impl.utils.TransformUtils.is90or270
@@ -34,7 +34,7 @@ import androidx.camera.core.impl.utils.TransformUtils.rectToSize
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor
 import androidx.camera.core.impl.utils.futures.Futures
 import androidx.camera.testing.fakes.FakeCamera
-import androidx.camera.testing.fakes.FakeSurfaceEffectInternal
+import androidx.camera.testing.fakes.FakeSurfaceProcessorInternal
 import com.google.common.truth.Truth.assertThat
 import org.junit.After
 import org.junit.Before
@@ -46,12 +46,12 @@ import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
 
 /**
- * Unit tests for [SurfaceEffectNode].
+ * Unit tests for [SurfaceProcessorNode].
  */
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
-class SurfaceEffectNodeTest {
+class SurfaceProcessorNodeTest {
 
     companion object {
         private const val TARGET = PREVIEW
@@ -61,10 +61,10 @@ class SurfaceEffectNodeTest {
         private val CROP_RECT = Rect(0, 0, 600, 400)
     }
 
-    private lateinit var surfaceEffectInternal: FakeSurfaceEffectInternal
+    private lateinit var surfaceProcessorInternal: FakeSurfaceProcessorInternal
     private lateinit var appSurface: Surface
     private lateinit var appSurfaceTexture: SurfaceTexture
-    private lateinit var node: SurfaceEffectNode
+    private lateinit var node: SurfaceProcessorNode
     private lateinit var inputEdge: SurfaceEdge
     private lateinit var outputSurfaceRequest: SurfaceRequest
     private var outputTransformInfo: TransformationInfo? = null
@@ -73,14 +73,14 @@ class SurfaceEffectNodeTest {
     fun setup() {
         appSurfaceTexture = SurfaceTexture(0)
         appSurface = Surface(appSurfaceTexture)
-        surfaceEffectInternal = FakeSurfaceEffectInternal(mainThreadExecutor())
+        surfaceProcessorInternal = FakeSurfaceProcessorInternal(mainThreadExecutor())
     }
 
     @After
     fun tearDown() {
         appSurfaceTexture.release()
         appSurface.release()
-        surfaceEffectInternal.release()
+        surfaceProcessorInternal.release()
         if (::node.isInitialized) {
             node.release()
         }
@@ -96,7 +96,7 @@ class SurfaceEffectNodeTest {
     @Test
     fun transformInput_useSurfaceTextureTransform_outputHasTheSameProperty() {
         // Arrange.
-        createSurfaceEffectNode()
+        createSurfaceProcessorNode()
         createInputEdge()
         val inputSurface = inputEdge.surfaces[0]
 
@@ -120,7 +120,7 @@ class SurfaceEffectNodeTest {
         val cropRect = Rect(200, 100, 600, 400)
         for (rotationDegrees in arrayOf(0, 90, 180, 270)) {
             // Arrange.
-            createSurfaceEffectNode(APPLY_CROP_ROTATE_AND_MIRRORING)
+            createSurfaceProcessorNode(APPLY_CROP_ROTATE_AND_MIRRORING)
             createInputEdge(
                 size = rectToSize(cropRect),
                 cropRect = cropRect,
@@ -153,7 +153,7 @@ class SurfaceEffectNodeTest {
     fun transformInput_applyCropRotateAndMirroring_outputHasNoMirroring() {
         for (mirroring in arrayOf(false, true)) {
             // Arrange.
-            createSurfaceEffectNode(APPLY_CROP_ROTATE_AND_MIRRORING)
+            createSurfaceProcessorNode(APPLY_CROP_ROTATE_AND_MIRRORING)
             createInputEdge(mirroring = mirroring)
 
             // Act.
@@ -173,7 +173,7 @@ class SurfaceEffectNodeTest {
     @Test
     fun transformInput_applyCropRotateAndMirroring_initialTransformInfoIsPropagated() {
         // Arrange.
-        createSurfaceEffectNode(APPLY_CROP_ROTATE_AND_MIRRORING)
+        createSurfaceProcessorNode(APPLY_CROP_ROTATE_AND_MIRRORING)
         createInputEdge(rotationDegrees = 90, cropRect = Rect(0, 0, 600, 400))
 
         // Act.
@@ -182,9 +182,9 @@ class SurfaceEffectNodeTest {
         createOutputSurfaceRequestAndProvideSurface(outputSurface)
         shadowOf(getMainLooper()).idle()
 
-        // Assert: surfaceOutput of SurfaceEffect will consume the initial rotation degrees and
+        // Assert: surfaceOutput of SurfaceProcessor will consume the initial rotation degrees and
         // output surface will receive 0 degrees.
-        assertThat(surfaceEffectInternal.surfaceOutput!!.rotationDegrees).isEqualTo(90)
+        assertThat(surfaceProcessorInternal.surfaceOutput!!.rotationDegrees).isEqualTo(90)
         assertThat(outputTransformInfo!!.rotationDegrees).isEqualTo(0)
         assertThat(outputTransformInfo!!.cropRect).isEqualTo(Rect(0, 0, 400, 600))
     }
@@ -192,7 +192,7 @@ class SurfaceEffectNodeTest {
     @Test
     fun setRotationToInput_applyCropRotateAndMirroring_rotationIsPropagated() {
         // Arrange.
-        createSurfaceEffectNode(APPLY_CROP_ROTATE_AND_MIRRORING)
+        createSurfaceProcessorNode(APPLY_CROP_ROTATE_AND_MIRRORING)
         createInputEdge(rotationDegrees = 90)
         val inputSurface = inputEdge.surfaces[0]
         val outputEdge = node.transform(inputEdge)
@@ -204,16 +204,16 @@ class SurfaceEffectNodeTest {
         inputSurface.rotationDegrees = 270
         shadowOf(getMainLooper()).idle()
 
-        // Assert: surfaceOutput of SurfaceEffect will consume the initial rotation degrees and
+        // Assert: surfaceOutput of SurfaceProcessor will consume the initial rotation degrees and
         // output surface will receive the remaining degrees.
-        assertThat(surfaceEffectInternal.surfaceOutput!!.rotationDegrees).isEqualTo(90)
+        assertThat(surfaceProcessorInternal.surfaceOutput!!.rotationDegrees).isEqualTo(90)
         assertThat(outputTransformInfo!!.rotationDegrees).isEqualTo(180)
     }
 
     @Test
     fun provideSurfaceToOutput_surfaceIsPropagatedE2E() {
         // Arrange.
-        createSurfaceEffectNode()
+        createSurfaceProcessorNode()
         createInputEdge()
         val inputSurface = inputEdge.surfaces[0]
         val outputEdge = node.transform(inputEdge)
@@ -223,15 +223,15 @@ class SurfaceEffectNodeTest {
         outputSurface.setProvider(Futures.immediateFuture(appSurface))
         shadowOf(getMainLooper()).idle()
 
-        // Assert: effect receives app Surface. CameraX receives effect Surface.
-        assertThat(surfaceEffectInternal.outputSurface).isEqualTo(appSurface)
-        assertThat(inputSurface.surface.get()).isEqualTo(surfaceEffectInternal.inputSurface)
+        // Assert: processor receives app Surface. CameraX receives processor Surface.
+        assertThat(surfaceProcessorInternal.outputSurface).isEqualTo(appSurface)
+        assertThat(inputSurface.surface.get()).isEqualTo(surfaceProcessorInternal.inputSurface)
     }
 
     @Test
-    fun releaseNode_effectIsReleased() {
+    fun releaseNode_processorIsReleased() {
         // Arrange.
-        createSurfaceEffectNode()
+        createSurfaceProcessorNode()
         createInputEdge()
         val outputSurface = node.transform(inputEdge).surfaces[0]
         outputSurface.setProvider(Futures.immediateFuture(appSurface))
@@ -241,9 +241,9 @@ class SurfaceEffectNodeTest {
         node.release()
         shadowOf(getMainLooper()).idle()
 
-        // Assert: effect is released and has requested effect to close the SurfaceOutput
-        assertThat(surfaceEffectInternal.isReleased).isTrue()
-        assertThat(surfaceEffectInternal.isOutputSurfaceRequestedToClose).isTrue()
+        // Assert: processor is released and has requested processor to close the SurfaceOutput
+        assertThat(surfaceProcessorInternal.isReleased).isTrue()
+        assertThat(surfaceProcessorInternal.isOutputSurfaceRequestedToClose).isTrue()
     }
 
     private fun createInputEdge(
@@ -269,10 +269,14 @@ class SurfaceEffectNodeTest {
         inputEdge = SurfaceEdge.create(listOf(surface))
     }
 
-    private fun createSurfaceEffectNode(
+    private fun createSurfaceProcessorNode(
         glTransformOptions: GlTransformOptions = USE_SURFACE_TEXTURE_TRANSFORM
     ) {
-        node = SurfaceEffectNode(FakeCamera(), glTransformOptions, surfaceEffectInternal)
+        node = SurfaceProcessorNode(
+            FakeCamera(),
+            glTransformOptions,
+            surfaceProcessorInternal
+        )
     }
 
     private fun createOutputSurfaceRequestAndProvideSurface(

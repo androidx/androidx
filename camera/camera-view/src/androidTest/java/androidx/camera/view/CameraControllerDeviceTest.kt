@@ -28,7 +28,7 @@ import androidx.camera.core.CameraSelector.LENS_FACING_FRONT
 import androidx.camera.core.CameraXConfig
 import androidx.camera.core.EffectBundle
 import androidx.camera.core.ImageCapture
-import androidx.camera.core.SurfaceEffect.PREVIEW
+import androidx.camera.core.SurfaceProcessor.PREVIEW
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.CameraPipeConfigTestRule
@@ -37,7 +37,7 @@ import androidx.camera.testing.CameraUtil.PreTestCameraIdList
 import androidx.camera.testing.CoreAppTestUtil
 import androidx.camera.testing.fakes.FakeActivity
 import androidx.camera.testing.fakes.FakeLifecycleOwner
-import androidx.camera.testing.fakes.FakeSurfaceEffect
+import androidx.camera.testing.fakes.FakeSurfaceProcessor
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
@@ -131,13 +131,17 @@ class CameraControllerDeviceTest(
         instrumentation.runOnMainSync {
             controller!!.setEffectBundle(
                 EffectBundle.Builder(mainThreadExecutor())
-                    .addEffect(PREVIEW, FakeSurfaceEffect(mainThreadExecutor()))
+                    .addEffect(PREVIEW,
+                        FakeSurfaceProcessor(
+                            mainThreadExecutor()
+                        )
+                    )
                     .build()
             )
         }
 
         // Assert: preview has effect
-        assertThat(controller!!.mPreview.effect).isNotNull()
+        assertThat(controller!!.mPreview.processor).isNotNull()
 
         // Act: clear the EffectBundle
         instrumentation.runOnMainSync {
@@ -145,7 +149,7 @@ class CameraControllerDeviceTest(
         }
 
         // Assert: preview no longer has the effect.
-        assertThat(controller!!.mPreview.effect).isNull()
+        assertThat(controller!!.mPreview.processor).isNull()
     }
 
     @Test
