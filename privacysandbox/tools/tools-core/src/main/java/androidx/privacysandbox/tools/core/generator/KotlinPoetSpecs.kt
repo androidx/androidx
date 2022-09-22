@@ -34,7 +34,7 @@ public fun Parameter.poetSpec(): ParameterSpec {
 }
 
 /** [TypeName] equivalent to this parameter. */
-public fun Type.poetSpec(): TypeName {
+public fun Type.poetSpec(): ClassName {
     val splits = name.split('.')
     return ClassName(splits.dropLast(1).joinToString("."), splits.last())
 }
