@@ -587,6 +587,7 @@ class TestPagerTest {
             append()
             getPagingState(7)
         }
+        // in this case anchorPos is a placeholder at index 7
         assertThat(state).isEqualTo(
             PagingState(
                 pages = listOf(
@@ -601,6 +602,12 @@ class TestPagerTest {
                 leadingPlaceholderCount = 17
             )
         )
+        val source2 = TestPagingSource()
+        val pager2 = TestPager(source, CONFIG)
+        val page = pager2.run {
+            refresh(source2.getRefreshKey(state))
+        }
+        assertThat(page).isEqualTo(listOf(7, 8, 9, 10, 11).asPage())
     }
 
     @Test
@@ -633,6 +640,15 @@ class TestPagerTest {
                 leadingPlaceholderCount = 0
             )
         )
+        val source2 = TestPagingSource()
+        val pager2 = TestPager(source, CONFIG)
+        val page = pager2.run {
+            refresh(source2.getRefreshKey(state))
+        }
+        // without placeholders, Paging currently has no way to translate item[7] within loaded
+        // pages into its absolute position within available data. Hence anchorPosition 7 will
+        // reference item[7] within available data.
+        assertThat(page).isEqualTo(listOf(7, 8, 9, 10, 11).asPage(placeholdersEnabled = false))
     }
 
     @Test
@@ -696,6 +712,107 @@ class TestPagerTest {
         assertThat(msg2).isEqualTo(
             "anchorPosition 8 is out of bounds between [0..7]. Please " +
         "provide a valid anchorPosition."
+        )
+    }
+
+    @Test
+    fun getPagingStateWithAnchorLookup_placeHoldersEnabled() = runTest {
+        val source = TestPagingSource()
+        val pager = TestPager(source, CONFIG)
+
+        val state = pager.run {
+            refresh(20)
+            prepend()
+            append()
+            getPagingState { it == TestPagingSource.ITEMS[22] }
+        }
+        assertThat(state).isEqualTo(
+            PagingState(
+                pages = listOf(
+                    listOf(17, 18, 19).asPage(),
+                    // refresh
+                    listOf(20, 21, 22, 23, 24).asPage(),
+                    // append
+                    listOf(25, 26, 27).asPage(),
+                ),
+                anchorPosition = 22,
+                config = CONFIG,
+                leadingPlaceholderCount = 17
+            )
+        )
+        // use state to getRefreshKey
+        val source2 = TestPagingSource()
+        val pager2 = TestPager(source, CONFIG)
+        val page = pager2.run {
+            refresh(source2.getRefreshKey(state))
+        }
+        assertThat(page).isEqualTo(listOf(22, 23, 24, 25, 26).asPage())
+    }
+
+    @Test
+    fun getPagingStateWithAnchorLookup_placeHoldersDisabled() = runTest {
+        val source = TestPagingSource(placeholdersEnabled = false)
+        val config = PagingConfig(
+            pageSize = 3,
+            initialLoadSize = 5,
+            enablePlaceholders = false
+        )
+        val pager = TestPager(source, config)
+
+        val state = pager.run {
+            refresh(20)
+            prepend()
+            append()
+            getPagingState { it == TestPagingSource.ITEMS[22] } // item 22 in this case
+        }
+        assertThat(state).isEqualTo(
+            PagingState(
+                pages = listOf(
+                    listOf(17, 18, 19).asPage(placeholdersEnabled = false),
+                    // refresh
+                    listOf(20, 21, 22, 23, 24).asPage(placeholdersEnabled = false),
+                    // append
+                    listOf(25, 26, 27).asPage(placeholdersEnabled = false),
+                ),
+                anchorPosition = 5,
+                config = config,
+                leadingPlaceholderCount = 0
+            )
+        )
+        // use state to getRefreshKey
+        val source2 = TestPagingSource()
+        val pager2 = TestPager(source, CONFIG)
+        val page = pager2.run {
+            refresh(source2.getRefreshKey(state))
+        }
+        // without placeholders, Paging currently has no way to translate item[5] within loaded
+        // pages into its absolute position within available data. anchorPosition 5 will reference
+        // item[5] within available data.
+        assertThat(page).isEqualTo(listOf(5, 6, 7, 8, 9).asPage(placeholdersEnabled = false))
+    }
+
+    @Test
+    fun getPagingStateWithAnchorLookup_itemNotFoundThrows() = runTest {
+        val source = TestPagingSource(placeholdersEnabled = false)
+        val config = PagingConfig(
+            pageSize = 3,
+            initialLoadSize = 5,
+            enablePlaceholders = false
+        )
+        val pager = TestPager(source, config)
+
+        val msg = assertFailsWith<IllegalArgumentException> {
+            pager.run {
+                refresh(20)
+                prepend()
+                append()
+                getPagingState { it == TestPagingSource.ITEMS[10] }
+            }
+        }.message
+        assertThat(msg).isEqualTo(
+            "The given predicate has returned false for every loaded item. To generate a" +
+                "PagingState anchored to an item, the expected item must have already " +
+                "been loaded."
         )
     }
 
