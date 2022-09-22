@@ -16,6 +16,7 @@
 
 package androidx.room.compiler.processing
 
+import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
 import androidx.room.compiler.processing.util.compileFiles
@@ -29,6 +30,9 @@ import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeVariableName
+import com.squareup.kotlinpoet.javapoet.JClassName
+import com.squareup.kotlinpoet.javapoet.JTypeName
+import com.squareup.kotlinpoet.javapoet.KClassName
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -67,29 +71,52 @@ class XTypeElementTest {
                 assertThat(it.packageName).isEqualTo("")
                 assertThat(it.name).isEqualTo("TopLevel")
                 assertThat(it.qualifiedName).isEqualTo("TopLevel")
-                assertThat(it.className).isEqualTo(ClassName.get("", "TopLevel"))
+                assertThat(it.asClassName().java)
+                    .isEqualTo(JClassName.get("", "TopLevel"))
+                if (invocation.isKsp) {
+                    assertThat(it.asClassName().kotlin)
+                        .isEqualTo(KClassName("", "TopLevel"))
+                } else {
+                    assertThat(it.asClassName().kotlin)
+                        .isEqualTo(XTypeName.UNAVAILABLE_KTYPE_NAME)
+                }
             }
             invocation.processingEnv.requireTypeElement("foo.bar.InFooBar").let {
                 assertThat(it.packageName).isEqualTo("foo.bar")
                 assertThat(it.name).isEqualTo("InFooBar")
                 assertThat(it.qualifiedName).isEqualTo("foo.bar.InFooBar")
-                assertThat(it.className).isEqualTo(ClassName.get("foo.bar", "InFooBar"))
+                assertThat(it.asClassName().java)
+                    .isEqualTo(ClassName.get("foo.bar", "InFooBar"))
+                if (invocation.isKsp) {
+                    assertThat(it.asClassName().kotlin)
+                        .isEqualTo(KClassName("foo.bar", "InFooBar"))
+                }
             }
             invocation.processingEnv.requireTypeElement("foo.bar.Outer").let {
                 assertThat(it.packageName).isEqualTo("foo.bar")
                 assertThat(it.name).isEqualTo("Outer")
                 assertThat(it.qualifiedName).isEqualTo("foo.bar.Outer")
-                assertThat(it.className).isEqualTo(
+                assertThat(it.asClassName().java).isEqualTo(
                     ClassName.get("foo.bar", "Outer")
                 )
+                if (invocation.isKsp) {
+                    assertThat(it.asClassName().kotlin).isEqualTo(
+                        KClassName("foo.bar", "Outer")
+                    )
+                }
             }
             invocation.processingEnv.requireTypeElement("foo.bar.Outer.Nested").let {
                 assertThat(it.packageName).isEqualTo("foo.bar")
                 assertThat(it.name).isEqualTo("Nested")
                 assertThat(it.qualifiedName).isEqualTo("foo.bar.Outer.Nested")
-                assertThat(it.className).isEqualTo(
+                assertThat(it.asClassName().java).isEqualTo(
                     ClassName.get("foo.bar", "Outer", "Nested")
                 )
+                if (invocation.isKsp) {
+                    assertThat(it.asClassName().kotlin).isEqualTo(
+                        KClassName("foo.bar", "Outer", "Nested")
+                    )
+                }
             }
             if (invocation.isKsp) {
                 // these are KSP specific tests, typenames are tested elsewhere
@@ -98,11 +125,19 @@ class XTypeElementTest {
                     assertThat(it.packageName).isEqualTo("kotlin")
                     assertThat(it.name).isEqualTo("Int")
                     assertThat(it.qualifiedName).isEqualTo("kotlin.Int")
+                    assertThat(it.asClassName().java).isEqualTo(JTypeName.INT.box())
+                    if (invocation.isKsp) {
+                        assertThat(it.asClassName().kotlin).isEqualTo(com.squareup.kotlinpoet.INT)
+                    }
                 }
                 invocation.processingEnv.requireTypeElement("kotlin.Int").let {
                     assertThat(it.packageName).isEqualTo("kotlin")
                     assertThat(it.name).isEqualTo("Int")
                     assertThat(it.qualifiedName).isEqualTo("kotlin.Int")
+                    assertThat(it.asClassName().java).isEqualTo(JTypeName.INT.box())
+                    if (invocation.isKsp) {
+                        assertThat(it.asClassName().kotlin).isEqualTo(com.squareup.kotlinpoet.INT)
+                    }
                 }
             }
         }

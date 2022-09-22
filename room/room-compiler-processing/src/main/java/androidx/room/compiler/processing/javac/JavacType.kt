@@ -16,16 +16,16 @@
 
 package androidx.room.compiler.processing.javac
 
+import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.processing.XEquality
 import androidx.room.compiler.processing.XNullability
 import androidx.room.compiler.processing.XRawType
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.javac.kotlin.KmType
 import androidx.room.compiler.processing.javac.kotlin.KotlinMetadataElement
-import androidx.room.compiler.processing.ksp.ERROR_TYPE_NAME
+import androidx.room.compiler.processing.ksp.ERROR_JTYPE_NAME
 import androidx.room.compiler.processing.safeTypeName
 import com.google.auto.common.MoreTypes
-import java.lang.IllegalStateException
 import javax.lang.model.type.TypeKind
 import javax.lang.model.type.TypeMirror
 import kotlin.reflect.KClass
@@ -68,12 +68,22 @@ internal abstract class JavacType(
     override fun isError(): Boolean {
         return typeMirror.kind == TypeKind.ERROR ||
             // https://kotlinlang.org/docs/reference/kapt.html#non-existent-type-correction
-            (kotlinType != null && typeName == ERROR_TYPE_NAME)
+            (kotlinType != null && typeName == ERROR_JTYPE_NAME)
     }
 
     override val typeName by lazy {
-        typeMirror.safeTypeName()
+        xTypeName.java
     }
+
+    private val xTypeName: XTypeName by lazy {
+        XTypeName(
+            typeMirror.safeTypeName(),
+            XTypeName.UNAVAILABLE_KTYPE_NAME,
+            nullability
+        )
+    }
+
+    override fun asTypeName() = xTypeName
 
     override fun equals(other: Any?): Boolean {
         return XEquality.equals(this, other)

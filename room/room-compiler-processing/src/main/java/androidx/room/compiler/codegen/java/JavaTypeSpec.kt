@@ -16,30 +16,30 @@
 
 package androidx.room.compiler.codegen.java
 
-import androidx.room.compiler.codegen.NONNULL_ANNOTATION
-import androidx.room.compiler.codegen.NULLABLE_ANNOTATION
+import androidx.room.compiler.codegen.JTypeSpecBuilder
 import androidx.room.compiler.codegen.VisibilityModifier
 import androidx.room.compiler.codegen.XAnnotationSpec
+import androidx.room.compiler.codegen.XClassName
 import androidx.room.compiler.codegen.XCodeBlock
 import androidx.room.compiler.codegen.XFunSpec
+import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.codegen.XTypeSpec
 import androidx.room.compiler.processing.XNullability
 import com.squareup.javapoet.FieldSpec
-import com.squareup.kotlinpoet.javapoet.JClassName
-import com.squareup.kotlinpoet.javapoet.JTypeName
+import com.squareup.kotlinpoet.javapoet.JTypeSpec
 import javax.lang.model.element.Modifier
 
 internal class JavaTypeSpec(
-    override val className: JClassName,
-    internal val actual: com.squareup.javapoet.TypeSpec
+    override val className: XClassName,
+    internal val actual: JTypeSpec
 ) : JavaLang(), XTypeSpec {
 
     internal class Builder(
-        private val className: JClassName,
-        internal val actual: com.squareup.javapoet.TypeSpec.Builder
+        private val className: XClassName,
+        internal val actual: JTypeSpecBuilder
     ) : JavaLang(), XTypeSpec.Builder {
-        override fun superclass(typeName: JTypeName) = apply {
-            actual.superclass(typeName)
+        override fun superclass(typeName: XTypeName) = apply {
+            actual.superclass(typeName.java)
         }
 
         override fun addAnnotation(annotation: XAnnotationSpec) {
@@ -48,22 +48,21 @@ internal class JavaTypeSpec(
         }
 
         override fun addProperty(
-            typeName: JTypeName,
+            typeName: XTypeName,
             name: String,
-            nullability: XNullability,
             visibility: VisibilityModifier,
             isMutable: Boolean,
             initExpr: XCodeBlock?,
             annotations: List<XAnnotationSpec>
         ) = apply {
             actual.addField(
-                FieldSpec.builder(typeName, name).apply {
+                FieldSpec.builder(typeName.java, name).apply {
                     val visibilityModifier = visibility.toJavaVisibilityModifier()
                     // TODO(b/247242374) Add nullability annotations for non-private fields
                     if (visibilityModifier != Modifier.PRIVATE) {
-                        if (nullability == XNullability.NULLABLE) {
+                        if (typeName.nullability == XNullability.NULLABLE) {
                             addAnnotation(NULLABLE_ANNOTATION)
-                        } else if (nullability == XNullability.NONNULL) {
+                        } else if (typeName.nullability == XNullability.NONNULL) {
                             addAnnotation(NONNULL_ANNOTATION)
                         }
                     }

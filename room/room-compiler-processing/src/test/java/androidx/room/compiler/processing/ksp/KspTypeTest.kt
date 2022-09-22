@@ -99,8 +99,8 @@ class KspTypeTest {
             subject.getField("errorType").type.let { type ->
                 assertThat(type.isError()).isTrue()
                 assertThat(type.typeArguments).isEmpty()
-                assertThat(type.typeName).isEqualTo(ERROR_TYPE_NAME)
-                assertThat(type.typeElement!!.className).isEqualTo(ERROR_TYPE_NAME)
+                assertThat(type.typeName).isEqualTo(ERROR_JTYPE_NAME)
+                assertThat(type.typeElement!!.className).isEqualTo(ERROR_JTYPE_NAME)
             }
 
             subject.getField("listOfErrorType").type.let { type ->
@@ -108,7 +108,7 @@ class KspTypeTest {
                 assertThat(type.typeArguments).hasSize(1)
                 type.typeArguments.single().let { typeArg ->
                     assertThat(typeArg.isError()).isTrue()
-                    assertThat(typeArg.typeName).isEqualTo(ERROR_TYPE_NAME)
+                    assertThat(typeArg.typeName).isEqualTo(ERROR_JTYPE_NAME)
                 }
             }
             invocation.assertCompilationResult {

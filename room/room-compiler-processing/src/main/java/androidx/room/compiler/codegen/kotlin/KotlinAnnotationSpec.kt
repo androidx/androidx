@@ -16,16 +16,18 @@
 
 package androidx.room.compiler.codegen.kotlin
 
+import androidx.room.compiler.codegen.KAnnotationSpecBuilder
 import androidx.room.compiler.codegen.XAnnotationSpec
 import androidx.room.compiler.codegen.XCodeBlock
 import com.squareup.kotlinpoet.CodeBlock
+import com.squareup.kotlinpoet.javapoet.KAnnotationSpec
 
 internal class KotlinAnnotationSpec(
-    internal val actual: com.squareup.kotlinpoet.AnnotationSpec
+    internal val actual: KAnnotationSpec
 ) : KotlinLang(), XAnnotationSpec {
 
     internal class Builder(
-        internal val actual: com.squareup.kotlinpoet.AnnotationSpec.Builder
+        internal val actual: KAnnotationSpecBuilder
     ) : KotlinLang(), XAnnotationSpec.Builder {
         override fun addMember(name: String, code: XCodeBlock) = apply {
             require(code is KotlinCodeBlock)

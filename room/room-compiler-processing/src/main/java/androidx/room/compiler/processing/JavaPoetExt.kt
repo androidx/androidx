@@ -15,14 +15,14 @@
  */
 package androidx.room.compiler.processing
 
-import java.lang.Character.isISOControl
 import com.squareup.javapoet.AnnotationSpec
-import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.MethodSpec
 import com.squareup.javapoet.ParameterSpec
 import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeSpec
+import com.squareup.kotlinpoet.javapoet.JClassName
+import java.lang.Character.isISOControl
 import javax.lang.model.SourceVersion
 import javax.lang.model.element.Modifier
 import javax.lang.model.type.TypeKind
@@ -37,7 +37,8 @@ import javax.lang.model.type.TypeMirror
  *
  * We should still strive to avoid these cases, maybe turn it to an error in tests.
  */
-private val NONE_TYPE_NAME = ClassName.get("androidx.room.compiler.processing.error", "NotAType")
+internal val JAVA_NONE_TYPE_NAME: JClassName =
+    JClassName.get("androidx.room.compiler.processing.error", "NotAType")
 
 fun XAnnotation.toAnnotationSpec(): AnnotationSpec {
   val builder = AnnotationSpec.builder(className)
@@ -82,7 +83,7 @@ private fun characterLiteralWithoutSingleQuotes(c: Char): String? {
 }
 
 internal fun TypeMirror.safeTypeName(): TypeName = if (kind == TypeKind.NONE) {
-    NONE_TYPE_NAME
+    JAVA_NONE_TYPE_NAME
 } else {
     TypeName.get(this)
 }

@@ -16,6 +16,7 @@
 
 package androidx.room.compiler.processing
 
+import androidx.room.compiler.codegen.XTypeName
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.TypeName
 import kotlin.contracts.contract
@@ -31,7 +32,20 @@ interface XType {
     /**
      * The Javapoet [TypeName] representation of the type
      */
+    // TODO(b/247248619): Deprecate when more progress is made, otherwise -werror fails the build.
+    // @Deprecated(
+    //     message = "Use asTypeName().toJavaPoet() to be clear the name is for JavaPoet.",
+    //     replaceWith = ReplaceWith(
+    //         expression = "asTypeName().toJavaPoet()",
+    //         imports = ["androidx.room.compiler.codegen.toJavaPoet"]
+    //     )
+    // )
     val typeName: TypeName
+
+    /**
+     * Gets the [XTypeName] representing the type.
+     */
+    fun asTypeName(): XTypeName
 
     /**
      * Returns the rawType of this type. (e.g. `List<String>` to `List`.

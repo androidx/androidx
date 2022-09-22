@@ -16,6 +16,7 @@
 
 package androidx.room.compiler.processing.ksp
 
+import androidx.room.compiler.codegen.XClassName
 import androidx.room.compiler.processing.XAnnotated
 import androidx.room.compiler.processing.XConstructorElement
 import androidx.room.compiler.processing.XEnumEntry
@@ -24,6 +25,7 @@ import androidx.room.compiler.processing.XFieldElement
 import androidx.room.compiler.processing.XHasModifiers
 import androidx.room.compiler.processing.XMemberContainer
 import androidx.room.compiler.processing.XMethodElement
+import androidx.room.compiler.processing.XNullability
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.XTypeParameterElement
@@ -44,6 +46,8 @@ import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 import com.google.devtools.ksp.symbol.Modifier
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.TypeName
+import com.squareup.kotlinpoet.javapoet.JClassName
+import com.squareup.kotlinpoet.javapoet.KClassName
 
 internal sealed class KspTypeElement(
     env: KspProcessingEnv,
@@ -130,13 +134,21 @@ internal sealed class KspTypeElement(
     }
 
     override val className: ClassName by lazy {
-        declaration.typeName(env.resolver).tryBox().also { typeName ->
-            check(typeName is ClassName) {
+        xClassName.java
+    }
+
+    private val xClassName: XClassName by lazy {
+        val java = declaration.asJTypeName(env.resolver).tryBox().also { typeName ->
+            check(typeName is JClassName) {
                 "Internal error. The type name for $declaration should be a class name but " +
                     "received ${typeName::class}"
             }
-        } as ClassName
+        } as JClassName
+        val kotlin = declaration.asKTypeName(env.resolver) as KClassName
+        XClassName(java, kotlin, XNullability.NONNULL)
     }
+
+    override fun asClassName() = xClassName
 
     private val allMethods = MemoizedSequence {
         collectAllMethods(this)
