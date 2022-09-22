@@ -16,11 +16,14 @@
 
 package androidx.room.compiler.processing
 
-import androidx.room.compiler.processing.util.CONTINUATION_CLASS_NAME
+import androidx.room.compiler.codegen.XTypeName
+import androidx.room.compiler.codegen.asClassName
+import androidx.room.compiler.processing.util.CONTINUATION_JCLASS_NAME
 import androidx.room.compiler.processing.util.Source
-import androidx.room.compiler.processing.util.UNIT_CLASS_NAME
+import androidx.room.compiler.processing.util.UNIT_JCLASS_NAME
 import androidx.room.compiler.processing.util.className
 import androidx.room.compiler.processing.util.compileFiles
+import androidx.room.compiler.processing.util.createXTypeVariableName
 import androidx.room.compiler.processing.util.getDeclaredMethodByJvmName
 import androidx.room.compiler.processing.util.getMethodByJvmName
 import androidx.room.compiler.processing.util.getParameter
@@ -31,13 +34,20 @@ import com.google.common.truth.Truth.assertWithMessage
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
-import com.squareup.javapoet.TypeVariableName
 import com.squareup.javapoet.WildcardTypeName
+import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
+import com.squareup.kotlinpoet.UNIT
+import com.squareup.kotlinpoet.javapoet.JClassName
+import com.squareup.kotlinpoet.javapoet.JParameterizedTypeName
+import com.squareup.kotlinpoet.javapoet.JTypeName
+import com.squareup.kotlinpoet.javapoet.JTypeVariableName
+import com.squareup.kotlinpoet.javapoet.KClassName
+import com.squareup.kotlinpoet.javapoet.KTypeVariableName
+import java.io.File
+import java.io.IOException
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import java.io.File
-import java.io.IOException
 
 @RunWith(JUnit4::class)
 class XExecutableElementTest {
@@ -77,11 +87,11 @@ class XExecutableElementTest {
                 method.getParameter("param1").let { param ->
                     val paramType = param.type
                     check(paramType.isArray())
-                    assertThat(paramType.componentType.typeName)
-                        .isEqualTo(String::class.typeName())
+                    assertThat(paramType.componentType.asTypeName())
+                        .isEqualTo(String::class.asClassName())
                     assertThat(param.enclosingElement).isEqualTo(method)
                 }
-                assertThat(method.returnType.typeName).isEqualTo(String::class.typeName())
+                assertThat(method.returnType.asTypeName()).isEqualTo(String::class.asClassName())
             }
             element.getConstructors().single().let { ctor ->
                 assertThat(ctor.parameters).hasSize(1)
@@ -324,8 +334,8 @@ class XExecutableElementTest {
                 method.executableType.parameterTypes.last().let { cont ->
                     assertThat(cont.typeName).isEqualTo(
                         ParameterizedTypeName.get(
-                            CONTINUATION_CLASS_NAME,
-                            WildcardTypeName.supertypeOf(UNIT_CLASS_NAME)
+                            CONTINUATION_JCLASS_NAME,
+                            WildcardTypeName.supertypeOf(UNIT_JCLASS_NAME)
                         )
                     )
                     assertThat(cont.nullability).isEqualTo(XNullability.NONNULL)
@@ -336,7 +346,7 @@ class XExecutableElementTest {
                 method.parameters.last().let { cont ->
                     assertThat(cont.type.typeName).isEqualTo(
                         ParameterizedTypeName.get(
-                            CONTINUATION_CLASS_NAME,
+                            CONTINUATION_JCLASS_NAME,
                             WildcardTypeName.supertypeOf(Integer::class.java)
                         )
                     )
@@ -347,7 +357,7 @@ class XExecutableElementTest {
                 method.executableType.parameterTypes.last().let { cont ->
                     assertThat(cont.typeName).isEqualTo(
                         ParameterizedTypeName.get(
-                            CONTINUATION_CLASS_NAME,
+                            CONTINUATION_JCLASS_NAME,
                             WildcardTypeName.supertypeOf(Integer::class.java)
                         )
                     )
@@ -366,7 +376,7 @@ class XExecutableElementTest {
                 method.executableType.parameterTypes.last().let { cont ->
                     assertThat(cont.typeName).isEqualTo(
                         ParameterizedTypeName.get(
-                            CONTINUATION_CLASS_NAME,
+                            CONTINUATION_JCLASS_NAME,
                             WildcardTypeName.supertypeOf(
                                 ParameterizedTypeName.get(
                                     Pair::class.className(),
@@ -416,16 +426,20 @@ class XExecutableElementTest {
             listOf("getX", "getProp1", "getProp2", "getProp3", "getProp5", "getProp6",
                 "getProp8\$main").forEach {
                 klass.getMethodByJvmName(it).let { method ->
-                    assertThat(method.returnType.typeName).isEqualTo(String::class.typeName())
+                    assertThat(method.returnType.asTypeName())
+                        .isEqualTo(String::class.asClassName())
                     assertThat(method.parameters).isEmpty()
                     assertThat(method.returnType.nullability).isEqualTo(XNullability.NONNULL)
                 }
             }
             listOf("setY", "setProp2", "setProp8\$main").forEach {
                 klass.getMethodByJvmName(it).let { method ->
-                    assertThat(method.returnType.typeName).isEqualTo(TypeName.VOID)
-                    assertThat(method.parameters.first().type.typeName).isEqualTo(
-                        String::class.typeName()
+                    assertThat(method.returnType.asTypeName().java).isEqualTo(JTypeName.VOID)
+                    if (invocation.isKsp) {
+                        assertThat(method.returnType.asTypeName().kotlin).isEqualTo(UNIT)
+                    }
+                    assertThat(method.parameters.first().type.asTypeName()).isEqualTo(
+                        String::class.asClassName()
                     )
                     assertThat(method.isPublic()).isTrue()
                     assertThat(method.parameters.first().type.nullability).isEqualTo(
@@ -469,11 +483,12 @@ class XExecutableElementTest {
             val method = base.getMethodByJvmName("foo")
             method.getParameter("t").let { param ->
                 param.asMemberOf(subject).let {
-                    assertThat(it.typeName).isEqualTo(String::class.typeName())
+                    assertThat(it.asTypeName()).isEqualTo(String::class.asClassName())
                     assertThat(it.nullability).isEqualTo(XNullability.NONNULL)
                 }
                 param.asMemberOf(nullableSubject).let {
-                    assertThat(it.typeName).isEqualTo(String::class.typeName())
+                    assertThat(it.asTypeName())
+                        .isEqualTo(String::class.asClassName().copy(nullable = true))
                     if (invocation.isKsp) {
                         // kapt implementation is unable to read this properly
                         assertThat(it.nullability).isEqualTo(XNullability.NULLABLE)
@@ -482,11 +497,13 @@ class XExecutableElementTest {
             }
             method.getParameter("nullableT").let { param ->
                 param.asMemberOf(subject).let {
-                    assertThat(it.typeName).isEqualTo(String::class.typeName())
+                    assertThat(it.asTypeName())
+                        .isEqualTo(String::class.asClassName().copy(nullable = true))
                     assertThat(it.nullability).isEqualTo(XNullability.NULLABLE)
                 }
                 param.asMemberOf(nullableSubject).let {
-                    assertThat(it.typeName).isEqualTo(String::class.typeName())
+                    assertThat(it.asTypeName())
+                        .isEqualTo(String::class.asClassName().copy(nullable = true))
                     assertThat(it.nullability).isEqualTo(XNullability.NULLABLE)
                 }
             }
@@ -542,7 +559,7 @@ class XExecutableElementTest {
             }
             listOf(impl, javaImpl).forEach { subject ->
                 listOf("getY", "getX", "setY").forEach { methodName ->
-                    assertWithMessage("${subject.className}:$methodName").that(
+                    assertWithMessage("${subject.asClassName().canonicalName}:$methodName").that(
                         overrides(
                             owner = subject,
                             ownerMethodName = methodName,
@@ -551,7 +568,7 @@ class XExecutableElementTest {
                     ).isTrue()
                 }
 
-                assertWithMessage(subject.className.canonicalName()).that(
+                assertWithMessage(subject.asClassName().canonicalName).that(
                     overrides(
                         owner = subject,
                         ownerMethodName = "getY",
@@ -560,7 +577,7 @@ class XExecutableElementTest {
                     )
                 ).isFalse()
 
-                assertWithMessage(subject.className.canonicalName()).that(
+                assertWithMessage(subject.asClassName().canonicalName).that(
                     overrides(
                         owner = subject,
                         ownerMethodName = "getY",
@@ -569,7 +586,7 @@ class XExecutableElementTest {
                     )
                 ).isFalse()
 
-                assertWithMessage(subject.className.canonicalName()).that(
+                assertWithMessage(subject.asClassName().canonicalName).that(
                     overrides(
                         owner = base,
                         ownerMethodName = "getX",
@@ -578,7 +595,7 @@ class XExecutableElementTest {
                     )
                 ).isFalse()
 
-                assertWithMessage(subject.className.canonicalName()).that(
+                assertWithMessage(subject.asClassName().canonicalName).that(
                     overrides(
                         owner = subject,
                         ownerMethodName = "setY",
@@ -587,7 +604,7 @@ class XExecutableElementTest {
                     )
                 ).isFalse()
 
-                assertWithMessage(subject.className.canonicalName()).that(
+                assertWithMessage(subject.asClassName().canonicalName).that(
                     overrides(
                         owner = subject,
                         ownerMethodName = "setY",
@@ -679,14 +696,14 @@ class XExecutableElementTest {
         ) { invocation ->
             val elm = invocation.processingEnv.requireTypeElement("JavaImpl")
             assertThat(
-                elm.getMethodByJvmName("getX").returnType.typeName
-            ).isEqualTo(TypeName.INT)
+                elm.getMethodByJvmName("getX").returnType.asTypeName()
+            ).isEqualTo(XTypeName.PRIMITIVE_INT)
             assertThat(
-                elm.getMethodByJvmName("getY").returnType.typeName
-            ).isEqualTo(TypeName.INT)
+                elm.getMethodByJvmName("getY").returnType.asTypeName()
+            ).isEqualTo(XTypeName.PRIMITIVE_INT)
             assertThat(
-                elm.getMethodByJvmName("setY").parameters.first().type.typeName
-            ).isEqualTo(TypeName.INT)
+                elm.getMethodByJvmName("setY").parameters.first().type.asTypeName()
+            ).isEqualTo(XTypeName.PRIMITIVE_INT)
         }
     }
 
@@ -721,14 +738,14 @@ class XExecutableElementTest {
         ) { invocation ->
             val elm = invocation.processingEnv.requireTypeElement("JavaImpl")
             assertThat(
-                elm.getMethodByJvmName("getX").returnType.typeName
-            ).isEqualTo(TypeName.INT.box())
+                elm.getMethodByJvmName("getX").returnType.asTypeName()
+            ).isEqualTo(Int::class.asClassName())
             assertThat(
-                elm.getMethodByJvmName("getY").returnType.typeName
-            ).isEqualTo(TypeName.INT.box())
+                elm.getMethodByJvmName("getY").returnType.asTypeName()
+            ).isEqualTo(Int::class.asClassName())
             assertThat(
-                elm.getMethodByJvmName("setY").parameters.first().type.typeName
-            ).isEqualTo(TypeName.INT.box())
+                elm.getMethodByJvmName("setY").parameters.first().type.asTypeName()
+            ).isEqualTo(Int::class.asClassName())
         }
     }
 
@@ -876,7 +893,7 @@ class XExecutableElementTest {
             sources = buildSources("app"),
             classpath = compileFiles(sources = buildSources("lib"))
         ) { invocation ->
-            fun collectExceptions(subject: XTypeElement): List<Pair<String, Set<TypeName>>> {
+            fun collectExceptions(subject: XTypeElement): List<Pair<String, Set<XTypeName>>> {
                 return (subject.getConstructors() + subject.getDeclaredMethods()).mapNotNull {
                     val throwTypes = it.thrownTypes
                     val name = if (it is XMethodElement) {
@@ -887,16 +904,16 @@ class XExecutableElementTest {
                     if (throwTypes.isEmpty()) {
                         null
                     } else {
-                        name to throwTypes.map { it.typeName }.toSet()
+                        name to throwTypes.map { it.asTypeName() }.toSet()
                     }
                 }
             }
             listOf("app", "lib").forEach { pkg ->
                 val expectedConstructor =
-                    "<init>" to setOf(ClassName.get(IllegalArgumentException::class.java))
+                    "<init>" to setOf(IllegalArgumentException::class.asClassName())
                 val expectedMethod = "multipleThrows" to setOf(
-                    ClassName.get(IOException::class.java),
-                    ClassName.get(IllegalStateException::class.java)
+                    IOException::class.asClassName(),
+                    IllegalStateException::class.asClassName()
                 )
                 invocation.processingEnv.requireTypeElement("$pkg.KotlinSubject").let { subject ->
                     assertWithMessage(subject.qualifiedName).that(
@@ -918,17 +935,17 @@ class XExecutableElementTest {
                         collectExceptions(subject)
                     ).containsExactly(
                         "getGetterThrows" to setOf(
-                            ClassName.get(IllegalArgumentException::class.java)
+                            IllegalArgumentException::class.asClassName()
                         ),
                         "setSetterThrows" to setOf(
-                            ClassName.get(IllegalStateException::class.java)
+                            IllegalStateException::class.asClassName()
                         ),
                         "getBothThrows" to setOf(
-                            ClassName.get(IOException::class.java)
+                            IOException::class.asClassName()
                         ),
                         "setBothThrows" to setOf(
-                            ClassName.get(IllegalStateException::class.java),
-                            ClassName.get(IllegalArgumentException::class.java)
+                            IllegalStateException::class.asClassName(),
+                            IllegalArgumentException::class.asClassName()
                         ),
                     )
                 }
@@ -966,14 +983,14 @@ class XExecutableElementTest {
                     assertThat(method.isExtensionFunction()).isTrue()
                     assertThat(method.parameters.size).isEqualTo(1)
                     assertThat(method.parameters[0].name).isEqualTo("\$this\$ext1")
-                    assertThat(method.parameters[0].type.typeName)
-                        .isEqualTo(String::class.typeName())
+                    assertThat(method.parameters[0].type.asTypeName())
+                        .isEqualTo(String::class.asClassName())
                 }
                 element.getDeclaredMethodByJvmName("ext2").let { method ->
                     assertThat(method.parameters.size).isEqualTo(2)
                     assertThat(method.parameters[0].name).isEqualTo("\$this\$ext2")
-                    assertThat(method.parameters[0].type.typeName)
-                        .isEqualTo(String::class.typeName())
+                    assertThat(method.parameters[0].type.asTypeName())
+                        .isEqualTo(String::class.asClassName())
                     assertThat(method.parameters[1].name).isEqualTo("inputParam")
                 }
                 element.getDeclaredMethodByJvmName("ext3").let { method ->
@@ -985,23 +1002,28 @@ class XExecutableElementTest {
                     )
                 }
                 element.getDeclaredMethodByJvmName("ext4").let { method ->
-                    assertThat(method.parameters[0].type.typeName).isEqualTo(
-                        ParameterizedTypeName.get(
-                            ClassName.get(pkg, "Foo"),
-                            TypeVariableName.get("T")
+                    assertThat(method.parameters[0].type.asTypeName().java).isEqualTo(
+                        JParameterizedTypeName.get(
+                            JClassName.get(pkg, "Foo"),
+                            JTypeVariableName.get("T")
                         )
                     )
+                    if (it.isKsp) {
+                        assertThat(method.parameters[0].type.asTypeName().kotlin).isEqualTo(
+                            KClassName(pkg, "Foo").parameterizedBy(KTypeVariableName("T"))
+                        )
+                    }
                 }
                 element.getDeclaredMethodByJvmName("ext5").let { method ->
-                    assertThat(method.parameters[0].type.typeName)
-                        .isEqualTo(TypeVariableName.get("T"))
+                    assertThat(method.parameters[0].type.asTypeName())
+                        .isEqualTo(createXTypeVariableName("T"))
                 }
                 element.getDeclaredMethodByJvmName("ext6").let { method ->
                     assertThat(method.isSuspendFunction()).isTrue()
                     assertThat(method.isExtensionFunction()).isTrue()
                     assertThat(method.parameters.size).isEqualTo(2)
-                    assertThat(method.parameters[0].type.typeName)
-                        .isEqualTo(String::class.typeName())
+                    assertThat(method.parameters[0].type.asTypeName())
+                        .isEqualTo(String::class.asClassName())
                     assertThat(method.parameters[1].type.typeName).isEqualTo(
                         ParameterizedTypeName.get(
                             ClassName.get("kotlin.coroutines", "Continuation"),
@@ -1013,24 +1035,24 @@ class XExecutableElementTest {
                 element.getDeclaredMethodByJvmName("ext7").let { method ->
                     assertThat(method.isAbstract()).isTrue()
                     assertThat(method.isExtensionFunction()).isTrue()
-                    assertThat(method.parameters[0].type.typeName)
-                        .isEqualTo(TypeVariableName.get("T"))
+                    assertThat(method.parameters[0].type.asTypeName())
+                        .isEqualTo(createXTypeVariableName("T"))
 
                     val fooImpl = it.processingEnv.requireTypeElement("$pkg.FooImpl")
-                    assertThat(method.parameters[0].asMemberOf(fooImpl.type).typeName)
-                        .isEqualTo(TypeName.INT.box())
+                    assertThat(method.parameters[0].asMemberOf(fooImpl.type).asTypeName())
+                        .isEqualTo(Int::class.asClassName())
                 }
                 // Verify non-overridden Foo.ext1() asMemberOf FooImpl
                 element.getDeclaredMethodByJvmName("ext1").let { method ->
                     val fooImpl = it.processingEnv.requireTypeElement("$pkg.FooImpl")
-                    assertThat(method.parameters[0].asMemberOf(fooImpl.type).typeName)
-                        .isEqualTo(String::class.typeName())
+                    assertThat(method.parameters[0].asMemberOf(fooImpl.type).asTypeName())
+                        .isEqualTo(String::class.asClassName())
                 }
                 // Verify non-overridden Foo.ext5() asMemberOf FooImpl
                 element.getDeclaredMethodByJvmName("ext5").let { method ->
                     val fooImpl = it.processingEnv.requireTypeElement("$pkg.FooImpl")
-                    assertThat(method.parameters[0].asMemberOf(fooImpl.type).typeName)
-                        .isEqualTo(TypeName.INT.box())
+                    assertThat(method.parameters[0].asMemberOf(fooImpl.type).asTypeName())
+                        .isEqualTo(Int::class.asClassName())
                 }
             }
         }

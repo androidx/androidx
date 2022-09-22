@@ -59,8 +59,8 @@ internal abstract class KspType(
 
     private val xTypeName: XTypeName by lazy {
         XTypeName(
-            jvmWildcardType?.typeName ?: resolveJTypeName(),
-            resolveKTypeName(),
+            jvmWildcardType?.asTypeName()?.java ?: resolveJTypeName(),
+            jvmWildcardType?.asTypeName()?.kotlin ?: resolveKTypeName(),
             nullability
         )
     }
@@ -75,7 +75,7 @@ internal abstract class KspType(
         jvmTypeResolver?.resolveJvmType(env)
     }
 
-    val jvmWildcardTypeOrSelf
+    internal val jvmWildcardTypeOrSelf
         get() = jvmWildcardType ?: this
 
     protected abstract fun resolveJTypeName(): JTypeName
@@ -107,9 +107,9 @@ internal abstract class KspType(
             return@lazy null
         }
 
-        // If the typeName is primitive, return null for consistency since primitives normally imply
+        // If this is a primitive, return null for consistency since primitives normally imply
         // that there isn't an associated type element.
-        if (typeName.isPrimitive) {
+        if (this is KspPrimitiveType) {
             return@lazy null
         }
 
@@ -176,7 +176,7 @@ internal abstract class KspType(
         if (nullability == XNullability.UNKNOWN || other.nullability == XNullability.UNKNOWN) {
             // if one the nullabilities is unknown, it is coming from java source code or .class.
             // for those cases, use java platform type equality (via typename)
-            return typeName == other.typeName
+            return asTypeName().java == other.asTypeName().java
         }
         // NOTE: this is inconsistent with java where nullability is ignored.
         // it is intentional but might be reversed if it happens to break use cases.

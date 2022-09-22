@@ -16,40 +16,70 @@
 
 package androidx.room.compiler.processing.util
 
-import com.squareup.javapoet.ClassName
-import com.squareup.javapoet.TypeName
+import androidx.room.compiler.codegen.XTypeName
+import com.squareup.kotlinpoet.MUTABLE_COLLECTION
+import com.squareup.kotlinpoet.MUTABLE_ITERABLE
+import com.squareup.kotlinpoet.MUTABLE_LIST
+import com.squareup.kotlinpoet.MUTABLE_MAP
+import com.squareup.kotlinpoet.MUTABLE_MAP_ENTRY
+import com.squareup.kotlinpoet.MUTABLE_SET
 import com.squareup.kotlinpoet.asClassName
 import com.squareup.kotlinpoet.asTypeName
+import com.squareup.kotlinpoet.javapoet.JClassName
 import com.squareup.kotlinpoet.javapoet.JParameterizedTypeName
 import com.squareup.kotlinpoet.javapoet.JTypeName
 import com.squareup.kotlinpoet.javapoet.JTypeVariableName
+import com.squareup.kotlinpoet.javapoet.KClassName
 import com.squareup.kotlinpoet.javapoet.KParameterizedTypeName
 import com.squareup.kotlinpoet.javapoet.KTypeName
 import com.squareup.kotlinpoet.javapoet.KTypeVariableName
 import kotlin.reflect.KClass
 
-val UNIT_CLASS_NAME = ClassName.get("kotlin", "Unit")
-val CONTINUATION_CLASS_NAME = ClassName.get("kotlin.coroutines", "Continuation")
+val UNIT_JCLASS_NAME = JClassName.get("kotlin", "Unit")
+val CONTINUATION_JCLASS_NAME = JClassName.get("kotlin.coroutines", "Continuation")
 
 // TODO(b/247242378): Migrate usages to asJTypeName() and asJClassName()
 // @Deprecated(
 //     message = "Use asJTypeName() to be clear it's a JavaPoet converter",
 //     replaceWith = ReplaceWith("asJTypeName()")
 // )
-fun KClass<*>.typeName() = TypeName.get(this.java)
+fun KClass<*>.typeName() = JTypeName.get(this.java)
 
 // TODO(b/247242378): Migrate usages to asJTypeName() and asJClassName()
 // @Deprecated(
 //     message = "Use asJClassName() to be clear it's a JavaPoet converter",
 //     replaceWith = ReplaceWith("asJClassName()")
 // )
-fun KClass<*>.className() = ClassName.get(this.java)
+fun KClass<*>.className() = JClassName.get(this.java)
 
-fun KClass<*>.asJTypeName() = TypeName.get(this.java)
-fun KClass<*>.asJClassName() = ClassName.get(this.java)
+fun KClass<*>.asJTypeName() = JTypeName.get(this.java)
+fun KClass<*>.asJClassName() = JClassName.get(this.java)
 
 fun KClass<*>.asKTypeName() = this.asTypeName()
 fun KClass<*>.asKClassName() = this.asClassName()
+
+/**
+ * Workaround for:
+ * https://github.com/square/kotlinpoet/issues/279
+ * https://youtrack.jetbrains.com/issue/KT-11754
+ */
+fun KClass<*>.asMutableKClassName(): KClassName = when (this) {
+    Iterator::class -> MUTABLE_ITERABLE
+    Collection::class -> MUTABLE_COLLECTION
+    List::class -> MUTABLE_LIST
+    Set::class -> MUTABLE_SET
+    Map::class -> MUTABLE_MAP
+    Map.Entry::class -> MUTABLE_MAP_ENTRY
+    else -> this.asKClassName()
+}
+
+// Creates a simple XTypeName wrapping JTypeVariableName and KTypeVariableName without bounds.
+fun createXTypeVariableName(name: String): XTypeName {
+    return XTypeName(
+        java = JTypeVariableName.get(name),
+        kotlin = KTypeVariableName(name)
+    )
+}
 
 /**
  * Dumps the typename with its bounds in a given depth, making tests more readable.

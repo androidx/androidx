@@ -51,18 +51,18 @@ private fun AnnotationSpec.Builder.addAnnotationValue(annotationValue: XAnnotati
     requireNotNull(value) { "value == null, constant non-null value expected for $name" }
     require(SourceVersion.isName(name)) { "not a valid name: $name" }
     when {
-      hasListValue() -> asAnnotationValueList().forEach { addAnnotationValue(it) }
-      hasAnnotationValue() -> addMember(name, "\$L", asAnnotation().toAnnotationSpec())
-      hasEnumValue() -> addMember(
-        name, "\$T.\$L", asEnum().enclosingElement.className, asEnum().name
-      )
-      hasTypeValue() -> addMember(name, "\$T.class", asType().typeName)
-      hasStringValue() -> addMember(name, "\$S", asString())
-      hasFloatValue() -> addMember(name, "\$Lf", asFloat())
-      hasCharValue() -> addMember(
-        name, "'\$L'", characterLiteralWithoutSingleQuotes(asChar())
-      )
-      else -> addMember(name, "\$L", value)
+        hasListValue() -> asAnnotationValueList().forEach { addAnnotationValue(it) }
+        hasAnnotationValue() -> addMember(name, "\$L", asAnnotation().toAnnotationSpec())
+        hasEnumValue() -> addMember(
+            name, "\$T.\$L", asEnum().enclosingElement.asClassName().java, asEnum().name
+        )
+        hasTypeValue() -> addMember(name, "\$T.class", asType().asTypeName().java)
+        hasStringValue() -> addMember(name, "\$S", asString())
+        hasFloatValue() -> addMember(name, "\$Lf", asFloat())
+        hasCharValue() -> addMember(
+            name, "'\$L'", characterLiteralWithoutSingleQuotes(asChar())
+        )
+        else -> addMember(name, "\$L", value)
     }
   }
 }
@@ -179,7 +179,7 @@ object MethodSpecHelper {
             resolvedType.parameterTypes.forEachIndexed { index, paramType ->
                 addParameter(
                     ParameterSpec.builder(
-                        paramType.typeName,
+                        paramType.asTypeName().java,
                         executableElement.parameters[index].name,
                         *paramModifiers
                     ).build()
@@ -193,9 +193,9 @@ object MethodSpecHelper {
             addAnnotation(Override::class.java)
             varargs(executableElement.isVarArgs())
             executableElement.thrownTypes.forEach {
-                addException(it.typeName)
+                addException(it.asTypeName().java)
             }
-            returns(resolvedType.returnType.typeName)
+            returns(resolvedType.returnType.asTypeName().java)
         }
     }
 }
