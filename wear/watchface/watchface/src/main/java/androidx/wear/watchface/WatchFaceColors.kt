@@ -25,6 +25,7 @@ import androidx.wear.watchface.data.WatchFaceColorsWireFormat
  * representative colors. This may be used by the system to influence the colors used for the
  * system ui.
  */
+@WatchFaceExperimental
 public class WatchFaceColors(
     val primaryColor: Color,
     val secondaryColor: Color,
@@ -63,6 +64,7 @@ public class WatchFaceColors(
 }
 
 /** @hide */
+@OptIn(WatchFaceExperimental::class)
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 fun WatchFaceColorsWireFormat.toApiFormat() = WatchFaceColors(
     Color.valueOf(primaryColor),

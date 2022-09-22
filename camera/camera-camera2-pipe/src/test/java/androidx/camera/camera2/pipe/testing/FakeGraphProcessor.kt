@@ -17,8 +17,9 @@
 package androidx.camera.camera2.pipe.testing
 
 import androidx.camera.camera2.pipe.Request
-import androidx.camera.camera2.pipe.RequestProcessor
+import androidx.camera.camera2.pipe.graph.GraphListener
 import androidx.camera.camera2.pipe.graph.GraphProcessor
+import androidx.camera.camera2.pipe.graph.GraphRequestProcessor
 import androidx.camera.camera2.pipe.graph.GraphState3A
 import androidx.camera.camera2.pipe.putAllMetadata
 
@@ -26,10 +27,10 @@ import androidx.camera.camera2.pipe.putAllMetadata
  * Fake implementation of a [GraphProcessor] for tests.
  */
 internal class FakeGraphProcessor(
-    private val graphState3A: GraphState3A = GraphState3A(),
-    private val defaultParameters: Map<*, Any?> = emptyMap<Any, Any?>(),
-    private val defaultListeners: List<Request.Listener> = emptyList()
-) : GraphProcessor {
+    val graphState3A: GraphState3A = GraphState3A(),
+    val defaultParameters: Map<*, Any?> = emptyMap<Any, Any?>(),
+    val defaultListeners: List<Request.Listener> = emptyList()
+) : GraphProcessor, GraphListener {
     var active = true
         private set
     var closed = false
@@ -40,7 +41,7 @@ internal class FakeGraphProcessor(
         get() = _requestQueue
 
     private val _requestQueue = mutableListOf<List<Request>>()
-    private var processor: RequestProcessor? = null
+    private var processor: GraphRequestProcessor? = null
 
     override fun startRepeating(request: Request) {
         repeatingRequest = request
@@ -57,7 +58,6 @@ internal class FakeGraphProcessor(
     override fun submit(requests: List<Request>) {
         _requestQueue.add(requests)
     }
-
     override suspend fun submit(parameters: Map<*, Any?>): Boolean {
         if (closed) {
             return false
@@ -71,10 +71,11 @@ internal class FakeGraphProcessor(
         return when {
             currProcessor == null || currRepeatingRequest == null -> false
             else -> currProcessor.submit(
-                currRepeatingRequest,
+                isRepeating = false,
+                requests = listOf(currRepeatingRequest),
                 defaultParameters = defaultParameters,
                 requiredParameters = requiredParameters,
-                defaultListeners = defaultListeners
+                listeners = defaultListeners
             )
         }
     }
@@ -93,13 +94,13 @@ internal class FakeGraphProcessor(
         _requestQueue.clear()
     }
 
-    override fun onGraphStarted(requestProcessor: RequestProcessor) {
+    override fun onGraphStarted(requestProcessor: GraphRequestProcessor) {
         val old = processor
         processor = requestProcessor
         old?.close()
     }
 
-    override fun onGraphStopped(requestProcessor: RequestProcessor) {
+    override fun onGraphStopped(requestProcessor: GraphRequestProcessor) {
         val old = processor
         if (requestProcessor === old) {
             processor = null
@@ -107,7 +108,7 @@ internal class FakeGraphProcessor(
         }
     }
 
-    override fun onGraphUpdated(requestProcessor: RequestProcessor) {
+    override fun onGraphModified(requestProcessor: GraphRequestProcessor) {
         invalidate()
     }
 
@@ -124,11 +125,12 @@ internal class FakeGraphProcessor(
             return
         }
 
-        currProcessor.startRepeating(
-            currRepeatingRequest,
+        currProcessor.submit(
+            isRepeating = true,
+            requests = listOf(currRepeatingRequest),
             defaultParameters = defaultParameters,
             requiredParameters = requiredParameters,
-            defaultListeners = defaultListeners
+            listeners = defaultListeners
         )
     }
 }

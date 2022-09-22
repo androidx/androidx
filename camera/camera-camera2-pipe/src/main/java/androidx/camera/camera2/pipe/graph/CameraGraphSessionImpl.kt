@@ -49,6 +49,7 @@ internal class CameraGraphSessionImpl(
 
     override fun submit(requests: List<Request>) {
         check(!closed.value) { "Cannot call submit on $this after close." }
+        check(requests.isNotEmpty()) { "Cannot call submit with an empty list of Requests!" }
         graphProcessor.submit(requests)
     }
 

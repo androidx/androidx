@@ -74,7 +74,6 @@ import java.io.File
 import java.util.concurrent.Executor
 import java.util.concurrent.Semaphore
 import java.util.concurrent.TimeUnit
-import kotlin.math.abs
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
@@ -87,7 +86,6 @@ import org.junit.After
 import org.junit.Assume.assumeFalse
 import org.junit.Assume.assumeTrue
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestName
@@ -119,7 +117,6 @@ class RecorderTest(
     @get:Rule
     val cameraPipeConfigTestRule = CameraPipeConfigTestRule(
         active = implName == CameraPipeConfig::class.simpleName,
-        forAllTests = true,
     )
 
     @get:Rule
@@ -416,7 +413,6 @@ class RecorderTest(
     }
 
     @Test
-    @Ignore("b/239752223")
     fun canPauseResume() {
         clearInvocations(videoRecordEventListener)
         invokeSurfaceRequest()
@@ -479,35 +475,6 @@ class RecorderTest(
 
         recording.stopSafely()
 
-        file.delete()
-    }
-
-    @LabTestRule.LabTestOnly
-    @Test
-    fun canRecordWithAvSyncInStart() {
-        val diffThresholdUs = 50000L // 50,000 is about 0.05 second
-
-        clearInvocations(videoRecordEventListener)
-        invokeSurfaceRequest()
-        val file = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
-        val recording = recorder.prepareRecording(context, FileOutputOptions.Builder(file).build())
-            .withAudioEnabled()
-            .start(CameraXExecutors.directExecutor(), videoRecordEventListener)
-
-        val inOrder = inOrder(videoRecordEventListener)
-        inOrder.verify(videoRecordEventListener, timeout(5000L))
-            .accept(any(VideoRecordEvent.Start::class.java))
-        inOrder.verify(videoRecordEventListener, timeout(15000L)
-            .atLeast(5))
-            .accept(any(VideoRecordEvent.Status::class.java))
-
-        // check if the time difference between the first video and audio data is within a threshold
-        val firstAudioTime = recorder.mFirstRecordingAudioDataTimeUs
-        val firstVideoTime = recorder.mFirstRecordingVideoDataTimeUs
-        val timeDiff = abs(firstAudioTime - firstVideoTime)
-        assertThat(timeDiff).isLessThan(diffThresholdUs)
-
-        recording.stopSafely()
         file.delete()
     }
 
@@ -585,7 +552,6 @@ class RecorderTest(
     }
 
     @Test
-    @Ignore("b/239752223")
     fun setFileSizeLimit() {
         val fileSizeLimit = 500L * 1024L // 500 KB
         runFileSizeLimitTest(fileSizeLimit)
@@ -595,7 +561,6 @@ class RecorderTest(
     // the encoder. This will ensure that the recording will be finalized even if it has no data
     // written to it.
     @Test
-    @Ignore("b/239752223")
     fun setFileSizeLimitLowerThanInitialDataSize() {
         val fileSizeLimit = 1L // 1 byte
         runFileSizeLimitTest(fileSizeLimit)
@@ -1037,7 +1002,6 @@ class RecorderTest(
     }
 
     @Test
-    @Ignore("b/239752223")
     fun canRecordWithoutAudio() {
         clearInvocations(videoRecordEventListener)
         invokeSurfaceRequest()

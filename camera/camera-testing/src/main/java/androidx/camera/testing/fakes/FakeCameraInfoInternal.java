@@ -35,6 +35,7 @@ import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.ImageOutputConfig.RotationValue;
 import androidx.camera.core.impl.Quirk;
 import androidx.camera.core.impl.Quirks;
+import androidx.camera.core.impl.Timebase;
 import androidx.camera.core.impl.utils.CameraOrientationUtil;
 import androidx.camera.core.internal.ImmutableZoomState;
 import androidx.core.util.Preconditions;
@@ -70,6 +71,8 @@ public final class FakeCameraInfoInternal implements CameraInfoInternal {
 
     @NonNull
     private final List<Quirk> mCameraQuirks = new ArrayList<>();
+
+    private Timebase mTimebase = Timebase.UPTIME;
 
     public FakeCameraInfoInternal() {
         this(/*sensorRotation=*/ 0, /*lensFacing=*/ CameraSelector.LENS_FACING_BACK);
@@ -111,7 +114,9 @@ public final class FakeCameraInfoInternal implements CameraInfoInternal {
         // Currently this assumes that a back-facing camera is always opposite to the screen.
         // This may not be the case for all devices, so in the future we may need to handle that
         // scenario.
-        boolean isOppositeFacingScreen = (CameraSelector.LENS_FACING_BACK == getLensFacing());
+        Integer lensFacing = getLensFacing();
+        boolean isOppositeFacingScreen =
+                lensFacing != null && (CameraSelector.LENS_FACING_BACK == getLensFacing());
         return CameraOrientationUtil.getRelativeImageRotation(
                 relativeRotationDegrees,
                 mSensorRotation,
@@ -169,6 +174,12 @@ public final class FakeCameraInfoInternal implements CameraInfoInternal {
                 mCamcorderProfileProvider;
     }
 
+    @NonNull
+    @Override
+    public Timebase getTimebase() {
+        return mTimebase;
+    }
+
     @Override
     public void addSessionCaptureCallback(@NonNull Executor executor,
             @NonNull CameraCaptureCallback callback) {
@@ -218,6 +229,11 @@ public final class FakeCameraInfoInternal implements CameraInfoInternal {
     public void setCamcorderProfileProvider(
             @NonNull CamcorderProfileProvider camcorderProfileProvider) {
         mCamcorderProfileProvider = Preconditions.checkNotNull(camcorderProfileProvider);
+    }
+
+    /** Set the timebase for testing */
+    public void setTimebase(@NonNull Timebase timebase) {
+        mTimebase = timebase;
     }
 
     /** Set the isPrivateReprocessingSupported flag for testing */

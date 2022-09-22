@@ -38,6 +38,7 @@ import androidx.wear.watchface.WatchFaceColors
 import androidx.wear.watchface.control.IInteractiveWatchFace
 import androidx.wear.watchface.control.data.WatchFaceRenderParams
 import androidx.wear.watchface.ComplicationSlotBoundsType
+import androidx.wear.watchface.WatchFaceExperimental
 import androidx.wear.watchface.control.IWatchfaceListener
 import androidx.wear.watchface.control.IWatchfaceReadyListener
 import androidx.wear.watchface.data.IdAndComplicationDataWireFormat
@@ -315,6 +316,8 @@ public interface InteractiveWatchFaceClient : AutoCloseable {
      * @param listener The [Consumer] to run whenever the watch face's
      * [Renderer.watchfaceColors] change.
      */
+    @OptIn(WatchFaceExperimental::class)
+    @WatchFaceClientExperimental
     public fun addOnWatchFaceColorsListener(
         executor: Executor,
         listener: Consumer<WatchFaceColors?>
@@ -323,10 +326,13 @@ public interface InteractiveWatchFaceClient : AutoCloseable {
     /**
      * Stops listening for events registered by [addOnWatchFaceColorsListener].
      */
+    @OptIn(WatchFaceExperimental::class)
+    @WatchFaceClientExperimental
     public fun removeOnWatchFaceColorsListener(listener: Consumer<WatchFaceColors?>) {}
 }
 
 /** Controls a stateful remote interactive watch face. */
+@OptIn(WatchFaceExperimental::class)
 internal class InteractiveWatchFaceClientImpl internal constructor(
     private val iInteractiveWatchFace: IInteractiveWatchFace,
     private val previewImageUpdateRequestedExecutor: Executor?,
@@ -629,6 +635,7 @@ internal class InteractiveWatchFaceClientImpl internal constructor(
         }
     }
 
+    @WatchFaceClientExperimental
     override fun addOnWatchFaceColorsListener(
         executor: Executor,
         listener: Consumer<WatchFaceColors?>
@@ -646,6 +653,7 @@ internal class InteractiveWatchFaceClientImpl internal constructor(
         listener.accept(colors)
     }
 
+    @WatchFaceClientExperimental
     override fun removeOnWatchFaceColorsListener(
         listener: Consumer<WatchFaceColors?>
     ) {

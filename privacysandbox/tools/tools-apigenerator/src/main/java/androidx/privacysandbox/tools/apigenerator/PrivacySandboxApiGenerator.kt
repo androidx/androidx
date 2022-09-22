@@ -17,7 +17,7 @@
 package androidx.privacysandbox.tools.apigenerator
 
 import androidx.privacysandbox.tools.apigenerator.parser.ApiStubParser
-import androidx.privacysandbox.tools.core.ParsedApi
+import androidx.privacysandbox.tools.core.model.ParsedApi
 import androidx.privacysandbox.tools.core.generator.AidlCompiler
 import androidx.privacysandbox.tools.core.generator.AidlGenerator
 import java.io.File

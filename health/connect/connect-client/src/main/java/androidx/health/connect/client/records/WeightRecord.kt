@@ -21,7 +21,11 @@ import androidx.health.connect.client.units.Mass
 import java.time.Instant
 import java.time.ZoneOffset
 
-/** Captures that user's weight in kilograms. */
+/**
+ * Captures the user's weight.
+ *
+ * See [Mass] for supported units.
+ */
 public class WeightRecord(
     /** User's weight in kilograms. Required field. Valid range: 0-1000 kilograms. */
     public val weight: Mass,

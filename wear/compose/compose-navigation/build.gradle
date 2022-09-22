@@ -49,9 +49,6 @@ android {
     defaultConfig {
         minSdkVersion 25
     }
-    buildTypes.all {
-        consumerProguardFiles "proguard-rules.pro"
-    }
     // Use Robolectric 4.+
     testOptions.unitTests.includeAndroidResources = true
     namespace "androidx.wear.compose.navigation"

@@ -17,6 +17,7 @@
 package androidx.health.services.client.data
 
 import android.os.Bundle
+import androidx.annotation.FloatRange
 import androidx.health.services.client.ExerciseClient
 import androidx.health.services.client.proto.DataProto
 
@@ -34,7 +35,10 @@ import androidx.health.services.client.proto.DataProto
  * also be tracked (i.e. contained in [dataTypes]) in some form. For example, an [ExerciseGoal] for
  * [DataType.STEPS_TOTAL] requires that [dataTypes] contains either or both of
  * [DataType.STEPS_TOTAL] / [DataType.STEPS].
- * @property exerciseParams [Bundle] additional OEM specific params for this exercise
+ * @property exerciseParams [Bundle] bundle for specifying exercise presets, the values of an
+ * on-going exercise which can be used to pre-populate a new exercise.
+ * @property swimmingPoolLengthMeters length (in meters) of the swimming pool, or 0 if not relevant to
+ * this exercise
  */
 @Suppress("ParcelCreator")
 class ExerciseConfig(
@@ -44,6 +48,7 @@ class ExerciseConfig(
     val isGpsEnabled: Boolean,
     val exerciseGoals: List<ExerciseGoal<*>> = listOf(),
     val exerciseParams: Bundle = Bundle(),
+    @FloatRange(from = 0.0) val swimmingPoolLengthMeters: Float = SWIMMING_POOL_LENGTH_UNSPECIFIED,
 ) {
 
     internal constructor(
@@ -55,13 +60,24 @@ class ExerciseConfig(
         proto.isAutoPauseAndResumeEnabled,
         proto.isGpsUsageEnabled,
         proto.exerciseGoalsList.map { ExerciseGoal.fromProto(it) },
-        BundlesUtil.fromProto(proto.exerciseParams)
+        BundlesUtil.fromProto(proto.exerciseParams),
+        if (proto.hasSwimmingPoolLength()) {
+          proto.swimmingPoolLength
+        } else {
+          SWIMMING_POOL_LENGTH_UNSPECIFIED
+        }
     )
 
     init {
         require(!dataTypes.contains(DataType.LOCATION) || isGpsEnabled) {
             "If LOCATION data is being requested, setGpsEnabled(true) must be configured in the " +
                 "ExerciseConfig. "
+        }
+
+        if (exerciseType == ExerciseType.SWIMMING_POOL) {
+          require(swimmingPoolLengthMeters != 0.0f) {
+              "If exercise type is SWIMMING_POOL, then swimming pool length must also be specified"
+          }
         }
     }
 
@@ -81,6 +97,7 @@ class ExerciseConfig(
         private var isGpsEnabled: Boolean = false
         private var exerciseGoals: List<ExerciseGoal<*>> = emptyList()
         private var exerciseParams: Bundle = Bundle.EMPTY
+        private var swimmingPoolLength: Float = SWIMMING_POOL_LENGTH_UNSPECIFIED
 
         /**
          * Sets the requested [DataType]s that should be tracked during this exercise. If not
@@ -152,6 +169,13 @@ class ExerciseConfig(
             return this
         }
 
+        /** Sets the swimming pool length (in m). */
+        @Suppress("MissingGetterMatchingBuilder")
+        public fun setSwimmingPoolLength(swimmingPoolLength: Float): Builder {
+          this.swimmingPoolLength = swimmingPoolLength
+          return this
+        }
+
         /** Returns the built [ExerciseConfig]. */
         fun build(): ExerciseConfig {
             return ExerciseConfig(
@@ -160,7 +184,8 @@ class ExerciseConfig(
                 isAutoPauseAndResumeEnabled,
                 isGpsEnabled,
                 exerciseGoals,
-                exerciseParams
+                exerciseParams,
+                swimmingPoolLength
             )
         }
     }
@@ -171,7 +196,8 @@ class ExerciseConfig(
             "dataTypes=$dataTypes, " +
             "isAutoPauseAndResumeEnabled=$isAutoPauseAndResumeEnabled, " +
             "isGpsEnabled=$isGpsEnabled, " +
-            "exerciseGoals=$exerciseGoals)"
+            "exerciseGoals=$exerciseGoals, " +
+            "swimmingPoolLengthMeters=$swimmingPoolLengthMeters)"
 
     internal fun toProto(): DataProto.ExerciseConfig =
         DataProto.ExerciseConfig.newBuilder()
@@ -182,6 +208,7 @@ class ExerciseConfig(
             .setIsGpsUsageEnabled(isGpsEnabled)
             .addAllExerciseGoals(exerciseGoals.map { it.proto })
             .setExerciseParams(BundlesUtil.toProto(exerciseParams))
+            .setSwimmingPoolLength(swimmingPoolLengthMeters)
             .build()
 
     companion object {
@@ -192,5 +219,7 @@ class ExerciseConfig(
           */
         @JvmStatic
         fun builder(exerciseType: ExerciseType): Builder = Builder(exerciseType)
+
+        public const val SWIMMING_POOL_LENGTH_UNSPECIFIED = 0.0f
     }
 }

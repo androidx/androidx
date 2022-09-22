@@ -16,11 +16,12 @@
 
 package androidx.privacysandbox.tools.core.generator
 
-import androidx.privacysandbox.tools.core.AnnotatedInterface
-import androidx.privacysandbox.tools.core.Method
-import androidx.privacysandbox.tools.core.Parameter
-import androidx.privacysandbox.tools.core.ParsedApi
-import androidx.privacysandbox.tools.core.Type
+import androidx.privacysandbox.tools.core.model.AnnotatedInterface
+import androidx.privacysandbox.tools.core.model.Method
+import androidx.privacysandbox.tools.core.model.Parameter
+import androidx.privacysandbox.tools.core.model.ParsedApi
+import androidx.privacysandbox.tools.core.model.Type
+import androidx.privacysandbox.tools.core.model.getOnlyService
 import java.io.File
 import java.nio.file.Path
 import java.nio.file.Paths
@@ -42,6 +43,8 @@ class AidlGenerator private constructor(
         ): List<GeneratedSource> {
             return AidlGenerator(aidlCompiler, api, workingDir).generate()
         }
+
+        const val cancellationSignalName = "ICancellationSignal"
     }
 
     private fun generate(): List<GeneratedSource> {
@@ -84,7 +87,7 @@ class AidlGenerator private constructor(
         val service =
             InMemorySource(
                 packageName(),
-                service().aidlName(),
+                api.getOnlyService().aidlName(),
                 generateAidlService(transactionCallbacks)
             )
         return transactionCallbacks + generateICancellationSignal() + service
@@ -97,23 +100,27 @@ class AidlGenerator private constructor(
             transactionCallbacks.map {
                 "import ${it.packageName}.${it.interfaceName};"
             }.sorted().joinToString(separator = "\n|")
-        val generatedMethods = service().methods.map(::generateAidlMethod).sorted()
+        val generatedMethods = api.getOnlyService().methods.map(::generateAidlMethod).sorted()
             .joinToString("\n|    ")
         return """
                 |package ${packageName()};
                 |$transactionCallbackImports
-                |interface ${service().aidlName()} {
+                |interface ${api.getOnlyService().aidlName()} {
                 |    $generatedMethods
                 |}
             """.trimMargin()
     }
 
     private fun generateAidlMethod(method: Method): String {
-        val parameters =
-            method.parameters.map(::generateAidlParameter) +
-                "${method.returnType.transactionCallbackName()} transactionCallback"
+        val parameters = buildList {
+            addAll(method.parameters.map(::generateAidlParameter))
+            if (method.isSuspend) {
+                add("${method.returnType.transactionCallbackName()} transactionCallback")
+            }
+        }
         // TODO remove return type.
-        return "${method.returnType.toAidlType()} ${method.name}(${parameters.joinToString()});"
+        val returnType = if (method.isSuspend) "void" else method.returnType.toAidlType()
+        return "$returnType ${method.name}(${parameters.joinToString()});"
     }
 
     private fun generateAidlParameter(parameter: Parameter) =
@@ -121,7 +128,8 @@ class AidlGenerator private constructor(
         "${parameter.type.toAidlType()} ${parameter.name}"
 
     private fun generateTransactionCallbacks(): List<InMemorySource> {
-        return service().methods.map(Method::returnType).toSet()
+        return api.getOnlyService().methods.filter(Method::isSuspend)
+            .map(Method::returnType).toSet()
             .map { generateTransactionCallback(it) }
     }
 
@@ -131,9 +139,9 @@ class AidlGenerator private constructor(
         return InMemorySource(
             packageName = packageName(), interfaceName = interfaceName, fileContents = """
                     package ${packageName()};
-                    import ${packageName()}.ICancellationSignal;
+                    import ${packageName()}.$cancellationSignalName;
                     oneway interface $interfaceName {
-                        void onCancellable(ICancellationSignal cancellationSignal);
+                        void onCancellable($cancellationSignalName cancellationSignal);
                         void onSuccess($onSuccessParameter);
                         void onFailure(int errorCode, String errorMessage);
                     }
@@ -142,9 +150,9 @@ class AidlGenerator private constructor(
     }
 
     private fun generateICancellationSignal() = InMemorySource(
-        packageName = packageName(), interfaceName = "ICancellationSignal", fileContents = """
+        packageName = packageName(), interfaceName = "$cancellationSignalName", fileContents = """
                 package ${packageName()};
-                oneway interface ICancellationSignal {
+                oneway interface $cancellationSignalName {
                     void cancel();
                 }
             """.trimIndent()
@@ -163,9 +171,7 @@ class AidlGenerator private constructor(
         return aidlFile.resolveSibling("${aidlFile.nameWithoutExtension}.java")
     }
 
-    private fun service() = api.services.first()
-
-    private fun packageName() = service().packageName
+    private fun packageName() = api.getOnlyService().packageName
 }
 
 data class InMemorySource(

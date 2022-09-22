@@ -25,15 +25,8 @@ plugins {
 BundleInsideHelper.forInsideJar(project, "com.google.protobuf", "androidx.test.screenshot.protobuf")
 
 dependencies {
-    api(libs.paparazzi)
+    api(project(":external:paparazzi:paparazzi"))
     bundleInside(project(path: ":test:screenshot:screenshot-proto", configuration: "export"))
-
-    constraints {
-        implementation(libs.paparazziNativeJvm) {
-            because("Paparazzi's JVM layoutlib artifact must exactly match the native layoutlib " +
-                    "artifact managed by AndroidXPaparazziPlugin")
-        }
-    }
 
     testImplementation(libs.junit)
     testImplementation(libs.kotlinTestJunit)
@@ -41,6 +34,6 @@ dependencies {
 
 androidx {
     name = "AndroidX Library Screenshot Test - Paparazzi Wrapper"
-    type = LibraryType.INTERNAL_TEST_LIBRARY
+    type = LibraryType.INTERNAL_HOST_TEST_LIBRARY
     mavenGroup = LibraryGroups.TESTSCREENSHOT
 }

@@ -191,6 +191,7 @@ public sealed class Renderer @WorkerThread constructor(
     @IntRange(from = 0, to = 60000)
     public var interactiveDrawModeUpdateDelayMillis: Long,
 ) {
+    @OptIn(WatchFaceExperimental::class)
     private var pendingWatchFaceColors: WatchFaceColors? = null
     private var pendingWatchFaceColorsSet = false
 
@@ -206,6 +207,7 @@ public sealed class Renderer @WorkerThread constructor(
                 pendingSendPreviewImageNeedsUpdateRequest
             }
             if (pendingWatchFaceColorsSet) {
+                @OptIn(WatchFaceExperimental::class)
                 value?.onWatchFaceColorsChanged(pendingWatchFaceColors)
             }
             if (pendingSendPreviewImageNeedsUpdateRequestCopy) {
@@ -481,6 +483,10 @@ public sealed class Renderer @WorkerThread constructor(
      * watchFace should assign `non null` [WatchFaceColors] and keep this updated when the colors
      * change (e.g. due to a style change).
      */
+    @WatchFaceExperimental
+    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
+    @get:WatchFaceExperimental
+    @set:WatchFaceExperimental
     public var watchfaceColors: WatchFaceColors? = null
        set(value) {
            require(value != null) { "watchfaceColors must be non-null " }

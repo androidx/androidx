@@ -17,24 +17,24 @@
 package androidx.camera.camera2.pipe.graph
 
 import androidx.annotation.RequiresApi
-import androidx.camera.camera2.pipe.RequestProcessor
 
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 interface GraphListener {
     /**
      * Used to indicate that the graph has been initialized and is ready to actively process
-     * requests using the provided [RequestProcessor] interface.
+     * requests using the provided [GraphRequestProcessor] interface.
      */
-    fun onGraphStarted(requestProcessor: RequestProcessor)
+    fun onGraphStarted(requestProcessor: GraphRequestProcessor)
 
     /**
-     * Used to indicate that a previously initialized [RequestProcessor] is no longer available.
+     * Used to indicate that a previously initialized [GraphRequestProcessor] is no longer
+     * available.
      */
-    fun onGraphStopped(requestProcessor: RequestProcessor)
+    fun onGraphStopped(requestProcessor: GraphRequestProcessor)
 
     /**
-     * Used to indicate that the internal state of the [RequestProcessor] has changed. This is
+     * Used to indicate that the internal state of the [GraphRequestProcessor] has changed. This is
      * a signal that previously queued requests may now succeed if they previously failed.
      */
-    fun onGraphUpdated(requestProcessor: RequestProcessor)
+    fun onGraphModified(requestProcessor: GraphRequestProcessor)
 }

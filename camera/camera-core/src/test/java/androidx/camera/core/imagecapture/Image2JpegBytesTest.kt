@@ -19,7 +19,6 @@ package androidx.camera.core.imagecapture
 import android.graphics.ImageFormat.JPEG
 import android.os.Build
 import android.util.Size
-import androidx.camera.core.ImageProxy
 import androidx.camera.core.imagecapture.Utils.CROP_RECT
 import androidx.camera.core.imagecapture.Utils.HEIGHT
 import androidx.camera.core.imagecapture.Utils.ROTATION_DEGREES
@@ -45,14 +44,14 @@ import org.robolectric.annotation.internal.DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 class Image2JpegBytesTest {
 
-    private val processor = Image2JpegBytes()
+    private val operation = Image2JpegBytes()
 
     @Test
     fun processJpegImage_assertOutput() {
         // Arrange: create input
         val jpegBytes = createJpegBytes(WIDTH, HEIGHT)
         val exif = createExif(jpegBytes)
-        val image = createJpegFakeImageProxy(jpegBytes) as ImageProxy
+        val image = createJpegFakeImageProxy(jpegBytes)
         val input = Packet.of(
             image,
             exif,
@@ -62,12 +61,14 @@ class Image2JpegBytesTest {
         )
 
         // Act.
-        val output = processor.process(input)
+        val output = operation.apply(Image2JpegBytes.In.of(input, 100))
 
         // Assert: the image is the same.
         assertThat(getAverageDiff(jpegBytes, output.data)).isEqualTo(0)
         // Assert: the Exif is extracted correctly.
         assertThat(output.exif).isEqualTo(exif)
+        // Assert: the image is closed.
+        assertThat(image.isClosed).isTrue()
         // Assert: metadata is correct.
         assertThat(output.cropRect).isEqualTo(CROP_RECT)
         assertThat(output.rotationDegrees).isEqualTo(ROTATION_DEGREES)

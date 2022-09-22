@@ -28,9 +28,12 @@ import static org.mockito.Mockito.verify;
 
 import android.app.Instrumentation;
 import android.app.UiAutomation;
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Build;
+import android.util.DisplayMetrics;
+import android.view.WindowManager;
 
 import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
@@ -68,6 +71,21 @@ public class UiDeviceTest {
     @After
     public void tearDown() {
         Configurator.getInstance().setUiAutomationFlags(mDefaultFlags);
+    }
+
+    @Test
+    public void testGetDisplaySizeDp() {
+        DisplayMetrics dm = new DisplayMetrics();
+        WindowManager wm = (WindowManager) mDevice.getUiContext().getSystemService(
+                Context.WINDOW_SERVICE);
+        wm.getDefaultDisplay().getRealMetrics(dm);
+        assertEquals(Math.round(dm.widthPixels / dm.density), mDevice.getDisplaySizeDp().x);
+        assertEquals(Math.round(dm.heightPixels / dm.density), mDevice.getDisplaySizeDp().y);
+    }
+
+    @Test
+    public void testGetProductName() {
+        assertEquals(Build.PRODUCT, mDevice.getProductName());
     }
 
     @Test

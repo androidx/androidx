@@ -70,9 +70,9 @@ public class EncoderFinder {
      * format.
      */
     @NonNull
-    public MediaCodec findEncoder(@NonNull MediaFormat mediaFormat,
-            @NonNull MediaCodecList mediaCodecList) throws InvalidConfigException {
+    public MediaCodec findEncoder(@NonNull MediaFormat mediaFormat) throws InvalidConfigException {
         MediaCodec codec;
+        MediaCodecList mediaCodecList = new MediaCodecList(MediaCodecList.ALL_CODECS);
         String encoderName = findEncoderForFormat(mediaFormat, mediaCodecList);
         try {
             if (TextUtils.isEmpty(encoderName)) {
@@ -105,7 +105,7 @@ public class EncoderFinder {
         try {
             // If the frame rate value is assigned, keep it and restore it later.
             if (mShouldRemoveKeyFrameRate && mediaFormat.containsKey(MediaFormat.KEY_FRAME_RATE)) {
-                tempFrameRate = Integer.valueOf(mediaFormat.getInteger(MediaFormat.KEY_FRAME_RATE));
+                tempFrameRate = mediaFormat.getInteger(MediaFormat.KEY_FRAME_RATE);
                 // Reset frame rate value in API 21.
                 mediaFormat.setString(MediaFormat.KEY_FRAME_RATE, null);
             }
@@ -116,8 +116,7 @@ public class EncoderFinder {
             //  be added.
             if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.M && mediaFormat.containsKey(
                     MediaFormat.KEY_AAC_PROFILE)) {
-                tempAacProfile = Integer.valueOf(
-                        mediaFormat.getInteger(MediaFormat.KEY_AAC_PROFILE));
+                tempAacProfile = mediaFormat.getInteger(MediaFormat.KEY_AAC_PROFILE);
                 mediaFormat.setString(MediaFormat.KEY_AAC_PROFILE, null);
             }
 
@@ -130,12 +129,12 @@ public class EncoderFinder {
         } finally {
             // Restore the frame rate value.
             if (tempFrameRate != null) {
-                mediaFormat.setInteger(MediaFormat.KEY_FRAME_RATE, tempFrameRate.intValue());
+                mediaFormat.setInteger(MediaFormat.KEY_FRAME_RATE, tempFrameRate);
             }
 
             // Restore the aac profile value.
             if (tempAacProfile != null) {
-                mediaFormat.setInteger(MediaFormat.KEY_AAC_PROFILE, tempAacProfile.intValue());
+                mediaFormat.setInteger(MediaFormat.KEY_AAC_PROFILE, tempAacProfile);
             }
         }
     }

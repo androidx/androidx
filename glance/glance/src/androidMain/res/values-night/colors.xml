@@ -16,35 +16,30 @@
   -->
 
 <resources>
-    <color name="glance_colorPrimary">@color/m3_sys_color_dark_primary</color>
-    <color name="glance_colorOnPrimary">@color/m3_sys_color_dark_on_primary</color>
-    <color name="glance_colorPrimaryInverse">@color/m3_sys_color_dark_inverse_primary</color>
-    <color name="glance_colorPrimaryContainer">@color/m3_sys_color_dark_primary_container</color>
-    <color name="glance_colorOnPrimaryContainer">@color/m3_sys_color_dark_on_primary_container</color>
-    <color name="glance_colorSecondary">@color/m3_sys_color_dark_secondary</color>
-    <color name="glance_colorOnSecondary">@color/m3_sys_color_dark_on_secondary</color>
-    <color name="glance_colorSecondaryContainer">@color/m3_sys_color_dark_secondary_container</color>
-    <color name="glance_colorOnSecondaryContainer">@color/m3_sys_color_dark_on_secondary_container</color>
-    <color name="glance_colorTertiary">@color/m3_sys_color_dark_tertiary</color>
-    <color name="glance_colorOnTertiary">@color/m3_sys_color_dark_on_tertiary</color>
-    <color name="glance_colorTertiaryContainer">@color/m3_sys_color_dark_tertiary_container</color>
-    <color name="glance_colorOnTertiaryContainer">@color/m3_sys_color_dark_on_tertiary_container</color>
-    <color name="glance_colorBackground">@color/m3_sys_color_dark_background</color>
-    <color name="glance_colorOnBackground">@color/m3_sys_color_dark_on_background</color>
-    <color name="glance_colorSurface">@color/m3_sys_color_dark_surface</color>
-    <color name="glance_colorOnSurface">@color/m3_sys_color_dark_on_surface</color>
-    <color name="glance_colorSurfaceVariant">@color/m3_sys_color_dark_surface_variant</color>
-    <color name="glance_colorOnSurfaceVariant">@color/m3_sys_color_dark_on_surface_variant</color>
-    <color name="glance_colorSurfaceInverse">@color/m3_sys_color_dark_inverse_surface</color>
-    <color name="glance_colorOnSurfaceInverse">@color/m3_sys_color_dark_inverse_on_surface</color>
-    <color name="glance_colorOutline">@color/m3_sys_color_dark_outline</color>
-    <color name="glance_colorError">@color/m3_sys_color_dark_error</color>
-    <color name="glance_colorOnError">@color/m3_sys_color_dark_on_error</color>
-    <color name="glance_colorErrorContainer">@color/m3_sys_color_dark_error_container</color>
-    <color name="glance_colorOnErrorContainer">@color/m3_sys_color_dark_on_error_container</color>
-
-    <!--<color name="textColorPrimary">@color/m3_dark_default_color_primary_text</color>
-    <color name="textColorPrimaryInverse">@color/m3_default_color_primary_text</color>
-    <color name="textColorSecondary">@color/m3_dark_default_color_secondary_text</color>
-    <color name="textColorSecondaryInverse">@color/m3_default_color_secondary_text</color>-->
+    <color name="glance_colorPrimary">#ffd0bcff</color>
+    <color name="glance_colorOnPrimary">#ff381e72</color>
+    <color name="glance_colorPrimaryInverse">#ff6750a4</color>
+    <color name="glance_colorPrimaryContainer">#ff4f378b</color>
+    <color name="glance_colorOnPrimaryContainer">#ffeaddff</color>
+    <color name="glance_colorSecondary">#ffccc2dc</color>
+    <color name="glance_colorOnSecondary">#ff332d41</color>
+    <color name="glance_colorSecondaryContainer">#ff4a4458</color>
+    <color name="glance_colorOnSecondaryContainer">#ffe8def8</color>
+    <color name="glance_colorTertiary">#ffefb8c8</color>
+    <color name="glance_colorOnTertiary">#ff492532</color>
+    <color name="glance_colorTertiaryContainer">#ff633b48</color>
+    <color name="glance_colorOnTertiaryContainer">#ffffd8e4</color>
+    <color name="glance_colorBackground">#ff1c1b1f</color>
+    <color name="glance_colorOnBackground">#ffe6e1e5</color>
+    <color name="glance_colorSurface">#ff1c1b1f</color>
+    <color name="glance_colorOnSurface">#ffe6e1e5</color>
+    <color name="glance_colorSurfaceVariant">#ff49454f</color>
+    <color name="glance_colorOnSurfaceVariant">#ffcac4d0</color>
+    <color name="glance_colorSurfaceInverse">#ffe6e1e5</color>
+    <color name="glance_colorOnSurfaceInverse">#ff313033</color>
+    <color name="glance_colorOutline">#ff938f99</color>
+    <color name="glance_colorError">#fff2b8b5</color>
+    <color name="glance_colorOnError">#ff601410</color>
+    <color name="glance_colorErrorContainer">#ff8c1d18</color>
+    <color name="glance_colorOnErrorContainer">#fff2b8b5</color>
 </resources>

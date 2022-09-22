@@ -50,14 +50,16 @@ class BanUncheckedReflection : Detector(), SourceCodeScanner {
         // Skip if this isn't a call to `Method.invoke`.
         if (!context.evaluator.isMemberInClass(method, METHOD_REFLECTION_CLASS)) return
 
-        // Flag if the call isn't inside an SDK_INT check.
+        // Flag if the call isn't inside or preceded by an SDK_INT check.
         if (!VersionChecks.isWithinVersionCheckConditional(
                 context,
                 node,
                 HIGHEST_KNOWN_API,
                 false
             ) &&
-            !VersionChecks.isWithinVersionCheckConditional(context, node, 1, true)
+            !VersionChecks.isWithinVersionCheckConditional(context, node, 1, true) &&
+            !VersionChecks.isPrecededByVersionCheckExit(context, node, HIGHEST_KNOWN_API) &&
+            !VersionChecks.isPrecededByVersionCheckExit(context, node, 1)
         ) {
             val incident = Incident(context)
                 .issue(ISSUE)

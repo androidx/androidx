@@ -98,11 +98,18 @@ package androidx.browser.customtabs {
   }
 
   public final class CustomTabsIntent {
+    method public static int getActivityResizeBehavior(android.content.Intent);
+    method public static int getCloseButtonPosition(android.content.Intent);
     method public static androidx.browser.customtabs.CustomTabColorSchemeParams getColorSchemeParams(android.content.Intent, int);
+    method @Dimension(unit=androidx.annotation.Dimension.PX) public static int getInitialActivityHeightPx(android.content.Intent);
     method public static int getMaxToolbarItems();
+    method @Dimension(unit=androidx.annotation.Dimension.DP) public static int getToolbarCornerRadiusDp(android.content.Intent);
     method public void launchUrl(android.content.Context, android.net.Uri);
     method public static android.content.Intent setAlwaysUseBrowserUI(android.content.Intent?);
     method public static boolean shouldAlwaysUseBrowserUI(android.content.Intent);
+    field public static final int ACTIVITY_HEIGHT_ADJUSTABLE = 1; // 0x1
+    field public static final int ACTIVITY_HEIGHT_DEFAULT = 0; // 0x0
+    field public static final int ACTIVITY_HEIGHT_FIXED = 2; // 0x2
     field public static final int CLOSE_BUTTON_POSITION_DEFAULT = 0; // 0x0
     field public static final int CLOSE_BUTTON_POSITION_END = 2; // 0x2
     field public static final int CLOSE_BUTTON_POSITION_START = 1; // 0x1
@@ -110,6 +117,7 @@ package androidx.browser.customtabs {
     field public static final int COLOR_SCHEME_LIGHT = 1; // 0x1
     field public static final int COLOR_SCHEME_SYSTEM = 0; // 0x0
     field public static final String EXTRA_ACTION_BUTTON_BUNDLE = "android.support.customtabs.extra.ACTION_BUTTON_BUNDLE";
+    field public static final String EXTRA_ACTIVITY_RESIZE_BEHAVIOR = "androidx.browser.customtabs.extra.ACTIVITY_RESIZE_BEHAVIOR";
     field public static final String EXTRA_CLOSE_BUTTON_ICON = "android.support.customtabs.extra.CLOSE_BUTTON_ICON";
     field public static final String EXTRA_CLOSE_BUTTON_POSITION = "androidx.browser.customtabs.extra.CLOSE_BUTTON_POSITION";
     field public static final String EXTRA_COLOR_SCHEME = "androidx.browser.customtabs.extra.COLOR_SCHEME";
@@ -160,11 +168,14 @@ package androidx.browser.customtabs {
     method public androidx.browser.customtabs.CustomTabsIntent.Builder setActionButton(android.graphics.Bitmap, String, android.app.PendingIntent, boolean);
     method public androidx.browser.customtabs.CustomTabsIntent.Builder setActionButton(android.graphics.Bitmap, String, android.app.PendingIntent);
     method public androidx.browser.customtabs.CustomTabsIntent.Builder setCloseButtonIcon(android.graphics.Bitmap);
+    method public androidx.browser.customtabs.CustomTabsIntent.Builder setCloseButtonPosition(int);
     method public androidx.browser.customtabs.CustomTabsIntent.Builder setColorScheme(int);
     method public androidx.browser.customtabs.CustomTabsIntent.Builder setColorSchemeParams(int, androidx.browser.customtabs.CustomTabColorSchemeParams);
     method public androidx.browser.customtabs.CustomTabsIntent.Builder setDefaultColorSchemeParams(androidx.browser.customtabs.CustomTabColorSchemeParams);
     method @Deprecated public androidx.browser.customtabs.CustomTabsIntent.Builder setDefaultShareMenuItemEnabled(boolean);
     method public androidx.browser.customtabs.CustomTabsIntent.Builder setExitAnimations(android.content.Context, @AnimRes int, @AnimRes int);
+    method public androidx.browser.customtabs.CustomTabsIntent.Builder setInitialActivityHeightPx(@Dimension(unit=androidx.annotation.Dimension.PX) int, int);
+    method public androidx.browser.customtabs.CustomTabsIntent.Builder setInitialActivityHeightPx(@Dimension(unit=androidx.annotation.Dimension.PX) int);
     method public androidx.browser.customtabs.CustomTabsIntent.Builder setInstantAppsEnabled(boolean);
     method @Deprecated public androidx.browser.customtabs.CustomTabsIntent.Builder setNavigationBarColor(@ColorInt int);
     method @Deprecated public androidx.browser.customtabs.CustomTabsIntent.Builder setNavigationBarDividerColor(@ColorInt int);
@@ -175,6 +186,7 @@ package androidx.browser.customtabs {
     method public androidx.browser.customtabs.CustomTabsIntent.Builder setShowTitle(boolean);
     method public androidx.browser.customtabs.CustomTabsIntent.Builder setStartAnimations(android.content.Context, @AnimRes int, @AnimRes int);
     method @Deprecated public androidx.browser.customtabs.CustomTabsIntent.Builder setToolbarColor(@ColorInt int);
+    method public androidx.browser.customtabs.CustomTabsIntent.Builder setToolbarCornerRadiusDp(@Dimension(unit=androidx.annotation.Dimension.DP) int);
     method public androidx.browser.customtabs.CustomTabsIntent.Builder setUrlBarHidingEnabled(boolean);
   }
 

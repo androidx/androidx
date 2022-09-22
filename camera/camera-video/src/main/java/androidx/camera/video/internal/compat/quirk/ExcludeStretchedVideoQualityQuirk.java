@@ -24,19 +24,30 @@ import androidx.camera.video.Quality;
 
 /**
  * <p>QuirkSummary
- *     Bug Id: 202792648
+ *     Bug Id: 202792648, 245495234
  *     Description: The captured video is stretched while selecting the quality is greater or
  *                  equality to FHD resolution
- *     Device(s): Samsung J4 (sm-j400g)
+ *     Device(s): Samsung J4 (sm-j400g), Samsung J7 Prime (sm-g610m) API level 27 or above,
+ *     Samsung J7 (sm-J710mn) API level 27 or above
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class ExcludeStretchedVideoQualityQuirk implements VideoQualityQuirk {
     static boolean load() {
-        return isSamsungJ4();
+        return isSamsungJ4() || isSamsungJ7PrimeApi27Above() || isSamsungJ7Api27Above();
     }
 
     private static boolean isSamsungJ4() {
         return "Samsung".equalsIgnoreCase(Build.BRAND) && "SM-J400G".equalsIgnoreCase(Build.MODEL);
+    }
+
+    private static boolean isSamsungJ7PrimeApi27Above() {
+        return "Samsung".equalsIgnoreCase(Build.BRAND) && "SM-G610M".equalsIgnoreCase(Build.MODEL)
+                && Build.VERSION.SDK_INT >= 27;
+    }
+
+    private static boolean isSamsungJ7Api27Above() {
+        return "Samsung".equalsIgnoreCase(Build.BRAND) && "SM-J710MN".equalsIgnoreCase(Build.MODEL)
+                && Build.VERSION.SDK_INT >= 27;
     }
 
     /** Checks if the given Quality type is a problematic quality. */
@@ -44,6 +55,9 @@ public class ExcludeStretchedVideoQualityQuirk implements VideoQualityQuirk {
     public boolean isProblematicVideoQuality(@NonNull Quality quality) {
         if (isSamsungJ4()) {
             return quality == Quality.FHD || quality == Quality.UHD;
+        }
+        if (isSamsungJ7PrimeApi27Above() || isSamsungJ7Api27Above()) {
+            return quality == Quality.FHD;
         }
         return false;
     }

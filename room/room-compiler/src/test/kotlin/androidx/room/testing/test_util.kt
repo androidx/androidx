@@ -318,13 +318,14 @@ fun testCodeGenScope(): CodeGenScope {
 }
 
 fun loadJavaCode(fileName: String, qName: String): Source {
-    val contents = File("src/test/data/$fileName").readText(Charsets.UTF_8)
+    val contents = File("src/test/test-data/$fileName").readText(Charsets.UTF_8)
     return Source.java(qName, contents)
 }
 
 fun loadTestSource(fileName: String, qName: String): Source {
-    val contents = File("src/test/data/$fileName")
-    return Source.load(contents, qName, fileName)
+    val contents = File("src/test/test-data/$fileName")
+    val relativePath = qName.replace('.', File.separatorChar) + "." + contents.extension
+    return Source.load(contents, qName, relativePath)
 }
 
 fun createVerifierFromEntitiesAndViews(invocation: XTestInvocation): DatabaseVerifier {

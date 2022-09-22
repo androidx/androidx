@@ -69,6 +69,7 @@
          <trusted-key id="12d16069219c90212a974d119ae296fd02e9f65b" group="org.apache.commons" name="commons-math3"/>
          <trusted-key id="147b691a19097624902f4ea9689cbe64f4bc997f" group="^org[.]mockito($|([.].*))" regex="true"/>
          <trusted-key id="151ba00a46886a5f95441a0f5d67bffcba1f9a39" group="com.google.gradle" name="osdetector-gradle-plugin"/>
+         <trusted-key id="1597ab231b7add7e14b1d9c43f00db67ae236e2e" group="org.conscrypt"/>
          <trusted-key id="160a7a9cf46221a56b06ad64461a804f2609fd89" group="com.github.shyiko.klob" name="klob"/>
          <trusted-key id="1861c322c56014b2" group="commons-lang"/>
          <trusted-key id="190d5a957ff22273e601f7a7c92c5fec70161c62" group="org.codehaus.mojo"/>
@@ -369,6 +370,7 @@
          <trusted-key id="bcc135fc7ed8214f823d73e97fe9900f412d622e" group="com.google.flatbuffers"/>
          <trusted-key id="bdb5fa4fe719d787fb3d3197f6d4a1d411e9d1ae" group="com.google.guava"/>
          <trusted-key id="be096e29edb8d141" group="net.sf.proguard"/>
+         <trusted-key id="be685132afd2740d9095f9040cc0b712fee75827" group="org.assertj"/>
          <trusted-key id="beabcfbee059e4e5" group="com.github.siom79.japicmp"/>
          <trusted-key id="bede11eaf1164480" group="org.hamcrest"/>
          <trusted-key id="bf984b4145ea13f7" group="com.squareup" name="javapoet"/>

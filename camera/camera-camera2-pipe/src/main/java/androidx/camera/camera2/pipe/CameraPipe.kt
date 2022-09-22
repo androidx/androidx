@@ -33,6 +33,8 @@ import androidx.camera.camera2.pipe.config.ExternalCameraPipeComponent
 import androidx.camera.camera2.pipe.config.ThreadConfigModule
 import java.util.concurrent.Executor
 import kotlinx.atomicfu.atomic
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
 
 internal val cameraPipeIds = atomic(0)
 
@@ -98,13 +100,19 @@ public class CameraPipe(config: Config) {
      *   split into a separate field since many camera operations are extremely latency sensitive.
      * - [defaultCameraHandler] is used on older API versions to interact with CameraAPIs. This is
      *   split into a separate field since many camera operations are extremely latency sensitive.
+     * - [testOnlyDispatcher] is used for testing to overwrite all internal dispatchers to the
+     *   testOnly version. If specified, default executors and handlers are ignored.
+     * - [testOnlyScope] is used for testing to overwrite the internal global scope with the test
+     *   method scope.
      */
     public data class ThreadConfig(
         val defaultLightweightExecutor: Executor? = null,
         val defaultBackgroundExecutor: Executor? = null,
         val defaultBlockingExecutor: Executor? = null,
         val defaultCameraExecutor: Executor? = null,
-        val defaultCameraHandler: HandlerThread? = null
+        val defaultCameraHandler: HandlerThread? = null,
+        val testOnlyDispatcher: CoroutineDispatcher? = null,
+        val testOnlyScope: CoroutineScope? = null
     )
 
     /**
@@ -152,6 +160,10 @@ public class CameraPipe(config: Config) {
      * External may be used if the underlying implementation needs to delegate to another library
      * or system.
      */
+    @Deprecated(
+        "CameraPipe.External is deprecated, use customCameraBackend on " +
+            "GraphConfig instead."
+    )
     class External(threadConfig: ThreadConfig = ThreadConfig()) {
         private val component: ExternalCameraPipeComponent = DaggerExternalCameraPipeComponent
             .builder()
@@ -161,9 +173,12 @@ public class CameraPipe(config: Config) {
         /**
          * This creates a new [CameraGraph] instance that is configured to use an externally
          * defined [RequestProcessor].
-         *
-         * TODO: Consider changing cameraDevices to be a single device + physical metadata.
          */
+        @Suppress("DEPRECATION")
+        @Deprecated(
+            "CameraPipe.External is deprecated, use customCameraBackend on " +
+                "GraphConfig instead."
+        )
         public fun create(
             config: CameraGraph.Config,
             cameraMetadata: CameraMetadata,

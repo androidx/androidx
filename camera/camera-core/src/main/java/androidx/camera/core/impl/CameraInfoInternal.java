@@ -76,6 +76,10 @@ public interface CameraInfoInternal extends CameraInfo {
     @NonNull
     CamcorderProfileProvider getCamcorderProfileProvider();
 
+    /** Returns the {@link Timebase} of frame output by this camera. */
+    @NonNull
+    Timebase getTimebase();
+
     /** {@inheritDoc} */
     @NonNull
     @Override

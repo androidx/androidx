@@ -126,7 +126,7 @@ data class AndroidXPluginTestContext(val tmpFolder: TemporaryFolder, val setup: 
         }
     }
 
-    private val prebuiltsPath = supportRoot.resolve("../../prebuilts").path
+    private val prebuiltsPath = supportRoot.parentFile.parentFile.resolve("prebuilts").path
 
     val buildScriptDependencies =
         """|  dependencies {

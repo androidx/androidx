@@ -89,7 +89,6 @@ class ViewPager2ActivityTest(private val lensFacing: Int, private val cameraXCon
     @get:Rule
     val cameraPipeConfigTestRule = CameraPipeConfigTestRule(
         active = cameraXConfig == CameraFragment.CAMERA_PIPE_IMPLEMENTATION_OPTION,
-        forAllTests = true,
     )
 
     @get:Rule

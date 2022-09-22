@@ -38,6 +38,7 @@ import androidx.wear.watchface.DrawMode
 import androidx.wear.watchface.Renderer
 import androidx.wear.watchface.WatchFace
 import androidx.wear.watchface.WatchFaceColors
+import androidx.wear.watchface.WatchFaceExperimental
 import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.WatchFaceType
 import androidx.wear.watchface.WatchState
@@ -175,6 +176,7 @@ open class ExampleOpenGLWatchFaceService : WatchFaceService() {
         )
 }
 
+@OptIn(WatchFaceExperimental::class)
 @Suppress("Deprecation")
 @RequiresApi(27)
 class ExampleOpenGLRenderer(

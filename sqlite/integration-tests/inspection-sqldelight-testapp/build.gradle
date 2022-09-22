@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+
 plugins {
     id("AndroidXPlugin")
     id("com.android.application")
@@ -43,4 +44,7 @@ android {
         minSdkVersion 26
     }
     namespace "androidx.sqlite.inspection.sqldeligttestapp"
+    kotlinOptions {
+        freeCompilerArgs += ["-Xjvm-default=all"]
+    }
 }

@@ -9,7 +9,7 @@ In order to build app APKs,
 
 1. Open the [AndroidX project][5] in Android Studio.
 
-2. Select a sample app directory (e.g. `helloworld-mobile`) in the `Project Structure` UI on the top
+2. Select a sample app directory (e.g. `showcase-mobile`) in the `Project Structure` UI on the top
  left. Each sample app has two build targets, one for the mobile platform and the other for the
   automotive platform.
 
@@ -22,7 +22,7 @@ In order to install and run the apps,
 1. Open the [AndroidX project][5] in Android Studio.
 
 2. Go to `Run -> Edit Configurations`, select a sample app target (e.g. `car.app.app-samples
-.helloworld-mobile`). If you are building for the `mobile` platform, also select `Launch: Nothing
+.showcase-mobile`). If you are building for the `mobile` platform, also select `Launch: Nothing
 ` in `General -> Launch Options`. Click `OK` to close the dialog.
 
 3. Select `Run -> Run <sample_app>`, to run the app, which will just install it in the selected
@@ -33,8 +33,8 @@ Run From the Command Line
 Run `./gradlew :car:app:app-samples:<sample_app>-<platform>:assemble` to assemble the APKs. E.g.
 
 ```bash
-./gradlew :car:app:app-samples:helloworld-mobile:assemble
- ./gradlew :car:app:app-samples:helloworld-automotive:assemble
+./gradlew :car:app:app-samples:showcase-mobile:assemble
+ ./gradlew :car:app:app-samples:showcase-automotive:assemble
 ```
 
 The APKs will be generated in `<repo root>/out/androidx/car/app/app-samples/<sample_app>-<platform>/build/outputs/apk`.
@@ -49,8 +49,8 @@ In order to install to a device directly, run the `installDebug` or `installRele
 . E.g.
 
 ```bash
-./gradlew :car:app:app-samples:helloworld-mobile:installDebug
-./gradlew :car:app:app-samples:helloworld-automotive:installRelease
+./gradlew :car:app:app-samples:showcase-mobile:installDebug
+./gradlew :car:app:app-samples:showcase-automotive:installRelease
 ```
 
 Run the Mobile App in the Desktop Head Unit (DHU)

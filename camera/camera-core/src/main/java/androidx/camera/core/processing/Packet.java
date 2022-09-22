@@ -16,6 +16,10 @@
 
 package androidx.camera.core.processing;
 
+import static android.graphics.ImageFormat.JPEG;
+
+import static androidx.core.util.Preconditions.checkNotNull;
+
 import android.graphics.Bitmap;
 import android.graphics.ImageFormat;
 import android.graphics.Matrix;
@@ -29,6 +33,7 @@ import androidx.annotation.RequiresApi;
 import androidx.camera.core.ImageInfo;
 import androidx.camera.core.ImageProxy;
 import androidx.camera.core.impl.utils.Exif;
+import androidx.camera.core.impl.utils.TransformUtils;
 
 import com.google.auto.value.AutoValue;
 
@@ -119,6 +124,13 @@ public abstract class Packet<T> {
     public abstract Matrix getSensorToBufferTransform();
 
     /**
+     * Returns true if the {@link Packet} needs cropping.
+     */
+    public boolean hasCropping() {
+        return TransformUtils.hasCropping(getCropRect(), getSize());
+    }
+
+    /**
      * Creates {@link Bitmap} based {@link Packet}.
      */
     @NonNull
@@ -135,6 +147,9 @@ public abstract class Packet<T> {
     @NonNull
     public static Packet<ImageProxy> of(@NonNull ImageProxy data, @Nullable Exif exif,
             @NonNull Rect cropRect, int rotationDegrees, @NonNull Matrix sensorToBufferTransform) {
+        if (data.getFormat() == JPEG) {
+            checkNotNull(exif, "JPEG image must have Exif.");
+        }
         return new AutoValue_Packet<>(data, exif, data.getFormat(),
                 new Size(data.getWidth(), data.getHeight()), cropRect, rotationDegrees,
                 sensorToBufferTransform);

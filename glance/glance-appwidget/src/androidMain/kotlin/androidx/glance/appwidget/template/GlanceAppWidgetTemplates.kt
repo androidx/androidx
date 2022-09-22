@@ -54,15 +54,13 @@ import androidx.glance.text.TextStyle
  *
  * @param headerIcon glanceable main logo icon
  * @param header main header text
- * @param actionButton main header action button to the right side
  */
 @Composable
 internal fun AppWidgetTemplateHeader(
     headerIcon: TemplateImageWithDescription? = null,
     header: TemplateText? = null,
-    actionButton: TemplateButton? = null,
 ) {
-    if (headerIcon == null && header == null && actionButton == null) return
+    if (headerIcon == null && header == null) return
 
     Row(
         modifier = GlanceModifier.fillMaxWidth(),
@@ -91,12 +89,6 @@ internal fun AppWidgetTemplateHeader(
                 maxLines = 1
             )
         }
-        actionButton?.let {
-            AppWidgetTemplateButton(
-                actionButton,
-                GlanceModifier.height(48.dp).width(48.dp)
-            )
-        }
     }
 }
 
@@ -111,7 +103,6 @@ internal fun AppWidgetTemplateHeader(headerBlock: HeaderBlock) {
     AppWidgetTemplateHeader(
         headerBlock.icon,
         headerBlock.text,
-        headerBlock.actionBlock?.actionButtons?.get(0)
     )
 }
 
@@ -229,6 +220,8 @@ internal fun HeaderBlockTemplate(headerBlock: HeaderBlock?) {
 @Composable
 internal fun ActionBlockTemplate(actionBlock: ActionBlock?) {
     if (actionBlock?.actionButtons?.isNotEmpty() == true) {
+        // TODO(b/247613894): Leading space here is error prone, space is usually added at a higher
+        //  level depending on context. Adding space here may lead to double spacing
         Spacer(modifier = GlanceModifier.height(16.dp))
         Row {
             actionBlock.actionButtons.forEach { button ->

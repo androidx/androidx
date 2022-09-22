@@ -38,6 +38,7 @@ dependencies {
     api(libs.kotlinCoroutinesCore)
     api("androidx.annotation:annotation:1.2.0")
     api(project(":datastore:datastore-core"))
+    api(project(":datastore:datastore-core-okio"))
 
     testImplementation(libs.junit)
     testImplementation(libs.kotlinCoroutinesTest)

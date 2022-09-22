@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.isUnspecified
 import androidx.compose.ui.unit.sp
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -32,7 +33,7 @@ class CurvedTextStyleTest {
         val style = CurvedTextStyle()
 
         assertEquals(style.color, Color.Unspecified)
-        assert(style.fontSize.isUnspecified)
+        assertTrue(style.fontSize.isUnspecified)
         assertEquals(style.background, Color.Unspecified)
     }
 

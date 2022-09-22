@@ -41,6 +41,7 @@ dependencies {
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.truth)
     androidTestImplementation(libs.espressoCore)
+    androidTestImplementation(libs.multidex)
 }
 
 androidx {
@@ -53,4 +54,7 @@ androidx {
 
 android {
     namespace "androidx.core.uwb"
+    defaultConfig {
+        multiDexEnabled = true
+    }
 }

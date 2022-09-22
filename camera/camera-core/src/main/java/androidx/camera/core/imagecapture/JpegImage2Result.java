@@ -25,8 +25,8 @@ import androidx.camera.core.ImageInfo;
 import androidx.camera.core.ImageProxy;
 import androidx.camera.core.ImmutableImageInfo;
 import androidx.camera.core.SettableImageProxy;
+import androidx.camera.core.processing.Operation;
 import androidx.camera.core.processing.Packet;
-import androidx.camera.core.processing.Processor;
 
 /**
  * Produces a {@link ImageProxy} as in-memory capture result.
@@ -37,11 +37,11 @@ import androidx.camera.core.processing.Processor;
  * by upstream processors.
  */
 @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-public class JpegImage2Result implements Processor<Packet<ImageProxy>, ImageProxy> {
+public class JpegImage2Result implements Operation<Packet<ImageProxy>, ImageProxy> {
 
     @NonNull
     @Override
-    public ImageProxy process(@NonNull Packet<ImageProxy> input)
+    public ImageProxy apply(@NonNull Packet<ImageProxy> input)
             throws ImageCaptureException {
         ImageProxy image = input.getData();
 

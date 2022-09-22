@@ -24,15 +24,13 @@ import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
 import androidx.camera.camera2.pipe.testing.RobolectricCameras
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.TimeUnit
-import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.test.UnconfinedTestDispatcher
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Test
@@ -55,16 +53,16 @@ internal class VirtualCameraStateTest {
     }
 
     @Test
-    fun virtualCameraStateCanBeDisconnected() = runTest(UnconfinedTestDispatcher()) {
+    fun virtualCameraStateCanBeDisconnected() = runTest {
         // This test asserts that the virtual camera starts in an unopened state and is changed to
         // "Closed" when disconnect is invoked on the VirtualCamera.
         val virtualCamera = VirtualCameraState(cameraId)
-        assertThat(virtualCamera.state.value).isInstanceOf(CameraStateUnopened.javaClass)
+        assertThat(virtualCamera.value).isInstanceOf(CameraStateUnopened::class.java)
 
         virtualCamera.disconnect()
-        assertThat(virtualCamera.state.value).isInstanceOf(CameraStateClosed::class.java)
+        assertThat(virtualCamera.value).isInstanceOf(CameraStateClosed::class.java)
 
-        val closedState = virtualCamera.state.value as CameraStateClosed
+        val closedState = virtualCamera.value as CameraStateClosed
         assertThat(closedState.cameraClosedReason).isEqualTo(ClosedReason.APP_DISCONNECTED)
 
         // Disconnecting a virtual camera does not propagate statistics.
@@ -103,18 +101,17 @@ internal class VirtualCameraStateTest {
 
         virtualCamera.state.first { it !is CameraStateUnopened }
 
-        assertThat(virtualCamera.state.value).isInstanceOf(CameraStateOpen::class.java)
+        assertThat(virtualCamera.value).isInstanceOf(CameraStateOpen::class.java)
         virtualCamera.disconnect()
-        assertThat(virtualCamera.state.value).isInstanceOf(CameraStateClosed::class.java)
+        assertThat(virtualCamera.value).isInstanceOf(CameraStateClosed::class.java)
 
-        val closedState = virtualCamera.state.value as CameraStateClosed
+        val closedState = virtualCamera.value as CameraStateClosed
         assertThat(closedState.cameraId).isEqualTo(cameraId)
         assertThat(closedState.cameraClosedReason).isEqualTo(ClosedReason.APP_DISCONNECTED)
     }
 
-    @Suppress("DEPRECATION") // fails with runTest {} api - b/220870228
     @Test
-    fun virtualCameraStateRespondsToClose() = runBlockingTest {
+    fun virtualCameraStateRespondsToClose() = runTest {
         // This tests that a listener attached to the virtualCamera.state property will receive all
         // of the events, starting from CameraStateUnopened.
         val virtualCamera = VirtualCameraState(cameraId)
@@ -135,7 +132,7 @@ internal class VirtualCameraStateTest {
         )
 
         val events = mutableListOf<CameraState>()
-        val job = launch(start = CoroutineStart.UNDISPATCHED) {
+        val job = launch {
             virtualCamera.state.collect {
                 events.add(it)
             }
@@ -150,8 +147,7 @@ internal class VirtualCameraStateTest {
             }
         )
 
-        // Suspend until the state is closed
-        virtualCamera.state.first { it is CameraStateClosed }
+        advanceUntilIdle()
         job.cancelAndJoin()
 
         val expectedStates = listOf(CameraStateUnopened).plus(states)
@@ -161,7 +157,6 @@ internal class VirtualCameraStateTest {
 
 @RunWith(RobolectricCameraPipeTestRunner::class)
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
-@OptIn(ExperimentalCoroutinesApi::class)
 internal class AndroidCameraDeviceTest {
     private val mainLooper = shadowOf(getMainLooper())
     private val cameraId = RobolectricCameras.create()

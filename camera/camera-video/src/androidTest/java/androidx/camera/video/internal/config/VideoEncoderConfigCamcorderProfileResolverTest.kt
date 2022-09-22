@@ -23,7 +23,9 @@ import androidx.camera.camera2.Camera2Config
 import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraXConfig
+import androidx.camera.core.impl.Timebase
 import androidx.camera.core.internal.CameraUseCaseAdapter
+import androidx.camera.testing.CameraPipeConfigTestRule
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CameraXUtil
 import androidx.camera.video.Quality
@@ -39,6 +41,7 @@ import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assume
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
@@ -58,9 +61,16 @@ class VideoEncoderConfigCamcorderProfileResolverTest(
             arrayOf(CameraPipeConfig::class.simpleName, CameraPipeConfig.defaultConfig())
         )
     }
+
+    @get:Rule
+    val cameraPipeConfigTestRule = CameraPipeConfigTestRule(
+        active = implName == CameraPipeConfig::class.simpleName,
+    )
+
     private val context: Context = ApplicationProvider.getApplicationContext()
     private val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
     private val defaultVideoSpec = VideoSpec.builder().build()
+    private val timebase = Timebase.UPTIME
 
     private lateinit var cameraUseCaseAdapter: CameraUseCaseAdapter
     private lateinit var videoCapabilities: VideoCapabilities
@@ -99,6 +109,7 @@ class VideoEncoderConfigCamcorderProfileResolverTest(
         supportedProfiles.forEach {
             val config = VideoEncoderConfigCamcorderProfileResolver(
                 it.videoCodecMimeType!!,
+                timebase,
                 defaultVideoSpec,
                 Size(it.videoFrameWidth, it.videoFrameHeight),
                 it,
@@ -119,6 +130,7 @@ class VideoEncoderConfigCamcorderProfileResolverTest(
 
         val defaultBitrate = VideoEncoderConfigCamcorderProfileResolver(
             profile.videoCodecMimeType!!,
+            timebase,
             defaultVideoSpec,
             surfaceSize,
             profile,
@@ -131,6 +143,7 @@ class VideoEncoderConfigCamcorderProfileResolverTest(
         assertThat(
             VideoEncoderConfigCamcorderProfileResolver(
                 profile.videoCodecMimeType!!,
+                timebase,
                 defaultVideoSpec,
                 increasedSurfaceSize,
                 profile,
@@ -141,6 +154,7 @@ class VideoEncoderConfigCamcorderProfileResolverTest(
         assertThat(
             VideoEncoderConfigCamcorderProfileResolver(
                 profile.videoCodecMimeType!!,
+                timebase,
                 defaultVideoSpec,
                 decreasedSurfaceSize,
                 profile,
@@ -156,6 +170,7 @@ class VideoEncoderConfigCamcorderProfileResolverTest(
 
         val defaultBitrate = VideoEncoderConfigCamcorderProfileResolver(
             profile.videoCodecMimeType!!,
+            timebase,
             defaultVideoSpec,
             surfaceSize,
             profile,
@@ -174,6 +189,7 @@ class VideoEncoderConfigCamcorderProfileResolverTest(
         assertThat(
             VideoEncoderConfigCamcorderProfileResolver(
                 profile.videoCodecMimeType!!,
+                timebase,
                 higherVideoSpec,
                 surfaceSize,
                 profile,
@@ -184,6 +200,7 @@ class VideoEncoderConfigCamcorderProfileResolverTest(
         assertThat(
             VideoEncoderConfigCamcorderProfileResolver(
                 profile.videoCodecMimeType!!,
+                timebase,
                 lowerVideoSpec,
                 surfaceSize,
                 profile,
@@ -203,6 +220,7 @@ class VideoEncoderConfigCamcorderProfileResolverTest(
 
         val clampedDownFrameRate = VideoEncoderConfigCamcorderProfileResolver(
             profile.videoCodecMimeType!!,
+            timebase,
             defaultVideoSpec,
             surfaceSize,
             profile,
@@ -211,6 +229,7 @@ class VideoEncoderConfigCamcorderProfileResolverTest(
 
         val clampedUpFrameRate = VideoEncoderConfigCamcorderProfileResolver(
             profile.videoCodecMimeType!!,
+            timebase,
             defaultVideoSpec,
             surfaceSize,
             profile,
@@ -231,6 +250,7 @@ class VideoEncoderConfigCamcorderProfileResolverTest(
 
         val resolvedFrameRate = VideoEncoderConfigCamcorderProfileResolver(
             profile.videoCodecMimeType!!,
+            timebase,
             defaultVideoSpec,
             surfaceSize,
             profile,
@@ -251,6 +271,7 @@ class VideoEncoderConfigCamcorderProfileResolverTest(
 
         val resolvedBitrate = VideoEncoderConfigCamcorderProfileResolver(
             profile.videoCodecMimeType!!,
+            timebase,
             defaultVideoSpec,
             surfaceSize,
             profile,

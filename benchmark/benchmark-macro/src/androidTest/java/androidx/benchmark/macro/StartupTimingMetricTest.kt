@@ -278,11 +278,12 @@ internal fun measureStartup(
         benchmarkName = packageName,
         // note - packageName may be this package, so we convert to set then list to make unique
         // and on API 23 and below, we use reflection to trace instead within this process
-        packages = if (Build.VERSION.SDK_INT >= 24 && packageName != Packages.TEST) {
+        appTagPackages = if (Build.VERSION.SDK_INT >= 24 && packageName != Packages.TEST) {
             listOf(packageName, Packages.TEST)
         } else {
             listOf(packageName)
         },
+        userspaceTracingPackage = packageName,
         block = measureBlock
     )!!
 

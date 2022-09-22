@@ -67,6 +67,7 @@ import androidx.camera.core.impl.SessionProcessor
 import androidx.camera.core.impl.utils.CameraOrientationUtil
 import androidx.camera.core.impl.utils.Exif
 import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.camera.testing.CameraPipeConfigTestRule
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.SurfaceTextureProvider
 import androidx.camera.testing.fakes.FakeCaptureStage
@@ -91,7 +92,6 @@ import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
-import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.withTimeoutOrNull
 import org.junit.After
 import org.junit.Assume.assumeFalse
@@ -111,6 +111,12 @@ private const val CAPTURE_TIMEOUT = 10_000.toLong() //  10 seconds
 @LargeTest
 @RunWith(Parameterized::class)
 class ImageCaptureTest(private val implName: String, private val cameraXConfig: CameraXConfig) {
+
+    @get:Rule
+    val cameraPipeConfigTestRule = CameraPipeConfigTestRule(
+        active = implName == CameraPipeConfig::class.simpleName,
+    )
+
     @get:Rule
     val cameraRule = CameraUtil.grantCameraPermissionAndPreTest(
         CameraUtil.PreTestCameraIdList(cameraXConfig)
@@ -159,8 +165,6 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
 
     @Test
     fun capturedImageHasCorrectSize() = runBlocking {
-        skipTestOnCameraPipeConfig()
-
         val useCase = ImageCapture.Builder()
             .setTargetResolution(DEFAULT_RESOLUTION)
             .setTargetRotation(Surface.ROTATION_0)
@@ -198,15 +202,11 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
 
     @Test
     fun canCaptureMultipleImages() {
-        skipTestOnCameraPipeConfig()
-
         canTakeMultipleImages(defaultBuilder)
     }
 
     @Test
     fun canCaptureMultipleImagesWithMaxQuality() {
-        skipTestOnCameraPipeConfig()
-
         canTakeMultipleImages(
             ImageCapture.Builder().setCaptureMode(ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY)
         )
@@ -214,8 +214,6 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
 
     @Test
     fun canCaptureMultipleImagesWithZsl() = runBlocking {
-        skipTestOnCameraPipeConfig()
-
         val useCase = ImageCapture.Builder()
             .setCaptureMode(ImageCapture.CAPTURE_MODE_ZERO_SHUTTER_LAG).build()
         var camera: Camera
@@ -257,8 +255,6 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
 
     @Test
     fun saveCanSucceed_withNonExistingFile() {
-        skipTestOnCameraPipeConfig()
-
         val saveLocation = File(context.cacheDir, "test" + System.currentTimeMillis() + ".jpg")
         saveLocation.deleteOnExit()
 
@@ -273,8 +269,6 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
 
     @Test
     fun saveCanSucceed_withExistingFile() {
-        skipTestOnCameraPipeConfig()
-
         val saveLocation = File.createTempFile("test", ".jpg")
         saveLocation.deleteOnExit()
         assertThat(saveLocation.exists())
@@ -301,8 +295,6 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
 
     @Test
     fun saveToUri(): Unit = runBlocking {
-        skipTestOnCameraPipeConfig()
-
         // Arrange.
         val useCase = defaultBuilder.build()
         withContext(Dispatchers.Main) {
@@ -335,8 +327,6 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
 
     @Test
     fun saveToOutputStream() = runBlocking {
-        skipTestOnCameraPipeConfig()
-
         // Arrange.
         val useCase = defaultBuilder.build()
         withContext(Dispatchers.Main) {
@@ -363,8 +353,6 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
 
     @Test
     fun canSaveFile_withRotation() = runBlocking {
-        skipTestOnCameraPipeConfig()
-
         // TODO(b/147448711) Add back in once cuttlefish has correct user cropping functionality.
         assumeFalse(
             "Cuttlefish does not correctly handle crops. Unable to test.",
@@ -433,8 +421,6 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
 
     @Test
     fun canSaveFile_flippedHorizontal() = runBlocking {
-        skipTestOnCameraPipeConfig()
-
         // Use a non-rotated configuration since some combinations of rotation + flipping vertically
         // can be equivalent to flipping horizontally
         val configBuilder = ImageCapture.Builder.fromConfig(createNonRotatedConfiguration())
@@ -453,8 +439,6 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
 
     @Test
     fun canSaveFile_flippedVertical() = runBlocking {
-        skipTestOnCameraPipeConfig()
-
         // Use a non-rotated configuration since some combinations of rotation + flipping
         // horizontally can be equivalent to flipping vertically
         val configBuilder = ImageCapture.Builder.fromConfig(createNonRotatedConfiguration())
@@ -473,8 +457,6 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
 
     @Test
     fun canSaveFile_withAttachedLocation() {
-        skipTestOnCameraPipeConfig()
-
         val location = Location("ImageCaptureTest")
         val metadata = ImageCapture.Metadata()
         metadata.location = location
@@ -518,8 +500,6 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
 
     @Test
     fun canSaveMultipleFiles() = runBlocking {
-        skipTestOnCameraPipeConfig()
-
         val useCase = defaultBuilder.build()
         withContext(Dispatchers.Main) {
             cameraProvider.bindToLifecycle(fakeLifecycleOwner, BACK_SELECTOR, useCase)
@@ -547,8 +527,6 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
 
     @Test
     fun saveWillFail_whenInvalidFilePathIsUsed() = runBlocking {
-        skipTestOnCameraPipeConfig()
-
         val useCase = defaultBuilder.build()
         withContext(Dispatchers.Main) {
             cameraProvider.bindToLifecycle(fakeLifecycleOwner, BACK_SELECTOR, useCase)
@@ -572,8 +550,6 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
     @Test
     @OptIn(markerClass = [ExperimentalCamera2Interop::class])
     fun camera2InteropCaptureSessionCallbacks() = runBlocking {
-        skipTestOnCameraPipeConfig()
-
         val stillCaptureCount = AtomicInteger(0)
         val captureCallback = object : CaptureCallback() {
             override fun onCaptureCompleted(
@@ -613,8 +589,6 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
     fun takePicture_withBufferFormatRaw10() = runBlocking {
         // RAW10 does not work in redmi 8
         assumeFalse(Build.DEVICE.equals("olive", ignoreCase = true)) // Redmi 8
-        skipTestOnCameraPipeConfig()
-
         val cameraCharacteristics = CameraUtil.getCameraCharacteristics(BACK_LENS_FACING)
         val map = cameraCharacteristics!!.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)
         val resolutions = map!!.getOutputSizes(ImageFormat.RAW10)
@@ -672,8 +646,6 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
 
     @Test
     fun captureStagesAbove1_withoutCaptureProcessor() = runBlocking {
-        skipTestOnCameraPipeConfig()
-
         val captureBundle = CaptureBundle {
             listOf(
                 FakeCaptureStage(0, CaptureConfig.Builder().build()),
@@ -703,8 +675,6 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
 
     @Test
     fun captureStageExceedMaxCaptureStage_whenIssueTakePicture() = runBlocking {
-        skipTestOnCameraPipeConfig()
-
         // Initial the captureStages not greater than the maximum count to bypass the CaptureStage
         // count checking during bindToLifeCycle.
         val captureStages = mutableListOf<CaptureStage>()
@@ -746,8 +716,6 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
 
     @Test
     fun onStateOffline_abortAllCaptureRequests() = runBlocking {
-        skipTestOnCameraPipeConfig()
-
         val imageCapture = ImageCapture.Builder().build()
         withContext(Dispatchers.Main) {
             cameraProvider.bindToLifecycle(fakeLifecycleOwner, BACK_SELECTOR, imageCapture)
@@ -784,8 +752,6 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
 
     @Test
     fun unbind_abortAllCaptureRequests() = runBlocking {
-        skipTestOnCameraPipeConfig()
-
         val imageCapture = ImageCapture.Builder().build()
         withContext(Dispatchers.Main) {
             cameraProvider.bindToLifecycle(fakeLifecycleOwner, BACK_SELECTOR, imageCapture)
@@ -815,8 +781,6 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
 
     @Test
     fun takePictureReturnsErrorNO_CAMERA_whenNotBound() = runBlocking {
-        skipTestOnCameraPipeConfig()
-
         val imageCapture = ImageCapture.Builder().build()
         val callback = FakeImageCaptureCallback(capturesCount = 1)
 
@@ -831,8 +795,6 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
 
     @Test
     fun defaultAspectRatioWillBeSet_whenTargetResolutionIsNotSet() = runBlocking {
-        skipTestOnCameraPipeConfig()
-
         val useCase = ImageCapture.Builder().build()
         withContext(Dispatchers.Main) {
             cameraProvider.bindToLifecycle(fakeLifecycleOwner, BACK_SELECTOR, useCase)
@@ -844,8 +806,6 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
 
     @Test
     fun defaultAspectRatioWontBeSet_whenTargetResolutionIsSet() = runBlocking {
-        skipTestOnCameraPipeConfig()
-
         val useCase = ImageCapture.Builder()
             .setTargetResolution(DEFAULT_RESOLUTION)
             .build()
@@ -878,8 +838,6 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
 
     @Test
     fun targetResolutionIsUpdatedAfterTargetRotationIsUpdated() = runBlocking {
-        skipTestOnCameraPipeConfig()
-
         val imageCapture = ImageCapture.Builder()
             .setTargetResolution(DEFAULT_RESOLUTION)
             .setTargetRotation(Surface.ROTATION_0)
@@ -900,8 +858,6 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
 
     @Test
     fun capturedImageHasCorrectCroppingSizeWithoutSettingRotation() {
-        skipTestOnCameraPipeConfig()
-
         val useCase = ImageCapture.Builder()
             .setTargetResolution(DEFAULT_RESOLUTION)
             .build()
@@ -916,8 +872,6 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
 
     @Test
     fun capturedImageHasCorrectCroppingSizeSetRotationBuilder() {
-        skipTestOnCameraPipeConfig()
-
         // Checks camera device sensor degrees to set correct target rotation value to make sure
         // that the initial set target cropping aspect ratio matches the sensor orientation.
         val sensorOrientation = CameraUtil.getSensorOrientation(BACK_LENS_FACING)
@@ -937,8 +891,6 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
 
     @Test
     fun capturedImageHasCorrectCroppingSize_setUseCaseRotation90FromRotationInBuilder() {
-        skipTestOnCameraPipeConfig()
-
         // Checks camera device sensor degrees to set correct target rotation value to make sure
         // that the initial set target cropping aspect ratio matches the sensor orientation.
         val sensorOrientation = CameraUtil.getSensorOrientation(BACK_LENS_FACING)
@@ -996,8 +948,6 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
 
     @Test
     fun capturedImageHasCorrectCroppingSize_setCropAspectRatioAfterBindToLifecycle() = runBlocking {
-        skipTestOnCameraPipeConfig()
-
         val useCase = ImageCapture.Builder().build()
         withContext(Dispatchers.Main) {
             cameraProvider.bindToLifecycle(fakeLifecycleOwner, BACK_SELECTOR, useCase)
@@ -1050,8 +1000,6 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
 
     @Test
     fun capturedImageHasCorrectCroppingSize_viewPortOverwriteCropAspectRatio() = runBlocking {
-        skipTestOnCameraPipeConfig()
-
         val sensorOrientation = CameraUtil.getSensorOrientation(BACK_LENS_FACING)
         val isRotateNeeded = sensorOrientation!! % 180 != 0
 
@@ -1115,8 +1063,6 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
 
     @Test
     fun useCaseConfigCanBeReset_afterUnbind() = runBlocking {
-        skipTestOnCameraPipeConfig()
-
         val useCase = defaultBuilder.build()
         val initialConfig = useCase.currentConfig
         withContext(Dispatchers.Main) {
@@ -1133,8 +1079,6 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
 
     @Test
     fun targetRotationIsRetained_whenUseCaseIsReused() = runBlocking {
-        skipTestOnCameraPipeConfig()
-
         val useCase = defaultBuilder.build()
         withContext(Dispatchers.Main) {
             cameraProvider.bindToLifecycle(fakeLifecycleOwner, BACK_SELECTOR, useCase)
@@ -1161,8 +1105,6 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
 
     @Test
     fun cropAspectRatioIsRetained_whenUseCaseIsReused() = runBlocking {
-        skipTestOnCameraPipeConfig()
-
         val useCase = defaultBuilder.build()
         val cropAspectRatio = Rational(1, 1)
         withContext(Dispatchers.Main) {
@@ -1198,8 +1140,6 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
 
     @Test
     fun useCaseCanBeReusedInSameCamera() = runBlocking {
-        skipTestOnCameraPipeConfig()
-
         val useCase = defaultBuilder.build()
         withContext(Dispatchers.Main) {
             cameraProvider.bindToLifecycle(fakeLifecycleOwner, BACK_SELECTOR, useCase)
@@ -1246,8 +1186,6 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
 
     @Test
     fun useCaseCanBeReusedInDifferentCamera() = runBlocking {
-        skipTestOnCameraPipeConfig()
-
         val useCase = defaultBuilder.build()
         withContext(Dispatchers.Main) {
             cameraProvider.bindToLifecycle(fakeLifecycleOwner, BACK_SELECTOR, useCase)
@@ -1304,8 +1242,6 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
 
     @Test
     fun returnCorrectTargetRotation_afterUseCaseIsAttached() = runBlocking {
-        skipTestOnCameraPipeConfig()
-
         val imageCapture = ImageCapture.Builder()
             .setTargetRotation(Surface.ROTATION_180)
             .build()
@@ -1323,8 +1259,6 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
 
     @Test
     fun returnCorrectFlashMode_afterUseCaseIsAttached() = runBlocking {
-        skipTestOnCameraPipeConfig()
-
         val imageCapture = ImageCapture.Builder()
             .setFlashMode(ImageCapture.FLASH_MODE_ON)
             .build()
@@ -1339,8 +1273,6 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
     @Test
     @SdkSuppress(minSdkVersion = 29)
     fun returnJpegImage_whenSoftwareJpegIsEnabled() = runBlocking {
-        skipTestOnCameraPipeConfig()
-
         val builder = ImageCapture.Builder()
 
         // Enables software Jpeg
@@ -1375,8 +1307,6 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
     @Test
     @SdkSuppress(minSdkVersion = 26)
     fun returnYuvImage_whenSoftwareJpegIsEnabledWithYuvBufferFormat() = runBlocking {
-        skipTestOnCameraPipeConfig()
-
         val builder = ImageCapture.Builder().setBufferFormat(ImageFormat.YUV_420_888)
 
         // Enables software Jpeg
@@ -1412,8 +1342,6 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
     @Test
     @SdkSuppress(minSdkVersion = 29)
     fun returnJpegImage_whenCaptureProcessorIsSet() = runBlocking {
-        skipTestOnCameraPipeConfig()
-
         val builder = ImageCapture.Builder()
         val simpleCaptureProcessor = SimpleCaptureProcessor()
 
@@ -1444,8 +1372,6 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
     @Test
     @SdkSuppress(minSdkVersion = 29)
     fun returnJpegImage_whenSessionProcessorIsSet_outputFormantYuv() = runBlocking {
-        skipTestOnCameraPipeConfig()
-
         val builder = ImageCapture.Builder()
         val sessionProcessor = FakeSessionProcessor(
             inputFormatPreview = null, // null means using the same output surface
@@ -1491,7 +1417,6 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
             "Cuttlefish does not correctly handle Jpeg exif. Unable to test.",
             Build.MODEL.contains("Cuttlefish")
         )
-        skipTestOnCameraPipeConfig()
 
         val builder = ImageCapture.Builder()
         val sessionProcessor = FakeSessionProcessor(
@@ -1577,8 +1502,6 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
     @Test
     @SdkSuppress(minSdkVersion = 29)
     fun returnJpegImage_whenSoftwareJpegIsEnabledWithCaptureProcessor() = runBlocking {
-        skipTestOnCameraPipeConfig()
-
         val builder = ImageCapture.Builder()
         val simpleCaptureProcessor = SimpleCaptureProcessor()
 
@@ -1615,8 +1538,6 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
 
     @Test
     fun unbindPreview_imageCapturingShouldSuccess() = runBlocking {
-        skipTestOnCameraPipeConfig()
-
         // Arrange.
         val imageCapture = ImageCapture.Builder().build()
         val previewStreamReceived = CompletableDeferred<Boolean>()
@@ -1676,14 +1597,6 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
         }
     }
 
-    // TODO(b/185260678): Remove when image capture support is added to Camera-pipe-integration
-    private fun skipTestOnCameraPipeConfig() {
-        assumeFalse(
-            "Image capture isn't supported on Camera-pipe-integration (b/185260678)",
-            implName == CameraPipeConfig::class.simpleName
-        )
-    }
-
     private class ImageProperties(
         val size: Size? = null,
         val format: Int = -1,
@@ -1730,9 +1643,9 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
         }
 
         suspend fun awaitCaptures(timeout: Long = CAPTURE_TIMEOUT) {
-            withTimeout(timeout) {
+            assertThat(withTimeoutOrNull(timeout) {
                 latch.await()
-            }
+            }).isNotNull()
         }
 
         suspend fun awaitCapturesAndAssert(
@@ -1740,9 +1653,9 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
             capturedImagesCount: Int = 0,
             errorsCount: Int = 0
         ) {
-            withTimeout(timeout) {
+            assertThat(withTimeoutOrNull(timeout) {
                 latch.await()
-            }
+            }).isNotNull()
             assertThat(results.size).isEqualTo(capturedImagesCount)
             assertThat(errors.size).isEqualTo(errorsCount)
         }
@@ -1770,9 +1683,9 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
             savedImagesCount: Int = 0,
             errorsCount: Int = 0
         ) {
-            withTimeout(timeout) {
+            assertThat(withTimeoutOrNull(timeout) {
                 latch.await()
-            }
+            }).isNotNull()
             assertThat(results.size).isEqualTo(savedImagesCount)
             assertThat(errors.size).isEqualTo(errorsCount)
         }

@@ -96,7 +96,7 @@ package androidx.health.services.client {
 package androidx.health.services.client.data {
 
   public final class AggregateDataType<T extends java.lang.Number, D extends androidx.health.services.client.data.DataPoint<T>> extends androidx.health.services.client.data.DataType<T,D> {
-    ctor public AggregateDataType(String name, androidx.health.services.client.data.DataType.TimeType timeType, kotlin.reflect.KClass<T> valueClass);
+    ctor public AggregateDataType(String name, androidx.health.services.client.data.DataType.TimeType timeType, Class<T> valueClass);
   }
 
   public interface Availability {
@@ -161,11 +161,11 @@ package androidx.health.services.client.data {
   }
 
   public abstract class DataType<T, D extends androidx.health.services.client.data.DataPoint<T>> {
-    ctor public DataType(String name, androidx.health.services.client.data.DataType.TimeType timeType, kotlin.reflect.KClass<T> valueClass, boolean isAggregate);
+    ctor public DataType(String name, androidx.health.services.client.data.DataType.TimeType timeType, Class<T> valueClass, boolean isAggregate);
     method public final String getName();
-    method public final kotlin.reflect.KClass<T> getValueClass();
+    method public final Class<T> getValueClass();
     property public final String name;
-    property public final kotlin.reflect.KClass<T> valueClass;
+    property public final Class<T> valueClass;
     field public static final androidx.health.services.client.data.DeltaDataType<java.lang.Double,androidx.health.services.client.data.SampleDataPoint<java.lang.Double>> ABSOLUTE_ELEVATION;
     field public static final androidx.health.services.client.data.AggregateDataType<java.lang.Double,androidx.health.services.client.data.StatisticalDataPoint<java.lang.Double>> ABSOLUTE_ELEVATION_STATS;
     field public static final androidx.health.services.client.data.AggregateDataType<java.lang.Long,androidx.health.services.client.data.CumulativeDataPoint<java.lang.Long>> ACTIVE_EXERCISE_DURATION_TOTAL;
@@ -271,7 +271,7 @@ package androidx.health.services.client.data {
   }
 
   public final class DeltaDataType<T, D extends androidx.health.services.client.data.DataPoint<T>> extends androidx.health.services.client.data.DataType<T,D> {
-    ctor public DeltaDataType(String name, androidx.health.services.client.data.DataType.TimeType timeType, kotlin.reflect.KClass<T> valueClass);
+    ctor public DeltaDataType(String name, androidx.health.services.client.data.DataType.TimeType timeType, Class<T> valueClass);
   }
 
   public final class ExerciseCapabilities extends androidx.health.services.client.data.ProtoParcelable<androidx.health.services.client.proto.DataProto.ExerciseCapabilities> {
@@ -292,12 +292,13 @@ package androidx.health.services.client.data {
   }
 
   public final class ExerciseConfig {
-    ctor public ExerciseConfig(androidx.health.services.client.data.ExerciseType exerciseType, java.util.Set<? extends androidx.health.services.client.data.DataType<?,?>> dataTypes, boolean isAutoPauseAndResumeEnabled, boolean isGpsEnabled, optional java.util.List<? extends androidx.health.services.client.data.ExerciseGoal<?>> exerciseGoals, optional android.os.Bundle exerciseParams);
+    ctor public ExerciseConfig(androidx.health.services.client.data.ExerciseType exerciseType, java.util.Set<? extends androidx.health.services.client.data.DataType<?,?>> dataTypes, boolean isAutoPauseAndResumeEnabled, boolean isGpsEnabled, optional java.util.List<? extends androidx.health.services.client.data.ExerciseGoal<?>> exerciseGoals, optional android.os.Bundle exerciseParams, optional @FloatRange(from=0.0) float swimmingPoolLengthMeters);
     method public static androidx.health.services.client.data.ExerciseConfig.Builder builder(androidx.health.services.client.data.ExerciseType exerciseType);
     method public java.util.Set<androidx.health.services.client.data.DataType<?,?>> getDataTypes();
     method public java.util.List<androidx.health.services.client.data.ExerciseGoal<?>> getExerciseGoals();
     method public android.os.Bundle getExerciseParams();
     method public androidx.health.services.client.data.ExerciseType getExerciseType();
+    method public float getSwimmingPoolLengthMeters();
     method public boolean isAutoPauseAndResumeEnabled();
     method public boolean isGpsEnabled();
     property public final java.util.Set<androidx.health.services.client.data.DataType<?,?>> dataTypes;
@@ -306,7 +307,9 @@ package androidx.health.services.client.data {
     property public final androidx.health.services.client.data.ExerciseType exerciseType;
     property public final boolean isAutoPauseAndResumeEnabled;
     property public final boolean isGpsEnabled;
+    property public final float swimmingPoolLengthMeters;
     field public static final androidx.health.services.client.data.ExerciseConfig.Companion Companion;
+    field public static final float SWIMMING_POOL_LENGTH_UNSPECIFIED = 0.0f;
   }
 
   public static final class ExerciseConfig.Builder {
@@ -317,6 +320,7 @@ package androidx.health.services.client.data {
     method public androidx.health.services.client.data.ExerciseConfig.Builder setExerciseParams(android.os.Bundle exerciseParams);
     method public androidx.health.services.client.data.ExerciseConfig.Builder setIsAutoPauseAndResumeEnabled(boolean isAutoPauseAndResumeEnabled);
     method public androidx.health.services.client.data.ExerciseConfig.Builder setIsGpsEnabled(boolean isGpsEnabled);
+    method public androidx.health.services.client.data.ExerciseConfig.Builder setSwimmingPoolLength(float swimmingPoolLength);
   }
 
   public static final class ExerciseConfig.Companion {

@@ -44,13 +44,14 @@ internal class Camera2CameraController @Inject constructor(
     private val config: CameraGraph.Config,
     private val graphListener: GraphListener,
     private val captureSessionFactory: CaptureSessionFactory,
-    private val requestProcessorFactory: Camera2RequestProcessorFactory,
+    private val captureSequenceProcessorFactory: Camera2CaptureSequenceProcessorFactory,
     private val virtualCameraManager: VirtualCameraManager,
     private val cameraSurfaceManager: CameraSurfaceManager
 ) : CameraController {
+    private var closed = false
     private var currentCamera: VirtualCamera? = null
     private var currentSession: VirtualSessionState? = null
-    private var surfaceMap: Map<StreamId, Surface>? = null
+    private var currentSurfaceMap: Map<StreamId, Surface>? = null
 
     override fun start() {
         val camera = virtualCameraManager.open(
@@ -58,6 +59,10 @@ internal class Camera2CameraController @Inject constructor(
             config.flags.allowMultipleActiveCameras
         )
         synchronized(this) {
+            if (closed) {
+                return
+            }
+
             check(currentCamera == null)
             check(currentSession == null)
 
@@ -65,15 +70,15 @@ internal class Camera2CameraController @Inject constructor(
             val session = VirtualSessionState(
                 graphListener,
                 captureSessionFactory,
-                requestProcessorFactory,
+                captureSequenceProcessorFactory,
                 cameraSurfaceManager,
                 scope
             )
             currentSession = session
 
-            val surfaces: Map<StreamId, Surface>? = surfaceMap
+            val surfaces: Map<StreamId, Surface>? = currentSurfaceMap
             if (surfaces != null) {
-                session.onSurfaceMapUpdated(surfaces)
+                session.configureSurfaceMap(surfaces)
             }
         }
         scope.launch { bindSessionToCamera() }
@@ -83,6 +88,10 @@ internal class Camera2CameraController @Inject constructor(
         val camera: VirtualCamera?
         val session: VirtualSessionState?
         synchronized(this) {
+            if (closed) {
+                return
+            }
+
             camera = currentCamera
             session = currentSession
 
@@ -97,16 +106,35 @@ internal class Camera2CameraController @Inject constructor(
     }
 
     override fun close() {
-        // TODO: Consider changing the behavior so that start / stop are not invokable after calling
-        //   close.
-        stop()
+        val camera: VirtualCamera?
+        val session: VirtualSessionState?
+        synchronized(this) {
+            if (closed) {
+                return
+            }
+            closed = true
+            camera = currentCamera
+            session = currentSession
+
+            currentCamera = null
+            currentSession = null
+        }
+
+        scope.launch {
+            session?.disconnect()
+            camera?.disconnect()
+        }
     }
 
     override fun updateSurfaceMap(surfaceMap: Map<StreamId, Surface>) {
+        // TODO: Add logic to decide if / when to re-configure the Camera2 CaptureSession.
         synchronized(this) {
-            this.surfaceMap = surfaceMap
-            currentSession?.onSurfaceMapUpdated(surfaceMap)
-        }
+            if (closed) {
+                return
+            }
+            currentSurfaceMap = surfaceMap
+            currentSession
+        }?.configureSurfaceMap(surfaceMap)
     }
 
     private suspend fun bindSessionToCamera() {

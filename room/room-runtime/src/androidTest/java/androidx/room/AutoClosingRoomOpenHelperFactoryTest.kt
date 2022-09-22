@@ -125,7 +125,7 @@ public class AutoClosingRoomOpenHelperFactoryTest {
 
             override fun onConfigure(db: SupportSQLiteDatabase) {
                 Thread.sleep(100)
-                db.maximumSize = 100000
+                db.setMaximumSize(100000)
             }
 
             override fun onOpen(db: SupportSQLiteDatabase) {

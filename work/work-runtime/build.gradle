@@ -57,10 +57,10 @@ android {
 
 dependencies {
     implementation("androidx.core:core:1.6.0")
-    ksp("androidx.room:room-compiler:2.4.0-rc01")
-    implementation("androidx.room:room-runtime:2.4.0-rc01")
-    androidTestImplementation("androidx.room:room-testing:2.4.0-rc01")
-    implementation("androidx.sqlite:sqlite-framework:2.3.0-alpha05")
+    ksp(projectOrArtifact(":room:room-compiler"))
+    implementation(projectOrArtifact(":room:room-runtime"))
+    androidTestImplementation(projectOrArtifact(":room:room-testing"))
+    implementation(projectOrArtifact(":sqlite:sqlite-framework"))
     api("androidx.annotation:annotation-experimental:1.0.0")
     api(libs.guavaListenableFuture)
     api("androidx.lifecycle:lifecycle-livedata:2.1.0")

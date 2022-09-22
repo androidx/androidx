@@ -678,7 +678,6 @@ class CurrentUserStyleRepositoryTest {
         assertThat(userStyleB).isNotEqualTo(userStyleD)
     }
 
-    @OptIn(ExperimentalHierarchicalStyle::class)
     @Test
     fun hierarchicalStyle() {
         val twelveHourClockOption =

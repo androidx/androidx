@@ -45,7 +45,7 @@ import org.robolectric.annotation.internal.DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 class JpegImage2ResultTest {
 
-    private val processor = JpegImage2Result()
+    private val operation = JpegImage2Result()
 
     @Test
     fun process_verifyOutput() {
@@ -61,7 +61,7 @@ class JpegImage2ResultTest {
             SENSOR_TO_BUFFER
         )
         // Act.
-        val output = processor.process(input)
+        val output = operation.apply(input)
 
         // Assert: image is the same.
         val restoredJpeg = jpegImageToJpegByteArray(output)

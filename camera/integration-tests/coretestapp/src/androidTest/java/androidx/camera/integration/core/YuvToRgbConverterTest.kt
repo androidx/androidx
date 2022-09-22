@@ -25,6 +25,7 @@ import androidx.camera.core.CameraXConfig
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.integration.core.util.YuvToRgbConverter
 import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.camera.testing.CameraPipeConfigTestRule
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.LabTestRule
 import androidx.camera.testing.fakes.FakeLifecycleOwner
@@ -52,6 +53,12 @@ class YuvToRgbConverterTest(
     private val implName: String,
     private val cameraXConfig: CameraXConfig
 ) {
+
+    @get:Rule
+    val cameraPipeConfigTestRule = CameraPipeConfigTestRule(
+        active = implName == CameraPipeConfig::class.simpleName,
+    )
+
     @get:Rule
     val useCamera = CameraUtil.grantCameraPermissionAndPreTest(
         CameraUtil.PreTestCameraIdList(cameraXConfig)

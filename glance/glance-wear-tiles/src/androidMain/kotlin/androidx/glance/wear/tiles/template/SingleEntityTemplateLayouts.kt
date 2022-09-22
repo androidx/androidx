@@ -71,10 +71,16 @@ private fun WearLayout(data: SingleEntityTemplateData) {
                 .padding(horizontal = 16.dp, vertical = 8.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            data.headerIcon?.let { TemplateHeader(it) }
+            data.headerBlock?.icon?.let { TemplateHeader(it) }
             Spacer(modifier = GlanceModifier.height(4.dp))
-            TextSection(textList(data.text1, data.text2, data.text3))
-            data.image?.let {
+            TextSection(
+                textList(
+                    data.textBlock?.text1,
+                    data.textBlock?.text2,
+                    data.textBlock?.text3
+                )
+            )
+            data.imageBlock?.images?.firstOrNull()?.let {
                 Spacer(modifier = GlanceModifier.height(4.dp))
                 Image(
                     it.image,

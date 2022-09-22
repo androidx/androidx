@@ -37,7 +37,7 @@ class PrivacySandboxKspCompilerTest {
                     import androidx.privacysandbox.tools.PrivacySandboxService
                     @PrivacySandboxService
                     interface MySdk {
-                        fun doStuff(x: Int, y: Int): String
+                        suspend fun doStuff(x: Int, y: Int): String
                         fun doMoreStuff()
                     }
                 """
@@ -57,10 +57,10 @@ class PrivacySandboxKspCompilerTest {
             it.generatesExactlySources(
                 "com/mysdk/IMySdk.java",
                 "com/mysdk/ICancellationSignal.java",
-                "com/mysdk/IUnitTransactionCallback.java",
                 "com/mysdk/IStringTransactionCallback.java",
                 "com/mysdk/AbstractSandboxedSdkProvider.kt",
                 "com/mysdk/MySdkStubDelegate.kt",
+                "com/mysdk/TransportCancellationCallback.kt",
             )
         }.also {
             it.generatesSourcesWithContents(
@@ -77,7 +77,7 @@ class PrivacySandboxKspCompilerTest {
                     |
                     |public abstract class AbstractSandboxedSdkProvider : SandboxedSdkProvider() {
                     |  public override fun onLoadSdk(params: Bundle): SandboxedSdk {
-                    |    val sdk = createMySdk(getContext())
+                    |    val sdk = createMySdk(context!!)
                     |    return SandboxedSdk(MySdkStubDelegate(sdk))
                     |  }
                     |
@@ -102,8 +102,11 @@ class PrivacySandboxKspCompilerTest {
                     |package com.mysdk
                     |
                     |import kotlin.Int
-                    |import kotlin.String
                     |import kotlin.Unit
+                    |import kotlinx.coroutines.CoroutineScope
+                    |import kotlinx.coroutines.Dispatchers
+                    |import kotlinx.coroutines.GlobalScope
+                    |import kotlinx.coroutines.launch
                     |
                     |public class MySdkStubDelegate internal constructor(
                     |  private val `delegate`: MySdk,
@@ -112,15 +115,60 @@ class PrivacySandboxKspCompilerTest {
                     |    x: Int,
                     |    y: Int,
                     |    transactionCallback: IStringTransactionCallback,
-                    |  ): String = delegate.doStuff(x, y)
+                    |  ): Unit {
+                    |    val job = GlobalScope.launch(Dispatchers.Main) {
+                    |      try {
+                    |        val result = delegate.doStuff(x, y)
+                    |        transactionCallback.onSuccess(result)
+                    |      } catch (t: Throwable) {
+                    |        transactionCallback.onFailure(404, t.message)
+                    |      }
+                    |    }
+                    |    val cancellationSignal = TransportCancellationCallback(){ job.cancel() }
+                    |    transactionCallback.onCancellable(cancellationSignal)
+                    |  }
                     |
-                    |  public override fun doMoreStuff(transactionCallback: IUnitTransactionCallback): Unit =
-                    |      delegate.doMoreStuff()
+                    |  public override fun doMoreStuff(): Unit = delegate.doMoreStuff()
+                    |}
+                    |
+                """.trimMargin(),
+                "com/mysdk/TransportCancellationCallback.kt" to """
+                    |package com.mysdk
+                    |
+                    |import java.util.concurrent.atomic.AtomicBoolean
+                    |import kotlin.Unit
+                    |
+                    |internal class TransportCancellationCallback internal constructor(
+                    |  private val onCancel: () -> Unit,
+                    |) : ICancellationSignal.Stub() {
+                    |  private val hasCancelled: AtomicBoolean = AtomicBoolean(false)
+                    |
+                    |  public override fun cancel(): Unit {
+                    |    if (hasCancelled.compareAndSet(false, true)) {
+                    |      onCancel()
+                    |    }
+                    |  }
                     |}
                     |
                 """.trimMargin(),
             )
         }
+    }
+
+    @Test
+    fun compileEmpty_ok() {
+        val provider = PrivacySandboxKspCompiler.Provider()
+        // Check that compilation is successful
+        assertThat(
+            compile(
+                Files.createTempDirectory("test").toFile(),
+                TestCompilationArguments(
+                    sources = emptyList(),
+                    symbolProcessorProviders = listOf(provider),
+                    processorOptions = getProcessorOptions(),
+                )
+            )
+        ).generatesExactlySources()
     }
 
     @Test

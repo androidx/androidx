@@ -157,7 +157,7 @@ class RoomIncrementalAnnotationProcessingTest(
                 projectSetup.props.kspVersion
 
         // copy test project
-        File("src/test/data/simple-project").copyRecursively(projectRoot)
+        File("src/test/test-data/simple-project").copyRecursively(projectRoot)
 
         if (useKsp) {
             // add a kotlin file to trigger kotlin compilation

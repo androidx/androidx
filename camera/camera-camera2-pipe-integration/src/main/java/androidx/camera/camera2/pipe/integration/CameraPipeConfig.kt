@@ -29,6 +29,7 @@ object CameraPipeConfig {
     /**
      * Creates a [CameraXConfig] containing a default CameraPipe implementation for CameraX.
      */
+    @JvmStatic
     fun defaultConfig(): CameraXConfig {
         return CameraXConfig.Builder()
             .setCameraFactoryProvider(::CameraFactoryAdapter)

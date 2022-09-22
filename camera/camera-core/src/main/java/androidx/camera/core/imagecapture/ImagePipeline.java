@@ -18,6 +18,7 @@ package androidx.camera.core.imagecapture;
 
 import static androidx.camera.core.CaptureBundles.singleDefaultCaptureBundle;
 import static androidx.camera.core.impl.utils.Threads.checkMainThread;
+import static androidx.camera.core.impl.utils.TransformUtils.hasCropping;
 
 import static java.util.Objects.requireNonNull;
 
@@ -51,6 +52,9 @@ import java.util.List;
  */
 @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 public class ImagePipeline {
+
+    static final byte JPEG_QUALITY_MAX_QUALITY = 100;
+    static final byte JPEG_QUALITY_MIN_LATENCY = 95;
 
     static final ExifRotationAvailability EXIF_ROTATION_AVAILABILITY =
             new ExifRotationAvailability();
@@ -100,7 +104,6 @@ public class ImagePipeline {
     public SessionConfig.Builder createSessionConfigBuilder() {
         SessionConfig.Builder builder = SessionConfig.Builder.createFrom(mUseCaseConfig);
         builder.addNonRepeatingSurface(mPipelineIn.getSurface());
-        // TODO(b/242536140): enable ZSL.
         return builder;
     }
 
@@ -197,10 +200,8 @@ public class ImagePipeline {
                     builder.addImplementationOption(CaptureConfig.OPTION_ROTATION,
                             takePictureRequest.getRotationDegrees());
                 }
-
-                // TODO: use quality=100 if the image will be re-encoded at a lower quality later.
                 builder.addImplementationOption(CaptureConfig.OPTION_JPEG_QUALITY,
-                        takePictureRequest.getJpegQuality());
+                        getCameraRequestJpegQuality(takePictureRequest));
             }
 
             // Add the implementation options required by the CaptureStage
@@ -214,6 +215,32 @@ public class ImagePipeline {
         }
 
         return new CameraRequest(captureConfigs, takePictureCallback);
+    }
+
+    /**
+     * Returns the JPEG quality for camera request.
+     *
+     * <p>If there is JPEG encoding in post-processing, use max quality for the camera request to
+     * minimize quality loss.
+     *
+     * <p>However this results in poor performance during cropping than setting 95 (b/206348741).
+     */
+    int getCameraRequestJpegQuality(@NonNull TakePictureRequest request) {
+        boolean isOnDisk = request.getOnDiskCallback() != null;
+        boolean hasCropping = hasCropping(request.getCropRect(), mPipelineIn.getSize());
+        if (isOnDisk && hasCropping) {
+            // For saving to disk, the image is decoded to Bitmap, cropped and encoded to JPEG
+            // again. In that case, use a high JPEG quality for the hardware compression to avoid
+            // quality loss.
+            if (request.getCaptureMode() == ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY) {
+                // The trade-off of using a high quality is poorer performance. So we only do
+                // that if the capture mode is CAPTURE_MODE_MAXIMIZE_QUALITY.
+                return JPEG_QUALITY_MAX_QUALITY;
+            } else {
+                return JPEG_QUALITY_MIN_LATENCY;
+            }
+        }
+        return request.getJpegQuality();
     }
 
     @NonNull
