@@ -20,8 +20,8 @@ import android.graphics.Rect
 import android.hardware.camera2.CameraDevice.TEMPLATE_PREVIEW
 import android.util.Size
 import android.view.Surface
+import androidx.camera.core.CameraEffect
 import androidx.camera.core.SurfaceOutput.GlTransformOptions.USE_SURFACE_TEXTURE_TRANSFORM
-import androidx.camera.core.SurfaceProcessor
 import androidx.camera.core.SurfaceRequest
 import androidx.camera.core.impl.DeferrableSurface
 import androidx.camera.core.impl.ImageFormatConstants
@@ -304,7 +304,7 @@ class DefaultSurfaceProcessorTest {
     private fun createSurfaceOutput(surface: Surface = mock(Surface::class.java)) =
         SurfaceOutputImpl(
             surface,
-            SurfaceProcessor.PREVIEW,
+            CameraEffect.PREVIEW,
             ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE,
             Size(WIDTH, HEIGHT),
             USE_SURFACE_TEXTURE_TRANSFORM,

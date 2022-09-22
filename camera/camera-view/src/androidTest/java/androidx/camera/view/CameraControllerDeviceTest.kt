@@ -22,13 +22,13 @@ import android.provider.MediaStore
 import android.view.View
 import androidx.camera.camera2.Camera2Config
 import androidx.camera.camera2.pipe.integration.CameraPipeConfig
+import androidx.camera.core.CameraEffect
+import androidx.camera.core.CameraEffect.PREVIEW
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraSelector.LENS_FACING_BACK
 import androidx.camera.core.CameraSelector.LENS_FACING_FRONT
 import androidx.camera.core.CameraXConfig
-import androidx.camera.core.EffectBundle
 import androidx.camera.core.ImageCapture
-import androidx.camera.core.SurfaceProcessor.PREVIEW
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.CameraPipeConfigTestRule
@@ -127,26 +127,17 @@ class CameraControllerDeviceTest(
         }
         waitUtilPreviewViewIsReady(previewView!!)
 
-        // Act: set an EffectBundle
-        instrumentation.runOnMainSync {
-            controller!!.setEffectBundle(
-                EffectBundle.Builder(mainThreadExecutor())
-                    .addEffect(PREVIEW,
-                        FakeSurfaceProcessor(
-                            mainThreadExecutor()
-                        )
-                    )
-                    .build()
-            )
-        }
+        // Act: set an effect
+        val effect = CameraEffect.Builder(PREVIEW).setSurfaceProcessor(
+            mainThreadExecutor(), FakeSurfaceProcessor(mainThreadExecutor())
+        ).build()
+        instrumentation.runOnMainSync { controller!!.setEffects(listOf(effect)) }
 
         // Assert: preview has effect
         assertThat(controller!!.mPreview.processor).isNotNull()
 
-        // Act: clear the EffectBundle
-        instrumentation.runOnMainSync {
-            controller!!.setEffectBundle(null)
-        }
+        // Act: clear the effects
+        instrumentation.runOnMainSync { controller!!.setEffects(listOf()) }
 
         // Assert: preview no longer has the effect.
         assertThat(controller!!.mPreview.processor).isNull()

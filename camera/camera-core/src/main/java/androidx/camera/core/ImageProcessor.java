@@ -24,12 +24,6 @@ import androidx.annotation.RestrictTo;
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public interface ImageEffect extends CameraEffect {
-
-    /**
-     * Bitmask option to indicate that CameraX applies this effect to {@link ImageCapture}.
-     */
-    int IMAGE_CAPTURE = 1 << 2;
-
+public interface ImageProcessor {
     // TODO(b/229629890): create the public interface for post-processing images.
 }
