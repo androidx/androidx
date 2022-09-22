@@ -83,10 +83,15 @@ abstract class CompilationResult internal constructor(
                 }
                 appendLine()
             }
-            appendLine("Generated files:")
-            generatedSources.forEach {
-                appendLine(it.relativePath)
+            if (generatedSources.isEmpty()) {
+                appendLine("Generated files: NONE")
+            } else {
+                appendLine("Generated files:")
+                generatedSources.forEach {
+                    appendLine(it.relativePath)
+                }
             }
+            appendLine()
             appendLine("RAW OUTPUT:")
             appendLine(rawOutput())
         }
@@ -414,7 +419,7 @@ class CompilationResultSubject internal constructor(
         if (processingException != null) {
             // processor has an error which we want to throw but we also want the subject, hence
             // we wrap it
-            throw createProcessorAssertionError(
+            throw CompilationAssertionError(
                 compilationResult = compilationResult,
                 realError = processingException
             )
@@ -466,13 +471,15 @@ class CompilationResultSubject internal constructor(
     }
 
     /**
-     * Helper method to create an exception that does not include the stack trace from the test
-     * infra, instead, it just reports the stack trace of the actual error with added log.
+     * Helper error that does not include the stack trace from the test infra, instead, it just
+     * reports the stack trace of the actual error with added log.
      */
-    private fun createProcessorAssertionError(
-        compilationResult: CompilationResult,
-        realError: Throwable
-    ) = object : AssertionError("processor did throw an error\n$compilationResult", realError) {
+    private class CompilationAssertionError(
+        val compilationResult: CompilationResult,
+        val realError: Throwable
+    ) : AssertionError(
+        "Processor did throw an error.\n$compilationResult", realError
+    ) {
         override fun fillInStackTrace(): Throwable {
             return realError
         }
@@ -509,7 +516,7 @@ internal class JavaCompileTestingCompilationResult(
     diagnostics = diagnostics
 ) {
     override fun rawOutput(): String {
-        return delegate.diagnostics().joinToString {
+        return delegate.diagnostics().joinToString(separator = System.lineSeparator()) {
             it.toString()
         }
     }
@@ -532,7 +539,7 @@ internal class KotlinCompilationResult constructor(
     override fun rawOutput(): String {
         return delegate.diagnostics.flatMap {
             it.value
-        }.joinToString {
+        }.joinToString(separator = System.lineSeparator()) {
             it.toString()
         }
     }
