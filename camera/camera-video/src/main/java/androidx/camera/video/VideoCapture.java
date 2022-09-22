@@ -20,6 +20,7 @@ import static androidx.camera.core.CameraEffect.VIDEO_CAPTURE;
 import static androidx.camera.core.SurfaceOutput.GlTransformOptions.APPLY_CROP_ROTATE_AND_MIRRORING;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_DEFAULT_RESOLUTION;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_MAX_RESOLUTION;
+import static androidx.camera.core.impl.ImageOutputConfig.OPTION_RESOLUTION_SELECTOR;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_SUPPORTED_RESOLUTIONS;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_TARGET_ASPECT_RATIO;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_TARGET_ROTATION;
@@ -66,6 +67,7 @@ import androidx.camera.core.AspectRatio;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.Logger;
+import androidx.camera.core.ResolutionSelector;
 import androidx.camera.core.SurfaceRequest;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.ViewPort;
@@ -1407,6 +1409,15 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         public Builder<T> setSupportedResolutions(
                 @NonNull List<Pair<Integer, Size[]>> resolutions) {
             getMutableConfig().insertOption(OPTION_SUPPORTED_RESOLUTIONS, resolutions);
+            return this;
+        }
+
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Override
+        @NonNull
+        public Builder<T> setResolutionSelector(@NonNull ResolutionSelector resolutionSelector) {
+            getMutableConfig().insertOption(OPTION_RESOLUTION_SELECTOR, resolutionSelector);
             return this;
         }
 

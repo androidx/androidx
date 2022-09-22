@@ -23,6 +23,7 @@ import static androidx.camera.core.impl.ImageAnalysisConfig.OPTION_ONE_PIXEL_SHI
 import static androidx.camera.core.impl.ImageAnalysisConfig.OPTION_OUTPUT_IMAGE_FORMAT;
 import static androidx.camera.core.impl.ImageAnalysisConfig.OPTION_OUTPUT_IMAGE_ROTATION_ENABLED;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_MAX_RESOLUTION;
+import static androidx.camera.core.impl.ImageOutputConfig.OPTION_RESOLUTION_SELECTOR;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_SUPPORTED_RESOLUTIONS;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_TARGET_ASPECT_RATIO;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_TARGET_RESOLUTION;
@@ -1314,6 +1315,55 @@ public final class ImageAnalysis extends UseCase {
         @NonNull
         public Builder setSupportedResolutions(@NonNull List<Pair<Integer, Size[]>> resolutions) {
             getMutableConfig().insertOption(OPTION_SUPPORTED_RESOLUTIONS, resolutions);
+            return this;
+        }
+
+        /**
+         * Sets the resolution selector to select the preferred supported resolution.
+         *
+         * <p>CameraX will select a supported resolution for the {@link ImageAnalysis} according to
+         * the target resolution, aspect ratio, max resolution or high resolution enabled
+         * settings of the resolution selector. When using the <code>camera-camera2</code> CameraX
+         * implementation, which resolution will be finally selected will depend on the camera
+         * device's hardware level and the bound use cases combination. The device hardware level
+         * information can be retrieved by
+         * {@link android.hardware.camera2.CameraCharacteristics#INFO_SUPPORTED_HARDWARE_LEVEL}
+         * from the interop class
+         * {@link androidx.camera.camera2.interop.Camera2CameraInfo#getCameraCharacteristic(CameraCharacteristics.Key)}.
+         *
+         * <p>A <code>LIMITED-level</code> above device can support a <code>RECORD</code> size
+         * resolution for {@link ImageAnalysis} when it is bound together with {@link Preview}
+         * and {@link ImageCapture}. The trade-off is the selected resolution for the
+         * {@link ImageCapture} will also be restricted by the <code>RECORD</code> size. To
+         * successfully select a <code>RECORD</code> size resolution for {@link ImageAnalysis}, a
+         * <code>RECORD</code> size target resolution should be set on both {@link ImageCapture}
+         * and {@link ImageAnalysis}. This indicates that the application clearly understand the
+         * trade-off and prefer the {@link ImageAnalysis} to have a larger resolution rather than
+         * the {@link ImageCapture} to have a <code>MAXIMUM</code> size resolution. For the
+         * definitions of <code>RECORD</code>, <code>MAXIMUM</code> sizes and more details see the
+         * <a href="https://developer.android.com/reference/android/hardware/camera2/CameraDevice#regular-capture">Regular capture</a>
+         * section in {@link android.hardware.camera2.CameraDevice}'s. The <code>RECORD</code>
+         * size refers to the camera device's maximum supported recording resolution, as
+         * determined by {@link CamcorderProfile}. The <code>MAXIMUM</code> size refers to the
+         * camera device's maximum output resolution for that format or target from
+         * {@link android.hardware.camera2.params.StreamConfigurationMap#getOutputSizes}.
+         *
+         * <p>If no resolution selector is set, resolution of 640x480 will be selected to use in
+         * priority.
+         *
+         * <p>The existing {@link #setTargetResolution(Size)} and
+         * {@link #setTargetAspectRatio(int)} APIs are deprecated and are not compatible with
+         * {@link ResolutionSelector}. Calling any of these APIs together with
+         * {@link ResolutionSelector} will throw an {@link IllegalArgumentException} while
+         * {@link #build()} is called to create the {@link ImageAnalysis} instance.
+         *
+         * @hide
+         **/
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Override
+        @NonNull
+        public Builder setResolutionSelector(@NonNull ResolutionSelector resolutionSelector) {
+            getMutableConfig().insertOption(OPTION_RESOLUTION_SELECTOR, resolutionSelector);
             return this;
         }
 

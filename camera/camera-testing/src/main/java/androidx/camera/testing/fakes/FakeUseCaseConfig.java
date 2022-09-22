@@ -22,6 +22,7 @@ import android.util.Size;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.CameraSelector;
+import androidx.camera.core.ResolutionSelector;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.Config;
@@ -220,6 +221,13 @@ public class FakeUseCaseConfig implements UseCaseConfig<FakeUseCase>, ImageOutpu
         public Builder setSupportedResolutions(
                 @NonNull List<Pair<Integer, Size[]>> resolutionsList) {
             getMutableConfig().insertOption(OPTION_SUPPORTED_RESOLUTIONS, resolutionsList);
+            return this;
+        }
+
+        @NonNull
+        @Override
+        public Builder setResolutionSelector(@NonNull ResolutionSelector resolutionSelector) {
+            getMutableConfig().insertOption(OPTION_RESOLUTION_SELECTOR, resolutionSelector);
             return this;
         }
 

@@ -19,6 +19,7 @@ package androidx.camera.core;
 import static androidx.camera.core.SurfaceOutput.GlTransformOptions.APPLY_CROP_ROTATE_AND_MIRRORING;
 import static androidx.camera.core.impl.ImageInputConfig.OPTION_INPUT_FORMAT;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_APP_TARGET_ROTATION;
+import static androidx.camera.core.impl.ImageOutputConfig.OPTION_RESOLUTION_SELECTOR;
 import static androidx.camera.core.impl.PreviewConfig.IMAGE_INFO_PROCESSOR;
 import static androidx.camera.core.impl.PreviewConfig.OPTION_BACKGROUND_EXECUTOR;
 import static androidx.camera.core.impl.PreviewConfig.OPTION_CAPTURE_CONFIG_UNPACKER;
@@ -1072,6 +1073,41 @@ public final class Preview extends UseCase {
         @NonNull
         public Builder setSupportedResolutions(@NonNull List<Pair<Integer, Size[]>> resolutions) {
             getMutableConfig().insertOption(OPTION_SUPPORTED_RESOLUTIONS, resolutions);
+            return this;
+        }
+
+        /**
+         * Sets the resolution selector to select the preferred supported resolution.
+         *
+         * <p>CameraX will select a supported resolution for the {@link Preview} according to
+         * the target resolution, aspect ratio, max resolution or high resolution enabled
+         * settings of the resolution selector.
+         *
+         * <p>The selected resolution will be limited by the <code>PREVIEW</code> size which is
+         * defined as the best size match to the device's screen resolution, or to 1080p
+         * (1920x1080), whichever is smaller. See the
+         * <a href="https://developer.android.com/reference/android/hardware/camera2/CameraDevice#regular-capture">Regular capture</a>
+         * section in {@link android.hardware.camera2.CameraDevice}'. If the
+         * {@link ResolutionSelector} contains the max resolution setting larger than the
+         * <code>PREVIEW</code> size, a size larger than the device's screen resolution or 1080p
+         * can be selected to use for {@link Preview}.
+         *
+         * <p>Note that due to compatibility reasons, CameraX may select a resolution that is
+         * larger than the default screen resolution on certain devices.
+         *
+         * <p>The existing {@link #setTargetResolution(Size)} and
+         * {@link #setTargetAspectRatio(int)} APIs are deprecated and are not compatible with
+         * {@link ResolutionSelector}. Calling any of these APIs together with
+         * {@link ResolutionSelector} will throw an {@link IllegalArgumentException} while
+         * {@link #build()} is called to create the {@link Preview} instance.
+         *
+         * @hide
+         **/
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Override
+        @NonNull
+        public Builder setResolutionSelector(@NonNull ResolutionSelector resolutionSelector) {
+            getMutableConfig().insertOption(OPTION_RESOLUTION_SELECTOR, resolutionSelector);
             return this;
         }
 

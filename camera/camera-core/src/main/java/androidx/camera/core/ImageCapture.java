@@ -41,6 +41,7 @@ import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_TARGET_ROTATIO
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_USE_CASE_EVENT_CALLBACK;
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_USE_SOFTWARE_JPEG_ENCODER;
 import static androidx.camera.core.impl.ImageInputConfig.OPTION_INPUT_FORMAT;
+import static androidx.camera.core.impl.ImageOutputConfig.OPTION_RESOLUTION_SELECTOR;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_CAMERA_SELECTOR;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_ZSL_DISABLED;
 import static androidx.camera.core.impl.utils.Threads.checkMainThread;
@@ -3139,6 +3140,37 @@ public final class ImageCapture extends UseCase {
         @Override
         public Builder setMaxResolution(@NonNull Size resolution) {
             getMutableConfig().insertOption(OPTION_MAX_RESOLUTION, resolution);
+            return this;
+        }
+
+        /**
+         * Sets the resolution selector to select the preferred supported resolution.
+         *
+         * <p>CameraX will select a supported resolution for the {@link ImageCapture} according to
+         * the target resolution, aspect ratio, max resolution or high resolution enabled
+         * settings of the resolution selector.
+         *
+         * <p>If no resolution selector is set, the largest available resolution will be selected
+         * to use. Usually, users will intend to get the largest still image that the camera
+         * device can support. Unlike {@link Builder#setTargetResolution(Size)},
+         * {@link #setCropAspectRatio(Rational)} won't be automatically called to set the
+         * corresponding value and crop the output image when a target resolution is set. Use
+         * {@link ViewPort} instead if the output images need to be cropped in a specific
+         * aspect ratio.
+         *
+         * <p>The existing {@link #setTargetResolution(Size)} and
+         * {@link #setTargetAspectRatio(int)} APIs are deprecated and are not compatible with
+         * {@link ResolutionSelector}. Calling any of these APIs together with
+         * {@link ResolutionSelector} will throw an {@link IllegalArgumentException} while
+         * {@link #build()} is called to create the {@link ImageCapture} instance.
+         *
+         * @hide
+         **/
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Override
+        @NonNull
+        public Builder setResolutionSelector(@NonNull ResolutionSelector resolutionSelector) {
+            getMutableConfig().insertOption(OPTION_RESOLUTION_SELECTOR, resolutionSelector);
             return this;
         }
 

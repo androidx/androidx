@@ -26,6 +26,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.AspectRatio;
+import androidx.camera.core.ResolutionSelector;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -87,6 +88,12 @@ public interface ImageOutputConfig extends ReadableConfig {
      */
     Option<List<Pair<Integer, Size[]>>> OPTION_SUPPORTED_RESOLUTIONS =
             Option.create("camerax.core.imageOutput.supportedResolutions", List.class);
+
+    /**
+     * Option: camerax.core.imageOutput.resolutionSelector
+     */
+    Option<ResolutionSelector> OPTION_RESOLUTION_SELECTOR =
+            Option.create("camerax.core.imageOutput.resolutionSelector", ResolutionSelector.class);
 
     // *********************************************************************************************
 
@@ -243,6 +250,29 @@ public interface ImageOutputConfig extends ReadableConfig {
     }
 
     /**
+     * Retrieves the resolution selector can be used by the target from this configuration.
+     *
+     * @param valueIfMissing The value to return if this configuration option has not been set.
+     * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
+     * configuration.
+     */
+    @Nullable
+    default ResolutionSelector getResolutionSelector(@Nullable ResolutionSelector valueIfMissing) {
+        return retrieveOption(OPTION_RESOLUTION_SELECTOR, valueIfMissing);
+    }
+
+    /**
+     * Retrieves the resolution selector can be used by the target from this configuration.
+     *
+     * @return The stored value, if it exists in this configuration.
+     * @throws IllegalArgumentException if the option does not exist in this configuration.
+     */
+    @NonNull
+    default ResolutionSelector getResolutionSelector() {
+        return retrieveOption(OPTION_RESOLUTION_SELECTOR);
+    }
+
+    /**
      * Retrieves the supported resolutions can be used by the target from this configuration.
      *
      * <p>Pair list is composed with {@link ImageFormat} and {@link Size} array. The returned
@@ -336,6 +366,15 @@ public interface ImageOutputConfig extends ReadableConfig {
          */
         @NonNull
         B setSupportedResolutions(@NonNull List<Pair<Integer, Size[]>> resolutionsList);
+
+        /**
+         * Sets the resolution selector can be used by target from this configuration.
+         *
+         * @param resolutionSelector The resolution selector to select a preferred resolution.
+         * @return The current Builder.
+         */
+        @NonNull
+        B setResolutionSelector(@NonNull ResolutionSelector resolutionSelector);
     }
 
     /**
