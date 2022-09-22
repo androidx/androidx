@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.health.platform.client.proto
+package androidx.health.platform.client.utils
 
 import android.content.Intent
 import android.os.Parcel
