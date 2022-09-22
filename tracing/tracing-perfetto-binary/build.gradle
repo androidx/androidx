@@ -64,12 +64,14 @@ android {
             main.jniLibs.srcDirs += new File(unzippedPrebuiltsAarDir, "jni")
         }
     } else { // build .so files from scratch
-        externalNativeBuild {
-            cmake {
-                path "src/main/cpp/CMakeLists.txt"
-                version libs.versions.cmake.get()
-            }
-        }
+// We don't need NDK for developing Compose Multiplatform.
+// It is only needed for Benchmarking Android target.
+//        externalNativeBuild {
+//            cmake {
+//                path "src/main/cpp/CMakeLists.txt"
+//                version libs.versions.cmake.get()
+//            }
+//        }
     }
     namespace "androidx.tracing.perfetto.binary"
 }

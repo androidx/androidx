@@ -17,41 +17,23 @@ clone() {
 downloadLinuxSDK() {
     clone linux/platforms/android-32 https://android.googlesource.com/platform/prebuilts/fullsdk/platforms/android-32 master
     clone linux/sources/android-32 https://android.googlesource.com/platform/prebuilts/fullsdk/sources/android-32 master
-    clone linux/ndk https://android.googlesource.com/toolchain/prebuilts/ndk/r23 master
-    ln -s "$PWD/linux/ndk" linux/ndk-bundle # prepare to update androidx submodule
     clone linux/build-tools/30.0.3 https://android.googlesource.com/platform/prebuilts/fullsdk-linux/build-tools/30.0.3 master
     clone linux/platform-tools https://android.googlesource.com/platform/prebuilts/fullsdk-linux/platform-tools master
     clone linux/tools https://android.googlesource.com/platform/prebuilts/fullsdk-linux/tools master
-    clone linux/cmake https://android.googlesource.com/platform/prebuilts/cmake/linux-x86 master
-    clone linux/ninja https://android.googlesource.com/platform/prebuilts/ninja/linux-x86 master
 }
 
 downloadMacOsSDK() {
     clone darwin/platforms/android-32 https://android.googlesource.com/platform/prebuilts/fullsdk/platforms/android-32 master
     clone darwin/sources/android-32 https://android.googlesource.com/platform/prebuilts/fullsdk/sources/android-32 master
-    clone darwin/ndk https://android.googlesource.com/toolchain/prebuilts/ndk-darwin/r23 master
-    ln -s "$PWD/darwin/ndk" darwin/ndk-bundle # prepare to update androidx submodule
     clone darwin/build-tools/30.0.3 https://android.googlesource.com/platform/prebuilts/fullsdk-darwin/build-tools/30.0.3 master
     clone darwin/platform-tools https://android.googlesource.com/platform/prebuilts/fullsdk-darwin/platform-tools master
     clone darwin/tools https://android.googlesource.com/platform/prebuilts/fullsdk-darwin/tools master
-    clone darwin/cmake https://android.googlesource.com/platform/prebuilts/cmake/darwin-x86 master
-    clone darwin/ninja https://android.googlesource.com/platform/prebuilts/ninja/darwin-x86 master
-}
-
-setupNativeBuildTools() {
-    mkdir -p $1/native-build-tools/bin/
-    pushd $1/native-build-tools/bin/
-    ln -s ../../ninja/ninja .
-    ln -s ../../cmake/bin/cmake .
-    popd
 }
 
 if [[ "$OSTYPE" == "linux-gnu"* ]]; then
     downloadLinuxSDK
-    setupNativeBuildTools linux
 elif [[ "$OSTYPE" == "darwin"* ]]; then
     downloadMacOsSDK
-    setupNativeBuildTools darwin
 elif [[ "$OSTYPE" == "cygwin" ]]; then
     echo "Please download Android SDK manually (https://developer.android.com/studio)"
 elif [[ "$OSTYPE" == "msys" ]]; then

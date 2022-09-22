@@ -50,11 +50,13 @@ android {
         minSdkVersion 26
     }
 
-    externalNativeBuild {
-        cmake {
-            path "src/main/native/CMakeLists.txt"
-            version "3.22.1"
-        }
-    }
+// We don't need NDK for developing Compose Multiplatform.
+// It is only needed for Layout inspector for Android target.
+//    externalNativeBuild {
+//        cmake {
+//            path "src/main/native/CMakeLists.txt"
+//            version "3.22.1"
+//        }
+//    }
     namespace "androidx.inspection"
 }
