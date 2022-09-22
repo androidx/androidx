@@ -146,7 +146,7 @@ private fun Emittable.transformBackgroundImageAndActionRipple(): Emittable {
     val (sizeModifiers, nonSizeModifiers) = notBgOrActionModifier.extractSizeModifiers()
     val boxModifiers = mutableListOf<GlanceModifier?>(sizeModifiers, actionModifier)
     val targetModifiers = mutableListOf<GlanceModifier?>(
-        nonSizeModifiers.fillMaxSize().doNotUnsetAction()
+        nonSizeModifiers.fillMaxSize()
     )
 
     // If we don't need to emulate the background, add the background modifier back to the target.
@@ -170,7 +170,7 @@ private fun Emittable.transformBackgroundImageAndActionRipple(): Emittable {
 
         if (addBackground && bgModifier != null) {
             children += EmittableImage().apply {
-                modifier = GlanceModifier.fillMaxSize().doNotUnsetAction()
+                modifier = GlanceModifier.fillMaxSize()
                 provider = bgModifier.imageProvider
                 contentScale = bgModifier.contentScale
             }
@@ -178,7 +178,7 @@ private fun Emittable.transformBackgroundImageAndActionRipple(): Emittable {
         children += target.apply { modifier = targetModifiers.collect() }
         if (addRipple) {
             children += EmittableImage().apply {
-                modifier = GlanceModifier.fillMaxSize().doNotUnsetAction()
+                modifier = GlanceModifier.fillMaxSize()
                 provider = ImageProvider(R.drawable.glance_ripple)
             }
         }

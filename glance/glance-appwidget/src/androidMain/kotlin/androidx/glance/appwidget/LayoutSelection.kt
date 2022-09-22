@@ -192,20 +192,6 @@ internal fun createRootView(
     aliasIndex: Int
 ): RemoteViewsInfo {
     val context = translationContext.context
-    if (Build.VERSION.SDK_INT >= 33) {
-        return RemoteViewsInfo(
-            remoteViews = remoteViews(translationContext, FirstRootAlias).apply {
-                modifier.findModifier<WidthModifier>()?.let {
-                    applySimpleWidthModifier(context, this, it, R.id.rootView)
-                }
-                modifier.findModifier<HeightModifier>()?.let {
-                    applySimpleHeightModifier(context, this, it, R.id.rootView)
-                }
-                removeAllViews(R.id.rootView)
-            },
-            view = InsertedViewInfo(mainViewId = R.id.rootView)
-        )
-    }
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
         require(aliasIndex < RootAliasCount) {
             "Index of the root view cannot be more than $RootAliasCount, " +
@@ -224,11 +210,18 @@ internal fun createRootView(
                 modifier.findModifier<HeightModifier>()?.let {
                     applySimpleHeightModifier(context, this, it, R.id.rootView)
                 }
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    removeAllViews(R.id.rootView)
+                }
             },
             view = InsertedViewInfo(
                 mainViewId = R.id.rootView,
-                children = mapOf(0 to mapOf(sizeSelector to R.id.rootStubId)),
-            )
+                children = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    emptyMap()
+                } else {
+                    mapOf(0 to mapOf(sizeSelector to R.id.rootStubId))
+                }
+            ),
         )
     }
     require(RootAliasTypeCount * aliasIndex < RootAliasCount) {

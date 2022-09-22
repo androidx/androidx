@@ -52,7 +52,6 @@ internal fun applyAction(
                 getFillInIntentForAction(action, translationContext, targetId)
             if (action is CompoundButtonAction && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 ApplyActionApi31Impl.setOnCheckedChangeResponse(rv, targetId, fillInIntent)
-                rv.setOnClickFillInIntent(targetId, null)
             } else {
                 rv.setOnClickFillInIntent(targetId, fillInIntent)
             }
@@ -61,37 +60,12 @@ internal fun applyAction(
                 getPendingIntentForAction(action, translationContext, targetId)
             if (action is CompoundButtonAction && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 ApplyActionApi31Impl.setOnCheckedChangeResponse(rv, targetId, pendingIntent)
-                rv.setOnClickPendingIntent(targetId, null)
             } else {
                 rv.setOnClickPendingIntent(targetId, pendingIntent)
             }
         }
-        if (translationContext.isCompoundButton &&
-            action !is CompoundButtonAction &&
-            Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            ApplyActionApi31Impl.unsetOnCheckedChangeResponse(rv, targetId)
-        }
     } catch (t: Throwable) {
         Log.e(GlanceAppWidgetTag, "Unrecognized Action: $action", t)
-    }
-}
-
-internal fun unsetAction(
-    translationContext: TranslationContext,
-    rv: RemoteViews,
-    @IdRes viewId: Int,
-) {
-    // Calling setOnClickListener on AdapterView throws a RuntimeException.
-    if (translationContext.isAdapterView) return
-
-    val targetId = translationContext.actionTargetId ?: viewId
-    if (translationContext.isCompoundButton && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-        ApplyActionApi31Impl.unsetOnCheckedChangeResponse(rv, targetId)
-        ApplyActionApi31Impl.unsetOnClickResponse(rv, targetId)
-    } else if (translationContext.isLazyCollectionDescendant) {
-        rv.setOnClickFillInIntent(targetId, null)
-    } else {
-        rv.setOnClickPendingIntent(targetId, null)
     }
 }
 
