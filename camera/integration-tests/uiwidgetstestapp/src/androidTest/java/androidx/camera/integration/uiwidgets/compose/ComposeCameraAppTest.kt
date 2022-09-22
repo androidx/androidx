@@ -18,6 +18,7 @@ package androidx.camera.integration.uiwidgets.compose
 
 import android.os.Build
 import androidx.camera.integration.uiwidgets.compose.ui.navigation.ComposeCameraScreen
+import androidx.camera.testing.LabTestRule
 import androidx.camera.view.PreviewView
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsProperties
@@ -50,6 +51,9 @@ class ComposeCameraAppTest {
     @get: Rule
     val androidComposeTestRule = createAndroidComposeRule<ComposeCameraActivity>()
 
+    @get:Rule
+    val labTest: LabTestRule = LabTestRule()
+
     @get: Rule
     val repeatRule = RepeatRule()
 
@@ -80,6 +84,7 @@ class ComposeCameraAppTest {
     // Navigating from ImageCapture to VideoCapture screen
     // Ensure that VideoCapture screen's PreviewView is streaming properly
     @Test
+    @LabTestRule.LabTestOnly
     @RepeatRule.Repeat(times = 10)
     fun testPreviewViewStreamStateOnNavigation() {
 
