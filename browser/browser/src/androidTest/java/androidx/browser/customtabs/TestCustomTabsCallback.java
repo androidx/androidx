@@ -67,6 +67,11 @@ public class TestCustomTabsCallback extends CustomTabsCallback {
             TestCustomTabsCallback.this.onRelationshipValidationResult(
                     relation, origin, result, extras);
         }
+
+        @Override
+        public void onActivityResized(int size, Bundle extras) throws RemoteException {
+            TestCustomTabsCallback.this.onActivityResized(size, extras);
+        }
     };
 
     /* package */ ICustomTabsCallback getStub() {
