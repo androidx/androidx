@@ -21,7 +21,7 @@ import androidx.annotation.RestrictTo
 import androidx.health.connect.client.impl.converters.datatype.toDataTypeKClass
 import androidx.health.connect.client.records.Record
 import androidx.health.platform.client.proto.DataProto.DataType
-import androidx.health.platform.client.proto.getProtoMessages
+import androidx.health.platform.client.utils.getProtoMessages
 import kotlin.reflect.KClass
 
 /**

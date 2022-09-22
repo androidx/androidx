@@ -16,11 +16,12 @@
 
 @file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 
-package androidx.health.platform.client.proto
+package androidx.health.platform.client.utils
 
 import android.content.Intent
 import android.os.Bundle
 import androidx.annotation.RestrictTo
+import androidx.health.platform.client.proto.AbstractMessageLite
 
 fun Intent.putProtoMessages(name: String, messages: Collection<AbstractMessageLite<*, *>>) {
     putByteArraysExtra(name = name, byteArrays = messages.map { it.toByteArray() })
