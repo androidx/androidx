@@ -146,6 +146,7 @@
          <trusted-key id="3f36885c24df4b75" group="org.mozilla"/>
          <trusted-key id="3faad2cd5ecbb314" group="org.apache.commons"/>
          <trusted-key id="41321490758aad6f" group="org.codehaus.groovy"/>
+         <trusted-key id="41a1a08c62fca78b79d3081164a16faaec16a4be" group="org.apache.commons" name="commons-math3"/>
          <trusted-key id="41cd49b4ef5876f9e9f691dabac30622339994c4">
             <trusting group="com.google.testing.compile"/>
             <trusting group="com.google.truth"/>

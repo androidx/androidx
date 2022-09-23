@@ -1,0 +1,624 @@
+{
+  "_type" : {
+    "_name" : "ActionTestSummary",
+    "_supertype" : {
+      "_name" : "ActionTestSummaryIdentifiableObject",
+      "_supertype" : {
+        "_name" : "ActionAbstractTestSummary"
+      }
+    }
+  },
+  "activitySummaries" : {
+    "_type" : {
+      "_name" : "Array"
+    },
+    "_values" : [
+      {
+        "_type" : {
+          "_name" : "ActionTestActivitySummary"
+        },
+        "activityType" : {
+          "_type" : {
+            "_name" : "String"
+          },
+          "_value" : "com.apple.dt.xctest.activity-type.userCreated"
+        },
+        "finish" : {
+          "_type" : {
+            "_name" : "Date"
+          },
+          "_value" : "2022-09-20T15:39:30.433-0700"
+        },
+        "start" : {
+          "_type" : {
+            "_name" : "Date"
+          },
+          "_value" : "2022-09-20T15:39:30.366-0700"
+        },
+        "title" : {
+          "_type" : {
+            "_name" : "String"
+          },
+          "_value" : "Allocate an ArrayList of size 1000"
+        },
+        "uuid" : {
+          "_type" : {
+            "_name" : "String"
+          },
+          "_value" : "660362D3-AA8A-4630-B098-780ED90922E2"
+        }
+      }
+    ]
+  },
+  "duration" : {
+    "_type" : {
+      "_name" : "Double"
+    },
+    "_value" : "0.0741419792175293"
+  },
+  "identifier" : {
+    "_type" : {
+      "_name" : "String"
+    },
+    "_value" : "BenchmarkTest\/runBenchmark()"
+  },
+  "name" : {
+    "_type" : {
+      "_name" : "String"
+    },
+    "_value" : "runBenchmark()"
+  },
+  "performanceMetrics" : {
+    "_type" : {
+      "_name" : "Array"
+    },
+    "_values" : [
+      {
+        "_type" : {
+          "_name" : "ActionTestPerformanceMetricSummary"
+        },
+        "displayName" : {
+          "_type" : {
+            "_name" : "String"
+          },
+          "_value" : "Memory Physical"
+        },
+        "identifier" : {
+          "_type" : {
+            "_name" : "String"
+          },
+          "_value" : "com.apple.dt.XCTMetric_Memory.physical"
+        },
+        "maxPercentRegression" : {
+          "_type" : {
+            "_name" : "Double"
+          },
+          "_value" : "10.0"
+        },
+        "maxPercentRelativeStandardDeviation" : {
+          "_type" : {
+            "_name" : "Double"
+          },
+          "_value" : "10.0"
+        },
+        "maxRegression" : {
+          "_type" : {
+            "_name" : "Double"
+          },
+          "_value" : "0.0"
+        },
+        "maxStandardDeviation" : {
+          "_type" : {
+            "_name" : "Double"
+          },
+          "_value" : "0.0"
+        },
+        "measurements" : {
+          "_type" : {
+            "_name" : "Array"
+          },
+          "_values" : [
+            {
+              "_type" : {
+                "_name" : "Double"
+              },
+              "_value" : "8208.448"
+            },
+            {
+              "_type" : {
+                "_name" : "Double"
+              },
+              "_value" : "8192.0"
+            },
+            {
+              "_type" : {
+                "_name" : "Double"
+              },
+              "_value" : "8192.0"
+            },
+            {
+              "_type" : {
+                "_name" : "Double"
+              },
+              "_value" : "8208.384"
+            },
+            {
+              "_type" : {
+                "_name" : "Double"
+              },
+              "_value" : "8257.536"
+            }
+          ]
+        },
+        "polarity" : {
+          "_type" : {
+            "_name" : "String"
+          },
+          "_value" : "prefers smaller"
+        },
+        "unitOfMeasurement" : {
+          "_type" : {
+            "_name" : "String"
+          },
+          "_value" : "kB"
+        }
+      },
+      {
+        "_type" : {
+          "_name" : "ActionTestPerformanceMetricSummary"
+        },
+        "displayName" : {
+          "_type" : {
+            "_name" : "String"
+          },
+          "_value" : "Clock Monotonic Time"
+        },
+        "identifier" : {
+          "_type" : {
+            "_name" : "String"
+          },
+          "_value" : "com.apple.dt.XCTMetric_Clock.time.monotonic"
+        },
+        "maxPercentRegression" : {
+          "_type" : {
+            "_name" : "Double"
+          },
+          "_value" : "10.0"
+        },
+        "maxPercentRelativeStandardDeviation" : {
+          "_type" : {
+            "_name" : "Double"
+          },
+          "_value" : "10.0"
+        },
+        "maxRegression" : {
+          "_type" : {
+            "_name" : "Double"
+          },
+          "_value" : "0.0"
+        },
+        "maxStandardDeviation" : {
+          "_type" : {
+            "_name" : "Double"
+          },
+          "_value" : "0.0"
+        },
+        "measurements" : {
+          "_type" : {
+            "_name" : "Array"
+          },
+          "_values" : [
+            {
+              "_type" : {
+                "_name" : "Double"
+              },
+              "_value" : "0.003374259"
+            },
+            {
+              "_type" : {
+                "_name" : "Double"
+              },
+              "_value" : "0.0011105260000000001"
+            },
+            {
+              "_type" : {
+                "_name" : "Double"
+              },
+              "_value" : "0.0009685430000000001"
+            },
+            {
+              "_type" : {
+                "_name" : "Double"
+              },
+              "_value" : "0.001031847"
+            },
+            {
+              "_type" : {
+                "_name" : "Double"
+              },
+              "_value" : "0.006419944"
+            }
+          ]
+        },
+        "polarity" : {
+          "_type" : {
+            "_name" : "String"
+          },
+          "_value" : "prefers smaller"
+        },
+        "unitOfMeasurement" : {
+          "_type" : {
+            "_name" : "String"
+          },
+          "_value" : "s"
+        }
+      },
+      {
+        "_type" : {
+          "_name" : "ActionTestPerformanceMetricSummary"
+        },
+        "displayName" : {
+          "_type" : {
+            "_name" : "String"
+          },
+          "_value" : "CPU Cycles"
+        },
+        "identifier" : {
+          "_type" : {
+            "_name" : "String"
+          },
+          "_value" : "com.apple.dt.XCTMetric_CPU.cycles"
+        },
+        "maxPercentRegression" : {
+          "_type" : {
+            "_name" : "Double"
+          },
+          "_value" : "10.0"
+        },
+        "maxPercentRelativeStandardDeviation" : {
+          "_type" : {
+            "_name" : "Double"
+          },
+          "_value" : "10.0"
+        },
+        "maxRegression" : {
+          "_type" : {
+            "_name" : "Double"
+          },
+          "_value" : "0.0"
+        },
+        "maxStandardDeviation" : {
+          "_type" : {
+            "_name" : "Double"
+          },
+          "_value" : "0.0"
+        },
+        "measurements" : {
+          "_type" : {
+            "_name" : "Array"
+          },
+          "_values" : [
+            {
+              "_type" : {
+                "_name" : "Double"
+              },
+              "_value" : "8568.973"
+            },
+            {
+              "_type" : {
+                "_name" : "Double"
+              },
+              "_value" : "5173.538"
+            },
+            {
+              "_type" : {
+                "_name" : "Double"
+              },
+              "_value" : "4663.702"
+            },
+            {
+              "_type" : {
+                "_name" : "Double"
+              },
+              "_value" : "4684.408"
+            },
+            {
+              "_type" : {
+                "_name" : "Double"
+              },
+              "_value" : "21681.682"
+            }
+          ]
+        },
+        "polarity" : {
+          "_type" : {
+            "_name" : "String"
+          },
+          "_value" : "prefers smaller"
+        },
+        "unitOfMeasurement" : {
+          "_type" : {
+            "_name" : "String"
+          },
+          "_value" : "kC"
+        }
+      },
+      {
+        "_type" : {
+          "_name" : "ActionTestPerformanceMetricSummary"
+        },
+        "displayName" : {
+          "_type" : {
+            "_name" : "String"
+          },
+          "_value" : "CPU Time"
+        },
+        "identifier" : {
+          "_type" : {
+            "_name" : "String"
+          },
+          "_value" : "com.apple.dt.XCTMetric_CPU.time"
+        },
+        "maxPercentRegression" : {
+          "_type" : {
+            "_name" : "Double"
+          },
+          "_value" : "10.0"
+        },
+        "maxPercentRelativeStandardDeviation" : {
+          "_type" : {
+            "_name" : "Double"
+          },
+          "_value" : "10.0"
+        },
+        "maxRegression" : {
+          "_type" : {
+            "_name" : "Double"
+          },
+          "_value" : "0.0"
+        },
+        "maxStandardDeviation" : {
+          "_type" : {
+            "_name" : "Double"
+          },
+          "_value" : "0.0"
+        },
+        "measurements" : {
+          "_type" : {
+            "_name" : "Array"
+          },
+          "_values" : [
+            {
+              "_type" : {
+                "_name" : "Double"
+              },
+              "_value" : "0.0027404810000000003"
+            },
+            {
+              "_type" : {
+                "_name" : "Double"
+              },
+              "_value" : "0.0016844030000000001"
+            },
+            {
+              "_type" : {
+                "_name" : "Double"
+              },
+              "_value" : "0.0014999850000000001"
+            },
+            {
+              "_type" : {
+                "_name" : "Double"
+              },
+              "_value" : "0.0015120390000000002"
+            },
+            {
+              "_type" : {
+                "_name" : "Double"
+              },
+              "_value" : "0.007035559"
+            }
+          ]
+        },
+        "polarity" : {
+          "_type" : {
+            "_name" : "String"
+          },
+          "_value" : "prefers smaller"
+        },
+        "unitOfMeasurement" : {
+          "_type" : {
+            "_name" : "String"
+          },
+          "_value" : "s"
+        }
+      },
+      {
+        "_type" : {
+          "_name" : "ActionTestPerformanceMetricSummary"
+        },
+        "displayName" : {
+          "_type" : {
+            "_name" : "String"
+          },
+          "_value" : "CPU Instructions Retired"
+        },
+        "identifier" : {
+          "_type" : {
+            "_name" : "String"
+          },
+          "_value" : "com.apple.dt.XCTMetric_CPU.instructions_retired"
+        },
+        "maxPercentRegression" : {
+          "_type" : {
+            "_name" : "Double"
+          },
+          "_value" : "10.0"
+        },
+        "maxPercentRelativeStandardDeviation" : {
+          "_type" : {
+            "_name" : "Double"
+          },
+          "_value" : "10.0"
+        },
+        "maxRegression" : {
+          "_type" : {
+            "_name" : "Double"
+          },
+          "_value" : "0.0"
+        },
+        "maxStandardDeviation" : {
+          "_type" : {
+            "_name" : "Double"
+          },
+          "_value" : "0.0"
+        },
+        "measurements" : {
+          "_type" : {
+            "_name" : "Array"
+          },
+          "_values" : [
+            {
+              "_type" : {
+                "_name" : "Double"
+              },
+              "_value" : "16386.777"
+            },
+            {
+              "_type" : {
+                "_name" : "Double"
+              },
+              "_value" : "8917.514"
+            },
+            {
+              "_type" : {
+                "_name" : "Double"
+              },
+              "_value" : "8777.292"
+            },
+            {
+              "_type" : {
+                "_name" : "Double"
+              },
+              "_value" : "8398.467"
+            },
+            {
+              "_type" : {
+                "_name" : "Double"
+              },
+              "_value" : "40257.553"
+            }
+          ]
+        },
+        "polarity" : {
+          "_type" : {
+            "_name" : "String"
+          },
+          "_value" : "prefers smaller"
+        },
+        "unitOfMeasurement" : {
+          "_type" : {
+            "_name" : "String"
+          },
+          "_value" : "kI"
+        }
+      },
+      {
+        "_type" : {
+          "_name" : "ActionTestPerformanceMetricSummary"
+        },
+        "displayName" : {
+          "_type" : {
+            "_name" : "String"
+          },
+          "_value" : "Memory Peak Physical"
+        },
+        "identifier" : {
+          "_type" : {
+            "_name" : "String"
+          },
+          "_value" : "com.apple.dt.XCTMetric_Memory.physical_peak"
+        },
+        "maxPercentRegression" : {
+          "_type" : {
+            "_name" : "Double"
+          },
+          "_value" : "10.0"
+        },
+        "maxPercentRelativeStandardDeviation" : {
+          "_type" : {
+            "_name" : "Double"
+          },
+          "_value" : "10.0"
+        },
+        "maxRegression" : {
+          "_type" : {
+            "_name" : "Double"
+          },
+          "_value" : "0.0"
+        },
+        "maxStandardDeviation" : {
+          "_type" : {
+            "_name" : "Double"
+          },
+          "_value" : "0.0"
+        },
+        "measurements" : {
+          "_type" : {
+            "_name" : "Array"
+          },
+          "_values" : [
+            {
+              "_type" : {
+                "_name" : "Double"
+              },
+              "_value" : "0.0"
+            },
+            {
+              "_type" : {
+                "_name" : "Double"
+              },
+              "_value" : "0.0"
+            },
+            {
+              "_type" : {
+                "_name" : "Double"
+              },
+              "_value" : "0.0"
+            },
+            {
+              "_type" : {
+                "_name" : "Double"
+              },
+              "_value" : "0.0"
+            },
+            {
+              "_type" : {
+                "_name" : "Double"
+              },
+              "_value" : "0.0"
+            }
+          ]
+        },
+        "polarity" : {
+          "_type" : {
+            "_name" : "String"
+          },
+          "_value" : "prefers smaller"
+        },
+        "unitOfMeasurement" : {
+          "_type" : {
+            "_name" : "String"
+          },
+          "_value" : "kB"
+        }
+      }
+    ]
+  },
+  "testStatus" : {
+    "_type" : {
+      "_name" : "String"
+    },
+    "_value" : "Success"
+  }
+}
