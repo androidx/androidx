@@ -16,6 +16,8 @@
 
 package androidx.test.screenshot.paparazzi
 
+import androidx.test.screenshot.layoutlib.GoldenVerifier
+import androidx.test.screenshot.layoutlib.ImageDiffer
 import androidx.test.screenshot.proto.ScreenshotResultProto.ScreenshotResult
 import androidx.test.screenshot.proto.ScreenshotResultProto.ScreenshotResult.Status
 import app.cash.paparazzi.Snapshot

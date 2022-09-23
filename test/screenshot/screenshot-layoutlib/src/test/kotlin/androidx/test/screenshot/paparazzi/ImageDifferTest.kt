@@ -16,9 +16,9 @@
 
 package androidx.test.screenshot.paparazzi
 
-import androidx.test.screenshot.paparazzi.ImageDiffer.DiffResult.Different
-import androidx.test.screenshot.paparazzi.ImageDiffer.DiffResult.Similar
-import androidx.test.screenshot.paparazzi.ImageDiffer.PixelPerfect
+import androidx.test.screenshot.layoutlib.ImageDiffer.DiffResult.Different
+import androidx.test.screenshot.layoutlib.ImageDiffer.DiffResult.Similar
+import androidx.test.screenshot.layoutlib.ImageDiffer.PixelPerfect
 import javax.imageio.ImageIO
 import kotlin.test.Test
 import kotlin.test.assertEquals
