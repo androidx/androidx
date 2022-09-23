@@ -72,7 +72,7 @@ navigation/
 #### Project creator script {#module-creation}
 
 Note: The terms *project*, *module*, and *library* are often used
-interchangeably within AndroidX, with project being the technical term used by
+interchangeably within AndroidX, with *project* being the technical term used by
 Gradle to describe a build target, e.g. a library that maps to a single AAR.
 
 New projects can be created using our
