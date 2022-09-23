@@ -110,7 +110,7 @@ internal class CaptureSessionFactoryTest {
                 testCamera.cameraId
             ),
             mapOf(stream1.id to surface),
-            virtualSessionState = VirtualSessionState(
+            captureSessionState = CaptureSessionState(
                 FakeGraphProcessor(),
                 sessionFactory,
                 object : Camera2CaptureSequenceProcessorFactory {

@@ -18,6 +18,7 @@
 
 package androidx.camera.camera2.pipe.compat
 
+import android.hardware.camera2.CameraCaptureSession
 import android.view.Surface
 import androidx.annotation.GuardedBy
 import androidx.annotation.RequiresApi
@@ -36,24 +37,33 @@ import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
-internal val virtualSessionDebugIds = atomic(0)
+internal val captureSessionDebugIds = atomic(0)
 
 /**
- * This class encapsulates the state and logic required to create and start a CaptureSession.
+ * This class encapsulates the state and logic required to manage the lifecycle of a single Camera2
+ * [CameraCaptureSession], and subsequently wrapping it into a [GraphRequestProcessor] and passing
+ * it to the [GraphListener].
  *
- * After being created, it will wait for a valid CameraDevice and Surfaces that it will use
- * to create and start the capture session. Calling shutdown or disconnect will release the current
- * session (if one has been configured), and prevent / close any session that was in the process of
- * being created when shutdown / disconnect was called.
+ * After this object is created, it waits for:
+ *  - A valid CameraDevice via [cameraDevice]
+ *  - A valid map of Surfaces via [configureSurfaceMap]
+ * Once these objects are available, it will create the [CameraCaptureSession].
+ *
+ * If at any time this object is put into a COSING or CLOSED state the session will either never be
+ * created, or if the session has already been created, it will be de-referenced and ignored. This
+ * object goes into a CLOSING or CLOSED state if disconnect or shutdown is called, or if the created
+ * [CameraCaptureSession] invokes onClosed or onConfigureFailed.
+ *
+ * This class is thread safe.
  */
-internal class VirtualSessionState(
+internal class CaptureSessionState(
     private val graphListener: GraphListener,
     private val captureSessionFactory: CaptureSessionFactory,
     private val captureSequenceProcessorFactory: Camera2CaptureSequenceProcessorFactory,
     private val cameraSurfaceManager: CameraSurfaceManager,
     private val scope: CoroutineScope
 ) : CameraCaptureSessionWrapper.StateCallback {
-    private val debugId = virtualSessionDebugIds.incrementAndGet()
+    private val debugId = captureSessionDebugIds.incrementAndGet()
     private val lock = Any()
 
     private val activeSurfaceMap = synchronizedMap(HashMap<StreamId, Surface>())
@@ -157,7 +167,7 @@ internal class VirtualSessionState(
     }
 
     override fun onCaptureQueueEmpty(session: CameraCaptureSessionWrapper) {
-        Log.debug { "$this Active" }
+        Log.debug { "$this CaptureQueueEmpty" }
     }
 
     private fun configure(session: CameraCaptureSessionWrapper?) {
@@ -165,9 +175,9 @@ internal class VirtualSessionState(
         var tryConfigureDeferred = false
 
         // This block is designed to do two things:
-        // 1. Get or create a RequestProcessor instance.
-        // 2. Pass the requestProcessor to the graphProcessor after the session is fully created and
-        //    the onConfigured callback has been invoked.
+        // 1. Get or create a GraphRequestProcessor instance.
+        // 2. Pass the GraphRequestProcessor to the graphProcessor after the session is fully
+        //    created and the onConfigured callback has been invoked.
         synchronized(lock) {
             if (state == State.CLOSING || state == State.CLOSED) {
                 return
@@ -177,8 +187,8 @@ internal class VirtualSessionState(
                 captureSession = ConfiguredCameraCaptureSession(
                     session,
                     GraphRequestProcessor.from(
-
-                        captureSequenceProcessorFactory.create(session, activeSurfaceMap))
+                        captureSequenceProcessorFactory.create(session, activeSurfaceMap)
+                    )
                 )
                 cameraCaptureSession = captureSession
             } else {
@@ -216,69 +226,66 @@ internal class VirtualSessionState(
      * a closed state. This will not cancel repeating requests or abort captures.
      */
     fun disconnect() {
-        val captureSession = synchronized(lock) {
-            if (state == State.CLOSING || state == State.CLOSED) {
-                return@synchronized null
-            }
-
-            cameraCaptureSession.also {
-                cameraCaptureSession = null
-                state = State.CLOSING
-            }
-        }
-
-        if (captureSession != null) {
-            graphListener.onGraphStopped(captureSession.processor)
-        }
-
-        val tokenToClose = synchronized(lock) {
-            _cameraDevice = null
-            state = State.CLOSED
-            _surfaceTokenMap.values
-        }
-        tokenToClose.forEach { it.close() }
+        shutdown(false)
     }
 
     /**
      * This is used to disconnect the cached [CameraCaptureSessionWrapper] and put this object into
      * a closed state. This may stop the repeating request and abort captures.
      */
-    private fun shutdown() {
-        val captureSession = synchronized(lock) {
+    private fun shutdown(abortAndStopRepeating: Boolean) {
+        var configuredCaptureSession: ConfiguredCameraCaptureSession? = null
+        var tokensToClose: List<Closeable>? = null
+
+        synchronized(lock) {
             if (state == State.CLOSING || state == State.CLOSED) {
-                return@synchronized null
+                return@synchronized
             }
+            state = State.CLOSING
 
-            cameraCaptureSession.also {
-                cameraCaptureSession = null
-                state = State.CLOSING
-            }
+            configuredCaptureSession = cameraCaptureSession
+            cameraCaptureSession = null
+            tokensToClose = _surfaceTokenMap.values.toList()
+            _surfaceTokenMap.clear()
         }
 
-        if (captureSession != null) {
+        val graphProcessor = configuredCaptureSession?.processor
+        if (graphProcessor != null) {
+            Log.debug { "$this Shutdown" }
+
             Debug.traceStart { "$this#shutdown" }
-
             Debug.traceStart { "$graphListener#onGraphStopped" }
-            graphListener.onGraphStopped(captureSession.processor)
+            graphListener.onGraphStopped(graphProcessor)
             Debug.traceStop()
+            if (abortAndStopRepeating) {
+                Debug.traceStart { "$this#stopRepeating" }
+                graphProcessor.stopRepeating()
+                Debug.traceStop()
+                Debug.traceStart { "$this#stopRepeating" }
+                graphProcessor.abortCaptures()
+                Debug.traceStop()
+            }
 
-            Debug.traceStart { "$this#stopRepeating" }
-            captureSession.processor.stopRepeating()
-            Debug.traceStop()
-
-            Debug.traceStart { "$this#stopRepeating" }
-            captureSession.processor.abortCaptures()
-            Debug.traceStop()
+            // WARNING:
+            // This does NOT call close on the captureSession to avoid potentially slow
+            // reconfiguration during mode switch and shutdown. This avoids unintentional restarts
+            // by clearing the internal captureSession variable, clearing all repeating requests,
+            // and by aborting any pending single requests.
+            //
+            // The reason we do not call close is that the android camera HAL doesn't shut down
+            // cleanly unless the device is also closed. See b/135125484 for example.
+            //
+            // WARNING - DO NOT CALL session.close().
 
             Debug.traceStop()
         }
 
-        val tokenToClose = synchronized(lock) {
+        tokensToClose?.forEach { it.close() }
+
+        synchronized(lock) {
             _cameraDevice = null
             state = State.CLOSED
-            _surfaceTokenMap.values
         }
-        tokenToClose.forEach { it.close() }
     }
 
     private fun finalizeOutputsIfAvailable(retryAllowed: Boolean = true) {
@@ -391,6 +398,7 @@ internal class VirtualSessionState(
         configure(session = null)
     }
 
+    @GuardedBy("lock")
     private fun updateTrackedSurfaces(
         oldSurfaceMap: Map<StreamId, Surface>,
         newSurfaceMap: Map<StreamId, Surface>
@@ -413,7 +421,7 @@ internal class VirtualSessionState(
         }
     }
 
-    override fun toString(): String = "VirtualSessionState-$debugId"
+    override fun toString(): String = "CaptureSessionState-$debugId"
 
     private data class ConfiguredCameraCaptureSession(
         val session: CameraCaptureSessionWrapper,

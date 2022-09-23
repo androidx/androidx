@@ -50,7 +50,7 @@ internal class Camera2CameraController @Inject constructor(
 ) : CameraController {
     private var closed = false
     private var currentCamera: VirtualCamera? = null
-    private var currentSession: VirtualSessionState? = null
+    private var currentSession: CaptureSessionState? = null
     private var currentSurfaceMap: Map<StreamId, Surface>? = null
 
     override fun start() {
@@ -67,7 +67,7 @@ internal class Camera2CameraController @Inject constructor(
             check(currentSession == null)
 
             currentCamera = camera
-            val session = VirtualSessionState(
+            val session = CaptureSessionState(
                 graphListener,
                 captureSessionFactory,
                 captureSequenceProcessorFactory,
@@ -86,7 +86,7 @@ internal class Camera2CameraController @Inject constructor(
 
     override fun stop() {
         val camera: VirtualCamera?
-        val session: VirtualSessionState?
+        val session: CaptureSessionState?
         synchronized(this) {
             if (closed) {
                 return
@@ -107,7 +107,7 @@ internal class Camera2CameraController @Inject constructor(
 
     override fun close() {
         val camera: VirtualCamera?
-        val session: VirtualSessionState?
+        val session: CaptureSessionState?
         synchronized(this) {
             if (closed) {
                 return
@@ -139,7 +139,7 @@ internal class Camera2CameraController @Inject constructor(
 
     private suspend fun bindSessionToCamera() {
         val camera: VirtualCamera?
-        val session: VirtualSessionState?
+        val session: CaptureSessionState?
 
         synchronized(this) {
             camera = currentCamera
