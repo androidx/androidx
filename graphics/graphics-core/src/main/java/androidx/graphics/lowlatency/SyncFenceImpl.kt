@@ -16,6 +16,10 @@
 
 package androidx.graphics.lowlatency
 
+import android.os.Build
+import androidx.annotation.RequiresApi
+import androidx.hardware.SyncFence
+
 internal interface SyncFenceImpl {
     /**
      * Waits for a [SyncFenceImpl] to signal for up to the timeout duration
@@ -33,4 +37,18 @@ internal interface SyncFenceImpl {
      * Close the [SyncFenceImpl]
      */
     fun close()
+
+    /**
+     * Returns the time that the fence signaled in the [CLOCK_MONOTONIC] time domain.
+     * This returns [SyncFence.SIGNAL_TIME_INVALID] if the SyncFence is invalid.
+     * If the fence hasn't yet signaled, then [SyncFence.SIGNAL_TIME_PENDING] is returned.
+     */
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun getSignalTime(): Long
+
+    /**
+     * Checks if the SyncFence object is valid.
+     * @return `true` if it is valid, `false` otherwise
+     */
+    fun isValid(): Boolean
 }

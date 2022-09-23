@@ -45,4 +45,19 @@ internal class SyncFenceV33 internal constructor(syncFence: SyncFence) : SyncFen
     override fun close() {
         mSyncFence.close()
     }
+
+    /**
+     * See [SyncFenceImpl.getSignalTime]
+     */
+    override fun getSignalTime(): Long {
+        return mSyncFence.signalTime
+    }
+
+    /**
+     * Checks if the SyncFence object is valid.
+     * @return `true` if it is valid, `false` otherwise
+     */
+    override fun isValid(): Boolean {
+        return mSyncFence.isValid
+    }
 }

@@ -81,14 +81,17 @@ internal class SurfaceViewRenderLayer<T>(
                 }
 
                 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
-                override fun onDrawComplete(renderBuffer: RenderBuffer) {
+                override fun onDrawComplete(
+                    renderBuffer: RenderBuffer,
+                    syncFenceCompat: SyncFenceCompat?
+                ) {
                     val frontBufferedLayerSurfaceControl = mLayerCallback
-                            ?.getFrontBufferedLayerSurfaceControl()
+                        ?.getFrontBufferedLayerSurfaceControl()
                     val sc = mParentSurfaceControl
-                        // At this point the parentSurfaceControl should already be created
-                        // in the surfaceChanged callback, however, if for whatever reason this
-                        // was not the case, create the double buffered SurfaceControl now and cache
-                        // it
+                    // At this point the parentSurfaceControl should already be created
+                    // in the surfaceChanged callback, however, if for whatever reason this
+                    // was not the case, create the double buffered SurfaceControl now and cache
+                    // it
                         ?: createDoubleBufferedSurfaceControl().also {
                             mParentSurfaceControl = it
                         }
@@ -96,7 +99,7 @@ internal class SurfaceViewRenderLayer<T>(
                         val transaction = SurfaceControlCompat.Transaction()
                             .setVisibility(frontBufferedLayerSurfaceControl, false)
                             .setVisibility(sc, true)
-                            .setBuffer(sc, renderBuffer.hardwareBuffer) {
+                            .setBuffer(sc, renderBuffer.hardwareBuffer, syncFenceCompat) {
                                 mLayerCallback?.getRenderBufferPool()?.release(renderBuffer)
                             }
 
@@ -106,11 +109,13 @@ internal class SurfaceViewRenderLayer<T>(
                         )
                         transaction.commit()
                     } else {
-                        Log.e(TAG, "Error, no front buffered SurfaceControl available to " +
-                            "synchronize transaction with")
+                        Log.e(
+                            TAG, "Error, no front buffered SurfaceControl available to " +
+                                "synchronize transaction with"
+                        )
                     }
                 }
-        })
+            })
         surfaceView.holder.addCallback(object : SurfaceHolder.Callback {
 
             override fun surfaceCreated(holder: SurfaceHolder) {

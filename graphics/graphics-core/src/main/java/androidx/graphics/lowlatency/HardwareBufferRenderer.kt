@@ -34,7 +34,8 @@ import java.util.concurrent.atomic.AtomicBoolean
  */
 @RequiresApi(Build.VERSION_CODES.O)
 internal class HardwareBufferRenderer(
-    private val hardwareBufferRendererCallbacks: RenderCallbacks
+    private val hardwareBufferRendererCallbacks: RenderCallbacks,
+    private val syncStrategy: SyncStrategy = SyncStrategy.ALWAYS
 ) : GLRenderer.RenderCallback {
 
     private val mClear = AtomicBoolean(false)
@@ -63,13 +64,12 @@ internal class HardwareBufferRenderer(
             } else {
                 hardwareBufferRendererCallbacks.onDraw(eglManager)
             }
-            GLES20.glFlush()
-            syncFenceCompat = egl.createNativeSyncFence()
 
-            syncFenceCompat.awaitForever()
+            syncFenceCompat = syncStrategy.createSyncFence(egl)
+
             // At this point the HardwareBuffer has the contents of the GL rendering
             // Create a surface Control transaction to dispatch this request
-            hardwareBufferRendererCallbacks.onDrawComplete(buffer)
+            hardwareBufferRendererCallbacks.onDrawComplete(buffer, syncFenceCompat)
         } finally {
             syncFenceCompat?.close()
         }
@@ -98,6 +98,71 @@ internal class HardwareBufferRenderer(
          * Callback when [onDraw] is complete and the contents of the draw
          * are reflected in the corresponding [HardwareBuffer]
          */
-        fun onDrawComplete(renderBuffer: RenderBuffer)
+        fun onDrawComplete(renderBuffer: RenderBuffer, syncFenceCompat: SyncFenceCompat?)
+    }
+}
+
+/**
+ * A strategy class for deciding how to utilize [SyncFenceCompat] within
+ * [HardwareBufferRenderer.RenderCallbacks]. SyncStrategy provides default strategies for
+ * usage:
+ *
+ * [SyncStrategy.ALWAYS] will always create a [SyncFenceCompat] to pass into the render
+ * callbacks for [HardwareBufferRenderer]
+ */
+internal interface SyncStrategy {
+    /**
+     * Conditionally generates a [SyncFenceCompat] based upon implementation.
+     *
+     * @param eglSpec an [EGLSpec] object to dictate the version of EGL and make EGL calls.
+     */
+    fun createSyncFence(eglSpec: EGLSpec): SyncFenceCompat?
+
+    companion object {
+        /**
+         * [SyncStrategy] that will always create a [SyncFenceCompat] object
+         */
+        @JvmField
+        val ALWAYS = object : SyncStrategy {
+            override fun createSyncFence(eglSpec: EGLSpec): SyncFenceCompat? {
+                return eglSpec.createNativeSyncFence()
+            }
+        }
+    }
+}
+
+/**
+ * [SyncStrategy] implementation that optimizes for front buffered rendering use cases.
+ * More specifically this attempts to avoid unnecessary synchronization overhead
+ * wherever possible.
+ *
+ * This will always provide a fence if the corresponding layer transitions from
+ * an invisible to a visible state. If the layer is already visible and front
+ * buffer usage flags are support on the device, then no fence is provided. If this
+ * flag is not supported, then a fence is created and "peeked" to ensure contents
+ * are flushed to the single buffer.
+ */
+internal class FrontBufferSyncStrategy(
+    private val supportsFrontBufferUsage: Boolean
+) : SyncStrategy {
+    private var mFrontBufferVisible: Boolean = false
+
+    fun isVisible(): Boolean = mFrontBufferVisible
+
+    fun setVisible(visibility: Boolean) {
+        mFrontBufferVisible = visibility
+    }
+
+    @RequiresApi(Build.VERSION_CODES.Q)
+    override fun createSyncFence(eglSpec: EGLSpec): SyncFenceCompat? {
+        return if (!isVisible()) {
+            eglSpec.createNativeSyncFence()
+        } else if (supportsFrontBufferUsage) {
+            return null
+        } else {
+            val fence = eglSpec.createNativeSyncFence()
+            fence.close()
+            return null
+        }
     }
 }
