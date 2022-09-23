@@ -422,6 +422,8 @@ public class ComplicationSlot
         )
     }
 
+    private var lastComplicationUpdate = Instant.EPOCH
+
     private class ComplicationDataHistoryEntry(
         val complicationData: ComplicationData,
         val time: Instant
@@ -986,6 +988,7 @@ public class ComplicationSlot
         loadDrawablesAsynchronous: Boolean,
         instant: Instant
     ) {
+        lastComplicationUpdate = instant
         complicationHistory?.push(ComplicationDataHistoryEntry(complicationData, instant))
         timelineComplicationData = complicationData
         timelineEntries = complicationData.asWireComplicationData().timelineEntries?.map {
@@ -1210,6 +1213,7 @@ public class ComplicationSlot
         @OptIn(ComplicationExperimental::class)
         writer.println("boundingArc=$boundingArc")
         writer.println("complicationSlotBounds=$complicationSlotBounds")
+        writer.println("lastComplicationUpdate=$lastComplicationUpdate")
         writer.println("data history")
         complicationHistory?.let {
             writer.increaseIndent()
