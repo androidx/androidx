@@ -51,6 +51,8 @@ fun collectBaselineProfile(
             " Use `adb root`."
     }
 
+    getInstalledPackageInfo(packageName) // throws clearly if not installed
+
     val startTime = System.nanoTime()
     val scope = MacrobenchmarkScope(packageName, launchWithClearTask = true)
 
@@ -72,10 +74,12 @@ fun collectBaselineProfile(
     killProcessBlock.invoke()
     try {
         userspaceTrace("compile $packageName") {
+            var iteration = 1
             compilationMode.resetAndCompile(
                 packageName = packageName,
                 killProcessBlock = killProcessBlock
             ) {
+                scope.iteration = iteration++
                 profileBlock(scope)
             }
         }
