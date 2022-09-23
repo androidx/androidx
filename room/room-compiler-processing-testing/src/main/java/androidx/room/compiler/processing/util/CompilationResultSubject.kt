@@ -215,7 +215,6 @@ class CompilationResultSubject internal constructor(
      * @see hasNoteContainingMatch
      */
     fun hasWarningContainingMatch(expectedPattern: String): DiagnosticMessagesSubject {
-        shouldSucceed = false
         return hasDiagnosticWithPattern(
             kind = Diagnostic.Kind.WARNING,
             expectedPattern = expectedPattern,
@@ -262,7 +261,6 @@ class CompilationResultSubject internal constructor(
      * @see hasWarningContainingMatch
      */
     fun hasNoteContainingMatch(expectedPattern: String): DiagnosticMessagesSubject {
-        shouldSucceed = false
         return hasDiagnosticWithPattern(
             kind = Diagnostic.Kind.NOTE,
             expectedPattern = expectedPattern,
