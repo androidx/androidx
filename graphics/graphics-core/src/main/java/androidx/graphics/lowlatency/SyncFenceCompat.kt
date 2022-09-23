@@ -109,13 +109,15 @@ fun EGLSpec.createNativeSyncFence(): SyncFenceCompat = SyncFenceCompat.createNat
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 internal class SyncFenceCompatVerificationHelper private constructor() {
     companion object {
+        private val mEmptyAttributes = longArrayOf(EGL14.EGL_NONE.toLong())
+
         @RequiresApi(Build.VERSION_CODES.TIRAMISU)
         @androidx.annotation.DoNotInline
         fun createSyncFenceCompatV33(): SyncFenceCompat {
             val display = EGL15.eglGetPlatformDisplay(
                 EGL15.EGL_PLATFORM_ANDROID_KHR,
                 EGL14.EGL_DEFAULT_DISPLAY.toLong(),
-                longArrayOf(EGL14.EGL_NONE.toLong()),
+                mEmptyAttributes,
                 0
             )
             if (display == EGL15.EGL_NO_DISPLAY) {
@@ -129,7 +131,7 @@ internal class SyncFenceCompatVerificationHelper private constructor() {
             val eglSync = EGL15.eglCreateSync(
                 display,
                 android.opengl.EGLExt.EGL_SYNC_NATIVE_FENCE_ANDROID,
-                longArrayOf(),
+                mEmptyAttributes,
                 0
             )
 
