@@ -100,7 +100,8 @@
     <string name="example_2_text" msgid="718820705318661440">"이 텍스트는 초록색임"</string>
     <string name="example_3_text" msgid="977269832109695627">"이 텍스트는 파란색임"</string>
     <string name="example_4_text" msgid="2043547015979437373">"이 텍스트는 노란색임"</string>
-    <string name="example_5_text" msgid="4387859825054561488">"이 텍스트는 기본 색상을 사용함"</string>
+    <!-- no translation found for example_5_text (8828804968749423500) -->
+    <skip />
     <string name="example_6_text" msgid="7991523168517599600">"이 텍스트는 보조 색상을 사용함"</string>
     <string name="color_demo" msgid="1822427636476178993">"색상 데모"</string>
     <string name="list_limit" msgid="3023536401535417286">"목록 제한"</string>
@@ -113,10 +114,8 @@
     <string name="finish_app_msg" msgid="8354334557053141891">"이렇게 하면 앱이 종료되고 재실행 시 미리 시드된 권한 화면이 표시됩니다"</string>
     <string name="finish_app_title" msgid="9013328479438745074">"앱 데모 종료"</string>
     <string name="finish_app_demo_title" msgid="8223819062053448384">"다음 주행 데모 시 권한 화면 미리 시드"</string>
-    <!-- no translation found for preseed_permission_app_title (182847662545676962) -->
-    <skip />
-    <!-- no translation found for preseed_permission_demo_title (5476541421753978071) -->
-    <skip />
+    <string name="preseed_permission_app_title" msgid="182847662545676962">"권한 미리 시드 앱 데모"</string>
+    <string name="preseed_permission_demo_title" msgid="5476541421753978071">"다음 실행 시 권한 화면 미리 시드 데모"</string>
     <string name="loading_demo_title" msgid="1086529475809143517">"데모 로드 중"</string>
     <string name="loading_demo_row_title" msgid="8933049915126088142">"로드 완료"</string>
     <string name="pop_to_root" msgid="2078277386355064198">"루트로 건너뛰기"</string>
@@ -232,6 +231,8 @@
     <string name="long_msg_template_not_supported_title" msgid="8600719470226274925">"호환되지 않는 호스트"</string>
     <string name="msg_template_demo_title" msgid="3895210951340409473">"메시지 템플릿 데모"</string>
     <string name="msg_template_demo_text" msgid="2275291617716161409">"여기에 메시지가 들어갑니다.\n추가 텍스트는 두 번째 줄에 입력됩니다."</string>
+    <!-- no translation found for short_msg_template_demo_title (6798738013668580714) -->
+    <skip />
     <string name="pane_template_demo_title" msgid="7804292600060341608">"창 템플릿 데모"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"장소 목록 템플릿 데모"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"장소 둘러보기"</string>
@@ -267,7 +268,8 @@
     <string name="vector_with_tint_title" msgid="1022346419829696827">"벡터 드로어블, 색조 있음"</string>
     <string name="vector_with_app_theme_attr_title" msgid="4890094482708376219">"벡터 드로어블, 색상에 관한 앱 테마 속성 있음"</string>
     <string name="png_res_title" msgid="7437083018336747544">"PNG, 리소스로 전송됨"</string>
-    <string name="png_bitmap_title" msgid="120790220238335267">"PNG, 리소스로 전송됨"</string>
+    <!-- no translation found for png_bitmap_title (3385912074130977032) -->
+    <skip />
     <string name="just_row_title" msgid="965700021568970725">"제목만"</string>
     <string name="title_with_app_icon_row_title" msgid="6294250714820740520">"앱 아이콘이 포함된 제목"</string>
     <string name="title_with_res_id_image_row_title" msgid="3813134904602875778">"리소스 ID 이미지가 포함된 제목"</string>
@@ -279,6 +281,8 @@
     <string name="rows_demo_title" msgid="3198566660454251007">"행 데모"</string>
     <string name="text_icons_demo_title" msgid="8732943920672143201">"텍스트 및 아이콘 데모"</string>
     <string name="row_text_icons_demo_title" msgid="135167694047524905">"텍스트와 아이콘이 있는 행 데모"</string>
+    <!-- no translation found for radio_button_list_demo_title (9082264324855338774) -->
+    <skip />
     <string name="selectable_lists_demo_title" msgid="5492658731113129386">"선택 가능한 목록 데모"</string>
     <string name="option_1_title" msgid="7221252541651471199">"옵션 1"</string>
     <string name="option_2_title" msgid="1905146448697963818">"옵션 2"</string>
@@ -292,6 +296,8 @@
     <string name="task_limit_reached_msg" msgid="6038763366777119364">"작업 제한에 도달함\n계속 진행하면 앱이 강제 종료됩니다"</string>
     <string name="task_step_of_title" msgid="2791717962535723839">"작업 단계 %1$d/%2$d"</string>
     <string name="task_step_of_text" msgid="4646729781462227219">"클릭하여 진행"</string>
+    <!-- no translation found for toggle_button_demo_title (3179103600967398928) -->
+    <skip />
     <string name="toggle_test_title" msgid="924485265152862631">"전환 테스트"</string>
     <string name="toggle_test_text" msgid="8107217216013312857">"스테이트풀(Stateful) 변경은 허용됨"</string>
     <string name="toggle_test_first_toggle_title" msgid="3635022201072117680">"전환 테스트 사용 설정"</string>
@@ -306,31 +312,38 @@
     <string name="toggle_test_disabled" msgid="8366040658408451664">"전환 테스트 사용 중지됨"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"기타 템플릿 데모"</string>
     <string name="showcase_demos_title" msgid="1542092687878113304">"쇼케이스 데모"</string>
-    <!-- no translation found for voice_access_demo_title (3825223890895361496) -->
+    <!-- no translation found for template_layouts_demo_title (788249269446087847) -->
     <skip />
-    <!-- no translation found for user_interactions_demo_title (1356952319161314986) -->
+    <!-- no translation found for grid_template_menu_demo_title (7096285873490705119) -->
     <skip />
-    <!-- no translation found for request_permission_menu_demo_title (4796486779527427017) -->
-    <skip />
-    <!-- no translation found for perm_group (3834918337351876270) -->
-    <skip />
-    <!-- no translation found for perm_group_description (7348847631139139024) -->
-    <skip />
-    <!-- no translation found for perm_fine_location (5438874642600304118) -->
-    <skip />
-    <!-- no translation found for perm_fine_location_desc (3549183883787912516) -->
-    <skip />
-    <!-- no translation found for perm_coarse_location (6140337431619481015) -->
-    <skip />
-    <!-- no translation found for perm_coarse_location_desc (6074759942301565943) -->
-    <skip />
-    <!-- no translation found for perm_record_audio (2758340693260523493) -->
-    <skip />
-    <!-- no translation found for perm_record_audio_desc (8038648467605928912) -->
-    <skip />
+    <string name="voice_access_demo_title" msgid="3825223890895361496">"음성 액세스 데모 화면"</string>
+    <string name="user_interactions_demo_title" msgid="1356952319161314986">"사용자 상호작용"</string>
+    <string name="request_permission_menu_demo_title" msgid="4796486779527427017">"권한 요청 데모"</string>
+    <string name="perm_group" msgid="3834918337351876270">"권한 그룹"</string>
+    <string name="perm_group_description" msgid="7348847631139139024">"쇼케이스 앱에 대한 권한 그룹"</string>
+    <string name="perm_fine_location" msgid="5438874642600304118">"정확한 위치 액세스"</string>
+    <string name="perm_fine_location_desc" msgid="3549183883787912516">"정확한 위치 액세스 권한"</string>
+    <string name="perm_coarse_location" msgid="6140337431619481015">"대략적 위치 액세스"</string>
+    <string name="perm_coarse_location_desc" msgid="6074759942301565943">"대략적 위치 액세스 권한"</string>
+    <string name="perm_record_audio" msgid="2758340693260523493">"오디오 녹음 액세스"</string>
+    <string name="perm_record_audio_desc" msgid="8038648467605928912">"오디오 녹음 액세스 권한"</string>
     <string name="location_1_description" msgid="4801052291684791371">"색조가 들어간 리소스 벡터"</string>
     <string name="location_2_description" msgid="3331356135359047166">"이미지 리소스 비트맵"</string>
     <string name="location_3_description" msgid="3982142774088944850">"색상이 지정된 텍스트 마커"</string>
     <string name="location_4_description" msgid="6560365445044381911">"이미지 비트맵"</string>
     <string name="location_description_text_label" msgid="2779911545316756419">"텍스트 라벨"</string>
+    <!-- no translation found for parking_vs_driving_demo_title (3367862800135053111) -->
+    <skip />
+    <!-- no translation found for latest_feature_details (6843008350392721502) -->
+    <skip />
+    <!-- no translation found for latest_feature_title (7929405790070777460) -->
+    <skip />
+    <!-- no translation found for loading_toggle_enabled (8828072732804454994) -->
+    <skip />
+    <!-- no translation found for loading_toggle_disabled (7689738885077382673) -->
+    <skip />
+    <!-- no translation found for loading_screen (4771507490730308794) -->
+    <skip />
+    <!-- no translation found for vector_toggle_details (1301305340033556819) -->
+    <skip />
 </resources>
