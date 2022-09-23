@@ -74,8 +74,9 @@ import androidx.room.vo.ReadQueryMethod
 import com.google.common.truth.Truth.assertThat
 import com.squareup.javapoet.CodeBlock
 import com.squareup.javapoet.TypeName
-import org.hamcrest.CoreMatchers.`is`
+import java.util.UUID
 import org.hamcrest.CoreMatchers.instanceOf
+import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.CoreMatchers.notNullValue
 import org.hamcrest.CoreMatchers.nullValue
 import org.hamcrest.MatcherAssert.assertThat
@@ -83,13 +84,12 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import testCodeGenScope
-import java.util.UUID
 
 @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
 @RunWith(JUnit4::class)
 class TypeAdapterStoreTest {
     companion object {
-        fun tmp(index: Int) = CodeGenScope._tmpVar(index)
+        fun tmp(index: Int) = CodeGenScope.getTmpVarString(index)
     }
 
     @Test
@@ -261,7 +261,7 @@ class TypeAdapterStoreTest {
             val bindScope = testCodeGenScope()
             adapter!!.bindToStmt("stmt", "41", "fooVar", bindScope)
             assertThat(
-                bindScope.generate().toString().trim(),
+                bindScope.builder().build().toString().trim(),
                 `is`(
                     """
                     final int ${tmp(0)} = fooVar ? 1 : 0;
@@ -273,7 +273,7 @@ class TypeAdapterStoreTest {
             val cursorScope = testCodeGenScope()
             adapter.readFromCursor("res", "curs", "7", cursorScope)
             assertThat(
-                cursorScope.generate().toString().trim(),
+                cursorScope.builder().build().toString().trim(),
                 `is`(
                     """
                     final int ${tmp(0)};
@@ -336,7 +336,7 @@ class TypeAdapterStoreTest {
             val bindScope = testCodeGenScope()
             adapter!!.bindToStmt("stmt", "41", "fooVar", bindScope)
             assertThat(
-                bindScope.generate().toString().trim(),
+                bindScope.builder().build().toString().trim(),
                 `is`(
                     """
                     final boolean ${tmp(0)} = foo.bar.Point.toBoolean(fooVar);
@@ -349,7 +349,7 @@ class TypeAdapterStoreTest {
             val cursorScope = testCodeGenScope()
             adapter.readFromCursor("res", "curs", "11", cursorScope).toString()
             assertThat(
-                cursorScope.generate().toString().trim(),
+                cursorScope.builder().build().toString().trim(),
                 `is`(
                     """
                     final int ${tmp(0)};
@@ -377,7 +377,7 @@ class TypeAdapterStoreTest {
             val bindScope = testCodeGenScope()
             adapter!!.readFromCursor("outDate", "curs", "0", bindScope)
             assertThat(
-                bindScope.generate().toString().trim(),
+                bindScope.builder().build().toString().trim(),
                 `is`(
                     """
                 final java.lang.Long _tmp;
@@ -414,7 +414,7 @@ class TypeAdapterStoreTest {
             val bindScope = testCodeGenScope()
             adapter!!.bindToStmt("stmt", "41", "fooVar", bindScope)
             assertThat(
-                bindScope.generate().toString().trim(),
+                bindScope.builder().build().toString().trim(),
                 `is`(
                     """
                 final java.lang.String ${tmp(0)} = androidx.room.util.StringUtil.joinIntoString(fooVar);

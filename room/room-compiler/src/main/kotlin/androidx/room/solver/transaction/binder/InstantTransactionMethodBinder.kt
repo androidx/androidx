@@ -16,8 +16,8 @@
 
 package androidx.room.solver.transaction.binder
 
-import androidx.room.ext.N
 import androidx.room.compiler.processing.XType
+import androidx.room.ext.N
 import androidx.room.ext.isNotVoid
 import androidx.room.solver.CodeGenScope
 import androidx.room.solver.transaction.result.TransactionMethodAdapter
@@ -57,7 +57,7 @@ class InstantTransactionMethodBinder(
                     resultVar = resultVar,
                     scope = adapterScope
                 )
-                addStatement(adapterScope.generate())
+                addStatement(adapterScope.builder().build())
 
                 addStatement("$N.setTransactionSuccessful()", dbField)
                 if (returnsValue) {

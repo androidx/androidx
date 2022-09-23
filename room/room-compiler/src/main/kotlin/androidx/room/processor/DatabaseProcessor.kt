@@ -18,6 +18,7 @@ package androidx.room.processor
 
 import androidx.room.AutoMigration
 import androidx.room.SkipQueryVerification
+import androidx.room.compiler.codegen.toJavaPoet
 import androidx.room.compiler.processing.XAnnotationBox
 import androidx.room.compiler.processing.XElement
 import androidx.room.compiler.processing.XType
@@ -339,7 +340,7 @@ class DatabaseProcessor(baseContext: Context, val element: XTypeElement) {
         daoMethods.groupBy { it.dao.typeName }
             .forEach {
                 if (it.value.size > 1) {
-                    val error = ProcessorErrors.duplicateDao(it.key,
+                    val error = ProcessorErrors.duplicateDao(it.key.toJavaPoet(),
                         it.value.map { it.element.jvmName }
                     )
                     it.value.forEach { daoMethod ->
@@ -363,7 +364,7 @@ class DatabaseProcessor(baseContext: Context, val element: XTypeElement) {
                         element,
                         ProcessorErrors.shortcutEntityIsNotInDatabase(
                             database = dbElement.qualifiedName,
-                            dao = dao.typeName.toString(),
+                            dao = dao.typeName.toJavaPoet().toString(),
                             entity = typeName.toString()
                         )
                     )

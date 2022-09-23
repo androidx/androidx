@@ -16,8 +16,8 @@
 
 package androidx.room.solver.shortcut.binder
 
-import androidx.room.ext.CallableTypeSpecBuilder
 import androidx.room.compiler.processing.XType
+import androidx.room.ext.CallableTypeSpecBuilder
 import androidx.room.solver.CodeGenScope
 import androidx.room.solver.shortcut.result.DeleteOrUpdateMethodAdapter
 import androidx.room.vo.ShortcutQueryParameter
@@ -60,7 +60,7 @@ class CallableDeleteOrUpdateMethodBinder private constructor(
                 dbField = dbField,
                 scope = adapterScope
             )
-            addCode(adapterScope.generate())
+            addCode(adapterScope.builder().build())
         }.build()
 
         scope.builder().apply {
