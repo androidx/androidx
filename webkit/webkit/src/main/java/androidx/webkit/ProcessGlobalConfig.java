@@ -16,10 +16,12 @@
 
 package androidx.webkit;
 
+import android.content.Context;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresFeature;
 import androidx.annotation.RestrictTo;
-import androidx.webkit.internal.ApiFeature;
+import androidx.webkit.internal.StartupApiFeature;
 import androidx.webkit.internal.WebViewFeatureInternal;
 
 import org.chromium.support_lib_boundary.ProcessGlobalConfigConstants;
@@ -118,7 +120,8 @@ public class ProcessGlobalConfig {
             throw new IllegalStateException(
                     "WebView has already been initialized in the current process");
         }
-        final ApiFeature.P feature = WebViewFeatureInternal.SET_DATA_DIRECTORY_SUFFIX;
+
+        final StartupApiFeature.P feature = WebViewFeatureInternal.SET_DATA_DIRECTORY_SUFFIX;
         if (feature.isSupportedByFramework()) {
             androidx.webkit.internal.ApiHelperForP.setDataDirectorySuffix(mDataDirectorySuffix);
         } else {
@@ -163,16 +166,17 @@ public class ProcessGlobalConfig {
      */
     @RequiresFeature(name = WebViewFeature.SET_DATA_DIRECTORY_SUFFIX,
             enforcement =
-                    "androidx.webkit.WebViewFeature#isFeatureSupported")
+                    "androidx.webkit.WebViewFeature#isConfigFeatureSupported(String, Context)")
     @NonNull
-    public ProcessGlobalConfig setDataDirectorySuffix(@NonNull String suffix) {
+    public ProcessGlobalConfig setDataDirectorySuffix(@NonNull String suffix,
+            @NonNull Context context) {
         if (mDataDirectorySuffix != null) {
             throw new IllegalStateException(
                     "ProcessGlobalConfig#setDataDirectorySuffix(String) was already "
                             + "called");
         }
-        final ApiFeature.P feature = WebViewFeatureInternal.SET_DATA_DIRECTORY_SUFFIX;
-        if (!feature.isSupported()) {
+        final StartupApiFeature.P feature = WebViewFeatureInternal.SET_DATA_DIRECTORY_SUFFIX;
+        if (!feature.isSupported(context)) {
             throw WebViewFeatureInternal.getUnsupportedOperationException();
         }
         if (suffix.equals("")) {

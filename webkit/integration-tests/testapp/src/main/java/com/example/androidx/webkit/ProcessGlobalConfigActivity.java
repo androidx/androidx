@@ -24,6 +24,7 @@ import android.webkit.WebViewClient;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.webkit.ProcessGlobalConfig;
+import androidx.webkit.WebViewFeature;
 
 
 /**
@@ -34,9 +35,12 @@ public class ProcessGlobalConfigActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        ProcessGlobalConfig.createInstance()
-                .setDataDirectorySuffix("per_process_webview_data_0")
-                .apply();
+        if (WebViewFeature.isStartupFeatureSupported(WebViewFeature.SET_DATA_DIRECTORY_SUFFIX,
+                this)) {
+            ProcessGlobalConfig.createInstance()
+                    .setDataDirectorySuffix("per_process_webview_data_0", this)
+                    .apply();
+        }
         WebView wv = new WebView(this);
         setContentView(wv);
         wv.setWebViewClient(new WebViewClient());
