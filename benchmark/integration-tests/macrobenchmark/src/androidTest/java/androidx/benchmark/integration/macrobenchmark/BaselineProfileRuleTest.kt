@@ -25,6 +25,10 @@ import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import java.io.File
+import kotlin.test.assertFailsWith
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
+import org.junit.Assert.fail
 import org.junit.Assume.assumeTrue
 import org.junit.Rule
 import org.junit.Test
@@ -32,24 +36,41 @@ import org.junit.Test
 @LargeTest
 @SdkSuppress(minSdkVersion = 29)
 @OptIn(ExperimentalBaselineProfilesApi::class)
-class BaselineProfileFilterTest {
+class BaselineProfileRuleTest {
 
     @get:Rule
     val baselineRule = BaselineProfileRule()
 
     @Test
-    fun baselineProfilesFilter() {
+    fun appNotInstalled() {
+        val error = assertFailsWith<AssertionError> {
+            baselineRule.collectBaselineProfile(
+                packageName = "fake.package.not.installed",
+                profileBlock = {
+                    fail("not expected")
+                }
+            )
+        }
+        println(error.message)
+        assertTrue(error.message!!.contains("Unable to find target package"))
+    }
+
+    @Test
+    fun filter() {
         assumeTrue(Shell.isSessionRooted())
 
+        var nextIteration = 1
         // Collects the baseline profile
         baselineRule.collectBaselineProfile(
             packageName = PACKAGE_NAME,
             packageFilters = listOf(PACKAGE_NAME),
             profileBlock = {
+                assertEquals(nextIteration++, iteration)
                 startActivityAndWait(Intent(ACTION))
                 device.waitForIdle()
             }
         )
+        assertEquals(4, nextIteration)
 
         // Asserts the output of the baseline profile
         val lines = File(Outputs.outputDirectory, BASELINE_PROFILE_OUTPUT_FILE_NAME).readLines()
@@ -72,6 +93,6 @@ class BaselineProfileFilterTest {
         // according to the patter `<class>_<method>-baseline-prof.txt`. Changes for class and
         // method names should be reflected here in order for the test to succeed.
         private const val BASELINE_PROFILE_OUTPUT_FILE_NAME =
-            "BaselineProfileFilterTest_baselineProfilesFilter-baseline-prof.txt"
+            "BaselineProfileRuleTest_filter-baseline-prof.txt"
     }
 }
