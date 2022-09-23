@@ -21,7 +21,7 @@ import android.os.Build
 import androidx.annotation.ColorRes
 import androidx.core.content.ContextCompat
 import androidx.test.core.app.ApplicationProvider
-import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -280,8 +280,17 @@ class ColorProvidersTest {
     }
 
     private fun assertColor(@ColorRes source: Int, @ColorRes target: Int) {
-        assertThat(ContextCompat.getColor(context, source)).isEqualTo(
-            ContextCompat.getColor(context, target)
-        )
+        val sourceColor = ContextCompat.getColor(context, source)
+        val targetColor = ContextCompat.getColor(context, target)
+
+        val sourceHex = String.format("0x%08X", sourceColor)
+        val targetHex = String.format("0x%08X", targetColor)
+
+        val sourceName = context.resources.getResourceEntryName(source)
+        val targetName = context.resources.getResourceEntryName(target)
+
+        val message = "$sourceName is $sourceHex but $targetName is $targetHex"
+
+        assertWithMessage(message).that(sourceColor).isEqualTo(targetColor)
     }
 }
