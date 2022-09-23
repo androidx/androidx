@@ -23,18 +23,14 @@ import androidx.appcompat.widget.Toolbar
 import androidx.core.content.res.TypedArrayUtils.getString
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination
-import androidx.navigation.NavGraph
-import androidx.navigation.NavGraphNavigator
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.createGraph
-import androidx.navigation.ui.NavigationUI.matchDestinations
 import androidx.test.annotation.UiThreadTest
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import androidx.testutils.TestNavigator
-import androidx.testutils.TestNavigatorProvider
 import androidx.testutils.test
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
@@ -43,15 +39,6 @@ import org.junit.runner.RunWith
 @SmallTest
 @RunWith(AndroidJUnit4::class)
 class NavigationUITest {
-    @Test
-    fun matchDestinationsTest() {
-        val destination = TestNavigator().createDestination().apply {
-            id = 1
-            parent = NavGraph(NavGraphNavigator(TestNavigatorProvider()))
-        }
-
-        assertThat(destination.matchDestinations(setOf(1, 2))).isTrue()
-    }
 
     @UiThreadTest
     @Test
