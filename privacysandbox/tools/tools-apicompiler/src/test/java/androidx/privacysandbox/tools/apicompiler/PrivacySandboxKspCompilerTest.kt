@@ -16,7 +16,8 @@
 
 package androidx.privacysandbox.tools.apicompiler
 
-import androidx.privacysandbox.tools.apicompiler.util.CompilationResultSubject.Companion.assertThat
+import androidx.privacysandbox.tools.testing.CompilationTestHelper.assertThat
+import androidx.privacysandbox.tools.testing.CompilationTestHelper.compileAll
 import androidx.privacysandbox.tools.testing.loadSourcesFromDirectory
 import androidx.room.compiler.processing.util.compiler.TestCompilationArguments
 import androidx.room.compiler.processing.util.compiler.compile
@@ -38,13 +39,10 @@ class PrivacySandboxKspCompilerTest {
         val provider = PrivacySandboxKspCompiler.Provider()
         // Check that compilation is successful
         assertThat(
-            compile(
-                Files.createTempDirectory("test").toFile(),
-                TestCompilationArguments(
-                    sources = sources + getSyntheticAndroidClasses(),
-                    symbolProcessorProviders = listOf(provider),
-                    processorOptions = getProcessorOptions(),
-                )
+            compileAll(
+                sources,
+                symbolProcessorProviders = listOf(provider),
+                processorOptions = getProcessorOptions(),
             )
         ).also {
             it.generatesExactlySources(
@@ -94,13 +92,10 @@ class PrivacySandboxKspCompilerTest {
         val provider = PrivacySandboxKspCompiler.Provider()
         // Check that compilation fails
         assertThat(
-            compile(
-                Files.createTempDirectory("test").toFile(),
-                TestCompilationArguments(
-                    sources = listOf(source) + getSyntheticAndroidClasses(),
-                    symbolProcessorProviders = listOf(provider),
-                    processorOptions = getProcessorOptions(),
-                )
+            compileAll(
+                listOf(source),
+                symbolProcessorProviders = listOf(provider),
+                processorOptions = getProcessorOptions(),
             )
         ).fails()
     }
@@ -109,66 +104,5 @@ class PrivacySandboxKspCompilerTest {
         mapOf(
             "aidl_compiler_path" to (System.getProperty("aidl_compiler_path")
                 ?: throw IllegalArgumentException("aidl_compiler_path flag not set."))
-        )
-
-    private fun getSyntheticAndroidClasses() =
-        listOf(
-            Source.java(
-                "android.app.sdksandbox.SandboxedSdk",
-                """
-                    package android.app.sdksandbox;
-                    import android.os.IBinder;
-                    public class SandboxedSdk {
-                        public SandboxedSdk(IBinder sdkInterface) {}
-                    }
-                """.trimIndent()
-            ),
-            Source.java(
-                "android.app.sdksandbox.SandboxedSdkProvider",
-                """
-                    package android.app.sdksandbox;
-                    import android.content.Context;
-                    import android.os.Bundle;
-                    import android.view.View;
-                    public abstract class SandboxedSdkProvider {
-                        public abstract SandboxedSdk onLoadSdk(Bundle params) throws LoadSdkException;
-                        public abstract View getView(
-                                Context windowContext, Bundle params, int width, int height);
-                        public final Context getContext() {
-                            return null;
-                        }
-                        public abstract void onDataReceived(
-                                Bundle data, DataReceivedCallback callback);
-                        public interface DataReceivedCallback {
-                            void onDataReceivedSuccess(Bundle params);
-                            void onDataReceivedError(String errorMessage);
-                        }
-                    }
-                """.trimIndent()
-            ),
-            Source.java(
-                "android.app.sdksandbox.LoadSdkException",
-                """
-                    package android.app.sdksandbox;
-                    import android.os.Parcel;
-                    import android.os.Parcelable;
-                    public final class LoadSdkException extends Exception implements Parcelable {
-                        @Override
-                        public int describeContents() {
-                            return 0;
-                        }
-                        @Override
-                        public void writeToParcel(Parcel destination, int flags) {
-                        }
-                    }
-                """.trimIndent()
-            ),
-            Source.java(
-                "android.app.sdksandbox.SandboxedSdkContext",
-                """
-                    package android.app.sdksandbox;
-                    public final class SandboxedSdkContext {}
-                """.trimIndent()
-            ),
         )
 }
