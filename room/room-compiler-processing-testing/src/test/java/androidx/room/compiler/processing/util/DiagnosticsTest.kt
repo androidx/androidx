@@ -39,17 +39,45 @@ class DiagnosticsTest internal constructor(
             }
             invocation.assertCompilationResult {
                 hasNote("note 1")
-                hasWarning("warn 1")
-                hasError("error 1")
+                assertThat(shouldSucceed).isTrue()
                 hasNoteContaining("ote")
-                hasWarningContaining("arn")
-                hasErrorContaining("rror")
+                assertThat(shouldSucceed).isTrue()
                 hasNoteContainingMatch("ote")
-                hasWarningContainingMatch("arn")
-                hasErrorContainingMatch("rror")
                 hasNoteContainingMatch("^note \\d$")
+                assertThat(shouldSucceed).isTrue()
+
+                hasWarning("warn 1")
+                assertThat(shouldSucceed).isTrue()
+                hasWarningContaining("arn")
+                assertThat(shouldSucceed).isTrue()
+                hasWarningContainingMatch("arn")
                 hasWarningContainingMatch("^warn \\d$")
+                assertThat(shouldSucceed).isTrue()
+
+                hasError("error 1")
+                assertThat(shouldSucceed).isFalse()
+                hasErrorContaining("rror")
+                assertThat(shouldSucceed).isFalse()
+                hasErrorContainingMatch("rror")
                 hasErrorContainingMatch("^error \\d$")
+                assertThat(shouldSucceed).isFalse()
+
+                hasNote("note 1")
+                assertThat(shouldSucceed).isFalse()
+                hasNoteContaining("ote")
+                assertThat(shouldSucceed).isFalse()
+                hasNoteContainingMatch("ote")
+                hasNoteContainingMatch("^note \\d$")
+                assertThat(shouldSucceed).isFalse()
+
+                hasWarning("warn 1")
+                assertThat(shouldSucceed).isFalse()
+                hasWarningContaining("arn")
+                assertThat(shouldSucceed).isFalse()
+                hasWarningContainingMatch("arn")
+                hasWarningContainingMatch("^warn \\d$")
+                assertThat(shouldSucceed).isFalse()
+
                 // these should fail:
                 assertThat(
                     runCatching { hasNote("note") }.isFailure
