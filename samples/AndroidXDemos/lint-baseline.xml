@@ -215,7 +215,7 @@
         id="NewApi"
         message="`&lt;class>` requires API level 24 (current min is 14)"
         errorLine1="    class=&quot;com.example.androidx.drawable.MyDrawable&quot;"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/drawable/my_drawable.xml"/>
     </issue>
@@ -648,6 +648,105 @@
         errorLine2="                            ~~~~~~">
         <location
             file="src/main/java/com/example/androidx/app/AlertDialogUsage.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void onCreate(Bundle savedInstanceState) {"
+        errorLine2="                         ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/AndroidXDemos.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected List&lt;Map&lt;String, Object>> getData(String prefix) {"
+        errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/AndroidXDemos.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected List&lt;Map&lt;String, Object>> getData(String prefix) {"
+        errorLine2="                                                ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/AndroidXDemos.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected Intent activityIntent(String pkg, String componentName) {"
+        errorLine2="              ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/AndroidXDemos.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected Intent activityIntent(String pkg, String componentName) {"
+        errorLine2="                                    ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/AndroidXDemos.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected Intent activityIntent(String pkg, String componentName) {"
+        errorLine2="                                                ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/AndroidXDemos.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected Intent browseIntent(String path) {"
+        errorLine2="              ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/AndroidXDemos.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected Intent browseIntent(String path) {"
+        errorLine2="                                  ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/AndroidXDemos.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected void addItem(List&lt;Map&lt;String, Object>> data, String name, Intent intent) {"
+        errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/AndroidXDemos.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected void addItem(List&lt;Map&lt;String, Object>> data, String name, Intent intent) {"
+        errorLine2="                                                           ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/AndroidXDemos.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected void addItem(List&lt;Map&lt;String, Object>> data, String name, Intent intent) {"
+        errorLine2="                                                                        ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/AndroidXDemos.java"/>
     </issue>
 
     <issue
@@ -2979,105 +3078,6 @@
         errorLine2="              ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/androidx/widget/StaggeredGridLayoutManagerActivity.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public void onCreate(Bundle savedInstanceState) {"
-        errorLine2="                         ~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/AndroidXDemos.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected List&lt;Map&lt;String, Object>> getData(String prefix) {"
-        errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/AndroidXDemos.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected List&lt;Map&lt;String, Object>> getData(String prefix) {"
-        errorLine2="                                                ~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/AndroidXDemos.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected Intent activityIntent(String pkg, String componentName) {"
-        errorLine2="              ~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/AndroidXDemos.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected Intent activityIntent(String pkg, String componentName) {"
-        errorLine2="                                    ~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/AndroidXDemos.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected Intent activityIntent(String pkg, String componentName) {"
-        errorLine2="                                                ~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/AndroidXDemos.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected Intent browseIntent(String path) {"
-        errorLine2="              ~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/AndroidXDemos.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected Intent browseIntent(String path) {"
-        errorLine2="                                  ~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/AndroidXDemos.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected void addItem(List&lt;Map&lt;String, Object>> data, String name, Intent intent) {"
-        errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/AndroidXDemos.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected void addItem(List&lt;Map&lt;String, Object>> data, String name, Intent intent) {"
-        errorLine2="                                                           ~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/AndroidXDemos.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected void addItem(List&lt;Map&lt;String, Object>> data, String name, Intent intent) {"
-        errorLine2="                                                                        ~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/AndroidXDemos.java"/>
     </issue>
 
     <issue
