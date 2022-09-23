@@ -569,6 +569,17 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        findViewById(R.id.enqueue_infinite_work_charging).setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        StressTest.queueLotsOfWorkers(
+                                WorkManager.getInstance(MainActivity.this)
+                        );
+                    }
+                });
+
+
         Button hundredJobExceptionButton = findViewById(R.id.create_hundred_job_exception);
         // 100 Job limits are only enforced on API 24+.
         if (Build.VERSION.SDK_INT >= 24) {
