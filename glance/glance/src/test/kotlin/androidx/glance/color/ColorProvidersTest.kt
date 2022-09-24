@@ -33,6 +33,7 @@ class ColorProvidersTest {
     private val context = ApplicationProvider.getApplicationContext<Context>()
 
     @Test
+    @Config(sdk = [Build.VERSION_CODES.R])
     fun testGlanceMatchMaterial3Colors() {
         val lightColors = mapOf(
             androidx.glance.R.color.glance_colorPrimary to
@@ -94,7 +95,7 @@ class ColorProvidersTest {
     }
 
     @Test
-    @Config(qualifiers = "night")
+    @Config(qualifiers = "night", sdk = [Build.VERSION_CODES.R])
     fun testGlanceMatchMaterial3NightColors() {
         val darkColors = mapOf(
             androidx.glance.R.color.glance_colorPrimary to
