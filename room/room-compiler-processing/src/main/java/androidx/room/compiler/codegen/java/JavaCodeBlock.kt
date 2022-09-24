@@ -50,13 +50,38 @@ internal class JavaCodeBlock(
 
         override fun addLocalVariable(
             name: String,
-            type: XTypeName,
+            typeName: XTypeName,
             isMutable: Boolean,
-            assignExpr: XCodeBlock
+            assignExpr: XCodeBlock?
         ) = apply {
-            require(assignExpr is JavaCodeBlock)
-            val finalKeyword = if (isMutable) "final " else ""
-            actual.addStatement("$finalKeyword\$T \$L = \$L", type, name, assignExpr.actual)
+            val finalKeyword = if (isMutable) "" else "final "
+            if (assignExpr != null) {
+                require(assignExpr is JavaCodeBlock)
+                actual.addStatement(
+                    "$finalKeyword\$T \$L = \$L",
+                    typeName.java,
+                    name,
+                    assignExpr.actual
+                )
+            } else {
+                actual.addStatement("$finalKeyword\$T \$L", typeName.java, name)
+            }
+        }
+
+        override fun beginControlFlow(controlFlow: String, vararg args: Any?) = apply {
+            val processedControlFlow = processFormatString(controlFlow)
+            val processedArgs = processArgs(args)
+            actual.beginControlFlow(processedControlFlow, *processedArgs)
+        }
+
+        override fun nextControlFlow(controlFlow: String, vararg args: Any?) = apply {
+            val processedControlFlow = processFormatString(controlFlow)
+            val processedArgs = processArgs(args)
+            actual.nextControlFlow(processedControlFlow, *processedArgs)
+        }
+
+        override fun endControlFlow() = apply {
+            actual.endControlFlow()
         }
 
         override fun build(): XCodeBlock {

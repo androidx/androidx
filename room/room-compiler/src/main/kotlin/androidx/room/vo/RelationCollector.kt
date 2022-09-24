@@ -16,6 +16,7 @@
 
 package androidx.room.vo
 
+import androidx.room.compiler.codegen.toJavaPoet
 import androidx.room.compiler.processing.XType
 import androidx.room.ext.CollectionTypeNames
 import androidx.room.ext.CommonTypeNames
@@ -44,8 +45,6 @@ import com.squareup.javapoet.CodeBlock
 import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
 import java.nio.ByteBuffer
-import java.util.ArrayList
-import java.util.HashSet
 import java.util.Locale
 
 /**
@@ -402,8 +401,8 @@ data class RelationCollector(
 
         // Gets the resulting relation type name. (i.e. the Pojo's @Relation field type name.)
         private fun relationTypeFor(relation: Relation) =
-            if (relation.field.typeName is ParameterizedTypeName) {
-                val paramType = relation.field.typeName as ParameterizedTypeName
+            if (relation.field.typeName.toJavaPoet() is ParameterizedTypeName) {
+                val paramType = relation.field.typeName.toJavaPoet() as ParameterizedTypeName
                 val paramTypeName = if (paramType.rawType == CommonTypeNames.LIST) {
                     ParameterizedTypeName.get(
                         ClassName.get(ArrayList::class.java),

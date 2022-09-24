@@ -17,6 +17,7 @@
 package androidx.room.processor
 
 import COMMON
+import androidx.room.compiler.codegen.toJavaPoet
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.compileFiles
 import androidx.room.compiler.processing.util.runProcessorTest
@@ -34,8 +35,8 @@ import androidx.room.vo.columnNames
 import com.google.common.truth.Truth.assertThat
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.TypeName
-import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.CoreMatchers.hasItems
+import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -2600,7 +2601,7 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
             )
             val parsed = parser.process()
             val field = parsed.primaryKey.fields.first()
-            assertThat(field.typeName).isEqualTo(TypeName.LONG)
+            assertThat(field.typeName.toJavaPoet()).isEqualTo(TypeName.LONG)
         }
     }
 }

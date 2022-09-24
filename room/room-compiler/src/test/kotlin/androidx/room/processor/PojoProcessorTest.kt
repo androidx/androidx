@@ -18,6 +18,7 @@ package androidx.room.processor
 
 import COMMON
 import androidx.room.Embedded
+import androidx.room.compiler.codegen.toJavaPoet
 import androidx.room.compiler.processing.XFieldElement
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
@@ -44,8 +45,8 @@ import com.google.common.truth.Truth
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.TypeName
 import java.io.File
-import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.CoreMatchers.instanceOf
+import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.CoreMatchers.not
 import org.hamcrest.CoreMatchers.notNullValue
 import org.hamcrest.CoreMatchers.nullValue
@@ -212,7 +213,7 @@ class PojoProcessorTest {
             assertThat(parent.prefix, `is`(""))
             assertThat(parent.field.name, `is`("myPoint"))
             assertThat(
-                parent.pojo.typeName,
+                parent.pojo.typeName.toJavaPoet(),
                 `is`(ClassName.get("foo.bar.MyPojo", "Point") as TypeName)
             )
         }
@@ -315,7 +316,7 @@ class PojoProcessorTest {
             )
             val pointField = pojo.embeddedFields.first { it.field.name == "genericField" }
             assertThat(
-                pointField.pojo.typeName,
+                pointField.pojo.typeName.toJavaPoet(),
                 `is`(ClassName.get("foo.bar", "Point") as TypeName)
             )
         }
@@ -686,7 +687,7 @@ class PojoProcessorTest {
             assertThat(pojo.relations.size, `is`(1))
             val rel = pojo.relations.first()
             assertThat(rel.projection, `is`(listOf("uid")))
-            assertThat(rel.entity.typeName, `is`(COMMON.USER_TYPE_NAME as TypeName))
+            assertThat(rel.entity.typeName.toJavaPoet(), `is`(COMMON.USER_TYPE_NAME as TypeName))
         }
     }
 
@@ -704,7 +705,7 @@ class PojoProcessorTest {
             assertThat(pojo.relations.size, `is`(1))
             val rel = pojo.relations.first()
             assertThat(rel.projection, `is`(listOf("name")))
-            assertThat(rel.entity.typeName, `is`(COMMON.USER_TYPE_NAME as TypeName))
+            assertThat(rel.entity.typeName.toJavaPoet(), `is`(COMMON.USER_TYPE_NAME as TypeName))
         }
     }
 
