@@ -1,1 +1,61 @@
 // Signature format: 4.0
+package androidx.privacysandbox.sdkruntime.core {
+
+  public final class LoadSdkCompatException extends java.lang.Exception {
+    ctor public LoadSdkCompatException(Throwable cause, android.os.Bundle extraInfo);
+    method public android.os.Bundle getExtraInformation();
+    method public int getLoadSdkErrorCode();
+    method @RequiresApi(android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) public static androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException toLoadCompatSdkException(android.app.sdksandbox.LoadSdkException ex);
+    method @RequiresApi(android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) public android.app.sdksandbox.LoadSdkException toLoadSdkException();
+    property public final android.os.Bundle extraInformation;
+    property public final int loadSdkErrorCode;
+    field public static final androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException.Companion Companion;
+    field public static final int LOAD_SDK_ALREADY_LOADED = 101; // 0x65
+    field public static final int LOAD_SDK_INTERNAL_ERROR = 500; // 0x1f4
+    field public static final int LOAD_SDK_NOT_FOUND = 100; // 0x64
+    field public static final int LOAD_SDK_SDK_DEFINED_ERROR = 102; // 0x66
+    field public static final int LOAD_SDK_SDK_SANDBOX_DISABLED = 103; // 0x67
+    field public static final int SDK_SANDBOX_PROCESS_NOT_AVAILABLE = 503; // 0x1f7
+  }
+
+  public static final class LoadSdkCompatException.Companion {
+    method @RequiresApi(android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) public androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException toLoadCompatSdkException(android.app.sdksandbox.LoadSdkException ex);
+  }
+
+  public abstract sealed class SandboxedSdkCompat {
+    method public static final androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat create(android.os.IBinder binder);
+    method @DoNotInline public abstract android.os.IBinder? getInterface();
+    method @DoNotInline @RequiresApi(android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) public abstract android.app.sdksandbox.SandboxedSdk toSandboxedSdk();
+    method @RequiresApi(android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) public static final androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat toSandboxedSdkCompat(android.app.sdksandbox.SandboxedSdk sandboxedSdk);
+    field public static final androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat.Companion Companion;
+  }
+
+  public static final class SandboxedSdkCompat.Companion {
+    method public androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat create(android.os.IBinder binder);
+    method @RequiresApi(android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) public androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat toSandboxedSdkCompat(android.app.sdksandbox.SandboxedSdk sandboxedSdk);
+  }
+
+  @RequiresApi(android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) public final class SandboxedSdkProviderAdapter extends android.app.sdksandbox.SandboxedSdkProvider {
+    ctor public SandboxedSdkProviderAdapter();
+    method @VisibleForTesting public androidx.privacysandbox.sdkruntime.core.SandboxedSdkProviderCompat? getDelegate();
+    method public android.view.View getView(android.content.Context windowContext, android.os.Bundle params, int width, int height);
+    method @kotlin.jvm.Throws(exceptionClasses=LoadSdkException::class) public android.app.sdksandbox.SandboxedSdk onLoadSdk(android.os.Bundle params) throws android.app.sdksandbox.LoadSdkException;
+    property @VisibleForTesting public final androidx.privacysandbox.sdkruntime.core.SandboxedSdkProviderCompat? delegate;
+    field public static final androidx.privacysandbox.sdkruntime.core.SandboxedSdkProviderAdapter.Companion Companion;
+  }
+
+  public static final class SandboxedSdkProviderAdapter.Companion {
+  }
+
+  public abstract class SandboxedSdkProviderCompat {
+    ctor public SandboxedSdkProviderCompat();
+    method public final void attachContext(android.content.Context context);
+    method public void beforeUnloadSdk();
+    method public final android.content.Context? getContext();
+    method public abstract android.view.View getView(android.content.Context windowContext, android.os.Bundle params, int width, int height);
+    method @kotlin.jvm.Throws(exceptionClasses=LoadSdkCompatException::class) public abstract androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat onLoadSdk(android.os.Bundle params) throws androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException;
+    property public final android.content.Context? context;
+  }
+
+}
+
