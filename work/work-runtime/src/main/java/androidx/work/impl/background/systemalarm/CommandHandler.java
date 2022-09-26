@@ -245,14 +245,14 @@ public class CommandHandler implements ExecutionListener {
             if (!workSpec.hasConstraints()) {
                 Logger.get().debug(TAG,
                         "Setting up Alarms for " + id + "at " + triggerAt);
-                Alarms.setAlarm(mContext, dispatcher.getWorkManager(), id, triggerAt);
+                Alarms.setAlarm(mContext, workDatabase, id, triggerAt);
             } else {
                 // Schedule an alarm irrespective of whether all constraints matched.
                 Logger.get().debug(TAG,
                         "Opportunistically setting an alarm for " + id + "at " + triggerAt);
                 Alarms.setAlarm(
                         mContext,
-                        dispatcher.getWorkManager(),
+                        workDatabase,
                         id,
                         triggerAt);
 
@@ -317,7 +317,8 @@ public class CommandHandler implements ExecutionListener {
         for (StartStopToken token: tokens) {
             Logger.get().debug(TAG, "Handing stopWork work for " + workSpecId);
             dispatcher.getWorkManager().stopWork(token);
-            Alarms.cancelAlarm(mContext, dispatcher.getWorkManager(), token.getId());
+            Alarms.cancelAlarm(mContext,
+                    dispatcher.getWorkManager().getWorkDatabase(), token.getId());
 
             // Notify dispatcher, so it can clean up.
             dispatcher.onExecuted(token.getId(), false /* never reschedule */);
