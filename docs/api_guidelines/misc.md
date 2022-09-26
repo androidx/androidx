@@ -1,8 +1,6 @@
-## More API guidelines {#more-api-guidelines}
+## Annotations {#annotation}
 
-### Annotations {#annotation}
-
-#### Annotation processors {#annotation-processor}
+### Annotation processors {#annotation-processor}
 
 Annotation processors should opt-in to incremental annotation processing to
 avoid triggering a full recompilation on every client source code change. See
@@ -248,9 +246,9 @@ Java visibilty should be set as appropriate for the code in question (`private`,
 For more, read the section in
 [Android API Council Guidelines](https://android.googlesource.com/platform/developers/docs/+/refs/heads/master/api-guidelines/index.md#no-public-typedefs)
 
-### Constructors {#constructors}
+## Constructors {#constructors}
 
-#### View constructors {#view-constructors}
+### View constructors {#view-constructors}
 
 The four-arg View constructor -- `View(Context, AttributeSet, int, int)` -- was
 added in SDK 21 and allows a developer to pass in an explicit default style
@@ -264,11 +262,11 @@ Views *may* implement a four-arg constructor in one of the following ways:
 1.  Implement and annotate with `@RequiresApi(21)`. This means the three-arg
     constructor **must not** call into the four-arg constructor.
 
-### Asynchronous work {#async}
+## Asynchronous work {#async}
 
-#### With return values {#async-return}
+### With return values {#async-return}
 
-###### Kotlin
+#### Kotlin
 
 Traditionally, asynchronous work on Android that results in an output value
 would use a callback; however, better alternatives exist for libraries.
@@ -308,7 +306,7 @@ suspend fun asyncCall(): ReturnValue
 fun asyncCall(executor: Executor, callback: (ReturnValue) -> Unit)
 ```
 
-###### Java
+#### Java
 
 Java libraries should prefer `ListenableFuture` and the
 [`CallbackToFutureAdapter`](https://developer.android.com/reference/androidx/concurrent/futures/CallbackToFutureAdapter)
@@ -325,7 +323,7 @@ error-prone defaults.
 See the [Dependencies](#dependencies) section for more information on using
 Kotlin coroutines and Guava in your library.
 
-#### Cancellation
+### Cancellation
 
 Libraries that expose APIs for performing asynchronous work should support
 cancellation. There are *very few* cases where it is not feasible to support
@@ -366,7 +364,7 @@ public boolean cancel(boolean mayInterruptIfRunning) {
 }
 ```
 
-#### Avoid `synchronized` methods
+### Avoid `synchronized` methods
 
 Whenever multiple threads are interacting with shared (mutable) references those
 reads and writes must be synchronized in some way. However synchronized blocks
@@ -388,9 +386,11 @@ that are more lightweight, depending on your use case:
 *   Update a value from multiple threads atomically
 *   Maintain granular control of your concurrency invariants
 
-### Kotlin-specific guidelines {#kotlin}
+## Kotlin-specific guidelines {#kotlin}
 
-#### Nullability from Java (new APIs)
+### Nullability
+
+#### Annotations on new Java APIs
 
 All new Java APIs should be annotated either `@Nullable` or `@NonNull` for all
 reference parameters and reference return types.
@@ -405,16 +405,17 @@ reference parameters and reference return types.
     }
 ```
 
-#### Nullability from Java (existing APIs)
+#### Adding annotations to existing Java APIs
 
 Adding `@Nullable` or `@NonNull` annotations to existing APIs to document their
-existing nullability is OK. This is a source breaking change for Kotlin
+existing nullability is allowed. This is a source-breaking change for Kotlin
 consumers, and you should ensure that it's noted in the release notes and try to
 minimize the frequency of these updates in releases.
 
-Changing the nullability of an API is a breaking change.
+Changing the nullability of an API is a behavior-breaking change and should be
+avoided.
 
-#### Extending APIs that expose types without nullability annotations
+#### Extending APIs that are missing annotations
 
 [Platform types](https://kotlinlang.org/docs/java-interop.html#null-safety-and-platform-types)
 are exposed by Java types that do not have a `@Nullable` or `@NonNull`
@@ -459,7 +460,7 @@ an override should look like:
     }
 ```
 
-#### Data classes {#kotlin-data}
+### Data classes {#kotlin-data}
 
 Kotlin `data` classes provide a convenient way to define simple container
 objects, where Kotlin will generate `equals()` and `hashCode()` for you.
@@ -495,7 +496,7 @@ See Jake Wharton's article on
 [Public API challenges in Kotlin](https://jakewharton.com/public-api-challenges-in-kotlin/)
 for more details.
 
-#### Exhaustive `when` and `sealed class`/`enum class` {#exhaustive-when}
+### Exhaustive `when` and `sealed class`/`enum class` {#exhaustive-when}
 
 A key feature of Kotlin's `sealed class` and `enum class` declarations is that
 they permit the use of **exhaustive `when` expressions.** For example:
@@ -556,7 +557,7 @@ val message = when (command) {
 }
 ```
 
-##### Non-exhaustive alternatives to `enum class`
+#### Non-exhaustive alternatives to `enum class`
 
 Kotlin's `@JvmInline value class` with a `private constructor` can be used to
 create type-safe sets of non-exhaustive constants as of Kotlin 1.5. Compose's
@@ -585,7 +586,7 @@ class types are not supported. Prefer the `@JvmInline value class` solution for
 new code unless it would break local consistency with other API in the same
 module that already uses `@IntDef`.
 
-##### Non-exhaustive alternatives to `sealed class`
+#### Non-exhaustive alternatives to `sealed class`
 
 Abstract classes with constructors marked as `internal` or `private` can
 represent the same subclassing restrictions of sealed classes as seen from
@@ -602,7 +603,7 @@ Using an `internal` constructor will permit non-nested subclasses, but will
 **not** restrict subclasses to the same package within the module, as sealed
 classes do.
 
-##### When to use exhaustive types
+#### When to use exhaustive types
 
 Use `enum class` or `sealed class` when the values or subtypes are intended to
 be exhaustive by design from the API's initial release. Use non-exhaustive
@@ -637,7 +638,7 @@ graphics APIs and are not intended for interpretation by app code. Additionally,
 there is historical precedent from `android.graphics` for new blending modes to
 be added in the future.
 
-#### Extension and top-level functions {#kotlin-extension-functions}
+### Extension and top-level functions {#kotlin-extension-functions}
 
 If your Kotlin file contains any symbols outside of class-like types
 (extension/top-level functions, properties, etc), the file must be annotated
@@ -660,10 +661,32 @@ package androidx.example
 fun String.foo() = // ...
 ```
 
-NOTE This guideline may be ignored for libraries that only work in Kotlin (think
-Compose).
+NOTE This guideline may be ignored for APIs that will only be referenced from
+Kotlin sources, such as Compose.
 
-#### Function paremeters order {#kotlin-params-order}
+### Extension functions on platform classes {#kotlin-extension-platform}
+
+While it may be tempting to backport new platform APIs using extension
+functions, the Kotlin compiler will always resolve collisions between extension
+functions and platform-defined methods by calling the platform-defined method --
+even if the method doesn't exist on earlier SDKs.
+
+```kotlin {.bad}
+fun AccessibilityNodeInfo.getTextSelectionEnd() {
+    // ... delegate to platform on SDK 18+ ...
+}
+```
+
+For the above example, any calls to `getTextSelectionEnd()` will resolve to the
+platform method -- the extension function will never be used -- and crash with
+`MethodNotFoundException` on older SDKs.
+
+Even when an extension function on a platform class does not collide with an
+existing API *yet*, there is a possibility that a conflicting API with a
+matching signature will be added in the future. As such, Jetpack libraries
+should avoid adding extension functions on platform classes.
+
+### Function paremeters order {#kotlin-params-order}
 
 In Kotlin function parameters can have default values, which are used when you
 skip the corresponding argument.
