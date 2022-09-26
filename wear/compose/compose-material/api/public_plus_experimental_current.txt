@@ -1,6 +1,9 @@
 // Signature format: 4.0
 package androidx.wear.compose.material {
 
+  public final class AnimationKt {
+  }
+
   @androidx.compose.runtime.Immutable public final class AutoCenteringParams {
     ctor public AutoCenteringParams(optional int itemIndex, optional int itemOffset);
   }
@@ -64,6 +67,16 @@ package androidx.wear.compose.material {
     method @androidx.compose.runtime.Composable public static void AppCard(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit> appName, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit> time, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit> title, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit>? appImage, optional androidx.compose.ui.graphics.painter.Painter backgroundPainter, optional long contentColor, optional long appColor, optional long timeColor, optional long titleColor, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ColumnScope,kotlin.Unit> content);
     method @androidx.compose.runtime.Composable public static void Card(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.ui.graphics.painter.Painter backgroundPainter, optional long contentColor, optional boolean enabled, optional androidx.compose.foundation.layout.PaddingValues contentPadding, optional androidx.compose.ui.graphics.Shape shape, optional androidx.compose.foundation.interaction.MutableInteractionSource interactionSource, optional androidx.compose.ui.semantics.Role? role, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ColumnScope,kotlin.Unit> content);
     method @androidx.compose.runtime.Composable public static void TitleCard(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit> title, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit>? time, optional androidx.compose.ui.graphics.painter.Painter backgroundPainter, optional long contentColor, optional long titleColor, optional long timeColor, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ColumnScope,kotlin.Unit> content);
+  }
+
+  @androidx.compose.runtime.Stable public interface CheckboxColors {
+    method @androidx.compose.runtime.Composable public androidx.compose.runtime.State<androidx.compose.ui.graphics.Color> boxColor(boolean enabled, boolean checked);
+    method @androidx.compose.runtime.Composable public androidx.compose.runtime.State<androidx.compose.ui.graphics.Color> checkmarkColor(boolean enabled, boolean checked);
+  }
+
+  public final class CheckboxDefaults {
+    method @androidx.compose.runtime.Composable public androidx.wear.compose.material.CheckboxColors colors(optional long checkedBoxColor, optional long checkedCheckmarkColor, optional long uncheckedBoxColor, optional long uncheckedCheckmarkColor);
+    field public static final androidx.wear.compose.material.CheckboxDefaults INSTANCE;
   }
 
   @androidx.compose.runtime.Stable public interface ChipBorder {
@@ -357,6 +370,16 @@ package androidx.wear.compose.material {
     method @androidx.compose.runtime.Composable public static void CircularProgressIndicator(optional androidx.compose.ui.Modifier modifier, optional float startAngle, optional long indicatorColor, optional long trackColor, optional float strokeWidth);
   }
 
+  @androidx.compose.runtime.Stable public interface RadioButtonColors {
+    method @androidx.compose.runtime.Composable public androidx.compose.runtime.State<androidx.compose.ui.graphics.Color> circleColor(boolean enabled, boolean selected);
+    method @androidx.compose.runtime.Composable public androidx.compose.runtime.State<androidx.compose.ui.graphics.Color> dotColor(boolean enabled, boolean selected);
+  }
+
+  public final class RadioButtonDefaults {
+    method @androidx.compose.runtime.Composable public androidx.wear.compose.material.RadioButtonColors colors(optional long selectedCircleColor, optional long selectedDotColor, optional long unselectedCircleColor, optional long unselectedDotColor);
+    field public static final androidx.wear.compose.material.RadioButtonDefaults INSTANCE;
+  }
+
   public final class RangeDefaultsKt {
   }
 
@@ -646,6 +669,16 @@ package androidx.wear.compose.material {
     method public <T> androidx.compose.runtime.saveable.Saver<androidx.wear.compose.material.SwipeableState<T>,T> Saver(androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, kotlin.jvm.functions.Function1<? super T,java.lang.Boolean> confirmStateChange);
   }
 
+  @androidx.compose.runtime.Stable public interface SwitchColors {
+    method @androidx.compose.runtime.Composable public androidx.compose.runtime.State<androidx.compose.ui.graphics.Color> thumbColor(boolean enabled, boolean checked);
+    method @androidx.compose.runtime.Composable public androidx.compose.runtime.State<androidx.compose.ui.graphics.Color> trackColor(boolean enabled, boolean checked);
+  }
+
+  public final class SwitchDefaults {
+    method @androidx.compose.runtime.Composable public androidx.wear.compose.material.SwitchColors colors(optional long checkedThumbColor, optional long checkedTrackColor, optional long uncheckedThumbColor, optional long uncheckedTrackColor);
+    field public static final androidx.wear.compose.material.SwitchDefaults INSTANCE;
+  }
+
   public final class TextKt {
     method @androidx.compose.runtime.Composable public static void ProvideTextStyle(androidx.compose.ui.text.TextStyle value, kotlin.jvm.functions.Function0<kotlin.Unit> content);
     method @androidx.compose.runtime.Composable public static void Text(String text, optional androidx.compose.ui.Modifier modifier, optional long color, optional long fontSize, optional androidx.compose.ui.text.font.FontStyle? fontStyle, optional androidx.compose.ui.text.font.FontWeight? fontWeight, optional androidx.compose.ui.text.font.FontFamily? fontFamily, optional long letterSpacing, optional androidx.compose.ui.text.style.TextDecoration? textDecoration, optional androidx.compose.ui.text.style.TextAlign? textAlign, optional long lineHeight, optional int overflow, optional boolean softWrap, optional int maxLines, optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.text.TextLayoutResult,kotlin.Unit> onTextLayout, optional androidx.compose.ui.text.TextStyle style);
@@ -734,6 +767,12 @@ package androidx.wear.compose.material {
   public final class ToggleChipKt {
     method @androidx.compose.runtime.Composable public static void SplitToggleChip(boolean checked, kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit> onCheckedChange, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit> label, kotlin.jvm.functions.Function0<kotlin.Unit> onClick, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit> toggleControl, optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit>? secondaryLabel, optional androidx.wear.compose.material.SplitToggleChipColors colors, optional boolean enabled, optional androidx.compose.foundation.interaction.MutableInteractionSource checkedInteractionSource, optional androidx.compose.foundation.interaction.MutableInteractionSource clickInteractionSource, optional androidx.compose.foundation.layout.PaddingValues contentPadding, optional androidx.compose.ui.graphics.Shape shape);
     method @androidx.compose.runtime.Composable public static void ToggleChip(boolean checked, kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit> onCheckedChange, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit> label, kotlin.jvm.functions.Function0<kotlin.Unit> toggleControl, optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit>? appIcon, optional kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit>? secondaryLabel, optional androidx.wear.compose.material.ToggleChipColors colors, optional boolean enabled, optional androidx.compose.foundation.interaction.MutableInteractionSource interactionSource, optional androidx.compose.foundation.layout.PaddingValues contentPadding, optional androidx.compose.ui.graphics.Shape shape);
+  }
+
+  public final class ToggleControlKt {
+    method @androidx.compose.runtime.Composable public static void Checkbox(boolean checked, optional androidx.compose.ui.Modifier modifier, optional androidx.wear.compose.material.CheckboxColors colors, optional boolean enabled, optional kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit>? onCheckedChange, optional androidx.compose.foundation.interaction.MutableInteractionSource interactionSource);
+    method @androidx.compose.runtime.Composable public static void RadioButton(boolean selected, optional androidx.compose.ui.Modifier modifier, optional androidx.wear.compose.material.RadioButtonColors colors, optional boolean enabled, optional kotlin.jvm.functions.Function0<kotlin.Unit>? onClick, optional androidx.compose.foundation.interaction.MutableInteractionSource interactionSource);
+    method @androidx.compose.runtime.Composable public static void Switch(boolean checked, optional androidx.compose.ui.Modifier modifier, optional androidx.wear.compose.material.SwitchColors colors, optional boolean enabled, optional kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit>? onCheckedChange, optional androidx.compose.foundation.interaction.MutableInteractionSource interactionSource);
   }
 
   @androidx.compose.runtime.Immutable public final class Typography {
