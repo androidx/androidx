@@ -79,6 +79,10 @@ package androidx.mediarouter.app {
     method public void setRouteSelector(androidx.mediarouter.media.MediaRouteSelector);
   }
 
+  public final class SystemOutputSwitcherDialogController {
+    method public static boolean showDialog(android.content.Context);
+  }
+
 }
 
 package androidx.mediarouter.media {
