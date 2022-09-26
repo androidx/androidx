@@ -199,17 +199,17 @@ internal object DataPoints {
      * [meters].
      *
      * @param meters absolute elevation in meters at [timeDurationFromBoot], Range
-     * from 0.0 to 1000000.0
+     * from -1000000.0 to 1000000.0
      * @param timeDurationFromBoot the point in time [stepsPerMinute] is accurate
      *
      * @throws IllegalArgumentException if [meters] is out of range
      */
     @JvmStatic
     public fun absoluteElevation(
-        @FloatRange(from = 0.0, to = 1000000.0) meters: Double,
+        @FloatRange(from = -1000000.0, to = 1000000.0) meters: Double,
         timeDurationFromBoot: Duration,
     ): SampleDataPoint<Double> {
-        if (meters in 0.0..1000000.0) {
+        if (meters in -1000000.0..1000000.0) {
             return SampleDataPoint(
                 dataType = DataType.ABSOLUTE_ELEVATION,
                 value = meters,
@@ -225,11 +225,11 @@ internal object DataPoints {
      * given elevations (in meters).
      *
      * @param minAbsoluteElevationMeters lowest observed elevation in this interval,
-     * Range from 0.0 to 1000000.0
+     * Range from -1000000.0 to 1000000.0
      * @param maxAbsoluteElevationMeters highest observed elevation in this interval,
-     * Range from 0.0 to 1000000.0
+     * Range from -1000000.0 to 1000000.0
      * @param averageAbsoluteElevationMeters average observed elevation in this interval,
-     * Range from 0.0 to 1000000.0
+     * Range from -1000000.0 to 1000000.0
      * @param startTime the point in time this data point begins
      * @param endTime the point in time this data point ends
      *
@@ -238,22 +238,22 @@ internal object DataPoints {
      */
     @JvmStatic
     public fun absoluteElevationStats(
-        @FloatRange(from = 0.0, to = 1000000.0) minAbsoluteElevationMeters: Double,
-        @FloatRange(from = 0.0, to = 1000000.0) maxAbsoluteElevationMeters: Double,
-        @FloatRange(from = 0.0, to = 1000000.0) averageAbsoluteElevationMeters: Double,
+        @FloatRange(from = -1000000.0, to = 1000000.0) minAbsoluteElevationMeters: Double,
+        @FloatRange(from = -1000000.0, to = 1000000.0) maxAbsoluteElevationMeters: Double,
+        @FloatRange(from = -1000000.0, to = 1000000.0) averageAbsoluteElevationMeters: Double,
         startTime: Instant,
         endTime: Instant
     ): StatisticalDataPoint<Double> {
 
-        if (minAbsoluteElevationMeters !in 0.0..1000000.0) {
+        if (minAbsoluteElevationMeters !in -1000000.0..1000000.0) {
             throw IllegalArgumentException("minAbsoluteElevationMeters value " +
                 "$minAbsoluteElevationMeters is out of range")
         }
-        if (maxAbsoluteElevationMeters !in 0.0..1000000.0) {
+        if (maxAbsoluteElevationMeters !in -1000000.0..1000000.0) {
             throw IllegalArgumentException("maxAbsoluteElevationMeters value " +
                 "$maxAbsoluteElevationMeters is out of range")
         }
-        if (averageAbsoluteElevationMeters !in 0.0..1000000.0) {
+        if (averageAbsoluteElevationMeters !in -1000000.0..1000000.0) {
             throw IllegalArgumentException("averageAbsoluteElevationMeters value " +
                 "$averageAbsoluteElevationMeters is out of range")
         }
