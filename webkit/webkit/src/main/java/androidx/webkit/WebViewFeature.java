@@ -98,7 +98,6 @@ public class WebViewFeature {
             PROXY_OVERRIDE_REVERSE_BYPASS,
             GET_VARIATIONS_HEADER,
             ALGORITHMIC_DARKENING,
-            REQUESTED_WITH_HEADER_CONTROL,
             ENTERPRISE_AUTHENTICATION_APP_LINK_POLICY,
             GET_COOKIE_INFO,
             SET_DATA_DIRECTORY_SUFFIX,
@@ -483,17 +482,6 @@ public class WebViewFeature {
      * This feature covers {@link WebViewCompat#getVariationsHeader()}.
      */
     public static final String GET_VARIATIONS_HEADER = "GET_VARIATIONS_HEADER";
-
-    /**
-     * Feature for {@link #isFeatureSupported(String)}.
-     * This feature covers {@link WebSettingsCompat#setRequestedWithHeaderMode(WebSettings, int)},
-     * {@link WebSettingsCompat#getRequestedWithHeaderMode(WebSettings)},
-     * {@link ServiceWorkerWebSettingsCompat#setRequestedWithHeaderMode(int)},
-     * and {@link ServiceWorkerWebSettingsCompat#getRequestedWithHeaderMode()}.
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public static final String REQUESTED_WITH_HEADER_CONTROL = "REQUESTED_WITH_HEADER_CONTROL";
 
     /**
      * Feature for {@link #isFeatureSupported(String)}.
