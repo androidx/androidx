@@ -23,8 +23,8 @@ import androidx.room.ext.T
 import androidx.room.ext.decapitalize
 import androidx.room.solver.CodeGenScope
 import androidx.room.vo.CustomTypeConverter
-import androidx.room.writer.ClassWriter
 import androidx.room.writer.DaoWriter
+import androidx.room.writer.TypeWriter
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.CodeBlock
 import com.squareup.javapoet.FieldSpec
@@ -35,8 +35,9 @@ import javax.lang.model.element.Modifier
 /**
  * Wraps a type converter specified by the developer and forwards calls to it.
  */
-class CustomTypeConverterWrapper(val custom: CustomTypeConverter) :
-    SingleStatementTypeConverter(custom.from, custom.to) {
+class CustomTypeConverterWrapper(
+    val custom: CustomTypeConverter
+) : SingleStatementTypeConverter(custom.from, custom.to) {
     override fun buildStatement(inputVarName: String, scope: CodeGenScope): CodeBlock {
         return if (custom.isEnclosingClassKotlinObject) {
             CodeBlock.of(
@@ -73,26 +74,28 @@ class CustomTypeConverterWrapper(val custom: CustomTypeConverter) :
 
         val converterClassName = custom.typeName as ClassName
         scope.writer.addRequiredTypeConverter(converterClassName)
-        val converterField = scope.writer.getOrCreateField(object : ClassWriter.SharedFieldSpec(
-            baseName, custom.typeName
-        ) {
+        val converterField = scope.writer.getOrCreateField(
+            object : TypeWriter.SharedFieldSpec(
+                baseName, custom.typeName
+            ) {
                 override fun getUniqueKey(): String {
                     return "converter_${custom.typeName}"
                 }
 
-                override fun prepare(writer: ClassWriter, builder: FieldSpec.Builder) {
+                override fun prepare(writer: TypeWriter, builder: FieldSpec.Builder) {
                     builder.addModifiers(Modifier.PRIVATE)
                 }
-            })
+            }
+        )
 
-        return scope.writer.getOrCreateMethod(object : ClassWriter.SharedMethodSpec(baseName) {
+        return scope.writer.getOrCreateMethod(object : TypeWriter.SharedMethodSpec(baseName) {
             override fun getUniqueKey(): String {
                 return "converterMethod_${custom.typeName}"
             }
 
             override fun prepare(
                 methodName: String,
-                writer: ClassWriter,
+                writer: TypeWriter,
                 builder: MethodSpec.Builder
             ) {
                 builder.apply {
@@ -104,7 +107,7 @@ class CustomTypeConverterWrapper(val custom: CustomTypeConverter) :
             }
 
             private fun buildConvertMethodBody(
-                writer: ClassWriter
+                writer: TypeWriter
             ): CodeBlock {
                 val methodScope = CodeGenScope(writer)
                 methodScope.builder().apply {
@@ -125,26 +128,28 @@ class CustomTypeConverterWrapper(val custom: CustomTypeConverter) :
 
     fun typeConverter(scope: CodeGenScope): FieldSpec {
         val baseName = (custom.typeName as ClassName).simpleName().decapitalize(Locale.US)
-        return scope.writer.getOrCreateField(object : ClassWriter.SharedFieldSpec(
-            baseName, custom.typeName
-        ) {
+        return scope.writer.getOrCreateField(
+            object : TypeWriter.SharedFieldSpec(
+                baseName, custom.typeName
+            ) {
                 override fun getUniqueKey(): String {
                     return "converter_${custom.typeName}"
                 }
 
-                override fun prepare(writer: ClassWriter, builder: FieldSpec.Builder) {
+                override fun prepare(writer: TypeWriter, builder: FieldSpec.Builder) {
                     builder.addModifiers(Modifier.PRIVATE)
                     builder.addModifiers(Modifier.FINAL)
                     builder.initializer("new $T()", custom.typeName)
                 }
-            })
+            }
+        )
     }
 }
 
-fun ClassWriter.addRequiredTypeConverter(className: ClassName) {
+fun TypeWriter.addRequiredTypeConverter(className: ClassName) {
     this[ProvidedTypeConverter::class] = getRequiredTypeConverters() + setOf(className)
 }
 
-fun ClassWriter.getRequiredTypeConverters(): Set<ClassName> {
+fun TypeWriter.getRequiredTypeConverters(): Set<ClassName> {
     return this.get<Set<ClassName>>(ProvidedTypeConverter::class) ?: emptySet()
 }

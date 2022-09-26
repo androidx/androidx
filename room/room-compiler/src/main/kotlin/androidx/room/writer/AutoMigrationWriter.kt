@@ -40,8 +40,8 @@ import com.squareup.kotlinpoet.javapoet.toKClassName
 class AutoMigrationWriter(
     private val dbElement: XTypeElement,
     val autoMigration: AutoMigration,
-    private val codeLanguage: CodeLanguage
-) : TypeWriter(autoMigration.getImplTypeName(dbElement.asClassName())) {
+    codeLanguage: CodeLanguage
+) : TypeWriter(codeLanguage) {
     private val addedColumns = autoMigration.schemaDiff.addedColumns
     private val addedTables = autoMigration.schemaDiff.addedTables
     private val renamedTables = autoMigration.schemaDiff.renamedTables

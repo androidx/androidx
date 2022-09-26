@@ -16,10 +16,13 @@
 
 package androidx.room.writer
 
+import androidx.room.compiler.codegen.CodeLanguage
+import androidx.room.compiler.codegen.XTypeSpec
+import androidx.room.compiler.codegen.XTypeSpec.Builder.Companion.apply
+import androidx.room.compiler.codegen.toJavaPoet
 import androidx.room.compiler.processing.MethodSpecHelper
 import androidx.room.compiler.processing.XElement
 import androidx.room.compiler.processing.XMethodElement
-import androidx.room.compiler.processing.XProcessingEnv
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.addOriginatingElement
 import androidx.room.compiler.processing.isVoid
@@ -37,17 +40,17 @@ import androidx.room.solver.CodeGenScope
 import androidx.room.solver.KotlinDefaultMethodDelegateBinder
 import androidx.room.solver.types.getRequiredTypeConverters
 import androidx.room.vo.Dao
+import androidx.room.vo.DeleteOrUpdateShortcutMethod
 import androidx.room.vo.InsertionMethod
-import androidx.room.vo.UpsertionMethod
 import androidx.room.vo.KotlinBoxedPrimitiveMethodDelegate
 import androidx.room.vo.KotlinDefaultMethodDelegate
 import androidx.room.vo.QueryMethod
 import androidx.room.vo.RawQueryMethod
 import androidx.room.vo.ReadQueryMethod
 import androidx.room.vo.ShortcutEntity
-import androidx.room.vo.DeleteOrUpdateShortcutMethod
 import androidx.room.vo.TransactionMethod
 import androidx.room.vo.UpdateMethod
+import androidx.room.vo.UpsertionMethod
 import androidx.room.vo.WriteQueryMethod
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.CodeBlock
@@ -72,13 +75,13 @@ import javax.lang.model.element.Modifier.STATIC
 class DaoWriter(
     val dao: Dao,
     private val dbElement: XElement,
-    val processingEnv: XProcessingEnv
-) :
-    ClassWriter(dao.typeName) {
+    codeLanguage: CodeLanguage
+) : TypeWriter(codeLanguage) {
     private val declaredDao = dao.element.type
 
     companion object {
         const val GET_LIST_OF_TYPE_CONVERTERS_METHOD = "getRequiredConverters"
+
         // TODO nothing prevents this from conflicting, we should fix.
         val dbField: FieldSpec = FieldSpec
             .builder(RoomTypeNames.ROOM_DB, "__db", PRIVATE, FINAL)
@@ -102,8 +105,9 @@ class DaoWriter(
         }
     }
 
-    override fun createTypeSpecBuilder(): TypeSpec.Builder {
-        val builder = TypeSpec.classBuilder(dao.implTypeName)
+    override fun createTypeSpecBuilder(): XTypeSpec.Builder {
+        val builder = XTypeSpec.classBuilder(codeLanguage, dao.implTypeName)
+
         /**
          * For prepared statements that perform insert/update/delete/upsert,
          * we check if there are any arguments of variable length (e.g. "IN (:var)").
@@ -126,45 +130,57 @@ class DaoWriter(
             addAll(createUpsertMethods())
         }
 
-        builder.apply {
-            addOriginatingElement(dbElement)
-            addModifiers(PUBLIC)
-            addModifiers(FINAL)
-            if (dao.element.isInterface()) {
-                addSuperinterface(dao.typeName)
-            } else {
-                superclass(dao.typeName)
-            }
-            addField(dbField)
-            val dbParam = ParameterSpec
-                .builder(dao.constructorParamType ?: dbField.type, dbField.name).build()
+        builder.apply(
+            javaTypeBuilder = {
+                addOriginatingElement(dbElement)
+                addModifiers(PUBLIC)
+                addModifiers(FINAL)
+                if (dao.element.isInterface()) {
+                    addSuperinterface(dao.typeName.toJavaPoet())
+                } else {
+                    superclass(dao.typeName.toJavaPoet())
+                }
+                addField(dbField)
+                val dbParam = ParameterSpec
+                    .builder(dao.constructorParamType ?: dbField.type, dbField.name).build()
 
-            addMethod(createConstructor(dbParam, shortcutMethods, dao.constructorParamType != null))
+                addMethod(
+                    createConstructor(
+                        dbParam,
+                        shortcutMethods,
+                        dao.constructorParamType != null
+                    )
+                )
 
-            shortcutMethods.forEach {
-                addMethod(it.methodImpl)
-            }
+                shortcutMethods.forEach {
+                    addMethod(it.methodImpl)
+                }
 
-            dao.queryMethods.filterIsInstance<ReadQueryMethod>().forEach { method ->
-                addMethod(createSelectMethod(method))
-            }
-            oneOffPreparedQueries.forEach {
-                addMethod(createPreparedQueryMethod(it))
-            }
-            dao.rawQueryMethods.forEach {
-                addMethod(createRawQueryMethod(it))
-            }
-            dao.kotlinDefaultMethodDelegates.forEach {
-                addMethod(createDefaultMethodDelegate(it))
-            }
+                dao.queryMethods.filterIsInstance<ReadQueryMethod>().forEach { method ->
+                    addMethod(createSelectMethod(method))
+                }
+                oneOffPreparedQueries.forEach {
+                    addMethod(createPreparedQueryMethod(it))
+                }
+                dao.rawQueryMethods.forEach {
+                    addMethod(createRawQueryMethod(it))
+                }
+                dao.kotlinDefaultMethodDelegates.forEach {
+                    addMethod(createDefaultMethodDelegate(it))
+                }
 
-            dao.delegatingMethods.forEach {
-                addMethod(createDelegatingMethod(it))
+                dao.delegatingMethods.forEach {
+                    addMethod(createDelegatingMethod(it))
+                }
+                // keep this the last one to be generated because used custom converters will
+                // register fields with a payload which we collect in dao to report used
+                // Type Converters.
+                addMethod(createConverterListMethod())
+            },
+            kotlinTypeBuilder = {
+                TODO("Kotlin codegen not yet implemented!")
             }
-            // keep this the last one to be generated because used custom converters will register
-            // fields with a payload which we collect in dao to report used Type Converters.
-            addMethod(createConverterListMethod())
-        }
+        )
         return builder
     }
 
@@ -236,7 +252,7 @@ class DaoWriter(
             scope = scope
         )
         return overrideWithoutAnnotations(method.element, declaredDao)
-            .addCode(scope.generate())
+            .addCode(scope.builder().build())
             .build()
     }
 
@@ -251,13 +267,13 @@ class DaoWriter(
         method.methodBinder.executeAndReturn(
             returnType = method.returnType,
             parameterNames = method.parameterNames,
-            daoName = dao.typeName,
-            daoImplName = dao.implTypeName,
+            daoName = dao.typeName.toJavaPoet(),
+            daoImplName = dao.implTypeName.toJavaPoet(),
             dbField = dbField,
             scope = scope
         )
         return overrideWithoutAnnotations(method.element, declaredDao)
-            .addCode(scope.generate())
+            .addCode(scope.builder().build())
             .build()
     }
 
@@ -534,7 +550,7 @@ class DaoWriter(
             dbField = dbField,
             scope = scope
         )
-        return scope.generate()
+        return scope.builder().build()
     }
 
     private fun createQueryMethodBody(method: ReadQueryMethod): CodeBlock {
@@ -557,8 +573,8 @@ class DaoWriter(
         val scope = CodeGenScope(this)
         return overrideWithoutAnnotations(method.element, declaredDao).apply {
             KotlinDefaultMethodDelegateBinder.executeAndReturn(
-                daoName = dao.typeName,
-                daoImplName = dao.implTypeName,
+                daoName = dao.typeName.toJavaPoet(),
+                daoImplName = dao.implTypeName.toJavaPoet(),
                 methodName = method.element.jvmName,
                 returnType = method.element.returnType,
                 parameterNames = method.element.parameters.map { it.name },
@@ -626,7 +642,7 @@ class DaoWriter(
             return "${shortcutEntity.pojo.typeName}-${shortcutEntity.entityTypeName}$onConflictText"
         }
 
-        override fun prepare(writer: ClassWriter, builder: FieldSpec.Builder) {
+        override fun prepare(writer: TypeWriter, builder: FieldSpec.Builder) {
             builder.addModifiers(FINAL, PRIVATE)
         }
     }
@@ -641,7 +657,7 @@ class DaoWriter(
             RoomTypeNames.DELETE_OR_UPDATE_ADAPTER, shortcutEntity.pojo.typeName
         )
     ) {
-        override fun prepare(writer: ClassWriter, builder: FieldSpec.Builder) {
+        override fun prepare(writer: TypeWriter, builder: FieldSpec.Builder) {
             builder.addModifiers(PRIVATE, FINAL)
         }
 
@@ -663,7 +679,7 @@ class DaoWriter(
             return "${shortcutEntity.pojo.typeName}-${shortcutEntity.entityTypeName}"
         }
 
-        override fun prepare(writer: ClassWriter, builder: FieldSpec.Builder) {
+        override fun prepare(writer: TypeWriter, builder: FieldSpec.Builder) {
             builder.addModifiers(PRIVATE, FINAL)
         }
     }
@@ -672,7 +688,7 @@ class DaoWriter(
         "preparedStmtOf${method.element.jvmName.capitalize(Locale.US)}",
         RoomTypeNames.SHARED_SQLITE_STMT
     ) {
-        override fun prepare(writer: ClassWriter, builder: FieldSpec.Builder) {
+        override fun prepare(writer: TypeWriter, builder: FieldSpec.Builder) {
             builder.addModifiers(PRIVATE, FINAL)
         }
 

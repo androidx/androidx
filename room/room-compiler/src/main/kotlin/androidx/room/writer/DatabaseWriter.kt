@@ -17,8 +17,10 @@
 package androidx.room.writer
 
 import androidx.annotation.NonNull
+import androidx.room.compiler.codegen.CodeLanguage
+import androidx.room.compiler.codegen.XTypeSpec
+import androidx.room.compiler.codegen.XTypeSpec.Builder.Companion.apply
 import androidx.room.compiler.codegen.toJavaPoet
-import androidx.room.compiler.codegen.toXClassName
 import androidx.room.compiler.processing.MethodSpecHelper
 import androidx.room.compiler.processing.addOriginatingElement
 import androidx.room.ext.AndroidTypeNames
@@ -55,22 +57,30 @@ import javax.lang.model.element.Modifier.VOLATILE
 /**
  * Writes implementation of classes that were annotated with @Database.
  */
-class DatabaseWriter(val database: Database) : ClassWriter(database.implTypeName) {
-    override fun createTypeSpecBuilder(): TypeSpec.Builder {
-        val builder = TypeSpec.classBuilder(database.implTypeName)
-        builder.apply {
-            addOriginatingElement(database.element)
-            addModifiers(PUBLIC)
-            addModifiers(FINAL)
-            superclass(database.typeName)
-            addMethod(createCreateOpenHelper())
-            addMethod(createCreateInvalidationTracker())
-            addMethod(createClearAllTables())
-            addMethod(createCreateTypeConvertersMap())
-            addMethod(createCreateAutoMigrationSpecsSet())
-            addMethod(getAutoMigrations())
-        }
-        addDaoImpls(builder)
+class DatabaseWriter(
+    val database: Database,
+    codeLanguage: CodeLanguage
+) : TypeWriter(codeLanguage) {
+    override fun createTypeSpecBuilder(): XTypeSpec.Builder {
+        val builder = XTypeSpec.classBuilder(codeLanguage, database.implTypeName)
+        builder.apply(
+            javaTypeBuilder = {
+                addOriginatingElement(database.element)
+                addModifiers(PUBLIC)
+                addModifiers(FINAL)
+                superclass(database.typeName.toJavaPoet())
+                addMethod(createCreateOpenHelper())
+                addMethod(createCreateInvalidationTracker())
+                addMethod(createClearAllTables())
+                addMethod(createCreateTypeConvertersMap())
+                addMethod(createCreateAutoMigrationSpecsSet())
+                addMethod(getAutoMigrations())
+                addDaoImpls(this)
+            },
+            kotlinTypeBuilder = {
+                TODO("Kotlin codegen not yet implemented!")
+            }
+        )
         return builder
     }
 
@@ -120,8 +130,8 @@ class DatabaseWriter(val database: Database) : ClassWriter(database.implTypeName
                 addStatement(
                     "$L.put($T.class, $T.$L())",
                     typeConvertersVar,
-                    it.dao.typeName,
-                    it.dao.implTypeName,
+                    it.dao.typeName.toJavaPoet(),
+                    it.dao.implTypeName.toJavaPoet(),
                     DaoWriter.GET_LIST_OF_TYPE_CONVERTERS_METHOD
                 )
             }
@@ -294,10 +304,12 @@ class DatabaseWriter(val database: Database) : ClassWriter(database.implTypeName
         val scope = CodeGenScope(this)
         builder.apply {
             database.daoMethods.forEach { method ->
-                val name = method.dao.typeName.simpleName().decapitalize(Locale.US).stripNonJava()
+                val name = method.dao.typeName.toJavaPoet().simpleName()
+                    .decapitalize(Locale.US)
+                    .stripNonJava()
                 val fieldName = scope.getTmpVar("_$name")
                 val field = FieldSpec.builder(
-                    method.dao.typeName, fieldName,
+                    method.dao.typeName.toJavaPoet(), fieldName,
                     PRIVATE, VOLATILE
                 ).build()
                 addField(field)
@@ -317,7 +329,11 @@ class DatabaseWriter(val database: Database) : ClassWriter(database.implTypeName
             nextControlFlow("else").apply {
                 beginControlFlow("synchronized(this)").apply {
                     beginControlFlow("if($N == null)", field).apply {
-                        addStatement("$N = new $T(this)", field, method.dao.implTypeName)
+                        addStatement(
+                            "$N = new $T(this)",
+                            field,
+                            method.dao.implTypeName.toJavaPoet()
+                        )
                     }
                     endControlFlow()
                     addStatement("return $N", field)
@@ -371,7 +387,7 @@ class DatabaseWriter(val database: Database) : ClassWriter(database.implTypeName
             returns(ParameterizedTypeName.get(CommonTypeNames.LIST, RoomTypeNames.MIGRATION))
             val autoMigrationsList = database.autoMigrations.map { autoMigrationResult ->
                 val implTypeName =
-                    autoMigrationResult.getImplTypeName(database.typeName.toXClassName())
+                    autoMigrationResult.getImplTypeName(database.typeName)
                 if (autoMigrationResult.isSpecProvided) {
                     CodeBlock.of(
                         "new $T(autoMigrationSpecsMap.get($T.class))",

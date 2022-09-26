@@ -40,16 +40,16 @@ class EntityUpsertionAdapterWriter private constructor(
 
     fun createConcrete(
         entity: ShortcutEntity,
-        classWriter: ClassWriter,
+        typeWriter: TypeWriter,
         dbParam: String
     ): CodeBlock {
         val upsertionAdapter = ParameterizedTypeName.get(
             RoomTypeNames.UPSERTION_ADAPTER, pojo.typeName
         )
         val insertionHelper = EntityInsertionAdapterWriter.create(entity, "")
-            .createAnonymous(classWriter, dbParam)
+            .createAnonymous(typeWriter, dbParam)
         val updateHelper = EntityUpdateAdapterWriter.create(entity, "")
-            .createAnonymous(classWriter, dbParam)
+            .createAnonymous(typeWriter, dbParam)
         return CodeBlock.builder().add("new $T($L, $L)",
             upsertionAdapter, insertionHelper, updateHelper
         ).build()

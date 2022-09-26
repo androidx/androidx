@@ -34,14 +34,14 @@ import com.squareup.javapoet.TypeName
 import java.util.Locale
 import javax.lang.model.element.Modifier.PRIVATE
 
-class EntityCursorConverterWriter(val entity: Entity) : ClassWriter.SharedMethodSpec(
+class EntityCursorConverterWriter(val entity: Entity) : TypeWriter.SharedMethodSpec(
     "entityCursorConverter_${entity.typeName.toString().stripNonJava()}"
 ) {
     override fun getUniqueKey(): String {
         return "generic_entity_converter_of_${entity.element.qualifiedName}"
     }
 
-    override fun prepare(methodName: String, writer: ClassWriter, builder: MethodSpec.Builder) {
+    override fun prepare(methodName: String, writer: TypeWriter, builder: MethodSpec.Builder) {
         builder.apply {
             val cursorParam = ParameterSpec
                 .builder(AndroidTypeNames.CURSOR, "cursor").build()
@@ -52,7 +52,7 @@ class EntityCursorConverterWriter(val entity: Entity) : ClassWriter.SharedMethod
         }
     }
 
-    private fun buildConvertMethodBody(writer: ClassWriter, cursorParam: ParameterSpec): CodeBlock {
+    private fun buildConvertMethodBody(writer: TypeWriter, cursorParam: ParameterSpec): CodeBlock {
         val scope = CodeGenScope(writer)
         val entityVar = scope.getTmpVar("_entity")
         scope.builder().apply {

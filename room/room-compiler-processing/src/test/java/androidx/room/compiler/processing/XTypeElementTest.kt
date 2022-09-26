@@ -16,23 +16,29 @@
 
 package androidx.room.compiler.processing
 
+import androidx.room.compiler.codegen.XClassName
 import androidx.room.compiler.codegen.XTypeName
+import androidx.room.compiler.codegen.asClassName
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
+import androidx.room.compiler.processing.util.asKClassName
+import androidx.room.compiler.processing.util.asMutableKClassName
 import androidx.room.compiler.processing.util.compileFiles
+import androidx.room.compiler.processing.util.createXTypeVariableName
 import androidx.room.compiler.processing.util.getAllFieldNames
 import androidx.room.compiler.processing.util.getField
 import androidx.room.compiler.processing.util.getMethodByJvmName
 import androidx.room.compiler.processing.util.runProcessorTest
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
-import com.squareup.javapoet.ClassName
-import com.squareup.javapoet.ParameterizedTypeName
-import com.squareup.javapoet.TypeName
-import com.squareup.javapoet.TypeVariableName
+import com.squareup.kotlinpoet.INT
+import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.javapoet.JClassName
+import com.squareup.kotlinpoet.javapoet.JParameterizedTypeName
 import com.squareup.kotlinpoet.javapoet.JTypeName
+import com.squareup.kotlinpoet.javapoet.JTypeVariableName
 import com.squareup.kotlinpoet.javapoet.KClassName
+import com.squareup.kotlinpoet.javapoet.KTypeVariableName
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -77,6 +83,7 @@ class XTypeElementTest {
                     assertThat(it.asClassName().kotlin)
                         .isEqualTo(KClassName("", "TopLevel"))
                 } else {
+                    // In javac / kapt we don't have KotlinPoet names
                     assertThat(it.asClassName().kotlin)
                         .isEqualTo(XTypeName.UNAVAILABLE_KTYPE_NAME)
                 }
@@ -85,38 +92,20 @@ class XTypeElementTest {
                 assertThat(it.packageName).isEqualTo("foo.bar")
                 assertThat(it.name).isEqualTo("InFooBar")
                 assertThat(it.qualifiedName).isEqualTo("foo.bar.InFooBar")
-                assertThat(it.asClassName().java)
-                    .isEqualTo(ClassName.get("foo.bar", "InFooBar"))
-                if (invocation.isKsp) {
-                    assertThat(it.asClassName().kotlin)
-                        .isEqualTo(KClassName("foo.bar", "InFooBar"))
-                }
+                assertThat(it.asClassName()).isEqualTo(XClassName.get("foo.bar", "InFooBar"))
             }
             invocation.processingEnv.requireTypeElement("foo.bar.Outer").let {
                 assertThat(it.packageName).isEqualTo("foo.bar")
                 assertThat(it.name).isEqualTo("Outer")
                 assertThat(it.qualifiedName).isEqualTo("foo.bar.Outer")
-                assertThat(it.asClassName().java).isEqualTo(
-                    ClassName.get("foo.bar", "Outer")
-                )
-                if (invocation.isKsp) {
-                    assertThat(it.asClassName().kotlin).isEqualTo(
-                        KClassName("foo.bar", "Outer")
-                    )
-                }
+                assertThat(it.asClassName()).isEqualTo(XClassName.get("foo.bar", "Outer"))
             }
             invocation.processingEnv.requireTypeElement("foo.bar.Outer.Nested").let {
                 assertThat(it.packageName).isEqualTo("foo.bar")
                 assertThat(it.name).isEqualTo("Nested")
                 assertThat(it.qualifiedName).isEqualTo("foo.bar.Outer.Nested")
-                assertThat(it.asClassName().java).isEqualTo(
-                    ClassName.get("foo.bar", "Outer", "Nested")
-                )
-                if (invocation.isKsp) {
-                    assertThat(it.asClassName().kotlin).isEqualTo(
-                        KClassName("foo.bar", "Outer", "Nested")
-                    )
-                }
+                assertThat(it.asClassName())
+                    .isEqualTo(XClassName.get("foo.bar", "Outer", "Nested"))
             }
             if (invocation.isKsp) {
                 // these are KSP specific tests, typenames are tested elsewhere
@@ -126,18 +115,14 @@ class XTypeElementTest {
                     assertThat(it.name).isEqualTo("Int")
                     assertThat(it.qualifiedName).isEqualTo("kotlin.Int")
                     assertThat(it.asClassName().java).isEqualTo(JTypeName.INT.box())
-                    if (invocation.isKsp) {
-                        assertThat(it.asClassName().kotlin).isEqualTo(com.squareup.kotlinpoet.INT)
-                    }
+                    assertThat(it.asClassName().kotlin).isEqualTo(INT)
                 }
                 invocation.processingEnv.requireTypeElement("kotlin.Int").let {
                     assertThat(it.packageName).isEqualTo("kotlin")
                     assertThat(it.name).isEqualTo("Int")
                     assertThat(it.qualifiedName).isEqualTo("kotlin.Int")
                     assertThat(it.asClassName().java).isEqualTo(JTypeName.INT.box())
-                    if (invocation.isKsp) {
-                        assertThat(it.asClassName().kotlin).isEqualTo(com.squareup.kotlinpoet.INT)
-                    }
+                    assertThat(it.asClassName().kotlin).isEqualTo(INT)
                 }
             }
         }
@@ -148,12 +133,11 @@ class XTypeElementTest {
         val src = Source.kotlin(
             "foo.kt",
             """
-            package foo.bar;
-            class Baz : MyInterface, AbstractClass() {
-            }
-            abstract class AbstractClass {}
-            interface MyInterface {}
-            interface AnotherInterface : MyInterface {}
+            package foo.bar
+            class Baz : MyInterface, AbstractClass()
+            abstract class AbstractClass
+            interface MyInterface
+            interface AnotherInterface : MyInterface
             """.trimIndent()
         )
         runProcessorTest(sources = listOf(src)) { invocation ->
@@ -174,10 +158,10 @@ class XTypeElementTest {
             }
             invocation.processingEnv.requireTypeElement("foo.bar.AbstractClass").let {
                 assertThat(it.superClass).isEqualTo(
-                    invocation.processingEnv.requireType(TypeName.OBJECT)
+                    invocation.processingEnv.requireType(JTypeName.OBJECT)
                 )
                 assertThat(it.superTypes).containsExactly(
-                    invocation.processingEnv.requireType(TypeName.OBJECT)
+                    invocation.processingEnv.requireType(JTypeName.OBJECT)
                 )
                 assertThat(it.isAbstract()).isTrue()
                 assertThat(it.isInterface()).isFalse()
@@ -188,7 +172,7 @@ class XTypeElementTest {
             invocation.processingEnv.requireTypeElement("foo.bar.MyInterface").let {
                 assertThat(it.superClass).isNull()
                 assertThat(it.superTypes).containsExactly(
-                    invocation.processingEnv.requireType(TypeName.OBJECT)
+                    invocation.processingEnv.requireType(JTypeName.OBJECT)
                 )
                 assertThat(it.isInterface()).isTrue()
                 assertThat(it.type).isEqualTo(
@@ -213,11 +197,10 @@ class XTypeElementTest {
         val src = Source.kotlin(
             "foo.kt",
             """
-            package foo.bar;
-            class Baz : MyInterface<String>, AbstractClass() {
-            }
-            abstract class AbstractClass {}
-            interface MyInterface<E> {}
+            package foo.bar
+            class Baz : MyInterface<String>, AbstractClass()
+            abstract class AbstractClass
+            interface MyInterface<E>
             """.trimIndent()
         )
         runProcessorTest(sources = listOf(src)) { invocation ->
@@ -227,8 +210,12 @@ class XTypeElementTest {
                     type.rawType.toString() == "foo.bar.MyInterface"
                 }
                 assertThat(superInterface.typeArguments).hasSize(1)
-                assertThat(superInterface.typeArguments[0].typeName)
-                    .isEqualTo(ClassName.get("java.lang", "String"))
+                assertThat(superInterface.typeArguments[0].asTypeName().java)
+                    .isEqualTo(JClassName.get("java.lang", "String"))
+                if (invocation.isKsp) {
+                    assertThat(superInterface.typeArguments[0].asTypeName().kotlin)
+                        .isEqualTo(KClassName("kotlin", "String"))
+                }
             }
         }
     }
@@ -238,7 +225,7 @@ class XTypeElementTest {
         val src = Source.kotlin(
             "Foo.kt",
             """
-            package foo.bar;
+            package foo.bar
             class Outer {
                 class Inner
             }
@@ -246,12 +233,14 @@ class XTypeElementTest {
         )
         runProcessorTest(sources = listOf(src)) { invocation ->
             invocation.processingEnv.requireTypeElement("foo.bar.Outer").let {
-                assertThat(it.className).isEqualTo(ClassName.get("foo.bar", "Outer"))
+                assertThat(it.asClassName())
+                    .isEqualTo(XClassName.get("foo.bar", "Outer"))
                 assertThat(it.isNested()).isFalse()
                 assertThat(it.enclosingTypeElement).isNull()
             }
             invocation.processingEnv.requireTypeElement("foo.bar.Outer.Inner").let {
-                assertThat(it.className).isEqualTo(ClassName.get("foo.bar", "Outer", "Inner"))
+                assertThat(it.asClassName())
+                    .isEqualTo(XClassName.get("foo.bar", "Outer", "Inner"))
                 assertThat(it.packageName).isEqualTo("foo.bar")
                 assertThat(it.name).isEqualTo("Inner")
                 assertThat(it.isNested()).isTrue()
@@ -421,16 +410,17 @@ class XTypeElementTest {
             val baseMethod = baseClass.getMethodByJvmName("baseMethod")
             baseMethod.asMemberOf(subClass.type).let { methodType ->
                 val genericArg = methodType.parameterTypes.first()
-                assertThat(genericArg.typeName).isEqualTo(TypeName.INT.box())
+                assertThat(genericArg.asTypeName()).isEqualTo(Int::class.asClassName())
             }
 
             baseClass.getField("genericProp").let { field ->
-                assertThat(field.type.typeName).isEqualTo(TypeVariableName.get("T"))
+                assertThat(field.type.asTypeName()).isEqualTo(createXTypeVariableName("T"))
             }
 
             subClass.getField("genericProp").let { field ->
                 // this is tricky because even though it is non-null it, it should still be boxed
-                assertThat(field.asMemberOf(subClass.type).typeName).isEqualTo(TypeName.INT.box())
+                assertThat(field.asMemberOf(subClass.type).asTypeName())
+                    .isEqualTo(Int::class.asClassName())
             }
         }
     }
@@ -453,16 +443,22 @@ class XTypeElementTest {
             assertThat(baseClass.getAllFieldNames()).containsExactly("value")
             val subClass = invocation.processingEnv.requireTypeElement("SubClass")
             assertThat(subClass.getAllFieldNames()).containsExactly("value")
-            assertThat(
-                baseClass.getField("value").type.typeName
-            ).isEqualTo(
-                ParameterizedTypeName.get(List::class.java, Integer::class.java)
+            val baseFieldType = baseClass.getField("value").type
+            val subFieldType = subClass.getField("value").type
+            assertThat(baseFieldType.asTypeName().java).isEqualTo(
+                JParameterizedTypeName.get(List::class.java, Integer::class.java)
             )
-            assertThat(
-                subClass.getField("value").type.typeName
-            ).isEqualTo(
-                ParameterizedTypeName.get(List::class.java, Integer::class.java)
+            assertThat(subFieldType.asTypeName().java).isEqualTo(
+                JParameterizedTypeName.get(List::class.java, Integer::class.java)
             )
+            if (invocation.isKsp) {
+                assertThat(baseFieldType.asTypeName().kotlin).isEqualTo(
+                    List::class.asKClassName().parameterizedBy(INT)
+                )
+                assertThat(subFieldType.asTypeName().kotlin).isEqualTo(
+                    List::class.asMutableKClassName().parameterizedBy(INT)
+                )
+            }
         }
     }
 
@@ -471,7 +467,7 @@ class XTypeElementTest {
         fun buildSrc(pkg: String) = Source.kotlin(
             "Foo.kt",
             """
-            package $pkg;
+            package $pkg
             class Subject {
                 val realField: String = ""
                     get() = field
@@ -530,7 +526,7 @@ class XTypeElementTest {
         fun buildSource(pkg: String) = Source.kotlin(
             "Foo.kt",
             """
-            package $pkg;
+            package $pkg
             abstract class Subject {
                 val value: String = ""
                 abstract val abstractValue: String
@@ -781,7 +777,7 @@ class XTypeElementTest {
         fun buildSrc(pkg: String) = Source.kotlin(
             "Foo.kt",
             """
-            package $pkg;
+            package $pkg
             interface Parent<T> {
                 fun parent(t: T)
             }
@@ -1450,7 +1446,7 @@ class XTypeElementTest {
                     VAL1(1),
                     VAL2(2);
 
-                    fun enumMethod():Unit {}
+                    fun enumMethod(): Unit {}
                 }
                 """.trimIndent()
             ),
@@ -1603,7 +1599,7 @@ class XTypeElementTest {
                 Source.kotlin(
                     "test.ConcreteClass.kt",
                     """
-                    package test;
+                    package test
                     class ConcreteClass: AbstractClass<Foo, Bar>() {}
                     abstract class AbstractClass<T1, T2> {
                         fun method(t1: T1, t2: T2): T2 {
@@ -1628,23 +1624,32 @@ class XTypeElementTest {
                     method = method,
                     name = "method",
                     enclosingElement = abstractClass,
-                    returnType = TypeVariableName.get("T2"),
-                    parameterTypes = arrayOf(TypeVariableName.get("T1"), TypeVariableName.get("T2"))
+                    returnType = createXTypeVariableName("T2"),
+                    parameterTypes = arrayOf(
+                        createXTypeVariableName("T1"),
+                        createXTypeVariableName("T2")
+                    )
                 )
                 checkMethodType(
                     methodType = method.executableType,
-                    returnType = TypeVariableName.get("T2"),
-                    parameterTypes = arrayOf(TypeVariableName.get("T1"), TypeVariableName.get("T2"))
+                    returnType = createXTypeVariableName("T2"),
+                    parameterTypes = arrayOf(
+                        createXTypeVariableName("T1"),
+                        createXTypeVariableName("T2")
+                    )
                 )
                 checkMethodType(
                     methodType = method.asMemberOf(abstractClass.type),
-                    returnType = TypeVariableName.get("T2"),
-                    parameterTypes = arrayOf(TypeVariableName.get("T1"), TypeVariableName.get("T2"))
+                    returnType = createXTypeVariableName("T2"),
+                    parameterTypes = arrayOf(
+                        createXTypeVariableName("T1"),
+                        createXTypeVariableName("T2")
+                    )
                 )
                 checkMethodType(
                     methodType = method.asMemberOf(concreteClass.type),
-                    returnType = barType.typeName,
-                    parameterTypes = arrayOf(fooType.typeName, barType.typeName)
+                    returnType = barType.asTypeName(),
+                    parameterTypes = arrayOf(fooType.asTypeName(), barType.asTypeName())
                 )
             }
 
@@ -1661,7 +1666,7 @@ class XTypeElementTest {
                 Source.kotlin(
                     "test.ConcreteClass.kt",
                     """
-                    package test;
+                    package test
                     class ConcreteClass: AbstractClass<Foo, Bar>() {
                         override fun method(t1: Foo, t2: Bar): Bar {
                           return t2
@@ -1691,23 +1696,32 @@ class XTypeElementTest {
                 method = abstractClassMethod,
                 name = "method",
                 enclosingElement = abstractClass,
-                returnType = TypeVariableName.get("T2"),
-                parameterTypes = arrayOf(TypeVariableName.get("T1"), TypeVariableName.get("T2"))
+                returnType = createXTypeVariableName("T2"),
+                parameterTypes = arrayOf(
+                    createXTypeVariableName("T1"),
+                    createXTypeVariableName("T2")
+                )
             )
             checkMethodType(
                 methodType = abstractClassMethod.executableType,
-                returnType = TypeVariableName.get("T2"),
-                parameterTypes = arrayOf(TypeVariableName.get("T1"), TypeVariableName.get("T2"))
+                returnType = createXTypeVariableName("T2"),
+                parameterTypes = arrayOf(
+                    createXTypeVariableName("T1"),
+                    createXTypeVariableName("T2")
+                )
             )
             checkMethodType(
                 methodType = abstractClassMethod.asMemberOf(abstractClass.type),
-                returnType = TypeVariableName.get("T2"),
-                parameterTypes = arrayOf(TypeVariableName.get("T1"), TypeVariableName.get("T2"))
+                returnType = createXTypeVariableName("T2"),
+                parameterTypes = arrayOf(
+                    createXTypeVariableName("T1"),
+                    createXTypeVariableName("T2"),
+                )
             )
             checkMethodType(
                 methodType = abstractClassMethod.asMemberOf(concreteClass.type),
-                returnType = barType.typeName,
-                parameterTypes = arrayOf(fooType.typeName, barType.typeName)
+                returnType = barType.asTypeName(),
+                parameterTypes = arrayOf(fooType.asTypeName(), barType.asTypeName())
             )
 
             // Check the concrete method and method type
@@ -1715,18 +1729,18 @@ class XTypeElementTest {
                 method = concreteClassMethod,
                 name = "method",
                 enclosingElement = concreteClass,
-                returnType = barType.typeName,
-                parameterTypes = arrayOf(fooType.typeName, barType.typeName)
+                returnType = barType.asTypeName(),
+                parameterTypes = arrayOf(fooType.asTypeName(), barType.asTypeName())
             )
             checkMethodType(
                 methodType = concreteClassMethod.executableType,
-                returnType = barType.typeName,
-                parameterTypes = arrayOf(fooType.typeName, barType.typeName)
+                returnType = barType.asTypeName(),
+                parameterTypes = arrayOf(fooType.asTypeName(), barType.asTypeName())
             )
             checkMethodType(
                 methodType = concreteClassMethod.asMemberOf(concreteClass.type),
-                returnType = barType.typeName,
-                parameterTypes = arrayOf(fooType.typeName, barType.typeName)
+                returnType = barType.asTypeName(),
+                parameterTypes = arrayOf(fooType.asTypeName(), barType.asTypeName())
             )
         }
     }
@@ -1735,23 +1749,23 @@ class XTypeElementTest {
         method: XMethodElement,
         name: String,
         enclosingElement: XTypeElement,
-        returnType: TypeName,
-        parameterTypes: Array<TypeName>
+        returnType: XTypeName,
+        parameterTypes: Array<XTypeName>
     ) {
         assertThat(method.name).isEqualTo(name)
         assertThat(method.enclosingElement).isEqualTo(enclosingElement)
-        assertThat(method.returnType.typeName).isEqualTo(returnType)
-        assertThat(method.parameters.map { it.type.typeName })
+        assertThat(method.returnType.asTypeName()).isEqualTo(returnType)
+        assertThat(method.parameters.map { it.type.asTypeName() })
             .containsExactly(*parameterTypes)
             .inOrder()
     }
     private fun checkMethodType(
         methodType: XMethodType,
-        returnType: TypeName,
-        parameterTypes: Array<TypeName>
+        returnType: XTypeName,
+        parameterTypes: Array<XTypeName>
     ) {
-        assertThat(methodType.returnType.typeName).isEqualTo(returnType)
-        assertThat(methodType.parameterTypes.map { it.typeName })
+        assertThat(methodType.returnType.asTypeName()).isEqualTo(returnType)
+        assertThat(methodType.parameterTypes.map { it.asTypeName() })
             .containsExactly(*parameterTypes)
             .inOrder()
     }
@@ -1763,7 +1777,7 @@ class XTypeElementTest {
                 Source.kotlin(
                     "test.ConcreteClass.kt",
                     """
-                    package test;
+                    package test
                     class ConcreteClass(foo: Foo): AbstractClass<Foo>(foo) {}
                     abstract class AbstractClass<T>(t: T)
                     class Foo
@@ -1777,17 +1791,25 @@ class XTypeElementTest {
 
             fun checkConstructorParameters(
                 typeElement: XTypeElement,
-                expectedParameters: Array<TypeName>
+                expectedParameters: Array<XTypeName>
             ) {
                 assertThat(typeElement.getConstructors()).hasSize(1)
                 val constructor = typeElement.getConstructors()[0]
-                assertThat(constructor.parameters.map { it.type.typeName })
+                assertThat(constructor.parameters.map { it.type.asTypeName() })
                     .containsExactly(*expectedParameters)
                     .inOrder()
             }
 
-            checkConstructorParameters(abstractClass, arrayOf(TypeVariableName.get("T")))
-            checkConstructorParameters(concreteClass, arrayOf(fooType.typeName))
+            checkConstructorParameters(
+                typeElement = abstractClass,
+                expectedParameters = arrayOf(
+                    createXTypeVariableName("T")
+                )
+            )
+            checkConstructorParameters(
+                typeElement = concreteClass,
+                expectedParameters = arrayOf(fooType.asTypeName())
+            )
         }
     }
 
@@ -1798,7 +1820,7 @@ class XTypeElementTest {
                 Source.kotlin(
                     "test.ConcreteClass.kt",
                     """
-                    package test;
+                    package test
                     class ConcreteClass: AbstractClass<Foo>()
                     abstract class AbstractClass<T> {
                         val field: T = TODO()
@@ -1816,11 +1838,18 @@ class XTypeElementTest {
 
             fun checkFieldElement(field: XFieldElement) {
                 assertThat(field.name).isEqualTo("field")
-                assertThat(field.type.typeName).isEqualTo(TypeVariableName.get("T"))
-                assertThat(field.asMemberOf(abstractClass.type).typeName)
-                    .isEqualTo(TypeVariableName.get("T"))
-                assertThat(field.asMemberOf(concreteClass.type).typeName)
-                    .isEqualTo(fooType.typeName)
+                assertThat(field.type.asTypeName().java).isEqualTo(JTypeVariableName.get("T"))
+                assertThat(field.asMemberOf(abstractClass.type).asTypeName().java)
+                    .isEqualTo(JTypeVariableName.get("T"))
+                assertThat(field.asMemberOf(concreteClass.type).asTypeName().java)
+                    .isEqualTo(fooType.asTypeName().java)
+                if (invocation.isKsp) {
+                    assertThat(field.type.asTypeName().kotlin).isEqualTo(KTypeVariableName("T"))
+                    assertThat(field.asMemberOf(abstractClass.type).asTypeName().kotlin)
+                        .isEqualTo(KTypeVariableName("T"))
+                    assertThat(field.asMemberOf(concreteClass.type).asTypeName().kotlin)
+                        .isEqualTo(fooType.asTypeName().kotlin)
+                }
             }
 
             assertThat(concreteClassField).isEqualTo(abstractClassField)
@@ -1849,9 +1878,9 @@ class XTypeElementTest {
     private fun XMethodElement.signature(owner: XType): String {
         val methodType = this.asMemberOf(owner)
         val params = methodType.parameterTypes.joinToString(",") {
-            it.typeName.toString()
+            it.asTypeName().java.toString()
         }
-        return "$jvmName($params):${returnType.typeName}"
+        return "$jvmName($params):${returnType.asTypeName().java}"
     }
 
     private fun XTestInvocation.nonObjectMethodSignatures(typeElement: XTypeElement): List<String> =

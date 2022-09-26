@@ -173,6 +173,7 @@ fun XType.isArray(): Boolean {
 /**
  * Returns true if this is a [List] or [Set].
  */
+// TODO(b/248280754): Move to room-compiler, overloaded function name
 fun XType.isCollection(): Boolean {
     return isTypeOf(List::class) || isTypeOf(Set::class)
 }
