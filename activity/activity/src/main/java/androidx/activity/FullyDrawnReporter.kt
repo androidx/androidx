@@ -29,9 +29,9 @@ import java.util.concurrent.Executor
  *
  * For example, to use coroutines:
  * ```
- * val fullyLoadedReporter = componentActivity.fullyLoadedReporter
+ * val fullyDrawnReporter = componentActivity.fullyDrawnReporter
  * launch {
- *     fullyLoadedReporter.reportWhenComplete {
+ *     fullyDrawnReporter.reportWhenComplete {
  *         dataLoadedMutex.lock()
  *         dataLoadedMutex.unlock()
  *     }
@@ -40,16 +40,16 @@ import java.util.concurrent.Executor
  * Or it can be manually controlled:
  * ```
  * // On the UI thread:
- * fullyLoadedReporter.addReporter()
+ * fullyDrawnReporter.addReporter()
  *
  * // Do the loading on worker thread:
- * fullyLoadedReporter.removeReporter()
+ * fullyDrawnReporter.removeReporter()
  * ```
  *
  * @param executor The [Executor] on which to call [reportFullyDrawn].
  * @param reportFullyDrawn Will be called when all reporters have been removed.
  */
-class FullyLoadedReporter(
+class FullyDrawnReporter(
     private val executor: Executor,
     private val reportFullyDrawn: () -> Unit
 ) {
@@ -76,7 +76,7 @@ class FullyLoadedReporter(
     @GuardedBy("lock")
     private val onReportCallbacks = mutableListOf<() -> Unit>()
 
-    private val reportOnAnimation: Runnable = Runnable {
+    private val reportRunnable: Runnable = Runnable {
         synchronized(lock) {
             reportPosted = false
             if (reporterCount == 0 && !reportedFullyDrawn) {
@@ -117,10 +117,10 @@ class FullyLoadedReporter(
      * Registers [callback] to be called when [reportFullyDrawn] is called by this class.
      * If it has already been called, then [callback] will be called immediately.
      *
-     * Once [callback] has been called, it will be removed and [removeOnReportLoadedListener]
+     * Once [callback] has been called, it will be removed and [removeOnReportDrawnListener]
      * does not need to be called to remove it.
      */
-    fun addOnReportLoadedListener(callback: () -> Unit) {
+    fun addOnReportDrawnListener(callback: () -> Unit) {
         val callImmediately =
             synchronized(lock) {
                 if (reportedFullyDrawn) {
@@ -139,7 +139,7 @@ class FullyLoadedReporter(
      * Removes a previously registered [callback] so that it won't be called when
      * [reportFullyDrawn] is called by this class.
      */
-    fun removeOnReportLoadedListener(callback: () -> Unit) {
+    fun removeOnReportDrawnListener(callback: () -> Unit) {
         synchronized(lock) {
             onReportCallbacks -= callback
         }
@@ -167,16 +167,16 @@ class FullyLoadedReporter(
     private fun postWhenReportersAreDone() {
         if (!reportPosted && reporterCount == 0) {
             reportPosted = true
-            executor.execute(reportOnAnimation)
+            executor.execute(reportRunnable)
         }
     }
 }
 
 /**
- * Tells the [FullyLoadedReporter] to wait until [reporter] has completed
+ * Tells the [FullyDrawnReporter] to wait until [reporter] has completed
  * before calling [Activity.reportFullyDrawn].
  */
-suspend inline fun FullyLoadedReporter.reportWhenComplete(
+suspend inline fun FullyDrawnReporter.reportWhenComplete(
     @Suppress("REDUNDANT_INLINE_SUSPEND_FUNCTION_TYPE")
     reporter: suspend () -> Unit
 ) {
