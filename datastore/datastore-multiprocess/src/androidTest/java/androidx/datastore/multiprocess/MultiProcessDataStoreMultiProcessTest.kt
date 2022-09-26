@@ -459,6 +459,13 @@ class MultiProcessDataStoreMultiProcessTest {
         signalService(connection)
 
         assertThat(dataStore.data.first()).isEqualTo(FOO_WITH_TEXT)
+
+        // version file should be ready at this point
+        val sharedCounter = SharedCounter.create(/* enableMlock = */ false) {
+            File(testFile.absolutePath + ".version")
+        }
+        // only 1 write should be done to handle the corruption, so version is incremented by 1
+        assertThat(sharedCounter.getValue()).isEqualTo(1)
     }
 
     class InterleavedHandlerUpdateDataService(
