@@ -54,7 +54,7 @@ class EntityDeletionAdapterWriter private constructor(
         }
     }
 
-    fun createAnonymous(classWriter: ClassWriter, dbParam: String): TypeSpec {
+    fun createAnonymous(typeWriter: TypeWriter, dbParam: String): TypeSpec {
         @Suppress("RemoveSingleExpressionStringTemplate")
         return TypeSpec.anonymousClassBuilder("$L", dbParam).apply {
             superclass(
@@ -75,7 +75,7 @@ class EntityDeletionAdapterWriter private constructor(
             )
             addMethod(
                 MethodSpec.methodBuilder("bind").apply {
-                    val bindScope = CodeGenScope(classWriter)
+                    val bindScope = CodeGenScope(typeWriter)
                     addAnnotation(Override::class.java)
                     val stmtParam = "stmt"
                     addParameter(

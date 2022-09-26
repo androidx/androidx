@@ -17,6 +17,8 @@
 package androidx.room.compiler.processing
 
 import com.squareup.kotlinpoet.OriginatingElementsHolder
+import com.squareup.kotlinpoet.ParameterizedTypeName
+import com.squareup.kotlinpoet.TypeName
 import com.squareup.kotlinpoet.javapoet.KClassName
 
 internal val KOTLIN_NONE_TYPE_NAME: KClassName =
@@ -31,4 +33,12 @@ fun <T : OriginatingElementsHolder.Builder<T>> T.addOriginatingElement(
 ): T {
     element.originatingElementForPoet()?.let(this::addOriginatingElement)
     return this
+}
+
+internal fun TypeName.rawTypeName(): TypeName {
+    return if (this is ParameterizedTypeName) {
+        this.rawType
+    } else {
+        this
+    }
 }

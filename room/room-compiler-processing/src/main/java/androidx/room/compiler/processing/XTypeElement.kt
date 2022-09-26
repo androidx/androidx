@@ -78,7 +78,7 @@ interface XTypeElement : XHasModifiers, XParameterizable, XElement, XMemberConta
     /**
      * Gets the [XClassName] of the type element.
      */
-    fun asClassName(): XClassName
+    override fun asClassName(): XClassName
 
     /**
      * The [XTypeElement] that contains this [XTypeElement] if it is an inner class/interface.

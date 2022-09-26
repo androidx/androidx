@@ -61,7 +61,7 @@ interface XMethodElement : XExecutableElement {
                 parameters.dropLast(
                     if (isSuspendFunction()) 1 else 0
                 ).joinToString(", ") {
-                    it.type.typeName.toString()
+                    it.type.asTypeName().java.toString()
                 }
             )
             append(")")

@@ -68,7 +68,7 @@ internal abstract class JavacType(
     override fun isError(): Boolean {
         return typeMirror.kind == TypeKind.ERROR ||
             // https://kotlinlang.org/docs/reference/kapt.html#non-existent-type-correction
-            (kotlinType != null && typeName == ERROR_JTYPE_NAME)
+            (kotlinType != null && asTypeName().java == ERROR_JTYPE_NAME)
     }
 
     override val typeName by lazy {

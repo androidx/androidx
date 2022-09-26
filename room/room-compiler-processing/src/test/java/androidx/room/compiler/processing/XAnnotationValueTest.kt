@@ -16,16 +16,38 @@
 
 package androidx.room.compiler.processing
 
+import androidx.room.compiler.codegen.JArrayTypeName
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
+import androidx.room.compiler.processing.util.asJClassName
+import androidx.room.compiler.processing.util.asKClassName
 import androidx.room.compiler.processing.util.compileFiles
 import androidx.room.compiler.processing.util.runProcessorTest
 import com.google.common.truth.Truth.assertThat
-import com.squareup.javapoet.ArrayTypeName
-import com.squareup.javapoet.ClassName
-import com.squareup.javapoet.ParameterizedTypeName
-import com.squareup.javapoet.TypeName
-import com.squareup.javapoet.WildcardTypeName
+import com.squareup.kotlinpoet.ARRAY
+import com.squareup.kotlinpoet.BOOLEAN
+import com.squareup.kotlinpoet.BOOLEAN_ARRAY
+import com.squareup.kotlinpoet.BYTE
+import com.squareup.kotlinpoet.BYTE_ARRAY
+import com.squareup.kotlinpoet.CHAR
+import com.squareup.kotlinpoet.CHAR_ARRAY
+import com.squareup.kotlinpoet.DOUBLE
+import com.squareup.kotlinpoet.DOUBLE_ARRAY
+import com.squareup.kotlinpoet.FLOAT
+import com.squareup.kotlinpoet.FLOAT_ARRAY
+import com.squareup.kotlinpoet.INT
+import com.squareup.kotlinpoet.INT_ARRAY
+import com.squareup.kotlinpoet.LONG
+import com.squareup.kotlinpoet.LONG_ARRAY
+import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
+import com.squareup.kotlinpoet.SHORT
+import com.squareup.kotlinpoet.SHORT_ARRAY
+import com.squareup.kotlinpoet.STAR
+import com.squareup.kotlinpoet.javapoet.JClassName
+import com.squareup.kotlinpoet.javapoet.JParameterizedTypeName
+import com.squareup.kotlinpoet.javapoet.JTypeName
+import com.squareup.kotlinpoet.javapoet.JWildcardTypeName
+import com.squareup.kotlinpoet.javapoet.KClassName
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
@@ -113,14 +135,21 @@ class XAnnotationValueTest(
             ) as Source.KotlinSource
         ) { invocation ->
             fun checkSingleValue(annotationValue: XAnnotationValue, expectedValue: Boolean) {
-                assertThat(annotationValue.valueType.typeName).isEqualTo(TypeName.BOOLEAN)
+                assertThat(annotationValue.valueType.asTypeName().java).isEqualTo(JTypeName.BOOLEAN)
+                if (invocation.isKsp) {
+                    assertThat(annotationValue.valueType.asTypeName().kotlin).isEqualTo(BOOLEAN)
+                }
                 assertThat(annotationValue.hasBooleanValue()).isTrue()
                 assertThat(annotationValue.asBoolean()).isEqualTo(expectedValue)
             }
 
             fun checkListValues(annotationValue: XAnnotationValue, vararg expectedValues: Boolean) {
-                assertThat(annotationValue.valueType.typeName)
-                    .isEqualTo(ArrayTypeName.of(TypeName.BOOLEAN))
+                assertThat(annotationValue.valueType.asTypeName().java)
+                    .isEqualTo(JArrayTypeName.of(JTypeName.BOOLEAN))
+                if (invocation.isKsp) {
+                    assertThat(annotationValue.valueType.asTypeName().kotlin)
+                        .isEqualTo(BOOLEAN_ARRAY)
+                }
                 assertThat(annotationValue.hasBooleanListValue()).isTrue()
                 // Check the list of values
                 assertThat(annotationValue.asBooleanList())
@@ -196,14 +225,21 @@ class XAnnotationValueTest(
             ) as Source.KotlinSource
         ) { invocation ->
             fun checkSingleValue(annotationValue: XAnnotationValue, expectedValue: Int) {
-                assertThat(annotationValue.valueType.typeName).isEqualTo(TypeName.INT)
+                assertThat(annotationValue.valueType.asTypeName().java).isEqualTo(JTypeName.INT)
+                if (invocation.isKsp) {
+                    assertThat(annotationValue.valueType.asTypeName().kotlin).isEqualTo(INT)
+                }
                 assertThat(annotationValue.hasIntValue()).isTrue()
                 assertThat(annotationValue.asInt()).isEqualTo(expectedValue)
             }
 
             fun checkListValues(annotationValue: XAnnotationValue, vararg expectedValues: Int) {
-                assertThat(annotationValue.valueType.typeName)
-                    .isEqualTo(ArrayTypeName.of(TypeName.INT))
+                assertThat(annotationValue.valueType.asTypeName().java)
+                    .isEqualTo(JArrayTypeName.of(JTypeName.INT))
+                if (invocation.isKsp) {
+                    assertThat(annotationValue.valueType.asTypeName().kotlin)
+                        .isEqualTo(INT_ARRAY)
+                }
                 assertThat(annotationValue.hasIntListValue()).isTrue()
                 // Check the list of values
                 assertThat(annotationValue.asIntList())
@@ -279,14 +315,21 @@ class XAnnotationValueTest(
             ) as Source.KotlinSource
         ) { invocation ->
             fun checkSingleValue(annotationValue: XAnnotationValue, expectedValue: Short) {
-                assertThat(annotationValue.valueType.typeName).isEqualTo(TypeName.SHORT)
+                assertThat(annotationValue.valueType.asTypeName().java).isEqualTo(JTypeName.SHORT)
+                if (invocation.isKsp) {
+                    assertThat(annotationValue.valueType.asTypeName().kotlin).isEqualTo(SHORT)
+                }
                 assertThat(annotationValue.hasShortValue()).isTrue()
                 assertThat(annotationValue.asShort()).isEqualTo(expectedValue)
             }
 
             fun checkListValues(annotationValue: XAnnotationValue, vararg expectedValues: Short) {
-                assertThat(annotationValue.valueType.typeName)
-                    .isEqualTo(ArrayTypeName.of(TypeName.SHORT))
+                assertThat(annotationValue.valueType.asTypeName().java)
+                    .isEqualTo(JArrayTypeName.of(JTypeName.SHORT))
+                if (invocation.isKsp) {
+                    assertThat(annotationValue.valueType.asTypeName().kotlin)
+                        .isEqualTo(SHORT_ARRAY)
+                }
                 assertThat(annotationValue.hasShortListValue()).isTrue()
                 // Check the list of values
                 assertThat(annotationValue.asShortList())
@@ -362,14 +405,21 @@ class XAnnotationValueTest(
             ) as Source.KotlinSource
         ) { invocation ->
             fun checkSingleValue(annotationValue: XAnnotationValue, expectedValue: Long) {
-                assertThat(annotationValue.valueType.typeName).isEqualTo(TypeName.LONG)
+                assertThat(annotationValue.valueType.asTypeName().java).isEqualTo(JTypeName.LONG)
+                if (invocation.isKsp) {
+                    assertThat(annotationValue.valueType.asTypeName().kotlin).isEqualTo(LONG)
+                }
                 assertThat(annotationValue.hasLongValue()).isTrue()
                 assertThat(annotationValue.asLong()).isEqualTo(expectedValue)
             }
 
             fun checkListValues(annotationValue: XAnnotationValue, vararg expectedValues: Long) {
-                assertThat(annotationValue.valueType.typeName)
-                    .isEqualTo(ArrayTypeName.of(TypeName.LONG))
+                assertThat(annotationValue.valueType.asTypeName().java)
+                    .isEqualTo(JArrayTypeName.of(JTypeName.LONG))
+                if (invocation.isKsp) {
+                    assertThat(annotationValue.valueType.asTypeName().kotlin)
+                        .isEqualTo(LONG_ARRAY)
+                }
                 assertThat(annotationValue.hasLongListValue()).isTrue()
                 // Check the list of values
                 assertThat(annotationValue.asLongList())
@@ -445,14 +495,21 @@ class XAnnotationValueTest(
             ) as Source.KotlinSource
         ) { invocation ->
             fun checkSingleValue(annotationValue: XAnnotationValue, expectedValue: Float) {
-                assertThat(annotationValue.valueType.typeName).isEqualTo(TypeName.FLOAT)
+                assertThat(annotationValue.valueType.asTypeName().java).isEqualTo(JTypeName.FLOAT)
+                if (invocation.isKsp) {
+                    assertThat(annotationValue.valueType.asTypeName().kotlin).isEqualTo(FLOAT)
+                }
                 assertThat(annotationValue.hasFloatValue()).isTrue()
                 assertThat(annotationValue.asFloat()).isEqualTo(expectedValue)
             }
 
             fun checkListValues(annotationValue: XAnnotationValue, vararg expectedValues: Float) {
-                assertThat(annotationValue.valueType.typeName)
-                    .isEqualTo(ArrayTypeName.of(TypeName.FLOAT))
+                assertThat(annotationValue.valueType.asTypeName().java)
+                    .isEqualTo(JArrayTypeName.of(JTypeName.FLOAT))
+                if (invocation.isKsp) {
+                    assertThat(annotationValue.valueType.asTypeName().kotlin)
+                        .isEqualTo(FLOAT_ARRAY)
+                }
                 assertThat(annotationValue.hasFloatListValue()).isTrue()
                 // Check the list of values
                 assertThat(annotationValue.asFloatList())
@@ -528,14 +585,21 @@ class XAnnotationValueTest(
             ) as Source.KotlinSource
         ) { invocation ->
             fun checkSingleValue(annotationValue: XAnnotationValue, expectedValue: Double) {
-                assertThat(annotationValue.valueType.typeName).isEqualTo(TypeName.DOUBLE)
+                assertThat(annotationValue.valueType.asTypeName().java).isEqualTo(JTypeName.DOUBLE)
+                if (invocation.isKsp) {
+                    assertThat(annotationValue.valueType.asTypeName().kotlin).isEqualTo(DOUBLE)
+                }
                 assertThat(annotationValue.hasDoubleValue()).isTrue()
                 assertThat(annotationValue.asDouble()).isEqualTo(expectedValue)
             }
 
             fun checkListValues(annotationValue: XAnnotationValue, vararg expectedValues: Double) {
-                assertThat(annotationValue.valueType.typeName)
-                    .isEqualTo(ArrayTypeName.of(TypeName.DOUBLE))
+                assertThat(annotationValue.valueType.asTypeName().java)
+                    .isEqualTo(JArrayTypeName.of(JTypeName.DOUBLE))
+                if (invocation.isKsp) {
+                    assertThat(annotationValue.valueType.asTypeName().kotlin)
+                        .isEqualTo(DOUBLE_ARRAY)
+                }
                 assertThat(annotationValue.hasDoubleListValue()).isTrue()
                 // Check the list of values
                 assertThat(annotationValue.asDoubleList())
@@ -611,14 +675,21 @@ class XAnnotationValueTest(
             ) as Source.KotlinSource
         ) { invocation ->
             fun checkSingleValue(annotationValue: XAnnotationValue, expectedValue: Byte) {
-                assertThat(annotationValue.valueType.typeName).isEqualTo(TypeName.BYTE)
+                assertThat(annotationValue.valueType.asTypeName().java).isEqualTo(JTypeName.BYTE)
+                if (invocation.isKsp) {
+                    assertThat(annotationValue.valueType.asTypeName().kotlin).isEqualTo(BYTE)
+                }
                 assertThat(annotationValue.hasByteValue()).isTrue()
                 assertThat(annotationValue.asByte()).isEqualTo(expectedValue)
             }
 
             fun checkListValues(annotationValue: XAnnotationValue, vararg expectedValues: Byte) {
-                assertThat(annotationValue.valueType.typeName)
-                    .isEqualTo(ArrayTypeName.of(TypeName.BYTE))
+                assertThat(annotationValue.valueType.asTypeName().java)
+                    .isEqualTo(JArrayTypeName.of(JTypeName.BYTE))
+                if (invocation.isKsp) {
+                    assertThat(annotationValue.valueType.asTypeName().kotlin)
+                        .isEqualTo(BYTE_ARRAY)
+                }
                 assertThat(annotationValue.hasByteListValue()).isTrue()
                 // Check the list of values
                 assertThat(annotationValue.asByteList())
@@ -694,14 +765,21 @@ class XAnnotationValueTest(
             ) as Source.KotlinSource
         ) { invocation ->
             fun checkSingleValue(annotationValue: XAnnotationValue, expectedValue: Char) {
-                assertThat(annotationValue.valueType.typeName).isEqualTo(TypeName.CHAR)
+                assertThat(annotationValue.valueType.asTypeName().java).isEqualTo(JTypeName.CHAR)
+                if (invocation.isKsp) {
+                    assertThat(annotationValue.valueType.asTypeName().kotlin).isEqualTo(CHAR)
+                }
                 assertThat(annotationValue.hasCharValue()).isTrue()
                 assertThat(annotationValue.asChar()).isEqualTo(expectedValue)
             }
 
             fun checkListValues(annotationValue: XAnnotationValue, vararg expectedValues: Char) {
-                assertThat(annotationValue.valueType.typeName)
-                    .isEqualTo(ArrayTypeName.of(TypeName.CHAR))
+                assertThat(annotationValue.valueType.asTypeName().java)
+                    .isEqualTo(JArrayTypeName.of(JTypeName.CHAR))
+                if (invocation.isKsp) {
+                    assertThat(annotationValue.valueType.asTypeName().kotlin)
+                        .isEqualTo(CHAR_ARRAY)
+                }
                 assertThat(annotationValue.hasCharListValue()).isTrue()
                 // Check the list of values
                 assertThat(annotationValue.asCharList())
@@ -776,17 +854,24 @@ class XAnnotationValueTest(
                 """.trimIndent()
             ) as Source.KotlinSource
         ) { invocation ->
-            val stringTypeName = TypeName.get(String::class.java)
-
             fun checkSingleValue(annotationValue: XAnnotationValue, expectedValue: String) {
-                assertThat(annotationValue.valueType.typeName).isEqualTo(stringTypeName)
+                assertThat(annotationValue.valueType.asTypeName().java)
+                    .isEqualTo(String::class.asJClassName())
+                if (invocation.isKsp) {
+                    assertThat(annotationValue.valueType.asTypeName().kotlin)
+                        .isEqualTo(String::class.asKClassName())
+                }
                 assertThat(annotationValue.hasStringValue()).isTrue()
                 assertThat(annotationValue.asString()).isEqualTo(expectedValue)
             }
 
             fun checkListValues(annotationValue: XAnnotationValue, vararg expectedValues: String) {
-                assertThat(annotationValue.valueType.typeName)
-                    .isEqualTo(ArrayTypeName.of(stringTypeName))
+                assertThat(annotationValue.valueType.asTypeName().java)
+                    .isEqualTo(JArrayTypeName.of(String::class.asJClassName()))
+                if (invocation.isKsp) {
+                    assertThat(annotationValue.valueType.asTypeName().kotlin)
+                        .isEqualTo(ARRAY.parameterizedBy(String::class.asKClassName()))
+                }
                 assertThat(annotationValue.hasStringListValue()).isTrue()
                 // Check the list of values
                 assertThat(annotationValue.asStringList())
@@ -863,17 +948,27 @@ class XAnnotationValueTest(
                 """.trimIndent()
             ) as Source.KotlinSource
         ) { invocation ->
-            val myEnumTypeName = ClassName.get("", "test.MyEnum")
+            val myEnumJTypeName = JClassName.get("", "test.MyEnum")
+            val myEnumKTypeName = KClassName("", "test.MyEnum")
 
             fun checkSingleValue(annotationValue: XAnnotationValue, expectedValue: String) {
-                assertThat(annotationValue.valueType.typeName).isEqualTo(myEnumTypeName)
+                assertThat(annotationValue.valueType.asTypeName().java)
+                    .isEqualTo(myEnumJTypeName)
+                if (invocation.isKsp) {
+                    assertThat(annotationValue.valueType.asTypeName().kotlin)
+                        .isEqualTo(myEnumKTypeName)
+                }
                 assertThat(annotationValue.hasEnumValue()).isTrue()
                 assertThat(annotationValue.asEnum().name).isEqualTo(expectedValue)
             }
 
             fun checkListValues(annotationValue: XAnnotationValue, vararg expectedValues: String) {
-                assertThat(annotationValue.valueType.typeName)
-                    .isEqualTo(ArrayTypeName.of(myEnumTypeName))
+                assertThat(annotationValue.valueType.asTypeName().java)
+                    .isEqualTo(JArrayTypeName.of(myEnumJTypeName))
+                if (invocation.isKsp) {
+                    assertThat(annotationValue.valueType.asTypeName().kotlin)
+                        .isEqualTo(ARRAY.parameterizedBy(myEnumKTypeName))
+                }
                 assertThat(annotationValue.hasEnumListValue()).isTrue()
                 // Check the list of values
                 assertThat(annotationValue.asEnumList().map { it.name })
@@ -953,20 +1048,25 @@ class XAnnotationValueTest(
                 """.trimIndent()
             ) as Source.KotlinSource
         ) { invocation ->
-            val classTypeName = ParameterizedTypeName.get(
-                ClassName.get(Class::class.java),
-                WildcardTypeName.subtypeOf(TypeName.OBJECT)
+            val classJTypeName = JParameterizedTypeName.get(
+                JClassName.get(Class::class.java),
+                JWildcardTypeName.subtypeOf(JTypeName.OBJECT)
             )
-            val kClassTypeName = ParameterizedTypeName.get(
-                ClassName.get(kotlin.reflect.KClass::class.java),
-                WildcardTypeName.subtypeOf(TypeName.OBJECT)
+            val kClassJTypeName = JParameterizedTypeName.get(
+                JClassName.get(kotlin.reflect.KClass::class.java),
+                JWildcardTypeName.subtypeOf(JTypeName.OBJECT)
             )
+            val kClassKTypeName = kotlin.reflect.KClass::class.asKClassName().parameterizedBy(STAR)
             fun checkSingleValue(annotationValue: XAnnotationValue, expectedValue: String) {
                 // TODO(bcorso): Consider making the value types match in this case.
                 if (!invocation.isKsp || (sourceKind == SourceKind.JAVA && !isPreCompiled)) {
-                    assertThat(annotationValue.valueType.typeName).isEqualTo(classTypeName)
+                    assertThat(annotationValue.valueType.asTypeName().java)
+                        .isEqualTo(classJTypeName)
                 } else {
-                    assertThat(annotationValue.valueType.typeName).isEqualTo(kClassTypeName)
+                    assertThat(annotationValue.valueType.asTypeName().java)
+                        .isEqualTo(kClassJTypeName)
+                    assertThat(annotationValue.valueType.asTypeName().kotlin)
+                        .isEqualTo(kClassKTypeName)
                 }
                 assertThat(annotationValue.hasTypeValue()).isTrue()
                 assertThat(annotationValue.asType().typeElement?.name).isEqualTo(expectedValue)
@@ -975,11 +1075,13 @@ class XAnnotationValueTest(
             fun checkListValues(annotationValue: XAnnotationValue, vararg expectedValues: String) {
                 // TODO(bcorso): Consider making the value types match in this case.
                 if (!invocation.isKsp || (sourceKind == SourceKind.JAVA && !isPreCompiled)) {
-                    assertThat(annotationValue.valueType.typeName)
-                        .isEqualTo(ArrayTypeName.of(classTypeName))
+                    assertThat(annotationValue.valueType.asTypeName().java)
+                        .isEqualTo(JArrayTypeName.of(classJTypeName))
                 } else {
-                    assertThat(annotationValue.valueType.typeName)
-                        .isEqualTo(ArrayTypeName.of(kClassTypeName))
+                    assertThat(annotationValue.valueType.asTypeName().java)
+                        .isEqualTo(JArrayTypeName.of(kClassJTypeName))
+                    assertThat(annotationValue.valueType.asTypeName().kotlin)
+                        .isEqualTo(ARRAY.parameterizedBy(kClassKTypeName))
                 }
                 assertThat(annotationValue.hasTypeListValue()).isTrue()
                 // Check the list of values
@@ -1059,18 +1161,28 @@ class XAnnotationValueTest(
                 """.trimIndent()
             ) as Source.KotlinSource
         ) { invocation ->
-            val aTypeName = ClassName.get("", "test.A")
+            val aJTypeName = JClassName.get("", "test.A")
+            val aKTypeName = KClassName("", "test.A")
 
             fun checkSingleValue(annotationValue: XAnnotationValue, expectedValue: String) {
-                assertThat(annotationValue.valueType.typeName).isEqualTo(aTypeName)
+                assertThat(annotationValue.valueType.asTypeName().java)
+                    .isEqualTo(aJTypeName)
+                if (invocation.isKsp) {
+                    assertThat(annotationValue.valueType.asTypeName().kotlin)
+                        .isEqualTo(aKTypeName)
+                }
                 assertThat(annotationValue.hasAnnotationValue()).isTrue()
                 assertThat(annotationValue.asAnnotation().getAsString("value"))
                     .isEqualTo(expectedValue)
             }
 
             fun checkListValues(annotationValue: XAnnotationValue, vararg expectedValues: String) {
-                assertThat(annotationValue.valueType.typeName)
-                    .isEqualTo(ArrayTypeName.of(aTypeName))
+                assertThat(annotationValue.valueType.asTypeName().java)
+                    .isEqualTo(JArrayTypeName.of(aJTypeName))
+                if (invocation.isKsp) {
+                    assertThat(annotationValue.valueType.asTypeName().kotlin)
+                        .isEqualTo(ARRAY.parameterizedBy(aKTypeName))
+                }
                 assertThat(annotationValue.hasAnnotationListValue()).isTrue()
                 // Check the list of values
                 assertThat(annotationValue.asAnnotationList().map { it.getAsString("value") })
