@@ -32,8 +32,10 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
+import androidx.camera.core.ForwardingImageProxy.OnImageCloseListener;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCaptureException;
+import androidx.camera.core.ImageProxy;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.core.util.Pair;
@@ -58,7 +60,7 @@ import java.util.Deque;
  * <p>The thread safety is guaranteed by using the main thread.
  */
 @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-public class TakePictureManager {
+public class TakePictureManager implements OnImageCloseListener {
 
     private static final String TAG = "TakePictureManager";
 
@@ -87,6 +89,7 @@ public class TakePictureManager {
         checkMainThread();
         mImageCaptureControl = imageCaptureControl;
         mImagePipeline = imagePipeline;
+        mImagePipeline.setOnImageCloseListener(this);
     }
 
     /**
@@ -144,6 +147,10 @@ public class TakePictureManager {
         }
         if (mPaused) {
             Log.d(TAG, "The class is paused.");
+            return;
+        }
+        if (mImagePipeline.getCapacity() == 0) {
+            Log.d(TAG, "Too many acquire images. Close image to be able to process next.");
             return;
         }
         TakePictureRequest request = mNewRequests.poll();
@@ -213,5 +220,10 @@ public class TakePictureManager {
     @VisibleForTesting
     boolean hasInFlightRequest() {
         return mInFlightRequest != null;
+    }
+
+    @Override
+    public void onImageClose(@NonNull ImageProxy image) {
+        mainThreadExecutor().execute(this::issueNextRequest);
     }
 }

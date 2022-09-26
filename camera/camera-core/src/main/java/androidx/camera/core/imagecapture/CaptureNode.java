@@ -64,7 +64,8 @@ class CaptureNode implements Node<CaptureNode.In, CaptureNode.Out> {
     // TODO: we might need to calculate this number dynamically based on on many frames are
     //  needed by the post-processing. e.g. night mode might need to merge 10+ frames. 4 images
     //  should be enough for now.
-    private static final int MAX_IMAGES = 4;
+    @VisibleForTesting
+    static final int MAX_IMAGES = 4;
 
     @NonNull
     private final Set<Integer> mPendingStageIds = new HashSet<>();
