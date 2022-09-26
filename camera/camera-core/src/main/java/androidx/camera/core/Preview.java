@@ -634,6 +634,21 @@ public final class Preview extends UseCase {
             builder.getMutableConfig().insertOption(OPTION_INPUT_FORMAT,
                     ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE);
         }
+
+        // Merges Preview's default max resolution setting when resolution selector is used
+        ResolutionSelector resolutionSelector =
+                builder.getMutableConfig().retrieveOption(OPTION_RESOLUTION_SELECTOR, null);
+        if (resolutionSelector != null && resolutionSelector.getMaxResolution() == null) {
+            Size maxResolution = builder.getMutableConfig().retrieveOption(OPTION_MAX_RESOLUTION);
+            if (maxResolution != null) {
+                ResolutionSelector.Builder resolutionSelectorBuilder =
+                        ResolutionSelector.Builder.fromSelector(resolutionSelector);
+                resolutionSelectorBuilder.setMaxResolution(maxResolution);
+                builder.getMutableConfig().insertOption(OPTION_RESOLUTION_SELECTOR,
+                        resolutionSelectorBuilder.build());
+            }
+        }
+
         return builder.getUseCaseConfig();
     }
 

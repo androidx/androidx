@@ -264,9 +264,35 @@ public final class ImageAnalysis extends UseCase {
                     ? mSubscribedAnalyzer.getDefaultTargetResolution() : null;
         }
 
-        if (analyzerResolution != null
-                && !builder.getUseCaseConfig().containsOption(OPTION_TARGET_RESOLUTION)) {
-            builder.getMutableConfig().insertOption(OPTION_TARGET_RESOLUTION, analyzerResolution);
+        if (analyzerResolution != null) {
+            if (!builder.getMutableConfig().containsOption(OPTION_RESOLUTION_SELECTOR)) {
+                int targetRotation = builder.getMutableConfig().retrieveOption(
+                        OPTION_TARGET_ROTATION, Surface.ROTATION_0);
+                // analyzerResolution is a size in the sensor coordinate system, but the legacy
+                // target resolution setting is in the view coordinate system. Flips the
+                // analyzerResolution according to the sensor rotation degrees.
+                if (cameraInfo.getSensorRotationDegrees(targetRotation) % 180 == 90) {
+                    analyzerResolution = new Size(/* width= */ analyzerResolution.getHeight(),
+                            /* height= */ analyzerResolution.getWidth());
+                }
+
+                if (!builder.getUseCaseConfig().containsOption(OPTION_TARGET_RESOLUTION)) {
+                    builder.getMutableConfig().insertOption(OPTION_TARGET_RESOLUTION,
+                            analyzerResolution);
+                }
+            } else {
+                // Merges analyzerResolution or default resolution to ResolutionSelector.
+                ResolutionSelector resolutionSelector =
+                        builder.getMutableConfig().retrieveOption(OPTION_RESOLUTION_SELECTOR);
+
+                if (resolutionSelector.getPreferredResolution() == null) {
+                    ResolutionSelector.Builder resolutionSelectorBuilder =
+                            ResolutionSelector.Builder.fromSelector(resolutionSelector);
+                    resolutionSelectorBuilder.setPreferredResolution(analyzerResolution);
+                    builder.getMutableConfig().insertOption(OPTION_RESOLUTION_SELECTOR,
+                            resolutionSelectorBuilder.build());
+                }
+            }
         }
 
         return builder.getUseCaseConfig();
