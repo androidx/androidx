@@ -53,6 +53,36 @@ class TakePictureManagerTest {
         imagePipeline.close()
     }
 
+    @Test
+    fun abortRequests_receiveErrorCallback() {
+        // Arrange: send 2 request.
+        val request1 = FakeTakePictureRequest(FakeTakePictureRequest.Type.IN_MEMORY)
+        val request2 = FakeTakePictureRequest(FakeTakePictureRequest.Type.IN_MEMORY)
+        takePictureManager.offerRequest(request1)
+        takePictureManager.offerRequest(request2)
+
+        // Act: ab the manage and finish the 1st request.
+        takePictureManager.abortRequests()
+        // Camera returns the image, but it should be ignored.
+        val processingRequest = imagePipeline.getProcessingRequest(request1)
+        processingRequest.onImageCaptured()
+        processingRequest.onFinalResult(FakeImageProxy(FakeImageInfo()))
+        shadowOf(getMainLooper()).idle()
+
+        // Assert: one request is sent.
+        assertThat(imageCaptureControl.actions).containsExactly(
+            FakeImageCaptureControl.Action.LOCK_FLASH,
+            FakeImageCaptureControl.Action.SUBMIT_REQUESTS,
+            FakeImageCaptureControl.Action.UNLOCK_FLASH,
+        ).inOrder()
+        // Both request are aborted.
+        assertThat((request1.exceptionReceived as ImageCaptureException).imageCaptureError)
+            .isEqualTo(ERROR_CAMERA_CLOSED)
+        assertThat((request2.exceptionReceived as ImageCaptureException).imageCaptureError)
+            .isEqualTo(ERROR_CAMERA_CLOSED)
+        assertThat(takePictureManager.mNewRequests).isEmpty()
+    }
+
     @Test(expected = IllegalStateException::class)
     fun callOnFailureTwice_throwsException() {
         // Arrange.
