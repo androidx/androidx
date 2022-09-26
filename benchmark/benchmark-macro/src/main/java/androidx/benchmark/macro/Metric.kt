@@ -119,7 +119,7 @@ public class AudioUnderrunMetric : Metric() {
  *
  * This outputs the following measurements:
  *
- * * `frameOverrunMs` (Requires API 29) - How much time a given frame missed its deadline by.
+ * * `frameOverrunMs` (Requires API 31) - How much time a given frame missed its deadline by.
  * Positive numbers indicate a dropped frame and visible jank / stutter, negative numbers indicate
  * how much faster than the deadline a frame was.
  *
