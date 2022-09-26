@@ -72,6 +72,11 @@ public class ConstraintManagerTest {
                     public int getContentLimit(int contentType) throws RemoteException {
                         return mMockConstraintHost.getContentLimit(contentType);
                     }
+
+                    @Override
+                    public boolean isAppDrivenRefreshEnabled() throws RemoteException {
+                        return mMockConstraintHost.isAppDrivenRefreshEnabled();
+                    }
                 };
         when(mMockCarHost.getHost(any())).thenReturn(hostStub.asBinder());
         mHostDispatcher.setCarHost(mMockCarHost);
@@ -91,17 +96,17 @@ public class ConstraintManagerTest {
     }
 
     @Test
-    public void host_returnLimits() throws RemoteException {
-        when(mMockConstraintHost.getContentLimit(CONTENT_LIMIT_TYPE_LIST)).thenReturn(1);
-        when(mMockConstraintHost.getContentLimit(CONTENT_LIMIT_TYPE_GRID)).thenReturn(2);
-        when(mMockConstraintHost.getContentLimit(CONTENT_LIMIT_TYPE_PLACE_LIST)).thenReturn(3);
-        when(mMockConstraintHost.getContentLimit(CONTENT_LIMIT_TYPE_ROUTE_LIST)).thenReturn(4);
-        when(mMockConstraintHost.getContentLimit(CONTENT_LIMIT_TYPE_PANE)).thenReturn(5);
+    public void host_throwsException_returnsDefault() throws RemoteException {
+        when(mMockConstraintHost.isAppDrivenRefreshEnabled()).thenThrow(new RemoteException());
 
-        assertThat(mConstraintManager.getContentLimit(CONTENT_LIMIT_TYPE_LIST)).isEqualTo(1);
-        assertThat(mConstraintManager.getContentLimit(CONTENT_LIMIT_TYPE_GRID)).isEqualTo(2);
-        assertThat(mConstraintManager.getContentLimit(CONTENT_LIMIT_TYPE_PLACE_LIST)).isEqualTo(3);
-        assertThat(mConstraintManager.getContentLimit(CONTENT_LIMIT_TYPE_ROUTE_LIST)).isEqualTo(4);
-        assertThat(mConstraintManager.getContentLimit(CONTENT_LIMIT_TYPE_PANE)).isEqualTo(5);
+        assertThat(mConstraintManager.isAppDrivenRefreshEnabled()).isFalse();
+    }
+
+    @Test
+    public void host_returAppDrivenRefreshEnabled() throws RemoteException {
+        when(mMockConstraintHost.isAppDrivenRefreshEnabled()).thenReturn(true);
+
+
+        assertThat(mConstraintManager.isAppDrivenRefreshEnabled()).isTrue();
     }
 }
