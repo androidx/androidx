@@ -18,14 +18,10 @@ package androidx.car.app.sample.showcase.common.navigation;
 
 import static androidx.car.app.CarToast.LENGTH_SHORT;
 
-import android.os.Handler;
-import android.os.Looper;
-
 import androidx.annotation.NonNull;
 import androidx.car.app.CarContext;
 import androidx.car.app.CarToast;
 import androidx.car.app.Screen;
-import androidx.car.app.constraints.ConstraintManager;
 import androidx.car.app.model.Action;
 import androidx.car.app.model.ActionStrip;
 import androidx.car.app.model.CarIcon;
@@ -43,27 +39,14 @@ public final class PlaceListNavigationTemplateDemoScreen extends Screen {
 
     private boolean mIsFavorite = false;
 
-    private boolean mIsAppRefresh = false;
-
     public PlaceListNavigationTemplateDemoScreen(@NonNull CarContext carContext) {
         super(carContext);
         mPlaces = SamplePlaces.create(this);
     }
 
-    private final Handler mHandler = new Handler(Looper.getMainLooper());
-
     @NonNull
     @Override
     public Template onGetTemplate() {
-        boolean isAppDrivenRefreshEnabled = this.getCarContext().getCarService(
-                ConstraintManager.class).isAppDrivenRefreshEnabled();
-
-        if (isAppDrivenRefreshEnabled && !mIsAppRefresh) {
-            mIsAppRefresh = true;
-            for (int i = 1; i <= 10; i++) {
-                mHandler.postDelayed(this::invalidate, i * 1000L);
-            }
-        }
         Header header = new Header.Builder()
                 .setStartHeaderAction(Action.BACK)
                 .addEndHeaderAction(new Action.Builder()
@@ -90,7 +73,7 @@ public final class PlaceListNavigationTemplateDemoScreen extends Screen {
                         })
                         .build())
                 .addEndHeaderAction(new Action.Builder()
-                        .setOnClickListener(this::finish)
+                        .setOnClickListener(() -> finish())
                         .setIcon(
                                 new CarIcon.Builder(
                                         IconCompat.createWithResource(
@@ -100,9 +83,9 @@ public final class PlaceListNavigationTemplateDemoScreen extends Screen {
                         .build())
                 .setTitle(getCarContext().getString(R.string.place_list_nav_template_demo_title))
                 .build();
-        //Return elements in random order.
+
         return new PlaceListNavigationTemplate.Builder()
-                .setItemList(mPlaces.getPlaceList(/*randomOrder=*/isAppDrivenRefreshEnabled))
+                .setItemList(mPlaces.getPlaceList())
                 .setHeader(header)
                 .setMapActionStrip(RoutingDemoModels.getMapActionStrip(getCarContext()))
                 .setActionStrip(
