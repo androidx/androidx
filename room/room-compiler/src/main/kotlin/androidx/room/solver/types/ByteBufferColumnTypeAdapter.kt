@@ -19,13 +19,12 @@ package androidx.room.solver.types
 import androidx.room.compiler.codegen.XCodeBlock
 import androidx.room.compiler.codegen.asClassName
 import androidx.room.compiler.processing.XNullability
-import androidx.room.compiler.processing.XProcessingEnv
 import androidx.room.compiler.processing.XType
 import androidx.room.parser.SQLTypeAffinity
 import androidx.room.solver.CodeGenScope
 import java.nio.ByteBuffer
 
-class ByteBufferColumnTypeAdapter private constructor(out: XType) : ColumnTypeAdapter(
+class ByteBufferColumnTypeAdapter constructor(out: XType) : ColumnTypeAdapter(
     out = out,
     typeAffinity = SQLTypeAffinity.BLOB
 ) {
@@ -80,22 +79,6 @@ class ByteBufferColumnTypeAdapter private constructor(out: XType) : ColumnTypeAd
                 nextControlFlow("else")
                     .addBindBlobStatement()
                 endControlFlow()
-            }
-        }
-    }
-
-    companion object {
-        fun create(env: XProcessingEnv): List<ByteBufferColumnTypeAdapter> {
-            val byteBufferType = env.requireType("java.nio.ByteBuffer")
-            return if (env.backend == XProcessingEnv.Backend.KSP) {
-                listOf(
-                    ByteBufferColumnTypeAdapter(byteBufferType.makeNonNullable()),
-                    ByteBufferColumnTypeAdapter(byteBufferType.makeNullable()),
-                )
-            } else {
-                listOf(
-                    ByteBufferColumnTypeAdapter(byteBufferType)
-                )
             }
         }
     }

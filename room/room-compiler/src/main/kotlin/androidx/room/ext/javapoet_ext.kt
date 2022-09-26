@@ -153,6 +153,7 @@ object CommonTypeNames {
     val INTEGER = ClassName.get("java.lang", "Integer")
     val OPTIONAL = ClassName.get("java.util", "Optional")
     val UUID = ClassName.get("java.util", "UUID")
+    val BYTE_BUFFER = ClassName.get("java.nio", "ByteBuffer")
 }
 
 object GuavaBaseTypeNames {

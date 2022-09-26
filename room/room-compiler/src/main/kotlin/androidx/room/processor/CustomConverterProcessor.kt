@@ -71,7 +71,8 @@ class CustomConverterProcessor(val context: Context, val element: XTypeElement) 
                 annotation.getAsAnnotationBox<BuiltInTypeConverters>("builtInTypeConverters").let {
                     BuiltInConverterFlags(
                         enums = it.value.enums,
-                        uuid = it.value.uuid
+                        uuid = it.value.uuid,
+                        byteBuffer = it.value.byteBuffer
                     )
                 }
             return ProcessResult(
