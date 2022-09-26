@@ -28,6 +28,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -266,10 +267,33 @@ fun CurvedFontWeight() {
         (100..900 step 100).forEach {
             basicCurvedText(
                 "W$it",
-                style = CurvedTextStyle(TextStyle(
+                style = CurvedTextStyle(
                     color = Color.White,
                     fontWeight = FontWeight(it)
-                )),
+                ),
+                modifier = CurvedModifier.padding(5.dp)
+            )
+        }
+    }
+}
+
+@Composable
+fun CurvedFonts() {
+    CurvedLayout(
+        modifier = Modifier.fillMaxSize(),
+    ) {
+        listOf(
+            "Serif" to FontFamily.Serif,
+            "SansSerif" to FontFamily.SansSerif,
+            "Monospace" to FontFamily.Monospace,
+            "Cursive" to FontFamily.Cursive,
+        ).forEach { (name, ff) ->
+            basicCurvedText(
+                "$name",
+                style = CurvedTextStyle(
+                    color = Color.White,
+                    fontFamily = ff
+                ),
                 modifier = CurvedModifier.padding(5.dp)
             )
         }
