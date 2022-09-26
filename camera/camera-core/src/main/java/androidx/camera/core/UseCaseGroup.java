@@ -37,21 +37,18 @@ import java.util.List;
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class UseCaseGroup {
-
     @Nullable
     private final ViewPort mViewPort;
-
     @NonNull
     private final List<UseCase> mUseCases;
-
     @NonNull
-    private final EffectBundle mEffectBundle;
+    private final List<CameraEffect> mEffects;
 
     UseCaseGroup(@Nullable ViewPort viewPort, @NonNull List<UseCase> useCases,
-            @NonNull EffectBundle effectBundle) {
+            @NonNull List<CameraEffect> effects) {
         mViewPort = viewPort;
         mUseCases = useCases;
-        mEffectBundle = effectBundle;
+        mEffects = effects;
     }
 
     /**
@@ -71,30 +68,27 @@ public final class UseCaseGroup {
     }
 
     /**
-     * Gets the {@link EffectBundle}.
+     * Gets the {@link CameraEffect}s.
      *
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @NonNull
-    public EffectBundle getEffectBundle() {
-        return mEffectBundle;
+    public List<CameraEffect> getEffects() {
+        return mEffects;
     }
 
     /**
      * A builder for generating {@link UseCaseGroup}.
      */
     public static final class Builder {
-
         private ViewPort mViewPort;
-
         private final List<UseCase> mUseCases;
-
-        @Nullable
-        private EffectBundle mEffectBundle;
+        private final List<CameraEffect> mEffects;
 
         public Builder() {
             mUseCases = new ArrayList<>();
+            mEffects = new ArrayList<>();
         }
 
         /**
@@ -107,17 +101,17 @@ public final class UseCaseGroup {
         }
 
         /**
-         * Sets the {@link EffectBundle} for the {@link UseCase}s.
+         * Adds a {@link CameraEffect} to the collection
          *
-         * <p>Once set, CameraX will use the {@link SurfaceProcessor}s to process the outputs of
+         * <p>Once added, CameraX will use the {@link CameraEffect}s to process the outputs of
          * the {@link UseCase}s.
          *
          * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @NonNull
-        public Builder setEffectBundle(@NonNull EffectBundle effectBundle) {
-            mEffectBundle = effectBundle;
+        public Builder addEffect(@NonNull CameraEffect cameraEffect) {
+            mEffects.add(cameraEffect);
             return this;
         }
 
@@ -136,8 +130,7 @@ public final class UseCaseGroup {
         @NonNull
         public UseCaseGroup build() {
             checkArgument(!mUseCases.isEmpty(), "UseCase must not be empty.");
-            return new UseCaseGroup(mViewPort, mUseCases, mEffectBundle);
+            return new UseCaseGroup(mViewPort, mUseCases, mEffects);
         }
     }
-
 }

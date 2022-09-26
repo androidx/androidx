@@ -23,10 +23,10 @@ import android.os.Build
 import android.os.Looper.getMainLooper
 import android.util.Size
 import android.view.Surface
+import androidx.camera.core.CameraEffect.PREVIEW
 import androidx.camera.core.SurfaceOutput.GlTransformOptions
 import androidx.camera.core.SurfaceOutput.GlTransformOptions.APPLY_CROP_ROTATE_AND_MIRRORING
 import androidx.camera.core.SurfaceOutput.GlTransformOptions.USE_SURFACE_TEXTURE_TRANSFORM
-import androidx.camera.core.SurfaceProcessor.PREVIEW
 import androidx.camera.core.SurfaceRequest
 import androidx.camera.core.SurfaceRequest.TransformationInfo
 import androidx.camera.core.impl.utils.TransformUtils.is90or270

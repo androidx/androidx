@@ -34,17 +34,7 @@ import androidx.core.util.Consumer;
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public interface SurfaceProcessor extends CameraEffect {
-
-    /**
-     * Bitmask option to indicate that CameraX applies this effect to {@link Preview}.
-     */
-    int PREVIEW = 1;
-
-    /**
-     * Bitmask option to indicate that CameraX applies this effect to {@code VideoCapture}.
-     */
-    int VIDEO_CAPTURE = 1 << 1;
+public interface SurfaceProcessor {
 
     /**
      * Invoked when CameraX requires an input {@link Surface} for reading original frames.

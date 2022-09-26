@@ -312,7 +312,7 @@ public final class Preview extends UseCase {
         // Create nodes and edges.
         mNode = new SurfaceProcessorNode(camera, USE_SURFACE_TEXTURE_TRANSFORM, mSurfaceProcessor);
         SettableSurface cameraSurface = new SettableSurface(
-                SurfaceProcessor.PREVIEW,
+                CameraEffect.PREVIEW,
                 resolution,
                 ImageFormat.PRIVATE,
                 new Matrix(),

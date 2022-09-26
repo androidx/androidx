@@ -16,6 +16,9 @@
 
 package androidx.camera.core.internal;
 
+import static java.util.Collections.emptyList;
+import static java.util.Objects.requireNonNull;
+
 import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.graphics.RectF;
@@ -33,11 +36,9 @@ import androidx.camera.core.CameraControl;
 import androidx.camera.core.CameraEffect;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraSelector;
-import androidx.camera.core.EffectBundle;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.Logger;
 import androidx.camera.core.Preview;
-import androidx.camera.core.SurfaceProcessor;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.ViewPort;
 import androidx.camera.core.impl.AttachedSurfaceInfo;
@@ -52,19 +53,16 @@ import androidx.camera.core.impl.SurfaceConfig;
 import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.UseCaseConfigFactory;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
-import androidx.camera.core.processing.SurfaceProcessorInternal;
 import androidx.camera.core.processing.SurfaceProcessorWithExecutor;
 import androidx.core.util.Preconditions;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Executor;
 
 /**
  * A {@link CameraInternal} adapter which checks that the UseCases to make sure that the resolutions
@@ -97,8 +95,8 @@ public final class CameraUseCaseAdapter implements Camera {
     private ViewPort mViewPort;
 
     @GuardedBy("mLock")
-    @Nullable
-    private EffectBundle mEffectBundle;
+    @NonNull
+    private List<CameraEffect> mEffects = emptyList();
 
     // Additional configs to apply onto the UseCases when added to this Camera
     @GuardedBy("mLock")
@@ -176,9 +174,9 @@ public final class CameraUseCaseAdapter implements Camera {
     /**
      * Set the effects that will be used for the {@link UseCase} attached to the camera.
      */
-    public void setEffectBundle(@Nullable EffectBundle effectBundle) {
+    public void setEffects(@Nullable List<CameraEffect> effects) {
         synchronized (mLock) {
-            mEffectBundle = effectBundle;
+            mEffects = effects;
         }
     }
 
@@ -202,8 +200,8 @@ public final class CameraUseCaseAdapter implements Camera {
             }
 
             List<UseCase> allUseCases = new ArrayList<>(mUseCases);
-            List<UseCase> requiredExtraUseCases = Collections.emptyList();
-            List<UseCase> removedExtraUseCases = Collections.emptyList();
+            List<UseCase> requiredExtraUseCases = emptyList();
+            List<UseCase> removedExtraUseCases = emptyList();
 
             if (isCoexistingPreviewImageCaptureRequired()) {
                 // Collects all use cases that will be finally bound by the application
@@ -244,7 +242,7 @@ public final class CameraUseCaseAdapter implements Camera {
                 throw new CameraException(e.getMessage());
             }
             updateViewPort(suggestedResolutionsMap, useCases);
-            updateEffects(mEffectBundle, useCases);
+            updateEffects(mEffects, useCases);
 
             // Saves the updated extra use cases set after confirming the use case combination
             // can be supported.
@@ -293,7 +291,7 @@ public final class CameraUseCaseAdapter implements Camera {
 
                 try {
                     // Calls addUseCases with empty list to add required extra fake use case.
-                    addUseCases(Collections.emptyList());
+                    addUseCases(emptyList());
                 } catch (CameraException e) {
                     // This should not happen because the extra fake use case should be only
                     // added to replace the removed one which the use case combination can be
@@ -442,27 +440,25 @@ public final class CameraUseCaseAdapter implements Camera {
     }
 
     @VisibleForTesting
-    static void updateEffects(@Nullable EffectBundle effectBundle,
+    static void updateEffects(@NonNull List<CameraEffect> effects,
             @NonNull Collection<UseCase> useCases) {
-        Map<Integer, CameraEffect> effectsWithExecutors = new HashMap<>();
-        // Wrap external effects with the executor to make sure they are thread safe.
-        if (effectBundle != null) {
-            Executor executor = effectBundle.getExecutor();
-            for (Map.Entry<Integer, CameraEffect> entry : effectBundle.getEffects().entrySet()) {
-                CameraEffect effect = entry.getValue();
-                int targets = entry.getKey();
-                if (effect instanceof SurfaceProcessor) {
-                    effectsWithExecutors.put(targets, new SurfaceProcessorWithExecutor(
-                            (SurfaceProcessor) effect, executor));
-                }
-            }
+        Map<Integer, CameraEffect> effectsByTargets = new HashMap<>();
+        for (CameraEffect effect : effects) {
+            effectsByTargets.put(effect.getTargets(), effect);
         }
+
         // Set effects on the UseCases. This also removes existing effects if necessary.
         for (UseCase useCase : useCases) {
             if (useCase instanceof Preview) {
-                ((Preview) useCase).setProcessor(
-                        (SurfaceProcessorInternal) effectsWithExecutors.get(
-                                SurfaceProcessor.PREVIEW));
+                Preview preview = ((Preview) useCase);
+                CameraEffect effect = effectsByTargets.get(CameraEffect.PREVIEW);
+                if (effect == null) {
+                    preview.setProcessor(null);
+                    continue;
+                }
+                preview.setProcessor(new SurfaceProcessorWithExecutor(
+                        requireNonNull(effect.getSurfaceProcessor()),
+                        effect.getProcessorExecutor()));
             }
         }
     }
@@ -649,7 +645,7 @@ public final class CameraUseCaseAdapter implements Camera {
                 Map<UseCase, ConfigPair> configs = getConfigs(Arrays.asList(useCases),
                         mCameraConfig.getUseCaseConfigFactory(), mUseCaseConfigFactory);
                 calculateSuggestedResolutions(mCameraInternal.getCameraInfoInternal(),
-                        Arrays.asList(useCases), Collections.emptyList(), configs);
+                        Arrays.asList(useCases), emptyList(), configs);
             } catch (IllegalArgumentException e) {
                 return false;
             }
