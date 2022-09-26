@@ -76,7 +76,13 @@ public class ProcessingNode implements Node<ProcessingNode.In, Void> {
     public Void transform(@NonNull ProcessingNode.In inputEdge) {
         // Listen to the input edge.
         inputEdge.getEdge().setListener(
-                inputPacket -> mBlockingExecutor.execute(() -> processInputPacket(inputPacket)));
+                inputPacket -> {
+                    if (inputPacket.getProcessingRequest().isAborted()) {
+                        // No-ops if the request is aborted.
+                        return;
+                    }
+                    mBlockingExecutor.execute(() -> processInputPacket(inputPacket));
+                });
 
         mInput2Packet = new ProcessingInput2Packet();
         mImage2JpegBytes = new Image2JpegBytes();
@@ -123,7 +129,7 @@ public class ProcessingNode implements Node<ProcessingNode.In, Void> {
             throws ImageCaptureException {
         ProcessingRequest request = inputPacket.getProcessingRequest();
         Packet<ImageProxy> originalImage = mInput2Packet.apply(inputPacket);
-        Packet<byte[]> jpegBytes =  mImage2JpegBytes.apply(
+        Packet<byte[]> jpegBytes = mImage2JpegBytes.apply(
                 Image2JpegBytes.In.of(originalImage, request.getJpegQuality()));
         if (jpegBytes.hasCropping()) {
             Packet<Bitmap> croppedBitmap = mJpegBytes2CroppedBitmap.apply(jpegBytes);
