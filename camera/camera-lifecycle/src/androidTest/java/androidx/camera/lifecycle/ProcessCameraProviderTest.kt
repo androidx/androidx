@@ -22,11 +22,11 @@ import android.content.ContextWrapper
 import android.content.pm.PackageManager
 import androidx.annotation.OptIn
 import androidx.annotation.RequiresApi
+import androidx.camera.core.CameraEffect
+import androidx.camera.core.CameraEffect.PREVIEW
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraXConfig
-import androidx.camera.core.EffectBundle
 import androidx.camera.core.Preview
-import androidx.camera.core.SurfaceProcessor.PREVIEW
 import androidx.camera.core.UseCaseGroup
 import androidx.camera.core.impl.CameraFactory
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor
@@ -80,11 +80,10 @@ class ProcessCameraProviderTest {
         // Arrange.
         ProcessCameraProvider.configureInstance(FakeAppConfig.create())
         val surfaceProcessor = FakeSurfaceProcessor(mainThreadExecutor())
-        val effectBundle =
-            EffectBundle.Builder(mainThreadExecutor()).addEffect(PREVIEW, surfaceProcessor).build()
+        val effect = CameraEffect.Builder(PREVIEW)
+            .setSurfaceProcessor(mainThreadExecutor(), surfaceProcessor).build()
         val preview = Preview.Builder().setSessionOptionUnpacker { _, _ -> }.build()
-        val useCaseGroup = UseCaseGroup.Builder().addUseCase(preview)
-            .setEffectBundle(effectBundle).build()
+        val useCaseGroup = UseCaseGroup.Builder().addUseCase(preview).addEffect(effect).build()
 
         runBlocking(MainScope().coroutineContext) {
             // Act.

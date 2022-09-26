@@ -19,6 +19,9 @@ package androidx.camera.integration.view;
 import static androidx.camera.core.impl.utils.TransformUtils.getRectToRect;
 import static androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor;
 
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
+
 import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.ContentResolver;
@@ -54,13 +57,11 @@ import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.CameraSelector;
-import androidx.camera.core.EffectBundle;
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCaptureException;
 import androidx.camera.core.ImageProxy;
 import androidx.camera.core.Logger;
-import androidx.camera.core.SurfaceProcessor;
 import androidx.camera.core.ZoomState;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.Futures;
@@ -126,7 +127,7 @@ public class CameraControllerFragment extends Fragment {
     private ImageAnalysis.Analyzer mWrappedAnalyzer;
 
     @VisibleForTesting
-    ToneMappingSurfaceProcessor mSurfaceProcessor;
+    ToneMappingPreviewEffect mToneMappingPreviewEffect;
 
     private final ImageAnalysis.Analyzer mAnalyzer = image -> {
         byte[] bytes = new byte[image.getPlanes()[0].getBuffer().remaining()];
@@ -182,7 +183,7 @@ public class CameraControllerFragment extends Fragment {
         });
 
         // Set up post-processing effects.
-        mSurfaceProcessor = new ToneMappingSurfaceProcessor();
+        mToneMappingPreviewEffect = new ToneMappingPreviewEffect();
         mEffectToggle = view.findViewById(R.id.effect_toggle);
         mEffectToggle.setOnCheckedChangeListener((compoundButton, isChecked) -> onEffectsToggled());
         onEffectsToggled();
@@ -352,16 +353,14 @@ public class CameraControllerFragment extends Fragment {
             mExecutorService.shutdown();
         }
         mRotationProvider.removeListener(mRotationListener);
-        mSurfaceProcessor.release();
+        mToneMappingPreviewEffect.release();
     }
 
     private void onEffectsToggled() {
         if (mEffectToggle.isChecked()) {
-            mCameraController.setEffectBundle(new EffectBundle.Builder(mainThreadExecutor())
-                    .addEffect(SurfaceProcessor.PREVIEW, mSurfaceProcessor)
-                    .build());
-        } else if (mSurfaceProcessor != null) {
-            mCameraController.setEffectBundle(null);
+            mCameraController.setEffects(singletonList(mToneMappingPreviewEffect));
+        } else {
+            mCameraController.setEffects(emptyList());
         }
     }
 

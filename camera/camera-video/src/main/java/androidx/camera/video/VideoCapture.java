@@ -16,6 +16,7 @@
 
 package androidx.camera.video;
 
+import static androidx.camera.core.CameraEffect.VIDEO_CAPTURE;
 import static androidx.camera.core.SurfaceOutput.GlTransformOptions.APPLY_CROP_ROTATE_AND_MIRRORING;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_DEFAULT_RESOLUTION;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_MAX_RESOLUTION;
@@ -65,7 +66,6 @@ import androidx.camera.core.AspectRatio;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.Logger;
-import androidx.camera.core.SurfaceProcessor;
 import androidx.camera.core.SurfaceRequest;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.ViewPort;
@@ -501,7 +501,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
                             VideoCapabilities.from(camera.getCameraInfo()), timebase, mediaSpec,
                             resolution, targetFpsRange));
             SettableSurface cameraSurface = new SettableSurface(
-                    SurfaceProcessor.VIDEO_CAPTURE,
+                    VIDEO_CAPTURE,
                     resolution,
                     ImageFormat.PRIVATE,
                     getSensorToBufferTransformMatrix(),

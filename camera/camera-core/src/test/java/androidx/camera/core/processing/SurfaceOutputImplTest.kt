@@ -22,9 +22,9 @@ import android.os.Build
 import android.os.Looper
 import android.util.Size
 import android.view.Surface
+import androidx.camera.core.CameraEffect
 import androidx.camera.core.SurfaceOutput.GlTransformOptions
 import androidx.camera.core.SurfaceOutput.GlTransformOptions.USE_SURFACE_TEXTURE_TRANSFORM
-import androidx.camera.core.SurfaceProcessor
 import androidx.camera.core.impl.utils.TransformUtils.sizeToRect
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor
 import com.google.common.truth.Truth.assertThat
@@ -46,7 +46,7 @@ import org.robolectric.annotation.internal.DoNotInstrument
 class SurfaceOutputImplTest {
 
     companion object {
-        private const val TARGET = SurfaceProcessor.PREVIEW
+        private const val TARGET = CameraEffect.PREVIEW
         private const val FORMAT = PixelFormat.RGBA_8888
         private val OUTPUT_SIZE = Size(640, 480)
         private val INPUT_SIZE = Size(640, 480)
