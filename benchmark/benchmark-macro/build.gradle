@@ -38,6 +38,11 @@ android {
                 SupportConfigKt.getPrebuiltsRoot(project),
                 "androidx/traceprocessor/testdata"
         )
+        // PerfettoHandshake supports both AAR and APK as libtracing_perfetto.so sources:
+        // - AAR is used when e.g. tooling downloads tracing-perfetto-binary AAR files from Maven
+        // - APK is when an APK that contains tracing binaries is used
+        //
+        // Adding the AAR as a test asset below allows us to test the AAR scenario
         androidTest.assets.srcDirs += new File(
                 SupportConfigKt.getPrebuiltsRoot(project),
                 "androidx/internal/androidx/tracing/tracing-perfetto-binary/" +
