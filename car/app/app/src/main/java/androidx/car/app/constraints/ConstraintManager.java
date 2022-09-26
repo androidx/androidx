@@ -31,6 +31,7 @@ import androidx.car.app.CarContext;
 import androidx.car.app.HostDispatcher;
 import androidx.car.app.HostException;
 import androidx.car.app.R;
+import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.managers.Manager;
 import androidx.car.app.utils.LogTags;
@@ -135,6 +136,36 @@ public class ConstraintManager implements Manager {
 
         // Returns default values as documented if host call failed.
         return mCarContext.getResources().getInteger(getResourceIdForContentType(contentLimitType));
+    }
+
+
+    /**
+     * Determines if the hosts supports App Driven Refresh.
+     * This enables applications to refresh lists content without being counted towards a step.
+     *
+     * If this function returns false the app should return a template that is of the same
+     * type and contains the same main content as the previous template, the new template will
+     * not be counted against the quota.
+     *
+     */
+    @RequiresCarApi(6)
+    @ExperimentalCarApi
+    public boolean isAppDrivenRefreshEnabled() {
+        Boolean result;
+        try {
+            // TODO(b/185805900): consider caching these values if performance is a concern.
+            result = mHostDispatcher.dispatchForResult(
+                    CarContext.CONSTRAINT_SERVICE,
+                    "isAppDrivenRefreshEnabled", IConstraintHost::isAppDrivenRefreshEnabled
+            );
+            return Boolean.TRUE.equals(result);
+        } catch (RemoteException e) {
+            // The host is dead, don't crash the app, just log.
+            Log.w(LogTags.TAG,
+                    "Failed to retrieve if the host supports appDriven Refresh, using defaults", e);
+        }
+        // Returns default values as documented if host call failed.
+        return false;
     }
 
     @IntegerRes
