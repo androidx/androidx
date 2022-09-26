@@ -19,16 +19,21 @@ import androidx.build.Publish
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
+    id("kotlin-android")
 }
 
 dependencies {
     api(project(":room:room-common"))
     api(project(":room:room-runtime"))
-    implementation("androidx.arch.core:core-runtime:2.0.1")
     api(libs.rxjava2)
 
-    testImplementation(libs.junit)
+    implementation("androidx.arch.core:core-runtime:2.0.1")
+    implementation(libs.kotlinStdlib)
+
+    testImplementation(libs.truth)
+    testImplementation(libs.kotlinTest)
     testImplementation(libs.mockitoCore)
+    testImplementation(libs.mockitoKotlin4)
     testImplementation("androidx.arch.core:core-testing:2.0.1")
     testImplementation("androidx.lifecycle:lifecycle-livedata:2.0.0") // for mocking invalidation tracker
 }
