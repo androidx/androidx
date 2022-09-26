@@ -17,6 +17,7 @@
 package androidx.glance.appwidget.template
 
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
@@ -33,10 +34,12 @@ import androidx.glance.layout.Row
 import androidx.glance.layout.Spacer
 import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.height
+import androidx.glance.layout.size
 import androidx.glance.layout.width
 import androidx.glance.template.ActionBlock
 import androidx.glance.template.HeaderBlock
 import androidx.glance.template.ImageBlock
+import androidx.glance.template.ImageSize
 import androidx.glance.template.LocalTemplateColors
 import androidx.glance.template.TemplateButton
 import androidx.glance.template.TemplateImageButton
@@ -177,10 +180,19 @@ internal fun SingleImageBlockTemplate(
 ) {
     if (imageBlock.images.isNotEmpty()) {
         val mainImage = imageBlock.images[0]
+        val imageSize: Dp = when (imageBlock.size) {
+            ImageSize.Small -> 64.dp
+            ImageSize.Medium -> 96.dp
+            ImageSize.Large -> 128.dp
+            ImageSize.Undefined -> 96.dp
+            else -> 96.dp
+        }
         Image(
             provider = mainImage.image,
             contentDescription = mainImage.description,
-            modifier = modifier,
+            modifier = if (ImageSize.Undefined == imageBlock.size) modifier else modifier.size(
+                imageSize
+            ),
             contentScale = ContentScale.Crop
         )
     }
