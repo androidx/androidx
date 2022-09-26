@@ -31,6 +31,7 @@ import androidx.car.app.CarContext;
 import androidx.car.app.HostDispatcher;
 import androidx.car.app.HostException;
 import androidx.car.app.R;
+import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.managers.Manager;
 import androidx.car.app.utils.LogTags;
@@ -120,9 +121,8 @@ public class ConstraintManager implements Manager {
             // TODO(b/185805900): consider caching these values if performance is a concern.
             limit = mHostDispatcher.dispatchForResult(
                     CarContext.CONSTRAINT_SERVICE,
-                    "getContentLimit", (IConstraintHost host) -> {
-                        return host.getContentLimit(contentLimitType);
-                    }
+                    "getContentLimit",
+                    (IConstraintHost host) -> host.getContentLimit(contentLimitType)
             );
         } catch (RemoteException e) {
             // The host is dead, don't crash the app, just log.
@@ -166,7 +166,29 @@ public class ConstraintManager implements Manager {
         return new ConstraintManager(requireNonNull(context), requireNonNull(hostDispatcher));
     }
 
-    private ConstraintManager(CarContext context, HostDispatcher hostDispatcher) {
+    /**
+     * Determines if the app supports app Driven Refresh Enabled
+     */
+    @RequiresCarApi(6)
+    @ExperimentalCarApi
+    public boolean isAppDrivenRefreshEnabled() {
+        Boolean result;
+        try {
+            // TODO(b/185805900): consider caching these values if performance is a concern.
+            result = mHostDispatcher.dispatchForResult(
+                    CarContext.CONSTRAINT_SERVICE,
+                    "isAppDrivenRefreshEnabled", IConstraintHost::isAppDrivenRefreshEnabled
+            );
+            return Boolean.TRUE.equals(result);
+        } catch (RemoteException e) {
+            // The host is dead, don't crash the app, just log.
+            Log.w(LogTags.TAG, "Failed to retrieve list limit from the host, using defaults", e);
+        }
+        // Returns default values as documented if host call failed.
+        return false;
+    }
+
+    private ConstraintManager(@NonNull CarContext context, @NonNull HostDispatcher hostDispatcher) {
         mCarContext = context;
         mHostDispatcher = hostDispatcher;
     }

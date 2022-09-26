@@ -46,6 +46,7 @@ import androidx.core.graphics.drawable.IconCompat;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 /** Provides sample place data used in the demos. */
 public class SamplePlaces {
@@ -242,7 +243,7 @@ public class SamplePlaces {
 
     /** Return the {@link ItemList} of the sample places. */
     @NonNull
-    public ItemList getPlaceList() {
+    public ItemList getPlaceList(boolean randomOrder) {
         ItemList.Builder listBuilder = new ItemList.Builder();
 
         int listLimit = 6;
@@ -258,8 +259,13 @@ public class SamplePlaces {
         listLimit = min(listLimit, mPlaces.size());
 
         for (int index = 0; index < listLimit; index++) {
-            PlaceInfo place = mPlaces.get(index);
-
+            Random rand = new Random();
+            PlaceInfo place;
+            if (randomOrder) {
+                place = mPlaces.get(rand.nextInt(listLimit));
+            } else {
+                place = mPlaces.get(index);
+            }
             // Build a description string that includes the required distance span.
             int distanceKm = getDistanceFromCurrentLocation(place.location) / 1000;
             SpannableString description = new SpannableString("   \u00b7 " + place.description);
