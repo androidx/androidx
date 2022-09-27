@@ -659,11 +659,27 @@ class VideoCaptureTest {
             videoEncoderInfo = createVideoEncoderInfo(
                 widthAlignment = 8,
                 heightAlignment = 8,
-                supportedWidths = Range(80, 800),
-                supportedHeights = Range(100, 800),
+                // 1280x720 is a valid size
+                supportedWidths = Range(80, 1600),
+                supportedHeights = Range(100, 1600),
             ),
             cropRect = Rect(8, 8, 48, 48), // 40x40
             expectedCropRect = Rect(0, 0, 80, 100),
+        )
+    }
+
+    @Test
+    fun adjustCropRect_notValidSize_ignoreSupportedSizeAndClampByWorkaroundSize() {
+        testAdjustCropRectToValidSize(
+            videoEncoderInfo = createVideoEncoderInfo(
+                widthAlignment = 8,
+                heightAlignment = 8,
+                // 1280x720 is not a valid size, workaround size is [8-4096], [8-2160]
+                supportedWidths = Range(80, 80),
+                supportedHeights = Range(80, 80),
+            ),
+            cropRect = Rect(0, 0, 4, 4), // 4x4
+            expectedCropRect = Rect(0, 0, 8, 8), // 8x8
         )
     }
 
