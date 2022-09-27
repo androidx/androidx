@@ -509,9 +509,7 @@ public class WebViewFeature {
      * Feature for {@link #isFeatureSupported(String)}.
      * This feature covers
      * {@link CookieManagerCompat#getCookieInfo(CookieManager, String)}.
-     * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final String GET_COOKIE_INFO = "GET_COOKIE_INFO";
 
     /**
