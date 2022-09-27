@@ -75,9 +75,10 @@ public class CameraStream internal constructor(
                 size: Size,
                 format: StreamFormat,
                 camera: CameraId? = null,
-                outputType: OutputStream.OutputType = OutputStream.OutputType.SURFACE
+                outputType: OutputStream.OutputType = OutputStream.OutputType.SURFACE,
+                mirrorMode: OutputStream.MirrorMode? = null,
             ): Config = create(
-                OutputStream.Config.create(size, format, camera, outputType)
+                OutputStream.Config.create(size, format, camera, outputType, mirrorMode)
             )
 
             /**
@@ -118,6 +119,7 @@ public interface OutputStream {
     public val size: Size
     public val format: StreamFormat
     public val camera: CameraId
+    public val mirrorMode: MirrorMode?
     // TODO: Consider adding sensor mode and/or other metadata
 
     /**
@@ -126,23 +128,25 @@ public interface OutputStream {
     sealed class Config(
         public val size: Size,
         public val format: StreamFormat,
-        public val camera: CameraId?
+        public val camera: CameraId?,
+        public val mirrorMode: MirrorMode?,
     ) {
         companion object {
             fun create(
                 size: Size,
                 format: StreamFormat,
                 camera: CameraId? = null,
-                outputType: OutputType = OutputType.SURFACE
+                outputType: OutputType = OutputType.SURFACE,
+                mirrorMode: MirrorMode? = null,
             ): Config =
                 if (
                     outputType == OutputType.SURFACE_TEXTURE ||
                     outputType == OutputType.SURFACE_VIEW
                 ) {
-                    LazyOutputConfig(size, format, camera, outputType)
+                    LazyOutputConfig(size, format, camera, outputType, mirrorMode)
                 } else {
                     check(outputType == OutputType.SURFACE)
-                    SimpleOutputConfig(size, format, camera)
+                    SimpleOutputConfig(size, format, camera, mirrorMode)
                 }
 
             /** Create a stream configuration from an externally created [OutputConfiguration] */
@@ -163,8 +167,9 @@ public interface OutputStream {
         internal class SimpleOutputConfig(
             size: Size,
             format: StreamFormat,
-            camera: CameraId?
-        ) : Config(size, format, camera)
+            camera: CameraId?,
+            mirrorMode: MirrorMode?,
+        ) : Config(size, format, camera, mirrorMode)
 
         /**
          * Used to configure an output with a surface that may be provided after the camera is running.
@@ -178,8 +183,9 @@ public interface OutputStream {
             size: Size,
             format: StreamFormat,
             camera: CameraId?,
-            internal val outputType: OutputType
-        ) : Config(size, format, camera)
+            internal val outputType: OutputType,
+            mirrorMode: MirrorMode?,
+        ) : Config(size, format, camera, mirrorMode)
 
         /**
          * Used to define an output that comes from an externally managed OutputConfiguration object.
@@ -194,13 +200,31 @@ public interface OutputStream {
             format: StreamFormat,
             camera: CameraId?,
             val output: OutputConfiguration,
-        ) : Config(size, format, camera)
+        ) : Config(size, format, camera, null)
     }
 
     enum class OutputType {
         SURFACE,
         SURFACE_VIEW,
         SURFACE_TEXTURE,
+    }
+
+    /**
+     * Adds the ability to define the mirrorMode of the OutputStream.
+     * [MIRROR_MODE_AUTO] is the default mirroring mode for the camera device.
+     * With this mode, the camera output is mirrored horizontally for front-facing cameras,
+     * and there is no mirroring for rear-facing and external cameras.
+     *
+     * See the documentation on [OutputConfiguration.setMirrorMode] for more details.
+     */
+    @JvmInline
+    value class MirrorMode private constructor(val value: Int) {
+        companion object {
+            val MIRROR_MODE_AUTO = MirrorMode(0)
+            val MIRROR_MODE_NONE = MirrorMode(1)
+            val MIRROR_MODE_H = MirrorMode(2)
+            val MIRROR_MODE_V = MirrorMode(3)
+        }
     }
 }
 
