@@ -51,6 +51,7 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import java.lang.IllegalArgumentException
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
+import kotlinx.coroutines.CancellableContinuation
 
 private typealias WireComplicationProviderInfo =
     android.support.wearable.complications.ComplicationProviderInfo
@@ -209,44 +210,53 @@ public class ComplicationDataSourceInfoRetriever : AutoCloseable {
         }
 
         return suspendCancellableCoroutine { continuation ->
-            val deathObserver = IBinder.DeathRecipient {
-                continuation.resumeWithException(ServiceDisconnectedException())
-            }
-            service.asBinder().linkToDeath(deathObserver, 0)
-
-            // Not a huge deal but we might as well unlink the deathObserver.
-            continuation.invokeOnCancellation {
-                safeUnlinkToDeath(service, deathObserver)
-            }
-
+            val callback = PreviewComplicationDataCallback(service, continuation)
             if (!service.requestPreviewComplicationData(
                     complicationDataSourceComponent,
                     complicationType.toWireComplicationType(),
-                    object : IPreviewComplicationDataCallback.Stub() {
-                        override fun updateComplicationData(
-                            data: android.support.wearable.complications.ComplicationData?
-                        ) {
-                            safeUnlinkToDeath(service, deathObserver)
-                            continuation.resume(data?.toApiComplicationData())
-                        }
-                    }
+                    callback
                 )
             ) {
-                safeUnlinkToDeath(service, deathObserver)
+                callback.safeUnlinkToDeath()
                 continuation.resume(null)
             }
         }
     }
 
-    internal fun safeUnlinkToDeath(
-        service: IProviderInfoService,
-        deathObserver: IBinder.DeathRecipient
-    ) {
-        try {
-            service.asBinder().unlinkToDeath(deathObserver, 0)
-        } catch (e: NoSuchElementException) {
-            // This really shouldn't happen.
-            Log.w(TAG, "retrievePreviewComplicationData encountered", e)
+    private class PreviewComplicationDataCallback(
+        val service: IProviderInfoService,
+        var continuation: CancellableContinuation<ComplicationData?>?
+    ) : IPreviewComplicationDataCallback.Stub() {
+        val deathObserver: IBinder.DeathRecipient = IBinder.DeathRecipient {
+            continuation?.resumeWithException(ServiceDisconnectedException())
+        }
+
+        init {
+            service.asBinder().linkToDeath(deathObserver, 0)
+
+            // Not a huge deal but we might as well unlink the deathObserver.
+            continuation?.invokeOnCancellation {
+                safeUnlinkToDeath()
+            }
+        }
+
+        override fun updateComplicationData(
+            data: android.support.wearable.complications.ComplicationData?
+        ) {
+            safeUnlinkToDeath()
+            continuation!!.resume(data?.toApiComplicationData())
+
+            // Re http://b/249121838 this is important, it prevents a memory leak.
+            continuation = null
+        }
+
+        internal fun safeUnlinkToDeath() {
+            try {
+                service.asBinder().unlinkToDeath(deathObserver, 0)
+            } catch (e: NoSuchElementException) {
+                // This really shouldn't happen.
+                Log.w(TAG, "retrievePreviewComplicationData encountered", e)
+            }
         }
     }
 
