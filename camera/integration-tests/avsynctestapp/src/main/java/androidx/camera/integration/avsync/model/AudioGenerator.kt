@@ -68,6 +68,7 @@ class AudioGenerator(private val isEnabled: Boolean = true) {
         Logger.i(TAG, "playState before stopped: ${audioTrack!!.playState}")
         Logger.i(TAG, "playbackHeadPosition before stopped: ${audioTrack!!.playbackHeadPosition}")
         audioTrack!!.stop()
+        audioTrack!!.reloadStaticData()
     }
 
     suspend fun initial(
