@@ -46,10 +46,11 @@ class DaoWriterTest {
                 qName = "foo.bar.ComplexDao"
             )
         ) {
+            val backendFolder = backendFolder(it)
             it.assertCompilationResult {
                 generatedSource(
                     loadTestSource(
-                        fileName = "daoWriter/output/ComplexDao.java",
+                        fileName = "daoWriter/output/$backendFolder/ComplexDao.java",
                         qName = "foo.bar.ComplexDao_Impl"
                     )
                 )
@@ -76,10 +77,11 @@ class DaoWriterTest {
                 qName = "foo.bar.WriterDao"
             )
         ) {
+            val backendFolder = backendFolder(it)
             it.assertCompilationResult {
                 generatedSource(
                     loadTestSource(
-                        fileName = "daoWriter/output/WriterDao.java",
+                        fileName = "daoWriter/output/$backendFolder/WriterDao.java",
                         qName = "foo.bar.WriterDao_Impl"
                     )
                 )
@@ -95,10 +97,11 @@ class DaoWriterTest {
                 qName = "foo.bar.DeletionDao"
             )
         ) {
+            val backendFolder = backendFolder(it)
             it.assertCompilationResult {
                 generatedSource(
                     loadTestSource(
-                        fileName = "daoWriter/output/DeletionDao.java",
+                        fileName = "daoWriter/output/$backendFolder/DeletionDao.java",
                         qName = "foo.bar.DeletionDao_Impl"
                     )
                 )
@@ -114,10 +117,11 @@ class DaoWriterTest {
                 qName = "foo.bar.UpdateDao"
             )
         ) {
+            val backendFolder = backendFolder(it)
             it.assertCompilationResult {
                 generatedSource(
                     loadTestSource(
-                        fileName = "daoWriter/output/UpdateDao.java",
+                        fileName = "daoWriter/output/$backendFolder/UpdateDao.java",
                         qName = "foo.bar.UpdateDao_Impl"
                     )
                 )
@@ -133,10 +137,11 @@ class DaoWriterTest {
                 qName = "foo.bar.UpsertDao"
             )
         ) {
+            val backendFolder = backendFolder(it)
             it.assertCompilationResult {
                 generatedSource(
                     loadTestSource(
-                        fileName = "daoWriter/output/UpsertDao.java",
+                        fileName = "daoWriter/output/$backendFolder/UpsertDao.java",
                         qName = "foo.bar.UpsertDao_Impl"
                     )
                 )
@@ -187,4 +192,7 @@ class DaoWriterTest {
             handler(invocation)
         }
     }
+
+    private fun backendFolder(invocation: XTestInvocation) =
+        invocation.processingEnv.backend.name.lowercase()
 }

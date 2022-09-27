@@ -16,22 +16,21 @@
 
 package androidx.room.solver.types
 
-import androidx.room.ext.L
 import androidx.room.compiler.processing.XType
 import androidx.room.solver.CodeGenScope
 
 /**
  * Adapters for all boxed primitives that has direct cursor mappings.
  */
-open class BoxedPrimitiveColumnTypeAdapter(
+class BoxedPrimitiveColumnTypeAdapter(
     boxed: XType,
     val primitiveAdapter: PrimitiveColumnTypeAdapter
 ) : ColumnTypeAdapter(boxed, primitiveAdapter.typeAffinity) {
+
     companion object {
         fun createBoxedPrimitiveAdapters(
             primitiveAdapters: List<PrimitiveColumnTypeAdapter>
         ): List<ColumnTypeAdapter> {
-
             return primitiveAdapters.map {
                 BoxedPrimitiveColumnTypeAdapter(
                     it.out.boxed().makeNullable(),
@@ -47,9 +46,9 @@ open class BoxedPrimitiveColumnTypeAdapter(
         valueVarName: String,
         scope: CodeGenScope
     ) {
-        scope.builder().apply {
-            beginControlFlow("if ($L == null)", valueVarName).apply {
-                addStatement("$L.bindNull($L)", stmtName, indexVarName)
+        scope.builder.apply {
+            beginControlFlow("if (%L == null)", valueVarName).apply {
+                addStatement("%L.bindNull(%L)", stmtName, indexVarName)
             }
             nextControlFlow("else").apply {
                 primitiveAdapter.bindToStmt(stmtName, indexVarName, valueVarName, scope)
@@ -64,9 +63,9 @@ open class BoxedPrimitiveColumnTypeAdapter(
         indexVarName: String,
         scope: CodeGenScope
     ) {
-        scope.builder().apply {
-            beginControlFlow("if ($L.isNull($L))", cursorVarName, indexVarName).apply {
-                addStatement("$L = null", outVarName)
+        scope.builder.apply {
+            beginControlFlow("if (%L.isNull(%L))", cursorVarName, indexVarName).apply {
+                addStatement("%L = null", outVarName)
             }
             nextControlFlow("else").apply {
                 primitiveAdapter.readFromCursor(outVarName, cursorVarName, indexVarName, scope)

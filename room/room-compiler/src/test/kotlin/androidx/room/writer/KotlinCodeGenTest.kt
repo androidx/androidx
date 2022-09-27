@@ -72,6 +72,125 @@ class KotlinCodeGenTest {
         )
     }
 
+    @Test
+    fun pojoRowAdapter_primitives_nullable() {
+        val testName = object {}.javaClass.enclosingMethod!!.name
+        val src = Source.kotlin(
+            "MyDao.kt",
+            """
+            import androidx.room.*
+
+            @Dao
+            interface MyDao {
+              @Query("SELECT * FROM MyEntity")
+              fun getEntity(): MyEntity
+            }
+
+            @Entity
+            data class MyEntity(
+                @PrimaryKey
+                val int: Int?,
+                val short: Short?,
+                val byte: Byte?,
+                val long: Long?,
+                val char: Char?,
+                val float: Float?,
+                val double: Double?,
+            )
+            """.trimIndent()
+        )
+        runTest(
+            sources = listOf(src, databaseSrc),
+            expectedFilePath = getTestGoldenPath(testName)
+        )
+    }
+
+    @Test
+    fun pojoRowAdapter_boolean() {
+        val testName = object {}.javaClass.enclosingMethod!!.name
+        val src = Source.kotlin(
+            "MyDao.kt",
+            """
+            import androidx.room.*
+
+            @Dao
+            interface MyDao {
+              @Query("SELECT * FROM MyEntity")
+              fun getEntity(): MyEntity
+            }
+
+            @Entity
+            data class MyEntity(
+                @PrimaryKey
+                val pk: Int,
+                val boolean: Boolean,
+                val nullableBoolean: Boolean?,
+            )
+            """.trimIndent()
+        )
+        runTest(
+            sources = listOf(src, databaseSrc),
+            expectedFilePath = getTestGoldenPath(testName)
+        )
+    }
+
+    @Test
+    fun pojoRowAdapter_string() {
+        val testName = object {}.javaClass.enclosingMethod!!.name
+        val src = Source.kotlin(
+            "MyDao.kt",
+            """
+            import androidx.room.*
+
+            @Dao
+            interface MyDao {
+              @Query("SELECT * FROM MyEntity")
+              fun getEntity(): MyEntity
+            }
+
+            @Entity
+            data class MyEntity(
+                @PrimaryKey
+                val string: String,
+                val nullableString: String?,
+            )
+            """.trimIndent()
+        )
+        runTest(
+            sources = listOf(src, databaseSrc),
+            expectedFilePath = getTestGoldenPath(testName)
+        )
+    }
+
+    @Test
+    fun pojoRowAdapter_byteArray() {
+        val testName = object {}.javaClass.enclosingMethod!!.name
+        val src = Source.kotlin(
+            "MyDao.kt",
+            """
+            import androidx.room.*import java.nio.ByteBuffer
+
+            @Dao
+            interface MyDao {
+              @Query("SELECT * FROM MyEntity")
+              fun getEntity(): MyEntity
+            }
+
+            @Entity
+            data class MyEntity(
+                @PrimaryKey
+                val pk: Int,
+                val byteArray: ByteArray,
+                val nullableByteArray: ByteArray?,
+            )
+            """.trimIndent()
+        )
+        runTest(
+            sources = listOf(src, databaseSrc),
+            expectedFilePath = getTestGoldenPath(testName)
+        )
+    }
+
     private fun getTestGoldenPath(testName: String): String {
         return "kotlinCodeGen/$testName.kt"
     }

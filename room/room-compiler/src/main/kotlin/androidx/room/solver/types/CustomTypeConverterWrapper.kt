@@ -17,6 +17,8 @@
 package androidx.room.solver.types
 
 import androidx.room.ProvidedTypeConverter
+import androidx.room.compiler.codegen.XCodeBlock
+import androidx.room.compiler.codegen.XCodeBlock.Builder.Companion.apply
 import androidx.room.ext.L
 import androidx.room.ext.N
 import androidx.room.ext.T
@@ -38,8 +40,8 @@ import javax.lang.model.element.Modifier
 class CustomTypeConverterWrapper(
     val custom: CustomTypeConverter
 ) : SingleStatementTypeConverter(custom.from, custom.to) {
-    override fun buildStatement(inputVarName: String, scope: CodeGenScope): CodeBlock {
-        return if (custom.isEnclosingClassKotlinObject) {
+    override fun buildStatement(inputVarName: String, scope: CodeGenScope): XCodeBlock {
+        val jCodeBlock = if (custom.isEnclosingClassKotlinObject) {
             CodeBlock.of(
                 "$T.INSTANCE.$L($L)",
                 custom.typeName,
@@ -66,6 +68,10 @@ class CustomTypeConverterWrapper(
                 )
             }
         }
+        return XCodeBlock.builder(scope.language).apply(
+            javaCodeBuilder = { add(jCodeBlock) },
+            kotlinCodeBuilder = { error("Not yet migrated to generate Kotlin!") },
+        ).build()
     }
 
     private fun providedTypeConverter(scope: CodeGenScope): MethodSpec {
