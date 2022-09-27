@@ -110,11 +110,10 @@ class TestPagerTest {
         runTest {
             source.invalidate()
             assertTrue(source.invalid)
-            assertFailsWith<IllegalStateException> {
-                pager.run {
-                    refresh()
-                }
-            }
+            // simulate a PagingSource that returns LoadResult.Invalid when it's invalidated
+            source.nextLoadResult = LoadResult.Invalid()
+
+            assertThat(pager.refresh()).isInstanceOf(LoadResult.Invalid::class.java)
         }
     }
 
@@ -374,13 +373,15 @@ class TestPagerTest {
         val source = TestPagingSource()
         val pager = TestPager(source, CONFIG)
 
-        assertFailsWith<IllegalStateException> {
-            pager.run {
-                refresh()
-                source.invalidate()
-                append()
-            }
+        val result = pager.run {
+            refresh()
+            source.invalidate()
+            assertThat(source.invalid).isTrue()
+            // simulate a PagingSource which returns LoadResult.Invalid when it's invalidated
+            source.nextLoadResult = LoadResult.Invalid()
+            append()
         }
+        assertThat(result).isInstanceOf(LoadResult.Invalid::class.java)
     }
 
     @Test
@@ -388,13 +389,15 @@ class TestPagerTest {
         val source = TestPagingSource()
         val pager = TestPager(source, CONFIG)
 
-        assertFailsWith<IllegalStateException> {
-            pager.run {
-                refresh()
-                source.invalidate()
-                prepend()
-            }
+        val result = pager.run {
+            refresh(initialKey = 20)
+            source.invalidate()
+            assertThat(source.invalid).isTrue()
+            // simulate a PagingSource which returns LoadResult.Invalid when it's invalidated
+            source.nextLoadResult = LoadResult.Invalid()
+            prepend()
         }
+        assertThat(result).isInstanceOf(LoadResult.Invalid::class.java)
     }
 
     @Test
