@@ -35,6 +35,8 @@ COMPOSE_VERSION_REL = './compose/runtime/runtime/src/commonMain/kotlin/androidx/
 COMPOSE_VERSION_FP = os.path.join(FRAMEWORKS_SUPPORT_FP, COMPOSE_VERSION_REL)
 VERSION_CHECKER_REL = './compose/compiler/compiler-hosted/src/main/java/androidx/compose/compiler/plugins/kotlin/VersionChecker.kt'
 VERSION_CHECKER_FP = os.path.join(FRAMEWORKS_SUPPORT_FP, VERSION_CHECKER_REL)
+PREBUILTS_ANDROIDX_INTERNAL_REL = '../../prebuilts/androidx/internal'
+PREBUILTS_ANDROIDX_INTERNAL_FP = os.path.join(FRAMEWORKS_SUPPORT_FP, PREBUILTS_ANDROIDX_INTERNAL_REL)
 
 # Set up input arguments
 parser = argparse.ArgumentParser(
@@ -432,16 +434,36 @@ def update_compose_runtime_version(group_id, artifact_id, old_version):
 
     return
 
+def update_tracing_perfetto_version(old_version):
+    """Updates tracing-perfetto version and artifacts (including building new binaries)
+
+    Args:
+        old_version: old version of the existing library
+    Returns:
+        `True` if the version was updated, `False` otherwise.
+    """
+    new_version = increment_version(old_version)
+    cmd = "update_tracing_perfetto.sh %s %s %s" % (FRAMEWORKS_SUPPORT_FP, old_version, new_version)
+    try:
+        subprocess.check_output(cmd, stderr=subprocess.STDOUT, shell=True)
+    except subprocess.CalledProcessError:
+        print_e("FAIL: Error while running: '%s'" % cmd)
+        return False
+    return True
 
 def commit_updates(release_date):
-    subprocess.check_call(['git', 'add', FRAMEWORKS_SUPPORT_FP])
-    # ensure that we've actually made a change:
-    staged_changes = subprocess.check_output('git diff --cached', stderr=subprocess.STDOUT, shell=True)
-    if not staged_changes:
-        return
-    msg = "'Update versions for release id %s\n\nThis commit was generated from the command:\n%s\n\n%s'" % (release_date, " ".join(sys.argv), "Test: ./gradlew checkApi")
-    subprocess.check_call(['git', 'commit', '-m', msg])
-    subprocess.check_output('yes | repo upload . --current-branch --no-verify --label Presubmit-Ready+1', stderr=subprocess.STDOUT, shell=True)
+    should_upload = False
+    for dir in [FRAMEWORKS_SUPPORT_FP, PREBUILTS_ANDROIDX_INTERNAL_FP]:
+        subprocess.check_call("cd %s && git add ." % dir)
+        # ensure that we've actually made a change:
+        staged_changes = subprocess.check_output("cd %s && git diff --cached" % dir, stderr=subprocess.STDOUT, shell=True)
+        if not staged_changes:
+            continue
+        msg = "'Update versions for release id %s\n\nThis commit was generated from the command:\n%s\n\n%s'" % (release_date, " ".join(sys.argv), "Test: ./gradlew checkApi")
+        subprocess.check_call("cd %s && git commit -m \"%s\"" % (dir, msg))
+        should_upload = True
+    if should_upload:
+        subprocess.check_output('repo upload --cbr -t -y --label Presubmit-Ready+1', stderr=subprocess.STDOUT, shell=True)
 
 def main(args):
     # Parse arguments and check for existence of build ID or file
@@ -465,6 +487,10 @@ def main(args):
                 update_compose_runtime_version(group_id,
                                                artifact["artifactId"],
                                                artifact["version"])
+            if (group_id == "androidx.tracing" and
+                    artifact["artifactId"] == "tracing-perfetto"):
+                updated = update_tracing_perfetto_version(artifact["version"])
+
             if not updated:
                 non_updated_libraries.append("%s:%s:%s" % (group_id,
                                              artifact["artifactId"],

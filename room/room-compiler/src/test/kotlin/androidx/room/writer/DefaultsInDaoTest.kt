@@ -16,6 +16,9 @@
 
 package androidx.room.writer
 
+import COMMON
+import androidx.room.compiler.codegen.CodeLanguage
+import androidx.room.compiler.codegen.toJavaPoet
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.runKaptTest
@@ -163,10 +166,11 @@ class DefaultsInDaoTest(
                         dbVerifier = createVerifierFromEntitiesAndViews(invocation)
                     )
                     val parsedDao = parser.process()
-                    DaoWriter(parsedDao, db, invocation.processingEnv)
+                    DaoWriter(parsedDao, db, CodeLanguage.JAVA)
                         .write(invocation.processingEnv)
                     invocation.assertCompilationResult {
-                        val relativePath = parsedDao.implTypeName.simpleName() + ".java"
+                        val relativePath =
+                            parsedDao.implTypeName.toJavaPoet().simpleName() + ".java"
                         handler(generatedSourceFileWithPath(relativePath))
                     }
                 }

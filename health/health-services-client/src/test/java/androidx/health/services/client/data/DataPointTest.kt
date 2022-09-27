@@ -267,25 +267,28 @@ internal class DataPointTest {
     fun rangeValidationWithAbsoluteElevation_success() {
         val absoluteElevation =
             DataPoints.absoluteElevation(12.0, getStartDurationFromBoot())
+        val nagativeAbsoluteElevation =
+            DataPoints.absoluteElevation(-12.0, getStartDurationFromBoot())
 
         Truth.assertThat(absoluteElevation).isNotNull()
+        Truth.assertThat(nagativeAbsoluteElevation).isNotNull()
     }
 
     @Test
     fun rangeValidationWithAbsoluteElevation_exception() {
         val negativeOutOfRangeAbsoluteElevation =
             assertThrows(IllegalArgumentException::class.java) {
-                DataPoints.absoluteElevation(-1.0, getStartDurationFromBoot())
+                DataPoints.absoluteElevation(-1000000.1, getStartDurationFromBoot())
             }
         val positiveOutOfRangeAbsoluteElevation =
             assertThrows(IllegalArgumentException::class.java) {
-                DataPoints.absoluteElevation(1000001.0, getStartDurationFromBoot())
+                DataPoints.absoluteElevation(1000000.1, getStartDurationFromBoot())
             }
 
         Truth.assertThat(negativeOutOfRangeAbsoluteElevation).hasMessageThat()
-            .contains("meters value -1.0 is out of range")
+            .contains("meters value -1000000.1 is out of range")
         Truth.assertThat(positiveOutOfRangeAbsoluteElevation).hasMessageThat()
-            .contains("meters value 1000001.0 is out of range")
+            .contains("meters value 1000000.1 is out of range")
     }
 
     @Test
@@ -307,7 +310,7 @@ internal class DataPointTest {
         val negativeOutOfRangeMinAbsoluteElevationStats =
             assertThrows(IllegalArgumentException::class.java) {
                 DataPoints.absoluteElevationStats(
-                    -1.0,
+                    -1000000.1,
                     240.0,
                     120.0,
                     getStartInstant(),
@@ -318,7 +321,7 @@ internal class DataPointTest {
             assertThrows(IllegalArgumentException::class.java) {
                 DataPoints.absoluteElevationStats(
                     12.0,
-                    -1.0,
+                    -1000000.1,
                     120.0,
                     getStartInstant(),
                     getEndInstant()
@@ -329,7 +332,7 @@ internal class DataPointTest {
                 DataPoints.absoluteElevationStats(
                     12.0,
                     240.0,
-                    -1.0,
+                    -1000000.1,
                     getStartInstant(),
                     getEndInstant()
                 )
@@ -366,11 +369,11 @@ internal class DataPointTest {
             }
 
         Truth.assertThat(negativeOutOfRangeMinAbsoluteElevationStats).hasMessageThat()
-            .contains("minAbsoluteElevationMeters value -1.0 is out of range")
+            .contains("minAbsoluteElevationMeters value -1000000.1 is out of range")
         Truth.assertThat(negativeOutOfRangeMaxAbsoluteElevationStats).hasMessageThat()
-            .contains("maxAbsoluteElevationMeters value -1.0 is out of range")
+            .contains("maxAbsoluteElevationMeters value -1000000.1 is out of range")
         Truth.assertThat(negativeOutOfRangeAvgAbsoluteElevationStats).hasMessageThat()
-            .contains("averageAbsoluteElevationMeters value -1.0 is out of range")
+            .contains("averageAbsoluteElevationMeters value -1000000.1 is out of range")
         Truth.assertThat(positiveOutOfRangeMinAbsoluteElevationStats).hasMessageThat()
             .contains("minAbsoluteElevationMeters value 1000001.0 is out of range")
         Truth.assertThat(positiveOutOfRangeMaxAbsoluteElevationStats).hasMessageThat()

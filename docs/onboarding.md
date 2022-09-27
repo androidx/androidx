@@ -7,8 +7,8 @@ make simple changes in Android Studio, and upload commits to Gerrit for review.
 
 This page does **not** cover best practices for the content of changes. Please
 see [Life of a Jetpack Feature](loaf.md) for details on developing and releasing
-a library, [API Guidelines](api_guidelines.md) for best practices regarding
-public APIs and an overview of the constraints placed on changes.
+a library, [API Guidelines](api_guidelines/index.md) for best practices
+regarding public APIs and an overview of the constraints placed on changes.
 
 ## Workstation setup {#setup}
 
@@ -366,7 +366,7 @@ example, if you are working on `core` module use:
 
 To make warnings fail your build (same as presubmit), use the `--strict` flag,
 which our gradlew expands into a few correctness-related flags including
-`-Pandroidx.allWarningsAsErrors`:
+`-Pandroidx.validateNoUnrecognizedMessages`:
 
 ```shell
 ./gradlew core:core:assemble --strict
@@ -604,10 +604,11 @@ version -- we record three different types of API surfaces.
 *   `<version>.txt`: Public API surface, tracked for compatibility
 *   `restricted_<version>.txt`: `@RestrictTo` API surface, tracked for
     compatibility where necessary (see
-    [Restricted APIs](api_guidelines.md#restricted-api))
+    [Restricted APIs](api_guidelines/index.md#restricted-api))
 *   `public_plus_experimental_<version>.txt`: Public API surface plus
     `@RequiresOptIn` experimental API surfaces used for documentation (see
-    [Experimental APIs](api_guidelines.md#experimental-api)) and API review
+    [Experimental APIs](api_guidelines/index.md#experimental-api)) and API
+    review
 
 ### Release notes & the `Relnote:` tag {#relnote}
 

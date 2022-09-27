@@ -41,6 +41,7 @@ import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.display.DisplayManager;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -154,12 +155,25 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public class CameraXActivity extends AppCompatActivity {
     private static final String TAG = "CameraXActivity";
-    private static final String[] REQUIRED_PERMISSIONS =
-            new String[]{
+    private static final String[] REQUIRED_PERMISSIONS;
+
+    static {
+
+        //WRITE_EXTERNAL_STORAGE permission is not needed for SDK 33 or later to store media
+        if (Build.VERSION.SDK_INT >= 33) {
+            REQUIRED_PERMISSIONS = new String[]{
+                    Manifest.permission.CAMERA,
+                    Manifest.permission.RECORD_AUDIO
+            };
+        } else {
+            REQUIRED_PERMISSIONS = new String[]{
                     Manifest.permission.CAMERA,
                     Manifest.permission.RECORD_AUDIO,
                     Manifest.permission.WRITE_EXTERNAL_STORAGE
             };
+        }
+    }
+
     // Possible values for this intent key: "backward" or "forward".
     private static final String INTENT_EXTRA_CAMERA_DIRECTION = "camera_direction";
     // Possible values for this intent key: "switch_test_case", "preview_test_case" or
@@ -632,7 +646,7 @@ public class CameraXActivity extends AppCompatActivity {
                     } else if (outputOptions instanceof FileOutputOptions) {
                         videoFilePath = ((FileOutputOptions) outputOptions).getFile().getPath();
                         MediaScannerConnection.scanFile(this,
-                                new String[] { videoFilePath }, null,
+                                new String[]{videoFilePath}, null,
                                 (path, uri1) -> {
                                     Log.i(TAG, "Scanned " + path + " -> uri= " + uri1);
                                     updateVideoSavedSessionData(uri1);
@@ -1395,8 +1409,8 @@ public class CameraXActivity extends AppCompatActivity {
                                 for (String permission : REQUIRED_PERMISSIONS) {
                                     if (!Objects.requireNonNull(result.get(permission))) {
                                         Toast.makeText(getApplicationContext(),
-                                                "Camera permission denied.",
-                                                Toast.LENGTH_SHORT)
+                                                        "Camera permission denied.",
+                                                        Toast.LENGTH_SHORT)
                                                 .show();
                                         finish();
                                         return;
@@ -1581,10 +1595,10 @@ public class CameraXActivity extends AppCompatActivity {
         cameraInfo.getZoomState().removeObservers(this);
         cameraInfo.getZoomState().observe(this,
                 state -> {
-                String str = String.format("%.2fx", state.getZoomRatio());
-                mZoomRatioLabel.setText(str);
-                mZoomSeekBar.setProgress((int) (MAX_SEEKBAR_VALUE * state.getLinearZoom()));
-            });
+                    String str = String.format("%.2fx", state.getZoomRatio());
+                    mZoomRatioLabel.setText(str);
+                    mZoomSeekBar.setProgress((int) (MAX_SEEKBAR_VALUE * state.getLinearZoom()));
+                });
     }
 
     private boolean is2XZoomSupported() {

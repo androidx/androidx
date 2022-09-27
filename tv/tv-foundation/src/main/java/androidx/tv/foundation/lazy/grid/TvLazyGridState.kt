@@ -343,6 +343,25 @@ class TvLazyGridState constructor(
         }
     }
 
+    private fun cancelPrefetchIfVisibleItemsChanged(info: TvLazyGridLayoutInfo) {
+        if (lineToPrefetch != -1 && info.visibleItemsInfo.isNotEmpty()) {
+            val expectedLineToPrefetch = if (wasScrollingForward) {
+                info.visibleItemsInfo.last().let {
+                    if (isVertical) it.row else it.column
+                } + 1
+            } else {
+                info.visibleItemsInfo.first().let {
+                    if (isVertical) it.row else it.column
+                } - 1
+            }
+            if (lineToPrefetch != expectedLineToPrefetch) {
+                lineToPrefetch = -1
+                currentLinePrefetchHandles.forEach { it.cancel() }
+                currentLinePrefetchHandles.clear()
+            }
+        }
+    }
+
     internal val prefetchState = LazyLayoutPrefetchState()
 
     /**
@@ -374,6 +393,8 @@ class TvLazyGridState constructor(
             result.firstVisibleLineScrollOffset != 0
 
         numMeasurePasses++
+
+        cancelPrefetchIfVisibleItemsChanged(result)
     }
 
     /**

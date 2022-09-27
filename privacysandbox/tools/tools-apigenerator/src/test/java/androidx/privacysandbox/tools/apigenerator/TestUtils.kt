@@ -16,39 +16,15 @@
 
 package androidx.privacysandbox.tools.apigenerator
 
+import androidx.privacysandbox.tools.testing.CompilationTestHelper.assertCompiles
 import androidx.room.compiler.processing.util.Source
-import androidx.room.compiler.processing.util.compiler.TestCompilationArguments
-import androidx.room.compiler.processing.util.compiler.TestCompilationResult
-import androidx.room.compiler.processing.util.compiler.compile
 import com.google.common.truth.Truth.assertThat
-import com.google.common.truth.Truth.assertWithMessage
 import java.io.File
 import java.nio.file.Files.createTempDirectory
 import java.nio.file.Path
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
-import javax.tools.Diagnostic
 import kotlin.io.path.name
-
-fun assertCompiles(sources: List<Source>): TestCompilationResult {
-    val result = compileAll(sources)
-    assertWithMessage(
-        "Compilation of java files generated from AIDL failed with errors: " +
-            "${result.diagnostics[Diagnostic.Kind.ERROR]?.joinToString("\n") { it.msg }}"
-    ).that(
-        result.success
-    ).isTrue()
-    return result
-}
-
-fun compileAll(sources: List<Source>): TestCompilationResult {
-    val tempDir = createTempDirectory("compile").toFile().also { it.deleteOnExit() }
-    return compile(
-        tempDir, TestCompilationArguments(
-            sources = sources + syntheticPrivacySandboxSources,
-        )
-    )
-}
 
 fun compileIntoInterfaceDescriptorsJar(vararg sources: Source): Path {
     val tempDir = createTempDirectory("compile").toFile().also { it.deleteOnExit() }
@@ -70,43 +46,3 @@ fun compileIntoInterfaceDescriptorsJar(vararg sources: Source): Path {
 
     return sdkInterfaceDescriptors.toPath()
 }
-
-// PrivacySandbox platform APIs are not available in AndroidX prebuilts nor are they stable, so
-// while that's the case we use fake stubs to run our compilation tests.
-private val syntheticPrivacySandboxSources = listOf(
-    Source.java(
-        "android.app.sdksandbox.SdkSandboxManager", """
-        |package android.app.sdksandbox;
-        |
-        |import android.os.Bundle;
-        |import android.os.OutcomeReceiver;
-        |import java.util.concurrent.Executor;
-        |
-        |public final class SdkSandboxManager {
-        |    public void loadSdk(
-        |        String sdkName,
-        |        Bundle params,
-        |        Executor executor,
-        |        OutcomeReceiver<SandboxedSdk, LoadSdkException> receiver) {}
-        |}
-        |""".trimMargin()
-    ),
-    Source.java(
-        "android.app.sdksandbox.SandboxedSdk", """
-        |package android.app.sdksandbox;
-        |
-        |import android.os.IBinder;
-        |
-        |public final class SandboxedSdk {
-        |    public IBinder getInterface() { return null; }
-        |}
-        |""".trimMargin()
-    ),
-    Source.java(
-        "android.app.sdksandbox.LoadSdkException", """
-        |package android.app.sdksandbox;
-        |
-        |public final class LoadSdkException extends Exception {}
-        |""".trimMargin()
-    ),
-)

@@ -16,13 +16,17 @@
 
 package androidx.room.compiler.processing.ksp
 
+import androidx.room.compiler.codegen.JArrayTypeName
+import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.processing.XArrayType
 import androidx.room.compiler.processing.XNullability
 import androidx.room.compiler.processing.XType
 import com.google.devtools.ksp.symbol.KSType
 import com.google.devtools.ksp.symbol.Variance
-import com.squareup.javapoet.ArrayTypeName
-import com.squareup.javapoet.TypeName
+import com.squareup.kotlinpoet.ARRAY
+import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
+import com.squareup.kotlinpoet.javapoet.JTypeName
+import com.squareup.kotlinpoet.javapoet.KTypeName
 
 internal sealed class KspArrayType(
     env: KspProcessingEnv,
@@ -35,8 +39,12 @@ internal sealed class KspArrayType(
 
     abstract override val componentType: KspType
 
-    override fun resolveTypeName(): TypeName {
-        return ArrayTypeName.of(componentType.typeName)
+    override fun resolveJTypeName(): JTypeName {
+        return this.asTypeName().java
+    }
+
+    override fun resolveKTypeName(): KTypeName {
+        return this.asTypeName().kotlin
     }
 
     override fun boxed() = this
@@ -54,6 +62,17 @@ internal sealed class KspArrayType(
     ) : KspArrayType(
         env, ksType, jvmTypeResolver
     ) {
+        private val xTypeName: XTypeName by lazy {
+            val componentTypeName = componentType.asTypeName()
+            XTypeName(
+                java = JArrayTypeName.of(componentTypeName.java.box()),
+                kotlin = ARRAY.parameterizedBy(componentTypeName.kotlin),
+                nullability = nullability,
+            )
+        }
+
+        override fun asTypeName() = xTypeName
+
         override val componentType: KspType by lazy {
             val arg = ksType.arguments.single()
             // https://kotlinlang.org/docs/reference/basic-types.html#primitive-type-arrays
@@ -92,6 +111,17 @@ internal sealed class KspArrayType(
     ) : KspArrayType(
         env, ksType, jvmTypeResolver
     ) {
+        private val xTypeName: XTypeName by lazy {
+            val componentTypeName = componentType.asTypeName()
+            XTypeName(
+                java = JArrayTypeName.of(componentTypeName.java.unbox()),
+                kotlin = ksType.asKTypeName(env.resolver),
+                nullability = nullability,
+            )
+        }
+
+        override fun asTypeName() = xTypeName
+
         override fun copyWithNullability(nullability: XNullability): PrimitiveArray {
             return PrimitiveArray(
                 env = env,

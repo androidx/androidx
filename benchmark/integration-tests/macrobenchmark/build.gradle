@@ -41,6 +41,7 @@ dependencies {
     androidTestImplementation(project(":benchmark:benchmark-macro-junit4"))
     androidTestImplementation(project(":internal-testutils-macrobenchmark"))
     androidTestImplementation(project(":tracing:tracing-ktx"))
+    androidTestImplementation(libs.kotlinTest)
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)

@@ -67,6 +67,7 @@ import androidx.wear.watchface.WatchFaceType
 import androidx.wear.watchface.WatchState
 import androidx.wear.watchface.client.DeviceConfig
 import androidx.wear.watchface.client.DisconnectReason
+import androidx.wear.watchface.client.DisconnectReasons
 import androidx.wear.watchface.client.HeadlessWatchFaceClient
 import androidx.wear.watchface.client.InteractiveWatchFaceClient
 import androidx.wear.watchface.client.WatchFaceClientExperimental
@@ -1926,7 +1927,7 @@ class WatchFaceControlClientTest {
         // Simulate detach.
         engine.onDestroy()
 
-        assertThat(lastDisconnectReason).isEqualTo(DisconnectReason.ENGINE_DETACHED)
+        assertThat(lastDisconnectReason).isEqualTo(DisconnectReasons.ENGINE_DETACHED)
     }
 }
 

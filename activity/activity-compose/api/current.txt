@@ -23,11 +23,11 @@ package androidx.activity.compose {
     field public static final androidx.activity.compose.LocalActivityResultRegistryOwner INSTANCE;
   }
 
-  public final class LocalFullyLoadedReporterOwner {
-    method @androidx.compose.runtime.Composable public androidx.activity.FullyLoadedReporterOwner? getCurrent();
-    method public infix androidx.compose.runtime.ProvidedValue<androidx.activity.FullyLoadedReporterOwner> provides(androidx.activity.FullyLoadedReporterOwner fullyLoadedReporterOwner);
-    property @androidx.compose.runtime.Composable public final androidx.activity.FullyLoadedReporterOwner? current;
-    field public static final androidx.activity.compose.LocalFullyLoadedReporterOwner INSTANCE;
+  public final class LocalFullyDrawnReporterOwner {
+    method @androidx.compose.runtime.Composable public androidx.activity.FullyDrawnReporterOwner? getCurrent();
+    method public infix androidx.compose.runtime.ProvidedValue<androidx.activity.FullyDrawnReporterOwner> provides(androidx.activity.FullyDrawnReporterOwner fullyDrawnReporterOwner);
+    property @androidx.compose.runtime.Composable public final androidx.activity.FullyDrawnReporterOwner? current;
+    field public static final androidx.activity.compose.LocalFullyDrawnReporterOwner INSTANCE;
   }
 
   public final class LocalOnBackPressedDispatcherOwner {
@@ -43,9 +43,9 @@ package androidx.activity.compose {
     method @Deprecated public void unregister();
   }
 
-  public final class ReportLoadedKt {
-    method @androidx.compose.runtime.Composable public static void ReportLoadedAfter(kotlin.jvm.functions.Function1<? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?> block);
-    method @androidx.compose.runtime.Composable public static void ReportLoadedWhen(kotlin.jvm.functions.Function0<java.lang.Boolean> predicate);
+  public final class ReportDrawnKt {
+    method @androidx.compose.runtime.Composable public static void ReportDrawnAfter(kotlin.jvm.functions.Function1<? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?> block);
+    method @androidx.compose.runtime.Composable public static void ReportDrawnWhen(kotlin.jvm.functions.Function0<java.lang.Boolean> predicate);
   }
 
 }

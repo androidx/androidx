@@ -23,11 +23,10 @@ import android.os.Bundle
 import androidx.annotation.RestrictTo
 import androidx.health.platform.client.proto.AbstractMessageLite
 
-fun Intent.putProtoMessages(name: String, messages: Collection<AbstractMessageLite<*, *>>) {
+fun Intent.putProtoMessages(name: String, messages: Collection<AbstractMessageLite<*, *>>): Intent =
     putByteArraysExtra(name = name, byteArrays = messages.map { it.toByteArray() })
-}
 
-fun Intent.putByteArraysExtra(name: String, byteArrays: Collection<ByteArray>) {
+fun Intent.putByteArraysExtra(name: String, byteArrays: Collection<ByteArray>): Intent =
     putExtra(
         name,
         Bundle(byteArrays.size).apply {
@@ -36,7 +35,6 @@ fun Intent.putByteArraysExtra(name: String, byteArrays: Collection<ByteArray>) {
             }
         },
     )
-}
 
 fun <T : AbstractMessageLite<*, *>> Intent.getProtoMessages(
     name: String,

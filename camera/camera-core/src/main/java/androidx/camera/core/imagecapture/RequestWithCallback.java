@@ -46,6 +46,9 @@ class RequestWithCallback implements TakePictureCallback {
     private CallbackToFutureAdapter.Completer<Void> mCaptureCompleter;
     // Tombstone flag that indicates that this callback should not be invoked anymore.
     private boolean mIsComplete = false;
+    // Flag tracks if the request has been aborted by the UseCase. Once aborted, this class stops
+    // propagating callbacks to the app.
+    private boolean mIsAborted = false;
 
     RequestWithCallback(@NonNull TakePictureRequest takePictureRequest) {
         mTakePictureRequest = takePictureRequest;
@@ -60,6 +63,10 @@ class RequestWithCallback implements TakePictureCallback {
     @Override
     public void onImageCaptured() {
         checkMainThread();
+        if (mIsAborted) {
+            // Ignore. mCaptureFuture should have been completed by the #abort() call.
+            return;
+        }
         mCaptureCompleter.set(null);
         // TODO: send early callback to app.
     }
@@ -68,6 +75,11 @@ class RequestWithCallback implements TakePictureCallback {
     @Override
     public void onFinalResult(@NonNull ImageCapture.OutputFileResults outputFileResults) {
         checkMainThread();
+        if (mIsAborted) {
+            // Do not deliver result if the request has been aborted.
+            // TODO: delete the saved file when the request is aborted.
+            return;
+        }
         checkOnImageCaptured();
         markComplete();
         mTakePictureRequest.onResult(outputFileResults);
@@ -77,6 +89,10 @@ class RequestWithCallback implements TakePictureCallback {
     @Override
     public void onFinalResult(@NonNull ImageProxy imageProxy) {
         checkMainThread();
+        if (mIsAborted) {
+            // Do not deliver result if the request has been aborted.
+            return;
+        }
         checkOnImageCaptured();
         markComplete();
         mTakePictureRequest.onResult(imageProxy);
@@ -87,19 +103,40 @@ class RequestWithCallback implements TakePictureCallback {
     @Override
     public void onProcessFailure(@NonNull ImageCaptureException imageCaptureException) {
         checkMainThread();
+        if (mIsAborted) {
+            // Fail silently if the request has been aborted.
+            return;
+        }
         checkOnImageCaptured();
         markComplete();
         onFailure(imageCaptureException);
+    }
+
+    @Override
+    public boolean isAborted() {
+        return mIsAborted;
     }
 
     @MainThread
     @Override
     public void onCaptureFailure(@NonNull ImageCaptureException imageCaptureException) {
         checkMainThread();
+        if (mIsAborted) {
+            // Fail silently if the request has been aborted.
+            return;
+        }
         markComplete();
         mCaptureCompleter.set(null);
 
         // TODO(b/242683221): Add retry logic.
+        onFailure(imageCaptureException);
+    }
+
+    @MainThread
+    void abort(@NonNull ImageCaptureException imageCaptureException) {
+        checkMainThread();
+        mIsAborted = true;
+        mCaptureCompleter.set(null);
         onFailure(imageCaptureException);
     }
 

@@ -136,6 +136,7 @@ public final class RoutePreviewDemoScreen extends Screen {
                                                         : R.drawable.ic_favorite_white_24dp))
                                         .build())
                         .setOnClickListener(() -> {
+                            mIsFavorite = !mIsFavorite;
                             CarToast.makeText(
                                             getCarContext(),
                                             mIsFavorite
@@ -145,7 +146,6 @@ public final class RoutePreviewDemoScreen extends Screen {
                                                             R.string.not_favorite_toast_msg),
                                             LENGTH_SHORT)
                                     .show();
-                            mIsFavorite = !mIsFavorite;
                             invalidate();
                         })
                         .build())

@@ -496,17 +496,6 @@ public class WebViewFeatureInternal {
 
     /**
      * This feature covers
-     * {@link androidx.webkit.WebSettingsCompat#setRequestedWithHeaderMode(WebSettings, int)},
-     * {@link androidx.webkit.WebSettingsCompat#getRequestedWithHeaderMode(WebSettings)},
-     * {@link androidx.webkit.ServiceWorkerWebSettingsCompat#setRequestedWithHeaderMode(int)},
-     * and {@link androidx.webkit.ServiceWorkerWebSettingsCompat#getRequestedWithHeaderMode()}
-     */
-    public static final ApiFeature.NoFramework REQUESTED_WITH_HEADER_CONTROL =
-            new ApiFeature.NoFramework(WebViewFeature.REQUESTED_WITH_HEADER_CONTROL,
-                    Features.REQUESTED_WITH_HEADER_CONTROL);
-
-    /**
-     * This feature covers
      * {@link androidx.webkit.WebSettingsCompat#setEnterpriseAuthenticationAppLinkPolicyEnabled(WebSettings, boolean)} and
      * {@link androidx.webkit.WebSettingsCompat#getEnterpriseAuthenticationAppLinkPolicyEnabled(WebSettings)}.
      */

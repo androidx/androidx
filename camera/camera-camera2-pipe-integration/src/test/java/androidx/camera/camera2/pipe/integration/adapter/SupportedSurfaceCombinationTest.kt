@@ -31,7 +31,7 @@ import android.view.Surface
 import android.view.WindowManager
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
-import androidx.camera.camera2.pipe.integration.CameraPipeConfig.defaultConfig
+import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.camera2.pipe.integration.adapter.GuaranteedConfigurationsUtil.getFullSupportedCombinationList
 import androidx.camera.camera2.pipe.integration.adapter.GuaranteedConfigurationsUtil.getLegacySupportedCombinationList
 import androidx.camera.camera2.pipe.integration.adapter.GuaranteedConfigurationsUtil.getLevel3SupportedCombinationList
@@ -2624,7 +2624,7 @@ class SupportedSurfaceCombinationTest {
             .thenReturn(cameraDevicesWithCameraMetaData)
         cameraFactory!!.cameraManager = mockCameraAppComponent
         val cameraXConfig = CameraXConfig.Builder.fromConfig(
-            defaultConfig()
+            CameraPipeConfig.defaultConfig()
         )
             .setDeviceSurfaceManagerProvider { context: Context?, _: Any?, _: Set<String?>? ->
                 CameraSurfaceAdapter(

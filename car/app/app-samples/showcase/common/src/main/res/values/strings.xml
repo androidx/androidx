@@ -113,7 +113,7 @@
   <string name="example_2_text">This text has a green color</string>
   <string name="example_3_text">This text has a blue color</string>
   <string name="example_4_text">This text has a yellow color</string>
-  <string name="example_5_text">This text uses the primary colo</string>
+  <string name="example_5_text">This text uses the primary color</string>
   <string name="example_6_text">This text uses the secondary color</string>
   <string name="color_demo">Color Demo</string>
 
@@ -291,6 +291,7 @@
   <!-- MessageTemplateDemoScreen -->
   <string name="msg_template_demo_title">Message Template Demo</string>
   <string name="msg_template_demo_text">Message goes here.\nMore text on second line.</string>
+  <string name="short_msg_template_demo_title">Short Message Template Demo</string>
 
   <!-- PaneTemplateDemoScreen -->
   <string name="pane_template_demo_title">Pane Template Demo</string>
@@ -338,7 +339,7 @@
   <string name="vector_with_tint_title">A vector drawable, with a tint</string>
   <string name="vector_with_app_theme_attr_title">A vector drawable, with an app\'s theme attribute for its color</string>
   <string name="png_res_title">A PNG, sent as a resource</string>
-  <string name="png_bitmap_title">A PNG, sent as a resource</string>
+  <string name="png_bitmap_title">A PNG, sent as a bitmap</string>
 
   <!-- RowDemoScreen -->
   <string name="just_row_title">Just a title</string>
@@ -356,6 +357,7 @@
   <string name="row_text_icons_demo_title">Rows with Text and Icons Demo</string>
 
   <!-- SelectableListsDemoScreen -->
+  <string name="radio_button_list_demo_title">Radio Button Lists Demo</string>
   <string name="selectable_lists_demo_title">Selectable Lists Demo</string>
   <string name="option_1_title">Option 1</string>
   <string name="option_2_title">Option 2</string>
@@ -371,6 +373,9 @@
   <string name="task_limit_reached_msg">Task limit reached\nGoing forward will force stop the app</string>
   <string name="task_step_of_title">Task step %1$d of %2$d</string>
   <string name="task_step_of_text">Click to go forward</string>
+
+  <!-- ToggleButtonDemoScreen -->
+  <string name="toggle_button_demo_title">Toggle Button Demo</string>
   <string name="toggle_test_title">Toggle test</string>
   <string name="toggle_test_text">Stateful changes are allowed</string>
   <string name="toggle_test_first_toggle_title">Enable Toggle Test</string>
@@ -388,6 +393,8 @@
   <string name="misc_templates_demos_title">Misc Templates Demos</string>
   <string name="cal_api_level_prefix" translatable="false">CAL API Level: %d</string>
   <string name="showcase_demos_title">Showcase Demos</string>
+  <string name="template_layouts_demo_title">Template Layout Demos</string>
+  <string name="grid_template_menu_demo_title">Grid Template Demos</string>
 
   <!-- User Interactions Screen -->
   <string name="voice_access_demo_title">Voice Access Demo Screen</string>
@@ -433,4 +440,12 @@
   <string name="location_9_address" translatable="false">111 Waverly Way, Kirkland, WA 98033</string>
   <string name="location_description_text_label">Text label</string>
   <string name="location_phone_not_available" translatable="false">n/a</string>
+
+  <string name="parking_vs_driving_demo_title">Parking Vs Driving Demo</string>
+  <string name="latest_feature_details">Cluster Displays in cars!</string>
+  <string name="latest_feature_title">Latest Features</string>
+  <string name="loading_toggle_enabled">Loading enabled</string>
+  <string name="loading_toggle_disabled">Loading disabled</string>
+  <string name="loading_screen">Loading screen</string>
+  <string name="vector_toggle_details">Toggle to add/remove color</string>
 </resources>

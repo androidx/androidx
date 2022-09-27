@@ -36,7 +36,18 @@ import androidx.camera.core.impl.ReadableConfig
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @ExperimentalCamera2Interop
-open class CaptureRequestOptions(private val config: Config) : ReadableConfig {
+
+open class CaptureRequestOptions private constructor(
+    private val config: Config,
+    @Suppress("UNUSED_PARAMETER") unused: Boolean
+) :
+    ReadableConfig {
+
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    constructor(config: Config) : this(config, false)
 
     /**
      * Returns a value for the given [CaptureRequest.Key] or null if it hasn't been set.
@@ -46,7 +57,7 @@ open class CaptureRequestOptions(private val config: Config) : ReadableConfig {
      * @return The stored value or null if the value does not exist in this
      * configuration.
      */
-    fun <ValueT> getCaptureRequestOption(key: CaptureRequest.Key<ValueT>): ValueT? {
+    open fun <ValueT> getCaptureRequestOption(key: CaptureRequest.Key<ValueT>): ValueT? {
         // Type should have been only set via Builder#setCaptureRequestOption()
         @Suppress("UNCHECKED_CAST")
         val opt = key.createCaptureRequestOption() as Config.Option<ValueT>
@@ -88,9 +99,13 @@ open class CaptureRequestOptions(private val config: Config) : ReadableConfig {
     /**
      * Builder for creating [CaptureRequestOptions] instance.
      */
+    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     class Builder : ExtendableBuilder<CaptureRequestOptions?> {
         private val mutableOptionsBundle = MutableOptionsBundle.create()
 
+        /**
+         * @hide
+         */
         companion object {
             /**
              * Generates a Builder from another Config object.

@@ -136,7 +136,8 @@ class KspSyntheticFileMemberContainerTest {
                     val owner = invocation.kspResolver.getOwnerJvmClassName(field.declaration)
                     assertWithMessage(qName).that(owner).isNotNull()
                     val synthetic = KspSyntheticFileMemberContainer(owner!!)
-                    assertWithMessage(qName).that(target.className).isEqualTo(synthetic.className)
+                    assertWithMessage(qName).that(target.asClassName())
+                        .isEqualTo(synthetic.asClassName())
                 }
             }
             listOf("lib", "app").forEach { pkg ->

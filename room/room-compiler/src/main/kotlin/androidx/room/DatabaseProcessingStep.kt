@@ -16,6 +16,7 @@
 
 package androidx.room
 
+import androidx.room.compiler.codegen.CodeLanguage
 import androidx.room.compiler.processing.XElement
 import androidx.room.compiler.processing.XProcessingEnv
 import androidx.room.compiler.processing.XProcessingEnvConfig
@@ -93,14 +94,13 @@ class DatabaseProcessingStep : XProcessingStep {
                 DaoWriter(
                     daoMethod.dao,
                     db.element,
-                    context.processingEnv
-                )
-                    .write(context.processingEnv)
+                    CodeLanguage.JAVA
+                ).write(context.processingEnv)
             }
         }
 
         databases?.forEach { db ->
-            DatabaseWriter(db).write(context.processingEnv)
+            DatabaseWriter(db, CodeLanguage.JAVA).write(context.processingEnv)
             if (db.exportSchema) {
                 val schemaOutFolderPath = context.schemaOutFolderPath
                 if (schemaOutFolderPath == null) {
@@ -151,7 +151,7 @@ class DatabaseProcessingStep : XProcessingStep {
                 entry.value.groupBy { daoMethod ->
                     // first suffix guess: Database's simple name
                     val db = databases.first { db -> db.daoMethods.contains(daoMethod) }
-                    db.typeName.simpleName()
+                    db.typeName.simpleNames.last()
                 }.forEach { (dbName, methods) ->
                     if (methods.size == 1) {
                         // good, db names do not clash, use db name as suffix

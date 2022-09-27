@@ -73,7 +73,8 @@ import androidx.wear.compose.material.samples.TimeTextWithStatus
 import androidx.wear.compose.material.samples.TitleCardStandard
 import androidx.wear.compose.material.samples.TitleCardWithImage
 import androidx.wear.compose.material.samples.ToggleButtonWithIcon
-import androidx.wear.compose.material.samples.ToggleChipWithIcon
+import androidx.wear.compose.material.samples.ToggleChipWithRadioButton
+import androidx.wear.compose.material.samples.ToggleChipWithSwitch
 import java.time.LocalDate
 import java.time.LocalTime
 
@@ -405,9 +406,14 @@ val WearMaterialDemos = DemoCategory(
             listOf(
                 DemoCategory("Samples",
                     listOf(
-                        ComposableDemo("ToggleChip With Icon") {
+                        ComposableDemo("ToggleChip With Switch") {
                             Centralize(Modifier.padding(horizontal = 10.dp)) {
-                                ToggleChipWithIcon()
+                                ToggleChipWithSwitch()
+                            }
+                        },
+                        ComposableDemo("ToggleChip With RadioButton") {
+                            Centralize(Modifier.padding(horizontal = 10.dp)) {
+                                ToggleChipWithRadioButton()
                             }
                         },
                         ComposableDemo("SplitToggleChip With Checkbox") {
