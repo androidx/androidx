@@ -115,7 +115,6 @@ public class TestPager<Key : Any, Value : Any>(
      */
     private suspend fun doInitialLoad(initialKey: Key?): LoadResult<Key, Value> {
         return lock.withLock {
-            ensureValidPagingSource()
             pagingSource.load(
                 LoadParams.Refresh(initialKey, config.initialLoadSize, config.enablePlaceholders)
             ).also { result ->
@@ -131,7 +130,6 @@ public class TestPager<Key : Any, Value : Any>(
      */
     private suspend fun doLoad(loadType: LoadType): LoadResult<Key, Value>? {
         return lock.withLock {
-            ensureValidPagingSource()
             if (!hasRefreshed.get()) {
                 throw IllegalStateException("TestPager's first load operation must be a refresh. " +
                     "Please call refresh() once before calling ${loadType.name.lowercase()}().")
@@ -267,14 +265,6 @@ public class TestPager<Key : Any, Value : Any>(
             finalItemsBefore ?: 0
         } else {
             0
-        }
-    }
-
-    private fun ensureValidPagingSource() {
-        check(!pagingSource.invalid) {
-            "This TestPager cannot perform further loads as PagingSource $pagingSource has " +
-                "been invalidated. If the PagingSource is expected to be invalid, you can " +
-                "continue to load by creating a new TestPager with a new PagingSource."
         }
     }
 }
