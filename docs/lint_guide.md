@@ -593,7 +593,7 @@ multiple registries.
 androidx.mylibrary.lint.MyLibraryIssueRegistry
 ```
 
-## Advanced topics:
+## Advanced topics
 
 ### Analyzing multiple different file types
 

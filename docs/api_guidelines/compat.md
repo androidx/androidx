@@ -178,7 +178,11 @@ removed when the bug is resolved.
 
 ### Delegating to API-specific implementations {#delegating-to-api-specific-implementations}
 
-#### SDK-dependent reflection
+#### SDK-dependent reflection {#sdk-reflection}
+
+Note: The
+[BanUncheckedReflection](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:lint-checks/src/main/java/androidx/build/lint/BanUncheckedReflection.kt)
+lint check detects disallowed usages of reflection.
 
 Starting in API level 28, the platform restricts which
 [non-SDK interfaces](https://developer.android.com/distribute/best-practices/develop/restrictions-non-sdk-interfaces)
