@@ -32,6 +32,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Assume.assumeTrue
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import android.os.Build
@@ -59,6 +60,7 @@ class ExtensionsWindowLayoutInfoAdapterTest {
         }
     }
 
+    @Ignore("b/249124046")
     @Test
     fun testTranslate_windowLayoutInfo() {
         activityScenario.scenario.onActivity { activity ->
