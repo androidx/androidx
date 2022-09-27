@@ -77,7 +77,8 @@ class BanUncheckedReflection : Detector(), SourceCodeScanner {
             "Jetpack policy discourages reflection. In cases where reflection is used on " +
                 "platform SDK classes, it must be used within an `SDK_INT` check that delegates " +
                 "to an equivalent public API on the latest version of the platform. If no " +
-                "equivalent public API exists, reflection must not be used.",
+                "equivalent public API exists, reflection must not be used. For more " +
+                "information, see go/androidx-api-guidelines#sdk-reflection.",
             Category.CORRECTNESS, 5, Severity.ERROR,
             Implementation(BanUncheckedReflection::class.java, Scope.JAVA_FILE_SCOPE)
         )
