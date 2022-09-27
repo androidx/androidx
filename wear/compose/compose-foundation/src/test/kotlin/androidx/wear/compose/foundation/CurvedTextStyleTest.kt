@@ -17,11 +17,13 @@
 package androidx.wear.compose.foundation
 
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.isUnspecified
 import androidx.compose.ui.unit.sp
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
+import org.junit.Assert.assertNull
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -35,6 +37,7 @@ class CurvedTextStyleTest {
         assertEquals(style.color, Color.Unspecified)
         assertTrue(style.fontSize.isUnspecified)
         assertEquals(style.background, Color.Unspecified)
+        assertNull(style.fontWeight)
     }
 
     @Test
@@ -62,6 +65,15 @@ class CurvedTextStyleTest {
         val style = CurvedTextStyle(background = color)
 
         assertEquals(style.background, color)
+    }
+
+    @Test
+    fun `constructor with customized font weight`() {
+        val fontWeight = FontWeight.Bold
+
+        val style = CurvedTextStyle(fontWeight = fontWeight)
+
+        assertEquals(style.fontWeight, fontWeight)
     }
 
     @Test
@@ -128,5 +140,24 @@ class CurvedTextStyleTest {
         val newStyle = style.merge(otherStyle)
 
         assertEquals(newStyle.background, otherStyle.background)
+    }
+
+    @Test
+    fun `merge with other's font weight is unspecified should use this' font weight`() {
+        val style = CurvedTextStyle(fontWeight = FontWeight.ExtraBold)
+
+        val newStyle = style.merge(CurvedTextStyle(fontWeight = null))
+
+        assertEquals(newStyle.fontWeight, style.fontWeight)
+    }
+
+    @Test
+    fun `merge with other's font weight is set should use other's font weight`() {
+        val style = CurvedTextStyle(fontWeight = FontWeight.ExtraBold)
+        val otherStyle = CurvedTextStyle(fontWeight = FontWeight.Light)
+
+        val newStyle = style.merge(otherStyle)
+
+        assertEquals(newStyle.fontWeight, otherStyle.fontWeight)
     }
 }
