@@ -25,12 +25,15 @@ import android.os.HandlerThread
 import android.os.Looper.getMainLooper
 import android.util.Pair
 import android.util.Rational
+import android.util.Size
 import android.view.Surface
 import androidx.camera.core.ImageCapture.ImageCaptureRequest
 import androidx.camera.core.ImageCapture.ImageCaptureRequestProcessor
 import androidx.camera.core.ImageCapture.ImageCaptureRequestProcessor.ImageCaptor
 import androidx.camera.core.impl.CameraFactory
 import androidx.camera.core.impl.CaptureConfig
+import androidx.camera.core.impl.CaptureProcessor
+import androidx.camera.core.impl.ImageProxyBundle
 import androidx.camera.core.impl.SessionConfig
 import androidx.camera.core.impl.TagBundle
 import androidx.camera.core.impl.UseCaseConfig
@@ -189,11 +192,72 @@ class ImageCaptureTest {
     }
 
     @Test
+    fun processingPipelineOffByDefault() {
+        assertThat(
+            bindImageCapture(
+                useProcessingPipeline = false,
+                bufferFormat = ImageFormat.JPEG,
+            ).isProcessingPipelineEnabled
+        ).isFalse()
+    }
+
+    @Test
+    fun processingPipelineOn_pipelineEnabled() {
+        assertThat(
+            bindImageCapture(
+                useProcessingPipeline = true,
+                bufferFormat = ImageFormat.JPEG,
+            ).isProcessingPipelineEnabled
+        ).isTrue()
+    }
+
+    @Test
+    fun useImageReaderProvider_pipelineDisabled() {
+        assertThat(
+            bindImageCapture(
+                useProcessingPipeline = true,
+                bufferFormat = ImageFormat.JPEG,
+                imageReaderProxyProvider = getImageReaderProxyProvider(),
+            ).isProcessingPipelineEnabled
+        ).isFalse()
+    }
+
+    @Test
+    fun yuvFormat_pipelineDisabled() {
+        assertThat(
+            bindImageCapture(
+                useProcessingPipeline = true,
+                bufferFormat = ImageFormat.YUV_420_888,
+            ).isProcessingPipelineEnabled
+        ).isFalse()
+    }
+
+    @Test
+    fun extensionIsOn_pipelineDisabled() {
+        assertThat(
+            bindImageCapture(
+                useProcessingPipeline = true,
+                captureProcessor = object : CaptureProcessor {
+                    override fun onOutputSurface(surface: Surface, imageFormat: Int) {
+                    }
+
+                    override fun process(bundle: ImageProxyBundle) {
+                    }
+
+                    override fun onResolutionUpdate(size: Size) {
+                    }
+                }
+            ).isProcessingPipelineEnabled
+        ).isFalse()
+    }
+
+    @Test
     fun captureImageWithViewPort_isSet() {
         // Arrange
         val imageCapture = bindImageCapture(
             ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY,
-            ViewPort.Builder(Rational(1, 1), Surface.ROTATION_0).build()
+            ViewPort.Builder(Rational(1, 1), Surface.ROTATION_0).build(),
+            imageReaderProxyProvider = getImageReaderProxyProvider()
         )
 
         // Act
@@ -241,7 +305,10 @@ class ImageCaptureTest {
     @Test
     fun capturedImageSize_isEqualToSurfaceSize() {
         // Act/arrange.
-        val imageCapture = bindImageCapture(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
+        val imageCapture = bindImageCapture(
+            ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY,
+            imageReaderProxyProvider = getImageReaderProxyProvider()
+        )
 
         // Act
         imageCapture.takePicture(executor, onImageCapturedCallback)
@@ -495,10 +562,20 @@ class ImageCaptureTest {
         viewPort: ViewPort? = null,
         // Set non jpg format so it doesn't trigger the exif code path.
         bufferFormat: Int = ImageFormat.YUV_420_888,
-        imageReaderProxyProvider: ImageReaderProxyProvider? = null
+        imageReaderProxyProvider: ImageReaderProxyProvider? = null,
+        useProcessingPipeline: Boolean? = null,
+        captureProcessor: CaptureProcessor? = null
     ): ImageCapture {
         // Arrange.
-        val imageCapture = createImageCapture(captureMode, bufferFormat, imageReaderProxyProvider)
+        val imageCapture = createImageCapture(
+            captureMode,
+            bufferFormat,
+            imageReaderProxyProvider,
+            captureProcessor
+        )
+        if (useProcessingPipeline != null) {
+            imageCapture.mUseProcessingPipeline = useProcessingPipeline
+        }
 
         cameraUseCaseAdapter = CameraUtil.createCameraUseCaseAdapter(
             ApplicationProvider
@@ -515,16 +592,26 @@ class ImageCaptureTest {
         captureMode: Int = ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY,
         // Set non jpg format by default so it doesn't trigger the exif code path.
         bufferFormat: Int = ImageFormat.YUV_420_888,
-        imageReaderProxyProvider: ImageReaderProxyProvider? = null
-    ) = ImageCapture.Builder()
-        .setBufferFormat(bufferFormat)
-        .setTargetRotation(Surface.ROTATION_0)
-        .setCaptureMode(captureMode)
-        .setFlashMode(ImageCapture.FLASH_MODE_OFF)
-        .setCaptureOptionUnpacker { _: UseCaseConfig<*>?, _: CaptureConfig.Builder? -> }
-        .setImageReaderProxyProvider(imageReaderProxyProvider ?: getImageReaderProxyProvider())
-        .setSessionOptionUnpacker { _: UseCaseConfig<*>?, _: SessionConfig.Builder? -> }
-        .build()
+        imageReaderProxyProvider: ImageReaderProxyProvider? = null,
+        captureProcessor: CaptureProcessor? = null
+    ): ImageCapture {
+        val builder = ImageCapture.Builder()
+            .setTargetRotation(Surface.ROTATION_0)
+            .setCaptureMode(captureMode)
+            .setFlashMode(ImageCapture.FLASH_MODE_OFF)
+            .setCaptureOptionUnpacker { _: UseCaseConfig<*>?, _: CaptureConfig.Builder? -> }
+            .setSessionOptionUnpacker { _: UseCaseConfig<*>?, _: SessionConfig.Builder? -> }
+
+        if (captureProcessor != null) {
+            builder.setCaptureProcessor(captureProcessor)
+        } else {
+            builder.setBufferFormat(bufferFormat)
+        }
+        if (imageReaderProxyProvider != null) {
+            builder.setImageReaderProxyProvider(imageReaderProxyProvider)
+        }
+        return builder.build()
+    }
 
     private fun getImageReaderProxyProvider(): ImageReaderProxyProvider {
         return ImageReaderProxyProvider { width, height, imageFormat, queueDepth, usage ->
