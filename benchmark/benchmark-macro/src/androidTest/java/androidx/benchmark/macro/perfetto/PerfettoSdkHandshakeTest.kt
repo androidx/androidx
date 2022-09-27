@@ -342,6 +342,10 @@ class PerfettoSdkHandshakeTest(private val testConfig: TestConfig) {
             "Perfetto SDK binary dependencies missing" +
                 ".*UnsatisfiedLinkError.*libtracing_perfetto.so"
         )
+        assertThat(response).contains(
+            "androidTestImplementation(" +
+                "\"androidx.tracing:tracing-perfetto-binary:$tracingPerfettoVersion\")"
+        )
     }
 
     private fun assertPackageAlive(expected: Boolean) =
