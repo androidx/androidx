@@ -68,6 +68,69 @@ public static List<Window> getAllWindows() {
 }
 ```
 
+##### Preventing invalid casting in verification fixes
+
+Even when a call to a new API is moved to a version-specific class, a class
+verification failure is still possible if the method returns a new type. The new
+type will be seen as `Object` on lower API levels, so casting the returned value
+outside of the version-specific class to anything other than `Object` or the
+same new type will fail.
+
+For instance, the following would **not** be valid, because it implicitly casts
+an `AdaptiveIconDrawable` (new in API level 26, `Object` on lower API levels) to
+`Drawable`. Instead, the method inside of `Api26Impl` should return `Drawable`.
+
+```java {.good}
+private Drawable methodReturnsDrawable() {
+  if (Build.VERSION.SDK_INT >= 26) {
+    // Implicitly casts the returned AdaptiveIconDrawable to Drawable
+    return Api26Impl.createAdaptiveIconDrawable(null, null);
+  } else {
+    return null;
+  }
+}
+
+@RequiresApi(26)
+static class Api26Impl {
+  // Returns AdaptiveIconDrawable, introduced in API level 26
+  @DoNotInline
+  static AdaptiveIconDrawable createAdaptiveIconDrawable(Drawable backgroundDrawable, Drawable foregroundDrawable) {
+    return new AdaptiveIconDrawable(backgroundDrawable, foregroundDrawable);
+    }
+}
+```
+
+#### Validating class verification
+
+To verify that your library does not raise class verification failures, look for
+`dex2oat` output during install time.
+
+You can generate class verification logs from test APKs. Simply call the
+class/method that should generate a class verification failure in a test.
+
+The test APK will generate class verification logs on install.
+
+```bash
+# Enable ART logging (requires root). Note the 2 pairs of quotes!
+adb root
+adb shell setprop dalvik.vm.dex2oat-flags '"--runtime-arg -verbose:verifier"'
+
+# Restart Android services to pick up the settings
+adb shell stop && adb shell start
+
+# Optional: clear logs which aren't relevant
+adb logcat -c
+
+# Install the app and check for ART logs
+# This line is what triggers log lines, and can be repeated
+adb install -d -r someApk.apk
+
+# it's useful to run this _during_ install in another shell
+adb logcat | grep 'dex2oat'
+...
+... I dex2oat : Soft verification failures in
+```
+
 #### Device-specific issues {#compat-oem}
 
 Library code may work around device- or manufacturer-specific issues -- issues

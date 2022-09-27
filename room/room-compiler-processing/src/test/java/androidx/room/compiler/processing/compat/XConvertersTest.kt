@@ -39,13 +39,12 @@ import com.google.devtools.ksp.symbol.impl.kotlin.KSNameImpl
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.JavaFile
 import com.squareup.javapoet.TypeSpec
-import org.junit.Test
-import java.lang.IllegalStateException
 import javax.annotation.processing.Filer
 import javax.annotation.processing.Messager
 import javax.lang.model.type.TypeMirror
 import javax.lang.model.util.ElementFilter
 import javax.tools.Diagnostic
+import org.junit.Test
 
 class XConvertersTest {
 
@@ -113,9 +112,9 @@ class XConvertersTest {
                     assertThat(tFromXConverters).isNull()
                     return
                 }
-                assertThat(t.typeName).isEqualTo(tFromXConverters.typeName)
+                assertThat(t.asTypeName()).isEqualTo(tFromXConverters.asTypeName())
                 assertThat(t.typeElement).isEqualTo(tFromXConverters.typeElement)
-                assertThat(t.rawType.typeName).isEqualTo(tFromXConverters.rawType.typeName)
+                assertThat(t.rawType.asTypeName()).isEqualTo(tFromXConverters.rawType.asTypeName())
                 assertThat(t.typeArguments.size).isEqualTo(tFromXConverters.typeArguments.size)
                 for (i in 0..t.typeArguments.size) {
                     assertEqualTypes(t.typeArguments[i], tFromXConverters.typeArguments[i])

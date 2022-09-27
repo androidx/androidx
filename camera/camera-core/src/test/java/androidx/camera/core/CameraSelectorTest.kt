@@ -23,6 +23,7 @@ import androidx.camera.testing.fakes.FakeCamera
 import androidx.camera.testing.fakes.FakeCameraFactory
 import androidx.camera.testing.fakes.FakeCameraInfoInternal
 import com.google.common.truth.Truth.assertThat
+import java.util.concurrent.ExecutionException
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -30,8 +31,6 @@ import org.mockito.Mockito
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
-import java.util.LinkedHashSet
-import java.util.concurrent.ExecutionException
 
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument

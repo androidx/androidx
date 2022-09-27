@@ -47,8 +47,8 @@ class InteractiveWatchFaceClientTest {
         client.addClientDisconnectListener(listener, { it.run() })
 
         // Simulate multiple disconnect notifications.
-        client.sendDisconnectNotification(DisconnectReason.ENGINE_DETACHED)
-        client.sendDisconnectNotification(DisconnectReason.ENGINE_DIED)
+        client.sendDisconnectNotification(DisconnectReasons.ENGINE_DETACHED)
+        client.sendDisconnectNotification(DisconnectReasons.ENGINE_DIED)
 
         // But only one should be sent to the listener.
         verify(listener, times(1)).onClientDisconnected(any())

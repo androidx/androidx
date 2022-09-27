@@ -94,7 +94,7 @@ internal class RxCallableQueryResultBinder(
         )
         beginControlFlow("try").apply {
             adapter?.convert(outVar, cursorVar, adapterScope)
-            addCode(adapterScope.generate())
+            addCode(adapterScope.builder().build())
             if (!rxType.canBeNull) {
                 beginControlFlow("if($L == null)", outVar).apply {
                     addStatement(

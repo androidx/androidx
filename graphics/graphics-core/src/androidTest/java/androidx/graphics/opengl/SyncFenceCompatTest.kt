@@ -26,7 +26,9 @@ import androidx.graphics.opengl.egl.EGLManager
 import androidx.graphics.opengl.egl.EGLSpec
 import androidx.graphics.opengl.egl.EGLVersion
 import androidx.graphics.opengl.egl.supportsNativeAndroidFence
+import androidx.hardware.SyncFence
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -36,26 +38,28 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 @SmallTest
-@RequiresApi(Build.VERSION_CODES.KITKAT)
+@RequiresApi(Build.VERSION_CODES.O)
 class SyncFenceCompatTest {
     @Test
-    fun testRenderFenceCreate() {
+    fun testSyncFenceCompat_Create() {
         testEglManager {
             initializeWithDefaultConfig()
             if (supportsNativeAndroidFence()) {
                 val syncFenceCompat = SyncFenceCompat.createNativeSyncFence(this.eglSpec)
+                assert(syncFenceCompat.isValid())
                 syncFenceCompat.close()
             }
         }
     }
 
     @Test
-    fun testRenderFenceAwait() {
+    fun testSyncFenceCompat_Await() {
         testEglManager {
             initializeWithDefaultConfig()
             if (supportsNativeAndroidFence()) {
 
                 val syncFenceCompat = SyncFenceCompat.createNativeSyncFence(this.eglSpec)
+                assert(syncFenceCompat.isValid())
                 GLES20.glFlush()
                 assertTrue(syncFenceCompat.await(1000))
 
@@ -65,14 +69,33 @@ class SyncFenceCompatTest {
     }
 
     @Test
-    fun testRenderFenceAwaitForever() {
+    fun testSyncFenceCompat_AwaitForever() {
         testEglManager {
             initializeWithDefaultConfig()
             if (supportsNativeAndroidFence()) {
-
                 val syncFenceCompat = SyncFenceCompat.createNativeSyncFence(this.eglSpec)
-                GLES20.glFlush()
+                assert(syncFenceCompat.isValid())
                 assertTrue(syncFenceCompat.awaitForever())
+
+                syncFenceCompat.close()
+            }
+        }
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    fun testSyncFenceCompat_SignalTime() {
+        testEglManager {
+            initializeWithDefaultConfig()
+            if (supportsNativeAndroidFence()) {
+                val start = System.nanoTime()
+                val syncFenceCompat = SyncFenceCompat.createNativeSyncFence(this.eglSpec)
+                assertTrue(syncFenceCompat.isValid())
+                assertTrue(syncFenceCompat.getSignalTime() != SyncFence.SIGNAL_TIME_INVALID)
+                assertTrue(syncFenceCompat.awaitForever())
+
+                assertTrue(syncFenceCompat.getSignalTime() > start)
+                assertTrue(syncFenceCompat.getSignalTime() != SyncFenceCompat.SIGNAL_TIME_PENDING)
 
                 syncFenceCompat.close()
             }

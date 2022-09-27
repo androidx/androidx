@@ -38,7 +38,7 @@ import java.util.concurrent.Executor;
  * lifecycle of the {@link Surface}.
  *
  * @hide
- * @see SurfaceEffect#onOutputSurface(SurfaceOutput)
+ * @see SurfaceProcessor#onOutputSurface(SurfaceOutput)
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface SurfaceOutput {
@@ -63,10 +63,10 @@ public interface SurfaceOutput {
      * This field indicates that what purpose the {@link Surface} will be used for.
      *
      * <ul>
-     * <li>{@link SurfaceEffect#PREVIEW} if the {@link Surface} will be used for {@link Preview}.
-     * <li>{@link SurfaceEffect#VIDEO_CAPTURE} if the {@link Surface} will be used for video
+     * <li>{@link SurfaceProcessor#PREVIEW} if the {@link Surface} will be used for {@link Preview}.
+     * <li>{@link SurfaceProcessor#VIDEO_CAPTURE} if the {@link Surface} will be used for video
      * capture.
-     * <li>{@link SurfaceEffect#PREVIEW} | {@link SurfaceEffect#VIDEO_CAPTURE} if the output
+     * <li>{@link SurfaceProcessor#PREVIEW} | {@link SurfaceProcessor#VIDEO_CAPTURE} if the output
      * {@link Surface} will be used for sharing a single stream for both preview and video capture.
      * </ul>
      */

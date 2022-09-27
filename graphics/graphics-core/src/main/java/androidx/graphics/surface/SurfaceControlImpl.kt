@@ -16,6 +16,7 @@
 
 package androidx.graphics.surface
 
+import android.graphics.Rect
 import android.graphics.Region
 import android.hardware.HardwareBuffer
 import android.os.Build
@@ -222,6 +223,79 @@ internal interface SurfaceControlImpl {
         fun setAlpha(
             surfaceControl: SurfaceControlImpl,
             alpha: Float
+        ): Transaction
+
+        /**
+         * Bounds the surface and its children to the bounds specified. Size of the surface
+         * will be ignored and only the crop and buffer size will be used to determine the
+         * bounds of the surface. If no crop is specified and the surface has no buffer,
+         * the surface bounds is only constrained by the size of its parent bounds.
+         *
+         * @param surfaceControl The [SurfaceControlImpl] to apply the crop to. This value
+         * cannot be null.
+         *
+         * @param crop Bounds of the crop to apply. This value can be null.
+         *
+         * @throws IllegalArgumentException if crop is not a valid rectangle.
+         */
+        fun setCrop(
+            surfaceControl: SurfaceControlImpl,
+            crop: Rect?
+        ): Transaction
+
+        /**
+         * Sets the SurfaceControl to the specified position relative to the parent SurfaceControl
+         *
+         * @param surfaceControl The [SurfaceControlImpl] to change position. This value cannot
+         * be null
+         *
+         * @param x the X position
+         *
+         * @param y the Y position
+         */
+        fun setPosition(
+            surfaceControl: SurfaceControlImpl,
+            x: Float,
+            y: Float
+        ): Transaction
+
+        /**
+         * Sets the SurfaceControl to the specified scale with (0, 0) as the
+         * center point of the scale.
+         *
+         * @param surfaceControl The [SurfaceControlImpl] to change scale. This value cannot
+         * be null.
+         *
+         * @param scaleX the X scale
+         *
+         * @param scaleY the Y scale
+         */
+        fun setScale(
+            surfaceControl: SurfaceControlImpl,
+            scaleX: Float,
+            scaleY: Float
+        ): Transaction
+
+        /**
+         * Sets the buffer transform that should be applied to the current buffer
+         *
+         * @param surfaceControl the [SurfaceControlImpl] to update. This value cannot be null.
+         *
+         * @param transformation The transform to apply to the buffer. Value is
+         * [SurfaceControlCompat.BUFFER_TRANSFORM_IDENTITY],
+         * [SurfaceControlCompat.BUFFER_TRANSFORM_MIRROR_HORIZONTAL],
+         * [SurfaceControlCompat.BUFFER_TRANSFORM_MIRROR_VERTICAL],
+         * [SurfaceControlCompat.BUFFER_TRANSFORM_ROTATE_90],
+         * [SurfaceControlCompat.BUFFER_TRANSFORM_ROTATE_180],
+         * [SurfaceControlCompat.BUFFER_TRANSFORM_ROTATE_270],
+         * [SurfaceControlCompat.BUFFER_TRANSFORM_MIRROR_HORIZONTAL] |
+         * [SurfaceControlCompat.BUFFER_TRANSFORM_ROTATE_90], or
+         * [SurfaceControlCompat.BUFFER_TRANSFORM_MIRROR_VERTICAL] |
+         * [SurfaceControlCompat.BUFFER_TRANSFORM_ROTATE_90]
+         */
+        fun setBufferTransform(
+            surfaceControl: SurfaceControlImpl,
+            transformation: Int
         ): Transaction
 
         /**

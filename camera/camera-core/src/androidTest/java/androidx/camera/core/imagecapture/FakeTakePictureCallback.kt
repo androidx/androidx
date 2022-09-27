@@ -51,6 +51,10 @@ class FakeTakePictureCallback : TakePictureCallback {
         TODO("Not yet implemented")
     }
 
+    override fun isAborted(): Boolean {
+        return false
+    }
+
     internal suspend fun getInMemoryResult() = suspendCoroutine { cont ->
         inMemoryResultCont = cont
     }

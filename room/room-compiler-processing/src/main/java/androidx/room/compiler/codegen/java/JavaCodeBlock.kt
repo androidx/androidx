@@ -17,18 +17,19 @@
 package androidx.room.compiler.codegen.java
 
 import androidx.room.compiler.codegen.CodeLanguage
+import androidx.room.compiler.codegen.JCodeBlock
 import androidx.room.compiler.codegen.TargetLanguage
 import androidx.room.compiler.codegen.XCodeBlock
 import androidx.room.compiler.codegen.XFunSpec
+import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.codegen.XTypeSpec
-import com.squareup.kotlinpoet.javapoet.JTypeName
 
 internal class JavaCodeBlock(
-    internal val actual: com.squareup.javapoet.CodeBlock
+    internal val actual: JCodeBlock
 ) : JavaLang(), XCodeBlock {
 
     internal class Builder : JavaLang(), XCodeBlock.Builder {
-        internal val actual = com.squareup.javapoet.CodeBlock.builder()
+        internal val actual = JCodeBlock.builder()
 
         override fun add(code: XCodeBlock) = apply {
             require(code is JavaCodeBlock)
@@ -49,7 +50,7 @@ internal class JavaCodeBlock(
 
         override fun addLocalVariable(
             name: String,
-            type: JTypeName,
+            type: XTypeName,
             isMutable: Boolean,
             assignExpr: XCodeBlock
         ) = apply {
@@ -78,6 +79,7 @@ internal class JavaCodeBlock(
                     check(arg.language == CodeLanguage.JAVA) { "$arg is not JavaCode" }
                 }
                 when (arg) {
+                    is XTypeName -> arg.java
                     is XTypeSpec -> (arg as JavaTypeSpec).actual
                     is XFunSpec -> (arg as JavaFunSpec).actual
                     is XCodeBlock -> (arg as JavaCodeBlock).actual

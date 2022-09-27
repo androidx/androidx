@@ -20,6 +20,8 @@ import static androidx.camera.core.impl.utils.Threads.checkMainThread;
 import static androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor;
 import static androidx.camera.view.CameraController.OutputSize.UNASSIGNED_ASPECT_RATIO;
 
+import static java.util.Collections.emptyList;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Matrix;
@@ -41,11 +43,11 @@ import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.AspectRatio;
 import androidx.camera.core.Camera;
 import androidx.camera.core.CameraControl;
+import androidx.camera.core.CameraEffect;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraUnavailableException;
-import androidx.camera.core.EffectBundle;
 import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.FocusMeteringResult;
 import androidx.camera.core.ImageAnalysis;
@@ -80,6 +82,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -306,8 +309,8 @@ public abstract class CameraController {
     final MutableLiveData<Integer> mTapToFocusState = new MutableLiveData<>(
             TAP_TO_FOCUS_NOT_STARTED);
 
-    @Nullable
-    private EffectBundle mEffectBundle;
+    @NonNull
+    private List<CameraEffect> mEffects = emptyList();
 
     private final Context mAppContext;
 
@@ -1664,13 +1667,13 @@ public abstract class CameraController {
     /**
      * Sets post-processing effects.
      *
-     * @param effectBundle the effects applied to camera output.
+     * @param effects the effects applied to camera output.
      * @hide
-     * @see UseCaseGroup.Builder#getEffectBundle()
+     * @see UseCaseGroup.Builder#addEffect
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public void setEffectBundle(@Nullable EffectBundle effectBundle) {
-        if (mEffectBundle == effectBundle) {
+    public void setEffects(@NonNull List<CameraEffect> effects) {
+        if (Objects.equals(mEffects, effects)) {
             // Same effect. No change needed.
             return;
         }
@@ -1678,7 +1681,7 @@ public abstract class CameraController {
             // Unbind to make sure the pipelines will be recreated.
             mCameraProvider.unbindAll();
         }
-        mEffectBundle = effectBundle;
+        mEffects = effects;
         startCameraAndTrackStates();
     }
 
@@ -1763,8 +1766,8 @@ public abstract class CameraController {
         }
 
         builder.setViewPort(mViewPort);
-        if (mEffectBundle != null) {
-            builder.setEffectBundle(mEffectBundle);
+        for (CameraEffect effect : mEffects) {
+            builder.addEffect(effect);
         }
         return builder.build();
     }

@@ -40,7 +40,7 @@ import javax.lang.model.element.Modifier
  * Writes the method that fetches the relations of a POJO and assigns them into the given map.
  */
 class RelationCollectorMethodWriter(private val collector: RelationCollector) :
-    ClassWriter.SharedMethodSpec(
+    TypeWriter.SharedMethodSpec(
         "fetchRelationship${collector.relation.entity.tableName.stripNonJava()}" +
             "As${collector.relation.pojoTypeName.toString().stripNonJava()}"
     ) {
@@ -58,7 +58,7 @@ class RelationCollectorMethodWriter(private val collector: RelationCollector) :
             "-${relation.createLoadAllSql()}"
     }
 
-    override fun prepare(methodName: String, writer: ClassWriter, builder: MethodSpec.Builder) {
+    override fun prepare(methodName: String, writer: TypeWriter, builder: MethodSpec.Builder) {
         val scope = CodeGenScope(writer)
         val relation = collector.relation
 

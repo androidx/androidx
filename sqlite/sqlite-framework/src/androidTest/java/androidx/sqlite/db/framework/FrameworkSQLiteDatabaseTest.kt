@@ -17,8 +17,6 @@
 package androidx.sqlite.db.framework
 
 import android.content.Context
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
@@ -43,7 +41,6 @@ class FrameworkSQLiteDatabaseTest {
     }
 
     @Test
-    @RequiresApi(Build.VERSION_CODES.JELLY_BEAN)
     fun testFrameWorkSQLiteDatabase_simpleDeleteWorks() {
         val db = openHelper.writableDatabase
         db.execSQL("create table user (idk int)")
@@ -52,9 +49,8 @@ class FrameworkSQLiteDatabaseTest {
             .compileStatement("insert into user (idk) values (1)")
         statement.executeInsert() // This should succeed
 
-        db.query("select * from user").use {
-            assertThat(it.count).isEqualTo(1)
-        }
+        val cursor1 = db.query("select * from user")
+        assertThat(cursor1.count).isEqualTo(1)
 
         db.delete(
             "user",
@@ -62,13 +58,11 @@ class FrameworkSQLiteDatabaseTest {
             null
         )
 
-        db.query("select * from user").use {
-            assertThat(it.count).isEqualTo(0)
-        }
+        val cursor2 = db.query("select * from user")
+        assertThat(cursor2.count).isEqualTo(0)
     }
 
     @Test
-    @RequiresApi(Build.VERSION_CODES.JELLY_BEAN)
     fun testFrameWorkSQLiteDatabase_deleteWorksWithWhereClause() {
         val db = openHelper.writableDatabase
         db.execSQL("create table user (idk int)")
@@ -77,14 +71,12 @@ class FrameworkSQLiteDatabaseTest {
             .compileStatement("insert into user (idk) values (1)")
         statement.executeInsert() // This should succeed
 
-        db.query("select * from user where idk=1").use {
-            assertThat(it.count).isEqualTo(1)
-        }
+        val cursor1 = db.query("select * from user where idk=1")
+        assertThat(cursor1.count).isEqualTo(1)
 
         db.delete("user", "idk = ?", arrayOf(1))
 
-        db.query("select * from user where idk=1").use {
-            assertThat(it.count).isEqualTo(0)
-        }
+        val cursor2 = db.query("select * from user where idk=1")
+        assertThat(cursor2.count).isEqualTo(0)
     }
 }

@@ -53,17 +53,17 @@ fun FileSpec.writeTo(generator: XFiler, mode: XFiler.Mode = XFiler.Mode.Isolatin
 }
 
 fun XTypeSpec.writeTo(generator: XFiler, mode: XFiler.Mode = XFiler.Mode.Isolating) {
-    require(this.className.simpleNames().size == 1) { "XTypeSpec must be a top-level class." }
+    require(this.className.simpleNames.size == 1) { "XTypeSpec must be a top-level class." }
     when (this.language) {
         CodeLanguage.JAVA -> {
             check(this is JavaTypeSpec)
-            JavaFile.builder(this.className.packageName(), this.actual)
+            JavaFile.builder(this.className.packageName, this.actual)
                 .build()
                 .writeTo(generator, mode)
         }
         CodeLanguage.KOTLIN -> {
             check(this is KotlinTypeSpec)
-            FileSpec.builder(this.className.packageName(), this.className.simpleName())
+            FileSpec.builder(this.className.packageName, this.className.simpleNames.single())
                 .addType(this.actual)
                 .build()
                 .writeTo(generator, mode)

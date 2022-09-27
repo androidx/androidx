@@ -28,10 +28,9 @@ import androidx.compose.ui.unit.sp
 internal val DefaultCurvedTextStyles = CurvedTextStyle(
     color = Color.Black,
     fontSize = 14.sp,
-    background = Color.Transparent
-).also {
-    it.fontWeight = FontWeight.Normal
-}
+    background = Color.Transparent,
+    fontWeight = FontWeight.Normal
+)
 
 /**
  * Styling configuration for a curved text.
@@ -42,15 +41,33 @@ internal val DefaultCurvedTextStyles = CurvedTextStyle(
  * @param color The text color.
  * @param fontSize The size of glyphs (in logical pixels) to use when painting the text. This
  * may be [TextUnit.Unspecified] for inheriting from another [CurvedTextStyle].
- *
+ * @param fontWeight The thickness of the glyphs, in a range of [1, 1000]. see [FontWeight]
  */
 class CurvedTextStyle(
     val background: Color = Color.Unspecified,
     val color: Color = Color.Unspecified,
     val fontSize: TextUnit = TextUnit.Unspecified,
+    val fontWeight: FontWeight? = null
 ) {
-    // Temporary added as internal field until we can add to the public API in 1.1
-    internal var fontWeight: FontWeight? = null
+
+    /**
+     * Styling configuration for a curved text.
+     *
+     * @sample androidx.wear.compose.foundation.samples.CurvedAndNormalText
+     *
+     * @param background The background color for the text.
+     * @param color The text color.
+     * @param fontSize The size of glyphs (in logical pixels) to use when painting the text. This
+     * may be [TextUnit.Unspecified] for inheriting from another [CurvedTextStyle].
+     */
+    @Deprecated("This overload is provided for backwards compatibility with Compose for " +
+        "Wear OS 1.0. A newer overload is available with an additional fontWeight parameter.",
+        level = DeprecationLevel.HIDDEN)
+    constructor(
+        background: Color = Color.Unspecified,
+        color: Color = Color.Unspecified,
+        fontSize: TextUnit = TextUnit.Unspecified
+    ) : this(background, color, fontSize, null)
 
     /**
      * Create a curved text style from the given text style.
@@ -58,9 +75,12 @@ class CurvedTextStyle(
      * Note that not all parameters in the text style will be used, only [TextStyle.color],
      * [TextStyle.fontSize], [TextStyle.background] and [TextStyle.fontWeight]
      */
-    constructor(style: TextStyle) : this(style.background, style.color, style.fontSize) {
-        fontWeight = style.fontWeight
-    }
+    constructor(style: TextStyle) : this(
+        style.background,
+        style.color,
+        style.fontSize,
+        style.fontWeight
+    )
 
     /**
      * Returns a new curved text style that is a combination of this style and the given
@@ -79,9 +99,8 @@ class CurvedTextStyle(
             color = other.color.takeOrElse { this.color },
             fontSize = if (!other.fontSize.isUnspecified) other.fontSize else this.fontSize,
             background = other.background.takeOrElse { this.background },
-        ).also {
-            it.fontWeight = other.fontWeight ?: this.fontWeight
-        }
+            fontWeight = other.fontWeight ?: this.fontWeight
+        )
     }
 
     /**
@@ -89,6 +108,8 @@ class CurvedTextStyle(
      */
     operator fun plus(other: CurvedTextStyle): CurvedTextStyle = this.merge(other)
 
+    @Deprecated("This overload is provided for backwards compatibility with Compose for " +
+        "Wear OS 1.0. A newer overload is available with an additional fontWeight parameter.")
     fun copy(
         background: Color = this.background,
         color: Color = this.color,
@@ -98,9 +119,22 @@ class CurvedTextStyle(
             background = background,
             color = color,
             fontSize = fontSize,
-        ).also {
-            it.fontWeight = this.fontWeight
-        }
+            fontWeight = this.fontWeight
+        )
+    }
+
+    fun copy(
+        background: Color = this.background,
+        color: Color = this.color,
+        fontSize: TextUnit = this.fontSize,
+        fontWeight: FontWeight? = this.fontWeight
+    ): CurvedTextStyle {
+        return CurvedTextStyle(
+            background = background,
+            color = color,
+            fontSize = fontSize,
+            fontWeight = fontWeight
+        )
     }
 
     override fun equals(other: Any?): Boolean {

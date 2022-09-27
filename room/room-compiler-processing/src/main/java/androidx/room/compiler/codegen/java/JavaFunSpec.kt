@@ -17,12 +17,11 @@
 package androidx.room.compiler.codegen.java
 
 import androidx.room.compiler.codegen.L
-import androidx.room.compiler.codegen.NONNULL_ANNOTATION
-import androidx.room.compiler.codegen.NULLABLE_ANNOTATION
 import androidx.room.compiler.codegen.VisibilityModifier
 import androidx.room.compiler.codegen.XAnnotationSpec
 import androidx.room.compiler.codegen.XCodeBlock
 import androidx.room.compiler.codegen.XFunSpec
+import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.processing.KnownTypeNames.KOTLIN_UNIT
 import androidx.room.compiler.processing.XNullability
 import com.squareup.javapoet.CodeBlock
@@ -36,7 +35,7 @@ internal class JavaFunSpec(
 ) : JavaLang(), XFunSpec {
 
     internal class Builder(
-        internal val actual: com.squareup.javapoet.MethodSpec.Builder
+        internal val actual: MethodSpec.Builder
     ) : JavaLang(), XFunSpec.Builder {
 
         override fun addCode(code: XCodeBlock) = apply {
@@ -45,17 +44,16 @@ internal class JavaFunSpec(
         }
 
         override fun addParameter(
-            typeName: JTypeName,
+            typeName: XTypeName,
             name: String,
-            nullability: XNullability,
             annotations: List<XAnnotationSpec>
         ) = apply {
             actual.addParameter(
-                ParameterSpec.builder(typeName, name, Modifier.FINAL)
+                ParameterSpec.builder(typeName.java, name, Modifier.FINAL)
                     .apply {
-                        if (nullability == XNullability.NULLABLE) {
+                        if (typeName.nullability == XNullability.NULLABLE) {
                             addAnnotation(NULLABLE_ANNOTATION)
-                        } else if (nullability == XNullability.NONNULL) {
+                        } else if (typeName.nullability == XNullability.NONNULL) {
                             addAnnotation(NONNULL_ANNOTATION)
                         }
                     }.build()
@@ -76,19 +74,19 @@ internal class JavaFunSpec(
             )
         }
 
-        override fun returns(typeName: JTypeName, nullability: XNullability) = apply {
-            if (typeName == com.squareup.javapoet.TypeName.VOID || typeName == KOTLIN_UNIT) {
+        override fun returns(typeName: XTypeName) = apply {
+            if (typeName.java == JTypeName.VOID || typeName.java == KOTLIN_UNIT) {
                 return@apply
             }
             // TODO(b/247242374) Add nullability annotations for non-private methods
             if (!actual.modifiers.contains(Modifier.PRIVATE)) {
-                if (nullability == XNullability.NULLABLE) {
+                if (typeName.nullability == XNullability.NULLABLE) {
                     actual.addAnnotation(NULLABLE_ANNOTATION)
-                } else if (nullability == XNullability.NONNULL) {
+                } else if (typeName.nullability == XNullability.NONNULL) {
                     actual.addAnnotation(NONNULL_ANNOTATION)
                 }
             }
-            actual.returns(typeName)
+            actual.returns(typeName.java)
         }
 
         override fun build() = JavaFunSpec(actual.build())

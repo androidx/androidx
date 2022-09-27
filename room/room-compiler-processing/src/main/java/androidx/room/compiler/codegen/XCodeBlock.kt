@@ -18,7 +18,6 @@ package androidx.room.compiler.codegen
 
 import androidx.room.compiler.codegen.java.JavaCodeBlock
 import androidx.room.compiler.codegen.kotlin.KotlinCodeBlock
-import com.squareup.kotlinpoet.javapoet.JTypeName
 
 interface XCodeBlock : TargetLanguage {
 
@@ -32,7 +31,7 @@ interface XCodeBlock : TargetLanguage {
 
         fun addLocalVariable(
             name: String,
-            type: JTypeName,
+            type: XTypeName,
             isMutable: Boolean = false,
             assignExpr: XCodeBlock
         ): Builder

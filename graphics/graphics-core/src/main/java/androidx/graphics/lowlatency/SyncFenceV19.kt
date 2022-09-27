@@ -44,4 +44,19 @@ internal class SyncFenceV19(syncFence: SyncFence) : SyncFenceImpl {
     override fun close() {
         mSyncFence.close()
     }
+
+    /**
+     * See [SyncFenceImpl.getSignalTime]
+     */
+    @RequiresApi(Build.VERSION_CODES.O)
+    override fun getSignalTime(): Long {
+        return mSyncFence.getSignalTime()
+    }
+
+    /**
+     * See [SyncFenceImpl.isValid]
+     */
+    override fun isValid(): Boolean {
+        return mSyncFence.isValid()
+    }
 }

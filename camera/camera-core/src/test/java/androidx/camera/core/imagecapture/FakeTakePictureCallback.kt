@@ -30,6 +30,7 @@ internal class FakeTakePictureCallback : TakePictureCallback {
     var captureFailure: ImageCaptureException? = null
     var processFailure: ImageCaptureException? = null
     var onDiskResult: OutputFileResults? = null
+    var aborted = false
 
     override fun onImageCaptured() {
         onImageCapturedCalled = true
@@ -49,5 +50,9 @@ internal class FakeTakePictureCallback : TakePictureCallback {
 
     override fun onProcessFailure(imageCaptureException: ImageCaptureException) {
         processFailure = imageCaptureException
+    }
+
+    override fun isAborted(): Boolean {
+        return aborted
     }
 }

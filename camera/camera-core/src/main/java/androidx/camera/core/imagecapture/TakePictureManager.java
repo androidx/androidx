@@ -16,6 +16,7 @@
 
 package androidx.camera.core.imagecapture;
 
+import static androidx.camera.core.ImageCapture.ERROR_CAMERA_CLOSED;
 import static androidx.camera.core.ImageCapture.ERROR_CAPTURE_FAILED;
 import static androidx.camera.core.impl.utils.Threads.checkMainThread;
 import static androidx.camera.core.impl.utils.executor.CameraXExecutors.directExecutor;
@@ -126,9 +127,22 @@ public class TakePictureManager {
      * Clears the requests queue.
      */
     @MainThread
-    public void cancelUnsentRequests() {
+    public void abortRequests() {
         checkMainThread();
+        ImageCaptureException exception =
+                new ImageCaptureException(ERROR_CAMERA_CLOSED, "Camera is closed.", null);
+
+        // Clear pending request first so aborting in-flight request won't trigger another capture.
+        for (TakePictureRequest request : mNewRequests) {
+            request.onError(exception);
+        }
         mNewRequests.clear();
+
+        // Abort the in-flight request after clearing the pending requests.
+        if (mInFlightRequest != null) {
+            // TODO: optimize the performance by aborting early in CaptureNode and BundlingNode
+            mInFlightRequest.abort(exception);
+        }
     }
 
     /**

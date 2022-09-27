@@ -22,22 +22,22 @@ import android.content.ContextWrapper
 import android.content.pm.PackageManager
 import androidx.annotation.OptIn
 import androidx.annotation.RequiresApi
+import androidx.camera.core.CameraEffect
+import androidx.camera.core.CameraEffect.PREVIEW
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraXConfig
-import androidx.camera.core.EffectBundle
 import androidx.camera.core.Preview
-import androidx.camera.core.SurfaceEffect.PREVIEW
 import androidx.camera.core.UseCaseGroup
 import androidx.camera.core.impl.CameraFactory
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor
-import androidx.camera.core.processing.SurfaceEffectWithExecutor
+import androidx.camera.core.processing.SurfaceProcessorWithExecutor
 import androidx.camera.testing.fakes.FakeAppConfig
 import androidx.camera.testing.fakes.FakeCamera
 import androidx.camera.testing.fakes.FakeCameraDeviceSurfaceManager
 import androidx.camera.testing.fakes.FakeCameraFactory
 import androidx.camera.testing.fakes.FakeCameraInfoInternal
 import androidx.camera.testing.fakes.FakeLifecycleOwner
-import androidx.camera.testing.fakes.FakeSurfaceEffect
+import androidx.camera.testing.fakes.FakeSurfaceProcessor
 import androidx.camera.testing.fakes.FakeUseCaseConfigFactory
 import androidx.concurrent.futures.await
 import androidx.test.core.app.ApplicationProvider
@@ -79,12 +79,11 @@ class ProcessCameraProviderTest {
     fun bindUseCaseGroupWithEffect_effectIsSetOnUseCase() {
         // Arrange.
         ProcessCameraProvider.configureInstance(FakeAppConfig.create())
-        val surfaceEffect = FakeSurfaceEffect(mainThreadExecutor())
-        val effectBundle =
-            EffectBundle.Builder(mainThreadExecutor()).addEffect(PREVIEW, surfaceEffect).build()
+        val surfaceProcessor = FakeSurfaceProcessor(mainThreadExecutor())
+        val effect = CameraEffect.Builder(PREVIEW)
+            .setSurfaceProcessor(mainThreadExecutor(), surfaceProcessor).build()
         val preview = Preview.Builder().setSessionOptionUnpacker { _, _ -> }.build()
-        val useCaseGroup = UseCaseGroup.Builder().addUseCase(preview)
-            .setEffectBundle(effectBundle).build()
+        val useCaseGroup = UseCaseGroup.Builder().addUseCase(preview).addEffect(effect).build()
 
         runBlocking(MainScope().coroutineContext) {
             // Act.
@@ -95,8 +94,8 @@ class ProcessCameraProviderTest {
             )
 
             // Assert.
-            val useCaseEffect = (preview.effect as SurfaceEffectWithExecutor).surfaceEffect
-            assertThat(useCaseEffect).isEqualTo(surfaceEffect)
+            val useCaseProcessor = (preview.processor as SurfaceProcessorWithExecutor).processor
+            assertThat(useCaseProcessor).isEqualTo(surfaceProcessor)
         }
     }
 

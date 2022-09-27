@@ -24,7 +24,9 @@ plugins {
 
 dependencies {
     api(libs.kotlinStdlib)
-    // Add dependencies here
+    implementation("androidx.core:core-ktx:1.8.0")
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.testCore)
 }
 
 android {

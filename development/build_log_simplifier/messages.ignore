@@ -266,6 +266,8 @@ ERROR: An attempt to write .*
 WARN: Unable to find what is referred to by
 # > Task :docs-tip-of-tree:dackkaDocs
 in DClass ComplicationSlot
+Did you make a typo\? Are you trying to refer to something not visible to users\? in declaration of ComplicationSlot in file \$OUT_DIR\/androidx\/docs\-public\/build\/unzippedSourcesForDackka\/androidx\/wear\/watchface\/ComplicationSlot\.kt at line [0-9]+\.
+Did you make a typo\? Are you trying to refer to something not visible to users\? in declaration of ComplicationSlot in file \$OUT_DIR\/androidx\/docs\-tip\-of\-tree\/build\/unzippedSourcesForDackka\/androidx\/wear\/watchface\/ComplicationSlot\.kt at line [0-9]+\.
 @param id,
 @param canvasComplicationFactory,
 @param supportedTypes,
@@ -275,8 +277,12 @@ in DClass ComplicationSlot
 \@param defaultPolicy
 @param complicationTapFilter
 in DClass UserStyle
+Did you make a typo\? Are you trying to refer to something not visible to users\? in declaration of UserStyle in file \$OUT_DIR\/androidx\/docs\-public\/build\/unzippedSourcesForDackka\/androidx\/wear\/watchface\/style\/CurrentUserStyleRepository\.kt at line [0-9]+\.
+Did you make a typo\? Are you trying to refer to something not visible to users\? in declaration of UserStyle in file \$OUT_DIR\/androidx\/docs\-tip\-of\-tree\/build\/unzippedSourcesForDackka\/androidx\/wear\/watchface\/style\/CurrentUserStyleRepository\.kt at line [0-9]+\.
 @param copySelectedOptions
 in DClass Builder
+Did you make a typo\? Are you trying to refer to something not visible to users\? in declaration of Builder in file \$OUT_DIR\/androidx\/docs\-public\/build\/unzippedSourcesForDackka\/androidx\/wear\/watchface\/ComplicationSlot\.kt at line [0-9]+\.
+Did you make a typo\? Are you trying to refer to something not visible to users\? in declaration of Builder in file \$OUT_DIR\/androidx\/docs\-tip\-of\-tree\/build\/unzippedSourcesForDackka\/androidx\/wear\/watchface\/ComplicationSlot\.kt at line [0-9]+\.
 Did you make a typo\? Are you trying to refer to something not visible to users\?
 WARNING: do not use 'an' before the exception type in an @throws statement\. This is against jdoc spec, will be an error in the next version of dackka, and your exception is not being linked and looks bad\. This was observed in Throws\(root=CustomDocTag\(children=\[P\(children=\[DocumentationLink\(dri=java\.lang/IllegalArgumentException///PointingToDeclaration/, children=\[Text\(body=IllegalArgumentException, children=\[\], params=\{\}\)\], params=\{\}\), Text\(body= if the property name or index is invalid\., children=\[\], params=\{\}\)\], params=\{\}\)\], params=\{\}, name=MARKDOWN_FILE\), name=an, exceptionAddress=null\)\.
 WARNING: do not use 'an' before the exception type in an @throws statement\. This is against jdoc spec, will be an error in the next version of dackka, and your exception is not being linked and looks bad\. This was observed in Throws\(root=CustomDocTag\(children=\[P\(children=\[DocumentationLink\(dri=kotlin/IllegalArgumentException///PointingToDeclaration/, children=\[Text\(body=IllegalArgumentException, children=\[\], params=\{\}\)\], params=\{href=\[IllegalArgumentException\]\}\), Text\(body= if address is invalid\., children=\[\], params=\{\}\)\], params=\{\}\)\], params=\{\}, name=MARKDOWN_FILE\), name=an, exceptionAddress=null\)\.
@@ -496,4 +502,5 @@ For troubleshooting, visit https://help\.gradle\.org
 w\: \$SUPPORT\/graphics\/graphics\-path\/src\/main\/java\/androidx\/graphics\/path\/Paths\.kt\: \([0-9]+\, [0-9]+\)\: Extension is shadowed by a member\: public open fun iterator\(\)\: PathIterator
 # > Task :core:core-splashscreen:core-splashscreen-samples:lintReportDebug
 Warning: Lint will treat :annotation:annotation as an external dependency and not analyze it\.
+Did you make a typo\? Are you trying to refer to something not visible to users\?
 \* Recommended Action: Apply the 'com\.android\.lint' plugin to java library project :annotation:annotation\. to enable lint to analyze those sources\.

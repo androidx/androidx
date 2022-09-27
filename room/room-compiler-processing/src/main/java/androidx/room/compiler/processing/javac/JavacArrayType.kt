@@ -16,6 +16,8 @@
 
 package androidx.room.compiler.processing.javac
 
+import androidx.room.compiler.codegen.JArrayTypeName
+import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.processing.XArrayType
 import androidx.room.compiler.processing.XNullability
 import androidx.room.compiler.processing.XType
@@ -71,6 +73,16 @@ internal class JavacArrayType private constructor(
     override val equalityItems: Array<out Any?> by lazy {
         arrayOf(typeMirror)
     }
+
+    private val xTypeName: XTypeName by lazy {
+        XTypeName(
+            java = JArrayTypeName.get(typeMirror),
+            kotlin = XTypeName.UNAVAILABLE_KTYPE_NAME,
+            nullability = knownComponentNullability ?: XNullability.UNKNOWN,
+        )
+    }
+
+    override fun asTypeName() = xTypeName
 
     override val typeArguments: List<XType>
         get() = emptyList()

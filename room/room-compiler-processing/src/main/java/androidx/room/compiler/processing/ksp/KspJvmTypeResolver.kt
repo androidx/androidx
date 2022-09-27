@@ -61,7 +61,7 @@ internal class KspJvmTypeResolver(
         ).let {
             env.wrap(
                 ksType = it,
-                allowPrimitives = delegate.typeName.isPrimitive
+                allowPrimitives = delegate is KspPrimitiveType
             )
         }
     }

@@ -13,42 +13,42 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:JvmName("ViewTreeFullyLoadedReporterOwner")
+@file:JvmName("ViewTreeFullyDrawnReporterOwner")
 
 package androidx.activity
 
 import android.view.View
 
 /**
- * Set the [FullyLoadedReporterOwner] associated with the given [View].
- * Calls to [findViewTreeFullyLoadedReporterOwner] from this [View] or descendants will
- * return [fullyLoadedReporterOwner].
+ * Set the [FullyDrawnReporterOwner] associated with the given [View].
+ * Calls to [findViewTreeFullyDrawnReporterOwner] from this [View] or descendants will
+ * return [fullyDrawnReporterOwner].
  *
  * This should only be called by constructs such as activities that manage
  * a view tree and handle the dispatch of [ComponentActivity.reportFullyDrawn].
  *
- * @param fullyLoadedReporterOwner [FullyLoadedReporterOwner] associated with the [View]
+ * @param fullyDrawnReporterOwner [FullyDrawnReporterOwner] associated with the [View]
  */
 @JvmName("set")
-fun View.setViewTreeFullyLoadedReporterOwner(
-    fullyLoadedReporterOwner: FullyLoadedReporterOwner
+fun View.setViewTreeFullyDrawnReporterOwner(
+    fullyDrawnReporterOwner: FullyDrawnReporterOwner
 ) {
-    setTag(R.id.report_loaded, fullyLoadedReporterOwner)
+    setTag(R.id.report_drawn, fullyDrawnReporterOwner)
 }
 
 /**
- * Retrieve the [FullyLoadedReporterOwner] associated with the given [View].
- * This may be used to indicate that a part of the UI is loaded and ready for first
+ * Retrieve the [FullyDrawnReporterOwner] associated with the given [View].
+ * This may be used to indicate that a part of the UI is drawn and ready for first
  * user interaction.
  *
- * @return The [FullyLoadedReporterOwner] associated with this view and/or some subset
+ * @return The [FullyDrawnReporterOwner] associated with this view and/or some subset
  * of its ancestors
  */
 @JvmName("get")
-fun View.findViewTreeFullyLoadedReporterOwner(): FullyLoadedReporterOwner? {
+fun View.findViewTreeFullyDrawnReporterOwner(): FullyDrawnReporterOwner? {
     return generateSequence(this) {
         it.parent as? View
     }.mapNotNull {
-        it.getTag(R.id.report_loaded) as? FullyLoadedReporterOwner
+        it.getTag(R.id.report_drawn) as? FullyDrawnReporterOwner
     }.firstOrNull()
 }

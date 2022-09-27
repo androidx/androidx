@@ -72,7 +72,7 @@ navigation/
 #### Project creator script {#module-creation}
 
 Note: The terms *project*, *module*, and *library* are often used
-interchangeably within AndroidX, with project being the technical term used by
+interchangeably within AndroidX, with *project* being the technical term used by
 Gradle to describe a build target, e.g. a library that maps to a single AAR.
 
 New projects can be created using our
@@ -112,6 +112,12 @@ If you see an error message `No module named 'toml'` try the following steps.
 *   Delete your virtual env with `rm -rf ./androidx-project_creator`
     *   virtualenv will automatically .gitignore itself, but you may want to to
         remove it anyway.
+
+Note: if the module you are creating is an application (not a library), such as
+you might want for integration-tests, edit the project's `build.gradle` file and
+replace the plugin `id("com.android.library")` with
+`id("com.android.application")`. This allows you to run activities in that
+module from within Android Studio.
 
 #### Common sub-feature names {#module-naming-subfeature}
 

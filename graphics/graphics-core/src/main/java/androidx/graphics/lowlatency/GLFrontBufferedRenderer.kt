@@ -71,7 +71,31 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
      * be synchronized with the [SurfaceControlCompat.Transaction] to show/hide visibility of the
      * front buffered layer as well as updating double buffered layers
      */
-    private val mCallback = callback
+    private val mCallback = object : Callback<T> by callback {
+        @WorkerThread
+        override fun onDoubleBufferedLayerRenderComplete(
+            frontBufferedLayerSurfaceControl: SurfaceControlCompat,
+            transaction: SurfaceControlCompat.Transaction
+        ) {
+            mFrontBufferSyncStrategy.setVisible(false)
+            callback.onDoubleBufferedLayerRenderComplete(
+                frontBufferedLayerSurfaceControl,
+                transaction
+            )
+        }
+
+        @WorkerThread
+        override fun onFrontBufferedLayerRenderComplete(
+            frontBufferedLayerSurfaceControl: SurfaceControlCompat,
+            transaction: SurfaceControlCompat.Transaction
+        ) {
+            mFrontBufferSyncStrategy.setVisible(true)
+            callback.onFrontBufferedLayerRenderComplete(
+                frontBufferedLayerSurfaceControl,
+                transaction
+            )
+        }
+    }
 
     /**
      * [GLRenderer.EGLContextCallback]s used to release the corresponding [RenderBufferPool]
@@ -157,6 +181,12 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
     private var mFrontBufferedLayerSurfaceControl: SurfaceControlCompat? = null
 
     /**
+     * [FrontBufferSyncStrategy] used for [HardwareBufferRenderer] to conditionally decide
+     * when to create a [SyncFenceCompat] for transaction calls.
+     */
+    private val mFrontBufferSyncStrategy: FrontBufferSyncStrategy
+
+    /**
      * Width of the layers to render. Only if the size changes to we re-initialize the internal
      * state of the [GLFrontBufferedRenderer]
      */
@@ -200,6 +230,17 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
      */
     private var mIsReleased = false
 
+    /**
+     * Cached value to store what [HardwareBuffer] usage flags are supported on the device.
+     */
+    private val mHardwareBufferUsageFlags: Long
+
+    /**
+     * Flag to determine if [HardwareBuffer.USAGE_FRONT_BUFFER] is supported or not on
+     * the device
+     */
+    private val mSupportsFrontBufferUsage: Boolean
+
     init {
         mParentRenderLayer.setParentLayerCallbacks(mParentLayerCallback)
         val renderer = if (glRenderer == null) {
@@ -216,6 +257,13 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
         mDoubleBufferedLayerRenderTarget =
             mParentRenderLayer.createRenderTarget(renderer, mCallback)
         mGLRenderer = renderer
+
+        mHardwareBufferUsageFlags = obtainHardwareBufferUsageFlags()
+
+        mSupportsFrontBufferUsage =
+            (mHardwareBufferUsageFlags and HardwareBuffer.USAGE_FRONT_BUFFER) != 0L
+
+        mFrontBufferSyncStrategy = FrontBufferSyncStrategy(mSupportsFrontBufferUsage)
     }
 
     internal fun update(width: Int, height: Int) {
@@ -233,7 +281,7 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
                 width,
                 height,
                 format = HardwareBuffer.RGBA_8888,
-                usage = obtainHardwareBufferUsageFlags(),
+                usage = mHardwareBufferUsageFlags,
                 maxPoolSize = 5
             )
 
@@ -289,8 +337,10 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
             mParentBufferParamQueue.add(param)
             mFrontBufferedRenderTarget?.requestRender()
         } else {
-            Log.w(TAG, "Attempt to render to front buffered layer when " +
-                "GLFrontBufferedRenderer has been released")
+            Log.w(
+                TAG, "Attempt to render to front buffered layer when " +
+                    "GLFrontBufferedRenderer has been released"
+            )
         }
     }
 
@@ -318,8 +368,10 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
             mDoubleBufferedLayerRenderTarget?.requestRender()
             mFrontBufferedLayerRenderer?.clear()
         } else {
-            Log.w(TAG, "Attempt to render to the double buffered layer when " +
-                "GLFrontBufferedRenderer has been released")
+            Log.w(
+                TAG, "Attempt to render to the double buffered layer when " +
+                    "GLFrontBufferedRenderer has been released"
+            )
         }
     }
 
@@ -393,58 +445,68 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
 
     private fun createFrontBufferedLayerRenderer(
         frontBufferedLayerSurfaceControl: SurfaceControlCompat
-    ) = HardwareBufferRenderer(
-        object : HardwareBufferRenderer.RenderCallbacks {
+    ): HardwareBufferRenderer {
+        return HardwareBufferRenderer(
+            object : HardwareBufferRenderer.RenderCallbacks {
 
-            @WorkerThread
-            override fun obtainRenderBuffer(egl: EGLSpec): RenderBuffer {
-                var buffer = mFrontLayerBuffer
-                if (buffer == null) {
-                    // Allocate and persist a RenderBuffer instance across frames
-                    buffer = mBufferPool?.obtain(egl).also { mFrontLayerBuffer = it }
-                       ?: throw IllegalArgumentException("Unable to obtain RenderBuffer")
+                @WorkerThread
+                override fun obtainRenderBuffer(egl: EGLSpec): RenderBuffer {
+                    var buffer = mFrontLayerBuffer
+                    if (buffer == null) {
+                        // Allocate and persist a RenderBuffer instance across frames
+                        buffer = mBufferPool?.obtain(egl).also { mFrontLayerBuffer = it }
+                            ?: throw IllegalArgumentException("Unable to obtain RenderBuffer")
+                    }
+                    return buffer
                 }
-                return buffer
-            }
 
-            @WorkerThread
-            override fun onDraw(eglManager: EGLManager) {
-                try {
-                    // Explicitly call remove in order to delineate between scenarios where
-                    // no parameters are provided and the consumer explicitly supports nullable
-                    // parameters.
-                    // If poll was used instead, we would not be able to determine if the nullable
-                    // parameter was because there were no items in the queue or the consumer
-                    // explicitly provided null as a placeholder
-                    mCallback.onDrawFrontBufferedLayer(eglManager, mFrontBufferQueueParams.remove())
-                } catch (_: NoSuchElementException) {
-                    // Skip rendering if we have been told to render but we do not have parameters
-                    // Because the call to render to the front buffer takes in a parameter we should
-                    // not run into this scenario.
+                @WorkerThread
+                override fun onDraw(eglManager: EGLManager) {
+                    try {
+                        // Explicitly call remove in order to delineate between scenarios where
+                        // no parameters are provided and the consumer explicitly supports nullable
+                        // parameters.
+                        // If poll was used instead, we would not be able to determine if the nullable
+                        // parameter was because there were no items in the queue or the consumer
+                        // explicitly provided null as a placeholder
+                        mCallback.onDrawFrontBufferedLayer(
+                            eglManager,
+                            mFrontBufferQueueParams.remove()
+                        )
+                    } catch (_: NoSuchElementException) {
+                        // Skip rendering if we have been told to render but we do not have parameters
+                        // Because the call to render to the front buffer takes in a parameter we should
+                        // not run into this scenario.
+                    }
                 }
-            }
 
-            @WorkerThread
-            override fun onDrawComplete(renderBuffer: RenderBuffer) {
-                val transaction = SurfaceControlCompat.Transaction()
-                    // Make this layer the top most layer
-                    .setLayer(frontBufferedLayerSurfaceControl, Integer.MAX_VALUE)
-                    .setBuffer(
-                        frontBufferedLayerSurfaceControl,
-                        renderBuffer.hardwareBuffer,
-                        null
+                @WorkerThread
+                override fun onDrawComplete(
+                    renderBuffer: RenderBuffer,
+                    syncFenceCompat: SyncFenceCompat?
+                ) {
+                    val transaction = SurfaceControlCompat.Transaction()
+                        // Make this layer the top most layer
+                        .setLayer(frontBufferedLayerSurfaceControl, Integer.MAX_VALUE)
+                        .setBuffer(
+                            frontBufferedLayerSurfaceControl,
+                            renderBuffer.hardwareBuffer,
+                            syncFenceCompat
+                        )
+                        .setVisibility(frontBufferedLayerSurfaceControl, true)
+                    mParentRenderLayer.buildReparentTransaction(
+                        frontBufferedLayerSurfaceControl, transaction
                     )
-                    .setVisibility(frontBufferedLayerSurfaceControl, true)
-                mParentRenderLayer.buildReparentTransaction(
-                    frontBufferedLayerSurfaceControl, transaction)
-                mCallback.onFrontBufferedLayerRenderComplete(
-                    frontBufferedLayerSurfaceControl,
-                    transaction
-                )
-                transaction.commit()
-            }
-        }
-    )
+                    mCallback.onFrontBufferedLayerRenderComplete(
+                        frontBufferedLayerSurfaceControl,
+                        transaction
+                    )
+                    transaction.commit()
+                }
+            },
+            mFrontBufferSyncStrategy
+        )
+    }
 
     private fun clearParamQueues() {
         mFrontBufferQueueParams.clear()

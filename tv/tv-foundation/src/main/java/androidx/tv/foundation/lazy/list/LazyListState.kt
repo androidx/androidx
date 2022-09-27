@@ -365,6 +365,23 @@ class TvLazyListState constructor(
             result.firstVisibleItemScrollOffset != 0
 
         numMeasurePasses++
+
+        cancelPrefetchIfVisibleItemsChanged(result)
+    }
+
+    private fun cancelPrefetchIfVisibleItemsChanged(info: TvLazyListLayoutInfo) {
+        if (indexToPrefetch != -1 && info.visibleItemsInfo.isNotEmpty()) {
+            val expectedPrefetchIndex = if (wasScrollingForward) {
+                info.visibleItemsInfo.last().index + 1
+            } else {
+                info.visibleItemsInfo.first().index - 1
+            }
+            if (indexToPrefetch != expectedPrefetchIndex) {
+                indexToPrefetch = -1
+                currentPrefetchHandle?.cancel()
+                currentPrefetchHandle = null
+            }
+        }
     }
 
     /**

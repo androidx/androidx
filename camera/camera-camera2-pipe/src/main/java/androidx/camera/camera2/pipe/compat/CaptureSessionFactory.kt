@@ -46,7 +46,7 @@ internal interface CaptureSessionFactory {
     fun create(
         cameraDevice: CameraDeviceWrapper,
         surfaces: Map<StreamId, Surface>,
-        virtualSessionState: VirtualSessionState
+        captureSessionState: CaptureSessionState
     ): Map<StreamId, OutputConfigurationWrapper>
 }
 
@@ -99,19 +99,19 @@ internal class AndroidLSessionFactory @Inject constructor(
     override fun create(
         cameraDevice: CameraDeviceWrapper,
         surfaces: Map<StreamId, Surface>,
-        virtualSessionState: VirtualSessionState
+        captureSessionState: CaptureSessionState
     ): Map<StreamId, OutputConfigurationWrapper> {
         try {
             cameraDevice.createCaptureSession(
                 surfaces.map { it.value },
-                virtualSessionState,
+                captureSessionState,
                 threads.camera2Handler
             )
         } catch (e: Throwable) {
             Log.warn {
-                "Failed to create capture session from $cameraDevice for $virtualSessionState!"
+                "Failed to create capture session from $cameraDevice for $captureSessionState!"
             }
-            virtualSessionState.disconnect()
+            captureSessionState.disconnect()
         }
         return emptyMap()
     }
@@ -125,7 +125,7 @@ internal class AndroidMSessionFactory @Inject constructor(
     override fun create(
         cameraDevice: CameraDeviceWrapper,
         surfaces: Map<StreamId, Surface>,
-        virtualSessionState: VirtualSessionState
+        captureSessionState: CaptureSessionState
     ): Map<StreamId, OutputConfigurationWrapper> {
         if (graphConfig.input != null) {
             try {
@@ -137,28 +137,28 @@ internal class AndroidMSessionFactory @Inject constructor(
                         outputConfig.format.value
                     ),
                     surfaces.map { it.value },
-                    virtualSessionState,
+                    captureSessionState,
                     threads.camera2Handler
                 )
             } catch (e: Throwable) {
                 Log.warn {
                     "Failed to create reprocessable captures session from $cameraDevice for" +
-                        " $virtualSessionState!"
+                        " $captureSessionState!"
                 }
-                virtualSessionState.disconnect()
+                captureSessionState.disconnect()
             }
         } else {
             try {
                 cameraDevice.createCaptureSession(
                     surfaces.map { it.value },
-                    virtualSessionState,
+                    captureSessionState,
                     threads.camera2Handler
                 )
             } catch (e: Throwable) {
                 Log.warn {
-                    "Failed to create captures session from $cameraDevice for $virtualSessionState!"
+                    "Failed to create captures session from $cameraDevice for $captureSessionState!"
                 }
-                virtualSessionState.disconnect()
+                captureSessionState.disconnect()
             }
         }
         return emptyMap()
@@ -172,7 +172,7 @@ internal class AndroidMHighSpeedSessionFactory @Inject constructor(
     override fun create(
         cameraDevice: CameraDeviceWrapper,
         surfaces: Map<StreamId, Surface>,
-        virtualSessionState: VirtualSessionState
+        captureSessionState: CaptureSessionState
     ): Map<StreamId, OutputConfigurationWrapper> {
         TODO("Implement this")
     }
@@ -187,7 +187,7 @@ internal class AndroidNSessionFactory @Inject constructor(
     override fun create(
         cameraDevice: CameraDeviceWrapper,
         surfaces: Map<StreamId, Surface>,
-        virtualSessionState: VirtualSessionState
+        captureSessionState: CaptureSessionState
     ): Map<StreamId, OutputConfigurationWrapper> {
         val outputs = buildOutputConfigurations(
             graphConfig,
@@ -203,7 +203,7 @@ internal class AndroidNSessionFactory @Inject constructor(
             if (graphConfig.input == null) {
                 cameraDevice.createCaptureSessionByOutputConfigurations(
                     outputs.all,
-                    virtualSessionState,
+                    captureSessionState,
                     threads.camera2Handler
                 )
             } else {
@@ -215,15 +215,15 @@ internal class AndroidNSessionFactory @Inject constructor(
                         outputConfig.format.value
                     ),
                     outputs.all,
-                    virtualSessionState,
+                    captureSessionState,
                     threads.camera2Handler
                 )
             }
         } catch (e: Throwable) {
             Log.warn {
-                "Failed to create capture session from $cameraDevice for $virtualSessionState!"
+                "Failed to create capture session from $cameraDevice for $captureSessionState!"
             }
-            virtualSessionState.disconnect()
+            captureSessionState.disconnect()
         }
         return emptyMap()
     }
@@ -238,7 +238,7 @@ internal class AndroidPSessionFactory @Inject constructor(
     override fun create(
         cameraDevice: CameraDeviceWrapper,
         surfaces: Map<StreamId, Surface>,
-        virtualSessionState: VirtualSessionState
+        captureSessionState: CaptureSessionState
     ): Map<StreamId, OutputConfigurationWrapper> {
 
         val operatingMode =
@@ -271,7 +271,7 @@ internal class AndroidPSessionFactory @Inject constructor(
             input,
             outputs.all,
             threads.camera2Executor,
-            virtualSessionState,
+            captureSessionState,
             graphConfig.sessionTemplate.value,
             graphConfig.sessionParameters
         )
@@ -280,9 +280,9 @@ internal class AndroidPSessionFactory @Inject constructor(
             cameraDevice.createCaptureSession(sessionConfig)
         } catch (e: Throwable) {
             Log.warn {
-                "Failed to create capture session from $cameraDevice for $virtualSessionState!"
+                "Failed to create capture session from $cameraDevice for $captureSessionState!"
             }
-            virtualSessionState.disconnect()
+            captureSessionState.disconnect()
         }
         return outputs.deferred
     }

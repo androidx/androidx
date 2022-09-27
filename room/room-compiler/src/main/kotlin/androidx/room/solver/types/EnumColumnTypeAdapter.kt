@@ -24,7 +24,7 @@ import androidx.room.ext.S
 import androidx.room.ext.T
 import androidx.room.parser.SQLTypeAffinity.TEXT
 import androidx.room.solver.CodeGenScope
-import androidx.room.writer.ClassWriter
+import androidx.room.writer.TypeWriter
 import com.squareup.javapoet.MethodSpec
 import com.squareup.javapoet.ParameterSpec
 import javax.lang.model.element.Modifier
@@ -70,17 +70,17 @@ class EnumColumnTypeAdapter(
 
     private fun enumToStringMethod(scope: CodeGenScope): MethodSpec {
         return scope.writer.getOrCreateMethod(object :
-                ClassWriter.SharedMethodSpec(out.typeElement!!.name + "_enumToString") {
-                override fun getUniqueKey(): String {
-                    return "enumToString_" + out.typeName.toString()
-                }
+            TypeWriter.SharedMethodSpec(out.typeElement!!.name + "_enumToString") {
+            override fun getUniqueKey(): String {
+                return "enumToString_" + out.typeName.toString()
+            }
 
-                override fun prepare(
-                    methodName: String,
-                    writer: ClassWriter,
-                    builder: MethodSpec.Builder
-                ) {
-                    builder.apply {
+            override fun prepare(
+                methodName: String,
+                writer: TypeWriter,
+                builder: MethodSpec.Builder
+            ) {
+                builder.apply {
                         addModifiers(Modifier.PRIVATE)
                         returns(String::class.java)
                         val param = ParameterSpec.builder(
@@ -107,17 +107,17 @@ class EnumColumnTypeAdapter(
 
     private fun stringToEnumMethod(scope: CodeGenScope): MethodSpec {
         return scope.writer.getOrCreateMethod(object :
-                ClassWriter.SharedMethodSpec(out.typeElement!!.name + "_stringToEnum") {
-                override fun getUniqueKey(): String {
-                    return out.typeName.toString()
-                }
+            TypeWriter.SharedMethodSpec(out.typeElement!!.name + "_stringToEnum") {
+            override fun getUniqueKey(): String {
+                return out.typeName.toString()
+            }
 
-                override fun prepare(
-                    methodName: String,
-                    writer: ClassWriter,
-                    builder: MethodSpec.Builder
-                ) {
-                    builder.apply {
+            override fun prepare(
+                methodName: String,
+                writer: TypeWriter,
+                builder: MethodSpec.Builder
+            ) {
+                builder.apply {
                         addModifiers(Modifier.PRIVATE)
                         returns(out.typeName)
                         val param = ParameterSpec.builder(

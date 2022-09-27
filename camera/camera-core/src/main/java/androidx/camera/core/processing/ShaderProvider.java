@@ -59,7 +59,7 @@ public interface ShaderProvider {
         return null;
     }
 
-    /** A default provider that will use the default shader code without any effect. */
+    /** A default provider that will use the default shader code without any post-processing. */
     ShaderProvider DEFAULT = new ShaderProvider() {
         // Use default implementation.
     };
