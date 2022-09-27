@@ -18,13 +18,11 @@ package androidx.privacysandbox.tools.apicompiler.util
 
 import androidx.privacysandbox.tools.core.model.ParsedApi
 import androidx.privacysandbox.tools.apicompiler.parser.ApiParser
-import androidx.room.compiler.processing.util.DiagnosticMessage
+import androidx.privacysandbox.tools.testing.CompilationTestHelper.assertThat
+import androidx.privacysandbox.tools.testing.CompilationResultSubject
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.compiler.TestCompilationArguments
-import androidx.room.compiler.processing.util.compiler.TestCompilationResult
 import androidx.room.compiler.processing.util.compiler.compile
-import com.google.common.truth.Truth.assertThat
-import com.google.common.truth.Truth.assertWithMessage
 import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.processing.SymbolProcessor
@@ -32,20 +30,21 @@ import com.google.devtools.ksp.processing.SymbolProcessorEnvironment
 import com.google.devtools.ksp.processing.SymbolProcessorProvider
 import com.google.devtools.ksp.symbol.KSAnnotated
 import java.nio.file.Files
-import javax.tools.Diagnostic
 
 /**
  * Helper to run KSP processing functionality in tests.
  */
 fun parseSource(source: Source): ParsedApi {
     val provider = CapturingSymbolProcessor.Provider()
-    compile(
-        Files.createTempDirectory("test").toFile(),
-        TestCompilationArguments(
-            sources = listOf(source),
-            symbolProcessorProviders = listOf(provider),
+    assertThat(
+        compile(
+            Files.createTempDirectory("test").toFile(),
+            TestCompilationArguments(
+                sources = listOf(source),
+                symbolProcessorProviders = listOf(provider),
+            )
         )
-    )
+    ).succeeds()
     assert(provider.processor.capture != null) { "KSP run didn't produce any output." }
     return provider.processor.capture!!
 }
@@ -59,66 +58,7 @@ fun checkSourceFails(vararg sources: Source): CompilationResultSubject {
             symbolProcessorProviders = listOf(provider)
         )
     )
-    assertThat(result.success).isFalse()
-    return CompilationResultSubject(result)
-}
-
-class CompilationResultSubject(private val result: TestCompilationResult) {
-    companion object {
-        fun assertThat(result: TestCompilationResult) = CompilationResultSubject(result)
-    }
-
-    fun succeeds() {
-        assertWithMessage(
-            "UnexpectedErrors:\n${getFullErrorMessages()?.joinToString("\n")}"
-        ).that(
-            result.success
-        ).isTrue()
-    }
-
-    fun generatesExactlySources(vararg sourcePaths: String) {
-        succeeds()
-        assertThat(result.generatedSources.map(Source::relativePath))
-            .containsExactlyElementsIn(sourcePaths)
-    }
-
-    fun generatesSourcesWithContents(sources: List<Source>) {
-        succeeds()
-        val contentsByFile = result.generatedSources.associate { it.relativePath to it.contents }
-        for (source in sources) {
-            assertWithMessage("File ${source.relativePath} was not generated")
-                .that(contentsByFile).containsKey(source.relativePath)
-            assertWithMessage("Contents of file ${source.relativePath} don't match.")
-                .that(contentsByFile[source.relativePath]).isEqualTo(source.contents)
-        }
-    }
-
-    fun fails() {
-        assertThat(result.success).isFalse()
-    }
-
-    fun containsError(error: String) {
-        assertThat(getErrorMessages())
-            .contains(error)
-    }
-
-    fun containsExactlyErrors(vararg errors: String) {
-        assertThat(getErrorMessages())
-            .containsExactly(*errors)
-    }
-
-    private fun getErrorMessages() =
-        result.diagnostics[Diagnostic.Kind.ERROR]?.map(DiagnosticMessage::msg)
-
-    private fun getFullErrorMessages() =
-        result.diagnostics[Diagnostic.Kind.ERROR]?.map(::toReadableMessage)
-
-    private fun toReadableMessage(message: DiagnosticMessage) = """
-            |Error: ${message.msg}
-            |Location: ${message.location?.source?.relativePath}:${message.location?.line}
-            |File:
-            |${message.location?.source?.contents}
-        """.trimMargin()
+    return assertThat(result).also { it.fails() }
 }
 
 private class CapturingSymbolProcessor(private val logger: KSPLogger) : SymbolProcessor {

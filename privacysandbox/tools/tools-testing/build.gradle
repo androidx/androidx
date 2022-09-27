@@ -23,6 +23,9 @@ plugins {
 
 dependencies {
     api(libs.kotlinStdlib)
+    api(libs.kspApi)
+    api(libs.junit)
+    api(libs.truth)
     implementation project(":room:room-compiler-processing-testing")
 }
 
