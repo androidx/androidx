@@ -17,9 +17,11 @@
 package androidx.wear.compose.material
 
 import android.os.Build
+import androidx.compose.foundation.background
 import androidx.compose.runtime.Composable
 import androidx.compose.testutils.assertAgainstGolden
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -50,84 +52,87 @@ class ToggleControlScreenshotTest {
     @Test
     fun checkbox_checked_enabled() =
         verifyScreenshot {
-            Checkbox(checked = true, enabled = true, modifier = Modifier.testTag(TEST_TAG))
+            Checkbox(checked = true, enabled = true, modifier = testBackgroundModifier())
         }
 
     @Test
     fun checkbox_unchecked_enabled() =
         verifyScreenshot {
-            Checkbox(checked = false, enabled = true, modifier = Modifier.testTag(TEST_TAG))
+            Checkbox(checked = false, enabled = true, modifier = testBackgroundModifier())
         }
 
     @Test
     fun checkbox_checked_disabled() =
         verifyScreenshot {
-            Checkbox(checked = true, enabled = false, modifier = Modifier.testTag(TEST_TAG))
+            Checkbox(checked = true, enabled = false, modifier = testBackgroundModifier())
         }
 
     @Test
     fun checkbox_unchecked_disabled() =
         verifyScreenshot {
-            Checkbox(checked = false, enabled = false, modifier = Modifier.testTag(TEST_TAG))
+            Checkbox(checked = false, enabled = false, modifier = testBackgroundModifier())
         }
 
     @Test
     fun switch_checked_enabled() =
         verifyScreenshot {
-            Switch(checked = true, enabled = true, modifier = Modifier.testTag(TEST_TAG))
+            Switch(checked = true, enabled = true, modifier = testBackgroundModifier())
         }
 
     @Test
     fun switch_unchecked_enabled() =
         verifyScreenshot {
-            Switch(checked = false, enabled = true, modifier = Modifier.testTag(TEST_TAG))
+            Switch(checked = false, enabled = true, modifier = testBackgroundModifier())
         }
 
     @Test
     fun switch_checked_disabled() =
         verifyScreenshot {
-            Switch(checked = true, enabled = false, modifier = Modifier.testTag(TEST_TAG))
+            Switch(checked = true, enabled = false, modifier = testBackgroundModifier())
         }
 
     @Test
     fun switch_unchecked_disabled() =
         verifyScreenshot {
-            Switch(checked = false, enabled = false, modifier = Modifier.testTag(TEST_TAG))
+            Switch(checked = false, enabled = false, modifier = testBackgroundModifier())
         }
 
     @Test
     fun radiobutton_checked_enabled() =
         verifyScreenshot {
-            RadioButton(selected = true, enabled = true, modifier = Modifier.testTag(TEST_TAG))
+            RadioButton(selected = true, enabled = true, modifier = testBackgroundModifier())
         }
 
     @Test
     fun radiobutton_unchecked_enabled() =
         verifyScreenshot {
-            RadioButton(selected = false, enabled = true, modifier = Modifier.testTag(TEST_TAG))
+            RadioButton(selected = false, enabled = true, modifier = testBackgroundModifier())
         }
 
     @Test
     fun radiobutton_checked_disabled() =
         verifyScreenshot {
-            RadioButton(selected = true, enabled = false, modifier = Modifier.testTag(TEST_TAG))
+            RadioButton(selected = true, enabled = false, modifier = testBackgroundModifier())
         }
 
     @Test
     fun radiobutton_unchecked_disabled() =
         verifyScreenshot {
-            RadioButton(selected = false, enabled = false, modifier = Modifier.testTag(TEST_TAG))
+            RadioButton(selected = false, enabled = false, modifier = testBackgroundModifier())
         }
 
     private fun verifyScreenshot(
         content: @Composable () -> Unit
     ) {
-        rule.setContentWithTheme {
-                content()
-        }
-
+        rule.setContentWithTheme(composable = content)
         rule.onNodeWithTag(TEST_TAG)
             .captureToImage()
             .assertAgainstGolden(screenshotRule, testName.methodName)
     }
+    @Composable
+    private fun testBackgroundModifier(): Modifier =
+        Modifier.testTag(TEST_TAG).background(
+            MaterialTheme.colors.primary.copy(alpha = 0.5f)
+                .compositeOver(MaterialTheme.colors.surface)
+        )
 }
