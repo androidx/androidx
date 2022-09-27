@@ -337,7 +337,7 @@ public final class ImageCapture extends UseCase {
     /**
      * Whether the software JPEG pipeline will be used.
      */
-    private boolean mUseSoftwareJpeg = false;
+    private boolean mUseSoftwareJpeg = true;
 
     ////////////////////////////////////////////////////////////////////////////////////////////
     // [UseCase attached dynamic] - Can change but is only available when the UseCase is attached.
