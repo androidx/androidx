@@ -56,29 +56,34 @@ import java.util.function.Consumer
 /** @hide */
 @IntDef(
     value = [
-        DisconnectReason.ENGINE_DIED,
-        DisconnectReason.ENGINE_DETACHED
+        DisconnectReasons.ENGINE_DIED,
+        DisconnectReasons.ENGINE_DETACHED
     ]
 )
-public annotation class DisconnectReason {
-    public companion object {
-        /**
-         * The underlying engine died, probably because the watch face was killed or crashed.
-         * Sometimes this is due to memory pressure and it's not the watch face's fault. Usually in
-         * response a new [InteractiveWatchFaceClient] should be created (see
-         * [WatchFaceControlClient.getOrCreateInteractiveWatchFaceClient]), however if this new
-         * client also disconnects due to [ENGINE_DIED] within a few seconds the watchface is
-         * probably bad and it's recommended to switch to a safe system default watch face.
-         */
-        public const val ENGINE_DIED: Int = 1
+public annotation class DisconnectReason
 
-        /**
-         * Wallpaper service detached from the engine, which is now defunct. The watch face itself
-         * has no control over this. Usually in response a new [InteractiveWatchFaceClient]
-         * should be created (see [WatchFaceControlClient.getOrCreateInteractiveWatchFaceClient]).
-         */
-        public const val ENGINE_DETACHED: Int = 2
-    }
+/**
+ * Disconnect reasons for
+ * [InteractiveWatchFaceClient.ClientDisconnectListener.onClientDisconnected].
+ */
+public object DisconnectReasons {
+
+    /**
+     * The underlying engine died, probably because the watch face was killed or crashed.
+     * Sometimes this is due to memory pressure and it's not the watch face's fault. Usually in
+     * response a new [InteractiveWatchFaceClient] should be created (see
+     * [WatchFaceControlClient.getOrCreateInteractiveWatchFaceClient]), however if this new
+     * client also disconnects due to [ENGINE_DIED] within a few seconds the watchface is
+     * probably bad and it's recommended to switch to a safe system default watch face.
+     */
+    public const val ENGINE_DIED: Int = 1
+
+    /**
+     * Wallpaper service detached from the engine, which is now defunct. The watch face itself
+     * has no control over this. Usually in response a new [InteractiveWatchFaceClient]
+     * should be created (see [WatchFaceControlClient.getOrCreateInteractiveWatchFaceClient]).
+     */
+    public const val ENGINE_DETACHED: Int = 2
 }
 
 /**
@@ -88,6 +93,7 @@ public annotation class DisconnectReason {
  * Note clients should call [close] when finished.
  */
 public interface InteractiveWatchFaceClient : AutoCloseable {
+
     /**
      * Sends new [ComplicationData] to the watch face. Note this doesn't have to be a full update,
      * it's possible to update just one complication at a time, but doing so may result in a less
@@ -250,7 +256,8 @@ public interface InteractiveWatchFaceClient : AutoCloseable {
             "Deprecated, use an overload that passes the disconnectReason",
             ReplaceWith("onClientDisconnected(Int)")
         )
-        public fun onClientDisconnected() {}
+        public fun onClientDisconnected() {
+        }
 
         /**
          * The client disconnected, due to [disconnectReason].
@@ -321,7 +328,8 @@ public interface InteractiveWatchFaceClient : AutoCloseable {
     public fun addOnWatchFaceColorsListener(
         executor: Executor,
         listener: Consumer<WatchFaceColors?>
-    ) {}
+    ) {
+    }
 
     /**
      * Stops listening for events registered by [addOnWatchFaceColorsListener].
@@ -380,14 +388,14 @@ internal class InteractiveWatchFaceClientImpl internal constructor(
         }
 
         override fun onEngineDetached() {
-            sendDisconnectNotification(DisconnectReason.ENGINE_DETACHED)
+            sendDisconnectNotification(DisconnectReasons.ENGINE_DETACHED)
         }
     }
 
     init {
         iInteractiveWatchFace.asBinder().linkToDeath(
             {
-                sendDisconnectNotification(DisconnectReason.ENGINE_DIED)
+                sendDisconnectNotification(DisconnectReasons.ENGINE_DIED)
             },
             0
         )
