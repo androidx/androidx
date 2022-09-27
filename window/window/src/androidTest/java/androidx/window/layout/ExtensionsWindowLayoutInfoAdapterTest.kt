@@ -29,6 +29,7 @@ import androidx.window.layout.WindowMetricsCalculatorCompat.computeCurrentWindow
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import androidx.window.extensions.layout.FoldingFeature as OEMFoldingFeature
@@ -54,6 +55,7 @@ class ExtensionsWindowLayoutInfoAdapterTest {
         }
     }
 
+    @Ignore("b/249124046")
     @Test
     fun testTranslate_windowLayoutInfo() {
         activityScenario.scenario.onActivity { activity ->

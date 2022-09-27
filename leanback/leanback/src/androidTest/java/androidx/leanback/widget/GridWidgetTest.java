@@ -1588,6 +1588,7 @@ public class GridWidgetTest {
         assertEquals(leftEdge, mGridView.getLayoutManager().findViewByPosition(199).getLeft());
     }
 
+    @FlakyTest(bugId = 249493545)
     @Test
     public void testContinuousSwapBackward() throws Throwable {
         Intent intent = new Intent();
