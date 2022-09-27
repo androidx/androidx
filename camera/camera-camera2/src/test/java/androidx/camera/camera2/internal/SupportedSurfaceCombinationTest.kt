@@ -137,7 +137,7 @@ private val DEFAULT_SUPPORTED_SIZES = arrayOf(
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
-class SupportedSurfaceCombinationTest() {
+class SupportedSurfaceCombinationTest {
     private val mockCamcorderProfileHelper = Mockito.mock(
         CamcorderProfileHelper::class.java
     )
@@ -624,10 +624,10 @@ class SupportedSurfaceCombinationTest() {
         val supportedSurfaceCombination = SupportedSurfaceCombination(
             context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
         )
-        // Sets target resolution as 1200x720, all supported resolutions will be put into aspect
+        // Sets target resolution as 1280x640, all supported resolutions will be put into aspect
         // ratio not matched list. Then, 1280x720 will be the nearest matched one. Finally,
         // checks whether 1280x720 is selected or not.
-        val resolution = Size(1200, 720)
+        val resolution = Size(1280, 640)
         val useCase = createUseCase(
             FAKE_USE_CASE,
             Surface.ROTATION_90,

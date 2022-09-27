@@ -20,6 +20,7 @@ import static androidx.camera.core.impl.utils.AspectRatioUtil.ASPECT_RATIO_16_9;
 import static androidx.camera.core.impl.utils.AspectRatioUtil.ASPECT_RATIO_3_4;
 import static androidx.camera.core.impl.utils.AspectRatioUtil.ASPECT_RATIO_4_3;
 import static androidx.camera.core.impl.utils.AspectRatioUtil.ASPECT_RATIO_9_16;
+import static androidx.camera.core.impl.utils.AspectRatioUtil.hasMatchingAspectRatio;
 import static androidx.camera.core.internal.utils.SizeUtil.RESOLUTION_1080P;
 import static androidx.camera.core.internal.utils.SizeUtil.RESOLUTION_480P;
 import static androidx.camera.core.internal.utils.SizeUtil.RESOLUTION_VGA;
@@ -28,6 +29,7 @@ import static androidx.camera.core.internal.utils.SizeUtil.getArea;
 
 import android.content.Context;
 import android.graphics.ImageFormat;
+import android.graphics.Rect;
 import android.graphics.SurfaceTexture;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.params.StreamConfigurationMap;
@@ -104,6 +106,8 @@ final class SupportedSurfaceCombination {
     private final DisplayInfoManager mDisplayInfoManager;
     private final ResolutionCorrector mResolutionCorrector = new ResolutionCorrector();
 
+    private final Size mActiveArraySize;
+
     SupportedSurfaceCombination(@NonNull Context context, @NonNull String cameraId,
             @NonNull CameraManagerCompat cameraManagerCompat,
             @NonNull CamcorderProfileHelper camcorderProfileHelper)
@@ -139,6 +143,9 @@ final class SupportedSurfaceCombination {
                 }
             }
         }
+
+        Rect rect = mCharacteristics.get(CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE);
+        mActiveArraySize = rect != null ? new Size(rect.width(), rect.height()) : null;
 
         generateSupportedCombinationList();
         generateSurfaceSizeDefinition();
@@ -289,7 +296,26 @@ final class SupportedSurfaceCombination {
         return suggestedResolutionsMap;
     }
 
-    private Rational getTargetAspectRatio(@NonNull ImageOutputConfig imageOutputConfig) {
+    /**
+     * Returns the target aspect ratio value corrected by quirks.
+     *
+     * The final aspect ratio is determined by the following order:
+     * 1. The aspect ratio returned by {@link TargetAspectRatio} if it is
+     * {@link TargetAspectRatio#RATIO_4_3}, {@link TargetAspectRatio#RATIO_16_9} or
+     * {@link TargetAspectRatio#RATIO_MAX_JPEG}.
+     * 2. The use case's original aspect ratio if {@link TargetAspectRatio} returns
+     * {@link TargetAspectRatio#RATIO_ORIGINAL} and the use case has target aspect ratio setting.
+     * 3. The aspect ratio of use case's target size setting if {@link TargetAspectRatio} returns
+     * {@link TargetAspectRatio#RATIO_ORIGINAL} and the use case has no target aspect ratio but has
+     * target size setting.
+     *
+     * @param imageOutputConfig       the image output config of the use case.
+     * @param resolutionCandidateList the resolution candidate list which will be used to
+     *                                determine the aspect ratio by target size when target
+     *                                aspect ratio setting is not set.
+     */
+    private Rational getTargetAspectRatio(@NonNull ImageOutputConfig imageOutputConfig,
+            @NonNull List<Size> resolutionCandidateList) {
         Rational outputRatio = null;
         // Gets the corrected aspect ratio due to device constraints or null if no correction is
         // needed.
@@ -307,7 +333,6 @@ final class SupportedSurfaceCombination {
                 outputRatio = new Rational(maxJpegSize.getWidth(), maxJpegSize.getHeight());
                 break;
             case TargetAspectRatio.RATIO_ORIGINAL:
-                Size targetSize = getTargetSize(imageOutputConfig);
                 if (imageOutputConfig.hasTargetAspectRatio()) {
                     @AspectRatio.Ratio int aspectRatio = imageOutputConfig.getTargetAspectRatio();
                     switch (aspectRatio) {
@@ -322,11 +347,15 @@ final class SupportedSurfaceCombination {
                         default:
                             Logger.e(TAG, "Undefined target aspect ratio: " + aspectRatio);
                     }
-                } else if (targetSize != null) {
-                    // Target size is calculated from the target resolution. If target size is not
-                    // null, sizes which aspect ratio is nearest to the aspect ratio of target size
-                    // will be selected in priority.
-                    outputRatio = new Rational(targetSize.getWidth(), targetSize.getHeight());
+                } else {
+                    // The legacy resolution API will use the aspect ratio of the target size to
+                    // be the fallback target aspect ratio value when the use case has no target
+                    // aspect ratio setting.
+                    Size targetSize = getTargetSize(imageOutputConfig);
+                    if (targetSize != null) {
+                        outputRatio = getAspectRatioGroupKeyOfTargetSize(targetSize,
+                                resolutionCandidateList);
+                    }
                 }
                 break;
             default:
@@ -430,7 +459,7 @@ final class SupportedSurfaceCombination {
                             + imageFormat);
         }
 
-        Rational aspectRatio = getTargetAspectRatio(imageOutputConfig);
+        Rational aspectRatio = getTargetAspectRatio(imageOutputConfig, outputSizeCandidates);
 
         // Check the default resolution if the target resolution is not set
         targetSize = targetSize == null ? imageOutputConfig.getDefaultResolution(null) : targetSize;
@@ -465,8 +494,11 @@ final class SupportedSurfaceCombination {
 
             // Sort the aspect ratio key set by the target aspect ratio.
             List<Rational> aspectRatios = new ArrayList<>(aspectRatioSizeListMap.keySet());
+            Rational fullFovRatio = mActiveArraySize != null ? new Rational(
+                    mActiveArraySize.getWidth(), mActiveArraySize.getHeight()) : null;
             Collections.sort(aspectRatios,
-                    new AspectRatioUtil.CompareAspectRatiosByDistanceToTargetRatio(aspectRatio));
+                    new AspectRatioUtil.CompareAspectRatiosByMappingAreaInFullFovAspectRatioSpace(
+                            aspectRatio, fullFovRatio));
 
             // Put available sizes into final result list by aspect ratio distance to target ratio.
             for (Rational rational : aspectRatios) {
@@ -494,6 +526,73 @@ final class SupportedSurfaceCombination {
         Size targetSize = imageOutputConfig.getTargetResolution(null);
         targetSize = flipSizeByRotation(targetSize, targetRotation);
         return targetSize;
+    }
+
+    /**
+     * Returns the aspect ratio group key of the target size when grouping the input resolution
+     * candidate list.
+     *
+     * The resolution candidate list will be grouped with mod 16 consideration. Therefore, we
+     * also need to consider the mod 16 factor to find which aspect ratio of group the target size
+     * might be put in. So that sizes of the group will be selected to use in the highest priority.
+     */
+    @Nullable
+    private Rational getAspectRatioGroupKeyOfTargetSize(@Nullable Size targetSize,
+            @NonNull List<Size> resolutionCandidateList) {
+        if (targetSize == null) {
+            return null;
+        }
+
+        List<Rational> aspectRatios = getResolutionListGroupingAspectRatioKeys(
+                resolutionCandidateList);
+
+        for (Rational aspectRatio: aspectRatios) {
+            if (hasMatchingAspectRatio(targetSize, aspectRatio)) {
+                return aspectRatio;
+            }
+        }
+
+        return new Rational(targetSize.getWidth(), targetSize.getHeight());
+    }
+
+    /**
+     * Returns the grouping aspect ratio keys of the input resolution list.
+     *
+     * <p>Some sizes might be mod16 case. When grouping, those sizes will be grouped into an
+     * existing aspect ratio group if the aspect ratio can match by the mod16 rule.
+     */
+    @NonNull
+    private List<Rational> getResolutionListGroupingAspectRatioKeys(
+            @NonNull List<Size> resolutionCandidateList) {
+        List<Rational> aspectRatios = new ArrayList<>();
+
+        // Adds the default 4:3 and 16:9 items first to avoid their mod16 sizes to create
+        // additional items.
+        aspectRatios.add(ASPECT_RATIO_4_3);
+        aspectRatios.add(ASPECT_RATIO_16_9);
+
+        // Tries to find the aspect ratio which the target size belongs to.
+        for (Size size : resolutionCandidateList) {
+            Rational newRatio = new Rational(size.getWidth(), size.getHeight());
+            boolean aspectRatioFound = aspectRatios.contains(newRatio);
+
+            // The checking size might be a mod16 size which can be mapped to an existing aspect
+            // ratio group.
+            if (!aspectRatioFound) {
+                boolean hasMatchingAspectRatio = false;
+                for (Rational aspectRatio : aspectRatios) {
+                    if (hasMatchingAspectRatio(size, aspectRatio)) {
+                        hasMatchingAspectRatio = true;
+                        break;
+                    }
+                }
+                if (!hasMatchingAspectRatio) {
+                    aspectRatios.add(newRatio);
+                }
+            }
+        }
+
+        return aspectRatios;
     }
 
     // Use target rotation to calibrate the size.
@@ -542,34 +641,19 @@ final class SupportedSurfaceCombination {
     private Map<Rational, List<Size>> groupSizesByAspectRatio(List<Size> sizes) {
         Map<Rational, List<Size>> aspectRatioSizeListMap = new HashMap<>();
 
-        // Add 4:3 and 16:9 entries first. Most devices should mainly have supported sizes of
-        // these two aspect ratios. Adding them first can avoid that if the first one 4:3 or 16:9
-        // size is a mod16 alignment size, the aspect ratio key may be different from the 4:3 or
-        // 16:9 value.
-        aspectRatioSizeListMap.put(ASPECT_RATIO_4_3, new ArrayList<>());
-        aspectRatioSizeListMap.put(ASPECT_RATIO_16_9, new ArrayList<>());
+        List<Rational> aspectRatioKeys = getResolutionListGroupingAspectRatioKeys(sizes);
+
+        for (Rational aspectRatio: aspectRatioKeys) {
+            aspectRatioSizeListMap.put(aspectRatio, new ArrayList<>());
+        }
 
         for (Size outputSize : sizes) {
-            Rational matchedKey = null;
-
             for (Rational key : aspectRatioSizeListMap.keySet()) {
                 // Put the size into all groups that is matched in mod16 condition since a size
                 // may match multiple aspect ratio in mod16 algorithm.
-                if (AspectRatioUtil.hasMatchingAspectRatio(outputSize, key)) {
-                    matchedKey = key;
-
-                    List<Size> sizeList = aspectRatioSizeListMap.get(matchedKey);
-                    if (!sizeList.contains(outputSize)) {
-                        sizeList.add(outputSize);
-                    }
+                if (hasMatchingAspectRatio(outputSize, key)) {
+                    aspectRatioSizeListMap.get(key).add(outputSize);
                 }
-            }
-
-            // Create new item if no matching group is found.
-            if (matchedKey == null) {
-                aspectRatioSizeListMap.put(
-                        new Rational(outputSize.getWidth(), outputSize.getHeight()),
-                        new ArrayList<>(Collections.singleton(outputSize)));
             }
         }
 
