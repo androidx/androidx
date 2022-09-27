@@ -583,6 +583,9 @@ public final class Row implements Item {
         /**
          * Sets a {@link Toggle} to show in the row.
          *
+         * <p> If a row has a toggle set, then no {@link Action}, {@link OnClickListener} or
+         * numeric decoration can be set.
+         *
          * @throws NullPointerException if {@code toggle} is {@code null}
          */
         @NonNull
@@ -597,7 +600,8 @@ public final class Row implements Item {
          * <p>Browsable rows can be used, for example, to represent the parent row in a hierarchy of
          * lists with child lists.
          *
-         * <p>If a row is browsable, then no {@link Action} or {@link Toggle} can be added to it.
+         * <p>If a row is browsable, then no {@link Action} or {@link Toggle} can be added to it. A
+         * browsable row must have an OnClickListener set.
          */
         @NonNull
         public Builder setBrowsable(boolean isBrowsable) {
@@ -648,11 +652,9 @@ public final class Row implements Item {
         /**
          * Constructs the {@link Row} defined by this builder.
          *
-         * @throws IllegalStateException if the row's title is not set, if it is a browsable
-         *                               row and has a {@link Toggle}, if it is a browsable
-         *                               row but does not have a {@link OnClickListener}, or if
-         *                               it has both a {@link OnClickListener} and a {@link
-         *                               Toggle}
+         * @throws IllegalStateException if the row's title is not set or if the row is not set
+         *                               correctly. See {@link #setToggle} and
+         *                               {@link #setBrowsable}.
          */
         @NonNull
         public Row build() {
@@ -668,11 +670,28 @@ public final class Row implements Item {
                     throw new IllegalStateException(
                             "A browsable row must have its onClickListener set");
                 }
+                if (!mActions.isEmpty()) {
+                    throw new IllegalStateException("A browsable row must not have a secondary "
+                            + "action set");
+                }
+
             }
 
-            if (mToggle != null && mOnClickDelegate != null) {
-                throw new IllegalStateException(
-                        "If a row contains a toggle, it must not have a onClickListener set");
+            if (mToggle != null) {
+                if (mOnClickDelegate != null) {
+                    throw new IllegalStateException(
+                            "If a row contains a toggle, it must not have an onClickListener set");
+                }
+
+                if (mDecoration != NO_DECORATION) {
+                    throw new IllegalStateException("If a row contains a toggle, it must not have"
+                            + " a numeric decoration set");
+                }
+
+                if (!mActions.isEmpty()) {
+                    throw new IllegalStateException("If a row contains a toggle, it must not have "
+                            + "a secondary action set");
+                }
             }
 
             return new Row(this);
