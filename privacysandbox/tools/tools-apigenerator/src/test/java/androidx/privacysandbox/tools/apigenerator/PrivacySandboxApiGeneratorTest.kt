@@ -17,6 +17,7 @@
 package androidx.privacysandbox.tools.apigenerator
 
 import androidx.room.compiler.processing.util.Source
+import androidx.privacysandbox.tools.testing.loadSourcesFromDirectory
 import com.google.common.truth.Truth.assertThat
 import java.io.File
 import java.nio.file.Files
@@ -58,14 +59,6 @@ class PrivacySandboxApiGeneratorTest {
             assertThat(outputSourceMap[expected.relativePath]?.contents)
                 .isEqualTo(expected.contents)
         }
-    }
-
-    private fun loadSourcesFromDirectory(directory: File): List<Source> {
-        return directory.walk().filter { it.isFile }.map {
-            val relativePath = directory.toPath().relativize(it.toPath()).toString()
-            val qualifiedName = relativePath.removeSuffix(".${it.extension}").replace('/', '.')
-            Source.load(file = it, qName = qualifiedName, relativePath = relativePath)
-        }.toList()
     }
 
     companion object {
