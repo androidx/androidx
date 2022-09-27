@@ -33,8 +33,9 @@ dependencies {
     implementation project(path: ':privacysandbox:tools:tools')
     implementation project(path: ':privacysandbox:tools:tools-core')
 
-    testImplementation(project(":room:room-compiler-processing-testing"))
     testImplementation(project(":internal-testutils-truth"))
+    testImplementation(project(":privacysandbox:tools:tools-testing"))
+    testImplementation(project(":room:room-compiler-processing-testing"))
     testImplementation(libs.kotlinCoroutinesCore)
     testImplementation(libs.junit)
     testImplementation(libs.truth)
