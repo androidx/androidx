@@ -24,4 +24,6 @@ internal interface CompatTestInterface {
     fun testSetExtensionCallback()
     fun testOnWindowLayoutChangeListenerAdded()
     fun testOnWindowLayoutChangeListenerRemoved()
+    fun testOnWindowLayoutInfoChanged_emitWhenResubscribe()
+    fun testOnWindowLayoutInfoChanged_emitNewValueWhenResubscribe()
 }
