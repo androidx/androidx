@@ -139,6 +139,7 @@ public class RequestPermissionScreen extends Screen {
                                 getCarContext(),
                                 String.format("Approved: %s Rejected: %s", approved, rejected),
                                 CarToast.LENGTH_LONG).show();
+                        invalidate();
                     });
             if (!getCarContext().getPackageManager().hasSystemFeature(FEATURE_AUTOMOTIVE)) {
                 CarToast.makeText(getCarContext(),
@@ -168,6 +169,7 @@ public class RequestPermissionScreen extends Screen {
                         getCarContext().startActivity(
                                 new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS).addFlags(
                                         Intent.FLAG_ACTIVITY_NEW_TASK));
+                        invalidate();
                         if (!getCarContext().getPackageManager().hasSystemFeature(
                                 FEATURE_AUTOMOTIVE)) {
                             CarToast.makeText(getCarContext(),
