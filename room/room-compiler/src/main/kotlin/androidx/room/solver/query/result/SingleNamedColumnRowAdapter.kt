@@ -16,8 +16,9 @@
 
 package androidx.room.solver.query.result
 
+import androidx.room.compiler.codegen.toJavaPoet
 import androidx.room.ext.L
-import androidx.room.ext.RoomTypeNames
+import androidx.room.ext.RoomTypeNames.CURSOR_UTIL
 import androidx.room.ext.S
 import androidx.room.ext.T
 import androidx.room.ext.capitalize
@@ -50,7 +51,7 @@ class SingleNamedColumnRowAdapter(
                 "final $T $L = $T.$L($L, $S)",
                 TypeName.INT,
                 indexVarName,
-                RoomTypeNames.CURSOR_UTIL,
+                CURSOR_UTIL.toJavaPoet(),
                 "getColumnIndexOrThrow",
                 cursorVarName,
                 columnName

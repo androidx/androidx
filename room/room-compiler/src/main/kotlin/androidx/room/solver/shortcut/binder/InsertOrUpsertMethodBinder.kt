@@ -16,8 +16,9 @@
 
 package androidx.room.solver.shortcut.binder
 
-import androidx.room.solver.shortcut.result.InsertOrUpsertMethodAdapter
+import androidx.room.compiler.codegen.XPropertySpec
 import androidx.room.solver.CodeGenScope
+import androidx.room.solver.shortcut.result.InsertOrUpsertMethodAdapter
 import androidx.room.vo.ShortcutQueryParameter
 import com.squareup.javapoet.FieldSpec
 
@@ -50,7 +51,7 @@ abstract class InsertOrUpsertMethodBinder(val adapter: InsertOrUpsertMethodAdapt
      */
     abstract fun convertAndReturn(
         parameters: List<ShortcutQueryParameter>,
-        adapters: Map<String, Pair<FieldSpec, Any>>,
+        adapters: Map<String, Pair<XPropertySpec, Any>>,
         dbField: FieldSpec,
         scope: CodeGenScope
     )

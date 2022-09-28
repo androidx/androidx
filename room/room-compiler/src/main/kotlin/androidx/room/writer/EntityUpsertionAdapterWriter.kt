@@ -18,7 +18,7 @@ package androidx.room.writer
 
 import androidx.room.compiler.codegen.toJavaPoet
 import androidx.room.ext.L
-import androidx.room.ext.RoomTypeNames
+import androidx.room.ext.RoomTypeNames.UPSERTION_ADAPTER
 import androidx.room.ext.T
 import androidx.room.vo.Pojo
 import androidx.room.vo.ShortcutEntity
@@ -45,7 +45,7 @@ class EntityUpsertionAdapterWriter private constructor(
         dbParam: String
     ): CodeBlock {
         val upsertionAdapter = ParameterizedTypeName.get(
-            RoomTypeNames.UPSERTION_ADAPTER, pojo.typeName.toJavaPoet()
+            UPSERTION_ADAPTER.toJavaPoet(), pojo.typeName.toJavaPoet()
         )
         val insertionHelper = EntityInsertionAdapterWriter.create(entity, "")
             .createAnonymous(typeWriter, dbParam)

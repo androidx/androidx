@@ -34,6 +34,7 @@ class EntityCursorConverterWriterTest : BaseEntityParserTest() {
         val OUT_PREFIX = """
             package foo.bar;
             import android.database.Cursor;
+            import androidx.annotation.NonNull;
             import androidx.room.util.CursorUtil;
             import java.lang.SuppressWarnings;
             import javax.annotation.processing.Generated;
@@ -71,7 +72,7 @@ class EntityCursorConverterWriterTest : BaseEntityParserTest() {
                     """.trimIndent()
                 }
                 """
-                |private MyEntity __entityCursorConverter_fooBarMyEntity(Cursor cursor) {
+                |private MyEntity __entityCursorConverter_fooBarMyEntity(@NonNull final Cursor cursor) {
                 |  final MyEntity _entity;
                 |  final int _cursorIndexOfId = CursorUtil.getColumnIndex(cursor, "id");
                 |  final int _cursorIndexOfName = CursorUtil.getColumnIndex(cursor, "name");
@@ -123,7 +124,7 @@ class EntityCursorConverterWriterTest : BaseEntityParserTest() {
             val className = XClassName.get("foo.bar", "MyContainerClass")
             val writer = object : TypeWriter(CodeLanguage.JAVA) {
                 override fun createTypeSpecBuilder(): XTypeSpec.Builder {
-                    getOrCreateMethod(EntityCursorConverterWriter(entity))
+                    getOrCreateFunction(EntityCursorConverterWriter(entity))
                     return XTypeSpec.classBuilder(codeLanguage, className)
                         .apply(
                             javaTypeBuilder = { addModifiers(Modifier.PUBLIC) },

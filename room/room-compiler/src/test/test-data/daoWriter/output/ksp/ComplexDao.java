@@ -2,6 +2,7 @@ package foo.bar;
 
 import android.database.Cursor;
 import android.os.CancellationSignal;
+import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.room.RoomDatabase;
 import androidx.room.RoomSQLiteQuery;
@@ -576,7 +577,7 @@ public final class ComplexDao_Impl extends ComplexDao {
         return Collections.emptyList();
     }
 
-    private User __entityCursorConverter_fooBarUser(Cursor cursor) {
+    private User __entityCursorConverter_fooBarUser(@NonNull final Cursor cursor) {
         final User _entity;
         final int _cursorIndexOfUid = CursorUtil.getColumnIndex(cursor, "uid");
         final int _cursorIndexOfName = CursorUtil.getColumnIndex(cursor, "name");

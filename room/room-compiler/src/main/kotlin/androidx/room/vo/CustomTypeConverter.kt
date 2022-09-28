@@ -16,24 +16,26 @@
 
 package androidx.room.vo
 
+import androidx.room.compiler.codegen.XClassName
+import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XType
-import com.squareup.javapoet.TypeName
+import androidx.room.compiler.processing.XTypeElement
 
 /**
  * Generated when we parse a method annotated with TypeConverter.
  */
 data class CustomTypeConverter(
-    val enclosingClass: XType,
+    val enclosingClass: XTypeElement,
     val isEnclosingClassKotlinObject: Boolean,
     val method: XMethodElement,
     val from: XType,
     val to: XType,
     val isProvidedConverter: Boolean
 ) {
-    val typeName: TypeName by lazy { enclosingClass.typeName }
-    val fromTypeName: TypeName by lazy { from.typeName }
-    val toTypeName: TypeName by lazy { to.typeName }
+    val className: XClassName by lazy { enclosingClass.asClassName() }
+    val fromTypeName: XTypeName by lazy { from.asTypeName() }
+    val toTypeName: XTypeName by lazy { to.asTypeName() }
     val methodName by lazy { method.jvmName }
     val isStatic by lazy { method.isStatic() }
 }

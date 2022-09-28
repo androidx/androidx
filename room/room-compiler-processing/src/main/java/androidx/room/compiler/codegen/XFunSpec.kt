@@ -26,7 +26,12 @@ import com.squareup.kotlinpoet.KModifier
 
 interface XFunSpec : TargetLanguage {
 
+    val name: String
+
     interface Builder : TargetLanguage {
+
+        fun addAnnotation(annotation: XAnnotationSpec)
+
         // TODO(b/247247442): Maybe make a XParameterSpec ?
         fun addParameter(
             typeName: XTypeName,
@@ -48,6 +53,22 @@ interface XFunSpec : TargetLanguage {
             fun Builder.addStatement(format: String, vararg args: Any?) = addCode(
                 XCodeBlock.builder(language).addStatement(format, *args).build()
             )
+
+            fun Builder.apply(
+                javaMethodBuilder: MethodSpec.Builder.() -> Unit,
+                kotlinFunBuilder: FunSpec.Builder.() -> Unit,
+            ): Builder = apply {
+                when (language) {
+                    CodeLanguage.JAVA -> {
+                        check(this is JavaFunSpec.Builder)
+                        this.actual.javaMethodBuilder()
+                    }
+                    CodeLanguage.KOTLIN -> {
+                        check(this is KotlinFunSpec.Builder)
+                        this.actual.kotlinFunBuilder()
+                    }
+                }
+            }
         }
     }
 
@@ -62,6 +83,7 @@ interface XFunSpec : TargetLanguage {
             return when (language) {
                 CodeLanguage.JAVA -> {
                     JavaFunSpec.Builder(
+                        name,
                         MethodSpec.methodBuilder(name).apply {
                             addModifiers(visibility.toJavaVisibilityModifier())
                             // TODO(b/247242374) Add nullability annotations for non-private params
@@ -76,6 +98,7 @@ interface XFunSpec : TargetLanguage {
                 }
                 CodeLanguage.KOTLIN -> {
                     KotlinFunSpec.Builder(
+                        name,
                         FunSpec.builder(name).apply {
                             addModifiers(visibility.toKotlinVisibilityModifier())
                             if (isOpen) {
@@ -94,9 +117,11 @@ interface XFunSpec : TargetLanguage {
             language: CodeLanguage,
             visibility: VisibilityModifier
         ): Builder {
+            val name = "<init>"
             return when (language) {
                 CodeLanguage.JAVA -> {
                     JavaFunSpec.Builder(
+                        name,
                         MethodSpec.constructorBuilder().apply {
                             addModifiers(visibility.toJavaVisibilityModifier())
                         }
@@ -104,6 +129,7 @@ interface XFunSpec : TargetLanguage {
                 }
                 CodeLanguage.KOTLIN -> {
                     KotlinFunSpec.Builder(
+                        name,
                         FunSpec.constructorBuilder().apply {
                             addModifiers(visibility.toKotlinVisibilityModifier())
                         }

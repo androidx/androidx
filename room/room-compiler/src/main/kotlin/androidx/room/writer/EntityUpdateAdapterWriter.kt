@@ -18,7 +18,7 @@ package androidx.room.writer
 
 import androidx.room.compiler.codegen.toJavaPoet
 import androidx.room.ext.L
-import androidx.room.ext.RoomTypeNames
+import androidx.room.ext.RoomTypeNames.DELETE_OR_UPDATE_ADAPTER
 import androidx.room.ext.S
 import androidx.room.ext.SupportDbTypeNames
 import androidx.room.solver.CodeGenScope
@@ -56,7 +56,7 @@ class EntityUpdateAdapterWriter private constructor(
         return TypeSpec.anonymousClassBuilder("$L", dbParam).apply {
             superclass(
                 ParameterizedTypeName.get(
-                    RoomTypeNames.DELETE_OR_UPDATE_ADAPTER,
+                    DELETE_OR_UPDATE_ADAPTER.toJavaPoet(),
                     pojo.typeName.toJavaPoet()
                 )
             )

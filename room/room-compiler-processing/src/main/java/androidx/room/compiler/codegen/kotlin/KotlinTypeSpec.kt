@@ -17,14 +17,12 @@
 package androidx.room.compiler.codegen.kotlin
 
 import androidx.room.compiler.codegen.KTypeSpecBuilder
-import androidx.room.compiler.codegen.VisibilityModifier
 import androidx.room.compiler.codegen.XAnnotationSpec
 import androidx.room.compiler.codegen.XClassName
-import androidx.room.compiler.codegen.XCodeBlock
 import androidx.room.compiler.codegen.XFunSpec
+import androidx.room.compiler.codegen.XPropertySpec
 import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.codegen.XTypeSpec
-import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.javapoet.KTypeSpec
 
 internal class KotlinTypeSpec(
@@ -45,25 +43,9 @@ internal class KotlinTypeSpec(
             actual.addAnnotation(annotation.actual)
         }
 
-        override fun addProperty(
-            typeName: XTypeName,
-            name: String,
-            visibility: VisibilityModifier,
-            isMutable: Boolean,
-            initExpr: XCodeBlock?,
-            annotations: List<XAnnotationSpec>
-        ) = apply {
-            actual.addProperty(
-                PropertySpec.builder(name, typeName.kotlin).apply {
-                    mutable(isMutable)
-                    addModifiers(visibility.toKotlinVisibilityModifier())
-                    initExpr?.let {
-                        require(it is KotlinCodeBlock)
-                        initializer(it.actual)
-                    }
-                    // TODO(b/247247439): Add other annotations
-                }.build()
-            )
+        override fun addProperty(propertySpec: XPropertySpec) = apply {
+            require(propertySpec is KotlinPropertySpec)
+            actual.addProperty(propertySpec.actual)
         }
 
         override fun addFunction(functionSpec: XFunSpec) = apply {

@@ -16,6 +16,7 @@
 
 package androidx.room.solver.shortcut.result
 
+import androidx.room.compiler.codegen.XPropertySpec
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.isArray
 import androidx.room.compiler.processing.isKotlinUnit
@@ -168,7 +169,7 @@ class InsertOrUpsertMethodAdapter private constructor(private val methodType: Me
 
     fun createMethodBody(
         parameters: List<ShortcutQueryParameter>,
-        adapters: Map<String, Pair<FieldSpec, Any>>,
+        adapters: Map<String, Pair<XPropertySpec, Any>>,
         dbField: FieldSpec,
         scope: CodeGenScope
     ) {
@@ -191,19 +192,19 @@ class InsertOrUpsertMethodAdapter private constructor(private val methodType: Me
 
             beginControlFlow("try").apply {
                 parameters.forEach { param ->
-                    val upsertionAdapter = adapters[param.name]?.first
+                    val upsertionAdapter = adapters.getValue(param.name).first
                     if (needsResultVar) {
                         // if it has more than 1 parameter, we would've already printed the error
                         // so we don't care about re-declaring the variable here
                         addStatement(
-                            "$T $L = $N.$L($L)",
+                            "$T $L = $L.$L($L)",
                             methodReturnType.returnTypeName, resultVar,
-                            upsertionAdapter, methodName,
+                            upsertionAdapter.name, methodName,
                             param.name
                         )
                     } else {
                         addStatement(
-                            "$N.$L($L)", upsertionAdapter, methodName,
+                            "$L.$L($L)", upsertionAdapter.name, methodName,
                             param.name
                         )
                     }

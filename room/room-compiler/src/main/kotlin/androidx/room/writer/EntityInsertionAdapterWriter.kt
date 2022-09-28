@@ -19,7 +19,7 @@ package androidx.room.writer
 import androidx.room.compiler.codegen.toJavaPoet
 import androidx.room.compiler.processing.XNullability
 import androidx.room.ext.L
-import androidx.room.ext.RoomTypeNames
+import androidx.room.ext.RoomTypeNames.INSERTION_ADAPTER
 import androidx.room.ext.S
 import androidx.room.ext.SupportDbTypeNames
 import androidx.room.solver.CodeGenScope
@@ -72,7 +72,7 @@ class EntityInsertionAdapterWriter private constructor(
         return TypeSpec.anonymousClassBuilder("$L", dbParam).apply {
             superclass(
                 ParameterizedTypeName.get(
-                    RoomTypeNames.INSERTION_ADAPTER,
+                    INSERTION_ADAPTER.toJavaPoet(),
                     pojo.typeName.toJavaPoet()
                 )
             )

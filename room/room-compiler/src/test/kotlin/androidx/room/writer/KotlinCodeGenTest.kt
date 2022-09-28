@@ -168,7 +168,7 @@ class KotlinCodeGenTest {
         val src = Source.kotlin(
             "MyDao.kt",
             """
-            import androidx.room.*import java.nio.ByteBuffer
+            import androidx.room.*
 
             @Dao
             interface MyDao {
