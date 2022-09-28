@@ -165,6 +165,7 @@ object Arguments {
             )
         }
         additionalTestOutputDir = arguments.getString("additionalTestOutputDir")
+        Log.d(BenchmarkState.TAG, "additionalTestOutputDir=$additionalTestOutputDir")
 
         killProcessDelayMillis =
             arguments.getBenchmarkArgument("killProcessDelayMillis")?.toLong() ?: 0L
