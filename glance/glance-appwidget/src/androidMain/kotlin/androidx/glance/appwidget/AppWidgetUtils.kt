@@ -18,12 +18,18 @@ package androidx.glance.appwidget
 
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProviderInfo
+import android.os.Build
 import android.os.Bundle
+import android.os.Trace
 import android.util.DisplayMetrics
 import android.util.Log
 import android.util.SizeF
+import androidx.annotation.DoNotInline
+import androidx.annotation.RequiresApi
+import androidx.annotation.RestrictTo
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.math.ceil
 import kotlin.math.min
 
@@ -148,4 +154,41 @@ internal fun Collection<DpSize>.sortedBySize() =
 
 internal fun logException(throwable: Throwable) {
     Log.e(GlanceAppWidgetTag, "Error in Glance App Widget", throwable)
+}
+
+/**
+ * [Tracing] contains methods for tracing sections of GlanceAppWidget.
+ *
+ * @suppress
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+object Tracing {
+    val enabled = AtomicBoolean(false)
+
+    fun beginGlanceAppWidgetUpdate() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && enabled.get()) {
+            TracingApi29Impl.beginAsyncSection("GlanceAppWidget::update", 0)
+        }
+    }
+
+    fun endGlanceAppWidgetUpdate() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && enabled.get()) {
+            TracingApi29Impl.endAsyncSection("GlanceAppWidget::update", 0)
+        }
+    }
+}
+
+@RequiresApi(Build.VERSION_CODES.Q)
+internal object TracingApi29Impl {
+    @DoNotInline
+    fun beginAsyncSection(
+        methodName: String,
+        cookie: Int,
+    ) = Trace.beginAsyncSection(methodName, cookie)
+
+    @DoNotInline
+    fun endAsyncSection(
+        methodName: String,
+        cookie: Int,
+    ) = Trace.endAsyncSection(methodName, cookie)
 }
