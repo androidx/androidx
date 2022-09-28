@@ -85,7 +85,8 @@ public suspend inline fun <T> traceAsync(
  * enabled - [Trace.isEnabled].
  *
  * @param lazyMethodName The method name to appear in the trace, computed lazily if needed.
- * @param lazyCookie Unique identifier for distinguishing simultaneous , computed lazily if needed.
+ * @param lazyCookie Unique identifier for distinguishing simultaneous events,
+ *         computed lazily if needed.
  */
 public inline fun <T> traceAsync(
     lazyMethodName: () -> String,
