@@ -37,6 +37,7 @@ import androidx.annotation.RestrictTo
 import androidx.annotation.UiThread
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.lifecycleScope
 import androidx.wear.watchface.complications.ComplicationDataSourceInfo
 import androidx.wear.watchface.complications.ComplicationDataSourceInfoRetriever
 import androidx.wear.watchface.complications.data.ComplicationData
@@ -66,7 +67,6 @@ import androidx.wear.watchface.style.UserStyleData
 import androidx.wear.watchface.style.UserStyleSchema
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.android.asCoroutineDispatcher
@@ -289,7 +289,6 @@ public interface EditorSession : AutoCloseable {
             "EditorSession.createOnWatchEditorSessionAsyncImpl"
         ).use {
             try {
-                val coroutineScope = CoroutineScope(Dispatchers.Main.immediate)
                 val editorRequest = editIntent.getParcelableExtra<ComponentName>(
                     Constants.EXTRA_WATCH_FACE_COMPONENT
                 )?.let {
@@ -307,13 +306,13 @@ public interface EditorSession : AutoCloseable {
                     editorRequest.watchFaceId,
                     editorRequest.initialUserStyle,
                     complicationDataSourceInfoRetrieverProvider,
-                    coroutineScope,
+                    activity.lifecycleScope,
                     editorRequest.previewScreenshotParams
                 )
                 // But full initialization has to be deferred because
                 // [WatchFace.getOrCreateEditorDelegate] is async.
                 // Resolve only after init has been completed.
-                withContext(coroutineScope.coroutineContext) {
+                withContext(activity.lifecycleScope.coroutineContext) {
                     withTimeout(EDITING_SESSION_TIMEOUT.toMillis()) {
                         session.setEditorDelegate(
                             // Either create a delegate for a new headless client or await an
@@ -744,7 +743,6 @@ public abstract class BaseEditorSession internal constructor(
             releaseResources()
             closed = true
             editorSessionTraceEvent.close()
-            coroutineScope.cancel()
             activity = null
             complicationDataSourceInfoRetrieverProvider = null
             chooseComplicationDataSource = null
@@ -760,7 +758,6 @@ public abstract class BaseEditorSession internal constructor(
         releaseResources()
         EditorService.globalEditorService.removeCloseCallback(closeCallback)
         editorSessionTraceEvent.close()
-        coroutineScope.cancel()
         activity?.finish()
         activity = null
         complicationDataSourceInfoRetrieverProvider = null
