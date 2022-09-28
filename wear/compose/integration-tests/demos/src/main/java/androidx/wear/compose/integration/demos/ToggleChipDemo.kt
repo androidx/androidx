@@ -140,13 +140,6 @@ fun ToggleChips(
                 ToggleChip(
                     label = { Text("SwitchIcon") },
                     checked = switchIconChecked,
-                    // For Switch  toggle controls the Wear Material UX guidance is to set the
-                    // unselected toggle control color to
-                    // ToggleChipDefaults.switchUncheckedIconColor() rather than the default.
-                    colors = ToggleChipDefaults.toggleChipColors(
-                        uncheckedToggleControlColor = ToggleChipDefaults
-                            .SwitchUncheckedIconColor
-                    ),
                     toggleControl = {
                         Switch(
                             checked = switchIconChecked,
@@ -167,13 +160,6 @@ fun ToggleChips(
                     label = { Text("SwitchIcon") },
                     secondaryLabel = { Text("Custom color") },
                     checked = switchIconCustomColorChecked,
-                    // For Switch  toggle controls the Wear Material UX guidance is to set the
-                    // unselected toggle control color to
-                    // ToggleChipDefaults.switchUncheckedIconColor() rather than the default.
-                    colors = ToggleChipDefaults.toggleChipColors(
-                        uncheckedToggleControlColor = ToggleChipDefaults
-                            .SwitchUncheckedIconColor
-                    ),
                     toggleControl = {
                         Switch(
                             colors = SwitchDefaults.colors(
@@ -228,7 +214,7 @@ fun ToggleChips(
                         )
                     },
                     secondaryLabel = {
-                        Text("Custom Color", maxLines = 1, overflow = TextOverflow.Ellipsis)
+                        Text("CustomColor", maxLines = 1, overflow = TextOverflow.Ellipsis)
                     },
                     checked = radioIconWithSecondaryChecked,
                     toggleControl = {
@@ -236,9 +222,9 @@ fun ToggleChips(
                             selected = radioIconWithSecondaryChecked,
                             enabled = enabled,
                             colors = RadioButtonDefaults.colors(
-                                selectedCircleColor = MaterialTheme.colors.primary,
+                                selectedRingColor = MaterialTheme.colors.primary,
                                 selectedDotColor = Color.Green,
-                                unselectedCircleColor = Color.Magenta,
+                                unselectedRingColor = Color.Magenta,
                                 unselectedDotColor = Color.Red,
                             ),
                             modifier = Modifier.semantics {
