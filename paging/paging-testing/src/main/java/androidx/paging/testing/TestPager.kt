@@ -90,6 +90,9 @@ public class TestPager<Key : Any, Value : Any>(
      * Since Paging's first load is always of [LoadType.REFRESH], [refresh] must always be called
      * first before this [append] is called.
      *
+     * If [PagingConfig.maxSize] is implemented, [append] loads that exceed [PagingConfig.maxSize]
+     * will cause pages to be dropped from the front of loaded pages.
+     *
      * Returns the [LoadResult] from calling [PagingSource.load]. If the [LoadParams.key] is null,
      * such as when there is no more data to append, this append will be no-op by returning null.
      */
@@ -102,6 +105,9 @@ public class TestPager<Key : Any, Value : Any>(
      *
      * Since Paging's first load is always of [LoadType.REFRESH], [refresh] must always be called
      * first before this [prepend] is called.
+     *
+     * If [PagingConfig.maxSize] is implemented, [prepend] loads that exceed [PagingConfig.maxSize]
+     * will cause pages to be dropped from the end of loaded pages.
      *
      * Returns the [LoadResult] from calling [PagingSource.load]. If the [LoadParams.key] is null,
      * such as when there is no more data to prepend, this prepend will be no-op by returning null.
@@ -146,6 +152,7 @@ public class TestPager<Key : Any, Value : Any>(
                         if (result is LoadResult.Page) {
                             pages.addLast(result)
                         }
+                        dropPagesOrNoOp(PREPEND)
                     }
                 } PREPEND -> {
                     val key = pages.firstOrNull()?.prevKey ?: return null
@@ -155,6 +162,7 @@ public class TestPager<Key : Any, Value : Any>(
                         if (result is LoadResult.Page) {
                             pages.addFirst(result)
                         }
+                        dropPagesOrNoOp(APPEND)
                     }
                 }
             }
@@ -328,6 +336,49 @@ public class TestPager<Key : Any, Value : Any>(
             finalItemsBefore ?: 0
         } else {
             0
+        }
+    }
+
+    private fun dropPagesOrNoOp(dropType: LoadType) {
+        require(dropType != REFRESH) {
+            "Drop loadType must be APPEND or PREPEND but got $dropType"
+        }
+
+        // check if maxSize has been set
+        if (config.maxSize == PagingConfig.MAX_SIZE_UNBOUNDED) return
+
+        var itemCount = pages.flatten().size
+        if (itemCount < config.maxSize) return
+
+        // represents the max droppable amount of items
+        val presentedItemsBeforeOrAfter = when (dropType) {
+            PREPEND -> pages.take(pages.lastIndex)
+            else -> pages.takeLast(pages.lastIndex)
+        }.fold(0) { acc, page ->
+            acc + page.data.size
+        }
+
+        var itemsDropped = 0
+
+        // mirror Paging requirement to never drop below 2 pages
+        while (pages.size > 2 && itemCount - itemsDropped > config.maxSize) {
+            val pageSize = when (dropType) {
+                PREPEND -> pages.first().data.size
+                else -> pages.last().data.size
+            }
+
+            val itemsAfterDrop = presentedItemsBeforeOrAfter - itemsDropped - pageSize
+
+            // mirror Paging behavior of ensuring prefetchDistance is fulfilled in dropped
+            // direction
+            if (itemsAfterDrop < config.prefetchDistance) break
+
+            when (dropType) {
+                PREPEND -> pages.removeFirst()
+                else -> pages.removeLast()
+            }
+
+            itemsDropped += pageSize
         }
     }
 }

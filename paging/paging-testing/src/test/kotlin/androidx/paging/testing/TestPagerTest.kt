@@ -42,9 +42,7 @@ class TestPagerTest {
         val pager = TestPager(source, CONFIG)
 
         runTest {
-            val result = pager.run {
-                refresh(null)
-            } as LoadResult.Page
+            val result = pager.refresh(null) as LoadResult.Page
 
             assertThat(result.data).containsExactlyElementsIn(listOf(0, 1, 2, 3, 4)).inOrder()
         }
@@ -56,9 +54,7 @@ class TestPagerTest {
         val pager = TestPager(source, CONFIG)
 
         runTest {
-            val result = pager.run {
-                refresh(50)
-            } as LoadResult.Page
+            val result = pager.refresh(50) as LoadResult.Page
 
             assertThat(result.data).containsExactlyElementsIn(listOf(50, 51, 52, 53, 54)).inOrder()
         }
@@ -71,14 +67,10 @@ class TestPagerTest {
 
         runTest {
             source.errorNextLoad = true
-            val result = pager.run {
-                refresh()
-            }
+            val result = pager.refresh()
             assertTrue(result is LoadResult.Error)
 
-            val page = pager.run {
-                getLastLoadedPage()
-            }
+            val page = pager.getLastLoadedPage()
             assertThat(page).isNull()
         }
     }
@@ -90,14 +82,10 @@ class TestPagerTest {
 
         runTest {
             source.nextLoadResult = LoadResult.Invalid()
-            val result = pager.run {
-                refresh()
-            }
+            val result = pager.refresh()
             assertTrue(result is LoadResult.Invalid)
 
-            val page = pager.run {
-                getLastLoadedPage()
-            }
+            val page = pager.getLastLoadedPage()
             assertThat(page).isNull()
         }
     }
@@ -192,9 +180,7 @@ class TestPagerTest {
     fun getPages_fromEmptyList() = runTest {
         val source = TestPagingSource()
         val pager = TestPager(source, CONFIG)
-        val pages = pager.run {
-            getPages()
-        }
+        val pages = pager.getPages()
         assertThat(pages).isEmpty()
     }
 
@@ -276,9 +262,7 @@ class TestPagerTest {
             }
             assertTrue(source.invalid)
             // the first refresh should still have succeeded
-            assertThat(pager.run {
-                getPages()
-            }).hasSize(1)
+            assertThat(pager.getPages()).hasSize(1)
         }
     }
 
@@ -351,9 +335,7 @@ class TestPagerTest {
         val source = TestPagingSource()
         val pager = TestPager(source, CONFIG)
         assertFailsWith<IllegalStateException> {
-            pager.run {
-                append()
-            }
+            pager.append()
         }
     }
 
@@ -362,9 +344,7 @@ class TestPagerTest {
         val source = TestPagingSource()
         val pager = TestPager(source, CONFIG)
         assertFailsWith<IllegalStateException> {
-            pager.run {
-                prepend()
-            }
+            pager.prepend()
         }
     }
 
@@ -669,9 +649,7 @@ class TestPagerTest {
         )
 
         val msg2 = assertFailsWith<IllegalStateException> {
-            pager.run {
-                getPagingState(ITEM_COUNT)
-            }
+            pager.getPagingState(ITEM_COUNT)
         }.localizedMessage
         assertThat(msg2).isEqualTo(
             "anchorPosition $ITEM_COUNT is out of bounds between [0..${ITEM_COUNT - 1}]. " +
@@ -705,9 +683,7 @@ class TestPagerTest {
 
         // total loaded items = 8, anchorPos with index 8 should be out of bounds
         val msg2 = assertFailsWith<IllegalStateException> {
-            pager.run {
-                getPagingState(8)
-            }
+            pager.getPagingState(8)
         }.localizedMessage
         assertThat(msg2).isEqualTo(
             "anchorPosition 8 is out of bounds between [0..7]. Please " +
@@ -813,6 +789,158 @@ class TestPagerTest {
             "The given predicate has returned false for every loaded item. To generate a" +
                 "PagingState anchored to an item, the expected item must have already " +
                 "been loaded."
+        )
+    }
+
+    @Test
+    fun dropPrependedPage() = runTest {
+        val source = TestPagingSource()
+        val config = PagingConfig(
+            pageSize = 3,
+            initialLoadSize = 5,
+            enablePlaceholders = false,
+            maxSize = 10
+        )
+        val pager = TestPager(source, config)
+        pager.run {
+            refresh(20)
+            prepend()
+        }
+        assertThat(pager.getPages()).containsExactlyElementsIn(
+            listOf(
+                listOf(17, 18, 19).asPage(),
+                // refresh
+                listOf(20, 21, 22, 23, 24).asPage(),
+            )
+        )
+
+        // this append should trigger paging to drop the prepended page
+        pager.append()
+        assertThat(pager.getPages()).containsExactlyElementsIn(
+            listOf(
+                listOf(20, 21, 22, 23, 24).asPage(),
+                listOf(25, 26, 27).asPage(),
+            )
+        )
+    }
+
+    @Test
+    fun dropAppendedPage() = runTest {
+        val source = TestPagingSource()
+        val config = PagingConfig(
+            pageSize = 3,
+            initialLoadSize = 5,
+            enablePlaceholders = false,
+            maxSize = 10
+        )
+        val pager = TestPager(source, config)
+        pager.run {
+            refresh(20)
+            append()
+        }
+        assertThat(pager.getPages()).containsExactlyElementsIn(
+            listOf(
+                listOf(20, 21, 22, 23, 24).asPage(),
+                listOf(25, 26, 27).asPage(),
+            )
+        )
+
+        // this prepend should trigger paging to drop the prepended page
+        pager.prepend()
+        assertThat(pager.getPages()).containsExactlyElementsIn(
+            listOf(
+                listOf(17, 18, 19).asPage(),
+                listOf(20, 21, 22, 23, 24).asPage(),
+            )
+        )
+    }
+
+    @Test
+    fun dropInitialRefreshedPage() = runTest {
+        val source = TestPagingSource()
+        val config = PagingConfig(
+            pageSize = 3,
+            initialLoadSize = 5,
+            enablePlaceholders = false,
+            maxSize = 10
+        )
+        val pager = TestPager(source, config)
+        pager.run {
+            refresh(20)
+            append()
+        }
+        assertThat(pager.getPages()).containsExactlyElementsIn(
+            listOf(
+                listOf(20, 21, 22, 23, 24).asPage(),
+                listOf(25, 26, 27).asPage(),
+            )
+        )
+
+        // this append should trigger paging to drop the first page which is the initial refresh
+        pager.append()
+        assertThat(pager.getPages()).containsExactlyElementsIn(
+            listOf(
+                listOf(25, 26, 27).asPage(),
+                listOf(28, 29, 30).asPage(),
+            )
+        )
+    }
+
+    @Test
+    fun dropRespectsPrefetchDistance_InDroppedDirection() = runTest {
+        val source = TestPagingSource()
+        val config = PagingConfig(
+            pageSize = 1,
+            initialLoadSize = 10,
+            enablePlaceholders = false,
+            maxSize = 5,
+            prefetchDistance = 2
+        )
+        val pager = TestPager(source, config)
+        pager.refresh(20)
+        assertThat(pager.getPages()).containsExactlyElementsIn(
+            listOf(
+                listOf(20, 21, 22, 23, 24, 25, 26, 27, 28, 29).asPage(),
+            )
+        )
+
+        // these appends should would normally trigger paging to drop first page, but it won't
+        // in this case due to prefetchDistance
+        pager.run {
+            append()
+            append()
+        }
+        assertThat(pager.getPages()).containsExactlyElementsIn(
+            listOf(
+                // second page counted towards prefetch distance
+                listOf(20, 21, 22, 23, 24, 25, 26, 27, 28, 29).asPage(),
+                // first page counted towards prefetch distance
+                listOf(30).asPage(),
+                listOf(31).asPage()
+            )
+        )
+    }
+
+    @Test
+    fun drop_noOpUnderTwoPages() = runTest {
+        val source = TestPagingSource()
+        val config = PagingConfig(
+            pageSize = 1,
+            initialLoadSize = 5,
+            enablePlaceholders = false,
+            maxSize = 3,
+            prefetchDistance = 1
+        )
+        val pager = TestPager(source, config)
+        val result = pager.refresh() as LoadResult.Page
+        assertThat(result.data).containsExactlyElementsIn(
+            listOf(0, 1, 2, 3, 4)
+        )
+
+        pager.append()
+        // data size exceeds maxSize but no data should be dropped
+        assertThat(pager.getPages().flatten()).containsExactlyElementsIn(
+            listOf(0, 1, 2, 3, 4, 5)
         )
     }
 
