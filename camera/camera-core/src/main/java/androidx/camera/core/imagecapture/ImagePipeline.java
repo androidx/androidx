@@ -31,6 +31,7 @@ import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
+import androidx.camera.core.ForwardingImageProxy;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.impl.CaptureBundle;
 import androidx.camera.core.impl.CaptureConfig;
@@ -70,7 +71,7 @@ public class ImagePipeline {
     @NonNull
     private final SingleBundlingNode mBundlingNode;
     @NonNull
-    private ProcessingNode mProcessingNode;
+    private final ProcessingNode mProcessingNode;
     @NonNull
     private final CaptureNode.In mPipelineIn;
 
@@ -119,6 +120,26 @@ public class ImagePipeline {
         mCaptureNode.release();
         mBundlingNode.release();
         mProcessingNode.release();
+    }
+
+    /**
+     * Returns the number of empty slots in the queue.
+     */
+    @MainThread
+    public int getCapacity() {
+        checkMainThread();
+        return mCaptureNode.getCapacity();
+    }
+
+    /**
+     * Sets a listener for close calls on this image.
+     * @param listener to set
+     */
+    @MainThread
+    public void setOnImageCloseListener(
+            @NonNull ForwardingImageProxy.OnImageCloseListener listener) {
+        checkMainThread();
+        mCaptureNode.setOnImageCloseListener(listener);
     }
 
     // ===== protected methods =====
