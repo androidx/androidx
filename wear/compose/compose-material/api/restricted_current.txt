@@ -356,12 +356,12 @@ package androidx.wear.compose.material {
   }
 
   @androidx.compose.runtime.Stable public interface RadioButtonColors {
-    method @androidx.compose.runtime.Composable public androidx.compose.runtime.State<androidx.compose.ui.graphics.Color> circleColor(boolean enabled, boolean selected);
     method @androidx.compose.runtime.Composable public androidx.compose.runtime.State<androidx.compose.ui.graphics.Color> dotColor(boolean enabled, boolean selected);
+    method @androidx.compose.runtime.Composable public androidx.compose.runtime.State<androidx.compose.ui.graphics.Color> ringColor(boolean enabled, boolean selected);
   }
 
   public final class RadioButtonDefaults {
-    method @androidx.compose.runtime.Composable public androidx.wear.compose.material.RadioButtonColors colors(optional long selectedCircleColor, optional long selectedDotColor, optional long unselectedCircleColor, optional long unselectedDotColor);
+    method @androidx.compose.runtime.Composable public androidx.wear.compose.material.RadioButtonColors colors(optional long selectedRingColor, optional long selectedDotColor, optional long unselectedRingColor, optional long unselectedDotColor);
     field public static final androidx.wear.compose.material.RadioButtonDefaults INSTANCE;
   }
 

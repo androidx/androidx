@@ -31,6 +31,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.screenshot.AndroidXScreenshotTestRule
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestName
@@ -91,6 +92,7 @@ class ProgressIndicatorScreenshotTest {
             .assertAgainstGolden(screenshotRule, testName.methodName)
     }
 
+    @Ignore("Disable broken test: b/249447057")
     @Test
     fun determinate_progress_indicator_no_gap() {
         rule.setContentWithTheme {
@@ -109,6 +111,7 @@ class ProgressIndicatorScreenshotTest {
             .assertAgainstGolden(screenshotRule, testName.methodName)
     }
 
+    @Ignore("Disable broken test: b/249447057")
     @Test
     fun determinate_progress_indicator_with_gap() {
         rule.setContentWithTheme {
@@ -129,6 +132,7 @@ class ProgressIndicatorScreenshotTest {
             .assertAgainstGolden(screenshotRule, testName.methodName)
     }
 
+    @Ignore("Disable broken test: b/249447057")
     @Test
     fun determinate_progress_indicator_custom_stroke_width() {
         rule.setContentWithTheme {

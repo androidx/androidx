@@ -229,7 +229,7 @@ public fun RadioButton(
 
     val circleColor = animateColor(
         transition,
-        colorFn = { e, s -> colors.circleColor(enabled = e, selected = s) },
+        colorFn = { e, s -> colors.ringColor(enabled = e, selected = s) },
         enabled
     )
     val dotRadiusProgress = animateProgress(
@@ -333,17 +333,17 @@ public interface SwitchColors {
 @Stable
 public interface RadioButtonColors {
     /**
-     * Represents the circle color for this [RadioButton], depending on
+     * Represents the outer ring color for this [RadioButton], depending on
      * the [enabled] and [selected] properties.
      *
      * @param enabled Whether the [RadioButton] is enabled
      * @param selected Whether the [RadioButton] is currently selected or unselected
      */
     @Composable
-    public fun circleColor(enabled: Boolean, selected: Boolean): State<Color>
+    public fun ringColor(enabled: Boolean, selected: Boolean): State<Color>
 
     /**
-     * Represents the dot color for this [RadioButton], depending on
+     * Represents the inner dot color for this [RadioButton], depending on
      * the [enabled] and [selected] properties.
      *
      * @param enabled Whether the [RadioButton] is enabled
@@ -409,9 +409,10 @@ public object SwitchDefaults {
     @Composable
     public fun colors(
         checkedThumbColor: Color = MaterialTheme.colors.secondary,
-        checkedTrackColor: Color = checkedThumbColor,
-        uncheckedThumbColor: Color = MaterialTheme.colors.onSurface.copy(0.6f),
-        uncheckedTrackColor: Color = uncheckedThumbColor,
+        checkedTrackColor: Color = checkedThumbColor.copy(alpha = ContentAlpha.disabled),
+        uncheckedThumbColor: Color = MaterialTheme.colors.onSurface.copy(alpha = 0.6f),
+        uncheckedTrackColor: Color =
+            uncheckedThumbColor.copy(alpha = uncheckedThumbColor.alpha * ContentAlpha.disabled),
     ): SwitchColors {
         return DefaultSwitchColors(
             checkedThumbColor = checkedThumbColor,
@@ -419,11 +420,13 @@ public object SwitchDefaults {
             uncheckedThumbColor = uncheckedThumbColor,
             uncheckedTrackColor = uncheckedTrackColor,
             disabledCheckedThumbColor = checkedThumbColor.copy(alpha = ContentAlpha.disabled),
-            disabledCheckedTrackColor = checkedTrackColor.copy(alpha = ContentAlpha.disabled),
+            disabledCheckedTrackColor = checkedTrackColor.copy(
+                alpha = checkedTrackColor.alpha * ContentAlpha.disabled
+            ),
             disabledUncheckedThumbColor =
                 uncheckedThumbColor.copy(alpha = ContentAlpha.disabled),
             disabledUncheckedTrackColor =
-                uncheckedTrackColor.copy(alpha = ContentAlpha.disabled),
+                uncheckedTrackColor.copy(alpha = uncheckedTrackColor.alpha * ContentAlpha.disabled),
         )
     }
 }
@@ -435,20 +438,20 @@ public object RadioButtonDefaults {
     /**
      * Creates a [RadioButtonColors] for use in a [RadioButton].
      *
-     * @param selectedCircleColor The outer circle color of this [RadioButton] when enabled
+     * @param selectedRingColor The outer ring color of this [RadioButton] when enabled
      * and selected.
      * @param selectedDotColor The inner dot color of this [RadioButton] when enabled
      * and selected.
-     * @param unselectedCircleColor The outer circle color of this [RadioButton] when enabled
+     * @param unselectedRingColor The outer ring color of this [RadioButton] when enabled
      * and unselected.
      * @param unselectedDotColor The inner dot color of this [RadioButton] when enabled
      * and unselected.
      */
     @Composable
     public fun colors(
-        selectedCircleColor: Color = MaterialTheme.colors.secondary,
+        selectedRingColor: Color = MaterialTheme.colors.secondary,
         selectedDotColor: Color = MaterialTheme.colors.secondary,
-        unselectedCircleColor: Color = contentColorFor(
+        unselectedRingColor: Color = contentColorFor(
             MaterialTheme.colors.primary.copy(alpha = 0.5f)
                 .compositeOver(MaterialTheme.colors.surface)
         ),
@@ -458,14 +461,14 @@ public object RadioButtonDefaults {
         ),
     ): RadioButtonColors {
         return DefaultRadioButtonColors(
-            selectedCircleColor = selectedCircleColor,
+            selectedRingColor = selectedRingColor,
             selectedDotColor = selectedDotColor,
-            unselectedCircleColor = unselectedCircleColor,
+            unselectedRingColor = unselectedRingColor,
             unselectedDotColor = unselectedDotColor,
-            disabledSelectedCircleColor = selectedCircleColor.copy(alpha = ContentAlpha.disabled),
+            disabledSelectedRingColor = selectedRingColor.copy(alpha = ContentAlpha.disabled),
             disabledSelectedDotColor = selectedDotColor.copy(alpha = ContentAlpha.disabled),
-            disabledUnselectedCircleColor =
-                unselectedCircleColor.copy(alpha = ContentAlpha.disabled),
+            disabledUnselectedRingColor =
+                unselectedRingColor.copy(alpha = ContentAlpha.disabled),
             disabledUnselectedDotColor = unselectedDotColor.copy(alpha = ContentAlpha.disabled),
         )
     }
@@ -637,7 +640,7 @@ private fun DrawScope.eraseTick(tickColor: Color, tickProgress: Float) {
 private fun DrawScope.drawTrack(
     color: Color,
     switchTrackLengthPx: Float,
-    switchTrackHeightPx: Float
+    switchTrackHeightPx: Float,
 ) {
     val path = Path()
     val strokeRadius = switchTrackHeightPx / 2f
@@ -646,7 +649,6 @@ private fun DrawScope.drawTrack(
     drawPath(
         path = path,
         color = color,
-        alpha = 0.38f,
         style = Stroke(width = switchTrackHeightPx, cap = StrokeCap.Round)
     )
 }
@@ -792,22 +794,22 @@ private class DefaultSwitchColors(
  */
 @Immutable
 private class DefaultRadioButtonColors(
-    private val selectedCircleColor: Color,
+    private val selectedRingColor: Color,
     private val selectedDotColor: Color,
-    private val unselectedCircleColor: Color,
+    private val unselectedRingColor: Color,
     private val unselectedDotColor: Color,
-    private val disabledSelectedCircleColor: Color,
+    private val disabledSelectedRingColor: Color,
     private val disabledSelectedDotColor: Color,
-    private val disabledUnselectedCircleColor: Color,
+    private val disabledUnselectedRingColor: Color,
     private val disabledUnselectedDotColor: Color,
 ) : RadioButtonColors {
     @Composable
-    override fun circleColor(enabled: Boolean, selected: Boolean): State<Color> {
+    override fun ringColor(enabled: Boolean, selected: Boolean): State<Color> {
         return rememberUpdatedState(
             if (enabled) {
-                if (selected) selectedCircleColor else unselectedCircleColor
+                if (selected) selectedRingColor else unselectedRingColor
             } else {
-                if (selected) disabledSelectedCircleColor else disabledUnselectedCircleColor
+                if (selected) disabledSelectedRingColor else disabledUnselectedRingColor
             }
         )
     }
@@ -830,26 +832,26 @@ private class DefaultRadioButtonColors(
 
         other as DefaultRadioButtonColors
 
-        if (selectedCircleColor != other.selectedCircleColor) return false
+        if (selectedRingColor != other.selectedRingColor) return false
         if (selectedDotColor != other.selectedDotColor) return false
-        if (unselectedCircleColor != other.unselectedCircleColor) return false
+        if (unselectedRingColor != other.unselectedRingColor) return false
         if (unselectedDotColor != other.unselectedDotColor) return false
-        if (disabledSelectedCircleColor != other.disabledSelectedCircleColor) return false
+        if (disabledSelectedRingColor != other.disabledSelectedRingColor) return false
         if (disabledSelectedDotColor != other.disabledSelectedDotColor) return false
-        if (disabledUnselectedCircleColor != other.disabledUnselectedCircleColor) return false
+        if (disabledUnselectedRingColor != other.disabledUnselectedRingColor) return false
         if (disabledUnselectedDotColor != other.disabledUnselectedDotColor) return false
 
         return true
     }
 
     override fun hashCode(): Int {
-        var result = selectedCircleColor.hashCode()
+        var result = selectedRingColor.hashCode()
         result = 31 * result + selectedDotColor.hashCode()
-        result = 31 * result + unselectedCircleColor.hashCode()
+        result = 31 * result + unselectedRingColor.hashCode()
         result = 31 * result + unselectedDotColor.hashCode()
-        result = 31 * result + disabledSelectedCircleColor.hashCode()
+        result = 31 * result + disabledSelectedRingColor.hashCode()
         result = 31 * result + disabledSelectedDotColor.hashCode()
-        result = 31 * result + disabledUnselectedCircleColor.hashCode()
+        result = 31 * result + disabledUnselectedRingColor.hashCode()
         result = 31 * result + disabledUnselectedDotColor.hashCode()
         return result
     }
