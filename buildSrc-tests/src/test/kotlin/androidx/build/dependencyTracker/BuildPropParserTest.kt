@@ -35,7 +35,6 @@ class BuildPropParserTest {
         val repoProps = tmpFolder.newFile("repo.prop")
         repoProps.writeText(
                 """
-                    platform/external/doclava 798edee4d01239248ed33585a42b19ca93c31f56
                     platform/external/flatbuffers b5c9b8e12b47d0597cd29b217e5765d325957d8a
                     platform/external/noto-fonts d20a289eaebf2e371064dacc306b57d37b733f7c
                     platform/frameworks/support fc9030edfe7e0a85a5545a342c7efbf93283f62f
