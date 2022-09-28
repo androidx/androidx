@@ -531,15 +531,11 @@ class ShellScript internal constructor(
     fun start(vararg params: String): StartedShellScript = trace("ShellScript#start") {
         val cmd = "$runnableScriptPath ${params.joinToString(" ")}"
         val stdoutDescriptor = ShellImpl.executeCommandNonBlocking(cmd)
-        val stderrDescriptor = stderrPath?.run {
-            ShellImpl.executeCommandNonBlocking(
-                "cat $stderrPath"
-            )
-        }
+        val stderrDescriptorFn = stderrPath?.run { { ShellImpl.executeCommand("cat $stderrPath") } }
 
         return@trace StartedShellScript(
             stdoutDescriptor = stdoutDescriptor,
-            stderrDescriptor = stderrDescriptor,
+            stderrDescriptorFn = stderrDescriptorFn,
             cleanUpBlock = ::cleanUp
         )
     }
@@ -566,7 +562,7 @@ class ShellScript internal constructor(
 @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 class StartedShellScript internal constructor(
     private val stdoutDescriptor: ParcelFileDescriptor,
-    private val stderrDescriptor: ParcelFileDescriptor?,
+    private val stderrDescriptorFn: (() -> (String))?,
     private val cleanUpBlock: () -> Unit
 ) : Closeable {
 
@@ -577,25 +573,9 @@ class StartedShellScript internal constructor(
         AutoCloseInputStream(stdoutDescriptor).bufferedReader().lineSequence()
 
     /**
-     * Returns a [Sequence] of [String] containing the lines written by the process to stdErr.
-     * Note that if stdErr wasn't required when creating the process it simply returns an
-     * empty string.
-     */
-    fun stdErrLineSequence(): Sequence<String> = if (stderrDescriptor != null) {
-        AutoCloseInputStream(stderrDescriptor).bufferedReader().lineSequence()
-    } else {
-        "".lineSequence()
-    }
-
-    /**
      * Cleans up this shell script.
      */
     override fun close() = cleanUpBlock()
-
-    /**
-     * Returns true whether this shell script has generated any stdErr output.
-     */
-    fun hasStdError(): Boolean = stdErrLineSequence().elementAtOrElse(0) { "" }.isNotBlank()
 
     /**
      * Reads the full process output and cleans up the generated script
@@ -603,7 +583,7 @@ class StartedShellScript internal constructor(
     fun getOutputAndClose(): Shell.Output {
         val output = Shell.Output(
             stdout = stdoutDescriptor.fullyReadInputStream(),
-            stderr = stderrDescriptor?.fullyReadInputStream() ?: ""
+            stderr = stderrDescriptorFn?.invoke() ?: ""
         )
         close()
         return output
