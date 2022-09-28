@@ -30,6 +30,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.screenshot.AndroidXScreenshotTestRule
+import androidx.test.screenshot.matchers.MSSIMMatcher
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestName
@@ -122,12 +123,13 @@ class ToggleControlScreenshotTest {
         }
 
     private fun verifyScreenshot(
+        threshold: Double = 0.98,
         content: @Composable () -> Unit
     ) {
         rule.setContentWithTheme(composable = content)
         rule.onNodeWithTag(TEST_TAG)
             .captureToImage()
-            .assertAgainstGolden(screenshotRule, testName.methodName)
+            .assertAgainstGolden(screenshotRule, testName.methodName, MSSIMMatcher(threshold))
     }
     @Composable
     private fun testBackgroundModifier(): Modifier =

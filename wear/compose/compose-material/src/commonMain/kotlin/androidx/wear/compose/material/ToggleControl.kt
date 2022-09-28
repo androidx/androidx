@@ -424,7 +424,7 @@ public object SwitchDefaults {
                 alpha = checkedTrackColor.alpha * ContentAlpha.disabled
             ),
             disabledUncheckedThumbColor =
-                uncheckedThumbColor.copy(alpha = ContentAlpha.disabled),
+                uncheckedThumbColor.copy(alpha = uncheckedThumbColor.alpha * ContentAlpha.disabled),
             disabledUncheckedTrackColor =
                 uncheckedTrackColor.copy(alpha = uncheckedTrackColor.alpha * ContentAlpha.disabled),
         )
