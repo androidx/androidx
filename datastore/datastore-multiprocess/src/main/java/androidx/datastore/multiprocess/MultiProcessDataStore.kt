@@ -373,19 +373,19 @@ internal class MultiProcessDataStore<T>(
                 }
             }
         } catch (ex: CorruptionException) {
-            val newData: T = corruptionHandler.handleCorruption(ex)
+            var newData: T = corruptionHandler.handleCorruption(ex)
             var version: Int = INVALID_VERSION // should be overridden if write successfully
 
             try {
-                // TODO(b/241286493): acquire the write lock and confirm the data is still corrupted
-                // before overwriting to avoid race condition
-                if (hasWriteFileLock) {
-                    version = writeData(newData)
-                } else {
-                    getWriteFileLock {
+                doWithWriteFileLock(hasWriteFileLock) {
+                    // Confirms the file is still corrupted before overriding
+                    try {
+                        newData = readDataFromFileOrDefault()
+                        version = sharedCounter.getValue()
+                    } catch (ignoredEx: CorruptionException) {
                         version = writeData(newData)
-                        newData
                     }
+                    newData
                 }
             } catch (writeEx: IOException) {
                 // If we fail to write the handled data, add the new exception as a suppressed
@@ -397,6 +397,10 @@ internal class MultiProcessDataStore<T>(
             // If we reach this point, we've successfully replaced the data on disk with newData.
             return Data(newData, newData.hashCode(), version)
         }
+    }
+
+    private suspend fun doWithWriteFileLock(hasWriteFileLock: Boolean, block: suspend () -> T) {
+        if (hasWriteFileLock) block() else getWriteFileLock { block() }
     }
 
     // It handles the read when the current state is Data
