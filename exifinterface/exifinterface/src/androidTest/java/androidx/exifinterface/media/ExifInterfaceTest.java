@@ -1428,12 +1428,6 @@ public class ExifInterfaceTest {
      * <p>This does not check the image itself for similarity/equality.
      */
     private void assertBitmapsEquivalent(File expectedImageFile, File actualImageFile) {
-        if (expectedImageFile.getAbsolutePath().endsWith(
-                WEBP_WITHOUT_EXIF_WITH_LOSSLESS_ENCODING)) {
-            // Disable this assertion for this file until we fix the VP8X synthesisation problem
-            // tracked by b/249316026.
-            return;
-        }
         BitmapFactory.Options expectedOptions = new BitmapFactory.Options();
         Bitmap expectedBitmap = decodeBitmap(expectedImageFile, expectedOptions);
         BitmapFactory.Options actualOptions = new BitmapFactory.Options();
