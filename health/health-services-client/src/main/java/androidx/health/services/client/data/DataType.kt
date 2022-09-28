@@ -473,11 +473,6 @@ abstract class DataType<T : Any, D : DataPoint<T>>(
         val RUNNING_STEPS_TOTAL: AggregateDataType<Long, CumulativeDataPoint<Long>> =
             createCumulativeDataType("Running Steps")
 
-        /** Temperature at the surface of the skin in Celsius. */
-        @JvmField
-        public val SKIN_TEMPERATURE: DeltaDataType<Double, SampleDataPoint<Double>> =
-            createSampleDataType("Skin temperature")
-
         /** Step rate in steps/minute at a given point in time. */
         @JvmField
         val STEPS_PER_MINUTE: DeltaDataType<Long, SampleDataPoint<Long>> =
@@ -638,7 +633,6 @@ abstract class DataType<T : Any, D : DataPoint<T>>(
             REP_COUNT,
             RESTING_EXERCISE_DURATION,
             RUNNING_STEPS,
-            SKIN_TEMPERATURE,
             SPEED,
             STEPS,
             STEPS_PER_MINUTE,
