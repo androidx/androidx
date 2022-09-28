@@ -39,6 +39,8 @@ open class XTypeName protected constructor(
     internal open val kotlin: KTypeName,
     internal val nullability: XNullability
 ) {
+    val isPrimitive: Boolean
+        get() = java.isPrimitive
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

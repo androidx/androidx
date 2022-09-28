@@ -19,7 +19,6 @@ package androidx.room.writer
 import androidx.room.compiler.codegen.CodeLanguage
 import androidx.room.compiler.codegen.VisibilityModifier
 import androidx.room.compiler.codegen.XCodeBlock
-import androidx.room.compiler.codegen.XCodeBlock.Builder.Companion.apply
 import androidx.room.compiler.codegen.XFunSpec
 import androidx.room.compiler.codegen.XFunSpec.Builder.Companion.addStatement
 import androidx.room.compiler.codegen.XTypeSpec
@@ -28,11 +27,9 @@ import androidx.room.compiler.codegen.toXClassName
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.ext.RoomTypeNames
 import androidx.room.ext.SupportDbTypeNames
-import androidx.room.ext.T
 import androidx.room.migration.bundle.EntityBundle
 import androidx.room.migration.bundle.FtsEntityBundle
 import androidx.room.vo.AutoMigration
-import com.squareup.kotlinpoet.javapoet.toKClassName
 
 /**
  * Writes the implementation of migrations that were annotated with @AutoMigration.
@@ -63,14 +60,10 @@ class AutoMigrationWriter(
                     name = "callback",
                     visibility = VisibilityModifier.PRIVATE,
                     initExpr = if (!autoMigration.isSpecProvided) {
-                        XCodeBlock.builder(codeLanguage).apply(
-                            javaCodeBuilder = {
-                                add("new $T()", autoMigration.specClassName)
-                            },
-                            kotlinCodeBuilder = {
-                                add("%T()", autoMigration.specClassName.toKClassName())
-                            }
-                        ).build()
+                        XCodeBlock.ofNewInstance(
+                            codeLanguage,
+                            autoMigration.specClassName.toXClassName()
+                        )
                     } else {
                         null
                     }

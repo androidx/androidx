@@ -17,6 +17,7 @@
 package androidx.room.processor
 
 import androidx.room.Upsert
+import androidx.room.compiler.codegen.toJavaPoet
 import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XType
 import androidx.room.vo.UpsertionMethod
@@ -55,7 +56,7 @@ class UpsertionMethodProcessor(
                     entity.primaryKey.autoGenerateId || !missingPrimaryKeys,
                     executableElement,
                     ProcessorErrors.missingPrimaryKeysInPartialEntityForUpsert(
-                        partialEntityName = pojo.typeName.toString(),
+                        partialEntityName = pojo.typeName.toJavaPoet().toString(),
                         primaryKeyNames = entity.primaryKey.fields.columnNames
                     )
                 )
@@ -70,7 +71,7 @@ class UpsertionMethodProcessor(
                     missingRequiredFields.isEmpty(),
                     executableElement,
                     ProcessorErrors.missingRequiredColumnsInPartialEntity(
-                        partialEntityName = pojo.typeName.toString(),
+                        partialEntityName = pojo.typeName.toJavaPoet().toString(),
                         missingColumnNames = missingRequiredFields.map { it.columnName }
                     )
                 )

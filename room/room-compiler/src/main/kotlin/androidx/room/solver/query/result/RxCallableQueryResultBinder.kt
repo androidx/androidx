@@ -16,14 +16,15 @@
 
 package androidx.room.solver.query.result
 
-import androidx.room.ext.AndroidTypeNames
+import androidx.room.compiler.codegen.toJavaPoet
+import androidx.room.compiler.processing.XType
+import androidx.room.ext.AndroidTypeNames.CURSOR
 import androidx.room.ext.CallableTypeSpecBuilder
 import androidx.room.ext.L
 import androidx.room.ext.N
 import androidx.room.ext.RoomTypeNames
 import androidx.room.ext.S
 import androidx.room.ext.T
-import androidx.room.compiler.processing.XType
 import androidx.room.solver.CodeGenScope
 import androidx.room.solver.RxType
 import com.squareup.javapoet.FieldSpec
@@ -84,7 +85,7 @@ internal class RxCallableQueryResultBinder(
         val cursorVar = scope.getTmpVar("_cursor")
         addStatement(
             "final $T $L = $T.query($N, $L, $L, $L)",
-            AndroidTypeNames.CURSOR,
+            CURSOR.toJavaPoet(),
             cursorVar,
             RoomTypeNames.DB_UTIL,
             dbField,
