@@ -27,6 +27,7 @@ import android.os.Build;
 import androidx.media2.test.service.RemoteMediaBrowserCompat;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 
 import org.junit.After;
@@ -35,6 +36,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /** Test {@link RemoteMediaBrowserCompat}. */
+@SdkSuppress(maxSdkVersion = 32) // b/244312419
 @RunWith(AndroidJUnit4.class)
 public class RemoteMediaBrowserCompatTest extends MediaSessionTestBase {
     private Context mContext;
