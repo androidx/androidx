@@ -18,6 +18,7 @@ package androidx.camera.core.imagecapture
 
 import android.util.Size
 import androidx.annotation.MainThread
+import androidx.camera.core.imagecapture.CaptureNode.MAX_IMAGES
 import androidx.camera.core.imagecapture.Utils.createEmptyImageCaptureConfig
 import androidx.camera.core.impl.CaptureConfig
 import androidx.camera.core.impl.ImageCaptureConfig
@@ -33,6 +34,7 @@ class FakeImagePipeline(config: ImageCaptureConfig, cameraSurfaceSize: Size) :
     private var responseMap: MutableMap<TakePictureRequest,
         Pair<CameraRequest, ProcessingRequest>> = mutableMapOf()
     var captureConfigMap: MutableMap<TakePictureRequest, List<CaptureConfig>> = mutableMapOf()
+    var queueCapacity: Int = MAX_IMAGES
 
     constructor() : this(
         createEmptyImageCaptureConfig(),
@@ -63,5 +65,10 @@ class FakeImagePipeline(config: ImageCaptureConfig, cameraSurfaceSize: Size) :
 
     internal fun getProcessingRequest(takePictureRequest: TakePictureRequest): ProcessingRequest {
         return responseMap[takePictureRequest]!!.second!!
+    }
+
+    @MainThread
+    override fun getCapacity(): Int {
+        return queueCapacity
     }
 }
