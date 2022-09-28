@@ -447,13 +447,13 @@ class RoomIncrementalAnnotationProcessingTest(
         //   - Irrelevant files should not be recompiled (if Room is incremental)
         if (withIncrementalRoom) {
             assertChangedFiles(
+                classSrcDao1,
                 classSrcDatabase1,
                 classSrcEntity1,
                 classGenDatabase1,
                 classGenDao1
             )
             assertUnchangedFiles(
-                classSrcDao1, // Gradle detects that this file is not relevant to the change
                 classSrcDatabase2,
                 classSrcDao2,
                 classSrcEntity2,
