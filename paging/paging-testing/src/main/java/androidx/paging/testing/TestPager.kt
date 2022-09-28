@@ -90,6 +90,9 @@ public class TestPager<Key : Any, Value : Any>(
      * Since Paging's first load is always of [LoadType.REFRESH], [refresh] must always be called
      * first before this [append] is called.
      *
+     * If [PagingConfig.maxSize] is implemented, [append] loads that exceed [PagingConfig.maxSize]
+     * will cause pages to be dropped from the front of loaded pages.
+     *
      * Returns the [LoadResult] from calling [PagingSource.load]. If the [LoadParams.key] is null,
      * such as when there is no more data to append, this append will be no-op by returning null.
      */
@@ -102,6 +105,9 @@ public class TestPager<Key : Any, Value : Any>(
      *
      * Since Paging's first load is always of [LoadType.REFRESH], [refresh] must always be called
      * first before this [prepend] is called.
+     *
+     * If [PagingConfig.maxSize] is implemented, [prepend] loads that exceed [PagingConfig.maxSize]
+     * will cause pages to be dropped from the end of loaded pages.
      *
      * Returns the [LoadResult] from calling [PagingSource.load]. If the [LoadParams.key] is null,
      * such as when there is no more data to prepend, this prepend will be no-op by returning null.
@@ -146,6 +152,7 @@ public class TestPager<Key : Any, Value : Any>(
                         if (result is LoadResult.Page) {
                             pages.addLast(result)
                         }
+                        dropPagesOrNoOp(PREPEND)
                     }
                 } PREPEND -> {
                     val key = pages.firstOrNull()?.prevKey ?: return null
@@ -155,6 +162,7 @@ public class TestPager<Key : Any, Value : Any>(
                         if (result is LoadResult.Page) {
                             pages.addFirst(result)
                         }
+                        dropPagesOrNoOp(APPEND)
                     }
                 }
             }
@@ -200,11 +208,19 @@ public class TestPager<Key : Any, Value : Any>(
      * value of [PagingState.anchorPosition] may not exactly match the [anchorPosition] passed
      * to this function even if viewing the same page of data.
      *
+     * Note that when `[PagingConfig.enablePlaceholders] = false`, the
+     * [PagingState.anchorPosition] returned from this function references the absolute index
+     * within all loadable data. For example, with items[0 - 99]:
+     * If items[20 - 30] were loaded without placeholders, anchorPosition 0 references item[20].
+     * But once translated into [PagingState.anchorPosition], anchorPosition 0 references item[0].
+     * The [PagingSource] is expected to handle this correctly within [PagingSource.getRefreshKey]
+     * when [PagingConfig.enablePlaceholders] = false.
+     *
      * @param anchorPosition the index representing the last accessed item within the
      * items presented on the UI, which may be a placeholder if
      * [PagingConfig.enablePlaceholders] is true.
      *
-     * @throws IllegalStateException if anchorPosition is out of bounds
+     * @throws IllegalStateException if anchorPosition is out of bounds.
      */
     public suspend fun getPagingState(anchorPosition: Int): PagingState<Key, Value> {
         lock.withLock {
@@ -215,6 +231,63 @@ public class TestPager<Key : Any, Value : Any>(
                 config = config,
                 leadingPlaceholderCount = getLeadingPlaceholderCount()
             )
+        }
+    }
+
+    /**
+     * Returns a [PagingState] to generate a [LoadParams.key] by supplying it to
+     * [PagingSource.getRefreshKey]. The key returned from [PagingSource.getRefreshKey]
+     * should be used as the [LoadParams.Refresh.key] when calling [refresh] on a new generation of
+     * TestPager.
+     *
+     * The [anchorPositionLookup] lambda should return an item that the user has hypothetically
+     * scrolled to on the UI. The item must have already been loaded prior to using this helper.
+     * To generate a PagingState anchored to a placeholder, use the overloaded [getPagingState]
+     * function instead. Since the [PagingState.anchorPosition] in Paging can be based
+     * on any item or placeholder currently visible on the screen, the actual
+     * value of [PagingState.anchorPosition] may not exactly match the anchorPosition returned
+     * from this function even if viewing the same page of data.
+     *
+     * Note that when `[PagingConfig.enablePlaceholders] = false`, the
+     * [PagingState.anchorPosition] returned from this function references the absolute index
+     * within all loadable data. For example, with items[0 - 99]:
+     * If items[20 - 30] were loaded without placeholders, anchorPosition 0 references item[20].
+     * But once translated into [PagingState.anchorPosition], anchorPosition 0 references item[0].
+     * The [PagingSource] is expected to handle this correctly within [PagingSource.getRefreshKey]
+     * when [PagingConfig.enablePlaceholders] = false.
+     *
+     * @param anchorPositionLookup the predicate to match with an item which will serve as the basis
+     * for generating the [PagingState].
+     *
+     * @throws IllegalArgumentException if the given predicate fails to match with an item.
+     */
+    public suspend fun getPagingState(
+        anchorPositionLookup: (item: Value) -> Boolean
+    ): PagingState<Key, Value> {
+        lock.withLock {
+            val indexInPages = pages.flatten().indexOfFirst {
+                anchorPositionLookup(it)
+            }
+            return when {
+                indexInPages < 0 -> throw IllegalArgumentException(
+                    "The given predicate has returned false for every loaded item. To generate a" +
+                        "PagingState anchored to an item, the expected item must have already " +
+                        "been loaded."
+                )
+                else -> {
+                    val finalIndex = if (config.enablePlaceholders) {
+                        indexInPages + (pages.firstOrNull()?.itemsBefore ?: 0)
+                    } else {
+                        indexInPages
+                    }
+                    PagingState(
+                        pages = pages.toList(),
+                        anchorPosition = finalIndex,
+                        config = config,
+                        leadingPlaceholderCount = getLeadingPlaceholderCount()
+                    )
+                }
+            }
         }
     }
 
@@ -230,9 +303,7 @@ public class TestPager<Key : Any, Value : Any>(
      * @throws IllegalStateException if anchorPosition is out of bounds
      */
     private fun checkWithinBoundary(anchorPosition: Int) {
-        val loadedSize = pages.fold(0) { acc, page ->
-            acc + page.data.size
-        }
+        val loadedSize = pages.flatten().size
         val maxBoundary = if (config.enablePlaceholders) {
             (pages.firstOrNull()?.itemsBefore ?: 0) + loadedSize +
                 (pages.lastOrNull()?.itemsAfter ?: 0) - 1
@@ -265,6 +336,49 @@ public class TestPager<Key : Any, Value : Any>(
             finalItemsBefore ?: 0
         } else {
             0
+        }
+    }
+
+    private fun dropPagesOrNoOp(dropType: LoadType) {
+        require(dropType != REFRESH) {
+            "Drop loadType must be APPEND or PREPEND but got $dropType"
+        }
+
+        // check if maxSize has been set
+        if (config.maxSize == PagingConfig.MAX_SIZE_UNBOUNDED) return
+
+        var itemCount = pages.flatten().size
+        if (itemCount < config.maxSize) return
+
+        // represents the max droppable amount of items
+        val presentedItemsBeforeOrAfter = when (dropType) {
+            PREPEND -> pages.take(pages.lastIndex)
+            else -> pages.takeLast(pages.lastIndex)
+        }.fold(0) { acc, page ->
+            acc + page.data.size
+        }
+
+        var itemsDropped = 0
+
+        // mirror Paging requirement to never drop below 2 pages
+        while (pages.size > 2 && itemCount - itemsDropped > config.maxSize) {
+            val pageSize = when (dropType) {
+                PREPEND -> pages.first().data.size
+                else -> pages.last().data.size
+            }
+
+            val itemsAfterDrop = presentedItemsBeforeOrAfter - itemsDropped - pageSize
+
+            // mirror Paging behavior of ensuring prefetchDistance is fulfilled in dropped
+            // direction
+            if (itemsAfterDrop < config.prefetchDistance) break
+
+            when (dropType) {
+                PREPEND -> pages.removeFirst()
+                else -> pages.removeLast()
+            }
+
+            itemsDropped += pageSize
         }
     }
 }
