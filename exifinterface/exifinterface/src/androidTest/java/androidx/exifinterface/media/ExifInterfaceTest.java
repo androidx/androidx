@@ -415,28 +415,40 @@ public class ExifInterfaceTest {
 
     @Test
     @LargeTest
-    public void testJpegFiles() throws Throwable {
+    public void testJpegWithExifIntelByteOrder() throws Throwable {
         readFromFilesWithExif(JPEG_WITH_EXIF_BYTE_ORDER_II, R.array.jpeg_with_exif_byte_order_ii);
         writeToFilesWithExif(JPEG_WITH_EXIF_BYTE_ORDER_II, R.array.jpeg_with_exif_byte_order_ii);
+    }
 
+    @Test
+    @LargeTest
+    public void testJpegWithExifMotorolaByteOrder() throws Throwable {
         readFromFilesWithExif(JPEG_WITH_EXIF_BYTE_ORDER_MM, R.array.jpeg_with_exif_byte_order_mm);
         writeToFilesWithExif(JPEG_WITH_EXIF_BYTE_ORDER_MM, R.array.jpeg_with_exif_byte_order_mm);
+    }
 
+    @Test
+    @LargeTest
+    public void testJpegWithExifAndXmp() throws Throwable {
         readFromFilesWithExif(JPEG_WITH_EXIF_WITH_XMP, R.array.jpeg_with_exif_with_xmp);
         writeToFilesWithExif(JPEG_WITH_EXIF_WITH_XMP, R.array.jpeg_with_exif_with_xmp);
     }
 
     @Test
     @LargeTest
-    public void testDngFiles() throws Throwable {
+    public void testDngWithExifAndXmp() throws Throwable {
         readFromFilesWithExif(DNG_WITH_EXIF_WITH_XMP, R.array.dng_with_exif_with_xmp);
     }
 
     @Test
     @LargeTest
-    public void testPngFiles() throws Throwable {
+    public void testPngWithExif() throws Throwable {
         readFromFilesWithExif(PNG_WITH_EXIF_BYTE_ORDER_II, R.array.png_with_exif_byte_order_ii);
+    }
 
+    @Test
+    @LargeTest
+    public void testPngWithoutExif() throws Throwable {
         writeToFilesWithoutExif(PNG_WITHOUT_EXIF);
     }
 
@@ -451,12 +463,25 @@ public class ExifInterfaceTest {
 
     @Test
     @LargeTest
-    public void testWebpFiles() throws Throwable {
+    public void testWebpWithExif() throws Throwable {
         readFromFilesWithExif(WEBP_WITH_EXIF, R.array.webp_with_exif);
         writeToFilesWithExif(WEBP_WITH_EXIF, R.array.webp_with_exif);
+    }
 
-        writeToFilesWithoutExif(WEBP_WITHOUT_EXIF_WITH_ANIM_DATA);
+    @Test
+    @LargeTest
+    public void testWebpWithoutExif() throws Throwable {
         writeToFilesWithoutExif(WEBP_WITHOUT_EXIF);
+    }
+
+    @Test
+    @LargeTest
+    public void testWebpWithoutExifWithAnimData() throws Throwable {
+        writeToFilesWithoutExif(WEBP_WITHOUT_EXIF_WITH_ANIM_DATA);
+    }
+    @Test
+    @LargeTest
+    public void testWebpWithoutExifWithLosslessEncoding() throws Throwable {
         writeToFilesWithoutExif(WEBP_WITHOUT_EXIF_WITH_LOSSLESS_ENCODING);
     }
 
