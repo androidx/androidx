@@ -119,6 +119,9 @@ android {
     sourceSets.androidTest.assets.srcDirs +=
             project.rootDir.absolutePath + "/../../golden/wear/compose/material"
     namespace "androidx.wear.compose.material"
+    lint {
+        baseline = file("lint-baseline.xml")
+    }
 }
 
 androidx {
