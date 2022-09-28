@@ -444,6 +444,7 @@ public class ExifInterfaceTest {
     @LargeTest
     public void testPngWithExif() throws Throwable {
         readFromFilesWithExif(PNG_WITH_EXIF_BYTE_ORDER_II, R.array.png_with_exif_byte_order_ii);
+        writeToFilesWithExif(PNG_WITH_EXIF_BYTE_ORDER_II, R.array.png_with_exif_byte_order_ii);
     }
 
     @Test
