@@ -89,6 +89,24 @@ public class UiDeviceTest {
     }
 
     @Test
+    public void testGetDisplayWidth() {
+        DisplayMetrics dm = new DisplayMetrics();
+        WindowManager wm = (WindowManager) mDevice.getUiContext().getSystemService(
+                Context.WINDOW_SERVICE);
+        wm.getDefaultDisplay().getRealMetrics(dm);
+        assertEquals(dm.widthPixels, mDevice.getDisplayWidth());
+    }
+
+    @Test
+    public void testGetDisplayHeight() {
+        DisplayMetrics dm = new DisplayMetrics();
+        WindowManager wm = (WindowManager) mDevice.getUiContext().getSystemService(
+                Context.WINDOW_SERVICE);
+        wm.getDefaultDisplay().getRealMetrics(dm);
+        assertEquals(dm.heightPixels, mDevice.getDisplayHeight());
+    }
+
+    @Test
     @SdkSuppress(maxSdkVersion = Build.VERSION_CODES.M)
     public void testGetUiAutomation_withoutFlags() {
         mDevice.getUiAutomation();
