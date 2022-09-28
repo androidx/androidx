@@ -22,6 +22,7 @@ import androidx.room.Ignore
 import androidx.room.Junction
 import androidx.room.PrimaryKey
 import androidx.room.Relation
+import androidx.room.compiler.codegen.toJavaPoet
 import androidx.room.compiler.processing.XExecutableElement
 import androidx.room.compiler.processing.XFieldElement
 import androidx.room.compiler.processing.XType
@@ -511,7 +512,7 @@ class PojoProcessor private constructor(
             context.logger.e(
                 relationElement,
                 ProcessorErrors.relationCannotFindEntityField(
-                    entityName = entity.typeName.toString(),
+                    entityName = entity.typeName.toJavaPoet().toString(),
                     columnName = annotation.value.entityColumn,
                     availableColumns = entity.columnNames
                 )
@@ -557,7 +558,7 @@ class PojoProcessor private constructor(
                         context.logger.w(
                             Warning.MISSING_INDEX_ON_JUNCTION, field.element,
                             ProcessorErrors.junctionColumnWithoutIndex(
-                                entityName = entityOrView.typeName.toString(),
+                                entityName = entityOrView.typeName.toJavaPoet().toString(),
                                 columnName = columnName
                             )
                         )
@@ -577,7 +578,7 @@ class PojoProcessor private constructor(
                     context.logger.e(
                         junctionElement,
                         ProcessorErrors.relationCannotFindJunctionParentField(
-                            entityName = entityOrView.typeName.toString(),
+                            entityName = entityOrView.typeName.toJavaPoet().toString(),
                             columnName = junctionParentColumn,
                             availableColumns = entityOrView.columnNames
                         )
@@ -596,7 +597,7 @@ class PojoProcessor private constructor(
                     context.logger.e(
                         junctionElement,
                         ProcessorErrors.relationCannotFindJunctionEntityField(
-                            entityName = entityOrView.typeName.toString(),
+                            entityName = entityOrView.typeName.toJavaPoet().toString(),
                             columnName = junctionEntityColumn,
                             availableColumns = entityOrView.columnNames
                         )
@@ -653,7 +654,7 @@ class PojoProcessor private constructor(
             context.logger.e(
                 relationElement,
                 ProcessorErrors.relationBadProject(
-                    entity.typeName.toString(),
+                    entity.typeName.toJavaPoet().toString(),
                     missingColumns, entity.columnNames
                 )
             )
@@ -676,7 +677,7 @@ class PojoProcessor private constructor(
         entityField: Field,
         typeArgElement: XTypeElement
     ): List<String> {
-        return if (inferEntity || typeArg.typeName == entity.typeName) {
+        return if (inferEntity || typeArg.typeName == entity.typeName.toJavaPoet()) {
             entity.columnNames
         } else {
             val columnAdapter = context.typeAdapterStore.findCursorValueReader(typeArg, null)
@@ -772,7 +773,7 @@ class PojoProcessor private constructor(
                     fieldName = field.name,
                     ownerType = element.type.typeName,
                     getterType = field.getter.type.typeName,
-                    fieldType = field.typeName
+                    fieldType = field.typeName.toJavaPoet()
                 )
             )
             field.statementBinder = context.typeAdapterStore.findStatementValueBinder(
@@ -848,7 +849,7 @@ class PojoProcessor private constructor(
                     fieldName = field.name,
                     ownerType = element.type.typeName,
                     setterType = field.setter.type.typeName,
-                    fieldType = field.typeName
+                    fieldType = field.typeName.toJavaPoet()
                 )
             )
             field.cursorValueReader = context.typeAdapterStore.findCursorValueReader(

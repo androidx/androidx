@@ -18,6 +18,7 @@ package androidx.room.processor
 
 import COMMON
 import androidx.room.Dao
+import androidx.room.compiler.codegen.toJavaPoet
 import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
@@ -34,12 +35,12 @@ import androidx.room.ext.RxJava3TypeNames
 import androidx.room.solver.shortcut.result.InsertOrUpsertMethodAdapter
 import androidx.room.testing.context
 import androidx.room.vo.InsertOrUpsertShortcutMethod
-import com.squareup.javapoet.ClassName
-import com.squareup.javapoet.TypeName
-import kotlin.reflect.KClass
 import com.google.common.truth.Truth.assertThat
 import com.squareup.javapoet.ArrayTypeName
+import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.ParameterizedTypeName
+import com.squareup.javapoet.TypeName
+import kotlin.reflect.KClass
 import org.junit.Test
 
 /**
@@ -137,7 +138,7 @@ abstract class InsertOrUpsertShortcutMethodProcessorTest <out T : InsertOrUpsert
             assertThat(insertionUpsertion.entities["user"]?.isPartialEntity)
                 .isEqualTo(false)
 
-            assertThat(insertionUpsertion.entities["user"]?.pojo?.typeName)
+            assertThat(insertionUpsertion.entities["user"]?.pojo?.typeName?.toJavaPoet())
                 .isEqualTo(ClassName.get("foo.bar", "User") as TypeName)
 
             assertThat(insertionUpsertion.returnType.typeName)
@@ -162,10 +163,10 @@ abstract class InsertOrUpsertShortcutMethodProcessorTest <out T : InsertOrUpsert
             assertThat(insertionUpsertion.entities.size)
                 .isEqualTo(2)
 
-            assertThat(insertionUpsertion.entities["u1"]?.pojo?.typeName)
+            assertThat(insertionUpsertion.entities["u1"]?.pojo?.typeName?.toJavaPoet())
                 .isEqualTo(USER_TYPE_NAME)
 
-            assertThat(insertionUpsertion.entities["u2"]?.pojo?.typeName)
+            assertThat(insertionUpsertion.entities["u2"]?.pojo?.typeName?.toJavaPoet())
                 .isEqualTo(USER_TYPE_NAME)
 
             assertThat(insertionUpsertion.parameters.map { it.name })
@@ -200,7 +201,7 @@ abstract class InsertOrUpsertShortcutMethodProcessorTest <out T : InsertOrUpsert
 
             assertThat(insertionUpsertion.entities.size).isEqualTo(1)
 
-            assertThat(insertionUpsertion.entities["users"]?.pojo?.typeName)
+            assertThat(insertionUpsertion.entities["users"]?.pojo?.typeName?.toJavaPoet())
                 .isEqualTo(USER_TYPE_NAME)
 
             assertThat(insertionUpsertion.returnType.typeName)
@@ -229,7 +230,7 @@ abstract class InsertOrUpsertShortcutMethodProcessorTest <out T : InsertOrUpsert
 
             assertThat(insertionUpsertion.entities.size).isEqualTo(1)
 
-            assertThat(insertionUpsertion.entities["users"]?.pojo?.typeName)
+            assertThat(insertionUpsertion.entities["users"]?.pojo?.typeName?.toJavaPoet())
                 .isEqualTo(USER_TYPE_NAME)
 
             assertThat(insertionUpsertion.returnType.typeName)
@@ -258,7 +259,7 @@ abstract class InsertOrUpsertShortcutMethodProcessorTest <out T : InsertOrUpsert
 
             assertThat(insertionUpsertion.entities.size).isEqualTo(1)
 
-            assertThat(insertionUpsertion.entities["users"]?.pojo?.typeName)
+            assertThat(insertionUpsertion.entities["users"]?.pojo?.typeName?.toJavaPoet())
                 .isEqualTo(USER_TYPE_NAME)
 
             assertThat(insertionUpsertion.returnType.typeName).isEqualTo(TypeName.VOID)
@@ -286,7 +287,7 @@ abstract class InsertOrUpsertShortcutMethodProcessorTest <out T : InsertOrUpsert
 
             assertThat(insertionUpsertion.entities.size).isEqualTo(1)
 
-            assertThat(insertionUpsertion.entities["users"]?.pojo?.typeName)
+            assertThat(insertionUpsertion.entities["users"]?.pojo?.typeName?.toJavaPoet())
                 .isEqualTo(USER_TYPE_NAME)
 
             assertThat(insertionUpsertion.returnType.typeName).isEqualTo(TypeName.VOID)
@@ -314,7 +315,7 @@ abstract class InsertOrUpsertShortcutMethodProcessorTest <out T : InsertOrUpsert
 
             assertThat(insertionUpsertion.entities.size).isEqualTo(1)
 
-            assertThat(insertionUpsertion.entities["users"]?.pojo?.typeName)
+            assertThat(insertionUpsertion.entities["users"]?.pojo?.typeName?.toJavaPoet())
                 .isEqualTo(USER_TYPE_NAME)
 
             assertThat(insertionUpsertion.returnType.typeName).isEqualTo(TypeName.VOID)
@@ -343,7 +344,7 @@ abstract class InsertOrUpsertShortcutMethodProcessorTest <out T : InsertOrUpsert
 
             assertThat(insertionUpsertion.entities.size).isEqualTo(1)
 
-            assertThat(insertionUpsertion.entities["users"]?.pojo?.typeName)
+            assertThat(insertionUpsertion.entities["users"]?.pojo?.typeName?.toJavaPoet())
                 .isEqualTo(USER_TYPE_NAME)
 
             assertThat(insertionUpsertion.returnType.typeName).isEqualTo(TypeName.VOID)
@@ -371,10 +372,10 @@ abstract class InsertOrUpsertShortcutMethodProcessorTest <out T : InsertOrUpsert
 
             assertThat(insertionUpsertion.entities.size).isEqualTo(2)
 
-            assertThat(insertionUpsertion.entities["u1"]?.pojo?.typeName)
+            assertThat(insertionUpsertion.entities["u1"]?.pojo?.typeName?.toJavaPoet())
                 .isEqualTo(USER_TYPE_NAME)
 
-            assertThat(insertionUpsertion.entities["b1"]?.pojo?.typeName)
+            assertThat(insertionUpsertion.entities["b1"]?.pojo?.typeName?.toJavaPoet())
                 .isEqualTo(BOOK_TYPE_NAME)
         }
     }
@@ -593,7 +594,7 @@ abstract class InsertOrUpsertShortcutMethodProcessorTest <out T : InsertOrUpsert
             assertThat(insertionUpsertion.entities["username"]?.entityTypeName)
                 .isEqualTo(USER_TYPE_NAME)
 
-            assertThat(insertionUpsertion.entities["username"]?.pojo?.typeName)
+            assertThat(insertionUpsertion.entities["username"]?.pojo?.typeName?.toJavaPoet())
                 .isEqualTo(USERNAME_TYPE_NAME)
         }
     }

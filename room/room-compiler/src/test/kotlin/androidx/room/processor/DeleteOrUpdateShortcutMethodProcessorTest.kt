@@ -18,6 +18,7 @@ package androidx.room.processor
 
 import COMMON
 import androidx.room.Dao
+import androidx.room.compiler.codegen.toJavaPoet
 import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
@@ -37,10 +38,10 @@ import com.squareup.javapoet.ArrayTypeName
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
+import kotlin.reflect.KClass
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test
-import kotlin.reflect.KClass
 
 /**
  * Base test class for shortcut methods.
@@ -110,7 +111,10 @@ abstract class DeleteOrUpdateShortcutMethodProcessorTest<out T : DeleteOrUpdateS
             assertThat(param.pojoType?.typeName, `is`(USER_TYPE_NAME))
             assertThat(shortcut.entities.size, `is`(1))
             assertThat(shortcut.entities["user"]?.isPartialEntity, `is`(false))
-            assertThat(shortcut.entities["user"]?.pojo?.typeName, `is`(USER_TYPE_NAME))
+            assertThat(
+                shortcut.entities["user"]?.pojo?.let { it.typeName.toJavaPoet() },
+                `is`(USER_TYPE_NAME)
+            )
         }
     }
 
@@ -149,8 +153,14 @@ abstract class DeleteOrUpdateShortcutMethodProcessorTest<out T : DeleteOrUpdateS
                 assertThat(it.pojoType?.typeName, `is`(USER_TYPE_NAME))
             }
             assertThat(shortcut.entities.size, `is`(2))
-            assertThat(shortcut.entities["u1"]?.pojo?.typeName, `is`(USER_TYPE_NAME))
-            assertThat(shortcut.entities["u1"]?.pojo?.typeName, `is`(USER_TYPE_NAME))
+            assertThat(
+                shortcut.entities["u1"]?.pojo?.let { it.typeName.toJavaPoet() },
+                `is`(USER_TYPE_NAME)
+            )
+            assertThat(
+                shortcut.entities["u1"]?.pojo?.let { it.typeName.toJavaPoet() },
+                `is`(USER_TYPE_NAME)
+            )
             assertThat(
                 shortcut.parameters.map { it.name },
                 `is`(listOf("u1", "u2"))
@@ -190,7 +200,10 @@ abstract class DeleteOrUpdateShortcutMethodProcessorTest<out T : DeleteOrUpdateS
                 )
                 assertThat(param.pojoType?.typeName, `is`(USER_TYPE_NAME))
                 assertThat(shortcut.entities.size, `is`(1))
-                assertThat(shortcut.entities["users"]?.pojo?.typeName, `is`(USER_TYPE_NAME))
+                assertThat(
+                    shortcut.entities["users"]?.pojo?.let { it.typeName.toJavaPoet() },
+                    `is`(USER_TYPE_NAME)
+                )
             }
         }
     }
@@ -213,7 +226,10 @@ abstract class DeleteOrUpdateShortcutMethodProcessorTest<out T : DeleteOrUpdateS
                 )
             )
             assertThat(shortcut.entities.size, `is`(1))
-            assertThat(shortcut.entities["users"]?.pojo?.typeName, `is`(USER_TYPE_NAME))
+            assertThat(
+                shortcut.entities["users"]?.pojo?.let { it.typeName.toJavaPoet() },
+                `is`(USER_TYPE_NAME)
+            )
         }
     }
 
@@ -238,7 +254,10 @@ abstract class DeleteOrUpdateShortcutMethodProcessorTest<out T : DeleteOrUpdateS
                 )
             )
             assertThat(shortcut.entities.size, `is`(1))
-            assertThat(shortcut.entities["users"]?.pojo?.typeName, `is`(USER_TYPE_NAME))
+            assertThat(
+                shortcut.entities["users"]?.pojo?.let { it.typeName.toJavaPoet() },
+                `is`(USER_TYPE_NAME)
+            )
         }
     }
 
@@ -263,7 +282,10 @@ abstract class DeleteOrUpdateShortcutMethodProcessorTest<out T : DeleteOrUpdateS
                 )
             )
             assertThat(shortcut.entities.size, `is`(1))
-            assertThat(shortcut.entities["users"]?.pojo?.typeName, `is`(USER_TYPE_NAME))
+            assertThat(
+                shortcut.entities["users"]?.pojo?.let { it.typeName.toJavaPoet() },
+                `is`(USER_TYPE_NAME)
+            )
         }
     }
 
@@ -289,7 +311,10 @@ abstract class DeleteOrUpdateShortcutMethodProcessorTest<out T : DeleteOrUpdateS
                 )
             )
             assertThat(shortcut.entities.size, `is`(1))
-            assertThat(shortcut.entities["users"]?.pojo?.typeName, `is`(USER_TYPE_NAME))
+            assertThat(
+                shortcut.entities["users"]?.pojo?.let { it.typeName.toJavaPoet() },
+                `is`(USER_TYPE_NAME)
+            )
         }
     }
 
@@ -324,8 +349,14 @@ abstract class DeleteOrUpdateShortcutMethodProcessorTest<out T : DeleteOrUpdateS
                 )
                 assertThat(shortcut.parameters.map { it.name }, `is`(listOf("u1", "b1")))
                 assertThat(shortcut.entities.size, `is`(2))
-                assertThat(shortcut.entities["u1"]?.pojo?.typeName, `is`(USER_TYPE_NAME))
-                assertThat(shortcut.entities["b1"]?.pojo?.typeName, `is`(BOOK_TYPE_NAME))
+                assertThat(
+                    shortcut.entities["u1"]?.pojo?.let { it.typeName.toJavaPoet() },
+                    `is`(USER_TYPE_NAME)
+                )
+                assertThat(
+                    shortcut.entities["b1"]?.pojo?.let { it.typeName.toJavaPoet() },
+                    `is`(BOOK_TYPE_NAME)
+                )
             }
         }
     }
@@ -421,7 +452,10 @@ abstract class DeleteOrUpdateShortcutMethodProcessorTest<out T : DeleteOrUpdateS
             assertThat(shortcut.entities.size, `is`(1))
             assertThat(shortcut.entities["username"]?.isPartialEntity, `is`(true))
             assertThat(shortcut.entities["username"]?.entityTypeName, `is`(USER_TYPE_NAME))
-            assertThat(shortcut.entities["username"]?.pojo?.typeName, `is`(USERNAME_TYPE_NAME))
+            assertThat(
+                shortcut.entities["username"]?.pojo?.let { it.typeName.toJavaPoet() },
+                `is`(USERNAME_TYPE_NAME)
+            )
         }
     }
 

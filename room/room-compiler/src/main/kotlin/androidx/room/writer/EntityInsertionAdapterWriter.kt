@@ -16,6 +16,7 @@
 
 package androidx.room.writer
 
+import androidx.room.compiler.codegen.toJavaPoet
 import androidx.room.compiler.processing.XNullability
 import androidx.room.ext.L
 import androidx.room.ext.RoomTypeNames
@@ -69,7 +70,12 @@ class EntityInsertionAdapterWriter private constructor(
     fun createAnonymous(typeWriter: TypeWriter, dbParam: String): TypeSpec {
         @Suppress("RemoveSingleExpressionStringTemplate")
         return TypeSpec.anonymousClassBuilder("$L", dbParam).apply {
-            superclass(ParameterizedTypeName.get(RoomTypeNames.INSERTION_ADAPTER, pojo.typeName))
+            superclass(
+                ParameterizedTypeName.get(
+                    RoomTypeNames.INSERTION_ADAPTER,
+                    pojo.typeName.toJavaPoet()
+                )
+            )
             addMethod(
                 MethodSpec.methodBuilder("createQuery").apply {
                     addAnnotation(Override::class.java)
@@ -111,7 +117,9 @@ class EntityInsertionAdapterWriter private constructor(
                         ).build()
                     )
                     val valueParam = "value"
-                    addParameter(ParameterSpec.builder(pojo.typeName, valueParam).build())
+                    addParameter(
+                        ParameterSpec.builder(pojo.typeName.toJavaPoet(), valueParam).build()
+                    )
                     val mapped = FieldWithIndex.byOrder(pojo.fields)
                     FieldReadWriteWriter.bindToStatement(
                         ownerVar = valueParam,

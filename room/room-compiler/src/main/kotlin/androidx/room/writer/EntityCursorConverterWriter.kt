@@ -16,7 +16,8 @@
 
 package androidx.room.writer
 
-import androidx.room.ext.AndroidTypeNames
+import androidx.room.compiler.codegen.toJavaPoet
+import androidx.room.ext.AndroidTypeNames.CURSOR
 import androidx.room.ext.L
 import androidx.room.ext.N
 import androidx.room.ext.RoomTypeNames
@@ -35,7 +36,7 @@ import java.util.Locale
 import javax.lang.model.element.Modifier.PRIVATE
 
 class EntityCursorConverterWriter(val entity: Entity) : TypeWriter.SharedMethodSpec(
-    "entityCursorConverter_${entity.typeName.toString().stripNonJava()}"
+    "entityCursorConverter_${entity.typeName.toJavaPoet().toString().stripNonJava()}"
 ) {
     override fun getUniqueKey(): String {
         return "generic_entity_converter_of_${entity.element.qualifiedName}"
@@ -44,10 +45,10 @@ class EntityCursorConverterWriter(val entity: Entity) : TypeWriter.SharedMethodS
     override fun prepare(methodName: String, writer: TypeWriter, builder: MethodSpec.Builder) {
         builder.apply {
             val cursorParam = ParameterSpec
-                .builder(AndroidTypeNames.CURSOR, "cursor").build()
+                .builder(CURSOR.toJavaPoet(), "cursor").build()
             addParameter(cursorParam)
             addModifiers(PRIVATE)
-            returns(entity.typeName)
+            returns(entity.typeName.toJavaPoet())
             addCode(buildConvertMethodBody(writer, cursorParam))
         }
     }
@@ -56,7 +57,11 @@ class EntityCursorConverterWriter(val entity: Entity) : TypeWriter.SharedMethodS
         val scope = CodeGenScope(writer)
         val entityVar = scope.getTmpVar("_entity")
         scope.builder().apply {
-            scope.builder().addStatement("final $T $L", entity.typeName, entityVar)
+            scope.builder().addStatement(
+                "final $T $L",
+                entity.typeName.toJavaPoet(),
+                entityVar
+            )
             val fieldsWithIndices = entity.fields.map {
                 val indexVar = scope.getTmpVar(
                     "_cursorIndexOf${it.name.stripNonJava().capitalize(Locale.US)}"

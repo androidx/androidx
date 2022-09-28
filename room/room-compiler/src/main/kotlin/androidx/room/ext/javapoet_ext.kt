@@ -16,6 +16,7 @@
 
 package androidx.room.ext
 
+import androidx.room.compiler.codegen.XClassName
 import com.squareup.javapoet.ArrayTypeName
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.CodeBlock
@@ -132,7 +133,7 @@ object LifecyclesTypeNames {
 }
 
 object AndroidTypeNames {
-    val CURSOR: ClassName = ClassName.get("android.database", "Cursor")
+    val CURSOR: XClassName = XClassName.get("android.database", "Cursor")
     val BUILD: ClassName = ClassName.get("android.os", "Build")
     val CANCELLATION_SIGNAL: ClassName = ClassName.get("android.os", "CancellationSignal")
 }

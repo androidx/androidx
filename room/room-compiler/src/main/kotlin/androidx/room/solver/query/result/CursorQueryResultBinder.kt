@@ -16,7 +16,8 @@
 
 package androidx.room.solver.query.result
 
-import androidx.room.ext.AndroidTypeNames
+import androidx.room.compiler.codegen.toJavaPoet
+import androidx.room.ext.AndroidTypeNames.CURSOR
 import androidx.room.ext.L
 import androidx.room.ext.N
 import androidx.room.ext.T
@@ -40,7 +41,7 @@ class CursorQueryResultBinder : QueryResultBinder(NO_OP_RESULT_ADAPTER) {
         transactionWrapper?.beginTransactionWithControlFlow()
         val resultName = scope.getTmpVar("_tmpResult")
         builder.addStatement(
-            "final $T $L = $N.query($L)", AndroidTypeNames.CURSOR, resultName,
+            "final $T $L = $N.query($L)", CURSOR.toJavaPoet(), resultName,
             dbField, roomSQLiteQueryVar
         )
         transactionWrapper?.commitTransaction()
