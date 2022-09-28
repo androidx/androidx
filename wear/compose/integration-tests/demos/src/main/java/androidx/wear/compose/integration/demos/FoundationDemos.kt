@@ -21,6 +21,7 @@ import androidx.wear.compose.foundation.samples.CurvedBottomLayout
 import androidx.wear.compose.foundation.samples.CurvedBackground
 import androidx.wear.compose.foundation.samples.CurvedFixedSize
 import androidx.wear.compose.foundation.samples.CurvedFontWeight
+import androidx.wear.compose.foundation.samples.CurvedFonts
 import androidx.wear.compose.foundation.samples.CurvedRowAndColumn
 import androidx.wear.compose.foundation.samples.CurvedWeight
 import androidx.wear.compose.foundation.samples.SimpleCurvedWorld
@@ -42,6 +43,7 @@ val WearFoundationDemos = DemoCategory(
             ComposableDemo("Curved layout direction") { CurvedLayoutDirection() },
             ComposableDemo("Background") { CurvedBackground() },
             ComposableDemo("Font Weight") { CurvedFontWeight() },
+            ComposableDemo("Fonts") { CurvedFonts() },
         )),
         ComposableDemo("Scrollable Column") { ScrollableColumnDemo() },
         ComposableDemo("Scrollable Row") { ScrollableRowDemo() },
