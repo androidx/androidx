@@ -42,6 +42,9 @@ internal class ServiceInterfaceFileGenerator(private val service: AnnotatedInter
     private fun generateInterfaceMethod(method: Method) =
         FunSpec.builder(method.name).build {
             addModifiers(KModifier.ABSTRACT)
+            if (method.isSuspend) {
+                addModifiers(KModifier.SUSPEND)
+            }
             addParameters(method.parameters.map { it.poetSpec() })
             returns(method.returnType.poetSpec())
         }

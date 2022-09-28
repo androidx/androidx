@@ -21,4 +21,8 @@ interface TestSandboxSdk {
     fun receiveMultipleArguments(first: Int, second: String, third: Long)
 
     fun receiveAndReturnNothing()
+
+    suspend fun doSomethingAsync(first: Int, second: String, third: Long): Boolean
+
+    suspend fun receiveAndReturnNothingAsync()
 }
