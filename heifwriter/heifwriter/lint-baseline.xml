@@ -7,7 +7,7 @@
         errorLine1="        synchronized void updateInputEOSTime(long timestampNs) {"
         errorLine2="        ^">
         <location
-            file="src/main/java/androidx/heifwriter/HeifEncoder.java"/>
+            file="src/main/java/androidx/heifwriter/EncoderBase.java"/>
     </issue>
 
     <issue
@@ -16,7 +16,7 @@
         errorLine1="        synchronized boolean updateLastInputAndEncoderTime(long inputTimeNs, long encoderTimeUs) {"
         errorLine2="        ^">
         <location
-            file="src/main/java/androidx/heifwriter/HeifEncoder.java"/>
+            file="src/main/java/androidx/heifwriter/EncoderBase.java"/>
     </issue>
 
     <issue
@@ -25,7 +25,7 @@
         errorLine1="        synchronized void updateLastOutputTime(long outputTimeUs) {"
         errorLine2="        ^">
         <location
-            file="src/main/java/androidx/heifwriter/HeifEncoder.java"/>
+            file="src/main/java/androidx/heifwriter/EncoderBase.java"/>
     </issue>
 
     <issue
@@ -34,7 +34,7 @@
         errorLine1="        synchronized void waitForResult(long timeoutMs) throws Exception {"
         errorLine2="        ^">
         <location
-            file="src/main/java/androidx/heifwriter/HeifWriter.java"/>
+            file="src/main/java/androidx/heifwriter/WriterBase.java"/>
     </issue>
 
     <issue
@@ -43,7 +43,7 @@
         errorLine1="        synchronized void signalResult(@Nullable Exception e) {"
         errorLine2="        ^">
         <location
-            file="src/main/java/androidx/heifwriter/HeifWriter.java"/>
+            file="src/main/java/androidx/heifwriter/WriterBase.java"/>
     </issue>
 
     <issue
@@ -121,6 +121,24 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        protected static String findHevcFallback() {"
+        errorLine2="               ~~~~~~~">
+        <location
+            file="src/main/java/androidx/heifwriter/HeifEncoder.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        protected static String findAv1Fallback() {"
+        errorLine2="               ~~~~~~~">
+        <location
+            file="src/main/java/androidx/heifwriter/AvifEncoder.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="        public Builder setRotation(int rotation) {"
         errorLine2="               ~~~~~~~">
         <location
@@ -179,6 +197,69 @@
         errorLine2="               ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/heifwriter/HeifWriter.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public Builder setRotation(int rotation) {"
+        errorLine2="               ~~~~~~~">
+        <location
+            file="src/main/java/androidx/heifwriter/AvifWriter.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public Builder setGridEnabled(boolean gridEnabled) {"
+        errorLine2="               ~~~~~~~">
+        <location
+            file="src/main/java/androidx/heifwriter/AvifWriter.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public Builder setQuality(int quality) {"
+        errorLine2="               ~~~~~~~">
+        <location
+            file="src/main/java/androidx/heifwriter/AvifWriter.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public Builder setMaxImages(int maxImages) {"
+        errorLine2="               ~~~~~~~">
+        <location
+            file="src/main/java/androidx/heifwriter/AvifWriter.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public Builder setPrimaryIndex(int primaryIndex) {"
+        errorLine2="               ~~~~~~~">
+        <location
+            file="src/main/java/androidx/heifwriter/AvifWriter.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public Builder setHandler(@Nullable Handler handler) {"
+        errorLine2="               ~~~~~~~">
+        <location
+            file="src/main/java/androidx/heifwriter/AvifWriter.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public HeifWriter build() throws IOException {"
+        errorLine2="               ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/heifwriter/AvifWriter.java"/>
     </issue>
 
     <issue

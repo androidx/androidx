@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 The Android Open Source Project
+ * Copyright (C) 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,9 @@
 
 package androidx.heifwriter;
 
-import static androidx.heifwriter.HeifWriter.INPUT_MODE_BITMAP;
-import static androidx.heifwriter.HeifWriter.INPUT_MODE_BUFFER;
-import static androidx.heifwriter.HeifWriter.INPUT_MODE_SURFACE;
+import static androidx.heifwriter.AvifWriter.INPUT_MODE_BITMAP;
+import static androidx.heifwriter.AvifWriter.INPUT_MODE_BUFFER;
+import static androidx.heifwriter.AvifWriter.INPUT_MODE_SURFACE;
 import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
 
 import android.Manifest;
@@ -52,12 +52,12 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 /**
- * Test {@link HeifWriter}.
+ * Test {@link AvifWriter}.
  */
 @RunWith(AndroidJUnit4.class)
 @FlakyTest
-public class HeifWriterTest extends TestBase {
-    private static final String TAG = HeifWriterTest.class.getSimpleName();
+public class AvifWriterTest extends TestBase {
+    private static final String TAG = AvifWriterTest.class.getSimpleName();
 
     @Rule
     public GrantPermissionRule mRuntimePermissionRule1 =
@@ -70,14 +70,14 @@ public class HeifWriterTest extends TestBase {
     private static final boolean DEBUG = true;
     private static final boolean DUMP_YUV_INPUT = false;
 
-    private static final String HEIFWRITER_INPUT = "heifwriter_input.heic";
+    private static final String AVIFWRITER_INPUT = "heifwriter_input.heic";
     private static final int[] IMAGE_RESOURCES = new int[] {
         R.raw.heifwriter_input
     };
     private static final String[] IMAGE_FILENAMES = new String[] {
-        HEIFWRITER_INPUT
+        AVIFWRITER_INPUT
     };
-    private static final String OUTPUT_FILENAME = "output.heic";
+    private static final String OUTPUT_FILENAME = "output.avif";
 
     private EglWindowSurface mInputEglSurface;
     private Handler mHandler;
@@ -103,7 +103,7 @@ public class HeifWriterTest extends TestBase {
         }
 
         HandlerThread handlerThread = new HandlerThread(
-            "HeifEncoderThread", Process.THREAD_PRIORITY_FOREGROUND);
+            "AvifEncoderThread", Process.THREAD_PRIORITY_FOREGROUND);
         handlerThread.start();
         mHandler = new Handler(handlerThread.getLooper());
     }
@@ -272,7 +272,7 @@ public class HeifWriterTest extends TestBase {
 
         final String outputPath = new File(getApplicationContext().getExternalFilesDir(null),
             OUTPUT_FILENAME).getAbsolutePath();
-        HeifWriter heifWriter = new HeifWriter.Builder(
+        AvifWriter avifWriter = new AvifWriter.Builder(
             outputPath, 1920, 1080, INPUT_MODE_SURFACE)
             .setGridEnabled(true)
             .setMaxImages(4)
@@ -281,7 +281,7 @@ public class HeifWriterTest extends TestBase {
             .setHandler(mHandler)
             .build();
 
-        heifWriter.close();
+        avifWriter.close();
     }
 
     private void drawFrame(int width, int height) {
@@ -303,8 +303,7 @@ public class HeifWriterTest extends TestBase {
     }
 
     private boolean shouldSkip() {
-        return !hasEncoderForMime(MediaFormat.MIMETYPE_VIDEO_HEVC)
-            && !hasEncoderForMime(MediaFormat.MIMETYPE_IMAGE_ANDROID_HEIC);
+        return !hasEncoderForMime(MediaFormat.MIMETYPE_VIDEO_AV1);
     }
 
     private static byte[] mYuvData;
@@ -314,14 +313,14 @@ public class HeifWriterTest extends TestBase {
         final int actualNumImages = config.mActualNumImages;
 
         mInputIndex = 0;
-        HeifWriter heifWriter = null;
+        AvifWriter avifWriter = null;
         FileInputStream inputStream = null;
         FileOutputStream outputStream = null;
         try {
             if (DEBUG)
                 Log.d(TAG, "started: " + config);
 
-            heifWriter = new HeifWriter.Builder(
+            avifWriter = new AvifWriter.Builder(
                 new File(getApplicationContext().getExternalFilesDir(null),
                     OUTPUT_FILENAME).getAbsolutePath(), width, height, config.mInputMode)
                 .setRotation(config.mRotation)
@@ -333,10 +332,10 @@ public class HeifWriterTest extends TestBase {
                 .build();
 
             if (config.mInputMode == INPUT_MODE_SURFACE) {
-                mInputEglSurface = new EglWindowSurface(heifWriter.getInputSurface());
+                mInputEglSurface = new EglWindowSurface(avifWriter.getInputSurface());
             }
 
-            heifWriter.start();
+            avifWriter.start();
 
             if (config.mInputMode == INPUT_MODE_BUFFER) {
                 if (mYuvData == null || mYuvData.length != width * height * 3 / 2) {
@@ -361,7 +360,7 @@ public class HeifWriterTest extends TestBase {
                         Log.d(TAG, "@@@ dumping input YUV");
                         outputStream.write(mYuvData);
                     }
-                    heifWriter.addYuvBuffer(ImageFormat.YUV_420_888, mYuvData);
+                    avifWriter.addYuvBuffer(ImageFormat.YUV_420_888, mYuvData);
                 }
             } else if (config.mInputMode == INPUT_MODE_SURFACE) {
                 // The input surface is a surface texture using single buffer mode, draws will be
@@ -374,19 +373,19 @@ public class HeifWriterTest extends TestBase {
                         Log.d(TAG, "drawFrame: " + i);
                     drawFrame(width, height);
                 }
-                heifWriter.setInputEndOfStreamTimestamp(
+                avifWriter.setInputEndOfStreamTimestamp(
                     1000 * computePresentationTime(actualNumImages - 1));
             } else if (config.mInputMode == INPUT_MODE_BITMAP) {
                 Bitmap[] bitmaps = config.mBitmaps;
                 for (int i = 0; i < Math.min(bitmaps.length, actualNumImages); i++) {
                     if (DEBUG)
                         Log.d(TAG, "addBitmap: " + i);
-                    heifWriter.addBitmap(bitmaps[i]);
+                    avifWriter.addBitmap(bitmaps[i]);
                     bitmaps[i].recycle();
                 }
             }
 
-            heifWriter.stop(10000);
+            avifWriter.stop(10000);
             // The test sets the primary index to the last image.
             // However, if we're testing early abort, the last image will not be
             // present and the muxer is supposed to set it to 0 by default.
@@ -412,9 +411,9 @@ public class HeifWriterTest extends TestBase {
             } catch (IOException e) {
             }
 
-            if (heifWriter != null) {
-                heifWriter.close();
-                heifWriter = null;
+            if (avifWriter != null) {
+                avifWriter.close();
+                avifWriter = null;
             }
             if (mInputEglSurface != null) {
                 // This also releases the surface from encoder.
