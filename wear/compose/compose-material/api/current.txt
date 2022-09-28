@@ -299,6 +299,9 @@ package androidx.wear.compose.material {
     property public final androidx.compose.runtime.saveable.Saver<androidx.wear.compose.material.PickerState,java.lang.Object> Saver;
   }
 
+  public final class PlaceholderKt {
+  }
+
   @kotlin.jvm.JvmInline public final value class PositionIndicatorAlignment {
     field public static final androidx.wear.compose.material.PositionIndicatorAlignment.Companion Companion;
   }
