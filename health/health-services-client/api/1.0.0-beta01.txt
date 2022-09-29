@@ -68,11 +68,11 @@ package androidx.health.services.client {
   public abstract class PassiveListenerService extends android.app.Service {
     ctor public PassiveListenerService();
     method public final android.os.IBinder? onBind(android.content.Intent intent);
-    method public final void onGoalCompleted(androidx.health.services.client.data.PassiveGoal goal);
-    method public final void onHealthEventReceived(androidx.health.services.client.data.HealthEvent event);
-    method public final void onNewDataPointsReceived(androidx.health.services.client.data.DataPointContainer dataPoints);
-    method public final void onPermissionLost();
-    method public final void onUserActivityInfoReceived(androidx.health.services.client.data.UserActivityInfo info);
+    method public void onGoalCompleted(androidx.health.services.client.data.PassiveGoal goal);
+    method public void onHealthEventReceived(androidx.health.services.client.data.HealthEvent event);
+    method public void onNewDataPointsReceived(androidx.health.services.client.data.DataPointContainer dataPoints);
+    method public void onPermissionLost();
+    method public void onUserActivityInfoReceived(androidx.health.services.client.data.UserActivityInfo info);
     field public static final String TAG = "PassiveListenerService";
   }
 
