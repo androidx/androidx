@@ -23,6 +23,7 @@ import androidx.annotation.VisibleForTesting
 import androidx.core.util.Consumer
 import androidx.window.core.ConsumerAdapter
 import androidx.window.core.ExperimentalWindowApi
+import androidx.window.core.ExtensionsUtil
 import androidx.window.core.PredicateAdapter
 import androidx.window.embedding.EmbeddingInterfaceCompat.EmbeddingCallbackInterface
 import java.util.concurrent.CopyOnWriteArrayList
@@ -73,7 +74,7 @@ internal class ExtensionEmbeddingBackend @VisibleForTesting constructor(
         private fun initAndVerifyEmbeddingExtension(): EmbeddingInterfaceCompat? {
             var impl: EmbeddingInterfaceCompat? = null
             try {
-                if (isExtensionVersionSupported(EmbeddingCompat.getExtensionApiLevel()) &&
+                if (isExtensionVersionSupported(ExtensionsUtil.safeVendorApiLevel) &&
                     EmbeddingCompat.isEmbeddingAvailable()
                 ) {
                     impl = EmbeddingBackend::class.java.classLoader?.let { loader ->

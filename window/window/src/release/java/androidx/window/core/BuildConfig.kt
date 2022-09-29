@@ -16,8 +16,7 @@
 
 package androidx.window.core
 
-import androidx.window.core.SpecificationComputer.VerificationMode
-import androidx.window.core.SpecificationComputer.VerificationMode.QUIET
+import androidx.window.core.VerificationMode.QUIET
 
 /**
  * A configuration to be used for the release flavor of the library. Default [VerificationMode] is
